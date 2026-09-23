@@ -4,6 +4,71 @@ Updated 2026-09-23.
 
 ## Current continuation and routing
 
+Completed native/structured measured checkpoint, superseding pending entries
+below. Four unmodified CARACAL native controls finish19:19:11UTC with all source/
+original-mask/DATA/weight audits passing. First-pass controls~36% exceedbudget
+and lose support; mild controls~0.90–1.00% retain support but worsen objective,
+TV and val/test prediction. Report/archive `research/flagging-caracal.md` and
+`research/results/gain-tv-caracal.json`; no native policy selected.
+
+All seven unchanged frozen structured controls complete19:26:27UTC,101actual
+QuartiCal solves. Both rank23,329identicalmasks/top8 each; all112ranked slots
+are single-baseline actions, neverglobal/star. Both nochange on unmodified,
+both narrowband, weaktimeburst/antenna-local. Strongtimeburst residual rank
+selects11known-injected samples(2.89%recall),objective1.249904895/test−0.01985%;
+TV rank choosesnone. Strongantenna-local TVrank selects8outside known injection,
+objective1.249931062/test−0.00949%,zero injectionrecall; notprovenfalsepositives.
+All source/export/originalflags/rows/DATA/weights/TRAIN-only audits pass.
+Report/archive `research/flagging-structured.md`/`research/results/gain-tv-structured.json`.
+No independent transfer, signal/image/SOTA or robustTV-guidance advantage.
+
+After all measurements, rename only audit key no_truth_read→
+no_truth_decoded_or_used_for_selection: provenance hashes label-file bytes but
+does not decode/use them in decisions. Raw measured audits remain annotated;
+archive verifies exact measured source reconstruction by one literal replacement
+against every recorded SHA. Numerical protocol unchanged. Recipe logger fix
+validated in fresh native/structured dry-runs and five actual isolated-log runs.
+Firsttwo structured outer logs retained in
+`outputs/flagging-backups/20260923-structured-shared-logs/`; neveruse forcostclaims.
+
+Fresh full checks after the audit-wording change pass:196Python/14Rust(no skips),
+releasebuild,Clippy,Rust/Ruff lint/format,bytecompile,allwrapper shell syntax,
+32research JSON parses and whitespace. Both new recipes prevalidate locally;
+four native and seven structured controls executed, no CI used as test runner.
+Final code/archive backup
+`outputs/flagging-backups/20260923-caracal-structured-final/code.tar.gz`,
+SHA2560d0b03fbe0dce04372a2976dca9c13ca6d22db16a5f756beb810ca7959c7e82a.
+Independent agent read-only review
+already passed51actual checks for native+firsttwo structured states, recomputed
+rankings/TVsupport/exports; extension toremainingfive ongoing. Next: calibrated
+coherence/aggregate or group-balanced proposals, uncertainty-awareTV and signal
+preservation; representative61antenna primary acquisition remains proposedonly.
+
+Native implementation/partial-results/data provenance checkpoint `9a454fc` was
+pushed to origin/main using the public user identity, no co-author trailers.
+All local tests passed before commit, including187Python tests once the parallel
+pure generator was present; the committed native implementation itself has179.
+
+Structured matched-search implementation and recipe now have17pure tests;
+clean and strong time-burst frozen experiments started19:17UTC in
+`outputs/tv-structured-clean-01/` and `outputs/tv-structured-timeburst-01/`.
+Both rankings have identical23,329mask families and top8budgets; shared masks
+reuse one actual solve. Only single whole-rectangle proposals, no trimming or
+unions; original flags/rows/DATA/weights remain protected. Source/truth/test
+selection rules and module hashes are recorded before baseline solves.
+Pre-run backup `outputs/flagging-backups/20260923-structured-native/code.tar.gz`,
+SHA2565c76acfb44355ebd43d139c6a15f3ae45357d5a7af3aff70811d883728e5a75e.
+Measured results pending; do not claim a new model or quality improvement.
+
+Integration finding: top-level recipe static log paths override the wrapper's
+global `-s opts.log.dir`, so these first two structured controls share Stimela's
+outer logs/profiling. Actual copiedMS/config/frozen masks/QC logs/checkpoints are
+isolated per run; no scientific-state collision. Preserve shared outer logs and
+do not use their profiling as timings. Removed only the recipe's fixed log-dir
+default (no algorithm/module change); validate wrapper-selected unique paths in
+a fresh dry-run before commit. Native CARACAL's single outer run is unaffected
+by this parallel collision but receives the same logging fix for future runs.
+
 Handoff/rules/CARACAL source checkpoint3d561d1 pushed toorigin/main; no agent
 attribution or Spotify identity. New native verification module/recipe/wrapper
 implemented, measurements pending. It compares operational and artificial

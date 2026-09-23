@@ -1,7 +1,7 @@
 # Verification-only full native strategies, not a full CARACAL pipeline.
 opts:
   backend: {select: native}
-  log: {dir: outputs/stimela-caracal-logs, nest: 1}
+  log: {nest: 1}
 
 cabs:
   rang-caracal-verify:

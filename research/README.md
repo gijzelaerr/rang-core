@@ -19,6 +19,8 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 | Genuine QuartiCal MAD and Tricolour kernel | [Comparators](flagging-comparators.md) | [Matched diagnostics](results/gain-tv-comparators.json) | [Comparators](../recipes/tv-flagging-comparators.yaml) |
 | Counterfactual patch-action ridge learner | [Action learning](flagging-actions.md) | [Clean](results/gain-tv-actions.json), [contaminated](results/gain-tv-actions-injected.json) | [Actions](../recipes/tv-flagging-actions.yaml) |
 | Actual four-worker concurrent replay and preservation audits | [Parallel verification](flagging-parallel.md) | [Suite](results/gain-tv-parallel.json) | [Native scatter](../recipes/tv-flagging-parallel.yaml) |
+| Unmodified full native CARACAL Tricolour strategies | [Production verification](flagging-caracal.md) | [Four controls](results/gain-tv-caracal.json) | [Native strategies](../recipes/tv-flagging-caracal.yaml) |
+| Matched structured residual/TV rankings, seven controls | [Structured search](flagging-structured.md) | [101 solves](results/gain-tv-structured.json) | [Structured actions](../recipes/tv-flagging-structured.yaml) |
 
 Main findings: the current policies select no added flags; a strong time-burst
 injection oracle benefits the guarded objective, but existing proposals miss
@@ -29,9 +31,9 @@ has been established. The tiny fixture is a four-antenna dedicated pointing scan
 not a representative science observation.
 
 [Pinned CARACAL strategy/worker inspection](flagging-caracal.md) records the
-production-strategy differences, executable full-strategy recipe and the first
-two measured controls. The [partial archive](results/gain-tv-caracal-progress.json)
-explicitly marks the remaining controls/final audit pending.
+production-strategy differences, executable full-strategy recipe and four
+completed measured controls. The [partial archive](results/gain-tv-caracal-progress.json)
+retains its historical two-control/pending-final-audit checkpoint unchanged.
 [Representative public data](flagging-public-data.md) records a bounded,
 metadata-verified 61-antenna primary-calibrator candidate, not a new data result.
 
@@ -39,9 +41,10 @@ Baseline/follow-up verified checkpoint: 14 Rust/171 Python tests, full local che
 recipe dry-runs, actual concurrent execution and 24 read-only prepared-input
 audits. Commits `35e763b` and `f782921` were pushed to origin/main on 2026-09-23.
 Further development must record its own checks rather than inherit these counts.
-Native CARACAL implementation/partial-results checkpoint: 14 Rust/179 Python
-tests, full local build/lint/format checks and all three runtime dependency
-checks pass. The complete four-control run and final source audit are pending.
+Native CARACAL/structured-search checkpoint: 14 Rust/196 Python tests, local
+build/lint/format and all three runtime dependency checks pass. Four native
+controls and seven structured runs complete with source/export preservation
+audits; neither an imaging nor a robust TV-guidance advantage is established.
 
 ## Resume safely
 

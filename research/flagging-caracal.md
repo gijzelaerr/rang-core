@@ -1,7 +1,7 @@
 # CARACAL strategy verification
 
-Source inspected 2026-09-23 at the user's request. Native full-strategy controls
-are now running; this is not a full CARACAL pipeline or an imaging benchmark.
+Source inspected 2026-09-23 at the user's request. Four native full-strategy
+controls completed; this is not a full CARACAL pipeline or an imaging benchmark.
 Pinned official revision: `8f7bb363876f5f0daecbf2167c36bb597c7e5160`.
 Downloaded files remain in ignored `outputs/caracal-strategy-inputs-8f7bb363/`.
 Hashes, active tasks and exact inspected settings are archived in
@@ -84,10 +84,11 @@ strategies and audits before/after masks, DATA, weights and source preservation.
 It reports frozen training-mask full-Jones diagnostics, never selects a deployed
 policy, and restores the main work copy to original flags after verification.
 
-## Measured checkpoint: first two native controls
+## Historical partial checkpoint: first two native controls
 
-The clean fixture run `outputs/tv-caracal-clean-01/` completed both first-pass
-input modes. The two mild controls and final whole-run source audit are pending.
+At the initial checkpoint, the clean fixture run `outputs/tv-caracal-clean-01/`
+had completed both first-pass input modes. The two mild controls and final
+whole-run source audit were then pending; completion is recorded below.
 This partial checkpoint is preserved separately in
 [gain-tv-caracal-progress.json](results/gain-tv-caracal-progress.json).
 
@@ -111,6 +112,34 @@ installed timer's finish method joins its sleeping thread. The completed log
 reports 300.01 seconds. This is a verified instrumentation artifact, not a
 measured flagging-kernel runtime. Retain unmodified launch semantics and logs;
 make no performance claims from these emulated runs.
+
+## Completed four-control verification
+
+The full recipe completed 18:57:48–19:19:11 UTC on 2026-09-23. Exact config,
+engine/source/static-mask hashes, four native controls, frozen-gain diagnostics
+and final audit are in [gain-tv-caracal.json](results/gain-tv-caracal.json).
+The partial archive above remains unchanged as an honest progress checkpoint.
+
+Baseline objective is 1.25. Both first-pass controls are rejected as above.
+The two mild controls retain fixed TV support and satisfy the budget/validation
+guards, but neither improves the objective:
+
+| Mild input | Extra training flags | Fixed-support TV | Validation MSE | Test MSE | Objective |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| No-change baseline | 0% | 0.14743687 | 25.20612 | 24.91961 | 1.250000 |
+| Operational original flags | 0.898% | 0.14767936 | 25.26985 | 25.01172 | 1.270237 |
+| Artificial holdout flags | 0.997% | 0.14824565 | 25.28815 | 25.03502 | 1.276239 |
+
+These are diagnostic controls, not held-out-feature policy selection. All four
+native FLAG/FLAG_ROW lower-bound, DATA and weight audits pass. The final audit
+also confirms unchanged prepared source, strategy inputs and original source,
+and restores the main work copy to original flags. No policy is deployed and no
+image/transfer/SOTA advantage is established. Full CARACAL calibration/imaging
+on normal observations remains distinct future work.
+
+Integration-only follow-up: removed the recipe's fixed outer log directory so
+the wrapper's unique log path is honored. A fresh offline dry-run confirms this
+for both native and structured recipes; no algorithm/strategy parameters changed.
 
 Source inspection and raw-strategy runs do not establish state-of-the-art
 superiority. A full CARACAL calibration/imaging replay on representative MeerKAT

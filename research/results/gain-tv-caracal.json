@@ -1,0 +1,366 @@
+{
+  "config": {
+    "caracal_revision": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+    "strategies": {
+      "mk_rfi_flagging_calibrator_fields_firstpass.yaml": {
+        "path": "/workspace/outputs/caracal-strategy-inputs-8f7bb363/mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+        "sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+        "tasks": [
+          "flag_nans_zeros",
+          "apply_static_mask",
+          "sum_threshold",
+          "uvcontsub_flagger",
+          "flag_nans_zeros",
+          "apply_static_mask",
+          "sum_threshold",
+          "sum_threshold",
+          "sum_threshold",
+          "uvcontsub_flagger",
+          "flag_autos",
+          "combine_with_input_flags"
+        ]
+      },
+      "calibrator_mild_flagging.yaml": {
+        "path": "/workspace/outputs/caracal-strategy-inputs-8f7bb363/calibrator_mild_flagging.yaml",
+        "sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+        "tasks": [
+          "flag_nans_zeros",
+          "sum_threshold",
+          "uvcontsub_flagger",
+          "flag_nans_zeros",
+          "sum_threshold",
+          "sum_threshold",
+          "sum_threshold",
+          "uvcontsub_flagger",
+          "flag_autos",
+          "combine_with_input_flags"
+        ]
+      }
+    },
+    "modes": [
+      "operational",
+      "holdout_masked"
+    ],
+    "iterations": 50,
+    "prepared_input": "/workspace/outputs/tv-flagging-actions-01",
+    "prepared_input_digest": "8d21dd5ab4ff0d689ee06379fdc5bc00890fcb7c6221beec5d30007e34afba4c",
+    "prepared_boundary": {
+      "validated": true,
+      "actual_scope": {
+        "telescope": "MeerKAT",
+        "band": "L",
+        "frequency_range_mhz": [
+          856,
+          1711.791015625
+        ]
+      },
+      "original_flags_and_rows_match": true,
+      "original_and_work_native_weights_match": true,
+      "work_data_matches_state": true,
+      "work_model_matches_state": true,
+      "model_scalar_unpolarized": true,
+      "split_masks_disjoint_and_eligible": true,
+      "split_counts": {
+        "train": 73720,
+        "validation": 9115,
+        "test": 9169
+      },
+      "working_data_differs_from_original": false,
+      "manifest_channels_and_split_counts_match": true,
+      "positive_gain_intervals_validated": true,
+      "original_copy_digest_verified": true,
+      "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+    },
+    "engine": {
+      "version": "0.2.1",
+      "static_masks": [
+        {
+          "path": "/opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_lband_meerkat.staticmask",
+          "sha256": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33"
+        },
+        {
+          "path": "/opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_uhfband_meerkat.staticmask",
+          "sha256": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+        }
+      ],
+      "sources": {
+        "apps/tricolour/app.py": "028c2f2d10ba15293db1624c33dcb5457f5900c6fc26f1a49763e31b188985ac",
+        "apps/tricolour/strat_executor.py": "0e6efe4a683c022f192972c8acacd0d457372e09d5160c3dc6e7c5183daca588",
+        "dask_wrappers.py": "44a9c17d92980ad46a6e555e06d0eda7f5bbe6c5825ca2610e563179aeaccdbe",
+        "mask.py": "4e95f99a8ac747a1c87ff9db2bfd66f075e0ed5092d983130b8ce7591fe30672",
+        "stokes.py": "a33ed716bafe6c70aaf37c2d4d67615df2e7c9e8a552edc77c7639bd7158e65d",
+        "flagging.py": "68c2fdca8a775ce95bf6d2dc8216e31ee75a4416b7e6e6f0ea3dc2f506fb8e48"
+      },
+      "requirements": [
+        "appdirs==1.4.4",
+        "asciitree==0.3.3",
+        "click==8.5.0",
+        "cloudpickle==3.1.2",
+        "dask==2024.10.0",
+        "dask-ms==0.2.23",
+        "Deprecated==1.3.1",
+        "donfig==0.8.1.post1",
+        "fasteners==0.20",
+        "fsspec==2026.9.0",
+        "llvmlite==0.43.0",
+        "locket==1.0.0",
+        "numba==0.60.0",
+        "numcodecs==0.15.1",
+        "numpy==2.0.2",
+        "packaging==26.3",
+        "partd==1.4.2",
+        "python-casacore==3.8.1",
+        "PyYAML==6.0.3",
+        "scipy==1.14.1",
+        "threadpoolctl==3.6.0",
+        "toolz==1.1.0",
+        "tricolour @ https://files.pythonhosted.org/packages/bd/bb/02063b0c6ee3e7aaf78ff6f57b78ccea333e70e85981bedd20baa35ef45b/tricolour-0.2.1-py3-none-any.whl#sha256=7dd8dfcf8058bdc7351540d4d6248664169bab1debf8791234e9fa8846f1c63b",
+        "wrapt==2.4.1",
+        "zarr==2.18.7"
+      ]
+    },
+    "boundary_module_sha256": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab",
+    "module_sha256": "cfa742fa40c0a4d25c1ad73c5b5650a9fcecaa57a95fcbe231679a78a804d8ca",
+    "suite_image": "sha256:0d8c178baa4b4c5fbc1e5b6fe12319a9d383594bd0b00fe71bf84c36d4f97b5f",
+    "semantics": "Genuine full Tricolour CLI, CARACAL polarisation mode and unmodified pinned strategy; one selected field present. Not a full CARACAL pipeline."
+  },
+  "result": {
+    "baseline": {
+      "trial": "baseline",
+      "seconds": 34.56010005799999,
+      "tv": 0.1474368700725686,
+      "raw_tv": 0.2673258258969277,
+      "time_tv": 0.027069979216836893,
+      "frequency_tv": 0.1203668908557317,
+      "scale": 1.0520039063056517,
+      "valid_gain_fraction": 0.3208705357142857,
+      "losses": {
+        "train": 24.6028462846425,
+        "validation": 25.20612259882604,
+        "test": 24.919607595129268
+      },
+      "invalid_predictions": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "added_count": 0,
+      "added_fraction": 0
+    },
+    "controls": [
+      {
+        "strategy": "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+        "native": {
+          "label": "strategy-00-operational",
+          "mode": "operational",
+          "returncode": 0,
+          "seconds": 302.8593358050002,
+          "audit": {
+            "original_flags_and_rows_preserved": true,
+            "data_unchanged": true,
+            "native_weights_unchanged": true,
+            "all_flagged_rows_without_flag_row": 56
+          }
+        },
+        "unseen_holdout_feature_evaluation": false,
+        "artificial_holdout_input_flags": false,
+        "internal_starting_masks_may_reset": true,
+        "selects_policy": false,
+        "metrics": {
+          "trial": "strategy-00-operational",
+          "seconds": 5.048364960999606,
+          "tv": 0.28870311979438185,
+          "raw_tv": 0.5757494412914962,
+          "time_tv": 0.05971692436149696,
+          "frequency_tv": 0.2289861954328849,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.27845982142857145,
+          "losses": {
+            "train": null,
+            "validation": null,
+            "test": null
+          },
+          "invalid_predictions": {
+            "train": 10677,
+            "validation": 1314,
+            "test": 1357
+          },
+          "added_count": 26692,
+          "added_fraction": 0.362072707542051
+        },
+        "fixed_support_tv": null,
+        "objective": null,
+        "guard_reasons": [
+          "fixed TV support lost",
+          "2% training flag budget exceeded",
+          "validation unavailable or exceeds 1% degradation"
+        ],
+        "guard_pass": false
+      },
+      {
+        "strategy": "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+        "native": {
+          "label": "strategy-00-holdout_masked",
+          "mode": "holdout_masked",
+          "returncode": 0,
+          "seconds": 301.74231834700004,
+          "audit": {
+            "original_flags_and_rows_preserved": true,
+            "data_unchanged": true,
+            "native_weights_unchanged": true,
+            "all_flagged_rows_without_flag_row": 0
+          }
+        },
+        "unseen_holdout_feature_evaluation": false,
+        "artificial_holdout_input_flags": true,
+        "internal_starting_masks_may_reset": true,
+        "selects_policy": false,
+        "metrics": {
+          "trial": "strategy-00-holdout_masked",
+          "seconds": 5.027460584999972,
+          "tv": 0.2934169125167106,
+          "raw_tv": 0.5761656135305644,
+          "time_tv": 0.06178934064651145,
+          "frequency_tv": 0.23162757187019914,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.2787388392857143,
+          "losses": {
+            "train": null,
+            "validation": null,
+            "test": null
+          },
+          "invalid_predictions": {
+            "train": 10582,
+            "validation": 1306,
+            "test": 1346
+          },
+          "added_count": 26637,
+          "added_fraction": 0.36132664134563214
+        },
+        "fixed_support_tv": null,
+        "objective": null,
+        "guard_reasons": [
+          "fixed TV support lost",
+          "2% training flag budget exceeded",
+          "validation unavailable or exceeds 1% degradation"
+        ],
+        "guard_pass": false
+      },
+      {
+        "strategy": "calibrator_mild_flagging.yaml",
+        "native": {
+          "label": "strategy-01-operational",
+          "mode": "operational",
+          "returncode": 0,
+          "seconds": 301.7592974270001,
+          "audit": {
+            "original_flags_and_rows_preserved": true,
+            "data_unchanged": true,
+            "native_weights_unchanged": true,
+            "all_flagged_rows_without_flag_row": 56
+          }
+        },
+        "unseen_holdout_feature_evaluation": false,
+        "artificial_holdout_input_flags": false,
+        "internal_starting_masks_may_reset": true,
+        "selects_policy": false,
+        "metrics": {
+          "trial": "strategy-01-operational",
+          "seconds": 7.064389627999844,
+          "tv": 0.1476793612017384,
+          "raw_tv": 0.26389293496839633,
+          "time_tv": 0.02723562054583806,
+          "frequency_tv": 0.12044374065590034,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.723787281581792,
+            "validation": 25.26985199057715,
+            "test": 25.011724306036932
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 662,
+          "added_fraction": 0.008979924036896365
+        },
+        "fixed_support_tv": 0.1476793612017384,
+        "objective": 1.270236642123285,
+        "guard_reasons": [],
+        "guard_pass": true
+      },
+      {
+        "strategy": "calibrator_mild_flagging.yaml",
+        "native": {
+          "label": "strategy-01-holdout_masked",
+          "mode": "holdout_masked",
+          "returncode": 0,
+          "seconds": 302.50793889000033,
+          "audit": {
+            "original_flags_and_rows_preserved": true,
+            "data_unchanged": true,
+            "native_weights_unchanged": true,
+            "all_flagged_rows_without_flag_row": 0
+          }
+        },
+        "unseen_holdout_feature_evaluation": false,
+        "artificial_holdout_input_flags": true,
+        "internal_starting_masks_may_reset": true,
+        "selects_policy": false,
+        "metrics": {
+          "trial": "strategy-01-holdout_masked",
+          "seconds": 6.343077503000131,
+          "tv": 0.14824565158198313,
+          "raw_tv": 0.26951219895505335,
+          "time_tv": 0.02725795550903117,
+          "frequency_tv": 0.12098769607295196,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.72767610105629,
+            "validation": 25.288146073970843,
+            "test": 25.035018932464908
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 735,
+          "added_fraction": 0.009970157352143245
+        },
+        "fixed_support_tv": 0.14824565158198313,
+        "objective": 1.2762394543112843,
+        "guard_reasons": [],
+        "guard_pass": true
+      }
+    ],
+    "audit": {
+      "prepared_source_unchanged": true,
+      "strategy_inputs_unchanged": true,
+      "original_source_unchanged": true,
+      "main_work_boundary_validated": true,
+      "no_deployed_policy_selected": true
+    },
+    "limitations": "Verification-only full Tricolour strategies on a four-antenna pointing scan. Operational features see all available DATA. Artificial holdout input flags may be discarded by internal polynomial mask resets. Neither control is claimed as unseen-holdout policy evaluation. Original FLAG/FLAG_ROW always remain lower bounds on actual QuartiCal calibration. No policy/imaging/transfer/SOTA advantage claimed; timing is amd64 emulation."
+  },
+  "source_run": "outputs/tv-caracal-clean-01",
+  "completed_at_utc": "2026-09-23 19:19:11 UTC",
+  "full_run_complete": true,
+  "scientific_module_commit": "9a454fcc9af6fafd5e52bf09affcb1e5241ed455",
+  "recipe_logging_note": "Measured recipe initially had static outputs/stimela-caracal-logs; later removed only fixed log-dir to honor unique wrapper paths. No native/gain-algorithm changes.",
+  "partial_archive": "research/results/gain-tv-caracal-progress.json",
+  "verification": {
+    "rust_tests": 14,
+    "python_tests": 196,
+    "no_skips": true,
+    "release_build": true,
+    "clippy": true,
+    "rust_format": true,
+    "ruff_lint_format": true,
+    "bytecompile": true,
+    "wrappers_bash_syntax": true
+  }
+}

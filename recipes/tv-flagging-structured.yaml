@@ -1,0 +1,34 @@
+# Same frozen family/top8 budget: residual-only vs gain-TV-conditioned ranking.
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-structured-actions:
+    flavour: python
+    command: rangtoy.flagging_structured.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      ranking_budget: {dtype: int, default: 8}
+      iterations: {dtype: int, default: 50}
+
+tv-flagging-structured:
+  info: Measure matched whole-rectangle training proposals using actual frozen QuartiCal full-Jones gain-TV objectives.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    ranking-budget: {dtype: int, default: 8}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    measure:
+      cab: rang-structured-actions
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        ranking_budget: =recipe.ranking-budget
+        iterations: =recipe.iterations
+
+DEFAULT: tv-flagging-structured

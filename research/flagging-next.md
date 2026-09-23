@@ -9,7 +9,7 @@ recoverable backups and Stimela2 execution.
 
 Verification prerequisite: [inspect CARACAL's full shipped strategies and
 worker semantics](flagging-caracal.md), not just the reduced kernel comparator.
-Pinned source inspection is complete; native full-strategy measurements pending.
+Pinned source inspection and four native full-strategy measurements are complete.
 
 Measured motivation: the strong time-burst injection-only oracle improves the
 current guarded objective, yet pointwise thresholds and a tiny local-action
@@ -25,6 +25,22 @@ holes. Reject oversized proposals rather than trim their morphology.
 Use actual QuartiCal re-solves with frozen baseline TV scale/support, existing
 flag penalty, ≤2% additions and ≤1% validation degradation. Include no-change.
 Test data and exact injection masks never choose an action or parameter.
+
+Frozen before the first run: robust whitened training residual score
+`mean(max(z,0))`; TV-conditioned score
+`mean(max(z,0)*(1+clip(TV/median_positive_training_TV,0,5)))`.
+Each ranking gets its top eight distinct admissible masks, stable hash ties,
+and the same minimum eight samples. Shared masks reuse exactly one full solve;
+separate objective selection includes no-change and never combines rectangles.
+The pure generator confirms 23,329 unique masks on both first inputs. This is
+implemented counterfactual selection, not a fitted transfer model. The first
+seven actual [structured recipe](../recipes/tv-flagging-structured.yaml) runs
+completed. [Measured report](flagging-structured.md) and
+[archive](results/gain-tv-structured.json): 101 solves; all112ranked slots are
+single-baseline actions despite broader available geometry. Two tiny objective
+wins, no reliable injection recovery or robust TV-guidance advantage. This
+experiment is complete; new ranking/aggregation settings must be frozen before
+new seeds/scans, not tuned to these held-out results.
 
 First diagnostics: the unmodified prepared scan and archived strong time burst;
 then other frozen injection morphologies if capacity allows. Report all rejected
@@ -42,6 +58,11 @@ without better test prediction/signal fidelity is not a scientific success.
    help only if calibrated on controls without injection/test-label leakage.
    Solution intervals already trade gain variability, noise, model error and RFI:
    [Sob et al. 2021](https://arxiv.org/abs/2103.12508).
+   First-order TV measures accumulated variation, not nonsmoothness alone:
+   even smooth delay-like complex phases can have large TV. Retain the requested
+   full-gain TV objective, but test noise-aware excess-TV/trend or curvature
+   guidance against genuine smooth/rapid-gain no-RFI controls before treating a
+   high-TV map as flagging evidence.
 2. **Preserve science signals, not just fit quality.** Inject held-out compact,
    extended and spectral signals before paired flagging/calibration; measure
    flux, spectrum, astrometry and morphology recovery at identical imaging
