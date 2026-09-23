@@ -82,6 +82,15 @@ the recipe log-dir default was removed, and fresh dry-runs plus the remaining
 five executions confirm unique wrapper-selected log paths. Do not use the
 shared profiling or amd64 emulation for performance claims.
 
+Post-publication hardening: wrappers now perform read-only resolved-path
+preflight before any logs/cache/Docker startup and reserve a fresh log directory
+exclusively. Nested sources, symlink escapes and existing/dangling log paths
+reject without modifying inputs. Nonfinite/negative diagnostic inputs cannot
+pass objective guards; all 98 recorded action/native scores are unchanged.
+The [separate artifact check](results/gain-tv-artifact-audit.json) verifies all
+seven structured controls and all present DATA/weight/SIGMA columns, not just
+self-reported flags. No new scientific run is claimed for these edge-case fixes.
+
 Next discriminating tests: calibrated aggregate/coherence evidence or frozen
 group-balanced search budgets, uncertainty-aware TV and science-signal controls,
 then [normal primary-calibrator transfer](flagging-public-data.md). Freeze new

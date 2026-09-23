@@ -22,9 +22,10 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 | Unmodified full native CARACAL Tricolour strategies | [Production verification](flagging-caracal.md) | [Four controls](results/gain-tv-caracal.json) | [Native strategies](../recipes/tv-flagging-caracal.yaml) |
 | Matched structured residual/TV rankings, seven controls | [Structured search](flagging-structured.md) | [101 solves](results/gain-tv-structured.json) | [Structured actions](../recipes/tv-flagging-structured.yaml) |
 
-Main findings: the current policies select no added flags; a strong time-burst
-injection oracle benefits the guarded objective, but existing proposals miss
-it. A fuller sky improves prediction while slightly increasing TV. Some masks
+Main findings: the current policies select no added flags on the unmodified
+fixture. Structured search finds a tiny improvement in a strong time-burst,
+recovering only 2.89% of injected samples; its TV ranking misses that action.
+A fuller sky improves prediction while slightly increasing TV. Some masks
 lower TV while worsening prediction. Outside-injection additions are not proven
 false positives in unlabeled real data. No imaging or state-of-the-art advantage
 has been established. The tiny fixture is a four-antenna dedicated pointing scan,
@@ -45,6 +46,11 @@ Native CARACAL/structured-search checkpoint: 14 Rust/196 Python tests, local
 build/lint/format and all three runtime dependency checks pass. Four native
 controls and seven structured runs complete with source/export preservation
 audits; neither an imaging nor a robust TV-guidance advantage is established.
+Separate [artifact checks](results/gain-tv-artifact-audit.json) reproduce 318
+predicates across all these controls. Wrapper/finite-value hardening found during
+that review is a fix-forward implementation change, not a scientific rerun.
+The hardening checkpoint passes 14 Rust/222 Python tests and full local checks;
+all 98 recorded action/native scores are exactly unchanged under the new guards.
 
 ## Resume safely
 

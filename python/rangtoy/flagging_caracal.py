@@ -81,18 +81,30 @@ def training_proposal(state, native_flags):
 def score_control(metrics, fixed_tv, baseline):
     """Diagnostic objective only; test losses never influence admissibility."""
     val, val0 = metrics["losses"]["validation"], baseline["losses"]["validation"]
+    tv_valid = fixed_tv is not None and np.isfinite(fixed_tv) and fixed_tv >= 0
+    baseline_valid = np.isfinite(baseline["tv"]) and baseline["tv"] >= 0
+    fraction = metrics["added_fraction"]
+    fraction_valid = np.isfinite(fraction) and fraction >= 0
+    val_valid = (
+        val is not None
+        and val0 is not None
+        and np.isfinite([val, val0]).all()
+        and min(val, val0) >= 0
+    )
     reasons = []
-    if fixed_tv is None:
+    if not tv_valid:
         reasons.append("fixed TV support lost")
-    if metrics["added_fraction"] > 0.02:
+    if not baseline_valid:
+        reasons.append("invalid baseline TV")
+    if not fraction_valid or fraction > 0.02:
         reasons.append("2% training flag budget exceeded")
-    if val is None or val0 is None or val > 1.01 * val0:
+    if not val_valid or val > 1.01 * val0:
         reasons.append("validation unavailable or exceeds 1% degradation")
     objective = (
         fixed_tv / max(baseline["tv"], 1e-30)
         + 2 * metrics["added_fraction"]
         + 0.25 * val / max(val0, 1e-30)
-        if fixed_tv is not None and val is not None and val0 is not None
+        if tv_valid and baseline_valid and fraction_valid and val_valid
         else None
     )
     return {"objective": objective, "guard_reasons": reasons, "guard_pass": not reasons}

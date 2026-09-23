@@ -85,3 +85,27 @@ def test_unknown_settings_rejected_without_native_dependencies(tmp_path):
             strategies=["../../outside.yaml"],
         )
     assert not (tmp_path / "new").exists()
+
+
+@pytest.mark.parametrize("invalid", [float("nan"), float("inf"), -1.0])
+@pytest.mark.parametrize(
+    "field",
+    ["validation", "baseline_validation", "fixed_tv", "baseline_tv", "fraction"],
+)
+def test_nonfinite_or_negative_diagnostic_inputs_cannot_pass_guard(field, invalid):
+    baseline = {"tv": 2.0, "losses": {"validation": 10.0}}
+    metrics = {"added_fraction": 0.01, "losses": {"validation": 9.0}}
+    fixed_tv = 1.9
+    if field == "validation":
+        metrics["losses"]["validation"] = invalid
+    elif field == "baseline_validation":
+        baseline["losses"]["validation"] = invalid
+    elif field == "fixed_tv":
+        fixed_tv = invalid
+    elif field == "baseline_tv":
+        baseline["tv"] = invalid
+    else:
+        metrics["added_fraction"] = invalid
+    result = flagging_caracal.score_control(metrics, fixed_tv, baseline)
+    assert not result["guard_pass"]
+    assert result["objective"] is None

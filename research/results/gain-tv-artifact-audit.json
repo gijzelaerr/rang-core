@@ -1,0 +1,91 @@
+{
+  "checked_at_utc": "2026-09-23",
+  "published_measurement_checkpoints": [
+    "9a454fcc9af6fafd5e52bf09affcb1e5241ed455",
+    "94369a08187b01c09f40c059134726b17cb65e2d"
+  ],
+  "method": "Separate read-only code and actual-artifact checks; no numerical reruns, original-data mutation or human peer-review claim",
+  "structured": {
+    "cases": [
+      {
+        "case": "unmodified-real",
+        "source_run": "outputs/tv-structured-clean-01"
+      },
+      {
+        "case": "narrowband-s3",
+        "source_run": "outputs/tv-structured-narrowband-s3-01"
+      },
+      {
+        "case": "narrowband-s10",
+        "source_run": "outputs/tv-structured-narrowband-s10-01"
+      },
+      {
+        "case": "time-burst-s3",
+        "source_run": "outputs/tv-structured-time-burst-s3-01"
+      },
+      {
+        "case": "time-burst-s10",
+        "source_run": "outputs/tv-structured-timeburst-01"
+      },
+      {
+        "case": "antenna-local-s3",
+        "source_run": "outputs/tv-structured-antenna-local-s3-01"
+      },
+      {
+        "case": "antenna-local-s10",
+        "source_run": "outputs/tv-structured-antenna-local-s10-01"
+      }
+    ],
+    "passed_artifact_predicates": 304,
+    "distinct_action_solves": 94,
+    "total_actual_solves": 101,
+    "exported_measurement_sets": 14
+  },
+  "native_caracal": {
+    "source_run": "outputs/tv-caracal-clean-01",
+    "controls": 4,
+    "passed_artifact_predicates": 14
+  },
+  "total_passed_artifact_predicates": 318,
+  "verified_categories": [
+    "Exact original FLAG/FLAG_ROW bounds and intended additions",
+    "Every present WEIGHT/WEIGHT_SPECTRUM/SIGMA column and DATA unchanged",
+    "TRAIN-only additions; heldout/outside-window/autocorrelation masks unchanged in structured exports",
+    "Unchanged prepared/original source trees and actual prepared boundary validation",
+    "Frozen family geometry, ranks, mask IDs and TRAIN indices recomputed",
+    "Exact measured structured source reconstructed and SHA256 verified",
+    "Existing native Rust full2x2 TV recomputed on saved gains and fixed support",
+    "Frozen scale/grid/iterations/settings and recorded objectives/selections checked"
+  ],
+  "measurement_blocking_findings": [],
+  "hardening_local_verification": {
+    "python_tests_passed": 222,
+    "rust_tests_passed": 14,
+    "research_json_archives_parsed": 33,
+    "recorded_action_native_scores_unchanged": 98,
+    "checks": [
+      "Release build, Clippy warnings denied and Rust formatting",
+      "Ruff lint/format and Python byte compilation",
+      "Every flagging wrapper shell syntax and Git whitespace",
+      "Both hardened wrappers actual offline recipe dry-runs"
+    ]
+  },
+  "post_measurement_hardening": [
+    {
+      "issue": "Wrappers could write logs under nested prepared inputs before Python rejected paths, or reuse existing logs",
+      "status": "Fixed before further actual calibration: stdlib resolved-path/source/log preflight plus atomic exclusive log reservation",
+      "regressions": "Actual copied wrappers reject nested/ancestor/existing-log calls before Docker/cache/log writes; dangling logs/symlink escape tested"
+    },
+    {
+      "issue": "Diagnostic score guard could pass NaN validation inputs",
+      "status": "Fixed: nonfinite/negative TV, baseline, fraction and validation inputs reject with no objective",
+      "regressions": "Fifteen parameterized invalid-input cases; all98 recorded action/native scores unchanged exactly"
+    }
+  ],
+  "limitations": [
+    "Checks reproduce software/artifacts, not independent-observation transfer or scientific significance",
+    "No image/flux/science-signal recovery or mature-method native accuracy/cost superiority established",
+    "Known-injection outside additions are not proven false positives in unlabeled real data",
+    "Original Observatory-versus-processing flag origin in future public primary data remains unverified"
+  ]
+}

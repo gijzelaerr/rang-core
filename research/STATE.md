@@ -4,6 +4,28 @@ Updated 2026-09-23.
 
 ## Current continuation and routing
 
+Complete measured checkpoint `94369a0` pushed to origin/main after196Python/
+14Rust and full local checks, public user identity/no co-authors. Separate
+read-only artifact verification is now complete:318predicates pass across all
+seven structured states/14exports/101solves and four native controls. Includes
+all present weight/SIGMA columns, exact source reconstruction, frozen ranks,
+actual Rust TV/support/scale, source boundaries and selections. Record
+`research/results/gain-tv-artifact-audit.json`; no measurement-blocking issue.
+
+Fix-forward hardening after review: new stdlib host preflight resolves run/log/
+prepared/strategy paths before any cache,log orDocker writes, rejects nested/
+escaped sources and reused/dangling logs, and reserves logs with exclusivemkdir.
+Both actual wrappers have invalid-call regression tests and fresh offline
+recipe dry-runs pass. Diagnostic objective rejects nonfinite/negative inputs;
+all98published action/native scores remain exactly unchanged under new guards.
+These fixes do not relabel old runs as new-code measurements. Full new checks
+pass before commit/push:222Python/14Rust(no skips),releasebuild,Clippy,Rust/Ruff
+lint/format,bytecompile,allwrapper shell syntax,33research JSON parses and
+whitespace. Both hardened wrappers pass fresh offline recipe dry-runs; only
+valid/invalid-call hardening, no retuned science. Pre-commit code/archive backup
+`outputs/flagging-backups/20260923-preflight-hardening/code.tar.gz`,
+SHA2561ab43731d4d195dbb7631f737eebb3b1e9812668ff5c20acca56296444f438c8.
+
 Completed native/structured measured checkpoint, superseding pending entries
 below. Four unmodified CARACAL native controls finish19:19:11UTC with all source/
 original-mask/DATA/weight audits passing. First-pass controls~36% exceedbudget

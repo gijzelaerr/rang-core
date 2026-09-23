@@ -12,6 +12,10 @@ if [[ -e "$rang_root/$rang_run" ]]; then
   echo "Choose a fresh output directory" >&2
   exit 2
 fi
+python3 "$rang_root/tools/flagging/preflight.py" "$rang_root" "$rang_run" "$rang_prepared" \
+  outputs/caracal-strategy-inputs-8f7bb363
+mkdir -p "$(dirname "$rang_root/$rang_run-logs")"
+mkdir "$rang_root/$rang_run-logs"
 mkdir -p "$rang_root/outputs/flagging-caracal-numba-cache"
 rang_image="$(docker image inspect --format '{{.Id}}' rang-flagging-parallel:local)"
 exec docker run --rm --platform linux/amd64 --network none --read-only \
