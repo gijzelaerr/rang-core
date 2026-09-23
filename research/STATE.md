@@ -2,6 +2,33 @@
 
 Updated 2026-09-23.
 
+## Current continuation and routing
+
+The verified baseline/follow-up commits35e763b/f782921 were pushed to origin/main
+at the user's request on2026-09-23. Both author and committer are
+Gijs Molenaar <gijsmolenaar@gmail.com>; no co-author/agent attribution or Spotify
+email occurs in those commit messages. Attribution prohibitions and durable
+handoff routing are explicit in rootAGENTS.md. Start with `research/README.md`.
+
+The user additionally requested CARACAL strategy verification and regular pushes
+of checked progress so astronomers can follow along. Official CARACAL revision
+8f7bb363876f5f0daecbf2167c36bb597c7e5160 strategy/flag-worker inspection completed:
+polarisation-mode fullTricolour passes/staticmasks/polynomial residual handling
+are not the reduced StokesI kernel comparator. AO firstpass_Q usesStokesQ.
+Report `research/flagging-caracal.md`; full native strategy measurements pending.
+Current documentation/routing/rules checkpoint passed14Rust/171Python tests,
+releasebuild,Clippy,Rust/Ruff lint/format,bytecompile and28archive JSON parsing.
+
+Continuation: investigate structured multiscale baseline/antenna-shared flagging
+actions without injection-truth inputs, keeping the original TV/validation/flag
+budget and all original flags. Frozen proposed scope, hypotheses and primary
+prior-art links: `research/flagging-next.md`. Implementation/results pending.
+Pre-edit backup `outputs/flagging-backups/20260923-structured-start/code.tar.gz`,
+SHA256a421d417394d256ac8024752a796f45cf46cb97ab1d091bc0f9f66fd7a9f92cb.
+Current handoff/rules/planning/source-inspection changes have fresh local checks;
+their checkpoint will be pushed before further implementation. Larger structured
+and CARACAL verification experiments require their own measured archives/checks.
+
 ## Active flagging experiment (2026-09-23)
 
 The user requested a model for MeerKAT flagging trained on the TV norm of

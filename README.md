@@ -11,6 +11,8 @@ demonstrated novel algorithm.** The objective is better calibration and imaging
 at comparable cost, or comparable quality with substantially less computation.
 Neither advantage over state of the art has yet been established.
 
+[Research handoff/index](research/README.md) · [Latest progress](research/STATE.md).
+
 The active real-data flagging experiment trains an interpretable policy using
 the TV norm/maps of QuartiCal full 2×2 complex gains, with immutable original
 flags, recoverable backups, a flag budget and held-out checks.
@@ -105,7 +107,11 @@ python3 examples/toy.py --seeds 7 --no-plot --output outputs/demo
 
 ## Next research decision
 
-We have enough infrastructure to test a focused hypothesis: can selecting
+For the active flagging objective, test structured multiscale flag proposals,
+noise/support-aware gain-TV diagnostics, signal preservation and independent
+MeerKAT L-band transfer. [Flagging research questions and go/no-go criteria](research/flagging-next.md).
+
+The earlier pointing research has enough infrastructure to test a focused hypothesis: can selecting
 pointing/beam parameters using separate limits on signal distortion and
 model-error contamination beat a well-tuned joint fit? The proposed decision rule
 is not yet implemented or validated. The next phase prioritizes a falsifiable
