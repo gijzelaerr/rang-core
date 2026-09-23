@@ -1,0 +1,659 @@
+{
+  "date": "2026-09-23",
+  "experiment": "Real MeerKAT L-band gain-TV-guided flagging",
+  "implementation": "Rust full-matrix TV; Python policy/orchestration; QuartiCal 0.2.7 complex 2x2 inner solve; Stimela2 2.1.4",
+  "provenance": {
+    "fixture": true,
+    "scope": {
+      "telescope": "MeerKAT",
+      "band": "L",
+      "frequency_range_mhz": [
+        856,
+        1711.791015625
+      ]
+    },
+    "observation_projects": [
+      "20230103-0005"
+    ],
+    "selected_frequency_range_mhz": [
+      1070,
+      1497.791015625
+    ],
+    "source": "/workspace/outputs/tv-flagging-pilot-06/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+    "source_url": "https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-wflow-pointing-offset/-/tree/main/tests/data",
+    "archive_sha256": "d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f",
+    "source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "original_flag_snapshot_sha256": "2523cc2ac016731e3b91a5eb565df1d1757b8a9ccee276888905d5b7b9abf771",
+    "model_column": "RANG_MODEL_DATA",
+    "model_convention": "unpolarized phase-centre Reynolds point approximation",
+    "seed": 7,
+    "channels": [
+      1024,
+      3072
+    ],
+    "split_gain_intervals": [
+      2,
+      32
+    ],
+    "minimum_train_per_baseline_gain_bin": 2,
+    "shape": [
+      140,
+      4096,
+      4
+    ],
+    "original_cell_flag_fraction": 0.468267822265625,
+    "original_row_flag_count": 0,
+    "split_counts": {
+      "train": 73720,
+      "validation": 9115,
+      "test": 9169
+    },
+    "versions": {
+      "quartical": "0.2.7",
+      "stimela": "2.1.4",
+      "numpy": "2.5.3",
+      "python-casacore": "3.8.1",
+      "dask-ms": "0.2.32",
+      "numba": "0.67.0"
+    },
+    "kernel_sha256": "4e3ea5377a6e0ba788d1a071fcb2ada491f893b821af7825d64e9b83d21d343e",
+    "code_sha256": {
+      "python/rangtoy/flagging.py": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba",
+      "python/rangtoy/flagging_workflow.py": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a",
+      "src/tv.rs": "f9ffa3faceae2f10a780b97d237bbd1626cae9a4b9ed664dc1fdcabc43b60433",
+      "recipes/tv-flagging.yaml": "28999dd58f439bc8eee351e5a479a8c411e0626d9ac631eb67da73fecb080986",
+      "tools/flagging/Dockerfile": "74bdce21acc9eda378d6b32a34943c791ff69881a01d786d4837cc5f1b350a35",
+      "tools/flagging/requirements.lock": "29b04f9825e5e479bb39f1249354f37a5c37b4329d643ea9f5a0758f383a602c"
+    }
+  },
+  "final_configuration": {
+    "time_interval": 2,
+    "freq_interval": 32,
+    "iterations": 50,
+    "max_fraction": 0.02,
+    "flag_penalty": 2,
+    "validation_weight": 0.25,
+    "validation_tolerance": 0.01,
+    "rounds": 1,
+    "thresholds": [
+      8,
+      5,
+      3
+    ],
+    "tv_weights": [
+      0,
+      1,
+      3
+    ],
+    "gauge": "polar",
+    "objective": "fixed_support_TV/TV0 + flag_penalty*f + validation_weight*MSEval/MSEval0"
+  },
+  "exploratory_unwhitened_unreserved": {
+    "baseline": {
+      "trial": "baseline",
+      "seconds": 36.30829747500002,
+      "tv": 0.14764741045625737,
+      "raw_tv": 0.2701042963551241,
+      "time_tv": 0.027158935912444424,
+      "frequency_tv": 0.12048847454381295,
+      "scale": 1.0519540139345593,
+      "valid_gain_fraction": 0.32059151785714285,
+      "losses": {
+        "train": 24.604113358733866,
+        "validation": 25.20588250638199,
+        "test": null
+      },
+      "added_count": 0,
+      "added_fraction": 0
+    },
+    "selected": {
+      "trial": "baseline",
+      "seconds": 36.30829747500002,
+      "tv": 0.14764741045625737,
+      "raw_tv": 0.2701042963551241,
+      "time_tv": 0.027158935912444424,
+      "frequency_tv": 0.12048847454381295,
+      "scale": 1.0519540139345593,
+      "valid_gain_fraction": 0.32059151785714285,
+      "losses": {
+        "train": 24.604113358733866,
+        "validation": 25.20588250638199,
+        "test": null
+      },
+      "added_count": 0,
+      "added_fraction": 0
+    },
+    "selected_policy": null,
+    "selected_objective": 1.25,
+    "unguided_best": {
+      "trial": "baseline",
+      "seconds": 36.30829747500002,
+      "tv": 0.14764741045625737,
+      "raw_tv": 0.2701042963551241,
+      "time_tv": 0.027158935912444424,
+      "frequency_tv": 0.12048847454381295,
+      "scale": 1.0519540139345593,
+      "valid_gain_fraction": 0.32059151785714285,
+      "losses": {
+        "train": 24.604113358733866,
+        "validation": 25.20588250638199,
+        "test": null
+      },
+      "added_count": 0,
+      "added_fraction": 0,
+      "objective": 1.25,
+      "accepted": true,
+      "policy": null
+    },
+    "trials": [
+      {
+        "trial": "baseline",
+        "seconds": 36.30829747500002,
+        "tv": 0.14764741045625737,
+        "raw_tv": 0.2701042963551241,
+        "time_tv": 0.027158935912444424,
+        "frequency_tv": 0.12048847454381295,
+        "scale": 1.0519540139345593,
+        "valid_gain_fraction": 0.32059151785714285,
+        "losses": {
+          "train": 24.604113358733866,
+          "validation": 25.20588250638199,
+          "test": null
+        },
+        "added_count": 0,
+        "added_fraction": 0,
+        "objective": 1.25,
+        "accepted": true,
+        "policy": null
+      },
+      {
+        "policy": {
+          "threshold": 8,
+          "tv_weight": 0,
+          "round": 0
+        },
+        "duplicate_mask": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09"
+      },
+      {
+        "policy": {
+          "threshold": 5,
+          "tv_weight": 0,
+          "round": 0
+        },
+        "duplicate_mask": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09"
+      },
+      {
+        "trial": "r0-w0-z3",
+        "seconds": 5.436240001999977,
+        "tv": 0.14844664080848663,
+        "raw_tv": 0.2712660605840119,
+        "time_tv": 0.027325900055078556,
+        "frequency_tv": 0.12112074075340806,
+        "scale": 1.0519540139345593,
+        "valid_gain_fraction": 0.32059151785714285,
+        "losses": {
+          "train": 24.61485690939835,
+          "validation": 25.218039969221035,
+          "test": null
+        },
+        "added_count": 57,
+        "added_fraction": 0.0007732588110806631,
+        "policy": {
+          "threshold": 3,
+          "tv_weight": 0,
+          "round": 0
+        },
+        "fixed_support_tv": 0.14844664080848663,
+        "objective": 1.257080200272537,
+        "accepted": false,
+        "rejection": null
+      },
+      {
+        "trial": "r0-w1-z8",
+        "seconds": 5.504428043999951,
+        "tv": 0.1512345287154246,
+        "raw_tv": 0.2797962903462724,
+        "time_tv": 0.028270637311318174,
+        "frequency_tv": 0.1229638914041064,
+        "scale": 1.0519540139345593,
+        "valid_gain_fraction": 0.32059151785714285,
+        "losses": {
+          "train": 24.854337075180403,
+          "validation": 25.49679602180093,
+          "test": null
+        },
+        "added_count": 647,
+        "added_fraction": 0.008777165802968228,
+        "policy": {
+          "threshold": 8,
+          "tv_weight": 1,
+          "round": 0
+        },
+        "fixed_support_tv": 0.1512345287154246,
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "trial": "r0-w1-z5",
+        "seconds": 5.565631003000135,
+        "tv": 0.1546418842369563,
+        "raw_tv": 0.2836672619510498,
+        "time_tv": 0.028555287742418063,
+        "frequency_tv": 0.12608659649453824,
+        "scale": 1.0519540139345593,
+        "valid_gain_fraction": 0.32059151785714285,
+        "losses": {
+          "train": 24.91471030994222,
+          "validation": 25.551842584172167,
+          "test": null
+        },
+        "added_count": 1221,
+        "added_fraction": 0.016564017689991047,
+        "policy": {
+          "threshold": 5,
+          "tv_weight": 1,
+          "round": 0
+        },
+        "fixed_support_tv": 0.1546418842369563,
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "trial": "r0-w1-z3",
+        "seconds": 5.501846128000125,
+        "tv": 0.1551880653559467,
+        "raw_tv": 0.284203930827421,
+        "time_tv": 0.028823654210839076,
+        "frequency_tv": 0.12636441114510763,
+        "scale": 1.0519540139345593,
+        "valid_gain_fraction": 0.32059151785714285,
+        "losses": {
+          "train": 24.93517810289696,
+          "validation": 25.60352270007135,
+          "test": null
+        },
+        "added_count": 1386,
+        "added_fraction": 0.018802398458908756,
+        "policy": {
+          "threshold": 3,
+          "tv_weight": 1,
+          "round": 0
+        },
+        "fixed_support_tv": 0.1551880653559467,
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "trial": "r0-w3-z8",
+        "seconds": 5.843666002999953,
+        "tv": 0.15496254297149964,
+        "raw_tv": 0.28386822302761583,
+        "time_tv": 0.02863924222976345,
+        "frequency_tv": 0.1263233007417362,
+        "scale": 1.0519540139345593,
+        "valid_gain_fraction": 0.32059151785714285,
+        "losses": {
+          "train": 24.920658513998614,
+          "validation": 25.575180403187176,
+          "test": null
+        },
+        "added_count": 1304,
+        "added_fraction": 0.017689991046476925,
+        "policy": {
+          "threshold": 8,
+          "tv_weight": 3,
+          "round": 0
+        },
+        "fixed_support_tv": 0.15496254297149964,
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "policy": {
+          "threshold": 5,
+          "tv_weight": 3,
+          "round": 0
+        },
+        "duplicate_mask": "526d03b458260678fa56e9710452fdbb76f0ed38aadfb18051524a8f15b798fa"
+      },
+      {
+        "trial": "r0-w3-z3",
+        "seconds": 6.432536295000091,
+        "tv": 0.15517948238466553,
+        "raw_tv": 0.28420339925679455,
+        "time_tv": 0.02881825901416697,
+        "frequency_tv": 0.12636122337049857,
+        "scale": 1.0519540139345593,
+        "valid_gain_fraction": 0.32059151785714285,
+        "losses": {
+          "train": 24.935640655419565,
+          "validation": 25.60436515916534,
+          "test": null
+        },
+        "added_count": 1387,
+        "added_fraction": 0.018815964402962803,
+        "policy": {
+          "threshold": 3,
+          "tv_weight": 3,
+          "round": 0
+        },
+        "fixed_support_tv": 0.15517948238466553,
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      }
+    ],
+    "original_unchanged": true,
+    "test_mse_ratio": null,
+    "limitations": "Small pointing scan; approximate unpolarized point sky, unitary gauge convention, no image/flux validation. Selection uses validation, never test. Gains were solved with holdouts excluded; final MS only restores original holdout flags."
+  },
+  "final_whitened_reserved": {
+    "baseline": {
+      "trial": "baseline",
+      "seconds": 6.518616795000071,
+      "tv": 0.14743687007256862,
+      "raw_tv": 0.26732582589692777,
+      "time_tv": 0.027069979216836897,
+      "frequency_tv": 0.12036689085573173,
+      "scale": 1.0520039063056514,
+      "valid_gain_fraction": 0.3208705357142857,
+      "losses": {
+        "train": 24.6028462846425,
+        "validation": 25.20612259882604,
+        "test": 24.919607595129268
+      },
+      "invalid_predictions": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "added_count": 0,
+      "added_fraction": 0,
+      "fixed_support_tv": 0.14743687007256862
+    },
+    "selected": {
+      "trial": "baseline",
+      "seconds": 6.518616795000071,
+      "tv": 0.14743687007256862,
+      "raw_tv": 0.26732582589692777,
+      "time_tv": 0.027069979216836897,
+      "frequency_tv": 0.12036689085573173,
+      "scale": 1.0520039063056514,
+      "valid_gain_fraction": 0.3208705357142857,
+      "losses": {
+        "train": 24.6028462846425,
+        "validation": 25.20612259882604,
+        "test": 24.919607595129268
+      },
+      "invalid_predictions": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "added_count": 0,
+      "added_fraction": 0,
+      "fixed_support_tv": 0.14743687007256862
+    },
+    "selected_policy": null,
+    "selected_objective": 1.25,
+    "unguided_best": {
+      "trial": "baseline",
+      "seconds": 6.518616795000071,
+      "tv": 0.14743687007256862,
+      "raw_tv": 0.26732582589692777,
+      "time_tv": 0.027069979216836897,
+      "frequency_tv": 0.12036689085573173,
+      "scale": 1.0520039063056514,
+      "valid_gain_fraction": 0.3208705357142857,
+      "losses": {
+        "train": 24.6028462846425,
+        "validation": 25.20612259882604,
+        "test": 24.919607595129268
+      },
+      "invalid_predictions": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "added_count": 0,
+      "added_fraction": 0,
+      "fixed_support_tv": 0.14743687007256862,
+      "objective": 1.25,
+      "accepted": true,
+      "policy": null
+    },
+    "trials": [
+      {
+        "trial": "baseline",
+        "seconds": 6.518616795000071,
+        "tv": 0.14743687007256862,
+        "raw_tv": 0.26732582589692777,
+        "time_tv": 0.027069979216836897,
+        "frequency_tv": 0.12036689085573173,
+        "scale": 1.0520039063056514,
+        "valid_gain_fraction": 0.3208705357142857,
+        "losses": {
+          "train": 24.6028462846425,
+          "validation": 25.20612259882604,
+          "test": 24.919607595129268
+        },
+        "invalid_predictions": {
+          "train": 0,
+          "validation": 0,
+          "test": 0
+        },
+        "added_count": 0,
+        "added_fraction": 0,
+        "fixed_support_tv": 0.14743687007256862,
+        "objective": 1.25,
+        "accepted": true,
+        "policy": null
+      },
+      {
+        "policy": {
+          "threshold": 8,
+          "tv_weight": 0,
+          "round": 0
+        },
+        "duplicate_mask": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09"
+      },
+      {
+        "policy": {
+          "threshold": 5,
+          "tv_weight": 0,
+          "round": 0
+        },
+        "duplicate_mask": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09"
+      },
+      {
+        "trial": "r0-w0-z3",
+        "seconds": 5.6981720020003195,
+        "tv": 0.1480732651831809,
+        "raw_tv": 0.2684460109178439,
+        "time_tv": 0.027193086048823367,
+        "frequency_tv": 0.12088017913435753,
+        "scale": 1.0520039063056514,
+        "valid_gain_fraction": 0.3208705357142857,
+        "losses": {
+          "train": 24.61295899556499,
+          "validation": 25.21488276108833,
+          "test": 24.93791226263481
+        },
+        "invalid_predictions": {
+          "train": 0,
+          "validation": 0,
+          "test": 0
+        },
+        "added_count": 41,
+        "added_fraction": 0.0005561584373304395,
+        "fixed_support_tv": 0.1480732651831809,
+        "policy": {
+          "threshold": 3,
+          "tv_weight": 0,
+          "round": 0
+        },
+        "objective": 1.2555155926724646,
+        "accepted": false,
+        "rejection": null
+      },
+      {
+        "trial": "r0-w1-z8",
+        "seconds": 5.415170627000407,
+        "tv": 0.1505578658153154,
+        "raw_tv": 0.27564179478827194,
+        "time_tv": 0.028099265047830897,
+        "frequency_tv": 0.12245860076748452,
+        "scale": 1.0520039063056514,
+        "valid_gain_fraction": 0.3208705357142857,
+        "losses": {
+          "train": 24.839146679981006,
+          "validation": 25.46852959975774,
+          "test": 25.131474609121067
+        },
+        "invalid_predictions": {
+          "train": 0,
+          "validation": 0,
+          "test": 0
+        },
+        "added_count": 533,
+        "added_fraction": 0.007230059685295714,
+        "fixed_support_tv": 0.1505578658153154,
+        "policy": {
+          "threshold": 8,
+          "tv_weight": 1,
+          "round": 0
+        },
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "trial": "r0-w1-z5",
+        "seconds": 5.305102710000028,
+        "tv": 0.15305421495864657,
+        "raw_tv": 0.27899234991988825,
+        "time_tv": 0.028383036765683854,
+        "frequency_tv": 0.12467117819296271,
+        "scale": 1.0520039063056514,
+        "valid_gain_fraction": 0.3208705357142857,
+        "losses": {
+          "train": 24.914060584599824,
+          "validation": 25.521214824320822,
+          "test": 25.232580583454666
+        },
+        "invalid_predictions": {
+          "train": 0,
+          "validation": 0,
+          "test": 0
+        },
+        "added_count": 943,
+        "added_fraction": 0.012791644058600109,
+        "fixed_support_tv": 0.15305421495864657,
+        "policy": {
+          "threshold": 5,
+          "tv_weight": 1,
+          "round": 0
+        },
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "trial": "r0-w1-z3",
+        "seconds": 5.303950084999997,
+        "tv": 0.15353711504556156,
+        "raw_tv": 0.27993665064380435,
+        "time_tv": 0.028587124193466464,
+        "frequency_tv": 0.1249499908520951,
+        "scale": 1.0520039063056514,
+        "valid_gain_fraction": 0.3208705357142857,
+        "losses": {
+          "train": 24.928707098444796,
+          "validation": 25.566795861431988,
+          "test": 25.294258849121125
+        },
+        "invalid_predictions": {
+          "train": 0,
+          "validation": 0,
+          "test": 0
+        },
+        "added_count": 1118,
+        "added_fraction": 0.015165491047205644,
+        "fixed_support_tv": 0.15353711504556156,
+        "policy": {
+          "threshold": 3,
+          "tv_weight": 1,
+          "round": 0
+        },
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "trial": "r0-w3-z8",
+        "seconds": 5.319737627999984,
+        "tv": 0.15334844479467025,
+        "raw_tv": 0.2795764853381314,
+        "time_tv": 0.02844439366334058,
+        "frequency_tv": 0.12490405113132966,
+        "scale": 1.0520039063056514,
+        "valid_gain_fraction": 0.3208705357142857,
+        "losses": {
+          "train": 24.91977319432083,
+          "validation": 25.544012595006848,
+          "test": 25.25128701179817
+        },
+        "invalid_predictions": {
+          "train": 0,
+          "validation": 0,
+          "test": 0
+        },
+        "added_count": 1030,
+        "added_fraction": 0.013971785132935432,
+        "fixed_support_tv": 0.15334844479467025,
+        "policy": {
+          "threshold": 8,
+          "tv_weight": 3,
+          "round": 0
+        },
+        "objective": null,
+        "accepted": false,
+        "rejection": "gain support loss or validation degradation"
+      },
+      {
+        "policy": {
+          "threshold": 5,
+          "tv_weight": 3,
+          "round": 0
+        },
+        "duplicate_mask": "dc65b57b48ab3c2233d2b018d15e95d0d9cba203ac03d71065f85817ec9143b9"
+      },
+      {
+        "policy": {
+          "threshold": 3,
+          "tv_weight": 3,
+          "round": 0
+        },
+        "duplicate_mask": "dc65b57b48ab3c2233d2b018d15e95d0d9cba203ac03d71065f85817ec9143b9"
+      }
+    ],
+    "original_unchanged": true,
+    "test_mse_ratio": 1,
+    "limitations": "Small pointing scan; approximate unpolarized point sky, unitary gauge convention, no image/flux validation. Selection uses validation, never test. Gains were solved with holdouts excluded; final MS only restores original holdout flags."
+  },
+  "final_flag_audit": {
+    "observatory_flags_preserved": true,
+    "original_flagged_cells": 1074094,
+    "additional_flagged_cells": 0,
+    "original_rows_preserved": true,
+    "data_unchanged": true,
+    "final_data_array_unchanged": true
+  },
+  "scientific_outcome": "No additions selected; all nonempty proposals increased gain TV. No flagging or imaging superiority demonstrated.",
+  "performance_claim": false
+}

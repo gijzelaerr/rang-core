@@ -1,0 +1,105 @@
+# Run from the Rang checkout; install rangtoy and the public flagging extra,
+# or use tools/flagging/Dockerfile. Every run-dir must be new.
+opts:
+  backend:
+    select: native
+  log:
+    dir: outputs/stimela-flagging-logs
+    nest: 1
+
+cabs:
+  rang-flagging-prepare:
+    flavour: python
+    command: rangtoy.flagging_workflow.prepare
+    inputs:
+      run_dir: {dtype: str, required: true}
+      archive: {dtype: File}
+      ms: {dtype: MS}
+      model_column: {dtype: str}
+      seed: {dtype: int, default: 7}
+      channel_start: {dtype: int, default: 1024}
+      channel_stop: {dtype: int, default: 3072}
+      time_interval: {dtype: int, default: 2}
+      freq_interval: {dtype: int, default: 32}
+  rang-flagging-train:
+    flavour: python
+    command: rangtoy.flagging_workflow.train
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+      time_interval: {dtype: int, default: 2}
+      freq_interval: {dtype: int, default: 32}
+      iterations: {dtype: int, default: 50}
+      max_fraction: {dtype: float, default: 0.02}
+      flag_penalty: {dtype: float, default: 2.0}
+      validation_weight: {dtype: float, default: 0.25}
+      validation_tolerance: {dtype: float, default: 0.01}
+      rounds: {dtype: int, default: 1}
+      thresholds: {dtype: 'List[float]', default: [8.0, 5.0, 3.0]}
+      tv_weights: {dtype: 'List[float]', default: [0.0, 1.0, 3.0]}
+      gauge: {dtype: str, choices: [polar, raw], default: polar}
+  rang-flagging-report:
+    flavour: python
+    command: rangtoy.flagging_workflow.report
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+
+tv-flagging:
+  info: Train a TV-guided flagging policy on real MeerKAT L-band full-Jones gains, preserving original flags.
+  inputs:
+    run-dir: {dtype: str, required: true, info: Fresh output directory; never overwritten.}
+    archive: {dtype: File, info: Checksum-pinned SKA outer_scans.zip; choose this OR ms.}
+    ms: {dtype: MS, info: Existing MeerKAT L-band one-scan/field/SPW real data; requires model-column.}
+    model-column: {dtype: str}
+    seed: {dtype: int, default: 7}
+    channel-start: {dtype: int, default: 1024}
+    channel-stop: {dtype: int, default: 3072}
+    time-interval: {dtype: int, default: 2}
+    freq-interval: {dtype: int, default: 32}
+    iterations: {dtype: int, default: 50}
+    max-fraction: {dtype: float, default: 0.02}
+    flag-penalty: {dtype: float, default: 2.0}
+    validation-weight: {dtype: float, default: 0.25}
+    validation-tolerance: {dtype: float, default: 0.01}
+    rounds: {dtype: int, default: 1}
+    thresholds: {dtype: 'List[float]', default: [8.0, 5.0, 3.0]}
+    tv-weights: {dtype: 'List[float]', default: [0.0, 1.0, 3.0]}
+    gauge: {dtype: str, choices: [polar, raw], default: polar}
+  outputs:
+    flagged-ms: {dtype: MS, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/flagged.ms'}
+    trained-model: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/model.json'}
+    results: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/result.json'}
+    tv-maps: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/tv-maps.png'}
+    gain-spectra: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/gain-spectra.png'}
+    flag-audit: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/flag-audit.json'}
+  steps:
+    prepare:
+      cab: rang-flagging-prepare
+      params:
+        run_dir: =recipe.run-dir
+        archive: =IFSET(recipe.archive)
+        ms: =IFSET(recipe.ms)
+        model_column: =IFSET(recipe.model-column)
+        seed: =recipe.seed
+        channel_start: =recipe.channel-start
+        channel_stop: =recipe.channel-stop
+        time_interval: =recipe.time-interval
+        freq_interval: =recipe.freq-interval
+    train:
+      cab: rang-flagging-train
+      params:
+        run_dir: =recipe.run-dir
+        time_interval: =recipe.time-interval
+        freq_interval: =recipe.freq-interval
+        iterations: =recipe.iterations
+        max_fraction: =recipe.max-fraction
+        flag_penalty: =recipe.flag-penalty
+        validation_weight: =recipe.validation-weight
+        validation_tolerance: =recipe.validation-tolerance
+        rounds: =recipe.rounds
+        thresholds: =recipe.thresholds
+        tv_weights: =recipe.tv-weights
+        gauge: =recipe.gauge
+    report:
+      cab: rang-flagging-report
+      params:
+        run_dir: =recipe.run-dir

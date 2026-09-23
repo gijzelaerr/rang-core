@@ -12,7 +12,7 @@ from . import build
 
 
 @lru_cache(maxsize=1)
-def _native_projector():
+def _native_library():
     configured = os.environ.get("RANG_TOY_LIB")
     if configured:
         path = Path(configured).resolve()
@@ -25,8 +25,12 @@ def _native_projector():
             else "librang_toy.so"
         )
         path = build().parent / filename
-    library = ctypes.CDLL(str(path))
-    project = library.rang_project_out
+    return ctypes.CDLL(str(path))
+
+
+@lru_cache(maxsize=1)
+def _native_projector():
+    project = _native_library().rang_project_out
     vector = np.ctypeslib.ndpointer(
         dtype=np.float64, ndim=2, flags=("C_CONTIGUOUS", "ALIGNED")
     )

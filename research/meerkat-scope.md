@@ -1,8 +1,17 @@
 # MeerKAT calibration research
 
-Updated 11 September 2026. Active scope; supersedes the original generic low-frequency experiment.
+Updated 23 September 2026. Active scope; supersedes the original generic low-frequency experiment.
 
-Current focus: [smooth time-varying per-antenna pointing offsets](pointing-solutions.md), using a component-list sky, direct Fourier prediction and JAX automatic differentiation. This explicit user-requested reference path complements the Rust implementation.
+Current active experiment: [gain-TV-guided flagging](flagging.md) on small real
+MeerKAT **L-band** data, using QuartiCal full complex 2×2 gains as the training
+objective and TV maps as flagging guidance. Preserve every original `FLAG` and
+`FLAG_ROW`, maintain recoverable backups, and express the workflow as a Stimela2
+recipe. Input telescope metadata must identify MeerKAT and channel centres must
+lie within the nominal 856–1712 MHz L band. The first public scan uses
+1070–1497.8 MHz for training. This request supplements the previous pointing
+research; its original question and controlled experiments are retained below.
+
+Previous focus: [smooth time-varying per-antenna pointing offsets](pointing-solutions.md), using a component-list sky, direct Fourier prediction and JAX automatic differentiation. This explicit user-requested reference path complements the Rust implementation.
 
 Implementation update: the [first runnable toy](../examples/README.md) now tests the pointing/sky ambiguity with Rust and Python. It is an intentionally reduced first stage: eight approximate core coordinates, a Gaussian beam, constant antenna-frame pointing offsets, known bright sky and one uncertain source amplitude. Measured beams, full-array survey geometry and real data remain future steps. Its initial result shows no added benefit from adaptive protection over joint fitting.
 

@@ -1,6 +1,6 @@
 # Rang
 
-Radio Astronomy Next Generation — experimental MeerKAT pointing calibration.
+Radio Astronomy Next Generation — experimental MeerKAT calibration and flagging.
 
 Rang investigates smoothly time-varying antenna pointing errors together with
 uncertain sky, gains and beam response. It combines component-list DFT prediction
@@ -10,6 +10,12 @@ and JAX automatic differentiation with Rust simulation and numerical kernels.
 demonstrated novel algorithm.** The objective is better calibration and imaging
 at comparable cost, or comparable quality with substantially less computation.
 Neither advantage over state of the art has yet been established.
+
+The active real-data flagging experiment trains an interpretable policy using
+the TV norm/maps of QuartiCal full 2×2 complex gains, with immutable original
+flags, recoverable backups, a flag budget and held-out checks.
+[Strategy, first negative result and reproduction](research/flagging.md) ·
+[Stimela2 recipe](recipes/tv-flagging.yaml).
 
 ## What we have learned
 

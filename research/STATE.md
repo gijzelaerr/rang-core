@@ -1,6 +1,74 @@
 # Rang research state
 
-Updated 2026-09-11.
+Updated 2026-09-23.
+
+## Active flagging experiment (2026-09-23)
+
+The user requested a model for MeerKAT flagging trained on the TV norm of
+QuartiCal full complex 2x2 gains, guided by TV maps, delivered as a Stimela2
+recipe. Preserve every original observatory flag and back up as work proceeds.
+The clean initial revision is `39eeb53`; code and raw archive backups are in
+`outputs/flagging-backups/20260923-initial/`. The existing real public SKA scan-9
+fixture is the first intuition dataset. Plan and provenance are recorded in
+`research/flagging.md`. An isolated public-PyPI QuartiCal 0.2.7/Stimela 2.1.4
+Linux environment has been built and tested. Earlier pointing results remain valid
+under their documented assumptions.
+
+Checkpoint: complete Stimela2 pilot in `outputs/tv-flagging-pilot-03/` selected
+no additional flags. Baseline gauge-fixed TV 0.1476474, raw TV 0.2701043,
+validation weighted MSE 25.20588. Six nonempty proposals increased TV and none
+beat no-change. This version used unwhitened policy features; test MSE was
+unavailable due to unsupported baseline predictions. Original flags/data
+digests survived. Archive the null result. Final strategy now whitens features,
+reserves sparse-bin training data before solving, reports invalid prediction
+counts and masks unsupported plot bins. Final pinned-environment replay pending.
+Full local checks passed 14 Rust and 112 Python tests before the latest
+sparse-bin regression addition; rerun appropriate verification after changes.
+
+Second complete pinned-environment pilot `outputs/tv-flagging-pilot-04/` passed:
+73,720 train / 9,115 validation / 9,169 test samples; zero invalid predictions.
+Gauge-fixed TV 0.14743687, raw TV 0.26732583; validation MSE 25.20612, test MSE
+24.91961. Five nonempty proposals raised TV; no additions selected. Original
+flags and final DATA array verified unchanged. Latest suite passed 113 Python
+tests before the final telescope/band guard regression. User explicitly
+reaffirmed MeerKAT L-band only; OBSERVATION identifies MeerKAT, project
+20230103-0005. Preparation now enforces MeerKAT and nominal 856–1712 MHz channels.
+Final scope-guarded recipe replay: `outputs/tv-flagging-pilot-06/`, passed.
+The scope-guard startup caught a casacore string-list `.tolist()` assumption;
+explicit NumPy conversion fixed it. No original observation was modified.
+
+Final flagging checkpoint (2026-09-23): recipe implements prepare/train/report,
+QuartiCal full complex 2x2 inner solves, Rust masked Frobenius TV with fixed
+support/scale, unpolarized polar-gauge handling, noise-weighted TV-conditioned
+outlier policy, original-flag lower bounds, per-write backups, flag budget,
+fixed validation and test checks, and explicit MeerKAT L-band metadata guards.
+Final run reproduced the prior no-change result, with zero invalid predictions,
+test MSE ratio 1.0, all 1,074,094 original flag cells/rows and final DATA preserved.
+Results/provenance archived in `research/results/gain-tv-flagging.json`;
+method and limitations in `research/flagging.md`; recipe `recipes/tv-flagging.yaml`.
+Verification passed release build, 14 Rust/114 Python tests (no skips), Clippy,
+Rust/Ruff lint/format, byte compilation, dependency and whitespace checks, and
+the full pinned container recipe. Final backup is
+`outputs/flagging-backups/20260923-final/`. This checkpoint is the baseline for
+the user-requested commit before parallel follow-up work.
+No flagging/imaging improvement or native-performance advantage established.
+Next scientifically relevant checks: accurate L-band calibrator sky,
+RFI/signal injection controls and matched established flagger comparisons.
+
+User authorized parallel follow-ups and a commit of all current flagging work.
+Four workstreams: injection/oracle controls, SARAO multi-component sky,
+QuartiCal MAD/Tricolour comparators, and measured patch-action TV benefit.
+Each must use fresh isolated outputs and writable MS copies. The learned-policy
+scientific assessment depends on the controls, even if implementation proceeds
+in parallel. Detailed proposed scope and references are in `research/flagging.md`.
+Fresh pre-commit verification passed: release build, 14 Rust and 114 Python
+tests, Clippy, formatting/lint, container build/dependency consistency, research
+JSON parsing and the complete Stimela2 replay in
+`outputs/tv-flagging-precommit-01/`. Replay reproduced no additions, TV
+0.14743687, test MSE ratio 1.0 and preservation audits. Pre-commit code backup:
+`outputs/flagging-backups/20260923-precommit/code.tar.gz`, SHA256
+`ab9a0c849041a418a6abce788a25f4dcac1d336883b2ffe2e1516ff4004b4c01`.
+No follow-up quality improvement is yet measured.
 
 ## Latest checkpoint
 
