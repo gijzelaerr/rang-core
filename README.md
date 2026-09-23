@@ -17,6 +17,12 @@ flags, recoverable backups, a flag budget and held-out checks.
 [Strategy, first negative result and reproduction](research/flagging.md) ·
 [Stimela2 recipe](recipes/tv-flagging.yaml).
 
+[Parallel diagnostic suite](research/flagging-parallel.md) now adds controlled
+RFI/oracle tests, a verified SARAO calibrator sky, established flagger comparisons
+and measured patch-action learning. These small MeerKAT L-band pilots retain
+negative results; lower gain TV does not consistently mean better prediction,
+and no flagging or imaging superiority is established.
+
 ## What we have learned
 
 Small dish-to-dish beam differences can masquerade as pointing. In an

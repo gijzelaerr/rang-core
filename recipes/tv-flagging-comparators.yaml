@@ -1,0 +1,48 @@
+opts:
+  backend:
+    select: native
+  log:
+    dir: outputs/stimela-comparator-logs
+    nest: 1
+cabs:
+  rang-flagging-comparators:
+    flavour: python
+    command: rangtoy.flagging_comparators.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      archive: {dtype: File}
+      prepared_dir: {dtype: Directory}
+      seed: {dtype: int, default: 7}
+      time_interval: {dtype: int, default: 2}
+      freq_interval: {dtype: int, default: 32}
+      iterations: {dtype: int, default: 50}
+      max_fraction: {dtype: float, default: 0.02}
+      mad_thresholds: {dtype: 'List[float]', default: [5.0, 8.0, 12.0]}
+      tricolour_thresholds: {dtype: 'List[float]', default: [10.0, 15.0, 20.0]}
+tv-flagging-comparators:
+  info: Compare native QuartiCal MAD, isolated Tricolour SumThreshold and TV policy on matched protected MeerKAT L-band data.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    archive: {dtype: File}
+    prepared-dir: {dtype: Directory}
+    seed: {dtype: int, default: 7}
+    iterations: {dtype: int, default: 50}
+    max-fraction: {dtype: float, default: 0.02}
+    mad-thresholds: {dtype: 'List[float]', default: [5.0, 8.0, 12.0]}
+    tricolour-thresholds: {dtype: 'List[float]', default: [10.0, 15.0, 20.0]}
+  outputs:
+    selected-ms: {dtype: MS, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/selected.ms'}
+    comparison: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/comparison.json'}
+    flag-audit: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/flag-audit.json'}
+  steps:
+    compare:
+      cab: rang-flagging-comparators
+      params:
+        run_dir: =recipe.run-dir
+        archive: =IFSET(recipe.archive)
+        prepared_dir: =IFSET(recipe.prepared-dir)
+        seed: =recipe.seed
+        iterations: =recipe.iterations
+        max_fraction: =recipe.max-fraction
+        mad_thresholds: =recipe.mad-thresholds
+        tricolour_thresholds: =recipe.tricolour-thresholds

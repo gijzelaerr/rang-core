@@ -4,6 +4,12 @@ Started 2026-09-23 at the user's request. This is a new MeerKAT flagging
 experiment alongside the earlier pointing work. No scientific improvement has
 yet been measured.
 
+Follow-up implementation and concurrent execution are now complete:
+[four-workstream diagnostic suite and measured conclusions](flagging-parallel.md),
+[Stimela2 scatter recipe](../recipes/tv-flagging-parallel.yaml).
+Retain the negative findings: lower gain TV is not consistently better
+held-out prediction, and the tested learned policies select no additional flags.
+
 The first dataset is the existing official SKA pointing-offset fixture,
 `outer_scans.zip`, SHA256
 `d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f`.

@@ -1,0 +1,427 @@
+{
+  "date": "2026-09-23",
+  "experiment": "Measured patch-removal gain-TV action prediction on real MeerKAT L-band data",
+  "run": "outputs/tv-flagging-actions-01",
+  "provenance": {
+    "fixture": true,
+    "scope": {
+      "telescope": "MeerKAT",
+      "band": "L",
+      "frequency_range_mhz": [
+        856,
+        1711.791015625
+      ]
+    },
+    "observation_projects": [
+      "20230103-0005"
+    ],
+    "selected_frequency_range_mhz": [
+      1070,
+      1497.791015625
+    ],
+    "source": "/workspace/outputs/tv-flagging-actions-01/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+    "source_url": "https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-wflow-pointing-offset/-/tree/main/tests/data",
+    "archive_sha256": "d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f",
+    "source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "original_flag_snapshot_sha256": "2523cc2ac016731e3b91a5eb565df1d1757b8a9ccee276888905d5b7b9abf771",
+    "model_column": "RANG_MODEL_DATA",
+    "model_convention": "unpolarized phase-centre Reynolds point approximation",
+    "seed": 7,
+    "channels": [
+      1024,
+      3072
+    ],
+    "split_gain_intervals": [
+      2,
+      32
+    ],
+    "minimum_train_per_baseline_gain_bin": 2,
+    "shape": [
+      140,
+      4096,
+      4
+    ],
+    "original_cell_flag_fraction": 0.468267822265625,
+    "original_row_flag_count": 0,
+    "split_counts": {
+      "train": 73720,
+      "validation": 9115,
+      "test": 9169
+    },
+    "versions": {
+      "quartical": "0.2.7",
+      "stimela": "2.1.4",
+      "numpy": "2.5.3",
+      "python-casacore": "3.8.1",
+      "dask-ms": "0.2.32",
+      "numba": "0.67.0"
+    },
+    "kernel_sha256": "4e3ea5377a6e0ba788d1a071fcb2ada491f893b821af7825d64e9b83d21d343e",
+    "code_sha256": {
+      "python/rangtoy/flagging.py": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba",
+      "python/rangtoy/flagging_workflow.py": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a",
+      "src/tv.rs": "f9ffa3faceae2f10a780b97d237bbd1626cae9a4b9ed664dc1fdcabc43b60433",
+      "recipes/tv-flagging.yaml": "28999dd58f439bc8eee351e5a479a8c411e0626d9ac631eb67da73fecb080986",
+      "tools/flagging/Dockerfile": "74bdce21acc9eda378d6b32a34943c791ff69881a01d786d4837cc5f1b350a35",
+      "tools/flagging/requirements.lock": "29b04f9825e5e479bb39f1249354f37a5c37b4329d643ea9f5a0758f383a602c"
+    }
+  },
+  "configuration": {
+    "seed": 29,
+    "action_count": 16,
+    "iterations": 50,
+    "ridge_penalties": [
+      0.1,
+      1,
+      10
+    ],
+    "feature_source": "training visibilities and training-only solved gains",
+    "target": "(fixed_support_TV(action)-TV(baseline))/TV(baseline)",
+    "timing": "Linux amd64 emulation on macOS ARM; not native performance",
+    "module_sha256": "ed0a28e2f3e790d33f02b21450a469ebc28256811c176b031c426a453fe13704",
+    "limitations": "Single reference-pointing scan; action holdouts are not independent observations. No injected RFI truth, imaging or flux validation."
+  },
+  "baseline": {
+    "trial": "baseline",
+    "seconds": 34.0099576409998,
+    "tv": 0.1474368700725686,
+    "raw_tv": 0.2673258258969277,
+    "time_tv": 0.027069979216836893,
+    "frequency_tv": 0.1203668908557317,
+    "scale": 1.0520039063056517,
+    "valid_gain_fraction": 0.3208705357142857,
+    "losses": {
+      "train": 24.6028462846425,
+      "validation": 25.20612259882604,
+      "test": 24.919607595129268
+    },
+    "invalid_predictions": {
+      "train": 0,
+      "validation": 0,
+      "test": 0
+    },
+    "added_count": 0,
+    "added_fraction": 0
+  },
+  "action_split": {
+    "train": [
+      7,
+      10,
+      6,
+      13,
+      9,
+      8,
+      15,
+      2,
+      4,
+      1
+    ],
+    "validation": [
+      5,
+      11,
+      14
+    ],
+    "test": [
+      3,
+      0,
+      12
+    ]
+  },
+  "model": {
+    "feature_names": [
+      "log_sample_count",
+      "median_residual_z",
+      "p95_residual_z",
+      "max_residual_z",
+      "median_relative_tv",
+      "max_relative_tv",
+      "mean_log_whitened_amplitude",
+      "std_log_whitened_amplitude"
+    ],
+    "center": [
+      3.8711148248374188,
+      0.0962678739083071,
+      1.0518245142803255,
+      1.2485132810655337,
+      1.4641833326300402,
+      1.4641833326300402,
+      1.7533371656108716,
+      0.3236199314815117
+    ],
+    "scale": [
+      0.09280739942755976,
+      0.2888036217249213,
+      0.7790646264823062,
+      0.8457789828395251,
+      0.9927769213194912,
+      0.9927769213194912,
+      0.3613799985282456,
+      0.07007603871201767
+    ],
+    "coefficients": [
+      0.0017594360370964987,
+      0.0004909772614316311,
+      -0.00013542238171811882,
+      -0.0010755981053457615,
+      -0.00000483787706489845,
+      0.0002278650564812685,
+      0.00022786505648126875,
+      0.0005761270743776196,
+      0.0007302893993476314
+    ],
+    "ridge_penalty": 1,
+    "validation_action_mse": 6.297723362469801e-9,
+    "tuning": [
+      {
+        "penalty": 0.1,
+        "validation_mse": 9.199883225545904e-8
+      },
+      {
+        "penalty": 1,
+        "validation_mse": 6.297723362469801e-9
+      },
+      {
+        "penalty": 10,
+        "validation_mse": 6.467306276698604e-7
+      }
+    ],
+    "missing_labels": {
+      "train": 0,
+      "validation": 0,
+      "test": 0
+    },
+    "kind": "ridge predictor of measured patch-removal gain-TV change",
+    "predicted_changes": [
+      0.0022118192122283845,
+      0.0016772438107992525,
+      0.0017419276285030269,
+      0.0022603358902187286,
+      0.0008511679438691407,
+      0.0012228837781481062,
+      0.00281177061937243,
+      0.002716079625033234,
+      0.0018907789079380655,
+      0.0019584500227046906,
+      0.0009285164283827261,
+      0.0030348821851525487,
+      0.000005672286587412407,
+      0.00264181605383913,
+      -0.0016714173520816313,
+      0.0003766093305232595
+    ],
+    "selected_training_actions": [],
+    "proposal_accepted": false,
+    "no_change": true,
+    "transfer_validated": false,
+    "test_action_mse": 0.000002971197352990367,
+    "constant_predictor_test_mse": 0.0000016706722689631975
+  },
+  "selected": {
+    "trial": "baseline",
+    "seconds": 34.0099576409998,
+    "tv": 0.1474368700725686,
+    "raw_tv": 0.2673258258969277,
+    "time_tv": 0.027069979216836893,
+    "frequency_tv": 0.1203668908557317,
+    "scale": 1.0520039063056517,
+    "valid_gain_fraction": 0.3208705357142857,
+    "losses": {
+      "train": 24.6028462846425,
+      "validation": 25.20612259882604,
+      "test": 24.919607595129268
+    },
+    "invalid_predictions": {
+      "train": 0,
+      "validation": 0,
+      "test": 0
+    },
+    "added_count": 0,
+    "added_fraction": 0
+  },
+  "audit": {
+    "original_flags_preserved": true,
+    "original_unchanged": true,
+    "final_data_unchanged": true,
+    "holdout_additions": 0
+  },
+  "actions": [
+    {
+      "trial": "action-000",
+      "fixed_support_tv": 0.14749711907547577,
+      "normalized_tv_change": 0.0004086427152009676,
+      "added_fraction": 0.0006646771568095496,
+      "losses": {
+        "train": 24.605323824718333,
+        "validation": 25.209503262103873,
+        "test": 24.918524594096297
+      }
+    },
+    {
+      "trial": "action-001",
+      "fixed_support_tv": 0.14750674933536778,
+      "normalized_tv_change": 0.0004739605687830957,
+      "added_fraction": 0.0007189365165491047,
+      "losses": {
+        "train": 24.6059018062336,
+        "validation": 25.210005928456233,
+        "test": 24.9182406669426
+      }
+    },
+    {
+      "trial": "action-002",
+      "fixed_support_tv": 0.147819845187231,
+      "normalized_tv_change": 0.002597553206833035,
+      "added_fraction": 0.000583288117200217,
+      "losses": {
+        "train": 24.611719552200775,
+        "validation": 25.19469037466232,
+        "test": 24.92851265487592
+      }
+    },
+    {
+      "trial": "action-003",
+      "fixed_support_tv": 0.14745480423878674,
+      "normalized_tv_change": 0.00012163962928214882,
+      "added_fraction": 0.0007731958762886598,
+      "losses": {
+        "train": 24.604346328786818,
+        "validation": 25.205137969774157,
+        "test": 24.92105884561854
+      }
+    },
+    {
+      "trial": "action-004",
+      "fixed_support_tv": 0.14754453437839635,
+      "normalized_tv_change": 0.0007302400395149927,
+      "added_fraction": 0.0006782419967444384,
+      "losses": {
+        "train": 24.610444353760087,
+        "validation": 25.202634830413203,
+        "test": 24.935309735200093
+      }
+    },
+    {
+      "trial": "action-005",
+      "fixed_support_tv": 0.14760162051964512,
+      "normalized_tv_change": 0.0011174304432496661,
+      "added_fraction": 0.0006918068366793272,
+      "losses": {
+        "train": 24.615628462188234,
+        "validation": 25.20843766728417,
+        "test": 24.938482567422135
+      }
+    },
+    {
+      "trial": "action-006",
+      "fixed_support_tv": 0.14799047444241503,
+      "normalized_tv_change": 0.0037548570420272735,
+      "added_fraction": 0.0007053716766142159,
+      "losses": {
+        "train": 24.609887441069535,
+        "validation": 25.211125909579117,
+        "test": 24.933676417511045
+      }
+    },
+    {
+      "trial": "action-007",
+      "fixed_support_tv": 0.14807156733155383,
+      "normalized_tv_change": 0.004304874748581144,
+      "added_fraction": 0.0006646771568095496,
+      "losses": {
+        "train": 24.63263258126488,
+        "validation": 25.208431105757725,
+        "test": 24.920623995412964
+      }
+    },
+    {
+      "trial": "action-008",
+      "fixed_support_tv": 0.1476750319099519,
+      "normalized_tv_change": 0.0016153478927360067,
+      "added_fraction": 0.0006239826370048833,
+      "losses": {
+        "train": 24.60534690203483,
+        "validation": 25.211521053371353,
+        "test": 24.9220800455499
+      }
+    },
+    {
+      "trial": "action-009",
+      "fixed_support_tv": 0.1476285373964844,
+      "normalized_tv_change": 0.001299995881772846,
+      "added_fraction": 0.0005561584373304395,
+      "losses": {
+        "train": 24.606799558989007,
+        "validation": 25.209209654102104,
+        "test": 24.918155238770318
+      }
+    },
+    {
+      "trial": "action-010",
+      "fixed_support_tv": 0.14750913447536174,
+      "normalized_tv_change": 0.0004901379333241398,
+      "added_fraction": 0.0005425935973955507,
+      "losses": {
+        "train": 24.603594612808006,
+        "validation": 25.20700631702976,
+        "test": 24.92022217699803
+      }
+    },
+    {
+      "trial": "action-011",
+      "fixed_support_tv": 0.14789525167461087,
+      "normalized_tv_change": 0.003109002529805936,
+      "added_fraction": 0.0006375474769397721,
+      "losses": {
+        "train": 24.619986693980547,
+        "validation": 25.237110871035554,
+        "test": 24.962874606798636
+      }
+    },
+    {
+      "trial": "action-012",
+      "fixed_support_tv": 0.14759150253019593,
+      "normalized_tv_change": 0.0010488045327551399,
+      "added_fraction": 0.0004205100379815518,
+      "losses": {
+        "train": 24.61089060650175,
+        "validation": 25.234000600312037,
+        "test": 24.921235084145724
+      }
+    },
+    {
+      "trial": "action-013",
+      "fixed_support_tv": 0.14773047739507617,
+      "normalized_tv_change": 0.0019914104413845985,
+      "added_fraction": 0.0006918068366793272,
+      "losses": {
+        "train": 24.610118278701044,
+        "validation": 25.217283633495814,
+        "test": 24.920906576729482
+      }
+    },
+    {
+      "trial": "action-014",
+      "fixed_support_tv": 0.1471834031541453,
+      "normalized_tv_change": -0.001719155583664608,
+      "added_fraction": 0.00039338035811177426,
+      "losses": {
+        "train": 24.64319072882212,
+        "validation": 25.235540058471127,
+        "test": 24.963762482612598
+      }
+    },
+    {
+      "trial": "action-015",
+      "fixed_support_tv": 0.14748640629787158,
+      "normalized_tv_change": 0.000335982616007825,
+      "added_fraction": 0.0006375474769397721,
+      "losses": {
+        "train": 24.619377011467044,
+        "validation": 25.2255449234495,
+        "test": 24.92659991129488
+      }
+    }
+  ],
+  "assessment": "15/16 patch removals increased fixed-support TV. One validation-action removal lowered TV 0.172% but increased validation/test weighted MSE 0.117%/0.177%. Ridge model test-action MSE exceeded the constant-training-mean control; learned proposal selected no change. No independent-scan transfer, injected-RFI recovery or imaging quality improvement established."
+}

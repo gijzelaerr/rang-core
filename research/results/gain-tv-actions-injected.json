@@ -1,0 +1,430 @@
+{
+  "date": "2026-09-23",
+  "experiment": "Patch-removal gain-TV action learning on copied time-burst strength10 control",
+  "run": "outputs/tv-flagging-actions-injected-01",
+  "provenance": {
+    "fixture": true,
+    "scope": {
+      "telescope": "MeerKAT",
+      "band": "L",
+      "frequency_range_mhz": [
+        856,
+        1711.791015625
+      ]
+    },
+    "observation_projects": [
+      "20230103-0005"
+    ],
+    "selected_frequency_range_mhz": [
+      1070,
+      1497.791015625
+    ],
+    "source": "/workspace/outputs/tv-injections-pilot-01/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+    "source_url": "https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-wflow-pointing-offset/-/tree/main/tests/data",
+    "archive_sha256": "d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f",
+    "source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "original_flag_snapshot_sha256": "2523cc2ac016731e3b91a5eb565df1d1757b8a9ccee276888905d5b7b9abf771",
+    "model_column": "RANG_MODEL_DATA",
+    "model_convention": "unpolarized phase-centre Reynolds point approximation",
+    "seed": 7,
+    "channels": [
+      1024,
+      3072
+    ],
+    "split_gain_intervals": [
+      2,
+      32
+    ],
+    "minimum_train_per_baseline_gain_bin": 2,
+    "shape": [
+      140,
+      4096,
+      4
+    ],
+    "original_cell_flag_fraction": 0.468267822265625,
+    "original_row_flag_count": 0,
+    "split_counts": {
+      "train": 73720,
+      "validation": 9115,
+      "test": 9169
+    },
+    "versions": {
+      "quartical": "0.2.7",
+      "stimela": "2.1.4",
+      "numpy": "2.5.3",
+      "python-casacore": "3.8.1",
+      "dask-ms": "0.2.32",
+      "numba": "0.67.0"
+    },
+    "kernel_sha256": "4e3ea5377a6e0ba788d1a071fcb2ada491f893b821af7825d64e9b83d21d343e",
+    "code_sha256": {
+      "python/rangtoy/flagging.py": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba",
+      "python/rangtoy/flagging_workflow.py": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a",
+      "src/tv.rs": "f9ffa3faceae2f10a780b97d237bbd1626cae9a4b9ed664dc1fdcabc43b60433",
+      "recipes/tv-flagging.yaml": "28999dd58f439bc8eee351e5a479a8c411e0626d9ac631eb67da73fecb080986",
+      "tools/flagging/Dockerfile": "74bdce21acc9eda378d6b32a34943c791ff69881a01d786d4837cc5f1b350a35",
+      "tools/flagging/requirements.lock": "29b04f9825e5e479bb39f1249354f37a5c37b4329d643ea9f5a0758f383a602c"
+    }
+  },
+  "configuration": {
+    "seed": 29,
+    "action_count": 16,
+    "iterations": 50,
+    "prepared_input": "/workspace/outputs/tv-injections-pilot-01/cases/time-burst-s10",
+    "prepared_input_digest": "b648f6105e439fc4fe2d9342b10f76fc4126100be9b4de77ae47e00c838a869c",
+    "ridge_penalties": [
+      0.1,
+      1,
+      10
+    ],
+    "feature_source": "training visibilities and training-only solved gains",
+    "target": "(fixed_support_TV(action)-TV(baseline))/TV(baseline)",
+    "timing": "Linux amd64 emulation on macOS ARM; not native performance",
+    "module_sha256": "d82c7a9b8731c14a6adb719acb866ec3be11421f4422cff3cf8526f886fd7d42",
+    "limitations": "Single reference-pointing scan; action holdouts are not independent observations. Prepared input may contain documented injections, whose truth is never read by this learner. No imaging or flux validation."
+  },
+  "baseline": {
+    "trial": "baseline",
+    "seconds": 6.92213650299982,
+    "tv": 0.14900949491572685,
+    "raw_tv": 0.26793367863747064,
+    "time_tv": 0.028320702799506103,
+    "frequency_tv": 0.12068879211622073,
+    "scale": 1.0520039063056514,
+    "valid_gain_fraction": 0.3208705357142857,
+    "losses": {
+      "train": 24.982754819582826,
+      "validation": 25.375958057901308,
+      "test": 25.069031585698095
+    },
+    "invalid_predictions": {
+      "train": 0,
+      "validation": 0,
+      "test": 0
+    },
+    "added_count": 0,
+    "added_fraction": 0
+  },
+  "action_split": {
+    "train": [
+      7,
+      10,
+      6,
+      13,
+      9,
+      8,
+      15,
+      2,
+      4,
+      1
+    ],
+    "validation": [
+      5,
+      11,
+      14
+    ],
+    "test": [
+      3,
+      0,
+      12
+    ]
+  },
+  "model": {
+    "feature_names": [
+      "log_sample_count",
+      "median_residual_z",
+      "p95_residual_z",
+      "max_residual_z",
+      "median_relative_tv",
+      "max_relative_tv",
+      "mean_log_whitened_amplitude",
+      "std_log_whitened_amplitude"
+    ],
+    "center": [
+      3.9513817317981705,
+      0.19825396820821023,
+      1.054502718783895,
+      1.2960701017349836,
+      1.5018243697805704,
+      1.5018243697805704,
+      1.8720834016137435,
+      0.27427002685107654
+    ],
+    "scale": [
+      0.10802083995614264,
+      0.32731202750702987,
+      0.7817509022372829,
+      0.8277138867918133,
+      1.0050416598705556,
+      1.0050416598705556,
+      0.49126608366164104,
+      0.06149203480320536
+    ],
+    "coefficients": [
+      0.001067298335869889,
+      -0.000024716512113184516,
+      -0.00013866905544802785,
+      -0.000047541342379813165,
+      -0.00001903107504467605,
+      0.000044729789739149244,
+      0.00004472978973914926,
+      0.00016630492923855504,
+      0.00018909952493874422
+    ],
+    "ridge_penalty": 10,
+    "validation_action_mse": 3.324765982105423e-7,
+    "tuning": [
+      {
+        "penalty": 0.1,
+        "validation_mse": 0.000007908619627621613
+      },
+      {
+        "penalty": 1,
+        "validation_mse": 0.0000012788669861380145
+      },
+      {
+        "penalty": 10,
+        "validation_mse": 3.324765982105423e-7
+      }
+    ],
+    "missing_labels": {
+      "train": 0,
+      "validation": 0,
+      "test": 0
+    },
+    "kind": "ridge predictor of measured patch-removal gain-TV change",
+    "predicted_changes": [
+      0.0009610862681631409,
+      0.0008477744329818935,
+      0.001070331589126568,
+      0.001164552539832848,
+      0.001152120485201628,
+      0.0010799381672682903,
+      0.0012397827525821783,
+      0.001184351944413293,
+      0.000879669868474146,
+      0.0010193585503424072,
+      0.0011943038140409439,
+      0.0012293123362570528,
+      0.0009970857105204003,
+      0.0010710634529176066,
+      0.0016628759854817288,
+      0.001014226468618223
+    ],
+    "selected_training_actions": [],
+    "proposal_accepted": false,
+    "no_change": true,
+    "transfer_validated": false,
+    "test_action_mse": 9.546514371648136e-7,
+    "constant_predictor_test_mse": 9.397650477129291e-7
+  },
+  "selected": {
+    "trial": "baseline",
+    "seconds": 6.92213650299982,
+    "tv": 0.14900949491572685,
+    "raw_tv": 0.26793367863747064,
+    "time_tv": 0.028320702799506103,
+    "frequency_tv": 0.12068879211622073,
+    "scale": 1.0520039063056514,
+    "valid_gain_fraction": 0.3208705357142857,
+    "losses": {
+      "train": 24.982754819582826,
+      "validation": 25.375958057901308,
+      "test": 25.069031585698095
+    },
+    "invalid_predictions": {
+      "train": 0,
+      "validation": 0,
+      "test": 0
+    },
+    "added_count": 0,
+    "added_fraction": 0
+  },
+  "audit": {
+    "original_flags_preserved": true,
+    "original_unchanged": true,
+    "final_data_unchanged": true,
+    "prepared_input_unchanged": true,
+    "holdout_additions": 0
+  },
+  "actions": [
+    {
+      "trial": "action-000",
+      "fixed_support_tv": 0.14906974391863406,
+      "normalized_tv_change": 0.0004043299585794088,
+      "added_fraction": 0.0006646771568095496,
+      "losses": {
+        "train": 24.985232359658657,
+        "validation": 25.379338721179142,
+        "test": 25.067948584665125
+      }
+    },
+    {
+      "trial": "action-001",
+      "fixed_support_tv": 0.14901402816982778,
+      "normalized_tv_change": 0.000030422585510403573,
+      "added_fraction": 0.0006646771568095496,
+      "losses": {
+        "train": 24.98316055643634,
+        "validation": 25.37609729004179,
+        "test": 25.06859060050384
+      }
+    },
+    {
+      "trial": "action-002",
+      "fixed_support_tv": 0.14911011283623848,
+      "normalized_tv_change": 0.0006752450276308999,
+      "added_fraction": 0.0007325013564839935,
+      "losses": {
+        "train": 24.985517655325182,
+        "validation": 25.37757073051698,
+        "test": 25.067407734746553
+      }
+    },
+    {
+      "trial": "action-003",
+      "fixed_support_tv": 0.14896668733637222,
+      "normalized_tv_change": -0.0002872808835358828,
+      "added_fraction": 0.0005697232772653283,
+      "losses": {
+        "train": 24.984389992214663,
+        "validation": 25.376844256423098,
+        "test": 25.071176354940057
+      }
+    },
+    {
+      "trial": "action-004",
+      "fixed_support_tv": 0.1493016574549503,
+      "normalized_tv_change": 0.0019606974668875316,
+      "added_fraction": 0.000529028757460662,
+      "losses": {
+        "train": 24.992526864643363,
+        "validation": 25.388838619346995,
+        "test": 25.082175468649005
+      }
+    },
+    {
+      "trial": "action-005",
+      "fixed_support_tv": 0.14928814459414247,
+      "normalized_tv_change": 0.0018700129047025697,
+      "added_fraction": 0.00040694519804666303,
+      "losses": {
+        "train": 24.989799013833693,
+        "validation": 25.373061098998686,
+        "test": 25.073524745537732
+      }
+    },
+    {
+      "trial": "action-006",
+      "fixed_support_tv": 0.14935081160956787,
+      "normalized_tv_change": 0.0022905701011472737,
+      "added_fraction": 0.0007189365165491047,
+      "losses": {
+        "train": 24.987675944502723,
+        "validation": 25.38587764930984,
+        "test": 25.07389784211167
+      }
+    },
+    {
+      "trial": "action-007",
+      "fixed_support_tv": 0.14908836077088505,
+      "normalized_tv_change": 0.0005292673141587961,
+      "added_fraction": 0.0006918068366793272,
+      "losses": {
+        "train": 24.985178571775123,
+        "validation": 25.38264881028116,
+        "test": 25.068014683445597
+      }
+    },
+    {
+      "trial": "action-008",
+      "fixed_support_tv": 0.14900793639996124,
+      "normalized_tv_change": -0.000010459170850092003,
+      "added_fraction": 0.0006918068366793272,
+      "losses": {
+        "train": 24.98681433694064,
+        "validation": 25.3818186334628,
+        "test": 25.071890734426628
+      }
+    },
+    {
+      "trial": "action-009",
+      "fixed_support_tv": 0.14895639758839982,
+      "normalized_tv_change": -0.0003563351943247511,
+      "added_fraction": 0.000759631036353771,
+      "losses": {
+        "train": 24.98637838058267,
+        "validation": 25.370898280597487,
+        "test": 25.06754693285145
+      }
+    },
+    {
+      "trial": "action-010",
+      "fixed_support_tv": 0.14951045823259174,
+      "normalized_tv_change": 0.0033619556736851647,
+      "added_fraction": 0.0007189365165491047,
+      "losses": {
+        "train": 25.001612821959366,
+        "validation": 25.389510735001835,
+        "test": 25.061530223479657
+      }
+    },
+    {
+      "trial": "action-011",
+      "fixed_support_tv": 0.1491208628682951,
+      "normalized_tv_change": 0.000747388296505752,
+      "added_fraction": 0.0003391209983722192,
+      "losses": {
+        "train": 24.990406857695444,
+        "validation": 25.38806998899006,
+        "test": 25.081721786496633
+      }
+    },
+    {
+      "trial": "action-012",
+      "fixed_support_tv": 0.14905853934742808,
+      "normalized_tv_change": 0.00032913628577135813,
+      "added_fraction": 0.0006104177970699946,
+      "losses": {
+        "train": 24.98596414458909,
+        "validation": 25.384510469330877,
+        "test": 25.06915996470134
+      }
+    },
+    {
+      "trial": "action-013",
+      "fixed_support_tv": 0.14928653081333998,
+      "normalized_tv_change": 0.0018591828511989167,
+      "added_fraction": 0.0008138903960933261,
+      "losses": {
+        "train": 25.00728681655633,
+        "validation": 25.382820583781456,
+        "test": 25.058247519844493
+      }
+    },
+    {
+      "trial": "action-014",
+      "fixed_support_tv": 0.1493132244883305,
+      "normalized_tv_change": 0.0020383236167295076,
+      "added_fraction": 0.0003391209983722192,
+      "losses": {
+        "train": 24.98564877091719,
+        "validation": 25.376901429970292,
+        "test": 25.072023124164915
+      }
+    },
+    {
+      "trial": "action-015",
+      "fixed_support_tv": 0.1490590311410299,
+      "normalized_tv_change": 0.0003324367036547463,
+      "added_fraction": 0.0006375474769397721,
+      "losses": {
+        "train": 24.99928554640737,
+        "validation": 25.39538038252477,
+        "test": 25.076023901863703
+      }
+    }
+  ],
+  "assessment": "13/16 removals increased TV; three lowered TV slightly. Ridge test-action MSE9.546514e-7 versus constant9.397650e-7, no advantage. No nonempty learned proposal; no injection recovery improvement. Learner never reads injection.npz or oracle/truth. Prepared input, original flags/source and final DATA audits pass."
+}

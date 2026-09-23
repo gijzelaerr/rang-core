@@ -1,0 +1,39 @@
+opts:
+  backend: {select: native}
+  log: {dir: outputs/stimela-action-logs, nest: 1}
+
+cabs:
+  rang-flagging-actions:
+    flavour: python
+    command: rangtoy.flagging_actions.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      archive: {dtype: File}
+      prepared_dir: {dtype: Directory}
+      seed: {dtype: int, default: 29}
+      action_count: {dtype: int, default: 16}
+      iterations: {dtype: int, default: 50}
+
+tv-flagging-actions:
+  info: Measure disjoint patch-removal effects with full-Jones re-solves and fit a gain-TV action predictor.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    archive: {dtype: File}
+    prepared-dir: {dtype: Directory, info: Read-only compatible prepared state; choose this OR archive.}
+    seed: {dtype: int, default: 29}
+    action-count: {dtype: int, default: 16}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    model: {dtype: File, implicit: '{recipe.run-dir}/model.json', path_policies: {mkdir_parent: false}}
+    flagged-ms: {dtype: MS, implicit: '{recipe.run-dir}/flagged.ms', path_policies: {mkdir_parent: false}}
+  steps:
+    actions:
+      cab: rang-flagging-actions
+      params:
+        run_dir: =recipe.run-dir
+        archive: =IFSET(recipe.archive)
+        prepared_dir: =IFSET(recipe.prepared-dir)
+        seed: =recipe.seed
+        action_count: =recipe.action-count
+        iterations: =recipe.iterations

@@ -1,0 +1,41 @@
+# Known-contamination controls. Fresh output directory; immutable real input.
+opts:
+  backend:
+    select: native
+  log:
+    dir: outputs/stimela-injection-logs
+    nest: 1
+
+cabs:
+  rang-rfi-injection-controls:
+    flavour: python
+    command: rangtoy.flagging_injections.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      archive: {dtype: File, required: true}
+      seed: {dtype: int, default: 19}
+      strengths: {dtype: 'List[float]', default: [3.0, 10.0]}
+      patterns: {dtype: 'List[str]', default: [narrowband, time-burst, antenna-local]}
+      iterations: {dtype: int, default: 50}
+
+tv-flagging-injections:
+  info: Train-only synthetic RFI injections on a real MeerKAT L-band copy; clean, contaminated, oracle and TV-policy controls.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    archive: {dtype: File, required: true}
+    seed: {dtype: int, default: 19}
+    strengths: {dtype: 'List[float]', default: [3.0, 10.0]}
+    patterns: {dtype: 'List[str]', default: [narrowband, time-burst, antenna-local]}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/result.json'}
+  steps:
+    controls:
+      cab: rang-rfi-injection-controls
+      params:
+        run_dir: =recipe.run-dir
+        archive: =recipe.archive
+        seed: =recipe.seed
+        strengths: =recipe.strengths
+        patterns: =recipe.patterns
+        iterations: =recipe.iterations

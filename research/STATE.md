@@ -70,7 +70,81 @@ JSON parsing and the complete Stimela2 replay in
 `ab9a0c849041a418a6abce788a25f4dcac1d336883b2ffe2e1516ff4004b4c01`.
 No follow-up quality improvement is yet measured.
 
-## Latest checkpoint
+Parallel execution checkpoint: baseline committed as `35e763b` under
+`Gijs Molenaar <gijsmolenaar@gmail.com>`; no push requested/performed. Three
+delegated workstreams own injection, calibrator-sky and comparator modules,
+recipes, tests and reports; root owns action-benefit and suite integration.
+Individual branches use fresh copied MS and isolated compatible tool venvs.
+Crystalball's psutil requirement conflicts with Stimela; Tricolour's legacy
+Numba requirement conflicts with QuartiCal. Separate `/opt/sky` and
+`/opt/tricolour` environments resolve these without altering the base solver.
+
+Action branch completed `outputs/tv-flagging-actions-01/`: 16 disjoint
+counterfactual patch re-solves, 10/3/3 train/validation/test actions, seed29.
+Fifteen removals increased fixed-support TV. One validation-action removal
+lowered TV0.172% but worsened validation/test MSE0.117%/0.177%; this illustrates
+that smoother fitted gains do not necessarily predict held-out data better.
+Ridge model test-action MSE2.971197e-6 exceeds constant-control1.670672e-6;
+selected no additions. Original flags/data/source/copy audits passed. Compact
+archive `research/results/gain-tv-actions.json`, report `research/flagging-actions.md`.
+Parallel Stimela2 recipe `recipes/tv-flagging-parallel.yaml` prevalidates under
+installed2.1.4 with native `for_loop.scatter=4`; full concurrent execution is
+not yet verified. Suite image successfully combines the two separate venvs
+and passes all three pip checks. Injection, sky and comparator pilots remain
+in progress; retain their checkpoints and do not claim scientific improvement.
+
+Further parallel checkpoint: all six injection cases passed, 49 actual solves.
+Strong time-burst injection-only oracle improves currentobjective1.25→1.24873479
+while proposalpolicy choosesnochange. Oracle is evaluation-only. Three-sky
+control passed: fullcatalog improves val/test MSE~1.20%/~0.98% vs officialprimary
+but slightly raises TV. Clean and strongnarrowband comparatorpilots passed with
+nochange; packaged Tricolour dilation expandsrandomholdoutholes and is retained
+as negativecontrol, explicit holdout-safe settings tested separately.
+Root actionpilot on copiedtimeburst completed16 re-solves, source/flags/DATA
+audits passed, nochange; predictor testMSE9.546514e-7 vsconstant9.397650e-7.
+Full suite is running native scatter4 in `outputs/tv-flagging-parallel-01/`;
+sky and action branches complete, comparator/injection branches ongoing.
+Review found generic preparedDir trust/nesting safety gaps; new original-state
+and split validation helper is being added before commit. Trusted measured
+inputs are consistent and no original flags/data were lost. All follow-up
+findings remain local/uncommitted pending integration checks.
+
+Final parallel checkpoint (supersedes the in-progress entries above): all four
+native Stimela2 scatter workers completed in
+`outputs/tv-flagging-parallel-01/`, 18:21:29–18:28:32 UTC, no failures. Individual
+and concurrent pilots reproduce the negative findings summarized in
+`research/flagging-parallel.md` and `research/results/gain-tv-parallel.json`.
+No flagging/imaging superiority or native-performance advantage established.
+The strong time-burst evaluation-only oracle improves the guarded objective;
+current proposals and ridge action learning still select no-change. Fullsky
+predicts held-out data somewhat better while slightly increasing gain TV.
+
+Prepared-input safety integration completed: actual original flags/rows and
+native weights are authoritative, saved/work data and metadata must agree,
+eligible splits must be disjoint and manifest channels/count/grid coherent.
+Nested source/output paths are rejected before creating outputs. Fresh gated
+action and comparator Stimela smokes passed. Final helper
+SHA2568c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab
+independently audited 24 completed prepared inputs read-only, including every
+concurrent branch/case; source/original digests, final DATA/native weights and
+original flags passed. An in-memory original-flag tampering probe was rejected.
+The original scientific runs predate these new guards and remain versioned,
+not silently relabeled as reruns of the strengthened implementation.
+
+Fresh full local verification: release build,14Rust/171Python tests(no skips),
+Clippy,Rust/Ruff lint/format,byte compilation,shell syntax,27result JSON archives
+and whitespace checks passed. All dependency environments and containers were
+built/checked locally; no CI used as a test runner. All six final Stimela recipe
+schemas passed dry-runs without touching real data. Final backup directory:
+`outputs/flagging-backups/20260923-parallel-final/`. The follow-up checkpoint
+contains code and compact measured findings; raw MS/catalog/gain outputs stay
+ignored, never added to Git.
+Baseline commit35e763b is local; no push requested or performed.
+Next discriminating scientific work is broader coherent action proposals and
+independent MeerKAT L-band observation/image/signal-recovery checks, not an
+assumed neural-network or TV-only solution.
+
+## Earlier pointing checkpoint
 
 Handoff documentation supersedes the historical in-progress entries below:
 `research/status.md` is the current scientific assessment and

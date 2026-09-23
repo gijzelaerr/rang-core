@@ -1,0 +1,307 @@
+{
+  "recorded_utc_date": "2026-09-23",
+  "status": "measured three-model diagnostic; no flagging/imaging or novelty claim",
+  "baseline_commit": "35e763b",
+  "run": "outputs/tv-flagging-sky-02",
+  "recipe": "recipes/tv-flagging-sky.yaml",
+  "pilot_image_sha256": "sha256:5efd5b326cf28bcda867bce785e7e480c2d78dc7b40c84eaf1090bd0a2a7e001",
+  "provenance_image_sha256": "sha256:0b577e78a2bf4c1ab440e7ac77b4095576255755d6ad8bc716a38732d408ee41",
+  "image_note": "Final provenance-only image rebuild retains pip installation SHA256 report; scientific package versions unchanged. Unified suite verifies final image independently.",
+  "base_image_sha256": "sha256:60d3f032e16d414fb57c8791d1b64e2537b5eba549f4d2f6a04a0f2d5881c65f",
+  "predictor_addition_sha256": {
+    "crystalball-0.4.3.tar.gz": "562e66471dad835fd36ef098a38890cee9980c68985603eb369c42f7f2d025f6",
+    "psutil-6.1.1-manylinux-x86_64.whl": "97f7cb9921fbec4904f522d972f0c0e1f4fabbdd4e0287813b21215074a0f160",
+    "regions-0.11-manylinux-x86_64.whl": "9bac79ffc6f655c2a38970235bf183bde4df79bc01ebb099296c13bc1fb2c888"
+  },
+  "fixture": {
+    "source_url": "https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-wflow-pointing-offset/-/tree/main/tests/data",
+    "archive_sha256": "d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f",
+    "source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "scope": {
+      "telescope": "MeerKAT",
+      "band": "L",
+      "frequency_range_mhz": [
+        856,
+        1711.791015625
+      ]
+    },
+    "projects": [
+      "20230103-0005"
+    ],
+    "frequency_range_mhz": [
+      1070,
+      1497.791015625
+    ],
+    "split_counts": {
+      "train": 73720,
+      "validation": 9115,
+      "test": 9169
+    }
+  },
+  "settings": {
+    "seed": 7,
+    "channels": [
+      1024,
+      3072
+    ],
+    "time_interval": 2,
+    "freq_interval": 32,
+    "iterations": 50,
+    "gain_type": "QuartiCal complex full 2x2",
+    "gauge": "polar U(2)",
+    "weights": "original",
+    "normalization": "point-baseline median gain norm; fixed for all three",
+    "tv_support": "point-baseline supported edges; gaps not interpolated"
+  },
+  "model": {
+    "sha256": "b277bc6d4095bb22798cc70547d9563a56460eb6e450474854b93117534b1fb9",
+    "url": "https://archive-gw-1.kat.ac.za/public/repository/10.48479/hhhy-4r55/data/fitted.PKS1934.LBand.wsclean.cat.txt",
+    "release": "https://doi.org/10.48479/hhhy-4r55",
+    "author": "B. V. Hugo, SARAO, 2021",
+    "license": "CC BY-NC 4.0",
+    "components": 5153,
+    "convention": "apparent scale; primary-beam response not corrected",
+    "beam_action": "none; do not apply another beam to an apparent model",
+    "applicability": "L-band, MeerKAT ~13.5 m dishes; pointing-scan applicability unverified",
+    "copied_sha256": "b277bc6d4095bb22798cc70547d9563a56460eb6e450474854b93117534b1fb9"
+  },
+  "versions": {
+    "quartical": "0.2.7",
+    "stimela": "2.1.4",
+    "numpy": "2.5.3",
+    "python-casacore": "3.8.1",
+    "dask-ms": "0.2.32",
+    "numba": "0.67.0",
+    "crystalball": "0.4.3",
+    "codex-africanus": "0.4.4",
+    "psutil": "6.1.1",
+    "regions": "0.11"
+  },
+  "measured": {
+    "status": "measured diagnostic; no flags selected",
+    "model": {
+      "sha256": "b277bc6d4095bb22798cc70547d9563a56460eb6e450474854b93117534b1fb9",
+      "url": "https://archive-gw-1.kat.ac.za/public/repository/10.48479/hhhy-4r55/data/fitted.PKS1934.LBand.wsclean.cat.txt",
+      "release": "https://doi.org/10.48479/hhhy-4r55",
+      "author": "B. V. Hugo, SARAO, 2021",
+      "license": "CC BY-NC 4.0",
+      "components": 5153,
+      "convention": "apparent scale; primary-beam response not corrected",
+      "beam_action": "none; do not apply another beam to an apparent model",
+      "applicability": "L-band, MeerKAT ~13.5 m dishes; pointing-scan applicability unverified",
+      "copied_sha256": "b277bc6d4095bb22798cc70547d9563a56460eb6e450474854b93117534b1fb9"
+    },
+    "point": {
+      "trial": "point",
+      "seconds": 5.726301585999863,
+      "tv": 0.14743687007256862,
+      "raw_tv": 0.26732582589692777,
+      "time_tv": 0.027069979216836897,
+      "frequency_tv": 0.12036689085573173,
+      "scale": 1.0520039063056514,
+      "valid_gain_fraction": 0.3208705357142857,
+      "losses": {
+        "train": 24.6028462846425,
+        "validation": 25.20612259882604,
+        "test": 24.919607595129268
+      },
+      "invalid_predictions": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "added_count": 0,
+      "added_fraction": 0
+    },
+    "sarao_primary": {
+      "trial": "sarao-primary",
+      "seconds": 6.1777980030001345,
+      "tv": 0.1474151791496211,
+      "raw_tv": 0.26727622176111615,
+      "time_tv": 0.0270646532719018,
+      "frequency_tv": 0.12035052587771929,
+      "scale": 1.0520039063056514,
+      "valid_gain_fraction": 0.3208705357142857,
+      "losses": {
+        "train": 24.603196964546754,
+        "validation": 25.206515497700416,
+        "test": 24.920061228579975
+      },
+      "invalid_predictions": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "added_count": 0,
+      "added_fraction": 0
+    },
+    "sarao_full": {
+      "trial": "sarao-full",
+      "seconds": 5.836460253000041,
+      "tv": 0.14751498570885924,
+      "raw_tv": 0.2684211320113675,
+      "time_tv": 0.027098599314907747,
+      "frequency_tv": 0.1204163863939515,
+      "scale": 1.0520039063056514,
+      "valid_gain_fraction": 0.3208705357142857,
+      "losses": {
+        "train": 24.350307388756963,
+        "validation": 24.90457754040907,
+        "test": 24.676781551455754
+      },
+      "invalid_predictions": {
+        "train": 0,
+        "validation": 0,
+        "test": 0
+      },
+      "added_count": 0,
+      "added_fraction": 0
+    },
+    "comparison": {
+      "point_fixed_support_tv": 0.14743687007256862,
+      "sky_fixed_support_tv": 0.14751498570885924,
+      "fixed_support_tv_ratio": 1.0005298242987128,
+      "lost_reference_edges": 0,
+      "reference_edge_counts": [
+        984,
+        1094
+      ],
+      "weighted_mse_ratios": {
+        "train": 0.989735378867803,
+        "validation": 0.9880368328276316,
+        "test": 0.9902556232979778
+      },
+      "interpretation": "diagnostic paired model comparison, not physical-model verification or a flagging improvement"
+    },
+    "primary_comparison": {
+      "point_fixed_support_tv": 0.14743687007256862,
+      "sky_fixed_support_tv": 0.1474151791496211,
+      "fixed_support_tv_ratio": 0.9998528799279526,
+      "lost_reference_edges": 0,
+      "reference_edge_counts": [
+        984,
+        1094
+      ],
+      "weighted_mse_ratios": {
+        "train": 1.0000142536314782,
+        "validation": 1.0000155874380456,
+        "test": 1.0000182038761636
+      },
+      "interpretation": "diagnostic paired model comparison, not physical-model verification or a flagging improvement"
+    },
+    "secondary_comparison": {
+      "tv_support": "fixed original point-baseline edge support",
+      "full_over_official_primary_fixed_support_tv": 1.000677043977519,
+      "weighted_mse_ratios": {
+        "train": 0.9897212717455295,
+        "validation": 0.988021432104771,
+        "test": 0.990237597135387
+      },
+      "interpretation": "secondary-field contribution isolated from central spectrum/position change; pointing applicability still unverified"
+    },
+    "prediction_seconds": 41.64948156000037,
+    "audit": {
+      "source_digest_before": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+      "source_digest_after": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+      "original_digest_before": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+      "original_digest_after": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+      "source_unchanged": true,
+      "immutable_copy_unchanged": true,
+      "original_flags_preserved": true,
+      "exact_cell_flags_restored": true,
+      "data_preserved": true,
+      "additional_flag_cells": 0,
+      "prediction_input_columns_unchanged": true
+    },
+    "limitations": [
+      "four-antenna short-baseline reference-pointing scan, not science imaging benchmark",
+      "apparent sky model derived for nominal pointing; current offset/beam state unverified",
+      "original unflagged samples are not guaranteed RFI-free",
+      "lower TV alone does not establish a physically correct model or improved flagging",
+      "amd64 emulation timings are not native performance measurements"
+    ]
+  },
+  "independent_prediction_checks": {
+    "full": {
+      "passed": true,
+      "method": "independently parsed all components + NumPy DFT and ordinary Jy polynomial",
+      "components": 5153,
+      "rows": [
+        4,
+        74,
+        139
+      ],
+      "channels": [
+        1024,
+        2048,
+        3071
+      ],
+      "max_absolute_error_jy": 4.6743821661340527e-7,
+      "field": "J1939-6342",
+      "phase_centre_rad": [
+        5.146178203219012,
+        -1.1119958085589738
+      ],
+      "primary_component_phase_centre_offset_arcsec": 0.03281690890998135,
+      "versions": {
+        "crystalball": "0.4.3",
+        "codex-africanus": "0.4.4",
+        "numpy": "2.5.3",
+        "dask-ms": "0.2.32",
+        "numba": "0.67.0",
+        "python-casacore": "3.8.1",
+        "psutil": "6.1.1",
+        "regions": "0.11"
+      }
+    },
+    "primary": {
+      "passed": true,
+      "method": "independently parsed all components + NumPy DFT and ordinary Jy polynomial",
+      "components": 1,
+      "rows": [
+        4,
+        74,
+        139
+      ],
+      "channels": [
+        1024,
+        2048,
+        3071
+      ],
+      "max_absolute_error_jy": 4.6921167840365895e-7,
+      "field": "J1939-6342",
+      "phase_centre_rad": [
+        5.146178203219012,
+        -1.1119958085589738
+      ],
+      "primary_component_phase_centre_offset_arcsec": 0.03281690890998135,
+      "versions": {
+        "crystalball": "0.4.3",
+        "codex-africanus": "0.4.4",
+        "numpy": "2.5.3",
+        "dask-ms": "0.2.32",
+        "numba": "0.67.0",
+        "python-casacore": "3.8.1",
+        "psutil": "6.1.1",
+        "regions": "0.11"
+      }
+    }
+  },
+  "negative_results": [
+    "Higher-quality prediction ordering did not match lower-TV ordering: full sky lowers heldout MSE but raises fixed-support TV slightly.",
+    "Single-environment Crystalball0.4.3/Stimela2.1.4 build fails dependency checks due contradictory psutil requirements; separate predictor venv resolves this without altering shared calibration packages."
+  ],
+  "validation": {
+    "targeted_python_tests": 4,
+    "ruff": true,
+    "three_control_stimela_recipe": true,
+    "both_environment_pip_check": true,
+    "source_flags_data_weight_preservation": true
+  },
+  "independent_final_native_weight_checks": {
+    "method": "exact WEIGHT and WEIGHT_SPECTRUM equality between work.ms and immutable original.ms, including NaNs",
+    "outputs/tv-flagging-sky-01": true,
+    "outputs/tv-flagging-sky-02": true,
+    "recorded_utc_date": "2026-09-23"
+  }
+}

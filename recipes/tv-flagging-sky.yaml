@@ -1,0 +1,55 @@
+opts:
+  backend:
+    select: native
+  log:
+    dir: outputs/stimela-flagging-sky-logs
+    nest: 1
+
+cabs:
+  rang-flagging-sky-compare:
+    flavour: python
+    command: rangtoy.flagging_sky.compare
+    inputs:
+      run_dir: {dtype: str, required: true}
+      archive: {dtype: File, required: true}
+      sky_model: {dtype: File, required: true}
+      seed: {dtype: int, default: 7}
+      channel_start: {dtype: int, default: 1024}
+      channel_stop: {dtype: int, default: 3072}
+      time_interval: {dtype: int, default: 2}
+      freq_interval: {dtype: int, default: 32}
+      iterations: {dtype: int, default: 50}
+      predictor: {dtype: str}
+
+tv-flagging-sky:
+  info: Compare a phase-centre point approximation with the full official apparent-scale SARAO L-band calibrator sky, preserving original data and flags.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    archive: {dtype: File, required: true}
+    sky-model: {dtype: File, required: true}
+    seed: {dtype: int, default: 7}
+    channel-start: {dtype: int, default: 1024}
+    channel-stop: {dtype: int, default: 3072}
+    time-interval: {dtype: int, default: 2}
+    freq-interval: {dtype: int, default: 32}
+    iterations: {dtype: int, default: 50}
+    predictor: {dtype: str}
+  outputs:
+    results: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/result.json'}
+    provenance: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/sky-provenance.json'}
+    prediction-verification: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/prediction-verification.json'}
+    flag-audit: {dtype: File, path_policies: {mkdir_parent: false}, implicit: '{recipe.run-dir}/flag-audit.json'}
+  steps:
+    compare:
+      cab: rang-flagging-sky-compare
+      params:
+        run_dir: =recipe.run-dir
+        archive: =recipe.archive
+        sky_model: =recipe.sky-model
+        seed: =recipe.seed
+        channel_start: =recipe.channel-start
+        channel_stop: =recipe.channel-stop
+        time_interval: =recipe.time-interval
+        freq_interval: =recipe.freq-interval
+        iterations: =recipe.iterations
+        predictor: =IFSET(recipe.predictor)

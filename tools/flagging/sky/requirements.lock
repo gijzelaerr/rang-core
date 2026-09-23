@@ -1,0 +1,5 @@
+# Separate prediction venv, constrained by the base lock except psutil.
+# Public PyPI, Python 3.12. Transitive lock is retained in /opt/sky/requirements.lock.
+crystalball==0.4.3
+psutil==6.1.1
+regions==0.11

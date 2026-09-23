@@ -1,0 +1,78 @@
+# Stimela2 2.1.4 native scatter runs up to four isolated branches concurrently.
+opts:
+  backend: {select: native}
+  log: {dir: outputs/stimela-parallel-logs, nest: 1}
+
+cabs:
+  rang-parallel-initialize:
+    flavour: python
+    command: rangtoy.flagging_parallel.initialize
+    inputs:
+      run_dir: {dtype: str, required: true}
+      archive: {dtype: File, required: true}
+      sky_model: {dtype: File}
+      workstreams: {dtype: 'List[str]', default: [injections, sky, comparators, actions]}
+      iterations: {dtype: int, default: 50}
+      action_count: {dtype: int, default: 16}
+      strengths: {dtype: 'List[float]', default: [3.0, 10.0]}
+  rang-parallel-worker:
+    flavour: python
+    command: rangtoy.flagging_parallel.run_workstream
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+      workstream: {dtype: str, choices: [injections, sky, comparators, actions], required: true}
+  rang-parallel-gather:
+    flavour: python
+    command: rangtoy.flagging_parallel.gather
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+
+tv-flagging-branches:
+  inputs:
+    run-dir: {dtype: Directory, required: true}
+    workstreams: {dtype: 'List[str]', required: true}
+  for_loop:
+    var: workstream
+    over: workstreams
+    scatter: 4
+  steps:
+    experiment:
+      cab: rang-parallel-worker
+      params:
+        run_dir: =recipe.run-dir
+        workstream: =recipe.workstream
+
+tv-flagging-parallel:
+  info: Run MeerKAT L-band injection controls, sky-model comparison, established flaggers and action learning concurrently.
+  inputs:
+    run-dir: {dtype: str, required: true, info: Fresh exclusive suite root; each branch owns its MS copies.}
+    archive: {dtype: File, required: true}
+    sky-model: {dtype: File, info: Checksum-pinned SARAO apparent-scale L-band J1939-6342 catalog.}
+    workstreams: {dtype: 'List[str]', default: [injections, sky, comparators, actions]}
+    iterations: {dtype: int, default: 50}
+    action-count: {dtype: int, default: 16}
+    strengths: {dtype: 'List[float]', default: [3.0, 10.0]}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    initialize:
+      cab: rang-parallel-initialize
+      params:
+        run_dir: =recipe.run-dir
+        archive: =recipe.archive
+        sky_model: =IFSET(recipe.sky-model)
+        workstreams: =recipe.workstreams
+        iterations: =recipe.iterations
+        action_count: =recipe.action-count
+        strengths: =recipe.strengths
+    branches:
+      recipe: tv-flagging-branches
+      params:
+        run-dir: =recipe.run-dir
+        workstreams: =recipe.workstreams
+    gather:
+      cab: rang-parallel-gather
+      params:
+        run_dir: =recipe.run-dir
+
+DEFAULT: tv-flagging-parallel
