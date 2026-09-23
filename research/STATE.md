@@ -4,6 +4,53 @@ Updated 2026-09-23.
 
 ## Current continuation and routing
 
+Handoff/rules/CARACAL source checkpoint3d561d1 pushed toorigin/main; no agent
+attribution or Spotify identity. New native verification module/recipe/wrapper
+implemented, measurements pending. It compares operational and artificial
+holdout-masked input flags under unmodified first-pass/mild CARACAL YAMLs.
+Installed Tricolour0.2.1 polynomial cycles can discard starting masks, so neither
+control is advertised as unseen-holdout policy evaluation. Actual gain solves
+always preserve every originalflag/row. The new implementation passed all local
+checks and179Python/14Rust tests; native measurements are separately recorded.
+
+Native default CARACAL verification started in `outputs/tv-caracal-clean-01/`:
+first-pass and mild strategies × operational/holdout-masked inputs, full native
+CLI withoneworker, no network, protected copies and recorded engine/mask hashes.
+Baseline reproducesTV0.1474368701/validation25.20612260. Source code frozen for
+this run, pre-runbackup `outputs/flagging-backups/20260923-caracal-native/code.tar.gz`.
+Full new suite already passed14Rust/179Python tests(no skips), releasebuild,
+Clippy,Rust/Ruff lint/format,bytecompile andshellsyntax. Both first-pass controls
+completed successfully and preserved persisted original flags/rows/DATA/weights,
+but propose36.207%/36.133% extra training flags, lose fixed TV support and have
+unavailable validation losses. Both are rejected; no policy is chosen. Partial
+archive `research/results/gain-tv-caracal-progress.json` explicitly records2of4
+controls and final source audit pending. Full-strategy mild controls ongoing.
+Verified non-TTY Dask progress logger adds~300seconds per native CLI call;
+do not misidentify the sleeping timer as deadlock or use it as kernel timing.
+
+Representative public data identified: `research/flagging-public-data.md` and
+`research/results/meerkat-public-primary-metadata.json`. Metadata/nine numeric
+chunks only, no visibility downloads or pickle decoding. Actual primary archive
+has61antennas/eightscans/fullLband/XX,XY,YX,YY and supplied MODEL_DATA/nativeweights.
+A proposed one-tile DATA/model/FLAG/weight acquisition would fetch353.48MiB
+compressed; current~21GiB disk requires strict capacity/backups accounting.
+Flag/model provenance, occupancy and support remain unverified. Closure-based
+cross-check is now documented as a proposed hypothesis, not an implementation.
+
+Structured TRAIN-only multiscale candidate generation is proceeding in parallel
+with the native verification under the earlier user authorization. Root owns
+integration/recipes/results; injection-controls agent owns only the new pure
+candidate module/tests. Frozen residual and TV-conditioned scoring/top8 budgets
+must be archived before any actual gain re-solves. No structured result yet.
+
+Native implementation/partial-results/public-data checkpoint pre-commit checks:
+release build,14Rust/179Python tests(no skips),Clippy,Rust/Ruff lint/format,
+bytecompile,all wrapper shell syntax,30research JSON archives and all three
+container pip checks pass. Actual native recipe prevalidation/execution is
+underway on protected copies. Backup
+`outputs/flagging-backups/20260923-caracal-progress-commit/code.tar.gz`,
+SHA25688047647948a3b53cdf3b7d9dda2230637291cea43d1c3b0454b885c4b5c8472.
+
 The verified baseline/follow-up commits35e763b/f782921 were pushed to origin/main
 at the user's request on2026-09-23. Both author and committer are
 Gijs Molenaar <gijsmolenaar@gmail.com>; no co-author/agent attribution or Spotify

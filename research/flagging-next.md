@@ -58,11 +58,23 @@ without better test prediction/signal fidelity is not a scientific success.
    provenance. Split by observation or scan, not neighboring samples; audit SNR,
    gain-bin support, polarization basis, sky adequacy and original flag origin.
    Acquisition/processing must fit disk capacity; do not silently discard backups.
+   A [public normal primary-calibrator candidate](flagging-public-data.md) now has
+   verified numeric metadata: 61 participants, eight scans and full L-band.
+   No visibility acquisition, conversion or transfer experiment has run.
 5. **Identify when flagging is the wrong action.** Include robust likelihoods
    and, for parameterizable moving RFI, subtraction as controls. TABASCAL reports
    simulated MeerKAT gains from joint modeling rather than discarding data;
    its single-channel satellite setting does not validate our broad-band policy:
    [Finlay et al., revised August2026](https://arxiv.org/html/2502.00106).
+6. **Cross-check gain TV with gain-insensitive closure quantities.** Full-matrix
+   closure traces cancel station-based gain/leakage terms under their assumptions:
+   [Broderick & Pesce 2020](https://arxiv.org/abs/2010.00612),
+   [Samuel, Nityananda & Thyagarajan 2022](https://arxiv.org/abs/2108.11400).
+   Proposed diagnostic: compare noise-aware closure/model mismatch with TV maps
+   to distinguish genuine rapid station gains from baseline corruption. This is
+   an inference, not an implemented RFI classifier. Sky errors, thermal noise
+   and near-singular visibility matrices also affect closure diagnostics; test
+   those no-RFI controls and require conditioning/support guards first.
 
 ## Prior-art boundaries and possible contribution
 

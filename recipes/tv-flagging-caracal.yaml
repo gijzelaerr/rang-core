@@ -1,0 +1,40 @@
+# Verification-only full native strategies, not a full CARACAL pipeline.
+opts:
+  backend: {select: native}
+  log: {dir: outputs/stimela-caracal-logs, nest: 1}
+
+cabs:
+  rang-caracal-verify:
+    flavour: python
+    command: rangtoy.flagging_caracal.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      strategy_dir: {dtype: Directory, required: true}
+      strategies: {dtype: 'List[str]', default: [mk_rfi_flagging_calibrator_fields_firstpass.yaml, calibrator_mild_flagging.yaml]}
+      modes: {dtype: 'List[str]', default: [operational, holdout_masked]}
+      iterations: {dtype: int, default: 50}
+
+tv-flagging-caracal:
+  info: Verify unmodified pinned CARACAL Tricolour strategies with protected MS copies and diagnostic full-Jones solves.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    strategy-dir: {dtype: Directory, required: true}
+    strategies: {dtype: 'List[str]', default: [mk_rfi_flagging_calibrator_fields_firstpass.yaml, calibrator_mild_flagging.yaml]}
+    modes: {dtype: 'List[str]', default: [operational, holdout_masked]}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    verify:
+      cab: rang-caracal-verify
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        strategy_dir: =recipe.strategy-dir
+        strategies: =recipe.strategies
+        modes: =recipe.modes
+        iterations: =recipe.iterations
+
+DEFAULT: tv-flagging-caracal

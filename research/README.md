@@ -29,12 +29,19 @@ has been established. The tiny fixture is a four-antenna dedicated pointing scan
 not a representative science observation.
 
 [Pinned CARACAL strategy/worker inspection](flagging-caracal.md) records the
-production-strategy differences and the next verification design.
+production-strategy differences, executable full-strategy recipe and the first
+two measured controls. The [partial archive](results/gain-tv-caracal-progress.json)
+explicitly marks the remaining controls/final audit pending.
+[Representative public data](flagging-public-data.md) records a bounded,
+metadata-verified 61-antenna primary-calibrator candidate, not a new data result.
 
-Latest verified checkpoint: 14 Rust/171 Python tests, full local checks, six
+Baseline/follow-up verified checkpoint: 14 Rust/171 Python tests, full local checks, six
 recipe dry-runs, actual concurrent execution and 24 read-only prepared-input
 audits. Commits `35e763b` and `f782921` were pushed to origin/main on 2026-09-23.
 Further development must record its own checks rather than inherit these counts.
+Native CARACAL implementation/partial-results checkpoint: 14 Rust/179 Python
+tests, full local build/lint/format checks and all three runtime dependency
+checks pass. The complete four-control run and final source audit are pending.
 
 ## Resume safely
 
