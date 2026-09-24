@@ -162,4 +162,3 @@ received raw digest:
 Python3.12.14; QuartiCal0.2.7, Stimela2.1.4, NumPy2.5.3,
 codex-africanus0.4.4 (the prediction library), python-casacore3.8.1;
 the four frozen helper hashes and package receipts verify exactly.
-

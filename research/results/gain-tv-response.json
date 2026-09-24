@@ -2,9 +2,9 @@
   "archive_format": "rang-conditional-calibration-response-v1",
   "independent_audit": {
     "archive": "research/results/gain-tv-response-audit.json",
-    "archive_sha256": "a4f4e949171134fa82362433a2ca5ccf8b4361d2f09d56fadd9217844b89485d",
+    "archive_sha256": "8e46288057230a9efb6d62c8c8203b368334bbe44c11b222532d76d745b58468",
     "report": "research/flagging-response-verification.md",
-    "report_sha256": "34bec4b119b4f8f7b20600dd7066acab525824aee547100be339aaf3d5d26a8f",
+    "report_sha256": "3bbcf1b26b97688cf74380043923877fecbe844c9cf985ee6eb6a1170f7fca19",
     "initial_exact_and_numerical_checks": 614,
     "initial_passes": 602,
     "retained_exact_identity_failures": 12,

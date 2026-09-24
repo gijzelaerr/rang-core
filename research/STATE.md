@@ -29,7 +29,7 @@ Independent [input/gain/response audit](flagging-response-verification.md) is co
 qualified roundoff checks and30/30 backup/training-holdout boundary checks pass.
 Full predicates and all three read-only programs:
 `research/results/gain-tv-response-audit.json`, SHA256
-`a4f4e949171134fa82362433a2ca5ccf8b4361d2f09d56fadd9217844b89485d`.
+`8e46288057230a9efb6d62c8c8203b368334bbe44c11b222532d76d745b58468`.
 The same native
 calibration inputs/protocol reproduce all ten prediction losses exactly; nine
 gain products are bit-identical, clean fine differs by≤3.141e-16 and its shared
@@ -53,10 +53,21 @@ percentages/mJy/25.7% underfit and retains one-observation/known-family limitati
 phase wording distinguishes equivariant predictions from invariant residual magnitudes.
 The publication commit is the Git commit containing this entry; preceding
 checked push `1f53a17`. No runtime/settings tuning followed these measurements.
+Formatting fix-forward after local measured commit`52f0b8e`: the staged
+whitespace check found two trailing blank lines in the new audit files, but its
+nonzero status did not stop that commit. Remove only those blanks and update
+their SHA256 receipts; JSON values/report content/raw runs are unchanged. Never
+rewrite the commit: publish this explicitly checked fix-forward too. The current
+Git commit contains the normalized receipts; no data or solver rerun is needed.
 Final code/report snapshot, taken before adding its own receipt:
 `outputs/flagging-backups/20260924-reportable-signal-final/code.tar.gz`,
 SHA256`4f43c78b78f3499224aa93006ffb0e36dba55cc2ebbe45c5088b5b28ff08c381`. All old snapshots and both raw
 response trees remain retained; no research-agent cleanup was performed.
+Normalized fix-forward snapshot before adding its own receipt:
+`outputs/flagging-backups/20260924-reportable-signal-format-final/code.tar.gz`,
+SHA256`2b8e500717b97307d5907262883e7cae304507ce3e66fd3656d10cd28d15d201`. Repeat full checks include
+unchanged audit JSON/report content versus`52f0b8e`, refreshed byte hashes and
+an explicitly gated staged-whitespace check before the fix-forward commit.
 
 Next discriminating experiment: freeze an estimated instrumental-trend/noise
 specificity control and establish independently supported native data/noise
