@@ -236,21 +236,21 @@ def wsclean_command(binary, ms, prefix, tempdir):
         "3072",
         "-field",
         "0",
-        "-datacolumn",
+        "-data-column",
         "CORRECTED_DATA",
         "-gridder",
         "wstacking",
-        "-nwlayers",
+        "-wstack-nwlayers",
         "64",
         "-j",
         "1",
-        "-absmem",
+        "-abs-mem",
         "0.5",
         "-niter",
         "0",
         "-make-psf",
         "-no-update-model-required",
-        "-no-small-inversion",
+        "-no-min-grid-resolution",
         "-no-reorder",
         "-temp-dir",
         str(tempdir),
@@ -339,6 +339,31 @@ def _tool_receipt():
         "manifest_sha256": sha256(path.read_bytes()).hexdigest(),
         "package_manifest": receipt,
         "version_stdout": output,
+    }
+
+
+def parser_preflight(binary, ms):
+    """Validate the complete command against the pinned binary before any copy.
+
+    WSClean's real -dry-run checks parsing/settings without inversion or MS
+    updates. Captured output stays in memory until the fresh output is reserved.
+    """
+    command = wsclean_command(binary, ms, "/tmp/rang-imaging-parser-only", "/tmp")
+    command.insert(1, "-dry-run")
+    completed = subprocess.run(command, capture_output=True, text=True, check=False)
+    output = completed.stdout + completed.stderr
+    if completed.returncode or "Unknown parameter:" in output:
+        raise RuntimeError(
+            "pinned WSClean parser preflight failed before MS copy/write: "
+            + output[-2000:]
+        )
+    return {
+        "command": command,
+        "returncode": completed.returncode,
+        "output": output,
+        "output_sha256": sha256(output.encode()).hexdigest(),
+        "dry_run_only": True,
+        "precedes_any_MS_copy_or_write": True,
     }
 
 
@@ -585,6 +610,7 @@ def run(
     binary, tool = _tool_receipt()
     runtime = _runtime()
     source_hashes = {"response": tree_digest(response), "caracal": tree_digest(caracal)}
+    parser = parser_preflight(binary, response / "clean/work.ms")
     case_paths = {
         "clean": response / "clean",
         "positive": response / "positive",
@@ -696,6 +722,7 @@ def run(
             "boundaries": boundaries,
             "runtime_receipts": runtime,
             "tool": tool,
+            "parser_preflight": parser,
             "suite_image": os.environ.get("RANG_FLAGGING_SUITE_IMAGE"),
             "versions": {
                 x: version(x) for x in ("numpy", "astropy", "python-casacore")

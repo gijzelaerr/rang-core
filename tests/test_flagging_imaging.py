@@ -181,13 +181,108 @@ def test_frozen_command_is_actual_dirty_only_wstacking():
     for key, value in (
         ("-niter", "0"),
         ("-gridder", "wstacking"),
-        ("-nwlayers", "64"),
+        ("-wstack-nwlayers", "64"),
         ("-j", "1"),
-        ("-datacolumn", "CORRECTED_DATA"),
+        ("-data-column", "CORRECTED_DATA"),
+        ("-abs-mem", "0.5"),
     ):
         assert command[command.index(key) + 1] == value
-    assert "-no-update-model-required" in command and "-no-small-inversion" in command
+    assert (
+        "-no-update-model-required" in command and "-no-min-grid-resolution" in command
+    )
+    assert not any(
+        key in command
+        for key in ("-nwlayers", "-datacolumn", "-absmem", "-no-small-inversion")
+    )
     assert command[-1] == "copy.ms" and "-predict" not in command
+
+
+@pytest.mark.parametrize(
+    "returncode,output",
+    [
+        (0, "dry run completed"),
+        (1, "Unknown parameter: datacolumn"),
+        (0, "Unknown parameter: datacolumn"),
+    ],
+)
+def test_real_parser_preflight_is_dry_only_and_failure_prevents_ms_mutation(
+    tmp_path, monkeypatch, returncode, output
+):
+    ms = tmp_path / "readonly-input.ms"
+    ms.mkdir()
+    marker = ms / "original-data"
+    marker.write_text("must survive")
+    calls = []
+
+    def run(command, **kwargs):
+        assert "-dry-run" in command
+        assert kwargs == {"capture_output": True, "text": True, "check": False}
+        calls.append(command)
+        return SimpleNamespace(returncode=returncode, stdout=output, stderr="")
+
+    monkeypatch.setattr(imaging.subprocess, "run", run)
+    monkeypatch.setattr(
+        imaging,
+        "_write_column",
+        lambda *a, **k: pytest.fail("MS write during parser preflight"),
+    )
+    monkeypatch.setattr(
+        imaging.Budget,
+        "copy",
+        lambda *a, **k: pytest.fail("MS copy during parser preflight"),
+    )
+    if returncode or "Unknown parameter:" in output:
+        with pytest.raises(RuntimeError, match="before MS copy/write"):
+            imaging.parser_preflight("/usr/bin/wsclean", ms)
+    else:
+        receipt = imaging.parser_preflight("/usr/bin/wsclean", ms)
+        assert receipt["returncode"] == 0 and receipt["dry_run_only"]
+        assert receipt["precedes_any_MS_copy_or_write"]
+    assert len(calls) == 1 and marker.read_text() == "must survive"
+
+
+def test_run_parser_failure_precedes_state_load_copy_write_and_output_creation(
+    tmp_path, monkeypatch
+):
+    project = tmp_path / "project"
+    response, caracal = project / "outputs/response", project / "outputs/caracal"
+    response.mkdir(parents=True)
+    caracal.mkdir()
+    destination = project / "outputs/fresh"
+    monkeypatch.setattr(
+        imaging, "__file__", str(project / "python/rangtoy/flagging_imaging.py")
+    )
+    monkeypatch.setattr(
+        imaging.shutil, "disk_usage", lambda _: SimpleNamespace(free=20 * 1024**3)
+    )
+    monkeypatch.setattr(imaging, "_tool_receipt", lambda: ("/usr/bin/wsclean", {}))
+    monkeypatch.setattr(imaging, "_runtime", dict)
+    monkeypatch.setattr(imaging, "tree_digest", lambda _: "unchanged")
+    monkeypatch.setattr(
+        imaging.subprocess,
+        "run",
+        lambda *a, **k: SimpleNamespace(
+            returncode=1, stdout="Unknown parameter: datacolumn", stderr=""
+        ),
+    )
+    monkeypatch.setattr(
+        imaging,
+        "load_state",
+        lambda *a, **k: pytest.fail("state loaded after failed parser"),
+    )
+    monkeypatch.setattr(
+        imaging,
+        "_write_column",
+        lambda *a, **k: pytest.fail("MS write after failed parser"),
+    )
+    monkeypatch.setattr(
+        imaging.Budget,
+        "copy",
+        lambda *a, **k: pytest.fail("MS copy after failed parser"),
+    )
+    with pytest.raises(RuntimeError, match="before MS copy/write"):
+        imaging.run(destination, response, caracal)
+    assert not destination.exists()
 
 
 def test_fixed_dirty_offsource_diagnostic_is_not_thermal_noise():

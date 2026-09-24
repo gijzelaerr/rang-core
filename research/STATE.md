@@ -1,5 +1,42 @@
 # Rang research state
 
+Compatibility/confirmed-results checkpoint checks PASS2026-09-24~10:08UTC:
+650Python(no skips),19Rust,releasebuild,Clippy-Dwarnings,cargoformat,
+full-repository Rufflint+format,91Pythoncompiles,57strictJSONarchives,
+four exactrawprojections, embedded auditprogram SHA/compile/allbashsyntax,
+real pinned WSClean parser and separate Stimela dryrun/23YAMLparses.
+Readonly wrapper review removes an unnecessary writable fixed NumBacache mount;
+all imaging temporary caches use tmpfs, preventing symlink/source alias risks.
+An initial zsh unmatched tools/*.sh glob stopped the final syntax step; rerun
+uses rg-selected existing wrappers under bash and passes. No failing check
+authorizes a commit; staged whitespace remains a final gate.
+
+Next checked checkpoint2026-09-24~10:05UTC: prospective independent audit
+2355 predicates PASS, signal558/558 complete readonly recovery PASS, zero
+additional QC. Prospective physics selects the full-union reference choice in
+all3 cases, zero missed benefit; clean/107 nochange,10956 flags known-patch
+recall9.40%. Forecasts improve descriptive RMSE over negative-flag-cost-only
+by4.5–8.6x; no measured runtime/SOTA or trend-ranking advantage claimed.
+Signal guard remains unavailable/UNCERTIFIED at bin811: two TRAIN cells,
+one0–2 baseline,2active stations/rank8 versus required12. Sky completeness,
+not the selected56flagmask, dominates paired compact/extended recovery.
+
+Imaging CLI compatibility fix changes only4 option spellings; fixed physical
+settings,15jobs,budgets/closure tolerances unchanged. Actual pinned parser
+preflight now passes before copying/mutating any MS.43 imaging unit tests;
+650 total Python/19Rust pass. Full-repository Ruff detected3 pre-existing
+Markdown example-format discrepancies; mechanical formatting applied before
+rechecking. First Stimela readonly validation failed on its dependency-file
+write at a readonly cwd; rerun isolates deps/logs in tmpfs and passes.
+Dedicated fresh retry uses `bash tools/flagging/run-imaging.sh
+outputs/tv-next-imaging-20260924-02 outputs/tv-response-20260924-precision-01
+outputs/tv-caracal-clean-01`, after checked source commit/push. Original failed
+master/first imaging remain immutable; no repeated63QC, no fabricated gather.
+Current73GiB free space,8GiB reserve; no cleanup/deletion performed.
+Pre-compatibility checkpoint backup:
+`outputs/flagging-backups/20260924-next-imaging-compatibility/code.tar.gz`,
+SHA256`10c089244cd604a56db81680a10dd4c292a36eee22f4f97697a04d6b8eb681ff`.
+
 Original five-branch run finished09:56:33UTC:4/5 branches succeed; imaging fails
 retained CLI parsing error, so NO top-level result/gather and no claim that the
 original graph completed. Prospective branch finishes54 realQCs (3 baselines+

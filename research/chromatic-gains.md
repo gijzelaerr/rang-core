@@ -32,7 +32,12 @@ The degree 1 model reduces gain coefficients from 240 to 120 (total fitted param
 
 ```python
 fit = solve_pointing(
-    sky, observation, data, times, knots, antenna_count,
+    sky,
+    observation,
+    data,
+    times,
+    knots,
+    antenna_count,
     noise_jy=0.001,
     zero_mean_pointing=True,
     gain_prior_sigma=(0.1, 0.1),

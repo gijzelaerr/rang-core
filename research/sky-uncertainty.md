@@ -35,9 +35,14 @@ The joint solver adds three time-independent, additive flux corrections to the 9
 
 ```python
 solution = solve_pointing(
-    model_sky, training_observation, training_visibilities,
-    times_s, knots_s, antenna_count=8,
-    noise_jy=0.001, smoothness=0.01,
+    model_sky,
+    training_observation,
+    training_visibilities,
+    times_s,
+    knots_s,
+    antenna_count=8,
+    noise_jy=0.001,
+    smoothness=0.01,
     flux_prior_jy=[0.0, 0.0357, 0.0245, 0.0153],
 )
 fitted_sky = model_sky._replace(flux_jy=solution["flux_jy"])

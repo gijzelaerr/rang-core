@@ -44,13 +44,19 @@ JAX `jacfwd` differentiates the complete residual vector with respect to spline 
 
 ```python
 import jax
+
 jax.config.update("jax_enable_x64", True)
 from rangtoy.pointing import solve_pointing
 
 solution = solve_pointing(
-    components, observation, visibilities,
-    times_s, knots_s, antenna_count=8,
-    noise_jy=0.001, smoothness=0.01,
+    components,
+    observation,
+    visibilities,
+    times_s,
+    knots_s,
+    antenna_count=8,
+    noise_jy=0.001,
+    smoothness=0.01,
 )
 offsets = solution["offsets_arcmin"]  # time × antenna × 2
 ```

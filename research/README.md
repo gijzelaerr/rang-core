@@ -7,15 +7,21 @@ Updated 2026-09-24. User instructions and Git attribution live in [AGENTS.md](..
 [Five-track next-results execution plan](flagging-next-results.md) freezes
 TRAIN-estimated trend guidance, absolute signal guards, prospective candidate
 confirmation, bounded textual provenance and actual imaging diagnostics.
-Implementation/execution is in progress; new outcomes are not implied.
+Four branches are measured and independently audited; a separately fresh
+imaging retry follows a preserved CLI compatibility failure. Original master
+gather has not succeeded; no independent-observation/novelty claim is implied.
 
 New completed evidence: [trend-aware guidance](flagging-trend.md),
 [28 replays](results/gain-tv-next-trend.json) with
 [562-check verification](flagging-next-trend-verification.md), and
 [bounded provenance](flagging-supported-provenance.md) with
 [657-check verification](flagging-next-provenance-verification.md).
-Fresh calibration/reference comparisons are running; the first imaging launch
-hit a retained CLI incompatibility and needs a checked fresh rerun.
+Also complete: [prospective three-case confirmation](flagging-next-prospective-verification.md),
+[54solve archive](results/gain-tv-next-prospective.json), and
+[TRAIN signal-guard abstention](flagging-next-signal-verification.md) with
+[9paired-solve archive](results/gain-tv-next-signal.json).
+The first imaging launch hit a retained CLI incompatibility; a real-parser
+preflight now gates the [separate imaging retry](../tools/flagging/run-imaging.sh).
 
 [Concurrent follow-up protocol](flagging-concurrent.md), started2026-09-24,
 freezes five parallel workstreams before new measurements. All ten scatter

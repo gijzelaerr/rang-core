@@ -1,7 +1,7 @@
 # Frozen dirty-image calibration-response verification
 
-Proposed/implemented2026-09-24, no imaging measurement yet. Root approved all
-settings,15 jobs and tolerances before results. This follows the measured
+Proposed/implemented2026-09-24; initial real launch failed before producing FITS.
+Root approved all settings,15 jobs and tolerances before results. This follows the measured
 [visibility-response controls](flagging-response.md), not a flag-policy retune.
 
 WSClean is absent from the recovered102767... solver image. The official
@@ -25,6 +25,19 @@ updates, and niter0. Explicit`-gridder wstacking` matters: WSClean3.6 defaults t
 w-layer settings. All jobs use exactly one command family; no CLEAN/restoration
 or spectral fitting is introduced. Observed maximum imaged projectedUV73.857m
 gives nominal finest scale558.99arcsec: broad sparsePSF, not precision morphology.
+
+The first launch retained a version-compatibility failure: WSClean3.6 rejected
+legacy`-datacolumn`, with0 completed inversions/FITS. Failed log SHA256 is
+`7b7a887a3897eeea9807506156e94fd81ddec68f64be1e6c352de616e048d738`.
+An independent23/23-check read-only boundary audit confirmed original DATA,
+models, FLAG/FLAG_ROW, native weights/SIGMA and exclusive backups survived.
+The old failed master output remains untouched. Before a separate fresh retry
+at`outputs/tv-next-imaging-20260924-02`, fix exactly four CLI spellings:
+`-data-column`, `-wstack-nwlayers`, `-abs-mem`, `-no-min-grid-resolution`.
+The last disables Nyquist-resolution inversion/upscaling, preserving the frozen
+full512² inversion. No physical setting/tolerance/geometry/job/budget changes.
+The actual pinned binary's complete `-dry-run` parser preflight must succeed
+BEFORE any MS copy/CORRECTED_DATA/FLAG writes; parser output/hash is retained.
 
 Fifteen actual inversions are frozen:
 

@@ -1,0 +1,1024 @@
+{
+  "schema_version": 1,
+  "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+  "raw_run": "outputs/tv-next-20260924-01/experiments/signal",
+  "raw_result_sha256": "c6eab4439dbb0f3f47345cd18a41a8fd2a859e92361883b396e87d4af6ffa0e6",
+  "raw_result": {
+    "status": "measured local TRAIN signal-guard paired calibration diagnostic, not a validated deployable policy",
+    "common_TEST_samples": 9169,
+    "original_TEST_samples": 9169,
+    "lost_common_TEST_samples": 0,
+    "reference_fits": {
+      "107": {
+        "available": true,
+        "rank": 2,
+        "condition": 1.9248416638900128,
+        "sample_count": 9169,
+        "flux_jy": [
+          0.06000000329307,
+          0.11999999421193112
+        ],
+        "weighted_mse_proxy": 1.2455479750108153e-12,
+        "unexplained_weighted_response_energy_fraction": 7.355927736108438e-12,
+        "spectral_indices": "fixed evaluation family; not fitted",
+        "positivity_or_parameter_bounds": false,
+        "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+      },
+      "109": {
+        "available": true,
+        "rank": 2,
+        "condition": 1.9232524451279969,
+        "sample_count": 9169,
+        "flux_jy": [
+          0.060000004267734365,
+          0.11999999210665242
+        ],
+        "weighted_mse_proxy": 1.2409889818182569e-12,
+        "unexplained_weighted_response_energy_fraction": 7.32814073243907e-12,
+        "spectral_indices": "fixed evaluation family; not fitted",
+        "positivity_or_parameter_bounds": false,
+        "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+      }
+    },
+    "methods": [
+      {
+        "seed": 107,
+        "sky": "omitted",
+        "mask_id": null,
+        "trial": "omitted-mask0",
+        "metrics": {
+          "trial": "omitted-mask0",
+          "seconds": 5.818383543999971,
+          "tv": 0.14842033474881966,
+          "raw_tv": 0.2666141349350598,
+          "time_tv": 0.02827708589201208,
+          "frequency_tv": 0.12014324885680758,
+          "scale": 1.0521053431016476,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.0684298264126,
+            "validation": 25.339926285181583,
+            "test": 25.109727775998834
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "fixed_baseline_edge_TV": 0.14842033474881966,
+        "acceptance_already_frozen": true,
+        "fits": {
+          "total": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9248416638900128,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.03056068032655041,
+              0.08904034516482966
+            ],
+            "weighted_mse_proxy": 0.04235571203860453,
+            "unexplained_weighted_response_energy_fraction": 0.3779423276911645,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "direct": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9248416638900128,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.06014854335160084,
+              0.12005095878314431
+            ],
+            "weighted_mse_proxy": 0.0000026491648377436316,
+            "unexplained_weighted_response_energy_fraction": 0.000015602594670387234,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "adaptation": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9248416638900128,
+            "sample_count": 9169,
+            "flux_jy": [
+              -0.029587863025050423,
+              -0.03101061361831465
+            ],
+            "weighted_mse_proxy": 0.04249119813537454,
+            "unexplained_weighted_response_energy_fraction": 0.6395013974309539,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          }
+        },
+        "response_fraction_vs_case_fixedG0": [
+          0.5093446441540473,
+          0.7420029121632802
+        ],
+        "visibility_closure_linf_jy": 6.988730482830058e-15,
+        "coefficient_closure_linf_jy": 6.938893903907228e-18,
+        "unsupported_original_TEST": 0,
+        "same_mask_Jones_product_relative_drift": 0.004238319169391157
+      },
+      {
+        "seed": 107,
+        "sky": "complete-diagnostic",
+        "mask_id": null,
+        "trial": "complete-diagnostic-mask0",
+        "metrics": {
+          "trial": "complete-diagnostic-mask0",
+          "seconds": 5.7424172109999745,
+          "tv": 0.14885427419991637,
+          "raw_tv": 0.26616954674896004,
+          "time_tv": 0.028308194574776124,
+          "frequency_tv": 0.12054607962514026,
+          "scale": 1.0521053431016476,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.138716017914632,
+            "validation": 25.43896733777223,
+            "test": 25.17561206644557
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "fixed_baseline_edge_TV": 0.14885427419991637,
+        "acceptance_already_frozen": true,
+        "fits": {
+          "total": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9248416638900128,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.05999762355300539,
+              0.11868706427148658
+            ],
+            "weighted_mse_proxy": 0.0006164213545357156,
+            "unexplained_weighted_response_energy_fraction": 0.0036706439715188835,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "direct": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9248416638900128,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.06000227875778377,
+              0.1200066486335564
+            ],
+            "weighted_mse_proxy": 3.969950801157167e-8,
+            "unexplained_weighted_response_energy_fraction": 2.3443411402229937e-7,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "adaptation": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9248416638900128,
+            "sample_count": 9169,
+            "flux_jy": [
+              -0.000004655204778374915,
+              -0.0013195843620698012
+            ],
+            "weighted_mse_proxy": 0.000617337345695549,
+            "unexplained_weighted_response_energy_fraction": 0.9857115671883535,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          }
+        },
+        "response_fraction_vs_case_fixedG0": [
+          0.9999603376677667,
+          0.9890589166352309
+        ],
+        "visibility_closure_linf_jy": 6.8845053349998016e-15,
+        "coefficient_closure_linf_jy": 1.6046192152785466e-17,
+        "unsupported_original_TEST": 0,
+        "same_mask_Jones_product_relative_drift": 0.0004270581510045468
+      },
+      {
+        "seed": 109,
+        "sky": "omitted",
+        "mask_id": null,
+        "trial": "omitted-mask0",
+        "metrics": {
+          "trial": "omitted-mask0",
+          "seconds": 5.830149293999966,
+          "tv": 0.14879143333029582,
+          "raw_tv": 0.2681205449014089,
+          "time_tv": 0.028744507839910113,
+          "frequency_tv": 0.12004692549038572,
+          "scale": 1.0520039063056514,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.276780238834228,
+            "validation": 25.219457665186816,
+            "test": 24.969269185138995
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "fixed_baseline_edge_TV": 0.14879143333029582,
+        "acceptance_already_frozen": true,
+        "fits": {
+          "total": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.030649918106371736,
+              0.08901173851082218
+            ],
+            "weighted_mse_proxy": 0.04223182056306833,
+            "unexplained_weighted_response_energy_fraction": 0.37685299412649237,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "direct": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.0601489043488187,
+              0.12005022809322942
+            ],
+            "weighted_mse_proxy": 0.000002642728452159056,
+            "unexplained_weighted_response_energy_fraction": 0.000015562884182686226,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "adaptation": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              -0.029498986242447022,
+              -0.0310384895824072
+            ],
+            "weighted_mse_proxy": 0.042366680955019796,
+            "unexplained_weighted_response_energy_fraction": 0.6396653529851091,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          }
+        },
+        "response_fraction_vs_case_fixedG0": [
+          0.5108319321046124,
+          0.7417645363818958
+        ],
+        "visibility_closure_linf_jy": 6.988730482830058e-15,
+        "coefficient_closure_linf_jy": 5.898059818321144e-17,
+        "unsupported_original_TEST": 0,
+        "same_mask_Jones_product_relative_drift": 0.004235042147006503
+      },
+      {
+        "seed": 109,
+        "sky": "omitted",
+        "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+        "trial": "omitted-mask1",
+        "metrics": {
+          "trial": "omitted-mask1",
+          "seconds": 5.90833742000018,
+          "tv": 0.14851651454053913,
+          "raw_tv": 0.2674628346097893,
+          "time_tv": 0.02857532358785448,
+          "frequency_tv": 0.11994119095268464,
+          "scale": 1.0520039063056514,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.2842566639761,
+            "validation": 25.207377244290093,
+            "test": 24.967136202230986
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 56,
+          "added_fraction": 0.000759631036353771
+        },
+        "fixed_baseline_edge_TV": 0.14851651454053913,
+        "acceptance_already_frozen": true,
+        "fits": {
+          "total": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.03065699143748219,
+              0.08903059222370553
+            ],
+            "weighted_mse_proxy": 0.04222369014518535,
+            "unexplained_weighted_response_energy_fraction": 0.37670547259849235,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "direct": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.06015602476042796,
+              0.12003519247857813
+            ],
+            "weighted_mse_proxy": 0.0000039405500334034896,
+            "unexplained_weighted_response_energy_fraction": 0.000023206146423622394,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "adaptation": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              -0.02949903332294579,
+              -0.031004600254872585
+            ],
+            "weighted_mse_proxy": 0.04235974645285245,
+            "unexplained_weighted_response_energy_fraction": 0.6397799822505444,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          }
+        },
+        "response_fraction_vs_case_fixedG0": [
+          0.5109498209480681,
+          0.7419216506662583
+        ],
+        "visibility_closure_linf_jy": 6.988730482830058e-15,
+        "coefficient_closure_linf_jy": 2.0816681711721685e-17,
+        "unsupported_original_TEST": 0,
+        "same_mask_Jones_product_relative_drift": 0.004234529911670903
+      },
+      {
+        "seed": 109,
+        "sky": "complete-diagnostic",
+        "mask_id": null,
+        "trial": "complete-diagnostic-mask0",
+        "metrics": {
+          "trial": "complete-diagnostic-mask0",
+          "seconds": 5.904862002999835,
+          "tv": 0.14923202775317115,
+          "raw_tv": 0.26767273056390173,
+          "time_tv": 0.028781931046996882,
+          "frequency_tv": 0.12045009670617428,
+          "scale": 1.0520039063056514,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.357636146965664,
+            "validation": 25.320287463267096,
+            "test": 25.035277125441894
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "fixed_baseline_edge_TV": 0.14923202775317115,
+        "acceptance_already_frozen": true,
+        "fits": {
+          "total": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.05998945960656264,
+              0.11864448658382515
+            ],
+            "weighted_mse_proxy": 0.0006300272450491938,
+            "unexplained_weighted_response_energy_fraction": 0.003752849328571269,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "direct": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.06000251794338444,
+              0.12000737267463704
+            ],
+            "weighted_mse_proxy": 4.042098123463724e-8,
+            "unexplained_weighted_response_energy_fraction": 2.386640372244012e-7,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "adaptation": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              -0.000013058336821763518,
+              -0.001362886090811937
+            ],
+            "weighted_mse_proxy": 0.000630989402137722,
+            "unexplained_weighted_response_energy_fraction": 0.9849893345689207,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          }
+        },
+        "response_fraction_vs_case_fixedG0": [
+          0.9998242556596385,
+          0.9887041199000868
+        ],
+        "visibility_closure_linf_jy": 6.8845053349998016e-15,
+        "coefficient_closure_linf_jy": 4.358492733391728e-17,
+        "unsupported_original_TEST": 0,
+        "same_mask_Jones_product_relative_drift": 0.00043511704558000635
+      },
+      {
+        "seed": 109,
+        "sky": "complete-diagnostic",
+        "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+        "trial": "complete-diagnostic-mask1",
+        "metrics": {
+          "trial": "complete-diagnostic-mask1",
+          "seconds": 6.164512461000186,
+          "tv": 0.148958768401831,
+          "raw_tv": 0.26701726921403585,
+          "time_tv": 0.028613391755471677,
+          "frequency_tv": 0.12034537664635933,
+          "scale": 1.0520039063056514,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.36514483597309,
+            "validation": 25.30836898719345,
+            "test": 25.03372824670133
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 56,
+          "added_fraction": 0.000759631036353771
+        },
+        "fixed_baseline_edge_TV": 0.148958768401831,
+        "acceptance_already_frozen": true,
+        "fits": {
+          "total": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.05999097351375011,
+              0.11863573973511085
+            ],
+            "weighted_mse_proxy": 0.0006311762091047173,
+            "unexplained_weighted_response_energy_fraction": 0.0037598780036473692,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "direct": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              0.06000977817823466,
+              0.11999223297158676
+            ],
+            "weighted_mse_proxy": 0.0000013989007383141177,
+            "unexplained_weighted_response_energy_fraction": 0.00000825990524990556,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          },
+          "adaptation": {
+            "available": true,
+            "rank": 2,
+            "condition": 1.9232524451279969,
+            "sample_count": 9169,
+            "flux_jy": [
+              -0.000018804664484544338,
+              -0.0013564932364758346
+            ],
+            "weighted_mse_proxy": 0.0006285615498087142,
+            "unexplained_weighted_response_energy_fraction": 0.985005100135286,
+            "spectral_indices": "fixed evaluation family; not fitted",
+            "positivity_or_parameter_bounds": false,
+            "confidence_intervals": "not claimed; shared noisy DATA and estimated gains"
+          }
+        },
+        "response_fraction_vs_case_fixedG0": [
+          0.9998494874443015,
+          0.9886312294893398
+        ],
+        "visibility_closure_linf_jy": 6.8845053349998016e-15,
+        "coefficient_closure_linf_jy": 7.39425881635114e-17,
+        "unsupported_original_TEST": 0,
+        "same_mask_Jones_product_relative_drift": 0.00043341018465736705
+      }
+    ],
+    "TEST_or_truth_used_to_select": false,
+    "RFI_truth_diagnostics_after_acceptance_freeze": [
+      {
+        "seed": 107,
+        "counterfactuals": {
+          "nochange": {
+            "injection_recall": 0,
+            "recovered_injected_samples": 0,
+            "additions_outside_injections": 0,
+            "outside_injection_train_fraction": 0,
+            "added_fraction": 0,
+            "outside_additions_are_not_proven_false_positives": true
+          }
+        },
+        "accepted_policies": {
+          "without_signal_guard": {
+            "injection_recall": 0,
+            "recovered_injected_samples": 0,
+            "additions_outside_injections": 0,
+            "outside_injection_train_fraction": 0,
+            "added_fraction": 0,
+            "outside_additions_are_not_proven_false_positives": true
+          },
+          "with_signal_guard": {
+            "injection_recall": 0,
+            "recovered_injected_samples": 0,
+            "additions_outside_injections": 0,
+            "outside_injection_train_fraction": 0,
+            "added_fraction": 0,
+            "outside_additions_are_not_proven_false_positives": true
+          }
+        },
+        "truth_used_to_select": false
+      },
+      {
+        "seed": 109,
+        "counterfactuals": {
+          "nochange": {
+            "injection_recall": 0,
+            "recovered_injected_samples": 0,
+            "additions_outside_injections": 0,
+            "outside_injection_train_fraction": 0,
+            "added_fraction": 0,
+            "outside_additions_are_not_proven_false_positives": true
+          },
+          "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1": {
+            "injection_recall": 0.09395973154362416,
+            "recovered_injected_samples": 56,
+            "additions_outside_injections": 0,
+            "outside_injection_train_fraction": 0,
+            "added_fraction": 0.000759631036353771,
+            "outside_additions_are_not_proven_false_positives": true
+          }
+        },
+        "accepted_policies": {
+          "without_signal_guard": {
+            "injection_recall": 0.09395973154362416,
+            "recovered_injected_samples": 56,
+            "additions_outside_injections": 0,
+            "outside_injection_train_fraction": 0,
+            "added_fraction": 0.000759631036353771,
+            "outside_additions_are_not_proven_false_positives": true
+          },
+          "with_signal_guard": {
+            "injection_recall": 0,
+            "recovered_injected_samples": 0,
+            "additions_outside_injections": 0,
+            "outside_injection_train_fraction": 0,
+            "added_fraction": 0,
+            "outside_additions_are_not_proven_false_positives": true
+          }
+        },
+        "truth_used_to_select": false
+      }
+    ],
+    "configuration": {
+      "frozen_before_solve": true,
+      "seeds": [
+        107,
+        109
+      ],
+      "inputs": [
+        {
+          "seed": 107,
+          "path": "/workspace/outputs/tv-next-20260924-01/inputs/cases/time-burst-seed107",
+          "digest": "dbf80df08073cac7a5e744c4af26f6e2e6ad27b0aba91b7e302040321254bf71",
+          "raw_source": "/workspace/outputs/tv-flagging-actions-01/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+          "raw_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+          "boundary": {
+            "validated": true,
+            "actual_scope": {
+              "telescope": "MeerKAT",
+              "band": "L",
+              "frequency_range_mhz": [
+                856,
+                1711.791015625
+              ]
+            },
+            "original_flags_and_rows_match": true,
+            "original_and_work_native_weights_match": true,
+            "work_data_matches_state": true,
+            "work_model_matches_state": true,
+            "model_scalar_unpolarized": true,
+            "split_masks_disjoint_and_eligible": true,
+            "split_counts": {
+              "train": 73720,
+              "validation": 9115,
+              "test": 9169
+            },
+            "working_data_differs_from_original": true,
+            "manifest_channels_and_split_counts_match": true,
+            "positive_gain_intervals_validated": true,
+            "original_copy_digest_verified": true,
+            "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+          }
+        },
+        {
+          "seed": 109,
+          "path": "/workspace/outputs/tv-next-20260924-01/inputs/cases/time-burst-seed109",
+          "digest": "a6330c83bc8e6723f88480098a8fe1d9b3dc5b2f1b859ff896a80bd5d607b1d9",
+          "raw_source": "/workspace/outputs/tv-flagging-actions-01/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+          "raw_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+          "boundary": {
+            "validated": true,
+            "actual_scope": {
+              "telescope": "MeerKAT",
+              "band": "L",
+              "frequency_range_mhz": [
+                856,
+                1711.791015625
+              ]
+            },
+            "original_flags_and_rows_match": true,
+            "original_and_work_native_weights_match": true,
+            "work_data_matches_state": true,
+            "work_model_matches_state": true,
+            "model_scalar_unpolarized": true,
+            "split_masks_disjoint_and_eligible": true,
+            "split_counts": {
+              "train": 73720,
+              "validation": 9115,
+              "test": 9169
+            },
+            "working_data_differs_from_original": true,
+            "manifest_channels_and_split_counts_match": true,
+            "positive_gain_intervals_validated": true,
+            "original_copy_digest_verified": true,
+            "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+          }
+        }
+      ],
+      "sources": [
+        {
+          "name": "compact",
+          "flux_jy": 0.06,
+          "l_arcmin": 9,
+          "m_arcmin": -6,
+          "fwhm_arcmin": 0,
+          "spectral_index": -0.5
+        },
+        {
+          "name": "extended",
+          "flux_jy": 0.12,
+          "l_arcmin": -12,
+          "m_arcmin": -14,
+          "fwhm_arcmin": 8,
+          "spectral_index": -0.9
+        }
+      ],
+      "reference_hz": 1283791015.625,
+      "probe_jy": 0.001,
+      "absolute_transfer_limit": 0.1,
+      "grid": [
+        2,
+        32
+      ],
+      "iterations": 50,
+      "maximum_QC_solves": 18,
+      "objective": "TV/TV0+2*f+.25*VAL_MSE/VAL_MSE0",
+      "minimum_benefit": 0.000001,
+      "validation_degradation_limit": 0.01,
+      "TEST_or_truth_selects": false,
+      "absolute_not_relative_safety": true,
+      "copy_forecast_bytes": 736100352,
+      "allocated_cap_bytes": 1610612736,
+      "reserve_bytes": 8589934592,
+      "quota": "checked reservations, not OS-enforced; failures never erased",
+      "receipts": {
+        "guard": {
+          "path": "/workspace/python/rangtoy/flagging_signal_guard.py",
+          "sha256": "85b114ecf554edae2ede1fddeeb2309b0cabcfdedce733c84940eabff98aea29"
+        },
+        "influence": {
+          "path": "/workspace/python/rangtoy/flagging_influence.py",
+          "sha256": "a5b8b87aea5d771cd9443505704b4cf7e01416f92cc69b56c94cd5460750a6eb"
+        },
+        "response": {
+          "path": "/workspace/python/rangtoy/flagging_response.py",
+          "sha256": "b62a9877af099d9c72875b8439818b033e8fdff22d5b931386f327dbfed5fac8"
+        },
+        "prospective": {
+          "path": "/workspace/python/rangtoy/flagging_prospective.py",
+          "sha256": "5a36faf8c84d6baefd2d2e6fc9ad1b736d337032b7ed204b27e84e5b73d7e638"
+        },
+        "flagging.py": {
+          "path": "/workspace/python/rangtoy/flagging.py",
+          "sha256": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba"
+        },
+        "flagging_signal.py": {
+          "path": "/workspace/python/rangtoy/flagging_signal.py",
+          "sha256": "60743c3972d8fb24a3017931d5c79ca2085c30576a848b4ec567605fe3aad81b"
+        },
+        "flagging_workflow.py": {
+          "path": "/workspace/python/rangtoy/flagging_workflow.py",
+          "sha256": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a"
+        },
+        "flagging_prepared.py": {
+          "path": "/workspace/python/rangtoy/flagging_prepared.py",
+          "sha256": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab"
+        },
+        "flagging_injections.py": {
+          "path": "/workspace/python/rangtoy/flagging_injections.py",
+          "sha256": "93d151f2b5ea03af2fcd2e00c9fefa45aaefd00bc3acc69c1824d9660f48863d"
+        },
+        "flagging_caracal.py": {
+          "path": "/workspace/python/rangtoy/flagging_caracal.py",
+          "sha256": "e1d946860f9069dc5314e5c9baf3c89c6aad66bc28edfee87733c39d9aa04fa8"
+        },
+        "flagging_trend.py": {
+          "path": "/workspace/python/rangtoy/flagging_trend.py",
+          "sha256": "3c578c5e355a4a81d2959db9463f7bbf23025e52e01a61e72ebe9e45c5988e6b"
+        },
+        "flagging_balanced.py": {
+          "path": "/workspace/python/rangtoy/flagging_balanced.py",
+          "sha256": "8fd6ada217130689067dda7c0379f20c0d43f1a445ace9f3debb0d172892d141"
+        },
+        "flagging_structured.py": {
+          "path": "/workspace/python/rangtoy/flagging_structured.py",
+          "sha256": "6586bdf96eb9978f702d8d0f32796d070d3bbe0184b12e3801234811cc9c2feb"
+        },
+        "flagging_structured_proposals.py": {
+          "path": "/workspace/python/rangtoy/flagging_structured_proposals.py",
+          "sha256": "aa1fff8f4c6601ef3d3b9e2526ae771341844d4759f850178561f18b5058d37c"
+        },
+        "projector.py": {
+          "path": "/workspace/python/rangtoy/projector.py",
+          "sha256": "defd5e014480a0fd56fb4d8c16e729f0ad364d54f34ec8a2c6366f277530951f"
+        },
+        "Rust.library": {
+          "path": "/opt/rang/librang_toy.so",
+          "sha256": "cf61db3728a1bb1e1a8bc66ec738d80a102f636185dd527e11a1f6290c530a84"
+        }
+      },
+      "image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+      "versions": {
+        "quartical": "0.2.7",
+        "numpy": "2.5.3",
+        "stimela": "2.1.4",
+        "codex-africanus": "0.4.4",
+        "python-casacore": "3.8.1"
+      },
+      "python_version": "3.12.14"
+    },
+    "acceptance": [
+      {
+        "seed": 107,
+        "slots": {
+          "without_signal_guard": null,
+          "with_signal_guard": null
+        },
+        "accepted": {
+          "without_signal_guard": null,
+          "with_signal_guard": null
+        },
+        "nochange_signal_certified": false,
+        "clean_controls": [
+          {
+            "mask_id": null,
+            "metrics": {
+              "trial": "baseline",
+              "seconds": 42.319112270000005,
+              "tv": 0.14900979012849055,
+              "raw_tv": 0.26814756747222346,
+              "time_tv": 0.028301700840993583,
+              "frequency_tv": 0.12070808928749698,
+              "scale": 1.0521053431016476,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.138880053326755,
+                "validation": 25.440702102746567,
+                "test": 25.176875802845856
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 0,
+              "added_fraction": 0
+            },
+            "acceptance": {
+              "objective": 1.25,
+              "guard_reasons": [],
+              "guard_pass": true,
+              "without_signal_guard_accept": false,
+              "with_signal_guard_accept": false,
+              "TEST_loss_or_flux_used": false
+            }
+          }
+        ]
+      },
+      {
+        "seed": 109,
+        "slots": {
+          "without_signal_guard": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+          "with_signal_guard": null
+        },
+        "accepted": {
+          "without_signal_guard": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+          "with_signal_guard": null
+        },
+        "nochange_signal_certified": false,
+        "clean_controls": [
+          {
+            "mask_id": null,
+            "metrics": {
+              "trial": "baseline",
+              "seconds": 5.700093168999956,
+              "tv": 0.14938593817355783,
+              "raw_tv": 0.26966768636588645,
+              "time_tv": 0.028774278145702933,
+              "frequency_tv": 0.12061166002785491,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.35780690631174,
+                "validation": 25.32211021562811,
+                "test": 25.036838898721214
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 0,
+              "added_fraction": 0
+            },
+            "acceptance": {
+              "objective": 1.25,
+              "guard_reasons": [],
+              "guard_pass": true,
+              "without_signal_guard_accept": false,
+              "with_signal_guard_accept": false,
+              "TEST_loss_or_flux_used": false
+            }
+          },
+          {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "metrics": {
+              "trial": "candidate-1-c17bf4f649f9",
+              "seconds": 5.8682792530000825,
+              "tv": 0.14911276431630954,
+              "raw_tv": 0.26900703741891485,
+              "time_tv": 0.028605392389965147,
+              "frequency_tv": 0.12050737192634439,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.365340825918658,
+                "validation": 25.3101895414395,
+                "test": 25.03525053092711
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 56,
+              "added_fraction": 0.000759631036353771
+            },
+            "acceptance": {
+              "objective": 1.2495729266458455,
+              "guard_reasons": [],
+              "guard_pass": true,
+              "without_signal_guard_accept": true,
+              "with_signal_guard_accept": false,
+              "TEST_loss_or_flux_used": false
+            }
+          }
+        ]
+      }
+    ],
+    "actual_QC_solves": 9,
+    "maximum_QC_solves": 18,
+    "native_flagger_QC_solves": 0,
+    "acceptance_file_sha256": "b2435b459d4f0a24afb867c43dec9208e3df2a8d5dea938cc5a93275598a7fd8",
+    "audit": {
+      "sources": {
+        "seed107/source_unchanged": true,
+        "seed109/source_unchanged": true,
+        "seed107/raw_unchanged": true,
+        "seed109/raw_unchanged": true,
+        "acceptance_file_unchanged_during_signal_evaluation": true
+      },
+      "runtime": {
+        "guard": true,
+        "influence": true,
+        "response": true,
+        "prospective": true,
+        "flagging.py": true,
+        "flagging_signal.py": true,
+        "flagging_workflow.py": true,
+        "flagging_prepared.py": true,
+        "flagging_injections.py": true,
+        "flagging_caracal.py": true,
+        "flagging_trend.py": true,
+        "flagging_balanced.py": true,
+        "flagging_structured.py": true,
+        "flagging_structured_proposals.py": true,
+        "projector.py": true,
+        "Rust.library": true
+      },
+      "copies": {
+        "seed107/clean": {
+          "FLAG_exact_original": true,
+          "FLAG_ROW_exact_original": true,
+          "DATA_exact_documented_state": true,
+          "base_model_column_exact": true,
+          "native_weight_sigma_exact": true
+        },
+        "seed107/positive": {
+          "FLAG_exact_original": true,
+          "FLAG_ROW_exact_original": true,
+          "DATA_exact_documented_state": true,
+          "base_model_column_exact": true,
+          "native_weight_sigma_exact": true,
+          "complete_control_column_exact_snapshot": true
+        },
+        "seed109/clean": {
+          "FLAG_exact_original": true,
+          "FLAG_ROW_exact_original": true,
+          "DATA_exact_documented_state": true,
+          "base_model_column_exact": true,
+          "native_weight_sigma_exact": true
+        },
+        "seed109/positive": {
+          "FLAG_exact_original": true,
+          "FLAG_ROW_exact_original": true,
+          "DATA_exact_documented_state": true,
+          "base_model_column_exact": true,
+          "native_weight_sigma_exact": true,
+          "complete_control_column_exact_snapshot": true
+        }
+      }
+    },
+    "observed_allocated_bytes_before_result": 1014239232,
+    "imaging": "not measured in this track; known visibility-template responses only",
+    "limitations": [
+      "two new seeds on one four-antenna pointing scan, not independent observations",
+      "absolute local TRAIN family constraint can refuse every mask; fallback is uncertified",
+      "complete truth-sky calibration diagnostic is not deployable policy",
+      "shared original noise/RFI and empirical G0 DI corruption, no validated uncertainty or DDE",
+      "spectra fixed; no blind flux/slope/image/SOTA or emulated-native-cost claim",
+      "checked allocation/reservations, not OS quota"
+    ]
+  },
+  "projection": "Complete exact raw result.",
+  "independent_verification": "research/flagging-next-signal-verification.md",
+  "independent_audit": "research/results/gain-tv-next-signal-audit.json"
+}

@@ -1,0 +1,4646 @@
+{
+  "schema_version": 1,
+  "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+  "raw_run": "outputs/tv-next-20260924-01/experiments/prospective",
+  "raw_result_sha256": "0eca0828af33324f8779c457f75b27e5e09c96af98613fd0cca3010f6b37206f",
+  "raw_result_projection": {
+    "status": "measured prospective same-observation injection controls",
+    "configuration": {
+      "input_source": "/workspace/outputs/tv-next-20260924-01/inputs",
+      "source_digest": "d86c6822df1089828896e9925d69d8c269a4924f373b26ac2f4d793212db4188",
+      "runtime": {
+        "/workspace/python/rangtoy/flagging_prospective.py": "5a36faf8c84d6baefd2d2e6fc9ad1b736d337032b7ed204b27e84e5b73d7e638",
+        "/opt/rang/librang_toy.so": "cf61db3728a1bb1e1a8bc66ec738d80a102f636185dd527e11a1f6290c530a84"
+      },
+      "image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+      "iterations": 50,
+      "grid": [
+        2,
+        32
+      ],
+      "maximum_action_confirmations": 2,
+      "maximum_actual_QC_solves": 75,
+      "minimum_benefit": 0.000001,
+      "allocation_limit_bytes": 3221225472,
+      "test_or_truth_selects": false,
+      "finite_QC_comparison": "Linux amd64 execution; no native cost/speedup claim"
+    },
+    "cases": [
+      {
+        "case_id": "clean",
+        "baseline": {
+          "trial": "baseline",
+          "seconds": 42.27724956099996,
+          "tv": 0.1474368700725686,
+          "raw_tv": 0.2673258258969277,
+          "time_tv": 0.027069979216836893,
+          "frequency_tv": 0.1203668908557317,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.6028462846425,
+            "validation": 25.20612259882604,
+            "test": 24.919607595129268
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "forecasts": [
+          {
+            "mask_id": "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "candidate": {
+              "mask_id": "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445120.476855,
+                "time_index": 13,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 80,
+              "added_fraction": 0.0010851871947911015,
+              "geometry_alias_count": 1,
+              "residual_score": 1.4056296244415425,
+              "tv_score": 5.188945553165182
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0068905000000540895,
+            "predicted_fixed_tv": 0.14738612203069193,
+            "predicted_validation_MSE": 25.214879904080384,
+            "predicted_objective": 1.2519130294757013,
+            "predicted_benefit": -0.0019130294757012667,
+            "predicted_cost_removed_benefit": 0.00025734491388093627
+          },
+          {
+            "mask_id": "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "candidate": {
+              "mask_id": "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445112.480238,
+                "time_index": 12,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 68,
+              "added_fraction": 0.0009224091155724363,
+              "geometry_alias_count": 1,
+              "residual_score": 1.4027844271545509,
+              "tv_score": 5.138816790845289
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0048087499999383,
+            "predicted_fixed_tv": 0.14746377164915006,
+            "predicted_validation_MSE": 25.212802554986705,
+            "predicted_objective": 1.2520935332041248,
+            "predicted_benefit": -0.0020935332041247534,
+            "predicted_cost_removed_benefit": -0.00024871497297988083
+          },
+          {
+            "mask_id": "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "candidate": {
+              "mask_id": "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+              "metadata": {
+                "time_mode": "all",
+                "time": null,
+                "time_index": null,
+                "time_count": 14,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1360,
+                "frequency_stop": 1376,
+                "frequency_width": 16
+              },
+              "sample_count": 43,
+              "added_fraction": 0.000583288117200217,
+              "geometry_alias_count": 1,
+              "residual_score": 2.1429036172737708,
+              "tv_score": 6.430270422717927
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.017000665999830744,
+            "predicted_fixed_tv": 0.14734509054298775,
+            "predicted_validation_MSE": 25.215390538502202,
+            "predicted_objective": 1.2506359972183452,
+            "predicted_benefit": -0.0006359972183451745,
+            "predicted_cost_removed_benefit": 0.0005305790160552595
+          },
+          {
+            "mask_id": "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+            "candidate": {
+              "mask_id": "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445088.490386,
+                "time_index": 9,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 34,
+              "added_fraction": 0.00046120455778621814,
+              "geometry_alias_count": 1,
+              "residual_score": 1.9386687676965215,
+              "tv_score": 7.534318011833816
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003364832999977807,
+            "predicted_fixed_tv": 0.1474259458706839,
+            "predicted_validation_MSE": 25.199120306286197,
+            "predicted_objective": 1.2507788647034481,
+            "predicted_benefit": -0.0007788647034481233,
+            "predicted_cost_removed_benefit": 0.00014354441212431298
+          },
+          {
+            "mask_id": "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "candidate": {
+              "mask_id": "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445088.490386,
+                "time_index": 9,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 9,
+              "added_fraction": 0.00012208355941399892,
+              "geometry_alias_count": 1,
+              "residual_score": 2.559279681515011,
+              "tv_score": 9.946220480288524
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003571290999843768,
+            "predicted_fixed_tv": 0.14744333638923923,
+            "predicted_validation_MSE": 25.210925084773866,
+            "predicted_objective": 1.250335657462257,
+            "predicted_benefit": -0.00033565746225705517,
+            "predicted_cost_removed_benefit": -0.00009149034342905733
+          },
+          {
+            "mask_id": "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0",
+            "candidate": {
+              "mask_id": "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0",
+              "metadata": {
+                "time_mode": "all",
+                "time": null,
+                "time_index": null,
+                "time_count": 14,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 1360,
+                "frequency_stop": 1376,
+                "frequency_width": 16
+              },
+              "sample_count": 35,
+              "added_fraction": 0.0004747693977211069,
+              "geometry_alias_count": 1,
+              "residual_score": 2.431621484205728,
+              "tv_score": 7.373637860999154
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.016533334000087052,
+            "predicted_fixed_tv": 0.14736566822686792,
+            "predicted_validation_MSE": 25.21369750219201,
+            "predicted_objective": 1.250541737320895,
+            "predicted_benefit": -0.0005417373208949083,
+            "predicted_cost_removed_benefit": 0.0004078014745473055
+          },
+          {
+            "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "candidate": {
+              "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1264,
+                "frequency_stop": 1280,
+                "frequency_width": 16
+              },
+              "sample_count": 67,
+              "added_fraction": 0.0009088442756375475,
+              "geometry_alias_count": 1,
+              "residual_score": 1.3009536918949272,
+              "tv_score": 5.687645564229616
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0030767499999910797,
+            "predicted_fixed_tv": 0.1473893862044076,
+            "predicted_validation_MSE": 25.21430570630058,
+            "predicted_objective": 1.2515767880814868,
+            "predicted_benefit": -0.0015767880814867574,
+            "predicted_cost_removed_benefit": 0.00024090046978833763
+          },
+          {
+            "mask_id": "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "candidate": {
+              "mask_id": "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1248,
+                "frequency_stop": 1280,
+                "frequency_width": 32
+              },
+              "sample_count": 134,
+              "added_fraction": 0.001817688551275095,
+              "geometry_alias_count": 1,
+              "residual_score": 1.2076916013121877,
+              "tv_score": 5.428470234937749
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0030674590000216995,
+            "predicted_fixed_tv": 0.14740708612539052,
+            "predicted_validation_MSE": 25.21113850841663,
+            "predicted_objective": 1.2534831144969343,
+            "predicted_benefit": -0.003483114496934281,
+            "predicted_cost_removed_benefit": 0.00015226260561590921
+          },
+          {
+            "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "candidate": {
+              "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1248,
+                "frequency_stop": 1264,
+                "frequency_width": 16
+              },
+              "sample_count": 35,
+              "added_fraction": 0.0004747693977211069,
+              "geometry_alias_count": 1,
+              "residual_score": 1.7921986753193881,
+              "tv_score": 8.714435691330756
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0033120420000614104,
+            "predicted_fixed_tv": 0.14747885575160072,
+            "predicted_validation_MSE": 25.208602587049853,
+            "predicted_objective": 1.2512589064301654,
+            "predicted_benefit": -0.0012589064301653519,
+            "predicted_cost_removed_benefit": -0.00030936763472313804
+          },
+          {
+            "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "candidate": {
+              "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1120,
+                "frequency_stop": 1136,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 1.7435463366055328,
+              "tv_score": 8.350977162853972
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0032726250001360313,
+            "predicted_fixed_tv": 0.14745501012633613,
+            "predicted_validation_MSE": 25.20626512330434,
+            "predicted_objective": 1.2505585245425392,
+            "predicted_benefit": -0.0005585245425392404,
+            "predicted_cost_removed_benefit": -0.00012444966462279983
+          },
+          {
+            "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "candidate": {
+              "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445120.476855,
+                "time_index": 13,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 13,
+              "added_fraction": 0.00017634291915355398,
+              "geometry_alias_count": 1,
+              "residual_score": 2.213230315500259,
+              "tv_score": 11.509432498389687
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0032175420001294697,
+            "predicted_fixed_tv": 0.14747079572357746,
+            "predicted_validation_MSE": 25.20521927978131,
+            "predicted_objective": 1.2505738294141533,
+            "predicted_benefit": -0.0005738294141532929,
+            "predicted_cost_removed_benefit": -0.00022114357584618495
+          },
+          {
+            "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+            "candidate": {
+              "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445112.480238,
+                "time_index": 12,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 2.1799157193814365,
+              "tv_score": 11.336187042390213
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0032122920001711464,
+            "predicted_fixed_tv": 0.14748645510530922,
+            "predicted_validation_MSE": 25.208363944614195,
+            "predicted_objective": 1.2507926187057379,
+            "predicted_benefit": -0.0007926187057378797,
+            "predicted_cost_removed_benefit": -0.0003585438278214391
+          },
+          {
+            "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+            "candidate": {
+              "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2304,
+                "frequency_stop": 2432,
+                "frequency_width": 128
+              },
+              "sample_count": 453,
+              "added_fraction": 0.006144872490504612,
+              "geometry_alias_count": 1,
+              "residual_score": 0.35099132559967555,
+              "tv_score": 0.8453212549441423
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.011011499999995067,
+            "predicted_fixed_tv": 0.14746400999603615,
+            "predicted_validation_MSE": 25.21710583229223,
+            "predicted_objective": 1.2625827574303403,
+            "predicted_benefit": -0.012582757430340319,
+            "predicted_cost_removed_benefit": -0.0002930124493310954
+          },
+          {
+            "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+            "candidate": {
+              "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2496,
+                "frequency_stop": 2528,
+                "frequency_width": 32
+              },
+              "sample_count": 143,
+              "added_fraction": 0.001939772110689094,
+              "geometry_alias_count": 1,
+              "residual_score": 0.28509979422782206,
+              "tv_score": 0.7436241473595067
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003482999999960157,
+            "predicted_fixed_tv": 0.14741750555965613,
+            "predicted_validation_MSE": 25.206155700120835,
+            "predicted_objective": 1.2537485314802654,
+            "predicted_benefit": -0.003748531480265438,
+            "predicted_cost_removed_benefit": 0.00013101274111274996
+          },
+          {
+            "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+            "candidate": {
+              "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445064.500534,
+                "time_index": 6,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  1
+                ],
+                "frequency_start": 2240,
+                "frequency_stop": 2272,
+                "frequency_width": 32
+              },
+              "sample_count": 72,
+              "added_fraction": 0.0009766684753119914,
+              "geometry_alias_count": 1,
+              "residual_score": 0.49060287510945855,
+              "tv_score": 0.8651164043387294
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0031914579999465786,
+            "predicted_fixed_tv": 0.14762487423758222,
+            "predicted_validation_MSE": 25.20435264727422,
+            "predicted_objective": 1.2532109324448208,
+            "predicted_benefit": -0.0032109324448208465,
+            "predicted_cost_removed_benefit": -0.0012575954941968638
+          },
+          {
+            "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+            "candidate": {
+              "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  0
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 28,
+              "added_fraction": 0.0003798155181768855,
+              "geometry_alias_count": 1,
+              "residual_score": 1.0363912937362316,
+              "tv_score": 1.8042630404230535
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0030954169999404257,
+            "predicted_fixed_tv": 0.1475467658279014,
+            "predicted_validation_MSE": 25.212952293121514,
+            "predicted_objective": 1.251572744470814,
+            "predicted_benefit": -0.0015727444708140137,
+            "predicted_cost_removed_benefit": -0.0008131134344602427
+          },
+          {
+            "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+            "candidate": {
+              "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2608,
+                "frequency_stop": 2624,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 0.20126279172625694,
+              "tv_score": 0.3568155539756202
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003000292000024274,
+            "predicted_fixed_tv": 0.14742684714587503,
+            "predicted_validation_MSE": 25.206534470241355,
+            "predicted_objective": 1.2502616600506071,
+            "predicted_benefit": -0.0002616600506071265,
+            "predicted_cost_removed_benefit": 0.00006389610783020394
+          },
+          {
+            "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+            "candidate": {
+              "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445080.493769,
+                "time_index": 8,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2704,
+                "frequency_stop": 2720,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 0.49640850108759654,
+              "tv_score": 0.7045433192819422
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003016582999862294,
+            "predicted_fixed_tv": 0.14745301273271333,
+            "predicted_validation_MSE": 25.20680213560776,
+            "predicted_objective": 1.2504146549021615,
+            "predicted_benefit": -0.00041465490216152645,
+            "predicted_cost_removed_benefit": -0.00011622842359397355
+          }
+        ],
+        "confirmation_ids": [],
+        "actions": [
+          {
+            "mask_id": "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "candidate": {
+              "mask_id": "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445120.476855,
+                "time_index": 13,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 80,
+              "added_fraction": 0.0010851871947911015,
+              "geometry_alias_count": 1,
+              "residual_score": 1.4056296244415425,
+              "tv_score": 5.188945553165182
+            },
+            "metrics": {
+              "trial": "prospective-000",
+              "seconds": 5.680978836999884,
+              "tv": 0.1473938492375282,
+              "raw_tv": 0.2681077429323347,
+              "time_tv": 0.027041566304165394,
+              "frequency_tv": 0.12035228293336282,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.60520147712352,
+                "validation": 25.214977191030535,
+                "test": 24.91761972131551
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 80,
+              "added_fraction": 0.0010851871947911015
+            },
+            "fixed_support_tv": 0.1473938492375282,
+            "objective": 1.2519664046641101,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "candidate": {
+              "mask_id": "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445112.480238,
+                "time_index": 12,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 68,
+              "added_fraction": 0.0009224091155724363,
+              "geometry_alias_count": 1,
+              "residual_score": 1.4027844271545509,
+              "tv_score": 5.138816790845289
+            },
+            "metrics": {
+              "trial": "prospective-001",
+              "seconds": 5.689178419999962,
+              "tv": 0.14746395146590596,
+              "raw_tv": 0.26769312995452943,
+              "time_tv": 0.0270717206838043,
+              "frequency_tv": 0.12039223078210168,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.604546563456243,
+                "validation": 25.21178034682069,
+                "test": 24.915001535784654
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 68,
+              "added_fraction": 0.0009224091155724363
+            },
+            "fixed_support_tv": 0.14746395146590596,
+            "objective": 1.2520846143319937,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "candidate": {
+              "mask_id": "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+              "metadata": {
+                "time_mode": "all",
+                "time": null,
+                "time_index": null,
+                "time_count": 14,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1360,
+                "frequency_stop": 1376,
+                "frequency_width": 16
+              },
+              "sample_count": 43,
+              "added_fraction": 0.000583288117200217,
+              "geometry_alias_count": 1,
+              "residual_score": 2.1429036172737708,
+              "tv_score": 6.430270422717927
+            },
+            "metrics": {
+              "trial": "prospective-002",
+              "seconds": 5.808889917999977,
+              "tv": 0.1473469521649545,
+              "raw_tv": 0.26760033634063796,
+              "time_tv": 0.02702764756331257,
+              "frequency_tv": 0.12031930460164192,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.61068454843586,
+                "validation": 25.215177950983918,
+                "test": 24.918933622797496
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 43,
+              "added_fraction": 0.000583288117200217
+            },
+            "fixed_support_tv": 0.1473469521649545,
+            "objective": 1.2506465152975093,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+            "candidate": {
+              "mask_id": "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445088.490386,
+                "time_index": 9,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 34,
+              "added_fraction": 0.00046120455778621814,
+              "geometry_alias_count": 1,
+              "residual_score": 1.9386687676965215,
+              "tv_score": 7.534318011833816
+            },
+            "metrics": {
+              "trial": "prospective-003",
+              "seconds": 5.894781168999998,
+              "tv": 0.1474307805753436,
+              "raw_tv": 0.2677888907293245,
+              "time_tv": 0.0271365344318029,
+              "frequency_tv": 0.12029424614354069,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.607180951911058,
+                "validation": 25.200236607397397,
+                "test": 24.926214192668144
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 34,
+              "added_fraction": 0.00046120455778621814
+            },
+            "fixed_support_tv": 0.1474307805753436,
+            "objective": 1.2508227281227828,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "candidate": {
+              "mask_id": "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445088.490386,
+                "time_index": 9,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 1280,
+                "frequency_stop": 1296,
+                "frequency_width": 16
+              },
+              "sample_count": 9,
+              "added_fraction": 0.00012208355941399892,
+              "geometry_alias_count": 1,
+              "residual_score": 2.559279681515011,
+              "tv_score": 9.946220480288524
+            },
+            "metrics": {
+              "trial": "prospective-004",
+              "seconds": 5.705527418999964,
+              "tv": 0.1474477975510028,
+              "raw_tv": 0.2673505284439788,
+              "time_tv": 0.02708053662150299,
+              "frequency_tv": 0.1203672609294998,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.60370532639134,
+                "validation": 25.21136823374767,
+                "test": 24.921825173848116
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 9,
+              "added_fraction": 0.00012208355941399892
+            },
+            "fixed_support_tv": 0.1474477975510028,
+            "objective": 1.2503703108285271,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0",
+            "candidate": {
+              "mask_id": "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0",
+              "metadata": {
+                "time_mode": "all",
+                "time": null,
+                "time_index": null,
+                "time_count": 14,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 1360,
+                "frequency_stop": 1376,
+                "frequency_width": 16
+              },
+              "sample_count": 35,
+              "added_fraction": 0.0004747693977211069,
+              "geometry_alias_count": 1,
+              "residual_score": 2.431621484205728,
+              "tv_score": 7.373637860999154
+            },
+            "metrics": {
+              "trial": "prospective-005",
+              "seconds": 5.80381971099996,
+              "tv": 0.14736925521619457,
+              "raw_tv": 0.2674288237555961,
+              "time_tv": 0.027036655750512555,
+              "frequency_tv": 0.120332599465682,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.61109143475453,
+                "validation": 25.21340308850985,
+                "test": 24.920614086541455
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 35,
+              "added_fraction": 0.0004747693977211069
+            },
+            "fixed_support_tv": 0.14736925521619457,
+            "objective": 1.2505631462441968,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "candidate": {
+              "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1264,
+                "frequency_stop": 1280,
+                "frequency_width": 16
+              },
+              "sample_count": 67,
+              "added_fraction": 0.0009088442756375475,
+              "geometry_alias_count": 1,
+              "residual_score": 1.3009536918949272,
+              "tv_score": 5.687645564229616
+            },
+            "metrics": {
+              "trial": "prospective-006",
+              "seconds": 5.738733545000059,
+              "tv": 0.14741957506852993,
+              "raw_tv": 0.2672570773743175,
+              "time_tv": 0.027098948915823037,
+              "frequency_tv": 0.1203206261527069,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.612063157572905,
+                "validation": 25.214463307590535,
+                "test": 24.917241802123087
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 67,
+              "added_fraction": 0.0009088442756375475
+            },
+            "fixed_support_tv": 0.14741957506852993,
+            "objective": 1.251783109108087,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "candidate": {
+              "mask_id": "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1248,
+                "frequency_stop": 1280,
+                "frequency_width": 32
+              },
+              "sample_count": 134,
+              "added_fraction": 0.001817688551275095,
+              "geometry_alias_count": 1,
+              "residual_score": 1.2076916013121877,
+              "tv_score": 5.428470234937749
+            },
+            "metrics": {
+              "trial": "prospective-007",
+              "seconds": 5.781610086000001,
+              "tv": 0.14742055438474835,
+              "raw_tv": 0.26740821848481744,
+              "time_tv": 0.02704824051257082,
+              "frequency_tv": 0.12037231387217753,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.6039877555434,
+                "validation": 25.211622250474747,
+                "test": 24.913032131093953
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 134,
+              "added_fraction": 0.001817688551275095
+            },
+            "fixed_support_tv": 0.14742055438474835,
+            "objective": 1.2535792616900014,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "candidate": {
+              "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1248,
+                "frequency_stop": 1264,
+                "frequency_width": 16
+              },
+              "sample_count": 35,
+              "added_fraction": 0.0004747693977211069,
+              "geometry_alias_count": 1,
+              "residual_score": 1.7921986753193881,
+              "tv_score": 8.714435691330756
+            },
+            "metrics": {
+              "trial": "prospective-008",
+              "seconds": 5.880719169000031,
+              "tv": 0.14744424716811763,
+              "raw_tv": 0.2681182396394511,
+              "time_tv": 0.02713058341303728,
+              "frequency_tv": 0.12031366375508036,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.609889306189,
+                "validation": 25.208396439885263,
+                "test": 24.93082216255622
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 35,
+              "added_fraction": 0.0004747693977211069
+            },
+            "fixed_support_tv": 0.14744424716811763,
+            "objective": 1.2510221268854385,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "candidate": {
+              "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1120,
+                "frequency_stop": 1136,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 1.7435463366055328,
+              "tv_score": 8.350977162853972
+            },
+            "metrics": {
+              "trial": "prospective-009",
+              "seconds": 5.753850711000041,
+              "tv": 0.14747971251951822,
+              "raw_tv": 0.2676450197873099,
+              "time_tv": 0.027150481667191712,
+              "frequency_tv": 0.12032923085232651,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.605827732654223,
+                "validation": 25.207037737112117,
+                "test": 24.931455148125522
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 16,
+              "added_fraction": 0.0002170374389582203
+            },
+            "fixed_support_tv": 0.14747971251951822,
+            "objective": 1.2507337330617663,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "candidate": {
+              "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445120.476855,
+                "time_index": 13,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 13,
+              "added_fraction": 0.00017634291915355398,
+              "geometry_alias_count": 1,
+              "residual_score": 2.213230315500259,
+              "tv_score": 11.509432498389687
+            },
+            "metrics": {
+              "trial": "prospective-010",
+              "seconds": 5.903548253000054,
+              "tv": 0.1474676166533654,
+              "raw_tv": 0.2675586246779208,
+              "time_tv": 0.027093572906459897,
+              "frequency_tv": 0.12037404374690551,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.606073325969895,
+                "validation": 25.205662308065612,
+                "test": 24.91421706280262
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 13,
+              "added_fraction": 0.00017634291915355398
+            },
+            "fixed_support_tv": 0.1474676166533654,
+            "objective": 1.2505566612214227,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+            "candidate": {
+              "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445112.480238,
+                "time_index": 12,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 2.1799157193814365,
+              "tv_score": 11.336187042390213
+            },
+            "metrics": {
+              "trial": "prospective-011",
+              "seconds": 5.873665544000005,
+              "tv": 0.14748213616460398,
+              "raw_tv": 0.26760977971081334,
+              "time_tv": 0.02711024155708189,
+              "frequency_tv": 0.1203718946075221,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.607891405223526,
+                "validation": 25.20890442398081,
+                "test": 24.913080188946573
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 16,
+              "added_fraction": 0.0002170374389582203
+            },
+            "fixed_support_tv": 0.14748213616460398,
+            "objective": 1.2507686858102705,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+            "candidate": {
+              "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2304,
+                "frequency_stop": 2432,
+                "frequency_width": 128
+              },
+              "sample_count": 453,
+              "added_fraction": 0.006144872490504612,
+              "geometry_alias_count": 1,
+              "residual_score": 0.35099132559967555,
+              "tv_score": 0.8453212549441423
+            },
+            "metrics": {
+              "trial": "prospective-012",
+              "seconds": 5.793148751999979,
+              "tv": 0.1474579073269819,
+              "raw_tv": 0.26619357960254064,
+              "time_tv": 0.027118673668125,
+              "frequency_tv": 0.12033923365885692,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.605170987777715,
+                "validation": 25.217244278106516,
+                "test": 24.923988537142943
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 453,
+              "added_fraction": 0.006144872490504612
+            },
+            "fixed_support_tv": 0.1474579073269819,
+            "objective": 1.2625427388239707,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+            "candidate": {
+              "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2496,
+                "frequency_stop": 2528,
+                "frequency_width": 32
+              },
+              "sample_count": 143,
+              "added_fraction": 0.001939772110689094,
+              "geometry_alias_count": 1,
+              "residual_score": 0.28509979422782206,
+              "tv_score": 0.7436241473595067
+            },
+            "metrics": {
+              "trial": "prospective-013",
+              "seconds": 6.1569334609998805,
+              "tv": 0.14741876258427816,
+              "raw_tv": 0.26775132500745463,
+              "time_tv": 0.027058306842308526,
+              "frequency_tv": 0.12036045574196963,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.603158096340465,
+                "validation": 25.206174657897936,
+                "test": 24.920462593093653
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 143,
+              "added_fraction": 0.001939772110689094
+            },
+            "fixed_support_tv": 0.14741876258427816,
+            "objective": 1.2537572453576549,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+            "candidate": {
+              "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445064.500534,
+                "time_index": 6,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  1
+                ],
+                "frequency_start": 2240,
+                "frequency_stop": 2272,
+                "frequency_width": 32
+              },
+              "sample_count": 72,
+              "added_fraction": 0.0009766684753119914,
+              "geometry_alias_count": 1,
+              "residual_score": 0.49060287510945855,
+              "tv_score": 0.8651164043387294
+            },
+            "metrics": {
+              "trial": "prospective-014",
+              "seconds": 10.24850858800005,
+              "tv": 0.1476195180405803,
+              "raw_tv": 0.2666540332995287,
+              "time_tv": 0.0271292460507192,
+              "frequency_tv": 0.12049027198986109,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.60481289086099,
+                "validation": 25.204376800984466,
+                "test": 24.926364078543184
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 72,
+              "added_fraction": 0.0009766684753119914
+            },
+            "fixed_support_tv": 0.1476195180405803,
+            "objective": 1.2531748432580587,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+            "candidate": {
+              "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  0
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 28,
+              "added_fraction": 0.0003798155181768855,
+              "geometry_alias_count": 1,
+              "residual_score": 1.0363912937362316,
+              "tv_score": 1.8042630404230535
+            },
+            "metrics": {
+              "trial": "prospective-015",
+              "seconds": 6.849944752999818,
+              "tv": 0.1475565634479035,
+              "raw_tv": 0.267730827766577,
+              "time_tv": 0.027123473529033975,
+              "frequency_tv": 0.12043308991886952,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.60525585278802,
+                "validation": 25.213219872225704,
+                "test": 24.92975277685427
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 28,
+              "added_fraction": 0.0003798155181768855
+            },
+            "fixed_support_tv": 0.1475565634479035,
+            "objective": 1.2516418513648562,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+            "candidate": {
+              "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2608,
+                "frequency_stop": 2624,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 0.20126279172625694,
+              "tv_score": 0.3568155539756202
+            },
+            "metrics": {
+              "trial": "prospective-016",
+              "seconds": 5.99010750299999,
+              "tv": 0.14742685276412335,
+              "raw_tv": 0.2674299127785375,
+              "time_tv": 0.027069473175753346,
+              "frequency_tv": 0.12035737958836999,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.602952114623033,
+                "validation": 25.2064773067999,
+                "test": 24.919860621139204
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 12,
+              "added_fraction": 0.00016277807921866522
+            },
+            "fixed_support_tv": 0.14742685276412335,
+            "objective": 1.2502611311968508,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+            "candidate": {
+              "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445080.493769,
+                "time_index": 8,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2704,
+                "frequency_stop": 2720,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 0.49640850108759654,
+              "tv_score": 0.7045433192819422
+            },
+            "metrics": {
+              "trial": "prospective-017",
+              "seconds": 5.806250335999948,
+              "tv": 0.1474549611102766,
+              "raw_tv": 0.26746848751430985,
+              "time_tv": 0.027087759606170884,
+              "frequency_tv": 0.12036720150410571,
+              "scale": 1.0520039063056517,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 24.603082148697034,
+                "validation": 25.206859695050596,
+                "test": 24.919950892065312
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 11,
+              "added_fraction": 0.00014921323928377645
+            },
+            "fixed_support_tv": 0.1474549611102766,
+            "objective": 1.2504284407851005,
+            "guard_reasons": [],
+            "guard_pass": true
+          }
+        ],
+        "selected": {
+          "residual": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 24.919607595129268,
+            "flags_added": 0,
+            "known_injection_recall": null,
+            "outside_known_injection": null
+          },
+          "tv": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 24.919607595129268,
+            "flags_added": 0,
+            "known_injection_recall": null,
+            "outside_known_injection": null
+          },
+          "random": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 24.919607595129268,
+            "flags_added": 0,
+            "known_injection_recall": null,
+            "outside_known_injection": null
+          },
+          "detrended": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 24.919607595129268,
+            "flags_added": 0,
+            "known_injection_recall": null,
+            "outside_known_injection": null
+          },
+          "physics_two_confirmation": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 24.919607595129268,
+            "flags_added": 0,
+            "known_injection_recall": null,
+            "outside_known_injection": null
+          },
+          "full_union_reference": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 24.919607595129268,
+            "flags_added": 0,
+            "known_injection_recall": null,
+            "outside_known_injection": null
+          }
+        },
+        "audit": {
+          "exact_protected_flags_and_rows": true,
+          "data_unchanged": true,
+          "native_weights_unchanged": true,
+          "additions_only_on_train": true,
+          "weights_sigma_unchanged": true,
+          "prepared_case_unchanged": true,
+          "copied_original_unchanged": true,
+          "original_source_unchanged": true
+        },
+        "actual_QC_solves": 19,
+        "future_two_confirmation_QC_solves": 1,
+        "reference_union_is_diagnostic": true
+      },
+      {
+        "case_id": "time-burst-seed107",
+        "baseline": {
+          "trial": "baseline",
+          "seconds": 5.855722836000041,
+          "tv": 0.14900979012849058,
+          "raw_tv": 0.26814756747222357,
+          "time_tv": 0.028301700840993593,
+          "frequency_tv": 0.120708089287497,
+          "scale": 1.0521053431016474,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.138880053326755,
+            "validation": 25.440702102746563,
+            "test": 25.176875802845856
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "forecasts": [
+          {
+            "mask_id": "022a575c101e65613eaeb4e231c619dfcc2a630f4c0ff485be16572168cce21d",
+            "candidate": {
+              "mask_id": "022a575c101e65613eaeb4e231c619dfcc2a630f4c0ff485be16572168cce21d",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2576,
+                "frequency_stop": 2592,
+                "frequency_width": 16
+              },
+              "sample_count": 49,
+              "added_fraction": 0.0006646771568095496,
+              "geometry_alias_count": 1,
+              "residual_score": 2.311260222911256,
+              "tv_score": 5.241345590114348
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.004091499999958614,
+            "predicted_fixed_tv": 0.14896586008049872,
+            "predicted_validation_MSE": 25.39441263217083,
+            "predicted_objective": 1.2505796650362193,
+            "predicted_benefit": -0.0005796650362193123,
+            "predicted_cost_removed_benefit": 0.000749689277399787
+          },
+          {
+            "mask_id": "fb7b589c5c62fe98bae482a489a6f941578f20d661cdbfba9515c8fd1c435371",
+            "candidate": {
+              "mask_id": "fb7b589c5c62fe98bae482a489a6f941578f20d661cdbfba9515c8fd1c435371",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 80,
+              "added_fraction": 0.0010851871947911015,
+              "geometry_alias_count": 1,
+              "residual_score": 2.2222113984298115,
+              "tv_score": 6.164653655971515
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0033851660000436823,
+            "predicted_fixed_tv": 0.14911594982416612,
+            "predicted_validation_MSE": 25.419750768143764,
+            "predicted_objective": 1.2526769247522505,
+            "predicted_benefit": -0.0026769247522504536,
+            "predicted_cost_removed_benefit": -0.0005065503626682506
+          },
+          {
+            "mask_id": "cbc49a09565f5d1a82fef83a838c45f957d40e3d31f832c8835265a99b4b15da",
+            "candidate": {
+              "mask_id": "cbc49a09565f5d1a82fef83a838c45f957d40e3d31f832c8835265a99b4b15da",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 36,
+              "added_fraction": 0.0004883342376559957,
+              "geometry_alias_count": 1,
+              "residual_score": 2.9423011198371025,
+              "tv_score": 7.958323062254893
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003211916000054771,
+            "predicted_fixed_tv": 0.14907960034271153,
+            "predicted_validation_MSE": 25.43248582055887,
+            "predicted_objective": 1.251364423081798,
+            "predicted_benefit": -0.0013644230817979608,
+            "predicted_cost_removed_benefit": -0.00038775460648596944
+          },
+          {
+            "mask_id": "c77745ff499544dcbcf721fe77708633c1a518178f42e30e40b704fa163a5287",
+            "candidate": {
+              "mask_id": "c77745ff499544dcbcf721fe77708633c1a518178f42e30e40b704fa163a5287",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2592,
+                "frequency_stop": 2608,
+                "frequency_width": 16
+              },
+              "sample_count": 24,
+              "added_fraction": 0.00032555615843733043,
+              "geometry_alias_count": 1,
+              "residual_score": 2.7616463740720385,
+              "tv_score": 5.916234630434343
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003257999999959793,
+            "predicted_fixed_tv": 0.14905759589620562,
+            "predicted_validation_MSE": 25.436603216403824,
+            "predicted_objective": 1.2509316564907302,
+            "predicted_benefit": -0.0009316564907302372,
+            "predicted_cost_removed_benefit": -0.0002805441738555763
+          },
+          {
+            "mask_id": "70108c12f2f5ece8a6d42163239ad2267545a5f486c9292a5697e50390194c48",
+            "candidate": {
+              "mask_id": "70108c12f2f5ece8a6d42163239ad2267545a5f486c9292a5697e50390194c48",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 3.49246555686872,
+              "tv_score": 9.907257289530543
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0032230419999450532,
+            "predicted_fixed_tv": 0.14903147215651572,
+            "predicted_validation_MSE": 25.436986748214093,
+            "predicted_objective": 1.250407423939589,
+            "predicted_benefit": -0.00040742393958903556,
+            "predicted_cost_removed_benefit": -0.00010899746102148265
+          },
+          {
+            "mask_id": "547a9093bdf1e00661273cef9c5c0f3bc97c0d662206f20a02ca3d98c2baead2",
+            "candidate": {
+              "mask_id": "547a9093bdf1e00661273cef9c5c0f3bc97c0d662206f20a02ca3d98c2baead2",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2592,
+                "frequency_stop": 2608,
+                "frequency_width": 16
+              },
+              "sample_count": 13,
+              "added_fraction": 0.00017634291915355398,
+              "geometry_alias_count": 1,
+              "residual_score": 2.999006846173884,
+              "tv_score": 6.608515966611927
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.00303162499994869,
+            "predicted_fixed_tv": 0.14900939042801095,
+            "predicted_validation_MSE": 25.437290982313602,
+            "predicted_objective": 1.2503164831554359,
+            "predicted_benefit": -0.0003164831554358649,
+            "predicted_cost_removed_benefit": 0.00003620268287124305
+          },
+          {
+            "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "candidate": {
+              "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1264,
+                "frequency_stop": 1280,
+                "frequency_width": 16
+              },
+              "sample_count": 67,
+              "added_fraction": 0.0009088442756375475,
+              "geometry_alias_count": 1,
+              "residual_score": 1.2738612388227575,
+              "tv_score": 5.410493920927458
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.00316587499992238,
+            "predicted_fixed_tv": 0.14896231083839917,
+            "predicted_validation_MSE": 25.448885210221107,
+            "predicted_objective": 1.2515794700716683,
+            "predicted_benefit": -0.0015794700716682541,
+            "predicted_cost_removed_benefit": 0.0002382184796068409
+          },
+          {
+            "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "candidate": {
+              "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1248,
+                "frequency_stop": 1264,
+                "frequency_width": 16
+              },
+              "sample_count": 35,
+              "added_fraction": 0.0004747693977211069,
+              "geometry_alias_count": 1,
+              "residual_score": 1.753408997571057,
+              "tv_score": 8.278628148027357
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003071707999879436,
+            "predicted_fixed_tv": 0.14905177175955092,
+            "predicted_validation_MSE": 25.443182090970378,
+            "predicted_objective": 1.251255646477762,
+            "predicted_benefit": -0.0012556464777619958,
+            "predicted_cost_removed_benefit": -0.00030610768231978196
+          },
+          {
+            "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "candidate": {
+              "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1120,
+                "frequency_stop": 1136,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 1.7122933826812403,
+              "tv_score": 7.964435878475392
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003184000000146625,
+            "predicted_fixed_tv": 0.1490279284333183,
+            "predicted_validation_MSE": 25.440844627224866,
+            "predicted_objective": 1.250557201024986,
+            "predicted_benefit": -0.0005572010249859094,
+            "predicted_cost_removed_benefit": -0.00012312614706946879
+          },
+          {
+            "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "candidate": {
+              "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445120.476855,
+                "time_index": 13,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 13,
+              "added_fraction": 0.00017634291915355398,
+              "geometry_alias_count": 1,
+              "residual_score": 2.2006203750311095,
+              "tv_score": 11.106475744071002
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0028727919998345897,
+            "predicted_fixed_tv": 0.14904371250862042,
+            "predicted_validation_MSE": 25.439798783701836,
+            "predicted_objective": 1.250571461150002,
+            "predicted_benefit": -0.0005714611500020617,
+            "predicted_cost_removed_benefit": -0.0002187753116949537
+          },
+          {
+            "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+            "candidate": {
+              "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445112.480238,
+                "time_index": 12,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 2.167299856290175,
+              "tv_score": 10.938307923135138
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003185333000146784,
+            "predicted_fixed_tv": 0.1490593703805818,
+            "predicted_validation_MSE": 25.44294344853472,
+            "predicted_objective": 1.2507888315812221,
+            "predicted_benefit": -0.0007888315812221158,
+            "predicted_cost_removed_benefit": -0.0003547567033056752
+          },
+          {
+            "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+            "candidate": {
+              "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2304,
+                "frequency_stop": 2432,
+                "frequency_width": 128
+              },
+              "sample_count": 453,
+              "added_fraction": 0.006144872490504612,
+              "geometry_alias_count": 1,
+              "residual_score": 0.3378253364031288,
+              "tv_score": 0.797280852278326
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.010179500000049302,
+            "predicted_fixed_tv": 0.14903692743531247,
+            "predicted_validation_MSE": 25.45168533621275,
+            "predicted_objective": 1.2625797923309805,
+            "predicted_benefit": -0.0125797923309805,
+            "predicted_cost_removed_benefit": -0.0002900473499712758
+          },
+          {
+            "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+            "candidate": {
+              "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2496,
+                "frequency_stop": 2528,
+                "frequency_width": 32
+              },
+              "sample_count": 143,
+              "added_fraction": 0.001939772110689094,
+              "geometry_alias_count": 1,
+              "residual_score": 0.43269542642438263,
+              "tv_score": 1.2054154469350038
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003060167000057845,
+            "predicted_fixed_tv": 0.14919701569324414,
+            "predicted_validation_MSE": 25.489935726086692,
+            "predicted_objective": 1.2556198167108796,
+            "predicted_benefit": -0.005619816710879633,
+            "predicted_cost_removed_benefit": -0.0017402724895014448
+          },
+          {
+            "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+            "candidate": {
+              "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445064.500534,
+                "time_index": 6,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  1
+                ],
+                "frequency_start": 2240,
+                "frequency_stop": 2272,
+                "frequency_width": 32
+              },
+              "sample_count": 72,
+              "added_fraction": 0.0009766684753119914,
+              "geometry_alias_count": 1,
+              "residual_score": 0.48047679268704385,
+              "tv_score": 0.8347503523782916
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0034872080000241112,
+            "predicted_fixed_tv": 0.14919777616742946,
+            "predicted_validation_MSE": 25.438932151194745,
+            "predicted_objective": 1.2531975124148071,
+            "predicted_benefit": -0.0031975124148071465,
+            "predicted_cost_removed_benefit": -0.0012441754641831638
+          },
+          {
+            "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+            "candidate": {
+              "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  0
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 28,
+              "added_fraction": 0.0003798155181768855,
+              "geometry_alias_count": 1,
+              "residual_score": 1.0098415713910731,
+              "tv_score": 1.7308898919253914
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003071583000064493,
+            "predicted_fixed_tv": 0.1491196752884269,
+            "predicted_validation_MSE": 25.44753179704204,
+            "predicted_objective": 1.2515641807318798,
+            "predicted_benefit": -0.0015641807318798051,
+            "predicted_cost_removed_benefit": -0.0008045496955260341
+          },
+          {
+            "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+            "candidate": {
+              "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2608,
+                "frequency_stop": 2624,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 0.18812360995038302,
+              "tv_score": 0.32821424270759714
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003168208000033701,
+            "predicted_fixed_tv": 0.14899976816813904,
+            "predicted_validation_MSE": 25.441113974161883,
+            "predicted_objective": 1.2502623464655611,
+            "predicted_benefit": -0.00026234646556111407,
+            "predicted_cost_removed_benefit": 0.00006320969287621636
+          },
+          {
+            "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+            "candidate": {
+              "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445080.493769,
+                "time_index": 8,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2704,
+                "frequency_stop": 2720,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 0.48026322687523665,
+              "tv_score": 0.6742787236929082
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0029045000001133303,
+            "predicted_fixed_tv": 0.14902593123227054,
+            "predicted_validation_MSE": 25.441381639528288,
+            "predicted_objective": 1.2504134265703295,
+            "predicted_benefit": -0.00041342657032950036,
+            "predicted_cost_removed_benefit": -0.00011500009176194746
+          }
+        ],
+        "confirmation_ids": [],
+        "actions": [
+          {
+            "mask_id": "022a575c101e65613eaeb4e231c619dfcc2a630f4c0ff485be16572168cce21d",
+            "candidate": {
+              "mask_id": "022a575c101e65613eaeb4e231c619dfcc2a630f4c0ff485be16572168cce21d",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2576,
+                "frequency_stop": 2592,
+                "frequency_width": 16
+              },
+              "sample_count": 49,
+              "added_fraction": 0.0006646771568095496,
+              "geometry_alias_count": 1,
+              "residual_score": 2.311260222911256,
+              "tv_score": 5.241345590114348
+            },
+            "metrics": {
+              "trial": "prospective-000",
+              "seconds": 5.824019378000003,
+              "tv": 0.14896065725613103,
+              "raw_tv": 0.26791924320369936,
+              "time_tv": 0.028195248112292622,
+              "frequency_tv": 0.1207654091438384,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.146123433371017,
+                "validation": 25.392496153864748,
+                "test": 25.14208781833052
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 49,
+              "added_fraction": 0.0006646771568095496
+            },
+            "fixed_support_tv": 0.14896065725613103,
+            "objective": 1.2505259162491145,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "fb7b589c5c62fe98bae482a489a6f941578f20d661cdbfba9515c8fd1c435371",
+            "candidate": {
+              "mask_id": "fb7b589c5c62fe98bae482a489a6f941578f20d661cdbfba9515c8fd1c435371",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 80,
+              "added_fraction": 0.0010851871947911015,
+              "geometry_alias_count": 1,
+              "residual_score": 2.2222113984298115,
+              "tv_score": 6.164653655971515
+            },
+            "metrics": {
+              "trial": "prospective-001",
+              "seconds": 5.65748895999991,
+              "tv": 0.1491335673528169,
+              "raw_tv": 0.26821786908797973,
+              "time_tv": 0.02821611921745641,
+              "frequency_tv": 0.12091744813536051,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.158877229233873,
+                "validation": 25.41950436465065,
+                "test": 25.167045460312963
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 80,
+              "added_fraction": 0.0010851871947911015
+            },
+            "fixed_support_tv": 0.1491335673528169,
+            "objective": 1.252792734080009,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "cbc49a09565f5d1a82fef83a838c45f957d40e3d31f832c8835265a99b4b15da",
+            "candidate": {
+              "mask_id": "cbc49a09565f5d1a82fef83a838c45f957d40e3d31f832c8835265a99b4b15da",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 36,
+              "added_fraction": 0.0004883342376559957,
+              "geometry_alias_count": 1,
+              "residual_score": 2.9423011198371025,
+              "tv_score": 7.958323062254893
+            },
+            "metrics": {
+              "trial": "prospective-002",
+              "seconds": 5.638225668999894,
+              "tv": 0.14909548961810037,
+              "raw_tv": 0.26930046524353746,
+              "time_tv": 0.02826470397015166,
+              "frequency_tv": 0.12083078564794872,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.145566771227767,
+                "validation": 25.432047333161265,
+                "test": 25.17102137542066
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 36,
+              "added_fraction": 0.0004883342376559957
+            },
+            "fixed_support_tv": 0.14909548961810037,
+            "objective": 1.2514667465915528,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "c77745ff499544dcbcf721fe77708633c1a518178f42e30e40b704fa163a5287",
+            "candidate": {
+              "mask_id": "c77745ff499544dcbcf721fe77708633c1a518178f42e30e40b704fa163a5287",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2592,
+                "frequency_stop": 2608,
+                "frequency_width": 16
+              },
+              "sample_count": 24,
+              "added_fraction": 0.00032555615843733043,
+              "geometry_alias_count": 1,
+              "residual_score": 2.7616463740720385,
+              "tv_score": 5.916234630434343
+            },
+            "metrics": {
+              "trial": "prospective-003",
+              "seconds": 6.130089461000125,
+              "tv": 0.14906355049081849,
+              "raw_tv": 0.2673081957336191,
+              "time_tv": 0.028283547263399267,
+              "frequency_tv": 0.12078000322741923,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.14303905440671,
+                "validation": 25.43641950737551,
+                "test": 25.159100799562182
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 24,
+              "added_fraction": 0.00032555615843733043
+            },
+            "fixed_support_tv": 0.14906355049081849,
+            "objective": 1.2509698123204114,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "70108c12f2f5ece8a6d42163239ad2267545a5f486c9292a5697e50390194c48",
+            "candidate": {
+              "mask_id": "70108c12f2f5ece8a6d42163239ad2267545a5f486c9292a5697e50390194c48",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 3.49246555686872,
+              "tv_score": 9.907257289530543
+            },
+            "metrics": {
+              "trial": "prospective-004",
+              "seconds": 6.852138169,
+              "tv": 0.14903154897309315,
+              "raw_tv": 0.26808857739986586,
+              "time_tv": 0.0282899860981219,
+              "frequency_tv": 0.12074156287497124,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.14126401436901,
+                "validation": 25.436682783944445,
+                "test": 25.172764277280205
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 11,
+              "added_fraction": 0.00014921323928377645
+            },
+            "fixed_support_tv": 0.14903154897309315,
+            "objective": 1.2504049524653926,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "547a9093bdf1e00661273cef9c5c0f3bc97c0d662206f20a02ca3d98c2baead2",
+            "candidate": {
+              "mask_id": "547a9093bdf1e00661273cef9c5c0f3bc97c0d662206f20a02ca3d98c2baead2",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2592,
+                "frequency_stop": 2608,
+                "frequency_width": 16
+              },
+              "sample_count": 13,
+              "added_fraction": 0.00017634291915355398,
+              "geometry_alias_count": 1,
+              "residual_score": 2.999006846173884,
+              "tv_score": 6.608515966611927
+            },
+            "metrics": {
+              "trial": "prospective-005",
+              "seconds": 7.1609407530002045,
+              "tv": 0.1490102813491573,
+              "raw_tv": 0.2683555130252458,
+              "time_tv": 0.028289276483504953,
+              "frequency_tv": 0.12072100486565235,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.142205761621792,
+                "validation": 25.437257153403557,
+                "test": 25.163830370748926
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 13,
+              "added_fraction": 0.00017634291915355398
+            },
+            "fixed_support_tv": 0.1490102813491573,
+            "objective": 1.250322129670125,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "candidate": {
+              "mask_id": "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 1264,
+                "frequency_stop": 1280,
+                "frequency_width": 16
+              },
+              "sample_count": 67,
+              "added_fraction": 0.0009088442756375475,
+              "geometry_alias_count": 1,
+              "residual_score": 1.2738612388227575,
+              "tv_score": 5.410493920927458
+            },
+            "metrics": {
+              "trial": "prospective-006",
+              "seconds": 10.05097246299988,
+              "tv": 0.14899249679191787,
+              "raw_tv": 0.2680788255778753,
+              "time_tv": 0.028330667746919645,
+              "frequency_tv": 0.12066182904499823,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.148096926257164,
+                "validation": 25.449042811511063,
+                "test": 25.17451000983968
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 67,
+              "added_fraction": 0.0009088442756375475
+            },
+            "fixed_support_tv": 0.14899249679191787,
+            "objective": 1.2517835957653791,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "candidate": {
+              "mask_id": "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1248,
+                "frequency_stop": 1264,
+                "frequency_width": 16
+              },
+              "sample_count": 35,
+              "added_fraction": 0.0004747693977211069,
+              "geometry_alias_count": 1,
+              "residual_score": 1.753408997571057,
+              "tv_score": 8.278628148027357
+            },
+            "metrics": {
+              "trial": "prospective-007",
+              "seconds": 10.74778775499999,
+              "tv": 0.14901716651279065,
+              "raw_tv": 0.2689399048156376,
+              "time_tv": 0.028362299194152195,
+              "frequency_tv": 0.12065486731863845,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.145923074873256,
+                "validation": 25.44297594380579,
+                "test": 25.18809037027281
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 35,
+              "added_fraction": 0.0004747693977211069
+            },
+            "fixed_support_tv": 0.14901716651279065,
+            "objective": 1.2510213859972632,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "candidate": {
+              "mask_id": "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445024.517448,
+                "time_index": 1,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 1120,
+                "frequency_stop": 1136,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 1.7122933826812403,
+              "tv_score": 7.964435878475392
+            },
+            "metrics": {
+              "trial": "prospective-008",
+              "seconds": 6.783135461000029,
+              "tv": 0.14905262844486475,
+              "raw_tv": 0.26846673058811565,
+              "time_tv": 0.028382195529853153,
+              "frequency_tv": 0.1206704329150116,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.14186150133848,
+                "validation": 25.44161724103265,
+                "test": 25.188723355842114
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 16,
+              "added_fraction": 0.0002170374389582203
+            },
+            "fixed_support_tv": 0.14905262844486475,
+            "objective": 1.2507305543235083,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "candidate": {
+              "mask_id": "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445120.476855,
+                "time_index": 13,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 13,
+              "added_fraction": 0.00017634291915355398,
+              "geometry_alias_count": 1,
+              "residual_score": 2.2006203750311095,
+              "tv_score": 11.106475744071002
+            },
+            "metrics": {
+              "trial": "prospective-009",
+              "seconds": 6.685239294999974,
+              "tv": 0.14904053374491258,
+              "raw_tv": 0.26838034380835163,
+              "time_tv": 0.028325292255874535,
+              "frequency_tv": 0.12071524148903805,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.142107094654154,
+                "validation": 25.440241811986137,
+                "test": 25.17148527051921
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 13,
+              "added_fraction": 0.00017634291915355398
+            },
+            "fixed_support_tv": 0.14904053374491258,
+            "objective": 1.2505544821053587,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+            "candidate": {
+              "mask_id": "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445112.480238,
+                "time_index": 12,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  1,
+                  2
+                ],
+                "frequency_start": 1184,
+                "frequency_stop": 1200,
+                "frequency_width": 16
+              },
+              "sample_count": 16,
+              "added_fraction": 0.0002170374389582203,
+              "geometry_alias_count": 1,
+              "residual_score": 2.167299856290175,
+              "tv_score": 10.938307923135138
+            },
+            "metrics": {
+              "trial": "prospective-010",
+              "seconds": 5.539670461000014,
+              "tv": 0.14905505185627926,
+              "raw_tv": 0.26843149390922605,
+              "time_tv": 0.028341959299419323,
+              "frequency_tv": 0.12071309255685993,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.143925173907785,
+                "validation": 25.443483927901337,
+                "test": 25.17034839666316
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 16,
+              "added_fraction": 0.0002170374389582203
+            },
+            "fixed_support_tv": 0.14905505185627926,
+            "objective": 1.2507651612688366,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+            "candidate": {
+              "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2304,
+                "frequency_stop": 2432,
+                "frequency_width": 128
+              },
+              "sample_count": 453,
+              "added_fraction": 0.006144872490504612,
+              "geometry_alias_count": 1,
+              "residual_score": 0.3378253364031288,
+              "tv_score": 0.797280852278326
+            },
+            "metrics": {
+              "trial": "prospective-011",
+              "seconds": 5.288475627000025,
+              "tv": 0.14903082535463585,
+              "raw_tv": 0.2670154303412745,
+              "time_tv": 0.028350390597495993,
+              "frequency_tv": 0.12068043475713987,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.14120475646197,
+                "validation": 25.45182378202704,
+                "test": 25.181256744859535
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 453,
+              "added_fraction": 0.006144872490504612
+            },
+            "fixed_support_tv": 0.14903082535463585,
+            "objective": 1.2625402019356577,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+            "candidate": {
+              "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2496,
+                "frequency_stop": 2528,
+                "frequency_width": 32
+              },
+              "sample_count": 143,
+              "added_fraction": 0.001939772110689094,
+              "geometry_alias_count": 1,
+              "residual_score": 0.43269542642438263,
+              "tv_score": 1.2054154469350038
+            },
+            "metrics": {
+              "trial": "prospective-012",
+              "seconds": 5.779448335000097,
+              "tv": 0.1491937504365506,
+              "raw_tv": 0.26860452219761094,
+              "time_tv": 0.02848396632014019,
+              "frequency_tv": 0.12070978411641038,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.155683038645694,
+                "validation": 25.493629147347658,
+                "test": 25.2102370621131
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 143,
+              "added_fraction": 0.001939772110689094
+            },
+            "fixed_support_tv": 0.1491937504365506,
+            "objective": 1.2556341980879022,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+            "candidate": {
+              "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445064.500534,
+                "time_index": 6,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  1
+                ],
+                "frequency_start": 2240,
+                "frequency_stop": 2272,
+                "frequency_width": 32
+              },
+              "sample_count": 72,
+              "added_fraction": 0.0009766684753119914,
+              "geometry_alias_count": 1,
+              "residual_score": 0.48047679268704385,
+              "tv_score": 0.8347503523782916
+            },
+            "metrics": {
+              "trial": "prospective-013",
+              "seconds": 5.776587128000074,
+              "tv": 0.1491924204868354,
+              "raw_tv": 0.2674758396444687,
+              "time_tv": 0.028360961960773427,
+              "frequency_tv": 0.12083145852606196,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.14084665954525,
+                "validation": 25.43895630490499,
+                "test": 25.183632286259773
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 72,
+              "added_fraction": 0.0009766684753119914
+            },
+            "fixed_support_tv": 0.1491924204868354,
+            "objective": 1.253161807964346,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+            "candidate": {
+              "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  0
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 28,
+              "added_fraction": 0.0003798155181768855,
+              "geometry_alias_count": 1,
+              "residual_score": 1.0098415713910731,
+              "tv_score": 1.7308898919253914
+            },
+            "metrics": {
+              "trial": "prospective-014",
+              "seconds": 5.930611544000158,
+              "tv": 0.14912947196380955,
+              "raw_tv": 0.26855253029436466,
+              "time_tv": 0.02835518999563524,
+              "frequency_tv": 0.1207742819681743,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.14128962147228,
+                "validation": 25.447799376146232,
+                "test": 25.18702098457086
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 28,
+              "added_fraction": 0.0003798155181768855
+            },
+            "fixed_support_tv": 0.14912947196380955,
+            "objective": 1.2516325553503371,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+            "candidate": {
+              "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2608,
+                "frequency_stop": 2624,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 0.18812360995038302,
+              "tv_score": 0.32821424270759714
+            },
+            "metrics": {
+              "trial": "prospective-015",
+              "seconds": 5.434102167999981,
+              "tv": 0.1489997737858457,
+              "raw_tv": 0.2682516443184887,
+              "time_tv": 0.02830119484869906,
+              "frequency_tv": 0.12069857893714664,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.138985883307292,
+                "validation": 25.44105681072043,
+                "test": 25.177128828855793
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 12,
+              "added_fraction": 0.00016277807921866522
+            },
+            "fixed_support_tv": 0.1489997737858457,
+            "objective": 1.2502618224336601,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+            "candidate": {
+              "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445080.493769,
+                "time_index": 8,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2704,
+                "frequency_stop": 2720,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 0.48026322687523665,
+              "tv_score": 0.6742787236929082
+            },
+            "metrics": {
+              "trial": "prospective-016",
+              "seconds": 6.391744044999996,
+              "tv": 0.1490278794219846,
+              "raw_tv": 0.268290215335149,
+              "time_tv": 0.028319479516064144,
+              "frequency_tv": 0.12070839990592046,
+              "scale": 1.0521053431016474,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.13911591738129,
+                "validation": 25.44143919897112,
+                "test": 25.177219099781905
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 11,
+              "added_fraction": 0.00014921323928377645
+            },
+            "fixed_support_tv": 0.1490278794219846,
+            "objective": 1.2504270664335997,
+            "guard_reasons": [],
+            "guard_pass": true
+          }
+        ],
+        "selected": {
+          "residual": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 25.176875802845856,
+            "flags_added": 0,
+            "known_injection_recall": 0,
+            "outside_known_injection": 0
+          },
+          "tv": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 25.176875802845856,
+            "flags_added": 0,
+            "known_injection_recall": 0,
+            "outside_known_injection": 0
+          },
+          "random": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 25.176875802845856,
+            "flags_added": 0,
+            "known_injection_recall": 0,
+            "outside_known_injection": 0
+          },
+          "detrended": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 25.176875802845856,
+            "flags_added": 0,
+            "known_injection_recall": 0,
+            "outside_known_injection": 0
+          },
+          "physics_two_confirmation": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 25.176875802845856,
+            "flags_added": 0,
+            "known_injection_recall": 0,
+            "outside_known_injection": 0
+          },
+          "full_union_reference": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 25.176875802845856,
+            "flags_added": 0,
+            "known_injection_recall": 0,
+            "outside_known_injection": 0
+          }
+        },
+        "audit": {
+          "exact_protected_flags_and_rows": true,
+          "data_unchanged": true,
+          "native_weights_unchanged": true,
+          "additions_only_on_train": true,
+          "weights_sigma_unchanged": true,
+          "prepared_case_unchanged": true,
+          "copied_original_unchanged": true,
+          "original_source_unchanged": true
+        },
+        "actual_QC_solves": 18,
+        "future_two_confirmation_QC_solves": 1,
+        "reference_union_is_diagnostic": true
+      },
+      {
+        "case_id": "time-burst-seed109",
+        "baseline": {
+          "trial": "baseline",
+          "seconds": 5.648213585999883,
+          "tv": 0.14938593817355783,
+          "raw_tv": 0.26966768636588645,
+          "time_tv": 0.028774278145702933,
+          "frequency_tv": 0.12061166002785491,
+          "scale": 1.0520039063056514,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 25.35780690631174,
+            "validation": 25.32211021562811,
+            "test": 25.036838898721214
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "forecasts": [
+          {
+            "mask_id": "9b91033bbe472d95e33118db075ca633f5154a68099461ecd4bb938cced4808a",
+            "candidate": {
+              "mask_id": "9b91033bbe472d95e33118db075ca633f5154a68099461ecd4bb938cced4808a",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 57,
+              "added_fraction": 0.0007731958762886598,
+              "geometry_alias_count": 1,
+              "residual_score": 2.7563068107903783,
+              "tv_score": 7.407842128344227
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.00375595900004555,
+            "predicted_fixed_tv": 0.14939880941869887,
+            "predicted_validation_MSE": 25.313353530490534,
+            "predicted_objective": 1.2515460998186538,
+            "predicted_benefit": -0.0015460998186538344,
+            "predicted_cost_removed_benefit": 2.919339234851246e-7
+          },
+          {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "candidate": {
+              "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2400,
+                "frequency_stop": 2416,
+                "frequency_width": 16
+              },
+              "sample_count": 56,
+              "added_fraction": 0.000759631036353771,
+              "geometry_alias_count": 1,
+              "residual_score": 2.700872385457118,
+              "tv_score": 7.638885866202181
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003042291999918234,
+            "predicted_fixed_tv": 0.14911591248111836,
+            "predicted_validation_MSE": 25.308777219851297,
+            "predicted_objective": 1.2495800571216424,
+            "predicted_benefit": 0.00041994287835755983,
+            "predicted_cost_removed_benefit": 0.0019392049510651018
+          },
+          {
+            "mask_id": "ae037fa10606edc7e2b1b2f17365f227a755683373bd10c61310db81b72e2fc2",
+            "candidate": {
+              "mask_id": "ae037fa10606edc7e2b1b2f17365f227a755683373bd10c61310db81b72e2fc2",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2432,
+                "frequency_stop": 2448,
+                "frequency_width": 16
+              },
+              "sample_count": 38,
+              "added_fraction": 0.0005154639175257732,
+              "geometry_alias_count": 1,
+              "residual_score": 3.386571596109974,
+              "tv_score": 8.67415923292487
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0033912920000602753,
+            "predicted_fixed_tv": 0.14945396286046667,
+            "predicted_validation_MSE": 25.325485930939823,
+            "predicted_objective": 1.251519617628955,
+            "predicted_benefit": -0.0015196176289549168,
+            "predicted_cost_removed_benefit": -0.0004886897939033704
+          },
+          {
+            "mask_id": "0a562c0a2318fdfb9b570ab0bafbe025e639bacf9af3a5e4c7e7c83240575e42",
+            "candidate": {
+              "mask_id": "0a562c0a2318fdfb9b570ab0bafbe025e639bacf9af3a5e4c7e7c83240575e42",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2432,
+                "frequency_stop": 2464,
+                "frequency_width": 32
+              },
+              "sample_count": 77,
+              "added_fraction": 0.0010444926749864352,
+              "geometry_alias_count": 1,
+              "residual_score": 3.3642821026122536,
+              "tv_score": 8.631924473882972
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0032674999999926513,
+            "predicted_fixed_tv": 0.14956567557712966,
+            "predicted_validation_MSE": 25.33149239436051,
+            "predicted_objective": 1.2533847885248728,
+            "predicted_benefit": -0.003384788524872784,
+            "predicted_cost_removed_benefit": -0.0012958031748999134
+          },
+          {
+            "mask_id": "cfa83b81bf98eefd6075176cce735af70991d6bac6c7639c37342345de0d54f2",
+            "candidate": {
+              "mask_id": "cfa83b81bf98eefd6075176cce735af70991d6bac6c7639c37342345de0d54f2",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2416,
+                "frequency_stop": 2432,
+                "frequency_width": 16
+              },
+              "sample_count": 9,
+              "added_fraction": 0.00012208355941399892,
+              "geometry_alias_count": 1,
+              "residual_score": 4.371267678036677,
+              "tv_score": 11.70548320065191
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003068292000079964,
+            "predicted_fixed_tv": 0.149387912843728,
+            "predicted_validation_MSE": 25.32229130986749,
+            "predicted_objective": 1.2502591736064157,
+            "predicted_benefit": -0.00025917360641569687,
+            "predicted_cost_removed_benefit": -0.000015006487587699029
+          },
+          {
+            "mask_id": "a7d84cf9751f5c44cfa26b467122b2a9bd65b1dc733245c86c6ab8967e2764af",
+            "candidate": {
+              "mask_id": "a7d84cf9751f5c44cfa26b467122b2a9bd65b1dc733245c86c6ab8967e2764af",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2432,
+                "frequency_stop": 2448,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 4.279246441636789,
+              "tv_score": 11.405826334327905
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0030389999999442807,
+            "predicted_fixed_tv": 0.14937503784009937,
+            "predicted_validation_MSE": 25.318578943543635,
+            "predicted_objective": 1.2502177250329842,
+            "predicted_benefit": -0.0002177250329842284,
+            "predicted_cost_removed_benefit": 0.00010783112545310203
+          },
+          {
+            "mask_id": "ec98fc493ebd317149a5b535be7a9691b1f3e44f24eb3ddc1bfdef16e0dc1c75",
+            "candidate": {
+              "mask_id": "ec98fc493ebd317149a5b535be7a9691b1f3e44f24eb3ddc1bfdef16e0dc1c75",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 18,
+              "added_fraction": 0.00024416711882799784,
+              "geometry_alias_count": 1,
+              "residual_score": 3.2127374473496033,
+              "tv_score": 8.969943668669764
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.003004541999871435,
+            "predicted_fixed_tv": 0.1494714182733249,
+            "predicted_validation_MSE": 25.329716800149225,
+            "predicted_objective": 1.2511356422994777,
+            "predicted_benefit": -0.0011356422994777127,
+            "predicted_cost_removed_benefit": -0.000647308061821717
+          },
+          {
+            "mask_id": "c2f55be947f98976d1d0948acf8fea67de542ee9b6d63f81557f0e2bdf0a1001",
+            "candidate": {
+              "mask_id": "c2f55be947f98976d1d0948acf8fea67de542ee9b6d63f81557f0e2bdf0a1001",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2400,
+                "frequency_stop": 2416,
+                "frequency_width": 16
+              },
+              "sample_count": 34,
+              "added_fraction": 0.00046120455778621814,
+              "geometry_alias_count": 1,
+              "residual_score": 3.233227425974526,
+              "tv_score": 8.95020167318648
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.002987875000144413,
+            "predicted_fixed_tv": 0.14935387959810068,
+            "predicted_validation_MSE": 25.32142117544543,
+            "predicted_objective": 1.2507010039993427,
+            "predicted_benefit": -0.0007010039993426975,
+            "predicted_cost_removed_benefit": 0.00022140511622973876
+          },
+          {
+            "mask_id": "867e8527afb926fc8766ea202df3633323b09124ffd2a026225ff1d39f72abad",
+            "candidate": {
+              "mask_id": "867e8527afb926fc8766ea202df3633323b09124ffd2a026225ff1d39f72abad",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 10,
+              "added_fraction": 0.00013564839934888768,
+              "geometry_alias_count": 1,
+              "residual_score": 4.236551452056391,
+              "tv_score": 11.987050223957684
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.002993374999959997,
+            "predicted_fixed_tv": 0.14941090161998546,
+            "predicted_validation_MSE": 25.324031773940046,
+            "predicted_objective": 1.2504573750197563,
+            "predicted_benefit": -0.0004573750197562898,
+            "predicted_cost_removed_benefit": -0.00018607822105851443
+          },
+          {
+            "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+            "candidate": {
+              "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2304,
+                "frequency_stop": 2432,
+                "frequency_width": 128
+              },
+              "sample_count": 453,
+              "added_fraction": 0.006144872490504612,
+              "geometry_alias_count": 1,
+              "residual_score": 0.3427897570834606,
+              "tv_score": 0.8127889601925552
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.010028708999925584,
+            "predicted_fixed_tv": 0.14941307809702536,
+            "predicted_validation_MSE": 25.333093449094306,
+            "predicted_objective": 1.262579856752824,
+            "predicted_benefit": -0.012579856752823915,
+            "predicted_cost_removed_benefit": -0.00029011177181469117
+          },
+          {
+            "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+            "candidate": {
+              "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2496,
+                "frequency_stop": 2528,
+                "frequency_width": 32
+              },
+              "sample_count": 143,
+              "added_fraction": 0.001939772110689094,
+              "geometry_alias_count": 1,
+              "residual_score": 0.27880160393036824,
+              "tv_score": 0.7153794151114891
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0034092920000148297,
+            "predicted_fixed_tv": 0.14936657366064537,
+            "predicted_validation_MSE": 25.322143316922908,
+            "predicted_objective": 1.2537502436092767,
+            "predicted_benefit": -0.003750243609276671,
+            "predicted_cost_removed_benefit": 0.00012930061210151677
+          },
+          {
+            "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+            "candidate": {
+              "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445064.500534,
+                "time_index": 6,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  1
+                ],
+                "frequency_start": 2240,
+                "frequency_stop": 2272,
+                "frequency_width": 32
+              },
+              "sample_count": 72,
+              "added_fraction": 0.0009766684753119914,
+              "geometry_alias_count": 1,
+              "residual_score": 0.484809260103581,
+              "tv_score": 0.8449099410223148
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0030610000001161097,
+            "predicted_fixed_tv": 0.14957394233857146,
+            "predicted_validation_MSE": 25.320340264076297,
+            "predicted_objective": 1.2531943757145876,
+            "predicted_benefit": -0.003194375714587583,
+            "predicted_cost_removed_benefit": -0.0012410387639636001
+          },
+          {
+            "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+            "candidate": {
+              "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  0
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 28,
+              "added_fraction": 0.0003798155181768855,
+              "geometry_alias_count": 1,
+              "residual_score": 1.0142729860103787,
+              "tv_score": 1.7460861335634832
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0028824999999415013,
+            "predicted_fixed_tv": 0.14949583392889065,
+            "predicted_validation_MSE": 25.32893990992359,
+            "predicted_objective": 1.251562709139696,
+            "predicted_benefit": -0.001562709139695917,
+            "predicted_cost_removed_benefit": -0.000803078103342146
+          },
+          {
+            "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+            "candidate": {
+              "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2608,
+                "frequency_stop": 2624,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 0.18820010425680256,
+              "tv_score": 0.3296134225727622
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0030583330001263676,
+            "predicted_fixed_tv": 0.14937591524686428,
+            "predicted_validation_MSE": 25.32252208704343,
+            "predicted_objective": 1.250262528302657,
+            "predicted_benefit": -0.00026252830265693916,
+            "predicted_cost_removed_benefit": 0.00006302785578039127
+          },
+          {
+            "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+            "candidate": {
+              "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445080.493769,
+                "time_index": 8,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2704,
+                "frequency_stop": 2720,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 0.47867799519481485,
+              "tv_score": 0.6737995328286863
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0029874589999963064,
+            "predicted_fixed_tv": 0.14940208083370257,
+            "predicted_validation_MSE": 25.322789752409836,
+            "predicted_objective": 1.2504131955106919,
+            "predicted_benefit": -0.000413195510691855,
+            "predicted_cost_removed_benefit": -0.0001147690321243021
+          },
+          {
+            "mask_id": "f0b2f27aaf8d419a6a2d2ce304bdff6b3505b64bea9743287a2f3627845ba74e",
+            "candidate": {
+              "mask_id": "f0b2f27aaf8d419a6a2d2ce304bdff6b3505b64bea9743287a2f3627845ba74e",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2400,
+                "frequency_stop": 2432,
+                "frequency_width": 32
+              },
+              "sample_count": 66,
+              "added_fraction": 0.0008952794357026588,
+              "geometry_alias_count": 1,
+              "residual_score": 3.248041141467455,
+              "tv_score": 8.906922603203112
+            },
+            "guard_pass": true,
+            "reason": null,
+            "native_response_seconds": 0.0030948329999773705,
+            "predicted_fixed_tv": 0.14931464868972832,
+            "predicted_validation_MSE": 25.327714751805928,
+            "predicted_objective": 1.2513686744776829,
+            "predicted_benefit": -0.0013686744776828519,
+            "predicted_cost_removed_benefit": 0.00042188439372246563
+          }
+        ],
+        "confirmation_ids": [
+          "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1"
+        ],
+        "actions": [
+          {
+            "mask_id": "9b91033bbe472d95e33118db075ca633f5154a68099461ecd4bb938cced4808a",
+            "candidate": {
+              "mask_id": "9b91033bbe472d95e33118db075ca633f5154a68099461ecd4bb938cced4808a",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 57,
+              "added_fraction": 0.0007731958762886598,
+              "geometry_alias_count": 1,
+              "residual_score": 2.7563068107903783,
+              "tv_score": 7.407842128344227
+            },
+            "metrics": {
+              "trial": "prospective-000",
+              "seconds": 6.839805587000001,
+              "tv": 0.14942062203761317,
+              "raw_tv": 0.26939660285752093,
+              "time_tv": 0.02873160260247371,
+              "frequency_tv": 0.12068901943513945,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.365274129630343,
+                "validation": 25.316167324360343,
+                "test": 25.03995851596266
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 57,
+              "added_fraction": 0.0007731958762886598
+            },
+            "fixed_support_tv": 0.14942062203761317,
+            "objective": 1.2517198950368882,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "candidate": {
+              "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2400,
+                "frequency_stop": 2416,
+                "frequency_width": 16
+              },
+              "sample_count": 56,
+              "added_fraction": 0.000759631036353771,
+              "geometry_alias_count": 1,
+              "residual_score": 2.700872385457118,
+              "tv_score": 7.638885866202181
+            },
+            "metrics": {
+              "trial": "prospective-001",
+              "seconds": 9.90298225399988,
+              "tv": 0.14911276431630954,
+              "raw_tv": 0.26900703741891485,
+              "time_tv": 0.028605392389965147,
+              "frequency_tv": 0.12050737192634439,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.365340825918658,
+                "validation": 25.3101895414395,
+                "test": 25.03525053092711
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 56,
+              "added_fraction": 0.000759631036353771
+            },
+            "fixed_support_tv": 0.14911276431630954,
+            "objective": 1.2495729266458455,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "ae037fa10606edc7e2b1b2f17365f227a755683373bd10c61310db81b72e2fc2",
+            "candidate": {
+              "mask_id": "ae037fa10606edc7e2b1b2f17365f227a755683373bd10c61310db81b72e2fc2",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2432,
+                "frequency_stop": 2448,
+                "frequency_width": 16
+              },
+              "sample_count": 38,
+              "added_fraction": 0.0005154639175257732,
+              "geometry_alias_count": 1,
+              "residual_score": 3.386571596109974,
+              "tv_score": 8.67415923292487
+            },
+            "metrics": {
+              "trial": "prospective-002",
+              "seconds": 8.982164713000202,
+              "tv": 0.1494676491668737,
+              "raw_tv": 0.27181079634285693,
+              "time_tv": 0.028778971254031133,
+              "frequency_tv": 0.12068867791284256,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.361708555455305,
+                "validation": 25.326088239838903,
+                "test": 25.04255907334438
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 38,
+              "added_fraction": 0.0005154639175257732
+            },
+            "fixed_support_tv": 0.1494676491668737,
+            "objective": 1.2516171812009722,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "0a562c0a2318fdfb9b570ab0bafbe025e639bacf9af3a5e4c7e7c83240575e42",
+            "candidate": {
+              "mask_id": "0a562c0a2318fdfb9b570ab0bafbe025e639bacf9af3a5e4c7e7c83240575e42",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2432,
+                "frequency_stop": 2464,
+                "frequency_width": 32
+              },
+              "sample_count": 77,
+              "added_fraction": 0.0010444926749864352,
+              "geometry_alias_count": 1,
+              "residual_score": 3.3642821026122536,
+              "tv_score": 8.631924473882972
+            },
+            "metrics": {
+              "trial": "prospective-003",
+              "seconds": 5.687051586000052,
+              "tv": 0.1495597501757515,
+              "raw_tv": 0.27398463185995575,
+              "time_tv": 0.028779901681603003,
+              "frequency_tv": 0.12077984849414848,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.37797560519189,
+                "validation": 25.33039559404781,
+                "test": 25.051654960285592
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 77,
+              "added_fraction": 0.0010444926749864352
+            },
+            "fixed_support_tv": 0.1495597501757515,
+            "objective": 1.253334294985872,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "cfa83b81bf98eefd6075176cce735af70991d6bac6c7639c37342345de0d54f2",
+            "candidate": {
+              "mask_id": "cfa83b81bf98eefd6075176cce735af70991d6bac6c7639c37342345de0d54f2",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2416,
+                "frequency_stop": 2432,
+                "frequency_width": 16
+              },
+              "sample_count": 9,
+              "added_fraction": 0.00012208355941399892,
+              "geometry_alias_count": 1,
+              "residual_score": 4.371267678036677,
+              "tv_score": 11.70548320065191
+            },
+            "metrics": {
+              "trial": "prospective-004",
+              "seconds": 5.575356003000024,
+              "tv": 0.14938671382190977,
+              "raw_tv": 0.2696790060389252,
+              "time_tv": 0.028778401249286652,
+              "frequency_tv": 0.12060831257262311,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.360501403316217,
+                "validation": 25.321735016341464,
+                "test": 25.046937837231138
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 9,
+              "added_fraction": 0.00012208355941399892
+            },
+            "fixed_support_tv": 0.14938671382190977,
+            "objective": 1.2502456550979746,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "a7d84cf9751f5c44cfa26b467122b2a9bd65b1dc733245c86c6ab8967e2764af",
+            "candidate": {
+              "mask_id": "a7d84cf9751f5c44cfa26b467122b2a9bd65b1dc733245c86c6ab8967e2764af",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2432,
+                "frequency_stop": 2448,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 4.279246441636789,
+              "tv_score": 11.405826334327905
+            },
+            "metrics": {
+              "trial": "prospective-005",
+              "seconds": 5.788829794999856,
+              "tv": 0.1493522750246509,
+              "raw_tv": 0.26964778929888017,
+              "time_tv": 0.02875737428775157,
+              "frequency_tv": 0.12059490073689932,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.361497206640653,
+                "validation": 25.317523512608943,
+                "test": 25.036883742791172
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 12,
+              "added_fraction": 0.00016277807921866522
+            },
+            "fixed_support_tv": 0.1493522750246509,
+            "objective": 1.2500549290887497,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "ec98fc493ebd317149a5b535be7a9691b1f3e44f24eb3ddc1bfdef16e0dc1c75",
+            "candidate": {
+              "mask_id": "ec98fc493ebd317149a5b535be7a9691b1f3e44f24eb3ddc1bfdef16e0dc1c75",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  2
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 18,
+              "added_fraction": 0.00024416711882799784,
+              "geometry_alias_count": 1,
+              "residual_score": 3.2127374473496033,
+              "tv_score": 8.969943668669764
+            },
+            "metrics": {
+              "trial": "prospective-006",
+              "seconds": 5.4887371279999115,
+              "tv": 0.1494622614371888,
+              "raw_tv": 0.26988195866823,
+              "time_tv": 0.028809619201050216,
+              "frequency_tv": 0.12065264223613859,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.359855928374294,
+                "validation": 25.32840222352166,
+                "test": 25.04020455934923
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 18,
+              "added_fraction": 0.00024416711882799784
+            },
+            "fixed_support_tv": 0.1494622614371888,
+            "objective": 1.251061367247545,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "c2f55be947f98976d1d0948acf8fea67de542ee9b6d63f81557f0e2bdf0a1001",
+            "candidate": {
+              "mask_id": "c2f55be947f98976d1d0948acf8fea67de542ee9b6d63f81557f0e2bdf0a1001",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2400,
+                "frequency_stop": 2416,
+                "frequency_width": 16
+              },
+              "sample_count": 34,
+              "added_fraction": 0.00046120455778621814,
+              "geometry_alias_count": 1,
+              "residual_score": 3.233227425974526,
+              "tv_score": 8.95020167318648
+            },
+            "metrics": {
+              "trial": "prospective-007",
+              "seconds": 5.623423586000172,
+              "tv": 0.14934383694432818,
+              "raw_tv": 0.2690734467978724,
+              "time_tv": 0.02875637541307221,
+              "frequency_tv": 0.12058746153125596,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.36242945995752,
+                "validation": 25.32215544261955,
+                "test": 25.04497747726607
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 34,
+              "added_fraction": 0.00046120455778621814
+            },
+            "fixed_support_tv": 0.14934383694432818,
+            "objective": 1.250641027036301,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "867e8527afb926fc8766ea202df3633323b09124ffd2a026225ff1d39f72abad",
+            "candidate": {
+              "mask_id": "867e8527afb926fc8766ea202df3633323b09124ffd2a026225ff1d39f72abad",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  2,
+                  3
+                ],
+                "frequency_start": 2512,
+                "frequency_stop": 2528,
+                "frequency_width": 16
+              },
+              "sample_count": 10,
+              "added_fraction": 0.00013564839934888768,
+              "geometry_alias_count": 1,
+              "residual_score": 4.236551452056391,
+              "tv_score": 11.987050223957684
+            },
+            "metrics": {
+              "trial": "prospective-008",
+              "seconds": 8.156017628999962,
+              "tv": 0.14939154075394073,
+              "raw_tv": 0.2697562402606797,
+              "time_tv": 0.028775731564324156,
+              "frequency_tv": 0.12061580918961656,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.360712932282013,
+                "validation": 25.322839752731603,
+                "test": 25.0398746863649
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 10,
+              "added_fraction": 0.00013564839934888768
+            },
+            "fixed_support_tv": 0.14939154075394073,
+            "objective": 1.2503160034368712,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+            "candidate": {
+              "mask_id": "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2304,
+                "frequency_stop": 2432,
+                "frequency_width": 128
+              },
+              "sample_count": 453,
+              "added_fraction": 0.006144872490504612,
+              "geometry_alias_count": 1,
+              "residual_score": 0.3427897570834606,
+              "tv_score": 0.8127889601925552
+            },
+            "metrics": {
+              "trial": "prospective-009",
+              "seconds": 5.795470253000076,
+              "tv": 0.14940697542797118,
+              "raw_tv": 0.26853544007149943,
+              "time_tv": 0.028822972596991035,
+              "frequency_tv": 0.12058400283098016,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.360131609446952,
+                "validation": 25.333231894908593,
+                "test": 25.041219840734893
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 453,
+              "added_fraction": 0.006144872490504612
+            },
+            "fixed_support_tv": 0.14940697542797118,
+            "objective": 1.262540371903138,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+            "candidate": {
+              "mask_id": "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445016.520831,
+                "time_index": 0,
+                "time_count": 1,
+                "group": "global",
+                "antennas": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "frequency_start": 2496,
+                "frequency_stop": 2528,
+                "frequency_width": 32
+              },
+              "sample_count": 143,
+              "added_fraction": 0.001939772110689094,
+              "geometry_alias_count": 1,
+              "residual_score": 0.27880160393036824,
+              "tv_score": 0.7153794151114891
+            },
+            "metrics": {
+              "trial": "prospective-010",
+              "seconds": 6.672600586000044,
+              "tv": 0.14936783068526743,
+              "raw_tv": 0.2700931854764134,
+              "time_tv": 0.028762605771174565,
+              "frequency_tv": 0.12060522491409287,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.35811871800971,
+                "validation": 25.322162274700013,
+                "test": 25.037693896685603
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 143,
+              "added_fraction": 0.001939772110689094
+            },
+            "fixed_support_tv": 0.14936783068526743,
+            "objective": 1.2537588453869462,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+            "candidate": {
+              "mask_id": "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445064.500534,
+                "time_index": 6,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  1
+                ],
+                "frequency_start": 2240,
+                "frequency_stop": 2272,
+                "frequency_width": 32
+              },
+              "sample_count": 72,
+              "added_fraction": 0.0009766684753119914,
+              "geometry_alias_count": 1,
+              "residual_score": 0.484809260103581,
+              "tv_score": 0.8449099410223148
+            },
+            "metrics": {
+              "trial": "prospective-011",
+              "seconds": 5.792991169000061,
+              "tv": 0.14956858614156954,
+              "raw_tv": 0.2689958937684875,
+              "time_tv": 0.028833544979585235,
+              "frequency_tv": 0.12073504116198432,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.359773512530232,
+                "validation": 25.320364417786543,
+                "test": 25.043595382135134
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 72,
+              "added_fraction": 0.0009766684753119914
+            },
+            "fixed_support_tv": 0.14956858614156954,
+            "objective": 1.2531587594189377,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+            "candidate": {
+              "mask_id": "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  0
+                ],
+                "frequency_start": 2480,
+                "frequency_stop": 2496,
+                "frequency_width": 16
+              },
+              "sample_count": 28,
+              "added_fraction": 0.0003798155181768855,
+              "geometry_alias_count": 1,
+              "residual_score": 1.0142729860103787,
+              "tv_score": 1.7460861335634832
+            },
+            "metrics": {
+              "trial": "prospective-012",
+              "seconds": 6.07544396000003,
+              "tv": 0.14950563154889276,
+              "raw_tv": 0.27007268823553576,
+              "time_tv": 0.028827772457900018,
+              "frequency_tv": 0.12067785909099274,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.360216474457264,
+                "validation": 25.32920748902778,
+                "test": 25.04698408044622
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 28,
+              "added_fraction": 0.0003798155181768855
+            },
+            "fixed_support_tv": 0.14950563154889276,
+            "objective": 1.25163093685221,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+            "candidate": {
+              "mask_id": "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445104.483621,
+                "time_index": 11,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2608,
+                "frequency_stop": 2624,
+                "frequency_width": 16
+              },
+              "sample_count": 12,
+              "added_fraction": 0.00016277807921866522,
+              "geometry_alias_count": 1,
+              "residual_score": 0.18820010425680256,
+              "tv_score": 0.3296134225727622
+            },
+            "metrics": {
+              "trial": "prospective-013",
+              "seconds": 6.088474670000096,
+              "tv": 0.14937592086511262,
+              "raw_tv": 0.2697717732474963,
+              "time_tv": 0.028773772104619382,
+              "frequency_tv": 0.12060214876049323,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.35791273629227,
+                "validation": 25.322464923601977,
+                "test": 25.037091924731154
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 12,
+              "added_fraction": 0.00016277807921866522
+            },
+            "fixed_support_tv": 0.14937592086511262,
+            "objective": 1.2502620015486756,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+            "candidate": {
+              "mask_id": "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445080.493769,
+                "time_index": 8,
+                "time_count": 1,
+                "group": "baseline",
+                "antennas": [
+                  0,
+                  3
+                ],
+                "frequency_start": 2704,
+                "frequency_stop": 2720,
+                "frequency_width": 16
+              },
+              "sample_count": 11,
+              "added_fraction": 0.00014921323928377645,
+              "geometry_alias_count": 1,
+              "residual_score": 0.47867799519481485,
+              "tv_score": 0.6737995328286863
+            },
+            "metrics": {
+              "trial": "prospective-014",
+              "seconds": 9.420438712000077,
+              "tv": 0.1494040292112659,
+              "raw_tv": 0.26981034798326864,
+              "time_tv": 0.02879205853503692,
+              "frequency_tv": 0.12061197067622896,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.358042770366275,
+                "validation": 25.32284731185267,
+                "test": 25.037182195657262
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 11,
+              "added_fraction": 0.00014921323928377645
+            },
+            "fixed_support_tv": 0.1494040292112659,
+            "objective": 1.2504268063600097,
+            "guard_reasons": [],
+            "guard_pass": true
+          },
+          {
+            "mask_id": "f0b2f27aaf8d419a6a2d2ce304bdff6b3505b64bea9743287a2f3627845ba74e",
+            "candidate": {
+              "mask_id": "f0b2f27aaf8d419a6a2d2ce304bdff6b3505b64bea9743287a2f3627845ba74e",
+              "metadata": {
+                "time_mode": "single",
+                "time": 5179445072.497151,
+                "time_index": 7,
+                "time_count": 1,
+                "group": "antenna-star",
+                "antennas": [
+                  3
+                ],
+                "frequency_start": 2400,
+                "frequency_stop": 2432,
+                "frequency_width": 32
+              },
+              "sample_count": 66,
+              "added_fraction": 0.0008952794357026588,
+              "geometry_alias_count": 1,
+              "residual_score": 3.248041141467455,
+              "tv_score": 8.906922603203112
+            },
+            "metrics": {
+              "trial": "prospective-015",
+              "seconds": 5.490220210999951,
+              "tv": 0.14929536545528715,
+              "raw_tv": 0.26909233495822665,
+              "time_tv": 0.028725527852571615,
+              "frequency_tv": 0.12056983760271554,
+              "scale": 1.0520039063056514,
+              "valid_gain_fraction": 0.3208705357142857,
+              "losses": {
+                "train": 25.377903396543925,
+                "validation": 25.329128504368565,
+                "test": 25.053697135183743
+              },
+              "invalid_predictions": {
+                "train": 0,
+                "validation": 0,
+                "test": 0
+              },
+              "added_count": 66,
+              "added_fraction": 0.0008952794357026588
+            },
+            "fixed_support_tv": 0.14929536545528715,
+            "objective": 1.2512535488361607,
+            "guard_reasons": [],
+            "guard_pass": true
+          }
+        ],
+        "selected": {
+          "residual": {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "no_change": false,
+            "objective": 1.2495729266458455,
+            "test_MSE": 25.03525053092711,
+            "flags_added": 56,
+            "known_injection_recall": 0.09395973154362416,
+            "outside_known_injection": 0
+          },
+          "tv": {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "no_change": false,
+            "objective": 1.2495729266458455,
+            "test_MSE": 25.03525053092711,
+            "flags_added": 56,
+            "known_injection_recall": 0.09395973154362416,
+            "outside_known_injection": 0
+          },
+          "random": {
+            "mask_id": null,
+            "no_change": true,
+            "objective": 1.25,
+            "test_MSE": 25.036838898721214,
+            "flags_added": 0,
+            "known_injection_recall": 0,
+            "outside_known_injection": 0
+          },
+          "detrended": {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "no_change": false,
+            "objective": 1.2495729266458455,
+            "test_MSE": 25.03525053092711,
+            "flags_added": 56,
+            "known_injection_recall": 0.09395973154362416,
+            "outside_known_injection": 0
+          },
+          "physics_two_confirmation": {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "no_change": false,
+            "objective": 1.2495729266458455,
+            "test_MSE": 25.03525053092711,
+            "flags_added": 56,
+            "known_injection_recall": 0.09395973154362416,
+            "outside_known_injection": 0
+          },
+          "full_union_reference": {
+            "mask_id": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+            "no_change": false,
+            "objective": 1.2495729266458455,
+            "test_MSE": 25.03525053092711,
+            "flags_added": 56,
+            "known_injection_recall": 0.09395973154362416,
+            "outside_known_injection": 0
+          }
+        },
+        "audit": {
+          "exact_protected_flags_and_rows": true,
+          "data_unchanged": true,
+          "native_weights_unchanged": true,
+          "additions_only_on_train": true,
+          "weights_sigma_unchanged": true,
+          "prepared_case_unchanged": true,
+          "copied_original_unchanged": true,
+          "original_source_unchanged": true
+        },
+        "actual_QC_solves": 17,
+        "future_two_confirmation_QC_solves": 2,
+        "reference_union_is_diagnostic": true
+      }
+    ],
+    "audit": {
+      "inputs_unchanged": true,
+      "runtime_unchanged": true
+    },
+    "actual_QC_solves": 54,
+    "allocated_bytes": 1613516800,
+    "limitations": "New candidates and seeds, not independent observation transfer; full union measured as a reference; known injection truth is not RFI precision; no native runtime or imaging superiority claim."
+  },
+  "projection": "Exact raw result, omitting only every cases[*].forecasts[*].bin_audits list; all numerical values, candidates, selections, counters, runtime receipts and preservation audits retained. Full bin audit payloads remain in hashed raw result and independent audit.",
+  "independent_verification": "research/flagging-next-prospective-verification.md",
+  "independent_audit": "research/results/gain-tv-next-prospective-audit.json"
+}
