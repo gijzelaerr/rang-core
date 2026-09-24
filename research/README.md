@@ -10,6 +10,11 @@ branches and the dependent fit now complete; [suite evidence](results/gain-tv-co
 and [read-only checks](results/gain-tv-concurrent-audit.json) record outcomes and
 limits. Latest exact run paths remain in [STATE.md](STATE.md).
 
+[Persistent discriminating follow-up](flagging-reportable.md) freezes local
+gain-response prediction, complete/omitted sky controls, smoothphaseTV specificity
+and supported-data/gauge review. New implementations/measurements pending;
+these designs are not old results or a success claim.
+
 ## Active objective: MeerKAT L-band flagging
 
 Use QuartiCal full complex 2×2 gain total variation as a training objective and

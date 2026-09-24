@@ -4,6 +4,16 @@ Updated 2026-09-24.
 
 ## Current continuation and routing
 
+Continuation2026-09-24 after pushed`9f25601`: user requests persistent research
+until reportable findings and regular checked intermediate commits. New freezes:
+`research/flagging-reportable.md`, `research/flagging-equivariance.md`.
+Parallel: Rust local actionresponse, ten-solve complete/omitted-sky/grid controls,
+smoothreceiverphaseTV replay and supported-data/partial-Jones gauge review.
+No new outcomes yet. Old measuredoutputs/modules protected; fresh runnames only.
+Disk15GiB/reserve8GiB, response checkedbudget1.5GiB, derivedtracks256MiB each;
+reservations/checkpoints are not OSquotas. No cleanup/bulk acquisition. Pre-start
+backupSHA/path inprotocol; designs precede implementations/measurements.
+
 Latest measured checkpoint, 2026-09-24 07:18:30UTC: the five-track Stimela2
 suite completed all ten scatter branches and the dependent transfer fit, with
 three workers. Implementation commit `1739d48` is pushed. Raw run:
