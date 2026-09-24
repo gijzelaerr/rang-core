@@ -12,8 +12,11 @@ limits. Latest exact run paths remain in [STATE.md](STATE.md).
 
 [Persistent discriminating follow-up](flagging-reportable.md) freezes local
 gain-response prediction, complete/omitted sky controls, smoothphaseTV specificity
-and supported-data/gauge review. New implementations/measurements pending;
-these designs are not old results or a success claim.
+and supported-data/gauge review. New implementations have separate recipes;
+actual follow-up solver/replay measurements remain pending. The read-only
+[supported-data review](flagging-supported-data.md) identifies a native-sigma
+route requiring new provenance/noise controls, and additional parallel-hand
+Jones ambiguities. These are not a working flagging-policy success claim.
 
 ## Active objective: MeerKAT L-band flagging
 
@@ -38,6 +41,10 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 | Paired intrinsic science-signal diagnostic | [Signals](flagging-signal.md) | [16 paired solves and constrained fits](results/gain-tv-signal.json) | [Signals](../recipes/tv-flagging-signal.yaml) |
 | Fitted grouped guarded-objective action predictor | [Transfer model](flagging-transfer.md) | [105 labels/frozen predictions](results/gain-tv-transfer.json) | [Transfer](../recipes/tv-flagging-transfer.yaml) |
 | Five-track concurrent execution with label-dependent fit | [Frozen protocol](flagging-concurrent.md) | [Completed suite](results/gain-tv-concurrent.json) | [Concurrent](../recipes/tv-flagging-concurrent.yaml) |
+| Projected TRAIN-only physical deletion-response surrogate | [Influence design](flagging-influence.md) | Pending actual retrospective replay | [Influence](../recipes/tv-flagging-influence.yaml) |
+| Signed complete/omitted sky and gain-grid response controls | [Response design](flagging-response.md) | Pending ten actual diagnostic solves | [Response](../recipes/tv-flagging-response.yaml) |
+| Legitimate smooth receiver-phase specificity controls | [Phase design](flagging-equivariance.md) | Pending actual saved-gain replay | [Equivariance](../recipes/tv-flagging-equivariance.yaml) |
+| Native noise-column and partial-Jones support review | [Supported data](flagging-supported-data.md) | [Read-only diagnostics](results/meerkat-supported-data-candidates.json) | Diagnostic regeneration script, not a calibration recipe |
 
 Main findings: the current policies select no added flags on the unmodified
 fixture. Earlier structured search recovers only2.89% of a strong time-burst;

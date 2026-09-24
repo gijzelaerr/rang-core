@@ -9,7 +9,32 @@ until reportable findings and regular checked intermediate commits. New freezes:
 `research/flagging-reportable.md`, `research/flagging-equivariance.md`.
 Parallel: Rust local actionresponse, ten-solve complete/omitted-sky/grid controls,
 smoothreceiverphaseTV replay and supported-data/partial-Jones gauge review.
-No new outcomes yet. Old measuredoutputs/modules protected; fresh runnames only.
+Implementation checkpoint2026-09-24 08:29UTC: all three new numerical paths
+are implemented and frozen. Separate executable nativeStimela2 recipes/wrappers:
+`tv-flagging-response`, `tv-flagging-equivariance`, `tv-flagging-influence`.
+Actual ten-QC/replay/forecast outcomes still pending, not implied by unit tests.
+New response image reuses pinned tool environments and rebuilds only Rust:
+`sha256:9a26a19f1b89768e2aa7bb84dad2e4b1e674ed9a847ab2bd026d2f0be759f79a`,
+LinuxlibrarySHA256`f764ed8f215a6b22db5b511fcefae6398f9ff52c0a1b851d914f66452d235a8f`.
+All three recipe dryruns, native symbols and three environment pipchecks pass.
+Root independently regenerated the supported-data diagnostics in the pinned
+image:341 numeric leaves match, retained at
+`outputs/meerkat-supported-data-regenerated-20260924-01.json`.
+Report`research/flagging-supported-data.md`, archive
+`research/results/meerkat-supported-data-candidates.json`, reproducible read-only
+`examples/diagnose_native_support.py`. NativeSIGMA supports allfour products
+but its convention/provenance is NOT validated; zeroXY/YX storedweights cannot
+be silently repaired. Only60/61nativeantennaIDs have received-unflaggedcross
+support; ID21staysunsupported. Parallelhand-only scalar-sky likelihood has
+independent rowU(2)xU(2) freedoms; common-rightpolar gaugealone fails to make
+fullJonesTV identified. No data/parser acquisition or partialJones solve here.
+Old measuredoutputs/modules protected; fresh runnames only.
+Fresh implementation precommitchecks:396Python tests(no skips),17Rust tests,
+releasebuild,Clippy-Dwarnings,Rust/Rufflint/format,76Pythonbytecompiles,
+allwrapper shellsyntax,42researchJSONparses andGitwhitespace pass.
+Snapshot before adding this receipt:
+`outputs/flagging-backups/20260924-reportable-implementation/code.tar.gz`,
+SHA256`2dc0918a469f4ff200086e0aee45650f9d559c47d1bf4c8dbdeedcb974ccb84d`.
 Disk15GiB/reserve8GiB, response checkedbudget1.5GiB, derivedtracks256MiB each;
 reservations/checkpoints are not OSquotas. No cleanup/bulk acquisition. Pre-start
 backupSHA/path inprotocol; designs precede implementations/measurements.

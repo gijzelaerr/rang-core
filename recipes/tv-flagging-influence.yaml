@@ -1,0 +1,28 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-gain-response:
+    flavour: python
+    command: rangtoy.flagging_influence.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      source_dir: {dtype: Directory, required: true}
+
+tv-flagging-influence:
+  info: Freeze native-weighted TRAIN-only projected Gauss-Newton action forecasts before reading retrospective counterfactual outcomes; no new flags or calibration.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    source-dir: {dtype: Directory, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    forecasts: {dtype: File, implicit: '{recipe.run-dir}/frozen-forecasts.json', path_policies: {mkdir_parent: false}}
+  steps:
+    forecast:
+      cab: rang-gain-response
+      params:
+        run_dir: =recipe.run-dir
+        source_dir: =recipe.source-dir
+
+DEFAULT: tv-flagging-influence

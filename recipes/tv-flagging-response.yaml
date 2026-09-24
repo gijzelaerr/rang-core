@@ -1,0 +1,33 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-calibration-response:
+    flavour: python
+    command: rangtoy.flagging_response.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      iterations: {dtype: int, default: 50}
+
+tv-flagging-response:
+  info: Ten frozen full-Jones signed-source sky-completeness/gain-grid controls with linear known-template response and calibration-adaptation decomposition; no policy or imaging claim.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    frozen-config: {dtype: File, implicit: '{recipe.run-dir}/response-config.json', path_policies: {mkdir_parent: false}}
+    frozen-controls: {dtype: File, implicit: '{recipe.run-dir}/frozen-controls.json', path_policies: {mkdir_parent: false}}
+    audit: {dtype: File, implicit: '{recipe.run-dir}/response-audit.json', path_policies: {mkdir_parent: false}}
+  steps:
+    measure:
+      cab: rang-calibration-response
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        iterations: =recipe.iterations
+
+DEFAULT: tv-flagging-response

@@ -35,3 +35,12 @@ is safe. Known transforms are unavailable to a deployable selector; future
 trend/curvature guidance requires new support/domain/noise controls.
 Fresh`outputs/tv-equivariance-20260924-01`, checked≤256MiB and8GiB globalreserve;
 130 existing gainproducts perpattern, zeroMS copies/newQC in first diagnostic.
+
+Implementation entry `rangtoy.flagging_equivariance.run(run_dir,source_dir)`;
+Stimela2 [recipe](../recipes/tv-flagging-equivariance.yaml), namespace-protected
+offline wrapper `bash tools/flagging/run-equivariance.sh outputs/fresh-run
+outputs/completed-suite`. Frozen source/native-library/module hashes are
+checked again after the complete replay. Fourteen targeted tests cover
+full-matrix prediction/residual invariance, legitimate smooth-phase TV,
+TEST-value objective independence and fresh/capped checkpoint writes.
+Actual measured follow-up results are pending, not implied by unit tests.

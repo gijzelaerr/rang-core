@@ -63,7 +63,16 @@ def test_symlink_escape_and_strategy_overlap_rejected(tmp_path):
         )
 
 
-@pytest.mark.parametrize("wrapper", ["run-structured.sh", "run-caracal.sh"])
+@pytest.mark.parametrize(
+    "wrapper",
+    [
+        "run-structured.sh",
+        "run-caracal.sh",
+        "run-response.sh",
+        "run-equivariance.sh",
+        "run-influence.sh",
+    ],
+)
 @pytest.mark.parametrize("case", ["nested", "existing_logs", "ancestor"])
 def test_actual_wrappers_stop_before_cache_logs_or_docker(tmp_path, wrapper, case):
     source = prepared(tmp_path)

@@ -1,0 +1,228 @@
+{
+  "inspection_date": "2026-09-24",
+  "protocol_freeze": "afe721f",
+  "status": "read-only local numeric diagnostics and primary-source research; no new visibility acquisition, native-MS conversion or solve",
+  "previous_measurement_protocol_unchanged": true,
+  "received_flags_data_and_noise_columns_unchanged": true,
+  "new_visibility_bytes_acquired": 0,
+  "unsafe_pickle_execution": false,
+  "quantile_levels": [0, 0.05, 0.25, 0.5, 0.75, 0.95, 1],
+  "sources": {
+    "quartical": {
+      "version": "0.2.7",
+      "official_revision": "d01487e3091aab03beca71128858e724b087d6e3",
+      "pinned_image": "sha256:0d8c178baa4b4c5fbc1e5b6fe12319a9d383594bd0b00fe71bf84c36d4f97b5f",
+      "source_sha256": {
+        "quartical/flagging/flagging.py": "46a86d4815bf61fd9a5168e2ec7710e4881520f3e3691edfd90cb72516504bf4",
+        "quartical/weights/weights.py": "3cd4d08529cb9335f3eb99156a75de5e1b4df5df21464aadd395f7c865237063",
+        "quartical/config/argument_schema.yaml": "cfc6e5881c8fe7a8b7392b3deb4766c2bf288ecdf642f13e9e4baece1e5b5ce8",
+        "quartical/gains/complex/kernel.py": "a85fec5c06b67b9e04c86b296209f7823498012edc5f7aea54cac8a47797832c"
+      },
+      "installed_flag_and_weight_source_equal_official_release": true,
+      "four_correlation_null_weight_check_indices": [0, 3],
+      "zero_crosshand_weights_alone_auto_flag": false,
+      "pure_initializer_unflagged_data_ones_weights_1_0_0_1": 0,
+      "spectral_zero_to_rowweight_fallback": false,
+      "sigma_column_computes_inverse_square": true,
+      "sigma_and_weight_selectors_mutually_exclusive": true
+    },
+    "caracal": {
+      "official_revision": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+      "prep_worker_sha256": "566b6eaad23495033230f79d37b96cf3d81024c1a2cd1fd044af50f19347c36b",
+      "selfcal_worker_sha256": "5f8279edf2bfd116bbe3d1f1d6a1da0c53de44f709c8d053206522c73d68a651",
+      "specweights_operations": ["uniform", "calculate", "delete"],
+      "selfcal_documented_weight_column_default": "WEIGHT",
+      "publisher_actual_weight_column_setting_verified": false
+    },
+    "msutils": {
+      "version": "1.2.0",
+      "official_revision": "e2946f7efdea8dd8dace06671da67bc828fe60c5",
+      "ClassESW_sha256": "90a92d4279551879d40e9ec001c6b018bffe70a3410056b6a22e7bad396af2a5",
+      "writer_broadcasts_spectral_specs_all_correlations": true
+    },
+    "katdal": {
+      "inspected_revision": "142dd342c886d35f9cc8defda3ad8ea1028fc880",
+      "ms_extra_sha256": "85a0bd1ef9f52eb8d521018d68d4e463d5abd0cb736ca488c51fae66e34a94fc",
+      "mvftoms_sha256": "871bad355732ef438b095c082bff9609bb0fdcac1d3e635ed851aa3bffd2656e",
+      "default_export_parallel_only": true,
+      "explicit_full_pol_option_exports_four_correlations": true,
+      "publisher_historical_export_settings_verified": false
+    }
+  },
+  "candidates": [
+    {
+      "candidate_id": "ESO137-primary-acquired",
+      "source_url": "https://ratt-public-data.s3.af-south-1.amazonaws.com/ESO137/ms1_primary.zarr",
+      "metadata_sha256": "68fdb7f4f5f9392181bf645bd8e792e4dd96bd9857ad6489091b441adc59bbaa",
+      "local_pilot_dir": "outputs/tv-concurrent-20260924-01/experiments/public",
+      "native_correlation_codes": [9, 10, 11, 12],
+      "participating_antennas": 61,
+      "received_unflagged_cross_supported_antennas": 60,
+      "fully_unsupported_native_antenna_ids": [21],
+      "pilot_shape_per_scan": [30256, 128, 4],
+      "native_channels": [1024, 1152],
+      "frequency_mhz": [1070, 1096.541015625],
+      "weight_spectrum_positive_per_corr_per_scan": [3872768, 0, 0, 3872768],
+      "sigma_spectrum_positive_per_corr_per_scan": [3872768, 3872768, 3872768, 3872768],
+      "data_nonzero_finite_per_corr_per_scan": [3872768, 3872768, 3872768, 3872768],
+      "received_row_weight_and_sigma_unique_values": [1],
+      "original_all_four_positive_weight_eligible_cells": [0, 0],
+      "native_sigma_future_candidate_cells_before_gain_support": [755614, 763051],
+      "supplied_model_scalar_unpolarized": true,
+      "supplied_model_physical_accuracy_verified": false,
+      "sigma_provenance_and_noise_convention_verified": false,
+      "safe_string_native_MS_conversion_complete": false,
+      "independent_observation_count": 1,
+      "next_action_rank": 1,
+      "decision": "Investigate exact original DATA/sigma history and safe conversion, then separately freeze sigma-column full-four-correlation experiment; no silent weight substitution."
+    },
+    {
+      "candidate_id": "SKA-pointing-native-local",
+      "source_url": "https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-wflow-pointing-offset/-/tree/main/tests/data",
+      "archive_sha256": "d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f",
+      "archive_bytes": 45452147,
+      "unpacked_bytes": 83571601,
+      "local_original_directory": "outputs/ms-inspection/run1/outer_scans",
+      "participating_antennas": 4,
+      "native_MS": true,
+      "original_MODEL_DATA_present": false,
+      "calibrator_field": "J1939-6342",
+      "native_channel_count": 4096,
+      "frequency_mhz": [856, 1711.791015625],
+      "independent_observation_count": 1,
+      "next_action_rank": 2,
+      "decision": "Retain full-correlation diagnostic, not independent-observation or representative full-array transfer benchmark.",
+      "scans": [
+        {"scan": 1, "rows": 20, "positive_spectral_weights_per_corr": [81920,81920,81920,81920], "spectral_zero_or_nonfinite_count": 0, "received_flag_fraction": 0.4452850341796875, "received_FLAG_ROW_count": 0},
+        {"scan": 4, "rows": 20, "positive_spectral_weights_per_corr": [81920,81920,81920,81920], "spectral_zero_or_nonfinite_count": 0, "received_flag_fraction": 0.4227752685546875, "received_FLAG_ROW_count": 0},
+        {"scan": 5, "rows": 20, "positive_spectral_weights_per_corr": [81920,81920,81920,81920], "spectral_zero_or_nonfinite_count": 0, "received_flag_fraction": 0.4318603515625, "received_FLAG_ROW_count": 0},
+        {"scan": 8, "rows": 20, "positive_spectral_weights_per_corr": [81920,81920,81920,81920], "spectral_zero_or_nonfinite_count": 0, "received_flag_fraction": 0.430596923828125, "received_FLAG_ROW_count": 0},
+        {"scan": 9, "rows": 140, "positive_spectral_weights_per_corr": [573440,573440,573440,573440], "spectral_zero_or_nonfinite_count": 0, "received_flag_fraction": 0.468267822265625, "received_FLAG_ROW_count": 0}
+      ]
+    },
+    {"candidate_id": "ESO137-targets-registry-only", "source_url": "https://registry.opendata.aws/meerkat-eso137-006/", "dataset_names": ["ms1_target.zarr", "ms2_target.zarr"], "native_weight_values_inspected": false, "shares_primary_zero_crosshand_convention": null, "decision": "Do not extrapolate weight values from advertised columns; no new visibility acquisition."},
+    {"candidate_id": "SARAO-authorized-native-subset-route", "source_url": "https://github.com/ska-sa/MeerKAT-Cookbook", "anonymous_verified_small_fullpol_calibrator_available": false, "requires_registration_and_token": true, "next_action_rank": 3, "decision": "Obtain authorized metadata and genuine full-pol calibrator/noise-provenance export before separately frozen bounded acquisition."},
+    {"candidate_id": "IDIA-DEEP2-tutorial", "source_url": "https://idia-pipelines.github.io/docs/processMeerKAT/deep-2-tutorial/", "advertised_GB": 11, "advertised_antennas": 16, "local_or_anonymous_verified_fullpol_weights": false, "decision": "Not eligible: authenticated cluster tutorial and exceeds allocation."},
+    {"candidate_id": "SKA-MIGHTEE-selfcal-example", "source_url": "https://developer.skao.int/projects/ska-telescope-ska-sdp-wflow-mid-selfcal/en/latest/example.html", "advertised_uncompressed_GB": 91, "local_verified_fullpol_weights": false, "decision": "Not eligible within current disk budget; example sky generated by imaging."},
+    {"candidate_id": "MeerSOLAR-Zenodo-sample", "source_url": "https://zenodo.org/records/16068485", "metadata_file_key": "1718013481_splited.ms.tar.gz", "compressed_bytes": 2636214567, "publisher_checksum": "md5:45d56e117def0c78ceb9795f747f6d18", "metadata_only": true, "verified_fullpol_weights_and_calibrator_sky": false, "decision": "Not eligible: solar sample exceeds 2GiB raw allocation before unpacking/backups and lacks verified required provenance."}
+  ],
+  "native_sigma_diagnostic": {
+    "selection": "All finite originally unflagged cross-baseline row-channel cells in the complete acquired window; adjacent pairs require both received flags false and both positive native sigmas. No optimized channel cut, weight fit or flag clear.",
+    "z_definition": "(DATA[c+1]-DATA[c])/sqrt(SIGMA_SPECTRUM[c+1]^2+SIGMA_SPECTRUM[c]^2)",
+    "robust_scale": "1.4826 * median(abs(component - median(component)))",
+    "arithmetic": "Native float32/complex64 arrays; NumPy quantile defaults; empirical diagnostic only.",
+    "limitations": "Adjacent pairs overlap, publisher flag conditioning and physical sky/gain structure/channel correlations may affect dispersion. Real-component versus complex-RMS sigma convention is not assumed; hand-dependent scales remain unresolved.",
+    "groups": [
+      {
+        "scan": 1,
+        "pilot_sha256": "9806d8e7b4f1ae1d91017997dddae59af1ab8c86437c7f4a47223c904913e483",
+        "original_unflagged_cross_cells": 755614,
+        "adjacent_pair_count_per_correlation": 270604,
+        "sigma_XY_YX_arrays_identical": false,
+        "sigma_XY_over_YX_quantiles": [0.6549055576324463,0.8534984201192856,0.9407074004411697,1.0103453397750854,1.0799666345119476,1.1910185933113098,1.4753530025482178],
+        "WS_times_sigma_squared": {
+          "XX_cell_quantiles": [0.10881950706243515,0.2392421580851078,0.35111627727746964,0.4482397884130478,0.5480889827013016,0.6915281504392624,1.1030884981155396],
+          "YY_cell_quantiles": [0.10153456777334213,0.22731013894081115,0.3344856724143028,0.4327266812324524,0.5497849583625793,0.7566413760185241,1.4259549379348755],
+          "baseline_medians_count": 1769,
+          "XX_baseline_median_quantiles": [0.13029876351356506,0.2448212116956711,0.3540870249271393,0.4504035711288452,0.5485618710517883,0.6842760682106017,0.8294655680656433],
+          "YY_baseline_median_quantiles": [0.12112203985452652,0.23029257953166962,0.3393017053604126,0.437574565410614,0.5529899597167969,0.7537797451019286,1.1963222026824951],
+          "channel_medians_count": 128,
+          "XX_channel_median_quantiles": [0.4193458557128906,0.42223850935697554,0.43144357204437256,0.4586096704006195,0.5108004659414291,0.563086700439453,0.7295199632644653],
+          "YY_channel_median_quantiles": [0.39752185344696045,0.39977186769247053,0.4150167256593704,0.443515807390213,0.5203036665916443,0.6530860662460326,0.9584231376647949],
+          "XY_YX_exact_values": [0]
+        },
+        "normalized_component_scaledMAD_real_imag_by_corr": [[0.5168609023094177,0.5162528157234192],[0.7195631861686707,0.7222175598144531],[0.7209946513175964,0.7218168377876282],[0.5211925506591797,0.5227255821228027]],
+        "normalized_complex_RMS_by_corr": [0.7108311653137207,1.0231845378875732,1.0223456621170044,0.7173724174499512],
+        "baseline_scaledMAD_minimum_adjacent_pairs": 16,
+        "baseline_scaledMAD_count": 1664,
+        "baseline_scaledMAD_real_p5_p50_p95_by_corr": [[0.38147074431180955,0.5102278590202332,0.606551519036293],[0.5842468678951264,0.7131265997886658,0.856475955247879],[0.5794772148132324,0.717738687992096,0.8598778069019317],[0.38801077604293827,0.5158021152019501,0.6105543226003647]],
+        "baseline_scaledMAD_imag_p5_p50_p95_by_corr": [[0.3908726915717125,0.5087951719760895,0.6039010554552078],[0.5906900346279145,0.7184755206108093,0.853283616900444],[0.5810961365699768,0.7175068855285645,0.8568342417478559],[0.40419739931821824,0.5150228440761566,0.6074401289224625]],
+        "original_support_graph_union": {"antennas": 60, "edges": 1769, "components": 1, "bipartite": false, "unsupported_native_ids": [21]},
+        "native_time_channel_graphs": {"total": 2048, "empty": 50, "one_nonbipartite_component": 1699, "other_nonempty": 299, "all60_one_nonbipartite_component": 1236}
+      },
+      {
+        "scan": 3,
+        "pilot_sha256": "34fd98616e50c3f72f84e7ace111ec2305321d68e8d0db4b5eb2032a0af9fdbc",
+        "original_unflagged_cross_cells": 763051,
+        "adjacent_pair_count_per_correlation": 245013,
+        "sigma_XY_YX_arrays_identical": false,
+        "sigma_XY_over_YX_quantiles": [0.6678920388221741,0.8472315073013306,0.9434617757797241,1.014061450958252,1.0819818377494812,1.201591670513153,1.4750359058380127],
+        "WS_times_sigma_squared": {
+          "XX_cell_quantiles": [0.11243045330047607,0.24179811030626297,0.3481757342815399,0.4450506567955017,0.5526556670665741,0.7079013884067535,1.093330979347229],
+          "YY_cell_quantiles": [0.10414371639490128,0.23295637965202332,0.3403825908899307,0.4358302652835846,0.5568919479846954,0.7689900398254395,1.3504343032836914],
+          "baseline_medians_count": 1768,
+          "XX_baseline_median_quantiles": [0.14404167234897614,0.2472996897995472,0.3588842526078224,0.45854541659355164,0.5631917864084244,0.7019543081521987,0.8571934103965759],
+          "YY_baseline_median_quantiles": [0.12685975432395935,0.23252821192145348,0.3370470777153969,0.4356641322374344,0.5512980818748474,0.7561498343944546,1.0960297584533691],
+          "channel_medians_count": 128,
+          "XX_channel_median_quantiles": [0.405556321144104,0.4112689644098282,0.41842377185821533,0.4418874979019165,0.4708369970321655,0.5058700472116471,0.5191330909729004],
+          "YY_channel_median_quantiles": [0.3891911506652832,0.39241590797901155,0.4044761434197426,0.4294419288635254,0.4799109622836113,0.5044188678264618,0.5102442502975464],
+          "XY_YX_exact_values": [0]
+        },
+        "normalized_component_scaledMAD_real_imag_by_corr": [[0.5005816221237183,0.502116322517395],[0.7168530225753784,0.7143188714981079],[0.7149356007575989,0.7132893800735474],[0.5141983032226562,0.5148934125900269]],
+        "normalized_complex_RMS_by_corr": [0.6963770389556885,1.0133285522460938,1.0136613845825195,0.7085853815078735],
+        "baseline_scaledMAD_minimum_adjacent_pairs": 16,
+        "baseline_scaledMAD_count": 1542,
+        "baseline_scaledMAD_real_p5_p50_p95_by_corr": [[0.3554890528321266,0.48895561695098877,0.5808931857347488],[0.5696520358324051,0.7113564014434814,0.8623393416404723],[0.5695219755172729,0.7092046439647675,0.8594098597764966],[0.3674011200666428,0.5042371153831482,0.5967883855104446]],
+        "baseline_scaledMAD_imag_p5_p50_p95_by_corr": [[0.3518049240112305,0.49199581146240234,0.586550548672676],[0.5616796255111695,0.709128737449646,0.8617830246686935],[0.5541419565677643,0.7071109712123871,0.8517384082078931],[0.3592535570263863,0.5056142508983612,0.6035448759794235]],
+        "original_support_graph_union": {"antennas": 60, "edges": 1768, "components": 1, "bipartite": false, "unsupported_native_ids": [21]},
+        "native_time_channel_graphs": {"total": 2048, "empty": 0, "one_nonbipartite_component": 2043, "other_nonempty": 5, "all60_one_nonbipartite_component": 1230}
+      }
+    ]
+  },
+  "partial_Jones_identifiability": {
+    "model_domain": "Known nonzero scalar-unpolarized coherency per sample, Vpq=spq Jp Jq^H; no prior tying gain bins.",
+    "exact_symmetry": "Independent common right U(2) transformations of the X row family and Y row family; U(2)xU(2).",
+    "generic_row_family_full_rank_gauge_real_dimensions": 8,
+    "full_four_correlation_common_U2_gauge_real_dimensions": 4,
+    "eight_is_not_upper_bound_all_missing_support_degeneracies": true,
+    "numeric_diagnostic": {
+      "gain_only_not_actual_QC_measurement": true,
+      "seed": 271828,
+      "generator": "NumPy PCG64; generic independent standard-normal real/imaginary matrices, four antennas then eight",
+      "graph": "Complete physical cross baselines p<q; no autos",
+      "analytic_jacobian": "dVpq=dJp Jq^H+Jp dJq^H; flattened real/imaginary output; interleaved real/imag parameters",
+      "relative_singular_value_rank_threshold": 1e-10,
+      "central_difference_step": 1e-6,
+      "checks": [
+        {"antennas": 4, "parameters": 32, "jones": "identity", "correlations": [0,3], "rank": 14, "nullity": 18, "analytic_central_max_error": 2.6755486715046572e-11},
+        {"antennas": 4, "parameters": 32, "jones": "identity", "correlations": [0,1,2,3], "rank": 28, "nullity": 4, "analytic_central_max_error": 2.6755486715046572e-11},
+        {"antennas": 4, "parameters": 32, "jones": "generic", "correlations": [0,3], "rank": 24, "nullity": 8, "analytic_central_max_error": 3.566071882232791e-10},
+        {"antennas": 4, "parameters": 32, "jones": "generic", "correlations": [0,1,2,3], "rank": 28, "nullity": 4, "analytic_central_max_error": 3.566071882232791e-10},
+        {"antennas": 8, "parameters": 64, "jones": "identity", "correlations": [0,3], "rank": 30, "nullity": 34, "analytic_central_max_error": 2.6755486715046572e-11},
+        {"antennas": 8, "parameters": 64, "jones": "identity", "correlations": [0,1,2,3], "rank": 60, "nullity": 4, "analytic_central_max_error": 2.6755486715046572e-11},
+        {"antennas": 8, "parameters": 64, "jones": "generic", "correlations": [0,3], "rank": 56, "nullity": 8, "analytic_central_max_error": 5.123568236342635e-10},
+        {"antennas": 8, "parameters": 64, "jones": "generic", "correlations": [0,1,2,3], "rank": 60, "nullity": 4, "analytic_central_max_error": 5.123568236342635e-10}
+      ]
+    },
+    "ideal_identity_connected_nonbipartite_rank_formula": "4N-2 among 8N real Jones parameters; leakage derivatives vanish and many nulls are second-order, not finite gauge freedoms",
+    "ideal_61ant_identity_rank": 242,
+    "ideal_61ant_identity_nullity": 246,
+    "ideal_61ant_count_is_not_actual_pilot_rank_measurement": true,
+    "common_polar_gauge_TV_counterexample": {
+      "shape": [4,2,4,2,2],
+      "original_all_antennas_Jones": "identity",
+      "new_X_row": "[cos(theta),sin(theta)]",
+      "new_Y_row": "[0,1]",
+      "theta_radians": [0,0.3,0.6,0.9],
+      "times": [0,1,2,3],
+      "frequencies_hz": [1070000000,1071000000],
+      "all_gain_cells_valid": true,
+      "fixed_scale": 1,
+      "reference_antenna": 0,
+      "max_parallel_prediction_difference": 1.1102230246251565e-16,
+      "max_crosshand_prediction_difference": 0.7833269096274834,
+      "original_polar_gauge_native_Rust_TV": 0,
+      "transformed_polar_gauge_native_Rust_TV": 0.21193321649951627,
+      "native_library_sha256": "e587bafb33d499c8a7026b3d0b821c79db24d6242407890c75c66aa1498d9eb6",
+      "interpretation": "Common-polar-gauged full Jones TV is not invariant to the exact enlarged partial-only likelihood gauge; not a proof of general uncalibratability."
+    }
+  },
+  "object_provenance_conversion_design_only": {
+    "pickle_filter_protocol": 5,
+    "HISTORY_rows": 21,
+    "actual_remote_object_chunks_acquired_this_workstream": 0,
+    "parser_implemented": false,
+    "proposed_method": "Publisher plain UTF8/JSON sidecar preferred; otherwise frozen bounded object acquisition and non-executing pickletools symbolic interpreter with exact shape/string/opcode/scaffold whitelists. No pickle execution, dynamic imports, callable constructors or invented metadata."
+  },
+  "science_claim": "No new eligible independent-observation calibration dataset or transfer/flagging improvement established; promising native-sigma route needs provenance and separately frozen validation."
+}

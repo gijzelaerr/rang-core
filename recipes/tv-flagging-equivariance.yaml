@@ -1,0 +1,27 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-phase-replay:
+    flavour: python
+    command: rangtoy.flagging_equivariance.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      source_dir: {dtype: Directory, required: true}
+
+tv-flagging-equivariance:
+  info: Read-only grid-matched smooth receiver phase controls on actual saved full-Jones counterfactual gains; no new calibration or flag writes.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    source-dir: {dtype: Directory, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    replay:
+      cab: rang-phase-replay
+      params:
+        run_dir: =recipe.run-dir
+        source_dir: =recipe.source-dir
+
+DEFAULT: tv-flagging-equivariance
