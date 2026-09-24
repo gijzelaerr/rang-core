@@ -1,0 +1,4854 @@
+{
+  "schema_version": 1,
+  "status": "PASS corrected matched-template run03; prior parse failure and invalid-basis semantic FAIL retained separately",
+  "source_checkpoints": {
+    "original_master": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+    "cli_fix_imaging02": "84d15b3d91a4953106a53774b4ac973a7a9cebcc",
+    "exact_once_spectral_fix_imaging03": "e3cab8c5e25899b17c3670cce77ff7517fcad635"
+  },
+  "corrected_imaging03": {
+    "schema_version": 1,
+    "status": "PASS",
+    "checks_count": 419,
+    "pass_count": 419,
+    "checks": [
+      {
+        "name": "compact independently reconstructed already-spectral source templates",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "extended independently reconstructed already-spectral source templates",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "exact15 WSC inversions zeroQC",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "no policy selection/export",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "all runtime/source/tool/wholeMS guards",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "frozen image version",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "frozen settings",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "actual full pinned parserpreflight precedescopies",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "original TEST9169",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "actual signed package receipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "WSC package3.6-1/no priorchanges/cap",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "signed full dependency hashes",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response independently reconstructed source digest",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal independently reconstructed source digest",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "runtime rangtoy.flagging_imaging",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "runtime rangtoy",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "runtime rangtoy.flagging",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "runtime rangtoy.flagging_prepared",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "runtime rangtoy.flagging_workflow",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted complete Jones support",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted independent precastclosure1e-10",
+        "pass": true,
+        "observed": 9.417692169471297e-15
+      },
+      {
+        "name": "omitted recorded precastclosure1e-10",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete complete Jones support",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete independent precastclosure1e-10",
+        "pass": true,
+        "observed": 1.0267631158051531e-14
+      },
+      {
+        "name": "complete recorded precastclosure1e-10",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change proposalTRAINonly",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild proposalTRAINonly",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected proposalTRAINonly",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "exact original job ordering",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 6.040638404770559e-8,
+          "recorded_cast_jy": 6.040638404770559e-8
+        }
+      },
+      {
+        "name": "unit-compact exact-once spectral-provenance BEFOREcast",
+        "pass": true,
+        "observed": {
+          "error_jy": 6.040638404770559e-8,
+          "recorded_cast_jy": 6.040638404770559e-8,
+          "intended_alpha": -0.5
+        }
+      },
+      {
+        "name": "unit-compact recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact initial originalFLAG/ROW backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact initialcorrectedpresence schema",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 3.289962854774527e-8,
+          "recorded_cast_jy": 3.289962854774527e-8
+        }
+      },
+      {
+        "name": "unit-extended exact-once spectral-provenance BEFOREcast",
+        "pass": true,
+        "observed": {
+          "error_jy": 3.289962854774527e-8,
+          "recorded_cast_jy": 3.289962854774527e-8,
+          "intended_alpha": -0.9
+        }
+      },
+      {
+        "name": "unit-extended recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 7.574698665260092e-9,
+          "recorded_cast_jy": 7.574698665260092e-9
+        }
+      },
+      {
+        "name": "fixedG0-reference recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 9.630299555943565e-7,
+          "recorded_cast_jy": 9.630299549698861e-7
+        }
+      },
+      {
+        "name": "clean-full recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 9.67421842391045e-7,
+          "recorded_cast_jy": 9.674218412009918e-7
+        }
+      },
+      {
+        "name": "omitted-full recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 8.65354404115006e-9,
+          "recorded_cast_jy": 8.653540021087375e-9
+        }
+      },
+      {
+        "name": "omitted-total recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 7.632165669457008e-9,
+          "recorded_cast_jy": 7.632165669457008e-9
+        }
+      },
+      {
+        "name": "omitted-direct recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 1.365939663025226e-8,
+          "recorded_cast_jy": 1.3659389546072839e-8
+        }
+      },
+      {
+        "name": "omitted-adaptation recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 0.0000010333391901295513,
+          "recorded_cast_jy": 0.0000010333391998914464
+        }
+      },
+      {
+        "name": "complete-full recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 7.542644947418552e-9,
+          "recorded_cast_jy": 7.54264650643105e-9
+        }
+      },
+      {
+        "name": "complete-total recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 7.61444682689947e-9,
+          "recorded_cast_jy": 7.614446790240216e-9
+        }
+      },
+      {
+        "name": "complete-direct recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 1.8321135168019127e-9,
+          "recorded_cast_jy": 1.8321134203283048e-9
+        }
+      },
+      {
+        "name": "complete-adaptation recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 9.630299555943565e-7,
+          "recorded_cast_jy": 9.630299549698861e-7
+        }
+      },
+      {
+        "name": "caracal-no-change recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change initial originalFLAG/ROW backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change initialcorrectedpresence schema",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 0.0000010008926316379783,
+          "recorded_cast_jy": 0.0000010008926334229277
+        }
+      },
+      {
+        "name": "caracal-mild recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected exact written support/FLAG/ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected originalFLAG/ROW protected",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected complex64 correction/checkpoint",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected independently solved correction within recorded casting1e-10",
+        "pass": true,
+        "observed": {
+          "error_jy": 0.0000018683193014017348,
+          "recorded_cast_jy": 0.0000018683193014017348
+        }
+      },
+      {
+        "name": "caracal-firstpass-rejected recorded support/drop/add counts",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected previouswrite exclusive backup exact",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/dirty FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/dirty finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/dirty exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/dirty frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected Jy/beamunit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/dirty recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/psf FITSreceipt",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/psf finite512square",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/psf exactmatchedWCS",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/psf frozen8arcsecSINscale",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected/psf recordedheaders",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected exactfrozenWScommand",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected guardrecords",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted actualdirtyclosure1e-6",
+        "pass": true,
+        "observed": 3.5390257835388184e-8
+      },
+      {
+        "name": "complete actualdirtyclosure1e-6",
+        "pass": true,
+        "observed": 3.809691406786442e-8
+      },
+      {
+        "name": "unit-compact exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild matchedPSF1e-6",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected exactPSFdelta",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0reference knownfamilyfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference exactconditionalfraction",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total exactconditionalfraction",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct exactconditionalfraction",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation exactconditionalfraction",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total exactconditionalfraction",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct exactconditionalfraction",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation independently reconstructed unrestrictedfit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation exactconditionalfraction",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-compact fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "unit-extended fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "fixedG0-reference fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "clean-full fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-full fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-total fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-direct fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "omitted-adaptation fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-full fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-total fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-direct fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "complete-adaptation fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-no-change fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-mild fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal-firstpass-rejected fixedoffsource RMS/std/peak",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response actual fourproduct Jones orderingXX_XY_YX_YY",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response actual telescope MeerKAT",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response actual Lband spectralcoordinates exactstate",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response nativecolumn DATA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response nativecolumn RANG_MODEL_DATA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response nativecolumn WEIGHT",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response nativecolumn WEIGHT_SPECTRUM",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response nativecolumn SIGMA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response nativecolumn SIGMA_SPECTRUM",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response exactfinalwritten CORRECTED_DATA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response exactfinalwritten FLAG",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response exactfinalwritten FLAG_ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response actual originalFLAG/ROW exactstate",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response actual nativeactiveweights state",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response actual ORIGINALnativeactiveweights state",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response initialwholeMSbackupimmutability",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response originalcopydigest",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal actual fourproduct Jones orderingXX_XY_YX_YY",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal actual telescope MeerKAT",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal actual Lband spectralcoordinates exactstate",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal nativecolumn DATA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal nativecolumn RANG_MODEL_DATA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal nativecolumn WEIGHT",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal nativecolumn WEIGHT_SPECTRUM",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal nativecolumn SIGMA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal nativecolumn SIGMA_SPECTRUM",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal exactfinalwritten CORRECTED_DATA",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal exactfinalwritten FLAG",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal exactfinalwritten FLAG_ROW",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal actual originalFLAG/ROW exactstate",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal actual nativeactiveweights state",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal actual ORIGINALnativeactiveweights state",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal initialwholeMSbackupimmutability",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal originalcopydigest",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "CARACALfirstpass unsupportedTEST explicitlyretained",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "CARACALfirstpass overbudgetdiagnostic",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "response sourceafterreadonlyaudit",
+        "pass": true,
+        "observed": null
+      },
+      {
+        "name": "caracal sourceafterreadonlyaudit",
+        "pass": true,
+        "observed": null
+      }
+    ],
+    "jobs": {
+      "unit-compact": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 6.040638404770559e-8,
+        "dirty_RMS_jy_per_beam": 0.2011930307931002,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          0.9999999999999991,
+          0
+        ],
+        "conditional_fraction": null
+      },
+      "unit-extended": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 3.289962854774527e-8,
+        "dirty_RMS_jy_per_beam": 0.1071679346309334,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          6.225114040301752e-17,
+          0.9999999999999993
+        ],
+        "conditional_fraction": null
+      },
+      "fixedG0-reference": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 7.574698665260092e-9,
+        "dirty_RMS_jy_per_beam": 0.01750808057322418,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          0.05999999622734481,
+          0.11999999037274386
+        ],
+        "conditional_fraction": [
+          1,
+          1
+        ]
+      },
+      "clean-full": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 9.630299549698861e-7,
+        "dirty_RMS_jy_per_beam": 3.2790251449976893,
+        "PSF_linf_vs_fixedG0": 0
+      },
+      "omitted-full": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 9.674218412009918e-7,
+        "dirty_RMS_jy_per_beam": 3.2789780140150615,
+        "PSF_linf_vs_fixedG0": 0
+      },
+      "omitted-total": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 8.653540021087375e-9,
+        "dirty_RMS_jy_per_beam": 0.013039120477034438,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          0.02950019225297284,
+          0.09308026217846489
+        ],
+        "conditional_fraction": [
+          0.49166990179789744,
+          0.7756689137169017
+        ]
+      },
+      "omitted-direct": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 7.632165669457008e-9,
+        "dirty_RMS_jy_per_beam": 0.017517461337936118,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          0.060118732834676655,
+          0.1199857600051119
+        ],
+        "conditional_fraction": [
+          1.001978943579962,
+          0.9998814135935531
+        ]
+      },
+      "omitted-adaptation": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 1.3659389546072839e-8,
+        "dirty_RMS_jy_per_beam": 0.010638183536522459,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          -0.03061854505246109,
+          -0.02690547502576036
+        ],
+        "conditional_fraction": [
+          -0.5103091162946904,
+          -0.22421230986924748
+        ]
+      },
+      "complete-full": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 0.0000010333391998914464,
+        "dirty_RMS_jy_per_beam": 3.275980040980938,
+        "PSF_linf_vs_fixedG0": 0
+      },
+      "complete-total": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 7.54264650643105e-9,
+        "dirty_RMS_jy_per_beam": 0.017337976371227814,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          0.059814931907929386,
+          0.11837967848597766
+        ],
+        "conditional_fraction": [
+          0.9969155944824697,
+          0.98649739986034
+        ]
+      },
+      "complete-direct": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 7.614446790240216e-9,
+        "dirty_RMS_jy_per_beam": 0.01750840116796451,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          0.0600021156038755,
+          0.12000210669052978
+        ],
+        "conditional_fraction": [
+          1.0000353229443992,
+          1.0000176359829642
+        ]
+      },
+      "complete-adaptation": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 1.8321134203283048e-9,
+        "dirty_RMS_jy_per_beam": 0.00046632759611540676,
+        "PSF_linf_vs_fixedG0": 0,
+        "known_family_coefficients_jy": [
+          -0.0001871853935383409,
+          -0.00162241956109913
+        ],
+        "conditional_fraction": [
+          -0.0031197567551351233,
+          -0.01352016409384344
+        ]
+      },
+      "caracal-no-change": {
+        "support": 9169,
+        "training_additions": 0,
+        "cast_rounding_max_jy": 9.630299549698861e-7,
+        "dirty_RMS_jy_per_beam": 3.2790251449976893,
+        "PSF_linf_vs_fixedG0": 0
+      },
+      "caracal-mild": {
+        "support": 9169,
+        "training_additions": 662,
+        "cast_rounding_max_jy": 0.0000010008926334229277,
+        "dirty_RMS_jy_per_beam": 3.2799795275053047,
+        "PSF_linf_vs_fixedG0": 0
+      },
+      "caracal-firstpass-rejected": {
+        "support": 7812,
+        "training_additions": 26692,
+        "cast_rounding_max_jy": 0.0000018683193014017348,
+        "dirty_RMS_jy_per_beam": 3.2640419965947536,
+        "PSF_linf_vs_fixedG0": 0.07469786703586578
+      }
+    },
+    "raw_result_sha256": "1dd4f4617483296635307c6f3fd32d05165e88788e7f10410969af61c7932838",
+    "audit_program_sha256": "a458021818301f95f59e64868bf36c57ae2a1c668ac36891d8b87db3955f6b4d",
+    "audit_program": "\"\"\"Readonly FITS/MS/precision audit. Never invokes WSClean or QuartiCal.\"\"\"\nimport json\nimport os\nimport sys\nfrom hashlib import sha256\nfrom pathlib import Path\n\nimport numpy as np\nfrom astropy.io import fits\nfrom casacore.tables import table\n\nchecks=[]\ndef check(name, condition, observed=None):\n    checks.append({\"name\":name,\"pass\":bool(condition),\"observed\":observed})\n\ndef digest(path):\n    h=sha256();path=Path(path)\n    for p in sorted(path.rglob(\"*\")):\n        if p.is_file() and p.name!=\"table.lock\":\n            h.update(str(p.relative_to(path)).encode())\n            with p.open(\"rb\") as stream:\n                for block in iter(lambda:stream.read(1024*1024),b\"\"):h.update(block)\n    return h.hexdigest()\n\ndef npz(path):\n    with np.load(path,allow_pickle=False) as a:return {k:a[k] for k in a.files}\n\ndef corrected(state,diagnostic,requested,data):\n    \"\"\"Independent solve-based inverse Jones, rather than production inverses.\"\"\"\n    tm=np.unique(state[\"times\"],return_inverse=True)[1]//2\n    fm=np.arange(len(state[\"frequencies\"]))//32\n    r,c=np.where(requested);p,q=state[\"antenna1\"][r],state[\"antenna2\"][r]\n    g=diagnostic[\"gains\"];gp,gq=g[tm[r],fm[c],p],g[tm[r],fm[c],q]\n    valid=diagnostic[\"gain_valid\"]\n    good=valid[tm[r],fm[c],p] & valid[tm[r],fm[c],q]\n    good &= np.isfinite(gp).all((-1,-2)) & np.isfinite(gq).all((-1,-2))\n    if good.any():\n        ids=np.where(good)[0]\n        conditioned=(np.linalg.cond(gp[ids])<=1e8)&(np.linalg.cond(gq[ids])<=1e8)\n        good[ids]=conditioned\n    actual=np.zeros_like(requested);actual[r[good],c[good]]=True\n    result=np.zeros(state[\"data\"].shape,np.complex128)\n    left=np.linalg.solve(gp[good],np.asarray(data,np.complex128)[r[good],c[good]].reshape(-1,2,2))\n    result[r[good],c[good]]=np.linalg.solve(gq[good].conj(),left.swapaxes(-1,-2)).swapaxes(-1,-2).reshape(-1,4)\n    return result,actual\n\ndef flagmask(state,support,added):\n    flags=state[\"original_flags\"] | state[\"original_rows\"][:,None,None] | (~support)[...,None]\n    if added is not None:flags=flags|added[...,None]\n    return flags,state[\"original_rows\"]|flags.all((1,2))\n\ndef fit(image,basis):\n    design=basis.reshape(2,-1).T;target=image.ravel()\n    coefficients,_,rank,singular=np.linalg.lstsq(design,target,rcond=1e-10)\n    condition=float(singular[0]/singular[-1])\n    return coefficients,int(rank),condition,float(np.mean((target-design@coefficients)**2))\n\ndef main():\n    output=Path(sys.argv[1]);result=json.loads((output/\"result.json\").read_text());config=json.loads((output/\"imaging-config.json\").read_text())\n    response=Path(config[\"sources\"][\"response\"]);caracal=Path(config[\"sources\"][\"caracal\"])\n    states={\"response\":npz(response/\"clean/state.npz\"),\"caracal\":npz(caracal/\"state.npz\")}\n    state=states[\"response\"];support=state[\"test\"]\n    injected=npz(response/\"positive/state.npz\")[\"data\"]\n    source_config=json.loads((response/\"response-config.json\").read_text())\n    templates=npz(response/\"spectral-templates.npz\")[\"templates\"]\n    with table(str(response/\"clean/work.ms\"),readonly=True,ack=False,lockoptions=\"autonoread\") as original:\n        uvw=original.getcol(\"UVW\")\n    for index,s in enumerate(source_config[\"sources\"]):\n        l=s[\"l_arcmin\"]*np.pi/10800;m=s[\"m_arcmin\"]*np.pi/10800\n        delay=uvw[:,0]*l+uvw[:,1]*m+uvw[:,2]*(np.sqrt(1-l*l-m*m)-1)\n        phase=np.exp(2j*np.pi*delay[:,None]*state[\"frequencies\"][None]/299792458)\n        wavelength_radius_squared=(uvw[:,0,None]**2+uvw[:,1,None]**2)*(state[\"frequencies\"][None]/299792458)**2\n        sigma=s[\"fwhm_arcmin\"]*np.pi/10800/np.sqrt(8*np.log(2))\n        independent=phase*np.exp(-2*np.pi**2*sigma**2*wavelength_radius_squared)*(state[\"frequencies\"][None]/source_config[\"reference_frequency_hz\"])**s[\"spectral_index\"]\n        check(s[\"name\"]+\" independently reconstructed already-spectral source templates\",np.allclose(templates[index],independent,rtol=1e-10,atol=1e-10))\n    g0=npz(response/\"clean/trials/clean-t2-f32/diagnostics.npz\")\n    check(\"exact15 WSC inversions zeroQC\",len(result[\"jobs\"])==15 and result[\"actual_WSClean_inversions\"]==15 and result[\"new_QC_solves\"]==0)\n    check(\"no policy selection/export\",not result[\"policy_selection\"] and not result[\"exported_or_deployable_MS\"])\n    check(\"all runtime/source/tool/wholeMS guards\",all(result[k] for k in (\"source_unchanged\",\"runtime_unchanged\",\"tool_unchanged\",\"whole_MS_backups_unchanged\")))\n    check(\"frozen image version\",config[\"suite_image\"]==\"sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22\")\n    check(\"frozen settings\",result[\"settings\"]==config[\"settings\"] and config[\"settings\"]=={\"size\":[512,512],\"scale_arcsec\":8.0,\"robust\":.5,\"polarization\":\"I\",\"channels\":[1024,3072],\"gridder\":\"wstacking\",\"w_layers\":64,\"threads\":1,\"niter\":0,\"small_inversion\":False,\"update_model_required\":False,\"memory_gib\":.5})\n    parser=config[\"parser_preflight\"]\n    check(\"actual full pinned parserpreflight precedescopies\",parser[\"returncode\"]==0 and parser[\"dry_run_only\"] and parser[\"precedes_any_MS_copy_or_write\"] and \"-dry-run\" in parser[\"command\"] and sha256(parser[\"output\"].encode()).hexdigest()==parser[\"output_sha256\"] and \"Unknown parameter:\" not in parser[\"output\"])\n    check(\"original TEST9169\",int(support.sum())==9169 and support.dtype==np.bool_)\n    receipt=json.loads(Path(\"/opt/rang/imaging-packages.json\").read_text())\n    check(\"actual signed package receipt\",receipt==config[\"tool\"][\"package_manifest\"])\n    check(\"WSC package3.6-1/no priorchanges/cap\",receipt[\"wsclean_package_version\"]==\"3.6-1\" and receipt[\"preexisting_packages_unchanged\"] and receipt[\"download_bytes\"]<=256*1024**2)\n    check(\"signed full dependency hashes\",all(p[\"sha256\"]==p[\"actual_sha256\"] for p in receipt[\"packages\"]) and sum(p[\"size\"] for p in receipt[\"packages\"])==receipt[\"download_bytes\"])\n    for name,path in ((\"response\",response),(\"caracal\",caracal)):\n        check(name+\" independently reconstructed source digest\",digest(path)==config[\"source_hashes\"][name])\n    for name,item in config[\"runtime_receipts\"].items():\n        check(\"runtime \"+name,sha256(Path(item[\"path\"]).read_bytes()).hexdigest()==item[\"sha256\"])\n    expected={};added={};role={}\n    clean,_=corrected(state,g0,support,state[\"data\"])\n    reference,_=corrected(state,g0,support,injected.astype(np.complex128)-state[\"data\"].astype(np.complex128))\n    for i,s in enumerate(source_config[\"sources\"]):\n        label=\"unit-\"+s[\"name\"];v=np.zeros_like(state[\"data\"],np.complex128)\n        scalar=templates[i]  # ALREADY includes the fixed source spectral law.\n        v[...,0]=v[...,3]=np.where(support,scalar,0)\n        expected[label]=(v,support);added[label]=None;role[label]=\"response\"\n    expected[\"fixedG0-reference\"]=(reference,support);expected[\"clean-full\"]=(clean,support)\n    for name,trial in ((\"omitted\",\"omitted-t2-f32\"),(\"complete\",\"complete-diagnostic-t2-f32\")):\n        g=npz(response/\"positive/trials\"/trial/\"diagnostics.npz\")\n        full,mask=corrected(state,g,support,injected)\n        old,mask2=corrected(state,g,support,state[\"data\"])\n        direct,mask3=corrected(state,g,support,injected.astype(np.complex128)-state[\"data\"].astype(np.complex128))\n        check(name+\" complete Jones support\",all(np.array_equal(support,m) for m in (mask,mask2,mask3)))\n        values={\"full\":full,\"total\":full-clean,\"direct\":direct,\"adaptation\":old-clean}\n        closure=float(np.max(np.abs(values[\"total\"][support]-values[\"direct\"][support]-values[\"adaptation\"][support])))\n        check(name+\" independent precastclosure1e-10\",closure<=1e-10,closure)\n        check(name+\" recorded precastclosure1e-10\",result[\"precast_visibility_closures_jy\"][name]<=1e-10)\n        for part,value in values.items():expected[name+\"-\"+part]=(value,support)\n    for label in expected:role[label]=\"response\";added[label]=None\n    for name,trial,native in ((\"no-change\",\"baseline\",None),(\"mild\",\"strategy-01-operational\",\"strategy-01-operational\"),(\"firstpass-rejected\",\"strategy-00-operational\",\"strategy-00-operational\")):\n        label=\"caracal-\"+name;g=npz(caracal/\"trials\"/trial/\"diagnostics.npz\")\n        expected[label]=corrected(states[\"caracal\"],g,support,states[\"caracal\"][\"data\"])\n        added[label]=npz(caracal/\"native\"/native/\"frozen-proposal.npz\")[\"added\"] if native else np.zeros_like(support)\n        role[label]=\"caracal\"\n        check(label+\" proposalTRAINonly\",not np.any(added[label] & ~states[\"caracal\"][\"train\"]))\n    check(\"exact original job ordering\",list(expected)==config[\"fixed_jobs\"] and set(expected)==set(result[\"jobs\"]))\n    images={};geometry=None;previous={};summaries={}\n    for label in config[\"fixed_jobs\"]:\n        record=result[\"jobs\"][label];wide,selected=expected[label];s=states[role[label]]\n        flags,rows=flagmask(s,selected,added[label])\n        written=npz(output/\"checkpoints\"/(label+\"-written.npz\"));before=npz(output/\"backups\"/(label+\"-before.npz\"))\n        schema=json.loads((output/\"backups\"/(label+\"-schema.json\")).read_text())\n        check(label+\" exact written support/FLAG/ROW\",np.array_equal(written[\"support\"],selected) and np.array_equal(written[\"FLAG\"],flags) and np.array_equal(written[\"FLAG_ROW\"],rows))\n        check(label+\" originalFLAG/ROW protected\",not np.any(s[\"original_flags\"] & ~written[\"FLAG\"]) and not np.any(s[\"original_rows\"] & ~written[\"FLAG_ROW\"]))\n        check(label+\" complex64 correction/checkpoint\",written[\"CORRECTED_DATA\"].dtype==np.complex64 and not np.any(written[\"CORRECTED_DATA\"][~selected]))\n        error=float(np.max(np.abs(written[\"CORRECTED_DATA\"].astype(np.complex128)-wide)))\n        rounding=record[\"column_audit\"][\"wide_to_native_max_rounding_jy\"]\n        check(label+\" independently solved correction within recorded casting1e-10\",error<=rounding+1e-10,{\"error_jy\":error,\"recorded_cast_jy\":rounding})\n        if label.startswith(\"unit-\"):\n            index=0 if label==\"unit-compact\" else 1\n            semantic_error=float(np.max(np.abs(written[\"CORRECTED_DATA\"][...,0][selected].astype(np.complex128)-templates[index][selected])))\n            check(label+\" exact-once spectral-provenance BEFOREcast\",semantic_error<=rounding+1e-10,{\"error_jy\":semantic_error,\"recorded_cast_jy\":rounding,\"intended_alpha\":source_config[\"sources\"][index][\"spectral_index\"]})\n        check(label+\" recorded support/drop/add counts\",record[\"unsupported_original_TEST_samples\"]==int(support.sum()-selected.sum()) and record[\"training_additions\"]==(int(added[label].sum()) if added[label] is not None else 0))\n        if role[label] in previous:\n            prior=previous[role[label]]\n            check(label+\" previouswrite exclusive backup exact\",all(np.array_equal(before[k],prior[k]) for k in (\"FLAG\",\"FLAG_ROW\",\"CORRECTED_DATA\")) and schema[\"corrected_exists\"])\n        else:\n            with table(str(output/\"backups\"/(role[label]+\"-input.ms\")),readonly=True,ack=False,lockoptions=\"autonoread\") as orig:\n                check(label+\" initial originalFLAG/ROW backup exact\",all(np.array_equal(before[k],orig.getcol(k)) for k in (\"FLAG\",\"FLAG_ROW\")))\n                check(label+\" initialcorrectedpresence schema\",schema[\"corrected_exists\"]==(\"CORRECTED_DATA\" in orig.colnames()))\n                if schema[\"corrected_exists\"]:check(label+\" initialcorrectedbackup\",np.array_equal(before[\"CORRECTED_DATA\"],orig.getcol(\"CORRECTED_DATA\")))\n        previous[role[label]]=written\n        images[label]={}\n        for kind in (\"dirty\",\"psf\"):\n            path=output/\"images\"/(label+\"-\"+kind+\".fits\")\n            check(label+\"/\"+kind+\" FITSreceipt\",sha256(path.read_bytes()).hexdigest()==record[\"FITS_sha256\"][kind])\n            with fits.open(path,memmap=False) as h:\n                image=np.asarray(h[0].data,float).squeeze();header=h[0].header\n                check(label+\"/\"+kind+\" finite512square\",image.shape==(512,512) and np.isfinite(image).all())\n                wcs={key:header[key] for key in (\"CRPIX1\",\"CRPIX2\",\"CRVAL1\",\"CRVAL2\",\"CDELT1\",\"CDELT2\",\"CTYPE1\",\"CTYPE2\")}\n                geometry=geometry or wcs\n                check(label+\"/\"+kind+\" exactmatchedWCS\",wcs==geometry and wcs==record[\"image_geometry\"])\n                check(label+\"/\"+kind+\" frozen8arcsecSINscale\",np.isclose(wcs[\"CDELT1\"],-8/3600,rtol=0,atol=1e-12) and np.isclose(wcs[\"CDELT2\"],8/3600,rtol=0,atol=1e-12) and wcs[\"CTYPE1\"]==\"RA---SIN\" and wcs[\"CTYPE2\"]==\"DEC--SIN\")\n                if kind==\"dirty\":check(label+\" Jy/beamunit\",str(header.get(\"BUNIT\",\"\")).lower()==\"jy/beam\")\n                check(label+\"/\"+kind+\" recordedheaders\",all(header[k]==v for k,v in record[\"headers\"][kind].items()))\n            images[label][kind]=image\n        command=json.loads((output/\"checkpoints\"/(label+\"-command.json\")).read_text())\n        frozen=[(\"-gridder\",[\"wstacking\"]),(\"-wstack-nwlayers\",[\"64\"]),(\"-niter\",[\"0\"]),(\"-j\",[\"1\"]),(\"-data-column\",[\"CORRECTED_DATA\"]),(\"-scale\",[\"8asec\"]),(\"-channel-range\",[\"1024\",\"3072\"]),(\"-size\",[\"512\",\"512\"]),(\"-weight\",[\"briggs\",\"0.5\"]),(\"-field\",[\"0\"]),(\"-pol\",[\"I\"]),(\"-abs-mem\",[\"0.5\"])]\n        check(label+\" exactfrozenWScommand\",all(command[command.index(k)+1:command.index(k)+1+len(v)]==v for k,v in frozen) and all(k in command for k in (\"-no-update-model-required\",\"-no-min-grid-resolution\",\"-no-reorder\",\"-make-psf\")))\n        check(label+\" guardrecords\",all(record[\"native_columns_exact\"].values()) and not record[\"selected_for_policy_or_deployment\"])\n        summaries[label]={\"support\":int(selected.sum()),\"training_additions\":record[\"training_additions\"],\"cast_rounding_max_jy\":rounding,\"dirty_RMS_jy_per_beam\":record[\"diagnostics\"][\"dirty_offsource_RMS_jy_per_beam\"]}\n    for name in (\"omitted\",\"complete\"):\n        closure=float(np.max(np.abs(images[name+\"-total\"][\"dirty\"]-images[name+\"-direct\"][\"dirty\"]-images[name+\"-adaptation\"][\"dirty\"])))\n        check(name+\" actualdirtyclosure1e-6\",closure<=1e-6 and closure==result[\"dirty_image_closures_jy_per_beam\"][name],closure)\n    psf=images[\"fixedG0-reference\"][\"psf\"]\n    for label,record in result[\"jobs\"].items():\n        difference=float(np.max(np.abs(images[label][\"psf\"]-psf)))\n        check(label+\" exactPSFdelta\",difference==record[\"PSF_linf_difference_vs_fixedG0\"])\n        if label!=\"caracal-firstpass-rejected\":check(label+\" matchedPSF1e-6\",difference<=1e-6)\n        summaries[label][\"PSF_linf_vs_fixedG0\"]=difference\n    basis=np.stack([images[\"unit-\"+s[\"name\"]][\"dirty\"] for s in source_config[\"sources\"]])\n    reference_fit=fit(images[\"fixedG0-reference\"][\"dirty\"],basis)\n    check(\"fixedG0reference knownfamilyfit\",np.allclose(reference_fit[0],result[\"reference_fit\"][\"coefficients_jy\"],rtol=1e-12,atol=1e-12))\n    for label,record in result[\"jobs\"].items():\n        if \"known_family_dirty_fit\" not in record:continue\n        coefficients,rank,condition,mse=fit(images[label][\"dirty\"],basis);stored=record[\"known_family_dirty_fit\"]\n        check(label+\" independently reconstructed unrestrictedfit\",rank==stored[\"rank\"] and np.allclose(coefficients,stored[\"coefficients_jy\"],rtol=1e-12,atol=1e-12) and np.isclose(condition,stored[\"condition\"],rtol=1e-12) and np.isclose(mse,stored[\"unweighted_pixel_MSE_proxy\"],rtol=1e-12,atol=1e-16))\n        if record[\"conditional_response_vs_fixedG0\"] is not None:check(label+\" exactconditionalfraction\",np.allclose(coefficients/reference_fit[0],record[\"conditional_response_vs_fixedG0\"],rtol=1e-12,atol=1e-12))\n        summaries[label][\"known_family_coefficients_jy\"]=coefficients.tolist()\n        summaries[label][\"conditional_fraction\"]=record[\"conditional_response_vs_fixedG0\"]\n    y,x=np.indices((512,512));l,m=(256-x)*8/60,(y-256)*8/60\n    region=(np.hypot(l,m)>=25)&(np.hypot(l-9,m+6)>=12)&(np.hypot(l+12,m+14)>=12)\n    for label,record in result[\"jobs\"].items():\n        values=images[label][\"dirty\"][region];d=record[\"diagnostics\"]\n        check(label+\" fixedoffsource RMS/std/peak\",int(region.sum())==d[\"fixed_offsource_pixels\"] and float(np.sqrt(np.mean(values**2)))==d[\"dirty_offsource_RMS_jy_per_beam\"] and float(np.std(values))==d[\"dirty_offsource_std_jy_per_beam\"] and float(np.max(np.abs(images[label][\"dirty\"])))==d[\"peak_abs_jy_per_beam\"])\n    for name,s in states.items():\n        input_path=output/\"backups\"/(name+\"-input.ms\");work_path=output/(name+\"-diagnostic.ms\")\n        source_path=response/\"clean\" if name==\"response\" else caracal\n        manifest=json.loads((source_path/\"manifest.json\").read_text())\n        with table(str(source_path/\"original.ms/POLARIZATION\"),readonly=True,ack=False,lockoptions=\"autonoread\") as polarizations:\n            check(name+\" actual fourproduct Jones orderingXX_XY_YX_YY\",np.array_equal(polarizations.getcol(\"CORR_TYPE\"),np.array([[9,10,11,12]])))\n        with table(str(source_path/\"original.ms/OBSERVATION\"),readonly=True,ack=False,lockoptions=\"autonoread\") as observation:\n            check(name+\" actual telescope MeerKAT\",{str(x).strip().casefold() for x in observation.getcol(\"TELESCOPE_NAME\")}=={\"meerkat\"})\n        with table(str(source_path/\"original.ms/SPECTRAL_WINDOW\"),readonly=True,ack=False,lockoptions=\"autonoread\") as spw:\n            frequencies=spw.getcol(\"CHAN_FREQ\").reshape(-1)\n            check(name+\" actual Lband spectralcoordinates exactstate\",np.array_equal(frequencies,s[\"frequencies\"]) and frequencies.min()>=856e6-1 and frequencies.max()<=1712e6+1)\n        with table(str(input_path),readonly=True,ack=False,lockoptions=\"autonoread\") as original, table(str(work_path),readonly=True,ack=False,lockoptions=\"autonoread\") as work, table(str(source_path/\"original.ms\"),readonly=True,ack=False,lockoptions=\"autonoread\") as raw:\n            for k in (\"DATA\",manifest[\"model_column\"],\"WEIGHT\",\"WEIGHT_SPECTRUM\",\"SIGMA\",\"SIGMA_SPECTRUM\"):\n                if k in original.colnames():check(name+\" nativecolumn \"+k,np.array_equal(work.getcol(k),original.getcol(k),equal_nan=True))\n            for k in (\"CORRECTED_DATA\",\"FLAG\",\"FLAG_ROW\"):check(name+\" exactfinalwritten \"+k,np.array_equal(work.getcol(k),previous[name][k]))\n            check(name+\" actual originalFLAG/ROW exactstate\",np.array_equal(raw.getcol(\"FLAG\"),s[\"original_flags\"]) and np.array_equal(raw.getcol(\"FLAG_ROW\"),s[\"original_rows\"]))\n            check(name+\" actual nativeactiveweights state\",np.array_equal(work.getcol(\"WEIGHT_SPECTRUM\"),s[\"weights\"]))\n            check(name+\" actual ORIGINALnativeactiveweights state\",np.array_equal(raw.getcol(\"WEIGHT_SPECTRUM\"),s[\"weights\"]))\n        check(name+\" initialwholeMSbackupimmutability\",digest(input_path)==result[\"whole_MS_backup_digests\"][name])\n        check(name+\" originalcopydigest\",digest(source_path/\"original.ms\")==manifest[\"original_copy_digest\"])\n    check(\"CARACALfirstpass unsupportedTEST explicitlyretained\",result[\"jobs\"][\"caracal-firstpass-rejected\"][\"unsupported_original_TEST_samples\"]>0)\n    check(\"CARACALfirstpass overbudgetdiagnostic\",result[\"jobs\"][\"caracal-firstpass-rejected\"][\"training_additions\"]/int(states[\"caracal\"][\"train\"].sum())>.02)\n    for name,path in ((\"response\",response),(\"caracal\",caracal)):check(name+\" sourceafterreadonlyaudit\",digest(path)==config[\"source_hashes\"][name])\n    audit={\"schema_version\":1,\"status\":\"PASS\" if all(c[\"pass\"] for c in checks) else \"FAIL\",\"checks_count\":len(checks),\"pass_count\":sum(c[\"pass\"] for c in checks),\"checks\":checks,\"jobs\":summaries,\"raw_result_sha256\":sha256((output/\"result.json\").read_bytes()).hexdigest(),\"audit_program_sha256\":sha256(Path(__file__).read_bytes()).hexdigest(),\"audit_program\":Path(__file__).read_text(),\"no_measurement_or_source_writes\":True,\"new_QC_or_WSClean_runs\":0,\"runtime_image\":os.environ.get(\"RANG_AUDIT_IMAGE\"),\"limitations\":[\"dirty images only, sparse fourantenna112second scan\",\"joint knownfamily coefficients not blind flux/shape/CI\",\"native fixedweights not propagated postJones covariance\",\"CARACAL firstpass rejected and different support/PSF, nativeflagger sawholdout features\",\"same noisyDATA/gains, no independentobs or SOTA accuracy/cost claim\"]}\n    payload=json.dumps(audit,allow_nan=False)\n    if len(sys.argv)>2:\n        destination=Path(sys.argv[2])\n        if destination.parent!=Path(\"/audit\") or len(payload.encode())>2*1024**2:\n            raise RuntimeError(\"exclusive small private audit destination required\")\n        with destination.open(\"x\") as stream:stream.write(payload+\"\\n\")\n        print(json.dumps({\"status\":audit[\"status\"],\"checks\":audit[\"checks_count\"],\"passed\":audit[\"pass_count\"],\"failed\":[c for c in checks if not c[\"pass\"]],\"audit_file\":str(destination),\"audit_sha256\":sha256((payload+\"\\n\").encode()).hexdigest()},allow_nan=False))\n    else:print(payload)\n\nif __name__==\"__main__\":main()\n",
+    "no_measurement_or_source_writes": true,
+    "new_QC_or_WSClean_runs": 0,
+    "runtime_image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+    "limitations": [
+      "dirty images only, sparse fourantenna112second scan",
+      "joint knownfamily coefficients not blind flux/shape/CI",
+      "native fixedweights not propagated postJones covariance",
+      "CARACAL firstpass rejected and different support/PSF, nativeflagger sawholdout features",
+      "same noisyDATA/gains, no independentobs or SOTA accuracy/cost claim"
+    ]
+  },
+  "retained_initial_parse_failure": {
+    "path": "outputs/tv-next-20260924-01/experiments/imaging",
+    "audit": {
+      "status": "PASS",
+      "checks_count": 23,
+      "checks": [
+        {
+          "name": "firstjob rejectedlegacy datacolumn",
+          "pass": true
+        },
+        {
+          "name": "no successful result",
+          "pass": true
+        },
+        {
+          "name": "no FITS produced",
+          "pass": true
+        },
+        {
+          "name": "TEST9169 support exact",
+          "pass": true
+        },
+        {
+          "name": "protectedoriginal FLAG/FLAG_ROW",
+          "pass": true
+        },
+        {
+          "name": "unchangedcopiednative DATA",
+          "pass": true
+        },
+        {
+          "name": "unchangedcopiednative RANG_MODEL_DATA",
+          "pass": true
+        },
+        {
+          "name": "unchangedcopiednative WEIGHT",
+          "pass": true
+        },
+        {
+          "name": "unchangedcopiednative WEIGHT_SPECTRUM",
+          "pass": true
+        },
+        {
+          "name": "unchangedcopiednative SIGMA",
+          "pass": true
+        },
+        {
+          "name": "unchangedcopiednative SIGMA_SPECTRUM",
+          "pass": true
+        },
+        {
+          "name": "exactfailedcheckpoint FLAG",
+          "pass": true
+        },
+        {
+          "name": "exactfailedcheckpoint FLAG_ROW",
+          "pass": true
+        },
+        {
+          "name": "exactfailedcheckpoint CORRECTED_DATA",
+          "pass": true
+        },
+        {
+          "name": "exclusiveinitialpreviousbackup FLAG",
+          "pass": true
+        },
+        {
+          "name": "exclusiveinitialpreviousbackup FLAG_ROW",
+          "pass": true
+        },
+        {
+          "name": "actualoriginalFLAG exactstate",
+          "pass": true
+        },
+        {
+          "name": "actualoriginalFLAG_ROW exactstate",
+          "pass": true
+        },
+        {
+          "name": "original+copiedactiveweights exactstate",
+          "pass": true
+        },
+        {
+          "name": "no MODEL_DATA append",
+          "pass": true
+        },
+        {
+          "name": "originalcopydigest preserved",
+          "pass": true
+        },
+        {
+          "name": "sourcewhole digest response",
+          "pass": true
+        },
+        {
+          "name": "sourcewhole digest caracal",
+          "pass": true
+        }
+      ],
+      "failure": "pinned WSClean3.6 rejects legacy datacolumn before inversion",
+      "completed_inversions": 0,
+      "failed_attempts": 1,
+      "source_config_sha256": "87e6ecc44ea543d18fb08a90ecf92beef486aedf3c2e7c172ba94c4dccda85d7",
+      "log_sha256": "7b7a887a3897eeea9807506156e94fd81ddec68f64be1e6c352de616e048d738",
+      "command_sha256": "7c4181ec98dd3db3151fca297c434e4edd9f06308ef386c8882a663d01570208",
+      "command": [
+        "/usr/bin/wsclean",
+        "-name",
+        "/workspace/outputs/tv-next-20260924-01/experiments/imaging/images/unit-compact",
+        "-size",
+        "512",
+        "512",
+        "-scale",
+        "8asec",
+        "-weight",
+        "briggs",
+        "0.5",
+        "-pol",
+        "I",
+        "-channel-range",
+        "1024",
+        "3072",
+        "-field",
+        "0",
+        "-datacolumn",
+        "CORRECTED_DATA",
+        "-gridder",
+        "wstacking",
+        "-nwlayers",
+        "64",
+        "-j",
+        "1",
+        "-absmem",
+        "0.5",
+        "-niter",
+        "0",
+        "-make-psf",
+        "-no-update-model-required",
+        "-no-small-inversion",
+        "-no-reorder",
+        "-temp-dir",
+        "/workspace/outputs/tv-next-20260924-01/experiments/imaging/temp",
+        "/workspace/outputs/tv-next-20260924-01/experiments/imaging/response-diagnostic.ms"
+      ],
+      "audit_program_sha256": "d36230fcdb35e5f33c16155573286b1cfaf960d36cf6e9c92975a515b7390fec",
+      "audit_program": "\"\"\"Readonly initial imaging parse-failure boundary checks, no imager calls.\"\"\"\nimport json\nimport sys\nfrom hashlib import sha256\nfrom pathlib import Path\n\nimport numpy as np\nfrom casacore.tables import table\n\nchecks=[]\ndef check(name,condition):checks.append({\"name\":name,\"pass\":bool(condition)})\ndef digest(path):\n    path=Path(path);h=sha256()\n    for p in sorted(path.rglob(\"*\")):\n        if p.is_file() and p.name!=\"table.lock\":\n            h.update(str(p.relative_to(path)).encode())\n            with p.open(\"rb\") as s:\n                for b in iter(lambda:s.read(1024**2),b\"\"):h.update(b)\n    return h.hexdigest()\ndef npz(path):\n    with np.load(path,allow_pickle=False) as a:return {k:a[k] for k in a.files}\ndef main():\n    root=Path(sys.argv[1]);config=json.loads((root/\"imaging-config.json\").read_text())\n    label=\"unit-compact\";log=root/\"checkpoints\"/(label+\"-wsclean.log\")\n    check(\"firstjob rejectedlegacy datacolumn\", \"Unknown parameter: datacolumn\" in log.read_text())\n    check(\"no successful result\",not (root/\"result.json\").exists())\n    check(\"no FITS produced\",not list((root/\"images\").glob(\"*.fits\")))\n    written=npz(root/\"checkpoints\"/(label+\"-written.npz\"));before=npz(root/\"backups\"/(label+\"-before.npz\"))\n    source=Path(config[\"sources\"][\"response\"])/\"clean\"\n    state=npz(source/\"state.npz\");manifest=json.loads((source/\"manifest.json\").read_text())\n    check(\"TEST9169 support exact\",np.array_equal(written[\"support\"],state[\"test\"]) and int(written[\"support\"].sum())==9169)\n    check(\"protectedoriginal FLAG/FLAG_ROW\",not np.any(state[\"original_flags\"] & ~written[\"FLAG\"]) and not np.any(state[\"original_rows\"] & ~written[\"FLAG_ROW\"]))\n    with table(str(root/\"response-diagnostic.ms\"),readonly=True,ack=False,lockoptions=\"autonoread\") as work,table(str(root/\"backups/response-input.ms\"),readonly=True,ack=False,lockoptions=\"autonoread\") as original,table(str(source/\"original.ms\"),readonly=True,ack=False,lockoptions=\"autonoread\") as raw:\n        for key in (\"DATA\",manifest[\"model_column\"],\"WEIGHT\",\"WEIGHT_SPECTRUM\",\"SIGMA\",\"SIGMA_SPECTRUM\"):\n            if key in original.colnames():check(\"unchangedcopiednative \"+key,np.array_equal(work.getcol(key),original.getcol(key),equal_nan=True))\n        for key in (\"FLAG\",\"FLAG_ROW\",\"CORRECTED_DATA\"):check(\"exactfailedcheckpoint \"+key,np.array_equal(work.getcol(key),written[key]))\n        for key in (\"FLAG\",\"FLAG_ROW\"):check(\"exclusiveinitialpreviousbackup \"+key,np.array_equal(before[key],original.getcol(key)))\n        check(\"actualoriginalFLAG exactstate\",np.array_equal(raw.getcol(\"FLAG\"),state[\"original_flags\"]))\n        check(\"actualoriginalFLAG_ROW exactstate\",np.array_equal(raw.getcol(\"FLAG_ROW\"),state[\"original_rows\"]))\n        check(\"original+copiedactiveweights exactstate\",np.array_equal(raw.getcol(\"WEIGHT_SPECTRUM\"),state[\"weights\"]) and np.array_equal(work.getcol(\"WEIGHT_SPECTRUM\"),state[\"weights\"]))\n        check(\"no MODEL_DATA append\",\"MODEL_DATA\" not in work.colnames() or \"MODEL_DATA\" in original.colnames())\n    check(\"originalcopydigest preserved\",digest(source/\"original.ms\")==manifest[\"original_copy_digest\"])\n    for role,path in config[\"sources\"].items():check(\"sourcewhole digest \"+role,digest(path)==config[\"source_hashes\"][role])\n    command_path=root/\"checkpoints\"/(label+\"-command.json\")\n    result={\"status\":\"PASS\" if all(c[\"pass\"] for c in checks) else \"FAIL\",\"checks_count\":len(checks),\"checks\":checks,\"failure\":\"pinned WSClean3.6 rejects legacy datacolumn before inversion\",\"completed_inversions\":0,\"failed_attempts\":1,\"source_config_sha256\":sha256((root/\"imaging-config.json\").read_bytes()).hexdigest(),\"log_sha256\":sha256(log.read_bytes()).hexdigest(),\"command_sha256\":sha256(command_path.read_bytes()).hexdigest(),\"command\":json.loads(command_path.read_text()),\"audit_program_sha256\":sha256(Path(__file__).read_bytes()).hexdigest(),\"audit_program\":Path(__file__).read_text(),\"measurement_reruns_or_source_writes\":False}\n    print(json.dumps(result,allow_nan=False))\nif __name__==\"__main__\":main()\n",
+      "measurement_reruns_or_source_writes": false
+    },
+    "status": "failed actual command parse; preserved inputs, no FITS/completed inversion"
+  },
+  "retained_imaging02_invalid_basis": {
+    "path": "outputs/tv-next-imaging-20260924-02",
+    "status": "FAIL matched-family certification:409 numerical pass,2 semantic fail",
+    "numerical_checks_count": 409,
+    "semantic_checks_count": 2,
+    "combined_checks_count": 411,
+    "pass_count": 409,
+    "fail_count": 2,
+    "numerical_verification": {
+      "schema_version": 1,
+      "status": "PASS",
+      "checks_count": 409,
+      "pass_count": 409,
+      "checks": [
+        {
+          "name": "exact15 WSC inversions zeroQC",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "no policy selection/export",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "all runtime/source/tool/wholeMS guards",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "frozen image version",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "frozen settings",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "actual full pinned parserpreflight precedescopies",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "original TEST9169",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "actual signed package receipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "WSC package3.6-1/no priorchanges/cap",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "signed full dependency hashes",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response independently reconstructed source digest",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal independently reconstructed source digest",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "runtime rangtoy.flagging_imaging",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "runtime rangtoy",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "runtime rangtoy.flagging",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "runtime rangtoy.flagging_prepared",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "runtime rangtoy.flagging_workflow",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted complete Jones support",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted independent precastclosure1e-10",
+          "pass": true,
+          "observed": 9.417692169471297e-15
+        },
+        {
+          "name": "omitted recorded precastclosure1e-10",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete complete Jones support",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete independent precastclosure1e-10",
+          "pass": true,
+          "observed": 1.0267631158051531e-14
+        },
+        {
+          "name": "complete recorded precastclosure1e-10",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change proposalTRAINonly",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild proposalTRAINonly",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected proposalTRAINonly",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "exact original job ordering",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 6.390357810330473e-8,
+            "recorded_cast_jy": 6.390357810330473e-8
+          }
+        },
+        {
+          "name": "unit-compact recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact initial originalFLAG/ROW backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact initialcorrectedpresence schema",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 6.049361818178481e-8,
+            "recorded_cast_jy": 6.049361818178481e-8
+          }
+        },
+        {
+          "name": "unit-extended recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 7.574698665260092e-9,
+            "recorded_cast_jy": 7.574698665260092e-9
+          }
+        },
+        {
+          "name": "fixedG0-reference recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 9.630299555943565e-7,
+            "recorded_cast_jy": 9.630299549698861e-7
+          }
+        },
+        {
+          "name": "clean-full recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 9.67421842391045e-7,
+            "recorded_cast_jy": 9.674218412009918e-7
+          }
+        },
+        {
+          "name": "omitted-full recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 8.65354404115006e-9,
+            "recorded_cast_jy": 8.653540021087375e-9
+          }
+        },
+        {
+          "name": "omitted-total recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 7.632165669457008e-9,
+            "recorded_cast_jy": 7.632165669457008e-9
+          }
+        },
+        {
+          "name": "omitted-direct recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 1.365939663025226e-8,
+            "recorded_cast_jy": 1.3659389546072839e-8
+          }
+        },
+        {
+          "name": "omitted-adaptation recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 0.0000010333391901295513,
+            "recorded_cast_jy": 0.0000010333391998914464
+          }
+        },
+        {
+          "name": "complete-full recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 7.542644947418552e-9,
+            "recorded_cast_jy": 7.54264650643105e-9
+          }
+        },
+        {
+          "name": "complete-total recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 7.61444682689947e-9,
+            "recorded_cast_jy": 7.614446790240216e-9
+          }
+        },
+        {
+          "name": "complete-direct recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 1.8321135168019127e-9,
+            "recorded_cast_jy": 1.8321134203283048e-9
+          }
+        },
+        {
+          "name": "complete-adaptation recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 9.630299555943565e-7,
+            "recorded_cast_jy": 9.630299549698861e-7
+          }
+        },
+        {
+          "name": "caracal-no-change recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change initial originalFLAG/ROW backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change initialcorrectedpresence schema",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 0.0000010008926316379783,
+            "recorded_cast_jy": 0.0000010008926334229277
+          }
+        },
+        {
+          "name": "caracal-mild recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected exact written support/FLAG/ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected originalFLAG/ROW protected",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected complex64 correction/checkpoint",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected independently solved correction within recorded casting1e-10",
+          "pass": true,
+          "observed": {
+            "error_jy": 0.0000018683193014017348,
+            "recorded_cast_jy": 0.0000018683193014017348
+          }
+        },
+        {
+          "name": "caracal-firstpass-rejected recorded support/drop/add counts",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected previouswrite exclusive backup exact",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/dirty FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/dirty finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/dirty exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/dirty frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected Jy/beamunit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/dirty recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/psf FITSreceipt",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/psf finite512square",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/psf exactmatchedWCS",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/psf frozen8arcsecSINscale",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected/psf recordedheaders",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected exactfrozenWScommand",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected guardrecords",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted actualdirtyclosure1e-6",
+          "pass": true,
+          "observed": 3.5390257835388184e-8
+        },
+        {
+          "name": "complete actualdirtyclosure1e-6",
+          "pass": true,
+          "observed": 3.809691406786442e-8
+        },
+        {
+          "name": "unit-compact exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild matchedPSF1e-6",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected exactPSFdelta",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0reference knownfamilyfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference exactconditionalfraction",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total exactconditionalfraction",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct exactconditionalfraction",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation exactconditionalfraction",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total exactconditionalfraction",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct exactconditionalfraction",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation independently reconstructed unrestrictedfit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation exactconditionalfraction",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-compact fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "unit-extended fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "fixedG0-reference fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "clean-full fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-full fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-total fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-direct fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "omitted-adaptation fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-full fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-total fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-direct fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "complete-adaptation fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-no-change fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-mild fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal-firstpass-rejected fixedoffsource RMS/std/peak",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response nativecolumn DATA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response nativecolumn RANG_MODEL_DATA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response nativecolumn WEIGHT",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response nativecolumn WEIGHT_SPECTRUM",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response nativecolumn SIGMA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response nativecolumn SIGMA_SPECTRUM",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response exactfinalwritten CORRECTED_DATA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response exactfinalwritten FLAG",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response exactfinalwritten FLAG_ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response actual originalFLAG/ROW exactstate",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response actual nativeactiveweights state",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response actual ORIGINALnativeactiveweights state",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response initialwholeMSbackupimmutability",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response originalcopydigest",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal nativecolumn DATA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal nativecolumn RANG_MODEL_DATA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal nativecolumn WEIGHT",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal nativecolumn WEIGHT_SPECTRUM",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal nativecolumn SIGMA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal nativecolumn SIGMA_SPECTRUM",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal exactfinalwritten CORRECTED_DATA",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal exactfinalwritten FLAG",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal exactfinalwritten FLAG_ROW",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal actual originalFLAG/ROW exactstate",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal actual nativeactiveweights state",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal actual ORIGINALnativeactiveweights state",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal initialwholeMSbackupimmutability",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal originalcopydigest",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "CARACALfirstpass unsupportedTEST explicitlyretained",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "CARACALfirstpass overbudgetdiagnostic",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "response sourceafterreadonlyaudit",
+          "pass": true,
+          "observed": null
+        },
+        {
+          "name": "caracal sourceafterreadonlyaudit",
+          "pass": true,
+          "observed": null
+        }
+      ],
+      "jobs": {
+        "unit-compact": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 6.390357810330473e-8,
+          "dirty_RMS_jy_per_beam": 0.1975229937362216,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            1,
+            0
+          ],
+          "conditional_fraction": null
+        },
+        "unit-extended": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 6.049361818178481e-8,
+          "dirty_RMS_jy_per_beam": 0.1061887812489277,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            0,
+            0.9999999999999998
+          ],
+          "conditional_fraction": null
+        },
+        "fixedG0-reference": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 7.574698665260092e-9,
+          "dirty_RMS_jy_per_beam": 0.01750808057322418,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            0.06166336256419137,
+            0.1189697470420572
+          ],
+          "conditional_fraction": [
+            1,
+            1
+          ]
+        },
+        "clean-full": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 9.630299549698861e-7,
+          "dirty_RMS_jy_per_beam": 3.2790251449976893,
+          "PSF_linf_vs_fixedG0": 0
+        },
+        "omitted-full": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 9.674218412009918e-7,
+          "dirty_RMS_jy_per_beam": 3.2789780140150615,
+          "PSF_linf_vs_fixedG0": 0
+        },
+        "omitted-total": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 8.653540021087375e-9,
+          "dirty_RMS_jy_per_beam": 0.013039120477034438,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            0.030401559499492154,
+            0.09066395602502815
+          ],
+          "conditional_fraction": [
+            0.49302467843598746,
+            0.762075723275913
+          ]
+        },
+        "omitted-direct": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 7.632165669457008e-9,
+          "dirty_RMS_jy_per_beam": 0.017517461337936118,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            0.06178188542480187,
+            0.11895226839612671
+          ],
+          "conditional_fraction": [
+            1.0019220953201688,
+            0.9998530832723019
+          ]
+        },
+        "omitted-adaptation": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 1.3659389546072839e-8,
+          "dirty_RMS_jy_per_beam": 0.010638183536522459,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            -0.03138033046553336,
+            -0.028288289515475743
+          ],
+          "conditional_fraction": [
+            -0.5088974905133747,
+            -0.23777716788349143
+          ]
+        },
+        "complete-full": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 0.0000010333391998914464,
+          "dirty_RMS_jy_per_beam": 3.275980040980938,
+          "PSF_linf_vs_fixedG0": 0
+        },
+        "complete-total": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 7.54264650643105e-9,
+          "dirty_RMS_jy_per_beam": 0.017337976371227814,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            0.06145757419781264,
+            0.1173843153771583
+          ],
+          "conditional_fraction": [
+            0.9966627125440248,
+            0.9866736569227263
+          ]
+        },
+        "complete-direct": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 7.614446790240216e-9,
+          "dirty_RMS_jy_per_beam": 0.01750840116796451,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            0.06166556863116731,
+            0.11897198007698578
+          ],
+          "conditional_fraction": [
+            1.0000357759759475,
+            1.0000187697711738
+          ]
+        },
+        "complete-adaptation": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 1.8321134203283048e-9,
+          "dirty_RMS_jy_per_beam": 0.00046632759611540676,
+          "PSF_linf_vs_fixedG0": 0,
+          "known_family_coefficients_jy": [
+            -0.0002079959723221138,
+            -0.0015876554893371382
+          ],
+          "conditional_fraction": [
+            -0.0033730883894888255,
+            -0.013345035429686871
+          ]
+        },
+        "caracal-no-change": {
+          "support": 9169,
+          "training_additions": 0,
+          "cast_rounding_max_jy": 9.630299549698861e-7,
+          "dirty_RMS_jy_per_beam": 3.2790251449976893,
+          "PSF_linf_vs_fixedG0": 0
+        },
+        "caracal-mild": {
+          "support": 9169,
+          "training_additions": 662,
+          "cast_rounding_max_jy": 0.0000010008926334229277,
+          "dirty_RMS_jy_per_beam": 3.2799795275053047,
+          "PSF_linf_vs_fixedG0": 0
+        },
+        "caracal-firstpass-rejected": {
+          "support": 7812,
+          "training_additions": 26692,
+          "cast_rounding_max_jy": 0.0000018683193014017348,
+          "dirty_RMS_jy_per_beam": 3.2640419965947536,
+          "PSF_linf_vs_fixedG0": 0.07469786703586578
+        }
+      },
+      "raw_result_sha256": "aa6d6f89eb47d9dc7f19af7dd8e27a4170deb27fa1d99eaae200d4c82d2adce4",
+      "audit_program_sha256": "90751c15fc1ac1013cb5394dd52dfda8337a16d3511047f8d6163f083f973706",
+      "audit_program": "\"\"\"Readonly FITS/MS/precision audit. Never invokes WSClean or QuartiCal.\"\"\"\nimport json\nimport os\nimport sys\nfrom hashlib import sha256\nfrom pathlib import Path\n\nimport numpy as np\nfrom astropy.io import fits\nfrom casacore.tables import table\n\nchecks=[]\ndef check(name, condition, observed=None):\n    checks.append({\"name\":name,\"pass\":bool(condition),\"observed\":observed})\n\ndef digest(path):\n    h=sha256();path=Path(path)\n    for p in sorted(path.rglob(\"*\")):\n        if p.is_file() and p.name!=\"table.lock\":\n            h.update(str(p.relative_to(path)).encode())\n            with p.open(\"rb\") as stream:\n                for block in iter(lambda:stream.read(1024*1024),b\"\"):h.update(block)\n    return h.hexdigest()\n\ndef npz(path):\n    with np.load(path,allow_pickle=False) as a:return {k:a[k] for k in a.files}\n\ndef corrected(state,diagnostic,requested,data):\n    \"\"\"Independent solve-based inverse Jones, rather than production inverses.\"\"\"\n    tm=np.unique(state[\"times\"],return_inverse=True)[1]//2\n    fm=np.arange(len(state[\"frequencies\"]))//32\n    r,c=np.where(requested);p,q=state[\"antenna1\"][r],state[\"antenna2\"][r]\n    g=diagnostic[\"gains\"];gp,gq=g[tm[r],fm[c],p],g[tm[r],fm[c],q]\n    valid=diagnostic[\"gain_valid\"]\n    good=valid[tm[r],fm[c],p] & valid[tm[r],fm[c],q]\n    good &= np.isfinite(gp).all((-1,-2)) & np.isfinite(gq).all((-1,-2))\n    if good.any():\n        ids=np.where(good)[0]\n        conditioned=(np.linalg.cond(gp[ids])<=1e8)&(np.linalg.cond(gq[ids])<=1e8)\n        good[ids]=conditioned\n    actual=np.zeros_like(requested);actual[r[good],c[good]]=True\n    result=np.zeros(state[\"data\"].shape,np.complex128)\n    left=np.linalg.solve(gp[good],np.asarray(data,np.complex128)[r[good],c[good]].reshape(-1,2,2))\n    result[r[good],c[good]]=np.linalg.solve(gq[good].conj(),left.swapaxes(-1,-2)).swapaxes(-1,-2).reshape(-1,4)\n    return result,actual\n\ndef flagmask(state,support,added):\n    flags=state[\"original_flags\"] | state[\"original_rows\"][:,None,None] | (~support)[...,None]\n    if added is not None:flags=flags|added[...,None]\n    return flags,state[\"original_rows\"]|flags.all((1,2))\n\ndef fit(image,basis):\n    design=basis.reshape(2,-1).T;target=image.ravel()\n    coefficients,_,rank,singular=np.linalg.lstsq(design,target,rcond=1e-10)\n    condition=float(singular[0]/singular[-1])\n    return coefficients,int(rank),condition,float(np.mean((target-design@coefficients)**2))\n\ndef main():\n    output=Path(sys.argv[1]);result=json.loads((output/\"result.json\").read_text());config=json.loads((output/\"imaging-config.json\").read_text())\n    response=Path(config[\"sources\"][\"response\"]);caracal=Path(config[\"sources\"][\"caracal\"])\n    states={\"response\":npz(response/\"clean/state.npz\"),\"caracal\":npz(caracal/\"state.npz\")}\n    state=states[\"response\"];support=state[\"test\"]\n    injected=npz(response/\"positive/state.npz\")[\"data\"]\n    source_config=json.loads((response/\"response-config.json\").read_text())\n    templates=npz(response/\"spectral-templates.npz\")[\"templates\"]\n    g0=npz(response/\"clean/trials/clean-t2-f32/diagnostics.npz\")\n    check(\"exact15 WSC inversions zeroQC\",len(result[\"jobs\"])==15 and result[\"actual_WSClean_inversions\"]==15 and result[\"new_QC_solves\"]==0)\n    check(\"no policy selection/export\",not result[\"policy_selection\"] and not result[\"exported_or_deployable_MS\"])\n    check(\"all runtime/source/tool/wholeMS guards\",all(result[k] for k in (\"source_unchanged\",\"runtime_unchanged\",\"tool_unchanged\",\"whole_MS_backups_unchanged\")))\n    check(\"frozen image version\",config[\"suite_image\"]==\"sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22\")\n    check(\"frozen settings\",result[\"settings\"]==config[\"settings\"] and config[\"settings\"]=={\"size\":[512,512],\"scale_arcsec\":8.0,\"robust\":.5,\"polarization\":\"I\",\"channels\":[1024,3072],\"gridder\":\"wstacking\",\"w_layers\":64,\"threads\":1,\"niter\":0,\"small_inversion\":False,\"update_model_required\":False,\"memory_gib\":.5})\n    parser=config[\"parser_preflight\"]\n    check(\"actual full pinned parserpreflight precedescopies\",parser[\"returncode\"]==0 and parser[\"dry_run_only\"] and parser[\"precedes_any_MS_copy_or_write\"] and \"-dry-run\" in parser[\"command\"] and sha256(parser[\"output\"].encode()).hexdigest()==parser[\"output_sha256\"] and \"Unknown parameter:\" not in parser[\"output\"])\n    check(\"original TEST9169\",int(support.sum())==9169 and support.dtype==np.bool_)\n    receipt=json.loads(Path(\"/opt/rang/imaging-packages.json\").read_text())\n    check(\"actual signed package receipt\",receipt==config[\"tool\"][\"package_manifest\"])\n    check(\"WSC package3.6-1/no priorchanges/cap\",receipt[\"wsclean_package_version\"]==\"3.6-1\" and receipt[\"preexisting_packages_unchanged\"] and receipt[\"download_bytes\"]<=256*1024**2)\n    check(\"signed full dependency hashes\",all(p[\"sha256\"]==p[\"actual_sha256\"] for p in receipt[\"packages\"]) and sum(p[\"size\"] for p in receipt[\"packages\"])==receipt[\"download_bytes\"])\n    for name,path in ((\"response\",response),(\"caracal\",caracal)):\n        check(name+\" independently reconstructed source digest\",digest(path)==config[\"source_hashes\"][name])\n    for name,item in config[\"runtime_receipts\"].items():\n        check(\"runtime \"+name,sha256(Path(item[\"path\"]).read_bytes()).hexdigest()==item[\"sha256\"])\n    expected={};added={};role={}\n    clean,_=corrected(state,g0,support,state[\"data\"])\n    reference,_=corrected(state,g0,support,injected.astype(np.complex128)-state[\"data\"].astype(np.complex128))\n    for i,s in enumerate(source_config[\"sources\"]):\n        label=\"unit-\"+s[\"name\"];v=np.zeros_like(state[\"data\"],np.complex128)\n        scalar=templates[i]*(state[\"frequencies\"]/source_config[\"reference_frequency_hz\"])**s[\"spectral_index\"]\n        v[...,0]=v[...,3]=np.where(support,scalar,0)\n        expected[label]=(v,support);added[label]=None;role[label]=\"response\"\n    expected[\"fixedG0-reference\"]=(reference,support);expected[\"clean-full\"]=(clean,support)\n    for name,trial in ((\"omitted\",\"omitted-t2-f32\"),(\"complete\",\"complete-diagnostic-t2-f32\")):\n        g=npz(response/\"positive/trials\"/trial/\"diagnostics.npz\")\n        full,mask=corrected(state,g,support,injected)\n        old,mask2=corrected(state,g,support,state[\"data\"])\n        direct,mask3=corrected(state,g,support,injected.astype(np.complex128)-state[\"data\"].astype(np.complex128))\n        check(name+\" complete Jones support\",all(np.array_equal(support,m) for m in (mask,mask2,mask3)))\n        values={\"full\":full,\"total\":full-clean,\"direct\":direct,\"adaptation\":old-clean}\n        closure=float(np.max(np.abs(values[\"total\"][support]-values[\"direct\"][support]-values[\"adaptation\"][support])))\n        check(name+\" independent precastclosure1e-10\",closure<=1e-10,closure)\n        check(name+\" recorded precastclosure1e-10\",result[\"precast_visibility_closures_jy\"][name]<=1e-10)\n        for part,value in values.items():expected[name+\"-\"+part]=(value,support)\n    for label in expected:role[label]=\"response\";added[label]=None\n    for name,trial,native in ((\"no-change\",\"baseline\",None),(\"mild\",\"strategy-01-operational\",\"strategy-01-operational\"),(\"firstpass-rejected\",\"strategy-00-operational\",\"strategy-00-operational\")):\n        label=\"caracal-\"+name;g=npz(caracal/\"trials\"/trial/\"diagnostics.npz\")\n        expected[label]=corrected(states[\"caracal\"],g,support,states[\"caracal\"][\"data\"])\n        added[label]=npz(caracal/\"native\"/native/\"frozen-proposal.npz\")[\"added\"] if native else np.zeros_like(support)\n        role[label]=\"caracal\"\n        check(label+\" proposalTRAINonly\",not np.any(added[label] & ~states[\"caracal\"][\"train\"]))\n    check(\"exact original job ordering\",list(expected)==config[\"fixed_jobs\"] and set(expected)==set(result[\"jobs\"]))\n    images={};geometry=None;previous={};summaries={}\n    for label in config[\"fixed_jobs\"]:\n        record=result[\"jobs\"][label];wide,selected=expected[label];s=states[role[label]]\n        flags,rows=flagmask(s,selected,added[label])\n        written=npz(output/\"checkpoints\"/(label+\"-written.npz\"));before=npz(output/\"backups\"/(label+\"-before.npz\"))\n        schema=json.loads((output/\"backups\"/(label+\"-schema.json\")).read_text())\n        check(label+\" exact written support/FLAG/ROW\",np.array_equal(written[\"support\"],selected) and np.array_equal(written[\"FLAG\"],flags) and np.array_equal(written[\"FLAG_ROW\"],rows))\n        check(label+\" originalFLAG/ROW protected\",not np.any(s[\"original_flags\"] & ~written[\"FLAG\"]) and not np.any(s[\"original_rows\"] & ~written[\"FLAG_ROW\"]))\n        check(label+\" complex64 correction/checkpoint\",written[\"CORRECTED_DATA\"].dtype==np.complex64 and not np.any(written[\"CORRECTED_DATA\"][~selected]))\n        error=float(np.max(np.abs(written[\"CORRECTED_DATA\"].astype(np.complex128)-wide)))\n        rounding=record[\"column_audit\"][\"wide_to_native_max_rounding_jy\"]\n        check(label+\" independently solved correction within recorded casting1e-10\",error<=rounding+1e-10,{\"error_jy\":error,\"recorded_cast_jy\":rounding})\n        check(label+\" recorded support/drop/add counts\",record[\"unsupported_original_TEST_samples\"]==int(support.sum()-selected.sum()) and record[\"training_additions\"]==(int(added[label].sum()) if added[label] is not None else 0))\n        if role[label] in previous:\n            prior=previous[role[label]]\n            check(label+\" previouswrite exclusive backup exact\",all(np.array_equal(before[k],prior[k]) for k in (\"FLAG\",\"FLAG_ROW\",\"CORRECTED_DATA\")) and schema[\"corrected_exists\"])\n        else:\n            with table(str(output/\"backups\"/(role[label]+\"-input.ms\")),readonly=True,ack=False,lockoptions=\"autonoread\") as orig:\n                check(label+\" initial originalFLAG/ROW backup exact\",all(np.array_equal(before[k],orig.getcol(k)) for k in (\"FLAG\",\"FLAG_ROW\")))\n                check(label+\" initialcorrectedpresence schema\",schema[\"corrected_exists\"]==(\"CORRECTED_DATA\" in orig.colnames()))\n                if schema[\"corrected_exists\"]:check(label+\" initialcorrectedbackup\",np.array_equal(before[\"CORRECTED_DATA\"],orig.getcol(\"CORRECTED_DATA\")))\n        previous[role[label]]=written\n        images[label]={}\n        for kind in (\"dirty\",\"psf\"):\n            path=output/\"images\"/(label+\"-\"+kind+\".fits\")\n            check(label+\"/\"+kind+\" FITSreceipt\",sha256(path.read_bytes()).hexdigest()==record[\"FITS_sha256\"][kind])\n            with fits.open(path,memmap=False) as h:\n                image=np.asarray(h[0].data,float).squeeze();header=h[0].header\n                check(label+\"/\"+kind+\" finite512square\",image.shape==(512,512) and np.isfinite(image).all())\n                wcs={key:header[key] for key in (\"CRPIX1\",\"CRPIX2\",\"CRVAL1\",\"CRVAL2\",\"CDELT1\",\"CDELT2\",\"CTYPE1\",\"CTYPE2\")}\n                geometry=geometry or wcs\n                check(label+\"/\"+kind+\" exactmatchedWCS\",wcs==geometry and wcs==record[\"image_geometry\"])\n                check(label+\"/\"+kind+\" frozen8arcsecSINscale\",np.isclose(wcs[\"CDELT1\"],-8/3600,rtol=0,atol=1e-12) and np.isclose(wcs[\"CDELT2\"],8/3600,rtol=0,atol=1e-12) and wcs[\"CTYPE1\"]==\"RA---SIN\" and wcs[\"CTYPE2\"]==\"DEC--SIN\")\n                if kind==\"dirty\":check(label+\" Jy/beamunit\",str(header.get(\"BUNIT\",\"\")).lower()==\"jy/beam\")\n                check(label+\"/\"+kind+\" recordedheaders\",all(header[k]==v for k,v in record[\"headers\"][kind].items()))\n            images[label][kind]=image\n        command=json.loads((output/\"checkpoints\"/(label+\"-command.json\")).read_text())\n        frozen=[(\"-gridder\",[\"wstacking\"]),(\"-wstack-nwlayers\",[\"64\"]),(\"-niter\",[\"0\"]),(\"-j\",[\"1\"]),(\"-data-column\",[\"CORRECTED_DATA\"]),(\"-scale\",[\"8asec\"]),(\"-channel-range\",[\"1024\",\"3072\"]),(\"-size\",[\"512\",\"512\"]),(\"-weight\",[\"briggs\",\"0.5\"]),(\"-field\",[\"0\"]),(\"-pol\",[\"I\"]),(\"-abs-mem\",[\"0.5\"])]\n        check(label+\" exactfrozenWScommand\",all(command[command.index(k)+1:command.index(k)+1+len(v)]==v for k,v in frozen) and all(k in command for k in (\"-no-update-model-required\",\"-no-min-grid-resolution\",\"-no-reorder\",\"-make-psf\")))\n        check(label+\" guardrecords\",all(record[\"native_columns_exact\"].values()) and not record[\"selected_for_policy_or_deployment\"])\n        summaries[label]={\"support\":int(selected.sum()),\"training_additions\":record[\"training_additions\"],\"cast_rounding_max_jy\":rounding,\"dirty_RMS_jy_per_beam\":record[\"diagnostics\"][\"dirty_offsource_RMS_jy_per_beam\"]}\n    for name in (\"omitted\",\"complete\"):\n        closure=float(np.max(np.abs(images[name+\"-total\"][\"dirty\"]-images[name+\"-direct\"][\"dirty\"]-images[name+\"-adaptation\"][\"dirty\"])))\n        check(name+\" actualdirtyclosure1e-6\",closure<=1e-6 and closure==result[\"dirty_image_closures_jy_per_beam\"][name],closure)\n    psf=images[\"fixedG0-reference\"][\"psf\"]\n    for label,record in result[\"jobs\"].items():\n        difference=float(np.max(np.abs(images[label][\"psf\"]-psf)))\n        check(label+\" exactPSFdelta\",difference==record[\"PSF_linf_difference_vs_fixedG0\"])\n        if label!=\"caracal-firstpass-rejected\":check(label+\" matchedPSF1e-6\",difference<=1e-6)\n        summaries[label][\"PSF_linf_vs_fixedG0\"]=difference\n    basis=np.stack([images[\"unit-\"+s[\"name\"]][\"dirty\"] for s in source_config[\"sources\"]])\n    reference_fit=fit(images[\"fixedG0-reference\"][\"dirty\"],basis)\n    check(\"fixedG0reference knownfamilyfit\",np.allclose(reference_fit[0],result[\"reference_fit\"][\"coefficients_jy\"],rtol=1e-12,atol=1e-12))\n    for label,record in result[\"jobs\"].items():\n        if \"known_family_dirty_fit\" not in record:continue\n        coefficients,rank,condition,mse=fit(images[label][\"dirty\"],basis);stored=record[\"known_family_dirty_fit\"]\n        check(label+\" independently reconstructed unrestrictedfit\",rank==stored[\"rank\"] and np.allclose(coefficients,stored[\"coefficients_jy\"],rtol=1e-12,atol=1e-12) and np.isclose(condition,stored[\"condition\"],rtol=1e-12) and np.isclose(mse,stored[\"unweighted_pixel_MSE_proxy\"],rtol=1e-12,atol=1e-16))\n        if record[\"conditional_response_vs_fixedG0\"] is not None:check(label+\" exactconditionalfraction\",np.allclose(coefficients/reference_fit[0],record[\"conditional_response_vs_fixedG0\"],rtol=1e-12,atol=1e-12))\n        summaries[label][\"known_family_coefficients_jy\"]=coefficients.tolist()\n        summaries[label][\"conditional_fraction\"]=record[\"conditional_response_vs_fixedG0\"]\n    y,x=np.indices((512,512));l,m=(256-x)*8/60,(y-256)*8/60\n    region=(np.hypot(l,m)>=25)&(np.hypot(l-9,m+6)>=12)&(np.hypot(l+12,m+14)>=12)\n    for label,record in result[\"jobs\"].items():\n        values=images[label][\"dirty\"][region];d=record[\"diagnostics\"]\n        check(label+\" fixedoffsource RMS/std/peak\",int(region.sum())==d[\"fixed_offsource_pixels\"] and float(np.sqrt(np.mean(values**2)))==d[\"dirty_offsource_RMS_jy_per_beam\"] and float(np.std(values))==d[\"dirty_offsource_std_jy_per_beam\"] and float(np.max(np.abs(images[label][\"dirty\"])))==d[\"peak_abs_jy_per_beam\"])\n    for name,s in states.items():\n        input_path=output/\"backups\"/(name+\"-input.ms\");work_path=output/(name+\"-diagnostic.ms\")\n        source_path=response/\"clean\" if name==\"response\" else caracal\n        manifest=json.loads((source_path/\"manifest.json\").read_text())\n        with table(str(input_path),readonly=True,ack=False,lockoptions=\"autonoread\") as original, table(str(work_path),readonly=True,ack=False,lockoptions=\"autonoread\") as work, table(str(source_path/\"original.ms\"),readonly=True,ack=False,lockoptions=\"autonoread\") as raw:\n            for k in (\"DATA\",manifest[\"model_column\"],\"WEIGHT\",\"WEIGHT_SPECTRUM\",\"SIGMA\",\"SIGMA_SPECTRUM\"):\n                if k in original.colnames():check(name+\" nativecolumn \"+k,np.array_equal(work.getcol(k),original.getcol(k),equal_nan=True))\n            for k in (\"CORRECTED_DATA\",\"FLAG\",\"FLAG_ROW\"):check(name+\" exactfinalwritten \"+k,np.array_equal(work.getcol(k),previous[name][k]))\n            check(name+\" actual originalFLAG/ROW exactstate\",np.array_equal(raw.getcol(\"FLAG\"),s[\"original_flags\"]) and np.array_equal(raw.getcol(\"FLAG_ROW\"),s[\"original_rows\"]))\n            check(name+\" actual nativeactiveweights state\",np.array_equal(work.getcol(\"WEIGHT_SPECTRUM\"),s[\"weights\"]))\n            check(name+\" actual ORIGINALnativeactiveweights state\",np.array_equal(raw.getcol(\"WEIGHT_SPECTRUM\"),s[\"weights\"]))\n        check(name+\" initialwholeMSbackupimmutability\",digest(input_path)==result[\"whole_MS_backup_digests\"][name])\n        check(name+\" originalcopydigest\",digest(source_path/\"original.ms\")==manifest[\"original_copy_digest\"])\n    check(\"CARACALfirstpass unsupportedTEST explicitlyretained\",result[\"jobs\"][\"caracal-firstpass-rejected\"][\"unsupported_original_TEST_samples\"]>0)\n    check(\"CARACALfirstpass overbudgetdiagnostic\",result[\"jobs\"][\"caracal-firstpass-rejected\"][\"training_additions\"]/int(states[\"caracal\"][\"train\"].sum())>.02)\n    for name,path in ((\"response\",response),(\"caracal\",caracal)):check(name+\" sourceafterreadonlyaudit\",digest(path)==config[\"source_hashes\"][name])\n    audit={\"schema_version\":1,\"status\":\"PASS\" if all(c[\"pass\"] for c in checks) else \"FAIL\",\"checks_count\":len(checks),\"pass_count\":sum(c[\"pass\"] for c in checks),\"checks\":checks,\"jobs\":summaries,\"raw_result_sha256\":sha256((output/\"result.json\").read_bytes()).hexdigest(),\"audit_program_sha256\":sha256(Path(__file__).read_bytes()).hexdigest(),\"audit_program\":Path(__file__).read_text(),\"no_measurement_or_source_writes\":True,\"new_QC_or_WSClean_runs\":0,\"runtime_image\":os.environ.get(\"RANG_AUDIT_IMAGE\"),\"limitations\":[\"dirty images only, sparse fourantenna112second scan\",\"joint knownfamily coefficients not blind flux/shape/CI\",\"native fixedweights not propagated postJones covariance\",\"CARACAL firstpass rejected and different support/PSF, nativeflagger sawholdout features\",\"same noisyDATA/gains, no independentobs or SOTA accuracy/cost claim\"]}\n    payload=json.dumps(audit,allow_nan=False)\n    if len(sys.argv)>2:\n        destination=Path(sys.argv[2])\n        if destination.parent!=Path(\"/audit\") or len(payload.encode())>2*1024**2:\n            raise RuntimeError(\"exclusive small private audit destination required\")\n        with destination.open(\"x\") as stream:stream.write(payload+\"\\n\")\n        print(json.dumps({\"status\":audit[\"status\"],\"checks\":audit[\"checks_count\"],\"passed\":audit[\"pass_count\"],\"failed\":[c for c in checks if not c[\"pass\"]],\"audit_file\":str(destination),\"audit_sha256\":sha256((payload+\"\\n\").encode()).hexdigest()},allow_nan=False))\n    else:print(payload)\n\nif __name__==\"__main__\":main()\n",
+      "no_measurement_or_source_writes": true,
+      "new_QC_or_WSClean_runs": 0,
+      "runtime_image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+      "limitations": [
+        "dirty images only, sparse fourantenna112second scan",
+        "joint knownfamily coefficients not blind flux/shape/CI",
+        "native fixedweights not propagated postJones covariance",
+        "CARACAL firstpass rejected and different support/PSF, nativeflagger sawholdout features",
+        "same noisyDATA/gains, no independentobs or SOTA accuracy/cost claim"
+      ]
+    },
+    "independent_semantic_provenance": {
+      "status": "FAIL",
+      "checks_count": 2,
+      "pass_count": 0,
+      "checks": [
+        {
+          "name": "unit-compact already-spectral unit-template provenance",
+          "pass": false,
+          "maximum_XX_YY_unit_visibility_error_jy": [
+            0.10444875615502845,
+            0.10444875615502845
+          ],
+          "recorded_complex64_cast_error_jy": 6.390357810330473e-8,
+          "expected_spectral_index": -0.5,
+          "truth_or_labels_used_to_rank": false
+        },
+        {
+          "name": "unit-extended already-spectral unit-template provenance",
+          "pass": false,
+          "maximum_XX_YY_unit_visibility_error_jy": [
+            0.17329329235303684,
+            0.17329329235303684
+          ],
+          "recorded_complex64_cast_error_jy": 6.049361818178481e-8,
+          "expected_spectral_index": -0.9,
+          "truth_or_labels_used_to_rank": false
+        }
+      ],
+      "saved_spectral_template_sha256": "8d1c86938d00ff02523e51e440b271a4a44ffd882b23fc20ad591e8157ef0ae1",
+      "raw_result_sha256": "aa6d6f89eb47d9dc7f19af7dd8e27a4170deb27fa1d99eaae200d4c82d2adce4",
+      "audit_program_sha256": "eb6d6e34c5868a82ba6eaf21944ae7839bc4e00e43d3ef97de30384ca538a2ed",
+      "audit_program": "\"\"\"Independent existing-checkpoint spectral-family semantic oracle; readonly.\"\"\"\nimport json\nimport sys\nfrom hashlib import sha256\nfrom pathlib import Path\n\nimport numpy as np\n\ndef main():\n    output,response=map(Path,sys.argv[1:3])\n    raw=json.loads((output/\"result.json\").read_text())\n    config=json.loads((response/\"response-config.json\").read_text())\n    with np.load(response/\"spectral-templates.npz\",allow_pickle=False) as a:templates=a[\"templates\"]\n    checks=[]\n    for index,source in enumerate(config[\"sources\"]):\n        label=\"unit-\"+source[\"name\"]\n        with np.load(output/\"checkpoints\"/(label+\"-written.npz\"),allow_pickle=False) as a:\n            support=a[\"support\"];observed=a[\"CORRECTED_DATA\"]\n        errors=[float(np.max(np.abs(observed[...,product][support].astype(np.complex128)-templates[index][support]))) for product in (0,3)]\n        cast=raw[\"jobs\"][label][\"column_audit\"][\"wide_to_native_max_rounding_jy\"]\n        checks.append({\"name\":label+\" already-spectral unit-template provenance\",\"pass\":max(errors)<=cast+1e-10,\"maximum_XX_YY_unit_visibility_error_jy\":errors,\"recorded_complex64_cast_error_jy\":cast,\"expected_spectral_index\":source[\"spectral_index\"],\"truth_or_labels_used_to_rank\":False})\n    result={\"status\":\"PASS\" if all(c[\"pass\"] for c in checks) else \"FAIL\",\"checks_count\":len(checks),\"pass_count\":sum(c[\"pass\"] for c in checks),\"checks\":checks,\"saved_spectral_template_sha256\":sha256((response/\"spectral-templates.npz\").read_bytes()).hexdigest(),\"raw_result_sha256\":sha256((output/\"result.json\").read_bytes()).hexdigest(),\"audit_program_sha256\":sha256(Path(__file__).read_bytes()).hexdigest(),\"audit_program\":Path(__file__).read_text(),\"runtime_source_replay\":False,\"method\":\"compare existing native unitXX/YY payloads directly to archived already-spectral intendedunit arrays, do not reproduce old or new imaginghelper\",\"no_measurement_or_source_writes\":True}\n    print(json.dumps(result,allow_nan=False))\nif __name__==\"__main__\":main()\n",
+      "runtime_source_replay": false,
+      "method": "compare existing native unitXX/YY payloads directly to archived already-spectral intendedunit arrays, do not reproduce old or new imaginghelper",
+      "no_measurement_or_source_writes": true
+    },
+    "prior_numerical_PASS_alone_is_not_scientific_certification": true
+  },
+  "check_accounting": {
+    "corrected03_distinct_checks": 419,
+    "corrected03_passes": 419,
+    "initial_parse_failure_preservation_checks": 23,
+    "initial_parse_failure_preservation_passes": 23,
+    "invalid02_total": 411,
+    "invalid02_passes": 409,
+    "invalid02_semantic_failures_retained": 2,
+    "total_predicates": 853,
+    "total_passes": 851,
+    "total_retained_failures": 2,
+    "count_includes_retained_negative_results_not_all_pass": true
+  },
+  "actual_measurement_accounting": {
+    "successful_WSClean_inversions": 30,
+    "imaging02_successful_inversions": 15,
+    "imaging03_successful_inversions": 15,
+    "initial_failed_parse_attempts": 1,
+    "new_QuartiCal_solves_in_imaging": 0,
+    "independent_audit_new_QuartiCal_or_WSClean_inversions": 0
+  },
+  "scientific_interpretation": "source-specific conditional two-component fixed-spectrum dirty-template response on one sparse observation, not blind flux/extent/CI, independent transfer, or SOTA accuracy/cost evidence",
+  "owned_runtime_or_tests_modified_during_audit": false
+}

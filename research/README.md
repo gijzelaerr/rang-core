@@ -4,12 +4,14 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-09-24. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
-[Five-track next-results execution plan](flagging-next-results.md) freezes
+[Latest measured five-track report](flagging-next-summary.md) and
+[execution plan](flagging-next-results.md) freeze
 TRAIN-estimated trend guidance, absolute signal guards, prospective candidate
 confirmation, bounded textual provenance and actual imaging diagnostics.
-Four branches are measured and independently audited; a separately fresh
-imaging retry follows a preserved CLI compatibility failure. Original master
-gather has not succeeded; no independent-observation/novelty claim is implied.
+All five now have measured and independently audited outcomes.
+Original master gather did not succeed; the report explicitly
+combines four original branches and a separate fresh imaging retry. Both
+CLI and spectral-basis failures are retained; no novelty claim is implied.
 
 New completed evidence: [trend-aware guidance](flagging-trend.md),
 [28 replays](results/gain-tv-next-trend.json) with
@@ -20,8 +22,14 @@ Also complete: [prospective three-case confirmation](flagging-next-prospective-v
 [54solve archive](results/gain-tv-next-prospective.json), and
 [TRAIN signal-guard abstention](flagging-next-signal-verification.md) with
 [9paired-solve archive](results/gain-tv-next-signal.json).
-The first imaging launch hit a retained CLI incompatibility; a real-parser
-preflight now gates the [separate imaging retry](../tools/flagging/run-imaging.sh).
+The [419-check image verification](flagging-next-imaging-verification.md),
+[actual dirty-image receipt](results/gain-tv-next-imaging.json) and
+[paired-image figure](figures/gain-tv-dirty-response.png) reuse saved full-Jones
+gains; the [invalid-basis failure](results/gain-tv-next-imaging-invalid-basis.json)
+is retained separately. The [TRAIN rank survey](flagging-next-gain-support.md)
+finds just one two-cell underidentified bin, not broad unsupported data.
+[Real-parser and source-family gates](../tools/flagging/run-imaging.sh) protect
+the separately fresh imaging step; raw measurements are never overwritten.
 
 [Concurrent follow-up protocol](flagging-concurrent.md), started2026-09-24,
 freezes five parallel workstreams before new measurements. All ten scatter
@@ -67,6 +75,12 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 | Signed complete/omitted sky and gain-grid response controls | [Response protocol and measurements](flagging-response.md), [independent checks](flagging-response-verification.md) | [Ten frozen controls and preserved retry provenance](results/gain-tv-response.json), [audit](results/gain-tv-response-audit.json) | [Response](../recipes/tv-flagging-response.yaml) |
 | Legitimate smooth receiver-phase specificity controls | [Phase design](flagging-equivariance.md), [independent checks](flagging-equivariance-verification.md) | [520 saved-gain replays](results/gain-tv-equivariance.json), [audit](results/gain-tv-equivariance-audit.json) | [Equivariance](../recipes/tv-flagging-equivariance.yaml) |
 | Native noise-column and partial-Jones support review | [Supported data](flagging-supported-data.md) | [Read-only diagnostics](results/meerkat-supported-data-candidates.json) | Diagnostic regeneration script, not a calibration recipe |
+| Five-track results strategy; four original branches plus corrected imaging retry | [Latest results](flagging-next-summary.md), [frozen plan](flagging-next-results.md) | Five next-* measured archives with individual source/hash receipts | [Stimela2 research graph](../recipes/tv-flagging-next.yaml) |
+| TRAIN-estimated trend-aware full-Jones guidance | [Trend](flagging-trend.md), [verification](flagging-next-trend-verification.md) | [28 replays](results/gain-tv-next-trend.json) | [Trend](../recipes/tv-flagging-trend.yaml) |
+| Prospective local physical confirmation, three cases | [Verification](flagging-next-prospective-verification.md) | [54 actual solves](results/gain-tv-next-prospective.json) | [Prospective](../recipes/tv-flagging-prospective.yaml) |
+| Absolute signal guard and original TRAIN identifiability | [Guard](flagging-next-signal-verification.md), [rank survey](flagging-next-gain-support.md) | [Nine paired solves](results/gain-tv-next-signal.json), [rank map](results/gain-tv-next-gain-support.json) | [Guard](../recipes/tv-flagging-signal-guard.yaml) |
+| Bounded textual native-data provenance recovery | [Verification](flagging-next-provenance-verification.md) | [85 chunks/21 HISTORY rows](results/gain-tv-next-provenance.json) | [Offline provenance](../recipes/tv-flagging-provenance.yaml) |
+| Actual matched dirty-image/PSF and CARACAL diagnostics | [Frozen image protocol](flagging-imaging.md) | [15 corrected inversions](results/gain-tv-next-imaging.json), [retained semantic failure](results/gain-tv-next-imaging-invalid-basis.json) | [Images](../recipes/tv-flagging-imaging.yaml) |
 
 Main findings: the current policies select no added flags on the unmodified
 fixture. Earlier structured search recovers only2.89% of a strong time-burst;

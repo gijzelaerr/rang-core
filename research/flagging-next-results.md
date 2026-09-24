@@ -18,7 +18,7 @@ repeating the63 actual calibrations already completed.
 | Absolute signal-preservation guard | Abstains: one TRAIN bin has rank8 versus required12; no available safety matrix | [558 checks](flagging-next-signal-verification.md) |
 | Prospective candidate confirmation | Matches measured shortlist-union reference in all3cases; one56-cell mask recovers9.40% of known injected patch | [2355 checks](flagging-next-prospective-verification.md) |
 | Public metadata provenance |85chunks,505strings,21HISTORYrows recovered; one CASA split does not certify DATA/noise convention | [657 checks](flagging-next-provenance-verification.md) |
-| Actual images/CARACAL controls | Original parser failure retained;02completes15inversions but fails two spectral-family checks | Corrected fresh03retry/audit pending |
+| Actual images/CARACAL controls | Corrected03completes15inversions; intended-family reference60/120mJy, omitted response49.17/77.57%, complete99.69/98.65% | [419 checks](flagging-next-imaging-verification.md); both prior failures retained |
 
 The first four tracks now have reportable results. Physics forecast error is
 4.5–8.6times lower than a negative-flag-cost-only descriptive control, but raw-TV,
@@ -27,8 +27,8 @@ establish a trend-ranking win, native runtime speedup, independent-observation
 transfer, certified signal-safe policy or superiority to a mature flagger.
 All original DATA/FLAG/FLAG_ROW/model/native noise columns remain protected.
 
-Remaining in this cycle: fresh03corrected-unit-basis dirty inversions, their
-independent numeric/provenance/preservation audit, and the combined checked public handoff. The1–3hour
+This bounded measurement/audit cycle is complete; its
+[combined report](flagging-next-summary.md) separates findings and next gates. The1–3hour
 initial estimate concerns this prototype cycle only. The scientifically larger
 next gate is a representative observation with known noise/model provenance and
 adequately identified TRAIN bins, followed by matched image-quality/cost tests.

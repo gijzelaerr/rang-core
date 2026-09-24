@@ -1,0 +1,1870 @@
+{
+  "schema_version": 1,
+  "source_checkpoint": "e3cab8c5e25899b17c3670cce77ff7517fcad635",
+  "raw_run": "outputs/tv-next-imaging-20260924-03",
+  "raw_result_sha256": "1dd4f4617483296635307c6f3fd32d05165e88788e7f10410969af61c7932838",
+  "raw_result": {
+    "status": "measured dirty-image conditional diagnostics; not deconvolved/blind astronomy",
+    "settings": {
+      "size": [
+        512,
+        512
+      ],
+      "scale_arcsec": 8,
+      "robust": 0.5,
+      "polarization": "I",
+      "channels": [
+        1024,
+        3072
+      ],
+      "gridder": "wstacking",
+      "w_layers": 64,
+      "threads": 1,
+      "niter": 0,
+      "small_inversion": false,
+      "update_model_required": false,
+      "memory_gib": 0.5
+    },
+    "jobs": {
+      "unit-compact": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.7590293339999334,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "588187489934a2ab7601f5117b412d1f1ee9091522b7a8ad2c722f13af803586",
+          "psf": "567babc392f2db5fe46ce68ba23ab2d005af5cabd25e4670e7f7e9c2e87000c0"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 6.040638404770559e-8,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.2011930307931002,
+          "dirty_offsource_std_jy_per_beam": 0.20074888048775086,
+          "peak_abs_jy_per_beam": 0.9908166527748108,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            0.9999999999999991,
+            0
+          ],
+          "unweighted_pixel_MSE_proxy": 3.911254909613814e-32,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": null
+      },
+      "unit-extended": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.4707778350002627,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "270ff6f464fcfbce50a96aa76472bcc6a921b7f8674ff5abb1befd94e3edcfcd",
+          "psf": "cdc00e51164906f375667f1d7828410d488e4f3be953fbc4fdbc0b3b1290469f"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 3.289962854774527e-8,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.1071679346309334,
+          "dirty_offsource_std_jy_per_beam": 0.10438961485365074,
+          "peak_abs_jy_per_beam": 0.47219118475914,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            6.225114040301752e-17,
+            0.9999999999999993
+          ],
+          "unweighted_pixel_MSE_proxy": 5.8931908886792434e-33,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": null
+      },
+      "fixedG0-reference": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.4635844599997654,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "d048bd167abe8be247098fd97fc567f63aac40f9319010c13156e5046ba68b6f",
+          "psf": "d608684c89345d6c36719d6ae9aaf8054b99c25609ce16579c034d0db0eb7444"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 7.574698665260092e-9,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.01750808057322418,
+          "dirty_offsource_std_jy_per_beam": 0.017380761042530973,
+          "peak_abs_jy_per_beam": 0.08573336899280548,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            0.05999999622734481,
+            0.11999999037274386
+          ],
+          "unweighted_pixel_MSE_proxy": 3.456392788402502e-17,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": [
+          1,
+          1
+        ]
+      },
+      "clean-full": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.4633160849998603,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "df49aade3e3c2392ab3eaa4b281ee98d33038226f6fb79a01eb6d6c128d98298",
+          "psf": "b05f8ace6fa2032747eb0dbc7ee6beddb1199e82b86d2a26d61d16a60383ab97"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 9.630299549698861e-7,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 3.2790251449976893,
+          "dirty_offsource_std_jy_per_beam": 3.2014257703199642,
+          "peak_abs_jy_per_beam": 14.955918312072754,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0
+      },
+      "omitted-full": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.4713589600000887,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "1652aaca2953ffef86bf60ad77b7cacd4a4c807fcfe9aaa7fa1c96c68e987ffc",
+          "psf": "86589848ffe3f1ef916000b40a5519c7d2deec76d9d16e974553f2a7f931f763"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 9.674218412009918e-7,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 3.2789780140150615,
+          "dirty_offsource_std_jy_per_beam": 3.2015671943129287,
+          "peak_abs_jy_per_beam": 14.956575393676758,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0
+      },
+      "omitted-total": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.5215800430000854,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "c825899baadf1cfa01003fd05c8fe1f3902aea739b479e3a70d3fe812869a67b",
+          "psf": "28651688fba6f8c92cee597151af88a0d0d9c8f4570fa3bd1a47512b67700036"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 8.653540021087375e-9,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.013039120477034438,
+          "dirty_offsource_std_jy_per_beam": 0.013010958759429089,
+          "peak_abs_jy_per_beam": 0.06296665966510773,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            0.02950019225297284,
+            0.09308026217846489
+          ],
+          "unweighted_pixel_MSE_proxy": 0.0000839852881513308,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": [
+          0.49166990179789744,
+          0.7756689137169017
+        ]
+      },
+      "omitted-direct": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.4974268760001905,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "bb4b3dbfebf16deed7a05aab38e115cb736ff057b489dd9ba79a9cfa9a569d26",
+          "psf": "9baf866f77bfe8a10418ce52c905887313c312d5121e06d2c15740eeb5411322"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 7.632165669457008e-9,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.017517461337936118,
+          "dirty_offsource_std_jy_per_beam": 0.017390228432286013,
+          "peak_abs_jy_per_beam": 0.08584804087877274,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            0.060118732834676655,
+            0.1199857600051119
+          ],
+          "unweighted_pixel_MSE_proxy": 6.19079567955342e-9,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": [
+          1.001978943579962,
+          0.9998814135935531
+        ]
+      },
+      "omitted-adaptation": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.48492833399996,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "5e0513787c0477c8e66e914cbe99f7b497e3f292259ef5af74fa6a8fc5379879",
+          "psf": "132cf9fedaececf02da06147ba90aea2508a987f9a906838be9fe7d7a0691036"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 1.3659389546072839e-8,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.010638183536522459,
+          "dirty_offsource_std_jy_per_beam": 0.010564377595485043,
+          "peak_abs_jy_per_beam": 0.041904088109731674,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            -0.03061854505246109,
+            -0.02690547502576036
+          ],
+          "unweighted_pixel_MSE_proxy": 0.00008413167541395175,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": [
+          -0.5103091162946904,
+          -0.22421230986924748
+        ]
+      },
+      "complete-full": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 4.756464210000104,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "278b6f9d829cd871a74a7599cc7a8693b3631c6b729ee2943cbcc4ca2016e7cc",
+          "psf": "bb575db099dca360bb4a3b3fcdf5157243896bd1607b830bddc090cecb6233de"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 0.0000010333391998914464,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 3.275980040980938,
+          "dirty_offsource_std_jy_per_beam": 3.198764420073157,
+          "peak_abs_jy_per_beam": 14.933271408081055,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0
+      },
+      "complete-total": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 3.067549334999967,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "2e370c03b9b412f5b6c6b13e11e8966b8ec34f9d5a37e0ee3c02c118148f6695",
+          "psf": "b1bdd0eb6a3e116cf29c2dfb1dd486634f428fb0d8b059119713951f83edcf63"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 7.54264650643105e-9,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.017337976371227814,
+          "dirty_offsource_std_jy_per_beam": 0.017214328386119,
+          "peak_abs_jy_per_beam": 0.0854090005159378,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            0.059814931907929386,
+            0.11837967848597766
+          ],
+          "unweighted_pixel_MSE_proxy": 1.479400710291349e-7,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": [
+          0.9969155944824697,
+          0.98649739986034
+        ]
+      },
+      "complete-direct": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.983891208999921,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "0cfc617d9bedab390614add19c347792198f6c1f3350a7ade03eefd0a7c40c6f",
+          "psf": "dab4f3a076df84833f77bedaf7e2d9f597966fa508628e23fd2eb09c84a662e8"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 7.614446790240216e-9,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.01750840116796451,
+          "dirty_offsource_std_jy_per_beam": 0.017381075803249487,
+          "peak_abs_jy_per_beam": 0.08573727309703827,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            0.0600021156038755,
+            0.12000210669052978
+          ],
+          "unweighted_pixel_MSE_proxy": 5.9460590900880184e-12,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": [
+          1.0000353229443992,
+          1.0000176359829642
+        ]
+      },
+      "complete-adaptation": {
+        "role": "response",
+        "seconds_emulated_not_native_benchmark": 2.7922906260000673,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "10e318de887f204b1e876fb1c99fa813eae7e5f2e260b31b6a5af4baec9f0c64",
+          "psf": "2c3fedc6abf66ea9bdcade63d9627d6a222eb8b66e00375b8fe72bd1dd48075d"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 1.8321134203283048e-9,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 0.00046632759611540676,
+          "dirty_offsource_std_jy_per_beam": 0.00046454642484622274,
+          "peak_abs_jy_per_beam": 0.0014017776120454073,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0,
+        "known_family_dirty_fit": {
+          "available": true,
+          "rank": 2,
+          "condition": 1.9956140747797597,
+          "coefficients_jy": [
+            -0.0001871853935383409,
+            -0.00162241956109913
+          ],
+          "unweighted_pixel_MSE_proxy": 1.480625713495668e-7,
+          "pixel_count": 262144,
+          "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+          "blind_flux_or_morphology_recovery": false
+        },
+        "conditional_response_vs_fixedG0": [
+          -0.0031197567551351233,
+          -0.01352016409384344
+        ]
+      },
+      "caracal-no-change": {
+        "role": "caracal",
+        "seconds_emulated_not_native_benchmark": 4.816685585999949,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "cc512d6acd55ae66357de09a10209bbd0c63e604a2fbe99b05a20cd8d460790c",
+          "psf": "5640302578e276ca93935b204b64320f99192b7c9b36590a468e0664d3147f26"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 9.630299549698861e-7,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 3.2790251449976893,
+          "dirty_offsource_std_jy_per_beam": 3.2014257703199642,
+          "peak_abs_jy_per_beam": 14.955918312072754,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 0,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0
+      },
+      "caracal-mild": {
+        "role": "caracal",
+        "seconds_emulated_not_native_benchmark": 2.7521773769999527,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.249046110330294,
+            "BMIN": 0.0803389183755054,
+            "BPA": 97.2850384196997,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 975612.123630524,
+            "WSCNVIS": 9169
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "6116d1db56d845d9870cac49f42eba63fe76f4fc4b983385c2104d7d0bd883ab",
+          "psf": "e960dac2bf6fc2995098671786c237d9c19ee01aad5c8a2e691144d596f59b87"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 0.0000010008926334229277,
+          "logical_support_count": 9169,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 0,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 3.2799795275053047,
+          "dirty_offsource_std_jy_per_beam": 3.202486732870888,
+          "peak_abs_jy_per_beam": 14.959480285644531,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 662,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0
+      },
+      "caracal-firstpass-rejected": {
+        "role": "caracal",
+        "seconds_emulated_not_native_benchmark": 2.844447917999787,
+        "headers": {
+          "dirty": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.253812439197672,
+            "BMIN": 0.0799286774369718,
+            "BPA": 97.2108821621304,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 799756.401378632,
+            "WSCNVIS": 7812
+          },
+          "psf": {
+            "BITPIX": -32,
+            "BUNIT": "JY/BEAM",
+            "CRPIX1": 257,
+            "CRPIX2": 257,
+            "CRVAL1": -65.1457083333333,
+            "CRVAL2": -63.7126666666667,
+            "CDELT1": -0.00222222222222222,
+            "CDELT2": 0.00222222222222222,
+            "CTYPE1": "RA---SIN",
+            "CTYPE2": "DEC--SIN",
+            "BMAJ": 0.253812439197672,
+            "BMIN": 0.0799286774369718,
+            "BPA": 97.2108821621304,
+            "WSCVERSI": "3.6",
+            "WSCNWLAY": 64,
+            "WSCDATAC": "CORRECTED_DATA",
+            "WSCWEIGH": "Briggs'(0.5)",
+            "WSCNITER": 0,
+            "WSCVWSUM": 799756.401378632,
+            "WSCNVIS": 7812
+          }
+        },
+        "image_geometry": {
+          "CRPIX1": 257,
+          "CRPIX2": 257,
+          "CRVAL1": -65.1457083333333,
+          "CRVAL2": -63.7126666666667,
+          "CDELT1": -0.00222222222222222,
+          "CDELT2": 0.00222222222222222,
+          "CTYPE1": "RA---SIN",
+          "CTYPE2": "DEC--SIN"
+        },
+        "FITS_sha256": {
+          "dirty": "e61353eb100815fea4bb64126b817316519324fc482f0bf99fc0571506dc2fab",
+          "psf": "11a16857425dddfa96087d63fd42a02f5650060b620ca687b18aada12ed3bda0"
+        },
+        "column_audit": {
+          "CORRECTED_DATA_dtype": "complex64",
+          "wide_to_native_max_rounding_jy": 0.0000018683193014017348,
+          "logical_support_count": 7812,
+          "native_StokesI_weight": "WSClean minimum native XX/YY WEIGHT_SPECTRUM; no replacement/propagation",
+          "flags_exact_diagnostic_mask": true,
+          "original_flags_rows_preserved": true
+        },
+        "native_columns_exact": {
+          "DATA": true,
+          "RANG_MODEL_DATA": true,
+          "WEIGHT": true,
+          "WEIGHT_SPECTRUM": true,
+          "SIGMA": true,
+          "SIGMA_SPECTRUM": true,
+          "written_CORRECTED_DATA": true,
+          "written_FLAG": true,
+          "written_FLAG_ROW": true
+        },
+        "unsupported_original_TEST_samples": 1357,
+        "diagnostics": {
+          "fixed_offsource_pixels": 146406,
+          "dirty_offsource_RMS_jy_per_beam": 3.2640419965947536,
+          "dirty_offsource_std_jy_per_beam": 3.1728359019204753,
+          "peak_abs_jy_per_beam": 14.725555419921875,
+          "RMS_role": "fixed-region dirty diagnostic; includes PSF sidelobes/real sky, not independent thermal noise"
+        },
+        "training_additions": 26692,
+        "selected_for_policy_or_deployment": false,
+        "PSF_linf_difference_vs_fixedG0": 0.07469786703586578
+      }
+    },
+    "reference_fit": {
+      "available": true,
+      "rank": 2,
+      "condition": 1.9956140747797597,
+      "coefficients_jy": [
+        0.05999999622734481,
+        0.11999999037274386
+      ],
+      "unweighted_pixel_MSE_proxy": 3.456392788402502e-17,
+      "pixel_count": 262144,
+      "confidence_intervals": "not claimed: correlated dirty pixels, shared DATA/gains, known family",
+      "blind_flux_or_morphology_recovery": false
+    },
+    "precast_visibility_closures_jy": {
+      "omitted": 1.0190870734198196e-14,
+      "complete": 1.0278795058476803e-14
+    },
+    "dirty_image_closures_jy_per_beam": {
+      "omitted": 3.5390257835388184e-8,
+      "complete": 3.809691406786442e-8
+    },
+    "source_unchanged": true,
+    "runtime_unchanged": true,
+    "tool_unchanged": true,
+    "whole_MS_backups_unchanged": true,
+    "whole_MS_backup_digests": {
+      "response": "142f70be1eda1527f76303c7819b9357c35606749ccd2450a6470191a6d86d16",
+      "caracal": "5b632814cf99e49fcdbef109c7d0980ba39fbb06ecaf0e556c6df5acd019b7f9"
+    },
+    "actual_WSClean_inversions": 15,
+    "new_QC_solves": 0,
+    "policy_selection": false,
+    "exported_or_deployable_MS": false,
+    "allocated_bytes_before_final_result": 335060992,
+    "limitations": [
+      "one four-antenna112s pointing scan, sparse broadPSF, not representative imaging",
+      "dirty known-family fits, no deconvolution/blind detection/astrophysical flux or shape/CI",
+      "native original weights fixed; post-Jones covariance not optimal/validated",
+      "complete savedQCsky uses truth; templates/TEST are evaluation only, no mask selection",
+      "CARACAL rejected control loses support/differentPSF; native flagger saw holdout features; not fullpipeline or winner comparison",
+      "diagnostic copies retain frozen additional support flags/CORRECTED_DATA; original MSs remain unchanged",
+      "emulated WSClean walltimes not native/end-to-end/SOTA cost benchmark"
+    ]
+  },
+  "configuration_sha256": "f299349fcb851b606446156615d1d6fcfd66fe82cd333828293da70cc5194de1",
+  "configuration_projection": {
+    "settings": {
+      "size": [
+        512,
+        512
+      ],
+      "scale_arcsec": 8,
+      "robust": 0.5,
+      "polarization": "I",
+      "channels": [
+        1024,
+        3072
+      ],
+      "gridder": "wstacking",
+      "w_layers": 64,
+      "threads": 1,
+      "niter": 0,
+      "small_inversion": false,
+      "update_model_required": false,
+      "memory_gib": 0.5
+    },
+    "source_hashes": {
+      "response": "bce25d2ef8db8b840c0eaac20df8f259f2ef2014a608f087d30db4028e1999ce",
+      "caracal": "93c771d2cd628332bfeeeb482a848163776864657ff5b0b0b3a9bdfbc339ec4b"
+    },
+    "sources": {
+      "response": "/workspace/outputs/tv-response-20260924-precision-01",
+      "caracal": "/workspace/outputs/tv-caracal-clean-01"
+    },
+    "boundaries": {
+      "clean": {
+        "validated": true,
+        "actual_scope": {
+          "telescope": "MeerKAT",
+          "band": "L",
+          "frequency_range_mhz": [
+            856,
+            1711.791015625
+          ]
+        },
+        "original_flags_and_rows_match": true,
+        "original_and_work_native_weights_match": true,
+        "work_data_matches_state": true,
+        "work_model_matches_state": true,
+        "model_scalar_unpolarized": true,
+        "split_masks_disjoint_and_eligible": true,
+        "split_counts": {
+          "train": 73720,
+          "validation": 9115,
+          "test": 9169
+        },
+        "working_data_differs_from_original": false,
+        "manifest_channels_and_split_counts_match": true,
+        "positive_gain_intervals_validated": true,
+        "original_copy_digest_verified": true,
+        "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+      },
+      "positive": {
+        "validated": true,
+        "actual_scope": {
+          "telescope": "MeerKAT",
+          "band": "L",
+          "frequency_range_mhz": [
+            856,
+            1711.791015625
+          ]
+        },
+        "original_flags_and_rows_match": true,
+        "original_and_work_native_weights_match": true,
+        "work_data_matches_state": true,
+        "work_model_matches_state": true,
+        "model_scalar_unpolarized": true,
+        "split_masks_disjoint_and_eligible": true,
+        "split_counts": {
+          "train": 73720,
+          "validation": 9115,
+          "test": 9169
+        },
+        "working_data_differs_from_original": true,
+        "manifest_channels_and_split_counts_match": true,
+        "positive_gain_intervals_validated": true,
+        "original_copy_digest_verified": true,
+        "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+      },
+      "caracal": {
+        "validated": true,
+        "actual_scope": {
+          "telescope": "MeerKAT",
+          "band": "L",
+          "frequency_range_mhz": [
+            856,
+            1711.791015625
+          ]
+        },
+        "original_flags_and_rows_match": true,
+        "original_and_work_native_weights_match": true,
+        "work_data_matches_state": true,
+        "work_model_matches_state": true,
+        "model_scalar_unpolarized": true,
+        "split_masks_disjoint_and_eligible": true,
+        "split_counts": {
+          "train": 73720,
+          "validation": 9115,
+          "test": 9169
+        },
+        "working_data_differs_from_original": false,
+        "manifest_channels_and_split_counts_match": true,
+        "positive_gain_intervals_validated": true,
+        "original_copy_digest_verified": true,
+        "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+      }
+    },
+    "runtime_receipts": {
+      "rangtoy.flagging_imaging": {
+        "path": "/workspace/python/rangtoy/flagging_imaging.py",
+        "sha256": "a57560ebe771e55bf1d224bda5f5d64722f715ed8ab81c1285b44020e8c86488"
+      },
+      "rangtoy": {
+        "path": "/workspace/python/rangtoy/__init__.py",
+        "sha256": "e8bb5fe523aa5cb0be4f0c31d012876f3f9fe06a6cf005cc4d3928aca8e65c23"
+      },
+      "rangtoy.flagging": {
+        "path": "/workspace/python/rangtoy/flagging.py",
+        "sha256": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba"
+      },
+      "rangtoy.flagging_prepared": {
+        "path": "/workspace/python/rangtoy/flagging_prepared.py",
+        "sha256": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab"
+      },
+      "rangtoy.flagging_workflow": {
+        "path": "/workspace/python/rangtoy/flagging_workflow.py",
+        "sha256": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a"
+      }
+    },
+    "tool": {
+      "manifest_sha256": "de9be2c0562412103ef099ca579b120d5db361eb62e5babd44068dac395d1f0a",
+      "version_stdout": "\nWSClean version 3.6 (2025-02-07)\nGit commit hash: not available\nThis software package is released under the GPL version 3.\nAuthor: André Offringa (offringa@gmail.com).\n\nWGridder is available.\n"
+    },
+    "parser_preflight": {
+      "command": [
+        "/usr/bin/wsclean",
+        "-dry-run",
+        "-name",
+        "/tmp/rang-imaging-parser-only",
+        "-size",
+        "512",
+        "512",
+        "-scale",
+        "8asec",
+        "-weight",
+        "briggs",
+        "0.5",
+        "-pol",
+        "I",
+        "-channel-range",
+        "1024",
+        "3072",
+        "-field",
+        "0",
+        "-data-column",
+        "CORRECTED_DATA",
+        "-gridder",
+        "wstacking",
+        "-wstack-nwlayers",
+        "64",
+        "-j",
+        "1",
+        "-abs-mem",
+        "0.5",
+        "-niter",
+        "0",
+        "-make-psf",
+        "-no-update-model-required",
+        "-no-min-grid-resolution",
+        "-no-reorder",
+        "-temp-dir",
+        "/tmp",
+        "/workspace/outputs/tv-response-20260924-precision-01/clean/work.ms"
+      ],
+      "returncode": 0,
+      "output": "\nWSClean version 3.6 (2025-02-07)\nThis software package is released under the GPL version 3.\nAuthor: André Offringa (offringa@gmail.com).\n\n",
+      "output_sha256": "3aabfb075c8ffc06a0ce5a6c9185a5df5ad6b7383319f6221178ea86362728ab",
+      "dry_run_only": true,
+      "precedes_any_MS_copy_or_write": true
+    },
+    "suite_image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+    "versions": {
+      "numpy": "2.5.3",
+      "astropy": "8.0.1",
+      "python-casacore": "3.8.1"
+    },
+    "fixed_jobs": [
+      "unit-compact",
+      "unit-extended",
+      "fixedG0-reference",
+      "clean-full",
+      "omitted-full",
+      "omitted-total",
+      "omitted-direct",
+      "omitted-adaptation",
+      "complete-full",
+      "complete-total",
+      "complete-direct",
+      "complete-adaptation",
+      "caracal-no-change",
+      "caracal-mild",
+      "caracal-firstpass-rejected"
+    ],
+    "common_TEST_samples": 9169,
+    "image_closure_tolerance_jy_per_beam": 0.000001,
+    "wide_visibility_closure_tolerance_jy": 1e-10,
+    "policy_selection": false,
+    "new_QC_solves": 0,
+    "template_truth_role": "known family evaluation only; complete QC sky already truth-assisted",
+    "budget_bytes": 1610612736,
+    "reserve_bytes": 8589934592,
+    "budget_semantics": "checked allocated blocks/reservations, not OS quota"
+  },
+  "configuration_projection_definition": "Exact frozen configuration omitting only tool.package_manifest; full signed package manifest is retained in gain-tv-next-runtime.json and hashed raw configuration.",
+  "figure": "research/figures/gain-tv-dirty-response.png",
+  "figure_sha256": "8e2951efabeefb8c84e4d76407ee77df24b3a0702c41e18dc1e6efe068de9c40",
+  "retained_first_failure": {
+    "run": "outputs/tv-next-20260924-01/experiments/imaging",
+    "failure": "CLI incompatible option; zero FITS.",
+    "log_sha256": "7b7a887a3897eeea9807506156e94fd81ddec68f64be1e6c352de616e048d738",
+    "independent_boundary_checks": 23
+  },
+  "retained_second_failure": {
+    "archive": "research/results/gain-tv-next-imaging-invalid-basis.json",
+    "run": "outputs/tv-next-imaging-20260924-02",
+    "failure": "Double spectral law in unit bases;409numeric/preservationPASS,2semanticFAIL; no approved-family certification.",
+    "completed_inversions": 15
+  },
+  "completed_inversions_this_campaign": 30,
+  "distinct_frozen_physical_jobs": 15,
+  "repeat_QC_solves": 0,
+  "independent_verification": "research/flagging-next-imaging-verification.md",
+  "independent_audit": "research/results/gain-tv-next-imaging-audit.json"
+}

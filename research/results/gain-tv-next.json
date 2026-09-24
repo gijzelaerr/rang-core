@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "status": "Completed measured and independently audited bounded five-track prototype; not a certified science flagger or SOTA quality/cost result.",
+  "composition": "Four completed original branches plus a separately fresh corrected imaging retry. This is a checked evidence index, not an actual successful original master gather.",
+  "original_master": {
+    "run": "outputs/tv-next-20260924-01",
+    "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+    "finished_UTC": "2026-09-24 09:56:33 UTC",
+    "exit_code": 1,
+    "completed_branches": 4,
+    "total_branches": 5,
+    "result_or_gather_exists": false,
+    "configuration_sha256": "33d65b2f4287465489697b7b14efe9c098437de3167a27e7226654bfc0227504"
+  },
+  "imaging_retry": {
+    "run": "outputs/tv-next-imaging-20260924-03",
+    "source_checkpoint": "e3cab8c5e25899b17c3670cce77ff7517fcad635",
+    "finished_UTC": "2026-09-24 10:16:45 UTC",
+    "exit_code": 0,
+    "inversions": 15
+  },
+  "runtime_image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+  "native_library_sha256": "cf61db3728a1bb1e1a8bc66ec738d80a102f636185dd527e11a1f6290c530a84",
+  "tracks": [
+    {
+      "track": "trend",
+      "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+      "raw_run": "outputs/tv-next-20260924-01/experiments/trend",
+      "raw_result_sha256": "3f1666fc944e4748af28194131accba23166093a2411b5e70cf4a7252ca5dbe6",
+      "archive": "research/results/gain-tv-next-trend.json",
+      "archive_sha256": "4b8ed5f671358ef1a279c54b06ab5d54d5c1b02cbcef3a997dae54e35a670b0f",
+      "independent_audit": "research/results/gain-tv-next-trend-audit.json",
+      "independent_audit_sha256": "c9521a93a2cbc5ae1242ce519e048a544473e733442baede88c46f417d22ef6f",
+      "independent_verification": "research/flagging-next-trend-verification.md",
+      "independent_verification_sha256": "c7cee858693bc7fb4801860deaac6d4d7c7cd3aea66168fc302ed0ab99d72e6e",
+      "current_successful_audit_predicates": 562
+    },
+    {
+      "track": "prospective",
+      "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+      "raw_run": "outputs/tv-next-20260924-01/experiments/prospective",
+      "raw_result_sha256": "0eca0828af33324f8779c457f75b27e5e09c96af98613fd0cca3010f6b37206f",
+      "archive": "research/results/gain-tv-next-prospective.json",
+      "archive_sha256": "9b3c96e86fa75cf30bae85b615bf051371fc837ff35ffc673b99d00267c01fa4",
+      "independent_audit": "research/results/gain-tv-next-prospective-audit.json",
+      "independent_audit_sha256": "9958dd4da0458c374759b33853cd1d2cbd9655d7852ad29ee90ad4a993b9073d",
+      "independent_verification": "research/flagging-next-prospective-verification.md",
+      "independent_verification_sha256": "ecbbf98d156260f2ab1de4e976f4d82f09626df0b54a52f2894f602835d8e76e",
+      "current_successful_audit_predicates": 2355
+    },
+    {
+      "track": "signal",
+      "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+      "raw_run": "outputs/tv-next-20260924-01/experiments/signal",
+      "raw_result_sha256": "c6eab4439dbb0f3f47345cd18a41a8fd2a859e92361883b396e87d4af6ffa0e6",
+      "archive": "research/results/gain-tv-next-signal.json",
+      "archive_sha256": "c139338dedaa830c18eefa7fc91a4184383554a7a36e020a85dda0ec9510285e",
+      "independent_audit": "research/results/gain-tv-next-signal-audit.json",
+      "independent_audit_sha256": "540ea876cf909daae985015e95a6bdabc82b154526e79ee90c211ed7c49a3af6",
+      "independent_verification": "research/flagging-next-signal-verification.md",
+      "independent_verification_sha256": "fa1d30956e920f3beaef32dcaaa5a49d370ec703e7bca4cabc7abecbac44688c",
+      "current_successful_audit_predicates": 558
+    },
+    {
+      "track": "provenance",
+      "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+      "raw_run": "outputs/tv-next-20260924-01/experiments/provenance",
+      "raw_result_sha256": "2c67687e7cdb2b51a59b8adf67a43e0f9c513abe449bc435160f4570b6f869ae",
+      "archive": "research/results/gain-tv-next-provenance.json",
+      "archive_sha256": "e2a520be9aa94c6ae22ccffd1ea0064c76f85b4ab3fa13c8116b003f6d625bc1",
+      "independent_audit": "research/results/gain-tv-next-provenance-audit.json",
+      "independent_audit_sha256": "b33cac28f8ba3aa9258bfc47214d3c9fca3933af2f241884fe4bff93bbcf6fa8",
+      "independent_verification": "research/flagging-next-provenance-verification.md",
+      "independent_verification_sha256": "c621e5f26cdf3c230371480fdbfdeeb3c9b70087e14cc496a11dc83d3237984c",
+      "current_successful_audit_predicates": 657
+    },
+    {
+      "track": "imaging",
+      "source_checkpoint": "e3cab8c5e25899b17c3670cce77ff7517fcad635",
+      "raw_run": "outputs/tv-next-imaging-20260924-03",
+      "raw_result_sha256": "1dd4f4617483296635307c6f3fd32d05165e88788e7f10410969af61c7932838",
+      "archive": "research/results/gain-tv-next-imaging.json",
+      "archive_sha256": "43a932a239a48494d1b74fba91249e3755583b7cf62be8e0f1aac8d7d84c4d86",
+      "independent_audit": "research/results/gain-tv-next-imaging-audit.json",
+      "independent_audit_sha256": "4637b2013cfe93e6c7cbf0a0eb825a5dc3885892538380223bbf53c787402dd3",
+      "independent_verification": "research/flagging-next-imaging-verification.md",
+      "independent_verification_sha256": "b9056627d323a71f993a40ecdab002314b90c7ec7f247ad7a354ce3ed7347d4b",
+      "current_successful_audit_predicates": 419
+    }
+  ],
+  "original_sources": {
+    "historical_dir": {
+      "path": "/workspace/outputs/tv-concurrent-20260924-01",
+      "digest": "6adbfb663e85d81fb5a9ca1126f57fd6ea1242858bc898d1205759ff3e13f417"
+    },
+    "response_dir": {
+      "path": "/workspace/outputs/tv-response-20260924-precision-01",
+      "digest": "bce25d2ef8db8b840c0eaac20df8f259f2ef2014a608f087d30db4028e1999ce"
+    },
+    "provenance_dir": {
+      "path": "/workspace/outputs/tv-provenance-acquired-next-20260924-01",
+      "digest": "c6af196221e38094d448e81dc517c83e6c9f365402e29c61755920bb6a827c7d"
+    },
+    "caracal_dir": {
+      "path": "/workspace/outputs/tv-caracal-clean-01",
+      "digest": "93c771d2cd628332bfeeeb482a848163776864657ff5b0b0b3a9bdfbc339ec4b"
+    },
+    "prepared_dir": {
+      "path": "/workspace/outputs/tv-flagging-actions-01",
+      "digest": "8d21dd5ab4ff0d689ee06379fdc5bc00890fcb7c6221beec5d30007e34afba4c"
+    }
+  },
+  "original_sources_independently_rechecked_unchanged": true,
+  "extra_artifacts": {
+    "gain-tv-next-runtime": {
+      "path": "research/results/gain-tv-next-runtime.json",
+      "sha256": "2639cf72a3eaf31de8a28897918cbd76ddeb0d1ca212273bbe36003ded73aa06"
+    },
+    "gain-tv-next-gain-support": {
+      "path": "research/results/gain-tv-next-gain-support.json",
+      "sha256": "8aad8b1fe7df67f9f17499968e1af9441beca4e10f8ab6695a73992ebddd0c33"
+    },
+    "gain-tv-next-imaging-invalid-basis": {
+      "path": "research/results/gain-tv-next-imaging-invalid-basis.json",
+      "sha256": "47ebc3fea0d3bbe8a77f5a38fc901c2d2b7af992f29e384dbdeffbabe05a0317"
+    }
+  },
+  "measurement_accounting": {
+    "new_QuartiCal_solves": 63,
+    "prospective_solves": 54,
+    "signal_solves": 9,
+    "imaging_new_QuartiCal_solves": 0,
+    "completed_WSClean_inversions": 30,
+    "corrected_inversions": 15,
+    "invalid_basis_retained_inversions": 15,
+    "distinct_frozen_physical_image_jobs": 15,
+    "initial_failed_WSClean_CLI_parse_attempts": 1,
+    "audit_extra_QC_or_WSClean_runs": 0,
+    "old_failed_measurements_overwritten": false
+  },
+  "audit_accounting": {
+    "five_current_branch_successful_predicates": 4551,
+    "additional_original_TRAIN_rank_survey_successful_predicates": 1751,
+    "current_branches_plus_rank_survey": 6302,
+    "retained_initial_failed_CLI_preservation_passes": 23,
+    "retained_invalid_basis_numerical_passes": 409,
+    "retained_invalid_basis_semantic_failures": 2,
+    "retained_failures_not_converted_to_PASS": true
+  },
+  "strategy": {
+    "recipe": "recipes/tv-flagging-next.yaml",
+    "launcher": "tools/flagging/run-next.sh",
+    "imaging_only_launcher": "tools/flagging/run-imaging.sh",
+    "TV_is_primary_objective": true,
+    "estimated_trend_only_changes_guidance": true,
+    "original_Observatory_flags_authoritative": true,
+    "source_DATA_model_native_weights_sigma_immutable": true,
+    "exclusive_backups_before_copied_MS_mutations": true,
+    "truth_and_TEST_not_used_for_policy_selection": true,
+    "absolute_signal_guard_abstained": true,
+    "nochange_signal_safety_uncertified": true,
+    "science_flag_export": false,
+    "independent_observation_transfer": false,
+    "mature_method_quality_cost_win": false
+  },
+  "readable_report": "research/flagging-next-summary.md",
+  "limitations": [
+    "Same four-antenna112second real MeerKAT L-band pointing scan, new artificial RFI seeds not independent observations.",
+    "One 56-cell unguarded objective improvement recovers9.40% of a known artificial patch; not general classifier precision.",
+    "Conditionally known-spectrum/source-family dirty-image response, not blind astrophysical flux/morphology/CI or CLEAN quality.",
+    "Physics matches only the measured shortlist-union reference; no larger-family optimum or native speedup.",
+    "Single underidentified two-cell TRAINbin blocks present full-domain signal certificate; rank repair alone cannot establish sky adequacy.",
+    "Recovered public CASA split history does not justify native-sigma calibration or safe MS conversion.",
+    "CARACAL rejected firstpass changes gain support/PSF and exceeds flag budget; native flagger saw holdout features."
+  ]
+}

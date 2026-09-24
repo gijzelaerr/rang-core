@@ -7,6 +7,30 @@ state-of-the-art flagger. The seven development cases reuse one four-antenna
 MeerKAT L-band pointing scan. Every original/received Observatory flag and
 native DATA/weight/SIGMA column remains authoritative and protected.
 
+## Latest prospective, specificity and image-domain evidence
+
+The [five-track measured report](flagging-next-summary.md) now extends these
+earlier results: estimated TRAIN scalar-trend removal preserves all21added-phase
+rank comparisons; a frozen physical forecast matches measured shortlist-union
+choices in all3fresh cases; corrected known-family dirty-image response is
+49.17%/77.57% with omitted sky versus99.69%/98.65% with complete diagnostic sky.
+All original Observatory flags/native columns and recoverable backups remain
+protected. The single56-cell objective win is not a certified science mask.
+
+The absolute TRAIN signal guard abstains at one two-cell underidentified bin.
+A [separate complete rank survey](flagging-next-gain-support.md) shows that
+99.997287% of TRAINcells meet its unchanged rank criterion; dropping the two
+remaining cells posthoc is not authorized and identification would not by
+itself solve signal absorption. Bounded provenance recovers one CASA split
+but leaves public native noise/model gates unresolved. Both initial CLI failure
+and second-run double-spectrum semantic failure remain explicitly retained;
+fresh corrected03reuses saved gains, with no additional calibration solves.
+
+This is promising prototype evidence for conservative physical triage plus
+actual QC confirmation and science/support safeguards, not mature-method
+quality/cost novelty. The final [Stimela2 research strategy](../recipes/tv-flagging-next.yaml)
+is an isolated five-track experiment, not a production-certified flag exporter.
+
 ## A local physical surrogate predicts more than the flag cost
 
 The TRAIN-only full-Jones deletion-response model forecasts the actual
@@ -64,8 +88,11 @@ cannot by itself distinguish legitimate instrumental structure from RFI.
 This is an exact saved-gain transformation, not a rerun of finite-iteration
 QuartiCal from identity initialization on transformed DATA; solver equivariance
 has not been measured.
-Estimated trend removal or curvature guidance requires a new frozen experiment;
-the known phases in this diagnostic are not available to a real selector.
+At this earlier checkpoint estimated trend removal required new frozen work;
+that [TRAIN-estimated specificity experiment](flagging-next-trend-verification.md)
+now completes. The known phases in the earlier diagnostic are not used by its
+estimator. Arbitrary Jones/beam and finite-iteration solver invariance remain
+unmeasured.
 
 ## Native data support and noise provenance are separate gates
 
@@ -83,8 +110,10 @@ counterexample changes canonical TV without changing either measured hand.
 See [native support and gauge review](flagging-supported-data.md), its
 [reproducible diagnostics](../examples/diagnose_native_support.py), and the
 [bounded textual provenance design](flagging-supported-provenance-plan.md).
-The latter is design only: no object unpickling, metadata acquisition or native
-MS conversion has been performed under that plan.
+That plan was design-only at this checkpoint; the later
+[bounded inert-text extraction](flagging-next-provenance-verification.md)
+now completes. No object unpickling/native MS conversion has been performed;
+DATA/noise provenance remains insufficient for the proposed sigma protocol.
 
 ## A smoother solve can still absorb a real sky perturbation
 

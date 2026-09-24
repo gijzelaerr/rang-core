@@ -1,5 +1,62 @@
 # Rang research state
 
+FINAL CHECKED PUBLICATION READY2026-09-24 10:24UTC:
+654Python(no skips)/19RustPASS,releasebuild/Clippy-Dwarnings/cargoformat,
+fullrepoRufflint+format,91Pythoncompiles/62strictJSONarchives,
+10embedded auditprogramSHA+compile checks,6exactrawprojections,
+combinedarchive everylinkedarchive/audit/reportSHA exact, figureSHA and full
+gain-supportsurveyartifact exact; allshellsyntax+working/stagedwhitespace gate.
+Historical123action/native13helper/signal-transfer-public archive checksPASS.
+Rootreadonlyverification confirms all5original source trees unchanged and
+original master result stillabsent; currentcorrectedtopStimela2dryrunPASS.
+Allruntimecode/testfiles unchanged since e3cab8c, allowned reports frozen.
+Final prepublicationbackup:
+`outputs/flagging-backups/20260924-five-track-final-audited/code.tar.gz`,
+SHA256`5cd0be66f706e6201510bfb83e22054bec1cb012a1346dea9fc934b2058b4197`.
+72GiBfree/8GiBreserve, nocleanup. Publish combined measuredindex
+`research/results/gain-tv-next.json` +readable report/figure/recipe handoff
+under Gijs/gmailidentity; noagent/coauthor/generated attribution.
+
+ALLFIVE MEASURED+INDEPENDENTLYAUDITED~10:20UTC. Readable finalhandoff:
+`research/flagging-next-summary.md`, plan`flagging-next-results.md`, indexed
+README/findings and explicitStimela2 researchrecipe`recipes/tv-flagging-next.yaml`.
+Originalmaster4/5exit1/noresult remains; final summary composes fouroldbranches
++fresh03exit0,neverclaimsoriginalgather. Image03independent419/419PASS incl
+independentnativeUVW/Fourier/Gaussian/spectral-oracle/exactonceunitpayload.
+Prior02audit409numericPASS+2semanticFAIL and initial23preservationPASS retained
+separately. Fourotheraudits562trend/2355prospective/558signal/657provenancePASS;
+separateall-binrank1751PASS. No extraQC;63newQC+30completedWSCinversions of
+15distinctphysicaljobs(15invalidbasis02+15correct03)+oneCLIparsefailzeroFITS.
+No novelSOTA/nativecost/independenttransfer/certifiedflaggerclaim. Absolute
+signalguardabstains;56maskonlyunguardedobjective/knowninjectiondiagnostic.
+Nextgates: prospectivelyfrozen support-awaregrid+modelcontrols, independently
+observed supported/provenancedMeerKATLbanddata, matchednativeimage/costvsSOTA.
+Finalfullchecks+strictcombinedreceiptverification/stagedwhitespace/publicpush
+follow after owned finalimageaudit/reportfiles arefrozen. Runtimecodeunchanged
+sincee3cab8c. Current73GiBfree,8GiBreserve;nofilesdeleted.
+
+CORRECTED03IMAGINGCOMPLETE10:16:45UTC/sourcee3cab8c:
+rawoutputs/tv-next-imaging-20260924-03,15inversions/0QC,64secondsStimela.
+RawresultSHA`1dd4f4617483296635307c6f3fd32d05165e88788e7f10410969af61c7932838`.
+Referencefit59.999996/119.999990mJy/pixelMSE3.46e-17 matchesintendedfamily.
+Omittedpairedknown-template dirtyresponse49.17/77.57%, complete99.69/98.65%;
+same9169TEST/PSFs/nativeweights; imageclosure3.81e-8<unchanged1e-6.
+AllinternalpreservationchecksPASS; independent03semantic+numeric auditpending.
+30completedWSCleaninversions of15frozenphysicaljobs(15failedfamily02+15fresh03),
+oneinitialCLIparsefailure/zeroFITS,63actualnewQC unchanged. PublicfigPNG is
+identical02/03(itshowsnonunitpairedimages,notbasisfits),SHA8e2951... recorded.
+Final mainreadablehandoff research/flagging-next-summary.md; commonarchive and
+finalcheckedpublicpush follow independentimageaudit, no oldmastergathercreated.
+
+Readonly gain-supportsurvey COMPLETE/frozen:1751/1751PASS,all3cases287/288
+TRAIN-supportedbinsidentified (608no-data),73718/73720TRAINcells99.997287%.
+Only2cells/bin811one0–2edgeunderidentifiedrank8required12. No cell discard,
+grid/gauge/threshold change or QC. Exactcode/command/nativecf61/sourcehashes
+andall864nativecrosschecks archived in gain-tv-next-gain-support.json; report
+flagging-next-gain-support.md. This quantifiesfirstcertificateobstacleonly;
+fixingrankswouldnotproveabsoluteTnearidentityorskyadequacy.
+Currentpublicsourcee3cab8c(actual03currentlyrunning), raw02retainedsemanticFAIL.
+
 Corrected unit-spectrum source checkpoint fullchecksPASS~10:15UTC:
 654Python(no skips),19Rust,release/Clippy/cargoformat,fullrepoRufflint+format,
 91Pythoncompiles,59strictJSONarchives,5exactrawprojections(including02FAIL),

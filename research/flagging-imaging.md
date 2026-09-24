@@ -119,4 +119,43 @@ completion. Emulated walltimes are not a native/end-to-end cost benchmark.
 [Stimela2 recipe](../recipes/tv-flagging-imaging.yaml). Root provides wrapper,
 small image build, actual launch, compact result curation and checked pushes.
 Pure correction/flag/fit/precision/resource tests do not establish image gains.
-Status remains unmeasured until a fresh result plus independent audits exists.
+The final corrected03 run is measured and independently verified below.
+
+## Corrected matched-template measurement
+
+Checked fix source`e3cab8c5e25899b17c3670cce77ff7517fcad635`; completed
+`outputs/tv-next-imaging-20260924-03/result.json` SHA256
+`1dd4f4617483296635307c6f3fd32d05165e88788e7f10410969af61c7932838`.
+[Independent verification](flagging-next-imaging-verification.md) passed419/419,
+including independently reconstructed already-spectral source arrays and exact-
+once native unit payloads. [Full audit](results/gain-tv-next-imaging-audit.json)
+separately retains the initial23 preservation checks and invalid02's409 passing
+numerical plus two FAILED semantic predicates; those failures are not erased.
+
+FixedG0 dirty-template coefficients are59.999996/119.999990mJy with rank2,
+condition1.99561 and pixel-MSE proxy3.45639e-17. Fractions below are relative to
+that fixed reference, not blindly estimated source fluxes:
+
+| Saved fine-gain control | Compact paired response | Extended paired response |
+|---|---:|---:|
+| Omitted-sky total | 49.167% | 77.567% |
+| Omitted-sky direct | 100.198% | 99.988% |
+| Omitted-sky adaptation | −51.031% | −22.421% |
+| Complete-sky diagnostic total | 99.692% | 98.650% |
+| Complete-sky diagnostic adaptation | −0.312% | −1.352% |
+
+Image decomposition closure maxima3.53903e-8/3.80969e-8Jy/beam pass the frozen
+1e-6 threshold; precast visibility closure is about1.02e-14Jy. All response jobs
+and no-change/mild CARACAL controls keep9,169 TEST cells and identicalPSF,
+fitted14.94277′×4.82034′ (PA97.28504°). Rejected CARACAL firstpass loses1,357
+cells and changesPSF by0.07469787, so its lower dirty RMS is not a matched win.
+Mild dirty offsource RMS3.27997953 versus no-change3.27902514Jy/beam is no
+sensitivity improvement. These full-data sky/sidelobe RMS values are not noise.
+
+There were30 completed inversions across retained02 and corrected03, one initial
+CLI parse failure, zero imaging QC re-solves and zero policy selection. The
+matched known-family response is an actual image-domain mechanism diagnostic,
+not blind detection/morphology/flux/CI, independent-observation validation or
+SOTA matched accuracy/cost evidence. Complete sky uses truth, unchanged native
+weights are not optimal post-Jones covariance, and sparse four-antenna112s data
+do not establish representative imaging quality or deployability.
