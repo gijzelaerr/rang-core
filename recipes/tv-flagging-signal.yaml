@@ -1,0 +1,42 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-science-signal:
+    flavour: python
+    command: rangtoy.flagging_signal.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      iterations: {dtype: int, default: 50}
+      max_fraction: {dtype: float, default: 0.02}
+      include_native: {dtype: bool, default: false}
+      mild_strategy: {dtype: File}
+
+tv-flagging-signal:
+  info: Paired DI-gain-corrupted faint compact/Gaussian science-signal template response under identical calibration/flag masks; not imaging validation.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    iterations: {dtype: int, default: 50}
+    max-fraction: {dtype: float, default: 0.02}
+    include-native: {dtype: bool, default: false}
+    mild-strategy: {dtype: File}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    frozen-selections: {dtype: File, implicit: '{recipe.run-dir}/frozen-selections.json', path_policies: {mkdir_parent: false}}
+    source-injection: {dtype: File, implicit: '{recipe.run-dir}/signal-injection.json', path_policies: {mkdir_parent: false}}
+    audit: {dtype: File, implicit: '{recipe.run-dir}/signal-audit.json', path_policies: {mkdir_parent: false}}
+  steps:
+    measure:
+      cab: rang-science-signal
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        iterations: =recipe.iterations
+        max_fraction: =recipe.max-fraction
+        include_native: =recipe.include-native
+        mild_strategy: =IFSET(recipe.mild-strategy)
+
+DEFAULT: tv-flagging-signal

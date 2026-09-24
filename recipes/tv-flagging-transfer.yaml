@@ -1,0 +1,23 @@
+# Grouped fitted predictor; actual labels must already have guarded QC outcomes.
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+cabs:
+  rang-gain-tv-transfer:
+    flavour: python
+    command: rangtoy.flagging_transfer.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      cases_path: {dtype: File, required: true}
+tv-flagging-transfer:
+  info: Fit guarded objective benefit on case-held-out actual counterfactual outcomes without MS writes.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    cases-path: {dtype: File, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    fit:
+      cab: rang-gain-tv-transfer
+      params: {run_dir: =recipe.run-dir, cases_path: =recipe.cases-path}
+DEFAULT: tv-flagging-transfer

@@ -1,0 +1,500 @@
+{
+  "kind": "bounded public numeric acquisition; offline full inspection not run yet",
+  "acquired_run": "outputs/tv-public-acquired-20260924-01",
+  "base": "https://ratt-public-data.s3.af-south-1.amazonaws.com/ESO137/ms1_primary.zarr",
+  "started_utc": "2026-09-24T06:59:36.920124+00:00",
+  "finished_utc": "2026-09-24T07:01:07.693415+00:00",
+  "metadata_sha256": "68fdb7f4f5f9392181bf645bd8e792e4dd96bd9857ad6489091b441adc59bbaa",
+  "groups": [
+    0,
+    1
+  ],
+  "native_channels": [
+    1024,
+    1152
+  ],
+  "compressed_bytes": 884609513,
+  "objects": [
+    {
+      "key": "MAIN/MAIN_0/ANTENNA1/0",
+      "bytes": 1466,
+      "sha256": "ff2f91af97381ca5f3a1efaca7cd90e1b4776c61f390ac2455d407f6e75c77ea",
+      "etag": "\"30faed7239817ae9e52d643028486ff6\""
+    },
+    {
+      "key": "MAIN/MAIN_0/ANTENNA2/0",
+      "bytes": 1383,
+      "sha256": "79976e2ae36c303c5948fce1539d59ff882f5d287b5ca4b2f5c7a45509758989",
+      "etag": "\"a4594acea761b9dec2da6499719de761\""
+    },
+    {
+      "key": "MAIN/MAIN_0/ARRAY_ID/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_0/DATA/0.8.0",
+      "bytes": 187044408,
+      "sha256": "bcce45e3f1d8cf9524fbaa7ba78020dbe7ec88275cefce59f6b76a548ec3305e",
+      "etag": "\"f3738eb8ebf6513ea2a0416023b38bf3\""
+    },
+    {
+      "key": "MAIN/MAIN_0/EXPOSURE/0",
+      "bytes": 1700,
+      "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698",
+      "etag": "\"4390454535fb726bbacb4d32bf5979d4\""
+    },
+    {
+      "key": "MAIN/MAIN_0/FEED1/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_0/FEED2/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_0/FLAG/0.8.0",
+      "bytes": 3809921,
+      "sha256": "b2e08ae0b13f5cf883374e9d854ac8b7820f4e9cdf2deb69a23373fccb8b206f",
+      "etag": "\"14401f9ef274964a5a48bd4aed52cee7\""
+    },
+    {
+      "key": "MAIN/MAIN_0/FLAG_ROW/0",
+      "bytes": 2447,
+      "sha256": "4a6a49a0d7e1f19b4d9b3031cec4ef17ab8cac164b015f2b781bde67ea7bd3f1",
+      "etag": "\"81ac68923031c6770e039dbad6ed3b7a\""
+    },
+    {
+      "key": "MAIN/MAIN_0/INTERVAL/0",
+      "bytes": 1700,
+      "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698",
+      "etag": "\"4390454535fb726bbacb4d32bf5979d4\""
+    },
+    {
+      "key": "MAIN/MAIN_0/MODEL_DATA/0.8.0",
+      "bytes": 104219968,
+      "sha256": "3d25394071785078660b68ec00c4d252844aeb52add1f73f9163ceab586efb61",
+      "etag": "\"0b8335d0089375b20070b6d660c9c6c7\""
+    },
+    {
+      "key": "MAIN/MAIN_0/OBSERVATION_ID/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_0/PROCESSOR_ID/0",
+      "bytes": 860,
+      "sha256": "1410f3be236195d98528b1aafdf070d1047466991d260030e9284089c884f9a4",
+      "etag": "\"b182ba177e67216b1879da589ca9a1ec\""
+    },
+    {
+      "key": "MAIN/MAIN_0/SIGMA/0.0",
+      "bytes": 3241,
+      "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8",
+      "etag": "\"a406dffd205376597a26d8fc1cede379\""
+    },
+    {
+      "key": "MAIN/MAIN_0/SIGMA_SPECTRUM/0.8.0",
+      "bytes": 72249382,
+      "sha256": "8f6f348cad866383c5cc2467118b4d761dcf127bfb9f0721a49df7d4407a210c",
+      "etag": "\"6c92ac666fe06250c864760e6647c4fd\""
+    },
+    {
+      "key": "MAIN/MAIN_0/STATE_ID/0",
+      "bytes": 860,
+      "sha256": "1abafc514a1281865ce6b775bfafc6812de4e78d61ccf92dd436e4e6280508e5",
+      "etag": "\"4a7853aee867729ea74fc49b292caf5e\""
+    },
+    {
+      "key": "MAIN/MAIN_0/TIME/0",
+      "bytes": 2033,
+      "sha256": "9d0e19a3ceb477b3f0f7428ca68ff1bb5e49c3ac0ba193bd60a6b0cf37778e46",
+      "etag": "\"f004295da4250c99d2b028296f08dbcc\""
+    },
+    {
+      "key": "MAIN/MAIN_0/TIME_CENTROID/0",
+      "bytes": 2033,
+      "sha256": "9d0e19a3ceb477b3f0f7428ca68ff1bb5e49c3ac0ba193bd60a6b0cf37778e46",
+      "etag": "\"f004295da4250c99d2b028296f08dbcc\""
+    },
+    {
+      "key": "MAIN/MAIN_0/UVW/0.0",
+      "bytes": 944687,
+      "sha256": "2b82130459b4e3513f2e64a1cd5a8cc466c9d21293a058213ec526a687b50a9c",
+      "etag": "\"634325efe397dc9125c1779fb948cf9b\""
+    },
+    {
+      "key": "MAIN/MAIN_0/WEIGHT/0.0",
+      "bytes": 3241,
+      "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8",
+      "etag": "\"a406dffd205376597a26d8fc1cede379\""
+    },
+    {
+      "key": "MAIN/MAIN_0/WEIGHT_SPECTRUM/0.8.0",
+      "bytes": 75573142,
+      "sha256": "658c0d3b0d73d09742be3524bd3c0c9197a6d84f087f7f7cb0659c6c86417031",
+      "etag": "\"2a1f0960048ead38dd2824353a9c914e\""
+    },
+    {
+      "key": "MAIN/MAIN_1/ANTENNA1/0",
+      "bytes": 1466,
+      "sha256": "ff2f91af97381ca5f3a1efaca7cd90e1b4776c61f390ac2455d407f6e75c77ea",
+      "etag": "\"30faed7239817ae9e52d643028486ff6\""
+    },
+    {
+      "key": "MAIN/MAIN_1/ANTENNA2/0",
+      "bytes": 1383,
+      "sha256": "79976e2ae36c303c5948fce1539d59ff882f5d287b5ca4b2f5c7a45509758989",
+      "etag": "\"a4594acea761b9dec2da6499719de761\""
+    },
+    {
+      "key": "MAIN/MAIN_1/ARRAY_ID/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_1/DATA/0.8.0",
+      "bytes": 184809514,
+      "sha256": "10014d55edf08267d309543fa44275e07158c6fa68229436c9954cbf55383115",
+      "etag": "\"6cf454211b76427f1c0ac755a193471a\""
+    },
+    {
+      "key": "MAIN/MAIN_1/EXPOSURE/0",
+      "bytes": 1700,
+      "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698",
+      "etag": "\"4390454535fb726bbacb4d32bf5979d4\""
+    },
+    {
+      "key": "MAIN/MAIN_1/FEED1/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_1/FEED2/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_1/FLAG/0.8.0",
+      "bytes": 3944597,
+      "sha256": "65992aa7fd8a05c2ba7cf479406680a520338d116a73d9cf354512382f6baa71",
+      "etag": "\"4b56bc1800d02176ab37017922cd0e3e\""
+    },
+    {
+      "key": "MAIN/MAIN_1/FLAG_ROW/0",
+      "bytes": 2474,
+      "sha256": "454221bcceaaf442112910369bbe5a9550a2c2e403eeb7fabe0c0defe9bf759b",
+      "etag": "\"18716eb64e9ed67f10eb484c097a0637\""
+    },
+    {
+      "key": "MAIN/MAIN_1/INTERVAL/0",
+      "bytes": 1700,
+      "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698",
+      "etag": "\"4390454535fb726bbacb4d32bf5979d4\""
+    },
+    {
+      "key": "MAIN/MAIN_1/MODEL_DATA/0.8.0",
+      "bytes": 104734003,
+      "sha256": "5aaed9ff1e7fd6a48767eae0a741e45e1cc49b6f89e5b42b3ef40a435f05bfc2",
+      "etag": "\"114317ab31e72e41a0c19a9512f30f8c\""
+    },
+    {
+      "key": "MAIN/MAIN_1/OBSERVATION_ID/0",
+      "bytes": 860,
+      "sha256": "2154e39664f3265d1afdf895e06d42835c99ae671344c68012d57c9951da017e",
+      "etag": "\"8a4e47220ec374e639c13d8fff4e979a\""
+    },
+    {
+      "key": "MAIN/MAIN_1/PROCESSOR_ID/0",
+      "bytes": 860,
+      "sha256": "1410f3be236195d98528b1aafdf070d1047466991d260030e9284089c884f9a4",
+      "etag": "\"b182ba177e67216b1879da589ca9a1ec\""
+    },
+    {
+      "key": "MAIN/MAIN_1/SIGMA/0.0",
+      "bytes": 3241,
+      "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8",
+      "etag": "\"a406dffd205376597a26d8fc1cede379\""
+    },
+    {
+      "key": "MAIN/MAIN_1/SIGMA_SPECTRUM/0.8.0",
+      "bytes": 71094359,
+      "sha256": "3f967dd64f7049db4e4d97d163f729382d98b1104ba0479d649568c3729a8d19",
+      "etag": "\"6354dd0ba6650345cf01480f32bcafa4\""
+    },
+    {
+      "key": "MAIN/MAIN_1/STATE_ID/0",
+      "bytes": 860,
+      "sha256": "1abafc514a1281865ce6b775bfafc6812de4e78d61ccf92dd436e4e6280508e5",
+      "etag": "\"4a7853aee867729ea74fc49b292caf5e\""
+    },
+    {
+      "key": "MAIN/MAIN_1/TIME/0",
+      "bytes": 2047,
+      "sha256": "75853caf6dc02a90835826fcd7656295c28807c18d69de3764deb8dec39ba22d",
+      "etag": "\"0ddc9ea3e5bdc39e3bdf91a457b4b226\""
+    },
+    {
+      "key": "MAIN/MAIN_1/TIME_CENTROID/0",
+      "bytes": 2047,
+      "sha256": "75853caf6dc02a90835826fcd7656295c28807c18d69de3764deb8dec39ba22d",
+      "etag": "\"0ddc9ea3e5bdc39e3bdf91a457b4b226\""
+    },
+    {
+      "key": "MAIN/MAIN_1/UVW/0.0",
+      "bytes": 947843,
+      "sha256": "119d18b4331b24f5370481d8639a94180c3074a733e2abb9c8726fcfa5d455b8",
+      "etag": "\"ffe599671c0183ad793d10c07f497f1c\""
+    },
+    {
+      "key": "MAIN/MAIN_1/WEIGHT/0.0",
+      "bytes": 3241,
+      "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8",
+      "etag": "\"a406dffd205376597a26d8fc1cede379\""
+    },
+    {
+      "key": "MAIN/MAIN_1/WEIGHT_SPECTRUM/0.8.0",
+      "bytes": 75177387,
+      "sha256": "ee8bbc21e124af6a352ed0303fd26f5d08416ebdc9b773d53c94e80f83147d84",
+      "etag": "\"28e8b0faf3196d76d774be85c7748716\""
+    },
+    {
+      "key": "ANTENNA/ANTENNA_0/DISH_DIAMETER/0",
+      "bytes": 46,
+      "sha256": "35074a54251a704ff7333a1f6594f5ba45b7731ebbd1fed5d7a4191182968d23",
+      "etag": "\"7c90e6908064937e9f42e6a166f8341a\""
+    },
+    {
+      "key": "ANTENNA/ANTENNA_0/FLAG_ROW/0",
+      "bytes": 77,
+      "sha256": "e41a162d5cffbf91f35b61fdfbda140fe96eed3418519e756148039a873b432a",
+      "etag": "\"a710cfab5e5feafadb86ed3758c1a714\""
+    },
+    {
+      "key": "ANTENNA/ANTENNA_0/OFFSET/0.0",
+      "bytes": 140,
+      "sha256": "571e8c70d7a41cf18d7f0a273f8f0289f8c24978e8d0c9a4dfdc143d7d385ac9",
+      "etag": "\"b55649d1a66734d7bfc1ffa48b7f1597\""
+    },
+    {
+      "key": "ANTENNA/ANTENNA_0/POSITION/0.0",
+      "bytes": 1150,
+      "sha256": "470e358c458d348ea5000c80d6c86d8dc3e14eb159219bbe513665ea55a2eff7",
+      "etag": "\"2e2c057857f778c6fbf0039d956ced88\""
+    },
+    {
+      "key": "FIELD/FIELD_0/DELAY_DIR/0.0.0",
+      "bytes": 32,
+      "sha256": "a249d8899a14da2aa5fd483f9b2a1538c73cd66eb3b95bb807272a7ffaa40a4e",
+      "etag": "\"b3321506f550d9cc5b3fd62d6d1ff199\""
+    },
+    {
+      "key": "FIELD/FIELD_0/FLAG_ROW/0",
+      "bytes": 17,
+      "sha256": "91ad3d74ddd48eb0e5ba6e660689efdae8596a0a0d6dacd8e650b669b60a40ef",
+      "etag": "\"a75132ad160de3fb8c286579690cdad7\""
+    },
+    {
+      "key": "FIELD/FIELD_0/NUM_POLY/0",
+      "bytes": 20,
+      "sha256": "b0d6997e97c38dd477527b01d54fd08cda108edc6e1388a1c6a719c5c3935f8f",
+      "etag": "\"1910e7bd695550ac6c6781ca447157ad\""
+    },
+    {
+      "key": "FIELD/FIELD_0/PHASE_DIR/0.0.0",
+      "bytes": 32,
+      "sha256": "a249d8899a14da2aa5fd483f9b2a1538c73cd66eb3b95bb807272a7ffaa40a4e",
+      "etag": "\"b3321506f550d9cc5b3fd62d6d1ff199\""
+    },
+    {
+      "key": "FIELD/FIELD_0/REFERENCE_DIR/0.0.0",
+      "bytes": 32,
+      "sha256": "a249d8899a14da2aa5fd483f9b2a1538c73cd66eb3b95bb807272a7ffaa40a4e",
+      "etag": "\"b3321506f550d9cc5b3fd62d6d1ff199\""
+    },
+    {
+      "key": "FIELD/FIELD_0/SOURCE_ID/0",
+      "bytes": 20,
+      "sha256": "b0d6997e97c38dd477527b01d54fd08cda108edc6e1388a1c6a719c5c3935f8f",
+      "etag": "\"1910e7bd695550ac6c6781ca447157ad\""
+    },
+    {
+      "key": "FIELD/FIELD_0/TIME/0",
+      "bytes": 24,
+      "sha256": "b83a2f0f025fe6a701605fbe0d9602c634eb0d5f8ca44293ad71ced2289945cd",
+      "etag": "\"24291a4364919b169e03a2c4243e8c28\""
+    },
+    {
+      "key": "POLARIZATION/POLARIZATION_0/CORR_PRODUCT/0.0.0",
+      "bytes": 48,
+      "sha256": "9459915fec0b196767f4e82e0119b021a74832f6fe80a5ed1118f94da2da54cf",
+      "etag": "\"17c10a3c9c4e2dcbeec4f055bcff9bee\""
+    },
+    {
+      "key": "POLARIZATION/POLARIZATION_0/CORR_TYPE/0.0",
+      "bytes": 32,
+      "sha256": "e3a121d0f2e70a4e5ea9c5b2551b45937ea58e93bafd42e7744eab4aa41134e2",
+      "etag": "\"bebdb173eeae15186530eb7c4b884c89\""
+    },
+    {
+      "key": "POLARIZATION/POLARIZATION_0/FLAG_ROW/0",
+      "bytes": 17,
+      "sha256": "91ad3d74ddd48eb0e5ba6e660689efdae8596a0a0d6dacd8e650b669b60a40ef",
+      "etag": "\"a75132ad160de3fb8c286579690cdad7\""
+    },
+    {
+      "key": "POLARIZATION/POLARIZATION_0/NUM_CORR/0",
+      "bytes": 20,
+      "sha256": "a6b9118db8e94ff61269c90c7abff61c3853cbb9adffdb762e0379c0a6640e8d",
+      "etag": "\"c0206a7f85b08f2bda702193e6148eb2\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/CHAN_FREQ/0.0",
+      "bytes": 8657,
+      "sha256": "11640ad61e3b5a9c37df8d5c7b89f1744b6c95e9895e7b9106ebad5d4f02ab3c",
+      "etag": "\"e1d5a4f38cc6bcddc37ca028fc0d1b39\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/CHAN_WIDTH/0.0",
+      "bytes": 260,
+      "sha256": "f0ba65207c6847db6fb714e317a5c71bd61299a78ede5bf3c8308c822fd8df78",
+      "etag": "\"9f46c6e0321effe53249fee3093ce375\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/EFFECTIVE_BW/0.0",
+      "bytes": 260,
+      "sha256": "f0ba65207c6847db6fb714e317a5c71bd61299a78ede5bf3c8308c822fd8df78",
+      "etag": "\"9f46c6e0321effe53249fee3093ce375\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/FLAG_ROW/0",
+      "bytes": 17,
+      "sha256": "91ad3d74ddd48eb0e5ba6e660689efdae8596a0a0d6dacd8e650b669b60a40ef",
+      "etag": "\"a75132ad160de3fb8c286579690cdad7\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/FREQ_GROUP/0",
+      "bytes": 20,
+      "sha256": "b0d6997e97c38dd477527b01d54fd08cda108edc6e1388a1c6a719c5c3935f8f",
+      "etag": "\"1910e7bd695550ac6c6781ca447157ad\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/IF_CONV_CHAIN/0",
+      "bytes": 20,
+      "sha256": "b0d6997e97c38dd477527b01d54fd08cda108edc6e1388a1c6a719c5c3935f8f",
+      "etag": "\"1910e7bd695550ac6c6781ca447157ad\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/MEAS_FREQ_REF/0",
+      "bytes": 20,
+      "sha256": "4aaeb811f660b12bd7c9f73c2a0dc5a6344dedbf2726c796914903687e093422",
+      "etag": "\"64e46a06b110fe165c1b12aabf292839\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/NET_SIDEBAND/0",
+      "bytes": 20,
+      "sha256": "48898b9d8e670424e8c68e3529bf377be96523b0970da9724f324264fdefb1a3",
+      "etag": "\"197b12f4459c0a3fa337e2e4a3403366\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/NUM_CHAN/0",
+      "bytes": 20,
+      "sha256": "ba0023c46e69e7286ddb50db29f6eb304627877df8e022e73380047413a974fd",
+      "etag": "\"68c08e1681977f9e8e6d8ff231921364\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/REF_FREQUENCY/0",
+      "bytes": 24,
+      "sha256": "a223b0b0634ac31d9761c04ef2d7d4ec9b6bf890f084a71da6da1d03986316d8",
+      "etag": "\"1e72bd85ac16d5022b7767c8cf1fe1c2\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/RESOLUTION/0.0",
+      "bytes": 260,
+      "sha256": "f0ba65207c6847db6fb714e317a5c71bd61299a78ede5bf3c8308c822fd8df78",
+      "etag": "\"9f46c6e0321effe53249fee3093ce375\""
+    },
+    {
+      "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/TOTAL_BANDWIDTH/0",
+      "bytes": 24,
+      "sha256": "1aa444128dc82f875297fac0f9436f78b3e529f6af6c44adaa4d6e4d52b08a21",
+      "etag": "\"9536615148dfe4098c934e68129b842b\""
+    },
+    {
+      "key": "DATA_DESCRIPTION/DATA_DESCRIPTION_0/FLAG_ROW/0",
+      "bytes": 17,
+      "sha256": "91ad3d74ddd48eb0e5ba6e660689efdae8596a0a0d6dacd8e650b669b60a40ef",
+      "etag": "\"a75132ad160de3fb8c286579690cdad7\""
+    },
+    {
+      "key": "DATA_DESCRIPTION/DATA_DESCRIPTION_0/POLARIZATION_ID/0",
+      "bytes": 20,
+      "sha256": "b0d6997e97c38dd477527b01d54fd08cda108edc6e1388a1c6a719c5c3935f8f",
+      "etag": "\"1910e7bd695550ac6c6781ca447157ad\""
+    },
+    {
+      "key": "DATA_DESCRIPTION/DATA_DESCRIPTION_0/SPECTRAL_WINDOW_ID/0",
+      "bytes": 20,
+      "sha256": "b0d6997e97c38dd477527b01d54fd08cda108edc6e1388a1c6a719c5c3935f8f",
+      "etag": "\"1910e7bd695550ac6c6781ca447157ad\""
+    },
+    {
+      "key": "OBSERVATION/OBSERVATION_0/FLAG_ROW/0",
+      "bytes": 17,
+      "sha256": "91ad3d74ddd48eb0e5ba6e660689efdae8596a0a0d6dacd8e650b669b60a40ef",
+      "etag": "\"a75132ad160de3fb8c286579690cdad7\""
+    },
+    {
+      "key": "OBSERVATION/OBSERVATION_0/RELEASE_DATE/0",
+      "bytes": 24,
+      "sha256": "8334c323b3cab7808f7002b03b64c60b24e15a48306e54d8d42eec34ed88733f",
+      "etag": "\"7f5dbbffc76158f6df8a6848456f72d8\""
+    },
+    {
+      "key": "OBSERVATION/OBSERVATION_0/TIME_RANGE/0.0",
+      "bytes": 32,
+      "sha256": "ac53a57ac3b2d7036b8f61e0eff1ad15ec3159eddcb7a3fac83084a9be8aea63",
+      "etag": "\"6daf756923516c17164b01abb1fd297a\""
+    }
+  ],
+  "rejected_object_arrays": [
+    "ANTENNA/ANTENNA_0/MOUNT",
+    "ANTENNA/ANTENNA_0/NAME",
+    "ANTENNA/ANTENNA_0/STATION",
+    "ANTENNA/ANTENNA_0/TYPE",
+    "FIELD/FIELD_0/CODE",
+    "FIELD/FIELD_0/NAME",
+    "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/FREQ_GROUP_NAME",
+    "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/NAME",
+    "OBSERVATION/OBSERVATION_0/LOG",
+    "OBSERVATION/OBSERVATION_0/OBSERVER",
+    "OBSERVATION/OBSERVATION_0/PROJECT",
+    "OBSERVATION/OBSERVATION_0/SCHEDULE",
+    "OBSERVATION/OBSERVATION_0/SCHEDULE_TYPE",
+    "OBSERVATION/OBSERVATION_0/TELESCOPE_NAME"
+  ],
+  "received_flag_probe": {
+    "key": "MAIN/MAIN_0/FLAG/0.8.0",
+    "shape": [
+      50000,
+      128,
+      4
+    ],
+    "fraction": 0.80406796875,
+    "scope": "Read-only pinned-container entirechunk decode, not complete selected integrations or calibration"
+  },
+  "limits": [
+    "No unrestricted pickle/object decoding",
+    "No native-MS conversion, calibration, transfer or imaging yet",
+    "All received flags/weights remain authoritative regardless of processing origin"
+  ]
+}

@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-09-23. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+[Concurrent follow-up protocol](flagging-concurrent.md), started2026-09-24,
+freezes five parallel workstreams before new measurements. Latest statuses and
+exact run paths remain in [STATE.md](STATE.md); pending plans are not results.
+
 ## Active objective: MeerKAT L-band flagging
 
 Use QuartiCal full complex 2×2 gain total variation as a training objective and
@@ -21,6 +25,12 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 | Actual four-worker concurrent replay and preservation audits | [Parallel verification](flagging-parallel.md) | [Suite](results/gain-tv-parallel.json) | [Native scatter](../recipes/tv-flagging-parallel.yaml) |
 | Unmodified full native CARACAL Tricolour strategies | [Production verification](flagging-caracal.md) | [Four controls](results/gain-tv-caracal.json) | [Native strategies](../recipes/tv-flagging-caracal.yaml) |
 | Matched structured residual/TV rankings, seven controls | [Structured search](flagging-structured.md) | [101 solves](results/gain-tv-structured.json) | [Structured actions](../recipes/tv-flagging-structured.yaml) |
+| Frozen geometry-balanced follow-up | [Balanced search](flagging-balanced.md) | Actual solves pending | [Balanced](../recipes/tv-flagging-balanced.yaml) |
+| Synthetic gain-TV/noise/physical-trend controls | [Uncertainty guidance](flagging-uncertainty.md) | [180 gain-only controls](results/gain-tv-uncertainty.json), not real solver uncertainty | [Uncertainty](../recipes/tv-flagging-uncertainty.yaml) |
+| Bounded public numeric visibility acquisition | [Ingestion](flagging-public-ingestion.md) | [75 object hashes](results/meerkat-public-ingestion.json) | [Offline inspection](../recipes/tv-flagging-public.yaml) |
+| Paired intrinsic science-signal diagnostic | [Signals](flagging-signal.md) | Actual paired solves pending | [Signals](../recipes/tv-flagging-signal.yaml) |
+| Fitted grouped guarded-objective action predictor | [Transfer model](flagging-transfer.md) | Fresh labels pending | [Transfer](../recipes/tv-flagging-transfer.yaml) |
+| Five-track concurrent execution with label-dependent fit | [Frozen protocol](flagging-concurrent.md) | Actual integrated execution underway | [Concurrent](../recipes/tv-flagging-concurrent.yaml) |
 
 Main findings: the current policies select no added flags on the unmodified
 fixture. Structured search finds a tiny improvement in a strong time-burst,
@@ -51,6 +61,9 @@ predicates across all these controls. Wrapper/finite-value hardening found durin
 that review is a fix-forward implementation change, not a scientific rerun.
 The hardening checkpoint passes 14 Rust/222 Python tests and full local checks;
 all 98 recorded action/native scores are exactly unchanged under the new guards.
+The concurrent-work implementation checkpoint passes14Rust/323Python tests,
+full local checks and all three runtime dependency checks. New scientific results
+must be labelled separately from implementation verification and dry-runs.
 
 ## Resume safely
 

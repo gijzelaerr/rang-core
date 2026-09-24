@@ -1,0 +1,78 @@
+# Ten isolated diagnostic branches; transfer fitting waits for actual labels.
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-concurrent-initialize:
+    flavour: python
+    command: rangtoy.flagging_concurrent.initialize
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      acquired_dir: {dtype: Directory, required: true}
+      iterations: {dtype: int, default: 50}
+  rang-concurrent-worker:
+    flavour: python
+    command: rangtoy.flagging_concurrent.run_workstream
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+      workstream: {dtype: str, required: true}
+  rang-concurrent-transfer:
+    flavour: python
+    command: rangtoy.flagging_concurrent.fit_transfer
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+  rang-concurrent-gather:
+    flavour: python
+    command: rangtoy.flagging_concurrent.gather
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+
+tv-concurrent-branches:
+  inputs:
+    run-dir: {dtype: Directory, required: true}
+    workstreams: {dtype: 'List[str]', required: true}
+  for_loop:
+    var: workstream
+    over: workstreams
+    scatter: 3
+  steps:
+    experiment:
+      cab: rang-concurrent-worker
+      params:
+        run_dir: =recipe.run-dir
+        workstream: =recipe.workstream
+
+tv-flagging-concurrent:
+  info: Run geometry-balanced controls, gain-TV noise diagnostics, paired science signals and public numeric data concurrently, then fit grouped action transfer.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    acquired-dir: {dtype: Directory, required: true}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    initialize:
+      cab: rang-concurrent-initialize
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        acquired_dir: =recipe.acquired-dir
+        iterations: =recipe.iterations
+    branches:
+      recipe: tv-concurrent-branches
+      params:
+        run-dir: =recipe.run-dir
+        workstreams: [balanced-clean, time-burst-seed101, antenna-local-seed101, time-burst-seed103, antenna-local-seed103, time-burst-seed105, antenna-local-seed105, uncertainty, signal, public]
+    transfer:
+      cab: rang-concurrent-transfer
+      params:
+        run_dir: =recipe.run-dir
+    gather:
+      cab: rang-concurrent-gather
+      params:
+        run_dir: =recipe.run-dir
+
+DEFAULT: tv-flagging-concurrent

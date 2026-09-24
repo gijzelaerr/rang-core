@@ -1,0 +1,21 @@
+# Synthetic gain-only controls; no Measurement Set or original flags are written.
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+cabs:
+  rang-gain-tv-uncertainty:
+    flavour: python
+    command: rangtoy.flagging_uncertainty.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+tv-flagging-uncertainty:
+  info: Frozen full-support synthetic noise and legitimate-structure controls with native full-Jones TV.
+  inputs:
+    run-dir: {dtype: str, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    measure:
+      cab: rang-gain-tv-uncertainty
+      params: {run_dir: =recipe.run-dir}
+DEFAULT: tv-flagging-uncertainty

@@ -1,8 +1,51 @@
 # Rang research state
 
-Updated 2026-09-23.
+Updated 2026-09-24.
 
 ## Current continuation and routing
+
+Latest2026-09-24 07:10UTC: allfive modules/recipes implementedandstable;
+fullchecks323Python/14Rust(no skips),releasebuild,Clippy,Rust/Rufflint/format,
+bytecompile,allwrappersyntax,35JSONarchives,whitespace andallthreecontainer
+pipchecks pass. Master/public/signal actualrecipe dryruns pass. Integratedactual
+Stimela scatter3 started07:08:54UTC at`outputs/tv-concurrent-20260924-01`;
+sixfresh backed-up cases staged, firstthree fullJones branches active, results
+pending. Masterfreezes13sourcehashes andimage beforecases/solves; donotedit
+runtime modules untilfinish orretainfailure andchoosea newrun.
+
+Gain-only diagnostics measured180controls separately at
+`outputs/tv-uncertainty-controls-01`; trackedcompactarchive
+`research/results/gain-tv-uncertainty.json`. Legitimate smoothdelaygains mayhave
+muchhigherrawTV thanflatnoisy gains. Detrending/noiseexcess isconditional
+synthetic guidance only, notrealQC uncertainty orRFIclassificationvalidation.
+Publicreceipts independentlyverified75boundedobjects/884609513bytes; first
+entireFLAGchunk80.4068%flags, retainednegativefinding, no clearing/cherrypick.
+Trackedacquisition `research/results/meerkat-public-ingestion.json`; fullnumeric
+inspectionandMSconversion/calibration/transfer remainpending. Publicreader34
+tests includereceipttotal/headers/statbounds beforepayloadread; reviewissueclosed.
+Disk13GiB/allocatedsuite1.3GiB asof07:10UTC, reserve8GiB/no cleanup.
+Checkedimplementation backup
+`outputs/flagging-backups/20260924-concurrent-implementation/code.tar.gz`,
+SHA2568d68fed79cc9171dec7322a2de40b98670ca4c03ef30dc031956ba2090a5a5bb.
+
+User requests allfive next workstreams concurrently. Checked hardeningcheckpoint
+`5377902` is pushed and worktree initiallyclean. Pre-outcome protocol/routing:
+`research/flagging-concurrent.md`. Geometry-balanced search, uncertaintyTV,
+bounded61antenna numeric ingestion, pairedscience signals and groupedtransfer
+model implementedinparallel with separatefile ownership. Startdisk17GiB;
+reserve8GiB, no cleanup, maxthree actualsolverworkers. Frozenfreshinjection
+seeds101/103/105 are train/validation/test fortransfer, strongtimeburst/antlocal.
+No newmeasurements yet. Backup/path/SHA inprotocol; originalflagsalwaysprotected.
+
+Bounded publicacquisition nowcomplete: `outputs/tv-public-acquired-20260924-01`,
+75numericBloscobjects/884609513bytes(843.63MiB), MAIN_0/MAIN_1tile8firstrowchunk,
+metadatarepin+HEAD/GET exactETag/length+SHA256 eachobject. ReceivedFLAG/FLAG_ROW
+andWEIGHT/WEIGHT_SPECTRUM/SIGMA/SIGMA_SPECTRUM allacquired unchanged; no
+CORRECTED_DATA orobject/picklestringdecoded. Offlineinspection/calibrationnotyet.
+Newpublicreader34tests/masterorchestrator8tests pass, bothrecipes actualoffline
+dryruns pass. Balancedsearch17tests anduncertainty/transfer21tests pass; source
+filesstable. Masterrecipe scatter3, transferwaitsforactualbalancedlabels;
+`recipes/tv-flagging-concurrent.yaml`. Signalmodule nowstable/16tests pass.
 
 Complete measured checkpoint `94369a0` pushed to origin/main after196Python/
 14Rust and full local checks, public user identity/no co-authors. Separate

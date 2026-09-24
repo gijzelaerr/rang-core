@@ -1,0 +1,58 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-balanced-actions:
+    flavour: python
+    command: rangtoy.flagging_balanced.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      iterations: {dtype: int, default: 50}
+  rang-balanced-fresh-case:
+    flavour: python
+    command: rangtoy.flagging_balanced.make_case
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      pattern: {dtype: str, choices: [time-burst, antenna-local], required: true}
+      strength: {dtype: float, default: 10.0}
+      seed: {dtype: int, default: 101}
+      occupancy: {dtype: float, default: 0.005}
+
+tv-flagging-balanced:
+  info: Compare frozen residual, TV and seeded-random rankings with two whole TRAIN rectangles per geometry group.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    measure:
+      cab: rang-balanced-actions
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        iterations: =recipe.iterations
+
+tv-balanced-make-case:
+  info: Construct a backed-up fresh TRAIN-only synthetic RFI case from clean original DATA; no calibration or selection.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    pattern: {dtype: str, choices: [time-burst, antenna-local], required: true}
+    seed: {dtype: int, default: 101}
+  outputs:
+    manifest: {dtype: File, implicit: '{recipe.run-dir}/case-config.json', path_policies: {mkdir_parent: false}}
+  steps:
+    construct:
+      cab: rang-balanced-fresh-case
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        pattern: =recipe.pattern
+        seed: =recipe.seed
+
+DEFAULT: tv-flagging-balanced

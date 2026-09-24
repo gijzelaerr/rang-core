@@ -1,0 +1,29 @@
+# Anonymous acquisition is explicit and separate; this recipe is offline only.
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-public-numeric-inspection:
+    flavour: python
+    command: rangtoy.flagging_public.inspect
+    inputs:
+      run_dir: {dtype: str, required: true}
+      acquired_dir: {dtype: Directory, required: true}
+      integrations: {dtype: int, default: 16}
+
+tv-flagging-public:
+  info: Inspect bounded public numeric visibilities offline without decoding remote pickle or changing received flags.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    acquired-dir: {dtype: Directory, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    inspect:
+      cab: rang-public-numeric-inspection
+      params:
+        run_dir: =recipe.run-dir
+        acquired_dir: =recipe.acquired-dir
+
+DEFAULT: tv-flagging-public
