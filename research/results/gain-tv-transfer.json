@@ -1,0 +1,663 @@
+{
+  "run_dir": "outputs/tv-concurrent-20260924-01/experiments/transfer",
+  "implementation_commit": "1739d4844100fbc4d884ca0685e833bd6805b976",
+  "result": {
+    "model": {
+      "feature_names": [
+        "log_sample_count",
+        "added_fraction",
+        "log_frequency_width",
+        "all_times",
+        "global_group",
+        "antenna_star_group",
+        "baseline_group",
+        "log_residual_score",
+        "log_tv_score",
+        "log_tv_residual_ratio",
+        "baseline_supported_gain_fraction"
+      ],
+      "center": [
+        3.6004993078604723,
+        0.0009057437407952872,
+        3.0437753214179923,
+        0.02857142857142857,
+        0.31428571428571433,
+        0.3428571428571429,
+        0.3428571428571429,
+        0.8830997890527169,
+        1.5876767195683466,
+        1.340505362601702,
+        0.32087053571428586
+      ],
+      "scale": [
+        1.0138628359513948,
+        0.0013844876482790238,
+        0.5031963966440317,
+        0.16659862556700852,
+        0.4642307659791978,
+        0.47466422073817555,
+        0.47466422073817555,
+        0.4266865340844163,
+        0.7599352900003618,
+        0.30285289688804595,
+        1e-12
+      ],
+      "domain_lower": [
+        -0.7390034148601385,
+        -0.004031379385423073,
+        1.3236241541241212,
+        -0.49979587670102554,
+        -1.3926922979375935,
+        -1.4239926622145267,
+        -1.4239926622145267,
+        -1.1103109005562752,
+        -2.0016861198037286,
+        -0.034038564437202545,
+        0.3208705257142857
+      ],
+      "domain_upper": [
+        9.159685705895534,
+        0.010298335435341683,
+        6.369401594293767,
+        1.4997958767010255,
+        2.3926922979375935,
+        2.423992662214527,
+        2.423992662214527,
+        2.965670102329601,
+        4.751779904897796,
+        2.7013195261652556,
+        0.3208705457142857
+      ],
+      "supported_train_actions": 35,
+      "missing_labels_train": 0,
+      "domain": "MeerKAT L band; frozen whole-rectangle TRAIN-only semantics",
+      "label": "baseline_guarded_objective - actual_candidate_guarded_objective",
+      "coefficients": [
+        -0.0018270837785338127,
+        -0.0002566501111875544,
+        -0.0015319040574517725,
+        -0.0008904074937677967,
+        0.00008145990833459484,
+        0.00016606699049591763,
+        -0.00008495588439945625,
+        -0.00007746083637609929,
+        0.00017995792347490092,
+        0.00011696503590311193,
+        -0.00016560447134073575,
+        2.5690788434936395e-21
+      ],
+      "ridge_penalty": 0.1,
+      "validation_group_MSE": 8.460351589304212e-7,
+      "tuning": [
+        {
+          "penalty": 0.1,
+          "validation_group_MSE": 8.460351589304212e-7
+        },
+        {
+          "penalty": 1,
+          "validation_group_MSE": 0.0000017071024842471499
+        },
+        {
+          "penalty": 10,
+          "validation_group_MSE": 0.000005605906208260673
+        }
+      ],
+      "optimism_margin": 0.0010800573398795986,
+      "minimum_predicted_benefit": 0.000001,
+      "training_mean_constant": -0.001827083778533816,
+      "missing_labels_validation": 0,
+      "validation_domain_refusals": 0,
+      "test_labels_used_for_fitting_or_selection": false
+    },
+    "forecasts": [
+      {
+        "case_id": "time-burst-seed101",
+        "split": "train",
+        "predicted_ranking": [
+          "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3",
+          "d0fc0f0a3807b57aa7fc7df0c9c08d0ef2b6c81863ad356b190293a02ae20bae",
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+          "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d",
+          "f773de25ce13560cf8acf5f5d7f9dd90d50dd41da833c9bb66ba1c82410a0818",
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+          "189f7df84dc7797e5e11eeb8f5f69e3f66cb91dc9d8730cc545e5ff2ff50cdd9",
+          "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+          "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261"
+        ],
+        "predictions": {
+          "189f7df84dc7797e5e11eeb8f5f69e3f66cb91dc9d8730cc545e5ff2ff50cdd9": -0.0010467167490276377,
+          "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde": -0.0010872880962690522,
+          "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d": -0.0007121148176583084,
+          "f773de25ce13560cf8acf5f5d7f9dd90d50dd41da833c9bb66ba1c82410a0818": -0.0007384836774885717,
+          "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3": 0.00006440208417146453,
+          "d0fc0f0a3807b57aa7fc7df0c9c08d0ef2b6c81863ad356b190293a02ae20bae": -0.00007592694932659523,
+          "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c": -0.0033332879581028253,
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec": -0.0012246433112452883,
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634": -0.0007576570360422016,
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562": -0.0005732473119510449,
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c": -0.0006740082101339941,
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261": -0.011458467404633604,
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b": -0.004160565032103369,
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660": -0.003244974041752273,
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c": -0.000982456194945392,
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188": -0.0008617611681954794,
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62": -0.0006273547670909876
+        },
+        "feature_only_recommendation": null,
+        "no_change": true,
+        "selected_or_exported_flags": false,
+        "test_prediction_only": false
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "split": "train",
+        "predicted_ranking": [
+          "0d87f6317f1550ad82db940d32be2dd1d4303717bb62177b63f55b303c85250c",
+          "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+          "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+          "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+          "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+          "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+          "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+          "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261"
+        ],
+        "predictions": {
+          "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf": -0.0015807898650150706,
+          "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515": -0.001359389699717235,
+          "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a": -0.0006986213307005044,
+          "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59": -0.000921204919907633,
+          "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c": -0.00028314322935773704,
+          "0d87f6317f1550ad82db940d32be2dd1d4303717bb62177b63f55b303c85250c": -0.00024299875977211514,
+          "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837": -0.001417144160526374,
+          "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd": -0.0014198352744507936,
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec": -0.0012276851237931615,
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634": -0.000752967512773637,
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562": -0.0005738324240631358,
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c": -0.000674555318580679,
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261": -0.011456239529756345,
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b": -0.004158740934269456,
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660": -0.003245960393960076,
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c": -0.0009731864618890771,
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188": -0.0008515277206536435,
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62": -0.0006155589477017168
+        },
+        "feature_only_recommendation": null,
+        "no_change": true,
+        "selected_or_exported_flags": false,
+        "test_prediction_only": false
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "split": "validation",
+        "predicted_ranking": [
+          "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545",
+          "680e1ad5928e5286a3704a8d9bba4d007a1977ef6d653dd6ac713e0eb8e23abe",
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+          "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4",
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+          "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+          "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+          "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261"
+        ],
+        "predictions": {
+          "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d": -0.0010698916444667151,
+          "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd": -0.003490216861653535,
+          "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4": -0.0008027123060290421,
+          "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50": -0.0027172621171189003,
+          "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545": -0.00005552826104127811,
+          "680e1ad5928e5286a3704a8d9bba4d007a1977ef6d653dd6ac713e0eb8e23abe": -0.0001739991698556534,
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec": -0.0012292468935916354,
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634": -0.0007593552161827656,
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562": -0.0005723289880548562,
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c": -0.0006730700362951494,
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261": -0.011459635179269113,
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b": -0.00416362371083592,
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660": -0.0032353073431061283,
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c": -0.0009825365635475539,
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188": -0.0008629739209306548,
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62": -0.0006272117621537605
+        },
+        "feature_only_recommendation": null,
+        "no_change": true,
+        "selected_or_exported_flags": false,
+        "test_prediction_only": false
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "split": "validation",
+        "predicted_ranking": [
+          "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c",
+          "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca",
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+          "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b",
+          "e8ee037149749c554643ad1c7c29751c1d872ce983a13065c93fbb64697230b1",
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+          "294f402e70378eaf6869c4d0c17a0e3e7a2c849278f03eb21a7b0dc092d83331",
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+          "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+          "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+          "c174667de64cfedbd8d424d2f8c4839bd8a322b2b9f4baf385753b4e1c448425",
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261"
+        ],
+        "predictions": {
+          "294f402e70378eaf6869c4d0c17a0e3e7a2c849278f03eb21a7b0dc092d83331": -0.0010815328041297912,
+          "c174667de64cfedbd8d424d2f8c4839bd8a322b2b9f4baf385753b4e1c448425": -0.003644031661472787,
+          "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b": -0.0007275111419398151,
+          "e8ee037149749c554643ad1c7c29751c1d872ce983a13065c93fbb64697230b1": -0.0007430393226893072,
+          "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c": -0.00018444324709252278,
+          "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca": -0.0003248210374089608,
+          "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837": -0.001432257296372532,
+          "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd": -0.0014342064344607113,
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec": -0.0012476188849795875,
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634": -0.0007730901725519835,
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562": -0.0005828892899563519,
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c": -0.000683593901986549,
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261": -0.011461685378588514,
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b": -0.004166419808776255,
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660": -0.0032488108856672197,
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c": -0.0009803987226468267,
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188": -0.0008582483220495154,
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62": -0.0006206202723839664
+        },
+        "feature_only_recommendation": null,
+        "no_change": true,
+        "selected_or_exported_flags": false,
+        "test_prediction_only": false
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "split": "test",
+        "predicted_ranking": [
+          "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39",
+          "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435",
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+          "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4",
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+          "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c",
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+          "2758fef712eab84e3433b99490d351acc8ad840797a361d196d1dbd425739873",
+          "ba5d9e8a630ee5f7dad7a929fb9af473ec4a625663eb39d0b5f41cdee34824cd",
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+          "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+          "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261"
+        ],
+        "predictions": {
+          "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c": -0.0008259722102085087,
+          "2758fef712eab84e3433b99490d351acc8ad840797a361d196d1dbd425739873": -0.0009009572414683122,
+          "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4": -0.0006108039919288498,
+          "ba5d9e8a630ee5f7dad7a929fb9af473ec4a625663eb39d0b5f41cdee34824cd": -0.0009339279439040645,
+          "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39": 0.00003791558747686524,
+          "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435": -0.00026370533773556725,
+          "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1": -0.0011988123595595677,
+          "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad": -0.0035172752815143694,
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec": -0.0012256051449811341,
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634": -0.0007547198817918278,
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562": -0.0005683809392755951,
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c": -0.0006691335153151594,
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261": -0.01145667049616741,
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b": -0.004195158560210119,
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660": -0.003242811589567714,
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c": -0.0009798917090586918,
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188": -0.0008607137323632327,
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62": -0.0006254064277771019
+        },
+        "feature_only_recommendation": null,
+        "no_change": true,
+        "selected_or_exported_flags": false,
+        "test_prediction_only": true
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "split": "test",
+        "predicted_ranking": [
+          "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+          "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0",
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62",
+          "fa638e116801a51b9135f16c8fdcd2ff705a768d7ec95bb4326a92d48ccd5e55",
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c",
+          "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188",
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c",
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+          "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+          "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+          "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660",
+          "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b",
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261"
+        ],
+        "predictions": {
+          "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf": -0.0015750445900545038,
+          "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515": -0.0013531005643725566,
+          "fa638e116801a51b9135f16c8fdcd2ff705a768d7ec95bb4326a92d48ccd5e55": -0.0006243674617447145,
+          "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a": -0.0006833913719761456,
+          "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c": -0.0002661770838430268,
+          "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0": -0.0004452930940746921,
+          "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837": -0.0014134241724321536,
+          "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7": -0.0038022539382974074,
+          "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec": -0.0012169607477988632,
+          "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634": -0.0007496456191820297,
+          "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562": -0.0005663790026285088,
+          "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c": -0.0006670759126713802,
+          "dae1cf2d6c361ada388eeb642eae3f5b2d8261d54979e7f085ff5aaac7794261": -0.011452815879036224,
+          "7deb3e42e69222d1635b2148a0c6476d74ad29defd63a8cacf8a569f7799119b": -0.004155738592654652,
+          "d60031d07dae48289f55dcd7fc7165c9c5799de66e1172b6aeeac099e4e7e660": -0.0032431980684504355,
+          "46ee14f48876cb37930a85968cd2249c841de0fa448890ec3908348b66460f7c": -0.0009749545017116078,
+          "30ec21741187ef9a3899c07a5195803f626add52563d79d3d683c5a9e69f9188": -0.0007840124903622902,
+          "9f0e45b14b19d30fb4498681c8fbe998e838baf762f7686ce3c7379876cd1c62": -0.0006189124528962373
+        },
+        "feature_only_recommendation": null,
+        "no_change": true,
+        "selected_or_exported_flags": false,
+        "test_prediction_only": true
+      }
+    ],
+    "evaluation": {
+      "train": {
+        "actions": 35,
+        "missing_guarded_labels": 0,
+        "domain_refusals": 0,
+        "evaluated": 35,
+        "group_MSE": 5.105709420595477e-7,
+        "constant_group_MSE": 0.000007905580091671148,
+        "mean_prediction_bias": 2.320870275476783e-19,
+        "calibration_slope": 1.0494275723636102
+      },
+      "validation": {
+        "actions": 34,
+        "missing_guarded_labels": 0,
+        "domain_refusals": 0,
+        "evaluated": 34,
+        "group_MSE": 8.460351589304212e-7,
+        "constant_group_MSE": 0.000008996264410945719,
+        "mean_prediction_bias": 0.00040643872679113776,
+        "calibration_slope": 1.073916070796851
+      },
+      "test": {
+        "actions": 36,
+        "missing_guarded_labels": 0,
+        "domain_refusals": 0,
+        "evaluated": 36,
+        "group_MSE": 7.292590951716504e-7,
+        "constant_group_MSE": 0.000008175777973013089,
+        "mean_prediction_bias": -0.00014592679070612771,
+        "calibration_slope": 1.0583917276388322
+      }
+    },
+    "rank_diagnostics": [
+      {
+        "case_id": "time-burst-seed101",
+        "rank_inversion_fraction": 0.2647058823529412,
+        "supported_rank_pairs": 136,
+        "retrospective_objective_regret": 0,
+        "unsupported_recommendation": false,
+        "diagnostics_only_never_select": true
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "rank_inversion_fraction": 0.1830065359477124,
+        "supported_rank_pairs": 153,
+        "retrospective_objective_regret": 0,
+        "unsupported_recommendation": false,
+        "diagnostics_only_never_select": true
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "rank_inversion_fraction": 0.24166666666666667,
+        "supported_rank_pairs": 120,
+        "retrospective_objective_regret": 0,
+        "unsupported_recommendation": false,
+        "diagnostics_only_never_select": true
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "rank_inversion_fraction": 0.1568627450980392,
+        "supported_rank_pairs": 153,
+        "retrospective_objective_regret": 0,
+        "unsupported_recommendation": false,
+        "diagnostics_only_never_select": true
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "rank_inversion_fraction": 0.29411764705882354,
+        "supported_rank_pairs": 153,
+        "retrospective_objective_regret": 0.0007685912874668688,
+        "unsupported_recommendation": false,
+        "diagnostics_only_never_select": true
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "rank_inversion_fraction": 0.11764705882352941,
+        "supported_rank_pairs": 153,
+        "retrospective_objective_regret": 0,
+        "unsupported_recommendation": false,
+        "diagnostics_only_never_select": true
+      }
+    ],
+    "sources": [
+      {
+        "case_id": "time-burst-seed101",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed101",
+        "split": "train",
+        "group_id": "seed101",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "e9c306cbcebbfd07248bba8ea05bd2f3597f68a33b3188c7e9d621724b934ea4",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 18
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed101",
+        "split": "train",
+        "group_id": "seed101",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "8d4eb111ac2008b3dc89282f01ff02837d4c701a8767efc96b41ea1d9c268119",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed103",
+        "split": "validation",
+        "group_id": "seed103",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "0090bdaa0c148177ca169a59a55182cae11d3a2dfb9f488ba39d6a98daef7c8a",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 17
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed103",
+        "split": "validation",
+        "group_id": "seed103",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "21c1bcbc2504ad529acdad1c3e16ebacc5075ca4c01e129f4e3e8dc102501448",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed105",
+        "split": "test",
+        "group_id": "seed105",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "bef9d8de68924603fe707769c2025226792d4aa3852e0a65f24813eac95e4131",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed105",
+        "split": "test",
+        "group_id": "seed105",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "d86510486b6edb7429bd4822a79d4301334b29cb77ca3d3faea4884d265321e1",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      }
+    ],
+    "cost": {
+      "fitting_seconds": 0.014053624999860403,
+      "new_QC_solves": 0,
+      "source_actual_solves": 111,
+      "native_runtime_comparison": false
+    },
+    "audit": {
+      "source_results_and_manifests_unchanged": true,
+      "test_never_fit_or_tune": true,
+      "predictions_frozen_before_test_diagnostics": true,
+      "no_truth_decoded_or_used": true,
+      "no_flags_exported": true
+    },
+    "distinct_observation_count": 1,
+    "original_observation_digests": [
+      "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+    ],
+    "same_original_scan_across_splits": true,
+    "independent_observation_generalization_established": false,
+    "limitations": "Fitted retrospective guarded-benefit estimator, not deployed flagging. Reused within-scan seeded cases are not independent-observation tests. Unsupported counterfactuals are missing, not zero. TRAIN-envelope refusals and all nulls retained; recommendations need fresh full2x2 guarded confirmation. No imaging, flux/signal preservation, SOTA or native-cost advantage established."
+  },
+  "artifact_sha256": {
+    "result.json": "c15ece65a4e3de95ea775480ef7c571f1abaa5cf042d998208bf7899d4da505a",
+    "config.json": "8e54c67de27c140fef889166340978d6f6082065f938c3824cee2874c296f8fb",
+    "frozen-predictions.json": "e9a504dcb6ee74aab475a33e907d54e1af5a195382260750778392dd7e584c8c",
+    "model.json": "1e247f439b1f523784097d88938c920c55c3f771ccca364ad339086972d016b6"
+  },
+  "configuration": {
+    "module_sha256": "0b1230d3a6e6189590ac38a81814429aaadb7adf149bb235f5532c226ad808a2",
+    "cases_manifest_sha256": "d239f3cd97eea7b85497bf239579588916aeeee0e22e7a002fb3d5883be9da80",
+    "sources": [
+      {
+        "case_id": "time-burst-seed101",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed101",
+        "split": "train",
+        "group_id": "seed101",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "e9c306cbcebbfd07248bba8ea05bd2f3597f68a33b3188c7e9d621724b934ea4",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 18
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed101",
+        "split": "train",
+        "group_id": "seed101",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "8d4eb111ac2008b3dc89282f01ff02837d4c701a8767efc96b41ea1d9c268119",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed103",
+        "split": "validation",
+        "group_id": "seed103",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "0090bdaa0c148177ca169a59a55182cae11d3a2dfb9f488ba39d6a98daef7c8a",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 17
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed103",
+        "split": "validation",
+        "group_id": "seed103",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "21c1bcbc2504ad529acdad1c3e16ebacc5075ca4c01e129f4e3e8dc102501448",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed105",
+        "split": "test",
+        "group_id": "seed105",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "bef9d8de68924603fe707769c2025226792d4aa3852e0a65f24813eac95e4131",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "run_dir": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed105",
+        "split": "test",
+        "group_id": "seed105",
+        "observation_id": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "original_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "result_sha256": "d86510486b6edb7429bd4822a79d4301334b29cb77ca3d3faea4884d265321e1",
+        "manifest_sha256": "ed83b821213b6a1af25f81fd4e533839d61f82ba25c61284452c4209a7537be0",
+        "actual_source_solves": 19
+      }
+    ],
+    "ridge_penalties": [
+      0.1,
+      1,
+      10
+    ],
+    "new_QuartiCal_solves": 0,
+    "no_original_MS_flags_DATA_or_weights_written": true
+  },
+  "post_hoc_known_flag_cost_only_diagnostic": {
+    "status": "post-hoc descriptive decomposition, not a frozen/tuned performance benchmark",
+    "formula": "predicted benefit = -2 * candidate.added_fraction, without clipping/fitting",
+    "evaluation": "Finite guarded labels and finite model forecasts, equal group-total weights, no exclusions in this run",
+    "group_MSE": {
+      "train": 5.950097066983719e-7,
+      "validation": 0.000001106666983543473,
+      "test": 9.289019773620847e-7
+    },
+    "limits": "Much of TRAIN-mean-constant improvement is predictable flag-volume cost; this does not establish useful flagging or observation transfer."
+  }
+}

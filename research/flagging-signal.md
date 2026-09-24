@@ -1,7 +1,8 @@
 # Frozen science-signal preservation experiment
 
 Protocol frozen 2026-09-24 before any source-response measurement. Status:
-implemented and targeted validation passed; actual QuartiCal outcomes pending.
+implemented and measured in the concurrent suite; the frozen method below is
+retained and actual outcomes are labelled separately at the end.
 This track follows the common `research/flagging-concurrent.md` protocol.
 
 ## Source and applicability freeze
@@ -120,3 +121,38 @@ Read-only executable checks found no WSClean on host or in the existing pinned
 `rang-flagging-parallel:local` runtime. Image absence is explicit and no image
 metric is substituted. Parent/root owns actual bounded concurrent execution and
 compact result curation after this source/configuration freeze.
+
+## Measured conditional response, 2026-09-24
+
+[Configuration, every candidate and fit](results/gain-tv-signal.json) preserve
+eight distinct paired masks,16 full-Jones diagnostic solves and one additional
+genuine nativeMAD proposal-generating solve. All methods share9169/9169 TEST
+samples, with zero unsupported/lost samples. The fixed inverse-G0 reference
+recovers50/100mJy and spectral indices-0.7/-1 essentially exactly.
+
+Both residual/TV selectors keep no added flags (objective1.25). The nonzero
+residual proposal adds40TRAIN cells but worsens objective1.2554086808; all five
+distinct TV proposals fail the1% validation-degradation guard. NativeMAD adds
+960TRAIN cells(1.3022%), passes support/budget guards, but worsens objective
+1.2874921193 and is not selected or deployed.
+
+| Diagnostic | Compact recovered mJy/fraction | Extended recovered mJy/fraction | Both fitted spectral indices |
+| --- | --- | --- | --- |
+| No-change (also residual/TV selected) | 7.66819848 /15.3364% | 9.30675309 /9.30675% | -5, lower bound |
+| NativeMAD comparison | 7.88766027 /15.7753% | 10.63479792 /10.6348% | -5, lower bound |
+
+These are boundary-constrained, known-template paired diagnostics. They show a
+serious conditional response problem when the injected sky is omitted from the
+calibration model, but the bound-hit fits do NOT establish trustworthy recovered
+astrophysical spectra, physically beam-corrected flux or image preservation.
+They do not isolate flagging harm: no-change itself strongly attenuates response.
+No fitted bounds/settings are expanded retrospectively to improve this result.
+Shared noisy DATA/gain fits do not provide independent uncertainties/significance.
+
+Final clean and injected working FLAGS/FLAG_ROW are restored exactly to their
+immutable originals; source DATA, models and all four native WEIGHT/SIGMA columns
+remain unchanged. Injected working DATA retains only the backed-up rounded
+addition on the frozen92004 eligible samples. Checks and native/emulated cost
+limits are in [the read-only audit](results/gain-tv-concurrent-audit.json).
+Actual WSClean images, morphology/blind detection and independent-observation
+science preservation remain unmeasured.

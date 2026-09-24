@@ -1,0 +1,423 @@
+{
+  "configuration": {
+    "prepared_dir": "/workspace/outputs/tv-flagging-actions-01",
+    "prepared_input_digest": "8d21dd5ab4ff0d689ee06379fdc5bc00890fcb7c6221beec5d30007e34afba4c",
+    "acquired_dir": "/workspace/outputs/tv-public-acquired-20260924-01",
+    "acquisition_complete_sha256": "01df538ec5947357a98ce1f65f2b23e7c65495f4793d320f76c2a9e80d98fcc6",
+    "iterations": 50,
+    "seeds": [
+      101,
+      103,
+      105
+    ],
+    "patterns": [
+      "time-burst",
+      "antenna-local"
+    ],
+    "workstreams": [
+      "balanced-clean",
+      "time-burst-seed101",
+      "antenna-local-seed101",
+      "time-burst-seed103",
+      "antenna-local-seed103",
+      "time-burst-seed105",
+      "antenna-local-seed105",
+      "uncertainty",
+      "signal",
+      "public"
+    ],
+    "scatter": 3,
+    "allocation_bytes": 6442450944,
+    "reserve_bytes": 8589934592,
+    "source_sha256": {
+      "flagging": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba",
+      "flagging_concurrent": "b9e318ff70dc2252a2610580dbac8c5b53841a72d131668763ee3eb76a07a461",
+      "flagging_balanced": "8fd6ada217130689067dda7c0379f20c0d43f1a445ace9f3debb0d172892d141",
+      "flagging_structured_proposals": "aa1fff8f4c6601ef3d3b9e2526ae771341844d4759f850178561f18b5058d37c",
+      "flagging_prepared": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab",
+      "flagging_workflow": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a",
+      "flagging_uncertainty": "e84d18b495cbd4d7a2b6ab87a1d8439f913d16f2bfb616fc1501b209dfe61c42",
+      "flagging_signal": "60743c3972d8fb24a3017931d5c79ca2085c30576a848b4ec567605fe3aad81b",
+      "flagging_transfer": "0b1230d3a6e6189590ac38a81814429aaadb7adf149bb235f5532c226ad808a2",
+      "flagging_public": "2f4b75a1f9edf981414ec8a8e85239de5620db9ed93f81f1d1aab12d216a0830",
+      "flagging_caracal": "e1d946860f9069dc5314e5c9baf3c89c6aad66bc28edfee87733c39d9aa04fa8",
+      "flagging_comparators": "c117f36616c5992c4782fb89d7d0236465ba49d9016d2d9edc31056778e68c84",
+      "flagging_injections": "93d151f2b5ea03af2fcd2e00c9fefa45aaefd00bc3acc69c1824d9660f48863d"
+    },
+    "suite_image": "sha256:0d8c178baa4b4c5fbc1e5b6fe12319a9d383594bd0b00fe71bf84c36d4f97b5f",
+    "model_dependency": "Actual balanced labels must finish before transfer fit",
+    "independent_observation_transfer": false
+  },
+  "audit": {
+    "prepared_source_unchanged": true,
+    "acquisition_manifest_unchanged": true,
+    "implementation_unchanged": true
+  },
+  "all_complete": true,
+  "failures": [],
+  "limitations": "Parallel frozen diagnostic work; same-observation seed/scan controls are not independent-observation transfer, actual images, real gain uncertainty or SOTA superiority.",
+  "status": {
+    "balanced-clean": {
+      "workstream": "balanced-clean",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/balanced-clean"
+    },
+    "time-burst-seed101": {
+      "workstream": "time-burst-seed101",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed101"
+    },
+    "antenna-local-seed101": {
+      "workstream": "antenna-local-seed101",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed101"
+    },
+    "time-burst-seed103": {
+      "workstream": "time-burst-seed103",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed103"
+    },
+    "antenna-local-seed103": {
+      "workstream": "antenna-local-seed103",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed103"
+    },
+    "time-burst-seed105": {
+      "workstream": "time-burst-seed105",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/time-burst-seed105"
+    },
+    "antenna-local-seed105": {
+      "workstream": "antenna-local-seed105",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/antenna-local-seed105"
+    },
+    "uncertainty": {
+      "workstream": "uncertainty",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/uncertainty"
+    },
+    "signal": {
+      "workstream": "signal",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/signal"
+    },
+    "public": {
+      "workstream": "public",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/public"
+    },
+    "transfer": {
+      "workstream": "transfer",
+      "complete": true,
+      "output": "/workspace/outputs/tv-concurrent-20260924-01/experiments/transfer"
+    }
+  },
+  "artifact_sha256": {
+    "result.json": "35bf603eee51ed4490bcfbafda16c309568b84dab5368c6dbb86599c3a5d600a",
+    "concurrent-config.json": "e4b526b15e271e921549a40d3eef04d01b38e11b6b954898f1b21543ccf72398",
+    "transfer-cases.json": "d239f3cd97eea7b85497bf239579588916aeeee0e22e7a002fb3d5883be9da80",
+    "uncertainty/result.json": "2a5ba5015a44bc17ffd731b530badf2daf7073090663ba88272c6482d4774bf0"
+  },
+  "uncertainty": {
+    "configuration": {
+      "grids": [
+        [
+          4,
+          32
+        ],
+        [
+          8,
+          64
+        ]
+      ],
+      "seeds": {
+        "train": [
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110
+        ],
+        "validation": [
+          111,
+          112,
+          113,
+          114,
+          115
+        ],
+        "test": [
+          116,
+          117,
+          118,
+          119,
+          120
+        ]
+      },
+      "trends": [
+        "flat",
+        "smooth",
+        "rapid"
+      ],
+      "scale": 1,
+      "noise_RMS": 0.005,
+      "stress_noise_RMS": 0.05,
+      "jump": {
+        "antenna": 1,
+        "phase_rad": 0.75,
+        "voltage_factor": 1.15
+      },
+      "delay_ns": [
+        0,
+        3,
+        6,
+        9
+      ],
+      "delay_time_change_ns": [
+        0,
+        0.3,
+        -0.3,
+        0.5
+      ],
+      "logamp_slopes": [
+        0,
+        0.04,
+        -0.04,
+        0.08
+      ],
+      "rapid_multiplier": 2,
+      "calibration_quantile": 0.95,
+      "module_sha256": "e84d18b495cbd4d7a2b6ab87a1d8439f913d16f2bfb616fc1501b209dfe61c42",
+      "native_library_sha256": "4e3ea5377a6e0ba788d1a071fcb2ada491f893b821af7825d64e9b83d21d343e",
+      "gain_only_not_actual_QuartiCal_solutions": true,
+      "no_measurement_set_or_original_flags_written": true
+    },
+    "calibration": {
+      "t4-f32/flat": {
+        "grid_key": "t4-f32",
+        "trend_key": "flat",
+        "statistics": {
+          "raw_tv": {
+            "median": 0.015191683067914357,
+            "scale": 0.00431192632535741,
+            "threshold": 0.021322802902252008,
+            "train_count": 4056
+          },
+          "detrended_tv": {
+            "median": 0.01521358097123723,
+            "scale": 0.004267832924740986,
+            "threshold": 0.021280920425888264,
+            "train_count": 4056
+          },
+          "curvature_tv": {
+            "median": 0.024125976488761514,
+            "scale": 0.00623922364834909,
+            "threshold": 0.03321628522237148,
+            "train_count": 4056
+          }
+        },
+        "full_support": true,
+        "control_count": 10,
+        "calibration_source": "synthetic gain-only no-RFI TRAIN controls",
+        "real_solved_uncertainty_estimate": false
+      },
+      "t4-f32/smooth": {
+        "grid_key": "t4-f32",
+        "trend_key": "smooth",
+        "statistics": {
+          "raw_tv": {
+            "median": 0.3661209518374516,
+            "scale": 0.2840827237041557,
+            "threshold": 0.7884059609505824,
+            "train_count": 4056
+          },
+          "detrended_tv": {
+            "median": 0.015271439060031332,
+            "scale": 0.0042652145964776275,
+            "threshold": 0.02154831095819467,
+            "train_count": 4056
+          },
+          "curvature_tv": {
+            "median": 0.02436194703913576,
+            "scale": 0.00621841416688052,
+            "threshold": 0.0337278503740141,
+            "train_count": 4056
+          }
+        },
+        "full_support": true,
+        "control_count": 10,
+        "calibration_source": "synthetic gain-only no-RFI TRAIN controls",
+        "real_solved_uncertainty_estimate": false
+      },
+      "t4-f32/rapid": {
+        "grid_key": "t4-f32",
+        "trend_key": "rapid",
+        "statistics": {
+          "raw_tv": {
+            "median": 0.707207488354697,
+            "scale": 0.5284683676564357,
+            "threshold": 1.512304418182819,
+            "train_count": 4056
+          },
+          "detrended_tv": {
+            "median": 0.015244919208224805,
+            "scale": 0.004305533221799846,
+            "threshold": 0.021547638663192533,
+            "train_count": 4056
+          },
+          "curvature_tv": {
+            "median": 0.02425889000972392,
+            "scale": 0.006304150145245593,
+            "threshold": 0.03336919618215013,
+            "train_count": 4056
+          }
+        },
+        "full_support": true,
+        "control_count": 10,
+        "calibration_source": "synthetic gain-only no-RFI TRAIN controls",
+        "real_solved_uncertainty_estimate": false
+      },
+      "t8-f64/flat": {
+        "grid_key": "t8-f64",
+        "trend_key": "flat",
+        "statistics": {
+          "raw_tv": {
+            "median": 0.01526103015183074,
+            "scale": 0.004124205110410059,
+            "threshold": 0.02134979753089153,
+            "train_count": 16284
+          },
+          "detrended_tv": {
+            "median": 0.015258025540261923,
+            "scale": 0.004124594592105162,
+            "threshold": 0.02135475842875724,
+            "train_count": 16284
+          },
+          "curvature_tv": {
+            "median": 0.02422078672496808,
+            "scale": 0.005980319278374504,
+            "threshold": 0.03285110162818087,
+            "train_count": 16284
+          }
+        },
+        "full_support": true,
+        "control_count": 10,
+        "calibration_source": "synthetic gain-only no-RFI TRAIN controls",
+        "real_solved_uncertainty_estimate": false
+      },
+      "t8-f64/smooth": {
+        "grid_key": "t8-f64",
+        "trend_key": "smooth",
+        "statistics": {
+          "raw_tv": {
+            "median": 0.1720286006687911,
+            "scale": 0.15008551225242903,
+            "threshold": 0.3542813024694951,
+            "train_count": 16284
+          },
+          "detrended_tv": {
+            "median": 0.015284781205426454,
+            "scale": 0.004166584987072528,
+            "threshold": 0.02133601181445296,
+            "train_count": 16284
+          },
+          "curvature_tv": {
+            "median": 0.02428978617036262,
+            "scale": 0.0059191501673931425,
+            "threshold": 0.03282279740743988,
+            "train_count": 16284
+          }
+        },
+        "full_support": true,
+        "control_count": 10,
+        "calibration_source": "synthetic gain-only no-RFI TRAIN controls",
+        "real_solved_uncertainty_estimate": false
+      },
+      "t8-f64/rapid": {
+        "grid_key": "t8-f64",
+        "trend_key": "rapid",
+        "statistics": {
+          "raw_tv": {
+            "median": 0.33989700404340417,
+            "scale": 0.2900426752126551,
+            "threshold": 0.6878883827108904,
+            "train_count": 16284
+          },
+          "detrended_tv": {
+            "median": 0.015323421195828617,
+            "scale": 0.0040922195007319,
+            "threshold": 0.0213628264448726,
+            "train_count": 16284
+          },
+          "curvature_tv": {
+            "median": 0.02433939192950855,
+            "scale": 0.005876176678284316,
+            "threshold": 0.0329007620579326,
+            "train_count": 16284
+          }
+        },
+        "full_support": true,
+        "control_count": 10,
+        "calibration_source": "synthetic gain-only no-RFI TRAIN controls",
+        "real_solved_uncertainty_estimate": false
+      }
+    },
+    "count": 180,
+    "audit": {
+      "thresholds_frozen_before_validation_test": true,
+      "per_grid_and_physical_trend_calibration": true,
+      "native_Rust_full2x2_all_norms": true,
+      "original_MS_FLAGS_DATA_weights_not_touched": true
+    },
+    "limitations": "Synthetic gain-only controls, not QC-solved-real uncertainty or a proven RFI classifier. Independent noise realizations, not independent observations; empirical excess thresholds have no calibrated coverage guarantee. Full-support/trend/domain assumptions are strict. Raw native full2x2 TV remains the primary objective; descriptive guidance alone never flags data."
+  },
+  "run_dir": "outputs/tv-concurrent-20260924-01",
+  "implementation_commit": "1739d4844100fbc4d884ca0685e833bd6805b976",
+  "started_utc": "2026-09-24 07:08:54 UTC",
+  "finished_utc": "2026-09-24 07:18:30 UTC",
+  "recipe": "recipes/tv-flagging-concurrent.yaml",
+  "cost": {
+    "balanced_actual_QC_diagnostic_solves": 130,
+    "signal_paired_QC_diagnostic_solves": 16,
+    "signal_native_MAD_flag_generator_QC_invocations": 1,
+    "total_QC_diagnostic_solves": 146,
+    "total_QC_invocations_including_flag_generator": 147,
+    "transfer_new_QC_solves": 0,
+    "uncertainty_gain_only_controls": 180,
+    "public_numeric_objects": 75,
+    "public_compressed_bytes": 884609513,
+    "maximum_scatter_workers": 3,
+    "native_cost_or_SOTA_comparison": false,
+    "timing": "Approximately 9min36s actual orchestration wall time in Linux amd64 emulation; no fair/native performance inference"
+  },
+  "resources": {
+    "suite_observed_allocated_GiB_rounded": 6.9,
+    "free_disk_GiB_after_completion_rounded": 15,
+    "initial_suite_allocation_forecast_GiB": 6,
+    "required_reserve_GiB": 8,
+    "forecast_exceeded": true,
+    "cleanup_performed": false,
+    "warning": "The6GiB preflight allowance was an estimate, not a hard byte cap; actual suite allocation exceeds it. Recheck capacity before fresh runs; source/output backup retention unchanged."
+  },
+  "evidence_archives": {
+    "balanced": "research/results/gain-tv-balanced.json",
+    "signals": "research/results/gain-tv-signal.json",
+    "transfer": "research/results/gain-tv-transfer.json",
+    "public_pilot": "research/results/meerkat-public-pilot.json",
+    "public_acquisition": "research/results/meerkat-public-ingestion.json",
+    "standalone_gain_controls": "research/results/gain-tv-uncertainty.json",
+    "read_only_artifact_checks": "research/results/gain-tv-concurrent-audit.json"
+  },
+  "summary": {
+    "balanced": "All rankings retain no change on clean plus5/6 injected cases. On time-burst105, residual recalls10.1045%, TV19.6864% of574 injected cells, random no change; TV adds23 outside known injection, not proven false positives.",
+    "uncertainty": "Smooth/rapid physical delay gains can have high rawTV without RFI; conditional detrended excess guidance tested on gain-only synthetic controls, not deployed in real-data ranking.",
+    "signal": "Residual/TV retain no-added-flags. Conditional omitted-source fits strongly attenuated and both spectral indices hit-5 bounds; no astrophysical slopes or image preservation validated.",
+    "transfer": "Fitted35TRAIN/34VAL/36TEST guarded action labels; all6 recommendations no change and missed one supported benefit. Known flag-cost post-hoc diagnostic explains much of constant-baseline gain.",
+    "public": "Two61-antenna16-integration numeric pilots,~80%received flags. XY/YX native spectral weights identically zero; no current strict four-correlation eligible cells. No weight substitution, flag clearing, MS conversion or real61-antenna calibration."
+  }
+}

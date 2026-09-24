@@ -4,6 +4,68 @@ Updated 2026-09-24.
 
 ## Current continuation and routing
 
+Latest measured checkpoint, 2026-09-24 07:18:30UTC: the five-track Stimela2
+suite completed all ten scatter branches and the dependent transfer fit, with
+three workers. Implementation commit `1739d48` is pushed. Raw run:
+`outputs/tv-concurrent-20260924-01`; entry recipe
+`recipes/tv-flagging-concurrent.yaml`. All13 frozen module hashes and the prepared
+source/acquisition boundaries are unchanged. Result/archive curation and
+read-only verification are complete; no source retuning.
+
+Compact evidence: `research/results/gain-tv-concurrent.json`,
+`gain-tv-balanced.json`, `gain-tv-signal.json`, `gain-tv-transfer.json`,
+`meerkat-public-pilot.json`; the acquisition and standalone gain controls keep
+their historical archives. Seven balanced cases require130 actual full-Jones
+diagnostic solves. Only time-burst seed105 selects flags: residual58/58 known
+injected additions,10.1045% recall; TV113/136 known injected,19.6864% recall,
+23 outside known injection. Objectives1.2496526895/1.2492314087 versus1.25;
+random and every other case retain no change. Outside-injection additions are
+not proven false positives on unlabeled DATA. This is not a robust TV advantage.
+
+Paired signal track:16 diagnostic solves plus native MAD flag generation;
+commonTEST9169/9169, no lost support. Residual/TV retain no extra flags. The
+conditional omitted-source fits recover only15.34% compact/9.31% extended
+reference flux, but BOTH fitted spectral indices hit the-5 lower bound.
+Report boundary-constrained diagnostics, NOT astrophysical slopes or images.
+NativeMAD adds960TRAIN cells, worsens objective1.2874921193. WSClean absent.
+
+Grouped fitted model:35TRAIN/34VAL/36TEST actual guarded labels, seed groups
+101/103/105, penalty0.1, optimism margin0.00108005734. All six recommendations
+are no-change, missing the time-burst105 benefit0.0007685913. A post-hoc known
+flag-cost-only predictor is much closer than a TRAIN-mean constant: do not imply
+broad transferable improvement. Every case reuses one four-antenna observation.
+
+Public numeric inspection is complete, not conversion/calibration: both scans
+retain61antennas/16complete integrations/30256rows/128channels1070–1096.541MHz.
+Received FLAG fractions80.4890%/80.2970%; DATA/model finite. Native XY/YX
+WEIGHT_SPECTRUM is identically zero, leaving zero eligible full-four-correlation
+cross cells in the current protocol. NEVER substitute row WEIGHT=1, clear flags
+or cherry-pick a nicer epoch to force acceptance. This does not prove the data
+uncalibratable under a separately justified partial-support/gauge protocol.
+Safe string/native-MS conversion, representative full-support calibration,
+independent observation transfer, images and mature-method cost/quality wins
+remain outstanding. Source FLAGS/DATA/all four native weight/SIGMA columns are
+protected; intentional simulation writes affect backed-up working copies only.
+
+Latest full local checks:323Python tests(no skips),14Rust tests,releasebuild,
+Clippy,Rust/Ruff lint/format,bytecompile,allwrapper syntax,41researchJSON parses,
+exact archive/raw-result reconstruction andallthreecontainer pipchecks pass.
+Actual recipe execution completes; Gitwhitespace passes before measured commit.
+Suite allocated6.9GiB/free disk15GiB at07:22UTC, reserve8GiB retained/no cleanup.
+The frozen6GiB allowance was a forecast, not a hard cap; check capacity afresh.
+Read-only audit routing: `research/results/gain-tv-concurrent-audit.json`.
+Separate counts:108prepared,2303balanced numerical/artifact,1297new compact
+archive integrity,1255standalone/1257integrated gain-control,680transfer,
+32+6+17signal artifact/replay checks all pass; counts are not scientific wins.
+Final source/archive snapshot before adding its receipt to the handoff:
+`outputs/flagging-backups/20260924-concurrent-measured-final/code.tar.gz`,
+SHA2568fdaecdbf429a8d052d2ebe1bb4f7af676b7998e74a89520a3949ff4ca3fc419.
+Next: source-preservation/identifiability guards on a new frozen validation
+protocol, a genuinely supported representative dataset, then matched native
+accuracy/cost experiments. Never tune new settings to the seed105 outcome.
+
+## Historical checkpoints (superseded statuses)
+
 Latest2026-09-24 07:10UTC: allfive modules/recipes implementedandstable;
 fullchecks323Python/14Rust(no skips),releasebuild,Clippy,Rust/Rufflint/format,
 bytecompile,allwrappersyntax,35JSONarchives,whitespace andallthreecontainer

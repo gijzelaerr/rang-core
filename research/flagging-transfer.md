@@ -73,3 +73,31 @@ outputs and no MS exports. Stable transfer source SHA256
 `0b1230d3a6e6189590ac38a81814429aaadb7adf149bb235f5532c226ad808a2`.
 Only unit fixtures have been fitted at this checkpoint. Root schedules the
 six real counterfactual case outcomes before the actual grouped model fit.
+
+## Actual fitted checkpoint, 2026-09-24
+
+[Complete model, forecasts and diagnostics](results/gain-tv-transfer.json):
+35TRAIN(seed101),34validation(seed103),36TEST(seed105) guarded labels; no
+missing/domain-refused labels in this run. Penalty0.1 wins validation without
+refitting, optimism margin0.0010800573398795986. All six feature-only
+recommendations remain no-change; test forecasts freeze before evaluation.
+The estimator misses the supported time-burst105 benefit0.0007685912874668688,
+and no flags are exported or deployed.
+
+TEST group MSE is7.292590951716504e-7 versus TRAIN-mean constant
+8.175777973013089e-6. However, a **post-hoc descriptive** known flag-cost-only
+predictor `benefit=-2*added_fraction`, with no fitting/clipping/tuning, gives
+9.289019773620847e-7 on the same finite supported TEST actions. This comparison
+was not a frozen/tuned benchmark; retain it to expose how much of the apparent
+constant-baseline win is predictable volume penalty, not useful flagging.
+All split metrics, inversion errors and missed-action regret are archived.
+
+Source labels require111 actual emulated counterfactual solves; the fitting
+workflow runs zero new QuartiCal solves. Their recorded805.523s sum is neither
+suite wall time nor native runtime. [680 separate read-only predicates](results/gain-tv-concurrent-audit.json)
+reconstruct all105 actual features/guarded labels, independent ridge solutions,
+TRAIN normalization/domain, validation tuning/margin, forecast ordering and
+metrics. In-memory TEST-label mutations leave model/penalty/margin/ranks fixed.
+One original observation spans every split: independent-observation transfer,
+prospective winner confirmation, signal/image quality and SOTA cost/quality
+superiority remain unestablished.

@@ -2,11 +2,13 @@
 
 Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
-Updated 2026-09-23. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
+Updated 2026-09-24. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
 [Concurrent follow-up protocol](flagging-concurrent.md), started2026-09-24,
-freezes five parallel workstreams before new measurements. Latest statuses and
-exact run paths remain in [STATE.md](STATE.md); pending plans are not results.
+freezes five parallel workstreams before new measurements. All ten scatter
+branches and the dependent fit now complete; [suite evidence](results/gain-tv-concurrent.json)
+and [read-only checks](results/gain-tv-concurrent-audit.json) record outcomes and
+limits. Latest exact run paths remain in [STATE.md](STATE.md).
 
 ## Active objective: MeerKAT L-band flagging
 
@@ -25,28 +27,37 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 | Actual four-worker concurrent replay and preservation audits | [Parallel verification](flagging-parallel.md) | [Suite](results/gain-tv-parallel.json) | [Native scatter](../recipes/tv-flagging-parallel.yaml) |
 | Unmodified full native CARACAL Tricolour strategies | [Production verification](flagging-caracal.md) | [Four controls](results/gain-tv-caracal.json) | [Native strategies](../recipes/tv-flagging-caracal.yaml) |
 | Matched structured residual/TV rankings, seven controls | [Structured search](flagging-structured.md) | [101 solves](results/gain-tv-structured.json) | [Structured actions](../recipes/tv-flagging-structured.yaml) |
-| Frozen geometry-balanced follow-up | [Balanced search](flagging-balanced.md) | Actual solves pending | [Balanced](../recipes/tv-flagging-balanced.yaml) |
+| Geometry-balanced residual/TV/random follow-up | [Balanced search](flagging-balanced.md) | [Seven cases,130 solves](results/gain-tv-balanced.json) | [Balanced](../recipes/tv-flagging-balanced.yaml) |
 | Synthetic gain-TV/noise/physical-trend controls | [Uncertainty guidance](flagging-uncertainty.md) | [180 gain-only controls](results/gain-tv-uncertainty.json), not real solver uncertainty | [Uncertainty](../recipes/tv-flagging-uncertainty.yaml) |
-| Bounded public numeric visibility acquisition | [Ingestion](flagging-public-ingestion.md) | [75 object hashes](results/meerkat-public-ingestion.json) | [Offline inspection](../recipes/tv-flagging-public.yaml) |
-| Paired intrinsic science-signal diagnostic | [Signals](flagging-signal.md) | Actual paired solves pending | [Signals](../recipes/tv-flagging-signal.yaml) |
-| Fitted grouped guarded-objective action predictor | [Transfer model](flagging-transfer.md) | Fresh labels pending | [Transfer](../recipes/tv-flagging-transfer.yaml) |
-| Five-track concurrent execution with label-dependent fit | [Frozen protocol](flagging-concurrent.md) | Actual integrated execution underway | [Concurrent](../recipes/tv-flagging-concurrent.yaml) |
+| Bounded public numeric visibility acquisition/inspection | [Ingestion](flagging-public-ingestion.md) | [75 object hashes](results/meerkat-public-ingestion.json), [two61-antenna pilots](results/meerkat-public-pilot.json) | [Offline inspection](../recipes/tv-flagging-public.yaml) |
+| Paired intrinsic science-signal diagnostic | [Signals](flagging-signal.md) | [16 paired solves and constrained fits](results/gain-tv-signal.json) | [Signals](../recipes/tv-flagging-signal.yaml) |
+| Fitted grouped guarded-objective action predictor | [Transfer model](flagging-transfer.md) | [105 labels/frozen predictions](results/gain-tv-transfer.json) | [Transfer](../recipes/tv-flagging-transfer.yaml) |
+| Five-track concurrent execution with label-dependent fit | [Frozen protocol](flagging-concurrent.md) | [Completed suite](results/gain-tv-concurrent.json) | [Concurrent](../recipes/tv-flagging-concurrent.yaml) |
 
 Main findings: the current policies select no added flags on the unmodified
-fixture. Structured search finds a tiny improvement in a strong time-burst,
-recovering only 2.89% of injected samples; its TV ranking misses that action.
+fixture. Earlier structured search recovers only2.89% of a strong time-burst;
+its TV ranking misses that action. The balanced follow-up improves one fresh
+seed (TV19.69% versus residual10.10% known-injection recall), but not the other
+five injected cases. Its fitted estimator recommends no-change on all six.
 A fuller sky improves prediction while slightly increasing TV. Some masks
 lower TV while worsening prediction. Outside-injection additions are not proven
 false positives in unlabeled real data. No imaging or state-of-the-art advantage
 has been established. The tiny fixture is a four-antenna dedicated pointing scan,
-not a representative science observation.
+not a representative science observation. Smooth physical delay controls have
+high rawTV without RFI. Paired omitted-source fits show strong attenuation and
+bound-hit spectra, not validated flux/image preservation. The downloaded
+61-antenna tiles have zero native cross-hand spectral weights: the current
+strict four-correlation protocol accepts no cells, and no flags/weights are
+changed to manufacture support.
 
 [Pinned CARACAL strategy/worker inspection](flagging-caracal.md) records the
 production-strategy differences, executable full-strategy recipe and four
 completed measured controls. The [partial archive](results/gain-tv-caracal-progress.json)
 retains its historical two-control/pending-final-audit checkpoint unchanged.
 [Representative public data](flagging-public-data.md) records a bounded,
-metadata-verified 61-antenna primary-calibrator candidate, not a new data result.
+metadata-verified61-antenna primary-calibrator candidate. Actual numeric
+acquisition/inspection now has separate evidence; native-MS conversion,
+calibration and independent observation transfer remain unmeasured.
 
 Baseline/follow-up verified checkpoint: 14 Rust/171 Python tests, full local checks, six
 recipe dry-runs, actual concurrent execution and 24 read-only prepared-input
@@ -61,9 +72,12 @@ predicates across all these controls. Wrapper/finite-value hardening found durin
 that review is a fix-forward implementation change, not a scientific rerun.
 The hardening checkpoint passes 14 Rust/222 Python tests and full local checks;
 all 98 recorded action/native scores are exactly unchanged under the new guards.
-The concurrent-work implementation checkpoint passes14Rust/323Python tests,
-full local checks and all three runtime dependency checks. New scientific results
-must be labelled separately from implementation verification and dry-runs.
+The concurrent-work implementation checkpoint `1739d48` passes14Rust/323Python
+tests, full local checks and all three runtime dependency checks. Actual suite
+execution finishes2026-09-24 07:18:30UTC; all13 module hashes/input boundaries
+remain frozen. Measured archives distinguish retrospective search, gain-only
+controls, conditional source response and real numeric inspection; they do not
+establish robust flagging, observation transfer, imaging or SOTA superiority.
 
 ## Resume safely
 

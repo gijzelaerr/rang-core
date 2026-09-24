@@ -1,0 +1,220 @@
+{
+  "run_dir": "outputs/tv-concurrent-20260924-01/experiments/public",
+  "implementation_commit": "1739d4844100fbc4d884ca0685e833bd6805b976",
+  "result": {
+    "finished_utc": "2026-09-24T07:15:55.815751+00:00",
+    "acquired_dir": "/workspace/outputs/tv-public-acquired-20260924-01",
+    "metadata_sha256": "68fdb7f4f5f9392181bf645bd8e792e4dd96bd9857ad6489091b441adc59bbaa",
+    "compressed_bytes": 884609513,
+    "native_channels": [
+      1024,
+      1152
+    ],
+    "frequency_mhz": [
+      1070,
+      1096.541015625
+    ],
+    "groups": [
+      {
+        "group": 0,
+        "scan": 1,
+        "shape": [
+          30256,
+          128,
+          4
+        ],
+        "complete_times": [
+          5064150745.671495,
+          5064150753.668113,
+          5064150761.66473,
+          5064150769.661347,
+          5064150777.657965,
+          5064150785.654582,
+          5064150793.651199,
+          5064150801.647817,
+          5064150809.644434,
+          5064150817.641051,
+          5064150825.637669,
+          5064150833.634286,
+          5064150841.630903,
+          5064150849.627521,
+          5064150857.624138,
+          5064150865.620754
+        ],
+        "participating_antennas": 61,
+        "cell_flag_fraction": 0.80489045561211,
+        "flag_row_count": 1941,
+        "eligible_cross_correlation_cells": 0,
+        "finite_data_fraction": 1,
+        "model_finite_scalar_unpolarized": true,
+        "native_weight_sigma_columns_preserved": [
+          "SIGMA",
+          "SIGMA_SPECTRUM",
+          "WEIGHT",
+          "WEIGHT_SPECTRUM"
+        ],
+        "pilot_file": "scan-1.npz",
+        "pilot_sha256": "9806d8e7b4f1ae1d91017997dddae59af1ab8c86437c7f4a47223c904913e483"
+      },
+      {
+        "group": 1,
+        "scan": 3,
+        "shape": [
+          30256,
+          128,
+          4
+        ],
+        "complete_times": [
+          5064154823.946136,
+          5064154831.942754,
+          5064154839.939371,
+          5064154847.935988,
+          5064154855.932606,
+          5064154863.929222,
+          5064154871.925839,
+          5064154879.922457,
+          5064154887.919074,
+          5064154895.915691,
+          5064154903.912309,
+          5064154911.908926,
+          5064154919.905543,
+          5064154927.902161,
+          5064154935.898778,
+          5064154943.895395
+        ],
+        "participating_antennas": 61,
+        "cell_flag_fraction": 0.8029701236944738,
+        "flag_row_count": 1938,
+        "eligible_cross_correlation_cells": 0,
+        "finite_data_fraction": 1,
+        "model_finite_scalar_unpolarized": true,
+        "native_weight_sigma_columns_preserved": [
+          "SIGMA",
+          "SIGMA_SPECTRUM",
+          "WEIGHT",
+          "WEIGHT_SPECTRUM"
+        ],
+        "pilot_file": "scan-3.npz",
+        "pilot_sha256": "34fd98616e50c3f72f84e7ace111ec2305321d68e8d0db4b5eb2032a0af9fdbc"
+      }
+    ],
+    "raw_source_digests_unchanged": true,
+    "object_or_pickle_decoding": false,
+    "rejected_object_arrays": [
+      "ANTENNA/ANTENNA_0/MOUNT",
+      "ANTENNA/ANTENNA_0/NAME",
+      "ANTENNA/ANTENNA_0/STATION",
+      "ANTENNA/ANTENNA_0/TYPE",
+      "FIELD/FIELD_0/CODE",
+      "FIELD/FIELD_0/NAME",
+      "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/FREQ_GROUP_NAME",
+      "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/NAME",
+      "OBSERVATION/OBSERVATION_0/LOG",
+      "OBSERVATION/OBSERVATION_0/OBSERVER",
+      "OBSERVATION/OBSERVATION_0/PROJECT",
+      "OBSERVATION/OBSERVATION_0/SCHEDULE",
+      "OBSERVATION/OBSERVATION_0/SCHEDULE_TYPE",
+      "OBSERVATION/OBSERVATION_0/TELESCOPE_NAME"
+    ],
+    "status": "numeric pilot only; native-MS conversion/calibration/transfer not run",
+    "limits": [
+      "Telescope/antenna-name/field/project strings are not decoded",
+      "Received flags protected regardless of Observatory/processing origin",
+      "Supplied model accuracy and noise-weight convention remain unverified",
+      "Separate scans are not separate observations"
+    ]
+  },
+  "artifact_sha256": {
+    "result.json": "3b85b993b8fa70e14cec18b2873287a0e4f61486e8add4e1585c788f40313bac"
+  },
+  "acquisition_archive": "research/results/meerkat-public-ingestion.json",
+  "post_inspection_native_weight_diagnostic": [
+    {
+      "scan": 1,
+      "pilot_sha256": "9806d8e7b4f1ae1d91017997dddae59af1ab8c86437c7f4a47223c904913e483",
+      "correlation_type_native": [
+        [
+          9,
+          10,
+          11,
+          12
+        ]
+      ],
+      "correlation_names": [
+        "XX",
+        "XY",
+        "YX",
+        "YY"
+      ],
+      "weight_spectrum_positive_count_per_correlation": [
+        3872768,
+        0,
+        0,
+        3872768
+      ],
+      "weight_spectrum_nonfinite_count_per_correlation": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "native_row_weight_unique_values": [
+        1
+      ],
+      "all_four_unflagged_cross_cells_before_weights": 755614,
+      "eligible_full_four_correlation_cross_cells_after_native_weight_spectrum": 0,
+      "same_flag_mask_across_four_correlations": true,
+      "time_span_seconds": 119.94925880432129
+    },
+    {
+      "scan": 3,
+      "pilot_sha256": "34fd98616e50c3f72f84e7ace111ec2305321d68e8d0db4b5eb2032a0af9fdbc",
+      "correlation_type_native": [
+        [
+          9,
+          10,
+          11,
+          12
+        ]
+      ],
+      "correlation_names": [
+        "XX",
+        "XY",
+        "YX",
+        "YY"
+      ],
+      "weight_spectrum_positive_count_per_correlation": [
+        3872768,
+        0,
+        0,
+        3872768
+      ],
+      "weight_spectrum_nonfinite_count_per_correlation": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "native_row_weight_unique_values": [
+        1
+      ],
+      "all_four_unflagged_cross_cells_before_weights": 763051,
+      "eligible_full_four_correlation_cross_cells_after_native_weight_spectrum": 0,
+      "same_flag_mask_across_four_correlations": true,
+      "time_span_seconds": 119.94925880432129
+    }
+  ],
+  "interpretation": {
+    "status": "not eligible under current strict full-four-correlation protocol; native-MS conversion and calibration deferred",
+    "reason": "All native XY/YX WEIGHT_SPECTRUM entries are exactly zero in both selected pilots, despite finite positive parallel-hand weights.",
+    "protected_boundary": "Do not replace native spectral weights with row WEIGHT=1, clear flags, or cherry-pick integrations to force acceptance.",
+    "applicability": "This is not a claim that the observation cannot be calibrated under a separately justified partial-correlation/gauge protocol.",
+    "remaining_requirements": [
+      "Safe non-pickle string/metadata conversion with verified original metadata",
+      "Physically justified native-weight support/domain and full-Jones gauge identifiability",
+      "Original Observatory/received flags preserved",
+      "New frozen protocol before any changed eligibility or gain assumptions",
+      "Independent observation for transfer; two scans share one observation"
+    ]
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "checked_at_utc": "2026-09-24",
+  "implementation_commit": "1739d4844100fbc4d884ca0685e833bd6805b976",
+  "run_dir": "outputs/tv-concurrent-20260924-01",
+  "method": "Separate read-only source/artifact reconstruction and in-memory numerical replay. No writes, new QuartiCal solves, numerical retuning or human peer-review claim.",
+  "prepared": {
+    "cases": 6,
+    "passed_predicates": 108,
+    "clean_prepared_tree_sha256": "8d21dd5ab4ff0d689ee06379fdc5bc00890fcb7c6221beec5d30007e34afba4c",
+    "original_observation_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "categories": [
+      "Full pre-write DATA and source-state backups match clean original",
+      "TRAIN-only contamination; validation/TEST bitwise clean",
+      "Original FLAG/FLAG_ROW and all4 WEIGHT/SIGMA columns exact",
+      "Split disjointness/eligibility and manifest/source digests",
+      "Only intended working DATA changes; source/original trees unchanged"
+    ]
+  },
+  "balanced": {
+    "passed_numerical_artifact_predicates": 2303,
+    "actual_QC_solves": 130,
+    "additional_actual_gain_metadata_checks": 130,
+    "additional_direct_gain_and_validity_comparisons": 260,
+    "additional_comparisons_not_in_2303": true,
+    "cases": {
+      "antenna-local-seed101": {
+        "predicates": 336,
+        "solves": 19,
+        "tree_sha256": "761da7d460bcbd5e7442aab2c3829213582265fcac2d14faf8ffafce7f1e0a7c"
+      },
+      "antenna-local-seed103": {
+        "predicates": 336,
+        "solves": 19,
+        "tree_sha256": "b88e84ead0fe44bb0eaeaf540003e8b685acb13b52f6e22c996f195e51a940ca"
+      },
+      "antenna-local-seed105": {
+        "predicates": 336,
+        "solves": 19,
+        "tree_sha256": "b962bac5bdf2ecd5d948b1eca59daf031fe98ead01e565c5ae945939f66e36d0"
+      },
+      "balanced-clean": {
+        "predicates": 335,
+        "solves": 19,
+        "tree_sha256": "d759c7e1d489166f2fd4326cb2376f094cd48bd9a6845932bedf0e4d7e48f84d"
+      },
+      "time-burst-seed101": {
+        "predicates": 320,
+        "solves": 18,
+        "tree_sha256": "1ac7b601b24d6e1e8025ad05c696cb4935be27fd6daf84b299696a1d1d209fb7"
+      },
+      "time-burst-seed103": {
+        "predicates": 304,
+        "solves": 17,
+        "tree_sha256": "8c4e76775b04f301b064860c188a842be179629a0e734e499cd12090e24feee2"
+      },
+      "time-burst-seed105": {
+        "predicates": 336,
+        "solves": 19,
+        "tree_sha256": "03cf63f72bc4855a62e1f1c9332a5ba7edab838549ec53cfdfc8b2a537d3379b"
+      }
+    },
+    "categories": [
+      "TYPE=complex and GAIN_SPEC7x128x4x1x4 for actual QC Zarr gains",
+      "Saved gain/validity diagnostics match decoded actual products",
+      "Exact23329-mask family and residual/TV/random balanced ranks",
+      "NumPy full-matrix Frobenius/polar/raw TV at frozen scale/support",
+      "Actual gain-derived native-weighted TRAIN/VAL/TEST predictions",
+      "Objectives/guards/no-change/ties reconstruct",
+      "Exclusive per-write backups and all21 protected exports",
+      "Source/original/native weights and intended TRAIN additions exact"
+    ],
+    "compact_archive": {
+      "passed_new_integrity_predicates": 1297,
+      "source_actions_reconstructed": 123,
+      "geometry_count": 49,
+      "archive_sha256": "fc757794cdd54d7e3206c41802517ce0b4f91d92ed6b14c31700d216306ba509",
+      "breakdown": {
+        "schema": 7,
+        "case_fields": 42,
+        "source_receipts": 42,
+        "artifact_receipts": 49,
+        "rankings": 182,
+        "action_reconstruction": 868,
+        "selection": 70,
+        "truth": 37
+      },
+      "post_selection_truth_only": true
+    }
+  },
+  "uncertainty": {
+    "standalone": {
+      "run_dir": "outputs/tv-uncertainty-controls-01",
+      "passed_predicates": 1255,
+      "result_sha256": "73fa0df1e020d246bb8557b277eb77d51b9982addbd599694229ed5bbd01c3a4",
+      "tree_sha256": "77117559635284d1b62347e4916bf56b94f4f41c6984a8b9cb40e3bf1b735dfc",
+      "native_library_sha256": "e587bafb33d499c8a7026b3d0b821c79db24d6242407890c75c66aa1498d9eb6"
+    },
+    "integrated": {
+      "passed_predicates": 1257,
+      "result_sha256": "2a5ba5015a44bc17ffd731b530badf2daf7073090663ba88272c6482d4774bf0",
+      "tree_sha256": "5c5cad43977e0d73a1d17ffd17ad68cddaf0028147c12940649cce209f33451d",
+      "native_library_sha256": "4e3ea5377a6e0ba788d1a071fcb2ada491f893b821af7825d64e9b83d21d343e"
+    },
+    "categories": [
+      "All180 frozen physical/noise/jump gain reconstructions",
+      "720 nativeRust norm/curvature replays versus analytic full-matrix maps",
+      "Six independent TRAIN-only calibrations and120 heldout/stress excess replays",
+      "Off-TRAIN perturbation isolation, threshold chronology and backups",
+      "Cross-platform outputs match same protocol; no MS/actualQC uncertainty claim"
+    ]
+  },
+  "signal": {
+    "passed_main_artifact_predicates": 32,
+    "passed_additional_native_copy_scale_predicates": 6,
+    "passed_additional_numerical_replay_predicates": 17,
+    "diagnostic_QC_solves": 16,
+    "native_MAD_generator_QC_invocations": 1,
+    "distinct_paired_masks": 8,
+    "common_TEST": 9169,
+    "lost_TEST": 0,
+    "eligible_injected_samples": 92004,
+    "config_sha256": "071d318cd7c310c59d85f37d6995cec5b6433a7e791b5fccef08bae815ff81a7",
+    "result_sha256": "39413dca5ea9ce341756f29ff1c22f9e460bd74f738209a68dd688d84a227570",
+    "tree_sha256": "d7352f3d1d62626b5a603a0115ae4ad918624d3ba79133a946081be69f879354",
+    "replay_maximum_absolute_errors": {
+      "matrix_trace_jy": 7.588599744428075e-15,
+      "native_variance_proxy": 5.551115123125783e-17,
+      "recovered_flux_jy": 6.418476861114186e-17,
+      "recovered_spectral_index": 1.1102230246251565e-16
+    },
+    "categories": [
+      "Every whole paired TRAIN mask and independent objective/guard reconstruction",
+      "Full original DATA/MS/state and per-write flag backups",
+      "Exact final original FLAGS/FLAG_ROW and all native weights/SIGMA",
+      "Models unchanged; injected DATA only rounded frozen eligible addition",
+      "Four actual QC gain/flag datasets match diagnostics",
+      "Independent inverseJones trace and four-basis native-noise variance",
+      "Three unique constrained fit replays reproduce reference/nochange/MAD, rank/bound/support"
+    ],
+    "warning": "Both spectral indices hit-5 bounds in all method fits. Artifact replay is not trustworthy astrophysical spectra, image preservation or independent science."
+  },
+  "transfer": {
+    "passed_predicates": 680,
+    "breakdown": {
+      "per_action": 630,
+      "per_case": 18,
+      "global_model_probes_metrics": 32
+    },
+    "action_features_and_guarded_labels": 105,
+    "split_actions": {
+      "train": 35,
+      "validation": 34,
+      "test": 36
+    },
+    "source_actual_QC_solves": 111,
+    "new_QC_solves": 0,
+    "source_recorded_emulated_seconds_sum": 805.523,
+    "tree_sha256": "78b125c841a2f9da7832c169ddc2e98ad7f10f21e6cf8711cdf20c2d6ffc2804",
+    "result_sha256": "c15ece65a4e3de95ea775480ef7c571f1abaa5cf042d998208bf7899d4da505a",
+    "categories": [
+      "All105 exact TRAIN-only feature vectors and actual guarded labels",
+      "105 direct saved gain diagnostics and105 solver commands included in680",
+      "Seed-group splits/receipts and single-original-observation audit",
+      "Independent ridge penalties0.1/1/10, TRAIN normalization/domain",
+      "VAL-only optimism margin/tuning, frozen TEST forecasts before evaluation",
+      "Forecast ranks/missing labels/errors/regret reconstruct",
+      "Three in-memory TEST-label mutations cannot alter coefficients/penalty/margin/ranks",
+      "Extreme TEST features do not change fit and are refused",
+      "No flags exported; all6recommendations nochange, supported benefit missed"
+    ]
+  },
+  "public": {
+    "object_receipts": 75,
+    "compressed_bytes": 884609513,
+    "pilot_scans": [
+      1,
+      3
+    ],
+    "raw_source_digests_unchanged": true,
+    "object_pickle_decoding": false,
+    "pilot_diagnostics_archive": "research/results/meerkat-public-pilot.json",
+    "categories": [
+      "Frozen numeric schema/Blosc bounded decompression before decode",
+      "Receipt total/header/stat/path bounds and exact object plan",
+      "Metadata/ETag/length/SHA receipts independently checked",
+      "61-antenna complete integration layout, native rows/channels/flags/weights retained",
+      "NativeXY/YX spectral weights zero; strictfour-correlation eligibility zero",
+      "Pilot SHA receipts and post-inspection native weight counts reproduced"
+    ],
+    "warning": "No native-MS conversion,61-antenna gain solve or independent-observation transfer; never substitute row weights or clear flags."
+  },
+  "implementation_checks": {
+    "frozen_runtime_module_hashes_verified": 13,
+    "pinned_image": "sha256:0d8c178baa4b4c5fbc1e5b6fe12319a9d383594bd0b00fe71bf84c36d4f97b5f"
+  },
+  "local_verification": {
+    "python_tests_passed": 323,
+    "python_test_seconds": 44.7,
+    "rust_tests_passed": 14,
+    "skipped_tests": 0,
+    "research_json_archives_parsed": 41,
+    "checks": [
+      "Offline releasebuild/Rusttests/Clippywarningsdenied/Rustformat",
+      "Rufflint/format69files/Pythonbytecompile",
+      "Everyflaggingwrapper shellsyntax",
+      "Actual integratedStimela2 scatter3/dependentfit/gather",
+      "Master/public/signaloffline recipe dryruns beforemeasurements",
+      "Allthreepinnedcontainer pipchecks",
+      "AllresearchJSONarchives andGitwhitespace beforecommit"
+    ]
+  },
+  "final_snapshot_receipt": {
+    "path": "outputs/flagging-backups/20260924-concurrent-measured-final/code.tar.gz",
+    "sha256": "8fdaecdbf429a8d052d2ebe1bb4f7af676b7998e74a89520a3949ff4ca3fc419",
+    "scope": "Source/archive snapshot before adding this receipt to the audit and handoff; raw observation/gain/flag backups are retained separately in ignored outputs."
+  },
+  "measurement_blocking_findings": [],
+  "limitations": [
+    "Read-only checks reproduce software/artifacts; no humanpeerreview/statisticalsignificance.",
+    "Same four-antenna scan across seeds; public scans share one observation.",
+    "Gain-only synthetic noise-excess is not actual real-QC uncertainty.",
+    "Signal fit boundaries and missing imaging prevent astrophysical/signal-preservation claims.",
+    "Model learns much predictable flag-volume cost and recommendsnochange; no robusttransfer.",
+    "The6GiB suiteallocation forecast was exceeded(6.9GiB),8GiBreserve retained/no cleanup; preflight is not a hard byte cap.",
+    "Checkoutread-only/outputsRW: source protections are readonly table opens and checked hashes, not per-sourceOS-readonly mounts.",
+    "No matchednativeaccuracy/cost SOTA superiority established."
+  ]
+}

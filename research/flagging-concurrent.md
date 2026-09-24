@@ -110,3 +110,45 @@ stages allsix backed-up cases and scatters threeworkers. New actual balanced/
 paired-signal/public-inspection/model measurements are pending at this checkpoint.
 Native-MS conversion, actual images and independent-observation transfer remain
 unimplemented/unmeasured; gain-only controls do not establish real uncertainty.
+
+## Completed measurements, 2026-09-24 07:18:30UTC
+
+[Measured suite](results/gain-tv-concurrent.json) gathers all ten scatter
+branches and the dependent actual fit successfully. Source implementation is
+the pushed`1739d48` checkpoint; all13 frozen runtime hashes and prepared/source
+boundaries remain unchanged. Three workers take approximately9min36s wall time
+in Linux amd64 emulation, not native or matched mature-method performance.
+Counts:130 balanced full-Jones diagnostic solves plus16 paired-signal diagnostic
+solves and one nativeMAD flag-generating solve,147 QC invocations total. The
+gain-only controls require no QC solves; fitting requires zero new solves.
+
+Evidence is separated by track:
+
+- [Balanced](results/gain-tv-balanced.json): TV improves one time-burst seed,
+  recovering19.69% known injection versus residual10.10%, but all rankings
+  keep no-change on clean and five other cases. No robust TV advantage.
+- [Gain controls](results/gain-tv-uncertainty.json): legitimate smooth delay
+  produces high rawTV; integrated180 controls replay the same frozen protocol.
+  Detrended excess remains synthetic guidance, not deployed real uncertainty.
+- [Public numeric pilots](results/meerkat-public-pilot.json): actual61-antenna
+  DATA/model/flags/weights retained in two16-integration tiles; all native
+  cross-hand spectral weights are zero. Current strict protocol has no eligible
+  four-correlation cells. No weights/flags changed to force calibration.
+- [Paired signals](results/gain-tv-signal.json): no-extra-flags selected,
+  strong conditional omitted-source attenuation with bound-hit spectra; no
+  physical spectral/image preservation validated.
+- [Fitted model](results/gain-tv-transfer.json):105 actual guarded labels,
+  grouped seed split, all six no-change recommendations; one beneficial action
+  missed. Post-hoc flag-volume-cost decomposition limits constant-baseline claims.
+
+[Read-only checks](results/gain-tv-concurrent-audit.json) retain separate
+per-track counts, reconstruction categories and unchanged source digests. They
+reproduce software/artifacts, not human peer review or independent science.
+Final local release/build/test/lint/format checks are recorded in the handoff.
+
+Suite allocation is6.9GiB, exceeding the6GiB preflight forecast; about15GiB
+free disk remains after execution, above the8GiB reserve. The forecast is not
+a hard cap; recheck actual source/copy budgets before another run. Nothing
+was deleted. Backups, seeds, every rejected counterfactual and negative result
+are retained. New eligibility/fit/guidance settings require a new frozen run,
+not a retrospective retune of these test outcomes.

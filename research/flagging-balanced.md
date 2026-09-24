@@ -2,8 +2,8 @@
 
 Protocol frozen on 2026-09-24 before outcomes in
 [the concurrent experiment plan](flagging-concurrent.md). Implementation and
-pure tests are being checked; actual measurements are scheduled by the root
-orchestrator and must not be inferred from this proposed protocol.
+pure tests and actual measurements now pass. The frozen method below is retained;
+measured outcomes are labelled separately at the end of this report.
 
 Use the exact existing whole-rectangle TRAIN family: 16/32/64/128 aligned native
 channel tiles wholly inside the experiment window, one/all unique integration
@@ -67,5 +67,33 @@ simulation constructor `tv-balanced-make-case` in
 
 Maintain the concurrent plan's three-worker limit and 8GiB disk reserve. Raw
 observations/gains and failed/null checkpoints remain ignored, not deleted.
-No measurement or performance/novelty claim exists until actual results and
-preservation audits are archived.
+No performance/novelty claim follows from implementation or recipe validation.
+
+## Measured concurrent follow-up, 2026-09-24
+
+[Complete compact evidence](results/gain-tv-balanced.json): seven cases,
+130 actual QuartiCal solves (seven baselines,123 distinct action solves),126
+ranked slots with exactly two masks per geometry/ranking/case. All rankings
+choose no-change on clean and five of the six fresh injected cases.
+
+Only time-burst seed105 (574 known injected TRAIN cells) accepts additions:
+
+| Ranking | Added row/channel cells | Known injected additions | Recall | Outside known injection | Guarded objective |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Residual | 58 | 58 | 10.1045% | 0 | 1.2496526895157485 |
+| TV | 136 | 113 | 19.6864% | 23 | 1.2492314087125331 |
+| Random/no-change | 0 | 0 | 0 | 0 | 1.25 |
+
+TV selects a global single-time32-channel action, residual a16-channel action.
+The held-out visibility prediction losses are25.0728237835(TV) and
+25.0779685969(residual), versus25.0978290324(no-change); neither test loss nor
+truth selects the masks. Their addition fractions are0.18448%/0.07868% of TRAIN.
+Outside-injection flags are not known false positives on unlabeled real DATA.
+This isolated win does not establish robust guidance, observation transfer,
+science-signal/image quality or mature-method matched-cost superiority.
+
+Separate [read-only checks](results/gain-tv-concurrent-audit.json) pass108
+prepared-case and2303 balanced numerical/artifact predicates. All130 actual
+QuartiCal gain/validity products, whole-family/ranks, fixed-scale/support TV,
+actual weighted predictions, guards, selections, write backups and21 protected
+exports reproduce. Raw outputs and failed/null historical runs remain retained.

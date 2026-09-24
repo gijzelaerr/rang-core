@@ -1,0 +1,1028 @@
+{
+  "run_dir": "outputs/tv-concurrent-20260924-01/experiments/signal",
+  "implementation_commit": "1739d4844100fbc4d884ca0685e833bd6805b976",
+  "result": {
+    "status": "measured paired visibility-template diagnostic; no deployed flags or images",
+    "sources": [
+      {
+        "name": "compact",
+        "flux_jy": 0.05,
+        "l_arcmin": 12,
+        "m_arcmin": 8,
+        "fwhm_arcmin": 0,
+        "spectral_index": -0.7
+      },
+      {
+        "name": "extended",
+        "flux_jy": 0.1,
+        "l_arcmin": -15,
+        "m_arcmin": 10,
+        "fwhm_arcmin": 10,
+        "spectral_index": -1
+      }
+    ],
+    "reference_fit": {
+      "available": true,
+      "optimizer_success": true,
+      "rank": 4,
+      "scaled_jacobian_condition": 10.502307026063676,
+      "sample_count": 9169,
+      "weighted_fit_mse_proxy": 1.234061498379796e-12,
+      "function_evaluations": 2,
+      "parameters_at_bounds": false,
+      "sources": [
+        {
+          "name": "compact",
+          "input_flux_jy": 0.05,
+          "recovered_flux_jy": 0.05000000194139302,
+          "flux_fraction": 1.0000000388278603,
+          "input_spectral_index": -0.7,
+          "recovered_spectral_index": -0.7000000391944013,
+          "spectral_index_error": -3.919440139110719e-8
+        },
+        {
+          "name": "extended",
+          "input_flux_jy": 0.1,
+          "recovered_flux_jy": 0.10000000043270423,
+          "flux_fraction": 1.0000000043270423,
+          "input_spectral_index": -1,
+          "recovered_spectral_index": -1.0000004072968933,
+          "spectral_index_error": -4.0729689332330565e-7
+        }
+      ],
+      "confidence_intervals": "not claimed: conditional template fit and correlated solve/input noise"
+    },
+    "methods": [
+      {
+        "method": "no-added-flags",
+        "mask_id": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09",
+        "trial": "baseline",
+        "clean_trial": "baseline",
+        "selected_for_deployment": false,
+        "guard_pass": true,
+        "objective": 1.25,
+        "added_count": 0,
+        "evaluation": {
+          "available": true,
+          "optimizer_success": true,
+          "rank": 4,
+          "scaled_jacobian_condition": 139.5276077132256,
+          "sample_count": 9169,
+          "weighted_fit_mse_proxy": 0.007139266826059622,
+          "function_evaluations": 12,
+          "parameters_at_bounds": true,
+          "sources": [
+            {
+              "name": "compact",
+              "input_flux_jy": 0.05,
+              "recovered_flux_jy": 0.00766819847930225,
+              "flux_fraction": 0.15336396958604498,
+              "input_spectral_index": -0.7,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -4.299999999999999,
+              "calibration_response_fraction": 0.15336396363125043,
+              "attenuation_fraction": 0.8466360363687495
+            },
+            {
+              "name": "extended",
+              "input_flux_jy": 0.1,
+              "recovered_flux_jy": 0.009306753085519927,
+              "flux_fraction": 0.09306753085519927,
+              "input_spectral_index": -1,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -3.999999999999999,
+              "calibration_response_fraction": 0.09306753045249214,
+              "attenuation_fraction": 0.9069324695475078
+            }
+          ],
+          "confidence_intervals": "not claimed: conditional template fit and correlated solve/input noise"
+        },
+        "template_coverage": [
+          {
+            "name": "compact",
+            "training_template_weighted_energy_lost_fraction": 0
+          },
+          {
+            "name": "extended",
+            "training_template_weighted_energy_lost_fraction": 0
+          }
+        ],
+        "unsupported_test_samples": 0,
+        "clean_vs_injected_corrected_variance_ratio_median": 1.0015259630641409,
+        "unseen_holdout_flagging_features": true
+      },
+      {
+        "method": "residual-selected",
+        "mask_id": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09",
+        "trial": "baseline",
+        "clean_trial": "baseline",
+        "selected_for_deployment": false,
+        "guard_pass": true,
+        "objective": 1.25,
+        "added_count": 0,
+        "evaluation": {
+          "available": true,
+          "optimizer_success": true,
+          "rank": 4,
+          "scaled_jacobian_condition": 139.5276077132256,
+          "sample_count": 9169,
+          "weighted_fit_mse_proxy": 0.007139266826059622,
+          "function_evaluations": 12,
+          "parameters_at_bounds": true,
+          "sources": [
+            {
+              "name": "compact",
+              "input_flux_jy": 0.05,
+              "recovered_flux_jy": 0.00766819847930225,
+              "flux_fraction": 0.15336396958604498,
+              "input_spectral_index": -0.7,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -4.299999999999999,
+              "calibration_response_fraction": 0.15336396363125043,
+              "attenuation_fraction": 0.8466360363687495
+            },
+            {
+              "name": "extended",
+              "input_flux_jy": 0.1,
+              "recovered_flux_jy": 0.009306753085519927,
+              "flux_fraction": 0.09306753085519927,
+              "input_spectral_index": -1,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -3.999999999999999,
+              "calibration_response_fraction": 0.09306753045249214,
+              "attenuation_fraction": 0.9069324695475078
+            }
+          ],
+          "confidence_intervals": "not claimed: conditional template fit and correlated solve/input noise"
+        },
+        "template_coverage": [
+          {
+            "name": "compact",
+            "training_template_weighted_energy_lost_fraction": 0
+          },
+          {
+            "name": "extended",
+            "training_template_weighted_energy_lost_fraction": 0
+          }
+        ],
+        "unsupported_test_samples": 0,
+        "clean_vs_injected_corrected_variance_ratio_median": 1.0015259630641409,
+        "unseen_holdout_flagging_features": true
+      },
+      {
+        "method": "tv-selected",
+        "mask_id": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09",
+        "trial": "baseline",
+        "clean_trial": "baseline",
+        "selected_for_deployment": false,
+        "guard_pass": true,
+        "objective": 1.25,
+        "added_count": 0,
+        "evaluation": {
+          "available": true,
+          "optimizer_success": true,
+          "rank": 4,
+          "scaled_jacobian_condition": 139.5276077132256,
+          "sample_count": 9169,
+          "weighted_fit_mse_proxy": 0.007139266826059622,
+          "function_evaluations": 12,
+          "parameters_at_bounds": true,
+          "sources": [
+            {
+              "name": "compact",
+              "input_flux_jy": 0.05,
+              "recovered_flux_jy": 0.00766819847930225,
+              "flux_fraction": 0.15336396958604498,
+              "input_spectral_index": -0.7,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -4.299999999999999,
+              "calibration_response_fraction": 0.15336396363125043,
+              "attenuation_fraction": 0.8466360363687495
+            },
+            {
+              "name": "extended",
+              "input_flux_jy": 0.1,
+              "recovered_flux_jy": 0.009306753085519927,
+              "flux_fraction": 0.09306753085519927,
+              "input_spectral_index": -1,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -3.999999999999999,
+              "calibration_response_fraction": 0.09306753045249214,
+              "attenuation_fraction": 0.9069324695475078
+            }
+          ],
+          "confidence_intervals": "not claimed: conditional template fit and correlated solve/input noise"
+        },
+        "template_coverage": [
+          {
+            "name": "compact",
+            "training_template_weighted_energy_lost_fraction": 0
+          },
+          {
+            "name": "extended",
+            "training_template_weighted_energy_lost_fraction": 0
+          }
+        ],
+        "unsupported_test_samples": 0,
+        "clean_vs_injected_corrected_variance_ratio_median": 1.0015259630641409,
+        "unseen_holdout_flagging_features": true
+      },
+      {
+        "method": "mad-native",
+        "mask_id": "481e1e29d0a0f8edd965bd42a4528fcb78d5c794d6aa8de4d3b4dd70f3253f98",
+        "trial": "mad-native-bl5-global10",
+        "clean_trial": "paired-mad-native-bl5-global10",
+        "selected_for_deployment": false,
+        "guard_pass": true,
+        "objective": 1.287492119290655,
+        "added_count": 960,
+        "evaluation": {
+          "available": true,
+          "optimizer_success": true,
+          "rank": 4,
+          "scaled_jacobian_condition": 122.23748379469127,
+          "sample_count": 9169,
+          "weighted_fit_mse_proxy": 0.006979462727823209,
+          "function_evaluations": 12,
+          "parameters_at_bounds": true,
+          "sources": [
+            {
+              "name": "compact",
+              "input_flux_jy": 0.05,
+              "recovered_flux_jy": 0.007887660274959768,
+              "flux_fraction": 0.15775320549919536,
+              "input_spectral_index": -0.7,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -4.299999999999999,
+              "calibration_response_fraction": 0.15775319937397614,
+              "attenuation_fraction": 0.8422468006260239
+            },
+            {
+              "name": "extended",
+              "input_flux_jy": 0.1,
+              "recovered_flux_jy": 0.010634797918910954,
+              "flux_fraction": 0.10634797918910953,
+              "input_spectral_index": -1,
+              "recovered_spectral_index": -4.999999999999999,
+              "spectral_index_error": -3.999999999999999,
+              "calibration_response_fraction": 0.10634797872893734,
+              "attenuation_fraction": 0.8936520212710627
+            }
+          ],
+          "confidence_intervals": "not claimed: conditional template fit and correlated solve/input noise"
+        },
+        "template_coverage": [
+          {
+            "name": "compact",
+            "training_template_weighted_energy_lost_fraction": 0.011310330620593298
+          },
+          {
+            "name": "extended",
+            "training_template_weighted_energy_lost_fraction": 0.025192795993148203
+          }
+        ],
+        "unsupported_test_samples": 0,
+        "clean_vs_injected_corrected_variance_ratio_median": 1.00144169476693,
+        "unseen_holdout_flagging_features": true
+      }
+    ],
+    "candidates": [
+      {
+        "mask_id": "5054559b35b88bc4ceca155636a8206d47d1b1534f6b0c63f3f348f6b495bc09",
+        "trial": "baseline",
+        "clean_trial": "baseline",
+        "families": [
+          "residual",
+          "tv"
+        ],
+        "policies": [
+          {
+            "threshold": 8,
+            "tv_weight": 0
+          },
+          {
+            "threshold": 5,
+            "tv_weight": 0
+          }
+        ],
+        "added_count": 0,
+        "metrics": {
+          "trial": "baseline",
+          "seconds": 5.427199960999928,
+          "tv": 0.1473368992289097,
+          "raw_tv": 0.2669671830898141,
+          "time_tv": 0.027053308990868646,
+          "frequency_tv": 0.12028359023804104,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.61335011443695,
+            "validation": 25.220796455199217,
+            "test": 24.933550859655213
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "clean_metrics": {
+          "trial": "baseline",
+          "seconds": 34.84026672499999,
+          "tv": 0.1474368700725686,
+          "raw_tv": 0.2673258258969277,
+          "time_tv": 0.027069979216836893,
+          "frequency_tv": 0.1203668908557317,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.6028462846425,
+            "validation": 25.20612259882604,
+            "test": 24.919607595129268
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 0,
+          "added_fraction": 0
+        },
+        "fixed_support_tv": 0.1473368992289097,
+        "objective": 1.25,
+        "guard_reasons": [],
+        "guard_pass": true
+      },
+      {
+        "mask_id": "cb0a6ae0b0d33b5c4279957422a8a726d5e40752a6b5fb438781d593099feb20",
+        "trial": "grid-w0-z3",
+        "clean_trial": "paired-grid-w0-z3",
+        "families": [
+          "residual"
+        ],
+        "policies": [
+          {
+            "threshold": 3,
+            "tv_weight": 0
+          }
+        ],
+        "added_count": 40,
+        "metrics": {
+          "trial": "grid-w0-z3",
+          "seconds": 6.324338920000059,
+          "tv": 0.1479615869891493,
+          "raw_tv": 0.2680723783812025,
+          "time_tv": 0.027171937257077138,
+          "frequency_tv": 0.12078964973207215,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.623437707780415,
+            "validation": 25.22923372553236,
+            "test": 24.95115040862832
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 40,
+          "added_fraction": 0.0005425935973955507
+        },
+        "clean_metrics": {
+          "trial": "paired-grid-w0-z3",
+          "seconds": 5.38016621099996,
+          "tv": 0.14805828730888965,
+          "raw_tv": 0.2684259305294635,
+          "time_tv": 0.027188380463369105,
+          "frequency_tv": 0.12086990684552054,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.612930188758845,
+            "validation": 25.214724737048805,
+            "test": 24.93715878771152
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 40,
+          "added_fraction": 0.0005425935973955507
+        },
+        "fixed_support_tv": 0.1479615869891493,
+        "objective": 1.2554086808105982,
+        "guard_reasons": [],
+        "guard_pass": true
+      },
+      {
+        "mask_id": "11ea0afb2b09ca99e19a7a6bd09e2ebdd2e4309ca094bb837ff732d087b6abef",
+        "trial": "grid-w1-z8",
+        "clean_trial": "paired-grid-w1-z8",
+        "families": [
+          "tv"
+        ],
+        "policies": [
+          {
+            "threshold": 8,
+            "tv_weight": 1
+          }
+        ],
+        "added_count": 537,
+        "metrics": {
+          "trial": "grid-w1-z8",
+          "seconds": 5.294297626999992,
+          "tv": 0.15045863366798515,
+          "raw_tv": 0.27544942979285886,
+          "time_tv": 0.028080244365051948,
+          "frequency_tv": 0.1223783893029332,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.848988492168203,
+            "validation": 25.480929222051948,
+            "test": 25.146953429486402
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 537,
+          "added_fraction": 0.007284319045035269
+        },
+        "clean_metrics": {
+          "trial": "paired-grid-w1-z8",
+          "seconds": 5.265131628000063,
+          "tv": 0.15054453759986053,
+          "raw_tv": 0.27579775557227404,
+          "time_tv": 0.02809336837513076,
+          "frequency_tv": 0.12245116922472976,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.83788137620934,
+            "validation": 25.465426370544257,
+            "test": 25.132757513561163
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 537,
+          "added_fraction": 0.007284319045035269
+        },
+        "fixed_support_tv": 0.15045863366798515,
+        "objective": 1.2883349223275495,
+        "guard_reasons": [
+          "validation unavailable or exceeds 1% degradation"
+        ],
+        "guard_pass": false
+      },
+      {
+        "mask_id": "a30d7e17079b69512cdb35fe7ab8af8bc181375a5aff5c1ed05c79c32525b309",
+        "trial": "grid-w1-z5",
+        "clean_trial": "paired-grid-w1-z5",
+        "families": [
+          "tv"
+        ],
+        "policies": [
+          {
+            "threshold": 5,
+            "tv_weight": 1
+          }
+        ],
+        "added_count": 951,
+        "metrics": {
+          "trial": "grid-w1-z5",
+          "seconds": 5.301043460999949,
+          "tv": 0.15306192197204946,
+          "raw_tv": 0.2788377785109025,
+          "time_tv": 0.028412051181312712,
+          "frequency_tv": 0.12464987079073675,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.92604237393106,
+            "validation": 25.53853719907722,
+            "test": 25.250928278022723
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 951,
+          "added_fraction": 0.012900162778079219
+        },
+        "clean_metrics": {
+          "trial": "paired-grid-w1-z5",
+          "seconds": 5.305647877999945,
+          "tv": 0.15313458485942383,
+          "raw_tv": 0.2791623739222826,
+          "time_tv": 0.028423037471841522,
+          "frequency_tv": 0.1247115473875823,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.91472941778312,
+            "validation": 25.52281565058229,
+            "test": 25.236055655609736
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 951,
+          "added_fraction": 0.012900162778079219
+        },
+        "fixed_support_tv": 0.15306192197204946,
+        "objective": 1.3178065962402374,
+        "guard_reasons": [
+          "validation unavailable or exceeds 1% degradation"
+        ],
+        "guard_pass": false
+      },
+      {
+        "mask_id": "b54638e6a444516ee7bc685724e881109b5876f9ba73161a138f41de5e948adf",
+        "trial": "grid-w1-z3",
+        "clean_trial": "paired-grid-w1-z3",
+        "families": [
+          "tv"
+        ],
+        "policies": [
+          {
+            "threshold": 3,
+            "tv_weight": 1
+          },
+          {
+            "threshold": 5,
+            "tv_weight": 3
+          }
+        ],
+        "added_count": 1130,
+        "metrics": {
+          "trial": "grid-w1-z3",
+          "seconds": 5.346233626999947,
+          "tv": 0.15356712568395248,
+          "raw_tv": 0.2798386605468317,
+          "time_tv": 0.028624659090881688,
+          "frequency_tv": 0.12494246659307078,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.941826097291926,
+            "validation": 25.585451696121076,
+            "test": 25.316019279677636
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 1130,
+          "added_fraction": 0.015328269126424309
+        },
+        "clean_metrics": {
+          "trial": "paired-grid-w1-z3",
+          "seconds": 5.226008418999982,
+          "tv": 0.1536373373081512,
+          "raw_tv": 0.28015639026362477,
+          "time_tv": 0.028635278780978185,
+          "frequency_tv": 0.12500205852717303,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.930461115399652,
+            "validation": 25.56964554719722,
+            "test": 25.300890358099267
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 1130,
+          "added_fraction": 0.015328269126424309
+        },
+        "fixed_support_tv": 0.15356712568395248,
+        "objective": 1.32655674823979,
+        "guard_reasons": [
+          "validation unavailable or exceeds 1% degradation"
+        ],
+        "guard_pass": false
+      },
+      {
+        "mask_id": "3007f3783462094e96854b9db9ade7505e9989e281e4f10cf49b3889a9a236d1",
+        "trial": "grid-w3-z8",
+        "clean_trial": "paired-grid-w3-z8",
+        "families": [
+          "tv"
+        ],
+        "policies": [
+          {
+            "threshold": 8,
+            "tv_weight": 3
+          }
+        ],
+        "added_count": 1040,
+        "metrics": {
+          "trial": "grid-w3-z8",
+          "seconds": 5.338424128000042,
+          "tv": 0.1533611899989975,
+          "raw_tv": 0.27946555145932317,
+          "time_tv": 0.028475926246035357,
+          "frequency_tv": 0.12488526375296216,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.932260964787737,
+            "validation": 25.56158406748451,
+            "test": 25.27067706804299
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 1040,
+          "added_fraction": 0.01410743353228432
+        },
+        "clean_metrics": {
+          "trial": "paired-grid-w3-z8",
+          "seconds": 5.314046168999994,
+          "tv": 0.15343324007080378,
+          "raw_tv": 0.2797854285627452,
+          "time_tv": 0.028486751150384945,
+          "frequency_tv": 0.12494648892041882,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.920930760600275,
+            "validation": 25.545854335623144,
+            "test": 25.25573726590084
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 1040,
+          "added_fraction": 0.01410743353228432
+        },
+        "fixed_support_tv": 0.1533611899989975,
+        "objective": 1.3224807705771786,
+        "guard_reasons": [
+          "validation unavailable or exceeds 1% degradation"
+        ],
+        "guard_pass": false
+      },
+      {
+        "mask_id": "f3fc9d57951f7db99831cf08af6330f4e732351ac9197e2ac536e0303caabd09",
+        "trial": "grid-w3-z3",
+        "clean_trial": "paired-grid-w3-z3",
+        "families": [
+          "tv"
+        ],
+        "policies": [
+          {
+            "threshold": 3,
+            "tv_weight": 3
+          }
+        ],
+        "added_count": 1131,
+        "metrics": {
+          "trial": "grid-w3-z3",
+          "seconds": 5.3082033779999165,
+          "tv": 0.15356395503905904,
+          "raw_tv": 0.27983776337986666,
+          "time_tv": 0.028621866720226038,
+          "frequency_tv": 0.124942088318833,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.942205118144997,
+            "validation": 25.586182965359182,
+            "test": 25.31762824116838
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 1131,
+          "added_fraction": 0.015341833966359197
+        },
+        "clean_metrics": {
+          "trial": "paired-grid-w3-z3",
+          "seconds": 5.341338127999961,
+          "tv": 0.15363411124133308,
+          "raw_tv": 0.28015549626721453,
+          "time_tv": 0.028632483946882326,
+          "frequency_tv": 0.12500162729445075,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.9308383964517,
+            "validation": 25.57037371073492,
+            "test": 25.30249290019731
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 1131,
+          "added_fraction": 0.015341833966359197
+        },
+        "fixed_support_tv": 0.15356395503905904,
+        "objective": 1.326569606899418,
+        "guard_reasons": [
+          "validation unavailable or exceeds 1% degradation"
+        ],
+        "guard_pass": false
+      },
+      {
+        "mask_id": "481e1e29d0a0f8edd965bd42a4528fcb78d5c794d6aa8de4d3b4dd70f3253f98",
+        "trial": "mad-native-bl5-global10",
+        "clean_trial": "paired-mad-native-bl5-global10",
+        "families": [],
+        "policies": [],
+        "added_count": 960,
+        "metrics": {
+          "trial": "mad-native-bl5-global10",
+          "seconds": 5.305071502999908,
+          "tv": 0.14865527661505623,
+          "raw_tv": 0.276827516748784,
+          "time_tv": 0.02784559898227243,
+          "frequency_tv": 0.12080967763278379,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.81641673901007,
+            "validation": 25.472962087404685,
+            "test": 25.11085687512499
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 960,
+          "added_fraction": 0.013022246337493217
+        },
+        "clean_metrics": {
+          "trial": "paired-mad-native-bl5-global10",
+          "seconds": 5.346891711000126,
+          "tv": 0.14876533567310757,
+          "raw_tv": 0.2772433796105088,
+          "time_tv": 0.027859960715279113,
+          "frequency_tv": 0.12090537495782847,
+          "scale": 1.0520039063056517,
+          "valid_gain_fraction": 0.3208705357142857,
+          "losses": {
+            "train": 24.80585853254585,
+            "validation": 25.457356780423662,
+            "test": 25.095187991051464
+          },
+          "invalid_predictions": {
+            "train": 0,
+            "validation": 0,
+            "test": 0
+          },
+          "added_count": 960,
+          "added_fraction": 0.013022246337493217
+        },
+        "fixed_support_tv": 0.14865527661505623,
+        "objective": 1.287492119290655,
+        "guard_reasons": [],
+        "guard_pass": true
+      }
+    ],
+    "common_test_samples": 9169,
+    "original_test_samples": 9169,
+    "lost_common_test_samples": 0,
+    "imaging": {
+      "wsclean_path": null,
+      "status": "not measured; WSClean absent in verified host/image; visibility-template metrics only"
+    },
+    "audit": {
+      "prepared_source_unchanged": true,
+      "original_input_tree_unchanged": true,
+      "clean_boundary": {
+        "validated": true,
+        "actual_scope": {
+          "telescope": "MeerKAT",
+          "band": "L",
+          "frequency_range_mhz": [
+            856,
+            1711.791015625
+          ]
+        },
+        "original_flags_and_rows_match": true,
+        "original_and_work_native_weights_match": true,
+        "work_data_matches_state": true,
+        "work_model_matches_state": true,
+        "model_scalar_unpolarized": true,
+        "split_masks_disjoint_and_eligible": true,
+        "split_counts": {
+          "train": 73720,
+          "validation": 9115,
+          "test": 9169
+        },
+        "working_data_differs_from_original": false,
+        "manifest_channels_and_split_counts_match": true,
+        "positive_gain_intervals_validated": true,
+        "original_copy_digest_verified": true,
+        "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "all_native_weight_sigma_columns_preserved": true,
+        "audited_weight_sigma_columns": [
+          "WEIGHT",
+          "WEIGHT_SPECTRUM",
+          "SIGMA",
+          "SIGMA_SPECTRUM"
+        ]
+      },
+      "injected_boundary": {
+        "validated": true,
+        "actual_scope": {
+          "telescope": "MeerKAT",
+          "band": "L",
+          "frequency_range_mhz": [
+            856,
+            1711.791015625
+          ]
+        },
+        "original_flags_and_rows_match": true,
+        "original_and_work_native_weights_match": true,
+        "work_data_matches_state": true,
+        "work_model_matches_state": true,
+        "model_scalar_unpolarized": true,
+        "split_masks_disjoint_and_eligible": true,
+        "split_counts": {
+          "train": 73720,
+          "validation": 9115,
+          "test": 9169
+        },
+        "working_data_differs_from_original": true,
+        "manifest_channels_and_split_counts_match": true,
+        "positive_gain_intervals_validated": true,
+        "original_copy_digest_verified": true,
+        "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+        "all_native_weight_sigma_columns_preserved": true,
+        "audited_weight_sigma_columns": [
+          "WEIGHT",
+          "WEIGHT_SPECTRUM",
+          "SIGMA",
+          "SIGMA_SPECTRUM"
+        ]
+      },
+      "signal_truth_decoded_or_used_for_selection": false,
+      "test_losses_used_for_selection": false,
+      "calibration_model_unchanged": true,
+      "original_flags_and_native_weights_preserved": true
+    },
+    "limitations": [
+      "four-antenna pointing scan, not representative science imaging",
+      "DI-gain-corrupted intrinsic injection; no off-axis beam or pointing effects",
+      "known template positions/extents and spectral family are evaluation-only",
+      "paired differences share the original noisy DATA; no independent-noise confidence intervals",
+      "original unflagged data not guaranteed RFI-free",
+      "native CARACAL operational features can see TEST DATA",
+      "amd64 emulation timings are not native cost claims"
+    ]
+  },
+  "artifact_sha256": {
+    "result.json": "39413dca5ea9ce341756f29ff1c22f9e460bd74f738209a68dd688d84a227570",
+    "signal-config.json": "071d318cd7c310c59d85f37d6995cec5b6433a7e791b5fccef08bae815ff81a7",
+    "frozen-selections.json": "0501049833011f469caee835978162d35ae0e4ba767b861e713c25eab87930bb",
+    "candidate-records.json": "1eaf8d8d7cea6c8f9e229dedbb5db1a20f9827b6a5bc14b62570ff608826cec9",
+    "signal-injection.json": "cd90f9112b29eb926deeda44516daf3a8ba2bef602e73f68ef3ce0f3c6d2ad44",
+    "signal-audit.json": "75b4cc646f6e5f5fcb404ce9e8fb779d95f6812db905ad2d2dd3017118560110"
+  },
+  "configuration": {
+    "frozen_before_solve": true,
+    "sources": [
+      {
+        "name": "compact",
+        "flux_jy": 0.05,
+        "l_arcmin": 12,
+        "m_arcmin": 8,
+        "fwhm_arcmin": 0,
+        "spectral_index": -0.7
+      },
+      {
+        "name": "extended",
+        "flux_jy": 0.1,
+        "l_arcmin": -15,
+        "m_arcmin": 10,
+        "fwhm_arcmin": 10,
+        "spectral_index": -1
+      }
+    ],
+    "reference_frequency_hz": 1283791015.625,
+    "prepared_dir": "/workspace/outputs/tv-flagging-actions-01",
+    "prepared_digest": "8d21dd5ab4ff0d689ee06379fdc5bc00890fcb7c6221beec5d30007e34afba4c",
+    "prepared_boundary": {
+      "validated": true,
+      "actual_scope": {
+        "telescope": "MeerKAT",
+        "band": "L",
+        "frequency_range_mhz": [
+          856,
+          1711.791015625
+        ]
+      },
+      "original_flags_and_rows_match": true,
+      "original_and_work_native_weights_match": true,
+      "work_data_matches_state": true,
+      "work_model_matches_state": true,
+      "model_scalar_unpolarized": true,
+      "split_masks_disjoint_and_eligible": true,
+      "split_counts": {
+        "train": 73720,
+        "validation": 9115,
+        "test": 9169
+      },
+      "working_data_differs_from_original": false,
+      "manifest_channels_and_split_counts_match": true,
+      "positive_gain_intervals_validated": true,
+      "original_copy_digest_verified": true,
+      "original_copy_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519"
+    },
+    "split_seed": 7,
+    "gain_intervals": [
+      2,
+      32
+    ],
+    "iterations": 50,
+    "max_fraction": 0.02,
+    "thresholds": [
+      8,
+      5,
+      3
+    ],
+    "tv_weights": [
+      0,
+      1,
+      3
+    ],
+    "mad_native": {
+      "threshold_bl": 5,
+      "threshold_global": 10,
+      "whitening": "native",
+      "off_diagonals": false
+    },
+    "include_native": false,
+    "mild_strategy": null,
+    "native_semantics": "operational features may see TEST DATA; comparison only, never claimed unseen-holdout flagging",
+    "objective": "TV_fixed/TV0 +2*added_fraction +.25*MSEvalidation/MSEvalidation0",
+    "selection": "source truth and TEST losses excluded; same mask for both paired solves",
+    "evaluation": "joint flux/power-law template fit on commonTEST; nativeweights propagated through fixed cleanG0",
+    "fit": {
+      "flux_bounds_jy": [
+        -1,
+        1
+      ],
+      "spectral_index_bounds": [
+        -5,
+        3
+      ],
+      "max_nfev": 100,
+      "reference_frequency_hz": 1283791015.625,
+      "conditioning_limit": 100000000
+    },
+    "imaging": {
+      "wsclean_path": null,
+      "status": "not measured; WSClean absent in verified host/image; visibility-template metrics only"
+    },
+    "suite_image": "sha256:0d8c178baa4b4c5fbc1e5b6fe12319a9d383594bd0b00fe71bf84c36d4f97b5f",
+    "module_sha256": "60743c3972d8fb24a3017931d5c79ca2085c30576a848b4ec567605fe3aad81b",
+    "helper_sha256": {
+      "flagging.py": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba",
+      "flagging_workflow.py": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a",
+      "flagging_prepared.py": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab",
+      "flagging_caracal.py": "e1d946860f9069dc5314e5c9baf3c89c6aad66bc28edfee87733c39d9aa04fa8",
+      "flagging_comparators.py": "c117f36616c5992c4782fb89d7d0236465ba49d9016d2d9edc31056778e68c84"
+    },
+    "versions": {
+      "quartical": "0.2.7",
+      "stimela": "2.1.4",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "numba": "0.67.0",
+      "codex-africanus": "0.4.4",
+      "python-casacore": "3.8.1"
+    }
+  },
+  "interpretation": {
+    "status": "negative conditional DI-gain paired-signal diagnostic; no deployed flags or images",
+    "constrained_fit_warning": "Both spectral indices hit the -5 lower bound for every evaluated method. Flux fractions are boundary-constrained known-template diagnostics, not trustworthy recovered astrophysical slopes or imaging validation.",
+    "gauge_noise_warning": "Common-unitary trace invariant; fixed clean-G0 native-weight variance proxy, correlated paired input/solve noise, no confidence intervals."
+  }
+}

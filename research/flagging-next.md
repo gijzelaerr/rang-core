@@ -1,11 +1,48 @@
 # Next research toward reliable TV-guided flagging
 
-Updated 2026-09-23 after pushed checkpoint `f782921`. Proposed hypotheses below
+Updated 2026-09-24 after the completed five-track experiment. Proposed hypotheses below
 are not established novelty. Keep the original user objective: MeerKAT L-band,
 QuartiCal full complex 2×2 gains, TV-map guidance, original Observatory flags,
 recoverable backups and Stimela2 execution.
 
-## Immediate experiment: structured actions
+## Next discriminating work after the concurrent measurements
+
+[All five requested tracks](flagging-concurrent.md) now have measured archives.
+The balanced ranker wins one seed, the fitted model still chooses no-change,
+legitimate delay gains can have high rawTV, and paired omitted-source recovery
+has severe attenuation/bound-hit spectra. The new61-antenna numeric tiles lack
+positive native cross-hand spectral weights. Do not respond by enlarging a model
+or silently changing flags/weights/fit bounds on these same test outcomes.
+
+1. Freeze a **science-preservation and identifiability** experiment before new
+   outcomes. Compare complete versus omitted injected sky, justified gain grids
+   and physical beam/pointing controls. Diagnose bound-hit spectral fits rather
+   than treating their flux fractions as validated astrophysical recovery.
+   Actual fixed-setting WSClean images require a verified executable and must
+   remain separate from known-template visibility fits. Keep TV as requested,
+   but require independent prediction/support/signal safeguards for acceptance.
+2. Find a **representative, natively supported** public MeerKAT L-band input.
+   Check original polarization/weight/flag/model provenance and safe native-MS
+   metadata before bounded acquisition. The current two tiles reject only our
+   strict four-correlation protocol; a partial-correlation full-Jones/gauge
+   protocol requires separately justified frozen assumptions, not row-weight
+   substitution. Recheck actual peak storage: the suite used6.9GiB against a
+   6GiB forecast, with8GiB reserve retained and no cleanup authorized.
+3. Test **real-solution excess-TV guidance** against residual and random rankings
+   at identical geometry/solve budgets on new groups. Synthetic trend/noise
+   thresholds cannot be imported into real gain maps without domain/uncertainty
+   checks. Quantify influence/local-response savings only after numerical
+   confirmation; report known flag-volume cost separately from learned benefit.
+4. Once those prerequisites pass, split by **independent observation**, confirm
+   learned nominations prospectively with actual full-Jones solves, and measure
+   matched signal/image accuracy and native compute cost against relevant mature
+   MAD/AOFlagger/Tricolour strategies. Existing CARACAL controls are useful
+   verification, not a full science-pipeline or state-of-the-art victory.
+
+These are proposals, not newly implemented or measured claims. Original flags,
+copied-MS writes/backups and held-out/truth separation remain non-negotiable.
+
+## Completed earlier experiment: structured actions
 
 Verification prerequisite: [inspect CARACAL's full shipped strategies and
 worker semantics](flagging-caracal.md), not just the reduced kernel comparator.
@@ -81,7 +118,10 @@ without better test prediction/signal fidelity is not a scientific success.
    Acquisition/processing must fit disk capacity; do not silently discard backups.
    A [public normal primary-calibrator candidate](flagging-public-data.md) now has
    verified numeric metadata: 61 participants, eight scans and full L-band.
-   No visibility acquisition, conversion or transfer experiment has run.
+   [Bounded acquisition/inspection](flagging-public-ingestion.md) now complete:
+   two61-antenna pilots have identically zero cross-hand spectral weights and
+   no strict four-correlation eligible cells. Conversion/calibration/independent
+   transfer remain unmeasured; no weights/flags are changed to force acceptance.
 5. **Identify when flagging is the wrong action.** Include robust likelihoods
    and, for parameterizable moving RFI, subtraction as controls. TABASCAL reports
    simulated MeerKAT gains from joint modeling rather than discarding data;
