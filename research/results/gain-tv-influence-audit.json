@@ -1,0 +1,300 @@
+{
+  "run_dir": "outputs/tv-influence-20260924-host-01",
+  "all_pass": true,
+  "predicate_count": 4620,
+  "categories": {
+    "receipts": 31,
+    "freeze_order": 7,
+    "state_weights": 21,
+    "canonical_gain": 247,
+    "masks": 253,
+    "freeze_content": 981,
+    "independent_step": 2037,
+    "objective": 240,
+    "labels": 123,
+    "controls": 614,
+    "metrics": 33,
+    "rankings": 28,
+    "guard_summary": 5
+  },
+  "reference": "independent analytic real Jacobian, weighted TRAIN normals, NumPy 32D projected eigen response, repolar gain/TV and VAL-only objective; no source/derived mutations",
+  "source_digest": "6adbfb663e85d81fb5a9ca1126f57fd6ea1242858bc898d1205759ff3e13f417",
+  "derived_tree_digest": "4e0bbce87c1ff5c9e44810c4d2e0ca75296cee49f70f4ae6f7a41668431a5be8",
+  "artifact_sha256": {
+    "gain-forecasts-antenna-local-seed105.npz": "7136fc3645990cc154741c311d390930d55759becea5f4013703566d35a1d183",
+    "gain-forecasts-balanced-clean.npz": "11e58be99b9343b9f3d8aaab77bd98d54efc025585d57db6f3b85d967208552d",
+    "gain-forecasts-antenna-local-seed101.npz": "cda3299c32b793e7edcdda38b9756b4301b3c21d092b0d6f447c1a8919f136c4",
+    "result.json": "6f84fd01ec1fc4da87f9c184c42608cb16fba063a2165618123c70679f16fcf6",
+    "gain-forecasts-antenna-local-seed103.npz": "7ac5ffd6f79ca627a7119ecbc4eca402617e141434041541c2add78279f15909",
+    "config.json": "84ee07704a36c734a4de02cb06bd3723dc3b4b7ac5471b3554ae566a8c0abba6",
+    "frozen-train-responses.json": "0027d9ec6d7c890301c9d08b05cb7c79ded0761a26f84d1b0ce36f5d9f13a107",
+    "gain-forecasts-time-burst-seed105.npz": "2521e722ac08d448dad4f22f2488b11fb1451a4dbfb1bf420d441fcd4b32a486",
+    "gain-forecasts-time-burst-seed103.npz": "cd2cd806a91904f521790ed638323de6344f32f986d8de9f57ea15d638d7ea3b",
+    "frozen-forecasts.json": "f67fdfa03c9fe9d08920a129b3d999d75768c65a7e15042c4cb20e9eefe55bd4",
+    "gain-forecasts-time-burst-seed101.npz": "def66530f9bfaaa96bafc14a22810171fbfbfcc30734d9c7174d7595aac89d58"
+  },
+  "runtime_receipts_verified": 11,
+  "freeze_order_mtime_ns": {
+    "gain-forecasts-antenna-local-seed105.npz": 1790238703527637200,
+    "gain-forecasts-balanced-clean.npz": 1790238701819431700,
+    "gain-forecasts-antenna-local-seed101.npz": 1790238702375458000,
+    "result.json": 1790238711949798700,
+    "gain-forecasts-antenna-local-seed103.npz": 1790238702928898800,
+    "config.json": 1790238701493174000,
+    "frozen-train-responses.json": 1790238703536216000,
+    "gain-forecasts-time-burst-seed105.npz": 1790238703200419600,
+    "gain-forecasts-time-burst-seed103.npz": 1790238702644947700,
+    "frozen-forecasts.json": 1790238705837238000,
+    "gain-forecasts-time-burst-seed101.npz": 1790238702086537700
+  },
+  "cases": [
+    {
+      "case_id": "balanced-clean",
+      "labels": 18,
+      "covered": 18,
+      "reference_full_normal_blocks": 21
+    },
+    {
+      "case_id": "time-burst-seed101",
+      "labels": 17,
+      "covered": 16,
+      "reference_full_normal_blocks": 16
+    },
+    {
+      "case_id": "antenna-local-seed101",
+      "labels": 18,
+      "covered": 18,
+      "reference_full_normal_blocks": 22
+    },
+    {
+      "case_id": "time-burst-seed103",
+      "labels": 16,
+      "covered": 15,
+      "reference_full_normal_blocks": 14
+    },
+    {
+      "case_id": "antenna-local-seed103",
+      "labels": 18,
+      "covered": 18,
+      "reference_full_normal_blocks": 15
+    },
+    {
+      "case_id": "time-burst-seed105",
+      "labels": 18,
+      "covered": 17,
+      "reference_full_normal_blocks": 16
+    },
+    {
+      "case_id": "antenna-local-seed105",
+      "labels": 18,
+      "covered": 18,
+      "reference_full_normal_blocks": 22
+    }
+  ],
+  "normal_blocks": 126,
+  "response_blocks": 174,
+  "response_rank_audit": {
+    "full_rank": 28,
+    "retained_rank": 28,
+    "gauge_rank": 4,
+    "native_status0_count": 174,
+    "trust_failures": 3
+  },
+  "max_gain_prediction_absolute_difference": 1.847794908044764e-14,
+  "summary": {
+    "clean": {
+      "labels": 18,
+      "covered": 18,
+      "physics_RMSE": 0.0000924995448693664,
+      "flag_cost_RMSE": 0.00041953040309246695,
+      "ratio": 4.53548613330967
+    },
+    "train": {
+      "labels": 35,
+      "covered": 34,
+      "physics_RMSE": 0.00009382783209093085,
+      "flag_cost_RMSE": 0.0004965624304147143,
+      "ratio": 5.292272232544854
+    },
+    "validation": {
+      "labels": 34,
+      "covered": 33,
+      "physics_RMSE": 0.00012128614786430156,
+      "flag_cost_RMSE": 0.0007290800974972386,
+      "ratio": 6.011239620809413
+    },
+    "test_case_group_retrospective": {
+      "labels": 36,
+      "covered": 35,
+      "physics_RMSE": 0.00008569426689901044,
+      "flag_cost_RMSE": 0.0006225449270382048,
+      "ratio": 7.264720844999651
+    }
+  },
+  "rankings": [
+    {
+      "case_id": "balanced-clean",
+      "physics_mask_id": null,
+      "actual_physics_benefit": 0,
+      "best_actual_benefit": 0,
+      "physics_regret": 0
+    },
+    {
+      "case_id": "time-burst-seed101",
+      "physics_mask_id": null,
+      "actual_physics_benefit": 0,
+      "best_actual_benefit": 0,
+      "physics_regret": 0
+    },
+    {
+      "case_id": "antenna-local-seed101",
+      "physics_mask_id": null,
+      "actual_physics_benefit": 0,
+      "best_actual_benefit": 0,
+      "physics_regret": 0
+    },
+    {
+      "case_id": "time-burst-seed103",
+      "physics_mask_id": null,
+      "actual_physics_benefit": 0,
+      "best_actual_benefit": 0,
+      "physics_regret": 0
+    },
+    {
+      "case_id": "antenna-local-seed103",
+      "physics_mask_id": null,
+      "actual_physics_benefit": 0,
+      "best_actual_benefit": 0,
+      "physics_regret": 0
+    },
+    {
+      "case_id": "time-burst-seed105",
+      "physics_mask_id": "2758fef712eab84e3433b99490d351acc8ad840797a361d196d1dbd425739873",
+      "actual_physics_benefit": 0.00034731048425151734,
+      "best_actual_benefit": 0.0007685912874668688,
+      "physics_regret": 0.00042128080321535144
+    },
+    {
+      "case_id": "antenna-local-seed105",
+      "physics_mask_id": null,
+      "actual_physics_benefit": 0,
+      "best_actual_benefit": 0,
+      "physics_regret": 0
+    }
+  ],
+  "abstentions": [
+    {
+      "case_id": "time-burst-seed101",
+      "mask_id": "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+      "reason": "curvature/trust block abstention",
+      "violating_steps": [
+        0.10607132331845551
+      ]
+    },
+    {
+      "case_id": "time-burst-seed103",
+      "mask_id": "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+      "reason": "curvature/trust block abstention",
+      "violating_steps": [
+        0.1125519596801781
+      ]
+    },
+    {
+      "case_id": "time-burst-seed105",
+      "mask_id": "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+      "reason": "curvature/trust block abstention",
+      "violating_steps": [
+        0.12933306250668
+      ]
+    }
+  ],
+  "positive_predicted_actions": 3,
+  "positive_sign_false_positives": 0,
+  "missed_positive_actions_due_abstention": [
+    {
+      "case_id": "time-burst-seed105",
+      "mask_id": "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+      "actual_benefit": 0.0007685912874668688
+    }
+  ],
+  "median_canonical_change_relative_error": 0.08315372921972004,
+  "median_canonical_change_cosine": 0.9968986441921709,
+  "failures": [],
+  "TEST_visibility_or_loss_used": false,
+  "new_QC_solves": 0,
+  "read_only_source_and_run": true,
+  "control_fit_labels": 35,
+  "training_only_fit_suffix": "101",
+  "chronology_evidence": "Artifact mtimes and checked AST control flow, not a forensic file-open trace. State/model DATA bytes may be loaded; heldout numeric scoring is deferred until all TRAIN responses are frozen.",
+  "limits": [
+    "Retrospective one-observation action response, not independent transfer or deployment.",
+    "Trust gate misses strongest actually-beneficial seed105 action; do not retune retrospectively.",
+    "Matched-coverage error advantage, not imaging/RFI/SOTA/fair-speedup advantage.",
+    "File chronology supports code control flow, not an independent filesystem access trace."
+  ],
+  "injection_truth_archive_decoded": false,
+  "injection_truth_values_used": false,
+  "audit_date_utc": "2026-09-24",
+  "counting_note": "4620 checks in this final pass only; not summed with earlier 108/2303/1297 prepared/balanced/archive checks, not independent statistical samples.",
+  "tolerances": {
+    "relative": 2e-9,
+    "absolute": 2e-11,
+    "diagnostics_absolute": 1e-8,
+    "gauge_null_limit": 1e-8
+  },
+  "runtime_receipts": {
+    "rangtoy.flagging_influence": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/python/rangtoy/flagging_influence.py",
+      "sha256": "c77905c30ff05949b0756b493fd25855fdb6c5df0577b13f00057e07509de51c"
+    },
+    "rangtoy": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/python/rangtoy/__init__.py",
+      "sha256": "e8bb5fe523aa5cb0be4f0c31d012876f3f9fe06a6cf005cc4d3928aca8e65c23"
+    },
+    "rangtoy.flagging": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/python/rangtoy/flagging.py",
+      "sha256": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba"
+    },
+    "rangtoy.flagging_prepared": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/python/rangtoy/flagging_prepared.py",
+      "sha256": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab"
+    },
+    "rangtoy.flagging_workflow": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/python/rangtoy/flagging_workflow.py",
+      "sha256": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a"
+    },
+    "rangtoy.projector": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/python/rangtoy/projector.py",
+      "sha256": "defd5e014480a0fd56fb4d8c16e729f0ad364d54f34ec8a2c6366f277530951f"
+    },
+    "Rust.response": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/src/response.rs",
+      "sha256": "8d0fa3aba4429ab5fc97e401d51ebde91ffce1cd92676f8ef952b8762098fb87"
+    },
+    "Rust.linalg": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/src/linalg.rs",
+      "sha256": "bbf3e40f655875b871dbe0203b2199bd5a3d5bb5e55bcff598850d3479e0363f"
+    },
+    "Rust.lib": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/src/lib.rs",
+      "sha256": "58de80a2411747b0d9cb409d43947f1a2faa7a769112ebac8a19ecffda066bf6"
+    },
+    "Rust.tv": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/src/tv.rs",
+      "sha256": "f9ffa3faceae2f10a780b97d237bbd1626cae9a4b9ed664dc1fdcabc43b60433"
+    },
+    "native_library": {
+      "path": "/Users/gijsm/Github/gijzelaerr/rang/target/release/librang_toy.dylib",
+      "sha256": "9d4b8105c06e946db797f5f0538c215b866af380f087b2b007f4b603f7cd9a02"
+    }
+  },
+  "frozen_protocol": {
+    "path": "research/flagging-reportable.md",
+    "sha256": "17667f1fbb2bca70ffddb1d34120fdf7682f798656007359bb796a54bc191c26"
+  },
+  "reference_python_sha256": "24cc1511dd1d8cc545a8c4b645c283c422f542803efd33e389617410bc961c94",
+  "reference_python": "import ast,json,time\nfrom pathlib import Path\nfrom hashlib import sha256\nimport numpy as np\nfrom rangtoy.flagging_workflow import tree_digest\np=Path('outputs/tv-influence-20260924-host-01'); before=tree_digest(p); config=json.loads((p/'config.json').read_text()); result=json.loads((p/'result.json').read_text()); train=json.loads((p/'frozen-train-responses.json').read_text()); frozen=json.loads((p/'frozen-forecasts.json').read_text()); source=Path(config['source']); source_before=tree_digest(source); counts={}; failures=[]; normal_error=0.; delta_error=0.; block_count=0\n\ndef check(ok,label,category):\n counts[category]=counts.get(category,0)+1\n if not bool(ok): failures.append(label)\ndef close(a,b,rtol=2e-9,atol=2e-11): return bool(np.allclose(a,b,rtol=rtol,atol=atol,equal_nan=True))\ndef npz(path,keys=None):\n with np.load(path,allow_pickle=False) as z:return {k:z[k] for k in (z.files if keys is None else keys)}\ndef polar(g,v):\n safe=np.where(np.isfinite(g),g,0).astype(complex); u,s,vh=np.linalg.svd(safe[:,:,0]); valid=v & (v[:,:,0] & (s[...,-1]>1e-8*np.maximum(s[...,0],1e-30)))[...,None]\n return safe@(u@vh).conj().swapaxes(-1,-2)[:,:,None],valid\n\ndef edges(g,v,t,f,scale):\n g=np.asarray(g,complex)/scale; out=np.full((2,*g.shape[:3]),np.nan)\n for axis,c in enumerate((t,f)):\n  d=np.diff(c); spacing=np.median(d); w=np.where(d<=3*spacing,spacing/d,0); lo=[slice(None)]*3;hi=lo.copy();lo[axis]=slice(None,-1);hi[axis]=slice(1,None);lo,hi=tuple(lo),tuple(hi);sh=[1]*3;sh[axis]=len(w);w=w.reshape(sh)\n  value=np.linalg.norm(g[hi]-g[lo],axis=(-1,-2))*w;out[axis][lo]=np.where(v[lo]&v[hi]&(w>0),value,np.nan)\n return out\n\ndef fixed(e,b):\n valid=np.isfinite(b)\n if not valid.any() or not np.isfinite(e[valid]).all():return None\n return sum(float(a[m].mean()) if m.any() else 0. for a,m in zip(e,valid))\n\ndef normal(g,m,r,w,antp,antq):\n n=len(m);left=g[antp]@m;right=m@g[antq].conj().swapaxes(-1,-2);j=np.zeros((n,8,32))\n for entry in range(4):\n  basis=np.zeros((2,2),complex);basis.flat[entry]=1;dp=(basis@right).reshape(n,4);dq=(left@basis.T).reshape(n,4)\n  for antenna in range(4):\n   pm=(antp==antenna)[:,None];qm=(antq==antenna)[:,None]\n   for imaginary in (0,1):\n    d=(1j if imaginary else 1)*dp*pm+(-1j if imaginary else 1)*dq*qm;col=8*antenna+2*entry+imaginary;j[:,0::2,col]=d.real;j[:,1::2,col]=d.imag\n jr=j.reshape(-1,32);wr=np.repeat(w,2,axis=1).ravel();rr=np.require(r.reshape(n,4),dtype=np.complex128,requirements=['C']).view(float).ravel()\n return jr.T@(wr[:,None]*jr),jr.T@(wr*rr)\n\ndef step(h,b,dh,db,g):\n active=np.array([np.trace(h[i*8:(i+1)*8,i*8:(i+1)*8])>0 for i in range(4)]);generators=(np.diag([1j,0]),np.diag([0,1j]),np.array([[0,1],[-1,0]]),np.array([[0,1j],[1j,0]]));vertical=[]\n for a in generators:\n  tangent=g@a;tangent[~active]=0;vector=np.require(tangent,dtype=complex,requirements=['C']).ravel().view(float).copy()\n  for _ in range(2):\n   for old in vertical:vector-=np.dot(vector,old)*old\n  vector/=np.linalg.norm(vector);vertical.append(vector)\n q=np.array(vertical).T;project=np.eye(32)-q@q.T;full=project@h@project;keep=project@(h-dh)@project;full=(full+full.T)/2;keep=(keep+keep.T)/2;fv,fu=np.linalg.eigh(full);kv,ku=np.linalg.eigh(keep);largest=fv[-1];cut=1e-10*largest;damping=1e-6*largest;fr=int((fv>cut).sum());kr=int((kv>cut).sum())\n def solve(vals,vecs,rhs):\n  good=vals>cut;return vecs[:,good]@((vecs[:,good].T@(project@rhs))/(vals[good]+damping))\n delta=solve(kv,ku,b-db)-solve(fv,fu,b);relative=max(np.linalg.norm(delta[i*8:(i+1)*8])/np.linalg.norm(g[i]) for i in range(4) if active[i]);smallest=kv[kv>cut].min();gscale=max(np.max(np.abs(h)),1e-30);gnull=np.max(np.abs(h@q))/gscale\n info={'full_rank':fr,'retained_rank':kr,'gauge_rank':4,'largest_curvature':largest,'smallest_retained_curvature':smallest,'condition':largest/smallest,'damping':damping,'max_relative_step':relative,'baseline_projected_score_norm':np.linalg.norm(project@b),'gauge_null_relative':gnull}\n return delta.view(complex).reshape(4,2,2),info,fr==8*active.sum()-4 and kr>=fr and kv.min()>=-cut and gnull<=1e-8 and relative<=.1\n\ncheck(source_before==config['source_digest'],'source receipt','receipts')\nfor name,item in config['runtime_receipts'].items():check(sha256(Path(item['path']).read_bytes()).hexdigest()==item['sha256'],'runtime '+name,'receipts')\nmt={f.name:f.stat().st_mtime_ns for f in p.iterdir() if f.is_file()};check(mt['config.json']<min(v for k,v in mt.items() if k.startswith('gain-forecasts-')),'config before gain caches','freeze_order');check(max(v for k,v in mt.items() if k.startswith('gain-forecasts-'))<mt['frozen-train-responses.json']<mt['frozen-forecasts.json']<mt['result.json'],'TRAIN/cache before VAL before labels result','freeze_order')\ncode=Path(config['runtime_receipts']['rangtoy.flagging_influence']['path']).read_text();tree=ast.parse(code);functions={n.name:n for n in tree.body if isinstance(n,ast.FunctionDef)};run_ast=functions['run']\ndef calls(node,name):return [n for n in ast.walk(node) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id==name]\ndef contains(node,value):return any(isinstance(n,ast.Constant) and n.value==value for n in ast.walk(node))\ntrain_stmts=[n for n in run_ast.body if calls(n,'_json') and contains(n,'frozen-train-responses.json')];val_stmts=[n for n in run_ast.body if calls(n,'_score_validation')];freeze_stmts=[n for n in run_ast.body if calls(n,'_json') and contains(n,'frozen-forecasts.json')];labels_stmts=[n for n in run_ast.body if contains(n,'result.json') and calls(n,'_npz')]\ncheck(len(train_stmts)==len(val_stmts)==len(freeze_stmts)==len(labels_stmts)==1,'unique explicit TRAIN/VAL/label stages','freeze_order');check(train_stmts[0].end_lineno<val_stmts[0].lineno and val_stmts[0].end_lineno<freeze_stmts[0].lineno and freeze_stmts[0].end_lineno<labels_stmts[0].lineno,'AST TRAIN freeze before VAL before labels','freeze_order')\nassign=[n for n in run_ast.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='forecasts' for t in n.targets)]\ncheck(len(assign)==1 and isinstance(assign[0].value,ast.DictComp) and assign[0].end_lineno<train_stmts[0].lineno and len(calls(assign[0],'forecast_case'))==1,'eager all-case TRAIN response construction before freeze','freeze_order')\ncheck(not contains(functions['forecast_case'],'result.json') and not contains(functions['forecast_case'],'test') and not contains(functions['forecast_case'],'truth') and not calls(functions['forecast_case'],'_score_validation'),'TRAIN forecaster no result/truth/TEST/VAL calls','freeze_order')\ncheck(len(calls(functions['_score_validation'],'_predict'))==1 and contains(functions['_score_validation'],'validation') and not contains(functions['_score_validation'],'test') and not contains(functions['_score_validation'],'result.json'),'validation scorer only VALIDATION prediction before labels','freeze_order')\ncomparisons={(x['case_id'],x['mask_id']):x for x in result['comparisons']};clean_weights=None;abstentions=[];case_info=[]\nfor name in config['case_ids']:\n sp=source/'experiments'/name;s=npz(sp/'state.npz');bd=npz(sp/'trials/baseline/diagnostics.npz',('gains','gain_valid','edges','gain_times','gain_frequencies'));metrics=json.loads((sp/'trials/baseline/metrics.json').read_text());raw=json.loads((sp/'result.json').read_text());rrank=json.loads((sp/'frozen-rankings.json').read_text());manifest=json.loads((sp/'manifest.json').read_text());cache=npz(p/f'gain-forecasts-{name}.npz');archive=npz(sp/'backups/frozen-actions.npz');g=bd['gains'].reshape(-1,4,2,2);tr=s['train'];vr,vc=np.where(s['validation']);r,c=np.where(tr);tm=np.unique(s['times'],return_inverse=True)[1]//2;fm=np.arange(len(s['frequencies']))//32;bins=tm[r]*bd['gains'].shape[1]+fm[c];antp,antq=s['antenna1'][r],s['antenna2'][r];models=s['model'][r,c].reshape(-1,2,2);gp=g[bins,antp];gq=g[bins,antq];residual=(s['data'][r,c]-(gp@models@gq.conj().swapaxes(-1,-2)).reshape(-1,4)).reshape(-1,2,2);weights=s['weights'][r,c];flat=np.flatnonzero(tr);baseline_gauge,bv=polar(bd['gains'],bd['gain_valid']);normals={}\n if clean_weights is None:clean_weights=s['weights']\n check(np.array_equal(clean_weights,s['weights'],equal_nan=True),'native weight arrays unchanged '+name,'state_weights')\n protected=s['original_flags'].any(axis=2)|s['original_rows'][:,None]|(s['antenna1']==s['antenna2'])[:,None]|~s['window'][None,:];check(tr.dtype==np.bool_ and not np.any(tr&protected),'protected TRAIN '+name,'state_weights');check(np.isfinite(weights).all() and np.all(weights>0),'positive native 4corr TRAIN weights '+name,'state_weights');check(tree_digest(sp/'original.ms')==manifest['original_copy_digest'],'original table bytes '+name,'receipts');check(close(baseline_gauge,cache['baseline_gauge_gains']) and np.array_equal(bv,cache['baseline_tv_valid']),'canonical baseline '+name,'canonical_gain')\n records=frozen[name]['records'];trained=train[name]['records'];check(len(records)==len(raw['actions'])==len(trained)==len(archive),'case action tally '+name,'masks');candidate_union={}\n for mode in ('residual','tv','random'):\n  for x in rrank['rankings'][mode]:candidate_union.setdefault(x['mask_id'],x)\n for index,(forecast,train_record,candidate) in enumerate(zip(records,trained,candidate_union.values(),strict=True)):\n  mask_id=forecast['mask_id'];label=name+' '+mask_id;comparison=comparisons[(name,mask_id)];indices=archive[f'action_{index}'];pos=np.searchsorted(flat,indices);check(np.array_equal(flat[pos],indices) and sha256(indices.astype('<i8').tobytes()).hexdigest()==mask_id and candidate==forecast['candidate']==train_record['candidate'],'whole TRAIN indices/metadata '+label,'masks');check(len(indices)==candidate['sample_count'] and candidate['added_fraction']==len(indices)/tr.sum() and 8<=len(indices)<=int(.02*tr.sum()),'TRAIN count/budget '+label,'masks')\n  for key,value in train_record.items():check(forecast.get(key)==value or key in ('guard_pass','reason'),'TRAIN forecast immutable '+label+key,'freeze_content')\n  predicted=g.copy();guards=[]\n  for audit in train_record['bin_audits']:\n   bid=audit['bin_id'];choose=bins==bid\n   if bid not in normals:normals[bid]=normal(g[bid],models[choose],residual[choose],weights[choose],antp[choose],antq[choose])\n   h,b=normals[bid];remove=pos[bins[pos]==bid];dh,db=normal(g[bid],models[remove],residual[remove],weights[remove],antp[remove],antq[remove]);delta,info,guard=step(h,b,dh,db,g[bid]);block_count+=1;check(guard==audit['guard_pass'],'NumPy block guard '+label+str(bid),'independent_step')\n   for key,value in info.items():\n    if key=='gauge_null_relative':check(value<1e-8 and audit['diagnostics'][key]<1e-8,'gauge null '+label+str(bid),'independent_step')\n    else:check(close(value,audit['diagnostics'][key],atol=1e-8),'NumPy diagnostics '+label+str(bid)+key,'independent_step')\n   if guard:predicted[bid]+=delta\n   guards.append(guard)\n  if all(guards):\n   delta_error=max(delta_error,float(np.max(np.abs(predicted.reshape(bd['gains'].shape)-cache['raw_predicted_gains'][index]))));check(close(predicted.reshape(bd['gains'].shape),cache['raw_predicted_gains'][index]),'all NumPy response gains '+label,'independent_step');aligned,pvalid=polar(predicted.reshape(bd['gains'].shape),bd['gain_valid']);check(close(aligned,cache['predicted_gauge_gains'][index]),'repolar predicted '+label,'canonical_gain');tv=fixed(edges(aligned,pvalid,bd['gain_times'],bd['gain_frequencies'],metrics['scale']),bd['edges']);check(close(tv,forecast['predicted_fixed_tv']),'fixed support TV '+label,'objective')\n  else:check(np.isnan(cache['raw_predicted_gains'][index]).all() and np.isnan(cache['predicted_gauge_gains'][index]).all(),'abstention cache missing '+label,'independent_step');abstentions.append({'case_id':name,'mask_id':mask_id,'reason':train_record['reason'],'violating_steps':[a['diagnostics']['max_relative_step'] for a in train_record['bin_audits'] if not a['guard_pass']]})\n  if forecast.get('predicted_benefit') is not None:\n   pred=cache['raw_predicted_gains'][index];vp=(pred[tm[vr],fm[vc],s['antenna1'][vr]]@s['model'][vr,vc].reshape(-1,2,2)@pred[tm[vr],fm[vc],s['antenna2'][vr]].conj().swapaxes(-1,-2)).reshape(-1,4);val=float(np.mean(np.mean(np.abs(s['data'][vr,vc]-vp)**2*s['weights'][vr,vc],axis=-1)));obj=forecast['predicted_fixed_tv']/metrics['tv']+2*candidate['added_fraction']+.25*val/metrics['losses']['validation'];check(close(val,forecast['predicted_validation_MSE']) and close(obj,forecast['predicted_objective']) and close(1.25-obj,forecast['predicted_benefit']),'VAL objective '+label,'objective')\n   actual=raw['actions'][index];ad=npz(sp/'trials'/actual['metrics']['trial']/'diagnostics.npz',('gauge_gains','tv_valid'));common=bv&ad['tv_valid'];achange=(ad['gauge_gains']-baseline_gauge)[common];pchange=(cache['predicted_gauge_gains'][index]-baseline_gauge)[common];an,pn=float(np.linalg.norm(achange)),float(np.linalg.norm(pchange));diag={'common_gain_cells':int(common.sum()),'actual_change_norm':an,'predicted_change_norm':pn,'change_relative_error':float(np.linalg.norm(pchange-achange)/max(an,1e-30)),'change_cosine':float(np.vdot(achange,pchange).real/max(an*pn,1e-30))};check(all(close(v,comparison['canonical_gain_change'][k]) for k,v in diag.items()),'actual canonical dG '+label,'canonical_gain')\n  actual=raw['actions'][index];expected=1.25-actual['objective'] if actual.get('guard_pass') else None;check(comparison['actual_benefit']==expected and comparison['actual_guard_pass']==actual['guard_pass'],'actual label '+label,'labels');check(all(comparison[k]==v for k,v in forecast.items()),'comparison preserves frozen prediction '+label,'freeze_content')\n case_info.append({'case_id':name,'labels':len(records),'covered':sum(x.get('predicted_benefit') is not None for x in records),'reference_full_normal_blocks':len(normals)})\nrows=result['comparisons'];fit=[x for x in rows if x['case_id'].endswith('101') and x['actual_benefit'] is not None];design=np.array([[1.,np.log1p(x['candidate']['residual_score'])] for x in fit]);targets=np.array([x['actual_benefit'] for x in fit]);coeff=np.linalg.lstsq(design,targets,rcond=1e-10)[0];check(close(coeff,result['TRAIN101_residual_coefficients']),'TRAIN101-only fit','controls')\nfor row in rows:\n label=row['case_id']+' '+row['mask_id'];fraction=row['candidate']['added_fraction'];check(close(row['TRAIN101_mean_prediction'],targets.mean()),'TRAIN101 mean prediction '+label,'controls');check(close(row['TRAIN101_residual_linear_prediction'],np.array([1.,np.log1p(row['candidate']['residual_score'])])@coeff),'TRAIN101 residual prediction '+label,'controls');check(row['known_flag_cost_prediction']==-2*fraction,'known exact budget cost '+label,'controls');check(close(row['actual_cost_removed_benefit'],row['actual_benefit']+2*fraction),'actual cost removed benefit '+label,'controls')\n if row.get('predicted_benefit') is not None:check(close(row['predicted_cost_removed_benefit'],row['predicted_benefit']+2*fraction),'predicted cost removed benefit '+label,'controls')\ncheck(len(fit)==35 and all(x['case_id'].endswith('101') for x in fit),'fit only 35 seed101 actual labels; no clean/VAL/test seed labels','controls')\nsummary={}\nfor key,suffix in (('clean','clean'),('train','101'),('validation','103'),('test_case_group_retrospective','105')):\n eligible=[x for x in rows if x['case_id'].endswith(suffix) and x['actual_benefit'] is not None];covered=[x for x in eligible if x.get('predicted_benefit') is not None];s=result['summary'][key];check((len(eligible),len(covered),len(eligible)-len(covered))==(s['labels'],s['covered'],s['abstentions']),'coverage '+key,'metrics')\n for predictor,value in s['matched_coverage_RMSE'].items():check(close(float(np.sqrt(np.mean([(x[predictor]-x['actual_benefit'])**2 for x in covered]))),value),'matched RMSE '+key+predictor,'metrics')\n for predictor,value in s['matched_coverage_cost_removed_RMSE'].items():\n  expected=float(np.sqrt(np.mean([(x['predicted_cost_removed_benefit']-x['actual_cost_removed_benefit'])**2 if predictor=='physics_response' else x['actual_cost_removed_benefit']**2 for x in covered])));check(close(expected,value),'cost removed RMSE '+key+predictor,'metrics')\n check(close(float(np.sqrt(np.mean([(x['known_flag_cost_prediction']-x['actual_benefit'])**2 for x in eligible]))),s['all_label_flag_cost_RMSE']),'all-label flag cost RMSE '+key,'metrics')\n summary[key]={'labels':len(eligible),'covered':len(covered),'physics_RMSE':s['matched_coverage_RMSE']['predicted_benefit'],'flag_cost_RMSE':s['matched_coverage_RMSE']['known_flag_cost_prediction'],'ratio':s['matched_coverage_RMSE']['known_flag_cost_prediction']/s['matched_coverage_RMSE']['predicted_benefit']}\nrng=np.random.default_rng(137);rankings=[]\nfor name in config['case_ids']:\n case=[x for x in rows if x['case_id']==name];good=[x for x in case if x.get('predicted_benefit') is not None and x['guard_pass'] and x['predicted_benefit']>0];selected=min(good,key=lambda x:(-x['predicted_benefit'],x['candidate']['added_fraction'],x['mask_id'])) if good else None;residual=min(case,key=lambda x:(-x['candidate']['residual_score'],x['mask_id']));random=sorted(case,key=lambda x:x['mask_id'])[int(rng.integers(len(case)))];best=max([0.]+[x['actual_benefit'] for x in case if x['actual_benefit'] is not None])\n for key,row in (('physics',selected),('residual_first',residual),('seed137_random_first',random),('known_cost_no_change',None)):\n  stored=result['retrospective_one_slot_rankings_on_existing_union'][name][key];benefit=row['actual_benefit'] if row else 0.;check(stored['mask_id']==(row['mask_id'] if row else None) and stored['actual_benefit']==benefit and close(stored['regret'],best-benefit),'ranking '+name+key,'rankings')\n rankings.append({'case_id':name,'physics_mask_id':selected['mask_id'] if selected else None,'actual_physics_benefit':selected['actual_benefit'] if selected else 0.,'best_actual_benefit':best,'physics_regret':best-(selected['actual_benefit'] if selected else 0.)})\nall_bins=[a for case in train.values() for record in case['records'] for a in record['bin_audits']];check(len(all_bins)==174 and all(a['native_status']==0 for a in all_bins),'all174 native response statuses0','guard_summary');check(all(a['diagnostics']['full_rank']==28 and a['diagnostics']['retained_rank']==28 and a['diagnostics']['gauge_rank']==4 for a in all_bins),'all174 expected28/retained28/gauge4 ranks','guard_summary');check(sum(not a['guard_pass'] for a in all_bins)==3 and all(a['diagnostics']['max_relative_step']>.1 for a in all_bins if not a['guard_pass']),'three trust-only failing bins; no rank/curvature failure','guard_summary')\npositive=[x for x in rows if x.get('predicted_benefit',-1)>0];missed=[x for x in rows if x['actual_benefit'] is not None and x['actual_benefit']>0 and x.get('predicted_benefit') is None];check(len(positive)==3 and all(x['actual_benefit']>0 for x in positive),'three positive forecasts, no benefit-sign false positives','guard_summary');check(sum(x['actual_benefit']>0 for x in rows if x['actual_benefit'] is not None)==4 and len(missed)==1,'four actual positive labels, one abstained miss','guard_summary')\ncheck(sum(x.get('predicted_benefit') is not None for x in rows)==120 and len(rows)==123,'123 labels/120 coverage','metrics');check(tree_digest(source)==source_before and tree_digest(p)==before,'source and derived unchanged by audit','receipts')\nfor name,item in config['runtime_receipts'].items():check(sha256(Path(item['path']).read_bytes()).hexdigest()==item['sha256'],'final runtime '+name,'receipts')\noutput={'run_dir':str(p),'all_pass':not failures,'predicate_count':sum(counts.values()),'categories':counts,'reference':'independent analytic real Jacobian, weighted TRAIN normals, NumPy 32D projected eigen response, repolar gain/TV and VAL-only objective; no source/derived mutations','source_digest':source_before,'derived_tree_digest':before,'artifact_sha256':{f.name:sha256(f.read_bytes()).hexdigest() for f in p.iterdir() if f.is_file()},'runtime_receipts_verified':len(config['runtime_receipts']),'freeze_order_mtime_ns':mt,'cases':case_info,'normal_blocks':sum(x['reference_full_normal_blocks'] for x in case_info),'response_blocks':block_count,'response_rank_audit':{'full_rank':28,'retained_rank':28,'gauge_rank':4,'native_status0_count':len(all_bins),'trust_failures':sum(not a['guard_pass'] for a in all_bins)},'max_gain_prediction_absolute_difference':delta_error,'summary':summary,'rankings':rankings,'abstentions':abstentions,'positive_predicted_actions':len(positive),'positive_sign_false_positives':sum(x['actual_benefit']<=0 for x in positive),'missed_positive_actions_due_abstention':[{'case_id':x['case_id'],'mask_id':x['mask_id'],'actual_benefit':x['actual_benefit']} for x in missed],'median_canonical_change_relative_error':float(np.median([x['canonical_gain_change']['change_relative_error'] for x in rows if x.get('canonical_gain_change')])),'median_canonical_change_cosine':float(np.median([x['canonical_gain_change']['change_cosine'] for x in rows if x.get('canonical_gain_change')])),'failures':failures,'TEST_visibility_or_loss_used':False,'injection_truth_archive_decoded':False,'injection_truth_values_used':False,'new_QC_solves':0,'read_only_source_and_run':True,'control_fit_labels':len(fit),'training_only_fit_suffix':'101','chronology_evidence':'Artifact mtimes and checked AST control flow, not a forensic file-open trace. State/model DATA bytes may be loaded; heldout numeric scoring is deferred until all TRAIN responses are frozen.','limits':['Retrospective one-observation action response, not independent transfer or deployment.','Trust gate misses strongest actually-beneficial seed105 action; do not retune retrospectively.','Matched-coverage error advantage, not imaging/RFI/SOTA/fair-speedup advantage.','File chronology supports code control flow, not an independent filesystem access trace.']}\nprint(json.dumps(output,indent=2,allow_nan=False))",
+  "truth_data_boundary": "No injection truth archive opened or truth value consumed by audit numerics. Decoded actual result JSON includes unused post-selection report fields. State NPZ loads DATA bytes; numeric operations use TRAIN, then validation, never TEST.",
+  "native_column_boundary": "Fresh whole original.ms/source-tree byte digests and state-weight checks preserve the previously validated native column receipts. This host-only audit does not freshly reopen table columns with casacore.",
+  "execution_boundary": "No QuartiCal solves, MS/flags/cache writes, native compilation or source/run edits. Only the two new research audit files are authored."
+}

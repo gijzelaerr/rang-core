@@ -25,6 +25,13 @@ and measured patch-action learning. These small MeerKAT L-band pilots retain
 negative results; lower gain TV does not consistently mean better prediction,
 and no flagging or imaging superiority is established.
 
+[Latest flagging findings](research/flagging-findings.md): a TRAIN-only physical
+gain-response surrogate predicts the counterfactual objective beyond the known
+flag cost (7.26× smaller matched-coverage RMSE in the held-out seed group), while
+legitimate smooth receiver phases change TV-guided decisions despite invariant
+residuals. Both findings reuse one four-antenna observation; they motivate safer
+candidate triage and physical-trend controls, not an operational flagger.
+
 ## What we have learned
 
 Small dish-to-dish beam differences can masquerade as pointing. In an
@@ -72,7 +79,9 @@ not a streaming or full-polarization pipeline.
 The katbeam adapter provides a simplified holography-informed scalar response,
 not complete measured antenna Jones beams. A public Measurement Set reader has
 been exercised, but antenna-label and pointing-coordinate conventions remain
-unresolved. **No real-data calibration or improved deconvolved image is claimed.**
+unresolved. The pointing demonstrator does not establish real-observation
+pointing calibration or improved deconvolved images. Actual QuartiCal gain solves
+in the separate flagging pilots are visibility-space research diagnostics.
 Structured projection benchmarks are not end-to-end calibrator speedups.
 
 [Geometry and provenance](data/README.md) ·

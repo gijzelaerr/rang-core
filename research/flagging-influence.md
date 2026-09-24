@@ -93,3 +93,12 @@ of TRAIN curvature and resource preflight checks. These are numerical/software
 checks, not measured real-action superiority. Rust-backed walltimes include FFI
 orchestration; comparison with emulated QuartiCal cannot establish a fair speedup.
 No independent transfer, imaging, robust RFI classification or SOTA claim.
+
+First measured retrospective replay uses implementation `8836e85` at
+`outputs/tv-influence-20260924-host-01`; see
+[compact outcomes](results/gain-tv-influence.json),
+[independent verification](flagging-influence-verification.md) and
+[findings synthesis](flagging-findings.md). A later metadata-only change records
+host Python/NumPy/platform versions before future runs. The original raw config,
+module/native hashes and its audit remain unchanged; versions observed at
+curation are explicitly labelled, not presented as a pre-run freeze.

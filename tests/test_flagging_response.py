@@ -1,6 +1,8 @@
 """Frozen response controls, unrestricted real fits and checked storage guards."""
 
-from types import SimpleNamespace
+import sys
+from contextlib import nullcontext
+from types import ModuleType, SimpleNamespace
 
 import numpy as np
 import pytest
@@ -102,6 +104,120 @@ def test_full_jones_correction_decomposition_can_show_exact_gain_cancellation():
     np.testing.assert_allclose(injected - clean, 0, atol=1e-13)
     np.testing.assert_allclose(direct, 1 / 1.01, atol=1e-13)
     np.testing.assert_allclose(adaptation, -1 / 1.01, atol=1e-13)
+
+
+@pytest.mark.parametrize("sign", [1, -1])
+def test_native_complex64_DATA_delta_casts_before_subtraction_for_exact_closure(
+    tmp_path, monkeypatch, sign
+):
+    # Small imaginary components beside bright real visibilities expose a loss
+    # in narrow subtraction. This exercises _inject itself with a native-dtype,
+    # in-memory table, not a duplicate precision implementation or a QC solve.
+    count = 4
+    original = np.zeros((count, 1, 4), np.complex64)
+    original[..., 0] = 10 + 1j * 2**-30
+    original[..., 3] = 10
+    original_bytes = original.tobytes()
+    model = original.copy()
+    model_bytes = model.tobytes()
+    train = np.ones((count, 1), bool)
+    train[-1] = False
+    state = {
+        "data": original.copy(),
+        "model": model,
+        "train": train,
+        "validation": np.zeros_like(train),
+        "test": np.zeros_like(train),
+    }
+    stored = {
+        "DATA": original.copy(),
+        "FLAG": np.zeros_like(original, bool),
+        "FLAG_ROW": np.zeros(count, bool),
+    }
+    written_columns = []
+
+    class NativeTable:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def getcol(self, name):
+            return stored[name].copy()
+
+        def putcol(self, name, values):
+            assert name == "DATA"
+            written_columns.append(name)
+            stored[name] = np.asarray(values, np.complex64).copy()
+
+        def flush(self):
+            pass
+
+    tables = ModuleType("casacore.tables")
+    tables.table = lambda *_args, **_kwargs: NativeTable()
+    monkeypatch.setitem(sys.modules, "casacore", ModuleType("casacore"))
+    monkeypatch.setitem(sys.modules, "casacore.tables", tables)
+    monkeypatch.setattr(response, "_clone", lambda *_args: (state, {}))
+    identity = np.broadcast_to(np.eye(2), (int(train.sum()), 2, 2)).astype(complex)
+    monkeypatch.setattr(
+        response,
+        "_jones_samples",
+        lambda *_args: (identity, identity, np.ones(int(train.sum()), bool)),
+    )
+    monkeypatch.setattr(
+        response, "validate_prepared_state", lambda *_args: {"validated": True}
+    )
+    snapshots = {}
+    budget = SimpleNamespace(
+        mkdir=lambda *_args: None,
+        copy=lambda *_args: None,
+        json=lambda *_args: None,
+        operation=lambda *_args: nullcontext(),
+        npz=lambda path, **arrays: snapshots.update({path.name: arrays}),
+    )
+    _, _, wide = response._inject(
+        tmp_path / "source",
+        tmp_path / "case",
+        sign,
+        np.full((count, 1), 0.06j),
+        {},
+        budget,
+    )
+    expected = stored["DATA"].astype(np.complex128) - original.astype(np.complex128)
+    assert wide.dtype == np.complex128
+    np.testing.assert_array_equal(wide, expected)
+    np.testing.assert_array_equal(wide[~train], 0)
+    np.testing.assert_array_equal(stored["DATA"][~train], original[~train])
+    assert original.tobytes() == original_bytes and model.tobytes() == model_bytes
+    assert written_columns == ["DATA"]
+    assert stored["DATA"].dtype == np.complex64
+    np.testing.assert_array_equal(
+        snapshots["rounded-injection.npz"]["actual_delta"], wide
+    )
+    np.testing.assert_array_equal(
+        snapshots["DATA-before-flags.npz"]["FLAG"],
+        snapshots["DATA-after-flags.npz"]["FLAG"],
+    )
+    # Non-diagonal full Jones inverses, identical before/after for this linear
+    # precision test. Casting the already-subtracted complex64 value is too late.
+    gp = np.broadcast_to(
+        np.array([[1 + 0.03j, 0.02 + 0.01j], [-0.01j, 1 - 0.02j]]), (count, 2, 2)
+    )
+    gq = np.broadcast_to(
+        np.array([[1 - 0.02j, -0.01 + 0.02j], [0.03j, 1 + 0.04j]]), (count, 2, 2)
+    )
+    jones = gp, gq, np.ones(count, bool)
+    weights = np.ones((count, 4))
+    total = (
+        response._correct(stored["DATA"][:, 0], weights, jones)[0]
+        - response._correct(original[:, 0], weights, jones)[0]
+    )
+    direct = response._correct(wide[:, 0], weights, jones)[0]
+    narrow_then_cast = (stored["DATA"] - original).astype(np.complex128)
+    wrong = response._correct(narrow_then_cast[:, 0], weights, jones)[0]
+    assert np.max(np.abs(total - direct)) < 1e-10
+    assert np.max(np.abs(total - wrong)) > 1e-10
 
 
 def test_rank_deficiency_does_not_invent_flux_and_negative_noise_is_not_dropped():

@@ -387,8 +387,13 @@ def _inject(source, directory, sign, predicted, reference_gains, budget):
     original_data = state["data"]
     new_data = original_data.copy()
     new_data[row, channel] = original_data[row, channel] + delta
-    actual_delta = np.zeros_like(original_data)
-    actual_delta[row, channel] = new_data[row, channel] - original_data[row, channel]
+    # Difference the two STORED native values in wide precision. Subtracting in
+    # complex64 first loses small components and breaks the exact linear
+    # inverse-Jones decomposition, even after subsequently casting to complex128.
+    actual_delta = np.zeros_like(original_data, dtype=np.complex128)
+    actual_delta[row, channel] = new_data[row, channel].astype(
+        np.complex128
+    ) - original_data[row, channel].astype(np.complex128)
     with table(str(directory / "work.ms"), readonly=False, ack=False) as work:
         before = (work.getcol("FLAG"), work.getcol("FLAG_ROW"))
         budget.npz(
@@ -427,6 +432,8 @@ def _inject(source, directory, sign, predicted, reference_gains, budget):
             "DATA_rounding_linf_jy": float(
                 np.max(np.abs(actual_delta[row, channel] - delta))
             ),
+            "actual_delta_dtype": str(actual_delta.dtype),
+            "actual_delta_precision": "cast stored native DATA values before subtraction",
             "backed_up_before_DATA_write": True,
         },
     )

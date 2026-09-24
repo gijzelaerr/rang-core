@@ -43,4 +43,15 @@ outputs/completed-suite`. Frozen source/native-library/module hashes are
 checked again after the complete replay. Fourteen targeted tests cover
 full-matrix prediction/residual invariance, legitimate smooth-phase TV,
 TEST-value objective independence and fresh/capped checkpoint writes.
-Actual measured follow-up results are pending, not implied by unit tests.
+Unit tests alone imply no measured policy success; the first actual replay
+is routed below.
+
+Measured first replay and independent audit use implementation `8836e85`:
+`outputs/tv-equivariance-20260924-host-01`, compact
+[gain-tv-equivariance.json](results/gain-tv-equivariance.json), independent
+[verification](flagging-equivariance-verification.md). A later metadata-only
+fix splits an ambiguous combined no-write/no-decode field and records host
+versions before future runs. Numeric DATA/model/weights ARE decoded; injection
+truth is not. Old raw configuration/hashes are retained unchanged, with an
+explicit wording correction in the compact archive. This is not a numerical
+rerun or additional independent evidence.

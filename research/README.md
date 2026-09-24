@@ -13,7 +13,10 @@ limits. Latest exact run paths remain in [STATE.md](STATE.md).
 [Persistent discriminating follow-up](flagging-reportable.md) freezes local
 gain-response prediction, complete/omitted sky controls, smoothphaseTV specificity
 and supported-data/gauge review. New implementations have separate recipes;
-actual follow-up solver/replay measurements remain pending. The read-only
+the physical surrogate and smooth-phase replays are measured. The calibration
+response control retains a precision-related evaluation failure pending a
+fresh checked rerun. [Reportable findings](flagging-findings.md) distinguish
+the useful mechanisms from policy/novelty claims. The read-only
 [supported-data review](flagging-supported-data.md) identifies a native-sigma
 route requiring new provenance/noise controls, and additional parallel-hand
 Jones ambiguities. These are not a working flagging-policy success claim.
@@ -41,9 +44,9 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 | Paired intrinsic science-signal diagnostic | [Signals](flagging-signal.md) | [16 paired solves and constrained fits](results/gain-tv-signal.json) | [Signals](../recipes/tv-flagging-signal.yaml) |
 | Fitted grouped guarded-objective action predictor | [Transfer model](flagging-transfer.md) | [105 labels/frozen predictions](results/gain-tv-transfer.json) | [Transfer](../recipes/tv-flagging-transfer.yaml) |
 | Five-track concurrent execution with label-dependent fit | [Frozen protocol](flagging-concurrent.md) | [Completed suite](results/gain-tv-concurrent.json) | [Concurrent](../recipes/tv-flagging-concurrent.yaml) |
-| Projected TRAIN-only physical deletion-response surrogate | [Influence design](flagging-influence.md) | Pending actual retrospective replay | [Influence](../recipes/tv-flagging-influence.yaml) |
+| Projected TRAIN-only physical deletion-response surrogate | [Influence design](flagging-influence.md), [independent verification](flagging-influence-verification.md) | [123 retrospective forecasts/labels](results/gain-tv-influence.json), [audit](results/gain-tv-influence-audit.json) | [Influence](../recipes/tv-flagging-influence.yaml) |
 | Signed complete/omitted sky and gain-grid response controls | [Response design](flagging-response.md) | Pending ten actual diagnostic solves | [Response](../recipes/tv-flagging-response.yaml) |
-| Legitimate smooth receiver-phase specificity controls | [Phase design](flagging-equivariance.md) | Pending actual saved-gain replay | [Equivariance](../recipes/tv-flagging-equivariance.yaml) |
+| Legitimate smooth receiver-phase specificity controls | [Phase design](flagging-equivariance.md), [independent checks](flagging-equivariance-verification.md) | [520 saved-gain replays](results/gain-tv-equivariance.json), [audit](results/gain-tv-equivariance-audit.json) | [Equivariance](../recipes/tv-flagging-equivariance.yaml) |
 | Native noise-column and partial-Jones support review | [Supported data](flagging-supported-data.md) | [Read-only diagnostics](results/meerkat-supported-data-candidates.json) | Diagnostic regeneration script, not a calibration recipe |
 
 Main findings: the current policies select no added flags on the unmodified

@@ -9,6 +9,7 @@ values never enter curvature, forecasts, fitting, rankings or output metrics.
 import ctypes
 import json
 import os
+import platform
 import shutil
 import sys
 import time
@@ -527,6 +528,12 @@ def run(run_dir, source_dir="outputs/tv-concurrent-20260924-01"):
             "module_sha256": sha256(Path(__file__).read_bytes()).hexdigest(),
             "runtime_receipts": receipts,
             "suite_image": os.environ.get("RANG_FLAGGING_SUITE_IMAGE"),
+            "execution_environment": {
+                "python": sys.version.split()[0],
+                "numpy": np.__version__,
+                "platform": platform.platform(),
+                "machine": platform.machine(),
+            },
             "derived_limit_bytes": DERIVED_LIMIT_BYTES,
             "budget_accounting": "checked logical regular-file bytes/prospective reservation; not an OS-enforced quota",
             "disk_reserve_bytes": RESERVE_BYTES,

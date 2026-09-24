@@ -1,0 +1,107 @@
+# Reportable MeerKAT L-band flagging findings
+
+Measured follow-up on 2026-09-24, implementation checkpoint `8836e85`.
+These are reproducible prototype mechanisms and limitations, not a new
+state-of-the-art flagger. The seven development cases reuse one four-antenna
+MeerKAT L-band pointing scan. Every original/received Observatory flag and
+native DATA/weight/SIGMA column remains authoritative and protected.
+
+## A local physical surrogate predicts more than the flag cost
+
+The TRAIN-only full-Jones deletion-response model forecasts the actual
+QuartiCal TV/validation objective without a new calibration solve. It projects
+out the common right-U(2) gauge and anchors against baseline nonstationarity.
+TRAIN responses freeze before validation scoring, and all forecasts freeze
+before retrospective action-label evaluation. See the
+[method](flagging-influence.md) and [complete compact outcomes](results/gain-tv-influence.json).
+
+| Development case group | Covered / labels | Physics-response RMSE | Known flag-cost-only RMSE |
+| --- | ---: | ---: | ---: |
+| Uninjected | 18 / 18 | 0.00009250 | 0.00041953 |
+| Seed101, TRAIN | 34 / 35 | 0.00009383 | 0.00049656 |
+| Seed103, validation | 33 / 34 | 0.00012129 | 0.00072908 |
+| Seed105, held-out case group | 35 / 36 | 0.00008569 | 0.00062254 |
+
+The held-out-case matched-coverage RMSE ratio is 7.26, and remains so after
+removing the known flag penalty. This is not an independent-observation test.
+Canonical predicted gain changes have median relative error 8.32% and median
+cosine 0.99690 versus actual counterfactual gains. All three predicted-positive
+actions are actually beneficial within these 120 covered outcomes. Do not
+turn that finite retrospective observation into a precision/confidence claim.
+
+The frozen 0.1 station-step trust guard abstains once in each strong time-burst
+case. It rejects the best seed105 action, whose actual benefit is 0.00076859.
+The physics recommendation instead achieves 0.00034731 and regret 0.00042128;
+the other six cases retain no change. Missing predictions are not zero labels,
+and the threshold is not relaxed after seeing this result. There is no fair
+native-runtime benchmark, deployment, imaging or novelty claim.
+
+## First-order TV is not specific to RFI instability
+
+Grid-matched, smooth unit-modulus receiver phases transform actual saved
+full-Jones gains and DATA in memory while leaving MODEL and native weights
+unchanged. All 520 replays preserve predictions/residual magnitudes: maximum
+prediction-equivariance error 5.96e-15Jy, maximum native-weighted cell-MSE
+change 3.41e-13. No source MS or flags are written and no injection truth is used.
+
+On the clean case, adding the frozen delay-plus-drift raises polar-gauge TV
+from 0.14744 to 0.27750, a factor 1.88. On the original fixed candidate sets,
+five decisions change, all in time-burst seed105. Every nonidentity phase
+pattern removes its previous TV-ranked improvement; residual choices also
+change under frequency or combined phases. TV TRAIN rankings change in all
+seven frequency/combined cases and three time-only cases, whereas residual
+and seeded-random rankings remain unchanged. Newly ranked unmeasured masks
+stay unknown and are never selected. The tiny combined-phase residual benefit
+is not a robust win. Full evidence:
+[compact replay](results/gain-tv-equivariance.json),
+[independent verification](flagging-equivariance-verification.md).
+
+Physical TV is not required to be receiver-phase invariant. The narrower
+finding is that high first-order TV, even after the common gauge is fixed,
+cannot by itself distinguish legitimate instrumental structure from RFI.
+Estimated trend removal or curvature guidance requires a new frozen experiment;
+the known phases in this diagnostic are not available to a real selector.
+
+## Native data support and noise provenance are separate gates
+
+The acquired 61-antenna public calibrator has zero native XY/YX spectral weights
+but positive SIGMA_SPECTRUM in all four products. QuartiCal can explicitly use
+the original sigma column without overwriting stored weights. This is a possible
+new protocol, not a validated noise choice. Native weight/sigma products and
+adjacent-channel scales are inconsistent with one simple shared convention;
+only 60 antennas have received-unflagged cross support, with native ID21
+unsupported. No flags are restored or unit row weights substituted.
+
+Parallel-hand-only scalar-sky data leave independent row-U(2) gauges, beyond
+the common right-U(2) used by the present full-Jones TV metric. A numerical
+counterexample changes canonical TV without changing either measured hand.
+See [native support and gauge review](flagging-supported-data.md), its
+[reproducible diagnostics](../examples/diagnose_native_support.py), and the
+[bounded textual provenance design](flagging-supported-provenance-plan.md).
+The latter is design only: no object unpickling, metadata acquisition or native
+MS conversion has been performed under that plan.
+
+## Calibration response control and next decision
+
+Ten signed-source fine/coarse and complete/omitted-sky QuartiCal controls have
+run, but strict response-decomposition closure stopped their evaluation.
+The failed run is retained at `outputs/tv-response-20260924-recovered-01`;
+the [precision diagnosis](flagging-response-precision.md) confirms that casting
+stored DATA before subtraction restores closure with the same retained gains.
+The narrow fix passes its regression tests; a fresh unchanged-settings rerun
+remains pending. Do not
+report failed/partial fits as physical flux recovery. This separates the
+calibration-sky/flexibility confound from any claimed benefit of added flags.
+
+The useful next strategy is a conservative TRAIN-only physical surrogate for
+candidate triage, actual guarded QuartiCal re-solves for confirmation, and
+signal/support/prediction safeguards alongside full-Jones TV. Investigate
+physical-trend specificity and independently supported data before training
+or deploying a broad policy. Existing CARACAL strategies remain relevant
+verification controls; no matched mature-method quality/cost win is established.
+
+Executable Stimela2 entries:
+[influence](../recipes/tv-flagging-influence.yaml),
+[phase specificity](../recipes/tv-flagging-equivariance.yaml),
+[calibration response](../recipes/tv-flagging-response.yaml).
+See [STATE.md](STATE.md) for exact run paths, failures, backups and checked pushes.

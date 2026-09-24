@@ -4,6 +4,48 @@ Updated 2026-09-24.
 
 ## Current continuation and routing
 
+Measured native-derived controls2026-09-24 08:42UTC after pushed`8836e85`:
+`outputs/tv-influence-20260924-host-01` and
+`outputs/tv-equivariance-20260924-host-01` COMPLETE; source/runtime guards pass.
+Compact`research/results/gain-tv-{influence,equivariance}.json` curated,
+`research/flagging-findings.md` synthesizes mechanisms and limitations.
+Physical local response covers120/123old counterfactuals; seed105matchedRMSE
+8.5694e-5 vsknownflagcost6.2254e-4=7.26ratio. No TEST/truth inforecasts, no newQC.
+Median canonicaldGrelativeerror8.32%,cosine.99690; threepredictedpositive
+actions actuallybeneficial, but frozen.1truststep rejectsbesttimeburst105mask.
+Recommendedactualbenefit.00034731 vsbest.00076859, regret.00042128.
+Allseven cases reuseoneobservation; not independenttransfer/SOTA/speedclaim.
+Smoothphase replay520from130existinggainproducts: residualMSEinvariant≤3.41e-13,
+predictionerror≤5.96e-15Jy; cleanpolarTV.14744→.27750. Fiveoldsetdecisionsflip,
+no unmeasuredrerankedmaskselected. Independentphaseaudit12006predicates passes.
+The user confirmed Docker cleanup to recover disk, explaining missingimages;
+no cleanup byresearchagents. Derivedpaths ranhostPython3.14.7/NumPy2.5.3,
+notpretendedsameLinux image; runtime/native hashes held. Solver-onlylockedbase
+recovered, newactualimage`sha256:55487b9fb3140df8b0f7fb9a31148ec4bb7db348a3f33930b6efe00a5d3851b8`,
+sameLinuxlibrarySHA`f764ed8f215a6b22db5b511fcefae6398f9ff52c0a1b851d914f66452d235a8f`.
+ResponseactualtenQCs finished but evaluationstrictclosure failed;
+`outputs/tv-response-20260924-recovered-01` retaineduntouched(.827GiBallocated).
+Independentprecisiondiagnosis confirmed all eightarms; differencecomplex64
+rounding causes3.18–3.51e-9Jyclosure, castBEFOREsubtract128gives6.88–8.25e-15Jy.
+Fixfrozen27targettests, samecalDATA/models/flags/weights/grids/threshold1e-10.
+Failedtreeunchanged; doc`research/flagging-response-precision.md`.
+Fresh`outputs/tv-response-20260924-precision-01` pending checked launch;
+no currentfluxclaim. TenfailedQCs plus tenplannedretryQCs are separate actual
+invocations, not20independentcontrols. Physicalindependentaudit4620passes.
+Metadata-onlyfuturehostversionreceipts/phaseconfigwordingsplit do not change
+measurednumericmethods; original8836e85config/modulehashes remain archival.
+Freshintermediatechecks405Python/17Rust(no skips),releasebuild,Clippy-Dwarnings,
+Rust/Rufflint/format,77Pythoncompiles,allwrapper syntax,46strictJSONparses,
+old123action/rawarchive exactreconstruction/all13oldmodulehashes andwhitespace pass.
+Newarchive numericalregressions7pytestcases pass. Solver-onlyresponseDockerfile
+nowrequiresjustbaseimage; actualofflinebuild/pipcheck passes,
+tagID`sha256:102767125ea2fe1f7fc000738cb16e28d1e967188c227a583d27293596fb2d95`.
+Snapshot before adding thisreceipt:
+`outputs/flagging-backups/20260924-reportable-measured-intermediate/code.tar.gz`,
+SHA256`372c75634821b80ab46615ae99cc73d17ee6f08ee6971f58ae73c7a2a25f4390`.
+Currenthostfree109GiB, reserve8GiBretained; no bulkdownloads/fulltoolsrebuild.
+Bounded85objectstring/HISTORY plan recorded ONLY asdesign, no acquisition/parser.
+
 Continuation2026-09-24 after pushed`9f25601`: user requests persistent research
 until reportable findings and regular checked intermediate commits. New freezes:
 `research/flagging-reportable.md`, `research/flagging-equivariance.md`.

@@ -6,7 +6,9 @@ saved counterfactual gains, preserving original action sets and native weights.
 
 import json
 import os
+import platform
 import shutil
+import sys
 from hashlib import sha256
 from pathlib import Path
 
@@ -215,7 +217,15 @@ def run(run_dir, source_dir):
         "suite_image": os.environ.get("RANG_FLAGGING_SUITE_IMAGE"),
         "old_counterfactual_action_sets_fixed": True,
         "grid_matched_not_continuous_hardware_simulation": True,
-        "no_MS_flags_DATA_weights_or_truth_written_or_decoded": True,
+        "no_MS_flags_DATA_or_native_weight_writes": True,
+        "numeric_DATA_model_weights_decoded": True,
+        "injection_truth_not_decoded_or_used": True,
+        "execution_environment": {
+            "python": sys.version.split()[0],
+            "numpy": np.__version__,
+            "platform": platform.platform(),
+            "machine": platform.machine(),
+        },
         "new_QC_solves": 0,
     }
     output.mkdir(parents=True, exist_ok=False)
