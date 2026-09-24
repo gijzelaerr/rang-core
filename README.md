@@ -29,8 +29,10 @@ and no flagging or imaging superiority is established.
 gain-response surrogate predicts the counterfactual objective beyond the known
 flag cost (7.26× smaller matched-coverage RMSE in the held-out seed group), while
 legitimate smooth receiver phases change TV-guided decisions despite invariant
-residuals. Both findings reuse one four-antenna observation; they motivate safer
-candidate triage and physical-trend controls, not an operational flagger.
+residual magnitudes. Signed-source controls also show substantial calibration absorption
+when the sky is incomplete, even with lower TV and no added flags. These findings
+reuse one four-antenna observation; they motivate safer candidate triage,
+sky-completeness and signal-preservation controls, not an operational flagger.
 
 ## What we have learned
 

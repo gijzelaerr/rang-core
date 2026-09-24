@@ -1,6 +1,7 @@
 # Reportable MeerKAT L-band flagging findings
 
-Measured follow-up on 2026-09-24, implementation checkpoint `8836e85`.
+Measured follow-up on 2026-09-24: surrogate/phase checkpoint `8836e85`,
+precision-corrected calibration-response checkpoint `1f53a17`.
 These are reproducible prototype mechanisms and limitations, not a new
 state-of-the-art flagger. The seven development cases reuse one four-antenna
 MeerKAT L-band pointing scan. Every original/received Observatory flag and
@@ -40,7 +41,8 @@ native-runtime benchmark, deployment, imaging or novelty claim.
 
 Grid-matched, smooth unit-modulus receiver phases transform actual saved
 full-Jones gains and DATA in memory while leaving MODEL and native weights
-unchanged. All 520 replays preserve predictions/residual magnitudes: maximum
+unchanged. Across 520 replays, predictions transform equivariantly and residual
+magnitudes remain unchanged: maximum
 prediction-equivariance error 5.96e-15Jy, maximum native-weighted cell-MSE
 change 3.41e-13. No source MS or flags are written and no injection truth is used.
 
@@ -59,6 +61,9 @@ is not a robust win. Full evidence:
 Physical TV is not required to be receiver-phase invariant. The narrower
 finding is that high first-order TV, even after the common gauge is fixed,
 cannot by itself distinguish legitimate instrumental structure from RFI.
+This is an exact saved-gain transformation, not a rerun of finite-iteration
+QuartiCal from identity initialization on transformed DATA; solver equivariance
+has not been measured.
 Estimated trend removal or curvature guidance requires a new frozen experiment;
 the known phases in this diagnostic are not available to a real selector.
 
@@ -81,17 +86,33 @@ See [native support and gauge review](flagging-supported-data.md), its
 The latter is design only: no object unpickling, metadata acquisition or native
 MS conversion has been performed under that plan.
 
-## Calibration response control and next decision
+## A smoother solve can still absorb a real sky perturbation
 
-Ten signed-source fine/coarse and complete/omitted-sky QuartiCal controls have
-run, but strict response-decomposition closure stopped their evaluation.
-The failed run is retained at `outputs/tv-response-20260924-recovered-01`;
-the [precision diagnosis](flagging-response-precision.md) confirms that casting
-stored DATA before subtraction restores closure with the same retained gains.
-The narrow fix passes its regression tests; a fresh unchanged-settings rerun
-remains pending. Do not
-report failed/partial fits as physical flux recovery. This separates the
-calibration-sky/flexibility confound from any claimed benefit of added flags.
+Ten signed-source fine/coarse and complete/omitted-sky QuartiCal controls now
+complete on the fresh precision-corrected run. All9,169 TEST samples remain
+supported, without any added flags. Fine-grid omitted-sky calibration preserves
+51.00–51.30% of the compact and74.15–74.19% of the extended paired response.
+Including the known sources in the diagnostic sky gives99.95–99.96% and
+98.92%, respectively. The positive omitted fine control also lowers TV.
+
+Direct correction preserves the positive60/120mJy perturbations, but gain
+adaptation absorbs about29.5/31.0mJy when correcting the SAME original DATA.
+Total=direct+adaptation closes within8.253e-15Jy. Coarsening improves omitted
+response only to52.4–52.7%/76.2%, while clean validation error is25.7% worse,
+despite much lower TV. This identifies a sky/gain-flexibility confound, not a
+flagging win or blind astrophysical flux measurement. The complete control
+uses truth, and positions/extents/spectra are known in evaluation; no images
+or confidence intervals are claimed. [Protocol and measured table](flagging-response.md),
+[complete compact evidence](results/gain-tv-response.json),
+[independent numerical/preservation verification](flagging-response-verification.md).
+
+The first failed run is retained untouched and not exportable;
+[precision diagnosis](flagging-response-precision.md) records the narrow fix.
+Native calibration inputs and settings were unchanged in the fresh rerun.
+Ten failed plus ten fresh solves are20 actual invocations of ten frozen
+physical controls, not20 independent realizations.
+
+## Next decision
 
 The useful next strategy is a conservative TRAIN-only physical surrogate for
 candidate triage, actual guarded QuartiCal re-solves for confirmation, and

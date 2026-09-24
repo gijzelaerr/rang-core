@@ -72,8 +72,11 @@ No dataset or QuartiCal solver is invoked by that regression.
 
 All 27 targeted response tests pass, including both signed precision
 regressions; Ruff lint/format checks and `git diff --check` pass. Root's full
-local verification precedes the fix-forward checkpoint. Root will launch only a fresh
-`outputs/tv-response-20260924-precision-01` after verification; until its actual
-completion, corrected-run measurements remain pending. Root owns archives,
-backups/commits and final source/gain/input equality audits. This track launches
-no new solves and edits no failed or previously measured report/trial artifacts.
+local verification preceded the fix-forward checkpoint `1f53a17`. A fresh
+`outputs/tv-response-20260924-precision-01` completed all ten solves and strict
+evaluation on2026-09-24 08:51:35UTC; [measured response](flagging-response.md)
+and [full compact results](results/gain-tv-response.json) are new artifacts.
+The failed run remains unchanged and has no final success audit. Twenty actual
+QC invocations represent ten frozen controls repeated after the precision fix,
+not twenty independent replicates. Independent source/gain/input replay is
+recorded separately; no old trial DATA, gains or config was repaired in place.

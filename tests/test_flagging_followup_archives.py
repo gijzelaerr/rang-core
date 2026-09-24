@@ -186,3 +186,172 @@ def test_phase_archive_identity_objective_invariance_and_unknown_outcomes():
     assert archive["transformed_gain_replays"] == total + 28 == 520
     assert archive["new_QC_solves"] == archive["added_flags"] == 0
     assert all(v is True or v == 0 for v in archive["audit"].values())
+
+
+def test_calibration_response_freeze_support_and_protected_columns():
+    archive = load("gain-tv-response.json")
+    config = archive["configuration"]
+    freeze = archive["frozen_controls"]
+    assert config["frozen_before_solve"]
+    assert config["grids"] == [[2, 32], [14, 128]]
+    assert config["planned_QC_solves"] == archive["actual_QC_diagnostic_solves"] == 10
+    assert len(archive["baselines"]) == 2
+    assert len(freeze["arms"]) == len(archive["methods"]) == 8
+    assert not freeze["test_or_source_truth_used_to_select"]
+    assert not archive["policy_search_or_selection"]
+    assert archive["added_flags"] == archive["native_flagger_solves"] == 0
+    assert archive["common_TEST_samples"] == archive["original_TEST_samples"] == 9169
+    assert archive["lost_common_TEST_samples"] == 0
+    invocations = archive["calibration_invocations"]
+    assert invocations["successful_fresh_run"] == 10
+    assert invocations["retained_precision_failed_run"] == 10
+    assert invocations["total_actual"] == 20
+    assert invocations["frozen_physical_controls"] == 10
+    assert not invocations["independent_replicates"]
+    assert not invocations["retained_failed_copies_exportable"]
+    for key in (
+        "prepared_source_unchanged",
+        "raw_source_unchanged",
+        "module_unchanged",
+        "all_helper_modules_unchanged",
+        "native_library_unchanged",
+    ):
+        assert archive["audit"][key]
+    for copy in archive["audit"]["copies"].values():
+        for key in (
+            "FLAG_exact_original",
+            "FLAG_ROW_exact_original",
+            "DATA_exact_documented_state",
+            "base_model_column_exact",
+            "native_weight_sigma_exact",
+        ):
+            assert copy[key]
+    resources = archive["resource_receipt"]
+    assert resources["allocated_regular_file_bytes"] < config["allocation_bytes"]
+    assert resources["observed_host_free_bytes"] > config["disk_reserve_bytes"]
+    assert not resources["os_enforced_quota"]
+    assert not resources["native_cost_benchmark"]
+
+
+@pytest.mark.parametrize("case,sign", [("positive", 1), ("negative", -1)])
+def test_calibration_response_reference_uses_signed_fixed_spectra(case, sign):
+    archive = load("gain-tv-response.json")
+    reference = archive["reference_fits"][case]
+    source_flux = [source["flux_jy"] for source in archive["configuration"]["sources"]]
+    assert reference["available"] and reference["rank"] == 2
+    assert reference["condition"] <= 1e8
+    assert reference["sample_count"] == archive["common_TEST_samples"]
+    assert reference["flux_jy"] == pytest.approx(
+        np.asarray(source_flux) * sign, abs=1e-8
+    )
+    assert reference["spectral_indices"] == "fixed evaluation family; not fitted"
+    assert not reference["positivity_or_parameter_bounds"]
+    assert reference["confidence_intervals"].startswith("not claimed")
+
+
+@pytest.mark.parametrize("arm_index", range(8))
+def test_calibration_response_exact_paired_decomposition_and_ratios(arm_index):
+    archive = load("gain-tv-response.json")
+    arm = archive["methods"][arm_index]
+    frozen = archive["frozen_controls"]["arms"][arm_index]
+    assert all(arm[key] == value for key, value in frozen.items())
+    assert arm["diagnostic_only"] and not arm["selected_for_deployment"]
+    assert arm["unsupported_original_TEST_samples"] == 0
+    assert arm["metrics"]["added_count"] == arm["metrics"]["added_fraction"] == 0
+    for fit in arm["fits"].values():
+        assert fit["available"] and fit["rank"] == 2
+        assert fit["condition"] <= 1e8
+        assert fit["sample_count"] == archive["common_TEST_samples"]
+        assert not fit["positivity_or_parameter_bounds"]
+    total, direct, adaptation = (
+        np.asarray(arm["fits"][key]["flux_jy"])
+        for key in ("total", "direct", "adaptation")
+    )
+    assert total == pytest.approx(direct + adaptation, abs=1e-15)
+    reference = np.asarray(archive["reference_fits"][arm["case"]]["flux_jy"])
+    assert arm["response_fraction_vs_fixedG0"] == pytest.approx(
+        total / reference, abs=1e-15
+    )
+    assert arm["visibility_decomposition_closure_linf_jy"] <= 1e-10
+    assert arm["linear_fit_decomposition_closure_linf_jy"] <= 1e-15
+
+
+def test_calibration_response_retains_lower_tv_worse_prediction_control():
+    archive = load("gain-tv-response.json")
+    fine, coarse = archive["baselines"]
+    assert coarse["metrics"]["tv"] < fine["metrics"]["tv"]
+    assert (
+        coarse["metrics"]["losses"]["validation"]
+        > fine["metrics"]["losses"]["validation"]
+    )
+    positive_fine = {
+        arm["sky"]: arm
+        for arm in archive["methods"]
+        if arm["case"] == "positive" and arm["grid"] == [2, 32]
+    }
+    omitted, complete = (
+        positive_fine[key] for key in ("omitted", "complete-diagnostic")
+    )
+    assert omitted["metrics"]["tv"] < fine["metrics"]["tv"]
+    assert omitted["metrics"]["tv"] < complete["metrics"]["tv"]
+    assert np.all(
+        np.asarray(omitted["response_fraction_vs_fixedG0"])
+        < np.asarray(complete["response_fraction_vs_fixedG0"])
+    )
+
+
+def test_response_audit_retains_non_bit_identical_reproduction_findings():
+    audit = load("gain-tv-response-audit.json")
+    checks = audit["checks"]
+    assert audit["check_count"] == len(checks) == 614
+    assert audit["pass_count"] == sum(checks.values()) == 602
+    assert set(audit["failures"]) == {key for key, ok in checks.items() if not ok}
+    assert len(audit["failures"]) == 12
+    summary = audit["check_summary"]
+    assert not summary["bit_identical_gain_reproduction"]
+    assert summary["native_QC_gain_trees_exact"] == 9
+    assert summary["total_native_QC_gain_trees"] == 10
+    assert summary["all_native_calibration_inputs_and_protocol_exact"]
+    assert summary["all10_prediction_losses_exact"]
+    for key, count in (
+        ("qualified_reproduction", 24),
+        ("additional_backup_boundary_checks", 30),
+    ):
+        section = audit[key]
+        assert len(section["checks"]) == section["pass_count"] == count
+        assert all(section["checks"].values()) and not section["failures"]
+    assert audit["execution_counts"]["additional_QC_audit"] == 0
+    assert audit["execution_counts"]["actual_QC_total"] == 20
+    assert audit["execution_counts"]["distinct_physical_controls"] == 10
+
+
+def test_response_audit_independent_reconstruction_matches_all_arms():
+    archive = load("gain-tv-response.json")
+    audit = load("gain-tv-response-audit.json")
+    assert (
+        audit["provenance"]["result_file_sha256"]
+        == archive["raw_receipts_sha256"]["result.json"]
+    )
+    assert audit["common_TEST"]["supported"] == archive["common_TEST_samples"]
+    assert audit["common_TEST"]["lost"] == 0
+    old = {(arm["case"], arm["trial"]): arm for arm in archive["methods"]}
+    assert len(audit["methods_replayed"]) == len(old) == 8
+    for replay in audit["methods_replayed"]:
+        arm = old[(replay["case"], replay["trial"])]
+        assert replay["visibility_closure_linf_jy"] <= 1e-10
+        assert replay["coefficient_closure_linf_jy"] <= 1e-10
+        assert replay["unsupported_TEST_samples"] == 0
+        assert replay["response_fraction_vs_fixedG0"] == pytest.approx(
+            arm["response_fraction_vs_fixedG0"], abs=1e-13
+        )
+        for term in ("total", "direct", "adaptation"):
+            fit = replay["fits"][term]
+            assert fit["rank"] == 2
+            assert fit["sample_count"] == archive["common_TEST_samples"]
+            assert fit["flux_jy"] == pytest.approx(
+                arm["fits"][term]["flux_jy"], abs=1e-14
+            )
+    provenance = audit["provenance"]
+    for prefix in ("failed", "fresh"):
+        assert provenance[f"{prefix}_tree_before"] == provenance[f"{prefix}_tree_after"]
+        assert provenance[f"final_{prefix}_tree"] == provenance[f"{prefix}_tree_before"]

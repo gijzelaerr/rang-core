@@ -1,0 +1,1811 @@
+{
+  "status": "read-only native artifact and independently coded numerical replay; no new QC/writes/deployment",
+  "actual_run": "outputs/tv-response-20260924-precision-01",
+  "failed_run": "outputs/tv-response-20260924-recovered-01",
+  "source_commit": "1f53a17",
+  "checks": {
+    "failed_tree_matches_frozen_diagnosis": true,
+    "prepared_source_digest": true,
+    "received_raw_source_digest": true,
+    "source_module_digest": true,
+    "helper_digest/flagging.py": true,
+    "helper_digest/flagging_signal.py": true,
+    "helper_digest/flagging_workflow.py": true,
+    "helper_digest/flagging_prepared.py": true,
+    "rust_library_receipt": true,
+    "dependencies_match_both_configs": true,
+    "unchanged_protocol/frozen_before_solve": true,
+    "unchanged_protocol/prepared_dir": true,
+    "unchanged_protocol/prepared_digest": true,
+    "unchanged_protocol/prepared_boundary": true,
+    "unchanged_protocol/raw_source": true,
+    "unchanged_protocol/raw_source_digest": true,
+    "unchanged_protocol/sources": true,
+    "unchanged_protocol/reference_frequency_hz": true,
+    "unchanged_protocol/signs": true,
+    "unchanged_protocol/amplitude": true,
+    "unchanged_protocol/random_seed": true,
+    "unchanged_protocol/split_seed": true,
+    "unchanged_protocol/grids": true,
+    "unchanged_protocol/iterations_budget": true,
+    "unchanged_protocol/integration_count": true,
+    "unchanged_protocol/integration_centre_span_seconds": true,
+    "unchanged_protocol/integration_separations_seconds": true,
+    "unchanged_protocol/TRAIN_support": true,
+    "unchanged_protocol/planned_QC_solves": true,
+    "unchanged_protocol/added_flags": true,
+    "unchanged_protocol/policy_search_or_selection": true,
+    "unchanged_protocol/sky_controls": true,
+    "unchanged_protocol/complete_control_column": true,
+    "unchanged_protocol/original_model_column_preserved": true,
+    "unchanged_protocol/complete_sky_role": true,
+    "unchanged_protocol/negative_sign_role": true,
+    "unchanged_protocol/injection_scope": true,
+    "unchanged_protocol/evaluation": true,
+    "unchanged_protocol/decomposition": true,
+    "unchanged_protocol/allocation_bytes": true,
+    "unchanged_protocol/disk_reserve_bytes": true,
+    "unchanged_protocol/solver_write_reservation_bytes": true,
+    "unchanged_protocol/quota_semantics": true,
+    "unchanged_protocol/helper_sha256": true,
+    "unchanged_protocol/rust_library_sha256": true,
+    "unchanged_protocol/versions": true,
+    "no_policy_truth_test_selection": true,
+    "ten_qc_per_actual_run": true,
+    "clean/frozen_state_equal_prior/original_flags": true,
+    "clean/frozen_state_equal_prior/original_rows": true,
+    "clean/frozen_state_equal_prior/data": true,
+    "clean/frozen_state_equal_prior/model": true,
+    "clean/frozen_state_equal_prior/weights": true,
+    "clean/frozen_state_equal_prior/times": true,
+    "clean/frozen_state_equal_prior/frequencies": true,
+    "clean/frozen_state_equal_prior/antenna1": true,
+    "clean/frozen_state_equal_prior/antenna2": true,
+    "clean/frozen_state_equal_prior/names": true,
+    "clean/frozen_state_equal_prior/train": true,
+    "clean/frozen_state_equal_prior/validation": true,
+    "clean/frozen_state_equal_prior/test": true,
+    "clean/frozen_state_equal_prior/window": true,
+    "clean/immutable_original_digest": true,
+    "clean/native_calinput_equal_prior/DATA": true,
+    "clean/native_calinput_equal_prior/RANG_MODEL_DATA": true,
+    "clean/native_calinput_equal_prior/WEIGHT": true,
+    "clean/native_calinput_equal_prior/WEIGHT_SPECTRUM": true,
+    "clean/native_calinput_equal_prior/SIGMA": true,
+    "clean/native_calinput_equal_prior/SIGMA_SPECTRUM": true,
+    "clean/restored_flags_native_weights_received_exact/FLAG": true,
+    "clean/restored_flags_native_weights_received_exact/FLAG_ROW": true,
+    "clean/restored_flags_native_weights_received_exact/WEIGHT": true,
+    "clean/restored_flags_native_weights_received_exact/WEIGHT_SPECTRUM": true,
+    "clean/restored_flags_native_weights_received_exact/SIGMA": true,
+    "clean/restored_flags_native_weights_received_exact/SIGMA_SPECTRUM": true,
+    "clean/DATA_matches_state": true,
+    "clean/base_model_preserved": true,
+    "clean/outside_injection_DATA_unchanged": true,
+    "clean/native_DATA_received_exact": true,
+    "clean/no_control_column": true,
+    "positive/frozen_state_equal_prior/original_flags": true,
+    "positive/frozen_state_equal_prior/original_rows": true,
+    "positive/frozen_state_equal_prior/data": true,
+    "positive/frozen_state_equal_prior/model": true,
+    "positive/frozen_state_equal_prior/weights": true,
+    "positive/frozen_state_equal_prior/times": true,
+    "positive/frozen_state_equal_prior/frequencies": true,
+    "positive/frozen_state_equal_prior/antenna1": true,
+    "positive/frozen_state_equal_prior/antenna2": true,
+    "positive/frozen_state_equal_prior/names": true,
+    "positive/frozen_state_equal_prior/train": true,
+    "positive/frozen_state_equal_prior/validation": true,
+    "positive/frozen_state_equal_prior/test": true,
+    "positive/frozen_state_equal_prior/window": true,
+    "positive/immutable_original_digest": true,
+    "positive/native_calinput_equal_prior/DATA": true,
+    "positive/native_calinput_equal_prior/RANG_MODEL_DATA": true,
+    "positive/native_calinput_equal_prior/WEIGHT": true,
+    "positive/native_calinput_equal_prior/WEIGHT_SPECTRUM": true,
+    "positive/native_calinput_equal_prior/SIGMA": true,
+    "positive/native_calinput_equal_prior/SIGMA_SPECTRUM": true,
+    "positive/restored_flags_native_weights_received_exact/FLAG": true,
+    "positive/restored_flags_native_weights_received_exact/FLAG_ROW": true,
+    "positive/restored_flags_native_weights_received_exact/WEIGHT": true,
+    "positive/restored_flags_native_weights_received_exact/WEIGHT_SPECTRUM": true,
+    "positive/restored_flags_native_weights_received_exact/SIGMA": true,
+    "positive/restored_flags_native_weights_received_exact/SIGMA_SPECTRUM": true,
+    "positive/DATA_matches_state": true,
+    "positive/base_model_preserved": true,
+    "positive/outside_injection_DATA_unchanged": true,
+    "positive/pre_DATA_state_exact/original_flags": true,
+    "positive/pre_DATA_state_exact/original_rows": true,
+    "positive/pre_DATA_state_exact/data": true,
+    "positive/pre_DATA_state_exact/model": true,
+    "positive/pre_DATA_state_exact/weights": true,
+    "positive/pre_DATA_state_exact/times": true,
+    "positive/pre_DATA_state_exact/frequencies": true,
+    "positive/pre_DATA_state_exact/antenna1": true,
+    "positive/pre_DATA_state_exact/antenna2": true,
+    "positive/pre_DATA_state_exact/names": true,
+    "positive/pre_DATA_state_exact/train": true,
+    "positive/pre_DATA_state_exact/validation": true,
+    "positive/pre_DATA_state_exact/test": true,
+    "positive/pre_DATA_state_exact/window": true,
+    "positive/pre_model_state_exact/original_flags": true,
+    "positive/pre_model_state_exact/original_rows": true,
+    "positive/pre_model_state_exact/data": true,
+    "positive/pre_model_state_exact/model": true,
+    "positive/pre_model_state_exact/weights": true,
+    "positive/pre_model_state_exact/times": true,
+    "positive/pre_model_state_exact/frequencies": true,
+    "positive/pre_model_state_exact/antenna1": true,
+    "positive/pre_model_state_exact/antenna2": true,
+    "positive/pre_model_state_exact/names": true,
+    "positive/pre_model_state_exact/train": true,
+    "positive/pre_model_state_exact/validation": true,
+    "positive/pre_model_state_exact/test": true,
+    "positive/pre_model_state_exact/window": true,
+    "positive/whole_MS_DATA_backup_exact/DATA": true,
+    "positive/whole_MS_DATA_backup_exact/RANG_MODEL_DATA": true,
+    "positive/whole_MS_DATA_backup_exact/FLAG": true,
+    "positive/whole_MS_DATA_backup_exact/FLAG_ROW": true,
+    "positive/whole_MS_DATA_backup_exact/WEIGHT": true,
+    "positive/whole_MS_DATA_backup_exact/WEIGHT_SPECTRUM": true,
+    "positive/whole_MS_DATA_backup_exact/SIGMA": true,
+    "positive/whole_MS_DATA_backup_exact/SIGMA_SPECTRUM": true,
+    "positive/flags_unchanged_by_DATA_injection": true,
+    "positive/DATA_backup_flags_received_exact": true,
+    "positive/schema_backup_exclusive": true,
+    "positive/base_model_backup_exact": true,
+    "positive/control_column_exact_snapshot": true,
+    "positive/control_calinput_equal_prior": true,
+    "positive/wide_delta_exact_stored_difference": true,
+    "positive/frozen_injection_mask": true,
+    "positive/native_complex64_DATA": true,
+    "negative/frozen_state_equal_prior/original_flags": true,
+    "negative/frozen_state_equal_prior/original_rows": true,
+    "negative/frozen_state_equal_prior/data": true,
+    "negative/frozen_state_equal_prior/model": true,
+    "negative/frozen_state_equal_prior/weights": true,
+    "negative/frozen_state_equal_prior/times": true,
+    "negative/frozen_state_equal_prior/frequencies": true,
+    "negative/frozen_state_equal_prior/antenna1": true,
+    "negative/frozen_state_equal_prior/antenna2": true,
+    "negative/frozen_state_equal_prior/names": true,
+    "negative/frozen_state_equal_prior/train": true,
+    "negative/frozen_state_equal_prior/validation": true,
+    "negative/frozen_state_equal_prior/test": true,
+    "negative/frozen_state_equal_prior/window": true,
+    "negative/immutable_original_digest": true,
+    "negative/native_calinput_equal_prior/DATA": true,
+    "negative/native_calinput_equal_prior/RANG_MODEL_DATA": true,
+    "negative/native_calinput_equal_prior/WEIGHT": true,
+    "negative/native_calinput_equal_prior/WEIGHT_SPECTRUM": true,
+    "negative/native_calinput_equal_prior/SIGMA": true,
+    "negative/native_calinput_equal_prior/SIGMA_SPECTRUM": true,
+    "negative/restored_flags_native_weights_received_exact/FLAG": true,
+    "negative/restored_flags_native_weights_received_exact/FLAG_ROW": true,
+    "negative/restored_flags_native_weights_received_exact/WEIGHT": true,
+    "negative/restored_flags_native_weights_received_exact/WEIGHT_SPECTRUM": true,
+    "negative/restored_flags_native_weights_received_exact/SIGMA": true,
+    "negative/restored_flags_native_weights_received_exact/SIGMA_SPECTRUM": true,
+    "negative/DATA_matches_state": true,
+    "negative/base_model_preserved": true,
+    "negative/outside_injection_DATA_unchanged": true,
+    "negative/pre_DATA_state_exact/original_flags": true,
+    "negative/pre_DATA_state_exact/original_rows": true,
+    "negative/pre_DATA_state_exact/data": true,
+    "negative/pre_DATA_state_exact/model": true,
+    "negative/pre_DATA_state_exact/weights": true,
+    "negative/pre_DATA_state_exact/times": true,
+    "negative/pre_DATA_state_exact/frequencies": true,
+    "negative/pre_DATA_state_exact/antenna1": true,
+    "negative/pre_DATA_state_exact/antenna2": true,
+    "negative/pre_DATA_state_exact/names": true,
+    "negative/pre_DATA_state_exact/train": true,
+    "negative/pre_DATA_state_exact/validation": true,
+    "negative/pre_DATA_state_exact/test": true,
+    "negative/pre_DATA_state_exact/window": true,
+    "negative/pre_model_state_exact/original_flags": true,
+    "negative/pre_model_state_exact/original_rows": true,
+    "negative/pre_model_state_exact/data": true,
+    "negative/pre_model_state_exact/model": true,
+    "negative/pre_model_state_exact/weights": true,
+    "negative/pre_model_state_exact/times": true,
+    "negative/pre_model_state_exact/frequencies": true,
+    "negative/pre_model_state_exact/antenna1": true,
+    "negative/pre_model_state_exact/antenna2": true,
+    "negative/pre_model_state_exact/names": true,
+    "negative/pre_model_state_exact/train": true,
+    "negative/pre_model_state_exact/validation": true,
+    "negative/pre_model_state_exact/test": true,
+    "negative/pre_model_state_exact/window": true,
+    "negative/whole_MS_DATA_backup_exact/DATA": true,
+    "negative/whole_MS_DATA_backup_exact/RANG_MODEL_DATA": true,
+    "negative/whole_MS_DATA_backup_exact/FLAG": true,
+    "negative/whole_MS_DATA_backup_exact/FLAG_ROW": true,
+    "negative/whole_MS_DATA_backup_exact/WEIGHT": true,
+    "negative/whole_MS_DATA_backup_exact/WEIGHT_SPECTRUM": true,
+    "negative/whole_MS_DATA_backup_exact/SIGMA": true,
+    "negative/whole_MS_DATA_backup_exact/SIGMA_SPECTRUM": true,
+    "negative/flags_unchanged_by_DATA_injection": true,
+    "negative/DATA_backup_flags_received_exact": true,
+    "negative/schema_backup_exclusive": true,
+    "negative/base_model_backup_exact": true,
+    "negative/control_column_exact_snapshot": true,
+    "negative/control_calinput_equal_prior": true,
+    "negative/wide_delta_exact_stored_difference": true,
+    "negative/frozen_injection_mask": true,
+    "negative/native_complex64_DATA": true,
+    "clean/clean-t14-f128/exact_gain_diagnostic/gains": true,
+    "clean/clean-t14-f128/exact_gain_diagnostic/gain_valid": true,
+    "clean/clean-t14-f128/exact_gain_diagnostic/edges": false,
+    "clean/clean-t14-f128/native_gain_tree_exact": true,
+    "clean/clean-t14-f128/commands_only_path_change": true,
+    "clean/clean-t14-f128/fullJones_native_weights_no_flagger": true,
+    "clean/clean-t14-f128/training_flags_identical/FLAG": true,
+    "clean/clean-t14-f128/training_flags_identical/FLAG_ROW": true,
+    "clean/clean-t14-f128/received_flags_protected": true,
+    "clean/clean-t14-f128/prediction_losses_exact": true,
+    "clean/clean-t14-f128/validity_added_counts_exact": true,
+    "clean/clean-t14-f128/derived_TV_roundoff_only/tv": true,
+    "clean/clean-t14-f128/derived_TV_roundoff_only/raw_tv": true,
+    "clean/clean-t14-f128/derived_TV_roundoff_only/time_tv": true,
+    "clean/clean-t14-f128/derived_TV_roundoff_only/frequency_tv": true,
+    "clean/clean-t14-f128/derived_TV_roundoff_only/scale": true,
+    "clean/clean-t2-f32/exact_gain_diagnostic/gains": false,
+    "clean/clean-t2-f32/exact_gain_diagnostic/gain_valid": true,
+    "clean/clean-t2-f32/exact_gain_diagnostic/edges": false,
+    "clean/clean-t2-f32/native_gain_tree_exact": false,
+    "clean/clean-t2-f32/commands_only_path_change": true,
+    "clean/clean-t2-f32/fullJones_native_weights_no_flagger": true,
+    "clean/clean-t2-f32/training_flags_identical/FLAG": true,
+    "clean/clean-t2-f32/training_flags_identical/FLAG_ROW": true,
+    "clean/clean-t2-f32/received_flags_protected": true,
+    "clean/clean-t2-f32/prediction_losses_exact": true,
+    "clean/clean-t2-f32/validity_added_counts_exact": true,
+    "clean/clean-t2-f32/derived_TV_roundoff_only/tv": true,
+    "clean/clean-t2-f32/derived_TV_roundoff_only/raw_tv": true,
+    "clean/clean-t2-f32/derived_TV_roundoff_only/time_tv": true,
+    "clean/clean-t2-f32/derived_TV_roundoff_only/frequency_tv": true,
+    "clean/clean-t2-f32/derived_TV_roundoff_only/scale": true,
+    "positive/complete-diagnostic-t14-f128/exact_gain_diagnostic/gains": true,
+    "positive/complete-diagnostic-t14-f128/exact_gain_diagnostic/gain_valid": true,
+    "positive/complete-diagnostic-t14-f128/exact_gain_diagnostic/edges": false,
+    "positive/complete-diagnostic-t14-f128/native_gain_tree_exact": true,
+    "positive/complete-diagnostic-t14-f128/commands_only_path_change": true,
+    "positive/complete-diagnostic-t14-f128/fullJones_native_weights_no_flagger": true,
+    "positive/complete-diagnostic-t14-f128/training_flags_identical/FLAG": true,
+    "positive/complete-diagnostic-t14-f128/training_flags_identical/FLAG_ROW": true,
+    "positive/complete-diagnostic-t14-f128/received_flags_protected": true,
+    "positive/complete-diagnostic-t14-f128/prediction_losses_exact": true,
+    "positive/complete-diagnostic-t14-f128/validity_added_counts_exact": true,
+    "positive/complete-diagnostic-t14-f128/derived_TV_roundoff_only/tv": true,
+    "positive/complete-diagnostic-t14-f128/derived_TV_roundoff_only/raw_tv": true,
+    "positive/complete-diagnostic-t14-f128/derived_TV_roundoff_only/time_tv": true,
+    "positive/complete-diagnostic-t14-f128/derived_TV_roundoff_only/frequency_tv": true,
+    "positive/complete-diagnostic-t14-f128/derived_TV_roundoff_only/scale": true,
+    "positive/complete-diagnostic-t2-f32/exact_gain_diagnostic/gains": true,
+    "positive/complete-diagnostic-t2-f32/exact_gain_diagnostic/gain_valid": true,
+    "positive/complete-diagnostic-t2-f32/exact_gain_diagnostic/edges": false,
+    "positive/complete-diagnostic-t2-f32/native_gain_tree_exact": true,
+    "positive/complete-diagnostic-t2-f32/commands_only_path_change": true,
+    "positive/complete-diagnostic-t2-f32/fullJones_native_weights_no_flagger": true,
+    "positive/complete-diagnostic-t2-f32/training_flags_identical/FLAG": true,
+    "positive/complete-diagnostic-t2-f32/training_flags_identical/FLAG_ROW": true,
+    "positive/complete-diagnostic-t2-f32/received_flags_protected": true,
+    "positive/complete-diagnostic-t2-f32/prediction_losses_exact": true,
+    "positive/complete-diagnostic-t2-f32/validity_added_counts_exact": true,
+    "positive/complete-diagnostic-t2-f32/derived_TV_roundoff_only/tv": true,
+    "positive/complete-diagnostic-t2-f32/derived_TV_roundoff_only/raw_tv": true,
+    "positive/complete-diagnostic-t2-f32/derived_TV_roundoff_only/time_tv": true,
+    "positive/complete-diagnostic-t2-f32/derived_TV_roundoff_only/frequency_tv": true,
+    "positive/complete-diagnostic-t2-f32/derived_TV_roundoff_only/scale": true,
+    "positive/omitted-t14-f128/exact_gain_diagnostic/gains": true,
+    "positive/omitted-t14-f128/exact_gain_diagnostic/gain_valid": true,
+    "positive/omitted-t14-f128/exact_gain_diagnostic/edges": false,
+    "positive/omitted-t14-f128/native_gain_tree_exact": true,
+    "positive/omitted-t14-f128/commands_only_path_change": true,
+    "positive/omitted-t14-f128/fullJones_native_weights_no_flagger": true,
+    "positive/omitted-t14-f128/training_flags_identical/FLAG": true,
+    "positive/omitted-t14-f128/training_flags_identical/FLAG_ROW": true,
+    "positive/omitted-t14-f128/received_flags_protected": true,
+    "positive/omitted-t14-f128/prediction_losses_exact": true,
+    "positive/omitted-t14-f128/validity_added_counts_exact": true,
+    "positive/omitted-t14-f128/derived_TV_roundoff_only/tv": true,
+    "positive/omitted-t14-f128/derived_TV_roundoff_only/raw_tv": true,
+    "positive/omitted-t14-f128/derived_TV_roundoff_only/time_tv": true,
+    "positive/omitted-t14-f128/derived_TV_roundoff_only/frequency_tv": true,
+    "positive/omitted-t14-f128/derived_TV_roundoff_only/scale": true,
+    "positive/omitted-t2-f32/exact_gain_diagnostic/gains": true,
+    "positive/omitted-t2-f32/exact_gain_diagnostic/gain_valid": true,
+    "positive/omitted-t2-f32/exact_gain_diagnostic/edges": false,
+    "positive/omitted-t2-f32/native_gain_tree_exact": true,
+    "positive/omitted-t2-f32/commands_only_path_change": true,
+    "positive/omitted-t2-f32/fullJones_native_weights_no_flagger": true,
+    "positive/omitted-t2-f32/training_flags_identical/FLAG": true,
+    "positive/omitted-t2-f32/training_flags_identical/FLAG_ROW": true,
+    "positive/omitted-t2-f32/received_flags_protected": true,
+    "positive/omitted-t2-f32/prediction_losses_exact": true,
+    "positive/omitted-t2-f32/validity_added_counts_exact": true,
+    "positive/omitted-t2-f32/derived_TV_roundoff_only/tv": true,
+    "positive/omitted-t2-f32/derived_TV_roundoff_only/raw_tv": true,
+    "positive/omitted-t2-f32/derived_TV_roundoff_only/time_tv": true,
+    "positive/omitted-t2-f32/derived_TV_roundoff_only/frequency_tv": true,
+    "positive/omitted-t2-f32/derived_TV_roundoff_only/scale": true,
+    "negative/complete-diagnostic-t14-f128/exact_gain_diagnostic/gains": true,
+    "negative/complete-diagnostic-t14-f128/exact_gain_diagnostic/gain_valid": true,
+    "negative/complete-diagnostic-t14-f128/exact_gain_diagnostic/edges": false,
+    "negative/complete-diagnostic-t14-f128/native_gain_tree_exact": true,
+    "negative/complete-diagnostic-t14-f128/commands_only_path_change": true,
+    "negative/complete-diagnostic-t14-f128/fullJones_native_weights_no_flagger": true,
+    "negative/complete-diagnostic-t14-f128/training_flags_identical/FLAG": true,
+    "negative/complete-diagnostic-t14-f128/training_flags_identical/FLAG_ROW": true,
+    "negative/complete-diagnostic-t14-f128/received_flags_protected": true,
+    "negative/complete-diagnostic-t14-f128/prediction_losses_exact": true,
+    "negative/complete-diagnostic-t14-f128/validity_added_counts_exact": true,
+    "negative/complete-diagnostic-t14-f128/derived_TV_roundoff_only/tv": true,
+    "negative/complete-diagnostic-t14-f128/derived_TV_roundoff_only/raw_tv": true,
+    "negative/complete-diagnostic-t14-f128/derived_TV_roundoff_only/time_tv": true,
+    "negative/complete-diagnostic-t14-f128/derived_TV_roundoff_only/frequency_tv": true,
+    "negative/complete-diagnostic-t14-f128/derived_TV_roundoff_only/scale": true,
+    "negative/complete-diagnostic-t2-f32/exact_gain_diagnostic/gains": true,
+    "negative/complete-diagnostic-t2-f32/exact_gain_diagnostic/gain_valid": true,
+    "negative/complete-diagnostic-t2-f32/exact_gain_diagnostic/edges": false,
+    "negative/complete-diagnostic-t2-f32/native_gain_tree_exact": true,
+    "negative/complete-diagnostic-t2-f32/commands_only_path_change": true,
+    "negative/complete-diagnostic-t2-f32/fullJones_native_weights_no_flagger": true,
+    "negative/complete-diagnostic-t2-f32/training_flags_identical/FLAG": true,
+    "negative/complete-diagnostic-t2-f32/training_flags_identical/FLAG_ROW": true,
+    "negative/complete-diagnostic-t2-f32/received_flags_protected": true,
+    "negative/complete-diagnostic-t2-f32/prediction_losses_exact": true,
+    "negative/complete-diagnostic-t2-f32/validity_added_counts_exact": true,
+    "negative/complete-diagnostic-t2-f32/derived_TV_roundoff_only/tv": true,
+    "negative/complete-diagnostic-t2-f32/derived_TV_roundoff_only/raw_tv": true,
+    "negative/complete-diagnostic-t2-f32/derived_TV_roundoff_only/time_tv": true,
+    "negative/complete-diagnostic-t2-f32/derived_TV_roundoff_only/frequency_tv": true,
+    "negative/complete-diagnostic-t2-f32/derived_TV_roundoff_only/scale": true,
+    "negative/omitted-t14-f128/exact_gain_diagnostic/gains": true,
+    "negative/omitted-t14-f128/exact_gain_diagnostic/gain_valid": true,
+    "negative/omitted-t14-f128/exact_gain_diagnostic/edges": false,
+    "negative/omitted-t14-f128/native_gain_tree_exact": true,
+    "negative/omitted-t14-f128/commands_only_path_change": true,
+    "negative/omitted-t14-f128/fullJones_native_weights_no_flagger": true,
+    "negative/omitted-t14-f128/training_flags_identical/FLAG": true,
+    "negative/omitted-t14-f128/training_flags_identical/FLAG_ROW": true,
+    "negative/omitted-t14-f128/received_flags_protected": true,
+    "negative/omitted-t14-f128/prediction_losses_exact": true,
+    "negative/omitted-t14-f128/validity_added_counts_exact": true,
+    "negative/omitted-t14-f128/derived_TV_roundoff_only/tv": true,
+    "negative/omitted-t14-f128/derived_TV_roundoff_only/raw_tv": true,
+    "negative/omitted-t14-f128/derived_TV_roundoff_only/time_tv": true,
+    "negative/omitted-t14-f128/derived_TV_roundoff_only/frequency_tv": true,
+    "negative/omitted-t14-f128/derived_TV_roundoff_only/scale": true,
+    "negative/omitted-t2-f32/exact_gain_diagnostic/gains": true,
+    "negative/omitted-t2-f32/exact_gain_diagnostic/gain_valid": true,
+    "negative/omitted-t2-f32/exact_gain_diagnostic/edges": false,
+    "negative/omitted-t2-f32/native_gain_tree_exact": true,
+    "negative/omitted-t2-f32/commands_only_path_change": true,
+    "negative/omitted-t2-f32/fullJones_native_weights_no_flagger": true,
+    "negative/omitted-t2-f32/training_flags_identical/FLAG": true,
+    "negative/omitted-t2-f32/training_flags_identical/FLAG_ROW": true,
+    "negative/omitted-t2-f32/received_flags_protected": true,
+    "negative/omitted-t2-f32/prediction_losses_exact": true,
+    "negative/omitted-t2-f32/validity_added_counts_exact": true,
+    "negative/omitted-t2-f32/derived_TV_roundoff_only/tv": true,
+    "negative/omitted-t2-f32/derived_TV_roundoff_only/raw_tv": true,
+    "negative/omitted-t2-f32/derived_TV_roundoff_only/time_tv": true,
+    "negative/omitted-t2-f32/derived_TV_roundoff_only/frequency_tv": true,
+    "negative/omitted-t2-f32/derived_TV_roundoff_only/scale": true,
+    "template_family_equal_prior": true,
+    "frozen_templates_independent_DFT_Gaussian": true,
+    "positive/DATA_exact_frozen_corruption": true,
+    "positive/complete_model_exact_intrinsic_addition": true,
+    "negative/DATA_exact_frozen_corruption": true,
+    "negative/complete_model_exact_intrinsic_addition": true,
+    "common_TEST_exact9169": true,
+    "fixed_fineG0_weights_positive_finite": true,
+    "reference/positive/flux_jy": true,
+    "reference/positive/rank": true,
+    "reference/positive/condition": true,
+    "reference/positive/sample_count": true,
+    "reference/positive/weighted_mse_proxy": true,
+    "reference/positive/unexplained_weighted_response_energy_fraction": true,
+    "reference/negative/flux_jy": true,
+    "reference/negative/rank": true,
+    "reference/negative/condition": true,
+    "reference/negative/sample_count": true,
+    "reference/negative/weighted_mse_proxy": true,
+    "reference/negative/unexplained_weighted_response_energy_fraction": true,
+    "positive/complete-diagnostic-t14-f128/total/fit/flux_jy": true,
+    "positive/complete-diagnostic-t14-f128/total/fit/rank": true,
+    "positive/complete-diagnostic-t14-f128/total/fit/condition": true,
+    "positive/complete-diagnostic-t14-f128/total/fit/sample_count": true,
+    "positive/complete-diagnostic-t14-f128/total/fit/weighted_mse_proxy": true,
+    "positive/complete-diagnostic-t14-f128/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/complete-diagnostic-t14-f128/direct/fit/flux_jy": true,
+    "positive/complete-diagnostic-t14-f128/direct/fit/rank": true,
+    "positive/complete-diagnostic-t14-f128/direct/fit/condition": true,
+    "positive/complete-diagnostic-t14-f128/direct/fit/sample_count": true,
+    "positive/complete-diagnostic-t14-f128/direct/fit/weighted_mse_proxy": true,
+    "positive/complete-diagnostic-t14-f128/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/complete-diagnostic-t14-f128/adaptation/fit/flux_jy": true,
+    "positive/complete-diagnostic-t14-f128/adaptation/fit/rank": true,
+    "positive/complete-diagnostic-t14-f128/adaptation/fit/condition": true,
+    "positive/complete-diagnostic-t14-f128/adaptation/fit/sample_count": true,
+    "positive/complete-diagnostic-t14-f128/adaptation/fit/weighted_mse_proxy": true,
+    "positive/complete-diagnostic-t14-f128/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/complete-diagnostic-t14-f128/strict_visibility_closure": true,
+    "positive/complete-diagnostic-t14-f128/strict_fit_closure": true,
+    "positive/complete-diagnostic-t14-f128/fraction_replay": true,
+    "positive/complete-diagnostic-t14-f128/same_grid_product_replay": true,
+    "positive/complete-diagnostic-t14-f128/fineG0_product_replay": true,
+    "positive/complete-diagnostic-t14-f128/support_replay": true,
+    "positive/complete-diagnostic-t14-f128/variance_ratio_replay": true,
+    "positive/complete-diagnostic-t2-f32/total/fit/flux_jy": true,
+    "positive/complete-diagnostic-t2-f32/total/fit/rank": true,
+    "positive/complete-diagnostic-t2-f32/total/fit/condition": true,
+    "positive/complete-diagnostic-t2-f32/total/fit/sample_count": true,
+    "positive/complete-diagnostic-t2-f32/total/fit/weighted_mse_proxy": true,
+    "positive/complete-diagnostic-t2-f32/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/complete-diagnostic-t2-f32/direct/fit/flux_jy": true,
+    "positive/complete-diagnostic-t2-f32/direct/fit/rank": true,
+    "positive/complete-diagnostic-t2-f32/direct/fit/condition": true,
+    "positive/complete-diagnostic-t2-f32/direct/fit/sample_count": true,
+    "positive/complete-diagnostic-t2-f32/direct/fit/weighted_mse_proxy": true,
+    "positive/complete-diagnostic-t2-f32/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/complete-diagnostic-t2-f32/adaptation/fit/flux_jy": true,
+    "positive/complete-diagnostic-t2-f32/adaptation/fit/rank": true,
+    "positive/complete-diagnostic-t2-f32/adaptation/fit/condition": true,
+    "positive/complete-diagnostic-t2-f32/adaptation/fit/sample_count": true,
+    "positive/complete-diagnostic-t2-f32/adaptation/fit/weighted_mse_proxy": true,
+    "positive/complete-diagnostic-t2-f32/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/complete-diagnostic-t2-f32/strict_visibility_closure": true,
+    "positive/complete-diagnostic-t2-f32/strict_fit_closure": true,
+    "positive/complete-diagnostic-t2-f32/fraction_replay": true,
+    "positive/complete-diagnostic-t2-f32/same_grid_product_replay": true,
+    "positive/complete-diagnostic-t2-f32/fineG0_product_replay": true,
+    "positive/complete-diagnostic-t2-f32/support_replay": true,
+    "positive/complete-diagnostic-t2-f32/variance_ratio_replay": true,
+    "positive/omitted-t14-f128/total/fit/flux_jy": true,
+    "positive/omitted-t14-f128/total/fit/rank": true,
+    "positive/omitted-t14-f128/total/fit/condition": true,
+    "positive/omitted-t14-f128/total/fit/sample_count": true,
+    "positive/omitted-t14-f128/total/fit/weighted_mse_proxy": true,
+    "positive/omitted-t14-f128/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/omitted-t14-f128/direct/fit/flux_jy": true,
+    "positive/omitted-t14-f128/direct/fit/rank": true,
+    "positive/omitted-t14-f128/direct/fit/condition": true,
+    "positive/omitted-t14-f128/direct/fit/sample_count": true,
+    "positive/omitted-t14-f128/direct/fit/weighted_mse_proxy": true,
+    "positive/omitted-t14-f128/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/omitted-t14-f128/adaptation/fit/flux_jy": true,
+    "positive/omitted-t14-f128/adaptation/fit/rank": true,
+    "positive/omitted-t14-f128/adaptation/fit/condition": true,
+    "positive/omitted-t14-f128/adaptation/fit/sample_count": true,
+    "positive/omitted-t14-f128/adaptation/fit/weighted_mse_proxy": true,
+    "positive/omitted-t14-f128/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/omitted-t14-f128/strict_visibility_closure": true,
+    "positive/omitted-t14-f128/strict_fit_closure": true,
+    "positive/omitted-t14-f128/fraction_replay": true,
+    "positive/omitted-t14-f128/same_grid_product_replay": true,
+    "positive/omitted-t14-f128/fineG0_product_replay": true,
+    "positive/omitted-t14-f128/support_replay": true,
+    "positive/omitted-t14-f128/variance_ratio_replay": true,
+    "positive/omitted-t2-f32/total/fit/flux_jy": true,
+    "positive/omitted-t2-f32/total/fit/rank": true,
+    "positive/omitted-t2-f32/total/fit/condition": true,
+    "positive/omitted-t2-f32/total/fit/sample_count": true,
+    "positive/omitted-t2-f32/total/fit/weighted_mse_proxy": true,
+    "positive/omitted-t2-f32/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/omitted-t2-f32/direct/fit/flux_jy": true,
+    "positive/omitted-t2-f32/direct/fit/rank": true,
+    "positive/omitted-t2-f32/direct/fit/condition": true,
+    "positive/omitted-t2-f32/direct/fit/sample_count": true,
+    "positive/omitted-t2-f32/direct/fit/weighted_mse_proxy": true,
+    "positive/omitted-t2-f32/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/omitted-t2-f32/adaptation/fit/flux_jy": true,
+    "positive/omitted-t2-f32/adaptation/fit/rank": true,
+    "positive/omitted-t2-f32/adaptation/fit/condition": true,
+    "positive/omitted-t2-f32/adaptation/fit/sample_count": true,
+    "positive/omitted-t2-f32/adaptation/fit/weighted_mse_proxy": true,
+    "positive/omitted-t2-f32/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "positive/omitted-t2-f32/strict_visibility_closure": true,
+    "positive/omitted-t2-f32/strict_fit_closure": true,
+    "positive/omitted-t2-f32/fraction_replay": true,
+    "positive/omitted-t2-f32/same_grid_product_replay": true,
+    "positive/omitted-t2-f32/fineG0_product_replay": true,
+    "positive/omitted-t2-f32/support_replay": true,
+    "positive/omitted-t2-f32/variance_ratio_replay": true,
+    "negative/complete-diagnostic-t14-f128/total/fit/flux_jy": true,
+    "negative/complete-diagnostic-t14-f128/total/fit/rank": true,
+    "negative/complete-diagnostic-t14-f128/total/fit/condition": true,
+    "negative/complete-diagnostic-t14-f128/total/fit/sample_count": true,
+    "negative/complete-diagnostic-t14-f128/total/fit/weighted_mse_proxy": true,
+    "negative/complete-diagnostic-t14-f128/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/complete-diagnostic-t14-f128/direct/fit/flux_jy": true,
+    "negative/complete-diagnostic-t14-f128/direct/fit/rank": true,
+    "negative/complete-diagnostic-t14-f128/direct/fit/condition": true,
+    "negative/complete-diagnostic-t14-f128/direct/fit/sample_count": true,
+    "negative/complete-diagnostic-t14-f128/direct/fit/weighted_mse_proxy": true,
+    "negative/complete-diagnostic-t14-f128/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/complete-diagnostic-t14-f128/adaptation/fit/flux_jy": true,
+    "negative/complete-diagnostic-t14-f128/adaptation/fit/rank": true,
+    "negative/complete-diagnostic-t14-f128/adaptation/fit/condition": true,
+    "negative/complete-diagnostic-t14-f128/adaptation/fit/sample_count": true,
+    "negative/complete-diagnostic-t14-f128/adaptation/fit/weighted_mse_proxy": true,
+    "negative/complete-diagnostic-t14-f128/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/complete-diagnostic-t14-f128/strict_visibility_closure": true,
+    "negative/complete-diagnostic-t14-f128/strict_fit_closure": true,
+    "negative/complete-diagnostic-t14-f128/fraction_replay": true,
+    "negative/complete-diagnostic-t14-f128/same_grid_product_replay": true,
+    "negative/complete-diagnostic-t14-f128/fineG0_product_replay": true,
+    "negative/complete-diagnostic-t14-f128/support_replay": true,
+    "negative/complete-diagnostic-t14-f128/variance_ratio_replay": true,
+    "negative/complete-diagnostic-t2-f32/total/fit/flux_jy": true,
+    "negative/complete-diagnostic-t2-f32/total/fit/rank": true,
+    "negative/complete-diagnostic-t2-f32/total/fit/condition": true,
+    "negative/complete-diagnostic-t2-f32/total/fit/sample_count": true,
+    "negative/complete-diagnostic-t2-f32/total/fit/weighted_mse_proxy": true,
+    "negative/complete-diagnostic-t2-f32/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/complete-diagnostic-t2-f32/direct/fit/flux_jy": true,
+    "negative/complete-diagnostic-t2-f32/direct/fit/rank": true,
+    "negative/complete-diagnostic-t2-f32/direct/fit/condition": true,
+    "negative/complete-diagnostic-t2-f32/direct/fit/sample_count": true,
+    "negative/complete-diagnostic-t2-f32/direct/fit/weighted_mse_proxy": true,
+    "negative/complete-diagnostic-t2-f32/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/complete-diagnostic-t2-f32/adaptation/fit/flux_jy": true,
+    "negative/complete-diagnostic-t2-f32/adaptation/fit/rank": true,
+    "negative/complete-diagnostic-t2-f32/adaptation/fit/condition": true,
+    "negative/complete-diagnostic-t2-f32/adaptation/fit/sample_count": true,
+    "negative/complete-diagnostic-t2-f32/adaptation/fit/weighted_mse_proxy": true,
+    "negative/complete-diagnostic-t2-f32/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/complete-diagnostic-t2-f32/strict_visibility_closure": true,
+    "negative/complete-diagnostic-t2-f32/strict_fit_closure": true,
+    "negative/complete-diagnostic-t2-f32/fraction_replay": true,
+    "negative/complete-diagnostic-t2-f32/same_grid_product_replay": true,
+    "negative/complete-diagnostic-t2-f32/fineG0_product_replay": true,
+    "negative/complete-diagnostic-t2-f32/support_replay": true,
+    "negative/complete-diagnostic-t2-f32/variance_ratio_replay": true,
+    "negative/omitted-t14-f128/total/fit/flux_jy": true,
+    "negative/omitted-t14-f128/total/fit/rank": true,
+    "negative/omitted-t14-f128/total/fit/condition": true,
+    "negative/omitted-t14-f128/total/fit/sample_count": true,
+    "negative/omitted-t14-f128/total/fit/weighted_mse_proxy": true,
+    "negative/omitted-t14-f128/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/omitted-t14-f128/direct/fit/flux_jy": true,
+    "negative/omitted-t14-f128/direct/fit/rank": true,
+    "negative/omitted-t14-f128/direct/fit/condition": true,
+    "negative/omitted-t14-f128/direct/fit/sample_count": true,
+    "negative/omitted-t14-f128/direct/fit/weighted_mse_proxy": true,
+    "negative/omitted-t14-f128/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/omitted-t14-f128/adaptation/fit/flux_jy": true,
+    "negative/omitted-t14-f128/adaptation/fit/rank": true,
+    "negative/omitted-t14-f128/adaptation/fit/condition": true,
+    "negative/omitted-t14-f128/adaptation/fit/sample_count": true,
+    "negative/omitted-t14-f128/adaptation/fit/weighted_mse_proxy": true,
+    "negative/omitted-t14-f128/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/omitted-t14-f128/strict_visibility_closure": true,
+    "negative/omitted-t14-f128/strict_fit_closure": true,
+    "negative/omitted-t14-f128/fraction_replay": true,
+    "negative/omitted-t14-f128/same_grid_product_replay": true,
+    "negative/omitted-t14-f128/fineG0_product_replay": true,
+    "negative/omitted-t14-f128/support_replay": true,
+    "negative/omitted-t14-f128/variance_ratio_replay": true,
+    "negative/omitted-t2-f32/total/fit/flux_jy": true,
+    "negative/omitted-t2-f32/total/fit/rank": true,
+    "negative/omitted-t2-f32/total/fit/condition": true,
+    "negative/omitted-t2-f32/total/fit/sample_count": true,
+    "negative/omitted-t2-f32/total/fit/weighted_mse_proxy": true,
+    "negative/omitted-t2-f32/total/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/omitted-t2-f32/direct/fit/flux_jy": true,
+    "negative/omitted-t2-f32/direct/fit/rank": true,
+    "negative/omitted-t2-f32/direct/fit/condition": true,
+    "negative/omitted-t2-f32/direct/fit/sample_count": true,
+    "negative/omitted-t2-f32/direct/fit/weighted_mse_proxy": true,
+    "negative/omitted-t2-f32/direct/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/omitted-t2-f32/adaptation/fit/flux_jy": true,
+    "negative/omitted-t2-f32/adaptation/fit/rank": true,
+    "negative/omitted-t2-f32/adaptation/fit/condition": true,
+    "negative/omitted-t2-f32/adaptation/fit/sample_count": true,
+    "negative/omitted-t2-f32/adaptation/fit/weighted_mse_proxy": true,
+    "negative/omitted-t2-f32/adaptation/fit/unexplained_weighted_response_energy_fraction": true,
+    "negative/omitted-t2-f32/strict_visibility_closure": true,
+    "negative/omitted-t2-f32/strict_fit_closure": true,
+    "negative/omitted-t2-f32/fraction_replay": true,
+    "negative/omitted-t2-f32/same_grid_product_replay": true,
+    "negative/omitted-t2-f32/fineG0_product_replay": true,
+    "negative/omitted-t2-f32/support_replay": true,
+    "negative/omitted-t2-f32/variance_ratio_replay": true,
+    "observed_allocation_budget": true,
+    "observed_free_disk_reserve": true,
+    "failed_tree_unchanged_by_audit": true,
+    "fresh_tree_unchanged_by_audit": true
+  },
+  "check_count": 614,
+  "pass_count": 602,
+  "failures": [
+    "clean/clean-t14-f128/exact_gain_diagnostic/edges",
+    "clean/clean-t2-f32/exact_gain_diagnostic/gains",
+    "clean/clean-t2-f32/exact_gain_diagnostic/edges",
+    "clean/clean-t2-f32/native_gain_tree_exact",
+    "positive/complete-diagnostic-t14-f128/exact_gain_diagnostic/edges",
+    "positive/complete-diagnostic-t2-f32/exact_gain_diagnostic/edges",
+    "positive/omitted-t14-f128/exact_gain_diagnostic/edges",
+    "positive/omitted-t2-f32/exact_gain_diagnostic/edges",
+    "negative/complete-diagnostic-t14-f128/exact_gain_diagnostic/edges",
+    "negative/complete-diagnostic-t2-f32/exact_gain_diagnostic/edges",
+    "negative/omitted-t14-f128/exact_gain_diagnostic/edges",
+    "negative/omitted-t2-f32/exact_gain_diagnostic/edges"
+  ],
+  "execution_counts": {
+    "failed_actual_QC": 10,
+    "fresh_actual_QC": 10,
+    "actual_QC_total": 20,
+    "distinct_physical_controls": 10,
+    "additional_QC_audit": 0,
+    "additional_numerical_fit_replays": 26,
+    "native_flagger_QC": 0
+  },
+  "provenance": {
+    "image": "sha256:102767125ea2fe1f7fc000738cb16e28d1e967188c227a583d27293596fb2d95",
+    "rust_library_sha256": "f764ed8f215a6b22db5b511fcefae6398f9ff52c0a1b851d914f66452d235a8f",
+    "module_sha256": "b62a9877af099d9c72875b8439818b033e8fdff22d5b931386f327dbfed5fac8",
+    "config_file_sha256": "f037a506c357a20aedf1731d50dd544853ca175d04104eb22ad987220f1d43fa",
+    "result_file_sha256": "e7ee791ba0f8ca1f1775c49348dd2e4a51c9fe9e29b77a7e4cda2cfd29215083",
+    "prepared_digest": "8d21dd5ab4ff0d689ee06379fdc5bc00890fcb7c6221beec5d30007e34afba4c",
+    "raw_source_digest": "84e244f9e8256731b0d20a0e853a107dd80e3c2be36a532efe707b3d8766c519",
+    "failed_tree_before": "f16c341384e9d8baf397640a2c0fa245235cbc1b34aedc621d5bff123534af8f",
+    "failed_tree_after": "f16c341384e9d8baf397640a2c0fa245235cbc1b34aedc621d5bff123534af8f",
+    "fresh_tree_before": "bce25d2ef8db8b840c0eaac20df8f259f2ef2014a608f087d30db4028e1999ce",
+    "fresh_tree_after": "bce25d2ef8db8b840c0eaac20df8f259f2ef2014a608f087d30db4028e1999ce",
+    "versions": {
+      "quartical": "0.2.7",
+      "stimela": "2.1.4",
+      "numpy": "2.5.3",
+      "codex-africanus": "0.4.4",
+      "python-casacore": "3.8.1"
+    },
+    "audit_python_version": "3.12.14",
+    "final_failed_tree": "f16c341384e9d8baf397640a2c0fa245235cbc1b34aedc621d5bff123534af8f",
+    "final_fresh_tree": "bce25d2ef8db8b840c0eaac20df8f259f2ef2014a608f087d30db4028e1999ce"
+  },
+  "budget": {
+    "observed_allocated_bytes": 889081856,
+    "checked_cap_bytes": 1610612736,
+    "observed_free_bytes_container_view": 105640300544,
+    "reserve_bytes": 8589934592,
+    "OS_enforced_quota": false
+  },
+  "native_injection_receipts": [
+    {
+      "case": "positive",
+      "DATA_array_sha256": "acbf487f87c5b87f5c1c04a5ac556eecd7b42135bf8aab3130807f9fba64f92e",
+      "wide_delta_array_sha256": "70de0adfb72f8f20b41ffc50e8da4cf38a8ab64d120e6d99c08448b76db33560",
+      "wide_delta_dtype": "complex128",
+      "DATA_rounding_linf_jy": 6.481555306789146e-7
+    },
+    {
+      "case": "negative",
+      "DATA_array_sha256": "a71e095f671ceda5ff55f18e8caa7338538f8bbca554678800706ca0a7984bef",
+      "wide_delta_array_sha256": "44f384769a5833ab7f9dafe39b16756d6d2e7f25b0f7875d7a8691416bc44cd8",
+      "wide_delta_dtype": "complex128",
+      "DATA_rounding_linf_jy": 6.481555306789146e-7
+    }
+  ],
+  "gain_comparison": [
+    {
+      "case": "clean",
+      "trial": "clean-t14-f128",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "clean",
+      "trial": "clean-t2-f32",
+      "native_gain_tree_exact": false,
+      "gains_exact": false,
+      "max_gain_difference": 3.1401849173675503e-16
+    },
+    {
+      "case": "positive",
+      "trial": "complete-diagnostic-t14-f128",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "positive",
+      "trial": "complete-diagnostic-t2-f32",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "positive",
+      "trial": "omitted-t14-f128",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "positive",
+      "trial": "omitted-t2-f32",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "negative",
+      "trial": "complete-diagnostic-t14-f128",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "negative",
+      "trial": "complete-diagnostic-t2-f32",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "negative",
+      "trial": "omitted-t14-f128",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    },
+    {
+      "case": "negative",
+      "trial": "omitted-t2-f32",
+      "native_gain_tree_exact": true,
+      "gains_exact": true,
+      "max_gain_difference": 0
+    }
+  ],
+  "non_timing_metric_roundoff": [
+    {
+      "case": "clean",
+      "trial": "clean-t14-f128",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.03393488873717542,
+          "after": 0.03393488873717544
+        },
+        "raw_tv": {
+          "before": 0.1008920747931432,
+          "after": 0.10089207479314322
+        },
+        "frequency_tv": {
+          "before": 0.03393488873717542,
+          "after": 0.03393488873717544
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "clean",
+      "trial": "clean-t2-f32",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.1474368700725686,
+          "after": 0.14743687007256862
+        },
+        "raw_tv": {
+          "before": 0.2673258258969277,
+          "after": 0.26732582589692777
+        },
+        "time_tv": {
+          "before": 0.027069979216836893,
+          "after": 0.027069979216836897
+        },
+        "frequency_tv": {
+          "before": 0.1203668908557317,
+          "after": 0.12036689085573173
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "positive",
+      "trial": "complete-diagnostic-t14-f128",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.03391804020094336,
+          "after": 0.0339180402009434
+        },
+        "raw_tv": {
+          "before": 0.09987594856572683,
+          "after": 0.09987594856572685
+        },
+        "frequency_tv": {
+          "before": 0.03391804020094336,
+          "after": 0.0339180402009434
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "positive",
+      "trial": "complete-diagnostic-t2-f32",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.1472823831780929,
+          "after": 0.14728238317809292
+        },
+        "raw_tv": {
+          "before": 0.2653467704794025,
+          "after": 0.26534677047940264
+        },
+        "time_tv": {
+          "before": 0.027077658623210012,
+          "after": 0.02707765862321002
+        },
+        "frequency_tv": {
+          "before": 0.12020472455488287,
+          "after": 0.1202047245548829
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "positive",
+      "trial": "omitted-t14-f128",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.033831939898322685,
+          "after": 0.0338319398983227
+        },
+        "raw_tv": {
+          "before": 0.10027053599340897,
+          "after": 0.100270535993409
+        },
+        "frequency_tv": {
+          "before": 0.033831939898322685,
+          "after": 0.0338319398983227
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "positive",
+      "trial": "omitted-t2-f32",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.14684655442690905,
+          "after": 0.14684655442690908
+        },
+        "raw_tv": {
+          "before": 0.2657884648025515,
+          "after": 0.2657884648025516
+        },
+        "time_tv": {
+          "before": 0.027041900120449082,
+          "after": 0.02704190012044909
+        },
+        "frequency_tv": {
+          "before": 0.11980465430645997,
+          "after": 0.11980465430645999
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "negative",
+      "trial": "complete-diagnostic-t14-f128",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.03395201904830544,
+          "after": 0.03395201904830546
+        },
+        "frequency_tv": {
+          "before": 0.03395201904830544,
+          "after": 0.03395201904830546
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "negative",
+      "trial": "complete-diagnostic-t2-f32",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.14759372770322687,
+          "after": 0.14759372770322693
+        },
+        "raw_tv": {
+          "before": 0.26930518400794573,
+          "after": 0.2693051840079458
+        },
+        "time_tv": {
+          "before": 0.02706291159560603,
+          "after": 0.027062911595606035
+        },
+        "frequency_tv": {
+          "before": 0.12053081610762084,
+          "after": 0.12053081610762088
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "negative",
+      "trial": "omitted-t14-f128",
+      "non_timing_metric_differences": {
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    },
+    {
+      "case": "negative",
+      "trial": "omitted-t2-f32",
+      "non_timing_metric_differences": {
+        "tv": {
+          "before": 0.14805267662843394,
+          "after": 0.14805267662843397
+        },
+        "raw_tv": {
+          "before": 0.26888815575274294,
+          "after": 0.268888155752743
+        },
+        "frequency_tv": {
+          "before": 0.12094567216487631,
+          "after": 0.12094567216487634
+        },
+        "scale": {
+          "before": 1.0520039063056517,
+          "after": 1.0520039063056514
+        }
+      }
+    }
+  ],
+  "common_TEST": {
+    "original": 9169,
+    "supported": 9169,
+    "lost": 0,
+    "fixed_fineG0_weight_min_max": [
+      7.290711857351118,
+      25.938700843777664
+    ]
+  },
+  "reference_fits_replayed": {
+    "positive": {
+      "flux_jy": [
+        0.0600000037254756,
+        0.11999999387714823
+      ],
+      "rank": 2,
+      "condition": 1.9239049794186278,
+      "sample_count": 9169,
+      "weighted_mse_proxy": 1.2463816806922462e-12,
+      "unexplained_weighted_response_energy_fraction": 7.357622934949042e-12
+    },
+    "negative": {
+      "flux_jy": [
+        -0.06000000375298707,
+        -0.11999999386763102
+      ],
+      "rank": 2,
+      "condition": 1.9239049794186278,
+      "sample_count": 9169,
+      "weighted_mse_proxy": 1.2505612163499005e-12,
+      "unexplained_weighted_response_energy_fraction": 7.3822955090299e-12
+    }
+  },
+  "methods_replayed": [
+    {
+      "case": "positive",
+      "trial": "complete-diagnostic-t14-f128",
+      "grid": [
+        14,
+        128
+      ],
+      "sky": "complete-diagnostic",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            0.06066281509349605,
+            0.11989963076987785
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0015227185653629576,
+          "unexplained_weighted_response_energy_fraction": 0.008828090365135922
+        },
+        "direct": {
+          "flux_jy": [
+            0.06043729333197182,
+            0.12126836907254605
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0014854520391783257,
+          "unexplained_weighted_response_energy_fraction": 0.00853841463177057
+        },
+        "adaptation": {
+          "flux_jy": [
+            0.0002255217615241959,
+            -0.0013687383026681815
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.00012180160257805754,
+          "unexplained_weighted_response_energy_fraction": 0.9320425999013578
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        1.011046855447761,
+        0.9991636407300727
+      ],
+      "visibility_closure_linf_jy": 8.793306284171997e-15,
+      "coefficient_closure_linf_jy": 3.6022617180830885e-17,
+      "same_grid_Jones_product_relative_drift": 0.0001960698767917879,
+      "fineG0_Jones_product_relative_error": 0.09162613209556418,
+      "max_TEST_Jones_condition": 1.091489305636999,
+      "unsupported_TEST_samples": 0
+    },
+    {
+      "case": "positive",
+      "trial": "complete-diagnostic-t2-f32",
+      "grid": [
+        2,
+        32
+      ],
+      "sky": "complete-diagnostic",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            0.05997595340948467,
+            0.11870119267790201
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.000614961129310559,
+          "unexplained_weighted_response_energy_fraction": 0.0036611355541087062
+        },
+        "direct": {
+          "flux_jy": [
+            0.06000232880104952,
+            0.12000667882776801
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 3.9676495783841477e-8,
+          "unexplained_weighted_response_energy_fraction": 2.3419521587156654e-7
+        },
+        "adaptation": {
+          "flux_jy": [
+            -0.000026375391564836477,
+            -0.0013054861498659584
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0006158807686975604,
+          "unexplained_weighted_response_energy_fraction": 0.9857196170724148
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        0.9995991614250397,
+        0.9891766561207004
+      ],
+      "visibility_closure_linf_jy": 9.821944883083715e-15,
+      "coefficient_closure_linf_jy": 4.466912950640278e-17,
+      "same_grid_Jones_product_relative_drift": 0.00042480707334802674,
+      "fineG0_Jones_product_relative_error": 0.00042480707334802674,
+      "max_TEST_Jones_condition": 1.2624228151267056,
+      "unsupported_TEST_samples": 0
+    },
+    {
+      "case": "positive",
+      "trial": "omitted-t14-f128",
+      "grid": [
+        14,
+        128
+      ],
+      "sky": "omitted",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            0.031442381097423824,
+            0.09145457179712481
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.039944540415514616,
+          "unexplained_weighted_response_energy_fraction": 0.35159809112315865
+        },
+        "direct": {
+          "flux_jy": [
+            0.06058406972864586,
+            0.12131514448845081
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0014930051381145974,
+          "unexplained_weighted_response_energy_fraction": 0.008559096801259714
+        },
+        "adaptation": {
+          "flux_jy": [
+            -0.029141688631221976,
+            -0.029860572691326023
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.03988442191761187,
+          "unexplained_weighted_response_energy_fraction": 0.6349267232239549
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        0.5240396524187815,
+        0.7621214705290134
+      ],
+      "visibility_closure_linf_jy": 8.112656111011602e-15,
+      "coefficient_closure_linf_jy": 6.245004513516506e-17,
+      "same_grid_Jones_product_relative_drift": 0.004071311349073449,
+      "fineG0_Jones_product_relative_error": 0.09187213199127349,
+      "max_TEST_Jones_condition": 1.0914641936973073,
+      "unsupported_TEST_samples": 0
+    },
+    {
+      "case": "positive",
+      "trial": "omitted-t2-f32",
+      "grid": [
+        2,
+        32
+      ],
+      "sky": "omitted",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            0.030601382024644158,
+            0.0890303820294595
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0422659640749171,
+          "unexplained_weighted_response_energy_fraction": 0.37715419328978395
+        },
+        "direct": {
+          "flux_jy": [
+            0.06014877333231911,
+            0.12005062400697951
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0000026467173746987866,
+          "unexplained_weighted_response_energy_fraction": 0.00001558134278476386
+        },
+        "adaptation": {
+          "flux_jy": [
+            -0.029547391307674933,
+            -0.031020241977520055
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.04240107656951281,
+          "unexplained_weighted_response_energy_fraction": 0.6393229790345341
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        0.5100230020760985,
+        0.7419198881010416
+      ],
+      "visibility_closure_linf_jy": 1.0108518147058411e-14,
+      "coefficient_closure_linf_jy": 4.163336342344337e-17,
+      "same_grid_Jones_product_relative_drift": 0.004236382548831871,
+      "fineG0_Jones_product_relative_error": 0.004236382548831871,
+      "max_TEST_Jones_condition": 1.2609940811780227,
+      "unsupported_TEST_samples": 0
+    },
+    {
+      "case": "negative",
+      "trial": "complete-diagnostic-t14-f128",
+      "grid": [
+        14,
+        128
+      ],
+      "sky": "complete-diagnostic",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            -0.06065792309101658,
+            -0.11989547555801901
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0015212363221729353,
+          "unexplained_weighted_response_energy_fraction": 0.008820549716679692
+        },
+        "direct": {
+          "flux_jy": [
+            -0.060430028184719264,
+            -0.12125346897152918
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0014844601057576823,
+          "unexplained_weighted_response_energy_fraction": 0.0085348204279241
+        },
+        "adaptation": {
+          "flux_jy": [
+            -0.00022789490629731017,
+            0.001357993413510192
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.00012092095026968583,
+          "unexplained_weighted_response_energy_fraction": 0.9325625297348646
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        1.0109653216146133,
+        0.9991290140420565
+      ],
+      "visibility_closure_linf_jy": 9.455003645416407e-15,
+      "coefficient_closure_linf_jy": 1.973247953923618e-17,
+      "same_grid_Jones_product_relative_drift": 0.00019538989081705784,
+      "fineG0_Jones_product_relative_error": 0.0916029732064389,
+      "max_TEST_Jones_condition": 1.091695727197712,
+      "unsupported_TEST_samples": 0
+    },
+    {
+      "case": "negative",
+      "trial": "complete-diagnostic-t2-f32",
+      "grid": [
+        2,
+        32
+      ],
+      "sky": "complete-diagnostic",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            -0.05997111351935113,
+            -0.11870396084944415
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0006129036785149849,
+          "unexplained_weighted_response_energy_fraction": 0.0036491103794179494
+        },
+        "direct": {
+          "flux_jy": [
+            -0.059997713770273284,
+            -0.11999342183625424
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 3.947030317193132e-8,
+          "unexplained_weighted_response_energy_fraction": 2.3302247712748716e-7
+        },
+        "adaptation": {
+          "flux_jy": [
+            0.000026600250922140196,
+            0.0012894609868100474
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0006120013872007455,
+          "unexplained_weighted_response_energy_fraction": 0.9859696628833687
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        0.9995184961361856,
+        0.9891997242965155
+      ],
+      "visibility_closure_linf_jy": 8.968117718014453e-15,
+      "coefficient_closure_linf_jy": 3.686287386450715e-17,
+      "same_grid_Jones_product_relative_drift": 0.0004234750649936457,
+      "fineG0_Jones_product_relative_error": 0.0004234750649936457,
+      "max_TEST_Jones_condition": 1.261194982243022,
+      "unsupported_TEST_samples": 0
+    },
+    {
+      "case": "negative",
+      "trial": "omitted-t14-f128",
+      "grid": [
+        14,
+        128
+      ],
+      "sky": "omitted",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            -0.03162459706265379,
+            -0.09140697223573448
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.03898555273886586,
+          "unexplained_weighted_response_energy_fraction": 0.34540077311396594
+        },
+        "direct": {
+          "flux_jy": [
+            -0.06028568744512549,
+            -0.12120439542816074
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.0014818143391637742,
+          "unexplained_weighted_response_energy_fraction": 0.008541883058551136
+        },
+        "adaptation": {
+          "flux_jy": [
+            0.0286610903824717,
+            0.029797423192426283
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.038679663339385655,
+          "unexplained_weighted_response_energy_fraction": 0.6335235669866988
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        0.5270765847423697,
+        0.7617248075576005
+      ],
+      "visibility_closure_linf_jy": 8.729914499213883e-15,
+      "coefficient_closure_linf_jy": 2.42861286636753e-17,
+      "same_grid_Jones_product_relative_drift": 0.004043028038704428,
+      "fineG0_Jones_product_relative_error": 0.09153162040776575,
+      "max_TEST_Jones_condition": 1.0917211805583455,
+      "unsupported_TEST_samples": 0
+    },
+    {
+      "case": "negative",
+      "trial": "omitted-t2-f32",
+      "grid": [
+        2,
+        32
+      ],
+      "sky": "omitted",
+      "fits": {
+        "total": {
+          "flux_jy": [
+            -0.030779623834803975,
+            -0.08897592466122105
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.04130535456245222,
+          "unexplained_weighted_response_energy_fraction": 0.37109463744243015
+        },
+        "direct": {
+          "flux_jy": [
+            -0.05985365289192168,
+            -0.1199469949613831
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.000002580055249756383,
+          "unexplained_weighted_response_energy_fraction": 0.000015271638987068224
+        },
+        "adaptation": {
+          "flux_jy": [
+            0.02907402905711776,
+            0.030971070300162072
+          ],
+          "rank": 2,
+          "condition": 1.9239049794186278,
+          "sample_count": 9169,
+          "weighted_mse_proxy": 0.04117335092127643,
+          "unexplained_weighted_response_energy_fraction": 0.6379434161142311
+        }
+      },
+      "response_fraction_vs_fixedG0": [
+        0.5129936984924209,
+        0.7414660767347051
+      ],
+      "visibility_closure_linf_jy": 8.62864779412707e-15,
+      "coefficient_closure_linf_jy": 5.204170427930421e-17,
+      "same_grid_Jones_product_relative_drift": 0.004209876931341288,
+      "fineG0_Jones_product_relative_error": 0.004209876931341288,
+      "max_TEST_Jones_condition": 1.262594124892227,
+      "unsupported_TEST_samples": 0
+    }
+  ],
+  "max_fit_flux_replay_error_jy": 3.400058012914542e-16,
+  "positive_negative_coherence": [
+    {
+      "sky": "omitted",
+      "grid": [
+        2,
+        32
+      ],
+      "signed_fraction_difference": [
+        -0.002970696416322416,
+        0.00045381136633648733
+      ],
+      "even_part_flux_jy": [
+        -0.00008912090507990841,
+        0.000027228684119223745
+      ]
+    },
+    {
+      "sky": "omitted",
+      "grid": [
+        14,
+        128
+      ],
+      "signed_fraction_difference": [
+        -0.0030369323235882595,
+        0.00039666297141283113
+      ],
+      "even_part_flux_jy": [
+        -0.00009110798261498243,
+        0.000023799780695166195
+      ]
+    },
+    {
+      "sky": "complete-diagnostic",
+      "grid": [
+        2,
+        32
+      ],
+      "signed_fraction_difference": [
+        0.00008066528885408708,
+        -0.00002306817581509968
+      ],
+      "even_part_flux_jy": [
+        0.000002419945066767931,
+        -0.0000013840857710709087
+      ]
+    },
+    {
+      "sky": "complete-diagnostic",
+      "grid": [
+        14,
+        128
+      ],
+      "signed_fraction_difference": [
+        0.00008153383314768448,
+        0.00003462668801623714
+      ],
+      "even_part_flux_jy": [
+        0.0000024460012397371778,
+        0.000002077605929420856
+      ]
+    }
+  ],
+  "coarse_clean_baseline": {
+    "product_relative_error_vs_fineG0": 0.09161432555147168,
+    "TEST_loss_fine": 24.919607595129268,
+    "TEST_loss_coarse": 31.209935783349092,
+    "TEST_loss_ratio": 1.2524248491557033
+  },
+  "limitations": [
+    "Same noisy four-antenna pointing fixture; signed/control/grid repeats are not independent trials.",
+    "Known frozen templates and empirical fineG0 DI gains; no astrophysical flux/slope/image or CI inference.",
+    "Complete truth-sky is calibration diagnostic, not a deployable model/selector.",
+    "Negative sign is finite perturbation, not a negative physical source.",
+    "No flag search/selection/images; cross-grid rawTV edge support differs.",
+    "Replay independently codes trace/variance/design, reuses saved gains/DATA/template family, not independent science evidence.",
+    "Checked budget, not OS quota; final disk availability cannot prove historical transient minima."
+  ],
+  "qualified_reproduction": {
+    "checks": {
+      "clean/clean-t14-f128/finite_TV_edge_support_exact": true,
+      "clean/clean-t14-f128/TV_edge_roundoff_16eps_envelope": true,
+      "clean/clean-t2-f32/finite_TV_edge_support_exact": true,
+      "clean/clean-t2-f32/TV_edge_roundoff_16eps_envelope": true,
+      "positive/complete-diagnostic-t14-f128/finite_TV_edge_support_exact": true,
+      "positive/complete-diagnostic-t14-f128/TV_edge_roundoff_16eps_envelope": true,
+      "positive/complete-diagnostic-t2-f32/finite_TV_edge_support_exact": true,
+      "positive/complete-diagnostic-t2-f32/TV_edge_roundoff_16eps_envelope": true,
+      "positive/omitted-t14-f128/finite_TV_edge_support_exact": true,
+      "positive/omitted-t14-f128/TV_edge_roundoff_16eps_envelope": true,
+      "positive/omitted-t2-f32/finite_TV_edge_support_exact": true,
+      "positive/omitted-t2-f32/TV_edge_roundoff_16eps_envelope": true,
+      "negative/complete-diagnostic-t14-f128/finite_TV_edge_support_exact": true,
+      "negative/complete-diagnostic-t14-f128/TV_edge_roundoff_16eps_envelope": true,
+      "negative/complete-diagnostic-t2-f32/finite_TV_edge_support_exact": true,
+      "negative/complete-diagnostic-t2-f32/TV_edge_roundoff_16eps_envelope": true,
+      "negative/omitted-t14-f128/finite_TV_edge_support_exact": true,
+      "negative/omitted-t14-f128/TV_edge_roundoff_16eps_envelope": true,
+      "negative/omitted-t2-f32/finite_TV_edge_support_exact": true,
+      "negative/omitted-t2-f32/TV_edge_roundoff_16eps_envelope": true,
+      "clean_fine_native_gains_roundoff_16eps_envelope": true,
+      "clean_fine_native_jhj_roundoff_16eps_envelope": true,
+      "clean_fine_native_changed_files_only_gains_and_jhj": true,
+      "clean_fine_all_other_native_variables_exact": true
+    },
+    "check_count": 24,
+    "pass_count": 24,
+    "failures": [],
+    "numeric_envelope": "16*float64 epsilon*max(1,max reference absolute value), diagnostic roundoff qualification only; exact failures above retained; not an objective/closure tolerance change",
+    "old_fineG0_scale": 1.0520039063056517,
+    "fresh_fineG0_scale": 1.0520039063056514,
+    "details": {
+      "raw_clean_fine_changed_files": [
+        "G/G_0/gains/0.0.0.0.0",
+        "G/G_0/jhj/0.0.0.0.0"
+      ],
+      "raw_clean_fine_dataset_variables": [
+        {
+          "variable": "conv_iter",
+          "dtype": "int64",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 50,
+          "finite_support_exact": null
+        },
+        {
+          "variable": "conv_perc",
+          "dtype": "float64",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 0.9843478260869565,
+          "finite_support_exact": true
+        },
+        {
+          "variable": "gain_flags",
+          "dtype": "int8",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 1,
+          "finite_support_exact": null
+        },
+        {
+          "variable": "gains",
+          "dtype": "complex128",
+          "exact": false,
+          "max_abs_difference": 3.1401849173675503e-16,
+          "max_reference_absolute_value": 1,
+          "finite_support_exact": true
+        },
+        {
+          "variable": "jhj",
+          "dtype": "complex128",
+          "exact": false,
+          "max_abs_difference": 3.492603332195875e-10,
+          "max_reference_absolute_value": 756183.1640288023,
+          "finite_support_exact": true
+        },
+        {
+          "variable": "antenna",
+          "dtype": "<U4",
+          "exact": true,
+          "max_abs_difference": null,
+          "max_reference_absolute_value": null,
+          "finite_support_exact": null
+        },
+        {
+          "variable": "correlation",
+          "dtype": "<U2",
+          "exact": true,
+          "max_abs_difference": null,
+          "max_reference_absolute_value": null,
+          "finite_support_exact": null
+        },
+        {
+          "variable": "direction",
+          "dtype": "int32",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 0,
+          "finite_support_exact": null
+        },
+        {
+          "variable": "freq_chunk",
+          "dtype": "int64",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 0,
+          "finite_support_exact": null
+        },
+        {
+          "variable": "gain_freq",
+          "dtype": "float64",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 1708551757.8125,
+          "finite_support_exact": true
+        },
+        {
+          "variable": "gain_time",
+          "dtype": "float64",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 5179445116.478546,
+          "finite_support_exact": true
+        },
+        {
+          "variable": "time_chunk",
+          "dtype": "int64",
+          "exact": true,
+          "max_abs_difference": 0,
+          "max_reference_absolute_value": 0,
+          "finite_support_exact": null
+        }
+      ],
+      "TV_edges_roundoff": [
+        {
+          "case": "clean",
+          "trial": "clean-t14-f128",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 1.5265566588595902e-16,
+          "max_reference_edge": 0.06836041013740997,
+          "finite_edge_count": 36
+        },
+        {
+          "case": "clean",
+          "trial": "clean-t2-f32",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 1.1934897514720433e-15,
+          "max_reference_edge": 0.7277266809906414,
+          "finite_edge_count": 2078
+        },
+        {
+          "case": "positive",
+          "trial": "complete-diagnostic-t14-f128",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 1.5959455978986625e-16,
+          "max_reference_edge": 0.06845763483053009,
+          "finite_edge_count": 36
+        },
+        {
+          "case": "positive",
+          "trial": "complete-diagnostic-t2-f32",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 2.220446049250313e-16,
+          "max_reference_edge": 0.7276522091093358,
+          "finite_edge_count": 2078
+        },
+        {
+          "case": "positive",
+          "trial": "omitted-t14-f128",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 1.3877787807814457e-16,
+          "max_reference_edge": 0.06705865084328028,
+          "finite_edge_count": 36
+        },
+        {
+          "case": "positive",
+          "trial": "omitted-t2-f32",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 2.220446049250313e-16,
+          "max_reference_edge": 0.7296310685316231,
+          "finite_edge_count": 2078
+        },
+        {
+          "case": "negative",
+          "trial": "complete-diagnostic-t14-f128",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 9.020562075079397e-17,
+          "max_reference_edge": 0.06826469108516542,
+          "finite_edge_count": 36
+        },
+        {
+          "case": "negative",
+          "trial": "complete-diagnostic-t2-f32",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 2.220446049250313e-16,
+          "max_reference_edge": 0.7277985110479777,
+          "finite_edge_count": 2078
+        },
+        {
+          "case": "negative",
+          "trial": "omitted-t14-f128",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 1.5959455978986625e-16,
+          "max_reference_edge": 0.06969462327892471,
+          "finite_edge_count": 36
+        },
+        {
+          "case": "negative",
+          "trial": "omitted-t2-f32",
+          "finite_edge_support_exact": true,
+          "max_edge_value_difference": 2.220446049250313e-16,
+          "max_reference_edge": 0.7257652054405341,
+          "finite_edge_count": 2078
+        }
+      ]
+    }
+  },
+  "additional_backup_boundary_checks": {
+    "checks": {
+      "clean/clean-t14-f128/FLAG_only_frozen_TRAIN_holdout": true,
+      "clean/clean-t14-f128/FLAG_ROW_only_protected_rows": true,
+      "clean/clean-t2-f32/FLAG_only_frozen_TRAIN_holdout": true,
+      "clean/clean-t2-f32/FLAG_ROW_only_protected_rows": true,
+      "clean/final_before_restore_matches_last_solve/FLAG": true,
+      "clean/final_before_restore_matches_last_solve/FLAG_ROW": true,
+      "positive/complete-diagnostic-t14-f128/FLAG_only_frozen_TRAIN_holdout": true,
+      "positive/complete-diagnostic-t14-f128/FLAG_ROW_only_protected_rows": true,
+      "positive/complete-diagnostic-t2-f32/FLAG_only_frozen_TRAIN_holdout": true,
+      "positive/complete-diagnostic-t2-f32/FLAG_ROW_only_protected_rows": true,
+      "positive/omitted-t14-f128/FLAG_only_frozen_TRAIN_holdout": true,
+      "positive/omitted-t14-f128/FLAG_ROW_only_protected_rows": true,
+      "positive/omitted-t2-f32/FLAG_only_frozen_TRAIN_holdout": true,
+      "positive/omitted-t2-f32/FLAG_ROW_only_protected_rows": true,
+      "positive/final_before_restore_matches_last_solve/FLAG": true,
+      "positive/final_before_restore_matches_last_solve/FLAG_ROW": true,
+      "positive/model_backup_received_FLAG_protected": true,
+      "positive/schema_backup_base_descriptor_present": true,
+      "negative/complete-diagnostic-t14-f128/FLAG_only_frozen_TRAIN_holdout": true,
+      "negative/complete-diagnostic-t14-f128/FLAG_ROW_only_protected_rows": true,
+      "negative/complete-diagnostic-t2-f32/FLAG_only_frozen_TRAIN_holdout": true,
+      "negative/complete-diagnostic-t2-f32/FLAG_ROW_only_protected_rows": true,
+      "negative/omitted-t14-f128/FLAG_only_frozen_TRAIN_holdout": true,
+      "negative/omitted-t14-f128/FLAG_ROW_only_protected_rows": true,
+      "negative/omitted-t2-f32/FLAG_only_frozen_TRAIN_holdout": true,
+      "negative/omitted-t2-f32/FLAG_ROW_only_protected_rows": true,
+      "negative/final_before_restore_matches_last_solve/FLAG": true,
+      "negative/final_before_restore_matches_last_solve/FLAG_ROW": true,
+      "negative/model_backup_received_FLAG_protected": true,
+      "negative/schema_backup_base_descriptor_present": true
+    },
+    "count": 30,
+    "pass_count": 30,
+    "failures": [],
+    "failed_tree_final": "f16c341384e9d8baf397640a2c0fa245235cbc1b34aedc621d5bff123534af8f",
+    "fresh_tree_final": "bce25d2ef8db8b840c0eaac20df8f259f2ef2014a608f087d30db4028e1999ce"
+  },
+  "check_summary": {
+    "initial_predicates": 614,
+    "initial_passes": 602,
+    "retained_exact_identity_failures": 12,
+    "additional_qualified_reproduction_predicates": 24,
+    "additional_qualified_reproduction_passes": 24,
+    "additional_backup_boundary_predicates": 30,
+    "additional_backup_boundary_passes": 30,
+    "all_native_calibration_inputs_and_protocol_exact": true,
+    "all10_prediction_losses_exact": true,
+    "native_QC_gain_trees_exact": 9,
+    "total_native_QC_gain_trees": 10,
+    "bit_identical_gain_reproduction": false
+  },
+  "read_only_programs": {
+    "full_native_and_numerical_replay": "import json, hashlib, shutil, platform\nfrom pathlib import Path\nfrom importlib.metadata import version\nimport numpy as np\nfrom casacore.tables import table\nrepo=Path('/workspace'); old=repo/'outputs/tv-response-20260924-recovered-01'; new=repo/'outputs/tv-response-20260924-precision-01'\nconfig=json.loads((new/'response-config.json').read_text()); oldconfig=json.loads((old/'response-config.json').read_text()); result=json.loads((new/'result.json').read_text())\nchecks={}\ndef check(name,value):checks[name]=bool(value)\ndef same(a,b):\n    a,b=np.asarray(a),np.asarray(b)\n    return np.array_equal(a,b,equal_nan=a.dtype.kind in 'fc' and b.dtype.kind in 'fc')\ndef filehash(path):\n    h=hashlib.sha256()\n    with Path(path).open('rb') as f:\n        for block in iter(lambda:f.read(1024**2),b''):h.update(block)\n    return h.hexdigest()\ndef tree(path):\n    path=Path(path);h=hashlib.sha256()\n    for p in sorted(path.rglob('*')):\n        if p.is_file() and p.name!='table.lock':\n            h.update(str(p.relative_to(path)).encode())\n            with p.open('rb') as f:\n                for block in iter(lambda:f.read(1024**2),b''):h.update(block)\n    return h.hexdigest()\ndef arrays(path):\n    with np.load(path,allow_pickle=False) as z:return {k:z[k] for k in z.files}\ndef col(path,name):\n    with table(str(path),readonly=True,ack=False,lockoptions='autonoread') as t:return t.getcol(name)\ndef columns(path):\n    with table(str(path),readonly=True,ack=False,lockoptions='autonoread') as t:return t.colnames()\nold_before=tree(old);new_before=tree(new); prepared=Path(config['prepared_dir']);raw=Path(config['raw_source']);source=arrays(prepared/'state.npz')\ncheck('failed_tree_matches_frozen_diagnosis',old_before=='f16c341384e9d8baf397640a2c0fa245235cbc1b34aedc621d5bff123534af8f')\ncheck('prepared_source_digest',tree(prepared)==config['prepared_digest']);check('received_raw_source_digest',tree(raw)==config['raw_source_digest'])\ncheck('source_module_digest',filehash(repo/'python/rangtoy/flagging_response.py')==config['module_sha256'])\nfor name,digest in config['helper_sha256'].items():check('helper_digest/'+name,filehash(repo/'python/rangtoy'/name)==digest)\ncheck('rust_library_receipt',filehash('/opt/rang/librang_toy.so')==config['rust_library_sha256'])\ncheck('dependencies_match_both_configs',config['versions']==oldconfig['versions']=={name:version(name) for name in config['versions']})\nfor key in config:\n    if key not in ('module_sha256','suite_image'):check('unchanged_protocol/'+key,config[key]==oldconfig[key])\ncheck('no_policy_truth_test_selection',not result['policy_search_or_selection'] and result['added_flags']==0 and not json.loads((new/'frozen-controls.json').read_text())['test_or_source_truth_used_to_select'])\ncheck('ten_qc_per_actual_run',len(list(new.rglob('metrics.json')))==len(list(old.rglob('metrics.json')))==10)\nbase=config['original_model_column_preserved'];control=config['complete_control_column'];native=('WEIGHT','WEIGHT_SPECTRUM','SIGMA','SIGMA_SPECTRUM')\nreceived={k:col(raw,k) for k in ('FLAG','FLAG_ROW',*native)};states={};native_receipts=[]\nfor name in ('clean','positive','negative'):\n    d=new/name;o=old/name;s=arrays(d/'state.npz');prior=arrays(o/'state.npz');states[name]=s\n    for k in s:check(name+'/frozen_state_equal_prior/'+k,same(s[k],prior[k]))\n    check(name+'/immutable_original_digest',tree(d/'original.ms')==config['raw_source_digest'])\n    for k in ('DATA',base,*native):check(name+'/native_calinput_equal_prior/'+k,same(col(d/'work.ms',k),col(o/'work.ms',k)))\n    for k in received:check(name+'/restored_flags_native_weights_received_exact/'+k,same(col(d/'work.ms',k),received[k]))\n    check(name+'/DATA_matches_state',same(col(d/'work.ms','DATA'),s['data']));check(name+'/base_model_preserved',same(col(d/'work.ms',base),source['model']))\n    eligible=s['train']|s['validation']|s['test'];check(name+'/outside_injection_DATA_unchanged',same(s['data'][~eligible],source['data'][~eligible]))\n    if name=='clean':\n        check(name+'/native_DATA_received_exact',same(s['data'],source['data']));check(name+'/no_control_column',control not in columns(d/'work.ms'))\n    else:\n        b=d/'backups';pre=arrays(b/'state-before-DATA.npz');premodel=arrays(b/'state-before-model.npz');snapshot=arrays(d/'complete-model.npz');truth=arrays(d/'rounded-injection.npz')\n        for k in pre:check(name+'/pre_DATA_state_exact/'+k,same(pre[k],source[k]))\n        for k in premodel:check(name+'/pre_model_state_exact/'+k,same(premodel[k],s[k]))\n        for k in ('DATA',base,*received):\n            reference=source['data'] if k=='DATA' else source['model'] if k==base else received[k]\n            check(name+'/whole_MS_DATA_backup_exact/'+k,same(col(b/'work-before-DATA.ms',k),reference))\n        before=arrays(b/'DATA-before-flags.npz');after=arrays(b/'DATA-after-flags.npz');modelbackup=arrays(b/'model-before.npz');schema=json.loads((b/'model-before-schema.json').read_text())\n        check(name+'/flags_unchanged_by_DATA_injection',all(same(before[k],after[k]) for k in before))\n        check(name+'/DATA_backup_flags_received_exact',all(same(before[k],received[k]) for k in before))\n        check(name+'/schema_backup_exclusive',control not in schema['columns'] and schema['new_column']==control and schema['base_column']==base)\n        check(name+'/base_model_backup_exact',same(modelbackup['MODEL'],source['model']))\n        check(name+'/control_column_exact_snapshot',same(col(d/'work.ms',control),snapshot['MODEL']))\n        check(name+'/control_calinput_equal_prior',same(col(d/'work.ms',control),col(o/'work.ms',control)))\n        wide=s['data'].astype(np.complex128)-source['data'].astype(np.complex128)\n        check(name+'/wide_delta_exact_stored_difference',truth['actual_delta'].dtype==np.dtype('complex128') and same(truth['actual_delta'],wide))\n        check(name+'/frozen_injection_mask',same(truth['injected'],eligible));check(name+'/native_complex64_DATA',s['data'].dtype==source['data'].dtype==np.dtype('complex64'))\n        native_receipts.append({'case':name,'DATA_array_sha256':hashlib.sha256(s['data'].tobytes()).hexdigest(),'wide_delta_array_sha256':hashlib.sha256(truth['actual_delta'].tobytes()).hexdigest(),'wide_delta_dtype':str(truth['actual_delta'].dtype),'DATA_rounding_linf_jy':json.loads((d/'injection.json').read_text())['DATA_rounding_linf_jy']})\nclean=states['clean'];row,channel=np.where(clean['test']);n=len(row);weights=clean['weights'][row,channel];original=clean['data'][row,channel];grids=((2,32),(14,128));timeindex=np.unique(clean['times'],return_inverse=True)[1]\ndef sample(diag,grid):\n    t=timeindex[row]//grid[0];f=channel//grid[1];p=clean['antenna1'][row];q=clean['antenna2'][row];g=diag['gains'];v=diag['gain_valid']\n    return g[t,f,p],g[t,f,q],v[t,f,p]&v[t,f,q]\ndef operator(jones):\n    p,q,v=jones;valid=v.copy();valid &= np.isfinite(p).all(axis=(-1,-2))&np.isfinite(q).all(axis=(-1,-2))&np.isfinite(weights).all(axis=-1)&(weights>0).all(axis=-1)\n    sp=np.where(valid[:,None,None],p,np.eye(2));sq=np.where(valid[:,None,None],q,np.eye(2));cp=np.linalg.cond(sp);cq=np.linalg.cond(sq);valid &= (cp<=1e8)&(cq<=1e8)\n    ip=np.linalg.inv(np.where(valid[:,None,None],p,np.eye(2)));iq=np.linalg.inv(np.where(valid[:,None,None],q,np.eye(2)))\n    coefficient=.5*np.einsum('nia,nib->nab',ip,iq.conj());variance=np.sum(abs(coefficient.reshape(n,4))**2/weights,axis=-1);valid &= np.isfinite(variance)&(variance>0)\n    return ip,iq,variance,valid,float(max(cp[valid].max(),cq[valid].max()))\ndef correct(data,op):\n    ip,iq,var,valid,_=op;matrix=ip@data.astype(np.complex128).reshape(n,2,2)@iq.conj().swapaxes(-1,-2);value=.5*np.trace(matrix,axis1=-2,axis2=-1)\n    return value,var,valid&np.isfinite(data).all(axis=-1)&np.isfinite(value)\ndef fit(value,templates,w,mask):\n    design=templates[:,mask].T*np.sqrt(w[mask,None]);target=value[mask]*np.sqrt(w[mask]);A=np.r_[design.real,design.imag];b=np.r_[target.real,target.imag]\n    flux,_,rank,singular=np.linalg.lstsq(A,b,rcond=1e-10);residual=b-A@flux;norm=float(b@b)\n    return {'flux_jy':flux.tolist(),'rank':int(rank),'condition':float(singular[0]/singular[-1]),'sample_count':int(mask.sum()),'weighted_mse_proxy':float(residual@residual/mask.sum()),'unexplained_weighted_response_energy_fraction':float(residual@residual/norm) if norm else None}\ndef product(jones,ref,w,mask):\n    p,q,_=jones;rp,rq,_=ref;value=p[mask]@q[mask].conj().swapaxes(-1,-2);target=rp[mask]@rq[mask].conj().swapaxes(-1,-2)\n    return float(np.sqrt(np.sum(w[mask]*np.sum(abs(value-target)**2,axis=(-1,-2)))/np.sum(w[mask]*np.sum(abs(target)**2,axis=(-1,-2)))))\ndef numerical(name,replay,saved):\n    for k,v in replay.items():\n        if isinstance(v,list):check(name+'/'+k,np.allclose(v,saved[k],rtol=1e-12,atol=1e-13))\n        elif k in ('rank','sample_count'):check(name+'/'+k,v==saved[k])\n        elif v is None:check(name+'/'+k,saved[k] is None)\n        else:check(name+'/'+k,np.isclose(v,saved[k],rtol=1e-11,atol=1e-13))\nbaselines={};arms=[];gain_receipts=[];roundoff=[]\nfor case in ('clean','positive','negative'):\n    for t in sorted((new/case/'trials').iterdir()):\n        trial=t.name;previous=old/case/'trials'/trial;diag=arrays(t/'diagnostics.npz');pd=arrays(previous/'diagnostics.npz')\n        for k in ('gains','gain_valid','edges'):check(case+'/'+trial+'/exact_gain_diagnostic/'+k,same(diag[k],pd[k]))\n        rawsame=tree(t/'gains.qc')==tree(previous/'gains.qc');check(case+'/'+trial+'/native_gain_tree_exact',rawsame)\n        gain_receipts.append({'case':case,'trial':trial,'native_gain_tree_exact':rawsame,'gains_exact':same(diag['gains'],pd['gains']),'max_gain_difference':float(np.max(abs(diag['gains']-pd['gains'])))})\n        cmd=json.loads((t/'command.json').read_text());pcmd=json.loads((previous/'command.json').read_text())\n        check(case+'/'+trial+'/commands_only_path_change',[x.replace(str(new),'<run>') for x in cmd]==[x.replace(str(old),'<run>') for x in pcmd])\n        check(case+'/'+trial+'/fullJones_native_weights_no_flagger',all(x in cmd for x in ('G.type=complex','input_ms.weight_column=WEIGHT_SPECTRUM','output.flags=false','mad_flags.enable=false')))\n        f=arrays(new/case/'backups'/f'{trial}-solve.npz');pf=arrays(old/case/'backups'/f'{trial}-solve.npz')\n        for k in f:check(case+'/'+trial+'/training_flags_identical/'+k,same(f[k],pf[k]))\n        check(case+'/'+trial+'/received_flags_protected',np.all(f['FLAG']|~received['FLAG']) and np.all(f['FLAG_ROW']|~received['FLAG_ROW']))\n        metrics=json.loads((t/'metrics.json').read_text());pm=json.loads((previous/'metrics.json').read_text())\n        differing={k:{'before':pm[k],'after':metrics[k]} for k in metrics if k!='seconds' and pm[k]!=metrics[k]};roundoff.append({'case':case,'trial':trial,'non_timing_metric_differences':differing})\n        check(case+'/'+trial+'/prediction_losses_exact',metrics['losses']==pm['losses'])\n        check(case+'/'+trial+'/validity_added_counts_exact',all(metrics[k]==pm[k] for k in ('valid_gain_fraction','invalid_predictions','added_count','added_fraction')))\n        for k in ('tv','raw_tv','time_tv','frequency_tv','scale'):check(case+'/'+trial+'/derived_TV_roundoff_only/'+k,np.isclose(metrics[k],pm[k],rtol=1e-14,atol=1e-15))\n        grid=(2,32) if trial.endswith('t2-f32') else (14,128);j=sample(diag,grid);op=operator(j)\n        if case=='clean':baselines[grid]={'jones':j,'operator':op,'original':correct(original,op)}\n        else:arms.append({'case':case,'trial':trial,'grid':grid,'jones':j,'operator':op})\nrefjones=baselines[(2,32)]['jones'];refop=baselines[(2,32)]['operator'];templateall=arrays(new/'spectral-templates.npz')['templates'];templates=templateall[:,row,channel]\ncheck('template_family_equal_prior',same(templateall,arrays(old/'spectral-templates.npz')['templates']))\nuvw=col(new/'clean/work.ms','UVW');freq=clean['frequencies'];reference_frequency=config['reference_frequency_hz'];independent=[]\nfor s in config['sources']:\n    l=s['l_arcmin']*np.pi/10800;m=s['m_arcmin']*np.pi/10800;width=s['fwhm_arcmin']*np.pi/10800\n    phase=np.exp(2j*np.pi*(uvw@np.array([l,m,np.sqrt(1-l*l-m*m)-1]))[:,None]*freq[None,:]/299792458)\n    shape=np.exp(-np.pi**2*width**2/(4*np.log(2))*np.sum((uvw[:,:2,None]*freq[None,None,:]/299792458)**2,axis=1))\n    independent.append(phase*shape*(freq[None,:]/reference_frequency)**s['spectral_index'])\nindependent=np.asarray(independent);check('frozen_templates_independent_DFT_Gaussian',np.allclose(independent,templateall,rtol=1e-11,atol=1e-12))\nscalar=np.sum(np.asarray([s['flux_jy'] for s in config['sources']])[:,None,None]*templateall,axis=0)\nfor case in ('positive','negative'):\n    sign=config['signs'][case];s=states[case];er,ec=np.where(s['train']|s['validation']|s['test']);diag=arrays(new/'clean/trials/clean-t2-f32/diagnostics.npz');g=diag['gains'];i=timeindex[er]//2;j=ec//32;p=s['antenna1'][er];q=s['antenna2'][er]\n    delta=(g[i,j,p]@(sign*scalar[er,ec,None,None]*np.eye(2))@g[i,j,q].conj().swapaxes(-1,-2)).reshape(len(er),4)\n    expected=source['data'].copy();expected[er,ec]=source['data'][er,ec]+delta;check(case+'/DATA_exact_frozen_corruption',same(expected,s['data']))\n    expectedmodel=source['model'].astype(np.complex128);expectedmodel[...,0]+=sign*scalar;expectedmodel[...,3]+=sign*scalar\n    check(case+'/complete_model_exact_intrinsic_addition',same(expectedmodel.astype(source['model'].dtype),col(new/case/'work.ms',control)))\nreference={case:correct(arrays(new/case/'rounded-injection.npz')['actual_delta'][row,channel],refop) for case in ('positive','negative')};common=np.ones(n,bool)\nfor b in baselines.values():common &= b['original'][2]\nfor r in reference.values():common &= r[2]\nfor a in arms:\n    delta=arrays(new/a['case']/'rounded-injection.npz')['actual_delta'][row,channel];b=baselines[a['grid']]['original'];inj=correct(states[a['case']]['data'][row,channel],a['operator']);direct=correct(delta,a['operator']);under=correct(original,a['operator'])\n    a['valid']=inj[2]&direct[2]&under[2]&b[2];common &= a['valid'];a['total']=inj[0]-b[0];a['direct']=direct[0];a['adaptation']=under[0]-b[0];a['variance_ratio']=inj[1]/b[1]\ncheck('common_TEST_exact9169',int(common.sum())==result['common_TEST_samples']==n==result['original_TEST_samples']==9169 and result['lost_common_TEST_samples']==0)\nfixed_weights=1/reference['positive'][1];check('fixed_fineG0_weights_positive_finite',np.isfinite(fixed_weights[common]).all() and (fixed_weights[common]>0).all())\nrf={case:fit(v[0],templates,fixed_weights,common) for case,v in reference.items()}\nfor case,f in rf.items():numerical('reference/'+case,f,result['reference_fits'][case])\nmethods=[];maxfiterror=0\nfor a in arms:\n    saved=next(m for m in result['methods'] if m['case']==a['case'] and m['trial']==a['trial']);fits={term:fit(a[term],templates,fixed_weights,common) for term in ('total','direct','adaptation')}\n    for term,f in fits.items():\n        numerical(a['case']+'/'+a['trial']+'/'+term+'/fit',f,saved['fits'][term]);maxfiterror=max(maxfiterror,float(np.max(abs(np.asarray(f['flux_jy'])-saved['fits'][term]['flux_jy']))))\n    closure=float(np.max(abs(a['total'][common]-a['direct'][common]-a['adaptation'][common])));fc=float(np.max(abs(np.asarray(fits['total']['flux_jy'])-fits['direct']['flux_jy']-fits['adaptation']['flux_jy'])))\n    check(a['case']+'/'+a['trial']+'/strict_visibility_closure',closure<1e-10);check(a['case']+'/'+a['trial']+'/strict_fit_closure',fc<1e-10)\n    fractions=np.asarray(fits['total']['flux_jy'])/rf[a['case']]['flux_jy'];check(a['case']+'/'+a['trial']+'/fraction_replay',np.allclose(fractions,saved['response_fraction_vs_fixedG0'],rtol=1e-12,atol=1e-13))\n    drift=product(a['jones'],baselines[a['grid']]['jones'],fixed_weights,common);fine=product(a['jones'],refjones,fixed_weights,common)\n    check(a['case']+'/'+a['trial']+'/same_grid_product_replay',np.isclose(drift,saved['baseline_Jones_product_relative_drift_vs_same_grid_clean'],rtol=1e-12,atol=1e-13));check(a['case']+'/'+a['trial']+'/fineG0_product_replay',np.isclose(fine,saved['baseline_Jones_product_relative_error_vs_empirical_fineG0'],rtol=1e-12,atol=1e-13))\n    check(a['case']+'/'+a['trial']+'/support_replay',int((~a['valid']).sum())==saved['unsupported_original_TEST_samples']==0)\n    check(a['case']+'/'+a['trial']+'/variance_ratio_replay',np.isclose(np.median(a['variance_ratio'][common]),saved['corrected_variance_ratio_median'],rtol=1e-12,atol=1e-13))\n    methods.append({'case':a['case'],'trial':a['trial'],'grid':list(a['grid']),'sky':saved['sky'],'fits':fits,'response_fraction_vs_fixedG0':fractions.tolist(),'visibility_closure_linf_jy':closure,'coefficient_closure_linf_jy':fc,'same_grid_Jones_product_relative_drift':drift,'fineG0_Jones_product_relative_error':fine,'max_TEST_Jones_condition':a['operator'][4],'unsupported_TEST_samples':int((~a['valid']).sum())})\ncoherence=[]\nfor sky in ('omitted','complete-diagnostic'):\n    for grid in grids:\n        p=next(m for m in methods if m['case']=='positive' and m['sky']==sky and tuple(m['grid'])==grid);m=next(m for m in methods if m['case']=='negative' and m['sky']==sky and tuple(m['grid'])==grid)\n        coherence.append({'sky':sky,'grid':list(grid),'signed_fraction_difference':(np.asarray(p['response_fraction_vs_fixedG0'])-m['response_fraction_vs_fixedG0']).tolist(),'even_part_flux_jy':(.5*(np.asarray(p['fits']['total']['flux_jy'])+m['fits']['total']['flux_jy'])).tolist()})\ncoarse=product(baselines[(14,128)]['jones'],refjones,fixed_weights,common)\nused=sum(p.stat().st_blocks*512 for p in (new,*new.rglob('*')));free=shutil.disk_usage(new).free;check('observed_allocation_budget',used<=config['allocation_bytes']);check('observed_free_disk_reserve',free>=config['disk_reserve_bytes'])\nold_after=tree(old);new_after=tree(new);check('failed_tree_unchanged_by_audit',old_after==old_before);check('fresh_tree_unchanged_by_audit',new_after==new_before)\noutput={'status':'read-only native artifact and independently coded numerical replay; no new QC/writes/deployment','actual_run':str(new.relative_to(repo)),'failed_run':str(old.relative_to(repo)),'source_commit':'1f53a17','checks':checks,'check_count':len(checks),'pass_count':sum(checks.values()),'failures':[k for k,v in checks.items() if not v],'execution_counts':{'failed_actual_QC':10,'fresh_actual_QC':10,'actual_QC_total':20,'distinct_physical_controls':10,'additional_QC_audit':0,'additional_numerical_fit_replays':26,'native_flagger_QC':0},'provenance':{'image':config['suite_image'],'rust_library_sha256':config['rust_library_sha256'],'module_sha256':config['module_sha256'],'config_file_sha256':filehash(new/'response-config.json'),'result_file_sha256':filehash(new/'result.json'),'prepared_digest':config['prepared_digest'],'raw_source_digest':config['raw_source_digest'],'failed_tree_before':old_before,'failed_tree_after':old_after,'fresh_tree_before':new_before,'fresh_tree_after':new_after,'versions':config['versions'],'audit_python_version':platform.python_version()},'budget':{'observed_allocated_bytes':used,'checked_cap_bytes':config['allocation_bytes'],'observed_free_bytes_container_view':free,'reserve_bytes':config['disk_reserve_bytes'],'OS_enforced_quota':False},'native_injection_receipts':native_receipts,'gain_comparison':gain_receipts,'non_timing_metric_roundoff':roundoff,'common_TEST':{'original':n,'supported':int(common.sum()),'lost':int((~common).sum()),'fixed_fineG0_weight_min_max':[float(fixed_weights.min()),float(fixed_weights.max())]},'reference_fits_replayed':rf,'methods_replayed':methods,'max_fit_flux_replay_error_jy':maxfiterror,'positive_negative_coherence':coherence,'coarse_clean_baseline':{'product_relative_error_vs_fineG0':coarse,'TEST_loss_fine':result['baselines'][0]['metrics']['losses']['test'],'TEST_loss_coarse':result['baselines'][1]['metrics']['losses']['test'],'TEST_loss_ratio':result['baselines'][1]['metrics']['losses']['test']/result['baselines'][0]['metrics']['losses']['test']},'limitations':['Same noisy four-antenna pointing fixture; signed/control/grid repeats are not independent trials.','Known frozen templates and empirical fineG0 DI gains; no astrophysical flux/slope/image or CI inference.','Complete truth-sky is calibration diagnostic, not a deployable model/selector.','Negative sign is finite perturbation, not a negative physical source.','No flag search/selection/images; cross-grid rawTV edge support differs.','Replay independently codes trace/variance/design, reuses saved gains/DATA/template family, not independent science evidence.','Checked budget, not OS quota; final disk availability cannot prove historical transient minima.']}\nprint(json.dumps(output,allow_nan=False))\n",
+    "gain_roundoff_localization": "import json,hashlib\nfrom pathlib import Path\nimport numpy as np\nfrom daskms.experimental.zarr import xds_from_zarr\nrepo=Path('/workspace');old=repo/'outputs/tv-response-20260924-recovered-01';new=repo/'outputs/tv-response-20260924-precision-01'\ndef h(p):return hashlib.sha256(p.read_bytes()).hexdigest()\noutput={'raw_clean_fine_changed_files':[],'raw_clean_fine_dataset_variables':[],'TV_edges_roundoff':[]}\nop=old/'clean/trials/clean-t2-f32/gains.qc';npth=new/'clean/trials/clean-t2-f32/gains.qc'\nfor p in sorted(op.rglob('*')):\n    if p.is_file():\n        r=p.relative_to(op);q=npth/r\n        if not q.exists() or h(p)!=h(q):output['raw_clean_fine_changed_files'].append(str(r))\na=xds_from_zarr(f'{op}::G')[0].compute();b=xds_from_zarr(f'{npth}::G')[0].compute()\nfor name in a.variables:\n    av,bv=a[name].values,b[name].values;numeric=av.dtype.kind in 'fc';same=np.array_equal(av,bv,equal_nan=numeric)\n    finite=np.isfinite(av)&np.isfinite(bv) if av.dtype.kind in 'fciub' else None\n    output['raw_clean_fine_dataset_variables'].append({'variable':name,'dtype':str(av.dtype),'exact':same,'max_abs_difference':float(np.max(abs(av[finite]-bv[finite]))) if finite is not None and finite.any() else None,'max_reference_absolute_value':float(np.max(abs(av[finite]))) if finite is not None and finite.any() else None,'finite_support_exact':bool(np.array_equal(np.isfinite(av),np.isfinite(bv))) if numeric else None})\nfor case in ('clean','positive','negative'):\n    for trial in sorted((new/case/'trials').iterdir()):\n        with np.load(trial/'diagnostics.npz',allow_pickle=False) as current,np.load(old/case/'trials'/trial.name/'diagnostics.npz',allow_pickle=False) as previous:\n            x,y=current['edges'],previous['edges'];mask=np.isfinite(x)&np.isfinite(y)\n            output['TV_edges_roundoff'].append({'case':case,'trial':trial.name,'finite_edge_support_exact':bool(np.array_equal(np.isfinite(x),np.isfinite(y))),'max_edge_value_difference':float(np.max(abs(x[mask]-y[mask]))),'max_reference_edge':float(np.max(abs(y[mask]))),'finite_edge_count':int(mask.sum())})\nprint(json.dumps(output,allow_nan=False))\n",
+    "backup_and_holdout_boundaries": "import json,hashlib\nfrom pathlib import Path\nimport numpy as np\nold=Path('outputs/tv-response-20260924-recovered-01');new=Path('outputs/tv-response-20260924-precision-01')\nchecks={}\ndef arrays(p):\n    with np.load(p,allow_pickle=False) as z:return {k:z[k] for k in z.files}\ndef tree(path):\n    h=hashlib.sha256()\n    for p in sorted(path.rglob('*')):\n        if p.is_file() and p.name!='table.lock':\n            h.update(str(p.relative_to(path)).encode())\n            with p.open('rb') as stream:\n                for block in iter(lambda:stream.read(1024**2),b''):h.update(block)\n    return h.hexdigest()\nfor case in ('clean','positive','negative'):\n    directory=new/case;s=arrays(directory/'state.npz');expected=s['original_flags']|s['original_rows'][:,None,None]|~s['train'][...,None];rows=s['original_rows']|np.all(expected,axis=(1,2))\n    for trial in sorted((directory/'trials').iterdir()):\n        snap=arrays(directory/'backups'/f'{trial.name}-solve.npz')\n        checks[case+'/'+trial.name+'/FLAG_only_frozen_TRAIN_holdout']=np.array_equal(snap['FLAG'],expected)\n        checks[case+'/'+trial.name+'/FLAG_ROW_only_protected_rows']=np.array_equal(snap['FLAG_ROW'],rows)\n    final=arrays(directory/'backups/final-before-flags.npz');last='clean-t14-f128' if case=='clean' else 'complete-diagnostic-t14-f128';prior=arrays(directory/'backups'/f'{last}-solve.npz')\n    for k in final:checks[case+'/final_before_restore_matches_last_solve/'+k]=np.array_equal(final[k],prior[k])\n    if case!='clean':\n        model=arrays(directory/'backups/model-before.npz')\n        checks[case+'/model_backup_received_FLAG_protected']=bool(np.all(model['FLAG']|~s['original_flags']) and np.all(model['FLAG_ROW']|~s['original_rows']))\n        schema=json.loads((directory/'backups/model-before-schema.json').read_text())\n        checks[case+'/schema_backup_base_descriptor_present']=schema['base_column'] in schema['table_description'] and schema['new_column'] not in schema['table_description']\nprint(json.dumps({'checks':checks,'count':len(checks),'pass_count':sum(checks.values()),'failures':[k for k,v in checks.items() if not v],'failed_tree_final':tree(old),'fresh_tree_final':tree(new)}))\n"
+  }
+}
+

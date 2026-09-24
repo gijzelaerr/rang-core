@@ -4,6 +4,70 @@ Updated 2026-09-24.
 
 ## Current continuation and routing
 
+Latest measured response: 2026-09-24 08:51:35UTC, checked pushed source `1f53a17`.
+`outputs/tv-response-20260924-precision-01` COMPLETE: all ten QuartiCal controls
+and final source/native-column/received FLAG/FLAG_ROW restoration audits pass.
+Start with [reportable findings](flagging-findings.md), then
+[response measurements](flagging-response.md) and
+[full compact controls](results/gain-tv-response.json).
+Raw result SHA256:
+`e7ee791ba0f8ca1f1775c49348dd2e4a51c9fe9e29b77a7e4cda2cfd29215083`.
+
+- All9,169 TEST samples shared, zero loss; fits rank2/condition1.92390.
+- Fine omitted-sky positive response: compact51.00%/extended74.19%, versus
+  complete diagnostic99.96%/98.92%; negative pairs agree closely.
+- Total=direct+adaptation closes within8.253e-15Jy; gain adaptation absorbs
+  about29.5/31.0mJy in the positive omitted fine arm without added flags.
+- Coarsening raises omitted response only to52.4%/76.2%, while clean validation
+  MSE is31.678 versus25.206 (fine), despite normalized polarTV0.03393 versus
+  0.14744. LowerTV is not calibration quality.
+- Complete control uses truth and known evaluation spectra/positions/extents;
+  no images, confidence intervals, independent transfer or SOTA claim.
+
+Independent [input/gain/response audit](flagging-response-verification.md) is complete:
+602/614 initial passes,12 retained exact-identity failures;24/24 separately
+qualified roundoff checks and30/30 backup/training-holdout boundary checks pass.
+Full predicates and all three read-only programs:
+`research/results/gain-tv-response-audit.json`, SHA256
+`a4f4e949171134fa82362433a2ca5ccf8b4361d2f09d56fadd9217844b89485d`.
+The same native
+calibration inputs/protocol reproduce all ten prediction losses exactly; nine
+gain products are bit-identical, clean fine differs by≤3.141e-16 and its shared
+normalization differs by one ulp. Do not claim all gains are bit-identical.
+Fresh allocated blocks889081856bytes including directories (~0.828GiB), checked
+1.5GiB budget/reserve8GiB retained, not an OS quota. Runtime image102767... and
+Linux libraryf764... have full receipts below/in the compact archive.
+Original failed run remains untouched/not exportable. Ten failed+ten fresh QC
+invocations=20 actual invocations of ten frozen controls, not independent replicates.
+
+Final local checks:419Python/17Rust (no skips), release build, Clippy
+`-D warnings`, Rust/Ruff lint/format,78 in-memory Python compiles,14 wrapper
+syntax checks,48 strict JSON parses and whitespace pass. Three fresh Stimela2
+prevalidations and recovered-image pip check pass. Root projection checks23
+for the full response raw result/receipts pass;11752 projection predicates also
+pass across123 influence rows/492 phase-action rows/28 baselines/configs/58
+mask IDs/missing outcomes. Historic `8836e85` source receipts are not rewritten.
+All21 targeted archive regressions pass, including exact-failure retention and
+eight independent fit reconstructions. Final claims review verifies all response
+percentages/mJy/25.7% underfit and retains one-observation/known-family limitations;
+phase wording distinguishes equivariant predictions from invariant residual magnitudes.
+The publication commit is the Git commit containing this entry; preceding
+checked push `1f53a17`. No runtime/settings tuning followed these measurements.
+Final code/report snapshot, taken before adding its own receipt:
+`outputs/flagging-backups/20260924-reportable-signal-final/code.tar.gz`,
+SHA256`4f43c78b78f3499224aa93006ffb0e36dba55cc2ebbe45c5088b5b28ff08c381`. All old snapshots and both raw
+response trees remain retained; no research-agent cleanup was performed.
+
+Next discriminating experiment: freeze an estimated instrumental-trend/noise
+specificity control and establish independently supported native data/noise
+provenance before transfer or broad training. Keep actual guarded QC confirmation
+after surrogate candidate triage, signal-preservation/support safeguards, and
+the pinned full CARACAL controls. The current prototype is not a validated final
+flagger or a matched quality/cost novelty result. The85-object textual metadata
+plan remains design only, with no new metadata acquisition/parser/conversion.
+
+### Earlier checkpoints (preserved chronology)
+
 Measured native-derived controls2026-09-24 08:42UTC after pushed`8836e85`:
 `outputs/tv-influence-20260924-host-01` and
 `outputs/tv-equivariance-20260924-host-01` COMPLETE; source/runtime guards pass.

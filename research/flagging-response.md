@@ -1,11 +1,58 @@
 # Frozen sky-completeness and calibration-response controls
 
 Protocol approved before new measurements, 2026-09-24; common continuation
-freeze commit `afe721f`. Status: implemented,25 targeted tests and lint/format
-checks pass; actual response-control QuartiCal measurements pending. This track
-has not launched any solves.
+freeze commit `afe721f`. Status: measured, fresh precision-corrected run completes
+2026-09-24 08:51:35UTC from checked implementation `1f53a17`. The first ten-solve
+run failed evaluation, is preserved untouched and is not exportable; see the
+[precision diagnosis](flagging-response-precision.md). Ten repeated solves use
+the same physical controls, not ten new independent realizations.
 The old [signal experiment](flagging-signal.md) and its bounded spectral fits
 remain unchanged. This is a new diagnostic, not a retrospective bound expansion.
+
+## Measured response: sky completeness matters more than this coarsening
+
+Full evidence: [all controls, fits and provenance](results/gain-tv-response.json),
+[independent replay](flagging-response-verification.md) and
+[audit predicates/programs](results/gain-tv-response-audit.json).
+The fixed-G0 reference fit recovers the signed 60/120mJy perturbations to native
+storage precision. Every arm uses all9,169 original TEST samples, loses none,
+and has rank2/condition1.92390. Ratios below are fitted total paired response
+relative to each sign's fixed-G0 reference, not blind astrophysical flux recovery.
+
+| Grid | Calibration sky | Compact + / − response | Extended + / − response |
+| --- | --- | ---: | ---: |
+| 2,32 | Omitted | 51.00% / 51.30% | 74.19% / 74.15% |
+| 2,32 | Complete diagnostic | 99.96% / 99.95% | 98.92% / 98.92% |
+| 14,128 | Omitted | 52.40% / 52.71% | 76.21% / 76.17% |
+| 14,128 | Complete diagnostic | 101.10% / 101.10% | 99.92% / 99.91% |
+
+In the positive fine omitted-sky arm, direct inverse-Jones correction gives
+60.149/120.051mJy, but adapting the gains changes correction of the SAME original
+DATA by −29.547/−31.020mJy. Total fitted response is30.601/89.030mJy. Both signs
+show comparable attenuation. Visibility decomposition closes within8.253e-15Jy
+and coefficient decomposition within6.267e-17Jy across all eight arms. This is
+a measured conditional calibration-absorption mechanism, without any added flags.
+
+The positive omitted fine control lowers TV from0.14744 to0.14685; including the
+sources gives0.14728 while preserving substantially more response. Coarsening
+reduces clean normalized polar TV to0.03393, but clean validation MSE rises from25.206
+to31.678 (25.7% worse). Coarse baseline-Jones products differ about9.16% from
+the empirical fineG0 products. Cross-grid support/gain freedom differ: neither
+lower TV nor coarsening establishes better calibration or signal preservation.
+
+The complete sky uses known injection truth as a diagnostic, not a deployable
+policy. All spectra/locations/extents are known in evaluation; no beam/DDE,
+independent noise, confidence intervals, blind detection or images are measured.
+The TEST fit does not select masks/arms. Every final working FLAG/FLAG_ROW returns
+exactly to the received state; original/source DATA, base model and all native
+WEIGHT/SIGMA columns remain unchanged. Actual allocation is about0.828GiB,
+within the checked1.5GiB budget; this is not an OS quota or native cost benchmark.
+The independent replay confirms all native calibration inputs/settings and
+prediction losses reproduce exactly. Nine gain products reproduce bit-for-bit;
+the clean fine solve differs by≤3.141e-16 and shared normalization by one ulp.
+The audit retains602/614 initial passes and12 strict exact-identity failures,
+with24 separately passing roundoff checks and30 backup/boundary checks. These
+are qualified numerical reproduction, not independent scientific realizations.
 
 ## Physical and solve freeze
 
