@@ -162,6 +162,26 @@ def paired_decomposition(state, injected, clean_gains, new_gains, support):
     }, closure
 
 
+def unit_template_visibilities(state, spectral_template, support):
+    """Embed ONE already-spectral intrinsic unit-Jy template as Stokes I.
+
+    flagging_response._predict saves spatial * (nu/reference)**alpha in
+    spectral-templates.npz. Its spectral law must not be applied a second time.
+    This function consumes only the supplied support and template, not DATA or
+    source truth amplitudes. Known templates remain evaluation-only.
+    """
+    support = _bool(support, state["data"].shape[:2], "unit-template support")
+    image_flags(state, support)
+    template = np.asarray(spectral_template, np.complex128)
+    if template.shape != support.shape or not np.isfinite(template[support]).all():
+        raise ValueError(
+            "finite already-spectral unit template on explicit support required"
+        )
+    unit = np.zeros_like(state["data"], dtype=np.complex128)
+    unit[..., 0] = unit[..., 3] = np.where(support, template, 0)
+    return unit
+
+
 def linear_image_fit(image, templates):
     """Joint unrestricted known-family dirty-template coefficients; no CI."""
     image, templates = np.asarray(image, float), np.asarray(templates, float)
@@ -664,13 +684,7 @@ def run(
         raise ValueError("two frozen unit spatial templates required")
     jobs, closures = [], {}
     for index, source in enumerate(config["sources"]):
-        scalar = (
-            templates[index]
-            * (state["frequencies"] / config["reference_frequency_hz"])
-            ** source["spectral_index"]
-        )
-        unit = np.zeros_like(state["data"], dtype=np.complex128)
-        unit[..., 0] = unit[..., 3] = np.where(support, scalar, 0)
+        unit = unit_template_visibilities(state, templates[index], support)
         jobs.append((f"unit-{source['name']}", "response", unit, support, None))
     jobs.extend(
         (

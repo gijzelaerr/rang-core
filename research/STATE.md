@@ -1,5 +1,47 @@
 # Rang research state
 
+Corrected unit-spectrum source checkpoint fullchecksPASS~10:15UTC:
+654Python(no skips),19Rust,release/Clippy/cargoformat,fullrepoRufflint+format,
+91Pythoncompiles,59strictJSONarchives,5exactrawprojections(including02FAIL),
+embedded auditprogramsha/compile,allwrapperbashsyntax+fresh03namespacegate.
+47imagingtargetedtests include ACTUALtemplateproducer independentzeroUVW
+spectra/exactonceconsumer/doublelawcounterexample. No threshold/settings or
+Quarticalgainchanges. Backupbeforechecking:
+`outputs/flagging-backups/20260924-next-imaging-spectral-fix/code.tar.gz`,
+SHA256`1cb20ad613a45377094d720db0f31e3737b4cc8fc3fb3221edd99f959c863d80`.
+Checked stagedwhitespace gates sourcecommit/push thenfresh03measurement.
+
+IMPORTANT02SEMANTICFAIL~10:13UTC: independent imaging audit409numeric+
+preservationchecksPASS but2scientificfamilychecksFAIL. Saved
+response/spectral-templates.npz already includes alpha-.5/-.9, and02runner
+multiplies spectra aSECONDtime; unitbasis haswrongalpha-1/-1.8. Keepall02raw
+products/ratios labeledscientificallyinvalidmatched-family, publicrawarchive
+`gain-tv-next-imaging-invalid-basis.json`. Nonunitvisibility/imageclosure,
+source/backups/nativecols/flagsguardsremainvalid; don'treport02intendedfamily
+fluxratios. Rootdraftnotpublished; semanticerrorcaughtbeforepublication.
+Authorizeonlyduplicate-factorremoval+provenanceunitregression and separately
+fresh03imaging-onlyretryafterfullchecks/sourcecommitpush; all15physicaljobs,
+settings/weights/closures/budgets/gainsunchanged,0newQC.
+
+FRESH IMAGING SUCCESS10:08:16UTC/source84d15b3:
+`outputs/tv-next-imaging-20260924-02`,15actualWSClean inversions,0newQC,
+rawresultSHA`aa6d6f89eb47d9dc7f19af7dd8e27a4170deb27fa1d99eaae200d4c82d2adce4`.
+All internal source/runtime/tool/nativecols/wholebackup guardsPASS; image
+independent audit underway. Fullraw+frozenconfigprojection+figureSHA archived.
+MatchedPSFs/commonTEST9169, omittedcompact/extendeddirtyresponse49.30/76.21%,
+truth-complete99.67/98.67%; closuremax3.809691406786442e-8Jy/beam<fixed1e-6.
+RejectedCARACALfirstpassloses1357TEST/differentPSF. Figure is pairedknown-sky
+dirtydifference, not cleaned scienceimage; niter0alsoemitsunused-imageFITS.
+Combined report `research/flagging-next-summary.md` distinguishes measured
+prototype/uncertifiedsciencepolicy/future independent-observation cost gates.
+Original master remains4/5/no gather; completecampaign summary references
+fouroriginalbranches+one separatelyfreshretry,nevermutatesoldoriginalgraph.
+Public checked checkpoint84d15b3 uses Gijs/gmailidentity/noattributiontrailers.
+
+Scoped extra readonly TRAIN-curvature rank survey is being performed to quantify
+the measured support bottleneck, not retune guards/flag troublesomecells. New
+separate gain-support report/archive only;9QCsignalresult remains immutable.
+
 Compatibility/confirmed-results checkpoint checks PASS2026-09-24~10:08UTC:
 650Python(no skips),19Rust,releasebuild,Clippy-Dwarnings,cargoformat,
 full-repository Rufflint+format,91Pythoncompiles,57strictJSONarchives,

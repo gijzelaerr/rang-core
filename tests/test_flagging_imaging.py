@@ -1,5 +1,6 @@
 import copy
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
@@ -54,6 +55,113 @@ def test_general_full_jones_inverse_conjugation(fixture):
         corrected[valid].reshape(-1, 2, 2), sky[valid], atol=2e-14
     )
     assert np.all(corrected[~valid] == 0)
+
+
+@pytest.mark.parametrize("alpha", [-0.5, -0.9])
+def test_saved_already_spectral_unit_template_embedded_exactly_once(fixture, alpha):
+    state, _, _ = fixture
+    support = state["test"]
+    reference = 1.25e9
+    spatial = np.exp(1j * np.arange(support.size).reshape(support.shape) / 31)
+    # Independent provenance convention: response._predict saves this product,
+    # not the spatial factor alone. The unit image must forward THIS exact array.
+    spectral = spatial * (state["frequencies"][None] / reference) ** alpha
+    unit = imaging.unit_template_visibilities(state, spectral, support)
+    np.testing.assert_array_equal(unit[..., 0][support], spectral[support])
+    np.testing.assert_array_equal(unit[..., 3][support], spectral[support])
+    assert not unit[..., 1:3].any() and not unit[~support].any()
+    twice = spectral * (state["frequencies"][None] / reference) ** alpha
+    assert np.max(np.abs(unit[..., 0][support] - twice[support])) > 1e-3
+    low, high = 48, 63
+    amplitude_ratio = np.abs(unit[0, high, 0] / spatial[0, high]) / np.abs(
+        unit[0, low, 0] / spatial[0, low]
+    )
+    measured_alpha = np.log(amplitude_ratio) / np.log(
+        state["frequencies"][high] / state["frequencies"][low]
+    )
+    assert measured_alpha == pytest.approx(alpha, abs=1e-13)
+
+
+def test_unit_template_support_protection_and_nonfinite_heldout_invariance(fixture):
+    state, _, _ = fixture
+    support = state["test"]
+    template = np.ones(support.shape, complex)
+    expected = imaging.unit_template_visibilities(state, template, support)
+    template[~support] = complex(np.nan, np.inf)
+    np.testing.assert_array_equal(
+        imaging.unit_template_visibilities(state, template, support), expected
+    )
+    template[0, 48] = np.nan
+    with pytest.raises(ValueError, match="already-spectral"):
+        imaging.unit_template_visibilities(state, template, support)
+    bad = support.copy()
+    bad[0, 0] = True
+    with pytest.raises(ValueError, match="original flags"):
+        imaging.unit_template_visibilities(state, np.ones(support.shape), bad)
+
+
+def test_actual_response_template_producer_returns_already_spectral_units(
+    fixture, monkeypatch
+):
+    from rangtoy import flagging_response as response
+
+    state, _, _ = fixture
+    uvw = np.zeros((len(state["data"]), 3))
+
+    class Table:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def getcol(self, key):
+            assert key == "UVW"
+            return uvw
+
+    def table(*args, **kwargs):
+        assert kwargs["readonly"] and kwargs["lockoptions"] == "autonoread"
+        return Table()
+
+    def predict(
+        uvw, lm, kinds, flux, coefficients, logarithmic, reference, shape, frequencies
+    ):
+        # Zero-baseline point/Gaussian Fourier values are one, independently of
+        # the production spatial helper. This isolates actual producer spectra.
+        values = sum(
+            flux[i] * (frequencies / reference[i]) ** coefficients[i, 0]
+            for i in range(len(flux))
+        )
+        return np.broadcast_to(
+            values[None, :, None], (len(uvw), len(frequencies), 1)
+        ).copy()
+
+    tables = SimpleNamespace(table=table)
+    rime = SimpleNamespace(wsclean_predict=predict)
+    monkeypatch.setitem(sys.modules, "casacore", SimpleNamespace(tables=tables))
+    monkeypatch.setitem(sys.modules, "casacore.tables", tables)
+    monkeypatch.setitem(sys.modules, "africanus", SimpleNamespace(rime=rime))
+    monkeypatch.setitem(sys.modules, "africanus.rime", rime)
+    templates, predicted, error = response._predict(state, Path("readonly-source"))
+    expected = np.broadcast_to(
+        np.array(
+            [
+                (state["frequencies"] / response.REFERENCE_HZ)
+                ** source["spectral_index"]
+                for source in response.SOURCES
+            ]
+        )[:, None],
+        templates.shape,
+    )
+    np.testing.assert_array_equal(templates, expected)
+    assert error < 1e-12 and predicted.shape == state["data"].shape[:2]
+    for index in range(2):
+        unit = imaging.unit_template_visibilities(
+            state, templates[index], state["test"]
+        )
+        np.testing.assert_array_equal(
+            unit[..., 0][state["test"]], expected[index][state["test"]]
+        )
 
 
 def test_right_unitary_corrected_trace_invariance(fixture):

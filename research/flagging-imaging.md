@@ -1,6 +1,7 @@
 # Frozen dirty-image calibration-response verification
 
-Proposed/implemented2026-09-24; initial real launch failed before producing FITS.
+Proposed/implemented2026-09-24; first real launch failed before producing FITS,
+and the15-image02 retry exposed a semantic template error (retained below).
 Root approved all settings,15 jobs and tolerances before results. This follows the measured
 [visibility-response controls](flagging-response.md), not a flag-policy retune.
 
@@ -22,8 +23,10 @@ availability verification/build/launch; this module never acquires dependencies.
 one CPU,0.5GiB WSClean memory hint,64w-layers, no small-inversion/reordering/model
 updates, and niter0. Explicit`-gridder wstacking` matters: WSClean3.6 defaults to
 [wgridder](https://wsclean.readthedocs.io/en/v3.6/wgridding.html), which ignores
-w-layer settings. All jobs use exactly one command family; no CLEAN/restoration
-or spectral fitting is introduced. Observed maximum imaged projectedUV73.857m
+w-layer settings. All jobs use exactly one command family. Analysis uses dirty
+and PSF FITS only, with no CLEAN components/deconvolution or fitted spectral
+indices. WSClean also emits a default `-image.fits` product at niter0; its filename
+is not evidence of CLEAN recovery. Observed maximum imaged projectedUV73.857m
 gives nominal finest scale558.99arcsec: broad sparsePSF, not precision morphology.
 
 The first launch retained a version-compatibility failure: WSClean3.6 rejected
@@ -38,6 +41,25 @@ The last disables Nyquist-resolution inversion/upscaling, preserving the frozen
 full512² inversion. No physical setting/tolerance/geometry/job/budget changes.
 The actual pinned binary's complete `-dry-run` parser preflight must succeed
 BEFORE any MS copy/CORRECTED_DATA/FLAG writes; parser output/hash is retained.
+
+The02 retry completed15 inversions, but independent audit found that saved
+`spectral-templates.npz` already contains `spatial*(nu/reference)**alpha` from
+`flagging_response._predict`. Imaging applied the factor again, yielding wrong
+unit-template indices−1.0/−1.8 instead of−0.5/−0.9.409 numerical/preservation checks
+passed and2 spectral-provenance predicates failed: overall matched-family
+certification FAIL, not409PASS science. Unit visibility errors were0.10445/0.17329Jy,
+far exceeding their approximately6e-8Jy complex64 cast errors. The full
+[invalid-basis archive](results/gain-tv-next-imaging-invalid-basis.json) retains
+all actual02 products/config/metrics; its paired coefficients are not advertised
+as correctly matched template recovery.
+
+Before the new fresh03 retry, remove only this duplicate factor. New pure tests
+exercise the actual template producer with independently known zero-baseline
+spectra, then verify exact-once unit embedding, both input indices, crosshand
+zeros, protected support and nonfinite values outside support. This semantic
+counterexample would not be caught by tests that merely reproduce the imager's
+own wrong construction or check masking/casting. The15 jobs, settings, native
+weights, support, closures and budgets remain unchanged; no QuartiCal rerun.
 
 Fifteen actual inversions are frozen:
 
