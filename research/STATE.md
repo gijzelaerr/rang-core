@@ -1,5 +1,74 @@
 # Rang research state
 
+Original five-branch run finished09:56:33UTC:4/5 branches succeed; imaging fails
+retained CLI parsing error, so NO top-level result/gather and no claim that the
+original graph completed. Prospective branch finishes54 realQCs (3 baselines+
+51 masks), signal9;63 actual new QCs total. All4 completed branch internal
+preservation guards pass. Prospective independent artifact audit is next.
+
+First measured checkpoint local checks PASS:646 Python(no skips)/19 Rust,
+release build/Clippy/format/lint, Python compilations,53 strictJSON archives,
+new exact raw projections and shell syntax. Backup before this checkpoint
+`outputs/flagging-backups/20260924-five-track-first-measured/code.tar.gz`,
+SHA256`2eea3cbbc88698bb8931b7894db9da9c44da0cc469df9256efd43801679ec937`.
+Checked staged whitespace must gate the public commit. Original implementation
+snapshot remains intact for historical audit after the CLI fix.
+
+Five-track measured checkpoints2026-09-24~09:54UTC:
+trend28 replay branch completed,562/562 independent checks pass; all21 added
+smooth-phase comparisons preserve detrended ranked masks, while17 change raw-TV
+ranking. Primary objective unchanged; no flags/QC in this saved-gain diagnostic.
+Provenance85 objects/505strings/21HISTORY rows extracted,657/657 independent
+checks pass; records one CASA split datacolumn=all/keepflags/width1/timebin0s,
+not proof of DATA/sigma convention. Conversion/calibration gates remain false.
+Exact compact archives/new audit reports are indexed under next-* in research.
+
+Signal branch completes9 actualQCs and full9169commonTEST; independent numerical
+audit pending. Unguarded seed10956-cell mask objective1.2495729266458455 confirms
+the frozen forecast; absolute-signal guard selects no-change UNCERTIFIED because
+baseline TRAIN curvature is underidentified at bin811, native_status3. No T or
+absolute near-identity error is available there; do not mislabel this a numeric
+signal-rejection threshold result. Paired omitted-sky signals still attenuate.
+
+Imaging first invocation failed before any FITS: WSClean3.6 rejects legacy
+`-datacolumn`; source/copies/checkpoint/logs retained, not exportable. Pinned
+binary help and full proposed-command `-dry-run` verify four compatible names:
+`-data-column`, `-wstack-nwlayers`, `-abs-mem`, `-no-min-grid-resolution`.
+These preserve the frozen physical settings, not threshold/precision retuning.
+Other branches continue under unchanged source freeze; prospective clean/107
+reference masks complete, seed109 ongoing. Top-level graph has NOT succeeded.
+Fix-forward source checkpoint and separately fresh imaging run follow only
+after active calibration ends; no duplicate QC required.
+
+Trusted implementation tar extracted into sibling `frozen-code` below
+`outputs/flagging-backups/20260924-five-track-implementation` for independent
+historical replay after the CLI fix. All92 captured /workspace runtime source
+paths exactly match that snapshot (93rd receipt is immutable Linux native).
+
+ACTIVE EXECUTION2026-09-24~09:45UTC, source checkpoint
+`ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a` pushed and clean. Actual offline
+top-level recipe launched via `bash tools/flagging/run-next.sh`:
+root `outputs/tv-next-20260924-01`, logs sibling `-logs`, finalimage5da4... .
+Inputs prepared/actions-01, historical/concurrent-20260924-01,
+response/precision-01, CARACAL/clean-01 and fresh metadata acquisition below;
+all five pre-existing sources have explicit OS-read-only bind mounts.
+Fresh clean/107/109 inputs construct first, then five isolated branches,
+three scatter processes (<=2 QC workers and one imager). No source-runtime edits
+are permitted during this freeze. Parallel owners independently audit raw
+guard, prospective/provenance and trend/imaging outputs without rerunning QC.
+
+Metadata HEAD85 completed09:43:24UTC:15,672 total bytes, maximum546 bytes,
+82 string chunks plus3 numeric HISTORY, fixed origin/schema/unique allowlist,
+zero MAIN requests. Separate root and independent-agent checks passed.
+Complete HEAD SHA256`92d18475723e6e1ef2586a4a90bf382b0beb4391fd2ae9b55a1626b6ebc41029`,
+path `outputs/tv-provenance-head-next-20260924-01`.
+Only then conditional GET85 acquired all15,672 bytes; exact ETags/lengths/SHA
+receipts validated before offline inspection. Acquisition complete SHA256
+`3dc7fd843cb570778a4527349c6cb576aebcf927ee49823eab43097c530b65fc`,
+path `outputs/tv-provenance-acquired-next-20260924-01`.
+First host invocation lacked PYTHONPATH and made no requests/files; retry with
+`PYTHONPATH=python` succeeded. No publisher pickle has been unpickled.
+
 Five-track source checkpoint verification2026-09-24 09:42UTC PASS:
 646 Python tests(no skips),19 Rust tests, release build, Clippy-Dwarnings,
 Rust/Ruff formatting and lint,91 in-memory Python compilations,49 strictJSON

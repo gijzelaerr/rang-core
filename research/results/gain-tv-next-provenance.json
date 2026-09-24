@@ -1,0 +1,1531 @@
+{
+  "schema_version": 1,
+  "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+  "raw_run": "outputs/tv-next-20260924-01/experiments/provenance",
+  "raw_result_sha256": "2c67687e7cdb2b51a59b8adf67a43e0f9c513abe449bc435160f4570b6f869ae",
+  "head_receipt_sha256": "92d18475723e6e1ef2586a4a90bf382b0beb4391fd2ae9b55a1626b6ebc41029",
+  "acquisition_receipt_sha256": "3dc7fd843cb570778a4527349c6cb576aebcf927ee49823eab43097c530b65fc",
+  "raw_result": {
+    "string_arrays": {
+      "ANTENNA/ANTENNA_0/MOUNT": {
+        "shape": [
+          61
+        ],
+        "strings": [
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ",
+          "ALT-AZ"
+        ],
+        "opcode_count": 185
+      },
+      "ANTENNA/ANTENNA_0/NAME": {
+        "shape": [
+          61
+        ],
+        "strings": [
+          "m000",
+          "m001",
+          "m002",
+          "m003",
+          "m004",
+          "m005",
+          "m006",
+          "m007",
+          "m008",
+          "m009",
+          "m010",
+          "m011",
+          "m012",
+          "m013",
+          "m015",
+          "m016",
+          "m018",
+          "m019",
+          "m020",
+          "m021",
+          "m022",
+          "m023",
+          "m024",
+          "m025",
+          "m026",
+          "m027",
+          "m028",
+          "m029",
+          "m030",
+          "m031",
+          "m033",
+          "m034",
+          "m035",
+          "m036",
+          "m037",
+          "m038",
+          "m039",
+          "m040",
+          "m041",
+          "m042",
+          "m043",
+          "m044",
+          "m045",
+          "m046",
+          "m047",
+          "m048",
+          "m049",
+          "m050",
+          "m051",
+          "m052",
+          "m053",
+          "m054",
+          "m055",
+          "m056",
+          "m057",
+          "m058",
+          "m059",
+          "m060",
+          "m061",
+          "m062",
+          "m063"
+        ],
+        "opcode_count": 185
+      },
+      "ANTENNA/ANTENNA_0/STATION": {
+        "shape": [
+          61
+        ],
+        "strings": [
+          "m000",
+          "m001",
+          "m002",
+          "m003",
+          "m004",
+          "m005",
+          "m006",
+          "m007",
+          "m008",
+          "m009",
+          "m010",
+          "m011",
+          "m012",
+          "m013",
+          "m015",
+          "m016",
+          "m018",
+          "m019",
+          "m020",
+          "m021",
+          "m022",
+          "m023",
+          "m024",
+          "m025",
+          "m026",
+          "m027",
+          "m028",
+          "m029",
+          "m030",
+          "m031",
+          "m033",
+          "m034",
+          "m035",
+          "m036",
+          "m037",
+          "m038",
+          "m039",
+          "m040",
+          "m041",
+          "m042",
+          "m043",
+          "m044",
+          "m045",
+          "m046",
+          "m047",
+          "m048",
+          "m049",
+          "m050",
+          "m051",
+          "m052",
+          "m053",
+          "m054",
+          "m055",
+          "m056",
+          "m057",
+          "m058",
+          "m059",
+          "m060",
+          "m061",
+          "m062",
+          "m063"
+        ],
+        "opcode_count": 185
+      },
+      "ANTENNA/ANTENNA_0/TYPE": {
+        "shape": [
+          61
+        ],
+        "strings": [
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED",
+          "GROUND-BASED"
+        ],
+        "opcode_count": 185
+      },
+      "FIELD/FIELD_0/CODE": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "T"
+        ],
+        "opcode_count": 64
+      },
+      "FIELD/FIELD_0/NAME": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "J1939-6342"
+        ],
+        "opcode_count": 64
+      },
+      "HISTORY/HISTORY_0/APPLICATION": {
+        "shape": [
+          21
+        ],
+        "strings": [
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms",
+          "ms"
+        ],
+        "opcode_count": 105
+      },
+      "HISTORY/HISTORY_0/MESSAGE": {
+        "shape": [
+          21
+        ],
+        "strings": [
+          "taskname=split",
+          "version: CASA Version 5.6.0-60  ",
+          "vis         = \"../ms-orig/1557433849_sdp_l0.ms\"",
+          "outputvis   = \"ms1_primary.ms\"",
+          "keepmms     = True",
+          "field       = 0",
+          "spw         = \"\"",
+          "scan        = \"\"",
+          "antenna     = \"\"",
+          "correlation = \"\"",
+          "timerange   = \"\"",
+          "intent      = \"\"",
+          "array       = \"\"",
+          "uvrange     = \"\"",
+          "observation = \"\"",
+          "feed        = \"\"",
+          "datacolumn  = \"all\"",
+          "keepflags   = True",
+          "width       = 1",
+          "timebin     = \"0s\"",
+          "combine     = \"\""
+        ],
+        "opcode_count": 105
+      },
+      "HISTORY/HISTORY_0/ORIGIN": {
+        "shape": [
+          21
+        ],
+        "strings": [
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split",
+          "split"
+        ],
+        "opcode_count": 105
+      },
+      "HISTORY/HISTORY_0/PRIORITY": {
+        "shape": [
+          21
+        ],
+        "strings": [
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO",
+          "INFO"
+        ],
+        "opcode_count": 105
+      },
+      "HISTORY/HISTORY_0/APP_PARAMS": {
+        "shape": [
+          21,
+          1
+        ],
+        "strings": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "opcode_count": 86
+      },
+      "HISTORY/HISTORY_0/CLI_COMMAND": {
+        "shape": [
+          21,
+          1
+        ],
+        "strings": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "opcode_count": 86
+      },
+      "OBSERVATION/OBSERVATION_0/LOG": {
+        "shape": [
+          1,
+          1
+        ],
+        "strings": [
+          "unavailable"
+        ],
+        "opcode_count": 65
+      },
+      "OBSERVATION/OBSERVATION_0/SCHEDULE": {
+        "shape": [
+          1,
+          1
+        ],
+        "strings": [
+          "unavailable"
+        ],
+        "opcode_count": 65
+      },
+      "OBSERVATION/OBSERVATION_0/OBSERVER": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "Krishnan Vasaant"
+        ],
+        "opcode_count": 64
+      },
+      "OBSERVATION/OBSERVATION_0/PROJECT": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "20190507-0022"
+        ],
+        "opcode_count": 64
+      },
+      "OBSERVATION/OBSERVATION_0/SCHEDULE_TYPE": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "unknown"
+        ],
+        "opcode_count": 64
+      },
+      "OBSERVATION/OBSERVATION_0/TELESCOPE_NAME": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "MeerKAT"
+        ],
+        "opcode_count": 64
+      },
+      "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/FREQ_GROUP_NAME": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "none"
+        ],
+        "opcode_count": 64
+      },
+      "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/NAME": {
+        "shape": [
+          1
+        ],
+        "strings": [
+          "none"
+        ],
+        "opcode_count": 64
+      },
+      "STATE/STATE_0/OBS_MODE": {
+        "shape": [
+          3
+        ],
+        "strings": [
+          "UNKNOWN",
+          "CALIBRATE_BANDPASS,CALIBRATE_FLUX",
+          "TARGET"
+        ],
+        "opcode_count": 69
+      },
+      "FEED/FEED_0/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_1/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_2/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_3/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_4/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_5/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_6/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_7/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_8/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_9/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_10/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_11/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_12/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_13/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_14/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_15/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_16/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_17/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_18/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_19/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_20/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_21/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_22/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_23/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_24/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_25/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_26/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_27/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_28/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_29/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_30/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_31/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_32/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_33/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_34/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_35/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_36/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_37/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_38/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_39/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_40/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_41/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_42/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_43/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_44/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_45/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_46/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_47/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_48/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_49/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_50/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_51/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_52/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_53/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_54/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_55/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_56/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_57/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_58/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_59/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      },
+      "FEED/FEED_60/POLARIZATION_TYPE": {
+        "shape": [
+          1,
+          2
+        ],
+        "strings": [
+          "X",
+          "Y"
+        ],
+        "opcode_count": 68
+      }
+    },
+    "history": [
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "taskname=split",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "version: CASA Version 5.6.0-60  ",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "vis         = \"../ms-orig/1557433849_sdp_l0.ms\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "outputvis   = \"ms1_primary.ms\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "keepmms     = True",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "field       = 0",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "spw         = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "scan        = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "antenna     = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "correlation = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "timerange   = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "intent      = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "array       = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "uvrange     = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "observation = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "feed        = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "datacolumn  = \"all\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "keepflags   = True",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "width       = 1",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "timebin     = \"0s\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      },
+      {
+        "APPLICATION": "ms",
+        "APP_PARAMS": "",
+        "CLI_COMMAND": "",
+        "MESSAGE": "combine     = \"\"",
+        "ORIGIN": "split",
+        "PRIORITY": "INFO",
+        "TIME": 5162171373.383,
+        "OBSERVATION_ID": -1,
+        "OBJECT_ID": 0
+      }
+    ],
+    "history_keyword_mentions_not_operation_proof": {
+      "applycal": [],
+      "calwt": [],
+      "initweights": [],
+      "statwt": [],
+      "weight": [],
+      "sigma": [],
+      "corrected_data": [],
+      "mstransform": [],
+      "split": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "average": [],
+      "cubical": [],
+      "caracal": []
+    },
+    "decoded_bytes": 16538,
+    "objects": 85,
+    "string_elements": 505,
+    "same_observation_not_independent_transfer": true,
+    "weight_sigma_provenance_status": "unvalidated; textual mentions/absence do not prove DATA-associated noise convention",
+    "conversion_solver_gate": {
+      "pass": false,
+      "requires": [
+        "publisher DATA/sigma units and noise convention",
+        "column-specific export/calibration/averaging provenance",
+        "original units/measure-reference keywords and full numeric subtables",
+        "adequate calibrator sky and gain-bin support",
+        "separately frozen native-MS/solver protocol"
+      ]
+    },
+    "audit": {
+      "all_source_receipts_and_objects_unchanged": true,
+      "no_pickle_unpickling_or_payload_callable": true,
+      "no_MS_DATA_flags_weights_written": true,
+      "new_QC_solves": 0
+    },
+    "limitations": "Metadata-only text extraction from existing ESO137 primary observation; no verified independent data transfer, noise validation, native-MS conversion, calibration or scientific flagger advantage."
+  },
+  "independent_audit": "gain-tv-next-provenance-audit.json",
+  "scientific_interpretation": "The21 HISTORY rows describe one recorded CASA split, with datacolumn=all,keepflags=True,width1,timebin=0s. Empty command/parameter strings and absent noise keywords do not establish absent prior/succeeding calibration or verified DATA/sigma convention. Native calibration/conversion gates remain false."
+}

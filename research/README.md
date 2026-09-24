@@ -9,6 +9,14 @@ TRAIN-estimated trend guidance, absolute signal guards, prospective candidate
 confirmation, bounded textual provenance and actual imaging diagnostics.
 Implementation/execution is in progress; new outcomes are not implied.
 
+New completed evidence: [trend-aware guidance](flagging-trend.md),
+[28 replays](results/gain-tv-next-trend.json) with
+[562-check verification](flagging-next-trend-verification.md), and
+[bounded provenance](flagging-supported-provenance.md) with
+[657-check verification](flagging-next-provenance-verification.md).
+Fresh calibration/reference comparisons are running; the first imaging launch
+hit a retained CLI incompatibility and needs a checked fresh rerun.
+
 [Concurrent follow-up protocol](flagging-concurrent.md), started2026-09-24,
 freezes five parallel workstreams before new measurements. All ten scatter
 branches and the dependent fit now complete; [suite evidence](results/gain-tv-concurrent.json)

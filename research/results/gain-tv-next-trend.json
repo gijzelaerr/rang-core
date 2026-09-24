@@ -1,0 +1,2201 @@
+{
+  "schema_version": 1,
+  "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+  "raw_run": "outputs/tv-next-20260924-01/experiments/trend",
+  "raw_result_sha256": "3f1666fc944e4748af28194131accba23166093a2411b5e70cf4a7252ca5dbe6",
+  "raw_result": {
+    "status": "measured saved-gain guidance ablation, not solver/policy invariance",
+    "configuration": {
+      "source": "/workspace/outputs/tv-concurrent-20260924-01",
+      "source_digest": "6adbfb663e85d81fb5a9ca1126f57fd6ea1242858bc898d1205759ff3e13f417",
+      "module_sha256": "3c578c5e355a4a81d2959db9463f7bbf23025e52e01a61e72ebe9e45c5988e6b",
+      "native_library_sha256": "cf61db3728a1bb1e1a8bc66ec738d80a102f636185dd527e11a1f6290c530a84",
+      "runtime_receipts": {
+        "/opt/rang/librang_toy.so": "cf61db3728a1bb1e1a8bc66ec738d80a102f636185dd527e11a1f6290c530a84",
+        "/workspace/Cargo.lock": "5f753920bdcd977dba3e42df0cd95e198ec1f7746ee1ff3d083638ac859e2f2e",
+        "/workspace/Cargo.toml": "fab96f1a1514e1738c28c5e83a869d51457bc892beccae6bc967bee1802dd690",
+        "/workspace/pyproject.toml": "c3eabfad6cc15550d8e7c19278e920c719cd5f769a2bab5497accbbc4a181c47",
+        "/workspace/python/rangtoy/__init__.py": "e8bb5fe523aa5cb0be4f0c31d012876f3f9fe06a6cf005cc4d3928aca8e65c23",
+        "/workspace/python/rangtoy/beams.py": "b72a375bbbd218db6c66a51ed42740d5a5816aa9d84b697b59c4ae92103fedbf",
+        "/workspace/python/rangtoy/blocked.py": "4bef5f1db199cd8c179651e47de6dd87e44ae0b90191fcee80f8728f30c2a37e",
+        "/workspace/python/rangtoy/flagging.py": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba",
+        "/workspace/python/rangtoy/flagging_actions.py": "a413c4649e592305547da2311a6fb0e62d51e05b62cc9891061cc428213a15fa",
+        "/workspace/python/rangtoy/flagging_balanced.py": "8fd6ada217130689067dda7c0379f20c0d43f1a445ace9f3debb0d172892d141",
+        "/workspace/python/rangtoy/flagging_caracal.py": "e1d946860f9069dc5314e5c9baf3c89c6aad66bc28edfee87733c39d9aa04fa8",
+        "/workspace/python/rangtoy/flagging_comparators.py": "c117f36616c5992c4782fb89d7d0236465ba49d9016d2d9edc31056778e68c84",
+        "/workspace/python/rangtoy/flagging_concurrent.py": "b9e318ff70dc2252a2610580dbac8c5b53841a72d131668763ee3eb76a07a461",
+        "/workspace/python/rangtoy/flagging_equivariance.py": "c2785e28e8881201244d710360b328f9d466f5c1522b3bd6dcf277005e19345e",
+        "/workspace/python/rangtoy/flagging_imaging.py": "8d6ae6df2495200909e31c7f27a5abfc3d3b2826a657f01860160725991a89a9",
+        "/workspace/python/rangtoy/flagging_influence.py": "a5b8b87aea5d771cd9443505704b4cf7e01416f92cc69b56c94cd5460750a6eb",
+        "/workspace/python/rangtoy/flagging_injections.py": "93d151f2b5ea03af2fcd2e00c9fefa45aaefd00bc3acc69c1824d9660f48863d",
+        "/workspace/python/rangtoy/flagging_next.py": "2a2ae5ed96229e0d2fca2e5e2dad81b3579b788e92d543ea5718a7a808d69754",
+        "/workspace/python/rangtoy/flagging_parallel.py": "fbb46c613a2bd9d3ce0e5ff1ba0aaaa4377089fc0864610cd259fd75912d81a6",
+        "/workspace/python/rangtoy/flagging_prepared.py": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab",
+        "/workspace/python/rangtoy/flagging_prospective.py": "5a36faf8c84d6baefd2d2e6fc9ad1b736d337032b7ed204b27e84e5b73d7e638",
+        "/workspace/python/rangtoy/flagging_provenance.py": "9d3370f538f3a7c9ea51057652e74cf02502fb3aab4073bc982b5f201d3c2b8f",
+        "/workspace/python/rangtoy/flagging_public.py": "2f4b75a1f9edf981414ec8a8e85239de5620db9ed93f81f1d1aab12d216a0830",
+        "/workspace/python/rangtoy/flagging_response.py": "b62a9877af099d9c72875b8439818b033e8fdff22d5b931386f327dbfed5fac8",
+        "/workspace/python/rangtoy/flagging_signal.py": "60743c3972d8fb24a3017931d5c79ca2085c30576a848b4ec567605fe3aad81b",
+        "/workspace/python/rangtoy/flagging_signal_guard.py": "85b114ecf554edae2ede1fddeeb2309b0cabcfdedce733c84940eabff98aea29",
+        "/workspace/python/rangtoy/flagging_sky.py": "964728135a142faa1000655d45f13e368ecdbaa127ed5021d61df994ff5e347d",
+        "/workspace/python/rangtoy/flagging_structured.py": "6586bdf96eb9978f702d8d0f32796d070d3bbe0184b12e3801234811cc9c2feb",
+        "/workspace/python/rangtoy/flagging_structured_proposals.py": "aa1fff8f4c6601ef3d3b9e2526ae771341844d4759f850178561f18b5058d37c",
+        "/workspace/python/rangtoy/flagging_transfer.py": "0b1230d3a6e6189590ac38a81814429aaadb7adf149bb235f5532c226ad808a2",
+        "/workspace/python/rangtoy/flagging_trend.py": "3c578c5e355a4a81d2959db9463f7bbf23025e52e01a61e72ebe9e45c5988e6b",
+        "/workspace/python/rangtoy/flagging_uncertainty.py": "e84d18b495cbd4d7a2b6ab87a1d8439f913d16f2bfb616fc1501b209dfe61c42",
+        "/workspace/python/rangtoy/flagging_workflow.py": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a",
+        "/workspace/python/rangtoy/gauge.py": "55f7723d8c2bed31122737d3e007d6c751de085d97d4c2874b3b5bf31cdfa1f9",
+        "/workspace/python/rangtoy/observability.py": "033560087cb94a1fb924cf4438dcbc2dcc07eafdd0be551118d373d511b446e9",
+        "/workspace/python/rangtoy/pointing.py": "db9efdcbf00f5ba8fcf93073d1c3746b403987a802db6e4aed515155978c5ea4",
+        "/workspace/python/rangtoy/projector.py": "defd5e014480a0fd56fb4d8c16e729f0ad364d54f34ec8a2c6366f277530951f",
+        "/workspace/python/rangtoy/uncertainty.py": "dfff698eb1f4382ed915f1dca558f27e79c6a61f6bee83acf16773b32a3e6a13",
+        "/workspace/recipes/tv-flagging-actions.yaml": "7abf0f78cf2a0cc164f56a2e98fe7380658a57a1db2d571c31e02a5a0727403e",
+        "/workspace/recipes/tv-flagging-balanced.yaml": "e55a9307cff34f46c4ba742103a74bea2157e0c31d7af43bf69d1656e188b9d5",
+        "/workspace/recipes/tv-flagging-caracal.yaml": "41e84defeeb67334a66b9d7ac08ed85c39a10713c94e5055009803c22071df81",
+        "/workspace/recipes/tv-flagging-comparators.yaml": "4ea2581b9fc87bb0fb249b34fd6944a4ea875272dd87dfe258fac0d726655064",
+        "/workspace/recipes/tv-flagging-concurrent.yaml": "0b980a21e1ee684a36a2d709769cbc0103bb74aa8b9a00f0f28c4fabb76807c0",
+        "/workspace/recipes/tv-flagging-equivariance.yaml": "7e2d0476408e80aff904ef7a4c9924dccebcc1deb24c96975da0345d1ede4665",
+        "/workspace/recipes/tv-flagging-imaging.yaml": "9bc6d8e043f27926e978cf6c2ecd9df96046bbdfdd1f16c59707386810ad0686",
+        "/workspace/recipes/tv-flagging-influence.yaml": "26db605a09334b2b6f9a8420c70edf550f6c77c6ca85e67a6b44efbbdb8c3b32",
+        "/workspace/recipes/tv-flagging-injections.yaml": "a2039734273ea24489c4c5e5bfc7668e84f08f3cde981795adce4ec011333844",
+        "/workspace/recipes/tv-flagging-next.yaml": "911654334dbf6ea68ee3be2bf7356a0e4b91e87ab3f8a1b6449405cd72d78e47",
+        "/workspace/recipes/tv-flagging-parallel.yaml": "c1e36427e4402b402065c4022d4a72c031cbf0a61b8dacbc373152b006054709",
+        "/workspace/recipes/tv-flagging-prospective.yaml": "cd220968476cdc9f4a3d38dec3b4bf54dcf9cf95a1675d1e5635ff83657e4c0b",
+        "/workspace/recipes/tv-flagging-provenance.yaml": "d09b14f9a7e4ec8b173c14b2cdc56d84c66a38a268945240d8197bb7c7430ae3",
+        "/workspace/recipes/tv-flagging-public.yaml": "3f1708c40f9f54718599005db09fb3790f2a4272c6c6ed7883a83cffd998dffa",
+        "/workspace/recipes/tv-flagging-response.yaml": "ae377849e5a512b6b8bef6432c648802d909861aed22a64c0e9549335eaf29fc",
+        "/workspace/recipes/tv-flagging-signal-guard.yaml": "3fe31074cbf6e9aac2d8a117e64cc74aa69fa476bc8d01c75f54a07c044ff905",
+        "/workspace/recipes/tv-flagging-signal.yaml": "7ed4cba208386da2fced780884296bb974ea9488f86af59180da918bb01ef78d",
+        "/workspace/recipes/tv-flagging-sky.yaml": "271f1cd8865a2a518486dad71a499fc7216b9fdc685b3f610d0db447960f9822",
+        "/workspace/recipes/tv-flagging-structured.yaml": "86ff5f1deedce28aa0f1bf9593c8b346ba8ad1eba6d44e2c93ac98c7b6b69bb6",
+        "/workspace/recipes/tv-flagging-transfer.yaml": "1231fa97fa8296ea192214a1562c3c85cc93da662963434296b0fe8a958ca668",
+        "/workspace/recipes/tv-flagging-trend.yaml": "9526a9e7ff389d145ad2d86081a948653d1e1a2d66f77e1fb42382ff83a7255e",
+        "/workspace/recipes/tv-flagging-uncertainty.yaml": "91e68c1fc9e53b8ce7d9ffda8bbd6ece2b25a51b21d2f329f2391a0434ae4311",
+        "/workspace/recipes/tv-flagging.yaml": "28999dd58f439bc8eee351e5a479a8c411e0626d9ac631eb67da73fecb080986",
+        "/workspace/src/lib.rs": "f0bc358ac67710aeed59f25ad328129f27e91eb66866748568adde6ee4f6c675",
+        "/workspace/src/linalg.rs": "bbf3e40f655875b871dbe0203b2199bd5a3d5bb5e55bcff598850d3479e0363f",
+        "/workspace/src/main.rs": "d9c6edcb6842d5c78f7622f6ed6708b48056f30c7895be228c228e60bc088d51",
+        "/workspace/src/projector.rs": "f6a689d0006394b73b1391fb3d511f40e6a409d5755538076ecfa18a056caa19",
+        "/workspace/src/response.rs": "8d0fa3aba4429ab5fc97e401d51ebde91ffce1cd92676f8ef952b8762098fb87",
+        "/workspace/src/trend.rs": "6469862e38a488576bdcf433571c9130bdc65fa9814cf5abbd82cd0ace381f46",
+        "/workspace/src/tv.rs": "f9ffa3faceae2f10a780b97d237bbd1626cae9a4b9ed664dc1fdcabc43b60433",
+        "/workspace/tools/flagging/Dockerfile": "74bdce21acc9eda378d6b32a34943c791ff69881a01d786d4837cc5f1b350a35",
+        "/workspace/tools/flagging/comparators/Dockerfile": "2be5bd7345a1e74d36f76d6d8f050de398ece902a5a1bd05d2a0f49b1d35748a",
+        "/workspace/tools/flagging/comparators/run-pilot.sh": "a124bbac3e8fb774e79e5ed6ba9ad9eb938adae0f6513591669778aa414b865f",
+        "/workspace/tools/flagging/imaging/Dockerfile": "92018085a4dd4246a50aae38ffa4c6586920b456d6b1d62c9a94094ca34bf114",
+        "/workspace/tools/flagging/next/Dockerfile": "5dae9582fcc0d5f74052a99ad7aca32a153e921963d84b9cb7958a80526362d0",
+        "/workspace/tools/flagging/next-imaging/Dockerfile": "99ad2e2354878965e546bddc448d45b7632718c2d7c5d9fe6f52c8f6c9307035",
+        "/workspace/tools/flagging/parallel/Dockerfile": "851f24ada1cf2b7dd1970b42b0901355304434e0ed3653a97e9a178057332025",
+        "/workspace/tools/flagging/preflight.py": "ddf680d817274058ce782244ac5f4c5d0ff877b962df2062622689fdd37a312a",
+        "/workspace/tools/flagging/response/Dockerfile": "ca195464da47449afc552c111873dab39f9ce302e34f253a50fd226228d5754f",
+        "/workspace/tools/flagging/run-balanced.sh": "2c37c7ca464d35a98b7deb05251434d5b9065ff551588d6fe5a920b475539ff4",
+        "/workspace/tools/flagging/run-caracal.sh": "92aa482f6a8ab5fddf1ae0bc371a94f0e0895adf05be5266a4e5cd764699a9f8",
+        "/workspace/tools/flagging/run-concurrent.sh": "b92c80bb0f4eb87a6d2eb02853a6b6194091dce4f185a2bee18686a09f25add9",
+        "/workspace/tools/flagging/run-equivariance.sh": "72498f02fc1812e3dc3e21377f38c9b6e9d6da3ba248e57b8040f7b7008ba005",
+        "/workspace/tools/flagging/run-influence.sh": "48817bf1473f037d77d555f0f78186a4d798394abba31f15d6f27e84fe83c97a",
+        "/workspace/tools/flagging/run-injections.sh": "fb7a87fd6c3d11ba2a2ea7cd7e43bece5c171c53a291396ba33caaa3e2c99bfd",
+        "/workspace/tools/flagging/run-next.sh": "e11d6110bc155c5daa94f79bfe66901eccf538f336bbfe3aeb6b2cadef26ff46",
+        "/workspace/tools/flagging/run-parallel.sh": "27202bc07ff336f74f8d0b934344b452df189de7727b4d178d48a49e32bc0497",
+        "/workspace/tools/flagging/run-pilot.sh": "9522ee0ccc88ff9d2cd225d948d3c8d756e201a3042e78ef3552261bbbd4eaa1",
+        "/workspace/tools/flagging/run-public.sh": "0688cda85fc52414301f628e97272426b464509bc6ed23801164acf2b3528c07",
+        "/workspace/tools/flagging/run-response.sh": "cd73a00786125ecd0e77554fe047452f35d58f59906085ffe42b3b3018c83a1e",
+        "/workspace/tools/flagging/run-signal.sh": "30b838c48234289b68895f12706b9b92b0008104419dc8accd9f8a5a04f46242",
+        "/workspace/tools/flagging/run-structured.sh": "a91cbc15c6556d6a2607a293764f564acc9be9adc4309d6d2d21c0b6c98ebc99",
+        "/workspace/tools/flagging/sky/Dockerfile": "99e06ad8850a9816178d8897d7a5db3bd634f856089bb9c3c01430adaef44a0a",
+        "/workspace/tools/flagging/sky/run-pilot.sh": "18cf01246795c14cc505ad45f5fedc7039a7977ab72d54663fcc511014df8d7e",
+        "/workspace/tools/flagging/sky/verify_prediction.py": "af252f4d259743fe66d526b9bd8b411eb4033d45c87ae509812756e6463af1fe"
+      },
+      "image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+      "environment": {
+        "python": "3.12.14",
+        "numpy": "2.5.3"
+      },
+      "patterns": {
+        "identity": [
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "smooth-frequency": [
+          [
+            0,
+            3,
+            6,
+            9
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "smooth-time": [
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0.2,
+            -0.2,
+            0.4
+          ]
+        ],
+        "both": [
+          [
+            0,
+            3,
+            6,
+            9
+          ],
+          [
+            0,
+            0.2,
+            -0.2,
+            0.4
+          ]
+        ]
+      },
+      "cases": [
+        "balanced-clean",
+        "time-burst-seed101",
+        "antenna-local-seed101",
+        "time-burst-seed103",
+        "antenna-local-seed103",
+        "time-burst-seed105",
+        "antenna-local-seed105"
+      ],
+      "fit": "median adjacent TRAIN-supported half-determinant gradients",
+      "unaliased_scalar_step_assumption_radians": "absolute value < pi/2",
+      "minimum_time_frequency_edges": [
+        2,
+        4
+      ],
+      "allocation_limit_bytes": 268435456,
+      "original_flags_or_DATA_written": false,
+      "primary_full_Jones_TV_objective_replaced": false,
+      "new_QC_solves": 0
+    },
+    "records": [
+      {
+        "case_id": "balanced-clean",
+        "pattern": "identity",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.028695463887211e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.00003137706915199677,
+            -6.711455115224171e-10
+          ],
+          [
+            0.0005060387097403508,
+            -5.905432673193893e-10
+          ],
+          [
+            0.00007162600537079209,
+            -4.699098113085478e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.1474368700725686,
+        "detrended_guidance_TV": 0.14721781010243598,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "balanced-clean",
+        "pattern": "smooth-frequency",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.028695463887211e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.0000313770691519907,
+            1.8178410410016364e-8
+          ],
+          [
+            0.0005060387097403508,
+            3.71085685757581e-8
+          ],
+          [
+            0.00007162600537079025,
+            5.607875795330778e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.26113702275738715,
+        "detrended_guidance_TV": 0.1472178101024361,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "f7656a082f8c82df5a898beea47b31b9340d6190184037d639746cc1649f2f85",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "balanced-clean",
+        "pattern": "smooth-time",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.028695463887211e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.00211559172352788,
+            -6.711455115224171e-10
+          ],
+          [
+            -0.0015781759446355354,
+            -5.905432673193977e-10
+          ],
+          [
+            0.004240055314122582,
+            -4.699098113085311e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.16379686386634218,
+        "detrended_guidance_TV": 0.147217810102436,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "balanced-clean",
+        "pattern": "both",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.028695463887211e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.0021155917235278843,
+            1.817841041001637e-8
+          ],
+          [
+            -0.0015781759446355185,
+            3.710856857575808e-8
+          ],
+          [
+            0.004240055314122597,
+            5.607875795330776e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.27749701655116077,
+        "detrended_guidance_TV": 0.1472178101024358,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "b5f7e30ab78fc47af1785da9e3534aceb94b253d857ea073e9d08eb3283264ce",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "44be20a11774d8c0826a4211fb6e14d0383de73b0a5a6683797c945294343ce5",
+            "e8521f04d0d1b615207d6b761c387f1d54ee43d2750e365b4b0e4749af76299e"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed101",
+        "pattern": "identity",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.00003137706915199677,
+            -6.711455115224171e-10
+          ],
+          [
+            0.000449831727454668,
+            -5.905432673193893e-10
+          ],
+          [
+            0.00008909082531106413,
+            -4.699098113085478e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.14992486632552118,
+        "detrended_guidance_TV": 0.14972142864950508,
+        "rankings": {
+          "residual": [
+            "189f7df84dc7797e5e11eeb8f5f69e3f66cb91dc9d8730cc545e5ff2ff50cdd9",
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d",
+            "f773de25ce13560cf8acf5f5d7f9dd90d50dd41da833c9bb66ba1c82410a0818",
+            "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3",
+            "d0fc0f0a3807b57aa7fc7df0c9c08d0ef2b6c81863ad356b190293a02ae20bae"
+          ],
+          "rawTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed101",
+        "pattern": "smooth-frequency",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.0000313770691519907,
+            1.8178410410016364e-8
+          ],
+          [
+            0.00044983172745465997,
+            3.71085685757581e-8
+          ],
+          [
+            0.00008909082531106065,
+            5.607875795330778e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.26350755507621726,
+        "detrended_guidance_TV": 0.14972142864950516,
+        "rankings": {
+          "residual": [
+            "189f7df84dc7797e5e11eeb8f5f69e3f66cb91dc9d8730cc545e5ff2ff50cdd9",
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d",
+            "f773de25ce13560cf8acf5f5d7f9dd90d50dd41da833c9bb66ba1c82410a0818",
+            "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3",
+            "d0fc0f0a3807b57aa7fc7df0c9c08d0ef2b6c81863ad356b190293a02ae20bae"
+          ],
+          "rawTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d",
+            "588f4cebd67d38c186ac844e8ea5f7a5a5678c95740a1c7d62699d7911f0dc9d",
+            "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3",
+            "d0fc0f0a3807b57aa7fc7df0c9c08d0ef2b6c81863ad356b190293a02ae20bae"
+          ],
+          "detrendedTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed101",
+        "pattern": "smooth-time",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.00211559172352788,
+            -6.711455115224171e-10
+          ],
+          [
+            -0.0016343829269212286,
+            -5.905432673193977e-10
+          ],
+          [
+            0.004257520134062847,
+            -4.699098113085311e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.16608526557938463,
+        "detrended_guidance_TV": 0.14972142864950508,
+        "rankings": {
+          "residual": [
+            "189f7df84dc7797e5e11eeb8f5f69e3f66cb91dc9d8730cc545e5ff2ff50cdd9",
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d",
+            "f773de25ce13560cf8acf5f5d7f9dd90d50dd41da833c9bb66ba1c82410a0818",
+            "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3",
+            "d0fc0f0a3807b57aa7fc7df0c9c08d0ef2b6c81863ad356b190293a02ae20bae"
+          ],
+          "rawTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed101",
+        "pattern": "both",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.0021155917235278843,
+            1.817841041001637e-8
+          ],
+          [
+            -0.0016343829269212548,
+            3.710856857575808e-8
+          ],
+          [
+            0.004257520134062847,
+            5.607875795330776e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.27966795433008074,
+        "detrended_guidance_TV": 0.14972142864950483,
+        "rankings": {
+          "residual": [
+            "189f7df84dc7797e5e11eeb8f5f69e3f66cb91dc9d8730cc545e5ff2ff50cdd9",
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d",
+            "f773de25ce13560cf8acf5f5d7f9dd90d50dd41da833c9bb66ba1c82410a0818",
+            "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3",
+            "d0fc0f0a3807b57aa7fc7df0c9c08d0ef2b6c81863ad356b190293a02ae20bae"
+          ],
+          "rawTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "d1aee978d51b529bcbaec28201667cf6ca695dd3fc1b4d319c3b6ec33e6cce5d",
+            "588f4cebd67d38c186ac844e8ea5f7a5a5678c95740a1c7d62699d7911f0dc9d",
+            "bbf4ad66b07afe63aa57e793c28548c9911c33188be6539ff65a0d1b11844ef3",
+            "6434717313cc6c1d341c953155222cfaaadb75f5c96a07932cabef7d62181d59"
+          ],
+          "detrendedTV": [
+            "2a68000994f0679e4b6c79b87ffacad4781e956962dcdcaedb6d711ea8c48dde",
+            "f6af44b3ddea08f10de599d3c0b1b4e64edf583b8e330a88d52c58263526e44c",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "pattern": "identity",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            7.274555650925205e-25
+          ],
+          [
+            0.000048592424907823646,
+            -6.711455115224171e-10
+          ],
+          [
+            0.0005284091629300521,
+            -5.905432673193893e-10
+          ],
+          [
+            0.00007162600537079209,
+            -4.699098113085478e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.14875871011643438,
+        "detrended_guidance_TV": 0.14853603227396986,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "0d87f6317f1550ad82db940d32be2dd1d4303717bb62177b63f55b303c85250c"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "pattern": "smooth-frequency",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            7.274555650925205e-25
+          ],
+          [
+            0.00004859242490782017,
+            1.8178410410016364e-8
+          ],
+          [
+            0.0005284091629300521,
+            3.71085685757581e-8
+          ],
+          [
+            0.00007162600537079025,
+            5.607875795330778e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.2621939353448181,
+        "detrended_guidance_TV": 0.14853603227396991,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "0d87f6317f1550ad82db940d32be2dd1d4303717bb62177b63f55b303c85250c"
+          ],
+          "rawTV": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "44be20a11774d8c0826a4211fb6e14d0383de73b0a5a6683797c945294343ce5",
+            "f7656a082f8c82df5a898beea47b31b9340d6190184037d639746cc1649f2f85"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "pattern": "smooth-time",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            7.274555650925205e-25
+          ],
+          [
+            0.0021328070792837207,
+            -6.711455115224171e-10
+          ],
+          [
+            -0.0015558054914458375,
+            -5.905432673193977e-10
+          ],
+          [
+            0.004240055314122582,
+            -4.699098113085311e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.16508517159687605,
+        "detrended_guidance_TV": 0.14853603227396986,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "0d87f6317f1550ad82db940d32be2dd1d4303717bb62177b63f55b303c85250c"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed101",
+        "pattern": "both",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            7.274555650925205e-25
+          ],
+          [
+            0.0021328070792837137,
+            1.817841041001637e-8
+          ],
+          [
+            -0.0015558054914458137,
+            3.710856857575808e-8
+          ],
+          [
+            0.004240055314122597,
+            5.607875795330776e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.27852039682525975,
+        "detrended_guidance_TV": 0.14853603227396953,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "0d87f6317f1550ad82db940d32be2dd1d4303717bb62177b63f55b303c85250c"
+          ],
+          "rawTV": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "44be20a11774d8c0826a4211fb6e14d0383de73b0a5a6683797c945294343ce5",
+            "f7656a082f8c82df5a898beea47b31b9340d6190184037d639746cc1649f2f85"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "pattern": "identity",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.00004733026061150528,
+            -6.711455115224171e-10
+          ],
+          [
+            0.0005060387097403508,
+            -7.895784010412652e-10
+          ],
+          [
+            0.00003791274377030553,
+            -4.699098113085478e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.149985782441189,
+        "detrended_guidance_TV": 0.14978147315313964,
+        "rankings": {
+          "residual": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4",
+            "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+            "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545",
+            "680e1ad5928e5286a3704a8d9bba4d007a1977ef6d653dd6ac713e0eb8e23abe"
+          ],
+          "rawTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "pattern": "smooth-frequency",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.00004733026061150268,
+            1.8178410410016364e-8
+          ],
+          [
+            0.0005060387097403508,
+            3.690953344203621e-8
+          ],
+          [
+            0.000037912743770307264,
+            5.607875795330778e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.2637449015013376,
+        "detrended_guidance_TV": 0.14978147315313972,
+        "rankings": {
+          "residual": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4",
+            "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+            "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545",
+            "680e1ad5928e5286a3704a8d9bba4d007a1977ef6d653dd6ac713e0eb8e23abe"
+          ],
+          "rawTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4",
+            "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+            "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545",
+            "680e1ad5928e5286a3704a8d9bba4d007a1977ef6d653dd6ac713e0eb8e23abe"
+          ],
+          "detrendedTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "pattern": "smooth-time",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.0021315449149873914,
+            -6.711455115224171e-10
+          ],
+          [
+            -0.0015781759446355354,
+            -7.895784010412403e-10
+          ],
+          [
+            0.004206342052522084,
+            -4.699098113085311e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.1660576826884677,
+        "detrended_guidance_TV": 0.14978147315313964,
+        "rankings": {
+          "residual": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4",
+            "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+            "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545",
+            "680e1ad5928e5286a3704a8d9bba4d007a1977ef6d653dd6ac713e0eb8e23abe"
+          ],
+          "rawTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "602558c4dd81d684a862d4566b0edb5052d60ee0a652c934b321c89ce10b26bc",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed103",
+        "pattern": "both",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.0021315449149873888,
+            1.817841041001637e-8
+          ],
+          [
+            -0.0015781759446355185,
+            3.690953344203621e-8
+          ],
+          [
+            0.004206342052522105,
+            5.607875795330776e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.27981680174861634,
+        "detrended_guidance_TV": 0.14978147315313958,
+        "rankings": {
+          "residual": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4",
+            "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+            "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545",
+            "680e1ad5928e5286a3704a8d9bba4d007a1977ef6d653dd6ac713e0eb8e23abe"
+          ],
+          "rawTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "d3b45031bb39a043d0bcdf01f7ddc8ab981f7c4a4f5ef24f11287d6a724e89c4",
+            "6675ec53169ba59538235ce4889d7b30acdb3e526d0f1b516c876eacd9c4fb50",
+            "8b45495b1ae24094ee0a2c0965b217da08bd3cec0f5a268b9fe1f38f7bba6545",
+            "f32bb5a102636c8919523483a7746c6e6fab2c11591fd9b94cc88e86e3c8a261"
+          ],
+          "detrendedTV": [
+            "3639ded69c0a2396856efa0a86a5bca19288cab1b014a2ee667ebf1a59da314d",
+            "455e6412b4e60f29fe349991780019f044ad1c59b5ffab3e0a18c5120364a3dd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "pattern": "identity",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            9.652030560572628e-25
+          ],
+          [
+            0.00003137706915199677,
+            -6.711455115224171e-10
+          ],
+          [
+            0.0005060387097403508,
+            -5.508259759956004e-10
+          ],
+          [
+            0.000057325876957667445,
+            -6.252034956678805e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.14777448904290408,
+        "detrended_guidance_TV": 0.14756069525311127,
+        "rankings": {
+          "residual": [
+            "294f402e70378eaf6869c4d0c17a0e3e7a2c849278f03eb21a7b0dc092d83331",
+            "c174667de64cfedbd8d424d2f8c4839bd8a322b2b9f4baf385753b4e1c448425",
+            "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b",
+            "e8ee037149749c554643ad1c7c29751c1d872ce983a13065c93fbb64697230b1",
+            "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c",
+            "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "pattern": "smooth-frequency",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            9.652030560572628e-25
+          ],
+          [
+            0.0000313770691519907,
+            1.8178410410016364e-8
+          ],
+          [
+            0.0005060387097403508,
+            3.7148285867081884e-8
+          ],
+          [
+            0.000057325876957667336,
+            5.59234642689483e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.2612135245397692,
+        "detrended_guidance_TV": 0.14756069525311125,
+        "rankings": {
+          "residual": [
+            "294f402e70378eaf6869c4d0c17a0e3e7a2c849278f03eb21a7b0dc092d83331",
+            "c174667de64cfedbd8d424d2f8c4839bd8a322b2b9f4baf385753b4e1c448425",
+            "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b",
+            "e8ee037149749c554643ad1c7c29751c1d872ce983a13065c93fbb64697230b1",
+            "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c",
+            "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca"
+          ],
+          "rawTV": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca",
+            "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "pattern": "smooth-time",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            9.652030560572628e-25
+          ],
+          [
+            0.00211559172352788,
+            -6.711455115224171e-10
+          ],
+          [
+            -0.0015781759446355354,
+            -5.508259759956004e-10
+          ],
+          [
+            0.004225755185709453,
+            -6.252034956678971e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.16416299109739224,
+        "detrended_guidance_TV": 0.14756069525311127,
+        "rankings": {
+          "residual": [
+            "294f402e70378eaf6869c4d0c17a0e3e7a2c849278f03eb21a7b0dc092d83331",
+            "c174667de64cfedbd8d424d2f8c4839bd8a322b2b9f4baf385753b4e1c448425",
+            "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b",
+            "e8ee037149749c554643ad1c7c29751c1d872ce983a13065c93fbb64697230b1",
+            "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c",
+            "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed103",
+        "pattern": "both",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            6.191212514310379e-19,
+            9.652030560572628e-25
+          ],
+          [
+            0.0021155917235278843,
+            1.817841041001637e-8
+          ],
+          [
+            -0.0015781759446355185,
+            3.71482858670819e-8
+          ],
+          [
+            0.0042257551857094655,
+            5.592346426894831e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.2776020265942574,
+        "detrended_guidance_TV": 0.1475606952531112,
+        "rankings": {
+          "residual": [
+            "294f402e70378eaf6869c4d0c17a0e3e7a2c849278f03eb21a7b0dc092d83331",
+            "c174667de64cfedbd8d424d2f8c4839bd8a322b2b9f4baf385753b4e1c448425",
+            "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b",
+            "e8ee037149749c554643ad1c7c29751c1d872ce983a13065c93fbb64697230b1",
+            "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c",
+            "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca"
+          ],
+          "rawTV": [
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "0a7b7ac57b4e79d85a1529ac6957b38bc51de7e89f10a39c7794e63931aac88b",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "030540e67ce798c88e8f674adfdace1fd53c4cf309afe87e3a33a521f91ae9ca",
+            "09d79eabf02250f49a0c18befd8687d490c8a9b588baef62fee4b2bc55043e9c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "pattern": "identity",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.163349192853653e-19,
+            7.776464694691943e-25
+          ],
+          [
+            -0.000006374819535432561,
+            -5.589416027878842e-10
+          ],
+          [
+            0.0005427586667003056,
+            -7.895784010412652e-10
+          ],
+          [
+            0.000057325876957667445,
+            -6.252034956678805e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.15039611018745475,
+        "detrended_guidance_TV": 0.1501502369129113,
+        "rankings": {
+          "residual": [
+            "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c",
+            "2758fef712eab84e3433b99490d351acc8ad840797a361d196d1dbd425739873",
+            "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4",
+            "ba5d9e8a630ee5f7dad7a929fb9af473ec4a625663eb39d0b5f41cdee34824cd",
+            "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39",
+            "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435"
+          ],
+          "rawTV": [
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "pattern": "smooth-frequency",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.163349192853653e-19,
+            7.776464694691943e-25
+          ],
+          [
+            -0.000006374819535442973,
+            1.8290614318750864e-8
+          ],
+          [
+            0.0005427586667003091,
+            3.690953344203621e-8
+          ],
+          [
+            0.000057325876957667336,
+            5.59234642689483e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.26386522816758406,
+        "detrended_guidance_TV": 0.15015023691291118,
+        "rankings": {
+          "residual": [
+            "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c",
+            "2758fef712eab84e3433b99490d351acc8ad840797a361d196d1dbd425739873",
+            "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4",
+            "ba5d9e8a630ee5f7dad7a929fb9af473ec4a625663eb39d0b5f41cdee34824cd",
+            "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39",
+            "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435"
+          ],
+          "rawTV": [
+            "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c",
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4",
+            "598e6eb0aa56aa6dca4974c34aabecc08bc9c5627ab244d7ab5dcb3a9c6df58b",
+            "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39",
+            "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435"
+          ],
+          "detrendedTV": [
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "pattern": "smooth-time",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.163349192853653e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.0020778398348404465,
+            -5.589416027879175e-10
+          ],
+          [
+            -0.001541455987675591,
+            -7.895784010412403e-10
+          ],
+          [
+            0.004225755185709453,
+            -6.252034956678971e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.1663113871897161,
+        "detrended_guidance_TV": 0.1501502369129113,
+        "rankings": {
+          "residual": [
+            "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c",
+            "2758fef712eab84e3433b99490d351acc8ad840797a361d196d1dbd425739873",
+            "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4",
+            "ba5d9e8a630ee5f7dad7a929fb9af473ec4a625663eb39d0b5f41cdee34824cd",
+            "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39",
+            "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435"
+          ],
+          "rawTV": [
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "time-burst-seed105",
+        "pattern": "both",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.163349192853653e-19,
+            7.776464694691943e-25
+          ],
+          [
+            0.002077839834840457,
+            1.829061431875083e-8
+          ],
+          [
+            -0.0015414559876755773,
+            3.690953344203621e-8
+          ],
+          [
+            0.0042257551857094655,
+            5.592346426894831e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.2797805051698455,
+        "detrended_guidance_TV": 0.15015023691291124,
+        "rankings": {
+          "residual": [
+            "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c",
+            "2758fef712eab84e3433b99490d351acc8ad840797a361d196d1dbd425739873",
+            "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4",
+            "ba5d9e8a630ee5f7dad7a929fb9af473ec4a625663eb39d0b5f41cdee34824cd",
+            "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39",
+            "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435"
+          ],
+          "rawTV": [
+            "5616328f12439d328ffde985652cc51da407dd4fed38ca9d31e3507fb494102c",
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "145cb337ddbcc4eb6e6425b36a919f78ef707cce57924d7d05695723b0e516d4",
+            "ba5d9e8a630ee5f7dad7a929fb9af473ec4a625663eb39d0b5f41cdee34824cd",
+            "190eaa1798bc52c2d8a472a182892fd96839934360f6243c145426ab813faa39",
+            "2ce84e00f44b182000dfad42d9149c88322c355db0cb0e78049f0496eca8a435"
+          ],
+          "detrendedTV": [
+            "5b1f555e1f9639eb25d73a78513c7b2cc2bfcfb22b9f87b01589df84cfe5c8a1",
+            "dfe7d8a9a977468ad05cf7c9237faa0bab4d6a8e17649d5b384296060619efad",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "pattern": "identity",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            6.741581637993741e-25
+          ],
+          [
+            0.00003137706915199677,
+            -6.711455115224171e-10
+          ],
+          [
+            0.0005427586667003056,
+            -1.1562155545313345e-9
+          ],
+          [
+            0.000057325876957667445,
+            -6.252034956678805e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.15014291716335443,
+        "detrended_guidance_TV": 0.1499275678933209,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "fa638e116801a51b9135f16c8fdcd2ff705a768d7ec95bb4326a92d48ccd5e55",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "pattern": "smooth-frequency",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            6.741581637993741e-25
+          ],
+          [
+            0.0000313770691519907,
+            1.8178410410016364e-8
+          ],
+          [
+            0.0005427586667003091,
+            3.654289628854613e-8
+          ],
+          [
+            0.000057325876957667336,
+            5.59234642689483e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.26282893285557185,
+        "detrended_guidance_TV": 0.14992756789332093,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "fa638e116801a51b9135f16c8fdcd2ff705a768d7ec95bb4326a92d48ccd5e55",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "f7656a082f8c82df5a898beea47b31b9340d6190184037d639746cc1649f2f85",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "pattern": "smooth-time",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            6.741581637993741e-25
+          ],
+          [
+            0.00211559172352788,
+            -6.711455115224171e-10
+          ],
+          [
+            -0.001541455987675591,
+            -1.1562155545313097e-9
+          ],
+          [
+            0.004225755185709453,
+            -6.252034956678971e-10
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.16648536744999412,
+        "detrended_guidance_TV": 0.1499275678933209,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "fa638e116801a51b9135f16c8fdcd2ff705a768d7ec95bb4326a92d48ccd5e55",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "36b1f4a5aea82dfb46da4f0d5dab4337edf9fbcaa2ea74440e9ed713fa7697fd",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      },
+      {
+        "case_id": "antenna-local-seed105",
+        "pattern": "both",
+        "slopes_time_rad_per_second_frequency_rad_per_hz": [
+          [
+            5.831680220182169e-19,
+            6.741581637993741e-25
+          ],
+          [
+            0.0021155917235278843,
+            1.817841041001637e-8
+          ],
+          [
+            -0.0015414559876755773,
+            3.6542896288546146e-8
+          ],
+          [
+            0.0042257551857094655,
+            5.592346426894831e-8
+          ]
+        ],
+        "edge_counts": [
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ],
+          [
+            246,
+            274
+          ],
+          [
+            246,
+            273
+          ]
+        ],
+        "available": true,
+        "primary_polar_TV": 0.2791713831422115,
+        "detrended_guidance_TV": 0.14992756789332085,
+        "rankings": {
+          "residual": [
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "fa638e116801a51b9135f16c8fdcd2ff705a768d7ec95bb4326a92d48ccd5e55",
+            "661fdb1632fa16ca96bcf510e6014a1a0134dc87be0bf101ce29b60ffbc4025a",
+            "e5b376852f40038023e8c6044e1aab5902b85dc10ed21c364c9691062bc5063c",
+            "52636b8746b36da5c66c835808b3eb66c70814697bccfe0fe71af6a66da81fc0"
+          ],
+          "rawTV": [
+            "ff4d32a771ccfbb78d9274b63ae5b28ad6f71cc7aa5ec90cca144e4450e7e515",
+            "4f242a9d9e32cad1a1192c2060aaf058f396596df0688a8594afc3f7f4da0eaf",
+            "2fe377673ffa58d1b5e960321e54cc2ce2aafc5d404f3d2a6b7a4201019f6b07",
+            "c8e2f6075cad7873c0fbff93709ad61e457d282bc1b604b9abb581378165fb59",
+            "44be20a11774d8c0826a4211fb6e14d0383de73b0a5a6683797c945294343ce5",
+            "e8521f04d0d1b615207d6b761c387f1d54ee43d2750e365b4b0e4749af76299e"
+          ],
+          "detrendedTV": [
+            "67b4c66e27a56be7ee3bb9a8d3bd685e3a53490495a896d44be6f6b7026b2837",
+            "8cd156efff2e8ac0c27ff56bf9428bfb737bfc2528ae2d01161de3e06a1d54f7",
+            "407c95c079523fa9685d91744feaba3f8abc575bd670814fcc9e67227d4378ec",
+            "1644478d1e6f2c7b9a60fc8379248f0b3613f35f29a54aed5450af7d4146d634",
+            "228e0b42a3fb632ac40b2a89fd2d6993f2fded65763ef253fef3e6d6795d3562",
+            "e26f66de6deebf21d390d372b4044ba6a6d482b9b856545885d690e988a6b34c"
+          ]
+        },
+        "finite_primary_edges": 2078,
+        "finite_detrended_edges": 2078
+      }
+    ],
+    "audit": {
+      "runtime_unchanged": true,
+      "source_unchanged": true,
+      "module_unchanged": true,
+      "native_library_unchanged": true
+    },
+    "new_QC_solves": 0,
+    "added_flags": 0
+  },
+  "summary": {
+    "phase_added_comparisons": 21,
+    "raw_TV_ranking_changes": 17,
+    "detrended_TV_ranking_changes": 0,
+    "residual_ranking_changes": 0,
+    "replays": 28,
+    "available_fits": 28,
+    "independent_audit_status": "562/562 checks pass"
+  },
+  "limitations": "Saved-gain guidance replay on one short four-antenna scan, not finite-iteration QuartiCal equivariance, arbitrary physical trend specificity, unseen observation transfer or a demonstrated quality/cost flagger improvement.",
+  "independent_audit": "gain-tv-next-trend-audit.json"
+}

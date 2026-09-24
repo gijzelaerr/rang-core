@@ -102,3 +102,20 @@ input file reads are bounded and reject symlink ancestors, and module/source
 guards are checked at completion. Root will add actual approved HEAD/acquisition/
 text hashes and findings separately. Scientific conversion/sigma gates remain
 unvalidated even when the software checks pass.
+
+## Actual bounded recovery2026-09-24
+
+HEAD85 passed complete separate root/agent checks before conditional GET85.
+Compressed total15,672bytes/max546; decoded16,538bytes,505strings and21 HISTORY
+rows safely recognized offline. Native field J1939-6342 recovered. CASA5.6.0-60
+split settings record source`../ms-orig/1557433849_sdp_l0.ms`, output
+`ms1_primary.ms`, field0,datacolumn=all,keepflags=True,width1,timebin=0s.
+The21 rows describe one recorded split, not21 independent operations.
+CLI_COMMAND/APP_PARAMS are empty and inspected HISTORY has no applycal/calwt/
+initweights/statwt/weight/sigma mentions. This does not prove absence of other
+processing or validate DATA-associated noise/measure frames. Conversion/sigma
+solver gates remain false; no MAIN request, native-MS conversion or new QC.
+
+[Exact recovery archive](results/gain-tv-next-provenance.json) and
+[657-predicate independent verification](flagging-next-provenance-verification.md)
+preserve source/payload/code/runtime receipts and the inert replay program.

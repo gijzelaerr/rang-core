@@ -33,3 +33,18 @@ is a separate reproducible read-only stage.
 
 Initial verification:2 Rust numerical tests and6 Python binding/coordinate/
 missing-fit/heldout-poison/equivariance tests pass before any replay measurement.
+
+## Measured replay2026-09-24
+
+All28 frozen replays completed in140seconds in the final Linux image. All28
+station trend fits are available; source/runtime audits pass. Across21 added
+smooth-phase comparisons, raw-TV six-mask rankings change17 times, detrended
+rankings0 times and residual rankings0 times. Clean rawTV changes from0.1474368701
+to0.2774970166; detrended guidanceTV remains0.1472178101 within floating-point
+roundoff. Primary solved-gain TV is not replaced. No new QC solve or flag write.
+
+Exact raw projection: [archive](results/gain-tv-next-trend.json), raw namespace
+`outputs/tv-next-20260924-01/experiments/trend`. Independent artifact/ranking audit
+passes562/562 checks ([report](flagging-next-trend-verification.md)). This demonstrates robustness
+to the fixed unaliased scalar-linear-phase family on saved gains, not universal
+instrument/RFI separation, actual solver invariance or a deployed policy win.

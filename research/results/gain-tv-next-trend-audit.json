@@ -1,0 +1,4596 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "checks_count": 562,
+  "pass_count": 562,
+  "checks": [
+    {
+      "name": "strict seven-by-four replay count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "actual source digest independently reconstructed",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "frozen complete runtime closure",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "module source SHA",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "native SHA",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "zero QC / flags",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "recorded all preservation guards",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean TRAIN-bin membership",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean bool disjoint protected split",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean exactly frozen four patterns",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/identity detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-frequency detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/smooth-time detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "balanced-clean/both detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101 TRAIN-bin membership",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101 bool disjoint protected split",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101 exactly frozen four patterns",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/identity detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-frequency detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/smooth-time detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed101/both detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101 TRAIN-bin membership",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101 bool disjoint protected split",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101 exactly frozen four patterns",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/identity detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-frequency detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/smooth-time detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed101/both detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103 TRAIN-bin membership",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103 bool disjoint protected split",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103 exactly frozen four patterns",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/identity detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-frequency detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/smooth-time detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed103/both detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103 TRAIN-bin membership",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103 bool disjoint protected split",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103 exactly frozen four patterns",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/identity detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-frequency detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/smooth-time detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed103/both detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105 TRAIN-bin membership",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105 bool disjoint protected split",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105 exactly frozen four patterns",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/identity detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-frequency detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/smooth-time detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "time-burst-seed105/both detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105 TRAIN-bin membership",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105 bool disjoint protected split",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105 exactly frozen four patterns",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/identity detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-frequency detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/smooth-time detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both saved native slopes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both independent time slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both independent frequency slope",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both exact incident edge counts",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both missing fit explicit",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both rawTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both rawTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both rawTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both rawTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both rawTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both rawTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both detrendedTV independent edge support",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both detrendedTV independent full-Jones edge norms",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both detrendedTV saved total",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both detrendedTV saved finite count",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both detrendedTV exact frozen ranking",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both residual ranking unchanged",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "antenna-local-seed105/both detrendedTV heldout-map poison invariance",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "source digest after readonly replay",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "complete runtime unchanged after audit",
+      "pass": true,
+      "observed": null
+    }
+  ],
+  "replays": [
+    {
+      "case_id": "balanced-clean",
+      "replays": [
+        {
+          "pattern": "identity",
+          "raw_TV": 0.1474368700725686,
+          "detrended_TV": 0.14721781010243598,
+          "available": true,
+          "slopes": [
+            [
+              6.028695463887211e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.00003137706915199677,
+              -6.711455115224171e-10
+            ],
+            [
+              0.0005060387097403508,
+              -5.905432673193893e-10
+            ],
+            [
+              0.00007162600537079209,
+              -4.699098113085478e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ]
+        },
+        {
+          "pattern": "smooth-frequency",
+          "raw_TV": 0.26113702275738715,
+          "detrended_TV": 0.1472178101024361,
+          "available": true,
+          "slopes": [
+            [
+              6.028695463887211e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.0000313770691519907,
+              1.8178410410016364e-8
+            ],
+            [
+              0.0005060387097403508,
+              3.71085685757581e-8
+            ],
+            [
+              0.00007162600537079025,
+              5.607875795330778e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.884955592153876e-8
+            ],
+            [
+              0,
+              3.769911184307752e-8
+            ],
+            [
+              0,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "smooth-time",
+          "raw_TV": 0.16379686386634218,
+          "detrended_TV": 0.147217810102436,
+          "available": true,
+          "slopes": [
+            [
+              6.028695463887211e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.00211559172352788,
+              -6.711455115224171e-10
+            ],
+            [
+              -0.0015781759446355354,
+              -5.905432673193977e-10
+            ],
+            [
+              0.004240055314122582,
+              -4.699098113085311e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              0
+            ],
+            [
+              -0.0020842146543758925,
+              0
+            ],
+            [
+              0.004168429308751785,
+              0
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "both",
+          "raw_TV": 0.27749701655116077,
+          "detrended_TV": 0.1472178101024358,
+          "available": true,
+          "slopes": [
+            [
+              6.028695463887211e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.0021155917235278843,
+              1.817841041001637e-8
+            ],
+            [
+              -0.0015781759446355185,
+              3.710856857575808e-8
+            ],
+            [
+              0.004240055314122597,
+              5.607875795330776e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              1.884955592153876e-8
+            ],
+            [
+              -0.0020842146543758925,
+              3.769911184307752e-8
+            ],
+            [
+              0.004168429308751785,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        }
+      ]
+    },
+    {
+      "case_id": "time-burst-seed101",
+      "replays": [
+        {
+          "pattern": "identity",
+          "raw_TV": 0.14992486632552118,
+          "detrended_TV": 0.14972142864950508,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.00003137706915199677,
+              -6.711455115224171e-10
+            ],
+            [
+              0.000449831727454668,
+              -5.905432673193893e-10
+            ],
+            [
+              0.00008909082531106413,
+              -4.699098113085478e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ]
+        },
+        {
+          "pattern": "smooth-frequency",
+          "raw_TV": 0.26350755507621726,
+          "detrended_TV": 0.14972142864950516,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.0000313770691519907,
+              1.8178410410016364e-8
+            ],
+            [
+              0.00044983172745465997,
+              3.71085685757581e-8
+            ],
+            [
+              0.00008909082531106065,
+              5.607875795330778e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.884955592153876e-8
+            ],
+            [
+              0,
+              3.769911184307752e-8
+            ],
+            [
+              0,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "smooth-time",
+          "raw_TV": 0.16608526557938463,
+          "detrended_TV": 0.14972142864950508,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.00211559172352788,
+              -6.711455115224171e-10
+            ],
+            [
+              -0.0016343829269212286,
+              -5.905432673193977e-10
+            ],
+            [
+              0.004257520134062847,
+              -4.699098113085311e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              0
+            ],
+            [
+              -0.0020842146543758925,
+              0
+            ],
+            [
+              0.004168429308751785,
+              0
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "both",
+          "raw_TV": 0.27966795433008074,
+          "detrended_TV": 0.14972142864950483,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.0021155917235278843,
+              1.817841041001637e-8
+            ],
+            [
+              -0.0016343829269212548,
+              3.710856857575808e-8
+            ],
+            [
+              0.004257520134062847,
+              5.607875795330776e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              1.884955592153876e-8
+            ],
+            [
+              -0.0020842146543758925,
+              3.769911184307752e-8
+            ],
+            [
+              0.004168429308751785,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        }
+      ]
+    },
+    {
+      "case_id": "antenna-local-seed101",
+      "replays": [
+        {
+          "pattern": "identity",
+          "raw_TV": 0.14875871011643438,
+          "detrended_TV": 0.14853603227396986,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              7.274555650925205e-25
+            ],
+            [
+              0.000048592424907823646,
+              -6.711455115224171e-10
+            ],
+            [
+              0.0005284091629300521,
+              -5.905432673193893e-10
+            ],
+            [
+              0.00007162600537079209,
+              -4.699098113085478e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ]
+        },
+        {
+          "pattern": "smooth-frequency",
+          "raw_TV": 0.2621939353448181,
+          "detrended_TV": 0.14853603227396991,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              7.274555650925205e-25
+            ],
+            [
+              0.00004859242490782017,
+              1.8178410410016364e-8
+            ],
+            [
+              0.0005284091629300521,
+              3.71085685757581e-8
+            ],
+            [
+              0.00007162600537079025,
+              5.607875795330778e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.884955592153876e-8
+            ],
+            [
+              0,
+              3.769911184307752e-8
+            ],
+            [
+              0,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "smooth-time",
+          "raw_TV": 0.16508517159687605,
+          "detrended_TV": 0.14853603227396986,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              7.274555650925205e-25
+            ],
+            [
+              0.0021328070792837207,
+              -6.711455115224171e-10
+            ],
+            [
+              -0.0015558054914458375,
+              -5.905432673193977e-10
+            ],
+            [
+              0.004240055314122582,
+              -4.699098113085311e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              0
+            ],
+            [
+              -0.0020842146543758925,
+              0
+            ],
+            [
+              0.004168429308751785,
+              0
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "both",
+          "raw_TV": 0.27852039682525975,
+          "detrended_TV": 0.14853603227396953,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              7.274555650925205e-25
+            ],
+            [
+              0.0021328070792837137,
+              1.817841041001637e-8
+            ],
+            [
+              -0.0015558054914458137,
+              3.710856857575808e-8
+            ],
+            [
+              0.004240055314122597,
+              5.607875795330776e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              1.884955592153876e-8
+            ],
+            [
+              -0.0020842146543758925,
+              3.769911184307752e-8
+            ],
+            [
+              0.004168429308751785,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        }
+      ]
+    },
+    {
+      "case_id": "time-burst-seed103",
+      "replays": [
+        {
+          "pattern": "identity",
+          "raw_TV": 0.149985782441189,
+          "detrended_TV": 0.14978147315313964,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.00004733026061150528,
+              -6.711455115224171e-10
+            ],
+            [
+              0.0005060387097403508,
+              -7.895784010412652e-10
+            ],
+            [
+              0.00003791274377030553,
+              -4.699098113085478e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ]
+        },
+        {
+          "pattern": "smooth-frequency",
+          "raw_TV": 0.2637449015013376,
+          "detrended_TV": 0.14978147315313972,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.00004733026061150268,
+              1.8178410410016364e-8
+            ],
+            [
+              0.0005060387097403508,
+              3.690953344203621e-8
+            ],
+            [
+              0.000037912743770307264,
+              5.607875795330778e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.884955592153876e-8
+            ],
+            [
+              0,
+              3.769911184307752e-8
+            ],
+            [
+              0,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "smooth-time",
+          "raw_TV": 0.1660576826884677,
+          "detrended_TV": 0.14978147315313964,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.0021315449149873914,
+              -6.711455115224171e-10
+            ],
+            [
+              -0.0015781759446355354,
+              -7.895784010412403e-10
+            ],
+            [
+              0.004206342052522084,
+              -4.699098113085311e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              0
+            ],
+            [
+              -0.0020842146543758925,
+              0
+            ],
+            [
+              0.004168429308751785,
+              0
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "both",
+          "raw_TV": 0.27981680174861634,
+          "detrended_TV": 0.14978147315313958,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.0021315449149873888,
+              1.817841041001637e-8
+            ],
+            [
+              -0.0015781759446355185,
+              3.690953344203621e-8
+            ],
+            [
+              0.004206342052522105,
+              5.607875795330776e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              1.884955592153876e-8
+            ],
+            [
+              -0.0020842146543758925,
+              3.769911184307752e-8
+            ],
+            [
+              0.004168429308751785,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        }
+      ]
+    },
+    {
+      "case_id": "antenna-local-seed103",
+      "replays": [
+        {
+          "pattern": "identity",
+          "raw_TV": 0.14777448904290408,
+          "detrended_TV": 0.14756069525311127,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              9.652030560572628e-25
+            ],
+            [
+              0.00003137706915199677,
+              -6.711455115224171e-10
+            ],
+            [
+              0.0005060387097403508,
+              -5.508259759956004e-10
+            ],
+            [
+              0.000057325876957667445,
+              -6.252034956678805e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ]
+        },
+        {
+          "pattern": "smooth-frequency",
+          "raw_TV": 0.2612135245397692,
+          "detrended_TV": 0.14756069525311125,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              9.652030560572628e-25
+            ],
+            [
+              0.0000313770691519907,
+              1.8178410410016364e-8
+            ],
+            [
+              0.0005060387097403508,
+              3.7148285867081884e-8
+            ],
+            [
+              0.000057325876957667336,
+              5.59234642689483e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.884955592153876e-8
+            ],
+            [
+              0,
+              3.769911184307752e-8
+            ],
+            [
+              0,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "smooth-time",
+          "raw_TV": 0.16416299109739224,
+          "detrended_TV": 0.14756069525311127,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              9.652030560572628e-25
+            ],
+            [
+              0.00211559172352788,
+              -6.711455115224171e-10
+            ],
+            [
+              -0.0015781759446355354,
+              -5.508259759956004e-10
+            ],
+            [
+              0.004225755185709453,
+              -6.252034956678971e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              0
+            ],
+            [
+              -0.0020842146543758925,
+              0
+            ],
+            [
+              0.004168429308751785,
+              0
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "both",
+          "raw_TV": 0.2776020265942574,
+          "detrended_TV": 0.1475606952531112,
+          "available": true,
+          "slopes": [
+            [
+              6.191212514310379e-19,
+              9.652030560572628e-25
+            ],
+            [
+              0.0021155917235278843,
+              1.817841041001637e-8
+            ],
+            [
+              -0.0015781759446355185,
+              3.71482858670819e-8
+            ],
+            [
+              0.0042257551857094655,
+              5.592346426894831e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              1.884955592153876e-8
+            ],
+            [
+              -0.0020842146543758925,
+              3.769911184307752e-8
+            ],
+            [
+              0.004168429308751785,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        }
+      ]
+    },
+    {
+      "case_id": "time-burst-seed105",
+      "replays": [
+        {
+          "pattern": "identity",
+          "raw_TV": 0.15039611018745475,
+          "detrended_TV": 0.1501502369129113,
+          "available": true,
+          "slopes": [
+            [
+              5.163349192853653e-19,
+              7.776464694691943e-25
+            ],
+            [
+              -0.000006374819535432561,
+              -5.589416027878842e-10
+            ],
+            [
+              0.0005427586667003056,
+              -7.895784010412652e-10
+            ],
+            [
+              0.000057325876957667445,
+              -6.252034956678805e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ]
+        },
+        {
+          "pattern": "smooth-frequency",
+          "raw_TV": 0.26386522816758406,
+          "detrended_TV": 0.15015023691291118,
+          "available": true,
+          "slopes": [
+            [
+              5.163349192853653e-19,
+              7.776464694691943e-25
+            ],
+            [
+              -0.000006374819535442973,
+              1.8290614318750864e-8
+            ],
+            [
+              0.0005427586667003091,
+              3.690953344203621e-8
+            ],
+            [
+              0.000057325876957667336,
+              5.59234642689483e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.884955592153876e-8
+            ],
+            [
+              0,
+              3.769911184307752e-8
+            ],
+            [
+              0,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "smooth-time",
+          "raw_TV": 0.1663113871897161,
+          "detrended_TV": 0.1501502369129113,
+          "available": true,
+          "slopes": [
+            [
+              5.163349192853653e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.0020778398348404465,
+              -5.589416027879175e-10
+            ],
+            [
+              -0.001541455987675591,
+              -7.895784010412403e-10
+            ],
+            [
+              0.004225755185709453,
+              -6.252034956678971e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              0
+            ],
+            [
+              -0.0020842146543758925,
+              0
+            ],
+            [
+              0.004168429308751785,
+              0
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "both",
+          "raw_TV": 0.2797805051698455,
+          "detrended_TV": 0.15015023691291124,
+          "available": true,
+          "slopes": [
+            [
+              5.163349192853653e-19,
+              7.776464694691943e-25
+            ],
+            [
+              0.002077839834840457,
+              1.829061431875083e-8
+            ],
+            [
+              -0.0015414559876755773,
+              3.690953344203621e-8
+            ],
+            [
+              0.0042257551857094655,
+              5.592346426894831e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              1.884955592153876e-8
+            ],
+            [
+              -0.0020842146543758925,
+              3.769911184307752e-8
+            ],
+            [
+              0.004168429308751785,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        }
+      ]
+    },
+    {
+      "case_id": "antenna-local-seed105",
+      "replays": [
+        {
+          "pattern": "identity",
+          "raw_TV": 0.15014291716335443,
+          "detrended_TV": 0.1499275678933209,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              6.741581637993741e-25
+            ],
+            [
+              0.00003137706915199677,
+              -6.711455115224171e-10
+            ],
+            [
+              0.0005427586667003056,
+              -1.1562155545313345e-9
+            ],
+            [
+              0.000057325876957667445,
+              -6.252034956678805e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ]
+        },
+        {
+          "pattern": "smooth-frequency",
+          "raw_TV": 0.26282893285557185,
+          "detrended_TV": 0.14992756789332093,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              6.741581637993741e-25
+            ],
+            [
+              0.0000313770691519907,
+              1.8178410410016364e-8
+            ],
+            [
+              0.0005427586667003091,
+              3.654289628854613e-8
+            ],
+            [
+              0.000057325876957667336,
+              5.59234642689483e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1.884955592153876e-8
+            ],
+            [
+              0,
+              3.769911184307752e-8
+            ],
+            [
+              0,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "smooth-time",
+          "raw_TV": 0.16648536744999412,
+          "detrended_TV": 0.1499275678933209,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              6.741581637993741e-25
+            ],
+            [
+              0.00211559172352788,
+              -6.711455115224171e-10
+            ],
+            [
+              -0.001541455987675591,
+              -1.1562155545313097e-9
+            ],
+            [
+              0.004225755185709453,
+              -6.252034956678971e-10
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              0
+            ],
+            [
+              -0.0020842146543758925,
+              0
+            ],
+            [
+              0.004168429308751785,
+              0
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        },
+        {
+          "pattern": "both",
+          "raw_TV": 0.2791713831422115,
+          "detrended_TV": 0.14992756789332085,
+          "available": true,
+          "slopes": [
+            [
+              5.831680220182169e-19,
+              6.741581637993741e-25
+            ],
+            [
+              0.0021155917235278843,
+              1.817841041001637e-8
+            ],
+            [
+              -0.0015414559876755773,
+              3.6542896288546146e-8
+            ],
+            [
+              0.0042257551857094655,
+              5.592346426894831e-8
+            ]
+          ],
+          "edge_counts": [
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ],
+            [
+              246,
+              274
+            ],
+            [
+              246,
+              273
+            ]
+          ],
+          "conditional_expected_receiver_trend_shift": [
+            [
+              0,
+              0
+            ],
+            [
+              0.0020842146543758925,
+              1.884955592153876e-8
+            ],
+            [
+              -0.0020842146543758925,
+              3.769911184307752e-8
+            ],
+            [
+              0.004168429308751785,
+              5.654866776461628e-8
+            ]
+          ],
+          "observed_shift_matches_conditional_expectation": true,
+          "shift_expectation_requires_unaliased_underlying_scalar_steps": true
+        }
+      ]
+    }
+  ],
+  "raw_result_sha256": "3f1666fc944e4748af28194131accba23166093a2411b5e70cf4a7252ca5dbe6",
+  "audit_program_sha256": "21fe0b3f22639302e036d6399ff4a8de0a80969328ed73110cd5a9deb5ec80ee",
+  "audit_program": "\"\"\"Readonly independent verification; no calibration, DATA writes or truth.\"\"\"\nimport json\nimport os\nimport sys\nfrom hashlib import sha256\nfrom pathlib import Path\n\nimport numpy as np\n\nfrom rangtoy.flagging import gain_tv, polar_gauge, residual_features\nfrom rangtoy.flagging_balanced import balanced_rank\nfrom rangtoy.flagging_equivariance import phase_factors\nfrom rangtoy.flagging_influence import _maps, _predict\nfrom rangtoy.flagging_next import source_receipts\nfrom rangtoy.flagging_structured_proposals import generate_candidates\nfrom rangtoy.flagging_trend import detrended_tv, estimate_trend, training_gain_support\nfrom rangtoy.projector import _native_library\n\nchecks = []\ndef check(name, condition, observed=None):\n    checks.append({\"name\":name, \"pass\":bool(condition), \"observed\":observed})\n\ndef digest(path):\n    path = Path(path)\n    h = sha256()\n    for p in sorted(path.rglob(\"*\")):\n        if p.is_file() and p.name != \"table.lock\":\n            h.update(str(p.relative_to(path)).encode())\n            h.update(p.read_bytes())\n    return h.hexdigest()\n\ndef npz(path):\n    with np.load(path, allow_pickle=False) as a:\n        return {key:a[key] for key in a.files}\n\ndef oracle_slopes(g, used, t, f):\n    scale = np.max(np.abs(g.view(float)), axis=(-1,-2))\n    normalized = np.divide(g, scale[...,None,None], out=np.zeros_like(g), where=scale[...,None,None]>0)\n    determinants = np.linalg.det(normalized)\n    supported = used & np.isfinite(normalized).all(axis=(-1,-2)) & (np.abs(determinants)>1e-10)\n    phase = np.angle(determinants)\n    result, counts = np.full((g.shape[2],2),np.nan), np.zeros((g.shape[2],2),int)\n    for axis, coords in enumerate((t,f)):\n        spacing = np.median(np.diff(coords)) if len(coords)>1 else None\n        for a in range(g.shape[2]):\n            values = []\n            for x in range(g.shape[0]):\n                for y in range(g.shape[1]):\n                    k=(x,y)[axis]\n                    if k+1 >= len(coords): continue\n                    gap=coords[k+1]-coords[k]\n                    if gap>3*spacing: continue\n                    left=(x,y,a)\n                    right=(x+1,y,a) if axis==0 else (x,y+1,a)\n                    if supported[left] and supported[right]:\n                        delta=phase[right]-phase[left]\n                        values.append(.5*np.arctan2(np.sin(delta),np.cos(delta))/gap)\n            counts[a,axis]=len(values)\n            if len(values)>=(2 if axis==0 else 4): result[a,axis]=np.median(values)\n    return result,counts\n\ndef oracle_tv(g, valid, t, f, scale):\n    edges=np.full((2,*g.shape[:3]),np.nan)\n    for axis,coords in enumerate((t,f)):\n        differences=np.diff(coords)\n        if not len(differences): continue\n        spacing=np.median(differences)\n        low=[slice(None)]*3; high=low.copy()\n        low[axis]=slice(None,-1); high[axis]=slice(1,None)\n        low,high=tuple(low),tuple(high)\n        good=valid[low] & valid[high]\n        weight=np.where(differences<=3*spacing,spacing/differences,0)\n        reshape=[1]*3;reshape[axis]=len(weight)\n        good=good & (weight.reshape(reshape)>0)\n        norms=np.linalg.norm((g[high]-g[low])/scale,axis=(-1,-2))*weight.reshape(reshape)\n        edges[(axis,*low)]=np.where(good,norms,np.nan)\n    return edges, sum(float(np.mean(e[np.isfinite(e)])) if np.isfinite(e).any() else 0 for e in edges)\n\ndef main():\n    output=Path(sys.argv[1]); result=json.loads((output/\"result.json\").read_text())\n    config=result[\"configuration\"]; source=Path(config[\"source\"])\n    check(\"strict seven-by-four replay count\", len(result[\"records\"])==28)\n    check(\"actual source digest independently reconstructed\",digest(source)==config[\"source_digest\"])\n    check(\"frozen complete runtime closure\",source_receipts()==config[\"runtime_receipts\"])\n    check(\"module source SHA\",sha256(Path(sys.modules[\"rangtoy.flagging_trend\"].__file__).read_bytes()).hexdigest()==config[\"module_sha256\"])\n    check(\"native SHA\",sha256(Path(_native_library()._name).read_bytes()).hexdigest()==config[\"native_library_sha256\"])\n    check(\"zero QC / flags\",result[\"new_QC_solves\"]==0 and result[\"added_flags\"]==0)\n    check(\"recorded all preservation guards\",all(result[\"audit\"].values()))\n    summaries=[]\n    for case in config[\"cases\"]:\n        directory=source/\"experiments\"/case\n        state=npz(directory/\"state.npz\")\n        baseline=npz(directory/\"trials/baseline/diagnostics.npz\")\n        metrics=json.loads((directory/\"trials/baseline/metrics.json\").read_text())\n        used=training_gain_support(state,baseline[\"gain_valid\"].shape)\n        tm,fm=_maps(state); independent=np.zeros_like(used)\n        for row,channel in zip(*np.where(state[\"train\"])):\n            independent[tm[row],fm[channel],state[\"antenna1\"][row]]=True\n            independent[tm[row],fm[channel],state[\"antenna2\"][row]]=True\n        check(case+\" TRAIN-bin membership\",np.array_equal(used,independent))\n        check(case+\" bool disjoint protected split\",state[\"train\"].dtype==np.bool_ and not np.any(state[\"train\"] & (state[\"validation\"]|state[\"test\"]|state[\"original_flags\"].any(-1)|state[\"original_rows\"][:,None]|(state[\"antenna1\"]==state[\"antenna2\"])[:,None]|~state[\"window\"][None])))\n        _,_,prediction=_predict(state,baseline[\"gains\"],state[\"train\"])\n        residual=np.zeros_like(state[\"data\"],dtype=complex)\n        residual[state[\"train\"]]=state[\"data\"][state[\"train\"]]-prediction\n        scores=residual_features(residual*np.sqrt(state[\"weights\"]),state[\"train\"],state[\"antenna1\"],state[\"antenna2\"])\n        rows=[]\n        records=[r for r in result[\"records\"] if r[\"case_id\"]==case]\n        check(case+\" exactly frozen four patterns\",[r[\"pattern\"] for r in records]==list(config[\"patterns\"]))\n        for record in records:\n            pattern=record[\"pattern\"]; label=case+\"/\"+pattern\n            factors=phase_factors(baseline[\"gain_times\"],baseline[\"gain_frequencies\"],pattern)\n            g,v=polar_gauge(baseline[\"gains\"]*factors[...,None,None],baseline[\"gain_valid\"])\n            t,f=baseline[\"gain_times\"],baseline[\"gain_frequencies\"]\n            slopes,counts=estimate_trend(g,v,t,f,used)\n            independent_s,independent_c=oracle_slopes(g,v & used,t,f)\n            stored=np.asarray(record[\"slopes_time_rad_per_second_frequency_rad_per_hz\"],float)\n            check(label+\" saved native slopes\",np.array_equal(slopes,stored,equal_nan=True))\n            check(label+\" independent time slope\",np.allclose(slopes[:,0],independent_s[:,0],rtol=1e-10,atol=2e-14,equal_nan=True))\n            check(label+\" independent frequency slope\",np.allclose(slopes[:,1],independent_s[:,1],rtol=1e-10,atol=2e-18,equal_nan=True))\n            check(label+\" exact incident edge counts\",np.array_equal(counts,independent_c) and np.array_equal(counts,record[\"edge_counts\"]))\n            available=bool(np.isfinite(slopes).all())\n            check(label+\" missing fit explicit\",available==record[\"available\"])\n            raw=gain_tv(g,v,t,f,scale=metrics[\"scale\"])\n            corrected=detrended_tv(g,v,t,f,slopes,scale=metrics[\"scale\"])\n            phase=(t-t[0])[:,None,None]*np.nan_to_num(slopes)[None,None,:,0]+(f-f[0])[None,:,None]*np.nan_to_num(slopes)[None,None,:,1]\n            dephased=g*np.exp(-1j*phase)[...,None,None]\n            for mode,tv,og,ov,key in ((\"rawTV\",raw,g,v,\"primary_polar_TV\"),(\"detrendedTV\",corrected,dephased,v & np.isfinite(slopes).all(1)[None,None],\"detrended_guidance_TV\")):\n                edges,total=oracle_tv(og,ov,t,f,metrics[\"scale\"])\n                check(label+\" \"+mode+\" independent edge support\",np.array_equal(np.isfinite(edges),np.isfinite(tv[\"edges\"])))\n                check(label+\" \"+mode+\" independent full-Jones edge norms\",np.allclose(edges,tv[\"edges\"],rtol=1e-10,atol=1e-12,equal_nan=True))\n                check(label+\" \"+mode+\" saved total\",record[key] is None if mode==\"detrendedTV\" and not available else np.isclose(total,record[key],rtol=1e-10,atol=1e-12))\n                count_key=\"finite_primary_edges\" if mode==\"rawTV\" else \"finite_detrended_edges\"\n                check(label+\" \"+mode+\" saved finite count\",int(np.isfinite(edges).sum())==record[count_key])\n                if mode==\"detrendedTV\" and not available:\n                    check(label+\" no invented ranking\",record[\"rankings\"][mode] is None); continue\n                maps=tv[\"map\"]\n                guidance=np.maximum(maps[tm[:,None],fm[None],state[\"antenna1\"][:,None]],maps[tm[:,None],fm[None],state[\"antenna2\"][:,None]])\n                family=generate_candidates(state,scores,guidance)\n                ranked=[c[\"mask_id\"] for c in balanced_rank(family,\"tv\")]\n                check(label+\" \"+mode+\" exact frozen ranking\",ranked==record[\"rankings\"][mode])\n                check(label+\" residual ranking unchanged\",[c[\"mask_id\"] for c in balanced_rank(family,\"residual\")]==record[\"rankings\"][\"residual\"])\n                poisoned=guidance.copy();poisoned[~state[\"train\"]]=np.nan\n                poisoned_scores=scores.copy();poisoned_scores[~state[\"train\"]]=np.inf\n                check(label+\" \"+mode+\" heldout-map poison invariance\",[c[\"mask_id\"] for c in balanced_rank(generate_candidates(state,poisoned_scores,poisoned),\"tv\")]==ranked)\n            rows.append({\"pattern\":pattern,\"raw_TV\":raw[\"total\"],\"detrended_TV\":corrected[\"total\"] if available else None,\"available\":available,\"slopes\":np.where(np.isfinite(stored),stored,None).tolist(),\"edge_counts\":counts.tolist()})\n        identity=rows[0]; a=np.asarray(identity[\"slopes\"],float)\n        time_span=float(np.ptp(baseline[\"gain_times\"]))\n        for row in rows[1:]:\n            delay,drift=(np.asarray(x,float) for x in config[\"patterns\"][row[\"pattern\"]])\n            expected=np.stack([drift/time_span if time_span else np.zeros(4),2*np.pi*delay*1e-9],axis=1)\n            difference=np.asarray(row[\"slopes\"],float)-a\n            row[\"conditional_expected_receiver_trend_shift\"]=expected.tolist()\n            row[\"observed_shift_matches_conditional_expectation\"]=bool(np.allclose(difference,expected,rtol=1e-8,atol=2e-14,equal_nan=True))\n            row[\"shift_expectation_requires_unaliased_underlying_scalar_steps\"]=True\n        summaries.append({\"case_id\":case,\"replays\":rows})\n    check(\"source digest after readonly replay\",digest(source)==config[\"source_digest\"])\n    check(\"complete runtime unchanged after audit\",source_receipts()==config[\"runtime_receipts\"])\n    audit={\"schema_version\":1,\"status\":\"PASS\" if all(c[\"pass\"] for c in checks) else \"FAIL\",\"checks_count\":len(checks),\"pass_count\":sum(c[\"pass\"] for c in checks),\"checks\":checks,\"replays\":summaries,\"raw_result_sha256\":sha256((output/\"result.json\").read_bytes()).hexdigest(),\"audit_program_sha256\":sha256(Path(__file__).read_bytes()).hexdigest(),\"audit_program\":Path(__file__).read_text(),\"no_measurement_or_source_writes\":True,\"new_QC_or_WSClean_runs\":0,\"phase_alias_assumption\":\"absolute scalar adjacent step <pi/2 cannot be certified by wrapped determinant alone\",\"runtime_image\":os.environ.get(\"RANG_AUDIT_IMAGE\")}\n    print(json.dumps(audit,allow_nan=False))\n\nif __name__==\"__main__\":main()\n",
+  "no_measurement_or_source_writes": true,
+  "new_QC_or_WSClean_runs": 0,
+  "phase_alias_assumption": "absolute scalar adjacent step <pi/2 cannot be certified by wrapped determinant alone",
+  "runtime_image": "sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22",
+  "quantitative_phase_and_ranking_summary": [
+    {
+      "case_id": "balanced-clean",
+      "raw_TV_max_min_ratio": 1.882141260965296,
+      "detrended_TV_max_min_spread": 3.0531133177191805e-16,
+      "raw_identity_overlaps": [
+        6,
+        0,
+        5,
+        0
+      ],
+      "detrended_identity_overlaps": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "detrended_ordered_rankings_identical": true,
+      "residual_ordered_rankings_identical": true
+    },
+    {
+      "case_id": "time-burst-seed101",
+      "raw_TV_max_min_ratio": 1.8653873849242435,
+      "detrended_TV_max_min_spread": 3.3306690738754696e-16,
+      "raw_identity_overlaps": [
+        6,
+        2,
+        6,
+        2
+      ],
+      "detrended_identity_overlaps": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "detrended_ordered_rankings_identical": true,
+      "residual_ordered_rankings_identical": true
+    },
+    {
+      "case_id": "antenna-local-seed101",
+      "raw_TV_max_min_ratio": 1.8722963960043757,
+      "detrended_TV_max_min_spread": 3.885780586188048e-16,
+      "raw_identity_overlaps": [
+        6,
+        0,
+        6,
+        0
+      ],
+      "detrended_identity_overlaps": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "detrended_ordered_rankings_identical": true,
+      "residual_ordered_rankings_identical": true
+    },
+    {
+      "case_id": "time-burst-seed103",
+      "raw_TV_max_min_ratio": 1.8656221756107814,
+      "detrended_TV_max_min_spread": 1.3877787807814457e-16,
+      "raw_identity_overlaps": [
+        6,
+        2,
+        5,
+        2
+      ],
+      "detrended_identity_overlaps": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "detrended_ordered_rankings_identical": true,
+      "residual_ordered_rankings_identical": true
+    },
+    {
+      "case_id": "antenna-local-seed103",
+      "raw_TV_max_min_ratio": 1.878551760809404,
+      "detrended_TV_max_min_spread": 8.326672684688674e-17,
+      "raw_identity_overlaps": [
+        6,
+        0,
+        6,
+        0
+      ],
+      "detrended_identity_overlaps": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "detrended_ordered_rankings_identical": true,
+      "residual_ordered_rankings_identical": true
+    },
+    {
+      "case_id": "time-burst-seed105",
+      "raw_TV_max_min_ratio": 1.860290833460554,
+      "detrended_TV_max_min_spread": 1.1102230246251565e-16,
+      "raw_identity_overlaps": [
+        6,
+        1,
+        6,
+        1
+      ],
+      "detrended_identity_overlaps": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "detrended_ordered_rankings_identical": true,
+      "residual_ordered_rankings_identical": true
+    },
+    {
+      "case_id": "antenna-local-seed105",
+      "raw_TV_max_min_ratio": 1.8593709807734389,
+      "detrended_TV_max_min_spread": 8.326672684688674e-17,
+      "raw_identity_overlaps": [
+        6,
+        0,
+        5,
+        0
+      ],
+      "detrended_identity_overlaps": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "detrended_ordered_rankings_identical": true,
+      "residual_ordered_rankings_identical": true
+    }
+  ],
+  "verified_at_UTC": "2026-09-24 09:52:30 UTC",
+  "source_checkpoint": "ec2f17d1dad5f4de65311db19db6daaf1aa4fc2a",
+  "checks_distinct_from_previous_audits": true
+}
