@@ -3,6 +3,7 @@
 mod linalg;
 pub mod projector;
 pub mod response;
+pub mod trend;
 pub mod tv;
 use linalg::{Matrix, dot, eigen, mv, solve, zeros};
 use std::f64::consts::PI;

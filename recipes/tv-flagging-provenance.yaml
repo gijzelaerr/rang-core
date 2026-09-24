@@ -1,0 +1,28 @@
+# Offline only. HEAD and conditional GET require separate explicit approval.
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-native-provenance-inspection:
+    flavour: python
+    command: rangtoy.flagging_provenance.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      acquired_dir: {dtype: Directory, required: true}
+
+tv-flagging-provenance:
+  info: Extract bounded native MeerKAT text/HISTORY offline using an inert recognizer; no unpickling, MS conversion, calibration or flag writes.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    acquired-dir: {dtype: Directory, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    inspect:
+      cab: rang-native-provenance-inspection
+      params:
+        run_dir: =recipe.run-dir
+        acquired_dir: =recipe.acquired-dir
+
+DEFAULT: tv-flagging-provenance

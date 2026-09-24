@@ -1,0 +1,23 @@
+opts:
+  backend: {select: native}
+cabs:
+  rang-trend:
+    flavour: python
+    command: rangtoy.flagging_trend.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      source_dir: {dtype: Directory, required: true}
+tv-flagging-trend:
+  info: Read-only TRAIN-supported phase-trend guidance ablation; primary full-Jones TV unchanged.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    source-dir: {dtype: Directory, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    ablation:
+      cab: rang-trend
+      params:
+        run_dir: =recipe.run-dir
+        source_dir: =recipe.source-dir
+DEFAULT: tv-flagging-trend

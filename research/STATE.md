@@ -1,8 +1,71 @@
 # Rang research state
 
+Five-track source checkpoint verification2026-09-24 09:42UTC PASS:
+646 Python tests(no skips),19 Rust tests, release build, Clippy-Dwarnings,
+Rust/Ruff formatting and lint,91 in-memory Python compilations,49 strictJSON
+archives, all15 shell-wrapper syntax checks, top-level Stimela2 dry-run and23
+YAML parses. Historical123 action records and13 helper hashes rechecked exact.
+Pre-checkpoint backup `outputs/flagging-backups/20260924-five-track-implementation/code.tar.gz`,
+SHA256`fade4c26a80fd5619b2f4538ea58e1721e310de53ba046de1e0fe94a956991a0`.
+Source checkpoint is ready for public commit/push before new scientific runs.
+
+Final campaign runtime ready2026-09-24: signed WSClean3.6-1 child installed51
+new Debian packages,27,171,224 downloaded bytes (25.91MiB), all signed-metadata
+size/SHA matches and pre-existing package identities unchanged. Signed package
+receipt SHA256`de9be2c0562412103ef099ca579b120d5db361eb62e5babd44068dac395d1f0a`.
+Final corrected-kernel overlay avoids repeating those downloads; campaign image
+`sha256:5da4c1b754ddc3a43f57b5cb7f4d8b7bf9aa182c53eeac5c4ac0fb6208ac1d22`,
+Linux native SHA256`cf61db3728a1bb1e1a8bc66ec738d80a102f636185dd527e11a1f6290c530a84`.
+Top-level Stimela2 dry-run and all23 recipe YAML parses pass; prepared casacore
+source validates on OS-read-only mount. Full exact dependency/keyring/repository
+receipts: `research/results/gain-tv-next-runtime.json`.
+
+Cross-review fixed overflowed coordinate spacings, full helper/runtime closure,
+missing residual replay ranking, TRAIN geometry and input/source/cardinality
+guards before measurement.39 imaging,83 provenance,34 prospective,22 signal,
+17 campaign,6 trend and26 independent trend-review tests now exist. An interim
+full test invocation collected new campaign tests while they were still being
+finalized:3 failures (source predispatch guard, fixture locks, absent host YAML)
+were fixed, not ignored. Final full check is running; no scientific runs yet.
+
+Five-track implementation progress2026-09-24:
+new Rust trend kernel, Python trend/prospective/input/parallel interfaces and
+six new Stimela2 recipes exist; parallel owners implemented signal guards,
+inert native-metadata extraction and fifteen fixed WSClean diagnostics.
+Initial full suite556 Python tests passes without skips;19 Rust tests, release
+build, Clippy-Dwarnings and Rust format pass. Extra cross-review regressions
+are still being finalized before the checked source checkpoint.
+
+Separate kernel overlay built and verified: image
+`sha256:ec2d4f2acec9fe39c07e5725d38342aaf330e825ca2bbbd2f23a9e544be77f2c`,
+Linux nativeSHA256`70aeda3cebd3e571eed1a3a62573f5556786830ae3b3386cd5aee9a77e4c34df`,
+new `rang_trend_slopes` export present. Build's Rust compilation was offline;
+Docker contacted its registry for pinned base metadata/authentication.
+Original response image102767... retained. Signed-snapshot WSClean child build
+is running under256MiB new-deb cap; no scientific runs/HEAD/GET launched yet.
+All48 historical JSON archives,123 balanced actions and13 frozen Python helper
+hashes independently rechecked unchanged. New measurements remain pending.
+
+Five-track start backup (before new Rust implementation):
+`outputs/flagging-backups/20260924-five-track-start/code.tar.gz`,
+SHA256 `28a1a055c8c26eb2eff28809bc89fb4a66f556519c5f9c92848a1a450aaf96cb`.
+Historical macOS native library copied beside it before rebuilding;
+SHA256 `9d4b8105c06e946db797f5f0538c215b866af380f087b2b007f4b603f7cd9a02`.
+Old Linux image/native library remain unchanged. New replay and candidate
+measurements require new namespaces and checked source/runtime freezes.
+
 Updated 2026-09-24.
 
 ## Current continuation and routing
+
+New user-requested five-track execution2026-09-24 after pushed`166350c`:
+[frozen results campaign](flagging-next-results.md). Root trend/prospective,
+parallel signal guard/provenance/imaging owners active in disjoint NEW files.
+New seeds107/109, no oldmeasurementretuning; immutable flags/nativecolumns,
+8GiBreserve, checkedboundedoutputs, at most2QCworkers+singleimager. Estimated
+1–3hour firstauditedprototypecycle, notpromise; independentdata/imaging/cost
+qualitygates still required. No newscience outcome yet. Save exactsource/image
+receipts beforeactual runs; original102767solverimage/rawoutputs retained.
 
 Latest measured response: 2026-09-24 08:51:35UTC, checked pushed source `1f53a17`.
 `outputs/tv-response-20260924-precision-01` COMPLETE: all ten QuartiCal controls

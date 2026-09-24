@@ -1,0 +1,32 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-dirty-image-diagnostics:
+    flavour: python
+    command: rangtoy.flagging_imaging.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      response_dir: {dtype: Directory, required: true}
+      caracal_dir: {dtype: Directory, required: true}
+
+tv-flagging-imaging:
+  info: Fifteen frozen WSClean3.6 dirty-image/PSF controls on saved full-Jones gains; commonTEST/nativeweights and known-sky diagnostics, no QC/policy/deconvolution claim.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    response-dir: {dtype: Directory, required: true}
+    caracal-dir: {dtype: Directory, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    frozen-config: {dtype: File, implicit: '{recipe.run-dir}/imaging-config.json', path_policies: {mkdir_parent: false}}
+    comparison: {dtype: File, implicit: '{recipe.run-dir}/dirty-response.png', path_policies: {mkdir_parent: false}}
+  steps:
+    image:
+      cab: rang-dirty-image-diagnostics
+      params:
+        run_dir: =recipe.run-dir
+        response_dir: =recipe.response-dir
+        caracal_dir: =recipe.caracal-dir
+
+DEFAULT: tv-flagging-imaging

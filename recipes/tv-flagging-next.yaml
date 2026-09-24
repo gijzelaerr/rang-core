@@ -1,0 +1,70 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+cabs:
+  rang-next-initialize:
+    flavour: python
+    command: rangtoy.flagging_next.initialize
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      historical_dir: {dtype: Directory, required: true}
+      response_dir: {dtype: Directory, required: true}
+      provenance_dir: {dtype: Directory, required: true}
+      caracal_dir: {dtype: Directory, required: true}
+  rang-next-track:
+    flavour: python
+    command: rangtoy.flagging_next.run_track
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+      track: {dtype: str, required: true}
+  rang-next-gather:
+    flavour: python
+    command: rangtoy.flagging_next.gather
+    inputs:
+      run_dir: {dtype: Directory, required: true}
+tv-next-branches:
+  inputs:
+    run-dir: {dtype: Directory, required: true}
+    tracks: {dtype: 'List[str]', required: true}
+  for_loop:
+    var: track
+    over: tracks
+    scatter: 3
+  steps:
+    experiment:
+      cab: rang-next-track
+      params:
+        run_dir: =recipe.run-dir
+        track: =recipe.track
+tv-flagging-next:
+  info: Five offline isolated branches; prospective and signal QC, trend guidance, inert provenance and actual image diagnostics. Received flags and native data/weights stay authoritative.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true}
+    historical-dir: {dtype: Directory, required: true}
+    response-dir: {dtype: Directory, required: true}
+    provenance-dir: {dtype: Directory, required: true}
+    caracal-dir: {dtype: Directory, required: true}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    initialize:
+      cab: rang-next-initialize
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        historical_dir: =recipe.historical-dir
+        response_dir: =recipe.response-dir
+        provenance_dir: =recipe.provenance-dir
+        caracal_dir: =recipe.caracal-dir
+    branches:
+      recipe: tv-next-branches
+      params:
+        run-dir: =recipe.run-dir
+        tracks: [trend, prospective, signal, provenance, imaging]
+    gather:
+      cab: rang-next-gather
+      params:
+        run_dir: =recipe.run-dir
+DEFAULT: tv-flagging-next

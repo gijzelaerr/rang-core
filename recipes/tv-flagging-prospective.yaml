@@ -1,0 +1,26 @@
+opts:
+  backend: {select: native}
+cabs:
+  rang-prospective:
+    flavour: python
+    command: rangtoy.flagging_prospective.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      inputs_dir: {dtype: Directory, required: true}
+      iterations: {dtype: int, default: 50}
+tv-flagging-prospective:
+  info: Freeze TRAIN gain-response forecasts before VAL and new action outcomes, then compare two confirmations with measured shortlist reference.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    inputs-dir: {dtype: Directory, required: true}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+  steps:
+    confirmation:
+      cab: rang-prospective
+      params:
+        run_dir: =recipe.run-dir
+        inputs_dir: =recipe.inputs-dir
+        iterations: =recipe.iterations
+DEFAULT: tv-flagging-prospective

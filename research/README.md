@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-09-24. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+[Five-track next-results execution plan](flagging-next-results.md) freezes
+TRAIN-estimated trend guidance, absolute signal guards, prospective candidate
+confirmation, bounded textual provenance and actual imaging diagnostics.
+Implementation/execution is in progress; new outcomes are not implied.
+
 [Concurrent follow-up protocol](flagging-concurrent.md), started2026-09-24,
 freezes five parallel workstreams before new measurements. All ten scatter
 branches and the dependent fit now complete; [suite evidence](results/gain-tv-concurrent.json)

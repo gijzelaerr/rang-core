@@ -1,0 +1,34 @@
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-signal-guard:
+    flavour: python
+    command: rangtoy.flagging_signal_guard.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_cases: {dtype: 'List[Directory]', required: true}
+      iterations: {dtype: int, default: 50}
+
+tv-flagging-signal-guard:
+  info: TRAIN-only absolute known-template signal-transfer constraint, full-Jones TV objective and at most eighteen paired clean/omitted/complete diagnostic controls; no TEST/source-truth selection or imaging claim.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-cases: {dtype: 'List[Directory]', required: true}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    frozen-config: {dtype: File, implicit: '{recipe.run-dir}/signal-guard-config.json', path_policies: {mkdir_parent: false}}
+    frozen-train: {dtype: File, implicit: '{recipe.run-dir}/all-TRAIN-frozen.json', path_policies: {mkdir_parent: false}}
+    frozen-acceptance: {dtype: File, implicit: '{recipe.run-dir}/frozen-acceptance.json', path_policies: {mkdir_parent: false}}
+    audit: {dtype: File, implicit: '{recipe.run-dir}/signal-guard-audit.json', path_policies: {mkdir_parent: false}}
+  steps:
+    measure:
+      cab: rang-signal-guard
+      params:
+        run_dir: =recipe.run-dir
+        prepared_cases: =recipe.prepared-cases
+        iterations: =recipe.iterations
+
+DEFAULT: tv-flagging-signal-guard
