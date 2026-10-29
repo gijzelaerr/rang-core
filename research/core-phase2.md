@@ -1,7 +1,7 @@
 # Rang core, phase 2: full-Jones complex gain solver
 
-Protocol frozen 2026-10-29, before any phase 2 solver code was written.
-Status: **proposed**. This is phase 2 of the port plan in
+Protocol frozen 2026-10-29 in `b48adf0`, before any phase 2 solver code was
+written. Status: **implemented; measured: all eight frozen criteria pass**. This is phase 2 of the port plan in
 [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4. It is a reimplementation of QuartiCal 0.2.7's `complex` term
 (MIT, copyright 2022 Jonathan Simon Kenyon); under AGENTS.md it is not a
@@ -108,3 +108,42 @@ Both:
 
 A failure of any criterion is recorded here with its numbers and is not
 hidden. The phase is reported as passed only if criteria 1–8 pass as frozen.
+
+## Measured result (2026-10-29)
+
+Run `outputs/core-phase2-20261029-01`, the first and only run against the
+frozen criteria, with the code committed alongside this section. Archive:
+[core-phase2.json](results/core-phase2.json). All eight criteria pass.
+
+| Criterion | Fixture | LUNO | Limit |
+| --- | --- | --- | --- |
+| 1 gain flags | identical (1150 unflagged gains) | identical (1679 unflagged gains) | exact |
+| 2 gain entries | max 1.4e-15 | max 3.3e-16 | 1e-6 |
+| 2 baseline products | max 2.8e-16 | max 5.6e-16 | 1e-6 |
+| 3 iterations, converged fraction | 50, 0.9843478260869565 (reported) | 50, 0.9833234067897558, equal to QuartiCal | exact, 1e-12 |
+| 4 losses at Rust vs QuartiCal gains | ≤ 1.4e-16 relative, all splits | 2.1e-16 relative over 117556 TRAIN cells | 1e-9 |
+| 5 TV raw, polar | 4.2e-16, 1.9e-16 relative | – | 1e-9 |
+| 6 rank survey | – | 389 status 0, 43 status 3, 592 no TRAIN data | exact |
+| 7 side effects | 10 input files and `git status` unchanged | | – |
+| 8 cost | – | solve 0.77 s; process 0.94 s, 96 MB | 2.0 s, 200 MB |
+
+No gain entry differs from QuartiCal's by more than 1e-10. QuartiCal
+compiles with `fastmath`, so bit identity was not expected; agreement is at
+the level of the 1e-16 difference between its own cold and warm Numba caches.
+
+**Cost against the measured baseline.** On LUNO, the ported solve of 50
+iterations takes 0.77 s single-threaded in-process. The
+measured QuartiCal subprocess on the same MS takes 28.3 s with a cold Numba
+cache and 3.6 s with a warm one ([tool-timings.md](tool-timings.md)). A whole
+process that loads the exported arrays, solves and runs the phase 1 fused
+pass takes 0.94 s and peaks at
+96 MB, against 633 MB (cold) and 382 MB (warm)
+for QuartiCal. On the fixture the solve takes
+0.49 s against the archived
+29.4 s. This is a
+matched-quality runtime reduction for rang's settings, not a scientific result.
+
+**Not covered.** Other gain types, chains, direction dependence, BDA,
+multi-threaded resampling, robust reweighting, MAD flags and gain-flag
+propagation into data flags. Rang's campaigns use none of them, but the
+Rust solver must not be used where they are needed.

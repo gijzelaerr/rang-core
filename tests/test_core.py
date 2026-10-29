@@ -114,3 +114,72 @@ def test_rejects_ambiguous_model_and_bad_shapes():
         )
     with pytest.raises(ValueError):
         core.split_labels(train=split == 1, test=split >= 1)
+
+
+def _noiseless_scalar_case(seed=11, nchan=8):
+    rng = np.random.default_rng(seed)
+    pairs = [(p, q) for p in range(4) for q in range(p + 1, 4)]
+    p = np.array([a for a, _ in pairs] * 2, np.int32)
+    q = np.array([b for _, b in pairs] * 2, np.int32)
+    truth = np.eye(2) + 0.1 * (
+        rng.standard_normal((4, 2, 2)) + 1j * rng.standard_normal((4, 2, 2))
+    )
+    flux = np.linspace(1.0, 2.0, nchan)
+    model = np.zeros((len(p), nchan, 4), np.complex64)
+    model[..., 0] = model[..., 3] = flux
+    v = (
+        truth[p][:, None]
+        @ (flux[None, :, None, None] * np.eye(2))
+        @ truth[q][:, None].conj().swapaxes(-1, -2)
+    )
+    data = v.reshape(len(p), nchan, 4).astype(np.complex64)
+    return data, model, p, q, truth
+
+
+def test_complex_solve_recovers_baseline_products():
+    data, model, p, q, truth = _noiseless_scalar_case()
+    nrow, nchan = data.shape[:2]
+    solution = core.solve_complex(
+        data,
+        np.ones(data.shape, np.float32),
+        np.zeros(data.shape, bool),
+        np.zeros(nrow, bool),
+        p,
+        q,
+        np.zeros(nrow, np.uint32),
+        np.zeros(nchan, np.uint32),
+        ntime_bins=1,
+        nfreq_bins=1,
+        nant=4,
+        model=model,
+        max_iterations=200,
+    )
+    assert not solution.flags.any()
+    g = solution.gains[0, 0]
+    for a in range(4):
+        for b in range(a + 1, 4):
+            np.testing.assert_allclose(
+                g[a] @ g[b].conj().T, truth[a] @ truth[b].conj().T, atol=1e-5
+            )
+
+
+def test_complex_solve_flags_unsupported_antenna():
+    data, model, p, q, _ = _noiseless_scalar_case()
+    nrow, nchan = data.shape[:2]
+    rows = (p == 3) | (q == 3)
+    solution = core.solve_complex(
+        data,
+        np.ones(data.shape, np.float32),
+        np.zeros(data.shape, bool),
+        rows,
+        p,
+        q,
+        np.zeros(nrow, np.uint32),
+        np.zeros(nchan, np.uint32),
+        ntime_bins=1,
+        nfreq_bins=1,
+        nant=4,
+        model=model,
+    )
+    assert solution.flags[0, 0].tolist() == [0, 0, 0, 1]
+    np.testing.assert_array_equal(solution.gains[0, 0, 3], np.eye(2))

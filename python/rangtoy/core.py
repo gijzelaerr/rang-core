@@ -2,7 +2,9 @@
 
 Phase 1 exposes one fused pass over the visibility cells: prediction, residual,
 per-split weighted residual sums, per-baseline robust scores and
-antenna-diagonal Gauss--Newton blocks. See research/core-phase1.md. The library
+antenna-diagonal Gauss--Newton blocks (research/core-phase1.md). Phase 2 adds
+solve_complex, a port of QuartiCal's full-Jones complex solver
+(research/core-phase2.md). The library
 is loaded through ctypes like the existing kernels; set RANG_CORE_LIB to use a
 prebuilt library, otherwise it is built from core/ with Cargo, offline.
 """
@@ -107,6 +109,11 @@ def library():
     lib = ctypes.CDLL(str(path))
     lib.rang_core_fused.argtypes = [_pointer(_Inputs), _pointer(_Outputs)]
     lib.rang_core_fused.restype = ctypes.c_int
+    lib.rang_core_solve_complex.argtypes = [
+        _pointer(_SolveInputs),
+        _pointer(_SolveOutputs),
+    ]
+    lib.rang_core_solve_complex.restype = ctypes.c_int
     return lib
 
 
@@ -260,3 +267,129 @@ def fused_pass(
         for k, name in enumerate(SPLITS)
     }
     return FusedResult(out_res, out_z, out_h, out_b, out_n, split_stats)
+
+
+class _SolveInputs(ctypes.Structure):
+    _fields_ = [
+        ("nrow", ctypes.c_size_t),
+        ("nchan", ctypes.c_size_t),
+        ("ntime_bins", ctypes.c_size_t),
+        ("nfreq_bins", ctypes.c_size_t),
+        ("nant", ctypes.c_size_t),
+        ("data", _pointer(ctypes.c_float)),
+        ("weights", _pointer(ctypes.c_float)),
+        ("model_stored", _pointer(ctypes.c_float)),
+        ("model_scalar", _pointer(ctypes.c_double)),
+        ("flag", _pointer(ctypes.c_uint8)),
+        ("flag_row", _pointer(ctypes.c_uint8)),
+        ("antenna1", _pointer(ctypes.c_uint32)),
+        ("antenna2", _pointer(ctypes.c_uint32)),
+        ("time_bin", _pointer(ctypes.c_uint32)),
+        ("freq_bin", _pointer(ctypes.c_uint32)),
+        ("max_iterations", ctypes.c_size_t),
+        ("stop_criterion", ctypes.c_double),
+        ("stop_fraction", ctypes.c_double),
+    ]
+
+
+class _SolveOutputs(ctypes.Structure):
+    _fields_ = [
+        ("gains", _pointer(ctypes.c_double)),
+        ("flags", _pointer(ctypes.c_int8)),
+        ("iterations", _pointer(ctypes.c_size_t)),
+        ("converged_fraction", _pointer(ctypes.c_double)),
+    ]
+
+
+@dataclass
+class ComplexSolution:
+    """Gains (time_bin, freq_bin, antenna, 2, 2), flags (1 flagged), counts."""
+
+    gains: np.ndarray
+    flags: np.ndarray
+    iterations: int
+    converged_fraction: float
+
+
+def solve_complex(
+    data,
+    weights,
+    flag,
+    flag_row,
+    antenna1,
+    antenna2,
+    time_bin,
+    freq_bin,
+    *,
+    ntime_bins,
+    nfreq_bins,
+    nant,
+    model=None,
+    scalar_model=None,
+    max_iterations=50,
+    stop_criterion=1e-7,
+    stop_fraction=0.99,
+):
+    """Ported QuartiCal 0.2.7 `complex` solve with rang's frozen settings.
+
+    Rows must be sorted by time bin. See research/core-phase2.md for what is
+    and is not ported. Defaults match rang's QuartiCal command (50 iterations,
+    convergence criterion 1e-7) and QuartiCal's convergence fraction (0.99).
+    """
+    data = np.require(data, np.complex64, ["C", "A"])
+    if data.ndim != 3 or data.shape[-1] != 4:
+        raise ValueError("data must be (row, chan, 4) complex")
+    nrow, nchan = data.shape[:2]
+    weights = _array(weights, np.float32, data.shape, "weights")
+    flags_in = _array(np.asarray(flag, bool), np.uint8, data.shape, "flag")
+    rows_in = _array(np.asarray(flag_row, bool), np.uint8, (nrow,), "flag_row")
+    a1 = _array(antenna1, np.uint32, (nrow,), "antenna1")
+    a2 = _array(antenna2, np.uint32, (nrow,), "antenna2")
+    tb = _array(time_bin, np.uint32, (nrow,), "time_bin")
+    fb = _array(freq_bin, np.uint32, (nchan,), "freq_bin")
+    if (model is None) == (scalar_model is None):
+        raise ValueError("give exactly one of model and scalar_model")
+    if max_iterations < 1:
+        raise ValueError("at least one iteration required")
+    inputs = _SolveInputs(
+        nrow,
+        nchan,
+        ntime_bins,
+        nfreq_bins,
+        nant,
+        _ptr(data, ctypes.c_float),
+        _ptr(weights, ctypes.c_float),
+        None,
+        None,
+        _ptr(flags_in, ctypes.c_uint8),
+        _ptr(rows_in, ctypes.c_uint8),
+        _ptr(a1, ctypes.c_uint32),
+        _ptr(a2, ctypes.c_uint32),
+        _ptr(tb, ctypes.c_uint32),
+        _ptr(fb, ctypes.c_uint32),
+        max_iterations,
+        stop_criterion,
+        stop_fraction,
+    )
+    if model is not None:
+        stored = _array(model, np.complex64, data.shape, "model")
+        inputs.model_stored = _ptr(stored, ctypes.c_float)
+    else:
+        stored = _array(scalar_model, np.float64, (nchan,), "scalar_model")
+        inputs.model_scalar = _ptr(stored, ctypes.c_double)
+    gains = np.empty((ntime_bins, nfreq_bins, nant, 2, 2), np.complex128)
+    flags = np.empty((ntime_bins, nfreq_bins, nant), np.int8)
+    iterations = ctypes.c_size_t()
+    fraction = ctypes.c_double()
+    outputs = _SolveOutputs(
+        _ptr(gains, ctypes.c_double),
+        _ptr(flags, ctypes.c_int8),
+        ctypes.pointer(iterations),
+        ctypes.pointer(fraction),
+    )
+    status = library().rang_core_solve_complex(
+        ctypes.byref(inputs), ctypes.byref(outputs)
+    )
+    if status:
+        raise RuntimeError(f"rang core complex solve failed with status {status}")
+    return ComplexSolution(gains, flags, int(iterations.value), float(fraction.value))

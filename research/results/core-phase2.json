@@ -1,0 +1,159 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase2.md",
+ "protocol_commit": "b48adf0",
+ "status": "implemented; measured: all eight frozen criteria pass",
+ "run_dir": "outputs/core-phase2-20261029-01",
+ "result_sha256": "de0d22f83cbabe415493830ded9e9435b3834b07a5a89c12e5c01ba1b20223af",
+ "passed": {
+  "1_gain_flags_fixture": true,
+  "1_gain_flags_luno": true,
+  "2_gains_fixture": true,
+  "2_gains_luno": true,
+  "3_iterations_and_convergence_luno": true,
+  "4_losses_fixture": true,
+  "4_losses_luno": true,
+  "5_tv_fixture": true,
+  "6_rank_survey_luno": true,
+  "7_no_side_effects": true,
+  "8_cost_luno": true
+ },
+ "all_passed": true,
+ "fixture": {
+  "inputs": {
+   "state_sha256": "84c26f853bb9795c0997ce56743c5d34e1807d0de4c3f8be4399126fd0a3f1a2",
+   "solve_flags_sha256": "a0545860928fdee0bbd536453b2b79c4d6048d9f6495a52c1223f5e7087c849b",
+   "diagnostics_sha256": "f465ddc42cbcb8d2825ad32f39256c5528f6ed6fc0049f3d815d75c4dcba8894",
+   "metrics_sha256": "4d7b4bed5400ec6fc87876bfcbd90412b74c581692b9aa1b5ad053210ffa2c2c"
+  },
+  "gain_grid": [
+   7,
+   128,
+   4
+  ],
+  "comparison": {
+   "flags_equal": true,
+   "flag_mismatches": 0,
+   "unflagged_gains": 1150,
+   "max_abs_gain_entry_diff": 1.4130832128153977e-15,
+   "entries_diff_above_1e-10": 0,
+   "max_abs_baseline_product_diff": 2.7755575615628914e-16,
+   "iterations": 50,
+   "converged_fraction": 0.9843478260869565
+  },
+  "criterion_3_reported_not_gated": {
+   "iterations": 50,
+   "converged_fraction": 0.9843478260869565
+  },
+  "losses": {
+   "train": {
+    "rust": 24.60284628464245,
+    "quartical": 24.60284628464245,
+    "archived": 24.6028462846425,
+    "rel": 0.0
+   },
+   "validation": {
+    "rust": 25.206122598826045,
+    "quartical": 25.20612259882605,
+    "archived": 25.20612259882604,
+    "rel": 1.409464571502943e-16
+   },
+   "test": {
+    "rust": 24.919607595129243,
+    "quartical": 24.919607595129243,
+    "archived": 24.919607595129268,
+    "rel": 0.0
+   }
+  },
+  "tv": {
+   "raw_rust": 0.2673258258969276,
+   "raw_archived": 0.2673258258969277,
+   "raw_rel": 4.1530705868022755e-16,
+   "polar_rust": 0.1474368700725686,
+   "polar_archived": 0.14743687007256856,
+   "polar_rel": 1.882539666093535e-16
+  },
+  "seconds": {
+   "rust_solve": 0.4945711639993533,
+   "quartical_archived": 29.361745329999394
+  }
+ },
+ "luno": {
+  "inputs": {
+   "arrays_sha256": "8b221f7bdcc8f030b8edfd4df6c6623435d9b16869d4c14564ddad0e6729ce92",
+   "gains_sha256": "57809b86f7d9bd90c679ed4d4a51875517d1fe6d6eb492c9cb4cfdef04329bc3",
+   "gain_flags_sha256": "0ef0c4ceb49b3f58a5d15450efc107906dcd998af824d3674de7ef628ce6eb08"
+  },
+  "gain_grid": [
+   16,
+   64,
+   4
+  ],
+  "comparison": {
+   "flags_equal": true,
+   "flag_mismatches": 0,
+   "unflagged_gains": 1679,
+   "max_abs_gain_entry_diff": 3.342213888644167e-16,
+   "entries_diff_above_1e-10": 0,
+   "max_abs_baseline_product_diff": 5.578801654593729e-16,
+   "iterations": 50,
+   "converged_fraction": 0.9833234067897558
+  },
+  "quartical": {
+   "iterations": 50,
+   "converged_fraction": 0.9833234067897558,
+   "seconds_archived": 27.510631364999426
+  },
+  "losses": {
+   "rust": 0.26823507037914956,
+   "quartical": 0.2682350703791495,
+   "rel": 2.0694963992886154e-16,
+   "train_cells_valid_at_both": 117556
+  },
+  "rank_survey": {
+   "fully_identified": 389,
+   "underidentified": 43,
+   "no_train": 592,
+   "no_solved_gain": 0,
+   "over_rank": 0,
+   "status": {
+    "fully_identified status0": 389,
+    "underidentified status3": 43
+   }
+  },
+  "seconds": {
+   "rust_solve_in_validator": 0.7706491749995621
+  },
+  "cost": {
+   "process_wall_seconds": 0.94,
+   "process_max_rss_mb": 95.66015625,
+   "load_seconds": 0.0343851799989352,
+   "solve_seconds": 0.7662809239991475,
+   "fused_seconds": 0.05287329199927626,
+   "iterations": 50,
+   "self_maxrss_mb": 95.66015625
+  }
+ },
+ "side_effects": {
+  "input_files_checked": 10,
+  "inputs_unchanged": true,
+  "git_status_unchanged": true,
+  "run_dir_empty_before_receipt": true
+ },
+ "library_sha256": "1efa6b69b3d743759a595c31ecb381577cb3a1b275fbff906ebf74b759dc7ef4",
+ "code_sha256": {
+  "core/src/ffi.rs": "33d11f08b6bc7f3fbcc7766c84832eea6f162befc5826a0b86fb4fb84c6db1f2",
+  "core/src/fused.rs": "f3e0e19e951e5b4b2e58e60996e48de8b3af092d3b9d0cab757d7f44e921f389",
+  "core/src/jones.rs": "65138ad9833b1e9200f981f84c0b796b6538ee6151273a5af4f8e5dc505647db",
+  "core/src/lib.rs": "7b4cd1c9c8f8796774b243138cae9fffe315d80604322489afc54cf950f85292",
+  "core/src/robust.rs": "f5f2313ca84f76f2d55ec6d32bdd6bb0a3a2a16a7b16edf82d3bd8a5ac625b5f",
+  "core/src/solve.rs": "5af175005b5cb642bce421e35640bd1181d3da39f9c09eb8fe3368e6f3beb176",
+  "core/Cargo.toml": "d7d0f929c5eb0efe3690c5da48fda600ee4c72f6041d3bf84e0f2cc911fcfcdc",
+  "python/rangtoy/core.py": "fe04e884b7f245c00ad9526dbb1ae595670fdca2582d8926659873d8d970f845",
+  "examples/validate_core_phase2.py": "baa9bcb1a87c26c5b6693815c6838457de0645a59ee12eedb9e1bfc393421cfe"
+ },
+ "python": "3.14.4",
+ "numpy": "2.5.3",
+ "ported_from": "QuartiCal 0.2.7 complex term (MIT, Jonathan Simon Kenyon); notice kept in core/src/solve.rs",
+ "novelty": "reimplementation only; matched-quality runtime reduction, no scientific result changes"
+}

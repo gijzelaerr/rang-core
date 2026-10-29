@@ -85,3 +85,22 @@ for the measurements. None of these has been sent anywhere.
   4096-channel MS** (archived `gain-tv-caracal.json`, four controls at
   301.7–302.9 s). The data are 18 MB, so this is almost certainly JIT plus
   dask overhead rather than flagging work. Not yet profiled in isolation.
+- **Verified: QuartiCal compiles its kernels with `fastmath`.**
+  `quartical/utils/numba.py` sets `"fastmath": True` in `JIT_OPTIONS`, which
+  lets LLVM reassociate and fuse multiply-adds. This probably explains the
+  1e-16 difference between cold-cache and warm-cache gains. A faithful Rust
+  port of the `complex` term (`core/src/solve.rs`) agrees with QuartiCal to
+  1.4e-15 without `fastmath`, so the option costs reproducibility for little
+  visible gain at these sizes. Possible note upstream: document it, or offer a
+  strict mode for reproducible receipts. Not raised.
+- **Observed: the full `complex` term ignores `solver.reference_antenna`.**
+  Only the diagonal and delay-like kernels read it, so the
+  `solver.reference_antenna=0` in rang's command has no effect on its solves;
+  rang fixes the gauge afterwards with its own polar decomposition. Worth a
+  sentence in the QuartiCal option docs. Not raised.
+- **Observed: the conjugate-baseline normal equations reuse the pq weight
+  order.** In `compute_jhj_jhr` the qp contribution uses the same
+  XX, XY, YX, YY weights as pq, although the transposed residual pairs XY with
+  YX. It matters only when the XY and YX weights differ, and it changes the
+  step, not the fixed point. To be checked against QuartiCal's intent before
+  any report. Not raised.

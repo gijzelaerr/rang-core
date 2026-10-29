@@ -1,5 +1,15 @@
 # Rang research state
 
+Core phase 2, 2026-10-29 (implemented; measured: all eight frozen criteria
+pass). `core/src/solve.rs` ports the QuartiCal 0.2.7 complex solver (MIT notice
+kept). Run `outputs/core-phase2-20261029-01`: gain flags identical on fixture and
+LUNO; gains within 1.4e-15 and 3.3e-16; 50 iterations and converged fraction
+0.9833234067897558 as QuartiCal; losses and TV within 4e-16; LUNO rank survey
+389/43/592 exact. LUNO solve 0.77 s; load+solve+fused 0.94 s, 96 MB (QuartiCal
+28.3 s cold, 3.6 s warm, 633/382 MB). Inputs exported once from the LUNO MS to
+`outputs/core-phase2-inputs-20261029-01`. Archive `results/core-phase2.json`.
+Next: phase 3, the policy loop and campaign tracks on the core.
+
 Core phase 1, 2026-10-29 (implemented; measured: criterion 4 failed as
 frozen; post-hoc 4b passes in `outputs/core-phase1-20261029-02`, archive
 `results/core-phase1.json`). `core/` is a new GPL Rust crate with

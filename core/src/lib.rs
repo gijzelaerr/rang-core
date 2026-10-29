@@ -7,9 +7,12 @@
 //! one sweep over the visibility cells forms the prediction, the residual,
 //! per-split weighted residual sums, per-baseline robust residual scores and
 //! antenna-diagonal Gauss--Newton blocks. The validation protocol is frozen in
-//! `research/core-phase1.md`. Nothing here changes an archived result.
+//! `research/core-phase1.md`. Phase 2 adds `solve`, a port of the full-Jones
+//! `complex` solver of QuartiCal 0.2.7 (`research/core-phase2.md`). Nothing
+//! here changes an archived result.
 
 pub mod ffi;
 pub mod fused;
 pub mod jones;
 pub mod robust;
+pub mod solve;

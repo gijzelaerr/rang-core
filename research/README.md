@@ -4,9 +4,13 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
-New, 2026-10-29: [phase 2 of the core port](core-phase2.md), a Rust port of
-QuartiCal's full-Jones complex solver, has a frozen protocol (proposed; no
-solver code yet).
+New, 2026-10-29: [phase 2 of the core port](core-phase2.md) is implemented and
+measured. A Rust port of the full-Jones complex solver of QuartiCal 0.2.7
+reproduces its gains on the fixture and on LUNO to 1.4e-15, with identical gain
+flags, iteration counts and converged fraction, and passes all eight frozen
+criteria. The LUNO solve takes 0.77 s against 28.3 s (cold) and 3.6 s (warm) for
+QuartiCal; the whole load-solve-statistics process takes 0.94 s and 96 MB
+([archive](results/core-phase2.json)).
 
 New, 2026-10-29: [phase 1 of the core port](core-phase1.md) is implemented
 and measured: a fused Rust pass (`core/`) for residuals, split losses, robust

@@ -5,6 +5,7 @@
 //! needed. Every pointer is described by an explicit length in the structs.
 
 use crate::fused::{self, Inputs, Model, Outputs, SPLITS};
+use crate::solve;
 
 /// Borrowed input buffers. A null optional pointer means "absent".
 #[repr(C)]
@@ -157,6 +158,147 @@ pub unsafe extern "C" fn rang_core_fused(
                     }
                     0
                 }
+                Err(_) => 1,
+            }
+        }
+    });
+    result.unwrap_or(2)
+}
+
+/// Borrowed inputs of the `complex` solver.
+#[repr(C)]
+pub struct SolveInputs {
+    pub nrow: usize,
+    pub nchan: usize,
+    pub ntime_bins: usize,
+    pub nfreq_bins: usize,
+    pub nant: usize,
+    pub data: *const f32,
+    pub weights: *const f32,
+    pub model_stored: *const f32,
+    pub model_scalar: *const f64,
+    pub flag: *const u8,
+    pub flag_row: *const u8,
+    pub antenna1: *const u32,
+    pub antenna2: *const u32,
+    pub time_bin: *const u32,
+    pub freq_bin: *const u32,
+    pub max_iterations: usize,
+    pub stop_criterion: f64,
+    pub stop_fraction: f64,
+}
+
+/// Caller-owned outputs of the `complex` solver.
+#[repr(C)]
+pub struct SolveOutputs {
+    /// `ntime_bins * nfreq_bins * nant * 8` doubles.
+    pub gains: *mut f64,
+    /// `ntime_bins * nfreq_bins * nant` flags: 1 flagged, 0 unflagged.
+    pub flags: *mut i8,
+    pub iterations: *mut usize,
+    pub converged_fraction: *mut f64,
+}
+
+/// Run the ported QuartiCal `complex` solver. Returns 0 on success, 1 on
+/// invalid arguments, 3 on a complex division by zero, 2 on a panic.
+///
+/// # Safety
+/// Every non-null pointer must reference live, aligned, nonoverlapping
+/// buffers of the lengths documented on `solve::Problem` and `SolveOutputs`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_solve_complex(
+    inputs: *const SolveInputs,
+    outputs: *mut SolveOutputs,
+) -> i32 {
+    let result = std::panic::catch_unwind(|| {
+        // SAFETY: the caller passes valid struct pointers.
+        let (i, o) = unsafe {
+            match (inputs.as_ref(), outputs.as_mut()) {
+                (Some(i), Some(o)) => (i, o),
+                _ => return 1,
+            }
+        };
+        let cells = i.nrow.saturating_mul(i.nchan);
+        let ngains = i
+            .ntime_bins
+            .saturating_mul(i.nfreq_bins)
+            .saturating_mul(i.nant);
+        if i.max_iterations == 0
+            || o.gains.is_null()
+            || o.flags.is_null()
+            || o.iterations.is_null()
+            || o.converged_fraction.is_null()
+        {
+            return 1;
+        }
+        // SAFETY: lengths follow the documented contract.
+        unsafe {
+            let model = match (
+                slice(i.model_stored, 8 * cells),
+                slice(i.model_scalar, i.nchan),
+            ) {
+                (Some(m), None) => Model::Stored(m),
+                (None, Some(s)) => Model::Scalar(s),
+                _ => return 1,
+            };
+            let (
+                Some(data),
+                Some(weights),
+                Some(flag),
+                Some(flag_row),
+                Some(antenna1),
+                Some(antenna2),
+                Some(time_bin),
+                Some(freq_bin),
+            ) = (
+                slice(i.data, 8 * cells),
+                slice(i.weights, 4 * cells),
+                slice(i.flag, 4 * cells),
+                slice(i.flag_row, i.nrow),
+                slice(i.antenna1, i.nrow),
+                slice(i.antenna2, i.nrow),
+                slice(i.time_bin, i.nrow),
+                slice(i.freq_bin, i.nchan),
+            )
+            else {
+                return 1;
+            };
+            let problem = solve::Problem {
+                nrow: i.nrow,
+                nchan: i.nchan,
+                ntime_bins: i.ntime_bins,
+                nfreq_bins: i.nfreq_bins,
+                nant: i.nant,
+                data,
+                weights,
+                model,
+                flag,
+                flag_row,
+                antenna1,
+                antenna2,
+                time_bin,
+                freq_bin,
+            };
+            let settings = solve::Settings {
+                max_iterations: i.max_iterations,
+                stop_criterion: i.stop_criterion,
+                stop_fraction: i.stop_fraction,
+            };
+            match solve::solve(&problem, &settings) {
+                Ok(solution) => {
+                    let gains = slice_mut(o.gains, 8 * ngains);
+                    for (g, jones) in solution.gains.iter().enumerate() {
+                        for (k, value) in jones.iter().enumerate() {
+                            gains[8 * g + 2 * k] = value.re;
+                            gains[8 * g + 2 * k + 1] = value.im;
+                        }
+                    }
+                    slice_mut(o.flags, ngains).copy_from_slice(&solution.flags);
+                    *o.iterations = solution.iterations;
+                    *o.converged_fraction = solution.converged_fraction;
+                    0
+                }
+                Err(solve::Error::ZeroDivision) => 3,
                 Err(_) => 1,
             }
         }
