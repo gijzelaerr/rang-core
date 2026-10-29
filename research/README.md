@@ -11,7 +11,10 @@ The [trend chain test](core-phase3-trend.md) hands seven core-solved baselines
 to the unedited trend module, which reproduces its archived output; the frozen
 float criterion failed only on rounding-level reference-antenna slopes, and a
 labelled post-hoc scale passes. Phase 3 is in progress: injections,
-prospective, actions and trend are done; the signal track remains.
+prospective, actions and trend are done; the signal track remains. Its
+prerequisite, a [Rust component predictor](core-phase3c-a.md) ported from
+codex-africanus, matches africanus bit for bit on three component sets,
+including the 5153-component SARAO 1934−638 catalogue.
 
 New, 2026-10-29: [phase 3b](core-phase3b.md) runs the prospective track (54
 solves, frozen TRAIN-only forecasts) on the Rust core in 33 s and passes every

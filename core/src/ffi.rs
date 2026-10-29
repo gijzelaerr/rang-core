@@ -5,6 +5,7 @@
 //! needed. Every pointer is described by an explicit length in the structs.
 
 use crate::fused::{self, Inputs, Model, Outputs, SPLITS};
+use crate::predict;
 use crate::solve;
 
 /// Borrowed input buffers. A null optional pointer means "absent".
@@ -301,6 +302,127 @@ pub unsafe extern "C" fn rang_core_solve_complex(
                 Err(solve::Error::ZeroDivision) => 3,
                 Err(_) => 1,
             }
+        }
+    });
+    result.unwrap_or(2)
+}
+
+/// Borrowed inputs of the component predictor.
+#[repr(C)]
+pub struct PredictInputs {
+    pub nrow: usize,
+    pub nchan: usize,
+    pub nsrc: usize,
+    pub ncoeff: usize,
+    /// `nrow * 3` metres.
+    pub uvw: *const f64,
+    /// `nchan` hertz.
+    pub frequency: *const f64,
+    /// `nsrc * 2` direction cosines.
+    pub lm: *const f64,
+    /// `nsrc` kinds: 0 point, 1 Gaussian.
+    pub kind: *const u8,
+    pub flux: *const f64,
+    /// `nsrc * ncoeff`.
+    pub coeffs: *const f64,
+    /// `nsrc` flags: nonzero for a logarithmic polynomial.
+    pub log_poly: *const u8,
+    pub ref_freq: *const f64,
+    /// `nsrc * 3`: major FWHM, minor FWHM (radians), position angle.
+    pub gauss_shape: *const f64,
+}
+
+/// Caller-owned outputs of the component predictor.
+#[repr(C)]
+pub struct PredictOutputs {
+    /// `nrow * nchan * 2` doubles: complex128 visibilities.
+    pub vis: *mut f64,
+    /// `nsrc * nchan` spectra, or null.
+    pub spectra: *mut f64,
+}
+
+/// Predict Stokes I visibilities of WSClean-format components. Returns 0 on
+/// success, 1 on invalid arguments, 2 on a panic.
+///
+/// # Safety
+/// Every non-null pointer must reference live, aligned, nonoverlapping
+/// buffers of the lengths documented on `PredictInputs` and `PredictOutputs`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_predict_components(
+    inputs: *const PredictInputs,
+    outputs: *mut PredictOutputs,
+) -> i32 {
+    let result = std::panic::catch_unwind(|| {
+        // SAFETY: the caller passes valid struct pointers.
+        let (i, o) = unsafe {
+            match (inputs.as_ref(), outputs.as_mut()) {
+                (Some(i), Some(o)) => (i, o),
+                _ => return 1,
+            }
+        };
+        if o.vis.is_null() {
+            return 1;
+        }
+        // SAFETY: lengths follow the documented contract.
+        unsafe {
+            let (
+                Some(uvw),
+                Some(frequency),
+                Some(lm),
+                Some(kind_raw),
+                Some(flux),
+                Some(coeffs),
+                Some(log_raw),
+                Some(ref_freq),
+                Some(gauss_shape),
+            ) = (
+                slice(i.uvw, 3 * i.nrow),
+                slice(i.frequency, i.nchan),
+                slice(i.lm, 2 * i.nsrc),
+                slice(i.kind, i.nsrc),
+                slice(i.flux, i.nsrc),
+                slice(i.coeffs, i.nsrc * i.ncoeff),
+                slice(i.log_poly, i.nsrc),
+                slice(i.ref_freq, i.nsrc),
+                slice(i.gauss_shape, 3 * i.nsrc),
+            )
+            else {
+                return 1;
+            };
+            let mut kind = Vec::with_capacity(i.nsrc);
+            for &k in kind_raw {
+                kind.push(match k {
+                    0 => predict::Kind::Point,
+                    1 => predict::Kind::Gaussian,
+                    _ => return 1,
+                });
+            }
+            let log_poly: Vec<bool> = log_raw.iter().map(|&x| x != 0).collect();
+            let components = predict::Components {
+                lm,
+                kind: &kind,
+                flux,
+                coeffs,
+                ncoeff: i.ncoeff,
+                log_poly: &log_poly,
+                ref_freq,
+                gauss_shape,
+            };
+            let Ok(vis) = predict::predict(uvw, frequency, &components) else {
+                return 1;
+            };
+            let out = slice_mut(o.vis, 2 * i.nrow * i.nchan);
+            for (k, value) in vis.iter().enumerate() {
+                out[2 * k] = value.re;
+                out[2 * k + 1] = value.im;
+            }
+            if !o.spectra.is_null() {
+                let Ok(spec) = predict::spectra(&components, frequency) else {
+                    return 1;
+                };
+                slice_mut(o.spectra, i.nsrc * i.nchan).copy_from_slice(&spec);
+            }
+            0
         }
     });
     result.unwrap_or(2)

@@ -1,7 +1,9 @@
 # Rang core, phase 3c-a: component sky prediction
 
-Protocol frozen 2026-10-29, before any predictor or oracle code was written.
-Status: **proposed**. First step of phase 3c (the signal track needs it) and
+Protocol frozen 2026-10-29 in `ec92311`, before any predictor or oracle code
+was written. Status: **implemented; measured: the frozen run failed one
+criterion through a validator error; after fixing it, every criterion
+passes**. First step of phase 3c (the signal track needs it) and
 the "prediction" component of phase 1 in
 [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4. A reimplementation of codex-africanus 0.4.4
@@ -69,3 +71,39 @@ The oracle step is timed and its output hashed before the Rust comparison.
 
 The step is reported as passed only if criteria 1–4 pass as frozen; any
 failure is recorded with its numbers.
+
+## Measured result (2026-10-29)
+
+**Oracle step.** `outputs/core-phase3c-oracle-20261029-01`, run once in
+`rang-flagging:local` (21.9 s with the container): 84 cross rows × 2048
+channels of the fixture clean case, oracle SHA256 `557a48d5…`.
+Africanus took 8.1 s for the
+5153-component catalogue (second call; the first call of the response set,
+2.9 s, includes Numba compilation).
+
+**Frozen run** `outputs/core-phase3c-a-20261029-01`: criteria 1, 3 and 4 and
+the catalogue part of criterion 2 passed, but the response part of criterion
+2 failed with differences of the order of the flux itself. The cause was the
+validator, not the predictor: it called `spatial_templates` with its default
+source list, which is the signal stage's (different positions, fluxes and
+widths), instead of the response stage's list that the oracle used. The
+validator was corrected to pass the response sources, labelled in the code,
+and nothing else changed.
+
+**Rerun** `outputs/core-phase3c-a-20261029-02`: every criterion passes.
+Archive: [core-phase3c-a.json](results/core-phase3c-a.json).
+
+| Set | Components | Rust vs africanus | Spectra | NumPy oracle (max / bound) |
+| --- | ---: | --- | --- | --- |
+| response | 2 | bit-identical | bit-identical | 1.4e-03 |
+| catalogue | 5153 | bit-identical | bit-identical | 3.4e-04 (three rows) |
+| stress | 64 | bit-identical | bit-identical | – |
+
+The bound is 1e-12 × Σ|S| per channel. The host-parsed catalogue gives the
+same direction cosines as the oracle, bit for bit. Inputs and `git status`
+were unchanged.
+
+**Cost (reported).** The Rust predictor takes 8.3 s for the
+catalogue, the same as africanus (8.1 s): it is
+the same scalar loop, single-threaded. No runtime gain is claimed; the gain
+is that prediction now runs in the core process without a column write.

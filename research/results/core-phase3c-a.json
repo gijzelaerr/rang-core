@@ -1,0 +1,104 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase3c-a.md",
+ "protocol_commit": "ec92311",
+ "status": "implemented; measured: frozen run -01 failed criterion 2 (response) because the validator passed the wrong source list; after that validator fix, run -02 passes every criterion",
+ "oracle": {
+  "run_dir": "outputs/core-phase3c-oracle-20261029-01",
+  "sha256": "557a48d51a7f1e62e4d5f464801191e706cefae51692c291b1dbceb12b1eb24f",
+  "rows": 84,
+  "channels": [
+   1024,
+   3072
+  ],
+  "components": {
+   "response": 2,
+   "catalogue": 5153,
+   "stress": 64
+  },
+  "africanus_seconds": {
+   "response": {
+    "first_call_seconds": 2.891916054999456,
+    "second_call_seconds": 0.00537511599395657
+   },
+   "catalogue": {
+    "first_call_seconds": 8.171734982999624,
+    "second_call_seconds": 8.110948625995661
+   },
+   "stress": {
+    "first_call_seconds": 0.12574696999945445,
+    "second_call_seconds": 0.12459565499739256
+   }
+  },
+  "versions": {
+   "codex-africanus": "0.4.4",
+   "numba": "0.67.0",
+   "numpy": "2.5.3"
+  },
+  "catalogue_sha256": "b277bc6d4095bb22798cc70547d9563a56460eb6e450474854b93117534b1fb9"
+ },
+ "frozen_run": {
+  "run_dir": "outputs/core-phase3c-a-20261029-01",
+  "passed": {
+   "1_africanus_response": true,
+   "3_spectra_response": true,
+   "1_africanus_catalogue": true,
+   "3_spectra_catalogue": true,
+   "1_africanus_stress": true,
+   "3_spectra_stress": true,
+   "2_numpy_response": false,
+   "2_numpy_catalogue": true,
+   "4_no_side_effects": true
+  },
+  "failure": "2_numpy_response: spatial_templates called with the signal-stage default SOURCES instead of the response SOURCES used by the oracle"
+ },
+ "rerun": {
+  "run_dir": "outputs/core-phase3c-a-20261029-02",
+  "result_sha256": "71d3b22174c13b955363dbaff463880d47cae7c69d66ae5391e3f763f57a092b",
+  "passed": {
+   "1_africanus_response": true,
+   "3_spectra_response": true,
+   "1_africanus_catalogue": true,
+   "3_spectra_catalogue": true,
+   "1_africanus_stress": true,
+   "3_spectra_stress": true,
+   "2_numpy_response": true,
+   "2_numpy_catalogue": true,
+   "4_no_side_effects": true
+  },
+  "sets": {
+   "response": {
+    "components": 2,
+    "max_abs_diff_jy": 0.0,
+    "max_diff_over_bound": 0.0,
+    "max_spectra_rel": 0.0,
+    "rust_seconds": 0.00664954399690032,
+    "numpy_template_max_over_bound": 0.001390378693014432
+   },
+   "catalogue": {
+    "components": 5153,
+    "max_abs_diff_jy": 0.0,
+    "max_diff_over_bound": 0.0,
+    "max_spectra_rel": 0.0,
+    "rust_seconds": 8.259355324000353,
+    "numpy_three_rows_max_over_bound": 0.0003380248920102575,
+    "host_parsed_lm_equals_oracle": true
+   },
+   "stress": {
+    "components": 64,
+    "max_abs_diff_jy": 0.0,
+    "max_diff_over_bound": 0.0,
+    "max_spectra_rel": 0.0,
+    "rust_seconds": 0.12212815900420537
+   }
+  },
+  "side_effects": {
+   "inputs_unchanged": true,
+   "git_status_unchanged": true,
+   "run_dir_empty_before_receipt": true
+  },
+  "library_sha256": "6256e84bfbbd08b87e9ed7219ac06986dce75e9a15d8f969a05a656f1ee66df7"
+ },
+ "note": "Rust and africanus visibilities and spectra are bit-identical on all three sets; no runtime gain is claimed (same scalar loop).",
+ "ported_from": "codex-africanus 0.4.4 wsclean_predict and spectra (BSD-3-Clause, notice kept in core/src/predict.rs)"
+}

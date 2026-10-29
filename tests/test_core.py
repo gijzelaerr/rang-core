@@ -183,3 +183,30 @@ def test_complex_solve_flags_unsupported_antenna():
     )
     assert solution.flags[0, 0].tolist() == [0, 0, 0, 1]
     np.testing.assert_array_equal(solution.gains[0, 0, 3], np.eye(2))
+
+
+def test_predict_components_matches_numpy_templates():
+    from rangtoy.flagging_response import SOURCES
+    from rangtoy.flagging_signal import spatial_templates
+
+    rng = np.random.default_rng(4)
+    uvw = rng.uniform(-2000, 2000, (12, 3))
+    freq = np.linspace(1.0e9, 1.4e9, 5)
+    arcmin = np.pi / 10800
+    vis, spec = core.predict_components(
+        uvw,
+        freq,
+        np.array([[s["l_arcmin"], s["m_arcmin"]] for s in SOURCES]) * arcmin,
+        np.array([0 if s["fwhm_arcmin"] == 0 else 1 for s in SOURCES]),
+        np.array([s["flux_jy"] for s in SOURCES]),
+        np.array([[s["spectral_index"]] for s in SOURCES]),
+        np.ones(len(SOURCES), bool),
+        np.full(len(SOURCES), 1.284e9),
+        np.array([[s["fwhm_arcmin"] * arcmin] * 2 + [0.0] for s in SOURCES]),
+        spectra=True,
+    )
+    expected = np.sum(spatial_templates(uvw, freq, SOURCES) * spec[:, None, :], axis=0)
+    np.testing.assert_allclose(vis, expected, rtol=0, atol=1e-13)
+    np.testing.assert_allclose(
+        spec[0], 0.06 * (freq / 1.284e9) ** -0.5, rtol=1e-14, atol=0
+    )

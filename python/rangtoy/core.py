@@ -114,6 +114,11 @@ def library():
         _pointer(_SolveOutputs),
     ]
     lib.rang_core_solve_complex.restype = ctypes.c_int
+    lib.rang_core_predict_components.argtypes = [
+        _pointer(_PredictInputs),
+        _pointer(_PredictOutputs),
+    ]
+    lib.rang_core_predict_components.restype = ctypes.c_int
     return lib
 
 
@@ -393,3 +398,95 @@ def solve_complex(
     if status:
         raise RuntimeError(f"rang core complex solve failed with status {status}")
     return ComplexSolution(gains, flags, int(iterations.value), float(fraction.value))
+
+
+class _PredictInputs(ctypes.Structure):
+    _fields_ = [
+        ("nrow", ctypes.c_size_t),
+        ("nchan", ctypes.c_size_t),
+        ("nsrc", ctypes.c_size_t),
+        ("ncoeff", ctypes.c_size_t),
+        ("uvw", _pointer(ctypes.c_double)),
+        ("frequency", _pointer(ctypes.c_double)),
+        ("lm", _pointer(ctypes.c_double)),
+        ("kind", _pointer(ctypes.c_uint8)),
+        ("flux", _pointer(ctypes.c_double)),
+        ("coeffs", _pointer(ctypes.c_double)),
+        ("log_poly", _pointer(ctypes.c_uint8)),
+        ("ref_freq", _pointer(ctypes.c_double)),
+        ("gauss_shape", _pointer(ctypes.c_double)),
+    ]
+
+
+class _PredictOutputs(ctypes.Structure):
+    _fields_ = [
+        ("vis", _pointer(ctypes.c_double)),
+        ("spectra", _pointer(ctypes.c_double)),
+    ]
+
+
+def predict_components(
+    uvw,
+    frequency,
+    lm,
+    kind,
+    flux,
+    coeffs,
+    log_poly,
+    ref_freq,
+    gauss_shape,
+    *,
+    spectra=False,
+):
+    """WSClean-format component prediction (port of africanus wsclean_predict).
+
+    uvw (row, 3) metres; frequency (chan,) Hz; lm (src, 2); kind (src,) with 0
+    point and 1 Gaussian; flux (src,); coeffs (src, ncoeff); log_poly (src,)
+    bool; ref_freq (src,); gauss_shape (src, 3) as major and minor FWHM in
+    radians and position angle. Returns (row, chan) complex128 Stokes I
+    visibilities, and (src, chan) spectra when requested.
+    """
+    uvw = np.require(uvw, np.float64, ["C", "A"])
+    if uvw.ndim != 2 or uvw.shape[1] != 3:
+        raise ValueError("uvw must be (row, 3)")
+    frequency = np.require(frequency, np.float64, ["C", "A"])
+    flux = np.require(flux, np.float64, ["C", "A"])
+    nsrc = len(flux)
+    coeffs = np.require(coeffs, np.float64, ["C", "A"])
+    if coeffs.ndim != 2 or coeffs.shape[0] != nsrc:
+        raise ValueError("coeffs must be (src, ncoeff)")
+    lm = _array(lm, np.float64, (nsrc, 2), "lm")
+    kinds = _array(kind, np.uint8, (nsrc,), "kind")
+    logs = _array(np.asarray(log_poly, bool), np.uint8, (nsrc,), "log_poly")
+    refs = _array(ref_freq, np.float64, (nsrc,), "ref_freq")
+    shapes = _array(gauss_shape, np.float64, (nsrc, 3), "gauss_shape")
+    nrow, nchan = len(uvw), len(frequency)
+    inputs = _PredictInputs(
+        nrow,
+        nchan,
+        nsrc,
+        coeffs.shape[1],
+        _ptr(uvw, ctypes.c_double),
+        _ptr(frequency, ctypes.c_double),
+        _ptr(lm, ctypes.c_double),
+        _ptr(kinds, ctypes.c_uint8),
+        _ptr(flux, ctypes.c_double),
+        _ptr(coeffs, ctypes.c_double),
+        _ptr(logs, ctypes.c_uint8),
+        _ptr(refs, ctypes.c_double),
+        _ptr(shapes, ctypes.c_double),
+    )
+    vis = np.empty((nrow, nchan), np.complex128)
+    spec = np.empty((nsrc, nchan)) if spectra else None
+    outputs = _PredictOutputs(
+        _ptr(vis, ctypes.c_double),
+        _ptr(spec, ctypes.c_double) if spectra else None,
+    )
+    status = library().rang_core_predict_components(
+        ctypes.byref(inputs), ctypes.byref(outputs)
+    )
+    if status:
+        raise RuntimeError(
+            f"rang core component prediction failed with status {status}"
+        )
+    return (vis, spec) if spectra else vis

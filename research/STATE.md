@@ -1,5 +1,15 @@
 # Rang research state
 
+Core phase 3c-a, 2026-10-29 (implemented; measured). `core/src/predict.rs`
+ports the WSClean-format component predictor of codex-africanus 0.4.4 (BSD
+notice kept). Against a once-only africanus oracle
+(`outputs/core-phase3c-oracle-20261029-01`) it is bit-identical on the response
+pair, the 5153-component SARAO catalogue and a 64-component stress set. The
+frozen run `-01` failed one criterion through a validator error (wrong source
+list for the NumPy templates); the corrected rerun `-02` passes all. Archive
+`results/core-phase3c-a.json`. Next: 3c-b, the signal track (freeze a UVW
+export of the prepared cases first).
+
 Core phase 3 trend chain test, 2026-10-29 (implemented; measured). Seven
 core-solved baselines, written as a mirror of the concurrent suite
 (`examples/build_core_trend_mirror.py`), are consumed by the unedited trend
