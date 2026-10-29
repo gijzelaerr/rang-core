@@ -74,6 +74,28 @@ It also found that S3 listings stop at 1000 keys, so
 namespace `outputs/luno-solve-20261029-02`. Its subtable fetch (2,608 objects,
 2.3 MB) is already in place.
 
+## Reproduce
+
+```sh
+bash tools/flagging/fetch-luno-solve.sh outputs/fresh-solve/inputs
+bash tools/flagging/fetch-luno-solve.sh outputs/fresh-solve/inputs --data
+docker run --rm --user "$(id -u):$(id -g)" --platform linux/amd64 --network none \
+  --tmpfs /tmp -e HOME=/tmp \
+  -v "$PWD/outputs/luno-support-20261029-01/slice:/slice:ro" \
+  -v "$PWD/outputs/fresh-solve/inputs:/inputs:ro" -v "$PWD/outputs/fresh-solve:/out" \
+  -v "$PWD/examples/build_luno_ms.py:/b.py:ro" \
+  --entrypoint python rang-flagging:local -I /b.py /slice /inputs /out/work.ms
+bash tools/flagging/run-luno-solve.sh outputs/fresh-solve/work.ms outputs/fresh-solve/solve
+.venv/bin/python examples/survey_luno_solved.py \
+  outputs/luno-support-20261029-01/extract outputs/fresh-solve/solve outputs/fresh-solve/survey
+```
+
+`run-luno-solve.sh`, added after this run, keeps a persistent Numba cache. A
+warm run takes about 3 s instead of 27 s. Its gains differ from the archived
+cold-JIT run by at most 1.1e-16 absolute and give the identical survey
+(`solve-cached`, `survey-cached`; see
+[upstream notes](upstream-notes.md)). The archived result used the cold run.
+
 ## Note after freezing (2026-10-29, 15:37 SAST)
 
 Mid-run, the observer said in chat that WEIGHT_SPECTRUM was modified by
