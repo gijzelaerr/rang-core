@@ -2,9 +2,9 @@
 
 Protocol frozen 2026-10-29 in the commit that adds this file, before any
 benchmark or kernel change. Status: **implemented; measured: all frozen
-equality criteria pass; speed-ups shown by paired instruction and cycle
-counts (solver 1.5–1.6×, decoder 3.2–4.6×), quiet-load wall timings of the
-new kernels still to be taken; survey a documented null result**. Task F of
+equality criteria pass; solver 1.7–1.8× and blosc decode 3.0–3.3× faster at
+quiet load with bit-identical results; survey a documented null result
+(the cost is outside the core)**. Task F of
 [core-parallel-plan.md](core-parallel-plan.md): make three parts of the core
 faster without changing a result. Under AGENTS.md this is engineering, not a
 scientific contribution; the gate is that the phase 2 and section 6 archives
@@ -273,6 +273,33 @@ load 52–60:
 | 48 DATA tile decodes (9.8 GB) | old | 145.5 G | 46.8 G, 46.1 G | |
 | 48 DATA tile decodes (9.8 GB) | new | 31.7 G | 14.9 G, 14.6 G | 4.6× instructions, 3.2× cycles |
 
+**Wall timings at quiet load (frozen method; run `-07`).** The load fell to
+1.4–1.8 about two and a half hours after the baseline, and
+`bench_core_f.py check outputs/core-f-20261029-07 …` (all targets, final
+library, 34.5 s) ran with all eight equality checks passing. The c-blosc
+reference reproduces its baseline time to 1%, which shows the two runs are
+comparable.
+
+| Target | Measurement | Baseline min (median) | New min (median) | Speed-up |
+| --- | --- | ---: | ---: | ---: |
+| Solver | LUNO, 50 iterations | 0.6125 s (0.6224) | 0.3486 s (0.3510) | 1.76× |
+| Solver | fixture clean case | 0.3984 s (0.3991) | 0.2359 s (0.2373) | 1.69× |
+| Blosc | 16 DATA tiles in full, 3.28 GB, Rust | 1.917 s (1.943), 1.71 GB/s | 0.631 s (0.637), 5.20 GB/s | 3.04× |
+| Blosc | same, c-blosc 1 thread (reference, unchanged) | 0.513 s (0.516) | 0.509 s (0.513) | – |
+| Blosc | same, c-blosc 8 threads | 0.223 s (0.226) | 0.221 s (0.222) | – |
+| Blosc | block-selective ingest, decode only | 0.725 s (0.729) | 0.222 s (0.222) | 3.27× |
+| Blosc | same, wall including file reads | 0.831 s | 0.312 s | 2.66× |
+| Survey | whole block (code unchanged) | 0.739 s | 0.741 s | 1.00× |
+
+Every new minimum is below the baseline minimum by far more than the
+baseline's median-minus-minimum spread (at most 0.026 s), so the protocol's
+claim rule is met for the solver and the decoder. The Rust decoder now takes
+1.24× the single-threaded c-blosc time instead of 3.74×. For the section 6
+prototype this means the decode step falls from 1.29 s (archived run `-02`)
+or 0.73 s (baseline here) to about 0.22 s and the solve from 0.62 s to about
+0.35 s; the archived criteria (2.0 s excluding decode) are not re-run here
+because the prototype is unchanged.
+
 Inside the loaded `check` runs the paired c-blosc measurement serves as a
 second normaliser: the Rust decoder took 3.74× c-blosc's single-thread time
 at baseline, 1.40× in run `-04` (load 45) and 1.59× in run `-05` (load 57).
@@ -338,3 +365,4 @@ merges after B, C, D and E without conflicts in those files. Outputs
 | 2026-10-29 | LAPACK `eigh` timing for the survey note | 10 s | 5 repeats, `OPENBLAS_NUM_THREADS=1` |
 | 2026-10-29 | `bench_core_f.py check outputs/core-f-20261029-06 …` (all targets, final library) | 183 s | load about 55; all eight equality checks pass; timings not usable |
 | 2026-10-29 | `bash tools/check-all.sh` (once, before the final commit) | 51 min 32 s (user 158 min) | PASS: root 19 tests, core 20 tests, clippy, fmt, ruff, 668 pytest; load 55–75 (siblings' suites running) |
+| 2026-10-29 | `bench_core_f.py check outputs/core-f-20261029-07 …` (all targets, final library, quiet load 1.4–1.8) | 34.5 s | all checks pass; the wall table above; results-only commit followed, no code change |
