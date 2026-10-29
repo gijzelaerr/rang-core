@@ -4,6 +4,12 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: the [actions stage](core-phase3-actions.md) runs on the Rust
+core in 9 s (17 solves) and passes as frozen against the archive; the host
+reproduction needed one labelled post-hoc comparator rule for float metadata.
+Phase 3 is in progress: injections, prospective and actions are done; the trend
+chain test and the signal track remain.
+
 New, 2026-10-29: [phase 3b](core-phase3b.md) runs the prospective track (54
 solves, frozen TRAIN-only forecasts) on the Rust core in 33 s and passes every
 gated criterion against the archive and the host reproduction on its first

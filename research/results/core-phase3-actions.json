@@ -1,0 +1,88 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase3-actions.md",
+ "protocol_commit": "87044be",
+ "status": "implemented; measured: passes as frozen against the archive; against the host reproduction the frozen comparator flagged 14 float metadata scores as exact mismatches, and a labelled post-hoc rule passes",
+ "run_dir": "outputs/core-phase3-actions-20261029-01",
+ "result_sha256": "b6d03874ce0ce653daa727409be6b7d823ede779168718e6b231c14bd83c2dfd",
+ "inputs": {
+  "copied_from": "outputs/tv-flagging-actions-wsl-20261029-01",
+  "state_sha256": "84c26f853bb9795c0997ce56743c5d34e1807d0de4c3f8be4399126fd0a3f1a2",
+  "note": "state.npz and manifest.json copied byte-identically into outputs/core-phase3-actions-inputs-20261029-01 so the side-effect audit covers only the two inputs"
+ },
+ "against_archive": {
+  "classes": {
+   "exact": {
+    "compared": 61,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 102,
+    "max_rel": 6.555330250758996e-15
+   },
+   "difference": {
+    "compared": 24,
+    "max_rel": 1.7990178337245446e-11
+   }
+  },
+  "failures": 0,
+  "excluded": 9
+ },
+ "against_host_reproduction_frozen": {
+  "classes": {
+   "exact": {
+    "compared": 222,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 198,
+    "max_rel": 5.415272815844382e-15
+   },
+   "difference": {
+    "compared": 24,
+    "max_rel": 5.8133509522025613e-11
+   }
+  },
+  "failures": 14,
+  "failure_kind": "actions[*].action.score (float metadata, absent from the archive) classed exact; worst relative difference about 1.6e-14"
+ },
+ "against_host_reproduction_posthoc": {
+  "classes": {
+   "exact": {
+    "compared": 206,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 214,
+    "max_rel": 1.5814380894008902e-14
+   },
+   "difference": {
+    "compared": 24,
+    "max_rel": 5.8133509522025613e-11
+   }
+  },
+  "failures": 0
+ },
+ "selected": [
+  "baseline",
+  "baseline"
+ ],
+ "proposal": null,
+ "solves": 17,
+ "side_effects": {
+  "track": "actions",
+  "input_files_checked": 2,
+  "inputs_unchanged": true,
+  "git_status_unchanged": true,
+  "run_dir_files": [
+   "result.json"
+  ],
+  "only_result_written": true
+ },
+ "cost": {
+  "core_wall_seconds": 9.22,
+  "core_max_rss_mb": 234,
+  "host_reproduction": "about 6 min (STATE.md)"
+ },
+ "novelty": "reimplementation only; matched-quality runtime reduction, no scientific result changes"
+}

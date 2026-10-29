@@ -2,8 +2,8 @@
 
 Usage: python examples/run_core_campaign.py <track> outputs/<fresh-run> outputs/<inputs>
 
-Tracks: `injections` (research/core-phase3.md) and `prospective`
-(research/core-phase3b.md). Snapshots the size and modification time of every
+Tracks: `injections` (research/core-phase3.md), `prospective`
+(research/core-phase3b.md) and `actions` (research/core-phase3-actions.md). Snapshots the size and modification time of every
 input file and `git status --porcelain` before and after the run, and writes
 side-effects.json next to result.json.
 """
@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TRACKS = {
     "injections": "rangtoy.core_injections",
     "prospective": "rangtoy.core_prospective",
+    "actions": "rangtoy.core_actions",
 }
 
 

@@ -1,5 +1,13 @@
 # Rang research state
 
+Core phase 3 actions stage, 2026-10-29 (implemented; measured). The actions
+stage runs on the Rust core (`rangtoy.core_actions`) in 9.2 s with 17 solves;
+it passes as frozen against `results/gain-tv-actions.json` (floats 6.6e-15,
+differences 1.8e-11). Against the host reproduction the frozen comparator
+flagged 14 float metadata scores as exact; a labelled post-hoc rule passes.
+Archive `results/core-phase3-actions.json`. Phase 3 overall: in progress
+(injections, prospective, actions done; trend chain test and signal remain).
+
 Core phase 3b, 2026-10-29 (implemented; measured: all gated criteria pass as
 frozen). The prospective track runs on the Rust core
 (`rangtoy.core_prospective`, `examples/run_core_campaign.py`) in 32.8 s with

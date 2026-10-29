@@ -1,7 +1,9 @@
 # Rang core, phase 3: the actions stage on the core
 
-Protocol frozen 2026-10-29, before any actions driver or comparator code was
-written. Status: **proposed**. Part of phase 3 of the port plan
+Protocol frozen 2026-10-29 in `87044be`, before any actions driver or
+comparator code was written. Status: **implemented; measured: passes as
+frozen against the archive; a labelled post-hoc comparator rule is needed
+for the host reproduction**. Part of phase 3 of the port plan
 ([stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4), after the injection campaign ([core-phase3.md](core-phase3.md))
 and the prospective track ([core-phase3b.md](core-phase3b.md)). A
@@ -63,3 +65,35 @@ track.
 
 The stage is reported as passed only if criteria 1–5 pass as frozen; any
 failure is recorded with its numbers.
+
+## Measured result (2026-10-29)
+
+Run `outputs/core-phase3-actions-20261029-01`, the first and only run of the
+stage. The prepared `state.npz` and `manifest.json` were copied
+byte-identically (SHA256 `84c26f85…`) into
+`outputs/core-phase3-actions-inputs-20261029-01`, so that the side-effect
+audit covers exactly the two inputs. Archive:
+[core-phase3-actions.json](results/core-phase3-actions.json).
+
+- **Against the archive, as frozen: pass.** 61
+  exact fields equal, 102 floats within
+  6.6e-15, 24
+  differences within 1.8e-11 relative.
+  The selection is the baseline (no change) as archived; the ridge model
+  proposed no mask, so the stage made 17 solves.
+- **Against the host reproduction, as frozen: 14 failures.** All are
+  `actions[*].action.score`, a float in each action's metadata that the
+  reproduction stores and the archive does not. The comparator classed it as
+  exact, although criterion 1 covers only non-float metadata. The values agree
+  to about 1.6e-14 relative.
+- **Post-hoc** (labelled in the comparator): treating that float metadata as a
+  float, the comparison against the host reproduction passes with
+  206 exact fields, 214
+  floats (worst 1.6e-14) and
+  24 differences (worst
+  5.8e-11). No solve was rerun; only the
+  comparison.
+- **Side effects:** inputs and `git status` unchanged; only `result.json`
+  written.
+- **Cost (reported):** 9.2 s and 234 MB in one process, against about 6 min
+  for the host reproduction of the stage (STATE.md).
