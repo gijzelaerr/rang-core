@@ -2,8 +2,9 @@
 
 Wave 1 task E of [core-parallel-plan.md](core-parallel-plan.md), on branch
 `core/e-ms-reader` from `9e12326`. Protocol frozen 2026-10-29 in the commit
-that adds this file, before any reader code. Status: **proposed; protocol
-frozen; oracle and comparator precondition measured**. Phase 6 of the port
+that adds this file (`1a9b8f4`), before any reader code. Status:
+**implemented; measured: all three frozen criteria pass** (run `-02`, the
+first implementation, and run `-03` after speed fixes). Phase 6 of the port
 plan in [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4: a Rust reader for casacore tables so python-casacore leaves the
 hot path. Gate as frozen there: column-exact reads of the fixture and LUNO
@@ -80,26 +81,54 @@ format as read in these files, and this section records what was relied on:
   pixels in Fortran order of the tile shape, booleans bit packed per tile,
   data columns of one hypercolumn laid out in descending pixel size).
 
-## What is proposed
+## What is implemented
 
-- `core/src/ms.rs`: an AipsIO reader, `table.dat` parsing, and the three
-  managers above, exposing `Table::open(path)`, column descriptions and
+- `core/src/ms.rs` (about 1,900 lines with tests): an AipsIO cursor,
+  `table.dat` parsing, and the three managers above, exposing
+  `Table::open(path)`, column descriptions and
   `read_column(name, start, count)` returning native-endian bytes in
   casacore's Fortran cell order (what python-casacore's `getcol` returns
-  after its reversed shape), strings length-prefixed. Read-only: the
-  reader opens files for reading only and never touches `table.lock`.
-  Variable-shaped columns are read when every requested row has the same
-  shape (the `getcol` rule). Outside the task: IncrementalStMan arrays and
-  strings, MemoryStMan, MultiFile tables, big-endian data files, and the
-  deprecated `StManAipsIO`, which fail with a clear error.
-- `core/src/ffi_ms.rs`: `rang_core_ms_open/close`, a JSON description of
-  the table, `rang_core_ms_read_size` and `rang_core_ms_read`, and a
-  thread-local last error, following `ffi.rs`.
+  after its reversed shape), strings as a list. Every file is opened for
+  reading only; `table.lock` is read for its sync record (below) and never
+  written or locked. Variable-shaped columns are read when every requested
+  row has the same shape (the `getcol` rule). Outside the task and refused
+  with an error: IncrementalStMan arrays and strings, MemoryStMan,
+  MultiFile tables, the deprecated `StManAipsIO`, tiled scalar columns and
+  big-endian hosts; big-endian data files are handled by byte swapping but
+  no such table was available to test.
+- `core/src/ffi_ms.rs`: `rang_core_ms_open/close`, `rang_core_ms_describe`
+  (JSON), `rang_core_ms_read` (a core-allocated buffer, freed with
+  `rang_core_ms_free`) and a thread-local `rang_core_ms_last_error`,
+  following `ffi.rs`.
 - `python/rangtoy/core_ms.py`: `open_table(path)` with `nrows`, `columns`,
   `getcol(name, startrow, nrow)` returning arrays shaped as python-casacore
-  does, and `subtable(name)`; registers its own ctypes symbols as
-  `core_zarr.py` does.
+  does (object arrays for strings), and `subtable(name)`; registers its own
+  ctypes symbols as `core_zarr.py` does. `tests/test_core_ms.py` compares
+  seven main columns of both MSs and the ANTENNA subtable with the oracle
+  and skips when the oracle, the MSs or the reader symbols are absent.
 - No new Rust dependency.
+
+Found while implementing, beyond the sources listed above:
+
+- Every top-level AipsIO object is preceded by the magic word, so the
+  StandardStMan index buffer and the IncrementalStMan index object start
+  with one, and so does each `SSMIndex` in the buffer.
+- The row count of a table is the one in the sync record of `table.lock`
+  (260 bytes of lock requests, a canonical `uInt` length, then an AipsIO
+  `sync` object), falling back to `table.dat` when that is 0
+  (`PlainTable.cc`, `TableSyncData.cc`, `casa/IO/LockFile.cc`): the LUNO
+  subtables say 0 rows in `table.dat` and 4, 3, 1 and 1 in the lock file.
+- Strings up to 8 characters are stored inside the 12-byte slot of the data
+  bucket (characters first, length last); longer ones in string buckets
+  whose bookkeeping and per-string lengths are canonical big-endian even in
+  a little-endian table (`SSMStringHandler.cc`).
+- The indirect-array file written by these tables has version 0 (no
+  reference count before the shape); version 1 is handled too.
+- The tiled data managers' per-manager blob in `table.dat` is empty; a
+  TiledShapeStMan keeps an empty placeholder as hypercube 0 and maps rows
+  through three `uInt` blocks (`TiledShapeStMan.h`).
+- The actual tile shapes differ from the `DEFAULTTILESHAPE` the inventory
+  reports: casacore clipped them to the cube ([4, 4096, 8] for DATA).
 
 ## Inputs (frozen)
 
@@ -141,6 +170,46 @@ to the oracle's `getcol` time for the same column (both measured on this
 host, the oracle's inside the container, so only large ratios mean
 anything), and the number of bytes read per column.
 
+## Measured result (2026-10-29)
+
+**Run `-02`** (`outputs/core-e-check-20261029-02`, the first complete
+implementation): criteria 1–3 pass. 173 columns of 15 tables (3 main
+tables, 12 subtables) are column-exact, the two row ranges of every column
+equal the oracle's slices, and the SHA256 of every file of the three MSs is
+unchanged and equals the oracle receipt's. Wall 3.2 s, peak RSS 165 MB.
+
+**Run `-03`** (`outputs/core-e-check-20261029-03`): after three
+implementation changes with the criteria unchanged (tiles are copied per
+intersecting tile instead of per axis-0 run with a hash lookup each,
+booleans are unpacked a byte at a time, indirect arrays are read straight
+into the output), criteria 1–3 pass again. Wall 2.8 s, peak RSS 161 MB.
+
+Reported, not gated, full-column reads on the host (run `-03`) against the
+oracle's `getcol` in the container (both warm page cache):
+
+| Column | Core (ms) | python-casacore (ms) |
+| --- | ---: | ---: |
+| fixture DATA, 140 × 4096 × 4 complex64, TiledShapeStMan | 147 | 28 |
+| fixture WEIGHT_SPECTRUM, float32, TiledShapeStMan | 42 | 28 |
+| fixture FLAG, bool, TiledShapeStMan | 0.9 | 3.0 |
+| fixture UVW, TiledColumnStMan | 0.45 | 2.9 |
+| fixture TIME, IncrementalStMan | 0.6 | 0.1 |
+| imaging CORRECTED_DATA, StandardStMan indirect | 80 | 12 |
+| LUNO DATA, 192 × 2048 × 4, StandardStMan indirect | 20 | 12 |
+| LUNO FLAG, StandardStMan indirect, bit packed | 14 | 0.9 |
+| all 173 full columns | 526 | 133 |
+| the 105 subtable columns | 2.6 | 0.8 |
+
+The core is 1.5–5× slower than casacore on the large tiled and indirect
+columns and faster on small tiled ones. Profiling (under load, so
+indicative) puts about a third of the fixture DATA time in the ctypes
+transfer and NumPy copy and the rest in the Rust read, which grows the
+output vector row by row and copies it once more into a boxed slice.
+Reserving the output once and handing NumPy the buffer without a copy are
+the obvious next steps; neither changes a byte of the result. The
+casacore numbers include its tile cache, which the core does not keep
+between calls.
+
 ## Timings
 
 | Date | Tool / stage | Input | Wall | Notes |
@@ -152,11 +221,34 @@ anything), and the number of bytes read per column.
 | 2026-10-29 | `oracle_ms_columns.py` in `rang-flagging:local`, run `-01` | 3 MSs, 15 tables, 103 columns | 1.16 s | container included; `getcol` of the 140 × 4096 × 4 DATA 27 ms, of LUNO DATA 8 ms |
 | 2026-10-29 | same, run `-02` | same | 1.22 s | byte-identical dumps |
 | 2026-10-29 | `check_ms_reader.py --self-check` | the two dumps | 0.61 s | precondition passes |
+| 2026-10-29 | `cargo +1.93 test` of `ms::` unit tests and the fixture smoke test | `core/` | 4.8 s build + 0.3 s | |
+| 2026-10-29 | `pytest tests/test_core_ms.py` (4 tests, includes a core rebuild) | fixture, LUNO | 10 s | |
+| 2026-10-29 | `check_ms_reader.py` run `-02` | 173 columns, 414 reads | 3.2 s | peak RSS 165 MB |
+| 2026-10-29 | `check_ms_reader.py` run `-03` | same | 2.8 s | peak RSS 161 MB |
+| 2026-10-29 | `bash tools/check-all.sh` (with the two `lib.rs` lines present) | repo | 51.6 min | PASS; pytest 672 passed in 3,070 s while seven sibling sessions shared the 16 cores (175–986 s earlier on a quiet host) |
 
 ## For the coordinator
 
-- Add to `core/src/lib.rs`: `pub mod ffi_ms;` and `pub mod ms;` (both
-  written for Rust 1.93, edition 2024, no new dependencies).
+- Add to `core/src/lib.rs`, in alphabetical order: `pub mod ffi_ms;` and
+  `pub mod ms;` (Rust 1.93, edition 2024, no new dependencies). The branch
+  does not edit `lib.rs`; `tools/check-all.sh` was run once with the two
+  lines present, and `tests/test_core_ms.py` skips without them (and
+  without the oracle dump or the MSs in `outputs/`).
 - `research/tool-timings.md`: copy the rows of the Timings table above.
-- README: `rangtoy.core_ms` is the MS edge of the core; python-casacore is
-  still needed to write tables and for the oracle.
+- README: `rangtoy.core_ms` reads Measurement Sets for the core;
+  python-casacore is still needed to write tables and for the oracle.
+- `research/upstream-notes.md`: nothing to file; the formats behaved as the
+  casacore sources describe.
+- Scratch to delete when done: `~/Build/tmp/20261029-core-e` (the casacore
+  clone, 43 MB, and the inventory scripts).
+
+## Open questions and follow-ups
+
+- Speed: the gaps in the table above (reserve the output once, pass the
+  buffer to NumPy without a copy, keep tiles between calls).
+- Only little-endian tables were available; the byte-swapping path for
+  big-endian data files (old MSs) is untested.
+- IncrementalStMan array and string columns, MultiFile tables and
+  MemoryStMan are refused; none of the inputs use them.
+- Row selections are contiguous ranges; a row index list (the section 6
+  prototype's selection) is one `getcol` per run for now.
