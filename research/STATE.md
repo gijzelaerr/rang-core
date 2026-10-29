@@ -1,5 +1,9 @@
 # Rang research state
 
+Handoff, 2026-10-30: the coordinating session is being cleared. The parallel
+work plan, session rules and open items are in `core-parallel-plan.md`;
+wave 1 (eight sessions) awaits the user's go-ahead.
+
 Core section 6 prototype, 2026-10-29 (implemented; measured). Run as frozen
 from the LUNO zarr tiles with no MS (`examples/prototype_section6.py`, checker
 `examples/check_section6.py`): a Rust blosc decoder (`core/src/blosc.rs`,

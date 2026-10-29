@@ -4,6 +4,9 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: [parallel work plan and handoff](core-parallel-plan.md) for the
+remaining port (proposed).
+
 New, 2026-10-29: the [section 6 prototype](core-section6.md) runs as frozen
 from the LUNO zarr tiles to the rank survey with no Measurement Set: a Rust
 blosc decoder reads only the 512 of 3136 blocks it needs, the core solves,
