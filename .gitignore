@@ -1,5 +1,6 @@
 .codex/
 /target/
+/core/target/
 /outputs/
 __pycache__/
 .pytest_cache/

@@ -725,7 +725,7 @@ before the next starts; a phase that fails its gate is reported, not skipped.
 
 | Phase | Weeks | Content | Gate |
 | --- | ---: | --- | --- |
-| 0 | hours | Persistent Numba cache in every wrapper; gain comparisons by tolerance instead of hash | `tool-timings.md` rows; identical rank survey |
+| 0 | hours | Persistent Numba cache; gain comparisons by tolerance instead of hash. Met on 2026-10-29 by `run-next.sh` and `run-luno-solve.sh` (`794ed21`) and the tolerance rule in `upstream-notes.md`. The older `run-*.sh` wrappers are hashed into campaign receipts and stay frozen. | `tool-timings.md` rows; identical rank survey (measured) |
 | 1 | 3–5 | Crate skeleton: `VisBlock`, `GainGrid`, `BinStats`, zarr ingest, scalar prediction, fused statistics, PyO3 | normals to 1e-13, TV/trend exact, MAD $z$ to 1e-12 against the archives |
 | 2 | 3–6 | Full-Jones `complex` solver ported from the QuartiCal kernel (MIT) | section 6 criteria 1–9 on the LUNO slice and the fixture clean case |
 | 3 | 2–3 | Policy loop and the trend, prospective and signal tracks on the core; `goquartical` retired from campaigns | `gain-tv-actions`, `gain-tv-next-trend`, `-prospective`, `-signal` reproduced to the STATE.md tolerances |

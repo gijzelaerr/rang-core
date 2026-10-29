@@ -12,6 +12,10 @@ cargo build --offline --release
 cargo test --offline --release
 cargo clippy --offline --all-targets -- -D warnings
 cargo fmt --check
+cargo build --offline --release --manifest-path core/Cargo.toml
+cargo test --offline --release --manifest-path core/Cargo.toml
+cargo clippy --offline --all-targets --manifest-path core/Cargo.toml -- -D warnings
+cargo fmt --check --manifest-path core/Cargo.toml
 .venv/bin/python -m pytest -q
 .venv/bin/ruff check python examples tests
 .venv/bin/ruff format --check python examples tests

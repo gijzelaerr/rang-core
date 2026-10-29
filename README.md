@@ -144,6 +144,7 @@ quality/cost comparison, not further simulator expansion.
 
 Rang is free software under the GNU General Public License, version 3 or (at
 your option) any later version; see [LICENSE](LICENSE). The user chose GPL on
-2026-10-29 so that GPL radio-astronomy tools (WSClean, AOFlagger, Stimela and
-others) can be ported into the core without licence conflicts. Ported code keeps
+2026-10-29 so that GPL-3 radio-astronomy tools such as WSClean and AOFlagger
+can be ported into the core. GPL-2-only upstreams cannot be combined with GPL-3
+code, so each upstream's exact licence is checked before porting it. Ported code keeps
 its upstream copyright notices.

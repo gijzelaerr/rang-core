@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: [phase 1 of the core port](core-phase1.md) has a frozen
+protocol (proposed; no code yet): a fused Rust pass for residuals, split losses,
+robust scores and antenna-diagonal normals, validated against the archives.
+
 New, 2026-10-29: a [stack-consolidation feasibility study](stack-consolidation-feasibility.md)
 asks whether one Rust core with a thin Python API could replace the tools rang
 runs between reading visibilities and writing diagnostics. Verdict: partially.
