@@ -14280,5 +14280,41 @@
   "src/response.rs": "8d0fa3aba4429ab5fc97e401d51ebde91ffce1cd92676f8ef952b8762098fb87",
   "librang_toy.so": "ced1937b291dca0369292c1f71bd0aa84ac4769f2562f9a246737734a3b4df80"
  },
- "protocol_commit": "807eb52"
+ "protocol_commit": "807eb52",
+ "post_hoc_status_audit": {
+  "script": "examples/audit_luno_support_status.py",
+  "script_sha256": "caecff5db6a3825a6bf8f9abcb312fd744d1d63a4545bb1b97f703c74aa53ab4",
+  "output_sha256": "4e3c7588817715df9898900eceb68da675f07178a62d35f7ede9f5fecedd0baf",
+  "note": "frozen crosscheck passed drop_h=H, zeroing retained curvature (status 4 on fully identified bins); original survey call is (H,0,0,0)",
+  "counts": {
+   "1": {
+    "identity": {
+     "frozen(H,0,H,0) fully_identified status4": 389,
+     "frozen(H,0,H,0) underidentified status3": 43,
+     "original(H,0,0,0) fully_identified status0": 389,
+     "original(H,0,0,0) underidentified status3": 43
+    },
+    "random_seed20261029": {
+     "frozen(H,0,H,0) fully_identified status4": 389,
+     "frozen(H,0,H,0) underidentified status3": 43,
+     "original(H,0,0,0) fully_identified status0": 389,
+     "original(H,0,0,0) underidentified status3": 43
+    }
+   },
+   "2": {
+    "identity": {
+     "frozen(H,0,H,0) over_rank status6": 145,
+     "frozen(H,0,H,0) underidentified status6": 15,
+     "original(H,0,0,0) over_rank status6": 145,
+     "original(H,0,0,0) underidentified status6": 15
+    },
+    "random_seed20261029": {
+     "frozen(H,0,H,0) over_rank status6": 145,
+     "frozen(H,0,H,0) underidentified status6": 15,
+     "original(H,0,0,0) over_rank status6": 145,
+     "original(H,0,0,0) underidentified status6": 15
+    }
+   }
+  }
+ }
 }

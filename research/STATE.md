@@ -10,10 +10,16 @@ m000–m003, 2×32 grid):
 
 - **1934−638 (scalar model):** 389 of 432 supported bins are fully identified
   (116,805 of 117,556 TRAIN cells). All 43 failures are tree-shaped support
-  graphs, and the native crosscheck agrees 432/432.
+  graphs. A post-hoc audit with the original `anchored_response(H,0,0,0)`
+  call gives status 0 on the 389 and status 3 on the 43. The frozen call
+  `(H,0,H,0)` was mis-specified: it zeroes the retained curvature and returns
+  status 4. The first push wrongly reported "432/432 agree".
 - **1830−211:** the model has about 1e-3 cross-hand terms, so the scalar U(2)
-  condition does not apply (145 over-rank bins and 15 tree failures, where the
-  native status is 6).
+  condition does not apply (145 over-rank bins and 15 tree failures; native
+  status 6 on all 160).
+- **Model origin:** neither surveyed model has a logged origin. `setjy` named
+  only 3C 286, and a `clearcal` with `addmodel` on field 2 would have reset the
+  1830−211 model.
 - No-data bins are the RFI-masked roughly 1150–1311 MHz and 1471–1498 MHz
   channels. Antennas m031, m040 and m044 have no TRAIN support.
 
@@ -27,8 +33,8 @@ involved, give project `20210818-0008`, observer `B Hugo` and target field
 `Moon`. The Moon was 44′–149′ from the stored target direction during the track.
 HISTORY holds 923 calibrator and 124 target rows, all CASA 5.6 records from
 2022-09-10 to 2022-11-02: 25 `applycal` with `calwt=True`/`calflag`, four manual
-`flagdata`, `setjy` (Perley-Butler 2017) and `clearcal`. FLAG, WEIGHT_SPECTRUM
-and MODEL_DATA are therefore processing products, so the all-four-weight
+`flagdata`, `setjy` (Perley-Butler 2017, 3C 286 only) and `clearcal`. FLAG,
+WEIGHT_SPECTRUM and MODEL_DATA are therefore processing products, so the all-four-weight
 support is not native evidence. The stores were published 2024-11-29 as
 AfriCalim 2024 workshop data (`africalim/resources` QuartiCal recipes, likely
 source of `CORRECTED_DATA_QCAL`). No licence was found. The workshop's
@@ -38,8 +44,8 @@ observer; a question was sent to the "Hout boys" WhatsApp group 2026-10-29
 ~13:06 SAST, with no reply recorded. Run `outputs/luno-text-20261029-01` via
 `tools/flagging/fetch-luno-text.sh` plus `examples/decode_luno_text.py`
 (60 objects, 27,237 bytes), archived in `results/meerkat-luno-provenance.json`;
-details in `flagging-luno-candidate.md`. Gain-bin support is not measured and
-waits on the licence and native-weight questions.
+details in `flagging-luno-candidate.md`. Gain-bin support was later measured
+provisionally (above).
 
 Second public candidate, 2026-10-29 (metadata plus one bounded numeric tile;
 no calibration). `LBAND_LUNO_CALIBRATORS.zarr` in the anonymous RATT bucket:

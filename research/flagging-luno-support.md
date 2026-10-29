@@ -104,7 +104,8 @@ Run on 2026-10-29 after protocol commit `807eb52`:
 - **Extraction and survey:** as frozen, with no code or threshold changes.
 - **Archive:** [meerkat-luno-support.json](results/meerkat-luno-support.json).
   It holds all summaries, every failure row, the whole-array per-antenna
-  counts, the input and code hashes and the result SHA256 `08f0d25e…aef`.
+  counts, the input and code hashes, the result SHA256 `08f0d25e…aef` and the
+  post-hoc status audit.
 - **Stations:** m000–m003.
 
 | | PKS 1934−638, scan 2 | PKS 1830−211, scan 3 |
@@ -117,11 +118,28 @@ Run on 2026-10-29 after protocol commit `807eb52`:
 | Over-rank bins | 0 | 145 |
 | No-TRAIN bins | 592 | 160 |
 | TRAIN cells, fully / under | 116,805 / 751 | 0 / 128 (rest over-rank) |
-| Native crosscheck agrees | 432 / 432 | 145 / 160 |
+| Native status, `(H,0,0,0)` call | 389 × 0, 43 × 3 | 160 × 6 |
 
 Identity and the seed-20261029 random gain point give the same counts. The
 only difference is that a few 1830−211 over-rank bins have rank 30 rather than
 31.
+
+**Crosscheck correction (post hoc, reporting only).** The frozen crosscheck
+called `anchored_response(H, 0, H, 0, …)`. The kernel's retained curvature is
+`full_h − drop_h`, so that call makes it zero and returns status 4 ("retained
+rank loss") on every fully identified bin. The frozen survey only compared
+status 3 with the underidentified label, so this went unnoticed, and the first
+pushed version of this report overstated agreement as "432/432".
+`examples/audit_luno_support_status.py` re-evaluates the same extraction under
+both calls:
+
+- **Frozen call:** 389 × status 4 and 43 × status 3 for 1934−638; all 160 bins
+  status 6 for 1830−211.
+- **The original survey's `(H, 0, 0, 0)` call:** 389 × status 0 and 43 ×
+  status 3, matching the rank labels exactly. All 160 1830−211 bins still return
+  status 6, the U(2) gauge-null mismatch, which confirms the model reading below.
+
+Rank labels and counts are unchanged.
 
 **PKS 1934−638.** MODEL_DATA is scalar: XX equals YY, and XY and YX are exactly
 zero. 90.0% of supported bins and 99.36% of TRAIN cells meet `8*nactive-4`. All
@@ -138,9 +156,9 @@ an odd cycle does not identify full-Jones gains.
 MODEL_DATA carries small cross-hand terms, with median |XY/XX| of 1.1e-3 and
 median |YX/XX| of 1.2e-3. These break the gauge, so four-station bins reach
 rank 30–31 against the scalar-model 28. The native kernel returns status 6
-(U(2) gauge-null mismatch) on the 15 bins that rank classifies as
-underidentified, which accounts for all 15 crosscheck disagreements. Those 15
-bins are trees as well: baseline 0–2, or a path through 0–2. Per the protocol,
+(U(2) gauge-null mismatch) on all 160 supported bins. The 15 bins that rank
+classifies as underidentified are trees as well: baseline 0–2, or a path
+through 0–2. Per the protocol,
 the model is not edited after the fact. Zeroing or replacing the cross-hand
 model would need its own frozen follow-up.
 
@@ -160,8 +178,23 @@ median antenna has about 1.19 M TRAIN cells in the 1934−638 chunk.
   about 8.1);
 - 1830−211: all four correlations nearly constant, about 0.37–0.40.
 
-Values do not affect rank, but this confirms that they are processing-scaled,
-not raw.
+Values do not affect rank. The spread is consistent with processing-scaled
+weights. On 1934−638 the cross-hand weights are uniformly about twice XX and YY;
+`calwt` rescaling of equal starting weights would not naturally produce that,
+which hints that another step wrote the weights. This is an observation, not a
+conclusion, and it bears on the weight question put to Ben.
+
+**Model origin.** Neither surveyed MODEL_DATA has a logged origin:
+
+- The only `setjy` row names field J1331+3030 (3C 286).
+- A `clearcal` with `addmodel=True` on field 2 (1830−211) would have reset that
+  model to unity, yet it now holds about 12.8 Jy with cross-hand terms.
+- The 1934−638 model (about 14.9 Jy, scalar, with a small imaginary part)
+  matches no HISTORY row either.
+
+Both were presumably written later, for example by an unlogged prediction step.
+The survey depends on these models, so their source is listed as open in
+[the candidate report](flagging-luno-candidate.md#still-open).
 
 **What this does and does not show.** On processed support, a second, real
 MeerKAT observation gives mostly identified four-station TRAIN support on its

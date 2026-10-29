@@ -76,7 +76,8 @@ arrays use the `json2` filter, so they decode as plain JSON with no pickle):
   (gain tables from 1934−638, 3C 286 and the secondary: K, G, B, Df, KX, Xf),
   four `flagdata` runs in `manual` mode (scan 4 with a 1 s quack, and the
   850–900 MHz and 1650–1750 MHz band edges), `setjy` (Perley-Butler 2017,
-  J1331+3030 at 18.954 Jy at 856 MHz, writing `MODEL_DATA`) and `clearcal`.
+  field J1331+3030 only, 18.954 Jy at 856 MHz, writing `MODEL_DATA`) and
+  `clearcal` (including `field = "2"` with `addmodel=True`).
   No QuartiCal, statwt, initweights or split row.
 - The S3 store roots were last modified 2024-11-29 14:07 UTC (calibrators) and
   17:04 UTC (target).
@@ -104,7 +105,11 @@ as processing products, not native values:
 - `calwt=True` rescales weights by gain amplitudes, which matches the varying
   0.095–1.0 weights.
 - `calflag` and the manual flags add flags.
-- `setjy` wrote the model.
+- `setjy` wrote the 3C 286 model only (corrected 2026-10-29). The 1934−638 and
+  1830−211 models have no logged origin: `clearcal` would have reset the
+  1830−211 model to unity, yet it holds about 12.8 Jy with about 1e-3
+  cross-hand terms. See the
+  [support survey](flagging-luno-support.md#measured-result-provisional).
 
 `CORRECTED_DATA_QCAL` has no HISTORY row, since QuartiCal does not write
 HISTORY. The workshop recipe makes a QuartiCal run likely; whether that run also
@@ -126,6 +131,8 @@ items below are open. Results are provisional; see the
   2026-10-29 at about 13:06 SAST; no answer has been recorded. Record any reply
   here with who said it and when; chat replies alone do not change data or
   flags.
+- **Model origin.** No HISTORY row explains the 1934−638 or 1830−211
+  MODEL_DATA, and the support survey depends on them.
 - **Native data.** Whether `DATA` itself is the raw 4,096-channel, roughly 8 s
   correlator output is not established. Native weights and flags would come from
   the SARAO archive (schedule block 20210818-0008), not from these stores.
