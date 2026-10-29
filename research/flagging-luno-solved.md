@@ -74,6 +74,45 @@ It also found that S3 listings stop at 1000 keys, so
 namespace `outputs/luno-solve-20261029-02`. Its subtable fetch (2,608 objects,
 2.3 MB) is already in place.
 
-## Measured result
+## Note after freezing (2026-10-29, 15:37 SAST)
 
-Not yet run.
+Mid-run, the observer said in chat that WEIGHT_SPECTRUM was modified by
+QuartiCal and that SIGMA_SPECTRUM holds the original inverse variances. The
+frozen design is unchanged. Rank depends only on weight positivity, but the
+solve itself is weighted by a QuartiCal-derived WEIGHT_SPECTRUM, so its
+diagnostics stay conditional on that.
+
+## Measured result (provisional)
+
+Run on 2026-10-29 in `outputs/luno-solve-20261029-02`, after protocol commit
+`487208b`, with no change to code or settings. Archive:
+[meerkat-luno-solved.json](results/meerkat-luno-solved.json).
+
+- **Inputs.**
+  - DATA tiles: 17 objects, 2,717,394,982 bytes, about 461 s.
+  - Subtables and row columns: 2,608 objects, 2,306,677 bytes, 432 s.
+  - MS build: 4.4 s, 192 rows × 2048 channels.
+- **QuartiCal.** Exit 0 in 27.5 s (24.6 s graph execution), with FLAG and
+  FLAG_ROW byte-identical afterwards.
+  - Chi-squared fell from 73.75 to 0.27.
+  - 98.3% of solution intervals converged within the frozen 50 iterations; the
+    chunk's `conv_iter` reached the 50 cap.
+  - 59.0% of station-bin gains are flagged, exactly the unsupported
+    station-bins. No supported station-bin was flagged.
+  - Unflagged gains have a median diagonal amplitude of 0.79 and a median
+    off-diagonal amplitude of 0.006.
+  - The maximum baseline closure |G_p G_qᴴ − I| is 0.42, so the solved gains
+    clearly differ from identity.
+- **Rank at the solved gains.** Exactly as at identity and random gains:
+  - 389 of 432 supported bins are fully identified, covering 116,805 TRAIN
+    cells; all return native status 0.
+  - 43 bins are underidentified, covering 751 cells; all return status 3.
+  - No bin lacks a solved gain, none is over-rank, and 592 have no TRAIN data.
+
+As declared, this agreement is the expected consistency result. On the scalar
+1934−638 model, four-station rank does not depend on the gain point: identity,
+seeded random and actually solved gains give the same classification bin for
+bin. The solve diagnostics hold only for the processed inputs: the
+QuartiCal-modified WEIGHT_SPECTRUM, as the observer confirmed, and a
+1934−638 model with no logged origin. They say nothing about calibration
+quality, flagging or imaging.

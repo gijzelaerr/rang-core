@@ -123,14 +123,30 @@ On 2026-10-29 the user chose to continue with the calibrator scans while the
 items below are open. Results are provisional; see the
 [processed-support survey](flagging-luno-support.md).
 
-- **Licence and citation.** No licence was found for the LUNO stores. The
-  closest statement, the Polcal-Primer notice, covers the workshop's UHF
-  teaching data, not this L-band set. It implies SARAO ownership and
-  teaching-only intent. Research use and publication need confirmation from
-  SARAO or the observer. A question went to the "Hout boys" WhatsApp group on
-  2026-10-29 at about 13:06 SAST; no answer has been recorded. Record any reply
-  here with who said it and when; chat replies alone do not change data or
-  flags.
+- **Licence and citation: answered by the observer in chat.** Ben Hugo, the
+  observer, replied on WhatsApp on 2026-10-29 at 15:36 SAST: "you can use it.
+  Just cite the Sarao data usage acknowledgement". No written licence exists
+  in the stores. MeerKAT papers commonly use the wording "The MeerKAT telescope
+  is operated by the South African Radio Astronomy Observatory, which is a
+  facility of the National Research Foundation, an agency of the Department of
+  Science and Innovation." The exact text SARAO requires should be checked
+  against its data policy before publication. The "Hout boys" group question
+  (about 13:06 SAST) has no reply.
+- **Weights: observer's statement, not yet verified in the data.** Ben Hugo,
+  15:37 SAST the same day: "weight spectrum would have been modified by
+  quartical" and "Sigma spectrum should have the original inverse variances".
+  So WEIGHT_SPECTRUM is a QuartiCal product, which is consistent with the about
+  2× cross-hand weights seen on 1934−638. SIGMA_SPECTRUM may hold the original
+  noise. Whether it stores σ or an inverse variance, as the wording suggests, is
+  unchecked; SIGMA_SPECTRUM has not been fetched. Per the user's rule, no data,
+  weights or flags were changed on the basis of the chat. Using SIGMA_SPECTRUM
+  would need its own frozen protocol after a numeric check.
+- **Raw DATA and native flags: an offer, not yet received.** Ben Hugo, 15:38
+  SAST: "I can make a full resolution dataset available to you" and "The zarr
+  files I think was a subset". Whether the public stores were averaged or
+  otherwise reduced relative to the observation is therefore unconfirmed. The
+  4,096 channels and about 8 s integrations measured here may not be the full
+  resolution. Native data would come from his full-resolution set once shared.
 - **Model origin.** No HISTORY row explains the 1934−638 or 1830−211
   MODEL_DATA, and the support survey depends on them.
 - **Native data.** Whether `DATA` itself is the raw 4,096-channel, roughly 8 s

@@ -1,0 +1,1003 @@
+{
+ "bins": 1024,
+ "train_cells": 117556,
+ "bins_with_train": 432,
+ "no_solved_gain_bins": 0,
+ "fully_identified_bins": 389,
+ "underidentified_bins": 43,
+ "over_rank_anomalies": 0,
+ "no_train_bins": 592,
+ "fully_identified_cells": 116805,
+ "underidentified_cells": 751,
+ "no_solved_gain_cells": 0,
+ "native_status_by_label": {
+  "fully_identified status0": 389,
+  "underidentified status3": 43
+ },
+ "failures": [
+  {
+   "bin": 1,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 8,
+   "label": "underidentified",
+   "cells": 22,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 35,
+   "label": "underidentified",
+   "cells": 14,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 65,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 72,
+   "label": "underidentified",
+   "cells": 22,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 99,
+   "label": "underidentified",
+   "cells": 16,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 129,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 136,
+   "label": "underidentified",
+   "cells": 23,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 193,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 200,
+   "label": "underidentified",
+   "cells": 22,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 227,
+   "label": "underidentified",
+   "cells": 16,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 257,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 264,
+   "label": "underidentified",
+   "cells": 24,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 291,
+   "label": "underidentified",
+   "cells": 16,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 321,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 328,
+   "label": "underidentified",
+   "cells": 24,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 355,
+   "label": "underidentified",
+   "cells": 14,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 385,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 392,
+   "label": "underidentified",
+   "cells": 22,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 419,
+   "label": "underidentified",
+   "cells": 14,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 449,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 456,
+   "label": "underidentified",
+   "cells": 21,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 513,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 520,
+   "label": "underidentified",
+   "cells": 19,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 547,
+   "label": "underidentified",
+   "cells": 15,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 577,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 584,
+   "label": "underidentified",
+   "cells": 17,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 641,
+   "label": "underidentified",
+   "cells": 10,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 648,
+   "label": "underidentified",
+   "cells": 16,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 675,
+   "label": "underidentified",
+   "cells": 14,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 705,
+   "label": "underidentified",
+   "cells": 1,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 712,
+   "label": "underidentified",
+   "cells": 20,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 739,
+   "label": "underidentified",
+   "cells": 15,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 769,
+   "label": "underidentified",
+   "cells": 8,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 776,
+   "label": "underidentified",
+   "cells": 17,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 803,
+   "label": "underidentified",
+   "cells": 16,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  },
+  {
+   "bin": 833,
+   "label": "underidentified",
+   "cells": 17,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 840,
+   "label": "underidentified",
+   "cells": 21,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 897,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 904,
+   "label": "underidentified",
+   "cells": 23,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 961,
+   "label": "underidentified",
+   "cells": 18,
+   "active": [
+    0,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 16,
+   "required": 20
+  },
+  {
+   "bin": 968,
+   "label": "underidentified",
+   "cells": 21,
+   "active": [
+    0,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     3
+    ]
+   ],
+   "rank": 8,
+   "required": 12
+  },
+  {
+   "bin": 995,
+   "label": "underidentified",
+   "cells": 15,
+   "active": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "edges": [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     2,
+     3
+    ]
+   ],
+   "rank": 24,
+   "required": 28
+  }
+ ],
+ "solve_summary": {
+  "returncode": 0,
+  "seconds": 27.510631364999426,
+  "flags_unchanged": true,
+  "type": "complex",
+  "shape": [
+   16,
+   64,
+   4,
+   4
+  ],
+  "conv_iter": [
+   [
+    50
+   ]
+  ],
+  "conv_perc": [
+   [
+    0.9833234067897558
+   ]
+  ],
+  "flagged_gain_fraction": 0.590087890625
+ },
+ "input_sha256": {
+  "outputs/luno-solve-20261029-02/solve/gains.npy": "57809b86f7d9bd90c679ed4d4a51875517d1fe6d6eb492c9cb4cfdef04329bc3",
+  "outputs/luno-solve-20261029-02/solve/gain_flags.npy": "0ef0c4ceb49b3f58a5d15450efc107906dcd998af824d3674de7ef628ce6eb08"
+ },
+ "inputs": {
+  "run_dir": "outputs/luno-solve-20261029-02",
+  "objects": 2625,
+  "bytes": 2719701659,
+  "receipt_sha256": "98e51a06bc5c58dc04f1d66b0d09b0f12588d8db20be116be8a9ed0a7bb5cc8e",
+  "support_slice": "outputs/luno-support-20261029-01/slice"
+ },
+ "protocol_commit": "487208b",
+ "provisional": "observer says WEIGHT_SPECTRUM is QuartiCal-modified; 1934-638 model origin unlogged; processed inputs only",
+ "code_sha256": {
+  "examples/build_luno_ms.py": "c73e76e90639ef2164cbe7f7ba5c4e0be394d5855b3f123d13682511267991f2",
+  "examples/solve_luno.py": "ac984fa28ca284549d8259ea9b93f4fa4f12c9d4903e5974f238aa76c585c0b9",
+  "examples/survey_luno_solved.py": "beaffd46655730ceec6cec3983ea10d957814bca40f2f9f919a91f509ed9d60c",
+  "examples/check_luno_solve.py": "ee87e038d37719c1e3a4fce09d371efbb84d1547504f6504c0895d8faa307b22",
+  "tools/flagging/fetch-luno-solve.sh": "2365a5e6672d4e238ecac23c5c91609bb64d98ecb523f40194107c49ea13d97f",
+  "python/rangtoy/flagging_influence.py": "a5b8b87aea5d771cd9443505704b4cf7e01416f92cc69b56c94cd5460750a6eb"
+ },
+ "solve_command": [
+  "goquartical",
+  "input_ms.path=/out/work.ms",
+  "input_ms.data_column=DATA",
+  "input_ms.weight_column=WEIGHT_SPECTRUM",
+  "input_model.recipe=MODEL_DATA",
+  "solver.terms=[G]",
+  "G.type=complex",
+  "G.time_interval=2",
+  "G.freq_interval=32",
+  "solver.iter_recipe=[50]",
+  "solver.convergence_criteria=1e-7",
+  "solver.reference_antenna=0",
+  "solver.robust=false",
+  "mad_flags.enable=false",
+  "output.flags=false",
+  "output.overwrite=false",
+  "output.gain_directory=/out/solve/gains.qc",
+  "output.log_directory=/out/solve/logs.qc",
+  "dask.threads=1",
+  "solver.threads=1",
+  "dask.scheduler=single-threaded"
+ ],
+ "result_sha256": "133c4c8c90e8dc86eae7de20d217c019b2974e696946d00d864b26230737b0f8"
+}

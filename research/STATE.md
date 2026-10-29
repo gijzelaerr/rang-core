@@ -1,5 +1,33 @@
 # Rang research state
 
+LUNO solved-gain follow-up, 2026-10-29 (provisional; protocol `487208b`).
+A four-station casacore MS was built from row chunk 0 of 1934−638 scan 2
+(1070–1497.8 MHz, 192 rows × 2048 channels), and QuartiCal 0.2.7 was run with
+the frozen pipeline command (G complex, 2×32, 50 iterations). Chi-squared fell
+from 73.75 to 0.27, 98.3% of intervals converged, flags were unchanged, and
+gains were flagged exactly on unsupported station-bins. Rank at the solved
+gains is identical to identity and random gains: 389 fully identified bins
+(status 0) and 43 tree-shaped underidentified bins (status 3). This is the
+declared expected consistency result. Run `outputs/luno-solve-20261029-02`,
+archive `results/meerkat-luno-solved.json`, report `flagging-luno-solved.md`.
+Tool timings are now logged in `tool-timings.md`, and upstream observations in
+`upstream-notes.md`. QuartiCal's roughly 24 s per-container Numba JIT dominates
+small solves, because the image's cache lives in `/tmp`.
+
+LUNO answers from the observer, 2026-10-29 (WhatsApp, Ben Hugo):
+- 15:36 SAST: "you can use it. Just cite the Sarao data usage acknowledgement".
+- 15:37 SAST: "weight spectrum would have been modified by quartical" and
+  "Sigma spectrum should have the original inverse variances".
+
+- 15:38 SAST: "I can make a full resolution dataset available to you" and "The
+  zarr files I think was a subset".
+
+Recorded in
+`flagging-luno-candidate.md`. No data, weights or flags were changed on the
+strength of the chat. The running solved-gain follow-up (`flagging-luno-solved.md`,
+frozen in `487208b`) keeps its frozen WEIGHT_SPECTRUM inputs. A SIGMA_SPECTRUM
+weight variant would need its own protocol after a numeric check.
+
 LUNO continuation, 2026-10-29: the user chose to continue with the LUNO
 calibrators while the licence and native weights are unconfirmed (Ben Hugo asked
 the same day; no answer yet). All LUNO results are provisional, and no
