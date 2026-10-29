@@ -2,7 +2,14 @@
 
 Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
-Updated 2026-09-24. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
+Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
+
+New, 2026-10-29: every published five-track stage is reproduced on a second
+host from re-fetched public inputs (see [STATE.md](STATE.md)). A
+[second public L-band candidate](flagging-luno-candidate.md), the LUNO
+calibrator observation, has positive weights in all four correlations, unlike
+ESO137. It also carries 3C 286, PKS 1934−638 and a long PKS 1830−211 track, and
+56 antennas. Its licence and processing provenance are not yet established.
 
 [Latest measured five-track report](flagging-next-summary.md) and
 [execution plan](flagging-next-results.md) freeze

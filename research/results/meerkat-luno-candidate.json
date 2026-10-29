@@ -1,0 +1,507 @@
+{
+ "kind": "metadata-and-bounded-numeric probe, not acquisition for calibration",
+ "probed_utc_date": "2026-10-29",
+ "base": "https://ratt-public-data.s3.af-south-1.amazonaws.com/LBAND_LUNO_CALIBRATORS.zarr",
+ "duplicate_store_same_shapes_and_bytes": "https://ratt-public-data.s3.af-south-1.amazonaws.com/LUNO",
+ "target_store": "https://ratt-public-data.s3.af-south-1.amazonaws.com/LBAND_LUNO_TARGET.zarr",
+ "target_field_ra_dec_deg": [
+  274.9021837011989,
+  -25.667760142290646
+ ],
+ "target_same_time_range_and_antenna_positions": true,
+ "observation_time_range_mjd_s": [
+  5136010275.086135,
+  5136024493.0711355
+ ],
+ "decoder": "numcodecs 0.15.1 Blosc in rang-flagging:local, --network none, no object/pickle arrays decoded",
+ "tile": {
+  "group": "MAIN_0",
+  "row_chunk": 0,
+  "channel_tile": 8,
+  "channels": [
+   1024,
+   1152
+  ]
+ },
+ "summary": {
+  "groups": [
+   {
+    "group": 0,
+    "field": 0,
+    "scan": 1,
+    "ddid": 0
+   },
+   {
+    "group": 1,
+    "field": 1,
+    "scan": 2,
+    "ddid": 0
+   },
+   {
+    "group": 2,
+    "field": 2,
+    "scan": 3,
+    "ddid": 0
+   },
+   {
+    "group": 3,
+    "field": 2,
+    "scan": 4,
+    "ddid": 0
+   },
+   {
+    "group": 4,
+    "field": 2,
+    "scan": 5,
+    "ddid": 0
+   },
+   {
+    "group": 5,
+    "field": 2,
+    "scan": 6,
+    "ddid": 0
+   },
+   {
+    "group": 6,
+    "field": 2,
+    "scan": 7,
+    "ddid": 0
+   },
+   {
+    "group": 7,
+    "field": 2,
+    "scan": 8,
+    "ddid": 0
+   },
+   {
+    "group": 8,
+    "field": 2,
+    "scan": 9,
+    "ddid": 0
+   },
+   {
+    "group": 9,
+    "field": 2,
+    "scan": 10,
+    "ddid": 0
+   },
+   {
+    "group": 10,
+    "field": 2,
+    "scan": 11,
+    "ddid": 0
+   },
+   {
+    "group": 11,
+    "field": 2,
+    "scan": 12,
+    "ddid": 0
+   },
+   {
+    "group": 12,
+    "field": 2,
+    "scan": 13,
+    "ddid": 0
+   },
+   {
+    "group": 13,
+    "field": 2,
+    "scan": 14,
+    "ddid": 0
+   },
+   {
+    "group": 14,
+    "field": 2,
+    "scan": 15,
+    "ddid": 0
+   },
+   {
+    "group": 15,
+    "field": 2,
+    "scan": 16,
+    "ddid": 0
+   },
+   {
+    "group": 16,
+    "field": 0,
+    "scan": 17,
+    "ddid": 0
+   },
+   {
+    "group": 17,
+    "field": 1,
+    "scan": 18,
+    "ddid": 0
+   },
+   {
+    "group": 18,
+    "field": 2,
+    "scan": 19,
+    "ddid": 0
+   },
+   {
+    "group": 19,
+    "field": 2,
+    "scan": 20,
+    "ddid": 0
+   }
+  ],
+  "corr_type": [
+   [
+    9,
+    10,
+    11,
+    12
+   ]
+  ],
+  "field_ra_dec_deg": [
+   [
+    202.78454,
+    30.50917
+   ],
+   [
+    294.85438,
+    -63.71211
+   ],
+   [
+    278.41633,
+    -21.06114
+   ]
+  ],
+  "chan_freq_mhz": [
+   856.0,
+   1711.791015625,
+   4096
+  ],
+  "tile_freq_mhz": [
+   1070.0,
+   1096.541015625
+  ],
+  "antenna_rows": 56,
+  "antenna_flag_rows": 0,
+  "max_baseline_m": 7697.550962145256,
+  "observation_time_range_s": 14217.985000610352,
+  "chunk_rows": 50000,
+  "chunk_unique_times": 32,
+  "chunk_time_span_s": 247.89513492584229,
+  "cross_participating_antennas": 56,
+  "flag_row_fraction": 0.1773,
+  "flag_fraction_cross": 0.7187564823265848,
+  "weight_row_unique_first": [
+   0.2811776101589203,
+   0.3109006881713867,
+   0.3124977946281433,
+   0.31841522455215454,
+   0.31945762038230896
+  ],
+  "sigma_row_unique_first": [
+   1.0
+  ],
+  "weight_spectrum_positive_per_corr": [
+   6170624,
+   6170624,
+   6170624,
+   6170624
+  ],
+  "sigma_spectrum_positive_per_corr": [
+   6170624,
+   6170624,
+   6170624,
+   6170624
+  ],
+  "weight_spectrum_quantiles_per_corr": [
+   [
+    0.09496321529150009,
+    0.14916671812534332,
+    1.0
+   ],
+   [
+    0.1035597175359726,
+    0.14859040081501007,
+    1.0
+   ],
+   [
+    0.09684010595083237,
+    0.14834105968475342,
+    1.0
+   ],
+   [
+    0.12847694754600525,
+    0.1477459818124771,
+    1.0
+   ]
+  ],
+  "all_four_supported_cells": 1735448,
+  "cross_cells": 6170624,
+  "antennas_with_zero_all_four_support": [
+   25,
+   33,
+   37
+  ],
+  "min_max_per_antenna_all_four_support": [
+   0,
+   121005
+  ]
+ },
+ "objects": [
+  {
+   "key": "MAIN/MAIN_0/.zattrs",
+   "bytes": 1356,
+   "sha256": "6ae144e07f89a6db195f974cfc2e67ed21480b74b23f9b26c9640231c78bd725"
+  },
+  {
+   "key": "MAIN/MAIN_1/.zattrs",
+   "bytes": 1356,
+   "sha256": "a26365d5f50f8eb6f3af7446fa8eb07ae5247570b64691b79d9f33a39f044dd3"
+  },
+  {
+   "key": "MAIN/MAIN_2/.zattrs",
+   "bytes": 1310,
+   "sha256": "84aea0baf4315493a1dd05be0716d4d47bfa6ad645c3d64e32e780b72406f9b0"
+  },
+  {
+   "key": "MAIN/MAIN_3/.zattrs",
+   "bytes": 1310,
+   "sha256": "5bdefbd29229ceb6227cbd436aef0a9ddd54ed5a56aeeba77f25c9e08c2151f4"
+  },
+  {
+   "key": "MAIN/MAIN_4/.zattrs",
+   "bytes": 1310,
+   "sha256": "8fc0702e75006c46c6dd19dd6141637c3df9f8a174896aa27c159515ab6114ae"
+  },
+  {
+   "key": "MAIN/MAIN_5/.zattrs",
+   "bytes": 1310,
+   "sha256": "d7b17652e971e4375597f2190e8b37c4087623789645b51bb52558a73f9da807"
+  },
+  {
+   "key": "MAIN/MAIN_6/.zattrs",
+   "bytes": 1310,
+   "sha256": "eabc56235be1d5775960b2c38499524f9bc37d66fcf68d0506f3d249f5b9cc23"
+  },
+  {
+   "key": "MAIN/MAIN_7/.zattrs",
+   "bytes": 1310,
+   "sha256": "de8ea964f49caa81327c40a34ed0c41e6ab0cc9192a873fd12194fb855c00d6d"
+  },
+  {
+   "key": "MAIN/MAIN_8/.zattrs",
+   "bytes": 1310,
+   "sha256": "967e79827905e2cf5a61355950f3115f981ecb247630fb120aab79ca16c83084"
+  },
+  {
+   "key": "MAIN/MAIN_9/.zattrs",
+   "bytes": 1311,
+   "sha256": "6cdb2ee2f93c596e0e166d6fc9a384c44b8a759c2c32109048aaedb0cfc0d1d6"
+  },
+  {
+   "key": "MAIN/MAIN_10/.zattrs",
+   "bytes": 1311,
+   "sha256": "fbc894eadda0d2051a9ff9acfddf2156f8fef83fe48da7843cfaa3327a19e404"
+  },
+  {
+   "key": "MAIN/MAIN_11/.zattrs",
+   "bytes": 1311,
+   "sha256": "5d28462d6068c6f0c6efb2d33902a574c17fde1d110e94b540192b2288a0be59"
+  },
+  {
+   "key": "MAIN/MAIN_12/.zattrs",
+   "bytes": 1311,
+   "sha256": "cf4aa09f473a0bb927352451fea558888ce61a3e525f5c4b1ab160597cf37793"
+  },
+  {
+   "key": "MAIN/MAIN_13/.zattrs",
+   "bytes": 1311,
+   "sha256": "f7b45681d3851f115fb2d5b4cdf060075e6803e668bf7bc8168485bb67717478"
+  },
+  {
+   "key": "MAIN/MAIN_14/.zattrs",
+   "bytes": 1311,
+   "sha256": "fa69b541615541534604c84bb3be887f9317d7c13994249afa3f32b74ba59e26"
+  },
+  {
+   "key": "MAIN/MAIN_15/.zattrs",
+   "bytes": 1311,
+   "sha256": "db302df4406e3428b3cf45c5794c85cd60b05bfeb54e72d6e5e21783d8cdc280"
+  },
+  {
+   "key": "MAIN/MAIN_16/.zattrs",
+   "bytes": 1357,
+   "sha256": "38e3abe1aedf41d3edd39f521ffb5a70c0521c185cd6e31e9ab4b62236e570b3"
+  },
+  {
+   "key": "MAIN/MAIN_17/.zattrs",
+   "bytes": 1357,
+   "sha256": "14874f28f1f7e644453e379a42953607bfc59dfc556e31980a826de1e9a60eab"
+  },
+  {
+   "key": "MAIN/MAIN_18/.zattrs",
+   "bytes": 1311,
+   "sha256": "71cc117f43ff9fa50255825220f1fd0d334e583657865fee95dc08f3fb2ec52f"
+  },
+  {
+   "key": "MAIN/MAIN_19/.zattrs",
+   "bytes": 1311,
+   "sha256": "d8125e9eb7e4c96b5c76c0bb65da1c2c759368d1e416bbbcf6d70f9efc3f3eea"
+  },
+  {
+   "key": "POLARIZATION/POLARIZATION_0/CORR_TYPE/0.0",
+   "bytes": 32,
+   "sha256": "e3a121d0f2e70a4e5ea9c5b2551b45937ea58e93bafd42e7744eab4aa41134e2"
+  },
+  {
+   "key": "POLARIZATION/POLARIZATION_0/CORR_TYPE/.zarray",
+   "bytes": 334,
+   "sha256": "1c118f6a4bec9e70d0d7dce30beb314eb8caf1981ab4d823d19a82fda5a13a1c"
+  },
+  {
+   "key": "FIELD/FIELD_0/PHASE_DIR/0.0.0",
+   "bytes": 64,
+   "sha256": "352cbadac9deba1ef2d910f488350f8546e474387924f3f37ed0ff470a906c35"
+  },
+  {
+   "key": "FIELD/FIELD_0/PHASE_DIR/.zarray",
+   "bytes": 356,
+   "sha256": "71e017fdce625ecae139ccd169257fec075c99dbfa508ce08db0d15fd2e560ff"
+  },
+  {
+   "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/CHAN_FREQ/0.0",
+   "bytes": 8657,
+   "sha256": "11640ad61e3b5a9c37df8d5c7b89f1744b6c95e9895e7b9106ebad5d4f02ab3c"
+  },
+  {
+   "key": "SPECTRAL_WINDOW/SPECTRAL_WINDOW_0/CHAN_FREQ/.zarray",
+   "bytes": 340,
+   "sha256": "a43d9cecfa94cfbfedc47e5977364e40c02dd4018b9a7c4a389d3590e76f229f"
+  },
+  {
+   "key": "ANTENNA/ANTENNA_0/FLAG_ROW/0",
+   "bytes": 72,
+   "sha256": "5064096cc06d9f93a8af8dd3bcfee054e4b5c6aeecab136975301031cdc43a4c"
+  },
+  {
+   "key": "ANTENNA/ANTENNA_0/FLAG_ROW/.zarray",
+   "bytes": 314,
+   "sha256": "4445ca8fe7ad97e46e4e144a58a89341ef98494ed7f341b6af403c11d894e80b"
+  },
+  {
+   "key": "ANTENNA/ANTENNA_0/POSITION/0.0",
+   "bytes": 1070,
+   "sha256": "0894e25d9f3cfa04d3bacbe3359c730cf880789d54505258c744ed948fc8d271"
+  },
+  {
+   "key": "ANTENNA/ANTENNA_0/POSITION/.zarray",
+   "bytes": 336,
+   "sha256": "fcab1a90a7466609d2515c2a5d57e367961e22ca7bba646cb7a1344c8b11879c"
+  },
+  {
+   "key": "OBSERVATION/OBSERVATION_0/TIME_RANGE/0.0",
+   "bytes": 32,
+   "sha256": "e1307462a1cad147fd07de2ee0769d31b1e0088927aa1eec7be49d549b4f1176"
+  },
+  {
+   "key": "OBSERVATION/OBSERVATION_0/TIME_RANGE/.zarray",
+   "bytes": 334,
+   "sha256": "7694d3ac9f92987ff576349039996225d8f74e73fd2474e12185a2e527a424ef"
+  },
+  {
+   "key": "MAIN/MAIN_0/ANTENNA1/.zarray",
+   "bytes": 321,
+   "sha256": "1de69039db9817d9dbded49c18289b162f0a21e12e40fc7017f0abd433affe68"
+  },
+  {
+   "key": "MAIN/MAIN_0/ANTENNA1/0",
+   "bytes": 1399,
+   "sha256": "30bb8396895580179c1bc5a22f8f67ec25cbfce06283f734937a29de03aa5b92"
+  },
+  {
+   "key": "MAIN/MAIN_0/ANTENNA2/.zarray",
+   "bytes": 321,
+   "sha256": "1de69039db9817d9dbded49c18289b162f0a21e12e40fc7017f0abd433affe68"
+  },
+  {
+   "key": "MAIN/MAIN_0/ANTENNA2/0",
+   "bytes": 1324,
+   "sha256": "0ce83488093d64c4f6dbb0de167c11af109ccb527a7edffc045682e49a93549b"
+  },
+  {
+   "key": "MAIN/MAIN_0/TIME/.zarray",
+   "bytes": 321,
+   "sha256": "edae6967872c4ba31b7661daa5e4d6aa333e3e1a6f33679191829797cf0004af"
+  },
+  {
+   "key": "MAIN/MAIN_0/TIME/0",
+   "bytes": 2105,
+   "sha256": "392f082b2bed1a568174a421da4bc1f6ed0c67f95d6edae33a767b0b15123a25"
+  },
+  {
+   "key": "MAIN/MAIN_0/FLAG_ROW/.zarray",
+   "bytes": 321,
+   "sha256": "1ca217b8a066c9970ec7971b9169c10097784f18e1194fceb8388f41f71291c7"
+  },
+  {
+   "key": "MAIN/MAIN_0/FLAG_ROW/0",
+   "bytes": 11382,
+   "sha256": "eaf1e602612a50ee84ab29120b4d0b266646944409dbfad3fff0eef921035cbe"
+  },
+  {
+   "key": "MAIN/MAIN_0/WEIGHT/.zarray",
+   "bytes": 343,
+   "sha256": "e38d7aa50372daef08b919dba01a095527cbbe8a79c61569f41232b5ff336aab"
+  },
+  {
+   "key": "MAIN/MAIN_0/WEIGHT/0.0",
+   "bytes": 51158,
+   "sha256": "68ab510255d582ee633bbd98a24147f39282f5c8da078773210d1282116fdbed"
+  },
+  {
+   "key": "MAIN/MAIN_0/SIGMA/.zarray",
+   "bytes": 343,
+   "sha256": "e38d7aa50372daef08b919dba01a095527cbbe8a79c61569f41232b5ff336aab"
+  },
+  {
+   "key": "MAIN/MAIN_0/SIGMA/0.0",
+   "bytes": 3241,
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "key": "MAIN/MAIN_0/WEIGHT_SPECTRUM/.zarray",
+   "bytes": 370,
+   "sha256": "27dfb6955ba4a6640ba615ea540367b135d728422ef015fea9041aeab900a467"
+  },
+  {
+   "key": "MAIN/MAIN_0/WEIGHT_SPECTRUM/0.8.0",
+   "bytes": 55792132,
+   "sha256": "b310028ab4c760a07fce775b4899a7a069fc16b1be47b36e938a941579cedc14"
+  },
+  {
+   "key": "MAIN/MAIN_0/SIGMA_SPECTRUM/.zarray",
+   "bytes": 370,
+   "sha256": "27dfb6955ba4a6640ba615ea540367b135d728422ef015fea9041aeab900a467"
+  },
+  {
+   "key": "MAIN/MAIN_0/SIGMA_SPECTRUM/0.8.0",
+   "bytes": 2223103,
+   "sha256": "986516338467bedcba9515468fb56adaa24050e5d1e67fa8c81acb650ffbe922"
+  },
+  {
+   "key": "MAIN/MAIN_0/FLAG/.zarray",
+   "bytes": 370,
+   "sha256": "982bb461fb7f56e55c0ed9e77d1a8a32fd7ace34588757fe994ea072c97b7f12"
+  },
+  {
+   "key": "MAIN/MAIN_0/FLAG/0.8.0",
+   "bytes": 715774,
+   "sha256": "63d70927d6ed47c675c56da3f448b9480bd54fc91e55c50542965ae561a66d54"
+  }
+ ],
+ "object_count": 50,
+ "object_bytes": 58843034,
+ "unverified": [
+  "licence/redistribution terms",
+  "HISTORY/processing provenance (923 object-string rows, not decoded)",
+  "whether WEIGHT_SPECTRUM is native or processing-derived",
+  "supplied MODEL_DATA physical accuracy",
+  "flag provenance (Observatory versus subsequent processing)"
+ ]
+}

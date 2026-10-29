@@ -1,5 +1,18 @@
 # Rang research state
 
+Second public candidate, 2026-10-29 (metadata plus one bounded numeric tile;
+no calibration). `LBAND_LUNO_CALIBRATORS.zarr` in the anonymous RATT bucket:
+56 antennas, 20 scan groups, 3C 286 / PKS 1934−638 / PKS 1830−211 by
+`PHASE_DIR`, a 14,218 s track. `WEIGHT_SPECTRUM` is positive in all four
+correlations, and 1,735,448 tile cells are all-four supported (ESO137: 0).
+Probe `outputs/luno-probe-20261029-01` (repeated in `-02`, all 50 object hashes
+equal), via `tools/flagging/fetch-luno-probe.sh` plus
+`examples/decode_luno_probe.py`, archived in
+`results/meerkat-luno-candidate.json`; report `flagging-luno-candidate.md`.
+Open before any use: licence/citation terms (no documentation found), whether
+weights/flags/model are native or processing-derived (923 HISTORY rows not
+decoded), and TRAIN gain-bin support on the calibrator scans.
+
 New host setup, 2026-10-29 (no scientific runs, no code changes):
 Windows 11 workstation using WSL2 Ubuntu 26.04 (x86_64, 16 cores, 30 GiB RAM),
 checkout `~/Github/rang` on the Linux filesystem, Docker 28.3.3 inside WSL.
