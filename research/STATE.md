@@ -1,7 +1,8 @@
 # Rang research state
 
 Core phase 1, 2026-10-29 (implemented; measured: criterion 4 failed as
-frozen; post-hoc 4b defined, rerun pending). `core/` is a new GPL Rust crate with
+frozen; post-hoc 4b passes in `outputs/core-phase1-20261029-02`, archive
+`results/core-phase1.json`). `core/` is a new GPL Rust crate with
 a fused pass (residuals, split losses, robust scores, antenna-diagonal normal
 blocks) behind ctypes (`python/rangtoy/core.py`). Frozen run
 `outputs/core-phase1-20261029-01`: residuals agree with the archive to 5.7e-14 Jy,

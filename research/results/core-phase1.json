@@ -1,0 +1,154 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase1.md",
+ "protocol_commit": "b928d2a",
+ "implementation_commit": "ec67abd",
+ "status": "implemented; measured: criterion 4 failed as frozen; post-hoc criterion 4b passes",
+ "frozen_run": {
+  "run_dir": "outputs/core-phase1-20261029-01",
+  "result_sha256": "f6c4b857abd342d08f00d121ba03364567d96499af7f0488168d59c031b66c0d",
+  "passed": {
+   "1_residuals": true,
+   "2_losses": true,
+   "3_scores": true,
+   "4_normals_from_fused_residuals": false,
+   "5_diagonal_blocks_fixture": true,
+   "5_diagonal_blocks_luno": true
+  },
+  "criterion_4_b_rel_to_max_b": 4.915582035779398e-11
+ },
+ "rerun": {
+  "run_dir": "outputs/core-phase1-20261029-02",
+  "result_sha256": "f56caa491e092d60e6e134bf30efc7841797f96e2fc242fab8205438dc7b3c3c",
+  "passed": {
+   "1_residuals": true,
+   "2_losses": true,
+   "3_scores": true,
+   "4_normals_from_fused_residuals": false,
+   "4b_posthoc_b_against_cauchy_schwarz_bound": true,
+   "5_diagonal_blocks_fixture": true,
+   "5_diagonal_blocks_luno": true,
+   "6_no_side_effects": true
+  },
+  "all_passed_as_frozen": false,
+  "all_passed_with_posthoc_4b": true,
+  "tolerances": {
+   "residual": 1e-12,
+   "loss": 1e-12,
+   "score": 1e-12,
+   "normals": 1e-13
+  },
+  "fixture": {
+   "inputs": {
+    "state_sha256": "84c26f853bb9795c0997ce56743c5d34e1807d0de4c3f8be4399126fd0a3f1a2",
+    "diagnostics_sha256": "f465ddc42cbcb8d2825ad32f39256c5528f6ed6fc0049f3d815d75c4dcba8894",
+    "metrics_sha256": "4d7b4bed5400ec6fc87876bfcbd90412b74c581692b9aa1b5ad053210ffa2c2c"
+   },
+   "shape": [
+    140,
+    4096,
+    4
+   ],
+   "gain_grid": [
+    7,
+    128,
+    4
+   ],
+   "residual": {
+    "max_abs_jy": 5.684499120434759e-14,
+    "max_rel_where_above_1e-6": 3.5450357982613924e-13,
+    "nan_positions_equal": true,
+    "numpy_recomputed_max_abs_jy": 0.0
+   },
+   "losses": {
+    "train": {
+     "fused": 24.60284628464245,
+     "archived": 24.6028462846425,
+     "rel": 2.021635664742347e-15
+    },
+    "validation": {
+     "fused": 25.20612259882605,
+     "archived": 25.20612259882604,
+     "rel": 4.2283937145088313e-16
+    },
+    "test": {
+     "fused": 24.919607595129243,
+     "archived": 24.919607595129268,
+     "rel": 9.979689951644482e-16
+    }
+   },
+   "invalid_predictions_equal": true,
+   "scores": {
+    "max_abs": 1.865174681370263e-14
+   },
+   "normals": {
+    "diag_h_rel": 0.0,
+    "diag_b_rel": 0.0,
+    "cells": 73720,
+    "bins_with_cells": 288,
+    "full_h_rel": 0.0,
+    "full_b_rel": 4.915582035779398e-11,
+    "b_over_cauchy_schwarz_bound_max": 2.929936308943231e-15,
+    "max_abs_b_archived": 0.4324952883260398,
+    "max_cauchy_schwarz_bound": 188496.4095960224
+   },
+   "seconds": {
+    "fused_pass": 0.05694025699995109,
+    "numpy_residual_and_mse": 0.149093003001326
+   }
+  },
+  "luno": {
+   "inputs": {
+    "antenna1": "8772118f92361486631a934b7233f1e58c38a028eb4f43a17e7d19030439ab40",
+    "antenna2": "daaf2ee31411b3700366f9edd35404a54077988d927fc01ccab0472441aff611",
+    "time": "918f93f300c098c505827ac81d402a554cd6dda6f4e5f07fb5e6549d63edfcf6",
+    "flag": "cef85a15013b21b1d1dea5cd25f5249752dd9a8fb9e6ce226f5e8ba4fa7b2897",
+    "weight": "fe7ecdd3f41590cb248784d5a05bfb5665e75524bc175761383a43a0c7414b82",
+    "model": "806e31b5caacfec9c556bb953fdfd86062c1151572d8ea5f0d0dca932dcb5807",
+    "gains_sha256": "57809b86f7d9bd90c679ed4d4a51875517d1fe6d6eb492c9cb4cfdef04329bc3",
+    "gain_flags_sha256": "0ef0c4ceb49b3f58a5d15450efc107906dcd998af824d3674de7ef628ce6eb08"
+   },
+   "shape": [
+    192,
+    2048,
+    4
+   ],
+   "gain_grid": [
+    16,
+    64,
+    4
+   ],
+   "normals": {
+    "diag_h_rel": 0.0,
+    "diag_b_rel": 0.0,
+    "cells": 117556,
+    "bins_with_cells": 432
+   },
+   "seconds": {
+    "fused_pass": 0.0456846629967913,
+    "existing_kernel_normals_incl_prep": 0.13220861200170475
+   }
+  },
+  "side_effects": {
+   "input_files_checked": 13,
+   "inputs_unchanged": true,
+   "git_status_unchanged": true,
+   "run_dir_empty_before_receipt": true
+  },
+  "library_sha256": "53e11fca2ea5dc63a9f5e9585d93915e8794ed34cbc255c7849f5df3b4e1025e",
+  "code_sha256": {
+   "core/src/ffi.rs": "2be863bf310278f82df293399d363216aa9145e5a06232afc1eb3b2f10fff5e2",
+   "core/src/fused.rs": "f3e0e19e951e5b4b2e58e60996e48de8b3af092d3b9d0cab757d7f44e921f389",
+   "core/src/jones.rs": "65138ad9833b1e9200f981f84c0b796b6538ee6151273a5af4f8e5dc505647db",
+   "core/src/lib.rs": "ce3c459cec89a8f7b42063c408c00c8e9ed729d53352de92746482c137e926c9",
+   "core/src/robust.rs": "f5f2313ca84f76f2d55ec6d32bdd6bb0a3a2a16a7b16edf82d3bd8a5ac625b5f",
+   "core/Cargo.toml": "d7d0f929c5eb0efe3690c5da48fda600ee4c72f6041d3bf84e0f2cc911fcfcdc",
+   "python/rangtoy/core.py": "e2dc014c6036f14a7f10a2ea3fd7fc5c45f500c8cb51f968b71cb6d46d8be509",
+   "examples/validate_core_phase1.py": "4e9089c7e5210b9757c633176ea0f5d461e2dc6079e48cd3e3d96501cf690e5c"
+  },
+  "python": "3.14.4",
+  "numpy": "2.5.3"
+ },
+ "timing_note": "in-process seconds are reported, not an end-to-end speedup; see tool-timings.md",
+ "novelty": "reimplementation only; no scientific result changes"
+}

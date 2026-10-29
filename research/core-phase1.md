@@ -1,8 +1,8 @@
 # Rang core, phase 1: fused statistics pass
 
 Protocol frozen 2026-10-29 in `b928d2a`, before any phase 1 code was
-written. Status: **implemented; measured: criterion 4 failed as frozen**;
-post-hoc criterion 4b is defined below and frozen before its rerun. This is
+written. Status: **implemented; measured: criterion 4 failed as frozen; post-hoc
+criterion 4b passes** (archive [core-phase1.json](results/core-phase1.json)). This is
 phase 1 of the port plan in
 [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4. It is a reimplementation; under AGENTS.md it is not a scientific
@@ -146,3 +146,27 @@ archived residuals.
 The rerun goes to a fresh `outputs/core-phase1-20261029-02`. The phase is
 reported as "implemented; measured: criterion 4 failed as frozen; post-hoc 4b
 …" with the rerun's outcome, never as "phase 1 passed".
+
+## Measured result of the rerun (2026-10-29)
+
+Run `outputs/core-phase1-20261029-02` with the code committed in `ec67abd`.
+Archive: [core-phase1.json](results/core-phase1.json).
+
+- Criteria 1, 2, 3, 5 and 6 pass with the same numbers as the frozen run.
+- Criterion 4 fails again as frozen (b 4.9e-11 relative to max\|b\|). The
+  code is deterministic and unchanged, so this is expected.
+- Post-hoc criterion 4b passes. The largest
+  $|\Delta b_i|/\sqrt{H_{ii}\chi^2_{\text{bin}}}$ is 2.9e-15, against 1e-13.
+  The largest bound is 1.9e5, against max\|b\| = 0.43.
+- The stronger side-effect check passes: 13 input files have unchanged sizes
+  and modification times, `git status --porcelain` is unchanged, and the run
+  directory held nothing before the receipt.
+- Cost (reported, not gated): the whole validator took 1.08 s and 391 MB peak
+  RSS. In-process, the fused pass took 0.057 s on the fixture, against
+  0.149 s for the NumPy residual and split-MSE path it replaces. On LUNO it
+  took 0.046 s, against 0.132 s for the existing full-normal kernel with its
+  NumPy preparation. These are in-process timings, not the end-to-end
+  speedup that section 6 of the feasibility study measures.
+
+Phase 1 is reported as "implemented; measured: criterion 4 failed as frozen;
+post-hoc 4b passes". Phase 2 builds on these blocks.
