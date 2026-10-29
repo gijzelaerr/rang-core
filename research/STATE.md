@@ -45,6 +45,38 @@ agrees within 6.3e-15 relative. The kernel library hash differs because
 archive-only summary fields otherwise differ. Use this directory, not the lost
 `tv-injections-pilot-01`, as the prepared-input source for later wrappers.
 
+Later stages rerun on this host, 2026-10-29, into fresh namespaces with frozen
+code/settings. Each result is compared field by field with its tracked archive.
+Exact fields cover integers, booleans, strings, mask IDs and policy selections.
+Paths, timings, input/image/kernel digests and archive-only summary fields are
+excluded. Only rounding-level float differences remain:
+
+| Stage (archive) | Fresh run | Exact fields | Worst float rel | Wall time |
+| --- | --- | --- | --- | --- |
+| Actions (`gain-tv-actions.json`) | `tv-flagging-actions-wsl-20261029-01` | 61 equal | 7.6e-11 (differences of near-equal TVs) | ~6 min |
+| CARACAL native (`gain-tv-caracal.json`) | `tv-caracal-wsl-20261029-01` | 99 equal | 4.5e-14 | 1265 s |
+| Response (`gain-tv-response.json`) | `tv-response-wsl-20261029-01` | 461 equal | 3.8e-12 (closure residuals ~1e-17 Jy excluded) | 96 s |
+| Concurrent suite (`gain-tv-concurrent.json`) | `tv-concurrent-wsl-20261029-01` | all branches complete, no failures | see branches | 445 s |
+| Balanced, 7 cases (`gain-tv-balanced.json`) | `.../experiments/<case>` | 2829 action fields, 21 selections equal | 9.6e-15 | |
+| Signal (`gain-tv-signal.json`) | `.../experiments/signal` | 287 equal | 2.8e-9 | |
+| Transfer (`gain-tv-transfer.json`) | `.../experiments/transfer` | 262 equal | 3.3e-12 forecasts; coefficient 11 and train bias are ~1e-21/1e-19 zeros | |
+| Public pilot (`meerkat-public-pilot.json`) | `.../experiments/public` | 56 equal | exact | |
+| Uncertainty (`gain-tv-uncertainty.json`) | `.../experiments/uncertainty` | 180 rows equal | 2.1e-12 | |
+
+Only time-burst seed 105 selects a non-null mask, identically for residual and
+TV, as archived. Provenance HEAD/conditional GET reran into
+`tv-provenance-head-wsl-20261029-01` and `tv-provenance-acquired-wsl-20261029-01`:
+85 objects, 15,672 bytes, as recorded. Receipt SHA256 values differ only
+through embedded finish times; per-object hashes were not archived.
+CARACAL strategy sources re-fetched at revision `8f7bb363` into
+`outputs/caracal-strategy-inputs-8f7bb363/`: all nine files match
+`results/caracal-strategies.json` in SHA256 and size.
+Images rebuilt natively: sky, comparators, parallel, response and next.
+Not yet rerun: the five-track `run-next.sh` campaign and `run-imaging.sh`.
+Both need `rang-flagging-next-imaging`, built on `tools/flagging/imaging/Dockerfile`.
+That Dockerfile uses a BuildKit heredoc `COPY`. This host's Docker 28.3.3 has
+only the legacy builder until the buildx plugin is installed.
+
 FINAL CHECKED PUBLICATION READY2026-09-24 10:24UTC:
 654Python(no skips)/19RustPASS,releasebuild/Clippy-Dwarnings/cargoformat,
 fullrepoRufflint+format,91Pythoncompiles/62strictJSONarchives,
