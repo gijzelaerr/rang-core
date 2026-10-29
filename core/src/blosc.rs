@@ -98,7 +98,14 @@ pub fn lz4_decompress(src: &[u8], out: &mut [u8]) -> Result<(), &'static str> {
         if end > src.len() || target > out.len() {
             return Err("LZ4 literals out of range");
         }
-        out[d..target].copy_from_slice(&src[s..end]);
+        if literals <= WILD && end + WILD <= src.len() && target + WILD <= out.len() {
+            // Short literal run with slack on both sides: one 16-byte copy.
+            // The bytes past `target` are rewritten by the sequences that
+            // follow, which never read at or beyond the write cursor.
+            out[d..d + WILD].copy_from_slice(&src[s..s + WILD]);
+        } else {
+            out[d..target].copy_from_slice(&src[s..end]);
+        }
         s = end;
         d = target;
         if s == src.len() {
@@ -116,14 +123,42 @@ pub fn lz4_decompress(src: &[u8], out: &mut [u8]) -> Result<(), &'static str> {
         if d + length > out.len() {
             return Err("LZ4 match out of range");
         }
-        // A match may overlap its own output: copy in runs of at most
-        // `offset` bytes, each of which reads only already-written bytes.
-        let mut copied = 0;
-        while copied < length {
-            let run = (length - copied).min(offset + copied);
+        if offset >= WILD && d + length + WILD <= out.len() {
+            // Non-overlapping 16-byte steps: every step reads bytes that lie
+            // at least `offset` >= 16 behind the write cursor.
+            let mut copied = 0;
+            while copied < length {
+                let from = d - offset + copied;
+                let block: [u8; WILD] = out[from..from + WILD].try_into().unwrap();
+                out[d + copied..d + copied + WILD].copy_from_slice(&block);
+                copied += WILD;
+            }
+        } else if length <= 2 * WILD {
+            for i in d..d + length {
+                out[i] = out[i - offset];
+            }
+        } else if offset < WILD && d + length + WILD <= out.len() {
+            // Short offset: the match is periodic with period `offset`, so
+            // write 16-byte windows of a 32-byte pattern, each starting at
+            // the phase of its position.
             let from = d - offset;
-            out.copy_within(from..from + run, d + copied);
-            copied += run;
+            let pattern: [u8; 2 * WILD] = std::array::from_fn(|i| out[from + i % offset]);
+            let mut copied = 0;
+            while copied < length {
+                let phase = copied % offset;
+                out[d + copied..d + copied + WILD].copy_from_slice(&pattern[phase..phase + WILD]);
+                copied += WILD;
+            }
+        } else {
+            // A match may overlap its own output: copy in runs of at most
+            // `offset` bytes, each of which reads only already-written bytes.
+            let mut copied = 0;
+            while copied < length {
+                let run = (length - copied).min(offset + copied);
+                let from = d - offset;
+                out.copy_within(from..from + run, d + copied);
+                copied += run;
+            }
         }
         d += length;
     }
@@ -133,19 +168,100 @@ pub fn lz4_decompress(src: &[u8], out: &mut [u8]) -> Result<(), &'static str> {
     Ok(())
 }
 
+/// Width of the speculative copies in `lz4_decompress`.
+const WILD: usize = 16;
+
+/// Byte-wise unshuffle of elements `first..quot` of the `typesize` streams.
+fn unshuffle_scalar(typesize: usize, quot: usize, first: usize, src: &[u8], dest: &mut [u8]) {
+    for i in first..quot {
+        for j in 0..typesize {
+            dest[i * typesize + j] = src[j * quot + i];
+        }
+    }
+}
+
+/// Reverse c-blosc's byte shuffle: stream `j` holds byte `j` of every element.
 fn unshuffle(typesize: usize, src: &[u8], dest: &mut [u8]) {
     let quot = src.len() / typesize;
     let tail = quot * typesize;
-    // Write sequentially, reading the `typesize` byte streams in step.
-    let streams: Vec<&[u8]> = (0..typesize)
-        .map(|j| &src[j * quot..(j + 1) * quot])
-        .collect();
-    for (i, element) in dest[..tail].chunks_exact_mut(typesize).enumerate() {
-        for (byte, stream) in element.iter_mut().zip(&streams) {
-            *byte = stream[i];
+    let done = unshuffle_simd(typesize, quot, src, dest);
+    unshuffle_scalar(typesize, quot, done, src, dest);
+    dest[tail..].copy_from_slice(&src[tail..]);
+}
+
+/// Unshuffle as many whole groups of 16 elements as possible with SSE2 for
+/// typesizes 2, 4, 8 and 16 (what the MeerKAT stores use) and return the
+/// number of elements done. The byte transposition follows c-blosc's
+/// `shuffle-sse2.c`: `log2(typesize)` rounds of `unpacklo`/`unpackhi` at
+/// doubling widths, with the registers read out in bit-reversed order.
+#[cfg(target_arch = "x86_64")]
+fn unshuffle_simd(typesize: usize, quot: usize, src: &[u8], dest: &mut [u8]) -> usize {
+    match typesize {
+        2 => unshuffle_sse2::<2, 1>(quot, src, dest),
+        4 => unshuffle_sse2::<4, 2>(quot, src, dest),
+        8 => unshuffle_sse2::<8, 3>(quot, src, dest),
+        16 => unshuffle_sse2::<16, 4>(quot, src, dest),
+        _ => 0,
+    }
+}
+
+#[cfg(not(target_arch = "x86_64"))]
+fn unshuffle_simd(_typesize: usize, _quot: usize, _src: &[u8], _dest: &mut [u8]) -> usize {
+    0
+}
+
+#[cfg(target_arch = "x86_64")]
+fn unshuffle_sse2<const T: usize, const ROUNDS: usize>(
+    quot: usize,
+    src: &[u8],
+    dest: &mut [u8],
+) -> usize {
+    use std::arch::x86_64::{
+        __m128i, _mm_loadu_si128, _mm_storeu_si128, _mm_unpackhi_epi8, _mm_unpackhi_epi16,
+        _mm_unpackhi_epi32, _mm_unpackhi_epi64, _mm_unpacklo_epi8, _mm_unpacklo_epi16,
+        _mm_unpacklo_epi32, _mm_unpacklo_epi64,
+    };
+    let groups = quot / 16;
+    if groups == 0 {
+        return 0;
+    }
+    assert!(src.len() >= T * quot && dest.len() >= T * quot);
+    let order: [usize; T] = std::array::from_fn(|k| {
+        // Bit reversal of `k` over ROUNDS bits.
+        (0..ROUNDS).fold(0, |acc, bit| acc | (((k >> bit) & 1) << (ROUNDS - 1 - bit)))
+    });
+    for g in 0..groups {
+        let i = g * 16;
+        // SAFETY: SSE2 is part of the x86_64 baseline; every load reads 16
+        // bytes at `j * quot + i` with `i + 16 <= quot`, and every store
+        // writes 16 bytes at `i * T + 16 * m` with `m < T`, both inside the
+        // slices by the assertion above.
+        unsafe {
+            let mut regs: [__m128i; T] = std::array::from_fn(|j| {
+                _mm_loadu_si128(src.as_ptr().add(j * quot + i) as *const __m128i)
+            });
+            for round in 0..ROUNDS {
+                let mut next = regs;
+                for k in 0..T / 2 {
+                    let (a, b) = (regs[2 * k], regs[2 * k + 1]);
+                    let (lo, hi) = match round {
+                        0 => (_mm_unpacklo_epi8(a, b), _mm_unpackhi_epi8(a, b)),
+                        1 => (_mm_unpacklo_epi16(a, b), _mm_unpackhi_epi16(a, b)),
+                        2 => (_mm_unpacklo_epi32(a, b), _mm_unpackhi_epi32(a, b)),
+                        _ => (_mm_unpacklo_epi64(a, b), _mm_unpackhi_epi64(a, b)),
+                    };
+                    next[k] = lo;
+                    next[k + T / 2] = hi;
+                }
+                regs = next;
+            }
+            let base = dest.as_mut_ptr().add(i * T);
+            for (m, &r) in order.iter().enumerate() {
+                _mm_storeu_si128(base.add(16 * m) as *mut __m128i, regs[r]);
+            }
         }
     }
-    dest[tail..].copy_from_slice(&src[tail..]);
+    groups * 16
 }
 
 /// Byte range of block `j` within the chunk: from its start offset to the
@@ -393,6 +509,117 @@ mod tests {
         let mut out = [0u8; 7];
         unshuffle(2, &shuffled, &mut out);
         assert_eq!(out, [1, 2, 3, 4, 5, 6, 9]);
+    }
+
+    fn pseudo_random(n: usize, seed: u64) -> Vec<u8> {
+        let mut state = seed;
+        (0..n)
+            .map(|_| {
+                state = state
+                    .wrapping_mul(6364136223846793005)
+                    .wrapping_add(1442695040888963407);
+                (state >> 56) as u8
+            })
+            .collect()
+    }
+
+    #[test]
+    fn simd_unshuffle_equals_the_scalar_reference() {
+        for typesize in 1..=17 {
+            for elements in [0usize, 1, 15, 16, 17, 31, 32, 33, 100, 257] {
+                for leftover in [0usize, 1, 3] {
+                    let n = elements * typesize + leftover;
+                    let shuffled = pseudo_random(n, (typesize * 1000 + n) as u64);
+                    let mut expected = vec![0u8; n];
+                    let quot = n / typesize;
+                    unshuffle_scalar(typesize, quot, 0, &shuffled, &mut expected);
+                    expected[quot * typesize..].copy_from_slice(&shuffled[quot * typesize..]);
+                    let mut out = vec![0u8; n];
+                    unshuffle(typesize, &shuffled, &mut out);
+                    assert_eq!(out, expected, "typesize {typesize}, {n} bytes");
+                }
+            }
+        }
+    }
+
+    /// Greedy reference LZ4 block encoder for round trips (brute-force match
+    /// search; fine for test sizes).
+    fn lz4_encode(input: &[u8]) -> Vec<u8> {
+        let mut out = Vec::new();
+        let mut literal_start = 0;
+        let mut i = 0;
+        let write_length = |out: &mut Vec<u8>, mut n: usize| {
+            while n >= 255 {
+                out.push(255);
+                n -= 255;
+            }
+            out.push(n as u8);
+        };
+        let emit = |out: &mut Vec<u8>, literals: &[u8], m: Option<(usize, usize)>| {
+            let lit_token = literals.len().min(15) as u8;
+            let match_token = m.map_or(0, |(_, length)| (length - 4).min(15) as u8);
+            out.push((lit_token << 4) | match_token);
+            if literals.len() >= 15 {
+                write_length(out, literals.len() - 15);
+            }
+            out.extend_from_slice(literals);
+            if let Some((offset, length)) = m {
+                out.extend((offset as u16).to_le_bytes());
+                if length - 4 >= 15 {
+                    write_length(out, length - 4 - 15);
+                }
+            }
+        };
+        while i + 4 < input.len() {
+            let mut best = (0usize, 0usize);
+            let window = i.saturating_sub(65535);
+            for start in window..i {
+                let mut length = 0;
+                while i + length < input.len() && input[start + length] == input[i + length] {
+                    length += 1;
+                }
+                if length >= 4 && length > best.1 {
+                    best = (i - start, length);
+                }
+            }
+            if best.1 >= 4 {
+                emit(&mut out, &input[literal_start..i], Some(best));
+                i += best.1;
+                literal_start = i;
+            } else {
+                i += 1;
+            }
+        }
+        emit(&mut out, &input[literal_start..], None);
+        out
+    }
+
+    #[test]
+    fn lz4_round_trips_runs_patterns_and_long_matches() {
+        let mut cases: Vec<Vec<u8>> = Vec::new();
+        cases.push(vec![7u8; 100]); // offset-1 run
+        cases.push((0..300).map(|i| (i % 4) as u8).collect()); // offset 4
+        cases.push((0..300).map(|i| (i % 8) as u8 * 3).collect()); // offset 8
+        let mut long = pseudo_random(64, 1);
+        long.extend_from_slice(&long.clone()); // offset 64, length 64
+        long.extend_from_within(..40);
+        cases.push(long);
+        let mut mixed = pseudo_random(200, 2);
+        mixed.extend(vec![0u8; 50]);
+        mixed.extend_from_within(10..60);
+        mixed.extend(pseudo_random(20, 3));
+        cases.push(mixed);
+        // Matches that end exactly at the output end, with and without slack.
+        let mut tight = pseudo_random(30, 4);
+        tight.extend_from_within(..17);
+        cases.push(tight);
+        cases.push(pseudo_random(5, 5));
+        for case in cases {
+            let encoded = lz4_encode(&case);
+            let mut out = vec![0u8; case.len()];
+            lz4_decompress(&encoded, &mut out).unwrap();
+            assert_eq!(out, case);
+        }
     }
 
     #[test]
