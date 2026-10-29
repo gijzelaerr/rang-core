@@ -1,5 +1,25 @@
 # Rang research state
 
+LUNO provenance, 2026-10-29 (text metadata only; no data changed). The stores'
+OBSERVATION/FIELD/HISTORY strings, which are `json2`-encoded so no pickle is
+involved, give project `20210818-0008`, observer `B Hugo` and target field
+`Moon`. The Moon was 44′–149′ from the stored target direction during the track.
+HISTORY holds 923 calibrator and 124 target rows, all CASA 5.6 records from
+2022-09-10 to 2022-11-02: 25 `applycal` with `calwt=True`/`calflag`, four manual
+`flagdata`, `setjy` (Perley-Butler 2017) and `clearcal`. FLAG, WEIGHT_SPECTRUM
+and MODEL_DATA are therefore processing products, so the all-four-weight
+support is not native evidence. The stores were published 2024-11-29 as
+AfriCalim 2024 workshop data (`africalim/resources` QuartiCal recipes, likely
+source of `CORRECTED_DATA_QCAL`). No licence was found. The workshop's
+Polcal-Primer notice for its UHF Moon data says SARAO-owned, teaching use,
+MeerKAT data policy 4.2.2.2. Research use needs confirmation from SARAO or the
+observer; a question was sent to the "Hout boys" WhatsApp group 2026-10-29
+~13:06 SAST, with no reply recorded. Run `outputs/luno-text-20261029-01` via
+`tools/flagging/fetch-luno-text.sh` plus `examples/decode_luno_text.py`
+(60 objects, 27,237 bytes), archived in `results/meerkat-luno-provenance.json`;
+details in `flagging-luno-candidate.md`. Gain-bin support is not measured and
+waits on the licence and native-weight questions.
+
 Second public candidate, 2026-10-29 (metadata plus one bounded numeric tile;
 no calibration). `LBAND_LUNO_CALIBRATORS.zarr` in the anonymous RATT bucket:
 56 antennas, 20 scan groups, 3C 286 / PKS 1934−638 / PKS 1830−211 by

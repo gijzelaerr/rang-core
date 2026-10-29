@@ -53,18 +53,82 @@ independent observation alongside ESO137. That makes it the best current
 candidate for the summary's first gate. Nothing about calibration, flagging,
 transfer or image quality is measured.
 
-Not established, and required before use:
+## Provenance found, 2026-10-29
 
-- **Licence and citation.** No registry entry or documentation was found for the
-  LUNO stores; usage and redistribution terms must come from the publisher.
-- **Provenance.** Whether the weights, flags and `MODEL_DATA` are native or the
-  output of processing (the `_QCAL` column implies QuartiCal was run). The 923
-  HISTORY rows should answer this through a bounded inert-text extraction like
-  the [ESO137 provenance recovery](flagging-next-provenance-verification.md),
-  without unpickling.
+**How it was found.** ESO137 came from its AWS Open Data registry entry
+(`ESO137/` prefix, CC BY 4.0, Ramatsoku et al. 2020, managed by SARAO). LUNO
+came from listing the same bucket; the registry entry and its licence cover
+only `ESO137/`.
+
+**Measured from the stores' own metadata** (bounded text probe below; string
+arrays use the `json2` filter, so they decode as plain JSON with no pickle):
+
+- OBSERVATION `PROJECT` is `20210818-0008` (a MeerKAT schedule-block ID) and
+  `OBSERVER` is `B Hugo`, in both the calibrator and target stores.
+- FIELD names: `J1331+3030`, `J1939-6342`, `J1833-2103` (calibrators) and
+  `Moon` (target). The Moon was 44′, 98′ and 149′ from the target `PHASE_DIR` at
+  the start, middle and end of the 2021-08-18 13:31–17:28 UTC track (astropy
+  ephemeris). So the single FIELD direction records the Moon's position about
+  1.3 h before the first sample, not a tracked phase centre.
+- HISTORY: 923 calibrator rows and 124 target rows, all CASA 5.6.0-60 task
+  records written 2022-09-10 to 2022-11-02 on `l.ms` and `l_moon.ms`.
+  Calibrators: 25 `applycal` runs with `calwt=True` and `applymode="calflag"`
+  (gain tables from 1934−638, 3C 286 and the secondary: K, G, B, Df, KX, Xf),
+  four `flagdata` runs in `manual` mode (scan 4 with a 1 s quack, and the
+  850–900 MHz and 1650–1750 MHz band edges), `setjy` (Perley-Butler 2017,
+  J1331+3030 at 18.954 Jy at 856 MHz, writing `MODEL_DATA`) and `clearcal`.
+  No QuartiCal, statwt, initweights or split row.
+- The S3 store roots were last modified 2024-11-29 14:07 UTC (calibrators) and
+  17:04 UTC (target).
+
+**Found in public repositories** (not in the stores):
+[africalim/resources](https://github.com/africalim/resources), created
+2024-11-29 13:56 UTC for the AfriCalim 2024 calibration and imaging workshop,
+runs QuartiCal recipes (`recipes/luno_kgb.yaml`) on exactly these S3 stores. A
+commented-out line there lists `output.columns: [CORRECTED_DATA_QCAL,
+WEIGHT_SPECTRUM]`, and `luno_fullpol.yaml` points at local copies
+`MOON/msdir/l_cal.zarr` and `l_moon.zarr`. The workshop's
+[Polcal-Primer](https://github.com/africalim/Polcal-Primer) uses a Moon
+polarisation-calibration dataset in UHF. It refers to a larger wide-band L-band
+dataset for the Kubernetes exercises and carries a "Data fair use notice": the
+data are wholly owned by SARAO, distributed for teaching, subject to the MeerKAT
+data policy clause 4.2.2.2, with the full UHF data on request under
+`EXT-20220902-BH-01`.
+
+**What this means for rang.** LUNO is a MeerKAT L-band Moon observation
+(schedule block 20210818-0008, observer B. Hugo) that was calibrated in CASA in
+2022. It was then exported to Zarr and published in November 2024 as AfriCalim
+workshop data. Its `FLAG`, `WEIGHT_SPECTRUM` and `MODEL_DATA` should be treated
+as processing products, not native values:
+
+- `calwt=True` rescales weights by gain amplitudes, which matches the varying
+  0.095–1.0 weights.
+- `calflag` and the manual flags add flags.
+- `setjy` wrote the model.
+
+`CORRECTED_DATA_QCAL` has no HISTORY row, since QuartiCal does not write
+HISTORY. The workshop recipe makes a QuartiCal run likely; whether that run also
+overwrote `WEIGHT_SPECTRUM` is unknown. The positive cross-hand weights that
+made this candidate attractive are therefore not native evidence, and the
+strict native-weight gate is not met. No data, flags or weights were changed.
+
+## Still open
+
+- **Licence and citation.** No licence was found for the LUNO stores. The
+  closest statement, the Polcal-Primer notice, covers the workshop's UHF
+  teaching data, not this L-band set. It implies SARAO ownership and
+  teaching-only intent. Research use and publication need confirmation from
+  SARAO or the observer. A question went to the "Hout boys" WhatsApp group on
+  2026-10-29 at about 13:06 SAST; no answer has been recorded. Record any reply
+  here with who said it and when; chat replies alone do not change data or
+  flags.
+- **Native data.** Whether `DATA` itself is the raw 4,096-channel, roughly 8 s
+  correlator output is not established. Native weights and flags would come from
+  the SARAO archive (schedule block 20210818-0008), not from these stores.
 - **Gain-bin support.** Measure TRAIN identifiability on the 1934−638 and
   1830−211 scans before freezing any protocol, as in the
-  [gain-support survey](flagging-next-gain-support.md).
+  [gain-support survey](flagging-next-gain-support.md). This is only worth doing
+  once the licence and weight questions are settled.
 
 ## Reproduce
 
@@ -82,3 +146,15 @@ docker run --rm --platform linux/amd64 --network none --read-only --tmpfs /tmp \
 
 Compare the receipt with the archived object hashes; the bucket is not
 versioned, so a changed hash means the publisher changed the data.
+
+The text-metadata probe (60 objects, 27,237 bytes; both stores) decodes the
+same way, accepting only `json2` string arrays and unfiltered numeric arrays.
+Its archive is [meerkat-luno-provenance.json](results/meerkat-luno-provenance.json).
+
+```sh
+bash tools/flagging/fetch-luno-text.sh outputs/fresh-luno-text
+docker run --rm --platform linux/amd64 --network none --read-only --tmpfs /tmp \
+  -v "$PWD/outputs/fresh-luno-text:/probe:ro" \
+  -v "$PWD/examples/decode_luno_text.py:/decode_luno_text.py:ro" \
+  --entrypoint python rang-flagging:local -I /decode_luno_text.py /probe
+```

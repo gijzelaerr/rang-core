@@ -1,0 +1,598 @@
+{
+ "kind": "bounded text-metadata probe (OBSERVATION, FIELD, HISTORY), json2 strings decoded as plain JSON; no MAIN data",
+ "probed_utc_date": "2026-10-29",
+ "run_dir": "outputs/luno-text-20261029-01",
+ "fetch": "tools/flagging/fetch-luno-text.sh",
+ "decoder": "examples/decode_luno_text.py in rang-flagging:local, --network none, read-only",
+ "store_root_last_modified": [
+  "LBAND_LUNO_CALIBRATORS.zarr Fri, 29 Nov 2024 14:07:48 GMT",
+  "LBAND_LUNO_TARGET.zarr Fri, 29 Nov 2024 17:04:13 GMT"
+ ],
+ "history_utc_range": {
+  "LBAND_LUNO_CALIBRATORS.zarr": [
+   "2022-09-10T11:12:33Z",
+   "2022-10-31T08:03:43Z"
+  ],
+  "LBAND_LUNO_TARGET.zarr": [
+   "2022-09-11T22:13:24Z",
+   "2022-11-02T10:23:53Z"
+  ]
+ },
+ "observation_utc_range": [
+  "2021-08-18T13:31:15Z",
+  "2021-08-18T17:28:13Z"
+ ],
+ "moon_separation_from_target_phase_dir_arcmin": {
+  "method": "astropy get_body moon, MeerKAT site, rang-flagging:local",
+  "start": 44.0,
+  "mid": 98.3,
+  "end": 148.7
+ },
+ "external_sources": {
+  "africalim_resources": "https://github.com/africalim/resources (created 2024-11-29T13:56:17Z; recipes/luno_kgb.yaml, luno_movie.yaml, luno_fullpol.yaml)",
+  "africalim_polcal_primer": "https://github.com/africalim/Polcal-Primer (README section Data fair use notice)",
+  "eso137_registry": "https://registry.opendata.aws/meerkat-eso137-006/ (covers ESO137/ prefix only)"
+ },
+ "summary": {
+  "LBAND_LUNO_CALIBRATORS.zarr": {
+   "project": [
+    "20210818-0008"
+   ],
+   "observer": [
+    "B Hugo"
+   ],
+   "schedule_type": [
+    "unknown"
+   ],
+   "telescope": [
+    "MeerKAT"
+   ],
+   "schedule": [
+    [
+     "unavailable"
+    ]
+   ],
+   "log": [
+    [
+     "unavailable"
+    ]
+   ],
+   "field_name": [
+    "J1331+3030",
+    "J1939-6342",
+    "J1833-2103"
+   ],
+   "field_code": [
+    "T",
+    "T",
+    "T"
+   ],
+   "history_rows": 923,
+   "history_time_mjd_s": [
+    5169525153.535001,
+    5173920223.312
+   ],
+   "history_application_origin_counts": [
+    [
+     "ms | applycal",
+     575
+    ],
+    [
+     "ms | flagdata",
+     312
+    ],
+    [
+     "ms | setjy",
+     26
+    ],
+    [
+     "ms | clearcal",
+     7
+    ],
+    [
+     "imager | imager::data selection",
+     2
+    ],
+    [
+     "imager | imager::setjy()",
+     1
+    ]
+   ],
+   "history_priority_counts": [
+    [
+     "INFO",
+     923
+    ]
+   ],
+   "history_nonempty_app_params": 0,
+   "history_nonempty_cli_command": 0,
+   "history_term_row_counts_not_operation_proof": {
+    "quartical": 0,
+    "goquartical": 0,
+    "applycal": 575,
+    "calwt": 25,
+    "statwt": 0,
+    "initweights": 0,
+    "weight": 0,
+    "sigma": 0,
+    "flag": 362,
+    "aoflagger": 0,
+    "tricolour": 0,
+    "split": 0,
+    "mstransform": 0,
+    "average": 0,
+    "caracal": 0,
+    "katdal": 0,
+    "mvftoms": 0,
+    "model": 3,
+    "setjy": 27,
+    "crystalball": 0
+   },
+   "history_first_messages": [
+    "taskname=flagdata",
+    "version: CASA Version 5.6.0-60  ",
+    "vis         = \"l.ms\"",
+    "mode        = \"manual\"",
+    "autocorr    = False",
+    "inpfile     = \"\"",
+    "reason      = \"any\"",
+    "tbuff       = 0.0",
+    "spw         = \"\"",
+    "field       = \"\"",
+    "antenna     = \"\"",
+    "uvrange     = \"\"",
+    "timerange   = \"\"",
+    "correlation = \"\"",
+    "scan        = \"4\"",
+    "intent      = \"\"",
+    "array       = \"\"",
+    "observation = \"\"",
+    "feed        = \"\"",
+    "clipminmax  = []",
+    "datacolumn  = \"DATA\"",
+    "clipoutside = True",
+    "channelavg  = False",
+    "chanbin     = 1",
+    "timeavg     = False",
+    "timebin     = \"0s\"",
+    "clipzeros   = False",
+    "quackinterval = 1.0",
+    "quackmode   = \"beg\"",
+    "quackincrement = False",
+    "tolerance   = 0.0",
+    "addantenna  = \"\"",
+    "lowerlimit  = 0.0",
+    "upperlimit  = 90.0",
+    "ntime       = \"scan\"",
+    "combinescans = False",
+    "timecutoff  = 4.0",
+    "freqcutoff  = 3.0",
+    "timefit     = \"line\"",
+    "freqfit     = \"poly\""
+   ],
+   "history_unique_messages": 145
+  },
+  "LBAND_LUNO_TARGET.zarr": {
+   "project": [
+    "20210818-0008"
+   ],
+   "observer": [
+    "B Hugo"
+   ],
+   "schedule_type": [
+    "unknown"
+   ],
+   "telescope": [
+    "MeerKAT"
+   ],
+   "schedule": [
+    [
+     "unavailable"
+    ]
+   ],
+   "log": [
+    [
+     "unavailable"
+    ]
+   ],
+   "field_name": [
+    "Moon"
+   ],
+   "field_code": [
+    "T"
+   ],
+   "history_rows": 124,
+   "history_time_mjd_s": [
+    5169651204.472,
+    5174101433.576
+   ],
+   "history_application_origin_counts": [
+    [
+     "ms | flagdata",
+     78
+    ],
+    [
+     "ms | applycal",
+     46
+    ]
+   ],
+   "history_priority_counts": [
+    [
+     "INFO",
+     124
+    ]
+   ],
+   "history_nonempty_app_params": 0,
+   "history_nonempty_cli_command": 0,
+   "history_term_row_counts_not_operation_proof": {
+    "quartical": 0,
+    "goquartical": 0,
+    "applycal": 46,
+    "calwt": 2,
+    "statwt": 0,
+    "initweights": 0,
+    "weight": 0,
+    "sigma": 0,
+    "flag": 82,
+    "aoflagger": 0,
+    "tricolour": 0,
+    "split": 0,
+    "mstransform": 0,
+    "average": 0,
+    "caracal": 0,
+    "katdal": 0,
+    "mvftoms": 0,
+    "model": 0,
+    "setjy": 0,
+    "crystalball": 0
+   },
+   "history_first_messages": [
+    "taskname=applycal",
+    "version: CASA Version 5.6.0-60  ",
+    "vis         = \"l_moon.ms\"",
+    "field       = \"0\"",
+    "spw         = \"\"",
+    "intent      = \"\"",
+    "selectdata  = True",
+    "timerange   = \"\"",
+    "uvrange     = \"\"",
+    "antenna     = \"\"",
+    "scan        = \"\"",
+    "observation = \"\"",
+    "msselect    = \"\"",
+    "docallib    = False",
+    "callib      = \"\"",
+    "gaintable   = ['1934.G0a', '1934.B0', 'secondary.K0', 'secondary.G0Norm', '3C286.KX', '1934.Df']",
+    "gainfield   = []",
+    "interp      = []",
+    "spwmap      = []",
+    "calwt       = [True, True, True, True, True, True]",
+    "parang      = False",
+    "applymode   = \"calflag\"",
+    "flagbackup  = True",
+    "taskname=applycal",
+    "version: CASA Version 5.6.0-60  ",
+    "vis         = \"l_moon.ms/\"",
+    "field       = \"Moon\"",
+    "spw         = \"\"",
+    "intent      = \"\"",
+    "selectdata  = True",
+    "timerange   = \"\"",
+    "uvrange     = \"\"",
+    "antenna     = \"\"",
+    "scan        = \"\"",
+    "observation = \"\"",
+    "msselect    = \"\"",
+    "docallib    = False",
+    "callib      = \"\"",
+    "gaintable   = ['1934.G0a', '1934.B0', 'secondary.K0', 'secondary.G0p', 'secondary.G0a', '1934.Df', '3C286.KX', '3C286.Xf']",
+    "gainfield   = []"
+   ],
+   "history_unique_messages": 97
+  }
+ },
+ "objects": [
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/PROJECT/.zarray"
+  },
+  {
+   "bytes": 42,
+   "sha256": "abd981d648a68e312467f4901a832f8b8c3e6a49eab8332cc9ad4e7d18b12ea6",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/PROJECT/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/OBSERVER/.zarray"
+  },
+  {
+   "bytes": 35,
+   "sha256": "f085522960b1b12796d9bd5991321e22dd3dd8bc18bbbeddd1b482981a3f26d4",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/OBSERVER/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE_TYPE/.zarray"
+  },
+  {
+   "bytes": 36,
+   "sha256": "d8b1cc79c7c8cd955e9a3cbf86987c28c278d9c5295283f34f15e549a3219a1f",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE_TYPE/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/TELESCOPE_NAME/.zarray"
+  },
+  {
+   "bytes": 36,
+   "sha256": "7af0e494e018b83bb984093dac4ef1af12c28c946322e7cded5761725c04028d",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/TELESCOPE_NAME/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "91cb2bb196038fcdc0319071edeb53ebc905ded41ad41dfff6a4d0194123ba49",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/FIELD/FIELD_0/NAME/.zarray"
+  },
+  {
+   "bytes": 65,
+   "sha256": "288a2c250870543a1a859329e567cdf362aa434afd93d567701927f435d828c4",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/FIELD/FIELD_0/NAME/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "91cb2bb196038fcdc0319071edeb53ebc905ded41ad41dfff6a4d0194123ba49",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/FIELD/FIELD_0/CODE/.zarray"
+  },
+  {
+   "bytes": 38,
+   "sha256": "4beb93732382d79a9d4036fdcad8cbfa9309e7060622c005dc497cf7e025d1c2",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/FIELD/FIELD_0/CODE/0"
+  },
+  {
+   "bytes": 316,
+   "sha256": "7f17f4703aff100eb4dfca8fed099a33865bdb8d592b2c00ef87b4bb54bbf4f6",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/TIME/.zarray"
+  },
+  {
+   "bytes": 932,
+   "sha256": "75ba42eba3c384ae7de73e53a316ae3e6522db5810aa73f46eef537417cbf500",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/TIME/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "b4cf1eca6b3753d0c86097e9125b461ff174f8c9c0662d8f9d2a306c11763bd7",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/APPLICATION/.zarray"
+  },
+  {
+   "bytes": 76,
+   "sha256": "38f224949284236e8d3e2ef97b40dd9bb6126ad5d1d3fe8b963eab913771ce54",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/APPLICATION/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "b4cf1eca6b3753d0c86097e9125b461ff174f8c9c0662d8f9d2a306c11763bd7",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/MESSAGE/.zarray"
+  },
+  {
+   "bytes": 2710,
+   "sha256": "bd3fa3c8ac504f4e7632ca386c59e21324615abbe6f04260ef8f86902fe86442",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/MESSAGE/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "b4cf1eca6b3753d0c86097e9125b461ff174f8c9c0662d8f9d2a306c11763bd7",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/ORIGIN/.zarray"
+  },
+  {
+   "bytes": 195,
+   "sha256": "15f76f1b07556d4a95da9e2514169aa86dd1dde939e6712fe8eea89a0175bc43",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/ORIGIN/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "b4cf1eca6b3753d0c86097e9125b461ff174f8c9c0662d8f9d2a306c11763bd7",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/PRIORITY/.zarray"
+  },
+  {
+   "bytes": 87,
+   "sha256": "60a712f0b00cb492c3223d018e63f0ba79dafeb2e475fdff1ffdebf4f85eed97",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/PRIORITY/0"
+  },
+  {
+   "bytes": 718,
+   "sha256": "5ad2e2c0bc36d02c87b47361fb6988dd12ded499a26c7b463bfeabec23c132ef",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE/.zarray"
+  },
+  {
+   "bytes": 44,
+   "sha256": "289dfad0baee6b1be69d29b97c594d88d19b8d7bfbf38588d583076b55d43d01",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE/0.0"
+  },
+  {
+   "bytes": 718,
+   "sha256": "5ad2e2c0bc36d02c87b47361fb6988dd12ded499a26c7b463bfeabec23c132ef",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/LOG/.zarray"
+  },
+  {
+   "bytes": 44,
+   "sha256": "289dfad0baee6b1be69d29b97c594d88d19b8d7bfbf38588d583076b55d43d01",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/OBSERVATION/OBSERVATION_0/LOG/0.0"
+  },
+  {
+   "bytes": 722,
+   "sha256": "2ca663126ff6e96a2064b36f2e3e3de387db7262e9b0adb11b395929a30fb155",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/APP_PARAMS/.zarray"
+  },
+  {
+   "bytes": 66,
+   "sha256": "1f9bd901286064688d81cd3afdbec69da6f2a2f88161fe568292c6d90a77d732",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/APP_PARAMS/0.0"
+  },
+  {
+   "bytes": 722,
+   "sha256": "2ca663126ff6e96a2064b36f2e3e3de387db7262e9b0adb11b395929a30fb155",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/CLI_COMMAND/.zarray"
+  },
+  {
+   "bytes": 66,
+   "sha256": "1f9bd901286064688d81cd3afdbec69da6f2a2f88161fe568292c6d90a77d732",
+   "key": "LBAND_LUNO_CALIBRATORS.zarr/HISTORY/HISTORY_0/CLI_COMMAND/0.0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/PROJECT/.zarray"
+  },
+  {
+   "bytes": 42,
+   "sha256": "abd981d648a68e312467f4901a832f8b8c3e6a49eab8332cc9ad4e7d18b12ea6",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/PROJECT/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/OBSERVER/.zarray"
+  },
+  {
+   "bytes": 35,
+   "sha256": "f085522960b1b12796d9bd5991321e22dd3dd8bc18bbbeddd1b482981a3f26d4",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/OBSERVER/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE_TYPE/.zarray"
+  },
+  {
+   "bytes": 36,
+   "sha256": "d8b1cc79c7c8cd955e9a3cbf86987c28c278d9c5295283f34f15e549a3219a1f",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE_TYPE/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/TELESCOPE_NAME/.zarray"
+  },
+  {
+   "bytes": 36,
+   "sha256": "7af0e494e018b83bb984093dac4ef1af12c28c946322e7cded5761725c04028d",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/TELESCOPE_NAME/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_TARGET.zarr/FIELD/FIELD_0/NAME/.zarray"
+  },
+  {
+   "bytes": 33,
+   "sha256": "2e2a78f84ce5c4674bdeb0230b7223b86ebc0737eedee2ca110b9b09d31276a9",
+   "key": "LBAND_LUNO_TARGET.zarr/FIELD/FIELD_0/NAME/0"
+  },
+  {
+   "bytes": 696,
+   "sha256": "199bd19c45b12f619b702a6f26ac440ebd62aeb2885ce65a18b5e6b9fd8b99d2",
+   "key": "LBAND_LUNO_TARGET.zarr/FIELD/FIELD_0/CODE/.zarray"
+  },
+  {
+   "bytes": 30,
+   "sha256": "268c9ad18ff94228ac3f7d5d765ad1b43a64b683eee9122e8e7f9e753d7b3d55",
+   "key": "LBAND_LUNO_TARGET.zarr/FIELD/FIELD_0/CODE/0"
+  },
+  {
+   "bytes": 316,
+   "sha256": "c3cd41bf6aa99c9c6691867a47fc8ecd9cb0c5489b5a0a98d6008d20b4dabc8d",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/TIME/.zarray"
+  },
+  {
+   "bytes": 135,
+   "sha256": "59023f14b155974f357ac63306e2e8bdff604546965ed6b0210922800fbaf498",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/TIME/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "ff356b412c155e6321c65f0b4a7359eedec202d3de1caaaca5ce77674196069e",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/APPLICATION/.zarray"
+  },
+  {
+   "bytes": 47,
+   "sha256": "790b608b9789c4156983622fb04c2950c8a6de6c0728d3536c18527be8f6f6a7",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/APPLICATION/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "ff356b412c155e6321c65f0b4a7359eedec202d3de1caaaca5ce77674196069e",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/MESSAGE/.zarray"
+  },
+  {
+   "bytes": 1707,
+   "sha256": "bea6c66a153a80181c2995c36024764854cdb19b0cd67d1ce909d5efc3289e79",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/MESSAGE/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "ff356b412c155e6321c65f0b4a7359eedec202d3de1caaaca5ce77674196069e",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/ORIGIN/.zarray"
+  },
+  {
+   "bytes": 67,
+   "sha256": "e45ae02b99a5c4808c9d462dcadc8055d2aeeb85a313173bb2e5ddc0b8dc97cb",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/ORIGIN/0"
+  },
+  {
+   "bytes": 700,
+   "sha256": "ff356b412c155e6321c65f0b4a7359eedec202d3de1caaaca5ce77674196069e",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/PRIORITY/.zarray"
+  },
+  {
+   "bytes": 65,
+   "sha256": "29c59c4ba3613b0ddda52c797e3a0710c89c48fe48c90afe9789ab9ec5caf6d7",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/PRIORITY/0"
+  },
+  {
+   "bytes": 718,
+   "sha256": "5ad2e2c0bc36d02c87b47361fb6988dd12ded499a26c7b463bfeabec23c132ef",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE/.zarray"
+  },
+  {
+   "bytes": 44,
+   "sha256": "289dfad0baee6b1be69d29b97c594d88d19b8d7bfbf38588d583076b55d43d01",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/SCHEDULE/0.0"
+  },
+  {
+   "bytes": 718,
+   "sha256": "5ad2e2c0bc36d02c87b47361fb6988dd12ded499a26c7b463bfeabec23c132ef",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/LOG/.zarray"
+  },
+  {
+   "bytes": 44,
+   "sha256": "289dfad0baee6b1be69d29b97c594d88d19b8d7bfbf38588d583076b55d43d01",
+   "key": "LBAND_LUNO_TARGET.zarr/OBSERVATION/OBSERVATION_0/LOG/0.0"
+  },
+  {
+   "bytes": 722,
+   "sha256": "93da41ef320f988be75cb511a9c07ecaa21101a7fb77fc92366c7c7d22c47053",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/APP_PARAMS/.zarray"
+  },
+  {
+   "bytes": 50,
+   "sha256": "b7510019107d3333c61ef2adf852dbba3c9f2e6588b47c4b6770bfa8eaa38aa0",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/APP_PARAMS/0.0"
+  },
+  {
+   "bytes": 722,
+   "sha256": "93da41ef320f988be75cb511a9c07ecaa21101a7fb77fc92366c7c7d22c47053",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/CLI_COMMAND/.zarray"
+  },
+  {
+   "bytes": 50,
+   "sha256": "b7510019107d3333c61ef2adf852dbba3c9f2e6588b47c4b6770bfa8eaa38aa0",
+   "key": "LBAND_LUNO_TARGET.zarr/HISTORY/HISTORY_0/CLI_COMMAND/0.0"
+  }
+ ],
+ "receipt_sha256": "b6fa5622ef17cc32f6d9651291c0988a8b43aac0f4aafb623967e64203c1ecf9",
+ "summary_sha256": "7b11ed5721140cde909da2f533b0b4832cc9ee9894a4c552e1689de193b2702e"
+}
