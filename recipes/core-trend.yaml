@@ -1,0 +1,59 @@
+# Core-native trend track: seven core baseline solves written as a mirror of
+# the concurrent suite, then the frozen rangtoy.flagging_trend.run, unedited.
+# Sits beside the frozen recipes/tv-flagging-trend.yaml and never replaces it
+# (research/core-h-recipes.md, research/core-phase3-trend.md).
+_include: core-cabs.yaml
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-core-trend-mirror:
+    flavour: python
+    command: rangtoy.core_cli.trend_mirror
+    inputs:
+      mirror_dir: {dtype: str, required: true}
+      source_dir: {dtype: Directory, required: true}
+  rang-core-trend:
+    flavour: python
+    command: rangtoy.core_cli.trend
+    inputs:
+      run_dir: {dtype: str, required: true}
+      mirror_dir: {dtype: Directory, required: true}
+
+core-trend:
+  info: Trend guidance ablation on core-solved baselines; the frozen trend module is the consumer, compared with the archive under the adopted slope-scaling rule.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    mirror-dir: {dtype: str, required: true, info: Fresh directory for the core-solved mirror.}
+    source-dir: {dtype: Directory, required: true, info: The concurrent suite with experiments/<case>; read only.}
+    archive: {dtype: File, default: research/results/gain-tv-next-trend.json}
+  outputs:
+    mirror-receipt: {dtype: File, implicit: '{recipe.mirror-dir}/mirror-receipt.json', path_policies: {mkdir_parent: false}}
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    environment: {dtype: File, implicit: '{recipe.run-dir}/environment.json', path_policies: {mkdir_parent: false}}
+    comparison: {dtype: File, implicit: '{recipe.run-dir}/compare-archive.json', path_policies: {mkdir_parent: false}}
+  steps:
+    mirror:
+      cab: rang-core-trend-mirror
+      params:
+        mirror_dir: =recipe.mirror-dir
+        source_dir: =recipe.source-dir
+    ablation:
+      cab: rang-core-trend
+      params:
+        run_dir: =recipe.run-dir
+        mirror_dir: =recipe.mirror-dir
+    environment:
+      cab: rang-core-environment
+      params:
+        run_dir: =recipe.run-dir
+    compare:
+      cab: rang-core-compare
+      params:
+        stage: trend
+        result: '{recipe.run-dir}/result.json'
+        oracle: =recipe.archive
+        receipt: '{recipe.run-dir}/compare-archive.json'
+        posthoc_slope_scale: true
+DEFAULT: core-trend

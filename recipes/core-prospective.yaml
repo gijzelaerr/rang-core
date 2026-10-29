@@ -1,0 +1,48 @@
+# Core-native prospective track: Rust core, no Measurement Set, no solver subprocess.
+# Sits beside the frozen recipes/tv-flagging-prospective.yaml and never
+# replaces it (research/core-h-recipes.md, research/core-phase3b.md).
+_include: core-cabs.yaml
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-core-prospective:
+    flavour: python
+    command: rangtoy.core_cli.prospective
+    inputs:
+      run_dir: {dtype: str, required: true}
+      inputs_dir: {dtype: Directory, required: true}
+      iterations: {dtype: int, default: 50}
+
+core-prospective:
+  info: Prospective track on the Rust core; TRAIN-only forecasts frozen before measurement, 54 solves, compared with the archive by the phase 3 comparator.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    inputs-dir: {dtype: Directory, required: true, info: "The campaign inputs with cases/clean and cases/time-burst-seed107 and -seed109; read only."}
+    archive: {dtype: File, default: research/results/gain-tv-next-prospective.json}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    side-effects: {dtype: File, implicit: '{recipe.run-dir}/side-effects.json', path_policies: {mkdir_parent: false}}
+    environment: {dtype: File, implicit: '{recipe.run-dir}/environment.json', path_policies: {mkdir_parent: false}}
+    comparison: {dtype: File, implicit: '{recipe.run-dir}/compare-archive.json', path_policies: {mkdir_parent: false}}
+  steps:
+    confirmation:
+      cab: rang-core-prospective
+      params:
+        run_dir: =recipe.run-dir
+        inputs_dir: =recipe.inputs-dir
+        iterations: =recipe.iterations
+    environment:
+      cab: rang-core-environment
+      params:
+        run_dir: =recipe.run-dir
+    compare:
+      cab: rang-core-compare
+      params:
+        stage: prospective
+        result: '{recipe.run-dir}/result.json'
+        oracle: =recipe.archive
+        receipt: '{recipe.run-dir}/compare-archive.json'
+DEFAULT: core-prospective

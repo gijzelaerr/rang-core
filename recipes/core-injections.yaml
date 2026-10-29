@@ -1,0 +1,57 @@
+# Core-native injection campaign: Rust core, no Measurement Set, no solver subprocess.
+# Sits beside the frozen recipes/tv-flagging-injections.yaml and never
+# replaces it (research/core-h-recipes.md, research/core-phase3.md).
+_include: core-cabs.yaml
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-core-injections:
+    flavour: python
+    command: rangtoy.core_cli.injections
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      seed: {dtype: int, default: 19}
+      strengths: {dtype: 'List[float]', default: [3.0, 10.0]}
+      patterns: {dtype: 'List[str]', default: [narrowband, time-burst, antenna-local]}
+      iterations: {dtype: int, default: 50}
+
+core-injections:
+  info: Injection campaign on the Rust core from a prepared clean state; 49 solves, compared with the archive by the phase 3 comparator.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true, info: Prepared clean state and manifest of the host reproduction; read only.}
+    archive: {dtype: File, default: research/results/gain-tv-injections.json}
+    seed: {dtype: int, default: 19}
+    strengths: {dtype: 'List[float]', default: [3.0, 10.0]}
+    patterns: {dtype: 'List[str]', default: [narrowband, time-burst, antenna-local]}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    side-effects: {dtype: File, implicit: '{recipe.run-dir}/side-effects.json', path_policies: {mkdir_parent: false}}
+    environment: {dtype: File, implicit: '{recipe.run-dir}/environment.json', path_policies: {mkdir_parent: false}}
+    comparison: {dtype: File, implicit: '{recipe.run-dir}/compare-archive.json', path_policies: {mkdir_parent: false}}
+  steps:
+    campaign:
+      cab: rang-core-injections
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        seed: =recipe.seed
+        strengths: =recipe.strengths
+        patterns: =recipe.patterns
+        iterations: =recipe.iterations
+    environment:
+      cab: rang-core-environment
+      params:
+        run_dir: =recipe.run-dir
+    compare:
+      cab: rang-core-compare
+      params:
+        stage: injections
+        result: '{recipe.run-dir}/result.json'
+        oracle: =recipe.archive
+        receipt: '{recipe.run-dir}/compare-archive.json'
+DEFAULT: core-injections

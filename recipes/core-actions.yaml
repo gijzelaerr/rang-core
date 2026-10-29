@@ -1,0 +1,54 @@
+# Core-native actions stage: Rust core, no Measurement Set, no solver subprocess.
+# Sits beside the frozen recipes/tv-flagging-actions.yaml and never replaces
+# it (research/core-h-recipes.md, research/core-phase3-actions.md).
+_include: core-cabs.yaml
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-core-actions:
+    flavour: python
+    command: rangtoy.core_cli.actions
+    inputs:
+      run_dir: {dtype: str, required: true}
+      prepared_dir: {dtype: Directory, required: true}
+      seed: {dtype: int, default: 29}
+      action_count: {dtype: int, default: 16}
+      iterations: {dtype: int, default: 50}
+
+core-actions:
+  info: Patch-removal actions stage on the Rust core from a prepared state; 17 solves, compared with the archive by the phase 3 comparator.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    prepared-dir: {dtype: Directory, required: true, info: Prepared state and manifest; read only.}
+    archive: {dtype: File, default: research/results/gain-tv-actions.json}
+    seed: {dtype: int, default: 29}
+    action-count: {dtype: int, default: 16}
+    iterations: {dtype: int, default: 50}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    side-effects: {dtype: File, implicit: '{recipe.run-dir}/side-effects.json', path_policies: {mkdir_parent: false}}
+    environment: {dtype: File, implicit: '{recipe.run-dir}/environment.json', path_policies: {mkdir_parent: false}}
+    comparison: {dtype: File, implicit: '{recipe.run-dir}/compare-archive.json', path_policies: {mkdir_parent: false}}
+  steps:
+    actions:
+      cab: rang-core-actions
+      params:
+        run_dir: =recipe.run-dir
+        prepared_dir: =recipe.prepared-dir
+        seed: =recipe.seed
+        action_count: =recipe.action-count
+        iterations: =recipe.iterations
+    environment:
+      cab: rang-core-environment
+      params:
+        run_dir: =recipe.run-dir
+    compare:
+      cab: rang-core-compare
+      params:
+        stage: actions
+        result: '{recipe.run-dir}/result.json'
+        oracle: =recipe.archive
+        receipt: '{recipe.run-dir}/compare-archive.json'
+DEFAULT: core-actions
