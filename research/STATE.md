@@ -1,5 +1,16 @@
 # Rang research state
 
+Core phase 3, 2026-10-29 (implemented; measured). The injection campaign
+runs on the Rust core (`rangtoy.core_workflow`, `rangtoy.core_injections`,
+`examples/run_core_injections.py`) from the prepared host reproduction, with
+no MS and no container: 49 solves in 25 s against 296 s. Frozen run
+`outputs/core-phase3-20261029-01`: every compared field passes (858 exact, 928
+floats to 1.3e-14, 54 distances to 1.5e-14), all six selections equal the
+archive, but the frozen comparator reported 18 archive-only per-case fields as
+missing. Post-hoc run `-02` adds them and passes against the archive and the
+host reproduction. Archive `results/core-phase3.json`. Next: phase 3b, the
+prospective and signal tracks.
+
 Core phase 2, 2026-10-29 (implemented; measured: all eight frozen criteria
 pass). `core/src/solve.rs` ports the QuartiCal 0.2.7 complex solver (MIT notice
 kept). Run `outputs/core-phase2-20261029-01`: gain flags identical on fixture and

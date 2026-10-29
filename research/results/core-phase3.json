@@ -1,0 +1,191 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase3.md",
+ "protocol_commit": "a34aba5",
+ "status": "implemented; measured: frozen comparator reported 18 archive-only fields missing, every compared field passed; post-hoc rerun with those fields passes against archive and host reproduction",
+ "frozen_run": {
+  "run_dir": "outputs/core-phase3-20261029-01",
+  "result_sha256": "a01e0d69be2da75b6303c4ad8d7448b8bd2e76642472a1261bb3e4860319a400",
+  "classes": {
+   "exact": {
+    "compared": 858,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 928,
+    "max_rel": 1.3347083710823299e-14
+   },
+   "injection_float": {
+    "compared": 24,
+    "max_rel": 0.0
+   },
+   "distance": {
+    "compared": 54,
+    "max_rel": 1.4821315140552058e-14
+   }
+  },
+  "failures": 18,
+  "failure_kinds": [
+   "diagnostic_oracle_objective",
+   "no_change_objective",
+   "oracle_was_used_for_selection"
+  ],
+  "side_effects": {
+   "prepared_files_checked": 3978,
+   "prepared_unchanged": true,
+   "git_status_unchanged": true,
+   "run_dir_files": [
+    "result.json"
+   ],
+   "only_result_written": true
+  },
+  "seconds_total": 25.248486024000158
+ },
+ "posthoc_run": {
+  "run_dir": "outputs/core-phase3-20261029-02",
+  "result_sha256": "f34352a5e401ef0bf0fb78dec7f70e3dc5aedd9395b954c739415d249baad459",
+  "against_archive": {
+   "classes": {
+    "exact": {
+     "compared": 864,
+     "max_rel": 0.0
+    },
+    "float": {
+     "compared": 940,
+     "max_rel": 1.3347083710823299e-14
+    },
+    "injection_float": {
+     "compared": 24,
+     "max_rel": 0.0
+    },
+    "distance": {
+     "compared": 54,
+     "max_rel": 1.4821315140552058e-14
+    }
+   },
+   "failures": 0,
+   "excluded": 73
+  },
+  "against_host_reproduction": {
+   "classes": {
+    "exact": {
+     "compared": 858,
+     "max_rel": 0.0
+    },
+    "float": {
+     "compared": 928,
+     "max_rel": 1.3347083710823299e-14
+    },
+    "injection_float": {
+     "compared": 24,
+     "max_rel": 0.0
+    },
+    "distance": {
+     "compared": 54,
+     "max_rel": 9.60942410211612e-15
+    }
+   },
+   "failures": 0
+  },
+  "selected": [
+   {
+    "case": "narrowband-s3",
+    "archived": "contaminated",
+    "core": "contaminated"
+   },
+   {
+    "case": "narrowband-s10",
+    "archived": "contaminated",
+    "core": "contaminated"
+   },
+   {
+    "case": "time-burst-s3",
+    "archived": "contaminated",
+    "core": "contaminated"
+   },
+   {
+    "case": "time-burst-s10",
+    "archived": "contaminated",
+    "core": "contaminated"
+   },
+   {
+    "case": "antenna-local-s3",
+    "archived": "contaminated",
+    "core": "contaminated"
+   },
+   {
+    "case": "antenna-local-s10",
+    "archived": "contaminated",
+    "core": "contaminated"
+   }
+  ],
+  "injection_checks": {
+   "narrowband-s3": {
+    "mask_equal": true,
+    "delta_equal": true,
+    "data_equal": true,
+    "metadata_equal": true
+   },
+   "narrowband-s10": {
+    "mask_equal": true,
+    "delta_equal": true,
+    "data_equal": true,
+    "metadata_equal": true
+   },
+   "time-burst-s3": {
+    "mask_equal": true,
+    "delta_equal": true,
+    "data_equal": true,
+    "metadata_equal": true
+   },
+   "time-burst-s10": {
+    "mask_equal": true,
+    "delta_equal": true,
+    "data_equal": true,
+    "metadata_equal": true
+   },
+   "antenna-local-s3": {
+    "mask_equal": true,
+    "delta_equal": true,
+    "data_equal": true,
+    "metadata_equal": true
+   },
+   "antenna-local-s10": {
+    "mask_equal": true,
+    "delta_equal": true,
+    "data_equal": true,
+    "metadata_equal": true
+   }
+  },
+  "side_effects": {
+   "prepared_files_checked": 3978,
+   "prepared_unchanged": true,
+   "git_status_unchanged": true,
+   "run_dir_files": [
+    "result.json"
+   ],
+   "only_result_written": true
+  },
+  "seconds_total": 24.292051234999235,
+  "objective_margins": {
+   "policy_trials": 36,
+   "admissible": 16,
+   "inadmissible_by_validation_or_support": 20,
+   "smallest_positive_margin": 0.0051939662774014295
+  },
+  "solves": 49
+ },
+ "cost": {
+  "core_campaign_wall_seconds": [
+   25.88,
+   24.64
+  ],
+  "core_campaign_max_rss_mb": [
+   708,
+   738
+  ],
+  "host_reproduction_wall_seconds": 296,
+  "note": "core: one process, no MS, no container; reproduction: Stimela, containers, 49 QuartiCal subprocesses"
+ },
+ "novelty": "reimplementation only; matched-quality runtime reduction, no scientific result changes"
+}

@@ -1,7 +1,8 @@
 # Rang core, phase 3: the injection campaign on the core
 
-Protocol frozen 2026-10-29, before any phase 3 driver or comparator code was
-written. Status: **proposed**. Phase 3 of the port plan in
+Protocol frozen 2026-10-29 in `a34aba5`, before any phase 3 driver or
+comparator code was written. Status: **implemented; measured** (see the
+measured result and the labelled post-hoc extension below). Phase 3 of the port plan in
 [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4. A reimplementation; under AGENTS.md it is not a scientific
 contribution, and no archived result may change because of it.
@@ -92,3 +93,69 @@ contaminated solve, an injected-mask oracle solve and the deduplicated
 
 A failure is recorded here with its numbers and is not hidden. The phase is
 reported as passed only if criteria 1–5 and 7 pass as frozen.
+
+## Measured result of the frozen run (2026-10-29)
+
+Run `outputs/core-phase3-20261029-01` with the driver and comparator as first
+written. The comparator was written after this protocol was frozen and before
+the run; it had not been committed. Every compared field passed:
+
+| Class | Compared | Worst relative difference |
+| --- | ---: | ---: |
+| exact decisions and counts (criterion 2) | 858 | 0 |
+| well-posed floats (criterion 3) | 928 | 1.3e-14 |
+| injection metadata floats (criterion 1) | 24 | 0 |
+| distances to clean (criterion 4) | 54 | 1.5e-14 |
+
+All six regenerated injections equal the saved masks, deltas, DATA arrays and
+metadata, and all six selected policies equal the archive (no change in every
+case, as archived). The side-effect audit passed: 3978
+prepared files and `git status` were unchanged, and only `result.json` was
+written.
+
+The comparator nevertheless exited with 18 failures, all of one kind: three
+per-case fields of the archive (`diagnostic_oracle_objective`,
+`no_change_objective`, `oracle_was_used_for_selection`) were missing from the
+core result. They are archive-only summaries. The frozen `run()` never writes
+them, the host reproduction's `result.json` lacks them, and no code in the
+repository produces them. Criterion 5 excludes archive-only fields "as in
+STATE.md's reproduction tables" but enumerated only three top-level ones, so
+the comparator's exclusion list was incomplete. This is recorded as a gap in
+the frozen comparator, not hidden.
+
+## Post-hoc extension (after the frozen run)
+
+The core driver now also writes the three fields, with these definitions: the
+no-change objective is the baseline objective (always 1.25); the diagnostic
+oracle objective is the selection objective of the injected-mask oracle solve
+on the contaminated support; the oracle is never used for selection. The
+comparator treats the two objectives under criterion 3 and reads candidate
+recovery from a campaign's sibling `candidate-recovery.json`, so the host
+reproduction can be compared too. Both changes are labelled post-hoc in the
+code.
+
+Run `outputs/core-phase3-20261029-02` with the committed code. Archive:
+[core-phase3.json](results/core-phase3.json).
+
+- Against the archive: 0 failures; 864 exact
+  fields, 940 floats (worst
+  1.3e-14), 54
+  distances (worst 1.5e-14). The oracle
+  objectives match the archive within 1e-9, which confirms their definition.
+- Against the host reproduction: 0 failures.
+- Margins: of 36 policy trials, 16 were admissible;
+  the closest lost to the incumbent by 5.2e-03, eleven orders of
+  magnitude above the agreement level. The other 20
+  were rejected by the validation guard or lost support.
+- Side effects: as in the frozen run.
+
+**Cost (reported).** The whole campaign, 49 solves, ran in one process with no
+Measurement Set and no container in 25.9 s (frozen run) and 24.6 s (post-hoc
+run), peaking at 708 MB and 738 MB. The host reproduction of the same stage,
+through Stimela, containers and 49 QuartiCal subprocesses, took 296 s. Peak
+memory is high because the driver keeps every trial's diagnostics of a case
+in memory; it can be cut by keeping only the selected one.
+
+Phase 3 is reported as "implemented; measured: the frozen comparator reported
+18 archive-only fields as missing and every compared field passed; post-hoc,
+with those fields, it passes against the archive and the host reproduction".
