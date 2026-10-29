@@ -1,7 +1,8 @@
 # Rang core: the section 6 prototype as frozen
 
-Protocol written 2026-10-29, before any decoder or prototype code. Status:
-**proposed**. Section 6 of
+Protocol written 2026-10-29 in `fead4ef`, before any decoder or prototype
+code. Status: **implemented; measured: run `-01` failed criterion 8; after
+implementation fixes with unchanged criteria, run `-02` passes all eleven**. Section 6 of
 [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 froze ten acceptance criteria in `fe9f049` for one fused pass from the LUNO
 zarr tiles to the rank survey. Phases 1–3 met most of them piecewise, but
@@ -63,3 +64,57 @@ Section 6 criteria 1–10 as frozen in `fe9f049`, with the additions above, and:
 
 Reported, not gated: decode time and bytes decoded with block selection,
 against the full-tile decode (2.3 s, 3.28 GB) and the measured chain.
+
+## Measured result (2026-10-29)
+
+**Ingest oracle.** `outputs/core-section6-oracle-20261029-01`: numcodecs
+(c-blosc 1.21.6) decoded the 68 chunks in 1.48 s; the Rust decoder reproduces
+every decoded chunk's SHA256.
+
+**Run `-01`** (`outputs/core-section6-20261029-01`, checked in
+`core-section6-check-20261029-01`): criteria 1–7 and 9–11 pass; **criterion 8
+fails**: 2.86 s excluding decode
+(limit 2.0 s) and 299 MB peak RSS (limit 200 MB). The memory peak came from
+the receipt, which read whole 170 MB chunk files to hash them; the time from
+per-row copies in Python during ingest and per-bin eigenvalue calls.
+
+**Implementation fixes, criteria unchanged:** streamed SHA256 in the receipt;
+the Rust decoder copies the requested rows while decoding each run of blocks;
+one batched eigenvalue call in the survey.
+
+**Run `-02`** (`outputs/core-section6-20261029-02`, checked in
+`core-section6-check-20261029-02`): **all eleven criteria pass.** Archive:
+[core-section6.json](results/core-section6.json).
+
+| Criterion | Measured (run `-02`) | Limit |
+| --- | --- | --- |
+| 1 gain flags | identical to QuartiCal | exact |
+| 2 baseline products | max 5.6e-16 (gain entries 3.3e-16) | 1e-6 |
+| 3 χ² | 0.26824, equal to the value at QuartiCal's gains | ≤ 0.275 |
+| 4 rank survey | 389 status 0, 43 status 3, 592 without TRAIN data | exact |
+| 5 diagonal normal blocks | 0 relative difference | 1e-13 |
+| 6 MAD scores; policy masks | 1.3e-14; all nine identical (TV by construction) | 1e-12; exact |
+| 7 fixture clean case | gains within 1.4e-15, validity identical, TV 1.9e-16 from the archive | 1e-6 |
+| 8 cost | 1.67 s excluding decode; 140 MB peak RSS | 2.0 s; 200 MB |
+| 9 outputs | `result.json`, `gains.npz`, `receipt.json` only; no MS | – |
+| 10 receipt | 68 input chunk hashes, code, settings, oracle gain hashes | – |
+| 11 ingest | every chunk hash equals numcodecs; arrays equal the MS-built arrays | exact |
+
+**Time per step (run `-02`).** Ingest 1.50 s, of which
+1.29 s is decode; solve 0.62 s (50
+iterations); fused pass 0.07 s; TV and nine policy masks
+0.04 s; rank survey 0.73 s. Whole
+process 5.2 s including Python start-up, imports and the receipt.
+
+**Ingest with block selection (reported).** The pass read
+752 MB and decoded 2048 of 12544 blosc
+blocks, against reading and decoding 2.72 GB of DATA tiles plus the support
+tiles in full before. The block-start table that makes this possible would
+also allow HTTP range requests against the public bucket, so a four-station
+slice could be fetched without downloading whole tiles; this is noted in
+[upstream-notes.md](upstream-notes.md) and not yet measured.
+
+**Against the measured chain** (section 2.1): MS build 4.1 s, QuartiCal
+28.3 s cold or 3.6 s warm (633 or 382 MB), survey 1.5 s; this pass replaces
+all of it with 1.67 s excluding decode, in 140 MB, with no MS and no
+container. The S3 fetch is unchanged.

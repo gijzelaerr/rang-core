@@ -4,6 +4,7 @@
 //! are loaded through ctypes, the checks build offline, and no new crates are
 //! needed. Every pointer is described by an explicit length in the structs.
 
+use crate::blosc;
 use crate::fused::{self, Inputs, Model, Outputs, SPLITS};
 use crate::predict;
 use crate::solve;
@@ -426,4 +427,228 @@ pub unsafe extern "C" fn rang_core_predict_components(
         }
     });
     result.unwrap_or(2)
+}
+
+/// Decoded length of a blosc chunk. Returns 0 on success, 1 on error.
+///
+/// # Safety
+/// `src` must reference `len` readable bytes and `nbytes` one writable usize.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_blosc_size(
+    src: *const u8,
+    len: usize,
+    nbytes: *mut usize,
+) -> i32 {
+    std::panic::catch_unwind(|| {
+        // SAFETY: the caller guarantees the buffers.
+        unsafe {
+            let (Some(src), false) = (slice(src, len), nbytes.is_null()) else {
+                return 1;
+            };
+            match blosc::header(src) {
+                Ok(h) => {
+                    *nbytes = h.nbytes;
+                    0
+                }
+                Err(_) => 1,
+            }
+        }
+    })
+    .unwrap_or(2)
+}
+
+/// Decode a whole blosc chunk into `out` (exactly its decoded length).
+///
+/// # Safety
+/// `src` must reference `len` readable bytes and `out` `out_len` writable bytes.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_blosc_decode(
+    src: *const u8,
+    len: usize,
+    out: *mut u8,
+    out_len: usize,
+) -> i32 {
+    std::panic::catch_unwind(|| {
+        // SAFETY: the caller guarantees the buffers.
+        unsafe {
+            let Some(src) = slice(src, len) else {
+                return 1;
+            };
+            if out.is_null() {
+                return 1;
+            }
+            match blosc::decode_into(src, slice_mut(out, out_len)) {
+                Ok(()) => 0,
+                Err(_) => 1,
+            }
+        }
+    })
+    .unwrap_or(2)
+}
+
+/// Decode selected rows of a row-major blosc chunk, expanding only the blocks
+/// that contain them.
+///
+/// # Safety
+/// `src` must reference `len` readable bytes, `rows` `nrows` usize values,
+/// `out` `nrows * row_bytes` writable bytes and `blocks` one writable usize.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_blosc_decode_rows(
+    src: *const u8,
+    len: usize,
+    row_bytes: usize,
+    rows: *const usize,
+    nrows: usize,
+    out: *mut u8,
+    blocks: *mut usize,
+) -> i32 {
+    std::panic::catch_unwind(|| {
+        // SAFETY: the caller guarantees the buffers.
+        unsafe {
+            let (Some(src), Some(rows)) = (slice(src, len), slice(rows, nrows)) else {
+                return 1;
+            };
+            if out.is_null() || blocks.is_null() {
+                return 1;
+            }
+            let out = slice_mut(out, nrows * row_bytes);
+            match blosc::decode_rows(src, row_bytes, rows, out) {
+                Ok(n) => {
+                    *blocks = n;
+                    0
+                }
+                Err(_) => 1,
+            }
+        }
+    })
+    .unwrap_or(2)
+}
+
+/// Header fields of a blosc chunk from its first bytes: writes nbytes,
+/// blocksize, number of blocks and typesize. Returns 0 on success.
+///
+/// # Safety
+/// `head` must reference `len` readable bytes (at least the 16-byte header)
+/// and `fields` four writable usize values.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_blosc_header(
+    head: *const u8,
+    len: usize,
+    fields: *mut usize,
+) -> i32 {
+    std::panic::catch_unwind(|| {
+        // SAFETY: the caller guarantees the buffers.
+        unsafe {
+            let Some(head) = slice(head, len) else {
+                return 1;
+            };
+            if fields.is_null() {
+                return 1;
+            }
+            match blosc::parse_header(head) {
+                Ok(h) => {
+                    let out = slice_mut(fields, 4);
+                    out.copy_from_slice(&[h.nbytes, h.blocksize, h.nblocks(), h.typesize]);
+                    0
+                }
+                Err(_) => 1,
+            }
+        }
+    })
+    .unwrap_or(2)
+}
+
+/// Decode block `j` from its compressed bytes. `head` holds the chunk's first
+/// bytes (header and, for compressed chunks, the block-start table).
+///
+/// # Safety
+/// `head` must reference `head_len` bytes, `block` `block_len` bytes and
+/// `out` `out_len` writable bytes (the block's decoded length).
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_blosc_decode_block(
+    head: *const u8,
+    head_len: usize,
+    j: usize,
+    block: *const u8,
+    block_len: usize,
+    out: *mut u8,
+    out_len: usize,
+) -> i32 {
+    std::panic::catch_unwind(|| {
+        // SAFETY: the caller guarantees the buffers.
+        unsafe {
+            let (Some(head), Some(block)) = (slice(head, head_len), slice(block, block_len)) else {
+                return 1;
+            };
+            if out.is_null() {
+                return 1;
+            }
+            let Ok(h) = blosc::parse_header(head) else {
+                return 1;
+            };
+            let mut scratch = Vec::new();
+            match blosc::decode_block_bytes(&h, j, block, slice_mut(out, out_len), &mut scratch) {
+                Ok(()) => 0,
+                Err(_) => 1,
+            }
+        }
+    })
+    .unwrap_or(2)
+}
+
+/// Decode a run of consecutive blocks and copy the requested rows.
+///
+/// # Safety
+/// `head` (`head_len` bytes) holds the header and block-start table, `span`
+/// (`span_len` bytes) the compressed bytes from block `first`'s offset,
+/// `rows` `nrows` usize values and `out` `nrows * row_bytes` writable bytes.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_blosc_decode_span_rows(
+    head: *const u8,
+    head_len: usize,
+    first: usize,
+    count: usize,
+    span: *const u8,
+    span_len: usize,
+    row_bytes: usize,
+    rows: *const usize,
+    nrows: usize,
+    out: *mut u8,
+) -> i32 {
+    std::panic::catch_unwind(|| {
+        // SAFETY: the caller guarantees the buffers.
+        unsafe {
+            let (Some(head), Some(span), Some(rows)) = (
+                slice(head, head_len),
+                slice(span, span_len),
+                slice(rows, nrows),
+            ) else {
+                return 1;
+            };
+            if out.is_null() {
+                return 1;
+            }
+            let Ok(h) = blosc::parse_header(head) else {
+                return 1;
+            };
+            let Ok((span_start, _)) = blosc::block_span(head, &h, first) else {
+                return 1;
+            };
+            match blosc::decode_span_rows(
+                head,
+                &h,
+                first,
+                count,
+                span,
+                span_start,
+                row_bytes,
+                rows,
+                slice_mut(out, nrows * row_bytes),
+            ) {
+                Ok(()) => 0,
+                Err(_) => 1,
+            }
+        }
+    })
+    .unwrap_or(2)
 }

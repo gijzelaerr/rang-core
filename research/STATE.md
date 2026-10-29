@@ -1,5 +1,14 @@
 # Rang research state
 
+Core section 6 prototype, 2026-10-29 (implemented; measured). Run as frozen
+from the LUNO zarr tiles with no MS (`examples/prototype_section6.py`, checker
+`examples/check_section6.py`): a Rust blosc decoder (`core/src/blosc.rs`,
+`rangtoy.core_zarr`) matches numcodecs on all 68 chunks and reads only the
+needed blocks (512 of 3136). Run `-01` failed criterion 8 (2.86 s excluding
+decode, 299 MB); after implementation fixes with unchanged criteria, run `-02`
+passes all eleven (1.67 s, 140 MB; gains equal QuartiCal to 3.3e-16; survey
+389/43/592). Archive `results/core-section6.json`. Next: phase 4.
+
 Core phase 3c-b, 2026-10-29 (implemented; measured: all gated criteria pass
 as frozen). The signal track runs on the Rust core (`rangtoy.core_signal`):
 9 solves in 34.5 s, prediction by the core predictor, injection and complete

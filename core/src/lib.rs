@@ -12,6 +12,7 @@
 //! here changes an archived result. `predict` ports the WSClean-format
 //! component predictor of codex-africanus 0.4.4 (`research/core-phase3c-a.md`).
 
+pub mod blosc;
 pub mod ffi;
 pub mod fused;
 pub mod jones;

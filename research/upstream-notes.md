@@ -104,3 +104,11 @@ for the measurements. None of these has been sent anywhere.
   YX. It matters only when the XY and YX weights differ, and it changes the
   step, not the fixed point. To be checked against QuartiCal's intent before
   any report. Not raised.
+- **Measured: blosc block tables allow partial reads of the public stores.**
+  The LUNO DATA chunks hold 196 independently compressed 1 MB blosc blocks,
+  and the chunk header lists where each starts. Reading only the blocks that
+  hold four stations' rows read 461 MB instead of 2,717 MB and decoded 512 of
+  3136 blocks (`core-section6.md`). The same offsets would let a client fetch
+  those byte ranges with HTTP range requests from the RATT bucket. Useful for
+  dask-ms or zarr readers that today fetch whole chunks; not raised, and the
+  range-request fetch itself is not yet measured.

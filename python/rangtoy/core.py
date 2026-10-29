@@ -119,6 +119,29 @@ def library():
         _pointer(_PredictOutputs),
     ]
     lib.rang_core_predict_components.restype = ctypes.c_int
+    lib.rang_core_blosc_size.argtypes = [
+        ctypes.c_char_p,
+        ctypes.c_size_t,
+        _pointer(ctypes.c_size_t),
+    ]
+    lib.rang_core_blosc_size.restype = ctypes.c_int
+    lib.rang_core_blosc_decode.argtypes = [
+        ctypes.c_char_p,
+        ctypes.c_size_t,
+        ctypes.c_char_p,
+        ctypes.c_size_t,
+    ]
+    lib.rang_core_blosc_decode.restype = ctypes.c_int
+    lib.rang_core_blosc_decode_rows.argtypes = [
+        ctypes.c_char_p,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+        _pointer(ctypes.c_size_t),
+        ctypes.c_size_t,
+        ctypes.c_char_p,
+        _pointer(ctypes.c_size_t),
+    ]
+    lib.rang_core_blosc_decode_rows.restype = ctypes.c_int
     return lib
 
 
@@ -490,3 +513,38 @@ def predict_components(
             f"rang core component prediction failed with status {status}"
         )
     return (vis, spec) if spectra else vis
+
+
+def blosc_decode(payload):
+    """Decode a whole blosc-1 chunk (LZ4, byte shuffle) to bytes."""
+    payload = bytes(payload)
+    size = ctypes.c_size_t()
+    lib = library()
+    if lib.rang_core_blosc_size(payload, len(payload), ctypes.byref(size)):
+        raise ValueError("unsupported or invalid blosc chunk")
+    out = ctypes.create_string_buffer(size.value)
+    if lib.rang_core_blosc_decode(payload, len(payload), out, size.value):
+        raise ValueError("blosc chunk failed to decode")
+    return out.raw
+
+
+def blosc_decode_rows(payload, row_bytes, rows):
+    """Decode only `rows` of a row-major blosc chunk; returns (bytes, blocks)."""
+    payload = bytes(payload)
+    rows = np.require(np.asarray(rows, dtype=np.uintp), np.uintp, ["C", "A"])
+    if rows.ndim != 1:
+        raise ValueError("rows must be one-dimensional")
+    out = ctypes.create_string_buffer(len(rows) * row_bytes)
+    blocks = ctypes.c_size_t()
+    status = library().rang_core_blosc_decode_rows(
+        payload,
+        len(payload),
+        row_bytes,
+        rows.ctypes.data_as(_pointer(ctypes.c_size_t)),
+        len(rows),
+        out,
+        ctypes.byref(blocks),
+    )
+    if status:
+        raise ValueError("blosc row selection failed to decode")
+    return out.raw, int(blocks.value)

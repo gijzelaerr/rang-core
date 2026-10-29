@@ -579,6 +579,14 @@ Passing 1–7 proves matched quality; 8–9 are the resource claim. Failing 2
 while passing 3 would mean a different fixed point of the same objective and
 would be reported as such, not hidden.
 
+### 6.1 Measured result (2026-10-29)
+
+Run as frozen in [core-section6.md](core-section6.md): the first run failed
+criterion 8 (2.86 s, 299 MB); after implementation fixes, the second run
+passes all eleven criteria at 1.67 s excluding decode and 140 MB, with no
+Measurement Set. Gains equal QuartiCal's to 3.3e-16, and the rank survey,
+χ², MAD scores and policy masks are unchanged.
+
 ## 7. Ranked consolidation wins
 
 Speedups are relative to the measured chain on this host; "available now"
@@ -593,6 +601,15 @@ marks wins that need no rewrite.
 | 5 | Sufficient statistics for rank/response/forecasts | already native: 0.47 s for 117,556 cells | none further at four stations; sparse blocks needed beyond | 1–2 weeks at $n_a=64$ | yes |
 | 6 | Direct zarr ingest, no MS build | 4.1 s, 467 MB, 38 MB on disk per slice | 4 s per slice; nothing on the 1,220 s of fetches | 1–2 weeks | no |
 | 7 | Rust dirty gridder for diagnostics | 15 inversions × 1.5 s + MS copies | small; removes the imaging MS copies | 3–5 weeks | no, and WSClean stays the oracle |
+
+**Measured against estimated (2026-10-29).** Per solve, the core takes
+0.5 s on the fixture and 0.6–0.8 s on LUNO, against 3.4–3.9 s (warm) and
+28–48 s (cold) for a QuartiCal subprocess. Per stage, in one process with no
+MS: injections 25 s against 296 s, actions 9 s against about 6 min,
+prospective 33 s against 6 min 23 s, signal 35 s against 2 min 39 s; the LUNO
+zarr-to-survey pass 3.0 s (1.7 s excluding decode) against 34 s cold. These
+replace the estimates of win 2 for the stages measured; win 3 and the image
+track are not yet measured.
 
 The honest ceiling: with wins 1–4 the five-track campaign is bounded below by
 the 15 WSClean inversions and the four Tricolour runs it reuses from earlier
@@ -727,7 +744,7 @@ before the next starts; a phase that fails its gate is reported, not skipped.
 | --- | ---: | --- | --- |
 | 0 | hours | Persistent Numba cache; gain comparisons by tolerance instead of hash. Met on 2026-10-29 by `run-next.sh` and `run-luno-solve.sh` (`794ed21`) and the tolerance rule in `upstream-notes.md`. The older `run-*.sh` wrappers are hashed into campaign receipts and stay frozen. | `tool-timings.md` rows; identical rank survey (measured) |
 | 1 | 3–5 | Crate skeleton: `VisBlock`, `GainGrid`, `BinStats`, zarr ingest, scalar prediction, fused statistics, PyO3 | normals to 1e-13, TV/trend exact, MAD $z$ to 1e-12 against the archives |
-| 2 | 3–6 | Full-Jones `complex` solver ported from the QuartiCal kernel (MIT) | section 6 criteria 1–9 on the LUNO slice and the fixture clean case. Measured 2026-10-29 under its own protocol (`core-phase2.md`), solving from an MS export; section 6 criteria 8 (runtime from zarr) and 9 (no MS) are still open |
+| 2 | 3–6 | Full-Jones `complex` solver ported from the QuartiCal kernel (MIT) | section 6 criteria 1–9 on the LUNO slice and the fixture clean case. Measured 2026-10-29 under its own protocol (`core-phase2.md`), solving from an MS export; section 6 then run as frozen from zarr with no MS (`core-section6.md`): run `-01` failed criterion 8, run `-02` passes all eleven criteria |
 | 3 | 2–3 | Policy loop and the trend, prospective and signal tracks on the core; `goquartical` retired from campaigns. Measured 2026-10-29: core drivers for injections, actions, trend, prospective and signal reproduce their archives (`core-phase3*.md`; trend only under a labelled post-hoc criterion, injections and actions with post-hoc comparator steps). The frozen recipes still call QuartiCal, so `goquartical` is not yet retired | `gain-tv-actions`, `gain-tv-next-trend`, `-prospective`, `-signal` reproduced to the STATE.md tolerances |
 | 4 | 3–5 | Dirty gridder and FITS; imaging track on the core with WSClean as oracle | paired-difference images within 1e-6 Jy/beam; absolute differences reported |
 | 5 | 3–6, optional | Tricolour strategies ported from source (GPL decision first) | the four archived native controls reproduced flag-for-flag |

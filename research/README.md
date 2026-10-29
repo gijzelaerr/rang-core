@@ -4,6 +4,14 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: the [section 6 prototype](core-section6.md) runs as frozen
+from the LUNO zarr tiles to the rank survey with no Measurement Set: a Rust
+blosc decoder reads only the 512 of 3136 blocks it needs, the core solves,
+and all eleven criteria pass on the second run (1.67 s excluding decode,
+140 MB; the first run failed the cost criterion at 2.86 s and 299 MB).
+Against the measured chain this replaces MS build, a 28 s cold or 3.6 s warm
+QuartiCal solve and the survey ([archive](results/core-section6.json)).
+
 New, 2026-10-29: the [actions stage](core-phase3-actions.md) runs on the Rust
 core in 9 s (17 solves) and passes as frozen against the archive; the host
 reproduction needed one labelled post-hoc comparator rule for float metadata.

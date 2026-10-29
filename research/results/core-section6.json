@@ -1,0 +1,117 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-section6.md",
+ "protocol_commit": "fead4ef",
+ "status": "implemented; measured: run -01 failed criterion 8 (2.86 s, 299 MB); after implementation fixes with unchanged criteria, run -02 passes all eleven",
+ "ingest_oracle": {
+  "run_dir": "outputs/core-section6-oracle-20261029-01",
+  "chunks": 68,
+  "numcodecs_decode_seconds": 1.4799233229859965,
+  "blosc": "1.21.6",
+  "receipt_sha256": "389cec6404df90f74085f758c892e5554df45ddbceaee1686425b386ea616bb5"
+ },
+ "run_01": {
+  "passed": {
+   "11_ingest": true,
+   "1_gain_flags": true,
+   "2_gains": true,
+   "3_chi2": true,
+   "4_survey": true,
+   "5_normals": true,
+   "6_mad_and_policy": true,
+   "7_fixture": true,
+   "8_cost": false,
+   "9_outputs": true,
+   "10_receipt": true
+  },
+  "wall_seconds": 3.69961878900358,
+  "wall_excluding_decode": 2.8627681270663743,
+  "max_rss_mb": 298.8,
+  "causes": "receipt read whole chunk files to hash them (memory); per-row copies in Python and per-bin eigenvalue calls (time)"
+ },
+ "run_02": {
+  "passed": {
+   "11_ingest": true,
+   "1_gain_flags": true,
+   "2_gains": true,
+   "3_chi2": true,
+   "4_survey": true,
+   "5_normals": true,
+   "6_mad_and_policy": true,
+   "7_fixture": true,
+   "8_cost": true,
+   "9_outputs": true,
+   "10_receipt": true
+  },
+  "result_sha256": "d878e383b83126165bddfe332bf71e6910e8af85323773125abc4535b0769156",
+  "wall_seconds": 2.9613862129990594,
+  "decode_seconds": 1.2932535288491636,
+  "wall_excluding_decode": 1.6681326841498958,
+  "max_rss_mb": 139.9,
+  "step_seconds": {
+   "solve": 0.6193900290018064,
+   "fused": 0.07205482000426855,
+   "tv_and_policy": 0.04322327599948039,
+   "rank_survey": 0.7264306450015283
+  },
+  "ingest": {
+   "bytes_read": 751633704,
+   "blocks_decoded": 2048,
+   "blocks_total": 12544,
+   "decode_seconds": 1.2932535288491636,
+   "seconds": 1.4999062510032672
+  },
+  "checks": {
+   "2_gains": {
+    "max_product_diff": 5.578801654593729e-16,
+    "max_gain_entry_diff": 3.342213888644167e-16
+   },
+   "3_chi2": {
+    "core": 0.26823507037914956,
+    "at_quartical_gains": 0.26823507037914956,
+    "limit": 0.275,
+    "logged": 0.27
+   },
+   "5_normals": {
+    "diag_h_rel": 0.0
+   },
+   "7_fixture": {
+    "gain_valid_equal": true,
+    "max_gain_diff": 1.4130832128153977e-15,
+    "tv_rel_to_archive": 1.882539666093535e-16,
+    "raw_tv_rel_to_archive": 4.1530705868022755e-16
+   }
+  },
+  "max_score_diff": 1.2878587085651816e-14,
+  "policy_mask_counts": {
+   "tau8-alpha0": 0,
+   "tau5-alpha0": 0,
+   "tau3-alpha0": 8,
+   "tau8-alpha1": 33,
+   "tau5-alpha1": 270,
+   "tau3-alpha1": 647,
+   "tau8-alpha3": 490,
+   "tau5-alpha3": 647,
+   "tau3-alpha3": 647
+  },
+  "survey": {
+   "fully_identified": 389,
+   "underidentified": 43,
+   "no_train": 592,
+   "no_solved_gain": 0,
+   "over_rank": 0,
+   "status": {
+    "fully_identified status0": 389,
+    "underidentified status3": 43
+   }
+  },
+  "iterations": 50,
+  "converged_fraction": 0.9833234067897558
+ },
+ "fixes_between_runs": [
+  "streamed SHA256 in the receipt",
+  "Rust copies the requested rows while decoding each run of blocks",
+  "one batched eigenvalue call in the survey"
+ ],
+ "novelty": "reimplementation only; matched-quality runtime and memory reduction"
+}
