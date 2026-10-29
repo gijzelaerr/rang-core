@@ -111,8 +111,9 @@ against the first runs. The result is recorded here before any core code.
 Imaging weights are compared where WSClean stored one (XX entry, selected
 channels, selected rows). Zero/non-zero patterns must be identical. Non-zero
 values must agree to a relative difference of at most
-`max(4 float32 ulps ≈ 4.8e-7, measured WSClean repeat spread)`; the number is
-frozen after the oracle run, before core code, in a second protocol commit.
+`max(4 float32 ulps, measured WSClean repeat spread)`. **Frozen 2026-10-30,
+before core code: 4 × 2⁻²³ = 4.76837158203125e-7**, because the measured
+WSClean repeat spread is exactly zero (see the precondition result).
 Header sums are compared to a relative 1e-9 (fifteen printed digits). Stokes I
 values and per-visibility weights are compared bit-exactly against a NumPy
 float32 oracle of the formulas in items 3 and 8. Dirty/PSF reproduction uses
