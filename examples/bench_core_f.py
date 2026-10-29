@@ -75,13 +75,19 @@ def series(values, before, after):
 
 
 def timed(fn, repeats):
+    """Wall seconds per run (the frozen measure) plus process CPU seconds,
+    reported only, as a load-insensitive cross-check."""
     before = loadavg()
-    out, seconds = None, []
+    out, seconds, cpu = None, [], []
     for _ in range(repeats):
-        t = time.perf_counter()
+        t, c = time.perf_counter(), time.process_time()
         out = fn()
         seconds.append(time.perf_counter() - t)
-    return out, series(seconds, before, loadavg())
+        cpu.append(time.process_time() - c)
+    result = series(seconds, before, loadavg())
+    result["cpu_runs"] = cpu
+    result["cpu_min"] = min(cpu)
+    return out, result
 
 
 def digest(data):

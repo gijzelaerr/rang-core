@@ -128,13 +128,26 @@ pub fn lz4_decompress(src: &[u8], out: &mut [u8]) -> Result<(), &'static str> {
             // at least `offset` >= 16 behind the write cursor.
             let mut copied = 0;
             while copied < length {
-                let (from, to) = (d - offset + copied, d + copied);
-                out.copy_within(from..from + WILD, to);
+                let from = d - offset + copied;
+                let block: [u8; WILD] = out[from..from + WILD].try_into().unwrap();
+                out[d + copied..d + copied + WILD].copy_from_slice(&block);
                 copied += WILD;
             }
         } else if length <= 2 * WILD {
             for i in d..d + length {
                 out[i] = out[i - offset];
+            }
+        } else if offset < WILD && d + length + WILD <= out.len() {
+            // Short offset: the match is periodic with period `offset`, so
+            // write 16-byte windows of a 32-byte pattern, each starting at
+            // the phase of its position.
+            let from = d - offset;
+            let pattern: [u8; 2 * WILD] = std::array::from_fn(|i| out[from + i % offset]);
+            let mut copied = 0;
+            while copied < length {
+                let phase = copied % offset;
+                out[d + copied..d + copied + WILD].copy_from_slice(&pattern[phase..phase + WILD]);
+                copied += WILD;
             }
         } else {
             // A match may overlap its own output: copy in runs of at most
