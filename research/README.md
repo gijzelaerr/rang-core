@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: [phase 2 of the core port](core-phase2.md), a Rust port of
+QuartiCal's full-Jones complex solver, has a frozen protocol (proposed; no
+solver code yet).
+
 New, 2026-10-29: [phase 1 of the core port](core-phase1.md) is implemented
 and measured: a fused Rust pass (`core/`) for residuals, split losses, robust
 scores and antenna-diagonal normals. It reproduces the archived residuals to
