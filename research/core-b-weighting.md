@@ -2,7 +2,9 @@
 
 Protocol written 2026-10-30 on branch `core/b-weighting` before any weighting
 code, as task B of [core-parallel-plan.md](core-parallel-plan.md). Status:
-**proposed**. The task ports WSClean 3.6's Briggs, uniform and natural imaging
+**implemented; measured: all seven frozen criteria pass as frozen, the core's
+weights are bit-identical to WSClean's on all 19 oracle runs** (results
+section below). The task ports WSClean 3.6's Briggs, uniform and natural imaging
 weighting and its Stokes I formation from linear correlations into the Rust
 core, and validates the port against WSClean's own stored imaging weights on
 the fifteen archived imaging jobs. A reimplementation; under AGENTS.md not a
@@ -171,8 +173,75 @@ Failures are recorded as frozen; any later step is labelled post-hoc.
 - `examples/oracle_wsclean_weights.py`, `examples/compare_core_weights.py`,
   `tests/test_core_weights.py`.
 
+## Results (measured 2026-10-30, run as frozen)
+
+`compare_core_weights.py outputs/core-b-20261030-01 --tolerance 4.76837158203125e-07`
+(`compare.json`), after the Rust unit tests and the Python tests passed:
+
+| Criterion | Result |
+| --- | --- |
+| 1 reproduction | pass: 15/15 reruns pixel-identical, header sums identical |
+| 2 Briggs 0.5 weights | pass on 15/15 jobs; **max relative difference 0.0**, every stored float identical, zero patterns identical; column structure holds |
+| 3 uniform and natural | pass on 2 + 2 jobs, identical floats |
+| 4 Stokes I formation | pass: visibilities and per-visibility weights bit-equal to the NumPy float32 oracle on 15/15 jobs |
+| 5 header sums | pass: `WSCNVIS` exact (9169; 7812 on `caracal-firstpass-rejected`), `WSCVWSUM` and `WSCIMGWG` within 1.8e-15 relative (printed-digit rounding of the archive values) |
+| 6 geometry helper | pass: 616 for 512; Rust test over sizes 2–4096 |
+| 7 timing | reported below; no threshold |
+
+Nothing was changed after the first comparison run; there is no post-hoc
+step. Observations:
+
+- The two distinct flag patterns give two distinct weight sets; the other
+  thirteen jobs share the `clean-full` weights because WSClean's weights
+  depend on the data only through finiteness (item 3). The oracle therefore
+  has two independent Briggs cases, plus uniform and natural on each.
+- **Grid coverage is thin.** The four-station fixture (84 cross rows, maximum
+  baseline about 370 λ, cells of about 41.8 λ at 616 pixels) occupies only
+  18 cells of the 616 × 308 half grid. Items 1, 2, 4, 5 and 7 are exercised
+  exactly on real WSClean output; the rank filter and the Briggs finish are
+  exercised on these 18 cells and otherwise by the Rust unit tests. A denser
+  array would strengthen the oracle (open question below).
+- Wavelengths: the `long double` division rounded to double differs from a
+  plain float64 division on 3 of 4096 channels (3 of them in the imaged
+  range) by one ulp; `core_weights.wsclean_wavelengths` reproduces WSClean's
+  value with `np.longdouble`, and the core takes wavelengths as input.
+- Rust's `exp` and glibc's may differ by an ulp in the Briggs factor
+  `5 · 10^(−robust)`; on these jobs the stored floats are identical anyway.
+
+### Timings
+
+| Date | Tool / stage | Input | Wall | Notes |
+| --- | --- | --- | ---: | --- |
+| 2026-10-30 | task B oracle: 21 WSClean 3.6-1 inversions with `-store-imaging-weights` in `rang-flagging-next-imaging:local` | 15 jobs + 2 repeats + 2 uniform + 2 natural, 84 × 2048 × 4 | 33.4 s in-container (34.2 s with `docker run`) | 1.3–1.8 s per WSClean call, 0.11–0.16 s per MS copy and checkpoint write, 0.04–0.24 s per export; first attempt failed at once because the flag followed the MS argument |
+| 2026-10-30 | task B comparator, `--oracle-only` | 21 oracle runs | about 1 s | precondition, all identical |
+| 2026-10-30 | task B comparator, full (19 core jobs + oracles) | same | 3.4 s process including a 2.0 s core rebuild | |
+| 2026-10-30 | core Stokes I formation, in-process | 140 × 2048 × 4 | 1.5–2.3 ms (5.9 ms once) | first call 2.0 s includes the ctypes library load |
+| 2026-10-30 | core imaging weights (grid, Briggs finish, rank filter, lookup), in-process | 84 rows × 2048 channels on 616 × 308 | 4.7–9.2 ms | WSClean's "Precalculating weights" is not separately timed in its log |
+| 2026-10-30 | `cargo test` (core, weights filter) and `pytest tests/test_core_weights.py` | 7 + 6 tests | 0.9 s and 2.0 s | |
+| 2026-10-30 | `bash tools/check-all.sh` | repo (674 pytest tests, 25 core and 19 root Rust tests) | 3046 s (pytest 3028 s) | overall PASS, once before the final commit; pytest slow because eight sibling sessions shared the 16 cores |
+
+### Open questions
+
+- A denser uv coverage oracle (a real MeerKAT MS, or the LUNO slice once a
+  full-resolution dataset arrives) would exercise the rank filter and the
+  Briggs normalisation on many cells; the fixture covers 18.
+- Task C's gridder should take `core_weights.imaging_weights(...)["weights"]`
+  multiplied by the Stokes I weights (`ApplyWeights`, item 9), and
+  `WeightSums` for `WSCVWSUM`, `WSCIMGWG`, `WSCNVIS` and the normalisation.
+- `-super-weight`, tapers, `-minuv-l`/`-maxuv-l` and MF weighting are not
+  ported (rang does not use them); `WeightGrid::shape` handles the super
+  weight, nothing else.
+
 ## For the coordinator
 
-- Add `pub mod ffi_weights;` and `pub mod weights;` to `core/src/lib.rs`
-  (added locally and uncommitted during this task; see the status section).
-- Timings for `tool-timings.md` are listed in the timings section below.
+- Add `pub mod ffi_weights;` and `pub mod weights;` to `core/src/lib.rs`. They
+  were added locally and left uncommitted so that the branch's own commits
+  touch no shared file; without them the branch's `tests/test_core_weights.py`
+  and `compare_core_weights.py` cannot load the symbols.
+- Copy the timing rows above into `tool-timings.md`.
+- Upstream note: none filed. WSClean's `-store-imaging-weights` writes the
+  column during both the PSF and the dirty passes with the same values, and
+  must precede the MS argument on the command line (documented behaviour).
+- Archive for `results/`: none; the oracle and comparison JSON live in
+  `outputs/core-b-20261030-01` (889 MB, dominated by the 21 oracle `.npz`
+  files, 43 MB each; the MS copies were deleted after export).

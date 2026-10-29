@@ -96,7 +96,7 @@ def rewrite_command(command, archive, output, name, ms, mode):
     return out
 
 
-def export(ms, output, name, archive_label, archive, timing, command):
+def export(ms, output, name, archive_label, archive, timing, command, mode):
     from casacore.tables import table
 
     arrays = {}
@@ -133,6 +133,7 @@ def export(ms, output, name, archive_label, archive, timing, command):
     np.savez(output / "oracle" / f"{name}.npz", **arrays)
     record = {
         "name": name,
+        "mode": mode,
         "archive_label": archive_label,
         "command": command,
         "wall_seconds": timing,
@@ -213,9 +214,9 @@ def main():
             archive,
             {"prepare": prepare_seconds, "wsclean": wsclean_seconds},
             command,
+            mode,
         )
         record["wall_seconds"]["export"] = time.perf_counter() - t0
-        record["mode"] = mode
         records.append(record)
         if not args.keep_ms:
             shutil.rmtree(ms)

@@ -155,6 +155,13 @@ def numpy_stokes_i(data, weights, flags):
     return vis, weight.astype(np.float32)
 
 
+def run_mode(run):
+    """The weighting class of a run, from its name (the oracle records of the
+    first run predate the mode field)."""
+    suffix = run["name"].split("--")[-1] if "--" in run["name"] else ""
+    return run.get("mode", suffix if suffix in ("uniform", "natural") else "briggs")
+
+
 def core_job(run, tolerance):
     from rangtoy import core_weights
 
@@ -164,7 +171,7 @@ def core_job(run, tolerance):
     data = np.ascontiguousarray(arrays["CORRECTED_DATA"][:, lo:hi])
     weights = np.ascontiguousarray(arrays["WEIGHT_SPECTRUM"][:, lo:hi])
     flags = np.ascontiguousarray(arrays["FLAG"][:, lo:hi])
-    mode = run["mode"]
+    mode = run_mode(run)
     t0 = time.perf_counter()
     vis, weight = core_weights.stokes_i(data, weights, flags)
     stokes_seconds = time.perf_counter() - t0
@@ -255,7 +262,14 @@ def main():
         if name.endswith("--repeat"):
             continue
         report["jobs"][name] = core_job(run, tolerance)
-        print(name, "PASS" if report["jobs"][name]["pass"] else "FAIL", file=sys.stderr)
+        job = report["jobs"][name]
+        print(
+            name,
+            "PASS" if job["pass"] else "FAIL",
+            job["weights_max_relative_difference"],
+            job["weights_identical"],
+            file=sys.stderr,
+        )
     briggs = [j for j in report["jobs"].values() if j["mode"] == "briggs"]
     extra = [j for j in report["jobs"].values() if j["mode"] != "briggs"]
     report["criteria"] = {
