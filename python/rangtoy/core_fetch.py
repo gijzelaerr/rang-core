@@ -362,7 +362,6 @@ def decode_slice(fetched):
     result = json.loads((fetched / "result.json").read_text())
     group = result["group"]
     rows = np.asarray(result["rows"], dtype=np.int64)
-    lib = core_zarr._lib()
     stats = {"blocks_decoded": 0, "decode_seconds": 0.0, "bytes_decoded": 0}
     arrays = {}
     for name, dtype in result["row_columns"]:
@@ -395,17 +394,8 @@ def decode_slice(fetched):
                 run_rows = np.ascontiguousarray(rows[inside], dtype=np.uintp)
                 run_out = np.empty(len(inside) * row_bytes, np.uint8)
                 started = time.perf_counter()
-                status = lib.rang_core_blosc_decode_span_rows(
-                    head,
-                    len(head),
-                    first,
-                    count,
-                    body,
-                    len(body),
-                    row_bytes,
-                    run_rows.ctypes.data,
-                    len(run_rows),
-                    run_out.ctypes.data,
+                status = core_zarr.decode_span_rows(
+                    head, first, count, body, row_bytes, run_rows, run_out
                 )
                 stats["decode_seconds"] += time.perf_counter() - started
                 if status:

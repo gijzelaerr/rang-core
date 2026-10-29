@@ -14,9 +14,16 @@ step core-build cargo +1.93 build --offline --release -q --manifest-path core/Ca
 step core-test bash -c "cargo +1.93 test --offline --release -q --manifest-path core/Cargo.toml 2>&1 | grep -E \"^test result\" | head -1"
 step core-clippy cargo +1.93 clippy --offline --all-targets -q --manifest-path core/Cargo.toml -- -D warnings
 step core-fmt cargo +1.93 fmt --check --manifest-path core/Cargo.toml
+# The PyO3 extension rangtoy._core (research/core-j-packaging.md): built and
+# installed into .venv by maturin so that pytest exercises it; no cargo test,
+# because an extension-module cdylib cannot link a test binary.
+step ext-build env RUSTUP_TOOLCHAIN=1.93 .venv/bin/maturin develop --release --offline -q
+step ext-clippy cargo +1.93 clippy --offline --all-targets -q --manifest-path core/py/Cargo.toml -- -D warnings
+step ext-fmt cargo +1.93 fmt --check --manifest-path core/py/Cargo.toml
 step ruff .venv/bin/ruff check python examples tests
 step ruff-format .venv/bin/ruff format --check python examples tests
 step diff-check git diff --check
-step pytest bash -c ".venv/bin/python -m pytest -q 2>&1 | tail -2"
+# pipefail inside the sub-shell, so a failing test fails the step.
+step pytest bash -c "set -o pipefail; .venv/bin/python -m pytest -q 2>&1 | tail -2"
 echo "## overall: $([ $fail = 0 ] && echo PASS || echo FAIL)"
 exit $fail

@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.7,<2"]
+build-backend = "maturin"
 
 [project]
 name = "rangtoy"
@@ -21,8 +21,12 @@ imaging = ["astropy>=6"]
 [project.scripts]
 rang-core = "rangtoy.core_cli:main"
 
-[tool.setuptools.packages.find]
-where = ["python"]
+[tool.maturin]
+# The PyO3 extension rangtoy._core (research/core-j-packaging.md) is built
+# from the thin crate core/py; the Python package stays in python/rangtoy.
+python-source = "python"
+manifest-path = "core/py/Cargo.toml"
+module-name = "rangtoy._core"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

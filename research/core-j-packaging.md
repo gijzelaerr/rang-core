@@ -1,9 +1,12 @@
 # Rang core, task J: PyO3/maturin packaging
 
-Protocol frozen 2026-10-29 in the commit that adds this file, before any
-extension code was written (the crate skeleton that existed at the freeze
-held only an empty `#[pymodule]`, created to run `cargo fetch` once and
-record the crate versions and licences below). Status: **proposed**. Task J
+Protocol frozen 2026-10-29 in `d4f88c8`, before any extension code was
+written (the crate skeleton that existed at the freeze held only an empty
+`#[pymodule]`, created to run `cargo fetch` once and record the crate
+versions and licences below). Status: **implemented; measured: criteria 1–7
+pass as frozen** (the section 6 cost criterion, not a criterion of this
+task, fails cold and passes warm under both backends, exactly as in the
+precondition; see the measured result). Task J
 of wave 2 in [core-parallel-plan.md](core-parallel-plan.md); the row
 "PyO3/maturin packaging, CI, container update" of
 [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
@@ -215,6 +218,157 @@ and frozen recipes name, this file records which constraint fails and
 proposes the restructuring under "For the coordinator" instead of doing it;
 the setuptools build and the ctypes path then stay as they are.
 
+## Implementation notes (after the freeze; the design above was followed)
+
+- `core/py/src/lib.rs` (`rang-core-py`, 681 lines): seventeen functions and
+  the `MsTable` class, each a few lines of pointer plumbing around the
+  `rang_core_*` function it mirrors. Functions return the C status code
+  (plus the values the C ABI writes through out-pointers, as a tuple), and
+  the Python wrappers raise exactly as they do for ctypes. The `numpy` crate
+  refuses non-contiguous inputs and read-only outputs with `TypeError`
+  before any kernel runs. `MsTable.read` raises `OSError` with the same
+  message the C ABI leaves in `rang_core_ms_last_error`.
+- The extension binary exports the full C ABI as well: `nm -D` lists the
+  same 22 `rang_core_*` symbols in `_core.abi3.so` and in
+  `librang_core.so`, because `#[no_mangle]` items of the `rang-core` rlib are
+  exported from any cdylib that links it. So `RANG_CORE_LIB=python/rangtoy/_core.abi3.so`
+  is a valid ctypes library, and one binary can serve both paths; the unit
+  test `test_backend_policy` uses this.
+- `core_fetch.decode_slice` had called `rang_core_blosc_decode_span_rows`
+  through `core_zarr._lib()` directly; it now calls the new
+  `core_zarr.decode_span_rows`, which dispatches like the other wrappers.
+  `core_ms` shares one `_decode` for both backends and skips the copy when
+  the bytes are already owned (extension path).
+- `pyproject.toml` builds with maturin; `[tool.setuptools]` is gone. The
+  mixed layout needed no restructuring (null-result clause not triggered):
+  maturin places `python/rangtoy/_core.abi3.so` and a `.pth` to `python/`
+  for the editable install. `.gitignore` adds `/core/py/target/`,
+  `/python/rangtoy/_core*.so` and `/python/rangtoy.egg-info/`.
+- `core/src` is untouched (`git diff 2e02ad4 -- core/src core/Cargo.toml
+  core/Cargo.lock` is empty).
+- Not done, deliberately: the extension holds the GIL during kernel calls
+  (ctypes releases it). No current driver calls the core from threads; see
+  the open questions.
+- **Post-hoc, after the first full check (labelled).** The first
+  `tools/check-all.sh` run printed `overall: PASS` while pytest reported
+  `1 failed, 731 passed`: `test_core_cli.py::test_environment_records_quartical_absence_or_presence`
+  fails once `rangtoy._core` has been imported earlier in the session,
+  because task H's `core_cli._rangtoy_modules` reads every imported
+  `rangtoy*` module's `__file__` as UTF-8 text to count QuartiCal
+  references, and the extension is a binary (`UnicodeDecodeError`). Two
+  implementation changes, no criterion changed: `core_cli._rangtoy_modules`
+  counts references in `.py` files only and records a binary module with
+  `"binary": true` (and `environment()` now also records
+  `rang_core_backend` and `rang_core_library`); and check-all's pytest step
+  runs with `set -o pipefail` inside its sub-shell, because `… | tail -2`
+  had been returning `tail`'s status, so a failing test had never failed
+  the step. The three targeted modules (27 tests, with `_core` imported
+  first) pass, and check-all was run a second time on the final code (the
+  timing table); the plan's "full suite once" rule was broken knowingly,
+  on an otherwise idle host, because the first run's PASS was false.
+
+## Measured result (2026-10-29)
+
+Extension built by `maturin develop --release --offline` with
+`RUSTUP_TOOLCHAIN=1.93` (SHA256 `a11c8634…`, recorded as
+`core_library_sha256` in the task C and I results of the run below).
+
+**Criterion 1, build and install: pass.** `uv pip install --index-url
+https://pypi.org/simple -e '.[pointing,beam,test,imaging]'` with the
+maturin backend took 4.3 s with a warm cargo target directory (maturin and
+its build dependencies from public PyPI, crates from crates.io, no vendored
+crate); `import rangtoy._core` lists the seventeen functions and
+`MsTable`. `tools/check-all.sh` with the three new steps, all offline: see
+the timing table (overall PASS; `ext-build` 0.5 s warm).
+
+**Criterion 2, C ABI kept: pass.** `core/src` unchanged; `cargo +1.93 build
+--offline --release` of `core/` still exports the 22 `rang_core_*` symbols
+(`outputs/core-j-20261029-03-compare/symbols-cdylib.txt`), and the ctypes
+suite after the change is the precondition run itself, since every wrapper
+reaches the same `library()` handle when `RANG_CORE_BACKEND=ctypes` (the
+38 core tests pass under `RANG_CORE_BACKEND=ctypes` in 1.4 s and under
+`extension` in 1.6 s).
+
+**Criteria 3–5, policy, zero copy, unit-level identity: pass.**
+`tests/test_core_backends.py`, 11 tests, 0.35 s: every wrapper function
+(`fused_pass` with stored and scalar models, `solve_complex`,
+`predict_components`, `blosc_decode`, `blosc_decode_rows`,
+`core_zarr.read_rows`, `header_fields`, `read_chunk`, `stokes_i`,
+`imaging_weights` in all three modes, `padded_size`, `grid_shape`,
+`core_grid.invert` and `kernel`, `core_flag.flag_rows`, `core_ms.Table` on
+the fixture ANTENNA table) is byte-identical under both backends; the same
+exception class and message arise for a bad blosc chunk, a zero super
+weight, a missing table and a singular solve; `_core.data_address` equals
+`array.ctypes.data` for all eight dtypes and for row slices, a strided view
+and a read-only output are refused with `TypeError`, and `grid_kernel`
+fills a caller-owned array in place and refuses a wrong length; and the
+three policy rules hold (ctypes forced never imports the extension,
+extension forced never calls `library()`, `RANG_CORE_LIB` wins over the
+implicit extension, auto picks the extension, a bad value raises).
+
+**Criterion 6, archive bit identity: pass.** `RANG_CORE_BACKEND=extension
+bash tools/core-j-suite.sh outputs/core-j-20261029-02-extension`:
+
+| Step | Wall | Peak RSS | Outcome through the extension |
+| --- | ---: | ---: | --- |
+| phase 2 validator | 2.3 s | 119 MB | all 11 checks pass (cost 0.51 s, 97 MB) |
+| section 6 prototype + checker | 7.4 s + 11.9 s | 144 MB, 437 MB | criteria 1–7 and 9–11 pass; criterion 8 **fails for the precondition's reason**: 2.46 s excluding decode (cold page cache; solve 0.35 s, fused 0.08 s, TV 0.07 s, survey 0.74 s, as in the precondition); labelled warm repeat `section6-warm` (4.5 s): all eleven pass, 1.46 s excluding decode, 144 MB |
+| actions + comparator | 5.1 s + 0.02 s | 241 MB | 0 failures: 61 exact, 102 floats (6.6e-15), 24 differences (1.8e-11); inputs and `git status` unchanged |
+| B comparator | 1.0 s | 84 MB | criteria 1–5 pass; weights identical, sums 1.8e-15 |
+| C run + pixel comparator | 52.6 s + 0.3 s | 136 MB | criteria 1–3 pass; dirty 6.1e-7, PSF 4.2e-7 of peak, WCS equal |
+| D run + comparator | 8.9 s + 0.4 s | 99 MB | criteria 1–5 pass |
+| E checker | 0.6 s | 173 MB | criteria 1–3 pass, 0 failures on 173 columns |
+| I replay (both comparisons) | 54.1 s | 213 MB | 0 failures against the archive and the host reproduction; inputs and `git status` unchanged |
+
+Every number equals the precondition's. File by file
+(`examples/compare_core_backends.py outputs/core-j-20261029-00-ctypes
+outputs/core-j-20261029-02-extension … i-rerun`, receipt
+`outputs/core-j-20261029-03-compare/compare-backends.json`, 0.5 s): 94
+files, 4,544 JSON leaves, 60 `.npz` arrays and 60 FITS HDUs equal, zero
+differences, zero files missing. The leaves skipped as volatile are counted
+in the receipt: 2,093 per-read `timings` of the E checker, 186 `seconds`,
+57 `code_sha256` (the wrappers changed between the two runs by
+construction), 7 `cost`, 5 `module_sha256`, 3 `library_sha256` and 3
+`core_library_sha256`, 4 run paths, and the rest wall times, RSS and
+interpreter fields. The repeated task I run of the precondition
+(`i-rerun`) against the extension's `i` is also identical (34 files, 1,784
+leaves, 30 HDUs), as are the two warm section 6 repeats (3 files, 128
+leaves, 2 arrays, `compare-section6-warm.json`).
+
+**Criterion 7, side effects: pass.** The drivers' audits report inputs and
+`git status` unchanged for actions and task I (the suite ran with the tree
+untouched); the suite wrote only into `outputs/core-j-20261029-02-extension`,
+and `maturin develop` wrote `python/rangtoy/_core.abi3.so` (ignored) and the
+venv's `rangtoy.pth` and dist-info.
+
+**Criterion 8, cost (reported).** Cold extension build (`core/py/target`
+removed, `maturin develop --release --offline`): 7.5 s; warm: 0.46 s; the
+first `cargo build` of the crate also took 7.4 s. Wheel
+(`maturin build --release`, 0.14 s): `rangtoy-0.1.0-cp310-abi3-manylinux_2_35_x86_64.whl`,
+800 KB (the `.so` is 1.3 MB; the tag is maturin's glibc detection, not an
+auditwheel-checked manylinux wheel). In a fresh process
+(`outputs/core-j-20261029-01-scratch/bench_boundary.py`, two repeats each,
+load 0.5–0.8):
+
+| | extension | ctypes |
+| --- | ---: | ---: |
+| `import rangtoy.core` (after NumPy, 0.036 s) | 8 ms | 8 ms |
+| backend choice + first `fused_pass` (24 × 6 cells) | < 1 ms | 28–32 ms (`cargo build --offline` no-op check, `cargo metadata`, `CDLL`) |
+| whole process (`/usr/bin/time`) | 0.14–0.15 s, 41 MB | 0.17 s, 40 MB |
+| `fused_pass` 24 × 6 cells, per call over 1000 | 59.5–59.9 µs | 53.1–53.8 µs |
+| `padded_size` scalar call, per call over 1000 | 0.12–0.15 µs | 0.53–0.54 µs |
+| `fused_pass` 24 × 64 cells, per call over 100 | 232–250 µs | 233–236 µs |
+
+The per-call boundary cost is in the noise for every real call (the
+smallest kernel calls in the drivers are hundreds of times larger than the
+24 × 6 case), but on that tiny case the extension is 6 µs slower than
+ctypes: the `numpy` crate registers a shared or exclusive borrow for each
+of the 22 arrays per call, and the wrappers add a `.view()` per complex
+array. Scalar calls are four times faster. The first-call saving of about
+30 ms per process is the only measurable gain; the point of the extension
+is packaging (one `pip install`, no Cargo at import time, no `cargo
+metadata` subprocess) and a typed boundary, not speed.
+
 ## Timings
 
 | Date | Step | Wall | Peak RSS | Notes |
@@ -223,3 +377,86 @@ the setuptools build and the ctypes path then stay as they are.
 | 2026-10-29 | `cargo +1.93 build --release` core and root crates, `CARGO_BUILD_JOBS=8` | 2.6 s + 1.0 s | – | before any task J code |
 | 2026-10-29 | `cargo +1.93 fetch` of the `core/py` skeleton (pyo3 0.30.1, numpy 0.30.0 and 22 dependencies) | 3.3 s | – | the only network use of the crate build |
 | 2026-10-29 | precondition suite on ctypes, `tools/core-j-suite.sh outputs/core-j-20261029-00-ctypes` (the table above) | about 150 s | 637 MB (checker) | load 0.7–2.9; section 6 cold-cache cost failure, warm repeat 4.5 s + 18.2 s; task I repeat 52.7 s |
+| 2026-10-29 | first `cargo +1.93 build --offline --release` of `core/py` (cold, after the freeze) | 7.5 s | – | compiled first time; clippy and fmt clean after one type alias |
+| 2026-10-29 | `uv pip install -e '.[pointing,beam,test,imaging]'` through the maturin backend (public PyPI, crates.io) | 4.3 s | – | warm cargo target; writes `python/rangtoy/_core.abi3.so` and `rangtoy.pth` |
+| 2026-10-29 | `pytest` of the eight core test modules (38 tests) under `RANG_CORE_BACKEND=extension` and `=ctypes` | 1.6 s, 1.4 s | – | all pass on both |
+| 2026-10-29 | `pytest tests/test_core_backends.py` (11 tests), several times while writing | 0.35 s | – | one abort found on the way: `rang_core_grid_kernel(7, 2)` panics with no `catch_unwind` (either backend); the test now uses WSClean's settings |
+| 2026-10-29 | `maturin develop --release --offline` warm | 0.46 s | – | the `ext-build` step of check-all |
+| 2026-10-29 | extension suite, `RANG_CORE_BACKEND=extension tools/core-j-suite.sh outputs/core-j-20261029-02-extension` (the table above) | about 145 s | 437 MB (checker) | load about 1; section 6 cold-cache cost failure as in the precondition; warm repeat 4.5 s + 11.7 s |
+| 2026-10-29 | `examples/compare_core_backends.py` ctypes versus extension (three comparisons) | 0.5 s each | – | 94 + 34 + 3 files, zero differences |
+| 2026-10-29 | `bench_boundary.py` under each backend, two repeats | 0.14–0.17 s per process | 40 MB | the cost table above |
+| 2026-10-29 | `maturin develop --release --offline` cold (`core/py/target` removed) and `maturin build --release` wheel | 7.45 s, 0.14 s | – | wheel 800 KB |
+| 2026-10-29 | `bash tools/check-all.sh`, `CARGO_BUILD_JOBS=8`, first run | 245 s (user 3,085 s) | 1.78 GB | every step PASS and `overall: PASS`, but pytest `1 failed, 731 passed in 234 s` (the `core_cli` environment test, masked by the pipeline; see the post-hoc note) |
+| 2026-10-29 | `pytest tests/test_core.py tests/test_core_cli.py tests/test_core_backends.py` after the fix | 0.5 s | – | 27 passed, `_core` imported first |
+| 2026-10-29 | `bash tools/check-all.sh`, second run on the final code | 80 s (user 574 s) | 1.71 GB | overall PASS: root 19 and core 47 Rust tests, clippy, fmt, `ext-build` 0.5 s, `ext-clippy`, `ext-fmt`, ruff, 732 pytest passed in 73 s; host idle |
+
+## For the coordinator
+
+Shared files this task did not edit, and what they need:
+
+- **README.md.** The Python environment now needs Rust at `pip install`
+  time: `pip install -e .` (or `uv pip install -e .`) builds
+  `rangtoy._core` through maturin with the `cargo` on `PATH` (Rust 1.93 as
+  for the checks; `RUSTUP_TOOLCHAIN=1.93` pins it when a newer default is
+  installed). `python3 -m venv` still fails on this host (no `ensurepip`
+  for Python 3.14); `uv venv -p /usr/bin/python3.14 .venv` then `uv pip
+  install --python .venv/bin/python --index-url https://pypi.org/simple -e
+  '.[pointing,beam,test,imaging]' ruff maturin` is what every wave used.
+  Document `RANG_CORE_BACKEND` (`extension`, `ctypes`), that `RANG_CORE_LIB`
+  selects ctypes on that library, and that without the extension the old
+  import-time Cargo build still works. The Stimela recipes' 3.13 venv gets
+  the same `abi3` extension from the same `pip install -e .`.
+- **CONTRIBUTING.md.** Add the three check steps between the core crate and
+  ruff: `.venv/bin/maturin develop --release --offline`, `cargo clippy
+  --offline --all-targets --manifest-path core/py/Cargo.toml -- -D
+  warnings`, `cargo fmt --check --manifest-path core/py/Cargo.toml`; note
+  that the crate has no `cargo test` (an `extension-module` cdylib cannot
+  link a test binary) and is tested from Python
+  (`tests/test_core_backends.py`). The install line there
+  (`pip --isolated install … -e '.[pointing,beam,test]' ruff`) now needs
+  `cargo` on `PATH`.
+- **STATE.md and README's research index.** Task J: implemented; measured;
+  criteria 1–7 pass as frozen; this file. Next: task K once the licence
+  answer is in; the container update of the feasibility study's row is not
+  done here (no container was built or changed).
+- **tool-timings.md.** The rows of the timing table above.
+- **Containers and recipes.** Nothing changed; `recipes/core-*.yaml` do
+  not set `RANG_CORE_LIB`, so they pick the extension when the venv has it
+  and ctypes otherwise. If a container image is rebuilt, `pip install -e .`
+  inside it now needs Rust and the crates.io fetch (or a vendored
+  `cargo vendor` directory and `--offline`).
+- **`core/src/ffi_grid.rs`, `core/src/ffi_weights.rs`** (observation, no
+  edit made): `rang_core_grid_kernel`, `rang_core_weight_grid_shape` and
+  `rang_core_padded_size` are the only C functions without `catch_unwind`;
+  a panic in them aborts the process on either backend (`grid_kernel(7, 2)`
+  does). Wrapping them is a one-line change each if wanted.
+- **`python/rangtoy/core_cli.py`** (task H's; edited post-hoc, see the
+  implementation notes): `_rangtoy_modules` no longer reads binary modules
+  as text, and `environment()` records `rang_core_backend` and
+  `rang_core_library`. Recipe receipts written from now on carry these two
+  extra keys; task H's comparators do not compare the environment record.
+- **`tools/check-all.sh`.** Besides the three `ext-*` steps, the pytest
+  step now fails when a test fails (it never had before). The `root-test`
+  and `core-test` steps still pipe `cargo test` through `grep | head -1`
+  without pipefail and so cannot fail on a failing Rust test either; left
+  alone here because `head -1` closing the pipe would make pipefail report
+  a spurious SIGPIPE; `cargo test … > log; grep "^test result" log` would
+  fix it.
+- **Merge order.** This branch touches `pyproject.toml`, `.gitignore`,
+  `tools/check-all.sh`, `core_cli.py` and six wrappers; nothing else is in
+  flight.
+
+## Open questions
+
+- Should the extension release the GIL during kernel calls, as ctypes does?
+  It would need `Send` wrappers around the borrowed pointers
+  (`py.detach`); no present driver calls the core from threads, and the
+  flagging campaign modules use the root crate's library, not the core.
+- The 6 µs per-call overhead of the `numpy` crate's borrow registry on the
+  tiny case is irrelevant today; if a future driver makes millions of small
+  calls, passing the arrays once as a struct (`#[pyclass]` holding the
+  views) would remove it.
+- `maturin`'s wheel tag is `manylinux_2_35` from the host's glibc; a
+  distributable wheel would need `auditwheel` or maturin's
+  `--compatibility` with a manylinux container, which is the "CI, container
+  update" half of the feasibility study's row and is not done here.

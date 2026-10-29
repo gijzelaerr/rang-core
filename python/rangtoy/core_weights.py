@@ -3,8 +3,9 @@
 Ports WSClean 3.6's Briggs, uniform and natural weighting (padded half-plane
 weight grid, rank filter, nearest-cell lookup) and its Stokes I formation from
 XX/YY. Registers its own ctypes symbols on the core library, as `core_zarr`
-does. Geometry defaults are rang's imaging settings: 512 pixels at 8 arcsec,
-padding 1.2, rank filter 3.0 over 16 cells.
+does, or calls the extension `rangtoy._core` when it is the active backend
+(research/core-j-packaging.md). Geometry defaults are rang's imaging
+settings: 512 pixels at 8 arcsec, padding 1.2, rank filter 3.0 over 16 cells.
 """
 
 import ctypes
@@ -99,6 +100,9 @@ def _ptr(array, kind):
 
 def padded_size(trimmed, padding=DEFAULT_PADDING):
     """WSClean's padded image size for `-size trimmed` (an even number)."""
+    ext = core.extension()
+    if ext is not None:
+        return int(ext.padded_size(int(trimmed), float(padding)))
     return int(_lib().rang_core_padded_size(int(trimmed), float(padding)))
 
 
@@ -117,10 +121,17 @@ def wsclean_wavelengths(frequency_hz):
 
 def grid_shape(width, height, super_weight=1.0):
     """The weight grid's (width, height) after the super weight."""
-    shape = (ctypes.c_size_t * 2)()
-    if _lib().rang_core_weight_grid_shape(
-        int(width), int(height), float(super_weight), shape
-    ):
+    ext = core.extension()
+    if ext is not None:
+        status, *shape = ext.weight_grid_shape(
+            int(width), int(height), float(super_weight)
+        )
+    else:
+        shape = (ctypes.c_size_t * 2)()
+        status = _lib().rang_core_weight_grid_shape(
+            int(width), int(height), float(super_weight), shape
+        )
+    if status:
         raise ValueError("positive super weight required")
     return int(shape[0]), int(shape[1])
 
@@ -150,7 +161,18 @@ def stokes_i(data, weights, flags):
     outputs = _StokesOutputs(
         _ptr(vis.view(np.float32), ctypes.c_float), _ptr(weight, ctypes.c_float)
     )
-    code = _lib().rang_core_stokes_i(ctypes.byref(inputs), ctypes.byref(outputs))
+    ext = core.extension()
+    if ext is not None:
+        code = ext.stokes_i(
+            ncell,
+            data.view(np.float32),
+            weights,
+            flags,
+            vis.view(np.float32),
+            weight,
+        )
+    else:
+        code = _lib().rang_core_stokes_i(ctypes.byref(inputs), ctypes.byref(outputs))
     if code:
         raise RuntimeError(f"core Stokes I failed with code {code}")
     return vis, weight
@@ -227,7 +249,32 @@ def imaging_weights(
         _ptr(grid, ctypes.c_double) if grid is not None else None,
         _ptr(sums, ctypes.c_double),
     )
-    code = _lib().rang_core_imaging_weights(ctypes.byref(inputs), ctypes.byref(outputs))
+    ext = core.extension()
+    if ext is not None:
+        code = ext.imaging_weights(
+            nrow,
+            nchan,
+            uvw,
+            wavelength,
+            weights,
+            selected,
+            CLASSES[mode],
+            float(robust),
+            width,
+            height,
+            pixel_scale,
+            pixel_scale,
+            float(super_weight),
+            float(level),
+            int(size),
+            out,
+            grid,
+            sums,
+        )
+    else:
+        code = _lib().rang_core_imaging_weights(
+            ctypes.byref(inputs), ctypes.byref(outputs)
+        )
     if code:
         raise RuntimeError(f"core imaging weights failed with code {code}")
     result = {

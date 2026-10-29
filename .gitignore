@@ -5,3 +5,6 @@
 __pycache__/
 .pytest_cache/
 .venv/
+/core/py/target/
+/python/rangtoy/_core*.so
+/python/rangtoy.egg-info/

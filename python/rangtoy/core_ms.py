@@ -5,7 +5,10 @@ columns as python-casacore's `getcol` does: one leading row axis, then the
 cell axes in reversed casacore order, NumPy dtypes `bool`, `int32`,
 `float32`, `float64`, `complex64` and friends, and string columns as object
 arrays. Only StandardStMan, IncrementalStMan (scalars), TiledShapeStMan and
-TiledColumnStMan columns are readable; the description says which.
+TiledColumnStMan columns are readable; the description says which. The core
+is reached through the extension's `MsTable` when it is active, else through
+the C ABI handle (research/core-j-packaging.md); the decoding of a column's
+bytes is shared.
 """
 
 import ctypes
@@ -93,8 +96,26 @@ def _last_error(lib):
 
 
 def has_reader():
-    """True when the built core library exposes the reader symbols."""
+    """True when the active backend exposes the Measurement Set reader."""
+    ext = core.extension()
+    if ext is not None:
+        return hasattr(ext, "MsTable")
     return hasattr(core.library(), "rang_core_ms_open")
+
+
+def _decode(raw, nrows, cell, dtype, nstrings, own=False):
+    """A column's packed bytes as python-casacore's `getcol` returns them;
+    `own` says the uint8 array owns its memory, so no copy is needed."""
+    shape = (int(nrows),) + tuple(cell)[::-1]
+    if dtype == STRING:
+        packed, strings, at = raw.tobytes(), [], 0
+        for _ in range(nstrings):
+            n = int.from_bytes(packed[at : at + 4], "little")
+            strings.append(packed[at + 4 : at + 4 + n].decode("utf-8"))
+            at += 4 + n
+        return np.asarray(strings, dtype=object).reshape(shape)
+    values = raw.view(DTYPES[dtype])
+    return (values if own else values.copy()).reshape(shape)
 
 
 class Table:
@@ -102,6 +123,15 @@ class Table:
 
     def __init__(self, path):
         self.path = Path(path)
+        self._handle = None
+        self._table = None
+        ext = core.extension()
+        if ext is not None:
+            self._table = ext.MsTable(str(self.path))
+            self.description = json.loads(self._table.describe())
+            self.nrows = int(self.description["nrows"])
+            self.columns = {c["name"]: c for c in self.description["columns"]}
+            return
         lib = _lib()
         handle = ctypes.c_void_p()
         status = lib.rang_core_ms_open(str(self.path).encode(), ctypes.byref(handle))
@@ -119,6 +149,7 @@ class Table:
         if getattr(self, "_handle", None) is not None:
             _lib().rang_core_ms_close(self._handle)
             self._handle = None
+        self._table = None
 
     def __enter__(self):
         return self
@@ -138,12 +169,17 @@ class Table:
 
     def getcol(self, name, startrow=0, nrow=None):
         """Rows `startrow` onwards (all, or `nrow` of them) of one column."""
-        if self._handle is None:
+        if self._handle is None and self._table is None:
             raise ValueError("table is closed")
-        lib = _lib()
         count = 0 if nrow is None else int(nrow)
         if nrow is not None and count <= 0:
             raise ValueError("nrow must be positive")
+        if self._table is not None:
+            raw, nrows, cell, dtype, nstrings = self._table.read(
+                name, int(startrow), count
+            )
+            return _decode(raw, nrows, cell, dtype, nstrings, own=True)
+        lib = _lib()
         out = _Column()
         status = lib.rang_core_ms_read(
             self._handle, name.encode(), int(startrow), count, ctypes.byref(out)
@@ -157,16 +193,7 @@ class Table:
                 else np.zeros(0, np.uint8)
             )
             cell = tuple(int(out.shape[i]) for i in range(out.ndim))
-            shape = (int(out.nrows),) + cell[::-1]
-            if out.dtype == STRING:
-                packed, strings, at = raw.tobytes(), [], 0
-                for _ in range(out.nstrings):
-                    n = int.from_bytes(packed[at : at + 4], "little")
-                    strings.append(packed[at + 4 : at + 4 + n].decode("utf-8"))
-                    at += 4 + n
-                return np.asarray(strings, dtype=object).reshape(shape)
-            values = raw.view(DTYPES[out.dtype]).copy()
-            return values.reshape(shape)
+            return _decode(raw, out.nrows, cell, out.dtype, out.nstrings)
         finally:
             lib.rang_core_ms_free(ctypes.byref(out))
 

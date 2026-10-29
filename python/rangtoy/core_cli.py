@@ -42,7 +42,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import core_actions, core_injections, core_prospective, core_signal
+from . import core, core_actions, core_injections, core_prospective, core_signal
 from .core_workflow import core_solve
 from .flagging_equivariance import CASES
 from .flagging_injections import PATTERNS
@@ -264,13 +264,18 @@ def _rangtoy_modules():
     for name, module in sorted(sys.modules.items()):
         file = getattr(module, "__file__", None)
         if name.startswith("rangtoy") and file:
-            text = Path(file).read_text().lower()
+            # The extension module rangtoy._core is a binary
+            # (research/core-j-packaging.md): recorded, not read as text.
+            binary = Path(file).suffix != ".py"
+            text = "" if binary else Path(file).read_text().lower()
             modules[name] = {
                 "file": str(Path(file).relative_to(ROOT))
                 if Path(file).is_relative_to(ROOT)
                 else file,
                 "quartical_references": text.count("quartical"),
             }
+            if binary:
+                modules[name]["binary"] = True
     return modules
 
 
@@ -284,6 +289,8 @@ def environment(run_dir):
         "python": sys.version,
         "executable": sys.executable,
         "rang_core_lib": os.environ.get("RANG_CORE_LIB"),
+        "rang_core_backend": core.backend_name(),
+        "rang_core_library": str(core.library_path()),
         "rang_toy_lib": os.environ.get("RANG_TOY_LIB"),
         "distributions": distributions,
         "quartical_distribution_installed": any(

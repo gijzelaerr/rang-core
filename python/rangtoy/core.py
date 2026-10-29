@@ -4,9 +4,16 @@ Phase 1 exposes one fused pass over the visibility cells: prediction, residual,
 per-split weighted residual sums, per-baseline robust scores and
 antenna-diagonal Gauss--Newton blocks (research/core-phase1.md). Phase 2 adds
 solve_complex, a port of QuartiCal's full-Jones complex solver
-(research/core-phase2.md). The library
-is loaded through ctypes like the existing kernels; set RANG_CORE_LIB to use a
-prebuilt library, otherwise it is built from core/ with Cargo, offline.
+(research/core-phase2.md).
+
+Two backends reach the same Rust kernels (research/core-j-packaging.md): the
+PyO3 extension `rangtoy._core`, built by maturin from core/py, and the C ABI
+of core/ loaded through ctypes like the existing kernels. `backend_name`
+chooses: RANG_CORE_BACKEND=extension or =ctypes forces one; otherwise a set
+RANG_CORE_LIB selects ctypes on that prebuilt library; otherwise the extension
+is used when it imports, else the library is built from core/ with Cargo,
+offline. Every wrapper validates and allocates identically for both backends
+and differs only in the final call.
 """
 
 import ctypes
@@ -102,8 +109,49 @@ def build_core():
     return Path(metadata["target_directory"]) / "release" / name
 
 
+BACKENDS = ("extension", "ctypes")
+
+
+@lru_cache(maxsize=1)
+def backend_name():
+    """Which backend the wrappers use: "extension" or "ctypes"."""
+    requested = os.environ.get("RANG_CORE_BACKEND")
+    if requested and requested not in BACKENDS:
+        raise ValueError(f"RANG_CORE_BACKEND must be one of {BACKENDS}")
+    if requested == "extension":
+        from . import _core  # an ImportError is the answer
+
+        return "extension"
+    if requested == "ctypes" or os.environ.get("RANG_CORE_LIB"):
+        return "ctypes"
+    try:
+        from . import _core  # noqa: F401
+    except ImportError:
+        return "ctypes"
+    return "extension"
+
+
+@lru_cache(maxsize=1)
+def extension():
+    """The extension module `rangtoy._core` when it is the active backend,
+    else None (the ctypes path is then taken)."""
+    if backend_name() != "extension":
+        return None
+    from . import _core
+
+    return _core
+
+
+def reset_backend():
+    """Forget the chosen backend and loaded library (tests only)."""
+    backend_name.cache_clear()
+    extension.cache_clear()
+    library.cache_clear()
+
+
 @lru_cache(maxsize=1)
 def library():
+    """The ctypes handle of the C ABI (built or RANG_CORE_LIB)."""
     configured = os.environ.get("RANG_CORE_LIB")
     path = Path(configured).resolve() if configured else build_core()
     lib = ctypes.CDLL(str(path))
@@ -146,6 +194,10 @@ def library():
 
 
 def library_path():
+    """The binary of the active backend, for provenance hashes."""
+    ext = extension()
+    if ext is not None:
+        return Path(ext.__file__).resolve()
     return Path(library()._name).resolve()
 
 
@@ -282,7 +334,34 @@ def fused_pass(
         _ptr(out_n, ctypes.c_uint64) if normals else None,
         _ptr(stats, ctypes.c_double),
     )
-    status = library().rang_core_fused(ctypes.byref(inputs), ctypes.byref(outputs))
+    ext = extension()
+    if ext is not None:
+        status = ext.fused(
+            nrow,
+            nchan,
+            nt,
+            nf,
+            na,
+            data.view(np.float32),
+            weights,
+            keep[0].view(np.float32) if model is not None else None,
+            keep[0] if model is None else None,
+            a1,
+            a2,
+            tb,
+            fb,
+            gains.view(np.float64),
+            valid,
+            labels,
+            out_res.view(np.float64) if residuals else None,
+            out_z,
+            out_h,
+            out_b,
+            out_n,
+            stats,
+        )
+    else:
+        status = library().rang_core_fused(ctypes.byref(inputs), ctypes.byref(outputs))
     if status:
         raise RuntimeError(f"rang core fused pass failed with status {status}")
     split_stats = {
@@ -415,12 +494,38 @@ def solve_complex(
         ctypes.pointer(iterations),
         ctypes.pointer(fraction),
     )
-    status = library().rang_core_solve_complex(
-        ctypes.byref(inputs), ctypes.byref(outputs)
-    )
+    ext = extension()
+    if ext is not None:
+        status, n_iterations, converged = ext.solve_complex(
+            nrow,
+            nchan,
+            ntime_bins,
+            nfreq_bins,
+            nant,
+            data.view(np.float32),
+            weights,
+            stored.view(np.float32) if model is not None else None,
+            stored if model is None else None,
+            flags_in,
+            rows_in,
+            a1,
+            a2,
+            tb,
+            fb,
+            max_iterations,
+            stop_criterion,
+            stop_fraction,
+            gains.view(np.float64),
+            flags,
+        )
+    else:
+        status = library().rang_core_solve_complex(
+            ctypes.byref(inputs), ctypes.byref(outputs)
+        )
+        n_iterations, converged = iterations.value, fraction.value
     if status:
         raise RuntimeError(f"rang core complex solve failed with status {status}")
-    return ComplexSolution(gains, flags, int(iterations.value), float(fraction.value))
+    return ComplexSolution(gains, flags, int(n_iterations), float(converged))
 
 
 class _PredictInputs(ctypes.Structure):
@@ -505,9 +610,29 @@ def predict_components(
         _ptr(vis, ctypes.c_double),
         _ptr(spec, ctypes.c_double) if spectra else None,
     )
-    status = library().rang_core_predict_components(
-        ctypes.byref(inputs), ctypes.byref(outputs)
-    )
+    ext = extension()
+    if ext is not None:
+        status = ext.predict_components(
+            nrow,
+            nchan,
+            nsrc,
+            coeffs.shape[1],
+            uvw,
+            frequency,
+            lm,
+            kinds,
+            flux,
+            coeffs,
+            logs,
+            refs,
+            shapes,
+            vis.view(np.float64),
+            spec,
+        )
+    else:
+        status = library().rang_core_predict_components(
+            ctypes.byref(inputs), ctypes.byref(outputs)
+        )
     if status:
         raise RuntimeError(
             f"rang core component prediction failed with status {status}"
@@ -518,6 +643,15 @@ def predict_components(
 def blosc_decode(payload):
     """Decode a whole blosc-1 chunk (LZ4, byte shuffle) to bytes."""
     payload = bytes(payload)
+    ext = extension()
+    if ext is not None:
+        status, size = ext.blosc_size(payload)
+        if status:
+            raise ValueError("unsupported or invalid blosc chunk")
+        status, out = ext.blosc_decode(payload, size)
+        if status:
+            raise ValueError("blosc chunk failed to decode")
+        return out
     size = ctypes.c_size_t()
     lib = library()
     if lib.rang_core_blosc_size(payload, len(payload), ctypes.byref(size)):
@@ -534,6 +668,12 @@ def blosc_decode_rows(payload, row_bytes, rows):
     rows = np.require(np.asarray(rows, dtype=np.uintp), np.uintp, ["C", "A"])
     if rows.ndim != 1:
         raise ValueError("rows must be one-dimensional")
+    ext = extension()
+    if ext is not None:
+        status, blocks, out = ext.blosc_decode_rows(payload, row_bytes, rows)
+        if status:
+            raise ValueError("blosc row selection failed to decode")
+        return out, int(blocks)
     out = ctypes.create_string_buffer(len(rows) * row_bytes)
     blocks = ctypes.c_size_t()
     status = library().rang_core_blosc_decode_rows(

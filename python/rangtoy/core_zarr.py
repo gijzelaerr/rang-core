@@ -4,7 +4,9 @@ Reads blosc-compressed zarr v2 chunks and decodes them with the core's Rust
 blosc decoder. `read_rows` reads only the byte spans of the blosc blocks that
 hold the requested rows, using the block-start table, so a large chunk is
 neither read nor decoded in full. The same spans could be fetched with HTTP
-range requests. Object and pickle columns are not handled here.
+range requests. Object and pickle columns are not handled here. The core is
+reached through `core.extension()` when it is active, else through the
+ctypes symbols registered here (research/core-j-packaging.md).
 """
 
 import ctypes
@@ -67,11 +69,40 @@ def array_meta(array_dir):
 
 
 def header_fields(head):
-    fields = (ctypes.c_size_t * 4)()
-    if _lib().rang_core_blosc_header(head, len(head), fields):
+    ext = core.extension()
+    if ext is not None:
+        status, fields = ext.blosc_header(bytes(head))
+    else:
+        fields = (ctypes.c_size_t * 4)()
+        status = _lib().rang_core_blosc_header(head, len(head), fields)
+    if status:
         raise ValueError("unsupported or invalid blosc header")
     nbytes, blocksize, nblocks, typesize = (int(x) for x in fields)
     return nbytes, blocksize, nblocks, typesize
+
+
+def decode_span_rows(head, first, count, span, row_bytes, rows, out):
+    """Decode blocks `first`..`first + count` of a chunk from `span` (the
+    compressed bytes from block `first`'s offset) and copy `rows` (uintp,
+    ascending) into `out` (uint8, `len(rows) * row_bytes`). Returns the
+    core's status code, 0 on success."""
+    ext = core.extension()
+    if ext is not None:
+        return ext.blosc_decode_span_rows(
+            bytes(head), first, count, bytes(span), row_bytes, rows, out
+        )
+    return _lib().rang_core_blosc_decode_span_rows(
+        head,
+        len(head),
+        first,
+        count,
+        span,
+        len(span),
+        row_bytes,
+        rows.ctypes.data,
+        len(rows),
+        out.ctypes.data,
+    )
 
 
 def read_chunk(path):
@@ -87,7 +118,6 @@ def read_rows(path, row_bytes, rows):
     rows = np.asarray(rows, dtype=np.int64)
     if rows.ndim != 1 or np.any(np.diff(rows) <= 0):
         raise ValueError("rows must be ascending and unique")
-    lib = _lib()
     out = np.empty(len(rows) * row_bytes, np.uint8)
     stats = {
         "bytes_read": 0,
@@ -131,17 +161,8 @@ def read_rows(path, row_bytes, rows):
             run_rows = np.ascontiguousarray(rows[inside], dtype=np.uintp)
             run_out = np.empty(len(inside) * row_bytes, np.uint8)
             decode_started = time.perf_counter()
-            status = lib.rang_core_blosc_decode_span_rows(
-                head,
-                len(head),
-                first_block,
-                count,
-                span,
-                len(span),
-                row_bytes,
-                run_rows.ctypes.data,
-                len(run_rows),
-                run_out.ctypes.data,
+            status = decode_span_rows(
+                head, first_block, count, span, row_bytes, run_rows, run_out
             )
             stats["decode_seconds"] += time.perf_counter() - decode_started
             if status:

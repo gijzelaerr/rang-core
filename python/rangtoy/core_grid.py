@@ -4,7 +4,9 @@ The Rust module ports WSClean 3.6-1's `WStackingGridder` inversion path. This
 wrapper adds what WSClean's Measurement Set reader does before gridding
 (`stokes_i_reader`), calls the core (`invert`) and writes FITS images in
 WSClean's pixel orientation (`write_fits`). Briggs weighting is task B's; the
-imaging weights are an input here.
+imaging weights are an input here. The core is reached through the extension
+`rangtoy._core` when it is active, else through ctypes
+(research/core-j-packaging.md).
 """
 
 import ctypes
@@ -81,9 +83,13 @@ def _ptr(array, ctype):
 def kernel(kernel_size=7, oversampling=1023):
     """The oversampled Kaiser-Bessel windowed sinc, as WSClean builds it."""
     out = np.empty(kernel_size * oversampling, np.float64)
-    code = _lib().rang_core_grid_kernel(
-        kernel_size, oversampling, _ptr(out, ctypes.c_double)
-    )
+    ext = core.extension()
+    if ext is not None:
+        code = ext.grid_kernel(kernel_size, oversampling, out)
+    else:
+        code = _lib().rang_core_grid_kernel(
+            kernel_size, oversampling, _ptr(out, ctypes.c_double)
+        )
     if code:
         raise ValueError("invalid kernel settings")
     return out
@@ -206,7 +212,30 @@ def invert(
         _ptr(psf, ctypes.c_double),
         _ptr(stats, ctypes.c_double),
     )
-    code = _lib().rang_core_grid_invert(ctypes.byref(inputs), ctypes.byref(outputs))
+    ext = core.extension()
+    if ext is not None:
+        code = ext.grid_invert(
+            nrow,
+            nchan,
+            width,
+            height,
+            kernel_size,
+            oversampling,
+            w_layers,
+            scale_arcsec * ARCSEC,
+            scale_arcsec * ARCSEC,
+            float(padding),
+            uvw,
+            frequencies,
+            data_view,
+            weights,
+            imaging_weights,
+            dirty,
+            psf,
+            stats,
+        )
+    else:
+        code = _lib().rang_core_grid_invert(ctypes.byref(inputs), ctypes.byref(outputs))
     if code:
         raise RuntimeError(f"core gridder failed with code {code}")
     record = dict(zip(STAT_NAMES, (float(v) for v in stats)))

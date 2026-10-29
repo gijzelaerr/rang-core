@@ -5,7 +5,8 @@ Runs Tricolour 0.2.1's `polarisation` flagging strategy, ported to Rust in
 CARACAL ships, the two static masks copied into `core/data/`, and the rows,
 flags and metadata of one field/scan group. The Measurement Set edge stays
 outside this module. The library is the same `librang_core` as `core.py`;
-this module registers its own ctypes symbols as `core_zarr.py` does.
+this module registers its own ctypes symbols as `core_zarr.py` does, or calls
+the extension `rangtoy._core` when it is active (research/core-j-packaging.md).
 """
 
 import ctypes
@@ -353,9 +354,36 @@ def flag_rows(
         else None,
         stages=_ptr(stages, ctypes.c_uint8) if want_stages else None,
     )
-    lib = _lib()
+    ext = core.extension()
     started = time.perf_counter()
-    code = lib.rang_core_flag_rows(ctypes.byref(inputs), ctypes.byref(outputs))
+    if ext is not None:
+        code = ext.flag_rows(
+            nrow,
+            nchan,
+            ncorr,
+            nant,
+            nbl,
+            ntime,
+            len(masks),
+            len(strategies),
+            data.view(np.float32),
+            flags.view(np.uint8),
+            baseline_index,
+            time_inv,
+            baselines,
+            antenna_position,
+            chan_freq,
+            chan_width,
+            corr_type,
+            mask_freqs,
+            mask_offsets,
+            steps,
+            out_flags,
+            intensity.view(np.float32) if want_intensity else None,
+            stages,
+        )
+    else:
+        code = _lib().rang_core_flag_rows(ctypes.byref(inputs), ctypes.byref(outputs))
     seconds = time.perf_counter() - started
     if code:
         raise RuntimeError(f"rang_core_flag_rows failed with code {code}")
