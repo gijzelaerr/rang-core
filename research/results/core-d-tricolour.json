@@ -1,0 +1,758 @@
+{
+ "task": "core-parallel-plan wave 1 task D: Tricolour",
+ "branch": "core/d-tricolour",
+ "protocol_commit": "5ff1e89",
+ "licence_decision": {
+  "tricolour_0.2.1": {
+   "treated_as": "BSD-3-Clause (LICENSE file; metadata string 'GPLv2' unaccompanied)",
+   "compatible_with_gpl_3_or_later": true,
+   "wheel_sha256": "7dd8dfcf8058bdc7351540d4d6248664169bab1debf8791234e9fa8846f1c63b",
+   "sdist_sha256": "303463ebfc4b4a3d702fb9ab2771c2f69f11da310e59618f7b8fdde01df3f2e5",
+   "license_file_sha256": "fd367a7d6a116538bc4defb79664d39b534bda7435eba2696af51442837ac355",
+   "license_file_added": "2a6d8c8f7c 2020-01-06 Prepare for 0.1.7 release (#64)",
+   "gplv2_string_added": "98ab13af6a 2026-01-22 Prepare 0.2.0 (#94), pyproject.toml line 10",
+   "kernel_origin": "katsdpsigproc src/katsdpsigproc/rfi/twodflag.py, BSD-3-Clause header"
+  },
+  "crystalball_0.4.3": {
+   "treated_as": "GPL-2.0-only (full GPL-2 LICENSE text, no 'or later')",
+   "license_file_sha256": "c03cea027b4b40e4402fabd08557736727ec3d5bc54ad64ab6472de432198cad",
+   "ported": false,
+   "used_only_as_external_process": true
+  },
+  "evidence_directory": "outputs/core-d-20261029-01 (SHA256SUMS)"
+ },
+ "precondition_archive_vs_host": {
+  "fields_compared": 68,
+  "failures": [],
+  "pass": true,
+  "host_snapshots": {
+   "strategy-00-operational": {
+    "before_sha256": "2523cc2ac016731e3b91a5eb565df1d1757b8a9ccee276888905d5b7b9abf771",
+    "after_sha256": "0970fbfd88112735e639db81ea13cc697cade244458c849d23c2668fa632c851",
+    "before_fraction": 0.468267822265625,
+    "after_fraction": 0.8064121791294643
+   },
+   "strategy-00-holdout_masked": {
+    "before_sha256": "a0545860928fdee0bbd536453b2b79c4d6048d9f6495a52c1223f5e7087c849b",
+    "after_sha256": "92d971b36fbcc0d5d583291d07fc6ea7e21ab3229cc9d5ef2549a31811e451b8",
+    "before_fraction": 0.8714425223214286,
+    "after_fraction": 0.9178937639508928
+   },
+   "strategy-01-operational": {
+    "before_sha256": "2523cc2ac016731e3b91a5eb565df1d1757b8a9ccee276888905d5b7b9abf771",
+    "after_sha256": "273a39e167649060190c543980f74c83fa68144c76b6a99da6cf08565ebf4938",
+    "before_fraction": 0.468267822265625,
+    "after_fraction": 0.71846923828125
+   },
+   "strategy-01-holdout_masked": {
+    "before_sha256": "a0545860928fdee0bbd536453b2b79c4d6048d9f6495a52c1223f5e7087c849b",
+    "after_sha256": "4d9d5495067c705ffdc8e92f975487103a4b67121f77608957b0b9b70de46e50",
+    "before_fraction": 0.8714425223214286,
+    "after_fraction": 0.8727242606026786
+   }
+  }
+ },
+ "oracle_step": {
+  "directory": "outputs/core-d-oracle-20261029-01/run",
+  "tricolour_version": "0.2.1",
+  "numpy_version": "2.0.2",
+  "numba_version": "0.60.0",
+  "tricolour_sources": {
+   "apps/tricolour/app.py": "028c2f2d10ba15293db1624c33dcb5457f5900c6fc26f1a49763e31b188985ac",
+   "apps/tricolour/strat_executor.py": "0e6efe4a683c022f192972c8acacd0d457372e09d5160c3dc6e7c5183daca588",
+   "dask_wrappers.py": "44a9c17d92980ad46a6e555e06d0eda7f5bbe6c5825ca2610e563179aeaccdbe",
+   "flagging.py": "68c2fdca8a775ce95bf6d2dc8216e31ee75a4416b7e6e6f0ea3dc2f506fb8e48",
+   "mask.py": "4e95f99a8ac747a1c87ff9db2bfd66f075e0ed5092d983130b8ce7591fe30672",
+   "packing.py": "df229ec7f455a52c2bae85ef27264592b4410ca68b938dbfff496f4583aee553",
+   "stokes.py": "a33ed716bafe6c70aaf37c2d4d67615df2e7c9e8a552edc77c7639bd7158e65d"
+  },
+  "static_masks": {
+   "/opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+   "/opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+  },
+  "host_hashes": {
+   "strategy-00-operational": {
+    "before-native.npz": "2523cc2ac016731e3b91a5eb565df1d1757b8a9ccee276888905d5b7b9abf771",
+    "after-native.npz": "0970fbfd88112735e639db81ea13cc697cade244458c849d23c2668fa632c851",
+    "diagnostic.ms": "df3272dc20b7cf8b3ea8862f01d29229bd1de0337b52ed55fbaba5f57efdfab5"
+   },
+   "strategy-00-holdout_masked": {
+    "before-native.npz": "a0545860928fdee0bbd536453b2b79c4d6048d9f6495a52c1223f5e7087c849b",
+    "after-native.npz": "92d971b36fbcc0d5d583291d07fc6ea7e21ab3229cc9d5ef2549a31811e451b8",
+    "diagnostic.ms": "004927cb848bf84f17641a72c618e849d0c188f2a6f27ed2c07bb8567b50b171"
+   },
+   "strategy-01-operational": {
+    "before-native.npz": "2523cc2ac016731e3b91a5eb565df1d1757b8a9ccee276888905d5b7b9abf771",
+    "after-native.npz": "273a39e167649060190c543980f74c83fa68144c76b6a99da6cf08565ebf4938",
+    "diagnostic.ms": "88a56087e1332a02bde7962486456e664921dc0be07118311454560db7ecc09b"
+   },
+   "strategy-01-holdout_masked": {
+    "before-native.npz": "a0545860928fdee0bbd536453b2b79c4d6048d9f6495a52c1223f5e7087c849b",
+    "after-native.npz": "4d9d5495067c705ffdc8e92f975487103a4b67121f77608957b0b9b70de46e50",
+    "diagnostic.ms": "21f2044a6e8f0a6fd05c656ac79b39a738320aae3279ee230ef7fc25073dc82b"
+   }
+  },
+  "host_unchanged": true,
+  "controls": {
+   "strategy-00-operational": {
+    "strategy": "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "final_equals_after_native": true,
+    "final_fraction": 0.8064121791294643,
+    "stage_fractions": {
+     "00-flag_nans_zeros": 0.46871163504464286,
+     "01-apply_static_mask": 0.5967616489955357,
+     "02-sum_threshold": 0.7595354352678572,
+     "03-uvcontsub_flagger": 0.15391148158482143,
+     "04-flag_nans_zeros": 0.15391148158482143,
+     "05-apply_static_mask": 0.43953159877232145,
+     "06-sum_threshold": 0.5592825753348214,
+     "07-sum_threshold": 0.5952776227678571,
+     "08-sum_threshold": 0.6224923270089285,
+     "09-uvcontsub_flagger": 0.622607421875,
+     "10-flag_autos": 0.7500331333705357,
+     "11-combine_with_input_flags": 0.8064121791294643
+    },
+    "step_seconds": {
+     "polarised_intensity": 0.5074280129992985,
+     "pack": 0.38002047799818683,
+     "00-flag_nans_zeros": 0.43888875400443794,
+     "01-apply_static_mask": 0.17060584499995457,
+     "02-sum_threshold": 74.87214820399822,
+     "03-uvcontsub_flagger": 0.10007732600206509,
+     "04-flag_nans_zeros": 0.00021411600027931854,
+     "05-apply_static_mask": 0.18555908399866894,
+     "06-sum_threshold": 0.23077796299912734,
+     "07-sum_threshold": 0.21646135299670277,
+     "08-sum_threshold": 39.155083925994404,
+     "09-uvcontsub_flagger": 0.13104684700374492,
+     "10-flag_autos": 7.083499804139137e-05,
+     "11-combine_with_input_flags": 4.230999911669642e-05
+    },
+    "total_seconds": 116.38842505399225
+   },
+   "strategy-00-holdout_masked": {
+    "strategy": "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "final_equals_after_native": true,
+    "final_fraction": 0.9178937639508928,
+    "stage_fractions": {
+     "00-flag_nans_zeros": 0.8714425223214286,
+     "01-apply_static_mask": 0.8947719029017858,
+     "02-sum_threshold": 0.9186471121651786,
+     "03-uvcontsub_flagger": 0.5142403738839286,
+     "04-flag_nans_zeros": 0.5142403738839286,
+     "05-apply_static_mask": 0.6603916713169643,
+     "06-sum_threshold": 0.7219499860491071,
+     "07-sum_threshold": 0.74134521484375,
+     "08-sum_threshold": 0.7520856584821428,
+     "09-uvcontsub_flagger": 0.7521658761160714,
+     "10-flag_autos": 0.7521658761160714,
+     "11-combine_with_input_flags": 0.9178937639508928
+    },
+    "step_seconds": {
+     "polarised_intensity": 0.018291139000211842,
+     "pack": 0.00165023299632594,
+     "00-flag_nans_zeros": 0.0002345649991184473,
+     "01-apply_static_mask": 0.12478300600196235,
+     "02-sum_threshold": 1.0706122900010087,
+     "03-uvcontsub_flagger": 0.06635944799927529,
+     "04-flag_nans_zeros": 0.00019385699852136895,
+     "05-apply_static_mask": 0.11936636000609724,
+     "06-sum_threshold": 0.2199199629976647,
+     "07-sum_threshold": 0.2031178289980744,
+     "08-sum_threshold": 0.1854049070025212,
+     "09-uvcontsub_flagger": 0.09510980099730659,
+     "10-flag_autos": 6.333000055747107e-05,
+     "11-combine_with_input_flags": 3.579800250008702e-05
+    },
+    "total_seconds": 2.1051425260011456
+   },
+   "strategy-01-operational": {
+    "strategy": "calibrator_mild_flagging.yaml",
+    "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+    "final_equals_after_native": true,
+    "final_fraction": 0.71846923828125,
+    "stage_fractions": {
+     "00-flag_nans_zeros": 0.46871163504464286,
+     "01-sum_threshold": 0.67628173828125,
+     "02-uvcontsub_flagger": 0.1571620396205357,
+     "03-flag_nans_zeros": 0.1571620396205357,
+     "04-sum_threshold": 0.19725341796875,
+     "05-sum_threshold": 0.27299630301339284,
+     "06-sum_threshold": 0.3164132254464286,
+     "07-uvcontsub_flagger": 0.3191127232142857,
+     "08-flag_autos": 0.5810110909598214,
+     "09-combine_with_input_flags": 0.71846923828125
+    },
+    "step_seconds": {
+     "polarised_intensity": 0.01832272900355747,
+     "pack": 0.0016880929979379289,
+     "00-flag_nans_zeros": 0.0002636499993968755,
+     "01-sum_threshold": 0.6252751799984253,
+     "02-uvcontsub_flagger": 0.026772427998366766,
+     "03-flag_nans_zeros": 0.00017741700139595196,
+     "04-sum_threshold": 0.13336911299847998,
+     "05-sum_threshold": 0.13973209699906874,
+     "06-sum_threshold": 0.13004591200297,
+     "07-uvcontsub_flagger": 0.030195038998499513,
+     "08-flag_autos": 6.0965001466684043e-05,
+     "09-combine_with_input_flags": 3.751199983526021e-05
+    },
+    "total_seconds": 1.1059401349994005
+   },
+   "strategy-01-holdout_masked": {
+    "strategy": "calibrator_mild_flagging.yaml",
+    "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+    "final_equals_after_native": true,
+    "final_fraction": 0.8727242606026786,
+    "stage_fractions": {
+     "00-flag_nans_zeros": 0.8714425223214286,
+     "01-sum_threshold": 0.9081804547991071,
+     "02-uvcontsub_flagger": 0.5293317522321429,
+     "03-flag_nans_zeros": 0.5293317522321429,
+     "04-sum_threshold": 0.5517142159598214,
+     "05-sum_threshold": 0.58387451171875,
+     "06-sum_threshold": 0.6043125697544642,
+     "07-uvcontsub_flagger": 0.6043736049107142,
+     "08-flag_autos": 0.6043736049107142,
+     "09-combine_with_input_flags": 0.8727242606026786
+    },
+    "step_seconds": {
+     "polarised_intensity": 0.02148029499949189,
+     "pack": 0.00163565300317714,
+     "00-flag_nans_zeros": 0.00024865100567694753,
+     "01-sum_threshold": 0.6961724990032963,
+     "02-uvcontsub_flagger": 0.02150166600040393,
+     "03-flag_nans_zeros": 0.0002738699986366555,
+     "04-sum_threshold": 0.1334572109990404,
+     "05-sum_threshold": 0.12562384100601776,
+     "06-sum_threshold": 0.11802348699711729,
+     "07-uvcontsub_flagger": 0.018349439997109585,
+     "08-flag_autos": 6.184799713082612e-05,
+     "09-combine_with_input_flags": 3.340299736009911e-05
+    },
+    "total_seconds": 1.1368618640044588
+   }
+  },
+  "timings": {
+   "strategy-00-operational": 116.52603292500135,
+   "strategy-00-holdout_masked": 2.2350680040035513,
+   "strategy-01-operational": 1.2175756529977662,
+   "strategy-01-holdout_masked": 1.2540187630002038,
+   "total": 121.23313767500076
+  }
+ },
+ "runs": {
+  "01_frozen_failed": {
+   "directory": "outputs/core-d-20261029-02",
+   "comparator": "outputs/core-d-compare-20261029-01",
+   "core_library_sha256": "4578ee62f8a814f3cab4a974484d6b5fe2095beb93b362abe524bde892cbdc35",
+   "timings": {
+    "strategy-00-operational": {
+     "core_seconds": 11.772179635001521,
+     "wall": 12.001785362001101
+    },
+    "strategy-00-holdout_masked": {
+     "core_seconds": 11.728336091997335,
+     "wall": 11.767776971995772
+    },
+    "strategy-01-operational": {
+     "core_seconds": 5.965492442002869,
+     "wall": 5.988774147997901
+    },
+    "strategy-01-holdout_masked": {
+     "core_seconds": 9.345370590999664,
+     "wall": 9.39922509399912
+    },
+    "total": 40.8349169380017
+   },
+   "result": {
+    "pass": false,
+    "criteria": {
+     "1": {
+      "pass": false,
+      "detail": {
+       "strategy-00-operational": {
+        "differences": 34776,
+        "elements": 2293760,
+        "core_fraction": 0.8195295061383928,
+        "host_fraction": 0.8064121791294643
+       },
+       "strategy-00-holdout_masked": {
+        "differences": 1188,
+        "elements": 2293760,
+        "core_fraction": 0.91806640625,
+        "host_fraction": 0.9178937639508928
+       },
+       "strategy-01-operational": {
+        "differences": 14232,
+        "elements": 2293760,
+        "core_fraction": 0.7229404994419643,
+        "host_fraction": 0.71846923828125
+       },
+       "strategy-01-holdout_masked": {
+        "differences": 7640,
+        "elements": 2293760,
+        "core_fraction": 0.8756016322544643,
+        "host_fraction": 0.8727242606026786
+       }
+      }
+     },
+     "2": {
+      "pass": false,
+      "detail": {
+       "strategy-00-operational": {
+        "added_equal": false,
+        "added_count": 26736,
+        "archive_added_count": 26692
+       },
+       "strategy-00-holdout_masked": {
+        "added_equal": false,
+        "added_count": 26736,
+        "archive_added_count": 26637
+       },
+       "strategy-01-operational": {
+        "added_equal": false,
+        "added_count": 2385,
+        "archive_added_count": 662
+       },
+       "strategy-01-holdout_masked": {
+        "added_equal": false,
+        "added_count": 2385,
+        "archive_added_count": 735
+       }
+      }
+     },
+     "3": {
+      "pass": false,
+      "detail": {
+       "strategy-00-operational": {
+        "00-flag_nans_zeros": 268778,
+        "01-apply_static_mask": 100147,
+        "02-sum_threshold": 113871,
+        "03-uvcontsub_flagger": 24656,
+        "04-flag_nans_zeros": 88259,
+        "05-apply_static_mask": 9985,
+        "06-sum_threshold": 25924,
+        "07-sum_threshold": 26213,
+        "08-sum_threshold": 26624,
+        "09-uvcontsub_flagger": 26412,
+        "10-flag_autos": 18665,
+        "11-combine_with_input_flags": 8694
+       },
+       "strategy-00-holdout_masked": {
+        "00-flag_nans_zeros": 499720,
+        "01-apply_static_mask": 271038,
+        "02-sum_threshold": 207570,
+        "03-uvcontsub_flagger": 218611,
+        "04-flag_nans_zeros": 294886,
+        "05-apply_static_mask": 136635,
+        "06-sum_threshold": 109168,
+        "07-sum_threshold": 100298,
+        "08-sum_threshold": 92492,
+        "09-uvcontsub_flagger": 92258,
+        "10-flag_autos": 19462,
+        "11-combine_with_input_flags": 297
+       },
+       "strategy-01-operational": {
+        "00-flag_nans_zeros": 268778,
+        "01-sum_threshold": 198813,
+        "02-uvcontsub_flagger": 25867,
+        "03-flag_nans_zeros": 90123,
+        "04-sum_threshold": 53130,
+        "05-sum_threshold": 42827,
+        "06-sum_threshold": 36322,
+        "07-uvcontsub_flagger": 25254,
+        "08-flag_autos": 18674,
+        "09-combine_with_input_flags": 3558
+       },
+       "strategy-01-holdout_masked": {
+        "00-flag_nans_zeros": 499720,
+        "01-sum_threshold": 319143,
+        "02-uvcontsub_flagger": 235520,
+        "03-flag_nans_zeros": 303540,
+        "04-sum_threshold": 243718,
+        "05-sum_threshold": 211825,
+        "06-sum_threshold": 194261,
+        "07-uvcontsub_flagger": 181808,
+        "08-flag_autos": 34109,
+        "09-combine_with_input_flags": 1910
+       }
+      }
+     },
+     "4": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "bit_equal": true
+       },
+       "strategy-00-holdout_masked": {
+        "bit_equal": true
+       },
+       "strategy-01-operational": {
+        "bit_equal": true
+       },
+       "strategy-01-holdout_masked": {
+        "bit_equal": true
+       }
+      }
+     },
+     "5": {
+      "pass": true,
+      "detail": {
+       "hashes_equal_to_oracle_record": true,
+       "hashes_equal_to_core_record": true
+      }
+     }
+    }
+   },
+   "cause": "flag_nans_zeros replaced the running flags instead of ORing them (flagging.py line 59)"
+  },
+  "02_post_hoc_fix_passed": {
+   "directory": "outputs/core-d-20261029-03",
+   "comparator": "outputs/core-d-compare-20261029-02",
+   "core_library_sha256": "6331686200f1d7de09d9ad706cef2930331a0b41b507fd7d6e0be9f7c2e182af",
+   "timings": {
+    "strategy-00-operational": {
+     "core_seconds": 19.021169712999836,
+     "wall": 19.073509513000317
+    },
+    "strategy-00-holdout_masked": {
+     "core_seconds": 17.400255588996515,
+     "wall": 17.457434466996347
+    },
+    "strategy-01-operational": {
+     "core_seconds": 11.319504897001025,
+     "wall": 11.3685707859986
+    },
+    "strategy-01-holdout_masked": {
+     "core_seconds": 10.475836587997037,
+     "wall": 10.53579506099777
+    },
+    "total": 60.91427111500525
+   },
+   "result": {
+    "pass": true,
+    "criteria": {
+     "1": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.8064121791294643,
+        "host_fraction": 0.8064121791294643
+       },
+       "strategy-00-holdout_masked": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.9178937639508928,
+        "host_fraction": 0.9178937639508928
+       },
+       "strategy-01-operational": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.71846923828125,
+        "host_fraction": 0.71846923828125
+       },
+       "strategy-01-holdout_masked": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.8727242606026786,
+        "host_fraction": 0.8727242606026786
+       }
+      }
+     },
+     "2": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "added_equal": true,
+        "added_count": 26692,
+        "archive_added_count": 26692
+       },
+       "strategy-00-holdout_masked": {
+        "added_equal": true,
+        "added_count": 26637,
+        "archive_added_count": 26637
+       },
+       "strategy-01-operational": {
+        "added_equal": true,
+        "added_count": 662,
+        "archive_added_count": 662
+       },
+       "strategy-01-holdout_masked": {
+        "added_equal": true,
+        "added_count": 735,
+        "archive_added_count": 735
+       }
+      }
+     },
+     "3": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "00-flag_nans_zeros": 0,
+        "01-apply_static_mask": 0,
+        "02-sum_threshold": 0,
+        "03-uvcontsub_flagger": 0,
+        "04-flag_nans_zeros": 0,
+        "05-apply_static_mask": 0,
+        "06-sum_threshold": 0,
+        "07-sum_threshold": 0,
+        "08-sum_threshold": 0,
+        "09-uvcontsub_flagger": 0,
+        "10-flag_autos": 0,
+        "11-combine_with_input_flags": 0
+       },
+       "strategy-00-holdout_masked": {
+        "00-flag_nans_zeros": 0,
+        "01-apply_static_mask": 0,
+        "02-sum_threshold": 0,
+        "03-uvcontsub_flagger": 0,
+        "04-flag_nans_zeros": 0,
+        "05-apply_static_mask": 0,
+        "06-sum_threshold": 0,
+        "07-sum_threshold": 0,
+        "08-sum_threshold": 0,
+        "09-uvcontsub_flagger": 0,
+        "10-flag_autos": 0,
+        "11-combine_with_input_flags": 0
+       },
+       "strategy-01-operational": {
+        "00-flag_nans_zeros": 0,
+        "01-sum_threshold": 0,
+        "02-uvcontsub_flagger": 0,
+        "03-flag_nans_zeros": 0,
+        "04-sum_threshold": 0,
+        "05-sum_threshold": 0,
+        "06-sum_threshold": 0,
+        "07-uvcontsub_flagger": 0,
+        "08-flag_autos": 0,
+        "09-combine_with_input_flags": 0
+       },
+       "strategy-01-holdout_masked": {
+        "00-flag_nans_zeros": 0,
+        "01-sum_threshold": 0,
+        "02-uvcontsub_flagger": 0,
+        "03-flag_nans_zeros": 0,
+        "04-sum_threshold": 0,
+        "05-sum_threshold": 0,
+        "06-sum_threshold": 0,
+        "07-uvcontsub_flagger": 0,
+        "08-flag_autos": 0,
+        "09-combine_with_input_flags": 0
+       }
+      }
+     },
+     "4": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "bit_equal": true
+       },
+       "strategy-00-holdout_masked": {
+        "bit_equal": true
+       },
+       "strategy-01-operational": {
+        "bit_equal": true
+       },
+       "strategy-01-holdout_masked": {
+        "bit_equal": true
+       }
+      }
+     },
+     "5": {
+      "pass": true,
+      "detail": {
+       "hashes_equal_to_oracle_record": true,
+       "hashes_equal_to_core_record": true
+      }
+     }
+    }
+   },
+   "change": "executor ORs the flag_nans_zeros result into the running flags; criteria unchanged"
+  },
+  "03_post_hoc_speedups_passed": {
+   "directory": "outputs/core-d-20261029-04",
+   "comparator": "outputs/core-d-compare-20261029-03",
+   "core_library_sha256": "6ce4b3c79055bc82f25214b8ed696a1c2bd5fab13828fd9e274ab0fe7b739d17",
+   "timings": {
+    "strategy-00-operational": {
+     "core_seconds": 12.733355370000936,
+     "wall": 12.797296463999373
+    },
+    "strategy-00-holdout_masked": {
+     "core_seconds": 15.544570345999091,
+     "wall": 15.592959213005088
+    },
+    "strategy-01-operational": {
+     "core_seconds": 10.756020740001986,
+     "wall": 10.858709562999138
+    },
+    "strategy-01-holdout_masked": {
+     "core_seconds": 9.034299459002796,
+     "wall": 9.08833906200016
+    },
+    "total": 50.690169648994925
+   },
+   "result": {
+    "pass": true,
+    "criteria": {
+     "1": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.8064121791294643,
+        "host_fraction": 0.8064121791294643
+       },
+       "strategy-00-holdout_masked": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.9178937639508928,
+        "host_fraction": 0.9178937639508928
+       },
+       "strategy-01-operational": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.71846923828125,
+        "host_fraction": 0.71846923828125
+       },
+       "strategy-01-holdout_masked": {
+        "differences": 0,
+        "elements": 2293760,
+        "core_fraction": 0.8727242606026786,
+        "host_fraction": 0.8727242606026786
+       }
+      }
+     },
+     "2": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "added_equal": true,
+        "added_count": 26692,
+        "archive_added_count": 26692
+       },
+       "strategy-00-holdout_masked": {
+        "added_equal": true,
+        "added_count": 26637,
+        "archive_added_count": 26637
+       },
+       "strategy-01-operational": {
+        "added_equal": true,
+        "added_count": 662,
+        "archive_added_count": 662
+       },
+       "strategy-01-holdout_masked": {
+        "added_equal": true,
+        "added_count": 735,
+        "archive_added_count": 735
+       }
+      }
+     },
+     "3": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "00-flag_nans_zeros": 0,
+        "01-apply_static_mask": 0,
+        "02-sum_threshold": 0,
+        "03-uvcontsub_flagger": 0,
+        "04-flag_nans_zeros": 0,
+        "05-apply_static_mask": 0,
+        "06-sum_threshold": 0,
+        "07-sum_threshold": 0,
+        "08-sum_threshold": 0,
+        "09-uvcontsub_flagger": 0,
+        "10-flag_autos": 0,
+        "11-combine_with_input_flags": 0
+       },
+       "strategy-00-holdout_masked": {
+        "00-flag_nans_zeros": 0,
+        "01-apply_static_mask": 0,
+        "02-sum_threshold": 0,
+        "03-uvcontsub_flagger": 0,
+        "04-flag_nans_zeros": 0,
+        "05-apply_static_mask": 0,
+        "06-sum_threshold": 0,
+        "07-sum_threshold": 0,
+        "08-sum_threshold": 0,
+        "09-uvcontsub_flagger": 0,
+        "10-flag_autos": 0,
+        "11-combine_with_input_flags": 0
+       },
+       "strategy-01-operational": {
+        "00-flag_nans_zeros": 0,
+        "01-sum_threshold": 0,
+        "02-uvcontsub_flagger": 0,
+        "03-flag_nans_zeros": 0,
+        "04-sum_threshold": 0,
+        "05-sum_threshold": 0,
+        "06-sum_threshold": 0,
+        "07-uvcontsub_flagger": 0,
+        "08-flag_autos": 0,
+        "09-combine_with_input_flags": 0
+       },
+       "strategy-01-holdout_masked": {
+        "00-flag_nans_zeros": 0,
+        "01-sum_threshold": 0,
+        "02-uvcontsub_flagger": 0,
+        "03-flag_nans_zeros": 0,
+        "04-sum_threshold": 0,
+        "05-sum_threshold": 0,
+        "06-sum_threshold": 0,
+        "07-uvcontsub_flagger": 0,
+        "08-flag_autos": 0,
+        "09-combine_with_input_flags": 0
+       }
+      }
+     },
+     "4": {
+      "pass": true,
+      "detail": {
+       "strategy-00-operational": {
+        "bit_equal": true
+       },
+       "strategy-00-holdout_masked": {
+        "bit_equal": true
+       },
+       "strategy-01-operational": {
+        "bit_equal": true
+       },
+       "strategy-01-holdout_masked": {
+        "bit_equal": true
+       }
+      }
+     },
+     "5": {
+      "pass": true,
+      "detail": {
+       "hashes_equal_to_oracle_record": true,
+       "hashes_equal_to_core_record": true
+      }
+     }
+    }
+   },
+   "change": "result-preserving speedups: column-chunked time-axis box filter, selection median, incremental twiddle index, binary-searched static mask; criteria unchanged"
+  }
+ },
+ "cpu_seconds_control_0_firstpass": {
+  "host_load_average": "59-74 on 16 cores (seven sibling sessions building and testing)",
+  "port_sum_threshold_step_2": 2.4,
+  "port_uvcontsub_step_3": 0.128,
+  "port_uvcontsub_step_9": 0.174,
+  "port_whole_strategy": 4.16,
+  "tricolour_sum_threshold_step_2_first_call_jit": 73.85,
+  "tricolour_sum_threshold_step_2_warm": 1.19,
+  "tricolour_uvcontsub_step_3_warm": 0.111,
+  "archived_native_tricolour_wall": "301.7-302.9 s per control, of which 300 s is ProgressBar(dt=300)"
+ },
+ "static_masks_in_repo": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ }
+}
