@@ -156,7 +156,7 @@ fn accumulate_finite(
     jhr: &mut [C64; 4],
     jhj: &mut [[C64; 4]; 4],
 ) {
-    let product = jones::mul(weighted_residual, rop);
+    let product = mul(weighted_residual, rop);
     for k in 0..4 {
         jhr[k] = jhr[k] + product[k];
     }
@@ -176,14 +176,42 @@ fn accumulate_finite(
 /// `accumulate` call on a gain leaves it.
 fn fill_lower(jhj: &mut [[C64; 4]; 4]) {
     for i in 1..4 {
-        for j in 0..i {
-            jhj[i][j] = jhj[j][i].conj();
+        let (upper, lower) = jhj.split_at_mut(i);
+        for (j, previous) in upper.iter().enumerate() {
+            lower[0][j] = previous[i].conj();
         }
     }
 }
 
 fn finite(w: &[f64; 4]) -> bool {
     w.iter().all(|x| x.is_finite())
+}
+
+/// `jones::mul`, `jones::adjoint` and `jones::from_f32` operation for
+/// operation, inlined into the row loop: the crate's default release profile
+/// splits codegen units, and the out-of-line `jones::mul` call was a fifth of
+/// the solver's samples after the Kronecker shortcut.
+#[inline(always)]
+fn mul(a: &Jones, b: &Jones) -> Jones {
+    std::array::from_fn(|e| {
+        let (r, c) = (e / 2, e % 2);
+        a[2 * r] * b[c] + a[2 * r + 1] * b[2 + c]
+    })
+}
+
+#[inline(always)]
+fn adjoint(a: &Jones) -> Jones {
+    std::array::from_fn(|e| a[2 * (e % 2) + e / 2].conj())
+}
+
+#[inline(always)]
+fn from_f32(x: &[f32]) -> Jones {
+    std::array::from_fn(|i| C64::new(f64::from(x[2 * i]), f64::from(x[2 * i + 1])))
+}
+
+#[inline(always)]
+fn all_finite(a: &Jones) -> bool {
+    a.iter().all(|x| x.is_finite())
 }
 
 /// One `compute_jhwj_jhwr_elem` call with `lop = I`.
@@ -389,26 +417,22 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
                 }
                 let f = problem.freq_bin[chan] as usize;
                 let w: [f64; 4] = std::array::from_fn(|c| f64::from(problem.weights[4 * cell + c]));
-                let data = jones::from_f32(&problem.data[8 * cell..8 * cell + 8]);
+                let data = from_f32(&problem.data[8 * cell..8 * cell + 8]);
                 let gp = gains[index(t, f, p)];
                 let gq = gains[index(t, f, q)];
                 let m = model_at(problem, cell, chan);
                 // rop_pq = Gq M^H, rop_qp = Gp M (lop = I for a single term).
-                let rop_pq = jones::mul(&gq, &jones::adjoint(&m));
-                let rop_qp = jones::mul(&gp, &m);
+                let rop_pq = mul(&gq, &adjoint(&m));
+                let rop_qp = mul(&gp, &m);
                 let ip = index(t, f, p);
                 let iq = index(t, f, q);
-                if jones::is_finite(&gp)
-                    && jones::is_finite(&rop_pq)
-                    && jones::is_finite(&rop_qp)
-                    && finite(&w)
-                {
+                if all_finite(&gp) && all_finite(&rop_pq) && all_finite(&rop_qp) && finite(&w) {
                     // I^H Gp = Gp exactly for finite Gp (see accumulate_finite).
-                    let predicted = jones::mul(&gp, &jones::adjoint(&rop_pq));
+                    let predicted = mul(&gp, &adjoint(&rop_pq));
                     let residual: Jones = std::array::from_fn(|k| data[k] - predicted[k]);
                     let wr_pq: Jones = std::array::from_fn(|k| real_scale(residual[k], w[k]));
-                    if jones::is_finite(&wr_pq) {
-                        let wr_qp = jones::adjoint(&wr_pq);
+                    if all_finite(&wr_pq) {
+                        let wr_qp = adjoint(&wr_pq);
                         accumulate_finite(&rop_pq, &w, &wr_pq, &mut jhr[ip], &mut jhj[ip]);
                         // QuartiCal reuses the pq weight order for qp.
                         accumulate_finite(&rop_qp, &w, &wr_qp, &mut jhr[iq], &mut jhj[iq]);
