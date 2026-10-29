@@ -1,0 +1,15 @@
+[package]
+name = "rang-core"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+publish = false
+description = "In-memory visibility model and fused calibration passes for Rang"
+
+[lib]
+name = "rang_core"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+rang-toy = { path = ".." }

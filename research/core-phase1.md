@@ -1,7 +1,8 @@
 # Rang core, phase 1: fused statistics pass
 
-Protocol frozen 2026-10-29, before any phase 1 code was written. Status:
-**proposed** until the receipt below exists, then **measured**. This is
+Protocol frozen 2026-10-29 in `b928d2a`, before any phase 1 code was
+written. Status: **implemented; measured: criterion 4 failed as frozen**;
+post-hoc criterion 4b is defined below and frozen before its rerun. This is
 phase 1 of the port plan in
 [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4. It is a reimplementation; under AGENTS.md it is not a scientific
@@ -85,3 +86,63 @@ Data are cast to complex128 before any arithmetic, as NumPy does in
 
 Failure of any of 1–6 is recorded here with the numbers, not hidden; the
 phase is not marked done until all pass.
+
+## Measured result of the frozen run (2026-10-29)
+
+Run `outputs/core-phase1-20261029-01`, with the core code as committed with
+this section. The validator that ran was an earlier version of
+`examples/validate_core_phase1.py` with criteria 1–6 only; the committed
+version adds criterion 4b and the stronger side-effect check and changes
+nothing else. Exit status 1, because criterion 4 failed.
+
+| Criterion | Measured | Frozen limit | Outcome |
+| --- | --- | --- | --- |
+| 1 residuals | max 5.7e-14 Jy absolute; max 3.5e-13 relative where \|r\| > 1e-6; NaN positions identical | 1e-12 | pass |
+| 2 split losses | train 2.0e-15, validation 4.2e-16, test 1.0e-15 relative; invalid-prediction counts equal | 1e-12 | pass |
+| 3 robust scores | max 1.9e-14 absolute | 1e-12 | pass |
+| 4 normals from fused residuals | $\mathbf H$ 0 relative; $\mathbf b$ **4.9e-11** relative to max\|b\| | 1e-13 | **fail** |
+| 5 diagonal blocks | fixture and LUNO: $\mathbf H$ and $\mathbf b$ 0 relative (73,720 and 117,556 cells) | 1e-13 | pass |
+| 6 side effects | the run directory held only `result.json` | – | pass, but the check was weak (see below) |
+
+Criterion 4 tested only $\mathbf b$ in practice: $\mathbf H$ does not depend
+on the residuals, so its agreement is automatic.
+
+**Diagnosis (measured after the failure).** The criterion is ill-posed at a
+converged solution. $\mathbf b=\operatorname{Re}(J^{T}Wr)$ is the gradient,
+which is close to zero at the optimum, so its largest entry (0.43) is
+tiny compared with the terms that cancel to produce it. The fused and NumPy
+residuals on these cells differ by at most 3.7e-15 Jy, which is rounding in
+the 2×2 products. $\mathbf b$ is linear in the residual: the kernel applied to
+the residual difference reproduces the $\mathbf b$ difference (1.8e-11 against
+2.1e-11). Dividing by max\|b\| therefore magnifies rounding by the
+cancellation factor, not an implementation error.
+
+The weak criterion-6 check confirmed only that the run directory was empty
+before the receipt was written. The rerun also compares sizes and
+modification times of every input file and `git status --porcelain` before
+and after.
+
+## Post-hoc criterion 4b (defined after the frozen run failed)
+
+This criterion was written after seeing the failure above and is labelled
+post-hoc everywhere it is reported. It keeps the frozen constant, 1e-13; only
+the scale changes, from max\|b\| to a bound that does not vanish at the
+optimum. By Cauchy–Schwarz, for each bin and parameter $i$,
+
+```math
+|b_i|=\Big|\sum_k w_k J_{ki} r_k\Big|
+\le\sqrt{\sum_k w_k J_{ki}^2}\sqrt{\sum_k w_k r_k^2}
+=\sqrt{H_{ii}\,\chi^2_{\text{bin}}},
+```
+
+where $k$ runs over the real residual rows of the bin's selected cells and
+$\chi^2_{\text{bin}}$ is their weighted squared residual.
+
+4b. $\mathbf H$ as in criterion 4 (1e-13 relative), and
+$\max_{\text{bin},i}|\Delta b_i|/\sqrt{H_{ii}\chi^2_{\text{bin}}}\le10^{-13}$
+over entries with a positive bound, with $\chi^2_{\text{bin}}$ from the
+archived residuals.
+
+The rerun goes to a fresh `outputs/core-phase1-20261029-02`. The phase is
+reported as "implemented; measured: criterion 4 failed as frozen; post-hoc 4b
+…" with the rerun's outcome, never as "phase 1 passed".

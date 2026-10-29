@@ -1,5 +1,14 @@
 # Rang research state
 
+Core phase 1, 2026-10-29 (implemented; measured: criterion 4 failed as
+frozen; post-hoc 4b defined, rerun pending). `core/` is a new GPL Rust crate with
+a fused pass (residuals, split losses, robust scores, antenna-diagonal normal
+blocks) behind ctypes (`python/rangtoy/core.py`). Frozen run
+`outputs/core-phase1-20261029-01`: residuals agree with the archive to 5.7e-14 Jy,
+split losses to 2e-15, scores to 2e-14, diagonal blocks exactly; criterion 4
+failed on b (4.9e-11 against 1e-13) because b cancels at the optimum. See
+`core-phase1.md`.
+
 Licence and port decision, 2026-10-29 (user, in chat): rang is now
 GPL-3.0-or-later (`LICENSE`, Cargo and Python metadata). The user asked to work
 down the port plan in `stack-consolidation-feasibility.md` section 9, starting
