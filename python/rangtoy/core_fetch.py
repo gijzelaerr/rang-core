@@ -261,14 +261,15 @@ def fetch_slice(
             records.append(record)
         return body
 
-    def span(key, byte_range, name):
+    def span(key, byte_range, name, keep=False):
         record, body = client().get(key, byte_range)
         dest = out / "spans" / key / name
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
         with lock:
             records.append(record)
-        return body
+        # Run spans live on disk only, so the process does not hold the slice.
+        return body if keep else None
 
     started_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     started = time.perf_counter()
@@ -308,7 +309,7 @@ def fetch_slice(
             for tile in tiles
         ]
         heads = dict(
-            zip(keys, pool.map(lambda key: span(key, (0, PREFIX), "head"), keys))
+            zip(keys, pool.map(lambda key: span(key, (0, PREFIX), "head", True), keys))
         )
         # Runs of needed blocks.
         jobs = []
