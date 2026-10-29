@@ -1,5 +1,11 @@
 # Rang research state
 
+LUNO continuation, 2026-10-29: the user chose to continue with the LUNO
+calibrators while the licence and native weights are unconfirmed (Ben Hugo asked
+the same day; no answer yet). All LUNO results are provisional, and no
+visibilities are redistributed. The processed-support survey protocol is frozen
+in `flagging-luno-support.md` before any tile download.
+
 LUNO provenance, 2026-10-29 (text metadata only; no data changed). The stores'
 OBSERVATION/FIELD/HISTORY strings, which are `json2`-encoded so no pickle is
 involved, give project `20210818-0008`, observer `B Hugo` and target field

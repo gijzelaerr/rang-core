@@ -114,6 +114,10 @@ strict native-weight gate is not met. No data, flags or weights were changed.
 
 ## Still open
 
+On 2026-10-29 the user chose to continue with the calibrator scans while the
+items below are open. Results are provisional; see the
+[processed-support survey](flagging-luno-support.md).
+
 - **Licence and citation.** No licence was found for the LUNO stores. The
   closest statement, the Polcal-Primer notice, covers the workshop's UHF
   teaching data, not this L-band set. It implies SARAO ownership and
