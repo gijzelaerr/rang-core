@@ -4,7 +4,22 @@ LUNO continuation, 2026-10-29: the user chose to continue with the LUNO
 calibrators while the licence and native weights are unconfirmed (Ben Hugo asked
 the same day; no answer yet). All LUNO results are provisional, and no
 visibilities are redistributed. The processed-support survey protocol is frozen
-in `flagging-luno-support.md` before any tile download.
+in `flagging-luno-support.md` before any tile download (commit `807eb52`).
+Measured, provisional: on 3.22 GB of row chunk 0 (1070–1497.8 MHz, stations
+m000–m003, 2×32 grid):
+
+- **1934−638 (scalar model):** 389 of 432 supported bins are fully identified
+  (116,805 of 117,556 TRAIN cells). All 43 failures are tree-shaped support
+  graphs, and the native crosscheck agrees 432/432.
+- **1830−211:** the model has about 1e-3 cross-hand terms, so the scalar U(2)
+  condition does not apply (145 over-rank bins and 15 tree failures, where the
+  native status is 6).
+- No-data bins are the RFI-masked roughly 1150–1311 MHz and 1471–1498 MHz
+  channels. Antennas m031, m040 and m044 have no TRAIN support.
+
+Results are identical at identity and at the seed-20261029 random gain point.
+Run directory `outputs/luno-support-20261029-01`; archive
+`results/meerkat-luno-support.json`.
 
 LUNO provenance, 2026-10-29 (text metadata only; no data changed). The stores'
 OBSERVATION/FIELD/HISTORY strings, which are `json2`-encoded so no pickle is

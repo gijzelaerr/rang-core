@@ -13,6 +13,10 @@ ESO137. It also carries 3C 286, PKS 1934−638 and a long PKS 1830−211 track, 
 B. Hugo) calibrated in CASA in 2022 and published as AfriCalim 2024 workshop
 data. Its flags and weights are processing products, and no licence is
 established ([provenance](flagging-luno-candidate.md#provenance-found-2026-10-29)).
+A provisional [processed-support survey](flagging-luno-support.md) finds 389 of
+432 supported 1934−638 bins fully identified for four stations, with failures
+only in tree-shaped bins. The 1830−211 model is not scalar, so the frozen
+condition does not apply to that scan.
 
 [Latest measured five-track report](flagging-next-summary.md) and
 [execution plan](flagging-next-results.md) freeze

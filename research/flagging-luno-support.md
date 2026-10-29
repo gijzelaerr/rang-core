@@ -95,6 +95,78 @@ cells by category and per-failure rows. The run directory is
 `outputs/luno-support-20261029-01`, and the archive is
 `results/meerkat-luno-support.json`.
 
-## Measured result
+## Measured result (provisional)
 
-Not yet run.
+Run on 2026-10-29 after protocol commit `807eb52`:
+
+- **Slice:** `outputs/luno-support-20261029-01/slice`, 122 objects,
+  3,222,257,341 bytes, receipt SHA256 `9a2b7d5a…3643c`.
+- **Extraction and survey:** as frozen, with no code or threshold changes.
+- **Archive:** [meerkat-luno-support.json](results/meerkat-luno-support.json).
+  It holds all summaries, every failure row, the whole-array per-antenna
+  counts, the input and code hashes and the result SHA256 `08f0d25e…aef`.
+- **Stations:** m000–m003.
+
+| | PKS 1934−638, scan 2 | PKS 1830−211, scan 3 |
+| --- | ---: | ---: |
+| Integrations in row chunk 0 | 32 | 10 (whole scan) |
+| Gain bins | 1,024 | 320 |
+| Bins with TRAIN data | 432 | 160 |
+| Fully identified bins | 389 | 0 |
+| Underidentified bins | 43 | 15 |
+| Over-rank bins | 0 | 145 |
+| No-TRAIN bins | 592 | 160 |
+| TRAIN cells, fully / under | 116,805 / 751 | 0 / 128 (rest over-rank) |
+| Native crosscheck agrees | 432 / 432 | 145 / 160 |
+
+Identity and the seed-20261029 random gain point give the same counts. The
+only difference is that a few 1830−211 over-rank bins have rank 30 rather than
+31.
+
+**PKS 1934−638.** MODEL_DATA is scalar: XX equals YY, and XY and YX are exactly
+zero. 90.0% of supported bins and 99.36% of TRAIN cells meet `8*nactive-4`. All
+43 failures have a tree-shaped support graph, with no odd cycle:
+
+- 17 bins have only baseline 0–3 (rank 8 against the required 12);
+- 15 bins have the path 0–3–2 (rank 16 against 20);
+- 11 bins have the four-station star around station 2 (rank 24 against 28).
+
+This is the same mechanism as the earlier bin 811: connected support without
+an odd cycle does not identify full-Jones gains.
+
+**PKS 1830−211.** The frozen common-U(2) condition does not apply.
+MODEL_DATA carries small cross-hand terms, with median |XY/XX| of 1.1e-3 and
+median |YX/XX| of 1.2e-3. These break the gauge, so four-station bins reach
+rank 30–31 against the scalar-model 28. The native kernel returns status 6
+(U(2) gauge-null mismatch) on the 15 bins that rank classifies as
+underidentified, which accounts for all 15 crosscheck disagreements. Those 15
+bins are trees as well: baseline 0–2, or a path through 0–2. Per the protocol,
+the model is not edited after the fact. Zeroing or replacing the cross-hand
+model would need its own frozen follow-up.
+
+**Where support is missing.** No-TRAIN bins come from channels flagged on every
+baseline, not from time. In both scans, roughly 1150–1311 MHz and 1471–1498 MHz
+have no TRAIN cells, which is the L-band RFI region masked by the earlier
+processing. Every integration keeps about 30% (1934−638) or 39% (1830−211) of
+its cells.
+
+**Whole array.** Antennas 25 (m031), 33 (m040) and 37 (m044) have no TRAIN cell
+in either scan, so they are entirely flagged or zero-weight in this slice. The
+median antenna has about 1.19 M TRAIN cells in the 1934−638 chunk.
+
+**Weights.** TRAIN weights differ between scans:
+
+- 1934−638: XX and YY 0.50–8.45 (median 4.38), XY and YX 0.95–15.7 (median
+  about 8.1);
+- 1830−211: all four correlations nearly constant, about 0.37–0.40.
+
+Values do not affect rank, but this confirms that they are processing-scaled,
+not raw.
+
+**What this does and does not show.** On processed support, a second, real
+MeerKAT observation gives mostly identified four-station TRAIN support on its
+flux calibrator, with failures confined to tree-shaped bins. The gain calibrator
+is not covered by the frozen scalar-model condition. Nothing about
+calibration, flagging, signal transfer or image quality is measured. Everything
+here stays provisional until the licence is confirmed and the native weights
+and flags are established.
