@@ -1,7 +1,8 @@
 # Rang core, phase 3c-b: the signal track on the core
 
-Protocol frozen 2026-10-29, before any signal driver, comparator or UVW
-export was run. Status: **proposed**. Last part of phase 3 of the port plan
+Protocol frozen 2026-10-29 in `11122d2`, before any signal driver,
+comparator or UVW export was run. Status: **implemented; measured: all
+gated criteria pass as frozen**. Last part of phase 3 of the port plan
 ([stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4), after the injection campaign, prospective track, actions stage,
 trend chain test and the component predictor ([core-phase3c-a.md](core-phase3c-a.md)).
@@ -91,3 +92,34 @@ reproduces what the MS round trip stores:
 The track is reported as passed only if criteria 1–3, 5 and 6 pass as
 frozen; any failure is recorded with its numbers. Phase 3 is complete when
 this passes, since injections, prospective, actions and trend already do.
+
+## Measured result (2026-10-29)
+
+UVW export `outputs/core-phase3c-b-uvw-20261029-01` (both cases share one
+UVW array, SHA256 `6e8e7e6c…`, 0.47 s each with the container), then run
+`outputs/core-phase3c-b-20261029-01`, the first and only run against the
+frozen criteria. Archive: [core-phase3c-b.json](results/core-phase3c-b.json).
+All gated criteria pass against both oracles.
+
+| Class | Archive | Host reproduction |
+| --- | --- | --- |
+| exact (criterion 1) | 261, all equal | 261, all equal |
+| floats (criterion 2) | 208, worst 1.7e-11 | 208, worst 6.4e-12 |
+| reference-fit residuals (criterion 3) | 4, worst 1.4e-12 | 4, worst 8.1e-13 |
+| closures (criterion 4, reported) | 12, rounding-level, differ as expected | same |
+
+All 9169 common TEST cells are retained, the slots and
+acceptances equal the archive (no mask accepted for either seed, no-change
+uncertified, as archived), and the run made 9 solves.
+The core predictor agrees with the NumPy templates to
+2.3e-16 Jy, as the original
+cross-check with africanus required. Inputs, the UVW export and `git status`
+were unchanged; only `result.json` was written.
+
+**Cost (reported).** 34.5 s and 817 MB for the track in one process, against
+2 min 39 s for the same track inside the host reproduction of the five-track
+campaign, which also copied four Measurement Sets per case.
+
+With this track, every stage named in the phase 3 gate of section 9.4
+(injections, actions, trend, prospective and signal) runs on the Rust core
+and reproduces its archive.

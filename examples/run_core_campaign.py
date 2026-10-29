@@ -1,6 +1,6 @@
 """Run a core campaign track with a side-effect audit.
 
-Usage: python examples/run_core_campaign.py <track> outputs/<fresh-run> outputs/<inputs>
+Usage: python examples/run_core_campaign.py <track> outputs/<fresh-run> outputs/<inputs> [extra input dirs]
 
 Tracks: `injections` (research/core-phase3.md), `prospective`
 (research/core-phase3b.md) and `actions` (research/core-phase3-actions.md). Snapshots the size and modification time of every
@@ -19,6 +19,7 @@ TRACKS = {
     "injections": "rangtoy.core_injections",
     "prospective": "rangtoy.core_prospective",
     "actions": "rangtoy.core_actions",
+    "signal": "rangtoy.core_signal",
 }
 
 
@@ -40,20 +41,21 @@ def snapshot(inputs):
 
 def main():
     track, run_dir, inputs = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
+    extra = [Path(x) for x in sys.argv[4:]]
     if track not in TRACKS:
         raise SystemExit(f"unknown track; choose from {sorted(TRACKS)}")
     if not str(run_dir).startswith("outputs/") or run_dir.exists():
         raise SystemExit("run directory must be new and beneath outputs/")
     module = importlib.import_module(TRACKS[track])
-    before = snapshot(inputs)
-    result = module.run(run_dir, inputs)
-    after = snapshot(inputs)
+    before = [snapshot(p) for p in (inputs, *extra)]
+    result = module.run(run_dir, inputs, *extra)
+    after = [snapshot(p) for p in (inputs, *extra)]
     written = sorted(p.name for p in run_dir.iterdir())
     audit = {
         "track": track,
-        "input_files_checked": len(before[0]),
-        "inputs_unchanged": before[0] == after[0],
-        "git_status_unchanged": before[1] == after[1],
+        "input_files_checked": sum(len(b[0]) for b in before),
+        "inputs_unchanged": all(b[0] == a[0] for b, a in zip(before, after)),
+        "git_status_unchanged": before[0][1] == after[0][1],
         "run_dir_files": written,
         "only_result_written": written == ["result.json"],
     }

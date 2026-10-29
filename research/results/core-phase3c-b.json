@@ -1,0 +1,103 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase3c-b.md",
+ "protocol_commit": "11122d2",
+ "status": "implemented; measured: all gated criteria pass as frozen against the archive and the host reproduction",
+ "run_dir": "outputs/core-phase3c-b-20261029-01",
+ "result_sha256": "517eff29a4bb899b8b8355ffea06a1f916c65437ee9239571206d167def636fa",
+ "uvw_export": {
+  "run_dir": "outputs/core-phase3c-b-uvw-20261029-01",
+  "arrays_sha256_both_cases": "6e8e7e6c8a3ae5ebf396d6643101d69d5182c1c3cf8e867f9ebc9f2d22475a57",
+  "seconds_each_with_container": 0.47
+ },
+ "against_archive": {
+  "classes": {
+   "exact": {
+    "compared": 261,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 208,
+    "max_rel": 1.7384973128209293e-11
+   },
+   "difference": {
+    "compared": 4,
+    "max_rel": 1.39795868966663e-12
+   },
+   "reported": {
+    "compared": 12,
+    "max_rel": 1.0
+   }
+  },
+  "failures": 0,
+  "excluded": 15
+ },
+ "against_host_reproduction": {
+  "classes": {
+   "exact": {
+    "compared": 261,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 208,
+    "max_rel": 6.432302698887526e-12
+   },
+   "difference": {
+    "compared": 4,
+    "max_rel": 8.108926435037196e-13
+   },
+   "reported": {
+    "compared": 12,
+    "max_rel": 2.2014464366430615
+   }
+  },
+  "failures": 0,
+  "excluded": 15
+ },
+ "solves": 9,
+ "common_TEST_samples": 9169,
+ "acceptance": [
+  {
+   "seed": 107,
+   "slots": {
+    "without_signal_guard": null,
+    "with_signal_guard": null
+   },
+   "accepted": {
+    "without_signal_guard": null,
+    "with_signal_guard": null
+   }
+  },
+  {
+   "seed": 109,
+   "slots": {
+    "without_signal_guard": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+    "with_signal_guard": null
+   },
+   "accepted": {
+    "without_signal_guard": "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+    "with_signal_guard": null
+   }
+  }
+ ],
+ "predictor_reference_linf_jy": {
+  "107": 2.2591401799415137e-16,
+  "109": 2.2591401799415137e-16
+ },
+ "side_effects": {
+  "track": "signal",
+  "input_files_checked": 505,
+  "inputs_unchanged": true,
+  "git_status_unchanged": true,
+  "run_dir_files": [
+   "result.json"
+  ],
+  "only_result_written": true
+ },
+ "cost": {
+  "core_wall_seconds": 34.53,
+  "core_max_rss_mb": 816,
+  "reproduced_track_in_campaign_seconds": 159
+ },
+ "novelty": "reimplementation only; matched-quality runtime reduction, no scientific result changes"
+}
