@@ -12,7 +12,9 @@ a warm-cache one 3.6 s, of which about 1 s is the solve; the five-track campaign
 spends 337 s of 435 s in 63 QuartiCal subprocesses and reads 21.7 GB to serve an
 18 MB cube. The inner loop (predict, solve, statistics, TV, rank) is worth fusing;
 MS tables, strategy flaggers and WSClean stay at the edges. Acceptance criteria
-for a prototype are frozen in the study; nothing is implemented.
+for a prototype are frozen in the study; nothing is implemented. A port plan
+(section 9) counts about 6–8× fewer boundary crossings per pipeline once the
+solve wrapper, MS copies and digests collapse into one in-memory pass.
 
 New, 2026-10-29: every published five-track stage is reproduced on a second
 host from re-fetched public inputs (see [STATE.md](STATE.md)). A

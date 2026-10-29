@@ -9,8 +9,9 @@ the record.
 
 ## Verdict (summary)
 
-**Partially feasible and worth doing for the inner loop; not worth it for the
-edges.** A single Rust core with a thin Python API can replace everything that
+**Partially feasible and worth doing for the inner loop; the edges come last.**
+Section 9 adds the single-framework port plan with before-and-after step
+counts: about 6–8× fewer boundary crossings per pipeline. A single Rust core with a thin Python API can replace everything that
 rang runs *between* reading visibilities and writing diagnostics: sky
 prediction, the full-Jones gain solve, residual statistics, TV and trend
 guidance, the policy loop, the normal-equation rank/response survey, and a
@@ -616,6 +617,133 @@ touches.
 6. Whether the MAD robust statistics should be computed exactly (buffers) or
    streamed (P² quantiles) at 64-station scale; rang's current sizes do not
    force the choice.
+
+## 9. Single-framework port plan: recombining the logic (proposal)
+
+Added 2026-10-29 after the first version, at the user's request: if everything
+is ported into one framework, how far does the architecture compress? This
+section counts steps before and after. A **step** is one boundary crossing
+(a process start, a subprocess, a container, a table or file read, write,
+copy or hash) or one full pass over the visibility cube. "Before" counts come
+from reading the code and are cross-checked against the artefacts the
+reproduced runs left on disk (section 2.2). "After" counts are estimates for
+the architecture in section 4. Counting rules are deliberately coarse; the
+point is the ratio, not the last digit.
+
+### 9.1 Architecture, before and after
+
+| Unit | Before (checkout `fe9f049`) | After (proposal) |
+| --- | --- | --- |
+| Languages and runtimes | Python, Rust, Numba-JIT Python (two Numba versions), C++ via python-casacore and WSClean, dask graphs, Stimela recipes, bash wrappers | Rust core; Python API; bash only for fetches |
+| Orchestration units | 23 recipes in `recipes/`, 15 `run-*.sh` and `fetch-*.sh` wrappers, 3 Stimela cab flavours | one Python package with about six entry points (`open`, `solve`, `policy_search`, `survey`, `image`, `export`) and one receipt writer; Stimela optional on top |
+| Python orchestration | 35 modules, about 14,800 lines in `python/rangtoy/` | about 8 modules: API, splits, policy objective, campaign drivers, receipts, plots, oracles (external-tool adapters), tests |
+| Native code | 7 Rust files (TV, trend, normals, projector, toy) behind ctypes | one crate, about 10 modules: `io::zarr`, `io::edge` (MS via Python), `model`, `predict`, `solve`, `stats`, `tv`, `trend`, `rank`, `image`, `receipt`; PyO3 |
+| Processes per solve | 3 (Python driver, `goquartical`, dask scheduler threads) plus the container | 1 |
+| Container images and venvs | 8 images, 3 venvs (solver, Crystalball, Tricolour), 2 Numba versions | 1 image or a plain wheel; external tools only in a validation image |
+| Persistent intermediate formats | CASA MS (copies), zarr gain stores, `.npz` cubes and snapshots, `.json` receipts, FITS | in-memory `VisBlock`/`GainGrid`/`BinStats`; one result JSON and one receipt per run; gains and flags exported on request |
+| Immutability mechanism | whole-MS copies, before/after snapshots, tree digests, re-reads | immutable `original` flags and data by type; receipts hash inputs once |
+
+### 9.2 Step counts per pipeline
+
+**LUNO path (section 2.1).** Before: 13 steps (three fetch sessions, blosc
+decode, `.npy` extraction, MS build, container start, QuartiCal import and
+table read, solve, gain zarr write, zarr read plus `.npy` save, survey
+normals, survey classification). After: 7 (three fetches, decode, one fused
+pass that predicts, solves and accumulates $\mathbf H_b$, classification
+from the blocks, receipt). The fetches and the decode are 5 of the 7 and are
+untouched.
+
+**Base recipe `tv-flagging` (prepare, train, report;
+[recipes/tv-flagging.yaml](../recipes/tv-flagging.yaml)).** Per trial, the
+current code performs about 16 steps: two `getcol` for the before-snapshot,
+one `savez`, two `putcol`, `flush`, two `getcol` to assert preservation, a
+second `savez`, the `goquartical` process start and import, its table read,
+the solve, the gain zarr write, `xds_from_zarr`, the NumPy residual pass, two
+TV passes (raw and polar), `diagnostics.npz`, `metrics.json`, and two final
+`getcol` to verify `output.flags=false`
+([flagging_workflow.py:282-470](../python/rangtoy/flagging_workflow.py:282)).
+Prepare is about 20 steps (unpack, two `copytree`, about ten `getcol`, model
+`putcol`, snapshot, `state.npz`, manifest, two digests); the final export is
+about 6 (`set_flags`, `copytree flagged.ms`, two digests, two JSON files).
+
+| Pipeline | Before | After | Ratio |
+| --- | ---: | ---: | ---: |
+| LUNO path | 13 | 7 | 1.9× |
+| `tv-flagging`, 1 baseline + 9 grid trials | about 186 (20 + 10 × 16 + 6) | about 29 (2 + 10 × 2.5 + 2: open, fused pass with TV, record, export) | 6× |
+| Five-track `tv-flagging-next` | about 490 visibility-side steps (below), plus 85 HTTP provenance objects | about 60 with a Rust gridder, about 75 with WSClean kept | 6.5–8× |
+
+**Five-track campaign, per track** (measured artefacts: 63 QuartiCal
+processes, 26 MS directories, 275 `.npz`, 382 `.json`, 45 FITS, 21.7 GB read,
+55.4 GB written):
+
+| Track | Before (code reading) | After | What merges or disappears |
+| --- | ---: | ---: | --- |
+| initialize ([flagging_next.py:33-82](../python/rangtoy/flagging_next.py:33)) | about 10: five tree digests over 8.8 GB, source receipts over about 100 files, input copies, two JSON | 1 receipt | digests of inputs replace digests of trees; copies disappear |
+| trend ([flagging_trend.py:194](../python/rangtoy/flagging_trend.py:194)) | about 23: 7 × (`diagnostics.npz` + `metrics.json` reads), 7 checkpoints, 2 digests; the 28 replays are already in-memory | about 8: 7 solution objects from the campaign store, 1 result | reads of saved gains become references to in-memory solutions; the trend and TV kernels are unchanged |
+| prospective ([flagging_prospective.py:375](../python/rangtoy/flagging_prospective.py:375)) | about 140: 3 cases × (3 clone copies, injection `.npz`/`.json`, `state.npz`, baseline solve at 16, full and per-candidate normals, forecast `.npz`/`.json`, 1–2 confirmation solves at 16 each, checkpoints) | about 12: 3 × (fused baseline, forecasts from the baseline's own $\mathbf H_b$, fused confirmation, record) | the normal equations are a by-product of the last solver iteration; the 51 forecasts need no visibility pass |
+| signal guard ([flagging_signal_guard.py:412](../python/rangtoy/flagging_signal_guard.py:412)) | about 160: 9 paired solves at 16 each, normals, guards, `.npz`/`.json` | about 12: 9 fused solves, guards from blocks, record | same as prospective |
+| provenance ([flagging_provenance.py](../python/rangtoy/flagging_provenance.py)) | 85 HTTP objects, text decoding, 18 JSON writes | unchanged | metadata inspection, not visibility work |
+| imaging ([flagging_imaging.py:609](../python/rangtoy/flagging_imaging.py:609)) | about 154: 4 MS copies, 15 × (NumPy correction pass, three `putcol`, three verifying `getcol`, checkpoint `.npz`, WSClean process, three FITS reads, result `.npz`) | about 30 with a Rust gridder (15 × correct-and-grid in memory, 15 FITS writes); about 45 with WSClean kept (15 column writes, 15 processes, 15 FITS reads) plus 2 MS copies | corrected visibilities never leave memory; FLAG/CORRECTED_DATA round trips disappear |
+| gather ([flagging_next.py:127](../python/rangtoy/flagging_next.py:127)) | about 10: five digests, source receipts, five result reads | 1 | |
+
+Where the compression comes from, in order of size: (1) the 16-step solve
+wrapper collapses to one fused pass, about 63 × 15 ≈ 945 boundary crossings
+in the campaign (the "about 490" above counts a solve as one row, so the
+table understates this); (2) whole-tree digests and MS copies for
+immutability disappear; (3) the normal equations, residual statistics and
+TV come out of the solver's last sweep instead of separate passes; (4) the
+imaging track stops writing columns to disk. What does not compress: the
+fetches, the provenance inspection, and the external oracles while they are
+still being used to validate the port.
+
+### 9.3 Equation-level recombination
+
+The current pipeline computes the following distinct objects from the
+visibilities, each in its own tool or pass: $\hat V$ (QuartiCal, NumPy,
+survey, imaging), $r$ (QuartiCal, NumPy), per-antenna $\mathbf H$ blocks
+(QuartiCal), full $\mathbf H_b$ (survey), $w|r|^2$ split sums (NumPy),
+$\log a$ features (NumPy), $G^{-1}VG^{-H}$ (NumPy), and the gridded image
+(WSClean). After the port there are two sweeps over a gain bin:
+
+1. the **solver sweep**, repeated to convergence, which forms $\hat V$, $r$
+   and the per-antenna blocks, and on its last iteration also the full
+   $\mathbf H_b$, $\mathbf b_b$, split sums and the $\log a$ buffers;
+2. the **imaging sweep**, run only for diagnostic jobs, which forms
+   $G^{-1}VG^{-H}$ and grids it.
+
+Everything else (TV, trend, polar gauge, rank, anchored response, forecasts,
+MAD $z$, policy masks, objective, selection) is a function of `GainGrid` and
+`BinStats` and never reads the cube. Prediction is a lookup for scalar
+models and a cached per-block DFT for component models.
+
+### 9.4 Port order and gates
+
+Each phase ends with a validation receipt against the archives (section 5)
+before the next starts; a phase that fails its gate is reported, not skipped.
+
+| Phase | Weeks | Content | Gate |
+| --- | ---: | --- | --- |
+| 0 | hours | Persistent Numba cache in every wrapper; gain comparisons by tolerance instead of hash | `tool-timings.md` rows; identical rank survey |
+| 1 | 3–5 | Crate skeleton: `VisBlock`, `GainGrid`, `BinStats`, zarr ingest, scalar prediction, fused statistics, PyO3 | normals to 1e-13, TV/trend exact, MAD $z$ to 1e-12 against the archives |
+| 2 | 3–6 | Full-Jones `complex` solver ported from the QuartiCal kernel (MIT) | section 6 criteria 1–9 on the LUNO slice and the fixture clean case |
+| 3 | 2–3 | Policy loop and the trend, prospective and signal tracks on the core; `goquartical` retired from campaigns | `gain-tv-actions`, `gain-tv-next-trend`, `-prospective`, `-signal` reproduced to the STATE.md tolerances |
+| 4 | 3–5 | Dirty gridder and FITS; imaging track on the core with WSClean as oracle | paired-difference images within 1e-6 Jy/beam; absolute differences reported |
+| 5 | 3–6, optional | Tricolour strategies ported from source (GPL decision first) | the four archived native controls reproduced flag-for-flag |
+| 6 | 2–4, optional | Rust MS reader; python-casacore dropped from the hot path | column-exact reads of the fixture and LUNO MSs |
+| Total to phase 3 | 8–14 | | |
+| Total to phase 4 | 11–19 | | |
+| Total, all phases | 16–29 | | |
+
+These ranges replace the per-component table in section 5 where they
+overlap; the earlier table remains as the component view.
+
+### 9.5 What the port does not change
+
+The archived scientific results are the gate, not the goal: the port must
+reproduce them and may not improve them. Under AGENTS.md's novelty rule the
+deliverable is "the same results in one process, with 6–8× fewer steps and
+without the MS, snapshot and digest traffic", measured and logged, and
+nothing more.
 
 ## Measurement log
 

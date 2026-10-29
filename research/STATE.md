@@ -7,7 +7,9 @@ MS tables, strategy flaggers and WSClean external. New measurements (logged in
 `tool-timings.md`): QuartiCal on the LUNO slice is 28.3 s cold versus 3.6 s with
 a warm Numba cache, with gains equal to 2e-14 relative; decoding the DATA tiles
 expands 2.72 GB to 3.28 GB to keep 12.6 MB. Prototype acceptance criteria are
-frozen in the study. Run directory `outputs/stack-feasibility-20261029-01`.
+frozen in the study. Section 9 adds a phased single-framework port plan with
+before/after step counts (about 6–8× fewer). Run directory
+`outputs/stack-feasibility-20261029-01`.
 
 LUNO solved-gain follow-up, 2026-10-29 (provisional; protocol `487208b`).
 A four-station casacore MS was built from row chunk 0 of 1934−638 scan 2
