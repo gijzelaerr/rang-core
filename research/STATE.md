@@ -1,5 +1,25 @@
 # Rang research state
 
+New host setup, 2026-10-29 (no scientific runs, no code changes):
+Windows 11 workstation using WSL2 Ubuntu 26.04 (x86_64, 16 cores, 30 GiB RAM),
+checkout `~/Github/rang` on the Linux filesystem, Docker 28.3.3 inside WSL.
+Python 3.14.4 venv from public PyPI with the recorded pins (JAX/JAXlib 0.11.1,
+NumPy 2.5.3, pytest 9.1.1, Ruff 0.16.7). All checks pass: 654 Python (no skips),
+19 Rust, release build, Clippy `-D warnings` and `cargo fmt` under Rust 1.93.1,
+Ruff lint+format, `git diff --check`. Stable Rust 1.99 Clippy adds
+`chunks_exact_to_as_chunks` on `src/projector.rs`/`src/response.rs`. Those
+sources are hashed in result receipts, so they stay unchanged and checks pin 1.93.
+Native Windows Python ran 614/654: all 40 failures are POSIX-only guard tests
+(symlink privilege, `st_blocks`, bash paths, cp1252 output), so Windows is
+documented as unsupported rather than weakening the guards.
+`rang-flagging:local` rebuilt natively as linux/amd64
+(`sha256:124ee3a09bbcf7f933a7280a24bc4e36f3c82db1910f33d78d09c96d09e55be6`).
+Offline smoke check: QuartiCal 0.2.7, Stimela 2.1.4, python-casacore 3.8.1 and
+the Rust kernel library load; the pilot recipe parses with `stimela doc`.
+Not yet reproduced: this host has no `outputs/` (raw fixture, prepared inputs,
+backups, run trees), so the wrapper dry-runs and measurements cannot run yet.
+The other container images (sky, comparators, imaging, next) are not rebuilt.
+
 FINAL CHECKED PUBLICATION READY2026-09-24 10:24UTC:
 654Python(no skips)/19RustPASS,releasebuild/Clippy-Dwarnings/cargoformat,
 fullrepoRufflint+format,91Pythoncompiles/62strictJSONarchives,
