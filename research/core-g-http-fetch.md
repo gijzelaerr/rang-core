@@ -1,0 +1,128 @@
+# Rang core, task G: HTTP range-request fetch of the LUNO four-station slice
+
+Protocol frozen 2026-10-29 in this commit, before any fetch code was written.
+Status: **proposed**. Wave 1 task G of
+[core-parallel-plan.md](core-parallel-plan.md). The section 6 prototype
+([core-section6.md](core-section6.md)) decodes only 2048 of the 12,544 blosc
+blocks of the 64 LUNO tiles it reads, but those tiles were fetched whole from
+the RATT bucket: 4,869,187,244 bytes. This task fetches only the blocks the
+prototype needs, with HTTP range requests, and measures bytes and seconds
+against the archived whole-tile fetch. A transport change; under AGENTS.md
+not a scientific contribution, and no archived result may change because of
+it.
+
+## Precondition: the bucket serves Range requests (measured 2026-10-29)
+
+Probe at 17:26 UTC against
+`https://ratt-public-data.s3.af-south-1.amazonaws.com/LBAND_LUNO_CALIBRATORS.zarr/MAIN/MAIN_1/FLAG/0.8.0`
+(the smallest tile of the slice, 851,970 bytes; archived SHA256
+`33ee3790…3511c`), with curl, three requests in all:
+
+- `HEAD`: `200 OK`, `Accept-Ranges: bytes`, `Content-Length: 851970`,
+  `ETag: "a6f7b1a7969c5fed930aa9dbd1399bb2"`,
+  `Last-Modified: Fri, 29 Nov 2024 14:12:49 GMT`,
+  `x-amz-storage-class: INTELLIGENT_TIERING`, `Server: AmazonS3`.
+- `GET` with `Range: bytes=0-15`: `206 Partial Content`,
+  `Content-Range: bytes 0-15/851970`, `Content-Length: 16`, same ETag; the
+  16 bytes are the blosc header (`02 01 21 01 …`, format 2, LZ4, shuffle,
+  typesize 1). 0.21 s wall.
+- `GET` with `Range: bytes=0-15,100-115` (two ranges): `200 OK` with the
+  **whole object** (851,970 bytes). S3 ignores multi-range requests.
+
+So: single byte ranges are served; multi-range is not. The fetcher issues one
+request per contiguous run of needed blocks and never a multi-range request.
+
+## Design, fixed before any code
+
+- **Language: Python, standard library only** (`python/rangtoy/core_fetch.py`,
+  `http.client` over the system OpenSSL, `ssl.create_default_context`,
+  `concurrent.futures.ThreadPoolExecutor`). The work is latency- and
+  bandwidth-bound, not compute-bound; the archived fetches ran at 6–10 MB/s
+  with about 0.2 s per request from af-south-1. A Rust fetcher would need a
+  TLS stack (rustls or native-tls plus an HTTP client), a dependency tree the
+  core crate does not have and this task does not justify. The decoder stays
+  the Rust one: fetched spans are passed to the existing
+  `rang_core_blosc_decode_span_rows` symbol through `rangtoy.core_zarr`,
+  whose block arithmetic (`read_rows`) the planner repeats byte for byte.
+  No code is added to `core/`.
+- **What is fetched**, for row chunk 0 of `MAIN/MAIN_1`, stations 0–3, tiles
+  8–23, exactly as the prototype reads them (192 rows):
+  1. `.zarray` of the eight arrays and the four whole row-column chunks
+     `ANTENNA1/0`, `ANTENNA2/0`, `TIME/0`, `FLAG_ROW/0` (14,391 bytes in
+     all), fetched whole as plain GETs. The kept rows are computed from them
+     as `prototype_section6.ingest` does.
+  2. For each of the 64 tile chunks (`DATA`, `MODEL_DATA`, `FLAG`,
+     `WEIGHT_SPECTRUM` × tiles 8–23): one ranged GET of the 16-byte header
+     plus the 4-byte-per-block start table (800 bytes for 196 blocks), then
+     one ranged GET per contiguous run of needed blocks, with the run's byte
+     span taken from the start table exactly as `core_zarr.read_rows` does.
+     Planned from the archived tiles: 32 runs of one block per tile, 2048
+     runs in all, 751,619,313 bytes of spans and tables. Nothing else is
+     fetched; no whole tile.
+- **Concurrency and politeness.** Eight worker threads, each with one
+  persistent HTTPS connection, so at most eight requests are in flight.
+  A response other than `206` for a ranged request (or `200` for a whole
+  object), a short body or a connection error is retried up to three times
+  with backoff of 1, 2 and 4 s; every attempt is recorded. The measured
+  fetch runs once; a second run is allowed only if the first fails a
+  criterion, and is labelled. Probe requests are the three above.
+- **Outputs**, in a fresh `outputs/core-g-<yyyymmdd>-NN/`: the fetched bytes
+  as files under `spans/<key>/<first_block>-<count>` (the header-and-table
+  prefix as `spans/<key>/head`, whole objects as `objects/<key>`), a
+  `receipt.json` with, per request, key, byte range, status, bytes received,
+  wall seconds, SHA256 of the body and the response's `ETag`,
+  `Last-Modified`, `x-amz-request-id` and `Date`, plus the URL, UTC start
+  time, worker count, Python and OpenSSL versions; and a `result.json` with
+  the totals. Downloaded bytes are data: hashed and decoded, never executed.
+- **Checker** `examples/check_core_fetch.py`, run after the fetch, writes
+  `outputs/core-g-check-<yyyymmdd>-NN/result.json` with every criterion below
+  and the values it measured. It reads the archived tiles once, streaming.
+
+## Acceptance criteria (frozen)
+
+1. **Range support** as recorded above: every ranged response is `206` with a
+   `Content-Range` whose first-last/total equals the requested span and the
+   archived tile's size, and every whole-object response is `200` with
+   `Content-Length` equal to the archived object's size.
+2. **Byte equality.** The SHA256 of every fetched span equals the SHA256 of
+   the same byte range of the archived tile (`outputs/luno-solve-20261029-02/inputs`
+   for DATA, `outputs/luno-support-20261029-01/slice` for the rest), and the
+   SHA256 of every fetched whole object equals the archived receipt line and,
+   for the four row-column chunks, `input_chunk_sha256` in
+   `outputs/core-section6-20261029-02/receipt.json`. Exact, no exceptions.
+3. **Array equality.** The 192 × 2048 × 4 arrays decoded from the fetched
+   spans by the Rust decoder (DATA, MODEL_DATA, FLAG, WEIGHT_SPECTRUM) and the
+   four row arrays equal, exactly, the arrays `core_zarr.read_rows` decodes
+   from the archived tiles with the same rows.
+4. **Bytes transferred.** Response bodies total at most 760,000,000 bytes
+   (the planned 751,619,313 plus the small objects; 15.4 % of the
+   4,869,187,244-byte whole tiles), and the request count is at most 2,200
+   (2048 runs + 64 heads + 8 `.zarray` + 4 chunks + retries). The response
+   headers are reported, not counted.
+5. **Wall time.** The whole fetch, from the first request to the last byte,
+   takes less than 679 s: the archived whole-tile time for the same 64 tiles,
+   461 s for the DATA tiles (`fetch-luno-solve.sh --data`, 2,717,394,612 B)
+   plus the MAIN_1 share of the 325.7 s support fetch pro rata by bytes
+   (2,151,792,632 of 3,222,232,014 B, 217.5 s). The 1,220 s figure in the
+   plan is the sum of all three archived fetches including the 432 s of
+   2,608 subtable objects, which this slice does not need; both are reported.
+   Reported, not gated: the achieved MB/s, requests per second and the
+   decode time of the fetched spans.
+6. **Outputs** as listed; `tools/check-all.sh` passes; the fetcher has unit
+   tests that run without network against a local HTTP server serving a
+   synthetic blosc chunk, covering range parsing, run planning against
+   `core_zarr.read_rows`, retry on a `200` to a ranged request, and the
+   receipt.
+
+A failure of 2 or 3 stops the timing claim: it is recorded as frozen and any
+fix is a labelled post-hoc step with a second, labelled run.
+
+## Tool timings (this task)
+
+| Date | Tool / stage | Input | Wall | Notes |
+| --- | --- | --- | ---: | --- |
+| 2026-10-29 | curl probe: HEAD, 16-byte ranged GET, two-range GET | `FLAG/0.8.0` | 0.32 s, 0.21 s, (not timed) | see precondition |
+| 2026-10-29 | `python3 -m venv` | worktree | 0.04 s, failed | no `ensurepip` on this Ubuntu; recreated with `uv venv` |
+| 2026-10-29 | `uv venv` + `uv pip install -e .[pointing,beam,test] ruff` | public PyPI | 23.3 s | |
+| 2026-10-29 | `cargo +1.93 build --release` (core, 4 jobs) | `core/` | 2.4 s | warm cache |
+| 2026-10-29 | run planning from archived tiles (Python, no network) | 64 tiles | about 3 s | 2048 runs, 751,619,313 B |
