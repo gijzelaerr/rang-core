@@ -2,8 +2,12 @@
 
 Task D of [core-parallel-plan.md](core-parallel-plan.md), started 2026-10-29
 on branch `core/d-tricolour` from `9e12326`. Status: **licence decided
-(below); protocol frozen in this commit before any port code; port not yet
-implemented**. Later sections of this file record what is measured.
+(section 1); protocol frozen in `5ff1e89` before any port code;
+implemented; measured: the frozen run `-01` failed criteria 1–3 through one
+porting error, and after that fix run `-02` passes all five gated criteria
+on all four controls, flag for flag** (section 6). Archive:
+[results/core-d-tricolour.json](results/core-d-tricolour.json). A
+reimplementation; under AGENTS.md not a scientific contribution.
 
 ## 1. Licence decision (decided 2026-10-29)
 
@@ -96,7 +100,8 @@ installed package:
   computed in double precision from the single-precision data and stored as
   complex64 with zero imaginary part; the input flag is the OR over
   correlations. On output every correlation receives the window flag.
-- **Steps.** `flag_nans_zeros` (flag where the intensity is 0 or NaN),
+- **Steps.** `flag_nans_zeros` (flag where the intensity is 0 or NaN, ORed
+  into the running flags),
   `apply_static_mask` (both shipped masks, `4k_lband_meerkat` and
   `4k_uhfband_meerkat`, are loaded; a channel is masked when a mask
   frequency falls in $[\nu-\Delta\nu/2,\nu+\Delta\nu/2)$; the `uvrange`
@@ -201,7 +206,32 @@ difference appears, and whether the differing elements lie within float32
 rounding of a threshold; any change after a failure is a labelled post-hoc
 step with its own run directory.
 
-## 4. Timings
+## 4. What was built
+
+- `core/src/sumthreshold.rs` (about 1,100 lines with tests): the kernels of
+  section 2 and the strategy executor, over windows of one correlation
+  product per baseline. Eight unit tests cover the float32 median rounding,
+  the boxcar filter, the radius truncation, the `linspace` chunk ends, flag
+  smearing, the low-pass identity, the Stokes map and the executor's
+  accumulation rules.
+- `core/src/ffi_flag.rs`: one C ABI entry, `rang_core_flag_rows`, taking
+  rows, flags, baseline and time indices, geometry, the mask frequencies and
+  a flat step table (`STEP_WIDTH = 32` doubles per step), and writing the
+  per-row flags, the polarised-intensity window and the per-step window
+  flags.
+- `python/rangtoy/core_flag.py`: strategy YAML reader (the subset CARACAL's
+  files use; PyYAML is not in the venv), static-mask loader, step encoder
+  with Tricolour's defaults, Tricolour's baseline order, and `flag_rows`.
+  `core/data/` holds the two static masks and Tricolour's licence file.
+- `examples/oracle_tricolour.py` (container), `examples/run_core_flags.py`,
+  `examples/compare_core_flags.py`, `tests/test_core_flag.py` (nine tests,
+  synthetic data and the committed `caracal-strategies.json`).
+
+## 5. Timings
+
+Host load average was 55–74 on 16 cores throughout (seven sibling sessions
+building and testing), so wall times of the port are three to five times
+its CPU time; CPU seconds are given where measured.
 
 | Date | Tool / stage | Input | Wall | Notes |
 | --- | --- | --- | ---: | --- |
@@ -211,14 +241,99 @@ step with its own run directory.
 | 2026-10-29 | `cargo +1.93 build --release` core and root | worktree | 2 s + 1 s | |
 | 2026-10-29 | `docker run` + python-casacore facts script in `rang-flagging-parallel:local` | 4 diagnostic MSs | 2.0 s | |
 | 2026-10-29 | `compare_core_flags.py archive-host` | 2 JSON + 8 npz | 0.22 s | pass |
+| 2026-10-29 | oracle step, `oracle_tricolour.py` in the container | 4 controls | 123.9 s (121.2 s in Python) | control 0: 116.5 s, of which Numba compilation of `sum_threshold_flagger` 74.9 s at step 2 and 39.2 s again at step 8 (the narrow step passes `spike_width_time: 2`, an int, so Numba specialises a second time); controls 1–3 warm: 2.2 s, 1.2 s, 1.3 s |
+| 2026-10-29 | port run `-01` (`run_core_flags.py`) | 4 controls | 40.8 s | failed criteria 1–3 |
+| 2026-10-29 | port run `-02` | 4 controls | 60.9 s (19.0, 17.4, 11.3, 10.5 s) | pass; load 68 |
+| 2026-10-29 | port run `-03` after speedups | 4 controls | 50.7 s (12.7, 15.5, 10.8, 9.0 s) | pass; load 59–65 |
+| 2026-10-29 | `compare_core_flags.py run` | 3 runs | 1.9 s each | |
+| 2026-10-29 | port, control 0 first-pass strategy, CPU | 140 rows × 4096 ch | 4.16 s CPU (18.4 s wall) | step 2 `sum_threshold` 2.40 s CPU, `uvcontsub` steps 0.13 s and 0.17 s CPU |
+| 2026-10-29 | Tricolour 0.2.1 warm kernels, same inputs, in the container | same | step 2: 1.19 s CPU; `uvcontsub` step 3: 0.11 s CPU | first call of step 2: 73.9 s CPU (JIT) |
+| 2026-10-29 | `tools/check-all.sh` (pytest 677 tests) | repo | 2119 s (pytest 2092 s) | PASS; load 60–74, against 175–986 s for the suite on a quiet host |
 
-## 5. For the coordinator
+## 6. Measured result (2026-10-29)
 
-- `core/src/lib.rs`: add `pub mod sumthreshold;` and `pub mod ffi_flag;`
-  (names final once the code lands; this section is updated then).
-- `upstream-notes.md`, Tricolour section (observed, not raised): the
-  0.2.1 wheel declares `License: GPLv2` but ships only a BSD-3-Clause
-  `LICENSE`; the string dates from the Poetry migration in PR #94. Worth a
+**Oracle step** (`outputs/core-d-oracle-20261029-01/run`, receipt there):
+for all four controls the step-by-step NumPy chain of the unmodified
+Tricolour functions reproduces `after-native.npz` exactly, so the reading
+of `app.py` in section 2 is confirmed and the per-step window flags are a
+valid reference. Host inputs unchanged (hashes recorded).
+
+**Run `-01`, frozen, failed** (`outputs/core-d-20261029-02`, comparator
+`outputs/core-d-compare-20261029-01`). Criterion 4 (polarised intensity
+bit-equal) and 5 (no side effects) passed; criteria 1–3 failed on every
+control: 34,776, 1,188, 14,232 and 7,640 final-flag differences out of
+2,293,760; proposals 26,736 against 26,692 and so on; the first stage,
+`00-flag_nans_zeros`, already differed by 268,778 window elements. Cause:
+the port replaced the running flags with the zero-or-NaN flags, whereas
+`flagging.py` line 59 ORs the input flags in (`flag = flag or
+flag_windows[...] != 0`). A porting error, found by criterion 3 at the
+first stage.
+
+**Run `-02`, post-hoc fix, passed** (`outputs/core-d-20261029-03`,
+`outputs/core-d-compare-20261029-02`). The executor now ORs the
+`flag_nans_zeros` result into the running flags; no criterion changed.
+All five criteria pass on all four controls: final flags identical at all
+2,293,760 elements each (fractions 0.80641, 0.91789, 0.71847, 0.87272);
+training proposals equal `frozen-proposal.npz` with counts 26,692, 26,637,
+662 and 735, equal to the archive; every one of the 44 per-step window
+arrays identical to the oracle's; intensity windows bit-equal; host inputs
+unchanged. The `uvcontsub_flagger` double-precision fit therefore produced
+no flag different from Tricolour's complex64 pocketfft path on these data.
+
+**Run `-03`, post-hoc speedups, passed** (`outputs/core-d-20261029-04`,
+`outputs/core-d-compare-20261029-03`). Four result-preserving changes
+(time-axis box filter in column chunks of 256 as Tricolour does, median by
+selection instead of sorting, incremental twiddle index in the low-pass
+fit, binary search in the static mask) give the same flags under all five
+criteria.
+
+**Cost.** On control 0's first-pass strategy the port spends 4.16 s CPU in
+total, 2.40 s of it in the heaviest `sum_threshold` step, against 1.19 s
+CPU for Tricolour's warm Numba kernel on the same step (the port's
+`uvcontsub` matches Tricolour's 0.11 s). The port is therefore about twice
+the kernel cost of warm Numba, with no compilation: Tricolour's first call
+of that kernel costs 73.9 s CPU, and the archived native runs took 302 s
+per control, of which 300 s is the non-TTY progress bar. Where the
+remaining factor of two goes was not resolved; `perf` under this load gave
+no usable symbol attribution. Not optimised further.
+
+**Checks.** `cargo +1.93 clippy -D warnings`, `cargo fmt --check`, the
+module's unit tests, `ruff check` and `ruff format --check` on the new
+files, and `tests/test_core_flag.py` pass; `bash tools/check-all.sh` was
+run once before the final commit with the two `pub mod` lines present in
+the working tree: overall PASS, 677 tests in 2092 s (log in
+`outputs/core-d-20261029-01/check-all.log`).
+
+## 7. For the coordinator
+
+- `core/src/lib.rs`: add `pub mod ffi_flag;` and `pub mod sumthreshold;`
+  (alphabetical among the existing lines). The branch deliberately leaves
+  `lib.rs` untouched, so on the branch alone the new module is not compiled
+  and `tests/test_core_flag.py` fails on the missing symbol; the checks in
+  section 6 were run with the lines present.
+- `README.md`: a line that the Tricolour strategies run on the core
+  (`rangtoy.core_flag`, `research/core-d-tricolour.md`) and that
+  `core/data/` carries Tricolour's static masks under the BSD notice.
+- `STATE.md`, new top entry: "Core task D, 2026-10-29 (implemented;
+  measured): Tricolour 0.2.1 treated as BSD-3-Clause (LICENSE file; the
+  `GPLv2` metadata string is unaccompanied), Crystalball GPL-2.0-only and
+  not ported. `core/src/sumthreshold.rs` reproduces the four archived
+  CARACAL controls flag for flag (run `-02`, after one post-hoc fix of the
+  `flag_nans_zeros` accumulation); 4.2 s CPU per first-pass strategy
+  against 1.2 s warm Numba plus 74 s compilation. Archive
+  `results/core-d-tricolour.json`."
+- `upstream-notes.md`, Tricolour 0.2.1 section (observed, not raised):
+  (1) the wheel declares `License: GPLv2` but ships only a BSD-3-Clause
+  `LICENSE`; the string dates from the Poetry migration in PR #94; worth a
   question to the maintainers. Crystalball 0.4.3 has the same metadata
-  string with a real GPL-2 text.
-- `tool-timings.md`: the rows of section 4.
+  string with a real GPL-2 text. (2) Of the 302 s per archived native run,
+  300 s is `ProgressBar(dt=300)` (already noted) and about 114 s of CPU is
+  Numba compilation: 75 s for `sum_threshold_flagger` and 39 s again for the
+  strategy step whose YAML gives `spike_width_time: 2` as an integer, which
+  makes Numba compile a second specialisation; the kernels themselves take
+  about 1.2 s warm. A persistent `NUMBA_CACHE_DIR` or floats in the shipped
+  YAML would remove most of it. (3) `nanmean` of an all-flagged channel
+  logs "Mean of empty slice" on every call.
+- `tool-timings.md`: the rows of section 5.
+- `core-parallel-plan.md`: task D done; wave 2 may use `core_flag.flag_rows`
+  for a core-native flagging recipe.
