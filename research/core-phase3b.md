@@ -1,7 +1,8 @@
 # Rang core, phase 3b: the prospective track on the core
 
-Protocol frozen 2026-10-29, before any phase 3b driver or comparator code was
-written. Status: **proposed**. Second part of phase 3 of the port plan
+Protocol frozen 2026-10-29 in `5e7d6f4`, before any phase 3b driver or
+comparator code was written. Status: **implemented; measured: all gated
+criteria pass as frozen**. Second part of phase 3 of the port plan
 ([stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9.4); [phase 3](core-phase3.md) moved the injection campaign. A
 reimplementation; under AGENTS.md not a scientific contribution, and no
@@ -83,3 +84,39 @@ frozen campaign modules are not edited.
 
 The phase is reported as passed only if criteria 1–5 and 7 pass as frozen;
 any failure is recorded with its numbers.
+
+## Measured result (2026-10-29)
+
+Run `outputs/core-phase3b-20261029-01`, the first and only run against the
+frozen criteria. Archive: [core-phase3b.json](results/core-phase3b.json). All
+gated criteria pass against both oracles.
+
+| Class | Archive projection | Host reproduction |
+| --- | --- | --- |
+| exact (criterion 1, and 4 ranks and statuses) | 1875, all equal | 2379, all equal |
+| floats (criteria 2, 4) | 1239, worst 1.4e-14 | 1599, worst 1.4e-14 |
+| benefits (criterion 3) | 102, worst 7.6e-10 relative, 4.4e-16 absolute | same |
+| reported only (criterion 4) | – | 144; score norm 3.4e-11 and gauge null 1.4e-16 absolute |
+
+The 7.6e-10 relative benefit difference is a benefit very close to zero; the
+largest absolute benefit difference is 4.4e-16. The two reported-only response
+diagnostics differ by up to 33 % relative, as expected for rounding-level
+quantities, which is why they were not gated.
+
+**Decisions.** Every candidate, forecast guard, confirmation and selection
+equals the archive. As archived, the clean case and seed 107 select no change,
+and seed 109 confirms and selects the single 56-cell mask under the physics
+two-confirmation rule. The 54 solves match the archived count.
+
+**Margins (criterion 6).** The forecast benefit closest to the threshold is
+-2.2e-04 from it; the action objective closest to the
+acceptance threshold is -5.6e-05 from it. Both are about ten
+orders of magnitude above the agreement level.
+
+**Side effects.** 501 input files and `git status`
+unchanged; only `result.json` written.
+
+**Cost (reported).** 32.8 s and 548 MB for the 54-solve track in one process,
+against 6 min 23 s for the same track in the host reproduction of the
+five-track campaign. Not an end-to-end campaign comparison: the reproduction
+ran four other tracks in parallel and copied Measurement Sets.

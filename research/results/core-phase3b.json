@@ -1,0 +1,163 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase3b.md",
+ "protocol_commit": "5e7d6f4",
+ "status": "implemented; measured: all gated criteria pass as frozen against the archive and the host reproduction",
+ "run_dir": "outputs/core-phase3b-20261029-01",
+ "result_sha256": "bb1a928895115b761d4552ecb7f0f7baaebb00451266f6624d02797f676a5f94",
+ "against_archive_projection": {
+  "classes": {
+   "exact": {
+    "compared": 1875,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 1239,
+    "max_rel": 1.3809857515612266e-14
+   },
+   "difference": {
+    "compared": 102,
+    "max_rel": 7.605988446777599e-10
+   }
+  },
+  "failures": 0,
+  "excluded": 113
+ },
+ "against_host_reproduction": {
+  "classes": {
+   "exact": {
+    "compared": 2379,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 1599,
+    "max_rel": 1.4001641899149142e-14
+   },
+   "reported": {
+    "compared": 144,
+    "max_rel": 0.3333333333333329
+   },
+   "difference": {
+    "compared": 102,
+    "max_rel": 7.605988446777599e-10
+   }
+  },
+  "failures": 0,
+  "excluded": 113
+ },
+ "max_abs_benefit_difference": 4.440892098500626e-16,
+ "reported_only_abs_max": {
+  "baseline_projected_score_norm": 3.357955055002182e-11,
+  "gauge_null_relative": 1.4140451660311718e-16
+ },
+ "selected": {
+  "clean": {
+   "residual": [
+    null,
+    null
+   ],
+   "tv": [
+    null,
+    null
+   ],
+   "random": [
+    null,
+    null
+   ],
+   "detrended": [
+    null,
+    null
+   ],
+   "physics_two_confirmation": [
+    null,
+    null
+   ],
+   "full_union_reference": [
+    null,
+    null
+   ]
+  },
+  "time-burst-seed107": {
+   "residual": [
+    null,
+    null
+   ],
+   "tv": [
+    null,
+    null
+   ],
+   "random": [
+    null,
+    null
+   ],
+   "detrended": [
+    null,
+    null
+   ],
+   "physics_two_confirmation": [
+    null,
+    null
+   ],
+   "full_union_reference": [
+    null,
+    null
+   ]
+  },
+  "time-burst-seed109": {
+   "residual": [
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1"
+   ],
+   "tv": [
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1"
+   ],
+   "random": [
+    null,
+    null
+   ],
+   "detrended": [
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1"
+   ],
+   "physics_two_confirmation": [
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1"
+   ],
+   "full_union_reference": [
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1",
+    "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1"
+   ]
+  }
+ },
+ "confirmation_ids": [
+  [],
+  [],
+  [
+   "c17bf4f649f9d573ef81d63672564078d9810c7ec79a1e6b470e79ce069527b1"
+  ]
+ ],
+ "solves": 54,
+ "margins": {
+  "forecasts": 51,
+  "forecast_benefit_minus_margin_closest_to_zero": -0.0002187250329842284,
+  "actions": 51,
+  "action_threshold_minus_objective_closest_to_zero": -5.592908874985092e-05
+ },
+ "side_effects": {
+  "track": "prospective",
+  "input_files_checked": 501,
+  "inputs_unchanged": true,
+  "git_status_unchanged": true,
+  "run_dir_files": [
+   "result.json"
+  ],
+  "only_result_written": true
+ },
+ "cost": {
+  "core_track_wall_seconds": 32.77,
+  "core_track_max_rss_mb": 548,
+  "reproduced_track_in_campaign_seconds": 383
+ },
+ "novelty": "reimplementation only; matched-quality runtime reduction, no scientific result changes"
+}

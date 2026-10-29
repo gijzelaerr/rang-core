@@ -1,5 +1,13 @@
 # Rang research state
 
+Core phase 3b, 2026-10-29 (implemented; measured: all gated criteria pass as
+frozen). The prospective track runs on the Rust core
+(`rangtoy.core_prospective`, `examples/run_core_campaign.py`) in 32.8 s with
+54 solves; every decision equals the archive and the host reproduction;
+floats agree to 1.4e-14. Run `outputs/core-phase3b-20261029-01`, archive
+`results/core-phase3b.json`. Next: phase 3c (signal track) needs a Rust
+point/Gaussian predictor, which is also the predictor step of phase 1.
+
 Core phase 3, 2026-10-29 (implemented; measured). The injection campaign
 runs on the Rust core (`rangtoy.core_workflow`, `rangtoy.core_injections`,
 `examples/run_core_injections.py`) from the prepared host reproduction, with
