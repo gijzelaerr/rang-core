@@ -13,7 +13,7 @@ cabs:
     flavour: python
     command: rangtoy.core_cli.compare
     inputs:
-      stage: {dtype: str, required: true, choices: [injections, actions, trend, prospective, signal]}
+      stage: {dtype: str, required: true, choices: [injections, actions, trend, prospective, signal, imaging]}
       result: {dtype: File, required: true}
       oracle: {dtype: File, required: true}
       receipt: {dtype: str, required: true}

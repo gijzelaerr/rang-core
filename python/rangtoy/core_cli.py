@@ -56,6 +56,7 @@ COMPARATORS = {
     "prospective": "compare_core_prospective.py",
     "signal": "compare_core_signal.py",
     "trend": "compare_core_trend.py",
+    "imaging": "compare_core_imaging.py",
 }
 TREND_GRID = (2, 32)
 TREND_ITERATIONS = 50
@@ -315,6 +316,17 @@ def environment(run_dir):
     return record
 
 
+def imaging(run_dir, archive_dir=None, export_dir=None):
+    """The imaging track replay on the core (task I, `rangtoy.core_imaging`)."""
+    from . import core_imaging
+
+    return core_imaging.run(
+        run_dir,
+        archive_dir=archive_dir or core_imaging.DEFAULT_ARCHIVE,
+        export_dir=export_dir or core_imaging.DEFAULT_EXPORT,
+    )
+
+
 def compare(stage, result, oracle, receipt, posthoc_slope_scale=False):
     """Run the stage's phase 3 comparator script unchanged; record its SHA256.
 
@@ -387,6 +399,11 @@ def _parser():
     p.add_argument("run_dir")
     p.add_argument("mirror_dir")
 
+    p = sub.add_parser("imaging", help="imaging track replay")
+    p.add_argument("run_dir")
+    p.add_argument("--archive-dir")
+    p.add_argument("--export-dir")
+
     p = sub.add_parser("environment", help="record the environment")
     p.add_argument("run_dir")
 
@@ -407,6 +424,7 @@ COMMANDS = {
     "trend-mirror": trend_mirror,
     "trend": trend,
     "environment": environment,
+    "imaging": imaging,
 }
 
 

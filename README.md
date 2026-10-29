@@ -143,7 +143,9 @@ quality/cost comparison, not further simulator expansion.
   (`rangtoy.core_ms`; python-casacore is still needed to write tables and
   for the oracle). Reports: `research/core-*.md`.
 - `recipes/`: frozen Stimela2 recipes beside core-native `core-*.yaml` ones
-  driven by `rang-core` (`python -m rangtoy.core_cli`), which need no QuartiCal.
+  (phase 3 stages and the imaging track) driven by `rang-core`
+  (`python -m rangtoy.core_cli`), which need no QuartiCal. Stimela 2.1.4 needs
+  a Python 3.13 environment; its native backend fails on 3.14.
 - `python/rangtoy/`: Python interfaces and JAX inference/audit implementations.
 - `examples/` and `tests/`: reproducible experiments and regression tests.
 - `research/`: derivations, reports and compact result archives.

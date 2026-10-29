@@ -1,5 +1,21 @@
 # Rang research state
 
+Core task I (wave 2), 2026-10-29 (implemented; measured). The imaging track
+replays on the core (`rangtoy.core_imaging`, `rang-core imaging`,
+`recipes/core-imaging.yaml`): the fifteen archived jobs are imaged from the
+checkpoints with `core_ms`, `core_weights` and `core_grid` and the unedited
+`flagging_imaging` algebra, no WSClean, container or python-casacore. Against
+`results/gain-tv-next-imaging.json` and the host reproduction: weight sums
+1.4e-15, dirty 6.1e-7 and PSF 4.2e-7 of peak, template fluxes 1.4e-7, response
+fractions 1.3e-7 (82 % of task A's 1.6e-7), closures 7.4e-9 Jy/beam, 532 exact
+fields; 62 s for the family (about 2.5× single-threaded WSClean inversion).
+Criterion 8 failed as frozen on its git clause because the operator edited
+tracked files during the run (not the driver); the first Stimela run failed as
+frozen because Stimela 2.1.4 raises "There is no current event loop" on Python
+3.14, and passes after a labelled environment step on a 3.13 venv. Archive
+`results/core-i-imaging-replay.json` (`core-i-imaging-replay.md`). Next: task
+J (PyO3/maturin packaging), then task K once the licence answer is in.
+
 Wave 1 merged, 2026-10-29 (implemented; measured). The eight parallel
 sessions of `core-parallel-plan.md` ran in WSL worktrees on branches
 `core/<slug>` from `9e12326` and were merged onto main one at a time in the

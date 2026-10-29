@@ -1,8 +1,8 @@
 # Rang core: parallel work plan and handoff
 
 Written 2026-10-30 as the handoff before clearing the coordinating session.
-Status: **wave 1 merged** 2026-10-29 (all eight tasks done; outcomes in
-STATE.md and `core-<slug>.md`); wave 2 next. Read
+Status: **wave 1 and wave 2 task I merged** 2026-10-29 (outcomes in
+STATE.md and `core-<slug>.md`); J next, K after the licence answer. Read
 this, [STATE.md](STATE.md) and [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9 first.
 
