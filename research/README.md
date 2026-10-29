@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: [phase 3b](core-phase3b.md), the prospective track on the
+Rust core, has a frozen protocol (proposed; no driver code yet). The signal
+track waits for a Rust component predictor (phase 3c).
+
 New, 2026-10-29: [phase 3 of the core port](core-phase3.md) runs the injection
 campaign (49 solves, six injected cases, the TV-guided policy grid) entirely
 on the Rust core, with no Measurement Set or container, in 25 s against 296 s
