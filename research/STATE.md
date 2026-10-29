@@ -72,10 +72,32 @@ CARACAL strategy sources re-fetched at revision `8f7bb363` into
 `outputs/caracal-strategy-inputs-8f7bb363/`: all nine files match
 `results/caracal-strategies.json` in SHA256 and size.
 Images rebuilt natively: sky, comparators, parallel, response and next.
-Not yet rerun: the five-track `run-next.sh` campaign and `run-imaging.sh`.
-Both need `rang-flagging-next-imaging`, built on `tools/flagging/imaging/Dockerfile`.
-That Dockerfile uses a BuildKit heredoc `COPY`. This host's Docker 28.3.3 has
-only the legacy builder until the buildx plugin is installed.
+`tools/flagging/imaging/Dockerfile` uses a BuildKit heredoc `COPY`, so imaging
+and next-imaging need buildx. This host uses the official buildx v0.37.2 user
+plugin (`~/.docker/cli-plugins`, release checksum verified):
+`docker buildx build --load --platform linux/amd64 -f tools/flagging/<d>/Dockerfile -t rang-flagging-<d>:local .`
+for `imaging` then `next-imaging`.
+
+| Stage (archive) | Fresh run | Exact fields | Worst float rel | Wall time |
+| --- | --- | --- | --- | --- |
+| Corrected imaging (`gain-tv-next-imaging.json` raw_result) | `tv-next-imaging-wsl-20261029-01` | 652 equal except allocated bytes | 2.2e-15 over 394 science floats | 36 s |
+| Five-track trend (`gain-tv-next-trend.json`) | `tv-next-wsl-20261029-01/experiments/trend` | 1016 equal | 1.9e-15 | 436 s (whole campaign) |
+| Prospective (`gain-tv-next-prospective.json` projection) | `.../prospective` | 1909 equal except allocated bytes | 1.5e-11 | |
+| Signal guard (`gain-tv-next-signal.json`) | `.../signal` | 412 equal except allocated bytes | 1.7e-11 | |
+| Provenance inspection (`gain-tv-next-provenance.json`) | `.../provenance` | 939 equal | exact | |
+| In-campaign imaging (`gain-tv-next-imaging.json`) | `.../imaging` | 652 equal except allocated bytes | 2.2e-15 | |
+
+The paired dirty-image figure `dirty-response.png` is byte-identical to the
+archived one (SHA256 `8e2951ef…9c40`). FITS and whole-MS backup digests differ
+because those files embed per-run headers and copies. Excluded: near-zero
+values below 1e-12 (template cross-terms, pixel-MSE floors) and float64→complex64
+rounding audits. The provenance inspection matching exactly also validates the
+re-fetched provenance content. Unlike the original 2026-09-24 master
+(imaging CLI failure, no gather), this fresh `run-next.sh` completes all five
+tracks and the top-level gather with the corrected code. That is a
+reproduction of the corrected strategy, not a new scientific result; no
+threshold, setting or source changed. Every stage of the published five-track
+evidence chain is now reproduced on this host from re-fetched public inputs.
 
 FINAL CHECKED PUBLICATION READY2026-09-24 10:24UTC:
 654Python(no skips)/19RustPASS,releasebuild/Clippy-Dwarnings/cargoformat,
