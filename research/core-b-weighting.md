@@ -118,6 +118,21 @@ values and per-visibility weights are compared bit-exactly against a NumPy
 float32 oracle of the formulas in items 3 and 8. Dirty/PSF reproduction uses
 the phase 4 gate, 1e-6 Jy/beam absolute, with the measured maximum reported.
 
+## Precondition result (measured 2026-10-30, before core code)
+
+Oracle run: 21 WSClean inversions (15 jobs, 2 repeats, 2 uniform, 2 natural)
+in `outputs/core-b-20261030-01` (33.4 s inside the container, 34.2 s with
+`docker run`; 1.3–1.8 s per WSClean call, 0.11–0.16 s per MS copy and
+checkpoint write, 0.04–0.24 s per export). WSClean binary SHA256
+`1fd0ced9…671b8a`, equal to the archive's receipt. The flag had to go before
+the MS argument; the first attempt put it last and WSClean read it as a table
+name. `compare_core_weights.py --oracle-only` (`precondition.json`): every
+rerun dirty and PSF image is pixel-identical to the archive (max |Δ| = 0),
+every header sum identical, both repeats identical in weights and pixels
+(spread 0), and the column structure holds on all 21 runs (XX = YY, XY/YX
+zero, out-of-range channels zero, the 56 autocorrelation rows zero, 84 rows
+selected). Criterion 1 is met; the tolerance is frozen above.
+
 ## Acceptance criteria (frozen)
 
 1. **Reproduction.** Every rerun dirty and PSF image equals the archived one
