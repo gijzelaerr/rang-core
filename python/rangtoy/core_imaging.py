@@ -13,13 +13,27 @@ The comparator half (``classify_replay``, ``compare_replay``,
 before the protocol was frozen; the driver half (``run``) came after.
 """
 
+import argparse
+import json
 import math
+import subprocess
+import time
+from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
 
-from .flagging_imaging import IMAGE_CLOSURE_JY
+from . import core, core_grid, core_ms, core_weights, flagging_imaging
+from .flagging_imaging import (
+    IMAGE_CLOSURE_JY,
+    SETTINGS,
+    image_diagnostics,
+    image_geometry,
+    linear_image_fit,
+)
 from .imaging_sensitivity import FITTED_JOBS, JOBS, ROLES, UNIT_JOBS
+
+ROOT = Path(__file__).resolve().parents[2]
 
 CHANNELS = (1024, 3072)
 TEST_SAMPLES = 9169
@@ -317,18 +331,444 @@ def pixel_comparison(reference_dir, candidate_dir, labels=JOBS):
     }
 
 
+# ---------------------------------------------------------------------------
+# Driver (written after the protocol was frozen in 80d7523).
+
+GRID = {
+    "width": SIZE,
+    "height": SIZE,
+    "scale_arcsec": float(SETTINGS["scale_arcsec"]),
+    "w_layers": int(SETTINGS["w_layers"]),
+    "kernel_size": 7,
+    "oversampling": 1023,
+    "padding": 1.2,
+}
+ROBUST = float(SETTINGS["robust"])
+LINEAR_CORRELATIONS = (9, 10, 11, 12)
+DEFAULT_ARCHIVE = ROOT / "outputs" / "tv-next-imaging-wsl-20261029-01"
+DEFAULT_EXPORT = ROOT / "outputs" / "core-c-20261029-01" / "inputs"
+DEFAULT_ORACLE = ROOT / "research" / "results" / "gain-tv-next-imaging.json"
+MODULES = ("flagging_imaging", "core_grid", "core_weights", "core_ms", "core_imaging")
+
+
+def _sha256(path):
+    return sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _module_sha256():
+    return {name: _sha256(Path(__file__).with_name(f"{name}.py")) for name in MODULES}
+
+
+def _snapshot(root):
+    root = Path(root)
+    return {
+        str(p.relative_to(root)): [p.stat().st_size, p.stat().st_mtime_ns]
+        for p in sorted(root.rglob("*"))
+        if p.is_file() and p.name != "table.lock"
+    }
+
+
+def _git_status():
+    try:
+        return subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def _write_json(path, payload):
+    Path(path).write_text(json.dumps(payload, indent=1, sort_keys=True) + "\n")
+
+
+def read_ms_inputs(ms, channels=CHANNELS):
+    """What the imager needs from one archived backup Measurement Set, read
+    through the core: UVW in metres, the selected channels' WEIGHT_SPECTRUM
+    and frequencies, the phase centre, and the rows WSClean images (field 0,
+    cross-correlations, data description 0)."""
+    lo, hi = channels
+    with core_ms.open_table(ms) as table:
+        uvw = table.getcol("UVW")
+        weight_spectrum = table.getcol("WEIGHT_SPECTRUM")[:, lo:hi]
+        field = table.getcol("FIELD_ID")
+        antenna1, antenna2 = table.getcol("ANTENNA1"), table.getcol("ANTENNA2")
+        data_desc = table.getcol("DATA_DESC_ID")
+    with core_ms.open_table(Path(ms) / "SPECTRAL_WINDOW") as spw:
+        frequencies = spw.getcol("CHAN_FREQ")[0, lo:hi]
+    with core_ms.open_table(Path(ms) / "FIELD") as field_table:
+        phase_dir = field_table.getcol("PHASE_DIR")[0, 0]
+    with core_ms.open_table(Path(ms) / "POLARIZATION") as polarization:
+        corr_type = polarization.getcol("CORR_TYPE")[0]
+    if tuple(int(c) for c in corr_type) != LINEAR_CORRELATIONS:
+        raise ValueError("XX, XY, YX, YY correlations required")
+    return {
+        "UVW": np.ascontiguousarray(uvw, np.float64),
+        "WEIGHT_SPECTRUM": np.ascontiguousarray(weight_spectrum, np.float32),
+        "CHAN_FREQ": np.ascontiguousarray(frequencies, np.float64),
+        "PHASE_DIR": np.asarray(phase_dir, np.float64),
+        "rows": (field == 0) & (antenna1 != antenna2) & (data_desc == 0),
+        "nrow": len(uvw),
+    }
+
+
+def check_export(inputs, export):
+    """Equality of the core's reads with task C's python-casacore export."""
+    with np.load(export) as saved:
+        return {
+            key: bool(np.array_equal(inputs[key], saved[key]))
+            for key in ("UVW", "WEIGHT_SPECTRUM", "CHAN_FREQ", "PHASE_DIR")
+        }
+
+
+def image_job(inputs, checkpoint, grid=GRID, channels=CHANNELS, robust=ROBUST):
+    """One archived job on the core: Stokes I, Briggs weights, inversion.
+
+    `inputs` is `read_ms_inputs` of the job's backup MS and `checkpoint` the
+    archived `<label>-written.npz` (`CORRECTED_DATA`, `FLAG`, `FLAG_ROW`).
+    Returns the dirty image and PSF (`(height, width)`, FITS pixel order),
+    the gridder's counters and the stage times.
+    """
+    lo, hi = channels
+    start = time.perf_counter()
+    data = np.ascontiguousarray(checkpoint["CORRECTED_DATA"][:, lo:hi], np.complex64)
+    flags = np.ascontiguousarray(checkpoint["FLAG"][:, lo:hi], bool)
+    flag_rows = np.asarray(checkpoint["FLAG_ROW"], bool)
+    if data.shape != inputs["WEIGHT_SPECTRUM"].shape or len(flag_rows) != len(data):
+        raise ValueError("checkpoint columns do not match the backup MS")
+    sample, weight = core_weights.stokes_i(data, inputs["WEIGHT_SPECTRUM"], flags)
+    padded = core_weights.padded_size(grid["width"], grid["padding"])
+    padded_height = core_weights.padded_size(grid["height"], grid["padding"])
+    imaging = core_weights.imaging_weights(
+        inputs["UVW"],
+        core_weights.wsclean_wavelengths(inputs["CHAN_FREQ"]),
+        weight,
+        inputs["rows"],
+        mode="briggs",
+        robust=robust,
+        width=padded,
+        height=padded_height,
+        pixel_scale=core_weights.pixel_scale_radians(grid["scale_arcsec"]),
+        return_grid=False,
+    )
+    # WSClean's row selection and FLAG_ROW: unselected rows carry a zero
+    # imaging weight already; the gridder's reader skips flagged rows.
+    gridder_weight = weight.copy()
+    gridder_weight[flag_rows] = 0.0
+    weighted = time.perf_counter()
+    products = core_grid.invert(
+        inputs["UVW"],
+        inputs["CHAN_FREQ"],
+        sample,
+        gridder_weight,
+        imaging["weights"],
+        **grid,
+    )
+    gridded = time.perf_counter()
+    products["imaging_weight_sums"] = imaging["sums"]
+    products["seconds"] = {
+        "stokes_and_weights": weighted - start,
+        "grid": gridded - weighted,
+    }
+    return products
+
+
+def _fits_header(inputs, stats, grid, robust):
+    header = core_grid.wcs_header(
+        inputs["PHASE_DIR"],
+        grid["width"],
+        grid["height"],
+        grid["scale_arcsec"],
+        inputs["CHAN_FREQ"],
+    )
+    extra = {
+        "WSCDATAC": "CORRECTED_DATA",
+        "WSCWEIGH": f"Briggs'({robust})",
+        "WSCNITER": 0,
+        "WSCNWLAY": int(stats["n_w_layers"]),
+        "WSCVWSUM": float(stats["visibility_weight_sum"]),
+        "WSCIMGWG": float(stats["image_weight"]),
+        "WSCNORMF": float(stats["image_weight"]),
+        "WSCNVIS": int(stats["gridded_count"]),
+        "WSCENVIS": int(stats["gridded_count"]),
+        "WSCGKRNL": int(grid["kernel_size"]),
+    }
+    return header, extra
+
+
+def _archive_weight_check(archive_header, stats):
+    """Criterion 1 against the archived FITS header of the same job."""
+    checks = {}
+    for key, value in (
+        ("WSCVWSUM", stats["visibility_weight_sum"]),
+        ("WSCIMGWG", stats["image_weight"]),
+        ("WSCNORMF", stats["image_weight"]),
+    ):
+        expected = float(archive_header[key])
+        checks[key] = {
+            "core": float(value),
+            "archive": expected,
+            "relative_difference": abs(value - expected) / abs(expected),
+        }
+    checks["WSCNVIS"] = {
+        "core": int(stats["gridded_count"]),
+        "archive": int(archive_header["WSCNVIS"]),
+        "equal": int(stats["gridded_count"]) == int(archive_header["WSCNVIS"]),
+    }
+    checks["pass"] = checks["WSCNVIS"]["equal"] and all(
+        checks[k]["relative_difference"] <= TOLERANCES["weight_sums_relative"]
+        for k in ("WSCVWSUM", "WSCIMGWG", "WSCNORMF")
+    )
+    return checks
+
+
+def run(run_dir, archive_dir=DEFAULT_ARCHIVE, export_dir=DEFAULT_EXPORT):
+    """The fifteen archived inversions on the core; `result.json` in the
+    archive's raw layout plus the core's provenance, `side-effects.json`,
+    and `images/<label>-{dirty,psf}.fits`."""
+    run_dir, archive, export = Path(run_dir), Path(archive_dir), Path(export_dir)
+    if run_dir.exists():
+        raise FileExistsError(f"run directory exists: {run_dir}")
+    if not (archive / "checkpoints").is_dir() or not (archive / "backups").is_dir():
+        raise FileNotFoundError(f"archived imaging run required: {archive}")
+    if not export.is_dir():
+        raise FileNotFoundError(f"task C export for the read check: {export}")
+    started = time.perf_counter()
+    snapshot_before = _snapshot(archive)
+    status_before = _git_status()
+    run_dir.mkdir(parents=True)
+    (run_dir / "images").mkdir()
+    inputs, export_checks = {}, {}
+    read_seconds = {}
+    for role in ("response", "caracal"):
+        t0 = time.perf_counter()
+        inputs[role] = read_ms_inputs(archive / "backups" / f"{role}-input.ms")
+        read_seconds[role] = time.perf_counter() - t0
+        export_checks[role] = check_export(inputs[role], export / f"{role}-common.npz")
+        if not all(export_checks[role].values()):
+            raise RuntimeError(f"{role}: core reads differ from the export")
+    records, all_images = {}, {}
+    for label in JOBS:
+        job_start = time.perf_counter()
+        role = json.loads(
+            (archive / "checkpoints" / f"{label}-result.json").read_text()
+        )["role"]
+        if role != ROLES[label]:
+            raise RuntimeError(f"{label}: archived role {role} unexpected")
+        checkpoint_path = archive / "checkpoints" / f"{label}-written.npz"
+        with np.load(checkpoint_path) as saved:
+            checkpoint = {k: saved[k] for k in saved.files}
+        products = image_job(inputs[role], checkpoint)
+        stats = products["stats"]
+        header, extra = _fits_header(inputs[role], stats, GRID, ROBUST)
+        t0 = time.perf_counter()
+        for kind in ("dirty", "psf"):
+            core_grid.write_fits(
+                run_dir / "images" / f"{label}-{kind}.fits",
+                products[kind],
+                header,
+                extra,
+            )
+        written = time.perf_counter()
+        # The frozen reader of the archived driver: float32 FITS pixels,
+        # geometry and header subset, exactly as the archive was measured.
+        images, headers = flagging_imaging._read_images(run_dir / "images" / label)
+        geometry = image_geometry(headers["dirty"])
+        if geometry != image_geometry(headers["psf"]):
+            raise RuntimeError("dirty image/PSF WCS mismatch")
+        _, archive_header = read_fits(archive / "images" / f"{label}-dirty.fits")
+        all_images[label] = images
+        records[label] = {
+            "role": role,
+            "checkpoint_sha256": _sha256(checkpoint_path),
+            "stats": stats,
+            "imaging_weight_sums": products["imaging_weight_sums"],
+            "weight_check_vs_archive_fits": _archive_weight_check(
+                archive_header, stats
+            ),
+            "headers": headers,
+            "image_geometry": geometry,
+            "FITS_sha256": {
+                kind: _sha256(run_dir / "images" / f"{label}-{kind}.fits")
+                for kind in ("dirty", "psf")
+            },
+            "unsupported_original_TEST_samples": int(
+                TEST_SAMPLES - int(np.asarray(checkpoint["support"]).sum())
+            ),
+            "diagnostics": image_diagnostics(images["dirty"]),
+            "selected_for_policy_or_deployment": False,
+            "seconds": {
+                **products["seconds"],
+                "fits": written - t0,
+                "total": time.perf_counter() - job_start,
+            },
+        }
+        print(
+            f"{label:28s} {role:8s} grid {products['seconds']['grid']:6.2f}s "
+            f"NVIS {stats['gridded_count']} "
+            f"IMGWG rel {records[label]['weight_check_vs_archive_fits']['WSCIMGWG']['relative_difference']:.1e}",
+            flush=True,
+        )
+    basis = np.stack([all_images[job]["dirty"] for job in UNIT_JOBS])
+    reference_fit = linear_image_fit(all_images["fixedG0-reference"]["dirty"], basis)
+    psf_reference = all_images["fixedG0-reference"]["psf"]
+    closures = {}
+    for name in ("omitted", "complete"):
+        delta = (
+            all_images[f"{name}-total"]["dirty"]
+            - all_images[f"{name}-direct"]["dirty"]
+            - all_images[f"{name}-adaptation"]["dirty"]
+        )
+        closures[name] = float(np.max(np.abs(delta)))
+    for label, record in records.items():
+        record["PSF_linf_difference_vs_fixedG0"] = float(
+            np.max(np.abs(all_images[label]["psf"] - psf_reference))
+        )
+        if label in FITTED_JOBS or label in UNIT_JOBS:
+            fit = linear_image_fit(all_images[label]["dirty"], basis)
+            record["known_family_dirty_fit"] = fit
+            record["conditional_response_vs_fixedG0"] = (
+                (
+                    np.asarray(fit["coefficients_jy"])
+                    / reference_fit["coefficients_jy"]
+                ).tolist()
+                if fit["available"]
+                and reference_fit["available"]
+                and label in FITTED_JOBS
+                else None
+            )
+    seconds_total = time.perf_counter() - started
+    result = {
+        "status": "core replay of the archived dirty-image family; not deconvolved/blind astronomy",
+        "settings": SETTINGS,
+        "grid": GRID,
+        "channels": list(CHANNELS),
+        "jobs": records,
+        "reference_fit": reference_fit,
+        "dirty_image_closures_jy_per_beam": closures,
+        "actual_WSClean_inversions": 0,
+        "actual_core_inversions": len(records),
+        "new_QC_solves": 0,
+        "policy_selection": False,
+        "exported_or_deployable_MS": False,
+        "provenance": {
+            "archive": str(archive),
+            "export": str(export),
+            "export_checks": export_checks,
+            "core_library_sha256": _sha256(core.library_path()),
+            "module_sha256": _module_sha256(),
+            "ms_read_seconds": read_seconds,
+        },
+        "seconds_total": seconds_total,
+        "limitations": [
+            "replay of checkpointed CORRECTED_DATA/FLAG columns; no gain solve, correction or injection is recomputed",
+            "WSClean's Gaussian beam fit (BMAJ/BMIN/BPA) is not ported; no restored image",
+            "the archived family's own limitations apply unchanged",
+        ],
+    }
+    _write_json(run_dir / "result.json", result)
+    snapshot_after = _snapshot(archive)
+    audit = {
+        "stage": "imaging",
+        "inputs": [str(archive), str(export)],
+        "input_files_checked": len(snapshot_before),
+        "inputs_unchanged": snapshot_before == snapshot_after,
+        "git_status_unchanged": status_before == _git_status(),
+        "run_dir_files": sorted(p.name for p in run_dir.iterdir()),
+        "images_written": len(list((run_dir / "images").iterdir())),
+        "seconds": seconds_total,
+    }
+    _write_json(run_dir / "side-effects.json", audit)
+    print(json.dumps({"stage": "imaging", "seconds": seconds_total, **audit}))
+    return result
+
+
+def compare(result, oracle, receipt, candidate_images=None, reference_images=None):
+    """Compare a replay with an oracle (the archive or the host reproduction)
+    and, when image directories are given, the pixels; write the receipt and
+    exit nonzero on failure (the recipe's compare cab)."""
+    archived = json.loads(Path(oracle).read_text())
+    archived = archived.get("raw_result", archived)
+    replay = json.loads(Path(result).read_text())
+    replay = replay.get("raw_result", replay)
+    report = compare_replay(archived, replay)
+    report["result"], report["oracle"] = str(result), str(oracle)
+    if candidate_images is not None or reference_images is not None:
+        if candidate_images is None or reference_images is None:
+            raise ValueError("both image directories are required")
+        report["pixels"] = pixel_comparison(reference_images, candidate_images)
+        report["passed"] = bool(report["passed"] and report["pixels"]["passed"])
+    report["comparator_sha256"] = _sha256(__file__)
+    Path(receipt).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    print(
+        json.dumps(
+            {
+                "passed": report["passed"],
+                "failures": len(report["failures"]),
+                "classes": {
+                    k: [v["compared"], v["worst"]] for k, v in report["classes"].items()
+                },
+                "pixels": report.get("pixels", {}).get("summary"),
+            }
+        )
+    )
+    if not report["passed"]:
+        raise SystemExit(1)
+    return report
+
+
+def _parser():
+    parser = argparse.ArgumentParser(
+        prog="python -m rangtoy.core_imaging",
+        description="The archived imaging track on the Rust core, without WSClean.",
+    )
+    sub = parser.add_subparsers(dest="stage", required=True)
+    p = sub.add_parser("run", help="image the fifteen archived jobs")
+    p.add_argument("run_dir")
+    p.add_argument("--archive-dir", default=str(DEFAULT_ARCHIVE))
+    p.add_argument("--export-dir", default=str(DEFAULT_EXPORT))
+    p = sub.add_parser("compare", help="compare a replay with an oracle")
+    p.add_argument("result")
+    p.add_argument("receipt")
+    p.add_argument("--oracle", default=str(DEFAULT_ORACLE))
+    p.add_argument("--images", nargs=2, metavar=("CANDIDATE", "REFERENCE"))
+    return parser
+
+
+def main(argv=None):
+    args = _parser().parse_args(argv)
+    if args.stage == "run":
+        return run(args.run_dir, args.archive_dir, args.export_dir)
+    images = args.images or (None, None)
+    return compare(args.result, args.oracle, args.receipt, *images)
+
+
+if __name__ == "__main__":
+    main()
+
+
 __all__ = [
     "CHANNELS",
     "FITTED_JOBS",
+    "GRID",
     "JOBS",
     "ROLES",
     "SIZE",
     "TEST_SAMPLES",
     "TOLERANCES",
     "UNIT_JOBS",
+    "check_export",
     "classify_replay",
+    "compare",
     "compare_replay",
+    "image_job",
+    "main",
     "pixel_comparison",
     "pixel_record",
     "read_fits",
+    "read_ms_inputs",
+    "run",
 ]

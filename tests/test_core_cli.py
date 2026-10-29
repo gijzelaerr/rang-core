@@ -129,6 +129,7 @@ def test_core_recipes_sit_beside_the_frozen_ones_and_never_name_quartical():
     assert [p.name for p in CORE_RECIPES] == [
         "core-actions.yaml",
         "core-cabs.yaml",
+        "core-imaging.yaml",
         "core-injections.yaml",
         "core-prospective.yaml",
         "core-signal.yaml",
@@ -163,6 +164,11 @@ def test_core_recipe_cabs_match_cli_signatures():
             body = match.group("body")
             command = re.search(r"command: (\S+)", body).group(1)
             module, function = command.rsplit(".", 1)
+            if recipe.name == "core-imaging.yaml":
+                # Task I's cabs call rangtoy.core_imaging and are checked by
+                # tests/test_core_imaging.py (research/core-i-imaging-replay.md).
+                assert module == "rangtoy.core_imaging"
+                continue
             assert module == "rangtoy.core_cli"
             parameters = inspect.signature(getattr(core_cli, function)).parameters
             names = re.findall(r"\n      ([\w]+): \{", body)

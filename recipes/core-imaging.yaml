@@ -1,0 +1,61 @@
+# Core-native imaging track: the fifteen archived dirty inversions on the
+# Rust core (imaging weights, w-stacking gridder, Measurement Set reader),
+# no WSClean, no container, no MS copy. Sits beside the frozen
+# recipes/tv-flagging-imaging.yaml and never replaces it
+# (research/core-i-imaging-replay.md).
+_include: core-cabs.yaml
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+cabs:
+  rang-core-imaging:
+    flavour: python
+    command: rangtoy.core_imaging.run
+    inputs:
+      run_dir: {dtype: str, required: true}
+      archive_dir: {dtype: Directory, required: true}
+      export_dir: {dtype: Directory, required: true}
+  rang-core-imaging-compare:
+    info: Compare a core replay with an archived imaging result field by field and, when image directories are given, pixel by pixel; fails the recipe on any difference outside task A's tolerances.
+    flavour: python
+    command: rangtoy.core_imaging.compare
+    inputs:
+      result: {dtype: File, required: true}
+      oracle: {dtype: File, required: true}
+      receipt: {dtype: str, required: true}
+      candidate_images: {dtype: Directory, required: false}
+      reference_images: {dtype: Directory, required: false}
+
+core-imaging:
+  info: The archived fifteen-job dirty-image family on the Rust core from the archived checkpoints and backup Measurement Sets, compared with the archive by the task I comparator.
+  inputs:
+    run-dir: {dtype: str, required: true}
+    archive-dir: {dtype: Directory, required: true, info: "The archived imaging run with backups/, checkpoints/ and images/; read only."}
+    export-dir: {dtype: Directory, required: true, info: "Task C's python-casacore export (<role>-common.npz) used to check the core's reads; read only."}
+    archive: {dtype: File, default: research/results/gain-tv-next-imaging.json}
+  outputs:
+    results: {dtype: File, implicit: '{recipe.run-dir}/result.json', path_policies: {mkdir_parent: false}}
+    side-effects: {dtype: File, implicit: '{recipe.run-dir}/side-effects.json', path_policies: {mkdir_parent: false}}
+    environment: {dtype: File, implicit: '{recipe.run-dir}/environment.json', path_policies: {mkdir_parent: false}}
+    comparison: {dtype: File, implicit: '{recipe.run-dir}/compare-archive.json', path_policies: {mkdir_parent: false}}
+  steps:
+    image:
+      cab: rang-core-imaging
+      params:
+        run_dir: =recipe.run-dir
+        archive_dir: =recipe.archive-dir
+        export_dir: =recipe.export-dir
+    environment:
+      cab: rang-core-environment
+      params:
+        run_dir: =recipe.run-dir
+    compare:
+      cab: rang-core-imaging-compare
+      params:
+        result: '{recipe.run-dir}/result.json'
+        oracle: =recipe.archive
+        receipt: '{recipe.run-dir}/compare-archive.json'
+        candidate_images: '{recipe.run-dir}/images'
+        reference_images: '{recipe.archive-dir}/images'
+DEFAULT: core-imaging
