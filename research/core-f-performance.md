@@ -132,9 +132,66 @@ as frozen; or a documented null result (the profile, what was tried, the
 numbers). Failures of a criterion are recorded with their numbers; any step
 taken after a failure is labelled post-hoc.
 
+## Baseline (frozen, measured 2026-10-29 before any kernel change)
+
+Run `outputs/core-f-20261029-01/baseline.json` by
+`examples/bench_core_f.py baseline`, on the unchanged kernels of `9e12326`
+(protocol commit `48cad0f`), library built with `cargo +1.93`
+(SHA256 `19abe21c…`), Python 3.14.4, numpy 2.5.4, numcodecs 0.17.1 with
+c-blosc 1.21.7.dev. Load average 0.8–0.9 throughout (the sibling sessions
+were mostly idle at the time); every series has a median within 3% of its
+minimum. Note for every later comparison: numpy's OpenBLAS keeps eight
+spinning threads alive during the whole benchmark (17–18% of all perf
+samples, on other cores); they do not run on the measured thread but do
+occupy cores the siblings share.
+
+| Target | Measurement | Minimum | Median |
+| --- | --- | ---: | ---: |
+| Solver | LUNO, 50 iterations (archive 0.62–0.77 s) | 0.6125 s | 0.6224 s |
+| Solver | fixture clean case (archive 0.49 s) | 0.3984 s | 0.3991 s |
+| Blosc | 16 DATA tiles decoded in full, 3.28 GB, Rust | 1.917 s (1.71 GB/s) | 1.943 s |
+| Blosc | same, c-blosc through numcodecs, 1 thread | 0.513 s (6.39 GB/s) | 0.516 s |
+| Blosc | same, c-blosc, default 8 threads | 0.223 s | 0.226 s |
+| Blosc | block-selective ingest, 2048 blocks, 752 MB read, decode only (archive 1.29 s) | 0.725 s | 0.729 s |
+| Blosc | same, wall including file reads | 0.831 s | 0.849 s |
+| Survey | whole block (archive 0.73 s) | 0.739 s | 0.748 s |
+| Survey | of which `training_normals` (root crate) | 0.132 s | 0.133 s |
+| Survey | of which batched `eigvalsh` | 0.009 s | 0.009 s |
+| Survey | of which per-bin loop | 0.584 s | 0.587 s |
+| Survey | of which the 432 `anchored_response` calls inside the loop | 0.511 s | 0.513 s |
+
+Equality at baseline: solver flags identical to QuartiCal, gain entries
+3.34e-16 (LUNO) and 1.41e-15 (fixture), products 5.6e-16 and 2.8e-16,
+50 iterations, fraction 0.9833234067897558 (LUNO), as archived. All 68
+chunks equal the ingest oracle's SHA256; numcodecs and the Rust decoder
+produce identical bytes on every DATA tile. Survey 389 / 43 / 592 with the
+archived status keys. The snapshot hashes (gains, flags, selected rows,
+per-bin labels and statuses) are in `baseline.json`.
+
+**Baseline profile** (`perf record -F 2000`, release build with
+`CARGO_PROFILE_RELEASE_DEBUG=1` in `~/Build/tmp/20261029-rang-core-f`,
+samples bucketed by symbol address range; OpenBLAS spin threads excluded):
+
+- Solver: `solve::accumulate` 78% (the 4×4 `J^H W J` update, computed on a
+  Kronecker product with the identity, so three quarters of its complex
+  multiplications are by zero or one, plus a conjugate copy of the lower
+  triangle on every call), the rest of the row loop and conjugate gradients
+  17%.
+- Blosc: `decode_block_bytes` with the inlined byte-wise `unshuffle` 57%,
+  libc `memcpy`/`memmove` from the short LZ4 literal and match copies 22%,
+  the rest of `lz4_decompress` 20%.
+- Survey (one solve plus three survey passes): the root crate's Jacobi
+  eigen solver `rang_toy::linalg::eigen` 33% of all samples (two 32×32
+  decompositions per bin inside `rang_response_step`, 1.2 ms per call),
+  `response::normals` 8%, NumPy and Python 11%; the solve at the start of
+  the run accounts for the `solve::` samples.
+
 ## Measurement log
 
 | When | What | Wall | Note |
 | --- | --- | --- | --- |
 | 2026-10-29 | `uv venv` + `uv pip install -e .[pointing,beam,test] ruff numcodecs` (public PyPI) | 20.7 s | numpy 2.5.4 (archive 2.5.3), numcodecs 0.17.1 |
 | 2026-10-29 | `cargo +1.93 build --release` of `core/` (warm cache) | 1.9 s | `CARGO_BUILD_JOBS=4` |
+| 2026-10-29 | venv recreated on `/usr/bin/python3.14` (`uv venv -p`, same packages) | 1.4 s | uv cache warm; first venv had picked uv's 3.13 |
+| 2026-10-29 | `examples/bench_core_f.py baseline outputs/core-f-20261029-01` | 48.0 s | solve 7.3 s, blosc 34.7 s, survey 5.9 s; load 0.8–0.9 |
+| 2026-10-29 | perf record of solve (5 solves), blosc (16 tiles × 2), survey (3 passes) | 3.6 s, 5.5 s, 3.3 s | debug-symbol builds in `~/Build/tmp/20261029-rang-core-f` |
