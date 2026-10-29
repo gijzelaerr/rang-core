@@ -22,6 +22,9 @@ cargo fmt --check --manifest-path core/Cargo.toml
 git diff --check
 ```
 
+`bash tools/check-all.sh` runs all of the above with Rust 1.93 and reports
+PASS or FAIL per step.
+
 Supported hosts are Linux and macOS. Native Windows is not supported: the
 fresh-namespace, symlink and disk-budget guards rely on POSIX semantics, and 40
 tests fail there for that reason alone. On Windows, use a WSL2 Linux checkout on

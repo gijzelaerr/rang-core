@@ -737,6 +737,12 @@ before the next starts; a phase that fails its gate is reported, not skipped.
 | Total to phase 4, with cross-cutting work | 15.5–27 | | |
 | Total, all phases | 20.5–37 | | |
 
+Actual effort so far (measured, 2026-10-29): phases 1 and 2, including
+frozen protocols, validation harnesses and archives, took one working session
+rather than the estimated 6–11 weeks. The scope was rang’s settings only (one
+term, four correlations, one chunk), so the remaining estimates are still
+estimates, not measurements.
+
 With the cross-cutting row these totals agree with the component table in
 section 5 (12–22 weeks for the inner loop, 15–27 with the gridder).
 

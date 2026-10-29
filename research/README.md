@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: [phase 3 of the core port](core-phase3.md), the injection
+campaign run entirely on the Rust core, has a frozen protocol (proposed; no
+driver code yet).
+
 New, 2026-10-29: [phase 2 of the core port](core-phase2.md) is implemented and
 measured. A Rust port of the full-Jones complex solver of QuartiCal 0.2.7
 reproduces its gains on the fixture and on LUNO to 1.4e-15, with identical gain
