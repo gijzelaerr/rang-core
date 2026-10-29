@@ -11,11 +11,23 @@
 //! `complex` solver of QuartiCal 0.2.7 (`research/core-phase2.md`). Nothing
 //! here changes an archived result. `predict` ports the WSClean-format
 //! component predictor of codex-africanus 0.4.4 (`research/core-phase3c-a.md`).
+//! Wave 1 of `research/core-parallel-plan.md` adds `weights` (WSClean imaging
+//! weights and Stokes I), `grid` (the w-stacking gridder), `sumthreshold`
+//! (Tricolour strategies) and `ms` (a read-only Measurement Set reader), each
+//! with its own `ffi_*` module and research report.
 
 pub mod blosc;
 pub mod ffi;
+pub mod ffi_flag;
+pub mod ffi_grid;
+pub mod ffi_ms;
+pub mod ffi_weights;
 pub mod fused;
+pub mod grid;
 pub mod jones;
+pub mod ms;
 pub mod predict;
 pub mod robust;
 pub mod solve;
+pub mod sumthreshold;
+pub mod weights;

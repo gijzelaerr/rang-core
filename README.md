@@ -135,6 +135,15 @@ quality/cost comparison, not further simulator expansion.
 ## Repository guide
 
 - `src/`: Rust simulation, fitting and projection kernels.
+- `core/`: the Rust core loaded through ctypes (`rangtoy.core*`): fused
+  statistics, the QuartiCal-style solver, the component predictor, blosc
+  decoding, WSClean imaging weights and w-stacking gridder, the Tricolour
+  strategies (`rangtoy.core_flag`; `core/data/` carries Tricolour's static
+  masks under its BSD notice) and a read-only Measurement Set reader
+  (`rangtoy.core_ms`; python-casacore is still needed to write tables and
+  for the oracle). Reports: `research/core-*.md`.
+- `recipes/`: frozen Stimela2 recipes beside core-native `core-*.yaml` ones
+  driven by `rang-core` (`python -m rangtoy.core_cli`), which need no QuartiCal.
 - `python/rangtoy/`: Python interfaces and JAX inference/audit implementations.
 - `examples/` and `tests/`: reproducible experiments and regression tests.
 - `research/`: derivations, reports and compact result archives.
@@ -147,4 +156,6 @@ your option) any later version; see [LICENSE](LICENSE). The user chose GPL on
 2026-10-29 so that GPL-3 radio-astronomy tools such as WSClean and AOFlagger
 can be ported into the core. GPL-2-only upstreams cannot be combined with GPL-3
 code, so each upstream's exact licence is checked before porting it. Ported code keeps
-its upstream copyright notices.
+its upstream copyright notices. Tricolour 0.2.1 is treated as BSD-3-Clause on
+the strength of its `LICENSE` file (`research/core-d-tricolour.md`); Crystalball
+is GPL-2.0-only and is not ported.

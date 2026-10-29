@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+import pytest
 from rangtoy import core_grid
 
 C_LIGHT = 299792458.0
@@ -97,7 +98,7 @@ def test_wcs_header_and_fits_orientation(tmp_path):
     core_grid.write_fits(
         path, image, core_grid.wcs_header((0.1, 0.2), 6, 4, 8.0, frequencies)
     )
-    from astropy.io import fits
+    fits = pytest.importorskip("astropy.io.fits")
 
     with fits.open(str(path)) as hdus:
         back = hdus[0].data

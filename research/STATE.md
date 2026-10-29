@@ -1,16 +1,66 @@
 # Rang research state
 
-Wave 1 started, 2026-10-29 (implemented: sessions running; nothing merged).
-The eight parallel sessions of `core-parallel-plan.md` run in WSL worktrees
-`~/Worktrees/rang/core-<slug>` on branches `core/<slug>`, all cut from
-origin/main `9e12326`, with `outputs/` linked read-only to the main checkout:
-a-imaging-sensitivity, b-weighting, c-gridder, d-tricolour, e-ms-reader,
-f-performance, g-http-fetch, h-recipes. Each writes its own
-`research/core-<slug>.md` with a "For the coordinator" section; the
-coordinator merges one branch at a time onto main (F last, since it edits
-existing kernels), runs `tools/check-all.sh` and updates README and STATE.
-Wave 2 (I, J, K) waits for the merges. Full checks passed on main `9e12326`
-before this edit (668 Python tests, 19 + 18 Rust tests, 102 s pytest).
+Wave 1 merged, 2026-10-29 (implemented; measured). The eight parallel
+sessions of `core-parallel-plan.md` ran in WSL worktrees on branches
+`core/<slug>` from `9e12326` and were merged onto main one at a time in the
+order G, H, A, B, C, D, E, F (F last because it edits existing kernels), with
+each task's "For the coordinator" section applied in the merge commit. Every
+branch passed `tools/check-all.sh` once on its own (51–53 min each while eight
+suites shared the 16 cores). Next: wave 2 (I imaging replay on the core, J
+PyO3/maturin packaging, K the LUNO campaign, which needs the licence answer).
+
+Core task A, 2026-10-29 (implemented; measured): WSClean approximation
+sensitivity, 19 variants × 15 archived imaging jobs (kernel 5–9, oversampling
+511–2047, w-layers 1–256) in 552 s; all gated criteria pass. Proposed phase 4
+tolerances at one tenth of the smallest adjacent movement: dirty-image L∞
+8.8e-6 of peak, PSF L∞ 2.8e-6, template flux 4.7e-6 relative, response
+fraction 1.6e-7 absolute, weight sums 1e-9 (`core-a-imaging-sensitivity.md`).
+
+Core task B, 2026-10-29 (implemented; measured): `core/src/weights.rs`
+(`rangtoy.core_weights`) ports WSClean 3.6-1 Briggs, uniform and natural
+imaging weights and Stokes I formation, bit-identical to WSClean's
+`-store-imaging-weights` on all 19 oracle runs (`core-b-weighting.md`).
+
+Core task C, 2026-10-29 (implemented; measured): `core/src/grid.rs`
+(`rangtoy.core_grid`) ports the w-stacking gridder (Kaiser–Bessel 7, 1023×,
+w-layers, PSF, normalisation, FITS orientation). The frozen run failed because
+the reading missed WSClean's default `-padding 1.2`; after the labelled
+post-hoc fix the core matches WSClean's dirty images and PSFs on all fifteen
+jobs to at most 6.1e-7 of the peak, inside task A's 8.8e-6
+(`core-c-gridder.md`).
+
+Core task D, 2026-10-29 (implemented; measured): Tricolour 0.2.1 treated as
+BSD-3-Clause (LICENSE file; the `GPLv2` metadata string is unaccompanied),
+Crystalball GPL-2.0-only and not ported. `core/src/sumthreshold.rs`
+(`rangtoy.core_flag`) reproduces the four archived CARACAL controls flag for
+flag (run `-02`, after one post-hoc fix of the `flag_nans_zeros`
+accumulation); 4.2 s CPU per first-pass strategy against 1.2 s warm Numba plus
+74 s compilation. Archive `results/core-d-tricolour.json`
+(`core-d-tricolour.md`). The licence reading awaits confirmation by SARAO.
+
+Core task E, 2026-10-29 (implemented; measured): `core/src/ms.rs`
+(`rangtoy.core_ms`) reads casacore tables stored with StandardStMan and
+TiledStMan column-exactly against python-casacore on all 173 oracle columns of
+the fixture and LUNO Measurement Sets; python-casacore is still needed to
+write tables and for the oracle (`core-e-ms-reader.md`).
+
+Core task F, 2026-10-29 (implemented; measured): solver and blosc decoder
+faster with bit-identical results against the phase 2 and section 6 oracles
+(solver 1.5× fewer instructions and 1.7–1.8× faster at quiet load, decoder
+4.6× fewer instructions and 3.0–3.3× faster); the rank survey is a null
+result because its cost is the root crate's Jacobi eigensolver, not the core
+(`core-f-performance.md`).
+
+Core task G, 2026-10-29 (implemented; measured): the LUNO four-station slice
+fetched with HTTP range requests (`rangtoy.core_fetch`), 751.8 MB in 74.5 s
+against 4.87 GB in about 679 s whole-tile, all bytes hash-equal to the
+archive (`core-g-http-fetch.md`).
+
+Core task H, 2026-10-29 (implemented; measured): five core-native Stimela
+recipes (`recipes/core-*.yaml`) and `rang-core` (`python -m rangtoy.core_cli`)
+reproduce the phase 3 archives through Stimela and directly, in a venv without
+QuartiCal; two criteria failed as frozen (wall-time digests, docstring text)
+and pass under labelled post-hoc rules (`core-h-recipes.md`).
 
 Core section 6 prototype, 2026-10-29 (implemented; measured). Run as frozen
 from the LUNO zarr tiles with no MS (`examples/prototype_section6.py`, checker

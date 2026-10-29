@@ -2,10 +2,18 @@
 
 Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
-Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
+Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
-New, 2026-10-30: [parallel work plan and handoff](core-parallel-plan.md) for the
-remaining port (proposed).
+New, 2026-10-29: wave 1 of the [parallel work plan](core-parallel-plan.md) is
+merged: [A, WSClean approximation sensitivity and phase 4 tolerances](core-a-imaging-sensitivity.md);
+[B, imaging weights and Stokes I](core-b-weighting.md) bit-identical to WSClean;
+[C, the w-stacking gridder](core-c-gridder.md) within 6.1e-7 of the peak;
+[D, the Tricolour licence decision and SumThreshold port](core-d-tricolour.md)
+reproducing the CARACAL controls ([archive](results/core-d-tricolour.json));
+[E, a read-only Measurement Set reader](core-e-ms-reader.md), column-exact;
+[F, solver and blosc performance](core-f-performance.md) with identical results;
+[G, HTTP range fetch of the LUNO slice](core-g-http-fetch.md), 15 % of the bytes;
+[H, core-native Stimela recipes and CLI](core-h-recipes.md) without QuartiCal.
 
 New, 2026-10-29: the [section 6 prototype](core-section6.md) runs as frozen
 from the LUNO zarr tiles to the rank survey with no Measurement Set: a Rust

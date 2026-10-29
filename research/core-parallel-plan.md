@@ -1,8 +1,8 @@
 # Rang core: parallel work plan and handoff
 
 Written 2026-10-30 as the handoff before clearing the coordinating session.
-Status: **approved and started** 2026-10-29; wave 1 runs in worktrees
-`~/Worktrees/rang/core-<slug>` on branches `core/<slug>` (see STATE.md). Read
+Status: **wave 1 merged** 2026-10-29 (all eight tasks done; outcomes in
+STATE.md and `core-<slug>.md`); wave 2 next. Read
 this, [STATE.md](STATE.md) and [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9 first.
 

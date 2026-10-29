@@ -110,5 +110,37 @@ for the measurements. None of these has been sent anywhere.
   hold four stations' rows read 461 MB instead of 2,717 MB and decoded 512 of
   3136 blocks (`core-section6.md`). The same offsets would let a client fetch
   those byte ranges with HTTP range requests from the RATT bucket. Useful for
-  dask-ms or zarr readers that today fetch whole chunks; not raised, and the
-  range-request fetch itself is not yet measured.
+  dask-ms or zarr readers that today fetch whole chunks; not raised. Measured
+  2026-10-29 (`core-g-http-fetch.md`): the range-request fetch of the section
+  6 slice moved 15.4 % of the bytes in 11 % of the time. The bucket serves
+  single ranges only, so a reader wanting fewer requests needs coalescing,
+  not multi-range requests.
+
+## Wave 1 observations (2026-10-29; observed, not raised)
+
+- **Tricolour 0.2.1 licence metadata** (`core-d-tricolour.md`): the wheel
+  declares `License: GPLv2` but ships only a BSD-3-Clause `LICENSE`; the
+  string dates from the Poetry migration in PR #94. Crystalball 0.4.3 carries
+  the same metadata string with a real GPL-2 text. Worth a question to the
+  maintainers; rang treats Tricolour as BSD-3-Clause pending that answer.
+- **Tricolour compilation cost**: of the 302 s per archived native run, 300 s
+  is `ProgressBar(dt=300)` (noted above) and about 114 s of CPU is Numba
+  compilation: 75 s for `sum_threshold_flagger` and 39 s again for the
+  strategy step whose YAML gives `spike_width_time: 2` as an integer, which
+  makes Numba compile a second specialisation; the kernels themselves take
+  about 1.2 s warm. A persistent `NUMBA_CACHE_DIR` or floats in the shipped
+  YAML would remove most of it. `nanmean` of an all-flagged channel logs
+  "Mean of empty slice" on every call.
+- **WSClean 3.6-1 `CalculateMsLimits`** (`core-c-gridder.md`):
+  `gridding/msprovidercollection.cpp` computes the y bound from `u` instead
+  of `v`; the limits are unaffected for rang's jobs (measured).
+- **WSClean `-store-imaging-weights`** (`core-b-weighting.md`): the column is
+  written during both the PSF and the dirty passes with the same values, and
+  the flag must precede the MS argument on the command line (documented).
+- **Survey eigensolver** (`core-f-performance.md`): the rank survey's cost is
+  the root crate's classical Jacobi eigensolver in `src/response.rs`; LAPACK
+  does the 864 32×32 decompositions in 0.056 s against 0.51 s, so the survey
+  would drop from 0.73 s to about 0.3 s under its own equality protocol.
+  NumPy's OpenBLAS pool keeps eight spinning threads during the core's
+  single-threaded work (17–18 % of perf samples); `OPENBLAS_NUM_THREADS=1` in
+  the drivers would free them. Both are rang-side items, not upstream.
