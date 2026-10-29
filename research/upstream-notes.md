@@ -11,6 +11,16 @@ isolation), **filed** (issue or PR exists, with link).
 
 ## QuartiCal 0.2.7 (Numba 0.67.0)
 
+- **Verified: a persistent Numba cache removes most of the cost.** The same dry
+  solve run three times with `NUMBA_CACHE_DIR` on a mounted volume
+  (`outputs/numba-cache-20261029`, 3.9 MB):
+  - run 1: 29.2 s, of which 25.5 s graph execution;
+  - runs 2 and 3: 2.9 s, of which 0.27 s graph execution.
+
+  QuartiCal's caching works, so this is not an upstream bug. The fix belongs in
+  rang: mount a cache volume in the solve wrappers. The frozen campaign scripts
+  are hashed in their receipts, so the mount would go into new wrappers rather
+  than editing those scripts.
 - **Observed: JIT dominates small solves.** A 192-row, 4-station, 2048-channel
   solve with DATA = MODEL took 27 s. Of that, 23.9 s was "execute graph",
   although the solve converged immediately.

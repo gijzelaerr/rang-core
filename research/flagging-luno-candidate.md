@@ -147,6 +147,28 @@ items below are open. Results are provisional; see the
   otherwise reduced relative to the observation is therefore unconfirmed. The
   4,096 channels and about 8 s integrations measured here may not be the full
   resolution. Native data would come from his full-resolution set once shared.
+  The user accepted at 15:51 SAST, asking for original FLAG,
+  WEIGHT_SPECTRUM and SIGMA_SPECTRUM before any calibration, for the
+  calibrator scans. At 15:52 Ben asked which band (UHF, L or S), and at 15:57
+  the user asked for L-band. Nothing has been received yet.
+- **Noise columns do not match the DATA scatter (measured 2026-10-29).**
+  `examples/check_luno_noise.py` divides adjacent-channel differences of DATA
+  by the noise each hypothesis predicts. It uses MAIN_1 row chunk 0, tiles 17
+  and 18 (about 1325–1379 MHz), with roughly 4.1 M unflagged pairs per
+  correlation. A matching column would give a scaled MAD of about 1. Measured
+  values:
+  - SIGMA_SPECTRUM read as σ: 0.089–0.097;
+  - SIGMA_SPECTRUM read as an inverse variance: 0.18–0.20;
+  - WEIGHT_SPECTRUM read as an inverse variance: 0.24–0.35.
+
+  None recovers the absolute noise scale of the public DATA. The two
+  SIGMA_SPECTRUM tiles are byte-identical (SHA256 `fefcbc6d…2b88`), so the column
+  does not vary between those channel tiles. On the 3C 286 probe tile,
+  SIGMA_SPECTRUM is 1.56–1.79 and positive in all four correlations, and
+  WEIGHT_SPECTRUM × SIGMA_SPECTRUM² stays near 0.38 (0.31–0.41). This is
+  consistent with QuartiCal rescaling weights from SIGMA_SPECTRUM by a
+  near-constant factor, but that is not shown. Run
+  `outputs/luno-sigma-20261029-01` (receipt and `noise.json`).
 - **Model origin.** No HISTORY row explains the 1934−638 or 1830−211
   MODEL_DATA, and the support survey depends on them.
 - **Native data.** Whether `DATA` itself is the raw 4,096-channel, roughly 8 s

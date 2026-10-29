@@ -1,5 +1,16 @@
 # Rang research state
 
+LUNO noise and tooling checks, 2026-10-29:
+- **Noise scale.** None of SIGMA_SPECTRUM (read as σ or as an inverse variance)
+  or WEIGHT_SPECTRUM matches the adjacent-channel scatter in DATA; scaled MADs
+  are 0.09–0.35, not about 1. The absolute noise scale of the public zarr is
+  therefore unknown. SIGMA_SPECTRUM tiles 17 and 18 are byte-identical. Details
+  in `flagging-luno-candidate.md`; run `outputs/luno-sigma-20261029-01`.
+- **Ben's full-resolution data.** The user accepted and asked for L-band
+  (15:51 and 15:57 SAST). Nothing has been received yet.
+- **QuartiCal speed.** A persistent Numba cache cuts a small QuartiCal solve
+  from 29.2 s to 2.9 s (`upstream-notes.md`, `tool-timings.md`).
+
 LUNO solved-gain follow-up, 2026-10-29 (provisional; protocol `487208b`).
 A four-station casacore MS was built from row chunk 0 of 1934−638 scan 2
 (1070–1497.8 MHz, 192 rows × 2048 channels), and QuartiCal 0.2.7 was run with

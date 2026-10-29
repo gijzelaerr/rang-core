@@ -20,6 +20,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-29 | QuartiCal 0.2.7, real 1934−638 solve, 50 iter | 4-station MS | 27.5 s (28.7 s with container) | – | 24.6 s graph execution against 23.9 s for the trivial dry run, so JIT dominates and the solve itself costs about 1 s |
 | 2026-10-29 | `survey_luno_solved.py` | 117,556 cells | 0.79 s | 97 MB | host |
 | 2026-10-29 | pytest full suite, repeated | repo | 175 s | – | against 986 s earlier the same day; load-dependent |
+| 2026-10-29 | QuartiCal dry solve, persistent Numba cache, run 1 (cold) | dry MS | 29.2 s (31.3 s with container) | 31 MB | 25.5 s graph execution |
+| 2026-10-29 | same, runs 2–3 (warm cache) | dry MS | 2.9 s (4.2 s with container) | 32 MB | 0.27 s graph execution; about 10× faster |
+| 2026-10-29 | `check_luno_noise.py` | 2 tiles, about 8.3 M channel pairs | 7.1 s | 32 MB | container |
 | 2026-10-29 | `run-injections.sh` (QuartiCal 0.2.7 trials) | prepared SKA fixture | 296 s | – | archived; 400 s on the previous Mac host |
 | 2026-10-29 | CARACAL native strategies | fixture | 1265 s | – | archived |
 | 2026-10-29 | response stage | fixture | 96 s | – | archived |
