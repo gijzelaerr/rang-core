@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: wave 2 task J, [PyO3/maturin packaging](core-j-packaging.md):
+the core is the extension `rangtoy._core`, bit-identical to the ctypes path on
+every archived comparator; `check-all.sh` now fails on failing tests.
+
 New, 2026-10-29: wave 2 task I, the [imaging track replay on the core](core-i-imaging-replay.md),
 reproduces the archived imaging track without WSClean within task A's
 tolerances ([archive](results/core-i-imaging-replay.json)).

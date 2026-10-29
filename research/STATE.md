@@ -1,5 +1,24 @@
 # Rang research state
 
+Core task J (wave 2), 2026-10-29 (implemented; measured; criteria 1–7 pass
+as frozen). The core is packaged as the PyO3 extension `rangtoy._core`
+through maturin (`core/py`, pyo3 0.30.1 and numpy 0.30.0, abi3-py310; the
+`pyproject.toml` backend is now maturin): each of 17 functions and the
+`MsTable` class is a second door into the same C function with NumPy arrays
+borrowed in place, `core/src` unchanged. Every wrapper uses the extension
+when importable and ctypes otherwise (`RANG_CORE_BACKEND`, `RANG_CORE_LIB`).
+Through the extension the phase 2, section 6, actions, B, C, D, E and I
+comparators reproduce their archives with every number equal to the ctypes
+precondition; `examples/compare_core_backends.py` finds 94 files, 4,544 JSON
+leaves, 60 npz arrays and 60 FITS HDUs identical. Timings: first kernel call
+under 1 ms against 28–32 ms through ctypes, per-call cost otherwise equal;
+the extension buys packaging and a typed boundary, not speed. Found and
+fixed: `tools/check-all.sh` never failed on a failing pytest (now it does;
+the Rust test steps were fixed the same way at the merge). Not done: a
+distributable manylinux wheel and the container update. Archive receipts
+under `outputs/core-j-20261029-*` (`core-j-packaging.md`). Next: task K once
+the licence answer is in.
+
 Core task I (wave 2), 2026-10-29 (implemented; measured). The imaging track
 replays on the core (`rangtoy.core_imaging`, `rang-core imaging`,
 `recipes/core-imaging.yaml`): the fifteen archived jobs are imaged from the

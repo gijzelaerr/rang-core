@@ -92,15 +92,25 @@ Structured projection benchmarks are not end-to-end calibrator speedups.
 
 ## Run a small example
 
-Requires Rust with edition-2024 support and Python 3.10+ with compatible dependency
-wheels. Install from public PyPI in an isolated environment:
+Requires Rust 1.93 (edition 2024) on `PATH` and Python 3.10+ with compatible
+dependency wheels. `pip install -e .` builds the core's PyO3 extension
+`rangtoy._core` through maturin, so `cargo` must be on `PATH` at install time
+(`RUSTUP_TOOLCHAIN=1.93` pins it when a newer default is installed). Install
+from public PyPI in an isolated environment:
 
 ```sh
-python3 -m venv .venv
-.venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -e '.[pointing,beam,test]' ruff
+python3 -m venv .venv   # or: uv venv -p /usr/bin/python3.14 .venv, where ensurepip is missing
+.venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -e '.[pointing,beam,test]' ruff maturin
 cargo build --offline --release
 .venv/bin/python examples/pointing.py --output outputs/pointing
 ```
+
+The core wrappers (`rangtoy.core*`) use the extension when it is importable
+and otherwise build and load the C ABI through ctypes at import time, as
+before. `RANG_CORE_BACKEND=extension` or `=ctypes` forces one; `RANG_CORE_LIB`
+selects ctypes on that library. Both backends give bit-identical results
+(`research/core-j-packaging.md`). The Stimela recipes' Python 3.13
+environment gets the same `abi3` extension from the same install.
 
 This smoke example fits smooth pointing with a fixed, correct Gaussian beam
 and sky; it is not the joint antenna-width campaign above. That campaign's
