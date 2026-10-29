@@ -16,9 +16,34 @@ documented as unsupported rather than weakening the guards.
 (`sha256:124ee3a09bbcf7f933a7280a24bc4e36f3c82db1910f33d78d09c96d09e55be6`).
 Offline smoke check: QuartiCal 0.2.7, Stimela 2.1.4, python-casacore 3.8.1 and
 the Rust kernel library load; the pilot recipe parses with `stimela doc`.
-Not yet reproduced: this host has no `outputs/` (raw fixture, prepared inputs,
-backups, run trees), so the wrapper dry-runs and measurements cannot run yet.
 The other container images (sky, comparators, imaging, next) are not rebuilt.
+
+Data restore, 2026-10-29. The original `outputs/` tree from the previous Mac
+host was deleted and no copy exists. Every raw output, prepared input,
+backup and run tree named below in this file is therefore gone (for example
+`outputs/flagging-backups/*`, `outputs/tv-injections-pilot-01/`,
+`outputs/tv-response-20260924-precision-01/`, `outputs/tv-caracal-clean-01/`). The tracked compact archives, receipts and
+recipes remain the record. Wrappers that take those directories as sources need
+their producing stages rerun into fresh namespaces first. Re-fetched inputs, each
+verified against the recorded hash:
+- `outputs/ska-pointing/outer_scans.zip`: upstream Git LFS object
+  `https://gitlab.com/ska-telescope/sdp/science-pipeline-workflows/ska-sdp-wflow-pointing-offset/-/raw/main/tests/data/outer_scans.zip`,
+  45,452,147 bytes, SHA256 `d4dae56f…144f`, equal to the LFS pointer oid.
+- `outputs/flagging-sky-inputs/fitted.PKS1934.LBand.wsclean.cat.txt`: SHA256
+  `b277bc6d…1fb9`, 5153 components (CC BY-NC 4.0, not redistributed).
+- `outputs/flagging-next-data-wsl-20261029/primary-zmetadata.json`: SHA256
+  `68fdb7f4…bbaa`. Its acquisition `outputs/tv-public-acquired-wsl-20261029-01`
+  matches all 75 archived objects in bytes, SHA256 and ETag (884,609,513 bytes).
+
+Prepared clean/contaminated input rebuilt with the unchanged frozen recipe:
+`bash tools/flagging/run-injections.sh outputs/tv-injections-wsl-20261029-01`
+(seed 19, strengths 3/10, three patterns, 50 iterations; exit 0, 296 s versus
+400 s archived). Compared with `results/gain-tv-injections.json`: all selected
+policies, flag counts, integers and strings identical; every non-timing float
+agrees within 6.3e-15 relative. The kernel library hash differs because
+`src/lib.rs` gained later kernels after that archive. Only timings and
+archive-only summary fields otherwise differ. Use this directory, not the lost
+`tv-injections-pilot-01`, as the prepared-input source for later wrappers.
 
 FINAL CHECKED PUBLICATION READY2026-09-24 10:24UTC:
 654Python(no skips)/19RustPASS,releasebuild/Clippy-Dwarnings/cargoformat,
