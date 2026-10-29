@@ -1,0 +1,49 @@
+{
+ "schema_version": 1,
+ "protocol": "research/core-phase3-trend.md",
+ "protocol_commit": "625cf57",
+ "status": "implemented; measured: criteria 1, 2 and 4-6 pass; criterion 3 failed as frozen on the reference-antenna slopes, which are rounding-level zeros; post-hoc criterion 3b passes",
+ "mirror_dir": "outputs/core-trend-mirror-20261029-01",
+ "trend_dir": "outputs/core-trend-20261029-01",
+ "trend_result_sha256": "774b299cc58de7fa66a13f0b88cc4ea9296cb7b6e8ceb17e8694c0945c9ddbd7",
+ "consumer_module_sha256": "3c578c5e355a4a81d2959db9463f7bbf23025e52e01a61e72ebe9e45c5988e6b",
+ "consumer_module_equals_archived": true,
+ "mirror": {
+  "criterion_1_pass": true,
+  "worst_gain_difference": 1.4130832128153977e-15,
+  "gain_valid_equal_all": true,
+  "state_copies_byte_equal": true,
+  "core_solves": 7,
+  "seconds_total": 14.381703676997859
+ },
+ "frozen_comparison": {
+  "classes": {
+   "exact": {
+    "compared": 875,
+    "max_rel": 0.0
+   },
+   "float": {
+    "compared": 168,
+    "max_rel": 1.2780882873212878
+   }
+  },
+  "failures": 28,
+  "failure_kind": "slope of antenna 0 (the polar-gauge reference) in all 28 records; archived values at most 6.0e-19 rad/s and 7.8e-25 rad/Hz"
+ },
+ "posthoc_comparison": {
+  "criterion": "3b: |slope difference| <= 1e-9 x largest |slope| of the same axis and record",
+  "worst_scaled_difference": 8.42027107710575e-14,
+  "failures": 0
+ },
+ "side_effects": {
+  "concurrent_inputs_unchanged": true,
+  "git_status_unchanged": true
+ },
+ "cost": {
+  "mirror_build_seconds": 14.46,
+  "mirror_max_rss_mb": 196,
+  "trend_run_seconds": 31.34,
+  "trend_max_rss_mb": 355
+ },
+ "novelty": "reimplementation test only; no scientific result changes"
+}

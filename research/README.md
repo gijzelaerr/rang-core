@@ -7,8 +7,11 @@ Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](..
 New, 2026-10-29: the [actions stage](core-phase3-actions.md) runs on the Rust
 core in 9 s (17 solves) and passes as frozen against the archive; the host
 reproduction needed one labelled post-hoc comparator rule for float metadata.
-Phase 3 is in progress: injections, prospective and actions are done; the trend
-chain test and the signal track remain.
+The [trend chain test](core-phase3-trend.md) hands seven core-solved baselines
+to the unedited trend module, which reproduces its archived output; the frozen
+float criterion failed only on rounding-level reference-antenna slopes, and a
+labelled post-hoc scale passes. Phase 3 is in progress: injections,
+prospective, actions and trend are done; the signal track remains.
 
 New, 2026-10-29: [phase 3b](core-phase3b.md) runs the prospective track (54
 solves, frozen TRAIN-only forecasts) on the Rust core in 33 s and passes every

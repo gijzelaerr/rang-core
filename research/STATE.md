@@ -1,5 +1,14 @@
 # Rang research state
 
+Core phase 3 trend chain test, 2026-10-29 (implemented; measured). Seven
+core-solved baselines, written as a mirror of the concurrent suite
+(`examples/build_core_trend_mirror.py`), are consumed by the unedited trend
+module (hash equal to the archive). 875 exact fields match; criterion 3 failed
+as frozen on the reference-antenna slopes (rounding zeros, at most 6e-19 rad/s);
+post-hoc criterion 3b (scaled by each axis's largest slope) passes at 8.4e-14.
+Archive `results/core-phase3-trend.json`. Phase 3: injections, prospective,
+actions and trend done; signal track remains (needs the Rust predictor).
+
 Core phase 3 actions stage, 2026-10-29 (implemented; measured). The actions
 stage runs on the Rust core (`rangtoy.core_actions`) in 9.2 s with 17 solves;
 it passes as frozen against `results/gain-tv-actions.json` (floats 6.6e-15,
