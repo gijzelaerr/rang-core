@@ -11,16 +11,6 @@ isolation), **filed** (issue or PR exists, with link).
 
 ## QuartiCal 0.2.7 (Numba 0.67.0)
 
-- **Verified: a persistent Numba cache removes most of the cost.** The same dry
-  solve run three times with `NUMBA_CACHE_DIR` on a mounted volume
-  (`outputs/numba-cache-20261029`, 3.9 MB):
-  - run 1: 29.2 s, of which 25.5 s graph execution;
-  - runs 2 and 3: 2.9 s, of which 0.27 s graph execution.
-
-  QuartiCal's caching works, so this is not an upstream bug. The fix belongs in
-  rang: mount a cache volume in the solve wrappers. The frozen campaign scripts
-  are hashed in their receipts, so the mount would go into new wrappers rather
-  than editing those scripts.
 - **Observed: JIT dominates small solves.** A 192-row, 4-station, 2048-channel
   solve with DATA = MODEL took 27 s. Of that, 23.9 s was "execute graph",
   although the solve converged immediately.
@@ -62,3 +52,36 @@ isolation), **filed** (issue or PR exists, with link).
 - pytest wall time varied from 986 s to 175 s for the same 654 tests on this
   host, probably because of concurrent load. Check before treating it as a
   regression.
+
+## Findings from the stack-consolidation study (2026-10-29)
+
+See [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
+for the measurements. None of these has been sent anywhere.
+
+- **Verified: a warm Numba cache removes almost all of QuartiCal's cost on
+  small solves.** The same LUNO four-station solve takes 28.3 s with a cold
+  cache (25.2 s "execute graph") and 3.6 s with a bind-mounted cache (1.0 s
+  graph). The cache is 3.9 MB. Rang-side: `run-next.sh` already mounts a
+  cache; the LUNO solve and the older wrappers do not. Upstream-relevant:
+  the warm subprocess still spends 2.4 s importing `quartical.executor` and
+  about 2.5 s outside the graph; a note on a persistent default cache
+  location and import-time cost may be worth raising, pending the user's
+  go-ahead.
+- **Observed: cached and freshly compiled kernels give different bits.**
+  Gains from the cold-cache run (hash `57809b86…`, matching the archive) and
+  from the warm-cache run (`769a69b1…`) differ by at most 1.1e-16 absolute
+  and 2.0e-14 relative, with identical gain flags and rank survey. This is
+  rounding-level and expected from different compiled arithmetic order, but
+  it means receipts that hash QuartiCal gains byte-for-byte depend on the
+  cache state. Rang should compare gains with a tolerance, not a hash.
+- **Observed: the public zarr chunking defeats station subsets.** The LUNO
+  DATA array is chunked 50,000 rows × 128 channels × 4; keeping 192 rows for
+  four stations decodes 3.28 GB to retain 12.6 MB (260×), after fetching
+  2.72 GB. A row-chunk aligned with integrations, or a per-baseline layout,
+  would let subsets be fetched by range. This is a question for the data
+  publishers (RATT public bucket), not for dask-ms itself, although dask-ms's
+  default export chunking chose it.
+- **Observed: Tricolour 0.2.1 takes about 302 s per strategy on a 140-row ×
+  4096-channel MS** (archived `gain-tv-caracal.json`, four controls at
+  301.7–302.9 s). The data are 18 MB, so this is almost certainly JIT plus
+  dask overhead rather than flagging work. Not yet profiled in isolation.

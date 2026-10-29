@@ -4,6 +4,16 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29. User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-29: a [stack-consolidation feasibility study](stack-consolidation-feasibility.md)
+asks whether one Rust core with a thin Python API could replace the tools rang
+runs between reading visibilities and writing diagnostics. Verdict: partially.
+Measured on the LUNO four-station slice, a cold QuartiCal solve costs 28.3 s and
+a warm-cache one 3.6 s, of which about 1 s is the solve; the five-track campaign
+spends 337 s of 435 s in 63 QuartiCal subprocesses and reads 21.7 GB to serve an
+18 MB cube. The inner loop (predict, solve, statistics, TV, rank) is worth fusing;
+MS tables, strategy flaggers and WSClean stay at the edges. Acceptance criteria
+for a prototype are frozen in the study; nothing is implemented.
+
 New, 2026-10-29: every published five-track stage is reproduced on a second
 host from re-fetched public inputs (see [STATE.md](STATE.md)). A
 [second public L-band candidate](flagging-luno-candidate.md), the LUNO
