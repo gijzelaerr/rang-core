@@ -1,9 +1,13 @@
 # Rang core, wave 1 task C: the WSClean w-stacking gridder
 
-Protocol frozen 2026-10-29 on branch `core/c-gridder`, before any gridder
-code was written. Status: **proposed; protocol frozen; not yet implemented or
-measured**. Task C of [core-parallel-plan.md](core-parallel-plan.md): port the
-w-stacking gridder of WSClean 3.6-1 (`gridding/wstackinggridder.cpp`,
+Protocol frozen 2026-10-29 in `d410daa` on branch `core/c-gridder`, before
+any gridder code was written. Status: **implemented; measured: the frozen run
+`-02` passed gated criteria 1–4 but its reported pixel differences were up to
+67 % of the image peak, because the frozen reading of WSClean missed the
+default image padding; after the labelled post-hoc fix the core matches
+WSClean's dirty images and PSFs to at most 6.1e-7 of the peak on all fifteen
+jobs (run `-05`)**. Task C of [core-parallel-plan.md](core-parallel-plan.md):
+port the w-stacking gridder of WSClean 3.6-1 (`gridding/wstackinggridder.cpp`,
 `gridding/wsmsgridder.cpp`, `main/wsclean.cpp`, read from the verified Debian
 source in `outputs/wsclean-3.6-1-source-20261029/`, GPL-3.0) into the Rust
 core and measure its dirty images and PSFs against WSClean's own FITS on the
@@ -75,6 +79,16 @@ Not ported here: Briggs weighting (task B), the "small inversion"
 resampling and trimming (disabled by rang's flags), facets, IDG, w-gridder,
 prediction, multi-pass memory splitting (the 64 layers fit one pass; the
 result does not depend on the split), threading (`-j 1`).
+
+**Missed in the frozen reading, found by the frozen run (post-hoc, see
+below): image padding.** `Settings::imagePadding` defaults to 1.2. The
+gridder's `ImageWidth()` is `paddedImageWidth = ceil(1.2 × 512) = 615`,
+rounded up to a multiple of four, 616 (`main/settings.cpp`); the w-limit
+bounds test, the FFT grid, the $(l, m)$ table and the kernel correction all use
+616 × 616 at the unchanged pixel scale, and `Image::Trim` cuts the centred
+512 × 512 (offset `(616 − 512)/2 = 52`) before the PSF normalisation and the
+FITS writer. "The inversion grid at the image size" above was wrong: the
+`-no-min-grid-resolution` flag only disables the *small* inversion.
 
 ## Additions, fixed before code
 
@@ -149,6 +163,82 @@ Reported, not gated (task A proposes the tolerance; the coordinator decides):
 
 Failures are recorded as frozen; any later step is labelled post-hoc.
 
+## Measured results (2026-10-29)
+
+Implementation: `core/src/grid.rs` (gridder, FFT, DCT, trim), `core/src/ffi_grid.rs`
+(`rang_core_grid_invert`, `rang_core_grid_kernel`), `python/rangtoy/core_grid.py`
+(`stokes_i_reader`, `invert`, `wcs_header`, `write_fits`), driver
+`examples/run_core_gridder.py`, comparator `examples/compare_core_gridder.py`,
+tests `tests/test_core_grid.py` and the Rust unit tests in `grid.rs`.
+Criteria 5 and 6 are those unit tests; both pass (the point-source peak lands
+at `(W/2 - 5, H/2 - 3)` and the kernel equals the NumPy transcription to
+1e-15, is symmetric and has centre value 1).
+
+**Frozen run `-02`** (`outputs/core-c-20261029-02`, grid at the image size,
+no padding). Gated criteria 1–4 pass on all fifteen jobs: image weight equal
+to `WSCIMGWG` to 1.4e-15 relative, `WSCVWSUM` to 3.6e-16, counts 9169 and
+7812 equal, w limits equal to the log to 1.3e-7 and 8.1e-7 relative, PSF
+centre exactly 1.0, WCS keys equal. Criterion 7 as frozen: dirty images
+differ from the archive by up to 9.82 Jy/beam (66.7 % of the 14.73 Jy/beam
+peak of `caracal-firstpass-rejected`; 60–91 % of the peak on every job), PSFs
+by up to 0.655. The difference is below 2e-5 within 32 pixels of the centre
+and grows smoothly with radius, so near-centre quantities (the archived
+template fits, closures and PSF fits) would hardly have noticed, but the
+images were not WSClean's. Gridding took 3.2–5.1 s per job (62 s in all).
+
+**Diagnosis (post-hoc).** A NumPy transcription of the frozen reading
+(gridding, FFT, projection, kernel correction) reproduces the Rust image to
+1.5e-14, so the port was faithful to the reading and the reading was wrong.
+WSClean reruns with one w-layer and with nearest-neighbour gridding
+(`outputs/core-c-20261029-01/diag`) showed the w-term accounts for only 0.03
+of the PSF and the kernel correction for 0.2, neither for 0.6. The remaining
+candidate was the default `-padding 1.2` described above.
+
+**Post-hoc run `-03`** (`outputs/core-c-20261029-03`; implementation change:
+padded 616 × 616 inversion grid and centred trim, nothing else). Criteria
+1–4 pass as before (the padded bounds test leaves the w limits unchanged on
+these jobs). Criterion 7: every dirty image agrees with the archive to at
+most 6.68e-6 Jy/beam, which is 6.1e-7 of the job's peak, RMS at most
+8.9e-7 Jy/beam; every PSF to at most 4.17e-7, RMS at most 7.6e-8. This is
+the single-precision level the protocol expected. Gridding took 29–59 s per
+job (11 min in all) because the 616-point transforms went through an
+unplanned Bluestein FFT.
+
+**Post-hoc runs `-04` and `-05`** (FFT implementation only: `-04` a
+mixed-radix transform, `-05` precomputed radix-2 and Bluestein plans with
+cached twiddles and chirp spectrum). Both reproduce `-03` to within the
+float32 FITS rounding (`-04` versus `-03`: 1.2e-10 Jy/beam dirty, 3.7e-9
+PSF; `-05` versus `-04`: 1.2e-10 Jy/beam dirty, 0.0 PSF) and leave the archive comparison
+unchanged. `-04` took 24–32 s per job (7.0 min); `-05` 27–37 s per job (7.8 min); the plans did not beat the mixed-radix transform, so the time is in the double-precision arithmetic itself.
+
+Per job, core run `-05` against the archive (maximum absolute difference
+in Jy/beam, RMS difference, archive peak, and the maximum relative to that
+peak):
+
+| Job | Dirty max abs | Dirty RMS | Dirty peak | Dirty max/peak | PSF max abs | PSF RMS |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `caracal-firstpass-rejected` | 5.72e-06 | 7.22e-07 | 14.73 | 3.89e-07 | 4.17e-07 | 7.60e-08 |
+| `caracal-mild` | 6.68e-06 | 8.74e-07 | 14.96 | 4.46e-07 | 3.58e-07 | 5.78e-08 |
+| `caracal-no-change` | 5.72e-06 | 8.31e-07 | 14.96 | 3.83e-07 | 3.58e-07 | 5.78e-08 |
+| `clean-full` | 5.72e-06 | 8.31e-07 | 14.96 | 3.83e-07 | 3.58e-07 | 5.78e-08 |
+| `complete-adaptation` | 8.15e-10 | 1.14e-10 | 0.001402 | 5.81e-07 | 3.58e-07 | 5.78e-08 |
+| `complete-direct` | 4.47e-08 | 4.86e-09 | 0.08574 | 5.21e-07 | 3.58e-07 | 5.78e-08 |
+| `complete-full` | 6.68e-06 | 8.08e-07 | 14.93 | 4.47e-07 | 3.58e-07 | 5.78e-08 |
+| `complete-total` | 5.22e-08 | 5.75e-09 | 0.08541 | 6.11e-07 | 3.58e-07 | 5.78e-08 |
+| `fixedG0-reference` | 4.47e-08 | 5.81e-09 | 0.08573 | 5.21e-07 | 3.58e-07 | 5.78e-08 |
+| `omitted-adaptation` | 2.24e-08 | 2.78e-09 | 0.0419 | 5.33e-07 | 3.58e-07 | 5.78e-08 |
+| `omitted-direct` | 4.47e-08 | 4.83e-09 | 0.08585 | 5.21e-07 | 3.58e-07 | 5.78e-08 |
+| `omitted-full` | 5.72e-06 | 8.85e-07 | 14.96 | 3.83e-07 | 3.58e-07 | 5.78e-08 |
+| `omitted-total` | 3.73e-08 | 4.56e-09 | 0.06297 | 5.92e-07 | 3.58e-07 | 5.78e-08 |
+| `unit-compact` | 4.17e-07 | 4.70e-08 | 0.9908 | 4.21e-07 | 3.58e-07 | 5.78e-08 |
+| `unit-extended` | 2.38e-07 | 2.75e-08 | 0.4722 | 5.05e-07 | 3.58e-07 | 5.78e-08 |
+
+Measured but not gated: WSClean's `WSCNVIS` equals the core's count on every
+job; the PSF normalisation factor is 0.99997499 on the response jobs. The
+PSF-centre criterion holds on all fifteen jobs, but `x × (1/x)` is not
+guaranteed to be exactly one in floating point (the unit test on a 40-pixel
+grid gives 1 − 1.1e-16); a future protocol should ask for one within an ulp.
+
 ## Tool-run log (seconds)
 
 | Step | Time |
@@ -156,11 +246,30 @@ Failures are recorded as frozen; any later step is labelled post-hoc.
 | `uv pip install` of the venv extras | 19.4 |
 | `cargo +1.93 build --release` of `core/` before the port | 1.3 |
 | Oracle: fifteen WSClean runs in the container | 23.6 |
+| WSClean diagnostic variants (three runs, one job) | about 6 |
+| Core run `-02`, fifteen jobs (gridding only) | 62.0 |
+| Core run `-03`, fifteen jobs (wall) | 659.6 |
+| Core run `-04`, fifteen jobs (wall) | 420.6 |
+| Core run `-05`, fifteen jobs (wall) | 467.8 |
+| `compare_core_gridder.py`, 30 images | 2.4 |
+| `cargo test` of the gridder (5 tests) | under 0.1 after a 3 s build |
+| `pytest tests/test_core_grid.py` (4 tests) | 3.4–9.3 |
+| `bash tools/check-all.sh` | 1978 (pytest 1943, 672 tests, PASS) |
+
+The core is 20× slower than WSClean on these jobs (1.4 s with FFTW in
+single precision, one thread). The time is in 128 two-dimensional
+616-point double-precision transforms per job; an FFT crate or a faster
+hand-written transform is a performance task, not a correctness one.
 
 ## For the coordinator
 
 - Add `pub mod ffi_grid;` and `pub mod grid;` to `core/src/lib.rs` (added
   uncommitted here for local builds; stated in the final report).
 - Upstream observation: `CalculateMsLimits` in `gridding/msprovidercollection.cpp`
-  computes the y bound from `u` instead of `v`; the limits are otherwise
-  unaffected for these jobs (checked when measured). Not filed.
+  computes the y bound from `u` instead of `v`; the limits are unaffected for
+  these jobs (measured). Not filed.
+- Lesson for later protocols: a reading of a program's defaults should be
+  checked against the program's own log or a one-parameter perturbation
+  (here `-padding 1.0` would have shown it) before freezing; the comparator
+  precondition only protects against comparator errors.
+- `research/tool-timings.md` rows: the table above.

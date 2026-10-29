@@ -61,9 +61,12 @@ def read_fits(path):
 
 
 def header_subset(header):
-    keys = [k for k in header if k.startswith("WSC") or k.startswith("CRPIX") or
-            k.startswith("CRVAL") or k.startswith("CDELT") or k.startswith("CTYPE")
-            or k in ("BMAJ", "BMIN", "BPA", "BUNIT", "NAXIS1", "NAXIS2")]
+    keys = [
+        k
+        for k in header
+        if k.startswith(("WSC", "CRPIX", "CRVAL", "CDELT", "CTYPE"))
+        or k in ("BMAJ", "BMIN", "BPA", "BUNIT", "NAXIS1", "NAXIS2")
+    ]
     out = {}
     for key in keys:
         value = header[key]
@@ -77,7 +80,9 @@ def parse_log(text):
     found = {}
     m = re.search(r"w=\[([-0-9.e+]+):([-0-9.e+]+)\] lambdas, maxuvw=([-0-9.e+]+)", text)
     if m:
-        found["min_w"], found["max_w"], found["max_uvw"] = (float(v) for v in m.groups())
+        found["min_w"], found["max_w"], found["max_uvw"] = (
+            float(v) for v in m.groups()
+        )
     m = re.search(r"Gridded visibility count: (\d+)", text)
     if m:
         found["gridded_visibility_count"] = int(m.group(1))
@@ -99,12 +104,14 @@ def export_common(ms, role, output):
             "TIME": t.getcol("TIME"),
             "ANTENNA1": t.getcol("ANTENNA1"),
             "ANTENNA2": t.getcol("ANTENNA2"),
-            "WEIGHT_SPECTRUM": t.getcol("WEIGHT_SPECTRUM")[:, CHANNELS[0]:CHANNELS[1]],
+            "WEIGHT_SPECTRUM": t.getcol("WEIGHT_SPECTRUM")[
+                :, CHANNELS[0] : CHANNELS[1]
+            ],
             "FIELD_ID": t.getcol("FIELD_ID"),
             "DATA_DESC_ID": t.getcol("DATA_DESC_ID"),
         }
     with table(str(ms) + "/SPECTRAL_WINDOW", ack=False, readonly=True) as sw:
-        common["CHAN_FREQ"] = sw.getcol("CHAN_FREQ")[0, CHANNELS[0]:CHANNELS[1]]
+        common["CHAN_FREQ"] = sw.getcol("CHAN_FREQ")[0, CHANNELS[0] : CHANNELS[1]]
     with table(str(ms) + "/FIELD", ack=False, readonly=True) as field:
         common["PHASE_DIR"] = field.getcol("PHASE_DIR")[0, 0]
     with table(str(ms) + "/POLARIZATION", ack=False, readonly=True) as pol:
@@ -132,7 +139,7 @@ def read_imaging_weights(ms):
 
     with table(str(ms), ack=False, readonly=True) as t:
         weights = t.getcol("IMAGING_WEIGHT_SPECTRUM")
-    return weights[:, CHANNELS[0]:CHANNELS[1]]
+    return weights[:, CHANNELS[0] : CHANNELS[1]]
 
 
 def main(archive, output):
@@ -144,7 +151,10 @@ def main(archive, output):
         "archive": str(archive),
         "wsclean_binary_sha256": sha256("/usr/bin/wsclean"),
         "wsclean_version": subprocess.run(
-            ["/usr/bin/wsclean", "-version"], capture_output=True, text=True
+            ["/usr/bin/wsclean", "-version"],
+            check=False,
+            capture_output=True,
+            text=True,
         ).stdout.splitlines()[0:2],
         "channels": list(CHANNELS),
         "jobs": {},
@@ -160,12 +170,16 @@ def main(archive, output):
         receipt["timings_s"][f"copy_and_export_{role}"] = time.perf_counter() - start
     for label in LABELS:
         job_start = time.perf_counter()
-        result = json.loads((archive / "checkpoints" / f"{label}-result.json").read_text())
+        result = json.loads(
+            (archive / "checkpoints" / f"{label}-result.json").read_text()
+        )
         role = result["role"]
         ms = work[role]
         checkpoint = np.load(archive / "checkpoints" / f"{label}-written.npz")
         write_checkpoint(ms, checkpoint)
-        command = json.loads((archive / "checkpoints" / f"{label}-command.json").read_text())
+        command = json.loads(
+            (archive / "checkpoints" / f"{label}-command.json").read_text()
+        )
         command = list(command)
         command[command.index("-name") + 1] = str(output / "images" / label)
         command[command.index("-temp-dir") + 1] = str(output / "temp")
@@ -178,7 +192,9 @@ def main(archive, output):
             )
         wsclean_seconds = time.perf_counter() - start
         if completed.returncode:
-            raise RuntimeError(f"WSClean failed for {label}: code {completed.returncode}")
+            raise RuntimeError(
+                f"WSClean failed for {label}: code {completed.returncode}"
+            )
         log_text = (output / "logs" / f"{label}-wsclean.log").read_text()
         imaging_weights = read_imaging_weights(ms)
         if not np.array_equal(imaging_weights[..., 0], imaging_weights[..., 3]):
@@ -186,12 +202,19 @@ def main(archive, output):
         np.savez(
             output / "inputs" / f"{label}-inputs.npz",
             IMAGING_WEIGHT=imaging_weights[..., 0],
-            FLAG=checkpoint["FLAG"][:, CHANNELS[0]:CHANNELS[1]],
+            FLAG=checkpoint["FLAG"][:, CHANNELS[0] : CHANNELS[1]],
             FLAG_ROW=checkpoint["FLAG_ROW"],
-            checkpoint_sha256=np.array(sha256(archive / "checkpoints" / f"{label}-written.npz")),
+            checkpoint_sha256=np.array(
+                sha256(archive / "checkpoints" / f"{label}-written.npz")
+            ),
         )
-        job = {"role": role, "command": command, "wsclean_seconds": wsclean_seconds,
-               "log": parse_log(log_text), "fits": {}}
+        job = {
+            "role": role,
+            "command": command,
+            "wsclean_seconds": wsclean_seconds,
+            "log": parse_log(log_text),
+            "fits": {},
+        }
         for kind in ("dirty", "psf"):
             rerun_path = output / "images" / f"{label}-{kind}.fits"
             archive_path = archive / "images" / f"{label}-{kind}.fits"
@@ -210,11 +233,18 @@ def main(archive, output):
             }
         job["seconds"] = time.perf_counter() - job_start
         receipt["jobs"][label] = job
-        print(label, role, f"{wsclean_seconds:.2f}s",
-              "dirty identical" if job["fits"]["dirty"]["identical_bytes"] else
-              f"dirty max|d|={job['fits']['dirty']['max_abs_difference']:.3e}",
-              "psf identical" if job["fits"]["psf"]["identical_bytes"] else
-              f"psf max|d|={job['fits']['psf']['max_abs_difference']:.3e}", flush=True)
+        print(
+            label,
+            role,
+            f"{wsclean_seconds:.2f}s",
+            "dirty identical"
+            if job["fits"]["dirty"]["identical_bytes"]
+            else f"dirty max|d|={job['fits']['dirty']['max_abs_difference']:.3e}",
+            "psf identical"
+            if job["fits"]["psf"]["identical_bytes"]
+            else f"psf max|d|={job['fits']['psf']['max_abs_difference']:.3e}",
+            flush=True,
+        )
     shutil.rmtree(output / "work")
     shutil.rmtree(output / "temp")
     receipt["input_sha256"] = {
