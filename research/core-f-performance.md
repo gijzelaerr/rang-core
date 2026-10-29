@@ -1,7 +1,10 @@
 # Rang core, wave 1 task F: performance with unchanged results
 
 Protocol frozen 2026-10-29 in the commit that adds this file, before any
-benchmark or kernel change. Status: **proposed**. Task F of
+benchmark or kernel change. Status: **implemented; measured: all frozen
+equality criteria pass; speed-ups shown by paired instruction and cycle
+counts (solver 1.5–1.6×, decoder 3.2–4.6×), quiet-load wall timings of the
+new kernels still to be taken; survey a documented null result**. Task F of
 [core-parallel-plan.md](core-parallel-plan.md): make three parts of the core
 faster without changing a result. Under AGENTS.md this is engineering, not a
 scientific contribution; the gate is that the phase 2 and section 6 archives
@@ -186,6 +189,139 @@ samples bucketed by symbol address range; OpenBLAS spin threads excluded):
   `response::normals` 8%, NumPy and Python 11%; the solve at the start of
   the run accounts for the `solve::` samples.
 
+## Changes made (implemented; equality measured)
+
+All kernel changes are in the bodies of `core/src/solve.rs` and
+`core/src/blosc.rs`; no signature, error value, public function, Cargo
+profile or dependency changed. Every `check` run of the harness after each
+step passed every frozen equality criterion: solver gains, flags, iteration
+count and converged fraction bit-identical to the baseline snapshot on LUNO
+and the fixture (and still 3.34e-16 / 1.41e-15 from QuartiCal, 50 iterations,
+fraction 0.9833234067897558); all 68 chunks equal to the ingest oracle's
+SHA256; the block-selective rows byte-identical to the baseline; numcodecs
+and the Rust decoder byte-identical on every DATA tile.
+
+**Solver** (`ef8ec2f`, `b7442ba`).
+
+- `accumulate_finite`: for cells whose gains, `rop` products, weights and
+  weighted residual are all finite, the `J^H W J` update forms only the
+  eight products of the Kronecker rows that can be nonzero (the other eight
+  upper-triangle terms are products with exact zeros) and skips the two
+  multiplications by the identity (`I R`, `I^H G_p`). Operand order and
+  summation order are those of the general path, so every nonzero result is
+  bit-identical; a multiplication of a finite value by `1` or `0` can change
+  only the sign of a zero, and no nonzero quantity of the solve depends on
+  such a sign (gains start at `+0`/`1`, and `+0 + (-0) = +0`). Non-finite
+  cells take the unchanged general path, which keeps QuartiCal's NaN
+  propagation through `0 * inf`.
+- The Hermitian lower triangle of each `jhj` block is filled once per
+  iteration (`fill_lower`) instead of on every call; the final state is the
+  same, the conjugate of the final upper triangle.
+- `jones::mul`, `adjoint` and `from_f32` are copied into the module with
+  `#[inline(always)]`, operation for operation: the default release profile
+  splits codegen units, and the out-of-line `jones::mul` call was a fifth of
+  the solver's samples after the first change.
+
+**Blosc** (`25c9fa1`, `45dd23c`).
+
+- `unshuffle_sse2`: for typesizes 2, 4, 8 and 16 (the stores use 1, 4 and
+  8), groups of 16 elements are transposed with `log2(typesize)` rounds of
+  SSE2 `unpacklo`/`unpackhi` at doubling widths and stored in bit-reversed
+  register order, as c-blosc's `shuffle-sse2.c` does; the remainder and
+  other typesizes use the byte-wise loop. SSE2 is the x86_64 baseline, so no
+  runtime detection is needed; other architectures keep the scalar path. A
+  new unit test compares the SIMD path with the scalar reference for
+  typesizes 1–17, element counts 0–257 and leftover bytes 0–3.
+- `lz4_decompress`: literal runs of at most 16 bytes with slack on both sides
+  are copied as one 16-byte block; matches with offset ≥ 16 and slack are
+  copied in 16-byte register loads and stores (no `memmove` call per step);
+  matches of at most 32 bytes use a byte loop; longer short-offset matches
+  write 16-byte windows of a 32-byte periodic pattern; everything near the
+  end of a block keeps the original doubling `copy_within` loop. A new unit
+  test round-trips runs, period-4 and period-8 patterns, long matches and
+  matches ending exactly at the block end through a reference encoder.
+
+**Survey.** Null result for this task, by construction: nothing of the
+survey runs in `core/`. The profile and a direct measurement put the cost in
+`rang_response_step` of the root crate (`src/response.rs`), whose
+`anchored_step` runs two 32×32 Jacobi eigendecompositions
+(`src/linalg.rs::eigen`, a classical Jacobi sweep with an O(n²) pivot search
+per rotation) per bin: 1.2 ms per call, 0.51 s for the 432 bins, 70% of the
+0.73 s survey. LAPACK through `numpy.linalg.eigh` does the same 864
+decompositions in 0.056 s CPU (batched or per bin), so a symmetric
+eigensolver of that class in the root crate would cut the survey to about
+0.3 s. The Python loop itself costs 0.07 s and the batched `eigvalsh`
+0.009 s, so restructuring the prototype's loop would gain nothing worth a
+change. No candidate was written; see "For the coordinator".
+
+## Measured speed (paired counters; wall timings below)
+
+The sibling sessions raised the 1-minute load average from 0.8 at baseline
+time to 15–60 while these steps were measured (`check` runs `-02` to `-05`
+in `outputs/`), and WSL2's guest clock then includes steal time, so wall and
+CPU seconds from those runs are not comparable with the frozen baseline. As
+a load-insensitive comparison, the old kernels (`9e12326`, built from
+`git archive` into `~/Build/tmp/20261029-rang-core-f/old` with the same
+toolchain) and the new ones were run back to back under `perf stat`
+(`instructions:u`, `cycles:u`, `OPENBLAS_NUM_THREADS=1`), twice each, at
+load 52–60:
+
+| Workload | Kernels | Instructions | Cycles (user) | Ratio old/new |
+| --- | --- | ---: | ---: | ---: |
+| 5 LUNO solves | old | 68.1 G | 23.1 G, 23.5 G | |
+| 5 LUNO solves | new | 45.1 G | 14.8 G, 14.4 G | 1.51× instructions, 1.6× cycles |
+| 48 DATA tile decodes (9.8 GB) | old | 145.5 G | 46.8 G, 46.1 G | |
+| 48 DATA tile decodes (9.8 GB) | new | 31.7 G | 14.9 G, 14.6 G | 4.6× instructions, 3.2× cycles |
+
+Inside the loaded `check` runs the paired c-blosc measurement serves as a
+second normaliser: the Rust decoder took 3.74× c-blosc's single-thread time
+at baseline, 1.40× in run `-04` (load 45) and 1.59× in run `-05` (load 57).
+
+Profile after the changes (same method as the baseline): solver samples
+are now `accumulate_finite` and the row loop in roughly equal parts, with
+`jones::mul` gone; the decoder's samples are `lz4_decompress` 51%
+(sequence parsing and bounds checks spread over its lines, the 16-byte
+match copy 7%), unshuffle 18%, libc `memcpy` for long literal runs 14%. The
+next step for the decoder would be an unchecked fast loop for sequences far
+from the block ends, as c-blosc's LZ4 has; not done here.
+
+## Touched files
+
+Existing files changed (bodies only): `core/src/solve.rs`, `core/src/blosc.rs`
+(new private functions and unit tests; public items unchanged). New files:
+`examples/bench_core_f.py`, `research/core-f-performance.md`. Nothing else
+in the repository was edited; `core/src/lib.rs`, `core/src/ffi.rs`,
+`core/Cargo.toml` and `python/rangtoy/core.py` are untouched, so this branch
+merges after B, C, D and E without conflicts in those files. Outputs
+(ignored): `outputs/core-f-20261029-01` (baseline) and `-02` to `-05`
+(checks). Scratch outside the checkout: `~/Build/tmp/20261029-rang-core-f`
+(profiling builds, perf data, old-kernel build), removed at the end.
+
+## For the coordinator
+
+- Shared-file rows this task would add: `tool-timings.md` rows from the
+  measurement log below; a STATE paragraph: "Core task F, 2026-10-29
+  (implemented; measured): solver and blosc decoder faster with bit-identical
+  results (solver 1.5× fewer instructions, decoder 4.6× fewer, wall timings in
+  `core-f-performance.md`); the rank survey's cost is the root crate's Jacobi
+  eigensolver, not the core"; a README index line for this file.
+- Survey follow-up, outside this task's files: replace `rang_toy::linalg::eigen`
+  (classical Jacobi) with a tridiagonalisation-plus-QR symmetric eigensolver,
+  or call LAPACK, inside `src/response.rs::anchored_step`. Measured bound:
+  LAPACK does the 864 32×32 decompositions in 0.056 s against 0.51 s now,
+  so the survey would drop from 0.73 s to about 0.3 s. Needs its own
+  equality protocol (the response status is a discrete decision and the
+  eigenvector residual check in `checked_eigen` must stay).
+- `rangtoy.core.solve_complex` and the prototype import numpy, whose
+  OpenBLAS pool keeps eight spinning threads during the core's
+  single-threaded work (17–18% of all perf samples at baseline). Setting
+  `OPENBLAS_NUM_THREADS=1` in the drivers, or in `run-*.sh`, would free those
+  cores; not measured as a speed-up here because it is outside this task's
+  files.
+- Cargo profile: `codegen-units = 1` or thin LTO for `core/` would make the
+  `#[inline(always)]` copies unnecessary; not measured, because `Cargo.toml`
+  was out of scope.
+
 ## Measurement log
 
 | When | What | Wall | Note |
@@ -195,3 +331,10 @@ samples bucketed by symbol address range; OpenBLAS spin threads excluded):
 | 2026-10-29 | venv recreated on `/usr/bin/python3.14` (`uv venv -p`, same packages) | 1.4 s | uv cache warm; first venv had picked uv's 3.13 |
 | 2026-10-29 | `examples/bench_core_f.py baseline outputs/core-f-20261029-01` | 48.0 s | solve 7.3 s, blosc 34.7 s, survey 5.9 s; load 0.8–0.9 |
 | 2026-10-29 | perf record of solve (5 solves), blosc (16 tiles × 2), survey (3 passes) | 3.6 s, 5.5 s, 3.3 s | debug-symbol builds in `~/Build/tmp/20261029-rang-core-f` |
+| 2026-10-29 | `cargo +1.93 build --release` of `core/` after each kernel change | 0.9–1.4 s | |
+| 2026-10-29 | `bench_core_f.py check … --target solve`, runs `-02`, `-03` | 6.6 s, about 12 s | load 15 and 20–23; all solver checks pass |
+| 2026-10-29 | `bench_core_f.py check … --target blosc`, runs `-04`, `-05` | 93.7 s, about 120 s | load 45 and 57; all blosc checks pass |
+| 2026-10-29 | paired `perf stat` old/new, 2 rounds × (5 solves + 48 tile decodes) | about 190 s | load 52–60; counts in the table above |
+| 2026-10-29 | LAPACK `eigh` timing for the survey note | 10 s | 5 repeats, `OPENBLAS_NUM_THREADS=1` |
+| 2026-10-29 | `bench_core_f.py check outputs/core-f-20261029-06 …` (all targets, final library) | 183 s | load about 55; all eight equality checks pass; timings not usable |
+| 2026-10-29 | `bash tools/check-all.sh` (once, before the final commit) | 51 min 32 s (user 158 min) | PASS: root 19 tests, core 20 tests, clippy, fmt, ruff, 668 pytest; load 55–75 (siblings' suites running) |
