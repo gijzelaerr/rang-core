@@ -11,7 +11,8 @@ the record.
 
 **Partially feasible and worth doing for the inner loop; the edges come last.**
 Section 9 adds the single-framework port plan with before-and-after step
-counts: about 6–8× fewer boundary crossings per pipeline. A single Rust core with a thin Python API can replace everything that
+counts: about 6× fewer boundary crossings for the base recipe and the
+five-track campaign, about 2× on the fetch-bound LUNO path. A single Rust core with a thin Python API can replace everything that
 rang runs *between* reading visibilities and writing diagnostics: sky
 prediction, the full-Jones gain solve, residual statistics, TV and trend
 guidance, the policy loop, the normal-equation rank/response survey, and a
@@ -166,7 +167,7 @@ Classified by cause. "Measured" rows carry a number from the tables above.
 | Gains round-tripped through `gains.qc` zarr, dask-ms, `diagnostics.npz` | QuartiCal output format | 240 KB per solve; 63 `gains.qc` directories |
 | Residual recomputed in NumPy after the solve ([flagging_workflow.py:434-435](../python/rangtoy/flagging_workflow.py:434)) | QuartiCal does not return residuals | one extra $G M G^H$ pass per solve |
 | Container start + `import quartical` + dask graph construction | process boundary | 0.54 s + 2.4 s + about 2.5 s per solve (3.6 s warm subprocess vs 1.0 s graph) |
-| Numba JIT per fresh container | `NUMBA_CACHE_DIR=/tmp/numba` inside the image ([Dockerfile:14](../tools/flagging/Dockerfile:14)); `run-next.sh` bind-mounts a persistent cache ([run-next.sh:32](../tools/flagging/run-next.sh:32)) with one subdirectory per track ([flagging_next.py:97-99](../python/rangtoy/flagging_next.py:97)), the LUNO solve containers do not | 24–25 s per solve cold vs 1.0 s warm (LUNO); 47.9 s vs 3.9 s (fixture); a campaign pays it once per track on a fresh host |
+| Numba JIT per fresh container | `NUMBA_CACHE_DIR=/tmp/numba` inside the image ([Dockerfile:14](../tools/flagging/Dockerfile:14)); `run-next.sh` bind-mounts a persistent cache ([run-next.sh:32](../tools/flagging/run-next.sh:32)) with one subdirectory per track ([flagging_next.py:97-99](../python/rangtoy/flagging_next.py:97)); since `794ed21` the LUNO solve has one too ([run-luno-solve.sh](../tools/flagging/run-luno-solve.sh)), keyed by image id | 24–25 s per solve cold vs 1.0 s warm (LUNO); 47.9 s vs 3.9 s (fixture); a campaign pays it once per track on a fresh host |
 | Whole-tree hashing and MS copies for immutability | no in-process ownership model across tools | 44 s initialize; 21.7 GB read, 55.4 GB written per campaign |
 | Three Python venvs in one image | psutil and Numba version conflicts between Stimela, Crystalball and Tricolour | image sizes 1.14–2.25 GB; separate JIT caches |
 | Stimela recipe + `flavour: python` cabs | reproducible orchestration | parameters only; the `for_loop` scatter of 3 is the only parallelism |
@@ -585,7 +586,7 @@ marks wins that need no rewrite.
 
 | Rank | Win | Measured basis | Estimated gain | Effort | Available now? |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Persist the Numba cache for every container (or run QuartiCal in-process once per campaign) | 28.3 s → 3.6 s per LUNO solve; 47.9 s → 3.9 s per fixture solve; the fresh-host five-track run paid two cold solves (97 s of 435 s) | 2–8× per solve; about 20 % of a first campaign, nothing on a repeat | hours | yes: `run-next.sh` already mounts one; the LUNO solve and the older `run-*.sh` wrappers do not |
+| 1 | Persist the Numba cache for every container (or run QuartiCal in-process once per campaign) | 28.3 s → 3.6 s per LUNO solve; 47.9 s → 3.9 s per fixture solve; the fresh-host five-track run paid two cold solves (97 s of 435 s) | 2–8× per solve; about 20 % of a first campaign, nothing on a repeat | hours | yes: `run-next.sh` and, since `794ed21`, `run-luno-solve.sh` mount one; the older `run-*.sh` wrappers do not |
 | 2 | Fused in-process solve + statistics (section 3.3) | 3.6 s warm subprocess vs about 1 s graph vs ≤ 0.5 s native normals | 61 warm solves × 3.9 s = 238 s → est. ≤ 20 s; campaign 435 s → est. 150–200 s | 12–22 weeks | no |
 | 3 | Flags and gains never serialised; immutability by type instead of MS copies and tree digests | 21.7 GB read / 55.4 GB written per campaign; 44 s initialize; 26 MS dirs, 275 npz | est. 60–100 s per campaign and about 3 GB disk | part of 2 | partially: drop repeated `tree_digest` calls now |
 | 4 | Predict on the fly / no MODEL_DATA column | 18.4 MB and 12.6 MB columns for scalar spectra; Crystalball column writes | small at this scale; grows linearly with rows × channels | part of 2 | no |
@@ -635,8 +636,8 @@ point is the ratio, not the last digit.
 | Unit | Before (checkout `fe9f049`) | After (proposal) |
 | --- | --- | --- |
 | Languages and runtimes | Python, Rust, Numba-JIT Python (two Numba versions), C++ via python-casacore and WSClean, dask graphs, Stimela recipes, bash wrappers | Rust core; Python API; bash only for fetches |
-| Orchestration units | 23 recipes in `recipes/`, 15 `run-*.sh` and `fetch-*.sh` wrappers, 3 Stimela cab flavours | one Python package with about six entry points (`open`, `solve`, `policy_search`, `survey`, `image`, `export`) and one receipt writer; Stimela optional on top |
-| Python orchestration | 35 modules, about 14,800 lines in `python/rangtoy/` | about 8 modules: API, splits, policy objective, campaign drivers, receipts, plots, oracles (external-tool adapters), tests |
+| Orchestration units | 23 recipes in `recipes/`, 19 `run-*.sh` and `fetch-*.sh` wrappers in `tools/flagging/` (21 with the two nested `run-pilot.sh`), Stimela cabs of the `python` flavour only | one Python package with about six entry points (`open`, `solve`, `policy_search`, `survey`, `image`, `export`) and one receipt writer; Stimela optional on top |
+| Python orchestration | 34 modules, 15,574 lines in `python/rangtoy/` | about 8 modules: API, splits, policy objective, campaign drivers, receipts, plots, oracles (external-tool adapters), tests |
 | Native code | 7 Rust files (TV, trend, normals, projector, toy) behind ctypes | one crate, about 10 modules: `io::zarr`, `io::edge` (MS via Python), `model`, `predict`, `solve`, `stats`, `tv`, `trend`, `rank`, `image`, `receipt`; PyO3 |
 | Processes per solve | 3 (Python driver, `goquartical`, dask scheduler threads) plus the container | 1 |
 | Container images and venvs | 8 images, 3 venvs (solver, Crystalball, Tricolour), 2 Numba versions | 1 image or a plain wheel; external tools only in a validation image |
@@ -670,7 +671,7 @@ about 6 (`set_flags`, `copytree flagged.ms`, two digests, two JSON files).
 | --- | ---: | ---: | ---: |
 | LUNO path | 13 | 7 | 1.9× |
 | `tv-flagging`, 1 baseline + 9 grid trials | about 186 (20 + 10 × 16 + 6) | about 29 (2 + 10 × 2.5 + 2: open, fused pass with TV, record, export) | 6× |
-| Five-track `tv-flagging-next` | about 490 visibility-side steps (below), plus 85 HTTP provenance objects | about 60 with a Rust gridder, about 75 with WSClean kept | 6.5–8× |
+| Five-track `tv-flagging-next` | about 1,250 visibility-side steps (below), plus 85 HTTP provenance objects | about 205 with a Rust gridder, about 220 with WSClean kept | 5.5–6× |
 
 **Five-track campaign, per track** (measured artefacts: 63 QuartiCal
 processes, 26 MS directories, 275 `.npz`, 382 `.json`, 45 FITS, 21.7 GB read,
@@ -680,16 +681,17 @@ processes, 26 MS directories, 275 `.npz`, 382 `.json`, 45 FITS, 21.7 GB read,
 | --- | ---: | ---: | --- |
 | initialize ([flagging_next.py:33-82](../python/rangtoy/flagging_next.py:33)) | about 10: five tree digests over 8.8 GB, source receipts over about 100 files, input copies, two JSON | 1 receipt | digests of inputs replace digests of trees; copies disappear |
 | trend ([flagging_trend.py:194](../python/rangtoy/flagging_trend.py:194)) | about 23: 7 × (`diagnostics.npz` + `metrics.json` reads), 7 checkpoints, 2 digests; the 28 replays are already in-memory | about 8: 7 solution objects from the campaign store, 1 result | reads of saved gains become references to in-memory solutions; the trend and TV kernels are unchanged |
-| prospective ([flagging_prospective.py:375](../python/rangtoy/flagging_prospective.py:375)) | about 140: 3 cases × (3 clone copies, injection `.npz`/`.json`, `state.npz`, baseline solve at 16, full and per-candidate normals, forecast `.npz`/`.json`, 1–2 confirmation solves at 16 each, checkpoints) | about 12: 3 × (fused baseline, forecasts from the baseline's own $\mathbf H_b$, fused confirmation, record) | the normal equations are a by-product of the last solver iteration; the 51 forecasts need no visibility pass |
-| signal guard ([flagging_signal_guard.py:412](../python/rangtoy/flagging_signal_guard.py:412)) | about 160: 9 paired solves at 16 each, normals, guards, `.npz`/`.json` | about 12: 9 fused solves, guards from blocks, record | same as prospective |
+| prospective ([flagging_prospective.py:375](../python/rangtoy/flagging_prospective.py:375)) | about 900: 54 QuartiCal solves at 16 steps each (3 baselines + 51 measured reference actions; 54 `command.json` in the reproduced run), plus per case 3 clone copies, injection `.npz`/`.json`, `state.npz`, full and per-candidate normals, forecast `.npz`/`.json` and checkpoints | about 140: the same 54 solves as fused passes at about 2.5 steps each, forecasts from the baseline's own $\mathbf H_b$, records | the normal equations are a by-product of the last solver iteration and the 51 forecasts need no visibility pass; all 54 measured solves are kept, because the archive records them and "3 baselines + 1 confirmation" is only an accounting counterfactual ([flagging-next-summary.md](flagging-next-summary.md)) |
+| signal guard ([flagging_signal_guard.py:412](../python/rangtoy/flagging_signal_guard.py:412)) | about 160: 9 solves at 16 each (9 `command.json`), normals, guards, `.npz`/`.json` | about 25: 9 fused solves at about 2.5 steps, guards from blocks, record | same as prospective |
 | provenance ([flagging_provenance.py](../python/rangtoy/flagging_provenance.py)) | 85 HTTP objects, text decoding, 18 JSON writes | unchanged | metadata inspection, not visibility work |
 | imaging ([flagging_imaging.py:609](../python/rangtoy/flagging_imaging.py:609)) | about 154: 4 MS copies, 15 × (NumPy correction pass, three `putcol`, three verifying `getcol`, checkpoint `.npz`, WSClean process, three FITS reads, result `.npz`) | about 30 with a Rust gridder (15 × correct-and-grid in memory, 15 FITS writes); about 45 with WSClean kept (15 column writes, 15 processes, 15 FITS reads) plus 2 MS copies | corrected visibilities never leave memory; FLAG/CORRECTED_DATA round trips disappear |
 | gather ([flagging_next.py:127](../python/rangtoy/flagging_next.py:127)) | about 10: five digests, source receipts, five result reads | 1 | |
 
-Where the compression comes from, in order of size: (1) the 16-step solve
-wrapper collapses to one fused pass, about 63 × 15 ≈ 945 boundary crossings
-in the campaign (the "about 490" above counts a solve as one row, so the
-table understates this); (2) whole-tree digests and MS copies for
+Totals: before 10 + 23 + 900 + 160 + 154 + 10 ≈ 1,250; after
+1 + 8 + 140 + 25 + 30 + 1 ≈ 205 with a Rust gridder, or about 220 with
+WSClean kept. Where the compression comes from, in order of size: (1) the
+16-step solve wrapper collapses to a fused pass of about 2.5 steps, which
+removes about 63 × 13.5 ≈ 850 boundary crossings in the campaign; (2) whole-tree digests and MS copies for
 immutability disappear; (3) the normal equations, residual statistics and
 TV come out of the solver's last sweep instead of separate passes; (4) the
 imaging track stops writing columns to disk. What does not compress: the
@@ -730,18 +732,19 @@ before the next starts; a phase that fails its gate is reported, not skipped.
 | 4 | 3–5 | Dirty gridder and FITS; imaging track on the core with WSClean as oracle | paired-difference images within 1e-6 Jy/beam; absolute differences reported |
 | 5 | 3–6, optional | Tricolour strategies ported from source (GPL decision first) | the four archived native controls reproduced flag-for-flag |
 | 6 | 2–4, optional | Rust MS reader; python-casacore dropped from the hot path | column-exact reads of the fixture and LUNO MSs |
-| Total to phase 3 | 8–14 | | |
-| Total to phase 4 | 11–19 | | |
-| Total, all phases | 16–29 | | |
+| Cross-cutting, spread over phases 1–4 | 4.5–8 | validation harness (2–4), MS edge through python-casacore (0.5–1), PyO3/maturin packaging and CI (1–2), documentation and recipe migration (1) | each phase's receipt uses the harness |
+| Total to phase 3, with cross-cutting work | 12.5–22 | | |
+| Total to phase 4, with cross-cutting work | 15.5–27 | | |
+| Total, all phases | 20.5–37 | | |
 
-These ranges replace the per-component table in section 5 where they
-overlap; the earlier table remains as the component view.
+With the cross-cutting row these totals agree with the component table in
+section 5 (12–22 weeks for the inner loop, 15–27 with the gridder).
 
 ### 9.5 What the port does not change
 
 The archived scientific results are the gate, not the goal: the port must
 reproduce them and may not improve them. Under AGENTS.md's novelty rule the
-deliverable is "the same results in one process, with 6–8× fewer steps and
+deliverable is "the same results in one process, with about 6× fewer steps and
 without the MS, snapshot and digest traffic", measured and logged, and
 nothing more.
 

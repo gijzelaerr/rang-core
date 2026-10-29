@@ -139,3 +139,11 @@ quality/cost comparison, not further simulator expansion.
 - `examples/` and `tests/`: reproducible experiments and regression tests.
 - `research/`: derivations, reports and compact result archives.
 - `data/`: fixture provenance and limitations.
+
+## Licence
+
+Rang is free software under the GNU General Public License, version 3 or (at
+your option) any later version; see [LICENSE](LICENSE). The user chose GPL on
+2026-10-29 so that GPL radio-astronomy tools (WSClean, AOFlagger, Stimela and
+others) can be ported into the core without licence conflicts. Ported code keeps
+its upstream copyright notices.

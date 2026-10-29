@@ -1,5 +1,12 @@
 # Rang research state
 
+Licence and port decision, 2026-10-29 (user, in chat): rang is now
+GPL-3.0-or-later (`LICENSE`, Cargo and Python metadata). The user asked to work
+down the port plan in `stack-consolidation-feasibility.md` section 9, starting
+with phase 0 and phase 1, Rust for performance and Python for interfaces.
+Open: whether Tricolour and Crystalball are GPL-2-only, which would block
+translating their code into a GPL-3 core (phase 5 only).
+
 Stack-consolidation feasibility study, 2026-10-29 (written study, no code,
 no scientific change): `stack-consolidation-feasibility.md`, linked from the
 README. Verdict: partially feasible; fuse the inner loop in one Rust core, keep
@@ -8,7 +15,7 @@ MS tables, strategy flaggers and WSClean external. New measurements (logged in
 a warm Numba cache, with gains equal to 2e-14 relative; decoding the DATA tiles
 expands 2.72 GB to 3.28 GB to keep 12.6 MB. Prototype acceptance criteria are
 frozen in the study. Section 9 adds a phased single-framework port plan with
-before/after step counts (about 6–8× fewer). Run directory
+before/after step counts (about 6× fewer for the five-track campaign). Run directory
 `outputs/stack-feasibility-20261029-01`.
 
 LUNO solved-gain follow-up, 2026-10-29 (provisional; protocol `487208b`).
