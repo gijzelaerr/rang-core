@@ -727,8 +727,8 @@ before the next starts; a phase that fails its gate is reported, not skipped.
 | --- | ---: | --- | --- |
 | 0 | hours | Persistent Numba cache; gain comparisons by tolerance instead of hash. Met on 2026-10-29 by `run-next.sh` and `run-luno-solve.sh` (`794ed21`) and the tolerance rule in `upstream-notes.md`. The older `run-*.sh` wrappers are hashed into campaign receipts and stay frozen. | `tool-timings.md` rows; identical rank survey (measured) |
 | 1 | 3–5 | Crate skeleton: `VisBlock`, `GainGrid`, `BinStats`, zarr ingest, scalar prediction, fused statistics, PyO3 | normals to 1e-13, TV/trend exact, MAD $z$ to 1e-12 against the archives |
-| 2 | 3–6 | Full-Jones `complex` solver ported from the QuartiCal kernel (MIT) | section 6 criteria 1–9 on the LUNO slice and the fixture clean case |
-| 3 | 2–3 | Policy loop and the trend, prospective and signal tracks on the core; `goquartical` retired from campaigns. Done 2026-10-29: injections, actions, trend, prospective and signal reproduce their archives on the core (`core-phase3*.md`) | `gain-tv-actions`, `gain-tv-next-trend`, `-prospective`, `-signal` reproduced to the STATE.md tolerances |
+| 2 | 3–6 | Full-Jones `complex` solver ported from the QuartiCal kernel (MIT) | section 6 criteria 1–9 on the LUNO slice and the fixture clean case. Measured 2026-10-29 under its own protocol (`core-phase2.md`), solving from an MS export; section 6 criteria 8 (runtime from zarr) and 9 (no MS) are still open |
+| 3 | 2–3 | Policy loop and the trend, prospective and signal tracks on the core; `goquartical` retired from campaigns. Measured 2026-10-29: core drivers for injections, actions, trend, prospective and signal reproduce their archives (`core-phase3*.md`; trend only under a labelled post-hoc criterion, injections and actions with post-hoc comparator steps). The frozen recipes still call QuartiCal, so `goquartical` is not yet retired | `gain-tv-actions`, `gain-tv-next-trend`, `-prospective`, `-signal` reproduced to the STATE.md tolerances |
 | 4 | 3–5 | Dirty gridder and FITS; imaging track on the core with WSClean as oracle | paired-difference images within 1e-6 Jy/beam; absolute differences reported |
 | 5 | 3–6, optional | Tricolour strategies ported from source (GPL decision first) | the four archived native controls reproduced flag-for-flag |
 | 6 | 2–4, optional | Rust MS reader; python-casacore dropped from the hot path | column-exact reads of the fixture and LUNO MSs |
@@ -745,6 +745,13 @@ estimates, not measurements.
 
 With the cross-cutting row these totals agree with the component table in
 section 5 (12–22 weeks for the inner loop, 15–27 with the gridder).
+
+**Protocol precondition (added 2026-10-29 after phase 3).** Five of the
+first eight frozen runs needed a labelled post-hoc step. Three of those
+(archive-only fields, float metadata, rounding-level reference slopes)
+would have shown up by running the comparator on the archive against the
+host reproduction, which agree. Every later protocol records that the
+comparator passes on archive versus host reproduction before it is frozen.
 
 ### 9.5 What the port does not change
 

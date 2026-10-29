@@ -5,9 +5,14 @@ as frozen). The signal track runs on the Rust core (`rangtoy.core_signal`):
 9 solves in 34.5 s, prediction by the core predictor, injection and complete
 sky in memory. 261 exact fields equal, floats within 1.7e-11 against
 `results/gain-tv-next-signal.json` and the host reproduction. Archive
-`results/core-phase3c-b.json`. **Phase 3 complete**: injections, actions,
-trend, prospective and signal all reproduce their archives on the core. Next:
-phase 4 (dirty gridder, WSClean as oracle).
+`results/core-phase3c-b.json`. Phase 3 gate covered: core drivers for
+injections, actions, trend, prospective and signal reproduce their archives,
+with qualifications (trend only under post-hoc 3b; injections and actions
+needed post-hoc comparator steps). The frozen recipes still call QuartiCal.
+Lesson: five of eight frozen runs needed a post-hoc step, three of which a
+comparator run on archive versus host reproduction would have exposed; future
+protocols require that precondition. Next: the section 6 prototype as frozen
+(zarr ingest, no MS), then phase 4.
 
 Core phase 3c-a, 2026-10-29 (implemented; measured). `core/src/predict.rs`
 ports the WSClean-format component predictor of codex-africanus 0.4.4 (BSD

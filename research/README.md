@@ -10,10 +10,14 @@ reproduction needed one labelled post-hoc comparator rule for float metadata.
 The [trend chain test](core-phase3-trend.md) hands seven core-solved baselines
 to the unedited trend module, which reproduces its archived output; the frozen
 float criterion failed only on rounding-level reference-antenna slopes, and a
-labelled post-hoc scale passes. With the [signal track](core-phase3c-b.md) passing on its first run, **phase 3
-is complete**: injections, prospective, actions, trend and signal all run on
-the Rust core with no Measurement Set or container and reproduce their
-archives. The signal track's
+labelled post-hoc scale passes. With the [signal track](core-phase3c-b.md) passing on its first run, every
+stage of the phase 3 gate (injections, prospective, actions, trend, signal)
+runs on the Rust core with no Measurement Set or container and reproduces its
+archive, with qualifications: trend passes only under a labelled post-hoc
+criterion (its frozen float criterion failed on rounding-level reference
+slopes), and injections and actions needed labelled post-hoc comparator steps
+(archive-only fields; float metadata in the host reproduction). The frozen
+Stimela recipes still call QuartiCal; the core drivers run beside them. The signal track's
 prerequisite, a [Rust component predictor](core-phase3c-a.md) ported from
 codex-africanus, matches africanus bit for bit on three component sets,
 including the 5153-component SARAO 1934−638 catalogue.
