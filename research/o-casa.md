@@ -11,9 +11,10 @@ smallest deviation that solves needs three changes: `refant` set by hand,
 `minblperant=3`, and no `uvrange` cut. With those, CASA's K·G·B
 calibration reproduces in hash over two runs. Its applied gains agree with
 the core's QuartiCal port to 0.4 % in amplitude and 0.33° in phase (median,
-stored model). On held-out cells its MSE is 10 % higher on the parallel
-hands and 58 % higher on the cross hands, because K·G·B has no
-off-diagonal term. See "Measured result". Results are added below the
+stored model). On held-out cells its MSE on the parallel hands, the matched
+number, is 10 % higher than the core's. On the cross hands it is 58 %
+higher, because K·G·B has no off-diagonal (leakage) term by design. See
+"Measured result". Results are added below the
 protocol, never edited into it; this status line is the only edit above
 the amendment.
 
@@ -515,17 +516,29 @@ prediction is available (0 unavailable cells).
 | CH CASA, setjy model, held out | 0.393731 | 0.397161 (×1.439) | 0.284272 | 0.510050 |
 | C CASA, setjy model, solved on all cells (in-sample) | 0.389008 | 0.392471 | 0.274892 | 0.510050 |
 
-**Reading.** CARACal's K·G·B chain has no off-diagonal term. On the cross
-hands it therefore predicts the same as the core with its off-diagonal
-gains zeroed: 0.51005, identical to six digits. The core's complex 2×2
-solve has an off-diagonal median of 0.006, which absorbs a leakage-like
-cross-hand signal and lowers the cross-hand MSE by 37 %. CARACal would
-solve leakage only in its separate `polcal` worker, which needs a
-polarised calibrator.
+**Reading.** The matched number is the parallel-hand one: with the same
+model, cells and weights, CASA's chain has a held-out MSE of 0.2529
+against the core's 0.2294, 10.2 % worse. Its G and K are per 120 s across
+the whole band; the core solves per 2 integrations × 32 channels.
 
-On the parallel hands, with the same model, cells and weights, CASA's
-chain is 10.2 % worse than the core. Its G and K are per 120 s across the
-whole band; the core solves per 2 integrations × 32 channels.
+The cross-hand column is not an agreement between methods; it holds by
+construction. The model's cross hands are zero and K·G·B is diagonal, so
+CASA predicts exactly 0 on XY/YX, and so does the core with its
+off-diagonal gains zeroed. 0.51005 is simply the weighted cross-hand data
+power on the test cells. The core's complex 2×2 solve has off-diagonal
+terms (median 0.006). They absorb a leakage-like cross-hand signal and
+lower the cross-hand MSE to 0.3226. CARACal's crosscal has no leakage term
+by design; it would solve leakage only in its separate `polcal` worker,
+which needs a polarised calibrator. So the total ×1.38 mixes the matched
+parallel-hand gap with that design difference.
+
+**What was not compared.** The protocol promised a separate B-against-core
+comparison, and the brief asked for "CASA G gains at CARACal's solution
+interval" against the core. Neither was run as such. The applied K·G·B
+chain per cell (`P = DATA/CORRECTED`, CASA's own interpolation) replaces
+both, because the core's per-bin gain contains bandpass and gain together.
+The per-table statistics above (G per 120 s, B per channel) are reported
+without a core counterpart.
 
 The `setjy` model costs CASA a further 12 % on the parallel hands. It
 differs from the stored model in spectrum by 1 % and has no row structure,
@@ -590,19 +603,28 @@ Arm C's CORRECTED_DATA, imaged with `-gridder wgridder -field 1 -size 512
 
 ### Timings (every tool run of this task)
 
-| When | Tool run | Wall | Peak RSS | Note |
-| --- | --- | ---: | ---: | --- |
-| 2026-10-30 | `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (worktree venv) | 28.7 s | 638 MB | |
-| 2026-10-30 | KERN-10 probes in `ubuntu:24.04` (package versions, PyPI closure, casalite deb listing), scratch | ~1–3 min each | – | three probes |
-| 2026-10-30 | `build.sh` first image (casatools `manylinux_2_34`) | 170.7 s | 53 MB (client) | built; casatools does not import (OpenSSL); image deleted |
-| 2026-10-30 | `build.sh` final image (`manylinux_2_28`), apt layer cached | 56.1 s | – | 1.41 GB, ID `24822b40…` |
-| 2026-10-30 | labelled smoke `-00-smoke` … `-00-smoke-f` (six attempts) | 5–90 s each | ≤ 521 MB | fixes listed in the amendment; directories deleted |
-| 2026-10-30 | **run `-01`** (`run.sh` under `/usr/bin/time -v`) | 47.4 s | 521 MB | |
-| 2026-10-30 | **run `-02`** | 44.9 s | 521 MB | identical CASA hashes |
-| 2026-10-30 | post-hoc WSClean `-j 1` ×2 (`-03-wsclean-j1`) | 0.91 s, 0.92 s | 77 MB | bit-identical |
-| 2026-10-30 | post-hoc arms E, F (`-04-arm-e`, `-05-arm-f`), solve + apply | 1.8 + 1.1 s each | 320 MB | |
-| 2026-10-30 | `archive.py` | < 1 s | – | 135 KB archive |
-| 2026-10-30 | `bash tools/check-all.sh`, once before the final commit (`outputs/o-casa-20261030-01.check-all.log`) | 404.7 s (pytest 645 passed, 4 skipped in 120.3 s) | 1.53 GB | overall PASS; the wall includes the first maturin and cargo builds of this worktree |
+| When | Tool run | Input | Wall | Peak RSS | Note |
+| --- | --- | --- | ---: | ---: | --- |
+| 2026-10-30 | `uv venv -p /usr/bin/python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` | worktree `o-casa`, public PyPI | 28.7 s | 638 MB | uv cache warm |
+| 2026-10-30 | KERN-10 probes (apt versions, PyPI closure of casatools/casatasks, casalite deb listing), scratch | `ubuntu:24.04@sha256:fe815609…` + `ppa:kernsuite/kern-10` | ~1–3 min each | – | three probes; scripts deleted |
+| 2026-10-30 | `build.sh` first image | Dockerfile + `requirements.lock` with the casatools `manylinux_2_34` wheel | 170.7 s | 53 MB (client) | built, but casatools does not import (OpenSSL); image `31cf5410…` deleted (`outputs/o-casa-20261030-00-build`) |
+| 2026-10-30 | `build.sh` final image | same with the `manylinux_2_28` wheel; apt layer cached | 56.1 s | – | 1,413,632,658 bytes, ID `24822b40…` (`-00-build2`) |
+| 2026-10-30 | labelled smoke `run.sh` ×6 | `-00-smoke` … `-00-smoke-f` | 5–90 s each | ≤ 521 MB | fixes listed in the amendment; directories deleted, logs kept |
+| 2026-10-30 | **`run.sh` `-01`** under `/usr/bin/time -v` | archived slice + solve inputs + `work.ms`, code `7162468` | 47.4 s | 521 MB | per-step table below |
+| 2026-10-30 | **`run.sh` `-02`** | same | 44.9 s | 521 MB | identical CASA hashes |
+| 2026-10-30 | post-hoc WSClean `-j 1` ×2 (`posthoc.sh`, `-03-wsclean-j1`) | copy of `-01`'s `c.ms` | 0.91 s, 0.92 s | 77 MB | bit-identical |
+| 2026-10-30 | post-hoc arms E, F (`posthoc.sh`, `-04-arm-e`, `-05-arm-f`), solve + apply | copies of `-01`'s `work.ms` | 1.8 + 1.1 s each | 320 MB | an ad-hoc `compare-e/f` summary step failed (no CORRECTED_DATA without tables); its timing file is kept |
+| 2026-10-30 | `archive.py` | `-01`, `-02`, `-00-build2/image.json`, `-03`/`-04`/`-05` | < 1 s | – | 135 KB archive |
+| 2026-10-30 | `bash tools/check-all.sh`, once before the final commit | branch at `6ef269d` minus the commit itself (log `outputs/o-casa-20261030-01.check-all.log`) | 404.7 s (pytest 645 passed, 4 skipped in 120.3 s) | 1.53 GB | overall PASS; the wall includes the first maturin and cargo builds of this worktree |
+
+**Reproducing the post-hoc steps.** `tools/oracles/casa/posthoc.sh`
+(added after the runs) holds the exact commands behind `-03`, `-04` and
+`-05`. Their driver scripts were first run from the session scratchpad,
+since deleted. The `-j 4` run-to-run diff (3.1e-5 Jy, 2.0e-6 relative) was
+computed by the same diff block, which is now in `posthoc.sh`; it was not
+re-executed. `crosscal.py` at HEAD differs from the `7162468` version
+hashed in the `-01`/`-02` receipts only by the added arms `e` and `f`;
+arms a–sh are unchanged.
 
 Steps inside run `-01` (wall in s / peak RSS in MB, in-container `/usr/bin/time`):
 
@@ -624,7 +646,7 @@ per step is Python start-up and CASA import inside the container.
 
 - **Shared files: none edited.** Added: `tools/oracles/casa/`
   (`Dockerfile`, `requirements.lock`, `build.sh`, `run.sh`, `crosscal.py`,
-  `inspect_tables.py`, `compare.py`, `receipt.py`, `archive.py`), this
+  `inspect_tables.py`, `compare.py`, `receipt.py`, `archive.py`, `posthoc.sh`), this
   report, `research/results/o-casa-crosscal.json` and
   `tests/test_o_casa_optional.py`.
 - **`STATE.md`, new top entry.** "O-CASA, 2026-10-30 (implemented;
@@ -640,9 +662,10 @@ per step is Python start-up and CASA import inside the container.
   - With those, CASA's K·G·B reproduces in hash over two runs (119 gated
     hashes; only WSClean `-j 4` pixels differ, at 2e-6).
   - Against the core's QuartiCal port: applied gains agree to 0.4 % and
-    0.33° (median, stored model). Held-out test MSE is 0.3815 against
-    0.2760: ×1.10 on the parallel hands, and ×1.58 on the cross hands,
-    because K·G·B has no off-diagonal term.
+    0.33° (median, stored model). Held-out test MSE on the parallel
+    hands, the matched number, is 0.2529 against 0.2294 (×1.10). The
+    total, 0.3815 against 0.2760, also contains the cross hands, where
+    K·G·B has no leakage term by design.
   - Flagging baselines: tfcrop with CARACal's defaults adds 1.49 % of
     unflagged cells; rflag 0.14 %.
   - `setjy` SR2016 and PB2010 equal the Reynolds 1994 polynomial (and
@@ -661,8 +684,10 @@ per step is Python start-up and CASA import inside the container.
     to 2.7e-6, so a port must reproduce that residual, not a tighter one.
   - `setjy` `spix` is log10.
 - **L4 can use** these matched baseline numbers on the same cells:
-  - CASA/CARACal crosscal (arm SH) held-out MSE_test 0.381487 against the
-    core's 0.276009, 0.252925 against 0.229422 on the parallel hands;
+  - CASA/CARACal crosscal (arm SH) held-out test MSE on the parallel
+    hands 0.252925 against the core's 0.229422 (×1.10, the matched
+    number). The total, 0.381487 against 0.276009 (×1.38), also contains
+    the cross hands, where crosscal has no leakage term by design;
   - tfcrop +1.49 %, rflag +0.14 %, Tricolour first pass +0.14 %.
 
   All arms are in the archive. The CARACal baseline as CARACal ships it
