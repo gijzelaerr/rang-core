@@ -4,6 +4,15 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+Renamed, 2026-10-30 (task P12, [p12-rename.md](p12-rename.md)): the project,
+repository and PyPI distribution are **rang-core** and the Python package is
+**`rang`** (`import rang`, extension `rang._core`, `python/rang/`); the command
+line stays `rang-core`. Notes, receipts, `history/` and `research/results/`
+written before the rename keep the old package name `rangtoy`
+(`python/rangtoy/…`, `rangtoy.core_cli`, `import rangtoy`): read it as `rang`
+for the current tree. CLI receipts are `rang.receipt` version 2 from then on
+(key `environment.rang_core`, was `environment.rangtoy`).
+
 New, 2026-10-30: [CLEAN theory](clean-theory.md): the claim that CLEAN was
 never proven is folklore (Schwarz 1978 proved the data fit converges for
 0 < g < 2); a Gram-matrix formalism reduces his three conditions to one,

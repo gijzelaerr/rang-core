@@ -286,6 +286,19 @@ was pushed and no tag or release was created.
 
 ## User item: publish
 
+**Update 2026-10-30 (task P12, [p12-rename.md](p12-rename.md)).** The
+distribution is now `rang-core` (package `import rang`, extension
+`rang._core`; files `rang_core-<v>-cp310-abi3-*.whl` and
+`rang_core-<v>.tar.gz`), the repository `gijzelaerr/rang-core`, and PyPI
+publishing is by trusted publishing from the `publish` job of
+`.github/workflows/wheels.yml` (pending publisher registered for `rang-core`:
+owner `gijzelaerr`, repository `rang-core`, workflow `wheels.yml`, environment
+`pypi`). The user pushes the tag (`git tag v0.1.0 && git push origin v0.1.0`
+with `version = "0.1.0"` in `pyproject.toml`); the workflow builds, tests,
+releases and publishes `rang-core`; no token is needed. The manual route
+below is kept as written at the time (it names `rangtoy` and the old
+repository) and is only a fallback.
+
 Not executed. After a tag `vX.Y.Z` (with `version` in `pyproject.toml` bumped
 to match) has run the workflow green, download the release files and upload
 them with a PyPI API token for the `rangtoy` project (the name was not

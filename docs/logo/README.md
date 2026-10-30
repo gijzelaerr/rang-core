@@ -1,8 +1,8 @@
-# ra-ng logo
+# rang-core logo
 
 The mark is an interferogram: a round aperture filled with fringe bands that
 fade toward the rim, and one point, the source the interferometer recovers.
-The wordmark's hyphen is a single fringe.
+The wordmark reads `rang`, a fringe, `core`: its hyphen is a single fringe.
 
 Colours: ink `#10131a`, white, amber `#e8a33d`. Nothing else.
 
