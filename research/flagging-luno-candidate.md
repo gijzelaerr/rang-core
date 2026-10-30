@@ -184,7 +184,8 @@ items below are open. Results are provisional; see the
 - **Campaign on the core (2026-10-30).** The first gain-TV-guided flagging
   campaign ran on the four-station slice entirely on the core
   ([core-k-luno-campaign.md](core-k-luno-campaign.md)) with a null result.
-  Its results wait on the licence confirmation like everything above.
+  (Licence settled by user decision 2026-10-30; the experiment is closed as
+  null, see [flagging-verdict.md](flagging-verdict.md).)
 - **Model offset (2026-10-30, L1 post hoc).** The 1934−638 MODEL_DATA is a
   14.96 Jy source about 1.5″ from the FIELD phase direction (L1-M, 2026-10-30:
   a field model consistent with CARACal's lsm, A0 at 2.1″, origin still

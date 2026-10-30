@@ -268,6 +268,10 @@ CPU-heavy tasks at a time on 8 physical cores.
   record it in `flagging-luno-candidate.md`, fetch the calibrator scans, and
   run the campaign on native FLAG/WEIGHT/SIGMA. Not blocking; starts when the
   data exist.
+- L4 done 2026-10-30 (`flagging-verdict.md`): closed as null; 90
+  pre-registered calls, 64 null and 26 undecidable, none better or worse;
+  cost clause fails on the parallel kernels (4.6–5.9×). L3 stays a standing
+  reopening item. B1 started.
 - L4 verdict and synthesis: if L1, L2 and (when possible) L3 are null, write
   `research/flagging-verdict.md`: what was tested, every negative result,
   what would still change the answer, and close the experiment in STATE. If

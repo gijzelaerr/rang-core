@@ -756,3 +756,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan FS1: uv venv + install | worktree | 63.4 s | 891 MB | |
 | 2026-10-30 | big plan FS1: check_fluxstd.py | 01,03,04,06,O-CASA | 0.1 s | 46 MB | all acceptance true |
 | 2026-10-30 | big plan FS1: bash tools/check-all.sh | eb88550 / 078eb4f | 333.5 / 214.8 s | 1.67 / 1.59 GB | PASS, 698 passed 5 skipped |
+| 2026-10-30 | big plan L4: `examples/verdict_tables.py --check` | 11 archives | 0.04 s | 20 MB | stdlib |
+| 2026-10-30 | big plan L4: `bash tools/check-all.sh` | branch l4-verdict | 8 min 25 s incl. lock wait | 1.6 GB | PASS, 726 passed 5 skipped (pytest 150.6 s) |

@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: L4, the [flagging verdict](flagging-verdict.md): gain-TV-guided
+flagging is closed as null on the fixture and both LUNO calibrators (90 calls,
+none better or worse; not cheaper than the CARACal first pass); what would
+reopen it, and the move to B1.
+
 New, 2026-10-30: FS1, [flux standards](fs1-flux-standards.md): CASA's `setjy`
 standards in the core to the last bit; an erratum for O-CASA's residuals.
 
@@ -276,7 +281,7 @@ the useful mechanisms from policy/novelty claims. The read-only
 route requiring new provenance/noise controls, and additional parallel-hand
 Jones ambiguities. These are not a working flagging-policy success claim.
 
-## Active objective: MeerKAT L-band flagging
+## MeerKAT L-band flagging (closed 2026-10-30 as null; [verdict](flagging-verdict.md))
 
 Use QuartiCal full complex 2×2 gain total variation as a training objective and
 its antenna/time/frequency maps as guidance. Every original FLAG/FLAG_ROW is

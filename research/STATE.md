@@ -1,5 +1,24 @@
 # Rang research state
 
+L4 gain-TV flagging verdict, 2026-10-30: **closed: null**
+([flagging-verdict.md](flagging-verdict.md)). Gain-TV-guided flagging was
+tested on the SKA pointing fixture (2026-09-23/24) and on the public LUNO
+MeerKAT L-band calibrators: PKS 1934−638 at four stations (K) and on the
+whole array (L1), under three calibrator models (L1-M) and with a gauge-free
+closure arm (C1), and PKS 1830−211 under two models (L2). All LUNO runs used
+the core with the seed-7 split against the CARACal first-pass Tricolour
+strategy. Of 90 pre-registered calls, 64 are null and 26 undecidable; none is
+better or worse. The frozen policy selected no TV-guided (α > 0) mask on the
+fixture or on LUNO. Against the first pass, held-out MSE agrees within 0.06 %
+(matched 0.99943) and residual RMS within 0.5 %. On the parallel kernels the
+TV chain costs 4.6–5.9× the first pass, so neither novelty route holds. Model
+completeness (L1-M), closure structure (C1), convergence (L5) and the
+GNSS-band bins (A1) do not change the answer. Calibration choices (model,
+solver chain) move held-out error 30× or more than any flag. Scope: one
+observation, processed FLAG and weights. Native data (L3) would reopen it.
+Table `results/flagging-verdict.json`. Next: B1, the beam and pointing
+question.
+
 FS1 flux standards (big plan; [fs1-flux-standards.md](fs1-flux-standards.md)),
 2026-10-30 (implemented; measured): CASA 6.7.6 `setjy` flux standards ported
 to `rangtoy.fluxstd` (canonical) with a Rust per-channel kernel

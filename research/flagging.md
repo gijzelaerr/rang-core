@@ -1,8 +1,10 @@
 # Gain-TV-guided flagging: experiment log
 
 Started 2026-09-23 at the user's request. This is a new MeerKAT flagging
-experiment alongside the earlier pointing work. No scientific improvement has
-yet been measured.
+experiment alongside the earlier pointing work. Closed 2026-10-30 as null: no
+scientific improvement was measured on the fixture or on the LUNO
+calibrators, and the method is not cheaper than the CARACal first pass; see
+the [verdict](flagging-verdict.md).
 
 Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
 `tools/flagging/` and the recipe-only modules named here now live under
