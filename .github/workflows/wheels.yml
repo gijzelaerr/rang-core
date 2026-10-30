@@ -1,0 +1,147 @@
+# Distributable rangtoy wheels (research/wheel.md, big-plan task W1).
+#
+# Builds the abi3-py310 manylinux_2_28 wheels (x86_64 and aarch64) and the
+# sdist with maturin, tests the installed wheel on CPython 3.10 and 3.14 with
+# cargo absent from PATH (import, extension backend chosen, one fused pass,
+# tests/test_core_backends.py against a C ABI built from the same commit),
+# uploads everything as artifacts, and on a v* tag attaches the files to a
+# GitHub release. Publishing to PyPI is a separate, manual step (research/wheel.md,
+# "User item: publish").
+name: wheels
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - ".github/workflows/wheels.yml"
+      - "tools/wheel/**"
+      - "pyproject.toml"
+      - "core/**"
+      - "src/**"
+      - "Cargo.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    # bash -eo pipefail, so `pytest | tee` fails when pytest fails.
+    shell: bash
+
+env:
+  # The toolchain of tools/check-all.sh and tools/wheel/build.sh.
+  RUST_VERSION: "1.93.1"
+  MATURIN_VERSION: "v1.16.0"
+
+jobs:
+  wheel:
+    name: wheel ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [x86_64, aarch64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          manylinux: "2_28"
+          maturin-version: ${{ env.MATURIN_VERSION }}
+          rust-toolchain: ${{ env.RUST_VERSION }}
+          args: --release --locked --out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.target }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  sdist:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          maturin-version: ${{ env.MATURIN_VERSION }}
+          args: --out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  test:
+    name: test ${{ matrix.target }} py${{ matrix.python }}
+    needs: wheel
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.14"]
+        target: [x86_64, aarch64]
+        include:
+          - target: x86_64
+            runner: ubuntu-24.04
+          - target: aarch64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel-${{ matrix.target }}
+          path: dist
+      - name: Build the C ABI for the ctypes half of the backend test
+        run: |
+          rustup toolchain install "$RUST_VERSION" --profile minimal
+          cargo "+$RUST_VERSION" build --release --locked -q --manifest-path core/Cargo.toml
+          mkdir -p "$RUNNER_TEMP/ctypes"
+          cp core/target/release/librang_core.so "$RUNNER_TEMP/ctypes/"
+      - name: Install the wheel into a fresh venv
+        run: |
+          python -m venv "$RUNNER_TEMP/venv"
+          wheel=$(ls dist/*.whl)
+          "$RUNNER_TEMP/venv/bin/python" -m pip install --index-url https://pypi.org/simple \
+            "${wheel}[test,imaging]"
+      - name: Import and smoke test with cargo absent
+        run: |
+          cd "$RUNNER_TEMP"
+          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 bash -c '! command -v cargo'
+          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 \
+            "$RUNNER_TEMP/venv/bin/python" -I -c "import rangtoy._core"
+          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 \
+            "$RUNNER_TEMP/venv/bin/python" -I "$GITHUB_WORKSPACE/tools/wheel/smoke.py"
+      - name: Backend test against the installed wheel
+        run: |
+          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 \
+            PYTHONPATH="$GITHUB_WORKSPACE/tools/wheel" \
+            RANG_WHEEL_CTYPES_LIB="$RUNNER_TEMP/ctypes/librang_core.so" \
+            "$RUNNER_TEMP/venv/bin/python" -m pytest -p pytest_wheel -p no:cacheprovider \
+            -o pythonpath= -rs -q tests/test_core_backends.py | tee "$RUNNER_TEMP/pytest.out"
+          ! grep -E '^SKIPPED' "$RUNNER_TEMP/pytest.out" | grep -v 'fixture MS not present'
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [wheel, sdist, test]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Attach the wheels and sdist to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l dist
+          (cd dist && sha256sum ./* > SHA256SUMS)
+          gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
+            --verify-tag --title "$GITHUB_REF_NAME" --notes "Wheels and sdist built by the wheels workflow."
