@@ -162,7 +162,7 @@ quality/cost comparison, not further simulator expansion.
   built from `core/py` (`rangtoy.core*`): fused
   statistics, the QuartiCal-style solver, the component predictor, blosc
   decoding, WSClean imaging weights and w-stacking gridder, the Tricolour
-  strategies (`rangtoy.core_flag`; `core/data/` carries Tricolour's static
+  strategies (`rangtoy.core_flag`; `python/rangtoy/data/` carries Tricolour's static
   masks under its BSD notice) and a read-only Measurement Set reader
   (`rangtoy.core_ms`; python-casacore is still needed to write tables and
   for the oracle). Reports: `research/core-*.md`.

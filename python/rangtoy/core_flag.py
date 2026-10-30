@@ -2,7 +2,7 @@
 
 Runs Tricolour 0.2.1's `polarisation` flagging strategy, ported to Rust in
 `core/src/sumthreshold.rs`, on in-memory arrays: a strategy YAML of the kind
-CARACAL ships, the two static masks copied into `core/data/`, and the rows,
+CARACAL ships, the two static masks copied into `python/rangtoy/data/` (package data since task P7), and the rows,
 flags and metadata of one field/scan group. The Measurement Set edge stays
 outside this module. The kernel is called through the extension
 `rangtoy._core` (research/core-j-packaging.md, research/p7-architecture.md).
@@ -11,6 +11,7 @@ outside this module. The kernel is called through the extension
 import math
 import re
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -53,8 +54,11 @@ STATIC_MASK_FILES = ("4k_lband_meerkat.staticmask", "4k_uhfband_meerkat.staticma
 
 
 def static_mask_files():
-    """The two Tricolour 0.2.1 static masks copied into `core/data/`."""
-    return [core.core_root() / "data" / name for name in STATIC_MASK_FILES]
+    """The two Tricolour 0.2.1 static masks, package data since task P7
+    (`python/rangtoy/data/`; `core/data/` before)."""
+    return [
+        Path(__file__).resolve().parent / "data" / name for name in STATIC_MASK_FILES
+    ]
 
 
 def load_static_mask(path):
