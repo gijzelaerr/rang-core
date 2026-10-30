@@ -43,7 +43,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [x86_64, aarch64]
+        include:
+          - target: x86_64
+            cpu: x86-64
+          - target: aarch64
+            cpu: generic
+    env:
+      # Baseline ISA for distributable binaries: overrides any
+      # .cargo/config.toml rustflags (local builds use x86-64-v3).
+      # maturin-action passes RUSTFLAGS into its build container.
+      RUSTFLAGS: "-C target-cpu=${{ matrix.cpu }}"
     steps:
       - uses: actions/checkout@v4
       - uses: PyO3/maturin-action@v1
@@ -98,7 +107,14 @@ jobs:
           name: wheel-${{ matrix.target }}
           path: dist
       - name: Build the C ABI for the ctypes half of the backend test
+        env:
+          # Overrides any .cargo/config.toml target-cpu (valid on both arches).
+          RUSTFLAGS: "-C target-cpu=generic"
         run: |
+          if ! command -v rustup; then
+            curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+            export PATH=$HOME/.cargo/bin:$PATH
+          fi
           rustup toolchain install "$RUST_VERSION" --profile minimal
           cargo "+$RUST_VERSION" build --release --locked -q --manifest-path core/Cargo.toml
           mkdir -p "$RUNNER_TEMP/ctypes"

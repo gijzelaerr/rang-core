@@ -17,8 +17,12 @@
 #            version): the drivers of tools/core-j-suite.sh through
 #            tools/wheel/run_installed.py, cargo absent, then
 #            examples/compare_core_backends.py against the task J extension
-#            run outputs/core-j-20261029-02-extension
-# Wall times go to OUT_DIR/timings.tsv. Exit status 1 when a step fails.
+#            run outputs/core-j-20261029-02-extension (recorded, not gated:
+#            it always differs in run-path strings), and
+#            tools/wheel/classify_compare.py on its receipt (gated)
+# Wall times go to OUT_DIR/timings.tsv. Exit status 1 when a gated step
+# fails; note that the section 6 checker's cost criterion (2.0 s) fails on a
+# loaded host, which fails its step (research/wheel.md).
 # Archives are only read; every run writes into OUT_DIR, which must be fresh.
 set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 2
@@ -52,7 +56,7 @@ run() {
   local status=$?
   printf '%s\t%s\t%s\t%s\n' "$version" "$name" "$(cat "$dir/$name.time")" "$status" >> "$log"
   tail -n 3 "$dir/$name.log"
-  [ $status = 0 ] || { echo "FAILED: $version $name"; fail=1; }
+  [ $status = 0 ] || [ "${UNGATED:-0}" = 1 ] || { echo "FAILED: $version $name"; fail=1; }
   return $status
 }
 
@@ -124,10 +128,17 @@ for version in "${versions[@]}"; do
       "$suite/e"
     run "$version" i "${shim[@]}" examples/run_core_imaging.py "$suite/i" \
       outputs/tv-next-imaging-wsl-20261029-01 outputs/core-c-20261029-01/inputs
-    # File by file against task J's extension run; section6-warm and its check exist only
-    # there (a labelled repeat), so it is ignored.
-    run "$version" compare "${clean[@]}" "$venv/bin/python" examples/compare_core_backends.py \
-      "$reference" "$suite" "$dir/compare-backends.json" "section6-warm,section6-warm-check,${IGNORE:-}"
+    # File by file against task J's extension run; section6-warm and its check
+    # exist only there (a labelled repeat), so they are ignored. The raw
+    # comparator always fails here, on run-path strings (task J used
+    # checkout-absolute paths in another worktree), so its status is recorded
+    # but not gated; classify_compare.py is the gate: it fails on missing
+    # files or unexplained differences and reports float differences.
+    UNGATED=1 run "$version" compare "${clean[@]}" "$venv/bin/python" \
+      examples/compare_core_backends.py "$reference" "$suite" "$dir/compare-backends.json" \
+      "section6-warm,section6-warm-check,${IGNORE:-}"
+    run "$version" classify "${clean[@]}" "$venv/bin/python" -I "$src/tools/wheel/classify_compare.py" \
+      "$dir/compare-backends.json" "$dir/compare-classes.json"
   fi
 done
 echo "## overall: $([ $fail = 0 ] && echo PASS || echo FAIL)"

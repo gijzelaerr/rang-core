@@ -27,6 +27,15 @@ install_rust() {
 t rustup install_rust
 export PATH=$CARGO_HOME/bin:$PATH
 export RUSTUP_TOOLCHAIN=$RUST_VERSION
+# Distributable binaries use the baseline ISA of each target. The checkout's
+# .cargo/config.toml may set target-cpu=x86-64-v3 for local builds; an
+# environment RUSTFLAGS overrides every config-file rustflags.
+if [ "$ARCH" = aarch64 ]; then
+  export RUSTFLAGS="-C target-cpu=generic"
+else
+  export RUSTFLAGS="-C target-cpu=x86-64"
+fi
+echo "RUSTFLAGS=$RUSTFLAGS"
 
 tools=/tmp/tools
 make_tools() {
