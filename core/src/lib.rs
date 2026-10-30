@@ -20,6 +20,7 @@
 //! the P4 eigensolver, projector, the pointing toy) and nothing builds the
 //! root crate at run time.
 
+pub mod aipsio;
 pub mod blosc;
 pub mod closure;
 pub mod correct;
@@ -29,12 +30,15 @@ pub mod ffi_correct;
 pub mod ffi_flag;
 pub mod ffi_grid;
 pub mod ffi_ms;
+pub mod ffi_ms_write;
 pub mod ffi_weights;
 pub mod ffi_wgridder;
 pub mod fused;
 pub mod grid;
 pub mod jones;
 pub mod ms;
+pub mod ms_desc;
+pub mod ms_write;
 pub mod predict;
 pub mod robust;
 pub mod solve;

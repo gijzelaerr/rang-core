@@ -24,7 +24,9 @@
 //! into an input array during the call races with the kernel, exactly as it
 //! did under ctypes (which also released the GIL): do not do that.
 
-use numpy::{Element, IntoPyArray, PyArray1, PyReadonlyArrayDyn, PyReadwriteArrayDyn};
+use numpy::{
+    Element, IntoPyArray, PyArray1, PyReadonlyArray1, PyReadonlyArrayDyn, PyReadwriteArrayDyn,
+};
 use pyo3::exceptions::{PyOSError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
@@ -32,10 +34,12 @@ use rang_core::ffi;
 use rang_core::ffi_correct::CorrectInputsC;
 use rang_core::ffi_flag::{FlagInputs, FlagOutputs};
 use rang_core::ffi_grid::{GridInputs, GridOutputs};
+use rang_core::ffi_ms_write::{keyword_value, new_column};
 use rang_core::ffi_weights::{
     ImagingWeightInputs, ImagingWeightOutputs, StokesIInputs, StokesIOutputs,
 };
 use rang_core::ms::{DataType, Table};
+use rang_core::ms_write::TableWriter;
 use rang_core::toy;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
@@ -1102,6 +1106,196 @@ impl MsTable {
     }
 }
 
+/// `serialise(parse(x)) == x` over a table and its subtables (the table
+/// writer's criterion 7): (tables, StandardStMan files, tiled headers,
+/// failures).
+#[pyfunction]
+fn ms_serialisation_check(
+    py: Python<'_>,
+    path: &str,
+) -> PyResult<(usize, usize, usize, Vec<String>)> {
+    let c = detach(py, || rang_core::ms_write::check_serialisation(path))
+        .map_err(|e| PyOSError::new_err(e.0))?;
+    Ok((c.tables, c.ssm_files, c.tiled_headers, c.failures))
+}
+
+/// A casacore table open for writing (research/e3-table-writer.md); holds
+/// casacore's write lock until `close`.
+#[pyclass(unsendable)]
+struct MsWriter {
+    writer: Option<TableWriter>,
+}
+
+impl MsWriter {
+    fn get(&mut self) -> PyResult<&mut TableWriter> {
+        self.writer
+            .as_mut()
+            .ok_or_else(|| PyValueError::new_err("table is closed"))
+    }
+}
+
+#[pymethods]
+impl MsWriter {
+    #[new]
+    fn new(py: Python<'_>, path: &str, attempts: u32, wait_ms: u64) -> PyResult<Self> {
+        let wait = std::time::Duration::from_millis(wait_ms);
+        match detach(py, || TableWriter::open(path, attempts, wait)) {
+            Ok(writer) => Ok(MsWriter {
+                writer: Some(writer),
+            }),
+            Err(e) => Err(PyOSError::new_err(format!("{path}: {e}"))),
+        }
+    }
+
+    fn nrows(&mut self) -> PyResult<u64> {
+        Ok(self.get()?.nrows)
+    }
+
+    /// Write `count` rows (0: to the end) from `start`: `data` the cells'
+    /// native bytes as a uint8 array (borrowed, not copied), `shape` the
+    /// cell shape in casacore order (empty for scalars).
+    fn put(
+        &mut self,
+        py: Python<'_>,
+        name: &str,
+        start: u64,
+        count: u64,
+        shape: Vec<i64>,
+        data: PyReadonlyArray1<'_, u8>,
+    ) -> PyResult<()> {
+        let bytes = data.as_slice()?;
+        let w = self.get()?;
+        detach(py, || w.put_column(name, start, count, &shape, bytes))
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// Flush, then read `count` rows (0: to the end) from `start`, packed as
+    /// `MsTable.read` packs them; the table's lock is kept.
+    fn read<'py>(
+        &mut self,
+        py: Python<'py>,
+        name: &str,
+        start: u64,
+        count: u64,
+    ) -> PyResult<Column<'py>> {
+        let w = self.get()?;
+        let data = detach(py, || w.read_column(name, start, count))
+            .map_err(|e| PyOSError::new_err(e.0))?;
+        if data.shape.len() > 8 {
+            return Err(PyOSError::new_err("more than 8 cell axes"));
+        }
+        let dtype = data.dtype.unwrap_or(DataType::Str);
+        let nstrings = data.strings.len();
+        let mut bytes = data.bytes;
+        if dtype == DataType::Str {
+            bytes = Vec::with_capacity(data.strings.iter().map(|s| 4 + s.len()).sum());
+            for s in &data.strings {
+                bytes.extend((s.len() as u32).to_le_bytes());
+                bytes.extend_from_slice(s.as_bytes());
+            }
+        }
+        Ok((
+            bytes.into_pyarray(py),
+            data.nrows,
+            data.shape,
+            dtype.code(),
+            nstrings,
+        ))
+    }
+
+    fn put_strings(&mut self, name: &str, start: u64, values: Vec<String>) -> PyResult<()> {
+        self.get()?
+            .put_strings(name, start, &values)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// Define a keyword: kind 0 scalar, 1 string, 2 array, 3 string array,
+    /// 4 empty record (`rang_core_ms_write_put_keyword`).
+    #[pyo3(signature = (column, path, kind, code, shape, data, strings))]
+    #[allow(clippy::too_many_arguments)]
+    fn put_keyword(
+        &mut self,
+        column: Option<String>,
+        path: Vec<String>,
+        kind: i32,
+        code: i32,
+        shape: Vec<i64>,
+        data: Vec<u8>,
+        strings: Vec<String>,
+    ) -> PyResult<()> {
+        let value = if kind == 3 {
+            Ok(rang_core::aipsio::KeywordValue::StringArray(shape, strings))
+        } else {
+            keyword_value(kind, code, &shape, &data, 0)
+        }
+        .map_err(PyValueError::new_err)?;
+        let parts: Vec<&str> = path.iter().map(String::as_str).collect();
+        self.get()?
+            .put_keyword(column.as_deref(), &parts, value)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    fn remove_keyword(&mut self, column: Option<String>, path: Vec<String>) -> PyResult<()> {
+        let parts: Vec<&str> = path.iter().map(String::as_str).collect();
+        self.get()?
+            .remove_keyword(column.as_deref(), &parts)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// `addcols` of one column; `manager` 0 default binding, 1 a new
+    /// TiledColumnStMan, 2 a new TiledShapeStMan named `manager_name`.
+    #[allow(clippy::too_many_arguments)]
+    fn add_column(
+        &mut self,
+        py: Python<'_>,
+        name: String,
+        dtype: i32,
+        array: bool,
+        ndim: i32,
+        shape: Vec<i64>,
+        option: i32,
+        max_length: u32,
+        comment: String,
+        dm_type: String,
+        dm_group: String,
+        default: Vec<u8>,
+        manager: i32,
+        manager_name: String,
+        tile: Vec<i64>,
+    ) -> PyResult<()> {
+        let spec = new_column(
+            name,
+            dtype,
+            array,
+            ndim,
+            shape,
+            option,
+            max_length,
+            [comment, dm_type, dm_group],
+            default,
+            manager,
+            manager_name,
+            tile,
+        )
+        .map_err(PyValueError::new_err)?;
+        let w = self.get()?;
+        detach(py, || w.add_column(&spec)).map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    fn flush(&mut self, py: Python<'_>) -> PyResult<()> {
+        let w = self.get()?;
+        detach(py, || w.flush()).map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// Flush and release the lock; the table is closed even on an error.
+    fn close(&mut self, py: Python<'_>) -> PyResult<()> {
+        match self.writer.take() {
+            Some(w) => detach(py, || w.close()).map_err(|e| PyOSError::new_err(e.0)),
+            None => Ok(()),
+        }
+    }
+}
+
 /// The extension module `rangtoy._core`.
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -1136,5 +1330,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(project_out, m)?)?;
     m.add_function(wrap_pyfunction!(toy_cli, m)?)?;
     m.add_class::<MsTable>()?;
+    m.add_class::<MsWriter>()?;
+    m.add_function(wrap_pyfunction!(ms_serialisation_check, m)?)?;
     Ok(())
 }

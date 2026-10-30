@@ -729,3 +729,23 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan C1: `bash tools/check-all.sh` (plain; it takes the host lock itself), once before the final commit (`outputs/c1-20261030-check-all.log`) | – | 4 min 18 s (pytest 701 passed, 5 skipped in 2 min 06 s) | 1.66 GB |  |
 | 2026-10-30 | big plan C1: post-hoc probe 2, the split-half null (`-03-posthoc`, labelled; MemAvailable 28 GiB) | – | 2 min 42 s | 9.0 GB |  |
 | 2026-10-30 | big plan C1: `bash tools/check-all.sh` (plain), again before the commit of the post-hoc text (`outputs/c1-20261030-check-all-2.log`) | – | 1 min 41 s (pytest 701 passed, 5 skipped in 1 min 36 s) | 1.62 GB |  |
+| 2026-10-30 | big plan E3: `git clone --depth 1 --branch v3.8.1 casacore` | 43 MB | 17.7 s | – | format reference, `~/Build/tmp/20261030-e3/casacore-src` |
+| 2026-10-30 | big plan E3: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin casacure==3.8.35` | worktree | 41.4 s | – |  |
+| 2026-10-30 | big plan E3: determinism inventory, python-casacore 3.8.1 in `rang-ms-reader:local` | 19 cases × 2 copies | 4.2 s | – | container included |
+| 2026-10-30 | big plan E3: `cargo +1.93 test` (core, 85 tests, fixture set) | `core/` | 35.8 s | – | build included; 0.8 s of tests |
+| 2026-10-30 | big plan E3: `maturin develop --release --offline` (with the binding lines) | extension | 31–43 s | – |  |
+| 2026-10-30 | big plan E3: `pytest tests/test_core_ms_write.py tests/test_core_ms.py` | fixture, LUNO | 4.5 s | – | 9 passed, 4 skipped (before the oracle run) |
+| 2026-10-30 | big plan E3: `oracle_ms_write.py write` (run `-01`) | 24 cases | 2.7 s | – | container included |
+| 2026-10-30 | big plan E3: `oracle_ms_write.py scale-build` / `scale-write` | 2 tables, 342 M flags | 0.6 s / 2.3 s | – | container; casacore `putcol` 0.056 s and 0.089 s |
+| 2026-10-30 | big plan E3: `check_ms_writer.py cases` (`-02`) | 24 cases | 2.1 s | – |  |
+| 2026-10-30 | big plan E3: `check_ms_writer.py readback` | 48 tables | 6.3 s | – | container 3.4 s |
+| 2026-10-30 | big plan E3: `check_ms_writer.py roundtrip` | 41 tables | 3.4 s | – | casacore container 1.1 s, read-back container 1.0 s |
+| 2026-10-30 | big plan E3: `check_ms_writer.py reader` | task E oracle | 0.9 s | – |  |
+| 2026-10-30 | big plan E3: `check_ms_writer.py addcols` | 6 columns | 4.3 s | – | 6 containers |
+| 2026-10-30 | big plan E3: `check_ms_writer.py locks` | fixture copies | 22.2 s | – | includes the 12 s and 8 s holds |
+| 2026-10-30 | big plan E3: `check_ms_writer.py serialisation` | 41 tables | 0.07 s | – |  |
+| 2026-10-30 | big plan E3: `check_ms_writer.py scale` | 2 × 342 M flags | 0.7 s | – | peak RSS 460 MB (input 342 MB) |
+| 2026-10-30 | big plan E3: `check_ms_writer.py locks` post hoc (`-03`) | fixture copies | 22.4 s | – |  |
+| 2026-10-30 | big plan E3: `check_ms_writer.py scale` post hoc (`-04`) | 2 × 342 M flags | 0.7 s | – | peak reset per table |
+| 2026-10-30 | big plan E3: `oracle_ms_write.py write` post hoc (`-05`) | 24 cases | 2.9 s | – | container; padding comparison with `-01` |
+| 2026-10-30 | big plan E3: `bash tools/check-all.sh` (with the wiring diff of the appendix present) | repo | 3.5 min | – | PASS: root 23, core 85 Rust tests; pytest 661 passed, 3 skipped (98 s); log `outputs/e3-20261030-02/check-all.log` |

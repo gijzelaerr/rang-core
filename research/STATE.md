@@ -1,5 +1,25 @@
 # Rang research state
 
+E3 core table writer (big plan; [e3-table-writer.md](e3-table-writer.md)),
+2026-10-30 (implemented; measured): rang's core now writes existing casacore
+tables as casacore 3.8.1 does (`core/src/aipsio.rs`, `ms_desc.rs`,
+`ms_write.rs`, `ffi_ms_write.rs`; Python `rangtoy.core_ms_write`, extension
+class `MsWriter`): putcol/putcell for StandardStMan (scalars, Direct and
+indirect arrays, variable-length strings) and the tiled managers, keywords,
+addcols (the drivers' default binding, new StandardStMan, TiledColumnStMan,
+TiledShapeStMan) and the fcntl lock with the sync record. Against
+python-casacore: 20 of 24 frozen cases byte-identical, the other 4 identical
+except the alignment padding casacore fills from uninitialised memory
+(criterion 1 fails as frozen; casacore's own output differs between runs
+there); read-back by python-casacore, casacure and `core_ms`, round trip of
+41 tables (byte-identical), addcols, locks, serialisation identity and the
+342 M-flag whole-array write (0.09–0.14 s, at most +2.3 MB peak RSS,
+byte-identical) pass. Bug found and fixed: POSIX drops all of a process's
+fcntl locks when any descriptor of `table.lock` closes, which the reader was
+doing. Deferred to E4/E5: table creation, IncrementalStMan writes, big-endian
+writes, adding rows. python-casacore stays the oracle. Archive
+`results/e3-table-writer.json`.
+
 C1 closure-invariant arm (big plan wave 3), 2026-10-30 (implemented;
 measured; [c1-closure-arm.md](c1-closure-arm.md)). A Rust kernel
 (`core/src/closure.rs`) scores every training sample of LUNO 1934−638 chunk 0

@@ -94,3 +94,12 @@ to an unrelated package (carta-python is not on PyPI).
   (closure z² of 0.17–0.18 against 1 expected), and normalised closure TV has
   an antenna-additive component (R² 0.47 against a 0.15 null) consistent with
   an uneven per-antenna weight scale.
+
+## From E3 (2026-10-30; not reported by decision)
+
+- casacore 3.8.1 writes uninitialised bytes into the 4-byte alignment padding of
+  `table.fNi` (its output differs between runs; `MALLOC_PERTURB_` changes it);
+  it rewrites `table.dat` every time it releases a write lock (a note).
+- casacure 3.8.35: every column of a 0-row table reads back as an empty int32
+  array (twelfth item).
+- python-casacore: `DEFAULTTILESHAPE` is passed through unreversed (a note).

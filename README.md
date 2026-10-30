@@ -176,6 +176,10 @@ quality/cost comparison, not further simulator expansion.
 - Tutorials: `pip install -e '.[notebook]'` and open `notebooks/` (01 data and
   rank, 02 flagging step by step, 03 gains and TV, 04 imaging, 05 the flagging
   experiment); see `research/d2-notebook.md`.
+- `rangtoy.core_ms_write` writes existing casacore tables for the core
+  (byte-identical to casacore 3.8.1 bar uninitialised padding;
+  `research/e3-table-writer.md`); python-casacore stays the oracle and is
+  still needed to create tables until E4.
 - L1-M compared the stored, point and CARACal field calibrator models on LUNO
   1934−638 under L1's frozen campaign (`rangtoy.core_campaign_fieldmodel`,
   Tigger lsm reader `rangtoy.lsm`, `research/l1-model-completeness.md`): the

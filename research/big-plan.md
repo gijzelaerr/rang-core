@@ -219,7 +219,7 @@ CPU-heavy tasks at a time on 8 physical cores.
   PyPI publish job; portability fixes for the live paths listed for P7/P9/P12.
 - E2 done 2026-10-30 (`casacure-evaluation.md`): verdict (c), rang's own
   writer; casacure stays an optional pinned second oracle. Follow-on tasks:
-  E3 core table writer (in-place `putcol` for SSM and the tiled managers,
+  E3 done 2026-10-30 (`e3-table-writer.md`); E3 core table writer (in-place `putcol` for SSM and the tiled managers,
   `addcols` as casacore does, `table.dat`/description/keyword writer, lock
   sync record; after P7, parallel with P9); E4 table creation (`default_ms`
   with subtables, CASA caltables G/B/K/Df with `table.info`; after E3; feeds
