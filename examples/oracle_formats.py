@@ -67,6 +67,17 @@ def casa_t(out, ms, k_table):
     Path(out + ".json").write_text(json.dumps(log))
 
 
+def casa_split(ms, out, field):
+    """CASA split of one field's DATA into a new MS (DP3 needs one FIELD row)."""
+    from casatasks import split
+
+    start = time.perf_counter()
+    split(vis=ms, outputvis=out, field=field, datacolumn="data", keepflags=True)
+    Path(out + ".split.json").write_text(
+        json.dumps({"wall_s": time.perf_counter() - start})
+    )
+
+
 def casa_flagversions(ms, mode, name):
     from casatasks import flagmanager
 
@@ -320,6 +331,90 @@ def losoto_dump(h5, out):
     Path(out).write_text(json.dumps(result, indent=1))
 
 
+def h5_list(h5, out):
+    """Every node of an HDF5 file as PyTables sees it: class, dtype,
+    shape and attributes (the protocol's layout listing)."""
+    import tables
+
+    rows = []
+    with tables.open_file(h5) as h:
+        for node in h.walk_nodes("/"):
+            attrs = {
+                k: repr(node._v_attrs[k])
+                for k in node._v_attrs._v_attrnames
+                if k != "FILTERS"
+            }
+            rows.append(
+                {
+                    "path": node._v_pathname,
+                    "class": type(node).__name__,
+                    "dtype": str(getattr(node, "dtype", "")),
+                    "shape": [int(x) for x in getattr(node, "shape", ()) or ()],
+                    "attrs": attrs,
+                }
+            )
+    Path(out).write_text(json.dumps(rows, indent=1))
+
+
+def dp3_apply(ms, h5):
+    """DP3 6.6.0 applycal of an H5parm's amplitude000 and phase000 into
+    CORRECTED_DATA (nearest interpolation, the default)."""
+    exe = Path(sys.executable).parent / "DP3.py"
+    args = [
+        f"msin={ms}",
+        "msin.datacolumn=DATA",
+        "msout=.",
+        "msout.datacolumn=CORRECTED_DATA",
+        "steps=[ac]",
+        "ac.type=applycal",
+        f"ac.parmdb={h5}",
+        "ac.steps=[amp,ph]",
+        "ac.amp.correction=amplitude000",
+        "ac.ph.correction=phase000",
+    ]
+    start = time.perf_counter()
+    proc = subprocess.run(
+        [str(exe), *args], capture_output=True, text=True, check=False
+    )
+    Path(ms + ".dp3.json").write_text(
+        json.dumps(
+            {
+                "args": args,
+                "code": proc.returncode,
+                "wall_s": time.perf_counter() - start,
+                "log": (proc.stdout + proc.stderr)[-4000:],
+            }
+        )
+    )
+    if proc.returncode:
+        raise SystemExit(proc.stdout[-2000:] + proc.stderr[-2000:])
+
+
+def merge_sols(pattern, out):
+    """killMS 3.3.0 MergeSols.py (run in a scratch working directory: it
+    writes last_InterPol.obj there)."""
+    exe = Path(sys.executable).parent / "MergeSols.py"
+    start = time.perf_counter()
+    proc = subprocess.run(
+        [str(exe), f"--SolsFilesIn={pattern}", f"--SolFileOut={out}"],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd="/tmp",
+    )
+    Path(out + ".json").write_text(
+        json.dumps(
+            {
+                "code": proc.returncode,
+                "wall_s": time.perf_counter() - start,
+                "log": (proc.stdout + proc.stderr)[-4000:],
+            }
+        )
+    )
+    if proc.returncode:
+        raise SystemExit(proc.stdout[-2000:] + proc.stderr[-2000:])
+
+
 def losoto_make(h5, values):
     """A reference H5parm made by losoto's own API from given values."""
     from losoto.h5parm import h5parm
@@ -449,6 +544,7 @@ def npz_dump(path, out):
 MODES = {
     "casa-t": casa_t,
     "casa-flagversions": casa_flagversions,
+    "casa-split": casa_split,
     "qc-dump": qc_dump,
     "qc-delay": qc_delay,
     "qc-apply": qc_apply,
@@ -462,6 +558,9 @@ MODES = {
     "npy-dump": npy_dump,
     "npz-dump": npz_dump,
     "wsclean-list": wsclean_list,
+    "h5-list": h5_list,
+    "dp3-apply": dp3_apply,
+    "merge-sols": merge_sols,
 }
 
 

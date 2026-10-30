@@ -1049,7 +1049,309 @@ def step_sky(run):
     return write_json(run, "sky", result, started)
 
 
-STEPS = {"ct": step_ct, "qc": step_qc, "sky": step_sky}
+# ---------------------------------------------------------------------------
+# F4: H5parm.
+
+
+def antenna_names(ms):
+    from rang import core_ms
+
+    with core_ms.open_table(Path(ms) / "ANTENNA") as t:
+        return [str(x) for x in t.getcol("NAME")], t.getcol("POSITION")
+
+
+def step_h5(run):
+    from rang.formats import h5parm
+
+    started = time.perf_counter()
+    run = Path(run)
+    d = run / "h5"
+    d.mkdir(parents=True, exist_ok=True)
+    ms = casa_ms()
+    cols = ms_columns(ms)
+    freqs = ms_frequencies(ms)
+    names, positions = antenna_names(ms)
+    times = np.unique(cols["TIME"])
+    rng = np.random.default_rng(SEED)
+    shape = (len(times), len(freqs), len(names), 1, 2)
+    amp = 1 + 0.1 * rng.standard_normal(shape)
+    phase = rng.uniform(-np.pi, np.pi, shape)
+    gains = amp * np.exp(1j * phase)
+    ss = h5parm.diagonal_solset(
+        None, times, freqs, names, positions, amplitude=amp, phase=phase
+    )
+    core_h5 = d / "core.h5"
+    if core_h5.exists():
+        core_h5.unlink()
+    start = time.perf_counter()
+    h5parm.write(core_h5, {"sol000": ss})
+    write_s = time.perf_counter() - start
+    np.savez(
+        d / "values.npz",
+        time=times,
+        freq=freqs,
+        ant=np.array(names),
+        ant_pos=positions.astype(np.float32),
+        dir=np.zeros(2, np.float32),
+        amp=amp,
+        phase=phase,
+        weight=np.ones(shape),
+    )
+    py = "/opt/h5/bin/python -I /ex/oracle_formats.py"
+    ref = d / "losoto.h5"
+    if ref.exists():
+        ref.unlink()
+    script = " && ".join(
+        [
+            f"{py} losoto-dump /run/h5/core.h5 /run/h5/losoto-of-core.json",
+            f"{py} losoto-make /run/h5/losoto.h5 /run/h5/values.npz",
+            f"{py} h5-list /run/h5/core.h5 /run/h5/list-core.json",
+            f"{py} h5-list /run/h5/losoto.h5 /run/h5/list-losoto.json",
+        ]
+    )
+    docker(
+        FORMATS_IMAGE, ["sh", "-c", script], mounts(run), "losoto read, make and list"
+    )
+    # H5-losoto: losoto's read of the core's file.
+    info = json.loads((d / "losoto-of-core.json").read_text())
+    with np.load(d / "losoto-of-core.json.npz", allow_pickle=False) as z:
+        lo = {k: z[k] for k in z.files}
+    p = []
+    sol = info.get("sol000", {})
+    for st, kind, vals in (
+        ("amplitude000", "amplitude", amp),
+        ("phase000", "phase", phase),
+    ):
+        entry = sol.get("soltabs", {}).get(st)
+        if not entry or entry["type"] != kind or entry["axes"] != list(h5parm.AXES):
+            p.append(f"{st}: {entry}")
+            continue
+        if not e4.same_array(lo[f"sol000/{st}/val"], vals):
+            p.append(f"{st} val differs")
+        if not np.array_equal(lo[f"sol000/{st}/weight"], np.ones(shape)):
+            p.append(f"{st} weight differs")
+        for a, v in (("time", times), ("freq", freqs)):
+            if not e4.same_array(lo[f"sol000/{st}/axis/{a}"], v):
+                p.append(f"{st} axis {a}")
+        if [str(x) for x in lo[f"sol000/{st}/axis/ant"]] != names:
+            p.append(f"{st} axis ant")
+    if sorted(sol.get("antennas", {})) != sorted(names):
+        p.append("antenna table")
+    # The core's read of losoto's own file.
+    ref_read = h5parm.read(ref)["sol000"]
+    pr = []
+    for st, vals in (("amplitude000", amp), ("phase000", phase)):
+        t = ref_read.soltabs[st]
+        if t.axes != h5parm.AXES or not e4.same_array(t.val, vals):
+            pr.append(f"{st} val or axes")
+        if not np.array_equal(t.weight, np.ones(shape)):
+            pr.append(f"{st} weight")
+        if list(t.axis_values["ant"]) != names or not e4.same_array(
+            t.axis_values["time"], times
+        ):
+            pr.append(f"{st} axis values")
+    own = h5parm.read(core_h5)["sol000"]
+    p_own = (
+        [] if e4.same_array(h5parm.diagonal_gains(own), gains) else ["own read differs"]
+    )
+    # The layout listing, core against losoto (reported).
+    lc = {r["path"]: r for r in json.loads((d / "list-core.json").read_text())}
+    ll = {r["path"]: r for r in json.loads((d / "list-losoto.json").read_text())}
+    listing = {
+        "only_core": sorted(set(lc) - set(ll)),
+        "only_losoto": sorted(set(ll) - set(lc)),
+        "class_or_dtype_differ": sorted(
+            k
+            for k in set(lc) & set(ll)
+            if (lc[k]["class"], lc[k]["dtype"]) != (ll[k]["class"], ll[k]["dtype"])
+        ),
+        "attrs_differ": {
+            k: sorted(set(lc[k]["attrs"].items()) ^ set(ll[k]["attrs"].items()))
+            for k in sorted(set(lc) & set(ll))
+            if lc[k]["attrs"] != ll[k]["attrs"]
+        },
+    }
+    res = {
+        "H5-losoto": {
+            "losoto_reads_core": p[:20],
+            "core_reads_losoto": pr[:20],
+            "core_reads_its_own": p_own,
+            "listing": listing,
+            "write_s": write_s,
+            "bytes": core_h5.stat().st_size,
+            "pass": not p and not pr and not p_own,
+        }
+    }
+    # H5-dp3: DP3 applycal on a copy of the MS.
+    dp3_ms = d / "dp3.ms"
+    if dp3_ms.exists():
+        shutil.rmtree(dp3_ms)
+    try:
+        # DP3 refuses a Measurement Set with more than one FIELD row: CASA
+        # split makes a one-field copy of the MS (deviation, recorded).
+        docker(
+            CASA_IMAGE,
+            [
+                "sh",
+                "-c",
+                "/opt/casa/bin/python -I /ex/oracle_formats.py casa-split /o/c.ms /run/h5/dp3.ms J1939-6342",
+            ],
+            mounts(run, (ms, "/o/c.ms", "ro")),
+            "casa split (one field)",
+        )
+        docker(
+            FORMATS_IMAGE,
+            ["sh", "-c", f"{py} dp3-apply /run/h5/dp3.ms /run/h5/core.h5"],
+            mounts(run),
+            "DP3 applycal",
+        )
+        c = ms_columns(dp3_ms)
+        tix = np.searchsorted(times, c["TIME"])
+        a1, a2 = c["ANTENNA1"], c["ANTENNA2"]
+        g = gains[:, :, :, 0, :]
+        exp = np.empty(c["DATA"].shape, complex)
+        for k, (pa, qb) in enumerate(((0, 0), (0, 1), (1, 0), (1, 1))):
+            exp[..., k] = c["DATA"][..., k] / (
+                g[tix, :, a1, pa] * np.conj(g[tix, :, a2, qb])
+            )
+        flag = c["FLAG"]
+        worst, n = rel_error(c["CORRECTED_DATA"], exp, ~flag)
+        res["H5-dp3"] = {
+            "cells": n,
+            "max_relative": worst,
+            "dp3_log_tail": json.loads((d / "dp3.ms.dp3.json").read_text())["log"][
+                -600:
+            ],
+            "pass": bool(worst is not None and worst <= 1e-6),
+        }
+    except RuntimeError as err:
+        res["H5-dp3"] = {"error": str(err)[-2000:], "pass": False, "open": True}
+    result = {**res, "verdicts": {k: v["pass"] for k, v in res.items()}}
+    return write_json(run, "h5", result, started)
+
+
+# ---------------------------------------------------------------------------
+# F5: killMS solutions.
+
+
+def step_kms(run):
+    import oracle_formats
+    from rang.formats import killms, sky
+
+    started = time.perf_counter()
+    run = Path(run)
+    d = run / "kms"
+    (d / "in").mkdir(parents=True, exist_ok=True)
+    rng = np.random.default_rng(SEED)
+    names, _ = antenna_names(casa_ms())
+    nt, nch, na, nd = 3, 2, len(names), 2
+    t0 = 5.0e9 + 60.0 * np.arange(nt)
+    t1 = t0 + 60.0
+    df = 1048576.0  # a power of two: MergeSols needs (f1 - f0) / df whole
+    f0 = 1.0e9
+    cat = np.zeros(nd, sky.CLUSTERCAT_DTYPE)
+    cat["Name"] = [b"d0", b"d1"]
+    cat["ra"], cat["dec"] = [5.146, 5.15], [-1.112, -1.11]
+    cat["SumI"], cat["Cluster"] = [10.0, 1.0], [0, 1]
+    beam_times = np.array([t0[0], t1[-1]])
+    files, gains = [], []
+    for half in range(2):
+        g = 0.1 * (
+            rng.standard_normal((nt, nch, na, nd, 2, 2))
+            + 1j * rng.standard_normal((nt, nch, na, nd, 2, 2))
+        )
+        g[..., 0, 0] += 1
+        g[..., 1, 1] += 1
+        g = g.astype(np.complex64)
+        gains.append(g)
+        dom = np.zeros((nch, 2))
+        dom[:, 0] = f0 + (half * nch + np.arange(nch)) * df
+        dom[:, 1] = dom[:, 0] + df
+        path = d / "in" / f"half{half}.sols.npz"
+        killms.write(
+            path,
+            killms.make_sols(t0, t1, g),
+            names,
+            cat,
+            dom,
+            beam_times=beam_times,
+            ms_name=f"half{half}.ms",
+            model_name="core",
+        )
+        files.append(path)
+    # np.load without pickle reads the core's files.
+    no_pickle = True
+    for path in files:
+        try:
+            with np.load(path, allow_pickle=False) as z:
+                for k in z.files:
+                    z[k]
+        except ValueError:
+            no_pickle = False
+    py = "/opt/ddf/bin/python -I /ex/oracle_formats.py"
+    merged = d / "merged.npz"
+    if merged.exists():
+        merged.unlink()
+    docker(
+        FORMATS_IMAGE,
+        [
+            "sh",
+            "-c",
+            f"{py} merge-sols '/run/kms/in/*.npz' /run/kms/merged.npz && {py} npz-dump /run/kms/merged.npz /run/kms/merged-dump.npz",
+        ],
+        mounts(run),
+        "killMS MergeSols",
+    )
+    start = time.perf_counter()
+    ours = killms.read(merged)
+    read_s = time.perf_counter() - start
+    arrays, meta = {}, {}
+    for k in sorted(ours):
+        oracle_formats._flatten(k, ours[k], arrays, meta)
+    theirs_meta = json.loads((d / "merged-dump.npz.json").read_text())
+    with np.load(d / "merged-dump.npz", allow_pickle=False) as z:
+        theirs = {name: z[f"a{i}"] for i, name in enumerate(theirs_meta["arrays"])}
+    read_exact = set(arrays) == set(theirs) and all(
+        e4.same_array(arrays[k], theirs[k]) for k in arrays
+    )
+    object_members = sorted(k for k, v in ours.items() if np.asarray(v).dtype.hasobject)
+    expected = killms.merge([killms.read(p) for p in files])
+    gm, ge = ours["Sols"].G.astype(complex), expected["Sols"].G.astype(complex)
+    worst, n = rel_error(gm, ge, np.ones(gm.shape, bool))
+    exact = {
+        "FreqDomains": e4.same_array(ours["FreqDomains"], expected["FreqDomains"]),
+        "MaskedSols": e4.same_array(ours["MaskedSols"], expected["MaskedSols"]),
+        "t0": e4.same_array(
+            np.asarray(ours["Sols"].t0), np.asarray(expected["Sols"].t0)
+        ),
+        "t1": e4.same_array(
+            np.asarray(ours["Sols"].t1), np.asarray(expected["Sols"].t1)
+        ),
+    }
+    res = {
+        "KMS": {
+            "core_files_load_without_pickle": no_pickle,
+            "merged_read_bit_exact": bool(read_exact),
+            "merged_members": sorted(ours),
+            "merged_object_members": object_members,
+            "G_max_relative": worst,
+            "G_cells": n,
+            "exact": exact,
+            "read_s": read_s,
+            "pass": bool(
+                no_pickle
+                and read_exact
+                and worst is not None
+                and worst <= 1e-6
+                and all(exact.values())
+            ),
+        }
+    }
+    result = {**res, "verdicts": {k: v["pass"] for k, v in res.items()}}
+    return write_json(run, "kms", result, started)
+
+
+STEPS = {"ct": step_ct, "qc": step_qc, "sky": step_sky, "h5": step_h5, "kms": step_kms}
 
 
 def main(argv):

@@ -37,11 +37,15 @@ RUN /opt/uv/bin/uv venv -p /usr/bin/python3.12 /opt/ddf \
  && CFLAGS=-Wno-error=incompatible-pointer-types /opt/uv/bin/uv pip install --python /opt/ddf/bin/python ddfacet==1.0.0.0 killms==3.3.0 \
  && /opt/uv/bin/uv pip freeze --python /opt/ddf/bin/python > /opt/ddf.lock
 
-# DP3's wheel links the system GLib (missing in the first smoke run).
+# DP3: the wheel links the system GLib (missing in the first smoke run), and
+# applycal reads the measures tables (Observatories): copied from the O-CASA
+# image, Ubuntu's casacore-data 20250826-160001-5 (research/o-casa.md).
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libglib2.0-0t64 \
  && rm -rf /var/lib/apt/lists/* \
  && dpkg-query -W -f '${Package}=${Version}\n' | sort > /opt/image-debs.txt
+COPY --from=rang-o-casa:6.7.6.14 /usr/share/casacore/data /usr/share/casacore/data
+COPY --from=rang-o-casa:6.7.6.14 /var/lib/casacore/data /var/lib/casacore/data
 
 ENV OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 HOME=/tmp NUMBA_CACHE_DIR=/tmp/numba
 WORKDIR /work
