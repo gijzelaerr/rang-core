@@ -27,8 +27,10 @@ FROZEN = re.compile(r"^(flagging\w*|imaging_sensitivity)$")
 def _extracts():
     out = {}
     for path in sorted(PKG.glob("core_*.py")):
-        match = SOURCE.search(path.read_text())
-        if match and "Verbatim extract of the frozen" in path.read_text():
+        match = SOURCE.search(path.read_text(encoding="utf-8"))
+        if match and "Verbatim extract of the frozen" in path.read_text(
+            encoding="utf-8"
+        ):
             out[path.stem] = match.groups()
     return out
 
@@ -79,7 +81,7 @@ def test_extract_is_verbatim_copy_of_history(dest):
     frozen = (HISTORY / f"{source}.py").read_bytes()
     assert hashlib.sha256(frozen).hexdigest() == digest
     original, _, _ = _segments(frozen.decode())
-    text = (PKG / f"{dest}.py").read_text()
+    text = (PKG / f"{dest}.py").read_text(encoding="utf-8")
     copied, others, tree = _segments(text)
     # Only the docstring and import statements besides the copies.
     assert isinstance(others[0], ast.Expr) and others[0] is tree.body[0]
@@ -106,7 +108,7 @@ def test_extract_is_verbatim_copy_of_history(dest):
 
 def _frozen_imports(path):
     found = []
-    for node in ast.walk(ast.parse(path.read_text())):
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
         if isinstance(node, ast.ImportFrom):
             module = (node.module or "").removeprefix("rang.")
             if FROZEN.match(module.split(".")[-1]) and (
@@ -137,7 +139,7 @@ C1_NAMES = {"fixed_support_tv", "gain_tv", "polar_gauge"}
 def _c1_allowed(rel, path, lineno):
     if rel != C1_FILE:
         return False
-    for node in ast.walk(ast.parse(path.read_text())):
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
         if isinstance(node, ast.ImportFrom) and node.lineno == lineno:
             return (
                 node.level == 1
@@ -170,7 +172,7 @@ def test_no_live_file_imports_a_frozen_module():
     strings = {
         p.relative_to(ROOT).as_posix()
         for p in files
-        if p != Path(__file__) and pattern.search(p.read_text())
+        if p != Path(__file__) and pattern.search(p.read_text(encoding="utf-8"))
     }
     assert strings == set()
     # Code that hashes or opens a frozen module by file name (campaign
@@ -181,7 +183,7 @@ def test_no_live_file_imports_a_frozen_module():
     named = {
         p.relative_to(ROOT).as_posix()
         for p in files
-        if p.is_relative_to(PKG) and by_name.search(p.read_text())
+        if p.is_relative_to(PKG) and by_name.search(p.read_text(encoding="utf-8"))
     }
     assert named == set()
 

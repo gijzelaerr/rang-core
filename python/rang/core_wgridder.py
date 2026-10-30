@@ -128,7 +128,7 @@ def write_standalone():
         "[workspace]\n",
     )
     modules = "".join(
-        f'#[path = "{root / "src" / name}"]\npub mod {name.removesuffix(".rs")};\n'
+        f'#[path = "{(root / "src" / name).as_posix()}"]\npub mod {name.removesuffix(".rs")};\n'
         for name in SOURCES
     )
     _write_if_changed(

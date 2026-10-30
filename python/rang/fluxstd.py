@@ -419,7 +419,7 @@ def write_standalone():
         'crate-type = ["rlib", "cdylib"]\n\n[workspace]\n',
         "root.rs": "//! Standalone build of FS1 until core/src/lib.rs lists it.\n"
         + "".join(
-            f'#[path = "{src / f"{m}.rs"}"]\npub mod {m};\n'
+            f'#[path = "{(src / f"{m}.rs").as_posix()}"]\npub mod {m};\n'
             for m in ("fluxstd", "ffi_fluxstd")
         ),
     }
