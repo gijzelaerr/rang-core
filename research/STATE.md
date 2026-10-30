@@ -1,5 +1,21 @@
 # Rang research state
 
+PC1 preconditions (big plan; [pc1-preconditions.md](pc1-preconditions.md)),
+2026-10-30 (fixed; measured): the L1 and L2 preconditions pass again. Both
+failures were merge interactions, not regressions inside a task. L1's
+precondition compared image hashes exactly and had failed on main since the
+L1 merge, because P2 (rustfft gridder, pixels within 2e-15) merged first; it
+now gates on L2's tolerant comparison, as L1-M and C1 already did, and keeps
+the exact comparison in its output. L2's driver broke at the P5 merge: P5
+stores additions as cell indices and L2's `run` (not in P5's base) passed
+them as a mask; it now expands them with `additions_dense`. No archived number
+changes; the L2 replay equals pre-P5 main on every non-timing field and file;
+the C1 and L1-M checkers flip only their L1-precondition fields from false to
+true. `tests/test_pc1_preconditions.py` runs both preconditions (about 18 s)
+whenever the LUNO inputs are on the host, the check that was missing. Lesson
+for the coordinator: a merge is only verified once the preconditions of every
+driver it touches have been rerun on the merged tree.
+
 DF2a exact gridder speed (big plan; [df2-wgridder-speed.md](df2-wgridder-speed.md)),
 2026-10-30 (implemented; measured): DF1's Rust port of ducc0's wgridder now
 runs at ducc0's speed. Planes are gridded in sequence, the grid in tiles

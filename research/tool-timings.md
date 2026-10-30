@@ -801,3 +801,20 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan DF2a: `bench_df2.py summary` | both runs | < 1 s | – | `research/results/df2-wgridder-speed.json` |
 | 2026-10-30 | big plan DF2a: DF2a against DF1 over the correction (post-hoc probe, scratch script) | 0.3 rad cases, f64 ε 1e-7 | 0.8 s | – | flat: 1.8e-14 border and inside (`df2-vs-df1-correction.json`) |
 | 2026-10-30 | big plan DF2a: `bash tools/check-all.sh` (takes the host lock itself; wall from timestamps, not wrapped) | worktree at `7240935` | 293.1 s | – | **PASS**: root 23 and core 74 Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 656 passed, 4 skipped in 96.2 s; log `outputs/df2-20261030-02/logs/check-all.log` |
+| 2026-10-30 | big plan PC1: venv at the worktree (`uv venv`, `uv pip install`, `maturin develop --release --offline`) | – | about 2 min | – |  |
+| 2026-10-30 | big plan PC1: `precondition_luno_array.py` at `f6d6a96` (`-01-l1`) | – | 9.3 s | 349 MB | reproduces: image-only fail |
+| 2026-10-30 | big plan PC1: `precondition_luno_1830.py` at `f6d6a96` (`-01-l2`) | – | 6.2 s | 150 MB | reproduces: `ValueError` |
+| 2026-10-30 | big plan PC1: bisect worktrees and venvs, four commits | – | about 30 s each | – | `uv` and cargo caches warm |
+| 2026-10-30 | big plan PC1: bisect runs `-02` to `-05` | – | 1.5–1.8 s each | 120–126 MB | harness failure: no `cargo` on `PATH` for the pre-P7 ctypes build |
+| 2026-10-30 | big plan PC1: L1 precondition at `4584936` (`-06`) | – | 47.9 s | 309 MB | pass |
+| 2026-10-30 | big plan PC1: L1 precondition at `cbf9003` (`-07`) | – | 33.7 s | 622 MB | fail, image-only |
+| 2026-10-30 | big plan PC1: L2 precondition at `a279d34` (`-08`) | – | 34.9 s | 626 MB | pass |
+| 2026-10-30 | big plan PC1: L2 precondition at `29d67b4` (`-09`) | – | 28.9 s | 627 MB | fail, `ValueError` |
+| 2026-10-30 | big plan PC1: L1 precondition with the fix (`-10`) | – | 8.7 s | 333 MB | pass |
+| 2026-10-30 | big plan PC1: L2 precondition with the fix (`-11`) | – | 8.8 s | 310 MB | pass |
+| 2026-10-30 | big plan PC1: `check_c1.py` against the new precondition (`-12`) | – | 4.3 s | 209 MB | all criteria pass |
+| 2026-10-30 | big plan PC1: `check_l1m.py` against the new precondition (`-13`) | – | 12.4 s | 209 MB | all criteria pass |
+| 2026-10-30 | big plan PC1: `precondition_luno_campaign.py` (`-14`) | – | 1.7 s | 150 MB | all pass |
+| 2026-10-30 | big plan PC1: pytest, the two new tests | – | 17.7 s | – | 2 passed |
+| 2026-10-30 | big plan PC1: `bash tools/check-all.sh` (`-15-check-all.log`) | – | 4 min 44 s | 1.9 GB | PASS: 106 Rust tests, clippy, fmt, ruff, 599 passed and 5 skipped in pytest |
+| 2026-10-30 | big plan PC1: `bash tools/check-all.sh` plain, after the report fixes (`-16-check-all.log`) | – | 2 min 0 s | – | PASS: 599 passed and 5 skipped in pytest |
