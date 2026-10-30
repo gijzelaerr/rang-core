@@ -13,6 +13,10 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: NB-CARTA, the [CARTA helper](nb-carta.md): `rang.notebook.carta`
+opens images and cubes in CARTA 6.0 from a notebook (open, snapshot), the
+`[carta]` extra and the pinned wrapper and containers; skips cleanly on Windows.
+
 New, 2026-10-31: big plan task L5-C, [CASA gaincal comparator](l5c-casa-gaincal.md): CASA G on L5's intervals is within the held-out margin of the core on the slice (+7.6e-5) and outside it on the fixture (+1.2e-4), and is slow in the same intervals (the slice's tail is in the data), at 75–350× the cost.
 
 New, 2026-10-31: DF2c, [`--gridder` for the campaign runs](df2c-campaign-gridder.md):

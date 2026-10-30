@@ -254,3 +254,30 @@ to an unrelated package (carta-python is not on PyPI).
    restarts settle to about 1e-6.
 5. `gaincal` pre-applies tables with `calwt=True` hard-coded
    (`task_gaincal.py`), which keeps restarts consistent with one solve.
+
+## From NB-CARTA (2026-10-31; CARTA 6.0.0 and carta-python v1.2.0; not reported by decision)
+
+1. carta-python (v1.2.0, `989af8ed`) has no PyPI release and its
+   `setup.py` names the distribution `carta`, the name of an unrelated
+   PyPI package (`carta` 1.3.3): `pip install carta` installs the wrong
+   thing, and a project cannot depend on the wrapper from PyPI.
+2. `carta.browser.Chrome(driver_path=...)` passes `executable_path` to
+   `selenium.webdriver.Chrome`, which Selenium 4.10+ no longer accepts
+   (4.52.0 signature: `options, service, keep_alive`); verified from the
+   signature, not run.
+3. `Session.__del__` calls `close()` again; after an explicit `close()` of
+   a headless session it prints `ImportError: sys.meta_path is None` at
+   interpreter shutdown.
+4. `carta/util.py` passes `re.sub`'s `count` positionally: a
+   `DeprecationWarning` on Python 3.13+ at import.
+5. CARTA 6.0.0's `openFile` scripting action treats an absolute directory
+   as relative to the top-level folder (`/images` -> "Directory
+   /images/images does not exist").
+6. The `cartavis/carta:6.0.0` image's entrypoint does not enable the
+   scripting interface (`--enable_scripting` has to be passed), and a
+   headless Chromium without a GPU draws CARTA's axes around an empty
+   raster unless SwiftShader WebGL is enabled
+   (`--enable-unsafe-swiftshader --use-angle=swiftshader`).
+7. `carta/backend.py` starts the backend with `preexec_fn=os.setpgrp`, so
+   `Session.start_and_*` cannot work on Windows (consistent with CARTA
+   having no Windows build).

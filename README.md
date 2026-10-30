@@ -195,6 +195,10 @@ quality/cost comparison, not further simulator expansion.
 - Science notebooks: `notebooks/science/` (06 the gain-TV flagging experiment
   and its null verdict; 07 beam and pointing: the toy, the JAX path,
   observability, B1-0 and B1-1); see `research/d3-science-notebooks.md`.
+- CARTA from the notebooks (optional; Linux or macOS): `pip install -e '.[carta]'`,
+  CARTA's wrapper from its pinned commit and a backend (the pinned container);
+  `rang.notebook.carta.open/snapshot`, notebook 04 with `RANG_NOTEBOOK_CARTA=1`;
+  see `research/nb-carta.md`.
 - B1 adds the SARAO holography beam as rang's reference beam
   (`rang.beam_holography`: range reader, per-component Jones sampler,
   katbeam and EIDOS controls) and an exact port of the SARAO/SKA Gaussian

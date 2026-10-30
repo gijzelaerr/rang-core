@@ -16,6 +16,7 @@ Modules, in teaching order:
 - `experiment`: the campaign arms, the frozen decision rule, the archives;
 - `science`: the two research questions (D3), archive readers and live demonstrations;
 - `steer`: sliders and dropdowns that rerun the affected stage.
+- `carta`: optional; open images and cubes in a running CARTA backend (research/nb-carta.md).
 
 Install with the `notebook` extra (matplotlib, pandas, ipywidgets, a
 Jupyter kernel). Submodules import lazily, so `import rang.notebook`
@@ -25,6 +26,7 @@ is cheap.
 import importlib
 
 __all__ = [
+    "carta",
     "data",
     "experiment",
     "flags",

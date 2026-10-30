@@ -1164,3 +1164,15 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan L5-C: `oracle_casa_gaincal.py run slice` (`l5c-20261031-01`) | `luno-solve-20261029-02/work.ms`, 64 chunks | 92.0 s | 287 MB container | G solve 8.7 s (64 calls, 0.113 s), T 18.0 s, restarts 10–12 s, apply 7.0 s |
 | 2026-10-30 | big plan L5-C: `compare_l5c.py compare fixture / slice` | `-01` | 6.8 s / 10.4 s | 729 / 555 MB | core D 0.049 / 0.096 s wall at 4 threads |
 | 2026-10-30 | big plan L5-C: `bash tools/check-all.sh` (L5-C) | branch `l5c-casa-gaincal` | 557.6 s | 1.98 GB | overall PASS; pytest 686 passed, 15 skipped |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `uv venv` + editable install (`pointing,beam,test,imaging,notebook`, ruff, maturin, pip) | worktree | 169.4 s | — | includes the extension build; shared host |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `docker pull cartavis/carta:6.0.0` | Docker Hub | 20.2 s | — | 312 MB image, digest `sha256:951834b9…f79f2` |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `docker pull selenium/standalone-chromium@sha256:c7c17cd7…` | Docker Hub | 103.2 s | — | 2.29 GB image (155.0) |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `git clone --depth 1 --branch v1.2.0 carta-python` | GitHub | not timed (seconds) | — | read as data, scratch |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `uv pip install` carta-python at `989af8ed` + selenium, requests, simplejson | PyPI + GitHub | 7.6 s | — | selenium 4.52.0, simplejson 4.2.0 |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: scratch probes (headless session, open, snapshot) | whole-array dirty image | 12.6 s each | — | first probe drew an empty raster (no WebGL); SwiftShader flags fixed it |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: live acceptance notebook (start containers, both images, snapshots, stop) | whole-array image; LUNO slice | 35.7 s | 606 MB | open 7.1 s + snapshot 2.3 s; cube 2.0 s + open 0.27 s; two earlier attempts failed (root-owned mount, top-level-relative path), fixed |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `pytest tests/test_nb_carta.py`, `RANG_NOTEBOOK_CARTA=1`, backend up | worktree | 11.0 s | — | 15 passed |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: nbconvert notebook 04, switch on | fixture | 19.9 s | — | cell opened the dirty image and showed the snapshot |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: papermill notebook 04 via `docs/execute_notebooks.py` `execute`, switch off | fixture | 8.2 s | — | skip line printed |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: Windows: `pytest` of the scratch copy, main mirror's `.venv` | Windows | 2.3 s | — | 8 passed, 7 skipped |
+| 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `bash tools/check-all.sh` | branch at `654c61e` | 502.4 s including the lock wait | 2.06 GB | `overall: PASS`; pytest 731 passed, 14 skipped in 172.9 s |

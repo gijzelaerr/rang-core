@@ -1,5 +1,24 @@
 # Rang research state
 
+NB-CARTA, an optional CARTA helper for the notebooks (big plan;
+[nb-carta.md](nb-carta.md)), 2026-10-31 (implemented; measured):
+`rang.notebook.carta` writes a NumPy image or cube, or the core's dirty
+image, to FITS in a session directory and opens it in a running CARTA
+backend through CARTA's wrapper (`open`, `snapshot`, `available`;
+`channel_cube` images channel blocks with the core). The `[carta]` extra
+holds the PyPI dependencies only: carta-python has no PyPI release, its
+distribution name collides with the unrelated PyPI `carta`, and PyPI
+refuses direct references, so the wrapper installs from commit
+`989af8ed` (v1.2.0) by a documented command. The backend runs in
+`cartavis/carta:6.0.0` and the views render in a pinned headless
+Chromium (SwiftShader WebGL), both by digest and on 127.0.0.1 only;
+nothing starts unless asked. On WSL the LUNO whole-array dirty image
+(1024²) and an 8-plane channel-block cube of the LUNO slice open from a
+notebook kernel (7.1 s and 0.27 s) and snapshot with the raster drawn;
+on native Windows `available()` is False, `open` raises, and notebook
+04's new cell (`RANG_NOTEBOOK_CARTA=1`, default off) prints its skip
+line. `outputs/nbcarta-20261031-01`.
+
 L5-C CASA `gaincal` as the second solver comparator (big plan),
 2026-10-31 (implemented; measured; [l5c-casa-gaincal.md](l5c-casa-gaincal.md)).
 Protocol frozen first. CASA 6.7.6 `gaincal` (O-CASA's image) solves on
