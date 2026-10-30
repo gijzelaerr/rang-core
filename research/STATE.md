@@ -1,5 +1,24 @@
 # Rang research state
 
+D3 science notebooks (big plan, documentation track), 2026-10-30
+(implemented; executed and built locally and on a clean export;
+documentation only; [d3-science-notebooks.md](d3-science-notebooks.md)).
+Two guided notebooks in `notebooks/science/`, rendered on the site. 06
+tells the gain-TV flagging experiment from the question to the null
+verdict: the method live on the fixture, every real-data number read from
+`flagging-verdict.json` (the pre-registered calls, the TV policy's
+selections, the cost clause, L1-M, C1, L5, A1, O-CASA) and a live
+`verdict_tables.py --check`; L3 as the reopening item. 07 takes the
+original beam and pointing question through the Rust toy, the JAX
+reference path (agrees with Rust to 1e-11 Jy), the smooth pointing solver
+and the observability audits (live, equal to their archives), then B1-0
+from `b1-beam-product.json` and B1-1 (the SARAO/SKA fit reproduced live on
+the fixture), with B1-2 and B1-3 as proposed and their frozen rules
+quoted. Switches `RANG_NOTEBOOK_LUNO`, `_SLOW` and `_HOLOGRAPHY` are
+opt-in; the site never renders the CC BY-NC holography maps. Readers in
+`rang.notebook.science`. A clean export ran the workflow's steps with 0
+Sphinx warnings; the science notebooks take 10 s and 40 s.
+
 Certified CLEAN on real data (CLEAN programme question 3;
 [clean-certified-imaging.md](clean-certified-imaging.md)), 2026-10-30
 (implemented; measured on the LUNO 1934−638 four-station slice; branch
@@ -313,7 +332,8 @@ the core with the seed-7 split against the CARACal first-pass Tricolour
 strategy. Of 90 pre-registered calls, 64 are null and 26 undecidable; none is
 better or worse. The frozen policy selected no TV-guided (α > 0) mask on the
 fixture or on LUNO. Against the first pass, held-out MSE agrees within 0.06 %
-(matched 0.99943) and residual RMS within 0.5 %. On the parallel kernels the
+(matched 0.99943) and residual RMS within 0.6 % (0.5 % on the stored model;
+corrected 2026-10-30 by D3). On the parallel kernels the
 TV chain costs 4.6–5.9× the first pass, so neither novelty route holds. Model
 completeness (L1-M), closure structure (C1), convergence (L5) and the
 GNSS-band bins (A1) do not change the answer. Calibration choices (model,

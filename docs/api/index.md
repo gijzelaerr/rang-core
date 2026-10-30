@@ -54,3 +54,13 @@ The identifiability survey's native status codes, per gain bin:
 
    rang
 ```
+
+## Frozen flagging policy (`rang.core_campaign`)
+
+```{include} ../_generated/flagging_rules.md
+```
+
+## B1 rules (`rang.notebook.science`)
+
+```{include} ../_generated/b1_rules.md
+```

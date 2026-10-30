@@ -171,7 +171,7 @@ CPU-heavy tasks at a time on 8 physical cores.
   intervals, strategy, robustness, iteration cap → held-out error and
   image). Dependencies in a `[notebook]` extra. Done 2026-10-30
   (`d2-notebook.md`; five notebooks in `notebooks/`).
-- D3 science notebooks: the two research questions as guided notebooks,
+- D3 science notebooks (done 2026-10-30, `d3-science-notebooks.md`): the two research questions as guided notebooks,
   gain-TV-guided flagging with the null results on real data and the
   decision rule, and the beam and pointing question with the pointing
   solver, observability audits and the JAX reference path; the wave 3

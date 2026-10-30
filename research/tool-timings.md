@@ -973,3 +973,17 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | certified CLEAN: pytest `tests/test_core_clean.py` | 3 tests | 2.8 s | – | 1.2-1.7 s in pytest |
 | 2026-10-30 | certified CLEAN: binding cross-check on the slice | `exact-mgain`, `image-mgain` | 4.0 s | 148 MB | bit-identical to the example; `clean-certified-20261030-05-binding-check.json` |
 | 2026-10-30 | certified CLEAN: `bash tools/check-all.sh` at `8adebce` | worktree | 1608.4 s | 1.53 GB | PASS; the wall includes waiting for the host lock behind two coordinator runs; pytest 600 passed, 25 skipped in 365.1 s; log `outputs/clean-certified-20261030-check-all.log` |
+| 2026-10-30 | big plan D3: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging,notebook,docs]' ruff maturin pip` | worktree | 175.0 s | 1.09 GB | builds the extension |
+| 2026-10-30 | big plan D3: probe: JAX toy, Rust experiment, audits, `solve_pointing` | Rust toy fixtures | 26.5 s | 776 MB | gain audit on the complete fixture 4.2–6.0 s |
+| 2026-10-30 | big plan D3: probe: katbeam audit, native and no rotation | complete toy, katbeam H | 31.3 s | 818 MB | native 22.9 s (JAX compile): gated behind `RANG_NOTEBOOK_SLOW` |
+| 2026-10-30 | big plan D3: smoke test of `rang.notebook.science` | archives, toy, fixture | 41.8 s | 826 MB | every reader and figure |
+| 2026-10-30 | big plan D3: papermill, notebook 06 | fixture, switches off | 11.6–12.5 s | 828 MB | two runs |
+| 2026-10-30 | big plan D3: papermill, notebook 07 | toy + fixture, switches off | 28.0–29.8 s | 860 MB | two runs |
+| 2026-10-30 | big plan D3: `pytest tests/test_d3_notebooks.py` | worktree | 33.6 s | 869 MB | 16 passed in 30.6 s |
+| 2026-10-30 | big plan D3: `pytest tests/test_d3_notebooks.py tests/test_d1_docs.py` | worktree | 47.0 s | 855 MB | 19 passed, 1 failed: the link test, before this report existed |
+| 2026-10-30 | big plan D3: CI emulation: `maturin develop --release --locked --extras docs,notebook,imaging,pointing,beam` | clean export, `CARGO_BUILD_JOBS=4` | 149.3 s | 1.09 GB | cold |
+| 2026-10-30 | big plan D3: CI emulation: `execute_notebooks.py` | seven notebooks, LUNO off | 102.9 s | 870 MB | 06 10.3 s, 07 40.3 s |
+| 2026-10-30 | big plan D3: CI emulation: `gen_cli.py --check` | | 6.2 s | 35 MB | |
+| 2026-10-30 | big plan D3: CI emulation: `sphinx-build -W --keep-going` | executed notebooks | 33.4 s | 387 MB | 0 warnings, 17 MB site |
+| 2026-10-30 | big plan D3: `bash tools/check-all.sh` | branch tree (the three code commits and this report) | 2,121.7 s | 2.06 GB | **overall: PASS**; pytest 652 passed, 3 skipped in 194.7 s; the wall includes about 30 min waiting on the shared lock behind four other tasks; log `outputs/d3-20261030-check-all.log` |
+| 2026-10-30 | big plan D3: papermill, both notebooks, every switch on | worktree, LUNO slice, holography product | 15.6 s / 76.4 s | 0.93 / 1.03 GB | K replay exact; executed copies deleted (CC BY-NC maps) |

@@ -446,7 +446,10 @@ the first pass empties are exactly the campaigns' unpredictable bins: 691 on
 **Scale of the effects.**
 
 - The largest difference any flagging arm made against the first pass is
-  0.06 % in held-out MSE (0.999426) and 0.5 % in residual RMS (0.995419).
+  0.06 % in held-out MSE (0.999426) and 0.5 % in residual RMS (0.995419) on
+  the stored model; 0.6 % over every decidable call, the largest being L1-M's
+  point and field models (0.994095; corrected 2026-10-30 from notebook 06's
+  generated summary, no call changes).
   Both are inside the ±1 % band.
 - Calibration choices on the same data move held-out error thirty times
   more or more:
@@ -620,7 +623,7 @@ can tell a flagger where the bad data are.
   statistic) the result is the same:
   - the frozen objective rejected every TV-guided (α > 0) mask;
   - against CARACal's first-pass Tricolour flags, held-out error and image
-    residuals agree within 0.06 % and 0.5 %;
+    residuals agree within 0.06 % and 0.6 %;
   - on the current kernels the TV method costs two to six times as much.
 
 **Gain-TV-guided flagging is closed as null. It is neither better nor
@@ -728,7 +731,7 @@ the coordinator):
   > Of 90 pre-registered calls, 64 are null and 26 undecidable; none is
   > better or worse. The frozen policy selected no TV-guided (α > 0) mask
   > on the fixture or on LUNO. Against the first pass, held-out MSE agrees within 0.06 %
-  > (matched 0.99943) and residual RMS within 0.5 %. On the parallel
+  > (matched 0.99943) and residual RMS within 0.6 %. On the parallel
   > kernels the TV chain costs 4.6–5.9× the first pass, so neither novelty
   > route holds.
   >

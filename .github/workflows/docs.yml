@@ -3,7 +3,7 @@
 # Builds the extension as wheels.yml does (Rust 1.93.1, maturin 1.16.0, here
 # `maturin develop --release` into a venv), downloads the public tutorial
 # fixture through rang.notebook.data.download_fixture (SHA256 verified),
-# executes the five notebooks with papermill on the fixture alone
+# executes the seven notebooks (tutorials and science) with papermill on the fixture alone
 # (RANG_NOTEBOOK_LUNO=0; without CARACAL's strategy YAMLs the comparator
 # sections use the teaching strategy), checks the CLI page against
 # `rang-core -h`, and builds the site with Sphinx, failing on any warning.

@@ -14,6 +14,7 @@ Modules, in teaching order:
 - `gains`: solve, gain amplitude/phase/TV maps, the unitary gauge;
 - `image`: Briggs weights, dirty image and PSF, comparisons;
 - `experiment`: the campaign arms, the frozen decision rule, the archives;
+- `science`: the two research questions (D3), archive readers and live demonstrations;
 - `steer`: sliders and dropdowns that rerun the affected stage.
 
 Install with the `notebook` extra (matplotlib, pandas, ipywidgets, a
@@ -23,7 +24,16 @@ is cheap.
 
 import importlib
 
-__all__ = ["data", "experiment", "flags", "gains", "image", "steer", "survey"]
+__all__ = [
+    "data",
+    "experiment",
+    "flags",
+    "gains",
+    "image",
+    "science",
+    "steer",
+    "survey",
+]
 
 
 def __getattr__(name):

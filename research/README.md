@@ -13,6 +13,10 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: D3, the [science notebooks](d3-science-notebooks.md):
+the flagging verdict and the beam and pointing question as guided
+notebooks on the site, every number from an archive or a live cell.
+
 New, 2026-10-30: DF2b, the [exact gridder in the imaging drivers](df2b-wgrid.md):
 `gridder="wgrid"` for C/I/K/L1, `wstack` bit-identical, the archives within
 4e-7 of WSClean 3.7's wgridder, two-weight entry point and extension

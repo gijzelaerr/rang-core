@@ -40,7 +40,8 @@ What exists, all tested against archived oracles:
   of ducc0's wgridder, and CASA's flux standards;
 - one command line, `rang-core STAGE VERB`, that replays and compares every
   archived chain and writes versioned receipts;
-- five tutorial notebooks on a public 45 MB MeerKAT fixture;
+- five tutorial notebooks and two science notebooks (the flagging verdict; beam
+  and pointing) on a public 45 MB MeerKAT fixture and the Rust toy;
 - research notes, compact result archives and negative results for every
   question asked so far.
 

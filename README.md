@@ -191,6 +191,9 @@ quality/cost comparison, not further simulator expansion.
 - Tutorials: `pip install -e '.[notebook]'` and open `notebooks/` (01 data and
   rank, 02 flagging step by step, 03 gains and TV, 04 imaging, 05 the flagging
   experiment); see `research/d2-notebook.md`.
+- Science notebooks: `notebooks/science/` (06 the gain-TV flagging experiment
+  and its null verdict; 07 beam and pointing: the toy, the JAX path,
+  observability, B1-0 and B1-1); see `research/d3-science-notebooks.md`.
 - B1 adds the SARAO holography beam as rang's reference beam
   (`rang.beam_holography`: range reader, per-component Jones sampler,
   katbeam and EIDOS controls) and an exact port of the SARAO/SKA Gaussian
