@@ -866,3 +866,16 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P12: Windows `build.py` / `test.py`, at `86e2a8d` and at `0085b36` | – | 102.9 s and 102.2 s / 8.7 s and 8.7 s | – |  |
 | 2026-10-30 | big plan P12: Windows clone of main, install and the 4 failing test files | – | 140.5 s | – |  |
 | 2026-10-30 | big plan P12: `build.py --sdist` Linux / `maturin build` from the unpacked sdist | – | 62 s / 68 s | – |  |
+| 2026-10-30 | certified CLEAN: uv venv + editable install (WSL) | worktree `clean-certified-imaging` | 96.6 s | – | `uv venv --seed`, pip from PyPI |
+| 2026-10-30 | certified CLEAN: `examples/clean_certified_export.py`, first run | O-CASA `-01` `c.ms`, 117,556 visibilities | 40.6 s | 951 MB | includes the standalone wgridder library build; core dirty + PSF at ε 1e-9; superseded run `clean-certified-20261030-01` |
+| 2026-10-30 | certified CLEAN: orientation scan, core wgridder vs WSClean `r1` | 16 flip/transpose maps, ε 1e-6 | 2.7 s | – | scratch; DF1's map (flip v, w, transpose) is best, 17 % remains |
+| 2026-10-30 | certified CLEAN: WSClean 3.7 exploration, 5 jobs | copy of `c.ms` | 7.4 s | 78-100 MB | `clean-certified-20261030-00-wsclean-explore`; showed the minimum-grid-resolution 17 % and the divergence |
+| 2026-10-30 | certified CLEAN: `examples/clean_certified_wsclean.sh`, 7 jobs | copy of `c.ms` | 12.8 s | 78-101 MB | 1.10-2.55 s per job with container start; `clean-certified-20261030-02-wsclean` |
+| 2026-10-30 | certified CLEAN: `examples/clean_certified_export.py`, final | `-02-wsclean/c.ms`, 4 references, 2 PSFs | 0.80 s | 126 MB | dirty 2.6e-7 of the peak from WSClean `-no-min-grid-resolution -wgridder-accuracy 1e-6` |
+| 2026-10-30 | certified CLEAN: first core test build + `clean` tests | core crate | 70.1 s | – | 13 tests |
+| 2026-10-30 | certified CLEAN: `cargo +1.93 test --release`, full core | core crate | 67.0 s | 1.15 GB | 117 tests |
+| 2026-10-30 | certified CLEAN: `clean_certified` smoke, 5 major cycles, no divergence limit | `-01` inputs | 154.1 s | 211 MB | the image-size-beam run spent 105 s on 100,000 components and overflowed `Q`; the divergence limit was added after it |
+| 2026-10-30 | certified CLEAN: `clean_certified`, final | `-03` inputs, 10 configurations | 74.9 s | 156 MB | CG for `Q_∞` 45.4 s; each CLEAN 0.2-10.6 s; `clean-certified-20261030-03/run` |
+| 2026-10-30 | certified CLEAN: `examples/clean_certified_compare.py` | 10 rang + 4 WSClean models | 3.5 s | 138 MB | every model scored through the exact operator |
+| 2026-10-30 | certified CLEAN: `clean_certified` CG sweep, 50-1600 iterations | `-03` inputs | 970.5 s | 180 MB | 3,150 normal-operator applications, 0.22-0.34 s each |
+| 2026-10-30 | certified CLEAN: `examples/archive_clean_certified.py` | run, comparison, sweep, WSClean logs | 0.09 s | 17 MB | 113 kB archive |
