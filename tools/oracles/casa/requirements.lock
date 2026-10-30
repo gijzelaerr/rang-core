@@ -1,9 +1,12 @@
 # CASA closure for the O-CASA venv (Python 3.12), resolved from public PyPI on
-# 2026-10-30. casatools wheel sha256 9dac2c1be31ce393440786b48814db24309832a2fea4c84221e7c47068af1dea
-# (cp312 manylinux_2_34_x86_64), casatasks wheel sha256 f99ca8c781e286bebc4a7fe1e2b4dd8fe2d1ef184d8bc4737849c9338630ea3d.
+# 2026-10-30. casatasks wheel sha256 f99ca8c781e286bebc4a7fe1e2b4dd8fe2d1ef184d8bc4737849c9338630ea3d.
+# casatools: the manylinux_2_34 wheel (sha256 9dac2c1b...1dea) does not import on
+# Ubuntu 24.04. It bundles libssl 3.2 and libldap built against a libcrypto >= 3.2
+# (symbol versions OPENSSL_3.0.1/3.2.0, EVP_md2) that Noble's OpenSSL 3.0.13 lacks.
+# The same release's manylinux_2_28 wheel (bundles its own OpenSSL) is pinned by URL.
 casaconfig==1.5.2
 casatasks==6.7.6.14
-casatools==6.7.6.14
+casatools @ https://files.pythonhosted.org/packages/e3/fe/29ffbf125acd6ae63f4465ba59878627fd41221fce2ab369748d5df9a190/casatools-6.7.6.14-cp312-cp312-manylinux_2_28_x86_64.whl#sha256=f6db5ec590fb988799a614a0143391d4987d2c0650235b56fbedbdac33295e18
 certifi==2026.10.23
 contourpy==1.4.0
 cycler==0.12.1

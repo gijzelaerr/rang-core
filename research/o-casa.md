@@ -311,3 +311,66 @@ python-casacore), `receipt.py`, `compare.py` (host, rangtoy);
 `research/o-casa.md`; `research/results/o-casa-crosscal.json`;
 `tests/test_o_casa_optional.py` (skips without docker or the image).
 No shared file is edited.
+
+## Amendment after the labelled smoke (post-hoc, before run `-01`)
+
+Written after the image build and six smoke attempts
+(`outputs/o-casa-20261030-00-smoke`, `-smoke-b` … `-smoke-f`), committed
+before run `-01`. The frozen text above is unchanged; these changes are
+post-hoc and labelled.
+
+1. **Image (environment).** The casatools 6.7.6.14 `manylinux_2_34` wheel,
+   which pip selects on Noble, does not import: it bundles `libssl` 3.2 and
+   `libldap` built against a `libcrypto` ≥ 3.2 (symbol versions
+   `OPENSSL_3.0.1`/`OPENSSL_3.2.0`, `EVP_md2`) that Ubuntu 24.04's OpenSSL
+   3.0.13 lacks; preloading the system `libssl` fails on `EVP_md2`. The
+   same release's `manylinux_2_28` wheel (sha256
+   `f6db5ec590fb988799a614a0143391d4987d2c0650235b56fbedbdac33295e18`,
+   public PyPI URL in `requirements.lock`) imports and runs. casatools
+   still reports 6.7.6-14. casaconfig logs SEVERE notices that
+   `measurespath` is not casarundata and that the Ubuntu `TAI_UTC` table
+   (2025-08) "seems out-of-date"; every task used here runs.
+2. **Checker bugs (no data touched).** python-casacore 3.7.1 has no
+   `nolock` lock option; the first column hash of string-array columns
+   hashed object pointers, so FEED `POLARIZATION_TYPE` and OBSERVATION
+   `LOG`/`SCHEDULE` looked different although their values are equal.
+   Non-numeric columns are now hashed canonically from `getvarcol`. With
+   that, the rebuilt MS equals the archived `work.ms` in all 13 tables and
+   122 columns.
+3. **Field selection (script bug).** FIELD is copied whole (3 rows:
+   J1331+3030, J1939−6342, J1833−2103); MAIN uses FIELD_ID 1. The first
+   script took row 0 and `setjy` selected no rows. CASA calls now use the
+   name of MAIN's FIELD_ID (J1939−6342, as CARACal's `fcal` would), and
+   WSClean gets `-field 1` (its default is field 0, which gridded nothing).
+4. **CARACal's defaults on four core stations (measured in the smoke).**
+   - `refant: auto` returns no antenna: the four stations are 171–226 m
+     from the array centre but their baselines are 29–74 m, all below
+     `minbase` 150 m. CARACal then passes `refant=''`, and `gaincal` K
+     raises "Please specify a good reference antenna (refant) explicitly".
+     Arms A and B therefore stop at K, before `minblperant` matters.
+   - Mean projected baseline lengths: m000–m001 36.7 m, m000–m002 29.3 m,
+     m000–m003 58.5 m, m001–m002 62.1 m, m001–m003 74.2 m, m002–m003
+     40.8 m. `uvrange='>50'` leaves three baselines, at most two per
+     antenna.
+5. **Arms, as run from `-01`.** A and B unchanged (frozen; both expected to
+   stop at K). Added:
+   - **D `caracal-refant`** (diagnostic): CARACal's defaults with
+     `refant='m000'` set by hand, as a user would after the auto rule
+     fails; CASA's `minblperant` 4 and `uvrange='>50'` kept.
+   - **C `caracal-mb3-uv0-refant`**: `refant='m000'` (antenna 0, the core
+     campaign's reference antenna), `minblperant=3`, and no `uvrange`
+     cut for G and B. Everything else as CARACal issues it. This replaces
+     B as the baseline arm, and WSClean images C.
+   - The holdout arms keep their design with C's settings: **CH**
+     (setjy model, replacing BH) and **SH** (stored model).
+6. **Host comparison.** `compare.py` passes the MS channel frequencies to
+   `build_state` (the core's TV needs increasing coordinates; the gains do
+   not depend on them), `solve_arm` takes per-cell additions, and `run.sh`
+   puts `~/.cargo/bin` on `PATH` for the on-demand TV kernel. The core's
+   gains then hash to the core-k archive (`4ed2aa89…`) and its losses equal
+   the archive; the numpy MSE reproduces them (validation to 2e-15
+   relative). Also reported, added before `-01`: the test MSE split into
+   parallel (XX, YY) and cross (XY, YX) hands, for CASA, the core, and the
+   core with its off-diagonal gain terms zeroed.
+
+The smoke numbers are not results; `-01` and `-02` are.
