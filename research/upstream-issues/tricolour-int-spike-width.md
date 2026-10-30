@@ -1,5 +1,13 @@
 # Tricolour: an integer `spike_width_time` compiles the SumThreshold kernel twice
 
+PR (task U2, 2026-10-30): https://github.com/ratt-ru/tricolour/pull/112 on `0.5.0-dev`, as the
+maintainer asked: casts the float parameters in `sum_threshold_flagger` and `SumThresholdFlagger`,
+`spike_width_time: 2.0` in the default strategy, regression test (fails before, passes after).
+**Merged 2026-10-30** by sjperkins; CI 4/4 green. #111 stays open (the PR targeted a non-default
+branch). Companion: https://github.com/caracal-pipeline/caracal/pull/1708 writes 2.0 in the nine
+CARACal MeerKAT strategies (approved by paoloserra; CI green except the 3.9 runner, see
+[../upstream-prs.md](../upstream-prs.md)).
+
 Repository: ratt-ru/tricolour. Status: **filed 2026-10-30, https://github.com/ratt-ru/tricolour/issues/111**.
 Checked 2026-10-30 on Tricolour 0.2.1 (PyPI), Numba 0.60.0, NumPy 2.0.2, Python 3.12;
 `master` 7514d81 and 0.5.0-dev b01ac8f have the same `default.yaml` line and kernels.

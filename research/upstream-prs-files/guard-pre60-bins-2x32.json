@@ -1,0 +1,21 @@
+{
+ "intervals": [
+  2,
+  32
+ ],
+ "cross_flag_fraction_before": 0.6068028041294643,
+ "cross_flag_fraction_after": 0.7192644391741071,
+ "new_flagged_cells": 38694,
+ "station_bins": 3584,
+ "station_bins_usable_before": 2148,
+ "station_bins_usable_after": 1765,
+ "station_bins_lost": 383,
+ "lost_bins_unflagged_samples_before_median": 86.0,
+ "lost_bins_unflagged_samples_before_max": 192,
+ "lost_bins_by_station": [
+  125,
+  84,
+  79,
+  95
+ ]
+}
