@@ -4,8 +4,12 @@ Branch `p3-sumthreshold` from `43dc3c7` (worktree
 `~/Worktrees/rang/p3-sumthreshold`). Proposal P3 of
 [simplification-review.md](simplification-review.md) (section 3 and the
 section 4 table row); plan rules in [big-plan.md](big-plan.md). Status:
-**protocol frozen (this section and sections 1–3 are committed before any
-change to `core/src/sumthreshold.rs`)**.
+**implemented and measured: every acceptance criterion holds as frozen;
+the K first-pass strategy goes from 1.65 s to 0.55 s on one thread and
+0.14–0.16 s on 8–16 threads (10×), with flags bit-identical.** Sections 1–3
+were committed (`130c60c`) before any change to `core/src/sumthreshold.rs`;
+results in section 4, archive
+[results/p3-sumthreshold.json](results/p3-sumthreshold.json).
 
 Owner files: `core/src/sumthreshold.rs`, `tests/test_p3_flags.py`,
 `examples/bench_p3_flags.py`, this file. The C ABI (`ffi_flag.rs`), the
@@ -160,6 +164,166 @@ and D control 00 2.5 s → about 0.45 s at 8–16 threads (capped by 6 and 10
 baselines and by the serial 0.02 s packing); the probe near 7× on 8 physical
 cores; the frequency-axis lanes alone worth 10–30 % at one thread.
 
+## 4. What was built and what was measured (2026-10-30)
+
+**Code** (`6b38f6c`, `core/src/sumthreshold.rs` only on the Rust side):
+rayon over baselines in `sum_threshold_flagger` (each baseline runs all
+its major iterations on one worker) and `uvcontsub_flagger` (each baseline
+runs all its cycles; new helper `uvcontsub_cycle` holds the unchanged
+body), `flag_nans_zeros` and `static_mask` split by baseline; a `Scratch`
+struct per worker (`for_each_init`) carries the box filter's padded block,
+accumulators, lane buffer and weights; the frequency-axis box filter and
+SumThreshold run groups of up to 64 rows transposed into lanes; the boxcar
+lane loops (`lanes_add`, `lanes_slide`, `lanes_drain`) work on register
+blocks of 8 lanes. Three new unit tests (per-row reference equality of the
+lane-grouped box filter and SumThreshold on random data with odd sizes;
+identical flagger output in pools of 1, 3 and 8 threads) and
+`tests/test_p3_flags.py` (identity across `RAYON_NUM_THREADS` 1, 2, 5 in
+child interpreters on a 21-baseline synthetic set; replicated baselines
+carry their originals' flags; the K additions against the archive).
+
+**Development note (post-hoc, before the frozen runs; `-02`).** The first
+build with scratch buffers was slower per lane than intended: `perf`
+showed `box_filter_axis0_with` at 35 % of a one-thread K run, in a scalar
+loop. Passing reused `Vec`s by `&mut` hides that their heap buffers do not
+overlap, so LLVM did not vectorise the boxcar (the unmodified port, with
+fresh local allocations, was vectorised). Wrapping the loops in slice
+functions did not help; loading 8-lane blocks into arrays and storing them
+back did (box filter 35 % → 15 % of samples; K first-pass CPU 1.11 → 0.73 s
+at that load). `perf` on WSL did not resolve the extension's symbols
+itself; addresses were mapped with `nm` (text segment offset 0x1000).
+
+**Acceptance, as frozen.**
+
+- A1 passed: task D comparator `run`, all five criteria at 1 and at 16
+  threads (`-03/d-compare-t1`, `-03/d-compare-t16`); final flags identical
+  at all 2,293,760 elements per control, proposals 26,692 / 26,637 / 662 /
+  735, all 44 stage windows identical, intensity bit-equal, host inputs
+  unchanged.
+- A2 passed: both K arms' `additions_sha256` equal the archive (`211a9f57…`,
+  `0fe85944…`) at 1, 2, 4, 8 and 16 threads, and in the A/B and probe runs.
+- A3 passed: `bench_p3_flags.py compare` against the baseline `-01`: 96 of
+  96 input records identical (final flags and every per-step window) across
+  the five thread counts, six A/B runs (old and new extension) and five
+  probe runs (`-05/compare.log`).
+- A4 passed: 11 module tests (8 old, 3 new).
+- A5 passed: in the ×16 probe every copy's flags equal those of the
+  original K rows at every thread count, and the probe's flags equal the
+  unmodified extension's (`-05/compare-probe.log`, 20 of 20).
+- A6: clippy `-D warnings`, `fmt --check`, ruff and the targeted pytest
+  (12 tests, 3.5 s) pass; `tools/check-all.sh` result in the timings.
+
+**Speed** (run `-03`, best of 3, core seconds of the `flag_rows` call;
+baseline `-01` at load 3–4, `-03` at load 6–10):
+
+| Input | Baseline | 1 thread | 2 | 4 | 8 | 16 | Speed-up, 16 thr | CPU s, 1 / 16 thr |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| D 00 operational, first-pass (10 bl) | 2.523 | 1.107 | 0.569 | 0.354 | 0.257 | 0.279 | 9.0× | 1.11 / 1.77 |
+| D 00 holdout, first-pass | 2.536 | 0.986 | 0.524 | 0.328 | 0.239 | 0.212 | 12.0× | 0.99 / 1.60 |
+| D 01 operational, mild | 1.447 | 0.599 | 0.317 | 0.203 | 0.148 | 0.128 | 11.3× | 0.60 / 0.92 |
+| D 01 holdout, mild | 1.380 | 0.551 | 0.294 | 0.188 | 0.137 | 0.118 | 11.7× | 0.55 / 0.82 |
+| K first-pass (6 bl) | 1.650 | 0.549 | 0.290 | 0.203 | 0.136 | 0.159 | 10.3× | 0.55 / 0.72 |
+| K mild | 0.953 | 0.319 | 0.172 | 0.122 | 0.090 | 0.102 | 9.3× | 0.32 / 0.43 |
+
+One thread gains 2.3–3.0× from the lanes and the vectorised boxcar;
+threads add 4–8× more until the baselines run out (6 for K, 10 for D: 8
+and 16 threads are equal within noise). Peak RSS of the bench process
+128 MB at 1 thread, 178 MB at 16 (per-worker scratch and rayon stacks).
+
+**Per step** (single-step replay, best minus the packing overhead,
+seconds): the dominant first SumThreshold step of K first-pass 0.957 →
+0.300 (1 thread) → 0.066 (16 threads); D control 00 1.592 → 0.618 →
+0.166; each later SumThreshold step about 0.2–0.3 → 0.05–0.12 → 0.01–0.02;
+`uvcontsub` 0.03–0.06 → unchanged on one thread → 0.005–0.016. The serial
+packing and unpacking in `ffi_flag.rs` stays at 0.021–0.026 s per call,
+which is now 13–20 % of the 16-thread K and D times. Every step of every
+input is in the archive.
+
+**Same-load A/B at 16 threads** (`-05`, alternated old/new, load 20–22):
+K first-pass 2.50 / 0.45, 2.23 / 0.46, 2.40 / 0.46 s (5.0–5.5×); K mild
+1.24 / 0.36, 1.24 / 0.42, 1.33 / 0.15 s; D control 00 operational
+3.68 / 0.50, 4.07 / 0.47, 3.12 / 0.65 s (4.8–8.7×). Under that load
+both builds run about 1.5–3× slower than at load 3–10, the new one more
+so (it competes for the cores the siblings use).
+
+**Throughput probe** (K ×16 = 96 baselines; labelled probe; load rose from
+6.6 to 24 during the sweep, so its walls at 4–16 threads are pessimistic):
+
+| Strategy | Old build, 1 thr (load 21) | New 1 | 2 | 4 | 8 | 16 | CPU s new 1 / 16 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| first-pass | 43.80 (34.1 CPU-s) | 10.71 | 7.50 | 5.36 | 2.43 | 3.06 | 10.5 / 13.7 |
+| mild | 25.05 (20.4 CPU-s) | 8.35 | 4.71 | 3.28 | 2.18 | 1.59 | 7.0 / 7.8 |
+
+Peak RSS 0.78–0.85 GB for 96 baselines (input arrays, stage windows and
+16 copies of the data in Python; the port's own working set is small).
+
+**Against the expectation stated in section 3**: K first-pass reached 0.14–
+0.16 s rather than about 0.4 s and D control 00 0.21–0.28 s rather than
+about 0.45 s, because the one-thread gain from vectorisation (2.3–3.0×) was
+far above the 10–30 % expected; the probe's 4.4× at 8 threads is below the
+7× expected, at load 20–24 on a 16-thread host.
+
+**Not done.** Nested parallelism inside one baseline (it helps only slices
+with fewer baselines than cores, not the whole array); the serial packing
+in `ffi_flag.rs` (not this task's file); further single-thread work on
+`convolve_flags`, `sum_threshold_axis0` and the medians (now 7–9 % each).
+
+## 5. For the coordinator
+
+- **STATE paragraph.** "Big plan task P3, 2026-10-30 (implemented;
+  measured): the Tricolour port runs in parallel over baselines (rayon,
+  `RAYON_NUM_THREADS`) with per-worker scratch and a vectorised,
+  lane-grouped box filter and frequency-axis SumThreshold; flags
+  bit-identical (task D comparator 5/5 at 1 and 16 threads, K additions
+  hashes at 1–16 threads, every per-step window identical to the unmodified
+  port). K first-pass 1.65 → 0.55 s on one thread and 0.14–0.16 s on 8–16;
+  D controls 9–12×. Whole-array chunk 0 first pass estimated about 7 min →
+  25–50 s. Archive `results/p3-sumthreshold.json`."
+- **Timing rows** for `tool-timings.md`: the rows of the table below.
+- **Whole-array first pass for L1 (extrapolated).** L1's smoke run
+  (`outputs/luno-array-campaign-20261030-00-smoke-c`, 66 baselines, 32
+  integrations, 2,048 channels, the same shape per baseline as K) took
+  23.2 CPU-s for first-pass and 13.8 for mild on the old port (0.35 and 0.21
+  CPU-s per baseline under load; K at load 3: 0.27 and 0.16). For 1,540
+  baselines: old port about 420–540 CPU-s first-pass (7–9 min, single
+  thread) and 245–320 s mild. New port: 0.092–0.109 CPU-s per baseline on
+  one thread (140–170 s); at 8–16 threads the probe's measured rate under
+  load 20–24 (0.025–0.032 s per baseline) gives **39–49 s first-pass and
+  about 25 s mild**, and a quiet host at 6–7× about 22–26 s first-pass. Add
+  the serial packing, which scales with cells: about 5 s at 1,540
+  baselines (0.021 s per 6 baselines).
+- **Memory at the whole array.** `core_flag.flag_rows` allocates the stage
+  windows (one byte per window cell per step: 12 × 1,540 × 65,536 ≈
+  1.2 GB for first-pass) and the intensity window (8 bytes per cell ≈
+  0.8 GB); `core_campaign.tricolour_checks` uses the stages (monotone
+  check), so L1 cannot simply pass `want_stages=False`. A candidate for P5.
+- **For P7** (owner of `ffi_flag.rs`): the packing loop (polarised
+  intensity per cell) and the row unpacking are serial and are now 13–20 %
+  of a 16-thread call on these slices; they split by row ranges the same
+  way.
+- **Upstream observations.**
+  - RATT (Tricolour, `ratt-ru`): the port mirrors Tricolour's
+    `_box_gaussian_filter`, which filters the frequency axis one row at a
+    time, and `_sum_threshold` along axis 1, one row at a time. Grouping rows
+    into lanes gave 2.3–3.0× on one thread in the port. Not measured in
+    Tricolour itself (Numba may vectorise differently), so not reproduced on
+    the latest release and **not filed**; reproducing it would mean timing
+    `sum_threshold_flagger` on 0.5.0-dev with the rows-as-lanes change.
+    Issues #110 and #111 (U1) are unaffected.
+  - RATT (`caracal-pipeline`: CARACal, Stimela): nothing new.
+  - Non-RATT, not reported by decision: LLVM in rustc 1.93 did not
+    vectorise lane loops over the heap buffers of `&mut Vec` parameters
+    (aliasing not provable), which is expected compiler behaviour and was
+    worked around in rang; `perf` 6.18 on WSL2 did not symbolise the
+    extension's samples (addresses were mapped by hand). Neither is a
+    defect report.
+- **Evidence to keep.** This file, `results/p3-sumthreshold.json`,
+  `examples/bench_p3_flags.py`, `tests/test_p3_flags.py`; the run
+  directories `outputs/p3-sumthreshold-20261030-01` (baseline), `-03`
+  (frozen), `-05` (post-hoc A/B and old probe). `-00` (smoke), `-02`
+  (development smokes and `perf` symbol tables) and `-04` (failed tooling)
+  may be deleted.
+
 ## Timings (every tool run of this task)
 
 Date for every row: 2026-10-30. Load is the 1-minute average.
@@ -173,3 +337,14 @@ Date for every row: 2026-10-30. Load is the 1-minute average.
 | `compare_core_flags.py run` (`-01/d-compare`) | `-01/d-port` | 0.34 s | 65 MB | pass, criteria 1–5 |
 | `bench_p3_flags.py run --per-step` (`-01/bench-ext`) | D + K | 73.1 s | 127 MB | load 2.8–4.1; extension |
 | `bench_p3_flags.py run` with `RANG_CORE_LIB` (`-01/bench-ctypes`) | D + K | 52.0 s | 125 MB | load 4.1–14.1; a ctypes library rebuilt by the default toolchain; slower per CPU-s than the extension under that load, not used further |
+| development builds, unit tests, clippy and smokes (`-02`, post-hoc development, not results) | worktree | `cargo build` 10–18 s each, `maturin develop` 12–18 s, module tests 0.15 s, smoke benches 7–30 s, three `perf record` runs about 30 s each | 186 MB (bench) | load 15–21; every smoke identical to `-01` |
+| targeted pytest `tests/test_p3_flags.py tests/test_core_flag.py` | worktree | 4.2 s (3.5 s in pytest) | 167 MB | 12 passed |
+| `measure.sh` (`-03`, frozen): bench at 1, 2, 4, 8, 16 threads | D + K | 30.5, 7.4, 4.9, 3.8, 12.1 s | 131–183 MB | load 6–10; per-step replay at 1 and 16 |
+| `run_core_flags.py` + `compare_core_flags.py run` at 1 and 16 threads (`-03`) | D oracle arrays | 4.92 + 0.46 s; 1.75 + 0.36 s | 102 / 148 MB | pass 5/5 both |
+| A/B at 16 threads (`-03`), new | D + K | 1.64–1.68 s each | 180 MB | the three old runs **failed** (0.1 s, exit 1): the shadow package of the old extension did not resolve `core_root()`; tooling, not a result |
+| probe ×16 at 1, 2, 4, 8, 16 threads (`-03`) | K ×16 + K | 64.9, 45.7, 34.0, 21.2, 20.5 s | 800–853 MB | load 6.6 → 24; old-build probe and both `compare` calls **failed** as above |
+| post-hoc `-04`: the same old runs with `core/` linked | D + K | old 0.14–1.1 s (exit 1), new 2.1–2.2 s | 309 MB | **failed** again: `core_campaign.STRATEGY_DIR` resolves beside the shadow package |
+| post-hoc `-05`: shadow layout with `core`, `outputs`, `research`, `data` linked (`mkold.sh`, validated first in `~/Build/tmp`); A/B three pairs at 16 threads | D + K | old 16.8–16.9 s, new 3.7–3.9 s | 126 / 181 MB | load 20–22; extension hashes `f04c2f4c…` (old) and `72ae90ba…` (new) recorded |
+| `-05` old-build probe at 1 thread | K ×16 + K | 75.4 s | 624 MB | load 21–22 |
+| `-05` `bench_p3_flags.py compare` (all runs against `-01`) and `compare` of the probes against the old build | bench records | 0.25 s, 0.10 s | 40 MB | 96/96 and 20/20 identical |
+| archive script (scratch, not committed) | run directories | under 1 s | – | `results/p3-sumthreshold.json` |

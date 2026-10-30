@@ -1,0 +1,2659 @@
+{
+ "task": "P3 SumThreshold and the Tricolour strategies, parallel over baselines",
+ "protocol": "research/p3-sumthreshold.md",
+ "protocol_commit": "130c60c",
+ "implementation_commit": "6b38f6c",
+ "measured_at_commit": "3155e74",
+ "host": "Ryzen 7 7700X, 8 cores / 16 threads, WSL2; sibling sessions running",
+ "env": {
+  "OPENBLAS_NUM_THREADS": "1",
+  "backend": "extension",
+  "rust": "1.93",
+  "profile": "P0 (thin LTO, codegen-units 1, x86-64-v3)"
+ },
+ "runs": {
+  "baseline": "outputs/p3-sumthreshold-20261030-01",
+  "frozen": "outputs/p3-sumthreshold-20261030-03",
+  "posthoc_ab_and_old_probe": "outputs/p3-sumthreshold-20261030-05",
+  "failed_tooling": [
+   "outputs/p3-sumthreshold-20261030-03 ab-old-*, probe-old-t1 (shadow layout core_root)",
+   "outputs/p3-sumthreshold-20261030-04 ab-old-*, probe-old-t1 (shadow layout STRATEGY_DIR)"
+  ]
+ },
+ "acceptance": {
+  "A1_task_d_comparator": {
+   "baseline": {
+    "pass": true,
+    "criteria": {
+     "1": true,
+     "2": true,
+     "3": true,
+     "4": true,
+     "5": true
+    },
+    "added_counts": {
+     "strategy-00-operational": 26692,
+     "strategy-00-holdout_masked": 26637,
+     "strategy-01-operational": 662,
+     "strategy-01-holdout_masked": 735
+    }
+   },
+   "1_thread": {
+    "pass": true,
+    "criteria": {
+     "1": true,
+     "2": true,
+     "3": true,
+     "4": true,
+     "5": true
+    },
+    "added_counts": {
+     "strategy-00-operational": 26692,
+     "strategy-00-holdout_masked": 26637,
+     "strategy-01-operational": 662,
+     "strategy-01-holdout_masked": 735
+    }
+   },
+   "16_threads": {
+    "pass": true,
+    "criteria": {
+     "1": true,
+     "2": true,
+     "3": true,
+     "4": true,
+     "5": true
+    },
+    "added_counts": {
+     "strategy-00-operational": 26692,
+     "strategy-00-holdout_masked": 26637,
+     "strategy-01-operational": 662,
+     "strategy-01-holdout_masked": 735
+    }
+   }
+  },
+  "A2_task_k_additions_equal_archive": {
+   "1": {
+    "k/tricolour-firstpass": true,
+    "k/tricolour-mild": true
+   },
+   "2": {
+    "k/tricolour-firstpass": true,
+    "k/tricolour-mild": true
+   },
+   "4": {
+    "k/tricolour-firstpass": true,
+    "k/tricolour-mild": true
+   },
+   "8": {
+    "k/tricolour-firstpass": true,
+    "k/tricolour-mild": true
+   },
+   "16": {
+    "k/tricolour-firstpass": true,
+    "k/tricolour-mild": true
+   }
+  },
+  "A3_bench_compare": {
+   "log": "outputs/p3-sumthreshold-20261030-05/compare.log",
+   "identical": 96,
+   "different": 0
+  },
+  "A5_probe_compare_old_vs_new": {
+   "log": "outputs/p3-sumthreshold-20261030-05/compare-probe.log",
+   "identical": 20,
+   "different": 0
+  }
+ },
+ "baseline": {
+  "threads": null,
+  "extension_sha256": "f04c2f4c4f354b9c2c37099fa1379c0c90417313c7c5c59945953899a459fc8d",
+  "load_start_end": [
+   2.82,
+   4.05
+  ],
+  "max_rss_mb": 123.3,
+  "inputs": {
+   "d/strategy-00-operational": {
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "shape": [
+     140,
+     4096,
+     4
+    ],
+    "baselines": 10,
+    "times": 14,
+    "core_seconds": [
+     2.5231,
+     3.0083,
+     2.612
+    ],
+    "cpu_seconds": [
+     2.527,
+     3.01,
+     2.614
+    ],
+    "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+    "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+    "stage_differences_vs_oracle_total": 0,
+    "per_step_best_minus_overhead": {
+     "00-flag_nans_zeros": 0.0002,
+     "01-apply_static_mask": 0.0001,
+     "02-sum_threshold": 1.5917,
+     "03-uvcontsub_flagger": 0.049,
+     "04-flag_nans_zeros": 0.0004,
+     "05-apply_static_mask": 0.0006,
+     "06-sum_threshold": 0.3185,
+     "07-sum_threshold": 0.2906,
+     "08-sum_threshold": 0.2499,
+     "09-uvcontsub_flagger": 0.0645,
+     "10-flag_autos": -0.0001,
+     "11-combine_with_input_flags": 0.0
+    },
+    "packing_overhead_seconds": 0.0231
+   },
+   "d/strategy-00-holdout_masked": {
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "shape": [
+     140,
+     4096,
+     4
+    ],
+    "baselines": 10,
+    "times": 14,
+    "core_seconds": [
+     2.536,
+     2.9562,
+     2.5574
+    ],
+    "cpu_seconds": [
+     2.538,
+     2.958,
+     2.559
+    ],
+    "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+    "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+    "stage_differences_vs_oracle_total": 0,
+    "per_step_best_minus_overhead": {
+     "00-flag_nans_zeros": 0.0013,
+     "01-apply_static_mask": 0.001,
+     "02-sum_threshold": 1.7268,
+     "03-uvcontsub_flagger": 0.0334,
+     "04-flag_nans_zeros": 0.0008,
+     "05-apply_static_mask": 0.0006,
+     "06-sum_threshold": 0.3181,
+     "07-sum_threshold": 0.2894,
+     "08-sum_threshold": 0.2664,
+     "09-uvcontsub_flagger": 0.0447,
+     "10-flag_autos": 0.0003,
+     "11-combine_with_input_flags": -0.0001
+    },
+    "packing_overhead_seconds": 0.0233
+   },
+   "d/strategy-01-operational": {
+    "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+    "shape": [
+     140,
+     4096,
+     4
+    ],
+    "baselines": 10,
+    "times": 14,
+    "core_seconds": [
+     1.4739,
+     1.5003,
+     1.4468
+    ],
+    "cpu_seconds": [
+     1.475,
+     1.502,
+     1.448
+    ],
+    "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+    "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+    "stage_differences_vs_oracle_total": 0,
+    "per_step_best_minus_overhead": {
+     "00-flag_nans_zeros": 0.0003,
+     "01-sum_threshold": 0.8613,
+     "02-uvcontsub_flagger": 0.0129,
+     "03-flag_nans_zeros": -0.0002,
+     "04-sum_threshold": 0.2125,
+     "05-sum_threshold": 0.167,
+     "06-sum_threshold": 0.1603,
+     "07-uvcontsub_flagger": 0.0146,
+     "08-flag_autos": -0.0006,
+     "09-combine_with_input_flags": -0.0005
+    },
+    "packing_overhead_seconds": 0.0239
+   },
+   "d/strategy-01-holdout_masked": {
+    "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+    "shape": [
+     140,
+     4096,
+     4
+    ],
+    "baselines": 10,
+    "times": 14,
+    "core_seconds": [
+     1.3802,
+     1.6292,
+     1.4731
+    ],
+    "cpu_seconds": [
+     1.381,
+     1.631,
+     1.475
+    ],
+    "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+    "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+    "stage_differences_vs_oracle_total": 0,
+    "per_step_best_minus_overhead": {
+     "00-flag_nans_zeros": -0.0001,
+     "01-sum_threshold": 0.8519,
+     "02-uvcontsub_flagger": 0.0083,
+     "03-flag_nans_zeros": -0.0002,
+     "04-sum_threshold": 0.1672,
+     "05-sum_threshold": 0.1636,
+     "06-sum_threshold": 0.1601,
+     "07-uvcontsub_flagger": 0.0093,
+     "08-flag_autos": 0.0001,
+     "09-combine_with_input_flags": -0.0004
+    },
+    "packing_overhead_seconds": 0.0237
+   },
+   "k/tricolour-firstpass": {
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "shape": [
+     192,
+     2048,
+     4
+    ],
+    "baselines": 6,
+    "times": 32,
+    "core_seconds": [
+     1.6503,
+     1.8259,
+     1.7032
+    ],
+    "cpu_seconds": [
+     1.642,
+     1.697,
+     1.68
+    ],
+    "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+    "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+    "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+    "additions_equal_archive": true,
+    "per_step_best_minus_overhead": {
+     "00-flag_nans_zeros": 0.0001,
+     "01-apply_static_mask": 0.0,
+     "02-sum_threshold": 0.9566,
+     "03-uvcontsub_flagger": 0.0355,
+     "04-flag_nans_zeros": 0.0022,
+     "05-apply_static_mask": 0.0026,
+     "06-sum_threshold": 0.2235,
+     "07-sum_threshold": 0.1742,
+     "08-sum_threshold": 0.1847,
+     "09-uvcontsub_flagger": 0.0474,
+     "10-flag_autos": 0.0026,
+     "11-combine_with_input_flags": 0.0005
+    },
+    "packing_overhead_seconds": 0.021
+   },
+   "k/tricolour-mild": {
+    "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+    "shape": [
+     192,
+     2048,
+     4
+    ],
+    "baselines": 6,
+    "times": 32,
+    "core_seconds": [
+     0.9553,
+     0.9535,
+     0.9526
+    ],
+    "cpu_seconds": [
+     0.956,
+     0.955,
+     0.954
+    ],
+    "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+    "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+    "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+    "additions_equal_archive": true,
+    "per_step_best_minus_overhead": {
+     "00-flag_nans_zeros": -0.0001,
+     "01-sum_threshold": 0.5511,
+     "02-uvcontsub_flagger": 0.0134,
+     "03-flag_nans_zeros": 0.0046,
+     "04-sum_threshold": 0.1541,
+     "05-sum_threshold": 0.1519,
+     "06-sum_threshold": 0.1496,
+     "07-uvcontsub_flagger": 0.0122,
+     "08-flag_autos": 0.0031,
+     "09-combine_with_input_flags": 0.0023
+    },
+    "packing_overhead_seconds": 0.0212
+   }
+  }
+ },
+ "threads": {
+  "1": {
+   "threads": "1",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    10.14,
+    6.98
+   ],
+   "max_rss_mb": 127.6,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      1.1341,
+      1.1072,
+      1.1136
+     ],
+     "cpu_seconds": [
+      1.142,
+      1.11,
+      1.115
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": -0.0001,
+      "01-apply_static_mask": 0.0,
+      "02-sum_threshold": 0.6176,
+      "03-uvcontsub_flagger": 0.0513,
+      "04-flag_nans_zeros": 0.0001,
+      "05-apply_static_mask": -0.0,
+      "06-sum_threshold": 0.1178,
+      "07-sum_threshold": 0.1125,
+      "08-sum_threshold": 0.0985,
+      "09-uvcontsub_flagger": 0.0684,
+      "10-flag_autos": -0.0002,
+      "11-combine_with_input_flags": -0.0002
+     },
+     "packing_overhead_seconds": 0.0232
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.9865,
+      1.0249,
+      1.0198
+     ],
+     "cpu_seconds": [
+      0.989,
+      1.027,
+      1.022
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0002,
+      "01-apply_static_mask": 0.0001,
+      "02-sum_threshold": 0.6122,
+      "03-uvcontsub_flagger": 0.0314,
+      "04-flag_nans_zeros": 0.0001,
+      "05-apply_static_mask": 0.0002,
+      "06-sum_threshold": 0.1142,
+      "07-sum_threshold": 0.1049,
+      "08-sum_threshold": 0.0949,
+      "09-uvcontsub_flagger": 0.0421,
+      "10-flag_autos": -0.0003,
+      "11-combine_with_input_flags": -0.0003
+     },
+     "packing_overhead_seconds": 0.0233
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.5997,
+      0.6032,
+      0.5988
+     ],
+     "cpu_seconds": [
+      0.601,
+      0.605,
+      0.6
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": -0.0002,
+      "01-sum_threshold": 0.3426,
+      "02-uvcontsub_flagger": 0.0137,
+      "03-flag_nans_zeros": 0.0001,
+      "04-sum_threshold": 0.0718,
+      "05-sum_threshold": 0.0709,
+      "06-sum_threshold": 0.0673,
+      "07-uvcontsub_flagger": 0.016,
+      "08-flag_autos": -0.0001,
+      "09-combine_with_input_flags": -0.0001
+     },
+     "packing_overhead_seconds": 0.0232
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.5512,
+      0.5534,
+      0.5511
+     ],
+     "cpu_seconds": [
+      0.553,
+      0.555,
+      0.553
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0002,
+      "01-sum_threshold": 0.3185,
+      "02-uvcontsub_flagger": 0.0096,
+      "03-flag_nans_zeros": 0.0004,
+      "04-sum_threshold": 0.0683,
+      "05-sum_threshold": 0.0647,
+      "06-sum_threshold": 0.0617,
+      "07-uvcontsub_flagger": 0.0107,
+      "08-flag_autos": 0.0002,
+      "09-combine_with_input_flags": 0.0004
+     },
+     "packing_overhead_seconds": 0.0229
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.554,
+      0.5508,
+      0.5493
+     ],
+     "cpu_seconds": [
+      0.555,
+      0.552,
+      0.551
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0,
+      "01-apply_static_mask": 0.0001,
+      "02-sum_threshold": 0.3,
+      "03-uvcontsub_flagger": 0.0259,
+      "04-flag_nans_zeros": -0.0001,
+      "05-apply_static_mask": -0.0002,
+      "06-sum_threshold": 0.0664,
+      "07-sum_threshold": 0.0564,
+      "08-sum_threshold": 0.0526,
+      "09-uvcontsub_flagger": 0.033,
+      "10-flag_autos": -0.0003,
+      "11-combine_with_input_flags": -0.0003
+     },
+     "packing_overhead_seconds": 0.0212
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.3233,
+      0.3186,
+      0.3202
+     ],
+     "cpu_seconds": [
+      0.324,
+      0.32,
+      0.321
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0001,
+      "01-sum_threshold": 0.1728,
+      "02-uvcontsub_flagger": 0.007,
+      "03-flag_nans_zeros": 0.0001,
+      "04-sum_threshold": 0.0373,
+      "05-sum_threshold": 0.0372,
+      "06-sum_threshold": 0.0361,
+      "07-uvcontsub_flagger": 0.0077,
+      "08-flag_autos": -0.0,
+      "09-combine_with_input_flags": -0.0
+     },
+     "packing_overhead_seconds": 0.0209
+    }
+   }
+  },
+  "2": {
+   "threads": "2",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    6.98,
+    6.29
+   ],
+   "max_rss_mb": 130.4,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.5736,
+      0.5694,
+      0.5701
+     ],
+     "cpu_seconds": [
+      1.117,
+      1.109,
+      1.112
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.551,
+      0.5236,
+      0.5943
+     ],
+     "cpu_seconds": [
+      1.065,
+      1.015,
+      1.155
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3178,
+      0.3182,
+      0.3172
+     ],
+     "cpu_seconds": [
+      0.609,
+      0.608,
+      0.608
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.2941,
+      0.2942,
+      0.2936
+     ],
+     "cpu_seconds": [
+      0.557,
+      0.558,
+      0.556
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.3075,
+      0.338,
+      0.2899
+     ],
+     "cpu_seconds": [
+      0.583,
+      0.621,
+      0.557
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.1735,
+      0.1718,
+      0.1718
+     ],
+     "cpu_seconds": [
+      0.324,
+      0.322,
+      0.321
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "4": {
+   "threads": "4",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    6.29,
+    6.19
+   ],
+   "max_rss_mb": 137.7,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3973,
+      0.3624,
+      0.3538
+     ],
+     "cpu_seconds": [
+      1.327,
+      1.174,
+      1.185
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3415,
+      0.337,
+      0.3278
+     ],
+     "cpu_seconds": [
+      1.096,
+      1.106,
+      1.028
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.2043,
+      0.2031,
+      0.2037
+     ],
+     "cpu_seconds": [
+      0.627,
+      0.622,
+      0.667
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.1916,
+      0.1903,
+      0.1879
+     ],
+     "cpu_seconds": [
+      0.639,
+      0.586,
+      0.572
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.2041,
+      0.2045,
+      0.2026
+     ],
+     "cpu_seconds": [
+      0.572,
+      0.569,
+      0.573
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.1227,
+      0.1219,
+      0.1231
+     ],
+     "cpu_seconds": [
+      0.326,
+      0.323,
+      0.326
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "8": {
+   "threads": "8",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    6.19,
+    6.19
+   ],
+   "max_rss_mb": 150.9,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.2686,
+      0.2669,
+      0.2568
+     ],
+     "cpu_seconds": [
+      1.392,
+      1.354,
+      1.407
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.2483,
+      0.2393,
+      0.2406
+     ],
+     "cpu_seconds": [
+      1.245,
+      1.265,
+      1.287
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.1485,
+      0.1492,
+      0.1527
+     ],
+     "cpu_seconds": [
+      0.775,
+      0.785,
+      0.753
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.1375,
+      0.1425,
+      0.1433
+     ],
+     "cpu_seconds": [
+      0.693,
+      0.689,
+      0.688
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.1594,
+      0.1363,
+      0.1369
+     ],
+     "cpu_seconds": [
+      0.698,
+      0.652,
+      0.63
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.0898,
+      0.096,
+      0.1014
+     ],
+     "cpu_seconds": [
+      0.372,
+      0.383,
+      0.406
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "16": {
+   "threads": "16",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    6.19,
+    6.11
+   ],
+   "max_rss_mb": 178.5,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3585,
+      0.2792,
+      0.3332
+     ],
+     "cpu_seconds": [
+      1.78,
+      1.856,
+      1.771
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0009,
+      "01-apply_static_mask": 0.0018,
+      "02-sum_threshold": 0.1662,
+      "03-uvcontsub_flagger": 0.0157,
+      "04-flag_nans_zeros": -0.0001,
+      "05-apply_static_mask": -0.0002,
+      "06-sum_threshold": 0.0235,
+      "07-sum_threshold": 0.019,
+      "08-sum_threshold": 0.0169,
+      "09-uvcontsub_flagger": 0.0118,
+      "10-flag_autos": -0.0022,
+      "11-combine_with_input_flags": 0.0005
+     },
+     "packing_overhead_seconds": 0.0259
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.2117,
+      0.2499,
+      0.2312
+     ],
+     "cpu_seconds": [
+      1.6,
+      1.63,
+      1.608
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0023,
+      "01-apply_static_mask": 0.0013,
+      "02-sum_threshold": 0.0989,
+      "03-uvcontsub_flagger": 0.0062,
+      "04-flag_nans_zeros": 0.0006,
+      "05-apply_static_mask": 0.0006,
+      "06-sum_threshold": 0.0205,
+      "07-sum_threshold": 0.0186,
+      "08-sum_threshold": 0.0183,
+      "09-uvcontsub_flagger": 0.0164,
+      "10-flag_autos": 0.0001,
+      "11-combine_with_input_flags": -0.0002
+     },
+     "packing_overhead_seconds": 0.0235
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.1356,
+      0.1277,
+      0.1304
+     ],
+     "cpu_seconds": [
+      0.921,
+      0.944,
+      0.937
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0011,
+      "01-sum_threshold": 0.0564,
+      "02-uvcontsub_flagger": 0.003,
+      "03-flag_nans_zeros": 0.0008,
+      "04-sum_threshold": 0.0124,
+      "05-sum_threshold": 0.0119,
+      "06-sum_threshold": 0.0123,
+      "07-uvcontsub_flagger": 0.0033,
+      "08-flag_autos": 0.0,
+      "09-combine_with_input_flags": 0.0
+     },
+     "packing_overhead_seconds": 0.0232
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.1191,
+      0.1187,
+      0.1183
+     ],
+     "cpu_seconds": [
+      0.824,
+      0.821,
+      0.846
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0006,
+      "01-sum_threshold": 0.0548,
+      "02-uvcontsub_flagger": 0.0048,
+      "03-flag_nans_zeros": 0.0018,
+      "04-sum_threshold": 0.0153,
+      "05-sum_threshold": 0.0122,
+      "06-sum_threshold": 0.0115,
+      "07-uvcontsub_flagger": 0.0034,
+      "08-flag_autos": 0.0001,
+      "09-combine_with_input_flags": 0.0002
+     },
+     "packing_overhead_seconds": 0.0233
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.1595,
+      0.1686,
+      0.1627
+     ],
+     "cpu_seconds": [
+      0.718,
+      0.757,
+      0.76
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0006,
+      "01-apply_static_mask": 0.0005,
+      "02-sum_threshold": 0.0665,
+      "03-uvcontsub_flagger": 0.0049,
+      "04-flag_nans_zeros": 0.0007,
+      "05-apply_static_mask": 0.0052,
+      "06-sum_threshold": 0.0201,
+      "07-sum_threshold": 0.017,
+      "08-sum_threshold": 0.0158,
+      "09-uvcontsub_flagger": 0.0094,
+      "10-flag_autos": 0.0004,
+      "11-combine_with_input_flags": 0.0003
+     },
+     "packing_overhead_seconds": 0.0212
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.102,
+      0.1077,
+      0.1083
+     ],
+     "cpu_seconds": [
+      0.435,
+      0.466,
+      0.45
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true,
+     "per_step_best_minus_overhead": {
+      "00-flag_nans_zeros": 0.0006,
+      "01-sum_threshold": 0.0471,
+      "02-uvcontsub_flagger": 0.0021,
+      "03-flag_nans_zeros": 0.0007,
+      "04-sum_threshold": 0.0102,
+      "05-sum_threshold": 0.0076,
+      "06-sum_threshold": 0.0082,
+      "07-uvcontsub_flagger": 0.0025,
+      "08-flag_autos": 0.0003,
+      "09-combine_with_input_flags": 0.0009
+     },
+     "packing_overhead_seconds": 0.0214
+    }
+   }
+  }
+ },
+ "ab_16_threads": {
+  "old-1": {
+   "threads": "16",
+   "extension_sha256": "f04c2f4c4f354b9c2c37099fa1379c0c90417313c7c5c59945953899a459fc8d",
+   "load_start_end": [
+    19.75,
+    19.82
+   ],
+   "max_rss_mb": 122.7,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      3.6839
+     ],
+     "cpu_seconds": [
+      3.326
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      3.6857
+     ],
+     "cpu_seconds": [
+      3.278
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      2.2913
+     ],
+     "cpu_seconds": [
+      2.012
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      2.4824
+     ],
+     "cpu_seconds": [
+      2.02
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      2.5011
+     ],
+     "cpu_seconds": [
+      2.146
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      1.2434
+     ],
+     "cpu_seconds": [
+      1.236
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "new-1": {
+   "threads": "16",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    19.82,
+    20.88
+   ],
+   "max_rss_mb": 176.6,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.4994
+     ],
+     "cpu_seconds": [
+      1.713
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.6528
+     ],
+     "cpu_seconds": [
+      1.622
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3971
+     ],
+     "cpu_seconds": [
+      1.002
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.369
+     ],
+     "cpu_seconds": [
+      0.877
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.4544
+     ],
+     "cpu_seconds": [
+      0.807
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.3589
+     ],
+     "cpu_seconds": [
+      0.462
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "old-2": {
+   "threads": "16",
+   "extension_sha256": "f04c2f4c4f354b9c2c37099fa1379c0c90417313c7c5c59945953899a459fc8d",
+   "load_start_end": [
+    20.88,
+    20.45
+   ],
+   "max_rss_mb": 122.5,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      4.0661
+     ],
+     "cpu_seconds": [
+      3.431
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      4.1744
+     ],
+     "cpu_seconds": [
+      3.341
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      2.0946
+     ],
+     "cpu_seconds": [
+      1.903
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      2.0392
+     ],
+     "cpu_seconds": [
+      1.854
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      2.2284
+     ],
+     "cpu_seconds": [
+      2.013
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      1.2439
+     ],
+     "cpu_seconds": [
+      1.109
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "new-2": {
+   "threads": "16",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    20.45,
+    21.46
+   ],
+   "max_rss_mb": 175.2,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.4681
+     ],
+     "cpu_seconds": [
+      1.707
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.5563
+     ],
+     "cpu_seconds": [
+      1.559
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3715
+     ],
+     "cpu_seconds": [
+      0.974
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3884
+     ],
+     "cpu_seconds": [
+      0.899
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.4562
+     ],
+     "cpu_seconds": [
+      0.759
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.4152
+     ],
+     "cpu_seconds": [
+      0.47
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "old-3": {
+   "threads": "16",
+   "extension_sha256": "f04c2f4c4f354b9c2c37099fa1379c0c90417313c7c5c59945953899a459fc8d",
+   "load_start_end": [
+    21.46,
+    20.93
+   ],
+   "max_rss_mb": 122.5,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      3.119
+     ],
+     "cpu_seconds": [
+      3.119
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      4.2707
+     ],
+     "cpu_seconds": [
+      3.313
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      2.4791
+     ],
+     "cpu_seconds": [
+      1.923
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      2.3292
+     ],
+     "cpu_seconds": [
+      1.846
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      2.3953
+     ],
+     "cpu_seconds": [
+      2.062
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      1.3252
+     ],
+     "cpu_seconds": [
+      1.244
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "new-3": {
+   "threads": "16",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    20.93,
+    22.05
+   ],
+   "max_rss_mb": 176.2,
+   "inputs": {
+    "d/strategy-00-operational": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.6537
+     ],
+     "cpu_seconds": [
+      1.789
+     ],
+     "flags_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+     "stage_hashes_sha256_of_list": "b7805f752bca37d77281673ce2351af524d6c9b90c12f4b75188c4725664901a",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-00-holdout_masked": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.6053
+     ],
+     "cpu_seconds": [
+      1.659
+     ],
+     "flags_sha256": "b104a9bae37414b66d243328a2928cbb5cacf235ffa78fc919a1dcf041032fd9",
+     "stage_hashes_sha256_of_list": "e87f5e43b51c37088058e206be4f964daff5de9327d720b4fbcf24ce628e2b6b",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-operational": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.4076
+     ],
+     "cpu_seconds": [
+      0.965
+     ],
+     "flags_sha256": "8eedc94e62aa894982e0bca25883f82313d07d512089c28520733cf0adfc51d1",
+     "stage_hashes_sha256_of_list": "69ce112353b11f087699071ff4e6913eb770906f9b2060bd06569f4290d9b918",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "d/strategy-01-holdout_masked": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      140,
+      4096,
+      4
+     ],
+     "baselines": 10,
+     "times": 14,
+     "core_seconds": [
+      0.3835
+     ],
+     "cpu_seconds": [
+      0.861
+     ],
+     "flags_sha256": "71590c7ff2263afe86c605a16084238dce781395a64f830aaf6230ae93fc56d6",
+     "stage_hashes_sha256_of_list": "1b4e908b9984df7651e86af7e31dc94677dec148f3096cfc12c710204c9a3656",
+     "stage_differences_vs_oracle_total": 0
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.4602
+     ],
+     "cpu_seconds": [
+      0.865
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.1543
+     ],
+     "cpu_seconds": [
+      0.431
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  }
+ },
+ "probe_x16": {
+  "new-t1": {
+   "threads": "1",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    6.58,
+    13.03
+   ],
+   "max_rss_mb": 781.7,
+   "inputs": {
+    "probe-x16/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      10.7139,
+      11.0294,
+      11.0672
+     ],
+     "cpu_seconds": [
+      10.726,
+      10.936,
+      10.496
+     ],
+     "flags_sha256": "f3766428d319ab4423fff8dbdffdfcea16e789ef497413d946ec34676732d40d",
+     "stage_hashes_sha256_of_list": "4ecbe0a6efd552d053ad7e6e6602e9290380b23961079f6b726af727921081cb",
+     "copies_identical": true,
+     "copy_flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50"
+    },
+    "probe-x16/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      8.4039,
+      8.3943,
+      8.3459
+     ],
+     "cpu_seconds": [
+      7.18,
+      7.239,
+      7.018
+     ],
+     "flags_sha256": "603850107707bad36de435cdc1e9d7983f895dea8ab597c970c9eb811ce3cadd",
+     "stage_hashes_sha256_of_list": "76386b215d9c19c5b68a52efdac194d91f4253f29dd6d8109adf1ab90b8d6acf",
+     "copies_identical": true,
+     "copy_flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194"
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.8714,
+      1.0339,
+      0.8375
+     ],
+     "cpu_seconds": [
+      0.793,
+      0.785,
+      0.815
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.6825,
+      0.6919,
+      0.6817
+     ],
+     "cpu_seconds": [
+      0.466,
+      0.585,
+      0.46
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "new-t2": {
+   "threads": "2",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    13.03,
+    15.97
+   ],
+   "max_rss_mb": 784.9,
+   "inputs": {
+    "probe-x16/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      8.6878,
+      7.503,
+      8.5236
+     ],
+     "cpu_seconds": [
+      12.485,
+      12.02,
+      12.724
+     ],
+     "flags_sha256": "f3766428d319ab4423fff8dbdffdfcea16e789ef497413d946ec34676732d40d",
+     "stage_hashes_sha256_of_list": "4ecbe0a6efd552d053ad7e6e6602e9290380b23961079f6b726af727921081cb",
+     "copies_identical": true,
+     "copy_flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50"
+    },
+    "probe-x16/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      4.9399,
+      4.7136,
+      5.1199
+     ],
+     "cpu_seconds": [
+      7.083,
+      7.174,
+      7.394
+     ],
+     "flags_sha256": "603850107707bad36de435cdc1e9d7983f895dea8ab597c970c9eb811ce3cadd",
+     "stage_hashes_sha256_of_list": "76386b215d9c19c5b68a52efdac194d91f4253f29dd6d8109adf1ab90b8d6acf",
+     "copies_identical": true,
+     "copy_flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194"
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.7049,
+      0.8513,
+      0.7451
+     ],
+     "cpu_seconds": [
+      0.768,
+      0.884,
+      0.829
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.3882,
+      0.3554,
+      0.4118
+     ],
+     "cpu_seconds": [
+      0.447,
+      0.457,
+      0.476
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "new-t4": {
+   "threads": "4",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    15.97,
+    19.92
+   ],
+   "max_rss_mb": 791.8,
+   "inputs": {
+    "probe-x16/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      6.1148,
+      6.1068,
+      5.3579
+     ],
+     "cpu_seconds": [
+      12.965,
+      12.845,
+      13.128
+     ],
+     "flags_sha256": "f3766428d319ab4423fff8dbdffdfcea16e789ef497413d946ec34676732d40d",
+     "stage_hashes_sha256_of_list": "4ecbe0a6efd552d053ad7e6e6602e9290380b23961079f6b726af727921081cb",
+     "copies_identical": true,
+     "copy_flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50"
+    },
+    "probe-x16/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      3.3127,
+      3.2784,
+      3.861
+     ],
+     "cpu_seconds": [
+      7.478,
+      7.432,
+      7.598
+     ],
+     "flags_sha256": "603850107707bad36de435cdc1e9d7983f895dea8ab597c970c9eb811ce3cadd",
+     "stage_hashes_sha256_of_list": "76386b215d9c19c5b68a52efdac194d91f4253f29dd6d8109adf1ab90b8d6acf",
+     "copies_identical": true,
+     "copy_flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194"
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.6191,
+      0.5102,
+      0.5804
+     ],
+     "cpu_seconds": [
+      0.781,
+      0.768,
+      0.775
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.3786,
+      0.2645,
+      0.2559
+     ],
+     "cpu_seconds": [
+      0.479,
+      0.447,
+      0.448
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "new-t8": {
+   "threads": "8",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    19.92,
+    22.52
+   ],
+   "max_rss_mb": 805.4,
+   "inputs": {
+    "probe-x16/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      3.5409,
+      2.429,
+      3.3431
+     ],
+     "cpu_seconds": [
+      12.992,
+      13.421,
+      13.455
+     ],
+     "flags_sha256": "f3766428d319ab4423fff8dbdffdfcea16e789ef497413d946ec34676732d40d",
+     "stage_hashes_sha256_of_list": "4ecbe0a6efd552d053ad7e6e6602e9290380b23961079f6b726af727921081cb",
+     "copies_identical": true,
+     "copy_flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50"
+    },
+    "probe-x16/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      2.1824,
+      2.5755,
+      2.1936
+     ],
+     "cpu_seconds": [
+      7.702,
+      7.692,
+      7.558
+     ],
+     "flags_sha256": "603850107707bad36de435cdc1e9d7983f895dea8ab597c970c9eb811ce3cadd",
+     "stage_hashes_sha256_of_list": "76386b215d9c19c5b68a52efdac194d91f4253f29dd6d8109adf1ab90b8d6acf",
+     "copies_identical": true,
+     "copy_flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194"
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.4489,
+      0.3923,
+      0.4593
+     ],
+     "cpu_seconds": [
+      0.793,
+      0.802,
+      0.781
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.2534,
+      0.389,
+      0.2924
+     ],
+     "cpu_seconds": [
+      0.474,
+      0.505,
+      0.51
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "new-t16": {
+   "threads": "16",
+   "extension_sha256": "72ae90ba76996fc39b1a82c3719cf8c59f1fa23ae65950baa0b2879b9a9c6890",
+   "load_start_end": [
+    22.52,
+    24.19
+   ],
+   "max_rss_mb": 833.4,
+   "inputs": {
+    "probe-x16/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      3.2397,
+      3.1402,
+      3.0633
+     ],
+     "cpu_seconds": [
+      13.807,
+      13.673,
+      13.768
+     ],
+     "flags_sha256": "f3766428d319ab4423fff8dbdffdfcea16e789ef497413d946ec34676732d40d",
+     "stage_hashes_sha256_of_list": "4ecbe0a6efd552d053ad7e6e6602e9290380b23961079f6b726af727921081cb",
+     "copies_identical": true,
+     "copy_flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50"
+    },
+    "probe-x16/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      2.0724,
+      1.9992,
+      1.5869
+     ],
+     "cpu_seconds": [
+      8.088,
+      7.754,
+      8.129
+     ],
+     "flags_sha256": "603850107707bad36de435cdc1e9d7983f895dea8ab597c970c9eb811ce3cadd",
+     "stage_hashes_sha256_of_list": "76386b215d9c19c5b68a52efdac194d91f4253f29dd6d8109adf1ab90b8d6acf",
+     "copies_identical": true,
+     "copy_flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194"
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.4953,
+      0.487,
+      0.4556
+     ],
+     "cpu_seconds": [
+      0.822,
+      0.856,
+      0.829
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      0.2963,
+      0.344,
+      0.2882
+     ],
+     "cpu_seconds": [
+      0.507,
+      0.475,
+      0.463
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  },
+  "old-t1": {
+   "threads": "1",
+   "extension_sha256": "f04c2f4c4f354b9c2c37099fa1379c0c90417313c7c5c59945953899a459fc8d",
+   "load_start_end": [
+    22.05,
+    20.88
+   ],
+   "max_rss_mb": 609.8,
+   "inputs": {
+    "probe-x16/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      43.8002
+     ],
+     "cpu_seconds": [
+      34.13
+     ],
+     "flags_sha256": "f3766428d319ab4423fff8dbdffdfcea16e789ef497413d946ec34676732d40d",
+     "stage_hashes_sha256_of_list": "4ecbe0a6efd552d053ad7e6e6602e9290380b23961079f6b726af727921081cb",
+     "copies_identical": true,
+     "copy_flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50"
+    },
+    "probe-x16/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      3072,
+      2048,
+      4
+     ],
+     "baselines": 96,
+     "times": 32,
+     "core_seconds": [
+      25.0517
+     ],
+     "cpu_seconds": [
+      20.358
+     ],
+     "flags_sha256": "603850107707bad36de435cdc1e9d7983f895dea8ab597c970c9eb811ce3cadd",
+     "stage_hashes_sha256_of_list": "76386b215d9c19c5b68a52efdac194d91f4253f29dd6d8109adf1ab90b8d6acf",
+     "copies_identical": true,
+     "copy_flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194"
+    },
+    "k/tricolour-firstpass": {
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      2.1116
+     ],
+     "cpu_seconds": [
+      1.993
+     ],
+     "flags_sha256": "ab80f43a174e94bad4a196fa757239dd92d9fe4808e50af4abbaec91900e3b50",
+     "stage_hashes_sha256_of_list": "bf4f39509739f986cd2764594ba268da769368b64a3437a3196412a79851aab0",
+     "additions_sha256": "211a9f57c145ad2323b0e9eb537868650484c697bef7b4b2498e4cc9258aea36",
+     "additions_equal_archive": true
+    },
+    "k/tricolour-mild": {
+     "strategy_sha256": "835207c30eb4efdf2f65ae61c140699f7c2e01dbbca476c8434ae2776f5bde82",
+     "shape": [
+      192,
+      2048,
+      4
+     ],
+     "baselines": 6,
+     "times": 32,
+     "core_seconds": [
+      1.5092
+     ],
+     "cpu_seconds": [
+      1.258
+     ],
+     "flags_sha256": "316f4374815d1016b2758242f9a5135e306900c2297eb362a72325582c463194",
+     "stage_hashes_sha256_of_list": "fc1a56bb81cf2b008f49532490c6149f1837ec4e48750b6f8b680f107e804550",
+     "additions_sha256": "0fe85944d61f113e86137958d9657fa6c8395052ba8379fc6495223def443a4d",
+     "additions_equal_archive": true
+    }
+   }
+  }
+ }
+}
