@@ -188,3 +188,15 @@ Every RATT observation above was checked against its latest release
   filed; the release declares `<3.14`, repository under `caracal-pipeline`.
 - Non-RATT items: [non-ratt-observations.md](non-ratt-observations.md), not
   reported by decision.
+
+## S1 observations (2026-10-30; observed, not raised)
+
+- **QuartiCal `complex` convergence, measured curve** (`simplification-review.md`
+  section 2.7, on the port that equals QuartiCal to 3.3e-16 at 50 iterations):
+  on the LUNO 1934−638 four-station slice 7.3 % of intervals pass the 1e-7
+  criterion at 8 iterations, 49 % at 15, 98.33 % at 45; the default stop
+  fraction 0.99 is reached only at 91; held-out MSE is within 2e-5 relative by
+  12 iterations while gain products still move 1.3e-3 between 50 and 91. A
+  loss-based or gauge-invariant criterion would stop an estimated 3–5× earlier.
+  To be reproduced on QuartiCal's latest release before filing (U1 closed the
+  plain iteration-cap note as not a defect; this is the improvement case).

@@ -1,5 +1,24 @@
 # Rang research state
 
+Simplification review S1 (big plan wave 1), 2026-10-30 (measured; no code
+changed). Every archived chain was re-run and reproduces its archived outcome
+(29 timed steps plus the phase 1 and 3c-a validators, the fetch checker and
+the backends comparator; the offline task K replay matches the archived gains,
+dirty images and PSFs hash for hash). The core runs one thread per stage:
+87 % of the K chain's samples are in Rust, under 1 % in Python glue, and 15 of
+16 hardware threads stay idle (the host is 8 physical cores with SMT). The six
+K images are 67 % of the non-fetch time and 83 % of each image is the
+hand-written Bluestein FFT. Peak memory is about 0.87 kB per visibility cell
+against 84 B of inputs, so the whole-array chunk (100.9 M cells) would need
+about 88 GB as the K code is written. Thin LTO plus `x86-64-v3` code
+generation cut instructions by 22 % with bit-identical results (applied on
+main as P0). The 50-iteration solver cap is not convergence: held-out MSE
+settles within 2e-5 by 12 iterations, but gain products move 1.3e-3 between
+50 and 91 iterations, so changing the cap is a science protocol. The test
+suite's time is 98 % in three pointing modules (JAX/XLA and dense algebra,
+145 threads). Wave 2 tasks P0–P11 are cut in `simplification-review.md`
+section 4 with owner files and archives; P1, P2, P3 and P8 start first.
+
 Task U1 (big plan), 2026-10-30 (done). Every RATT observation in
 `upstream-notes.md` was checked against its latest release (QuartiCal 0.2.7 and
 v0.2.8-dev, Tricolour 0.2.1 and 0.5.0-dev, dask-ms 0.2.32). Four issues were

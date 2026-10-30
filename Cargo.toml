@@ -13,3 +13,7 @@ crate-type = ["rlib", "cdylib"]
 [[bin]]
 name = "rang-toy"
 path = "src/main.rs"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

@@ -18,3 +18,17 @@ report would contain if that decision changes. RATT items, filed or not, are in
 | Crystalball 0.4.3 (not under `ratt-ru`) | `license = "GPLv2"` with a real GPL-2 `LICENSE`: metadata and licence text agree | [core-d-tricolour.md](core-d-tricolour.md) section 1 | Nothing to report; rang does not port it | nothing to report |
 | katbeam, katsdpsigproc (`ska-sa`) | No defect observed; katsdpsigproc's BSD-3-Clause header covers the SumThreshold kernel rang ported | [core-d-tricolour.md](core-d-tricolour.md), [katbeam-pointing.md](katbeam-pointing.md) | Nothing to report | nothing to report |
 | CARACal, Stimela (`caracal-pipeline`) | Developed with RATT people but not under `ratt-ru`; neither observation is a defect | [upstream-issues/caracal-firstpass-intermediate-flags.md](upstream-issues/caracal-firstpass-intermediate-flags.md), [upstream-issues/stimela-python314.md](upstream-issues/stimela-python314.md) | Nothing to report; if the user counts `caracal-pipeline` as RATT, the files there give the reasons | not filed (reason in file) |
+
+## From the S1 review (2026-10-30; not reported by decision)
+
+- **NumPy's bundled OpenBLAS (scipy-openblas64)** starts 16 spinning threads at
+  import: a 0.07 s comparator process burns 0.7–0.9 CPU-s; with
+  `OPENBLAS_NUM_THREADS=1` the same comparator used 0.09–0.12 CPU-s against
+  0.37–0.50 (A/B at load 30). Rang pins it at entry in P9.
+- **JAX/XLA on CPU** starts compile, Eigen and execute pools of 16 threads each
+  (145 threads in one pytest process) and oversubscribes a shared host; the
+  pointing tests slowed about 14× under load 16–33. Addressed in P10.
+- **Extension `blosc_decode`** builds a fresh `bytes` per 205 MB DATA tile; 37 %
+  of the section 6 checker's samples sit in that frame (first-touch page faults
+  and fill), a cost of the decode-to-new-object API, not of LZ4. Rang's own;
+  addressed in P5.

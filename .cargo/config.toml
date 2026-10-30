@@ -1,0 +1,5 @@
+# P0 of research/simplification-review.md: local builds target x86-64-v3
+# (measured -22 % instructions, bit-identical results). Distributable wheels
+# override this with RUSTFLAGS="-C target-cpu=x86-64" in tools/wheel and CI.
+[build]
+rustflags = ["-C", "target-cpu=x86-64-v3"]

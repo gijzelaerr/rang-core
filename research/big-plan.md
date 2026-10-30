@@ -1,9 +1,12 @@
 # Rang big plan: simpler, faster, finished
 
 Written 2026-10-30 on the user's instruction after the core port
-([core-parallel-plan.md](core-parallel-plan.md), tasks A–K) was merged. Status:
-**wave 1 running; U1 merged 2026-10-30** (four RATT issues filed, nine
-observations closed with reasons, `upstream-issues/`). Read this, [STATE.md](STATE.md) and the task files it
+([core-parallel-plan.md](core-parallel-plan.md), tasks A–K) was merged. Status: **wave 1: U1 and S1 merged 2026-10-30, L1 and W1 running; wave 2
+started** (P0 applied by the coordinator; P1, P2, P3, P8 running; the rest
+queued in the order of `simplification-review.md` section 4). S1 found that
+every archive reproduces, that the core is single-threaded and FFT-bound at
+four stations and memory-bound (about 0.87 kB per cell, about 88 GB) at the
+whole array. Read this, [STATE.md](STATE.md) and the task files it
 names before starting work. The coordinating session merges waves day and
 night without waiting for the user; nothing in this plan blocks on a user
 answer except the two items under "User items".
@@ -84,29 +87,19 @@ pytest run per task; share the 16 cores.
 | W1 | **Distributable wheel.** `maturin build --release --manylinux 2_28` (abi3-py310) in the `quay.io/pypa/manylinux_2_28_x86_64` container, auditwheel-repaired, installed into fresh uv venvs for 3.10–3.14 and smoke-tested with the backend comparator and the task I imaging check; aarch64 by zig cross if it works in an hour, else recorded; a GitHub Actions workflow `.github/workflows/wheels.yml` that builds, tests and attaches wheels to a release on tags `v*`; `tools/wheel/build.sh`. Publication to PyPI is prepared as one documented command but not executed (user item). | `.github/workflows/wheels.yml`, `tools/wheel/`, `research/wheel.md`, `pyproject.toml` version/metadata lines only | wheel installs and runs on clean 3.10–3.14; CI green on the branch |
 | U1 | **Upstream reporting.** For every RATT observation in `upstream-notes.md` (QuartiCal: JIT cost and cache, no HISTORY row, `fastmath`, `complex` ignores `reference_antenna`, conjugate-baseline weight reuse, 50-iteration cap convergence; dask-ms: FEED fan-out, object-column encoding; Tricolour: licence metadata, compile cost; CARACal strategy intermediate state): reproduce on the latest release in a fresh uv venv (3.13) with a minimal public-data or synthetic script, write the issue text to `research/upstream-issues/<repo>-<slug>.md` (title, versions, reproduction, expected, observed, proposed fix or PR sketch), file it with `gh issue create` on the `ratt-ru` repository, record the URL. Observations that do not reproduce on the latest release are recorded as such and not filed. Non-RATT items (WSClean `CalculateMsLimits`, `-store-imaging-weights`, OpenBLAS/eigensolver, Zarr chunking of the public store, blosc block tables) go to `research/non-ratt-observations.md`. | `research/upstream-issues/`, `research/non-ratt-observations.md` | every observation filed or closed with a reason. **Done 2026-10-30**: QuartiCal #452, #453; Tricolour #110, #111 filed; nine closed; non-RATT list written. |
 
-## Wave 2 (after S1 merges; tasks cut from its ranked list, expected shape)
+## Wave 2 (cut from the review, 2026-10-30)
 
-- P1 solver: rayon over solution intervals and baselines, SIMD 2×2 complex
-  kernels, convergence criterion and initialisation study against the
-  phase 2 archive; same gains to 1e-12.
-- P2 gridder and weights: rayon over w-layers and rows, FFT planning reuse,
-  GPU gridding/FFT through wgpu or cudarc behind a feature flag, measured
-  against task C/I archives.
-- P3 fused pass and SumThreshold: one pass over decoded blocks, SIMD,
-  parallel over baselines; same flags and statistics bit-for-bit.
-- P4 step reduction: fuse the phase 3 stages into one driver and one archive
-  format; retire superseded Python paths (`flagging_*` modules that the core
-  reproduces), the frozen QuartiCal recipes and containers to `history/`
-  with their archives kept; one CLI.
-- P5 ingest: decode and fetch streaming so the whole-array chunk never sits
-  in memory twice; mmap of local tiles.
-- P6 architecture: drop the ctypes path once W1's wheel is on main, release
-  the GIL in the extension, `catch_unwind` on every C function, OpenBLAS
-  thread pinning or LAPACK for the survey.
-
-Each is a worktree task with its own protocol, archive comparator and
-"For the coordinator" section; the review assigns owner files so they do not
-overlap. Tasks that need the same file run in sequence.
+The task table with owner files, archives and sequencing is section 4 of
+[simplification-review.md](simplification-review.md). In short: P0 release
+profile and crates (coordinator, done on main); P2 gridder FFT and parallel
+w-layers; P5 memory (one copy of the cube; after L1 merges, since it edits
+`core_campaign.py`); P1 solver and fused pass parallel over intervals; P3
+SumThreshold parallel over baselines; P6 frozen Python hot spots ported; P4
+survey eigensolver; P8 frozen recipes, containers and recipe-only modules to
+`history/`; P10 test-suite speed (after P8); P7 architecture (drop ctypes, GIL,
+`catch_unwind`; after W1 and P1–P6, alone); P9 one CLI and archive format
+(after P7); P11 extract and retire the frozen modules (after P6 and P7). Three
+CPU-heavy tasks at a time on 8 physical cores.
 
 ## Wave 3 (science, after L1's verdict; parallel where independent)
 

@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task S1, the [simplification and optimisation
+review](simplification-review.md) with [profiles](results/profiles-20261030/):
+every archive reproduces, the core is single-threaded and FFT-bound, the
+whole array is memory-bound; wave 2 tasks P0–P11 cut from it.
+
 New, 2026-10-30: big plan task U1, [upstream issues](upstream-issues/) on RATT
 software (QuartiCal #452, #453; Tricolour #110, #111) and the
 [non-RATT list](non-ratt-observations.md); status per observation in
