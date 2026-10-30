@@ -4,7 +4,7 @@ Written 2026-10-30 as the handoff before clearing the coordinating session.
 Status: **wave 1 and wave 2 tasks I and J merged** 2026-10-29 (outcomes in
 STATE.md and `core-<slug>.md`); **K merged 2026-10-30** (null result, provisional
 while the SARAO licence confirmation is open; `core-k-luno-campaign.md`). All
-planned tasks are done. Read
+planned tasks are done; continued by [big-plan.md](big-plan.md). Read
 this, [STATE.md](STATE.md) and [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9 first.
 

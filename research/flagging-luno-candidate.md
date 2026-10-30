@@ -123,9 +123,11 @@ On 2026-10-29 the user chose to continue with the calibrator scans while the
 items below are open. Results are provisional; see the
 [processed-support survey](flagging-luno-support.md).
 
-- **Licence and citation: answered by the observer in chat.** Ben Hugo, the
-  observer, replied on WhatsApp on 2026-10-29 at 15:36 SAST: "you can use it.
-  Just cite the Sarao data usage acknowledgement". No written licence exists
+- **Licence and citation: settled (user decision 2026-10-30; [big-plan.md](big-plan.md)).**
+  Ben Hugo, the observer, replied on WhatsApp on 2026-10-29 at 15:36 SAST:
+  "you can use it. Just cite the Sarao data usage acknowledgement". The user
+  decided this suffices; results are no longer labelled provisional on this
+  account. No written licence exists
   in the stores. MeerKAT papers commonly use the wording "The MeerKAT telescope
   is operated by the South African Radio Astronomy Observatory, which is a
   facility of the National Research Foundation, an agency of the Department of

@@ -159,7 +159,8 @@ quality/cost comparison, not further simulator expansion.
 - The first real-data campaign on the LUNO calibrator slice ran entirely on
   the core (`rangtoy.core_campaign`, `rang-core campaign`;
   `research/core-k-luno-campaign.md`) with a null result, provisional while
-  the SARAO licence confirmation is open.
+  the other caveats of `research/core-k-luno-campaign.md` (licence settled
+  by user decision 2026-10-30, `research/big-plan.md`).
 - `python/rangtoy/`: Python interfaces and JAX inference/audit implementations.
 - `examples/` and `tests/`: reproducible experiments and regression tests.
 - `research/`: derivations, reports and compact result archives.

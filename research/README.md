@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: the [big plan](big-plan.md): simplification and
+optimisation review, science to a verdict, RATT upstream issues and a
+distributable wheel, run in parallel waves; licence settled by user decision.
+
 New, 2026-10-30: wave 2 task K, the [first real-data LUNO campaign on the core](core-k-luno-campaign.md):
 fetch, decode, solve, Tricolour port, TV policy and imaging in 110 s on the
 PKS 1934−638 four-station slice; a null result by the pre-registered rule,

@@ -1,5 +1,20 @@
 # Rang research state
 
+Big plan started, 2026-10-30 (user decisions in chat; [big-plan.md](big-plan.md)).
+Four lines of work run in parallel from here: a simplification and
+optimisation review of the whole chain (then its implementation), the
+science continued to a settled verdict (whole-array LUNO campaign first),
+upstream issues filed on RATT software only, and a distributable Linux
+wheel. The coordinator merges waves without waiting for the user.
+
+Licence decision, 2026-10-30 (user, in chat): the LUNO data may be used and
+upstream software may be rewritten in the core. The observer's permission
+(Ben Hugo, 2026-10-29 15:36 SAST) is the basis and publications cite the
+SARAO data usage acknowledgement. Earlier "provisional pending licence"
+labels on LUNO results are history; their other caveats (processed weights,
+unlogged model origin, four stations) stand. Raw visibilities are still
+never committed or redistributed.
+
 Core task K (wave 2), 2026-10-30 (implemented; measured; provisional). The
 first real-data campaign on the LUNO PKS 1934−638 four-station slice ran
 entirely on the core (`rangtoy.core_campaign`): range fetch (752.8 MB, 74.2 s,
