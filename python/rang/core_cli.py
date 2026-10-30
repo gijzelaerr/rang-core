@@ -402,14 +402,16 @@ def environment(run_dir):
     return record
 
 
-def imaging(run_dir, archive_dir=None, export_dir=None):
-    """The imaging track replay on the core (task I, `rang.core_imaging`)."""
+def imaging(run_dir, archive_dir=None, export_dir=None, gridder="wstack"):
+    """The imaging track replay on the core (task I, `rang.core_imaging`);
+    `gridder="wgrid"` uses the exact gridder (research/df2b-wgrid.md)."""
     from . import core_imaging
 
     return core_imaging.run(
         run_dir,
         archive_dir=archive_dir or core_imaging.DEFAULT_ARCHIVE,
         export_dir=export_dir or core_imaging.DEFAULT_EXPORT,
+        gridder=gridder,
     )
 
 
@@ -762,6 +764,7 @@ def _configure_imaging(p):
     p.add_argument("run_dir")
     p.add_argument("--archive-dir")
     p.add_argument("--export-dir")
+    p.add_argument("--gridder", choices=("wstack", "wgrid"), default="wstack")
 
 
 def _configure_campaign(p):

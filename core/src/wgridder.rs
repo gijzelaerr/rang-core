@@ -942,12 +942,17 @@ impl VisData<'_> {
     }
 }
 
-/// Weights of a call, borrowed in either precision.
+/// Weights of a call, borrowed in either precision. `F32Product` is two
+/// float32 weights (a reader weight and an imaging weight, DF2b) whose
+/// product is formed per visibility as one float32 multiply and widened
+/// afterwards, exactly as NumPy's `a * b` of two float32 arrays, so the
+/// caller need not materialise the product.
 #[derive(Clone, Copy, Debug)]
 pub enum Weights<'a> {
     None,
     F32(&'a [f32]),
     F64(&'a [f64]),
+    F32Product(&'a [f32], &'a [f32]),
 }
 
 impl Weights<'_> {
@@ -956,6 +961,12 @@ impl Weights<'_> {
             Weights::None => None,
             Weights::F32(w) => Some(w.len()),
             Weights::F64(w) => Some(w.len()),
+            // Unequal lengths never match a visibility count.
+            Weights::F32Product(a, b) => Some(if a.len() == b.len() {
+                a.len()
+            } else {
+                usize::MAX
+            }),
         }
     }
 
@@ -965,6 +976,7 @@ impl Weights<'_> {
             Weights::None => None,
             Weights::F32(w) => Some(T::of(f64::from(w[i]))),
             Weights::F64(w) => Some(T::of(w[i])),
+            Weights::F32Product(a, b) => Some(T::of(f64::from(a[i] * b[i]))),
         }
     }
 }
@@ -3901,5 +3913,69 @@ mod tests {
         let mut dirty = vec![0.0; 32 * 32];
         let freq = vec![1.4e9, 1.2e9, 1.0e9];
         assert!(vis2dirty(&c.opts, &c.uvw, &freq, &c.vis, None, None, &mut dirty).is_err());
+    }
+
+    /// DF2b: two float32 weights multiplied in the core give the same bits
+    /// as their float32 product passed as one array, for dirty and PSF.
+    #[test]
+    fn product_weights_match_their_product() {
+        let c = case(32, 24, 0.2, 400.0, 40, 7);
+        let mut s = 99_u64;
+        let a: Vec<f32> = c.wgt.iter().map(|&w| w as f32).collect();
+        let b: Vec<f32> = (0..a.len())
+            .map(|i| {
+                if i % 7 == 0 {
+                    0.0
+                } else {
+                    (0.1 + lcg(&mut s)) as f32
+                }
+            })
+            .collect();
+        let product: Vec<f32> = a.iter().zip(&b).map(|(x, y)| x * y).collect();
+        let vis: Vec<Complex<f32>> = c
+            .vis
+            .iter()
+            .map(|v| Complex::new(v.re as f32, v.im as f32))
+            .collect();
+        let opts = Options {
+            epsilon: 1e-6,
+            ..c.opts
+        };
+        let run = |wgt: Weights| {
+            let mut dirty = vec![0.0_f64; 32 * 24];
+            let mut psf = vec![0.0_f64; 32 * 24];
+            let plan = vis2dirty_multi(
+                &opts,
+                &c.uvw,
+                &c.freq,
+                VisData::C64(&vis),
+                wgt,
+                None,
+                Some(&mut dirty),
+                Some(&mut psf),
+            )
+            .unwrap();
+            (dirty, psf, plan.to_array())
+        };
+        let one = run(Weights::F32(&product));
+        let two = run(Weights::F32Product(&a, &b));
+        assert_eq!(one.0, two.0);
+        assert_eq!(one.1, two.1);
+        assert_eq!(one.2, two.2);
+        let mut dirty = vec![0.0_f64; 32 * 24];
+        let short = &b[..b.len() - 1];
+        assert!(
+            vis2dirty_multi(
+                &opts,
+                &c.uvw,
+                &c.freq,
+                VisData::C64(&vis),
+                Weights::F32Product(&a, short),
+                None,
+                Some(&mut dirty),
+                None,
+            )
+            .is_err()
+        );
     }
 }

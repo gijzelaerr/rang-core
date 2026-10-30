@@ -425,13 +425,22 @@ def check_export(inputs, export):
         }
 
 
-def image_job(inputs, checkpoint, grid=GRID, channels=CHANNELS, robust=ROBUST):
+def image_job(
+    inputs,
+    checkpoint,
+    grid=GRID,
+    channels=CHANNELS,
+    robust=ROBUST,
+    gridder="wstack",
+):
     """One archived job on the core: Stokes I, Briggs weights, inversion.
 
     `inputs` is `read_ms_inputs` of the job's backup MS and `checkpoint` the
     archived `<label>-written.npz` (`CORRECTED_DATA`, `FLAG`, `FLAG_ROW`).
     Returns the dirty image and PSF (`(height, width)`, FITS pixel order),
-    the gridder's counters and the stage times.
+    the gridder's counters and the stage times. `gridder` is "wstack"
+    (the archive reproducer) or "wgrid" (the exact gridder,
+    research/df2b-wgrid.md).
     """
     lo, hi = channels
     start = time.perf_counter()
@@ -467,6 +476,7 @@ def image_job(inputs, checkpoint, grid=GRID, channels=CHANNELS, robust=ROBUST):
         gridder_weight,
         imaging["weights"],
         **grid,
+        gridder=gridder,
     )
     gridded = time.perf_counter()
     products["imaging_weight_sums"] = imaging["sums"]
@@ -477,7 +487,7 @@ def image_job(inputs, checkpoint, grid=GRID, channels=CHANNELS, robust=ROBUST):
     return products
 
 
-def _fits_header(inputs, stats, grid, robust):
+def _fits_header(inputs, stats, grid, robust, products=None):
     header = core_grid.wcs_header(
         inputs["PHASE_DIR"],
         grid["width"],
@@ -497,6 +507,11 @@ def _fits_header(inputs, stats, grid, robust):
         "WSCENVIS": int(stats["gridded_count"]),
         "WSCGKRNL": int(grid["kernel_size"]),
     }
+    if products is not None and products.get("gridder") == "wgrid":
+        # Only for the exact gridder, so w-stacking FITS stay bit-identical.
+        extra["WSCGKRNL"] = int(products["wgridder"]["supp"])
+        extra["RANGGRID"] = "wgrid"
+        extra["RANGEPS"] = float(products["wgridder"]["epsilon"])
     return header, extra
 
 
@@ -526,10 +541,18 @@ def _archive_weight_check(archive_header, stats):
     return checks
 
 
-def run(run_dir, archive_dir=DEFAULT_ARCHIVE, export_dir=DEFAULT_EXPORT):
+def run(
+    run_dir,
+    archive_dir=DEFAULT_ARCHIVE,
+    export_dir=DEFAULT_EXPORT,
+    gridder="wstack",
+):
     """The fifteen archived inversions on the core; `result.json` in the
     archive's raw layout plus the core's provenance, `side-effects.json`,
-    and `images/<label>-{dirty,psf}.fits`."""
+    and `images/<label>-{dirty,psf}.fits`. `gridder` selects the
+    w-stacking gridder (default) or the exact one ("wgrid")."""
+    if gridder not in core_grid.GRIDDERS:
+        raise ValueError(f"gridder must be one of {core_grid.GRIDDERS}")
     run_dir, archive, export = Path(run_dir), Path(archive_dir), Path(export_dir)
     if run_dir.exists():
         raise FileExistsError(f"run directory exists: {run_dir}")
@@ -562,9 +585,9 @@ def run(run_dir, archive_dir=DEFAULT_ARCHIVE, export_dir=DEFAULT_EXPORT):
         checkpoint_path = archive / "checkpoints" / f"{label}-written.npz"
         with np.load(checkpoint_path) as saved:
             checkpoint = {k: saved[k] for k in saved.files}
-        products = image_job(inputs[role], checkpoint)
+        products = image_job(inputs[role], checkpoint, gridder=gridder)
         stats = products["stats"]
-        header, extra = _fits_header(inputs[role], stats, GRID, ROBUST)
+        header, extra = _fits_header(inputs[role], stats, GRID, ROBUST, products)
         t0 = time.perf_counter()
         for kind in ("dirty", "psf"):
             core_grid.write_fits(
@@ -601,6 +624,8 @@ def run(run_dir, archive_dir=DEFAULT_ARCHIVE, export_dir=DEFAULT_EXPORT):
             ),
             "diagnostics": image_diagnostics(images["dirty"]),
             "selected_for_policy_or_deployment": False,
+            "gridder": products["gridder"],
+            **({"wgridder": products["wgridder"]} if "wgridder" in products else {}),
             "seconds": {
                 **products["seconds"],
                 "fits": written - t0,
@@ -646,6 +671,8 @@ def run(run_dir, archive_dir=DEFAULT_ARCHIVE, export_dir=DEFAULT_EXPORT):
         "status": "core replay of the archived dirty-image family; not deconvolved/blind astronomy",
         "settings": SETTINGS,
         "grid": GRID,
+        "gridder": gridder,
+        **({"wgrid_epsilon": core_grid.WGRID_EPSILON} if gridder == "wgrid" else {}),
         "channels": list(CHANNELS),
         "jobs": records,
         "reference_fit": reference_fit,
@@ -731,6 +758,7 @@ def _parser():
     p.add_argument("run_dir")
     p.add_argument("--archive-dir", default=str(DEFAULT_ARCHIVE))
     p.add_argument("--export-dir", default=str(DEFAULT_EXPORT))
+    p.add_argument("--gridder", choices=core_grid.GRIDDERS, default="wstack")
     p = sub.add_parser("compare", help="compare a replay with an oracle")
     p.add_argument("result")
     p.add_argument("receipt")
@@ -742,7 +770,9 @@ def _parser():
 def main(argv=None):
     args = _parser().parse_args(argv)
     if args.stage == "run":
-        return run(args.run_dir, args.archive_dir, args.export_dir)
+        # The default call keeps task I's three-argument form.
+        extra = {} if args.gridder == "wstack" else {"gridder": args.gridder}
+        return run(args.run_dir, args.archive_dir, args.export_dir, **extra)
     images = args.images or (None, None)
     return compare(args.result, args.oracle, args.receipt, *images)
 

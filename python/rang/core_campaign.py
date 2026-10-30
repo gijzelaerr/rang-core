@@ -595,8 +595,10 @@ def image_metrics(dirty, psf, model_flux=None):
     return out
 
 
-def image_arm(state, extra, solve, out_dir, label):
-    """Corrected-data Stokes I dirty image of one arm on its final flags."""
+def image_arm(state, extra, solve, out_dir, label, gridder="wstack"):
+    """Corrected-data Stokes I dirty image of one arm on its final flags.
+    `gridder` is "wstack" (the frozen K setting) or "wgrid" (the exact
+    gridder, research/df2b-wgrid.md); the metrics record it."""
     started = time.perf_counter()
     time_map, freq_map, _, _ = gain_grid(state, *GRID)
     corrected, ok = apply_gains(
@@ -633,7 +635,13 @@ def image_arm(state, extra, solve, out_dir, label):
     )
     weighted = time.perf_counter()
     products = core_grid.invert(
-        extra["uvw"], state["frequencies"], sample, weight, imaging["weights"], **IMAGE
+        extra["uvw"],
+        state["frequencies"],
+        sample,
+        weight,
+        imaging["weights"],
+        **IMAGE,
+        gridder=gridder,
     )
     gridded = time.perf_counter()
     imaged = weight > 0
@@ -643,6 +651,9 @@ def image_arm(state, extra, solve, out_dir, label):
     metrics["imaged_cells"] = int(imaged.sum())
     metrics["imaging_weight_sums"] = imaging["sums"]
     metrics["gridder"] = products["stats"]
+    metrics["gridder_name"] = products["gridder"]
+    if "wgridder" in products:
+        metrics["wgridder"] = products["wgridder"]
     header = core_grid.wcs_header(
         extra["phase_dir"],
         IMAGE["width"],
@@ -662,6 +673,8 @@ def image_arm(state, extra, solve, out_dir, label):
         "WSCWEIGH": f"Briggs'({ROBUST})",
         "RANGARM": label,
     }
+    if gridder != "wstack":  # w-stacking FITS keep their archived keys
+        extra_keys["RANGGRID"] = gridder
     core_grid.write_fits(
         out_dir / f"{label}-dirty.fits", products["dirty"], header, extra_keys
     )
