@@ -441,13 +441,15 @@ def time_inputs(directory, output, repeats=1, labels=None, tile=1, save_images=N
     return result
 
 
-def bench(directory, out_dir, libs, threads, repeats, labels=None, tile=1):
+def bench(directory, out_dir, libs, threads, repeats, labels=None, tile=1, single=()):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=False)
     runs = []
     for repeat in range(repeats):
         for n in threads:
             for name, path in libs:
+                if name in single and n != threads[0]:
+                    continue
                 env = dict(os.environ)
                 env["RAYON_NUM_THREADS"] = str(n)
                 env["RANG_CORE_LIB"] = str(Path(path).resolve())
@@ -502,6 +504,8 @@ def bench(directory, out_dir, libs, threads, repeats, labels=None, tile=1):
     for name, _ in libs:
         for n in threads:
             selected = [r for r in runs if r["lib"] == name and r["threads"] == n]
+            if not selected:
+                continue
             hashes = {json.dumps(r["hashes"], sort_keys=True) for r in selected}
             summary[f"{name}-t{n}"] = {
                 "median_total_wall": float(
@@ -606,6 +610,12 @@ def main(argv=None):
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--labels")
     p.add_argument("--tile", type=int, default=1)
+    p.add_argument(
+        "--single",
+        action="append",
+        default=[],
+        help="NAME of a library run at the first thread count only",
+    )
     p = sub.add_parser("diff")
     p.add_argument("old")
     p.add_argument("new")
@@ -623,7 +633,16 @@ def main(argv=None):
     elif args.command == "bench":
         libs = [tuple(item.split("=", 1)) for item in args.lib]
         threads = [int(n) for n in args.threads.split(",")]
-        bench(args.inputs, args.out_dir, libs, threads, args.repeats, labels, args.tile)
+        bench(
+            args.inputs,
+            args.out_dir,
+            libs,
+            threads,
+            args.repeats,
+            labels,
+            args.tile,
+            args.single,
+        )
     elif args.command == "diff":
         diff(args.old, args.new, args.output)
     return 0

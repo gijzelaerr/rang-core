@@ -12,7 +12,8 @@
 //!
 //! Differences from the original, fixed in the protocols: the grid, the FFT
 //! and the kernel correction are double precision (WSClean grids in single
-//! precision with FFTW); the kernel correction is a direct type-III DCT sum.
+//! precision with FFTW); the FFT is `rustfft`'s mixed-radix transform of the
+//! exact padded size; the kernel correction is a direct type-III DCT sum.
 //! Samples are bucketed by w-layer once; the dirty image and the PSF are
 //! gridded, transformed and projected in the same pass over each layer; the
 //! layers run in parallel (rayon, `RAYON_NUM_THREADS`), each into its own
@@ -22,7 +23,10 @@
 //! polarization and one pass are ported, which is how rang runs WSClean.
 
 use rayon::prelude::*;
+use rustfft::num_complex::Complex;
+use rustfft::{Fft, FftPlanner};
 use std::f64::consts::PI;
+use std::sync::Arc;
 
 /// Speed of light as casacore and aocommon use it.
 pub const C_LIGHT: f64 = 299792458.0;
@@ -34,37 +38,9 @@ const KB_ALPHA: f64 = 8.6;
 /// layer order; fixed, so memory is bounded and independent of threads.
 const LAYER_BATCH: usize = 16;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-struct C64 {
-    re: f64,
-    im: f64,
-}
+type C64 = Complex<f64>;
 
-impl C64 {
-    const ZERO: C64 = C64 { re: 0.0, im: 0.0 };
-    fn new(re: f64, im: f64) -> C64 {
-        C64 { re, im }
-    }
-    fn mul(self, o: C64) -> C64 {
-        C64::new(
-            self.re * o.re - self.im * o.im,
-            self.re * o.im + self.im * o.re,
-        )
-    }
-    fn add(self, o: C64) -> C64 {
-        C64::new(self.re + o.re, self.im + o.im)
-    }
-    fn sub(self, o: C64) -> C64 {
-        C64::new(self.re - o.re, self.im - o.im)
-    }
-    fn conj(self) -> C64 {
-        C64::new(self.re, -self.im)
-    }
-    fn expi(theta: f64) -> C64 {
-        let (s, c) = theta.sin_cos();
-        C64::new(c, s)
-    }
-}
+const ZERO: C64 = Complex { re: 0.0, im: 0.0 };
 
 /// Image and kernel settings, as `WStackingGridder`'s constructor takes them.
 #[derive(Clone, Copy, Debug)]
@@ -210,173 +186,63 @@ fn gridding_kernels(kernel_1d: &[f64], kernel_size: usize, oversampling: usize) 
     kernels
 }
 
-fn is_power_of_two(n: usize) -> bool {
-    n != 0 && n & (n - 1) == 0
-}
-
-/// A precomputed 1-D transform of one length and sign: radix-2 for powers of
-/// two, Bluestein's algorithm (over a power-of-two convolution) otherwise.
-/// `sign` is +1 for the unnormalised backward transform (FFTW
-/// `FFTW_BACKWARD`) and -1 for the forward one.
-struct FftPlan {
-    n: usize,
-    /// `expi(sign * 2 pi k / n)` for radix-2 lengths.
-    twiddles: Vec<C64>,
-    bluestein: Option<Bluestein>,
-}
-
-struct Bluestein {
-    m: usize,
-    chirp: Vec<C64>,
-    /// Forward transform of the symmetric conjugate chirp, length `m`.
-    b_fft: Vec<C64>,
-    forward: Box<FftPlan>,
-    backward: Box<FftPlan>,
-}
-
-impl FftPlan {
-    fn new(n: usize, sign: f64) -> FftPlan {
-        if n <= 1 || is_power_of_two(n) {
-            let twiddles = (0..n / 2)
-                .map(|k| C64::expi(sign * 2.0 * PI * k as f64 / n as f64))
-                .collect();
-            return FftPlan {
-                n,
-                twiddles,
-                bluestein: None,
-            };
-        }
-        let mut m = 1;
-        while m < 2 * n - 1 {
-            m <<= 1;
-        }
-        let chirp: Vec<C64> = (0..n)
-            .map(|k| C64::expi(sign * PI * ((k * k) % (2 * n)) as f64 / n as f64))
-            .collect();
-        let forward = Box::new(FftPlan::new(m, -1.0));
-        let backward = Box::new(FftPlan::new(m, 1.0));
-        let mut b = vec![C64::ZERO; m];
-        for k in 0..n {
-            b[k] = chirp[k].conj();
-            if k > 0 {
-                b[m - k] = chirp[k].conj();
-            }
-        }
-        forward.radix2(&mut b);
-        FftPlan {
-            n,
-            twiddles: Vec::new(),
-            bluestein: Some(Bluestein {
-                m,
-                chirp,
-                b_fft: b,
-                forward,
-                backward,
-            }),
-        }
-    }
-
-    fn len(&self) -> usize {
-        self.n
-    }
-
-    /// In-place radix-2 transform with the precomputed twiddles.
-    fn radix2(&self, data: &mut [C64]) {
-        let n = data.len();
-        let mut j = 0;
-        for i in 1..n {
-            let mut bit = n >> 1;
-            while j & bit != 0 {
-                j ^= bit;
-                bit >>= 1;
-            }
-            j |= bit;
-            if i < j {
-                data.swap(i, j);
-            }
-        }
-        let mut len = 2;
-        while len <= n {
-            let step = n / len;
-            for start in (0..n).step_by(len) {
-                for k in 0..len / 2 {
-                    let w = self.twiddles[k * step];
-                    let a = data[start + k];
-                    let b = data[start + k + len / 2].mul(w);
-                    data[start + k] = a.add(b);
-                    data[start + k + len / 2] = a.sub(b);
-                }
-            }
-            len <<= 1;
-        }
-    }
-
-    /// Transform `data` (length `n`) in place; `scratch` is reused.
-    fn execute(&self, data: &mut [C64], scratch: &mut Vec<C64>) {
-        debug_assert_eq!(data.len(), self.n);
-        if self.n <= 1 {
-            return;
-        }
-        match &self.bluestein {
-            None => self.radix2(data),
-            Some(b) => {
-                scratch.clear();
-                scratch.resize(b.m, C64::ZERO);
-                for k in 0..self.n {
-                    scratch[k] = data[k].mul(b.chirp[k]);
-                }
-                b.forward.radix2(scratch);
-                for (value, factor) in scratch.iter_mut().zip(&b.b_fft) {
-                    *value = value.mul(*factor);
-                }
-                b.backward.radix2(scratch);
-                let scale = 1.0 / b.m as f64;
-                for k in 0..self.n {
-                    let value = scratch[k].mul(b.chirp[k]);
-                    data[k] = C64::new(value.re * scale, value.im * scale);
-                }
-            }
-        }
-    }
-}
-
-#[cfg(test)]
-fn fft(data: &mut [C64], sign: f64) {
-    let plan = FftPlan::new(data.len(), sign);
-    plan.execute(data, &mut Vec::new());
-}
-
 /// Unnormalised 2-D backward transform of a `[x + y * width]` grid, as
-/// `fftw_plan_dft_2d(height, width, ..., FFTW_BACKWARD)`.
+/// `fftw_plan_dft_2d(height, width, ..., FFTW_BACKWARD)`: `rustfft`'s
+/// inverse transforms (`exp(+2 pi i j k / n)`, no scaling) of every row,
+/// then of every column through a blocked transpose. Planned once per
+/// inversion at the exact grid size, as WSClean plans FFTW.
 struct Fft2 {
-    plan_x: FftPlan,
-    plan_y: FftPlan,
+    width: usize,
+    height: usize,
+    rows: Arc<dyn Fft<f64>>,
+    columns: Arc<dyn Fft<f64>>,
+    scratch_len: usize,
+}
+
+/// Block edge of the transposes, in elements (16 x 16 x 16 bytes = 4 KiB).
+const TRANSPOSE_BLOCK: usize = 16;
+
+/// `output[x * height + y] = input[x + y * width]`.
+fn transpose(input: &[C64], output: &mut [C64], width: usize, height: usize) {
+    for y0 in (0..height).step_by(TRANSPOSE_BLOCK) {
+        let y1 = (y0 + TRANSPOSE_BLOCK).min(height);
+        for x0 in (0..width).step_by(TRANSPOSE_BLOCK) {
+            let x1 = (x0 + TRANSPOSE_BLOCK).min(width);
+            for y in y0..y1 {
+                for x in x0..x1 {
+                    output[x * height + y] = input[x + y * width];
+                }
+            }
+        }
+    }
 }
 
 impl Fft2 {
     fn new(width: usize, height: usize) -> Fft2 {
+        let mut planner = FftPlanner::<f64>::new();
+        let rows = planner.plan_fft_inverse(width);
+        let columns = planner.plan_fft_inverse(height);
+        let scratch_len = rows
+            .get_inplace_scratch_len()
+            .max(columns.get_inplace_scratch_len());
         Fft2 {
-            plan_x: FftPlan::new(width, 1.0),
-            plan_y: FftPlan::new(height, 1.0),
+            width,
+            height,
+            rows,
+            columns,
+            scratch_len,
         }
     }
 
+    /// Transform `grid` in place; `transposed` holds `width * height`
+    /// values and `scratch` at least `scratch_len`.
     #[inline(never)]
-    fn backward(&self, grid: &mut [C64], ws_column: &mut [C64], scratch: &mut Vec<C64>) {
-        let (width, height) = (self.plan_x.len(), self.plan_y.len());
-        for row in grid.chunks_mut(width) {
-            self.plan_x.execute(row, scratch);
-        }
-        let column = &mut ws_column[..height];
-        for x in 0..width {
-            for y in 0..height {
-                column[y] = grid[x + y * width];
-            }
-            self.plan_y.execute(column, scratch);
-            for y in 0..height {
-                grid[x + y * width] = column[y];
-            }
-        }
+    fn backward(&self, grid: &mut [C64], transposed: &mut [C64], scratch: &mut [C64]) {
+        let scratch = &mut scratch[..self.scratch_len];
+        self.rows.process_with_scratch(grid, scratch);
+        transpose(grid, transposed, self.width, self.height);
+        self.columns.process_with_scratch(transposed, scratch);
+        transpose(transposed, grid, self.height, self.width);
     }
 }
 
@@ -415,7 +281,7 @@ struct Sample {
 struct Workspace {
     dirty: Vec<C64>,
     psf: Vec<C64>,
-    column: Vec<C64>,
+    transposed: Vec<C64>,
     scratch: Vec<C64>,
 }
 
@@ -654,13 +520,13 @@ impl Gridder {
         layer: usize,
         ws: &mut Workspace,
     ) -> (Vec<f64>, Vec<f64>) {
-        ws.dirty.fill(C64::ZERO);
-        ws.psf.fill(C64::ZERO);
+        ws.dirty.fill(ZERO);
+        ws.psf.fill(ZERO);
         self.grid_layer(samples, &mut ws.dirty, &mut ws.psf);
         self.fft
-            .backward(&mut ws.dirty, &mut ws.column, &mut ws.scratch);
+            .backward(&mut ws.dirty, &mut ws.transposed, &mut ws.scratch);
         self.fft
-            .backward(&mut ws.psf, &mut ws.column, &mut ws.scratch);
+            .backward(&mut ws.psf, &mut ws.transposed, &mut ws.scratch);
         let pixels = self.settings.width * self.settings.height;
         let mut dirty = vec![0.0; pixels];
         let mut psf = vec![0.0; pixels];
@@ -677,10 +543,10 @@ impl Gridder {
     fn workspace(&self) -> Workspace {
         let (width, height) = (self.settings.width, self.settings.height);
         Workspace {
-            dirty: vec![C64::ZERO; width * height],
-            psf: vec![C64::ZERO; width * height],
-            column: vec![C64::ZERO; width.max(height)],
-            scratch: Vec::new(),
+            dirty: vec![ZERO; width * height],
+            psf: vec![ZERO; width * height],
+            transposed: vec![ZERO; width * height],
+            scratch: vec![ZERO; self.fft.scratch_len],
         }
     }
 
@@ -943,36 +809,46 @@ pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> 
 mod tests {
     use super::*;
 
-    fn naive_dft(data: &[C64], sign: f64) -> Vec<C64> {
-        let n = data.len();
-        (0..n)
-            .map(|k| {
-                let mut sum = C64::ZERO;
-                for (j, value) in data.iter().enumerate() {
-                    sum =
-                        sum.add(value.mul(C64::expi(sign * 2.0 * PI * (j * k) as f64 / n as f64)));
+    /// Direct unnormalised backward 2-D DFT of a `[x + y * width]` grid:
+    /// `sum_{x,y} g[x, y] exp(+2 pi i (x kx / width + y ky / height))`.
+    fn naive_dft2(grid: &[C64], width: usize, height: usize) -> Vec<C64> {
+        let mut out = vec![ZERO; width * height];
+        for ky in 0..height {
+            for kx in 0..width {
+                let mut sum = ZERO;
+                for y in 0..height {
+                    for x in 0..width {
+                        let phase = 2.0
+                            * PI
+                            * (((x * kx) % width) as f64 / width as f64
+                                + ((y * ky) % height) as f64 / height as f64);
+                        sum += grid[x + y * width] * Complex::from_polar(1.0, phase);
+                    }
                 }
-                sum
-            })
-            .collect()
+                out[kx + ky * width] = sum;
+            }
+        }
+        out
     }
 
     #[test]
-    fn fft_matches_naive_dft_for_both_lengths() {
-        for n in [8usize, 12, 1, 7, 616, 262, 45] {
-            let data: Vec<C64> = (0..n)
-                .map(|i| C64::new((i as f64).sin(), (i as f64 * 0.3).cos()))
+    fn fft2_matches_naive_backward_dft() {
+        // Factors 2, 3, 7, 11 and the primes 13 and 17; 1 and non-square.
+        for (width, height) in [(14, 11), (12, 13), (22, 17), (1, 7), (8, 8)] {
+            let grid: Vec<C64> = (0..width * height)
+                .map(|i| Complex::new((i as f64).sin(), (i as f64 * 0.3).cos()))
                 .collect();
-            for sign in [1.0, -1.0] {
-                let mut fast = data.clone();
-                fft(&mut fast, sign);
-                let slow = naive_dft(&data, sign);
-                for (a, b) in fast.iter().zip(&slow) {
-                    assert!(
-                        (a.re - b.re).abs() < 1e-10 && (a.im - b.im).abs() < 1e-10,
-                        "n={n}"
-                    );
-                }
+            let fft = Fft2::new(width, height);
+            let mut fast = grid.clone();
+            let mut transposed = vec![ZERO; width * height];
+            let mut scratch = vec![ZERO; fft.scratch_len];
+            fft.backward(&mut fast, &mut transposed, &mut scratch);
+            let slow = naive_dft2(&grid, width, height);
+            for (a, b) in fast.iter().zip(&slow) {
+                assert!(
+                    (a.re - b.re).abs() < 1e-10 && (a.im - b.im).abs() < 1e-10,
+                    "{width} x {height}"
+                );
             }
         }
     }
