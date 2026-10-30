@@ -1,5 +1,14 @@
 # Rang research state
 
+Core task K started, 2026-10-30 (proposed; running). The user chose to
+start the first real-data LUNO campaign on the core without waiting for
+SARAO's written licence confirmation. The licence basis is the observer's chat
+permission of 2026-10-29 15:36 SAST; SARAO confirmation and the exact data
+usage acknowledgement text stay open preconditions, results are provisional and
+no visibilities are redistributed. K must freeze its own protocol first
+(`core-k-luno-campaign.md` on branch `core/k-luno-campaign`); nothing is
+measured yet.
+
 Core task J (wave 2), 2026-10-29 (implemented; measured; criteria 1–7 pass
 as frozen). The core is packaged as the PyO3 extension `rangtoy._core`
 through maturin (`core/py`, pyo3 0.30.1 and numpy 0.30.0, abi3-py310; the
