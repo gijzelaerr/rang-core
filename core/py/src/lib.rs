@@ -1523,6 +1523,18 @@ fn ms_serialisation_check(
     Ok((c.tables, c.ssm_files, c.tiled_headers, c.failures))
 }
 
+/// `serialise(parse(x)) == x` for the MultiFile header of a table's
+/// `table.mf` (research/e5-table-writer-rest.md): the failures (empty when
+/// it round-trips).
+#[pyfunction]
+fn ms_multifile_check(py: Python<'_>, path: &str) -> Vec<String> {
+    match detach(py, || rang_core::multifile::check(path)) {
+        Ok(true) => Vec::new(),
+        Ok(false) => vec![format!("{path}/table.mf header differs")],
+        Err(e) => vec![format!("{path}/table.mf: {}", e.0)],
+    }
+}
+
 /// A table's row count and columns (name, type code, is array), read
 /// without writing (research/e5-table-writer-rest.md).
 #[pyfunction]
@@ -2012,6 +2024,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ms_serialisation_check, m)?)?;
     m.add_function(wrap_pyfunction!(ms_serialisation_check_e5, m)?)?;
     m.add_function(wrap_pyfunction!(ms_describe, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_multifile_check, m)?)?;
     m.add_function(wrap_pyfunction!(ms_create_table, m)?)?;
     m.add_function(wrap_pyfunction!(ms_default_ms, m)?)?;
     m.add_function(wrap_pyfunction!(ms_default_ms_subtable, m)?)?;

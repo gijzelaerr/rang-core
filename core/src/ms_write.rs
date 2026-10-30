@@ -3627,6 +3627,11 @@ pub struct TableWriter {
     /// report a change on their first flush (`create64` marks them
     /// changed), the unwritten ones (an empty IncrementalStMan) included.
     fresh: Vec<bool>,
+    /// Where the managers' files are: the table directory, or the staging
+    /// directory of a MultiFile container.
+    files: PathBuf,
+    /// The MultiFile container of a MultiFile table.
+    mf: Option<crate::multifile::Container>,
 }
 
 /// The text of `table.info` (`TableInfo::flush`): type, subtype, an empty
@@ -3642,9 +3647,17 @@ impl TableWriter {
         if cfg!(target_endian = "big") {
             return err("writing tables on a big-endian host is not supported (E5)");
         }
-        let dir = path.as_ref().to_path_buf();
-        let mut lock = LockFile::acquire(&dir, attempts, wait)?;
-        let dat = TableDat::parse(&std::fs::read(dir.join("table.dat"))?)?;
+        let table_dir = path.as_ref().to_path_buf();
+        let mut lock = LockFile::acquire(&table_dir, attempts, wait)?;
+        let dat = TableDat::parse(&std::fs::read(table_dir.join("table.dat"))?)?;
+        // A MultiFile table: the logical files are worked on in a staging
+        // directory and packed into `table.mf` on every flush.
+        let mf = if table_dir.join(crate::multifile::CONTAINER).is_file() {
+            Some(crate::multifile::Container::open(&table_dir)?)
+        } else {
+            None
+        };
+        let dir = mf.as_ref().map_or(table_dir.clone(), |m| m.staging.clone());
 
         let lock_bytes = lock.contents()?;
         let nrows = match SyncRecord::parse(&lock_bytes)? {
@@ -3714,7 +3727,7 @@ impl TableWriter {
             });
         }
         Ok(TableWriter {
-            dir,
+            dir: table_dir,
             lock: Some(lock),
             dat,
             nrows,
@@ -3722,6 +3735,8 @@ impl TableWriter {
             table_changed: false,
             info: None,
             fresh: Vec::new(),
+            files: dir,
+            mf,
         })
     }
 
@@ -3733,9 +3748,11 @@ impl TableWriter {
         dat: TableDat,
         mgrs: Vec<NewMgr>,
         info: String,
+        mf: Option<crate::multifile::Container>,
     ) -> Self {
         let fresh = mgrs.iter().map(NewMgr::reports_creation).collect();
-        TableWriter {
+        let files = mf.as_ref().map_or(dir.clone(), |m| m.staging.clone());
+        let mut w = TableWriter {
             dir,
             lock: Some(lock),
             nrows: dat.nrows,
@@ -3744,7 +3761,87 @@ impl TableWriter {
             table_changed: true,
             info: Some(info),
             fresh,
+            files,
+            mf,
+        };
+        w.mf_created();
+        w
+    }
+
+    /// The logical files casacore creates (`createFile`) and first writes
+    /// while it creates the managers, in their order: an IncrementalStMan
+    /// writes bucket 0 at once (its cache's `resync`), array files write
+    /// their header when opened; tile files of hypercubes made at creation
+    /// only exist (research/e5-table-writer-rest.md).
+    fn mf_created(&mut self) {
+        let Some(mf) = self.mf.as_mut() else {
+            return;
+        };
+        for (m, (_, seq)) in self.mgrs.iter().zip(&self.dat.managers) {
+            let f = format!("table.f{seq}");
+            let fi = format!("table.f{seq}i");
+            match m {
+                Mgr::Ism(_) => {
+                    mf.touch(&f);
+                    if self.files.join(&fi).is_file() {
+                        mf.touch(&fi);
+                    }
+                }
+                Mgr::Ssm(_) => {
+                    mf.add_file(&f);
+                    if self.files.join(&fi).is_file() {
+                        mf.touch(&fi);
+                    }
+                }
+                Mgr::Tsm(t) => {
+                    for e in t.h.files.iter().flatten() {
+                        mf.add_file(&format!("table.f{seq}_TSM{}", e.seq));
+                    }
+                }
+                _ => {}
+            }
         }
+    }
+
+    /// The first writes of a flush, in the managers' order (tiles, then a
+    /// tiled manager's header; a StandardStMan's file at its first flush),
+    /// then the container is packed.
+    fn mf_flush(&mut self) -> Result<()> {
+        let Some(mf) = self.mf.as_mut() else {
+            return Ok(());
+        };
+        for (m, (_, seq)) in self.mgrs.iter().zip(&self.dat.managers) {
+            let f = format!("table.f{seq}");
+            let fi = format!("table.f{seq}i");
+            match m {
+                Mgr::Tsm(t) => {
+                    for e in t.h.files.iter().flatten() {
+                        let name = format!("table.f{seq}_TSM{}", e.seq);
+                        mf.add_file(&name);
+                        let len = std::fs::metadata(self.files.join(&name)).map_or(0, |m| m.len());
+                        if len > 0 && !mf.is_touched(&name) {
+                            mf.touch(&name);
+                        }
+                    }
+                    mf.touch(&f);
+                }
+                Mgr::Tds(_) => mf.touch(&f),
+                Mgr::Ssm(_) => {
+                    mf.touch(&f);
+                    if self.files.join(&fi).is_file() {
+                        mf.touch(&fi);
+                    }
+                }
+                Mgr::Ism(_) => {
+                    mf.touch(&f);
+                    if self.files.join(&fi).is_file() {
+                        mf.touch(&fi);
+                    }
+                }
+                _ => {}
+            }
+        }
+        mf.pack()
     }
 
     /// Mark the table changed without changing it, as casacore's
@@ -4191,7 +4288,7 @@ impl TableWriter {
                     return err("string array columns are not added (E4)");
                 }
                 let s = SsmW::create(
-                    &self.dir,
+                    &self.files,
                     seq,
                     name,
                     vec![col],
@@ -4269,7 +4366,7 @@ impl TableWriter {
                     .zip(&cube_tile)
                     .map(|(&s, &t)| (s + t - 1) / t)
                     .product();
-                let mut t = TsmW::with_header(&self.dir, h.clone());
+                let mut t = TsmW::with_header(&self.files, h.clone());
                 let length = ntiles as u64 * t.bucket_size(&cube) as u64;
                 let file_seq = if column { 0 } else { 1 };
                 if column {
@@ -4293,7 +4390,7 @@ impl TableWriter {
                     h.cube_map = vec![1];
                     h.pos_map = vec![last];
                 }
-                let tiles = File::create(self.dir.join(format!("table.f{seq}_TSM{file_seq}")))?;
+                let tiles = File::create(self.files.join(format!("table.f{seq}_TSM{file_seq}")))?;
                 tiles.set_len(length)?;
                 t.h = h;
                 t.write_header = true;
@@ -4327,6 +4424,7 @@ impl TableWriter {
             let fresh = self.fresh.get_mut(i).is_some_and(std::mem::take);
             dm_changed.push(changed || fresh);
         }
+        self.mf_flush()?;
         let write_table = always || self.table_changed;
         if write_table {
             self.dat.nrows = self.nrows;
@@ -4369,6 +4467,9 @@ impl TableWriter {
     /// table whose `table.dat` row count is stale gets it corrected.
     pub fn close(mut self) -> Result<()> {
         let result = self.put_file(true);
+        if let Some(mf) = self.mf.as_ref() {
+            mf.close()?;
+        }
         self.lock = None;
         result
     }
@@ -4378,6 +4479,9 @@ impl Drop for TableWriter {
     fn drop(&mut self) {
         if self.lock.is_some() {
             let _ = self.put_file(true);
+            if let Some(mf) = self.mf.as_ref() {
+                let _ = mf.close();
+            }
         }
     }
 }
@@ -4600,6 +4704,41 @@ pub fn read_cells(
     nrows: Option<u64>,
 ) -> Result<Vec<Cell>> {
     let dir = dir.as_ref();
+    if dir.join(crate::multifile::CONTAINER).is_file() {
+        let tmp = extracted(dir)?;
+        let out = read_cells_in(&tmp, name, start, count, nrows);
+        let _ = std::fs::remove_dir_all(&tmp);
+        return out;
+    }
+    read_cells_in(dir, name, start, count, nrows)
+}
+
+/// A MultiFile table's files in a temporary directory (`table.dat` and
+/// `table.lock` copied beside the logical files), for reading.
+fn extracted(dir: &Path) -> Result<PathBuf> {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static N: AtomicU64 = AtomicU64::new(0);
+    let tmp = std::env::temp_dir().join(format!(
+        "rang-mf-{}-{}",
+        std::process::id(),
+        N.fetch_add(1, Ordering::Relaxed)
+    ));
+    crate::multifile::extract(&dir.join(crate::multifile::CONTAINER), &tmp)?;
+    for f in ["table.dat", "table.lock", "table.info"] {
+        if dir.join(f).is_file() {
+            std::fs::copy(dir.join(f), tmp.join(f))?;
+        }
+    }
+    Ok(tmp)
+}
+
+fn read_cells_in(
+    dir: &Path,
+    name: &str,
+    start: u64,
+    count: u64,
+    nrows: Option<u64>,
+) -> Result<Vec<Cell>> {
     let dat = TableDat::parse(&std::fs::read(dir.join("table.dat"))?)?;
     let index = dat.column(name)?;
     let seq = dat.bindings[index].seq;

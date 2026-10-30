@@ -450,9 +450,6 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     if cfg!(target_endian = "big") {
         return err("writing tables on a big-endian host is not supported (E5)");
     }
-    if spec.multifile {
-        return err("MultiFile tables are not created (E5)");
-    }
     let mut names = std::collections::BTreeSet::new();
     for c in &spec.columns {
         if !names.insert(c.name.as_str()) {
@@ -493,8 +490,19 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
             return err(format!("data manager name {} is used twice", r.spec.name));
         }
     }
-    let dir = new_dir(path)?;
-    let lock = new_lock(&dir)?;
+    let table_dir = new_dir(path)?;
+    let lock = new_lock(&table_dir)?;
+    // A MultiFile table: the managers write into the container's staging
+    // directory (`multifile::Container`), packed on every flush.
+    let mf = if spec.multifile {
+        Some(crate::multifile::Container::create(
+            &table_dir,
+            crate::multifile::DEFAULT_BLOCK_SIZE,
+        )?)
+    } else {
+        None
+    };
+    let dir = mf.as_ref().map_or(table_dir.clone(), |m| m.staging.clone());
     let mut bindings: Vec<ColBinding> = spec.columns.iter().map(|c| binding(c, 0)).collect();
     let mut managers = Vec::new();
     let mut blobs = Vec::new();
@@ -630,8 +638,14 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
         keywords: spec.keywords.clone(),
         private_keywords: spec.private_keywords.clone(),
         columns: spec.columns.clone(),
-        set_version: -2,
-        storage: (0, 0),
+        // `ColumnSet::putFile`: version -3 with the storage option (0:
+        // MultiFile) and block size when the table has a MultiFile.
+        set_version: if spec.multifile { -3 } else { -2 },
+        storage: if spec.multifile {
+            (0, crate::multifile::DEFAULT_BLOCK_SIZE as i32)
+        } else {
+            (0, 0)
+        },
         seq_count: resolved.len() as u32,
         managers,
         bindings,
@@ -639,11 +653,12 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     };
     let (kind, sub_kind, readme) = &spec.info;
     Ok(TableWriter::from_new(
-        dir,
+        table_dir,
         lock,
         dat,
         mgrs,
         table_info_text(kind, sub_kind, readme),
+        mf,
     ))
 }
 
