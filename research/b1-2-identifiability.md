@@ -18,7 +18,8 @@ decision rule, these directions are constrainable:
 - **Per-antenna pointing** on the ESO137 pilot and track: σ ≈ 0.06–0.2′,
   with ρ ≈ 0.8–0.9 of the signature outside the nuisance span. It is
   marginal on the whole-array 1934 set: σ ≈ 0.18′, ρ ≈ 0.12, 52 of 53
-  antennas.
+  antennas, and only with the recalibrated noise (0.43′ with the stored
+  weights).
 - **Squint** on S2, S4 and S5: σ ≈ 0.004–0.04′.
 - **Array-common pointing and ellipticity** on the track. They come from
   its 160° of parallactic rotation: σ ≈ 0.005′ and 0.06 %.
@@ -517,6 +518,72 @@ result is seen.
 The held-out split (seed 7, [flagging-verdict.md](flagging-verdict.md)) is
 reserved for B1-3's held-out visibility metric. B1-2 fits nothing.
 
+## Implementation (2026-10-30)
+
+**`python/rang/beam_identifiability.py`** holds the survey.
+
+- **Spline derivatives.** `spline_sample` evaluates the cubic B-spline and
+  its derivative kernels directly on the B1-0 prefiltered coefficients.
+  `HolographyGradient` applies the B1-0 interpolation and normalisation.
+  `GaussianToyBeam` stands in for tests.
+- **`direction_factors`** gives the log-derivative factors of every
+  direction per component and hand, with the I_b < 0.01 floor.
+- **`phase_terms` and `spectra`** reproduce the core predictor's terms
+  (L1-M's direct DFT).
+- **`block_normals`** gives the Gram matrix of one gain bin and hand,
+  [gains | sky | per-antenna pointing | common] for each beam variant,
+  from sparse antenna incidence and bincounts. With `slope` (post hoc) it
+  adds per-antenna gain slopes.
+- **`Survey`** does the following:
+  - Schur-eliminates the gains per bin;
+  - keeps raw and reduced blocks per (scan, block, hand) with raw weights,
+    so κ is applied exactly at combination;
+  - profiles the sky in the primary (ln S₀, α) and strict (per-block flux)
+    arms;
+  - records the NumPy anchored response.
+- **`measures_from`, `verdict` and `summarise`** implement the frozen
+  measures and rule.
+- **`noise_scale`, `stefcal` and `hogbom`** serve the noise calibration and
+  the field model.
+
+**`python/rang/measures.py`** gives the parallactic angle with astropy as
+the reference (ICRS position angle of the geodetic zenith), a closed form
+with the apparent-to-ICRS rotation, and `sky_to_beam`.
+
+**`examples/b1_identifiability.py`** has three subcommands:
+
+- `fieldmodel`: the frozen three-round procedure, an orientation check, a
+  model-sign check and E0;
+- `survey SET`: loaders for the archived LUNO tiles and the ESO137
+  fetches, noise and amplitude scales, the survey, the S1 native anchored
+  response, and `survey.json`. The post-hoc options `--beam-sampling
+  product`, `--gain-slope` and `--taper-json` are labelled in the output;
+- `archive`: keyed by run directory with roles (verdict, trigger, post
+  hoc, field model). `closes_null` comes from the verdict runs only.
+
+**`examples/fetch_eso137_pilot.py`** does the probe and the bounded S4 and
+S5 fetches, with receipts. It refuses object and pickle arrays.
+
+**Validation** (`tests/test_b1_identifiability.py`, 13 tests, 2.5 s):
+
+- spline values equal `map_coordinates` to 1e-12, and gradients equal
+  central differences to 1e-6;
+- the Schur-reduced survey equals a dense real-stacked projection to 1e-9,
+  with and without gain slopes, for all six information matrices;
+- the raw Fisher information of pointing, width, ellipticity and squint
+  equals finite differences of the perturbed-beam model to 1e-6;
+- a single off-axis component gives ρ ≤ 1e-6 for every direction;
+- two components give ρ > 0.05;
+- noise, StefCal and Högbom recover known inputs;
+- q rises through zero on the ESO137 track, and the closed form matches
+  astropy to 0.01°;
+- on real data, the native anchored response agrees with the NumPy
+  diagonal response to 2.5e-14.
+
+**No Rust kernel.** The largest run (S2) is 51 min single-threaded, dominated
+by the K² sky Gram per gain bin, a BLAS call. No Python loop was the
+bottleneck, so `core/src/` is untouched.
+
 ## Errata and implementation notes (2026-10-30, after the protocol; labelled)
 
 None of these changes a frozen threshold, set, direction or measure.
@@ -678,6 +745,12 @@ and ρ ≥ 0.01.
 | squint y (′) | 0.0404 | 0.118 | **yes** | 0.0524 | 0.091 | 0.0404 | 0.0457 | 0.0994 | 1.5e-4, 5.0e-4 |
 | per-antenna x (53) | 0.177 (min 0.149) | 0.130 | **52 of 53** | 0.187 | 0.123 | – | 0.176 | – | – |
 | per-antenna y (53) | 0.177 (min 0.147) | 0.111 | **52 of 53** | 0.271 | 0.073 | – | 0.176 | – | – |
+
+The S2 per-antenna call **rests on the frozen noise calibration**. With the
+stored weights the median σ is 0.43′ and 0.44′, and no antenna passes.
+κ = 5.5–6.4 here, and the adjacent-dump check (post hoc 2) supports it. The
+S4 per-antenna calls do not depend on it: with the stored weights they are
+0.083′ and 0.093′, and 60/60 pass.
 
 **S3, PKS 1830−211, point model** (`-09`):
 
@@ -881,6 +954,8 @@ tables can be read as the native response's diagonal block.
   factors in every block; that is a code change for B1-3.
 - **The rot90 check on S1** ran at 32 channels (it was in run `-03` before
   the rule fired). S4's ran at 16 channels.
+- **The S5 track set** goes beyond B1's data list. It was named, sized and
+  frozen in this protocol before any survey ran.
 - Nothing else deviates from the frozen procedure. The errata above are
   facts and bookkeeping.
 
@@ -915,7 +990,13 @@ tables can be read as the native response's diagonal block.
 4. **Build a deeper ESO137 field model** before the faint-source metric
    (B1 metric 3): an image of the track, or a catalogue if the user allows
    one.
-5. Keep B1's frozen metrics: recovered offset against truth, held-out
+5. **Treat the track's array-common directions with care.** S5 constrains
+   array-common pointing to about 0.3″ and ellipticity to 0.06 % through
+   parallactic rotation. Any beam-model error that rotates with q will be
+   absorbed as "pointing" or "ellipticity" at that level. Elevation-dependent
+   beam shape is one such error: the holography is a 60°-elevation average,
+   and S5 spans 34–60°.
+6. Keep B1's frozen metrics: recovered offset against truth, held-out
    visibility error (seed 7), faint-source distortion, and cost.
 
 ### Timings (every tool run of this task)
@@ -983,16 +1064,13 @@ WSL host, this branch. Wall and peak RSS from `/usr/bin/time` unless noted.
   > so three frozen self-calibration and CLEAN rounds; E0 passes, but the
   > model is the central radio galaxy only (157 components within 0.26°).
   > The frozen convergence rule fired, so the verdict uses 16-channel beam
-  > evaluation. **B1 does not close null:**
-  > - per-antenna pointing is constrainable on the ESO137 pilot (60/60
-  >   antennas, σ ≈ 0.07′ in 3.5 min, ρ ≈ 0.8) and per track chunk, and
-  >   marginally on 1934 (52/53, 0.18′);
-  > - squint is constrainable on 1934 and ESO137 (0.004–0.04′);
-  > - array-common pointing and ellipticity are constrainable only on the
-  >   track (0.005′, 0.06 %);
-  > - array-common width is constrainable nowhere (0.54 % against 0.5 %).
-  >
-  > The snapshot array-common pointing that passes on 1934, 1830 and the
+  > evaluation. **B1 does not close null.** Per-antenna pointing is
+  > constrainable on the ESO137 pilot (60/60 antennas, σ ≈ 0.07′ in 3.5 min,
+  > ρ ≈ 0.8) and per track chunk, and marginally on 1934 (52/53, 0.18′, only
+  > with the recalibrated noise). Squint is constrainable on 1934 and
+  > ESO137 (0.004–0.04′). Array-common pointing and ellipticity are
+  > constrainable only on the track (0.005′, 0.06 %), and array-common width
+  > nowhere (0.54 % against 0.5 %). The snapshot array-common pointing that passes on 1934, 1830 and the
   > pilot is the beam's chromaticity inside a 32-channel gain interval: a
   > per-channel bandpass removes it exactly on the 1830 point (post hoc).
   > Native anchored response: 5,446 of 6,048 calls pass; it agrees with
@@ -1054,3 +1132,6 @@ WSL host, this branch. Wall and peak RSS from `/usr/bin/time` unless noted.
 - **User items.** Whether to allow an external catalogue (SUMSS, RACS) for
   the ESO137 field model in B1-3: the protocol allowed only MODEL_DATA or
   an image.
+- **Scratch.** `/home/gijsm/Build/tmp/20261030-b1-2/` is deleted. The probe
+  and post-hoc scripts were copied into `outputs/b1-2-20261030-00-*` and
+  `-05-posthoc` first.
