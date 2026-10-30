@@ -1,5 +1,14 @@
 # QuartiCal: the qp half of the complex-term JHJ uses the pq weight order
 
+PR (task U2): **none, by maintainer direction.** JSKenyon replied "I will fix it on the dev
+branch as soon as possible". Checked on v0.2.8-dev 059c806 (no fix yet): the shared loop in
+`gains/general/solver_components.py` passes the pq `w` to both qp accumulations, so `complex`,
+`rotation`, `rotation_measure` and `crosshand_phase` are all affected; a conjugate-baseline
+invariance test (swap ANTENNA1/2, conjugate-transpose DATA and MODEL, transpose WEIGHT)
+fails 8/8 (4 terms x 1 and 2 directions; JHR invariant, JHJ differs by up to 2e3) and passes
+8/8 with `w_qp = tuple_unpackct(w)` in both qp calls. Not pushed; details in
+[../upstream-prs.md](../upstream-prs.md).
+
 Repository: ratt-ru/QuartiCal. Status: **filed 2026-10-30, https://github.com/ratt-ru/QuartiCal/issues/452**.
 Checked 2026-10-30 on QuartiCal 0.2.7 (PyPI, identical to `main` 942f77f), Numba 0.68.1,
 NumPy 2.5.4, Python 3.13; v0.2.8-dev (059c806) inspected, not run. Origin: rang's port of the

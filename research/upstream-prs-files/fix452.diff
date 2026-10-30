@@ -1,0 +1,37 @@
+diff --git a/quartical/gains/general/solver_components.py b/quartical/gains/general/solver_components.py
+index 0ac0296..43e999b 100644
+--- a/quartical/gains/general/solver_components.py
++++ b/quartical/gains/general/solver_components.py
+@@ -391,13 +391,14 @@ def build_jhj_jhr_impl(
+ 
+                         wr_pq = tuple_wmul(r_pq, w)
+                         wr_qp = tuple_unpackct(wr_pq)
++                        w_qp = tuple_unpackct(w)  # Weights of V_qp = V_pq^H.
+ 
+                         jhj_jhr_p = accumulate_jhj_jhr(
+                             lop_pq, rop_pq, w, g_active_p, channel_coeffs,
+                             wr_pq, jhj_jhr_p
+                         )
+                         jhj_jhr_q = accumulate_jhj_jhr(
+-                            lop_qp, rop_qp, w, g_active_q, channel_coeffs,
++                            lop_qp, rop_qp, w_qp, g_active_q, channel_coeffs,
+                             wr_qp, jhj_jhr_q
+                         )
+ 
+@@ -512,6 +513,7 @@ def build_jhj_jhr_impl(
+                     # are direction independent and can be computed once.
+                     wr_pq = tuple_wmul(r_pq, w)
+                     wr_qp = tuple_unpackct(wr_pq)
++                    w_qp = tuple_unpackct(w)  # Weights of V_qp = V_pq^H.
+ 
+                     for d in range(n_gdir):
+ 
+@@ -533,7 +535,7 @@ def build_jhj_jhr_impl(
+                         rop_qp_d = tuple_unpack(rop_qp_arr[d])
+ 
+                         jhj_jhr = accumulate_jhj_jhr(
+-                            lop_qp_d, rop_qp_d, w, g_active_q, channel_coeffs,
++                            lop_qp_d, rop_qp_d, w_qp, g_active_q, channel_coeffs,
+                             wr_qp, jhj_jhr_zero
+                         )
+                         flush_jhj_jhr(

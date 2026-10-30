@@ -1,5 +1,8 @@
 # QuartiCal: no HISTORY row for the columns and flags it writes
 
+PR (task U2): **none.** JSKenyon replied he will look at how to serialise the CLI arguments;
+left as a feature request.
+
 Repository: ratt-ru/QuartiCal. Status: **filed 2026-10-30, https://github.com/ratt-ru/QuartiCal/issues/453**.
 Checked 2026-10-30 on QuartiCal 0.2.7 (PyPI, identical to `main` 942f77f), dask-ms 0.2.32,
 python-casacore 3.8.1, Python 3.13, on a copy of scan 9 of the public SKA pointing test data

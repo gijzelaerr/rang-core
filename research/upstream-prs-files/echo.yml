@@ -1,0 +1,17 @@
+cabs:
+  echo:
+    command: echo
+    inputs:
+      text:
+        dtype: str
+        required: true
+        policies:
+          positional: true
+
+hello:
+  info: minimal recipe running one native cab
+  steps:
+    say:
+      cab: echo
+      params:
+        text: hello
