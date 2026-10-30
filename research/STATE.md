@@ -1,5 +1,16 @@
 # Rang research state
 
+Big plan task U3 (saopicc upstream), 2026-10-30 (implemented; measured;
+[upstream-saopicc.md](upstream-saopicc.md)): filed saopicc/killMS#23, #25,
+#27 and saopicc/DDFacet#73, #75, #77; opened killMS#24, #26 and DDFacet#74,
+#76 (no GitHub CI on either repository). Latest releases equal `master` in
+both. The DDFacet Hogbom failure seen on the LUNO slice reproduces on a
+synthetic point source in two minutes and depends on the facet count, not the
+compact array (one facet converges; 3×3 diverges to inf even with 2.2 km
+baselines): DF0/DF5 oracles should use one facet or reject `nan` models.
+killMS still needs DDFacet < 1.0, and DDFacet 0.9.1 does not install on GCC 15
+(astlib), so the killMS oracle needs an older toolchain.
+
 L5 solver science (big plan wave 3), 2026-10-30 (implemented; measured; no
 default changes; [l5-solver-science.md](l5-solver-science.md)): the core
 solver gains run-time options through `RANG_SOLVE_OPTIONS` (default = archived

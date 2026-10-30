@@ -202,7 +202,8 @@ CPU-heavy tasks at a time on 8 physical cores.
   CohJones, Hogbom/multiscale) after B1 says what it needs; DF1b (w-towers)
   when memory binds; DF6 (facet-IDG on `wgpu`) after X2. User decisions
   (2026-10-30): `saopicc` (DDFacet, killMS) issues and pull requests may be
-  filed like the RATT ones (task U3); a simulated MeerKAT target field is the
+  filed like the RATT ones (task U3, done 2026-10-30: six issues, four PRs,
+  `upstream-saopicc.md`); a simulated MeerKAT target field is the
   DF3–DF5 oracle to start with; the core must read and write the file
   formats of the tools it replaces, not just convert for oracle runs:
   DDFacet `DicoModel` sky models, killMS solution files, QuartiCal gain

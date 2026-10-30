@@ -540,3 +540,21 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan L5: whole-array confirm `-19` (3 A/B pairs, images of D and C, 59 s and 55 s) | – | 4 min 38 s | 12.2 GB |  |
 | 2026-10-30 | big plan L5: `flock ~/.rang-checkall.lock bash tools/check-all.sh` (`-20.check-all.log`), head 4f9f70e | – | 5 min 16 s (lock wait 0 s) | – |  |
 | 2026-10-30 | big plan L5: `validate_core_phase2.py` `-21` on the check-all extension (Rust 1.93 build) | – | 2.1 s | – |  |
+| 2026-10-30 | big plan U3: `git clone` DDFacet, killMS | GitHub | 10.8 s | – |  |
+| 2026-10-30 | big plan U3: `uv pip install ./DDFacet` (v1.0.0.0) | source | 80.2 s | 874 MB | Python 3.12.15 |
+| 2026-10-30 | big plan U3: `uv pip install DDFacet==0.9.1` | PyPI | 4.3 s | 72 MB | **failed**: astlib 0.13.2 on GCC 15; retries with CFLAGS 0.9-1.0 s, failed |
+| 2026-10-30 | big plan U3: `uv pip install --no-deps ./killMS` (3.3.0) | source | 13.4 s | 68 MB | **failed**: `Gridder.c:309` |
+| 2026-10-30 | big plan U3: same with `CFLAGS=-Wno-error=incompatible-pointer-types` | source | 13.3 s | 76 MB | built |
+| 2026-10-30 | big plan U3: `uv pip install ./DDFacet ./killMS` (fix branch, no CFLAGS) | source | 132.7 s | 874 MB | built |
+| 2026-10-30 | big plan U3: `gcc -c Gridder.c` before/after + `objdump` | one file | seconds | – | disassembly identical |
+| 2026-10-30 | big plan U3: `uv build --sdist` licence branches | DDFacet, killMS | 0.9 s, 1.8 s | – | `GPLv2+` in PKG-INFO |
+| 2026-10-30 | big plan U3: new `TestClassMSSelection` (pytest) | 3-row MS | 0.5-0.8 s | 106 MB | fails before, passes after |
+| 2026-10-30 | big plan U3: `nosetests DDFacet.Tests.FastUnitTests` | 35 / 36 tests | 19.4 s / 17.9 s | 351 MB | OK / OK |
+| 2026-10-30 | big plan U3: `DDF.py` dirty, default field 0 | LUNO slice copy, 128 px | 5.4 s (before), 2.2 s (after) | 296 / 279 MB | exit 1 both; new message after |
+| 2026-10-30 | big plan U3: `DDF.py` dirty, `//F1` and `--Selection-Field 1` | same | 6.7 s, 6.6 s | 445 MB | exit 0 |
+| 2026-10-30 | big plan U3: `DDF.py` Hogbom 3×3 facets, synthetic point source | slice geometry, 2048 ch, 512 px | 101.7 s | 8.9 GB | diverges to inf; CPU 299 % |
+| 2026-10-30 | big plan U3: same, UVW ×30 | same | 104.2 s | 9.0 GB | diverges (8.3e15 Jy) |
+| 2026-10-30 | big plan U3: same, 1 facet | same | 273.1 s | 21.5 GB | converges; CPU 71 % |
+| 2026-10-30 | big plan U3: rang worktree venv (`uv venv -p 3.14` + editable install) | worktree | 61.7 s | 501 MB |  |
+| 2026-10-30 | big plan U3: `flock ... bash tools/check-all.sh` | worktree at 6e7444b | 259.0 s; lock wait under 1 s | 1.58 GB | **FAIL**, not from U3: see below |
+| 2026-10-30 | big plan U3: issue #75 snippet check (`field_snippet_check.sh`) | slice copy, 2 `DDF.py` runs | under 30 s | – | exit 0, then exit 1 as reported |

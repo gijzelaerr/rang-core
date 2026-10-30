@@ -288,3 +288,21 @@ margin on the LUNO sets but costs 5.8e-5 on the fixture; a loss criterion at
 1e-5 needs 83–184 iterations. Safeguarded Anderson acceleration (m = 3) of
 the two-step map reaches 0.99 at 65 iterations on the array where plain needs
 more than 300.
+
+## Upstream status after task U3 (2026-10-30; `upstream-saopicc.md`)
+
+- killMS GCC 14+: **filed** saopicc/killMS#25, **PR** #26 (one-line declaration
+  fix, identical object code).
+- killMS vs DDFacet 1.0.0.0: **filed** saopicc/killMS#27 (global `APP`,
+  `_init_default`, `init()` signature all changed via cyriltasse/DDFacet#912);
+  no PR, port or `<1.0` pin left to the maintainers.
+- Licence classifiers: **filed** saopicc/DDFacet#73 and saopicc/killMS#23,
+  **PRs** #74 and #24 (`GPLv2+`); missing headers (168 and 17 files) noted only.
+- DDFacet field selection: **filed** saopicc/DDFacet#75, **PR** #76 (skip
+  message names the fields present; unit test).
+- DDFacet Hogbom: **filed** saopicc/DDFacet#77 (diverges to inf with more than
+  one facet on a synthetic point source; one facet converges). DF0/DF5 oracles
+  must use one facet or reject non-finite models.
+- Neither repository has GitHub CI; DDFacet development merges on
+  cyriltasse/DDFacet and saopicc `master` is synced from it, so #74 and #76 may
+  be retargeted on request.
