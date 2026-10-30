@@ -85,8 +85,11 @@ algorithm is fine. PORT and ORACLE do not depend on the licence.
      run natively on Linux, macOS and Windows (X1).
    - The DEPEND list is short:
      - casacure (LGPL-3+, all three platforms; E2 decides);
-     - katdal + katsdptelstate (BSD-3, pure Python), as an optional
-       `[meerkat]` extra for L3;
+     - katdal + katsdptelstate (BSD-3), as an optional `[meerkat]`
+       extra for L3. katdal 0.23 itself is a pure wheel but requires
+       numba, h5py, cityhash, dask and katpoint (wheel METADATA), so the
+       extra inherits numba's Python ceiling and the cityhash wheels'
+       platform coverage (both unverified for 3.14/Windows);
      - katbeam (BSD-3, already used);
      - ducc0 (GPL-2+, wheels on all three platforms), as a test-time
        oracle that happens to be a wheel;
@@ -144,7 +147,7 @@ upstream release on 2026-10-30. KERN status: **10** = in KERN-10.
 | casacore-data 20250826 | Measures data (IERS, ephemerides, observatories) | github.com/kernsuite-debian/casacore-data | data files (licence not checked, unverified) | data | KERN snapshot 2025-08-26 | KERN | DEPEND (data), only if the core needs UT1/polar motion. casacure carries a measures subset (E2 reports it). |
 | casarest 1.9.2 | Standalone imager/calibrater cut out of old CASA | github.com/casacore/casarest | GPL-3.0 (GitHub); Debian copyright GPL-2.0+ | C++ | v1.10.2, 2026-05-01 | casacore | IGNORE. Superseded by WSClean and CASA for every use rang has. |
 | makems 1.5.6 | Create empty MSs from a template (LOFAR heritage) | github.com/ratt-ru/makems | GPL-2.0+ (Debian copyright; no LICENSE file in repo) | C++ | v1.5.6, 2025-08-08 | RATT | IGNORE. The simulated DF field MS is written by rang/casacure (see simms, section 2). |
-| katdal 0.23 | MeerKAT MVFv4 data access (RDB + S3 chunk store), `mvftoms.py` | github.com/ska-sa/katdal | BSD-3-Clause | Python | PyPI 0.23, 2024-06-28; push 2026-10-22 (no newer tag) | SARAO | DEPEND now (optional `[meerkat]` extra, L3); PORT the MVF reader later (section 5.3). |
+| katdal 0.23 | MeerKAT MVFv4 data access (RDB + S3 chunk store), `mvftoms.py` | github.com/ska-sa/katdal | BSD-3-Clause | Python | PyPI 0.23, 2024-06-28; push 2026-10-22 (no newer tag) | SARAO | DEPEND now (optional `[meerkat]` extra, L3; requires numba, h5py, cityhash, dask, katpoint); PORT the MVF reader later (section 5.3). |
 | katpoint 0.10.2 | Coordinates, targets, antenna, pointing and delay models | github.com/ska-sa/katpoint | BSD-3-Clause | Python | PyPI 0.10.3, 2026-09-22 | SARAO | DEPEND for B1 (MeerKAT pointing-model terms and target conventions). PORT only the terms B1 needs. |
 | katsdptelstate 1.0.0 | Telescope-state store (Redis/RDB) read by katdal | github.com/ska-sa/katsdptelstate | BSD-3-Clause | Python | PyPI 1.0.0, 2025-07-07 | SARAO | DEPEND (with katdal). |
 | rdbtools 0.1.15 | Redis RDB file parser (katsdptelstate dependency) | (no Homepage in the KERN record) | not declared in the KERN record (unverified) | Python | – | – | IGNORE (transitive). |
@@ -202,17 +205,19 @@ upstream release on 2026-10-30. KERN status: **10** = in KERN-10.
 All IGNORE for the core. Each is a transitive dependency of a tool above,
 or of TraP, and rang does not need it directly.
 
-| Package | Purpose | Licence | Needed by |
-| --- | --- | --- | --- |
-| casaconfig 1.3.1 (upstream v1.5.2, 2026-10-01) | CASA runtime data fetcher | Apache-2.0 | CASA; only for a CASA oracle container |
-| casalite 6.7.3.21 | Monolithic CASA tarball as a deb | GPL-2.0+ (Debian copyright) | **ORACLE base** for the CASA container (section 3) |
-| numba 0.64.0, llvmlite 0.46.0 | JIT | BSD-2 | QuartiCal, Tricolour, codex-africanus. The live rang path no longer needs Numba (P6/P8). |
-| sharedarray 3.2.4 | POSIX shared-memory NumPy arrays | GPL-2 (Debian) | DDFacet, killMS |
-| polygon3 3.0.8 | 2D polygon operations | not declared (Debian copyright unknown) | DDFacet/killMS facet tessellation (unverified) |
-| cityhash 0.4.9 | CityHash/FarmHash bindings | MIT (upstream; GitHub NOASSERTION) | not determined (unverified) |
-| pyslalib 1.0.10 | SLALIB wrappers | GPL-2.0+ | MeqTrees, Owlcat (unverified) |
-| pymonetdb 1.9.0 (upstream 1.9.1, 2026-07-09) | MonetDB client | MPL-2.0 | TraP transient pipeline |
-| tokenize-rt 6.2.0, unittest-xml-reporting 4.0.0 | build/test helpers | MIT / BSD (unverified) | packaging only |
+- casaconfig 1.3.1 (upstream v1.5.2, 2026-10-01; Apache-2.0): CASA
+  runtime data; only for a CASA oracle.
+- casalite 6.7.3.21 (GPL-2.0+, Debian copyright): CASA as a deb; the
+  **ORACLE base** for the CASA container (section 3).
+- numba 0.64.0 and llvmlite 0.46.0 (BSD-2): for QuartiCal, Tricolour,
+  codex-africanus and katdal. Rang's live path no longer needs Numba.
+- sharedarray 3.2.4 (GPL-2), polygon3 3.0.8 (licence not declared):
+  DDFacet/killMS (polygon3 use unverified).
+- cityhash 0.4.9 (MIT upstream): katdal (`Requires-Dist: cityhash>=0.2.2`).
+- pyslalib 1.0.10 (GPL-2.0+): MeqTrees/Owlcat (unverified).
+- pymonetdb 1.9.0 (upstream 1.9.1, 2026-07-09; MPL-2.0): TraP.
+- tokenize-rt 6.2.0 and unittest-xml-reporting 4.0.0: build and test
+  helpers.
 
 ### 1.9 KERN history: packages no longer in KERN-10
 
@@ -239,9 +244,7 @@ their last push.
 | karma (kvis) | packaging repo only, 2021-02 | unmaintained (Gooch, ATNF) | IGNORE (CARTA replaces kvis) |
 | sagecal, oskar, pymoresane, msutils, dysco, aartfaac2ms, chgcentre, rmextract, lofar, prefactor, tkp, … | packaging repos only, 2018–2021 | various | IGNORE. Not MeerKAT-L-band relevant, or superseded. OSKAR 2.13.0 (BSD-3, 2026-07-23) is noted as a possible second simulator. |
 
-The pulsar, SETI and FRB packaging repos (dspsr, psrchive, presto,
-heimdall, turbo-seti, …; last pushed 2018–2019) are out of scope. All are
-IGNORE.
+Pulsar/SETI/FRB packaging repos (2018–2019): out of scope, IGNORE.
 
 ## 2. Beyond KERN: the MeerKAT tools that matter
 
@@ -253,82 +256,82 @@ it matters for rang's 3.10–3.14 matrix.
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| dask-ms | xarray/dask datasets over MS, zarr and parquet; QuartiCal's I/O | BSD-3 (LICENSE file; GitHub NOASSERTION; PyPI licence field empty except BSD-3 expression) | Python | 0.2.32, 2026-05-18; push 2026-10-20; Py < 3.14 | RATT/SARAO | FORMAT (its zarr export is what the core's ingest reads). Ingest already PORTed (tasks G and E). |
-| xarray-ms | xarray backend presenting an MS as MSv4-like datasets/datatree | BSD-3 (LICENSE file; GitHub NOASSERTION) | Python | 0.5.13, 2026-10-20 | RATT/SARAO | IGNORE now. Watch: it is the RATT route to MSv4. |
-| arcae | Arrow bindings to casacore; multi-threaded MS reads | BSD-3 | C++/Python | 0.5.8, 2026-10-20; wheels Linux/macOS | SARAO (moved to `ska-sa/arcae`) | IGNORE. casacure (E2) covers the same need natively, with Windows. |
-| xradio | NRAO's MSv4 (zarr) schema and converters | BSD-3 | Python | v1.3.0, 2026-10-16; push 2026-10-29 | NRAO (casangi) | FORMAT candidate (MSv4 zarr, "future MS-free interchange"; literature scan section 6). CARTA 6.1 plans xradio-image zarr support (section 4). |
-| casacure | Pure-Rust casacore tables, MS, TaQL subset, measures subset | LGPL-3.0-or-later (Cargo.toml) | Rust | crate/PyPI 3.8.35, 2026-10-21; wheels Linux/macOS/Windows | individual (T. Molteno) | DEPEND, pending E2. It is the only MS library with Windows wheels. |
-| xova | MS averaging (time/channel, BDA) into a new MS | BSD-3 | Python | 0.1.2, 2022-10-05 | RATT | IGNORE (unmaintained; the brief lists it as QA but it is an averager). |
+| dask-ms (ratt-ru/dask-ms) | xarray/dask datasets over MS, zarr and parquet; QuartiCal's I/O | BSD-3 (LICENSE file; GitHub NOASSERTION; PyPI licence field empty except BSD-3 expression) | Python | 0.2.32, 2026-05-18; push 2026-10-20; Py < 3.14 | RATT/SARAO | FORMAT (its zarr export is what the core's ingest reads). Ingest already PORTed (tasks G and E). |
+| xarray-ms (ratt-ru/xarray-ms) | xarray backend presenting an MS as MSv4-like datasets/datatree | BSD-3 (LICENSE file; GitHub NOASSERTION) | Python | 0.5.13, 2026-10-20 | RATT/SARAO | IGNORE now. Watch: it is the RATT route to MSv4. |
+| arcae (ska-sa/arcae) | Arrow bindings to casacore; multi-threaded MS reads | BSD-3 | C++/Python | 0.5.8, 2026-10-20; wheels Linux/macOS | SARAO (moved to `ska-sa/arcae`) | IGNORE. casacure (E2) covers the same need natively, with Windows. |
+| xradio (casangi/xradio) | NRAO's MSv4 (zarr) schema and converters | BSD-3 | Python | v1.3.0, 2026-10-16; push 2026-10-29 | NRAO (casangi) | FORMAT candidate (MSv4 zarr, "future MS-free interchange"; literature scan section 6). CARTA 6.1 plans xradio-image zarr support (section 4). |
+| casacure (tmolteno/casacure) | Pure-Rust casacore tables, MS, TaQL subset, measures subset | LGPL-3.0-or-later (Cargo.toml) | Rust | crate/PyPI 3.8.35, 2026-10-21; wheels Linux/macOS/Windows | individual (T. Molteno) | DEPEND, pending E2. It is the only MS library with Windows wheels. |
+| xova (ratt-ru/xova) | MS averaging (time/channel, BDA) into a new MS | BSD-3 | Python | 0.1.2, 2022-10-05 | RATT | IGNORE (unmaintained; the brief lists it as QA but it is an averager). |
 
 ### 2.2 Calibration
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| QuartiCal | DI/DD Jones solver: complex, diag, phase, amplitude, delay, TEC, RM, crosshand_phase, leakage, feed_flip, parallactic_angle, rotation terms (`quartical/gains/*`) | MIT | Python/Numba | v0.2.7, 2026-06-12; push 2026-10-30; Py < 3.14 | RATT | PORTED (complex 2×2, bit-exact). FORMAT: gain zarr store. The pol terms (crosshand_phase, leakage) are the nearest MIT-licensed polarisation reference (section 5). |
-| CubiCal | Older complex-optimisation Jones solver; CARACal's default selfcal/DD solver | GPL-2.0 (GitHub) vs GPLv3 (PyPI classifier): **conflict** | Python/Cython | 1.6.4, 2023-06-06; push 2026-10-29 | RATT | ORACLE only, for a CARACal-matched selfcal baseline. Not DEPEND: licence ambiguous, Python 2-era build. |
-| killMS | DD calibration (CohJones/KAFCA) with DDFacet prediction | GPL-2.0 (headers GPL-2-or-later per [ddfacet-feasibility.md](ddfacet-feasibility.md)) | Python/C | 3.3.0, 2026-01-29; Py < 3.13 | saopicc | ORACLE (DF4). FORMAT: npz solutions. |
-| DP3 (DPPP) | LOFAR streaming preprocessing; DDECal (scalar/diag/full-Jones, multi-direction); writes H5parm | GPL-3.0 | C++ | v6.6, 2026-05-07 (git.astron.nl; the GitHub mirror's "v5.0, 2020" release is stale); PyPI 6.6.0 Linux wheels | ASTRON | ORACLE (DDECal as a second DD reference, literature scan section 6). FORMAT via H5parm. |
-| losoto | H5parm solution inspection, smoothing, plotting | GPL-3.0-or-later | Python | 2.7.1, 2026-04-29 | LOFAR community (F. de Gasperin) | FORMAT (H5parm, the lingua franca of DP3, WSClean `-apply-facet-solutions` and facetselfcal). DEPEND would be legal but pulls in PyTables. PORT the H5parm subset instead. |
-| facetselfcal (`rvweeren/lofar_facet_selfcal`) | DI/DD selfcal driver over DP3/WSClean; claims MeerKAT support | **no licence file or licence field found** (pyproject version 21.0.0): all rights reserved by default (unverified legal reading) | Python | no releases; push 2026-10-30 | individual (R. van Weeren) | ORACLE only, for DD selfcal comparisons. Its existence argues against a new DD selfcal driver in rang. |
-| katsdpcal | MeerKAT SDP real-time calibration pipeline (K, B, G on calibrator scans; solutions stored in telstate and archived as `sdp.cal` streams) | BSD-3 | Python | no PyPI; push 2026-10-28 | SARAO | ORACLE and reference. Its solutions arrive with every MVF dataset (via katdal's calibration-solution access), so L3 gets SARAO's own K/B/G for free. PORT nothing. |
+| QuartiCal (ratt-ru/QuartiCal) | DI/DD Jones solver: complex, diag, phase, amplitude, delay, TEC, RM, crosshand_phase, leakage, feed_flip, parallactic_angle, rotation terms (`quartical/gains/*`) | MIT | Python/Numba | v0.2.7, 2026-06-12; push 2026-10-30; Py < 3.14 | RATT | PORTED (complex 2×2, bit-exact). FORMAT: gain zarr store. The pol terms (crosshand_phase, leakage) are the nearest MIT-licensed polarisation reference (section 5). |
+| CubiCal (ratt-ru/CubiCal) | Older complex-optimisation Jones solver; CARACal's default selfcal/DD solver | GPL-2.0 (GitHub) vs GPLv3 (PyPI classifier): **conflict** | Python/Cython | 1.6.4, 2023-06-06; push 2026-10-29 | RATT | ORACLE only, for a CARACal-matched selfcal baseline. Not DEPEND: licence ambiguous, Python 2-era build. |
+| killMS (saopicc/killMS) | DD calibration (CohJones/KAFCA) with DDFacet prediction | GPL-2.0 (headers GPL-2-or-later per [ddfacet-feasibility.md](ddfacet-feasibility.md)) | Python/C | 3.3.0, 2026-01-29; Py < 3.13 | saopicc | ORACLE (DF4). FORMAT: npz solutions. |
+| DP3 (git.astron.nl/RD/DP3) | LOFAR streaming preprocessing; DDECal (scalar/diag/full-Jones, multi-direction); writes H5parm | GPL-3.0 | C++ | v6.6, 2026-05-07 (git.astron.nl; the GitHub mirror's "v5.0, 2020" release is stale); PyPI 6.6.0 Linux wheels | ASTRON | ORACLE (DDECal as a second DD reference, literature scan section 6). FORMAT via H5parm. |
+| losoto (revoltek/losoto) | H5parm solution inspection, smoothing, plotting | GPL-3.0-or-later | Python | 2.7.1, 2026-04-29 | LOFAR community (F. de Gasperin) | FORMAT (H5parm, the lingua franca of DP3, WSClean `-apply-facet-solutions` and facetselfcal). DEPEND would be legal but pulls in PyTables. PORT the H5parm subset instead. |
+| facetselfcal (rvweeren/lofar_facet_selfcal) | DI/DD selfcal driver over DP3/WSClean; claims MeerKAT support | **no licence file or licence field found** (pyproject version 21.0.0): all rights reserved by default (unverified legal reading) | Python | no releases; push 2026-10-30 | individual (R. van Weeren) | ORACLE only, for DD selfcal comparisons. Its existence argues against a new DD selfcal driver in rang. |
+| katsdpcal (ska-sa/katsdpcal) | MeerKAT SDP real-time calibration pipeline (K, B, G on calibrator scans; solutions stored in telstate and archived as `sdp.cal` streams) | BSD-3 | Python | no PyPI; push 2026-10-28 | SARAO | ORACLE and reference. Its solutions arrive with every MVF dataset (via katdal's calibration-solution access), so L3 gets SARAO's own K/B/G for free. PORT nothing. |
 | CASA gaincal/bandpass/polcal | see section 3 | LGPL-2.0+ headers / "GPLv2" metadata | C++/Python | 6.7.6.14, 2026-08-07 | NRAO | ORACLE (CARACal's crosscal is CASA) |
 
 ### 2.3 Flagging
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| Tricolour | Numba SumThreshold with CARACal strategies | BSD-3 LICENSE vs "GPLv2/Other" PyPI metadata (filed: tricolour#110) | Python | 0.2.1, 2026-04-01; 0.5.0 rework pending; Py < 3.13 | RATT | PORTED (task D, P3). Re-validate on 0.5.0 (big plan follow-up). |
+| Tricolour (ratt-ru/tricolour) | Numba SumThreshold with CARACal strategies | BSD-3 LICENSE vs "GPLv2/Other" PyPI metadata (filed: tricolour#110) | Python | 0.2.1, 2026-04-01; 0.5.0 rework pending; Py < 3.13 | RATT | PORTED (task D, P3). Re-validate on 0.5.0 (big plan follow-up). |
 | AOFlagger develop | as KERN row | GPL-3.0 | C++ | develop push 2026-10-07 (latest commit "SKB-1519 Always use static schaapthreading for Python lib") | ASTRON | ORACLE (section 1.3) |
-| Owlcat | MS utilities (`plot-ms`, `flag-ms`, `downweigh-redundant-baselines`) | GPL-2.0+ (Debian) | Python | 1.8.1, 2026-03-18 | RATT | IGNORE. CARACal's `flagms` cab is Owlcat (unverified mapping); rang reads and writes flags itself. |
+| Owlcat (ratt-ru/owlcat) | MS utilities (`plot-ms`, `flag-ms`, `downweigh-redundant-baselines`) | GPL-2.0+ (Debian) | Python | 1.8.1, 2026-03-18 | RATT | IGNORE. CARACal's `flagms` cab is Owlcat (unverified mapping); rang reads and writes flags itself. |
 | CASA flagdata | tfcrop, rflag, clip, quack, shadow, elevation, extend… | see section 3 | C++ | 6.7.6 | NRAO | ORACLE. CARACal's flag worker uses `casa_flagdata` beside Tricolour and AOFlagger. |
 
 ### 2.4 Imaging and deconvolution
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| DDFacet | Facet imager with DD Jones, SSD/HMP deconvolution | GPL-2.0 (headers GPL-2-or-later) | Python/C++ | 1.0.0.0, 2026-06-23; Py < 3.13 | saopicc | ORACLE ([ddfacet-feasibility.md](ddfacet-feasibility.md)). FORMAT: DicoModel. |
-| pfb-imaging | Preconditioned forward-backward imaging (sparsity/wavelet priors), stimela cabs via hip-cargo | MIT | Python | PyPI 0.0.11, 2026-07-28 (GitHub release v0.0.6 lags); Py < 3.14 | RATT (L. Bester) | ORACLE first; PORT candidate later. MIT allows copying, so it is the deconvolution code rang may lift directly if DF5 wants a convex-optimisation deconvolver rather than CLEAN. |
-| ducc0 (wgridder) | Exact w-gridder/degridder, FFT, SHT | GPL-2.0-or-later | C++/Python | 0.42.0, 2026-10-20; wheels Linux/macOS/Windows (GitHub `mreineck/ducc` and gitlab.mpcdf paths not resolved by the API; PyPI only) | MPA (M. Reinecke) | ORACLE (DF1). DEPEND as a test extra is legal and cross-platform. |
-| katsdpimager | SARAO GPU spectral-line imager | BSD-3 | Python/CUDA (PyCUDA/OpenCL; unverified) | push 2026-06-09, no releases | SARAO | IGNORE for now. BSD-3 makes it a readable GPU-gridding reference for X2. |
-| katsdpcontim (Obit) | SARAO continuum imaging pipeline | BSD-3 (wrapper); Obit GPL-2+ | Python/C | push 2026-10-22 | SARAO | ORACLE, conditional (section 1.2 obit row) |
-| breizorro | Binary masks from FITS images (threshold, islands, regions) | GPL-3.0 | Python | 0.2.0, 2025-04-24; Py < 3.13 | RATT | PORT when DF5 needs masks (small: thresholding plus connected components), with breizorro as the oracle. |
-| EveryBeam | Beam library for LOFAR/MWA/SKA-Low/OSKAR/ATCA (unverified list) | GPL-3.0-or-later | C++ | 0.9.0 (ASTRON), PyPI 0.9.1 2026-10-21, Linux wheels | ASTRON | IGNORE for MeerKAT. Whether EveryBeam has a MeerKAT element model was not checked (unverified). |
+| DDFacet (saopicc/DDFacet) | Facet imager with DD Jones, SSD/HMP deconvolution | GPL-2.0 (headers GPL-2-or-later) | Python/C++ | 1.0.0.0, 2026-06-23; Py < 3.13 | saopicc | ORACLE ([ddfacet-feasibility.md](ddfacet-feasibility.md)). FORMAT: DicoModel. |
+| pfb-imaging (ratt-ru/pfb-imaging) | Preconditioned forward-backward imaging (sparsity/wavelet priors), stimela cabs via hip-cargo | MIT | Python | PyPI 0.0.11, 2026-07-28 (GitHub release v0.0.6 lags); Py < 3.14 | RATT (L. Bester) | ORACLE first; PORT candidate later. MIT allows copying, so it is the deconvolution code rang may lift directly if DF5 wants a convex-optimisation deconvolver rather than CLEAN. |
+| ducc0 (PyPI ducc0) | Exact w-gridder/degridder, FFT, SHT | GPL-2.0-or-later | C++/Python | 0.42.0, 2026-10-20; wheels Linux/macOS/Windows (GitHub `mreineck/ducc` and gitlab.mpcdf paths not resolved by the API; PyPI only) | MPA (M. Reinecke) | ORACLE (DF1). DEPEND as a test extra is legal and cross-platform. |
+| katsdpimager (ska-sa/katsdpimager) | SARAO GPU spectral-line imager | BSD-3 | Python/CUDA (PyCUDA/OpenCL; unverified) | push 2026-06-09, no releases | SARAO | IGNORE for now. BSD-3 makes it a readable GPU-gridding reference for X2. |
+| katsdpcontim (ska-sa/katsdpcontim) | SARAO continuum imaging pipeline | BSD-3 (wrapper); Obit GPL-2+ | Python/C | push 2026-10-22 | SARAO | ORACLE, conditional (section 1.2 obit row) |
+| breizorro (ratt-ru/breizorro) | Binary masks from FITS images (threshold, islands, regions) | GPL-3.0 | Python | 0.2.0, 2025-04-24; Py < 3.13 | RATT | PORT when DF5 needs masks (small: thresholding plus connected components), with breizorro as the oracle. |
+| EveryBeam (git.astron.nl/RD/EveryBeam) | Beam library for LOFAR/MWA/SKA-Low/OSKAR/ATCA (unverified list) | GPL-3.0-or-later | C++ | 0.9.0 (ASTRON), PyPI 0.9.1 2026-10-21, Linux wheels | ASTRON | IGNORE for MeerKAT. Whether EveryBeam has a MeerKAT element model was not checked (unverified). |
 
 ### 2.5 Source finding and sky models
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| PyBDSF | Gaussian decomposition source finder; catalogues in FITS/ASCII/BBS/DS9/kvis/sagecal/star formats (unverified list) | GPL-3.0 | Python/Fortran/C++ | 1.14.1, 2026-06-12; wheels Linux/macOS | LOFAR/ASTRON | ORACLE. FORMAT: `.srl`/`.gaul` FITS or ASCII catalogues (read). DEPEND is legal (GPL-3) but has no Windows wheels. CARACal selfcal uses it (`pybdsm` cab). |
-| Aegean (AegeanTools) | Compact-source finder with priorised fitting | **AFL-3.0** | Python | 2.3.5, 2025-07-28 | individual (P. Hancock) | ORACLE only. The FSF treats AFL as GPL-incompatible (secondary sources; FSF page rate-limited on 2026-10-30), so it is not DEPEND. |
-| SoFiA-2 | 3D source finder for HI cubes; CARACal line and mask workers | GPL-3.0-or-later | C | v2.7.1, 2026-07-20 (gitlab.com/SoFiA-Admin/SoFiA-2; GitHub archived) | ASTRON/CSIRO/ICRAR | IGNORE (HI). ORACLE if rang ever makes masks for DF5 from cubes. |
-| Crystalball | Distributed DFT prediction of WSClean component lists into MODEL_DATA (Serra, Perkins & Smirnov 2022) | GPLv2 (PyPI; "Other/Proprietary" classifier) | Python/Numba | PyPI 0.4.3, 2025-01-29 (GitHub release 0.4.1); Py < 3.13 | RATT/caracal-pipeline | Already PORTED in substance (africanus-style predictor). FORMAT: WSClean `-save-source-list` text, which is its input. ORACLE for L1-M (CARACal's `meerkat_crystalball_skymodel` path). |
-| LSMTool | BBS sky-model manipulation | GPL-3.0 (PyPI) | Python | 1.9.0, 2026-09-25 | LOFAR | IGNORE. FORMAT note: BBS `makesourcedb` text is the DP3 sky format. |
-| RM-Tools | RM synthesis and QU-fitting | MIT | Python | v1.5.0, 2026-10-21 | CIRADA | IGNORE (polarisation science, not calibration). |
+| PyBDSF (lofar-astron/PyBDSF) | Gaussian decomposition source finder; catalogues in FITS/ASCII/BBS/DS9/kvis/sagecal/star formats (unverified list) | GPL-3.0 | Python/Fortran/C++ | 1.14.1, 2026-06-12; wheels Linux/macOS | LOFAR/ASTRON | ORACLE. FORMAT: `.srl`/`.gaul` FITS or ASCII catalogues (read). DEPEND is legal (GPL-3) but has no Windows wheels. CARACal selfcal uses it (`pybdsm` cab). |
+| Aegean (PaulHancock/Aegean) | Compact-source finder with priorised fitting | **AFL-3.0** | Python | 2.3.5, 2025-07-28 | individual (P. Hancock) | ORACLE only. The FSF treats AFL as GPL-incompatible (secondary sources; FSF page rate-limited on 2026-10-30), so it is not DEPEND. |
+| SoFiA-2 (gitlab SoFiA-Admin/SoFiA-2) | 3D source finder for HI cubes; CARACal line and mask workers | GPL-3.0-or-later | C | v2.7.1, 2026-07-20 (gitlab.com/SoFiA-Admin/SoFiA-2; GitHub archived) | ASTRON/CSIRO/ICRAR | IGNORE (HI). ORACLE if rang ever makes masks for DF5 from cubes. |
+| Crystalball (caracal-pipeline/crystalball) | Distributed DFT prediction of WSClean component lists into MODEL_DATA (Serra, Perkins & Smirnov 2022) | GPLv2 (PyPI; "Other/Proprietary" classifier) | Python/Numba | PyPI 0.4.3, 2025-01-29 (GitHub release 0.4.1); Py < 3.13 | RATT/caracal-pipeline | Already PORTED in substance (africanus-style predictor). FORMAT: WSClean `-save-source-list` text, which is its input. ORACLE for L1-M (CARACal's `meerkat_crystalball_skymodel` path). |
+| LSMTool (PyPI lsmtool) | BBS sky-model manipulation | GPL-3.0 (PyPI) | Python | 1.9.0, 2026-09-25 | LOFAR | IGNORE. FORMAT note: BBS `makesourcedb` text is the DP3 sky format. |
+| RM-Tools (CIRADA-Tools/RM-Tools) | RM synthesis and QU-fitting | MIT | Python | v1.5.0, 2026-10-21 | CIRADA | IGNORE (polarisation science, not calibration). |
 
 ### 2.6 Beams and pointing
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| katbeam | MeerKAT analytic (cosine-taper "JimBeam") beams | BSD-3 | Python | PyPI 0.1, 2020-10-15; repo push 2026-06-01 | SARAO | DEPEND (already used; control model in B1-0) |
-| EIDOS | Zernike-fitted MeerKAT/VLA beams from holography; FITS beam cubes | GPL-3 (setup.py) | Python | 1.1.2, 2024-01-24 | RATT | ORACLE/FORMAT. It writes the FITS beam cubes that DDFacet and Cattery read; DF3 needs one. Legal to DEPEND, but stale. |
+| katbeam (ska-sa/katbeam) | MeerKAT analytic (cosine-taper "JimBeam") beams | BSD-3 | Python | PyPI 0.1, 2020-10-15; repo push 2026-06-01 | SARAO | DEPEND (already used; control model in B1-0) |
+| EIDOS (ratt-ru/eidos) | Zernike-fitted MeerKAT/VLA beams from holography; FITS beam cubes | GPL-3 (setup.py) | Python | 1.1.2, 2024-01-24 | RATT | ORACLE/FORMAT. It writes the FITS beam cubes that DDFacet and Cattery read; DF3 needs one. Legal to DEPEND, but stale. |
 | SARAO holography cubes | Measured L-band beams (DOI 10.48479/wdb0-h061) | data licence not checked here | data | 2023 | SARAO | B1-0 reference (literature scan section 4.1) |
 
 ### 2.7 Pipelines
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| CARACal | MeerKAT end-to-end pipeline (workers: obsconf, flag, crosscal, polcal, selfcal, ddcal, line, mask, mosaic, inspect…) | GPL-2.0 (PyPI "GNU GPL v2"; or-later not stated, unverified) | Python | 1.2.1, 2025-10-28; push 2026-10-13; Py < 3.13 | caracal-pipeline | ORACLE (the matched baseline). Its strategy YAMLs and lsm files are inputs that rang reads (FORMAT). |
-| Stimela 2 / cult-cargo | Recipe engine / curated cab images | GPL-2.0-only / MIT | Python | 2.1.4 / 0.2.1 (2026-05-22) | caracal-pipeline | ORACLE runner. cult-cargo's image manifest pins the oracle containers. |
-| radiopadre | Jupyter framework for browsing pipeline products, with JS9 and CARTA integration | MIT | Python/JS | v1.2.0, 2023-03-01; push 2026-02-03 | RATT | IGNORE. The D2 notebooks cover rang's needs. Its CARTA launch code is MIT and can be read for section 4's helper. |
-| oxkat | Ian Heywood's MeerKAT scripts (CASA crosscal, WSClean, CubiCal/QuartiCal, DDFacet/killMS) | GPL-3.0 | Python | v0.4, 2023-08-21; push 2026-10-08 | individual (Oxford) | ORACLE alternative to CARACal for the matched baseline. It is the other widely used MeerKAT recipe (Heywood 2020 calibrator-model work). |
+| CARACal (caracal-pipeline/caracal) | MeerKAT end-to-end pipeline (workers: obsconf, flag, crosscal, polcal, selfcal, ddcal, line, mask, mosaic, inspect…) | GPL-2.0 (PyPI "GNU GPL v2"; or-later not stated, unverified) | Python | 1.2.1, 2025-10-28; push 2026-10-13; Py < 3.13 | caracal-pipeline | ORACLE (the matched baseline). Its strategy YAMLs and lsm files are inputs that rang reads (FORMAT). |
+| Stimela 2 / cult-cargo (caracal-pipeline/stimela, /cult-cargo) | Recipe engine / curated cab images | GPL-2.0-only / MIT | Python | 2.1.4 / 0.2.1 (2026-05-22) | caracal-pipeline | ORACLE runner. cult-cargo's image manifest pins the oracle containers. |
+| radiopadre (ratt-ru/radiopadre) | Jupyter framework for browsing pipeline products, with JS9 and CARTA integration | MIT | Python/JS | v1.2.0, 2023-03-01; push 2026-02-03 | RATT | IGNORE. The D2 notebooks cover rang's needs. Its CARTA launch code is MIT and can be read for section 4's helper. |
+| oxkat (IanHeywood/oxkat) | Ian Heywood's MeerKAT scripts (CASA crosscal, WSClean, CubiCal/QuartiCal, DDFacet/killMS) | GPL-3.0 | Python | v0.4, 2023-08-21; push 2026-10-08 | individual (Oxford) | ORACLE alternative to CARACal for the matched baseline. It is the other widely used MeerKAT recipe (Heywood 2020 calibrator-model work). |
 
 ### 2.8 Visualisation and QA
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| shadeMS | Datashader plots of any MS column against any axis | GPL-2.0-only | Python | 0.5.5, 2026-08-04; Py < 3.13 | RATT (I. Heywood) | IGNORE. Rang's notebook plots read the core's arrays; datashader-style density plots can be done with matplotlib `hexbin`/`imshow` on core aggregates. |
-| ragavi | Bokeh plots of CASA/QuartiCal gain tables and visibilities | MIT | Python | 0.5.2, 2020-10-21; push 2026-10-26 | RATT | ORACLE for caltable reading: ragavi reads `VisCal`, `CPARAM`/`FPARAM`, `PARAMERR`, `SNR` and `FLAG`, which confirms the schema in section 3.3. IGNORE as a viewer. |
-| CARTA | Image viewer (section 4) | GPL-3.0 | C++/TS | 6.0.0, 2026-06-29 | ASIAA/IDIA/NRAO/UAlberta | optional viewer |
+| shadeMS (ratt-ru/shadeMS) | Datashader plots of any MS column against any axis | GPL-2.0-only | Python | 0.5.5, 2026-08-04; Py < 3.13 | RATT (I. Heywood) | IGNORE. Rang's notebook plots read the core's arrays; datashader-style density plots can be done with matplotlib `hexbin`/`imshow` on core aggregates. |
+| ragavi (ratt-ru/ragavi) | Bokeh plots of CASA/QuartiCal gain tables and visibilities | MIT | Python | 0.5.2, 2020-10-21; push 2026-10-26 | RATT | ORACLE for caltable reading: ragavi reads `VisCal`, `CPARAM`/`FPARAM`, `PARAMERR`, `SNR` and `FLAG`, which confirms the schema in section 3.3. IGNORE as a viewer. |
+| CARTA (CARTAvis/carta) | Image viewer (section 4) | GPL-3.0 | C++/TS | 6.0.0, 2026-06-29 | ASIAA/IDIA/NRAO/UAlberta | optional viewer |
 | kvis (karma) | Legacy FITS viewer | Karma licence (unverified) | C | unmaintained | ATNF | IGNORE |
 | casaviewer / casaplotms | CASA's image viewer / MS plotter | LGPL classifier | C++ | 2.4.4 (2025-09-29, Linux only) / 2.9.1 (2026-04-27, Linux/macOS) | NRAO | IGNORE (casaviewer is being replaced by CARTA in CASA; unverified). plotms is ORACLE for "what CARACal's inspect worker shows". |
 
@@ -336,10 +339,10 @@ it matters for rang's 3.10–3.14 matrix.
 
 | Tool | Purpose | Licence | Lang | Latest / activity | Org | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| simms | Create empty MSs for a given array, pointing and band (wraps CASA `simobserve` or casacore) | GPL-2.0 (GitHub) vs GPL-3.0-only (PyPI): **conflict** | Python | 3.0.2, 2026-07-27; Py < 3.14 | RATT | ORACLE for the DF simulated field's empty MS (independent geometry check). Rang writes the MS itself via casacure. |
-| montblanc | GPU RIME simulator (TensorFlow) | GPL-2.0 | Python/CUDA | 0.7.4, 2026-01-09 | RATT | IGNORE (superseded by codex-africanus and Crystalball). |
-| codex-africanus | RIME, gridding and DFT kernels (Numba/dask) | BSD-3 (LICENSE; GitHub NOASSERTION; PyPI licence empty) | Python | 0.4.5, 2026-10-09 | RATT | PORTED (predictor). BSD-3, so further kernels (beam cube interpolation, `wsclean_predict`, Zernike beam) may be copied. |
-| OSKAR | GPU interferometer simulator with station beams | BSD-3 | C/CUDA | 2.13.0, 2026-07-23 | Oxford | IGNORE now. A second simulator if DF3–DF5 need noise-and-beam-realistic data beyond rang's own predictor. |
+| simms (ratt-ru/simms) | Create empty MSs for a given array, pointing and band (wraps CASA `simobserve` or casacore) | GPL-2.0 (GitHub) vs GPL-3.0-only (PyPI): **conflict** | Python | 3.0.2, 2026-07-27; Py < 3.14 | RATT | ORACLE for the DF simulated field's empty MS (independent geometry check). Rang writes the MS itself via casacure. |
+| montblanc (ratt-ru/montblanc) | GPU RIME simulator (TensorFlow) | GPL-2.0 | Python/CUDA | 0.7.4, 2026-01-09 | RATT | IGNORE (superseded by codex-africanus and Crystalball). |
+| codex-africanus (ratt-ru/codex-africanus) | RIME, gridding and DFT kernels (Numba/dask) | BSD-3 (LICENSE; GitHub NOASSERTION; PyPI licence empty) | Python | 0.4.5, 2026-10-09 | RATT | PORTED (predictor). BSD-3, so further kernels (beam cube interpolation, `wsclean_predict`, Zernike beam) may be copied. |
+| OSKAR (OxfordSKA/OSKAR) | GPU interferometer simulator with station beams | BSD-3 | C/CUDA | 2.13.0, 2026-07-23 | Oxford | IGNORE now. A second simulator if DF3–DF5 need noise-and-beam-realistic data beyond rang's own predictor. |
 
 ### 2.10 Polarisation
 
@@ -400,8 +403,8 @@ below the closure-trace noise) needs a number, not a calibrator.
 | Task | Algorithm (casadocs 6.7, accessed 2026-10-30) | RATT-stack counterpart and difference | Rang verdict |
 | --- | --- | --- | --- |
 | `listobs` | MS summary: scans, fields, spws, antennas | `rangtoy` MS reader summaries | IGNORE (core reader suffices). Use as oracle text when a new MS arrives. |
-| `flagdata` modes | `manual`, `clip`, `quack`, `shadow`, `elevation`, `tfcrop`, `rflag`, `antint`, `extend`, `unflag`, `summary`, `list`. **tfcrop**: average amplitudes along time into a spectrum, robust piecewise-polynomial fit to the band shape (`freqfit='poly'`, `maxnpieces` 7) and a line in time (`timefit='line'`), flag beyond `freqcutoff` 3σ / `timecutoff` 4σ, up to 5 iterations, then the other axis. **rflag**: AIPS-RFLAG style: sliding-window (`winsize` 3) local RMS of Re and Im per channel in time, thresholds `timedevscale`/`freqdevscale` 5 × median-based noise; `action='calculate'` then `'apply'` replicates the AIPS two-pass method. **extend**: `growtime`/`growfreq` 50 %, `extendpols`. | Tricolour/AOFlagger SumThreshold detects runs of decreasing length with thresholds `χ_i = χ_1 ρ^{log2 i} / i` (ρ = 1.5; Offringa et al. 2010) on background-subtracted data (smoothed by a 2-D filter). tfcrop fits a bandshape and time trend and clips residuals. rflag is a local-RMS detector, with no combinatorial run search. CARACal's flag worker runs tfcrop/rflag (`casa_flagdata`) beside Tricolour and AOFlagger, so a matched CARACal baseline includes them. | ORACLE. A PORT of tfcrop/rflag is cheap (a few hundred lines) but only worth doing if a protocol compares flaggers. The flagging campaign is null, so not now. |
-| `setjy` | Model visibilities from a flux standard: Baars, Perley 90, Perley-Taylor 95/99, Perley-Butler 2010/2013/**2017 (default)**, Scaife-Heald 2012 (30–300 MHz), **Stevens-Reynolds 2016** (single source: 1934−638; Reynolds polynomial below 11 GHz, Stevens above), Butler-JPL-Horizons 2010/2012 (solar system), `manual` (`fluxdensity`, `spix`, `reffreq`, `polindex`, `polangle`, `rotmeas`), `fluxscale`. 1934−638 appears in standards 1, 3, 4, 5, 6 and 8 (PB2010, PT99, PT95, P90, Baars, SR2016), **not** in PB2013 or PB2017. PB2013/2017 have time-variable models for 3C48, 3C138 and 3C147. | Rang predicts a 14.96 Jy point or a Reynolds 1994 polynomial ([flagging.md](flagging.md)). CARACal uses `standard='manual'` with its own calibrator table (`utils.find_in_casa_calibrators`) or the lsm/Crystalball model for 1934. LUNO's HISTORY shows `setjy` PB2017 run on 3C 286 only. | **PORT** the standards rang needs (SR2016 and PB2010 for 1934−638; PB2017 for 3C 286, 3C 138 and 0408−65 if used), with `setjy` model visibilities as the oracle: compare per-channel flux against the core's spectral point to 1e-6 relative. Small. |
+| `flagdata` modes | `manual`, `clip`, `quack`, `shadow`, `elevation`, `tfcrop`, `rflag`, `antint`, `extend`, `unflag`, `summary`, `list`. **tfcrop**: average amplitudes along time into a spectrum, robust piecewise-polynomial fit to the band shape (`freqfit='poly'`, `maxnpieces` 7) and a line in time (`timefit='line'`), flag beyond `freqcutoff` 3σ / `timecutoff` 4σ, up to 5 iterations, then the other axis. **rflag**: AIPS-RFLAG style: sliding-window (`winsize` 3) local RMS of Re and Im per channel in time, thresholds `timedevscale`/`freqdevscale` 5 × median-based noise; `action='calculate'` then `'apply'` replicates the AIPS two-pass method. **extend**: `growtime`/`growfreq` 50 %, `extendpols`. | Tricolour/AOFlagger SumThreshold detects runs of decreasing length with per-sample thresholds `χ_w = χ_1 / ρ^{log2 w}` for window w (rang's port, `core/src/sumthreshold.rs:771`; Offringa et al. 2010) on background-subtracted data (smoothed by a 2-D filter). tfcrop fits a bandshape and time trend and clips residuals. rflag is a local-RMS detector, with no combinatorial run search. CARACal's flag worker runs tfcrop/rflag (`casa_flagdata`) beside Tricolour and AOFlagger, so a matched CARACal baseline includes them. | ORACLE. A PORT of tfcrop/rflag is cheap (a few hundred lines) but only worth doing if a protocol compares flaggers. The flagging campaign is null, so not now. |
+| `setjy` | Model visibilities from a flux standard: Baars, Perley 90, Perley-Taylor 95/99, Perley-Butler 2010/2013/**2017 (default)**, Scaife-Heald 2012 (30–300 MHz), **Stevens-Reynolds 2016** (single source: 1934−638; Reynolds polynomial below 11 GHz, Stevens above), Butler-JPL-Horizons 2010/2012 (solar system), `manual` (`fluxdensity`, `spix`, `reffreq`, `polindex`, `polangle`, `rotmeas`), `fluxscale`. 1934−638 appears in standards 1, 3, 4, 5, 6 and 8 (PB2010, PT99, PT95, P90, Baars, SR2016), **not** in PB2013 or PB2017. PB2013/2017 have time-variable models for 3C48, 3C138 and 3C147. | Rang predicts a 14.96 Jy point or a Reynolds 1994 polynomial ([flagging.md](flagging.md)). CARACal uses `standard='manual'` with its own calibrator table (`utils.find_in_casa_calibrators`) or the lsm/Crystalball model for 1934. LUNO's HISTORY shows `setjy` PB2017 run on 3C 286 only. | **PORT** the standards rang needs (SR2016 and PB2010 for 1934−638; PB2017 for 3C 286 and 3C 138; J0408−6545 is not in the PB2017 table read on casadocs, and CARACal's own 0408 model is "not well tested" per its schema; whether any CASA standard covers 0408−65 is unverified), with `setjy` model visibilities as the oracle: compare per-channel flux against the core's spectral point to 1e-6 relative. Small. |
 | `gaincal` | Antenna-based gains, `gaintype` G, T, K (delay), KCROSS, GSPLINE; `calmode` `ap`/`p`/`a`; `solmode` `''` (L2), `L1`, `R`, `L1R` (robust, experimental; `rmsthresh` sequence 7…2.2); `minblperant` 4, `minsnr` 3, `refantmode` flex/strict, `combine`, `solnorm`. "gaincal performs an iterative, steepest-descent chi-squared minimization for its antenna-based gain solution." | QuartiCal (and rang's port) solve the same per-interval χ² with Gauss-Newton on 2×2 complex Jones, using a block-diagonal JHJ, a fixed iteration cap (25 or 50) and a relative-update stop criterion. CASA solves per correlation (G) or polarisation-averaged (T), applies SNR and baseline-count cuts and phase-references to `refant` after solving. Gauge handling and convergence differ, and CASA's robust `R`/`L1` modes have no QuartiCal analogue. | ORACLE. CASA G on 1934−638 is the second DI comparator for L5's convergence study, and it is what CARACal crosscal actually runs. PORT nothing: rang's solver already covers G and T as diagonal terms. |
 | `bandpass` | B (channelised) or BPOLY solutions, normalised, with `solint` and `fillgaps` | QuartiCal `complex` with a frequency interval of 1 channel | ORACLE |
 | `polcal` | D, Df, X, Xf, D+QU, Df+QU, Xf+QU, Dflls (unverified list) | QuartiCal `leakage`, `crosshand_phase` | ORACLE (section 2.10) |
@@ -627,7 +630,7 @@ Computing 32, 100389.
 | Beam model (B1) | SARAO holography cubes (data), katbeam (BSD-3), EIDOS (GPL-3), Cattery FITS beams (GPL-2+) | DEPEND katbeam; FORMAT read of the holography FITS cubes; PORT cube interpolation (codex-africanus `beam_cube_dde` is BSD-3 and may be copied) | B1-0 protocol (literature scan): holography as reference, katbeam as control; codex-africanus as interpolation oracle |
 | Flux standards | CASA `setjy` (LGPL/GPLv2 metadata) | PORT SR2016, PB2010, PB2017 polynomials | `setjy` MODEL_DATA in the CASA oracle; rang's Reynolds values in `flagging.md` |
 | CASA caltables | CASA, casacure (LGPL-3+) | FORMAT via casacure (E2) | CASA `applycal` round trip (section 3.3) |
-| Native MeerKAT data (L3) | katdal + katsdptelstate (BSD-3), `mvftoms.py` | DEPEND now (`[meerkat]` extra, pure Python, all platforms); PORT the MVFv4 chunk reader later | katdal arrays read side by side; mvftoms MS against the core's reader |
+| Native MeerKAT data (L3) | katdal + katsdptelstate (BSD-3), `mvftoms.py` | DEPEND now (`[meerkat]` extra; pulls numba, h5py, cityhash, dask); PORT the MVFv4 chunk reader later | katdal arrays read side by side; mvftoms MS against the core's reader |
 | SARAO's own calibration | katsdpcal solutions in MVF (`sdp.cal`) | DEPEND (via katdal) | compare core K/B/G on the same scans |
 | Deconvolution (DF5) | WSClean (GPL-3), DDFacet (GPL-2+), pfb-imaging (MIT), CASA tclean | PORT Hogbom/multiscale (DF5 as planned); pfb-imaging's MIT code if a convex deconvolver is wanted | WSClean/DDFacet on the simulated field, truth known |
 | DD calibration (DF4) | killMS (GPL-2), DP3 DDECal (GPL-3), QuartiCal DD (MIT), facetselfcal (no licence) | PORT scalar CohJones (DF4); QuartiCal's MIT DD code is copyable | killMS and DP3 DDECal on the simulated field |
@@ -664,7 +667,8 @@ Each item names its licence path and the first protocol to freeze.
    - Protocol: section 3.3's round trip through CASA `applycal`, then
      CASA-made tables back into the core.
 4. **katdal for L3 (MK1).** An optional `[meerkat]` extra (katdal 0.23,
-   katsdptelstate 1.0.0, BSD-3, pure Python) and a loader from an MVF
+   katsdptelstate 1.0.0, BSD-3; katdal requires numba, h5py, cityhash,
+   dask and katpoint) and a loader from an MVF
    RDB URL into the core's arrays.
    - Use katsdpcal's archived solutions as a free comparator.
    - Licence path: DEPEND.
@@ -831,6 +835,38 @@ Not recommended:
 - **facetselfcal has no licence file.**
 - **Aegean is AFL-3.0**, GPL-incompatible per the FSF as quoted by
   secondary sources; the FSF page was not reached.
+
+## Sources (all accessed 2026-10-30)
+
+- KERN: <https://ppa.launchpadcontent.net/kernsuite/kern-10/ubuntu/dists/noble/main/source/Sources.gz>,
+  <https://kernsuite.info/>, <https://kernsuite.info/packages/>,
+  <https://github.com/kernsuite-debian> (`debian/copyright` per package).
+- Release metadata: `https://api.github.com/repos/<slug>` (+ `/releases/latest`, `/tags`),
+  `https://pypi.org/pypi/<name>/json` and wheel `.metadata` files,
+  `https://gitlab.com/api/v4/projects/<path>` (AOFlagger, WSClean, IDG, SoFiA-2),
+  `https://git.astron.nl/api/v4/projects/RD%2F{DP3,EveryBeam}/releases`.
+- CASA: <https://casadocs.readthedocs.io/en/stable/api/tt/casatasks.imaging.setjy.html>,
+  `.../casatasks.calibration.gaincal.html`, `.../casatasks.flagging.flagdata.html`,
+  `.../casatasks.imaging.tclean.html`,
+  <https://casadocs.readthedocs.io/en/stable/notebooks/memo-series.html> (Flux Calibrator
+  Models: 1934−638 in standards 1, 3, 4, 5, 6, 8),
+  <https://casadocs.readthedocs.io/en/stable/notebooks/introduction.html> (platforms);
+  casa6 mirror <https://github.com/dic-case-studies/casa6> paths
+  `casatools/src/code/synthesis/CalTables/{CTEnums,CTDesc,NewCalTable}.cc` and
+  `.../MeasurementComponents/SolvableVisCal.cc` (licence header).
+- CARACal: <https://github.com/caracal-pipeline/caracal> `caracal/workers/*_worker.py`
+  (cab names), `caracal/schema/crosscal_schema.yml`.
+- CARTA: <https://cartavis.org/>, <https://github.com/CARTAvis/carta/releases/tag/v6.0.0>,
+  <https://carta-python.readthedocs.io/en/latest/quickstart.html>,
+  <https://github.com/CARTAvis/fits2idia> `src/{common.h,Converter.cc,MipMap.cc}`.
+- katdal: <https://katdal.readthedocs.io/en/latest/mvf_v4.html>.
+- Formats: QuartiCal `quartical/gains/datasets.py` (`gain_time`, `xds_to_zarr`);
+  killMS `killMS/PlotSols.py`, `MergeSols.py` (`Sols`, `StationNames`, `allow_pickle`);
+  ragavi `src/ragavi/ragavi.py` (caltable columns, `VisCal`).
+- AFL-3.0 vs GPL: secondary sources quoting the FSF
+  (<https://en.wikipedia.org/wiki/Academic_Free_License>,
+  <https://gplv3.fsf.org/wiki/index.php/Compatible_licenses>); the FSF list itself
+  returned HTTP 429.
 
 ## For the coordinator
 
