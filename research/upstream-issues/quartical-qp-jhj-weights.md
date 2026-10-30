@@ -64,6 +64,8 @@ Before the second `compute_jhwj_jhwr_elem` call, build `w_qp` with XY and YX swa
 
 ## 2026-10-30: fix verified on v0.2.8-dev d54c46b (PR #456)
 
+Reported on the issue: https://github.com/ratt-ru/QuartiCal/issues/452#issuecomment-6523517450
+
 Maintainer fix: [ratt-ru/QuartiCal#456](https://github.com/ratt-ru/QuartiCal/pull/456),
 merged 2026-10-30 into `v0.2.8-dev` as d54c46b (parent 059c806). It adds
 `tuple_unpackt_factory` and passes `w_qp` (XY and YX swapped) to the ANTENNA2 accumulation in
