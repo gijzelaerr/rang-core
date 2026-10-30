@@ -281,7 +281,8 @@ it sets UT1 = UTC there).
 | parallactic angle (posangle to the zenith), 2010–2023 | ≤ 0.031″ | `AZEL` frame 527–806″; `AZELGEO` ≤ 0.78″ |
 | parallactic angle, 2026-10-30 | 1.90″ | `AZELGEO` 1.31″ |
 | UTC → TAI, UT1 | **37 s and 0.13 s off: the value is returned unchanged with the new reference label** | exact (TAI), ≤ 54 ms (UT1, 0 with data) |
-| UTC → TT; ITRF → WGS84 | refused (`bad reference type`) | exact; ≤ 2 nm |
+| UTC → TT (also `TDT`, `TDB`); ITRF → WGS84 | refused (`bad reference type`) | exact; ≤ 2 nm |
+| ITRF position record | Cartesian metres labelled `rad`, `rad`, `m` | longitude, latitude (rad), radius (m) |
 
 M2, the convention. casacore's `AZEL` builds the horizon from the
 geocentric latitude, `AZELGEO` and astropy from the geodetic one; casacure
@@ -297,17 +298,20 @@ CARACal products made with python-casacore's `AZEL` (the default
 QuartiCal parangle path before PR #445) to differ from rang's by up to a
 few tenths of a degree at these geometries and by degrees near the zenith.
 
-M3, uvw. casacure has no uvw engine. The stored UVW of both MSs equals
-(with the MS sign, antenna 1 minus antenna 2) a first-order uvw from the
-ITRF baselines and the phase centre to 0.30 m (LUNO) and 0.34 m (fixture)
-on 74 m baselines; the residual does not change between a CIRS/ERA and a
-J2000/GMST frame, so it reflects how the exports computed UVW, not the
-frame. rang reads UVW from the MS everywhere; it needs its own uvw only
+M3, uvw. casacure has no uvw engine. The stored UVW of both MSs is a
+**J2000 uvw, reproduced** (`uvw-*.json`): the antenna ITRF positions
+transformed to GCRS at each TIME with astropy (`EarthLocation.get_gcrs`),
+differenced antenna 1 minus antenna 2 and projected on the J2000 phase
+centre give the stored values to 4.1 mm (LUNO) and 3.3 mm (fixture), rms
+1.9 and 1.3 mm, on 74 m baselines. A first-order uvw in the frame of date
+(source precessed to the date, baseline rotated by GAST) is 0.30–0.34 m
+off, which is the size of the precession since 2000 (the first version of
+this note read that residual as the exports' doing; corrected after
+review). rang reads UVW from the MS everywhere; it needs its own uvw only
 to synthesise MSs (DF0's simulated field, L3 if the native set lacks
-UVW): J2000 → apparent (precession-nutation, aberration) with ERFA
-(`pyerfa`, which astropy already brings) or `sofars` in Rust, rotated by
-the Earth rotation angle, validated against python-casacore's `uvw`
-measure in the container.
+UVW), and the astropy chain above, already a dependency, does it to the
+millimetre; in Rust it would be ERFA's chain through `sofars`, validated
+against python-casacore's `uvw` measure in the container.
 
 ### Performance (section 5; `-08`)
 
@@ -324,9 +328,12 @@ from `getrusage` (the container's from inside the container).
 
 At these sizes the three readers are within 2× of each other (casacure
 1.65× `core_ms` on the whole LUNO export, equal on the tiled DATA), so the
-performance condition of rule (a) holds. `core_ms` is now 7× faster on
-the fixture DATA than in task E (20 ms against 147 ms; the changes since
-task E made it so). casacure's Python reads go through
+performance condition of rule (a) holds. The whole-export ratio is not
+like for like: `core_ms` skips 14 columns it cannot read (empty POINTING
+and FEED/HISTORY/OBSERVATION array and string columns, never-written
+FLAG_CATEGORY), small ones, which casacure reads. Task E reported 147 ms
+for `core_ms` on the fixture DATA with a different harness (all columns in
+one process, ctypes path); 20 ms here. casacure's Python reads go through
 `getcol_raw` into the NumPy buffer; its public Rust `Table::getcol`
 returns `Vec<RecordValue>` (one enum per scalar, one `Vec` per array cell),
 so a core built on the crate would use `getcol_raw`/`getcol_raw_bits`.
@@ -334,7 +341,9 @@ so a core built on the crate would use `getcol_raw`/`getcol_raw_bits`.
 ### Robustness (post hoc, reported; `-09`, `-10`)
 
 `examples/eval_casacure_robustness.py` reads DATA from damaged copies in a
-child process. On the fixture, a tile file truncated **after** the table
+child process. Only the fixture probes discriminate: on LUNO, DATA lies
+in the first half of `table.f0i`, so halving it leaves the DATA read
+intact for both readers. On the fixture, a tile file truncated **after** the table
 was opened kills casacure's process with **SIGBUS** (signal 7): its data
 files are memory-mapped (`memmap2`), and a mapped file shrunk by another
 process is undefined behaviour in Rust; `core_ms` reports `failed to fill
@@ -418,9 +427,8 @@ are young, single-author crates.
 **Documentation.** docs.rs builds; 2,211 `///` lines over 319 public
 functions. The repository carries long design notes (`ARE_WE_CURED.md`,
 `DIFFERENCES.md`, `MEASURES_ACCURACY.md`, `PORTING_DDFACET_KILLMS.md`),
-and agent working files (`handover.md`, `MEMORY.md`, `.zcode/`), plus
-committed test debris at the root (`PARENT.tab`, `SUB.tab`,
-`tmp_tqsel.ms`). **No LICENSE or COPYING file** in the repository, the
+working notes (`handover.md`, `MEMORY.md`) and committed test debris at
+the root (`PARENT.tab`, `SUB.tab`, `tmp_tqsel.ms`). **No LICENSE or COPYING file** in the repository, the
 crate or the wheel: the LGPL-3.0-or-later is declared only in metadata.
 
 **Bus factor and responsiveness.** One contributor (240 commits under two
@@ -428,10 +436,7 @@ addresses of Tim Molteno, 86 of them on day two), 0 stars, 0 forks, 23
 issues, 22 of them filed by the maintainer himself (one by dask-ms's
 maintainer); issues are answered
 within hours, usually with a fix on `main` the same day (issue #15,
-#20, #21). The development pace and the handover files indicate
-agent-assisted development directed by the maintainer: high output,
-thorough tests of what was thought of, gaps where nobody looked.
-External voices: the QuartiCal maintainer is "still a little wary of
+#20, #21). External voices: the QuartiCal maintainer is "still a little wary of
 casacure as a core dependency … it is moving incredibly fast" (PR #445,
 open); dask-ms's maintainer (issue #13) is moving dask-ms 0.3 to arcae,
 which leaves casacure no import site to hook into and drops the 2.x line,
@@ -453,8 +458,8 @@ a kernel's needs.
 | Repository | What | Licence | State (2026-10-30) | Overlap with rang |
 | --- | --- | --- | --- | --- |
 | `tmolteno/disko` | Discrete Sky Operator imaging (gridless, matrix-free), 2019– | GPL-3.0 | 1.4.4, active; depends on `casacure>=3.8` for MS reads | imaging alternative to the DF tasks; not a calibration tool |
-| `tmolteno/DDFacet` (fork of `cyriltasse/DDFacet`) | DDFacet on casacure (`casacure>=3.8.35`), arm64, numpy 2, Rust `ddfacet-gridder` crate with rayon fan-out | GPL-2.0 (upstream's) | v0.16.10, 13 branches, active | DF0's oracle candidate on arm64; its Rust gridder is GPL-2.0 (only), so not portable into GPL-3 rang without relicensing |
-| killMS port | killMS 3.15.12 on casacure with Rust `killms-core`/`native` crates (`PORTING_DDFACET_KILLMS.md`) | upstream GPL-2.0 | **source not public** under his account; only the image `ghcr.io/tmolteno/killms:v3.15.12` and the cabs | DF4's oracle; cannot be inspected |
+| `tmolteno/DDFacet` (fork of `cyriltasse/DDFacet`) | DDFacet on casacure (`casacure>=3.8.35`), arm64, numpy 2, Rust `ddfacet-gridder` crate with rayon fan-out | upstream's GPL-2 text with GPL-2-or-later headers (`ddfacet-feasibility.md` 1.1) | v0.16.10, 13 branches, active | DF0's oracle candidate on arm64; GPL-2-or-later, so its code may be carried into GPL-3 rang |
+| killMS port | killMS 3.15.12 on casacure with Rust `killms-core`/`native` crates (`PORTING_DDFACET_KILLMS.md`) | image label GPL-2.0 | **source not public**: the image `ghcr.io/tmolteno/killms:v3.15.12` names `github.com/tmolteno/killMS` (revision `8e18d25`) as its source, which returns 404; no branch, PR or issue by him on `saopicc/killMS` | DF4's oracle; only the image can be used |
 | `tmolteno/dde-cargo` | Stimela cabs for DDFacet/killMS on arm64 and x86-64 | GPLv3 in metadata, no licence file | 0.3.0, 2026-10-24 | ready-made oracle containers for DF0 |
 | `tmolteno/skarabina` | "a basic 1GC RFI flagger" (rflag/tfcrop with CASA-parity work) on dask-ms + casacure | GPL-3.0 | 1.0.21, active | flagging baseline next to Tricolour and CARACal for the flagging verdict (L4) |
 | `tmolteno/spotless` | all-sky gridless deconvolution | GPL-3.0 | 2026-10 | no |
@@ -474,7 +479,7 @@ file), which is also the user's default.
 
 In five lines:
 
-1. Do not make casacure a dependency of the core (crate or wheel); extend task E's reader into a reader-writer in `core/src/ms*.rs` (owned, about 4,500–6,000 more lines with tests, 2–4 sessions).
+1. Do not make casacure a dependency of the core (crate or wheel); extend task E's reader into a reader-writer in `core/src/ms*.rs` (owned, about 4,000–6,000 more lines with tests, 2–4 sessions; table below).
 2. Use casacure as an optional, exactly pinned **second oracle** (`casacure==3.8.35`): it reads every column we have column-exactly and is the only casacore-format implementation that runs natively on Windows and macOS, which closes X1's "casacore paths are Linux/container only" gap for tests.
 3. Keep python-casacore in the container as the primary oracle for writes (casacore must open what rang writes), and add casacure as a second writer-oracle for round trips on every platform.
 4. Measures: do not take them from casacure; use astropy/ERFA in Python (geodetic convention, frozen in B1) and `sofars` in Rust only if the core needs them.
@@ -495,6 +500,30 @@ images (`casacure.images`, not evaluated here). It does not cover zarr
 (QuartiCal gain stores, rang's own stores), DDFacet `DicoModel` (pickle),
 killMS solutions (`.npz`), Tigger `.lsm` / `.lsm.html`, or FITS beyond
 images; those are rang's own work in DF-IO whatever is decided here.
+
+### Effort of building it ourselves (estimate)
+
+Anchors: task E's reader is about 1,900 lines with tests for three
+read-only managers, written in one session; casacure's corresponding
+modules (non-test lines) are ssm 2,367, tsm 2,942, ism 913, tabledesc
+1,160, record 1,802, lockfile 1,238, table 8,073 (reading, writing,
+views, dminfo and growth together).
+
+| Piece | rang needs | Estimate (lines with tests) | casacure equivalent |
+| --- | --- | ---: | --- |
+| StandardStMan writes: scalars, direct and indirect arrays, strings, bucket and index growth for new rows | yes (E3) | 1,200–1,600 | `ssm.rs` (read and write) |
+| Tiled writes into existing hypercubes (TiledColumnStMan, TiledShapeStMan) and new cubes for new columns | yes (E3) | 800–1,200 | `tsm.rs`, `grow.rs` |
+| `table.dat`, TableDesc, keyword records (AipsIO writer) | yes (E3) | 900–1,200 | `tabledesc.rs`, `record.rs`, `columnset.rs` |
+| Lock file sync record; no multi-process locking protocol (rang writes tables it owns) | yes, minimal (E3) | 150–250 | `lockfile.rs` (full protocol) |
+| `default_ms` with subtables, caltable schemas, `table.info` | yes (E4) | 600–900, schemas mostly data | `ms_schema.rs`, `ms.rs` |
+| IncrementalStMan arrays and strings (read), ISM writes | read only (E5); write bookkeeping columns as SSM | 300–500 | `ism.rs` |
+| TaQL | no: the drivers use none | 0 | `taql.rs` 5,868 |
+| Measures | Python: astropy/ERFA (uvw to the millimetre, AZEL, parallactic angle); Rust: `sofars` only if B1 needs them in the core | 0–300 | `measures.rs`, `astro.rs`, `quanta.rs` |
+| Total | | about 4,000–6,000 | 22,675 |
+
+Two to four sessions at the pace of the core port, each gated by
+python-casacore read-backs in the container (the oracle exists) and
+casacure round trips on Windows and macOS.
 
 ### Migration plan (proposed plan tasks)
 
@@ -517,8 +546,8 @@ decides otherwise. Each reproduces on 3.8.35 with the scripts named.
 
 1. **Invalid dminfo accepted and written.** `default_ms(path, desc, dminfo)` with TiledColumnStMan for the variable-shape FLAG column writes an MS casacore 3.8.1 cannot open (`TiledColumnStMan needs array column FLAG to be FixedShape`); casacore refuses at creation. `examples/eval_casacure.py write … ` variant b; `examples/eval_casacure_tiled_reference.py` for casacore's behaviour. Expected: `ValueError` at creation (the "fail loudly" of issue #20).
 2. **`makearrcoldesc(..., shape=[…])` does not set `FixedShape`.** casacore sets option 4 whenever a shape is given; casacure stores `option 0`, so the column is variable-shape in casacore and TiledColumnStMan is refused (variant c). Expected: option 4, as python-casacore produces.
-3. **Epoch conversions relabel without converting.** `dm.measure(dm.epoch('UTC', '59444.5d'), 'TAI')` returns `59444.5 d` with `refer: TAI` (37 s wrong); likewise `UT1`; `TT` raises. Expected: convert (casacure has the IERS and leap-second data compiled in) or raise for unsupported conversions instead of relabelling. `eval_casacure.py measures`.
-4. **SIGBUS on a data file truncated under the mapping.** Open the fixture, truncate `table.f22_TSM1`… (`eval_casacure_robustness.py`, probe `truncate-after-open`): the process dies with signal 7; casacore and `core_ms` raise. Expected: an error (read with `pread`, or check the length before touching the mapping).
+3. **Measures return relabelled or mislabelled values.** `dm.measure(dm.epoch('UTC', '59444.5d'), 'TAI')` returns `59444.5 d` with `refer: TAI` (37 s wrong), likewise `UT1` and TAI → UTC: `measures.rs:274` maps any of UTC, TAI, UT1, UT2 to any other unchanged. `TT`, `TDT` and `TDB` raise. `dm.measure(position_itrf, 'ITRF')` returns the Cartesian metres labelled `rad`, `rad`, `m`; `measure(pos, 'WGS84')` raises. Expected: convert (casacure has the IERS and leap-second data compiled in) or raise; never relabel. `eval_casacure.py measures`.
+4. **SIGBUS on a data file truncated under the mapping.** Open the fixture, truncate its largest tile file (`table.f17_TSM1`, DATA) to half, read DATA (`eval_casacure_robustness.py`, probe `truncate-after-open`): the process dies with signal 7. python-casacore 3.8.1 on the same probe raises `BucketCache::getBucket: bucket 9 exceeds nr of buckets` (checked post hoc in the container); `core_ms` raises `failed to fill whole buffer`. Expected: an error (read with `pread`, or check the length before touching the mapping).
 5. **`getcoldesc` misreports the manager of IncrementalStMan columns** (`dataManagerType`/`dataManagerGroup` say StandardStMan; `getdminfo` is right) and `getdminfo` returns the type name as `NAME` and empty hypercube SPEC fields for TiledShapeStMan. A `tablecopy(dminfo=t.getdminfo())` round trip then cannot reproduce the source layout. `eval_casacure.py describe`/`compare-describe`.
 6. **TaQL gaps:** `BETWEEN … AND …`, the bare `SELECT FROM $1 WHERE …` (no column list), `ORDERBY DESC col`; and `rownumbers(parent)` is missing (python-casacore's selection-to-parent mapping).
 7. **Never-written FLAG_CATEGORY** returns a `(nrow,)` `False` array; casacore raises; the shape does not match the column's 3-D description (issue #8 covers defaults, not the shape).
@@ -598,6 +627,9 @@ RSS is peak resident set.
 | casacure `maturin build` (for 3.14 by mistake, then 3.12) | clone | 25.2, 42.0 s | 517, 505 MB | |
 | casacure `make_fixtures.py` + `pytest tests/` | clone | 28.6 s | 460 MB | the first attempt failed at collection (wheel for the wrong interpreter) |
 | python-casacore `addcols` on a LUNO copy (post hoc) | LUNO copy | < 2 s | — | container |
+| `uvw` rerun with the GCRS method (post hoc, after review) | LUNO, fixture | 1.02, 0.96 s | 170 MB | 4.1 and 3.3 mm |
+| python-casacore `truncate-after-open` probe (post hoc) | fixture copy | < 2 s | — | container; raises |
+| ghcr manifest and config of `tmolteno/killms:v3.15.12` | registry metadata | < 2 s | — | source label |
 | `pytest tests/test_casacure_optional.py` | — | 0.52 s | 136 MB | 3 passed |
 
 ## For the coordinator
@@ -665,6 +697,6 @@ tree, not part of `tools/check-all.sh`), `tests/test_casacure_optional.py`
 - Reader speed matters at the whole-array LUNO chunk; the comparisons here
   are on 37–75 MB MSs.
 - The killMS casacure port's source is not public; DF4 cannot inspect it.
-- The stored UVW of both exports differs from a first-order uvw by 0.3 m
-  on 74 m baselines; the cause (the exports' own UVW computation) is not
-  resolved here and matters only if rang synthesises UVW.
+- The 3–4 mm residual between the stored UVW and the astropy GCRS uvw
+  (aberration or the GCRS/J2000 frame bias, not resolved) matters only if
+  rang synthesises UVW at that precision.

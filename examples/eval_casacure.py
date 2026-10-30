@@ -1094,47 +1094,66 @@ def cmd_uvw(ms, out):
     pos = ct.table(str(Path(ms) / "ANTENNA"), ack=False).getcol("POSITION")
     phase = ct.table(str(Path(ms) / "FIELD"), ack=False).getcol("PHASE_DIR")[:, 0]
     result = {"ms": str(ms), "fields": {}}
-    from astropy.coordinates import FK5
+    from astropy.coordinates import FK5, EarthLocation
+
+    def project(b, ra, dec):
+        east = np.array([-np.sin(ra), np.cos(ra), 0.0])
+        north = np.array(
+            [-np.sin(dec) * np.cos(ra), -np.sin(dec) * np.sin(ra), np.cos(dec)]
+        )
+        source = np.array(
+            [np.cos(dec) * np.cos(ra), np.cos(dec) * np.sin(ra), np.sin(dec)]
+        )
+        return np.array([b @ east, b @ north, b @ source])
 
     for f in np.unique(fid):
         sel = fid == f
         times = Time(time_s[sel] / 86400, format="mjd", scale="utc")
         src = SkyCoord(phase[f, 0] * u.rad, phase[f, 1] * u.rad, frame="fk5")
-        out_uvw = np.empty((sel.sum(), 3))
+        date_uvw = np.empty((sel.sum(), 3))
+        j2000_uvw = np.empty((sel.sum(), 3))
+        gcrs = {}
         for i, (tt, p, q) in enumerate(zip(times, a1[sel], a2[sel])):
-            # Precess to the equinox of date; rotate the ITRF baseline into
-            # the equatorial frame of date by GAST (no polar motion,
-            # nutation only through GAST, no aberration: a first-order uvw).
+            # (1) Frame of date, first order: the source precessed to the
+            # equinox of date, the ITRF baseline rotated by GAST (no polar
+            # motion, no aberration).
             app = src.transform_to(FK5(equinox=tt))
-            dec = app.dec.rad
-            b = pos[q] - pos[p]
+            b = pos[p] - pos[q]
             gast = tt.sidereal_time("apparent", longitude=0).rad
-            bx = b[0] * np.cos(gast) - b[1] * np.sin(gast)
-            by = b[0] * np.sin(gast) + b[1] * np.cos(gast)
-            bz = b[2]
-            ra = app.ra.rad
-            u_ = -np.sin(ra) * bx + np.cos(ra) * by
-            v_ = (
-                -np.sin(dec) * np.cos(ra) * bx
-                - np.sin(dec) * np.sin(ra) * by
-                + np.cos(dec) * bz
+            rotated = np.array(
+                [
+                    b[0] * np.cos(gast) - b[1] * np.sin(gast),
+                    b[0] * np.sin(gast) + b[1] * np.cos(gast),
+                    b[2],
+                ]
             )
-            w_ = (
-                np.cos(dec) * np.cos(ra) * bx
-                + np.cos(dec) * np.sin(ra) * by
-                + np.sin(dec) * bz
+            date_uvw[i] = project(rotated, app.ra.rad, app.dec.rad)
+            # (2) J2000 (post hoc, after review): GCRS antenna positions at
+            # TIME, baseline projected on the J2000 phase centre.
+            key = float(tt.mjd)
+            if key not in gcrs:
+                gcrs[key] = np.array(
+                    [
+                        EarthLocation.from_geocentric(*x, unit=u.m)
+                        .get_gcrs(tt)
+                        .cartesian.xyz.to(u.m)
+                        .value
+                        for x in pos
+                    ]
+                )
+            j2000_uvw[i] = project(
+                gcrs[key][p] - gcrs[key][q], phase[f, 0], phase[f, 1]
             )
-            out_uvw[i] = (u_, v_, w_)
         stored = uvw[sel]
-        diff = out_uvw - stored
         length = np.linalg.norm(stored, axis=1)
-        result["fields"][int(f)] = {
-            "rows": int(sel.sum()),
-            "max_abs_diff_m": float(np.max(np.abs(diff))),
-            "rms_diff_m": float(np.sqrt(np.mean(diff**2))),
-            "max_baseline_m": float(np.max(length)),
-            "sign_flipped_max_abs_diff_m": float(np.max(np.abs(out_uvw + stored))),
-        }
+        entry = {"rows": int(sel.sum()), "max_baseline_m": float(np.max(length))}
+        for label, calc in (("date_first_order", date_uvw), ("j2000_gcrs", j2000_uvw)):
+            diff = calc - stored
+            entry[label] = {
+                "max_abs_diff_m": float(np.max(np.abs(diff))),
+                "rms_diff_m": float(np.sqrt(np.mean(diff**2))),
+            }
+        result["fields"][int(f)] = entry
     Path(out).write_text(json.dumps(result, indent=1) + "\n")
     print(json.dumps(result, indent=1))
 
