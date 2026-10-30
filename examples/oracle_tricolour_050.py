@@ -380,7 +380,7 @@ def cli(host_run, strategy_dir, out):
             "100",
             # Options precede the MS: the CLI is a Typer group, so options after
             # the positional are not parsed (post-hoc fix, section 6).
-            str(ms),
+            str(ms.resolve()),
         ]
         record = {"command": command, "strategy": strategy}
         load_before = loadavg()
