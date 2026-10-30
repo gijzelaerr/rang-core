@@ -43,10 +43,10 @@ from pathlib import Path
 import numpy as np
 
 from . import core, core_actions, core_injections, core_prospective, core_signal
+from .core_trend import run as trend_run
 from .core_workflow import core_solve
 from .flagging_equivariance import CASES
 from .flagging_injections import PATTERNS
-from .core_trend import run as trend_run
 from .flagging_workflow import load_state
 
 ROOT = Path(__file__).resolve().parents[2]

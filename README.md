@@ -169,6 +169,12 @@ quality/cost comparison, not further simulator expansion.
   (phase 3 stages and the imaging track) driven by `rang-core`
   (`python -m rangtoy.core_cli`), which need no QuartiCal. Stimela 2.1.4 needs
   a Python 3.13 environment; its native backend fails on 3.14.
+- Tutorials: `pip install -e '.[notebook]'` and open `notebooks/` (01 data and
+  rank, 02 flagging step by step, 03 gains and TV, 04 imaging, 05 the flagging
+  experiment); see `research/d2-notebook.md`.
+- The PKS 1830−211 campaign ran on the core under a stored and a scalar model
+  (`rangtoy.core_campaign_1830`, `research/luno-1830-campaign.md`): null
+  under both, 25–37 min per model on the parallel kernels.
 - The whole-array LUNO campaign ran on the core too
   (`rangtoy.core_campaign_array`, `research/luno-array-campaign.md`): null at
   array scale, about 2 h single-threaded on 342 M cells before the parallel

@@ -2,8 +2,8 @@
 
 Written 2026-10-30 on the user's instruction after the core port
 ([core-parallel-plan.md](core-parallel-plan.md), tasks A–K) was merged. Status: **wave 1 complete 2026-10-30 (U1, S1, W1, L1 merged; L1 null at
-array scale); wave 2 running** (P0 applied by the coordinator; P1, P2, P3, P4, P6, P8 merged 2026-10-30; P5,
-P10 running; then P7, P9, P11 in the order of `simplification-review.md` section 4). S1 found that
+array scale); wave 2 running** (P0 applied by the coordinator; P1, P2, P3, P4, P6, P8, P10 merged 2026-10-30;
+P5 running; then P7, P9, P11 in the order of `simplification-review.md` section 4). S1 found that
 every archive reproduces, that the core is single-threaded and FFT-bound at
 four stations and memory-bound (about 0.87 kB per cell, about 88 GB) at the
 whole array. Read this, [STATE.md](STATE.md) and the task files it
@@ -25,7 +25,8 @@ answer except the two items under "User items".
   Crystalball, pfb-imaging and other `ratt-ru` repositories) as GitHub
   issues, after reproducing each on the latest release. Added 2026-10-30
   (user, in chat): CARACal and Stimela (`caracal-pipeline` repositories) may
-  be reported too. Anything outside those
+  be reported too; so may `saopicc` (DDFacet, killMS; user, 2026-10-30), with
+  pull requests where a fix is clear. Anything outside those
   (WSClean, casacore, Numba, Zarr/numcodecs, blosc, OpenBLAS) is listed in
   [non-ratt-observations.md](non-ratt-observations.md) and not reported.
 - **Distributable wheel.** Build the binary wheel of `rangtoy` with the core
@@ -167,13 +168,16 @@ CPU-heavy tasks at a time on 8 physical cores.
   strategy step by step, image and compare dirty images and PSFs; plots as
   plain functions, `ipywidgets` as a thin steering layer (solution
   intervals, strategy, robustness, iteration cap → held-out error and
-  image). Dependencies in a `[notebook]` extra. Starts now.
+  image). Dependencies in a `[notebook]` extra. Done 2026-10-30
+  (`d2-notebook.md`; five notebooks in `notebooks/`).
 - D3 science notebooks: the two research questions as guided notebooks,
   gain-TV-guided flagging with the null results on real data and the
   decision rule, and the beam and pointing question with the pointing
   solver, observability audits and the JAX reference path; the wave 3
   protocols map onto them. After D1.
-- U2 upstream fixes (started 2026-10-30): file the remaining findings after
+- U2 upstream fixes (done 2026-10-30, `upstream-prs.md`: stimela#619/#620,
+  tricolour#113/#114, QuartiCal#455; tricolour#112 merged, caracal#1708
+  approved): file the remaining findings after
   reproduction (CARACal first-pass strategy on pre-flagged data, Stimela on
   Python 3.14, QuartiCal convergence criterion with the measured curve,
   Tricolour rows-as-lanes if faster in Numba) and open pull requests from
@@ -190,13 +194,31 @@ CPU-heavy tasks at a time on 8 physical cores.
 - Follow-up: Tricolour 0.5.0 is a rework about to be released (maintainer
   reply on issue 110, 2026-10-30); re-validate the task D port against its
   flags once it ships (the archived oracle came from 0.2.1).
+- DDFacet/killMS: feasibility done 2026-10-30 (`ddfacet-feasibility.md`):
+  no faithful port. DF0 (oracle container with WSClean 3.7 and a simulated
+  MeerKAT field) and DF1 (exact wgridder-algorithm gridder, first protocol)
+  can start beside the science wave; DF2 puts it into the imaging chains
+  before B1's imaging; DF3–DF5 (facets with per-facet Jones, scalar
+  CohJones, Hogbom/multiscale) after B1 says what it needs; DF1b (w-towers)
+  when memory binds; DF6 (facet-IDG on `wgpu`) after X2. User decisions
+  (2026-10-30): `saopicc` (DDFacet, killMS) issues and pull requests may be
+  filed like the RATT ones (task U3); a simulated MeerKAT target field is the
+  DF3–DF5 oracle to start with; the core must read and write the file
+  formats of the tools it replaces, not just convert for oracle runs:
+  DDFacet `DicoModel` sky models, killMS solution files, QuartiCal gain
+  stores, CASA calibration tables, Tigger/`.lsm` sky models, and the
+  Measurement Set and zarr stores it already reads (task DF-IO, with DF2).
+- X1 done 2026-10-30 (`x1-crossplatform.md`): native Windows build, task D
+  comparator bit-identical on Windows, five-platform wheel matrix and the
+  PyPI publish job; portability fixes for the live paths listed for P7/P9/P12.
 - Later, not started: a matched full CARACal pipeline baseline on the LUNO
   data (needed if any campaign turns positive) and a benchmark page that CI
   updates from the comparator timings.
 
 ## Wave 3 (science, after L1's verdict; parallel where independent)
 
-- L2 PKS 1830−211: model decision in the protocol (stored MODEL_DATA with its
+- L2 PKS 1830−211 (done 2026-10-30, null under both model arms;
+  `luno-1830-campaign.md`): model decision in the protocol (stored MODEL_DATA with its
   cross-hand terms, or a scalar point model predicted by the core), then the
   same campaign. Independent of L1's verdict.
 - L3 native data: when the observer's full-resolution L-band set arrives,
@@ -209,6 +231,24 @@ CPU-heavy tasks at a time on 8 physical cores.
   any is positive, the follow-up is a matched CARACal full-pipeline
   comparison on the same data (quality and cost), which is what the novelty
   rule asks for.
+- L1-M model completeness (from the literature scan, first wave 3 item after
+  P5): re-solve LUNO chunk 0 with CARACal's 196-component PKS 1934−638 field
+  model (`caracal/data/meerkat_files/pks1934-638.lsm`, spectral convention
+  and apparent-flux question frozen in the protocol; the core predictor
+  applies no beam, as CARACal's prediction does not) under the same frozen
+  arms as L1; held-out error, gain TV and the decision rule against the point
+  model. Heywood et al. 2020 (arXiv:2004.00454): a point model leaves
+  0.2–0.5 % structured amplitude errors.
+- C1 closure-invariant arm (after L1-M, before L4): GL(2,C) closure traces as
+  a gauge-free flagging signal and comparator, isolating what per-antenna
+  gains cannot absorb. A1 (small, any time): RFI-band audit of the
+  station-bins the first-pass strategy emptied in L1.
+- B1 additions: B1-0 freezes SARAO's 2023 holography cubes (DOI
+  10.48479/wdb0-h061) as the reference beam with katbeam as control; B1-1
+  freezes the SARAO/SKA Gaussian pointing-offset fit and physical pointing
+  self-calibration as the baselines to beat at matched cost. L4 cites the
+  solution-interval and regularisation literature in "what would change the
+  answer".
 - L5 solver science: the issue 452 weight-swap fix behind a compatibility
   flag and the convergence criterion study, one protocol (user decision
   above); after P1 (done) and L1 (done), independent of L2/L3.

@@ -212,3 +212,62 @@ Every RATT observation above was checked against its latest release
   (`caracal-pipeline`): it flags 762,924 new cells of chunk 0 and some
   station × 32-channel bins lose every unflagged sample, so a solver loses
   those gains. Worth a documentation note once reproduced with CARACal itself.
+
+## Literature-scan observations (2026-10-30; context, no issue)
+
+- CARACal's `meerkat_skymodel` defaults to False although its documentation
+  advises the PKS 1934−638 field model to avoid calibrator-field substructure
+  effects; a design choice recorded as context for task L1-M.
+- QuartiCal's v0.2.6 and v0.2.7 GitHub releases carry no release notes, so
+  whether #452 or #453 is fixed must be read from the commit log.
+- katbeam has had no PyPI release since 0.1 (2020) and EIDOS none since 1.1.2
+  (2024-01).
+
+## Upstream status after task U2 (2026-10-30; `upstream-prs.md`)
+
+- Stimela on Python 3.14: **filed** caracal-pipeline/stimela#619, **PR** #620
+  (event loop in `xrun`, fork context for scatter workers,
+  `requires-python <3.15`, 3.14 in CI); review pending.
+- Tricolour #111: **PR** ratt-ru/tricolour#112 on `0.5.0-dev`, **merged**;
+  CARACal companion caracal-pipeline/caracal#1708 (float `spike_width_time`
+  in nine strategies), approved.
+- Tricolour rows as lanes: **filed** ratt-ru/tricolour#113, **PR** #114
+  (1.3–2.1× for `sum_threshold_flagger` on one thread, bit-identical); CI
+  awaits admin approval.
+- QuartiCal convergence: **filed** ratt-ru/QuartiCal#455 (the cap ends about
+  half of the default solves; a gauge-invariant criterion would not help;
+  chi-squared settles by iteration 10–15).
+- QuartiCal #452/#453, Tricolour #110: no PRs by maintainer direction; #452
+  also affects `rotation`, `rotation_measure` and `crosshand_phase` on
+  v0.2.8-dev (local test 8/8; patch kept in `upstream-prs-files/`).
+- CARACal first-pass station-bins: not filed (whole-channel excision, no
+  demonstrated harm; `upstream-issues/caracal-firstpass-station-bins.md`).
+
+## L2, DDFacet-feasibility and X1 observations (2026-10-30; observed, not raised)
+
+- RATT, QuartiCal `complex` (ported): with a model carrying 1e-3 cross-hand
+  terms, 50 iterations converge 5.2 % of intervals on the whole array,
+  against 93.7 % under a scalar model on the same data (L1: 83 % on
+  1934−638). Input for L5 and for QuartiCal#455.
+- caracal-pipeline, CARACal first-pass strategy on pre-flagged calibrator
+  data: as in L1, it removes the whole training support of some
+  station-bins (85 validation and 63 test samples unpredictable on 1830−211).
+- `saopicc` (RATT-adjacent; not covered by the reporting decision, not
+  filed): killMS 3.3.0 fails to build with GCC 15 (`Gridder.c:309`,
+  incompatible pointer type; workaround `CFLAGS=-Wno-error=incompatible-pointer-types`);
+  killMS 3.3.0 calls `DDFacet.Other.AsyncProcessPool._init_default()`, removed
+  in DDFacet `51a1d352` (2026-05-29), so the latest killMS cannot run on
+  DDFacet 1.0.0.0; DDFacet and killMS classifiers say "GPLv2" while headers
+  say GPL-2-or-later, and 173 / 17 files have no header; `--Selection-Field`
+  silently skips an MS whose data are in another field; Hogbom on the
+  four-station 2,048-channel slice overflows and stalls (not reproduced
+  elsewhere).
+- Non-RATT: ducc0's kernel and grid choice depends on `nthreads` (oracles
+  must fix it); `vis2dirty` defaults to `divide_by_n=True` and the opposite w
+  sign from rang's DFT; maturin packs untracked `.pdb` files from
+  `python-source` into Windows wheels; `maturin develop` fails in a pip-less
+  uv venv; cargo collides on the `.pdb` name when lib and bin share a name;
+  MSVC binaries are not byte-reproducible (PE timestamp); python-casacore has
+  no Windows wheels, so the casacore paths stay Linux and container only;
+  whole-object GETs from the af-south-1 bucket ran at 6.4 MB/s on one
+  connection.

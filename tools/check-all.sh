@@ -4,6 +4,12 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 export PATH=$HOME/.cargo/bin:$PATH
+# One check-all at a time on a shared host (research/p10-tests.md); RANG_CHECKALL_LOCK overrides.
+lock=${RANG_CHECKALL_LOCK:-$HOME/.rang-checkall.lock}
+if [ -z "${RANG_CHECKALL_LOCKED:-}" ]; then
+  export RANG_CHECKALL_LOCKED=1
+  exec flock "$lock" bash "$0" "$@"
+fi
 fail=0
 step() { echo "## $1"; shift; "$@" || { echo "FAILED: $*"; fail=1; }; }
 step root-build cargo +1.93 build --offline --release -q

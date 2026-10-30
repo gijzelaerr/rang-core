@@ -187,6 +187,11 @@ def test_core_recipe_cabs_match_cli_signatures():
 
 
 def test_frozen_consumer_and_comparators_are_the_phase3_files():
-    assert core_cli.trend_run.__module__ == "rangtoy.flagging_trend"
+    # Since P6 the driver is core_trend.run, which calls the frozen
+    # flagging_trend.run unedited (research/p6-python-hotspots.md).
+    assert core_cli.trend_run.__module__ == "rangtoy.core_trend"
+    from rangtoy import core_trend
+
+    assert core_trend.flagging_trend.run.__module__ == "rangtoy.flagging_trend"
     for stage, script in core_cli.COMPARATORS.items():
         assert (ROOT / "examples" / script).is_file(), stage

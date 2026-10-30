@@ -4,6 +4,32 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task L2, the [PKS 1830−211 campaign](luno-1830-campaign.md):
+null under a stored and a scalar model on the whole array
+([archive](results/luno-1830-campaign.json)).
+
+New, 2026-10-30: the [DDFacet/killMS feasibility study](ddfacet-feasibility.md):
+no faithful port; an exact wgridder-algorithm gridder first, facets later,
+DDFacet and killMS as oracles.
+
+New, 2026-10-30: big plan task X1, [cross-platform](x1-crossplatform.md):
+native Windows build and a bit-identical comparator, a five-platform wheel
+matrix with PyPI trusted publishing on tags.
+
+New, 2026-10-30: big plan task U2, [upstream fixes](upstream-prs.md): three
+issues and four pull requests (tricolour#112 merged, caracal#1708 approved,
+tricolour#114 and stimela#620 open).
+
+New, 2026-10-30: big plan task D2, [notebook tooling](d2-notebook.md):
+`rangtoy.notebook` and five tutorial notebooks in `notebooks/`.
+
+New, 2026-10-30: big plan task P10, [test-suite speed](p10-tests.md): same 555
+tests, 6,031 → 188 CPU-s by capping BLAS and XLA threads; check-all now locks.
+
+New, 2026-10-30: the [literature scan 2023–2026](literature-2024-2026.md):
+calibrator model completeness is the strongest lead for the null results;
+ranked recommendations and what to drop.
+
 New, 2026-10-30: big plan task P6, [frozen Python hot spots](p6-python-hotspots.md)
 ported: trend 3.1× with byte-equal checkpoints, signal CPU cut, drivers switched.
 

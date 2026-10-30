@@ -1,5 +1,127 @@
 # Rang research state
 
+L2 PKS 1830−211 campaign (big plan wave 3), 2026-10-30 (implemented;
+measured; null). The gain-TV-guided flagging campaign ran on the whole array
+for LUNO's gain calibrator PKS 1830−211 (MAIN_2, the whole 80 s scan: 56
+stations, 1,540 baselines, 126 M cells) under two model arms fixed in the
+protocol: the stored MODEL_DATA with its 1e-3 cross-hand terms, and a scalar
+point at the phase centre predicted by the core with a power law fitted to
+the short-baseline data (α = +0.22). 877 MB of DATA and UVW were fetched
+whole in 137 s; the L2 driver (`rangtoy.core_campaign_1830`) replays K on
+four stations and reproduces the archived survey. Under the scalar model the
+four-station survey is fully identified except 15 tree bins; under the
+stored model it is status 6 everywhere. Criteria 4 and 6 fail as frozen (the
+Tricolour arms leave held-out samples unpredictable; the stored model
+converges on 5 % of intervals, the scalar on 94 %). The pre-registered
+matched headline is null under both models (TV policy against first pass
+0.99977 and 0.99969); every TV-guided mask is rejected; the cost is not
+comparable on the parallel kernels as measured on a contended host (TV chain
+4.6–5.9× the first pass). Verdict null. Archive
+`results/luno-1830-campaign.json` ([luno-1830-campaign.md](luno-1830-campaign.md)).
+What L4 can now say: gain-TV-guided flagging is null on both LUNO
+calibrators at four-station and whole-array scale under a matched
+state-of-the-art comparator and pre-registered rules; what could still change
+the answer is native flags and weights (L3), a converged solver (L5) and the
+field model (L1-M).
+
+DDFacet/killMS feasibility (big plan; 2026-10-30; study, no core code;
+[ddfacet-feasibility.md](ddfacet-feasibility.md)). DDFacet 1.0.0.0 (about
+106 k lines of Python, 8.5 k C/C++, GPL-2-or-later headers) does w-projection
+per facet with Voronoi tessels, BDA and per-facet 2×2 Jones; most of its
+code is deconvolution heuristics. killMS 3.3.0's CohJones is LM over a
+per-antenna, all-direction Jacobian. Recommendation: no faithful port; keep
+DDFacet and killMS as pinned external oracles. Instead DF1, an exact
+gridder/degridder porting the ducc0 wgridder algorithm (GPL-2-or-later),
+facet-free, validated against the ducc0 wheel at one thread and a DFT (ducc0
+matches a DFT to 1.2e-5 of peak at epsilon 1e-4 and 8.7e-8 at 1e-7 on the
+LUNO slice, in 0.04–0.27 s); then facets as shifted sub-images with per-facet
+Jones, a scalar CohJones and Hogbom/multiscale, against DDFacet/killMS on a
+simulated MeerKAT target field (DF3–DF5, after B1 says what it needs); DF6
+facet-IDG on `wgpu` after X2 with WSClean 3.7 as oracle. B1 keeps
+per-component beams in the DFT predictor: away from facet nodes a
+facet-constant beam errs by 13–50× a 30″ pointing signal at 9–100 facets.
+Found on the host: killMS 3.3.0 does not build on GCC 15 without a flag and
+does not run on DDFacet 1.0.0.0; DDFacet HMP on the 37 MB slice peaks at
+8.9 GB; the core w-stacking image differs from a DFT on the slice by 19 % of
+peak (1.6 % on the PSF), unattributed, to be resolved in DF1 (item 0).
+
+Cross-platform (big plan X1), 2026-10-30 (implemented; measured on native
+Windows and Linux; CI not yet run; [x1-crossplatform.md](x1-crossplatform.md)).
+The core, the root crate and the PyO3 extension build natively on Windows
+with Rust 1.93.1 (MSVC) and maturin with no source change, and the extension
+exports the C ABI. The backend tests pass on Windows (10 passed, 1 skipped).
+Of the full suite, 529 tests pass on Windows, 17 fail and 3 modules do not
+collect, all from POSIX assumptions (`resource`, `st_blocks`, symlinks, path
+separators, console encoding), listed for P7/P9/P12. The task D Tricolour
+comparator ran natively on Windows on the archived inputs: criteria 1–4
+exact, all 56 arrays byte-identical to Linux; criterion 5 fails as frozen
+only because the receipt hashes `str()` paths with backslashes. `wheels.yml`
+now builds and tests manylinux x86_64 and aarch64, macOS arm64 and x86_64,
+and win_amd64 wheels with cargo absent, and publishes to PyPI by trusted
+publishing on `v*` tags (the project name at the tag is still `rangtoy`
+until P12). `tools/wheel/build.py` and `test.py` build and test the native
+wheel without docker; `.cargo/config.toml`'s v3 target is scoped to x86_64.
+
+Big plan task U2 (upstream fixes), 2026-10-30 (implemented; measured): filed
+stimela#619, tricolour#113 and QuartiCal#455; opened stimela#620,
+tricolour#112 (merged), tricolour#114 and caracal#1708 (approved). No PRs for
+QuartiCal #452/#453 and Tricolour #110 by maintainer direction. Rows-as-lanes
+in Tricolour 0.5.0-dev: 1.3–2.1× with bit-identical flags. QuartiCal 0.2.7
+defaults on scan 9: 46–54 % of intervals converged at the 25-iteration cap,
+chi-squared settled by 10–15; the slow tail is not gauge drift (a
+gauge-invariant stop rule would not stop earlier). The CARACal first-pass
+station-bin loss reproduces on scan 9 but is whole-channel excision, not
+filed. Report: `research/upstream-prs.md`.
+
+D2 notebook tooling (big plan, documentation track), 2026-10-30
+(implemented; measured; no science claim). `rangtoy.notebook` gives plain
+plot and table functions over the core wrappers (`data`, `survey`, `flags`,
+`gains`, `image`, `experiment`) and an ipywidgets steering layer (`steer`);
+five tutorial notebooks in `notebooks/` teach the data and the
+identifiability rank first, Tricolour step by step, gains/gauge/TV, imaging,
+and the flagging experiment with its null results read from the archives.
+The fixture loader reproduces the archived split and baseline solve to ten
+figures without casacore; the LUNO survey reproduces 389/43/592 and the
+decision replay reproduces task K's calls exactly. On a host at load 46–61,
+notebooks 01–04 ran in 9–37 s each, 05 in 66 s with its LUNO replay, and all
+five on the fixture alone in 48 s together; the new tests take 78 s. Wish
+list (progress hook in `fetch_slice`, POSIX-only `resource` import in
+`core_campaign`, TV and normals kernels outside the wheel, amendment 1 calls
+missing from the L1 archive) in [d2-notebook.md](d2-notebook.md); the
+`[notebook]` extra holds the dependencies.
+
+P10 test-suite speed (big plan wave 2), 2026-10-30 ([p10-tests.md](p10-tests.md)):
+a `tests/conftest.py` caps OpenBLAS/OMP/MKL at one thread and XLA's CPU
+backend at one intra-op thread, and builds the pointing references once per
+session. The caps are defaults, and the caller's environment wins.
+`test_blocked` computes its dense audit once, and one validation check moved
+to the thinned rows. The 555 test ids are unchanged and all pass. In the
+matched A/B pair under load 26, full pytest went from 672 to 223 s wall and
+from 6,031 to 188 CPU-s: `test_pointing` 584 → 146 s, `test_blocked` 40 →
+19 s, `test_beams` unchanged (31 s). On an idle host the cap is estimated to
+cost about 1.5–2.5× wall; `OPENBLAS_NUM_THREADS` overrides it.
+`tools/check-all.sh` now takes a host-wide lock so suites queue instead of
+overlapping. The day's load averages of 55–98 came from up to seven
+concurrent suites whose BLAS pools busy-waited on each other.
+
+Literature scan (big plan, read-only), 2026-10-30
+([literature-2024-2026.md](literature-2024-2026.md)). arXiv, release APIs and
+changelogs were surveyed for 2023–2026-10 across calibration, RFI, imaging,
+beams and pointing, mathematics and software; every source was accessed
+2026-10-30, most papers at abstract level. The strongest finding for the
+active experiment is calibrator model completeness: Heywood et al. (2020)
+show a point model of PKS 1934−638 imparts 0.2–0.5 % structured amplitude
+errors at MeerKAT, and CARACal ships a 196-component 1934 field model; K and
+L1 solved against a 14.96 Jy point, so part of the gain structure that TV
+measures may be model error (task L1-M). Other recommendations: safeguarded
+Anderson acceleration after the #452 fix (theory only, no radio precedent);
+a closure-invariant (GL(2,C) gauge-free) comparator arm (C1), which isolates
+exactly the non-antenna-factorable part gain TV cannot see; the SARAO
+holography cubes and the SARAO/SKA pointing-offset fit as B1's reference
+beam and baseline. Dropped: diffusion priors, robust PCA RFI separation,
+ephemeris flagging as a method, an IDG port, a DDFacet rewrite (DDFacet is
+maintained, v1.0.0.0 2026-06-23; WSClean 3.7 ships w-towers and facet-IDG).
+
 P6 frozen Python hot spots (big plan wave 2), 2026-10-30 (implemented;
 measured; [p6-python-hotspots.md](p6-python-hotspots.md)): the trend track's
 candidate generation is ported to `core_trend.generate_candidates` (geometry

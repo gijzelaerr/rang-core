@@ -189,6 +189,11 @@ items below are open. Results are provisional; see the
   14.96 Jy point about 1.5″ from the FIELD phase direction; mean Re I falls
   to 8.45 Jy on 3–8 km baselines. More evidence for an unlogged prediction
   step ([luno-array-campaign.md](luno-array-campaign.md)).
+- **1830−211 model (2026-10-30, L2).** The stored MODEL_DATA is offset from
+  the phase centre (mean Re I 12.9 → 10.3 Jy from under 0.2 km to 3–9 km), a
+  few per cent resolved (|I| 12.9 → 12.5 Jy), with a rising spectrum
+  (12.3 → 13.2 Jy across the band); m031, m040 and m044 are fully flagged
+  with FLAG_ROW false (1,620 rows) ([luno-1830-campaign.md](luno-1830-campaign.md)).
 - **Gain-bin support.** Measure TRAIN identifiability on the 1934−638 and
   1830−211 scans before freezing any protocol, as in the
   [gain-support survey](flagging-next-gain-support.md). This is only worth doing

@@ -378,3 +378,124 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P6: `micro.py` (`cond`/`inv` per cell vs per run, 70,000 matrices) | – | about 1 s | – | load 13; default and one OpenBLAS thread |
 | 2026-10-30 | big plan P6: `negzero.py` (signed zeros, post hoc) | – | under 1 s | – | all agree |
 | 2026-10-30 | big plan P6: identity pre-P6 vs `-06` (`-10`, post hoc) | – | under 1 s | – | pass, both arms |
+| 2026-10-30 | big plan P10: base-1 | – |  | – |  |
+| 2026-10-30 | big plan P10: base-2 | – |  | – |  |
+| 2026-10-30 | big plan P10: base-3 | – |  | – |  |
+| 2026-10-30 | big plan P10: A1 | – |  | – |  |
+| 2026-10-30 | big plan P10: B1 | – |  | – |  |
+| 2026-10-30 | big plan P10: B2 | – |  | – |  |
+| 2026-10-30 | big plan P10: A2 | – |  | – |  |
+| 2026-10-30 | big plan P10: `uv venv` / `uv pip install -e .[pointing,beam,test,imaging]` / `maturin develop --release` | P10 worktree | 0.01 / 10.6 / 10.5 s | 22 / 377 / 382 MB | setup, `outputs/p10-tests-20261030-01/` |
+| 2026-10-30 | big plan P10: pytest 9, full suite base-1/2/3 (tests of `4167141`) | 555 tests | 946 / 760 / 1,294 s | 1,676 / 1,630 / 1,703 MB | CPU 7,679 / 6,892 / 8,968 s; load 27–34; 145 threads |
+| 2026-10-30 | big plan P10: pytest, one full-coverage test, 6 thread settings × 2 | 1 test | 12.8–148.7 s | 747–848 MB | probe table in `research/p10-tests.md` |
+| 2026-10-30 | big plan P10: pytest, three pointing modules after the change | 71 tests | 95.5 s | 1,370 MB | user 110 s, load 19 |
+| 2026-10-30 | big plan P10: pytest full suite A1 / B1 / B2 / A2 | 555 tests | 672 / 223 / 311 / 4,140 s | 1,638 / 1,631 / 1,777 / 1,528 MB | CPU 6,031 / 188 / 235 / 13,263 s; load 26.5 / 25.8 / 26.9 / 68.5 |
+| 2026-10-30 | big plan P10: `bash tools/check-all.sh` on `d2c6812` + first version of this note | repo | 758 s (pytest step 584 s) | 1,770 MB | PASS; user 281 s, sys 18 s; load 65–82 (A2 took 4,140 s at load 68); `outputs/p10-tests-20261030-06/`; no lock |
+| 2026-10-30 | big plan P10: `bash tools/check-all.sh` on the corrected note | repo | 838 s (pytest step 701 s) | 1,813 MB | PASS; user 223 s, sys 12 s; load 73–83; `outputs/p10-tests-20261030-07/`; no lock (started before the lock instruction), lock wait 0 |
+| 2026-10-30 | big plan U2: stimela 2.2.0rc1 `stimela run` echo recipe, Python 3.14.8 | 1 native cab | 3.8 s | 95 MB | fails (no event loop); 2.1.4: 2.6 s, 91 MB, fails |
+| 2026-10-30 | big plan U2: same, Python 3.13.16 | 1 native cab | 2.9 s | 89 MB | exit 0 |
+| 2026-10-30 | big plan U2: same, 3.14.8 with the U2 fix | 1 native cab | 2.1 s | 94 MB | exit 0 |
+| 2026-10-30 | big plan U2: stimela `pytest tests` (fix branch), Python 3.14.8 | 72 tests | 368 s | 88 MB | 72 passed |
+| 2026-10-30 | big plan U2: stimela `pytest tests` (fix branch), Python 3.13.16 | 72 tests | 762 s | 82 MB | 72 passed |
+| 2026-10-30 | big plan U2: tricolour 0.5.0-dev #111 test, before fix, empty Numba cache | 2x2x32x64 | 98.5 s | 583 MB | 2 signatures |
+| 2026-10-30 | big plan U2: tricolour 0.5.0-dev #111 test, after fix | same | 51.6 s | 480 MB | 1 signature |
+| 2026-10-30 | big plan U2: tricolour 0.5.0-dev `pytest -m "not acceptance"` (#111 branch) | 60 tests | 69.0 s | 579 MB | 58 passed, 2 skipped |
+| 2026-10-30 | big plan U2: tricolour 0.5.0-dev `pytest -m "not acceptance"` (lanes branch) | 59 tests | 105.4 s | 558 MB | 57 passed, 2 skipped |
+| 2026-10-30 | big plan U2: lanes benchmark, first round per variant (cold JIT) | 3 shapes x 6 calls | 239.9 s base, 142.2 s lanes | 444 / 458 MB | `bench.sh` |
+| 2026-10-30 | big plan U2: lanes benchmark, warm rounds 2-7 | 3 shapes x 6 calls | 21.7-33.6 s base, 19.5-27.9 s lanes | 232 / 235 MB | `taskset` one core |
+| 2026-10-30 | big plan U2: CARACal `pytest tests` | 13 tests | 12.1 s | 98 MB | 13 passed |
+| 2026-10-30 | big plan U2: QuartiCal v0.2.8-dev conjugate-baseline test (8 cases), before fix | – | not recorded | – | 8 failed; incl. JIT (wall line cut from the log) |
+| 2026-10-30 | big plan U2: same, after fix | – | 792 s | – | 8 passed; incl. JIT, load about 60 |
+| 2026-10-30 | big plan U2: QuartiCal 0.2.7 `goquartical` scan 9, cold Numba cache, 5 iterations | 140 rows x 4096 ch | 99.1 s | 795 MB | trial |
+| 2026-10-30 | big plan U2: QuartiCal 0.2.7 sweep, 1 x 1 intervals, k = 1-100 (16 runs + k26, k51) | same | 10.4-45.2 s per run | 545-550 MB | warm cache |
+| 2026-10-30 | big plan U2: QuartiCal 0.2.7 sweep, 2 x 32 intervals (16 runs + k26, k51) | same | 11.4-18.8 s per run | 431-432 MB | warm cache |
+| 2026-10-30 | big plan U2: Tricolour 0.2.1 CARACal first-pass strategy, native flags, cold cache | scan 9 | 514.9 s | 764 MB | under `script` (TTY) |
+| 2026-10-30 | big plan U2: same, 60.7 % pre-flags, warm cache | scan 9 | 12.7 s | 440 MB |  |
+| 2026-10-30 | big plan D2: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` + notebook packages | public PyPI | 132 s | – | Python 3.14 |
+| 2026-10-30 | big plan D2: `maturin develop --release` | `core/py` | 82 s | 606 MB | – |
+| 2026-10-30 | big plan D2: `core_ms` probe (`probe1.py`) | fixture scan 9 MS | 0.23 s read | – | every needed column and subtable readable |
+| 2026-10-30 | big plan D2: loader probe (`probe2.py`) | fixture + local LUNO slice | 62 s | 222 MB | includes the root crate's first cargo build, 33.6 s, triggered by `gain_tv`; fixture load 3.6 s (first extraction), LUNO load 17.0 s (cold 724 MB decode), LUNO solve 0.67 s |
+| 2026-10-30 | big plan D2: function smoke (`probe3.py fixture`) | fixture | 145 s | 1.28 GB | survey 2.5 s, strategies 0.8–3.5 s, solve 0.9 s, image 2.0 s each, robust sweep (3 images) 15.7 s, arms 9.1 s, arm images 12.3 s; first attempt stopped on a widget constructor bug (fixed) |
+| 2026-10-30 | big plan D2: function smoke (`probe3.py luno`) | local LUNO slice | 110 s | 1.05 GB | load 20.5 s, survey 5.6 s, arms 3.9 s, arm images 6.1 s |
+| 2026-10-30 | big plan D2: nbconvert, five notebooks in series, LUNO on | fixture + slice | 755 s | 1.16 GB (children) | 01 22.3 s, 02 8.9 s, 03 20.9 s, 04 636.8 s, 05 66.3 s; 04's cells summed 37 s, the rest was a kernel-shutdown stall ("KeyboardInterrupt caught in kernel") not reproduced on rerun |
+| 2026-10-30 | big plan D2: nbconvert, 04 alone | fixture | 37.4 s | 809 MB | – |
+| 2026-10-30 | big plan D2: `pytest tests/test_notebook_functions.py tests/test_notebook_execute.py` | fixture + slice | 78 s | 839 MB | 15 passed; the concurrent notebook fixture 47.6 s |
+| 2026-10-30 | big plan D2: `data.download_fixture` + `data.load_luno(fetch=True)` (`fetchcheck.py`) | public LFS fixture; RATT bucket | 116 s | 179 MB | fixture 45,452,147 bytes in 5.9 s, hash verified; slice and extra objects 754.9 MB fetched and loaded in 101.9 s with the polled progress line every 10 s; `.partial` renamed, nothing left over; split, original-arm TV 0.018794641730921754 and losses equal to the local copy; the 769 MB cache was deleted afterwards (log `outputs/d2-notebook-20261030-02/fetch.log`) |
+| 2026-10-30 | big plan D2: `bash tools/check-all.sh` | branch tree | 4,755 s | 2.28 GB | **PASS**; pytest 585 passed, 1 skipped in 4,276 s at load 70–100; started before the coordinator's `flock` rule, so no lock wait; log `outputs/d2-notebook-20261030-01/check-all.log`. After it, only notebook 05's markdown changed (the model-limited caveat); the no-outputs test passes on the rebuilt notebooks |
+| 2026-10-30 | big plan U2: `tools/check-all.sh` | branch u2-upstream-prs, 560 tests | 4,738.6 s | 1.86 GB | PASS; before the lock; load 55–98 |
+| 2026-10-30 | big plan L2: `uv venv -p /usr/bin/python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (public PyPI) | – | 83.4 s | – |  |
+| 2026-10-30 | big plan L2: `maturin develop --release` | – | 1.1 s | – |  |
+| 2026-10-30 | big plan L2: probe 1: 16-byte ranged GETs of the 19 objects, MAIN_2 row columns, UVW, stored MODEL_DATA statistics (`-00-probe/probe.json`) | – | 13.1 s | 1.34 GB |  |
+| 2026-10-30 | big plan L2: probe 2: FLAG structure, eligible support per tile, short-baseline support (`-00-probe/probe2.json`) | – | 6.8 s | 516 MB |  |
+| 2026-10-30 | big plan L2: `pytest tests/test_core_campaign_1830.py` while writing (17, then 18 tests) | – | 0.5–4.2 s | 67 MB |  |
+| 2026-10-30 | big plan L2: **fetch**, `examples/fetch_luno_1830.py` (`-01-fetch`) under `/usr/bin/time -v` | – | 2 min 23 s (fetch 136.5 s) | 194 MB |  |
+| 2026-10-30 | big plan L2: precondition, `examples/precondition_luno_1830.py` (`-00-precondition`, code `df01a01`) | – | 4 min 50 s | 615 MB |  |
+| 2026-10-30 | big plan L2: labelled smoke, stations 0–11, stored model (`-00-smoke-stored`) | – | 4 min 47 s | 1.31 GB |  |
+| 2026-10-30 | big plan L2: labelled smoke, stations 0–11, scalar model (`-00-smoke-scalar`) | – | 2 min 49 s | 1.30 GB |  |
+| 2026-10-30 | big plan L2: **precondition** rerun (`-00-precondition-b`, code `262ba2c`) | – | 1 min 09 s | 607 MB |  |
+| 2026-10-30 | big plan L2: **frozen run, stored** (`-02-stored`), `examples/run_luno_1830.py` under `/usr/bin/time -v`; MemAvailable 12.7 GiB; load average 47–62 | – | **25 min 15 s** (user 1,431 s, sys 113 s, 101 % CPU) | **6.43 GB** |  |
+| 2026-10-30 | big plan L2: **frozen run, scalar** (`-02-scalar`); MemAvailable 14.0 GiB; load average 46–97 | – | **36 min 39 s** (user 1,417 s, sys 106 s, 69 % CPU) | **6.48 GB** |  |
+| 2026-10-30 | big plan L2: `examples/check_luno_1830.py` (`-02-check`) | – | 17.8 s | 104 MB |  |
+| 2026-10-30 | big plan L2: `examples/archive_luno_1830.py` | – | 0.3 s | 22 MB |  |
+| 2026-10-30 | big plan L2: `bash tools/check-all.sh`, once before the final commit (`outputs/l2-1830-20261030-02.check-all.log`) | – | 57 min 31 s (pytest 588 passed, 1 skipped in 46 min 20 s) | 1.93 GB |  |
+| 2026-10-30 | big plan DDF: `git clone` ×3 (DDFacet, killMS, ducc) | GitHub | 11 s | – | 22 MB, 32 MB, 7.7 MB |
+| 2026-10-30 | big plan DDF: `uv venv -p 3.12` | – | 0.05 s | – |  |
+| 2026-10-30 | big plan DDF: `uv pip install ./DDFacet ./killMS` | sources | 49.8 s | – | **failed** (killMS on GCC 15) |
+| 2026-10-30 | big plan DDF: `uv pip install ./DDFacet` | source | 94.5 s | – | built; 3 pybind11 modules |
+| 2026-10-30 | big plan DDF: `uv pip install ./killMS` | source | 9.9 s | – | **failed**: `Gridder.c:309` incompatible pointer types |
+| 2026-10-30 | big plan DDF: `uv pip install ./killMS` with `CFLAGS=-Wno-error=incompatible-pointer-types` | source | 24.5 s | – | built |
+| 2026-10-30 | big plan DDF: `DDF.py` dirty, field 0 default | LUNO slice MS | 7.9 s | – | **failed**: "no rows" (data are field 1) |
+| 2026-10-30 | big plan DDF: `DDF.py` dirty, 1 facet | LUNO slice, 2,048 ch, Briggs 0.5, 512→525 px at 8″, NCPU 4 | 16.6 s | – | CPU 58 % |
+| 2026-10-30 | big plan DDF: `DDF.py` dirty, 3×3 facets | same | 32.4 s | – | 1 vs 9 facets: 2.5 % L∞, 0.49 % RMS of peak |
+| 2026-10-30 | big plan DDF: `DDF.py` clean, Hogbom, 3 major cycles | same | stopped after about 10 min | – | stalled in the first minor cycle with an overflow warning; killed |
+| 2026-10-30 | big plan DDF: `DDF.py` clean, SSD | same | killed at start | – | no result (the run was cancelled with Hogbom's chain) |
+| 2026-10-30 | big plan DDF: `DDF.py` clean, HMP, 2 major cycles, 2,000 minor | same | 234.5 s | – | CPU 126 %; 161 minor iterations; degrid 61 s single-core per facet job; DDFacet reports 3 min 41.5 s |
+| 2026-10-30 | big plan DDF: `uv venv -p 3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` | worktree | 194.9 s | – | rang venv for the core comparisons and check-all |
+| 2026-10-30 | big plan DDF: `uv pip install ducc0` | PyPI | 3.9 s | – | 0.42.0 wheel |
+| 2026-10-30 | big plan DDF: `export_and_ref.py` (export, DFT, ducc0) | slice, every 16th channel | 244.2 s | – | DFT 243 s; ducc0 variants at the default convention (4 % off: `divide_by_n` and w sign) |
+| 2026-10-30 | big plan DDF: `orient.py`, `tiny.py` | same; 64² synthetic | under 30 s each (not wrapped in `time`) | – | convention pinned: w sign flipped, `divide_by_n=False` |
+| 2026-10-30 | big plan DDF: `ducc_cmp.py` | slice export | 2.4 s | – | the table in section 3.1 |
+| 2026-10-30 | big plan DDF: `core_cmp.py`, `core_cmp2.py`, `core_point.py` | slice export | 2.9 s; others under 1 min (not wrapped) | – | core against the DFT: unresolved convention |
+| 2026-10-30 | big plan DDF: `core_psf.py` | slice export, exact DFT PSF | under 10 min (not wrapped) | – | PSF sidelobes 0.80 at the edge |
+| 2026-10-30 | big plan DDF: `core_psf2.py`, `core_psf3.py` | same | under 2 min each (not wrapped) | – | padding 2, kernel 15, 512 layers: still 1.6 % on the PSF |
+| 2026-10-30 | big plan DDF: `facet_beam.py` | katbeam 0.1 | seconds (not wrapped) | – | the table in section 3.1 |
+| 2026-10-30 | big plan DDF: `uv pip install meqtrees-cattery` | PyPI | 9.5 s | – | 1.8.0; imports |
+| 2026-10-30 | big plan DDF: `kMS.py` CohJones, scalar, `--DicoModel` from the HMP run | LUNO slice | 8.3 s | – | **failed**: `AsyncProcessPool._init_default` missing in DDFacet 1.0.0.0 |
+| 2026-10-30 | big plan DDF: evidence copy and SHA256SUMS | – | seconds | – | `outputs/ddfacet-feasibility-20261030-01`, 15 MB |
+| 2026-10-30 | big plan DDF: `bash tools/check-all.sh` (first attempt, without the lock) | worktree at `e2296e0` | about 60 min, then stopped | – | stopped during pytest on the coordinator's load-control instruction; log `check-all-aborted-unlocked.log` |
+| 2026-10-30 | big plan DDF: `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` | worktree at `5aaf758` (documents only) | 2,534.8 s; lock wait 0 s | – | **PASS**; pytest 570 passed and 1 skipped in 2,225.6 s; root 19 and core 55 Rust tests; clippy, fmt, ruff clean; load 77–81 at the start; log `check-all.log` |
+| 2026-10-30 | big plan X1: clone | – | 21.2 s | – |  |
+| 2026-10-30 | big plan X1: toolchain | – | not timed | – |  |
+| 2026-10-30 | big plan X1: core | – | 56.3 s (cold, including the crate download) | – |  |
+| 2026-10-30 | big plan X1: root | – | 8.1 s | – |  |
+| 2026-10-30 | big plan X1: venv | – | 0.2 s; 83.7 s | – |  |
+| 2026-10-30 | big plan X1: extension | – | 3.8 s failed; 2.1 s warm | – |  |
+| 2026-10-30 | big plan X1: import | – | <1 s | – |  |
+| 2026-10-30 | big plan X1: backend tests | – | 52.1 s | – |  |
+| 2026-10-30 | big plan X1: suite | – | 414.5 s | – |  |
+| 2026-10-30 | big plan X1: Windows `build.py ../wheel-win-01 --sdist` | – | 127.4 s (rustc 24.1 s, which includes rustup fetching the `1.93.1` name; wheel 63.4; sdist 4.8; ctypes 33.5) | – |  |
+| 2026-10-30 | big plan X1: Windows `build.py ../wheel-win-02 --no-ctypes`, after the `.gitignore` fix | – | 64.9 s | – |  |
+| 2026-10-30 | big plan X1: Windows `test.py` on `wheel-win-01`, py3.10 / py3.14 / py3.14 `--no-ctypes` | – | 4.5 / 3.3 / 4.2 s | – |  |
+| 2026-10-30 | big plan X1: Windows `test.py` on `wheel-win-02`, py3.10 / py3.14, ctypes from `-01` | – | 4.6 / 3.1 s | – |  |
+| 2026-10-30 | big plan X1: Windows `test.py` on `wheel-win-02`, py3.14, **uv removed from PATH** (the CI path: `python -m venv` and pip, `PIP_INDEX_URL` public PyPI) | – | 49.0 s (install 37.0 s) | – |  |
+| 2026-10-30 | big plan X1: Linux (WSL) `build.py` | – | 271.7 s (wheel 139.3 s, ctypes 104.4 s, load about 50) | – |  |
+| 2026-10-30 | big plan X1: Linux `test.py`, py3.10 / py3.14 / `--no-ctypes` | – | 5.9 / 7.5 / 6.0 s | – |  |
+| 2026-10-30 | big plan X1: Windows: clone from WSL main repository | – | 21.2 s | – | CRLF by default; converted to LF |
+| 2026-10-30 | big plan X1: Windows: `cargo +1.93 build --release --locked` core, cold | – | 56.3 s | – | includes the crate download |
+| 2026-10-30 | big plan X1: Windows: `cargo +1.93 build --release --locked` root | – | 8.1 s | – | pdb collision warning |
+| 2026-10-30 | big plan X1: Windows: `uv pip install -e ".[pointing,beam,test,imaging]" ruff maturin` | – | 83.7 s | – | includes the extension build |
+| 2026-10-30 | big plan X1: Windows: `maturin develop --release`, warm | – | 2.1 s | – | after one failure (uv cache) |
+| 2026-10-30 | big plan X1: Windows: `pytest tests/test_core_backends.py` | – | 52.1 s | – | 10 passed, 1 skipped; includes the cargo build of core |
+| 2026-10-30 | big plan X1: Windows: full pytest | – | 414.5 s | – | 529 passed, 17 failed, 5 skipped, 3 collection errors |
+| 2026-10-30 | big plan X1: WSL → `/mnt/c` copy of the task D inputs (585 MB) | – | 116.0 s | – |  |
+| 2026-10-30 | big plan X1: Windows: task D port run / comparator | – | 2.8 s / 1.1 s | – | criteria 1–4 pass, 5 fails as frozen (path separators) |
+| 2026-10-30 | big plan X1: WSL: task D port run / comparator, same commit | – | 6.5 s / 2.1 s | – | all pass; load about 50 |
+| 2026-10-30 | big plan X1: Windows: `tools/wheel/build.py --sdist` | – | 127.4 s | – |  |
+| 2026-10-30 | big plan X1: Windows: `tools/wheel/build.py --no-ctypes` | – | 64.9 s | – |  |
+| 2026-10-30 | big plan X1: Windows: `tools/wheel/test.py`, per Python version | – | 3.1–4.6 s | – | 15.8 s on the first run (cold uv cache) |
+| 2026-10-30 | big plan X1: WSL: `tools/wheel/build.py` | – | 271.7 s | – | load about 50 |
+| 2026-10-30 | big plan X1: WSL: `tools/wheel/test.py`, per run | – | 5.9–7.5 s | – |  |
+| 2026-10-30 | big plan X1: actionlint with shellcheck | – | 11.7 s | – | 0 errors |
+| 2026-10-30 | big plan X1: WSL: `uv venv` + editable install for check-all | – | 89.3 s | – |  |
+| 2026-10-30 | big plan X1: WSL: `bash tools/check-all.sh`, first run, started before the coordinator's lock rule and without it | – | 4,709 s (78 min 29 s; pytest 4,350 s) | – | overall FAIL on `ext-build` only: `maturin develop` found no pip in the uv-created venv ("if working with a uv venv try `maturin develop --uv`"); every other step passed: root 19 and core 55 Rust tests, clippy, fmt, ruff, ruff format, diff-check, **570 passed, 1 skipped**; load 50-96 from five concurrent check-all runs. Fix of the environment, not the tree: `uv pip install pip` into `.venv` |
+| 2026-10-30 | big plan X1: WSL: `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` (coordinator's load rule), `OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`, after pip was added to `.venv` | – | lock wait 1,803 s (requested 13:25:24, acquired 13:55:27, load 80 then 22); run 229.3 s (pytest 153.6 s) | – | **overall PASS**: root 19 and core 55 Rust tests, clippy, fmt, `ext-build`, ruff, ruff format, diff-check, 570 passed and 1 skipped; the first run's FAIL was the venv. Logs in `outputs/x1-crossplatform-20261030-01/check-all/` |
