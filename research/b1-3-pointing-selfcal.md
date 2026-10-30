@@ -478,3 +478,42 @@ wall is reported per fit.
 The validation cells of the split. Any catalogue. Any CLEAN image made in
 B1-3. The B1-2 survey numbers as R's selection (R selects from its own first
 pass; Part 1 decides only the candidate families).
+
+## Amendment 1 (2026-10-31, dated and labelled; before any F2 or real-set measurement)
+
+Two implementation faults found while measuring, fixed for every arm and set
+alike. No margin, set, arm, metric or rule changes.
+
+1. **The gains were not re-solved exactly.** The protocol requires the gains
+   "re-solved exactly for the current sky and beam" with B1-2's StefCal form
+   (100 iterations, averaging 0.5, relative change 1e-8). From unit gains a
+   minority of bins need thousands of averaged iterations: on F2 (G arm,
+   first pass) a warm repeat at unchanged parameters lowered χ² by 16,936
+   with the 100-iteration cap, by 2,107 with 300, by 201 with 1,000 and by
+   15.8 with 3,000, while the sky step itself lowered it by 5,495 against a
+   predicted 5,489 (so the reduced Hessian and gradient were right). Each
+   later pass mostly continued the gain solve, and the LM objective fell
+   linearly (the failed F2 runs reached the 10-pass limit at relative
+   decreases of 5e-6). **From now on each bin's StefCal result is followed by
+   Gauss–Newton steps on that bin's gains alone** (log-amplitude and phase
+   from the gains-only normal equations, minimum norm in the phase gauge,
+   until the largest update is below 1e-10 or after 5 steps). With it the
+   warm repeat changes χ² by 0.0, at the same pass wall (29.5 s against
+   29.3 s); 2.1 polishing steps per bin on the first pass, 1.0 after.
+2. **The beam frequency of the simulations.** The fit evaluated the beam at
+   the centre of each 16-channel sub-block, the Part 1 evaluation for native
+   0.209 MHz channels. A simulated channel stands for R native channels (F2:
+   224, F3: 20), so on F2 all 16 channels (900–1650 MHz) shared one beam
+   frequency and the simulated beam was achromatic. **On the simulated sets
+   the beam is evaluated at every simulated channel's own frequency** (in the
+   simulation and in every fit); real sets keep the 16-native-channel
+   evaluation. F2 and F3 are simulated again under this rule.
+
+Bookkeeping: the F3 runs measured before this amendment
+(`b1-3-20261030-10-F3-G`, `-11-F3-ii`, `-12-F3-R`) and their simulation
+(`-06-sim-F3`) are kept and labelled superseded; the F2 runs `-13`, `-14`,
+`-15` failed in the faint-source evaluation (the fitted beams were cropped to
+the bright components' radius, a bug now fixed: the crop includes the faint
+positions) and are kept as failures with their simulation `-07-sim-F2`. The
+fixture runs (`-08-fixture`) are unaffected (no gains are solved there and
+no visibilities are predicted). Every set is measured after this amendment.

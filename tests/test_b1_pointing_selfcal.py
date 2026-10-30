@@ -574,3 +574,30 @@ def test_raster_beam_matches_the_b10_sampler(product):
         dm[:, k] -= eps
         fd = (rb(dp, np.arange(2))[0] - rb(dm, np.arange(2))[0]) / (2 * eps)
         assert np.max(np.abs(grad[..., k] - fd)) < 1e-6
+
+
+def test_polished_gains_are_the_exact_optimum():
+    """Amendment 1: StefCal (capped) then Gauss-Newton polishing reaches the
+    least-squares gains, which a long StefCal run confirms."""
+    rng = np.random.default_rng(11)
+    nant, n = 8, 200
+    a1 = rng.integers(0, nant - 1, n)
+    a2 = np.minimum(a1 + 1 + rng.integers(0, 3, n), nant - 1)
+    model = rng.normal(size=n) + 1j * rng.normal(size=n) + 3.0
+    g_true = np.exp(rng.normal(0, 0.1, nant) + 1j * rng.uniform(-np.pi, np.pi, nant))
+    data = g_true[a1] * np.conj(g_true[a2]) * model
+    data = data + 0.01 * (rng.normal(size=n) + 1j * rng.normal(size=n))
+    w = np.ones(n)
+    g, _ = ps.stefcal_warm(data, model, w, a1, a2, nant, np.ones(nant), iterations=5)
+    g, _steps = ps.polish_gains(data, model, w, a1, a2, nant, g, steps=20)
+    ref, _ = ps.stefcal_warm(
+        data, model, w, a1, a2, nant, np.ones(nant), iterations=20000, tol=1e-14
+    )
+
+    def chi2(x):
+        return np.sum(np.abs(data - x[a1] * np.conj(x[a2]) * model) ** 2)
+
+    assert chi2(g) <= chi2(ref) * (1 + 1e-12)
+    # equal up to the global phase gauge
+    ratio = g / ref
+    assert np.max(np.abs(ratio / ratio[0] - 1)) < 1e-8

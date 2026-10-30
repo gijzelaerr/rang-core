@@ -52,6 +52,9 @@ LM_REL_STOP = 1e-7
 LM_LAMBDA_MAX = 1e8
 STEFCAL_ITER = 100
 STEFCAL_TOL = 1e-8
+# Amendment 1 (2026-10-31): Gauss-Newton polishing of each bin's gains.
+POLISH_STEPS = 5
+POLISH_TOL = 1e-10
 SPLIT_SEED = 7
 
 # --------------------------------------------------------------------------
@@ -424,6 +427,38 @@ def _columns_from(y, sigma, ncom):
     return y1, y2, d
 
 
+def polish_gains(
+    data, model, weight, a1, a2, nant, g, steps=POLISH_STEPS, tol=POLISH_TOL
+):
+    """Gauss-Newton steps on one bin's diagonal gains after StefCal
+    (amendment 1): log-amplitude and phase updates from the gains-only
+    normal equations (minimum norm in the phase gauge), until the largest
+    update is below `tol` or after `steps`. Returns (g, steps taken)."""
+    g = np.array(g, complex)
+    sw = np.sqrt(weight)
+    taken = 0
+    for taken in range(1, steps + 1):
+        m = g[a1] * np.conj(g[a2]) * model * sw
+        r = data * sw - m
+        m2 = np.abs(m) ** 2
+        diag = np.bincount(a1, m2, nant) + np.bincount(a2, m2, nant)
+        off = bi._pair_sum(a1, a2, m2, nant)
+        off = off + off.T
+        h = np.zeros((2 * nant, 2 * nant))
+        h[:nant, :nant] = np.diag(diag) + off
+        h[nant:, nant:] = np.diag(diag) - off
+        cr = np.conj(m) * r
+        b = np.r_[
+            np.bincount(a1, cr.real, nant) + np.bincount(a2, cr.real, nant),
+            np.bincount(a1, cr.imag, nant) - np.bincount(a2, cr.imag, nant),
+        ]
+        delta = bi.pinv_psd(h) @ b
+        g = g * np.exp(delta[:nant] + 1j * delta[nant:])
+        if np.max(np.abs(delta)) < tol:
+            break
+    return g, taken
+
+
 def stefcal_warm(
     data, model, weight, a1, a2, nant, g0, iterations=STEFCAL_ITER, tol=STEFCAL_TOL
 ):
@@ -574,7 +609,7 @@ def _task(args):
         ncom = NCOM_SURVEY
         acc = bi.ChannelSurvey(nant, ncomp, len(ctx["scans"]), len(variants), ncom)
     else:
-        variants = [(ctx["beams"], SUB)]
+        variants = [(ctx["beams"], cfg.get("beam_width", SUB))]
         ncom = params.get("ncom", 0)
         per_antenna = params.get("per_antenna", False)
     a_sky = params.get("a", np.zeros(ncomp))
@@ -605,6 +640,7 @@ def _task(args):
     nsamp = 0
     nsolve = 0
     niter = 0
+    npolish = 0
     pred = None
     if mode == "predict":
         pred = np.zeros((len(scan["a1"]), len(chans), 2), np.complex64)
@@ -754,7 +790,19 @@ def _task(args):
                     d = scan["data"][idx, c, corr].astype(complex)
                     w = scan["weight"][idx, c, corr].astype(float) / scan["s2"][h]
                     if mode == "fit":
-                        g, it = stefcal_warm(d, m0, w, p, qq, nant, g)
+                        g, it = stefcal_warm(
+                            d,
+                            m0,
+                            w,
+                            p,
+                            qq,
+                            nant,
+                            g,
+                            params.get("stefcal_iter", STEFCAL_ITER),
+                        )
+                        if params.get("polish", True):
+                            g, ip = polish_gains(d, m0, w, p, qq, nant, g)
+                            npolish += ip
                         gains_out[ti, ci, h] = g
                         nsolve += 1
                         niter += it
@@ -815,6 +863,7 @@ def _task(args):
             samples=nsamp,
             solves=nsolve,
             stefcal_iterations=niter,
+            polish_steps=npolish,
             h=bi.lf_assemble(*mom, ncomp),
             b=bi.lf_assemble_vector(*bmom, ncomp),
             raw=raw_acc,
@@ -895,7 +944,9 @@ class Problem:
     object for floors. `nproc` single-threaded workers over (scan, block)
     tasks."""
 
-    def __init__(self, scans, sky, beams, nu0, nproc=4, average=None, extra=None):
+    def __init__(
+        self, scans, sky, beams, nu0, nproc=4, average=None, extra=None, beam_width=SUB
+    ):
         self.scans = scans
         self.sky = sky
         self.beams = beams
@@ -903,6 +954,9 @@ class Problem:
         self.nproc = nproc
         self.average = average or beams
         self.extra = extra or {}
+        # channels per beam evaluation: SUB native channels on real data, 1 on
+        # the simulations (amendment 1: a simulated channel is wide)
+        self.beam_width = beam_width
         self.nant = scans[0]["nant"]
         self.ncomp = len(sky["lm"])
         self.tasks = [
@@ -924,7 +978,11 @@ class Problem:
             base=self.sky["base"],
             beamed=self.sky.get("beamed"),
             average=self.average,
-            cfg={"nu0": self.nu0, "variants": variants or []},
+            cfg={
+                "nu0": self.nu0,
+                "variants": variants or [],
+                "beam_width": self.beam_width,
+            },
             **self.extra,
         )
 
@@ -980,7 +1038,9 @@ class Problem:
             idx.append(off + np.arange(ncom))
         return np.concatenate(idx)
 
-    def run_pass(self, state, gains, mode="fit"):
+    def run_pass(
+        self, state, gains, mode="fit", stefcal_iter=STEFCAL_ITER, polish=True
+    ):
         """One pass at `state` (a, b, delta per scan, squint, ellip,
         per_antenna, ncom). Returns the summed system in the full layout."""
         per_antenna = state["per_antenna"]
@@ -995,6 +1055,8 @@ class Problem:
                 "ellip": state["ellip"],
                 "per_antenna": per_antenna,
                 "ncom": ncom,
+                "stefcal_iter": stefcal_iter,
+                "polish": polish,
             }
             jobs.append((s, f, params, None if gains is None else gains[(s, f)], mode))
         started = time.perf_counter()
@@ -1007,7 +1069,7 @@ class Problem:
         raw = {}
         out_gains = {}
         chi2 = 0.0
-        stats = {"samples": 0, "solves": 0, "stefcal_iterations": 0}
+        stats = {"samples": 0, "solves": 0, "stefcal_iterations": 0, "polish_steps": 0}
         for r in results:
             out_gains[(r["scan"], r["block"])] = r["gains"]
             chi2 += r["chi2"]
@@ -1315,7 +1377,8 @@ def solve(problem, arm, candidates=(), log=print, max_passes=LM_MAX_PASSES):
                 }
             )
             log(
-                f"{arm} pass {passes}: accepted, objective {obj:.10g}, rel {rel:.3g}, lambda {lam:.1g}"
+                f"{arm} pass {passes}: accepted, objective {obj:.10g}, rel {rel:.3g}, lambda {lam:.1g}, "
+                f"stefcal iterations/solve {res['stats']['stefcal_iterations'] / max(res['stats']['solves'], 1):.1f}"
             )
             lam = lam / 10
             if rel <= LM_REL_STOP:
@@ -1363,6 +1426,7 @@ def solve(problem, arm, candidates=(), log=print, max_passes=LM_MAX_PASSES):
         "stefcal_iterations": int(
             sum(p["stefcal_iterations"] for p in problem.passes[-passes:])
         ),
+        "polish_steps": int(sum(p["polish_steps"] for p in problem.passes[-passes:])),
     }
 
 

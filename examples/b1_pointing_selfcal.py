@@ -51,6 +51,12 @@ RERUNS = {
     "S5": ROOT / "outputs/b1-3-20261030-04-rerun-S5",
 }
 SIM_FROM = {"F2": "S5", "F2-free": "S5", "F3": "S4"}
+# The simulations measured under amendment 1 (per-channel beam frequency).
+SIM_DIRS = {
+    "F2": "outputs/b1-3-20261030-34-sim-F2",
+    "F2-free": "outputs/b1-3-20261030-34-sim-F2",
+    "F3": "outputs/b1-3-20261030-33-sim-F3",
+}
 GROUP_CHANNELS = {"F2": 4, "F2-free": 4, "F3": 2}
 REAL_GROUP_CHANNELS = 32
 # Frozen simulation settings (Part 3).
@@ -367,6 +373,7 @@ def simulate(name, out):
         float(np.mean(freqs)),
         nproc=4,
         extra={"truth_gains": list(gains)},
+        beam_width=1,
     )
     jobs = [(s, f, {"delta": delta[s]}, None, "predict") for s, f in prob.tasks]
     t = time.perf_counter()
@@ -519,14 +526,7 @@ def fit(name, arm, out, fit_beam="antenna", nproc=4, max_passes=ps.LM_MAX_PASSES
     truth = None
     product = beam_holography.HolographyBeam(b12.HOLOGRAPHY)
     if name.startswith("F"):
-        sim_dir = (
-            ROOT
-            / {
-                "F2": "outputs/b1-3-20261030-07-sim-F2",
-                "F2-free": "outputs/b1-3-20261030-07-sim-F2",
-                "F3": "outputs/b1-3-20261030-06-sim-F3",
-            }[name]
-        )
+        sim_dir = ROOT / SIM_DIRS[name]
         scans, truth = load_sim(sim_dir, noisy=name != "F2-free")
         names = truth["antenna_names"]
         s2s = [[truth["s2"], truth["s2"]] for _ in scans]
@@ -559,7 +559,11 @@ def fit(name, arm, out, fit_beam="antenna", nproc=4, max_passes=ps.LM_MAX_PASSES
     stages["load"] = time.perf_counter() - started
     mark = time.perf_counter()
     holo = [product.antnames.index(n) for n in names]
-    radius = rerun.component_radius_deg({"lm": sky["lm"]})
+    crop_lm = sky["lm"]
+    if truth is not None and len(truth["faint"]["s0_jy"]):
+        # the faint-source fit evaluates the fitted beams at the faint positions
+        crop_lm = np.r_[crop_lm, np.asarray(truth["faint"]["lm"], float)]
+    radius = rerun.component_radius_deg({"lm": crop_lm})
     beams = ps.AntennaBeams(product, holo, mode=fit_beam, radius_deg=radius)
     elig = [ps.eligible_both(d) for d in scans]
     bins = [ps.scan_bins(d) for d in scans]
@@ -587,7 +591,15 @@ def fit(name, arm, out, fit_beam="antenna", nproc=4, max_passes=ps.LM_MAX_PASSES
     extra = {}
     if name == "F2" or name == "F2-free":
         extra["faint_sky"] = {"lm": np.asarray(truth["faint"]["lm"], float)}
-    prob = ps.Problem(prepared, psky, beams, nu0, nproc=nproc, extra=extra)
+    prob = ps.Problem(
+        prepared,
+        psky,
+        beams,
+        nu0,
+        nproc=nproc,
+        extra=extra,
+        beam_width=1 if name.startswith("F") else ps.SUB,
+    )
     stages["prepare"] = time.perf_counter() - mark
     cand, cand_from = candidates_for(name) if arm == "R" else ([], None)
     log(
@@ -774,6 +786,102 @@ def faint_fit(prob, res, truth):
 # Calls (Part 4)
 
 
+def consistency(rec):
+    """S5 self-consistency diagnostics (frozen, not in the call) from one
+    arm's per-scan offsets: per antenna and axis the chi^2/dof of the seven
+    offsets about their weighted mean in the antenna frame and, rotated to
+    the sky frame, there; and regressions of the per-scan common mode on
+    elevation and on (cos q, sin q)."""
+    from scipy import stats
+
+    delta = np.asarray(rec["delta_arcmin"], float)  # (scan, N, 2)
+    sig = np.asarray(rec["sigma_delta_arcmin"], float)
+    act = np.asarray(rec["active"], bool)
+    q = np.asarray(rec["q_mean_rad_per_scan"], float)
+    el = np.asarray(rec.get("elevation_deg_per_scan", [np.nan] * len(q)), float)
+    c, s = np.cos(q)[:, None], np.sin(q)[:, None]
+    sky = np.stack(
+        (-c * delta[..., 0] + s * delta[..., 1], s * delta[..., 0] + c * delta[..., 1]),
+        -1,
+    )
+    var = sig**2
+    var_sky = np.stack(
+        (
+            c**2 * var[..., 0] + s**2 * var[..., 1],
+            s**2 * var[..., 0] + c**2 * var[..., 1],
+        ),
+        -1,
+    )
+
+    def chi2(o, v, m):
+        out = []
+        for p in range(o.shape[1]):
+            ok = m[:, p] & (v[:, p] > 0).all(-1)
+            if ok.sum() < 3:
+                out.append(np.nan)
+                continue
+            tot = 0.0
+            for j in range(2):
+                w = 1 / v[ok, p, j]
+                mean = np.sum(w * o[ok, p, j]) / np.sum(w)
+                tot += np.sum(w * (o[ok, p, j] - mean) ** 2)
+            out.append(tot / (2 * (ok.sum() - 1)))
+        return np.array(out)
+
+    ca = chi2(delta, var, act)
+    cs = chi2(sky, var_sky, act)
+    good = np.isfinite(ca) & np.isfinite(cs)
+    out = {
+        "antennas": int(good.sum()),
+        "chi2_dof_antenna_frame_median": float(np.median(ca[good])),
+        "chi2_dof_sky_frame_median": float(np.median(cs[good])),
+        "antennas_lower_in_sky_frame": int(np.sum(cs[good] < ca[good])),
+        "chi2_dof_antenna_frame": ca.tolist(),
+        "chi2_dof_sky_frame": cs.tolist(),
+    }
+    # per-scan common mode (mean over active antennas) and its sigma
+    common, csig = [], []
+    for k in range(len(q)):
+        a = act[k]
+        common.append(delta[k, a].mean(0))
+        csig.append(np.sqrt((sig[k, a] ** 2).sum(0)) / a.sum())
+    common, csig = np.array(common), np.array(csig)
+    out["common_mode_arcmin"] = common.tolist()
+    out["common_mode_sigma_arcmin"] = csig.tolist()
+    regs = {}
+    for j, axis in enumerate(("x", "y")):
+        y = common[:, j]
+        w = 1 / np.maximum(csig[:, j], 1e-12) ** 2
+        designs = {
+            "constant": np.ones((len(q), 1)),
+            "elevation": np.stack((np.ones(len(q)), el), 1),
+            "sky_frame": np.stack((np.ones(len(q)), np.cos(q), np.sin(q)), 1),
+        }
+        res = {}
+        for name, a in designs.items():
+            if not np.all(np.isfinite(a)):
+                continue
+            sw = np.sqrt(w)
+            coef = np.linalg.lstsq(a * sw[:, None], y * sw, rcond=None)[0]
+            res[name] = {
+                "coefficients": coef.tolist(),
+                "chi2": float(np.sum(w * (y - a @ coef) ** 2)),
+                "dof": len(q) - a.shape[1],
+            }
+        c0 = res["constant"]
+        for name in ("elevation", "sky_frame"):
+            if name in res:
+                r = res[name]
+                dk = c0["dof"] - r["dof"]
+                fstat = ((c0["chi2"] - r["chi2"]) / dk) / max(
+                    r["chi2"] / r["dof"], 1e-300
+                )
+                r["f_test_p"] = float(stats.f.sf(fstat, dk, r["dof"]))
+        regs[axis] = res
+    out["common_mode_regressions"] = regs
+    return out
+
+
 def load_arm(run):
     run = Path(run)
     rec = json.loads((run / "arm.json").read_text())
@@ -923,6 +1031,9 @@ def compare(out_json, sets):
                 entry["arms"][a]["faint"] = {
                     k: v for k, v in rec["faint"].items() if k != "sources"
                 }
+                entry["arms"][a]["faint_sources"] = rec["faint"]["sources"]
+            if name in ("S5", "F2") and a in ("ii", "R"):
+                entry["arms"][a]["self_consistency"] = consistency(rec)
         calls = {}
         for base in ("ii", "G"):
             if base not in arms or "R" not in arms:
@@ -960,7 +1071,9 @@ def overall(sets):
     vs_ii = {
         s: sets[s]["calls"].get("ii")
         for s in sets
-        if s not in ("F1", "F2-free") and "ii" in sets[s]["calls"]
+        if s not in ("F1", "F2-free")
+        and not s.endswith("-average")
+        and "ii" in sets[s]["calls"]
     }
     improves = any(
         any(
@@ -1015,7 +1128,9 @@ def overall(sets):
         "per_set_vs_G": {
             s: sets[s]["calls"]["G"]["call"]
             for s in sets
-            if s not in ("F1", "F2-free") and "G" in sets[s]["calls"]
+            if s not in ("F1", "F2-free")
+            and not s.endswith("-average")
+            and "G" in sets[s]["calls"]
         },
         "F1": {b: f1.get(b, {}).get("call") for b in ("i", "ii")},
         "clauses": {
