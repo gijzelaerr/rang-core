@@ -614,3 +614,43 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P7: Windows clone / editable install / maturin develop / full pytest | native Windows, Rust 1.93 MSVC, CPython 3.14 | 7 / 64 / 67 / 153 s | – | 622 passed, 43 skipped, 0 failed |
 | 2026-10-30 | big plan P7: golden archive generation (both old backends) | 5965d37 | 19 s | – | identical bytes |
 | 2026-10-30 | big plan P7: `bash tools/check-all.sh` | branch, 664 tests | 3 min 9 s | – | PASS |
+| 2026-10-30 | big plan DF1: `git clone` ducc (GitLab) + checkout | `ducc0_0_42_0` | 4.2 s | – | read-only reference; deleted at the end |
+| 2026-10-30 | big plan DF1: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin ducc0==0.42.0` | worktree | 60.2 s | – |  |
+| 2026-10-30 | big plan DF1: `maturin develop --release --offline` | worktree | 0.5 s | – |  |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py export` | LUNO slice MS | 0.30 s | – | nvis 7,377, weight sum 129,363.328125 (study's numbers) |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py synthetic` | 4 cases | 1.6 s | – |  |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py convention` | `wide-0p3rad` | 0.42 s | – | `flip_w=True, divide_by_n=False` 9.2e-13 |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py dft-slice` | slice, 512² | 47.4 s | – | dirty and PSF |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py ducc` | synthetic, 4 ε | 0.86 s | – |  |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py ducc` | slice, 4 ε | 0.29 s | – |  |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py item0` | slice | 48.1 s | – | 680 ducc0 calls for the aliasing prediction |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py kerneldb` (first) | `gridding_kernel.cc` | 0.08 s | – | **failed**: 938 rows, the last row's `}};` not matched; fixed |
+| 2026-10-30 | big plan DF1: `oracle_ducc0.py kerneldb` | same | 0.08 s | – | 939 rows, SHA256 `0427f594…` |
+| 2026-10-30 | big plan DF1: `cargo build` standalone (first) | `df1-standalone` | 6.5 s | – | **failed**: trait bounds (13 errors); fixed |
+| 2026-10-30 | big plan DF1: `cargo test` standalone | same | 32.1 s | – | **1 failed**: wrong expected `good_size_complex` values in the test (181 → 189, 1025 → 1029); test fixed |
+| 2026-10-30 | big plan DF1: `cargo test` standalone | same | 39.5 s | – | 7 passed |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py gates` (smoke, labelled) | 2 synthetic cases | 77.7 s | – | includes a core library build; all checks pass |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py gates` | all cases | 33.6 s | – | **pass**; about 28 s was a standalone rebuild (wrapper rewrote its files each process; fixed later) |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py threads` | 1, 2, 4, 8, 16 | 141.0 s | – | identical; 26–30 s per process, the same rebuild |
+| 2026-10-30 | big plan DF1: pytest `test_core_wgridder.py` | 6 tests | 37.4 s | – | pass |
+| 2026-10-30 | big plan DF1: `cargo clippy -D warnings` standalone | same | 2.8 s | – | **failed**: 6 lints (needless range loops, `chunks_exact`, items after tests, negated comparisons); fixed |
+| 2026-10-30 | big plan DF1: `cargo clippy -D warnings`, `rustfmt --check`, `cargo test` | same | 0.3 s, –, 26.8 s | – | clean; 7 passed |
+| 2026-10-30 | big plan DF1: pytest `test_core_wgridder.py` without cargo on PATH | 6 tests | 0.7 s | – | **6 errors**: the shell lacked `~/.cargo/bin` (environment, not code); rerun below |
+| 2026-10-30 | big plan DF1: pytest `test_core_wgridder.py test_core_grid.py` | 10 tests | 23.9 s | – | pass |
+| 2026-10-30 | big plan DF1: `bench_df1.py time` smoke ×3 (labelled) | K `original` | 0.64 s / 28.5 s / 0.24 s | – | the 28.5 s was the rebuild; fixed (`_write_if_changed`), then 0.11 s per call |
+| 2026-10-30 | big plan DF1: `bench_df1.py bench` | K six arms, 1/4/16 threads, 2 repeats | 35.0 s | – | table above |
+| 2026-10-30 | big plan DF1: `bench_df1.py bench --single --epsilon 1e-4` | K six arms, 1/16 | 4.0 s | – |  |
+| 2026-10-30 | big plan DF1: `bench_df1.py bench --tile 4/16/41` | K `original` | 3.9 / 9.1 / 18.4 s | – |  |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py science` + `run_core_gridder.py` | task C, 15 jobs | 7.9 s | – | driver criteria pass |
+| 2026-10-30 | big plan DF1: `compare_core_gridder.py` (first) | C images | 0.26 s | – | **failed**: wrong candidate path (`c-run` instead of `c-run/images`); rerun 0.36 s |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py science` + `run_core_imaging.py` | task I | 8.4 s | – | exit 1: comparisons fail (reported above) |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py science` + `bench_p2_gridder.py k-replay` | task K | 0.15 s | – | **failed**: `outputs/core-k-20261030-01/fetch/result.json` no longer on the host |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py kpixels` | K six arms | 2.7 s | – |  |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py gates` / `threads` (final code) | all | 1.1 s / 2.5 s | – | all outputs identical to the first runs |
+| 2026-10-30 | big plan DF1: `bash tools/check-all.sh` (takes the host lock itself) | worktree at `d682714` plus the uncommitted examples/research edits | 283.5 s | – | **PASS**: root 23 and core 60 Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 637 passed, 3 skipped in 176.2 s; load 5–9; log `logs/check-all.log` |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py fitscheck` (post hoc) | slice uvw, w ×±100 | 12.8 s | – | `fits_image` and padded w-stacking agree to 5.3e-5, same peak pixel |
+| 2026-10-30 | big plan DF1: probes (scratch scripts, not wrapped in `time`) | wide case, single rows, border and corner pixels | seconds each | – | edge difference scales with ε; not rounding |
+| 2026-10-30 | big plan DF1: `cargo build` of a mirrored-tap prototype (scratch crate `core/target/df1-mirror`, deleted) | `wgridder.rs` copy | about 40 s (not wrapped) | – | mirrored taps change the edge difference only 1.7e-10 → 1.4e-10; not adopted |
+| 2026-10-30 | big plan DF1: `bench_df1.py bench --impls ducc,wgrid` with `OMP_NUM_THREADS` unset (post hoc) | K six arms, 1/4/16 | 6.6 s | – | ducc0 0.039 s per image at 4 threads, 0.059 s at 16 |
+| 2026-10-30 | big plan DF1: same, `--tile 41` | K `original` × 41 | 19.3 s | – | ducc0 2.35 / 0.69 / 0.38 s at 1 / 4 / 16 threads |
+| 2026-10-30 | big plan DF1: `compare_core_wgridder.py summary`; ruff check, format check, `git diff --check` on the later edits | outputs, examples | under 1 s each | – | clean; result file with repository-relative paths |

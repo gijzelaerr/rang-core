@@ -197,7 +197,12 @@ CPU-heavy tasks at a time on 8 physical cores.
 - DDFacet/killMS: feasibility done 2026-10-30 (`ddfacet-feasibility.md`):
   no faithful port. DF0 (oracle container with WSClean 3.7 and a simulated
   MeerKAT field) and DF1 (exact wgridder-algorithm gridder, first protocol)
-  can start beside the science wave; DF2 puts it into the imaging chains
+  can start beside the science wave (DF1 done 2026-10-30, `df1-wgridder.md`:
+  all gates pass; item 0 attributed to WSClean padding-1.2 aliasing; DF2 must
+  first optimise the gridding loop, 3.7–4.4× slower than ducc0 per
+  visibility, then add `gridder="wgrid"` to the imaging drivers and
+  re-tolerance the C/I/K/L1 archives against WSClean 3.7's wgridder from
+  DF0); DF2 puts it into the imaging chains
   before B1's imaging; DF3–DF5 (facets with per-facet Jones, scalar
   CohJones, Hogbom/multiscale) after B1 says what it needs; DF1b (w-towers)
   when memory binds; DF6 (facet-IDG on `wgpu`) after X2. User decisions

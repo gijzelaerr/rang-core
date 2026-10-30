@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: DF1, the [exact gridder](df1-wgridder.md): a port of ducc0's
+wgridder passing all gates; the 19 % w-stacking discrepancy is WSClean's
+padding-1.2 aliasing, not a defect.
+
 New, 2026-10-30: big plan task P7, [architecture](p7-architecture.md): no
 ctypes, no cargo at import, kernels in the extension, panic-safe C ABI, GIL
 released; a wheel-only install reproduces every archived verdict; Windows

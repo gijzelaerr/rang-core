@@ -60,3 +60,14 @@ classifier, LGPL-2.0-or-later headers) and ships no Windows wheels; IDG and
 DP3 release records are incomplete; Aegean is AFL-3.0 (GPL-incompatible per
 secondary sources); facetselfcal has no licence; the PyPI name `carta` belongs
 to an unrelated package (carta-python is not on PyPI).
+
+## From DF1 (2026-10-30; not reported by decision)
+
+- ducc0 0.42: `vis2dirty` defaults `divide_by_n=True` and the opposite w sign
+  from rang's DFT convention; the kernel and grid choice depends on the thread
+  count and SIMD width (oracles must pin `nthreads=1`); the thread pool
+  silently follows `OMP_NUM_THREADS`. No bug found.
+- WSClean: the default padding 1.2 with the 7-tap Kaiser–Bessel kernel aliases
+  sparse-array PSF sidelobes to about 20 % of the peak at the field edge
+  (four-station LUNO slice; 2.1e-5 at padding 2 with kernel 15). A note, not a
+  bug; WSClean 3.6+ defaults to the wgridder.

@@ -1,5 +1,28 @@
 # Rang research state
 
+DF1 exact gridder (big plan; [df1-wgridder.md](df1-wgridder.md)),
+2026-10-30 (implemented; measured): a Rust port of ducc0 0.42's wgridder
+(`core/src/wgridder.rs`, `ffi_wgridder.rs`, `core_wgridder.py`), f32 and f64,
+both directions, ducc0's 939-row kernel table and a thread-free kernel
+choice. All five gated criteria pass as frozen: against a float64 DFT ≤ 10 ε
+(worst 4.0e-5 at f32 1e-4, 4.1e-8 at f64 1e-7), against ducc0 ≤ ε
+(1e-12–1e-14 in f64 away from the field edge; up to 1.7e-10 in the outermost
+pixels of a 0.3 rad field, cause not identified), adjoint to 4.2e-13,
+bit-identical at 1–16 threads, kernel table and choices equal to ducc0's.
+Item 0 of the DDFacet study is attributed: the core w-stacking image's 19 %
+difference from the DFT on the LUNO slice is aliasing of WSClean's
+Kaiser–Bessel kernel at padding 1.2 (reproduced to 98.9 % by an aliasing
+prediction; 2.1e-5 at padding 2 with kernel 15) plus a pixel mis-map in the
+study's search; no defect in `grid.rs`, which reproduces WSClean faithfully,
+aliasing included. Through the exact gridder the C/I/K images move by 19–32 %
+of the peak at the edge and 0.3–0.6 % inside; task I's response fractions move
+by up to 0.036 (no sign changes); the campaigns' held-out decisions do not
+depend on the images. Cost: 0.13–0.16 s per four-station image at 16 threads
+(w-stacking 0.38–0.41 s, ducc0 0.06 s), but 3.7–4.4× slower than ducc0 per
+visibility on one thread, so whole-array use needs the gridding loop
+optimised first (DF2). The K replay could not be re-measured because the task
+K fetch copy was deleted (re-fetchable).
+
 P7 architecture (big plan wave 2), 2026-10-30 (implemented; measured;
 [p7-architecture.md](p7-architecture.md)): the ctypes path and the
 import-time cargo build are gone; the root crate's kernels (TV, projector and

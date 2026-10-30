@@ -28,6 +28,7 @@ pub mod ffi_flag;
 pub mod ffi_grid;
 pub mod ffi_ms;
 pub mod ffi_weights;
+pub mod ffi_wgridder;
 pub mod fused;
 pub mod grid;
 pub mod jones;
@@ -37,5 +38,6 @@ pub mod robust;
 pub mod solve;
 pub mod sumthreshold;
 pub mod weights;
+pub mod wgridder;
 
 pub use rang_toy as toy;
