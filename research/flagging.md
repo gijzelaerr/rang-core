@@ -4,6 +4,11 @@ Started 2026-09-23 at the user's request. This is a new MeerKAT flagging
 experiment alongside the earlier pointing work. No scientific improvement has
 yet been measured.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 Follow-up implementation and concurrent execution are now complete:
 [four-workstream diagnostic suite and measured conclusions](flagging-parallel.md),
 [Stimela2 scatter recipe](../recipes/tv-flagging-parallel.yaml).

@@ -5,6 +5,11 @@ are not established novelty. Keep the original user objective: MeerKAT L-band,
 QuartiCal full complex 2×2 gains, TV-map guidance, original Observatory flags,
 recoverable backups and Stimela2 execution.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Next discriminating work after the concurrent measurements
 
 [All five requested tracks](flagging-concurrent.md) now have measured archives.

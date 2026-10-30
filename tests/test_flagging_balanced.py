@@ -1,10 +1,7 @@
 """Frozen geometry slots, random controls and safe prepared-copy boundaries."""
 
 import json
-import shutil
-import subprocess
 from collections import Counter
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -182,43 +179,3 @@ def test_clone_rejects_nested_paths_before_mkdir(tmp_path):
     with pytest.raises(ValueError, match="must not be nested"):
         balanced._clone(source / "output", source)
     assert list(source.iterdir()) == []
-
-
-@pytest.mark.parametrize("case", ["nested", "existing_logs", "ancestor", "override"])
-def test_balanced_wrapper_fails_before_cache_logs_or_docker(tmp_path, case):
-    repository = Path(__file__).resolve().parents[1]
-    tools = tmp_path / "tools/flagging"
-    tools.mkdir(parents=True)
-    for name in ("run-balanced.sh", "preflight.py"):
-        shutil.copy2(repository / "tools/flagging" / name, tools / name)
-    source = tmp_path / "outputs/prepared"
-    source.mkdir(parents=True)
-    (source / "protected.dat").write_bytes(b"original")
-    run, prepared, extra = "outputs/prepared/new", "outputs/prepared", []
-    if case == "existing_logs":
-        run = "outputs/new"
-        (tmp_path / "outputs/new-logs").mkdir()
-    elif case == "ancestor":
-        run, prepared = "outputs/ancestor", "outputs/ancestor/child"
-        (tmp_path / prepared).mkdir(parents=True)
-    elif case == "override":
-        run, extra = "outputs/new", ["run-dir=outputs/prepared/new"]
-    before = {
-        str(path.relative_to(tmp_path)): path.read_bytes()
-        for path in tmp_path.rglob("*")
-        if path.is_file()
-    }
-    completed = subprocess.run(
-        ["bash", str(tools / "run-balanced.sh"), run, prepared, *extra],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert completed.returncode != 0
-    assert not list((tmp_path / "outputs").glob("*numba-cache"))
-    after = {
-        str(path.relative_to(tmp_path)): path.read_bytes()
-        for path in tmp_path.rglob("*")
-        if path.is_file()
-    }
-    assert before == after

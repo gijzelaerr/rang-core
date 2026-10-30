@@ -8,6 +8,11 @@ reasoning. Profiles, the inventory and the measurement scripts are in
 [results/profiles-20261030/](results/profiles-20261030/); raw run
 directories are `outputs/simplification-review-20261030-NN` (ignored).
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Summary
 
 - **The core is single-threaded and FFT-bound at four stations.** In the

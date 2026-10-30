@@ -5,6 +5,11 @@ added contamination, separately from whether the present TV-guided proposal
 policy identifies that contamination. It supplements, rather than replaces,
 the unmodified-real-data negative result in [flagging.md](flagging.md).
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Implemented controls
 
 The checksum-pinned SKA pointing fixture, scan 9, provides the same four-antenna

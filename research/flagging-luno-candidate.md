@@ -5,6 +5,11 @@ were calibrated, flagged or imaged, and no object/pickle array was decoded.
 Exact object keys, sizes and SHA256 values are in
 [meerkat-luno-candidate.json](results/meerkat-luno-candidate.json).
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Why look again
 
 The [ESO 137-006 primary calibrator](flagging-public-data.md) has 61 antennas

@@ -4,6 +4,11 @@ Created 2026-09-24 after checked pushed checkpoint `166350c`, before these new
 implementations/measurements. The user requests execution of all five tracks in
 parallel, regular checked pushes and results rather than another roadmap.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Measured progress,2026-09-24
 
 Four original branches complete under source `ec2f17d`; the fifth hits a

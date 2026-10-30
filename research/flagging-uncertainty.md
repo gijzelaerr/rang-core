@@ -6,6 +6,11 @@ estimates from actual QuartiCal solutions and not proof of an RFI classifier.
 The requested primary objective remains existing native Rust full complex
 2×2 gain TV. Detrended TV and curvature are guidance only.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 Two grids cover the same 112 s and 1070–1497.791015625 MHz interval:
 4×32 and 8×64 time/frequency bins, four antennas, fixed gain scale 1.
 All norm evaluations use `rangtoy.flagging.gain_tv`, including every complex

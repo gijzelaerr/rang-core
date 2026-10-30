@@ -3,6 +3,11 @@
 Repository: ratt-ru/QuartiCal. Status: **not filed: QuartiCal already caches; the cold cost
 came from rang's containers.** Checked 2026-10-30.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../../history/README.md); this text keeps the paths it was
+written with.
+
 - Upstream behaviour: `quartical/utils/numba.py` sets `cache: True` in `JIT_OPTIONS`
   (0.2.7 = `main` 942f77f). Without `NUMBA_CACHE_DIR`, Numba writes the cache beside the
   installed sources (`__pycache__` in site-packages) or in its user-wide fallback, so a normal

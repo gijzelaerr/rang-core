@@ -3,6 +3,11 @@
 Protocol frozen 2026-10-29 before any LUNO visibility-tile download or rank
 computation.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Decision and status
 
 On 2026-10-29 the user chose to continue with the LUNO calibrators while the

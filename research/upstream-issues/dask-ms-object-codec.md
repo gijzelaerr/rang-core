@@ -2,6 +2,11 @@
 
 Repository: ratt-ru/dask-ms. Status: **not filed: fixed upstream in 2024.** Checked 2026-10-30.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../../history/README.md); this text keeps the paths it was
+written with.
+
 - Observation (`upstream-notes.md`): the ESO137 public store's string columns use the
   numcodecs `pickle` filter, LUNO's use `json2`.
 - Latest release (dask-ms 0.2.32) and `master` (5bc1071): `daskms/experimental/zarr/__init__.py`

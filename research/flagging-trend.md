@@ -4,6 +4,11 @@ Premeasurement design2026-09-24, implementing the frozen
 [five-track plan](flagging-next-results.md). No new replay outcome is claimed at
 this checkpoint. Existing actual QuartiCal full2×2 gains are used read-only.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 The Rust kernel estimates a scalar linear phase slope per station and axis:
 median adjacent wrapped half-determinant increments divided by original native
 time/frequency distances. Only valid TRAIN-supported gain bins contribute.

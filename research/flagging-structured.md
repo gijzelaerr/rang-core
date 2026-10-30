@@ -6,6 +6,11 @@ RFI cases. Seven completed runs, 101 actual QuartiCal solves including baselines
 frozen rankings, configuration/source hashes, selections, audits and post-selection
 injection diagnostics. This is counterfactual selection, not a fitted transfer model.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Frozen matched experiment
 
 Implemented [proposal generator](../python/rangtoy/flagging_structured_proposals.py),

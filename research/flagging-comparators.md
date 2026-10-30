@@ -2,6 +2,11 @@
 
 ## Purpose and scope
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 Compare the current TV-guided policy with actual QuartiCal MAD and actual
 Tricolour SumThreshold on the same small real MeerKAT L-band pointing scan.
 This is not a representative science benchmark, clean-data ground truth, image

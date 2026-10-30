@@ -10,6 +10,11 @@ and the prospective track ([core-phase3b.md](core-phase3b.md)). A
 reimplementation; under AGENTS.md not a scientific contribution, and no
 archived result may change because of it.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Question
 
 Can the patch-removal actions stage ([flagging-actions.md](flagging-actions.md),

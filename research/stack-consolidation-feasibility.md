@@ -7,6 +7,11 @@ Measurements were taken on the WSL2 host in [STATE.md](STATE.md) (16 cores,
 study changes a scientific result; the archived results in `results/` remain
 the record.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Verdict (summary)
 
 **Partially feasible and worth doing for the inner loop; the edges come last.**

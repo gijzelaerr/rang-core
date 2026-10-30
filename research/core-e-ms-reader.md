@@ -11,6 +11,11 @@ hot path. Gate as frozen there: column-exact reads of the fixture and LUNO
 MSs. A reimplementation of a file format; under AGENTS.md not a scientific
 contribution, and no archived result changes because of it.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Storage-manager inventory (measured 2026-10-29)
 
 Read with python-casacore 3.8.1 `getdminfo` in `rang-flagging:local`

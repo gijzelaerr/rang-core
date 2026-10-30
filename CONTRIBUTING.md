@@ -40,7 +40,8 @@ bytes).
 Supported hosts are Linux and macOS. Native Windows is not supported: the
 fresh-namespace, symlink and disk-budget guards rely on POSIX semantics, and 40
 tests fail there for that reason alone. On Windows, use a WSL2 Linux checkout on
-the Linux filesystem (not `/mnt/c`) with Docker inside WSL. Use Rust 1.93, which
+the Linux filesystem (not `/mnt/c`), with Docker inside WSL only to re-run the
+frozen campaigns in `history/` (`history/README.md`). Use Rust 1.93, which
 matches the container kernel stage, so the Rust sources recorded in the result
 receipts remain unchanged: `cargo +1.93 ...` with the commands above. Newer
 Clippy releases add lints that would otherwise require kernel edits.

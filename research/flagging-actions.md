@@ -3,6 +3,11 @@
 Implemented and measured 2026-09-23. Baseline code revision `35e763b`;
 this follow-up is diagnostic, not an established calibration improvement.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 Use the same real MeerKAT L-band SKA scan 9, original flags, seed-7 visibility
 splits, approximate unpolarized phase-centre model, native weights and QuartiCal
 complex 2x2 grid (two integrations x 32 channels, 50 iterations).
