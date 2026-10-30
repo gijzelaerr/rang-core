@@ -473,10 +473,21 @@ impl Record {
             dtype,
             sub: (dtype == tp::RECORD).then(RecordDesc::default),
             shape,
-            table_desc: None,
+            // A table field names its (empty) table description.
+            table_desc: (dtype == tp::TABLE).then(String::new),
             comment: String::new(),
         });
         self.values.push(encoded);
+        Ok(())
+    }
+
+    /// Set the comment of field `name` (`RecordDesc` field comments, such
+    /// as the one of `MS_VERSION`).
+    pub fn set_comment(&mut self, name: &str, comment: &str) -> Result<()> {
+        let i = self
+            .field(name)
+            .ok_or_else(|| MsError(format!("keyword {name} does not exist")))?;
+        self.desc.fields[i].comment = comment.to_string();
         Ok(())
     }
 
@@ -518,6 +529,9 @@ pub enum KeywordValue {
     StringArray(Vec<i64>, Vec<String>),
     /// An empty sub-record.
     Record,
+    /// A table (a subtable link): the name as casacore stores it,
+    /// relative to the parent table (`././ANTENNA`) or absolute.
+    Table(String),
 }
 
 impl KeywordValue {
@@ -587,6 +601,11 @@ impl KeywordValue {
                 )
             }
             KeywordValue::Record => (tp::RECORD, None, Value::Record(Box::default())),
+            KeywordValue::Table(name) => {
+                let mut w = Writer::new(true);
+                w.string(name);
+                (tp::TABLE, None, Value::Raw(w.buf))
+            }
         })
     }
 }
