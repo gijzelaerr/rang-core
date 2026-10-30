@@ -101,4 +101,27 @@ tolerance, at every thread count.
 
 ## Baseline (measured before any kernel change)
 
-Filled in by the baseline commit.
+2026-10-30 09:00–09:01 SAST, load 3.8–6.4 (quiet for this host), base
+library `librang_core-base-43dc3c7.so` (ctypes) and the extension built
+from the same commit. Runs `outputs/p1-solver-20261030-02` to `-07`
+(`-06` unused).
+
+| Run | Result | Wall | Peak RSS |
+| --- | --- | ---: | ---: |
+| `bench_core_f.py check --target all` (`-02`, `RAYON_NUM_THREADS=1`) | all 8 checks pass (solver bit-identical on LUNO and fixture, QuartiCal, convergence, blosc oracle and rows, survey) | 36.0 s | 827 MB |
+| `validate_core_phase2.py` (`-03`) | all 12 criteria pass | 1.96 s | 116 MB |
+| `validate_core_phase2.py --cost` | solve 0.255 s, fused 0.024 s, 50 iterations, 96.5 MB | 0.40 s | 97 MB |
+| `validate_core_phase1.py` (`-04`) | `all_passed_with_posthoc_4b` true (criterion 4 fails as frozen, as archived) | 1.02 s | 383 MB |
+| `precondition_luno_campaign.py` (`-05-precondition`) | all checks pass, χ² 0.26823507037914956 | 2.34 s | 144 MB |
+| `bench_p1_solver.py sweep`, base, one thread, 3 rounds × 5 repeats (`-07`) | all hashes equal across rounds | 8.3 s | 204 MB |
+
+Kernel times from the sweep (minimum / median over 15 calls, one thread):
+
+| Input | Solve wall s | Solve CPU s (min) | Fused wall s |
+| --- | ---: | ---: | ---: |
+| LUNO (192 × 2,048, 16 × 64 intervals) | 0.2462 / 0.2581 | 0.2462 | 0.0185 / 0.0209 |
+| Fixture (140 × 4,096, 7 × 128 intervals) | 0.1698 / 0.1755 | 0.1698 | 0.0245 / 0.0257 |
+
+`perf stat -e instructions:u,cycles:u` of one `bench_p1_solver.py run
+--repeats 3` at one thread, base library: 28.717 G and 28.718 G
+instructions, 8.25 G and 8.18 G cycles (two runs).
