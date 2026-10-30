@@ -227,7 +227,9 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
 ):
     result, oracle = _trend_pair(tmp_path)
     out = tmp_path / "compare.json"
-    verdict = core_cli.main(["trend", "compare", str(result), str(oracle), str(out)])
+    verdict = core_cli.dispatch(
+        ["trend", "compare", str(result), str(oracle), str(out)]
+    )
     printed = json.loads(capsys.readouterr().out)
     assert printed["passed"] is True and printed["classes"]["float"]["compared"] == 1
     assert verdict["passed"] is True and verdict["exit"] == 0
@@ -332,7 +334,7 @@ def test_archive_is_an_oracle_for_the_comparators(tmp_path):
     )
     with pytest.raises(SystemExit):  # never overwritten
         core_cli.main(["--no-receipt", "trend", "archive", str(run_dir), str(archive)])
-    verdict = core_cli.main(
+    verdict = core_cli.dispatch(
         [
             "--no-receipt",
             "trend",
@@ -406,8 +408,12 @@ def test_stage_table_names_existing_drivers_and_engine_comparators():
             elif spec["kind"] == "engine":
                 assert spec["name"] in core_compare.COMPARATORS, (stage, verb)
     wrappers = sorted(p.stem for p in (ROOT / "examples").glob("compare_core_*.py"))
-    assert wrappers == sorted(f"compare_core_{n}" for n in core_compare.COMPARATORS)
-    for wrapper in wrappers:
+    # Comparators merged after P9's branch point that are not on the engine
+    # yet (research/p9-cli.md, "For the coordinator"); each stays a script.
+    pending = {"compare_core_wgridder"}
+    engine = sorted(f"compare_core_{n}" for n in core_compare.COMPARATORS)
+    assert sorted(set(wrappers) - pending) == engine
+    for wrapper in sorted(set(wrappers) - pending):
         text = (ROOT / "examples" / f"{wrapper}.py").read_text()
         assert f'sys.exit(main("{wrapper.removeprefix("compare_core_")}"))' in text
     assert "check" in core_cli.TOP_LEVEL and "environment" in core_cli.TOP_LEVEL

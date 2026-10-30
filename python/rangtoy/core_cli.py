@@ -1048,6 +1048,14 @@ def _legacy_compare(argv, options, pinned):
 
 
 def main(argv=None):
+    """The `rang-core` console script: 0, or SystemExit with the status."""
+    dispatch(argv)
+    return 0
+
+
+def dispatch(argv=None):
+    """Run one command line; return what the command returned (a stage
+    function's summary or record, a comparator's verdict)."""
     argv = list(sys.argv[1:] if argv is None else argv)
     options = _global_options(argv)
     # Before NumPy: nothing above imports it.
@@ -1135,4 +1143,4 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
