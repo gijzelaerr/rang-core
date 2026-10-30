@@ -1351,7 +1351,71 @@ def step_kms(run):
     return write_json(run, "kms", result, started)
 
 
-STEPS = {"ct": step_ct, "qc": step_qc, "sky": step_sky, "h5": step_h5, "kms": step_kms}
+# ---------------------------------------------------------------------------
+# F6: CASA flag versions.
+
+
+def step_fv(run):
+    from rang.formats import flagversions
+
+    started = time.perf_counter()
+    run = Path(run)
+    d = run / "fv"
+    if d.exists():
+        shutil.rmtree(d)
+    d.mkdir(parents=True)
+    ms = d / "core.ms"
+    shutil.copytree(casa_ms(), ms)
+    original = ms_columns(ms, ("FLAG", "FLAG_ROW"))
+    rng = np.random.default_rng(SEED)
+    flag = rng.random(original["FLAG"].shape) < 0.3
+    flag_row = rng.random(original["FLAG_ROW"].shape) < 0.1
+    start = time.perf_counter()
+    flagversions.save(ms, "rang_dfio", "DF-IO seeded flags", flag, flag_row)
+    save_s = time.perf_counter() - start
+    py = "/opt/casa/bin/python -I /ex/oracle_formats.py"
+    docker(
+        CASA_IMAGE,
+        [
+            "sh",
+            "-c",
+            f"{py} casa-flagversions /run/fv/core.ms list x && {py} casa-flagversions /run/fv/core.ms restore rang_dfio",
+        ],
+        mounts(run),
+        "casa flagmanager list and restore",
+    )
+    after = ms_columns(ms, ("FLAG", "FLAG_ROW"))
+    listed = json.loads((Path(str(ms) + ".list.json")).read_text())
+    res = {
+        "FV": {
+            "restored_FLAG_bit_exact": bool(e4.same_array(after["FLAG"], flag)),
+            "restored_FLAG_ROW_bit_exact": bool(
+                e4.same_array(after["FLAG_ROW"], flag_row)
+            ),
+            "flags_changed_by_restore": bool(
+                not np.array_equal(after["FLAG"], original["FLAG"])
+            ),
+            "list_result": str(listed.get("result"))[:600],
+            "save_s": save_s,
+        }
+    }
+    res["FV"]["pass"] = (
+        res["FV"]["restored_FLAG_bit_exact"]
+        and res["FV"]["restored_FLAG_ROW_bit_exact"]
+    )
+    shutil.rmtree(ms)  # the MS copy (61 MB); the JSON keeps the verdict
+    result = {**res, "verdicts": {k: v["pass"] for k, v in res.items()}}
+    return write_json(run, "fv", result, started)
+
+
+STEPS = {
+    "ct": step_ct,
+    "qc": step_qc,
+    "sky": step_sky,
+    "h5": step_h5,
+    "kms": step_kms,
+    "fv": step_fv,
+}
 
 
 def main(argv):
