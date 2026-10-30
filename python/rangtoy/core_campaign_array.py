@@ -925,6 +925,126 @@ def image_arm(state, extra, solve, out_dir, label, image, groups, boxes=None):
     return metrics, products
 
 
+def valid_prediction(state, gain_valid, time_map, freq_map):
+    """Samples whose two station gains are valid (the fused pass predicts them)."""
+    p, q = state["antenna1"], state["antenna2"]
+    t, f = time_map[:, None], freq_map[None]
+    return gain_valid[t, f, p[:, None]] & gain_valid[t, f, q[:, None]]
+
+
+def restricted_losses(state, solve, masks):
+    """Fused-pass losses of `solve`'s gains on the given sample masks."""
+    time_map, freq_map, _, _ = gain_grid(state, *core_campaign.GRID)
+    fused = core.fused_pass(
+        state["data"],
+        state["weights"],
+        state["antenna1"],
+        state["antenna2"],
+        time_map,
+        freq_map,
+        solve["diagnostics"]["gains"],
+        solve["diagnostics"]["gain_valid"],
+        core.split_labels(**masks),
+        model=state["model"],
+        residuals=False,
+        scores=False,
+        normals=False,
+    )
+    losses = fused.losses()
+    return {
+        name: {
+            "loss": losses[name],
+            "cells": fused.split_stats[name]["cells"],
+            "invalid": fused.split_stats[name]["invalid"],
+        }
+        for name in masks
+    }
+
+
+AMENDMENT_PAIRS = (
+    ("tv-policy", "tricolour-firstpass"),
+    ("tv-policy", "original"),
+    ("tricolour-firstpass+tv", "tricolour-firstpass"),
+    ("tricolour-firstpass+tv-a1", "tricolour-firstpass"),
+)
+
+
+def matched_calls(state, solves, arms):
+    """Amendment 1: every arm's losses on its validly predicted samples, and
+    each pair's call on the held-out samples both arms predict."""
+    time_map, freq_map, _, _ = gain_grid(state, *core_campaign.GRID)
+    ok = {
+        label: valid_prediction(
+            state, solve["diagnostics"]["gain_valid"], time_map, freq_map
+        )
+        for label, solve in solves.items()
+        if solve is not None
+    }
+    per_arm = {
+        label: restricted_losses(
+            state,
+            solves[label],
+            {
+                "train": state["train"] & mask,
+                "validation": state["validation"] & mask,
+                "test": state["test"] & mask,
+            },
+        )
+        for label, mask in ok.items()
+    }
+    pairs = []
+    for candidate, reference in AMENDMENT_PAIRS:
+        if candidate not in ok or reference not in ok:
+            pairs.append(
+                {
+                    "candidate": candidate,
+                    "reference": reference,
+                    "mse_test": {"ratio": None, "call": "undecidable"},
+                    "residual_rms": {"ratio": None, "call": "undecidable"},
+                    "mse_validation": {"ratio": None, "call": "undecidable"},
+                }
+            )
+            continue
+        both = ok[candidate] & ok[reference]
+        masks = {"validation": state["validation"] & both, "test": state["test"] & both}
+        lc = restricted_losses(state, solves[candidate], masks)
+        lr = restricted_losses(state, solves[reference], masks)
+        pairs.append(
+            {
+                "candidate": candidate,
+                "reference": reference,
+                "matched_test_cells": lc["test"]["cells"],
+                "dropped_test_cells": int(np.count_nonzero(state["test"] & ~both)),
+                "matched_validation_cells": lc["validation"]["cells"],
+                "losses": {"candidate": lc, "reference": lr},
+                "mse_test": call(lc["test"]["loss"], lr["test"]["loss"]),
+                "mse_validation": call(
+                    lc["validation"]["loss"], lr["validation"]["loss"]
+                ),
+                "residual_rms": call(
+                    (arms.get(candidate) or {}).get("image", {}).get("residual_rms"),
+                    (arms.get(reference) or {}).get("image", {}).get("residual_rms"),
+                ),
+            }
+        )
+    return {"arm_losses_valid_only": per_arm, "pairs": pairs}
+
+
+def available_hypothesis(arms, candidate, reference):
+    """K's `hypothesis`, undecidable when an arm is unavailable."""
+    if arms.get(candidate) is None or arms.get(reference) is None:
+        undecidable = {"ratio": None, "call": "undecidable"}
+        return {
+            "candidate": candidate,
+            "reference": reference,
+            "mse_test": undecidable,
+            "residual_rms": undecidable,
+            "mse_validation": undecidable,
+            "additions": None,
+        }
+    return hypothesis(arms, candidate, reference)
+
+
 # --- the campaign ------------------------------------------------------------
 
 
@@ -1002,16 +1122,21 @@ def run(
         solves[arm_label] = strip(solve)
         if firstpass:
             firstpass_base = solve
+    unavailable = {}
     mark = stages.start()
-    trials, best, unguided = tv_loop(state, original, scale0, "tv")
+    try:
+        trials, best, unguided = tv_loop(state, original, scale0, "tv")
+    except RuntimeError as error:  # no validation loss or TV support on the base
+        trials, best, unguided = [{"error": str(error)}], None, None
+        unavailable["tv-policy"] = str(error)
     stages.stop("tv_loop", mark)
     del original
     candidates["tv-policy"] = trials
-    solves["tv-policy"] = {
-        **strip(best["solve"]),
-        "label": "tv-policy",
-        "policy": best["policy"],
-    }
+    solves["tv-policy"] = (
+        {**strip(best["solve"]), "label": "tv-policy", "policy": best["policy"]}
+        if best is not None
+        else None
+    )
     solves["tv-unguided-best"] = (
         {
             **strip(unguided["solve"]),
@@ -1022,15 +1147,67 @@ def run(
         else None
     )
     mark = stages.start()
-    trials2, best2, _ = tv_loop(state, firstpass_base, scale0, "firstpass-tv")
+    try:
+        trials2, best2, _ = tv_loop(state, firstpass_base, scale0, "firstpass-tv")
+    except RuntimeError as error:
+        trials2, best2 = [{"error": str(error)}], None
+        unavailable["tricolour-firstpass+tv"] = str(error)
     stages.stop("tv_loop_firstpass", mark)
     del firstpass_base
     candidates["tricolour-firstpass+tv"] = trials2
-    solves["tricolour-firstpass+tv"] = {
-        **strip(best2["solve"]),
-        "label": "tricolour-firstpass+tv",
-        "policy": best2["policy"],
-    }
+    solves["tricolour-firstpass+tv"] = (
+        {
+            **strip(best2["solve"]),
+            "label": "tricolour-firstpass+tv",
+            "policy": best2["policy"],
+        }
+        if best2 is not None
+        else None
+    )
+    # Amendment 1: the first-pass loop on the validation samples its base
+    # predicts; a candidate that loses any of them is inadmissible.
+    mark = stages.start()
+    amendment_loop = None
+    if solves.get("tricolour-firstpass") is not None:
+        time_map, freq_map, _, _ = gain_grid(state, *core_campaign.GRID)
+        fp = solves["tricolour-firstpass"]
+        ok_fp = valid_prediction(
+            state, fp["diagnostics"]["gain_valid"], time_map, freq_map
+        )
+        state_m = {**state, "validation": state["validation"] & ok_fp}
+        base_m = solve_arm(
+            state_m, fp["added"], "tricolour-firstpass", scale=scale0, features=True
+        )
+        amendment_loop = {
+            "validation_samples": int(np.count_nonzero(state_m["validation"])),
+            "dropped_validation_samples": int(
+                np.count_nonzero(state["validation"] & ~ok_fp)
+            ),
+            "base_gains_equal_firstpass": bool(
+                np.array_equal(
+                    base_m["diagnostics"]["gains"], fp["diagnostics"]["gains"]
+                )
+            ),
+            "base_losses": base_m["metrics"]["losses"],
+        }
+        del ok_fp
+        try:
+            trials3, best3, _ = tv_loop(state_m, base_m, scale0, "firstpass-tv-a1")
+        except RuntimeError as error:
+            trials3, best3 = [{"error": str(error)}], None
+            unavailable["tricolour-firstpass+tv-a1"] = str(error)
+        del base_m, state_m
+        candidates["tricolour-firstpass+tv-a1"] = trials3
+        solves["tricolour-firstpass+tv-a1"] = (
+            {
+                **strip(best3["solve"]),
+                "label": "tricolour-firstpass+tv-a1",
+                "policy": best3["policy"],
+            }
+            if best3 is not None
+            else None
+        )
+    stages.stop("tv_loop_firstpass_a1", mark)
     # 5. Images; the boxes come from the `original` PSF (array mode).
     base_edges = solves["original"]["tv"]["edges"]
     boxes = None
@@ -1133,11 +1310,16 @@ def run(
             gains=solve["diagnostics"]["gains"],
             gain_valid=solve["diagnostics"]["gain_valid"],
         )
+    # Amendment 1: matched-sample calls.
+    mark = stages.start()
+    amendment = matched_calls(state, solves, arms)
+    amendment["firstpass_loop"] = amendment_loop
+    stages.stop("amendment_1_calls", mark)
     # 6. Hypotheses and the cost clause.
     hypotheses = [
-        hypothesis(arms, "tv-policy", "tricolour-firstpass"),
-        hypothesis(arms, "tv-policy", "original"),
-        hypothesis(arms, "tricolour-firstpass+tv", "tricolour-firstpass"),
+        available_hypothesis(arms, "tv-policy", "tricolour-firstpass"),
+        available_hypothesis(arms, "tv-policy", "original"),
+        available_hypothesis(arms, "tricolour-firstpass+tv", "tricolour-firstpass"),
     ]
     rec = stages.records
     tv_chain = rec["solve_original"]["seconds"] + rec["tv_loop"]["seconds"]
@@ -1186,8 +1368,10 @@ def run(
         "split": {"seed": core_campaign.SPLIT_SEED, "counts": split_counts},
         "tricolour": tricolour,
         "arms": arms,
+        "unavailable": unavailable,
         "boxes": boxes,
         "group_comparison": group_comparison,
+        "amendment_1": amendment,
         "hypotheses": hypotheses,
         "cost_clause": cost,
         "stages": rec,
@@ -1507,16 +1691,25 @@ def check(run_dir, precondition_dir, check_dir):
             for k, t in result["tricolour"].items()
         },
     }
+
     # 6. Hypotheses (pass means decidable), recomputed from the arm numbers.
+    def arm_value(label, *path):
+        value = arms.get(label)
+        for key in path:
+            if value is None:
+                return None
+            value = value[key]
+        return value
+
     recomputed = [
         {
             "mse_test": call(
-                arms[h["candidate"]]["metrics"]["losses"]["test"],
-                arms[h["reference"]]["metrics"]["losses"]["test"],
+                arm_value(h["candidate"], "metrics", "losses", "test"),
+                arm_value(h["reference"], "metrics", "losses", "test"),
             ),
             "residual_rms": call(
-                arms[h["candidate"]]["image"]["residual_rms"],
-                arms[h["reference"]]["image"]["residual_rms"],
+                arm_value(h["candidate"], "image", "residual_rms"),
+                arm_value(h["reference"], "image", "residual_rms"),
             ),
         }
         for h in result["hypotheses"]
@@ -1536,7 +1729,8 @@ def check(run_dir, precondition_dir, check_dir):
             "residual_rms": result["hypotheses"][0]["residual_rms"],
             "cost_comparable": result["cost_clause"]["comparable"],
             "cost_ratio": result["cost_clause"]["ratio"],
-            "tv_policy_selected": arms["tv-policy"]["policy"],
+            "tv_policy_selected": arm_value("tv-policy", "policy"),
+            "unavailable": result.get("unavailable"),
         },
     }
     # 7. Outputs.

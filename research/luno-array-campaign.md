@@ -391,3 +391,65 @@ loop. The whole run may take an hour.
   case.
 
 No Rust and no shared file is edited.
+
+## Amendment 1 (after the labelled smoke, before the frozen array run)
+
+Committed 2026-10-30 after the labelled smoke on stations 0–11 and before the
+frozen array run. Nothing else was tuned: pixel, image size, channel groups,
+boxes, the split, the solver, the policy and the ±1 % band are unchanged.
+The primary rule, criterion 4 and criterion 6 stay **exactly** as frozen, and
+the frozen run reports them as they come out.
+
+**What the smoke showed.** Smoke `-00-smoke-b` covered 66 baselines, 2,112
+rows and 1,088,081 training samples. The `tricolour-firstpass` arm had
+invalid predictions on 10 validation, 30 test and 183 training samples, so
+all three of its frozen losses are unavailable.
+
+The mechanism was checked sample by sample. The first pass flags *every*
+training sample of stations 4 and 5 in gain frequency bin 9 (11–21 samples
+per time bin), so the solver flags those station-bins. In the `original`
+arm the same station-bins are valid. The held-out samples in those bins
+cannot then be predicted.
+
+This follows from the frozen design (holdout split before flagging; invalid
+predictions make a loss unavailable), not from a driver bug. K's
+bit-identical replay shows the driver mirrors K. Two consequences:
+
+- the headline MSE call is undecidable;
+- the frozen `tricolour-firstpass+tv` loop cannot start, because its base
+  has no validation loss.
+
+With 1,378 baselines the same is expected. The smoke also turned a crash in
+that loop into the "unavailable" record criterion 4 asks for; that is a bug
+fix.
+
+**Added, secondary and pre-registered:**
+
+1. **Matched-sample calls.** For each pair, take the held-out samples that
+   *both* arms predict validly. MSE_test and MSE_val on those samples come
+   from the fused pass, with the split labels restricted to them, and get
+   the same ±1 % three-way call. The pairs are the three frozen pairs plus
+   (`tricolour-firstpass+tv-a1`, `tricolour-firstpass`). The residual-RMS
+   call is unchanged.
+   - Every arm's train χ², validation and test losses on its own validly
+     predicted samples are reported too.
+   - A unit test checks that with no invalid prediction the matched loss
+     equals the primary loss bit for bit.
+2. **`tricolour-firstpass+tv-a1`.** The first-pass loop with its validation
+   set fixed to the validation samples the first-pass base predicts validly.
+   - The base is re-solved on that set: same flags, same gains, which is
+     recorded.
+   - MSE_val0 and every candidate's MSE_val are measured on that set.
+   - A candidate that leaves any of those samples unpredicted has no
+     validation loss and is inadmissible, like a loss of fixed TV support.
+   - Everything else is the frozen loop.
+   - It is imaged like any arm. The frozen `tricolour-firstpass+tv` is still
+     attempted and reported as unavailable if its base has no validation
+     loss.
+3. **Reporting.** The headline is reported as "primary: <call or
+   undecidable>; amendment 1, matched samples: <call>", with the number of
+   dropped held-out samples. The `tv-policy` loop is unchanged; its base had
+   no invalid prediction.
+
+The precondition is rerun with the amended code into a fresh directory
+before the frozen run (`-00-precondition-b`). The frozen run points at it.

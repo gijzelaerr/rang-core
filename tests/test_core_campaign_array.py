@@ -225,3 +225,39 @@ def test_psf_fwhm_and_boxes_on_a_gaussian():
     assert metrics["residual_rms"] < 1e-12
     assert metrics["flux_recovery"] == pytest.approx(0.5)
     assert metrics["psf_max_sidelobe"] < 1e-3
+
+
+def test_matched_losses_equal_primary_losses_without_invalid_predictions():
+    arrays, extra = _synthetic()
+    state = array.build_state(arrays, extra, nant=4)
+    solve = array.solve_arm(state, np.zeros_like(state["train"]), "original")
+    assert all(v == 0 for v in solve["metrics"]["invalid_predictions"].values())
+    out = array.matched_calls(state, {"original": solve, "tv-policy": solve}, {})
+    per_arm = out["arm_losses_valid_only"]["original"]
+    for split, loss in solve["metrics"]["losses"].items():
+        assert per_arm[split]["loss"] == loss
+    pair = out["pairs"][1]
+    assert pair["candidate"] == "tv-policy" and pair["dropped_test_cells"] == 0
+    assert (
+        pair["losses"]["candidate"]["test"]["loss"]
+        == solve["metrics"]["losses"]["test"]
+    )
+
+
+def test_matched_calls_drop_samples_of_invalid_gains():
+    arrays, extra = _synthetic()
+    state = array.build_state(arrays, extra, nant=4)
+    solve = array.solve_arm(state, np.zeros_like(state["train"]), "original")
+    broken = {
+        **solve,
+        "diagnostics": {
+            "gains": solve["diagnostics"]["gains"],
+            "gain_valid": solve["diagnostics"]["gain_valid"].copy(),
+        },
+    }
+    broken["diagnostics"]["gain_valid"][0, 1, 2] = False
+    out = array.matched_calls(state, {"original": solve, "tv-policy": broken}, {})
+    pair = out["pairs"][1]
+    assert pair["dropped_test_cells"] > 0
+    assert pair["losses"]["candidate"]["test"]["invalid"] == 0
+    assert pair["mse_test"]["call"] == "null"
