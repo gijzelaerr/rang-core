@@ -174,6 +174,10 @@ items below are open. Results are provisional; see the
 - **Native data.** Whether `DATA` itself is the raw 4,096-channel, roughly 8 s
   correlator output is not established. Native weights and flags would come from
   the SARAO archive (schedule block 20210818-0008), not from these stores.
+- **Campaign on the core (2026-10-30).** The first gain-TV-guided flagging
+  campaign ran on the four-station slice entirely on the core
+  ([core-k-luno-campaign.md](core-k-luno-campaign.md)) with a null result.
+  Its results wait on the licence confirmation like everything above.
 - **Gain-bin support.** Measure TRAIN identifiability on the 1934−638 and
   1830−211 scans before freezing any protocol, as in the
   [gain-support survey](flagging-next-gain-support.md). This is only worth doing

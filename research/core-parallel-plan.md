@@ -2,9 +2,9 @@
 
 Written 2026-10-30 as the handoff before clearing the coordinating session.
 Status: **wave 1 and wave 2 tasks I and J merged** 2026-10-29 (outcomes in
-STATE.md and `core-<slug>.md`); **K started 2026-10-30** (user decision) on
-branch `core/k-luno-campaign` with the SARAO licence confirmation recorded as
-an open precondition; the observer's chat permission stands. Read
+STATE.md and `core-<slug>.md`); **K merged 2026-10-30** (null result, provisional
+while the SARAO licence confirmation is open; `core-k-luno-campaign.md`). All
+planned tasks are done. Read
 this, [STATE.md](STATE.md) and [stack-consolidation-feasibility.md](stack-consolidation-feasibility.md)
 section 9 first.
 
@@ -80,7 +80,7 @@ section 9 first.
   own protocol and the licence answer from SARAO or the observer). Started
   2026-10-30 in `~/Worktrees/rang/core-k-luno-campaign` with the observer's
   permission as the licence basis and SARAO's written confirmation open;
-  protocol and results in `core-k-luno-campaign.md` when merged.
+  protocol and results in `core-k-luno-campaign.md`: done, null result.
 
 ## Coordinator
 

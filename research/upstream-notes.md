@@ -144,3 +144,16 @@ for the measurements. None of these has been sent anywhere.
   NumPy's OpenBLAS pool keeps eight spinning threads during the core's
   single-threaded work (17–18 % of perf samples); `OPENBLAS_NUM_THREADS=1` in
   the drivers would free them. Both are rang-side items, not upstream.
+
+## Task K observations (2026-10-30; observed, not raised)
+
+- QuartiCal `complex` term on the four-station LUNO solve: the 50-iteration
+  cap is reached with 98.3 % of intervals converged, in QuartiCal and in the
+  port alike, on real data as on the fixture. A convergence-criterion note
+  for sparse arrays may be worth raising once more data are solved.
+- CARACAL first-pass strategy on a 2048-channel sub-band that is already
+  70 % flagged: `uvcontsub_flagger` drops the running flags to 39 % (as
+  designed, `or_original_from_cycle: 1`), the static masks and SumThreshold
+  rebuild them to 66 %, and `combine_with_input_flags` restores the input;
+  166 new cells in all. Nothing wrong, but worth knowing when reading its
+  logs on pre-flagged calibrator data.

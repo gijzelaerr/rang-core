@@ -1,13 +1,30 @@
 # Rang research state
 
-Core task K started, 2026-10-30 (proposed; running). The user chose to
-start the first real-data LUNO campaign on the core without waiting for
-SARAO's written licence confirmation. The licence basis is the observer's chat
-permission of 2026-10-29 15:36 SAST; SARAO confirmation and the exact data
-usage acknowledgement text stay open preconditions, results are provisional and
-no visibilities are redistributed. K must freeze its own protocol first
-(`core-k-luno-campaign.md` on branch `core/k-luno-campaign`); nothing is
-measured yet.
+Core task K (wave 2), 2026-10-30 (implemented; measured; provisional). The
+first real-data campaign on the LUNO PKS 1934−638 four-station slice ran
+entirely on the core (`rangtoy.core_campaign`): range fetch (752.8 MB, 74.2 s,
+every byte hash-equal to task G's archive), Rust decode (0.36 s), the frozen
+seed-7 split, six arms solved with the core's QuartiCal port (0.32 s each), the
+Tricolour first-pass and mild strategies ported in task D (1.55 s and 0.89 s),
+the frozen TV policy loop (1.7 s) and corrected-data Briggs dirty images
+(3.9 s each); 110 s and 461 MB in all, criteria 1–7 pass as frozen after the
+section 6 precondition reproduced the archives. Outcome: a null result by the
+pre-registered rule on every pair. The TV policy selects no flag (each of the
+six candidates raises the fixed-support TV and the validation MSE); the
+first-pass strategy adds 128 of 94,047 training cells to a slice already
+70.10 % flagged and moves the held-out test MSE by 6e-5 relative and the
+point-source residual RMS by 4e-5; dirty peak 14.925 Jy/beam against the
+14.940 model in every arm; cost comparable (TV chain 2.00 s against 1.54 s,
+ratio 1.30). Labelled post-hoc: one checker-only path fix after the first
+check call failed; the run is untouched. Caveats: SARAO's written licence
+confirmation is pending (observer permission in chat 2026-10-29 15:36 SAST;
+no visibilities redistributed); WEIGHT_SPECTRUM is a QuartiCal product and the
+1934−638 model origin is unlogged, so every χ² and MSE is conditional; four
+stations make the dirty image sidelobe-dominated (the frozen 9×9 PSF box sits
+inside the main lobe); PKS 1830−211 was not run. Archive
+`results/core-k-luno-campaign.json` (`core-k-luno-campaign.md`). Next: a
+whole-array run and the native-flag run once the observer's data arrive;
+1830−211 needs a model decision.
 
 Core task J (wave 2), 2026-10-29 (implemented; measured; criteria 1–7 pass
 as frozen). The core is packaged as the PyO3 extension `rangtoy._core`

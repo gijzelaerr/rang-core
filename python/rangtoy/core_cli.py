@@ -57,6 +57,7 @@ COMPARATORS = {
     "signal": "compare_core_signal.py",
     "trend": "compare_core_trend.py",
     "imaging": "compare_core_imaging.py",
+    "campaign": "check_luno_campaign.py",
 }
 TREND_GRID = (2, 32)
 TREND_ITERATIONS = 50
@@ -334,6 +335,15 @@ def imaging(run_dir, archive_dir=None, export_dir=None):
     )
 
 
+def campaign(run_dir, precondition=None, workers=8):
+    """The LUNO campaign on the core (task K, `rangtoy.core_campaign`)."""
+    from . import core_campaign
+
+    result = core_campaign.run(run_dir, workers=workers, precondition_dir=precondition)
+    environment(run_dir)
+    return result
+
+
 def compare(stage, result, oracle, receipt, posthoc_slope_scale=False):
     """Run the stage's phase 3 comparator script unchanged; record its SHA256.
 
@@ -411,6 +421,11 @@ def _parser():
     p.add_argument("--archive-dir")
     p.add_argument("--export-dir")
 
+    p = sub.add_parser("campaign", help="LUNO campaign on the core")
+    p.add_argument("run_dir")
+    p.add_argument("--precondition")
+    p.add_argument("--workers", type=int, default=8)
+
     p = sub.add_parser("environment", help="record the environment")
     p.add_argument("run_dir")
 
@@ -432,6 +447,7 @@ COMMANDS = {
     "trend": trend,
     "environment": environment,
     "imaging": imaging,
+    "campaign": campaign,
 }
 
 
