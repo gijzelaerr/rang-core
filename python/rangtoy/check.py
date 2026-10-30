@@ -237,6 +237,30 @@ def run_step(kind, argv, cwd, env):
     return status
 
 
+def set_aside_launchers(scripts=None):
+    """Windows only: rename the venv's `rang-core*.exe` launchers out of the
+    way before `maturin develop` reinstalls the package.
+
+    A running `.exe` cannot be replaced or deleted on Windows but can be
+    renamed, and `rang-core check` runs inside `rang-core.exe`; without this
+    the reinstall fails with "Access is denied". Launchers set aside by
+    earlier runs are deleted when no longer in use. Returns the new names.
+    """
+    if os.name != "nt" and scripts is None:
+        return []
+    scripts = Path(scripts or Path(sys.prefix) / "Scripts")
+    for stale in scripts.glob("rang-core*.exe.*.old"):
+        with contextlib.suppress(OSError):
+            stale.unlink()
+    moved = []
+    for launcher in scripts.glob("rang-core*.exe"):
+        target = launcher.with_name(f"{launcher.name}.{os.getpid()}.old")
+        with contextlib.suppress(OSError):
+            launcher.rename(target)
+            moved.append(target)
+    return moved
+
+
 def _parser():
     parser = argparse.ArgumentParser(
         prog="rang-core check", description=__doc__.splitlines()[0]
@@ -286,6 +310,8 @@ def main(argv=None, runner=run_step, root=None):
         env["RANG_CHECKALL_LOCKED"] = "1"
         for name, _, kind, command, extra, label in chosen:
             print(f"## {name}", flush=True)
+            if name == "ext-build" and runner is run_step:
+                set_aside_launchers()
             started = time.perf_counter()
             status = runner(kind, command, root, {**env, **extra})
             records.append(

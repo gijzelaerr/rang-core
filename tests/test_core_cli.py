@@ -493,3 +493,17 @@ def test_check_finds_the_checkout():
     from rangtoy import check
 
     assert check.find_root(ROOT / "python" / "rangtoy") == ROOT
+
+
+def test_check_sets_running_launchers_aside_for_the_reinstall(tmp_path):
+    from rangtoy import check
+
+    (tmp_path / "rang-core.exe").write_bytes(b"launcher")
+    (tmp_path / "rang-core.exe.1.old").write_bytes(b"stale")
+    (tmp_path / "python.exe").write_bytes(b"python")
+    moved = check.set_aside_launchers(tmp_path)
+    assert [p.name for p in moved] == [f"rang-core.exe.{os.getpid()}.old"]
+    assert sorted(p.name for p in tmp_path.iterdir()) == [
+        "python.exe",
+        f"rang-core.exe.{os.getpid()}.old",
+    ]
