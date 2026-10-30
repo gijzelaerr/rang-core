@@ -20,7 +20,7 @@ archived control's diagnostic Measurement Set read-only (with UVW, which the
 `examples/compare_core_flags.py run` accepts it, plus the commit and the
 compiled Numba signatures. `cli` copies each `diagnostic.ms` into the run
 directory, writes `before-native.npz` FLAG into the copy and runs
-`tricolour <copy> -fs polarisation -c <strategy> -nw 4 -tc 100`. Neither mode
+`tricolour -fs polarisation -c <strategy> -nw 4 -tc 100 <copy>`. Neither mode
 writes to the host run.
 """
 
