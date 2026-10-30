@@ -379,8 +379,11 @@ impl SsmHeader {
         h.magic()?;
         let object = h.start_expect("StandardStMan")?;
         let big = if object.version >= 3 { h.bool()? } else { true };
-        if object.version != 3 || big {
-            return err("only little-endian StandardStMan version 3 headers are written");
+        if !(object.version == 3 || object.version == 2 && big) || big == little {
+            return err(format!(
+                "StandardStMan header version {} (big-endian {big}) is not written",
+                object.version
+            ));
         }
         let out = SsmHeader {
             big,
@@ -401,9 +404,15 @@ impl SsmHeader {
     }
 
     pub fn serialise(&self) -> Vec<u8> {
-        let mut w = Writer::new(false);
-        w.putstart("StandardStMan", 3);
-        w.bool(self.big);
+        // `SSMBase::writeIndex`: the endian flag only in little-endian
+        // headers (version 3); big-endian ones keep version 2.
+        let mut w = Writer::new(self.big);
+        if self.big {
+            w.putstart("StandardStMan", 2);
+        } else {
+            w.putstart("StandardStMan", 3);
+            w.bool(self.big);
+        }
         w.u32(self.bucket_size);
         w.u32(self.nr_buckets);
         w.u32(self.pers_cache);
@@ -567,13 +576,17 @@ impl TsmHeader {
             None
         };
         let inner = h.start_expect("TiledStMan")?;
-        if inner.version != 2 {
-            return err(format!(
-                "TiledStMan header version {} is not supported for writing",
-                inner.version
-            ));
-        }
-        let big = h.bool()?;
+        // `headerFilePut`: version 2 with the endian flag (little-endian
+        // tables), version 1 without it (big-endian ones).
+        let big = match inner.version {
+            1 => true,
+            2 => h.bool()?,
+            v => {
+                return err(format!(
+                    "TiledStMan header version {v} is not supported for writing"
+                ));
+            }
+        };
         let seq = h.u32()?;
         let nrows = u64::from(h.u32()?);
         let ncol = h.u32()? as usize;
@@ -656,8 +669,12 @@ impl TsmHeader {
         if let Some(tile) = &self.column_tile {
             w.iposition(tile);
         }
-        w.putstart("TiledStMan", 2);
-        w.bool(self.big);
+        if self.big {
+            w.putstart("TiledStMan", 1);
+        } else {
+            w.putstart("TiledStMan", 2);
+            w.bool(self.big);
+        }
         w.u32(self.seq);
         w.u32(self.nrows as u32);
         w.u32(self.dtypes.len() as u32);
@@ -928,6 +945,7 @@ pub(crate) fn to_order(dtype: DataType, native: &[u8], big: bool) -> Vec<u8> {
 impl ArrayFile {
     /// Open the file as `StManArrayFile::resync` does: read the version and
     /// length, or write version 0, length 16 and a zero Int to a new file.
+    #[cfg(test)]
     fn open(path: &Path) -> Result<Self> {
         Self::open_ext(path, false, 0, false)
     }
@@ -1259,8 +1277,8 @@ struct Cache {
 }
 
 impl SsmW {
-    fn open(dir: &Path, seq: u32, blob: &[u8], cols: Vec<SsmCol>) -> Result<Self> {
-        Self::open_mode(dir, seq, blob, cols, true)
+    fn open(dir: &Path, seq: u32, blob: &[u8], cols: Vec<SsmCol>, big: bool) -> Result<Self> {
+        Self::open_mode(dir, seq, blob, cols, true, big)
     }
 
     /// Open read-only (`writable` false) for the cell reads of
@@ -1271,9 +1289,10 @@ impl SsmW {
         blob: &[u8],
         cols: Vec<SsmCol>,
         writable: bool,
+        big: bool,
     ) -> Result<Self> {
         let path = dir.join(format!("table.f{seq}"));
-        let (header_raw, h, indices) = read_ssm(&path, true)?;
+        let (header_raw, h, indices) = read_ssm(&path, !big)?;
         let bucket_size = h.bucket_size as usize;
         let blob = SsmBlob::parse(blob)?;
         if blob.col_offset.len() != cols.len() {
@@ -1449,6 +1468,7 @@ impl SsmW {
         bucket_rows: u32,
         bucket_size: u32,
         pers_cache: u32,
+        big: bool,
     ) -> Result<Self> {
         let bits: Vec<usize> = cols.iter().map(|c| c.bits).collect();
         if bits.contains(&0) {
@@ -1474,7 +1494,7 @@ impl SsmW {
             .open(&path)
             .map_err(|e| MsError(format!("{}: {e}", path.display())))?;
         let h = SsmHeader {
-            big: false,
+            big,
             bucket_size: size as u32,
             nr_buckets: 0,
             pers_cache: pers_cache.max(2),
@@ -1536,7 +1556,7 @@ impl SsmW {
                 for row in 0..nrows {
                     let (b, at) = s.slot(k, row)?;
                     let array = s.arrays()?.put_res(&shape, dtype)?;
-                    s.bucket(b)?[at..at + 8].copy_from_slice(&array.to_le_bytes());
+                    s.set_u64(b, at, array)?;
                     s.set_dirty(b);
                 }
             }
@@ -1546,6 +1566,29 @@ impl SsmW {
 
     fn size(&self) -> usize {
         self.h.bucket_size as usize
+    }
+
+    /// The 8-byte array offset at `at` of bucket `b` (the table's order).
+    fn get_u64(&mut self, b: u32, at: usize) -> Result<u64> {
+        let big = self.h.big;
+        Ok(read_order_u64(&self.bucket(b)?[at..at + 8], big))
+    }
+
+    fn set_u64(&mut self, b: u32, at: usize, v: u64) -> Result<()> {
+        let bytes = order_u64(v, self.h.big);
+        self.bucket(b)?[at..at + 8].copy_from_slice(&bytes);
+        Ok(())
+    }
+
+    fn get_i32(&mut self, b: u32, at: usize) -> Result<i32> {
+        let big = self.h.big;
+        Ok(read_order_u32(&self.bucket(b)?[at..at + 4], big) as i32)
+    }
+
+    fn set_i32(&mut self, b: u32, at: usize, v: i32) -> Result<()> {
+        let bytes = order_u32(v as u32, self.h.big);
+        self.bucket(b)?[at..at + 4].copy_from_slice(&bytes);
+        Ok(())
     }
 
     /// The current bytes of bucket `n` (loaded from the file once).
@@ -1749,7 +1792,7 @@ impl SsmW {
 
     fn arrays(&mut self) -> Result<&mut ArrayFile> {
         if self.arrays.is_none() {
-            self.arrays = Some(ArrayFile::open(&self.array_path)?);
+            self.arrays = Some(ArrayFile::open_ext(&self.array_path, self.h.big, 0, false)?);
         }
         Ok(self.arrays.as_mut().unwrap())
     }
@@ -1784,12 +1827,13 @@ impl SsmW {
                     let (b, offset, first, last) = self.locate(col, row)?;
                     let n = (last.min(start + count - 1) - row + 1) as usize;
                     let src = &data[(row - start) as usize * row_bytes..][..n * row_bytes];
+                    let src = to_order(c.dtype, src, self.h.big);
                     let bucket = self.bucket(b)?;
                     if c.dtype == DataType::Bool {
-                        put_bits(&mut bucket[offset..], first * nelem, src);
+                        put_bits(&mut bucket[offset..], first * nelem, &src);
                     } else {
                         let at = offset + first * nelem * c.dtype.size();
-                        bucket[at..at + src.len()].copy_from_slice(src);
+                        bucket[at..at + src.len()].copy_from_slice(&src);
                     }
                     self.set_dirty(b);
                     row += n as u64;
@@ -1814,20 +1858,18 @@ impl SsmW {
                 if c.fixed.is_none() {
                     for i in 0..count {
                         let (b, at) = self.slot(col, start + i)?;
-                        let current =
-                            u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap());
+                        let current = self.get_u64(b, at)?;
                         if current != 0 && self.arrays()?.shape(current)?.0 == shape {
                             continue;
                         }
                         let new = self.arrays()?.put_res(shape, c.dtype)?;
-                        self.bucket(b)?[at..at + 8].copy_from_slice(&new.to_le_bytes());
+                        self.set_u64(b, at, new)?;
                         self.set_dirty(b);
                     }
                 }
                 for i in 0..count {
                     let (b, at) = self.slot(col, start + i)?;
-                    let current =
-                        u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap());
+                    let current = self.get_u64(b, at)?;
                     if current == 0 {
                         return err(format!("row {} of {} has no array", start + i, c.name));
                     }
@@ -1867,26 +1909,25 @@ impl SsmW {
                 }
                 SsmKind::String => {
                     let at = offset + first * 12;
-                    let slot = self.bucket(b)?[at..at + 12].to_vec();
-                    let word =
-                        |k: usize| i32::from_le_bytes(slot[4 * k..4 * k + 4].try_into().unwrap());
-                    let (mut sb, mut so, mut sl) = (word(0), word(1), word(2));
+                    let (mut sb, mut so, mut sl) = (
+                        self.get_i32(b, at)?,
+                        self.get_i32(b, at + 4)?,
+                        self.get_i32(b, at + 8)?,
+                    );
                     if s.len() <= 8 {
                         if sl > 8 {
                             self.str_remove(sb, so, sl)?;
                         }
-                        let bucket = self.bucket(b)?;
-                        bucket[at + 8..at + 12].copy_from_slice(&(s.len() as i32).to_le_bytes());
-                        bucket[at..at + s.len()].copy_from_slice(s.as_bytes());
+                        self.set_i32(b, at + 8, s.len() as i32)?;
+                        self.bucket(b)?[at..at + s.len()].copy_from_slice(s.as_bytes());
                     } else {
                         if sl <= 8 {
                             (sb, so, sl) = (0, 0, 0);
                         }
                         self.str_put(&mut sb, &mut so, &mut sl, s.as_bytes())?;
-                        let bucket = self.bucket(b)?;
-                        bucket[at..at + 4].copy_from_slice(&sb.to_le_bytes());
-                        bucket[at + 4..at + 8].copy_from_slice(&so.to_le_bytes());
-                        bucket[at + 8..at + 12].copy_from_slice(&sl.to_le_bytes());
+                        self.set_i32(b, at, sb)?;
+                        self.set_i32(b, at + 4, so)?;
+                        self.set_i32(b, at + 8, sl)?;
                     }
                     self.set_dirty(b);
                 }
@@ -2060,7 +2101,7 @@ impl SsmW {
 
     /// `SSMBase::writeIndex`.
     fn write_index(&mut self) -> Result<()> {
-        let idx = serialise_ssm_index(&self.indices, false);
+        let idx = serialise_ssm_index(&self.indices, self.h.big);
         let size = self.size();
         let ibs = size - 8;
         let mut nbuckets = idx.len() / ibs;
@@ -2244,7 +2285,7 @@ impl SsmW {
                 for row in 0..nrows {
                     let (b, at) = self.slot(k, row)?;
                     let array = self.arrays()?.put_res(&shape, dtype)?;
-                    self.bucket(b)?[at..at + 8].copy_from_slice(&array.to_le_bytes());
+                    self.set_u64(b, at, array)?;
                     self.set_dirty(b);
                 }
             }
@@ -2296,19 +2337,19 @@ impl SsmW {
     fn str_slot(&mut self, col: usize, row: u64) -> Result<[i32; 3]> {
         let (b, offset, first, _) = self.locate(col, row)?;
         let at = offset + first * 12;
-        let bytes = self.bucket(b)?;
-        let word =
-            |k: usize| i32::from_le_bytes(bytes[at + 4 * k..at + 4 * k + 4].try_into().unwrap());
-        Ok([word(0), word(1), word(2)])
+        Ok([
+            self.get_i32(b, at)?,
+            self.get_i32(b, at + 4)?,
+            self.get_i32(b, at + 8)?,
+        ])
     }
 
     /// `putValue` of a 12-byte string slot.
     fn put_str_slot(&mut self, col: usize, row: u64, words: [i32; 3]) -> Result<()> {
         let (b, offset, first, _) = self.locate(col, row)?;
         let at = offset + first * 12;
-        let bucket = self.bucket(b)?;
-        for (k, w) in words.iter().enumerate() {
-            bucket[at + 4 * k..at + 4 * k + 4].copy_from_slice(&w.to_le_bytes());
+        for (k, &w) in words.iter().enumerate() {
+            self.set_i32(b, at + 4 * k, w)?;
         }
         self.set_dirty(b);
         Ok(())
@@ -2509,7 +2550,7 @@ impl SsmW {
         match c.kind {
             SsmKind::Indirect => {
                 let (b, at) = self.slot(col, row)?;
-                Ok(u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap()) != 0)
+                Ok(self.get_u64(b, at)? != 0)
             }
             SsmKind::StrArray if c.fixed.is_none() => Ok(self.str_slot(col, row)?[2] != 0),
             _ => Ok(true),
@@ -2568,26 +2609,26 @@ impl SsmW {
         match c.kind {
             SsmKind::Indirect => {
                 let (b, at) = self.slot(col, row)?;
-                let offset = u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap());
+                let offset = self.get_u64(b, at)?;
                 if offset == 0 {
                     return Ok(Cell::Undefined);
                 }
+                let big = self.h.big;
                 let mut file = File::open(&self.array_path)?;
-                let version = u32::from_le_bytes(read_at(&mut file, 0, 4)?.try_into().unwrap());
+                let version = read_order_u32(&read_at(&mut file, 0, 4)?, big);
                 let mut at = offset + if version > 0 { 4 } else { 0 };
-                let ndim =
-                    u32::from_le_bytes(read_at(&mut file, at, 4)?.try_into().unwrap()) as usize;
+                let ndim = read_order_u32(&read_at(&mut file, at, 4)?, big) as usize;
                 let dims = read_at(&mut file, at + 4, 4 * ndim)?;
                 let shape: Vec<i64> = dims
                     .chunks_exact(4)
-                    .map(|d| i64::from(i32::from_le_bytes(d.try_into().unwrap())))
+                    .map(|d| i64::from(read_order_u32(d, big) as i32))
                     .collect();
                 at += 4 + 4 * ndim as u64;
                 let n = product(&shape);
                 let values = if c.dtype == DataType::Bool {
                     get_bits(&read_at(&mut file, at, n.div_ceil(8))?, 0, n)
                 } else {
-                    read_at(&mut file, at, n * c.dtype.size())?
+                    to_order(c.dtype, &read_at(&mut file, at, n * c.dtype.size())?, big)
                 };
                 Ok(Cell::Values(shape, values))
             }
@@ -2653,13 +2694,12 @@ impl SsmW {
                 let dtype = self.cols[k].dtype;
                 for row in old..old + n {
                     let (b, at) = self.slot(k, row)?;
-                    let current =
-                        u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap());
+                    let current = self.get_u64(b, at)?;
                     if current != 0 && self.arrays()?.shape(current)?.0 == shape {
                         continue;
                     }
                     let array = self.arrays()?.put_res(&shape, dtype)?;
-                    self.bucket(b)?[at..at + 8].copy_from_slice(&array.to_le_bytes());
+                    self.set_u64(b, at, array)?;
                     self.set_dirty(b);
                 }
             }
@@ -2834,6 +2874,7 @@ impl TsmW {
         fixed: Option<Vec<i64>>,
         ndim: usize,
         tile: Vec<i64>,
+        big: bool,
     ) -> Result<Self> {
         if tile.len() != ndim + 1 || tile.iter().any(|&t| t < 1) {
             return err(format!(
@@ -2851,7 +2892,7 @@ impl TsmW {
         let mut h = TsmHeader {
             kind: kind.into(),
             column_tile: column.then(|| tile.clone()),
-            big: false,
+            big,
             seq,
             nrows: 0,
             dtypes,
@@ -3228,6 +3269,13 @@ impl TsmW {
         let dtype = self.dtype(col);
         let native = dtype.native_size();
         let cell_pixels = product(shape);
+        let ordered;
+        let data = if self.h.big != cfg!(target_endian = "big") && dtype.size() > 1 {
+            ordered = to_order(dtype, data, self.h.big);
+            &ordered[..]
+        } else {
+            data
+        };
         let mut cache: BTreeMap<usize, Vec<u8>> = BTreeMap::new();
         let mut current: Option<(usize, i64)> = None;
         for i in 0..count {
@@ -3597,9 +3645,7 @@ impl TableWriter {
         let dir = path.as_ref().to_path_buf();
         let mut lock = LockFile::acquire(&dir, attempts, wait)?;
         let dat = TableDat::parse(&std::fs::read(dir.join("table.dat"))?)?;
-        if !dat.little_endian {
-            return err("big-endian tables are not written (E5)");
-        }
+
         let lock_bytes = lock.contents()?;
         let nrows = match SyncRecord::parse(&lock_bytes)? {
             Some(s) if s.nrows > 0 => s.nrows,
@@ -3615,7 +3661,13 @@ impl TableWriter {
                             cols.push(ssm_col(c, b)?);
                         }
                     }
-                    Mgr::Ssm(Box::new(SsmW::open(&dir, *seq, &dat.blobs[slot], cols)?))
+                    Mgr::Ssm(Box::new(SsmW::open(
+                        &dir,
+                        *seq,
+                        &dat.blobs[slot],
+                        cols,
+                        !dat.little_endian,
+                    )?))
                 }
                 "TiledColumnStMan" | "TiledShapeStMan" => match TsmW::open(&dir, *seq) {
                     Ok(mut t) => {
@@ -4147,6 +4199,7 @@ impl TableWriter {
                     *bucket_rows,
                     *bucket_size,
                     *cache,
+                    !self.dat.little_endian,
                 )?;
                 self.dat.seq_count += 1;
                 self.dat.managers.push(("StandardStMan".into(), seq));
@@ -4197,7 +4250,7 @@ impl TableWriter {
                     }
                     .into(),
                     column_tile: column.then(|| tile.clone()),
-                    big: false,
+                    big: !self.dat.little_endian,
                     seq,
                     nrows: self.nrows,
                     dtypes: vec![spec.dtype],
@@ -4350,6 +4403,7 @@ impl NewMgr {
         bucket_rows: u32,
         bucket_size: u32,
         cache: u32,
+        big: bool,
     ) -> Result<(Self, Vec<u8>)> {
         let cols = columns
             .iter()
@@ -4358,7 +4412,17 @@ impl NewMgr {
         if cols.is_empty() {
             return err(format!("data manager {name} has no columns"));
         }
-        let s = SsmW::create(dir, seq, name, cols, nrows, bucket_rows, bucket_size, cache)?;
+        let s = SsmW::create(
+            dir,
+            seq,
+            name,
+            cols,
+            nrows,
+            bucket_rows,
+            bucket_size,
+            cache,
+            big,
+        )?;
         let blob = s.blob.serialise();
         Ok((NewMgr(Mgr::Ssm(Box::new(s))), blob))
     }
@@ -4435,8 +4499,9 @@ impl NewMgr {
         ndim: usize,
         tile: Vec<i64>,
         nrows: u64,
+        big: bool,
     ) -> Result<Self> {
-        let mut t = TsmW::create(dir, seq, column, name, dtypes, cell, ndim, tile)?;
+        let mut t = TsmW::create(dir, seq, column, name, dtypes, cell, ndim, tile, big)?;
         t.add_rows(nrows)?;
         Ok(NewMgr(Mgr::Tsm(Box::new(t))))
     }
@@ -4487,7 +4552,7 @@ pub fn array_records(dir: impl AsRef<Path>) -> Result<Vec<(String, u64, u32)>> {
                 cols.push(ssm_col(c, b)?);
             }
         }
-        let mut s = SsmW::open_mode(dir, *seq, &dat.blobs[slot], cols, false)?;
+        let mut s = SsmW::open_mode(dir, *seq, &dat.blobs[slot], cols, false, !dat.little_endian)?;
         for k in 0..s.cols.len() {
             if s.cols[k].kind != SsmKind::Indirect {
                 continue;
@@ -4498,7 +4563,7 @@ pub fn array_records(dir: impl AsRef<Path>) -> Result<Vec<(String, u64, u32)>> {
             };
             for row in 0..nrows {
                 let (b, at) = s.slot(k, row)?;
-                let offset = u64::from_le_bytes(s.bucket(b)?[at..at + 8].try_into().unwrap());
+                let offset = s.get_u64(b, at)?;
                 if offset != 0 {
                     out.push((format!("table.f{seq}i"), offset, bits));
                 }
@@ -4597,7 +4662,8 @@ pub fn read_cells(
         }
         let kind = cols[k].kind;
         if matches!(kind, SsmKind::Indirect | SsmKind::StrArray) {
-            let mut s = SsmW::open_mode(dir, seq, &dat.blobs[slot], cols, false)?;
+            let mut s =
+                SsmW::open_mode(dir, seq, &dat.blobs[slot], cols, false, !dat.little_endian)?;
             return (start..start + count).map(|r| s.read_cell(k, r)).collect();
         }
     }
@@ -4915,7 +4981,7 @@ mod tests {
             bits: 1,
             fixed: None,
         };
-        let mut s = SsmW::create(&dir, 0, "SSM", vec![col], 10, 0, 1024, 2).unwrap();
+        let mut s = SsmW::create(&dir, 0, "SSM", vec![col], 10, 0, 1024, 2, false).unwrap();
         assert_eq!(s.h.bucket_size, 1024);
         assert!(s.flush().unwrap());
         // The first index goes to a new bucket; it fits half a bucket.

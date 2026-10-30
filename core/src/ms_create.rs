@@ -450,9 +450,6 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     if cfg!(target_endian = "big") {
         return err("writing tables on a big-endian host is not supported (E5)");
     }
-    if spec.big_endian {
-        return err("big-endian tables are not created (E5)");
-    }
     if spec.multifile {
         return err("MultiFile tables are not created (E5)");
     }
@@ -523,6 +520,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                     r.spec.bucket_rows,
                     r.spec.bucket_size,
                     r.spec.cache,
+                    spec.big_endian,
                 )?;
                 mgrs.push(m);
                 blobs.push(blob);
@@ -567,6 +565,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                     ndim,
                     r.spec.tile.clone(),
                     nrows,
+                    spec.big_endian,
                 )?;
                 mgrs.push(m);
                 blobs.push(Vec::new());
@@ -624,7 +623,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     }
     let dat = TableDat {
         nrows,
-        little_endian: true,
+        little_endian: !spec.big_endian,
         desc_name: spec.desc_name.clone(),
         desc_version: spec.desc_version.clone(),
         desc_comment: spec.desc_comment.clone(),
