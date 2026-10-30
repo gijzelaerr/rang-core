@@ -459,6 +459,9 @@ def test_created_table_reads_back(creator, tmp_path):
         _same(cc.getcol("D"), fixed, "D")
         for row, cell in var.items():  # rows 1 and 3 are undefined
             _same_cells(cc.getcells("V", row, 1), [cell], f"V row {row}")
+        # casacure's own getcol would return V in row 0's shape (1,).
+        with pytest.raises(ValueError, match="differ in shape"):
+            cc.getcol("V")
         _same_cells(cc.getcells("SA"), sa, "SA")
         # casacure 3.8.35 cannot read a Direct fixed-shape string array, also
         # when python-casacore 3.8.1 wrote it (research/t1-casacure-ci.md);

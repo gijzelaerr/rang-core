@@ -102,7 +102,17 @@ class Table:
         return self._table.getcoldesc(name)["valueType"] == "string"
 
     def getcol(self, name, startrow=0, nrow=None):
-        """Rows `startrow` onwards (all, or `nrow` of them) of one column."""
+        """Rows `startrow` onwards (all, or `nrow` of them) of one column.
+
+        Refuses (ValueError) a variable-shape array column whose rows differ
+        in shape, as casacore does: casacure 3.8.35 returns such a column in
+        the first row's shape, silently truncating the others
+        (research/t1-casacure-ci.md)."""
+        desc = self._table.getcoldesc(name)
+        if "ndim" in desc and not desc.get("shape") and desc["valueType"] != "string":
+            cells = self.getcells(name, startrow, nrow)
+            if len({c.shape for c in cells}) > 1:
+                raise ValueError(f"{name}: rows differ in shape; use getcells")
         if nrow is None:
             value = self._table.getcol(name, int(startrow))
         else:
