@@ -361,11 +361,18 @@ def solve_arm(state, added, label, scale=None):
     }
 
 
-def tricolour_checks(result, input_flags, strategies):
-    """Criterion 5: superset of the input, uniform over correlations, monotone."""
+def tricolour_checks(result, input_flags, strategies, block=4096):
+    """Criterion 5: superset of the input, uniform over correlations, monotone.
+
+    The superset and uniformity tests run in row blocks, so no full-cube
+    temporary is made (research/p5-memory.md); the booleans are the same."""
     flags = result["flags"]
-    superset = not np.any(input_flags & ~flags)
-    uniform = bool(np.all(flags == flags[..., :1]))
+    superset = True
+    uniform = True
+    for start in range(0, len(flags), block):
+        part = flags[start : start + block]
+        superset &= not np.any(input_flags[start : start + block] & ~part)
+        uniform &= bool(np.all(part == part[..., :1]))
     fractions = {k: float(v.mean()) for k, v in result["stages"].items()}
     monotone = True
     previous = None

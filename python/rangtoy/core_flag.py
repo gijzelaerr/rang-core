@@ -250,6 +250,13 @@ def encode_steps(strategies):
     return table
 
 
+def _bool_view(flags):
+    """A uint8 0/1 buffer as a bool array without a copy."""
+    if flags.size and flags.max() > 1:
+        raise RuntimeError("the core returned a flag byte other than 0 or 1")
+    return flags.view(bool)
+
+
 def unique_baselines(antenna1, antenna2):
     """Tricolour's baseline order: unique pairs sorted as 64-bit (a1, a2) words."""
     stacked = np.stack([antenna1, antenna2], axis=1).astype(np.int32)
@@ -278,8 +285,10 @@ def flag_rows(
     `strategies` is the list from `parse_strategy`; `masks` defaults to the
     two shipped static masks. Returns a dict with `flags` (every correlation
     carries the window flag), `intensity` (complex64 window
-    `(bl, 1, time, chan)`), `stages` (window flags after each step, keyed
-    `NN-task`), `ubl`, `time_inv` and `seconds` (the core call only).
+    `(bl, 1, time, chan)`, only with `want_intensity`), `stages` (window
+    flags after each step, keyed `NN-task`), `ubl`, `time_inv` and `seconds`
+    (the core call only). `flags` and `stages` are bool views of the core's
+    output buffers, not copies.
     """
     data = np.require(data, dtype=np.complex64, requirements=["C", "A"])
     nrow, nchan, ncorr = data.shape
@@ -388,10 +397,13 @@ def flag_rows(
     if code:
         raise RuntimeError(f"rang_core_flag_rows failed with code {code}")
     names = [f"{i:02d}-{s['task']}" for i, s in enumerate(strategies)]
+    # The core writes only 0 and 1, so the uint8 buffers are returned as
+    # bool views instead of copies (research/p5-memory.md); a byte above 1
+    # would make a non-canonical bool, so it is refused.
     return {
-        "flags": out_flags.astype(bool),
+        "flags": _bool_view(out_flags),
         "intensity": intensity,
-        "stages": {name: stages[i].astype(bool) for i, name in enumerate(names)}
+        "stages": {name: _bool_view(stages[i]) for i, name in enumerate(names)}
         if want_stages
         else None,
         "ubl": ubl,

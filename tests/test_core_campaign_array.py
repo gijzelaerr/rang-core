@@ -82,14 +82,21 @@ def test_solve_arm_matches_core_solve_and_k_features_bit_for_bit():
     for key in ("tv", "raw_tv", "scale", "median_diagonal_amplitude"):
         assert mine["metrics"][key] == k["metrics"][key]
     assert np.array_equal(mine["tv"]["edges"], k["tv"]["edges"], equal_nan=True)
-    assert np.array_equal(mine["guidance"], k["guidance"])
     outliers = residual_features(
         k["residuals"] * np.sqrt(state["weights"]),
         state["train"],
         state["antenna1"],
         state["antenna2"],
     )
-    assert np.array_equal(mine["outliers"], outliers)
+    # P5: the features are kept sparse (training cells with outliers >= 2);
+    # the fused pass's scores equal NumPy's to rounding (research/p5-memory.md).
+    features = mine["features"]
+    cells = np.flatnonzero(state["train"] & (outliers >= 2))
+    assert np.array_equal(features["cells"], cells)
+    assert np.allclose(
+        features["outliers"], outliers.reshape(-1)[cells], rtol=0, atol=1e-12
+    )
+    assert np.array_equal(features["guidance"], k["guidance"].reshape(-1)[cells])
     metrics, *_ = core_solve(state, zero, *core_campaign.GRID, core_campaign.ITERATIONS)
     assert metrics["losses"] == mine["metrics"]["losses"]
 
@@ -122,7 +129,9 @@ def test_tv_loop_records_equal_k():
     for mine, theirs in zip(trials, k_trials):
         for key in ("trial", "mask_count", "objective", "accepted", "mask_sha256"):
             assert mine.get(key) == theirs.get(key)
-    assert np.array_equal(best["solve"]["added"], k_best["solve"]["added"])
+    assert np.array_equal(
+        array.additions_dense(state, best["solve"]["added"]), k_best["solve"]["added"]
+    )
 
 
 def test_corrected_stokes_blocks_equal_k_image_inputs():
@@ -130,8 +139,17 @@ def test_corrected_stokes_blocks_equal_k_image_inputs():
     state = array.build_state(arrays, extra, nant=4)
     solve = array.solve_arm(state, np.zeros_like(state["train"]), "o")
     solve["diagnostics"]["gain_valid"][1, 0, 2] = False
-    solve["added"] = state["train"] & (np.arange(state["train"].shape[1]) % 7 == 0)
-    sample, weight, _, _ = array.corrected_stokes(state, solve, block=4)
+    added = state["train"] & (np.arange(state["train"].shape[1]) % 7 == 0)
+    solve["added"] = np.flatnonzero(added)
+    gains = solve["diagnostics"]["gains"]
+    valid = solve["diagnostics"]["gain_valid"]
+    sample, weight, _, _ = array.corrected_stokes_reference(
+        state, gains, valid, added, block=4
+    )
+    # P5's Rust kernel (research/p5-memory.md) gives the same inputs.
+    rust_sample, rust_weight = array.corrected_stokes(state, solve)
+    assert np.array_equal(rust_sample, sample) and np.array_equal(rust_weight, weight)
+    solve["added"] = added
     time_map, freq_map, _, _ = gain_grid(state, *core_campaign.GRID)
     corrected, ok = core_campaign.apply_gains(
         state["data"],
