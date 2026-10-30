@@ -837,14 +837,23 @@ load average was 5–7 throughout.
 | 2026-10-31 | `tricolour_dump.py` (post hoc `-14`) | 4 controls | 41.7 s | 331 MB | Numba cache warm |
 | 2026-10-31 | `s1_values.py` (post hoc `-15`) | 4 controls | 37.0 s | 198 MB | |
 | 2026-10-31 | `compare_aoflagger.py` | all runs | 139.6 s | 152 MB | first full run 101.3 s |
-| 2026-10-31 | `bash tools/check-all.sh` | worktree | see section 10 | – | |
+| 2026-10-31 | `bash tools/check-all.sh` | worktree `54dd65e` | 719 s | – | `overall: PASS`, 674 passed, 14 skipped; load 3–6 |
+| 2026-10-31 | `bash tools/check-all.sh` | worktree `fd9b09b` (final code) | 848 s | – | `overall: PASS`, 674 passed, 14 skipped (pytest 133 s); log `outputs/aflag-20261031-check-all.log` |
 
 ### 10. Checks
 
 `bash tools/check-all.sh` (plain, `OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`)
-before the final commit: CHECKALL_RESULT; log
-`outputs/aflag-20261030-check-all.log`. No CLI stage was added, so
-`docs/cli.md` is unchanged.
+There were two runs:
+
+- **`54dd65e`**, before the post-hoc scripts were committed: `## overall:
+  PASS`, 674 passed and 14 skipped, 719 s (log
+  `outputs/aflag-20261030-check-all.log`).
+- **`fd9b09b`**, the final code: `## overall: PASS`, 674 passed and 14
+  skipped (pytest 133 s), 848 s in all (log
+  `outputs/aflag-20261031-check-all.log`).
+
+The commit after `fd9b09b` changes only this write-up. No CLI stage was
+added, so `docs/cli.md` is unchanged.
 
 ## For the coordinator
 
@@ -967,7 +976,7 @@ reached through the worktree symlink):
 | `aflag-20261030-13-compare` | 212 KB | `details.npz` |
 | `aflag-20261030-14-dump` | 88 MB | dump re-run, S1 (post hoc) |
 | `aflag-20261030-15-s1-variants` | 372 KB | S1 split and its two scripts (post hoc) |
-| `aflag-20261030-check-all.log` | – | check-all log |
+| `aflag-20261030-check-all.log`, `aflag-20261031-check-all.log` | – | check-all logs |
 
 `-02` and `-14` dominate the space, at 176 MB together; they can be
 deleted once the branch merges, because the archive keeps the derived
