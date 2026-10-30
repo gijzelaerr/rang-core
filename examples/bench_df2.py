@@ -256,8 +256,11 @@ def cmd_compare(args):
         )
     vals = [v for v in res["outputs"].values() if "identical" in v]
     res["all_identical"] = all(v["identical"] for v in vals)
-    f64 = [v["linf_rel_peak"] for k, v in res["outputs"].items() if "f64" in k]
-    f32 = [v["linf_rel_peak"] for k, v in res["outputs"].items() if "f32" in k]
+    errs = {
+        k: v["linf_rel_peak"] for k, v in res["outputs"].items() if "identical" in v
+    }
+    f64 = [e for k, e in errs.items() if "f64" in k]
+    f32 = [e for k, e in errs.items() if "f32" in k]
     res["worst_f64"] = max(f64) if f64 else None
     res["worst_f32"] = max(f32) if f32 else None
     res["pass_tolerance"] = bool(
