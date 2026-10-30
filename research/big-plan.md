@@ -211,6 +211,18 @@ CPU-heavy tasks at a time on 8 physical cores.
 - X1 done 2026-10-30 (`x1-crossplatform.md`): native Windows build, task D
   comparator bit-identical on Windows, five-platform wheel matrix and the
   PyPI publish job; portability fixes for the live paths listed for P7/P9/P12.
+- E2 casacure evaluation (started 2026-10-30; pointer from Oleg Smirnov via
+  the user): `casacure` (Tim Molteno, LGPL-3.0-or-later, crate and PyPI
+  3.8.35 tracking casacore 3.8) is a pure-Rust casacore table system that
+  reads and writes Measurement Sets (StandardStMan, IncrementalStMan,
+  TiledColumnStMan), a TaQL subset and a measures subset, with wheels for
+  Linux, macOS and Windows up to Python 3.14; dask-ms 0.2.32 passes on it and
+  QuartiCal PR #445 routes through it. If it reproduces task E's
+  column-exact reads, the core's MS reader (`core/src/ms.rs`) becomes an
+  oracle and casacure the MS I/O dependency (reads, writes, calibration
+  tables, the Windows gap of X1 and the DF-IO formats). Tim Molteno is also
+  porting DDFacet and killMS to casacure (PR #445 discussion), which bears
+  on the DF tasks: user item, make contact before DF3.
 - Later, not started: a matched full CARACal pipeline baseline on the LUNO
   data (needed if any campaign turns positive) and a benchmark page that CI
   updates from the comparator timings.
@@ -289,6 +301,8 @@ CPU-heavy tasks at a time on 8 physical cores.
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).
 - Forward the observer's full-resolution LUNO set when it arrives.
+- Contact Tim Molteno about casacure and his DDFacet/killMS ports before the
+  DF tasks start, to coordinate rather than duplicate.
 - Prune the pinned `rang-flagging*:local` Docker images and the three
   dangling ones (about 11.6 GB) if the disk is wanted; no live chain uses
   them, and `history/README.md` says how the frozen campaigns were run.
