@@ -304,6 +304,9 @@ pub const WGRIDDER_WGT_NONE: i32 = 0;
 pub const WGRIDDER_WGT_F32: i32 = 1;
 /// `wgt_kind`: doubles.
 pub const WGRIDDER_WGT_F64: i32 = 2;
+/// `wgt_kind` of the `_ex2` entry points: two float arrays (`wgt`, `wgt2`)
+/// whose product, one float multiply per visibility, is the weight (DF2b).
+pub const WGRIDDER_WGT_F32_PRODUCT: i32 = 3;
 
 /// Borrow `n` visibilities of kind `kind` at `ptr`.
 ///
@@ -327,11 +330,18 @@ unsafe fn vis_data<'a>(ptr: *const c_void, kind: i32, n: usize) -> Result<VisDat
     }
 }
 
-/// Borrow `n` weights of kind `kind` at `ptr`.
+/// Borrow `n` weights of kind `kind` at `ptr` (and, for the product kind,
+/// `ptr2`; null otherwise).
 ///
 /// # Safety
-/// `ptr` must hold `n` values of that kind (or be ignored without weights).
-unsafe fn weights<'a>(ptr: *const c_void, kind: i32, n: usize) -> Result<Weights<'a>, String> {
+/// `ptr` (and `ptr2`) must hold `n` values of that kind (or be ignored
+/// without weights).
+unsafe fn weights<'a>(
+    ptr: *const c_void,
+    ptr2: *const c_void,
+    kind: i32,
+    n: usize,
+) -> Result<Weights<'a>, String> {
     // SAFETY: forwarded contract.
     unsafe {
         match kind {
@@ -344,6 +354,12 @@ unsafe fn weights<'a>(ptr: *const c_void, kind: i32, n: usize) -> Result<Weights
                 ptr as *const f64,
                 n,
             ))),
+            WGRIDDER_WGT_F32_PRODUCT if !ptr.is_null() && !ptr2.is_null() => {
+                Ok(Weights::F32Product(
+                    std::slice::from_raw_parts(ptr as *const f32, n),
+                    std::slice::from_raw_parts(ptr2 as *const f32, n),
+                ))
+            }
             _ => Err("invalid weight array or kind".into()),
         }
     }
@@ -363,6 +379,7 @@ unsafe fn run_ex<T: Real>(
     vis: *const c_void,
     vis_kind: i32,
     wgt: *const c_void,
+    wgt2: *const c_void,
     wgt_kind: i32,
     mask: *const u8,
     dirty: *mut T,
@@ -388,7 +405,7 @@ unsafe fn run_ex<T: Real>(
                 std::slice::from_raw_parts(uvw, nrow * 3),
                 std::slice::from_raw_parts(freq, nchan),
                 vis_data(vis, vis_kind, n),
-                weights(wgt, wgt_kind, n),
+                weights(wgt, wgt2, wgt_kind, n),
                 (!mask.is_null()).then(|| std::slice::from_raw_parts(mask, n)),
                 (!dirty.is_null()).then(|| std::slice::from_raw_parts_mut(dirty, npix)),
                 (!psf.is_null()).then(|| std::slice::from_raw_parts_mut(psf, npix)),
@@ -451,7 +468,20 @@ pub unsafe extern "C" fn rang_core_wgridder_vis2dirty_ex_f64(
     // SAFETY: forwarded contract.
     unsafe {
         run_ex::<f64>(
-            opts, nrow, nchan, uvw, freq, vis, vis_kind, wgt, wgt_kind, mask, dirty, psf, info,
+            opts,
+            nrow,
+            nchan,
+            uvw,
+            freq,
+            vis,
+            vis_kind,
+            wgt,
+            std::ptr::null(),
+            wgt_kind,
+            mask,
+            dirty,
+            psf,
+            info,
         )
     }
 }
@@ -480,7 +510,86 @@ pub unsafe extern "C" fn rang_core_wgridder_vis2dirty_ex_f32(
     // SAFETY: forwarded contract.
     unsafe {
         run_ex::<f32>(
-            opts, nrow, nchan, uvw, freq, vis, vis_kind, wgt, wgt_kind, mask, dirty, psf, info,
+            opts,
+            nrow,
+            nchan,
+            uvw,
+            freq,
+            vis,
+            vis_kind,
+            wgt,
+            std::ptr::null(),
+            wgt_kind,
+            mask,
+            dirty,
+            psf,
+            info,
+        )
+    }
+}
+
+/// As `rang_core_wgridder_vis2dirty_ex_f64`, with a second weight array
+/// (DF2b): with `wgt_kind` = `WGRIDDER_WGT_F32_PRODUCT`, `wgt` and `wgt2`
+/// hold `nrow * nchan` floats each and the weight of a visibility is their
+/// product as one float multiply (bit-identical to passing the product
+/// array as `WGRIDDER_WGT_F32`); other kinds ignore `wgt2`.
+///
+/// # Safety
+/// As `rang_core_wgridder_vis2dirty_ex_f64`; `wgt2` likewise.
+#[unsafe(no_mangle)]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn rang_core_wgridder_vis2dirty_ex2_f64(
+    opts: *const WgridderOptions,
+    nrow: usize,
+    nchan: usize,
+    uvw: *const f64,
+    freq: *const f64,
+    vis: *const c_void,
+    vis_kind: i32,
+    wgt: *const c_void,
+    wgt2: *const c_void,
+    wgt_kind: i32,
+    mask: *const u8,
+    dirty: *mut f64,
+    psf: *mut f64,
+    info: *mut f64,
+) -> i32 {
+    // SAFETY: forwarded contract.
+    unsafe {
+        run_ex::<f64>(
+            opts, nrow, nchan, uvw, freq, vis, vis_kind, wgt, wgt2, wgt_kind, mask, dirty, psf,
+            info,
+        )
+    }
+}
+
+/// As `rang_core_wgridder_vis2dirty_ex2_f64`, working in single precision.
+///
+/// # Safety
+/// As `rang_core_wgridder_vis2dirty_ex2_f64`.
+#[unsafe(no_mangle)]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn rang_core_wgridder_vis2dirty_ex2_f32(
+    opts: *const WgridderOptions,
+    nrow: usize,
+    nchan: usize,
+    uvw: *const f64,
+    freq: *const f64,
+    vis: *const c_void,
+    vis_kind: i32,
+    wgt: *const c_void,
+    wgt2: *const c_void,
+    wgt_kind: i32,
+    mask: *const u8,
+    dirty: *mut f32,
+    psf: *mut f32,
+    info: *mut f64,
+) -> i32 {
+    // SAFETY: forwarded contract.
+    unsafe {
+        run_ex::<f32>(
+            opts, nrow, nchan, uvw, freq, vis, vis_kind, wgt, wgt2, wgt_kind, mask, dirty, psf,
+            info,
         )
     }
 }
@@ -521,7 +630,7 @@ unsafe fn run_d2v_ex<T: Real>(
                 std::slice::from_raw_parts(uvw, nrow * 3),
                 std::slice::from_raw_parts(freq, nchan),
                 std::slice::from_raw_parts(dirty, o.nx * o.ny),
-                weights(wgt, wgt_kind, n),
+                weights(wgt, std::ptr::null(), wgt_kind, n),
                 (!mask.is_null()).then(|| std::slice::from_raw_parts(mask, n)),
                 std::slice::from_raw_parts_mut(vis as *mut Complex<T>, n),
             )
