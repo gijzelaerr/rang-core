@@ -420,29 +420,29 @@ above, each prefixed `2026-10-31 | big plan DF2c: `.
 ```diff
 @@ -415,11 +415,14 @@ def imaging(run_dir, archive_dir=None, export_dir=None, gridder="wstack"):
      )
- 
- 
+
+
 -def campaign(run_dir, precondition=None, workers=8):
 -    """The LUNO campaign on the core (task K, `rang.core_campaign`)."""
 +def campaign(run_dir, precondition=None, workers=8, gridder="wstack"):
 +    """The LUNO campaign on the core (task K, `rang.core_campaign`);
 +    `gridder="wgrid"` images with the exact gridder (research/df2c-campaign-gridder.md)."""
      from . import core_campaign
- 
+
 -    result = core_campaign.run(run_dir, workers=workers, precondition_dir=precondition)
 +    result = core_campaign.run(
 +        run_dir, workers=workers, precondition_dir=precondition, gridder=gridder
 +    )
      environment(run_dir)
      return result
- 
+
 @@ -771,6 +774,7 @@ def _configure_campaign(p):
      p.add_argument("run_dir")
      p.add_argument("--precondition")
      p.add_argument("--workers", type=int, default=8)
 +    p.add_argument("--gridder", choices=("wstack", "wgrid"), default="wstack")
- 
- 
+
+
  def _configure_environment(p):
 @@ -843,7 +847,7 @@ STAGES = {
      },
