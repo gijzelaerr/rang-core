@@ -1,0 +1,2721 @@
+{
+ "task": "A1 RFI-band audit (research/a1-rfi-audit.md)",
+ "run_root": "outputs/a1-rfi-audit-20261030-01",
+ "ephemeris_check": "not done: no skyfield, sgp4 or TLE set offline",
+ "allocation_bands_mhz": [
+  [
+   "GSM/LTE downlinks",
+   0.0,
+   960.0
+  ],
+  [
+   "DME/TACAN, SSR/ADS-B",
+   960.0,
+   1215.0
+  ],
+  [
+   "GNSS L5/E5a/E5b/B2/G3",
+   1164.0,
+   1215.0
+  ],
+  [
+   "GNSS L2/G2/E6/B3",
+   1215.0,
+   1300.0
+  ],
+  [
+   "aeronautical radionavigation / radar",
+   1300.0,
+   1350.0
+  ],
+  [
+   "fixed/mobile/radiolocation",
+   1350.0,
+   1400.0
+  ],
+  [
+   "radio astronomy (protected)",
+   1400.0,
+   1427.0
+  ],
+  [
+   "mobile IMT L-band / BSS-DAB",
+   1427.0,
+   1518.0
+  ],
+  [
+   "Inmarsat/MSS downlink",
+   1525.0,
+   1559.0
+  ],
+  [
+   "GPS L1/E1/G1",
+   1559.0,
+   1610.0
+  ],
+  [
+   "Iridium / Inmarsat uplink",
+   1616.0,
+   1660.5
+  ]
+ ],
+ "campaigns": {
+  "l1": {
+   "label": "L1 PKS 1934-638 (MAIN_1 row chunk 0)",
+   "shape": [
+    41786,
+    2048
+   ],
+   "dumps_utc": [
+    "2021-08-18T13:44:06.759680+00:00",
+    "2021-08-18T13:48:14.654815+00:00"
+   ],
+   "ndumps": 32,
+   "gates": {
+    "split_counts_equal": true,
+    "tricolour-firstpass_additions_equal": true,
+    "tricolour-mild_additions_equal": true,
+    "invalid_predictions_tricolour-firstpass_l1": {
+     "reproduced": {
+      "validation": 680,
+      "test": 678
+     },
+     "archived": {
+      "validation": 680,
+      "test": 678
+     },
+     "equal": true
+    },
+    "invalid_predictions_tricolour-mild_l1": {
+     "reproduced": {
+      "validation": 120,
+      "test": 111
+     },
+     "archived": {
+      "validation": 120,
+      "test": 111
+     },
+     "equal": true
+    }
+   },
+   "gates_pass": true,
+   "timings": {
+    "decode_and_split": 21.896496236004168,
+    "flag_tricolour-firstpass": 47.98439226899063,
+    "flag_tricolour-mild": 32.539475427009165,
+    "flag_firstpass-no-static-mask": 45.10491427700617,
+    "flag_static-mask-all-baselines": 5.573702337002032,
+    "flag_static-mask-uvrange": 5.526836259989068,
+    "station_bins": 3.808168065006612,
+    "columns": 1.4689934509951854,
+    "polarised_z": 153.1615835929988
+   },
+   "max_rss_mb": 9812.33984375,
+   "static_mask_ranges_in_window_mhz": [
+    [
+     1085.57,
+     1086.41
+    ],
+    [
+     1087.45,
+     1092.05
+    ],
+    [
+     1099.57,
+     1100.2
+    ],
+    [
+     1101.45,
+     1102.29
+    ],
+    [
+     1102.5,
+     1103.12
+    ],
+    [
+     1103.33,
+     1104.17
+    ],
+    [
+     1105.42,
+     1106.26
+    ],
+    [
+     1106.47,
+     1107.3
+    ],
+    [
+     1107.51,
+     1108.14
+    ],
+    [
+     1111.48,
+     1112.11
+    ],
+    [
+     1112.53,
+     1113.16
+    ],
+    [
+     1122.56,
+     1123.19
+    ],
+    [
+     1126.53,
+     1127.16
+    ],
+    [
+     1127.58,
+     1128.2
+    ],
+    [
+     1129.46,
+     1130.29
+    ],
+    [
+     1134.47,
+     1135.31
+    ],
+    [
+     1135.52,
+     1136.14
+    ],
+    [
+     1137.4,
+     1138.23
+    ],
+    [
+     1139.49,
+     1140.11
+    ],
+    [
+     1140.53,
+     1141.16
+    ],
+    [
+     1145.76,
+     1301.03
+    ],
+    [
+     1420.15,
+     1422.45
+    ],
+    [
+     1461.95,
+     1492.46
+    ]
+   ],
+   "static_mask_channels_in_window": 987,
+   "station_bins": 57344,
+   "station_bins_without_input_support": 8352,
+   "stations_without_rows": [
+    "m031",
+    "m040",
+    "m044"
+   ],
+   "uvrange_static_mask_rows": {
+    "rows_with_new_flags": 0,
+    "max_length_m": null,
+    "min_length_untouched_m": 29.256520999577873
+   },
+   "polarised_z": {
+    "fallback_groups": 5782,
+    "tricolour-firstpass": {
+     "removed_in_emptied_bins": {
+      "n": 5948,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       0,
+       207,
+       777,
+       1133,
+       1998,
+       947,
+       767,
+       108,
+       11,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -0.4082518190145492,
+       0.47527337819337845,
+       1.7112025618553162,
+       3.6127512454986572,
+       6.023591375350953,
+       12.932396163940423
+      ],
+      "fraction_above_5": 0.14895763281775387
+     },
+     "removed_elsewhere": {
+      "n": 607168,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       2,
+       117,
+       54636,
+       154204,
+       171257,
+       168385,
+       44430,
+       13392,
+       707,
+       38,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -0.9453632771968842,
+       -0.3160802870988846,
+       0.5208637118339539,
+       1.6047337353229523,
+       2.9478357791900667,
+       6.270039443969697
+      ],
+      "fraction_above_5": 0.023283506377147677
+     },
+     "kept_train": {
+      "n": 26788442,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       1831,
+       3912706,
+       9477892,
+       8862929,
+       4429140,
+       102539,
+       1405,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -1.2001041173934937,
+       -0.6548609882593155,
+       0.0,
+       0.6964211165904999,
+       1.3570464253425611,
+       2.574468431472777
+      ],
+      "fraction_above_5": 5.2447992309519156e-05
+     }
+    },
+    "tricolour-mild": {
+     "removed_in_emptied_bins": {
+      "n": 1263,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       0,
+       14,
+       65,
+       124,
+       315,
+       303,
+       370,
+       65,
+       7,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       0.49468994140625,
+       1.6424307823181152,
+       3.711487054824829,
+       6.038417816162109,
+       8.415889930725097,
+       15.757315959930368
+      ],
+      "fraction_above_5": 0.3499604117181314
+     },
+     "removed_elsewhere": {
+      "n": 298312,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       90,
+       27409,
+       71005,
+       80388,
+       75988,
+       29300,
+       13340,
+       750,
+       42,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -0.950609403848648,
+       -0.2812615782022476,
+       0.5966168642044067,
+       1.8699384033679962,
+       3.726212120056153,
+       7.427866849899301
+      ],
+      "fraction_above_5": 0.04737321998444582
+     },
+     "kept_train": {
+      "n": 27101983,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       2,
+       1858,
+       3940126,
+       9561803,
+       8954807,
+       4523220,
+       118313,
+       1854,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -1.1975731372833252,
+       -0.651905357837677,
+       0.0035355931613594294,
+       0.7035879194736481,
+       1.3694122791290284,
+       2.614200048446655
+      ],
+      "fraction_above_5": 6.840827846434705e-05
+     }
+    }
+   },
+   "baseline_length": {
+    "tricolour-firstpass": [
+     {
+      "band_m": [
+       0,
+       200
+      ],
+      "train": 1665347,
+      "removed": 3096,
+      "removed_in_emptied_bins": 0
+     },
+     {
+      "band_m": [
+       200,
+       1000
+      ],
+      "train": 8436847,
+      "removed": 81104,
+      "removed_in_emptied_bins": 35
+     },
+     {
+      "band_m": [
+       1000,
+       3000
+      ],
+      "train": 9117349,
+      "removed": 329581,
+      "removed_in_emptied_bins": 985
+     },
+     {
+      "band_m": [
+       3000,
+       9000
+      ],
+      "train": 8182015,
+      "removed": 199335,
+      "removed_in_emptied_bins": 4928
+     }
+    ],
+    "tricolour-mild": [
+     {
+      "band_m": [
+       0,
+       200
+      ],
+      "train": 1665347,
+      "removed": 163,
+      "removed_in_emptied_bins": 0
+     },
+     {
+      "band_m": [
+       200,
+       1000
+      ],
+      "train": 8436847,
+      "removed": 14895,
+      "removed_in_emptied_bins": 10
+     },
+     {
+      "band_m": [
+       1000,
+       3000
+      ],
+      "train": 9117349,
+      "removed": 180484,
+      "removed_in_emptied_bins": 287
+     },
+     {
+      "band_m": [
+       3000,
+       9000
+      ],
+      "train": 8182015,
+      "removed": 104033,
+      "removed_in_emptied_bins": 966
+     }
+    ]
+   },
+   "strategies": {
+    "tricolour-firstpass": {
+     "wall_seconds": 47.98439226899063,
+     "window_flag_fraction": 0.6088246348395695,
+     "new_cells": 762924,
+     "additions_on_train": 613116,
+     "removed_in_emptied_bins": 5948,
+     "removed_in_emptied_on_whole_columns": {
+      "100%": 1426,
+      ">=90%": 1494,
+      ">=50%": 3509
+     },
+     "removed_all_on_whole_columns": {
+      "n": 613116,
+      "100%": 4622,
+      ">=90%": 14942
+     },
+     "stage_fractions": [
+      0.6208686662516157,
+      0.6948322910701934,
+      0.7409098255617006,
+      0.25061675183831866,
+      0.30300245575704143,
+      0.3689512299868469,
+      0.4730781366932375,
+      0.4838554924908155,
+      0.4919552076364636,
+      0.492457308167124,
+      0.492457308167124,
+      0.6293166316991621
+     ],
+     "new_cells_without_attribution": 0
+    },
+    "tricolour-mild": {
+     "wall_seconds": 32.539475427009165,
+     "window_flag_fraction": 0.6042612979863172,
+     "new_cells": 372404,
+     "additions_on_train": 299575,
+     "removed_in_emptied_bins": 1263,
+     "removed_in_emptied_on_whole_columns": {
+      "100%": 50,
+      ">=90%": 67,
+      ">=50%": 595
+     },
+     "removed_all_on_whole_columns": {
+      "n": 299575,
+      "100%": 625,
+      ">=90%": 1342
+     },
+     "stage_fractions": [
+      0.6208686662516157,
+      0.6660733714332082,
+      0.25530093432510886,
+      0.3075732492743106,
+      0.3200739513114852,
+      0.33443752117184666,
+      0.34669598716436867,
+      0.34849796378214576,
+      0.34849796378214576,
+      0.6249923484591856
+     ],
+     "new_cells_without_attribution": 0
+    },
+    "firstpass-no-static-mask": {
+     "wall_seconds": 45.10491427700617,
+     "window_flag_fraction": 0.6096494171941559,
+     "new_cells": 833507,
+     "additions_on_train": 669147
+    },
+    "static-mask-all-baselines": {
+     "wall_seconds": 5.573702337002032,
+     "window_flag_fraction": 0.6779621094871787,
+     "new_cells": 6679552,
+     "additions_on_train": 5348217
+    },
+    "static-mask-uvrange": {
+     "wall_seconds": 5.526836259989068,
+     "window_flag_fraction": 0.5999096517262061,
+     "new_cells": 0,
+     "additions_on_train": 0
+    }
+   },
+   "arms": {
+    "tricolour-firstpass": {
+     "emptied_station_bins": 691,
+     "time_freq_cells_with_emptied": 155,
+     "emptied_in_array_wide_cells": 111,
+     "stations_emptied_per_cell_quantiles_min_50_max": [
+      1,
+      3.0,
+      22
+     ],
+     "supported_stations_per_cell_median": 46.0,
+     "by_block": [
+      {
+       "block": 4,
+       "mhz": [
+        1096.65,
+        1103.33
+       ],
+       "emptied": 7,
+       "static_mask_fraction": 0.312,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B"
+       ],
+       "input_flagged_fraction": 0.9624
+      },
+      {
+       "block": 9,
+       "mhz": [
+        1130.08,
+        1136.77
+       ],
+       "emptied": 1,
+       "static_mask_fraction": 0.25,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B"
+       ],
+       "input_flagged_fraction": 0.6824
+      },
+      {
+       "block": 10,
+       "mhz": [
+        1136.77,
+        1143.46
+       ],
+       "emptied": 1,
+       "static_mask_fraction": 0.312,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B"
+       ],
+       "input_flagged_fraction": 0.766
+      },
+      {
+       "block": 15,
+       "mhz": [
+        1170.21,
+        1176.9
+       ],
+       "emptied": 16,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 1.0
+      },
+      {
+       "block": 16,
+       "mhz": [
+        1176.9,
+        1183.58
+       ],
+       "emptied": 50,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9997
+      },
+      {
+       "block": 17,
+       "mhz": [
+        1183.58,
+        1190.27
+       ],
+       "emptied": 16,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9735
+      },
+      {
+       "block": 18,
+       "mhz": [
+        1190.27,
+        1196.96
+       ],
+       "emptied": 1,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9411
+      },
+      {
+       "block": 19,
+       "mhz": [
+        1196.96,
+        1203.65
+       ],
+       "emptied": 25,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9719
+      },
+      {
+       "block": 20,
+       "mhz": [
+        1203.65,
+        1210.33
+       ],
+       "emptied": 214,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9961
+      },
+      {
+       "block": 23,
+       "mhz": [
+        1223.71,
+        1230.4
+       ],
+       "emptied": 2,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.949
+      },
+      {
+       "block": 29,
+       "mhz": [
+        1263.83,
+        1270.52
+       ],
+       "emptied": 148,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9989
+      },
+      {
+       "block": 30,
+       "mhz": [
+        1270.52,
+        1277.21
+       ],
+       "emptied": 128,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9884
+      },
+      {
+       "block": 31,
+       "mhz": [
+        1277.21,
+        1283.9
+       ],
+       "emptied": 17,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9553
+      },
+      {
+       "block": 32,
+       "mhz": [
+        1283.9,
+        1290.58
+       ],
+       "emptied": 46,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9851
+      },
+      {
+       "block": 33,
+       "mhz": [
+        1290.58,
+        1297.27
+       ],
+       "emptied": 5,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9802
+      },
+      {
+       "block": 34,
+       "mhz": [
+        1297.27,
+        1303.96
+       ],
+       "emptied": 14,
+       "static_mask_fraction": 0.562,
+       "bands": [
+        "GNSS L2/G2/E6/B3",
+        "aeronautical radionavigation / radar"
+       ],
+       "input_flagged_fraction": 0.89
+      }
+     ],
+     "by_band": [
+      {
+       "band": "GSM/LTE downlinks",
+       "mhz": [
+        0.0,
+        960.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "DME/TACAN, SSR/ADS-B",
+       "mhz": [
+        960.0,
+        1215.0
+       ],
+       "blocks_in_window": 22,
+       "emptied": 331,
+       "blocks_with_emptied": 9
+      },
+      {
+       "band": "GNSS L5/E5a/E5b/B2/G3",
+       "mhz": [
+        1164.0,
+        1215.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 322,
+       "blocks_with_emptied": 6
+      },
+      {
+       "band": "GNSS L2/G2/E6/B3",
+       "mhz": [
+        1215.0,
+        1300.0
+       ],
+       "blocks_in_window": 14,
+       "emptied": 360,
+       "blocks_with_emptied": 7
+      },
+      {
+       "band": "aeronautical radionavigation / radar",
+       "mhz": [
+        1300.0,
+        1350.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 14,
+       "blocks_with_emptied": 1
+      },
+      {
+       "band": "fixed/mobile/radiolocation",
+       "mhz": [
+        1350.0,
+        1400.0
+       ],
+       "blocks_in_window": 9,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "radio astronomy (protected)",
+       "mhz": [
+        1400.0,
+        1427.0
+       ],
+       "blocks_in_window": 5,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "mobile IMT L-band / BSS-DAB",
+       "mhz": [
+        1427.0,
+        1518.0
+       ],
+       "blocks_in_window": 11,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Inmarsat/MSS downlink",
+       "mhz": [
+        1525.0,
+        1559.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "GPS L1/E1/G1",
+       "mhz": [
+        1559.0,
+        1610.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Iridium / Inmarsat uplink",
+       "mhz": [
+        1616.0,
+        1660.5
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "no listed allocation",
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      }
+     ],
+     "emptied_in_blocks_touching_static_mask": 691,
+     "by_time_bin": [
+      44,
+      32,
+      33,
+      41,
+      39,
+      30,
+      34,
+      48,
+      40,
+      43,
+      48,
+      47,
+      57,
+      50,
+      53,
+      52
+     ],
+     "by_station": {
+      "m063": 48,
+      "m059": 33,
+      "m038": 30,
+      "m051": 30,
+      "m026": 29,
+      "m041": 28,
+      "m058": 28,
+      "m003": 26,
+      "m049": 26,
+      "m045": 21,
+      "m002": 21,
+      "m047": 19,
+      "m050": 19,
+      "m039": 19,
+      "m019": 18,
+      "m037": 16,
+      "m000": 16,
+      "m018": 15,
+      "m021": 13,
+      "m001": 13,
+      "m053": 13,
+      "m061": 13,
+      "m035": 12,
+      "m029": 12,
+      "m005": 12,
+      "m007": 11,
+      "m010": 11,
+      "m054": 11,
+      "m043": 10,
+      "m004": 10,
+      "m056": 9,
+      "m052": 9,
+      "m062": 9,
+      "m057": 9,
+      "m046": 8,
+      "m033": 8,
+      "m030": 6,
+      "m048": 6,
+      "m020": 5,
+      "m023": 5,
+      "m013": 5,
+      "m011": 4,
+      "m032": 4,
+      "m024": 4,
+      "m027": 4,
+      "m014": 2,
+      "m036": 2,
+      "m012": 2,
+      "m042": 2,
+      "m025": 2,
+      "m009": 1,
+      "m022": 1,
+      "m055": 1
+     },
+     "input_flagged_fraction_emptied": 0.9961597358911837,
+     "input_flagged_fraction_all_supported": 0.5578276114121591,
+     "train_cells_in_emptied_quantiles_min_50_max": [
+      1,
+      5.0,
+      57
+     ],
+     "heldout_in_emptied": 1553,
+     "heldout_in_emptied_flagged_by_strategy": 1542,
+     "removed_by_step_in_emptied": {
+      "01-apply_static_mask": 902,
+      "02-sum_threshold": 4,
+      "06-sum_threshold": 5561,
+      "07-sum_threshold": 276,
+      "08-sum_threshold": 67,
+      "09-uvcontsub_flagger": 3
+     },
+     "removed_by_category_in_emptied": {
+      "static_mask": 902,
+      "sum_threshold": 5908,
+      "uvcontsub": 3
+     },
+     "emptied_bins_by_category_set": {
+      "sum_threshold": 325,
+      "static_mask+sum_threshold": 259,
+      "static_mask": 104,
+      "static_mask+sum_threshold+uvcontsub": 3
+     },
+     "emptied_with_max_z_above_5": 345,
+     "emptied_without_own_outlier": 346,
+     "emptied_max_z_quantiles_10_50_90": [
+      1.5810142755508423,
+      4.996588230133057,
+      11.98465347290039
+     ],
+     "lost_vs_emptied": {
+      "l1": {
+       "lost": 691,
+       "emptied_and_lost": 691,
+       "lost_not_emptied": 0,
+       "emptied_not_lost": 0,
+       "emptied_where_original_gain_invalid": 0
+      }
+     }
+    },
+    "tricolour-mild": {
+     "emptied_station_bins": 325,
+     "time_freq_cells_with_emptied": 95,
+     "emptied_in_array_wide_cells": 16,
+     "stations_emptied_per_cell_quantiles_min_50_max": [
+      1,
+      2.0,
+      18
+     ],
+     "supported_stations_per_cell_median": 34.0,
+     "by_block": [
+      {
+       "block": 4,
+       "mhz": [
+        1096.65,
+        1103.33
+       ],
+       "emptied": 4,
+       "static_mask_fraction": 0.312,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B"
+       ],
+       "input_flagged_fraction": 0.9624
+      },
+      {
+       "block": 10,
+       "mhz": [
+        1136.77,
+        1143.46
+       ],
+       "emptied": 1,
+       "static_mask_fraction": 0.312,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B"
+       ],
+       "input_flagged_fraction": 0.766
+      },
+      {
+       "block": 15,
+       "mhz": [
+        1170.21,
+        1176.9
+       ],
+       "emptied": 16,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 1.0
+      },
+      {
+       "block": 16,
+       "mhz": [
+        1176.9,
+        1183.58
+       ],
+       "emptied": 5,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9997
+      },
+      {
+       "block": 17,
+       "mhz": [
+        1183.58,
+        1190.27
+       ],
+       "emptied": 2,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9735
+      },
+      {
+       "block": 18,
+       "mhz": [
+        1190.27,
+        1196.96
+       ],
+       "emptied": 1,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9411
+      },
+      {
+       "block": 19,
+       "mhz": [
+        1196.96,
+        1203.65
+       ],
+       "emptied": 2,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9719
+      },
+      {
+       "block": 20,
+       "mhz": [
+        1203.65,
+        1210.33
+       ],
+       "emptied": 176,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9961
+      },
+      {
+       "block": 29,
+       "mhz": [
+        1263.83,
+        1270.52
+       ],
+       "emptied": 62,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9989
+      },
+      {
+       "block": 30,
+       "mhz": [
+        1270.52,
+        1277.21
+       ],
+       "emptied": 27,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9884
+      },
+      {
+       "block": 31,
+       "mhz": [
+        1277.21,
+        1283.9
+       ],
+       "emptied": 8,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9553
+      },
+      {
+       "block": 32,
+       "mhz": [
+        1283.9,
+        1290.58
+       ],
+       "emptied": 16,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9851
+      },
+      {
+       "block": 34,
+       "mhz": [
+        1297.27,
+        1303.96
+       ],
+       "emptied": 5,
+       "static_mask_fraction": 0.562,
+       "bands": [
+        "GNSS L2/G2/E6/B3",
+        "aeronautical radionavigation / radar"
+       ],
+       "input_flagged_fraction": 0.89
+      }
+     ],
+     "by_band": [
+      {
+       "band": "GSM/LTE downlinks",
+       "mhz": [
+        0.0,
+        960.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "DME/TACAN, SSR/ADS-B",
+       "mhz": [
+        960.0,
+        1215.0
+       ],
+       "blocks_in_window": 22,
+       "emptied": 207,
+       "blocks_with_emptied": 8
+      },
+      {
+       "band": "GNSS L5/E5a/E5b/B2/G3",
+       "mhz": [
+        1164.0,
+        1215.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 202,
+       "blocks_with_emptied": 6
+      },
+      {
+       "band": "GNSS L2/G2/E6/B3",
+       "mhz": [
+        1215.0,
+        1300.0
+       ],
+       "blocks_in_window": 14,
+       "emptied": 118,
+       "blocks_with_emptied": 5
+      },
+      {
+       "band": "aeronautical radionavigation / radar",
+       "mhz": [
+        1300.0,
+        1350.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 5,
+       "blocks_with_emptied": 1
+      },
+      {
+       "band": "fixed/mobile/radiolocation",
+       "mhz": [
+        1350.0,
+        1400.0
+       ],
+       "blocks_in_window": 9,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "radio astronomy (protected)",
+       "mhz": [
+        1400.0,
+        1427.0
+       ],
+       "blocks_in_window": 5,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "mobile IMT L-band / BSS-DAB",
+       "mhz": [
+        1427.0,
+        1518.0
+       ],
+       "blocks_in_window": 11,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Inmarsat/MSS downlink",
+       "mhz": [
+        1525.0,
+        1559.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "GPS L1/E1/G1",
+       "mhz": [
+        1559.0,
+        1610.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Iridium / Inmarsat uplink",
+       "mhz": [
+        1616.0,
+        1660.5
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "no listed allocation",
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      }
+     ],
+     "emptied_in_blocks_touching_static_mask": 325,
+     "by_time_bin": [
+      24,
+      17,
+      14,
+      19,
+      15,
+      10,
+      13,
+      21,
+      17,
+      20,
+      24,
+      19,
+      28,
+      27,
+      29,
+      28
+     ],
+     "by_station": {
+      "m003": 25,
+      "m026": 21,
+      "m018": 17,
+      "m049": 14,
+      "m001": 13,
+      "m002": 13,
+      "m058": 12,
+      "m004": 12,
+      "m005": 11,
+      "m041": 11,
+      "m000": 10,
+      "m021": 9,
+      "m057": 9,
+      "m059": 9,
+      "m053": 8,
+      "m033": 8,
+      "m020": 7,
+      "m061": 7,
+      "m035": 6,
+      "m013": 6,
+      "m038": 5,
+      "m007": 5,
+      "m010": 5,
+      "m029": 5,
+      "m050": 5,
+      "m036": 5,
+      "m025": 5,
+      "m024": 5,
+      "m019": 4,
+      "m030": 4,
+      "m023": 4,
+      "m027": 4,
+      "m051": 4,
+      "m043": 4,
+      "m046": 4,
+      "m056": 4,
+      "m054": 4,
+      "m039": 3,
+      "m011": 3,
+      "m032": 2,
+      "m014": 2,
+      "m012": 2,
+      "m047": 2,
+      "m048": 2,
+      "m042": 1,
+      "m055": 1,
+      "m022": 1,
+      "m009": 1,
+      "m052": 1
+     },
+     "input_flagged_fraction_emptied": 0.9984760140405616,
+     "input_flagged_fraction_all_supported": 0.5578276114121591,
+     "train_cells_in_emptied_quantiles_min_50_max": [
+      1,
+      2.0,
+      40
+     ],
+     "heldout_in_emptied": 237,
+     "heldout_in_emptied_flagged_by_strategy": 227,
+     "removed_by_step_in_emptied": {
+      "01-sum_threshold": 476,
+      "02-uvcontsub_flagger": 29,
+      "04-sum_threshold": 109,
+      "05-sum_threshold": 537,
+      "06-sum_threshold": 164,
+      "07-uvcontsub_flagger": 11
+     },
+     "removed_by_category_in_emptied": {
+      "sum_threshold": 1286,
+      "uvcontsub": 40
+     },
+     "emptied_bins_by_category_set": {
+      "sum_threshold": 295,
+      "sum_threshold+uvcontsub": 22,
+      "uvcontsub": 8
+     },
+     "emptied_with_max_z_above_5": 171,
+     "emptied_without_own_outlier": 154,
+     "emptied_max_z_quantiles_10_50_90": [
+      1.7095763683319092,
+      5.384025573730469,
+      13.535280418395999
+     ],
+     "lost_vs_emptied": {
+      "l1": {
+       "lost": 325,
+       "emptied_and_lost": 325,
+       "lost_not_emptied": 0,
+       "emptied_not_lost": 0,
+       "emptied_where_original_gain_invalid": 0
+      }
+     }
+    }
+   },
+   "counterfactual": {
+    "emptied_by": {
+     "firstpass-no-static-mask": 704,
+     "static-mask-all-baselines": 18611,
+     "static-mask-uvrange": 0
+    },
+    "firstpass_emptied": 691,
+    "static_alone_only": 77,
+    "sumthreshold_alone_only": 18,
+    "both_alone": 595,
+    "only_together": 1,
+    "no_mask_emptied_not_in_firstpass": 91,
+    "mild_emptied_subset_of_firstpass": false,
+    "mild_and_firstpass_emptied": 290
+   }
+  },
+  "l2": {
+   "label": "L2 PKS 1830-211 (MAIN_2 scan 3)",
+   "shape": [
+    15400,
+    2048
+   ],
+   "dumps_utc": [
+    "2021-08-18T13:54:38.492443+00:00",
+    "2021-08-18T13:55:50.461999+00:00"
+   ],
+   "ndumps": 10,
+   "gates": {
+    "split_counts_equal": true,
+    "split_sha256_equal": true,
+    "tricolour-firstpass_additions_equal": true,
+    "tricolour-firstpass_additions_equal_l2-scalar": true,
+    "tricolour-mild_additions_equal": true,
+    "tricolour-mild_additions_equal_l2-scalar": true,
+    "invalid_predictions_tricolour-firstpass_l2-stored": {
+     "reproduced": {
+      "validation": 85,
+      "test": 63
+     },
+     "archived": {
+      "validation": 85,
+      "test": 63
+     },
+     "equal": true
+    },
+    "invalid_predictions_tricolour-mild_l2-stored": {
+     "reproduced": {
+      "validation": 28,
+      "test": 18
+     },
+     "archived": {
+      "validation": 28,
+      "test": 18
+     },
+     "equal": true
+    },
+    "invalid_predictions_tricolour-firstpass_l2-scalar": {
+     "reproduced": {
+      "validation": 94,
+      "test": 67
+     },
+     "archived": {
+      "validation": 94,
+      "test": 67
+     },
+     "equal": true
+    },
+    "invalid_predictions_tricolour-mild_l2-scalar": {
+     "reproduced": {
+      "validation": 28,
+      "test": 18
+     },
+     "archived": {
+      "validation": 28,
+      "test": 18
+     },
+     "equal": true
+    }
+   },
+   "gates_pass": true,
+   "timings": {
+    "decode_and_split": 14.94297797899344,
+    "flag_tricolour-firstpass": 23.569180368998786,
+    "flag_tricolour-mild": 18.19927935699525,
+    "flag_firstpass-no-static-mask": 24.316931630004547,
+    "flag_static-mask-all-baselines": 2.010989400005201,
+    "flag_static-mask-uvrange": 1.8848322889971314,
+    "station_bins": 2.49441420500807,
+    "columns": 0.49327712001104373,
+    "polarised_z": 99.36828540600254
+   },
+   "max_rss_mb": 3302.85546875,
+   "static_mask_ranges_in_window_mhz": [
+    [
+     1085.57,
+     1086.41
+    ],
+    [
+     1087.45,
+     1092.05
+    ],
+    [
+     1099.57,
+     1100.2
+    ],
+    [
+     1101.45,
+     1102.29
+    ],
+    [
+     1102.5,
+     1103.12
+    ],
+    [
+     1103.33,
+     1104.17
+    ],
+    [
+     1105.42,
+     1106.26
+    ],
+    [
+     1106.47,
+     1107.3
+    ],
+    [
+     1107.51,
+     1108.14
+    ],
+    [
+     1111.48,
+     1112.11
+    ],
+    [
+     1112.53,
+     1113.16
+    ],
+    [
+     1122.56,
+     1123.19
+    ],
+    [
+     1126.53,
+     1127.16
+    ],
+    [
+     1127.58,
+     1128.2
+    ],
+    [
+     1129.46,
+     1130.29
+    ],
+    [
+     1134.47,
+     1135.31
+    ],
+    [
+     1135.52,
+     1136.14
+    ],
+    [
+     1137.4,
+     1138.23
+    ],
+    [
+     1139.49,
+     1140.11
+    ],
+    [
+     1140.53,
+     1141.16
+    ],
+    [
+     1145.76,
+     1301.03
+    ],
+    [
+     1420.15,
+     1422.45
+    ],
+    [
+     1461.95,
+     1492.46
+    ]
+   ],
+   "static_mask_channels_in_window": 987,
+   "station_bins": 17920,
+   "station_bins_without_input_support": 1553,
+   "stations_without_rows": [],
+   "uvrange_static_mask_rows": {
+    "rows_with_new_flags": 0,
+    "max_length_m": null,
+    "min_length_untouched_m": 29.256520999577873
+   },
+   "polarised_z": {
+    "fallback_groups": 6251,
+    "tricolour-firstpass": {
+     "removed_in_emptied_bins": {
+      "n": 687,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       0,
+       12,
+       72,
+       129,
+       328,
+       142,
+       4,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -0.15525798499584195,
+       0.7374846935272217,
+       1.745383381843567,
+       2.7643253803253174,
+       3.757645034790039,
+       4.973492994308471
+      ],
+      "fraction_above_5": 0.005822416302765648
+     },
+     "removed_elsewhere": {
+      "n": 180422,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       15,
+       13525,
+       39772,
+       47377,
+       62474,
+       16263,
+       996,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -0.8404061496257782,
+       -0.1661701314151287,
+       0.756540060043335,
+       1.9910482168197632,
+       2.9612824916839595,
+       4.743779807090761
+      ],
+      "fraction_above_5": 0.005520391083127335
+     },
+     "kept_train": {
+      "n": 13298948,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       342,
+       1908737,
+       4738508,
+       4368208,
+       2221991,
+       60656,
+       506,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -1.1862818360328675,
+       -0.6508852690458298,
+       0.0,
+       0.7016663402318954,
+       1.3749990463256836,
+       2.6316399574279785
+      ],
+      "fraction_above_5": 3.804812230260619e-05
+     }
+    },
+    "tricolour-mild": {
+     "removed_in_emptied_bins": {
+      "n": 213,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       0,
+       2,
+       9,
+       60,
+       124,
+       18,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       0.1767526268959046,
+       0.823165774345398,
+       1.6272621154785156,
+       2.2342381477355957,
+       2.8614575386047365,
+       3.930995168685913
+      ],
+      "fraction_above_5": 0.0
+     },
+     "removed_elsewhere": {
+      "n": 42305,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       1,
+       1628,
+       5311,
+       8488,
+       17325,
+       8720,
+       832,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -0.40716962814331054,
+       0.426643431186676,
+       1.7142146825790405,
+       2.8873627185821533,
+       3.875727367401122,
+       5.298284091949463
+      ],
+      "fraction_above_5": 0.019666706063113108
+     },
+     "kept_train": {
+      "n": 13437539,
+      "edges": [
+       "-inf",
+       "-5",
+       "-3",
+       "-1",
+       "0",
+       "1",
+       "3",
+       "5",
+       "10",
+       "20",
+       "50",
+       "100",
+       "inf"
+      ],
+      "counts": [
+       0,
+       356,
+       1920644,
+       4773032,
+       4407166,
+       2267344,
+       68323,
+       674,
+       0,
+       0,
+       0,
+       0
+      ],
+      "quantiles_10_25_50_75_90_99": [
+       -1.1841946363449096,
+       -0.6480403244495392,
+       0.0032480184454470873,
+       0.709049791097641,
+       1.3885139465332033,
+       2.67400789737701
+      ],
+      "fraction_above_5": 5.015799396005474e-05
+     }
+    }
+   },
+   "baseline_length": {
+    "tricolour-firstpass": [
+     {
+      "band_m": [
+       0,
+       200
+      ],
+      "train": 625606,
+      "removed": 7539,
+      "removed_in_emptied_bins": 0
+     },
+     {
+      "band_m": [
+       200,
+       1000
+      ],
+      "train": 3951910,
+      "removed": 54475,
+      "removed_in_emptied_bins": 0
+     },
+     {
+      "band_m": [
+       1000,
+       3000
+      ],
+      "train": 4982425,
+      "removed": 82285,
+      "removed_in_emptied_bins": 47
+     },
+     {
+      "band_m": [
+       3000,
+       9000
+      ],
+      "train": 3920116,
+      "removed": 36810,
+      "removed_in_emptied_bins": 640
+     }
+    ],
+    "tricolour-mild": [
+     {
+      "band_m": [
+       0,
+       200
+      ],
+      "train": 625606,
+      "removed": 510,
+      "removed_in_emptied_bins": 0
+     },
+     {
+      "band_m": [
+       200,
+       1000
+      ],
+      "train": 3951910,
+      "removed": 6104,
+      "removed_in_emptied_bins": 0
+     },
+     {
+      "band_m": [
+       1000,
+       3000
+      ],
+      "train": 4982425,
+      "removed": 22030,
+      "removed_in_emptied_bins": 38
+     },
+     {
+      "band_m": [
+       3000,
+       9000
+      ],
+      "train": 3920116,
+      "removed": 13874,
+      "removed_in_emptied_bins": 175
+     }
+    ]
+   },
+   "strategies": {
+    "tricolour-firstpass": {
+     "wall_seconds": 23.569180368998786,
+     "window_flag_fraction": 0.4729054636769481,
+     "new_cells": 226016,
+     "additions_on_train": 181109,
+     "removed_in_emptied_bins": 687,
+     "removed_in_emptied_on_whole_columns": {
+      "100%": 17,
+      ">=90%": 20,
+      ">=50%": 317
+     },
+     "removed_all_on_whole_columns": {
+      "n": 181109,
+      "100%": 150,
+      ">=90%": 157
+     },
+     "stage_fractions": [
+      0.46573927049512986,
+      0.5994578492796266,
+      0.6445570591517857,
+      0.30179338727678573,
+      0.30179338727678573,
+      0.3688576438210227,
+      0.4355944031554383,
+      0.44385821453936686,
+      0.4507664747362013,
+      0.4510526265726461,
+      0.4510526265726461,
+      0.4729054636769481
+     ],
+     "new_cells_without_attribution": 0
+    },
+    "tricolour-mild": {
+     "wall_seconds": 18.19927935699525,
+     "window_flag_fraction": 0.46742079697646105,
+     "new_cells": 53034,
+     "additions_on_train": 42518,
+     "removed_in_emptied_bins": 213,
+     "removed_in_emptied_on_whole_columns": {
+      "100%": 19,
+      ">=90%": 19,
+      ">=50%": 34
+     },
+     "removed_all_on_whole_columns": {
+      "n": 42518,
+      "100%": 275,
+      ">=90%": 284
+     },
+     "stage_fractions": [
+      0.46573927049512986,
+      0.4978970297280844,
+      0.30236594460227273,
+      0.30236594460227273,
+      0.3103228680499188,
+      0.3179645013189935,
+      0.3239287616680195,
+      0.3256820401278409,
+      0.3256820401278409,
+      0.46742079697646105
+     ],
+     "new_cells_without_attribution": 0
+    },
+    "firstpass-no-static-mask": {
+     "wall_seconds": 24.316931630004547,
+     "window_flag_fraction": 0.47137403612012985,
+     "new_cells": 177716,
+     "additions_on_train": 142256
+    },
+    "static-mask-all-baselines": {
+     "wall_seconds": 2.010989400005201,
+     "window_flag_fraction": 0.5994578492796266,
+     "new_cells": 4217377,
+     "additions_on_train": 3373636
+    },
+    "static-mask-uvrange": {
+     "wall_seconds": 1.8848322889971314,
+     "window_flag_fraction": 0.46573927049512986,
+     "new_cells": 0,
+     "additions_on_train": 0
+    }
+   },
+   "arms": {
+    "tricolour-firstpass": {
+     "emptied_station_bins": 122,
+     "time_freq_cells_with_emptied": 19,
+     "emptied_in_array_wide_cells": 0,
+     "stations_emptied_per_cell_quantiles_min_50_max": [
+      1,
+      8.0,
+      13
+     ],
+     "supported_stations_per_cell_median": 35.0,
+     "by_block": [
+      {
+       "block": 16,
+       "mhz": [
+        1176.9,
+        1183.58
+       ],
+       "emptied": 50,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.999
+      },
+      {
+       "block": 20,
+       "mhz": [
+        1203.65,
+        1210.33
+       ],
+       "emptied": 7,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9811
+      },
+      {
+       "block": 29,
+       "mhz": [
+        1263.83,
+        1270.52
+       ],
+       "emptied": 51,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9963
+      },
+      {
+       "block": 30,
+       "mhz": [
+        1270.52,
+        1277.21
+       ],
+       "emptied": 14,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9683
+      }
+     ],
+     "by_band": [
+      {
+       "band": "GSM/LTE downlinks",
+       "mhz": [
+        0.0,
+        960.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "DME/TACAN, SSR/ADS-B",
+       "mhz": [
+        960.0,
+        1215.0
+       ],
+       "blocks_in_window": 22,
+       "emptied": 57,
+       "blocks_with_emptied": 2
+      },
+      {
+       "band": "GNSS L5/E5a/E5b/B2/G3",
+       "mhz": [
+        1164.0,
+        1215.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 57,
+       "blocks_with_emptied": 2
+      },
+      {
+       "band": "GNSS L2/G2/E6/B3",
+       "mhz": [
+        1215.0,
+        1300.0
+       ],
+       "blocks_in_window": 14,
+       "emptied": 65,
+       "blocks_with_emptied": 2
+      },
+      {
+       "band": "aeronautical radionavigation / radar",
+       "mhz": [
+        1300.0,
+        1350.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "fixed/mobile/radiolocation",
+       "mhz": [
+        1350.0,
+        1400.0
+       ],
+       "blocks_in_window": 9,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "radio astronomy (protected)",
+       "mhz": [
+        1400.0,
+        1427.0
+       ],
+       "blocks_in_window": 5,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "mobile IMT L-band / BSS-DAB",
+       "mhz": [
+        1427.0,
+        1518.0
+       ],
+       "blocks_in_window": 11,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Inmarsat/MSS downlink",
+       "mhz": [
+        1525.0,
+        1559.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "GPS L1/E1/G1",
+       "mhz": [
+        1559.0,
+        1610.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Iridium / Inmarsat uplink",
+       "mhz": [
+        1616.0,
+        1660.5
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "no listed allocation",
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      }
+     ],
+     "emptied_in_blocks_touching_static_mask": 122,
+     "by_time_bin": [
+      24,
+      29,
+      22,
+      25,
+      22
+     ],
+     "by_station": {
+      "m036": 10,
+      "m043": 9,
+      "m050": 6,
+      "m014": 6,
+      "m013": 5,
+      "m027": 5,
+      "m009": 5,
+      "m000": 5,
+      "m023": 5,
+      "m026": 5,
+      "m038": 5,
+      "m037": 5,
+      "m042": 5,
+      "m054": 5,
+      "m024": 5,
+      "m003": 5,
+      "m057": 5,
+      "m063": 5,
+      "m033": 4,
+      "m039": 4,
+      "m030": 3,
+      "m007": 3,
+      "m011": 2,
+      "m001": 1,
+      "m051": 1,
+      "m029": 1,
+      "m041": 1,
+      "m046": 1
+     },
+     "input_flagged_fraction_emptied": 0.9979904061102831,
+     "input_flagged_fraction_all_supported": 0.41504537956086807,
+     "train_cells_in_emptied_quantiles_min_50_max": [
+      1,
+      5.0,
+      28
+     ],
+     "heldout_in_emptied": 151,
+     "heldout_in_emptied_flagged_by_strategy": 149,
+     "removed_by_step_in_emptied": {
+      "01-apply_static_mask": 76,
+      "06-sum_threshold": 380,
+      "07-sum_threshold": 151,
+      "08-sum_threshold": 103,
+      "09-uvcontsub_flagger": 2
+     },
+     "removed_by_category_in_emptied": {
+      "static_mask": 76,
+      "sum_threshold": 634,
+      "uvcontsub": 2
+     },
+     "emptied_bins_by_category_set": {
+      "sum_threshold": 85,
+      "static_mask+sum_threshold": 35,
+      "static_mask+sum_threshold+uvcontsub": 2
+     },
+     "emptied_with_max_z_above_5": 4,
+     "emptied_without_own_outlier": 118,
+     "emptied_max_z_quantiles_10_50_90": [
+      0.8717648983001709,
+      2.3430505990982056,
+      4.12448468208313
+     ],
+     "lost_vs_emptied": {
+      "l2-stored": {
+       "lost": 122,
+       "emptied_and_lost": 122,
+       "lost_not_emptied": 0,
+       "emptied_not_lost": 0,
+       "emptied_where_original_gain_invalid": 0
+      },
+      "l2-scalar": {
+       "lost": 123,
+       "emptied_and_lost": 122,
+       "lost_not_emptied": 1,
+       "emptied_not_lost": 0,
+       "emptied_where_original_gain_invalid": 0
+      }
+     }
+    },
+    "tricolour-mild": {
+     "emptied_station_bins": 40,
+     "time_freq_cells_with_emptied": 20,
+     "emptied_in_array_wide_cells": 4,
+     "stations_emptied_per_cell_quantiles_min_50_max": [
+      1,
+      2.0,
+      3
+     ],
+     "supported_stations_per_cell_median": 41.5,
+     "by_block": [
+      {
+       "block": 15,
+       "mhz": [
+        1170.21,
+        1176.9
+       ],
+       "emptied": 4,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9999
+      },
+      {
+       "block": 16,
+       "mhz": [
+        1176.9,
+        1183.58
+       ],
+       "emptied": 3,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.999
+      },
+      {
+       "block": 20,
+       "mhz": [
+        1203.65,
+        1210.33
+       ],
+       "emptied": 11,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "DME/TACAN, SSR/ADS-B",
+        "GNSS L5/E5a/E5b/B2/G3"
+       ],
+       "input_flagged_fraction": 0.9811
+      },
+      {
+       "block": 29,
+       "mhz": [
+        1263.83,
+        1270.52
+       ],
+       "emptied": 11,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9963
+      },
+      {
+       "block": 30,
+       "mhz": [
+        1270.52,
+        1277.21
+       ],
+       "emptied": 11,
+       "static_mask_fraction": 1.0,
+       "bands": [
+        "GNSS L2/G2/E6/B3"
+       ],
+       "input_flagged_fraction": 0.9683
+      }
+     ],
+     "by_band": [
+      {
+       "band": "GSM/LTE downlinks",
+       "mhz": [
+        0.0,
+        960.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "DME/TACAN, SSR/ADS-B",
+       "mhz": [
+        960.0,
+        1215.0
+       ],
+       "blocks_in_window": 22,
+       "emptied": 18,
+       "blocks_with_emptied": 3
+      },
+      {
+       "band": "GNSS L5/E5a/E5b/B2/G3",
+       "mhz": [
+        1164.0,
+        1215.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 18,
+       "blocks_with_emptied": 3
+      },
+      {
+       "band": "GNSS L2/G2/E6/B3",
+       "mhz": [
+        1215.0,
+        1300.0
+       ],
+       "blocks_in_window": 14,
+       "emptied": 22,
+       "blocks_with_emptied": 2
+      },
+      {
+       "band": "aeronautical radionavigation / radar",
+       "mhz": [
+        1300.0,
+        1350.0
+       ],
+       "blocks_in_window": 8,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "fixed/mobile/radiolocation",
+       "mhz": [
+        1350.0,
+        1400.0
+       ],
+       "blocks_in_window": 9,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "radio astronomy (protected)",
+       "mhz": [
+        1400.0,
+        1427.0
+       ],
+       "blocks_in_window": 5,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "mobile IMT L-band / BSS-DAB",
+       "mhz": [
+        1427.0,
+        1518.0
+       ],
+       "blocks_in_window": 11,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Inmarsat/MSS downlink",
+       "mhz": [
+        1525.0,
+        1559.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "GPS L1/E1/G1",
+       "mhz": [
+        1559.0,
+        1610.0
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "Iridium / Inmarsat uplink",
+       "mhz": [
+        1616.0,
+        1660.5
+       ],
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      },
+      {
+       "band": "no listed allocation",
+       "blocks_in_window": 0,
+       "emptied": 0,
+       "blocks_with_emptied": 0
+      }
+     ],
+     "emptied_in_blocks_touching_static_mask": 40,
+     "by_time_bin": [
+      6,
+      7,
+      8,
+      11,
+      8
+     ],
+     "by_station": {
+      "m054": 6,
+      "m000": 5,
+      "m050": 5,
+      "m036": 5,
+      "m037": 4,
+      "m007": 3,
+      "m038": 2,
+      "m046": 2,
+      "m058": 2,
+      "m062": 2,
+      "m039": 1,
+      "m033": 1,
+      "m014": 1,
+      "m018": 1
+     },
+     "input_flagged_fraction_emptied": 0.9980184659090909,
+     "input_flagged_fraction_all_supported": 0.41504537956086807,
+     "train_cells_in_emptied_quantiles_min_50_max": [
+      1,
+      5.0,
+      30
+     ],
+     "heldout_in_emptied": 50,
+     "heldout_in_emptied_flagged_by_strategy": 45,
+     "removed_by_step_in_emptied": {
+      "01-sum_threshold": 39,
+      "04-sum_threshold": 9,
+      "05-sum_threshold": 102,
+      "06-sum_threshold": 76,
+      "07-uvcontsub_flagger": 3
+     },
+     "removed_by_category_in_emptied": {
+      "sum_threshold": 226,
+      "uvcontsub": 3
+     },
+     "emptied_bins_by_category_set": {
+      "sum_threshold": 37,
+      "sum_threshold+uvcontsub": 3
+     },
+     "emptied_with_max_z_above_5": 0,
+     "emptied_without_own_outlier": 40,
+     "emptied_max_z_quantiles_10_50_90": [
+      1.8127235770225525,
+      2.6859583854675293,
+      3.5230899810791017
+     ],
+     "lost_vs_emptied": {
+      "l2-stored": {
+       "lost": 40,
+       "emptied_and_lost": 40,
+       "lost_not_emptied": 0,
+       "emptied_not_lost": 0,
+       "emptied_where_original_gain_invalid": 0
+      },
+      "l2-scalar": {
+       "lost": 40,
+       "emptied_and_lost": 40,
+       "lost_not_emptied": 0,
+       "emptied_not_lost": 0,
+       "emptied_where_original_gain_invalid": 0
+      }
+     }
+    }
+   },
+   "counterfactual": {
+    "emptied_by": {
+     "firstpass-no-static-mask": 140,
+     "static-mask-all-baselines": 6297,
+     "static-mask-uvrange": 0
+    },
+    "firstpass_emptied": 122,
+    "static_alone_only": 20,
+    "sumthreshold_alone_only": 0,
+    "both_alone": 102,
+    "only_together": 0,
+    "no_mask_emptied_not_in_firstpass": 38,
+    "mild_emptied_subset_of_firstpass": false,
+    "mild_and_firstpass_emptied": 29
+   }
+  }
+ },
+ "cross_calibrator": {
+  "tricolour-firstpass": {
+   "block_station_l1": 133,
+   "block_station_l2": 35,
+   "block_station_both": 11,
+   "jaccard": 0.07006369426751592,
+   "blocks_l1": 16,
+   "blocks_l2": 4,
+   "blocks_both": 4,
+   "blocks_both_list": [
+    16,
+    20,
+    29,
+    30
+   ]
+  },
+  "tricolour-mild": {
+   "block_station_l1": 95,
+   "block_station_l2": 15,
+   "block_station_both": 6,
+   "jaccard": 0.057692307692307696,
+   "blocks_l1": 13,
+   "blocks_l2": 5,
+   "blocks_both": 5,
+   "blocks_both_list": [
+    15,
+    16,
+    20,
+    29,
+    30
+   ]
+  }
+ }
+}
