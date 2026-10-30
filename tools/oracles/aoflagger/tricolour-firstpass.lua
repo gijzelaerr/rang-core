@@ -54,7 +54,12 @@ function execute(input)
     local spec = aoflagger.downsample(iter, P.ntime, 1, true)
     local spec_missing = spec:copy()
     aoflagger.high_pass_filter(spec, 1, ky, 1.0, vy)
-    aoflagger.sumthreshold_masked(spec, spec_missing, sens, sens, false, true)
+    -- Post-hoc fix (2026-10-31, run -11): AOFlagger 3.5.0's
+    -- sumthreshold_masked reads its direction flags from Lua arguments 4 and
+    -- 5, so the frozen (false, true) ran the horizontal pass only, which on
+    -- this width-1 spectrum is a plain L = 1 threshold. (true, true) runs the
+    -- vertical (frequency) pass; the horizontal pass stays a trivial L = 1.
+    aoflagger.sumthreshold_masked(spec, spec_missing, sens, sens, true, true)
     local spec_full = iter:copy()
     aoflagger.upsample_mask(spec, spec_full, P.ntime, 1)
 
