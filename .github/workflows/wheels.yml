@@ -85,6 +85,10 @@ jobs:
       # maturin-action passes RUSTFLAGS into its build container on Linux.
       RUSTFLAGS: "-C target-cpu=${{ matrix.cpu }}"
     steps:
+      # LF endings on Windows too: the wheel packs the .py files as checked
+      # out, and receipts hash them (Git for Windows defaults to autocrlf).
+      - if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
       - uses: PyO3/maturin-action@v1
         with:
@@ -199,8 +203,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: dist
-          pattern: "{wheel-*,sdist}"
+          pattern: wheel-*
           merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdist
+          path: dist
       - name: Attach the wheels and sdist to the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -227,8 +235,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: dist
-          pattern: "{wheel-*,sdist}"
+          pattern: wheel-*
           merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdist
+          path: dist
       - run: ls -l dist
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:

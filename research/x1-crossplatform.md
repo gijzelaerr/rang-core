@@ -46,6 +46,11 @@ building and testing. It was cloned from the main WSL repository
 a worktree path cannot be cloned from Windows, because its `.git` file
 names a Linux path. Edited files were copied between the two checkouts and
 verified on both before the commit. Nothing was pushed.
+After the task, the Windows clone, the copied inputs and the wheel folders
+(`C:\Users\gijsm\Build\tmp\20261030-rang-x1`, 1.6 GB) and the Linux
+scratch (`~/Build/tmp/20261030-rang-x1-linux`, 269 MB) were removed; the
+receipts are in `outputs/x1-crossplatform-20261030-01`. X2 can re-clone in
+about 20 s.
 
 ## 1. Native Windows build
 
@@ -160,7 +165,11 @@ Jobs (actionlint 1.7.12 with shellcheck, `uv tool run --from actionlint-py
 - `sdist`: unchanged.
 - `test` (5 platforms × CPython 3.10 and 3.14 = 10 jobs), each on its own
   hardware (`ubuntu-24.04-arm` for aarch64):
-  - On Windows, `core.autocrlf=false` is set before checkout.
+  - On Windows, `core.autocrlf=false` is set before checkout, as in the
+    `wheel` job. Without it, the published `win_amd64` wheel would carry CRLF
+    `.py` files, whose hashes would then differ from Linux installs. The local
+    Windows wheels were built from the LF clone: 46 `.py` files, none with
+    CRLF.
   - The C ABI of `core/` is built with Rust 1.93.1 and `generic` as
     `librang_core.so`, `librang_core.dylib` or `rang_core.dll`.
   - `python tools/wheel/test.py <wheel> $RUNNER_TEMP/wheel-test --python
@@ -170,9 +179,10 @@ Jobs (actionlint 1.7.12 with shellcheck, `uv tool run --from actionlint-py
     over: it drops `SYSTEMROOT` on Windows.
   - Logs and timings are uploaded as `test-logs-*`.
 - `release` (tags `v*`, after wheel, sdist and test): as before. It now
-  downloads only `{wheel-*,sdist}`, so the test logs are not attached.
+  downloads only the `wheel-*` artifacts and `sdist`, so the test logs are not
+  attached.
 - `publish` (new; tags `v*`, after wheel, sdist and test): `environment:
-  pypi`, `permissions: id-token: write`, a fresh download of `{wheel-*,sdist}`
+  pypi`, `permissions: id-token: write`, a fresh download of the `wheel-*` artifacts and `sdist`
   (so the release job's `SHA256SUMS` is not uploaded), then
   `pypa/gh-action-pypi-publish@release/v1` with `packages-dir: dist/`.
 
@@ -187,8 +197,8 @@ Choices:
   `macos-15-intel` is the Intel replacement until the macOS 15 image retires
   (announced for autumn 2027). After that, x86_64 macOS wheels can only be
   cross-built from arm64 and tested under Rosetta.
-- Wheel tags: maturin's default deployment targets give
-  `macosx_10_12_x86_64` and `macosx_11_0_arm64`.
+- Wheel tags: expected from maturin's default deployment targets,
+  `macosx_10_12_x86_64` and `macosx_11_0_arm64`; not built here.
 
 **Not run on GitHub.** The workflow runs on push to main or on a pull
 request after the merge. The macOS jobs in particular have never executed
@@ -228,7 +238,7 @@ with required reviewers.
 | Run | Wall | Result |
 | --- | ---: | --- |
 | Windows `build.py ../wheel-win-01 --sdist` | 127.4 s (rustc 24.1 s, which includes rustup fetching the `1.93.1` name; wheel 63.4; sdist 4.8; ctypes 33.5) | `rangtoy-0.1.0-cp310-abi3-win_amd64.whl` 1,394,279 B, **which contained a stray `rangtoy/rang_core_py.pdb`** (1.36 MB) left in `python/rangtoy` by `maturin develop`, because maturin packs untracked files under `python-source` unless git ignores them |
-| Windows `build.py ../wheel-win-02 --no-ctypes`, after the `.gitignore` fix | 64.9 s | 1,067,890 B, `_core.pyd` only (`7646737…`). MSVC binaries are not byte-reproducible between two builds (`603ef189…` against `7646737…`: linker timestamp and PDB GUID; `/Brepro` would be needed) |
+| Windows `build.py ../wheel-win-02 --no-ctypes`, after the `.gitignore` fix | 64.9 s | 1,067,890 B, `_core.pyd` only (`7646737…`). MSVC binaries are not byte-reproducible between two builds (`603ef189…` against `7646737…`: 24 bytes differ, at offset 264–265, the PE header timestamp, and at 1,749,300–1,749,763, the debug directory with the PDB GUID; consistent with the MSVC linker's timestamp and GUID, which `/Brepro` would fix, not checked further) |
 | Windows `test.py` on `wheel-win-01`, py3.10 / py3.14 / py3.14 `--no-ctypes` | 4.5 / 3.3 / 4.2 s | PASS: import, smoke (extension from site-packages, cargo absent; NumPy 2.2.6 and 2.5.4; first fused pass 1.1 ms), backend tests 10 passed and 1 skipped; `--no-ctypes`: 2 passed, 9 skipped |
 | Windows `test.py` on `wheel-win-02`, py3.10 / py3.14, ctypes from `-01` | 4.6 / 3.1 s | PASS, 10 passed, 1 skipped |
 | Windows `test.py` on `wheel-win-02`, py3.14, **uv removed from PATH** (the CI path: `python -m venv` and pip, `PIP_INDEX_URL` public PyPI) | 49.0 s (install 37.0 s) | PASS, 10 passed, 1 skipped |
@@ -330,6 +340,11 @@ POSIX tool, that is listed below. `multiprocessing`, `signal`, `fcntl`,
       cp1252.
     - Replacement: `encoding="utf-8"` (ruff rule `PLW1514` can enforce it),
       or set `PYTHONUTF8=1` in the CLI entry points.
+    - `write_text()` and text-mode `open()` on Windows also translate `\n` to
+      `\r\n` (`newline=None`). This task tripped on it: a report edited by
+      a Windows Python script was committed with CRLF in `1aed9a3` and
+      converted back in the next commit. Use `newline="\n"` wherever a
+      written file is hashed or committed.
     - `tests/test_core_imaging.py` is committed with CRLF line endings, the
       only text file in the index that is.
     - A `.gitattributes` with `* text=auto eol=lf` (plus `*.staticmask
@@ -435,6 +450,7 @@ POSIX tool, that is listed below. `multiprocessing`, `signal`, `fcntl`,
 | 2026-10-30 | actionlint with shellcheck | 11.7 s | 0 errors |
 | 2026-10-30 | WSL: `uv venv` + editable install for check-all | 89.3 s | |
 | 2026-10-30 | WSL: `bash tools/check-all.sh`, first run, started before the coordinator's lock rule and without it | 4,709 s (78 min 29 s; pytest 4,350 s) | overall FAIL on `ext-build` only: `maturin develop` found no pip in the uv-created venv ("if working with a uv venv try `maturin develop --uv`"); every other step passed: root 19 and core 55 Rust tests, clippy, fmt, ruff, ruff format, diff-check, **570 passed, 1 skipped**; load 50-96 from five concurrent check-all runs. Fix of the environment, not the tree: `uv pip install pip` into `.venv` |
+| 2026-10-30 | WSL: `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` (coordinator's load rule), `OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`, after pip was added to `.venv` | lock wait 1,803 s (requested 13:25:24, acquired 13:55:27, load 80 then 22); run 229.3 s (pytest 153.6 s) | **overall PASS**: root 19 and core 55 Rust tests, clippy, fmt, `ext-build`, ruff, ruff format, diff-check, 570 passed and 1 skipped; the first run's FAIL was the venv. Logs in `outputs/x1-crossplatform-20261030-01/check-all/` |
 
 ## Upstream observations (not RATT)
 
