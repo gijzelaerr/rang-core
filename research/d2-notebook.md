@@ -107,6 +107,7 @@ threads during every measured run, so walls are upper bounds.
 | 2026-10-30 | nbconvert, five notebooks in series, LUNO on | fixture + slice | 755 s | 1.16 GB (children) | 01 22.3 s, 02 8.9 s, 03 20.9 s, 04 636.8 s, 05 66.3 s; 04's cells summed 37 s, the rest was a kernel-shutdown stall ("KeyboardInterrupt caught in kernel") not reproduced on rerun |
 | 2026-10-30 | nbconvert, 04 alone | fixture | 37.4 s | 809 MB | – |
 | 2026-10-30 | `pytest tests/test_notebook_functions.py tests/test_notebook_execute.py` | fixture + slice | 78 s | 839 MB | 15 passed; the concurrent notebook fixture 47.6 s |
+| 2026-10-30 | `data.download_fixture` + `data.load_luno(fetch=True)` (`fetchcheck.py`) | public LFS fixture; RATT bucket | 116 s | 179 MB | fixture 45,452,147 bytes in 5.9 s, hash verified; slice and extra objects 754.9 MB fetched and loaded in 101.9 s with the polled progress line every 10 s; `.partial` renamed, nothing left over; split, original-arm TV 0.018794641730921754 and losses equal to the local copy; the 769 MB cache was deleted afterwards (log `outputs/d2-notebook-20261030-02/fetch.log`) |
 | 2026-10-30 | `bash tools/check-all.sh` | branch tree | 4,755 s | 2.28 GB | **PASS**; pytest 585 passed, 1 skipped in 4,276 s at load 70–100; started before the coordinator's `flock` rule, so no lock wait; log `outputs/d2-notebook-20261030-01/check-all.log`. After it, only notebook 05's markdown changed (the model-limited caveat); the no-outputs test passes on the rebuilt notebooks |
 
 The probe scripts live in the session scratchpad; their outputs are in
@@ -171,8 +172,11 @@ Tested with matplotlib 3.11.2, pandas 3.1.0, ipywidgets 8.1.9, nbformat
 > imaging, and the flagging experiment with its null results read from the
 > archives. The fixture loader reproduces the archived split and baseline
 > solve to ten figures without casacore; the LUNO survey reproduces 389/43/592
-> and the decision replay reproduces task K's calls exactly. Notebooks run
-> in 9–37 s each on the fixture on a loaded host; the new tests take 78 s.
+> and the decision replay reproduces task K's calls exactly. On a host at
+> load 46–61, notebooks 01–04 ran in 9–37 s each (series, LUNO on for 01),
+> 05 in 66 s with its LUNO replay, and all five on the fixture alone in
+> 48 s when executed together; the new tests take 78 s. The range fetch
+> (755 MB, 102 s) and the fixture download were exercised once.
 > Wish list (progress hook in `fetch_slice`, POSIX-only `resource` import in
 > `core_campaign`, TV and normals kernels outside the wheel, amendment 1
 > calls missing from the L1 archive) in [d2-notebook.md](d2-notebook.md).
@@ -228,6 +232,9 @@ wish 5 (moving the kernels into the core).
   196-component field model; follow-up L1-M re-solves with it). Notebook 05
   states this under "does not say"; the tooling keeps the frozen point model
   so replays stay comparable with K and L1. The same message's Anderson
-  acceleration notes are for the solver protocol L5, not this task.
+  acceleration notes are for the solver protocol L5, not this task; so is
+  U2's QuartiCal#455 input (on scan 9 chi-squared settles by iteration 10
+  while gains and the gauge-invariant products keep moving), which agrees
+  with what notebook 03's iteration sweep shows students.
 - The fixture's teaching replay uses CARACAL's strategies tuned for 64
   dishes on a four-antenna pointing scan; notebook 05 labels it exploratory.
