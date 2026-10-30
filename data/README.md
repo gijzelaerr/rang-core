@@ -32,3 +32,32 @@ X, Y, Z in metres, dish diameter, name, mount. A 2018 mailing-list note calls
 these positions out of date, and they are not checked against a MeerKAT
 observation's ANTENNA table. They give a realistic uv coverage and PSF for
 algorithm studies, not survey-grade geometry.
+
+## VLA (C configuration), WSRT and KAT-7 ITRF positions
+
+Added 2026-10-30 for the CLEAN phase-transition study
+(`research/clean-phase-transition.md`,
+`core/examples/clean_phase_transition.rs`). All three come from the same
+simms repository, which has moved from `radio-astro/simms` to
+`ratt-ru/simms` (GPL-2.0; the GitHub API redirects the old name). They were
+downloaded on 2026-10-30 from the `master` branch at commit
+`e715505bd483252a404f552ff07e9d01f0939ff4` (2026-03-20) as
+`https://raw.githubusercontent.com/ratt-ru/simms/master/simms/observatories/<file>`.
+Columns are ITRF X, Y, Z in metres, dish diameter, name, mount, as in
+`meerkat.itrf.txt`.
+
+| File here | simms file | Antennas | Longest baseline | Last change to the simms file | SHA-256 of the copy |
+| --- | --- | ---: | ---: | --- | --- |
+| `vla-c.itrf.txt` | `vlac.itrf.txt` | 27 | 3.39 km | `3e239f53041e958d25b213d41d56d7565e9b0729`, 2015-06-13 | `c9bc5d85…b4388a7` |
+| `wsrt.itrf.txt` | `wsrt.itrf.txt` | 14 | 2.70 km | `3f85ccc1bcf8838f4751e046802c54406dc352d2`, 2016-02-02 | `6042f799…ffb5488` |
+| `kat7.itrf.txt` | `kat-7.itrf.txt` | 7 | 0.18 km | `3f85ccc1bcf8838f4751e046802c54406dc352d2`, 2016-02-02 | `74588620…682c24e` |
+
+`wsrt.itrf.txt` and `kat7.itrf.txt` are byte-identical copies;
+`vla-c.itrf.txt` drops the one header line (`#X Y Z dish_diam station
+mount`) of the simms file and is otherwise identical. The VLA table is one
+fixed C-configuration pad set; the WSRT table is one fixed setting of the
+movable dishes (RT0-RT9 at 144 m spacing, RTA-RTD beyond), not any
+particular observation's; KAT-7 was decommissioned in 2016. None of these
+was checked against an observation's ANTENNA table. Like the MeerKAT file,
+they are realistic layouts for algorithm studies and **not survey-grade
+geometry**.

@@ -1,5 +1,34 @@
 # Rang research state
 
+CLEAN phase transition (question 2 of the CLEAN programme; user-directed;
+[clean-phase-transition.md](clean-phase-transition.md)), 2026-10-30
+(implemented; measured). The question: when does Högbom CLEAN recover point
+sources exactly? It was measured on MeerKAT, VLA-C, WSRT and KAT-7 (simms
+layouts, [data/README.md](../data/README.md)), as snapshot or 4 h track,
+with natural or uniform weights. Each cell had 100 trials for
+`k = 2..32` sources and minimum separations of 1-24 pixels, noiseless with
+gain 1 and with 1 % noise and gain 0.1; the run took 301 s. Proven in
+prose: an exact two-source rule for gain 1 (dirty peak on a source and
+`max_q ‖B_SS⁻¹B_{S,q}‖_∞ < 1`, where the ERC asks for the ℓ1 norm), which
+agrees with all 40,000 two-source trials; Theorem 7, which replaces
+Proposition 4''s counting bounds by worst separated sums; and Theorem 8, an
+anchored bound that keeps the ERC's sidelobe cancellation. Theorem 8
+certifies 14 of 80 (configuration, `k`) cases, against 3 for Proposition 4'
+and Theorem 7, and reaches the exact two-source worst case on 7 PSFs.
+Measured: `d*(k)` is 1, 1, 1, 2-3, 3 pixels for `k = 2..32` on the MeerKAT
+and VLA-C uniform tracks and larger on natural-weight PSFs. There is no
+transition on the degenerate WSRT snapshot (an east-west line, `μ_1 = 1`)
+or on the floor-limited KAT-7 snapshot. Every sufficient condition is far
+above the measured transition for `k ≥ 4`: 32 sources at 3 pixels recover
+in 100 % of trials, of which at most 1 % have `η < 1`. Two negative
+results: there is no universal success curve beyond the ERC threshold (the
+per-configuration 95 % point of `η` lies at 0.99-1.41, and no other
+statistic collapses better), and with 1 % noise no configuration reaches
+95 % exact support, a rate set by `μ_1` rather than by separation. A
+measured pattern: for many sources the far-sidelobe floor decides. Not
+done: figures (no matplotlib in `.venv`) and Lean proofs. Archive:
+[results/clean-phase-transition.json](results/clean-phase-transition.json).
+
 D1 documentation site (big plan, documentation track), 2026-10-30
 (implemented; built and measured locally; not yet run on GitHub;
 [d1-docs.md](d1-docs.md)). A Sphinx site (furo, myst-nb, autodoc) in

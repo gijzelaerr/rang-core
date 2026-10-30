@@ -17,6 +17,17 @@ New, 2026-10-30: D1, the [documentation site](d1-docs.md): Sphinx and
 myst-nb, executed tutorials, API from the docstrings, GitHub Pages
 deployment from `main` (user enables Pages).
 
+New, 2026-10-30: [CLEAN phase transition](clean-phase-transition.md): when
+Högbom CLEAN recovers point sources exactly, on MeerKAT, VLA-C, WSRT and
+KAT-7. Proven: an exact gain-one two-source rule (an ℓ∞ ERC plus the
+first pick), which agrees with all 40,000 trials, and a sharper sufficient
+condition (Theorem 8, anchored), which certifies 14 of 80 cases against 3
+for Proposition 4'. Measured: the transition `d*(k)` per array, coverage
+and weighting, with every sufficient condition far above it for `k ≥ 4`.
+Negative results: there is no universal curve beyond the ERC threshold
+`η = 1`, and with 1 % noise no configuration reaches 95 % exact support
+([archive](results/clean-phase-transition.json)).
+
 New, 2026-10-30: [CLEAN theory](clean-theory.md): the claim that CLEAN was
 never proven is folklore (Schwarz 1978 proved the data fit converges for
 0 < g < 2); a Gram-matrix formalism reduces his three conditions to one,

@@ -464,28 +464,366 @@ pub fn min_eigenvalue(a: &[f64], k: usize) -> f64 {
 /// Tropp's exact recovery coefficient of `support`,
 /// `η(S) = max_{q ∉ S} ‖B_SS⁻¹ B_{S,q}‖₁`; selection stays inside `S` for
 /// every residual in the span of the support atoms when `η(S) < 1`.
-/// `None` when the support Gram matrix is singular.
+/// `None` when the support Gram matrix is singular. Costs `k³ + k² N`
+/// (one inversion, then one product per pixel).
 pub fn erc(psf: &Psf, grid: &Grid, support: &[usize]) -> Option<f64> {
-    let n = psf.n as isize;
-    let g = gram(psf, support);
-    let mut worst = 0.0_f64;
-    for q in 0..grid.pixels() {
-        if support.contains(&q) {
-            continue;
-        }
-        let b: Vec<f64> = support
-            .iter()
-            .map(|&p| {
-                let dx = (p as isize % n) - (q as isize % n);
-                let dy = (p as isize / n) - (q as isize / n);
-                psf.at(dx, dy) / psf.peak()
-            })
-            .collect();
-        let x = solve_dense(&g, &b)?;
-        let norm: f64 = x.iter().map(|v| v.abs()).sum();
-        worst = worst.max(norm);
+    support_coefficients(psf, grid, support).map(|c| c.eta)
+}
+
+/// The inverse of a dense `k × k` matrix by Gauss-Jordan elimination with
+/// partial pivoting; `None` when a pivot falls below 1e-14 (the threshold of
+/// [`solve_dense`]).
+pub fn invert_dense(a: &[f64], k: usize) -> Option<Vec<f64>> {
+    let mut m = a.to_vec();
+    let mut inv = vec![0.0; k * k];
+    for i in 0..k {
+        inv[i * k + i] = 1.0;
     }
-    Some(worst)
+    for col in 0..k {
+        let pivot = (col..k)
+            .max_by(|&i, &j| m[i * k + col].abs().total_cmp(&m[j * k + col].abs()))
+            .unwrap();
+        if m[pivot * k + col].abs() < 1e-14 {
+            return None;
+        }
+        if pivot != col {
+            for j in 0..k {
+                m.swap(col * k + j, pivot * k + j);
+                inv.swap(col * k + j, pivot * k + j);
+            }
+        }
+        let scale = 1.0 / m[col * k + col];
+        for j in 0..k {
+            m[col * k + j] *= scale;
+            inv[col * k + j] *= scale;
+        }
+        for row in 0..k {
+            if row == col {
+                continue;
+            }
+            let f = m[row * k + col];
+            if f != 0.0 {
+                for j in 0..k {
+                    m[row * k + j] -= f * m[col * k + j];
+                    inv[row * k + j] -= f * inv[col * k + j];
+                }
+            }
+        }
+    }
+    Some(inv)
+}
+
+/// The coefficients of a support `S` that decide or bound where greedy
+/// selection can go, all from `x_q = B_SS⁻¹ B_{S,q}` for pixels `q ∉ S`
+/// (`research/clean-phase-transition.md` §2).
+#[derive(Clone, Copy, Debug)]
+pub struct SupportCoefficients {
+    /// Tropp's ERC `η(S) = max_q ‖x_q‖₁`: below one, every residual in the
+    /// span of the support atoms peaks inside `S`.
+    pub eta: f64,
+    /// `η₁(S) = max_q (‖x_q‖₁ − min_i |x_{q,i}|)`: below one, every residual
+    /// in the span that vanishes at one support pixel peaks inside `S`; this
+    /// is what gain-one CLEAN needs after its first pick.
+    pub eta_gain_one: f64,
+    /// `max_q ‖x_q‖_∞`: for two sources and gain one, below one (with a first
+    /// pick on `S`) is necessary and sufficient for exact recovery.
+    pub eta_max: f64,
+    /// `max_q ‖B_{S,q}‖₁`, the largest off-support column sum of the PSF.
+    pub cross: f64,
+    /// `max_{i∈S} Σ_{j≠i} |B_ij|`, the Gershgorin radius of `B_SS`.
+    pub radius: f64,
+}
+
+/// [`SupportCoefficients`] of `support` on `grid` (pixels outside the support
+/// only); `None` when `B_SS` is singular.
+pub fn support_coefficients(
+    psf: &Psf,
+    grid: &Grid,
+    support: &[usize],
+) -> Option<SupportCoefficients> {
+    let n = psf.n as isize;
+    let k = support.len();
+    let g = gram(psf, support);
+    let inv = invert_dense(&g, k)?;
+    let radius = (0..k)
+        .map(|i| {
+            (0..k)
+                .filter(|&j| j != i)
+                .map(|j| g[i * k + j].abs())
+                .sum::<f64>()
+        })
+        .fold(0.0, f64::max);
+    let mut in_support = vec![false; grid.pixels()];
+    for &p in support {
+        in_support[p] = true;
+    }
+    let peak = psf.peak();
+    let mut out = SupportCoefficients {
+        eta: 0.0,
+        eta_gain_one: 0.0,
+        eta_max: 0.0,
+        cross: 0.0,
+        radius,
+    };
+    let mut b = vec![0.0; k];
+    for (q, _) in in_support
+        .iter()
+        .enumerate()
+        .filter(|(_, inside)| !**inside)
+    {
+        let qx = q as isize % n;
+        let qy = q as isize / n;
+        let mut cross = 0.0;
+        for (bi, &p) in b.iter_mut().zip(support) {
+            *bi = psf.at(p as isize % n - qx, p as isize / n - qy) / peak;
+            cross += bi.abs();
+        }
+        let mut l1 = 0.0;
+        let mut smallest = f64::INFINITY;
+        let mut largest = 0.0_f64;
+        for i in 0..k {
+            let row = &inv[i * k..(i + 1) * k];
+            let xi = row.iter().zip(&b).map(|(a, c)| a * c).sum::<f64>().abs();
+            l1 += xi;
+            smallest = smallest.min(xi);
+            largest = largest.max(xi);
+        }
+        out.eta = out.eta.max(l1);
+        out.eta_gain_one = out.eta_gain_one.max(l1 - smallest);
+        out.eta_max = out.eta_max.max(largest);
+        out.cross = out.cross.max(cross);
+    }
+    Some(out)
+}
+
+/// Bounds on `Σ_d(m)`, the largest sum of `m` values `|b(Δ)| / b(0)` over
+/// offsets `Δ ≠ 0` that are pairwise at Chebyshev distance `≥ d` and fit in
+/// the image together with the origin. With `pointed`, the origin is itself
+/// one of the points, so every offset is also `≥ d` from it.
+#[derive(Clone, Debug)]
+pub struct SeparatedSums {
+    /// `lower[m]`: a realisable configuration found greedily (largest `|b|`
+    /// first), so `lower[m] ≤ Σ_d(m)`. Stays flat once no further offset fits.
+    pub lower: Vec<f64>,
+    /// `upper[m] ≥ Σ_d(m)`: tile the offset plane with `d × d` squares (at
+    /// most one point per square, since two points in one square are closer
+    /// than `d`), add the `m` largest square maxima, minimise over the `d²`
+    /// placements of the tiling.
+    pub upper: Vec<f64>,
+    /// How many offsets the greedy configuration reached.
+    pub placed: usize,
+}
+
+/// [`SeparatedSums`] for `m = 0..=m_max` at separation `d ≥ 1`.
+pub fn separated_sums(psf: &Psf, d: usize, m_max: usize, pointed: bool) -> SeparatedSums {
+    separated_sums_beyond(psf, d, m_max, if pointed { d } else { 1 })
+}
+
+/// [`SeparatedSums`] with every offset at Chebyshev distance `≥ min_radius`
+/// from the origin (`1`: any nonzero offset; `d`: the pointed sums).
+pub fn separated_sums_beyond(
+    psf: &Psf,
+    d: usize,
+    m_max: usize,
+    min_radius: usize,
+) -> SeparatedSums {
+    let n = psf.n as isize;
+    let off = n - 1;
+    let d_i = d.max(1) as isize;
+    let r_i = min_radius.max(1) as isize;
+    let peak = psf.peak();
+    let mut offsets: Vec<(isize, isize, f64)> = Vec::new();
+    for dy in -off..=off {
+        for dx in -off..=off {
+            if dx.abs().max(dy.abs()) < r_i {
+                continue;
+            }
+            offsets.push((dx, dy, psf.at(dx, dy).abs() / peak));
+        }
+    }
+    // Greedy lower bound: a realisable configuration (the points and the
+    // origin span at most n − 1 pixels on each axis).
+    let mut sorted = offsets.clone();
+    sorted.sort_by(|a, b| b.2.total_cmp(&a.2));
+    let mut chosen: Vec<(isize, isize)> = Vec::new();
+    let (mut x0, mut x1, mut y0, mut y1) = (0isize, 0isize, 0isize, 0isize);
+    let mut lower = vec![0.0; m_max + 1];
+    for &(dx, dy, value) in &sorted {
+        if chosen.len() == m_max {
+            break;
+        }
+        let far = chosen
+            .iter()
+            .all(|&(cx, cy)| (cx - dx).abs().max((cy - dy).abs()) >= d_i);
+        let fits = x1.max(dx) - x0.min(dx) <= off && y1.max(dy) - y0.min(dy) <= off;
+        if far && fits {
+            chosen.push((dx, dy));
+            x0 = x0.min(dx);
+            x1 = x1.max(dx);
+            y0 = y0.min(dy);
+            y1 = y1.max(dy);
+            lower[chosen.len()] = lower[chosen.len() - 1] + value;
+        }
+    }
+    let placed = chosen.len();
+    for m in placed + 1..=m_max {
+        lower[m] = lower[placed];
+    }
+    let upper = tile_upper(off, &offsets, d, m_max, true);
+    SeparatedSums {
+        lower,
+        upper,
+        placed,
+    }
+}
+
+/// The tile upper bound on the largest sum of `m` weights over points that
+/// are pairwise at Chebyshev distance `≥ d`: `d × d` squares hold at most one
+/// point each, so the sum is at most the `m` largest square maxima. Every
+/// placement of the tiling gives a valid bound; with `all_shifts` the
+/// minimum over all `d²` placements is taken, otherwise over at most nine
+/// spread placements. Offsets lie in `[−off, off]²`.
+fn tile_upper(
+    off: isize,
+    offsets: &[(isize, isize, f64)],
+    d: usize,
+    m_max: usize,
+    all_shifts: bool,
+) -> Vec<f64> {
+    let d_i = d.max(1) as isize;
+    let shifts: Vec<isize> = if all_shifts || d_i <= 3 {
+        (0..d_i).collect()
+    } else {
+        vec![0, d_i / 3, (2 * d_i) / 3]
+    };
+    let tiles_per_axis = ((2 * off + d_i) / d_i + 1) as usize;
+    let mut upper = vec![f64::INFINITY; m_max + 1];
+    let mut maxima = vec![0.0_f64; tiles_per_axis * tiles_per_axis];
+    for &sy in &shifts {
+        for &sx in &shifts {
+            maxima.iter_mut().for_each(|v| *v = 0.0);
+            for &(dx, dy, value) in offsets {
+                let tx = ((dx + off + sx) / d_i) as usize;
+                let ty = ((dy + off + sy) / d_i) as usize;
+                let slot = &mut maxima[tx + tiles_per_axis * ty];
+                *slot = slot.max(value);
+            }
+            let mut top = maxima.clone();
+            top.sort_by(|a, b| b.total_cmp(a));
+            let mut sum = 0.0;
+            for (m, bound) in upper.iter_mut().enumerate() {
+                if m > 0 {
+                    sum += top.get(m - 1).copied().unwrap_or(0.0);
+                }
+                *bound = bound.min(sum);
+            }
+        }
+    }
+    upper
+}
+
+/// The anchored sufficient bound on the ERC of every support of `k` sources
+/// pairwise `≥ d` apart (`research/clean-phase-transition.md`, Theorem 8):
+/// `bound[k] ≥ η(S)` for all such supports, `k = 0..=k_max`.
+///
+/// For a pixel `q ∉ S` with a source `i` at offset `u = q − x_i`, writing
+/// `B_SS⁻¹ e_i = e_i − B_SS⁻¹ H e_i` (`H` the off-diagonal part) gives
+/// `B_SS⁻¹ B_{S,q} = b(u) e_i + B_SS⁻¹ y` with
+/// `y_j = b(v_j − u) − b(u) b(v_j)`, `v_j = x_j − x_i`, so
+/// `η_q ≤ |b(u)| + ‖y‖₁ / (1 − α)`, `α` the Gershgorin radius of `B_SS`.
+/// The anchor term `|b(u)|` (up to `μ_1`) is no longer divided by `1 − α`,
+/// and `y` keeps the cancellation between the sidelobes seen from `q` and
+/// from `x_i`. For each radius `R`: pixels with a source closer than `R` use
+/// this anchored form (worst case over `0 < |u| < R`, with `‖y‖₁` bounded by
+/// a tile sum of `|b(v − u) − b(u) b(v)|` over `v` pairwise `≥ d` and `≥ d`
+/// from the origin); pixels with every source at least `R` away use
+/// `Σ_d^{≥R}(k) / (1 − α)`. `α ≤` the pointed tile sum of `k − 1` values.
+/// The minimum over `R` (including `R = 1`, the plain separated-sum
+/// condition) is returned; `∞` where `α`'s bound reaches one.
+pub fn anchored_bound(psf: &Psf, d: usize, k_max: usize) -> Vec<f64> {
+    let n = psf.n as isize;
+    let off = n - 1;
+    let d_i = d.max(1) as isize;
+    let peak = psf.peak();
+    let b = |x: isize, y: isize| psf.at(x, y) / peak;
+    let m_max = k_max.saturating_sub(1);
+    let alpha = separated_sums_beyond(psf, d, m_max, d).upper;
+    let denom = |m: usize| {
+        let a = alpha[m.min(m_max)];
+        if a < 1.0 { 1.0 - a } else { 0.0 }
+    };
+    let plain = separated_sums_beyond(psf, d, k_max, 1).upper;
+    let mut best: Vec<f64> = (0..=k_max)
+        .map(|k| {
+            let m = k.saturating_sub(1);
+            if denom(m) > 0.0 {
+                plain[k] / denom(m)
+            } else {
+                f64::INFINITY
+            }
+        })
+        .collect();
+    // Radii 2..=r_max, r_max = ⌈d/2⌉ + 1 clamped to [3, 6] (cost).
+    let r_max = (d_i.div_euclid(2) + d_i % 2 + 1).clamp(3, 6);
+    // Anchor terms A_u[m] = |b(u)| + W_u(m) / (1 − α(m)) for 0 < |u| < r_max.
+    let mut anchors: Vec<(isize, Vec<f64>)> = Vec::new();
+    for uy in -(r_max - 1)..=(r_max - 1) {
+        for ux in -(r_max - 1)..=(r_max - 1) {
+            if ux == 0 && uy == 0 {
+                continue;
+            }
+            let bu = b(ux, uy);
+            let mut weights = Vec::new();
+            for vy in -off..=off {
+                for vx in -off..=off {
+                    if vx.abs().max(vy.abs()) < d_i || (vx == ux && vy == uy) {
+                        continue;
+                    }
+                    let (wx, wy) = (vx - ux, vy - uy);
+                    if wx.abs() > off || wy.abs() > off {
+                        continue;
+                    }
+                    weights.push((vx, vy, (b(wx, wy) - bu * b(vx, vy)).abs()));
+                }
+            }
+            let w = tile_upper(off, &weights, d, m_max, false);
+            let a: Vec<f64> = (0..=m_max)
+                .map(|m| {
+                    if denom(m) > 0.0 {
+                        bu.abs() + w[m] / denom(m)
+                    } else {
+                        f64::INFINITY
+                    }
+                })
+                .collect();
+            anchors.push((ux.abs().max(uy.abs()), a));
+        }
+    }
+    for r in 2..=r_max {
+        let mut beyond = Vec::new();
+        for vy in -off..=off {
+            for vx in -off..=off {
+                if vx.abs().max(vy.abs()) >= r {
+                    beyond.push((vx, vy, b(vx, vy).abs()));
+                }
+            }
+        }
+        let far = tile_upper(off, &beyond, d, k_max, false);
+        for (k, slot) in best.iter_mut().enumerate().skip(1) {
+            let m = k - 1;
+            if denom(m) <= 0.0 {
+                continue;
+            }
+            let near = anchors
+                .iter()
+                .filter(|(cheb, _)| *cheb < r)
+                .map(|(_, a)| a[m])
+                .fold(0.0, f64::max);
+            let bound = near.max(far[k] / denom(m));
+            *slot = slot.min(bound);
+        }
+    }
+    best
 }
 
 #[cfg(test)]
@@ -624,6 +962,228 @@ mod tests {
             assert!((found - expected).abs() < 1e-9);
         }
         assert!(erc(&b, &g, &support).unwrap() < 1.0);
+    }
+
+    /// The ERC by one dense solve per pixel, as first implemented.
+    fn erc_by_solves(psf: &Psf, grid: &Grid, support: &[usize]) -> Option<f64> {
+        let n = psf.n as isize;
+        let g = gram(psf, support);
+        let mut worst = 0.0_f64;
+        for q in 0..grid.pixels() {
+            if support.contains(&q) {
+                continue;
+            }
+            let b: Vec<f64> = support
+                .iter()
+                .map(|&p| {
+                    let dx = (p as isize % n) - (q as isize % n);
+                    let dy = (p as isize / n) - (q as isize / n);
+                    psf.at(dx, dy) / psf.peak()
+                })
+                .collect();
+            let x = solve_dense(&g, &b)?;
+            worst = worst.max(x.iter().map(|v| v.abs()).sum());
+        }
+        Some(worst)
+    }
+
+    fn random_support(rng: &mut Rng, g: &Grid, k: usize) -> Vec<usize> {
+        let mut support = Vec::new();
+        while support.len() < k {
+            let p = ((rng.next() * g.pixels() as f64) as usize).min(g.pixels() - 1);
+            if !support.contains(&p) {
+                support.push(p);
+            }
+        }
+        support
+    }
+
+    #[test]
+    fn inverse_and_fast_erc_match_direct_solves() {
+        let s = sampling(300, 17);
+        let g = grid();
+        let b = psf(&s, &g);
+        let mut rng = Rng(4242);
+        for k in 1..=6 {
+            for _ in 0..5 {
+                let support = random_support(&mut rng, &g, k);
+                let gm = gram(&b, &support);
+                let inv = invert_dense(&gm, k).unwrap();
+                for i in 0..k {
+                    for j in 0..k {
+                        let e: f64 = (0..k).map(|l| gm[i * k + l] * inv[l * k + j]).sum();
+                        assert!((e - if i == j { 1.0 } else { 0.0 }).abs() < 1e-9);
+                    }
+                }
+                let c = support_coefficients(&b, &g, &support).unwrap();
+                let slow = erc_by_solves(&b, &g, &support).unwrap();
+                assert!(
+                    (c.eta - slow).abs() < 1e-9 * slow.max(1.0),
+                    "{} {slow}",
+                    c.eta
+                );
+                assert!(c.eta_max <= c.eta_gain_one + 1e-12 || k == 1);
+                assert!(c.eta_gain_one <= c.eta + 1e-12);
+                // The Neumann bound: η ≤ cross / (1 − radius) when radius < 1.
+                if c.radius < 1.0 {
+                    assert!(c.eta <= c.cross / (1.0 - c.radius) + 1e-9);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn separated_sum_bounds_bracket_the_exact_value() {
+        let s = sampling(120, 23);
+        let g = Grid { n: 8, cell: 1.0e-4 };
+        let b = psf(&s, &g);
+        let off = 7isize;
+        let mu = |d: isize| b.outside_patch((d - 1).max(0) as usize);
+        for d in 1..=5usize {
+            for pointed in [false, true] {
+                let sums = separated_sums(&b, d, 4, pointed);
+                let di = d as isize;
+                // Exact maximum over pairs by brute force (m = 2).
+                let mut cands = Vec::new();
+                for dy in -off..=off {
+                    for dx in -off..=off {
+                        let c = dx.abs().max(dy.abs());
+                        if c > 0 && (!pointed || c >= di) {
+                            cands.push((dx, dy, b.at(dx, dy).abs()));
+                        }
+                    }
+                }
+                let mut exact2 = 0.0_f64;
+                for (i, a) in cands.iter().enumerate() {
+                    exact2 = exact2.max(a.2);
+                    for c in &cands[i + 1..] {
+                        let sep = (a.0 - c.0).abs().max((a.1 - c.1).abs());
+                        let span = (a.0.max(c.0).max(0) - a.0.min(c.0).min(0) <= off)
+                            && (a.1.max(c.1).max(0) - a.1.min(c.1).min(0) <= off);
+                        if sep >= di && span {
+                            exact2 = exact2.max(a.2 + c.2);
+                        }
+                    }
+                }
+                assert!(sums.lower[2] <= exact2 + 1e-12);
+                assert!(exact2 <= sums.upper[2] + 1e-12);
+                for m in 1..=4usize {
+                    assert!(sums.lower[m] <= sums.upper[m] + 1e-12);
+                    // Never worse than the counting bounds of Proposition 4'.
+                    let counting = if pointed {
+                        m as f64 * mu(di)
+                    } else {
+                        mu(1) + (m as f64 - 1.0) * mu(di.div_euclid(2) + di % 2)
+                    };
+                    assert!(sums.upper[m] <= counting + 1e-12, "d {d} m {m} {pointed}");
+                }
+            }
+        }
+    }
+
+    /// Theorem 8: the anchored bound dominates the ERC of every support with
+    /// the given separation, and is never above the plain separated-sum bound.
+    #[test]
+    fn anchored_bound_dominates_the_erc() {
+        let s = sampling(400, 41);
+        let g = Grid {
+            n: 12,
+            cell: 1.0e-4,
+        };
+        let b = psf(&s, &g);
+        let mut rng = Rng(9001);
+        let mut finite = 0;
+        for d in 1..=5usize {
+            let bound = anchored_bound(&b, d, 4);
+            let alpha = separated_sums(&b, d, 3, true).upper;
+            let plain = separated_sums(&b, d, 4, false).upper;
+            for k in 1..=4usize {
+                if alpha[k - 1] < 1.0 {
+                    assert!(bound[k] <= plain[k] / (1.0 - alpha[k - 1]) + 1e-12);
+                }
+                if !bound[k].is_finite() {
+                    continue;
+                }
+                finite += 1;
+                for _ in 0..40 {
+                    let mut support: Vec<usize> = Vec::new();
+                    let mut tries = 0;
+                    while support.len() < k && tries < 10_000 {
+                        tries += 1;
+                        let p = ((rng.next() * g.pixels() as f64) as usize).min(g.pixels() - 1);
+                        let far = support.iter().all(|&q| {
+                            let dx = (p % g.n) as isize - (q % g.n) as isize;
+                            let dy = (p / g.n) as isize - (q / g.n) as isize;
+                            dx.abs().max(dy.abs()) as usize >= d
+                        });
+                        if far {
+                            support.push(p);
+                        }
+                    }
+                    if support.len() < k {
+                        continue;
+                    }
+                    let c = support_coefficients(&b, &g, &support).unwrap();
+                    assert!(
+                        c.eta <= bound[k] + 1e-9,
+                        "d {d} k {k}: {} > {}",
+                        c.eta,
+                        bound[k]
+                    );
+                }
+            }
+        }
+        assert!(finite > 5, "{finite}");
+    }
+
+    /// Two sources, gain one: the picks stay on the support exactly when the
+    /// first pick does and `max_q ‖B_SS⁻¹ B_{S,q}‖_∞ < 1`; with more sources,
+    /// a first pick on the support and `η₁ < 1` suffice.
+    #[test]
+    fn gain_one_selection_rules() {
+        // Few, short baselines: a broad main lobe and high sidelobes, so
+        // that both outcomes occur.
+        let mut s = sampling(12, 31);
+        for (u, v) in s.u.iter_mut().zip(s.v.iter_mut()) {
+            *u *= 0.3;
+            *v *= 0.3;
+        }
+        let g = grid();
+        let b = psf(&s, &g);
+        let mut rng = Rng(777);
+        let mut seen = [0usize; 2];
+        for k in 2..=4 {
+            for _ in 0..150 {
+                let support = random_support(&mut rng, &g, k);
+                let mut truth = vec![0.0; g.pixels()];
+                for &p in &support {
+                    truth[p] = 0.2 + 0.8 * rng.next();
+                }
+                let d = convolve(&b, &truth);
+                let first = support.contains(&argmax_abs(&d).0);
+                let c = support_coefficients(&b, &g, &support).unwrap();
+                let run = hogbom(
+                    &d,
+                    &b,
+                    &CleanSettings {
+                        gain: 1.0,
+                        iterations: 400,
+                        threshold: 1e-12,
+                        patch: None,
+                    },
+                );
+                let on = run.steps.iter().all(|st| support.contains(&st.pixel));
+                if k == 2 && (c.eta_max - 1.0).abs() > 1e-9 {
+                    assert_eq!(on, first && c.eta_max < 1.0, "{support:?}");
+                    seen[usize::from(on)] += 1;
+                }
+                if first && c.eta_gain_one < 1.0 {
+                    assert!(on);
+                }
+            }
+        }
+        // Both outcomes occur, so the two-source rule was tested both ways.
+        assert!(seen[0] > 0 && seen[1] > 0, "{seen:?}");
     }
 
     #[test]

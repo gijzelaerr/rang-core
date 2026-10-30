@@ -880,3 +880,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan D1: `pytest tests/test_d1_docs.py` | worktree | 8.0 s | – | 3 passed |
 | 2026-10-30 | big plan D1: `bash tools/check-all.sh` | branch tree | 439 s | 1.99 GB | **overall: PASS**, first run on `1f8ee6e` (pytest 635 passed, 3 skipped in 235 s) |
 | 2026-10-30 | big plan D1: `bash tools/check-all.sh`, final | branch tree | 295 s | 2.02 GB | **overall: PASS** on `beb14fd` (pytest 636 passed, 3 skipped in 285 s); log `outputs/d1-20261030-check-all-2.log` (first run: `d1-20261030-check-all.log`) |
+| 2026-10-30 | CLEAN phase transition: simms antenna tables (3 files) and GitHub API metadata, curl | ratt-ru/simms master `e715505` | not timed | – | Windows; listing redirected from radio-astro/simms |
+| 2026-10-30 | CLEAN phase transition: `cargo test --release` (core), first build with the new kernels / after the example | 115 tests | 128.6 s / 221.0 s | – | Windows; tests themselves 0.4-0.9 s, the rest is compilation |
+| 2026-10-30 | CLEAN phase transition: `clean_phase_transition` pilot, 10 trials per cell (first version / with Theorem 8 and the pairs) | 16 configurations | 42.9 s / 48.0 s | – | Windows, 16 threads; used to size the run |
+| 2026-10-30 | CLEAN phase transition: `clean_phase_transition`, 100 trials per cell | 16 configurations, 64,205 placed trials + 25,600 pairs, noiseless and noisy | 301.1 s | – | Windows, 16 threads; WSRT snapshots 77 s each (every trial runs to the 20,000-component cap), others 1.4-22 s; archive 773 KB |
+| 2026-10-30 | CLEAN phase transition: determinism check, `clean_phase_transition` with 10 trials per cell, twice | 16 configurations | 67.8 s / 65.5 s | – | Windows; archives identical apart from the timing fields |
