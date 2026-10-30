@@ -384,7 +384,7 @@ differ only in the runtime receipts (paths and the native library hash),
    compile here; D2 measured 33.6 s on a cold registry) → no compile at all.
    `import rangtoy.core_campaign` unchanged: 0.090–0.142 s before,
    0.082–0.103 s after.
-10. `bash tools/check-all.sh`: section 6.
+10. `bash tools/check-all.sh` (run plainly; it takes the host lock itself): **PASS** at `3cd67a2`, 3 min 9 s, pytest 664 passed, 1 skipped (`outputs/p7-architecture-20261030-11/check-all.log`).
 
 ## 6. For the coordinator
 
