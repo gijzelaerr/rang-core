@@ -5,7 +5,10 @@ the user's question (2026-10-30) of which recent findings in mathematics,
 physics, astronomy and interferometry should change the core or the science
 protocols. No code was changed and nothing here is a measured result. Every claim
 below is cited, and every source was accessed on 2026-10-30. Wall time was 11:25
-to 12:52 SAST, 1 h 27 min, including the check-all run.
+to 13:03 CAT, 1 h 38 min. The survey and writing took about 25 min; the rest was
+`tools/check-all.sh` (11:43–12:59 CAT, PASS). Its pytest stage took 66 min
+(570 passed, 1 skipped) at load 55–75, with five other sessions' pytest runs on
+the host.
 
 ## How this was done, and its limits
 
