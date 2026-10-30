@@ -9,8 +9,9 @@ WSClean 3.7's wgridder (research/df2b-wgrid.md).
     python examples/compare_df2b.py ms-inputs OUT_DIR       (C and K MS inputs)
     python examples/compare_df2b.py write-ms NPZ OUT.ms      (inside the container)
     python examples/compare_df2b.py wsclean RUN_DIR NAME MS W H SCALE --gridder G
-    python examples/compare_df2b.py compare RUN_DIR OUT.json
-    python examples/compare_df2b.py summary RUN_DIR... --out research/results/df2b-wgrid.json
+    python examples/compare_df2b.py make-ms RUN_DIR NAME NPZ    (host: write-ms in the container)
+    python examples/compare_df2b.py compare RUN_DIR BASE_DIR OUT.json
+    python examples/compare_df2b.py summary RUN_DIR BASE_DIR research/results/df2b-wgrid.json
 
 `floor` measures the rounding floor of a legitimate reordering (the input
 rows permuted) of the exact gridder on one input of each archive, the
@@ -676,6 +677,8 @@ def cmd_wsclean(args):
     name = f"{args.name}-{args.gridder}" + (
         f"-acc{args.accuracy:g}" if args.gridder == "wgridder" else ""
     )
+    if args.threads != 1:
+        name += f"-j{args.threads}"
     cmd = wsclean_args(
         f"/run/{name}",
         f"/run/{args.ms}",
@@ -691,6 +694,749 @@ def cmd_wsclean(args):
     rec["psf_fits_sha256"] = sha256_file(run / f"{name}-psf.fits")
     write_json(run / f"wsclean-{name}.json", rec)
     print(name, f"{rec['wall_s']:.1f}s", f"{rec['max_rss_mb']:.0f} MB", flush=True)
+
+
+# ---------------------------------------------------------------- compare
+
+C_ARCHIVE_IMAGES = OUTPUTS / "core-c-20261029-01" / "images"
+I_ARCHIVE_IMAGES = OUTPUTS / "tv-next-imaging-wsl-20261029-01" / "images"
+K_ARCHIVE_IMAGES = OUTPUTS / "core-k-20261030-01" / "images"
+K_ARCHIVE = ROOT / "research" / "results" / "core-k-luno-campaign.json"
+DF1_SCIENCE = OUTPUTS / "df1-wgridder-20261030-01" / "science"
+DF2_REF = OUTPUTS / "df2-20261030-01" / "ref"
+DF2_THREADS = OUTPUTS / "df2-20261030-02" / "threads-final.json"
+PRECONDITION = OUTPUTS / "df2b-20261030-00-precondition"
+T3_TOLERANCE = 1e-5
+T1_FLOOR_FACTOR = 100.0
+F32_QUANTUM = 2.0**-23
+L1_TOLERANCE = 1e-9
+C_JOBS = (
+    "caracal-firstpass-rejected",
+    "caracal-mild",
+    "caracal-no-change",
+    "clean-full",
+    "complete-adaptation",
+    "complete-direct",
+    "complete-full",
+    "complete-total",
+    "fixedG0-reference",
+    "omitted-adaptation",
+    "omitted-direct",
+    "omitted-full",
+    "omitted-total",
+    "unit-compact",
+    "unit-extended",
+)
+K_ARMS = (
+    "original",
+    "tricolour-firstpass",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best",
+    "tricolour-firstpass+tv",
+)
+L1_ARMS = ("original", "tricolour-firstpass", "tv-policy")
+
+
+def read_fits_image(path):
+    from astropy.io import fits
+
+    with fits.open(path) as hdul:
+        return hdul[0].data[0, 0].astype(np.float64), dict(hdul[0].header)
+
+
+def diff_record(candidate, reference, kind):
+    """L-infinity of `candidate - reference` over the reference peak (dirty)
+    or absolute (PSF, peak one), with the central half and the border."""
+    candidate = np.asarray(candidate, np.float64)
+    reference = np.asarray(reference, np.float64)
+    if candidate.shape != reference.shape:
+        raise ValueError(f"shapes differ: {candidate.shape} {reference.shape}")
+    peak = float(np.abs(reference).max())
+    scale = peak if kind == "dirty" else 1.0
+    d = candidate - reference
+    rec = region_linf(d, scale)
+    rec["central_half_linf_over_peak"] = float(np.abs(central(d)).max() / scale)
+    rec["reference_peak"] = peak
+    rec["identical"] = bool(np.array_equal(candidate, reference))
+    rec["differing_pixels"] = int(np.count_nonzero(d))
+    return rec
+
+
+def _fits_hashes(directory):
+    return {p.name: sha256_file(p) for p in sorted(Path(directory).glob("*.fits"))}
+
+
+def _load_json(path):
+    return json.loads(Path(path).read_text())
+
+
+def _image_numbers(result):
+    """The numbers of an I result that its images determine."""
+    out = {"reference_fit": result["reference_fit"]}
+    out["closures"] = result["dirty_image_closures_jy_per_beam"]
+    for label, job in result["jobs"].items():
+        out[label] = {
+            k: job.get(k)
+            for k in (
+                "stats",
+                "known_family_dirty_fit",
+                "conditional_response_vs_fixedG0",
+                "PSF_linf_difference_vs_fixedG0",
+                "diagnostics",
+            )
+        }
+    return out
+
+
+def gate_g1(run, base):
+    rec = {}
+    for name in ("c", "i"):
+        a = _fits_hashes(base / f"base-{name}" / "images")
+        b = _fits_hashes(run / f"after-{name}" / "images")
+        rec[f"{name}_fits"] = {"count": len(a), "identical": a == b and len(a) == 30}
+    rc_a = _load_json(base / "base-c" / "result.json")["jobs"]
+    rc_b = _load_json(run / "after-c" / "result.json")["jobs"]
+    rec["c_stats_equal"] = all(rc_a[j]["stats"] == rc_b[j]["stats"] for j in rc_a)
+    rec["i_image_numbers_equal"] = _image_numbers(
+        _load_json(base / "base-i" / "result.json")
+    ) == _image_numbers(_load_json(run / "after-i" / "result.json"))
+    ka = _load_json(base / "base-k" / "kinvert.json")["arms"]
+    kb = _load_json(run / "after-k" / "kinvert.json")["arms"]
+    rec["k_arrays"] = {
+        "count": len(ka),
+        "identical": all(
+            ka[a][k] == kb[a][k]
+            for a in ka
+            for k in ("dirty_sha256", "psf_sha256", "stats")
+        ),
+    }
+    pa = _fits_hashes(base / "base-l1pre" / "replay" / "images")
+    pb = _fits_hashes(run / "after-l1pre" / "replay" / "images")
+    pre_b = _load_json(run / "after-l1pre" / "result.json")
+    rec["l1_precondition_replay_fits"] = {
+        "count": len(pa),
+        "identical": pa == pb and len(pa) > 0,
+    }
+    rec["l1_precondition_passed_after"] = bool(pre_b["all_passed"])
+    la = _load_json(base / "base-l1" / "original-wstack-g4.json")
+    lb = _load_json(run / "after-l1" / "original-wstack-g4.json")
+    rec["l1_wstack_g4"] = {
+        "identical": all(
+            la[k] == lb[k] for k in ("dirty_sha256", "psf_sha256", "stats")
+        )
+    }
+    rec["pass"] = bool(
+        rec["c_fits"]["identical"]
+        and rec["i_fits"]["identical"]
+        and rec["c_stats_equal"]
+        and rec["i_image_numbers_equal"]
+        and rec["k_arrays"]["identical"]
+        and rec["l1_precondition_replay_fits"]["identical"]
+        and rec["l1_precondition_passed_after"]
+        and rec["l1_wstack_g4"]["identical"]
+    )
+    return rec
+
+
+def _fits_image_of_product(inp, **kw):
+    _host()
+    from rang import core_wgridder
+
+    s = inp["settings"]
+    return core_wgridder.fits_image(
+        inp["uvw"],
+        inp["frequencies"],
+        inp["data"],
+        inp["weights"] * inp["imaging_weights"],
+        s["width"],
+        s["height"],
+        s["scale_arcsec"],
+        epsilon=EPSILON,
+        **kw,
+    )
+
+
+def gate_g2(run, base):
+    rec = {"c": {}, "k": {}, "l1": {}}
+    for job in C_JOBS:
+        inp = load_npz(C_INPUTS / f"c-{job}.npz")
+        ref = _fits_image_of_product(inp)
+        mine = _load_json(run / "images" / f"c-{job}-wgrid.json")
+        fits_d, _ = read_fits_image(run / "wgrid-c" / "images" / f"{job}-dirty.fits")
+        fits_p, _ = read_fits_image(run / "wgrid-c" / "images" / f"{job}-psf.fits")
+        rec["c"][job] = {
+            "invert_equals_fits_image_of_product": mine["dirty_sha256"]
+            == sha256_array(ref["dirty"])
+            and mine["psf_sha256"] == sha256_array(ref["psf"]),
+            "driver_fits_equal_f32_of_invert": bool(
+                np.array_equal(fits_d, ref["dirty"].astype(np.float32))
+                and np.array_equal(fits_p, ref["psf"].astype(np.float32))
+            ),
+        }
+    kinv = _load_json(run / "wgrid-k" / "kinvert.json")["arms"]
+    for arm in K_ARMS:
+        inp = load_npz(K_INPUTS / f"k-{arm}.npz")
+        ref = _fits_image_of_product(inp)
+        rec["k"][arm] = {
+            "invert_equals_fits_image_of_product": kinv[f"k-{arm}"]["dirty_sha256"]
+            == sha256_array(ref["dirty"])
+            and kinv[f"k-{arm}"]["psf_sha256"] == sha256_array(ref["psf"])
+        }
+    for arm in L1_ARMS:
+        inp = load_npz(base / "l1-inputs" / f"l1-{arm}.npz")
+        ref = _fits_image_of_product(inp)
+        tag = "l1-original-wgrid-r1" if arm == "original" else f"l1-{arm}-wgrid"
+        mine = _load_json(run / "images" / f"{tag}.json")
+        rec["l1"][arm] = {
+            "invert_equals_fits_image_of_product": mine["dirty_sha256"]
+            == sha256_array(ref["dirty"])
+            and mine["psf_sha256"] == sha256_array(ref["psf"])
+        }
+        del inp, ref
+    i_vs_c = {}
+    for job in C_JOBS:
+        for kind in ("dirty", "psf"):
+            a, _ = read_fits_image(run / "wgrid-i" / "images" / f"{job}-{kind}.fits")
+            b, _ = read_fits_image(run / "wgrid-c" / "images" / f"{job}-{kind}.fits")
+            i_vs_c[f"{job}-{kind}"] = bool(np.array_equal(a, b))
+    rec["i_fits_equal_c_fits"] = all(i_vs_c.values())
+    rec["pass"] = all(
+        all(v.values()) for part in ("c", "k", "l1") for v in rec[part].values()
+    )
+    return rec
+
+
+def gate_g3(run):
+    archived = _load_json(DF2_THREADS)["threads"]["1"]["hashes"]
+    mine = _load_json(run / "g3-threads.json")
+    rec = {"threads": {}}
+    for n, entry in mine["threads"].items():
+        rec["threads"][n] = {
+            "outputs": len(entry["hashes"]),
+            "equal_to_df2a_archive": entry["hashes"] == archived,
+        }
+    gates = _load_json(run / "g3-gates" / "gates.json")
+    rec["gates_pass_criteria_1_2_3_5"] = gates["pass_criteria_1_2_3_5"]
+    rec["gates_failures"] = gates["failures"]
+    rec["gates_library"] = gates["library"]
+    rec["library"] = mine.get("library")
+    rec["pass"] = all(
+        v["equal_to_df2a_archive"] for v in rec["threads"].values()
+    ) and bool(gates["pass_criteria_1_2_3_5"])
+    return rec
+
+
+def gate_t1(run):
+    floor = _load_json(PRECONDITION / "floor.json")["cases"]
+    k_floor = max(floor["K"][k]["linf_over_peak"] for k in ("dirty", "psf"))
+    k_bound = T1_FLOOR_FACTOR * k_floor
+    rec = {"k_bound": k_bound, "k": {}, "c": {}, "i": {}}
+    for arm in K_ARMS:
+        for kind in ("dirty", "psf"):
+            ref = np.load(DF2_REF / f"k_k-{arm}_f64_eps1e-06_{kind}.npy")
+            mine = np.load(run / "images" / f"k-{arm}-wgrid-r1-{kind}.npy")
+            r = diff_record(mine, ref, kind)
+            r["pass"] = r["linf_over_peak"] <= k_bound
+            rec["k"][f"{arm}-{kind}"] = r
+    for name, images in (
+        ("c", run / "wgrid-c" / "images"),
+        ("i", run / "wgrid-i" / "images"),
+    ):
+        archive = DF1_SCIENCE / f"{name}-run" / "images"
+        for job in C_JOBS:
+            for kind in ("dirty", "psf"):
+                mine, _ = read_fits_image(images / f"{job}-{kind}.fits")
+                ref, _ = read_fits_image(archive / f"{job}-{kind}.fits")
+                r = diff_record(mine, ref, kind)
+                r["pass"] = r["linf_over_peak"] <= F32_QUANTUM * (
+                    r["reference_peak"] if kind == "psf" else 1.0
+                )
+                rec[name][f"{job}-{kind}"] = r
+    rec["pass"] = {
+        part: all(v["pass"] for v in rec[part].values()) for part in ("k", "c", "i")
+    }
+    rec["l1"] = "no exact-gridder archive exists"
+    return rec
+
+
+def _wsclean_pair(wsdir, name, acc="1e-06", threads=1):
+    stem = f"{name}-wgridder-acc{acc}" + (f"-j{threads}" if threads != 1 else "")
+    d, hd = read_fits_image(wsdir / f"{stem}-dirty.fits")
+    p, _ = read_fits_image(wsdir / f"{stem}-psf.fits")
+    return d, p, hd
+
+
+def gate_t3(run, base):
+    _host()
+    from rang import core_campaign_array as array
+
+    ws = run / "wsclean"
+    rec = {
+        "tolerance": T3_TOLERANCE,
+        "c": {},
+        "i": {},
+        "k": {},
+        "l1": {},
+        "reported": {},
+    }
+
+    def one(label, mine_d, mine_p, stats, name, acc="1e-06"):
+        d, p, hd = _wsclean_pair(ws, name, acc)
+        counters = {
+            "wsclean_WSCIMGWG": float(hd["WSCIMGWG"]),
+            "core_image_weight": stats["image_weight"],
+            "image_weight_relative": abs(float(hd["WSCIMGWG"]) - stats["image_weight"])
+            / stats["image_weight"],
+            "wsclean_WSCNVIS": int(hd["WSCNVIS"]),
+            "core_gridded_count": int(stats["gridded_count"]),
+        }
+        counters["pass"] = bool(
+            counters["image_weight_relative"] <= 1e-9
+            and counters["wsclean_WSCNVIS"] == counters["core_gridded_count"]
+        )
+        out = {
+            "counters": counters,
+            "dirty": diff_record(mine_d, d, "dirty"),
+            "psf": diff_record(mine_p, p, "psf"),
+        }
+        out["pass"] = bool(
+            counters["pass"]
+            and out["dirty"]["linf_over_peak"] <= T3_TOLERANCE
+            and out["psf"]["linf_over_peak"] <= T3_TOLERANCE
+        )
+        return out
+
+    for job in C_JOBS:
+        m = _load_json(run / "images" / f"c-{job}-wgrid.json")
+        md = np.load(run / "images" / f"c-{job}-wgrid-dirty.npy")
+        mp = np.load(run / "images" / f"c-{job}-wgrid-psf.npy")
+        rec["c"][job] = one(job, md, mp, m["stats"], f"c-{job}")
+        fd, _ = read_fits_image(run / "wgrid-i" / "images" / f"{job}-dirty.fits")
+        fp, _ = read_fits_image(run / "wgrid-i" / "images" / f"{job}-psf.fits")
+        rec["i"][job] = one(job, fd, fp, m["stats"], f"c-{job}")
+    for arm in K_ARMS:
+        m = _load_json(run / "images" / f"k-{arm}-wgrid-r1.json")
+        md = np.load(run / "images" / f"k-{arm}-wgrid-r1-dirty.npy")
+        mp = np.load(run / "images" / f"k-{arm}-wgrid-r1-psf.npy")
+        rec["k"][arm] = one(arm, md, mp, m["stats"], f"k-{arm}")
+    m = _load_json(run / "images" / "l1-original-wgrid-r1.json")
+    md = np.load(run / "images" / "l1-original-wgrid-r1-dirty.npy")
+    mp = np.load(run / "images" / "l1-original-wgrid-r1-psf.npy")
+    rec["l1"]["original"] = one("original", md, mp, m["stats"], "l1-original")
+    # Reported: WSClean's accuracy sweep, and the core with divide_by_n.
+    cases = {
+        "c-clean-full": (C_INPUTS / "c-clean-full.npz", "c-clean-full-wgrid"),
+        "k-original": (K_INPUTS / "k-original.npz", "k-original-wgrid-r1"),
+        "l1-original": (base / "l1-inputs" / "l1-original.npz", "l1-original-wgrid-r1"),
+    }
+    for name, (npz, tag) in cases.items():
+        md = np.load(run / "images" / f"{tag}-dirty.npy")
+        mp = np.load(run / "images" / f"{tag}-psf.npy")
+        stats = _load_json(run / "images" / f"{tag}.json")["stats"]
+        sweep = {}
+        for acc in ("0.0001", "1e-06", "1e-08"):
+            r = one(name, md, mp, stats, name, acc)
+            sweep[acc] = {k: r[k]["linf_over_peak"] for k in ("dirty", "psf")}
+            sweep[acc]["dirty_central_half"] = r["dirty"]["central_half_linf_over_peak"]
+        inp = load_npz(npz)
+        nd = _fits_image_of_product(inp, divide_by_n=True)
+        del inp
+        d, p, _ = _wsclean_pair(ws, name)
+        rec["reported"][name] = {
+            "accuracy_sweep": sweep,
+            "divide_by_n_core_vs_wsclean": {
+                "dirty": diff_record(nd["dirty"], d, "dirty")["linf_over_peak"],
+                "psf": diff_record(nd["psf"], p, "psf")["linf_over_peak"],
+            },
+        }
+    rec["pass"] = {
+        part: all(v["pass"] for v in rec[part].values())
+        for part in ("c", "i", "k", "l1")
+    }
+    del array
+    return rec
+
+
+def l1_metrics(dirty, psf, boxes, model_flux):
+    _host()
+    from rang import core_campaign_array as array
+
+    return array.array_image_metrics(dirty, psf, boxes, model_flux)
+
+
+def report_t2_and_l1(run, base):
+    _host()
+    from rang import core_campaign
+
+    rec = {"c": {}, "i": {}, "k": {}, "l1": {}}
+    for name, images, archive in (
+        ("c", run / "wgrid-c" / "images", C_ARCHIVE_IMAGES),
+        ("i", run / "wgrid-i" / "images", I_ARCHIVE_IMAGES),
+    ):
+        for job in C_JOBS:
+            for kind in ("dirty", "psf"):
+                mine, _ = read_fits_image(images / f"{job}-{kind}.fits")
+                ref, _ = read_fits_image(archive / f"{job}-{kind}.fits")
+                rec[name][f"{job}-{kind}"] = diff_record(mine, ref, kind)
+    karch = _load_json(K_ARCHIVE)
+    k_metrics = {}
+    for arm in K_ARMS:
+        md = np.load(run / "images" / f"k-{arm}-wgrid-r1-dirty.npy")
+        mp = np.load(run / "images" / f"k-{arm}-wgrid-r1-psf.npy")
+        for kind, mine in (("dirty", md), ("psf", mp)):
+            ref, _ = read_fits_image(K_ARCHIVE_IMAGES / f"{arm}-{kind}.fits")
+            rec["k"][f"{arm}-{kind}"] = diff_record(mine, ref, kind)
+        archived = karch["arms"][arm]["image"]
+        mine = core_campaign.image_metrics(md, mp, archived.get("model_stokes_i_jy"))
+        k_metrics[arm] = {
+            key: {"wgrid": mine[key], "archive": archived[key]}
+            for key in (
+                "peak_jy_per_beam",
+                "residual_rms",
+                "offsource_rms",
+                "flux_recovery",
+            )
+            if key in archived
+        }
+    rec["k_metrics"] = k_metrics
+    rec["k_hypotheses"] = {
+        f"{c} vs {r}": {
+            "residual_rms_ratio_wgrid": k_metrics[c]["residual_rms"]["wgrid"]
+            / k_metrics[r]["residual_rms"]["wgrid"],
+            "residual_rms_ratio_archive": k_metrics[c]["residual_rms"]["archive"]
+            / k_metrics[r]["residual_rms"]["archive"],
+        }
+        for c, r in (
+            ("tv-policy", "tricolour-firstpass"),
+            ("tv-policy", "original"),
+            ("tricolour-firstpass+tv", "tricolour-firstpass"),
+        )
+    }
+    dump = _load_json(base / "l1-inputs" / "dump.json")["arms"]
+    l1_result = _load_json(L1_RUN / "result.json")
+    l1 = {}
+    for arm in L1_ARMS:
+        boxes = dump[arm]["boxes"]
+        flux = dump[arm]["model_flux"]
+        archived = l1_result["arms"][arm]["image"]
+        entry = {}
+        for g, tag in (
+            (
+                "wgrid",
+                "l1-original-wgrid-r1" if arm == "original" else f"l1-{arm}-wgrid",
+            ),
+            (
+                "wstack_g4",
+                None if arm == "original" else f"l1-{arm}-wstack-g4",
+            ),
+        ):
+            if tag is None:
+                d = np.load(run / "after-l1" / "original-wstack-g4-dirty.npy")
+                p = np.load(run / "after-l1" / "original-wstack-g4-psf.npy")
+            else:
+                d = np.load(run / "images" / f"{tag}-dirty.npy")
+                p = np.load(run / "images" / f"{tag}-psf.npy")
+            m = l1_metrics(d, p, boxes, flux)
+            entry[g] = {
+                k: m[k]
+                for k in (
+                    "peak_jy_per_beam",
+                    "peak_pixel",
+                    "residual_rms",
+                    "offsource_rms",
+                    "offsource_robust_sigma",
+                    "residual_robust_sigma_offsource",
+                    "psf_max_sidelobe",
+                    "flux_recovery",
+                )
+            }
+            for kind, img in (("dirty", d), ("psf", p)):
+                ref, _ = read_fits_image(L1_RUN / "images" / f"{arm}-{kind}.fits")
+                entry[f"{g}_vs_archive_{kind}"] = diff_record(img, ref, kind)
+        entry["archive"] = {k: archived[k] for k in entry["wgrid"] if k in archived}
+        rel = {
+            k: abs(entry["wstack_g4"][k] - archived[k]) / abs(archived[k])
+            for k in ("peak_jy_per_beam", "residual_rms", "offsource_rms")
+        }
+        entry["reconstruction"] = {
+            "metric_relative_differences": rel,
+            "metrics_pass": all(v <= L1_TOLERANCE for v in rel.values()),
+            "pixels_pass": all(
+                entry[f"wstack_g4_vs_archive_{k}"]["linf_over_peak"]
+                <= F32_QUANTUM
+                * (
+                    1.0
+                    if k == "dirty"
+                    else entry[f"wstack_g4_vs_archive_{k}"]["reference_peak"]
+                )
+                for k in ("dirty", "psf")
+            ),
+        }
+        l1[arm] = entry
+    rec["l1"] = l1
+    rec["l1_headline_residual_rms_ratio"] = {
+        g: l1["tv-policy"][g]["residual_rms"]
+        / l1["tricolour-firstpass"][g]["residual_rms"]
+        for g in ("wgrid", "wstack_g4")
+    }
+    rec["l1_headline_residual_rms_ratio"]["archive"] = (
+        l1_result["arms"]["tv-policy"]["image"]["residual_rms"]
+        / l1_result["arms"]["tricolour-firstpass"]["image"]["residual_rms"]
+    )
+    g4 = np.load(run / "images" / "l1-original-wgrid-g4-dirty.npy")
+    g1 = np.load(run / "images" / "l1-original-wgrid-r1-dirty.npy")
+    rec["l1_wgrid_groups4_vs_1"] = diff_record(g4, g1, "dirty")
+    rec["prediction_central_half_le_1pc"] = {
+        part: max(
+            v["central_half_linf_over_peak"]
+            for k, v in rec[part].items()
+            if k.endswith("-dirty")
+        )
+        for part in ("c", "i", "k")
+    }
+    return rec
+
+
+def cost_table(run):
+    rows = {}
+    for path in sorted((run / "images").glob("*-r[123].json")):
+        rec = _load_json(path)
+        key = path.stem.rsplit("-r", 1)[0]
+        rows.setdefault(key, []).append(
+            {
+                "wall_s": rec["image_wall_s"],
+                "max_rss_mb": rec["max_rss_mb"],
+                "rss_after_inputs_mb": rec["rss_after_inputs_mb"],
+                "load": rec["loadavg_before"],
+            }
+        )
+    out = {}
+    for key, values in rows.items():
+        walls = sorted(v["wall_s"] for v in values)
+        out[key] = {
+            "repeats": len(values),
+            "median_wall_s": walls[len(walls) // 2],
+            "min_wall_s": walls[0],
+            "max_wall_s": walls[-1],
+            "max_rss_mb": max(v["max_rss_mb"] for v in values),
+            "rss_after_inputs_mb": max(v["rss_after_inputs_mb"] for v in values),
+            "load": [v["load"] for v in values],
+        }
+    for extra in ("l1-original-wgrid-t16", "l1-original-wgrid-g4"):
+        rec = _load_json(run / "images" / f"{extra}.json")
+        out[extra] = {
+            "wall_s": rec["image_wall_s"],
+            "max_rss_mb": rec["max_rss_mb"],
+            "threads": rec["threads"],
+        }
+    rec = _load_json(run / "after-l1" / "original-wstack-g4.json")
+    out["l1-original-wstack-g4"] = {
+        "wall_s": rec["image_wall_s"],
+        "max_rss_mb": rec["max_rss_mb"],
+    }
+    ws = {}
+    for path in sorted((run / "wsclean").glob("wsclean-*.json")):
+        rec = _load_json(path)
+        log = (run / "wsclean" / "logs" / f"{path.stem}.log").read_text()
+        inversion = [line for line in log.splitlines() if line.startswith("Inversion:")]
+        ws[path.stem] = {
+            "wall_s": rec["wall_s"],
+            "max_rss_mb": rec["max_rss_mb"],
+            "inversion": inversion[-1] if inversion else None,
+        }
+    out["wsclean"] = ws
+    return out
+
+
+def cmd_compare(args):
+    run, base = Path(args.run_dir), Path(args.base_dir)
+    result = {
+        "protocol": "research/df2b-wgrid.md",
+        "run": str(run),
+        "base": str(base),
+        "G1_wstack_identity": gate_g1(run, base),
+        "G2_two_weights_and_wiring": gate_g2(run, base),
+        "G3_bindings": gate_g3(run),
+        "T1_against_exact_archives": gate_t1(run),
+        "T3_against_wsclean37": gate_t3(run, base),
+        "T2_against_wstack_archives_and_L1": report_t2_and_l1(run, base),
+        "cost": cost_table(run),
+    }
+    write_json(args.out, result)
+    print(
+        json.dumps(
+            {k: v.get("pass") for k, v in result.items() if isinstance(v, dict)},
+            indent=1,
+        )
+    )
+
+
+def _worst(items, kind="dirty", key="linf_over_peak"):
+    sel = {k: v for k, v in items.items() if k.endswith(f"-{kind}")} if kind else items
+    name, rec = max(sel.items(), key=lambda kv: kv[1][key])
+    return {"worst": rec[key], "where": name}
+
+
+def cmd_summary(args):
+    """The compact archive `research/results/df2b-wgrid.json` from the run's
+    `compare.json`, the precondition and the run receipts."""
+    run, base = Path(args.run_dir), Path(args.base_dir)
+    c = _load_json(run / "compare.json")
+    floor = _load_json(PRECONDITION / "floor.json")["cases"]
+    harness = _load_json(PRECONDITION / "harness-check.json")
+    g1, g2, g3 = (
+        c["G1_wstack_identity"],
+        c["G2_two_weights_and_wiring"],
+        c["G3_bindings"],
+    )
+    t1, t3, t2 = (
+        c["T1_against_exact_archives"],
+        c["T3_against_wsclean37"],
+        c["T2_against_wstack_archives_and_L1"],
+    )
+    icmp = _load_json(run / "wgrid-i" / "compare-archive.json")
+    classes = {}
+    for f in icmp["failures"]:
+        key = f["class"] + (f"/{f['path'][-1]}" if f["class"] == "exact" else "")
+        classes[key] = classes.get(key, 0) + 1
+
+    def t3_part(part):
+        items = t3[part]
+        return {
+            "inputs": len(items),
+            "dirty_linf_over_peak": max(
+                v["dirty"]["linf_over_peak"] for v in items.values()
+            ),
+            "dirty_central_half_linf_over_peak": max(
+                v["dirty"]["central_half_linf_over_peak"] for v in items.values()
+            ),
+            "dirty_border_linf_over_peak": max(
+                v["dirty"]["border_linf_over_peak"] for v in items.values()
+            ),
+            "psf_linf": max(v["psf"]["linf_over_peak"] for v in items.values()),
+            "counters_max_image_weight_relative": max(
+                v["counters"]["image_weight_relative"] for v in items.values()
+            ),
+            "counters_nvis_equal": all(
+                v["counters"]["wsclean_WSCNVIS"] == v["counters"]["core_gridded_count"]
+                for v in items.values()
+            ),
+            "pass": t3["pass"][part],
+        }
+
+    def t2_part(part):
+        items = t2[part]
+        d = {k: v for k, v in items.items() if k.endswith("-dirty")}
+        p = {k: v for k, v in items.items() if k.endswith("-psf")}
+        return {
+            "dirty_linf_over_peak_range": [
+                min(v["linf_over_peak"] for v in d.values()),
+                max(v["linf_over_peak"] for v in d.values()),
+            ],
+            "dirty_central_half_max": max(
+                v["central_half_linf_over_peak"] for v in d.values()
+            ),
+            "psf_linf_max": max(v["linf_over_peak"] for v in p.values()),
+            "psf_central_half_max": max(
+                v["central_half_linf_over_peak"] for v in p.values()
+            ),
+        }
+
+    l1 = {}
+    for arm, e in t2["l1"].items():
+        l1[arm] = {
+            "reconstruction": e["reconstruction"],
+            "metrics": {
+                "wgrid": e["wgrid"],
+                "wstack_g4": e["wstack_g4"],
+                "archive": e["archive"],
+            },
+            "wgrid_vs_archive": {
+                kind: {
+                    k: e[f"wgrid_vs_archive_{kind}"][k]
+                    for k in (
+                        "linf_over_peak",
+                        "central_half_linf_over_peak",
+                        "rms_over_peak",
+                    )
+                }
+                for kind in ("dirty", "psf")
+            },
+        }
+    out = {
+        "schema_version": 1,
+        "task": "big plan DF2b",
+        "protocol": "research/df2b-wgrid.md",
+        "protocol_commit": "abfb2e4",
+        "code_commit": (run / "head.txt").read_text().split()[0],
+        "runs": {
+            "precondition": str(PRECONDITION.relative_to(ROOT)),
+            "baseline": str(base),
+            "measured": str(run),
+        },
+        "precondition": {
+            "permutation_floor": {
+                name: {
+                    kind: floor[name][kind]["linf_over_peak"]
+                    for kind in ("dirty", "psf")
+                }
+                for name in floor
+            },
+            "ms_harness_wstacking37_vs_archive36": {
+                kind: harness[f"wstacking37_vs_archive36_{kind}"]
+                for kind in ("dirty", "psf")
+            },
+        },
+        "G1_wstack_identity": g1,
+        "G2_two_weights_and_wiring": {
+            "pass": g2["pass"],
+            "inputs": {part: len(g2[part]) for part in ("c", "k", "l1")},
+            "i_fits_equal_c_fits": g2["i_fits_equal_c_fits"],
+        },
+        "G3_bindings": {**g3, "gates_library": Path(g3["gates_library"]).name},
+        "T1_against_exact_archives": {
+            "k_bound": t1["k_bound"],
+            "f32_quantum_over_peak": F32_QUANTUM,
+            **{
+                part: {
+                    **_worst(t1[part], kind=None),
+                    "differing_pixels": sum(
+                        v["differing_pixels"] for v in t1[part].values()
+                    ),
+                    "pass": t1["pass"][part],
+                }
+                for part in ("k", "c", "i")
+            },
+            "l1": t1["l1"],
+        },
+        "T2_against_wstack_archives": {
+            **{part: t2_part(part) for part in ("c", "i", "k")},
+            "prediction_central_half_le_0.01": {
+                part: v <= 0.01
+                for part, v in t2["prediction_central_half_le_1pc"].items()
+            },
+            "i_comparator_failures_by_class": classes,
+            "k_metrics": t2["k_metrics"],
+            "k_residual_rms_calls": t2["k_hypotheses"],
+            "l1": l1,
+            "l1_headline_residual_rms_ratio": t2["l1_headline_residual_rms_ratio"],
+            "l1_wgrid_groups4_vs_1_dirty_linf_over_peak": t2["l1_wgrid_groups4_vs_1"][
+                "linf_over_peak"
+            ],
+        },
+        "T3_against_wsclean37": {
+            "image": IMAGE_NAME,
+            "wsclean_binary_sha256": "f098c035443a78e811ac35a3333ebca65cddd389e1f3e40191b2ea95b29d3498",
+            "accuracy": 1e-6,
+            "tolerance": T3_TOLERANCE,
+            **{part: t3_part(part) for part in ("c", "i", "k", "l1")},
+            "reported": t3["reported"],
+        },
+        "cost": c["cost"],
+    }
+    write_json(args.out, out)
+    print("wrote", args.out)
 
 
 # ---------------------------------------------------------------- main
@@ -743,6 +1489,16 @@ def main(argv=None):
     s.add_argument("--accuracy", type=float, default=EPSILON)
     s.add_argument("--threads", type=int, default=1)
     s.set_defaults(fn=cmd_wsclean)
+    s = sub.add_parser("compare")
+    s.add_argument("run_dir")
+    s.add_argument("base_dir")
+    s.add_argument("out")
+    s.set_defaults(fn=cmd_compare)
+    s = sub.add_parser("summary")
+    s.add_argument("run_dir")
+    s.add_argument("base_dir")
+    s.add_argument("out")
+    s.set_defaults(fn=cmd_summary)
     args = p.parse_args(argv)
     args.fn(args)
 
