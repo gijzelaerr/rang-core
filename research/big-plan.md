@@ -30,6 +30,15 @@ answer except the two items under "User items".
   [non-ratt-observations.md](non-ratt-observations.md) and not reported.
 - **Distributable wheel.** Build the binary wheel of `rangtoy` with the core
   extension for Linux, test it on clean interpreters, publish the build in CI.
+- **Name (user, 2026-10-30).** The distribution is published as **`ra-ng`**
+  ("radio astronomy next generation"; `rang` on PyPI belongs to an unrelated
+  package). The import name becomes `rang` unless the user objects (it
+  would collide only with that unrelated package installed side by side;
+  the alternative is `ra_ng`). The rename from `rangtoy` is task P12, after
+  P7 and P9, which touch the same entry points: package directory, imports,
+  extension module `rang._core`, CLI, tests, recipes, docs and CI; archived
+  receipts and research notes keep the historical `rangtoy` paths. No PyPI
+  upload before the rename.
 - **Science continues until there is no more research to do**, in parallel
   sessions, under frozen protocols as before. "The original experiment" is read
   as the active one, gain-TV-guided flagging, run to a positive or a settled
@@ -100,8 +109,9 @@ SumThreshold parallel over baselines; P6 frozen Python hot spots ported; P4
 survey eigensolver; P8 frozen recipes, containers and recipe-only modules to
 `history/`; P10 test-suite speed (after P8); P7 architecture (drop ctypes, GIL,
 `catch_unwind`; after W1 and P1–P6, alone); P9 one CLI and archive format
-(after P7); P11 extract and retire the frozen modules (after P6 and P7). Three
-CPU-heavy tasks at a time on 8 physical cores.
+(after P7); P11 extract and retire the frozen modules (after P6 and P7); P12
+rename `rangtoy` to `ra-ng`/`rang` (after P7, P9 and P11). Three CPU-heavy
+tasks at a time on 8 physical cores.
 
 ## Wave 3 (science, after L1's verdict; parallel where independent)
 
@@ -148,8 +158,9 @@ CPU-heavy tasks at a time on 8 physical cores.
 
 ## User items (not blocking)
 
-- Publish to PyPI when the wheel is ready (one command in `research/wheel.md`);
-  decide the distribution name (`rangtoy` or `rang`) first.
+- Publish to PyPI as `ra-ng` after task P12 (rename): create the project on
+  PyPI with trusted publishing for the `wheels.yml` workflow of
+  `gijzelaerr/rang`, or run the command in `research/wheel.md`.
 - Delete `~/Build/tmp/20261029-rang-core`, the root-owned
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).
