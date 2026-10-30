@@ -48,12 +48,12 @@ of [clean-theory.md](clean-theory.md) §2.
     range the grid can hold, which is 8 pixels for 32 sources.
   - The random placement hardly constrains two sources. Their transition
     comes from the fixed-separation experiment: 3-7 pixels on the 12
-    non-degenerate configurations.
+    configurations other than the WSRT and KAT-7 snapshots.
   - Every sufficient condition, the new ones included, sits well above the
     measured transition for `k ≥ 4`. CLEAN recovered 32 sources at 3 pixels
     separation in 100 of 100 trials on the MeerKAT and VLA-C uniform tracks,
     while `η(S) < 1` held in 0 and 1 of them.
-- **Degenerate coverage.**
+- **Degenerate and floor-limited coverage.**
   - The WSRT snapshot is an east-west line, so `μ_d = 1.0000` at every
     distance and recovery never succeeds: 0 of 8,023 placed trials and 0 of
     3,200 pairs.
@@ -239,9 +239,22 @@ needed once there are three picks, and together with (F) they suffice. ∎
 Consequences. (L) is a flux-free **necessary** condition for two-source
 recovery with gain one, (F) a flux-dependent one; both are exact. With
 `ρ = 0` the run ends after two picks and (F) alone decides. Neither
-condition involves the gain-one ERC; the gap between `‖·‖_∞` and `‖·‖₁` is
-the whole difference between what CLEAN needs and what the ERC certifies for
-two sources. *Implemented* twice: per trial (first pick on `S` and
+condition is the ERC. The gap between `‖·‖_∞` (what gain-one CLEAN needs
+after the first pick) and `‖·‖₁` (what the ERC demands for every residual
+sign pattern) is the whole difference between them for two sources.
+
+*The single-source case.* For `k = 1` the residual is `f a_x` at every step,
+and the first pick (hence every pick) lies on the source if and only if
+`|b(x − q)| < 1` for every in-image `q ≠ x`. Over all placements this is
+`μ_1 < 1` on the offsets the image allows, which is the necessary condition
+"no neighbour beats a lone atom". It always holds for a Gram matrix of
+distinct atoms, except when two pixels have identical atoms. That happens
+on the WSRT snapshot: an east-west array at hour angle 0 samples only the
+`u` axis, so `b(0, Δy) = 1.0000` to four digits. Every pixel in a
+source's column then matches the source to rounding, and recovery failed in all 8,023 placed trials and all
+3,200 pairs (§5.1).
+
+*Implemented* twice: per trial (first pick on `S` and
 `eta_max < 1`, from `support_coefficients`), and as a scan over every pair
 offset `Δ` of the grid with every competitor whose offsets to both sources
 lie in the PSF table (a superset of the competitors of any placement in the
@@ -372,8 +385,10 @@ one over the count per uv cell of the 64-pixel image):
    larger fully placed `d`.
 
 Seeds: every trial is seeded by splitmix64 from (configuration, `k`, `d`,
-trial), noise by configuration; results are identical under any rayon
-schedule. The collapse analysis pools all trials of (4) and bins success by a
+trial), noise by configuration, and results are collected in order. The
+output is therefore independent of the rayon schedule by construction, and
+was checked: two 10-trial runs gave identical archives once the timing
+fields were removed. The collapse analysis pools all trials of (4) and bins success by a
 statistic; spreads between arrays are taken over bins where at least two
 arrays have at least 30 trials; a logistic fit of success on the logarithm
 of the statistic gives the 50 % and 95 % points; the AUC is the probability
@@ -413,12 +428,19 @@ gain one, and from which every pair has ERC < 1.
 ("none": some pair at every separation the 64-pixel image allows fails.)
 The noisy exact-support `d*` is "–" for every configuration and `k`.
 
+The task's literal definition, the smallest `d` with ≥ 95 % success, is
+archived as `dstar_first_95`. The table uses the stable variant, ≥ 95 % at
+that `d` and every larger one. They differ in two cells:
+
+- vla-c-snapshot-natural, `k = 16`: literal 6, stable – (94 at `d = 12`);
+- kat7-snapshot-natural, `k = 2`: literal 3, stable – (91-95 above it).
+
 Reading the table:
 
 - For `k = 2`, random placement with minimum separation `d` almost never
   puts two sources close (`d* = 1`). The fixed-separation experiment
-  measures the two-source transition: 3-7 pixels on the 12 non-degenerate
-  configurations, always at or below the worst-case separation.
+  measures the two-source transition: 3-7 pixels on the 12 configurations other than
+  the WSRT and KAT-7 snapshots, always at or below the worst-case separation.
 - Theorem 8 certifies two sources at the worst-case separation itself on
   7 configurations. The exceptions:
   - the MeerKAT natural-weight PSFs, where the bound gives 18 against the
@@ -480,7 +502,11 @@ image superset), for `d = 1..6`:
 - The scan's prediction matches the runs within sampling noise wherever
   the image edge is irrelevant. It underestimates the KAT-7 snapshot,
   whose 87″ pixels put the decisive far sidelobes outside a real image;
-  the scan counts those competitors, which is why it is only a lower bound.
+  the scan counts those competitors. The prediction is therefore an
+  approximate lower bound: the competitor set is a superset, but the
+  9 × 9 flux grid only approximates the uniform flux draw, and two cells
+  fall below it. Those are meerkat-snapshot-natural at `d = 3` (57 against
+  0.65) and wsrt-track-natural at `d = 2` (50 against 0.60).
 - **Adjacent sources.** At `d = 1` the outcome ranges from never
   (natural-weight MeerKAT) to 77-100 % (the MeerKAT, VLA-C and KAT-7
   uniform tracks). Every success and failure is the one Proposition 9

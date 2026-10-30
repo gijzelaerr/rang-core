@@ -15,17 +15,14 @@ for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 
 New, 2026-10-30: [CLEAN phase transition](clean-phase-transition.md): when
 Högbom CLEAN recovers point sources exactly, on MeerKAT, VLA-C, WSRT and
-KAT-7.
-- Proven: an exact gain-one two-source rule (an ℓ∞ ERC plus the first
-  pick), which agrees with all 40,000 trials; and a sharper sufficient
-  condition (Theorem 8, anchored), which certifies 14 of 80 cases against
-  3 for Proposition 4'.
-- Measured: the transition `d*(k)` per array, coverage and weighting.
-  Every sufficient condition is far above it for `k ≥ 4`.
-- Negative results: there is no universal curve beyond the ERC threshold
-  `η = 1`, and with 1 % noise no configuration reaches 95 % exact support.
-
-The archive is [results/clean-phase-transition.json](results/clean-phase-transition.json).
+KAT-7. Proven: an exact gain-one two-source rule (an ℓ∞ ERC plus the
+first pick), which agrees with all 40,000 trials, and a sharper sufficient
+condition (Theorem 8, anchored), which certifies 14 of 80 cases against 3
+for Proposition 4'. Measured: the transition `d*(k)` per array, coverage
+and weighting, with every sufficient condition far above it for `k ≥ 4`.
+Negative results: there is no universal curve beyond the ERC threshold
+`η = 1`, and with 1 % noise no configuration reaches 95 % exact support
+([archive](results/clean-phase-transition.json)).
 
 New, 2026-10-30: [CLEAN theory](clean-theory.md): the claim that CLEAN was
 never proven is folklore (Schwarz 1978 proved the data fit converges for
