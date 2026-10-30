@@ -415,11 +415,14 @@ def imaging(run_dir, archive_dir=None, export_dir=None, gridder="wstack"):
     )
 
 
-def campaign(run_dir, precondition=None, workers=8):
-    """The LUNO campaign on the core (task K, `rang.core_campaign`)."""
+def campaign(run_dir, precondition=None, workers=8, gridder="wstack"):
+    """The LUNO campaign on the core (task K, `rang.core_campaign`);
+    `gridder="wgrid"` images with the exact gridder (research/df2c-campaign-gridder.md)."""
     from . import core_campaign
 
-    result = core_campaign.run(run_dir, workers=workers, precondition_dir=precondition)
+    result = core_campaign.run(
+        run_dir, workers=workers, precondition_dir=precondition, gridder=gridder
+    )
     environment(run_dir)
     return result
 
@@ -771,6 +774,7 @@ def _configure_campaign(p):
     p.add_argument("run_dir")
     p.add_argument("--precondition")
     p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--gridder", choices=("wstack", "wgrid"), default="wstack")
 
 
 def _configure_environment(p):
@@ -843,7 +847,7 @@ STAGES = {
     },
     "campaign-array": {
         "help": "LUNO whole-array campaign, task L1 (research/luno-array-campaign.md)",
-        "run": _script("run_luno_array.py", _first),
+        "run": _script("run_luno_array.py", _first, "--gridder wstack|wgrid"),
         "precondition": _script("precondition_luno_array.py"),
         "compare": _script("check_luno_array.py", note="the L1 checker"),
         "archive": ARCHIVE,
@@ -852,7 +856,7 @@ STAGES = {
     "campaign-1830": {
         "help": "PKS 1830 campaign, task L2 (research/luno-1830-campaign.md)",
         "fetch": _script("fetch_luno_1830.py", _first),
-        "run": _script("run_luno_1830.py", _first),
+        "run": _script("run_luno_1830.py", _first, "--gridder wstack|wgrid"),
         "precondition": _script("precondition_luno_1830.py"),
         "compare": _script("check_luno_1830.py", note="the L2 checker"),
         "archive": ARCHIVE,
@@ -861,7 +865,7 @@ STAGES = {
     "campaign-fieldmodel": {
         "help": "PKS 1934-638 field-model arms, task L1-M (research/l1-model-completeness.md)",
         "fetch": _script("fetch_l1m.py", _first),
-        "run": _script("run_l1m.py", _first),
+        "run": _script("run_l1m.py", _first, "--gridder wstack|wgrid"),
         "compare": _script("check_l1m.py", _first, "the L1-M checker"),
         "archive": ARCHIVE,
         "legacy-archive": _script("archive_l1m.py"),
