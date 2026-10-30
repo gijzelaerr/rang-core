@@ -16,6 +16,7 @@ cabs:
       run_dir: {dtype: str, required: true}
       archive_dir: {dtype: Directory, required: true}
       export_dir: {dtype: Directory, required: true}
+      gridder: {dtype: str, required: false, default: wstack, info: "wstack (the archive reproducer) or wgrid (the exact gridder, research/df2b-wgrid.md)"}
   rang-core-imaging-compare:
     info: Compare a core replay with an archived imaging result field by field and, when image directories are given, pixel by pixel; fails the recipe on any difference outside task A's tolerances.
     flavour: python

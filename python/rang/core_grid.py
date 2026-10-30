@@ -6,6 +6,8 @@ wrapper adds what WSClean's Measurement Set reader does before gridding
 WSClean's pixel orientation (`write_fits`). Briggs weighting is task B's; the
 imaging weights are an input here. The core is reached through the extension
 `rang._core` (research/core-j-packaging.md, research/p7-architecture.md).
+`invert(..., gridder="wgrid")` uses the exact gridder of DF1/DF2a instead
+(research/df2b-wgrid.md); "wstack" stays the default.
 """
 
 import math
@@ -15,6 +17,9 @@ import numpy as np
 from . import core
 
 ARCSEC = math.pi / (180.0 * 3600.0)
+GRIDDERS = ("wstack", "wgrid")
+# The exact gridder's accuracy in the drivers (research/df2b-wgrid.md).
+WGRID_EPSILON = 1e-6
 N_STATS = 8
 STAT_NAMES = (
     "image_weight",
@@ -113,12 +118,35 @@ def invert(
     kernel_size=7,
     oversampling=1023,
     padding=1.2,
+    gridder="wstack",
+    epsilon=WGRID_EPSILON,
 ):
     """Dirty image and PSF, `(height, width)` arrays in FITS pixel order, with
     WSClean's counters. `data` is the complex64 Stokes sample per (row,
     channel), `weights` the reader weight and `imaging_weights` WSClean's
     per-channel imaging weight. The grid is `padding` times larger than the
-    image and trimmed afterwards, as WSClean does by default."""
+    image and trimmed afterwards, as WSClean does by default.
+
+    `gridder` is "wstack" (the default: WSClean 3.6-1's w-stacking gridder,
+    the archive reproducer) or "wgrid" (the exact gridder of DF1/DF2a at
+    `epsilon`, research/df2b-wgrid.md): one pass for dirty and PSF in
+    double precision, the two weights multiplied in the core, the same
+    orientation, PSF-centre normalisation and counter names; `w_layers`,
+    `kernel_size`, `oversampling` and `padding` do not apply to it."""
+    if gridder == "wgrid":
+        return _invert_wgrid(
+            uvw,
+            frequencies,
+            data,
+            weights,
+            imaging_weights,
+            width,
+            height,
+            scale_arcsec,
+            epsilon,
+        )
+    if gridder != "wstack":
+        raise ValueError(f"gridder must be one of {GRIDDERS}, not {gridder!r}")
     uvw = np.ascontiguousarray(uvw, np.float64)
     frequencies = np.ascontiguousarray(frequencies, np.float64)
     data = np.ascontiguousarray(data, np.complex64)
@@ -159,7 +187,92 @@ def invert(
     record = dict(zip(STAT_NAMES, (float(v) for v in stats)))
     record["gridded_count"] = int(record["gridded_count"])
     record["n_w_layers"] = int(record["n_w_layers"])
-    return {"dirty": dirty, "psf": psf, "stats": record}
+    return {"dirty": dirty, "psf": psf, "stats": record, "gridder": "wstack"}
+
+
+def _weight_counters(weights, imaging_weights, block=4096):
+    """WSClean's counters of the gridded samples (`w * iw != 0`, the product
+    formed in float32 as the core forms it), in row blocks so that no
+    full-size product is kept: image weight, count, visibility weight sum
+    and the largest gridded weight."""
+    total = vsum = 0.0
+    count = 0
+    largest = 0.0
+    for start in range(0, len(weights), block):
+        w = weights[start : start + block]
+        cum = w * imaging_weights[start : start + block]
+        live = cum != 0
+        total += float(cum.sum(dtype=np.float64))
+        vsum += float(w[live].sum(dtype=np.float64))
+        count += int(np.count_nonzero(live))
+        if cum.size:
+            largest = max(largest, float(cum.max()))
+    return total, count, vsum, largest
+
+
+def _invert_wgrid(
+    uvw,
+    frequencies,
+    data,
+    weights,
+    imaging_weights,
+    width,
+    height,
+    scale_arcsec,
+    epsilon,
+):
+    """`invert` through the exact gridder (`core_wgridder.fits_image`)."""
+    from . import core_wgridder
+
+    data = np.asarray(data)
+    if data.dtype not in (np.complex64, np.complex128):
+        data = data.astype(np.complex64)
+    data = np.ascontiguousarray(data)
+    weights = np.ascontiguousarray(weights, np.float32)
+    imaging_weights = np.ascontiguousarray(imaging_weights, np.float32)
+    nrow, nchan = data.shape
+    if np.shape(uvw) != (nrow, 3) or np.shape(frequencies) != (nchan,):
+        raise ValueError("uvw must be (nrow, 3) and frequencies (nchan,)")
+    if weights.shape != (nrow, nchan) or imaging_weights.shape != (nrow, nchan):
+        raise ValueError("weights must match data")
+    image_weight, count, vsum, largest = _weight_counters(weights, imaging_weights)
+    if image_weight == 0.0:
+        raise RuntimeError("core gridder failed: no visibility carries weight")
+    out = core_wgridder.fits_image(
+        uvw,
+        frequencies,
+        data,
+        weights,
+        width,
+        height,
+        scale_arcsec,
+        epsilon=epsilon,
+        imaging_weights=imaging_weights,
+    )
+    info = out["info"]
+    centre = out["psf_centre_raw"]
+    stats = {
+        "image_weight": image_weight,
+        "gridded_count": count,
+        "visibility_weight_sum": vsum,
+        "max_gridded_weight": largest,
+        "min_w": info["wmin_d"],
+        "max_w": info["wmax_d"],
+        "psf_normalization": image_weight / centre if centre else 0.0,
+        "n_w_layers": info["nplanes"],
+    }
+    return {
+        "dirty": out["dirty"],
+        "psf": out["psf"],
+        "stats": stats,
+        "gridder": "wgrid",
+        "wgridder": {
+            "epsilon": float(epsilon),
+            "backend": core_wgridder.backend(),
+            "psf_centre_raw": float(centre),
+            **info,
+        },
+    }
 
 
 def wcs_header(phase_dir_rad, width, height, scale_arcsec, frequencies):
