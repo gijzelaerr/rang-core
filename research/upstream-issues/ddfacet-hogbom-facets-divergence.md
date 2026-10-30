@@ -22,8 +22,9 @@ the first 2-minute run.
 
   Dirty peak 1.000 Jy in all runs, at the centre pixel (262, 262) in the two 3×3 runs (checked
   in `img.dirty.fits`). The divergence follows the
-  facet count, not the compact-array PSF (the study's suspicion), so the study's "stall" was this
-  divergence followed by degridding an `inf`/`nan` model.
+  facet count, not the compact-array PSF (the study's suspicion), so the study's "stall" was probably the
+  same divergence (unverified: there the minor cycle sat about 10 min after the warning, here it
+  ended 10 s after it).
 - **Expected.** Removal of the point source for any facet count.
 - **Cause (not established).** The facet-dependent step is `PSFServer.setLocation`/`GivePSF`
   (`giveFacetID2`, polygon test on l, m) choosing the facet PSF that `SubStep` subtracts; a PSF

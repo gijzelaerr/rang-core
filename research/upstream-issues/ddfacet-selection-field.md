@@ -12,6 +12,9 @@ run of [ddfacet-feasibility.md](../ddfacet-feasibility.md) (LUNO slice, field 1)
   "MS ... (field 0, ddid 0): no rows, skipping", then `RuntimeError: --Data-MS does not specify
   any valid Measurement Set(s)` (exit 1, 5.4 s). `--Selection-Field 1` and `f1.ms//F1` both image
   (exit 0, 6.6-6.7 s).
+- **Issue snippet checked** (`field_snippet_check.sh`): single-field copy at FIELD_ID 0 images
+  (exit 0); after the issue's `copyrows` + `FIELD_ID + 1` snippet, exit 1 with the skip message.
+  The first issue text called the MS "a scan after the calibrators"; edited to neutral wording.
 - **Correction to the study's wording.** Not silent: the skip is logged (in red) and the run
   raises; what is missing is which fields the MS has. The issue says so. Skipping is deliberate
   (many MSs, some without a DDID), so the PR changes only the message.

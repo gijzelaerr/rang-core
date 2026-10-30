@@ -43,8 +43,9 @@ the one-line declaration change is the whole fix. PyPI has only the 3.3.0 sdist,
 ## 2. killMS against DDFacet 1.0.0.0 (filed, no PR)
 
 [killms-ddfacet-app-api.md](upstream-issues/killms-ddfacet-app-api.md). Broader than the study's
-note: besides `_init_default()`, the global `APP` is gone (ten killMS modules import it, three of
-them fail at import) and `init()` now returns a pool and takes `requested_worker_cpus`, not
+note: besides `_init_default()`, the global `APP` is gone (ten killMS modules use it: eight import it at
+module level and fail on import, as tested for three; `kMS.py` and `ClassImageSM2.py` read it
+inside functions) and `init()` now returns a pool and takes `requested_worker_cpus`, not
 `affinity`. Correction to the study: `51a1d352` only re-adds an already commented-out file;
 the removal is 11a616f2 (2026-04-30), after de2fc174 (2022) stopped calling it at import, and
 reached the release through cyriltasse/DDFacet#912. The issue offers a port sketch or a
@@ -64,7 +65,8 @@ GPL-2.0-only is intended instead.
 
 ## 4. `--Selection-Field` (filed, PR)
 
-[ddfacet-selection-field.md](upstream-issues/ddfacet-selection-field.md). Correction to the
+[ddfacet-selection-field.md](upstream-issues/ddfacet-selection-field.md). The issue's python-casacore snippet that turns a single-field MS into a field-1 MS was run
+(field-0 copy images, exit 0; after the snippet, exit 1 as reported). Correction to the
 study's wording: the skip is logged, not silent; the gap is that neither message names the
 fields present. The PR adds the `FIELD_ID/DATA_DESC_ID` pairs and the selection options to the
 `ClassMS.ReadMSInfo` skip message (one function), with a unit test; `ClassDaskMS` is unchanged
@@ -99,12 +101,33 @@ selection suspected and labelled unverified in the issue). Time box: started 14:
 | 2026-10-30 | `DDF.py` Hogbom 3×3 facets, synthetic point source | slice geometry, 2048 ch, 512 px | 101.7 s | 8.9 GB | diverges to inf; CPU 299 % |
 | 2026-10-30 | same, UVW ×30 | same | 104.2 s | 9.0 GB | diverges (8.3e15 Jy) |
 | 2026-10-30 | same, 1 facet | same | 273.1 s | 21.5 GB | converges; CPU 71 % |
-| 2026-10-30 | rang worktree venv (`uv venv -p 3.14` + editable install) | worktree | see check-all section | – | |
+| 2026-10-30 | rang worktree venv (`uv venv -p 3.14` + editable install) | worktree | 61.7 s | 501 MB | |
+| 2026-10-30 | `flock ... bash tools/check-all.sh` | worktree at 6e7444b | 259.0 s; lock wait under 1 s | 1.58 GB | **FAIL**, not from U3: see below |
+| 2026-10-30 | issue #75 snippet check (`field_snippet_check.sh`) | slice copy, 2 `DDF.py` runs | under 30 s | – | exit 0, then exit 1 as reported |
+
+## check-all (documents-only change)
+
+`flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` on 6e7444b (the U3 commit; it
+adds only `research/` files) **failed on two pre-existing items** of the base 015fcfd: ruff
+I001 (import order) in `python/rangtoy/core_cli.py` (`from .core_trend import run as
+trend_run`), and `tests/test_core_cli.py::test_frozen_consumer_and_comparators_are_the_phase3_files`
+(asserts `trend_run.__module__ == "rangtoy.flagging_trend"`, now `rangtoy.core_trend`). Both
+come from 6efd728 ("Record the task P6 merge and switch the trend and signal drivers to the
+ports"). Everything else passed: Rust root 23 and core 55 tests, clippy, fmt, ruff-format,
+diff-check, pytest 614 passed, 1 failed, 3 skipped in 134 s. Not fixed here (outside U3's
+files). The follow-up commit with these notes changes documents only. Log:
+`outputs/upstream-saopicc-20261030-01/logs/check-all.log`.
+
+## Kept outputs
+
+`outputs/upstream-saopicc-20261030-01/` (ignored, 8.6 MB, `SHA256SUMS`): install, build and
+check-all logs (`logs/`, with `timings.txt`), the three Hogbom `run.log`s, and the field-selection
+run logs before/after the PR and for the snippet check.
 
 ## Scratch deleted
 
-`~/Build/tmp/20261030-saopicc/` (DDFacet and killMS clones, venvs `venv-ddf100`, `venv-ddf091`,
-`venv-kmsfix`, sdists, `objcmp/`, `field/`, `hogbom/` MS copies and images, logs). Everything
+Deleted and checked absent after the runs: `~/Build/tmp/20261030-saopicc/` (DDFacet and killMS clones, venvs `venv-ddf100`, `venv-ddf091`,
+`venv-kmsfix`, sdists, `objcmp/`, `field/`, `hogbom/` MS copies and images, logs). No DDFacet `/dev/shm/ddf.*` segments were left. Everything
 needed is in `upstream-saopicc-files/` and on the fork branches. Forks gijzelaerr/DDFacet and
 gijzelaerr/killMS stay (they hold the PR branches).
 
@@ -131,6 +154,10 @@ gijzelaerr/killMS stay (they hold the PR branches).
   models. killMS still needs DDFacet < 1.0, and DDFacet 0.9.1 does not install on GCC 15
   (astlib), so the killMS oracle needs an older toolchain. Report: `research/upstream-saopicc.md`."
 - **Timing rows**: the table above.
-- **Open items**: watch killMS#24, #26 and DDFacet#74, #76 (no CI, review only); answer
+- **check-all on main**: ruff I001 in `python/rangtoy/core_cli.py` and the failing
+  `test_core_cli.py` phase-3 assertion come from 6efd728, not U3; fix on main.
+- **Open items**: DDFacet development PRs merge on cyriltasse/DDFacet (#905-#916) and
+  saopicc `master` is synced from it; saopicc/DDFacet has had no human PR since 2017. #74 and #76
+  target saopicc as briefed; retarget to cyriltasse/DDFacet if the maintainers ask. Watch killMS#24, #26 and DDFacet#74, #76 (no CI, review only); answer
   questions on #27 (port vs pin) and #77 (cause unknown; a follow-up could bisect the PSF facet
   selection); `research/README.md` could link this report.
