@@ -1009,8 +1009,8 @@ def _call(options, receipt, primary, verb, function, kwargs):
         code = exc.code if isinstance(exc.code, int) else 1
         _finish(options, receipt, primary, verb, code)
         raise
-    except BaseException:
-        _finish(options, receipt, primary, verb, "exception")
+    except BaseException as exc:
+        _finish(options, receipt, primary, verb, f"exception: {type(exc).__name__}")
         raise
     _finish(options, receipt, primary, verb, 0)
     return result
@@ -1112,18 +1112,22 @@ def main(argv=None):
     except IndexError:
         primary = None
     receipt = Receipt(command, stage, verb, rest, pinned)
-    if spec["kind"] == "engine":
-        from . import core_compare
+    try:
+        if spec["kind"] == "engine":
+            from . import core_compare
 
-        try:
             verdict = core_compare.run(spec["name"], rest)
-        except SystemExit as exc:
-            _finish(options, receipt, primary, verb, exc.code)
-            raise
-        code = verdict["exit"]
-    else:
-        code = _run_script(spec["script"], rest)
-        verdict = {"exit": code, "passed": code == 0} if verb == "compare" else None
+            code = verdict["exit"]
+        else:
+            code = _run_script(spec["script"], rest)
+            judged = verb in ("compare", "precondition")
+            verdict = {"exit": code, "passed": code == 0} if judged else None
+    except SystemExit as exc:
+        _finish(options, receipt, primary, verb, exc.code)
+        raise
+    except BaseException as exc:
+        _finish(options, receipt, primary, verb, f"exception: {type(exc).__name__}")
+        raise
     _finish(options, receipt, primary, verb, code, verdict)
     if code:
         raise SystemExit(code)
