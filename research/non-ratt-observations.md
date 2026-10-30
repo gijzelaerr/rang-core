@@ -71,3 +71,13 @@ to an unrelated package (carta-python is not on PyPI).
   sparse-array PSF sidelobes to about 20 % of the peak at the field edge
   (four-station LUNO slice; 2.1e-5 at padding 2 with kernel 15). A note, not a
   bug; WSClean 3.6+ defaults to the wgridder.
+
+## From O-CASA (2026-10-30; not reported by decision)
+
+- CASA casatools 6.7.6.14: the `manylinux_2_34` wheel bundles `libssl` 3.2 and
+  `libldap` but relies on a system `libcrypto` ≥ 3.2 with MD2, so it does not
+  import on Ubuntu 24.04 (the `manylinux_2_28` wheel does); `gaincal` K passes
+  `minblperant` 4 with three baselines per antenna where G does not; tasks that
+  write no table return without an exception; with `casaconfig` auto-updates
+  off, Ubuntu's `casacore-data` works but CASA logs SEVERE notices on start.
+- WSClean 3.7 wgridder: `-j 4` is not bit-reproducible (2e-6 relative); `-j 1` is.

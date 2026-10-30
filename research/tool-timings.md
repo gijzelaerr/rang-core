@@ -677,3 +677,22 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan L1-M: `check_l1m.py` (`-04-check`) | – | 12.7 s | 0.21 GB |  |
 | 2026-10-30 | big plan L1-M: `archive_l1m.py` | – | 0.1 s | 41 MB |  |
 | 2026-10-30 | big plan L1-M: `bash tools/check-all.sh` (plain; it takes the host lock itself), once before the final commit (`outputs/l1m-20261030-check-all.log`) | – | 3 min 31 s (pytest 657 passed, 3 skipped in 1 min 58 s) | 1.65 GB |  |
+| 2026-10-30 | big plan O-CASA: `uv venv -p /usr/bin/python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` | worktree `o-casa`, public PyPI | 28.7 s | 638 MB |  |
+| 2026-10-30 | big plan O-CASA: KERN-10 probes (apt versions, PyPI closure of casatools/casatasks, casalite deb listing), scratch | `ubuntu:24.04@sha256:fe815609…` + `ppa:kernsuite/kern-10` | ~1–3 min each | – |  |
+| 2026-10-30 | big plan O-CASA: `build.sh` first image | Dockerfile + `requirements.lock` with the casatools `manylinux_2_34` wheel | 170.7 s | 53 MB (client) |  |
+| 2026-10-30 | big plan O-CASA: `build.sh` final image | same with the `manylinux_2_28` wheel; apt layer cached | 56.1 s | – |  |
+| 2026-10-30 | big plan O-CASA: labelled smoke `run.sh` ×6 | `-00-smoke` … `-00-smoke-f` | 5–90 s each | ≤ 521 MB |  |
+| 2026-10-30 | big plan O-CASA: **`run.sh` `-01`** under `/usr/bin/time -v` | archived slice + solve inputs + `work.ms`, code `7162468` | 47.4 s | 521 MB |  |
+| 2026-10-30 | big plan O-CASA: **`run.sh` `-02`** | same | 44.9 s | 521 MB |  |
+| 2026-10-30 | big plan O-CASA: post-hoc WSClean `-j 1` ×2 (`posthoc.sh`, `-03-wsclean-j1`) | copy of `-01`'s `c.ms` | 0.91 s, 0.92 s | 77 MB |  |
+| 2026-10-30 | big plan O-CASA: post-hoc arms E, F (`posthoc.sh`, `-04-arm-e`, `-05-arm-f`), solve + apply | copies of `-01`'s `work.ms` | 1.8 + 1.1 s each | 320 MB |  |
+| 2026-10-30 | big plan O-CASA: `archive.py` | `-01`, `-02`, `-00-build2/image.json`, `-03`/`-04`/`-05` | < 1 s | – |  |
+| 2026-10-30 | big plan O-CASA: `bash tools/check-all.sh`, once before the final commit | branch at `6ef269d` minus the commit itself (log `outputs/o-casa-20261030-01.check-all.log`) | 404.7 s (pytest 645 passed, 4 skipped in 120.3 s) | 1.53 GB |  |
+| 2026-10-30 | big plan O-CASA: solve-c (setjy, K, G, B) | – |  | – |  |
+| 2026-10-30 | big plan O-CASA: apply-c | – |  | – |  |
+| 2026-10-30 | big plan O-CASA: solve-ch / restore / apply | – |  | – |  |
+| 2026-10-30 | big plan O-CASA: solve-sh / restore / apply | – |  | – |  |
+| 2026-10-30 | big plan O-CASA: flagdata tfcrop / rflag | – |  | – |  |
+| 2026-10-30 | big plan O-CASA: setjy SR2016 / PB2010 | – |  | – |  |
+| 2026-10-30 | big plan O-CASA: WSClean (`-j 4`) | – |  | – |  |
+| 2026-10-30 | big plan O-CASA: summarize / compare (host) | – |  | – |  |

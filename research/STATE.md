@@ -1,5 +1,27 @@
 # Rang research state
 
+O-CASA (big plan), 2026-10-30 (implemented; measured;
+[o-casa.md](o-casa.md)). A CASA oracle image (`rang-o-casa:6.7.6.14`: Ubuntu
+24.04 + KERN-10 WSClean 3.7, AOFlagger 3.5, python-casacore 3.7.1;
+casatools/casatasks 6.7.6.14 from PyPI, the manylinux_2_28 wheel because the
+2_34 wheel does not import on Noble) runs CARACal's crosscal sequence by hand
+on the LUNO 1934−638 four-station slice. CARACal's defaults stop at K: the
+automatic reference antenna is empty because all baselines are under 150 m;
+solving needs `refant`, `minblperant=3` and no `uvrange` cut (arms D/E/F show
+each is necessary). With those, CASA's K·G·B reproduces in hash over two runs
+(119 gated hashes; only WSClean `-j 4` pixels differ, at 2e-6; `-j 1` is
+bit-identical). Against the core's QuartiCal port: applied gains agree to
+0.4 % and 0.33° (median, stored model); held-out test MSE on the parallel
+hands, the matched number, is 0.2529 against 0.2294 (×1.10); the total
+0.3815 against 0.2760 also contains the cross hands, where K·G·B has no
+leakage term by design. Flagging baselines: tfcrop with CARACal's defaults
+adds 1.49 % of unflagged cells, rflag 0.14 % (the Tricolour first pass
+0.14 %). CARACal's `setjy` is `standard='manual'` from its own Reynolds 1994
+table (14.9077 Jy at 1.4 GHz, log10 `spix`), not Stevens-Reynolds 2016; CASA's
+SR2016 and PB2010 for 1934−638 are bit-identical and equal that polynomial
+to 3e-6 (input for FS1). Archive `results/o-casa-crosscal.json`. FS1 and L4
+are unblocked; DF0 shares the image base.
+
 L1-M model completeness (big plan wave 3), 2026-10-30 (implemented;
 measured; [l1-model-completeness.md](l1-model-completeness.md)). The premise
 was wrong: LUNO's stored 1934−638 MODEL_DATA is not a point but a field model.

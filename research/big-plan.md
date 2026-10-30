@@ -240,7 +240,9 @@ CPU-heavy tasks at a time on 8 physical cores.
   porting DDFacet and killMS to casacure (PR #445 discussion), which bears
   on the DF tasks: user item, make contact before DF3.
 - Ecosystem survey done 2026-10-30 (`ecosystem-survey.md`); tasks it adds,
-  with owner files in its "For the coordinator": O-CASA (CASA 6.7.6 oracle
+  with owner files in its "For the coordinator": O-CASA done 2026-10-30
+  (`o-casa.md`; CASA/CARACal matched baseline ×1.10 worse held-out than the
+  core's port on the parallel hands; FS1 and L4 unblocked) (CASA 6.7.6 oracle
   container on KERN-10, CARACal's crosscal sequence by hand on the LUNO 1934
   slice, tables and CORRECTED_DATA archived; the DF0 base), FS1 (flux
   standards SR2016, PB2010, PB2017 in the core, `setjy` oracle), DF-IO-CT

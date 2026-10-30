@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: [O-CASA](o-casa.md): a CASA 6.7.6 oracle image on KERN-10 runs
+CARACal's crosscal on the LUNO slice (after three necessary deviations); the
+matched baseline for the verdict, tfcrop/rflag flag fractions and a WSClean
+wgridder reference image.
+
 New, 2026-10-30: L1-M, [model completeness](l1-model-completeness.md): the
 stored 1934−638 model is a field model that beats CARACal's lsm; TV decisions
 unchanged under stored, point and field models; `rangtoy.lsm` reads Tigger lsm.

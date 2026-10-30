@@ -343,3 +343,16 @@ not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
   its steep off-axis indices (−3 to −8.6) only make sense as apparent spectra.
 - Non-RATT (data): the LUNO store does not log where its MODEL_DATA came
   from; L1-M shows it is consistent with an lsm-based field prediction.
+
+## O-CASA observations (2026-10-30; observed, not raised)
+
+- caracal-pipeline: `refant: auto` uses `minbase` as "all baselines ≥ 150 m";
+  on a core sub-array (or any antenna with a close neighbour) it returns no
+  antenna, the worker logs an error and passes `refant=''`, which `gaincal` K
+  rejects. The default `uvrange: '>50'` plus CASA's `minblperant` 4 leaves G
+  with no solutions on short-baseline sets, and the failure only surfaces at
+  `applycal` because `gaincal`/`bandpass` return without writing tables. The
+  CASA-fallback flux standard is "the first listed" (Perley-Butler 2010 for
+  1934−638) and `casa_calibrators.yml` is still labelled "CASA 4.7.1" although
+  SR2016 exists. `get_last_gain` iterates a `set`, so the `gaintable` order
+  passed to `applycal` depends on string hashing (harmless for diagonal terms).
