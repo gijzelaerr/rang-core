@@ -1,1 +1,6 @@
 pfb-imaging[full]==0.0.11
+# xarray 2026.4 dropped zarr 2 (its io extra needs zarr>=3) while dask-ms 0.2.32
+# needs zarr<3; pfb-imaging 0.0.11 states neither bound, so the unconstrained
+# closure fails in `pfb init` (open_group() got an unexpected keyword argument
+# zarr_format). 2026.2.0 is the last release with zarr 2.
+xarray<2026.4

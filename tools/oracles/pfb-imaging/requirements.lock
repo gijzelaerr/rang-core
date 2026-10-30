@@ -4104,10 +4104,11 @@ wrapt==2.5.2 \
     #   aiobotocore
     #   deprecated
     #   smart-open
-xarray==2026.9.0 \
-    --hash=sha256:6abc69694c22fa1f0fb2f357ff4e41d88beb4477ed71091f944b7dbf67ed54fe \
-    --hash=sha256:fe349fa871628b1a0a5217af3fe1283a2862d5485156e6eda354fffb81c3bb7c
+xarray==2026.2.0 \
+    --hash=sha256:978b6acb018770554f8fd964af4eb02f9bcc165d4085dbb7326190d92aa74bcf \
+    --hash=sha256:e927d7d716ea71dea78a13417970850a640447d8dd2ceeb65c5687f6373837c9
     # via
+    #   -r requirements.in
     #   dask-ms
     #   meerkat-beams
     #   xarray-fits
