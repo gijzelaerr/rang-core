@@ -1813,6 +1813,9 @@ impl MsWriter {
 
 type CellTuple<'py> = (i32, Vec<i64>, Bound<'py, PyBytes>, Vec<String>);
 
+/// A hypercolumn definition: name, ndim, data, coordinate and id columns.
+type HypercolumnArgs = (String, u32, Vec<String>, Vec<String>, Vec<String>);
+
 fn cell_tuple(py: Python<'_>, cell: rang_core::ms_write::Cell) -> CellTuple<'_> {
     use rang_core::ms_write::Cell;
     match cell {
@@ -1832,7 +1835,7 @@ fn writer(w: rang_core::ms::Result<TableWriter>) -> PyResult<MsWriter> {
 /// (`ffi_ms_write::ColumnArgs`, `ManagerArgs`), `table.info` (type,
 /// subtype, readme), `nrows` rows; returned open for writing.
 #[pyfunction]
-#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false))]
+#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false, hypercolumns=Vec::new()))]
 #[allow(clippy::too_many_arguments)]
 fn ms_create_table(
     py: Python<'_>,
@@ -1844,6 +1847,7 @@ fn ms_create_table(
     nrows: u64,
     big_endian: bool,
     multifile: bool,
+    hypercolumns: Vec<HypercolumnArgs>,
 ) -> PyResult<MsWriter> {
     let spec = rang_core::ms_create::TableSpec {
         desc_name: desc.0,
@@ -1854,6 +1858,18 @@ fn ms_create_table(
         info,
         big_endian,
         multifile,
+        hypercolumns: hypercolumns
+            .into_iter()
+            .map(
+                |(name, ndim, data, coord, id)| rang_core::ms_create::Hypercolumn {
+                    name,
+                    ndim,
+                    data,
+                    coord,
+                    id,
+                },
+            )
+            .collect(),
         ..Default::default()
     };
     writer(detach(py, || {

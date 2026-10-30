@@ -2831,21 +2831,23 @@ impl TsmW {
         column: bool,
         name: &str,
         dtypes: Vec<i32>,
-        cell: Vec<i64>,
+        fixed: Option<Vec<i64>>,
+        ndim: usize,
         tile: Vec<i64>,
     ) -> Result<Self> {
-        if tile.len() != cell.len() + 1 || tile.iter().any(|&t| t < 1) {
+        if tile.len() != ndim + 1 || tile.iter().any(|&t| t < 1) {
             return err(format!(
                 "{name}: give a tile shape of {} positive axes (cell axes, then rows)",
-                cell.len() + 1
+                ndim + 1
             ));
         }
+        let cell = fixed.clone().unwrap_or_default();
         let kind = if column {
             "TiledColumnStMan"
         } else {
             "TiledShapeStMan"
         };
-        let nrdim = cell.len() as u32 + 1;
+        let nrdim = ndim as u32 + 1;
         let mut h = TsmHeader {
             kind: kind.into(),
             column_tile: column.then(|| tile.clone()),
@@ -2879,7 +2881,7 @@ impl TsmW {
             }];
         }
         let mut t = Self::with_header(dir, h);
-        t.fixed_cell = Some(cell);
+        t.fixed_cell = fixed;
         t.write_header = true;
         t.changed = true;
         Ok(t)
@@ -2953,44 +2955,193 @@ impl TsmW {
         }
         if self.h.column_tile.is_some() {
             self.extend_cube(0, n)?;
+            self.h.nrows += n;
         } else {
-            let cell = self.fixed_cell.clone().ok_or_else(|| {
-                MsError("rows of a variable-shape TiledShapeStMan are not written (E5)".into())
-            })?;
-            if self.h.cubes.len() > 2 {
-                return err("TiledShapeStMan with more than one hypercube is not written (E5)");
-            }
-            if self.h.cubes.len() == 1 {
-                let tile = self.h.default_tile.clone();
-                self.h.cubes.push(Self::new_cube(&cell, &tile, 1));
-                self.h.files.resize(2, None);
-                self.h.files[1] = Some(TsmFileEntry { seq: 1, length: 0 });
-            } else if self.h.cubes[1].shape[..cell.len()] != cell[..] {
-                return err("TiledShapeStMan hypercube shape differs from the column's");
-            }
-            for row in old..old + n {
-                let pos = self.h.cubes[1].shape[cell.len()] as u32;
-                self.extend_cube(1, 1)?;
-                let row = row as u32;
-                let next = self.h.row_map.last().map_or(0, |&r| r + 1);
-                if row != next {
-                    return err("TiledShapeStMan rows are not consecutive (E5)");
-                }
-                let i = self.h.row_map.len();
-                if i > 0 && self.h.cube_map[i - 1] == 1 && pos == self.h.pos_map[i - 1] + 1 {
-                    self.h.row_map[i - 1] += 1;
-                    self.h.pos_map[i - 1] += 1;
-                } else {
-                    self.h.row_map.push(row);
-                    self.h.cube_map.push(1);
-                    self.h.pos_map.push(pos);
+            // `TiledShapeStMan::addRow64`: FixedShape columns give every
+            // new row its shape; variable-shape rows have no hypercube.
+            self.h.nrows += n;
+            if let Some(cell) = self.fixed_cell.clone() {
+                for row in old..old + n {
+                    self.set_shape(row, &cell)?;
                 }
             }
         }
-        self.h.nrows += n;
         self.write_header = true;
         self.changed = true;
         Ok(())
+    }
+
+    /// The cube of a TiledShapeStMan row (0: none) and its position.
+    pub(crate) fn cube_of(&self, row: u64) -> (usize, i64) {
+        let h = &self.h;
+        if h.row_map.is_empty() || row > u64::from(*h.row_map.last().unwrap()) {
+            return (0, 0);
+        }
+        let i = h.row_map.partition_point(|&r| u64::from(r) < row);
+        let cube = h.cube_map[i] as usize;
+        (
+            cube,
+            i64::from(h.pos_map[i]) - (i64::from(h.row_map[i]) - row as i64),
+        )
+    }
+
+    /// The cell shape of a TiledShapeStMan row (None: no hypercube).
+    pub(crate) fn cell_shape(&self, row: u64) -> Option<Vec<i64>> {
+        let (cube, _) = self.cube_of(row);
+        if cube == 0 {
+            return None;
+        }
+        let shape = &self.h.cubes[cube].shape;
+        Some(shape[..shape.len() - 1].to_vec())
+    }
+
+    /// `TiledShapeStMan::setShape` of a row without a hypercube: extend the
+    /// hypercube of this cell shape, or add one (with its own tile file),
+    /// then `updateRowMap`.
+    pub(crate) fn set_shape(&mut self, row: u64, shape: &[i64]) -> Result<()> {
+        if row >= self.h.nrows {
+            return err("TiledShapeStMan::updateRowMap: rownr is too high");
+        }
+        if shape.len() + 1 != self.h.nrdim as usize || shape.iter().any(|&s| s < 1) {
+            return err(format!(
+                "cell shape {shape:?} does not fit the {}-dimensional hypercolumn",
+                self.h.nrdim
+            ));
+        }
+        let found = (1..self.h.cubes.len()).find(|&i| {
+            let c = &self.h.cubes[i].shape;
+            c.len() == shape.len() + 1 && c[..shape.len()] == *shape
+        });
+        let index = match found {
+            Some(i) => i,
+            None => {
+                if self.h.default_tile.is_empty() {
+                    return err(
+                        "a TiledShapeStMan without a default tile shape is not written (E6)",
+                    );
+                }
+                let tile = self.h.default_tile.clone();
+                let file = self.h.files.len();
+                self.h.files.push(Some(TsmFileEntry {
+                    seq: file as u32,
+                    length: 0,
+                }));
+                File::create(self.dir.join(format!("table.f{}_TSM{file}", self.h.seq)))?;
+                self.h.cubes.push(Self::new_cube(shape, &tile, file as i32));
+                self.h.cubes.len() - 1
+            }
+        };
+        let pos = *self.h.cubes[index].shape.last().unwrap() as u32;
+        self.extend_cube(index, 1)?;
+        self.update_row_map(index as u32, pos, row as u32);
+        self.h.cubes[0].values = empty_values_record();
+        self.write_header = true;
+        self.changed = true;
+        Ok(())
+    }
+
+    /// `TiledShapeStMan::updateRowMap`.
+    fn update_row_map(&mut self, cube: u32, pos: u32, row: u32) {
+        let h = &mut self.h;
+        let n = h.row_map.len();
+        let next = if n > 0 { 1 + h.row_map[n - 1] } else { 0 };
+        if row >= next {
+            if cube == 0 {
+                return;
+            }
+            if row == next && n > 0 {
+                let i = n - 1;
+                if cube == h.cube_map[i] && pos == 1 + h.pos_map[i] {
+                    h.row_map[i] += 1;
+                    h.pos_map[i] += 1;
+                    return;
+                }
+            }
+            if row > next {
+                h.row_map.push(row - 1);
+                h.cube_map.push(0);
+                h.pos_map.push(0);
+            }
+            h.row_map.push(row);
+            h.cube_map.push(cube);
+            h.pos_map.push(pos);
+            return;
+        }
+        let index = h.row_map.partition_point(|&r| r < row);
+        let found = h.row_map[index] == row;
+        let diff = h.row_map[index] - row;
+        if cube == h.cube_map[index] && pos == h.pos_map[index].wrapping_sub(diff) {
+            return;
+        }
+        let at_b = row == 0 || (index > 0 && row - 1 == h.row_map[index - 1]);
+        let at_e = found;
+        let mut eq_p = false;
+        let mut eq_n = false;
+        if at_e && index + 1 < n {
+            let fpos = h.pos_map[index + 1].wrapping_sub(h.row_map[index + 1] - h.row_map[index]);
+            eq_n = cube == h.cube_map[index + 1] && pos == fpos;
+        }
+        if at_b && index > 0 {
+            eq_p = cube == h.cube_map[index - 1] && pos == 1 + h.pos_map[index - 1];
+        }
+        if at_b && at_e {
+            h.cube_map[index] = cube;
+            h.pos_map[index] = pos;
+            let mut index = index;
+            let mut nm = 0;
+            if eq_n {
+                nm += 1;
+            }
+            if eq_p {
+                nm += 1;
+                index -= 1;
+            }
+            if nm > 0 {
+                h.row_map.drain(index..index + nm);
+                h.cube_map.drain(index..index + nm);
+                h.pos_map.drain(index..index + nm);
+            }
+            return;
+        }
+        if eq_p {
+            h.row_map[index - 1] += 1;
+            h.pos_map[index - 1] += 1;
+            return;
+        }
+        if eq_n {
+            h.row_map[index] -= 1;
+            h.pos_map[index] -= 1;
+            return;
+        }
+        let nm = if at_b || at_e { 1 } else { 2 };
+        for _ in 0..nm {
+            h.row_map.insert(index, 0);
+            h.cube_map.insert(index, 0);
+            h.pos_map.insert(index, 0);
+        }
+        // The old entry moved to index + nm; the new ones are at index.
+        let (r, c, p) = (
+            h.row_map[index + nm],
+            h.cube_map[index + nm],
+            h.pos_map[index + nm],
+        );
+        let mut index = index;
+        if !at_b {
+            h.row_map[index] = r;
+            h.cube_map[index] = c;
+            h.pos_map[index] = p;
+            if at_e {
+                h.row_map[index] -= 1;
+                h.pos_map[index] -= 1;
+            } else {
+                h.pos_map[index] = h.pos_map[index].wrapping_sub(diff + 1);
+                h.row_map[index] = row - 1;
+            }
+            index += 1;
+        }
+        h.row_map[index] = row;
+        h.cube_map[index] = cube;
+        h.pos_map[index] = pos;
     }
 
     fn dtype(&self, col: usize) -> DataType {
@@ -3025,12 +3176,12 @@ impl TsmW {
         }
         let h = &self.h;
         if h.row_map.is_empty() || row > u64::from(*h.row_map.last().unwrap()) {
-            return err(format!("row {row} has no hypercube (deferred to E5)"));
+            return err(format!("row {row} has no array (no hypercube)"));
         }
         let i = h.row_map.partition_point(|&r| u64::from(r) < row);
         let cube = h.cube_map[i] as usize;
         if cube == 0 {
-            return err(format!("row {row} has no hypercube (deferred to E5)"));
+            return err(format!("row {row} has no array (no hypercube)"));
         }
         Ok((
             cube,
@@ -3187,6 +3338,73 @@ impl TsmW {
         Ok(())
     }
 
+    /// One cell of column `col`: undefined for a TiledShapeStMan row without
+    /// a hypercube; values read pixel by pixel from the tiles.
+    pub(crate) fn read_cell(&mut self, col: usize, row: u64) -> Result<Cell> {
+        let (cube_index, pos) = if self.h.column_tile.is_some() {
+            (0, row as i64)
+        } else {
+            match self.cube_of(row) {
+                (0, _) => return Ok(Cell::Undefined),
+                c => c,
+            }
+        };
+        let cube = self.h.cubes[cube_index].clone();
+        let nrdim = cube.shape.len();
+        let last = nrdim - 1;
+        let cell: Vec<i64> = cube.shape[..last].to_vec();
+        let dtype = self.dtype(col);
+        let bucket = self.bucket_size(&cube);
+        let column_at = self.offset_in_tile(col, &cube);
+        let tiles_per_dim: Vec<i64> = cube
+            .shape
+            .iter()
+            .zip(&cube.tile)
+            .map(|(&s, &t)| (s + t - 1) / t)
+            .collect();
+        let mut grid = vec![1i64; nrdim];
+        let mut pstride = vec![1i64; nrdim];
+        for d in 1..nrdim {
+            grid[d] = grid[d - 1] * tiles_per_dim[d - 1];
+            pstride[d] = pstride[d - 1] * cube.tile[d - 1];
+        }
+        let n = product(&cell);
+        let file_index = usize::try_from(cube.file_seq)
+            .map_err(|_| MsError("hypercube without a file".into()))?;
+        let mut tiles: BTreeMap<i64, Vec<u8>> = BTreeMap::new();
+        let size = dtype.size();
+        let mut out = Vec::with_capacity(n * dtype.native_size());
+        let mut idx = vec![0i64; last];
+        for _ in 0..n {
+            let mut tile_nr = (pos / cube.tile[last]) * grid[last];
+            let mut pixel = (pos % cube.tile[last]) * pstride[last];
+            for d in 0..last {
+                tile_nr += (idx[d] / cube.tile[d]) * grid[d];
+                pixel += (idx[d] % cube.tile[d]) * pstride[d];
+            }
+            if let std::collections::btree_map::Entry::Vacant(e) = tiles.entry(tile_nr) {
+                let at = cube.offset + (tile_nr as u64) * bucket as u64;
+                e.insert(read_at(self.file(file_index)?, at, bucket)?);
+            }
+            let tile = &tiles[&tile_nr][column_at..];
+            if dtype == DataType::Bool {
+                let b = pixel as usize;
+                out.push((tile[b / 8] >> (b % 8)) & 1);
+            } else {
+                let at = pixel as usize * size;
+                out.extend(to_order(dtype, &tile[at..at + size], self.h.big));
+            }
+            for d in 0..last {
+                idx[d] += 1;
+                if idx[d] < cell[d] {
+                    break;
+                }
+                idx[d] = 0;
+            }
+        }
+        Ok(Cell::Values(cell, out))
+    }
+
     fn write_tiles(
         &mut self,
         cube_index: usize,
@@ -3235,7 +3453,71 @@ enum Mgr {
     Ssm(Box<SsmW>),
     Tsm(Box<TsmW>),
     Ism(Box<crate::ism::IsmW>),
+    /// A MemoryStMan: no file; its values live only in the session (here
+    /// they are checked and dropped).
+    Msm,
+    /// A TiledDataStMan made in this session (no hypercube: its header
+    /// only; values are refused, E6).
+    Tds(Box<TdsW>),
     Other(String),
+}
+
+/// A new TiledDataStMan: the header file of `TiledDataStMan::flush`, no
+/// hypercube (python-casacore cannot add one).
+pub(crate) struct TdsW {
+    dir: PathBuf,
+    seq: u32,
+    name: String,
+    dtypes: Vec<i32>,
+    nrdim: u32,
+    nrows: u64,
+    big: bool,
+    changed: bool,
+}
+
+impl TdsW {
+    fn header(&self) -> Vec<u8> {
+        let mut w = Writer::new(true);
+        w.putstart("TiledDataStMan", 2);
+        if self.big {
+            w.putstart("TiledStMan", 1);
+        } else {
+            w.putstart("TiledStMan", 2);
+            w.bool(false);
+        }
+        w.u32(self.seq);
+        w.u32(self.nrows as u32);
+        w.u32(self.dtypes.len() as u32);
+        for &d in &self.dtypes {
+            w.i32(d);
+        }
+        w.string(&self.name);
+        w.u32(0);
+        w.u32(self.nrdim);
+        // `setup` makes one (empty) file slot; no hypercube.
+        w.u32(1);
+        w.bool(false);
+        w.u32(0);
+        w.putend();
+        // nrrowLast, then the empty row, cube and position maps.
+        w.u64(0);
+        for _ in 0..3 {
+            w.putstart("Block", 1);
+            w.u32(0);
+            w.putend();
+        }
+        w.putend();
+        w.buf
+    }
+
+    fn flush(&mut self) -> Result<bool> {
+        if !self.changed {
+            return Ok(false);
+        }
+        std::fs::write(self.dir.join(format!("table.f{}", self.seq)), self.header())?;
+        self.changed = false;
+        Ok(true)
+    }
 }
 
 /// Where `addcols` puts a new column.
@@ -3371,6 +3653,11 @@ impl TableWriter {
                         true,
                     )?))
                 }
+                "MemoryStMan" => Mgr::Msm,
+                "TiledDataStMan" => Mgr::Other(
+                    "TiledDataStMan columns are not written (E6): no oracle adds a hypercube"
+                        .into(),
+                ),
                 other => Mgr::Other(format!("{other} columns are not written (E6)")),
             });
         }
@@ -3395,7 +3682,7 @@ impl TableWriter {
         mgrs: Vec<NewMgr>,
         info: String,
     ) -> Self {
-        let n = mgrs.len();
+        let fresh = mgrs.iter().map(NewMgr::reports_creation).collect();
         TableWriter {
             dir,
             lock: Some(lock),
@@ -3404,7 +3691,7 @@ impl TableWriter {
             mgrs: mgrs.into_iter().map(|m| m.0).collect(),
             table_changed: true,
             info: Some(info),
-            fresh: vec![true; n],
+            fresh,
         }
     }
 
@@ -3444,6 +3731,11 @@ impl TableWriter {
                 Mgr::Ssm(s) => s.add_rows(old, n)?,
                 Mgr::Tsm(t) => t.add_rows(n)?,
                 Mgr::Ism(s) => s.add_rows(n)?,
+                Mgr::Msm => {}
+                Mgr::Tds(t) => {
+                    t.nrows += n;
+                    t.changed = true;
+                }
                 Mgr::Other(_) => unreachable!(),
             }
         }
@@ -3458,7 +3750,12 @@ impl TableWriter {
         self.guard()?;
         for m in &self.mgrs {
             match m {
-                Mgr::Ssm(_) | Mgr::Ism(_) => {}
+                Mgr::Ssm(_) | Mgr::Ism(_) | Mgr::Msm => {}
+                Mgr::Tds(_) => {
+                    return err(
+                        "rows cannot be removed: TiledDataStMan cannot remove rows (as in casacore)",
+                    );
+                }
                 Mgr::Tsm(t) => {
                     return err(format!(
                         "rows cannot be removed: {} cannot remove rows (as in casacore)",
@@ -3519,7 +3816,8 @@ impl TableWriter {
                     s.put_strings(k, start, strings)
                 }
             }
-            Mgr::Tsm(_) => err("tiled string columns do not exist"),
+            Mgr::Msm => Ok(()),
+            Mgr::Tsm(_) | Mgr::Tds(_) => err("tiled string columns do not exist"),
             Mgr::Other(reason) => err(reason.clone()),
         }
         .map_err(|e| MsError(format!("{name}: {e}")))
@@ -3532,6 +3830,9 @@ impl TableWriter {
         match &mut self.mgrs[slot] {
             Mgr::Ssm(s) => s.is_defined(k, row),
             Mgr::Ism(s) => s.is_defined(k, row),
+            Mgr::Tsm(t) if t.h.column_tile.is_none() && t.fixed_cell.is_none() => {
+                Ok(t.cube_of(row).0 != 0)
+            }
             _ => Ok(true),
         }
     }
@@ -3661,8 +3962,33 @@ impl TableWriter {
                 if DataType::from_code(t.h.dtypes[k])? != dtype {
                     return err(format!("{name}: tiled header type mismatches the column"));
                 }
+                // A variable-shape TiledShapeStMan row gets its hypercube
+                // when its shape is first set (`setShape`); a row that has
+                // one cannot change shape (as in casacore).
+                if t.h.column_tile.is_none() && t.fixed_cell.is_none() {
+                    for row in start..start + count {
+                        match t.cell_shape(row) {
+                            None => t.set_shape(row, shape)?,
+                            Some(s) if s != shape => {
+                                return err(format!(
+                                    "{name}: row {row} has the shape {s:?}; a TiledShapeStMan \
+                                     cell cannot change shape (as in casacore)"
+                                ));
+                            }
+                            Some(_) => {}
+                        }
+                    }
+                }
                 t.put(k, start, count, shape, data)
             }
+            Mgr::Msm => {
+                let _ = cell;
+                Ok(())
+            }
+            Mgr::Tds(_) => err(
+                "TiledDataStMan values are not written (E6): no oracle adds a \
+                 hypercube (python-casacore has no TiledDataStManAccessor)",
+            ),
             Mgr::Other(reason) => err(reason.clone()),
         };
         result.map_err(|e| MsError(format!("{name}: {e}")))
@@ -3675,7 +4001,8 @@ impl TableWriter {
         match &mut self.mgrs[slot] {
             Mgr::Ssm(s) => s.put_strings(k, start, values),
             Mgr::Ism(s) => s.put_strings(k, start, values),
-            Mgr::Tsm(_) => err(format!("{name}: tiled string columns do not exist")),
+            Mgr::Msm => Ok(()),
+            Mgr::Tsm(_) | Mgr::Tds(_) => err(format!("{name}: tiled string columns do not exist")),
             Mgr::Other(reason) => err(reason.clone()),
         }
         .map_err(|e| MsError(format!("{name}: {e}")))
@@ -3941,7 +4268,8 @@ impl TableWriter {
                 Mgr::Ssm(s) => s.flush()?,
                 Mgr::Tsm(t) => t.flush()?,
                 Mgr::Ism(s) => s.flush()?,
-                Mgr::Other(_) => false,
+                Mgr::Tds(t) => t.flush()?,
+                Mgr::Msm | Mgr::Other(_) => false,
             };
             let fresh = self.fresh.get_mut(i).is_some_and(std::mem::take);
             dm_changed.push(changed || fresh);
@@ -4035,6 +4363,38 @@ impl NewMgr {
         Ok((NewMgr(Mgr::Ssm(Box::new(s))), blob))
     }
 
+    /// A new MemoryStMan (no file; `MSMBase::flush` writes nothing).
+    pub fn memory() -> Self {
+        NewMgr(Mgr::Msm)
+    }
+
+    /// A new TiledDataStMan of hypercolumn `name` with no hypercube.
+    pub fn tds(
+        dir: &Path,
+        seq: u32,
+        name: &str,
+        dtypes: Vec<i32>,
+        nrdim: u32,
+        nrows: u64,
+        big: bool,
+    ) -> Self {
+        NewMgr(Mgr::Tds(Box::new(TdsW {
+            dir: dir.to_path_buf(),
+            seq,
+            name: name.to_string(),
+            dtypes,
+            nrdim,
+            nrows,
+            big,
+            changed: true,
+        })))
+    }
+
+    /// Whether the manager reports a change on its first flush.
+    pub fn reports_creation(&self) -> bool {
+        !matches!(self.0, Mgr::Msm)
+    }
+
     /// A new IncrementalStMan named `name` holding `columns` with `nrows`
     /// rows (`ISMBase::create64`); `bucket_size` 0: sized by `init`.
     #[allow(clippy::too_many_arguments)]
@@ -4071,11 +4431,12 @@ impl NewMgr {
         column: bool,
         name: &str,
         dtypes: Vec<i32>,
-        cell: Vec<i64>,
+        cell: Option<Vec<i64>>,
+        ndim: usize,
         tile: Vec<i64>,
         nrows: u64,
     ) -> Result<Self> {
-        let mut t = TsmW::create(dir, seq, column, name, dtypes, cell, tile)?;
+        let mut t = TsmW::create(dir, seq, column, name, dtypes, cell, ndim, tile)?;
         t.add_rows(nrows)?;
         Ok(NewMgr(Mgr::Tsm(Box::new(t))))
     }
@@ -4183,6 +4544,23 @@ pub fn read_cells(
         .position(|(_, s)| *s == seq)
         .ok_or_else(|| MsError(format!("{name}: data manager {seq} is missing")))?;
     let desc = &dat.columns[index];
+    if dat.managers[slot].0 == "MemoryStMan" {
+        return err(format!(
+            "{name}: a MemoryStMan column holds no data once its table is closed"
+        ));
+    }
+    if dat.managers[slot].0 == "TiledShapeStMan" || dat.managers[slot].0 == "TiledColumnStMan" {
+        let k = dat.bindings[..index]
+            .iter()
+            .filter(|b| b.seq == seq)
+            .count();
+        let mut t = TsmW::open(dir, seq)?;
+        let nrows = nrows.unwrap_or(table_rows(dir, &dat));
+        if start + count > nrows {
+            return err(format!("rows {start}..{} beyond the table", start + count));
+        }
+        return (start..start + count).map(|r| t.read_cell(k, r)).collect();
+    }
     if dat.managers[slot].0 == "IncrementalStMan" {
         let nrows = nrows.unwrap_or(table_rows(dir, &dat));
         let mut cols = Vec::new();

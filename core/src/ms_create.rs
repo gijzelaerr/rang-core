@@ -242,6 +242,16 @@ pub struct ManagerSpec {
     pub ism_computed: bool,
 }
 
+/// A hypercolumn of a table description (`TableDesc::defineHypercolumn`).
+#[derive(Clone, Debug, Default)]
+pub struct Hypercolumn {
+    pub name: String,
+    pub ndim: u32,
+    pub data: Vec<String>,
+    pub coord: Vec<String>,
+    pub id: Vec<String>,
+}
+
 /// A new table: its description, data managers and `table.info`.
 #[derive(Clone, Debug, Default)]
 pub struct TableSpec {
@@ -255,9 +265,68 @@ pub struct TableSpec {
     pub managers: Vec<ManagerSpec>,
     /// `table.info`: type, subtype, readme.
     pub info: (String, String, String),
-    /// Refused (E5): big-endian tables and MultiFile storage.
+    /// Private keywords (hypercolumn definitions).
+    pub private_keywords: Record,
     pub big_endian: bool,
     pub multifile: bool,
+    /// Hypercolumn definitions (private keywords `Hypercolumn_<name>`; the
+    /// columns get the tiled data-manager type and the group).
+    pub hypercolumns: Vec<Hypercolumn>,
+}
+
+/// `TableDesc::defineHypercolumn`: the private keyword record and the data
+/// columns' data-manager type (TiledColumnStMan when all are FixedShape,
+/// else TiledShapeStMan) and group (the hypercolumn's name).
+fn define_hypercolumns(spec: &mut TableSpec) -> Result<()> {
+    for h in &spec.hypercolumns {
+        if h.data.is_empty() || h.ndim < 1 {
+            return err(format!(
+                "hypercolumn {}: no data columns or ndim < 1",
+                h.name
+            ));
+        }
+        let mut fixed = true;
+        for name in h.data.iter().chain(&h.coord).chain(&h.id) {
+            let c = spec
+                .columns
+                .iter()
+                .find(|c| &c.name == name)
+                .ok_or_else(|| MsError(format!("hypercolumn {}: no column {name}", h.name)))?;
+            if h.data.contains(name)
+                && !(c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty()))
+            {
+                fixed = false;
+            }
+        }
+        let dm = if fixed {
+            "TiledColumnStMan"
+        } else {
+            "TiledShapeStMan"
+        };
+        for name in h.data.iter().chain(&h.coord).chain(&h.id) {
+            if name.is_empty() {
+                continue;
+            }
+            let c = spec.columns.iter_mut().find(|c| &c.name == name).unwrap();
+            c.dm_type = dm.into();
+            c.dm_group = h.name.clone();
+        }
+        let mut rec = Record::default();
+        rec.define(
+            "ndim",
+            KeywordValue::Scalar(tp::UINT, h.ndim.to_ne_bytes().to_vec()),
+        )?;
+        for (field, names) in [("data", &h.data), ("coord", &h.coord), ("id", &h.id)] {
+            rec.define(
+                field,
+                KeywordValue::StringArray(vec![names.len() as i64], names.clone()),
+            )?;
+        }
+        let key = format!("Hypercolumn_{}", h.name);
+        spec.private_keywords.define(&key, KeywordValue::Record)?;
+        *spec.private_keywords.subrecord_mut(&key)? = rec;
+    }
+    Ok(())
 }
 
 const E6_MANAGERS: [&str; 1] = ["TiledCellStMan"];
@@ -375,6 +444,9 @@ pub fn create_table(path: impl AsRef<Path>, spec: &TableSpec, nrows: u64) -> Res
 }
 
 fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
+    let mut spec = spec.clone();
+    define_hypercolumns(&mut spec)?;
+    let spec = &spec;
     if cfg!(target_endian = "big") {
         return err("writing tables on a big-endian host is not supported (E5)");
     }
@@ -393,18 +465,25 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     let resolved = resolve(spec)?;
     for r in &resolved {
         check_manager_kind(&r.spec.kind)?;
-        if r.spec.kind == "MemoryStMan" || r.spec.kind == "TiledDataStMan" {
-            return err(format!("{} tables are not created yet (E5)", r.spec.kind));
-        }
         if r.spec.kind.starts_with("Tiled") {
             for &i in &r.columns {
                 let c = &spec.columns[i];
-                if !c.is_array()
-                    || c.option & 4 == 0
-                    || c.shape.as_ref().is_none_or(|s| s.is_empty())
-                {
+                let fixed = c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty());
+                if !c.is_array() {
                     return err(format!(
-                        "{}: variable-shape tiled columns are not created (E5)",
+                        "{}: a tiled storage manager cannot hold a scalar column",
+                        c.name
+                    ));
+                }
+                if !fixed && r.spec.kind != "TiledShapeStMan" {
+                    return err(format!(
+                        "{}: {} needs FixedShape columns (variable shapes: TiledShapeStMan)",
+                        c.name, r.spec.kind
+                    ));
+                }
+                if !fixed && c.ndim <= 0 {
+                    return err(format!(
+                        "TiledStMan: unknown dimensionality for column {}",
                         c.name
                     ));
                 }
@@ -449,10 +528,32 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                 blobs.push(blob);
             }
             "TiledColumnStMan" | "TiledShapeStMan" => {
-                let cell = cols[0].0.shape.clone().unwrap_or_default();
-                if cols.iter().any(|(c, _)| c.shape.as_ref() != Some(&cell)) {
+                let is_fixed = |c: &ColDesc| {
+                    c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty())
+                };
+                let fixed = cols.iter().all(|(c, _)| is_fixed(c));
+                let cell = if fixed {
+                    let cell = cols[0].0.shape.clone().unwrap_or_default();
+                    if cols.iter().any(|(c, _)| c.shape.as_ref() != Some(&cell)) {
+                        return err(format!(
+                            "{}: the columns of a tiled manager need one cell shape",
+                            r.spec.name
+                        ));
+                    }
+                    Some(cell)
+                } else {
+                    None
+                };
+                let ndim = match &cell {
+                    Some(c) => c.len(),
+                    None => cols[0].0.ndim.max(0) as usize,
+                };
+                if cols
+                    .iter()
+                    .any(|(c, _)| c.ndim > 0 && c.ndim as usize != ndim)
+                {
                     return err(format!(
-                        "{}: the columns of a tiled manager need one cell shape",
+                        "TiledStMan: dimensionality of the columns of {} differs",
                         r.spec.name
                     ));
                 }
@@ -463,10 +564,37 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                     &r.spec.name,
                     cols.iter().map(|(c, _)| c.dtype).collect(),
                     cell,
+                    ndim,
                     r.spec.tile.clone(),
                     nrows,
                 )?;
                 mgrs.push(m);
+                blobs.push(Vec::new());
+            }
+            "MemoryStMan" => {
+                mgrs.push(NewMgr::memory());
+                blobs.push(Vec::new());
+            }
+            "TiledDataStMan" => {
+                let h = spec
+                    .hypercolumns
+                    .iter()
+                    .find(|h| h.name == r.spec.name)
+                    .ok_or_else(|| {
+                        MsError(format!(
+                            "RecordInterface: field Hypercolumn_{} is unknown",
+                            r.spec.name
+                        ))
+                    })?;
+                mgrs.push(NewMgr::tds(
+                    &dir,
+                    seq,
+                    &r.spec.name,
+                    cols.iter().map(|(c, _)| c.dtype).collect(),
+                    h.ndim,
+                    nrows,
+                    spec.big_endian,
+                ));
                 blobs.push(Vec::new());
             }
             "IncrementalStMan" => {
@@ -501,7 +629,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
         desc_version: spec.desc_version.clone(),
         desc_comment: spec.desc_comment.clone(),
         keywords: spec.keywords.clone(),
-        private_keywords: Record::default(),
+        private_keywords: spec.private_keywords.clone(),
         columns: spec.columns.clone(),
         set_version: -2,
         storage: (0, 0),

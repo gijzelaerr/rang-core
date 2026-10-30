@@ -219,9 +219,31 @@ def makearrcoldesc(
     }
 
 
+class TableDesc(list):
+    """A table description: a list of column descriptions, with the
+    hypercolumns of `tabledefinehypercolumn`."""
+
+    def __init__(self, descs=()):
+        super().__init__(descs)
+        self.hypercolumns = dict(getattr(descs, "hypercolumns", {}))
+
+
 def maketabdesc(descs):
     """A table description: a list of column descriptions."""
-    return list(descs) if isinstance(descs, (list, tuple)) else [descs]
+    return TableDesc(descs if isinstance(descs, (list, tuple)) else [descs])
+
+
+def tabledefinehypercolumn(
+    tabdesc, name, ndim, datacolumns, coordcolumns=False, idcolumns=False
+):
+    """python-casacore's function of the name: define a hypercolumn (the
+    data columns then go to a tiled storage manager of that group)."""
+    tabdesc.hypercolumns[name] = (
+        int(ndim),
+        [str(c) for c in datacolumns],
+        [] if isinstance(coordcolumns, bool) else [str(c) for c in coordcolumns],
+        [] if isinstance(idcolumns, bool) else [str(c) for c in idcolumns],
+    )
 
 
 def _canonical_default(code, value):
@@ -604,12 +626,19 @@ def create_table(
     path, tabledesc, nrow=0, dminfo=None, info=None, endian="little", multifile=False
 ):
     """A new table (python-casacore's `table(path, tabledesc, nrow,
-    dminfo=dminfo)`): StandardStMan for unbound columns, the managers of
-    `dminfo` (StandardStMan, TiledColumnStMan, TiledShapeStMan with
-    FixedShape columns) for bound ones; `nrow` rows, not initialised.
-    Returned open for writing. IncrementalStMan, MemoryStMan,
-    TiledDataStMan, big-endian and MultiFile tables are refused (E5)."""
-    columns = [_column_args(c) for c in maketabdesc(tabledesc)]
+    dminfo=dminfo, endian=endian)`): StandardStMan for unbound columns, the
+    managers of `dminfo` (StandardStMan, IncrementalStMan, TiledColumnStMan,
+    TiledShapeStMan, MemoryStMan, TiledDataStMan) for bound ones; `nrow`
+    rows, not initialised; big-endian with `endian="big"`, a MultiFile
+    table with `multifile=True` (casacore's aipsrc `table.storage.option`).
+    Returned open for writing."""
+    if multifile not in (True, False):
+        raise ValueError(f"storage option {multifile!r} is not written (E6): MultiHDF5")
+    if endian not in ("little", "big", "local"):
+        raise ValueError(f"endian {endian!r}: give 'little', 'big' or 'local'")
+    desc = maketabdesc(tabledesc)
+    columns = [_column_args(c) for c in desc]
+    hypercolumns = [(name, *h) for name, h in desc.hypercolumns.items()]
     info = info or {}
     writer = core.extension().ms_create_table(
         str(path),
@@ -619,18 +648,31 @@ def create_table(
         (info.get("type", ""), info.get("subType", ""), info.get("readme", "")),
         int(nrow),
         endian == "big",
-        bool(multifile),
+        multifile,
+        hypercolumns,
     )
     t = Table(path, _writer=writer)
     t._info = [info.get("type", ""), info.get("subType", ""), info.get("readme", "")]
     return t
 
 
-def table(tablename, tabledesc=None, nrow=0, readonly=True, dminfo=None, ack=True, **_):
+def table(
+    tablename,
+    tabledesc=None,
+    nrow=0,
+    readonly=True,
+    dminfo=None,
+    ack=True,
+    endian="little",
+    multifile=False,
+    **_,
+):
     """python-casacore's `table`: create when a description is given, else
     open (read-only through the core reader unless `readonly=False`)."""
     if tabledesc is not None:
-        return create_table(tablename, tabledesc, nrow, dminfo)
+        return create_table(
+            tablename, tabledesc, nrow, dminfo, endian=endian, multifile=multifile
+        )
     return open_table(tablename, readonly=readonly)
 
 
