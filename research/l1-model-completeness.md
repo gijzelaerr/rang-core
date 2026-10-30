@@ -5,7 +5,7 @@ before any campaign code was written. Task L1-M of [big-plan.md](big-plan.md),
 first wave 3 item after P5; recommendation 1 of
 [literature-2024-2026.md](literature-2024-2026.md).
 
-Status: **protocol frozen; not yet implemented.**
+Status: **protocol frozen; implemented; runs in progress (amendment 2 after a frozen PA-bound failure).**
 
 ## Why, and what the pre-protocol probes changed
 
@@ -443,6 +443,47 @@ single-threaded (41,786 rows × 2048 channels × 196 components at about
   synthetic, offline.
 
 No Rust, no shared file.
+
+## Amendment 2 (after the frozen point run failed, before any point or field result)
+
+Committed 2026-10-30 after the frozen stored run `-01-stored` (13 min 02 s,
+exit 0) and the first frozen point run `-02-point`, which stopped in the
+model hook before its split was used.
+
+**What failed.** Criterion 2's PA bound failed as frozen on the whole
+array. Rotating the 15 Gaussians by 90° changes the prediction on the
+200 × 64 check subset by up to **0.0281 Jy**. The bound was 1 % of the
+field-term rms of 0.0575 Jy, i.e. 5.8e-4 Jy. The pre-protocol bound
+(item 5: 2.0e-4 Jy) was measured on stations 0–11 only, with baselines up
+to 1 km, where a 12″ Gaussian is almost a point. On 8 km baselines it is
+resolved, so its orientation matters. The direct-DFT check passed (2.0e-15
+of the peak). Run `-02-point` wrote nothing beyond its log, and no point or
+field number exists. The failed run directory is kept as evidence.
+
+**Amendment.** The PA bound stays computed and archived, but it no longer
+gates (`PA_GATED = False`). Its max and rms are reported per run. The
+convention is fixed by documentation instead:
+
+- in Tigger's lsm the position angle comes from PyBDSF Gaussian fits
+  (`PyBDSMGaul.py` maps `PA`/`DC_PA` to `pa_d`), and PyBDSF measures PA east
+  of north;
+- the core's Gaussian follows africanus `wsclean_predict`, whose WSClean
+  `Orientation` is also east of north;
+- the independent DFT (major axis along (sin PA, cos PA) in (l, m)) matches
+  the core to 2e-15.
+
+What remains unverified is that CARACal's file follows PyBDSF's
+convention. The stored model cannot settle this, because it carries 2–10×
+the lsm's flux at these Gaussians (item 1). Q1 is therefore read with that
+caveat. The 15 Gaussians hold 0.057 Jy of the 0.364 Jy field at 1.3 GHz.
+
+**Also fixed (checker bug, labelled).** The stored comparator gate compared
+amendment 1's residual-RMS ratio, which is an image product and therefore
+outside the protocol's "non-image fields". `-01-stored` differs from L1 only
+there, by 1.3e-15 relative (P2's image bits). The checker now exempts
+image-derived ratios in amendment 1. Everything else is unchanged: arms,
+split, solver, policy, decision rule, the memory gate and the run order.
+Point and field are rerun as `-02b-point` and `-03-field`.
 
 ## Timings (every tool run of this task)
 
