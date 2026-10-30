@@ -622,6 +622,9 @@ All runs 2026-10-30. Wall and peak RSS come from GNU `time` unless noted.
 | `compare_df2b.py summary` | `compare.json` | 0.3 s | – | `research/results/df2b-wgrid.json` |
 | `compare_df2b.py kdriver` (post hoc, first) | K four stations, local tiles | 16.0 s | 499 MB | numbers as below; summary predicate counted `all_equal` (fixed) |
 | `compare_df2b.py kdriver` (post hoc) | same | 13.0 s | 499 MB | K `image_arm` both gridders; L1 driver replay with wgrid 7.7 s |
+| `bash tools/check-all.sh` (first; cancelled while queued on the host lock, before it started, because the tree changed) | `f27cc92` + record | – | – | no output |
+| `bash tools/check-all.sh` (takes the host lock itself; not wrapped) | worktree at `00a50d7` | 32 min 53 s from the call, mostly queued behind four other tasks' runs | – | **PASS**: root 23 and core 112 Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 624 passed, 4 skipped in 170.4 s; log `outputs/df2b-20261030-check-all.log` |
+| pytest `tests/test_pc1_preconditions.py -rs` | L1 and L2 preconditions | 26.1 s | – | 2 passed (not skipped: the LUNO inputs are on the host) |
 
 ## For the coordinator
 
