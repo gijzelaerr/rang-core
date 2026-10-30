@@ -1,0 +1,6477 @@
+{
+ "protocol": "research/b1-beam-pointing.md",
+ "product": {
+  "url": "https://archive-gw-1.kat.ac.za/public/repository/10.48479/wdb0-h061/data/MeerKAT_L_band_primary_beam.npz",
+  "size": 34896620743,
+  "last_modified": "Mon, 10 Apr 2023 16:10:48 GMT",
+  "etag": "\"7d3ba9d3d4ce6ddfe406d0368ea98700-6657\"",
+  "licence": "CC BY-NC 4.0",
+  "citation": "de Villiers M. S. (2023), MeerKAT Holography Measurements in the UHF, L, and S bands, V1, South African Radio Astronomy Observatory, doi:10.48479/wdb0-h061; AJ 165, 78",
+  "channels_sampled": [
+   0,
+   11,
+   22,
+   33,
+   44,
+   55,
+   66,
+   77,
+   88,
+   99,
+   110,
+   121,
+   132,
+   143,
+   154,
+   165,
+   176,
+   187,
+   198,
+   209,
+   220,
+   231,
+   242,
+   253,
+   264,
+   275,
+   286,
+   297,
+   308,
+   319,
+   330,
+   341,
+   352,
+   363,
+   374,
+   385,
+   396,
+   407,
+   418,
+   429,
+   440,
+   451,
+   462,
+   473,
+   484,
+   495,
+   506,
+   517,
+   528,
+   539,
+   550,
+   561,
+   572,
+   583,
+   594,
+   605,
+   616,
+   627,
+   638,
+   649,
+   660,
+   671,
+   682,
+   693,
+   704,
+   715,
+   726,
+   737,
+   748,
+   759,
+   770,
+   781,
+   792,
+   803,
+   814,
+   825,
+   836,
+   847,
+   858,
+   869,
+   880,
+   891,
+   902,
+   913,
+   924,
+   935,
+   946,
+   957,
+   968,
+   979,
+   990,
+   1001,
+   1012,
+   1023,
+   1023
+  ],
+  "files": {
+   "array_average_native.npy_sha256": "7350498b56175e77ac99742792a2c45a896e8b45a65d40bdda340ccca3a7e917",
+   "array_average_native.npy_bytes": 536871040,
+   "antennas_sampled.npy_sha256": "586df11de27f98f1293a35cd82885efeeecb2195f9fba37b0f1b6966a9819191",
+   "antennas_sampled.npy_bytes": 3187671168
+  },
+  "metrics_sha256": "8fc965f7afcb1da1a332b16e8671dd2cfd9ed3f4f3fffccc4538eb8e5614a42f",
+  "flip": 1
+ },
+ "band_channels": [
+  55,
+  66,
+  77,
+  88,
+  99,
+  110,
+  121,
+  132,
+  143,
+  154,
+  165,
+  176,
+  187,
+  198,
+  209,
+  220,
+  231,
+  242,
+  253,
+  264,
+  275,
+  286,
+  297,
+  308,
+  319,
+  330,
+  341,
+  352,
+  363,
+  374,
+  385,
+  396,
+  407,
+  418,
+  429,
+  440,
+  451,
+  462,
+  473,
+  484,
+  495,
+  506,
+  517,
+  528,
+  539,
+  550,
+  561,
+  572,
+  583,
+  594,
+  605,
+  616,
+  627,
+  638,
+  649,
+  660,
+  671,
+  682,
+  693,
+  704,
+  715,
+  726,
+  737,
+  748,
+  759,
+  770,
+  781,
+  792,
+  803,
+  814,
+  825,
+  836,
+  847,
+  858,
+  869,
+  880,
+  891,
+  902,
+  913,
+  924,
+  935,
+  946
+ ],
+ "g0a": {
+  "fits": 1230,
+  "median_centroid_error_arcmin": 0.0805265,
+  "median_centroid_error_arcmin_if_flipped": 0.672675,
+  "y_sign_agreement_where_metric_abs_gt_0p2": 1.0,
+  "width_definition_errors": {
+   "power FWHM, arcmin": 1.00423,
+   "power HWHM, arcmin": 0.00211539,
+   "power FWHM, deg": 0.966596,
+   "power sigma, arcmin": 0.148882
+  },
+  "width_definition": "power HWHM, arcmin",
+  "median_width_relative_error": 0.00211539,
+  "centre_pixel_abs_median": [
+   1.0,
+   2.31073e-05,
+   1.67745e-05,
+   0.999917
+  ],
+  "pass": true
+ },
+ "katbeam_v_squint_sign": {
+  "channels_compared": 64,
+  "sign_agreement": 1.0,
+  "katbeam_vy_arcmin_median": 0.0894391,
+  "holography_vy0_arcmin_median": -0.208964
+ },
+ "g0b": {
+  "held_out_channels": 815,
+  "median_max_abs_dI_main_lobe": 0.00101621,
+  "p95_max_abs_dI_main_lobe": 0.00362014,
+  "max_max_abs_dI_main_lobe": 0.00567304,
+  "pass": true
+ },
+ "g0c": {
+  "channels": 82,
+  "max_abs_dI_half_power": 6.10191e-05,
+  "median_abs_dI_half_power": 2.47983e-05,
+  "pass": true
+ },
+ "pks1934_field": {
+  "components": 196,
+  "max_offset_arcmin": 68.1502,
+  "offaxis_flux_fraction": 0.0235713
+ },
+ "summary": {
+  "katbeam": {
+   "fwhm_major_ratio_median": 1.0001,
+   "fwhm_minor_ratio_median": 1.00098,
+   "fwhm_major_ratio_range": [
+    0.995983,
+    1.0039
+   ],
+   "core_max_median": 0.00603139,
+   "core_max_max": 0.0126618,
+   "lobe_max_median": 0.00826784,
+   "lobe_rms_median": 0.00311967,
+   "sidelobe_max_median": 0.00373502,
+   "sidelobe_rms_median": 0.00134687,
+   "ring_max_over_30arcsec_signal_median": 0.544835,
+   "ring_max_over_30arcsec_signal_range": [
+    0.155665,
+    1.3347
+   ],
+   "ring_median_ratio_median": 0.182369,
+   "first_sidelobe_level_median": 0.00495527,
+   "moon_44_abs_diff_mean_median": 0.00241524,
+   "moon_98_abs_diff_mean_median": 0.00287224,
+   "moon_149_abs_diff_mean_median": 0.000234251,
+   "pks1934_flux_weighted_mean_abs_dI_median": 5.58496e-05,
+   "pks1934_offaxis_flux_weighted_mean_abs_dI_median": 0.00236939
+  },
+  "eidos": {
+   "fwhm_major_ratio_median": 0.997016,
+   "fwhm_minor_ratio_median": 1.00766,
+   "fwhm_major_ratio_range": [
+    0.993184,
+    1.00423
+   ],
+   "core_max_median": 0.0206006,
+   "core_max_max": 0.0371909,
+   "lobe_max_median": 0.0209475,
+   "lobe_rms_median": 0.00642367,
+   "sidelobe_max_median": 0.00157667,
+   "sidelobe_rms_median": 0.000509809,
+   "ring_max_over_30arcsec_signal_median": 1.81997,
+   "ring_max_over_30arcsec_signal_range": [
+    0.445531,
+    3.62343
+   ],
+   "ring_median_ratio_median": 0.813499,
+   "first_sidelobe_level_median": 0.00566627,
+   "moon_44_abs_diff_mean_median": 0.00699995,
+   "moon_98_abs_diff_mean_median": 0.000627047,
+   "moon_149_abs_diff_mean_median": 0.000175707,
+   "pks1934_flux_weighted_mean_abs_dI_median": 0.000177306,
+   "pks1934_offaxis_flux_weighted_mean_abs_dI_median": 0.00752213
+  },
+  "holography": {
+   "first_sidelobe_level_median": 0.00561884,
+   "first_sidelobe_level_range": [
+    0.00300966,
+    0.00764538
+   ],
+   "r_half_power_deg_range": [
+    0.458004,
+    0.82661
+   ],
+   "median_30arcsec_signal_on_ring_median": 0.0107808
+  }
+ },
+ "antenna_spread": {
+  "rms_main_lobe_median_below_1284mhz": 0.00119526,
+  "rms_main_lobe_median_above_1284mhz": 0.00213964,
+  "per_channel": [
+   {
+    "channel": 55,
+    "freq_mhz": 901.977,
+    "rms_over_antennas_main_lobe": 0.00113236,
+    "rms_over_antennas_core": 0.00130148,
+    "max_abs_main_lobe": 0.010416
+   },
+   {
+    "channel": 66,
+    "freq_mhz": 911.172,
+    "rms_over_antennas_main_lobe": 0.00102335,
+    "rms_over_antennas_core": 0.00117281,
+    "max_abs_main_lobe": 0.00876361
+   },
+   {
+    "channel": 77,
+    "freq_mhz": 920.367,
+    "rms_over_antennas_main_lobe": 0.00102699,
+    "rms_over_antennas_core": 0.00115611,
+    "max_abs_main_lobe": 0.00906363
+   },
+   {
+    "channel": 88,
+    "freq_mhz": 929.562,
+    "rms_over_antennas_main_lobe": 0.0011055,
+    "rms_over_antennas_core": 0.00118852,
+    "max_abs_main_lobe": 0.0107785
+   },
+   {
+    "channel": 99,
+    "freq_mhz": 938.758,
+    "rms_over_antennas_main_lobe": 0.00119104,
+    "rms_over_antennas_core": 0.00134239,
+    "max_abs_main_lobe": 0.0103944
+   },
+   {
+    "channel": 110,
+    "freq_mhz": 947.953,
+    "rms_over_antennas_main_lobe": 0.00111979,
+    "rms_over_antennas_core": 0.00122576,
+    "max_abs_main_lobe": 0.00980282
+   },
+   {
+    "channel": 121,
+    "freq_mhz": 957.148,
+    "rms_over_antennas_main_lobe": 0.00118159,
+    "rms_over_antennas_core": 0.00135426,
+    "max_abs_main_lobe": 0.00872064
+   },
+   {
+    "channel": 132,
+    "freq_mhz": 966.344,
+    "rms_over_antennas_main_lobe": 0.0010834,
+    "rms_over_antennas_core": 0.00127817,
+    "max_abs_main_lobe": 0.00933257
+   },
+   {
+    "channel": 143,
+    "freq_mhz": 975.539,
+    "rms_over_antennas_main_lobe": 0.00114076,
+    "rms_over_antennas_core": 0.00133437,
+    "max_abs_main_lobe": 0.0105723
+   },
+   {
+    "channel": 154,
+    "freq_mhz": 984.734,
+    "rms_over_antennas_main_lobe": 0.00117296,
+    "rms_over_antennas_core": 0.00134227,
+    "max_abs_main_lobe": 0.0093261
+   },
+   {
+    "channel": 165,
+    "freq_mhz": 993.93,
+    "rms_over_antennas_main_lobe": 0.00113143,
+    "rms_over_antennas_core": 0.0013544,
+    "max_abs_main_lobe": 0.00922179
+   },
+   {
+    "channel": 176,
+    "freq_mhz": 1003.12,
+    "rms_over_antennas_main_lobe": 0.00116274,
+    "rms_over_antennas_core": 0.00145299,
+    "max_abs_main_lobe": 0.0100423
+   },
+   {
+    "channel": 187,
+    "freq_mhz": 1012.32,
+    "rms_over_antennas_main_lobe": 0.00117921,
+    "rms_over_antennas_core": 0.00137293,
+    "max_abs_main_lobe": 0.0107125
+   },
+   {
+    "channel": 198,
+    "freq_mhz": 1021.52,
+    "rms_over_antennas_main_lobe": 0.00126298,
+    "rms_over_antennas_core": 0.00148343,
+    "max_abs_main_lobe": 0.0113873
+   },
+   {
+    "channel": 209,
+    "freq_mhz": 1030.71,
+    "rms_over_antennas_main_lobe": 0.0012643,
+    "rms_over_antennas_core": 0.00151404,
+    "max_abs_main_lobe": 0.00948799
+   },
+   {
+    "channel": 220,
+    "freq_mhz": 1039.91,
+    "rms_over_antennas_main_lobe": 0.00121295,
+    "rms_over_antennas_core": 0.00147049,
+    "max_abs_main_lobe": 0.00998569
+   },
+   {
+    "channel": 231,
+    "freq_mhz": 1049.1,
+    "rms_over_antennas_main_lobe": 0.00122332,
+    "rms_over_antennas_core": 0.00149956,
+    "max_abs_main_lobe": 0.00912213
+   },
+   {
+    "channel": 242,
+    "freq_mhz": 1058.3,
+    "rms_over_antennas_main_lobe": 0.00128178,
+    "rms_over_antennas_core": 0.00154371,
+    "max_abs_main_lobe": 0.00980774
+   },
+   {
+    "channel": 253,
+    "freq_mhz": 1067.49,
+    "rms_over_antennas_main_lobe": 0.00130588,
+    "rms_over_antennas_core": 0.00162,
+    "max_abs_main_lobe": 0.00931275
+   },
+   {
+    "channel": 264,
+    "freq_mhz": 1076.69,
+    "rms_over_antennas_main_lobe": 0.00131359,
+    "rms_over_antennas_core": 0.00166205,
+    "max_abs_main_lobe": 0.00907135
+   },
+   {
+    "channel": 275,
+    "freq_mhz": 1085.88,
+    "rms_over_antennas_main_lobe": 0.00138585,
+    "rms_over_antennas_core": 0.00177974,
+    "max_abs_main_lobe": 0.00926241
+   },
+   {
+    "channel": 286,
+    "freq_mhz": 1095.08,
+    "rms_over_antennas_main_lobe": 0.00142067,
+    "rms_over_antennas_core": 0.001831,
+    "max_abs_main_lobe": 0.0100332
+   },
+   {
+    "channel": 297,
+    "freq_mhz": 1104.27,
+    "rms_over_antennas_main_lobe": 0.00137808,
+    "rms_over_antennas_core": 0.00173196,
+    "max_abs_main_lobe": 0.0104967
+   },
+   {
+    "channel": 308,
+    "freq_mhz": 1113.47,
+    "rms_over_antennas_main_lobe": 0.0012647,
+    "rms_over_antennas_core": 0.00153977,
+    "max_abs_main_lobe": 0.0108412
+   },
+   {
+    "channel": 319,
+    "freq_mhz": 1122.66,
+    "rms_over_antennas_main_lobe": 0.00119574,
+    "rms_over_antennas_core": 0.00149896,
+    "max_abs_main_lobe": 0.0122925
+   },
+   {
+    "channel": 330,
+    "freq_mhz": 1131.86,
+    "rms_over_antennas_main_lobe": 0.0011792,
+    "rms_over_antennas_core": 0.00144546,
+    "max_abs_main_lobe": 0.0106797
+   },
+   {
+    "channel": 341,
+    "freq_mhz": 1141.05,
+    "rms_over_antennas_main_lobe": 0.00119609,
+    "rms_over_antennas_core": 0.00146369,
+    "max_abs_main_lobe": 0.0112655
+   },
+   {
+    "channel": 352,
+    "freq_mhz": 1150.25,
+    "rms_over_antennas_main_lobe": 0.00119479,
+    "rms_over_antennas_core": 0.00143696,
+    "max_abs_main_lobe": 0.0105423
+   },
+   {
+    "channel": 363,
+    "freq_mhz": 1159.45,
+    "rms_over_antennas_main_lobe": 0.00117887,
+    "rms_over_antennas_core": 0.00143979,
+    "max_abs_main_lobe": 0.0105187
+   },
+   {
+    "channel": 374,
+    "freq_mhz": 1168.64,
+    "rms_over_antennas_main_lobe": 0.00119438,
+    "rms_over_antennas_core": 0.00148016,
+    "max_abs_main_lobe": 0.0097931
+   },
+   {
+    "channel": 385,
+    "freq_mhz": 1177.84,
+    "rms_over_antennas_main_lobe": 0.00125082,
+    "rms_over_antennas_core": 0.00153771,
+    "max_abs_main_lobe": 0.00978711
+   },
+   {
+    "channel": 396,
+    "freq_mhz": 1187.03,
+    "rms_over_antennas_main_lobe": 0.00123625,
+    "rms_over_antennas_core": 0.00146452,
+    "max_abs_main_lobe": 0.0104974
+   },
+   {
+    "channel": 407,
+    "freq_mhz": 1196.23,
+    "rms_over_antennas_main_lobe": 0.0012188,
+    "rms_over_antennas_core": 0.00144115,
+    "max_abs_main_lobe": 0.0111873
+   },
+   {
+    "channel": 418,
+    "freq_mhz": 1205.42,
+    "rms_over_antennas_main_lobe": 0.00120277,
+    "rms_over_antennas_core": 0.0014646,
+    "max_abs_main_lobe": 0.0110252
+   },
+   {
+    "channel": 429,
+    "freq_mhz": 1214.62,
+    "rms_over_antennas_main_lobe": 0.00121696,
+    "rms_over_antennas_core": 0.00145491,
+    "max_abs_main_lobe": 0.0109822
+   },
+   {
+    "channel": 440,
+    "freq_mhz": 1223.81,
+    "rms_over_antennas_main_lobe": 0.00118015,
+    "rms_over_antennas_core": 0.00140022,
+    "max_abs_main_lobe": 0.0107267
+   },
+   {
+    "channel": 451,
+    "freq_mhz": 1233.01,
+    "rms_over_antennas_main_lobe": 0.00118641,
+    "rms_over_antennas_core": 0.00140098,
+    "max_abs_main_lobe": 0.0102309
+   },
+   {
+    "channel": 462,
+    "freq_mhz": 1242.2,
+    "rms_over_antennas_main_lobe": 0.00118097,
+    "rms_over_antennas_core": 0.00141023,
+    "max_abs_main_lobe": 0.0105044
+   },
+   {
+    "channel": 473,
+    "freq_mhz": 1251.4,
+    "rms_over_antennas_main_lobe": 0.00118795,
+    "rms_over_antennas_core": 0.00141446,
+    "max_abs_main_lobe": 0.0109616
+   },
+   {
+    "channel": 484,
+    "freq_mhz": 1260.59,
+    "rms_over_antennas_main_lobe": 0.00132616,
+    "rms_over_antennas_core": 0.00163401,
+    "max_abs_main_lobe": 0.0100569
+   },
+   {
+    "channel": 495,
+    "freq_mhz": 1269.79,
+    "rms_over_antennas_main_lobe": 0.0013875,
+    "rms_over_antennas_core": 0.00175759,
+    "max_abs_main_lobe": 0.00973782
+   },
+   {
+    "channel": 506,
+    "freq_mhz": 1278.98,
+    "rms_over_antennas_main_lobe": 0.00153028,
+    "rms_over_antennas_core": 0.00198424,
+    "max_abs_main_lobe": 0.010588
+   },
+   {
+    "channel": 517,
+    "freq_mhz": 1288.18,
+    "rms_over_antennas_main_lobe": 0.00178569,
+    "rms_over_antennas_core": 0.00242605,
+    "max_abs_main_lobe": 0.0125073
+   },
+   {
+    "channel": 528,
+    "freq_mhz": 1297.38,
+    "rms_over_antennas_main_lobe": 0.00188592,
+    "rms_over_antennas_core": 0.00260306,
+    "max_abs_main_lobe": 0.0131876
+   },
+   {
+    "channel": 539,
+    "freq_mhz": 1306.57,
+    "rms_over_antennas_main_lobe": 0.00181621,
+    "rms_over_antennas_core": 0.00239992,
+    "max_abs_main_lobe": 0.0110812
+   },
+   {
+    "channel": 550,
+    "freq_mhz": 1315.77,
+    "rms_over_antennas_main_lobe": 0.00162315,
+    "rms_over_antennas_core": 0.00209642,
+    "max_abs_main_lobe": 0.00997055
+   },
+   {
+    "channel": 561,
+    "freq_mhz": 1324.96,
+    "rms_over_antennas_main_lobe": 0.00149149,
+    "rms_over_antennas_core": 0.00186022,
+    "max_abs_main_lobe": 0.00997649
+   },
+   {
+    "channel": 572,
+    "freq_mhz": 1334.16,
+    "rms_over_antennas_main_lobe": 0.00149787,
+    "rms_over_antennas_core": 0.00177487,
+    "max_abs_main_lobe": 0.0108383
+   },
+   {
+    "channel": 583,
+    "freq_mhz": 1343.35,
+    "rms_over_antennas_main_lobe": 0.00150288,
+    "rms_over_antennas_core": 0.00174141,
+    "max_abs_main_lobe": 0.0117065
+   },
+   {
+    "channel": 594,
+    "freq_mhz": 1352.55,
+    "rms_over_antennas_main_lobe": 0.0014651,
+    "rms_over_antennas_core": 0.00173674,
+    "max_abs_main_lobe": 0.0115427
+   },
+   {
+    "channel": 605,
+    "freq_mhz": 1361.74,
+    "rms_over_antennas_main_lobe": 0.00146171,
+    "rms_over_antennas_core": 0.00179531,
+    "max_abs_main_lobe": 0.0105304
+   },
+   {
+    "channel": 616,
+    "freq_mhz": 1370.94,
+    "rms_over_antennas_main_lobe": 0.00162683,
+    "rms_over_antennas_core": 0.00204399,
+    "max_abs_main_lobe": 0.0108992
+   },
+   {
+    "channel": 627,
+    "freq_mhz": 1380.13,
+    "rms_over_antennas_main_lobe": 0.00177254,
+    "rms_over_antennas_core": 0.00232051,
+    "max_abs_main_lobe": 0.0106045
+   },
+   {
+    "channel": 638,
+    "freq_mhz": 1389.33,
+    "rms_over_antennas_main_lobe": 0.00193062,
+    "rms_over_antennas_core": 0.00261327,
+    "max_abs_main_lobe": 0.0109322
+   },
+   {
+    "channel": 649,
+    "freq_mhz": 1398.52,
+    "rms_over_antennas_main_lobe": 0.00203955,
+    "rms_over_antennas_core": 0.00281932,
+    "max_abs_main_lobe": 0.0108924
+   },
+   {
+    "channel": 660,
+    "freq_mhz": 1407.72,
+    "rms_over_antennas_main_lobe": 0.00203836,
+    "rms_over_antennas_core": 0.00274757,
+    "max_abs_main_lobe": 0.0118487
+   },
+   {
+    "channel": 671,
+    "freq_mhz": 1416.91,
+    "rms_over_antennas_main_lobe": 0.00184909,
+    "rms_over_antennas_core": 0.0023971,
+    "max_abs_main_lobe": 0.0129169
+   },
+   {
+    "channel": 682,
+    "freq_mhz": 1426.11,
+    "rms_over_antennas_main_lobe": 0.00159824,
+    "rms_over_antennas_core": 0.00191704,
+    "max_abs_main_lobe": 0.0134542
+   },
+   {
+    "channel": 693,
+    "freq_mhz": 1435.3,
+    "rms_over_antennas_main_lobe": 0.00147249,
+    "rms_over_antennas_core": 0.00164777,
+    "max_abs_main_lobe": 0.0145133
+   },
+   {
+    "channel": 704,
+    "freq_mhz": 1444.5,
+    "rms_over_antennas_main_lobe": 0.00147643,
+    "rms_over_antennas_core": 0.00170302,
+    "max_abs_main_lobe": 0.0149845
+   },
+   {
+    "channel": 715,
+    "freq_mhz": 1453.7,
+    "rms_over_antennas_main_lobe": 0.00160274,
+    "rms_over_antennas_core": 0.00195187,
+    "max_abs_main_lobe": 0.0153456
+   },
+   {
+    "channel": 726,
+    "freq_mhz": 1462.89,
+    "rms_over_antennas_main_lobe": 0.00193419,
+    "rms_over_antennas_core": 0.00244927,
+    "max_abs_main_lobe": 0.0165599
+   },
+   {
+    "channel": 737,
+    "freq_mhz": 1472.09,
+    "rms_over_antennas_main_lobe": 0.00223974,
+    "rms_over_antennas_core": 0.00298484,
+    "max_abs_main_lobe": 0.0178316
+   },
+   {
+    "channel": 748,
+    "freq_mhz": 1481.28,
+    "rms_over_antennas_main_lobe": 0.00248892,
+    "rms_over_antennas_core": 0.00341217,
+    "max_abs_main_lobe": 0.0188883
+   },
+   {
+    "channel": 759,
+    "freq_mhz": 1490.48,
+    "rms_over_antennas_main_lobe": 0.0027391,
+    "rms_over_antennas_core": 0.00385403,
+    "max_abs_main_lobe": 0.0198814
+   },
+   {
+    "channel": 770,
+    "freq_mhz": 1499.67,
+    "rms_over_antennas_main_lobe": 0.00296197,
+    "rms_over_antennas_core": 0.00423941,
+    "max_abs_main_lobe": 0.0205801
+   },
+   {
+    "channel": 781,
+    "freq_mhz": 1508.87,
+    "rms_over_antennas_main_lobe": 0.00312821,
+    "rms_over_antennas_core": 0.00458803,
+    "max_abs_main_lobe": 0.0205379
+   },
+   {
+    "channel": 792,
+    "freq_mhz": 1518.06,
+    "rms_over_antennas_main_lobe": 0.00321606,
+    "rms_over_antennas_core": 0.00475827,
+    "max_abs_main_lobe": 0.0210529
+   },
+   {
+    "channel": 803,
+    "freq_mhz": 1527.26,
+    "rms_over_antennas_main_lobe": 0.00327585,
+    "rms_over_antennas_core": 0.00487297,
+    "max_abs_main_lobe": 0.0218795
+   },
+   {
+    "channel": 814,
+    "freq_mhz": 1536.45,
+    "rms_over_antennas_main_lobe": 0.00336964,
+    "rms_over_antennas_core": 0.00494751,
+    "max_abs_main_lobe": 0.0215947
+   },
+   {
+    "channel": 825,
+    "freq_mhz": 1545.65,
+    "rms_over_antennas_main_lobe": 0.0033767,
+    "rms_over_antennas_core": 0.005005,
+    "max_abs_main_lobe": 0.0212661
+   },
+   {
+    "channel": 836,
+    "freq_mhz": 1554.84,
+    "rms_over_antennas_main_lobe": 0.00345994,
+    "rms_over_antennas_core": 0.00517969,
+    "max_abs_main_lobe": 0.0210246
+   },
+   {
+    "channel": 847,
+    "freq_mhz": 1564.04,
+    "rms_over_antennas_main_lobe": 0.00351114,
+    "rms_over_antennas_core": 0.00529938,
+    "max_abs_main_lobe": 0.0219335
+   },
+   {
+    "channel": 858,
+    "freq_mhz": 1573.23,
+    "rms_over_antennas_main_lobe": 0.00357488,
+    "rms_over_antennas_core": 0.00543991,
+    "max_abs_main_lobe": 0.022565
+   },
+   {
+    "channel": 869,
+    "freq_mhz": 1582.43,
+    "rms_over_antennas_main_lobe": 0.00360051,
+    "rms_over_antennas_core": 0.00553367,
+    "max_abs_main_lobe": 0.0225917
+   },
+   {
+    "channel": 880,
+    "freq_mhz": 1591.62,
+    "rms_over_antennas_main_lobe": 0.00362758,
+    "rms_over_antennas_core": 0.00563426,
+    "max_abs_main_lobe": 0.0226519
+   },
+   {
+    "channel": 891,
+    "freq_mhz": 1600.82,
+    "rms_over_antennas_main_lobe": 0.0036712,
+    "rms_over_antennas_core": 0.0056974,
+    "max_abs_main_lobe": 0.0235223
+   },
+   {
+    "channel": 902,
+    "freq_mhz": 1610.02,
+    "rms_over_antennas_main_lobe": 0.00373345,
+    "rms_over_antennas_core": 0.00577652,
+    "max_abs_main_lobe": 0.0248198
+   },
+   {
+    "channel": 913,
+    "freq_mhz": 1619.21,
+    "rms_over_antennas_main_lobe": 0.00375797,
+    "rms_over_antennas_core": 0.00581898,
+    "max_abs_main_lobe": 0.0242888
+   },
+   {
+    "channel": 924,
+    "freq_mhz": 1628.41,
+    "rms_over_antennas_main_lobe": 0.00378424,
+    "rms_over_antennas_core": 0.00587947,
+    "max_abs_main_lobe": 0.0248743
+   },
+   {
+    "channel": 935,
+    "freq_mhz": 1637.6,
+    "rms_over_antennas_main_lobe": 0.00387064,
+    "rms_over_antennas_core": 0.00600872,
+    "max_abs_main_lobe": 0.0264714
+   },
+   {
+    "channel": 946,
+    "freq_mhz": 1646.8,
+    "rms_over_antennas_main_lobe": 0.00406311,
+    "rms_over_antennas_core": 0.00609372,
+    "max_abs_main_lobe": 0.0257968
+   }
+  ]
+ },
+ "per_channel": [
+  {
+   "channel": 55,
+   "freq_mhz": 901.977,
+   "holography": {
+    "r_half_power_deg": 0.82661,
+    "r_first_null_deg": 2.14062,
+    "first_sidelobe_level": 0.00307675,
+    "fwhm_I_major_deg": 1.68781,
+    "fwhm_I_minor_deg": 1.61379,
+    "squint_H_arcmin": [
+     -0.0329628,
+     0.71565
+    ],
+    "squint_V_arcmin": [
+     0.000456159,
+     0.337013
+    ],
+    "signal_30arcsec": 0.00727892
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.68561,
+    "fwhm_I_minor_deg": 1.62069,
+    "squint_H_arcmin": [
+     -0.000400466,
+     0.867357
+    ],
+    "squint_V_arcmin": [
+     -0.00120135,
+     0.708919
+    ],
+    "first_sidelobe_level": 0.000101104,
+    "core_max": 0.0045919,
+    "lobe_max": 0.00884198,
+    "lobe_rms": 0.00341277,
+    "sidelobe_max": 0.00278298,
+    "ring_max_over_30arcsec_signal": 0.452497,
+    "moon_abs_diff_mean": {
+     "44": 0.00244777,
+     "98": 0.00371361,
+     "149": 0.00154222
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.59832e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.69132,
+    "fwhm_I_minor_deg": 1.62964,
+    "squint_H_arcmin": [
+     -5.81194e-08,
+     -0.489273
+    ],
+    "squint_V_arcmin": [
+     -5.23514e-08,
+     -0.201951
+    ],
+    "first_sidelobe_level": 0.00293374,
+    "core_max": 0.0151267,
+    "lobe_max": 0.0155218,
+    "lobe_rms": 0.00701399,
+    "sidelobe_max": 0.00111754,
+    "ring_max_over_30arcsec_signal": 2.11613,
+    "moon_abs_diff_mean": {
+     "44": 0.00961193,
+     "98": 0.00460194,
+     "149": 0.000363241
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000154069
+   }
+  },
+  {
+   "channel": 66,
+   "freq_mhz": 911.172,
+   "holography": {
+    "r_half_power_deg": 0.818447,
+    "r_first_null_deg": 2.14062,
+    "first_sidelobe_level": 0.00319325,
+    "fwhm_I_major_deg": 1.66641,
+    "fwhm_I_minor_deg": 1.60009,
+    "squint_H_arcmin": [
+     -0.0869366,
+     0.298559
+    ],
+    "squint_V_arcmin": [
+     -0.0147531,
+     0.354636
+    ],
+    "signal_30arcsec": 0.00738457
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.66848,
+    "fwhm_I_minor_deg": 1.6035,
+    "squint_H_arcmin": [
+     -0.00226354,
+     0.792124
+    ],
+    "squint_V_arcmin": [
+     -0.00679111,
+     0.657027
+    ],
+    "first_sidelobe_level": 0.00496868,
+    "core_max": 0.00718819,
+    "lobe_max": 0.00802798,
+    "lobe_rms": 0.00354428,
+    "sidelobe_max": 0.0027153,
+    "ring_max_over_30arcsec_signal": 0.783581,
+    "moon_abs_diff_mean": {
+     "44": 0.00313193,
+     "98": 0.00424863,
+     "149": 0.0015255
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.43259e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.67345,
+    "fwhm_I_minor_deg": 1.61402,
+    "squint_H_arcmin": [
+     -6.72982e-09,
+     -0.45749
+    ],
+    "squint_V_arcmin": [
+     -1.17234e-07,
+     -0.20932
+    ],
+    "first_sidelobe_level": 0.00305125,
+    "core_max": 0.0145639,
+    "lobe_max": 0.0155282,
+    "lobe_rms": 0.00609449,
+    "sidelobe_max": 0.00117533,
+    "ring_max_over_30arcsec_signal": 2.04408,
+    "moon_abs_diff_mean": {
+     "44": 0.00765971,
+     "98": 0.00403799,
+     "149": 0.000376933
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000118846
+   }
+  },
+  {
+   "channel": 77,
+   "freq_mhz": 920.367,
+   "holography": {
+    "r_half_power_deg": 0.809416,
+    "r_first_null_deg": 2.14062,
+    "first_sidelobe_level": 0.00314591,
+    "fwhm_I_major_deg": 1.64537,
+    "fwhm_I_minor_deg": 1.58373,
+    "squint_H_arcmin": [
+     -0.104051,
+     0.275766
+    ],
+    "squint_V_arcmin": [
+     -0.0580525,
+     0.855711
+    ],
+    "signal_30arcsec": 0.00746309
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.65123,
+    "fwhm_I_minor_deg": 1.58593,
+    "squint_H_arcmin": [
+     -0.00335876,
+     0.721923
+    ],
+    "squint_V_arcmin": [
+     -0.0123821,
+     0.592796
+    ],
+    "first_sidelobe_level": 0.0049591,
+    "core_max": 0.0043259,
+    "lobe_max": 0.00825361,
+    "lobe_rms": 0.00342099,
+    "sidelobe_max": 0.00280273,
+    "ring_max_over_30arcsec_signal": 0.507076,
+    "moon_abs_diff_mean": {
+     "44": 0.00192199,
+     "98": 0.00399664,
+     "149": 0.00166624
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 3.77804e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.65212,
+    "fwhm_I_minor_deg": 1.59718,
+    "squint_H_arcmin": [
+     -9.81428e-09,
+     -0.503626
+    ],
+    "squint_V_arcmin": [
+     -1.79358e-08,
+     0.023692
+    ],
+    "first_sidelobe_level": 0.00309391,
+    "core_max": 0.0164009,
+    "lobe_max": 0.0168788,
+    "lobe_rms": 0.00654326,
+    "sidelobe_max": 0.000866065,
+    "ring_max_over_30arcsec_signal": 2.24283,
+    "moon_abs_diff_mean": {
+     "44": 0.00911468,
+     "98": 0.00378234,
+     "149": 0.00029737
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000147466
+   }
+  },
+  {
+   "channel": 88,
+   "freq_mhz": 929.562,
+   "holography": {
+    "r_half_power_deg": 0.802327,
+    "r_first_null_deg": 2.07812,
+    "first_sidelobe_level": 0.00324756,
+    "fwhm_I_major_deg": 1.63302,
+    "fwhm_I_minor_deg": 1.56615,
+    "squint_H_arcmin": [
+     -0.094023,
+     -0.252256
+    ],
+    "squint_V_arcmin": [
+     -0.105777,
+     -0.0239277
+    ],
+    "signal_30arcsec": 0.0075616
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.63379,
+    "fwhm_I_minor_deg": 1.56894,
+    "squint_H_arcmin": [
+     -0.00599008,
+     0.651674
+    ],
+    "squint_V_arcmin": [
+     -0.0179704,
+     0.530137
+    ],
+    "first_sidelobe_level": 0.00496638,
+    "core_max": 0.0116117,
+    "lobe_max": 0.0116117,
+    "lobe_rms": 0.00423971,
+    "sidelobe_max": 0.00272664,
+    "ring_max_over_30arcsec_signal": 1.3347,
+    "moon_abs_diff_mean": {
+     "44": 0.00627729,
+     "98": 0.00391501,
+     "149": 0.00162855
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000132774
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.63394,
+    "fwhm_I_minor_deg": 1.5783,
+    "squint_H_arcmin": [
+     1.59176e-08,
+     -0.577741
+    ],
+    "squint_V_arcmin": [
+     -2.38814e-09,
+     -0.000482812
+    ],
+    "first_sidelobe_level": 0.00319367,
+    "core_max": 0.00726761,
+    "lobe_max": 0.00802151,
+    "lobe_rms": 0.00366193,
+    "sidelobe_max": 0.000945632,
+    "ring_max_over_30arcsec_signal": 0.986102,
+    "moon_abs_diff_mean": {
+     "44": 0.00386631,
+     "98": 0.00272041,
+     "149": 0.000448095
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.22913e-05
+   }
+  },
+  {
+   "channel": 99,
+   "freq_mhz": 938.758,
+   "holography": {
+    "r_half_power_deg": 0.793417,
+    "r_first_null_deg": 2.07812,
+    "first_sidelobe_level": 0.00329434,
+    "fwhm_I_major_deg": 1.61168,
+    "fwhm_I_minor_deg": 1.54994,
+    "squint_H_arcmin": [
+     -0.115457,
+     0.0592928
+    ],
+    "squint_V_arcmin": [
+     -0.122711,
+     0.00462144
+    ],
+    "signal_30arcsec": 0.00761197
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.6167,
+    "fwhm_I_minor_deg": 1.55175,
+    "squint_H_arcmin": [
+     -0.00785303,
+     0.587644
+    ],
+    "squint_V_arcmin": [
+     -0.0230307,
+     0.480548
+    ],
+    "first_sidelobe_level": 0.00495917,
+    "core_max": 0.00969165,
+    "lobe_max": 0.00969165,
+    "lobe_rms": 0.00370432,
+    "sidelobe_max": 0.00252576,
+    "ring_max_over_30arcsec_signal": 1.13947,
+    "moon_abs_diff_mean": {
+     "44": 0.0040361,
+     "98": 0.00395008,
+     "149": 0.00167629
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 9.30146e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.61318,
+    "fwhm_I_minor_deg": 1.5597,
+    "squint_H_arcmin": [
+     -1.83574e-09,
+     -0.753723
+    ],
+    "squint_V_arcmin": [
+     7.23876e-08,
+     0.462472
+    ],
+    "first_sidelobe_level": 0.00321541,
+    "core_max": 0.00742135,
+    "lobe_max": 0.00812021,
+    "lobe_rms": 0.00338306,
+    "sidelobe_max": 0.000883563,
+    "ring_max_over_30arcsec_signal": 1.01865,
+    "moon_abs_diff_mean": {
+     "44": 0.00358873,
+     "98": 0.00244183,
+     "149": 0.00038933
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.05511e-05
+   }
+  },
+  {
+   "channel": 110,
+   "freq_mhz": 947.953,
+   "holography": {
+    "r_half_power_deg": 0.786909,
+    "r_first_null_deg": 2.01562,
+    "first_sidelobe_level": 0.0033629,
+    "fwhm_I_major_deg": 1.60052,
+    "fwhm_I_minor_deg": 1.53287,
+    "squint_H_arcmin": [
+     -0.124626,
+     0.244364
+    ],
+    "squint_V_arcmin": [
+     -0.0662255,
+     -0.232039
+    ],
+    "signal_30arcsec": 0.00768616
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.59942,
+    "fwhm_I_minor_deg": 1.5348,
+    "squint_H_arcmin": [
+     -0.00971639,
+     0.517075
+    ],
+    "squint_V_arcmin": [
+     -0.0279701,
+     0.428023
+    ],
+    "first_sidelobe_level": 0.00497382,
+    "core_max": 0.00745515,
+    "lobe_max": 0.00893085,
+    "lobe_rms": 0.004008,
+    "sidelobe_max": 0.00295167,
+    "ring_max_over_30arcsec_signal": 0.81391,
+    "moon_abs_diff_mean": {
+     "44": 0.0035389,
+     "98": 0.00420852,
+     "149": 0.00157325
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.5876e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.60271,
+    "fwhm_I_minor_deg": 1.54465,
+    "squint_H_arcmin": [
+     -1.78371e-07,
+     -0.555275
+    ],
+    "squint_V_arcmin": [
+     3.23717e-08,
+     0.12767
+    ],
+    "first_sidelobe_level": 0.00350128,
+    "core_max": 0.00826867,
+    "lobe_max": 0.00861475,
+    "lobe_rms": 0.00380956,
+    "sidelobe_max": 0.000965733,
+    "ring_max_over_30arcsec_signal": 1.10285,
+    "moon_abs_diff_mean": {
+     "44": 0.00429194,
+     "98": 0.00243589,
+     "149": 0.000403504
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.022e-05
+   }
+  },
+  {
+   "channel": 121,
+   "freq_mhz": 957.148,
+   "holography": {
+    "r_half_power_deg": 0.777917,
+    "r_first_null_deg": 2.01562,
+    "first_sidelobe_level": 0.00350537,
+    "fwhm_I_major_deg": 1.58006,
+    "fwhm_I_minor_deg": 1.51516,
+    "squint_H_arcmin": [
+     -0.120575,
+     0.402044
+    ],
+    "squint_V_arcmin": [
+     -0.0810194,
+     -0.243311
+    ],
+    "signal_30arcsec": 0.00775454
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.58313,
+    "fwhm_I_minor_deg": 1.51915,
+    "squint_H_arcmin": [
+     -0.00144063,
+     0.460893
+    ],
+    "squint_V_arcmin": [
+     -0.0218417,
+     0.403764
+    ],
+    "first_sidelobe_level": 0.00495297,
+    "core_max": 0.00728124,
+    "lobe_max": 0.00852981,
+    "lobe_rms": 0.00364438,
+    "sidelobe_max": 0.00297214,
+    "ring_max_over_30arcsec_signal": 0.76573,
+    "moon_abs_diff_mean": {
+     "44": 0.00275429,
+     "98": 0.00391869,
+     "149": 0.00153016
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.04679e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.58036,
+    "fwhm_I_minor_deg": 1.52788,
+    "squint_H_arcmin": [
+     -4.74815e-09,
+     -0.395349
+    ],
+    "squint_V_arcmin": [
+     -6.22382e-08,
+     0.112427
+    ],
+    "first_sidelobe_level": 0.00356844,
+    "core_max": 0.00876137,
+    "lobe_max": 0.00925918,
+    "lobe_rms": 0.00392267,
+    "sidelobe_max": 0.000830613,
+    "ring_max_over_30arcsec_signal": 1.1792,
+    "moon_abs_diff_mean": {
+     "44": 0.00452384,
+     "98": 0.00245201,
+     "149": 0.000324491
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.33655e-05
+   }
+  },
+  {
+   "channel": 132,
+   "freq_mhz": 966.344,
+   "holography": {
+    "r_half_power_deg": 0.772392,
+    "r_first_null_deg": 2.01562,
+    "first_sidelobe_level": 0.00379524,
+    "fwhm_I_major_deg": 1.57094,
+    "fwhm_I_minor_deg": 1.50168,
+    "squint_H_arcmin": [
+     -0.0635244,
+     0.162777
+    ],
+    "squint_V_arcmin": [
+     -0.107125,
+     -0.0398888
+    ],
+    "signal_30arcsec": 0.00783075
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.56777,
+    "fwhm_I_minor_deg": 1.50442,
+    "squint_H_arcmin": [
+     0.00854402,
+     0.403317
+    ],
+    "squint_V_arcmin": [
+     -0.0138345,
+     0.400594
+    ],
+    "first_sidelobe_level": 0.00496705,
+    "core_max": 0.00632399,
+    "lobe_max": 0.00943095,
+    "lobe_rms": 0.00397874,
+    "sidelobe_max": 0.00338206,
+    "ring_max_over_30arcsec_signal": 0.65635,
+    "moon_abs_diff_mean": {
+     "44": 0.00242954,
+     "98": 0.00416726,
+     "149": 0.00129699
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.76369e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.56888,
+    "fwhm_I_minor_deg": 1.50918,
+    "squint_H_arcmin": [
+     -1.2348e-08,
+     -0.26279
+    ],
+    "squint_V_arcmin": [
+     2.62327e-08,
+     0.109756
+    ],
+    "first_sidelobe_level": 0.00374045,
+    "core_max": 0.00588461,
+    "lobe_max": 0.00658426,
+    "lobe_rms": 0.00333221,
+    "sidelobe_max": 0.000930906,
+    "ring_max_over_30arcsec_signal": 0.79228,
+    "moon_abs_diff_mean": {
+     "44": 0.0032588,
+     "98": 0.0023678,
+     "149": 0.000386266
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.31695e-05
+   }
+  },
+  {
+   "channel": 143,
+   "freq_mhz": 975.539,
+   "holography": {
+    "r_half_power_deg": 0.764059,
+    "r_first_null_deg": 1.95312,
+    "first_sidelobe_level": 0.00379884,
+    "fwhm_I_major_deg": 1.54853,
+    "fwhm_I_minor_deg": 1.48902,
+    "squint_H_arcmin": [
+     -0.0227413,
+     -0.0349453
+    ],
+    "squint_V_arcmin": [
+     -0.0579303,
+     -0.138923
+    ],
+    "signal_30arcsec": 0.00790663
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.55251,
+    "fwhm_I_minor_deg": 1.48971,
+    "squint_H_arcmin": [
+     0.0209157,
+     0.34581
+    ],
+    "squint_V_arcmin": [
+     -0.00451953,
+     0.396179
+    ],
+    "first_sidelobe_level": 0.00496344,
+    "core_max": 0.00905911,
+    "lobe_max": 0.00905911,
+    "lobe_rms": 0.00410634,
+    "sidelobe_max": 0.00376559,
+    "ring_max_over_30arcsec_signal": 0.982019,
+    "moon_abs_diff_mean": {
+     "44": 0.00336749,
+     "98": 0.00408946,
+     "149": 0.00133297
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.6413e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.54522,
+    "fwhm_I_minor_deg": 1.49615,
+    "squint_H_arcmin": [
+     -7.46728e-10,
+     -0.257546
+    ],
+    "squint_V_arcmin": [
+     -3.7365e-08,
+     0.274022
+    ],
+    "first_sidelobe_level": 0.00375197,
+    "core_max": 0.00389462,
+    "lobe_max": 0.00483169,
+    "lobe_rms": 0.00240657,
+    "sidelobe_max": 0.00091122,
+    "ring_max_over_30arcsec_signal": 0.513208,
+    "moon_abs_diff_mean": {
+     "44": 0.00161019,
+     "98": 0.00187556,
+     "149": 0.000299136
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 3.84324e-05
+   }
+  },
+  {
+   "channel": 154,
+   "freq_mhz": 984.734,
+   "holography": {
+    "r_half_power_deg": 0.757715,
+    "r_first_null_deg": 1.95312,
+    "first_sidelobe_level": 0.00386538,
+    "fwhm_I_major_deg": 1.53943,
+    "fwhm_I_minor_deg": 1.47504,
+    "squint_H_arcmin": [
+     -0.00447127,
+     -0.070575
+    ],
+    "squint_V_arcmin": [
+     -0.00108255,
+     0.31239
+    ],
+    "signal_30arcsec": 0.0079672
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.53741,
+    "fwhm_I_minor_deg": 1.47437,
+    "squint_H_arcmin": [
+     0.0320925,
+     0.286738
+    ],
+    "squint_V_arcmin": [
+     0.00479639,
+     0.386771
+    ],
+    "first_sidelobe_level": 0.00495184,
+    "core_max": 0.00434447,
+    "lobe_max": 0.0114026,
+    "lobe_rms": 0.00441324,
+    "sidelobe_max": 0.0036738,
+    "ring_max_over_30arcsec_signal": 0.402803,
+    "moon_abs_diff_mean": {
+     "44": 0.00135666,
+     "98": 0.00432821,
+     "149": 0.0011545
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.73411e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.53537,
+    "fwhm_I_minor_deg": 1.47886,
+    "squint_H_arcmin": [
+     4.59261e-10,
+     -0.221437
+    ],
+    "squint_V_arcmin": [
+     -1.86969e-07,
+     0.320964
+    ],
+    "first_sidelobe_level": 0.00401192,
+    "core_max": 0.00367355,
+    "lobe_max": 0.00663076,
+    "lobe_rms": 0.00271915,
+    "sidelobe_max": 0.000899139,
+    "ring_max_over_30arcsec_signal": 0.539842,
+    "moon_abs_diff_mean": {
+     "44": 0.00214072,
+     "98": 0.00186265,
+     "149": 0.00041948
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 2.61512e-05
+   }
+  },
+  {
+   "channel": 165,
+   "freq_mhz": 993.93,
+   "holography": {
+    "r_half_power_deg": 0.747997,
+    "r_first_null_deg": 1.95312,
+    "first_sidelobe_level": 0.004105,
+    "fwhm_I_major_deg": 1.51957,
+    "fwhm_I_minor_deg": 1.45919,
+    "squint_H_arcmin": [
+     -0.0283558,
+     -0.0711093
+    ],
+    "squint_V_arcmin": [
+     -0.0261137,
+     0.102737
+    ],
+    "signal_30arcsec": 0.00811064
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.52206,
+    "fwhm_I_minor_deg": 1.45906,
+    "squint_H_arcmin": [
+     0.0432727,
+     0.235233
+    ],
+    "squint_V_arcmin": [
+     0.0141121,
+     0.384988
+    ],
+    "first_sidelobe_level": 0.00496282,
+    "core_max": 0.00636406,
+    "lobe_max": 0.00956315,
+    "lobe_rms": 0.00399672,
+    "sidelobe_max": 0.00314649,
+    "ring_max_over_30arcsec_signal": 0.661753,
+    "moon_abs_diff_mean": {
+     "44": 0.00178228,
+     "98": 0.00404028,
+     "149": 0.00103568
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.96416e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.51443,
+    "fwhm_I_minor_deg": 1.46218,
+    "squint_H_arcmin": [
+     -4.28469e-09,
+     -0.186365
+    ],
+    "squint_V_arcmin": [
+     1.58028e-08,
+     0.284569
+    ],
+    "first_sidelobe_level": 0.00413726,
+    "core_max": 0.00293163,
+    "lobe_max": 0.00594508,
+    "lobe_rms": 0.00237786,
+    "sidelobe_max": 0.00094731,
+    "ring_max_over_30arcsec_signal": 0.445531,
+    "moon_abs_diff_mean": {
+     "44": 0.00140546,
+     "98": 0.00167265,
+     "149": 0.000378503
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 2.83096e-05
+   }
+  },
+  {
+   "channel": 176,
+   "freq_mhz": 1003.12,
+   "holography": {
+    "r_half_power_deg": 0.740158,
+    "r_first_null_deg": 1.89062,
+    "first_sidelobe_level": 0.0042987,
+    "fwhm_I_major_deg": 1.51072,
+    "fwhm_I_minor_deg": 1.43994,
+    "squint_H_arcmin": [
+     0.013972,
+     0.0947178
+    ],
+    "squint_V_arcmin": [
+     -0.0780588,
+     0.373369
+    ],
+    "signal_30arcsec": 0.00813988
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.50744,
+    "fwhm_I_minor_deg": 1.4442,
+    "squint_H_arcmin": [
+     0.0462251,
+     0.208679
+    ],
+    "squint_V_arcmin": [
+     0.0190503,
+     0.347867
+    ],
+    "first_sidelobe_level": 0.00495216,
+    "core_max": 0.00338583,
+    "lobe_max": 0.0100664,
+    "lobe_rms": 0.0040438,
+    "sidelobe_max": 0.00444136,
+    "ring_max_over_30arcsec_signal": 0.41098,
+    "moon_abs_diff_mean": {
+     "44": 0.00122575,
+     "98": 0.00387875,
+     "149": 0.000936891
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 3.06542e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.50346,
+    "fwhm_I_minor_deg": 1.4446,
+    "squint_H_arcmin": [
+     -6.27622e-09,
+     -0.193629
+    ],
+    "squint_V_arcmin": [
+     -6.45098e-09,
+     0.304415
+    ],
+    "first_sidelobe_level": 0.0043016,
+    "core_max": 0.00661079,
+    "lobe_max": 0.00803398,
+    "lobe_rms": 0.00317362,
+    "sidelobe_max": 0.000994239,
+    "ring_max_over_30arcsec_signal": 0.881352,
+    "moon_abs_diff_mean": {
+     "44": 0.0031651,
+     "98": 0.00161501,
+     "149": 0.000308788
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.12484e-05
+   }
+  },
+  {
+   "channel": 187,
+   "freq_mhz": 1012.32,
+   "holography": {
+    "r_half_power_deg": 0.732727,
+    "r_first_null_deg": 1.89062,
+    "first_sidelobe_level": 0.00446257,
+    "fwhm_I_major_deg": 1.49717,
+    "fwhm_I_minor_deg": 1.42596,
+    "squint_H_arcmin": [
+     0.0346351,
+     -0.46955
+    ],
+    "squint_V_arcmin": [
+     -0.0727393,
+     -0.337826
+    ],
+    "signal_30arcsec": 0.00825333
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.49276,
+    "fwhm_I_minor_deg": 1.42979,
+    "squint_H_arcmin": [
+     0.0331807,
+     0.225192
+    ],
+    "squint_V_arcmin": [
+     0.0202641,
+     0.257411
+    ],
+    "first_sidelobe_level": 0.00495706,
+    "core_max": 0.0114702,
+    "lobe_max": 0.0114702,
+    "lobe_rms": 0.00463921,
+    "sidelobe_max": 0.00411879,
+    "ring_max_over_30arcsec_signal": 1.25777,
+    "moon_abs_diff_mean": {
+     "44": 0.00531153,
+     "98": 0.00384936,
+     "149": 0.000810205
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000125027
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.48696,
+    "fwhm_I_minor_deg": 1.42901,
+    "squint_H_arcmin": [
+     5.89577e-09,
+     -0.113554
+    ],
+    "squint_V_arcmin": [
+     6.27418e-08,
+     0.288056
+    ],
+    "first_sidelobe_level": 0.00438382,
+    "core_max": 0.011326,
+    "lobe_max": 0.011326,
+    "lobe_rms": 0.00294337,
+    "sidelobe_max": 0.00097736,
+    "ring_max_over_30arcsec_signal": 1.3164,
+    "moon_abs_diff_mean": {
+     "44": 0.00395406,
+     "98": 0.00120183,
+     "149": 0.000353799
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 9.54362e-05
+   }
+  },
+  {
+   "channel": 198,
+   "freq_mhz": 1021.52,
+   "holography": {
+    "r_half_power_deg": 0.724175,
+    "r_first_null_deg": 1.89062,
+    "first_sidelobe_level": 0.00457589,
+    "fwhm_I_major_deg": 1.47772,
+    "fwhm_I_minor_deg": 1.41334,
+    "squint_H_arcmin": [
+     0.0337538,
+     -0.196791
+    ],
+    "squint_V_arcmin": [
+     0.0299303,
+     -0.126443
+    ],
+    "signal_30arcsec": 0.00832929
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.47804,
+    "fwhm_I_minor_deg": 1.41577,
+    "squint_H_arcmin": [
+     0.0201414,
+     0.250585
+    ],
+    "squint_V_arcmin": [
+     0.0190672,
+     0.165355
+    ],
+    "first_sidelobe_level": 0.00496746,
+    "core_max": 0.00698431,
+    "lobe_max": 0.00967326,
+    "lobe_rms": 0.00396901,
+    "sidelobe_max": 0.00395021,
+    "ring_max_over_30arcsec_signal": 0.741667,
+    "moon_abs_diff_mean": {
+     "44": 0.00240095,
+     "98": 0.00374716,
+     "149": 0.000763259
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.09622e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.47246,
+    "fwhm_I_minor_deg": 1.4166,
+    "squint_H_arcmin": [
+     -1.33517e-09,
+     -0.0477914
+    ],
+    "squint_V_arcmin": [
+     -1.14729e-07,
+     0.300487
+    ],
+    "first_sidelobe_level": 0.00450002,
+    "core_max": 0.00713972,
+    "lobe_max": 0.00713972,
+    "lobe_rms": 0.00209691,
+    "sidelobe_max": 0.000953594,
+    "ring_max_over_30arcsec_signal": 0.804095,
+    "moon_abs_diff_mean": {
+     "44": 0.00200271,
+     "98": 0.00115452,
+     "149": 0.000310242
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.79901e-05
+   }
+  },
+  {
+   "channel": 209,
+   "freq_mhz": 1030.71,
+   "holography": {
+    "r_half_power_deg": 0.716944,
+    "r_first_null_deg": 1.82812,
+    "first_sidelobe_level": 0.00480077,
+    "fwhm_I_major_deg": 1.46487,
+    "fwhm_I_minor_deg": 1.39966,
+    "squint_H_arcmin": [
+     -0.0379223,
+     -0.176016
+    ],
+    "squint_V_arcmin": [
+     0.0229782,
+     -0.702286
+    ],
+    "signal_30arcsec": 0.00840207
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.46351,
+    "fwhm_I_minor_deg": 1.40158,
+    "squint_H_arcmin": [
+     0.00709683,
+     0.267437
+    ],
+    "squint_V_arcmin": [
+     0.0189058,
+     0.0724994
+    ],
+    "first_sidelobe_level": 0.00494214,
+    "core_max": 0.0105069,
+    "lobe_max": 0.0105069,
+    "lobe_rms": 0.00464606,
+    "sidelobe_max": 0.00461453,
+    "ring_max_over_30arcsec_signal": 1.05458,
+    "moon_abs_diff_mean": {
+     "44": 0.00454766,
+     "98": 0.00375507,
+     "149": 0.000625068
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000117079
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.45758,
+    "fwhm_I_minor_deg": 1.40143,
+    "squint_H_arcmin": [
+     -5.24874e-09,
+     0.0412666
+    ],
+    "squint_V_arcmin": [
+     -1.02947e-08,
+     0.343028
+    ],
+    "first_sidelobe_level": 0.00474554,
+    "core_max": 0.0131703,
+    "lobe_max": 0.0131703,
+    "lobe_rms": 0.00337462,
+    "sidelobe_max": 0.00129984,
+    "ring_max_over_30arcsec_signal": 1.48326,
+    "moon_abs_diff_mean": {
+     "44": 0.00499079,
+     "98": 0.000940918,
+     "149": 0.000375947
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000120345
+   }
+  },
+  {
+   "channel": 220,
+   "freq_mhz": 1039.91,
+   "holography": {
+    "r_half_power_deg": 0.70774,
+    "r_first_null_deg": 1.82812,
+    "first_sidelobe_level": 0.0048021,
+    "fwhm_I_major_deg": 1.44322,
+    "fwhm_I_minor_deg": 1.38787,
+    "squint_H_arcmin": [
+     -0.0283449,
+     0.0303761
+    ],
+    "squint_V_arcmin": [
+     -0.0202388,
+     -0.684459
+    ],
+    "signal_30arcsec": 0.0084558
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.44885,
+    "fwhm_I_minor_deg": 1.38809,
+    "squint_H_arcmin": [
+     -0.00594608,
+     0.286997
+    ],
+    "squint_V_arcmin": [
+     0.019318,
+     -0.018114
+    ],
+    "first_sidelobe_level": 0.00494559,
+    "core_max": 0.010514,
+    "lobe_max": 0.010514,
+    "lobe_rms": 0.00426064,
+    "sidelobe_max": 0.00448727,
+    "ring_max_over_30arcsec_signal": 1.19141,
+    "moon_abs_diff_mean": {
+     "44": 0.00304211,
+     "98": 0.00367659,
+     "149": 0.00062342
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.78968e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.43734,
+    "fwhm_I_minor_deg": 1.39034,
+    "squint_H_arcmin": [
+     1.0551e-09,
+     0.0375184
+    ],
+    "squint_V_arcmin": [
+     -1.90997e-08,
+     0.499422
+    ],
+    "first_sidelobe_level": 0.00483988,
+    "core_max": 0.0125223,
+    "lobe_max": 0.0125223,
+    "lobe_rms": 0.00324233,
+    "sidelobe_max": 0.000930383,
+    "ring_max_over_30arcsec_signal": 1.42407,
+    "moon_abs_diff_mean": {
+     "44": 0.00471601,
+     "98": 0.000857085,
+     "149": 0.000294679
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000113558
+   }
+  },
+  {
+   "channel": 231,
+   "freq_mhz": 1049.1,
+   "holography": {
+    "r_half_power_deg": 0.701835,
+    "r_first_null_deg": 1.82812,
+    "first_sidelobe_level": 0.00517955,
+    "fwhm_I_major_deg": 1.43911,
+    "fwhm_I_minor_deg": 1.37168,
+    "squint_H_arcmin": [
+     -0.0157849,
+     0.14425
+    ],
+    "squint_V_arcmin": [
+     -0.0492847,
+     -0.647279
+    ],
+    "signal_30arcsec": 0.00851854
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.43409,
+    "fwhm_I_minor_deg": 1.37488,
+    "squint_H_arcmin": [
+     -0.0183637,
+     0.309611
+    ],
+    "squint_V_arcmin": [
+     0.0202608,
+     -0.11247
+    ],
+    "first_sidelobe_level": 0.0049512,
+    "core_max": 0.00766609,
+    "lobe_max": 0.0107363,
+    "lobe_rms": 0.00452547,
+    "sidelobe_max": 0.00484523,
+    "ring_max_over_30arcsec_signal": 0.783419,
+    "moon_abs_diff_mean": {
+     "44": 0.00202214,
+     "98": 0.00400734,
+     "149": 0.000575585
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.19454e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.42992,
+    "fwhm_I_minor_deg": 1.37513,
+    "squint_H_arcmin": [
+     -2.83797e-10,
+     0.0379932
+    ],
+    "squint_V_arcmin": [
+     -4.83156e-08,
+     0.583003
+    ],
+    "first_sidelobe_level": 0.0051263,
+    "core_max": 0.012784,
+    "lobe_max": 0.012784,
+    "lobe_rms": 0.00327436,
+    "sidelobe_max": 0.00114961,
+    "ring_max_over_30arcsec_signal": 1.42387,
+    "moon_abs_diff_mean": {
+     "44": 0.00432619,
+     "98": 0.000930504,
+     "149": 0.000376942
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000108657
+   }
+  },
+  {
+   "channel": 242,
+   "freq_mhz": 1058.3,
+   "holography": {
+    "r_half_power_deg": 0.692854,
+    "r_first_null_deg": 1.76562,
+    "first_sidelobe_level": 0.00525319,
+    "fwhm_I_major_deg": 1.41458,
+    "fwhm_I_minor_deg": 1.35926,
+    "squint_H_arcmin": [
+     -0.00818655,
+     0.163119
+    ],
+    "squint_V_arcmin": [
+     -0.0028007,
+     -0.403056
+    ],
+    "signal_30arcsec": 0.0086718
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.41959,
+    "fwhm_I_minor_deg": 1.36119,
+    "squint_H_arcmin": [
+     -0.0219404,
+     0.251652
+    ],
+    "squint_V_arcmin": [
+     0.0185831,
+     -0.137399
+    ],
+    "first_sidelobe_level": 0.00494162,
+    "core_max": 0.00565152,
+    "lobe_max": 0.00983184,
+    "lobe_rms": 0.00414665,
+    "sidelobe_max": 0.00561064,
+    "ring_max_over_30arcsec_signal": 0.567809,
+    "moon_abs_diff_mean": {
+     "44": 0.00135777,
+     "98": 0.00375818,
+     "149": 0.000482053
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.57167e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.40989,
+    "fwhm_I_minor_deg": 1.36305,
+    "squint_H_arcmin": [
+     3.47223e-10,
+     0.0464673
+    ],
+    "squint_V_arcmin": [
+     7.99028e-09,
+     0.603994
+    ],
+    "first_sidelobe_level": 0.00519515,
+    "core_max": 0.00963046,
+    "lobe_max": 0.00963046,
+    "lobe_rms": 0.00263484,
+    "sidelobe_max": 0.0010681,
+    "ring_max_over_30arcsec_signal": 1.05562,
+    "moon_abs_diff_mean": {
+     "44": 0.00336928,
+     "98": 0.000820666,
+     "149": 0.000305361
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.81651e-05
+   }
+  },
+  {
+   "channel": 253,
+   "freq_mhz": 1067.49,
+   "holography": {
+    "r_half_power_deg": 0.687291,
+    "r_first_null_deg": 1.76562,
+    "first_sidelobe_level": 0.00558709,
+    "fwhm_I_major_deg": 1.40704,
+    "fwhm_I_minor_deg": 1.34502,
+    "squint_H_arcmin": [
+     -0.0796192,
+     -0.0884353
+    ],
+    "squint_V_arcmin": [
+     0.0239868,
+     -0.395881
+    ],
+    "signal_30arcsec": 0.00878472
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.40532,
+    "fwhm_I_minor_deg": 1.34768,
+    "squint_H_arcmin": [
+     -0.0238047,
+     0.190722
+    ],
+    "squint_V_arcmin": [
+     0.0167182,
+     -0.156488
+    ],
+    "first_sidelobe_level": 0.00495731,
+    "core_max": 0.00536878,
+    "lobe_max": 0.0101839,
+    "lobe_rms": 0.0041499,
+    "sidelobe_max": 0.00550789,
+    "ring_max_over_30arcsec_signal": 0.493705,
+    "moon_abs_diff_mean": {
+     "44": 0.00132054,
+     "98": 0.00376004,
+     "149": 0.000425306
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.54419e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.40347,
+    "fwhm_I_minor_deg": 1.34869,
+    "squint_H_arcmin": [
+     8.3585e-10,
+     0.041956
+    ],
+    "squint_V_arcmin": [
+     8.05554e-08,
+     0.533953
+    ],
+    "first_sidelobe_level": 0.00561468,
+    "core_max": 0.0106283,
+    "lobe_max": 0.0106283,
+    "lobe_rms": 0.00297654,
+    "sidelobe_max": 0.00123885,
+    "ring_max_over_30arcsec_signal": 1.16874,
+    "moon_abs_diff_mean": {
+     "44": 0.00421296,
+     "98": 0.000737982,
+     "149": 0.00032669
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000105915
+   }
+  },
+  {
+   "channel": 264,
+   "freq_mhz": 1076.69,
+   "holography": {
+    "r_half_power_deg": 0.679115,
+    "r_first_null_deg": 1.76562,
+    "first_sidelobe_level": 0.00565059,
+    "fwhm_I_major_deg": 1.38742,
+    "fwhm_I_minor_deg": 1.33251,
+    "squint_H_arcmin": [
+     -0.0613216,
+     -0.316068
+    ],
+    "squint_V_arcmin": [
+     0.0104874,
+     -0.630094
+    ],
+    "signal_30arcsec": 0.00887939
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.39138,
+    "fwhm_I_minor_deg": 1.33503,
+    "squint_H_arcmin": [
+     -0.0256716,
+     0.130208
+    ],
+    "squint_V_arcmin": [
+     0.0148565,
+     -0.181079
+    ],
+    "first_sidelobe_level": 0.00495511,
+    "core_max": 0.00981382,
+    "lobe_max": 0.00981382,
+    "lobe_rms": 0.00411604,
+    "sidelobe_max": 0.00493016,
+    "ring_max_over_30arcsec_signal": 1.06818,
+    "moon_abs_diff_mean": {
+     "44": 0.00296257,
+     "98": 0.00363743,
+     "149": 0.000370637
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.9256e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.3838,
+    "fwhm_I_minor_deg": 1.3372,
+    "squint_H_arcmin": [
+     -9.68893e-10,
+     0.0289594
+    ],
+    "squint_V_arcmin": [
+     2.07205e-07,
+     0.553601
+    ],
+    "first_sidelobe_level": 0.00571785,
+    "core_max": 0.01475,
+    "lobe_max": 0.01475,
+    "lobe_rms": 0.00417731,
+    "sidelobe_max": 0.00139042,
+    "ring_max_over_30arcsec_signal": 1.61922,
+    "moon_abs_diff_mean": {
+     "44": 0.00667295,
+     "98": 0.000505018,
+     "149": 0.000302172
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000155396
+   }
+  },
+  {
+   "channel": 275,
+   "freq_mhz": 1085.88,
+   "holography": {
+    "r_half_power_deg": 0.673074,
+    "r_first_null_deg": 1.70312,
+    "first_sidelobe_level": 0.00579281,
+    "fwhm_I_major_deg": 1.38017,
+    "fwhm_I_minor_deg": 1.3161,
+    "squint_H_arcmin": [
+     -0.0280555,
+     -0.347113
+    ],
+    "squint_V_arcmin": [
+     -0.0380195,
+     -0.310471
+    ],
+    "signal_30arcsec": 0.00892483
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.37742,
+    "fwhm_I_minor_deg": 1.32139,
+    "squint_H_arcmin": [
+     -0.0267024,
+     0.0656183
+    ],
+    "squint_V_arcmin": [
+     0.0129939,
+     -0.200813
+    ],
+    "first_sidelobe_level": 0.00494416,
+    "core_max": 0.00602853,
+    "lobe_max": 0.00958458,
+    "lobe_rms": 0.0040875,
+    "sidelobe_max": 0.00581439,
+    "ring_max_over_30arcsec_signal": 0.61614,
+    "moon_abs_diff_mean": {
+     "44": 0.00173048,
+     "98": 0.00388306,
+     "149": 0.000293964
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.09157e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.37808,
+    "fwhm_I_minor_deg": 1.32272,
+    "squint_H_arcmin": [
+     -3.15549e-10,
+     0.0866925
+    ],
+    "squint_V_arcmin": [
+     2.3799e-08,
+     0.51353
+    ],
+    "first_sidelobe_level": 0.00591248,
+    "core_max": 0.0121465,
+    "lobe_max": 0.0121465,
+    "lobe_rms": 0.00374899,
+    "sidelobe_max": 0.00132281,
+    "ring_max_over_30arcsec_signal": 1.3241,
+    "moon_abs_diff_mean": {
+     "44": 0.00556278,
+     "98": 0.000521997,
+     "149": 0.000273903
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000131778
+   }
+  },
+  {
+   "channel": 286,
+   "freq_mhz": 1095.08,
+   "holography": {
+    "r_half_power_deg": 0.66683,
+    "r_first_null_deg": 1.70312,
+    "first_sidelobe_level": 0.00595136,
+    "fwhm_I_major_deg": 1.36252,
+    "fwhm_I_minor_deg": 1.30578,
+    "squint_H_arcmin": [
+     -0.0613614,
+     -0.524761
+    ],
+    "squint_V_arcmin": [
+     -0.0151172,
+     -0.783377
+    ],
+    "signal_30arcsec": 0.00903812
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.36344,
+    "fwhm_I_minor_deg": 1.30811,
+    "squint_H_arcmin": [
+     -0.0293975,
+     0.0035141
+    ],
+    "squint_V_arcmin": [
+     0.0111291,
+     -0.214927
+    ],
+    "first_sidelobe_level": 0.0049534,
+    "core_max": 0.01018,
+    "lobe_max": 0.01018,
+    "lobe_rms": 0.00455268,
+    "sidelobe_max": 0.00540937,
+    "ring_max_over_30arcsec_signal": 0.995372,
+    "moon_abs_diff_mean": {
+     "44": 0.00365972,
+     "98": 0.00375385,
+     "149": 0.000299691
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.0001104
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.3608,
+    "fwhm_I_minor_deg": 1.31065,
+    "squint_H_arcmin": [
+     -1.00131e-09,
+     0.12558
+    ],
+    "squint_V_arcmin": [
+     -3.12621e-08,
+     0.57848
+    ],
+    "first_sidelobe_level": 0.00603658,
+    "core_max": 0.0186983,
+    "lobe_max": 0.0186983,
+    "lobe_rms": 0.00570853,
+    "sidelobe_max": 0.00159616,
+    "ring_max_over_30arcsec_signal": 1.9881,
+    "moon_abs_diff_mean": {
+     "44": 0.00898082,
+     "98": 0.000405511,
+     "149": 0.000273411
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000209066
+   }
+  },
+  {
+   "channel": 297,
+   "freq_mhz": 1104.27,
+   "holography": {
+    "r_half_power_deg": 0.660842,
+    "r_first_null_deg": 1.70312,
+    "first_sidelobe_level": 0.00604699,
+    "fwhm_I_major_deg": 1.34783,
+    "fwhm_I_minor_deg": 1.29462,
+    "squint_H_arcmin": [
+     -0.0938682,
+     -0.234309
+    ],
+    "squint_V_arcmin": [
+     0.0194721,
+     -0.563173
+    ],
+    "signal_30arcsec": 0.00909182
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.3507,
+    "fwhm_I_minor_deg": 1.29588,
+    "squint_H_arcmin": [
+     -0.0303944,
+     -0.0200017
+    ],
+    "squint_V_arcmin": [
+     0.00655747,
+     -0.233942
+    ],
+    "first_sidelobe_level": 0.00495286,
+    "core_max": 0.00667722,
+    "lobe_max": 0.00975965,
+    "lobe_rms": 0.00417585,
+    "sidelobe_max": 0.00553229,
+    "ring_max_over_30arcsec_signal": 0.675222,
+    "moon_abs_diff_mean": {
+     "44": 0.00113073,
+     "98": 0.00378758,
+     "149": 0.000281242
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.66331e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.34864,
+    "fwhm_I_minor_deg": 1.30035,
+    "squint_H_arcmin": [
+     2.5327e-09,
+     0.220947
+    ],
+    "squint_V_arcmin": [
+     1.14593e-08,
+     0.557439
+    ],
+    "first_sidelobe_level": 0.00621574,
+    "core_max": 0.0149582,
+    "lobe_max": 0.0149582,
+    "lobe_rms": 0.00462743,
+    "sidelobe_max": 0.00152241,
+    "ring_max_over_30arcsec_signal": 1.60875,
+    "moon_abs_diff_mean": {
+     "44": 0.00692693,
+     "98": 0.000422896,
+     "149": 0.000239843
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000164905
+   }
+  },
+  {
+   "channel": 308,
+   "freq_mhz": 1113.47,
+   "holography": {
+    "r_half_power_deg": 0.655722,
+    "r_first_null_deg": 1.67188,
+    "first_sidelobe_level": 0.00606025,
+    "fwhm_I_major_deg": 1.33633,
+    "fwhm_I_minor_deg": 1.28245,
+    "squint_H_arcmin": [
+     -0.07404,
+     -0.377578
+    ],
+    "squint_V_arcmin": [
+     -0.0258169,
+     -1.19685
+    ],
+    "signal_30arcsec": 0.00916274
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.33779,
+    "fwhm_I_minor_deg": 1.2829,
+    "squint_H_arcmin": [
+     -0.0303944,
+     0.00235572
+    ],
+    "squint_V_arcmin": [
+     0.00194356,
+     -0.249344
+    ],
+    "first_sidelobe_level": 0.00494989,
+    "core_max": 0.0126618,
+    "lobe_max": 0.0126618,
+    "lobe_rms": 0.00498154,
+    "sidelobe_max": 0.00569155,
+    "ring_max_over_30arcsec_signal": 1.28055,
+    "moon_abs_diff_mean": {
+     "44": 0.00486563,
+     "98": 0.00361695,
+     "149": 0.000355329
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000135902
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.33396,
+    "fwhm_I_minor_deg": 1.28899,
+    "squint_H_arcmin": [
+     -2.4938e-09,
+     0.259244
+    ],
+    "squint_V_arcmin": [
+     -1.27547e-09,
+     0.588283
+    ],
+    "first_sidelobe_level": 0.00640427,
+    "core_max": 0.0225176,
+    "lobe_max": 0.0225176,
+    "lobe_rms": 0.00726167,
+    "sidelobe_max": 0.0017299,
+    "ring_max_over_30arcsec_signal": 2.36946,
+    "moon_abs_diff_mean": {
+     "44": 0.0112526,
+     "98": 0.000314707,
+     "149": 0.000291083
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000257275
+   }
+  },
+  {
+   "channel": 319,
+   "freq_mhz": 1122.66,
+   "holography": {
+    "r_half_power_deg": 0.649481,
+    "r_first_null_deg": 1.64062,
+    "first_sidelobe_level": 0.00624084,
+    "fwhm_I_major_deg": 1.32066,
+    "fwhm_I_minor_deg": 1.27044,
+    "squint_H_arcmin": [
+     -0.0398887,
+     -0.157365
+    ],
+    "squint_V_arcmin": [
+     -0.0534016,
+     -0.853131
+    ],
+    "signal_30arcsec": 0.00928763
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.325,
+    "fwhm_I_minor_deg": 1.27099,
+    "squint_H_arcmin": [
+     -0.030399,
+     0.0247158
+    ],
+    "squint_V_arcmin": [
+     -0.00364505,
+     -0.26056
+    ],
+    "first_sidelobe_level": 0.00495455,
+    "core_max": 0.00944657,
+    "lobe_max": 0.00944657,
+    "lobe_rms": 0.0041636,
+    "sidelobe_max": 0.00627749,
+    "ring_max_over_30arcsec_signal": 0.985175,
+    "moon_abs_diff_mean": {
+     "44": 0.00224041,
+     "98": 0.0036985,
+     "149": 0.000291643
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.9341e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.31988,
+    "fwhm_I_minor_deg": 1.27727,
+    "squint_H_arcmin": [
+     2.22205e-09,
+     0.292996
+    ],
+    "squint_V_arcmin": [
+     1.67516e-08,
+     0.546598
+    ],
+    "first_sidelobe_level": 0.00649817,
+    "core_max": 0.0171969,
+    "lobe_max": 0.0171969,
+    "lobe_rms": 0.00579102,
+    "sidelobe_max": 0.00121832,
+    "ring_max_over_30arcsec_signal": 1.78264,
+    "moon_abs_diff_mean": {
+     "44": 0.00868187,
+     "98": 0.000388324,
+     "149": 0.000237803
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000200138
+   }
+  },
+  {
+   "channel": 330,
+   "freq_mhz": 1131.86,
+   "holography": {
+    "r_half_power_deg": 0.645412,
+    "r_first_null_deg": 1.64062,
+    "first_sidelobe_level": 0.00659776,
+    "fwhm_I_major_deg": 1.31764,
+    "fwhm_I_minor_deg": 1.256,
+    "squint_H_arcmin": [
+     -0.0458025,
+     -0.144339
+    ],
+    "squint_V_arcmin": [
+     -0.0464718,
+     -1.05936
+    ],
+    "signal_30arcsec": 0.00935178
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.31235,
+    "fwhm_I_minor_deg": 1.25851,
+    "squint_H_arcmin": [
+     -0.0296571,
+     0.0457854
+    ],
+    "squint_V_arcmin": [
+     -0.00923497,
+     -0.271786
+    ],
+    "first_sidelobe_level": 0.00495931,
+    "core_max": 0.010721,
+    "lobe_max": 0.010721,
+    "lobe_rms": 0.00469132,
+    "sidelobe_max": 0.00622417,
+    "ring_max_over_30arcsec_signal": 1.04572,
+    "moon_abs_diff_mean": {
+     "44": 0.00299139,
+     "98": 0.00380043,
+     "149": 0.0002692
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000100937
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.3143,
+    "fwhm_I_minor_deg": 1.26157,
+    "squint_H_arcmin": [
+     8.31517e-10,
+     0.322167
+    ],
+    "squint_V_arcmin": [
+     1.01972e-08,
+     0.682601
+    ],
+    "first_sidelobe_level": 0.0067025,
+    "core_max": 0.0211866,
+    "lobe_max": 0.0211866,
+    "lobe_rms": 0.00664286,
+    "sidelobe_max": 0.00139206,
+    "ring_max_over_30arcsec_signal": 2.1624,
+    "moon_abs_diff_mean": {
+     "44": 0.010115,
+     "98": 0.000360548,
+     "149": 0.000202602
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.0002359
+   }
+  },
+  {
+   "channel": 341,
+   "freq_mhz": 1141.05,
+   "holography": {
+    "r_half_power_deg": 0.637467,
+    "r_first_null_deg": 1.64062,
+    "first_sidelobe_level": 0.00656792,
+    "fwhm_I_major_deg": 1.2998,
+    "fwhm_I_minor_deg": 1.24401,
+    "squint_H_arcmin": [
+     -0.043178,
+     0.00469047
+    ],
+    "squint_V_arcmin": [
+     0.00852766,
+     -0.663854
+    ],
+    "signal_30arcsec": 0.00945552
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.30018,
+    "fwhm_I_minor_deg": 1.24622,
+    "squint_H_arcmin": [
+     -0.0303964,
+     0.0694419
+    ],
+    "squint_V_arcmin": [
+     -0.014826,
+     -0.277546
+    ],
+    "first_sidelobe_level": 0.0049375,
+    "core_max": 0.00491281,
+    "lobe_max": 0.00961428,
+    "lobe_rms": 0.00403239,
+    "sidelobe_max": 0.0058382,
+    "ring_max_over_30arcsec_signal": 0.423098,
+    "moon_abs_diff_mean": {
+     "44": 0.000767614,
+     "98": 0.0036922,
+     "149": 0.000244008
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.99677e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.29886,
+    "fwhm_I_minor_deg": 1.25027,
+    "squint_H_arcmin": [
+     9.72826e-10,
+     0.320747
+    ],
+    "squint_V_arcmin": [
+     5.3734e-10,
+     0.677981
+    ],
+    "first_sidelobe_level": 0.00673847,
+    "core_max": 0.015708,
+    "lobe_max": 0.015708,
+    "lobe_rms": 0.00505903,
+    "sidelobe_max": 0.00150366,
+    "ring_max_over_30arcsec_signal": 1.58721,
+    "moon_abs_diff_mean": {
+     "44": 0.00738425,
+     "98": 0.000336154,
+     "149": 0.000181573
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000179511
+   }
+  },
+  {
+   "channel": 352,
+   "freq_mhz": 1150.25,
+   "holography": {
+    "r_half_power_deg": 0.629492,
+    "r_first_null_deg": 1.60938,
+    "first_sidelobe_level": 0.0068117,
+    "fwhm_I_major_deg": 1.2911,
+    "fwhm_I_minor_deg": 1.23251,
+    "squint_H_arcmin": [
+     -0.0694706,
+     -0.0431949
+    ],
+    "squint_V_arcmin": [
+     -0.020025,
+     -0.629157
+    ],
+    "signal_30arcsec": 0.00953003
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.28739,
+    "fwhm_I_minor_deg": 1.23349,
+    "squint_H_arcmin": [
+     -0.0304933,
+     0.0907289
+    ],
+    "squint_V_arcmin": [
+     -0.0187217,
+     -0.290717
+    ],
+    "first_sidelobe_level": 0.00495737,
+    "core_max": 0.0062191,
+    "lobe_max": 0.0101614,
+    "lobe_rms": 0.00427036,
+    "sidelobe_max": 0.00601795,
+    "ring_max_over_30arcsec_signal": 0.591456,
+    "moon_abs_diff_mean": {
+     "44": 0.00161281,
+     "98": 0.00365562,
+     "149": 0.000260592
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.50384e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.29017,
+    "fwhm_I_minor_deg": 1.2373,
+    "squint_H_arcmin": [
+     6.91196e-11,
+     0.297637
+    ],
+    "squint_V_arcmin": [
+     -1.06847e-08,
+     0.685195
+    ],
+    "first_sidelobe_level": 0.00701384,
+    "core_max": 0.0160302,
+    "lobe_max": 0.0160302,
+    "lobe_rms": 0.00513305,
+    "sidelobe_max": 0.00188178,
+    "ring_max_over_30arcsec_signal": 1.6152,
+    "moon_abs_diff_mean": {
+     "44": 0.00714212,
+     "98": 0.000253305,
+     "149": 0.000184032
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000177954
+   }
+  },
+  {
+   "channel": 363,
+   "freq_mhz": 1159.45,
+   "holography": {
+    "r_half_power_deg": 0.617883,
+    "r_first_null_deg": 1.57812,
+    "first_sidelobe_level": 0.00687177,
+    "fwhm_I_major_deg": 1.27182,
+    "fwhm_I_minor_deg": 1.22246,
+    "squint_H_arcmin": [
+     -0.0391264,
+     -0.3042
+    ],
+    "squint_V_arcmin": [
+     -0.0341229,
+     -0.597408
+    ],
+    "signal_30arcsec": 0.00968854
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.27602,
+    "fwhm_I_minor_deg": 1.22288,
+    "squint_H_arcmin": [
+     -0.0342178,
+     0.0683715
+    ],
+    "squint_V_arcmin": [
+     -0.0161238,
+     -0.303357
+    ],
+    "first_sidelobe_level": 0.00496392,
+    "core_max": 0.00881566,
+    "lobe_max": 0.00885602,
+    "lobe_rms": 0.00397427,
+    "sidelobe_max": 0.00603455,
+    "ring_max_over_30arcsec_signal": 0.906261,
+    "moon_abs_diff_mean": {
+     "44": 0.00170014,
+     "98": 0.00358275,
+     "149": 0.000212074
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.23371e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.26995,
+    "fwhm_I_minor_deg": 1.22897,
+    "squint_H_arcmin": [
+     7.73056e-11,
+     0.298229
+    ],
+    "squint_V_arcmin": [
+     -3.57027e-09,
+     0.616001
+    ],
+    "first_sidelobe_level": 0.00702387,
+    "core_max": 0.0184865,
+    "lobe_max": 0.0184865,
+    "lobe_rms": 0.00595358,
+    "sidelobe_max": 0.00178445,
+    "ring_max_over_30arcsec_signal": 1.88976,
+    "moon_abs_diff_mean": {
+     "44": 0.00840324,
+     "98": 0.000232965,
+     "149": 0.000159987
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.0002038
+   }
+  },
+  {
+   "channel": 374,
+   "freq_mhz": 1168.64,
+   "holography": {
+    "r_half_power_deg": 0.60892,
+    "r_first_null_deg": 1.57812,
+    "first_sidelobe_level": 0.00700313,
+    "fwhm_I_major_deg": 1.26317,
+    "fwhm_I_minor_deg": 1.2081,
+    "squint_H_arcmin": [
+     -0.103528,
+     -0.296207
+    ],
+    "squint_V_arcmin": [
+     -0.0905087,
+     -0.458922
+    ],
+    "signal_30arcsec": 0.00979046
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.26464,
+    "fwhm_I_minor_deg": 1.21186,
+    "squint_H_arcmin": [
+     -0.0379379,
+     0.0553827
+    ],
+    "squint_V_arcmin": [
+     -0.0127094,
+     -0.312406
+    ],
+    "first_sidelobe_level": 0.00494399,
+    "core_max": 0.00641767,
+    "lobe_max": 0.00867302,
+    "lobe_rms": 0.00364297,
+    "sidelobe_max": 0.00581413,
+    "ring_max_over_30arcsec_signal": 0.653403,
+    "moon_abs_diff_mean": {
+     "44": 0.00169908,
+     "98": 0.00354992,
+     "149": 0.000171281
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.16442e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.26327,
+    "fwhm_I_minor_deg": 1.21453,
+    "squint_H_arcmin": [
+     7.5907e-10,
+     0.357842
+    ],
+    "squint_V_arcmin": [
+     -1.95939e-09,
+     0.495263
+    ],
+    "first_sidelobe_level": 0.00715651,
+    "core_max": 0.0163606,
+    "lobe_max": 0.0163606,
+    "lobe_rms": 0.00546021,
+    "sidelobe_max": 0.00171863,
+    "ring_max_over_30arcsec_signal": 1.67107,
+    "moon_abs_diff_mean": {
+     "44": 0.00750372,
+     "98": 0.000216216,
+     "149": 0.000116035
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000183501
+   }
+  },
+  {
+   "channel": 385,
+   "freq_mhz": 1177.84,
+   "holography": {
+    "r_half_power_deg": 0.604417,
+    "r_first_null_deg": 1.54688,
+    "first_sidelobe_level": 0.00680338,
+    "fwhm_I_major_deg": 1.25133,
+    "fwhm_I_minor_deg": 1.19771,
+    "squint_H_arcmin": [
+     -0.126507,
+     -0.297411
+    ],
+    "squint_V_arcmin": [
+     -0.0899693,
+     -0.485196
+    ],
+    "signal_30arcsec": 0.00987271
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.25354,
+    "fwhm_I_minor_deg": 1.20045,
+    "squint_H_arcmin": [
+     -0.041671,
+     0.040412
+    ],
+    "squint_V_arcmin": [
+     -0.00898282,
+     -0.32996
+    ],
+    "first_sidelobe_level": 0.00495095,
+    "core_max": 0.00650662,
+    "lobe_max": 0.00865024,
+    "lobe_rms": 0.00365472,
+    "sidelobe_max": 0.00611458,
+    "ring_max_over_30arcsec_signal": 0.652756,
+    "moon_abs_diff_mean": {
+     "44": 0.00162606,
+     "98": 0.00347409,
+     "149": 0.00015766
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.14378e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.24946,
+    "fwhm_I_minor_deg": 1.20402,
+    "squint_H_arcmin": [
+     -3.02338e-09,
+     0.449809
+    ],
+    "squint_V_arcmin": [
+     -1.65285e-09,
+     0.479254
+    ],
+    "first_sidelobe_level": 0.00724583,
+    "core_max": 0.0180416,
+    "lobe_max": 0.0180416,
+    "lobe_rms": 0.00585771,
+    "sidelobe_max": 0.00165659,
+    "ring_max_over_30arcsec_signal": 1.81109,
+    "moon_abs_diff_mean": {
+     "44": 0.00790174,
+     "98": 0.00020704,
+     "149": 9.66027e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000194842
+   }
+  },
+  {
+   "channel": 396,
+   "freq_mhz": 1187.03,
+   "holography": {
+    "r_half_power_deg": 0.600254,
+    "r_first_null_deg": 1.54688,
+    "first_sidelobe_level": 0.00714653,
+    "fwhm_I_major_deg": 1.24015,
+    "fwhm_I_minor_deg": 1.1884,
+    "squint_H_arcmin": [
+     -0.079917,
+     -0.199741
+    ],
+    "squint_V_arcmin": [
+     0.0015794,
+     -0.578099
+    ],
+    "signal_30arcsec": 0.00995147
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.24197,
+    "fwhm_I_minor_deg": 1.189,
+    "squint_H_arcmin": [
+     -0.0454031,
+     0.0236475
+    ],
+    "squint_V_arcmin": [
+     -0.00525556,
+     -0.337924
+    ],
+    "first_sidelobe_level": 0.00496639,
+    "core_max": 0.00608939,
+    "lobe_max": 0.0085543,
+    "lobe_rms": 0.00359674,
+    "sidelobe_max": 0.00582005,
+    "ring_max_over_30arcsec_signal": 0.604531,
+    "moon_abs_diff_mean": {
+     "44": 0.00122861,
+     "98": 0.0035235,
+     "149": 0.000153084
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.18382e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.23821,
+    "fwhm_I_minor_deg": 1.19363,
+    "squint_H_arcmin": [
+     -2.11945e-09,
+     0.431888
+    ],
+    "squint_V_arcmin": [
+     3.40454e-10,
+     0.435629
+    ],
+    "first_sidelobe_level": 0.0074828,
+    "core_max": 0.017392,
+    "lobe_max": 0.017392,
+    "lobe_rms": 0.00551234,
+    "sidelobe_max": 0.00173763,
+    "ring_max_over_30arcsec_signal": 1.72551,
+    "moon_abs_diff_mean": {
+     "44": 0.00725233,
+     "98": 0.000266325,
+     "149": 8.11281e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000185465
+   }
+  },
+  {
+   "channel": 407,
+   "freq_mhz": 1196.23,
+   "holography": {
+    "r_half_power_deg": 0.596014,
+    "r_first_null_deg": 1.51562,
+    "first_sidelobe_level": 0.00733913,
+    "fwhm_I_major_deg": 1.2293,
+    "fwhm_I_minor_deg": 1.17828,
+    "squint_H_arcmin": [
+     -0.0778013,
+     -0.249622
+    ],
+    "squint_V_arcmin": [
+     -0.037795,
+     -0.884009
+    ],
+    "signal_30arcsec": 0.0100438
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.23023,
+    "fwhm_I_minor_deg": 1.17815,
+    "squint_H_arcmin": [
+     -0.0491395,
+     0.00688188
+    ],
+    "squint_V_arcmin": [
+     -0.00152926,
+     -0.35433
+    ],
+    "first_sidelobe_level": 0.0049619,
+    "core_max": 0.00829373,
+    "lobe_max": 0.00829373,
+    "lobe_rms": 0.00390619,
+    "sidelobe_max": 0.0057245,
+    "ring_max_over_30arcsec_signal": 0.775331,
+    "moon_abs_diff_mean": {
+     "44": 0.00204989,
+     "98": 0.00348626,
+     "149": 0.000142215
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.51608e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.22502,
+    "fwhm_I_minor_deg": 1.18342,
+    "squint_H_arcmin": [
+     -2.95856e-09,
+     0.295757
+    ],
+    "squint_V_arcmin": [
+     -1.35684e-09,
+     0.600246
+    ],
+    "first_sidelobe_level": 0.00747159,
+    "core_max": 0.0220188,
+    "lobe_max": 0.0220188,
+    "lobe_rms": 0.00678741,
+    "sidelobe_max": 0.00171592,
+    "ring_max_over_30arcsec_signal": 2.15754,
+    "moon_abs_diff_mean": {
+     "44": 0.00905236,
+     "98": 0.000335562,
+     "149": 8.85784e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.00023023
+   }
+  },
+  {
+   "channel": 418,
+   "freq_mhz": 1205.42,
+   "holography": {
+    "r_half_power_deg": 0.591433,
+    "r_first_null_deg": 1.51562,
+    "first_sidelobe_level": 0.00727062,
+    "fwhm_I_major_deg": 1.21908,
+    "fwhm_I_minor_deg": 1.16632,
+    "squint_H_arcmin": [
+     -0.113673,
+     -0.128435
+    ],
+    "squint_V_arcmin": [
+     -0.0891045,
+     -0.771054
+    ],
+    "signal_30arcsec": 0.0101095
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.21908,
+    "fwhm_I_minor_deg": 1.16762,
+    "squint_H_arcmin": [
+     -0.0506658,
+     -0.00329641
+    ],
+    "squint_V_arcmin": [
+     0.00219762,
+     -0.361925
+    ],
+    "first_sidelobe_level": 0.00495412,
+    "core_max": 0.00618481,
+    "lobe_max": 0.00793213,
+    "lobe_rms": 0.0035602,
+    "sidelobe_max": 0.00553982,
+    "ring_max_over_30arcsec_signal": 0.534843,
+    "moon_abs_diff_mean": {
+     "44": 0.00139503,
+     "98": 0.00333893,
+     "149": 0.000118851
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.3406e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.21549,
+    "fwhm_I_minor_deg": 1.17099,
+    "squint_H_arcmin": [
+     1.65845e-11,
+     0.363393
+    ],
+    "squint_V_arcmin": [
+     -5.92273e-09,
+     0.696452
+    ],
+    "first_sidelobe_level": 0.00736437,
+    "core_max": 0.021324,
+    "lobe_max": 0.021324,
+    "lobe_rms": 0.00666147,
+    "sidelobe_max": 0.00154324,
+    "ring_max_over_30arcsec_signal": 2.07432,
+    "moon_abs_diff_mean": {
+     "44": 0.00882455,
+     "98": 0.000265366,
+     "149": 7.26272e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000223863
+   }
+  },
+  {
+   "channel": 429,
+   "freq_mhz": 1214.62,
+   "holography": {
+    "r_half_power_deg": 0.587657,
+    "r_first_null_deg": 1.48438,
+    "first_sidelobe_level": 0.00735878,
+    "fwhm_I_major_deg": 1.21136,
+    "fwhm_I_minor_deg": 1.15544,
+    "squint_H_arcmin": [
+     -0.0951454,
+     -0.129902
+    ],
+    "squint_V_arcmin": [
+     -0.0484341,
+     -0.879302
+    ],
+    "signal_30arcsec": 0.0101804
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.20856,
+    "fwhm_I_minor_deg": 1.15761,
+    "squint_H_arcmin": [
+     -0.0506643,
+     -0.00888755
+    ],
+    "squint_V_arcmin": [
+     0.00592419,
+     -0.361133
+    ],
+    "first_sidelobe_level": 0.00495692,
+    "core_max": 0.00798723,
+    "lobe_max": 0.00798723,
+    "lobe_rms": 0.00359329,
+    "sidelobe_max": 0.00567951,
+    "ring_max_over_30arcsec_signal": 0.725367,
+    "moon_abs_diff_mean": {
+     "44": 0.00141713,
+     "98": 0.00329841,
+     "149": 0.000111506
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.11773e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.20814,
+    "fwhm_I_minor_deg": 1.15819,
+    "squint_H_arcmin": [
+     -1.81133e-09,
+     0.926656
+    ],
+    "squint_V_arcmin": [
+     -1.14524e-09,
+     0.781055
+    ],
+    "first_sidelobe_level": 0.00739873,
+    "core_max": 0.0289624,
+    "lobe_max": 0.0289624,
+    "lobe_rms": 0.0098709,
+    "sidelobe_max": 0.00163723,
+    "ring_max_over_30arcsec_signal": 2.81179,
+    "moon_abs_diff_mean": {
+     "44": 0.0130576,
+     "98": 0.000333774,
+     "149": 5.03446e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000315252
+   }
+  },
+  {
+   "channel": 440,
+   "freq_mhz": 1223.81,
+   "holography": {
+    "r_half_power_deg": 0.583197,
+    "r_first_null_deg": 1.48438,
+    "first_sidelobe_level": 0.00738261,
+    "fwhm_I_major_deg": 1.1998,
+    "fwhm_I_minor_deg": 1.14546,
+    "squint_H_arcmin": [
+     -0.0926042,
+     -0.118289
+    ],
+    "squint_V_arcmin": [
+     -0.0335712,
+     -0.764221
+    ],
+    "signal_30arcsec": 0.0102544
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.19849,
+    "fwhm_I_minor_deg": 1.14808,
+    "squint_H_arcmin": [
+     -0.0467598,
+     -0.0130573
+    ],
+    "squint_V_arcmin": [
+     0.00965036,
+     -0.354134
+    ],
+    "first_sidelobe_level": 0.00497414,
+    "core_max": 0.00633434,
+    "lobe_max": 0.00736957,
+    "lobe_rms": 0.00325556,
+    "sidelobe_max": 0.00539219,
+    "ring_max_over_30arcsec_signal": 0.546599,
+    "moon_abs_diff_mean": {
+     "44": 0.00119104,
+     "98": 0.00324447,
+     "149": 0.000102865
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.93293e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.19495,
+    "fwhm_I_minor_deg": 1.15047,
+    "squint_H_arcmin": [
+     1.43904e-09,
+     1.48868
+    ],
+    "squint_V_arcmin": [
+     1.17811e-09,
+     1.00374
+    ],
+    "first_sidelobe_level": 0.00744745,
+    "core_max": 0.0371909,
+    "lobe_max": 0.0371909,
+    "lobe_rms": 0.013006,
+    "sidelobe_max": 0.00155287,
+    "ring_max_over_30arcsec_signal": 3.62343,
+    "moon_abs_diff_mean": {
+     "44": 0.0174701,
+     "98": 0.000311845,
+     "149": 4.77143e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000405505
+   }
+  },
+  {
+   "channel": 451,
+   "freq_mhz": 1233.01,
+   "holography": {
+    "r_half_power_deg": 0.579426,
+    "r_first_null_deg": 1.45312,
+    "first_sidelobe_level": 0.00745587,
+    "fwhm_I_major_deg": 1.19051,
+    "fwhm_I_minor_deg": 1.13633,
+    "squint_H_arcmin": [
+     -0.0951668,
+     -0.122994
+    ],
+    "squint_V_arcmin": [
+     -0.0499777,
+     -0.737794
+    ],
+    "signal_30arcsec": 0.0103283
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.18834,
+    "fwhm_I_minor_deg": 1.13802,
+    "squint_H_arcmin": [
+     -0.0506584,
+     -0.0200659
+    ],
+    "squint_V_arcmin": [
+     0.0117356,
+     -0.349778
+    ],
+    "first_sidelobe_level": 0.00496435,
+    "core_max": 0.00659896,
+    "lobe_max": 0.00747198,
+    "lobe_rms": 0.00326641,
+    "sidelobe_max": 0.0055461,
+    "ring_max_over_30arcsec_signal": 0.581051,
+    "moon_abs_diff_mean": {
+     "44": 0.00138539,
+     "98": 0.00325172,
+     "149": 9.75747e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.78131e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.18528,
+    "fwhm_I_minor_deg": 1.14141,
+    "squint_H_arcmin": [
+     -7.93492e-11,
+     1.32125
+    ],
+    "squint_V_arcmin": [
+     4.155e-09,
+     0.884023
+    ],
+    "first_sidelobe_level": 0.00767374,
+    "core_max": 0.034436,
+    "lobe_max": 0.034436,
+    "lobe_rms": 0.0118685,
+    "sidelobe_max": 0.00164519,
+    "ring_max_over_30arcsec_signal": 3.31395,
+    "moon_abs_diff_mean": {
+     "44": 0.0154845,
+     "98": 0.000356256,
+     "149": 5.34992e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000368898
+   }
+  },
+  {
+   "channel": 462,
+   "freq_mhz": 1242.2,
+   "holography": {
+    "r_half_power_deg": 0.574088,
+    "r_first_null_deg": 1.45312,
+    "first_sidelobe_level": 0.00750845,
+    "fwhm_I_major_deg": 1.17498,
+    "fwhm_I_minor_deg": 1.12784,
+    "squint_H_arcmin": [
+     -0.0730632,
+     -0.213502
+    ],
+    "squint_V_arcmin": [
+     -0.0390728,
+     -0.560065
+    ],
+    "signal_30arcsec": 0.0104556
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.17829,
+    "fwhm_I_minor_deg": 1.12897,
+    "squint_H_arcmin": [
+     -0.0449552,
+     -0.0256537
+    ],
+    "squint_V_arcmin": [
+     0.0157127,
+     -0.352268
+    ],
+    "first_sidelobe_level": 0.00495821,
+    "core_max": 0.00595948,
+    "lobe_max": 0.00689267,
+    "lobe_rms": 0.00311482,
+    "sidelobe_max": 0.0052317,
+    "ring_max_over_30arcsec_signal": 0.554912,
+    "moon_abs_diff_mean": {
+     "44": 0.0015243,
+     "98": 0.00320266,
+     "149": 9.30583e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.25851e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.17051,
+    "fwhm_I_minor_deg": 1.13387,
+    "squint_H_arcmin": [
+     -8.64777e-11,
+     0.820199
+    ],
+    "squint_V_arcmin": [
+     6.87768e-09,
+     0.65531
+    ],
+    "first_sidelobe_level": 0.0076778,
+    "core_max": 0.0258547,
+    "lobe_max": 0.0258547,
+    "lobe_rms": 0.00850414,
+    "sidelobe_max": 0.00181096,
+    "ring_max_over_30arcsec_signal": 2.43992,
+    "moon_abs_diff_mean": {
+     "44": 0.0108727,
+     "98": 0.000310185,
+     "149": 6.3402e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000272381
+   }
+  },
+  {
+   "channel": 473,
+   "freq_mhz": 1251.4,
+   "holography": {
+    "r_half_power_deg": 0.57066,
+    "r_first_null_deg": 1.45312,
+    "first_sidelobe_level": 0.00764538,
+    "fwhm_I_major_deg": 1.16967,
+    "fwhm_I_minor_deg": 1.11831,
+    "squint_H_arcmin": [
+     -0.0868079,
+     -0.254151
+    ],
+    "squint_V_arcmin": [
+     -0.017776,
+     -0.60883
+    ],
+    "signal_30arcsec": 0.0105065
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.1681,
+    "fwhm_I_minor_deg": 1.11951,
+    "squint_H_arcmin": [
+     -0.0475281,
+     -0.0289782
+    ],
+    "squint_V_arcmin": [
+     0.0183348,
+     -0.357572
+    ],
+    "first_sidelobe_level": 0.00495382,
+    "core_max": 0.00612945,
+    "lobe_max": 0.00693583,
+    "lobe_rms": 0.00304423,
+    "sidelobe_max": 0.00507521,
+    "ring_max_over_30arcsec_signal": 0.543071,
+    "moon_abs_diff_mean": {
+     "44": 0.00133149,
+     "98": 0.00316502,
+     "149": 8.88505e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.57159e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.16528,
+    "fwhm_I_minor_deg": 1.12345,
+    "squint_H_arcmin": [
+     -3.31244e-10,
+     0.442797
+    ],
+    "squint_V_arcmin": [
+     1.20538e-10,
+     0.4492
+    ],
+    "first_sidelobe_level": 0.0077865,
+    "core_max": 0.0207084,
+    "lobe_max": 0.0207084,
+    "lobe_rms": 0.00641605,
+    "sidelobe_max": 0.0019318,
+    "ring_max_over_30arcsec_signal": 1.93074,
+    "moon_abs_diff_mean": {
+     "44": 0.00781474,
+     "98": 0.000478361,
+     "149": 7.03151e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000208806
+   }
+  },
+  {
+   "channel": 484,
+   "freq_mhz": 1260.59,
+   "holography": {
+    "r_half_power_deg": 0.566363,
+    "r_first_null_deg": 1.42188,
+    "first_sidelobe_level": 0.00751501,
+    "fwhm_I_major_deg": 1.15847,
+    "fwhm_I_minor_deg": 1.10959,
+    "squint_H_arcmin": [
+     -0.13336,
+     -0.323259
+    ],
+    "squint_V_arcmin": [
+     -0.0509383,
+     -0.812838
+    ],
+    "signal_30arcsec": 0.010638
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.1594,
+    "fwhm_I_minor_deg": 1.11093,
+    "squint_H_arcmin": [
+     -0.0253706,
+     -0.0188332
+    ],
+    "squint_V_arcmin": [
+     0.0181132,
+     -0.399008
+    ],
+    "first_sidelobe_level": 0.00497015,
+    "core_max": 0.00814535,
+    "lobe_max": 0.00814535,
+    "lobe_rms": 0.00325936,
+    "sidelobe_max": 0.0047065,
+    "ring_max_over_30arcsec_signal": 0.75107,
+    "moon_abs_diff_mean": {
+     "44": 0.00199212,
+     "98": 0.00296654,
+     "149": 9.74221e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.4098e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.15384,
+    "fwhm_I_minor_deg": 1.11529,
+    "squint_H_arcmin": [
+     3.75079e-11,
+     0.440948
+    ],
+    "squint_V_arcmin": [
+     7.53715e-11,
+     0.399643
+    ],
+    "first_sidelobe_level": 0.00767787,
+    "core_max": 0.023546,
+    "lobe_max": 0.023546,
+    "lobe_rms": 0.00746596,
+    "sidelobe_max": 0.00181742,
+    "ring_max_over_30arcsec_signal": 2.21338,
+    "moon_abs_diff_mean": {
+     "44": 0.0089977,
+     "98": 0.000480864,
+     "149": 7.09426e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000238946
+   }
+  },
+  {
+   "channel": 495,
+   "freq_mhz": 1269.79,
+   "holography": {
+    "r_half_power_deg": 0.56243,
+    "r_first_null_deg": 1.42188,
+    "first_sidelobe_level": 0.00736603,
+    "fwhm_I_major_deg": 1.1499,
+    "fwhm_I_minor_deg": 1.10058,
+    "squint_H_arcmin": [
+     -0.161494,
+     -0.256061
+    ],
+    "squint_V_arcmin": [
+     -0.085456,
+     -0.822673
+    ],
+    "signal_30arcsec": 0.0107453
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.15034,
+    "fwhm_I_minor_deg": 1.10235,
+    "squint_H_arcmin": [
+     -0.00654812,
+     -0.0103446
+    ],
+    "squint_V_arcmin": [
+     0.0162515,
+     -0.443498
+    ],
+    "first_sidelobe_level": 0.00496478,
+    "core_max": 0.00758023,
+    "lobe_max": 0.00758023,
+    "lobe_rms": 0.00315564,
+    "sidelobe_max": 0.00448608,
+    "ring_max_over_30arcsec_signal": 0.675524,
+    "moon_abs_diff_mean": {
+     "44": 0.00210501,
+     "98": 0.00289859,
+     "149": 0.000106062
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 8.04456e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.14642,
+    "fwhm_I_minor_deg": 1.10518,
+    "squint_H_arcmin": [
+     -3.4401e-10,
+     0.513723
+    ],
+    "squint_V_arcmin": [
+     -5.97022e-10,
+     0.380105
+    ],
+    "first_sidelobe_level": 0.00766235,
+    "core_max": 0.0232999,
+    "lobe_max": 0.0232999,
+    "lobe_rms": 0.00755185,
+    "sidelobe_max": 0.00149067,
+    "ring_max_over_30arcsec_signal": 2.16838,
+    "moon_abs_diff_mean": {
+     "44": 0.00903755,
+     "98": 0.000407219,
+     "149": 8.3406e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000240537
+   }
+  },
+  {
+   "channel": 506,
+   "freq_mhz": 1278.98,
+   "holography": {
+    "r_half_power_deg": 0.558593,
+    "r_first_null_deg": 1.39062,
+    "first_sidelobe_level": 0.00745001,
+    "fwhm_I_major_deg": 1.14118,
+    "fwhm_I_minor_deg": 1.09196,
+    "squint_H_arcmin": [
+     -0.142602,
+     -0.213718
+    ],
+    "squint_V_arcmin": [
+     -0.0885631,
+     -0.865819
+    ],
+    "signal_30arcsec": 0.0108164
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.14192,
+    "fwhm_I_minor_deg": 1.0934,
+    "squint_H_arcmin": [
+     0.013947,
+     -0.00102908
+    ],
+    "squint_V_arcmin": [
+     0.0143892,
+     -0.477655
+    ],
+    "first_sidelobe_level": 0.00495543,
+    "core_max": 0.00727724,
+    "lobe_max": 0.00727724,
+    "lobe_rms": 0.00308633,
+    "sidelobe_max": 0.00431775,
+    "ring_max_over_30arcsec_signal": 0.659439,
+    "moon_abs_diff_mean": {
+     "44": 0.0020203,
+     "98": 0.0028459,
+     "149": 0.000117374
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.8401e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.13702,
+    "fwhm_I_minor_deg": 1.0981,
+    "squint_H_arcmin": [
+     -6.78171e-10,
+     0.569682
+    ],
+    "squint_V_arcmin": [
+     -4.27557e-10,
+     0.399808
+    ],
+    "first_sidelobe_level": 0.00766426,
+    "core_max": 0.0248304,
+    "lobe_max": 0.0248304,
+    "lobe_rms": 0.00806811,
+    "sidelobe_max": 0.00152429,
+    "ring_max_over_30arcsec_signal": 2.29563,
+    "moon_abs_diff_mean": {
+     "44": 0.0095546,
+     "98": 0.000447688,
+     "149": 9.56813e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.00025415
+   }
+  },
+  {
+   "channel": 517,
+   "freq_mhz": 1288.18,
+   "holography": {
+    "r_half_power_deg": 0.554451,
+    "r_first_null_deg": 1.39062,
+    "first_sidelobe_level": 0.00746025,
+    "fwhm_I_major_deg": 1.1315,
+    "fwhm_I_minor_deg": 1.0826,
+    "squint_H_arcmin": [
+     -0.0717413,
+     -0.0847014
+    ],
+    "squint_V_arcmin": [
+     -0.0399353,
+     -0.796189
+    ],
+    "signal_30arcsec": 0.0108884
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.13332,
+    "fwhm_I_minor_deg": 1.08452,
+    "squint_H_arcmin": [
+     0.0344464,
+     0.00828665
+    ],
+    "squint_V_arcmin": [
+     0.0125275,
+     -0.523792
+    ],
+    "first_sidelobe_level": 0.00495467,
+    "core_max": 0.00537086,
+    "lobe_max": 0.00604253,
+    "lobe_rms": 0.00274975,
+    "sidelobe_max": 0.00411282,
+    "ring_max_over_30arcsec_signal": 0.490289,
+    "moon_abs_diff_mean": {
+     "44": 0.00169504,
+     "98": 0.00276069,
+     "149": 0.000120548
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.47552e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.12927,
+    "fwhm_I_minor_deg": 1.09064,
+    "squint_H_arcmin": [
+     2.40397e-10,
+     0.545478
+    ],
+    "squint_V_arcmin": [
+     1.10206e-10,
+     0.487593
+    ],
+    "first_sidelobe_level": 0.00771131,
+    "core_max": 0.0221758,
+    "lobe_max": 0.0221758,
+    "lobe_rms": 0.00756368,
+    "sidelobe_max": 0.00161463,
+    "ring_max_over_30arcsec_signal": 2.03664,
+    "moon_abs_diff_mean": {
+     "44": 0.00898072,
+     "98": 0.000484605,
+     "149": 0.000112545
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000240181
+   }
+  },
+  {
+   "channel": 528,
+   "freq_mhz": 1297.38,
+   "holography": {
+    "r_half_power_deg": 0.551942,
+    "r_first_null_deg": 1.39062,
+    "first_sidelobe_level": 0.00760307,
+    "fwhm_I_major_deg": 1.12638,
+    "fwhm_I_minor_deg": 1.0759,
+    "squint_H_arcmin": [
+     0.0231953,
+     -0.100224
+    ],
+    "squint_V_arcmin": [
+     0.0268586,
+     -1.11715
+    ],
+    "signal_30arcsec": 0.010966
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.12459,
+    "fwhm_I_minor_deg": 1.07557,
+    "squint_H_arcmin": [
+     0.0549457,
+     0.0176005
+    ],
+    "squint_V_arcmin": [
+     0.0106658,
+     -0.566618
+    ],
+    "first_sidelobe_level": 0.00496712,
+    "core_max": 0.00862164,
+    "lobe_max": 0.00862164,
+    "lobe_rms": 0.00300717,
+    "sidelobe_max": 0.00402951,
+    "ring_max_over_30arcsec_signal": 0.736801,
+    "moon_abs_diff_mean": {
+     "44": 0.0016245,
+     "98": 0.00275475,
+     "149": 0.000151034
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.54706e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.12202,
+    "fwhm_I_minor_deg": 1.08268,
+    "squint_H_arcmin": [
+     8.73277e-10,
+     0.411998
+    ],
+    "squint_V_arcmin": [
+     1.0434e-09,
+     0.474876
+    ],
+    "first_sidelobe_level": 0.00760093,
+    "core_max": 0.0252703,
+    "lobe_max": 0.0252703,
+    "lobe_rms": 0.00805801,
+    "sidelobe_max": 0.00177742,
+    "ring_max_over_30arcsec_signal": 2.30442,
+    "moon_abs_diff_mean": {
+     "44": 0.0093452,
+     "98": 0.000638487,
+     "149": 0.000123182
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000260631
+   }
+  },
+  {
+   "channel": 539,
+   "freq_mhz": 1306.57,
+   "holography": {
+    "r_half_power_deg": 0.547646,
+    "r_first_null_deg": 1.35938,
+    "first_sidelobe_level": 0.00748353,
+    "fwhm_I_major_deg": 1.11534,
+    "fwhm_I_minor_deg": 1.06812,
+    "squint_H_arcmin": [
+     0.0848321,
+     -0.107066
+    ],
+    "squint_V_arcmin": [
+     0.0372602,
+     -0.95906
+    ],
+    "signal_30arcsec": 0.0110564
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.1167,
+    "fwhm_I_minor_deg": 1.06798,
+    "squint_H_arcmin": [
+     0.0737797,
+     0.00828019
+    ],
+    "squint_V_arcmin": [
+     0.0127951,
+     -0.557636
+    ],
+    "first_sidelobe_level": 0.00497425,
+    "core_max": 0.00664904,
+    "lobe_max": 0.00664904,
+    "lobe_rms": 0.00260188,
+    "sidelobe_max": 0.0037935,
+    "ring_max_over_30arcsec_signal": 0.593589,
+    "moon_abs_diff_mean": {
+     "44": 0.00113117,
+     "98": 0.00264231,
+     "149": 0.000165261
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.0235e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.11296,
+    "fwhm_I_minor_deg": 1.07525,
+    "squint_H_arcmin": [
+     2.55678e-09,
+     0.346416
+    ],
+    "squint_V_arcmin": [
+     5.75827e-09,
+     0.443852
+    ],
+    "first_sidelobe_level": 0.00751499,
+    "core_max": 0.0218432,
+    "lobe_max": 0.0218432,
+    "lobe_rms": 0.00738368,
+    "sidelobe_max": 0.00148367,
+    "ring_max_over_30arcsec_signal": 1.97562,
+    "moon_abs_diff_mean": {
+     "44": 0.00824401,
+     "98": 0.00047805,
+     "149": 0.00013672
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.00023157
+   }
+  },
+  {
+   "channel": 550,
+   "freq_mhz": 1315.77,
+   "holography": {
+    "r_half_power_deg": 0.544617,
+    "r_first_null_deg": 1.35938,
+    "first_sidelobe_level": 0.00721288,
+    "fwhm_I_major_deg": 1.11134,
+    "fwhm_I_minor_deg": 1.05915,
+    "squint_H_arcmin": [
+     0.141243,
+     -0.198285
+    ],
+    "squint_V_arcmin": [
+     0.00292619,
+     -0.895533
+    ],
+    "signal_30arcsec": 0.0111092
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.10851,
+    "fwhm_I_minor_deg": 1.06092,
+    "squint_H_arcmin": [
+     0.0962004,
+     -0.0084876
+    ],
+    "squint_V_arcmin": [
+     0.0165216,
+     -0.530307
+    ],
+    "first_sidelobe_level": 0.00496333,
+    "core_max": 0.00769538,
+    "lobe_max": 0.00769538,
+    "lobe_rms": 0.0025356,
+    "sidelobe_max": 0.00400528,
+    "ring_max_over_30arcsec_signal": 0.649524,
+    "moon_abs_diff_mean": {
+     "44": 0.00131083,
+     "98": 0.00262164,
+     "149": 0.000185694
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.44254e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.10698,
+    "fwhm_I_minor_deg": 1.06715,
+    "squint_H_arcmin": [
+     -6.01675e-09,
+     0.288251
+    ],
+    "squint_V_arcmin": [
+     -5.44552e-09,
+     0.399806
+    ],
+    "first_sidelobe_level": 0.00752612,
+    "core_max": 0.0218189,
+    "lobe_max": 0.0218189,
+    "lobe_rms": 0.00707648,
+    "sidelobe_max": 0.00181533,
+    "ring_max_over_30arcsec_signal": 1.96404,
+    "moon_abs_diff_mean": {
+     "44": 0.0079087,
+     "98": 0.000745577,
+     "149": 0.000147339
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000225127
+   }
+  },
+  {
+   "channel": 561,
+   "freq_mhz": 1324.96,
+   "holography": {
+    "r_half_power_deg": 0.540542,
+    "r_first_null_deg": 1.35938,
+    "first_sidelobe_level": 0.00713072,
+    "fwhm_I_major_deg": 1.09939,
+    "fwhm_I_minor_deg": 1.05334,
+    "squint_H_arcmin": [
+     0.183976,
+     -0.186243
+    ],
+    "squint_V_arcmin": [
+     0.00115518,
+     -0.614374
+    ],
+    "signal_30arcsec": 0.011164
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.1005,
+    "fwhm_I_minor_deg": 1.05391,
+    "squint_H_arcmin": [
+     0.121489,
+     -0.0252572
+    ],
+    "squint_V_arcmin": [
+     0.0202483,
+     -0.501627
+    ],
+    "first_sidelobe_level": 0.00495178,
+    "core_max": 0.00410241,
+    "lobe_max": 0.00523674,
+    "lobe_rms": 0.00230167,
+    "sidelobe_max": 0.00374544,
+    "ring_max_over_30arcsec_signal": 0.35786,
+    "moon_abs_diff_mean": {
+     "44": 0.00179733,
+     "98": 0.00244741,
+     "149": 0.000198679
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.11552e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.09599,
+    "fwhm_I_minor_deg": 1.06139,
+    "squint_H_arcmin": [
+     3.97837e-09,
+     0.350068
+    ],
+    "squint_V_arcmin": [
+     -9.17028e-09,
+     0.295915
+    ],
+    "first_sidelobe_level": 0.00740491,
+    "core_max": 0.018002,
+    "lobe_max": 0.018002,
+    "lobe_rms": 0.00583771,
+    "sidelobe_max": 0.00169507,
+    "ring_max_over_30arcsec_signal": 1.60766,
+    "moon_abs_diff_mean": {
+     "44": 0.00631587,
+     "98": 0.000643629,
+     "149": 0.000159636
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000186372
+   }
+  },
+  {
+   "channel": 572,
+   "freq_mhz": 1334.16,
+   "holography": {
+    "r_half_power_deg": 0.537647,
+    "r_first_null_deg": 1.32812,
+    "first_sidelobe_level": 0.00723195,
+    "fwhm_I_major_deg": 1.0941,
+    "fwhm_I_minor_deg": 1.04569,
+    "squint_H_arcmin": [
+     0.178074,
+     -0.144621
+    ],
+    "squint_V_arcmin": [
+     0.0160206,
+     -0.582855
+    ],
+    "signal_30arcsec": 0.0112185
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.09245,
+    "fwhm_I_minor_deg": 1.04657,
+    "squint_H_arcmin": [
+     0.141778,
+     -0.0420276
+    ],
+    "squint_V_arcmin": [
+     0.0239725,
+     -0.467637
+    ],
+    "first_sidelobe_level": 0.00495246,
+    "core_max": 0.00388168,
+    "lobe_max": 0.00565221,
+    "lobe_rms": 0.00228639,
+    "sidelobe_max": 0.00386948,
+    "ring_max_over_30arcsec_signal": 0.276619,
+    "moon_abs_diff_mean": {
+     "44": 0.00181329,
+     "98": 0.00244569,
+     "149": 0.000179778
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 3.68438e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.08948,
+    "fwhm_I_minor_deg": 1.05412,
+    "squint_H_arcmin": [
+     -4.40338e-09,
+     0.369767
+    ],
+    "squint_V_arcmin": [
+     -6.23166e-10,
+     0.263735
+    ],
+    "first_sidelobe_level": 0.00745477,
+    "core_max": 0.0179426,
+    "lobe_max": 0.0179426,
+    "lobe_rms": 0.00564547,
+    "sidelobe_max": 0.00200797,
+    "ring_max_over_30arcsec_signal": 1.59834,
+    "moon_abs_diff_mean": {
+     "44": 0.00585033,
+     "98": 0.000743015,
+     "149": 0.000162773
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000176658
+   }
+  },
+  {
+   "channel": 583,
+   "freq_mhz": 1343.35,
+   "holography": {
+    "r_half_power_deg": 0.533396,
+    "r_first_null_deg": 1.32812,
+    "first_sidelobe_level": 0.00719158,
+    "fwhm_I_major_deg": 1.08152,
+    "fwhm_I_minor_deg": 1.03935,
+    "squint_H_arcmin": [
+     0.178311,
+     -0.290906
+    ],
+    "squint_V_arcmin": [
+     0.0327393,
+     -0.660055
+    ],
+    "signal_30arcsec": 0.0112992
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.08471,
+    "fwhm_I_minor_deg": 1.03932,
+    "squint_H_arcmin": [
+     0.161994,
+     -0.0583521
+    ],
+    "squint_V_arcmin": [
+     0.0277027,
+     -0.437793
+    ],
+    "first_sidelobe_level": 0.00496998,
+    "core_max": 0.00693183,
+    "lobe_max": 0.00693183,
+    "lobe_rms": 0.00251541,
+    "sidelobe_max": 0.00394358,
+    "ring_max_over_30arcsec_signal": 0.608365,
+    "moon_abs_diff_mean": {
+     "44": 0.00174021,
+     "98": 0.00234271,
+     "149": 0.000203147
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.78073e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.07873,
+    "fwhm_I_minor_deg": 1.04908,
+    "squint_H_arcmin": [
+     -2.49151e-08,
+     0.357299
+    ],
+    "squint_V_arcmin": [
+     -1.55049e-09,
+     0.323388
+    ],
+    "first_sidelobe_level": 0.00731744,
+    "core_max": 0.0204481,
+    "lobe_max": 0.0204481,
+    "lobe_rms": 0.0068122,
+    "sidelobe_max": 0.00163812,
+    "ring_max_over_30arcsec_signal": 1.79327,
+    "moon_abs_diff_mean": {
+     "44": 0.00732552,
+     "98": 0.000647716,
+     "149": 0.000165201
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000215894
+   }
+  },
+  {
+   "channel": 594,
+   "freq_mhz": 1352.55,
+   "holography": {
+    "r_half_power_deg": 0.530392,
+    "r_first_null_deg": 1.32812,
+    "first_sidelobe_level": 0.00709966,
+    "fwhm_I_major_deg": 1.07656,
+    "fwhm_I_minor_deg": 1.03176,
+    "squint_H_arcmin": [
+     0.193393,
+     -0.219551
+    ],
+    "squint_V_arcmin": [
+     -0.0034634,
+     -0.600622
+    ],
+    "signal_30arcsec": 0.0113761
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.07727,
+    "fwhm_I_minor_deg": 1.03245,
+    "squint_H_arcmin": [
+     0.146719,
+     -0.0690802
+    ],
+    "squint_V_arcmin": [
+     0.0291141,
+     -0.402424
+    ],
+    "first_sidelobe_level": 0.00497302,
+    "core_max": 0.00459172,
+    "lobe_max": 0.00459172,
+    "lobe_rms": 0.00210275,
+    "sidelobe_max": 0.00351902,
+    "ring_max_over_30arcsec_signal": 0.390391,
+    "moon_abs_diff_mean": {
+     "44": 0.00155179,
+     "98": 0.00218212,
+     "149": 0.000189864
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.63114e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.07312,
+    "fwhm_I_minor_deg": 1.04106,
+    "squint_H_arcmin": [
+     -3.5288e-09,
+     0.326769
+    ],
+    "squint_V_arcmin": [
+     -3.25559e-10,
+     0.274662
+    ],
+    "first_sidelobe_level": 0.00718219,
+    "core_max": 0.0183585,
+    "lobe_max": 0.0183585,
+    "lobe_rms": 0.0060162,
+    "sidelobe_max": 0.00167744,
+    "ring_max_over_30arcsec_signal": 1.60134,
+    "moon_abs_diff_mean": {
+     "44": 0.00645153,
+     "98": 0.000654407,
+     "149": 0.000182792
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000190853
+   }
+  },
+  {
+   "channel": 605,
+   "freq_mhz": 1361.74,
+   "holography": {
+    "r_half_power_deg": 0.527122,
+    "r_first_null_deg": 1.32812,
+    "first_sidelobe_level": 0.00693641,
+    "fwhm_I_major_deg": 1.06875,
+    "fwhm_I_minor_deg": 1.02502,
+    "squint_H_arcmin": [
+     0.177931,
+     -0.250308
+    ],
+    "squint_V_arcmin": [
+     0.000570018,
+     -0.812904
+    ],
+    "signal_30arcsec": 0.0114458
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.07063,
+    "fwhm_I_minor_deg": 1.02639,
+    "squint_H_arcmin": [
+     0.0372232,
+     -0.0709094
+    ],
+    "squint_V_arcmin": [
+     0.0303946,
+     -0.337609
+    ],
+    "first_sidelobe_level": 0.00496096,
+    "core_max": 0.00842279,
+    "lobe_max": 0.00842279,
+    "lobe_rms": 0.00271655,
+    "sidelobe_max": 0.00343647,
+    "ring_max_over_30arcsec_signal": 0.708113,
+    "moon_abs_diff_mean": {
+     "44": 0.00136584,
+     "98": 0.00198544,
+     "149": 0.000234448
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 7.89639e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.06586,
+    "fwhm_I_minor_deg": 1.0343,
+    "squint_H_arcmin": [
+     -5.30028e-10,
+     0.350415
+    ],
+    "squint_V_arcmin": [
+     3.28869e-09,
+     0.354063
+    ],
+    "first_sidelobe_level": 0.00697262,
+    "core_max": 0.0218078,
+    "lobe_max": 0.0218078,
+    "lobe_rms": 0.0072441,
+    "sidelobe_max": 0.00174504,
+    "ring_max_over_30arcsec_signal": 1.87749,
+    "moon_abs_diff_mean": {
+     "44": 0.0076983,
+     "98": 0.000662666,
+     "149": 0.000189027
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000231754
+   }
+  },
+  {
+   "channel": 616,
+   "freq_mhz": 1370.94,
+   "holography": {
+    "r_half_power_deg": 0.524529,
+    "r_first_null_deg": 1.29688,
+    "first_sidelobe_level": 0.00686949,
+    "fwhm_I_major_deg": 1.06481,
+    "fwhm_I_minor_deg": 1.01801,
+    "squint_H_arcmin": [
+     0.103732,
+     -0.162534
+    ],
+    "squint_V_arcmin": [
+     0.0168965,
+     -0.720433
+    ],
+    "signal_30arcsec": 0.011509
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.06435,
+    "fwhm_I_minor_deg": 1.01984,
+    "squint_H_arcmin": [
+     -0.0764283,
+     -0.0709184
+    ],
+    "squint_V_arcmin": [
+     0.0303921,
+     -0.277034
+    ],
+    "first_sidelobe_level": 0.00494879,
+    "core_max": 0.00724557,
+    "lobe_max": 0.00724557,
+    "lobe_rms": 0.00253979,
+    "sidelobe_max": 0.00337187,
+    "ring_max_over_30arcsec_signal": 0.550752,
+    "moon_abs_diff_mean": {
+     "44": 0.00154796,
+     "98": 0.00189447,
+     "149": 0.000215961
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.94597e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.06094,
+    "fwhm_I_minor_deg": 1.0279,
+    "squint_H_arcmin": [
+     1.11617e-08,
+     0.361559
+    ],
+    "squint_V_arcmin": [
+     5.66811e-10,
+     0.304431
+    ],
+    "first_sidelobe_level": 0.00694439,
+    "core_max": 0.0201849,
+    "lobe_max": 0.0201849,
+    "lobe_rms": 0.00659681,
+    "sidelobe_max": 0.00180587,
+    "ring_max_over_30arcsec_signal": 1.74226,
+    "moon_abs_diff_mean": {
+     "44": 0.00676874,
+     "98": 0.000681784,
+     "149": 0.000202695
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000205016
+   }
+  },
+  {
+   "channel": 627,
+   "freq_mhz": 1380.13,
+   "holography": {
+    "r_half_power_deg": 0.521708,
+    "r_first_null_deg": 1.29688,
+    "first_sidelobe_level": 0.00682497,
+    "fwhm_I_major_deg": 1.05811,
+    "fwhm_I_minor_deg": 1.01212,
+    "squint_H_arcmin": [
+     0.0126958,
+     -0.229156
+    ],
+    "squint_V_arcmin": [
+     0.0385535,
+     -0.926987
+    ],
+    "signal_30arcsec": 0.0115523
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.05769,
+    "fwhm_I_minor_deg": 1.01324,
+    "squint_H_arcmin": [
+     -0.186476,
+     -0.0709251
+    ],
+    "squint_V_arcmin": [
+     0.030396,
+     -0.211848
+    ],
+    "first_sidelobe_level": 0.0049584,
+    "core_max": 0.0108722,
+    "lobe_max": 0.0108722,
+    "lobe_rms": 0.00340733,
+    "sidelobe_max": 0.0041545,
+    "ring_max_over_30arcsec_signal": 0.851557,
+    "moon_abs_diff_mean": {
+     "44": 0.00191827,
+     "98": 0.00184534,
+     "149": 0.00025914
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000105149
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.05347,
+    "fwhm_I_minor_deg": 1.02217,
+    "squint_H_arcmin": [
+     6.3287e-09,
+     0.356708
+    ],
+    "squint_V_arcmin": [
+     4.04606e-09,
+     0.393976
+    ],
+    "first_sidelobe_level": 0.00686383,
+    "core_max": 0.0243903,
+    "lobe_max": 0.0243903,
+    "lobe_rms": 0.00792906,
+    "sidelobe_max": 0.00196722,
+    "ring_max_over_30arcsec_signal": 2.07874,
+    "moon_abs_diff_mean": {
+     "44": 0.00812521,
+     "98": 0.000848624,
+     "149": 0.000198981
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.00024964
+   }
+  },
+  {
+   "channel": 638,
+   "freq_mhz": 1389.33,
+   "holography": {
+    "r_half_power_deg": 0.518558,
+    "r_first_null_deg": 1.29688,
+    "first_sidelobe_level": 0.00666494,
+    "fwhm_I_major_deg": 1.04979,
+    "fwhm_I_minor_deg": 1.00709,
+    "squint_H_arcmin": [
+     -0.126415,
+     -0.11825
+    ],
+    "squint_V_arcmin": [
+     0.0198995,
+     -0.52814
+    ],
+    "signal_30arcsec": 0.0116056
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.05102,
+    "fwhm_I_minor_deg": 1.00702,
+    "squint_H_arcmin": [
+     -0.294489,
+     -0.0709289
+    ],
+    "squint_V_arcmin": [
+     0.0304,
+     -0.146645
+    ],
+    "first_sidelobe_level": 0.00495401,
+    "core_max": 0.00603424,
+    "lobe_max": 0.00603424,
+    "lobe_rms": 0.00237294,
+    "sidelobe_max": 0.00383303,
+    "ring_max_over_30arcsec_signal": 0.494694,
+    "moon_abs_diff_mean": {
+     "44": 0.0017218,
+     "98": 0.00169723,
+     "149": 0.000260917
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.16371e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.04601,
+    "fwhm_I_minor_deg": 1.0171,
+    "squint_H_arcmin": [
+     5.49011e-09,
+     0.295575
+    ],
+    "squint_V_arcmin": [
+     4.1331e-09,
+     0.409267
+    ],
+    "first_sidelobe_level": 0.00673614,
+    "core_max": 0.0182052,
+    "lobe_max": 0.0182052,
+    "lobe_rms": 0.00590612,
+    "sidelobe_max": 0.00161756,
+    "ring_max_over_30arcsec_signal": 1.54892,
+    "moon_abs_diff_mean": {
+     "44": 0.00601951,
+     "98": 0.000723338,
+     "149": 0.000198178
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000186049
+   }
+  },
+  {
+   "channel": 649,
+   "freq_mhz": 1398.52,
+   "holography": {
+    "r_half_power_deg": 0.516088,
+    "r_first_null_deg": 1.29688,
+    "first_sidelobe_level": 0.00651449,
+    "fwhm_I_major_deg": 1.0461,
+    "fwhm_I_minor_deg": 1.00059,
+    "squint_H_arcmin": [
+     -0.347434,
+     -0.145329
+    ],
+    "squint_V_arcmin": [
+     0.00815444,
+     -0.408677
+    ],
+    "signal_30arcsec": 0.0116854
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.04442,
+    "fwhm_I_minor_deg": 1.0014,
+    "squint_H_arcmin": [
+     -0.40809,
+     -0.0709379
+    ],
+    "squint_V_arcmin": [
+     0.0303933,
+     -0.0814189
+    ],
+    "first_sidelobe_level": 0.00496077,
+    "core_max": 0.00595521,
+    "lobe_max": 0.00595521,
+    "lobe_rms": 0.00212836,
+    "sidelobe_max": 0.0037246,
+    "ring_max_over_30arcsec_signal": 0.439881,
+    "moon_abs_diff_mean": {
+     "44": 0.00134981,
+     "98": 0.00163907,
+     "149": 0.000302668
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.23474e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.04106,
+    "fwhm_I_minor_deg": 1.01019,
+    "squint_H_arcmin": [
+     -3.86856e-09,
+     0.296483
+    ],
+    "squint_V_arcmin": [
+     3.9848e-09,
+     0.432025
+    ],
+    "first_sidelobe_level": 0.00660718,
+    "core_max": 0.0181319,
+    "lobe_max": 0.0181319,
+    "lobe_rms": 0.00576361,
+    "sidelobe_max": 0.00189059,
+    "ring_max_over_30arcsec_signal": 1.5161,
+    "moon_abs_diff_mean": {
+     "44": 0.00553052,
+     "98": 0.00082729,
+     "149": 0.000190836
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000180515
+   }
+  },
+  {
+   "channel": 660,
+   "freq_mhz": 1407.72,
+   "holography": {
+    "r_half_power_deg": 0.512202,
+    "r_first_null_deg": 1.26562,
+    "first_sidelobe_level": 0.0063198,
+    "fwhm_I_major_deg": 1.03762,
+    "fwhm_I_minor_deg": 0.994515,
+    "squint_H_arcmin": [
+     -0.647608,
+     -0.147804
+    ],
+    "squint_V_arcmin": [
+     0.0141438,
+     0.0606857
+    ],
+    "signal_30arcsec": 0.0118344
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.03835,
+    "fwhm_I_minor_deg": 0.995726,
+    "squint_H_arcmin": [
+     -0.557271,
+     -0.0770681
+    ],
+    "squint_V_arcmin": [
+     0.0238645,
+     0.102992
+    ],
+    "first_sidelobe_level": 0.00496992,
+    "core_max": 0.00294207,
+    "lobe_max": 0.0052856,
+    "lobe_rms": 0.00244734,
+    "sidelobe_max": 0.00316775,
+    "ring_max_over_30arcsec_signal": 0.304596,
+    "moon_abs_diff_mean": {
+     "44": 0.00290472,
+     "98": 0.00140466,
+     "149": 0.000291143
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.20555e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.03318,
+    "fwhm_I_minor_deg": 1.00521,
+    "squint_H_arcmin": [
+     -1.85827e-09,
+     0.290602
+    ],
+    "squint_V_arcmin": [
+     -1.9134e-09,
+     0.343966
+    ],
+    "first_sidelobe_level": 0.00642243,
+    "core_max": 0.0159443,
+    "lobe_max": 0.0159443,
+    "lobe_rms": 0.0049279,
+    "sidelobe_max": 0.00177588,
+    "ring_max_over_30arcsec_signal": 1.34729,
+    "moon_abs_diff_mean": {
+     "44": 0.00444691,
+     "98": 0.000713543,
+     "149": 0.000204057
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000135094
+   }
+  },
+  {
+   "channel": 671,
+   "freq_mhz": 1416.91,
+   "holography": {
+    "r_half_power_deg": 0.509753,
+    "r_first_null_deg": 1.26562,
+    "first_sidelobe_level": 0.00624858,
+    "fwhm_I_major_deg": 1.03464,
+    "fwhm_I_minor_deg": 0.988815,
+    "squint_H_arcmin": [
+     -0.896692,
+     -0.24689
+    ],
+    "squint_V_arcmin": [
+     0.0144047,
+     0.282705
+    ],
+    "signal_30arcsec": 0.0118667
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.03295,
+    "fwhm_I_minor_deg": 0.990638,
+    "squint_H_arcmin": [
+     -0.712412,
+     -0.086527
+    ],
+    "squint_V_arcmin": [
+     0.0201099,
+     0.316385
+    ],
+    "first_sidelobe_level": 0.00496758,
+    "core_max": 0.0042185,
+    "lobe_max": 0.00621482,
+    "lobe_rms": 0.00249049,
+    "sidelobe_max": 0.00346409,
+    "ring_max_over_30arcsec_signal": 0.359179,
+    "moon_abs_diff_mean": {
+     "44": 0.00268689,
+     "98": 0.00141268,
+     "149": 0.000294918
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.14704e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.02839,
+    "fwhm_I_minor_deg": 1.00045,
+    "squint_H_arcmin": [
+     2.80765e-09,
+     0.26428
+    ],
+    "squint_V_arcmin": [
+     -2.64855e-09,
+     0.30453
+    ],
+    "first_sidelobe_level": 0.0062659,
+    "core_max": 0.0193133,
+    "lobe_max": 0.0193133,
+    "lobe_rms": 0.00560954,
+    "sidelobe_max": 0.00202375,
+    "ring_max_over_30arcsec_signal": 1.62752,
+    "moon_abs_diff_mean": {
+     "44": 0.00525339,
+     "98": 0.000827604,
+     "149": 0.000205666
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000150888
+   }
+  },
+  {
+   "channel": 682,
+   "freq_mhz": 1426.11,
+   "holography": {
+    "r_half_power_deg": 0.505812,
+    "r_first_null_deg": 1.26562,
+    "first_sidelobe_level": 0.00608859,
+    "fwhm_I_major_deg": 1.02385,
+    "fwhm_I_minor_deg": 0.985285,
+    "squint_H_arcmin": [
+     -1.02144,
+     -0.284079
+    ],
+    "squint_V_arcmin": [
+     0.00778134,
+     0.633481
+    ],
+    "signal_30arcsec": 0.0119369
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.02716,
+    "fwhm_I_minor_deg": 0.985187,
+    "squint_H_arcmin": [
+     -0.866965,
+     -0.0944102
+    ],
+    "squint_V_arcmin": [
+     0.0145205,
+     0.521671
+    ],
+    "first_sidelobe_level": 0.00495393,
+    "core_max": 0.00350017,
+    "lobe_max": 0.00726566,
+    "lobe_rms": 0.00284131,
+    "sidelobe_max": 0.00336515,
+    "ring_max_over_30arcsec_signal": 0.371424,
+    "moon_abs_diff_mean": {
+     "44": 0.00340861,
+     "98": 0.00119865,
+     "149": 0.000284974
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.14808e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.02002,
+    "fwhm_I_minor_deg": 0.996823,
+    "squint_H_arcmin": [
+     1.50713e-10,
+     0.295762
+    ],
+    "squint_V_arcmin": [
+     3.73002e-10,
+     0.279217
+    ],
+    "first_sidelobe_level": 0.00611563,
+    "core_max": 0.0206918,
+    "lobe_max": 0.0206918,
+    "lobe_rms": 0.00593186,
+    "sidelobe_max": 0.0017924,
+    "ring_max_over_30arcsec_signal": 1.73343,
+    "moon_abs_diff_mean": {
+     "44": 0.0057505,
+     "98": 0.000718461,
+     "149": 0.000201257
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000157681
+   }
+  },
+  {
+   "channel": 693,
+   "freq_mhz": 1435.3,
+   "holography": {
+    "r_half_power_deg": 0.503279,
+    "r_first_null_deg": 1.26562,
+    "first_sidelobe_level": 0.00608275,
+    "fwhm_I_major_deg": 1.02143,
+    "fwhm_I_minor_deg": 0.979442,
+    "squint_H_arcmin": [
+     -1.15614,
+     -0.205646
+    ],
+    "squint_V_arcmin": [
+     -0.00490547,
+     0.875454
+    ],
+    "signal_30arcsec": 0.0120225
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.02154,
+    "fwhm_I_minor_deg": 0.979991,
+    "squint_H_arcmin": [
+     -1.01713,
+     -0.103355
+    ],
+    "squint_V_arcmin": [
+     0.0089323,
+     0.731901
+    ],
+    "first_sidelobe_level": 0.00494153,
+    "core_max": 0.00373023,
+    "lobe_max": 0.0070959,
+    "lobe_rms": 0.00290464,
+    "sidelobe_max": 0.00351924,
+    "ring_max_over_30arcsec_signal": 0.362159,
+    "moon_abs_diff_mean": {
+     "44": 0.00377171,
+     "98": 0.00120742,
+     "149": 0.000285205
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.8622e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.01627,
+    "fwhm_I_minor_deg": 0.991435,
+    "squint_H_arcmin": [
+     1.20719e-10,
+     0.317002
+    ],
+    "squint_V_arcmin": [
+     -3.59014e-10,
+     0.249868
+    ],
+    "first_sidelobe_level": 0.00605719,
+    "core_max": 0.0231801,
+    "lobe_max": 0.0234555,
+    "lobe_rms": 0.00682732,
+    "sidelobe_max": 0.00206389,
+    "ring_max_over_30arcsec_signal": 1.95096,
+    "moon_abs_diff_mean": {
+     "44": 0.00678868,
+     "98": 0.000759696,
+     "149": 0.000199595
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000180123
+   }
+  },
+  {
+   "channel": 704,
+   "freq_mhz": 1444.5,
+   "holography": {
+    "r_half_power_deg": 0.500072,
+    "r_first_null_deg": 1.26562,
+    "first_sidelobe_level": 0.00578188,
+    "fwhm_I_major_deg": 1.0156,
+    "fwhm_I_minor_deg": 0.974246,
+    "squint_H_arcmin": [
+     -1.27912,
+     -0.23138
+    ],
+    "squint_V_arcmin": [
+     0.00204472,
+     0.848056
+    ],
+    "signal_30arcsec": 0.0120765
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.01649,
+    "fwhm_I_minor_deg": 0.974681,
+    "squint_H_arcmin": [
+     -1.17228,
+     -0.113999
+    ],
+    "squint_V_arcmin": [
+     0.00334287,
+     0.938074
+    ],
+    "first_sidelobe_level": 0.00494726,
+    "core_max": 0.00391442,
+    "lobe_max": 0.0058865,
+    "lobe_rms": 0.00239286,
+    "sidelobe_max": 0.00302238,
+    "ring_max_over_30arcsec_signal": 0.2931,
+    "moon_abs_diff_mean": {
+     "44": 0.00268849,
+     "98": 0.001027,
+     "149": 0.000279176
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.62922e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.0102,
+    "fwhm_I_minor_deg": 0.986234,
+    "squint_H_arcmin": [
+     2.46e-10,
+     0.31999
+    ],
+    "squint_V_arcmin": [
+     -5.3245e-09,
+     0.293174
+    ],
+    "first_sidelobe_level": 0.00580099,
+    "core_max": 0.024692,
+    "lobe_max": 0.0247931,
+    "lobe_rms": 0.00724934,
+    "sidelobe_max": 0.00196748,
+    "ring_max_over_30arcsec_signal": 2.053,
+    "moon_abs_diff_mean": {
+     "44": 0.00727948,
+     "98": 0.000754958,
+     "149": 0.000188603
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000196485
+   }
+  },
+  {
+   "channel": 715,
+   "freq_mhz": 1453.7,
+   "holography": {
+    "r_half_power_deg": 0.498126,
+    "r_first_null_deg": 1.26562,
+    "first_sidelobe_level": 0.0055256,
+    "fwhm_I_major_deg": 1.01378,
+    "fwhm_I_minor_deg": 0.969264,
+    "squint_H_arcmin": [
+     -1.35103,
+     -0.118789
+    ],
+    "squint_V_arcmin": [
+     -0.00252551,
+     0.994785
+    ],
+    "signal_30arcsec": 0.0121265
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.01127,
+    "fwhm_I_minor_deg": 0.969841,
+    "squint_H_arcmin": [
+     -1.24704,
+     -0.127824
+    ],
+    "squint_V_arcmin": [
+     -0.00149751,
+     1.07031
+    ],
+    "first_sidelobe_level": 0.00494376,
+    "core_max": 0.00342174,
+    "lobe_max": 0.00709924,
+    "lobe_rms": 0.00245829,
+    "sidelobe_max": 0.00226939,
+    "ring_max_over_30arcsec_signal": 0.341988,
+    "moon_abs_diff_mean": {
+     "44": 0.00314381,
+     "98": 0.000887066,
+     "149": 0.000268671
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.27856e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.00753,
+    "fwhm_I_minor_deg": 0.981968,
+    "squint_H_arcmin": [
+     2.47916e-09,
+     0.224558
+    ],
+    "squint_V_arcmin": [
+     1.87831e-09,
+     0.288625
+    ],
+    "first_sidelobe_level": 0.00553375,
+    "core_max": 0.0268339,
+    "lobe_max": 0.0273588,
+    "lobe_rms": 0.00807422,
+    "sidelobe_max": 0.00197152,
+    "ring_max_over_30arcsec_signal": 2.25612,
+    "moon_abs_diff_mean": {
+     "44": 0.0079109,
+     "98": 0.000730447,
+     "149": 0.000178411
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000214336
+   }
+  },
+  {
+   "channel": 726,
+   "freq_mhz": 1462.89,
+   "holography": {
+    "r_half_power_deg": 0.495185,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.0053685,
+    "fwhm_I_major_deg": 1.00732,
+    "fwhm_I_minor_deg": 0.964965,
+    "squint_H_arcmin": [
+     -1.34299,
+     -0.243854
+    ],
+    "squint_V_arcmin": [
+     -0.00733226,
+     0.910505
+    ],
+    "signal_30arcsec": 0.0122088
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.00641,
+    "fwhm_I_minor_deg": 0.965611,
+    "squint_H_arcmin": [
+     -1.19244,
+     -0.145124
+    ],
+    "squint_V_arcmin": [
+     -0.00522438,
+     1.08333
+    ],
+    "first_sidelobe_level": 0.00494256,
+    "core_max": 0.00438228,
+    "lobe_max": 0.00596177,
+    "lobe_rms": 0.00228053,
+    "sidelobe_max": 0.00225638,
+    "ring_max_over_30arcsec_signal": 0.281921,
+    "moon_abs_diff_mean": {
+     "44": 0.00228957,
+     "98": 0.000784613,
+     "149": 0.000286256
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.06707e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 1.00178,
+    "fwhm_I_minor_deg": 0.977424,
+    "squint_H_arcmin": [
+     2.57839e-09,
+     0.247336
+    ],
+    "squint_V_arcmin": [
+     1.83887e-09,
+     0.270184
+    ],
+    "first_sidelobe_level": 0.00540062,
+    "core_max": 0.0261151,
+    "lobe_max": 0.0265527,
+    "lobe_rms": 0.00796457,
+    "sidelobe_max": 0.0019111,
+    "ring_max_over_30arcsec_signal": 2.17488,
+    "moon_abs_diff_mean": {
+     "44": 0.0076183,
+     "98": 0.000714466,
+     "149": 0.00017875
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000208911
+   }
+  },
+  {
+   "channel": 737,
+   "freq_mhz": 1472.09,
+   "holography": {
+    "r_half_power_deg": 0.492483,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.00510464,
+    "fwhm_I_major_deg": 1.00139,
+    "fwhm_I_minor_deg": 0.960701,
+    "squint_H_arcmin": [
+     -1.29527,
+     -0.19182
+    ],
+    "squint_V_arcmin": [
+     -0.0314348,
+     1.17192
+    ],
+    "signal_30arcsec": 0.0122547
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 1.00147,
+    "fwhm_I_minor_deg": 0.961254,
+    "squint_H_arcmin": [
+     -1.14157,
+     -0.164518
+    ],
+    "squint_V_arcmin": [
+     -0.00707196,
+     1.09547
+    ],
+    "first_sidelobe_level": 0.00496001,
+    "core_max": 0.00447229,
+    "lobe_max": 0.00724547,
+    "lobe_rms": 0.00269608,
+    "sidelobe_max": 0.00210477,
+    "ring_max_over_30arcsec_signal": 0.418246,
+    "moon_abs_diff_mean": {
+     "44": 0.0035296,
+     "98": 0.000702544,
+     "149": 0.00025586
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.84965e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.996737,
+    "fwhm_I_minor_deg": 0.974043,
+    "squint_H_arcmin": [
+     -5.90132e-09,
+     0.236966
+    ],
+    "squint_V_arcmin": [
+     1.25759e-09,
+     0.168864
+    ],
+    "first_sidelobe_level": 0.0052852,
+    "core_max": 0.0273394,
+    "lobe_max": 0.0276539,
+    "lobe_rms": 0.0085515,
+    "sidelobe_max": 0.00186788,
+    "ring_max_over_30arcsec_signal": 2.25659,
+    "moon_abs_diff_mean": {
+     "44": 0.00832058,
+     "98": 0.000677055,
+     "149": 0.000173002
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.00021913
+   }
+  },
+  {
+   "channel": 748,
+   "freq_mhz": 1481.28,
+   "holography": {
+    "r_half_power_deg": 0.490052,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.00500441,
+    "fwhm_I_major_deg": 0.99688,
+    "fwhm_I_minor_deg": 0.956871,
+    "squint_H_arcmin": [
+     -1.23053,
+     -0.265738
+    ],
+    "squint_V_arcmin": [
+     -0.0247854,
+     0.961123
+    ],
+    "signal_30arcsec": 0.0122894
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.997011,
+    "fwhm_I_minor_deg": 0.957246,
+    "squint_H_arcmin": [
+     -1.08674,
+     -0.19125
+    ],
+    "squint_V_arcmin": [
+     -0.0126778,
+     1.11106
+    ],
+    "first_sidelobe_level": 0.00496964,
+    "core_max": 0.00403531,
+    "lobe_max": 0.00634726,
+    "lobe_rms": 0.0023593,
+    "sidelobe_max": 0.00230748,
+    "ring_max_over_30arcsec_signal": 0.27372,
+    "moon_abs_diff_mean": {
+     "44": 0.00254733,
+     "98": 0.000753853,
+     "149": 0.000259735
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.91247e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.992372,
+    "fwhm_I_minor_deg": 0.970324,
+    "squint_H_arcmin": [
+     -3.70314e-09,
+     0.272462
+    ],
+    "squint_V_arcmin": [
+     -3.30348e-09,
+     0.197376
+    ],
+    "first_sidelobe_level": 0.00514283,
+    "core_max": 0.0256148,
+    "lobe_max": 0.0260084,
+    "lobe_rms": 0.00766813,
+    "sidelobe_max": 0.00195527,
+    "ring_max_over_30arcsec_signal": 2.11633,
+    "moon_abs_diff_mean": {
+     "44": 0.00722189,
+     "98": 0.000747786,
+     "149": 0.000159996
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000196986
+   }
+  },
+  {
+   "channel": 759,
+   "freq_mhz": 1490.48,
+   "holography": {
+    "r_half_power_deg": 0.487482,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.00479056,
+    "fwhm_I_major_deg": 0.991148,
+    "fwhm_I_minor_deg": 0.953788,
+    "squint_H_arcmin": [
+     -1.13741,
+     -0.240215
+    ],
+    "squint_V_arcmin": [
+     -0.0148671,
+     1.05911
+    ],
+    "signal_30arcsec": 0.0123229
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.992593,
+    "fwhm_I_minor_deg": 0.953072,
+    "squint_H_arcmin": [
+     -1.03087,
+     -0.211762
+    ],
+    "squint_V_arcmin": [
+     -0.016405,
+     1.12017
+    ],
+    "first_sidelobe_level": 0.00497134,
+    "core_max": 0.00314767,
+    "lobe_max": 0.00734496,
+    "lobe_rms": 0.0025175,
+    "sidelobe_max": 0.00211635,
+    "ring_max_over_30arcsec_signal": 0.345186,
+    "moon_abs_diff_mean": {
+     "44": 0.00315642,
+     "98": 0.000652435,
+     "149": 0.000234053
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.34113e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.987027,
+    "fwhm_I_minor_deg": 0.967739,
+    "squint_H_arcmin": [
+     -2.73492e-09,
+     0.298029
+    ],
+    "squint_V_arcmin": [
+     -2.32131e-09,
+     0.133085
+    ],
+    "first_sidelobe_level": 0.00488738,
+    "core_max": 0.0255839,
+    "lobe_max": 0.0260383,
+    "lobe_rms": 0.00759192,
+    "sidelobe_max": 0.0018644,
+    "ring_max_over_30arcsec_signal": 2.113,
+    "moon_abs_diff_mean": {
+     "44": 0.00743012,
+     "98": 0.000663242,
+     "149": 0.000158781
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.0001885
+   }
+  },
+  {
+   "channel": 770,
+   "freq_mhz": 1499.67,
+   "holography": {
+    "r_half_power_deg": 0.485659,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.00465077,
+    "fwhm_I_major_deg": 0.990185,
+    "fwhm_I_minor_deg": 0.94851,
+    "squint_H_arcmin": [
+     -1.00304,
+     -0.347529
+    ],
+    "squint_V_arcmin": [
+     -0.00161863,
+     0.98079
+    ],
+    "signal_30arcsec": 0.0123555
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.987647,
+    "fwhm_I_minor_deg": 0.948709,
+    "squint_H_arcmin": [
+     -0.974988,
+     -0.232279
+    ],
+    "squint_V_arcmin": [
+     -0.0201338,
+     1.13316
+    ],
+    "first_sidelobe_level": 0.00496501,
+    "core_max": 0.00495607,
+    "lobe_max": 0.00763204,
+    "lobe_rms": 0.00250138,
+    "sidelobe_max": 0.00246745,
+    "ring_max_over_30arcsec_signal": 0.370695,
+    "moon_abs_diff_mean": {
+     "44": 0.00243344,
+     "98": 0.000669589,
+     "149": 0.00023063
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.84091e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.984318,
+    "fwhm_I_minor_deg": 0.964356,
+    "squint_H_arcmin": [
+     -5.20995e-10,
+     0.289294
+    ],
+    "squint_V_arcmin": [
+     -2.05982e-09,
+     0.126078
+    ],
+    "first_sidelobe_level": 0.00470396,
+    "core_max": 0.0245181,
+    "lobe_max": 0.0251832,
+    "lobe_rms": 0.0070481,
+    "sidelobe_max": 0.00205536,
+    "ring_max_over_30arcsec_signal": 2.03821,
+    "moon_abs_diff_mean": {
+     "44": 0.00694761,
+     "98": 0.000693052,
+     "149": 0.000168078
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000169076
+   }
+  },
+  {
+   "channel": 781,
+   "freq_mhz": 1508.87,
+   "holography": {
+    "r_half_power_deg": 0.483067,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.00438921,
+    "fwhm_I_major_deg": 0.98191,
+    "fwhm_I_minor_deg": 0.945723,
+    "squint_H_arcmin": [
+     -0.870453,
+     -0.325088
+    ],
+    "squint_V_arcmin": [
+     -0.0341039,
+     1.0563
+    ],
+    "signal_30arcsec": 0.0124018
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.98334,
+    "fwhm_I_minor_deg": 0.944477,
+    "squint_H_arcmin": [
+     -0.871266,
+     -0.226234
+    ],
+    "squint_V_arcmin": [
+     -0.0202674,
+     1.06498
+    ],
+    "first_sidelobe_level": 0.0049522,
+    "core_max": 0.00325469,
+    "lobe_max": 0.00754633,
+    "lobe_rms": 0.00250882,
+    "sidelobe_max": 0.00237661,
+    "ring_max_over_30arcsec_signal": 0.31093,
+    "moon_abs_diff_mean": {
+     "44": 0.00303266,
+     "98": 0.000676378,
+     "149": 0.000197517
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 3.95844e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.97918,
+    "fwhm_I_minor_deg": 0.961103,
+    "squint_H_arcmin": [
+     1.24937e-08,
+     0.286689
+    ],
+    "squint_V_arcmin": [
+     7.4066e-10,
+     0.106987
+    ],
+    "first_sidelobe_level": 0.0044678,
+    "core_max": 0.0231188,
+    "lobe_max": 0.0236668,
+    "lobe_rms": 0.006749,
+    "sidelobe_max": 0.001769,
+    "ring_max_over_30arcsec_signal": 1.90833,
+    "moon_abs_diff_mean": {
+     "44": 0.00705228,
+     "98": 0.000570774,
+     "149": 0.000149025
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000161829
+   }
+  },
+  {
+   "channel": 792,
+   "freq_mhz": 1518.06,
+   "holography": {
+    "r_half_power_deg": 0.481819,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.00428994,
+    "fwhm_I_major_deg": 0.980634,
+    "fwhm_I_minor_deg": 0.941547,
+    "squint_H_arcmin": [
+     -0.741756,
+     -0.313603
+    ],
+    "squint_V_arcmin": [
+     -0.0366283,
+     0.905106
+    ],
+    "signal_30arcsec": 0.0124155
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.978898,
+    "fwhm_I_minor_deg": 0.940565,
+    "squint_H_arcmin": [
+     -0.766485,
+     -0.220735
+    ],
+    "squint_V_arcmin": [
+     -0.0184356,
+     0.993518
+    ],
+    "first_sidelobe_level": 0.0049517,
+    "core_max": 0.00345489,
+    "lobe_max": 0.00786051,
+    "lobe_rms": 0.00260081,
+    "sidelobe_max": 0.00250647,
+    "ring_max_over_30arcsec_signal": 0.287399,
+    "moon_abs_diff_mean": {
+     "44": 0.00271612,
+     "98": 0.000771185,
+     "149": 0.00017663
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.27688e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.976314,
+    "fwhm_I_minor_deg": 0.957795,
+    "squint_H_arcmin": [
+     7.28236e-10,
+     0.279534
+    ],
+    "squint_V_arcmin": [
+     3.12554e-09,
+     0.0913334
+    ],
+    "first_sidelobe_level": 0.0043678,
+    "core_max": 0.0221367,
+    "lobe_max": 0.0228293,
+    "lobe_rms": 0.00628186,
+    "sidelobe_max": 0.00180628,
+    "ring_max_over_30arcsec_signal": 1.83878,
+    "moon_abs_diff_mean": {
+     "44": 0.00654085,
+     "98": 0.000615606,
+     "149": 0.000131333
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000145629
+   }
+  },
+  {
+   "channel": 803,
+   "freq_mhz": 1527.26,
+   "holography": {
+    "r_half_power_deg": 0.479706,
+    "r_first_null_deg": 1.23438,
+    "first_sidelobe_level": 0.00405513,
+    "fwhm_I_major_deg": 0.974855,
+    "fwhm_I_minor_deg": 0.937674,
+    "squint_H_arcmin": [
+     -0.6522,
+     -0.319803
+    ],
+    "squint_V_arcmin": [
+     -0.0784901,
+     0.831168
+    ],
+    "signal_30arcsec": 0.0124805
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.97468,
+    "fwhm_I_minor_deg": 0.936465,
+    "squint_H_arcmin": [
+     -0.663228,
+     -0.220027
+    ],
+    "squint_V_arcmin": [
+     -0.0202648,
+     0.919735
+    ],
+    "first_sidelobe_level": 0.00495777,
+    "core_max": 0.00340037,
+    "lobe_max": 0.0075169,
+    "lobe_rms": 0.00258616,
+    "sidelobe_max": 0.00259043,
+    "ring_max_over_30arcsec_signal": 0.263213,
+    "moon_abs_diff_mean": {
+     "44": 0.00271687,
+     "98": 0.000858959,
+     "149": 0.000172172
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.25533e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.97031,
+    "fwhm_I_minor_deg": 0.954731,
+    "squint_H_arcmin": [
+     7.70772e-11,
+     0.286482
+    ],
+    "squint_V_arcmin": [
+     7.58213e-10,
+     0.087616
+    ],
+    "first_sidelobe_level": 0.00420894,
+    "core_max": 0.0221193,
+    "lobe_max": 0.0228249,
+    "lobe_rms": 0.00612253,
+    "sidelobe_max": 0.00169621,
+    "ring_max_over_30arcsec_signal": 1.82885,
+    "moon_abs_diff_mean": {
+     "44": 0.00627296,
+     "98": 0.00056398,
+     "149": 0.000123143
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000139903
+   }
+  },
+  {
+   "channel": 814,
+   "freq_mhz": 1536.45,
+   "holography": {
+    "r_half_power_deg": 0.477905,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00387268,
+    "fwhm_I_major_deg": 0.970981,
+    "fwhm_I_minor_deg": 0.933211,
+    "squint_H_arcmin": [
+     -0.594232,
+     -0.278175
+    ],
+    "squint_V_arcmin": [
+     -0.0972574,
+     0.783223
+    ],
+    "signal_30arcsec": 0.0125253
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.97015,
+    "fwhm_I_minor_deg": 0.932437,
+    "squint_H_arcmin": [
+     -0.557033,
+     -0.216309
+    ],
+    "squint_V_arcmin": [
+     -0.0202637,
+     0.852903
+    ],
+    "first_sidelobe_level": 0.00495622,
+    "core_max": 0.00289517,
+    "lobe_max": 0.00816057,
+    "lobe_rms": 0.00281286,
+    "sidelobe_max": 0.00270083,
+    "ring_max_over_30arcsec_signal": 0.349434,
+    "moon_abs_diff_mean": {
+     "44": 0.00286878,
+     "98": 0.000903667,
+     "149": 0.000170554
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.40033e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.966105,
+    "fwhm_I_minor_deg": 0.951884,
+    "squint_H_arcmin": [
+     -2.29281e-10,
+     0.226546
+    ],
+    "squint_V_arcmin": [
+     3.58854e-10,
+     0.0839462
+    ],
+    "first_sidelobe_level": 0.00402674,
+    "core_max": 0.0228938,
+    "lobe_max": 0.0236668,
+    "lobe_rms": 0.00650605,
+    "sidelobe_max": 0.00164428,
+    "ring_max_over_30arcsec_signal": 1.88952,
+    "moon_abs_diff_mean": {
+     "44": 0.00662823,
+     "98": 0.00051042,
+     "149": 0.000110237
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000144188
+   }
+  },
+  {
+   "channel": 825,
+   "freq_mhz": 1545.65,
+   "holography": {
+    "r_half_power_deg": 0.475752,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00378628,
+    "fwhm_I_major_deg": 0.96611,
+    "fwhm_I_minor_deg": 0.927981,
+    "squint_H_arcmin": [
+     -0.554787,
+     -0.272835
+    ],
+    "squint_V_arcmin": [
+     -0.096416,
+     0.733598
+    ],
+    "signal_30arcsec": 0.0125786
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.965794,
+    "fwhm_I_minor_deg": 0.928243,
+    "squint_H_arcmin": [
+     -0.452715,
+     -0.21167
+    ],
+    "squint_V_arcmin": [
+     -0.0202659,
+     0.781012
+    ],
+    "first_sidelobe_level": 0.00494699,
+    "core_max": 0.00307066,
+    "lobe_max": 0.0082427,
+    "lobe_rms": 0.00278089,
+    "sidelobe_max": 0.00275613,
+    "ring_max_over_30arcsec_signal": 0.374554,
+    "moon_abs_diff_mean": {
+     "44": 0.00289144,
+     "98": 0.000944165,
+     "149": 0.00016853
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.77051e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.963095,
+    "fwhm_I_minor_deg": 0.94859,
+    "squint_H_arcmin": [
+     8.94799e-11,
+     0.208676
+    ],
+    "squint_V_arcmin": [
+     5.60555e-10,
+     0.0862581
+    ],
+    "first_sidelobe_level": 0.0038906,
+    "core_max": 0.0236051,
+    "lobe_max": 0.0244772,
+    "lobe_rms": 0.00673968,
+    "sidelobe_max": 0.00155719,
+    "ring_max_over_30arcsec_signal": 1.94594,
+    "moon_abs_diff_mean": {
+     "44": 0.00691549,
+     "98": 0.000494382,
+     "149": 0.000107245
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000146748
+   }
+  },
+  {
+   "channel": 836,
+   "freq_mhz": 1554.84,
+   "holography": {
+    "r_half_power_deg": 0.474237,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.0035683,
+    "fwhm_I_major_deg": 0.963067,
+    "fwhm_I_minor_deg": 0.9242,
+    "squint_H_arcmin": [
+     -0.426387,
+     -0.27963
+    ],
+    "squint_V_arcmin": [
+     -0.0821669,
+     0.599636
+    ],
+    "signal_30arcsec": 0.0126407
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.961392,
+    "fwhm_I_minor_deg": 0.924212,
+    "squint_H_arcmin": [
+     -0.369098,
+     -0.218577
+    ],
+    "squint_V_arcmin": [
+     -0.0204916,
+     0.720706
+    ],
+    "first_sidelobe_level": 0.00495066,
+    "core_max": 0.00352976,
+    "lobe_max": 0.00849265,
+    "lobe_rms": 0.0028839,
+    "sidelobe_max": 0.00287667,
+    "ring_max_over_30arcsec_signal": 0.314477,
+    "moon_abs_diff_mean": {
+     "44": 0.00287865,
+     "98": 0.00106885,
+     "149": 0.000166699
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.79806e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.961089,
+    "fwhm_I_minor_deg": 0.945539,
+    "squint_H_arcmin": [
+     3.48612e-10,
+     0.201208
+    ],
+    "squint_V_arcmin": [
+     3.61389e-09,
+     0.0853656
+    ],
+    "first_sidelobe_level": 0.00377674,
+    "core_max": 0.0221176,
+    "lobe_max": 0.0231352,
+    "lobe_rms": 0.00643129,
+    "sidelobe_max": 0.00161841,
+    "ring_max_over_30arcsec_signal": 1.83022,
+    "moon_abs_diff_mean": {
+     "44": 0.00645854,
+     "98": 0.000485007,
+     "149": 0.00010897
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000137156
+   }
+  },
+  {
+   "channel": 847,
+   "freq_mhz": 1564.04,
+   "holography": {
+    "r_half_power_deg": 0.472426,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00345177,
+    "fwhm_I_major_deg": 0.95848,
+    "fwhm_I_minor_deg": 0.920417,
+    "squint_H_arcmin": [
+     -0.34775,
+     -0.308219
+    ],
+    "squint_V_arcmin": [
+     -0.066975,
+     0.516034
+    ],
+    "signal_30arcsec": 0.0126701
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.957134,
+    "fwhm_I_minor_deg": 0.920351,
+    "squint_H_arcmin": [
+     -0.302891,
+     -0.235535
+    ],
+    "squint_V_arcmin": [
+     -0.0259557,
+     0.673592
+    ],
+    "first_sidelobe_level": 0.00495777,
+    "core_max": 0.00375654,
+    "lobe_max": 0.00816226,
+    "lobe_rms": 0.00281395,
+    "sidelobe_max": 0.00291809,
+    "ring_max_over_30arcsec_signal": 0.255336,
+    "moon_abs_diff_mean": {
+     "44": 0.00287052,
+     "98": 0.00111679,
+     "149": 0.000164897
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.90202e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.956548,
+    "fwhm_I_minor_deg": 0.942758,
+    "squint_H_arcmin": [
+     4.26288e-10,
+     0.302132
+    ],
+    "squint_V_arcmin": [
+     3.62049e-09,
+     0.110251
+    ],
+    "first_sidelobe_level": 0.00370231,
+    "core_max": 0.0216085,
+    "lobe_max": 0.0226464,
+    "lobe_rms": 0.00639701,
+    "sidelobe_max": 0.00149424,
+    "ring_max_over_30arcsec_signal": 1.78739,
+    "moon_abs_diff_mean": {
+     "44": 0.00598155,
+     "98": 0.000487702,
+     "149": 0.000104463
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.00014413
+   }
+  },
+  {
+   "channel": 858,
+   "freq_mhz": 1573.23,
+   "holography": {
+    "r_half_power_deg": 0.470794,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.0033503,
+    "fwhm_I_major_deg": 0.954117,
+    "fwhm_I_minor_deg": 0.917231,
+    "squint_H_arcmin": [
+     -0.288652,
+     -0.31128
+    ],
+    "squint_V_arcmin": [
+     -0.0661536,
+     0.494098
+    ],
+    "signal_30arcsec": 0.0127439
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.953062,
+    "fwhm_I_minor_deg": 0.916513,
+    "squint_H_arcmin": [
+     -0.235824,
+     -0.250467
+    ],
+    "squint_V_arcmin": [
+     -0.0278633,
+     0.627524
+    ],
+    "first_sidelobe_level": 0.00495815,
+    "core_max": 0.0032405,
+    "lobe_max": 0.00849966,
+    "lobe_rms": 0.00293391,
+    "sidelobe_max": 0.00295906,
+    "ring_max_over_30arcsec_signal": 0.277423,
+    "moon_abs_diff_mean": {
+     "44": 0.00315053,
+     "98": 0.00114756,
+     "149": 0.000169709
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.89112e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.950924,
+    "fwhm_I_minor_deg": 0.939732,
+    "squint_H_arcmin": [
+     -1.35969e-10,
+     0.359405
+    ],
+    "squint_V_arcmin": [
+     -1.13668e-09,
+     0.131253
+    ],
+    "first_sidelobe_level": 0.00361064,
+    "core_max": 0.0211421,
+    "lobe_max": 0.0222204,
+    "lobe_rms": 0.00631131,
+    "sidelobe_max": 0.00135884,
+    "ring_max_over_30arcsec_signal": 1.7436,
+    "moon_abs_diff_mean": {
+     "44": 0.00577421,
+     "98": 0.000437302,
+     "149": 9.83174e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000147851
+   }
+  },
+  {
+   "channel": 869,
+   "freq_mhz": 1582.43,
+   "holography": {
+    "r_half_power_deg": 0.468794,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00331797,
+    "fwhm_I_major_deg": 0.949509,
+    "fwhm_I_minor_deg": 0.912681,
+    "squint_H_arcmin": [
+     -0.252644,
+     -0.317636
+    ],
+    "squint_V_arcmin": [
+     -0.0752307,
+     0.442041
+    ],
+    "signal_30arcsec": 0.01278
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.948999,
+    "fwhm_I_minor_deg": 0.912839,
+    "squint_H_arcmin": [
+     -0.168746,
+     -0.265402
+    ],
+    "squint_V_arcmin": [
+     -0.0334077,
+     0.581477
+    ],
+    "first_sidelobe_level": 0.00495174,
+    "core_max": 0.00348982,
+    "lobe_max": 0.00843154,
+    "lobe_rms": 0.00283143,
+    "sidelobe_max": 0.00301771,
+    "ring_max_over_30arcsec_signal": 0.272843,
+    "moon_abs_diff_mean": {
+     "44": 0.00289055,
+     "98": 0.00116302,
+     "149": 0.000172933
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.84505e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.947832,
+    "fwhm_I_minor_deg": 0.936793,
+    "squint_H_arcmin": [
+     -1.13102e-09,
+     0.328448
+    ],
+    "squint_V_arcmin": [
+     -8.45766e-10,
+     0.136375
+    ],
+    "first_sidelobe_level": 0.00351522,
+    "core_max": 0.022251,
+    "lobe_max": 0.0234639,
+    "lobe_rms": 0.00686494,
+    "sidelobe_max": 0.00132921,
+    "ring_max_over_30arcsec_signal": 1.83598,
+    "moon_abs_diff_mean": {
+     "44": 0.00635571,
+     "98": 0.000419089,
+     "149": 9.53245e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000162251
+   }
+  },
+  {
+   "channel": 880,
+   "freq_mhz": 1591.62,
+   "holography": {
+    "r_half_power_deg": 0.466758,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00318845,
+    "fwhm_I_major_deg": 0.944327,
+    "fwhm_I_minor_deg": 0.908419,
+    "squint_H_arcmin": [
+     -0.204493,
+     -0.310102
+    ],
+    "squint_V_arcmin": [
+     -0.084216,
+     0.403483
+    ],
+    "signal_30arcsec": 0.0128407
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.944731,
+    "fwhm_I_minor_deg": 0.909144,
+    "squint_H_arcmin": [
+     -0.101657,
+     -0.28034
+    ],
+    "squint_V_arcmin": [
+     -0.0355673,
+     0.533814
+    ],
+    "first_sidelobe_level": 0.00493851,
+    "core_max": 0.00367951,
+    "lobe_max": 0.00851827,
+    "lobe_rms": 0.00280893,
+    "sidelobe_max": 0.00303201,
+    "ring_max_over_30arcsec_signal": 0.261665,
+    "moon_abs_diff_mean": {
+     "44": 0.00277161,
+     "98": 0.00122879,
+     "149": 0.000181854
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.72917e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.943897,
+    "fwhm_I_minor_deg": 0.933055,
+    "squint_H_arcmin": [
+     1.94821e-11,
+     0.248426
+    ],
+    "squint_V_arcmin": [
+     -3.65683e-10,
+     0.128324
+    ],
+    "first_sidelobe_level": 0.00341081,
+    "core_max": 0.0224467,
+    "lobe_max": 0.0236863,
+    "lobe_rms": 0.00704114,
+    "sidelobe_max": 0.00136372,
+    "ring_max_over_30arcsec_signal": 1.84463,
+    "moon_abs_diff_mean": {
+     "44": 0.00659586,
+     "98": 0.000405302,
+     "149": 8.69552e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000165325
+   }
+  },
+  {
+   "channel": 891,
+   "freq_mhz": 1600.82,
+   "holography": {
+    "r_half_power_deg": 0.465496,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00307927,
+    "fwhm_I_major_deg": 0.941979,
+    "fwhm_I_minor_deg": 0.905122,
+    "squint_H_arcmin": [
+     -0.131233,
+     -0.351584
+    ],
+    "squint_V_arcmin": [
+     -0.0764354,
+     0.387707
+    ],
+    "signal_30arcsec": 0.0128634
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.940516,
+    "fwhm_I_minor_deg": 0.905714,
+    "squint_H_arcmin": [
+     -0.0362205,
+     -0.29212
+    ],
+    "squint_V_arcmin": [
+     -0.0386313,
+     0.499596
+    ],
+    "first_sidelobe_level": 0.00491862,
+    "core_max": 0.00312832,
+    "lobe_max": 0.00910049,
+    "lobe_rms": 0.00312452,
+    "sidelobe_max": 0.00311377,
+    "ring_max_over_30arcsec_signal": 0.284107,
+    "moon_abs_diff_mean": {
+     "44": 0.00352772,
+     "98": 0.00124723,
+     "149": 0.000180595
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.34159e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.940903,
+    "fwhm_I_minor_deg": 0.929914,
+    "squint_H_arcmin": [
+     -4.24632e-10,
+     0.250055
+    ],
+    "squint_V_arcmin": [
+     7.15246e-10,
+     0.152842
+    ],
+    "first_sidelobe_level": 0.00332105,
+    "core_max": 0.0219782,
+    "lobe_max": 0.0232839,
+    "lobe_rms": 0.0070577,
+    "sidelobe_max": 0.00139479,
+    "ring_max_over_30arcsec_signal": 1.81009,
+    "moon_abs_diff_mean": {
+     "44": 0.0065126,
+     "98": 0.000402068,
+     "149": 7.90197e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000169685
+   }
+  },
+  {
+   "channel": 902,
+   "freq_mhz": 1610.02,
+   "holography": {
+    "r_half_power_deg": 0.464026,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00300966,
+    "fwhm_I_major_deg": 0.937043,
+    "fwhm_I_minor_deg": 0.90321,
+    "squint_H_arcmin": [
+     -0.0409546,
+     -0.371704
+    ],
+    "squint_V_arcmin": [
+     -0.0454803,
+     0.364811
+    ],
+    "signal_30arcsec": 0.012888
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.936829,
+    "fwhm_I_minor_deg": 0.902818,
+    "squint_H_arcmin": [
+     0.0122455,
+     -0.26806
+    ],
+    "squint_V_arcmin": [
+     -0.0384924,
+     0.607494
+    ],
+    "first_sidelobe_level": 0.00491412,
+    "core_max": 0.00530343,
+    "lobe_max": 0.00829708,
+    "lobe_rms": 0.0030916,
+    "sidelobe_max": 0.00308726,
+    "ring_max_over_30arcsec_signal": 0.332691,
+    "moon_abs_diff_mean": {
+     "44": 0.00349594,
+     "98": 0.00125038,
+     "149": 0.000188598
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 6.31647e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.936427,
+    "fwhm_I_minor_deg": 0.927302,
+    "squint_H_arcmin": [
+     -7.31396e-10,
+     0.282225
+    ],
+    "squint_V_arcmin": [
+     -4.61056e-10,
+     0.101311
+    ],
+    "first_sidelobe_level": 0.0032989,
+    "core_max": 0.0204294,
+    "lobe_max": 0.0217111,
+    "lobe_rms": 0.00687009,
+    "sidelobe_max": 0.00133678,
+    "ring_max_over_30arcsec_signal": 1.67618,
+    "moon_abs_diff_mean": {
+     "44": 0.00634225,
+     "98": 0.000381136,
+     "149": 6.92248e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000168546
+   }
+  },
+  {
+   "channel": 913,
+   "freq_mhz": 1619.21,
+   "holography": {
+    "r_half_power_deg": 0.462361,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.0030615,
+    "fwhm_I_major_deg": 0.933425,
+    "fwhm_I_minor_deg": 0.899069,
+    "squint_H_arcmin": [
+     0.0391325,
+     -0.291804
+    ],
+    "squint_V_arcmin": [
+     -0.0589339,
+     0.597044
+    ],
+    "signal_30arcsec": 0.0129799
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.933133,
+    "fwhm_I_minor_deg": 0.899907,
+    "squint_H_arcmin": [
+     0.0607143,
+     -0.247542
+    ],
+    "squint_V_arcmin": [
+     -0.0383091,
+     0.715673
+    ],
+    "first_sidelobe_level": 0.00490832,
+    "core_max": 0.00302897,
+    "lobe_max": 0.00828207,
+    "lobe_rms": 0.00280707,
+    "sidelobe_max": 0.00307346,
+    "ring_max_over_30arcsec_signal": 0.180329,
+    "moon_abs_diff_mean": {
+     "44": 0.00320825,
+     "98": 0.00116215,
+     "149": 0.000180734
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.37004e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.932621,
+    "fwhm_I_minor_deg": 0.924588,
+    "squint_H_arcmin": [
+     -6.00345e-10,
+     0.233176
+    ],
+    "squint_V_arcmin": [
+     -1.45012e-09,
+     0.0508123
+    ],
+    "first_sidelobe_level": 0.00333749,
+    "core_max": 0.0205614,
+    "lobe_max": 0.0223469,
+    "lobe_rms": 0.00720002,
+    "sidelobe_max": 0.00138442,
+    "ring_max_over_30arcsec_signal": 1.70418,
+    "moon_abs_diff_mean": {
+     "44": 0.00725742,
+     "98": 0.000376999,
+     "149": 7.26605e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000163486
+   }
+  },
+  {
+   "channel": 924,
+   "freq_mhz": 1628.41,
+   "holography": {
+    "r_half_power_deg": 0.460639,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.0030482,
+    "fwhm_I_major_deg": 0.929027,
+    "fwhm_I_minor_deg": 0.895622,
+    "squint_H_arcmin": [
+     0.0985267,
+     -0.258712
+    ],
+    "squint_V_arcmin": [
+     -0.0664149,
+     0.558838
+    ],
+    "signal_30arcsec": 0.0130176
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.929529,
+    "fwhm_I_minor_deg": 0.897248,
+    "squint_H_arcmin": [
+     0.108174,
+     -0.225431
+    ],
+    "squint_V_arcmin": [
+     -0.040519,
+     0.823649
+    ],
+    "first_sidelobe_level": 0.00489707,
+    "core_max": 0.00486352,
+    "lobe_max": 0.00736744,
+    "lobe_rms": 0.00263676,
+    "sidelobe_max": 0.00306673,
+    "ring_max_over_30arcsec_signal": 0.323893,
+    "moon_abs_diff_mean": {
+     "44": 0.00273863,
+     "98": 0.0011245,
+     "149": 0.000175535
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 5.22014e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.928989,
+    "fwhm_I_minor_deg": 0.921825,
+    "squint_H_arcmin": [
+     -2.29422e-09,
+     0.240832
+    ],
+    "squint_V_arcmin": [
+     -1.31053e-09,
+     0.061105
+    ],
+    "first_sidelobe_level": 0.0034073,
+    "core_max": 0.0206398,
+    "lobe_max": 0.0224918,
+    "lobe_rms": 0.0074356,
+    "sidelobe_max": 0.00144232,
+    "ring_max_over_30arcsec_signal": 1.70888,
+    "moon_abs_diff_mean": {
+     "44": 0.00747244,
+     "98": 0.000385257,
+     "149": 6.91353e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000171739
+   }
+  },
+  {
+   "channel": 935,
+   "freq_mhz": 1637.6,
+   "holography": {
+    "r_half_power_deg": 0.459414,
+    "r_first_null_deg": 1.20312,
+    "first_sidelobe_level": 0.00303698,
+    "fwhm_I_major_deg": 0.926319,
+    "fwhm_I_minor_deg": 0.892826,
+    "squint_H_arcmin": [
+     0.215479,
+     -0.159826
+    ],
+    "squint_V_arcmin": [
+     -0.0584566,
+     0.768552
+    ],
+    "signal_30arcsec": 0.0130769
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.925816,
+    "fwhm_I_minor_deg": 0.894311,
+    "squint_H_arcmin": [
+     0.156613,
+     -0.208469
+    ],
+    "squint_V_arcmin": [
+     -0.0405178,
+     0.928378
+    ],
+    "first_sidelobe_level": 0.00488446,
+    "core_max": 0.00226417,
+    "lobe_max": 0.00768859,
+    "lobe_rms": 0.00268567,
+    "sidelobe_max": 0.00305106,
+    "ring_max_over_30arcsec_signal": 0.155665,
+    "moon_abs_diff_mean": {
+     "44": 0.00304148,
+     "98": 0.00104673,
+     "149": 0.0001687
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.09799e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.926099,
+    "fwhm_I_minor_deg": 0.919049,
+    "squint_H_arcmin": [
+     3.08386e-09,
+     0.180242
+    ],
+    "squint_V_arcmin": [
+     2.55506e-10,
+     0.0321286
+    ],
+    "first_sidelobe_level": 0.00337358,
+    "core_max": 0.0233775,
+    "lobe_max": 0.0242991,
+    "lobe_rms": 0.00789751,
+    "sidelobe_max": 0.00148778,
+    "ring_max_over_30arcsec_signal": 1.85817,
+    "moon_abs_diff_mean": {
+     "44": 0.00821417,
+     "98": 0.000337546,
+     "149": 5.85576e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.000190348
+   }
+  },
+  {
+   "channel": 946,
+   "freq_mhz": 1646.8,
+   "holography": {
+    "r_half_power_deg": 0.458004,
+    "r_first_null_deg": 1.17188,
+    "first_sidelobe_level": 0.00307333,
+    "fwhm_I_major_deg": 0.923443,
+    "fwhm_I_minor_deg": 0.88987,
+    "squint_H_arcmin": [
+     0.236221,
+     -0.255222
+    ],
+    "squint_V_arcmin": [
+     -0.0506026,
+     0.898397
+    ],
+    "signal_30arcsec": 0.0130869
+   },
+   "katbeam": {
+    "fwhm_I_major_deg": 0.92281,
+    "fwhm_I_minor_deg": 0.891501,
+    "squint_H_arcmin": [
+     0.206113,
+     -0.186368
+    ],
+    "squint_V_arcmin": [
+     -0.0385586,
+     1.03
+    ],
+    "first_sidelobe_level": 0.00489215,
+    "core_max": 0.00331064,
+    "lobe_max": 0.00741039,
+    "lobe_rms": 0.00282312,
+    "sidelobe_max": 0.00290323,
+    "ring_max_over_30arcsec_signal": 0.220208,
+    "moon_abs_diff_mean": {
+     "44": 0.00314549,
+     "98": 0.000911496,
+     "149": 0.000166983
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 4.76666e-05
+   },
+   "eidos": {
+    "fwhm_I_major_deg": 0.92306,
+    "fwhm_I_minor_deg": 0.916348,
+    "squint_H_arcmin": [
+     4.27844e-09,
+     0.194292
+    ],
+    "squint_V_arcmin": [
+     -2.70372e-08,
+     0.112406
+    ],
+    "first_sidelobe_level": 0.00347406,
+    "core_max": 0.0235987,
+    "lobe_max": 0.024592,
+    "lobe_rms": 0.00823101,
+    "sidelobe_max": 0.00137051,
+    "ring_max_over_30arcsec_signal": 1.87913,
+    "moon_abs_diff_mean": {
+     "44": 0.00837306,
+     "98": 0.000299074,
+     "149": 4.43471e-05
+    },
+    "pks1934_flux_weighted_mean_abs_dI": 0.00019194
+   }
+  }
+ ],
+ "gates_pass": true,
+ "timings": {
+  "g0a_s": 3.16505,
+  "g0b_s": 0.642541,
+  "g0c_s": 0.183488,
+  "compare_s": 18.8251,
+  "spread_s": 0.422957
+ }
+}
