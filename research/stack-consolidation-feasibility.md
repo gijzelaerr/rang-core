@@ -791,3 +791,7 @@ New measurements for this study are logged in
 `decode_tiles.py` and `read_ms.py` in the session scratchpad; outputs in
 `outputs/stack-feasibility-20261029-01` (ignored). The scratch directory
 `~/Build/tmp/20261029-rang-feasibility` was removed after the run.
+
+Paths: the frozen modules named here moved to [`history/`](../history/README.md)
+on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
+of [p11-extract.md](p11-extract.md).

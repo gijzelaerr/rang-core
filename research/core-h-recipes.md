@@ -359,3 +359,7 @@ core recipes was not needed and was not built.
 - Note for the environment: on this WSL host `python3 -m venv` fails
   (`ensurepip` missing); `uv venv` was used, which picked a uv-managed
   Python 3.13.16 rather than the system 3.14.
+
+Paths: the frozen modules named here moved to [`history/`](../history/README.md)
+on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
+of [p11-extract.md](p11-extract.md).

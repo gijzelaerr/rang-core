@@ -2,8 +2,8 @@
 
 Written 2026-10-30 on the user's instruction after the core port
 ([core-parallel-plan.md](core-parallel-plan.md), tasks A–K) was merged. Status: **wave 1 complete 2026-10-30 (U1, S1, W1, L1 merged; L1 null at
-array scale); wave 2 running** (P0 applied by the coordinator; P1–P10 merged 2026-10-30; P11 running, E3
-running; then P12, X2 in the order of `simplification-review.md` section 4). S1 found that
+array scale); wave 2 running** (P0 applied by the coordinator; P1–P11 merged 2026-10-30; PC1 traces the L1/L2
+precondition failures; then P12, X2 in the order of `simplification-review.md` section 4). S1 found that
 every archive reproduces, that the core is single-threaded and FFT-bound at
 four stations and memory-bound (about 0.87 kB per cell, about 88 GB) at the
 whole array. Read this, [STATE.md](STATE.md) and the task files it

@@ -758,3 +758,17 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan FS1: bash tools/check-all.sh | eb88550 / 078eb4f | 333.5 / 214.8 s | 1.67 / 1.59 GB | PASS, 698 passed 5 skipped |
 | 2026-10-30 | big plan L4: `examples/verdict_tables.py --check` | 11 archives | 0.04 s | 20 MB | stdlib |
 | 2026-10-30 | big plan L4: `bash tools/check-all.sh` | branch l4-verdict | 8 min 25 s incl. lock wait | 1.6 GB | PASS, 726 passed 5 skipped (pytest 150.6 s) |
+| 2026-10-30 | big plan P11: venv (uv) and `maturin develop --release --offline` | – | about 2 min | – |  |
+| 2026-10-30 | big plan P11: suite `-01` under coverage, base | – | 134 s (steps) | – |  |
+| 2026-10-30 | big plan P11: suite `-01b` (`bench f`), base | – | 36 s | – |  |
+| 2026-10-30 | big plan P11: suite `-01r`, base repeat | – | 164 s | – |  |
+| 2026-10-30 | big plan P11: suite `-02`, extracts, frozen present | – | 169 s | – |  |
+| 2026-10-30 | big plan P11: suite `-02b` (phase 3c-a, `bench f`) | – | 41 s | – |  |
+| 2026-10-30 | big plan P11: suite `-03`, after the move | – | 174 s | – |  |
+| 2026-10-30 | big plan P11: targeted pytest (new live copies) | – | 2.4 s | – |  |
+| 2026-10-30 | big plan P11: targeted pytest (rewired tests, notebooks) | – | 23 s | – |  |
+| 2026-10-30 | big plan P11: pytest collect-only at the base (temporary worktree, removed) | – | 2.4 s | – |  |
+| 2026-10-30 | big plan P11: `bash tools/check-all.sh` at `61e3b26` | – | 482 s (pytest 136 s) | – |  |
+| 2026-10-30 | big plan P11: suite `-04` at `a04766d` | – | 170 s (steps) | – |  |
+| 2026-10-30 | big plan P11: `archive` verbs and `imaging legacy-archive` on `-01r` and `-04` | – | about 10 s | – |  |
+| 2026-10-30 | big plan P11: `bash tools/check-all.sh` at the final tree | – | 196 s (pytest 106 s) | – |  |

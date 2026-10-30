@@ -170,3 +170,7 @@ Archive: [core-phase1.json](results/core-phase1.json).
 
 Phase 1 is reported as "implemented; measured: criterion 4 failed as frozen;
 post-hoc 4b passes". Phase 2 builds on these blocks.
+
+Paths: the frozen modules named here moved to [`history/`](../history/README.md)
+on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
+of [p11-extract.md](p11-extract.md).

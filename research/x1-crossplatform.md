@@ -531,3 +531,7 @@ POSIX tool, that is listed below. `multiprocessing`, `signal`, `fcntl`,
   (task D) natively on Windows, which the cross-platform rule names as the
   condition for leaving WSL. The LUNO drivers themselves still need item 1
   (`resource`) and item 7 (`outputs` symlink) first.
+
+Paths: the frozen modules named here moved to [`history/`](../history/README.md)
+on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
+of [p11-extract.md](p11-extract.md).

@@ -1,5 +1,24 @@
 # Rang research state
 
+P11 extract and retire (big plan wave 2), 2026-10-30 (implemented; measured;
+[p11-extract.md](p11-extract.md)): the 21 frozen campaign modules
+(`flagging*.py`, `imaging_sensitivity.py`, 11,217 lines) and their 21 test
+files moved byte-identical to `history/`. What the live chains use from them,
+127 top-level definitions by the static closure, is copied verbatim into 20
+`core_*` extracts (`core_policy`, `core_influence`, `core_trend_run`,
+`core_forecast`, `core_guard`, `core_response`, … one per frozen module, 3,389
+lines), checked definition by definition against `history/` by
+`tests/test_p11_extract.py`. Live Python in `python/rangtoy` 31,100 → 23,283
+lines (−7,817). The live-chain suite (S1's, through `rang-core`) is identical
+before and after: every verdict, class count and binary output; only receipt
+provenance (trend and imaging `module_sha256`, script hashes) changes. No live
+chain imports anything from `history/` (coverage, a blocked-import check, a
+static check). Tests 722 → 572 collected (169 of the moved tests run live
+again). The C1 driver now imports from `core_policy`; the temporary
+`flagging.py` shim is gone. Reported, not P11's: the L1 and L2 preconditions
+fail on current main (`all_equal: false`; a broadcast error in
+`core_campaign_array.solve_flags_lean`), being traced (PC1) before P12.
+
 L4 gain-TV flagging verdict, 2026-10-30: **closed: null**
 ([flagging-verdict.md](flagging-verdict.md)). Gain-TV-guided flagging was
 tested on the SKA pointing fixture (2026-09-23/24) and on the public LUNO

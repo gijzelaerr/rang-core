@@ -98,3 +98,7 @@ reproduce its archived output. This is the first hand-off test; phases 3 and
 
 **Cost (reported).** Seven core solves in 14.5 s (196 MB); the frozen trend
 module itself took 31.3 s (355 MB), as it does on QuartiCal-produced inputs.
+
+Paths: the frozen modules named here moved to [`history/`](../history/README.md)
+on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
+of [p11-extract.md](p11-extract.md).

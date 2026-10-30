@@ -101,3 +101,7 @@ group-balanced search budgets, uncertainty-aware TV and science-signal controls,
 then [normal primary-calibrator transfer](flagging-public-data.md). Freeze new
 settings before new seeds/scans; these results must not become their test set.
 No independent-observation transfer, imaging/flux validation or SOTA advantage.
+
+Paths: the frozen modules named here moved to [`history/`](../history/README.md)
+on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
+of [p11-extract.md](p11-extract.md).

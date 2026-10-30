@@ -33,8 +33,8 @@ import numpy as np
 from . import core, core_campaign, core_closure
 from . import core_campaign_array as array
 from .core_campaign import array_sha256, call, file_sha256, rss_mb, write_json
+from .core_policy import fixed_support_tv, gain_tv, polar_gauge
 from .core_workflow import gain_grid
-from .flagging import fixed_support_tv, gain_tv, polar_gauge
 
 ROOT = core_campaign.ROOT
 L1_RUN = ROOT / "outputs/luno-array-campaign-20261030-01"

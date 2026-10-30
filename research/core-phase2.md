@@ -147,3 +147,7 @@ matched-quality runtime reduction for rang's settings, not a scientific result.
 multi-threaded resampling, robust reweighting, MAD flags and gain-flag
 propagation into data flags. Rang's campaigns use none of them, but the
 Rust solver must not be used where they are needed.
+
+Paths: the frozen modules named here moved to [`history/`](../history/README.md)
+on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
+of [p11-extract.md](p11-extract.md).

@@ -204,6 +204,9 @@ quality/cost comparison, not further simulator expansion.
 - `history/`: the frozen campaigns' Stimela recipes, container builds,
   wrappers and recipe-only modules, retired from the live tree by task P8
   (`history/README.md`, `research/p8-history.md`).
+- Since P11 `history/python/` also holds the 21 frozen campaign modules; the
+  package keeps verbatim extracts of what the core uses (`core_policy`,
+  `core_influence`, `core_trend_run`, …; `research/p11-extract.md`).
 
 ## Licence
 

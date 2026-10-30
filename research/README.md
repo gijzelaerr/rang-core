@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task P11, [extract and retire](p11-extract.md): the 21
+frozen modules to `history/`, 127 definitions as verbatim extracts, −7,817 live
+lines, suite identical.
+
 New, 2026-10-30: L4, the [flagging verdict](flagging-verdict.md): gain-TV-guided
 flagging is closed as null on the fixture and both LUNO calibrators (90 calls,
 none better or worse; not cheaper than the CARACal first pass); what would
