@@ -616,15 +616,26 @@ pub struct SeparatedSums {
 
 /// [`SeparatedSums`] for `m = 0..=m_max` at separation `d ≥ 1`.
 pub fn separated_sums(psf: &Psf, d: usize, m_max: usize, pointed: bool) -> SeparatedSums {
+    separated_sums_beyond(psf, d, m_max, if pointed { d } else { 1 })
+}
+
+/// [`SeparatedSums`] with every offset at Chebyshev distance `≥ min_radius`
+/// from the origin (`1`: any nonzero offset; `d`: the pointed sums).
+pub fn separated_sums_beyond(
+    psf: &Psf,
+    d: usize,
+    m_max: usize,
+    min_radius: usize,
+) -> SeparatedSums {
     let n = psf.n as isize;
     let off = n - 1;
     let d_i = d.max(1) as isize;
+    let r_i = min_radius.max(1) as isize;
     let peak = psf.peak();
     let mut offsets: Vec<(isize, isize, f64)> = Vec::new();
     for dy in -off..=off {
         for dx in -off..=off {
-            let cheb = dx.abs().max(dy.abs());
-            if cheb == 0 || (pointed && cheb < d_i) {
+            if dx.abs().max(dy.abs()) < r_i {
                 continue;
             }
             offsets.push((dx, dy, psf.at(dx, dy).abs() / peak));
@@ -658,14 +669,40 @@ pub fn separated_sums(psf: &Psf, d: usize, m_max: usize, pointed: bool) -> Separ
     for m in placed + 1..=m_max {
         lower[m] = lower[placed];
     }
-    // Tile upper bound, minimised over the d² tilings.
+    let upper = tile_upper(off, &offsets, d, m_max, true);
+    SeparatedSums {
+        lower,
+        upper,
+        placed,
+    }
+}
+
+/// The tile upper bound on the largest sum of `m` weights over points that
+/// are pairwise at Chebyshev distance `≥ d`: `d × d` squares hold at most one
+/// point each, so the sum is at most the `m` largest square maxima. Every
+/// placement of the tiling gives a valid bound; with `all_shifts` the
+/// minimum over all `d²` placements is taken, otherwise over at most nine
+/// spread placements. Offsets lie in `[−off, off]²`.
+fn tile_upper(
+    off: isize,
+    offsets: &[(isize, isize, f64)],
+    d: usize,
+    m_max: usize,
+    all_shifts: bool,
+) -> Vec<f64> {
+    let d_i = d.max(1) as isize;
+    let shifts: Vec<isize> = if all_shifts || d_i <= 3 {
+        (0..d_i).collect()
+    } else {
+        vec![0, d_i / 3, (2 * d_i) / 3]
+    };
     let tiles_per_axis = ((2 * off + d_i) / d_i + 1) as usize;
     let mut upper = vec![f64::INFINITY; m_max + 1];
     let mut maxima = vec![0.0_f64; tiles_per_axis * tiles_per_axis];
-    for sy in 0..d_i {
-        for sx in 0..d_i {
+    for &sy in &shifts {
+        for &sx in &shifts {
             maxima.iter_mut().for_each(|v| *v = 0.0);
-            for &(dx, dy, value) in &offsets {
+            for &(dx, dy, value) in offsets {
                 let tx = ((dx + off + sx) / d_i) as usize;
                 let ty = ((dy + off + sy) / d_i) as usize;
                 let slot = &mut maxima[tx + tiles_per_axis * ty];
@@ -682,11 +719,111 @@ pub fn separated_sums(psf: &Psf, d: usize, m_max: usize, pointed: bool) -> Separ
             }
         }
     }
-    SeparatedSums {
-        lower,
-        upper,
-        placed,
+    upper
+}
+
+/// The anchored sufficient bound on the ERC of every support of `k` sources
+/// pairwise `≥ d` apart (`research/clean-phase-transition.md`, Theorem 8):
+/// `bound[k] ≥ η(S)` for all such supports, `k = 0..=k_max`.
+///
+/// For a pixel `q ∉ S` with a source `i` at offset `u = q − x_i`, writing
+/// `B_SS⁻¹ e_i = e_i − B_SS⁻¹ H e_i` (`H` the off-diagonal part) gives
+/// `B_SS⁻¹ B_{S,q} = b(u) e_i + B_SS⁻¹ y` with
+/// `y_j = b(v_j − u) − b(u) b(v_j)`, `v_j = x_j − x_i`, so
+/// `η_q ≤ |b(u)| + ‖y‖₁ / (1 − α)`, `α` the Gershgorin radius of `B_SS`.
+/// The anchor term `|b(u)|` (up to `μ_1`) is no longer divided by `1 − α`,
+/// and `y` keeps the cancellation between the sidelobes seen from `q` and
+/// from `x_i`. For each radius `R`: pixels with a source closer than `R` use
+/// this anchored form (worst case over `0 < |u| < R`, with `‖y‖₁` bounded by
+/// a tile sum of `|b(v − u) − b(u) b(v)|` over `v` pairwise `≥ d` and `≥ d`
+/// from the origin); pixels with every source at least `R` away use
+/// `Σ_d^{≥R}(k) / (1 − α)`. `α ≤` the pointed tile sum of `k − 1` values.
+/// The minimum over `R` (including `R = 1`, the plain separated-sum
+/// condition) is returned; `∞` where `α`'s bound reaches one.
+pub fn anchored_bound(psf: &Psf, d: usize, k_max: usize) -> Vec<f64> {
+    let n = psf.n as isize;
+    let off = n - 1;
+    let d_i = d.max(1) as isize;
+    let peak = psf.peak();
+    let b = |x: isize, y: isize| psf.at(x, y) / peak;
+    let m_max = k_max.saturating_sub(1);
+    let alpha = separated_sums_beyond(psf, d, m_max, d).upper;
+    let denom = |m: usize| {
+        let a = alpha[m.min(m_max)];
+        if a < 1.0 { 1.0 - a } else { 0.0 }
+    };
+    let plain = separated_sums_beyond(psf, d, k_max, 1).upper;
+    let mut best: Vec<f64> = (0..=k_max)
+        .map(|k| {
+            let m = k.saturating_sub(1);
+            if denom(m) > 0.0 {
+                plain[k] / denom(m)
+            } else {
+                f64::INFINITY
+            }
+        })
+        .collect();
+    // Radii 2..=r_max, r_max = ⌈d/2⌉ + 1 clamped to [3, 6] (cost).
+    let r_max = (d_i.div_euclid(2) + d_i % 2 + 1).clamp(3, 6);
+    // Anchor terms A_u[m] = |b(u)| + W_u(m) / (1 − α(m)) for 0 < |u| < r_max.
+    let mut anchors: Vec<(isize, Vec<f64>)> = Vec::new();
+    for uy in -(r_max - 1)..=(r_max - 1) {
+        for ux in -(r_max - 1)..=(r_max - 1) {
+            if ux == 0 && uy == 0 {
+                continue;
+            }
+            let bu = b(ux, uy);
+            let mut weights = Vec::new();
+            for vy in -off..=off {
+                for vx in -off..=off {
+                    if vx.abs().max(vy.abs()) < d_i || (vx == ux && vy == uy) {
+                        continue;
+                    }
+                    let (wx, wy) = (vx - ux, vy - uy);
+                    if wx.abs() > off || wy.abs() > off {
+                        continue;
+                    }
+                    weights.push((vx, vy, (b(wx, wy) - bu * b(vx, vy)).abs()));
+                }
+            }
+            let w = tile_upper(off, &weights, d, m_max, false);
+            let a: Vec<f64> = (0..=m_max)
+                .map(|m| {
+                    if denom(m) > 0.0 {
+                        bu.abs() + w[m] / denom(m)
+                    } else {
+                        f64::INFINITY
+                    }
+                })
+                .collect();
+            anchors.push((ux.abs().max(uy.abs()), a));
+        }
     }
+    for r in 2..=r_max {
+        let mut beyond = Vec::new();
+        for vy in -off..=off {
+            for vx in -off..=off {
+                if vx.abs().max(vy.abs()) >= r {
+                    beyond.push((vx, vy, b(vx, vy).abs()));
+                }
+            }
+        }
+        let far = tile_upper(off, &beyond, d, k_max, false);
+        for (k, slot) in best.iter_mut().enumerate().skip(1) {
+            let m = k - 1;
+            if denom(m) <= 0.0 {
+                continue;
+            }
+            let near = anchors
+                .iter()
+                .filter(|(cheb, _)| *cheb < r)
+                .map(|(_, a)| a[m])
+                .fold(0.0, f64::max);
+            let bound = near.max(far[k] / denom(m));
+            *slot = slot.min(bound);
+        }
+    }
+    best
 }
 
 #[cfg(test)]
@@ -942,6 +1079,61 @@ mod tests {
                 }
             }
         }
+    }
+
+    /// Theorem 8: the anchored bound dominates the ERC of every support with
+    /// the given separation, and is never above the plain separated-sum bound.
+    #[test]
+    fn anchored_bound_dominates_the_erc() {
+        let s = sampling(400, 41);
+        let g = Grid {
+            n: 12,
+            cell: 1.0e-4,
+        };
+        let b = psf(&s, &g);
+        let mut rng = Rng(9001);
+        let mut finite = 0;
+        for d in 1..=5usize {
+            let bound = anchored_bound(&b, d, 4);
+            let alpha = separated_sums(&b, d, 3, true).upper;
+            let plain = separated_sums(&b, d, 4, false).upper;
+            for k in 1..=4usize {
+                if alpha[k - 1] < 1.0 {
+                    assert!(bound[k] <= plain[k] / (1.0 - alpha[k - 1]) + 1e-12);
+                }
+                if !bound[k].is_finite() {
+                    continue;
+                }
+                finite += 1;
+                for _ in 0..40 {
+                    let mut support: Vec<usize> = Vec::new();
+                    let mut tries = 0;
+                    while support.len() < k && tries < 10_000 {
+                        tries += 1;
+                        let p = ((rng.next() * g.pixels() as f64) as usize).min(g.pixels() - 1);
+                        let far = support.iter().all(|&q| {
+                            let dx = (p % g.n) as isize - (q % g.n) as isize;
+                            let dy = (p / g.n) as isize - (q / g.n) as isize;
+                            dx.abs().max(dy.abs()) as usize >= d
+                        });
+                        if far {
+                            support.push(p);
+                        }
+                    }
+                    if support.len() < k {
+                        continue;
+                    }
+                    let c = support_coefficients(&b, &g, &support).unwrap();
+                    assert!(
+                        c.eta <= bound[k] + 1e-9,
+                        "d {d} k {k}: {} > {}",
+                        c.eta,
+                        bound[k]
+                    );
+                }
+            }
+        }
+        assert!(finite > 5, "{finite}");
     }
 
     /// Two sources, gain one: the picks stay on the support exactly when the
