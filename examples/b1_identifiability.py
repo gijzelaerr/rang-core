@@ -563,15 +563,8 @@ def field_model(pilot, out, beam):
     final = record["rounds"][-1]
     snr = final["dirty_peak"] / final["residual_robust_sigma"]
     kept_fraction = float(flux[kept].sum() / final["clean_flux"])
-    # c_h from the round-2 gains: median over baselines |g_p g_q|
-    gains = np.load(out / "round2.npz")["gains"]
-    pairs = np.unique(np.stack([d["a1"], d["a2"]], 1), axis=0)
-    c = {
-        hand: float(
-            np.median(np.abs(gains[:, pairs[:, 0], hand] * gains[:, pairs[:, 1], hand]))
-        )
-        for hand in range(2)
-    }
+    # c_h from the round-2 gains: median over solved baselines |g_p g_q|
+    c = gain_scale(d, np.load(out / "round2.npz")["gains"])
     record.update(
         {
             "components_kept": len(kept),
@@ -600,18 +593,33 @@ def field_model(pilot, out, beam):
     return record
 
 
+def gain_scale(d, gains, block=32):
+    """c_h = median over solved (block, baseline) pairs of |g_p g_q|. A
+    baseline counts in a block when it has eligible samples of that hand
+    there, so fully flagged blocks (gains left at 1) do not enter."""
+    nchan = len(d["freqs"])
+    nant = len(d["positions"])
+    out = {}
+    for hand, c in HANDS:
+        values = []
+        e = eligible(d, c)
+        for f in range(gains.shape[0]):
+            ch = slice(f * block, min((f + 1) * block, nchan))
+            rows = np.flatnonzero(e[:, ch].any(axis=1))
+            if not len(rows):
+                continue
+            key = np.unique(d["a1"][rows] * nant + d["a2"][rows])
+            p, q = key // nant, key % nant
+            values.append(np.abs(gains[f, p, hand] * gains[f, q, hand]))
+        out[hand] = float(np.median(np.concatenate(values)))
+    return out
+
+
 def scan_scale(d, sky):
     """c_h of one S5 scan: amplitude-and-phase gains against the field model."""
     model = predict(sky, d["uvw"], d["freqs"])
     gains, solve = solve_gains(d, model, False)
-    pairs = np.unique(np.stack([d["a1"], d["a2"]], 1), axis=0)
-    c = {
-        hand: float(
-            np.median(np.abs(gains[:, pairs[:, 0], hand] * gains[:, pairs[:, 1], hand]))
-        )
-        for hand in range(2)
-    }
-    return c, solve
+    return gain_scale(d, gains), solve
 
 
 # --------------------------------------------------------------------------
@@ -727,14 +735,27 @@ def native_anchored(d, sky, rows_t, ch, terms, fac, kappa, survey_nant):
     return out
 
 
-def run_survey(scans, sky, beam, variants, kappa_raw, out, native=False):
+def run_survey(
+    scans, sky, beam, variants, kappa_raw, out, native=False, slope=False, taper=None
+):
     """Accumulate the survey over all scans of a set; returns the Survey and
-    the native anchored records (S1)."""
+    the native anchored records (S1). `slope` (post hoc) also frees a
+    per-antenna log-amplitude and phase slope across each gain bin.
+    `taper` (post hoc): [(lo_m, hi_m, ratio)], the model visibilities of rows
+    with baseline length in [lo, hi) scaled by `ratio` (the measured median
+    |data| / |model| of the band), i.e. weights scaled by ratio^2."""
     nant = len(scans[0]["positions"])
     ncomp = len(sky["flux"])
     nvar = len(variants)
     nsub = max(v[2] for v in variants)
-    survey = bi.Survey(nant, ncomp, nscan=len(scans), nvar=nvar)
+    survey = bi.Survey(
+        nant,
+        ncomp,
+        nscan=len(scans),
+        nvar=nvar,
+        anchored=not slope,
+        gain_sets=2 if slope else 1,
+    )
     native_records = []
     pa = []
     floor_counts = []
@@ -806,6 +827,12 @@ def run_survey(scans, sky, beam, variants, kappa_raw, out, native=False):
                             continue
                         rr, cc = np.nonzero(e)
                         sw = np.sqrt(dd["weight"][..., c][rr, cc].astype(float))
+                        if taper is not None:
+                            blen = np.hypot(*d["uvw"][rows][rr, :2].T)
+                            scale = np.ones(len(rr))
+                            for lo, hi, ratio in taper:
+                                scale[(blen >= lo) & (blen < hi)] = ratio
+                            sw = sw * scale
                         z = terms[rr, cc] * sw[:, None]
                         h = bi.block_normals(
                             d["a1"][rows][rr],
@@ -815,6 +842,11 @@ def run_survey(scans, sky, beam, variants, kappa_raw, out, native=False):
                             gamma[:, :, :, hand],
                             beta[:, :, :, hand],
                             subidx[cc],
+                            slope=(
+                                ((position - (len(ch) - 1) / 2) / len(ch))[cc]
+                                if slope
+                                else None
+                            ),
                         )
                         hsum[hand] = h if hsum[hand] is None else hsum[hand] + h
                         nsamp[hand] += len(rr)
@@ -862,14 +894,43 @@ def anchored_summary(survey, labels):
     return summary
 
 
-def survey_set(name, out, pilot=None, track=None, field=None):
+def survey_set(
+    name,
+    out,
+    pilot=None,
+    track=None,
+    field=None,
+    beam_sampling="native",
+    gain_slope=False,
+    taper_json=None,
+):
+    """`beam_sampling` "product" (post hoc only) samples the array average at
+    the 95 product channels (9.2 MHz, G0b-validated linear interpolation)
+    instead of its 1,024 native channels. `taper_json` (post hoc only): the
+    band ratios of `posthoc_model.py` (mean of the hands' raw ratios)."""
+    taper = None
+    if taper_json:
+        bands = json.loads(Path(taper_json).read_text())["bands_m"]
+        taper = [
+            (
+                b["band_m"][0],
+                b["band_m"][1],
+                0.5 * (b["hand0"]["raw_ratio"] + b["hand1"]["raw_ratio"]),
+            )
+            for b in bands
+        ]
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)
     started = time.perf_counter()
     stages = {}
-    beam = beam_holography.HolographyBeam(HOLOGRAPHY)
+    beam = beam_holography.HolographyBeam(
+        HOLOGRAPHY, native_average=beam_sampling == "native"
+    )
     grad = bi.HolographyGradient(beam, "array_average")
     record = {
+        "beam_sampling": beam_sampling,
+        "gain_slope_post_hoc": gain_slope,
+        "taper_post_hoc": taper,
         "set": name,
         "protocol": "research/b1-2-identifiability.md",
         "git_head": git_head(),
@@ -881,11 +942,11 @@ def survey_set(name, out, pilot=None, track=None, field=None):
         d = load_luno("MAIN/MAIN_1", None if name == "S2" else [0, 1, 2, 3])
         sky = sky_from_sources(sky_lsm(), d["phase_dir"])
         scans = [d]
-    elif name == "S3":
+    elif name in ("S3", "S3-posthoc"):
         d = load_luno("MAIN/MAIN_2", None)
         sky = sky_point(S3_POINT["i0_jy"], S3_POINT["alpha"], S3_POINT["nu0_hz"])
         scans = [d]
-    elif name == "S4":
+    elif name in ("S4", "S4-posthoc"):
         d = load_eso_pilot(pilot)
         comps = np.load(Path(field) / "components.npz")
         sky = sky_components(comps["lm"], comps["flux"])
@@ -903,6 +964,10 @@ def survey_set(name, out, pilot=None, track=None, field=None):
         variants = VARIANTS_CHECKED
     elif name == "S1-posthoc":
         variants = VARIANTS_POSTHOC_S1
+    elif name == "S3-posthoc":
+        variants = (("sub16", 0.0, 2), ("sub1", 0.0, 32))
+    elif name == "S4-posthoc":
+        variants = (("sub16", 0.0, 2),)
     else:
         variants = VARIANTS_FINER
     record["verdict_variant"] = VERDICT_VARIANT
@@ -917,12 +982,16 @@ def survey_set(name, out, pilot=None, track=None, field=None):
     )
     for s, d in enumerate(scans):
         noise = noise_for(d)
-        if name in ("S1", "S2", "S3"):
+        if name in ("S1", "S2", "S3", "S1-posthoc", "S3-posthoc"):
             amp = amplitude_scale_luno(d, sky)
             c = {h: amp[h]["c"] for h in range(2)}
-        elif name == "S4":
-            amp = {"from": "field model round 2 gains"}
-            c = {int(h): v for h, v in field_rec["c"].items()}
+        elif name in ("S4", "S4-posthoc"):
+            # the round-2 gains of the field model, solved baselines only
+            c = gain_scale(d, np.load(Path(field) / "round2.npz")["gains"])
+            amp = {
+                "from": "field model round 2 gains",
+                "fieldmodel_json_c": field_rec["c"],
+            }
         else:
             c, solve = scan_scale(d, sky)
             amp = {"from": "per-scan gains against the field model", "solve": solve}
@@ -944,7 +1013,15 @@ def survey_set(name, out, pilot=None, track=None, field=None):
     # survey
     mark = time.perf_counter()
     survey, native_records, pa, floors = run_survey(
-        scans, sky, grad, variants, kappa, out, native
+        scans,
+        sky,
+        grad,
+        variants,
+        kappa,
+        out,
+        native and not gain_slope,
+        gain_slope,
+        taper,
     )
     stages["survey"] = time.perf_counter() - mark
     mark = time.perf_counter()
@@ -1045,14 +1122,24 @@ def survey_set(name, out, pilot=None, track=None, field=None):
 # Archive
 
 
-def archive(out_json, runs):
+def archive(out_json, verdict_runs, posthoc_runs=(), trigger_runs=(), fieldmodel=None):
+    """The committed archive. Entries are keyed by run directory; the
+    verdict (`closes_null`) is computed from `verdict_runs` only (one frozen
+    run per set); `trigger_runs` (the run that triggered the convergence
+    rule) and `posthoc_runs` are recorded and labelled, never counted."""
     payload = {
         "protocol": "research/b1-2-identifiability.md",
         "note": "derived numbers only; holography beam CC BY-NC 4.0 (de Villiers 2023, "
         "doi:10.48479/wdb0-h061); ESO137 CC BY 4.0 (Ramatsoku et al. 2020)",
-        "sets": {},
+        "verdict_variant": VERDICT_VARIANT,
+        "runs": {},
     }
-    for run in runs:
+    roles = [(r, "verdict") for r in verdict_runs]
+    roles += [(r, "trigger") for r in trigger_runs]
+    roles += [(r, "post hoc") for r in posthoc_runs]
+    if fieldmodel:
+        roles.append((fieldmodel, "field model"))
+    for run, role in roles:
         run = Path(run)
         if (run / "fieldmodel.json").exists():
             fm = json.loads((run / "fieldmodel.json").read_text())
@@ -1129,8 +1216,22 @@ def archive(out_json, runs):
             for d in rec["directions"]
             if d["family"] == "common"
         ]
-        payload["sets"][rec["set"]] = rounded(
+        posthoc = (
+            rec.get("beam_sampling", "native") != "native"
+            or rec.get("gain_slope_post_hoc", False)
+            or rec.get("taper_post_hoc") is not None
+            or rec["set"].endswith("posthoc")
+        )
+        if role == "verdict" and posthoc:
+            raise ValueError(f"{run} is a post-hoc run and cannot carry the verdict")
+        payload["runs"][run.name] = rounded(
             {
+                "set": rec["set"],
+                "role": role,
+                "post_hoc": posthoc or role == "post hoc",
+                "beam_sampling": rec.get("beam_sampling", "native"),
+                "gain_slope": rec.get("gain_slope_post_hoc", False),
+                "variants": rec["variants"],
                 "scans": rec["scans"],
                 "antennas": rec["antennas"],
                 "components": rec["components"],
@@ -1154,13 +1255,24 @@ def archive(out_json, runs):
                 else str(run),
             }
         )
-    payload["closes_null"] = not any(
-        r["constrainable"]
-        for s in payload["sets"].values()
-        for r in s["verdict_rows"]
-        if r["variant"] == VERDICT_VARIANT
-    )
-    payload["verdict_variant"] = VERDICT_VARIANT
+    verdict = [r for r in payload["runs"].values() if r["role"] == "verdict"]
+    sets = [r["set"] for r in verdict]
+    if len(sets) != len(set(sets)):
+        raise ValueError("one verdict run per set")
+    payload["verdict_sets"] = sorted(sets)
+    payload["constrainable"] = [
+        {
+            "set": r["set"],
+            **{k: row[k] for k in ("direction", "unit") if k in row},
+            "sigma": row.get("sigma_primary", row.get("sigma_primary_min")),
+            "rho": row.get("rho_primary", row.get("rho_primary_max")),
+            "labels": row.get("labels", []),
+        }
+        for r in verdict
+        for row in r["verdict_rows"]
+        if row["variant"] == VERDICT_VARIANT and row["constrainable"]
+    ]
+    payload["closes_null"] = not payload["constrainable"]
     write_json(out_json, payload)
     log("archive", out_json, "closes null:", payload["closes_null"])
 
@@ -1172,22 +1284,51 @@ def main(argv=None):
     p.add_argument("out")
     p.add_argument("--pilot", required=True)
     p = sub.add_parser("survey")
-    p.add_argument("set", choices=("S1", "S2", "S3", "S4", "S5", "S1-posthoc"))
+    p.add_argument(
+        "set",
+        choices=(
+            "S1",
+            "S2",
+            "S3",
+            "S4",
+            "S5",
+            "S1-posthoc",
+            "S3-posthoc",
+            "S4-posthoc",
+        ),
+    )
     p.add_argument("out")
     p.add_argument("--pilot")
     p.add_argument("--track")
     p.add_argument("--field")
+    p.add_argument("--beam-sampling", choices=("native", "product"), default="native")
+    p.add_argument("--gain-slope", action="store_true", help="post hoc only")
+    p.add_argument("--taper-json", help="post hoc only")
     p = sub.add_parser("archive")
     p.add_argument("out_json")
-    p.add_argument("runs", nargs="+")
+    p.add_argument("--verdict", nargs="+", required=True)
+    p.add_argument("--posthoc", nargs="*", default=())
+    p.add_argument("--trigger", nargs="*", default=())
+    p.add_argument("--fieldmodel")
     args = parser.parse_args(argv)
     if args.command == "fieldmodel":
         beam = beam_holography.HolographyBeam(HOLOGRAPHY)
         field_model(args.pilot, args.out, beam)
     elif args.command == "survey":
-        survey_set(args.set, args.out, args.pilot, args.track, args.field)
+        survey_set(
+            args.set,
+            args.out,
+            args.pilot,
+            args.track,
+            args.field,
+            args.beam_sampling,
+            args.gain_slope,
+            args.taper_json,
+        )
     else:
-        archive(args.out_json, args.runs)
+        archive(
+            args.out_json, args.verdict, args.posthoc, args.trigger, args.fieldmodel
+        )
 
 
 if __name__ == "__main__":

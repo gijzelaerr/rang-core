@@ -85,10 +85,12 @@ def _setup(lm, seed=0, nant=4, ntime=4, nchan=8, fluxes=None):
     }
 
 
-def _survey(setup, beam, q=0.0, fblock=4):
+def _survey(setup, beam, q=0.0, fblock=4, slope=False):
     """Run the factorised survey and return (Survey, per-sample dense data)."""
     nant, sky = setup["nant"], setup["sky"]
-    survey = bi.Survey(nant, len(sky["lm"]), anchored=False)
+    survey = bi.Survey(
+        nant, len(sky["lm"]), anchored=False, gain_sets=2 if slope else 1
+    )
     freqs = setup["freqs"]
     dense = []
     for t in np.unique(setup["time_bin"]):
@@ -107,7 +109,12 @@ def _survey(setup, beam, q=0.0, fblock=4):
                 a2 = np.repeat(setup["a2"][rows], len(ch))
                 gamma = fac["gamma"][None, None, :, hand]
                 beta = fac["beta"][None, None, :, hand]
-                h = bi.block_normals(a1, a2, nant, z, gamma, beta)
+                xs = np.tile(
+                    (np.arange(len(ch)) - (len(ch) - 1) / 2) / len(ch), len(rows)
+                )
+                h = bi.block_normals(
+                    a1, a2, nant, z, gamma, beta, slope=xs if slope else None
+                )
                 survey.add(0, f, hand, nu, h, len(a1))
                 dense.append(
                     (
@@ -120,6 +127,7 @@ def _survey(setup, beam, q=0.0, fblock=4):
                         fac["gamma"][:, hand],
                         fac["beta"][:, hand],
                         nu,
+                        xs if slope else None,
                     )
                 )
     return survey, dense
@@ -130,22 +138,26 @@ def _dense_information(dense, nant, ncomp, nf, nu0):
     nsamp = sum(len(d[3]) for d in dense)
     bins = sorted({(d[0], d[1], d[2]) for d in dense})
     bin_index = {b: i for i, b in enumerate(bins)}
-    ng = len(bins) * 2 * nant
+    sets = 1 if dense[0][9] is None else 2
+    ng = len(bins) * 2 * nant * sets
     cols_g = np.zeros((nsamp, ng), complex)
     cols_strict = np.zeros((nsamp, nf * ncomp), complex)
     cols_primary = np.zeros((nsamp, 2 * ncomp), complex)
     cols_theta = np.zeros((nsamp, 2 * nant + 6), complex)
     at = 0
-    for t, f, hand, a1, a2, z, gamma, beta, nu in dense:
+    for t, f, hand, a1, a2, z, gamma, beta, nu, xs in dense:
         n = len(a1)
         sl = slice(at, at + n)
         model = z.sum(1)
-        b0 = bin_index[(t, f, hand)] * 2 * nant
+        b0 = bin_index[(t, f, hand)] * 2 * nant * sets
         for i in range(n):
             r = at + i
             for p, sign in ((a1[i], 1), (a2[i], -1)):
                 cols_g[r, b0 + p] = model[i]
                 cols_g[r, b0 + nant + p] = sign * 1j * model[i]
+                if sets == 2:
+                    cols_g[r, b0 + 2 * nant + p] = model[i] * xs[i]
+                    cols_g[r, b0 + 3 * nant + p] = sign * 1j * model[i] * xs[i]
         cols_strict[sl, f * ncomp : (f + 1) * ncomp] = z
         cols_primary[sl, :ncomp] = z
         cols_primary[sl, ncomp:] = z * math.log(nu / nu0)
@@ -181,10 +193,11 @@ def _dense_information(dense, nant, ncomp, nf, nu0):
     }
 
 
-def test_schur_survey_equals_dense_projection():
+@pytest.mark.parametrize("slope", [False, True])
+def test_schur_survey_equals_dense_projection(slope):
     setup = _setup([[0.0, 0.0], [0.006, 0.002], [-0.004, 0.007]], seed=1)
     beam = bi.GaussianToyBeam(1.2, squint_deg=(0.01, 0.005), ratio=1.05)
-    survey, dense = _survey(setup, beam)
+    survey, dense = _survey(setup, beam, slope=slope)
     info = survey.information({(0, 0): 1.0, (0, 1): 1.0}, nu0=1.35e9)
     ref = _dense_information(dense, setup["nant"], 3, 2, 1.35e9)
     for key, value in ref.items():
@@ -236,7 +249,7 @@ def test_two_components_identifiable_and_fisher_matches_finite_difference():
 
     def visibilities(kind, d):
         vals = []
-        for _t, _f, hand, a1, a2, z, _g, _b, nu in dense:
+        for _t, _f, hand, a1, a2, z, _g, _b, nu, _xs in dense:
             fac = bi.factors_at(beam, sky["lm"], 0.0, nu)
             xk, yk = fac["x_deg"], fac["y_deg"]
             ref = np.sum(np.abs(beam(xk, yk, nu)[0][:, hand]) ** 2, axis=-1)
@@ -307,6 +320,7 @@ MEERKAT = np.array([5109360.13332123, 2006852.58604291, -3238948.12747888])
 
 
 def test_parallactic_angle_sign_and_closed_form():
+    pytest.importorskip("astropy")
     ra, dec = math.radians(243.79583), math.radians(-60.90583)
     t0 = 5064151193.482062
     times = t0 + np.arange(0, 8 * 3600, 3600.0)

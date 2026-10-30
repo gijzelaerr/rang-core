@@ -266,14 +266,18 @@ def _pair_sum(a, b, values, nant):
     )
 
 
-def block_normals(a1, a2, nant, z, gamma, beta, sub=None):
+def block_normals(a1, a2, nant, z, gamma, beta, sub=None, slope=None):
     """Gram matrix of one gain bin and hand in the whitened metric.
 
     a1, a2 (n,) antennas; z (n, K) whitened component terms (flux x phase /
     sigma); gamma (V, nsub, K, 2), beta (V, nsub, K, 6) the factors of V beam
     variants at nsub channel sub-blocks, `sub` (n,) each sample's sub-block.
     Parameter order: [eta (N) | phi (N) | sky (K) | per variant: P_x (N),
-    P_y (N), common (6)]. Returns the symmetric matrix."""
+    P_y (N), common (6)]. Returns the symmetric matrix.
+
+    `slope` (n,) real (post hoc only): also free a log-amplitude and phase
+    slope per antenna across the bin, columns [eta' (N) | phi' (N)] after
+    phi, whose model is the per-antenna gain model times `slope`."""
     n, ncomp = z.shape
     nvar = gamma.shape[0]
     sub = np.zeros(n, int) if sub is None else np.asarray(sub)
@@ -281,24 +285,52 @@ def block_normals(a1, a2, nant, z, gamma, beta, sub=None):
     model = z.sum(axis=1)
     i1, i2 = _incidence(a1, nant), _incidence(a2, nant)
     nb = 2 * nant + 6
-    size = 2 * nant + ncomp + nvar * nb
+    sets = [np.ones(n)] if slope is None else [np.ones(n), np.asarray(slope, float)]
+    ng = 2 * nant * len(sets)
+    size = ng + ncomp + nvar * nb
     h = np.zeros((size, size))
-    g0, s0 = 0, 2 * nant
-    eta, phi, sky = slice(0, nant), slice(nant, 2 * nant), slice(s0, s0 + ncomp)
+    s0 = ng
+    gslices = [
+        (
+            slice(2 * nant * a, 2 * nant * a + nant),
+            slice(2 * nant * a + nant, 2 * nant * (a + 1)),
+        )
+        for a in range(len(sets))
+    ]
+    eta, phi = gslices[0]
+    sky = slice(s0, s0 + ncomp)
     # sky-sky
     zs = np.concatenate((z.real, z.imag))
     h[sky, sky] = zs.T @ zs
-    # gains-gains
+    # gains-gains (eta-phi cross blocks vanish for real slope weights)
     m2 = np.abs(model) ** 2
-    diag = np.bincount(a1, m2, nant) + np.bincount(a2, m2, nant)
-    off = _pair_sum(a1, a2, m2, nant)
-    off = off + off.T
-    h[eta, eta] = np.diag(diag) + off
-    h[phi, phi] = np.diag(diag) - off
+    for a, wa in enumerate(sets):
+        for b, wb in enumerate(sets):
+            if b < a:
+                continue
+            v = m2 * wa * wb
+            diag = np.bincount(a1, v, nant) + np.bincount(a2, v, nant)
+            off = _pair_sum(a1, a2, v, nant)
+            off = off + off.T
+            (ea, pa), (eb, pb) = gslices[a], gslices[b]
+            h[ea, eb] = np.diag(diag) + off
+            h[pa, pb] = np.diag(diag) - off
+            if b != a:
+                h[eb, ea] = h[ea, eb].T
+                h[pb, pa] = h[pa, pb].T
+
+    def gains_against(values):
+        """eta and phi blocks of every gain set against per-row columns
+        `values` = conj(model) * column (n, m)."""
+        for wa, (ea, pa) in zip(sets, gslices, strict=True):
+            w = values * wa[:, None]
+            yield ea, pa, i1 @ w.real + i2 @ w.real, i1 @ w.imag - i2 @ w.imag
+
     # gains-sky
     u = np.conj(model)[:, None] * z
-    h[eta, sky] = i1 @ u.real + i2 @ u.real
-    h[phi, sky] = i1 @ u.imag - i2 @ u.imag
+    for ea, pa, re, im in gains_against(u):
+        h[ea, sky] = re
+        h[pa, sky] = im
     for v in range(nvar):
         base = s0 + ncomp + v * nb
         px = slice(base, base + nant)
@@ -318,8 +350,9 @@ def block_normals(a1, a2, nant, z, gamma, beta, sub=None):
         h[pc, pc] = ds.T @ ds
         h[pc, sky] = ds.T @ zs
         uc = np.conj(model)[:, None] * d
-        h[eta, pc] = i1 @ uc.real + i2 @ uc.real
-        h[phi, pc] = i1 @ uc.imag - i2 @ uc.imag
+        for ea, pa, re, im in gains_against(uc):
+            h[ea, pc] = re
+            h[pa, pc] = im
         for j, pj in enumerate((px, py)):
             # pointing-sky and pointing-common
             w1 = np.conj(y1[:, j])[:, None]
@@ -327,26 +360,27 @@ def block_normals(a1, a2, nant, z, gamma, beta, sub=None):
             h[pj, sky] = i1 @ (w1 * z).real + i2 @ (w2 * z).real
             h[pj, pc] = i1 @ (w1 * d).real + i2 @ (w2 * d).real
             # pointing-gains (rows: gain antenna, columns: pointing antenna)
-            c1 = np.conj(model) * y1[:, j]
-            c2 = np.conj(model) * y2[:, j]
-            e_blk = np.diag(
-                np.bincount(a1, c1.real, nant) + np.bincount(a2, c2.real, nant)
-            )
-            e_blk = (
-                e_blk
-                + _pair_sum(a2, a1, c1.real, nant)
-                + _pair_sum(a1, a2, c2.real, nant)
-            )
-            f_blk = np.diag(
-                np.bincount(a1, c1.imag, nant) - np.bincount(a2, c2.imag, nant)
-            )
-            f_blk = (
-                f_blk
-                - _pair_sum(a2, a1, c1.imag, nant)
-                + _pair_sum(a1, a2, c2.imag, nant)
-            )
-            h[eta, pj] = e_blk
-            h[phi, pj] = f_blk
+            for wa, (ea, pa) in zip(sets, gslices, strict=True):
+                c1 = np.conj(model) * y1[:, j] * wa
+                c2 = np.conj(model) * y2[:, j] * wa
+                e_blk = np.diag(
+                    np.bincount(a1, c1.real, nant) + np.bincount(a2, c2.real, nant)
+                )
+                e_blk = (
+                    e_blk
+                    + _pair_sum(a2, a1, c1.real, nant)
+                    + _pair_sum(a1, a2, c2.real, nant)
+                )
+                f_blk = np.diag(
+                    np.bincount(a1, c1.imag, nant) - np.bincount(a2, c2.imag, nant)
+                )
+                f_blk = (
+                    f_blk
+                    - _pair_sum(a2, a1, c1.imag, nant)
+                    + _pair_sum(a1, a2, c2.imag, nant)
+                )
+                h[ea, pj] = e_blk
+                h[pa, pj] = f_blk
             for k, pk in enumerate((px, py)):
                 if k < j:
                     continue
@@ -360,7 +394,7 @@ def block_normals(a1, a2, nant, z, gamma, beta, sub=None):
                 if k != j:
                     h[pk, pj] = blk.T
         # cross-variant blocks are not needed (conditional measures)
-    del g0
+    del eta, phi
     upper = np.triu_indices(size, 1)
     lower = (upper[1], upper[0])
     sym = np.where(h[upper] != 0, h[upper], h[lower])
@@ -411,8 +445,9 @@ class Survey:
     block, hand) with raw weights; the noise calibration kappa_{scan,hand}
     is applied at combination time (exact: each block scales by kappa)."""
 
-    def __init__(self, nant, ncomp, nscan=1, nvar=1, anchored=True):
+    def __init__(self, nant, ncomp, nscan=1, nvar=1, anchored=True, gain_sets=1):
         self.nant, self.ncomp, self.nscan, self.nvar = nant, ncomp, nscan, nvar
+        self.gain_cols = 2 * nant * gain_sets
         self.nb = 2 * nant + 6
         self.reduced = {}
         self.raw = {}
@@ -426,8 +461,8 @@ class Survey:
         """Add one gain bin's Gram matrix `h` (from `block_normals`, summed
         over the bin's sample chunks)."""
         nant, ncomp = self.nant, self.ncomp
-        gains = np.arange(2 * nant)
-        rest = np.arange(2 * nant, h.shape[0])
+        gains = np.arange(self.gain_cols)
+        rest = np.arange(self.gain_cols, h.shape[0])
         reduced = schur(h, gains, rest)
         key = (scan, fblock, hand)
         if key not in self.reduced:
@@ -442,7 +477,7 @@ class Survey:
             a = h[np.ix_(gains, gains)]
             cols = rest[ncomp:]
             delta = anchored_diagonal(a, h[np.ix_(gains, cols)])
-            step = np.sqrt(delta[:nant] ** 2 + delta[nant:] ** 2).max(axis=0)
+            step = np.sqrt(delta[:nant] ** 2 + delta[nant : 2 * nant] ** 2).max(axis=0)
             self.anchor.setdefault((scan, hand), []).append(step)
 
     # ---- combination -------------------------------------------------
