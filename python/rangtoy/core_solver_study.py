@@ -12,13 +12,12 @@ polar-gauge TV and cost. Read-only on every input.
 import contextlib
 import json
 import os
-import resource
 import time
 from pathlib import Path
 
 import numpy as np
 
-from . import core
+from . import core, rusage
 from .flagging import gain_tv, polar_gauge
 
 OPTIONS_VAR = "RANG_SOLVE_OPTIONS"
@@ -46,8 +45,7 @@ def solver_options(options="", trace=None):
 
 
 def cpu_seconds():
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    return usage.ru_utime + usage.ru_stime
+    return rusage.cpu_seconds()
 
 
 def solve(

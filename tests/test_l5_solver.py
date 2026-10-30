@@ -1,5 +1,5 @@
 """Task L5 (research/l5-solver-science.md): the run-time solver options reach
-both backends through `RANG_SOLVE_OPTIONS`, default to the archived solver,
+the core through `RANG_SOLVE_OPTIONS` (one backend since task P7), default to the archived solver,
 fail loudly when malformed, and the trace replays the core's stop rule."""
 
 import importlib.util
@@ -51,14 +51,12 @@ def synthetic(seed=5):
     }
 
 
-@pytest.fixture(params=["extension", "ctypes"])
+@pytest.fixture(params=["extension"])
 def backend(request, monkeypatch):
-    if (
-        request.param == "extension"
-        and importlib.util.find_spec("rangtoy._core") is None
-    ):
+    # The ctypes backend was removed by task P7 (research/p7-architecture.md).
+    if importlib.util.find_spec("rangtoy._core") is None:
         pytest.skip("rangtoy._core is not built")
-    monkeypatch.setenv("RANG_CORE_BACKEND", request.param)
+    monkeypatch.delenv("RANG_CORE_BACKEND", raising=False)
     monkeypatch.delenv("RANG_CORE_LIB", raising=False)
     core.reset_backend()
     assert core.backend_name() == request.param
