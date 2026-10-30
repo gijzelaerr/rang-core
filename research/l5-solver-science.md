@@ -1,7 +1,12 @@
 # L5 solver science: the qp weight fix, the stop criterion and Anderson acceleration
 
 Protocol frozen 2026-10-30 in the commit that adds this file, before any
-change to `core/src/solve.rs`. Status: **proposed** (protocol only).
+change to `core/src/solve.rs`. Status: **implemented and measured
+2026-10-30; as frozen no default changes** (Q1 no held-out effect, |Δ| ≤ 8e-9;
+Q2 the selected cap-8 fails the fixture; Q3 Anderson m = 3 reaches the
+0.99 gain criterion in 21–65 iterations instead of 55 to > 300, same
+held-out error, but needs 65 on the whole array, so the 50 cap still binds
+there). Options stay opt-in through `RANG_SOLVE_OPTIONS`.
 Task L5 of [big-plan.md](big-plan.md) (user decision 2026-10-30: one
 protocol fixes QuartiCal issue 452 in the core as a validated deviation
 behind a compatibility flag that keeps the archived behaviour, and studies
@@ -290,3 +295,333 @@ Run `outputs/l5-solver-20261030-01` (log `outputs/l5-solver-20261030-01.log`),
 | `bench_core_f.py check --target solve` vs `core-f-20261029-01` | all 5 checks pass (library SHA256 `2017b928…`) | 5.2 s |
 
 The precondition holds; measurements may proceed.
+
+## Implemented (commit 8f58db3 and later on branch `l5-solver-science`)
+
+`core/src/solve.rs`: `Options` (`qp_weights`, `stop`, `anderson`, `freeze`)
+parsed from `RANG_SOLVE_OPTIONS` inside `solve::solve`, `solve_with` and
+`solve_traced` for explicit options, `Trace` (written to
+`RANG_SOLVE_TRACE`), the const-generic `accumulate_interval<TRANSPOSED,
+CHI2>` (the default instance does exactly the archived operations), the
+per-interval product change and χ², the safeguarded `Anderson` state per
+interval, and `unit_counts` feeding P1's unchanged integer `decide`. Two
+new `Error` variants (`Options`, `Trace`) map to status 1 through the
+existing `Err(_)` arm of `ffi.rs`. No C ABI, extension signature or
+default changed; `lib.rs`, `ffi.rs`, the PyO3 binding and `core.py` are
+untouched. Python: `python/rangtoy/core_solver_study.py`,
+`examples/run_l5_solver_study.py` (`sweep`, `select`, `confirm`; `--lean`
+for the array), `examples/diagnose_solver_study.py` (post hoc),
+`examples/archive_solver_study.py`, `tests/test_l5_solver.py`.
+
+Rust tests (`cargo test --release --lib solve::`, 14 pass): the issue 452
+one-step check (a single Gauss–Newton step for antenna q with weights
+(1, 0.2, 5, 1) lands on the truth to < 1e-10 with transposed weights and
+misses by > 1e-2 with the archived ones); transposed weights bit-identical
+to archived when w_XY = w_YX; explicit default options and the traced solve
+bit-identical to P1's serial reference solver; every new option
+bit-identical at 1, 3 and 8 threads with stops inside the first and second
+epoch, and the product stop equal to the trace replay and to the prefix of
+the long run; Anderson m = 2, 3, 5 on noiseless data reaches the true
+baseline products in no more iterations than plain; option parsing rejects
+every malformed key or value.
+
+## Measured result (2026-10-30)
+
+All runs `RAYON_NUM_THREADS=4`, library SHA256 `3a4b1378…` (core) on host
+load 5–80 (siblings), timings as A/B pairs in one process. Runs:
+compatibility `-02`; fixture sweep `-08` (identical arms in `-03`, `-06`),
+slice sweep `-09` (`-04`, `-07`), post-hoc diagnostic `-05`, 32-station
+sweep `-15`, whole-array sweep `-18` (`--lean`); confirms: fixture `-10`
+(anderson=3), `-11` (combined), slice `-12`, `-13`, `-14` (cap-8),
+32 stations `-16`, `-17`, array `-19`. Archive:
+[results/l5-solver-science.json](results/l5-solver-science.json).
+
+**Data-set note.** The whole array did not fit at first (MemAvailable 6–11
+GiB for 45 min under sibling runs), so the protocol's fallback ran first:
+the largest station subset that fitted, **stations 0–31** (`stations-32`,
+14,836 rows, a fresh seed-7 split of 7,313,333 / 912,683 / 912,380 cells).
+Memory then freed and the **whole array** (56 stations, L1's split
+27,401,558 / 3,419,206 / 3,418,059, D's gains hash `13ba1c66…` = L1's
+`original` arm) ran with the `--lean` sweep: criteria that the trace says
+never stop within 300 iterations reuse R (a bit-identical prefix, checked
+on every other arm) instead of re-solving, and the held-out curve has
+seven points. Both are reported; the array is the prospective data set.
+
+### Compatibility (acceptance 1): pass
+
+| Check (`-02`, new library) | Result |
+| --- | --- |
+| `bench_core_f.py check --target solve`, options unset, 1 / 4 / 8 threads | all 5 checks pass at each |
+| the same with the explicit archived option string, 4 threads | all 5 pass |
+| `validate_core_phase2.py` | all 11 criteria pass |
+| K precondition | all checks pass, χ² 0.26823507 |
+| D on the slice / array | gains SHA256 = K's / L1's `original` arm |
+| slice D image | residual RMS 0.07122052624593866 vs K's 0.07122052624593858 (the dirty-image hash differs: P2 replaced the gridder after K) |
+
+### Convergence of the archived solver (the curve; R = 500 / 500 / 300 iterations)
+
+Fraction of gains passing the 1e-7 test (stop needs 0.99):
+
+| Iteration | 8 | 15 | 45 | 50 | 100 | 200 | 300 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| fixture | 0.000 | 0.002 | 0.970 | 0.984 (stops at 55) | 1.000 | | |
+| slice | 0.073 | 0.492 | 0.983 | 0.983 (stops at 91) | 0.991 | | |
+| 32 stations | 0.028 | 0.449 | 0.601 | 0.603 | 0.715 | | 0.863 |
+| whole array | 0.002 | 0.089 | 0.831 | 0.833 | 0.940 | 0.976 | 0.980 |
+
+Held-out test MSE relative to R (prefix solves; positive = worse):
+
+| Iteration | 8 | 12 | 16 | 24 | 50 | 100 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| fixture | +3.9e-3 | +4.8e-4 | (15: +2.2e-4) | (25: +2.5e-5) | +1.2e-7 | +4e-12 |
+| slice | −1.2e-4 | −3.2e-5 | (15: −1.5e-5) | (25: −5.4e-7) | +7.8e-8 | +4.1e-9 |
+| 32 stations | +3.0e-4 | +7.0e-5 | +2.1e-5 | −1.2e-6 | −4.4e-6 | −2.4e-6 |
+| whole array | +1.1e-3 | +1.1e-4 | +3.2e-5 | +8.8e-6 | +6.7e-7 | +5.4e-8 |
+
+On real data the held-out error is within 1e-4 of the long run by
+iteration 12–16 and within 1e-5 by 24, while 17 % (array) to 40 % (32
+stations) of gains have still not passed the gain test at the cap of 50,
+and R itself is still moving at 300 iterations on the array and on 32
+stations (largest per-iteration product change 1.7e-4 and 2.3e-4, median
+3e-16): a handful of poorly constrained intervals keep the gain test from
+ever reaching 0.99. The fixture (simulated, near noise-free) keeps
+improving to iteration ~50.
+
+### Q1: the qp weight fix
+
+| | fixture | slice | 32 stations | whole array |
+| --- | ---: | ---: | ---: | ---: |
+| MSE_test(D_T)/MSE_test(D) − 1 | +6.9e-10 | +7.3e-10 | −3.4e-9 | +8.2e-9 |
+| MSE_val ratio − 1 | +6.5e-11 | −7.3e-9 | +2.0e-10 | −5.1e-9 |
+| valid-gain fraction | equal | equal | equal | equal |
+| iterations to the gain criterion (R vs R_T) | 55 / 55 | 91 / 91 | > 300 / > 300 | > 300 / > 300 |
+| products D_T vs D, max (all pairs / observed) | 1.5e-7 / 1.3e-7 | 1.9e-4 / 4.4e-6 | 1.1e-2 / 3.0e-4 | 3.2e-3 / 8.4e-4 |
+| products R_T vs R, max (all pairs / observed) | 4.8e-16 / 4.8e-16 | **1.9e-4** / 6.3e-16 | 1.1e-2 / 5.4e-5 | 3.2e-3 / 5.9e-4 |
+| R settled to (last max product change) | 3.3e-16 | 1.1e-14 | 2.3e-4 | 1.7e-4 |
+| residual RMS ratio D_T/D (slice) | | 1 + 4.8e-10 | | |
+
+**Answer.** Correcting the qp weights does not change the held-out error
+(|Δ| ≤ 8e-9 relative everywhere), the valid gains or the iteration count;
+it moves the iterate at the cap by up to 8e-4 in the observed products of
+a few array intervals and leaves the converged products unchanged where R
+converged (fixture 5e-16, slice 6e-16 on observed pairs). As frozen (all
+pairs) the clause "R_T and R agree to the precision R settled" **fails** on
+the slice (1.9e-4 against 1e-14); the post-hoc diagnostic `-05` traced this
+to 26 intervals with only two observed baselines, whose third product the
+data do not constrain (training χ² identical to 16 digits). Under
+amendment 2 (observed pairs) it passes on the fixture and the slice and is
+**undecidable** on 32 stations and the array, where R has not settled
+(R_T − R 5.4e-5 and 5.9e-4 against R's own per-iteration change 2.3e-4 and
+1.7e-4; medians 1.3e-16). Held-out margin, valid fraction: pass on all
+four.
+
+### Q2: the stop criterion
+
+As frozen, the selection rule on the slice's validation MSE picked
+**cap-8** (−6.9e-5 relative, the fewest iterations within δ = 1e-4), and it
+fails the confirmation on the fixture (MSE_test +3.9e-3) and on the array
+(+1.1e-3): **no default change**. The rule "fewest iterations within δ on
+one data set" structurally favours the least adaptive candidate; the
+slice's held-out error happens to be lowest at 5–8 iterations (the solve
+slightly over-fits there), which a fixed cap exploits and other data sets
+punish.
+
+The criteria, post hoc (iterations; MSE_test relative to D):
+
+| Criterion | fixture | slice | 32 stations | whole array |
+| --- | --- | --- | --- | --- |
+| D: gain 1e-7, 0.99, cap 50 | 50; 0 | 50; 0 | 50; 0 | 50; 0 |
+| gain 1e-7 uncapped | 55; −7.6e-8 | 91; −7.1e-8 | > 300; +4.4e-6 | > 300; −6.7e-7 |
+| gain 1e-5 | 37; +1.9e-6 | 45; +2.5e-8 | > 300; +4.4e-6 | 205; −6.4e-7 |
+| product 1e-3 | 21; +5.8e-5 | 7; −2.0e-4 | 33; −1.6e-7 | 35; +1.9e-6 |
+| product 1e-4 | 31; +6.9e-6 | 29; −9.1e-8 | 167; +3.4e-6 | 83; −5.8e-7 |
+| product 1e-5 / 1e-6 | 39 / 49 | 49 / 71 | > 300 / > 300 | > 300 / > 300 |
+| loss 1e-5 | 28; +1.2e-5 | 44; +2.8e-8 | 184; +3.6e-6 | 88; −6.0e-7 |
+| loss 1e-6 / 1e-7 / 1e-8 | 34 / 40 / 44 | 64 / 80 / 96 | > 300 | > 300 |
+| cap 12 | +4.9e-4 | −3.2e-5 | +7.4e-5 | +1.1e-4 |
+| cap 16 | +1.6e-4 | −9.7e-6 | +2.5e-5 | +3.2e-5 |
+| cap 24 | +2.8e-5 | −7.7e-7 | +3.2e-6 | +8.2e-6 |
+
+Every interval-criterion stop equalled the trace replay (`matches_trace`
+on all arms of all four sweeps). **Answer.** No candidate both stops
+earlier than the cap of 50 on the real data and keeps the fixture: the
+gauge-invariant product criterion at 1e-3 stops at 7–35 iterations within
+δ on the three LUNO sets but costs 5.8e-5 on the fixture; at 1e-4 it is
+within δ everywhere but runs past 50 on 32 stations (167) and the array
+(83), like the loss criterion at 1e-5 (184, 88). The products change as
+slowly as the gains in the few unsettled intervals (consistent with task
+U2's QuartiCal #455 measurement on scan 9), and the per-interval χ² change
+has the same tail. A cap of 16–24 is within δ on all four sets but is not
+adaptive. The held-out floor itself may be sky-model limited on 1934−638
+(task L1-M); these arms keep K/L1's model for comparability.
+
+### Q3: Anderson acceleration
+
+| | fixture | slice | 32 stations | whole array |
+| --- | ---: | ---: | ---: | ---: |
+| iterations to gain 1e-7 / 0.99: plain | 55 | 91 | > 300 (0.863) | > 300 (0.980) |
+| m = 2 / 3 / 5 | 27 / 27 / 27 | 23 / 21 / 21 | 97 / 65 / 59 | 69 / 65 / 55 |
+| m = 3 under the cap of 50: iterations, converged fraction (D's) | 27, 0.990 (0.984) | 21, 0.993 (0.983) | 50, 0.969 (0.603) | 50, 0.982 (0.833) |
+| MSE_test(m = 3) vs D | −1.0e-7 | −8.8e-8 | +5.1e-6 | −6.1e-7 |
+| A/B median solve wall D → C (s) | 0.556 → 0.388 | 0.673 → 0.306 | 6.75 → 6.29 | 20.17 → 19.82 |
+| A/B median CPU D → C (s) | 0.249 → 0.173 | 0.303 → 0.159 | 26.1 → 24.6 | 76.0 → 75.5 |
+| Anderson long run vs R, observed products (max / p99) | 4.5e-16 | 1.1e-13 / 3.6e-16 | 0.19 / – | 3.8e-2 / 1.0e-14 |
+| Anderson long runs settled to | 3e-16 | 4e-16 | 2.4e-6 | 2.3e-10 |
+| flagged gains | unchanged | unchanged | unchanged | unchanged |
+| residual RMS ratio C/D | | 1 + 2.0e-7 | 1 + 1.2e-6 | 1 − 1.6e-9 |
+| mixes / resets to the stop (m = 3) | 4,318 / 4,866 | 4,721 / 3,583 | 26,191 / 7,377 | 29,784 / 5,352 |
+
+**Answer.** Anderson acceleration of the two-step map cuts the iterations
+to the archived gain criterion by 2.0× (fixture), 4.3× (slice) and from
+more than 300 to 55–65 on the array, without changing the held-out error
+(|Δ| ≤ 5e-6, within δ). Where the plain iteration converged it reaches the
+same fixed point (observed products 4.5e-16 and 1.1e-13; as frozen, all
+pairs, the slice gives 2.0e-7: **fail as frozen**, the unconstrained
+products again). On the array the three depths agree with each other and
+have settled (2e-10 per iteration) while plain R has not; they differ from
+R only in the unsettled intervals (p99 1e-14, max 3.8e-2), so "same fixed
+point" is undecidable there for lack of a converged plain reference, not
+contradicted. **Cost:** under the archived cap of 50 the wall drops by 30 %
+(fixture) and 55 % (slice), but on 32 stations and the array Anderson
+needs 59–65 iterations for the 0.99 fraction, so the solve still ends at
+50 and costs the same (converged fraction 0.969 / 0.982 instead of 0.603 /
+0.833):
+the frozen clause "iterations to the criterion in force drop ≥ 20 % on S
+and A" **fails on A as frozen** (both 50); counted to the criterion
+without the cap it drops by > 78 %. Anderson under a cap of 8 is worse on
+every set (fixture +9.2e-3). `freeze=1` under cap 8 changes nothing (no
+interval passes the gain test within 8 iterations): null.
+
+### Combined arm (qp_weights=transposed, anderson=3, cap 50)
+
+Indistinguishable from `anderson=3` alone: fixture 27 iterations,
+MSE_test −1.0e-7; slice 21, −8.8e-8, residual RMS ratio 1 + 2.0e-7;
+32 stations 50, +5.1e-6; array 50, converged fraction 0.982, observed
+products to R p99 as Anderson.
+
+## Decision and recommendation
+
+- **As frozen: no default changes.** Q2's selected cap-8 fails the
+  fixture; Q3's cost clause fails on the array (Anderson needs 55–65
+  iterations there, so the 50 cap still binds); Q1's product clause fails
+  on the slice under the frozen all-pairs metric.
+- **Under amendment 2 (prospective on the array)**: Q1 passes on the
+  fixture and slice and is undecidable on the array (R unsettled), with
+  no held-out effect anywhere; Q3's same-fixed-point clause passes on the
+  fixture and slice and is undecidable on the array; its cost clause
+  still fails on the array.
+- Recommendation to the coordinator (see "For the coordinator"): keep the
+  archived defaults; offer `RANG_SOLVE_OPTIONS=qp_weights=transposed,anderson=3`
+  as the documented opt-in for anyone who needs converged gains (it turns
+  the array's 83 % at 50 iterations into 98 % at the same cost, and
+  reaches 0.99 at 65); revisit the default with a Python-level option
+  (a binding change, outside this task) together with a cap of about 70
+  under Anderson, which on the array would reach 0.99 at lower cost than
+  the uncapped plain solve and at the same held-out error.
+
+## Open items
+
+- The product criterion and the product-distance metric should count only
+  observed pairs (the trace and `solve.rs` count every pair of unflagged
+  gains); changing `solve.rs` needs a new compatibility run.
+- A converged plain reference on the array (thousands of iterations, or
+  Anderson-seeded) to decide the "same fixed point" clauses there.
+- The loss criterion lags one iteration by design; a post-update χ² would
+  cost one extra pass per iteration.
+- Anderson's safeguard resets often (resets ≈ mixes on the fixture);
+  a residual-based restart rule tuned on the slice could cut iterations
+  further, but that is a new protocol.
+
+## Tool timings
+
+| When (UTC) | Tool run | Wall | Peak RSS | Note |
+| --- | --- | ---: | ---: | --- |
+| 09:30 | venv + `maturin develop` (setup) | 83 s | | |
+| 09:38 | precondition `-01` (build, validator, K precondition, bench) | 54.5 + 12.4 + 7.4 + 5.2 s | 151 MB | all pass |
+| 09:52 | compatibility `-02` (build 94 s, maturin 148 s, bench ×4, validator, K precondition) | ≈ 5 min | 151 MB | load 57; all pass |
+| 10:00 | `cargo test --release --lib solve::` | 2 min 45 s build, 9.3 s tests | | 14 pass |
+| 10:00 | `pytest tests/test_l5_solver.py` | 3.5 s | | 8 pass |
+| 10:00–10:16 | fixture sweeps `-03`, `-06`, `-08` | 57–59 s each | 205–211 MB | load 55–60 |
+| 10:01–10:14 | slice sweeps `-04`, `-07`, `-09` | 63–84 s each | 231 MB | |
+| 10:01 | diagnostic `-05` (slice, R to 5,000 iterations) | 4 min 46 s | 93 MB | post hoc |
+| 10:15–10:17 | confirms `-10`…`-14` | 7–35 s each | 118–506 MB | load 66–75 |
+| 11:03–11:56 | 32-station sweep `-15` | 52 min 50 s | 3.5 GB | load 75–80 |
+| 11:56–11:58 | 32-station confirms `-16` (images), `-17` | 1 min 59 s, 43 s | 5.8 GB | load 6–19 |
+| 11:58–12:24 | whole-array lean sweep `-18` | 25 min 41 s | 10.1 GB | load 5; MemAvailable 29.9 GiB at start |
+| 12:24–12:29 | whole-array confirm `-19` (3 A/B pairs, images of D and C, 59 s and 55 s) | 4 min 38 s | 12.2 GB | load 4–5; D's residual RMS 0.01642364968142557 = L1's `original` 0.016423649681425574 |
+
+## For the coordinator
+
+**STATE paragraph.** L5 solver science (branch `l5-solver-science`,
+[l5-solver-science.md](l5-solver-science.md)): the core solver gains
+run-time options through `RANG_SOLVE_OPTIONS` (default = archived QuartiCal
+0.2.7, bit-identical: task F checks at 1/4/8 threads, phase 2 validator, K
+precondition, K's and L1's `original` gains hashes): the issue 452 qp weight
+fix, gauge-invariant product and loss stop tests, safeguarded Anderson
+acceleration of the two-step Gauss–Newton map, per-interval freeze, and a
+per-iteration trace (`RANG_SOLVE_TRACE`). Measured on the fixture, the
+four-station slice, 32 stations and the whole array (56 stations):
+the weight fix changes no held-out error (≤ 8e-9 relative); no stop
+criterion beats the 50 cap on all sets (the frozen selection, cap 8, fails
+the fixture by 3.9e-3); Anderson m = 3 reaches the 0.99 criterion at 27 /
+21 / 65 / 65 iterations where plain needs 55 / 91 / > 300 / > 300, with the
+same held-out error and fixed point where the plain run converged, and at
+the cap of 50 lifts the array's converged fraction from 0.833 to 0.982 at
+equal cost. As frozen no default changes; the options are opt-in.
+
+**Timing rows** (research/tool-timings.md): the "Tool timings" table above;
+the longest are the 32-station sweep (52 min 50 s, 3.5 GB, load 75–80), the
+whole-array lean sweep (25 min 41 s, 10.1 GB, load 5) and its confirm with
+two array images (4 min 38 s, 12.2 GB); check-all as recorded below.
+
+**Binding lines.** None needed: no new module (everything is in
+`core/src/solve.rs`), no `pub mod`, no C function and no extension change.
+The options reach both backends through the environment variable read in
+`solve::solve`. A later Python keyword (e.g. `solve_complex(...,
+options="...")`) would be one string argument passed to `solve::solve_with`
+after `Options::parse`; that is a binding change for whoever owns
+`core/py/src/lib.rs`, `ffi.rs` and `core.py`.
+
+**Recommendation on defaults (with numbers).** Keep the archived defaults
+(as frozen nothing passes). Offer `qp_weights=transposed,anderson=3` as the
+documented opt-in: on the whole array at the 50 cap it gives converged
+fraction 0.982 vs 0.833, MSE_test −6.8e-7 relative, residual RMS ratio
+1 − 1.6e-9, wall 19.8 vs 20.2 s; on the slice it stops at 21 iterations
+(wall −55 %, MSE_test −8.8e-8). If the user wants a default change, the
+candidate for a new protocol is `qp_weights=transposed,anderson=3` with a
+cap of 70 (array 0.99 at 65), judged against a converged plain reference.
+
+**Upstream QuartiCal improvement (convergence criterion).** Task U2 has
+filed ratt-ru/QuartiCal#455 (QuartiCal 0.2.7 on scan 9: the iteration cap
+ends the solve). Numbers to add there as a comment (from the validated
+port of 0.2.7's `complex` term, not a fresh QuartiCal run, except the 50-
+iteration figure on the LUNO slice, which is QuartiCal's own archived
+0.9833):
+
+> On MeerKAT L-band 1934−638 (LUNO row chunk 0, 2 × 32 solution intervals,
+> stop_crit 1e-7, fraction 0.99): the fraction of gains passing at 50
+> iterations is 0.983 on four stations (0.99 reached at 91), 0.603 on 32
+> stations and 0.833 on 56 stations, and 0.86 / 0.98 after 300 iterations
+> on 32 / 56 stations. The held-out (10 % validation, 10 % test) weighted
+> MSE is within 1e-4 of a 300–500 iteration solve by iteration 12–16 and
+> within 1e-5 by 24 on all three. The gains that never pass sit in a few
+> poorly constrained intervals (the median baseline-product change per
+> iteration is 3e-16 at 300 iterations, the maximum 2e-4). Gauge-invariant
+> products G_p G_q^H converge as slowly there, so a product criterion at
+> 1e-5 does not stop by 300 either. Anderson acceleration (type II, depth
+> 3, applied to the pair of half and full steps, with a reset when the
+> residual grows) reaches the 0.99 criterion at 21 / 65 / 65 iterations
+> on 4 / 32 / 56 stations, with the same held-out error and, where the
+> plain iteration converged, the same baseline products to 1e-13.
+> Suggestions: count only intervals/baselines constrained by data in the
+> stop fraction, report the stop reason (cap or criterion), and consider
+> Anderson acceleration of the update.
+
+**Evidence to keep.** `research/results/l5-solver-science.json` (compact
+archive: every arm's metrics, the R and Anderson curves per iteration, the
+confirms and the post-hoc diagnostic); run directories
+`outputs/l5-solver-20261030-01` (precondition), `-02` (compatibility),
+`-05` (diagnostic), `-08`, `-09`, `-15`, `-18` (sweeps, with the traces of
+R, R_T and Anderson), `-10`…`-14`, `-16`, `-17`, `-19` (confirms, images)
+and their `.log` files. The superseded sweeps `-03`, `-04`, `-06`, `-07`
+(identical arms, fewer metrics) can be deleted.

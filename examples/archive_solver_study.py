@@ -69,7 +69,8 @@ def sweep(path):
                 "curves_every_iteration": {
                     name: values
                     for name, values in run["curves"].items()
-                    if name
+                    if label in ("R", "AA3")
+                    and name
                     in (
                         "gain_1e-7",
                         "product_0.0001",
