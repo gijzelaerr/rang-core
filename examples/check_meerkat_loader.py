@@ -1,7 +1,7 @@
 """MK1 acceptance: the MVFv4 loader against raw chunks, katdal and mvftoms.
 
 Protocol: research/mk1-katdal.md (frozen before the loader was written).
-Writes a synthetic MVFv4 archive with katdal's own writers into `--out`,
+Writes a synthetic MVFv4 archive with katdal's own writers into OUT,
 then measures:
 
   (a) the loader against arrays recomputed from the raw `.npy` chunks and
@@ -535,7 +535,7 @@ def _vm_hwm():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--out", type=Path)
+    parser.add_argument("out", type=Path, nargs="?", help="fresh output directory")
     parser.add_argument(
         "--large",
         type=Path,
@@ -549,6 +549,8 @@ def main():
         rdb, root, prefix = args.cost
         print(json.dumps(cost(meerkat.open_mvf(rdb), root, prefix, every_dump=True)))
         return 0
+    if args.out is None:
+        parser.error("OUT is required")
     if args.out.exists():
         raise SystemExit(f"{args.out} exists; use a fresh output directory")
     args.out.mkdir(parents=True)

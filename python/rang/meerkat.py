@@ -434,6 +434,13 @@ def write_synthetic_mvf(
     `sdp_l1_flags` stream that differs from L0, one deleted visibility chunk
     and one zero autocorrelation. Returns a dict with the paths, the stored
     arrays and the parameters.
+
+    The telstate key layout and the chunk_info records are adapted from
+    katdal 0.23's test helpers `_make_fake_stream` / `make_fake_data_source`
+    (`katdal/test/test_datasources.py`) and `put_fake_dataset`
+    (`test_vis_flags_weights.py`), BSD-3-Clause, National Research
+    Foundation (SARAO); extended with the keys `VisibilityDataV4` and
+    `mvftoms.py` need (antennas, sensors, targets, obs_params).
     """
     import dask.array as da
     import katpoint
