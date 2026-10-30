@@ -1391,48 +1391,87 @@ fn values<T: Real>(
 
 // ---------------------------------------------------------------- kernels
 
-/// Kernel coefficients degree-major: `c[k * W + i]` is the coefficient of
-/// degree `D - k` of tap `i` (`W` taps, degree `D`), so that Horner's rule
-/// runs across the taps in fixed-size arrays the compiler vectorises. Each
-/// Horner step is one fused multiply-add (as ducc0 compiled with FMA).
-fn coeff_degree_major<T: Real>(kernel: &EsKernel) -> Vec<T> {
+/// Kernel coefficients split into even and odd powers (ducc0's
+/// `TemplateKernel`): each tap's polynomial `p(x) = Pe(x^2) + x Po(x^2)`,
+/// the degree padded to odd. Layout: `ne` rows of `W` even coefficients,
+/// highest power first, then `ne` rows of odd ones (`c[k * W + i]` and
+/// `c[(ne + k) * W + i]` for tap `i`), so that Horner's rule in `x^2` runs
+/// across taps in fixed-size arrays the compiler vectorises.
+fn coeff_even_odd<T: Real>(kernel: &EsKernel) -> Vec<T> {
     let w = kernel.support;
-    let d1 = kernel.degree + 1;
-    let mut out = vec![T::zero(); w * d1];
+    let d = kernel.degree;
+    let d1 = d + 1;
+    let dodd = d | 1;
+    let ne = dodd.div_ceil(2);
+    // Coefficient of x^m of tap i (zero above the degree).
+    let a = |i: usize, m: usize| {
+        if m > d {
+            0.0
+        } else {
+            kernel.coeff[i * d1 + (d - m)]
+        }
+    };
+    let mut out = vec![T::zero(); 2 * ne * w];
     for i in 0..w {
-        for k in 0..d1 {
-            out[k * w + i] = T::of(kernel.coeff[i * d1 + k]);
+        for k in 0..ne {
+            out[k * w + i] = T::of(a(i, dodd - 1 - 2 * k));
+            out[(ne + k) * w + i] = T::of(a(i, dodd - 2 * k));
         }
     }
     out
 }
 
-/// The `S` u taps at `x` and v taps at `y` by Horner's rule across taps.
+/// The `S` u taps at `x` and v taps at `y`. The first `ceil(S / 2)` taps
+/// are evaluated by Horner's rule in `x^2` (one fused multiply-add per
+/// step); the others are their mirror images (`p_{S-1-i}(x) = p_i(-x)`,
+/// the kernel being symmetric), as ducc0 does.
 #[inline(always)]
 fn eval_taps2<T: Real, const S: usize>(c: &[T], x: T, y: T) -> ([T; S], [T; S]) {
-    let d1 = c.len() / S;
+    let h = S.div_ceil(2);
+    let ne = c.len() / (2 * S);
+    let (x2, y2) = (x * x, y * y);
     let first: &[T; S] = c[..S].try_into().unwrap();
-    let mut ru = *first;
-    let mut rv = *first;
-    for k in 1..d1 {
-        let ck: &[T; S] = c[k * S..(k + 1) * S].try_into().unwrap();
-        for i in 0..S {
-            ru[i] = ru[i].mul_add(x, ck[i]);
-            rv[i] = rv[i].mul_add(y, ck[i]);
+    let (mut ex, mut ey) = (*first, *first);
+    let firsto: &[T; S] = c[ne * S..(ne + 1) * S].try_into().unwrap();
+    let (mut ox, mut oy) = (*firsto, *firsto);
+    for k in 1..ne {
+        let ce: &[T; S] = c[k * S..(k + 1) * S].try_into().unwrap();
+        let co: &[T; S] = c[(ne + k) * S..(ne + k + 1) * S].try_into().unwrap();
+        for i in 0..h {
+            ex[i] = ex[i].mul_add(x2, ce[i]);
+            ey[i] = ey[i].mul_add(y2, ce[i]);
+            ox[i] = ox[i].mul_add(x2, co[i]);
+            oy[i] = oy[i].mul_add(y2, co[i]);
         }
+    }
+    let mut ru = [T::zero(); S];
+    let mut rv = [T::zero(); S];
+    for i in 0..h {
+        ru[i] = ox[i].mul_add(x, ex[i]);
+        rv[i] = oy[i].mul_add(y, ey[i]);
+    }
+    for i in 0..S - h {
+        ru[S - 1 - i] = ox[i].mul_add(-x, ex[i]);
+        rv[S - 1 - i] = oy[i].mul_add(-y, ey[i]);
     }
     (ru, rv)
 }
 
-/// Tap `i` alone (the w kernel of one plane).
+/// Tap `i` alone at `x` (the w kernel of one plane), mirrored as the u
+/// and v taps.
 #[inline(always)]
 fn eval_tap<T: Real, const S: usize>(c: &[T], i: usize, x: T) -> T {
-    let d1 = c.len() / S;
-    let mut r = c[i];
-    for k in 1..d1 {
-        r = r.mul_add(x, c[k * S + i]);
+    let h = S.div_ceil(2);
+    let (i, x) = if i < h { (i, x) } else { (S - 1 - i, -x) };
+    let ne = c.len() / (2 * S);
+    let x2 = x * x;
+    let mut e = c[i];
+    let mut o = c[ne * S + i];
+    for k in 1..ne {
+        e = e.mul_add(x2, c[k * S + i]);
+        o = o.mul_add(x2, c[(ne + k) * S + i]);
     }
-    r
+    o.mul_add(x, e)
 }
 
 /// The kernel taps of one visibility on one plane (DF1's `taps`): `ku`
@@ -2110,7 +2149,7 @@ pub fn vis2dirty_multi<T: Real>(
     let stored = values::<T>(&setup, &bl, &lay.refs, stored_data, wgt);
     timer.lap("values");
     let ffts = Ffts::<T>::new(setup.nu, setup.nv);
-    let coeff = coeff_degree_major::<T>(&setup.kernel);
+    let coeff = coeff_even_odd::<T>(&setup.kernel);
     let table = if setup.do_wgridding {
         setup.screen_table()
     } else {
@@ -2476,7 +2515,7 @@ pub fn dirty2vis_multi<T: Real>(
             }
         });
     let ffts = Ffts::<T>::new(setup.nu, setup.nv);
-    let coeff = coeff_degree_major::<T>(&setup.kernel);
+    let coeff = coeff_even_odd::<T>(&setup.kernel);
     let table = if setup.do_wgridding {
         setup.screen_table()
     } else {
