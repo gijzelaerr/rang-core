@@ -1,5 +1,36 @@
 # Rang research state
 
+CLEAN theory (user-directed study; [clean-theory.md](clean-theory.md)),
+2026-10-30 (implemented; measured). Verdict on "CLEAN was never proven":
+false for Högbom's iteration as a data fit (Schwarz 1978; his 1984 summary
+read in full: Q = Δtᵀ B Δt falls by g(2−g) r² per step for 0 < g < 2 with a
+symmetric PSD beam), true for the limit being the sky outside the sparse
+regime, for Clark/Cotton-Schwab/multi-scale as run, and for noise. Formalism:
+CLEAN is the pure greedy algorithm on the pixel atoms in the weighted
+visibility space; the PSF is their Gram matrix, so the three classical
+conditions collapse to one (the subtracted beam must be that Gram matrix),
+and every known divergence mode is its violation. Theorems: the exact
+one-step identity, square-summable peaks and residual image → 0 for τ-weak
+greedy rules, convergence to the least-squares fit Q_∞, a geometric rate set
+by the greedy ratio κ (≥ λ_min(B_SS)/k on a k-support, ≈ 1/N on noise), the
+coherence pick condition, Tropp's ERC, a separated-source corollary, and a
+provable Clark minor-cycle rule (continue while f Σ|c_j| < (1 − γ/2)|r̃_p|).
+Lean (`formal/RangFormal/Clean.lean`, Mathlib v4.33.1): Theorems 1-4 checked,
+standard axioms only, 44 s builds. Rust (`core/src/clean.rs`, example
+`clean_theory`, 5 tests): on MeerKAT snapshot and track PSFs (64 antennas,
+2″ pixels) the identity holds to 2e-13 and gain 2.1 diverges; same-grid and
+patch beams raise Q on 44-93 % of steps and natural-weight ±8 patches
+diverge; the on-grid coherence is 0.68-0.93 so the coherence bound allows
+one source, while the ERC never failed in 9,600 noiseless trials and 12
+sources 8 px apart are recovered 100 % on three of four configurations;
+measured κ is 1.5-3.2× its bound; pure-noise κ matches 1/N; an off-grid
+source fits Q to 1e-6 with 157-713 pixels; Clark's rule leaves 0-119 ascending
+minor steps per 200, the provable rule none; a Gaussian disc is fitted to
+1e-6 by every gain with limits differing by 0.26-0.42 peak rms and negative
+pixels to −1.9 peak at gain 1. No pipeline change; three diagnostics proposed
+(Gram-consistency gap, Q_∞ floor and κ, ERC certificate). Archive
+`results/clean-theory.json`; `data/meerkat.itrf.txt` added with provenance.
+
 PC1 preconditions (big plan; [pc1-preconditions.md](pc1-preconditions.md)),
 2026-10-30 (fixed; measured): the L1 and L2 preconditions pass again. Both
 failures were merge interactions, not regressions inside a task. L1's

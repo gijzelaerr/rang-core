@@ -4,6 +4,14 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: [CLEAN theory](clean-theory.md): the claim that CLEAN was
+never proven is folklore (Schwarz 1978 proved the data fit converges for
+0 < g < 2); a Gram-matrix formalism reduces his three conditions to one,
+seven theorems are machine-checked in Lean (`formal/`), and MeerKAT
+measurements show the one-step identity to 1e-13, the coherence bound
+vacuous, Tropp's ERC exact in 9,600 trials, Clark's rule without guarantee
+and a provable minor-cycle rule with one ([archive](results/clean-theory.json)).
+
 New, 2026-10-30: PC1, [preconditions](pc1-preconditions.md): the L1 and L2
 precondition failures traced to two merge interactions and fixed; both now
 run in the test suite.
