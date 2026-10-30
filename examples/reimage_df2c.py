@@ -450,7 +450,7 @@ def cmd_summary(args):
         rec = read_json(path)
         meta.append(
             {
-                "path": str(Path(path).relative_to(ROOT)),
+                "path": str(path),
                 "dataset": rec["dataset"],
                 "head": rec["head"],
                 "state_seconds": rec["state_seconds"],

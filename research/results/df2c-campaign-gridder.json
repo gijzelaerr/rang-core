@@ -1,0 +1,2077 @@
+{
+ "all_calls_unchanged": true,
+ "all_reconstructions_pass": true,
+ "archives": {
+  "c1": {
+   "archived_channel_groups": 4,
+   "arms_imaged": [
+    "closure-outlier",
+    "closure-tv-policy",
+    "original",
+    "tricolour-firstpass",
+    "tricolour-firstpass+tv-a1",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best"
+   ],
+   "calls": [
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954194601528616
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954217830442512
+     },
+     "where": "result/amendment_1/pairs/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000001807016536
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000001744113143
+     },
+     "where": "result/amendment_1/pairs/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/amendment_1/pairs/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tricolour-firstpass+tv-a1",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/3"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954194601528616
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954217830442512
+     },
+     "where": "result/hypotheses/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000001807016536
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000001744113143
+     },
+     "where": "result/hypotheses/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/hypotheses/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954194601528616
+     },
+     "pair": [
+      "closure-tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954217830442512
+     },
+     "where": "c1/calls/0/frozen"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000001807016536
+     },
+     "pair": [
+      "closure-tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000001744113143
+     },
+     "where": "c1/calls/1/frozen"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "closure-tv-policy",
+      "tv-policy"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "c1/calls/2/frozen"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954214588240746
+     },
+     "pair": [
+      "closure-outlier",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954236518516959
+     },
+     "where": "c1/calls/3/frozen"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000021885703505
+     },
+     "pair": [
+      "closure-outlier",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000020518142427
+     },
+     "where": "c1/calls/4/frozen"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000020078683338
+     },
+     "pair": [
+      "closure-outlier",
+      "tv-policy"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000018774026012
+     },
+     "where": "c1/calls/5/frozen"
+    }
+   ],
+   "calls_unchanged": true,
+   "metrics": {
+    "closure-outlier": {
+     "flux_recovery": {
+      "archive": 1.1193771524116414,
+      "wgrid": 1.1193771694177377
+     },
+     "offsource_rms": {
+      "archive": 0.07069232110972608,
+      "wgrid": 0.06879314199314408
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800384562925869,
+      "wgrid": 14.80038478778017
+     },
+     "residual_rms": {
+      "archive": 0.01642368562573833,
+      "wgrid": 0.016365062366240943
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995445946132852,
+      "wgrid": 0.0038827173814933906
+     }
+    },
+    "closure-tv-policy": {
+     "flux_recovery": {
+      "archive": 1.1193771887678718,
+      "wgrid": 1.119377205767733
+     },
+     "offsource_rms": {
+      "archive": 0.07069130424221975,
+      "wgrid": 0.0687921947122231
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389313712394,
+      "wgrid": 14.800389538484318
+     },
+     "residual_rms": {
+      "archive": 0.016423652649206248,
+      "wgrid": 0.01636503164248797
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995716286610241,
+      "wgrid": 0.003882572432789381
+     }
+    },
+    "original": {
+     "flux_recovery": {
+      "archive": 1.1193772823073804,
+      "wgrid": 1.1193772993132165
+     },
+     "offsource_rms": {
+      "archive": 0.07069122384805156,
+      "wgrid": 0.06879210427943953
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389482969088,
+      "wgrid": 14.800389707819994
+     },
+     "residual_rms": {
+      "archive": 0.01642364968142559,
+      "wgrid": 0.01636502878824179
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995819949157625,
+      "wgrid": 0.0038826265050226436
+     }
+    },
+    "tricolour-firstpass": {
+     "flux_recovery": {
+      "archive": 1.1192049633332142,
+      "wgrid": 1.1192049803409603
+     },
+     "offsource_rms": {
+      "archive": 0.0716730716271565,
+      "wgrid": 0.06973299249053702
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.798261581441999,
+      "wgrid": 14.798261806320447
+     },
+     "residual_rms": {
+      "archive": 0.016499228020601636,
+      "wgrid": 0.01644029889765881
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0040556592733391765,
+      "wgrid": 0.003938754314118913
+     }
+    },
+    "tricolour-firstpass+tv-a1": {
+     "flux_recovery": {
+      "archive": 1.1192049633332142,
+      "wgrid": 1.1192049803409603
+     },
+     "offsource_rms": {
+      "archive": 0.0716730716271565,
+      "wgrid": 0.06973299249053702
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.798261581441999,
+      "wgrid": 14.798261806320447
+     },
+     "residual_rms": {
+      "archive": 0.016499228020601636,
+      "wgrid": 0.01644029889765881
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0040556592733391765,
+      "wgrid": 0.003938754314118913
+     }
+    },
+    "tricolour-mild": {
+     "flux_recovery": {
+      "archive": 1.119594442532328,
+      "wgrid": 1.1195944595866303
+     },
+     "offsource_rms": {
+      "archive": 0.07106895478165409,
+      "wgrid": 0.0691560232079013
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.79945432019983,
+      "wgrid": 14.799454545633575
+     },
+     "residual_rms": {
+      "archive": 0.016488445799386856,
+      "wgrid": 0.016429420222228115
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.004002256739360216,
+      "wgrid": 0.0038878552570754954
+     }
+    },
+    "tv-policy": {
+     "flux_recovery": {
+      "archive": 1.1193771887678718,
+      "wgrid": 1.119377205767733
+     },
+     "offsource_rms": {
+      "archive": 0.07069130424221975,
+      "wgrid": 0.0687921947122231
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389313712394,
+      "wgrid": 14.800389538484318
+     },
+     "residual_rms": {
+      "archive": 0.016423652649206248,
+      "wgrid": 0.01636503164248797
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995716286610241,
+      "wgrid": 0.003882572432789381
+     }
+    },
+    "tv-unguided-best": {
+     "flux_recovery": {
+      "archive": 1.1193771887678718,
+      "wgrid": 1.119377205767733
+     },
+     "offsource_rms": {
+      "archive": 0.07069130424221975,
+      "wgrid": 0.0687921947122231
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389313712394,
+      "wgrid": 14.800389538484318
+     },
+     "residual_rms": {
+      "archive": 0.016423652649206248,
+      "wgrid": 0.01636503164248797
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995716286610241,
+      "wgrid": 0.003882572432789381
+     }
+    }
+   },
+   "reconstruction_pass": true,
+   "reconstruction_worst_metric_relative": 0.0,
+   "result_sha256": "5e1138231d1c7afe5904b6f4ece5185cd7bca653402d0938a0ef8b6c9451578a",
+   "run": "outputs/c1-20261030-01",
+   "wgrid_vs_archive": {
+    "dirty": {
+     "central_half_linf_over_peak": 0.00012067844691562686,
+     "edge_linf_over_peak": 0.004461938934695803,
+     "linf_over_peak": 0.004461938934695803,
+     "rms_over_peak": 0.0005000155611933453
+    },
+    "psf": {
+     "central_half_linf_over_peak": 0.00011945868305171872,
+     "edge_linf_over_peak": 0.0044595804021029225,
+     "linf_over_peak": 0.0044595804021029225,
+     "rms_over_peak": 0.0004947774177986946
+    }
+   }
+  },
+  "l1": {
+   "archived_channel_groups": 4,
+   "arms_imaged": [
+    "original",
+    "tricolour-firstpass",
+    "tricolour-firstpass+tv-a1",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best"
+   ],
+   "calls": [
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954194601528603
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954217830442512
+     },
+     "where": "result/amendment_1/pairs/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000001807016536
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000001744113143
+     },
+     "where": "result/amendment_1/pairs/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/amendment_1/pairs/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tricolour-firstpass+tv-a1",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/3"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954194601528603
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954217830442512
+     },
+     "where": "result/hypotheses/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000001807016536
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000001744113143
+     },
+     "where": "result/hypotheses/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/hypotheses/2"
+    }
+   ],
+   "calls_unchanged": true,
+   "metrics": {
+    "original": {
+     "flux_recovery": {
+      "archive": 1.1193772823073809,
+      "wgrid": 1.1193772993132165
+     },
+     "offsource_rms": {
+      "archive": 0.07069122384805156,
+      "wgrid": 0.06879210427943953
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389482969091,
+      "wgrid": 14.800389707819994
+     },
+     "residual_rms": {
+      "archive": 0.016423649681425574,
+      "wgrid": 0.01636502878824179
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995819949161822,
+      "wgrid": 0.0038826265050226436
+     }
+    },
+    "tricolour-firstpass": {
+     "flux_recovery": {
+      "archive": 1.1192049633332142,
+      "wgrid": 1.1192049803409603
+     },
+     "offsource_rms": {
+      "archive": 0.0716730716271565,
+      "wgrid": 0.06973299249053702
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.798261581441999,
+      "wgrid": 14.798261806320447
+     },
+     "residual_rms": {
+      "archive": 0.01649922802060164,
+      "wgrid": 0.01644029889765881
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0040556592733392485,
+      "wgrid": 0.003938754314118913
+     }
+    },
+    "tricolour-firstpass+tv-a1": {
+     "flux_recovery": {
+      "archive": 1.1192049633332142,
+      "wgrid": 1.1192049803409603
+     },
+     "offsource_rms": {
+      "archive": 0.0716730716271565,
+      "wgrid": 0.06973299249053702
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.798261581441999,
+      "wgrid": 14.798261806320447
+     },
+     "residual_rms": {
+      "archive": 0.01649922802060164,
+      "wgrid": 0.01644029889765881
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0040556592733392485,
+      "wgrid": 0.003938754314118913
+     }
+    },
+    "tricolour-mild": {
+     "flux_recovery": {
+      "archive": 1.1195944425323283,
+      "wgrid": 1.1195944595866303
+     },
+     "offsource_rms": {
+      "archive": 0.0710689547816541,
+      "wgrid": 0.0691560232079013
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.799454320199834,
+      "wgrid": 14.799454545633575
+     },
+     "residual_rms": {
+      "archive": 0.01648844579938686,
+      "wgrid": 0.016429420222228115
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.004002256739360106,
+      "wgrid": 0.0038878552570754954
+     }
+    },
+    "tv-policy": {
+     "flux_recovery": {
+      "archive": 1.1193771887678718,
+      "wgrid": 1.119377205767733
+     },
+     "offsource_rms": {
+      "archive": 0.07069130424221975,
+      "wgrid": 0.0687921947122231
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389313712396,
+      "wgrid": 14.800389538484318
+     },
+     "residual_rms": {
+      "archive": 0.01642365264920623,
+      "wgrid": 0.01636503164248797
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995716286610482,
+      "wgrid": 0.003882572432789381
+     }
+    },
+    "tv-unguided-best": {
+     "flux_recovery": {
+      "archive": 1.1193771887678718,
+      "wgrid": 1.119377205767733
+     },
+     "offsource_rms": {
+      "archive": 0.07069130424221975,
+      "wgrid": 0.0687921947122231
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389313712396,
+      "wgrid": 14.800389538484318
+     },
+     "residual_rms": {
+      "archive": 0.01642365264920623,
+      "wgrid": 0.01636503164248797
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995716286610482,
+      "wgrid": 0.003882572432789381
+     }
+    }
+   },
+   "reconstruction_pass": true,
+   "reconstruction_worst_metric_relative": 1.0562350693212259e-15,
+   "result_sha256": "350a9ff9f5a11c6683d30041bdf87733109b40cbe4240b0539299ce208a8f10c",
+   "run": "outputs/luno-array-campaign-20261030-01",
+   "wgrid_vs_archive": {
+    "dirty": {
+     "central_half_linf_over_peak": 0.00012067844691562686,
+     "edge_linf_over_peak": 0.004461938934695803,
+     "linf_over_peak": 0.004461938934695803,
+     "rms_over_peak": 0.0005000155611933454
+    },
+    "psf": {
+     "central_half_linf_over_peak": 0.00011945868305171872,
+     "edge_linf_over_peak": 0.0044595804021029225,
+     "linf_over_peak": 0.0044595804021029225,
+     "rms_over_peak": 0.0004947774177986946
+    }
+   }
+  },
+  "l1m-field": {
+   "archived_channel_groups": 4,
+   "arms_imaged": [
+    "original",
+    "tricolour-firstpass",
+    "tricolour-firstpass+tv-a1",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best"
+   ],
+   "calls": [
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.994095300838275
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9941764425993161
+     },
+     "where": "result/amendment_1/pairs/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.000000025229142
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.000000067554991
+     },
+     "where": "result/amendment_1/pairs/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/amendment_1/pairs/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tricolour-firstpass+tv-a1",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/3"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.994095300838275
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9941764425993161
+     },
+     "where": "result/hypotheses/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.000000025229142
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.000000067554991
+     },
+     "where": "result/hypotheses/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/hypotheses/2"
+    }
+   ],
+   "calls_unchanged": true,
+   "metrics": {
+    "original": {
+     "flux_recovery": {
+      "archive": 1.1285873727794713,
+      "wgrid": 1.1285874261318647
+     },
+     "offsource_rms": {
+      "archive": 0.07064762369878234,
+      "wgrid": 0.06874943437055497
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.763363921966572,
+      "wgrid": 14.763364619884003
+     },
+     "residual_rms": {
+      "archive": 0.018948981795314433,
+      "wgrid": 0.01882811598160945
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.00826288674858799,
+      "wgrid": 0.008016977154479058
+     }
+    },
+    "tricolour-firstpass": {
+     "flux_recovery": {
+      "archive": 1.1283802803368757,
+      "wgrid": 1.1283803337653011
+     },
+     "offsource_rms": {
+      "archive": 0.07162860997532094,
+      "wgrid": 0.0696894827123128
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.761006775467049,
+      "wgrid": 14.761007474395738
+     },
+     "residual_rms": {
+      "archive": 0.019061534902541213,
+      "wgrid": 0.018938406148827816
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.00833776463382035,
+      "wgrid": 0.008081276513424529
+     }
+    },
+    "tricolour-firstpass+tv-a1": {
+     "flux_recovery": {
+      "archive": 1.1283802803368757,
+      "wgrid": 1.1283803337653011
+     },
+     "offsource_rms": {
+      "archive": 0.07162860997532094,
+      "wgrid": 0.0696894827123128
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.761006775467049,
+      "wgrid": 14.761007474395738
+     },
+     "residual_rms": {
+      "archive": 0.019061534902541213,
+      "wgrid": 0.018938406148827816
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.00833776463382035,
+      "wgrid": 0.008081276513424529
+     }
+    },
+    "tricolour-mild": {
+     "flux_recovery": {
+      "archive": 1.129020167206358,
+      "wgrid": 1.1290202203372282
+     },
+     "offsource_rms": {
+      "archive": 0.0710250316551044,
+      "wgrid": 0.06911303519429086
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.764993118529736,
+      "wgrid": 14.764993813359604
+     },
+     "residual_rms": {
+      "archive": 0.01890827557217722,
+      "wgrid": 0.018786779155049775
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008159431052821837,
+      "wgrid": 0.007918452432533075
+     }
+    },
+    "tv-policy": {
+     "flux_recovery": {
+      "archive": 1.128587191492241,
+      "wgrid": 1.1285872448506546
+     },
+     "offsource_rms": {
+      "archive": 0.07064770524637252,
+      "wgrid": 0.06874952588377801
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.763363703107352,
+      "wgrid": 14.763364401103637
+     },
+     "residual_rms": {
+      "archive": 0.018948982273380988,
+      "wgrid": 0.018828117253542654
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008262793723644642,
+      "wgrid": 0.008016894393100266
+     }
+    },
+    "tv-unguided-best": {
+     "flux_recovery": {
+      "archive": 1.128587191492241,
+      "wgrid": 1.1285872448506546
+     },
+     "offsource_rms": {
+      "archive": 0.07064770524637252,
+      "wgrid": 0.06874952588377801
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.763363703107352,
+      "wgrid": 14.763364401103637
+     },
+     "residual_rms": {
+      "archive": 0.018948982273380988,
+      "wgrid": 0.018828117253542654
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008262793723644642,
+      "wgrid": 0.008016894393100266
+     }
+    }
+   },
+   "reconstruction_pass": true,
+   "reconstruction_worst_metric_relative": 0.0,
+   "result_sha256": "1d14009a5217a1bc86afefaa05fbbe8a3a6e3fc6230823d7ed883f8c2b9c14eb",
+   "run": "outputs/l1m-20261030-03-field",
+   "wgrid_vs_archive": {
+    "dirty": {
+     "central_half_linf_over_peak": 0.00012102100063510576,
+     "edge_linf_over_peak": 0.004461529543029691,
+     "linf_over_peak": 0.004461529543029691,
+     "rms_over_peak": 0.0005010338945750654
+    },
+    "psf": {
+     "central_half_linf_over_peak": 0.00011945868305171872,
+     "edge_linf_over_peak": 0.004459584681311067,
+     "linf_over_peak": 0.004459584681311067,
+     "rms_over_peak": 0.0004947774177986946
+    }
+   }
+  },
+  "l1m-point": {
+   "archived_channel_groups": 4,
+   "arms_imaged": [
+    "original",
+    "tricolour-firstpass",
+    "tricolour-firstpass+tv-a1",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best"
+   ],
+   "calls": [
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9940951395953559
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9941758385860395
+     },
+     "where": "result/amendment_1/pairs/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.000000165556094
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.000000211209308
+     },
+     "where": "result/amendment_1/pairs/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/amendment_1/pairs/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tricolour-firstpass+tv-a1",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/3"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9940951395953559
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9941758385860395
+     },
+     "where": "result/hypotheses/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.000000165556094
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.000000211209308
+     },
+     "where": "result/hypotheses/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/hypotheses/2"
+    }
+   ],
+   "calls_unchanged": true,
+   "metrics": {
+    "original": {
+     "flux_recovery": {
+      "archive": 1.1285811536555876,
+      "wgrid": 1.128581206846758
+     },
+     "offsource_rms": {
+      "archive": 0.07064963584263445,
+      "wgrid": 0.06875132690714418
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.763831480303727,
+      "wgrid": 14.763832176138026
+     },
+     "residual_rms": {
+      "archive": 0.018950663330974834,
+      "wgrid": 0.01882979803525141
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008261593000816471,
+      "wgrid": 0.0080165877717102
+     }
+    },
+    "tricolour-firstpass": {
+     "flux_recovery": {
+      "archive": 1.1283729604492092,
+      "wgrid": 1.1283730137204133
+     },
+     "offsource_rms": {
+      "archive": 0.07163052478010498,
+      "wgrid": 0.0696912928743997
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.761458754765597,
+      "wgrid": 14.76145945166344
+     },
+     "residual_rms": {
+      "archive": 0.019063232193335597,
+      "wgrid": 0.01894011228341718
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008336397515494916,
+      "wgrid": 0.008082332648930672
+     }
+    },
+    "tricolour-firstpass+tv-a1": {
+     "flux_recovery": {
+      "archive": 1.1283729604492092,
+      "wgrid": 1.1283730137204133
+     },
+     "offsource_rms": {
+      "archive": 0.07163052478010498,
+      "wgrid": 0.0696912928743997
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.761458754765597,
+      "wgrid": 14.76145945166344
+     },
+     "residual_rms": {
+      "archive": 0.019063232193335597,
+      "wgrid": 0.01894011228341718
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008336397515494916,
+      "wgrid": 0.008082332648930672
+     }
+    },
+    "tricolour-mild": {
+     "flux_recovery": {
+      "archive": 1.1290134759819648,
+      "wgrid": 1.1290135289518592
+     },
+     "offsource_rms": {
+      "archive": 0.07102702600636941,
+      "wgrid": 0.06911490916701428
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.765463349046717,
+      "wgrid": 14.765464041797557
+     },
+     "residual_rms": {
+      "archive": 0.018910206890542937,
+      "wgrid": 0.01878870600473297
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008160987268390249,
+      "wgrid": 0.007918981021975231
+     }
+    },
+    "tv-policy": {
+     "flux_recovery": {
+      "archive": 1.1285810483607122,
+      "wgrid": 1.128581101560885
+     },
+     "offsource_rms": {
+      "archive": 0.07064970316286907,
+      "wgrid": 0.0687514047723285
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.763831179159853,
+      "wgrid": 14.763831875111972
+     },
+     "residual_rms": {
+      "archive": 0.018950666468372634,
+      "wgrid": 0.018829802012280024
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008261653925630056,
+      "wgrid": 0.008016643238385256
+     }
+    },
+    "tv-unguided-best": {
+     "flux_recovery": {
+      "archive": 1.1285810483607122,
+      "wgrid": 1.128581101560885
+     },
+     "offsource_rms": {
+      "archive": 0.07064970316286907,
+      "wgrid": 0.0687514047723285
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.763831179159853,
+      "wgrid": 14.763831875111972
+     },
+     "residual_rms": {
+      "archive": 0.018950666468372634,
+      "wgrid": 0.018829802012280024
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.008261653925630056,
+      "wgrid": 0.008016643238385256
+     }
+    }
+   },
+   "reconstruction_pass": true,
+   "reconstruction_worst_metric_relative": 0.0,
+   "result_sha256": "cfadc293293521ddf82d1c1d925d9773f34e750a6cb646b9edeaf847b8f979b7",
+   "run": "outputs/l1m-20261030-02b-point",
+   "wgrid_vs_archive": {
+    "dirty": {
+     "central_half_linf_over_peak": 0.0001209888807395779,
+     "edge_linf_over_peak": 0.004462937745617181,
+     "linf_over_peak": 0.004462937745617181,
+     "rms_over_peak": 0.0005010640193562579
+    },
+    "psf": {
+     "central_half_linf_over_peak": 0.00011945868305171872,
+     "edge_linf_over_peak": 0.004459534324144219,
+     "linf_over_peak": 0.004459534324144219,
+     "rms_over_peak": 0.0004947774177986946
+    }
+   }
+  },
+  "l1m-stored": {
+   "archived_channel_groups": 4,
+   "arms_imaged": [
+    "original",
+    "tricolour-firstpass",
+    "tricolour-firstpass+tv-a1",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best"
+   ],
+   "calls": [
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954194601528616
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954217830442512
+     },
+     "where": "result/amendment_1/pairs/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000001807016536
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000001744113143
+     },
+     "where": "result/amendment_1/pairs/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/amendment_1/pairs/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tricolour-firstpass+tv-a1",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/3"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9954194601528616
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9954217830442512
+     },
+     "where": "result/hypotheses/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000001807016536
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0000001744113143
+     },
+     "where": "result/hypotheses/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/hypotheses/2"
+    }
+   ],
+   "calls_unchanged": true,
+   "metrics": {
+    "original": {
+     "flux_recovery": {
+      "archive": 1.1193772823073804,
+      "wgrid": 1.1193772993132165
+     },
+     "offsource_rms": {
+      "archive": 0.07069122384805156,
+      "wgrid": 0.06879210427943953
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389482969088,
+      "wgrid": 14.800389707819994
+     },
+     "residual_rms": {
+      "archive": 0.01642364968142559,
+      "wgrid": 0.01636502878824179
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995819949157625,
+      "wgrid": 0.0038826265050226436
+     }
+    },
+    "tricolour-firstpass": {
+     "flux_recovery": {
+      "archive": 1.1192049633332142,
+      "wgrid": 1.1192049803409603
+     },
+     "offsource_rms": {
+      "archive": 0.0716730716271565,
+      "wgrid": 0.06973299249053702
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.798261581441999,
+      "wgrid": 14.798261806320447
+     },
+     "residual_rms": {
+      "archive": 0.016499228020601636,
+      "wgrid": 0.01644029889765881
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0040556592733391765,
+      "wgrid": 0.003938754314118913
+     }
+    },
+    "tricolour-firstpass+tv-a1": {
+     "flux_recovery": {
+      "archive": 1.1192049633332142,
+      "wgrid": 1.1192049803409603
+     },
+     "offsource_rms": {
+      "archive": 0.0716730716271565,
+      "wgrid": 0.06973299249053702
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.798261581441999,
+      "wgrid": 14.798261806320447
+     },
+     "residual_rms": {
+      "archive": 0.016499228020601636,
+      "wgrid": 0.01644029889765881
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0040556592733391765,
+      "wgrid": 0.003938754314118913
+     }
+    },
+    "tricolour-mild": {
+     "flux_recovery": {
+      "archive": 1.119594442532328,
+      "wgrid": 1.1195944595866303
+     },
+     "offsource_rms": {
+      "archive": 0.07106895478165409,
+      "wgrid": 0.0691560232079013
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.79945432019983,
+      "wgrid": 14.799454545633575
+     },
+     "residual_rms": {
+      "archive": 0.016488445799386856,
+      "wgrid": 0.016429420222228115
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.004002256739360216,
+      "wgrid": 0.0038878552570754954
+     }
+    },
+    "tv-policy": {
+     "flux_recovery": {
+      "archive": 1.1193771887678718,
+      "wgrid": 1.119377205767733
+     },
+     "offsource_rms": {
+      "archive": 0.07069130424221975,
+      "wgrid": 0.0687921947122231
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389313712394,
+      "wgrid": 14.800389538484318
+     },
+     "residual_rms": {
+      "archive": 0.016423652649206248,
+      "wgrid": 0.01636503164248797
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995716286610241,
+      "wgrid": 0.003882572432789381
+     }
+    },
+    "tv-unguided-best": {
+     "flux_recovery": {
+      "archive": 1.1193771887678718,
+      "wgrid": 1.119377205767733
+     },
+     "offsource_rms": {
+      "archive": 0.07069130424221975,
+      "wgrid": 0.0687921947122231
+     },
+     "peak_jy_per_beam": {
+      "archive": 14.800389313712394,
+      "wgrid": 14.800389538484318
+     },
+     "residual_rms": {
+      "archive": 0.016423652649206248,
+      "wgrid": 0.01636503164248797
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.003995716286610241,
+      "wgrid": 0.003882572432789381
+     }
+    }
+   },
+   "reconstruction_pass": true,
+   "reconstruction_worst_metric_relative": 0.0,
+   "result_sha256": "29d5eb97221606d89dab7cbfd395655b03a2fbfb85b227c3d09bfa98ab6f3490",
+   "run": "outputs/l1m-20261030-01-stored",
+   "wgrid_vs_archive": {
+    "dirty": {
+     "central_half_linf_over_peak": 0.00012067844691562686,
+     "edge_linf_over_peak": 0.004461938934695803,
+     "linf_over_peak": 0.004461938934695803,
+     "rms_over_peak": 0.0005000155611933453
+    },
+    "psf": {
+     "central_half_linf_over_peak": 0.00011945868305171872,
+     "edge_linf_over_peak": 0.0044595804021029225,
+     "linf_over_peak": 0.0044595804021029225,
+     "rms_over_peak": 0.0004947774177986946
+    }
+   }
+  },
+  "l2-scalar": {
+   "archived_channel_groups": 1,
+   "arms_imaged": [
+    "original",
+    "tricolour-firstpass",
+    "tricolour-firstpass+tv-a1",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best"
+   ],
+   "calls": [
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9981584684186402
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9981799288539988
+     },
+     "where": "result/amendment_1/pairs/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/amendment_1/pairs/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tricolour-firstpass+tv-a1",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/3"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9981584684186402
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9981799288539988
+     },
+     "where": "result/hypotheses/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/hypotheses/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/hypotheses/2"
+    }
+   ],
+   "calls_unchanged": true,
+   "metrics": {
+    "original": {
+     "flux_recovery": {
+      "archive": 0.9990859637529581,
+      "wgrid": 0.9990859474957913
+     },
+     "offsource_rms": {
+      "archive": 0.037745625774338674,
+      "wgrid": 0.036425244907597555
+     },
+     "peak_jy_per_beam": {
+      "archive": 7.868048264032724,
+      "wgrid": 7.868048136003527
+     },
+     "residual_rms": {
+      "archive": 0.0018731170003274916,
+      "wgrid": 0.001855291430753671
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0013589274511542253,
+      "wgrid": 0.001325208191872906
+     }
+    },
+    "tricolour-firstpass": {
+     "flux_recovery": {
+      "archive": 0.999069821054602,
+      "wgrid": 0.9990698046533352
+     },
+     "offsource_rms": {
+      "archive": 0.03795030725924314,
+      "wgrid": 0.03662693527614673
+     },
+     "peak_jy_per_beam": {
+      "archive": 7.869035420967483,
+      "wgrid": 7.869035291785171
+     },
+     "residual_rms": {
+      "archive": 0.0018765727683451188,
+      "wgrid": 0.0018586743503084802
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.001362820459697197,
+      "wgrid": 0.0013294034903019163
+     }
+    },
+    "tricolour-firstpass+tv-a1": {
+     "flux_recovery": {
+      "archive": 0.999069821054602,
+      "wgrid": 0.9990698046533352
+     },
+     "offsource_rms": {
+      "archive": 0.03795030725924314,
+      "wgrid": 0.03662693527614673
+     },
+     "peak_jy_per_beam": {
+      "archive": 7.869035420967483,
+      "wgrid": 7.869035291785171
+     },
+     "residual_rms": {
+      "archive": 0.0018765727683451188,
+      "wgrid": 0.0018586743503084802
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.001362820459697197,
+      "wgrid": 0.0013294034903019163
+     }
+    },
+    "tricolour-mild": {
+     "flux_recovery": {
+      "archive": 0.9990816891876333,
+      "wgrid": 0.9990816728729701
+     },
+     "offsource_rms": {
+      "archive": 0.03779364600771298,
+      "wgrid": 0.036472679276570656
+     },
+     "peak_jy_per_beam": {
+      "archive": 7.868324260304769,
+      "wgrid": 7.868324131817718
+     },
+     "residual_rms": {
+      "archive": 0.0018744855321508281,
+      "wgrid": 0.0018566200550335977
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0013597323299544457,
+      "wgrid": 0.001326453222843317
+     }
+    },
+    "tv-policy": {
+     "flux_recovery": {
+      "archive": 0.9990859637529581,
+      "wgrid": 0.9990859474957913
+     },
+     "offsource_rms": {
+      "archive": 0.037745625774338674,
+      "wgrid": 0.036425244907597555
+     },
+     "peak_jy_per_beam": {
+      "archive": 7.868048264032724,
+      "wgrid": 7.868048136003527
+     },
+     "residual_rms": {
+      "archive": 0.0018731170003274916,
+      "wgrid": 0.001855291430753671
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0013589274511542253,
+      "wgrid": 0.001325208191872906
+     }
+    },
+    "tv-unguided-best": {
+     "flux_recovery": {
+      "archive": 0.9990859556811144,
+      "wgrid": 0.9990859394359762
+     },
+     "offsource_rms": {
+      "archive": 0.037745622285773356,
+      "wgrid": 0.03642524177887296
+     },
+     "peak_jy_per_beam": {
+      "archive": 7.868048200464964,
+      "wgrid": 7.868048072530496
+     },
+     "residual_rms": {
+      "archive": 0.0018731170324494029,
+      "wgrid": 0.001855291587824881
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.001358895461422071,
+      "wgrid": 0.001325188528341885
+     }
+    }
+   },
+   "reconstruction_pass": true,
+   "reconstruction_worst_metric_relative": 0.0,
+   "result_sha256": "7d79abcfa73091f199e252db10e23f97f42ca053b7b7230037f38b26a3bbaef9",
+   "run": "outputs/l2-1830-20261030-02-scalar",
+   "wgrid_vs_archive": {
+    "dirty": {
+     "central_half_linf_over_peak": 0.00016230928146956778,
+     "edge_linf_over_peak": 0.006780625843594552,
+     "linf_over_peak": 0.006780625843594552,
+     "rms_over_peak": 0.0005745075737783214
+    },
+    "psf": {
+     "central_half_linf_over_peak": 0.00015941162478145046,
+     "edge_linf_over_peak": 0.006822862801775192,
+     "linf_over_peak": 0.006822862801775192,
+     "rms_over_peak": 0.0005728252018393345
+    }
+   }
+  },
+  "l2-stored": {
+   "archived_channel_groups": 1,
+   "arms_imaged": [
+    "original",
+    "tricolour-firstpass",
+    "tricolour-firstpass+tv-a1",
+    "tricolour-mild",
+    "tv-policy",
+    "tv-unguided-best"
+   ],
+   "calls": [
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9983445184297597
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9982093706756792
+     },
+     "where": "result/amendment_1/pairs/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000409771271321
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.000038678021005
+     },
+     "where": "result/amendment_1/pairs/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/amendment_1/pairs/2"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "pair": [
+      "tricolour-firstpass+tv-a1",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.0
+     },
+     "where": "result/amendment_1/pairs/3"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 0.9983445184297597
+     },
+     "pair": [
+      "tv-policy",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 0.9982093706756792
+     },
+     "where": "result/hypotheses/0"
+    },
+    {
+     "archived": {
+      "call": "null",
+      "ratio": 1.0000409771271321
+     },
+     "pair": [
+      "tv-policy",
+      "original"
+     ],
+     "wgrid": {
+      "call": "null",
+      "ratio": 1.000038678021005
+     },
+     "where": "result/hypotheses/1"
+    },
+    {
+     "archived": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "pair": [
+      "tricolour-firstpass+tv",
+      "tricolour-firstpass"
+     ],
+     "wgrid": {
+      "call": "undecidable",
+      "ratio": null
+     },
+     "where": "result/hypotheses/2"
+    }
+   ],
+   "calls_unchanged": true,
+   "metrics": {
+    "original": {
+     "flux_recovery": {
+      "archive": 1.0436242259635502,
+      "wgrid": 1.0436242287525819
+     },
+     "offsource_rms": {
+      "archive": 0.06069562045087755,
+      "wgrid": 0.058560351051603725
+     },
+     "peak_jy_per_beam": {
+      "archive": 12.575287944754875,
+      "wgrid": 12.57528797836168
+     },
+     "residual_rms": {
+      "archive": 0.010962625432833897,
+      "wgrid": 0.010842692564160232
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.005653506450337685,
+      "wgrid": 0.005476038294143174
+     }
+    },
+    "tricolour-firstpass": {
+     "flux_recovery": {
+      "archive": 1.04383530533164,
+      "wgrid": 1.0438353082420995
+     },
+     "offsource_rms": {
+      "archive": 0.06102256353795263,
+      "wgrid": 0.05888264054015376
+     },
+     "peak_jy_per_beam": {
+      "archive": 12.576505395555333,
+      "wgrid": 12.576505430621602
+     },
+     "residual_rms": {
+      "archive": 0.010981253913201395,
+      "wgrid": 0.010862562761468941
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0056789710376306465,
+      "wgrid": 0.005500618262433892
+     }
+    },
+    "tricolour-firstpass+tv-a1": {
+     "flux_recovery": {
+      "archive": 1.04383530533164,
+      "wgrid": 1.0438353082420995
+     },
+     "offsource_rms": {
+      "archive": 0.06102256353795263,
+      "wgrid": 0.05888264054015376
+     },
+     "peak_jy_per_beam": {
+      "archive": 12.576505395555333,
+      "wgrid": 12.576505430621602
+     },
+     "residual_rms": {
+      "archive": 0.010981253913201395,
+      "wgrid": 0.010862562761468941
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.0056789710376306465,
+      "wgrid": 0.005500618262433892
+     }
+    },
+    "tricolour-mild": {
+     "flux_recovery": {
+      "archive": 1.0436401011489018,
+      "wgrid": 1.0436401039961265
+     },
+     "offsource_rms": {
+      "archive": 0.06077257461832172,
+      "wgrid": 0.05863634553879952
+     },
+     "peak_jy_per_beam": {
+      "archive": 12.575717109867092,
+      "wgrid": 12.575717144175751
+     },
+     "residual_rms": {
+      "archive": 0.010962304510192563,
+      "wgrid": 0.010842135019771581
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.005657714138814889,
+      "wgrid": 0.005482041967983339
+     }
+    },
+    "tv-policy": {
+     "flux_recovery": {
+      "archive": 1.0436273535324794,
+      "wgrid": 1.0436273563544272
+     },
+     "offsource_rms": {
+      "archive": 0.06069803143802071,
+      "wgrid": 0.05856217802883003
+     },
+     "peak_jy_per_beam": {
+      "archive": 12.575284824305031,
+      "wgrid": 12.575284858308354
+     },
+     "residual_rms": {
+      "archive": 0.01096307464972996,
+      "wgrid": 0.01084311193805098
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.005653900709855806,
+      "wgrid": 0.005475616884411928
+     }
+    },
+    "tv-unguided-best": {
+     "flux_recovery": {
+      "archive": 1.0436273535324794,
+      "wgrid": 1.0436273563544272
+     },
+     "offsource_rms": {
+      "archive": 0.06069803143802071,
+      "wgrid": 0.05856217802883003
+     },
+     "peak_jy_per_beam": {
+      "archive": 12.575284824305031,
+      "wgrid": 12.575284858308354
+     },
+     "residual_rms": {
+      "archive": 0.01096307464972996,
+      "wgrid": 0.01084311193805098
+     },
+     "residual_robust_sigma_offsource": {
+      "archive": 0.005653900709855806,
+      "wgrid": 0.005475616884411928
+     }
+    }
+   },
+   "reconstruction_pass": true,
+   "reconstruction_worst_metric_relative": 0.0,
+   "result_sha256": "e5551269d0a9ccdaf25430ea11326c74c35bdba9ac9ba7b7d7101df24acf5c14",
+   "run": "outputs/l2-1830-20261030-02-stored",
+   "wgrid_vs_archive": {
+    "dirty": {
+     "central_half_linf_over_peak": 0.00016657249625190153,
+     "edge_linf_over_peak": 0.006686688710583529,
+     "linf_over_peak": 0.006686688710583529,
+     "rms_over_peak": 0.000578953470618877
+    },
+    "psf": {
+     "central_half_linf_over_peak": 0.00015942915172155112,
+     "edge_linf_over_peak": 0.006821623405199523,
+     "linf_over_peak": 0.006821623405199523,
+     "rms_over_peak": 0.0005728252049793591
+    }
+   }
+  }
+ },
+ "default_bit_identity": {
+  "default-chunk0.json": {
+   "compared": 3,
+   "differ": [],
+   "identical": true
+  },
+  "default-l2.json": {
+   "compared": 1,
+   "differ": [],
+   "identical": true
+  },
+  "default-preconditions.json": {
+   "compared": 44,
+   "differ": [],
+   "identical": true
+  }
+ },
+ "label": "post hoc; changes no verdict; nothing archived is rewritten",
+ "protocol": "research/df2c-campaign-gridder.md",
+ "runs": [
+  {
+   "dataset": "chunk0",
+   "head": "8de59b7230e42881b03055581bf21f6f3e88f00c",
+   "max_rss_mb": 10338.15234375,
+   "path": "outputs/df2c-20261031-02-reimage/chunk0/reimage.json",
+   "state_seconds": 38.04205991397612,
+   "total_seconds": 417.53247190098045
+  },
+  {
+   "dataset": "l2",
+   "head": "8de59b7230e42881b03055581bf21f6f3e88f00c",
+   "max_rss_mb": 4544.39453125,
+   "path": "outputs/df2c-20261031-02-reimage/l2/reimage.json",
+   "state_seconds": 18.274865374987712,
+   "total_seconds": 108.02500119499746
+  }
+ ],
+ "task": "DF2c"
+}
