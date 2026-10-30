@@ -271,6 +271,361 @@ def cmd_item0(args):
     Path(args.out).write_text(json.dumps(res, indent=1))
 
 
+# -------------------------------------------------------------------- gates
+
+GATED = (("f32", 1e-4), ("f64", 1e-7))
+
+
+def all_cases(synth, slice_dir, subset=None):
+    paths = sorted(Path(synth).glob("*.npz")) + [Path(slice_dir)]
+    cases = [oracle.load_case(p) for p in paths]
+    if subset:
+        keep = set(subset.split(","))
+        cases = [c for c in cases if c["name"] in keep]
+    return cases
+
+
+def core_v2d(case, prec, eps, vis=None):
+    from rangtoy import core_wgridder
+
+    cdt, rdt = (
+        (np.complex64, np.float32) if prec == "f32" else (np.complex128, np.float64)
+    )
+    if vis is None:
+        vis = case["vis_c64"] if prec == "f32" and "vis_c64" in case else case["vis"]
+    t0 = time.perf_counter()
+    img, info = core_wgridder.vis2dirty(
+        uvw=case["uvw"],
+        freq=case["freq"],
+        vis=np.asarray(vis, cdt),
+        wgt=np.asarray(case["wgt"], rdt),
+        npix_x=case["nx"],
+        npix_y=case["ny"],
+        pixsize_x=case["dx"],
+        pixsize_y=case["dy"],
+        epsilon=eps,
+        return_info=True,
+    )
+    return img, info, time.perf_counter() - t0
+
+
+def core_d2v(case, prec, eps, image=None):
+    from rangtoy import core_wgridder
+
+    rdt = np.float32 if prec == "f32" else np.float64
+    image = case["image"] if image is None else image
+    t0 = time.perf_counter()
+    vis, info = core_wgridder.dirty2vis(
+        uvw=case["uvw"],
+        freq=case["freq"],
+        dirty=np.asarray(image, rdt),
+        wgt=np.asarray(case["wgt"], rdt),
+        pixsize_x=case["dx"],
+        pixsize_y=case["dy"],
+        epsilon=eps,
+        return_info=True,
+    )
+    return vis, info, time.perf_counter() - t0
+
+
+def plan_matches(info, report):
+    keys = ("supp", "nu", "nv", "nplanes")
+    core = {k: info[k] for k in keys}
+    ducc = {k: report[k] for k in keys}
+    return {"core": core, "ducc0": ducc, "equal": core == ducc}
+
+
+def kernel_check(rows_path):
+    from rangtoy import core_wgridder
+
+    res = {"rows_txt": str(rows_path)}
+    text = Path(rows_path).read_text()
+    ref = []
+    for line in text.splitlines():
+        f = [x.strip() for x in line.strip()[1:-1].split(",")]
+        ref.append(
+            (
+                int(f[0]),
+                float(f[1]),
+                float(f[2]),
+                float(f[3]),
+                float(f[4]),
+                int(f[5]),
+                f[6] == "true",
+            )
+        )
+    table = core_wgridder.kernel_table()
+    res["rows_core"] = len(table)
+    res["rows_ducc0"] = len(ref)
+    res["values_equal"] = table == ref
+    src = (ROOT / "core" / "src" / "wgridder.rs").read_text().splitlines()
+    a = src.index("// KERNEL_ROWS_BEGIN")
+    b = src.index("// KERNEL_ROWS_END")
+    rust_text = "\n".join(line.rstrip(",") for line in src[a + 1 : b]) + "\n"
+    res["sha256_rust_rows_text"] = oracle.hashlib.sha256(rust_text.encode()).hexdigest()
+    res["sha256_extracted_rows_text"] = oracle.hashlib.sha256(text.encode()).hexdigest()
+    res["text_equal"] = rust_text == text
+    res["pass"] = bool(res["values_equal"] and res["text_equal"])
+    return res
+
+
+def single_vis_check():
+    """One visibility at many sub-cell offsets, w = 0 and w != 0, against
+    ducc0 (f64, epsilon 1e-7): the kernel values directly (reported)."""
+    import ducc0
+    from rangtoy import core_wgridder
+
+    nx, dx = 64, 1e-3
+    freq = np.array([C_LIGHT])  # uvw in metres = wavelengths
+    worst = {"w0": 0.0, "w": 0.0}
+    for wcase in ("w0", "w"):
+        for k in range(40):
+            frac = k / 40.0
+            uvw = np.array(
+                [
+                    [
+                        (3 + frac) / (nx * 1.7 * dx),
+                        (-5 - 0.37 * frac) / (nx * 1.7 * dx),
+                        0.0,
+                    ]
+                ]
+            )
+            if wcase == "w":
+                uvw[0, 2] = 200.0 * (frac - 0.5)
+                uvw = np.vstack([uvw, [[0.0, 0.0, 120.0]], [[0.0, 0.0, -80.0]]])
+            vis = np.ones((uvw.shape[0], 1), np.complex128)
+            vis[1:] = 0.0
+            vis[1:, 0] = 1e-30  # keep the w range active without signal
+            a = core_wgridder.vis2dirty(
+                uvw=uvw,
+                freq=freq,
+                vis=vis,
+                npix_x=nx,
+                npix_y=nx,
+                pixsize_x=dx,
+                pixsize_y=dx,
+                epsilon=1e-7,
+            )
+            b = ducc0.wgridder.vis2dirty(
+                uvw=uvw,
+                freq=freq,
+                vis=vis,
+                npix_x=nx,
+                npix_y=nx,
+                pixsize_x=dx,
+                pixsize_y=dx,
+                epsilon=1e-7,
+                do_wgridding=True,
+                nthreads=1,
+                flip_w=True,
+                divide_by_n=False,
+            )
+            worst[wcase] = max(
+                worst[wcase], float(np.abs(a - b).max() / np.abs(b).max())
+            )
+    return {"linf_rel_peak_worst": worst, "offsets": 40}
+
+
+def adjointness(case, eps, seed):
+    rng = np.random.default_rng(seed)
+    x = rng.standard_normal((case["nx"], case["ny"]))
+    y = rng.standard_normal(case["vis"].shape) + 1j * rng.standard_normal(
+        case["vis"].shape
+    )
+    ax, _, _ = core_d2v(case, "f64", eps, image=x)
+    aty, _, _ = core_v2d(case, "f64", eps, vis=y)
+    lhs = float(np.real(np.vdot(ax, y)))
+    rhs = float(np.sum(x * aty))
+    scale = float(np.linalg.norm(ax) * np.linalg.norm(y))
+    return {
+        "lhs": lhs,
+        "rhs": rhs,
+        "rel": abs(lhs - rhs) / scale,
+        "seed": seed,
+        "epsilon": eps,
+    }
+
+
+def cmd_gates(args):
+    import ducc0
+
+    t_start = time.time()
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=False)
+    dsynth = json.loads((Path(args.ducc_synth) / "ducc.json").read_text())
+    dslice = json.loads((Path(args.ducc_slice) / "ducc.json").read_text())
+    reports = {**dsynth["cases"], **dslice["cases"]}
+    res = {"ducc0": ducc0.__version__, "cases": {}, "pass": {}}
+    fails = []
+    for case in all_cases(args.synth, args.slice, args.cases):
+        name = case["name"]
+        ddir = Path(args.ducc_slice if name == "luno-slice" else args.ducc_synth)
+        rec = {}
+        for prec, eps in oracle.EPSILONS:
+            key = f"{prec}_eps{eps:g}"
+            gated = (prec, eps) in GATED
+            rep = reports[name][key]["report"]
+            img, info, wall = core_v2d(case, prec, eps)
+            ducc_img = np.load(ddir / f"{name}_{key}_dirty.npy")
+            e = {
+                "gated": gated,
+                "vis2dirty": {
+                    "wall_s": wall,
+                    "sha256": oracle.sha256(img),
+                    "vs_dft": oracle.metrics(img, case["dft_dirty"]),
+                    "vs_ducc0": oracle.metrics(img, ducc_img),
+                    "plan": plan_matches(info, rep[0]),
+                },
+            }
+            checks = [
+                (
+                    "vis2dirty vs DFT",
+                    e["vis2dirty"]["vs_dft"]["linf_rel_peak"],
+                    10 * eps,
+                ),
+                (
+                    "vis2dirty vs ducc0",
+                    e["vis2dirty"]["vs_ducc0"]["linf_rel_peak"],
+                    eps,
+                ),
+            ]
+            plans_equal = [e["vis2dirty"]["plan"]["equal"]]
+            if args.save_images:
+                np.save(out / f"{name}_{key}_dirty.npy", img)
+            if "dft_psf" in case:
+                ones = np.ones(case["vis"].shape, np.complex128)
+                psf, pinfo, wall = core_v2d(case, prec, eps, vis=ones)
+                ducc_psf = np.load(ddir / f"{name}_{key}_psf.npy")
+                e["psf"] = {
+                    "wall_s": wall,
+                    "sha256": oracle.sha256(psf),
+                    "vs_dft": oracle.metrics(psf, case["dft_psf"]),
+                    "vs_ducc0": oracle.metrics(psf, ducc_psf),
+                    "plan": plan_matches(pinfo, rep[1]),
+                }
+                checks += [
+                    ("psf vs DFT", e["psf"]["vs_dft"]["linf_rel_peak"], 10 * eps),
+                    ("psf vs ducc0", e["psf"]["vs_ducc0"]["linf_rel_peak"], eps),
+                ]
+                plans_equal.append(e["psf"]["plan"]["equal"])
+            if "image" in case:
+                vis, vinfo, wall = core_d2v(case, prec, eps)
+                ducc_vis = np.load(ddir / f"{name}_{key}_vis.npy")
+                e["dirty2vis"] = {
+                    "wall_s": wall,
+                    "sha256": oracle.sha256(vis),
+                    "vs_dft": oracle.metrics(vis, case["dft_vis"]),
+                    "vs_ducc0": oracle.metrics(vis, ducc_vis),
+                    "plan": plan_matches(vinfo, rep[1]),
+                }
+                checks += [
+                    (
+                        "dirty2vis vs DFT",
+                        e["dirty2vis"]["vs_dft"]["linf_rel_peak"],
+                        10 * eps,
+                    ),
+                    (
+                        "dirty2vis vs ducc0",
+                        e["dirty2vis"]["vs_ducc0"]["linf_rel_peak"],
+                        eps,
+                    ),
+                ]
+                plans_equal.append(e["dirty2vis"]["plan"]["equal"])
+            e["checks"] = [
+                {"what": w, "value": v, "limit": lim, "pass": bool(v <= lim)}
+                for w, v, lim in checks
+            ]
+            e["plans_equal"] = all(plans_equal)
+            if gated:
+                fails += [
+                    f"{name} {key} {c['what']}" for c in e["checks"] if not c["pass"]
+                ]
+            if not e["plans_equal"]:
+                fails.append(f"{name} {key} plan")
+            rec[key] = e
+            print(
+                name,
+                key,
+                "gated" if gated else "reported",
+                " ".join(f"{c['what']}={c['value']:.2e}" for c in e["checks"]),
+                "plan",
+                e["plans_equal"],
+                flush=True,
+            )
+        if "image" in case:
+            rec["adjointness"] = [
+                adjointness(case, eps, 1000 + i) for i, eps in enumerate((1e-7, 1e-9))
+            ]
+            for a in rec["adjointness"]:
+                print(name, "adjoint", a["epsilon"], f"{a['rel']:.2e}", flush=True)
+                if a["rel"] > 1e-12:
+                    fails.append(f"{name} adjoint {a['epsilon']}")
+        res["cases"][name] = rec
+    if args.rows:
+        res["kernel_table"] = kernel_check(args.rows)
+        print("kernel table", json.dumps(res["kernel_table"]), flush=True)
+        if not res["kernel_table"]["pass"]:
+            fails.append("kernel table")
+    res["single_visibility"] = single_vis_check()
+    print("single visibility", json.dumps(res["single_visibility"]), flush=True)
+    res["failures"] = fails
+    res["pass_criteria_1_2_3_5"] = not fails
+    res["library"] = str(
+        __import__("rangtoy.core_wgridder").core_wgridder.library_path()
+    )
+    res["wall_s"] = time.time() - t_start
+    res["maxrss_mb"] = maxrss_mb()
+    (out / "gates.json").write_text(json.dumps(res, indent=1))
+    print("FAILURES" if fails else "ALL GATED CHECKS PASS", fails, flush=True)
+
+
+def cmd_hashes(args):
+    """SHA256 of every gated output in this process (for `threads`)."""
+    res = {}
+    for case in all_cases(args.synth, args.slice):
+        name = case["name"]
+        for prec, eps in GATED:
+            key = f"{name}_{prec}_eps{eps:g}"
+            img, _, _ = core_v2d(case, prec, eps)
+            res[f"{key}_dirty"] = oracle.sha256(img)
+            if "image" in case:
+                vis, _, _ = core_d2v(case, prec, eps)
+                res[f"{key}_vis"] = oracle.sha256(vis)
+            if "dft_psf" in case:
+                psf, _, _ = core_v2d(case, prec, eps, vis=np.ones(case["vis"].shape))
+                res[f"{key}_psf"] = oracle.sha256(psf)
+    print(json.dumps(res))
+
+
+def cmd_threads(args):
+    import os
+    import subprocess
+
+    res = {"threads": {}, "library": None}
+    for n in (int(x) for x in args.threads.split(",")):
+        env = dict(os.environ, RAYON_NUM_THREADS=str(n), OPENBLAS_NUM_THREADS="1")
+        t0 = time.time()
+        out = subprocess.run(
+            [sys.executable, __file__, "hashes", args.synth, args.slice],
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        res["threads"][str(n)] = {
+            "hashes": json.loads(out.strip().splitlines()[-1]),
+            "wall_s": time.time() - t0,
+        }
+        print(n, "threads", round(time.time() - t0, 2), "s", flush=True)
+    sets = [json.dumps(v["hashes"], sort_keys=True) for v in res["threads"].values()]
+    res["identical"] = len(set(sets)) == 1
+    res["outputs"] = len(json.loads(sets[0]))
+    Path(args.out).write_text(json.dumps(res, indent=1))
+    print(
+        "identical at every thread count:", res["identical"], "outputs:", res["outputs"]
+    )
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -281,6 +636,26 @@ def main(argv=None):
     a.add_argument("out")
     a.add_argument("--jmax", type=int, default=6)
     a.set_defaults(func=cmd_item0)
+    g = sub.add_parser("gates")
+    g.add_argument("out")
+    g.add_argument("synth")
+    g.add_argument("slice")
+    g.add_argument("ducc_synth")
+    g.add_argument("ducc_slice")
+    g.add_argument("--rows", default=None, help="extracted KernelDB rows.txt")
+    g.add_argument("--cases", default=None, help="comma-separated subset (smoke)")
+    g.add_argument("--save-images", action="store_true")
+    g.set_defaults(func=cmd_gates)
+    t = sub.add_parser("threads")
+    t.add_argument("out")
+    t.add_argument("synth")
+    t.add_argument("slice")
+    t.add_argument("--threads", default="1,2,4,8,16")
+    t.set_defaults(func=cmd_threads)
+    h = sub.add_parser("hashes")
+    h.add_argument("synth")
+    h.add_argument("slice")
+    h.set_defaults(func=cmd_hashes)
     args = p.parse_args(argv)
     args.func(args)
 

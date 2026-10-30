@@ -524,6 +524,42 @@ def cmd_convention(args):
     Path(args.out).write_text(json.dumps(res, indent=1))
 
 
+KERNEL_ROW = re.compile(r"^\{\s*\d+,.*\}(?:,|\};)?\s*$")
+
+
+def kerneldb_rows(text, ndims=(2, 3)):
+    """The uncommented `KernelDB` rows of ducc0's `gridding_kernel.cc` with
+    ndim in `ndims`, as normalised text `(W, ofactor, eps, beta, e0, ndim,
+    singleprec)` in source order (braces become parentheses, spacing and
+    digits kept)."""
+    rows = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not KERNEL_ROW.match(line):
+            continue
+        body = line.removesuffix("};").rstrip(",").rstrip()
+        fields = [f.strip() for f in body[1:-1].split(",")]
+        if int(fields[5]) in ndims:
+            rows.append("(" + body[1:-1].strip() + ")")
+    return rows
+
+
+def cmd_kerneldb(args):
+    """Write the KernelDB rows (ndim 2 and 3) as the body of a Rust array
+    and record their SHA256 (criterion 5)."""
+    rows = kerneldb_rows(Path(args.src).read_text())
+    text = "\n".join(rows) + "\n"
+    Path(args.out).write_text(text)
+    rec = {
+        "source": str(args.src),
+        "rows": len(rows),
+        "sha256_rows_text": hashlib.sha256(text.encode()).hexdigest(),
+        "source_sha256": hashlib.sha256(Path(args.src).read_bytes()).hexdigest(),
+    }
+    print(json.dumps(rec, indent=1))
+    Path(args.out).with_suffix(".json").write_text(json.dumps(rec, indent=1))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -549,6 +585,10 @@ def main(argv=None):
     c.add_argument("case")
     c.add_argument("out")
     c.set_defaults(func=cmd_convention)
+    k = sub.add_parser("kerneldb")
+    k.add_argument("src")
+    k.add_argument("out")
+    k.set_defaults(func=cmd_kerneldb)
     args = p.parse_args(argv)
     args.func(args)
 
