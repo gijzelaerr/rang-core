@@ -5,8 +5,15 @@ Protocol frozen 2026-10-30 on branch `p5-memory` (from origin/main
 [big-plan.md](big-plan.md) and section 3 "P5 Memory" of
 [simplification-review.md](simplification-review.md).
 
-Status: **proposed; baseline measured** (sections 1–2). Implementation and
-the measured result follow in later sections.
+Status: **implemented and measured** (sections 4–5). Every gated identity
+criterion passes: K's precondition masks and the four-station replay are
+identical (images bit-identical), and the whole-array run reproduces the
+same-host unmodified run on every non-timing field (3 of 12 dirty images
+within 3.1e-11 of the peak, the rest bit-identical) and L1's archive on
+every non-image field. Peak memory at array scale **12,997 → 10,406 MiB
+(159 → 128 B per cell, −20 %)**; the pre-registered target of ≤ 115 B per
+cell is **missed** (the gridder and the Tricolour port, both other tasks'
+Rust, now set the peak). Per-cell slope on subsets 606 → 101 B per cell.
 
 ## Question
 
@@ -128,6 +135,13 @@ is a rerun of the unmodified driver** (`07dfb86`) on all stations:
 `/usr/bin/time -v`, `RAYON_NUM_THREADS=8`. Its numbers are entered in
 section 4 when it finishes; it is also the identity reference for the
 after-run (section 2, criterion 4).
+
+*Added after the measurement (labelled):* that first rerun was killed by
+the OOM killer; the reference is its repeat `array-before-b` (section
+5.2). Also, the "GB" figures in the table above are the runs' `max_rss_mb`
+values, which are MiB (`ru_maxrss` / 1024), so 12.46 "GB" is 152.7 B per
+cell, not 146; section 5.2 uses MiB throughout. The target of section 0
+(≤ 115 B per cell) was set in bytes and is judged in bytes.
 
 ### 1.4 The unmodified precondition on this host (pre-existing failure)
 
@@ -260,6 +274,383 @@ and the difference is recorded.
    ffi_correct;`, the same symbols come from `librang_core` (or the
    extension) and the standalone build is skipped.
 
+## 4. What was built (code `ee1b02d`)
+
+All seven items of section 3, as planned; nothing in the frozen method
+changed. File by file:
+
+- `core/src/correct.rs` (new, pure kernels, 5 unit tests):
+  `correct_stokes_i` (rayon over rows; inverse gains passed in; NumPy's
+  2×2 matmul accumulation order `(0 + a₀b₀) + a₁b₁`, complex64 rounding,
+  the reader's float32 `(XX + YY) · 0.5`, `4 min(w_XX, w_YY)` with NumPy's
+  NaN rule, the final-flag rule folded in) and `decode_rows_strided` (blocks
+  decoded in parallel, each row written at `offset + i · stride`; every
+  byte belongs to one block, so the writes are disjoint).
+- `core/src/ffi_correct.rs` (new): `rang_core_correct_stokes_i` and
+  `rang_core_blosc_decode_span_rows_strided`, `catch_unwind`, 0/1/2 status
+  as in `ffi.rs`.
+- `python/rangtoy/core_fetch.py`: `p5_library` (the core library when it
+  exports the P5 symbols, else the standalone build `build_p5_standalone`
+  into `core/target/p5-standalone`, offline, rayon from the core's lock;
+  `RANG_P5_LIB` overrides), `p5_extension` (the extension when it carries
+  the P5 bindings), `decode_rows_into`, `read_rows_into` (mmap, the same
+  runs and statistics as `core_zarr.read_rows`), and `decode_slice`
+  writing into one array per column.
+- `python/rangtoy/core_campaign_array.py`: `eligible_cells`,
+  `split_holdout_lean`, `solve_flags_lean`, `fused_candidates`
+  (baseline groups of at most 2,048 rows), `solve_features`
+  (`scores="fused"`, or `"numpy"` = L1's path, the pre-registered
+  fallback), `guidance_scale`, `sparse_policy_mask`, additions stored as
+  sorted indices (`additions_dense`), `correct_stokes_i` /
+  `corrected_stokes` into two buffers reused across arms,
+  `final_flags_summary` and `model_stokes_mean` in row blocks;
+  `corrected_stokes_reference` keeps L1's NumPy path for the tests;
+  `state["eligible"]` is dropped after the split counts.
+- `python/rangtoy/core_flag.py`: `flags` and `stages` returned as bool
+  views (`_bool_view` refuses a byte above 1).
+- `python/rangtoy/core_campaign.py`: `tricolour_checks` in row blocks.
+  K's driver (`run`, `solve_arm`, `tv_loop`, `apply_gains`) is unchanged.
+- `tests/test_p5_memory.py` (16 tests) and the L1 tests in
+  `tests/test_core_campaign_array.py` adapted to the sparse features and
+  stored indices (three asserts; the bit-identity they check is kept).
+- `examples/bench_p5_memory.py`: the bench (section 1.1) and `compare`
+  (every non-timing field of two runs; images by task A's tolerances).
+
+## 5. Measured result (2026-10-30)
+
+### 5.1 Identity (criteria 1–5)
+
+| Criterion | Run | Result |
+| --- | --- | --- |
+| 1 K precondition masks | `precondition-after` (`examples/precondition_luno_array.py`, code `ee1b02d`) | **pass**: K's eight checks pass; section-6 gains, gain flags, χ², converged and flagged-gain fractions, survey, the nine policy-mask hashes and counts equal the archive |
+| 2 K replay | `precondition-after/replay` against `precondition-before/replay`: `compare` over 1,264 fields | **pass, identical**: every field equal, all 14 FITS images bit-identical, image hashes equal; the replay's `compare_replay` dict against K run `-01` is identical to the unmodified one (it still fails on image hashes only, the pre-existing P2 state of 1.4); part 3 (groups) 7.54e-5 / 7.63e-5, unchanged |
+| 2 (bench runs) | `k4-after-b`, `s8-after`, `s12-after` against `k4-before`, `s8-before`, `s12-before` | **identical**: 1,259 / 1,136 / 1,168 fields, 14 / 12 / 12 FITS images bit-identical |
+| 3 decode | `tests/test_p5_memory.py` on task G's archived fetch (`outputs/core-g-20261029-01`; K's fetch was deleted as a user item) and on stations 0–3; scratch check on stations 0–11 | **pass**: byte-identical arrays; statistics equal `read_rows`' |
+| 4 array scale | `array-after` (all stations, code `ee1b02d`) against `array-before-b` (unmodified `07dfb86`, same host) and L1's archive | **pass**: against the before reference all 1,820 non-timing fields of `result.json` and `candidates.json` are equal (split counts, every arm's additions, gains and losses, TV, flag fractions, Tricolour summaries and checks, all 21 candidates' masks, counts and objectives, amendment-1 calls, hypotheses); image metrics within 9.5e-13 relative; 9 of 12 FITS images bit-identical, the `original`, `tv-policy` and `tv-unguided-best` dirty images differ by at most 3.1e-11 of the peak (tolerance 8.8e-6), every PSF bit-identical. Against L1's archive (pre-P1–P3 code): all 1,520 shared non-image fields equal, image metrics within 1.1e-12 relative (P2's pixel change); the unmodified rerun gives the same comparison (1,520 equal, 9.8e-14) |
+| 5 units | `tests/test_p5_memory.py`; scratch `units-check-0-{3,11}.json` | **pass**: lean split, eligibility, solve flags, sparse masks (also with an active top-k cut), fused candidates over several baseline groups equal one call, final-flag summary and model mean equal the dense forms; the correction kernel is **bit-identical** to `apply_gains` + `stokes_i_reader` (samples and weights, synthetic with NaN data and weights, and on 0–3 and 0–11), better than the frozen 2-ulp allowance |
+
+The fused-pass scores differ from NumPy's by at most 1.2e-14 (1.5), but
+the candidate sets (`outliers ≥ 2`), the guidance median and all nine
+masks are identical on 0–3 and 0–11, and the fallback was not needed
+there.
+
+### 5.2 Memory (criterion 6)
+
+Bench peaks (composed HWM; section 1.1), the L1 driver with K's 512²
+image and one group:
+
+| Cells | Before: peak, B/cell | After: peak, B/cell | Change |
+| ---: | ---: | ---: | ---: |
+| 393,216 (stations 0–3) | 577 MB, 1,539 | 366 MB, 975 | −37 % |
+| 1,835,008 (0–7) | 1,470 MB, 840 | 646 MB, 369 | −56 % |
+| 4,325,376 (0–11) | 2,909 MB, 705 | 885 MB, 215 | −70 % |
+| slope between 0–7 and 0–11 | **606 B/cell** | **101 B/cell** | |
+
+Un-instrumented, `/usr/bin/time -v`: the precondition (K's precondition
+plus the four-station replay with the group check) 614 MB → 440 MB.
+
+Per stage, transient above entry / peak, B per cell (before → after):
+
+| stage | 0–3 | 0–7 | 0–11 |
+| --- | ---: | ---: | ---: |
+| decode | +109/242 → +123/251 | +88/115 → +102/129 | +87/98 → +92/104 |
+| split (`build_state`) | +27/269 → +39/258 | +32/147 → +33/155 | +31/129 → +32/132 |
+| solves (`solve_arm`, all) | +171/531 → +48/352 | +176/353 → +34/190 | +177/303 → +99/214 |
+| features (L1: `residual_amplitude`; P5: `solve_features`) | +168 → +17 | +176 → +22 | +163 → +91 |
+| Tricolour (`flag_rows`) | +75/391 → +76/346 | +22/207 → +26/177 | +22/173 → +22/143 |
+| gain correction (`corrected_stokes`) | +483/1539 → +1/353 | +518/840 → +0/346 | +507/705 → +8/205 |
+| gridder (`core_grid.invert`) | +598/1071 → +646/975 | +150/349 → +133/369 | +60/219 → +56/215 |
+
+Reading the table:
+
+- Below 2,048 rows every row-block stage of L1 is one block, so its
+  transients are whole-slice; at array scale L1's blocks capped them at
+  about 2 GB. P5's features run on baseline groups of at most 2,048 rows,
+  so at 0–11 (2,112 rows) one group copies almost the whole slice (+91);
+  at array scale a group is 1/20 of the rows.
+- At four stations the gridder's fixed working set (512², 64 w-layers,
+  per-thread grids) is the peak; it is P2's and does not scale with cells.
+- Decode and split are unchanged in transient terms at these sizes: the
+  decode transient is the decoded arrays themselves, and the split's
+  dominant temporaries are now the seed's draws per row block plus the
+  eligible cells' draws, labels and sort order.
+
+**Array scale** (85,577,728 cells; all memory figures in MiB as the
+runs record them, bytes per cell in bytes):
+
+| | Before (`array-before-b`, `07dfb86`) | After (`array-after`, `ee1b02d`) |
+| --- | ---: | ---: |
+| peak | **12,997 MiB, 159.3 B/cell** (`time -v` 13,308,612 kB, un-instrumented) | **10,406 MiB, 127.5 B/cell** (bench composed peak) |
+| L1's frozen run (pre-P1–P3) | 12.46 "GB" (MiB as recorded), 152.7 B/cell | |
+| wall (shared host, load 50–90 before, 36–70 after) | 1 h 21 min 38 s, `RAYON_NUM_THREADS=8` | 37 min 28 s, `RAYON_NUM_THREADS=4` |
+
+Before, cumulative high-water mark after each stage (the run's own
+`stages`), against after, the stage's own peak (bench):
+
+| stage | before: HWM after stage | after: stage peak | after: transient above entry |
+| --- | ---: | ---: | ---: |
+| decode | 7,248 MiB (88.8 B/cell) | 6,984 MiB (85.6) | (the arrays themselves) |
+| split | 9,865 (120.9) | 8,352 (102.3) | +1,431 MiB (+17.5 B/cell) |
+| solve `original` + features | 10,495 (128.6) | 8,455 (103.6) | +1,182 (+14.5) |
+| Tricolour first pass | 11,823 (144.9) | 9,813 (120.2) | +2,220 (+27.2) |
+| Tricolour mild | 12,901 (158.1) | 9,869 (120.9) | +2,220 (+27.2) |
+| TV loops (all solves) | 12,997 (159.3) | 9,090 (111.4) | +1,076 (+13.2) |
+| images (correction, weights, 4 groups) | 12,997 (159.3) | **10,406 (127.5)** | +2,348 (+28.8), of which the gridder +1,009 |
+| amendment-1 calls | 12,997 | 8,939 (109.5) | +897 (+11.0) |
+
+- **Target missed**: 127.5 B per cell against the pre-registered ≤ 115
+  (expected 100–112). The peak is now the imaging stage: the reused sample
+  and weight buffers (12 B per cell), the imaging weights (4 B), the
+  channel group's contiguous copies and the gridder's samples (+1,009 MiB
+  in `core_grid.invert`, about twice P2's 52 B per kept sample estimate)
+  on a retained state of about 93 B per cell. The Tricolour stage (+27 B
+  per cell: P3's window, the twelve stage planes, the output flags) is
+  second. Both are in other tasks' Rust (section 6).
+- **Achieved**: −2,591 MiB (−20 %) at array scale against the same-host
+  unmodified driver, −1.88 GiB below L1's recorded peak; per-cell slope
+  between subsets 606 → 101 B per cell; every stage's transient ≤ 29 B per
+  cell (criterion of section 0: met).
+- Side effect on time (not a P5 criterion; shared host, different thread
+  counts): an image takes 13–15 s instead of 288–633 s (the gain correction
+  was most of it), decode 24 s instead of 48 s, the split 122 s instead of
+  53 s (the lexsort; cores busy 0.19 under load). The amendment-1 loop
+  429 s against 933 s and the TV loop 756 s against 610 s are solver time
+  under different loads and threads.
+- The 3 dirty images that are not bit-identical: the correction kernel is
+  bit-identical to `apply_gains` on every cell of the 0–3 and 0–11 subsets
+  (5.1), so some cell of the whole array is rounded differently (NumPy's
+  2×2 matmul may take its BLAS path on some blocks); not traced further,
+  as the pixels are 5 orders inside task A's tolerance and every PSF,
+  weight sum and count is identical.
+
+An earlier unmodified attempt (`array-before`, 09:31) was **killed by the
+kernel's OOM killer** after 15 min at 13.2 GB, while a sibling's DDFacet
+processes held most of the host's memory; recorded as a failed run and
+repeated from a pristine export (`~/Build/tmp/20261030-rang-p5-before`).
+
+### 5.3 Rust checks (criterion 7)
+
+- Standalone crate (`core/target/p5-standalone`, the generated root with
+  `blosc.rs`, `correct.rs`, `ffi_correct.rs`): `cargo build --release`,
+  `cargo test` (11 tests: 5 new, 6 of `blosc.rs`), `cargo clippy
+  --all-targets -- -D warnings` and `rustfmt --check` all pass.
+- **With the coordinator's lines applied** (scratch copy
+  `~/Build/tmp/20261030-rang-p5-ext`, patch below): `rang-core` builds, its
+  60 tests pass, clippy `-D warnings` and fmt pass; the extension builds
+  with `maturin develop`, its clippy and fmt pass. `tests/test_p5_memory.py`
+  and `tests/test_core_campaign_array.py` pass on the extension backend
+  (P5 calls go through the new bindings) and on the ctypes backend (the
+  symbols come from `librang_core`, and no standalone build is made). The
+  four-station bench through the extension is identical to the unmodified
+  replay (1,264 fields, 14 images bit-identical). Log
+  `outputs/p5-memory-20261030-01/exttest.log`.
+
+## 6. For the coordinator
+
+- **STATE paragraph.** "Big plan task P5, 2026-10-30 (implemented;
+  measured): one copy of the cube. Tiles decode straight into the final
+  arrays (strided Rust decode, mmap), the split runs in row blocks with one
+  lexsort, the base solves' outlier scores come from the fused pass over
+  baseline groups and are kept sparse, additions are stored as indices, and
+  gain correction plus the Stokes I reader run in Rust (`core/src/correct.rs`)
+  into reused buffers. Every identity gate passes: K's precondition masks
+  and the four-station replay identical (images bit-identical); the
+  whole-array run equals the unmodified driver on all 1,820 non-timing
+  fields (three dirty images within 3.1e-11 of the peak) and L1's archive
+  on every non-image field. Whole-array peak 12,997 → 10,406 MiB (159 →
+  128 B per cell, −20 %); the pre-registered ≤ 115 B per cell is missed,
+  the gridder and the Tricolour port now set the peak. An image takes
+  13–15 s instead of 5–10 min. Report `research/p5-memory.md`."
+- **Timing rows** for `tool-timings.md`: the table "Timings" below.
+- **Upstream observations.** RATT (`ratt-ru`): none new (Tricolour's stage
+  outputs are a rang port detail; QuartiCal is not involved). RATT
+  `caracal-pipeline` (CARACal, Stimela): nothing new. Non-RATT, not
+  reported by decision: NumPy's stacked 2×2 complex matmul appears to round
+  a few cells differently from its plain loop at array scale (not traced);
+  the LUNO store's 50,000-row × 128-channel chunks force whole-tile decode
+  (already listed by L1).
+- **Evidence to keep:** `outputs/p5-memory-20261030-01` (bench runs
+  `k4-*`, `s8-*`, `s12-*`, `array-before-b`, `array-after`,
+  `precondition-before`, `precondition-after`, the `compare-*.json`
+  reports, `units-check-*.json`, `scores-check-*.json`,
+  `coordinator-lines.patch`, `exttest.log` and the `.log` files). May be
+  deleted: `array-before` (the OOM-killed attempt) and the scratch trees
+  `~/Build/tmp/20261030-rang-p5-before` and `~/Build/tmp/20261030-rang-p5-ext`
+  (removed at the end of this task).
+- **`core/src/lib.rs`**: add `pub mod correct;` (after `pub mod blosc;`)
+  and `pub mod ffi_correct;` (after `pub mod ffi;`).
+- **`core/py/src/lib.rs`**: `use rang_core::ffi_correct::CorrectInputsC;`,
+  the two functions below, and
+  `m.add_function(wrap_pyfunction!(blosc_decode_span_rows_strided, m)?)?;`
+  `m.add_function(wrap_pyfunction!(correct_stokes_i, m)?)?;` after the
+  `blosc_decode_span_rows` registration. The full tested patch is
+  `outputs/p5-memory-20261030-01/coordinator-lines.patch`.
+- **`python/rangtoy/core.py`**: nothing is required. The P5 wrappers live
+  in `core_fetch.py`, which uses the extension's bindings when present and
+  otherwise registers its own ctypes symbols (from `librang_core` once the
+  modules are listed; the standalone build is then never made).
+  After P7 drops the ctypes path, `build_p5_standalone` and `p5_library`
+  can be deleted with it.
+- **For P7 (owner of `core.py`):** `core.solve_complex` converts the flag
+  cube with `np.asarray(flag, bool)` then `np.require(..., np.uint8)`, so a
+  uint8 cube is copied twice and a bool cube once (4 B per cell at the
+  whole array, 342 MB per solve). Accepting a uint8 or bool cube without a
+  copy would let `solve_flags_lean` write the solver's buffer directly.
+- **For P3/P7 (owners of `sumthreshold.rs`, `ffi_flag.rs`):** the stage
+  planes are 1 B per window cell per step (12 steps: about 12 B per cell
+  at the whole array) and only their fractions are used by the campaign; a
+  "fractions only" output would remove them.
+
+Extension block for `core/py/src/lib.rs` (as tested):
+
+```rust
+/// `rang_core_correct_stokes_i` on borrowed arrays (big plan P5,
+/// `research/p5-memory.md`); `added` may be None. Returns the C status.
+#[pyfunction]
+#[pyo3(signature = (nrow, nchan, ntime_bins, nfreq_bins, nant, data, weights, flags, flag_row, added, antenna1, antenna2, time_bin, freq_bin, inverse, valid, sample, weight))]
+#[allow(clippy::too_many_arguments)]
+fn correct_stokes_i(
+    nrow: usize,
+    nchan: usize,
+    ntime_bins: usize,
+    nfreq_bins: usize,
+    nant: usize,
+    data: Ro<'_, f32>,
+    weights: Ro<'_, f32>,
+    flags: Ro<'_, u8>,
+    flag_row: Ro<'_, u8>,
+    added: Option<Ro<'_, u8>>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    time_bin: Ro<'_, u32>,
+    freq_bin: Ro<'_, u32>,
+    inverse: Ro<'_, f64>,
+    valid: Ro<'_, u8>,
+    mut sample: Rw<'_, f32>,
+    mut weight: Rw<'_, f32>,
+) -> PyResult<i32> {
+    let Some(cells) = nrow.checked_mul(nchan) else {
+        return Ok(1);
+    };
+    let gains = ntime_bins * nfreq_bins * nant;
+    let (data, weights, flags, flag_row) = (
+        data.as_slice()?,
+        weights.as_slice()?,
+        flags.as_slice()?,
+        flag_row.as_slice()?,
+    );
+    let added = match &added {
+        Some(a) => Some(a.as_slice()?),
+        None => None,
+    };
+    let (antenna1, antenna2, time_bin, freq_bin) = (
+        antenna1.as_slice()?,
+        antenna2.as_slice()?,
+        time_bin.as_slice()?,
+        freq_bin.as_slice()?,
+    );
+    let (inverse, valid) = (inverse.as_slice()?, valid.as_slice()?);
+    let (sample, weight) = (sample.as_slice_mut()?, weight.as_slice_mut()?);
+    if data.len() != 8 * cells
+        || weights.len() != 4 * cells
+        || flags.len() != 4 * cells
+        || flag_row.len() != nrow
+        || added.is_some_and(|a| a.len() != cells)
+        || antenna1.len() != nrow
+        || antenna2.len() != nrow
+        || time_bin.len() != nrow
+        || freq_bin.len() != nchan
+        || inverse.len() != 8 * gains
+        || valid.len() != gains
+        || sample.len() != 2 * cells
+        || weight.len() != cells
+    {
+        return Ok(1);
+    }
+    let inputs = CorrectInputsC {
+        nrow,
+        nchan,
+        ntime_bins,
+        nfreq_bins,
+        nant,
+        data: data.as_ptr(),
+        weights: weights.as_ptr(),
+        flags: flags.as_ptr(),
+        flag_row: flag_row.as_ptr(),
+        added: added.map_or(std::ptr::null(), |a| a.as_ptr()),
+        antenna1: antenna1.as_ptr(),
+        antenna2: antenna2.as_ptr(),
+        time_bin: time_bin.as_ptr(),
+        freq_bin: freq_bin.as_ptr(),
+        inverse: inverse.as_ptr(),
+        valid: valid.as_ptr(),
+    };
+    // SAFETY: every slice is live for the call and has the length checked above.
+    Ok(unsafe {
+        rang_core::ffi_correct::rang_core_correct_stokes_i(
+            &inputs,
+            sample.as_mut_ptr(),
+            weight.as_mut_ptr(),
+        )
+    })
+}
+
+/// `rang_core_blosc_decode_span_rows_strided`: rows land at byte
+/// `offset + i * stride` of the caller-owned uint8 array `out` (P5).
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn blosc_decode_span_rows_strided(
+    head: &[u8],
+    first: usize,
+    count: usize,
+    span: Ro<'_, u8>,
+    row_bytes: usize,
+    rows: Ro<'_, usize>,
+    mut out: Rw<'_, u8>,
+    offset: usize,
+    stride: usize,
+) -> PyResult<i32> {
+    let (span, rows) = (span.as_slice()?, rows.as_slice()?);
+    let out = out.as_slice_mut()?;
+    if offset > out.len() {
+        return Ok(1);
+    }
+    let out = &mut out[offset..];
+    // SAFETY: every slice is live for the call; `out` bounds the writes.
+    Ok(unsafe {
+        rang_core::ffi_correct::rang_core_blosc_decode_span_rows_strided(
+            head.as_ptr(),
+            head.len(),
+            first,
+            count,
+            span.as_ptr(),
+            span.len(),
+            row_bytes,
+            rows.as_ptr(),
+            rows.len(),
+            out.as_mut_ptr(),
+            out.len(),
+            stride,
+        )
+    })
+}
+```
+
+## 7. Open items
+
+- The ≤ 115 B per cell target: the remaining peaks are the gridder's
+  per-group copies and samples (P2's `grid.rs`, about 12 B per cell) and the
+  Tricolour stage planes and window (P3's `sumthreshold.rs`/`ffi_flag.rs`,
+  about 27 B per cell). A "fractions only" stage output and gridding
+  straight from strided `(row, chan)` buffers would take the peak to about
+  105 B per cell.
+- `core.solve_complex` copies the flag cube (section 6, for P7).
+- The three not bit-identical dirty images at array scale: cause not traced
+  (inside tolerance by five orders).
+- The bench resets `VmHWM`, which invalidates the instrumented runs' own
+  `max_rss_mb` and `/usr/bin/time` peaks; the after-run's headline is the
+  bench's composed peak, the before-run's the un-instrumented one.
+
 ## Timings (every tool run of this task)
 
 | When (UTC) | Tool run | Wall | Peak RSS | Note |
@@ -272,4 +663,17 @@ and the difference is recorded.
 | 09:27 | bench `campaign` stations 0–11 (`s12-before`) | 1 min 44 s | 2,909 MB (bench) | baseline |
 | 09:31 | `examples/precondition_luno_array.py` unmodified (`precondition-before`) | 39 s | 614 MB | part 2 fails on image keys only (1.4) |
 | 09:33 | scratch score pre-check, stations 0–3 and 0–11 | 14 s, 43 s | 155 MB, 1.19 GB | 1.5 |
-| 09:31 | unmodified whole-array run (`array-before`) | running | | section 4 |
+| 09:31 | unmodified whole-array run (`array-before`) | 14 min 57 s | 13.2 GB at kill | **killed by the OOM killer** (sibling DDFacet held the host's memory); failure recorded |
+| 2026-10-30 | standalone P5 crate: build, test (11), clippy `-D warnings`, rustfmt (twice; one clippy fix `collapsible_if`, one rustfmt rewrite) | about 1 min each | – | section 5.3 |
+| 09:50 | scratch unit checks, stations 0–3 (includes the first standalone build) | 48 s | 332 MB | all identical |
+| 09:52 | scratch unit checks, stations 0–11 | 40 s | 2.97 GB | all identical |
+| 09:54 | unmodified whole-array run from a pristine export (`array-before-b`), `time -v`, 8 threads, load 50–90 | **1 h 21 min 38 s** | **13,308,612 kB** | reference; MemAvailable 22.5 GiB at start |
+| 09:56 | bench `campaign` 0–3 with the group check (`k4-after`) | 45 s | 380 MB (bench) | identical to the unmodified replay |
+| 09:58 | `precondition_luno_array.py` with P5 (`precondition-after`) | 51 s | 440 MB | same pass/fail dict as before; replay identical |
+| 10:00 | targeted pytest (`test_p5_memory`, `test_core_campaign_array`, `test_core_fetch`, `test_core_zarr`, `test_core_campaign`) | 41 s | 161 MB | 37 passed, 1 skipped (K fetch deleted; then pointed at task G's fetch: 2 passed, 40 s) |
+| 10:02 | bench `campaign` 0–7 and 0–11 (`s8-after`, `s12-after`) | 1 min 30 s, 1 min 58 s | 646 MB, 885 MB (bench) | identical to before |
+| 10:08 | coordinator lines in a scratch copy (`exttest.log`): uv venv, core build/test/clippy/fmt, `maturin develop`, extension clippy/fmt, pytest on both backends, bench through the extension | about 20 min (load 60–90) | – | all pass |
+| 10:40 | bench `campaign` 0–3 without the group check (`k4-after-b`) | 58 s | 366 MB (bench) | identical to `k4-before` |
+| 11:20 | bench `campaign` all stations (`array-after`), 4 threads, `OPENBLAS_NUM_THREADS=1`, load 36–70 | **37 min 28 s** | **10,406 MiB (bench composed)**; `time -v` 9,070,168 kB is invalid under the HWM reset | identical (section 5.1) |
+| 11:58 | `compare` after vs before; scratch archive comparisons (before and after vs L1) | seconds | – | pass |
+| 12:02 | `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` (4 threads, `OPENBLAS_NUM_THREADS=1`; lock wait 0 s) | 3 min 24 s (pytest 586 passed, 1 skipped in 2 min 17 s) | 1.50 GB | **overall PASS** (`outputs/p5-memory-20261030-01/check-all.log`) |

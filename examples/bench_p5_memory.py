@@ -278,7 +278,9 @@ def _walk(a, b, path, report, tolerant):
     if key in TIMING_KEYS:
         return
     here = ".".join(str(p) for p in path)
-    tolerant = tolerant or key in ("image", "group_comparison", "residual_rms")
+    # Image-derived fields: the metrics, the PSF-measured boxes, the group
+    # check and the residual-RMS calls.
+    tolerant = tolerant or key in ("image", "group_comparison", "residual_rms", "boxes")
     if isinstance(a, dict) and isinstance(b, dict):
         for k in sorted(set(a) | set(b), key=str):
             if k not in a or k not in b:
