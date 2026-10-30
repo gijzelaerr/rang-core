@@ -8,6 +8,8 @@
     python examples/bench_x2_gpu.py bench INPUTS OUT_DIR [--configs ...]
         [--repeats 3] [--labels ...]
     python examples/bench_x2_gpu.py compare REF_DIR CAND_DIR OUT.json
+    python examples/bench_x2_gpu.py summarize RUN_DIR BASELINE_DIR OUT.json
+        [--comparators RUN_DIR]
 
 `k-replay` runs task K's frozen image comparator, `bench_p2_gridder.k_replay`
 (P2), unedited; the device is the one `core_grid.invert` reads from
@@ -23,7 +25,9 @@ compilation cost, which is reported separately. `bench` runs `time` in a
 fresh process per (repeat, configuration), configurations interleaved, and
 samples GPU memory with `nvidia-smi` while each process runs. `compare`
 reports float64 pixel differences of saved images against a reference set
-and the verdicts under task A's tolerances.
+and the verdicts under task A's tolerances. `summarize` collects a run
+directory's comparator verdicts, timings and image comparisons (against the
+baseline CPU images) into the archive JSON.
 """
 
 import argparse
@@ -577,6 +581,205 @@ def bench(directory, out_dir, configs, repeats, labels=None):
     return 0
 
 
+# --- summary -------------------------------------------------------------------
+
+
+def _median(values):
+    values = sorted(values)
+    n = len(values)
+    if not n:
+        return None
+    return values[n // 2] if n % 2 else 0.5 * (values[n // 2 - 1] + values[n // 2])
+
+
+def _comparators(run):
+    out = {}
+    for dev in ("gpu-f64", "gpu-f32", "cpu"):
+        entry = {}
+        c_dir = run / f"c-{dev}"
+        if c_dir.exists():
+            result = json.loads((c_dir / "result.json").read_text())
+            archive = json.loads((c_dir / "compare-archive.json").read_text())
+            summary = archive["summary"]
+            criteria = result["criteria"]
+            entry["C"] = {
+                "criteria_1_3": not criteria["failures"],
+                "wcs_equal": archive["criterion_4_wcs"],
+                "dirty_linf_of_peak": summary["dirty"]["max_relative_to_peak"],
+                "psf_linf": summary["psf"]["max_abs_difference"],
+                "passed": not criteria["failures"]
+                and archive["criterion_4_wcs"]
+                and summary["dirty"]["max_relative_to_peak"] <= DIRTY_LINF_OF_PEAK
+                and summary["psf"]["max_abs_difference"] <= PSF_LINF,
+            }
+        i_dir = run / f"i-{dev}"
+        if i_dir.exists():
+            archive = json.loads((i_dir / "compare-archive.json").read_text())
+            host = json.loads((i_dir / "compare-host.json").read_text())
+            side = json.loads((i_dir / "side-effects.json").read_text())
+            worst = {k: v["worst"] for k, v in archive["classes"].items()}
+            entry["I"] = {
+                "archive_passed": archive["passed"],
+                "host_passed": host["passed"],
+                "failures": len(archive["failures"]) + len(host["failures"]),
+                "worst_vs_archive": worst,
+                "worst_vs_host": {k: v["worst"] for k, v in host["classes"].items()},
+                "pixels_vs_archive": {
+                    "dirty_linf_of_peak": archive["pixels"]["summary"]["dirty"][
+                        "max_relative_to_peak"
+                    ],
+                    "psf_linf": archive["pixels"]["summary"]["psf"][
+                        "max_abs_difference"
+                    ],
+                },
+                "response_fraction_margin": worst["response_fraction"] / 1.6e-7,
+                "inputs_unchanged": side["inputs_unchanged"],
+                "git_status_unchanged": side["git_status_unchanged"],
+                "passed": archive["passed"]
+                and host["passed"]
+                and side["inputs_unchanged"],
+            }
+        k_dir = run / f"k-{dev}"
+        if k_dir.exists():
+            k = json.loads((k_dir / "k-inputs.json").read_text())
+            entry["K"] = {
+                "passed": k["passed"],
+                "worst": k["worst"],
+                "failures": k["failures"],
+                "hypothesis_calls": [
+                    (h["candidate"], h["reference"], h["call"], h["archived_call"])
+                    for h in k["hypothesis_calls"]
+                ],
+            }
+        out[dev] = entry
+    return out
+
+
+def _bench(run, name):
+    directory = run / f"bench-{name}"
+    if not directory.exists():
+        return None
+    runs = json.loads((directory / "runs.json").read_text())
+    by_config = {}
+    for item in runs["runs"]:
+        payload = json.loads((directory / item["file"]).read_text())
+        by_config.setdefault(item["config"], []).append(payload)
+    out = {}
+    for config, payloads in by_config.items():
+        per_label = {}
+        for payload in payloads:
+            for record in payload["records"]:
+                per_label.setdefault(record["label"], []).append(record)
+        images = {}
+        for label, records in per_label.items():
+            entry = {
+                "wall": [r["wall"] for r in records],
+                "wall_median": _median([r["wall"] for r in records]),
+                "cpu_median": _median([r["cpu"] for r in records]),
+                "hashes_identical_across_repeats": len(
+                    {(r["dirty_sha256"], r["psf_sha256"]) for r in records}
+                )
+                == 1,
+                "gridded_count": records[0]["gridded_count"],
+            }
+            if "gpu" in records[0]:
+                keys = [k for k in records[0]["gpu"] if k.endswith("_s")]
+                entry["gpu_median"] = {
+                    k: _median([r["gpu"][k] for r in records]) for k in keys
+                }
+                entry["gpu_bytes"] = records[0]["gpu"]["gpu_bytes"]
+                entry["batches"] = records[0]["gpu"]["batches"]
+                entry["layers_per_batch"] = records[0]["gpu"]["layers_per_batch"]
+            images[label] = entry
+        totals = [p["total_wall"] for p in payloads]
+        first = [p["first_call"] for p in payloads]
+        walls = [e["wall_median"] for e in images.values()]
+        summary = {
+            "images": images,
+            "per_image_wall_median": _median(walls),
+            "per_image_wall_range": [min(walls), max(walls)],
+            "per_image_cpu_median": _median([e["cpu_median"] for e in images.values()]),
+            "set_wall_median": _median(totals),
+            "set_wall_min": min(totals),
+            "max_rss_mb": max(p["max_rss_mb"] for p in payloads),
+            "process_wall_median": _median([p["process_wall"] for p in payloads]),
+            "all_repeats_identical": all(
+                e["hashes_identical_across_repeats"] for e in images.values()
+            ),
+            "loadavg": [p["loadavg_before_after"] for p in payloads],
+        }
+        memory = [p.get("gpu_memory") for p in payloads if p.get("gpu_memory")]
+        if memory:
+            summary["gpu_memory_peak_increase_mib"] = max(
+                m["peak_increase_mib"] for m in memory
+            )
+            summary["gpu_memory_before_mib"] = [m["before_mib"] for m in memory]
+        if payloads[0].get("adapter_s") is not None:
+            summary["first_call"] = {
+                "adapter_s": [p["adapter_s"] for p in payloads],
+                "compile_s": [f["gpu"]["compile_s"] for f in first],
+                "first_image_wall": [f["wall"] for f in first],
+            }
+            keys = [k for k in first[0]["gpu"] if k.endswith("_s")]
+            summary["set_gpu_median"] = {
+                k: _median([sum(r["gpu"][k] for r in p["records"]) for p in payloads])
+                for k in keys
+            }
+            summary["gpu_bytes_max"] = max(e["gpu_bytes"] for e in images.values())
+        out[config] = summary
+    return out
+
+
+def summarize(run, baseline, output, comparators=None):
+    run, baseline = Path(run), Path(baseline)
+    comparators = Path(comparators) if comparators else run
+    result = {
+        "task": "X2",
+        "report": "research/x2-wgpu.md",
+        "run": str(run.as_posix()),
+        "tolerances": {
+            "dirty_linf_of_peak": DIRTY_LINF_OF_PEAK,
+            "psf_linf": PSF_LINF,
+            "agreement_of_peak": AGREEMENT_OF_PEAK,
+        },
+        "comparators_run": str(comparators.as_posix()),
+        "comparators": _comparators(comparators),
+        "bench": {},
+        "images": {},
+    }
+    for path in ("adapter.txt", "head.txt", "extension.sha256"):
+        if (run / path).exists():
+            result[path.split(".")[0]] = (run / path).read_text().strip()
+    for name in ("k", "c", "array"):
+        bench_summary = _bench(run, name)
+        if bench_summary is None:
+            continue
+        result["bench"][name] = bench_summary
+        reference = baseline / f"images-{name}-t1"
+        for config in bench_summary:
+            candidate = run / f"bench-{name}" / f"images-{config}"
+            out = run / f"compare-{name}-{config}.json"
+            compare(reference, candidate, out)
+            payload = json.loads(out.read_text())
+            result["images"][f"{name}/{config}"] = {
+                "worst": payload["worst"],
+                "all_bit_identical_to_baseline": payload["all_bit_identical"],
+                "all_within_agreement_bound": payload["all_within_agreement_bound"],
+                "within_task_a": payload["passed"],
+            }
+        batch1 = run / f"batch1-{name}"
+        if batch1.exists():
+            out = run / f"compare-{name}-batch1.json"
+            compare(run / f"bench-{name}" / "images-gpu-f64", batch1, out)
+            payload = json.loads(out.read_text())
+            result["images"][f"{name}/gpu-f64-batch1-vs-default"] = {
+                "all_bit_identical": payload["all_bit_identical"],
+                "worst": payload["worst"],
+            }
+    write_json(output, result)
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -605,6 +808,11 @@ def main(argv=None):
     c.add_argument("reference")
     c.add_argument("candidate")
     c.add_argument("output")
+    m = sub.add_parser("summarize")
+    m.add_argument("run")
+    m.add_argument("baseline")
+    m.add_argument("output")
+    m.add_argument("--comparators")
     args = parser.parse_args(argv)
     labels = args.labels.split(",") if getattr(args, "labels", None) else None
     if args.command == "k-replay":
@@ -630,6 +838,8 @@ def main(argv=None):
             if name not in CONFIGS:
                 raise SystemExit(f"unknown configuration {name}")
         return bench(args.inputs, args.out_dir, configs, args.repeats, labels)
+    if args.command == "summarize":
+        return summarize(args.run, args.baseline, args.output, args.comparators)
     return compare(args.reference, args.candidate, args.output)
 
 
