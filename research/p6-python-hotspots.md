@@ -1,7 +1,14 @@
 # Rang core, big plan task P6: frozen Python hot spots in the trend and signal tracks
 
 Protocol frozen 2026-10-30 in the commit that adds this file, before any
-code of this task exists. Status: **proposed**.
+code of this task exists. Status: **implemented; measured: criteria 1–5 and
+7 pass as frozen (trend result and checkpoints byte-equal, signal result
+equal apart from wall-time fields, both comparators pass with identical
+counts through the switched drivers); trend 3.1× faster (minima 34.5 →
+11.2 s, claimed under the P1 rule at load 7–42); signal not faster in the
+frozen wall-time A/B (minima 31.9 vs 33.0 s, not claimed) although its
+`cond`/`inv` CPU drops from 13.1 to 0.8 s per run (post-hoc diagnostic)**.
+Results archive: [results/p6-hotspots.json](results/p6-hotspots.json).
 Task P6 of [simplification-review.md](simplification-review.md) (sections
 2.2 and 2.4 profiles, section 3 "P6 Frozen Python hot spots", section 4
 row). Under AGENTS.md this is engineering, not a scientific contribution:
@@ -231,3 +238,226 @@ candidates (sizes 8–1,450, median 36).
    wall-time fields the criterion excludes; the acceptance records are
    compared without their `seconds`. A profiled pair (`-03`) differed in
    exactly these 11 fields and nothing else.
+
+## Results (frozen measurement, `outputs/p6-hotspots-20261030-06`, head `0c074e6`, clean tree)
+
+Interleaved pairs (pair 1 base first, pair 2 new first, pair 3 base
+first), `/usr/bin/time`, the tree committed and unchanged during the
+runs. Trend arms: `examples/bench_p6_hotspots.py trend frozen|ported`
+(frozen `flagging_trend.run` / `core_trend.run`); signal arms:
+`rang-core signal` with `RANG_P6` unset / `RANG_P6=1`. The load fell from
+42 to 7 during the hour, so pair 1 is the most loaded.
+
+| Stage | Arm | Walls s (pairs 1, 2, 3) | Min / median s | User s | Peak RSS MB | Load before (1 min) |
+| --- | --- | --- | --- | --- | ---: | --- |
+| trend | base | 124.89, 56.21, 34.48 | 34.48 / 56.21 | 51.0, 51.3, 35.0 | 340–341 | 34.5, 22.0, 11.6 |
+| trend | new | 30.00, 17.23, 11.17 | 11.17 / 17.23 | 17.9, 15.6, 11.4 | 409–416 | 42.6, 23.9, 8.5 |
+| signal | base | 67.68, 31.91, 37.68 | 31.91 / 37.68 | 52.6, 39.3, 41.8 | 827–829 | 39.3, 17.6, 7.3 |
+| signal | new | 34.19, 32.97, 34.64 | 32.97 / 34.19 | 37.4, 36.6, 38.0 | 868–872 | 29.1, 19.4, 8.9 |
+
+- **Criterion 1 (trend identity): pass, 3 of 3.** `result.json`,
+  `config.json` and the seven `checkpoint-*.json` are byte-equal between
+  the arms of every pair (`identity-trend-N.json`).
+- **Criterion 2 (signal identity): pass, 3 of 3.** `result.json` equal
+  after removing `seconds_total`, the per-solve `seconds` and
+  `acceptance_digest_core` (design deviation 5). **The default path is
+  unchanged against the pre-P6 driver** (`-10`, post hoc): baseline
+  `-02` signal repeat 1 imported the original `core_signal.py` (it started
+  more than two minutes before repeat 2, which failed on the half-edited
+  file); its `result.json` equals `-06` pair 1's base *and* new arms under
+  the same rule (`identity-signal-pre-p6-vs-{base,new}-1.json`).
+- **Criterion 3 (comparators): pass.** Every arm of every pair: trend
+  (`--posthoc-slope-scale`) passed, 875 exact, 168 float, 1 excluded, with
+  the same frozen-slope failures as before (the known rounding-level
+  reference slopes of [core-phase3-trend.md](core-phase3-trend.md),
+  accepted by its post-hoc rule); signal passed, 261 exact, 208 float (max
+  rel 1.74e-11), 4 difference, 12 reported, 15 excluded. Identical counts
+  in both arms. **Labelled trial (`-09`, switch applied to `core_cli.py`,
+  reverted after, `git status` clean again):** `rang-core trend` through
+  `core_trend.run` 31.7 s, `rang-core signal` with `ported=True` 34.2 s
+  (load 30–33); both comparators pass with the same counts; the
+  side-effect audits report inputs unchanged and git status unchanged; the
+  trial trend result equals base pair 1's in every key except
+  `configuration.runtime_receipts`, whose only differing entry is
+  `core_cli.py` (the switch itself); its `module_sha256` is the archive's
+  `3c578c5e…`; the trial signal result equals base pair 1's under
+  criterion 2.
+- **Criterion 4 (unit tests): pass.** `tests/test_p6_trend.py` (13 tests:
+  random states, aliases and ties, window exclusions, empty TRAIN, all
+  over budget, validation errors, the switch, the geometry cache, bitwise
+  segment means, an archived mirror case) and `tests/test_p6_signal.py`
+  (11 tests: corrected intensity in both call shapes with singular,
+  signed-zero, ill-conditioned (1e9) and NaN gains, all-valid,
+  all-invalid, empty and one-cell inputs; inverse tangent including its
+  1e8 refusal; one LAPACK call per run; the three ports verbatim apart
+  from `cond`/`inv` by AST comparison; the switch), about 5 s together.
+- **Criterion 5 (frozen modules): pass.** `git diff 4c6df23 --
+  python/rangtoy/flagging_*.py` is empty; `module_sha256` as archived.
+- **Criterion 6 (speed).** Trend: margin 34.48 − 11.17 = 23.31 s against a
+  base spread of 21.73 s: **claimed, 3.1× (minima), 3.3× (medians), user
+  CPU 3.1×**; peak RSS +70 MB (the geometry cache and the concatenated
+  indices). Signal: the new minimum is 1.06 s *above* the base minimum:
+  **not claimed**; peak RSS +41 MB.
+- **Criterion 7:** see "Checks".
+
+### Post-hoc diagnostic: where the signal time went (`-08`, labelled post hoc)
+
+The frozen A/B contradicted the profiles (`-03`, `-07`: `cond` 13.5–19.6 s
+of 60–85 s, ported 1.0–1.1 s), so
+[signal_timed.py](results/p6-hotspots-scripts/signal_timed.py) (it wraps
+`np.linalg.cond`, `np.linalg.inv`, `anchored_response`,
+`training_normals`, `core_solve` and the shortlist's `generate_candidates`
+with wall and process-CPU timers and calls
+`core_signal.run(..., ported=False|True)`) ran two pairs at load 25–38:
+
+| Arm | Wall s | CPU s | `cond` calls / wall s / CPU s | `inv` wall s / CPU s | `anchored_response` CPU s |
+| --- | ---: | ---: | --- | --- | ---: |
+| base | 91.0, 98.2 | 55.9, 55.0 | 192 / 21.7, 23.9 / 11.8, 11.8 | 2.3, 2.9 / 1.33, 1.40 | 20.2, 20.4 |
+| new | 71.2, 65.8 | 41.2, 39.0 | 192 / 1.3, 1.4 / 0.72, 0.71 | 0.22, 0.20 / 0.10, 0.10 | 20.1, 19.3 |
+
+So the port removes about 12 CPU-s of `cond`/`inv` and about 3 CPU-s of
+candidate generation per signal run, as designed, and at load 25–38 the
+stage is 20–30 s faster. In the frozen A/B the base's own CPU varied from
+39 to 53 s between pairs for identical work (the per-matrix LAPACK calls
+are the most load-sensitive part: wall about twice CPU here), and at load
+7–19 the difference was inside the noise. The signal speed-up is
+therefore measured but not claimed. The remaining signal cost is
+`anchored_response` (Rust eigensolver, about 20 CPU-s; P4's).
+
+## Checks
+
+Targeted pytest (`tests/test_p6_trend.py tests/test_p6_signal.py
+tests/test_core_cli.py`): 32 passed. `bash tools/check-all.sh` on the
+final tree: **PASS** (all fifteen steps; pytest 584 passed, 1 skipped, in
+4,280 s at load 27 rising to 99 with sibling suites running); log
+`outputs/p6-hotspots-20261030-10/check-all.log`. After it passed, only
+research and evidence files changed (this document, the results archive,
+the scripts directory); the code is commit `0c074e6`, the one measured.
+
+## Scripts
+
+Every measurement was driven from
+[results/p6-hotspots-scripts/](results/p6-hotspots-scripts/) (copied
+from the session scratchpad, unchanged, run from the worktree root with
+`.venv`): `baseline.sh` (`-01`, `-02`), `profile.sh`, `trend_run.py` and
+`stats.py` (`-03`, `-04`, `-07`; `-04` and `-07` used the same commands
+inline), `stats_case.py` and `quick_case.py` (one-case development timing;
+`quick_case.py` is left in its last, ported-only state), `ab.sh` (`-05`
+failed, `-06`), `signal_timed.py` (`-08`), `trial.sh` (`-09`),
+`archive.py` (writes `results/p6-hotspots.json`), `jdiff.py` and
+`trend_trial_cmp.py` (result diffs), `micro.py` (`cond`/`inv` per cell
+against per run on 70,000 synthetic matrices: 49.0 → 5.0 ms and 9.9 → 2.1
+ms at load 13), `negzero.py` (signed zeros, below).
+
+Signed zeros (post hoc, `negzero.py`): on this build `np.mean` of
+all-`-0.0` segments of length 1–130 is `+0.0` (the reduction starts from
+`+0.0`), `segment_means` agrees, and `np.maximum(-0.0, 0)` returns `+0.0`,
+so the scores cannot carry `-0.0`. The run-time probe
+(`_short_sums_are_exact`) does not itself feed signed zeros.
+
+## For the coordinator
+
+**STATE paragraph.** Task P6 (frozen Python hot spots, branch
+`p6-hotspots`, [p6-python-hotspots.md](p6-python-hotspots.md)): the trend
+track's candidate generation is ported to
+`core_trend.generate_candidates` (geometry built once per case by prefix
+sums and one `np.nonzero` per row group, scores vectorised with a
+bitwise-checked emulation of NumPy's pairwise sum), and the signal
+track's `train_signal_guard`, `inverse_tangent` and `corrected_intensity`
+are ported into `core_signal.py` with `cond`/`inv` once per run of
+identical gain matrices. Frozen modules untouched. Trend results and
+checkpoints byte-equal, signal results equal apart from wall times, both
+comparators pass with identical counts through the switched drivers.
+Trend 3.1× faster (34.5 → 11.2 s minimum, claimed); signal `cond`/`inv`
+CPU 13.1 → 0.8 s per run but no wall gain measurable in the frozen A/B at
+falling load (not claimed). Opt-in until the switch below.
+
+**Switch lines** (verified in the labelled trial `-09`, then reverted):
+
+```diff
+diff --git a/python/rangtoy/core_cli.py b/python/rangtoy/core_cli.py
+index 0f34056..ae5bdd1 100644
+--- a/python/rangtoy/core_cli.py
++++ b/python/rangtoy/core_cli.py
+@@ -46,7 +46,7 @@ from . import core, core_actions, core_injections, core_prospective, core_signal
+ from .core_workflow import core_solve
+ from .flagging_equivariance import CASES
+ from .flagging_injections import PATTERNS
+-from .flagging_trend import run as trend_run
++from .core_trend import run as trend_run
+ from .flagging_workflow import load_state
+
+ ROOT = Path(__file__).resolve().parents[2]
+@@ -178,7 +178,7 @@ def signal(run_dir, inputs_dir, uvw_dir, iterations=50):
+         run_dir,
+         [inputs_dir, uvw_dir],
+         lambda: core_signal.run(
+-            run_dir, inputs_dir, uvw_dir, iterations=int(iterations)
++            run_dir, inputs_dir, uvw_dir, iterations=int(iterations), ported=True
+         ),
+     )
+
+```
+
+Optional, not tried here: the prospective stage (`core_prospective.run`,
+about 20 s) calls the same frozen `generate_candidates` through
+`flagging_prospective.make_shortlist`; wrapping its run in
+`core_trend.ported_candidates(flagging_prospective)` would port it the
+same way (its comparator would be the check). `core_cli.trend`'s docstring
+("The frozen `flagging_trend.run`, unedited") stays true after the
+switch: `core_trend.run` calls it unedited.
+
+**Timing rows** for `tool-timings.md`: the "Timings" table below; the
+headline rows are `-06` trend base/new 34.48/11.17 s minimum and signal
+31.91/32.97 s minimum, load 7–42.
+
+**Upstream observations.** RATT (caracal-pipeline, QuartiCal, africanus,
+Stimela): none; this task touches only rang's own Python. Non-RATT:
+NumPy's `np.mean` summation order (float64 `pairwise_sum`, block size 128,
+eight accumulators) is an implementation detail, not API; `core_trend`
+depends on it for the vectorised means and therefore checks it bitwise at
+run time and falls back to `np.mean` if a future NumPy changes it. Not a
+bug, no report. `np.linalg.cond`/`inv` on stacks of 2 × 2 matrices make
+one LAPACK call per matrix (about 0.7 µs each); not an upstream issue.
+
+**Evidence to keep.** [results/p6-hotspots.json](results/p6-hotspots.json)
+(all timing rows, identity verdicts, comparator counts, the diagnostic and
+the trial with its switch diff). Raw run directories (ignored):
+`outputs/p6-hotspots-20261030-02` (baseline), `-03`, `-04`, `-07`
+(profiles), `-06` (frozen A/B), `-08` (post-hoc diagnostic), `-09`
+(labelled trial), `-10` (pre-P6 identity, check-all log); `-01` and
+`-05` are failed attempts kept as frozen. Scripts:
+[results/p6-hotspots-scripts/](results/p6-hotspots-scripts/).
+
+**Open items.** (1) A low-load signal A/B (load below 2) would settle the
+signal wall gain. (2) The prospective-stage port above. (3) P11 will copy
+the frozen originals into core modules; the ports can then replace the
+frozen consumers' imports directly instead of the attribute swap. (4) The
+geometry cache keeps one entry (about 70 MB for a 140 × 4,096 case); a
+whole-array state would need a size check first. (5) Add a few `-0.0`
+values to the `_short_sums_are_exact` probe and to
+`test_segment_means_bitwise` (hardening only; see "Scripts").
+
+## Timings (every tool run of this task, 2026-10-30)
+
+| Tool / input | Wall | Peak RSS | Notes |
+| --- | --- | --- | --- |
+| `uv venv` + `uv pip install -e .[...]` + `maturin develop --release` | about 2 min | – | background; cached wheels |
+| root crate first build (`_native_library()`) | 10.3 s | – | `cargo` on `PATH` |
+| baseline `-01`, trend and signal × 3 | 0.6–1.3 s each | 44–190 MB | **failed as frozen**: `cargo` not on `PATH` |
+| baseline `-02`, trend × 3 | 89.9, 68.2, 84.8 s | 340–344 MB | exit 1: `runtime_unchanged` audit (files created during the runs); load 26–32 |
+| baseline `-02`, signal × 3 | 59.2, 0.2, 93.4 s | 828–834 MB | repeat 2 failed (`NameError`, half-written file); load 28–32 |
+| cProfile signal base / new (`-03`) | 85.2 / 60.8 s (profile totals) | – | load about 30; first signal port |
+| cProfile trend frozen / prefix-sum-only port (`-04`) | 121.4 / 103.2 s | – | load 35–45; identity pass (all 9 files) |
+| one case, 8 calls, frozen / ported (scratch, development) | 12.4–17.8 / 2.7–8.0 s | – | load 30–44; same results checked each time |
+| pytest P6 files (development, several runs) | 3–8 s | – | |
+| A/B `-05` | 0.05 s each | – | **failed as frozen**: `/usr/bin/time` cannot run shell functions (exit 127) |
+| A/B `-06` (frozen measurement) | 12 runs, see Results | 340–872 MB | load 42 → 7 |
+| identity and comparators in `-06` | under 1 s each | – | all pass |
+| cProfile signal base / new (`-07`) | 60.3 / 44.1 s | 833 / 868 MB | load 15–22 |
+| diagnostic `-08` (post hoc), 4 signal runs | 91.0, 71.2, 98.2, 65.8 s | – | load 25–38 |
+| labelled trial `-09`: switched `rang-core trend` / `signal` | 31.7 / 34.2 s | 414 / 870 MB | load 30–33; comparators pass; reverted |
+| `bash tools/check-all.sh` | 4,539 s | – | PASS; pytest 584 passed, 1 skipped (4,280 s); load 27 → 99 |
+| `micro.py` (`cond`/`inv` per cell vs per run, 70,000 matrices) | about 1 s | – | load 13; default and one OpenBLAS thread |
+| `negzero.py` (signed zeros, post hoc) | under 1 s | – | all agree |
+| identity pre-P6 vs `-06` (`-10`, post hoc) | under 1 s | – | pass, both arms |
