@@ -15,8 +15,16 @@ Status (2026-10-30): **B1-0 and B1-1 (i) implemented and measured**, no
 amendment. All gates pass: the holography product reproduces SARAO's own
 metrics (0.08′, 0.2 %) and interpolates to 1e-3; the SARAO/SKA fit is
 reproduced bit for bit on the five-scan fixture. katbeam errs 0.54×, EIDOS
-1.8× the signal of a 30″ offset at half power; the Gaussian fit is biased
-by up to 0.6′ against the measured beam. Details in "Measured result".
+1.8× the signal of a 30″ offset at half power; against the measured beam
+the Gaussian fit over-recovers offsets by 1.2–1.5× and returns up to 0.6′ at
+zero offset (about half of it the beam's squint). Details in "Measured
+result".
+
+Erratum (2026-10-30, after the measurement; citations only): in B1-1 (ii)
+"Sridharan et al. 2025" should read Sridharan et al., URSI GASS 2023
+(arXiv:2504.14449), as the literature scan cites it. "EVLA memo 84"
+(Bhatnagar, Cornwell and Golap 2004) was checked against the papers that
+cite it (EVLA Memo 100; arXiv:1501.05304), not read.
 
 ## Why
 
@@ -587,17 +595,24 @@ on the half-power ring.
   arcmin; σ is the published formal error, scatter the weighted standard
   deviation of the valid chunk centres):
 
-  | Antenna | xEl | σ | El | σ | valid chunks | chunk scatter xEl, El |
+  | Antenna | xEl | σ | El | σ | valid (informative) chunks | chunk scatter xEl, El |
   | --- | ---: | ---: | ---: | ---: | ---: | --- |
-  | m000 | −3.70 | 5.39 | +2.06 | 1.45 | 6 | 8.2, 2.4 |
-  | m001 | +5.24 | 3.57 | +1.37 | 1.18 | 7 | 6.8, 1.8 |
-  | m002 | +5.86 | 7.31 | −5.96 | 3.22 | 7 | 11.6, 6.0 |
-  | m003 | +3.40 | 2.77 | −1.72 | 2.16 | 6 | 4.3, 2.5 |
+  | m000 | −3.70 | 5.39 | +2.06 | 1.45 | 6 (3) | 8.2, 2.4 |
+  | m001 | +5.24 | 3.57 | +1.37 | 1.18 | 7 (4) | 6.8, 1.8 |
+  | m002 | +5.86 | 7.31 | −5.96 | 3.22 | 7 (4) | 11.6, 6.0 |
+  | m003 | +3.40 | 2.77 | −1.72 | 2.16 | 6 (3) | 4.3, 2.5 |
 
   Every offset is within 1.9σ of zero; the formal σ (1.2–7.3′) is 2–12
-  times the 0.6′ that holography removes. Only 6–7 of 14 chunks pass the
-  width check (the 936, 1417, 1471 and 1631 MHz chunks fail for every
-  antenna, 1524 MHz for all but m002). The H-only and V-only fits disagree with the
+  times the 0.6′ that holography removes. 6–7 of 14 chunks are marked
+  valid (the 936, 1417, 1471 and 1631 MHz chunks fail the width check for
+  every antenna, 1524 MHz for all but m002), but three of them per antenna
+  carry no information: *post hoc (labelled, `b1-20261030-11-posthoc/stuck.log`)*,
+  the 1204, 1257 and 1578 MHz chunks (the GNSS bands) are fully flagged,
+  so their amplitudes and σ_y are 0, the fit stays at its starting values
+  (centre 0, width ratio 1, which passes the width check) with NaN σ, and
+  it drops out of the weighted mean only because `weighted_avg_and_std`
+  masks NaN weights. Each published offset rests on 3–4 chunks (the
+  estimate is unchanged when they are removed). The H-only and V-only fits disagree with the
   Stokes I fit: m000 xEl is +3.2′ (H) and +3.6′ (V) but −3.7′ combined,
   m002 xEl +13.3′ and +10.4′, so the estimate depends on which chunks pass
   the width check. `reformatted_offsets.txt` (SKA-style names, offsets
@@ -615,14 +630,25 @@ on the half-power ring.
   half an arcminute per antenna and scales offsets by up to 1.5: comparable
   to the 0.6′ it is meant to measure, as expected. On the real fixture its
   noise is larger still (σ above).
+- *Post hoc (labelled, `b1-20261030-11-posthoc/squint.log`):* how much of
+  that zero point is the beam's own squint, which a pointing fit should
+  find? The centroid of ½(|HH| + |VV|) at the chunk frequencies, combined
+  with the fit's own chunk weights, is (−0.23, −0.10), (+0.14, −0.24),
+  (−0.01, −0.07), (−0.25, −0.28)′ for m000–m003; subtracting it leaves
+  (−0.26, +0.33), (−0.01, +0.28), (+0.10, +0.34), (−0.37, +0.17)′. So about
+  half of the zero point is squint, and up to 0.37′ (a consistent +0.17 to
+  +0.34′ in elevation) is shape bias from sampling the asymmetric beam at
+  ±1°; the larger effect is the 1.2–1.5× scale. The fixture's σ_y = 0
+  chunks drop out of the G1b fits as they do on the real data.
 
 ### What this shows, and what it does not
 
 - The 2023 holography release can be read by range, oriented, interpolated
   (9.2 MHz, cubic spline) and normalised to well inside its own error beam;
   it is the reference beam for B1-2 and B1-3.
-- katbeam is a good main-lobe control (it was fitted to these data) with a
-  fixed sidelobe; EIDOS is a good sidelobe control with a 2 % core error and
+- katbeam is a good main-lobe control (fitted by the same group to earlier
+  SARAO holography at 60° elevation; `MKAT-AA-L-JIM-2020` predates the end
+  of this release's 2020–2022 averaging) with a fixed sidelobe; EIDOS is a good sidelobe control with a 2 % core error and
   an orientation ambiguity. Neither replaces the holography beam at the 30″
   level everywhere in the band.
 - The SARAO/SKA Gaussian fit is now reproduced exactly in rang; on its own
@@ -673,7 +699,7 @@ WSL host, this branch; wall and peak RSS from `/usr/bin/time` unless noted.
 | 2026-10-30 | `examples/b1_baselines.py` G1a, run 2 | fixture | 1.20 s | 221 MB | **G1a failed**: 4.4e-6 rad; current datamodels time stamps |
 | 2026-10-30 | `examples/b1_baselines.py` G1a, run 3 | fixture | ~1.2 s | – | pass, 8.9e-16; wall not captured (the run 4 row times the same code) |
 | 2026-10-30 | scikits.fitting 0.7.2 oracle | 56 chunk fits | 0.99 s | 87 MB | separate venv; 0.0′ difference |
-| 2026-10-30 | EIDOS 1.1.2 probe, three attempts | 3 frequencies | 0.9 s each | 112 MB | **failed**: `recon_par` location; NumPy 2 refuses `np.sum(generator)` inside EIDOS; scipy `spline_filter` has no `axes` |
+| 2026-10-30 | EIDOS 1.1.2 probe, three attempts | 3 frequencies | 0.9 s each | 112 MB | **failed**: `recon_par` location; NumPy 2.5.4 refuses `np.sum(generator)` inside EIDOS (an error since 2.4.0); scipy `spline_filter` has no `axes` |
 | 2026-10-30 | EIDOS probe, re-expressed reconstruction | 3 frequencies | 1.64 s | 131 MB | 0.2 s per channel |
 | 2026-10-30 | `examples/b1_beam_product.py`, smoke | every 20th channel | 1.79 s | 2.93 GB | |
 | 2026-10-30 | `examples/b1_beam_product.py`, full | 82 channels, 815 held-out channels | 23.3 s | 4.17 GB | rerun with the compact archive 23.8 s, 4.17 GB |
@@ -681,6 +707,9 @@ WSL host, this branch; wall and peak RSS from `/usr/bin/time` unless noted.
 | 2026-10-30 | post-hoc EIDOS flip check | 82 channels × 2 flips | 36.1 s | 717 MB | labelled post hoc |
 | 2026-10-30 | pytest, the two new test files | 13 tests | 1.6 s | – | |
 | 2026-10-30 | `bash tools/check-all.sh` | worktree | 254.8 s | 1.67 GB | PASS; pytest 739 passed, 5 skipped in 123.9 s; log `outputs/b1-20261030-check-all.log` |
+| 2026-10-30 | post-hoc squint decomposition of G1b | 4 antennas × 14 chunks | 2.65 s | 296 MB | first attempt gave NaN (NaN-σ chunks not excluded); `squint.log` is the rerun |
+| 2026-10-30 | post-hoc stuck-chunk check | fixture amplitudes | ~1 s | – | not timed; `stuck.log` |
+| 2026-10-30 | `bash tools/check-all.sh`, after the post-hoc edits | worktree | 95 s | – | PASS; pytest 739 passed, 5 skipped in 91.6 s (Rust steps cached); log `outputs/b1-20261030-check-all-2.log` |
 
 ## For the coordinator
 
@@ -711,11 +740,14 @@ WSL host, this branch; wall and peak RSS from `/usr/bin/time` unless noted.
   > average by 0.12–0.21 % RMS in the main lobe. B1-1 (i): the SARAO/SKA
   > Gaussian pointing-offset fit (SKA SDP pipeline `5ede554` with its pinned
   > dependencies) is ported and reproduces the pipeline's own reference on
-  > the five-scan fixture to 8.9e-16 (the brief's "scan 9" is one of five
-  > pointings; the fit needs all five). On the fixture it gives offsets of
-  > 1.4–6.0′ with formal σ 1.2–7.3′ (all within 1.9σ of zero; 6–7 of 14
-  > chunks valid); against simulated truth with the holography beam it is
-  > biased by up to 0.6′ per antenna and over-recovers offsets by 1.2–1.5×.
+  > the five-scan fixture to 8.9e-16 (the brief's "scan 9" is the on-source
+  > point of a five-point pattern; the fit needs all five). On the fixture
+  > it gives offsets of 1.4–6.0′ with formal σ 1.2–7.3′ (all within 1.9σ of
+  > zero; 3–4 informative chunks of 14, plus three fully flagged GNSS chunks
+  > that it marks valid at their starting values). Against simulated truth
+  > with the holography beam it over-recovers offsets by 1.2–1.5× and
+  > returns up to 0.6′ at zero offset, about half of it the beam's squint
+  > and up to 0.37′ shape bias (post hoc).
   > ESO137 (`ms1_target`, 734 GB DATA) is the B1 target; no public store
   > has pointing scans. Next: B1-2 identifiability, then B1-3 pointing
   > self-calibration against both baselines.
@@ -749,7 +781,12 @@ WSL host, this branch; wall and peak RSS from `/usr/bin/time` unless noted.
     returns it, so a fully flagged `refant` stays the reference (its gains
     are set to 1 and σ_y becomes 0, which divides by zero in the fit). The
     same in 1.0.4 and 2.0.1.
-  - *ska-sdp-wflow-pointing-offset `5ede554`*: `BeamPatternFit.fit` writes
+  - *ska-sdp-wflow-pointing-offset `5ede554`*: a chunk whose data are all
+    flagged (zero amplitude, σ_y = 0) yields a fit that never leaves its
+    starting values (centre 0, width ratio 1) and is marked valid; it drops
+    out of the average only because NaN weights are masked. On the fixture
+    that is three of the 6–7 "valid" chunks per antenna (1204, 1257, 1578
+    MHz). `BeamPatternFit.fit` also writes
     `all(fit_snr) > 0.0`, which tests that no SNR is zero rather than that
     every SNR is positive; the pinned ska-sdp-datamodels 1.1.0 stamps
     integrations at TIME − INTERVAL/2 (the pyproject notes that 1.1.1 changes
@@ -762,9 +799,10 @@ WSL host, this branch; wall and peak RSS from `/usr/bin/time` unless noted.
     fixes the first sidelobe at 0.50 % while the measured array average
     varies 0.30–0.76 % across 900–1650 MHz.
 - **Upstream observations, RATT** (for `upstream-notes.md`):
-  - *EIDOS 1.1.2 (ratt-ru/eidos)*: beam reconstruction fails under NumPy 2
-    (`spatial.Zernike.reconstruct` calls `np.sum` on a generator, now a
-    `TypeError`), so `eidos` cannot build a beam on a current stack; rang
+  - *EIDOS 1.1.2 (ratt-ru/eidos)*: beam reconstruction fails under NumPy
+    2.4 and later (`spatial.Zernike.reconstruct` calls `np.sum` on a
+    generator: deprecated since 1.15, a `TypeError` since 2.4.0, gh-30068;
+    seen on 2.5.4), so `eidos` cannot build a beam on a current stack; rang
     re-expresses the reconstruction with Python's `sum`. Its x-squint is
     identically zero, and its grid's vertical orientation relative to the
     2023 holography release is ambiguous (the opposite flip halves the
@@ -779,6 +817,16 @@ WSL host, this branch; wall and peak RSS from `/usr/bin/time` unless noted.
   `outputs/b1-20261030-11-posthoc/eidos_flip.log`,
   `outputs/b1-20261030-04-eso137-probe/` (store metadata). The upstream
   clones in `b1-20261030-02-ska-pointing-src` can be deleted after merge.
+- **Open items.** EIDOS's grid orientation relative to the holography
+  release (post hoc, ambiguous); `reformatted_offsets.txt` unexplained;
+  `beam_holography.fetch_product` written but not exercised end to end (the
+  product came from the scratch script of the same layout); `eidos` in no
+  extra; the ESO137 target's XY/YX weights not measured (B1-2's first
+  step); the 3.72 GB product must stay in `outputs/` (or be refetched,
+  33 min).
 - **User items.** None blocking. The holography data are CC BY-NC 4.0:
   fine for this research, never redistributed; a commercial use of rang's
-  B1 products would need SARAO's permission.
+  B1 products would need SARAO's permission. The committed
+  `results/b1-beam-product.json` holds derived statistics only (widths,
+  centroids, differences), no beam maps; whether that is acceptable inside a
+  GPL repository is the user's call.

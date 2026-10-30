@@ -498,9 +498,10 @@ class EidosBeam(_Sampler):
 
     def _reconstruct(self, data):
         """EIDOS `recon_par` for one channel, re-expressed because EIDOS
-        1.1.2 calls `np.sum` on a generator, which NumPy 2 refuses: the same
+        1.1.2 calls `np.sum` on a generator, which NumPy >= 2.4 refuses: the same
         Zernike basis, the same `thresh` largest coefficients per element,
-        summed with Python's `sum`."""
+        summed with Python's `sum` (`np.sum` of a generator has raised
+        `TypeError` since NumPy 2.4.0, gh-30068)."""
         coeffs, nolls, npix, thresh = data
         zernike = self._spatial.Zernike(mode="none")
         zernike.unit_disk(npix)
