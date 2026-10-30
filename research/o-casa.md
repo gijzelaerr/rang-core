@@ -741,3 +741,13 @@ per step is Python start-up and CASA import inside the container.
     slice lacks.
   - An L4 decision on whether the matched baseline is arm SH or a
     CARACal run with leakage.
+
+## Erratum, 2026-10-30 (after FS1)
+
+The SR2016/PB2010-versus-Reynolds residual of 2.7e-6 and the manual-model
+residual of 4.8e-6 reported above were artefacts of `inspect_tables.py`
+averaging `0.5*(XX+YY).real` over 192 rows in float32. CASA's MODEL_DATA rows
+equal rang's port of the standards to 0 ulps; against the Reynolds 1994
+polynomial the true residual is ≤ 6.0e-8 on L-band and the manual model agrees
+with SR2016 to 6.4e-8 ([fs1-flux-standards.md](fs1-flux-standards.md)).
+`inspect_tables.py` should average with `dtype=np.float64`.

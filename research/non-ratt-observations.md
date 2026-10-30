@@ -103,3 +103,11 @@ to an unrelated package (carta-python is not on PyPI).
 - casacure 3.8.35: every column of a 0-row table reads back as an empty int32
   array (twelfth item).
 - python-casacore: `DEFAULTTILESHAPE` is passed through unreversed (a note).
+
+## From FS1 (2026-10-30; not reported by decision)
+
+- CASA 6.7.6 `setjy`: returns `{}` without raising when coefficient tables are
+  missing (stale MODEL_DATA stays); unknown source names get 1 Jy with only a
+  SEVERE log line; SR2016 switches at the 11.1496 GHz crossing, not the
+  documented 11 GHz; compiled coefficients are float32, about 3e-7 from the
+  decimals; the "Baars" 1934−638 polynomial is not in Baars et al. 1977.

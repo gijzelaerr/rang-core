@@ -356,3 +356,10 @@ not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
   1934−638) and `casa_calibrators.yml` is still labelled "CASA 4.7.1" although
   SR2016 exists. `get_last_gain` iterates a `set`, so the `gaintable` order
   passed to `applycal` depends on string hashing (harmless for diagonal terms).
+
+## FS1 observation (2026-10-30; observed, not raised)
+
+- caracal-pipeline: the Reynolds 1994 manual model for 1934−638 equals
+  SR2016/PB2010 to ≤ 6.4e-8 below 3.5 GHz (harmless for MeerKAT); above 11 GHz
+  it diverges (up to 140 % against SR2016 by 50 GHz) because it has no
+  high-frequency piece.

@@ -1,5 +1,24 @@
 # Rang research state
 
+FS1 flux standards (big plan; [fs1-flux-standards.md](fs1-flux-standards.md)),
+2026-10-30 (implemented; measured): CASA 6.7.6 `setjy` flux standards ported
+to `rangtoy.fluxstd` (canonical) with a Rust per-channel kernel
+(`core/src/fluxstd.rs`). PB2010 (3C48, 3C138, 3C147, 3C286, 3C295, 3C196,
+1934−638), Baars (5 + 1934−638), Stevens-Reynolds 2016 (1934−638) and
+CARACal's `manual` model equal `setjy` to ≤ 1.6e-14 on 0.05–50 GHz and
+bit-for-bit in float32 MODEL_DATA; unknown names refused where CASA writes
+1 Jy with a SEVERE log. CASA stores compiled coefficients as float32; SR2016
+switches to its power law at the 11.1496 GHz crossing, not the documented
+11 GHz. Erratum to O-CASA: its 2.7e-6 SR2016–Reynolds residual was its own
+float32 row mean; CASA's MODEL_DATA equals the port to 0 ulps and the
+Reynolds 1994 polynomial to 6e-8, and CARACal's manual model agrees with
+SR2016 to 6.4e-8 on all MeerKAT bands. A setjy-equivalent 1934−638 model arm
+(`fluxstd.lsm_source` → `lsm.components` → `core.predict_components`) equals
+CASA's MODEL_DATA rows to 0 ulps and differs from the campaigns' stored model
+by +0.033 % at 1.4 GHz. PB2017 is transcribed from the paper and opt-in,
+pending the casarundata tables (a download for the user to approve). Archive
+`results/fs1-flux-standards.json`.
+
 E3 core table writer (big plan; [e3-table-writer.md](e3-table-writer.md)),
 2026-10-30 (implemented; measured): rang's core now writes existing casacore
 tables as casacore 3.8.1 does (`core/src/aipsio.rs`, `ms_desc.rs`,
@@ -78,7 +97,7 @@ adds 1.49 % of unflagged cells, rflag 0.14 % (the Tricolour first pass
 0.14 %). CARACal's `setjy` is `standard='manual'` from its own Reynolds 1994
 table (14.9077 Jy at 1.4 GHz, log10 `spix`), not Stevens-Reynolds 2016; CASA's
 SR2016 and PB2010 for 1934−638 are bit-identical and equal that polynomial
-to 3e-6 (input for FS1). Archive `results/o-casa-crosscal.json`. FS1 and L4
+to 6e-8 (FS1 erratum: the 3e-6 first reported was O-CASA's float32 row mean). Archive `results/o-casa-crosscal.json`. FS1 and L4
 are unblocked; DF0 shares the image base.
 
 L1-M model completeness (big plan wave 3), 2026-10-30 (implemented;

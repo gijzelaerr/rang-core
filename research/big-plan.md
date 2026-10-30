@@ -242,7 +242,9 @@ CPU-heavy tasks at a time on 8 physical cores.
 - Ecosystem survey done 2026-10-30 (`ecosystem-survey.md`); tasks it adds,
   with owner files in its "For the coordinator": O-CASA done 2026-10-30
   (`o-casa.md`; CASA/CARACal matched baseline ×1.10 worse held-out than the
-  core's port on the parallel hands; FS1 and L4 unblocked) (CASA 6.7.6 oracle
+  core's port on the parallel hands; FS1 and L4 unblocked; FS1 done
+  2026-10-30, `fs1-flux-standards.md`: setjy standards bit-exact, PB2017
+  opt-in pending casarundata) (CASA 6.7.6 oracle
   container on KERN-10, CARACal's crosscal sequence by hand on the LUNO 1934
   slice, tables and CORRECTED_DATA archived; the DF0 base), FS1 (flux
   standards SR2016, PB2010, PB2017 in the core, `setjy` oracle), DF-IO-CT
@@ -341,6 +343,9 @@ CPU-heavy tasks at a time on 8 physical cores.
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).
 - Forward the observer's full-resolution LUNO set when it arrives.
+- Approve the download of CASA's casarundata tables
+  (`nrao/VLA/standards/PerleyButler2017Coeffs`, `…2013Coeffs`) so FS1 can
+  verify the paper-transcribed PB2017/PB2013 against `setjy`.
 - Contact Tim Molteno about casacure and his DDFacet/killMS ports before the
   DF tasks start, to coordinate rather than duplicate.
 - Prune the pinned `rang-flagging*:local` Docker images and the three

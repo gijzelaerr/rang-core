@@ -749,3 +749,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan E3: `check_ms_writer.py scale` post hoc (`-04`) | 2 × 342 M flags | 0.7 s | – | peak reset per table |
 | 2026-10-30 | big plan E3: `oracle_ms_write.py write` post hoc (`-05`) | 24 cases | 2.9 s | – | container; padding comparison with `-01` |
 | 2026-10-30 | big plan E3: `bash tools/check-all.sh` (with the wiring diff of the appendix present) | repo | 3.5 min | – | PASS: root 23, core 85 Rust tests; pytest 661 passed, 3 skipped (98 s); log `outputs/e3-20261030-02/check-all.log` |
+| 2026-10-30 | big plan FS1: oracle_setjy.py (docker) | run fs1-20261030-01 | 166.1 s | 295 MB | 114 arrays |
+| 2026-10-30 | big plan FS1: oracle_setjy.py --dense-1934 | fs1-20261030-03 | 29.8 s | 282 MB | 303 SPWs |
+| 2026-10-30 | big plan FS1: oracle_setjy.py rerun | fs1-20261030-04 | 146.2 s | 293 MB | bit-identical to 01 |
+| 2026-10-30 | big plan FS1: oracle_setjy.py --reread-ocasa | fs1-20261030-05/-06 | 1.8 / 1.6 s | 351 MB | 06 is evidence |
+| 2026-10-30 | big plan FS1: uv venv + install | worktree | 63.4 s | 891 MB | |
+| 2026-10-30 | big plan FS1: check_fluxstd.py | 01,03,04,06,O-CASA | 0.1 s | 46 MB | all acceptance true |
+| 2026-10-30 | big plan FS1: bash tools/check-all.sh | eb88550 / 078eb4f | 333.5 / 214.8 s | 1.67 / 1.59 GB | PASS, 698 passed 5 skipped |
