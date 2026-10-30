@@ -1,7 +1,11 @@
 # Big plan task P9: one CLI, one receipt and archive format, one comparator engine
 
 Protocol frozen 2026-10-30 in the commit that adds this file, before any
-code of this task exists. Status: **proposed** (protocol only).
+code of this task exists. Status: **implemented; measured: every comparator
+verdict and count identical through the thin wrappers and through
+`rang-core STAGE compare` on all 20 cases; `rang-core check` passes on
+Linux and on native Windows; the CLI caps return about 0.8 CPU-s per
+NumPy-importing process**.
 Task P9 of [simplification-review.md](simplification-review.md) (section 3
 "P9 One CLI, one archive format, one comparator engine; OpenBLAS pinned",
 section 4 row P9), plus the `rang-core check` design and the remaining
@@ -215,11 +219,235 @@ verbs call the same functions or scripts).
 
 ## 4. Results
 
-(to be filled after implementation)
+### What changed (implemented)
+
+- `python/rangtoy/core_compare.py`: the engine. The walker gained a
+  per-class tolerance table, an accumulating `report` and the `not_dict`
+  reason, so injections' own walker (classes exact, float 1e-9, distance
+  1e-9 rel or 1e-12 abs, injection_float 1e-12; its `path[-2]` key rule
+  kept) runs on it. The ten comparators owned by this task are in the
+  module with their rules, print formats, receipt dump styles (`indent=1`
+  plus newline; imaging `indent=2, sort_keys`; gridder and weights without
+  the final newline) and exit semantics (weights and gridder always 0).
+  Receipts are written with `newline="\n"` (identical bytes on Linux,
+  LF on Windows). `run(name, argv)` returns the verdict contract.
+  `unwrap()` accepts `rang.archive` oracles. **Labelled addition:** the
+  backends comparator skips `*.rang-receipt.json` files (no suite before
+  P9 holds one; the `p7-…-04` vs `-06` verdict is unchanged).
+- `examples/compare_core_*.py`: 12–15-line wrappers, docstrings kept
+  (1,573 lines removed from `examples/`; the engine is 1,659 lines).
+- `python/rangtoy/core_cli.py`: the stage table below, the receipt, the
+  archive verb, thread caps at entry, lazy driver imports (`import
+  rangtoy.core_cli` no longer imports NumPy; `PATTERNS` and `trend_run`
+  stay reachable through a module `__getattr__`), legacy forms, and
+  `dispatch()` beside `main()`. **Pre-existing bug found and fixed:** the
+  `rang-core` console script exited 1 after every successful stage or
+  comparison, because `main()` returned the result dict and the console
+  wrapper passes it to `sys.exit` (which prints it and returns 1); only
+  `python -m rangtoy.core_cli` (which ignored the value) and the cabs
+  worked. `main()` now returns 0; `dispatch()` returns the result.
+- `python/rangtoy/check.py` and `tools/check-all.sh` (wrapper keeping its
+  `exec flock`, `RANG_CHECKALL_LOCKED` handling and lock path).
+  `--uv` is passed to `maturin develop` when the venv has no pip and `uv`
+  is on PATH. On Windows the running `rang-core.exe` launcher is renamed
+  aside before `ext-build` (a running `.exe` cannot be replaced, so
+  `maturin develop` failed with "Access is denied" when the check ran
+  through the launcher).
+- `examples/bench_p1_solver.py sweep` and `bench_p2_gridder.py bench`:
+  `--python NAME=VENV_PYTHON` replaces `--lib NAME=PATH`; each child runs
+  under that interpreter, and the summary records the interpreter and the
+  `rangtoy._core` file and SHA256 it loads (`extension_of`). Nothing moved
+  to `history/`. Smoke runs (same venv twice): P2 `bench` on
+  `c-unit-compact`, both builds deterministic and hash-equal
+  (`outputs/p9-cli-20261030-01/bench-p2-smoke`); P1 `sweep`, `all_equal`
+  true (`bench-p1-smoke`).
+- `recipes/core-cabs.yaml`: the compare cab's info names the engine.
+- `pyproject.toml`: unchanged (`rang-core = "rangtoy.core_cli:main"` is
+  still the entry; `check` needs no extra).
+
+### The stage table (`rang-core -h`)
+
+| Stage | Verbs | Kind |
+| --- | --- | --- |
+| injections, actions, prospective, signal | run, compare, archive | run: package function (cab); compare: engine |
+| trend | mirror, run, compare, archive | package; engine |
+| imaging | run, replay (`run_core_imaging.py`), compare, archive, legacy-archive (`archive_core_imaging.py`) | package; script; engine |
+| campaign (K) | run, precondition, compare (K checker), archive, legacy-archive | package; scripts |
+| campaign-array (L1), campaign-1830 (L2, plus fetch) | run, precondition, compare, archive, legacy-archive | scripts (`*_luno_array.py`, `*_luno_1830.py`) |
+| flags (D) | run (`run_core_flags.py`), compare, archive | script; engine |
+| weights (B) | compare (the comparator runs the core itself) | engine |
+| gridder (C) | run (`run_core_gridder.py`), compare, archive | script; engine |
+| ms (E) | compare (`check_ms_reader.py`) | script |
+| section6 | run (`prototype_section6.py`), compare (`check_section6.py`), archive | scripts |
+| backends | compare | engine |
+| bench | f, p1 … p6 | scripts |
+| environment, check; legacy `compare`, `trend-mirror` | — | package |
+
+`compare` of an engine stage takes exactly the frozen script's arguments.
+Script verbs pass their arguments through unchanged and need a checkout.
+
+### Identity (criterion 1): pass, all 20 cases, both forms
+
+`identity.py diff … before wrapper`, `… before cli-final` (the CLI at
+`517e07b`) and `… before cli-head` (`ed3e18c`) report **identical** for every case: exit status, stdout and the
+comparator's receipt bytes, with the volatile fields of section 3 only
+(weights `seconds`; MS checker read times; K precondition `seconds`,
+`max_rss_mb`, `decode_seconds`, `step_seconds`, the last two not named in
+the frozen list and found volatile by the before-vs-wrapper run, where the
+precondition script itself is unchanged). The verdicts, from the CLI
+receipts:
+
+| Case | Exit | Verdict and counts (identical before and after) |
+| --- | --- | --- |
+| injections-archive | 0 | pass; exact 864, float 940, injection_float 24, distance 54; excluded 73 |
+| injections-host | 0 | pass; exact 858, float 928, injection_float 24, distance 54; excluded 73 |
+| actions-archive | 0 | pass; exact 61, float 102, difference 24; excluded 9 |
+| actions-host | 0 | pass; exact 206, float 214, difference 24; excluded 20 |
+| prospective-archive | 0 | pass; exact 1,875, float 1,239, difference 102; excluded 113 |
+| signal-archive | 0 | pass; exact 261, float 208, difference 4, reported 12; excluded 15 |
+| trend-frozen | 1 | fail as frozen, 28 failures; exact 875, float 168; excluded 1 |
+| trend-posthoc | 0 | pass; exact 875, float 168; excluded 1 |
+| imaging-archive | 0 | pass, pixels pass; exact 532, wcs 180, weight_sum 30, reported 65, psf_linf 15, unit_flux 4, response_fraction 16, template_flux 16, closure 2; excluded 423 |
+| imaging-host | 0 | pass; same classes |
+| flags-run (D) | 0 | criteria 1–5 pass |
+| flags-archive-host (D) | 0 | pass, 68 fields |
+| weights (B) | 0 | criteria 1–5 true, 19 jobs |
+| weights-oracle-only (B) | 0 | archive, structure and repeat-pattern checks true |
+| gridder (C) | 0 | measurement: 15 jobs, criterion 4 (WCS) true |
+| ms (E), ms-self-check (E) | 0 | pass |
+| campaign-precondition (K) | 0 | all eight checks pass, χ² 0.26823507037914956 |
+| campaign-check (K) | 1 | `FileNotFoundError` on `outputs/core-k-20261030-01/fetch/result.json` before any criterion, in all three forms (the fetched bytes were pruned from `outputs`) |
+| backends | 1 | 97 files, 5,213 JSON leaves, 58 arrays, 60 FITS HDUs; 47 non-numerical items (as before) |
+| golden | — | `tests/test_core_backends.py` passes in both full runs below |
+
+Criterion 2: the wrappers are the `wrapper` form above. The cab
+`core_cli.compare` records `{"script": examples/compare_core_<stage>.py,
+"engine": "rangtoy.core_compare", "sha256": <engine SHA256>, "exit",
+"posthoc_slope_scale"}` (the K stage still hashes its script). No archive
+in `research/results/` and no checker reads the comparator SHA256 (the
+recipes' run directories carried it as provenance only; the trend
+archive's `module_sha256` concerns `flagging_trend.py`, untouched).
+
+Criterion 3: every CLI case wrote a `rang.receipt` v1 (for example
+`cli-final/trend-frozen/rang-receipt.json`: inputs with SHA256, the
+comparator receipt as output, thread variables with
+`threads_pinned_by_cli`, platform, extension SHA256, timings, exit 1,
+verdict 28 failures); `test_core_cli.py` checks the schema. A script verb
+that raises still writes its receipt (`exit: "exception: …"`).
+
+### `rang-core check` (criteria 4, 5)
+
+- **Linux (WSL)**, `.venv/bin/rang-core check --all` at `902a74d` (plus
+  the uncommitted receipt fix): **PASS** in 206 s, pytest 681 passed and 2
+  skipped; the `## ` lines equal `p7-architecture-20261030-11/check-all.log`
+  line for line (`rang-core-check-linux.{log,json}`).
+- **Windows** (clone `C:\Users\gijsm\Build\tmp\20261030-rang-p9` with
+  `core.autocrlf=false`, CPython 3.14.7, Rust 1.93.1 MSVC, uv venv):
+  `.venv\Scripts\rang-core.exe check --all` at `ed3e18c`: **PASS** in
+  106 s; root 23 and core 67 Rust tests, clippy, fmt, ext-build, ruff,
+  ruff format, diff-check, pytest 640 passed and 44 skipped
+  (`windows/check5.{log,json}`). Two earlier runs failed only `ext-build`,
+  and both failures are recorded: at `902a74d` the running launcher
+  `rang-core.exe` could not be replaced by `maturin develop` ("Access is
+  denied"; fixed in `check.py`, the launcher is set aside); at `252c823`
+  uv's default cache on this host failed ("too many temporary files",
+  "Failed to query Python interpreter"), an environment issue, avoided with
+  `UV_CACHE_DIR=C:\Users\gijsm\Build\cache\uv`. Every other step passed in
+  all three runs.
+- `bash tools/check-all.sh` (now the wrapper) at `ed3e18c` plus this
+  report: **PASS** in 227 s, pytest 682 passed and 2 skipped; the `## `
+  lines equal the P7 log line for line (`check-all.log`).
+
+### Thread caps (criterion 6, diagnostic)
+
+Five alternating pairs at load 2.0–2.2 (`pinning*/pinning.tsv`):
+the actions comparator no longer imports NumPy at all, so caps change
+nothing there (0.05–0.07 s CPU either way); the flags comparator (NumPy,
+four controls) took 0.33–0.39 s user CPU capped against 1.15–1.18 s with
+`--no-pin-threads`, wall 0.45–0.50 s against 0.49–0.52 s, results and
+stdout byte-identical. About 0.8 CPU-s per NumPy-importing process
+returned, as S1 measured for the comparators.
 
 ## 5. For the coordinator
 
-(to be filled)
+- **STATE paragraph.** "P9 merged: one CLI, `rang-core STAGE VERB`, for
+  every stage, comparator and check (`rang-core -h`); the comparators live
+  in `rangtoy.core_compare` and `examples/compare_core_*.py` are thin
+  wrappers; every comparator verdict and count is identical through the
+  wrappers and the CLI on a 20-case suite (research/p9-cli.md). Every CLI
+  call writes a `rang.receipt` v1 beside its output, `STAGE archive` writes
+  a `rang.archive` v1 that the comparators read, and the CLI caps the
+  BLAS/XLA pools (opt out with `--no-pin-threads`). `rang-core check`
+  (= `python -m rangtoy.check`, wrapped by `tools/check-all.sh`) runs the
+  full checks on Linux and Windows. The `rang-core` console script no
+  longer exits 1 after a successful command."
+- **Timing rows** for `research/tool-timings.md`: the table at the end of
+  this file.
+- **README / CONTRIBUTING lines.** README, core section: "`rang-core -h`
+  lists every stage and verb (`run`, `compare`, `archive`, …); `rang-core
+  <stage> compare` takes the arguments of `examples/compare_core_<stage>.py`.
+  Each call writes `<output>.<verb>.rang-receipt.json`." CONTRIBUTING, after
+  the check-all sentence: "`rang-core check [--rust|--python|--all]` (or
+  `python -m rangtoy.check`, which is what `tools/check-all.sh` runs) is the
+  same check on any platform; on Windows run `.venv\Scripts\python -m
+  rangtoy.check`."
+- **Registrations for the siblings merged after this branch point** (L1-M
+  and DF1 are on `main` at `06a59fc`; this branch merges cleanly,
+  `git merge-tree` exit 0). Add to `STAGES` in `core_cli.py`:
+
+  ```python
+  "campaign-fieldmodel": {
+      "help": "PKS 1934-638 field-model arms, task L1-M (research/l1-model-completeness.md)",
+      "fetch": _script("fetch_l1m.py", _first),
+      "run": _script("run_l1m.py", _first),
+      "compare": _script("check_l1m.py", _first, "the L1-M checker"),
+      "archive": ARCHIVE,
+      "legacy-archive": _script("archive_l1m.py"),
+  },
+  "wgridder": {
+      "help": "exact w-gridder ported from ducc0, task DF1 (research/df1-wgridder.md)",
+      "compare": _script("compare_core_wgridder.py", note="item0 | gates | threads"),
+      "archive": ARCHIVE,
+  },
+  ```
+
+  and `"df1": _script("bench_df1.py")` under `bench`. DF1's
+  `compare_core_wgridder.py` (933 lines, modes item0/gates/threads, imports
+  `resource`) is the one comparator not on the engine; `test_core_cli.py`
+  lists it as pending. Porting it into `core_compare` (and replacing
+  `resource` with `rangtoy.rusage`) is a follow-up of the same shape as
+  this task.
+- **What P12 must rename** (`rangtoy` → `rang`): `[project.scripts]`
+  `rang-core = "rangtoy.core_cli:main"`; `tools/check-all.sh` (`-m
+  rangtoy.check`); the wrappers' `from rangtoy.core_compare import main`;
+  the cab commands `rangtoy.core_cli.*` in `recipes/core-*.yaml`;
+  `importlib.metadata.version("rangtoy")` and
+  `find_spec("rangtoy._core")` in `core_cli` (receipt) and in the two
+  benches (`extension_of`); the `rangtoy_modules_imported` and
+  `name.startswith("rangtoy")` logic of `environment`; the receipt key
+  `environment.rangtoy` (schema change, bump `RECEIPT_VERSION`); docs
+  (`python -m rangtoy.core_cli`, `python -m rangtoy.check`).
+- **`history/` moves:** none (the benches were rewritten instead).
+- **Evidence to keep:** `outputs/p9-cli-20261030-01/` (identity suite:
+  `identity.py`, `before/`, `wrapper/`, `cli/`, `cli-final/`, `cli-head/`; Linux check
+  log and JSON; `pinning*/`; bench smokes; `windows/`, the Windows logs).
+- **Follow-ups (not done):** `tools/core-j-suite.sh` as a Python driver
+  list on the CLI (`rang-core` verbs already cover every step); the K run
+  `outputs/core-k-20261030-01` has no `fetch/` any more, so the K checker
+  cannot be re-run from retained outputs (only the precondition can); the
+  stage `run` verbs of B and E do not exist as separate drivers (their
+  comparators run the core).
+- **Upstream observations.** RATT / caracal-pipeline: none from this task
+  (no CARACal code path changed). Non-RATT: maturin's `develop` (through
+  `uv pip install --force-reinstall`) cannot replace a console-script
+  launcher that is running on Windows; uv's default cache on this Windows
+  host fails with "too many temporary files exist" (worked around with
+  `UV_CACHE_DIR=C:\Users\gijsm\Build\cache\uv`, an environment issue);
+  Git for Windows refuses to clone `\\wsl.localhost\…` without
+  `safe.directory` ("dubious ownership").
+- **Host note.** `C:\Users\gijsm\Github\rang` (the Windows checkout) holds
+  untracked files named `Bool    ,`, `Char    ,`, `DComplex,` … created at
+  15:54 by another session (casacore data-type names); not from this task.
 
 ## Timings (every tool run of this task)
 
@@ -227,3 +455,14 @@ verbs call the same functions or scripts).
 | --- | --- | --- | --- |
 | 2026-10-30 | WSL: `uv venv` + editable install + `maturin develop --release --offline` | 60 s | |
 | 2026-10-30 | identity suite `before` at `f36ff80` (20 cases) | 6.8 s | outputs above |
+| 2026-10-30 | identity suite `wrapper` (thin wrappers) | 5.7 s | identical to `before` |
+| 2026-10-30 | identity suite `cli`, `cli-final` (`517e07b`), `cli-head` (`ed3e18c`) through `rang-core STAGE VERB` | 5.5 s, 7.9 s, 6.5 s | identical to `before` |
+| 2026-10-30 | WSL: `rang-core check --all` at `902a74d` | 206 s (pytest 126 s) | PASS, 681 passed, 2 skipped |
+| 2026-10-30 | thread caps, flags comparator, 5 pairs | 0.45–0.52 s each | 0.33–0.39 vs 1.15–1.18 user CPU-s |
+| 2026-10-30 | bench smokes: P2 `bench` (one label, two runs), P1 `sweep` (one round) | 1.2 s, 1.8 s | hash-equal |
+| 2026-10-30 | Windows: clone over `\\wsl.localhost` | 8.1 s | first attempt refused (`safe.directory`) |
+| 2026-10-30 | Windows: `uv venv` + editable install (builds the extension) | 60.6 s | |
+| 2026-10-30 | Windows: `rang-core.exe check --all` at `902a74d` | 212 s | FAIL on ext-build only (launcher in use) |
+| 2026-10-30 | Windows: `rang-core.exe check --all` at `252c823`; `python -m rangtoy.check --python` | 113 s; 105 s | FAIL on ext-build only (uv cache) |
+| 2026-10-30 | Windows: `python -m rangtoy.check --only ext-build`; `rang-core.exe check --all` at `ed3e18c` | 1.9 s; 106 s | PASS, 640 passed, 44 skipped |
+| 2026-10-30 | WSL: `bash tools/check-all.sh` at `ed3e18c` + report | 227 s (pytest 140 s) | PASS, 682 passed, 2 skipped |
