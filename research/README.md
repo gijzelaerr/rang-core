@@ -13,6 +13,10 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: D1, the [documentation site](d1-docs.md): Sphinx and
+myst-nb, executed tutorials, API from the docstrings, GitHub Pages
+deployment from `main` (user enables Pages).
+
 New, 2026-10-30: [CLEAN theory](clean-theory.md): the claim that CLEAN was
 never proven is folklore (Schwarz 1978 proved the data fit converges for
 0 < g < 2); a Gram-matrix formalism reduces his three conditions to one,

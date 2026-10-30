@@ -866,3 +866,17 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P12: Windows `build.py` / `test.py`, at `86e2a8d` and at `0085b36` | – | 102.9 s and 102.2 s / 8.7 s and 8.7 s | – |  |
 | 2026-10-30 | big plan P12: Windows clone of main, install and the 4 failing test files | – | 140.5 s | – |  |
 | 2026-10-30 | big plan P12: `build.py --sdist` Linux / `maturin build` from the unpacked sdist | – | 62 s / 68 s | – |  |
+| 2026-10-30 | big plan D1: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging,notebook]' ruff maturin pip` | worktree | 79 s | – | builds the extension |
+| 2026-10-30 | big plan D1: `uv pip install` sphinx furo myst-parser myst-nb papermill resvg-py pillow | public PyPI | 3.9 s | – | |
+| 2026-10-30 | big plan D1: Sphinx trial strict build, `automodule :members:` × 67 | `python/rang` | 3.3–5.3 s | – | 453 objects, 11 warnings (all `\|x\|`) |
+| 2026-10-30 | big plan D1: `docs/logo/render.py` (resvg-py 0.5.0, Pillow 13.0.0) | 3 SVGs | 0.34 s | – | 16 PNGs + favicon.ico |
+| 2026-10-30 | big plan D1: `download_fixture` (fresh) | public LFS object | 4.7 s | – | 45,452,147 bytes, hash verified |
+| 2026-10-30 | big plan D1: `docs/gen_cli.py` | `rang-core -h` × 29 | 0.8–1.1 s | – | |
+| 2026-10-30 | big plan D1: `actionlint` (actionlint-py) | docs.yml, wheels.yml | 0.6 s | – | no findings |
+| 2026-10-30 | big plan D1: CI emulation: `maturin develop --release --locked --extras docs,notebook,imaging,pointing,beam` | clean export, `CARGO_BUILD_JOBS=4` | 89.3 s | 1.13 GB | cold |
+| 2026-10-30 | big plan D1: CI emulation: `execute_notebooks.py` (papermill) | fixture, LUNO off, no YAMLs | 26.9 s | 821 MB | 5.0/2.5/4.3/8.6/5.0 s |
+| 2026-10-30 | big plan D1: CI emulation: `sphinx-build -W` | executed notebooks | 12.1 s | 395 MB | 0 warnings, 14 MB site |
+| 2026-10-30 | big plan D1: `sphinx-build -W` in the worktree | unexecuted notebooks | 7.0–8.1 s | – | 0 warnings |
+| 2026-10-30 | big plan D1: `pytest tests/test_d1_docs.py` | worktree | 8.0 s | – | 3 passed |
+| 2026-10-30 | big plan D1: `bash tools/check-all.sh` | branch tree | 439 s | 1.99 GB | **overall: PASS**, first run on `1f8ee6e` (pytest 635 passed, 3 skipped in 235 s) |
+| 2026-10-30 | big plan D1: `bash tools/check-all.sh`, final | branch tree | 295 s | 2.02 GB | **overall: PASS** on `beb14fd` (pytest 636 passed, 3 skipped in 285 s); log `outputs/d1-20261030-check-all-2.log` (first run: `d1-20261030-check-all.log`) |

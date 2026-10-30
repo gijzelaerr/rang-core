@@ -15,6 +15,10 @@ Neither advantage over state of the art has yet been established.
 
 [Research handoff/index](research/README.md) · [Latest progress](research/STATE.md).
 
+Documentation: <https://gijzelaerr.github.io/rang-core/> (installation,
+concepts, the command line, the executed tutorials, the API reference and
+the research story; built by `.github/workflows/docs.yml`).
+
 ## Names
 
 The project, its GitHub repository and its PyPI distribution are

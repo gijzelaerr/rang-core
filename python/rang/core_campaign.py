@@ -9,7 +9,8 @@ the comparator, and corrected-data dirty images (`core_weights`,
 WSClean. Original FLAG and FLAG_ROW are never modified: every arm's flags
 are new arrays built with `flagging.protected_flags`.
 
-Results are provisional: the licence precondition of the protocol is open.
+The licence precondition was settled by the user on 2026-10-30
+(research/big-plan.md); the protocol's other caveats stand.
 """
 
 import json

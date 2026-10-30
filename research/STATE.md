@@ -1,5 +1,21 @@
 # Rang research state
 
+D1 documentation site (big plan, documentation track), 2026-10-30
+(implemented; built and measured locally; not yet run on GitHub;
+[d1-docs.md](d1-docs.md)). A Sphinx site (furo, myst-nb, autodoc) in
+`docs/`: the status line and the flagging null verdict on the landing
+page, installation from the wheel and from source, concepts, the
+`rang-core` help texts (generated, checked by a test), the five tutorials
+executed with papermill on the public fixture, the API reference of all 66
+public modules with the three quoted constants, the research story linking
+the reports, contributing and licence pages; PNG and ICO renders of the
+logo (resvg-py, Pillow). `.github/workflows/docs.yml` builds the
+extension, executes the notebooks (LUNO off, teaching strategy) and builds
+with `-W` on every push and pull request, and deploys to GitHub Pages from
+`main` once the user selects "GitHub Actions" as the Pages source. A clean
+export ran the workflow's steps in 2.2 min (extension 89 s, notebooks
+27 s, Sphinx 12 s, 0 warnings).
+
 P12 rename (big plan), 2026-10-30 (implemented; measured;
 [p12-rename.md](p12-rename.md)). The package is `rang` (`import rang`,
 extension `rang._core`, `python/rang/`); the project, repository and PyPI

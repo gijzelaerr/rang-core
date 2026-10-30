@@ -155,7 +155,8 @@ CPU-heavy tasks at a time on 8 physical cores.
 
 ## Documentation, teaching and upstream fixes (user, 2026-10-30; parallel)
 
-- D1 documentation site: Sphinx or MkDocs built by CI and published on
+- D1 documentation site (done 2026-10-30, `d1-docs.md`: Sphinx, furo, myst-nb;
+  Pages deploy from `main` once the user enables Pages): Sphinx or MkDocs built by CI and published on
   GitHub Pages; installation from the wheel, concepts (MS and zarr ingest,
   gains, TV maps, SumThreshold strategies, weighting, gridding), API
   reference from the core wrappers' docstrings, the research story with
