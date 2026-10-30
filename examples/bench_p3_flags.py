@@ -161,6 +161,32 @@ def k_inputs():
         )
 
 
+def replicated_inputs(copies):
+    """Probe: the K slice with its baselines copied onto new antenna indices.
+
+    Copy `k` uses antennas `a + k * nant` whose positions repeat the
+    originals, so each copy must carry the flags of the original rows.
+    """
+    for name, strategy, inputs, _ in k_inputs():
+        data, flags, a1, a2, times, positions = inputs[:6]
+        nant = positions.shape[0]
+        replicated = (
+            np.concatenate([data] * copies),
+            np.concatenate([flags] * copies),
+            np.concatenate([a1 + k * nant for k in range(copies)]).astype(np.int32),
+            np.concatenate([a2 + k * nant for k in range(copies)]).astype(np.int32),
+            np.tile(times, copies),
+            np.tile(positions, (copies, 1)),
+            *inputs[6:],
+        )
+        yield (
+            f"probe-x{copies}/{name.split('/')[1]}",
+            strategy,
+            replicated,
+            {"copies": copies, "rows": data.shape[0]},
+        )
+
+
 def run(args):
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=False)
@@ -181,7 +207,11 @@ def run(args):
         "inputs": {},
     }
     masks = [core_flag.load_static_mask(p) for p in core_flag.static_mask_files()]
-    sources = {"d": d_inputs, "k": k_inputs}
+    sources = {
+        "d": d_inputs,
+        "k": k_inputs,
+        "probe": lambda: replicated_inputs(args.copies),
+    }
     for source in args.inputs.split(","):
         for name, strategy_name, inputs, extra in sources[source]():
             text = (core_campaign.STRATEGY_DIR / strategy_name).read_text()
@@ -219,6 +249,14 @@ def run(args):
                 entry["additions_equal_archive"] = (
                     entry["additions_sha256"] == extra["archived"]
                 )
+            if "copies" in extra:
+                rows = extra["rows"]
+                copy_hashes = [
+                    digest(result["flags"][k * rows : (k + 1) * rows])
+                    for k in range(extra["copies"])
+                ]
+                entry["copy_flags_sha256"] = copy_hashes[0]
+                entry["copies_identical"] = len(set(copy_hashes)) == 1
             if args.per_step:
                 entry["per_step"] = per_step(
                     inputs,
@@ -260,7 +298,8 @@ def main():
     p.add_argument("out")
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--per-step", action="store_true")
-    p.add_argument("--inputs", default="d,k")
+    p.add_argument("--inputs", default="d,k", help="comma list of d, k, probe")
+    p.add_argument("--copies", type=int, default=16, help="probe replication")
     p = sub.add_parser("compare")
     p.add_argument("reference")
     p.add_argument("runs", nargs="+")
