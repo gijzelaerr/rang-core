@@ -24,13 +24,17 @@ directories are `outputs/simplification-review-20261030-NN` (ignored).
   Python-side: complex128 residuals retained per arm, NumPy gain
   correction with 2 × 2 temporaries, and 40-byte gridder samples built
   twice.
-- **Every archive reproduces today.** The timed suite re-ran every core
-  driver, checker and comparator against its archive (29 steps: K
+- **Every archive reproduces today.** The timed suite re-ran the core
+  drivers, checkers and comparators against their archives (29 steps: K
   precondition and checker, section 6, phase 2, task F, actions,
   injections, prospective, signal, trend, B, C, D, E, I and the offline K
-  replay); all pass, and the
-  offline K replay reproduces the archived gains, dirty images and PSFs
-  of three arms hash for hash.
+  replay), and a second batch ran the phase 1 and 3c-a validators, the
+  task G fetch checker and the backends comparator against task J's
+  suite. Every one reproduces its archived outcome (phase 1 as archived:
+  criterion 4 fails as frozen, post-hoc 4b passes), and the offline K
+  replay reproduces the archived gains, dirty images and PSFs of three
+  arms hash for hash. Not re-run: the oracle generators (containers) and
+  the network fetch.
 - **Two zero-code wins are measured and bit-identical:** a release
   profile with thin LTO and one codegen unit (−5 % instructions) and
   `x86-64-v3` code generation (−22 % instructions, −24 % to −40 %
@@ -85,7 +89,7 @@ Counted by `inventory.py` on `df42ea0` ([inventory.json](results/profiles-202610
 | `core/src/ms.rs` | 1,952 | read-only casacore reader | live (imaging replay); `core-e` 173 columns |
 | `core/src/predict.rs` | 259 | africanus component predictor | live (signal); `core-phase3c-a.json` |
 | `core/src/jones.rs`, `robust.rs`, `lib.rs` | 166 | 2 × 2 algebra, MAD | live |
-| `core/src/ffi*.rs` (5 files) | 1,523 | C ABI behind ctypes **and** the extension | live; 23 `extern "C"` functions, 6 without `catch_unwind` (`grid_kernel`, `ms_last_error`, `ms_close`, `ms_free`, `weight_grid_shape`, `padded_size`) |
+| `core/src/ffi*.rs` (5 files) | 1,523 | C ABI behind ctypes **and** the extension | live; 22 `extern "C"` functions, 6 without `catch_unwind` (`grid_kernel`, `ms_last_error`, `ms_close`, `ms_free`, `weight_grid_shape`, `padded_size`) |
 | `core/py/src/lib.rs` | 681 | PyO3 extension, 17 functions + `MsTable` | live; no function releases the GIL |
 | `src/response.rs`, `linalg.rs` | 714 | anchored response, Jacobi eigensolver (survey) | live through ctypes (`flagging_influence`) |
 | `src/tv.rs`, `trend.rs`, `projector.rs` | 570 | gain TV, trend slopes, projector | live through ctypes (`flagging`, `flagging_trend`, `projector`) |
@@ -158,8 +162,19 @@ on the live import graph and never run.
 | WSClean imaging (`rang-flagging-next-imaging`) | `core_weights`, `core_grid`, `core_imaging` | `gain-tv-next-imaging.json`, `core-i-imaging-replay.json` | `compare_core_imaging.py`, `compare_core_gridder.py`, `compare_core_weights.py` | pass (I 53.2 s, C 56.2 s, B 0.8 s) |
 | Tricolour / CARACAL strategies | `core/src/sumthreshold.rs`, `core_flag` | `core-d-tricolour.json`, `gain-tv-caracal.json` | `compare_core_flags.py` | pass (8.8 s) |
 | python-casacore reads | `core/src/ms.rs`, `core_ms` | `core-e` oracle dump | `check_ms_reader.py` | pass (0.5 s) |
-| numcodecs decode, whole-tile fetch | `core/src/blosc.rs`, `core_fetch` | `core-section6.json`, `core-g` receipts | `check_core_fetch.py`, K checker | pass (K checker 1.6 s) |
+| numcodecs decode, whole-tile fetch | `core/src/blosc.rs`, `core_fetch` | `core-section6.json`, `core-g` receipts | `check_core_fetch.py`, K checker | pass (6.9 s; K checker 1.6 s) |
+| NumPy residual, loss, score and normal pass | `core/src/fused.rs` | `core-phase1.json` | `validate_core_phase1.py` | as archived: criterion 4 fails as frozen, post-hoc 4b passes (5.2 s) |
+| africanus component predictor | `core/src/predict.rs` | `core-phase3c-a.json` | `validate_core_phase3c_a.py` | pass, bit-identical to africanus on all three sets (29.0 s) |
 | (new science) K campaign | `core_campaign` | `core-k-luno-campaign.json` | `check_luno_campaign.py` | precondition and checker pass; offline replay hash-equal |
+
+`check_core_fetch.py` on task G's run passes all five criteria (6.9 s).
+`compare_core_backends.py` between task J's extension suite and this
+task's suite (89 files, 4,313 JSON leaves, 58 arrays, 60 FITS HDUs) finds
+no numerical difference; it exits 1 on 27 non-numerical items, read after
+the run: 21 absolute paths that contain the worktree name, 4 layout keys
+because this suite ran the actions stage through `core_cli` instead of
+`run_core_campaign.py`, and section 6's cost criterion, which task J's
+cold-cache run failed and this run passed.
 
 ## 2. Profiles
 
@@ -230,7 +245,10 @@ artefacts had been made by `stable` in a smoke run); `precondition-blas1`
 is the clean figure. `campaign` imaged three arms, `campaign-blas1` one.
 The comparators (`*-compare`) spend 0.07–0.12 s wall but 0.7–0.9 s CPU:
 NumPy's OpenBLAS pool (16 threads) spins up at import, 7–10.6 threads busy
-for a process that does no linear algebra.
+for a process that does no linear algebra. Checked by an A/B on the
+actions comparator (three runs each, alternating, load 30): 0.37–0.50
+CPU-s with the default pool against 0.09–0.12 CPU-s with
+`OPENBLAS_NUM_THREADS=1`, verdicts identical.
 
 ### 2.3 The K chain, stage by stage (offline replay, load 0.6)
 
@@ -491,8 +509,9 @@ except where section 4 sequences them.
   arms' image metrics (`core-k-luno-campaign.json`, which stores dirty
   SHA256s: those will change, the metrics must not move beyond A's
   tolerances).
-- **Risk.** Medium: the response fraction margin is 1.3e-7 against
-  1.6e-7 today; an f32 grid may eat it. Mitigation: keep f64 grids, change
+- **Risk.** Medium: today's response-fraction difference is 1.31e-7
+  against task A's 1.6e-7 tolerance, so little room is left, and an f32
+  grid may exceed it. Mitigation: keep f64 grids, change
   only the FFT and the layer loop first; f32 samples only if the
   comparators allow.
 - **Owner files.** `core/src/grid.rs` (+ `core/Cargo.toml` dependency line
@@ -528,10 +547,12 @@ except where section 4 sequences them.
   phase 1) instead of `residuals * sqrt(weights)` in NumPy, residuals as
   complex64 if kept at all, and no residual retained for arms that are
   only imaged; (c) a Rust `correct_stokes_i` kernel that applies
-  `G_p^{-1} V G_q^{-H}`, flags and Stokes I per cell and writes the
-  gridder's sample and weight directly (replaces `apply_gains` +
-  `stokes_i_reader`); (d) P2's streamed samples; (e) local tiles opened
-  with `mmap` rather than `read_bytes` for the whole-array tiles.
+  `G_p^{-1} V G_q^{-H}`, flags and Stokes I per cell and returns the
+  same `(sample, weight)` arrays `core_grid.stokes_i_reader` returns today
+  (replaces `apply_gains` + `stokes_i_reader`; `grid.rs` is P2's and is
+  not edited here, so P2's streamed samples are the gridder half of the
+  saving); (d) local tiles opened with `mmap` rather than `read_bytes` for
+  the whole-array tiles.
 - **Gain.** Peak per cell 0.87 kB → about 0.12–0.15 kB (inputs 84 B,
   flags and masks 4–8 B, gains negligible, one float64 map); whole array
   88 GB → about 12–15 GB (estimate, fits 30 GiB). Time: `apply_gains`
@@ -554,7 +575,8 @@ except where section 4 sequences them.
   coordinator files), `research/p5-memory.md`.
 - **Validation.** K precondition, K checker on a fresh replay with
   `profile_campaign.py`-style stage RSS, `check_core_fetch.py`; peak RSS
-  per cell from the subset probes before/after.
+  per cell from the subset probes before/after; and L1's archive if L1
+  has merged with `core_campaign` functions in its chain.
 
 ### P1 Solver: rayon over solution intervals, bit-identical (optimise)
 
@@ -870,7 +892,7 @@ and after on the same load and reports both.
 | --- | --- | --- | --- |
 | P0 | **Release profile and crates** (coordinator, before P1–P3). `lto = "thin"`, `codegen-units = 1`; `cargo fetch` of `rayon` and `rustfft` (one network use of crates.io); `x86-64-v3` for local builds; note for W1 on multiversioning. Measured −5 % / −22 % instructions, bit-identical. | `core/Cargo.toml`, `Cargo.toml`, `Cargo.lock`, `core/py/Cargo.toml`, `.cargo/config.toml` | check-all passes; `bench_core_f.py check` and the K replay hashes equal |
 | P2 | **Gridder**: mixed-radix FFT, layer bucketing, dirty and PSF in one loop, rayon over w-layers with an ordered reduction; GPU spike only if time allows and behind a feature. 3.5 s → 0.15–0.3 s per image (estimate). | `core/src/grid.rs`, `examples/bench_p2_gridder.py`, `tests/test_p2_gridder.py`, `research/p2-gridder.md` | C, I and K image comparators within task A's tolerances; measured speed-up |
-| P5 | **Memory**: decode into place, Rust gain correction + Stokes I, no retained complex128 residuals, scores from the fused pass, mmap of local tiles. 0.87 → about 0.15 kB per cell (estimate). | `python/rangtoy/core_fetch.py`, `python/rangtoy/core_campaign.py`, new `core/src/correct.rs`, `core/src/ffi_correct.rs`, `research/p5-memory.md`, `tests/test_p5_*.py` (bindings through the coordinator) | K precondition masks identical, K replay metrics within A's tolerances, peak RSS per cell measured |
+| P5 | **Memory**: decode into place, Rust gain correction + Stokes I, no retained complex128 residuals, scores from the fused pass, mmap of local tiles. 0.87 → about 0.15 kB per cell (estimate). | `python/rangtoy/core_fetch.py`, `python/rangtoy/core_campaign.py`, new `core/src/correct.rs`, `core/src/ffi_correct.rs`, `research/p5-memory.md`, `tests/test_p5_*.py` (bindings through the coordinator) | K precondition masks identical, K replay metrics within A's tolerances (and L1's archive if it imports `core_campaign`), peak RSS per cell measured; `grid.rs` untouched |
 | P1 | **Solver and fused pass**: rayon over (time bin, frequency chunk), conversions hoisted out of the iteration loop. Solver bit-identical; fused pass within 1e-12. 0.345 s → about 0.06 s; whole array about 89 → 13 s per solve (estimate). | `core/src/solve.rs`, `core/src/fused.rs`, `examples/bench_p1_solver.py`, `tests/test_p1_solver.py`, `research/p1-solver.md` | `bench_core_f.py check --target solve` bit-identical at 1, 4, 16 threads; phase 2 validator |
 | P3 | **SumThreshold**: rayon over baselines, per-thread scratch, vectorised box filter. Bit-identical. 1.63 → about 0.35 s; whole array about 7 → 1 min (estimate). | `core/src/sumthreshold.rs`, `tests/test_p3_flags.py`, `research/p3-sumthreshold.md` | D comparator flag for flag; K additions hashes |
 | P6 | **Frozen Python hot spots, ported**: trend candidates by prefix sums (31 s → about 3 s), signal `cond`/`inv` per gain (35 s → about 20 s). Frozen modules untouched. | new `python/rangtoy/core_trend.py`, `python/rangtoy/core_signal.py`, `tests/test_p6_*.py`, `research/p6-python-hotspots.md` | trend and signal comparators pass with identical counts |
@@ -908,7 +930,9 @@ limit on 8 physical cores.
   plan's "Wave 2 (expected shape)" list with section 4's table, or link it.
 - **STATE.md, new top entry.** "Simplification review S1 (big plan wave 1),
   2026-10-30 (measured; no code changed). Every archived chain was re-run
-  and reproduces its archive (29 timed steps; the offline task K
+  and reproduces its archived outcome (29 timed steps plus the phase 1
+  and 3c-a validators, the fetch checker and the backends comparator; the
+  offline task K
   replay matches the archived gains, dirty images and PSFs hash for hash).
   The core runs one thread per stage: 87 % of the K chain's samples are in
   Rust, under 1 % in Python glue, and 15 of 16 hardware threads stay idle.
@@ -944,7 +968,8 @@ limit on 8 physical cores.
 - **Upstream, non-RATT (for `non-ratt-observations.md`).** (1) NumPy's
   bundled OpenBLAS (scipy-openblas64) starts 16 spinning threads at import:
   a 0.07 s comparator process burns 0.7–0.9 CPU-s (7–10.6 threads busy);
-  `OPENBLAS_NUM_THREADS=1` removes it. (2) JAX/XLA on CPU starts compile,
+  with `OPENBLAS_NUM_THREADS=1` the same comparator used 0.09–0.12 CPU-s
+  against 0.37–0.50 CPU-s (A/B at load 30). (2) JAX/XLA on CPU starts compile,
   Eigen and execute pools of 16 threads each (145 threads in one pytest
   process), which oversubscribes a shared host; the pointing tests slowed
   about 14× under load 16–33. (3) The extension's `blosc_decode` builds a
@@ -958,7 +983,7 @@ limit on 8 physical cores.
 - **Evidence to keep.** `outputs/simplification-review-20261030-01`
   (timed suite and its re-runs of every chain), `-02` (py-spy and perf),
   `-03` (probes), `-05` (pytest durations, perf stat), `-06` (coverage),
-  `-07-convergence.json`; `-00-smoke` and `-04` (an unresolved line-level
+  `-07-convergence.json`, `-08` (validators, backends, A/B), `-09-check-all.log`; `-00-smoke` and `-04` (an unresolved line-level
   perf attempt) may be deleted. Scratch builds in
   `~/Build/tmp/20261030-rang-s1` were removed at the end of the task.
 
@@ -981,4 +1006,5 @@ Date for every row: 2026-10-30. Load is the 1-minute average.
 | `perf stat` of the K replay, three builds × 2 | archived K fetch | about 100 s | 413 MB | load 16–19 |
 | `pytest -q --durations=0` (once) | 739 tests | 1,060 s | 1.82 GB | 7.7 threads busy; load 16–33 (siblings' check-all running); 739 passed |
 | coverage `coverage.sh` (`-06`), 12 chains under `coverage run` (sysmon) | as the suite | 4.4–59.7 s per chain, about 4.5 min | 838 MB | load 18–29 |
-| `bash tools/check-all.sh` (once, before the final commit) | branch | CHECKALL_TBD | | |
+| validators and comparators left out of the suite (`-08`): phase 1, phase 3c-a, task G fetch checker, backends comparator against task J, OpenBLAS A/B on the actions comparator (3 + 3) | archived inputs | 5.2 s, 29.0 s, 6.9 s, 1.5 s, 0.12–0.24 s each | 1.9 GB (3c-a) | load 27–30; outcomes in section 1.4 |
+| `bash tools/check-all.sh` (once, on commit `7090451`, the review and profiles) | branch | 1,139 s (pytest 739 passed in 1,118 s) | 1.71 GB | overall PASS (root 19 and core 47 Rust tests, clippy, fmt, ext build, ruff, diff-check, 739 pytest); load 18–31 (sibling sessions); log `outputs/simplification-review-20261030-09-check-all.log`; the follow-up commit that adds these rows and the fixups is document-only |
