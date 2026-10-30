@@ -17,9 +17,9 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
+from rangtoy.core_cases import CASES
+from rangtoy.core_state import load_state
 from rangtoy.core_workflow import core_solve
-from rangtoy.flagging_equivariance import CASES
-from rangtoy.flagging_workflow import load_state
 
 
 def main():

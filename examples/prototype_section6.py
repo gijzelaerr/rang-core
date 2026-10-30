@@ -20,8 +20,8 @@ from pathlib import Path
 
 import numpy as np
 from rangtoy import core, core_zarr
-from rangtoy.flagging import gain_tv, polar_gauge, policy_mask
-from rangtoy.flagging_influence import anchored_response, training_normals
+from rangtoy.core_influence import anchored_response, training_normals
+from rangtoy.core_policy import gain_tv, polar_gauge, policy_mask
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPPORT = ROOT / "outputs/luno-support-20261029-01/slice/MAIN/MAIN_1"

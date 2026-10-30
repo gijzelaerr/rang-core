@@ -13,15 +13,15 @@ from pathlib import Path
 
 import numpy as np
 
-from .core_workflow import core_solve, solve_flags
-from .flagging import fixed_support_tv
-from .flagging_actions import (
+from .core_patches import (
     candidate_patches,
     fit_action_model,
     proposal_from_model,
     split_actions,
 )
-from .flagging_workflow import load_state
+from .core_policy import fixed_support_tv
+from .core_state import load_state
+from .core_workflow import core_solve, solve_flags
 
 
 def _json_default(value):

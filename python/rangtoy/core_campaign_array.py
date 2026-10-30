@@ -68,14 +68,14 @@ from .core_campaign import (
     tricolour_checks,
     write_json,
 )
-from .core_workflow import gain_grid
-from .flagging import (
+from .core_policy import (
     assert_preserved,
     fixed_support_tv,
     gain_tv,
     polar_gauge,
     protected_flags,
 )
+from .core_workflow import gain_grid
 
 ROOT = core_campaign.ROOT
 GROUP = core_campaign.GROUP

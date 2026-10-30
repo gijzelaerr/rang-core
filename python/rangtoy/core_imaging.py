@@ -23,15 +23,16 @@ from pathlib import Path
 
 import numpy as np
 
-from . import core, core_grid, core_ms, core_weights, flagging_imaging
-from .flagging_imaging import (
+from . import core, core_grid, core_ms, core_weights
+from . import core_image_fit as flagging_imaging
+from .core_image_fit import (
     IMAGE_CLOSURE_JY,
     SETTINGS,
     image_diagnostics,
     image_geometry,
     linear_image_fit,
 )
-from .imaging_sensitivity import FITTED_JOBS, JOBS, ROLES, UNIT_JOBS
+from .core_sensitivity import FITTED_JOBS, JOBS, ROLES, UNIT_JOBS
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -348,7 +349,7 @@ LINEAR_CORRELATIONS = (9, 10, 11, 12)
 DEFAULT_ARCHIVE = ROOT / "outputs" / "tv-next-imaging-wsl-20261029-01"
 DEFAULT_EXPORT = ROOT / "outputs" / "core-c-20261029-01" / "inputs"
 DEFAULT_ORACLE = ROOT / "research" / "results" / "gain-tv-next-imaging.json"
-MODULES = ("flagging_imaging", "core_grid", "core_weights", "core_ms", "core_imaging")
+MODULES = ("core_image_fit", "core_grid", "core_weights", "core_ms", "core_imaging")
 
 
 def _sha256(path):

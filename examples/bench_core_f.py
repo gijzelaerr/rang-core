@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "examples"))
 
 from rangtoy import core, core_zarr
-from rangtoy.flagging_influence import anchored_response, training_normals
+from rangtoy.core_influence import anchored_response, training_normals
 from validate_core_phase2 import (
     FIXTURE,
     FIXTURE_FLAGS,

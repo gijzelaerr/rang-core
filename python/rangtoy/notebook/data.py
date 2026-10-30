@@ -33,7 +33,7 @@ from pathlib import Path, PurePosixPath
 import numpy as np
 
 from .. import core_fetch, core_ms
-from ..flagging import protected_flags, split_holdout
+from ..core_policy import protected_flags, split_holdout
 
 FIXTURE_SHA256 = "d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f"
 FIXTURE_BYTES = 45_452_147

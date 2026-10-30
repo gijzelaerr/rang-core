@@ -14,10 +14,8 @@ from pathlib import Path
 
 import numpy as np
 
-from .core_workflow import core_solve, solve_flags
-from .flagging import fixed_support_tv
-from .flagging_caracal import score_control
-from .flagging_prospective import (
+from .core_controls import score_control
+from .core_forecast import (
     MARGIN,
     SEEDS,
     _freeze_view,
@@ -25,8 +23,10 @@ from .flagging_prospective import (
     make_shortlist,
     score_forecasts,
 )
-from .flagging_structured import _compact, choose_action
-from .flagging_workflow import load_state
+from .core_policy import fixed_support_tv
+from .core_state import load_state
+from .core_structured import _compact, choose_action
+from .core_workflow import core_solve, solve_flags
 
 CASE_IDS = ("clean", "time-burst-seed107", "time-burst-seed109")
 

@@ -1,6 +1,6 @@
 import numpy as np
+from rangtoy.core_policy import protected_flags
 from rangtoy.core_workflow import core_solve, gain_grid, solve_flags
-from rangtoy.flagging import protected_flags
 
 
 def _state(seed=2, nchan=64):

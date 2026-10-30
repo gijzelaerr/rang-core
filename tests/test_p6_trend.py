@@ -9,8 +9,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core_trend, flagging_trend
-from rangtoy.flagging_structured_proposals import generate_candidates as frozen
+from rangtoy import core_trend
+from rangtoy import core_trend_run as flagging_trend
+from rangtoy.core_proposals import generate_candidates as frozen
 
 ROOT = Path(__file__).resolve().parents[1]
 MIRROR = ROOT / "outputs/core-trend-mirror-20261029-01/experiments"
@@ -133,9 +134,9 @@ def test_switch_restores_frozen_function():
 
 @pytest.mark.skipif(not MIRROR.is_dir(), reason="archived trend mirror absent")
 def test_archived_mirror_case():
-    from rangtoy.flagging import residual_features
-    from rangtoy.flagging_influence import _npz, _predict
-    from rangtoy.flagging_workflow import load_state
+    from rangtoy.core_influence import _npz, _predict
+    from rangtoy.core_policy import residual_features
+    from rangtoy.core_state import load_state
 
     directory = min(MIRROR.iterdir())
     state = load_state(directory)

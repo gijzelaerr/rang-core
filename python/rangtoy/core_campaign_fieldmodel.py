@@ -33,8 +33,8 @@ import numpy as np
 from . import core, core_campaign, core_fetch, core_zarr, lsm
 from . import core_campaign_array as array
 from .core_campaign import array_sha256, call, file_sha256, rss_mb, write_json
+from .core_policy import fixed_support_tv, gain_tv, polar_gauge
 from .core_workflow import gain_grid
-from .flagging import fixed_support_tv, gain_tv, polar_gauge
 
 ROOT = core_campaign.ROOT
 CARACAL_COMMIT = "8f7bb363876f5f0daecbf2167c36bb597c7e5160"

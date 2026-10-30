@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 from rangtoy import core
-from rangtoy.flagging import residual_features
-from rangtoy.flagging_influence import training_normals
+from rangtoy.core_influence import training_normals
+from rangtoy.core_policy import residual_features
 
 
 def _case(seed=3, nchan=6):
@@ -186,8 +186,8 @@ def test_complex_solve_flags_unsupported_antenna():
 
 
 def test_predict_components_matches_numpy_templates():
-    from rangtoy.flagging_response import SOURCES
-    from rangtoy.flagging_signal import spatial_templates
+    from rangtoy.core_response import SOURCES
+    from rangtoy.core_templates import spatial_templates
 
     rng = np.random.default_rng(4)
     uvw = rng.uniform(-2000, 2000, (12, 3))

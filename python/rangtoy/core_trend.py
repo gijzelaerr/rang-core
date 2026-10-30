@@ -29,13 +29,8 @@ from hashlib import sha256
 
 import numpy as np
 
-from . import flagging_trend
-from .flagging_structured_proposals import (
-    FREQUENCY_WIDTHS,
-    TV_CAP,
-    _inputs,
-    _row_groups,
-)
+from . import core_trend_run as flagging_trend
+from .core_proposals import FREQUENCY_WIDTHS, TV_CAP, _inputs, _row_groups
 
 _GEOMETRY = {}  # one entry: the most recent geometry key and its geometry
 _SHORT_EXACT = None  # set on first use by `_short_sums_are_exact`

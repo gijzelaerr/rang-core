@@ -108,7 +108,7 @@ def relative(a, b):
 
 
 def fixture():
-    from rangtoy.flagging import gain_tv, polar_gauge
+    from rangtoy.core_policy import gain_tv, polar_gauge
 
     with np.load(FIXTURE / "state.npz") as z:
         s = {k: z[k] for k in z.files}
@@ -208,7 +208,7 @@ def fixture():
 
 def rank_survey(arrays, gains, flags, tb, fb):
     """examples/survey_luno_solved.py's classification, in memory."""
-    from rangtoy.flagging_influence import anchored_response, training_normals
+    from rangtoy.core_influence import anchored_response, training_normals
 
     flag, weight, model = (
         arrays["FLAG"],

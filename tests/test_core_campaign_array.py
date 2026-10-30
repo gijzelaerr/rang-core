@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 from rangtoy import core, core_campaign, core_grid, core_weights
 from rangtoy import core_campaign_array as array
+from rangtoy.core_policy import protected_flags, residual_features
 from rangtoy.core_workflow import core_solve, gain_grid
-from rangtoy.flagging import protected_flags, residual_features
 
 
 def _synthetic(seed=3, nchan=64, ntime=4):

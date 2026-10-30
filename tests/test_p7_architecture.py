@@ -32,7 +32,7 @@ for info in pkgutil.iter_modules(rangtoy.__path__, "rangtoy."):
             skipped.append(info.name)
         else:
             raise
-from rangtoy import flagging, flagging_influence, flagging_trend, projector, toy_output
+from rangtoy import core_influence as flagging_influence, core_policy as flagging, core_trend_run as flagging_trend, projector, toy_output
 g = np.tile(np.eye(2, dtype=complex), (3, 2, 2, 1, 1))
 v = np.ones((3, 2, 2), bool)
 flagging.gain_tv(g, v, np.arange(3.0), np.arange(2.0))

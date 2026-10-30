@@ -96,7 +96,7 @@ def __getattr__(name):
     # Heavy imports stay out of module import so that `main` can cap the
     # thread pools before NumPy loads; these names are kept for callers.
     if name == "PATTERNS":
-        from .flagging_injections import PATTERNS
+        from .core_injection_model import PATTERNS
 
         return PATTERNS
     if name == "trend_run":
@@ -187,7 +187,7 @@ def injections(
     """Injection campaign on the core (research/core-phase3.md); `patterns`
     defaults to all of `flagging_injections.PATTERNS`."""
     from . import core_injections
-    from .flagging_injections import PATTERNS
+    from .core_injection_model import PATTERNS
 
     patterns = PATTERNS if patterns is None else patterns
     return _audited(
@@ -259,9 +259,9 @@ def build_trend_mirror(source_dir, mirror_dir):
     """
     import numpy as np
 
+    from .core_cases import CASES
+    from .core_state import load_state
     from .core_workflow import core_solve
-    from .flagging_equivariance import CASES
-    from .flagging_workflow import load_state
 
     source, mirror = Path(source_dir), Path(mirror_dir)
     if mirror.exists():
@@ -715,7 +715,7 @@ def _script(script, primary=_last, note=None):
 
 
 def _configure_injections(p):
-    from .flagging_injections import PATTERNS
+    from .core_injection_model import PATTERNS
 
     p.add_argument("run_dir")
     p.add_argument("prepared_dir")

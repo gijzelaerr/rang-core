@@ -4,8 +4,10 @@ door through which the frozen research modules reach the root crate's kernels.
 Before task P7 (research/p7-architecture.md) `_native_library()` built the
 root crate with Cargo on first use and loaded `librang_toy` through ctypes.
 The kernels now live in the extension `rangtoy._core`. The frozen modules
-(`flagging`, `flagging_trend`, `flagging_influence`, ...) cannot change, so
-`_native_library()` keeps its name and shape: an object whose kernel
+(`flagging`, `flagging_trend`, `flagging_influence`, ...; since task P11 their
+verbatim extracts `core_policy`, `core_trend_run`, `core_influence`, ...,
+research/p11-extract.md) cannot change, so `_native_library()` keeps its name
+and shape: an object whose kernel
 attributes take `.argtypes`/`.restype` assignments (ignored; the extension
 checks dtypes, contiguity and lengths itself) and the same positional
 arguments, and whose `_name` is the extension's file, the binary that runs and

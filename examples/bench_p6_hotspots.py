@@ -22,7 +22,7 @@ from pathlib import Path
 
 def trend(implementation, run_dir, mirror_dir):
     if implementation == "frozen":
-        from rangtoy.flagging_trend import run
+        from rangtoy.core_trend_run import run
     elif implementation == "ported":
         from rangtoy.core_trend import run
     else:
