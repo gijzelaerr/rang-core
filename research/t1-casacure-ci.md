@@ -314,7 +314,11 @@ aarch64 and macOS are not measured here: they run first on the merge push.
   passed, 0 skipped each, `casacure==3.8.35` in the freeze. Native Windows
   `rang_core-0.1.0-cp310-abi3-win_amd64.whl` (`5abe8f29…fa53`), Python 3.10
   and 3.14: `overall: PASS`, 47 passed, 5 skipped each (only the P7 toy
-  skips "archived on Linux x86_64", allowed as before).
+  skips "archived on Linux x86_64", allowed as before). The pip branch of
+  `test.py` (no uv on PATH, `python -m venv`, `pip install --only-binary
+  casacure`), which CI takes when its runners have no uv, also passes on
+  Windows with CPython 3.14: 47 passed, 5 P7 skips, casacure 3.8.35 in the
+  freeze.
 - **Added time per job** (local): casacure in the install step (a 2 MB
   wheel; the install steps took 3.2 s and 0.2 s on WSL, 6.4 s and 1.0 s on
   Windows), the `fixture` step 4.6–4.9 s with a download and 0.5–1.2 s
@@ -325,6 +329,8 @@ aarch64 and macOS are not measured here: they run first on the merge push.
   restore on the runner: well under the 3-minute bound. The CI numbers
   come with the first run.
 - `actionlint` (via `actionlint-py`) on `wheels.yml`: clean.
+- Both full checks ran at `9ce0332`; the commit after it changes only this
+  file (`git diff --check` clean).
 - `bash tools/check-all.sh` on WSL: `overall: PASS` (Rust 23 + 126 tests, clippy, fmt, extension build, ruff, ruff format, diff-check, pytest 682 passed and 13 skipped in 322 s; log `outputs/t1-20261030-check-all.log`). Native Windows
   `python -m rang.check`: `overall: PASS` (pytest 651 passed, 44 skipped, the skips being the `outputs/`-dependent tests; `RANG_FIXTURE` set, so the T1 tests ran; log copied to `outputs/t1-20261030-01/windows-check.log`).
 
@@ -356,6 +362,12 @@ aarch64 and macOS are not measured here: they run first on the merge push.
 - macOS x86_64 and macOS arm64 3.10 have no casacure oracle until casacure
   publishes those wheels (or the job builds the sdist, which needs Rust
   and about a minute; not done to keep the job short and the pin exact).
+- On a cache miss (each OS on its first run) every wheel-test job depends
+  on the 45 MB GitLab download, without a retry; a failed download fails
+  the job (deliberately: the alternative is skipping the oracle again).
+- `tools/wheel/test.sh` (the bash companion, not called by `wheels.yml`,
+  not this task's file) keeps the old test list and skip filter; it does
+  not cover T1.
 - The core writer's first macOS run is this job (E3 says it was never
   compiled or tested there; macOS writes without the inter-process lock).
 - The core reader (`core_ms.getcol`) fails on string-array columns with
@@ -386,6 +398,7 @@ Windows. Wall from `/usr/bin/time` or `Stopwatch`; RSS peak resident.
 | 2026-10-30 | Windows: `tools\wheel\build.py` | worktree | 226.3 s | — | `win_amd64` wheel |
 | 2026-10-30 | Windows: `tools\wheel\test.py --python 3.10 --fixture-cache` | Windows wheel | 38.3 s | — | fixture downloaded 4.6 s; pytest 24.6 s; 47 passed, 5 P7 skips |
 | 2026-10-30 | Windows: same, `--python 3.14` | Windows wheel | 28.1 s | — | pytest 24.3 s |
+| 2026-10-31 | Windows: `tools\wheel\test.py` pip branch (uv removed from PATH), CPython 3.14 | Windows wheel | 50.3 s | — | venv 6.4 s, pip install 28.7 s, fixture 0.7 s, pytest 13.4 s; PASS |
 | 2026-10-30 | `bash tools/check-all.sh` (`OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`) | branch at `9ce0332` | 1,291 s including the lock wait | 1.89 GB | PASS; pytest 682 passed, 13 skipped in 322 s |
 | 2026-10-31 | Windows: `python -m rang.check` | branch at `9ce0332` | 696.5 s | — | PASS; pytest 651 passed, 44 skipped in 151 s |
 
@@ -393,7 +406,9 @@ Windows. Wall from `/usr/bin/time` or `Stopwatch`; RSS peak resident.
 
 **Shared-file hunks.**
 
-`tests/test_core_backends.py` (on the branch, commit `3d6a08c`): verbatim
+`tests/test_core_backends.py` (on the branch, commit `3d6a08c`, which is
+authoritative: the blank context lines below lost their leading space, so
+the block does not apply as a patch):
 
 ```diff
 diff --git a/tests/test_core_backends.py b/tests/test_core_backends.py
