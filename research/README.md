@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: DF2a, [exact gridder speed](df2-wgridder-speed.md): the wgridder
+port at ducc0's speed on whole-array inputs, gates kept, the edge difference
+explained as rounding amplification.
+
 New, 2026-10-30: big plan task P11, [extract and retire](p11-extract.md): the 21
 frozen modules to `history/`, 127 definitions as verbatim extracts, −7,817 live
 lines, suite identical.

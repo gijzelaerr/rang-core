@@ -772,3 +772,32 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P11: suite `-04` at `a04766d` | – | 170 s (steps) | – |  |
 | 2026-10-30 | big plan P11: `archive` verbs and `imaging legacy-archive` on `-01r` and `-04` | – | about 10 s | – |  |
 | 2026-10-30 | big plan P11: `bash tools/check-all.sh` at the final tree | – | 196 s (pytest 106 s) | – |  |
+| 2026-10-30 | big plan DF2a: `git clone` ducc (GitLab) + checkout | `ducc0_0_42_0` | 3.2 s | – | read-only reference; deleted at the end |
+| 2026-10-30 | big plan DF2a: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin ducc0==0.42.0` | worktree | 45.2 s | – |  |
+| 2026-10-30 | big plan DF2a: `maturin develop --release --offline` | worktree | 43.4 s | – |  |
+| 2026-10-30 | big plan DF2a: `perf record` of DF1 (labelled) | K × 41, one thread | 7.7 s (not wrapped) | – | **inconclusive**: perf could not resolve the cdylib's symbols; replaced by scratch experiments |
+| 2026-10-30 | big plan DF2a: `bench_df2.py refs` (DF1 code) | gate cases, K, K × 41, array | 19.8 s | – | 55 arrays; 20 gated hashes equal DF1's archive |
+| 2026-10-30 | big plan DF2a: `bench_df2.py bench` DF1 baseline | K / K × 41 / array, 1/4/16, 3 repeats | 15.0 / 46.8 / 254.9 s | – | interleaved with ducc0 |
+| 2026-10-30 | big plan DF2a: `cargo build` standalone (first, step c) | `df1-standalone` | 0.2 s | – | **failed**: 5 errors (closures capturing raw pointers); fixed |
+| 2026-10-30 | big plan DF2a: `cargo build` + `cargo test` standalone (per step, 9 builds) | same | 28–41 s + 36–44 s | – | 7 passed each time |
+| 2026-10-30 | big plan DF2a: `bench_df2.py compare` (first) | step c | 24.0 s | – | **failed**: summary key error in the script (zero-data counters); fixed |
+| 2026-10-30 | big plan DF2a: probes (scratch scripts, labelled) | edge pixels per border width, PSF identity, K plans | seconds each | – |  |
+| 2026-10-30 | big plan DF2a: `bench_df2.py bench` quick (wgrid, 1 repeat) ×8 steps | K / K × 41 / array, 1/4/16 | 2.4–5.5 / 4.3–19.9 / 19.0–61.9 s | – | table "Per step" |
+| 2026-10-30 | big plan DF2a: scratch experiment crates (labelled) ×10 | K × 41, array, one thread | 40–80 s each | – | taps/accumulation split, FMA, AVX-512, store forwarding, split loops, even/odd |
+| 2026-10-30 | big plan DF2a: `cargo rustc --emit asm` (scratch, labelled) | experiment crate | ~40 s ×2 | – | accumulation found unvectorised |
+| 2026-10-30 | big plan DF2a: `compare_core_wgridder.py gates` ×4 | all cases | 7.0–7.4 s | – | pass every time |
+| 2026-10-30 | big plan DF2a: `compare_core_wgridder.py threads` ×4 | 1, 2, 4, 8, 16 | 13.3–20.0 s | – | identical every time |
+| 2026-10-30 | big plan DF2a: `bench_df2.py compare` ×6 | all reference outputs | 8.4–12.9 s | – |  |
+| 2026-10-30 | big plan DF2a: `compare_core_wgridder.py hashes` per SIMD level ×4 runs | gate cases | 2.1–2.6 s each | – | identical at every level |
+| 2026-10-30 | big plan DF2a: plane-group experiment (`groups.sh`) | K / K × 41 / array, G 1–8, 1/16 | about 4 min (not wrapped) | – | table "(a)" |
+| 2026-10-30 | big plan DF2a: `cargo clippy -D warnings` standalone (first) | same | 2.7 s | – | **failed**: 2 lints (`as_deref_mut` on a reference); fixed, clean |
+| 2026-10-30 | big plan DF2a: pytest `test_core_wgridder.py test_core_grid.py` (first) | 11 tests | 39.2 s | – | **1 failed**: the new test asked for f32 at ε 1e-7 (no kernel); test fixed |
+| 2026-10-30 | big plan DF2a: pytest same | 11 tests | 0.4 s | – | pass |
+| 2026-10-30 | big plan DF2a: `bench_df2.py edge` (first) | 2 cases × 4 ε | 5.9 s | – | **failed**: ducc0 called with its default `do_wgridding=False`; fixed |
+| 2026-10-30 | big plan DF2a: `bench_df2.py edge` | same | 6.8 s | – | table "(f)" |
+| 2026-10-30 | big plan DF2a: f32 probe (labelled) | K arms | 0.9 s | – |  |
+| 2026-10-30 | big plan DF2a: `bench_df2.py bench` final | K / K × 41 / array / K f32, 3 repeats | 24.0 / 50.2 / 118.1 / 9.0 s | – | load 2–5 |
+| 2026-10-30 | big plan DF2a: `bench_df2.py bench` repeat (labelled) | K / K × 41 | 11.4 / 22.4 s | – | load 3.8–4.1 |
+| 2026-10-30 | big plan DF2a: `bench_df2.py summary` | both runs | < 1 s | – | `research/results/df2-wgridder-speed.json` |
+| 2026-10-30 | big plan DF2a: DF2a against DF1 over the correction (post-hoc probe, scratch script) | 0.3 rad cases, f64 ε 1e-7 | 0.8 s | – | flat: 1.8e-14 border and inside (`df2-vs-df1-correction.json`) |
+| 2026-10-30 | big plan DF2a: `bash tools/check-all.sh` (takes the host lock itself; wall from timestamps, not wrapped) | worktree at `7240935` | 293.1 s | – | **PASS**: root 23 and core 74 Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 656 passed, 4 skipped in 96.2 s; log `outputs/df2-20261030-02/logs/check-all.log` |

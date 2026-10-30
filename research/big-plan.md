@@ -198,9 +198,10 @@ CPU-heavy tasks at a time on 8 physical cores.
   no faithful port. DF0 (oracle container with WSClean 3.7 and a simulated
   MeerKAT field) and DF1 (exact wgridder-algorithm gridder, first protocol)
   can start beside the science wave (DF1 done 2026-10-30, `df1-wgridder.md`:
-  all gates pass; item 0 attributed to WSClean padding-1.2 aliasing; DF2 must
-  first optimise the gridding loop, 3.7–4.4× slower than ducc0 per
-  visibility, then add `gridder="wgrid"` to the imaging drivers and
+  all gates pass; item 0 attributed to WSClean padding-1.2 aliasing; DF2a done
+  2026-10-30, `df2-wgridder-speed.md`: at ducc0's speed on whole-array inputs,
+  1.5–2.3× on four-station images; DF2b adds `gridder="wgrid"` to the
+  imaging drivers with a tolerance restated from the rounding floor and
   re-tolerance the C/I/K/L1 archives against WSClean 3.7's wgridder from
   DF0); DF2 puts it into the imaging chains
   before B1's imaging; DF3–DF5 (facets with per-facet Jones, scalar

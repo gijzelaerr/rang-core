@@ -111,3 +111,10 @@ to an unrelated package (carta-python is not on PyPI).
   SEVERE log line; SR2016 switches at the 11.1496 GHz crossing, not the
   documented 11 GHz; compiled coefficients are float32, about 3e-7 from the
   decimals; the "Baars" 1934−638 polynomial is not in Baars et al. 1977.
+
+## From DF2a (2026-10-30; not reported by decision)
+
+- ducc0 0.42: wide-field edge pixels are order-sensitive at 1e-11 to 1e-10 of
+  the peak (rounding amplified by the gridding correction, up to 3 × 10⁵ in a
+  0.3 rad field's corners), so bit-level comparisons need a matching tolerance;
+  `do_wgridding=False` is the default, a second trap beside `divide_by_n`.

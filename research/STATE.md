@@ -1,5 +1,26 @@
 # Rang research state
 
+DF2a exact gridder speed (big plan; [df2-wgridder-speed.md](df2-wgridder-speed.md)),
+2026-10-30 (implemented; measured): DF1's Rust port of ducc0's wgridder now
+runs at ducc0's speed. Planes are gridded in sequence, the grid in tiles
+under a fixed parity colouring with fixed-size tasks (deterministic, no
+locks), the kernel evaluated by ducc0's even/odd Horner scheme with FMA, the
+loops monomorphised on the support and compiled for AVX-512 and AVX2 (chosen
+at run time), the dirty image and PSF in one pass, data and weights read in
+place (new `_ex` entry points). Per image (f64, ε 1e-6) 1.06–1.07× ducc0 0.42
+on a 23.8 M-visibility whole-array case at 1 and 16 threads (DF1 3.6× and
+6.9×), 1.13× / 1.37× on K × 41 at 1 / 16 threads (clean repeat), memory
+0.68–1.07× ducc0's peak; outputs bit-identical at 1–16 threads and at every
+SIMD level; all of DF1's gates pass. Not gated: the four-station K arms stay
+at 1.46× ducc0 on one thread and 2.27× at 16 threads (fixed per-plane
+overhead), the first images DF2b wires in. The frozen agreement bound with
+DF1's outputs (1e-13) failed on wide-field and f32 images: rounding
+amplification by the correction function (row order alone moves the border by
+1.7e-11), flat inside and out once divided by the correction. DF1's open edge
+difference from ducc0 is the same effect: the port and ducc0 are equally close
+to the DFT there. Plane groups (taps reused across planes) gained ≤ 13 % at up
+to 2.7× the memory: off by default. Archive `results/df2-wgridder-speed.json`.
+
 P11 extract and retire (big plan wave 2), 2026-10-30 (implemented; measured;
 [p11-extract.md](p11-extract.md)): the 21 frozen campaign modules
 (`flagging*.py`, `imaging_sensitivity.py`, 11,217 lines) and their 21 test
