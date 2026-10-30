@@ -18,15 +18,20 @@ strategy, and it is not cheaper.
   None is better and none is worse. The 90 are not independent: L1-M's
   stored run and C1 repeat L1, and the frozen and matched rules call the
   same pairs.
-- The frozen objective rejected every TV-guided candidate mask it was shown.
+- The frozen policy never selected a TV-guided (α > 0) mask: on the fixture
+  pilot and in every LUNO campaign the objective rejected each one. The only
+  accepted non-empty fixture mask came from a later ranking search on an
+  injected case, where the TV and residual rankings chose the same 56 cells
+  (test MSE ratio 0.99994, null).
 - On the parallel kernels the TV chain costs 4.6–5.9 times the first pass.
 
 The experiment is closed as null, within the scope stated in section 8.
 
 ## 1. The hypothesis, and what a positive would have looked like
 
-**Frozen on 2026-09-23** ([flagging.md](flagging.md), initial revision
-`39eeb53`).
+**Frozen on 2026-09-23** ([flagging.md](flagging.md); the experiment started
+from the clean revision `39eeb53`, and the strategy and pilot were committed
+as `35e763b`).
 
 - **Inputs.** Full-Jones gains are solved per 2 integrations × 32 channels
   (QuartiCal `G.type=complex`). Their anisotropic Frobenius total variation
@@ -47,8 +52,9 @@ The experiment is closed as null, within the scope stated in section 8.
   admissible only if `MSE_val ≤ 1.01 MSE_val(F0)`. No change scores exactly
   1.25 and is always available.
 
-**A positive under that rule** is a mask with α > 0 that the objective
-accepts (L < 1.25) and that beats the best unguided mask.
+`flagging.md` states no positive criterion. Read from the frozen rule, **a
+positive** is a mask with α > 0 that the objective accepts (L < 1.25) and
+that beats the best unguided mask.
 
 **The decision rule was frozen later, per campaign, before each run.**
 
@@ -271,8 +277,8 @@ Scan 9, four antennas, run through QuartiCal itself
   - A 56-cell mask reached objective 1.24957, with test MSE 25.03525 against
     25.03684 (ratio 0.99994, null under the later rule).
   - It recovered 9.4 % of the injected cells.
-  - The residual, raw-TV and detrended rankings all chose the same mask, so
-    TV guidance did not select it.
+  - The TV ranking chose the same mask as the residual ranking (and the
+    detrended one), so TV guidance added nothing over the residual score.
   - The signal guard abstained ([flagging-next-summary.md](flagging-next-summary.md)).
 
   It is not a positive.
@@ -604,14 +610,15 @@ L-band, and the drivers reject UHF and S-band, so this is out of scope.
 We asked whether the roughness of calibration gains in time and frequency
 can tell a flagger where the bad data are.
 
-- **Fixture.** On a four-antenna MeerKAT pointing scan, the method never
-  selected a flag that improved the guarded objective, except one 56-cell
-  mask on an artificially injected burst that TV guidance did not choose.
+- **Fixture.** On a four-antenna MeerKAT pointing scan, the frozen policy
+  never selected a flag. A later ranking search accepted one 56-cell mask
+  on an artificially injected burst, but the residual ranking chose the same
+  mask, so TV added nothing, and the held-out change was null (0.99994).
 - **Real data.** On the public LUNO observation (both calibrators, four
   stations and the whole array, three calibrator models for 1934−638 and
   two for 1830−211, an antenna-gain statistic and a gauge-free closure
   statistic) the result is the same:
-  - the frozen objective rejected every TV-guided mask;
+  - the frozen objective rejected every TV-guided (α > 0) mask;
   - against CARACal's first-pass Tricolour flags, held-out error and image
     residuals agree within 0.06 % and 0.5 %;
   - on the current kernels the TV method costs two to six times as much.
@@ -719,8 +726,8 @@ the coordinator):
   > against the CARACal first-pass Tricolour strategy.
   >
   > Of 90 pre-registered calls, 64 are null and 26 undecidable; none is
-  > better or worse. Every TV-guided mask was rejected by the frozen
-  > objective. Against the first pass, held-out MSE agrees within 0.06 %
+  > better or worse. The frozen policy selected no TV-guided (α > 0) mask
+  > on the fixture or on LUNO. Against the first pass, held-out MSE agrees within 0.06 %
   > (matched 0.99943) and residual RMS within 0.5 %. On the parallel
   > kernels the TV chain costs 4.6–5.9× the first pass, so neither novelty
   > route holds.
