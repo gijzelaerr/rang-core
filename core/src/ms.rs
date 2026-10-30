@@ -19,9 +19,9 @@ use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 
-const MAGIC: u32 = 0xbebe_bebe;
+pub const MAGIC: u32 = 0xbebe_bebe;
 /// Buckets of StandardStMan and IncrementalStMan files start after a header.
-const BUCKET_START: u64 = 512;
+pub const BUCKET_START: u64 = 512;
 /// Tiles kept in memory during one column read (DATA tiles are 1 MiB here).
 const TILE_CACHE: usize = 64;
 
@@ -188,25 +188,28 @@ pub struct ColumnData {
 // ---------------------------------------------------------------------------
 // AipsIO: the serialisation used by table.dat and the storage-manager headers.
 
-struct Object {
-    start: usize,
-    length: usize,
-    kind: String,
-    version: u32,
+/// An AipsIO object header as read: where it starts, its length (from the
+/// length field to its end), type and version.
+pub struct Object {
+    pub start: usize,
+    pub length: usize,
+    pub kind: String,
+    pub version: u32,
 }
 
-struct Cursor<'a> {
-    bytes: &'a [u8],
-    pos: usize,
-    big: bool,
+/// A reading position in AipsIO bytes (canonical big- or little-endian).
+pub struct Cursor<'a> {
+    pub bytes: &'a [u8],
+    pub pos: usize,
+    pub big: bool,
 }
 
 impl<'a> Cursor<'a> {
-    fn new(bytes: &'a [u8], big: bool) -> Self {
+    pub fn new(bytes: &'a [u8], big: bool) -> Self {
         Cursor { bytes, pos: 0, big }
     }
 
-    fn take(&mut self, n: usize) -> Result<&'a [u8]> {
+    pub fn take(&mut self, n: usize) -> Result<&'a [u8]> {
         let out = self
             .bytes
             .get(self.pos..self.pos + n)
@@ -215,15 +218,15 @@ impl<'a> Cursor<'a> {
         Ok(out)
     }
 
-    fn u8(&mut self) -> Result<u8> {
+    pub fn u8(&mut self) -> Result<u8> {
         Ok(self.take(1)?[0])
     }
 
-    fn bool(&mut self) -> Result<bool> {
+    pub fn bool(&mut self) -> Result<bool> {
         Ok(self.u8()? != 0)
     }
 
-    fn u32(&mut self) -> Result<u32> {
+    pub fn u32(&mut self) -> Result<u32> {
         let b: [u8; 4] = self.take(4)?.try_into().unwrap();
         Ok(if self.big {
             u32::from_be_bytes(b)
@@ -232,11 +235,11 @@ impl<'a> Cursor<'a> {
         })
     }
 
-    fn i32(&mut self) -> Result<i32> {
+    pub fn i32(&mut self) -> Result<i32> {
         Ok(self.u32()? as i32)
     }
 
-    fn u64(&mut self) -> Result<u64> {
+    pub fn u64(&mut self) -> Result<u64> {
         let b: [u8; 8] = self.take(8)?.try_into().unwrap();
         Ok(if self.big {
             u64::from_be_bytes(b)
@@ -245,23 +248,23 @@ impl<'a> Cursor<'a> {
         })
     }
 
-    fn i64(&mut self) -> Result<i64> {
+    pub fn i64(&mut self) -> Result<i64> {
         Ok(self.u64()? as i64)
     }
 
-    fn string(&mut self) -> Result<String> {
+    pub fn string(&mut self) -> Result<String> {
         let n = self.u32()? as usize;
         Ok(String::from_utf8_lossy(self.take(n)?).into_owned())
     }
 
-    fn magic(&mut self) -> Result<()> {
+    pub fn magic(&mut self) -> Result<()> {
         if self.u32()? != MAGIC {
             return err("AipsIO magic value missing");
         }
         Ok(())
     }
 
-    fn start(&mut self) -> Result<Object> {
+    pub fn start(&mut self) -> Result<Object> {
         let start = self.pos;
         let length = self.u32()? as usize;
         let kind = self.string()?;
@@ -274,7 +277,7 @@ impl<'a> Cursor<'a> {
         })
     }
 
-    fn start_expect(&mut self, kind: &str) -> Result<Object> {
+    pub fn start_expect(&mut self, kind: &str) -> Result<Object> {
         let object = self.start()?;
         if object.kind != kind {
             return err(format!(
@@ -285,17 +288,17 @@ impl<'a> Cursor<'a> {
         Ok(object)
     }
 
-    fn end(&mut self, object: &Object) {
+    pub fn end(&mut self, object: &Object) {
         self.pos = object.start + object.length;
     }
 
-    fn skip_object(&mut self) -> Result<()> {
+    pub fn skip_object(&mut self) -> Result<()> {
         let object = self.start()?;
         self.end(&object);
         Ok(())
     }
 
-    fn iposition(&mut self) -> Result<Vec<i64>> {
+    pub fn iposition(&mut self) -> Result<Vec<i64>> {
         let object = self.start_expect("IPosition")?;
         let n = self.u32()? as usize;
         let mut out = Vec::with_capacity(n);
@@ -310,7 +313,7 @@ impl<'a> Cursor<'a> {
         Ok(out)
     }
 
-    fn block_u32(&mut self) -> Result<Vec<u32>> {
+    pub fn block_u32(&mut self) -> Result<Vec<u32>> {
         let object = self.start_expect("Block")?;
         let n = self.u32()? as usize;
         let out = (0..n).map(|_| self.u32()).collect::<Result<Vec<_>>>()?;
@@ -318,7 +321,7 @@ impl<'a> Cursor<'a> {
         Ok(out)
     }
 
-    fn block_u64(&mut self) -> Result<Vec<u64>> {
+    pub fn block_u64(&mut self) -> Result<Vec<u64>> {
         let object = self.start_expect("Block")?;
         let n = self.u32()? as usize;
         let out = (0..n).map(|_| self.u64()).collect::<Result<Vec<_>>>()?;
@@ -331,7 +334,7 @@ impl<'a> Cursor<'a> {
 // Byte helpers for the data files.
 
 /// Read `n` bytes at `offset` of `file`.
-fn read_at(file: &mut File, offset: u64, n: usize) -> Result<Vec<u8>> {
+pub fn read_at(file: &mut File, offset: u64, n: usize) -> Result<Vec<u8>> {
     let mut out = vec![0u8; n];
     file.seek(SeekFrom::Start(offset))?;
     file.read_exact(&mut out)
@@ -1523,6 +1526,13 @@ pub struct Table {
 
 impl Table {
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
+        Self::open_with_rows(path, None)
+    }
+
+    /// Open with a known row count instead of the one in `table.lock`. The
+    /// table writer reads its own table this way: opening and closing
+    /// `table.lock` would drop the process's fcntl locks on it (POSIX).
+    pub fn open_with_rows(path: impl AsRef<Path>, rows: Option<u64>) -> Result<Self> {
         let dir = path.as_ref().to_path_buf();
         let bytes = std::fs::read(dir.join("table.dat"))
             .map_err(|e| MsError(format!("{}: {e}", dir.join("table.dat").display())))?;
@@ -1543,7 +1553,11 @@ impl Table {
         // Rows added after table.dat was written are counted in the sync
         // record of table.lock (read, never written); 0 there means use
         // table.dat, as PlainTable does.
-        let nrows = match lock_sync_rows(&dir)? {
+        let synced = match rows {
+            Some(n) => Some(n),
+            None => lock_sync_rows(&dir)?,
+        };
+        let nrows = match synced {
             Some(n) if n > 0 => n,
             _ => nrows,
         };
