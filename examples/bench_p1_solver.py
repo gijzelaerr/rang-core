@@ -120,14 +120,22 @@ def timed(fn, repeats):
     }
 
 
-def run_one(case, repeats):
+# Early-stop settings (research/p1-solver.md): the archived inputs both run to
+# the 50-iteration cap, so these exercise the stop test at other iterations.
+VARIANTS = {
+    "luno": [{"stop_fraction": f} for f in (0.05, 0.45, 0.75, 0.94)],
+    "fixture": [{"max_iterations": k} for k in (1, 3, 12)] + [{"stop_fraction": 0.5}],
+}
+
+
+def run_one(name, case, repeats):
     from rangtoy import core
 
     tb, fb = case["time_bin"], case["freq_bin"]
     nt, nf = int(tb.max()) + 1, int(fb.max()) + 1
     na = int(max(case["antenna1"].max(), case["antenna2"].max())) + 1
 
-    def solve():
+    def solve(**settings):
         return core.solve_complex(
             case["data"],
             case["weights"],
@@ -141,9 +149,19 @@ def run_one(case, repeats):
             nfreq_bins=nf,
             nant=na,
             model=case["model"],
+            **settings,
         )
 
     solution, solve_t = timed(solve, repeats)
+    variants = {}
+    for settings in VARIANTS[name]:
+        other = solve(**settings)
+        variants[json.dumps(settings, sort_keys=True)] = {
+            "gains": digest(other.gains),
+            "flags": digest(other.flags),
+            "iterations": other.iterations,
+            "converged_fraction": other.converged_fraction.hex(),
+        }
 
     def fused():
         return core.fused_pass(
@@ -179,6 +197,7 @@ def run_one(case, repeats):
                 },
                 sort_keys=True,
             ),
+            "variants": variants,
         },
         "solve": solve_t,
         "fused": fused_t,
@@ -201,7 +220,7 @@ def run(out, repeats):
         "repeats": repeats,
         "load_before": before,
         "input_load_seconds": load_seconds,
-        "cases": {name: run_one(case, repeats) for name, case in cases.items()},
+        "cases": {name: run_one(name, case, repeats) for name, case in cases.items()},
         "load_after": loadavg(),
         "max_rss_mb": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024,
         "python": platform.python_version(),
