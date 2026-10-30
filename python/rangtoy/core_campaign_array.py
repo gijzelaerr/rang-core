@@ -17,9 +17,25 @@ K's four-station slice (the precondition's replay checks this):
   are summed, and the image geometry and boxes come from the array's
   resolution and the measured PSF.
 
+Big plan task P5 (research/p5-memory.md) keeps one copy of the cube and no
+per-cell temporaries, each change bit-identical except the gain correction
+(complex64 rounding):
+
+- tiles decode straight into the final arrays (`core_fetch.read_rows_into`);
+- eligibility and the seed-7 split run in row blocks (`split_holdout_lean`);
+- solve flags are built in row blocks into one cube;
+- the base solves' outlier scores come from the fused pass (`scores=True`)
+  over groups of whole baselines and are kept sparse (only training cells
+  with `outliers >= 2` can be proposed), with the guidance median; the
+  policy masks are evaluated on that set (`sparse_policy_mask`);
+- additions are stored as sorted cell indices;
+- gain correction and the Stokes I reader run in Rust into reused buffers
+  (`correct_stokes_i`), with the final-flag rule folded in.
+
 Original FLAG and FLAG_ROW are never modified.
 """
 
+import ctypes
 import itertools
 import json
 import math
@@ -52,15 +68,13 @@ from .core_campaign import (
     tricolour_checks,
     write_json,
 )
-from .core_workflow import gain_grid, solve_flags
+from .core_workflow import gain_grid
 from .flagging import (
     assert_preserved,
     fixed_support_tv,
     gain_tv,
     polar_gauge,
-    policy_mask,
     protected_flags,
-    split_holdout,
 )
 
 ROOT = core_campaign.ROOT
@@ -84,6 +98,11 @@ ARRAY_IMAGE = {
 }
 ARRAY_CHANNEL_GROUPS = 4
 ROW_BLOCK = 2048
+# Rows per baseline group of the feature pass (whole baselines per group).
+FEATURE_ROWS = 2048
+# "fused": scores from the fused pass; "numpy": L1's row-block amplitude
+# and per-baseline estimator (the pre-registered fallback of P5).
+SCORES = "fused"
 GROUP_TOLERANCE = 1e-4
 MEMORY_BUDGET_MB = 20_000
 MIN_AVAILABLE_GIB = 20
@@ -255,14 +274,15 @@ def decode_inputs(stations=None, roots=ROOTS):
         row_bytes = nchan * ncorr * dtype.itemsize
         out = np.empty((len(rows), hi - lo, ncorr), dtype)
         for tile in TILES:
-            raw, tile_stats = core_zarr.read_rows(
-                resolve(f"{GROUP}/{name}/0.{tile}.0", roots), row_bytes, rows
-            )
+            # P5: each tile decodes straight into its channel range of `out`.
             first = tile * nchan - lo
-            out[:, first : first + nchan] = np.frombuffer(raw, dtype).reshape(
-                len(rows), nchan, ncorr
+            tile_stats = core_fetch.read_rows_into(
+                resolve(f"{GROUP}/{name}/0.{tile}.0", roots),
+                row_bytes,
+                rows,
+                out,
+                first * ncorr * dtype.itemsize,
             )
-            del raw
             for k in stats:
                 stats[k] += tile_stats[k]
         arrays[name] = out
@@ -311,6 +331,95 @@ def decode_extra(rows, roots=ROOTS, channels=CHANNELS):
 # --- state, solves, features -------------------------------------------------
 
 
+def row_blocks(nrow, block=ROW_BLOCK):
+    for start in range(0, nrow, block):
+        yield slice(start, min(start + block, nrow))
+
+
+def eligible_cells(flags, rows, data, weights, model, p, q, block=ROW_BLOCK):
+    """K's eligibility (no original flag in any correlation, FLAG_ROW false,
+    cross-correlation, finite data, model and weights, positive weights) in
+    row blocks: the booleans of `~protected_flags(...)[0].any(-1) & ...`."""
+    eligible = np.empty(flags.shape[:2], bool)
+    for s in row_blocks(len(flags), block):
+        e = ~flags[s].any(axis=-1)
+        e &= ~rows[s][:, None]
+        e &= (p[s] != q[s])[:, None]
+        e &= np.isfinite(data[s]).all(axis=-1)
+        e &= np.isfinite(weights[s]).all(axis=-1)
+        e &= (weights[s] > 0).all(axis=-1)
+        e &= np.isfinite(model[s]).all(axis=-1)
+        eligible[s] = e
+    return eligible
+
+
+def split_holdout_lean(
+    eligible,
+    seed,
+    groups,
+    validation_fraction=0.1,
+    test_fraction=0.1,
+    minimum_train=2,
+    block=ROW_BLOCK,
+):
+    """`flagging.split_holdout(eligible, seed, groups=G)` without its
+    full-size temporaries; `groups(s)` returns the group labels of row block
+    `s`. The seed's draws are taken in row blocks (the same stream in the
+    same order), only the eligible cells' draws and groups are kept, and the
+    `minimum_train` cells reserved per group (largest draw first, ties by
+    cell order) come from one stable lexsort instead of a loop over groups.
+    Bit-identical by construction; tests compare it with the original."""
+    if (
+        min(validation_fraction, test_fraction) < 0
+        or not 0 <= validation_fraction + test_fraction < 1
+    ):
+        raise ValueError("holdout fractions must leave training samples")
+    if minimum_train < 1:
+        raise ValueError("holdout groups must match samples and retain training data")
+    rng = np.random.default_rng(seed)
+    nrow, nchan = eligible.shape
+    validation = np.empty_like(eligible)
+    test = np.empty_like(eligible)
+    n = int(np.count_nonzero(eligible))
+    draws = np.empty(n)
+    labels = np.empty(n, np.int64)
+    at = 0
+    for s in row_blocks(nrow, block):
+        random = rng.random((s.stop - s.start, nchan))
+        e = eligible[s]
+        validation[s] = e & (random < validation_fraction)
+        test[s] = (
+            e
+            & (random >= validation_fraction)
+            & (random < validation_fraction + test_fraction)
+        )
+        k = int(np.count_nonzero(e))
+        draws[at : at + k] = random[e]
+        g = np.asarray(groups(s))
+        if g.shape != e.shape:
+            raise ValueError(
+                "holdout groups must match samples and retain training data"
+            )
+        labels[at : at + k] = g[e]
+        at += k
+        del random, g
+    order = np.lexsort((-draws, labels))
+    del draws
+    labels = labels[order]
+    start = np.ones(n, bool)
+    start[1:] = labels[1:] != labels[:-1]
+    del labels
+    first = np.flatnonzero(start)
+    rank = np.arange(n) - first[np.cumsum(start) - 1]
+    del start, first
+    reserved = order[rank < minimum_train]
+    del order, rank
+    cells = np.flatnonzero(eligible)[reserved]
+    validation.reshape(-1)[cells] = False
+    test.reshape(-1)[cells] = False
+    return eligible & ~(validation | test), validation, test
+
+
 def build_state(
     arrays, extra, nant, seed=core_campaign.SPLIT_SEED, grid=core_campaign.GRID
 ):
@@ -324,21 +433,16 @@ def build_state(
     q = np.ascontiguousarray(arrays["ANTENNA2"], np.int32)
     times = np.ascontiguousarray(arrays["TIME"], np.float64)
     names = list(extra["antenna_names"][:nant])
-    protected, _ = protected_flags(flags, rows, np.zeros_like(flags))
-    eligible = ~protected.any(axis=-1)
-    del protected
-    eligible &= (p != q)[:, None]
-    eligible &= np.isfinite(data).all(axis=-1)
-    eligible &= np.isfinite(weights).all(axis=-1)
-    eligible &= (weights > 0).all(axis=-1)
-    eligible &= np.isfinite(model).all(axis=-1)
+    eligible = eligible_cells(flags, rows, data, weights, model, p, q)
     time_bins = np.unique(times, return_inverse=True)[1] // grid[0]
     freq_bins = np.arange(data.shape[1]) // grid[1]
-    groups = (
-        time_bins[:, None] * (freq_bins.max() + 1) + freq_bins[None]
-    ) * nant**2 + (p * nant + q)[:, None]
-    train, validation, test = split_holdout(eligible, seed, groups=groups)
-    del groups
+
+    def groups(s):
+        return (
+            time_bins[s, None] * (freq_bins.max() + 1) + freq_bins[None]
+        ) * nant**2 + (p[s] * nant + q[s])[:, None]
+
+    train, validation, test = split_holdout_lean(eligible, seed, groups)
     return {
         "original_flags": flags,
         "original_rows": rows,
@@ -414,11 +518,179 @@ def baseline_scores(amplitude, eligible, antenna1, antenna2):
     return z
 
 
+def additions_dense(state, indices):
+    """A stored solve's additions (sorted cell indices) as a `(row, chan)` mask."""
+    mask = np.zeros(state["train"].shape, bool)
+    mask.reshape(-1)[np.asarray(indices, np.int64)] = True
+    return mask
+
+
+def solve_flags_lean(state, added, block=ROW_BLOCK):
+    """`core_workflow.solve_flags(state, added)` (holdout cells and additions
+    flagged on top of the protected originals) in row blocks into one cube."""
+    original, rows, train = (
+        state["original_flags"],
+        state["original_rows"],
+        state["train"],
+    )
+    added = np.asarray(added, bool)
+    flags = np.empty(original.shape, bool)
+    flag_rows = np.empty(rows.shape, bool)
+    for s in row_blocks(len(rows), block):
+        f = flags[s]
+        np.logical_or(original[s], rows[s][:, None, None], out=f)
+        np.logical_or(f, (~train[s] | added[s])[..., None], out=f)
+        flag_rows[s] = rows[s] | f.all(axis=(1, 2))
+    return flags, flag_rows
+
+
+def guidance_values(state, maps, time_map, freq_map, rows, chans):
+    """K's TV guidance `max(map[t, f, p], map[t, f, q])` at the given cells."""
+    t, f = time_map[rows], freq_map[chans]
+    return np.maximum(
+        maps[t, f, state["antenna1"][rows]], maps[t, f, state["antenna2"][rows]]
+    )
+
+
+def guidance_scale(state, maps, time_map, freq_map, block=ROW_BLOCK):
+    """`policy_mask`'s scale: the median of the positive finite guidance over
+    the training cells, gathered in row blocks (same values, same order)."""
+    parts = []
+    p, q, train = state["antenna1"], state["antenna2"], state["train"]
+    for s in row_blocks(len(p), block):
+        t, f = time_map[s][:, None], freq_map[None]
+        g = np.maximum(maps[t, f, p[s][:, None]], maps[t, f, q[s][:, None]])
+        parts.append(g[train[s] & np.isfinite(g) & (g > 0)])
+    positive = np.concatenate(parts) if parts else np.zeros(0)
+    return np.median(positive) if len(positive) else 1.0
+
+
+def baseline_groups(antenna1, antenna2, nant, rows_per_group=FEATURE_ROWS):
+    """Rows of whole baselines, grouped in baseline order up to
+    `rows_per_group` rows each (a baseline larger than that is its own group)."""
+    baseline = np.asarray(antenna1, np.int64) * nant + np.asarray(antenna2, np.int64)
+    values, counts = np.unique(baseline, return_counts=True)
+    groups, current, size = [], [], 0
+    for value, count in zip(values.tolist(), counts.tolist()):
+        if current and size + count > rows_per_group:
+            groups.append(current)
+            current, size = [], 0
+        current.append(value)
+        size += count
+    if current:
+        groups.append(current)
+    return [np.flatnonzero(np.isin(baseline, g)) for g in groups]
+
+
+def fused_candidates(
+    state, gains, valid, time_map, freq_map, rows_per_group=FEATURE_ROWS
+):
+    """Training cells with fused-pass score `>= 2`: sorted cell indices and
+    their scores. The fused pass runs on groups of whole baselines; a
+    baseline's robust scores depend only on its own training cells in cell
+    order, so they equal those of one call on every row."""
+    nrow, nchan = state["train"].shape
+    nant = gains.shape[2]
+    found, values = [], []
+    for rows in baseline_groups(
+        state["antenna1"], state["antenna2"], nant, rows_per_group
+    ):
+        if len(rows) == nrow:
+
+            def take(name):
+                return state[name]
+        else:
+
+            def take(name, rows=rows):
+                return np.ascontiguousarray(state[name][rows])
+
+        fused = core.fused_pass(
+            take("data"),
+            take("weights"),
+            take("antenna1"),
+            take("antenna2"),
+            time_map[rows],
+            freq_map,
+            gains,
+            valid,
+            core.split_labels(train=take("train")),
+            model=take("model"),
+            residuals=False,
+            scores=True,
+            normals=False,
+        )
+        r, c = np.nonzero(fused.scores >= 2)
+        found.append(rows[r] * nchan + c)
+        values.append(fused.scores[r, c])
+        del fused
+    cells = np.concatenate(found) if found else np.zeros(0, np.int64)
+    scores = np.concatenate(values) if values else np.zeros(0)
+    order = np.argsort(cells, kind="stable")
+    return cells[order], scores[order]
+
+
+def solve_features(state, gains, valid, time_map, freq_map, maps, scores=None):
+    """The policy loop's inputs from a base solve, kept sparse: the training
+    cells that can ever be proposed (`outliers >= 2`), their outlier scores
+    and TV guidance, the guidance median over all training cells and the
+    training count. `scores="numpy"` takes L1's row-block amplitude path."""
+    scores = SCORES if scores is None else scores
+    train = state["train"]
+    nchan = train.shape[1]
+    if scores == "numpy":
+        labels = core.split_labels(
+            train=state["train"], validation=state["validation"], test=state["test"]
+        )
+        amplitude = residual_amplitude(state, gains, valid, labels, time_map, freq_map)
+        z = baseline_scores(amplitude, train, state["antenna1"], state["antenna2"])
+        del amplitude, labels
+        cells = np.flatnonzero(train & (z >= 2))
+        outliers = z.reshape(-1)[cells]
+        del z
+    elif scores == "fused":
+        cells, outliers = fused_candidates(state, gains, valid, time_map, freq_map)
+    else:
+        raise ValueError(f"unknown scores {scores!r}")
+    rows, chans = np.divmod(cells, nchan)
+    return {
+        "scores": scores,
+        "cells": cells,
+        "outliers": outliers,
+        "guidance": guidance_values(state, maps, time_map, freq_map, rows, chans),
+        "guidance_scale": guidance_scale(state, maps, time_map, freq_map),
+        "eligible_count": int(np.count_nonzero(train)),
+    }
+
+
+def sparse_policy_mask(features, shape, *, threshold, tv_weight, max_fraction):
+    """`flagging.policy_mask(outliers, guidance, train, ...)` on the sparse
+    features: every cell it can propose is in `features["cells"]`, and the
+    same elementwise arithmetic and the same stable top-k cut are applied
+    there, so the mask is identical."""
+    if not (threshold > 0 and tv_weight >= 0 and 0 <= max_fraction < 1):
+        raise ValueError("invalid policy parameters")
+    outliers, guidance = features["outliers"], features["guidance"]
+    scale = features["guidance_scale"]
+    relative = np.clip(np.nan_to_num(guidance / max(scale, 1e-30), nan=0), 0, 5)
+    score = outliers * (1 + tv_weight * relative)
+    proposed = np.isfinite(score) & (outliers >= 2) & (score > threshold)
+    limit = int(np.floor(max_fraction * features["eligible_count"]))
+    cells = features["cells"][proposed]
+    if len(cells) > limit:
+        order = np.argsort(-score[proposed], kind="stable")
+        cells = np.sort(cells[order[:limit]])
+    mask = np.zeros(shape, bool)
+    mask.reshape(-1)[cells] = True
+    return mask
+
+
 def solve_arm(state, added, label, scale=None, features=False):
     """`core_workflow.core_solve` plus K's `solve_arm` summaries, without
-    keeping residuals. With `features`, also the per-baseline outlier scores
-    and the TV guidance that the policy loop needs from its base solve."""
-    flags, rows = solve_flags(state, added)
+    keeping residuals. With `features`, also the sparse outlier scores and
+    TV guidance that the policy loop needs from its base solve. The
+    additions are stored as sorted cell indices."""
+    added = np.asarray(added, bool)
+    flags, rows = solve_flags_lean(state, added)
     time_map, freq_map, gain_times, gain_freqs = gain_grid(state, *core_campaign.GRID)
     nant = len(state["names"])
     started = time.perf_counter()
@@ -461,10 +733,10 @@ def solve_arm(state, added, label, scale=None, features=False):
     elapsed = time.perf_counter() - started
     if scale is None:
         scale = float(np.median(np.linalg.norm(gains[valid], axis=(-1, -2))))
+    del labels
     raw_tv = gain_tv(gains, valid, gain_times, gain_freqs, scale=scale)
     aligned, tv_valid = polar_gauge(gains, valid)
     tv = gain_tv(aligned, tv_valid, gain_times, gain_freqs, scale=scale)
-    added = np.asarray(added, bool)
     metrics = {
         "trial": label,
         "seconds": elapsed,
@@ -497,39 +769,31 @@ def solve_arm(state, added, label, scale=None, features=False):
     metrics["station_valid_bins"] = [int(n) for n in valid.sum(axis=(0, 1))]
     solve = {
         "label": label,
-        "added": added,
+        "added": np.flatnonzero(added),
         "metrics": metrics,
         "tv": {"edges": tv["edges"], "total": tv["total"]},
         "diagnostics": {"gains": gains, "gain_valid": valid},
     }
     if features:
         mark = time.perf_counter()
-        amplitude = residual_amplitude(state, gains, valid, labels, time_map, freq_map)
-        solve["outliers"] = baseline_scores(
-            amplitude, state["train"], state["antenna1"], state["antenna2"]
-        )
-        del amplitude
-        maps = tv["map"]
-        p, q = state["antenna1"], state["antenna2"]
-        solve["guidance"] = np.maximum(
-            maps[time_map[:, None], freq_map[None], p[:, None]],
-            maps[time_map[:, None], freq_map[None], q[:, None]],
+        solve["features"] = solve_features(
+            state, gains, valid, time_map, freq_map, tv["map"]
         )
         metrics["feature_seconds"] = time.perf_counter() - mark
     return solve
 
 
 def strip(solve):
-    """A stored solve: everything but the per-sample features."""
-    return {k: v for k, v in solve.items() if k not in ("outliers", "guidance")}
+    """A stored solve: everything but the policy features."""
+    return {k: v for k, v in solve.items() if k != "features"}
 
 
 def tv_loop(state, base, scale, prefix):
     """K's `tv_loop` (one round of the frozen policy) on `solve_arm` solves.
 
-    `base` must carry `outliers` and `guidance` (a `features=True` solve)."""
+    `base` must carry `features` (a `features=True` solve)."""
     cfg = core_campaign
-    base_added = base["added"]
+    base_added = additions_dense(state, base["added"])
     denominator = max(base["metrics"]["tv"], 1e-30)
     validation0 = base["metrics"]["losses"]["validation"]
     if (
@@ -554,10 +818,9 @@ def tv_loop(state, base, scale, prefix):
     ntrain = np.count_nonzero(state["train"])
     for tv_weight in cfg.TV_WEIGHTS:
         for threshold in cfg.THRESHOLDS:
-            mask = policy_mask(
-                base["outliers"],
-                base["guidance"],
-                state["train"],
+            mask = sparse_policy_mask(
+                base["features"],
+                base_added.shape,
                 threshold=threshold,
                 tv_weight=tv_weight,
                 max_fraction=cfg.MAX_FRACTION,
@@ -666,16 +929,105 @@ def tricolour_arm(state, extra, strategy_path):
 # --- imaging -----------------------------------------------------------------
 
 
-def corrected_stokes(state, solve, block=ROW_BLOCK):
-    """K's corrected-data Stokes I reader inputs in row blocks: returns the
-    sample, the reader weight and the final flags, exactly as `image_arm`."""
+def correct_stokes_i(state, gains, valid, added, sample=None, weight=None):
+    """Gain-corrected Stokes I sample (complex64) and reader weight (float32),
+    `(row, chan)`, from the core's `correct_stokes_i` (P5): per cell
+    `G_p^{-1} V G_q^{-H}` with inverses from `np.linalg.inv` (those of
+    `core_campaign.apply_gains`), rounded to complex64, then K's reader on
+    the final flags (original | FLAG_ROW | addition | invalid gain). `added`
+    is a `(row, chan)` mask or None; `sample` and `weight` are optional
+    buffers to write into."""
+    time_map, freq_map, _, _ = gain_grid(state, *core_campaign.GRID)
+    nrow, nchan = state["data"].shape[:2]
+    gains = np.ascontiguousarray(gains, np.complex128)
+    valid = np.ascontiguousarray(valid, bool)
+    inverse = np.zeros(gains.shape, np.complex128)
+    if valid.any():
+        inverse[valid] = np.linalg.inv(gains[valid])
+    if sample is None:
+        sample = np.empty((nrow, nchan), np.complex64)
+    if weight is None:
+        weight = np.empty((nrow, nchan), np.float32)
+    if (
+        sample.shape != (nrow, nchan)
+        or sample.dtype != np.complex64
+        or weight.shape != (nrow, nchan)
+        or weight.dtype != np.float32
+        or not (sample.flags.c_contiguous and weight.flags.c_contiguous)
+    ):
+        raise ValueError("sample and weight must be C-contiguous (row, chan) buffers")
+    nt, nf, na = gains.shape[:3]
+    arrays = {
+        "data": np.require(state["data"], np.complex64, ["C", "A"]).view(np.float32),
+        "weights": np.require(state["weights"], np.float32, ["C", "A"]),
+        "flags": np.require(state["original_flags"], bool, ["C", "A"]).view(np.uint8),
+        "flag_row": np.require(state["original_rows"], bool, ["C", "A"]).view(np.uint8),
+        "added": None
+        if added is None
+        else np.require(added, bool, ["C", "A"]).view(np.uint8),
+        "antenna1": np.ascontiguousarray(state["antenna1"], np.uint32),
+        "antenna2": np.ascontiguousarray(state["antenna2"], np.uint32),
+        "time_bin": np.ascontiguousarray(time_map, np.uint32),
+        "freq_bin": np.ascontiguousarray(freq_map, np.uint32),
+        "inverse": inverse.view(np.float64),
+        "valid": valid.view(np.uint8),
+    }
+    if arrays["added"] is not None and arrays["added"].shape != (nrow, nchan):
+        raise ValueError("added must be (row, chan)")
+    ext = core_fetch.p5_extension()
+    if ext is not None:
+        status = ext.correct_stokes_i(
+            nrow,
+            nchan,
+            nt,
+            nf,
+            na,
+            *arrays.values(),
+            sample.view(np.float32),
+            weight,
+        )
+    else:
+        inputs = core_fetch.CorrectInputs(
+            nrow,
+            nchan,
+            nt,
+            nf,
+            na,
+            *(None if a is None else a.ctypes.data for a in arrays.values()),
+        )
+        status = core_fetch.p5_library().rang_core_correct_stokes_i(
+            ctypes.byref(inputs), sample.ctypes.data, weight.ctypes.data
+        )
+    if status:
+        raise RuntimeError(f"rang_core_correct_stokes_i failed with status {status}")
+    return sample, weight
+
+
+def corrected_stokes(state, solve, sample=None, weight=None):
+    """The image inputs of one arm: `correct_stokes_i` on its gains and
+    additions, into the optional reused buffers."""
+    added = additions_dense(state, solve["added"]) if len(solve["added"]) else None
+    return correct_stokes_i(
+        state,
+        solve["diagnostics"]["gains"],
+        solve["diagnostics"]["gain_valid"],
+        added,
+        sample,
+        weight,
+    )
+
+
+def corrected_stokes_reference(state, gains, valid, added, block=ROW_BLOCK):
+    """L1's corrected-data Stokes I reader inputs in row blocks
+    (`core_campaign.apply_gains` and `core_grid.stokes_i_reader` on the final
+    flags): the reference that `correct_stokes_i` is tested against."""
     time_map, freq_map, _, _ = gain_grid(state, *core_campaign.GRID)
     nrow, nchan = state["data"].shape[:2]
     sample = np.empty((nrow, nchan), np.complex64)
     weight = np.empty((nrow, nchan), np.float32)
-    gains = solve["diagnostics"]["gains"]
-    valid = solve["diagnostics"]["gain_valid"]
-    added = np.broadcast_to(solve["added"][..., None], state["original_flags"].shape)
+    if added is None:
+        added = np.zeros((nrow, nchan), bool)
+    added = np.broadcast_to(added[..., None], state["original_flags"].shape)
     final, final_rows = protected_flags(
         state["original_flags"], state["original_rows"], added
     )
@@ -843,11 +1195,56 @@ def array_image_metrics(dirty, psf, boxes, model_flux=None):
     return out
 
 
-def image_arm(state, extra, solve, out_dir, label, image, groups, boxes=None):
+def final_flags_summary(state, added, block=ROW_BLOCK):
+    """An arm's final flags `protected_flags(FLAG, FLAG_ROW, added)` checked
+    and summarised in row blocks (no full cube): `assert_preserved` on each
+    block (both are row-local), the final flag fraction (exact count over
+    cells, as `final.mean()`), FLAG_ROW unchanged, superset of the input."""
+    original, rows = state["original_flags"], state["original_rows"]
+    count = 0
+    unchanged = True
+    superset = True
+    for s in row_blocks(len(rows), block):
+        final, final_rows = protected_flags(
+            original[s],
+            rows[s],
+            np.broadcast_to(added[s][..., None], original[s].shape),
+        )
+        assert_preserved(original[s], rows[s], final, final_rows)
+        count += int(np.count_nonzero(final))
+        unchanged &= bool(np.array_equal(final_rows, rows[s]))
+        superset &= not np.any(original[s] & ~final)
+    return {
+        "final_flag_fraction": float(np.float64(count) / np.float64(original.size)),
+        "flag_row_unchanged": bool(unchanged),
+        "superset_of_original": bool(superset),
+    }
+
+
+def model_stokes_mean(model, weight, block=ROW_BLOCK):
+    """`mean(Re(XX + YY) / 2)` of MODEL_DATA over imaged samples (`weight >
+    0`), as `image_arm` computed it on the whole array: the selected float32
+    values are gathered in row blocks into one vector (same values, same
+    order), then averaged. Returns (mean or None, imaged count)."""
+    count = int(np.count_nonzero(weight > 0))
+    values = np.empty(count, np.float32)
+    at = 0
+    for s in row_blocks(len(weight), block):
+        imaged = weight[s] > 0
+        part = (np.real(model[s][..., 0] + model[s][..., 3]) * 0.5)[imaged]
+        values[at : at + len(part)] = part
+        at += len(part)
+    return (float(values.mean()) if count else None), count
+
+
+def image_arm(
+    state, extra, solve, out_dir, label, image, groups, boxes=None, buffers=None
+):
     """Corrected-data Stokes I dirty image of one arm. With `boxes=None` K's
-    frozen metrics (9 x 9 and 64 x 64 boxes) are used, else the array's."""
+    frozen metrics (9 x 9 and 64 x 64 boxes) are used, else the array's.
+    `buffers` (sample, weight) are reused across arms when given."""
     started = time.perf_counter()
-    sample, weight, _, _ = corrected_stokes(state, solve)
+    sample, weight = corrected_stokes(state, solve, *(buffers or (None, None)))
     padded = core_weights.padded_size(image["width"], image["padding"])
     padded_h = core_weights.padded_size(image["height"], image["padding"])
     imaging = core_weights.imaging_weights(
@@ -873,10 +1270,8 @@ def image_arm(state, extra, solve, out_dir, label, image, groups, boxes=None):
         groups,
     )
     gridded = time.perf_counter()
-    imaged = weight > 0
-    model_i = np.real(state["model"][..., 0] + state["model"][..., 3]) * 0.5
-    model_flux = float(model_i[imaged].mean()) if imaged.any() else None
-    del model_i, sample
+    model_flux, imaged_cells = model_stokes_mean(state["model"], weight)
+    del sample, weight, imaging["weights"]
     if boxes is None:
         metrics = core_campaign.image_metrics(
             products["dirty"], products["psf"], model_flux
@@ -888,7 +1283,7 @@ def image_arm(state, extra, solve, out_dir, label, image, groups, boxes=None):
             products["dirty"], products["psf"], boxes, model_flux
         )
         metrics["boxes_used"] = boxes
-    metrics["imaged_cells"] = int(imaged.sum())
+    metrics["imaged_cells"] = imaged_cells
     metrics["imaging_weight_sums"] = imaging["sums"]
     metrics["gridder"] = products["stats"]
     metrics["gridder_groups"] = products["groups"]
@@ -1096,6 +1491,7 @@ def run(
         k: int(np.count_nonzero(state[k]))
         for k in ("eligible", "train", "validation", "test")
     }
+    del state["eligible"]  # P5: not used after the split counts
     baselines = sorted(set(zip(state["antenna1"].tolist(), state["antenna2"].tolist())))
     stations_present = sorted(
         set(state["antenna1"].tolist()) | set(state["antenna2"].tolist())
@@ -1176,7 +1572,11 @@ def run(
         )
         state_m = {**state, "validation": state["validation"] & ok_fp}
         base_m = solve_arm(
-            state_m, fp["added"], "tricolour-firstpass", scale=scale0, features=True
+            state_m,
+            additions_dense(state, fp["added"]),
+            "tricolour-firstpass",
+            scale=scale0,
+            features=True,
         )
         amendment_loop = {
             "validation_samples": int(np.count_nonzero(state_m["validation"])),
@@ -1213,6 +1613,11 @@ def run(
     boxes = None
     group_comparison = None
     arms = {}
+    nrow, nchan = state["train"].shape
+    buffers = (
+        np.empty((nrow, nchan), np.complex64),
+        np.empty((nrow, nchan), np.float32),
+    )
     for arm_label, solve in solves.items():
         if solve is None:
             arms[arm_label] = None
@@ -1227,13 +1632,14 @@ def run(
             image,
             groups,
             boxes=None if k_metrics else (boxes if boxes is not None else "measure"),
+            buffers=buffers,
         )
         if not k_metrics and boxes is None:
             boxes = metrics["boxes_used"]
         stages.stop(f"image_{arm_label}", mark)
         if group_check and arm_label == "original":
             mark = stages.start()
-            sample, weight, _, _ = corrected_stokes(state, solve)
+            sample, weight = corrected_stokes(state, solve)
             imaging = core_weights.imaging_weights(
                 extra["uvw"],
                 core_weights.wsclean_wavelengths(state["frequencies"]),
@@ -1271,15 +1677,8 @@ def run(
             del sample, weight, imaging, other
             stages.stop("group_check", mark)
         del products
-        added = solve["added"]
-        final, final_rows = protected_flags(
-            state["original_flags"],
-            state["original_rows"],
-            np.broadcast_to(added[..., None], state["original_flags"].shape),
-        )
-        assert_preserved(
-            state["original_flags"], state["original_rows"], final, final_rows
-        )
+        added = additions_dense(state, solve["added"])
+        final = final_flags_summary(state, added)
         arms[arm_label] = {
             "label": arm_label,
             "source": solve["label"],
@@ -1290,18 +1689,15 @@ def run(
             ),
             "additions": int(added.sum()),
             "additions_fraction_of_train": float(added.sum() / split_counts["train"]),
-            "final_flag_fraction": float(final.mean()),
+            "final_flag_fraction": final["final_flag_fraction"],
             "original_flag_fraction": float(state["original_flags"].mean()),
-            "flag_row_unchanged": bool(
-                np.array_equal(final_rows, state["original_rows"])
-            ),
-            "superset_of_original": bool(not np.any(state["original_flags"] & ~final)),
+            "flag_row_unchanged": final["flag_row_unchanged"],
+            "superset_of_original": final["superset_of_original"],
             "holdout_cells_added": int(np.count_nonzero(added & ~state["train"])),
             "additions_sha256": array_sha256(added),
             "gains_sha256": array_sha256(solve["diagnostics"]["gains"]),
             "image": metrics,
         }
-        del final
         (run_dir / "flags").mkdir(exist_ok=True)
         (run_dir / "gains").mkdir(exist_ok=True)
         np.savez_compressed(run_dir / "flags" / f"{arm_label}.npz", additions=added)
@@ -1310,6 +1706,7 @@ def run(
             gains=solve["diagnostics"]["gains"],
             gain_valid=solve["diagnostics"]["gain_valid"],
         )
+    del buffers
     # Amendment 1: matched-sample calls.
     mark = stages.start()
     amendment = matched_calls(state, solves, arms)

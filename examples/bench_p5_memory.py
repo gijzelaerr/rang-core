@@ -38,6 +38,7 @@ from rangtoy import (
     core,
     core_campaign,
     core_campaign_array,
+    core_fetch,
     core_flag,
     core_grid,
     core_weights,
@@ -138,6 +139,12 @@ def wrap(recorder, owner, attribute, label=None):
 STAGE_FUNCTIONS = (
     (core_campaign_array, "verify_inputs"),
     (core_campaign_array, "decode_inputs"),
+    (core_campaign_array, "split_holdout_lean"),
+    (core_campaign_array, "eligible_cells"),
+    (core_campaign_array, "fused_candidates"),
+    (core_campaign_array, "correct_stokes_i"),
+    (core_campaign_array, "final_flags_summary"),
+    (core_campaign_array, "model_stokes_mean"),
     (core_campaign_array, "decode_extra"),
     (core_campaign_array, "build_state"),
     (core_campaign_array, "solve_arm"),
@@ -230,7 +237,11 @@ def probe(out_dir, groups):
         },
         "firstpass": {
             "summary_newly_flagged": summary["newly_flagged_cells"],
-            "additions_sha256": core_campaign.array_sha256(firstpass["added"]),
+            "additions_sha256": core_campaign.array_sha256(
+                cad.additions_dense(state, firstpass["added"])
+                if hasattr(cad, "additions_dense")
+                else firstpass["added"]
+            ),
             "losses": firstpass["metrics"]["losses"],
         },
         "image_original": {
@@ -240,7 +251,151 @@ def probe(out_dir, groups):
     }
 
 
+# --- comparing two runs ------------------------------------------------------
+
+# Keys whose values are timings, resource figures or labels: never compared.
+TIMING_KEYS = {
+    "seconds",
+    "wall_seconds",
+    "cpu_seconds",
+    "cores_busy",
+    "max_rss_mb",
+    "core_seconds",
+    "solve_seconds",
+    "feature_seconds",
+    "decode_seconds",
+    "step_seconds",
+    "stages",
+    "memory",
+    "label",
+    "cost_clause",
+}
+IMAGE_RELATIVE = 1e-6
+
+
+def _walk(a, b, path, report, tolerant):
+    key = path[-1] if path else ""
+    if key in TIMING_KEYS:
+        return
+    here = ".".join(str(p) for p in path)
+    tolerant = tolerant or key in ("image", "group_comparison", "residual_rms")
+    if isinstance(a, dict) and isinstance(b, dict):
+        for k in sorted(set(a) | set(b), key=str):
+            if k not in a or k not in b:
+                report["missing"].append(f"{here}.{k}")
+            else:
+                _walk(a[k], b[k], [*path, k], report, tolerant)
+        return
+    if isinstance(a, list) and isinstance(b, list) and len(a) == len(b):
+        for i, (x, y) in enumerate(zip(a, b)):
+            _walk(x, y, [*path, i], report, tolerant)
+        return
+    report["compared"] += 1
+    if a == b:
+        return
+    numeric = all(
+        isinstance(v, (int, float)) and not isinstance(v, bool) for v in (a, b)
+    )
+    if tolerant and str(key).endswith("_sha256"):
+        report["image_hashes_differing"].append(here)
+        return
+    if tolerant and numeric:
+        scale = max(abs(a), abs(b))
+        rel = abs(a - b) / scale if scale else 0.0
+        report["image_max_relative"] = max(report["image_max_relative"], rel)
+        if rel <= IMAGE_RELATIVE:
+            report["image_within_tolerance"] += 1
+            return
+    report["different"].append({"path": here, "a": a, "b": b})
+
+
+def compare_runs(run_a, run_b, dirty_tolerance=8.8e-6, psf_tolerance=2.8e-6):
+    """Every non-timing field of two runs' `result.json` and `candidates.json`:
+    exact, except image metrics (relative 1e-6, hashes listed) and the FITS
+    pixels (task A's tolerances: dirty L-inf over the peak, PSF L-inf)."""
+    from rangtoy.core_imaging import read_fits
+
+    run_a, run_b = Path(run_a), Path(run_b)
+    report = {
+        "a": str(run_a),
+        "b": str(run_b),
+        "compared": 0,
+        "different": [],
+        "missing": [],
+        "image_hashes_differing": [],
+        "image_within_tolerance": 0,
+        "image_max_relative": 0.0,
+    }
+    for name in ("result.json", "candidates.json"):
+        _walk(
+            json.loads((run_a / name).read_text()),
+            json.loads((run_b / name).read_text()),
+            [name],
+            report,
+            False,
+        )
+    pixels = {}
+    for path in sorted((run_a / "images").glob("*.fits")):
+        other = run_b / "images" / path.name
+        if not other.exists():
+            report["missing"].append(f"images/{path.name}")
+            continue
+        x, _ = read_fits(path)
+        y, _ = read_fits(other)
+        linf = float(np.abs(x - y).max())
+        peak = float(np.abs(x).max())
+        psf = path.name.endswith("-psf.fits")
+        value = linf if psf else linf / peak
+        pixels[path.name] = {
+            "identical": bool(np.array_equal(x, y)),
+            "linf" if psf else "linf_over_peak": value,
+            "pass": value <= (psf_tolerance if psf else dirty_tolerance),
+        }
+    report["pixels"] = pixels
+    report["pass"] = bool(
+        not report["different"]
+        and not report["missing"]
+        and all(p["pass"] for p in pixels.values())
+    )
+    return report
+
+
 def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+    if argv and argv[0] == "compare":
+        if len(argv) != 4:
+            raise SystemExit("usage: bench_p5_memory.py compare RUN_A RUN_B OUT.json")
+        report = compare_runs(argv[1], argv[2])
+        Path(argv[3]).write_text(json.dumps(report, indent=1, default=str) + "\n")
+        print(
+            json.dumps(
+                {
+                    k: report[k]
+                    for k in (
+                        "pass",
+                        "compared",
+                        "image_within_tolerance",
+                        "image_max_relative",
+                    )
+                }
+                | {
+                    "different": report["different"][:20],
+                    "missing": report["missing"][:20],
+                    "image_hashes_differing": len(report["image_hashes_differing"]),
+                    "pixels_failing": [
+                        k for k, v in report["pixels"].items() if not v["pass"]
+                    ],
+                    "pixels_identical": sum(
+                        v["identical"] for v in report["pixels"].values()
+                    ),
+                    "pixels_total": len(report["pixels"]),
+                },
+                indent=1,
+                default=str,
+            )
+        )
+        return
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("mode", choices=("campaign", "precondition", "probe"))
     parser.add_argument("--out", required=True)
@@ -258,6 +413,8 @@ def main(argv=None):
     if args.tracemalloc:
         tracemalloc.start()
     core.library()
+    if hasattr(core_fetch, "p5_library"):  # prebuilt, so no build is measured
+        core_fetch.p5_library()
     recorder = Recorder(args.tracemalloc)
     instrument(recorder)
     stations = (

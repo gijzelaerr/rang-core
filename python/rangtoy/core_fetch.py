@@ -7,16 +7,30 @@ needed blocks, with the same block arithmetic as `core_zarr.read_rows`.
 Whole small objects (`.zarray`, row-column chunks) are plain GETs. The
 fetched bytes are written to disk, hashed and decoded by the core's Rust
 decoder; they are data and are never executed. Standard library only.
+
+Decoding writes straight into the caller's final `(row, channel, corr)`
+arrays (big plan task P5, research/p5-memory.md): each run of blocks is
+decoded by the core's strided row decoder at its channel offset, and local
+tiles are memory-mapped, so no column is held twice and no compressed span
+is copied. `p5_library` loads the P5 symbols (`core/src/ffi_correct.rs`)
+from the core library when it exports them, else from a standalone build of
+the P5 files until `core/src/lib.rs` lists them.
 """
 
+import ctypes
 import hashlib
 import http.client
 import json
+import mmap
+import os
 import platform
+import shutil
 import ssl
+import subprocess
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -352,11 +366,243 @@ def fetch_slice(
     return result
 
 
+# --- the P5 kernels (core/src/correct.rs, core/src/ffi_correct.rs) -----------
+
+P5_SYMBOLS = ("rang_core_correct_stokes_i", "rang_core_blosc_decode_span_rows_strided")
+P5_SOURCES = ("blosc.rs", "correct.rs", "ffi_correct.rs")
+
+
+class CorrectInputs(ctypes.Structure):
+    """`ffi_correct::CorrectInputsC`."""
+
+    _fields_ = [
+        ("nrow", ctypes.c_size_t),
+        ("nchan", ctypes.c_size_t),
+        ("ntime_bins", ctypes.c_size_t),
+        ("nfreq_bins", ctypes.c_size_t),
+        ("nant", ctypes.c_size_t),
+        ("data", ctypes.c_void_p),
+        ("weights", ctypes.c_void_p),
+        ("flags", ctypes.c_void_p),
+        ("flag_row", ctypes.c_void_p),
+        ("added", ctypes.c_void_p),
+        ("antenna1", ctypes.c_void_p),
+        ("antenna2", ctypes.c_void_p),
+        ("time_bin", ctypes.c_void_p),
+        ("freq_bin", ctypes.c_void_p),
+        ("inverse", ctypes.c_void_p),
+        ("valid", ctypes.c_void_p),
+    ]
+
+
+def build_p5_standalone():
+    """Build the P5 files as their own cdylib (`rang_p5_core`) beside the
+    core's target directory; used only while `core/src/lib.rs` does not list
+    `correct` and `ffi_correct`. Offline; rayon comes from the core's lock."""
+    root = core.core_root()
+    src = root / "src"
+    out = root / "target" / "p5-standalone"
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "Cargo.toml").write_text(
+        "[package]\n"
+        'name = "rang-p5-core"\n'
+        'version = "0.1.0"\n'
+        'edition = "2024"\n'
+        "publish = false\n\n"
+        "[lib]\n"
+        'name = "rang_p5_core"\n'
+        'path = "root.rs"\n'
+        'crate-type = ["rlib", "cdylib"]\n\n'
+        "[dependencies]\n"
+        'rayon = "1.12.0"\n\n'
+        "[profile.release]\n"
+        'lto = "thin"\n'
+        "codegen-units = 1\n\n"
+        "[workspace]\n"
+    )
+    modules = "".join(
+        f'#[path = "{src / name}"]\npub mod {name.removesuffix(".rs")};\n'
+        for name in P5_SOURCES
+    )
+    (out / "root.rs").write_text(
+        "//! Standalone build of the P5 kernels until core/src/lib.rs lists them.\n"
+        + modules
+    )
+    shutil.copyfile(root / "Cargo.lock", out / "Cargo.lock")
+    subprocess.run(
+        [
+            "cargo",
+            "build",
+            "--offline",
+            "--release",
+            "-q",
+            "--manifest-path",
+            str(out / "Cargo.toml"),
+        ],
+        cwd=out,
+        check=True,
+    )
+    return out / "target" / "release" / "librang_p5_core.so"
+
+
+@lru_cache(maxsize=1)
+def p5_library():
+    """A ctypes handle exporting the P5 symbols: `RANG_P5_LIB` if set, else
+    the core library when it exports them, else the standalone build."""
+    configured = os.environ.get("RANG_P5_LIB")
+    if configured:
+        lib = ctypes.CDLL(str(Path(configured).resolve()))
+    else:
+        lib = core.library()
+        if not all(hasattr(lib, name) for name in P5_SYMBOLS):
+            lib = ctypes.CDLL(str(build_p5_standalone()))
+    lib.rang_core_correct_stokes_i.argtypes = [
+        ctypes.POINTER(CorrectInputs),
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+    ]
+    lib.rang_core_correct_stokes_i.restype = ctypes.c_int
+    lib.rang_core_blosc_decode_span_rows_strided.argtypes = [
+        ctypes.c_char_p,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_size_t,
+    ]
+    lib.rang_core_blosc_decode_span_rows_strided.restype = ctypes.c_int
+    return lib
+
+
+def p5_extension():
+    """The extension module when it is active and carries the P5 bindings."""
+    ext = core.extension()
+    if ext is not None and hasattr(ext, "correct_stokes_i"):
+        return ext
+    return None
+
+
+def decode_rows_into(head, first, count, span, row_bytes, rows, out, offset, stride):
+    """Decode blocks `first`..`first + count` of a chunk from `span` (uint8
+    array or bytes from block `first`'s offset) and write row `rows[i]` at
+    byte `offset + i * stride` of `out` (a C-contiguous array). Returns the
+    core's status, 0 on success."""
+    rows = np.ascontiguousarray(rows, dtype=np.uintp)
+    if not out.flags.c_contiguous or not out.flags.writeable:
+        raise ValueError("out must be a writable C-contiguous array")
+    flat = out.reshape(-1).view(np.uint8)
+    if offset < 0 or offset > flat.size:
+        raise ValueError("offset outside out")
+    span = np.frombuffer(span, np.uint8) if isinstance(span, bytes) else span
+    ext = p5_extension()
+    if ext is not None:
+        return ext.blosc_decode_span_rows_strided(
+            bytes(head), first, count, span, row_bytes, rows, flat, offset, stride
+        )
+    return p5_library().rang_core_blosc_decode_span_rows_strided(
+        head,
+        len(head),
+        first,
+        count,
+        span.ctypes.data,
+        span.size,
+        row_bytes,
+        rows.ctypes.data,
+        len(rows),
+        flat.ctypes.data + offset,
+        flat.size - offset,
+        stride,
+    )
+
+
+def _runs(blocksize, row_bytes, rows):
+    """(first block, count, rows slice) per run of needed blocks, as
+    `core_zarr.read_rows` groups them; the rows of a run are contiguous."""
+    first = rows * row_bytes // blocksize
+    last = ((rows + 1) * row_bytes - 1) // blocksize
+    needed = np.unique(
+        np.concatenate([np.arange(a, b + 1) for a, b in zip(first, last)])
+    )
+    breaks = np.flatnonzero(np.diff(needed) != 1) + 1
+    out = []
+    for run in np.split(needed, breaks):
+        if not len(run):
+            continue
+        inside = np.flatnonzero((first >= run[0]) & (last <= run[-1]))
+        if len(inside) and inside[-1] - inside[0] + 1 != len(inside):
+            raise ValueError("rows of a block run are not contiguous")
+        out.append((int(run[0]), len(run), slice(int(inside[0]), int(inside[-1]) + 1)))
+    return out
+
+
+def read_rows_into(path, row_bytes, rows, out, offset):
+    """`core_zarr.read_rows` straight into `out`: rows `rows` (ascending) of
+    the row-major chunk at `path` land at byte `offset + i * stride` of `out`,
+    where the stride is one row of `out`. The file is memory-mapped, so the
+    compressed bytes are not copied. Returns the statistics of `read_rows`."""
+    rows = np.asarray(rows, dtype=np.int64)
+    if rows.ndim != 1 or np.any(np.diff(rows) <= 0):
+        raise ValueError("rows must be ascending and unique")
+    stride = out.strides[0] if out.ndim > 1 else row_bytes
+    stats = {
+        "bytes_read": 0,
+        "blocks_decoded": 0,
+        "blocks_total": 0,
+        "decode_seconds": 0.0,
+    }
+    with open(path, "rb") as stream:
+        mapped = mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ)
+    view = span = None
+    try:
+        view = np.frombuffer(mapped, np.uint8)
+        head = bytes(view[:HEADER])
+        nbytes, blocksize, nblocks, _ = core_zarr.header_fields(head)
+        stats["blocks_total"] = nblocks
+        if not head[2] & MEMCPYED:
+            head = bytes(view[: HEADER + 4 * nblocks])
+        starts, ends, _, _ = block_table(head)
+        stats["bytes_read"] += len(head)
+        if len(rows) and (rows[-1] + 1) * row_bytes > nbytes:
+            raise ValueError("row beyond the chunk")
+        for first, count, part in (
+            _runs(blocksize, row_bytes, rows) if len(rows) else []
+        ):
+            span = view[int(starts[first]) : int(ends[first + count - 1])]
+            stats["bytes_read"] += span.size
+            started = time.perf_counter()
+            status = decode_rows_into(
+                head,
+                first,
+                count,
+                span,
+                row_bytes,
+                rows[part],
+                out,
+                offset + part.start * stride,
+                stride,
+            )
+            stats["decode_seconds"] += time.perf_counter() - started
+            if status:
+                raise ValueError(f"blosc blocks {first}+{count} of {path} failed")
+            stats["blocks_decoded"] += count
+    finally:
+        del span, view
+        mapped.close()
+    return stats
+
+
 def decode_slice(fetched):
     """Decode a fetched slice directory into arrays with the Rust decoder.
 
     Returns (arrays, statistics). Row columns are decoded whole; tile columns
-    from their spans, concatenated along the channel axis in tile order.
+    from their spans, each written straight into the final `(row, channel,
+    corr)` array at its tile's channel offset (tile order).
     """
     fetched = Path(fetched)
     result = json.loads((fetched / "result.json").read_text())
@@ -374,28 +620,36 @@ def decode_slice(fetched):
     for name in result["tile_columns"]:
         meta = json.loads((fetched / "objects" / group / name / ".zarray").read_text())
         nchan, ncorr = meta["chunks"][1], meta["chunks"][2]
-        parts = []
-        for tile in result["tiles"]:
+        dtype = np.dtype(meta["dtype"])
+        out = np.empty((len(rows), nchan * len(result["tiles"]), ncorr), dtype)
+        for position, tile in enumerate(result["tiles"]):
             key = f"{group}/{name}/0.{tile}.0"
             plan = result["plans"][key]
             row_bytes = plan["row_bytes"]
+            if row_bytes != nchan * ncorr * dtype.itemsize:
+                raise ValueError(f"{key}: row size disagrees with the metadata")
             prefix = (fetched / "spans" / key / "head").read_bytes()
             _, _, used, _ = block_table(prefix)
             head = prefix[:used]
-            out = np.empty((len(rows), row_bytes), np.uint8)
             _, blocksize, _, _ = core_zarr.header_fields(head)
-            first_of = rows * row_bytes // blocksize
-            last_of = ((rows + 1) * row_bytes - 1) // blocksize
+            runs = {
+                (first, count): part
+                for first, count, part in _runs(blocksize, row_bytes, rows)
+            }
             for first, count, start, end in plan["runs"]:
                 body = (fetched / "spans" / key / f"{first}-{count}").read_bytes()
-                inside = np.flatnonzero(
-                    (first_of >= first) & (last_of <= first + count - 1)
-                )
-                run_rows = np.ascontiguousarray(rows[inside], dtype=np.uintp)
-                run_out = np.empty(len(inside) * row_bytes, np.uint8)
+                part = runs[(first, count)]
                 started = time.perf_counter()
-                status = core_zarr.decode_span_rows(
-                    head, first, count, body, row_bytes, run_rows, run_out
+                status = decode_rows_into(
+                    head,
+                    first,
+                    count,
+                    body,
+                    row_bytes,
+                    rows[part],
+                    out,
+                    part.start * out.strides[0] + position * row_bytes,
+                    out.strides[0],
                 )
                 stats["decode_seconds"] += time.perf_counter() - started
                 if status:
@@ -404,13 +658,7 @@ def decode_slice(fetched):
                     )
                 stats["blocks_decoded"] += count
                 stats["bytes_decoded"] += len(body)
-                out[inside] = run_out.reshape(-1, row_bytes)
-            parts.append(
-                np.frombuffer(out.tobytes(), meta["dtype"]).reshape(
-                    len(rows), nchan, ncorr
-                )
-            )
-        arrays[name] = np.concatenate(parts, axis=1)
+        arrays[name] = out
     return arrays, stats
 
 
