@@ -235,6 +235,21 @@ pub struct ManagerSpec {
     pub cache: u32,
     /// Tiled SPEC DEFAULTTILESHAPE, casacore order (cell axes, then rows).
     pub tile: Vec<i64>,
+    /// IncrementalStMan made by its C++ constructor (as
+    /// `createDefaultSubtables` makes POINTING's): the bucket size is
+    /// computed by `ISMBase::init` when none is given; from a SPEC it is
+    /// 32768 by default.
+    pub ism_computed: bool,
+}
+
+/// A hypercolumn of a table description (`TableDesc::defineHypercolumn`).
+#[derive(Clone, Debug, Default)]
+pub struct Hypercolumn {
+    pub name: String,
+    pub ndim: u32,
+    pub data: Vec<String>,
+    pub coord: Vec<String>,
+    pub id: Vec<String>,
 }
 
 /// A new table: its description, data managers and `table.info`.
@@ -250,23 +265,78 @@ pub struct TableSpec {
     pub managers: Vec<ManagerSpec>,
     /// `table.info`: type, subtype, readme.
     pub info: (String, String, String),
-    /// Refused (E5): big-endian tables and MultiFile storage.
+    /// Private keywords (hypercolumn definitions).
+    pub private_keywords: Record,
     pub big_endian: bool,
     pub multifile: bool,
+    /// Hypercolumn definitions (private keywords `Hypercolumn_<name>`; the
+    /// columns get the tiled data-manager type and the group).
+    pub hypercolumns: Vec<Hypercolumn>,
 }
 
-const E5_MANAGERS: [&str; 4] = [
-    "IncrementalStMan",
-    "MemoryStMan",
-    "TiledDataStMan",
-    "TiledCellStMan",
-];
+/// `TableDesc::defineHypercolumn`: the private keyword record and the data
+/// columns' data-manager type (TiledColumnStMan when all are FixedShape,
+/// else TiledShapeStMan) and group (the hypercolumn's name).
+fn define_hypercolumns(spec: &mut TableSpec) -> Result<()> {
+    for h in &spec.hypercolumns {
+        if h.data.is_empty() || h.ndim < 1 {
+            return err(format!(
+                "hypercolumn {}: no data columns or ndim < 1",
+                h.name
+            ));
+        }
+        let mut fixed = true;
+        for name in h.data.iter().chain(&h.coord).chain(&h.id) {
+            let c = spec
+                .columns
+                .iter()
+                .find(|c| &c.name == name)
+                .ok_or_else(|| MsError(format!("hypercolumn {}: no column {name}", h.name)))?;
+            if h.data.contains(name)
+                && !(c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty()))
+            {
+                fixed = false;
+            }
+        }
+        let dm = if fixed {
+            "TiledColumnStMan"
+        } else {
+            "TiledShapeStMan"
+        };
+        for name in h.data.iter().chain(&h.coord).chain(&h.id) {
+            if name.is_empty() {
+                continue;
+            }
+            let c = spec.columns.iter_mut().find(|c| &c.name == name).unwrap();
+            c.dm_type = dm.into();
+            c.dm_group = h.name.clone();
+        }
+        let mut rec = Record::default();
+        rec.define(
+            "ndim",
+            KeywordValue::Scalar(tp::UINT, h.ndim.to_ne_bytes().to_vec()),
+        )?;
+        for (field, names) in [("data", &h.data), ("coord", &h.coord), ("id", &h.id)] {
+            rec.define(
+                field,
+                KeywordValue::StringArray(vec![names.len() as i64], names.clone()),
+            )?;
+        }
+        let key = format!("Hypercolumn_{}", h.name);
+        spec.private_keywords.define(&key, KeywordValue::Record)?;
+        *spec.private_keywords.subrecord_mut(&key)? = rec;
+    }
+    Ok(())
+}
+
+const E6_MANAGERS: [&str; 1] = ["TiledCellStMan"];
 
 fn check_manager_kind(kind: &str) -> Result<()> {
     match kind {
-        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" => Ok(()),
-        k if E5_MANAGERS.contains(&k) => err(format!("{k} tables are not created (E5)")),
-        k => err(format!("data manager {k} is not created (E5)")),
+        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" | "IncrementalStMan"
+        | "MemoryStMan" | "TiledDataStMan" => Ok(()),
+        k if E6_MANAGERS.contains(&k) => err(format!("{k} tables are not created (E6)")),
+        k => err(format!("data manager {k} is not created (E6)")),
     }
 }
 
@@ -370,18 +440,15 @@ fn new_dir(path: &Path) -> Result<PathBuf> {
 /// TiledDataStMan and other managers, a variable-shape tiled column,
 /// big-endian and MultiFile tables.
 pub fn create_table(path: impl AsRef<Path>, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
-    create(path.as_ref(), spec, nrows, false)
+    create(path.as_ref(), spec, nrows)
 }
 
-fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<TableWriter> {
+fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
+    let mut spec = spec.clone();
+    define_hypercolumns(&mut spec)?;
+    let spec = &spec;
     if cfg!(target_endian = "big") {
         return err("writing tables on a big-endian host is not supported (E5)");
-    }
-    if spec.big_endian {
-        return err("big-endian tables are not created (E5)");
-    }
-    if spec.multifile {
-        return err("MultiFile tables are not created (E5)");
     }
     let mut names = std::collections::BTreeSet::new();
     for c in &spec.columns {
@@ -391,19 +458,26 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
     }
     let resolved = resolve(spec)?;
     for r in &resolved {
-        if r.spec.kind == "IncrementalStMan" && allow_ism && nrows == 0 {
-            continue;
-        }
         check_manager_kind(&r.spec.kind)?;
         if r.spec.kind.starts_with("Tiled") {
             for &i in &r.columns {
                 let c = &spec.columns[i];
-                if !c.is_array()
-                    || c.option & 4 == 0
-                    || c.shape.as_ref().is_none_or(|s| s.is_empty())
-                {
+                let fixed = c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty());
+                if !c.is_array() {
                     return err(format!(
-                        "{}: variable-shape tiled columns are not created (E5)",
+                        "{}: a tiled storage manager cannot hold a scalar column",
+                        c.name
+                    ));
+                }
+                if !fixed && r.spec.kind != "TiledShapeStMan" {
+                    return err(format!(
+                        "{}: {} needs FixedShape columns (variable shapes: TiledShapeStMan)",
+                        c.name, r.spec.kind
+                    ));
+                }
+                if !fixed && c.ndim <= 0 {
+                    return err(format!(
+                        "TiledStMan: unknown dimensionality for column {}",
                         c.name
                     ));
                 }
@@ -416,8 +490,19 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
             return err(format!("data manager name {} is used twice", r.spec.name));
         }
     }
-    let dir = new_dir(path)?;
-    let lock = new_lock(&dir)?;
+    let table_dir = new_dir(path)?;
+    let lock = new_lock(&table_dir)?;
+    // A MultiFile table: the managers write into the container's staging
+    // directory (`multifile::Container`), packed on every flush.
+    let mf = if spec.multifile {
+        Some(crate::multifile::Container::create(
+            &table_dir,
+            crate::multifile::DEFAULT_BLOCK_SIZE,
+        )?)
+    } else {
+        None
+    };
+    let dir = mf.as_ref().map_or(table_dir.clone(), |m| m.staging.clone());
     let mut bindings: Vec<ColBinding> = spec.columns.iter().map(|c| binding(c, 0)).collect();
     let mut managers = Vec::new();
     let mut blobs = Vec::new();
@@ -443,15 +528,38 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
                     r.spec.bucket_rows,
                     r.spec.bucket_size,
                     r.spec.cache,
+                    spec.big_endian,
                 )?;
                 mgrs.push(m);
                 blobs.push(blob);
             }
             "TiledColumnStMan" | "TiledShapeStMan" => {
-                let cell = cols[0].0.shape.clone().unwrap_or_default();
-                if cols.iter().any(|(c, _)| c.shape.as_ref() != Some(&cell)) {
+                let is_fixed = |c: &ColDesc| {
+                    c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty())
+                };
+                let fixed = cols.iter().all(|(c, _)| is_fixed(c));
+                let cell = if fixed {
+                    let cell = cols[0].0.shape.clone().unwrap_or_default();
+                    if cols.iter().any(|(c, _)| c.shape.as_ref() != Some(&cell)) {
+                        return err(format!(
+                            "{}: the columns of a tiled manager need one cell shape",
+                            r.spec.name
+                        ));
+                    }
+                    Some(cell)
+                } else {
+                    None
+                };
+                let ndim = match &cell {
+                    Some(c) => c.len(),
+                    None => cols[0].0.ndim.max(0) as usize,
+                };
+                if cols
+                    .iter()
+                    .any(|(c, _)| c.ndim > 0 && c.ndim as usize != ndim)
+                {
                     return err(format!(
-                        "{}: the columns of a tiled manager need one cell shape",
+                        "TiledStMan: dimensionality of the columns of {} differs",
                         r.spec.name
                     ));
                 }
@@ -462,14 +570,58 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
                     &r.spec.name,
                     cols.iter().map(|(c, _)| c.dtype).collect(),
                     cell,
+                    ndim,
                     r.spec.tile.clone(),
                     nrows,
+                    spec.big_endian,
                 )?;
                 mgrs.push(m);
                 blobs.push(Vec::new());
             }
+            "MemoryStMan" => {
+                mgrs.push(NewMgr::memory());
+                blobs.push(Vec::new());
+            }
+            "TiledDataStMan" => {
+                let h = spec
+                    .hypercolumns
+                    .iter()
+                    .find(|h| h.name == r.spec.name)
+                    .ok_or_else(|| {
+                        MsError(format!(
+                            "RecordInterface: field Hypercolumn_{} is unknown",
+                            r.spec.name
+                        ))
+                    })?;
+                mgrs.push(NewMgr::tds(
+                    &dir,
+                    seq,
+                    &r.spec.name,
+                    cols.iter().map(|(c, _)| c.dtype).collect(),
+                    h.ndim,
+                    nrows,
+                    spec.big_endian,
+                ));
+                blobs.push(Vec::new());
+            }
             "IncrementalStMan" => {
-                let (m, blob) = empty_ism(&dir, seq, &r.spec.name, &cols, r.spec.cache)?;
+                let size = if r.spec.bucket_size > 0 {
+                    r.spec.bucket_size
+                } else if r.spec.ism_computed {
+                    0
+                } else {
+                    32768
+                };
+                let (m, blob) = NewMgr::ism(
+                    &dir,
+                    seq,
+                    &r.spec.name,
+                    &cols,
+                    nrows,
+                    size,
+                    r.spec.cache,
+                    spec.big_endian,
+                )?;
                 mgrs.push(m);
                 blobs.push(blob);
             }
@@ -479,15 +631,21 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
     }
     let dat = TableDat {
         nrows,
-        little_endian: true,
+        little_endian: !spec.big_endian,
         desc_name: spec.desc_name.clone(),
         desc_version: spec.desc_version.clone(),
         desc_comment: spec.desc_comment.clone(),
         keywords: spec.keywords.clone(),
-        private_keywords: Record::default(),
+        private_keywords: spec.private_keywords.clone(),
         columns: spec.columns.clone(),
-        set_version: -2,
-        storage: (0, 0),
+        // `ColumnSet::putFile`: version -3 with the storage option (0:
+        // MultiFile) and block size when the table has a MultiFile.
+        set_version: if spec.multifile { -3 } else { -2 },
+        storage: if spec.multifile {
+            (0, crate::multifile::DEFAULT_BLOCK_SIZE as i32)
+        } else {
+            (0, 0)
+        },
         seq_count: resolved.len() as u32,
         managers,
         bindings,
@@ -495,128 +653,12 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
     };
     let (kind, sub_kind, readme) = &spec.info;
     Ok(TableWriter::from_new(
-        dir,
+        table_dir,
         lock,
         dat,
         mgrs,
         table_info_text(kind, sub_kind, readme),
-    ))
-}
-
-// ---------------------------------------------------------------------------
-// An empty IncrementalStMan (default_ms POINTING only; ISM rows are E5).
-
-/// Write the files of an IncrementalStMan with no rows, as
-/// `ISMBase::create64(0)` and its first flush leave them: the header, one
-/// bucket holding each column's default value at row 0 and its index, the
-/// `ISMIndex` after the bucket, and an empty `table.fNi` (version 1) when a
-/// column has indirect arrays. The manager itself is read-only afterwards
-/// (any row or value refuses, E5).
-fn empty_ism(
-    dir: &Path,
-    seq: u32,
-    name: &str,
-    cols: &[(ColDesc, ColBinding)],
-    cache: u32,
-) -> Result<(NewMgr, Vec<u8>)> {
-    use crate::aipsio::Writer;
-    let nrcol = cols.len() as u32;
-    // `ISMBase::init` sizes the bucket before the columns know their
-    // lengths, so every column counts as variable (4 * (n + 1) fixed and
-    // 32 * n variable bytes, n its number of elements).
-    let header = 4 * (nrcol + 1);
-    let (mut fixed, mut var) = (0u32, 0u32);
-    let mut nindirect = 0u32;
-    let mut data = Vec::new();
-    let mut offsets = Vec::new();
-    for (c, b) in cols {
-        let n = match (&b.shape, c.is_array()) {
-            (Some(Some(s)), true) => s.iter().product::<i64>().max(0) as u32,
-            _ => 1,
-        };
-        fixed += 8 + 4 * (n + 1);
-        var += 32 * n;
-        offsets.push(data.len() as u32);
-        let direct = !c.is_array() || matches!(&b.shape, Some(Some(_)));
-        if !direct {
-            nindirect += 1;
-            data.extend(0i64.to_le_bytes());
-            continue;
-        }
-        let n = n as usize;
-        match c.dtype {
-            tp::STRING => {
-                if n > 1 {
-                    let total = 4 + 4 * n as u32;
-                    data.extend(total.to_le_bytes());
-                    for _ in 0..n {
-                        data.extend(0u32.to_le_bytes());
-                    }
-                } else {
-                    data.extend(4u32.to_le_bytes());
-                }
-            }
-            tp::BOOL => data.extend(vec![0u8; n.div_ceil(8)]),
-            code => data.extend(vec![0u8; n * tp::scalar_size(code)]),
-        }
-    }
-    let mut bucket_size = header + 100 * (fixed + var);
-    if bucket_size < 32768 {
-        bucket_size = 32768;
-    } else if bucket_size > 327_680 {
-        bucket_size = header + 10 * (fixed + var);
-        if bucket_size > 327_680 {
-            bucket_size = (header + 2 * (fixed + var)).max(327_680);
-        }
-    }
-    let mut bucket = vec![0u8; bucket_size as usize];
-    let index_at = data.len() as u32 + 4;
-    bucket[..4].copy_from_slice(&index_at.to_le_bytes());
-    bucket[4..4 + data.len()].copy_from_slice(&data);
-    let mut at = index_at as usize;
-    for off in offsets {
-        for v in [1u32, 0, off] {
-            bucket[at..at + 4].copy_from_slice(&v.to_le_bytes());
-            at += 4;
-        }
-    }
-    let mut w = Writer::new(false);
-    w.putstart("IncrementalStMan", 5);
-    w.bool(false);
-    w.u32(bucket_size);
-    w.u32(1);
-    let pers = if cache == 0 { 1 } else { cache };
-    w.u32(pers);
-    w.u32(nindirect);
-    w.u32(0);
-    w.i32(-1);
-    w.putend();
-    let mut file = vec![0u8; 512];
-    file[..w.buf.len()].copy_from_slice(&w.buf);
-    file.extend(bucket);
-    let mut idx = Writer::new(false);
-    idx.putstart("ISMIndex", 1);
-    idx.u32(1);
-    idx.block_u32(&[0, 0]);
-    idx.block_u32(&[0]);
-    idx.putend();
-    file.extend(idx.buf);
-    std::fs::write(dir.join(format!("table.f{seq}")), file)?;
-    if nindirect > 0 {
-        let mut f = 1u32.to_le_bytes().to_vec();
-        f.extend(16u64.to_le_bytes());
-        f.extend(0i32.to_le_bytes());
-        std::fs::write(dir.join(format!("table.f{seq}i")), f)?;
-    }
-    let mut blob = Writer::new(true);
-    blob.putstart("ISM", 3);
-    blob.string(name);
-    blob.putend();
-    Ok((
-        NewMgr::other(&format!(
-            "IncrementalStMan {name}: rows and values are not written (E5)"
-        )),
-        blob.buf,
+        mf,
     ))
 }
 
@@ -711,6 +753,7 @@ pub fn ms_table_spec(name: &str, extra: &[ColDesc], managers: &[ManagerSpec]) ->
                 kind: "IncrementalStMan".into(),
                 name: "ISMPointing".into(),
                 columns: spec.columns.iter().map(|c| c.name.clone()).collect(),
+                ism_computed: true,
                 ..Default::default()
             },
             ManagerSpec {
@@ -734,7 +777,7 @@ pub fn default_ms_subtable(
     managers: &[ManagerSpec],
 ) -> Result<TableWriter> {
     let spec = ms_table_spec(name, extra, managers)?;
-    create(path.as_ref(), &spec, 0, name == "POINTING")
+    create(path.as_ref(), &spec, 0)
 }
 
 /// python-casacore's `default_ms(path, desc, dminfo)`: MAIN with the
@@ -748,7 +791,7 @@ pub fn default_ms(
 ) -> Result<TableWriter> {
     let path = path.as_ref();
     let spec = ms_table_spec("MAIN", extra, managers)?;
-    let mut main = create(path, &spec, 0, false)?;
+    let mut main = create(path, &spec, 0)?;
     for name in DEFAULT_SUBTABLES {
         let sub = default_ms_subtable(name, path.join(name), &[], &[])?;
         sub.close()?;
@@ -791,11 +834,12 @@ mod tests {
     }
 
     #[test]
-    fn e5_managers_are_refused() {
-        for kind in ["IncrementalStMan", "MemoryStMan", "TiledDataStMan"] {
+    fn e6_managers_are_refused() {
+        for kind in ["TiledCellStMan", "Adios2StMan"] {
             let e = check_manager_kind(kind).unwrap_err();
-            assert!(e.0.contains("E5"), "{e:?}");
+            assert!(e.0.contains("E6"), "{e:?}");
         }
+        check_manager_kind("IncrementalStMan").unwrap();
     }
 
     #[test]

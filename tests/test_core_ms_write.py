@@ -108,13 +108,18 @@ def test_addcols_default_binding_and_tiled_managers(tmp_path):
         assert np.array_equal(t.getcol("RANG_FLAGS"), tiled)
 
 
-def test_deferred_writes_are_refused(tmp_path):
+def test_formerly_deferred_writes_work(tmp_path):
+    # E3 refused these (E5); research/e5-table-writer-rest.md writes them.
     ms = _copy(FIXTURE, tmp_path)
     with core_ms_write.open_table(ms, readonly=False) as t:
-        with pytest.raises(OSError, match="E5"):
-            t.putcol("TIME", np.zeros(t.nrows()))
-        with pytest.raises(OSError, match="hypercube"):
-            t.putcell("FLAG_CATEGORY", 0, np.zeros((1, 4096, 4), bool))
+        nrows = t.nrows()
+        t.putcol("TIME", np.arange(nrows, dtype=np.float64))
+        t.putcell("FLAG_CATEGORY", 0, np.ones((1, 4096, 4), bool))
+    assert np.array_equal(
+        core_ms_write.read_cells(ms, "TIME", 0, 3), np.arange(3, dtype=np.float64)
+    )
+    cell = core_ms_write.read_cells(ms, "FLAG_CATEGORY", 0, 2)
+    assert cell[0].shape == (1, 4096, 4) and cell[0].all() and cell[1] is None
 
 
 def test_the_lock_keeps_a_second_process_out(tmp_path):

@@ -1598,6 +1598,44 @@ fn ms_serialisation_check(
     Ok((c.tables, c.ssm_files, c.tiled_headers, c.failures))
 }
 
+/// `serialise(parse(x)) == x` for the MultiFile header of a table's
+/// `table.mf` (research/e5-table-writer-rest.md): the failures (empty when
+/// it round-trips).
+#[pyfunction]
+fn ms_multifile_check(py: Python<'_>, path: &str) -> Vec<String> {
+    match detach(py, || rang_core::multifile::check(path)) {
+        Ok(true) => Vec::new(),
+        Ok(false) => vec![format!("{path}/table.mf header differs")],
+        Err(e) => vec![format!("{path}/table.mf: {}", e.0)],
+    }
+}
+
+/// A table's row count and columns (name, type code, is array), read
+/// without writing (research/e5-table-writer-rest.md).
+#[pyfunction]
+fn ms_describe(py: Python<'_>, path: &str) -> PyResult<(u64, rang_core::ms_write::ColumnList)> {
+    detach(py, || rang_core::ms_write::describe(path)).map_err(|e| PyOSError::new_err(e.0))
+}
+
+/// `serialise(parse(x)) == x` as `ms_serialisation_check`, with the
+/// IncrementalStMan files (research/e5-table-writer-rest.md): (tables,
+/// StandardStMan files, tiled headers, IncrementalStMan files, failures).
+#[pyfunction]
+fn ms_serialisation_check_e5(
+    py: Python<'_>,
+    path: &str,
+) -> PyResult<(usize, usize, usize, usize, Vec<String>)> {
+    let c = detach(py, || rang_core::ms_write::check_serialisation(path))
+        .map_err(|e| PyOSError::new_err(e.0))?;
+    Ok((
+        c.tables,
+        c.ssm_files,
+        c.tiled_headers,
+        c.ism_files,
+        c.failures,
+    ))
+}
+
 /// A casacore table open for writing (research/e3-table-writer.md); holds
 /// casacore's write lock until `close`.
 #[pyclass(unsendable)]
@@ -1680,6 +1718,21 @@ impl MsWriter {
             dtype.code(),
             nstrings,
         ))
+    }
+
+    /// Write one cell as `ArrayColumn::put` does (`putcell`): native bytes,
+    /// `shape` in casacore order (research/e5-table-writer-rest.md).
+    fn put_cell(
+        &mut self,
+        py: Python<'_>,
+        name: &str,
+        row: u64,
+        shape: Vec<i64>,
+        data: PyReadonlyArray1<'_, u8>,
+    ) -> PyResult<()> {
+        let bytes = data.as_slice()?;
+        let w = self.get()?;
+        detach(py, || w.put_cell(name, row, &shape, bytes)).map_err(|e| PyOSError::new_err(e.0))
     }
 
     fn put_strings(&mut self, name: &str, start: u64, values: Vec<String>) -> PyResult<()> {
@@ -1847,6 +1900,9 @@ impl MsWriter {
 
 type CellTuple<'py> = (i32, Vec<i64>, Bound<'py, PyBytes>, Vec<String>);
 
+/// A hypercolumn definition: name, ndim, data, coordinate and id columns.
+type HypercolumnArgs = (String, u32, Vec<String>, Vec<String>, Vec<String>);
+
 fn cell_tuple(py: Python<'_>, cell: rang_core::ms_write::Cell) -> CellTuple<'_> {
     use rang_core::ms_write::Cell;
     match cell {
@@ -1866,7 +1922,7 @@ fn writer(w: rang_core::ms::Result<TableWriter>) -> PyResult<MsWriter> {
 /// (`ffi_ms_write::ColumnArgs`, `ManagerArgs`), `table.info` (type,
 /// subtype, readme), `nrows` rows; returned open for writing.
 #[pyfunction]
-#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false))]
+#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false, hypercolumns=Vec::new()))]
 #[allow(clippy::too_many_arguments)]
 fn ms_create_table(
     py: Python<'_>,
@@ -1878,6 +1934,7 @@ fn ms_create_table(
     nrows: u64,
     big_endian: bool,
     multifile: bool,
+    hypercolumns: Vec<HypercolumnArgs>,
 ) -> PyResult<MsWriter> {
     let spec = rang_core::ms_create::TableSpec {
         desc_name: desc.0,
@@ -1888,6 +1945,18 @@ fn ms_create_table(
         info,
         big_endian,
         multifile,
+        hypercolumns: hypercolumns
+            .into_iter()
+            .map(
+                |(name, ndim, data, coord, id)| rang_core::ms_create::Hypercolumn {
+                    name,
+                    ndim,
+                    data,
+                    coord,
+                    id,
+                },
+            )
+            .collect(),
         ..Default::default()
     };
     writer(detach(py, || {
@@ -2032,6 +2101,9 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MsTable>()?;
     m.add_class::<MsWriter>()?;
     m.add_function(wrap_pyfunction!(ms_serialisation_check, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_serialisation_check_e5, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_describe, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_multifile_check, m)?)?;
     m.add_function(wrap_pyfunction!(ms_create_table, m)?)?;
     m.add_function(wrap_pyfunction!(ms_default_ms, m)?)?;
     m.add_function(wrap_pyfunction!(ms_default_ms_subtable, m)?)?;

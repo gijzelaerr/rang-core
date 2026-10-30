@@ -103,16 +103,27 @@ def test_tiled_tables_extend_and_refuse_removal(tmp_path):
         assert np.array_equal(r.getcol("DATA"), data)
 
 
-@pytest.mark.parametrize("kind", ["IncrementalStMan", "MemoryStMan", "TiledDataStMan"])
-def test_deferred_managers_refuse_with_e5(tmp_path, kind):
+@pytest.mark.parametrize("kind", ["IncrementalStMan", "MemoryStMan"])
+def test_formerly_deferred_managers_are_created(tmp_path, kind):
+    # E4 refused these (E5); research/e5-table-writer-rest.md writes them.
     cols = [w.makescacoldesc("I", 0)]
     dminfo = {"*1": {"TYPE": kind, "NAME": "X", "SPEC": {}, "COLUMNS": ["I"]}}
-    with pytest.raises(OSError, match="E5"):
+    w.create_table(tmp_path / "t", cols, nrow=2, dminfo=dminfo).close()
+    assert (tmp_path / "t" / "table.dat").exists()
+
+
+def test_tiled_data_needs_a_hypercolumn(tmp_path):
+    cols = [w.makearrcoldesc("A", 0.0, shape=[4], valuetype="float")]
+    dminfo = {
+        "*1": {"TYPE": "TiledDataStMan", "NAME": "X", "SPEC": {}, "COLUMNS": ["A"]}
+    }
+    with pytest.raises(OSError, match="Hypercolumn_X"):
         w.create_table(tmp_path / "t", cols, nrow=2, dminfo=dminfo)
     assert not (tmp_path / "t" / "table.dat").exists()
 
 
-def test_variable_tiled_big_endian_and_multifile_refuse(tmp_path):
+def test_variable_tiled_big_endian_and_multifile_are_created(tmp_path):
+    # E4 refused these (E5); research/e5-table-writer-rest.md writes them.
     var = [w.makearrcoldesc("V", 0.0, ndim=1)]
     dminfo = {
         "*1": {
@@ -122,12 +133,12 @@ def test_variable_tiled_big_endian_and_multifile_refuse(tmp_path):
             "COLUMNS": ["V"],
         }
     }
-    with pytest.raises(OSError, match="E5"):
-        w.create_table(tmp_path / "a", var, 1, dminfo)
-    with pytest.raises(OSError, match="E5"):
-        w.create_table(tmp_path / "b", [w.makescacoldesc("I", 0)], 1, endian="big")
-    with pytest.raises(OSError, match="E5"):
-        w.create_table(tmp_path / "c", [w.makescacoldesc("I", 0)], 1, multifile=True)
+    w.create_table(tmp_path / "a", var, 1, dminfo).close()
+    w.create_table(tmp_path / "b", [w.makescacoldesc("I", 0)], 1, endian="big").close()
+    w.create_table(
+        tmp_path / "c", [w.makescacoldesc("I", 0)], 1, multifile=True
+    ).close()
+    assert (tmp_path / "c" / "table.mf").exists()
 
 
 def test_default_ms_has_the_subtables_and_info(tmp_path):
@@ -153,12 +164,13 @@ def test_default_ms_has_the_subtables_and_info(tmp_path):
     assert (path / "table.info").read_text().startswith("Type = Measurement Set\n")
     with w.open_table(path) as r:
         assert r.nrows == 0 and "DATA" not in r.columns and "UVW" in r.columns
-    with pytest.raises(OSError, match="E5"):
-        t = w.open_table(path / "POINTING", readonly=False)
-        try:
-            t.addrows(1)
-        finally:
-            t.close()
+    # E4 refused POINTING rows (E5); its IncrementalStMan is written now.
+    t = w.open_table(path / "POINTING", readonly=False)
+    try:
+        t.addrows(1)
+    finally:
+        t.close()
+    assert w.describe(path / "POINTING")[0] == 1
 
 
 def test_caltable_is_written_and_read(tmp_path):

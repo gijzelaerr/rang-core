@@ -42,12 +42,14 @@ pub mod fused;
 #[cfg(feature = "gpu")]
 pub mod gpu;
 pub mod grid;
+pub mod ism;
 pub mod jones;
 pub mod ms;
 pub mod ms_create;
 pub mod ms_desc;
 pub mod ms_schema;
 pub mod ms_write;
+pub mod multifile;
 pub mod predict;
 pub mod robust;
 pub mod solve;

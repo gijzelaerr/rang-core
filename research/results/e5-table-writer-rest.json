@@ -1,0 +1,533 @@
+{
+ "task": "E5 (research/e5-table-writer-rest.md)",
+ "run": "outputs/e5-20261031-01",
+ "commit": "c194e3f6ff79eb11b8ad8d3d4774b10f25c39961",
+ "oracle": "python-casacore 3.8.1 in rang-ms-reader:local",
+ "result": {
+  "1 byte identity": false,
+  "2 read-back": false,
+  "3 determinism": false,
+  "4 E3 and E4 unchanged": true,
+  "5 refusals": true,
+  "6 serialisation identity": true,
+  "all_pass": false
+ },
+ "cases": [
+  {
+   "name": "I-scalars",
+   "files": 4,
+   "bytes": 114585,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.4062694599851966,
+   "casacore_s": 0.4082960359810386,
+   "both_refuse": null
+  },
+  {
+   "name": "I-arrays",
+   "files": 5,
+   "bytes": 44813,
+   "identical": false,
+   "identical_but_masked": false,
+   "masked": [],
+   "differ": [
+    [
+     "table.f0i",
+     440
+    ]
+   ],
+   "core_s": 0.017097484989790246,
+   "casacore_s": 0.024703322007553652,
+   "both_refuse": null
+  },
+  {
+   "name": "I-rows",
+   "files": 4,
+   "bytes": 117553,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.0036548130156006664,
+   "casacore_s": 0.011321374011458829,
+   "both_refuse": null
+  },
+  {
+   "name": "I-rows-all",
+   "files": 5,
+   "bytes": 4733,
+   "identical": false,
+   "identical_but_masked": false,
+   "masked": [],
+   "differ": [
+    [
+     "table.f0i",
+     34
+    ]
+   ],
+   "core_s": 0.003838050994090736,
+   "casacore_s": 0.010342366993427277,
+   "both_refuse": null
+  },
+  {
+   "name": "I-fixture",
+   "files": 93,
+   "bytes": 41254182,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.0037499539903365076,
+   "casacore_s": 0.014835051988484338,
+   "both_refuse": null
+  },
+  {
+   "name": "I-fixture-pointing",
+   "files": 93,
+   "bytes": 41254950,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.0038639900158159435,
+   "casacore_s": 0.017433440021704882,
+   "both_refuse": null
+  },
+  {
+   "name": "I-pointing",
+   "files": 59,
+   "bytes": 183192,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.04709479899611324,
+   "casacore_s": 0.17825093597639352,
+   "both_refuse": null
+  },
+  {
+   "name": "I-create",
+   "files": 6,
+   "bytes": 69825,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.0032170930062420666,
+   "casacore_s": 0.01682082301704213,
+   "both_refuse": null
+  },
+  {
+   "name": "S-remove-all",
+   "files": 5,
+   "bytes": 3282,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.003985590999945998,
+   "casacore_s": 0.021130183013156056,
+   "both_refuse": null
+  },
+  {
+   "name": "S-remove-all-luno",
+   "files": 59,
+   "bytes": 245594,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.004277675005141646,
+   "casacore_s": 0.015232404984999448,
+   "both_refuse": null
+  },
+  {
+   "name": "T-var",
+   "files": 6,
+   "bytes": 4959,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.004303533001802862,
+   "casacore_s": 0.015305158973205835,
+   "both_refuse": null
+  },
+  {
+   "name": "T-reshape",
+   "files": 6,
+   "bytes": 4959,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.0025885700015351176,
+   "casacore_s": 0.004720662022009492,
+   "both_refuse": true
+  },
+  {
+   "name": "T-multishape",
+   "files": 62,
+   "bytes": 203404,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.04558452498167753,
+   "casacore_s": 0.13403472900972702,
+   "both_refuse": null
+  },
+  {
+   "name": "T-fixture-add",
+   "files": 93,
+   "bytes": 44399910,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.007344252982875332,
+   "casacore_s": 0.08948899200186133,
+   "both_refuse": null
+  },
+  {
+   "name": "T-fixture-flagcat",
+   "files": 94,
+   "bytes": 42384586,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.005441082001198083,
+   "casacore_s": 0.02936451497953385,
+   "both_refuse": null
+  },
+  {
+   "name": "D-tds",
+   "files": 4,
+   "bytes": 1343,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.002714478992857039,
+   "casacore_s": 0.010042751004220918,
+   "both_refuse": null
+  },
+  {
+   "name": "D-tds-rows",
+   "files": 4,
+   "bytes": 1343,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.0038618659891653806,
+   "casacore_s": 0.010838391986908391,
+   "both_refuse": null
+  },
+  {
+   "name": "B-new",
+   "files": 10,
+   "bytes": 47721,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.003659462003270164,
+   "casacore_s": 0.014614302985137329,
+   "both_refuse": null
+  },
+  {
+   "name": "B-write",
+   "files": 10,
+   "bytes": 50370,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.00424430298153311,
+   "casacore_s": 0.010824906989000738,
+   "both_refuse": null
+  },
+  {
+   "name": "B-rows",
+   "files": 5,
+   "bytes": 37342,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.0030256190220825374,
+   "casacore_s": 0.01424464100273326,
+   "both_refuse": null
+  },
+  {
+   "name": "M-new",
+   "files": 4,
+   "bytes": 2158,
+   "identical": true,
+   "identical_but_masked": true,
+   "masked": [],
+   "differ": [],
+   "core_s": 0.003811589995166287,
+   "casacore_s": 0.013491644989699125,
+   "both_refuse": null
+  },
+  {
+   "name": "F-new",
+   "files": 4,
+   "bytes": 25167758,
+   "identical": false,
+   "identical_but_masked": true,
+   "masked": [
+    [
+     "table.mf",
+     6
+    ]
+   ],
+   "differ": [],
+   "core_s": 0.02558624799712561,
+   "casacore_s": 0.07395233001443557,
+   "both_refuse": null
+  },
+  {
+   "name": "F-write",
+   "files": 4,
+   "bytes": 25167758,
+   "identical": false,
+   "identical_but_masked": true,
+   "masked": [
+    [
+     "table.mf",
+     54
+    ]
+   ],
+   "differ": [],
+   "core_s": 0.014718260994413868,
+   "casacore_s": 0.023367226996924728,
+   "both_refuse": null
+  }
+ ],
+ "determinism": {
+  "core_identical_between_runs": true,
+  "casacore": {
+   "oracle-twin": {
+    "F-new": {
+     "identical": false,
+     "masked": [
+      [
+       "table.mf",
+       29
+      ]
+     ],
+     "differ": []
+    },
+    "F-write": {
+     "identical": false,
+     "masked": [
+      [
+       "table.mf",
+       2
+      ]
+     ],
+     "differ": []
+    }
+   },
+   "oracle-perturb": {
+    "I-arrays": {
+     "identical": false,
+     "masked": [],
+     "differ": [
+      [
+       "table.f0i",
+       601
+      ]
+     ]
+    },
+    "I-rows-all": {
+     "identical": false,
+     "masked": [],
+     "differ": [
+      [
+       "table.f0i",
+       51
+      ]
+     ]
+    },
+    "I-fixture-pointing": {
+     "identical": false,
+     "masked": [
+      [
+       "POINTING/table.f1i",
+       96
+      ]
+     ],
+     "differ": []
+    },
+    "F-new": {
+     "identical": false,
+     "masked": [
+      [
+       "table.mf",
+       4193963
+      ]
+     ],
+     "differ": []
+    },
+    "F-write": {
+     "identical": false,
+     "masked": [
+      [
+       "table.mf",
+       4193963
+      ]
+     ],
+     "differ": []
+    }
+   }
+  }
+ },
+ "readback": {
+  "tables": 111,
+  "cells": 63990,
+  "casacure_unreadable": [
+   "D-tds",
+   "D-tds-rows",
+   "F-new",
+   "F-write",
+   "M-new"
+  ],
+  "failures": {
+   "I-rows-all": {
+    "problems": [
+     "cell FF/0 differs",
+     "cell FF/1 differs",
+     "cell FF/2 differs",
+     "cell FF/3 differs",
+     "cell FF/4 differs"
+    ],
+    "core_problems": []
+   }
+  },
+  "memory_columns": {
+   "core.M-new.I": {
+    "dtype": "int32",
+    "shape": [
+     15
+    ],
+    "first": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+   },
+   "core.M-new.A": {
+    "dtype": "float64",
+    "shape": [
+     15,
+     3
+    ],
+    "first": "[[4.8646932564698e-310, 0.0, 4.86373131414364e-310], [4.8646"
+   },
+   "core-reader.core.M-new": "raises: I: a MemoryStMan column holds no data once its table is closed",
+   "casacore.M-new.I": {
+    "dtype": "int32",
+    "shape": [
+     15
+    ],
+    "first": "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+   },
+   "casacore.M-new.A": {
+    "dtype": "float64",
+    "shape": [
+     15,
+     3
+    ],
+    "first": "[[4.63694196118794e-310, 0.0, 7.73985142636e-313], [4.636941"
+   },
+   "core-reader.casacore.M-new": "raises: I: a MemoryStMan column holds no data once its table is closed"
+  }
+ },
+ "refusals": {
+  "attempts": {
+   "TiledCellStMan": {
+    "refused": true,
+    "names_e6": true,
+    "message": "TiledCellStMan tables are not created (E6)",
+    "no_table": true
+   },
+   "TiledDataStMan values": {
+    "refused": true,
+    "names_e6": true,
+    "message": "D: TiledDataStMan columns are not written (E6): no oracle adds a hypercube"
+   },
+   "MultiHDF5": {
+    "refused": true,
+    "names_e6": true,
+    "message": "storage option 'hdf5' is not written (E6): MultiHDF5",
+    "no_table": true
+   }
+  },
+  "checks": {
+   "TiledDataStMan values: data files unchanged": true
+  },
+  "pass": true,
+  "wall_s": 0.029116464022081345
+ },
+ "regress": {
+  "e3_cases_identical": 20,
+  "e3_cases_padding_only": 4,
+  "e3_roundtrip_pass": true,
+  "e3_serialisation_pass": true,
+  "e4_cases_identical_or_gaps": 18,
+  "e4_cases": 18,
+  "pass": true,
+  "wall_s": 6.808619205985451
+ },
+ "serialisation": {
+  "tables": 111,
+  "ssm_files": 115,
+  "tiled_headers": 43,
+  "ism_files": 66,
+  "multifile_headers": 2,
+  "failures": {},
+  "pass": true,
+  "wall_s": 0.03512686799513176
+ },
+ "posthoc": {
+  "label": "post hoc",
+  "cases": {
+   "I-arrays": {
+    "table.f0i": {
+     "bytes_differing": 440,
+     "outside_gap_mask": 45,
+     "where_casacore_differs_from_itself": 45,
+     "not_covered": 0,
+     "first_not_covered": []
+    }
+   },
+   "I-rows-all": {
+    "table.f0i": {
+     "bytes_differing": 34,
+     "outside_gap_mask": 13,
+     "where_casacore_differs_from_itself": 13,
+     "not_covered": 0,
+     "first_not_covered": []
+    }
+   }
+  },
+  "all_covered": true,
+  "wall_s": 0.003971502999775112
+ },
+ "timing": {
+  "cases": 1.07207183,
+  "determinism": 2.814381822,
+  "oracle-perturb": 2.265808777,
+  "oracle-twin": 2.157553614,
+  "oracle": 2.372428588,
+  "posthoc": 0.095268738,
+  "readback": 10.331356418,
+  "refusals": 0.097236541,
+  "regress": 6.89070036,
+  "serialisation": 0.163784934,
+  "summary": 0.137184492
+ }
+}

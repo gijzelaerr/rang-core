@@ -219,9 +219,31 @@ def makearrcoldesc(
     }
 
 
+class TableDesc(list):
+    """A table description: a list of column descriptions, with the
+    hypercolumns of `tabledefinehypercolumn`."""
+
+    def __init__(self, descs=()):
+        super().__init__(descs)
+        self.hypercolumns = dict(getattr(descs, "hypercolumns", {}))
+
+
 def maketabdesc(descs):
     """A table description: a list of column descriptions."""
-    return list(descs) if isinstance(descs, (list, tuple)) else [descs]
+    return TableDesc(descs if isinstance(descs, (list, tuple)) else [descs])
+
+
+def tabledefinehypercolumn(
+    tabdesc, name, ndim, datacolumns, coordcolumns=False, idcolumns=False
+):
+    """python-casacore's function of the name: define a hypercolumn (the
+    data columns then go to a tiled storage manager of that group)."""
+    tabdesc.hypercolumns[name] = (
+        int(ndim),
+        [str(c) for c in datacolumns],
+        [] if isinstance(coordcolumns, bool) else [str(c) for c in coordcolumns],
+        [] if isinstance(idcolumns, bool) else [str(c) for c in idcolumns],
+    )
 
 
 def _canonical_default(code, value):
@@ -310,24 +332,21 @@ class Table:
     def __init__(self, path, lock_attempts=10, lock_wait=1.0, _writer=None):
         self.path = Path(path)
         self._info = None
-        if _writer is not None:
-            # A table made in this process: its columns from the writer.
-            self._writer = _writer
-            self._columns = {
-                name: {
-                    "dtype": "str" if code == STRING else DTYPES[code].name,
-                    "is_array": array,
-                }
-                for name, code, array in _writer.columns()
+        if _writer is None:
+            _writer = core.extension().MsWriter(
+                str(self.path), int(lock_attempts), int(lock_wait * 1000)
+            )
+        # The columns from the writer itself (the task E reader would open and
+        # close table.lock, dropping the lock; nor does it read every kind of
+        # table the writer writes, e.g. MultiFile tables).
+        self._writer = _writer
+        self._columns = {
+            name: {
+                "dtype": "str" if code == STRING else DTYPES[code].name,
+                "is_array": array,
             }
-            return
-        # Describe the table before taking the lock: the reader opens and
-        # closes table.lock, which would drop a lock already held (POSIX).
-        with core_ms.open_table(self.path) as reader:
-            self._columns = {name: dict(c) for name, c in reader.columns.items()}
-        self._writer = core.extension().MsWriter(
-            str(self.path), int(lock_attempts), int(lock_wait * 1000)
-        )
+            for name, code, array in _writer.columns()
+        }
 
     # -- bookkeeping ---------------------------------------------------------
     def nrows(self):
@@ -391,9 +410,19 @@ class Table:
         if self._code(columnname) == STRING and not is_array:
             self.putcol(columnname, [value], rownr, 1)
         elif is_array:
-            if self._code(columnname) == STRING:
+            code = self._code(columnname)
+            if code == STRING:
                 value = np.asarray(value, dtype=object)
-            self.putcol(columnname, np.asarray(value)[None, ...], rownr, 1)
+                self.putcol(columnname, np.asarray(value)[None, ...], rownr, 1)
+                return
+            arr = np.ascontiguousarray(value, dtype=DTYPES[code])
+            # `ArrayColumn::put`, as python-casacore's putcell does.
+            self._writer.put_cell(
+                columnname,
+                int(rownr),
+                list(arr.shape)[::-1],
+                arr.reshape(-1).view(np.uint8),
+            )
         else:
             self.putcol(columnname, np.asarray([value]), rownr, 1)
 
@@ -597,12 +626,19 @@ def create_table(
     path, tabledesc, nrow=0, dminfo=None, info=None, endian="little", multifile=False
 ):
     """A new table (python-casacore's `table(path, tabledesc, nrow,
-    dminfo=dminfo)`): StandardStMan for unbound columns, the managers of
-    `dminfo` (StandardStMan, TiledColumnStMan, TiledShapeStMan with
-    FixedShape columns) for bound ones; `nrow` rows, not initialised.
-    Returned open for writing. IncrementalStMan, MemoryStMan,
-    TiledDataStMan, big-endian and MultiFile tables are refused (E5)."""
-    columns = [_column_args(c) for c in maketabdesc(tabledesc)]
+    dminfo=dminfo, endian=endian)`): StandardStMan for unbound columns, the
+    managers of `dminfo` (StandardStMan, IncrementalStMan, TiledColumnStMan,
+    TiledShapeStMan, MemoryStMan, TiledDataStMan) for bound ones; `nrow`
+    rows, not initialised; big-endian with `endian="big"`, a MultiFile
+    table with `multifile=True` (casacore's aipsrc `table.storage.option`).
+    Returned open for writing."""
+    if multifile not in (True, False):
+        raise ValueError(f"storage option {multifile!r} is not written (E6): MultiHDF5")
+    if endian not in ("little", "big", "local"):
+        raise ValueError(f"endian {endian!r}: give 'little', 'big' or 'local'")
+    desc = maketabdesc(tabledesc)
+    columns = [_column_args(c) for c in desc]
+    hypercolumns = [(name, *h) for name, h in desc.hypercolumns.items()]
     info = info or {}
     writer = core.extension().ms_create_table(
         str(path),
@@ -612,18 +648,31 @@ def create_table(
         (info.get("type", ""), info.get("subType", ""), info.get("readme", "")),
         int(nrow),
         endian == "big",
-        bool(multifile),
+        multifile,
+        hypercolumns,
     )
     t = Table(path, _writer=writer)
     t._info = [info.get("type", ""), info.get("subType", ""), info.get("readme", "")]
     return t
 
 
-def table(tablename, tabledesc=None, nrow=0, readonly=True, dminfo=None, ack=True, **_):
+def table(
+    tablename,
+    tabledesc=None,
+    nrow=0,
+    readonly=True,
+    dminfo=None,
+    ack=True,
+    endian="little",
+    multifile=False,
+    **_,
+):
     """python-casacore's `table`: create when a description is given, else
     open (read-only through the core reader unless `readonly=False`)."""
     if tabledesc is not None:
-        return create_table(tablename, tabledesc, nrow, dminfo)
+        return create_table(
+            tablename, tabledesc, nrow, dminfo, endian=endian, multifile=multifile
+        )
     return open_table(tablename, readonly=readonly)
 
 
@@ -646,12 +695,19 @@ def default_ms_subtable(subtable, name=None, tabdesc=None, dminfo=None):
     return Table(path, _writer=writer)
 
 
+def describe(path):
+    """(row count, {column: (type code, is array)}) of a table, read
+    without writing (the task E reader does not read every kind of table
+    this module writes)."""
+    nrows, columns = core.extension().ms_describe(str(path))
+    return int(nrows), {name: (code, array) for name, code, array in columns}
+
+
 def read_cells(path, columnname, startrow=0, nrow=1):
     """Cells of a column of a table nobody writes in this process
     (undefined cells as None, rows of any shape), without writing."""
-    with core_ms.open_table(path) as reader:
-        info = reader.columns[columnname]
-    code = STRING if info["dtype"] == "str" else CODES[np.dtype(info["dtype"])]
+    _, columns = describe(path)
+    code = columns[columnname][0]
     cells = core.extension().ms_read_cells(
         str(path), columnname, int(startrow), int(nrow)
     )
