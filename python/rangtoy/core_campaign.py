@@ -116,7 +116,7 @@ CODE_FILES = (
     "python/rangtoy/core_weights.py",
     "python/rangtoy/core_workflow.py",
     "python/rangtoy/core_zarr.py",
-    "python/rangtoy/flagging.py",
+    "python/rangtoy/core_policy.py",
     "examples/prototype_section6.py",
 )
 

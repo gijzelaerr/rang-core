@@ -124,16 +124,40 @@ def _frozen_imports(path):
     return found
 
 
+# Task C1's branch imports these three names from `.flagging` in this one file;
+# `python/rangtoy/flagging.py` re-exports them from `core_policy` until the
+# coordinator switches that line at C1's merge (research/p11-extract.md).
+C1_FILE = "python/rangtoy/core_campaign_closure.py"
+C1_NAMES = {"fixed_support_tv", "gain_tv", "polar_gauge"}
+
+
+def _c1_allowed(rel, path, lineno):
+    if rel != C1_FILE:
+        return False
+    for node in ast.walk(ast.parse(path.read_text())):
+        if isinstance(node, ast.ImportFrom) and node.lineno == lineno:
+            return (
+                node.level == 1
+                and node.module == "flagging"
+                and {a.name for a in node.names} <= C1_NAMES
+            )
+    return False
+
+
 def test_no_live_file_imports_a_frozen_module():
     files = [
         p
         for tree in ("python/rangtoy", "examples", "tools", "tests")
         for p in (ROOT / tree).rglob("*.py")
-        if p
-        != PKG / "flagging.py"  # compatibility re-export for C1, see p11-extract.md
+        if p != PKG / "flagging.py"  # the C1 re-export itself
     ]
-    offenders = {p.relative_to(ROOT).as_posix(): _frozen_imports(p) for p in files}
-    assert {k: v for k, v in offenders.items() if v} == {}
+    offenders = {}
+    for p in files:
+        rel = p.relative_to(ROOT).as_posix()
+        lines = [n for n in _frozen_imports(p) if not _c1_allowed(rel, p, n)]
+        if lines:
+            offenders[rel] = lines
+    assert offenders == {}
     # Import statements inside script strings (subprocess and recorder tests).
     pattern = re.compile(
         r"^\s*[\"']?(from|import)\s+rangtoy\.(flagging\w*|imaging_sensitivity)\b"
@@ -146,6 +170,17 @@ def test_no_live_file_imports_a_frozen_module():
         if p != Path(__file__) and pattern.search(p.read_text())
     }
     assert strings == set()
+    # Code that hashes or opens a frozen module by file name (campaign
+    # CODE_FILES, core_imaging.MODULES) must name the extract instead.
+    by_name = re.compile(
+        r"[\"'](python/rangtoy/)?(flagging\w*|imaging_sensitivity)(\.py)?[\"']"
+    )
+    named = {
+        p.relative_to(ROOT).as_posix()
+        for p in files
+        if p.is_relative_to(PKG) and by_name.search(p.read_text())
+    }
+    assert named == set()
 
 
 BLOCKED = r"""
@@ -153,6 +188,8 @@ import importlib, pkgutil, sys
 class Block:
     def find_spec(self, name, path=None, target=None):
         last = name.rsplit(".", 1)[-1]
+        if name == "rangtoy.flagging":  # the C1 re-export, checked below
+            return None
         if name.startswith("rangtoy.") and (last.startswith("flagging") or last == "imaging_sensitivity"):
             raise ImportError(f"frozen module imported: {name}")
 sys.meta_path.insert(0, Block())
@@ -168,7 +205,15 @@ for name in names:
             skipped.append(name)
         else:
             raise
-assert not [m for m in sys.modules if m.startswith("rangtoy.flagging") or m == "rangtoy.imaging_sensitivity"]
+frozen = [m for m in sys.modules if m.startswith("rangtoy.flagging") or m == "rangtoy.imaging_sensitivity"]
+assert set(frozen) <= {"rangtoy.flagging"}, frozen
+if frozen:  # only C1's file may import the re-export, and it is core_policy's
+    from pathlib import Path
+    import rangtoy.core_policy as policy, rangtoy.flagging as shim
+    assert Path(shim.__file__).name == "flagging.py"
+    assert Path(shim.__file__).parent == Path(policy.__file__).parent
+    for n in ("fixed_support_tv", "gain_tv", "polar_gauge"):
+        assert getattr(shim, n) is getattr(policy, n), n
 print("ok", len(names), len(skipped))
 """
 
