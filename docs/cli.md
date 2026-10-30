@@ -248,6 +248,7 @@ imaging track replay, task I (research/core-i-imaging-replay.md)
 $ rang-core imaging run -h
 usage: rang-core imaging run [-h] [--archive-dir ARCHIVE_DIR]
                              [--export-dir EXPORT_DIR]
+                             [--gridder {wstack,wgrid}]
                              run_dir
 
 positional arguments:
@@ -257,6 +258,7 @@ options:
   -h, --help            show this help message and exit
   --archive-dir ARCHIVE_DIR
   --export-dir EXPORT_DIR
+  --gridder {wstack,wgrid}
 ```
 
 ## `campaign`
