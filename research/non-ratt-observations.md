@@ -38,3 +38,17 @@ report would contain if that decision changes. RATT items, filed or not, are in
 - The public store's 50,000-row × 128-channel zarr chunking forces whole-tile
   decode for any station subset (38 s single-threaded for chunk 0); the
   blosc block tables allow partial reads only along rows.
+
+## casacure 3.8.35 (2026-10-30; from the E2 evaluation; not reported by decision, casacure is outside the reporting rule)
+
+Reproductions in `research/casacure-evaluation.md`: (1) invalid dminfo (TiledColumnStMan
+on a variable-shape column) accepted and written, casacore refuses the result; (2)
+FixedShape not set from a given shape; (3) measures relabel values (UTC→TAI/UT1
+return the input; ITRF positions in metres labelled `rad`; `measures.rs:274` treats
+UTC/TAI/UT1/UT2 as identical); (4) SIGBUS on a file truncated after open; (5)
+`getcoldesc`/`getdminfo` misreport managers; (6) TaQL gaps (`BETWEEN`, bare `SELECT
+FROM`, `ORDERBY DESC`, `rownumbers(parent)`); (7) a fabricated FLAG_CATEGORY for
+never-written cells; (8) no LICENSE/COPYING file; (9) Windows and macOS wheels untested
+in CI; (10) `celestial-eop-data` 0.1.12 build script calls `date` (non-reproducible,
+needs POSIX `date` on Windows); (11) `addcols` rebuilds the StandardStMan the column
+joins. The user may decide to report these to the author.

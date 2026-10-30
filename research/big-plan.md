@@ -212,6 +212,16 @@ CPU-heavy tasks at a time on 8 physical cores.
 - X1 done 2026-10-30 (`x1-crossplatform.md`): native Windows build, task D
   comparator bit-identical on Windows, five-platform wheel matrix and the
   PyPI publish job; portability fixes for the live paths listed for P7/P9/P12.
+- E2 done 2026-10-30 (`casacure-evaluation.md`): verdict (c), rang's own
+  writer; casacure stays an optional pinned second oracle. Follow-on tasks:
+  E3 core table writer (in-place `putcol` for SSM and the tiled managers,
+  `addcols` as casacore does, `table.dat`/description/keyword writer, lock
+  sync record; after P7, parallel with P9); E4 table creation (`default_ms`
+  with subtables, CASA caltables G/B/K/Df with `table.info`; after E3; feeds
+  DF-IO); E5 ISM arrays, strings and big-endian writes (small, after E3); T1
+  casacure as the second oracle in the Windows and macOS test jobs; B1
+  freezes the geodetic parallactic-angle convention with astropy as
+  reference.
 - E2 casacure evaluation (started 2026-10-30; pointer from Oleg Smirnov via
   the user): `casacure` (Tim Molteno, LGPL-3.0-or-later, crate and PyPI
   3.8.35 tracking casacore 3.8) is a pure-Rust casacore table system that

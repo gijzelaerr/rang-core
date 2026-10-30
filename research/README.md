@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: the [casacure evaluation](casacure-evaluation.md): reads
+column-exact on every platform, writes and measures not trustworthy; verdict
+build rang's own table writer, casacure as a pinned second oracle.
+
 New, 2026-10-30: big plan task U3, [saopicc upstream](upstream-saopicc.md): six
 issues and four pull requests on DDFacet and killMS; Hogbom diverges with more
 than one facet.

@@ -558,3 +558,42 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan U3: rang worktree venv (`uv venv -p 3.14` + editable install) | worktree | 61.7 s | 501 MB |  |
 | 2026-10-30 | big plan U3: `flock ... bash tools/check-all.sh` | worktree at 6e7444b | 259.0 s; lock wait under 1 s | 1.58 GB | **FAIL**, not from U3: see below |
 | 2026-10-30 | big plan U3: issue #75 snippet check (`field_snippet_check.sh`) | slice copy, 2 `DDF.py` runs | under 30 s | – | exit 0, then exit 1 as reported |
+| 2026-10-30 | big plan E2: `docker build` of `tools/ms-reader` (`rang-ms-reader:local`), first try | Dockerfile | 0 s | — | started with `&` inside `wsl -e bash -lc`; died with the shell, empty log |
+| 2026-10-30 | big plan E2: same, as a background tool run | Dockerfile | 28.3 s | 53 MB | python-casacore 3.8.1, NumPy 2.5.3 |
+| 2026-10-30 | big plan E2: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin casacure` | worktree | 36.2 s | — | builds the extension |
+| 2026-10-30 | big plan E2: `git clone` casacure | GitHub | 1.5 s | — | 4.7 MB, 240 commits |
+| 2026-10-30 | big plan E2: casacure probe of the three MSs | 3 MSs | < 1 s | — | before the protocol (see the header) |
+| 2026-10-30 | big plan E2: `eval_casacure.py reads` (R1, R2, R4) | oracle `-01`, 173 columns | 1.86 s | 285 MB | casacure reads 0.26 s in process; full columns 97 ms (`core_ms` 105 ms) |
+| 2026-10-30 | big plan E2: container `describe`, `bigendian`, `taql` ×2 | 3 MSs | 0.99, 1.50, 0.77, 0.77 s | 31 MB | container start included |
+| 2026-10-30 | big plan E2: casacure `describe`, `compare-describe` | 3 MSs | 0.09, 0.17 s | 43, 38 MB |  |
+| 2026-10-30 | big plan E2: `eval_casacure.py bigendian` (R6) | 2 big-endian copies | 4.88 s | 276 MB | casacure and `core_ms` |
+| 2026-10-30 | big plan E2: TaQL host / container, three rounds (scripts fixed between) | ms0, ms1 | 0.16–0.80 s / 0.61–1.86 s | 300–320 MB / 31 MB |  |
+| 2026-10-30 | big plan E2: `eval_casacure.py write` W1(a, b) | fixture columns | 0.53 s | 226 MB |  |
+| 2026-10-30 | big plan E2: `inplace` W4, `caltable` W5 | 2 copies; synthetic G | 0.55, 0.16 s | 221, 45 MB |  |
+| 2026-10-30 | big plan E2: container read-backs (`oracle_ms_columns.py` ×5, `putflag`, `info`) | written tables | 0.54–1.27 s each | 30–31 MB | W1(b), W1(c) read-backs fail (casacore cannot open them) |
+| 2026-10-30 | big plan E2: `write` variants c, d (post hoc) | fixture columns | 0.50, 0.59 s | 172 MB |  |
+| 2026-10-30 | big plan E2: `eval_casacure_tiled_reference.py` (container) | — | 2.84 s | 30 MB |  |
+| 2026-10-30 | big plan E2: `verify-writes` | `-04` | 1.07, 0.69 s | 433–451 MB |  |
+| 2026-10-30 | big plan E2: `measures-cases` + container `measures` | 30 cases | 0.78 s | 31 MB |  |
+| 2026-10-30 | big plan E2: `measures` (casacure, astropy) | 30 cases | 1.08 s | 170 MB |  |
+| 2026-10-30 | big plan E2: `uvw` | LUNO, fixture | 0.93, 0.87 s | 169 MB | plus one scratch variant (CIRS/ERA and J2000/GMST) |
+| 2026-10-30 | big plan E2: `cargo +1.93 fetch` + `cargo +1.93 build --release` of `examples/casacure_rs` | crate + 13 dependencies | 44.3 s | 499 MB | first build; rebuild 0.5 s; fmt and clippy clean |
+| 2026-10-30 | big plan E2: `eval-casacure-rs` (R3) | 15 tables | 0.46 s | 128 MB |  |
+| 2026-10-30 | big plan E2: copy MSs and oracle to the Windows scratchpad | 257 MB | 2.9 s | — |  |
+| 2026-10-30 | big plan E2: Windows `uv venv` + `uv pip install casacure==3.8.35 numpy` | PyPI | failed, then 3.1 s | — | uv cache "too many temporary files"; retried with `UV_CACHE_DIR=~/Build/cache/uv` |
+| 2026-10-30 | big plan E2: Windows `eval_casacure.py reads --no-core` (P1) | local copies | 1.17 s | 249 MB | 0.29 s in process |
+| 2026-10-30 | big plan E2: same, in place over `\\wsl.localhost` | WSL outputs | 15.1 s | — | hashing over 9P dominates |
+| 2026-10-30 | big plan E2: Windows `cargo +1.93 build --release` (P2) | crate | 17 s (fail); 13.1 s | — | fails without `date` on PATH (`celestial-eop-data` build script); passes with Git `usr\bin` on PATH |
+| 2026-10-30 | big plan E2: Windows `eval-casacure-rs` + compare | 15 tables | 0.45 s | — |  |
+| 2026-10-30 | big plan E2: performance runs (section 5), 5 repeats × 8 runs | LUNO, fixture | about 1 min | see the table |  |
+| 2026-10-30 | big plan E2: `eval_casacure_robustness.py` | LUNO, fixture | 0.81, 0.79 s | 69, 72 MB | 8 child processes each |
+| 2026-10-30 | big plan E2: casacure `cargo test --workspace --release` (stable 1.99.1) | clone | 87.1 s | 987 MB | 323 passed |
+| 2026-10-30 | big plan E2: casacure `cargo +1.93 build -p casacure --release` | clone | 18.2 s | 498 MB |  |
+| 2026-10-30 | big plan E2: casacure `maturin build` (for 3.14 by mistake, then 3.12) | clone | 25.2, 42.0 s | 517, 505 MB |  |
+| 2026-10-30 | big plan E2: casacure `make_fixtures.py` + `pytest tests/` | clone | 28.6 s | 460 MB | the first attempt failed at collection (wheel for the wrong interpreter) |
+| 2026-10-30 | big plan E2: python-casacore `addcols` on a LUNO copy (post hoc) | LUNO copy | < 2 s | — | container |
+| 2026-10-30 | big plan E2: `uvw` rerun with the GCRS method (post hoc, after review) | LUNO, fixture | 1.02, 0.96 s | 170 MB | 4.1 and 3.3 mm |
+| 2026-10-30 | big plan E2: python-casacore `truncate-after-open` probe (post hoc) | fixture copy | < 2 s | — | container; raises |
+| 2026-10-30 | big plan E2: ghcr manifest and config of `tmolteno/killms:v3.15.12` | registry metadata | < 2 s | — | source label |
+| 2026-10-30 | big plan E2: `RANG_CHECKALL_LOCKED=1 flock ~/.rang-checkall.lock bash tools/check-all.sh` | repository at `c183430` plus this table's edits | 287 s | 1.64 GB | PASS; pytest 634 passed, 3 skipped in 171 s (`RANG_CHECKALL_LOCKED=1`, because the script takes the same lock itself and would wait on the outer `flock`) |
+| 2026-10-30 | big plan E2: `pytest tests/test_casacure_optional.py` | — | 0.52 s | 136 MB | 3 passed |

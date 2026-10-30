@@ -1,5 +1,36 @@
 # Rang research state
 
+QuartiCal issue 452 fix verified, 2026-10-30
+(`upstream-issues/quartical-qp-jhj-weights.md`): PR ratt-ru/QuartiCal#456
+(merged into v0.2.8-dev as d54c46b) gives the ANTENNA2 side the transposed
+weights in the shared solver loop and fixes complex, leakage, rotation,
+rotation_measure and crosshand_phase at once, with a test over all 14 terms.
+On scan 9 with a four-fold YX weight asymmetry the old code converged 67 % of
+intervals and flagged 81.5 % of antenna-intervals; the fixed code converges
+98.8 % and flags 39.0 %, as with unit weights. Rang's `qp_weights=transposed`
+matches the fixed QuartiCal to 1.5e-14 on three weightings, so the opt-in is
+the upstream fix; `archived` matches 0.2.7 to 2e-14. Native MeerKAT weights
+carry about 15 % XY/YX asymmetry, so once 0.2.8 is the reference,
+`transposed` is the compatible default and the archived comparisons need
+re-validation (the dev branch also restructures the solver loop and
+references the complex term by default). Result posted on #452.
+
+E2 casacure evaluation (big plan), 2026-10-30
+([casacure-evaluation.md](casacure-evaluation.md)): casacure 3.8.35 (Tim
+Molteno's pure-Rust casacore tables, LGPL-3.0-or-later) reads all 173 task E
+oracle columns column-exactly through Python and through the Rust crate (Rust
+1.93), on Linux and natively on Windows, little- and big-endian; in-place
+writes and default-manager MS creation read back exactly in python-casacore.
+But it accepts a TiledColumnStMan request for a variable-shape column and
+writes an MS casacore cannot open (W1(b) failed as frozen), relabels epoch
+conversions without converting, crashes with SIGBUS on a file truncated under
+its mapping, ships no licence file, and has one maintainer at 36 releases in
+33 days. Verdict as frozen: (c), do not adopt; extend task E's reader into
+rang's own writer (E3, E4, E5) and keep casacure as an optional pinned second
+oracle that also runs on Windows and macOS. `core_ms` passed its first
+big-endian test on the way. The eleven casacure defects are listed in
+`non-ratt-observations.md` (casacure is outside the reporting decision).
+
 Big plan task U3 (saopicc upstream), 2026-10-30 (implemented; measured;
 [upstream-saopicc.md](upstream-saopicc.md)): filed saopicc/killMS#23, #25,
 #27 and saopicc/DDFacet#73, #75, #77; opened killMS#24, #26 and DDFacet#74,
