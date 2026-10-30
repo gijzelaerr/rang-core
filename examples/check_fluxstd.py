@@ -3,12 +3,13 @@
 Usage (from the checkout, host venv):
 
     python examples/check_fluxstd.py outputs/fs1-20261030-01 outputs/fs1-20261030-03 \
-        outputs/o-casa-20261030-01 outputs/fs1-20261030-02/ocasa-model-check.json \
+        outputs/o-casa-20261030-01 outputs/fs1-20261030-06 outputs/fs1-20261030-04 \
         research/results/fs1-flux-standards.json
 
 Inputs: the main oracle run (`oracle_setjy.py`), the dense 1934-638 run
-(`--dense-1934`), the O-CASA run (its `fs-*-stokes-i.npy`, `chan-freq.npy`)
-and the per-row re-read of O-CASA's `fs-*.ms` MODEL_DATA. Reads only; writes
+(`--dense-1934`), the O-CASA run (its `fs-*-stokes-i.npy`, `chan-freq.npy`),
+the re-read of O-CASA's `fs-*.ms` MODEL_DATA (`--reread-ocasa`) and a rerun
+of the main oracle (hashes compared). Reads only; writes
 the compact archive (research/fs1-flux-standards.md, "Acceptance").
 """
 
@@ -150,10 +151,38 @@ def compare_dense(run, archive):
     return out
 
 
-def compare_ocasa(ocasa, check_json):
+def compare_ocasa(ocasa, reread):
     freq = np.load(ocasa / "chan-freq.npy")
-    out = {"per_row_reread": json.loads(Path(check_json).read_text())}
+    out = {"per_row_reread": json.loads((reread / "ocasa-reread.json").read_text())}
+    if not np.array_equal(np.load(reread / "arrays/ocasa--chan-freq.npy"), freq):
+        raise RuntimeError("O-CASA channel frequencies differ between runs")
     port = fluxstd.flux("1934-638", freq, "Stevens-Reynolds 2016")[:, 0]
+    for label in ("fs-sr2016", "fs-pb2010"):
+        row0 = np.load(reread / f"arrays/ocasa--{label}--xx-row0.npy")
+        out["per_row_reread"][label]["row0_vs_port_ulps_max"] = ulps(row0, port)
+        out["per_row_reread"][label]["row0_vs_port_double_max_rel"] = rel(row0, port)
+    # The setjy-equivalent 1934-638 arm: lsm source -> core predictor, complex64.
+    src = fluxstd.lsm_source(
+        "J1939-6342", "SR2016", 0.0, 0.0, 1.284e9, (freq[0], freq[-1])
+    )
+    from rangtoy import core, lsm
+
+    vis = core.predict_components(
+        np.array([[0.0, 0.0, 0.0], [120.0, -40.0, 3.0]]),
+        freq,
+        **lsm.components([src], (0.0, 0.0)),
+    ).astype(np.complex64)
+    row0 = np.load(reread / "arrays/ocasa--fs-sr2016--xx-row0.npy")
+    out["setjy_arm_predictor"] = {
+        "vs_casa_rows_ulps_max": ulps(row0, vis.real.astype(np.float64)[0]),
+        "vs_casa_rows_ulps_max_row1": ulps(row0, vis.real.astype(np.float64)[1]),
+        "max_abs_imag": float(np.abs(vis.imag).max()),
+        "port_i_at_1p4ghz": float(fluxstd.flux("1934-638", [1.4e9], "SR2016")[0, 0]),
+        "stored_model_i_at_1p4ghz_ocasa": 14.9028,
+    }  # fmt: skip
+    out["setjy_arm_predictor"]["port_over_stored_at_1p4ghz"] = (
+        out["setjy_arm_predictor"]["port_i_at_1p4ghz"] / 14.9028 - 1
+    )
     reynolds_mhz = 10 ** np.polynomial.polynomial.polyval(
         np.log10(freq / 1e6), fluxstd.REYNOLDS_1994_MHZ
     )
@@ -198,6 +227,27 @@ def rust_parity(archive):
             "wall_s_incl_build": round(time.time() - start, 2)}  # fmt: skip
 
 
+def manual_vs_standards():
+    """CARACal's manual 1934-638 model against SR2016 (= PB2010 below 10 GHz)."""
+    bands = {
+        "UHF 0.544-1.088 GHz": (0.544e9, 1.088e9),
+        "L 0.856-1.712 GHz": (0.856e9, 1.712e9),
+        "S 1.75-3.5 GHz": (1.75e9, 3.5e9),
+        "11.15-50 GHz": (11.15e9, 50e9),
+    }
+    out = {}
+    for name, (lo, hi) in bands.items():
+        nu = np.linspace(lo, hi, 4001)
+        man = fluxstd.manual(nu, **fluxstd.CARACAL_1934)
+        sr = fluxstd.flux("1934-638", nu, "SR2016")[:, 0]
+        pb = fluxstd.flux("1934-638", nu, "PB2010")[:, 0]
+        out[name] = {
+            "manual_vs_sr2016_max_rel": rel(man, sr),
+            "manual_vs_pb2010_max_rel": rel(man, pb),
+        }
+    return out
+
+
 def builder_check():
     from rangtoy import lsm
 
@@ -230,16 +280,21 @@ def builder_check():
 
 def main(argv):
     run, dense, ocasa = (Path(a) for a in argv[1:4])
-    check_json, out_path = argv[4], Path(argv[5])
+    reread, rerun, out_path = Path(argv[4]), Path(argv[5]), Path(argv[6])
     archive = {"oracle": {}, "dense_1934": {}}
     rows, refusals, pending, frame, rec = compare_oracle(run, archive)
+    again = json.loads((rerun / "oracle.json").read_text())["array_sha256"]
     result = {
         "task": "FS1 flux standards (research/fs1-flux-standards.md)",
         "oracle_runs": {
             "main": str(run),
             "dense_1934": str(dense),
             "ocasa": str(ocasa),
+            "ocasa_reread": str(reread),
+            "rerun_of_main": str(rerun),
         },
+        "rerun_arrays_bit_identical": again == rec["array_sha256"],
+        "manual_vs_standards_1934": manual_vs_standards(),
         "casatools": rec["casatools"],
         "image_id": (run / "image-id.txt").read_text().strip(),
         "array_sha256": rec["array_sha256"],
@@ -248,7 +303,7 @@ def main(argv):
         "pending_no_table": pending,
         "frame_epoch_check": frame,
         "dense_1934": compare_dense(dense, archive),
-        "ocasa_1934": compare_ocasa(ocasa, check_json),
+        "ocasa_1934": compare_ocasa(ocasa, reread),
         "rust_python": rust_parity(archive),
         "component_builder": builder_check(),
         "breaks_hz": {
@@ -267,6 +322,8 @@ def main(argv):
         "ocasa_replay_bit_identical": all(result["ocasa_1934"][k]["replay_of_ocasa_reduction_bit_identical"] for k in ("sr2016", "pb2010")),
         "unrecognised_refused": all(r["port_refuses"] for r in refusals),
         "rust_python_1e-13": result["rust_python"]["max_rel"] <= 1e-13,
+        "ocasa_rows_port_0_ulps": all(result["ocasa_1934"]["per_row_reread"][k]["row0_vs_port_ulps_max"] == 0 and result["ocasa_1934"]["per_row_reread"][k]["real_rows_identical"] for k in ("fs-sr2016", "fs-pb2010")),
+        "rerun_bit_identical": result["rerun_arrays_bit_identical"],
     }  # fmt: skip
     result["acceptance"] = acceptance
     out_path.write_text(json.dumps(result, separators=(",", ":")) + "\n")

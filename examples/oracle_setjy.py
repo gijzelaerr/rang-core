@@ -269,8 +269,38 @@ def run_standard(run, template, standard, fields, record, hashes, manual=None):
     shutil.rmtree(ms)  # the arrays and logs are the evidence; MS copies are large
 
 
+def reread_ocasa(run, ocasa):
+    """Per-row Stokes I of O-CASA's fs-*.ms MODEL_DATA (read-only), saved with
+    the channel frequencies; host-side comparison in check_fluxstd.py."""
+    tb = table()
+    out, hashes = {}, {}
+    tb.open(f"{ocasa}/fs-sr2016.ms/SPECTRAL_WINDOW")
+    save(run, "ocasa--chan-freq", tb.getcell("CHAN_FREQ", 0), hashes)
+    tb.close()
+    for label in ("fs-sr2016", "fs-pb2010"):
+        tb.open(f"{ocasa}/{label}.ms")
+        data = tb.getcol("MODEL_DATA")  # casatools: (corr, chan, row)
+        tb.close()
+        xx, yy = data[0].T, data[3].T  # (row, chan) complex64
+        out[label] = {
+            "nrow": int(xx.shape[0]),
+            "real_rows_identical": bool(np.all(xx.real == xx.real[:1])),
+            "xx_eq_yy": bool(np.array_equal(xx, yy)),
+            "max_abs_cross": float(np.abs(data[1:3]).max()),
+            "max_abs_imag": float(np.abs(xx.imag).max()),
+        }
+        save(run, f"ocasa--{label}--xx-row0", np.ascontiguousarray(xx[0].real), hashes)
+    out["array_sha256"] = hashes
+    (run / "ocasa-reread.json").write_text(json.dumps(out, indent=1))
+    print(json.dumps(out))
+
+
 def main(argv):
     run = Path(argv[1]).resolve()
+    if "--reread-ocasa" in argv:
+        (run / "arrays").mkdir(parents=True, exist_ok=True)
+        reread_ocasa(run, Path(argv[argv.index("--reread-ocasa") + 1]))
+        return
     tables = None
     if "--tables" in argv:
         tables = Path(argv[argv.index("--tables") + 1]).resolve()

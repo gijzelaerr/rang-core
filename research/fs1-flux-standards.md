@@ -232,13 +232,36 @@ Everything below is post-freeze. Oracle: `rang-o-casa:6.7.6.14` (image
   piece breaks for 1934−638 between sample points: 303 SPWs over
   9.6–12.1 GHz (10 MHz steps, each 0.1 GHz value ±1 kHz), SR2016 and PB2010
   (`oracle.json` sha256 `0336d724…`).
-- `outputs/fs1-20261030-02/ocasa-model-check.json`: post-hoc per-row re-read
-  of O-CASA's `fs-sr2016.ms`/`fs-pb2010.ms` MODEL_DATA (read-only mount;
-  script in the session scratchpad, logic reproduced in
-  `examples/check_fluxstd.py`'s O-CASA replay).
+- `outputs/fs1-20261030-04`: an unintended full rerun of run 01 (a
+  `--reread-ocasa` edit had not been saved); kept as a reproducibility
+  check: all 114 array hashes are identical to run 01.
+- `outputs/fs1-20261030-05`, `-06`: `--reread-ocasa`, post-hoc, the per-row
+  re-read of O-CASA's `fs-sr2016.ms`/`fs-pb2010.ms` MODEL_DATA (O-CASA run
+  mounted read-only). Run 05 compared complex rows and reported them as not
+  identical because of 1.8e-12 imaginary parts (row phases on the real
+  array); run 06 compares the real parts (identical) and records the
+  imaginary maximum. Run 06 is the evidence. (A first python-casacore
+  re-read with the same result, `fs1-20261030-02/ocasa-model-check.json`,
+  came from a scratch script and is superseded by run 06.)
+- `outputs/fs1-20261030-02`: the check-all log.
 - Comparison: `examples/check_fluxstd.py` → `research/results/fs1-flux-standards.json`
   (compact: the doubles per canonical source, every 50th L-band channel of
   the float32 MODEL_DATA, all comparison rows, hashes; no MS data).
+
+Commands (from the worktree; `$RUN` a fresh run directory, `$O` the O-CASA
+run `outputs/o-casa-20261030-01`):
+
+```bash
+docker image inspect --format '{{.Id}}' rang-o-casa:6.7.6.14 > $RUN/image-id.txt
+docker run --rm --user $(id -u):$(id -g) --network none --tmpfs /tmp -e HOME=/tmp \
+  -v $PWD/examples:/code:ro -v $RUN:/run -w /run rang-o-casa:6.7.6.14 \
+  /usr/bin/time -f "%e %M %x" -o /run/time-inner.txt \
+  /opt/casa/bin/python -I /code/oracle_setjy.py /run            # runs 01, 04
+#   ... oracle_setjy.py /run --dense-1934                      # run 03
+#   add -v $(realpath $O):/ocasa:ro and: ... /run --reread-ocasa /ocasa   # run 06
+python examples/check_fluxstd.py outputs/fs1-20261030-01 outputs/fs1-20261030-03 \
+  $O outputs/fs1-20261030-06 outputs/fs1-20261030-04 research/results/fs1-flux-standards.json
+```
 
 ### What CASA does (identified from the oracle)
 
@@ -294,7 +317,9 @@ Everything below is post-freeze. Oracle: `rang-o-casa:6.7.6.14` (image
   rewritten) and TOPO 2010 give bit-identical `fluxd` at the stored channel
   frequencies; CASA evaluates at CHAN_FREQ as stored.
 - **Stokes.** Q = U = V = 0 in the returned `fluxd` and in MODEL_DATA
-  (XY = YX = 0, XX = YY, imaginary parts 0) for every standard and source.
+  (XY = YX = 0, XX = YY, imaginary parts 0 on the synthetic MS) for every
+  source under PB2010, Baars, SR2016 and `manual`. Unverified for PB2017
+  until its table exists (the paper itself gives Stokes I only).
 - **PB2017/PB2013.** `setjy` returns `{}` (table missing) for every name it
   accepts, without raising, so a pipeline that does not check the return
   value keeps the previous MODEL_DATA. J0408−6545 is "not recognized" before
@@ -308,7 +333,7 @@ Everything below is post-freeze. Oracle: `rang-o-casa:6.7.6.14` (image
 | --- | --- |
 | 1. Doubles ≤ 1e-6 relative in range | **pass**: max 1.6e-14 (Baars 1934−638); all other sets ≤ 3.1e-15 |
 | 2. Float32 MODEL_DATA within 1 ulp | **pass**: 0 ulps, every channel of 1001, every source and alias (31 rows) |
-| 3. 1934−638 coincidence | **pass, re-attributed**: SR2016 and PB2010 bit-identical below 10 GHz; O-CASA's saved arrays reproduced *bit-identically* by replaying its reduction on the port's values; CASA's own per-row MODEL_DATA equals the port to 0 ulps on all 2048 channels × 192 rows (see below) |
+| 3. 1934−638 coincidence | **frozen premise falsified.** The criterion assumed CASA differs from Reynolds 1994 by 2.7e-6; it differs by ≤ 6.0e-8 on O-CASA's band. In its place: SR2016 and PB2010 bit-identical below 10 GHz (as in O-CASA); CASA's per-row MODEL_DATA in O-CASA's `fs-*.ms` equals the port to 0 ulps on all 2048 channels × 192 rows (run 06); and O-CASA's saved arrays are reproduced *bit-identically* by replaying its float32 reduction on the port's values (see below) |
 | 4. Manual model | **pass**: 2.3e-15 on the doubles, 0 ulps on L-band |
 | 5. Out of range | CASA extrapolates silently; the port refuses by default and with `extrapolate=True` meets criterion 1 on all of 0.05–50 GHz (max 1.6e-14). Unknown names: CASA 1 Jy, port refuses (24/24) |
 | 6. Rust ↔ Python | **pass**: 34 models' pieces on 1100 frequencies, max 1.6e-14 (≤ 1e-13); the archived oracle values are also Rust unit tests |
@@ -323,7 +348,7 @@ over recognised aliases; doubles on 0.05–50 GHz / L-band float32 ulps):
 | Baars | 3.1e-15 / 0 | 2.0e-15 / 0 | 1.6e-15 / 0 | 1.6e-15 / 0 | 2.7e-15 / 0 | refused (CASA: 1 Jy) | 1.6e-14 / 0 |
 | Stevens-Reynolds 2016 | refused | refused | refused | refused | refused | refused | 1.1e-15 (dense) / 0 |
 | manual (CARACal) | | | | | | | 2.3e-15 / 0 |
-| Perley-Butler 2017 | pending | pending | pending | pending | pending | pending | not in PB2017 |
+| Perley-Butler 2017 | pending | pending | pending | pending | pending | pending | not in PB2017 (paper) |
 
 ### The 2.7e-6 of O-CASA, attributed
 
@@ -337,8 +362,24 @@ storage); the float32 mean over rows is 2.65e-6 off. Replaying that float32
 reduction on the port's values gives O-CASA's arrays bit for bit. So the
 residual O-CASA measured is its reduction's float32 accumulation, and the
 CASA/Reynolds difference is ≤ 6.0e-8 on that band (coefficient rounding).
-The port reproduces both numbers; the protocol's "reproduce 2.7e-6"
-criterion is met in that sense, with the attribution corrected.
+The same reduction produced O-CASA's "CARACal manual fit to 4.8e-6": the
+manual model and SR2016 differ by ≤ 5.6e-8 (UHF, 0.544–1.088 GHz),
+6.3e-8 (L, 0.856–1.712 GHz) and 6.4e-8 (S, 1.75–3.5 GHz). They diverge
+only above 11.15 GHz (up to 140 % against SR2016's power law and 21 %
+against PB2010's cubic by 50 GHz), where the manual model has no
+high-frequency piece. For MeerKAT bands the choice among CARACal's manual
+model, SR2016 and PB2010 (CASA's fallback, bit-identical to SR2016 below
+10 GHz) is immaterial. Follow-ups outside FS1's files: an erratum in
+`research/o-casa.md` and STATE.md ("to 3e-6"), and `inspect_tables.py`
+should average with `dtype=np.float64`.
+
+**A setjy-equivalent 1934−638 arm, measured.** `lsm_source("J1939-6342",
+"SR2016", ...)` → `lsm.components` → `core.predict_components` (point
+source at the phase centre, O-CASA's 2048 channel frequencies), cast to
+complex64, equals CASA's MODEL_DATA rows to 0 ulps (imaginary part 0;
+CASA's rows carry ≤ 1.8e-12). The stored MODEL_DATA the core campaigns
+used is 14.9028 Jy at 1.4 GHz (O-CASA); the standard gives 14.9077 Jy,
+0.033 % higher.
 
 ### Implementation
 
@@ -382,8 +423,11 @@ criterion is met in that sense, with the attribution corrected.
 | 2026-10-30 | `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` | worktree, public PyPI | 63.4 s | 891 MB | |
 | 2026-10-30 | `oracle_setjy.py` (docker) | run `fs1-20261030-01` | 166.1 s (inside 165.7 s; build 31 s, PB2010 46 s, Baars 42 s, SR2016 11 s, frame check 28 s) | 295 MB (container) | 114 arrays |
 | 2026-10-30 | `oracle_setjy.py --dense-1934` (docker) | run `fs1-20261030-03` | 29.8 s (inside 29.2 s) | 282 MB | 303 SPWs, 2 standards |
-| 2026-10-30 | O-CASA MS re-read (python-casacore in the image) | `o-casa-20261030-01/fs-*.ms` | ~1 s | – | `ocasa-model-check.json` |
+| 2026-10-30 | O-CASA MS re-read (scratch script, python-casacore in the image) | `o-casa-20261030-01/fs-*.ms` | ~1 s | – | `fs1-20261030-02/ocasa-model-check.json`, superseded by run 06 |
+| 2026-10-30 | `oracle_setjy.py` (docker), unintended rerun | run `fs1-20261030-04` | 146.2 s (inside 145.9 s) | 293 MB | 114 arrays bit-identical to run 01 |
+| 2026-10-30 | `oracle_setjy.py --reread-ocasa` (docker) | runs `fs1-20261030-05`, `-06` | 1.8 s, 1.6 s (inside 1.5, 1.3 s) | 351 MB | 05 compared complex rows (1.8e-12 imaginary parts); 06 real parts, the evidence |
 | 2026-10-30 | `cargo test` / `clippy -D warnings` / `build --release` standalone | `fs1-standalone` | 0.3 / 0.1 / 0.3 s | 145 / 122 / 121 MB | 9 passed; clean |
-| 2026-10-30 | `check_fluxstd.py` | runs 01, 03, O-CASA | 0.1 s | 44 MB | all acceptance true |
+| 2026-10-30 | `check_fluxstd.py` | runs 01, 03, 04, 06, O-CASA | 0.1 s | 46 MB | all acceptance true (final archive) |
 | 2026-10-30 | `pytest tests/test_fluxstd.py` | archive | 0.2 s | 54 MB | 12 passed |
 | 2026-10-30 | `bash tools/check-all.sh`, once before the final commit | branch at `e3436aa` + the FS1 files (log `outputs/fs1-20261030-02/check-all.log`) | 333.5 s (pytest 698 passed, 5 skipped in 152.8 s) | 1.67 GB | PASS |
+| 2026-10-30 | `bash tools/check-all.sh`, before the second commit | branch at `eb88550` + the re-read, arm and manual-comparison changes (log `outputs/fs1-20261030-06/check-all.log`) | 214.8 s (pytest 698 passed, 5 skipped in 99.2 s) | 1.59 GB | PASS |

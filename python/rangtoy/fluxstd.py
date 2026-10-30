@@ -462,3 +462,20 @@ def rust_log10_poly(lib, coeffs, unit_hz, freq_hz):
     if rc != 0:
         raise ValueError("rang_core_fluxstd_eval rejected its input")
     return out.reshape(np.shape(freq_hz))
+
+
+def core_log10_poly(coeffs, unit_hz, freq_hz):
+    """The Rust kernel through the extension once the coordinator binds
+    `rangtoy._core.fluxstd_eval(coeffs, unit_hz, freq) -> ndarray`; until then
+    the standalone cdylib (needs cargo)."""
+    try:
+        from rangtoy import _core
+    except ImportError:
+        _core = None
+    if _core is not None and hasattr(_core, "fluxstd_eval"):
+        freq = np.ascontiguousarray(freq_hz, dtype=float)
+        coeffs = np.ascontiguousarray(coeffs, dtype=float)
+        return np.asarray(_core.fluxstd_eval(coeffs, unit_hz, freq.ravel())).reshape(
+            freq.shape
+        )
+    return rust_log10_poly(rust_library(), coeffs, unit_hz, freq_hz)
