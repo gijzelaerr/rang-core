@@ -282,7 +282,7 @@ CPU-heavy tasks at a time on 8 physical cores.
   shipped 3.5.0 binary adds a defect; stage-level difference, mostly
   Tricolour's input-flag growth; two AOFlagger 3.5.0 bugs; image
   `rang-aflag-aoflagger:3.5.0`), L5-C (CASA `gaincal`
-  as second comparator), DF5-O (WSClean multiscale and pfb-imaging as
+  as second comparator; L5-C done 2026-10-31 (`l5c-casa-gaincal.md`: CASA G within δ of the core on the slice, outside on the fixture; tail reproduced on the slice (4 of 4, enrichment 5.6), undecidable on the fixture, array not run by the budget rule; no default change).), DF5-O (WSClean multiscale and pfb-imaging as
   deconvolution oracles), NB-CARTA (optional notebook helper). The matched
   CARACal baseline below is O-CASA plus the Tricolour port.
 - Later, not started: a matched full CARACal pipeline baseline on the LUNO

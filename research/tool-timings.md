@@ -1157,3 +1157,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan DF2c: `core_campaign_closure.run(..., gridder='wgrid')` (first: no cargo on PATH; repeated) | four stations | 0.3 / 17.8 s | 39 / 284 MB |  |
 | 2026-10-31 | big plan DF2c: `bash tools/check-all.sh` (takes the host lock itself; not wrapped) | worktree at `37c221c` | 10 min 17 s | – | **PASS**: Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 696 passed, 16 skipped in 198.9 s; log `outputs/df2c-20261031-check-all.log` |
 | 2026-10-31 | big plan DF2c: pytest `tests/test_pc1_preconditions.py -rs` | L1 and L2 preconditions | 17.9 s | – | 2 passed, not skipped |
+| 2026-10-30 | big plan L5-C: `uv venv` + `uv pip install -e .[pointing,beam,test,imaging,formats]` (L5-C worktree) | public PyPI | 166 s | 1.15 GB | builds the extension |
+| 2026-10-30 | big plan L5-C: CASA 6.7.6 `gaincal` environment smokes 1–4 (L5-C) | synthetic copy of O-CASA's slice MS | 3.5–6 s each | ≈ 300 MB | scratch, deleted |
+| 2026-10-30 | big plan L5-C: `oracle_casa_gaincal.py run fixture` (labelled smoke `l5c-20261031-00-smoke`) | fixture `work.ms` | 136 s | 308 MB container | deleted |
+| 2026-10-30 | big plan L5-C: `oracle_casa_gaincal.py run fixture` (`l5c-20261031-01`) | fixture `work.ms`, 128 chunks | 92.9 s | 302 MB container | G solve 20.1 s (128 calls, 0.134 s each), T 16.1 s, restarts 12–14 s each, apply 3.3 s |
+| 2026-10-30 | big plan L5-C: `oracle_casa_gaincal.py run slice` (`l5c-20261031-01`) | `luno-solve-20261029-02/work.ms`, 64 chunks | 92.0 s | 287 MB container | G solve 8.7 s (64 calls, 0.113 s), T 18.0 s, restarts 10–12 s, apply 7.0 s |
+| 2026-10-30 | big plan L5-C: `compare_l5c.py compare fixture / slice` | `-01` | 6.8 s / 10.4 s | 729 / 555 MB | core D 0.049 / 0.096 s wall at 4 threads |
+| 2026-10-30 | big plan L5-C: `bash tools/check-all.sh` (L5-C) | branch `l5c-casa-gaincal` | 557.6 s | 1.98 GB | overall PASS; pytest 686 passed, 15 skipped |

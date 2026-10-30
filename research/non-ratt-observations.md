@@ -235,3 +235,22 @@ to an unrelated package (carta-python is not on PyPI).
 | AOFlagger 3.5.0 | `Data:clear_mask()` removes the mask (`SetNoMask`), after which `invert_mask()` is a silent no-op. Not a bug, but the obvious "flag everything" idiom fails without an error. | deviation 1 | Documentation note, or make `invert_mask` create the mask | not reported by decision |
 | AOFlagger 3.5.0 | `VerticalStacked` pads the compacted column with zero-valued, unflagged samples to the full height, so y windows can extend past the last valid sample. The x direction stops at it. Small effect: 4 cells in 40 synthetic columns. | `tools/oracles/aoflagger/posthoc/probe11.py` | Note, or stop at the valid length | not reported by decision |
 | KERN-10 `aoflagger` 3.5.0-1kern1 | The Python module installs as `/usr/lib/aoflagger.cpython-312-x86_64-linux-gnu.so`, off `sys.path`, so `import aoflagger` fails until `PYTHONPATH=/usr/lib` | Dockerfile | Install to `dist-packages` | not reported by decision |
+
+## From L5-C (2026-10-31; CASA 6.7.6; not reported by decision)
+
+1. `gaincal` `gaintype='G'`/`'T'` silently ignores the frequency part of
+   `solint` (`'16s,32ch'` gives one channel); frequency intervals need one
+   call per channel selection.
+2. A seconds `solint` does not cut at integration pairs: with 8 s dumps
+   `'16s'` drifts up to 8 s from the pair centres and `'12s'` gives 21
+   bins for 16 pairs; relabelling scans with `solint='inf'` is exact.
+3. VisCalSolver2's iteration limit (50) is reported only on stdout
+   ("Reached iteration limit: 50 iterations."), not in the CASA log or
+   the returned dictionary; convergence at its chi-squared criterion is
+   not reported at all, so iteration counts are not observable through
+   the task.
+4. The chi-squared stop leaves G products a median 6.4e-4 (high-SNR
+   fixture) / 3.8e-5 (slice) from the solution a restart reaches; three
+   restarts settle to about 1e-6.
+5. `gaincal` pre-applies tables with `calwt=True` hard-coded
+   (`task_gaincal.py`), which keeps restarts consistent with one solve.

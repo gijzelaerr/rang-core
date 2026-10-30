@@ -648,3 +648,7 @@ confirms and the post-hoc diagnostic); run directories
 R, R_T and Anderson), `-10`…`-14`, `-16`, `-17`, `-19` (confirms, images)
 and their `.log` files. The superseded sweeps `-03`, `-04`, `-06`, `-07`
 (identical arms, fewer metrics) can be deleted.
+
+## After L5-C (2026-10-31)
+
+L5-C (`l5c-casa-gaincal.md`) ran CASA `gaincal` G on the same intervals: the core's capped intervals on the slice are also CASA's slowest (tail reproduced, 4 of 4, enrichment 5.6; post hoc, six of seven failing-gain intervals under-constrained), so the 50-cap tail is a property of the data there; the array remains open.

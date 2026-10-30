@@ -1,5 +1,30 @@
 # Rang research state
 
+L5-C CASA `gaincal` as the second solver comparator (big plan),
+2026-10-31 (implemented; measured; [l5c-casa-gaincal.md](l5c-casa-gaincal.md)).
+Protocol frozen first. CASA 6.7.6 `gaincal` (O-CASA's image) solves on
+L5's own intervals (2 integrations × 32 channels: one call per chunk,
+scans relabelled to the core's time bins, `solint='inf'`,
+`minblperant=1`, `minsnr=0`), flags and model, with the held-out cells
+flagged, on the fixture and the LUNO four-station slice. Held-out test
+error on the parallel hands against the core's QuartiCal port: +7.6e-5
+on the slice (within L5's δ = 1e-4) and +1.23e-4 on the fixture
+(outside); both are below the core's unrefitted diagonal part (+9.4e-5,
++2.4e-4), and what the remaining gap is due to is not measured. CASA's
+`applycal` and the core's reader (new `nearest` time interpolation)
+agree to 6.2e-7. The convergence tail is reproduced on the slice: the 4
+intervals where the core's cap-50 iterate is 1e-4 from its
+500-iteration run are all unsettled for CASA (enrichment 5.6 against a
+threshold of 5); post hoc, all 12 intervals with a gain failing the
+core's test at the cap rank in CASA's top 2 % (slice) / 30 % (fixture),
+and six of the slice's seven are under-constrained. CASA never hits its own
+50-iteration cap in a first solve: its chi-squared stop leaves the
+products 3.8e-5 (slice) / 6.4e-4 (fixture) from its restarted solution.
+The fixture is undecidable (no interval at 1e-4), the whole array not run
+(the frozen budget rule: 341 min against 60). CASA costs 75–350× the
+core's D wall as run. No default changes. Archive
+`results/l5c-casa-gaincal.json`.
+
 DF2c, `--gridder` for the campaign runs (big plan), 2026-10-31
 (implemented; measured; [df2c-campaign-gridder.md](df2c-campaign-gridder.md)).
 Plan frozen first. `--gridder wstack|wgrid` now reaches all five campaign

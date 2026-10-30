@@ -471,3 +471,7 @@ saopicc (DDFacet, killMS):
   - The window sequence.
   - A per-channel and per-chunk MAD estimate against AOFlagger's global
     winsorized mode.
+
+## L5-C observation (2026-10-31; QuartiCal #455 comment to file once the user says so)
+
+- CASA 6.7.6 `gaincal` G solved on the same 2 × 32 intervals of the LUNO four-station slice is slowest in the same intervals as QuartiCal 0.2.7's `complex` (measured with rang's validated port of it: Spearman 0.70 of the per-interval distance to each solver's own long run; all 4 intervals whose products still move by 1e-4 between 50 and 500 iterations are unsettled for CASA; post hoc, all 7 intervals with a gain failing the 1e-7 test at 50 iterations are in CASA's top 2 %, and six of the seven are under-constrained: an antenna with one observed baseline, or no observed triangle). CASA shows no tail because its chi-squared stop ends earlier (its own 50-iteration cap never binds; its products stay 4e-5 median from its restarted solution), with a held-out error within 1e-4 of the port's. This supports counting only constrained intervals in the stop fraction.
