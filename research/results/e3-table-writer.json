@@ -1,0 +1,577 @@
+{
+ "task": "E3 casacore table writer (research/e3-table-writer.md)",
+ "runs": {
+  "oracle": "outputs/e3-20261030-01 (python-casacore 3.8.1, rang-ms-reader:local)",
+  "check": "outputs/e3-20261030-02 (frozen check, all criteria)",
+  "post_hoc": "-03 criterion 6 with the fixed try-lock probe; -04 criterion 8 with the peak RSS reset; -05 a second casacore oracle write"
+ },
+ "frozen_result": {
+  "criteria": {
+   "1 cases": false,
+   "2 readback": true,
+   "3 roundtrip": true,
+   "4 reader": true,
+   "5 addcols": true,
+   "6 locks": true,
+   "7 serialisation": true,
+   "8 scale": true
+  },
+  "wall_s": {
+   "cases": 2.0411565670074197,
+   "readback": 6.211981816988555,
+   "roundtrip": 3.3233102630038047,
+   "reader": 0.7880434109974885,
+   "addcols": 4.2331817079975735,
+   "locks": 22.08354906999739,
+   "serialisation": 0.0023812569997971877,
+   "scale": 0.6221042529941769
+  },
+  "criterion_1_masking_alignment_padding": true,
+  "pass": false
+ },
+ "criterion_1": {
+  "pass_as_frozen": false,
+  "pass_masking_alignment_padding_post_hoc": true,
+  "cases": [
+   {
+    "name": "F-flagrow",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 24.0,
+    "casacore_ms": 29.3
+   },
+   {
+    "name": "F-ant1",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 26.2,
+    "casacore_ms": 10.5
+   },
+   {
+    "name": "F-flag",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 3.9,
+    "casacore_ms": 7.9
+   },
+   {
+    "name": "F-ws",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 7.4,
+    "casacore_ms": 10.7
+   },
+   {
+    "name": "F-data",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 6.5,
+    "casacore_ms": 11.3
+   },
+   {
+    "name": "F-sigma",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 4.7,
+    "casacore_ms": 7.0
+   },
+   {
+    "name": "F-uvw",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 4.8,
+    "casacore_ms": 7.2
+   },
+   {
+    "name": "F-ranges",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 4.7,
+    "casacore_ms": 10.2
+   },
+   {
+    "name": "F-keywords",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 5.9,
+    "casacore_ms": 6.8
+   },
+   {
+    "name": "F-multi",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 8.9,
+    "casacore_ms": 16.3
+   },
+   {
+    "name": "F-add-default",
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     {
+      "file": "table.f6i",
+      "bytes_differing": 323,
+      "first_difference": 131100,
+      "alignment_padding_only": true
+     }
+    ],
+    "core_ms": 22.7,
+    "casacore_ms": 24.8
+   },
+   {
+    "name": "F-add-group",
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     {
+      "file": "table.f6i",
+      "bytes_differing": 323,
+      "first_difference": 131100,
+      "alignment_padding_only": true
+     }
+    ],
+    "core_ms": 25.9,
+    "casacore_ms": 26.4
+   },
+   {
+    "name": "F-add-shape",
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     {
+      "file": "table.f6i",
+      "bytes_differing": 323,
+      "first_difference": 131100,
+      "alignment_padding_only": true
+     }
+    ],
+    "core_ms": 20.5,
+    "casacore_ms": 25.2
+   },
+   {
+    "name": "F-add-tcs",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 20.4,
+    "casacore_ms": 11.3
+   },
+   {
+    "name": "F-add-tss",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 17.4,
+    "casacore_ms": 16.3
+   },
+   {
+    "name": "F-add-ssm-new",
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     {
+      "file": "table.f25i",
+      "bytes_differing": 323,
+      "first_difference": 131100,
+      "alignment_padding_only": true
+     }
+    ],
+    "core_ms": 17.8,
+    "casacore_ms": 25.6
+   },
+   {
+    "name": "F-antenna-strings",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 3.9,
+    "casacore_ms": 8.9
+   },
+   {
+    "name": "L-flag",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 3.4,
+    "casacore_ms": 4.4
+   },
+   {
+    "name": "L-model",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 6.4,
+    "casacore_ms": 5.7
+   },
+   {
+    "name": "L-ws",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 4.0,
+    "casacore_ms": 5.4
+   },
+   {
+    "name": "L-flagrow",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 4.0,
+    "casacore_ms": 9.4
+   },
+   {
+    "name": "L-uvw",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 3.1,
+    "casacore_ms": 11.5
+   },
+   {
+    "name": "L-kw",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 4.0,
+    "casacore_ms": 6.9
+   },
+   {
+    "name": "I-corr",
+    "identical": true,
+    "padding_only": true,
+    "differ": [],
+    "core_ms": 7.0,
+    "casacore_ms": 7.7
+   }
+  ]
+ },
+ "criterion_2": {
+  "pass": true,
+  "cases": {
+   "F-flagrow": true,
+   "F-ant1": true,
+   "F-flag": true,
+   "F-ws": true,
+   "F-data": true,
+   "F-sigma": true,
+   "F-uvw": true,
+   "F-ranges": true,
+   "F-keywords": true,
+   "F-multi": true,
+   "F-add-default": true,
+   "F-add-group": true,
+   "F-add-shape": true,
+   "F-add-tcs": true,
+   "F-add-tss": true,
+   "F-add-ssm-new": true,
+   "F-antenna-strings": true,
+   "L-flag": true,
+   "L-model": true,
+   "L-ws": true,
+   "L-flagrow": true,
+   "L-uvw": true,
+   "L-kw": true,
+   "I-corr": true
+  },
+  "casacure_excluded_columns": 0
+ },
+ "criterion_3": {
+  "pass": true,
+  "files_identical": true,
+  "same_columns_written": true,
+  "readback_identical": true,
+  "tables": 41,
+  "columns_written": 328,
+  "core_skipped": {
+   "core/tv-caracal-wsl-20261029-01": {
+    "FLAG_CATEGORY": "OSError: FLAG_CATEGORY: row 0 has no tiled array"
+   },
+   "core/luno-solve-20261029-02": {
+    "FLAG_CATEGORY": "OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array"
+   },
+   "core/tv-next-imaging-wsl-20261029-01": {
+    "FLAG_CATEGORY": "OSError: FLAG_CATEGORY: row 0 has no tiled array"
+   }
+  },
+  "casacure_excluded": {
+   "core/tv-caracal-wsl-20261029-01/FLAG_CMD": [
+    "APPLIED",
+    "COMMAND",
+    "INTERVAL",
+    "REASON",
+    "TIME",
+    "TYPE"
+   ],
+   "core/tv-caracal-wsl-20261029-01/POINTING": [
+    "NAME"
+   ],
+   "core/tv-caracal-wsl-20261029-01/PROCESSOR": [
+    "FLAG_ROW",
+    "SUB_TYPE",
+    "TYPE"
+   ],
+   "core/luno-solve-20261029-02/FLAG_CMD": [
+    "APPLIED",
+    "COMMAND",
+    "INTERVAL",
+    "REASON",
+    "TIME",
+    "TYPE"
+   ],
+   "core/luno-solve-20261029-02/HISTORY": [
+    "APPLICATION",
+    "APP_PARAMS",
+    "CLI_COMMAND",
+    "MESSAGE",
+    "ORIGIN",
+    "PRIORITY",
+    "TIME"
+   ],
+   "core/luno-solve-20261029-02/POINTING": [
+    "DIRECTION",
+    "INTERVAL",
+    "NAME",
+    "TARGET",
+    "TIME",
+    "TIME_ORIGIN",
+    "TRACKING"
+   ],
+   "core/luno-solve-20261029-02/PROCESSOR": [
+    "FLAG_ROW",
+    "SUB_TYPE",
+    "TYPE"
+   ],
+   "core/tv-next-imaging-wsl-20261029-01/FLAG_CMD": [
+    "APPLIED",
+    "COMMAND",
+    "INTERVAL",
+    "REASON",
+    "TIME",
+    "TYPE"
+   ],
+   "core/tv-next-imaging-wsl-20261029-01/POINTING": [
+    "NAME"
+   ],
+   "core/tv-next-imaging-wsl-20261029-01/PROCESSOR": [
+    "FLAG_ROW",
+    "SUB_TYPE",
+    "TYPE"
+   ]
+  },
+  "core_write_s": 0.318,
+  "casacore_write_s": 0.517
+ },
+ "criterion_4": {
+  "criterion": 4,
+  "pass": true,
+  "check_ms_reader_exit": 0,
+  "reader_files_unchanged": true,
+  "ms_rs_changes_only_visibility_and_docs_reported": false,
+  "reader_tests_untouched": true,
+  "ms_rs_lines_changed": 44,
+  "step": "reader",
+  "wall_s": 0.7880434109974885
+ },
+ "criterion_5": {
+  "pass": true,
+  "cases": {
+   "F-add-default": true,
+   "F-add-group": true,
+   "F-add-shape": true,
+   "F-add-tcs": true,
+   "F-add-tss": true,
+   "F-add-ssm-new": true
+  }
+ },
+ "criterion_6": {
+  "pass": true,
+  "core_refused_while_casacore_held_s": 2.0012790899927495,
+  "open_reader_saw_new_values": true,
+  "reported_core_holds_frozen_run": {
+   "core_held": true,
+   "casacore_while_core_holds": "acquired False",
+   "casacore_after_core_closed": "acquired False",
+   "as_expected": false
+  },
+  "reported_core_holds_post_hoc": {
+   "core_held": true,
+   "core_hold_s": 8,
+   "casacore_while_core_holds": {
+    "lock_free_at_start": false,
+    "acquired": true,
+    "waited_s": 8.05
+   },
+   "casacore_after_core_closed": {
+    "lock_free_at_start": true,
+    "acquired": true,
+    "waited_s": 0.0
+   },
+   "note": "casacore's open waits for a read lock, so it waits for the core",
+   "as_expected": true
+  },
+  "post_hoc_gated_parts_pass": true
+ },
+ "criterion_7": [
+  {
+   "ms": "/home/gijsm/Github/rang/outputs/tv-caracal-wsl-20261029-01/original.ms",
+   "tables": 14,
+   "ssm_files": 17,
+   "tiled_headers": 8,
+   "failures": []
+  },
+  {
+   "ms": "/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms",
+   "tables": 13,
+   "ssm_files": 13,
+   "tiled_headers": 0,
+   "failures": []
+  },
+  {
+   "ms": "/home/gijsm/Github/rang/outputs/tv-next-imaging-wsl-20261029-01/caracal-diagnostic.ms",
+   "tables": 14,
+   "ssm_files": 17,
+   "tiled_headers": 8,
+   "failures": []
+  }
+ ],
+ "criterion_8": [
+  {
+   "table": "scale-ssm.tab",
+   "cells": 342310912,
+   "core_wall_s": 0.10267139400821179,
+   "casacore_wall_s": 0.05573736900987569,
+   "hwm_before_bytes": 380891136,
+   "hwm_growth_bytes": 2306048,
+   "identical": true,
+   "pass": true
+  },
+  {
+   "table": "scale-tss.tab",
+   "cells": 342310912,
+   "core_wall_s": 0.13584158799494617,
+   "casacore_wall_s": 0.08914608199847862,
+   "hwm_before_bytes": 470728704,
+   "hwm_growth_bytes": 0,
+   "identical": true,
+   "pass": true
+  }
+ ],
+ "criterion_8_post_hoc_hwm_reset": [
+  {
+   "table": "scale-ssm.tab",
+   "cells": 342310912,
+   "core_wall_s": 0.08536527999967802,
+   "casacore_wall_s": 0.05573736900987569,
+   "hwm_reset": true,
+   "hwm_before_bytes": 380936192,
+   "hwm_growth_bytes": 2297856,
+   "identical": true,
+   "pass": true
+  },
+  {
+   "table": "scale-tss.tab",
+   "cells": 342310912,
+   "core_wall_s": 0.09961519201169722,
+   "casacore_wall_s": 0.08914608199847862,
+   "hwm_reset": true,
+   "hwm_before_bytes": 383246336,
+   "hwm_growth_bytes": 0,
+   "identical": true,
+   "pass": true
+  }
+ ],
+ "criterion_8_frozen_tss_memory_figure": "invalid: peak RSS before the call already held an earlier step's 90 MB peak",
+ "padding_nondeterminism_post_hoc": {
+  "addcols_cases_casacore_05_vs_01": {
+   "F-add-default": {
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     [
+      "table.f6i",
+      2,
+      true
+     ]
+    ]
+   },
+   "F-add-group": {
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     [
+      "table.f6i",
+      2,
+      true
+     ]
+    ]
+   },
+   "F-add-shape": {
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     [
+      "table.f6i",
+      2,
+      true
+     ]
+    ]
+   },
+   "F-add-ssm-new": {
+    "identical": false,
+    "padding_only": true,
+    "differ": [
+     [
+      "table.f25i",
+      2,
+      true
+     ]
+    ]
+   }
+  },
+  "other_cases_identical_05_vs_01": {
+   "F-flagrow": true,
+   "F-ant1": true,
+   "F-flag": true,
+   "F-ws": true,
+   "F-data": true,
+   "F-sigma": true,
+   "F-uvw": true,
+   "F-ranges": true,
+   "F-keywords": true,
+   "F-multi": true,
+   "F-add-tcs": true,
+   "F-add-tss": true,
+   "F-antenna-strings": true,
+   "L-flag": true,
+   "L-model": true,
+   "L-ws": true,
+   "L-flagrow": true,
+   "L-uvw": true,
+   "L-kw": true,
+   "I-corr": true
+  }
+ },
+ "malloc_perturb_first_gap": {
+  "none": "77640000",
+  "MALLOC_PERTURB_=85": "aaaaaaaa",
+  "MALLOC_PERTURB_=170": "55555555"
+ },
+ "inputs_unchanged": true,
+ "inputs_files_hashed": 205,
+ "receipts_sha256": {
+  "e3-20261030-01/cases.json": "8154b902bb2766b5c76c61f7242e57d3225126882dd3e6c71c69af2fb596a14a",
+  "e3-20261030-02/result.json": "56dc4db2e4cf076fb2604c0875fcdf8a9ffc609df720f8ef42300cfad06e8f1b",
+  "e3-20261030-02/cases.json": "f04ce9c8e8bf060bcee694f7d27c9ef42d31a399af05c02b32023c6826c63f5e",
+  "e3-20261030-03/locks.json": "ccbab0e15db5a2a5b09abdcab0c66216909de8545009e804bfc5c0d60355f75a"
+ }
+}
