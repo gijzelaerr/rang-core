@@ -15,7 +15,7 @@ Status: **implemented and measured; null under both model arms.**
 - Frozen runs `-02-stored` (25 min) and `-02-scalar` (37 min) cover all 56
   stations: 1,540 baselines, 15,400 rows, 126 M cells, 6.5 GB peak, on a
   host with load average 46–97.
-- Criteria 1, 2, 3, 5, 7 and 8 pass. Criteria 4 and 6 **fail as frozen**,
+- Criteria 1, 2, 3, 5, 7, 8 and 9 (`check-all`) pass. Criteria 4 and 6 **fail as frozen**,
   as expected: the Tricolour arms have invalid held-out predictions, so the
   headline primary call is undecidable under both models, and the stored
   model converges 5.2 % of intervals.
@@ -508,6 +508,7 @@ No Rust, no shared file and neither `core_campaign.py` nor
 | 10:10 | **frozen run, scalar** (`-02-scalar`); MemAvailable 14.0 GiB; load average 46–97 | **36 min 39 s** (user 1,417 s, sys 106 s, 69 % CPU) | **6.48 GB** | stage table below |
 | 10:51 | `examples/check_luno_1830.py` (`-02-check`) | 17.8 s | 104 MB | criteria 4 and 6 FAIL as frozen under both models; the rest pass; verdict null |
 | 10:52 | `examples/archive_luno_1830.py` | 0.3 s | 22 MB | 178.0 KB archive |
+| 10:55 | `bash tools/check-all.sh`, once before the final commit (`outputs/l2-1830-20261030-02.check-all.log`) | 57 min 31 s (pytest 588 passed, 1 skipped in 46 min 20 s) | 1.93 GB | overall **PASS**; load average 52–79 from sibling sessions; started before the coordinator's `flock /home/gijsm/.rang-checkall.lock` rule, so no lock wait (any later suite runs under the lock with `RAYON_NUM_THREADS=4`, `OPENBLAS_NUM_THREADS=1`) |
 
 Stage times inside the frozen runs (`result.json` `stages`; `RAYON_NUM_THREADS=8`).
 Cores busy is Δ(user + system) / Δwall; values near or below 1 for the
@@ -524,9 +525,9 @@ parallel kernels show contention with sibling sessions on the 16-thread host.
 | solve `tricolour-firstpass` (with features) | 39.2 s | 1.71 | 47.2 s | 1.35 | 90.7 s |
 | Tricolour mild port (10 steps) | 33.3 s | 1.72 | 48.9 s | 1.17 | 278.2 s |
 | solve `tricolour-mild` | 31.7 s | 1.94 | 35.7 s | 1.54 | 149.6 s |
-| TV loop (scores, TV, 7 distinct candidate solves) | 159.6 s | 2.44 | 277.0 s | 1.43 | 1,146.9 s |
+| TV loop (scores, TV; distinct candidate solves: 6 stored, 7 scalar) | 159.6 s | 2.44 | 277.0 s | 1.43 | 1,146.9 s |
 | first-pass TV loop, frozen (base has no validation loss) | 0.0 s | – | 0.0 s | – | 0.0 s |
-| first-pass TV loop, amendment 1 (base re-solve, 7 candidate solves) | 200.6 s | 2.26 | 359.4 s | 1.26 | 1,418.1 s |
+| first-pass TV loop, amendment 1 (base re-solve; 6 stored, 7 scalar candidate solves) | 200.6 s | 2.26 | 359.4 s | 1.26 | 1,418.1 s |
 | image, per arm (correct, Briggs weights, one gridder group) | 99–134 s | 0.35–0.45 | 123–277 s | 0.20–0.33 | 232–840 s |
 | amendment 1 calls | 21.8 s | 0.71 | 27.2 s | 0.60 | 56.2 s |
 | four-station survey (identity and solved) | 1.4 s | 0.36 | 2.8 s | 0.36 | – |
@@ -611,6 +612,7 @@ the survey.
 | 6 hypotheses decidable | **fail**: the headline and third pairs are undecidable | **fail** (same) |
 | 7 model arms well formed (across) | **pass**: predictor check, 11 tiles, `I0` finite and positive, identical splits | |
 | 8 outputs | **pass** | **pass** |
+| 9 `bash tools/check-all.sh` (across) | **pass**: Rust 19 + 55 tests, clippy, fmt, ruff, pytest 588 passed, 1 skipped | |
 
 ### The arms
 
@@ -651,7 +653,8 @@ mild 0.4674, 53,034 and 42,518. Both well formed.
   the main lobe 0.178, in the far region 0.040.
 - Stored: peak 12.575 Jy/beam at pixel (511, 512), one pixel off centre as
   for 1934−638 in L1. Flux recovery 1.044 against mean Re model I and
-  0.992 against mean |I|, the two pre-registered denominators.
+  0.992 against mean |I|, the two pre-registered denominators (on the
+  set described under "Post-hoc steps").
 - Scalar: peak 7.868 Jy/beam at the centre (512, 512); recovery 0.999.
   The point-source residual is 2.4e-4 of the peak, against 8.7e-4 under the
   stored model: calibrating to a point at the centre makes the image a
@@ -691,7 +694,7 @@ the first-pass port: ratios **4.63 and 5.92, not comparable** under the
 frozen factor of three. In L1 (single-threaded kernels) the ratio was
 1.85. P3 made the Tricolour port parallel over baselines, while the TV
 chain keeps serial Python stages (per-baseline scores, 12 s; policy masks)
-around seven candidate solves. Both runs shared the host with load averages
+around six (stored) or seven (scalar) candidate solves. Both runs shared the host with load averages
 of 46–97, so the absolute times are upper bounds; the ratio is what the
 clause measures.
 
@@ -722,8 +725,9 @@ against the CARACAL first-pass flags. The frozen objective rejects every
 TV-guided mask under both models. With K and L1 the campaign is null on
 both LUNO calibrators, at four-station and array scale, and under both
 model choices for the source whose model was in doubt. On the parallel
-kernels the TV chain is also 4.6–5.9 times as expensive as the Tricolour
-first pass, so it is neither better nor cheaper.
+kernels, measured on a contended host, the TV chain also took 4.6–5.9
+times the wall of the Tricolour first pass, so it is neither better nor
+cheaper.
 
 ### What it does not show
 
@@ -754,6 +758,19 @@ first pass, so it is neither better nor cheaper.
   call's verdict exactly and its ratio within 1e-9, and keeps the MSE calls
   exact; a test covers both. The rerun `-00-precondition-b` passes and is
   the precondition the frozen runs point at.
+- **Flux-recovery denominator set (implementation deviation).** The
+  protocol says "over the imaged samples". The code averages the model
+  over samples unflagged in the arm's final flags with positive weights,
+  whereas `image_arm`'s own set also drops invalid-gain cells and applies
+  the Stokes I reader rule. On the `original` arm the two sets give the
+  same mean Re model I to every printed digit (`image_arm`'s
+  `model_stokes_i_jy` 12.0496 Jy stored and 7.8752 Jy scalar, recovery
+  1.0436 and 0.9991), so the Re denominator is unaffected; the |I|
+  denominator (12.678 Jy stored) is on the code's set.
+- **Criterion 2 on candidates.** The checker, like L1's, verifies the
+  arms' final flags only. Candidates hold by construction (each is
+  `base | policy_mask(…, train)`: a superset of the base with additions
+  on training samples only) and are not re-checked.
 - Nothing else after the protocol commit: no setting was tuned, and the
   smokes found no bug.
 
@@ -803,7 +820,8 @@ first pass, so it is neither better nor cheaper.
   > the scalar on 94 %). The pre-registered matched headline is null under
   > both models (TV policy vs first pass 0.99977 and 0.99969); every
   > TV-guided mask is rejected; the cost is not comparable on the parallel
-  > kernels (TV chain 4.6–5.9× the first pass). Verdict null. Archive
+  > kernels as measured on a contended host (TV chain 4.6–5.9× the first
+  > pass). Verdict null. Archive
   > `results/luno-1830-campaign.json` ([luno-1830-campaign.md](luno-1830-campaign.md)).
   > Next: L3 (native flags) when the data arrive, then L4.
 
@@ -854,7 +872,8 @@ first pass, so it is neither better nor cheaper.
   beat no change; the only selections were tiny unguided threshold masks
   (21 cells on 1934−638, 2,302 on 1830−211 stored, none on 1830−211
   scalar), all within 5e-6 of no change. On the parallel kernels the
-  method is also 4.6–5.9 times as costly as the CARACAL first pass. What
+  TV chain also took 4.6–5.9 times the wall of the CARACAL first pass
+  (measured on a host at load average 46–97). What
   could still change the answer: native (unprocessed) flags and weights
   (L3), and a converged solver (L5), since the stored-model gains converge
   on 5 % of intervals.
