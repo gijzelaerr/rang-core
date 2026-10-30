@@ -1,15 +1,11 @@
 """Stable beam derivatives, upstream comparisons and predictor integration."""
 
-import json
-import subprocess
-
 import pytest
 
 jax = pytest.importorskip("jax")
 jax.config.update("jax_enable_x64", True)
 import jax.numpy as jnp
 import numpy as np
-from rangtoy import build
 from rangtoy.beams import (
     beam_table,
     cosine_taper,
@@ -19,22 +15,14 @@ from rangtoy.beams import (
     voltage_beam,
 )
 from rangtoy.observability import sky_locked_information
-from rangtoy.pointing import C, Observation, component_list, predict, solve_pointing
+from rangtoy.pointing import C, predict, solve_pointing
 
 
 @pytest.fixture(scope="module")
-def fixture():
-    reference = json.loads(
-        subprocess.check_output([str(build()), "--pointing-reference"])
-    )
-    r, s = np.asarray(reference["rows"]), np.asarray(reference["sources"])
-    obs = Observation(
-        jnp.asarray(r[:, :3]),
-        jnp.asarray(r[:, 3]),
-        *(jnp.asarray(r[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(r[:, 7]),
-    )
-    return component_list(s[:, 0], s[:, 1], s[:, 2], s[:, 3]), obs
+def fixture(pointing_reference):
+    # Session-scoped in conftest.py: built once for every module.
+    _, components, obs = pointing_reference
+    return components, obs
 
 
 def test_cosine_taper_center_half_power_and_removable_pole():
@@ -387,19 +375,10 @@ def test_common_and_relative_pointing_decomposition(fixture):
         )
 
 
-def test_chromatic_shape_lifts_the_gaussian_gauge(fixture):
+def test_chromatic_shape_lifts_the_gaussian_gauge(fixture, pointing_full_reference):
     pytest.importorskip("katbeam")
     sky, _ = fixture
-    reference = json.loads(
-        subprocess.check_output([str(build()), "--pointing-full-reference"])
-    )
-    r = np.asarray(reference["rows"])
-    obs = Observation(
-        jnp.asarray(r[:, :3]),
-        jnp.asarray(r[:, 3]),
-        *(jnp.asarray(r[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(r[:, 7]),
-    )
+    obs = pointing_full_reference[2]
     table, metadata = load_katbeam()
     zero_squint = table._replace(squint_rad=jnp.zeros_like(table.squint_rad))
     kwargs = {
