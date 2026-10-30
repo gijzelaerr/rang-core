@@ -262,6 +262,17 @@ verbs call the same functions or scripts).
   (`outputs/p9-cli-20261030-01/bench-p2-smoke`); P1 `sweep`, `all_equal`
   true (`bench-p1-smoke`).
 - `recipes/core-cabs.yaml`: the compare cab's info names the engine.
+- **Deviations from section 2, item 3 (recorded, not hidden).** The
+  default receipt name is `<primary>.<verb>.rang-receipt.json` (the verb
+  keeps `run`, `environment` and `compare` receipts of one run directory
+  apart). It sits beside the run directory for `run` verbs, but beside the
+  comparator's receipt for `compare`, which is often inside a run directory
+  (`.../actions/compare-archive.compare.rang-receipt.json`); suites stay
+  comparable through the backends skip rule above. `rang-core check`
+  writes a receipt only with `--receipt PATH` (verdict: each step's status
+  and wall time), since a check has no output to sit beside. `commit.dirty`
+  ignores untracked files (every worktree has the untracked `outputs`
+  link).
 - `pyproject.toml`: unchanged (`rang-core = "rangtoy.core_cli:main"` is
   still the entry; `check` needs no extra).
 
@@ -289,7 +300,10 @@ Script verbs pass their arguments through unchanged and need a checkout.
 ### Identity (criterion 1): pass, all 20 cases, both forms
 
 `identity.py diff … before wrapper`, `… before cli-final` (the CLI at
-`517e07b`) and `… before cli-head` (`ed3e18c`) report **identical** for every case: exit status, stdout and the
+`517e07b`), `… before cli-head` (`ed3e18c`), `… before cli-head2` (the
+final CLI, through `python -m rangtoy.core_cli`) and `… before console`
+(the final CLI through the `.venv/bin/rang-core` console script) report
+**identical** for every case: exit status, stdout and the
 comparator's receipt bytes, with the volatile fields of section 3 only
 (weights `seconds`; MS checker read times; K precondition `seconds`,
 `max_rss_mb`, `decode_seconds`, `step_seconds`, the last two not named in
@@ -320,7 +334,13 @@ receipts:
 | backends | 1 | 97 files, 5,213 JSON leaves, 58 arrays, 60 FITS HDUs; 47 non-numerical items (as before) |
 | golden | — | `tests/test_core_backends.py` passes in both full runs below |
 
-Criterion 2: the wrappers are the `wrapper` form above. The cab
+Criterion 2: the wrappers are the `wrapper` form above. The legacy cab
+path (`rang-core compare STAGE R O REC`, which Stimela's
+`rang-core-compare` cab calls as `core_cli.compare`) was run on the real
+archives for trend (frozen and post-hoc), signal, actions, injections,
+prospective and imaging-host: every receipt minus its `comparator` record
+equals the `before` receipt, stdout is identical and the exit status
+matches (`legacy-cab/`). The cab
 `core_cli.compare` records `{"script": examples/compare_core_<stage>.py,
 "engine": "rangtoy.core_compare", "sha256": <engine SHA256>, "exit",
 "posthoc_slope_scale"}` (the K stage still hashes its script). No archive
@@ -356,7 +376,14 @@ that raises still writes its receipt (`exit: "exception: …"`).
   all three runs.
 - `bash tools/check-all.sh` (now the wrapper) at `ed3e18c` plus this
   report: **PASS** in 227 s, pytest 682 passed and 2 skipped; the `## `
-  lines equal the P7 log line for line (`check-all.log`).
+  lines equal the P7 log line for line (`check-all.log`). After the
+  review fixes (receipt for `check`, `dirty` without untracked files,
+  wording): CHECKALL2. The Windows PASS predates those fixes, which do
+  not touch `check.py`.
+- Behaviour change of the wrapper: with no usable `.venv` (no
+  `.venv/bin/python` or no editable `rangtoy`), `tools/check-all.sh` now
+  exits nonzero before the first `## ` line and without `## overall:`;
+  the old script ran the Rust steps first. Both exit nonzero.
 
 ### Thread caps (criterion 6, diagnostic)
 
@@ -406,6 +433,9 @@ returned, as S1 measured for the comparators.
   },
   "wgridder": {
       "help": "exact w-gridder ported from ducc0, task DF1 (research/df1-wgridder.md)",
+      # Modes item0 | gates | threads put the output first or second: pass
+      # --receipt PATH, or give the entry a mode-aware primary (with _last,
+      # `gates` would name DUCC_SLICE, an input).
       "compare": _script("compare_core_wgridder.py", note="item0 | gates | threads"),
       "archive": ARCHIVE,
   },
@@ -428,8 +458,12 @@ returned, as S1 measured for the comparators.
   `environment.rangtoy` (schema change, bump `RECEIPT_VERSION`); docs
   (`python -m rangtoy.core_cli`, `python -m rangtoy.check`).
 - **`history/` moves:** none (the benches were rewritten instead).
+- **Branch note:** commit `c9a8c2e` has one failing test (the launcher
+  copy-back test's old expectation), fixed in the next commit `ed3e18c`;
+  every other commit's targeted tests pass. Squash on merge if wanted.
 - **Evidence to keep:** `outputs/p9-cli-20261030-01/` (identity suite:
-  `identity.py`, `before/`, `wrapper/`, `cli/`, `cli-final/`, `cli-head/`; Linux check
+  `identity.py`, `before/`, `wrapper/`, `cli/`, `cli-final/`, `cli-head/`,
+  `cli-head2/`, `console/`; `legacy-cab/`; Linux check
   log and JSON; `pinning*/`; bench smokes; `windows/`, the Windows logs).
 - **Follow-ups (not done):** `tools/core-j-suite.sh` as a Python driver
   list on the CLI (`rang-core` verbs already cover every step); the K run
@@ -466,3 +500,6 @@ returned, as S1 measured for the comparators.
 | 2026-10-30 | Windows: `rang-core.exe check --all` at `252c823`; `python -m rangtoy.check --python` | 113 s; 105 s | FAIL on ext-build only (uv cache) |
 | 2026-10-30 | Windows: `python -m rangtoy.check --only ext-build`; `rang-core.exe check --all` at `ed3e18c` | 1.9 s; 106 s | PASS, 640 passed, 44 skipped |
 | 2026-10-30 | WSL: `bash tools/check-all.sh` at `ed3e18c` + report | 227 s (pytest 140 s) | PASS, 682 passed, 2 skipped |
+| 2026-10-30 | identity `cli-head2` (`-m`) and `console` (`.venv/bin/rang-core`), final CLI | about 7 s each | identical to `before` |
+| 2026-10-30 | legacy cab path `rang-core compare` on 7 real-archive cases | about 1 s | receipts minus `comparator` equal `before` |
+| 2026-10-30 | WSL: `bash tools/check-all.sh`, after the review fixes | CHECKALL2ROW |

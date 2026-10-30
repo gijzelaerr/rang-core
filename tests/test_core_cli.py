@@ -509,3 +509,26 @@ def test_check_sets_running_launchers_aside_for_the_reinstall(tmp_path):
         f"rang-core.exe.{os.getpid()}.old",
     ]
     assert (tmp_path / "rang-core.exe").read_bytes() == b"launcher"
+
+
+def test_check_writes_a_receipt_only_when_asked(tmp_path, monkeypatch, capsys):
+    from rangtoy import check
+
+    def fake(argv=None, runner=None, root=None):
+        args = list(argv)
+        path = args[args.index("--json") + 1]
+        Path(path).write_text(
+            json.dumps({"steps": [{"step": "ruff", "status": 1, "wall_seconds": 0.5}]})
+        )
+        return 1
+
+    monkeypatch.setattr(check, "main", fake)
+    receipt = tmp_path / "check.json"
+    with pytest.raises(SystemExit) as exc:
+        core_cli.dispatch(["--receipt", str(receipt), "check", "--only", "ruff"])
+    assert exc.value.code == 1
+    saved = json.loads(receipt.read_text())
+    assert saved["stage"] == "check" and saved["exit"] == 1
+    assert saved["verdict"]["passed"] is False and saved["verdict"]["failures"] == 1
+    assert saved["verdict"]["counts"]["steps"] == {"ruff": 1}
+    assert saved["commit"]["dirty"] in (True, False)

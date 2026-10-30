@@ -18,9 +18,12 @@ package. `rang-core STAGE archive RUN OUT.json` writes a `rang.archive`
 Every invocation writes a `rang.receipt` (version 1): command, commit,
 environment (interpreter, platform, the extension and every thread setting),
 inputs and outputs with hashes, timings, exit status and, for `compare`, the
-verdict. By default it is written beside the primary output as
-`<output>.<verb>.rang-receipt.json`, never inside a run directory that a
-stage creates.
+verdict (`check` writes one only with `--receipt PATH`). By default it is
+written beside the primary output as `<output>.<verb>.rang-receipt.json`:
+beside a stage's run directory for `run` (so the side-effect audit's
+`only_result_written` is unaffected), beside the comparator's receipt for
+`compare`, which may be inside a run directory; the backends comparator
+skips these files when it compares two suites.
 
 Before NumPy, SciPy or JAX is imported, the CLI caps the BLAS and XLA thread
 pools as `tests/conftest.py` does (an explicit environment setting wins;
@@ -526,8 +529,10 @@ def archive(stage, run_dir, out, status=None, comparisons=()):
 
 
 def _commit():
+    """HEAD and whether tracked files differ from it (untracked files such as
+    a worktree's `outputs` link do not make a tree dirty)."""
     head = _git("rev-parse", "HEAD")
-    status = _git_status()
+    status = _git("status", "--porcelain", "--untracked-files=no")
     return {
         "head": head.strip() if head else None,
         "dirty": bool(status.strip()) if status is not None else None,
@@ -667,7 +672,8 @@ class Receipt:
 
 def default_receipt(primary, verb):
     """`<primary>.<verb>.rang-receipt.json` beside the primary output (a
-    directory, or a file without its suffix): never inside a run directory."""
+    directory, or a file without its suffix): beside, not inside, a run
+    directory that the command creates."""
     primary = Path(primary)
     stem = primary.stem if primary.suffix and not primary.is_dir() else primary.name
     return primary.parent / f"{stem}.{verb}.rang-receipt.json"
@@ -1047,6 +1053,55 @@ def _legacy_compare(argv, options, pinned):
     )
 
 
+def _check(args, options, pinned):
+    """`rang-core check`: `rangtoy.check`, plus a receipt only when
+    `--receipt PATH` is given (a check has no output to sit beside); its
+    verdict counts each step's exit status."""
+    import tempfile
+
+    from . import check
+
+    if not options["receipt"] or options["no_receipt"]:
+        code = check.main(args)
+        if code:
+            raise SystemExit(code)
+        return None
+    receipt = Receipt(["rang-core", "check", *args], "check", None, [], pinned)
+    scratch = None
+    if "--json" in args:
+        steps_json = Path(args[args.index("--json") + 1])
+    else:
+        handle, scratch = tempfile.mkstemp(suffix=".json")
+        os.close(handle)
+        steps_json = Path(scratch)
+        args = [*args, "--json", scratch]
+    try:
+        code = check.main(args)
+    except SystemExit as exc:
+        receipt.write(options["receipt"], exc.code)
+        raise
+    finally:
+        steps = (
+            json.loads(steps_json.read_text(encoding="utf-8"))["steps"]
+            if steps_json.is_file() and steps_json.stat().st_size
+            else []
+        )
+        if scratch:
+            Path(scratch).unlink(missing_ok=True)
+    verdict = {
+        "passed": code == 0,
+        "failures": sum(1 for s in steps if s["status"]),
+        "counts": {
+            "steps": {s["step"]: s["status"] for s in steps},
+            "wall_seconds": {s["step"]: s["wall_seconds"] for s in steps},
+        },
+    }
+    receipt.write(options["receipt"], code, verdict)
+    if code:
+        raise SystemExit(code)
+    return verdict
+
+
 def main(argv=None):
     """The `rang-core` console script: 0, or SystemExit with the status."""
     dispatch(argv)
@@ -1064,12 +1119,7 @@ def dispatch(argv=None):
         print(usage())
         return None
     if argv[0] == "check":
-        from . import check
-
-        code = check.main(argv[1:])
-        if code:
-            raise SystemExit(code)
-        return None
+        return _check(argv[1:], options, pinned)
     if argv[0] == "compare":
         return _legacy_compare(argv[1:], options, pinned)
     command = ["rang-core", *argv]
