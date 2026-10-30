@@ -4,7 +4,7 @@
 //! station has eight parameters. Visibility rows use the same adjacent order.
 //! These are Gauss--Newton approximations, not a replacement for QuartiCal.
 
-use crate::linalg::{Matrix, eigen, zeros};
+use crate::linalg::{Matrix, eigen_ql, zeros};
 
 pub const PARAMETERS: usize = 32;
 pub const DIAGNOSTICS: usize = 10;
@@ -196,8 +196,16 @@ fn gauge_basis(gains: &[f64], active: &[u8]) -> Result<Matrix, &'static str> {
     Ok(basis)
 }
 
+type Solver = fn(&Matrix) -> Option<(Vec<f64>, Matrix)>;
+
+/// Householder + implicit QL (task P4, research/p4-eigen.md); the classical
+/// Jacobi solver `linalg::eigen` is kept for the pointing toy and the A/B.
 fn checked_eigen(h: &Matrix) -> Result<(Vec<f64>, Matrix), &'static str> {
-    let (values, vectors) = eigen(h);
+    checked_eigen_with(h, eigen_ql)
+}
+
+fn checked_eigen_with(h: &Matrix, solver: Solver) -> Result<(Vec<f64>, Matrix), &'static str> {
+    let (values, vectors) = solver(h).ok_or("eigensystem residual failed")?;
     let scale = h
         .iter()
         .flatten()
@@ -602,5 +610,217 @@ mod tests {
             }
         }
         assert!(checked_eigen(&h).is_ok());
+    }
+
+    fn jacobi(h: &Matrix) -> Option<(Vec<f64>, Matrix)> {
+        Some(crate::linalg::eigen(h))
+    }
+
+    struct Lcg(u64);
+    impl Lcg {
+        fn next(&mut self) -> f64 {
+            self.0 = self
+                .0
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            ((self.0 >> 11) as f64 / (1u64 << 53) as f64) * 2.0 - 1.0
+        }
+    }
+
+    /// Survey-like block: TRAIN normals of a scalar (gauge-preserving) model
+    /// at a random gain point, `stations` active, `samples` per baseline.
+    fn survey_block(
+        rng: &mut Lcg,
+        stations: usize,
+        samples: usize,
+    ) -> (Vec<f64>, Vec<f64>, [u8; 4]) {
+        let mut gains = vec![0.; PARAMETERS];
+        for antenna in 0..4 {
+            for (k, x) in gains[antenna * 8..antenna * 8 + 8].iter_mut().enumerate() {
+                *x = if k == 0 || k == 6 { 1. } else { 0. } + 0.1 * rng.next();
+            }
+        }
+        let (mut models, mut p, mut q) = (Vec::new(), Vec::new(), Vec::new());
+        for a in 0..stations {
+            for b in a + 1..stations {
+                for _ in 0..samples {
+                    let (re, im) = (1. + 0.5 * rng.next(), 0.5 * rng.next());
+                    models.extend([re, im, 0., 0., 0., 0., re, im]);
+                    p.push(a);
+                    q.push(b);
+                }
+            }
+        }
+        let n = p.len();
+        let (h, _, _) = normals(
+            1,
+            &gains,
+            &models,
+            &vec![0.; 8 * n],
+            &vec![1.; 4 * n],
+            &p,
+            &q,
+            &vec![0; n],
+        )
+        .unwrap();
+        let mut active = [0u8; 4];
+        active[..stations].fill(1);
+        (h, gains, active)
+    }
+
+    fn rank_and_margins(values: &[f64]) -> (usize, f64, f64) {
+        let cutoff = 1e-10 * values[0];
+        let rank = values.iter().filter(|v| **v > cutoff).count();
+        let above = values
+            .iter()
+            .filter(|v| **v > cutoff)
+            .fold(f64::INFINITY, |a, v| a.min(v / cutoff));
+        let below = values
+            .iter()
+            .filter(|v| **v <= cutoff)
+            .fold(0.0_f64, |a, v| a.max(v.abs() / cutoff));
+        (rank, above, below)
+    }
+
+    #[test]
+    fn projected_survey_blocks_have_identical_rank_and_spectrum_under_ql() {
+        let mut rng = Lcg(20261030);
+        for stations in 2..=4 {
+            for samples in [1, 2, 5] {
+                let (h, gains, active) = survey_block(&mut rng, stations, samples);
+                let full: Matrix = h.chunks_exact(PARAMETERS).map(|r| r.to_vec()).collect();
+                let basis = gauge_basis(&gains, &active).unwrap();
+                let (projected, _) = project(&full, &[0.; PARAMETERS], &basis);
+                let (dq, _) = checked_eigen(&projected).unwrap();
+                let (dj, _) = checked_eigen_with(&projected, jacobi).unwrap();
+                let (rq, aq, bq) = rank_and_margins(&dq);
+                let (rj, _, _) = rank_and_margins(&dj);
+                assert_eq!(rq, rj);
+                // A scalar model leaves two stations at rank 8 against the
+                // required 12 (research/flagging-luno-support.md).
+                let required = 8 * stations - 4;
+                let zero = [0.; PARAMETERS];
+                let step = anchored_step(&h, &zero, &[0.; 1024], &zero, &gains, &active);
+                if stations == 2 {
+                    assert_eq!(rq, 8);
+                    assert_eq!(step.unwrap_err(), "underidentified full curvature");
+                } else {
+                    assert_eq!(rq, required);
+                    assert_eq!(step.unwrap().1[0], required as f64);
+                }
+                assert!(aq > 1e3 && bq < 1e-3, "margins {aq} {bq}");
+                assert!(
+                    dq.iter()
+                        .zip(&dj)
+                        .all(|(a, b)| (a - b).abs() <= 1e-12 * dj[0])
+                );
+            }
+        }
+    }
+
+    /// Task P4 bin-for-bin audit on recorded calls (research/p4-eigen.md).
+    /// P4_DUMP holds records of 2084 little-endian f64 (full_h 1024, drop_h
+    /// 1024, gains 32, active 4); one TSV row per record is written to P4_OUT.
+    /// Margins are factors relative to the cutoff 1e-10 times Jacobi's
+    /// largest full eigenvalue, over both solvers and both matrices.
+    #[test]
+    #[ignore]
+    fn p4_dump_audit() {
+        let (Ok(dump), Ok(out)) = (std::env::var("P4_DUMP"), std::env::var("P4_OUT")) else {
+            return;
+        };
+        let bytes = std::fs::read(dump).unwrap();
+        let values: Vec<f64> = bytes
+            .chunks_exact(8)
+            .map(|b| f64::from_le_bytes(b.try_into().unwrap()))
+            .collect();
+        let mut rows = vec![
+            [
+                "index",
+                "path",
+                "full_rank_jacobi",
+                "full_rank_ql",
+                "kept_rank_jacobi",
+                "kept_rank_ql",
+                "max_eig_diff_rel",
+                "min_retained_over_cutoff",
+                "max_discarded_over_cutoff",
+                "min_eig_over_cutoff",
+            ]
+            .join("\t"),
+        ];
+        let empty = "\t".repeat(8);
+        for (index, record) in values.chunks_exact(2084).enumerate() {
+            let (full_h, rest) = record.split_at(1024);
+            let (drop_h, rest) = rest.split_at(1024);
+            let (gains, active) = rest.split_at(32);
+            let active: Vec<u8> = active.iter().map(|x| *x as u8).collect();
+            let full: Matrix = full_h
+                .chunks_exact(PARAMETERS)
+                .map(|r| r.to_vec())
+                .collect();
+            let kept: Matrix = full_h
+                .chunks_exact(PARAMETERS)
+                .zip(drop_h.chunks_exact(PARAMETERS))
+                .map(|(a, b)| a.iter().zip(b).map(|(a, b)| a - b).collect())
+                .collect();
+            let n_active = active.iter().filter(|x| **x != 0).count();
+            let scale = full_h
+                .iter()
+                .fold(0.0_f64, |a, b| a.max(b.abs()))
+                .max(1e-30);
+            let basis = if n_active < 2 {
+                Err("too few stations")
+            } else {
+                gauge_basis(gains, &active)
+            };
+            let Ok(basis) = basis else {
+                rows.push(format!("{index}\tbefore_eigen{empty}"));
+                continue;
+            };
+            let mut gauge_null = 0.0_f64;
+            for v in &basis {
+                for row in &full {
+                    let value: f64 = row.iter().zip(v).map(|(a, b)| a * b).sum();
+                    gauge_null = gauge_null.max(value.abs() / scale);
+                }
+            }
+            if gauge_null > 1e-8 {
+                rows.push(format!("{index}\tgauge_null{empty}"));
+                continue;
+            }
+            let (full, _) = project(&full, &[0.; PARAMETERS], &basis);
+            let (kept, _) = project(&kept, &[0.; PARAMETERS], &basis);
+            let fj = crate::linalg::eigen(&full).0;
+            let kj = crate::linalg::eigen(&kept).0;
+            let (Some((fq, _)), Some((kq, _))) = (eigen_ql(&full), eigen_ql(&kept)) else {
+                rows.push(format!("{index}\tql_failed{empty}"));
+                continue;
+            };
+            let rank = |v: &[f64], largest: f64| v.iter().filter(|x| **x > 1e-10 * largest).count();
+            let diff = fj
+                .iter()
+                .zip(&fq)
+                .chain(kj.iter().zip(&kq))
+                .fold(0.0_f64, |a, (x, y)| a.max((x - y).abs()))
+                / fj[0].abs().max(1e-300);
+            let cutoff = 1e-10 * fj[0];
+            let all = || fj.iter().chain(&kj).chain(&fq).chain(&kq);
+            let above = all()
+                .filter(|v| **v > cutoff)
+                .fold(f64::INFINITY, |a, v| a.min(v / cutoff));
+            let below = all()
+                .filter(|v| **v <= cutoff)
+                .fold(0.0_f64, |a, v| a.max(v.abs() / cutoff));
+            let lowest = all().fold(f64::INFINITY, |a, v| a.min(v / cutoff));
+            rows.push(format!(
+                "{index}\teigen\t{}\t{}\t{}\t{}\t{diff:e}\t{above:e}\t{below:e}\t{lowest:e}",
+                rank(&fj, fj[0]),
+                rank(&fq, fq[0]),
+                rank(&kj, fj[0]),
+                rank(&kq, fq[0]),
+            ));
+        }
+        std::fs::write(out, rows.join("\n") + "\n").unwrap();
     }
 }
