@@ -609,3 +609,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan A1: `ruff check --fix` / `ruff format` on the script | – | < 1 s | – |  |
 | 2026-10-30 | big plan A1: `flock ~/.rang-checkall.lock bash tools/check-all.sh` (first attempt) | – | killed after about 20 min | – |  |
 | 2026-10-30 | big plan A1: `bash tools/check-all.sh`, run plainly, once before the commit (`outputs/a1-rfi-audit-20261030-01/check-all.log`) | – | 4 min 15 s (pytest 631 passed, 3 skipped in 2 min 41 s) | 1.66 GB |  |
+| 2026-10-30 | big plan P7: `tools/wheel/build.py` | worktree | 32.7 s | – | wheel-only acceptance wheel |
+| 2026-10-30 | big plan P7: wheel-only acceptance suite (cargo absent) | archived inputs | about 120 s | – | F 32 s, signal 13 s, notebooks 18 s, trend 17 s; every archived verdict reproduced |
+| 2026-10-30 | big plan P7: Windows clone / editable install / maturin develop / full pytest | native Windows, Rust 1.93 MSVC, CPython 3.14 | 7 / 64 / 67 / 153 s | – | 622 passed, 43 skipped, 0 failed |
+| 2026-10-30 | big plan P7: golden archive generation (both old backends) | 5965d37 | 19 s | – | identical bytes |
+| 2026-10-30 | big plan P7: `bash tools/check-all.sh` | branch, 664 tests | 3 min 9 s | – | PASS |

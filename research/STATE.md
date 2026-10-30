@@ -1,5 +1,26 @@
 # Rang research state
 
+P7 architecture (big plan wave 2), 2026-10-30 (implemented; measured;
+[p7-architecture.md](p7-architecture.md)): the ctypes path and the
+import-time cargo build are gone; the root crate's kernels (TV, projector and
+survey with the P4 eigensolver, the pointing toy) live in the extension;
+`tests/test_core_backends.py` is extension-against-archive (golden archive
+recorded under both old backends, identical bytes); every C function has
+`catch_unwind` (a panic returns an error code instead of aborting); the GIL is
+released around kernels (two predictor calls overlap, 0.92–1.12× one call;
+rayon's shared pool still serialises concurrent solver calls); the Tricolour
+pack/unpack is parallel (24–32 ms → 4.5–5 ms at 16 threads, flags identical);
+`solve_complex` takes bool or uint8 flags without a copy; the static masks
+ship as package data. Wheel-only acceptance: a wheel from
+`tools/wheel/build.py` installed with cargo absent reproduces every archived
+verdict (phase 1/2 validators, section 6, the actions/B/C/D/E/I comparators,
+task F, K precondition, trend, signal, the notebooks), 58 arrays and 60 FITS
+HDUs byte-equal. Native Windows: 622 passed, 43 skipped with reasons, 0
+failed; the libm-based kernels differ from Linux by at most 2.6e-15 relative,
+so the golden test is exact on Linux x86_64 and tolerant elsewhere.
+`RANG_CORE_LIB` and `rangtoy.build()` no longer exist; `core.library()` and
+`backend_name()` remain as compatibility names meaning the extension.
+
 Big plan task A1 (RFI-band audit), 2026-10-30 (implemented; measured;
 explanation only; [a1-rfi-audit.md](a1-rfi-audit.md)). Reran the Tricolour
 port with per-step stages on L1 and L2, reproducing the archived additions,

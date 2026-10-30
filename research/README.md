@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task P7, [architecture](p7-architecture.md): no
+ctypes, no cargo at import, kernels in the extension, panic-safe C ABI, GIL
+released; a wheel-only install reproduces every archived verdict; Windows
+suite 622 passed, 0 failed.
+
 New, 2026-10-30: big plan task A1, the [RFI-band audit](a1-rfi-audit.md): the
 emptied station-bins are GNSS-band residue, excision as intended.
 

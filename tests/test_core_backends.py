@@ -390,7 +390,8 @@ def test_ms_reader(golden):
     assert core_ms.has_reader()
     with core_ms.open_table(path) as table:
         out = [
-            json.dumps(table.description, sort_keys=True),
+            # Subtable keywords carry absolute paths; make them checkout-independent.
+            json.dumps(table.description, sort_keys=True).replace(str(ROOT), "<ROOT>"),
             [str(x) for x in table.getcol("NAME")],
             table.getcol("POSITION"),
             table.getcol("POSITION", 1, 2),
