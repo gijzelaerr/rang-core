@@ -1538,7 +1538,7 @@ fn ms_multifile_check(py: Python<'_>, path: &str) -> Vec<String> {
 /// A table's row count and columns (name, type code, is array), read
 /// without writing (research/e5-table-writer-rest.md).
 #[pyfunction]
-fn ms_describe(py: Python<'_>, path: &str) -> PyResult<(u64, Vec<(String, i32, bool)>)> {
+fn ms_describe(py: Python<'_>, path: &str) -> PyResult<(u64, rang_core::ms_write::ColumnList)> {
     detach(py, || rang_core::ms_write::describe(path)).map_err(|e| PyOSError::new_err(e.0))
 }
 

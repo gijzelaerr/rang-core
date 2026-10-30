@@ -477,6 +477,7 @@ impl Bucket {
     }
 
     /// `simpleSplit`: the last values start the right bucket.
+    #[allow(clippy::needless_range_loop)]
     fn simple_split(&self, row: u64, p: &Params) -> Option<(Bucket, Bucket, Vec<bool>, u64)> {
         let ncol = self.rows.len();
         let last = self
@@ -506,7 +507,7 @@ impl Bucket {
 
     /// `ISMBucket::split` (the simple split when this is the last bucket and
     /// the row is at its end, else halves of about equal length).
-    #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::too_many_arguments, clippy::needless_range_loop)]
     fn split(
         &self,
         bstart: u64,

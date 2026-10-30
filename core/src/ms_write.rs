@@ -3566,6 +3566,47 @@ impl TdsW {
         self.changed = false;
         Ok(true)
     }
+
+    /// Parse the header of a TiledDataStMan without hypercubes (as this
+    /// writer makes them); `serialise(parse(x)) == x` is then checked by
+    /// rebuilding it.
+    pub(crate) fn round_trips(bytes: &[u8]) -> Result<bool> {
+        let mut c = Cursor::new(bytes, true);
+        c.magic()?;
+        let outer = c.start_expect("TiledDataStMan")?;
+        let inner = c.start_expect("TiledStMan")?;
+        let big = match inner.version {
+            1 => true,
+            2 => c.bool()?,
+            v => return err(format!("TiledStMan header version {v}")),
+        };
+        let seq = c.u32()?;
+        let nrows = u64::from(c.u32()?);
+        let ncol = c.u32()? as usize;
+        let dtypes = (0..ncol).map(|_| c.i32()).collect::<Result<Vec<_>>>()?;
+        let name = c.string()?;
+        let _cache = c.u32()?;
+        let nrdim = c.u32()?;
+        let nfiles = c.u32()?;
+        let exists = c.bool()?;
+        let ncubes = c.u32()?;
+        if nfiles != 1 || exists || ncubes != 0 {
+            return err("TiledDataStMan headers with hypercubes are not checked (E6)");
+        }
+        c.end(&inner);
+        c.end(&outer);
+        let t = TdsW {
+            dir: PathBuf::new(),
+            seq,
+            name,
+            dtypes,
+            nrdim,
+            nrows,
+            big,
+            changed: false,
+        };
+        Ok(t.header() == bytes && c.pos == bytes.len())
+    }
 }
 
 /// Where `addcols` puts a new column.
@@ -4680,7 +4721,10 @@ pub fn array_records(dir: impl AsRef<Path>) -> Result<Vec<(String, u64, u32)>> {
 /// A table's row count and columns (name, type code, is array), read
 /// without writing and without the task E reader (which does not read
 /// every kind of table E5 writes).
-pub fn describe(dir: impl AsRef<Path>) -> Result<(u64, Vec<(String, i32, bool)>)> {
+/// Columns as (name, type code, is array).
+pub type ColumnList = Vec<(String, i32, bool)>;
+
+pub fn describe(dir: impl AsRef<Path>) -> Result<(u64, ColumnList)> {
     let dir = dir.as_ref();
     let dat = TableDat::parse(&std::fs::read(dir.join("table.dat"))?)?;
     let columns = dat
@@ -4892,6 +4936,14 @@ pub struct SerialisationCheck {
 /// (criterion 7; read only).
 pub fn check_serialisation(path: impl AsRef<Path>) -> Result<SerialisationCheck> {
     let root = path.as_ref();
+    if root.join(crate::multifile::CONTAINER).is_file() {
+        // The logical files of a MultiFile table, extracted beside a copy
+        // of `table.dat`.
+        let tmp = extracted(root)?;
+        let out = check_serialisation(&tmp);
+        let _ = std::fs::remove_dir_all(&tmp);
+        return out;
+    }
     let mut dirs = vec![root.to_path_buf()];
     let mut subs: Vec<PathBuf> = std::fs::read_dir(root)?
         .filter_map(|e| e.ok().map(|e| e.path()))
@@ -4935,12 +4987,13 @@ pub fn check_serialisation(path: impl AsRef<Path>) -> Result<SerialisationCheck>
                         let ncol = dat.bindings.iter().filter(|b| b.seq == *seq).count();
                         crate::ism::check_file(&file, ncol, !dat.little_endian)
                     }
+                    "TiledDataStMan" => TdsW::round_trips(&std::fs::read(&file)?),
                     _ => Ok(true),
                 }
             };
             match kind.as_str() {
                 "StandardStMan" => out.ssm_files += 1,
-                "TiledColumnStMan" | "TiledShapeStMan" => out.tiled_headers += 1,
+                "TiledColumnStMan" | "TiledShapeStMan" | "TiledDataStMan" => out.tiled_headers += 1,
                 "IncrementalStMan" => out.ism_files += 1,
                 _ => continue,
             }

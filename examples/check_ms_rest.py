@@ -8,6 +8,7 @@
     python examples/check_ms_rest.py regress <run>
     python examples/check_ms_rest.py serialisation <run>
     python examples/check_ms_rest.py summary <run>
+    python examples/check_ms_rest.py posthoc <run>
 
 `oracle` runs `examples/oracle_ms_rest.py write` and `write-mf` in the
 pinned python-casacore container into `<run>/oracle[-<label>]` (with
@@ -809,17 +810,16 @@ def step_regress(run):
 def step_serialisation(run):
     started = time.perf_counter()
     run = Path(run)
-    report, totals = {}, [0, 0, 0, 0]
+    report, totals, multifile = {}, [0, 0, 0, 0], 0
     for name, _ in oracle.CASES:
         t = run / "oracle" / "casacore" / name
+        failures = []
         if (t / "table.mf").exists():
-            report[name] = core.extension().ms_multifile_check(str(t))
-            totals_mf = report[name]
-            if not totals_mf:
-                report[name] = []
-            continue
-        n_tables, ssm, tiled, ism, failures = (
-            core.extension().ms_serialisation_check_e5(str(t))
+            # The container header, then the logical files (extracted).
+            failures += core.extension().ms_multifile_check(str(t))
+            multifile += 1
+        n_tables, ssm, tiled, ism, more = core.extension().ms_serialisation_check_e5(
+            str(t)
         )
         totals = [
             totals[0] + n_tables,
@@ -827,17 +827,74 @@ def step_serialisation(run):
             totals[2] + tiled,
             totals[3] + ism,
         ]
-        report[name] = failures
+        report[name] = failures + more
     result = {
         "tables": totals[0],
         "ssm_files": totals[1],
         "tiled_headers": totals[2],
         "ism_files": totals[3],
+        "multifile_headers": multifile,
         "failures": {k: v for k, v in report.items() if v},
     }
     result["pass"] = not result["failures"]
     print(json.dumps(result), flush=True)
     return write_json(run, "serialisation", result, started)
+
+
+def step_posthoc(run):
+    """Post hoc (after the frozen summary; not a criterion): for every case
+    whose files differ outside the frozen masks, whether each such byte is
+    one where casacore's own runs (twin, MALLOC_PERTURB_) differ from its
+    first run, i.e. bytes casacore never defines."""
+    started = time.perf_counter()
+    run = Path(run)
+    cases = json.loads((run / "cases.json").read_text())["cases"]
+    report = {}
+    for c in cases:
+        if c["identical_but_masked"] or c.get("error"):
+            continue
+        name = c["name"]
+        entry = {}
+        for d in c["differ"]:
+            file = d["file"]
+            theirs = run / "oracle" / "casacore" / name / file
+            ours = run / "core" / name / file
+            y = theirs.read_bytes()
+            x = ours.read_bytes()
+            if len(x) != len(y):
+                entry[file] = {"lengths_differ": [len(x), len(y)]}
+                continue
+            yb = np.frombuffer(y, np.uint8)
+            diff = np.flatnonzero(np.frombuffer(x, np.uint8) != yb)
+            mask = None
+            if file.endswith("i"):
+                mask = gap_mask(
+                    theirs.parent, Path(file).name, y, ORPHAN_BITS.get(name)
+                )
+            outside = diff if mask is None else diff[~mask[diff]]
+            unstable = np.zeros(len(y), bool)
+            for label in ("oracle-twin", "oracle-perturb"):
+                other = run / label / "casacore" / name / file
+                if other.exists() and other.stat().st_size == len(y):
+                    unstable |= np.frombuffer(other.read_bytes(), np.uint8) != yb
+            covered = int(unstable[outside].sum())
+            entry[file] = {
+                "bytes_differing": int(diff.size),
+                "outside_gap_mask": int(outside.size),
+                "where_casacore_differs_from_itself": covered,
+                "not_covered": int(outside.size) - covered,
+                "first_not_covered": [int(b) for b in outside[~unstable[outside]][:10]],
+            }
+        report[name] = entry
+    result = {
+        "label": "post hoc",
+        "cases": report,
+        "all_covered": all(
+            v.get("not_covered", 1) == 0 for e in report.values() for v in e.values()
+        ),
+    }
+    print(json.dumps(result, indent=1), flush=True)
+    return write_json(run, "posthoc", result, started)
 
 
 def step_summary(run):
@@ -870,6 +927,7 @@ def main(argv):
         "regress": step_regress,
         "serialisation": step_serialisation,
         "summary": step_summary,
+        "posthoc": step_posthoc,
     }
     if len(argv) < 2 or argv[1] not in steps:
         print(__doc__)
