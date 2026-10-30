@@ -782,3 +782,17 @@ superseded: L1-M decomposed the stored MODEL_DATA onto CARACal's 196-component
 lsm and found a field model with the compact sources at coefficients near 1
 and A0 2.1″ from the phase direction, almost all in declination
 ([l1-model-completeness.md](l1-model-completeness.md)).
+
+## Amendment 2, 2026-10-30 (PC1, post hoc)
+
+Part 2 of the precondition compared the replay's image hashes, peak and
+residual RMS exactly. P2 (rustfft gridder, merged on main before L1) changes
+the image bits within 2e-15, so on main the exact comparison has failed on
+image products only since the L1 merge `cbf9003`; every other field is
+equal. From PC1, `precondition` gates part 2 on L2's
+`compare_replay_tolerant` (image hashes reported; peak, residual RMS and the
+residual-RMS ratio within 1e-9 relative; every other field exact), which
+L1-M and C1 already used, and keeps the exact comparison in its output
+(`replay`, with the tolerant one under `replay.tolerant`). The archived
+precondition (`-00-precondition`, code `4584936`, before P2) passed the
+exact form. See [pc1-preconditions.md](pc1-preconditions.md).

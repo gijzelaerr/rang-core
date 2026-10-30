@@ -1959,11 +1959,20 @@ def precondition(out_dir):
     )
     stages.stop("replay", mark)
     replay["_candidates"] = _load(out_dir / "replay" / "candidates.json")
-    part2 = compare_replay(
-        replay, _load(k_result_path), _load(K_RUN / "candidates.json")
+    k_result, k_candidates = _load(k_result_path), _load(K_RUN / "candidates.json")
+    part2 = compare_replay(replay, k_result, k_candidates)
+    # P2 changed the image bits (pixels within 2e-15) after K was archived:
+    # the gate is L2's tolerant comparison (image hashes reported; peak,
+    # residual RMS and the residual-RMS ratio within IMAGE_TOLERANCE
+    # relative; every other field exact). The exact comparison stays above.
+    from . import core_campaign_1830  # L2's tolerant replay comparison
+
+    tolerant = core_campaign_1830.compare_replay_tolerant(
+        replay, k_result, k_candidates
     )
+    part2["tolerant"] = tolerant
     part2["k_result_hash_matches_archive"] = k_hash_ok
-    part2["pass"] = bool(part2["all_equal"] and k_hash_ok)
+    part2["pass"] = bool(tolerant["all_equal"] and k_hash_ok)
     part3 = replay["group_comparison"]
     passed = {
         "k_precondition": part1["pass"],
