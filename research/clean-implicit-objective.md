@@ -6,21 +6,22 @@ objective does Högbom CLEAN implicitly minimise (Marsh and Richardson 1987,
 A&A 182, 174, "The objective function implicit in the CLEAN algorithm"), and
 why do small loop gains give smooth extended-emission models while gain 1
 gives striped, negative ones (Schwarz 1984 §3.3b; E6 of clean-theory.md)?
-Every claim is labelled **proved** (a complete argument here), **checked**
-(machine-checked in Lean), **measured**, or **conjectured**. Code:
+Every claim is labelled **proved** (a complete argument here, i.e.
+proposed and argued but not machine-checked), **checked** (machine-checked
+in Lean), **implemented**, **measured**, or **conjectured**. Code:
 [`core/examples/clean_implicit.rs`](../core/examples/clean_implicit.rs);
-Lean: [`formal/RangFormal/Stagewise.lean`](../formal/RangFormal/Stagewise.lean);
-archive: [`results/clean-implicit-objective.json`](results/clean-implicit-objective.json).
-Status of this revision: §§1-5 written; the Lean names cited as "checked"
-are the targets of §7 and the measurements of §6 are pending.
+Lean: [`formal/RangFormal/Stagewise.lean`](../formal/RangFormal/Stagewise.lean)
+(and, for the companion note, `Separation.lean` and `Clark.lean`, §7);
+archive: [`results/clean-implicit-objective.json`](results/clean-implicit-objective.json);
+full tables of the run: `outputs/clean-implicit-20261030/stdout.md` (ignored).
 
 Sources read in full for this note: Hastie, Taylor, Tibshirani and Walther
 (2007), "Forward stagewise regression and the monotone lasso", Electronic
 Journal of Statistics 1, 1-29 (arXiv:0705.0269; cited as HTTW), and Freund,
 Grigas and Mazumder (2017), "A new perspective on boosting in linear
 regression via subgradient optimization and relatives" (arXiv:1505.04243,
-2015; later in the Annals of Statistics; cited as FGM). Marsh and Richardson (1987)
-was not retrievable from this host (ADS redirects to a page that returned
+2015; later in the Annals of Statistics; cited as FGM). Marsh and Richardson
+(1987) was not retrievable from this host (ADS redirects to a page that returned
 no text), so nothing here characterises their result. Efron, Hastie,
 Johnstone and Tibshirani (2004, "Least angle regression") is cited only
 through HTTW; the proofs below do not use it.
@@ -66,6 +67,23 @@ through HTTW; the proofs below do not use it.
    peak. In Schwarz's `W > R` regime the small-gain limit is a definite exact
    fit, the end point of the monotone lasso, which is in general not the
    minimum-ℓ1 fit.
+5. **Measured (MeerKAT track-uniform and snapshot-natural PSFs, noiseless
+   Gaussian disc and six point sources, §6).** At matched misfit the CLEAN
+   model approaches the `FS_ε` reference as `γ` falls from 1 to 0.003: by a
+   factor of 22-64 in rms on the disc and 280-2,400 on the point sources.
+   The fitted rate between `γ = 0.03` and `0.003` is `γ^0.76` (track) and
+   `γ^0.86` (snapshot) for the disc model, `γ^1.0-1.4` for the point-source
+   model, and about `γ^0.9` for the residual where the reference is accurate
+   enough to tell. The lasso path is far from monotone on the disc (5,836
+   zero crossings down to `Q/Q_0 = 1e-5` on the track, path arc length 64
+   times the final ℓ1 norm), so there lasso and small-gain CLEAN differ (rms
+   0.13-0.25 of the peak); on the track six-source scene the lasso path is
+   monotone and the two agree to 3e-7, as Hastie et al.'s theory requires.
+   For the disc the small-gain model is much closer to the sky than the
+   lasso (rms error 0.041 against 0.19 on the track); for the six point
+   sources on the snapshot PSF the lasso and gain-1 CLEAN recover the sky
+   (rms 1e-4 at `Q/Q_0 = 1e-5`) and small-gain CLEAN does not (0.0095, with
+   a −0.11 pixel).
 
 ## 2. Setting and the identification
 
@@ -249,10 +267,13 @@ dictionary under normalised weights (`‖a_p‖² = Σ_k w_k = 1`). In particula
   which fails automatically once more atoms are tied than the dimension of
   their span; near `L*` on the snapshot that is possible, and then the
   model limit is determined only up to the null space of the tied atoms
-  (open, §8);
+  (§6 measures near-tied sets; open, §10);
 - *strong correlations* (neighbouring atoms 0.68-0.93): irrelevant for the
   theorems; they enter only `c_min` and `κ`, hence `L*` and the rate, and the
-  conditioning of the tied Gram matrices, which the measurement reports;
+  conditioning of the tied Gram matrices; §6 finds the near-tied sets of the
+  disc numerically dependent from `Q/Q_0 ≈ 1e-2` on the track, so for
+  extended emission Theorem B's hypothesis is not met and model convergence
+  there is measured, not proved;
 - *exact ties* (a disc centred on the grid with a point-symmetric PSF ties
   mirrored pixels exactly; `B` is symmetric under `x → −x`): allowed; the
   flow treats them like any tie, and the argmax tie-break of the discrete
@@ -337,24 +358,234 @@ by construction but uncharacterised; it is in general not the minimum-ℓ1
 exact fit, which is where the lasso ends as `λ → 0`. `‖m(L*)‖₁ ≤ L*`, with
 equality iff no pixel ever backtracks. The gain dependence of the converged
 models seen in E6 is the Euler error of the scheme and vanishes as `γ → 0`
-(Theorem B(vi)); §6 measures how fast.
+(Theorem B(vi)); §6 measures how fast, and finds the snapshot's six point
+sources ending in a non-sparse fit (ℓ1 norm 4.26 against the sky's 3.50,
+with a negative pixel) while the lasso ends on the sky.
 
-## 6. Measurements
 
-Pending: filled in from `clean_implicit` (FS_ε, CLEAN for six gains, lasso
-and non-negative lasso, matched-misfit comparisons, the monotonicity test of
-the lasso path, tied-set sizes) on the E6 disc and the E1 six-source scene,
-noiseless, track-uniform and snapshot-natural sampling.
+## 6. Measurements (2026-10-30, Windows workstation, one run of `clean_implicit`, 36.5 s)
 
-## 7. Lean
+**Setup (implemented).** The example reuses the geometry of `clean_theory`:
+64 × 64 pixels of 2″, MeerKAT at 1.4 GHz and declination −30°, the
+**track-uniform** configuration (13 hour angles over ±2 h, uniform weights,
+`M = 26,208`, on-grid coherence 0.68) and the **snapshot-natural** one
+(`M = 2,016`, coherence 0.93, `N = 4,096 > 2M = 4,032`, Schwarz's `W > R`).
+Scenes, noiseless: the E6 Gaussian disc (FWHM 12 px, peak 1, ℓ1 norm 163.2)
+and the E1 six-source scene with E1's seed and positions, its noise omitted
+(fluxes 1, 0.8, 0.7, 0.5, 0.3, 0.2; ℓ1 norm 3.5). Everything runs in the
+image domain on the exact PSF; `Q` is tracked by the exact step identity of
+Lemma 1 and agrees with `Q_0 − ½ m·(d + r)` to 4e-8 relative at every
+snapshot. Paths: `FS_ε` at `ε = 3e-5, 1.2e-4, 4.8e-4` times the dirty peak
+(the finest is the reference, written FS₀ below; the coarser two measure its
+own discretisation error), CLEAN at `γ = 1, 0.3, 0.1, 0.03, 0.01, 0.003`, and
+the **exact** lasso and non-negative lasso paths by homotopy (LARS with the
+lasso modification; a Cholesky factor of the active Gram matrix kept by
+appends and Givens deletions). Every path is cut at matched misfit
+`Q/Q_0 ∈ {0.1, 0.01, 0.001}` (the task) and `{1e-4, 1e-5}` (deeper, where E6
+saw negative small-gain models), the crossing located inside the step or
+homotopy segment that crosses it; the lasso solutions there satisfy the
+optimality conditions to 2e-12 of `λ`. A first implementation of the lasso
+by cyclic coordinate descent with a 1e-9 tolerance was abandoned after it
+spent about nine minutes on the first case without finishing (correlated
+atoms make coordinate descent crawl); the homotopy takes 4.5 s for the
+hardest path.
 
-Pending: `formal/RangFormal/Stagewise.lean`.
+**Convergence of CLEAN to FS₀ (measured; Theorem A).** Root-mean-square
+difference over all 4,096 pixels at `Q/Q_0 = 1e-3`, model (units of the disc
+peak, or of the brightest source) / residual image, and the log-log slope
+between `γ = 0.03` and `0.003`:
 
-## 8. Open
+| case | γ = 1 | 0.3 | 0.1 | 0.03 | 0.01 | 0.003 | slope, model / residual | FS at 4ε |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| track, disc | 0.287 / 2.7e-2 | 0.110 / 2.5e-3 | 0.062 / 7.8e-4 | 0.027 / 2.4e-4 | 0.012 / 8.7e-5 | 0.0047 / 2.9e-5 | 0.76 / 0.92 | 1.4e-3 / 7.7e-5 |
+| track, six sources | 1.1e-3 / 2.3e-3 | 8.2e-5 / 1.7e-4 | 2.0e-5 / 4.1e-5 | 5.1e-6 / 1.0e-5 | 2.3e-6 / 4.6e-6 | 5.3e-7 / 1.1e-6 | 0.98 / 0.99 | 1.2e-6 / 2.4e-6 |
+| snapshot, disc | 0.400 / 0.36 | 0.443 / 0.37 | 0.274 / 0.091 | 0.119 / 0.028 | 0.049 / 0.010 | 0.016 / 0.0064 | 0.86 / 0.65 | 2.2e-3 / 1.0e-3 |
+| snapshot, six sources | 1.0e-2 / 4.7e-3 | 4.0e-3 / 1.2e-3 | 1.9e-3 / 2.3e-3 | 4.9e-4 / 1.4e-3 | 1.2e-4 / 2.0e-4 | 1.9e-5 / 1.1e-5 | 1.42 / 2.08 | 7.4e-6 / 2.3e-5 |
 
-- The rate of convergence of CLEAN(γ) to the flow (expected `O(γ)` in data
-  space away from tie changes; not proved).
-- Model uniqueness when more atoms are tied than their span's dimension
-  (possible near `L*` when `N > 2M`).
-- Whether `m(L*)` admits any variational characterisation (HTTW could not
-  give one; none is offered here).
+The same holds at every level: from `γ = 1` to `0.003` the model difference
+falls by 61-64× (track disc), 22-59× (snapshot disc), 660-2,400× (track six)
+and 280-690× (snapshot six). The arc length at matched misfit converges as
+Theorem A(iii) requires (`Q(L)` is one function): track disc at `1e-3`,
+`L = 166.84` (γ = 1), 154.88, 154.82, 154.809, 154.808, 154.808 against FS₀'s
+154.808. Below `Q/Q_0 = 1e-4` the residual comparison is limited by the
+reference itself: on the track disc at `1e-5` FS at 4ε differs from FS₀ by
+8.5e-5 in the residual, CLEAN at 0.003 by 2.3e-5. Small-gain CLEAN is there
+the better discretisation of the flow, because its step shrinks with the
+residual while FS's does not.
+
+**What the paths look like (measured).** At matched misfit; `L` is the ℓ1
+arc length of each path (for the lasso, of the exact lasso path), "negative
+arc" the arc length spent on steps against a negative residual, "error" the
+rms difference from the true sky:
+
+| case, Q/Q_0 | method | L | ‖m‖₁ | most negative | negative arc | error |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| track disc, 1e-3 | FS₀ | 154.81 | 154.81 | 0 | 0 | 0.041 |
+| | CLEAN γ = 1 | 166.84 | 165.17 | −0.325 | 3.00 | 0.296 |
+| | CLEAN γ = 0.1 | 154.82 | 154.82 | 0 | 0 | 0.053 |
+| | CLEAN γ = 0.01 | 154.81 | 154.81 | 0 | 0 | 0.037 |
+| | lasso | 5,770.9 | 154.80 | 0 | – | 0.193 |
+| snapshot disc, 1e-3 | FS₀ | 159.76 | 159.07 | 0 | 0.34 | 0.103 |
+| | CLEAN γ = 1 | 494.8 | 196.4 | −1.600 | 166.0 | 0.401 |
+| | CLEAN γ = 0.1 | 164.23 | 163.84 | −1.236 | 2.11 | 0.307 |
+| | CLEAN γ = 0.01 | 160.39 | 159.18 | 0 | 0.61 | 0.102 |
+| | lasso | 6,082.0 | 155.62 | 0 | – | 0.222 |
+| snapshot disc, 1e-5 | FS₀ | 180.76 | 166.53 | −0.223 | 8.80 | 0.102 |
+| | CLEAN γ = 1 | 580.7 | 254.5 | −1.600 | 208.8 | 0.360 |
+| | CLEAN γ = 0.01 | 181.56 | 166.97 | −0.341 | 9.20 | 0.101 |
+| | lasso | 11,294.7 | 162.30 | 0 | – | 0.217 |
+| track six, 1e-3 | FS₀, CLEAN γ ≤ 0.3, lasso | 3.38 | 3.38 | 0 | 0 | 0.0008 |
+| snapshot six, 1e-5 | FS₀ | 4.27 | 4.26 | −0.113 | 0.39 | 0.0095 |
+| | CLEAN γ = 1 | 4.66 | 3.50 | 0 | 0.58 | 0.0001 |
+| | CLEAN γ = 0.01 | 4.28 | 4.27 | −0.114 | 0.39 | 0.0096 |
+| | lasso | 4.24 | 3.49 | 0 | – | 0.0001 |
+
+**Is the lasso path monotone here? (measured, exactly.)** Down to
+`Q/Q_0 = 1e-5`; a segment "shrinks" when some active coefficient heads
+towards zero, `s_j (B_AA⁻¹ s)_j < 0`, which is HTTW's condition (36) failing
+on that active set:
+
+| case | events | joins | zero crossings | shrinking segments | first at Q/Q_0 | path arc / final ‖m‖₁ | monotone |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| track, disc | 12,167 | 6,332 | 5,836 | 12,161 | 0.996 | 64.1 | no |
+| track, six sources | 5 | 6 | 0 | 0 | – | 1.000 | yes |
+| snapshot, disc | 7,259 | 3,757 | 3,503 | 7,256 | 0.932 | 69.6 | no |
+| snapshot, six sources | 9 | 10 | 0 | 5 | 0.382 | 1.217 | no |
+
+The non-negative lasso path is identical in all four cases (the lasso never
+produced a negative coefficient on these positive skies). So the monotone
+lasso equals the lasso only on the track six-source scene, where FS₀ and the
+lasso agree to 3e-7 (the reference's own precision) at every level, as HTTW
+§6 predicts. Everywhere else they differ, and the difference is large.
+
+**Findings (measured).**
+
+- *Small-gain CLEAN is the monotone lasso, not the lasso.* On the disc the
+  lasso is sparse (324 active pixels at `1e-3` on the track) and hops: its
+  path is 37-70 times longer than its norm, and its model is 0.13-0.25 of the
+  peak (rms) away from FS₀ and 0.14-0.25 from the sky. FS₀ and small-gain
+  CLEAN keep the model contiguous and are 0.041 (track) and 0.10 (snapshot)
+  from the sky. The lasso has the smallest ℓ1 norm at every matched misfit,
+  as it must (a sanity check of the solver), by 0.01-3 % against FS₀ on the
+  disc and up to 18 % on the snapshot six-source scene.
+- *Gain 1 overshoots.* On the snapshot disc gain 1 spends 166 of its 495
+  units of arc length on negative picks by `Q/Q_0 = 1e-3` (FS₀: 0.34 of 160)
+  and leaves a −1.60 pixel; `γ = 0.3` still spends 35, `γ = 0.1` 2.1. On the
+  track disc, where neighbouring atoms correlate at most 0.68, every gain up
+  to 0.3 has zero negative arc to `1e-5` and gain 1 up to 7.3.
+- *Small gain does not guarantee non-negativity.* FS₀ itself goes negative on
+  the snapshot PSF: −0.22 on the disc from `Q/Q_0 = 1e-4`, −0.11 on the six
+  sources at `1e-5`; small-gain CLEAN follows it (−0.34 at `γ = 0.01` and
+  0.003, the E6 value, against FS₀'s −0.22, with an rms model difference of
+  0.017). §5's
+  negative statement is therefore realised on MeerKAT sampling.
+- *Point sources on the coherent snapshot favour sparsity.* At `1e-5` FS₀
+  spreads the six sources over neighbouring pixels (‖m‖₁ 4.26 against 3.50,
+  error 0.0095), while the lasso and gain-1 CLEAN recover the sky to 1e-4.
+  This is Schwarz's `W > R` selection at work: FS₀ picks its own exact fit
+  (§5), which here is not the sparse one. Small gain is the right choice for
+  extended emission and the wrong one for isolated point sources on a PSF
+  with 0.93 neighbour correlation.
+- *Tied sets and Theorem B's hypothesis.* The pixels within `2ε` of the peak
+  on the FS₀ path number 127, 240 and 549 on the track disc at `0.1, 0.01,
+  1e-3`, and the smallest eigenvalue of their Gram matrix falls from 7.6e-4
+  to 3.6e-7 and 5e-14 (dependent to working precision); on the snapshot disc
+  24-119 pixels with eigenvalues 1.6e-4 to 6.7e-3 down to `1e-4`, then 844
+  (dependent) at `1e-5`; on the six sources 5-6 pixels with eigenvalue 0.93
+  on the track at every level and 7-13 with 0.04-0.06 on the snapshot down to
+  `1e-3`, then 67 and 900 (dependent). At `4ε` the counts are larger (for
+  example 213 against 80), so they are tolerance-dependent upper bounds on
+  the flow's exact tied set, not the set itself. Theorem B's independence
+  hypothesis is thus confirmed only for the sparse scene on the track; for
+  extended emission it is plausibly violated from `Q/Q_0 ≈ 1e-2`, and the
+  model convergence measured there lies outside what is proved
+  (**conjectured**: the model limit is unique anyway). A likely reason for
+  the dependence (**proposed**, not measured further): a contiguous patch of
+  hundreds of pixels at 2.8 pixels per fringe has Fourier content between
+  the longest baseline and the pixel Nyquist frequency, where nothing is
+  sampled, so its Gram matrix has near-null vectors.
+
+## 7. Lean (checked)
+
+`formal/RangFormal/Stagewise.lean` (this note): `misfit_add_eq` (exact misfit
+after any move), `misfit_add_ge` (ℓ1 steepest descent, Lemma 2),
+`misfit_add_single` (Lemma 1), `misfit_stagewise_step` (a signed step of
+ℓ1 size `ε` changes `Q` by `−ε|r_p| + ε²/2`), `l1_stagewise_step`,
+`step_eq_stagewise` and `l1_step_sub` (a CLEAN step is the stagewise step of
+length `|γ||r_p|`), `l1_iterate_le_arc` (Lemma 3), `subgradient_monotone`
+(monotonicity of the ℓ∞ subdifferential) and `flow_residual_unique` (Step 3
+of Theorem A: two right-differentiable residual curves driven by
+subgradients of the peak residual from the same start coincide; proved with
+Mathlib's `image_le_of_deriv_right_le_deriv_boundary`). Not formalised: the
+compactness and almost-everywhere arguments of Steps 2 and 4-7, which need
+Arzelà-Ascoli and Rademacher's theorem in a form Mathlib does not package
+for this use.
+
+For [clean-theory.md](clean-theory.md), whose §3 listed them as not
+formalised: `Separation.lean` proves Proposition 4' as
+`l1_le_of_offdiag_le` (the Neumann-series bound in ℓ1 form, without a
+matrix inverse), `colsum_le_of_separated` (at most one source within `d/2`
+of any pixel, in any pseudometric space), `erc_lt_one_of_separated`
+(`‖B_SS⁻¹ B_{S,q}‖₁ < 1`), `exists_erc_solution` (`B_SS` is invertible) and
+`pick_in_support_of_erc` (for a symmetric `B` the argmax then stays on the
+sources); `Clark.lean` proves Theorem 6 as `clark_descends_iff` (descent iff
+`r_p/r̃_p > γ/2`), `truncation_error_le` (`‖r − r̃‖_∞ ≤ f Σ|c_k|`), `dirty_add`,
+`clark_rule_descends` and `clark_minor_cycle_descends` (the provable
+minor-cycle rule, end to end). `RangFormal/Audit.lean` prints the axioms of
+33 theorems (13 before, 20 new); all rest on `propext`, `Classical.choice`
+and `Quot.sound` only.
+
+## 8. Novelty, as AGENTS.md asks
+
+Known: CLEAN is matching pursuit (Mallat and Zhang; clean-theory.md), which
+FGM identify with LS-Boost(ε); FS and LS-Boost are subgradient methods on the
+peak residual (FGM Proposition 3.2); FS₀ is the monotone lasso, with the
+`ε → 0` limit argued heuristically (HTTW Theorem 1 and Proposition 1); the
+gradient-flow theory of convex functions is classical (Brezis 1973). New
+here, as far as the two papers read and the earlier literature search show:
+a complete proof that small-gain CLEAN and `FS_ε` share one limit, unique in
+data space for any dictionary (including rank-deficient ones), equal to the
+gradient flow of the peak residual with its minimum-norm (HTTW) direction,
+and the monotone lasso in model space under an independence condition; its
+consequences for CLEAN (the negative answer to Marsh and Richardson's
+question in pointwise form, the local objective, the `W > R` selection); the
+measurement on MeerKAT PSFs that the lasso path is far from monotone for
+extended emission, so small-gain CLEAN and the lasso are different
+estimators there; and the Lean proofs. No claim of better imaging or lower
+cost is made: this is an understanding result.
+
+## 9. Reproduction
+
+From the repository root (Rust 1.93 or later):
+
+```bash
+cargo run --release --manifest-path core/Cargo.toml --example clean_implicit -- outputs/clean-implicit-20261030
+```
+
+```bash
+cd formal && lake build
+```
+
+The example writes `clean-implicit-objective.json` (copied to
+`research/results/`) and prints every table above; the run is
+deterministic (two runs gave identical output apart from timings). Run
+time 36.5 s on the Windows workstation (track disc 28.7 s, of which 9 s is
+the two homotopies and most of the rest the Gram eigenvalues of the tied
+sets; the other cases 0.7-3.9 s). Lean timings are in
+`research/tool-timings.md`.
+
+## 10. Open
+
+- The rate of convergence (measured `γ^0.76-1.4` for the model and about
+  `γ^0.9` for the residual; not proved).
+- Model uniqueness when the tied atoms are dependent, which the
+  measurements suggest happens for extended emission (§6).
+- A characterisation of the end point `m(L*)` (HTTW could not give one).
+- Noise: with noisy data the flow runs to the least-squares residual, so
+  the stopping arc length is the regulariser; how to choose it.
+- Practice (**proposed**): the gain is a discretisation parameter of one
+  flow. A path-following CLEAN that takes the non-negative least-squares
+  direction on the tied set (HTTW's Algorithm 2b) would compute the `γ → 0`
+  limit exactly, event by event; whether that is cheaper than small-gain
+  CLEAN on real images, and whether Clark and Cotton-Schwab minor cycles
+  approximate the same flow, are unmeasured.

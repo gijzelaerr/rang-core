@@ -866,3 +866,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P12: Windows `build.py` / `test.py`, at `86e2a8d` and at `0085b36` | – | 102.9 s and 102.2 s / 8.7 s and 8.7 s | – |  |
 | 2026-10-30 | big plan P12: Windows clone of main, install and the 4 failing test files | – | 140.5 s | – |  |
 | 2026-10-30 | big plan P12: `build.py --sdist` Linux / `maturin build` from the unpacked sdist | – | 62 s / 68 s | – |  |
+| 2026-10-30 | CLEAN implicit objective: full Rust checks before the first commit (fmt, clippy, test) | worktree | 137 s | – | Windows; 111 tests pass |
+| 2026-10-30 | CLEAN implicit objective: `clean_implicit`, first version with a coordinate-descent lasso | first case only | about 9 min, aborted | – | negative: coordinate descent crawls on correlated atoms; replaced by an exact homotopy |
+| 2026-10-30 | CLEAN implicit objective: `clean_implicit` with the lasso homotopy, three levels | 4 cases | 9.5 s | – | |
+| 2026-10-30 | CLEAN implicit objective: `clean_implicit`, five levels, tied-set eigenvalues on every path | 4 cases | 147.9 s | – | 50 s of it on the γ = 1 run's huge tolerance sets; eigenvalues then restricted to FS |
+| 2026-10-30 | CLEAN implicit objective: `clean_implicit`, final run | 4 cases, 5 levels | 36.5 s | – | deterministic (identical to the previous run but timings); track disc 28.7 s, other cases 0.7-3.9 s |
+| 2026-10-30 | CLEAN implicit objective: `lake build RangFormal.Stagewise`, first build / rebuild after fixes | `formal/` | 248 s / 22 s | – | first build ran alongside the aborted example |
+| 2026-10-30 | CLEAN implicit objective: `lake build` of `Separation` and `Clark`, failing / passing | `formal/` | 38 s / 38 s | – | |
+| 2026-10-30 | CLEAN implicit objective: clean `lake build` of all seven files and the audit | `formal/` | 121 s | – | 33 theorems, standard axioms only |
+| 2026-10-30 | CLEAN implicit objective: fmt check / clippy / test, after the example (incremental) | worktree | 1 s / 0.3 s / 3 s | – | |

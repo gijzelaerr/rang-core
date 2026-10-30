@@ -13,6 +13,19 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: [what CLEAN minimises](clean-implicit-objective.md):
+small-gain Högbom CLEAN is forward stagewise regression, and a proof that as
+the gain tends to zero it converges (in ℓ1 arc length) to the same limit as
+FS_ε, unique in data space (the gradient flow of the peak residual) and equal
+to Hastie et al.'s monotone lasso when the tied atoms are independent; there
+is no pointwise objective, only steepest descent of the misfit per unit ℓ1
+arc length. Measured on MeerKAT PSFs: CLEAN → FS₀ at rate about γ^0.8-1.4;
+the lasso path is far from monotone for extended emission, so small-gain
+CLEAN and the lasso differ there (and small gain wins on a disc, loses on
+point sources on the snapshot); 20 new Lean theorems, including
+Proposition 4' and Theorem 6 of the CLEAN note
+([archive](results/clean-implicit-objective.json)).
+
 New, 2026-10-30: [CLEAN theory](clean-theory.md): the claim that CLEAN was
 never proven is folklore (Schwarz 1978 proved the data fit converges for
 0 < g < 2); a Gram-matrix formalism reduces his three conditions to one,
