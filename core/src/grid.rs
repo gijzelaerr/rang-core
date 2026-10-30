@@ -267,14 +267,14 @@ fn dct3_prefix(input: &[f64], n: usize, count: usize) -> Vec<f64> {
 /// and the PSF weight stay single precision: both are the `f32` products the
 /// reader forms, so storing them rounds nothing.
 #[derive(Clone, Copy, Debug, Default)]
-struct Sample {
-    x: i32,
-    y: i32,
-    x_kernel: u16,
-    y_kernel: u16,
-    re: f32,
-    im: f32,
-    weight: f32,
+pub(crate) struct Sample {
+    pub(crate) x: i32,
+    pub(crate) y: i32,
+    pub(crate) x_kernel: u16,
+    pub(crate) y_kernel: u16,
+    pub(crate) re: f32,
+    pub(crate) im: f32,
+    pub(crate) weight: f32,
 }
 
 /// Per-layer working memory of one rayon task.
@@ -290,10 +290,12 @@ pub struct Gridder {
     settings: Settings,
     fft: Fft2,
     kernel_1d: Vec<f64>,
-    kernels: Vec<f64>,
+    /// Sub-cell kernels, `kernel * kernel_size + tap` (also the GPU path's).
+    pub(crate) kernels: Vec<f64>,
     min_w: f64,
     max_w: f64,
-    sqrt_lm: Vec<f64>,
+    /// `sqrt(1 - l^2 - m^2) - 1` per padded pixel (also the GPU path's).
+    pub(crate) sqrt_lm: Vec<f64>,
 }
 
 impl Gridder {
@@ -584,12 +586,18 @@ impl Gridder {
                 }
             }
         }
+        self.normalise(&mut dirty, &mut psf, image_weight);
+        (dirty, psf)
+    }
+
+    /// `FinalizeImage(1 / image_weight)` and the kernel correction of the
+    /// summed padded images (shared with the GPU path).
+    pub(crate) fn normalise(&self, dirty: &mut [f64], psf: &mut [f64], image_weight: f64) {
         let factor = 1.0 / image_weight;
         for value in dirty.iter_mut().chain(psf.iter_mut()) {
             *value *= factor;
         }
-        self.correct_for_kernel(&mut dirty, &mut psf);
-        (dirty, psf)
+        self.correct_for_kernel(dirty, psf);
     }
 
     /// `correctImageForKernel<false>`: divide by the kernel's image response.
@@ -671,10 +679,21 @@ pub fn w_limits(settings: &Settings, inputs: &Inputs) -> (f64, f64) {
     }
 }
 
-/// Invert `inputs` to a dirty image and a PSF, normalised as WSClean writes
-/// them (`FinalizeImage(1 / ImageWeight)`, then both scaled so that the PSF
-/// centre is one).
-pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> {
+/// The samples of one inversion bucketed by w-layer, with the gridder of the
+/// padded image and the counters (shared by the CPU and GPU paths).
+pub(crate) struct Bucketed {
+    pub(crate) padded: Settings,
+    pub(crate) gridder: Gridder,
+    /// Ordered by layer, row-channel order within a layer.
+    pub(crate) samples: Vec<Sample>,
+    /// `samples[offsets[layer]..offsets[layer + 1]]` is one layer.
+    pub(crate) offsets: Vec<usize>,
+    pub(crate) stats: Stats,
+}
+
+/// Validation, the w limits, the counters and placement pass in row-channel
+/// order and the stable counting sort by layer.
+pub(crate) fn bucket(settings: &Settings, inputs: &Inputs) -> Result<Bucketed, String> {
     let nchan = inputs.frequencies.len();
     let nrow = inputs.uvw.len() / 3;
     if settings.width == 0
@@ -772,8 +791,41 @@ pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> 
     }
     drop(placed);
     drop(layers);
-    let (mut dirty, mut psf) = gridder.invert(&samples, &offsets, stats.image_weight);
+    Ok(Bucketed {
+        padded,
+        gridder,
+        samples,
+        offsets,
+        stats,
+    })
+}
+
+/// Invert `inputs` to a dirty image and a PSF, normalised as WSClean writes
+/// them (`FinalizeImage(1 / ImageWeight)`, then both scaled so that the PSF
+/// centre is one).
+pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> {
+    let Bucketed {
+        padded,
+        gridder,
+        samples,
+        offsets,
+        stats,
+    } = bucket(settings, inputs)?;
+    let (dirty, psf) = gridder.invert(&samples, &offsets, stats.image_weight);
     drop(samples);
+    Ok(finish(settings, &padded, dirty, psf, stats))
+}
+
+/// The trim to the image size and the PSF normalisation of the normalised
+/// padded images (shared with the GPU path).
+pub(crate) fn finish(
+    settings: &Settings,
+    padded: &Settings,
+    mut dirty: Vec<f64>,
+    mut psf: Vec<f64>,
+    mut stats: Stats,
+) -> Products {
+    let (padded_width, padded_height) = (padded.width, padded.height);
     if (padded_width, padded_height) != (settings.width, settings.height) {
         dirty = trim(
             &dirty,
@@ -802,7 +854,38 @@ pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> 
     for value in psf.iter_mut() {
         *value *= stats.psf_normalization;
     }
-    Ok(Products { dirty, psf, stats })
+    Products { dirty, psf, stats }
+}
+
+/// Where an inversion runs (big-plan task X2, `research/x2-wgpu.md`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Device {
+    Cpu,
+    /// The wgpu path in f64 (needs the cargo feature `gpu` and an adapter
+    /// with `SHADER_F64`).
+    GpuF64,
+    /// The experimental wgpu path in f32.
+    GpuF32,
+}
+
+/// `invert` on the chosen device; the GPU devices fail with a message when
+/// the feature `gpu` is not compiled in or no adapter is usable.
+pub fn invert_on(device: Device, settings: &Settings, inputs: &Inputs) -> Result<Products, String> {
+    match device {
+        Device::Cpu => invert(settings, inputs),
+        #[cfg(feature = "gpu")]
+        Device::GpuF64 => {
+            crate::gpu::invert(settings, inputs, crate::gpu::Precision::F64).map(|r| r.0)
+        }
+        #[cfg(feature = "gpu")]
+        Device::GpuF32 => {
+            crate::gpu::invert(settings, inputs, crate::gpu::Precision::F32).map(|r| r.0)
+        }
+        #[cfg(not(feature = "gpu"))]
+        Device::GpuF64 | Device::GpuF32 => {
+            Err("the GPU gridder is not compiled in (cargo feature `gpu` of rang-core)".into())
+        }
+    }
 }
 
 #[cfg(test)]
