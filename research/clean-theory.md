@@ -12,6 +12,11 @@ measured experiments), [`formal/RangFormal/Clean.lean`](../formal/RangFormal/Cle
 [`results/clean-theory.json`](results/clean-theory.json); the full tables
 of the run are in `outputs/clean-theory-20261030/stdout.md` (ignored).
 
+Continued later on 2026-10-30 (branch `clean-theory-2`): Theorems 2 and 3
+are now machine-checked in full generality, including the misfit floor
+`Q_∞` and convergence of the model (§3); a noisy recovery experiment (E2c)
+and the coherence of a multi-scale dictionary (E7) were added to §5.
+
 ## 1. Verdict on the claim
 
 The claim is false in its strong form and true in a weaker one.
@@ -203,14 +208,29 @@ diagnostics no pipeline computes today (§6).
 `E` and finite pixel type `ι` with unit-norm atoms: `misfit_step` (Theorem 1),
 `misfit_step_le`, `misfit_iterate` (the telescoped identity), `sum_peak_sq_le`,
 `summable_peak_sq`, `peak_tendsto_zero`, `dirty_tendsto_zero` (Theorem 2 for
-`τ`-weak greedy rules), `misfit_geometric` (Theorem 3), and
-`greedy_pick_in_support` (Theorem 4). `RangFormal/Audit.lean` prints the
-axioms: every theorem depends on `propext`, `Classical.choice` and
-`Quot.sound` only. The build takes 44 s on the Windows workstation after
-`lake exe cache get` (4 min 50 s, clone included). Not formalised: the
-projection argument that closes Theorem 2 (`e_k → P v`), the compactness
-argument of Theorem 3's first instance, Proposition 4', Theorem 6; their
-proofs are the short arguments in §2.2.
+`τ`-weak greedy rules), `misfit_geometric` (Theorem 3 given a greedy-ratio
+bound), and `greedy_pick_in_support` (Theorem 4).
+`RangFormal/FiniteDim.lean` (added in the continuation) proves the
+compactness step: `exists_energy_bound` (a `κ ∈ (0, 1]` with
+`κ‖s‖² ≤ Σ_i ⟪s, a_i⟫²` on the span of the atoms, from the compact unit
+sphere of the finite-dimensional span), `exists_pixel_bound` (one pixel
+carries `κ/N` of `‖s‖²`), `misfit_geometric_of_mem_visible` (for data in the
+span and any `τ`-weak greedy rule, `Q_K ≤ ρ^K Q_0` with
+`ρ = 1 − γ(2−γ)τ²κ/N < 1`) and `misfit_tendsto_zero_of_mem_visible`.
+`RangFormal/Projection.lean` proves the projection step: the dirty image,
+every step and the whole CLEAN sequence ignore the component of the data
+orthogonal to the atoms (`dirty_add_orthogonal`, `iterate_add_orthogonal`),
+the misfit splits as `Q_{w+z}(m) = Q_w(m) + ½‖z‖²` (`misfit_add_orthogonal`),
+hence `misfit_geometric_general`: for arbitrary data there is a floor `Q_∞`
+below every model's misfit and `Q_K − Q_∞ ≤ ρ^K (Q_0 − Q_∞)`; and
+`iterate_tendsto`: the CLEAN model converges, because the picked peaks are
+bounded by `C ρ^{k/2}` and the increments are summable
+(`iterate_eq_sum`, `abs_peak_le`). `RangFormal/Audit.lean` prints the
+axioms: all thirteen audited theorems depend on `propext`,
+`Classical.choice` and `Quot.sound` only. The build takes 41-44 s on the
+Windows workstation after `lake exe cache get` (4 min 50 s, clone included).
+Not formalised: Proposition 4' and Theorem 6, whose proofs are the short
+arguments in §2.2.
 
 ## 4. Implementation (implemented; tested)
 
@@ -350,6 +370,54 @@ Schwarz's Fig. 2 artefact on MeerKAT sampling. Small gains give smoother
 limits, as Schwarz 1984 §3.3b reports, and no theorem says why beyond
 Theorem 5's statement that the limit is path-dependent.
 
+**E2c, recovery with noise** (added in the continuation). Sources at least
+8 pixels apart, fluxes 0.2-1, white visibility noise scaled to an image
+noise of 0.01 (measured 0.0096-0.0101), gain 0.1, stop at `|r| < 5σ`,
+100 trials per `k`. "Exact support" means every source has a component and
+no other pixel does.
+
+| config | exact support (k = 2, 4, 6, 8, 12) | mean fraction of picks on the support | mean false pixels (k = 2 … 12) | rms flux error on the support, in σ | trials with ERC < 1 |
+| --- | --- | --- | --- | --- | --- |
+| snapshot-natural | 31, 5, 0, 1, 0 | 0.95-0.90 | 1.1 → 14.8 | 5.7-7.0 | 100, 89, 45, 5, 0 |
+| snapshot-uniform | 62, 35, 14, 7, 3 | 0.98 | 0.45 → 3.4 | 5.0-5.1 | 100, 100, 98, 87, 0 |
+| track-natural | 17, 2, 0, 0, 0 | 0.93-0.89 | 1.6 → 15.9 | 5.5 | 100, 99, 85, 59, 4 |
+| track-uniform | 78, 79, 61, 47, 32 | 0.99 | 0.23 → 1.13 | 4.9 | 100 × 5 |
+
+With one per cent noise the picks still land on the support 89-99.7 % of
+the time, but strict support recovery is rare except with the best PSF:
+the failures are components on pixels adjacent to a source, where the
+atom correlation is 0.68-0.93 (the on-grid coherence of §5's first table),
+so a small noise shift of the residual peak moves a pick one pixel over.
+The flux error on the support is the 5σ stopping threshold, as it must be.
+The ERC is no longer predictive: its premise, a residual in the span of
+the support atoms, fails as soon as noise is present (the rows "exact
+support given ERC" equal "exact support"). This is the quantitative form of
+Theorem 4's noiseless scope.
+
+**E7, a multi-scale dictionary** (added in the continuation). Multi-scale
+CLEAN is the same greedy algorithm on a dictionary of blobs; here delta,
+and Gaussians of FWHM 2, 4 and 8 pixels, under each configuration's PSF,
+inner products computed exactly through the Gram matrix. The largest
+normalised inner product between distinct atoms (offsets `(d, 0)` and
+`(d, d)`, `d ≤ 16`):
+
+| config | delta vs 2 px (same centre) | 2 px vs 4 px | 4 px vs 8 px | 8 px, unit offset | overall |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| snapshot-natural | 0.986 | 0.967 | 0.959 | 0.993 | 0.993 |
+| snapshot-uniform | 0.966 | 0.904 | 0.831 | 0.980 | 0.980 |
+| track-natural | 0.987 | 0.968 | 0.959 | 0.993 | 0.993 |
+| track-uniform | 0.926 | 0.848 | 0.807 | 0.979 | 0.979 |
+
+The coherence of a multi-scale dictionary is 0.98-0.99 on every PSF, so no
+coherence-type recovery guarantee can exist for multi-scale CLEAN at pixel
+resolution; Theorems 1-3 still hold for it verbatim (its atoms are vectors
+of the same space, their Gram matrix is positive semidefinite, and the
+one-step identity is the same), and the ERC of a given component list stays
+computable. Measured, not proven: which scale the greedy pick prefers is
+decided by sub-per-cent differences in correlation, which is why
+multi-scale CLEAN's scale bias is set by its scale weighting rather than by
+the data.
+
 ## 6. What follows for practice (proposed)
 
 1. **A Gram-consistency check.** Per minor cycle, compare the exact change
@@ -407,17 +475,21 @@ cd formal && lake exe cache get && lake build
 ```
 
 Timings (Windows workstation, 2026-10-30): core test build 63 s; the
-example 68.8 s of compute (PSFs 0.02-0.33 s, CG 3-4 s per `Q_∞`,
-E2 dominating); Lean 4 min 50 s for the Mathlib cache and 44 s per build.
+example 68.8 s of compute (71.1 s with E2c and E7; PSFs 0.02-0.33 s, CG
+3-4 s per `Q_∞`, E2 dominating); Lean 4 min 50 s for the Mathlib cache and
+41-44 s per build.
 
 ## 9. Next steps
 
-- Formalise the projection step of Theorem 2 and the compactness step of
-  Theorem 3 (both routine in Mathlib's finite-dimensional theory).
-- A noisy E2: picks stay on the support until the residual peak reaches the
-  noise, then `κ` drops to `1/N`; the ERC with a noise margin
-  (Tropp's `η(S) < 1 − 2ε/‖r_S‖_∞`) is the natural statement.
-- Multi-scale CLEAN as the same greedy algorithm on a redundant dictionary:
-  measure its coherence and ERC on the same MeerKAT PSFs.
+- Done in the continuation: the projection and compactness steps are
+  formalised (§3); E2c measures recovery with noise; E7 measures
+  multi-scale coherence.
+- Formalise Proposition 4' (Neumann series) and Theorem 6 (the provable
+  minor-cycle rule); both are finite algebra.
+- A noise-margin statement for Theorem 4: Tropp's `η(S) < 1 − 2ε/‖r_S‖_∞`
+  explains E2c's adjacent-pixel failures quantitatively; measure it.
+- Multi-scale CLEAN: with coherence 0.98-0.99 the guarantee question is
+  closed; what remains is measuring the ERC of real multi-scale component
+  lists and the scale-weighting bias.
 - Wire the Gram-consistency check and `Q_∞` into the imaging comparator
   alongside the WSClean oracle (`research/core-i-imaging-replay.md`).
