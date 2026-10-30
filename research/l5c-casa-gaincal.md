@@ -4,9 +4,19 @@ Protocol frozen 2026-10-31 on branch `l5c-casa-gaincal` (from `main`
 `8ab6db8`), in the commit that adds this file, before any CASA task or any
 comparison was run on the fixture or the LUNO data. Task L5-C of
 [big-plan.md](big-plan.md) (ecosystem survey section 5.2 item 8,
-[ecosystem-survey.md](ecosystem-survey.md)). Status: **protocol frozen; not
-yet run.** Results are added below the protocol, never edited into it; this
-status line is the only edit above "Measured result".
+[ecosystem-survey.md](ecosystem-survey.md)). Status: **implemented and
+measured 2026-10-31 on the fixture and the four-station slice; the whole
+array was not run (the frozen budget rule fails: 341 min estimated against
+60).** CASA G on the core's intervals is within L5's held-out margin of the
+core on the slice (parallel hands +7.6e-5) and just outside it on the
+fixture (+1.23e-4, below the core's own diagonal floor of +2.4e-4); the
+convergence tail is **reproduced** on the slice (the 4 intervals the core
+leaves unsettled at 1e-4 are all among CASA's unsettled, enrichment 5.6) and
+undecidable on the fixture (no interval at 1e-4). CASA stops by its
+chi-squared rule long before convergence (median product step 3.8e-5 / 6.4e-4
+on a restart) and never hits its own 50-iteration cap in a first solve. No
+default changes. Results are added below the protocol, never edited into it;
+this status line is the only edit above "Measured result".
 
 ## Why
 
@@ -307,3 +317,264 @@ logs, `/usr/bin/time -v` wall and peak RSS of every container step.
 - `tests/test_l5c.py`: the archive's internal consistency and, when the run
   directory exists, recomputation of headline numbers; skips without the
   outputs.
+
+## Implemented (commits 80bda5c, 744f874)
+
+- `examples/oracle_casa_gaincal.py run {fixture,slice} <run>`: host
+  `prepare` (L5's loader, gates that the solve flags contain every held-out
+  cell), then one network-less container per step, each timed inside the
+  container by `/usr/bin/time`: `copy` (KERN python3), `solve G | G-r1 |
+  G-r2 | G-r3 | T | G-wholeband` (CASA venv), and per arm `flags`, `apply`,
+  `export`; `receipt.json` with the image ID, the source MS tree hash, code
+  hashes, git head and status, settings, step timings and the SHA256 of
+  every caltable tree and export. The container side imports no `rang`.
+- `examples/compare_l5c.py compare {fixture,slice} <run>` and `archive`:
+  the measures above; `compare.json` and `per-interval.npz` (per-interval
+  convergence distances and strata) in the run directory; the archive
+  [results/l5c-casa-gaincal.json](results/l5c-casa-gaincal.json) (81 KB,
+  derived numbers and hashes only).
+- `python/rang/formats/caltable.py`: `time_interp='nearest'` in
+  `_interpolate`, `jones_terms` and `correct` (closest float32 relative
+  slot, ties to the earlier one, its value and flag); `linear` stays the
+  default and unchanged. Tests in `tests/test_l5c.py` (3 unit tests; 3
+  archive tests that recompute the verdicts and, with the run directory, the
+  threshold counts).
+
+## Measured result (2026-10-31)
+
+Run `outputs/l5c-20261031-01` (log `outputs/l5c-20261031-01.log`), code at
+`744f874`, image `rang-o-casa:6.7.6.14` (ID `sha256:24822b40…`),
+`RAYON_NUM_THREADS=4`, `OMP_NUM_THREADS=4`, load 5–10 (siblings),
+`MemAvailable` 25.7 GiB. Every gate passed on both sets: the MS copies equal
+the core's arrays element for element (ANTENNA1/2, TIME, DATA,
+WEIGHT_SPECTRUM, model) and read back (MODEL_DATA, FLAG, FLAG_ROW,
+SCAN_NUMBER); the core D reproduces L5's D (`7b370c13…`) and K's `original`
+(`4ed2aa89…`), D_T reproduces L5's D_T; every QuartiCal array is on the
+core's grid; the numpy held-out error reproduces `fused_pass` to 2e-15;
+CASA wrote at most one solution per interval and antenna, every solution
+time inside its bin and every `CHAN_FREQ` at its chunk centre. A labelled
+pipeline smoke on the fixture (`-00-smoke`, the same code before two
+formatting and reporting edits) gave the same numbers and is deleted.
+
+### Coverage
+
+| | fixture | slice |
+| --- | ---: | ---: |
+| intervals (time × frequency bins) | 7 × 128 = 896 | 16 × 64 = 1024 |
+| chunks with a CASA table (G / T) | 42 / 42 of 128 | 26 / 27 of 64 |
+| intervals with observed pairs: triangle / under-constrained / none | 285 / 3 / 608 | 335 / 97 / 592 |
+| CASA G solutions flagged | 2 of 1152 | 14 of 1652 |
+| core D valid gains covered by CASA G | 100 % | 97.6 % |
+| held-out cells matched (validation / test) | 9,115 / 9,169 (all) | 11,693 / 11,704 of 11,742 / 11,767 |
+
+The chunks without a table are those whose 32 channels carry no unflagged
+weight (CASA: "Found no unflagged data"); the core has no valid gain there
+either. On the slice CASA flags 14 solutions that the core solves (19 first
+solves report "CHI2 IS SPURIOUSLY ZERO", the exactly determined intervals).
+
+### Held-out error (matched cells; MSE_test, relative to D)
+
+| Arm | fixture parallel | fixture total | slice parallel | slice total |
+| --- | ---: | ---: | ---: | ---: |
+| D (core, cap 50) | 45.649306 | 24.919608 | 0.22934168 | 0.27582787 |
+| D_T (= QuartiCal 0.2.8-dev) | +5.6e-10 | +6.9e-10 | −4.2e-10 | +7.3e-10 |
+| R (core, 500 iterations) | −1.05e-7 | −1.23e-7 | +3.6e-8 | −7.9e-8 |
+| QC027 (QuartiCal 0.2.7, archived) | 0 (held out) | 0 | −2.63e-2 (in-sample) | −2.51e-2 |
+| QC028 (QuartiCal 0.2.8-dev, RV1) | +5.6e-10 (held out) | +6.9e-10 | −2.63e-2 (in-sample) | −2.51e-2 |
+| D with off-diagonals zeroed (floor) | +2.41e-4 | +4.38e-2 | +9.45e-5 | +3.38e-1 |
+| **CASA G** | **+1.23e-4** | +4.37e-2 | **+7.57e-5** | +3.38e-1 |
+| CASA G after three restarts | +9.0e-5 | +4.37e-2 | +1.16e-4 | +3.38e-1 |
+| CASA T | +13.8 (×14.8) | +12.7 | +3.83e-2 | +3.54e-1 |
+
+Validation (parallel, relative to D): CASA G +1.56e-4 / +5.9e-5, the floor
++2.29e-4 / +2.7e-5, CASA T +13.4 / +3.9e-2 (fixture / slice).
+
+**Margin verdict (frozen, δ = 1e-4, parallel hands, test):**
+
+| CASA G against | fixture | slice |
+| --- | --- | --- |
+| D | +1.23e-4: **outside** (and worse) | +7.57e-5: **within** |
+| D_T | +1.23e-4: outside | +7.57e-5: within |
+| QC027 / QC028 | +1.23e-4: outside (both equal D / D_T) | in-sample: no verdict (+2.7e-2) |
+
+On both sets CASA G sits closer to D than the core's own diagonal part does
+(the floor +2.4e-4 / +9.4e-5): the residual difference is the model class
+(diagonal against full 2×2), not the solver. The total MSE fails by
+construction (the cross hands of a diagonal model are the cross-hand data
+power, as O-CASA found), and CASA G matches the floor in total
+(it differs from the floor by −1.0e-4 / −5.8e-6). CASA T is a poor model on the fixture, whose X and Y
+gains differ strongly (×14.8), and costs 3.8 % on the slice.
+
+### Applycal route against the reader route
+
+| | fixture G | fixture T | slice G | slice T |
+| --- | ---: | ---: | ---: | ---: |
+| values compared (cells × correlations) | 368,016 | 368,016 | 468,888 | 470,224 |
+| max relative difference CASA vs reader `nearest` | 6.2e-7 | 5.6e-7 | 3.8e-7 | 3.6e-7 |
+| max in float32 eps of the cell's largest correlation | 4.3 | 4.7 | 2.9 | 2.6 |
+| flag differences | 0 | 0 | 0 | 0 |
+| rows × chunks given another bin's solution by `nearest` | 120 | 120 | 36 | 0 |
+| of which held-out cells | 0 | 0 | 5 | 0 |
+| MSE_test parallel, applycal route vs bin-exact | −9e-9 | +3e-10 | +1.9e-8 | −5e-9 |
+
+Within DF-IO's bound (1e-6 relative) everywhere: CASA's `applycal` with
+`interp='nearest'` and the core's reader with the new `nearest` agree,
+including where CASA's centroid time stamps send a row to the neighbouring
+bin's solution. No tie was counted, so the tie rule is untested.
+
+### Gain products (parallel hands, observed pairs; relative difference)
+
+| Pair of arms | fixture median / p95 / max | slice median / p95 / max |
+| --- | --- | --- |
+| CASA G vs D | 4.9e-4 / 2.0e-3 / 1.6e-2 | 7.5e-5 / 2.1e-4 / 6.5e-3 |
+| CASA G vs R | 4.9e-4 / 2.0e-3 / 1.6e-2 | 7.5e-5 / 2.1e-4 / 7.2e-3 |
+| CASA G restarted vs R | 4.5e-4 / 1.7e-3 / 1.4e-2 | 7.0e-5 / 1.8e-4 / 2.0e-3 |
+| CASA T vs D | 0.71 / 0.89 / 0.94 | 4.7e-3 / 1.1e-2 / 0.20 |
+| D vs R | 8.5e-14 / 7.3e-9 / 2.1e-5 | 1.1e-17 / 1.8e-9 / 1.2e-3 |
+| D_T vs D | 7.1e-16 / 1.8e-11 / 1.1e-7 | 1.8e-16 / 1.9e-12 / 1.2e-6 |
+| QC027 vs D | 1.0e-16 / 2.4e-16 / 4.6e-16 | 1.1e-3 / 3.1e-3 / 3.4e-2 (in-sample) |
+| QC028 vs D_T | 1.0e-16 / 2.4e-16 / 4.9e-16 | 1.1e-3 / 3.1e-3 / 3.4e-2 (in-sample) |
+
+All pairs (not only observed): CASA G vs D max 1.6e-2 / 2.1e-2.
+
+### Convergence
+
+| | fixture | slice |
+| --- | ---: | ---: |
+| intervals compared (observed pairs in both) | 287 | 400 |
+| core: gain test at the cap, replay = D's converged fraction | 0.98435 = 0.98435 | 0.98332 = 0.98332 |
+| core: gains failing at the cap / their intervals | 18 / 5 | 28 / 7 |
+| core D vs R, Frobenius, median / p95 / max | 4.1e-13 / 2.5e-8 / 1.9e-5 | 2.5e-16 / 1.4e-8 / 2.1e-3 |
+| CASA first vs restarted, median / p95 / max | 6.4e-4 / 3.2e-3 / 1.6e-2 | 3.8e-5 / 3.8e-4 / 7.0e-3 |
+| CASA restart steps 1 / 2 / 3, median | 6.3e-4 / 6.7e-6 / 7.8e-7 | 3.8e-5 / 2.7e-6 / 9.8e-7 |
+| CASA "Reached iteration limit: 50" (first solve / restarts) | 0 / 0 | 0 / 1 (restart 1) |
+| Spearman, core D–R vs CASA first–restarted | 0.61 | 0.70 |
+
+Thresholds (core capped: D–R ≥ thr; CASA unsettled: first–restarted ≥ thr):
+
+| | fixture 1e-4 | fixture 1e-6 | slice 1e-4 | slice 1e-6 |
+| --- | ---: | ---: | ---: | ---: |
+| core capped | 0 | 4 | 4 | 7 |
+| CASA unsettled | 283 | 287 | 71 | 389 |
+| overlap | 0 | 4 | 4 | 7 |
+| fraction of core-capped CASA-unsettled | – | 1.0 | 1.0 | 1.0 |
+| enrichment | – | 1.0 | **5.6** | 1.03 |
+| core capped: triangle / under-constrained | 0 / 0 | 2 / 2 | 1 / 3 | 1 / 6 |
+| CASA unsettled: triangle / under-constrained | 281 / 2 | 285 / 2 | 43 / 28 | 335 / 54 |
+
+**Tail verdict (frozen):** fixture **undecidable** (no interval where D is
+1e-4 from R: the fixture's tail at the cap moves products by ≤ 2e-5);
+slice **reproduced** (all 4 core-capped intervals are CASA-unsettled,
+enrichment 5.6 ≥ 5).
+
+Post hoc (labelled): every interval with a gain failing the core's test at
+the cap (5 on the fixture, 7 on the slice) is also unsettled for CASA, and
+ranks in CASA's top 30 % (fixture: 0.70–0.997 quantile) and top 2 % (slice:
+0.983–0.998) by distance to CASA's own restarted solution. Six of the
+slice's seven are under-constrained (five in frequency bin 35). CASA's own
+50-iteration cap never binds in a first solve: CASA stops on its
+chi-squared rule everywhere, with its products a median 3.8e-5 (slice) and
+6.4e-4 (fixture) from where three restarts take them, against the core's
+D-to-R median of 1e-16 to 1e-13; three restarts settle CASA to about 1e-6.
+So both solvers are slow in the same intervals (a property of the data);
+QuartiCal's cap shows it as an unpassed gain test, CASA's looser stop rule
+hides it.
+
+### Cost (same session, 4 threads each)
+
+| | fixture | slice |
+| --- | ---: | ---: |
+| core D solve wall (median of 3) / CPU | 0.049 s / 0.18 s | 0.096 s / 0.36 s |
+| core R (500 iterations) wall / CPU | 0.48 s / 1.83 s | 0.89 s / 3.40 s |
+| CASA G: `gaincal` task seconds (calls, mean) | 17.2 s (128, 0.134 s) | 7.2 s (64, 0.113 s) |
+| CASA G: container wall / peak RSS | 20.1 s / 295 MB | 8.7 s / 278 MB |
+| CASA G whole band, one call: task / container | 0.27 s / 1.6 s | 0.79 s / 4.9 s |
+| CASA T: task seconds / container wall | 13.7 s / 16.1 s | 14.5 s / 18.0 s |
+| CASA restarts 1–3: task seconds each | 11.0 / 9.8 / 11.4 s | 7.9 / 8.4 / 9.0 s |
+| CASA applycal G: task seconds / container wall | 2.0 s / 3.3 s | 3.0 s / 7.0 s |
+| whole oracle run (all steps) / comparison | 92.9 s / 6.8 s | 92.0 s / 10.4 s |
+
+CASA's chunked G solve costs 350× (fixture) and 75× (slice) the core's D
+wall; most of it is per-call overhead (a whole-band call of all channels
+costs 0.27–0.79 s, about 2–7 chunk calls). Even one call per set is 5.5–8×
+the core's D.
+
+### Whole array (frozen rule): not run
+
+CASA's solve-plus-apply wall on S, all frozen steps (solve G, three
+restarts, T, whole band, apply G and T, container walls): 79.7 s. Scaled by
+the visibility count: whole array × 256.7 = 341 min, stations 0–31 × 82.7 =
+110 min, both above 60 min (`MemAvailable` 25.7 GiB passed). So A is **not
+run**, as frozen. (Counting only the G solve and apply, 15.7 s, would give
+67 and 22 min; that reading drops the restarts, which carry the tail
+measure, and is not the frozen one. Linear scaling also overstates CASA's
+per-call-dominated cost; recorded as an open item.)
+
+## Decision
+
+- **Margin (primary).** CASA G is within δ of the core D on the slice
+  (+7.6e-5) and outside it on the fixture (+1.23e-4, worse), the same
+  against D_T and, on the fixture, QuartiCal 0.2.7 and 0.2.8-dev (which
+  equal D and D_T there). On both sets CASA is closer to D than the core's
+  own diagonal part is (floor +2.4e-4 / +9.4e-5): the core's held-out error
+  is matched by an independent solver up to the model class.
+- **Tail.** Reproduced on the slice, undecidable on the fixture, not
+  measured on the array. On the evidence here the cap-50 tail sits in
+  intervals the data barely constrain, not in QuartiCal's update; the
+  fixture and slice tails are 1.6–1.7 % of gains and cannot speak for the
+  array's 17 %.
+- **What it means (no default change).** A better stop rule (L5 Q2) or
+  Anderson (Q3) can only cut cost; the #455 comment can add that CASA's
+  solver is slow in the same intervals and that its looser chi-squared stop
+  hides it; the stop fraction should count only constrained intervals.
+- Cost is not gated: CASA is 75–350× the core's D wall on these sets as run
+  (chunked), 6–8× in one call.
+
+## Deviations and post-hoc items
+
+1. **Smoke 5 was incomplete.** CASA does print "Reached iteration limit: 50
+   iterations." on stdout (not in the CASA log) when its cap binds; the
+   smoke never hit the cap. Seen once (slice, restart 1, time bin 0). The
+   frozen log grep recorded it; convergence at the criterion is not
+   printed, so iteration counts remain unobservable.
+2. **Added reported numbers** (not used by a verdict): the second and third
+   restart steps, the CASA-unsettled rank of the core's failing intervals,
+   the applycal-vs-bin-exact MSE for T, CASA G restarted in the held-out
+   table.
+3. **A labelled pipeline smoke** (`outputs/l5c-20261031-00-smoke`, the
+   fixture, real data) ran before the final formatting and the two extra
+   restart numbers; identical numbers; deleted (344 MB).
+4. **Whole array not run** by the frozen budget rule (above).
+5. **QuartiCal on the slice is in-sample** (both archives solved on every
+   cell), as stated in the protocol: no verdict.
+6. `--user` container runs wrote the copies with `copyfile` (no mode bits)
+   so the read-only source MSs stayed untouched; their tree hashes are in
+   each `receipt.json`.
+
+## Open items
+
+- The whole array (or stations 0–31) with a cheaper CASA arm: one call per
+  time bin over a 64-spw MS (`mstransform`) instead of 64 chunk calls, or a
+  budget above 60 min. That is where #455's 17 % tail is.
+- CASA's iteration count per interval is not observable through
+  `gaincal`; a print level would need the C++ `VisCalSolver2::prtlev`.
+- The tie rule of CASA's `nearest` (the reader takes the earlier slot) is
+  untested: no tie occurred.
+- O-CASA's ×1.10 parallel-hand gap (K·G·B at 120 s and per channel) closes
+  to +7.6e-5 on the core's intervals: the gap was the solution intervals,
+  not the solver (a note for L4).
+
+## Tool timings
+
+| When (UTC) | Tool run | Wall | Peak RSS | Note |
+| --- | --- | ---: | ---: | --- |
+| 2026-10-30 22:45 | `uv venv` + `uv pip install -e .[pointing,beam,test,imaging,formats]` (builds the extension) | 166 s | 1.15 GB | public PyPI |
+| 2026-10-30 22:47–22:55 | environment smokes 1–4 in `rang-o-casa` (synthetic data) | 3.5–6 s each | ≈ 300 MB | scratch, deleted |
+| 2026-10-30 22:58 | `inspect_sets.py` (L5 loader, orientation) | 1.6 s | 151 MB | scratch |
+| 2026-10-30 23:03 | `oracle_casa_gaincal.py run fixture` smoke `-00-smoke` | 136 s | 125 MB host, 308 MB container | labelled, deleted |
+| 2026-10-30 23:08 | `compare_l5c.py compare fixture` on the smoke | 6.8 s | 744 MB | |
+| 2026-10-30 23:11 | **`oracle_casa_gaincal.py run fixture` `-01`** | 92.9 s | 125 MB host, 302 MB container | load 5 |
+| 2026-10-30 23:12 | **`compare_l5c.py compare fixture` `-01`** | 6.8 s | 729 MB | |
+| 2026-10-30 23:13 | **`oracle_casa_gaincal.py run slice` `-01`** | 92.0 s | 100 MB host, 287 MB container | load 10 |
+| 2026-10-30 23:15 | **`compare_l5c.py compare slice` `-01`** | 10.4 s | 555 MB | |
+| 2026-10-30 23:16 | `compare_l5c.py archive` | < 1 s | | 81 KB |
