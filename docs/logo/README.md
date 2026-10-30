@@ -15,5 +15,12 @@ Colours: ink `#10131a`, white, amber `#e8a33d`. Nothing else.
 | `lockup.svg`, `lockup-on-dark.svg` | mark plus name, for the README and the docs header |
 
 The wordmark uses Inter (fallbacks Helvetica Neue, Segoe UI, Arial); convert
-to outlines before placing it where fonts cannot be relied on. PNG and ICO
-renders are produced by the documentation build.
+to outlines before placing it where fonts cannot be relied on.
+
+PNG and ICO renders of the text-free marks are committed beside them:
+`logo-{128,256,512}.png`, `icon-{16,32,48,64,128,180,256}.png`,
+`icon-mono-{16,32,48}.png` and `favicon.ico` (16, 32, 48 and 64 px, from
+`icon.svg`). `python docs/logo/render.py` remakes them with resvg-py and
+Pillow (public PyPI, no system libraries; task D1). The wordmark and lockups
+are not rasterised, because a renderer without Inter substitutes another font
+silently; the documentation site uses those SVGs directly.
