@@ -484,6 +484,10 @@ example 68.8 s of compute (71.1 s with E2c and E7; PSFs 0.02-0.33 s, CG
 - Done in the continuation: the projection and compactness steps are
   formalised (§3); E2c measures recovery with noise; E7 measures
   multi-scale coherence.
+- Done on branch `clean-phase-transition`: the recovery transition across
+  four real arrays, a sharper separated-source condition (Theorems 7, 8)
+  and the exact two-source rule, in
+  [clean-phase-transition.md](clean-phase-transition.md).
 - Formalise Proposition 4' (Neumann series) and Theorem 6 (the provable
   minor-cycle rule); both are finite algebra.
 - A noise-margin statement for Theorem 4: Tropp's `η(S) < 1 − 2ε/‖r_S‖_∞`

@@ -1,5 +1,39 @@
 # Rang research state
 
+CLEAN phase transition (question 2 of the CLEAN programme; user-directed;
+[clean-phase-transition.md](clean-phase-transition.md)), 2026-10-30
+(implemented; measured). The question: when does Högbom CLEAN recover point
+sources exactly? It was measured on MeerKAT, VLA-C, WSRT and KAT-7 (simms
+layouts, [data/README.md](../data/README.md)), as snapshot or 4 h track,
+with natural or uniform weights. Each cell had 100 trials for
+`k = 2..32` sources and minimum separations of 1-24 pixels, noiseless with
+gain 1 and with 1 % noise and gain 0.1; the run took 301 s.
+- **Proven in prose:**
+  - an exact two-source rule for gain 1: dirty peak on a source and
+    `max_q ‖B_SS⁻¹B_{S,q}‖_∞ < 1`, where the ERC asks for the ℓ1 norm. It
+    agrees with all 40,000 two-source trials.
+  - Theorem 7 (worst separated sums instead of Proposition 4''s counting
+    bounds).
+  - Theorem 8, an anchored bound that keeps the ERC's sidelobe
+    cancellation. It certifies 14 of 80 (configuration, `k`) cases against
+    3 for Proposition 4' and Theorem 7, and reaches the exact two-source
+    worst case on 7 PSFs.
+- **Measured transitions:** `d*(k)` is 1, 1, 1, 2-3, 3 pixels for
+  `k = 2..32` on the MeerKAT and VLA-C uniform tracks, larger on
+  natural-weight PSFs. There is no transition on the degenerate WSRT
+  (east-west line) and KAT-7 snapshots. Every sufficient condition is far
+  above the measured transition for `k ≥ 4`: 32 sources at 3 pixels
+  recover in 100 % of trials with `η < 1` in at most 1 %.
+- **Negative results:**
+  - There is no universal success curve beyond the ERC threshold: the
+    per-configuration 95 % point of `η` lies at 0.99-1.41, and no other
+    statistic collapses better.
+  - With 1 % noise no configuration reaches 95 % exact support; the rate is
+    set by `μ_1`, not by separation.
+- **Measured pattern:** for many sources the far-sidelobe floor decides.
+- **Not done:** figures (no matplotlib in `.venv`); Lean proofs.
+- **Archive:** [results/clean-phase-transition.json](results/clean-phase-transition.json).
+
 P12 rename (big plan), 2026-10-30 (implemented; measured;
 [p12-rename.md](p12-rename.md)). The package is `rang` (`import rang`,
 extension `rang._core`, `python/rang/`); the project, repository and PyPI

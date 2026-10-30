@@ -866,3 +866,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P12: Windows `build.py` / `test.py`, at `86e2a8d` and at `0085b36` | – | 102.9 s and 102.2 s / 8.7 s and 8.7 s | – |  |
 | 2026-10-30 | big plan P12: Windows clone of main, install and the 4 failing test files | – | 140.5 s | – |  |
 | 2026-10-30 | big plan P12: `build.py --sdist` Linux / `maturin build` from the unpacked sdist | – | 62 s / 68 s | – |  |
+| 2026-10-30 | CLEAN phase transition: simms antenna tables (3 files) and GitHub API metadata, curl | ratt-ru/simms master `e715505` | ~3 s | – | Windows; listing redirected from radio-astro/simms |
+| 2026-10-30 | CLEAN phase transition: `cargo test --release` (core), first build with the new kernels / after the example | 115 tests | 128.6 s / 221.0 s | – | Windows; tests themselves 0.4-0.9 s, the rest is compilation |
+| 2026-10-30 | CLEAN phase transition: `clean_phase_transition` pilot, 10 trials per cell (first version / with Theorem 8 and the pairs) | 16 configurations | 42.9 s / 48.0 s | – | Windows, 16 threads; used to size the run |
+| 2026-10-30 | CLEAN phase transition: `clean_phase_transition`, 100 trials per cell | 16 configurations, 64,205 placed trials + 25,600 pairs, noiseless and noisy | 301.1 s | – | Windows, 16 threads; WSRT snapshots 77 s each (every trial runs to the 20,000-component cap), others 1.4-22 s; archive 773 KB |
