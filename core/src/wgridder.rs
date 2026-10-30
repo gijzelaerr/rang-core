@@ -2250,10 +2250,7 @@ pub fn vis2dirty_multi<T: Real>(
         data: both.then_some(data),
         coeff: &coeff,
     };
-    let mut images: Vec<&mut [T]> = [dirty.as_deref_mut(), psf.as_deref_mut()]
-        .into_iter()
-        .flatten()
-        .collect();
+    let mut images: Vec<&mut [T]> = [dirty, psf].into_iter().flatten().collect();
     let nout = images.len();
     let group = plane_group(&setup, nout);
     let mut grids: Vec<Vec<Complex<T>>> = (0..group * nout)

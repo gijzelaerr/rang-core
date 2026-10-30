@@ -285,6 +285,129 @@ def cmd_compare(args):
     )
 
 
+# --------------------------------------------- the edge difference (item f)
+
+
+def correction(info, nx, ny, dx, dy):
+    """The gridder's correction factor per pixel (u, v and w correction
+    functions, ducc0's `GLFullCorrection`), relative to the image centre,
+    from the kernel row and plan in `info` (no l/m shift)."""
+    from rangtoy import core_wgridder
+
+    w, _, _, beta, e0, _, _ = core_wgridder.kernel_row(info["kernel_index"])
+    beta *= w
+    p = int(1.5 * w) + 2
+    x, wt = np.polynomial.legendre.leggauss(2 * p)
+    phi = np.exp(beta * ((1.0 - x * x) ** e0 - 1.0))
+
+    def corfunc(v):
+        v = np.asarray(v, float)[..., None]
+        return 1.0 / np.sum(wt * phi * w * 0.5 * np.cos(np.pi * w * x * v), axis=-1)
+
+    i = np.arange(nx) - nx // 2
+    j = np.arange(ny) - ny // 2
+    cu = corfunc(np.abs(i) / info["nu"])
+    cv = corfunc(np.abs(j) / info["nv"])
+    lx, my = np.meshgrid(i * dx, j * dy, indexing="ij")
+    r2 = lx**2 + my**2
+    nm1 = -r2 / (np.sqrt(1.0 - r2) + 1.0)
+    cw = corfunc((nm1 + info["nshift"]) * info["dw"])
+    c = cu[:, None] * cv[None, :] * cw
+    return c / c[nx // 2, ny // 2]
+
+
+def cmd_edge(args):
+    """Is the port's difference from ducc0 in the outermost pixels a defect
+    of the port? Per case and epsilon (f64): the port and ducc0 against the
+    DFT, against each other, and each against itself with the rows of the
+    input permuted (the same algorithm, only the summation order changed),
+    in the border (outer two pixels) and the interior (eight pixels in),
+    and the differences divided by the correction factor."""
+    import ducc0
+    import oracle_ducc0 as oracle
+    from rangtoy import core_wgridder
+
+    t0 = time.perf_counter()
+    res = {"ducc0": ducc0.__version__, "seed": args.seed, "cases": {}}
+    for name in args.cases.split(","):
+        case = oracle.load_case(Path(args.synth) / f"{name}.npz")
+        nx, ny, dx, dy = case["nx"], case["ny"], case["dx"], case["dy"]
+        perm = np.random.default_rng(args.seed).permutation(case["uvw"].shape[0])
+        dft = case["dft_dirty"]
+        peak = float(np.abs(dft).max())
+        border = np.zeros((nx, ny), bool)
+        border[:2] = border[-2:] = True
+        border[:, :2] = border[:, -2:] = True
+        interior = np.zeros((nx, ny), bool)
+        interior[8:-8, 8:-8] = True
+        common = {"npix_x": nx, "npix_y": ny, "pixsize_x": dx, "pixsize_y": dy}
+        recs = {}
+        for eps in (float(x) for x in args.epsilons.split(",")):
+            out = {}
+            for tag, rows in (("", slice(None)), ("_perm", perm)):
+                kw = dict(
+                    uvw=case["uvw"][rows],
+                    freq=case["freq"],
+                    vis=case["vis"][rows],
+                    wgt=case["wgt"][rows],
+                    epsilon=eps,
+                    **common,
+                )
+                out["port" + tag], info = core_wgridder.vis2dirty(
+                    return_info=True, **kw
+                )
+                out["ducc" + tag] = ducc0.wgridder.vis2dirty(
+                    nthreads=1, do_wgridding=True, flip_w=True, divide_by_n=False, **kw
+                )
+            corr = correction(info, nx, ny, dx, dy)
+
+            def lin(a, b, mask, corr=corr, peak=peak):
+                return float(np.abs(a - b)[mask].max() / peak)
+
+            def lin_corr(a, b, mask, corr=corr, peak=peak):
+                return float((np.abs(a - b) / corr)[mask].max() / peak)
+
+            pairs = {
+                "port-dft": ("port", None),
+                "ducc0-dft": ("ducc", None),
+                "port-ducc0": ("port", "ducc"),
+                "port-port_permuted": ("port", "port_perm"),
+                "ducc0-ducc0_permuted": ("ducc", "ducc_perm"),
+            }
+            rec = {
+                "plan": info,
+                "correction_max_border": float(corr[border].max()),
+                "correction_max_interior": float(corr[interior].max()),
+            }
+            for key, (a, b) in pairs.items():
+                ref = dft if b is None else out[b]
+                rec[key] = {
+                    "border": lin(out[a], ref, border),
+                    "interior": lin(out[a], ref, interior),
+                    "border_over_correction": lin_corr(out[a], ref, border),
+                    "interior_over_correction": lin_corr(out[a], ref, interior),
+                }
+            closer = np.abs(out["port"] - dft) <= np.abs(out["ducc"] - dft)
+            rec["port_closer_to_dft_fraction_border"] = float(closer[border].mean())
+            recs[f"{eps:g}"] = rec
+            print(
+                name,
+                f"eps {eps:g}",
+                " ".join(
+                    f"{k} {rec[k]['border']:.1e}/{rec[k]['interior']:.1e}"
+                    for k in pairs
+                ),
+                f"corr {rec['correction_max_border']:.1e}",
+                f"closer {rec['port_closer_to_dft_fraction_border']:.2f}",
+                flush=True,
+            )
+        res["cases"][name] = recs
+    res["library"] = str(core_wgridder.library_path())
+    res["wall_s"] = time.perf_counter() - t0
+    res["maxrss_mb"] = maxrss_mb()
+    Path(args.out).write_text(json.dumps(res, indent=1))
+
+
 # ------------------------------------------------------------------- timing
 
 
@@ -448,6 +571,13 @@ def main(argv=None):
     c.add_argument("k_inputs")
     c.add_argument("--gates-only", action="store_true")
     c.set_defaults(func=cmd_compare)
+    e = sub.add_parser("edge")
+    e.add_argument("synth")
+    e.add_argument("out")
+    e.add_argument("--cases", default="wide-0p3rad,wide-0p3rad-rect")
+    e.add_argument("--epsilons", default="1e-5,1e-7,1e-9,1e-11")
+    e.add_argument("--seed", type=int, default=7)
+    e.set_defaults(func=cmd_edge)
     for name, func in (("time", cmd_time), ("bench", cmd_bench)):
         q = sub.add_parser(name)
         q.add_argument("set", choices=("k", "k41", "array"))

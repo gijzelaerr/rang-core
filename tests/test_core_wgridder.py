@@ -209,3 +209,47 @@ def test_fits_image_matches_wstacking_orientation():
     )
     assert np.abs(got["psf"] - ref["psf"]).max() < 1e-3
     assert np.abs(got["dirty"] - ref["dirty"]).max() < 1e-3
+
+
+def test_psf_mode_and_borrowed_inputs_match_separate_calls(monkeypatch):
+    # DF2a (research/df2-wgridder-speed.md): one pass gives the dirty image
+    # and the PSF bit for bit as two calls; complex64 data and float32
+    # weights read in place equal the cast arrays; plane groups change
+    # nothing.
+    uvw, freq, vis, wgt, nx, ny, dx = _case(seed=21, nrow=50)
+    vis64 = vis.astype(np.complex64)
+    wgt32 = wgt.astype(np.float32)
+    wgt32[3, 1] = 0.0
+    common = {
+        "uvw": uvw,
+        "freq": freq,
+        "npix_x": nx,
+        "npix_y": ny,
+        "pixsize_x": dx,
+        "pixsize_y": dx,
+        "epsilon": 1e-7,
+    }
+    dirty, psf = core_wgridder.dirty_psf(vis=vis64, wgt=wgt32, **common)
+    sep = core_wgridder.vis2dirty(
+        vis=vis64.astype(np.complex128), wgt=wgt32.astype(np.float64), **common
+    )
+    ones = np.where(wgt32 != 0, 1.0, 0.0).astype(np.complex128)
+    sep_psf = core_wgridder.vis2dirty(vis=ones, wgt=wgt32.astype(np.float64), **common)
+    assert np.array_equal(dirty, sep) and np.array_equal(psf, sep_psf)
+    single = {**common, "epsilon": 1e-4}
+    d32, _ = core_wgridder.dirty_psf(
+        vis=vis.astype(np.complex128), wgt=wgt, single=True, **single
+    )
+    assert d32.dtype == np.float32
+    assert np.array_equal(
+        d32, core_wgridder.vis2dirty(vis=vis64, wgt=wgt.astype(np.float32), **single)
+    )
+    x = np.random.default_rng(2).standard_normal((nx, ny))
+    kw = {k: common[k] for k in ("uvw", "freq", "pixsize_x", "pixsize_y", "epsilon")}
+    assert np.array_equal(
+        core_wgridder.dirty2vis(dirty=x, wgt=wgt32, **kw),
+        core_wgridder.dirty2vis(dirty=x, wgt=wgt32.astype(np.float64), **kw),
+    )
+    monkeypatch.setenv("RANG_WGRIDDER_PLANE_GROUP", "3")
+    grouped = core_wgridder.dirty_psf(vis=vis64, wgt=wgt32, **common)
+    assert np.array_equal(grouped[0], dirty) and np.array_equal(grouped[1], psf)
