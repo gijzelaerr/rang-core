@@ -1126,18 +1126,18 @@ def check(run_dir, precondition_dir, check_dir):
     archived = receipt_lines(SUPPORT / "receipt.txt", SOLVE_INPUTS / "receipt.txt")
 
     def archived_path(key):
-        name = key.split("/")[2] if key.startswith(GROUP + "/") else None
-        if name == "DATA" or not key.startswith(GROUP + "/"):
-            return SOLVE_INPUTS / key
-        return SUPPORT / key
+        # DATA tiles, UVW and the subtables live in the solve inputs; the
+        # support slice holds the other MAIN_1 columns. Whichever exists.
+        for root in (SUPPORT, SOLVE_INPUTS):
+            if (root / key).exists():
+                return root / key
+        return SOLVE_INPUTS / key
 
     bad_status, bad_bytes = [], []
     handles = {}
     with ExitStack() as stack:
         for r in receipt + receipt_extra:
             path = archived_path(r["key"])
-            if not path.exists() and r["range"] is None:
-                path = SUPPORT / r["key"]
             size = path.stat().st_size
             if r["range"] is None:
                 if r["status"] != 200 or r["bytes"] != size:

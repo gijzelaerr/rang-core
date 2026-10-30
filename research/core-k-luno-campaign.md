@@ -1,8 +1,16 @@
 # Rang core, wave 2 task K: the first real-data campaign on LUNO
 
 Protocol frozen 2026-10-30 on branch `core/k-luno-campaign` (from origin/main
-`d6a0916`), before any campaign code was written. Status: **protocol
-frozen; not yet run.** Task K of
+`d6a0916`), before any campaign code was written. Protocol commit `c1aa882`.
+Status: **implemented; measured: the precondition and the single frozen run
+`-01` pass all seven gated criteria; the pre-registered hypothesis returns
+null on every pair (TV-guided flagging selects no additional flag on the
+LUNO 1934−638 slice; the Tricolour first-pass strategy adds 128 training
+cells and moves the held-out MSE by 6e-5 relative); cost comparable (TV
+chain 2.0 s against 1.5 s for the Tricolour port); results provisional
+under the open licence** (section "Measured result"). Archive:
+[results/core-k-luno-campaign.json](results/core-k-luno-campaign.json).
+Task K of
 [core-parallel-plan.md](core-parallel-plan.md): the first science campaign
 on real MeerKAT data with the Rust core, on the LUNO PKS 1934−638 calibrator
 scan that the [candidate report](flagging-luno-candidate.md),
@@ -311,11 +319,211 @@ cabs to call `rangtoy.core_cli`, so a recipe needs edits to
 | --- | --- | ---: | ---: | --- |
 | 2026-10-30 | `uv venv -p /usr/bin/python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (public PyPI, maturin backend builds `rangtoy._core`) | 9.0 s | – | uv cache warm |
 | 2026-10-30 | `cargo +1.93 build --release` core and root, `CARGO_BUILD_JOBS=8` | 3.3 s | – | |
+| 2026-10-30 | `pytest tests/test_core_campaign.py` (7 tests), three times while writing | 0.1–1.5 s | – | the first run failed on `cargo` missing from `PATH` (the root crate's TV kernel builds on demand); passes with `~/.cargo/bin` on `PATH` as check-all sets it |
+| 2026-10-30 | labelled smoke of the chain on the archived local objects, no network (`outputs/core-k-20261030-00-smoke`, scratch script) | 13.2 s | 391 MB | found the UVW chunk key (`0.0`, not `0`) and a `protected_flags` broadcast shape; both fixed before the freeze of the code commit `50cb137`; one Tricolour arm, one TV loop, two images |
+| 2026-10-30 | **precondition**, `examples/precondition_luno_campaign.py` (`outputs/core-k-20261030-00-precondition`) | 3.6 s | 147 MB | all eight checks pass |
+| 2026-10-30 | **frozen run `-01`**, `examples/run_luno_campaign.py` under `/usr/bin/time -v` (`outputs/core-k-20261030-01`), started 04:09:05 UTC, load 0.7 | 110.4 s (107.5 s inside Python) | 461 MB | fetch 75.7 s of it; stage times below |
+| 2026-10-30 | `examples/check_luno_campaign.py`, first call | 0.6 s | 54 MB | **failed in the checker, not the run**: the checker looked for `MAIN/MAIN_1/UVW/.zarray` in the support slice; post-hoc fix of the archive-path lookup (checker only; the run's bytes and results are untouched) |
+| 2026-10-30 | `examples/check_luno_campaign.py`, after the fix (`outputs/core-k-check-20261030-01`) | 1.3 s | 121 MB | criteria 1–7 pass |
+| 2026-10-30 | `examples/archive_luno_campaign.py` | 0.1 s | – | 43 KB archive |
+| 2026-10-30 | `bash tools/check-all.sh`, once before the final commit (`outputs/core-k-20261030-01.check-all.log`) | 96.6 s (pytest 739 passed in 74.3 s) | 1.68 GB | overall PASS; machine otherwise idle |
 
-## Measured result
+Stage times inside the frozen run (`result.json` `stages`; peak RSS is the
+process high-water mark after the stage):
 
-Not yet run.
+| Stage | Wall | Peak RSS so far | Against |
+| --- | ---: | ---: | --- |
+| fetch (2,124 ranged/whole requests + 17 extra objects) | 75.7 s (74.2 s for the slice, 1.5 s for the extras) | 75 MB | task G 74.5 s, 751.8 MB; whole tiles 679 s |
+| decode (2048 blocks, 751.6 MB, Rust) | 0.36 s | 110 MB | task G 0.74 s |
+| section 6 reference pass | 1.23 s | 172 MB | section 6 1.67 s |
+| split (seed 7) | 0.04 s | 172 MB | |
+| solve `original` | 0.32 s | 172 MB | QuartiCal 27.5 s cold / about 3 s warm; section 6 0.62 s |
+| Tricolour first-pass port (12 steps) | 1.55 s | 172 MB | task D 4.16 s CPU on 140 × 4096; Tricolour 1.19 s warm + 74 s JIT |
+| Tricolour mild port (10 steps) | 0.89 s | 182 MB | |
+| each further solve (five) | 0.31–0.33 s | | |
+| TV loop (scores, TV, 6 distinct candidate solves) | 1.68 s | 293 MB | |
+| TV loop on the first-pass arm | 1.67 s | 323 MB | |
+| each inversion (six arms) | 3.87–3.96 s | 461 MB | task I 3.96–4.09 s; WSClean 1.4–1.7 s |
+
+## Measured result (2026-10-30, provisional)
+
+**Precondition** (`outputs/core-k-20261030-00-precondition`, 3.6 s): the
+unedited section 6 pass on the archived local tiles reproduces QuartiCal's
+gain flags exactly, the baseline gain products to 5.6e-16, χ² =
+0.26823507037914956 (equal to the archive), the survey 389 / 43 / 592 / 0
+with statuses 389 × 0 and 43 × 3, the nine policy-mask hashes and counts of
+section 6 run `-02` (whose `result.json` hashes to the archive's
+`result_sha256`), the converged fraction 0.9833234067897558 and the
+flagged-gain fraction 0.590087890625 of `meerkat-luno-solved.json`; the
+QuartiCal arrays on disk hash to the archive. All eight checks pass, so the
+campaign ran.
+
+**Frozen run `-01`** (`outputs/core-k-20261030-01`; receipts `result.json`,
+`receipt.json`, `candidates.json`, `environment.json`, `side-effects.json`;
+725 MB of fetched bytes under `fetch/`, 13 MB of FITS under `images/`;
+checked in `outputs/core-k-check-20261030-01`): **criteria 1–7 pass as
+frozen.**
+
+| Criterion | Measured | Result |
+| --- | --- | --- |
+| 1 fetch integrity | 2,124 + 17 requests, 2,141 attempts (no retry), 752,794,333 bytes, 74.2 s for the slice; every ranged response `206` with the requested `Content-Range`, every whole object `200`; every span and object hash-equal to the archived tiles and receipt lines; the eight decoded arrays equal `read_rows` on the archived tiles | **pass** (≤ 770 MB, ≤ 2,230 requests) |
+| 2 flags preserved | six arms: final flags ⊇ original, `FLAG_ROW` identical, no held-out cell flagged; 5,151 archived input files unchanged; `git status` unchanged | **pass** |
+| 3 reference on fetched bytes | gains, gain flags, χ², survey, mask hashes and counts identical to the precondition | **pass** |
+| 4 every arm solves | converged fraction 0.98332 in all six arms (the same 50-iteration cap as QuartiCal), 41.0 % valid gains (the supported station-bins), zero invalid predictions | **pass** |
+| 5 Tricolour arms well formed | both strategies: superset of the input, uniform over correlations, monotone across `or` steps | **pass** |
+| 6 hypothesis | all three pairs decidable: **null** on MSE_test and on the residual RMS | **pass** (decidable); outcome null |
+| 7 outputs | all required files present; `environment.json` records Python 3.14.4, the `extension` backend, 19 distributions, no QuartiCal | **pass** |
+
+**The arms.** 192 rows × 2048 channels × 4 correlations; 70.10 % of cells
+carry an original (processed) flag; 117,556 eligible cells split into
+94,047 training, 11,742 validation and 11,767 test cells (seed 7, two
+reserved per baseline and gain bin).
+
+| Arm | Additions (train cells) | Final flag fraction | MSE_val | MSE_test | χ²_train | Fixed-support TV vs `original` | Dirty peak (Jy/beam) | Flux recovery | Residual RMS (Jy/beam) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `original` | 0 | 0.701040 | 0.2752889 | 0.2760093 | 0.2674104 | 0.0187946 | 14.92457 | 0.998959 | 0.071221 |
+| `tricolour-firstpass` | 128 (0.136 %) | 0.701365 | 0.2752978 | 0.2760261 | 0.2674314 | 0.0187511 | 14.92458 | 0.998951 | 0.071224 |
+| `tricolour-mild` | 10 | 0.701065 | 0.2752807 | 0.2760092 | 0.2674112 | 0.0187970 | 14.92457 | 0.998959 | 0.071221 |
+| `tv-policy` (= `original`, no change selected) | 0 | 0.701040 | 0.2752889 | 0.2760093 | 0.2674104 | 0.0187946 | 14.92457 | 0.998959 | 0.071221 |
+| `tv-unguided-best` (τ 3, α 0; reported) | 9 | 0.701063 | 0.2752956 | 0.2760102 | 0.2674121 | 0.0188022 | 14.92459 | 0.998960 | 0.071223 |
+| `tricolour-firstpass+tv` (= first-pass, no change selected) | 128 | 0.701365 | 0.2752978 | 0.2760261 | 0.2674314 | 0.0187511 | 14.92458 | 0.998951 | 0.071224 |
+
+Every arm has median diagonal gain amplitude 0.788 and off-diagonal 0.006;
+the raw TV is 0.01698 (`original`) to 0.01691 (first pass). The model
+Stokes I over the imaged cells is 14.940 Jy. The imaging weight sums,
+gridded counts (117,556 down to 117,428 cells) and PSFs are in the archive.
+
+**Hypothesis calls (pre-registered rule, ±1 % band on the fixed test cells).**
+
+| Pair | MSE_test ratio | Call | Residual RMS ratio | Call |
+| --- | ---: | --- | ---: | --- |
+| `tv-policy` vs `tricolour-firstpass` (headline) | 0.99994 | **null** | 0.99996 | **null** |
+| `tv-policy` vs `original` | 1.00000 | null | 1.00000 | null |
+| `tricolour-firstpass+tv` vs `tricolour-firstpass` | 1.00000 | null | 1.00000 | null |
+
+**Cost clause:** the TV chain (reference solve 0.32 s plus scores, TV and
+six distinct candidate solves, 1.68 s) took 2.00 s against 1.54 s for the
+Tricolour first-pass port on the same slice, ratio 1.30, inside the frozen
+factor of three: **comparable**. Neither arm is cheaper by a material
+margin, so the second AGENTS.md route (same quality, much lower cost) is not
+claimed either.
+
+**What the candidates did.** In the `tv-policy` loop the two α = 0 masks
+at τ 8 and 5 are empty (duplicates of no-change); τ 3 proposes 9 cells, the
+guided masks 31, 207, 398 and 515 cells (the 515-cell mask is the α = 1,
+τ 3 and both α = 3, τ ≤ 5 proposals, the set of all cells with z ≥ 2 and
+score above threshold). Every candidate *raises* the fixed-support TV
+(0.018802–0.019046 against 0.018795) and the validation MSE (by 2e-5 to
+8e-4 relative), so every objective exceeds the baseline's 1.25
+(1.25060–1.27454) and none is accepted. Seeded from the first-pass arm the
+picture is the same (masks of 9–516 cells, objectives 1.25060–1.27471,
+none accepted). The unguided best (τ 3, 9 cells) is also worse than
+no-change. All nineteen records are in `candidates.json` and the archive.
+
+**What this shows.** On the real LUNO 1934−638 four-station slice, run
+entirely on the core from the public bucket to dirty images in 110 s
+(75 s of which is the transfer), gain-TV-guided flagging does not change
+calibration or imaging quality relative to the CARACAL first-pass flags: it
+selects nothing, and the first-pass strategy itself adds only 128 training
+cells (0.14 %) to a slice whose processing already flagged 70 % of cells,
+moving the held-out MSE by 6e-5 relative and the point-source residual RMS
+by 4e-5. This is the null result the protocol expected, now measured on
+real data with a matched comparator and cost. It is also the first
+end-to-end science run of the core on real MeerKAT data, with no
+Measurement Set, container, QuartiCal, Tricolour or WSClean in the loop.
+
+**What it does not show.** The licence is unconfirmed, so nothing here may
+be published or redistributed yet. Four stations give six baselines: the
+PSF's largest value outside the central 9 × 9 pixels is 0.998 (the main
+lobe is wider than the frozen box; outside the 64-pixel off-source box it
+is 0.936), so the dirty-image metrics are sidelobe-dominated and only the
+point-source residual RMS is interpretable, and that moved by 4e-5. The
+weights are a QuartiCal product and the model has no logged origin, so the
+absolute χ² (0.267) and MSE values are conditional. The processed input
+flags leave the frozen policy little to find: 70 % of cells are flagged
+before it starts, and the MAD score proposes at most 515 of 94,047 training
+cells. A whole-array run, a run on the native flags once the observer's
+full-resolution data arrive, and PKS 1830−211 with a model decision are the
+follow-ups; none of them is started here.
+
+**Post-hoc steps, labelled.** One: the checker's archive-path lookup
+(`core_campaign.check`) was fixed after it failed on `MAIN/MAIN_1/UVW/.zarray`
+on its first call; the run, its receipts and its bytes were not touched,
+and the empty first check directory was removed before the check was
+repeated into `outputs/core-k-check-20261030-01`. The labelled smoke before
+the code commit found two bugs (the UVW chunk key and a broadcast shape);
+both were fixed before the frozen run and are recorded in the timings.
+
+**Checks.** `ruff check` and `ruff format --check` on the new files and
+`tests/test_core_campaign.py` (7 tests) pass; `bash tools/check-all.sh` was
+run once before the final commit: overall PASS, 739 pytest tests in 74.3 s,
+96.6 s in all (log `outputs/core-k-20261030-01.check-all.log`).
 
 ## For the coordinator
 
-To be filled after the run.
+- Shared files: none edited. `core/` is unchanged; no `pub mod` line is
+  needed. Added files only: `python/rangtoy/core_campaign.py`,
+  `examples/{run,check,precondition,archive}_luno_campaign.py`,
+  `tests/test_core_campaign.py`, this report and
+  `research/results/core-k-luno-campaign.json`.
+- `python/rangtoy/core_cli.py` (not edited): to expose the campaign as
+  `rang-core campaign`, add a subparser `campaign` with `run_dir`,
+  `--precondition`, `--workers` delegating to `rangtoy.core_campaign.run`
+  followed by `environment(run_dir)`, and `COMPARATORS["campaign"] =
+  "check_luno_campaign.py"` (arguments `run precondition check`). A recipe
+  `recipes/core-k-luno-campaign.yaml` would then have the steps
+  `precondition` (`rangtoy.core_campaign.precondition`, input `out_dir`),
+  `campaign` (`run_dir`, `bucket`, `workers`, `precondition_dir`),
+  `environment` and `check` (`run_dir`, `precondition_dir`, `check_dir`);
+  `tests/test_core_cli.py` would need the new file in its hard-coded list
+  and an exception for cabs calling `rangtoy.core_campaign`, as task I's
+  `core-imaging.yaml` has. Stimela needs the 3.13 venv (task I).
+- `README.md`: a line that the first real-data campaign on LUNO ran on the
+  core (`rangtoy.core_campaign`, `research/core-k-luno-campaign.md`) with a
+  null result, provisional under the open licence.
+- `STATE.md`, new top entry: "Core task K (wave 2), 2026-10-30
+  (implemented; measured; provisional). The first real-data campaign on the
+  LUNO PKS 1934−638 four-station slice ran entirely on the core: range fetch
+  (752.8 MB, 74.2 s), Rust decode, the frozen seed-7 split, six arms solved
+  with the core's QuartiCal port (0.32 s each), the Tricolour first-pass and
+  mild strategies ported in task D (1.55 s and 0.89 s), the frozen TV
+  policy loop (1.7 s) and corrected-data Briggs dirty images (3.9 s each);
+  110 s and 461 MB in all, criteria 1–7 pass as frozen. Outcome: a null
+  result by the pre-registered rule: the TV policy selects no flag (every
+  candidate raises the fixed-support TV and the validation MSE), the
+  first-pass strategy adds 128 of 94,047 training cells and moves the
+  held-out test MSE by 6e-5 relative and the point-source residual RMS by
+  4e-5; cost comparable (ratio 1.30). Provisional: SARAO's written licence
+  confirmation is pending (observer permission in chat 2026-10-29 15:36
+  SAST), no visibilities are redistributed. Archive
+  `results/core-k-luno-campaign.json` (`core-k-luno-campaign.md`). Next: a
+  whole-array run and the native-flag run once the observer's data arrive;
+  1830−211 needs a model decision."
+- `tool-timings.md`: the rows of the timings table above and the stage
+  table (fetch, decode, solve, Tricolour port, TV loop, inversion).
+- `core-parallel-plan.md`: task K done (null result, provisional);
+  `flagging-luno-candidate.md` "Still open": add that the campaign ran and
+  that its results wait on the licence confirmation.
+- `upstream-notes.md` (observed, not raised): (1) the four-station LUNO
+  solve reaches the 50-iteration cap with 98.3 % of intervals converged in
+  QuartiCal and in the port alike, on real data as on the fixture; a
+  convergence-criterion note for QuartiCal's `complex` term on sparse
+  arrays may be worth raising once more data are solved. (2) The CARACAL
+  first-pass strategy on a 2048-channel sub-band flags 166 new cells of a
+  slice that is already 70 % flagged: the `uvcontsub_flagger` step drops the
+  running flags to 39 % (as designed, `or_original_from_cycle: 1`) and the
+  static masks and SumThreshold rebuild them to 66 %; the final
+  `combine_with_input_flags` restores the input. Nothing wrong, but the
+  strategy's intermediate state on pre-flagged calibrator data is
+  worth knowing when reading its logs.
+- Evidence to keep: `outputs/core-k-20261030-00-precondition`,
+  `outputs/core-k-20261030-01` (738 MB, of which 725 MB are the fetched
+  bytes under `fetch/`; they may be deleted once the archive hashes are
+  accepted, as the same bytes are in `core-g-20261029-01`), and
+  `outputs/core-k-check-20261030-01`. `outputs/core-k-20261030-00-smoke`
+  (labelled smoke, 13 MB of FITS) can be deleted. The worktree venv and
+  `core/py/target` are the usual ignored build outputs.
+- Lesson for later protocols: a checker that reads archived objects from two
+  roots should resolve each key by existence, not by column name; and the
+  PSF-sidelobe box should be set from the array's resolution, not copied
+  from the 64-station fixture.
