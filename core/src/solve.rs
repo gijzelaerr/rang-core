@@ -84,6 +84,130 @@ impl Default for Settings {
     }
 }
 
+/// Environment variable with the run-time solver options (task L5,
+/// `research/l5-solver-science.md`): a comma-separated `key=value` list,
+/// read by `solve` on every call so that the C ABI and the Python extension
+/// reach the options without a signature change. Unset or empty means the
+/// archived QuartiCal 0.2.7 behaviour. Keys:
+///
+/// - `qp_weights=archived|transposed`: `transposed` fixes QuartiCal issue
+///   452 by giving the qp half of `J^H W J` the weights of `V_qp = V_pq^H`,
+///   `(w_XX, w_YX, w_XY, w_YY)`; `J^H W r` and the fixed point are unchanged.
+/// - `stop=gain|product:<tol>|loss:<tol>`: the unit test behind the global
+///   stop fraction. `gain` is the archived per-gain relative change test with
+///   `Settings::stop_criterion`; `product` passes an interval when the largest
+///   relative change of a baseline product `G_p G_q^H` over its unflagged
+///   gains is below `tol`; `loss` when the relative change of the interval's
+///   weighted residual sum of squares (evaluated at the gains entering the
+///   iteration, so one iteration behind) is below `tol`. Interval criteria
+///   count intervals with at least two unflagged gains. The flag ladder keeps
+///   using `stop_criterion` under every criterion.
+/// - `anderson=<m>` (0 to 10, 0 off): type-II Anderson acceleration of depth
+///   `m` per interval, one map evaluation being the pair (even half step,
+///   odd full step) of the archived iteration; safeguarded (see `Anderson`).
+/// - `freeze=0|1`: an interval that passes its test stops iterating.
+pub const OPTIONS_VAR: &str = "RANG_SOLVE_OPTIONS";
+/// Environment variable naming a file that `solve` writes a per-iteration
+/// JSON trace to (task L5 instrumentation; unset means no trace).
+pub const TRACE_VAR: &str = "RANG_SOLVE_TRACE";
+/// Largest Anderson depth accepted.
+const MAX_ANDERSON: usize = 10;
+/// Tikhonov regularisation of the Anderson normal equations, relative to
+/// their trace.
+const ANDERSON_REGULARISATION: f64 = 1e-12;
+
+/// The unit test behind the global stop fraction.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum StopTest {
+    /// Archived: per gain, `|g_k - g_{k-1}|² / |g_{k-1}|² < stop_criterion²`.
+    Gain,
+    /// Per interval: max relative change of `G_p G_q^H` below the tolerance.
+    Product(f64),
+    /// Per interval: relative change of the weighted χ² below the tolerance.
+    Loss(f64),
+}
+
+/// Run-time solver options; `Default` is the archived behaviour.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Options {
+    pub transposed_qp_weights: bool,
+    pub stop: StopTest,
+    pub anderson: usize,
+    pub freeze: bool,
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Self {
+            transposed_qp_weights: false,
+            stop: StopTest::Gain,
+            anderson: 0,
+            freeze: false,
+        }
+    }
+}
+
+fn tolerance(text: &str) -> Result<f64, Error> {
+    match text.trim().parse::<f64>() {
+        Ok(t) if t.is_finite() && t > 0. => Ok(t),
+        _ => Err(Error::Options("a tolerance must be a positive number")),
+    }
+}
+
+impl Options {
+    /// Parse the `RANG_SOLVE_OPTIONS` syntax; anything unknown is an error.
+    pub fn parse(text: &str) -> Result<Self, Error> {
+        let mut options = Self::default();
+        for item in text.split(',').map(str::trim).filter(|s| !s.is_empty()) {
+            let (key, value) = item
+                .split_once('=')
+                .ok_or(Error::Options("expected key=value"))?;
+            let value = value.trim();
+            match key.trim() {
+                "qp_weights" => {
+                    options.transposed_qp_weights = match value {
+                        "archived" => false,
+                        "transposed" => true,
+                        _ => return Err(Error::Options("qp_weights: archived or transposed")),
+                    }
+                }
+                "stop" => {
+                    options.stop = match value.split_once(':') {
+                        None if value == "gain" => StopTest::Gain,
+                        Some(("product", t)) => StopTest::Product(tolerance(t)?),
+                        Some(("loss", t)) => StopTest::Loss(tolerance(t)?),
+                        _ => return Err(Error::Options("stop: gain, product:<tol> or loss:<tol>")),
+                    }
+                }
+                "anderson" => {
+                    options.anderson = match value.parse::<usize>() {
+                        Ok(m) if m <= MAX_ANDERSON => m,
+                        _ => return Err(Error::Options("anderson: an integer from 0 to 10")),
+                    }
+                }
+                "freeze" => {
+                    options.freeze = match value {
+                        "0" => false,
+                        "1" => true,
+                        _ => return Err(Error::Options("freeze: 0 or 1")),
+                    }
+                }
+                _ => return Err(Error::Options("unknown key")),
+            }
+        }
+        Ok(options)
+    }
+
+    /// The options in `RANG_SOLVE_OPTIONS`, or the defaults when it is unset.
+    pub fn from_env() -> Result<Self, Error> {
+        match std::env::var(OPTIONS_VAR) {
+            Ok(text) => Self::parse(&text),
+            Err(std::env::VarError::NotPresent) => Ok(Self::default()),
+            Err(std::env::VarError::NotUnicode(_)) => Err(Error::Options("not unicode")),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Solution {
     /// `ntime_bins * nfreq_bins * nant` Jones matrices.
@@ -99,6 +223,10 @@ pub enum Error {
     Shape(&'static str),
     Order(&'static str),
     ZeroDivision,
+    /// Malformed `RANG_SOLVE_OPTIONS`.
+    Options(&'static str),
+    /// The trace file could not be written.
+    Trace(String),
 }
 
 const IDENTITY: Jones = [
@@ -409,11 +537,28 @@ fn interval_cells(
 /// antenna) over its unflagged cells in the serial sweep's order, pq before
 /// qp: every gain receives its contributions in the order of the serial
 /// sweep over all cells, so its sums are bit-identical.
-fn accumulate_interval(problem: &Problem, cells: &[CellRef], states: &mut [GainState]) {
+///
+/// `TRANSPOSED` gives the qp half of `J^H W J` the weights of `V_qp`
+/// (`qp_weights=transposed`); `CHI2` also returns the interval's weighted
+/// residual sum of squares `sum w |r|²` at the gains entering the iteration
+/// (finite cell contributions only), otherwise 0.
+fn accumulate_interval<const TRANSPOSED: bool, const CHI2: bool>(
+    problem: &Problem,
+    cells: &[CellRef],
+    states: &mut [GainState],
+) -> f64 {
     for state in states.iter_mut() {
         state.jhj = [[C64::ZERO; 4]; 4];
         state.jhr = [C64::ZERO; 4];
     }
+    let mut chi2 = 0.;
+    let chi2_of = |w: &[f64; 4], residual: &Jones| {
+        let mut s = 0.;
+        for k in 0..4 {
+            s += w[k] * residual[k].norm2();
+        }
+        s
+    };
     for c in cells {
         let (p, q, cell) = (c.p as usize, c.q as usize, c.cell);
         let w: [f64; 4] = std::array::from_fn(|c| f64::from(problem.weights[4 * cell + c]));
@@ -434,12 +579,24 @@ fn accumulate_interval(problem: &Problem, cells: &[CellRef], states: &mut [GainS
             let residual: Jones = std::array::from_fn(|k| data[k] - predicted[k]);
             let wr_pq: Jones = std::array::from_fn(|k| real_scale(residual[k], w[k]));
             if jones::is_finite(&wr_pq) {
+                if CHI2 {
+                    let s = chi2_of(&w, &residual);
+                    if s.is_finite() {
+                        chi2 += s;
+                    }
+                }
                 let wr_qp = jones::adjoint(&wr_pq);
                 let sp = &mut states[p];
                 accumulate_finite(&rop_pq, &w, &wr_pq, &mut sp.jhr, &mut sp.jhj);
-                // QuartiCal reuses the pq weight order for qp.
+                // QuartiCal reuses the pq weight order for qp (issue 452);
+                // `TRANSPOSED` uses the weights of V_qp = V_pq^H.
+                let w_qp = if TRANSPOSED {
+                    [w[0], w[2], w[1], w[3]]
+                } else {
+                    w
+                };
                 let sq = &mut states[q];
-                accumulate_finite(&rop_qp, &w, &wr_qp, &mut sq.jhr, &mut sq.jhj);
+                accumulate_finite(&rop_qp, &w_qp, &wr_qp, &mut sq.jhr, &mut sq.jhj);
                 continue;
             }
         }
@@ -447,16 +604,82 @@ fn accumulate_interval(problem: &Problem, cells: &[CellRef], states: &mut [GainS
         let predicted = jones::mul(&lop_gp, &jones::adjoint(&rop_pq));
         let residual: Jones = std::array::from_fn(|k| data[k] - predicted[k]);
         let wr_pq: Jones = std::array::from_fn(|k| real_scale(residual[k], w[k]));
+        if CHI2 {
+            let s = chi2_of(&w, &residual);
+            if s.is_finite() {
+                chi2 += s;
+            }
+        }
         let wr_qp = jones::adjoint(&wr_pq);
         let sp = &mut states[p];
         accumulate(&rop_pq, &w, &wr_pq, &mut sp.jhr, &mut sp.jhj);
-        // QuartiCal reuses the pq weight order for qp.
+        // QuartiCal reuses the pq weight order for qp (issue 452).
+        let w_qp = if TRANSPOSED {
+            [w[0], w[2], w[1], w[3]]
+        } else {
+            w
+        };
         let sq = &mut states[q];
-        accumulate(&rop_qp, &w, &wr_qp, &mut sq.jhr, &mut sq.jhj);
+        accumulate(&rop_qp, &w_qp, &wr_qp, &mut sq.jhr, &mut sq.jhj);
     }
     for state in states.iter_mut() {
         fill_lower(&mut state.jhj);
     }
+    chi2
+}
+
+/// Dispatch to the `accumulate_interval` instance for the options.
+fn accumulate_with(
+    problem: &Problem,
+    cells: &[CellRef],
+    states: &mut [GainState],
+    transposed: bool,
+    chi2: bool,
+) -> f64 {
+    match (transposed, chi2) {
+        (false, false) => accumulate_interval::<false, false>(problem, cells, states),
+        (false, true) => accumulate_interval::<false, true>(problem, cells, states),
+        (true, false) => accumulate_interval::<true, false>(problem, cells, states),
+        (true, true) => accumulate_interval::<true, true>(problem, cells, states),
+    }
+}
+
+/// Largest relative change `|P_k - P_{k-1}|_F / |P_{k-1}|_F` of the baseline
+/// products `P = G_p G_q^H` over pairs of gains that are not hard-flagged,
+/// from `km1_gain` (the gains entering the iteration) to `gain`. `None` when
+/// the interval has fewer than two such gains.
+fn product_change(states: &[GainState]) -> Option<f64> {
+    let live: Vec<usize> = (0..states.len()).filter(|&a| states[a].flag != 1).collect();
+    if live.len() < 2 {
+        return None;
+    }
+    let mut largest: f64 = 0.;
+    for (i, &p) in live.iter().enumerate() {
+        for &q in &live[i + 1..] {
+            let before = jones::mul(&states[p].km1_gain, &jones::adjoint(&states[q].km1_gain));
+            let after = jones::mul(&states[p].gain, &jones::adjoint(&states[q].gain));
+            let (mut diff, mut norm) = (0., 0.);
+            for k in 0..4 {
+                diff += (after[k] - before[k]).norm2();
+                norm += before[k].norm2();
+            }
+            let change = if norm > 0. {
+                (diff / norm).sqrt()
+            } else {
+                f64::INFINITY
+            };
+            // NaN propagates as "not converged".
+            largest = if change.is_nan() {
+                f64::NAN
+            } else {
+                largest.max(change)
+            };
+            if largest.is_nan() {
+                return Some(f64::NAN);
+            }
+        }
+    }
+    Some(largest)
 }
 
 /// `compute_update`, `finalize_update` and `update_gain_flags` for one gain,
@@ -533,11 +756,221 @@ const EMPTY_SNAPSHOT: Snapshot = Snapshot {
     flag: 0,
 };
 
-/// One interval's record of an epoch: converged and flagged counts of each
-/// iteration it completed, and the first error, with its iteration.
+/// One interval's outcome of one iteration.
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct IterationStats {
+    /// Gains passing the archived gain test.
+    converged: usize,
+    /// Hard-flagged gains.
+    flagged: usize,
+    /// `product_change`, or NaN when not computed or undefined.
+    product_change: f64,
+    /// The interval's χ² at the gains entering the iteration (0 when not
+    /// computed).
+    chi2: f64,
+    /// The interval counts as a unit of an interval criterion (at least two
+    /// gains not hard-flagged).
+    unit: bool,
+    /// The interval passes the interval criterion in force (`product` or
+    /// `loss`; for `gain`, every gain not hard-flagged passed the gain test).
+    pass: bool,
+}
+
+/// One interval's record of an epoch: the statistics of each iteration it
+/// completed, and the first error, with its iteration.
 struct EpochRecord {
-    counts: Vec<(usize, usize)>,
+    stats: Vec<IterationStats>,
     error: Option<(usize, Error)>,
+}
+
+/// Type-II Anderson acceleration of one interval's fixed-point map, one map
+/// evaluation being the pair (even half step, odd full step) of the archived
+/// iteration. `x` is the real vector (8 per gain) of the gains that are not
+/// hard-flagged, `g = F(x)`, `f = g - x`. After each odd iteration, with the
+/// last `depth` secant pairs `ΔF`, `ΔG`, the next pair starts from
+/// `g - ΔG γ` with `γ` minimising `|f - ΔF γ|` (normal equations with a
+/// Tikhonov term `1e-12 trace`). Safeguards: the history is reset and the
+/// plain step taken when the set of gains changes, when `|f|` grew since the
+/// previous pair, or when the system or the mix is not finite.
+#[derive(Clone, Default)]
+struct Anderson {
+    depth: usize,
+    /// Gains not hard-flagged at the start of the current pair.
+    mask: Vec<bool>,
+    /// `x` at the start of the current pair.
+    x: Vec<f64>,
+    /// The mask of the history.
+    history_mask: Vec<bool>,
+    previous: Option<(Vec<f64>, Vec<f64>, f64)>,
+    df: std::collections::VecDeque<Vec<f64>>,
+    dg: std::collections::VecDeque<Vec<f64>>,
+    mixes: usize,
+    resets: usize,
+}
+
+fn masked_vector(states: &[GainState], mask: &[bool]) -> Vec<f64> {
+    let mut out = Vec::with_capacity(8 * states.len());
+    for (state, &live) in states.iter().zip(mask) {
+        if live {
+            for c in &state.gain {
+                out.extend([c.re, c.im]);
+            }
+        }
+    }
+    out
+}
+
+fn dot_real(a: &[f64], b: &[f64]) -> f64 {
+    a.iter().zip(b).map(|(x, y)| x * y).sum()
+}
+
+/// Solve the small symmetric system `a x = b` by Gaussian elimination with
+/// partial pivoting; `None` if singular or not finite.
+fn solve_small(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Vec<f64>> {
+    let n = b.len();
+    for col in 0..n {
+        let pivot = (col..n).max_by(|&i, &j| a[i][col].abs().total_cmp(&a[j][col].abs()))?;
+        if a[pivot][col] == 0. || !a[pivot][col].is_finite() {
+            return None;
+        }
+        a.swap(col, pivot);
+        b.swap(col, pivot);
+        let (upper, lower) = a.split_at_mut(col + 1);
+        let pivot_row = &upper[col];
+        for (offset, target) in lower.iter_mut().enumerate() {
+            let factor = target[col] / pivot_row[col];
+            for (value, p) in target[col..].iter_mut().zip(&pivot_row[col..]) {
+                *value -= factor * p;
+            }
+            b[col + 1 + offset] -= factor * b[col];
+        }
+    }
+    let mut x = vec![0.; n];
+    for row in (0..n).rev() {
+        let mut s = b[row];
+        for k in row + 1..n {
+            s -= a[row][k] * x[k];
+        }
+        x[row] = s / a[row][row];
+    }
+    x.iter().all(|v| v.is_finite()).then_some(x)
+}
+
+impl Anderson {
+    fn new(depth: usize) -> Self {
+        Self {
+            depth,
+            ..Self::default()
+        }
+    }
+
+    fn reset(&mut self) {
+        self.previous = None;
+        self.df.clear();
+        self.dg.clear();
+        self.resets += 1;
+    }
+
+    /// Record the start of a pair (before an even iteration).
+    fn begin(&mut self, states: &[GainState]) {
+        self.mask = states.iter().map(|s| s.flag != 1).collect();
+        self.x = masked_vector(states, &self.mask);
+    }
+
+    /// After an odd iteration: mix, and move the interval's gains (and
+    /// `km1_gain`, the point the next iteration starts from) to the mix.
+    fn mix(&mut self, states: &mut [GainState]) {
+        let mask: Vec<bool> = states.iter().map(|s| s.flag != 1).collect();
+        if mask != self.history_mask {
+            // A new set of gains (or the first pair): start a new history.
+            if !self.history_mask.is_empty() {
+                self.reset();
+            }
+            self.history_mask = mask.clone();
+        }
+        if mask != self.mask {
+            // The set changed within the pair: no secant pair to form.
+            self.reset();
+            return;
+        }
+        let g = masked_vector(states, &mask);
+        let f: Vec<f64> = g.iter().zip(&self.x).map(|(a, b)| a - b).collect();
+        let norm = dot_real(&f, &f).sqrt();
+        if !norm.is_finite() {
+            self.reset();
+            return;
+        }
+        if let Some((pf, pg, pnorm)) = self.previous.take() {
+            if norm > pnorm {
+                self.reset();
+                self.previous = Some((f, g, norm));
+                return;
+            }
+            self.df
+                .push_back(f.iter().zip(&pf).map(|(a, b)| a - b).collect());
+            self.dg
+                .push_back(g.iter().zip(&pg).map(|(a, b)| a - b).collect());
+            while self.df.len() > self.depth {
+                self.df.pop_front();
+                self.dg.pop_front();
+            }
+        }
+        self.previous = Some((f.clone(), g.clone(), norm));
+        let m = self.df.len();
+        if m == 0 {
+            return;
+        }
+        let mut a = vec![vec![0.; m]; m];
+        let mut b = vec![0.; m];
+        let mut trace = 0.;
+        for (i, row) in a.iter_mut().enumerate() {
+            for (value, dj) in row.iter_mut().zip(&self.df) {
+                *value = dot_real(&self.df[i], dj);
+            }
+            b[i] = dot_real(&self.df[i], &f);
+            trace += row[i];
+        }
+        if !(trace > 0. && trace.is_finite()) {
+            self.reset();
+            return;
+        }
+        for (i, row) in a.iter_mut().enumerate() {
+            row[i] += ANDERSON_REGULARISATION * trace;
+        }
+        let Some(gamma) = solve_small(a, b) else {
+            self.reset();
+            return;
+        };
+        let mut x = g;
+        for (i, gi) in gamma.iter().enumerate() {
+            for (value, d) in x.iter_mut().zip(&self.dg[i]) {
+                *value -= gi * d;
+            }
+        }
+        if !x.iter().all(|v| v.is_finite()) {
+            self.reset();
+            return;
+        }
+        let mut values = x.chunks_exact(8);
+        for (state, &live) in states.iter_mut().zip(&mask) {
+            if live {
+                let v = values.next().expect("one chunk per live gain");
+                state.gain = std::array::from_fn(|k| C64::new(v[2 * k], v[2 * k + 1]));
+                state.km1_gain = state.gain;
+            }
+        }
+        self.mixes += 1;
+    }
+}
+
+/// What an interval keeps between epochs besides its gains.
+#[derive(Clone)]
+struct IntervalState {
+    /// χ² at the previous iteration (for `stop=loss`).
+    previous_chi2: f64,
+    /// Set once the interval passed under `freeze=1`, with its last stats.
+    frozen: Option<IterationStats>,
+    anderson: Option<Anderson>,
 }
 
 /// The read-only inputs of every interval task.
@@ -545,29 +978,60 @@ struct Context<'a> {
     problem: &'a Problem<'a>,
     cells: Vec<Vec<CellRef>>,
     stop2: f64,
+    options: Options,
+    /// Compute the product change (criterion or trace).
+    products: bool,
+    /// Compute χ² (criterion or trace).
+    chi2: bool,
 }
 
 /// Run iterations `k0..k0 + n` of one interval. After each iteration the
 /// interval's gains are recorded in `snapshots` (`n * nant`) and copied to
 /// `km1_gain`. The copy is unconditional: while the global loop continues,
 /// QuartiCal copies on every iteration but the last, and nothing reads
-/// `km1_gain` after the loop ends.
+/// `km1_gain` after the loop ends. With Anderson acceleration the snapshot is
+/// the plain iterate and the mix is where the next iteration starts.
 fn run_interval(
     context: &Context,
     interval: usize,
     states: &mut [GainState],
+    extra: &mut IntervalState,
     snapshots: &mut [Snapshot],
     k0: usize,
     n: usize,
 ) -> EpochRecord {
     let problem = context.problem;
+    let options = &context.options;
     let mut record = EpochRecord {
-        counts: Vec::with_capacity(n),
+        stats: Vec::with_capacity(n),
         error: None,
     };
     for j in 0..n {
         let loop_idx = k0 + j;
-        accumulate_interval(problem, &context.cells[interval], states);
+        let row = &mut snapshots[j * states.len()..(j + 1) * states.len()];
+        if let Some(stats) = extra.frozen {
+            record.stats.push(stats);
+            for (snapshot, state) in row.iter_mut().zip(states.iter()) {
+                *snapshot = Snapshot {
+                    gain: state.gain,
+                    trend: state.trend,
+                    flag: state.flag,
+                };
+            }
+            continue;
+        }
+        if let Some(anderson) = extra.anderson.as_mut()
+            && loop_idx.is_multiple_of(2)
+        {
+            anderson.begin(states);
+        }
+        let chi2 = accumulate_with(
+            problem,
+            &context.cells[interval],
+            states,
+            options.transposed_qp_weights,
+            context.chi2,
+        );
         let (mut converged, mut flagged) = (0usize, 0usize);
         for state in states.iter_mut() {
             match step_gain(state, loop_idx, context.stop2) {
@@ -581,8 +1045,34 @@ fn run_interval(
                 }
             }
         }
-        record.counts.push((converged, flagged));
-        let row = &mut snapshots[j * states.len()..(j + 1) * states.len()];
+        let change = if context.products {
+            product_change(states)
+        } else {
+            None
+        };
+        let unit = states.len() - flagged >= 2;
+        let pass = match options.stop {
+            StopTest::Gain => flagged < states.len() && converged == states.len() - flagged,
+            StopTest::Product(tolerance) => {
+                loop_idx >= 2 && unit && change.is_some_and(|c| c < tolerance)
+            }
+            StopTest::Loss(tolerance) => {
+                loop_idx >= 2
+                    && unit
+                    && chi2 > 0.
+                    && ((extra.previous_chi2 - chi2).abs() / chi2) < tolerance
+            }
+        };
+        extra.previous_chi2 = chi2;
+        let stats = IterationStats {
+            converged,
+            flagged,
+            product_change: change.unwrap_or(f64::NAN),
+            chi2,
+            unit,
+            pass,
+        };
+        record.stats.push(stats);
         for (snapshot, state) in row.iter_mut().zip(states.iter_mut()) {
             *snapshot = Snapshot {
                 gain: state.gain,
@@ -590,6 +1080,15 @@ fn run_interval(
                 flag: state.flag,
             };
             state.km1_gain = state.gain;
+        }
+        if options.freeze && pass {
+            extra.frozen = Some(stats);
+            continue;
+        }
+        if let Some(anderson) = extra.anderson.as_mut()
+            && !loop_idx.is_multiple_of(2)
+        {
+            anderson.mix(states);
         }
     }
     record
@@ -601,6 +1100,17 @@ fn converged_fraction(converged: usize, flagged: usize, ngains: usize) -> f64 {
         converged as f64 / solvable as f64
     } else {
         0.
+    }
+}
+
+/// The (passing, excluded) unit counts of one interval's iteration for the
+/// stop test in force: gains for `gain`, intervals for the others.
+fn unit_counts(stop: StopTest, stats: &IterationStats) -> (usize, usize) {
+    match stop {
+        StopTest::Gain => (stats.converged, stats.flagged),
+        StopTest::Product(_) | StopTest::Loss(_) => {
+            (usize::from(stats.pass), usize::from(!stats.unit))
+        }
     }
 }
 
@@ -621,15 +1131,16 @@ enum Outcome {
 /// completed; `first_error` is the earliest failing offset, if any. The stop
 /// test is applied in iteration order before the earliest error, so an
 /// error after the stop (which the serial loop never reaches) is ignored.
+/// `nunits` is the number of gains (`stop=gain`) or intervals.
 fn decide(
     totals: &[(usize, usize)],
     first_error: Option<usize>,
-    ngains: usize,
+    nunits: usize,
     stop_fraction: f64,
 ) -> Outcome {
     let mut fraction = 0.;
     for (j, &(converged, flagged)) in totals.iter().enumerate() {
-        fraction = converged_fraction(converged, flagged, ngains);
+        fraction = converged_fraction(converged, flagged, nunits);
         if fraction >= stop_fraction {
             return Outcome::Stop { j, fraction };
         }
@@ -640,7 +1151,102 @@ fn decide(
     }
 }
 
-/// Solve for one `complex` term as QuartiCal 0.2.7 does with rang's settings.
+/// One iteration of the trace: totals and the per-interval statistics, in
+/// interval order.
+#[derive(Clone, Debug)]
+pub struct TraceIteration {
+    pub gain_converged: usize,
+    pub gain_flagged: usize,
+    pub product_change: Vec<f64>,
+    pub chi2: Vec<f64>,
+    pub unit: Vec<bool>,
+    pub pass: Vec<bool>,
+}
+
+/// Per-iteration diagnostics of a solve (task L5), up to the stop.
+#[derive(Clone, Debug, Default)]
+pub struct Trace {
+    pub ngains: usize,
+    pub nintervals: usize,
+    pub iterations: Vec<TraceIteration>,
+    pub anderson_mixes: usize,
+    pub anderson_resets: usize,
+}
+
+fn json_number(value: f64) -> String {
+    if value.is_finite() {
+        format!("{value:e}")
+    } else {
+        "null".to_string()
+    }
+}
+
+impl Trace {
+    /// The trace as JSON (non-finite numbers as `null`).
+    pub fn to_json(&self, options: &Options, settings: &Settings) -> String {
+        let mut out = String::new();
+        out.push_str(&format!(
+            "{{\"options\":\"{options:?}\",\"settings\":\"{settings:?}\",\"ngains\":{},\"nintervals\":{},\"anderson_mixes\":{},\"anderson_resets\":{},\"iterations\":[",
+            self.ngains, self.nintervals, self.anderson_mixes, self.anderson_resets
+        ));
+        for (k, it) in self.iterations.iter().enumerate() {
+            if k > 0 {
+                out.push(',');
+            }
+            let floats = |v: &[f64]| {
+                v.iter()
+                    .map(|x| json_number(*x))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            };
+            let bools = |v: &[bool]| {
+                v.iter()
+                    .map(|&x| if x { "1" } else { "0" })
+                    .collect::<Vec<_>>()
+                    .join(",")
+            };
+            out.push_str(&format!(
+                "{{\"k\":{k},\"gain_converged\":{},\"gain_flagged\":{},\"product_change\":[{}],\"chi2\":[{}],\"unit\":[{}],\"pass\":[{}]}}",
+                it.gain_converged,
+                it.gain_flagged,
+                floats(&it.product_change),
+                floats(&it.chi2),
+                bools(&it.unit),
+                bools(&it.pass),
+            ));
+        }
+        out.push_str("]}\n");
+        out
+    }
+}
+
+/// Solve for one `complex` term as QuartiCal 0.2.7 does with rang's settings,
+/// with the run-time options of `RANG_SOLVE_OPTIONS` (default: archived) and,
+/// if `RANG_SOLVE_TRACE` names a file, a per-iteration trace written there.
+pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> {
+    let options = Options::from_env()?;
+    match std::env::var_os(TRACE_VAR) {
+        Some(path) if !path.is_empty() => {
+            let (solution, trace) = solve_traced(problem, settings, &options, true)?;
+            std::fs::write(&path, trace.to_json(&options, settings))
+                .map_err(|e| Error::Trace(e.to_string()))?;
+            Ok(solution)
+        }
+        _ => solve_with(problem, settings, &options),
+    }
+}
+
+/// `solve` with explicit options and no trace.
+pub fn solve_with(
+    problem: &Problem,
+    settings: &Settings,
+    options: &Options,
+) -> Result<Solution, Error> {
+    solve_traced(problem, settings, options, false).map(|(solution, _)| solution)
+}
+
+/// Solve for one `complex` term as QuartiCal 0.2.7 does with rang's settings
+/// (with `Options::default()`), optionally recording a `Trace`.
 ///
 /// QuartiCal's iteration loop has one global stop test (the converged
 /// fraction over all gains), but until it stops, each solution interval
@@ -649,13 +1255,20 @@ fn decide(
 /// rayon's global pool (`RAYON_NUM_THREADS`), recording its counts and gains
 /// after every iteration; the stop test is then applied serially, iteration
 /// by iteration, and the gains of the stopping iteration are taken from the
-/// record. No floating-point value is reduced across intervals, so the
-/// result is bit-identical to the serial loop at every thread count.
-pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> {
+/// record. No floating-point value is reduced across intervals (the trace's
+/// arrays are kept per interval), so the result is bit-identical to the
+/// serial loop at every thread count, under every option.
+pub fn solve_traced(
+    problem: &Problem,
+    settings: &Settings,
+    options: &Options,
+    trace: bool,
+) -> Result<(Solution, Trace), Error> {
     check(problem)?;
     let na = problem.nant;
     let ngains = problem.ntime_bins * problem.nfreq_bins * na;
     let width = na.max(1);
+    let nintervals = ngains / width;
     let mut states = vec![
         GainState {
             gain: IDENTITY,
@@ -673,6 +1286,26 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
         problem,
         cells: interval_cells(problem, &data_flags(problem), &mut states, width),
         stop2: settings.stop_criterion * settings.stop_criterion,
+        options: *options,
+        products: trace || matches!(options.stop, StopTest::Product(_)),
+        chi2: trace || matches!(options.stop, StopTest::Loss(_)),
+    };
+    let mut extras = vec![
+        IntervalState {
+            previous_chi2: f64::NAN,
+            frozen: None,
+            anderson: (options.anderson > 0).then(|| Anderson::new(options.anderson)),
+        };
+        nintervals
+    ];
+    let nunits = match options.stop {
+        StopTest::Gain => ngains,
+        StopTest::Product(_) | StopTest::Loss(_) => nintervals,
+    };
+    let mut record = Trace {
+        ngains,
+        nintervals,
+        ..Trace::default()
     };
     let iterations = settings.max_iterations.max(1);
     let mut snapshots = vec![EMPTY_SNAPSHOT; EPOCH * ngains];
@@ -681,9 +1314,12 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
         let n = EPOCH.min(iterations - k0);
         let records: Vec<EpochRecord> = states
             .par_chunks_mut(width)
+            .zip(extras.par_iter_mut())
             .zip(snapshots.par_chunks_mut(EPOCH * width))
             .enumerate()
-            .map(|(interval, (chunk, snaps))| run_interval(&context, interval, chunk, snaps, k0, n))
+            .map(|(interval, ((chunk, extra), snaps))| {
+                run_interval(&context, interval, chunk, extra, snaps, k0, n)
+            })
             .collect();
         // The earliest failing iteration, and the first interval failing there.
         let mut first_error: Option<(usize, usize)> = None;
@@ -699,17 +1335,35 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
         let totals: Vec<(usize, usize)> = (0..complete)
             .map(|j| {
                 records.iter().fold((0, 0), |(c, x), r| {
-                    let (dc, dx) = r.counts[j];
+                    let (dc, dx) = unit_counts(options.stop, &r.stats[j]);
                     (c + dc, x + dx)
                 })
             })
             .collect();
-        match decide(
+        let outcome = decide(
             &totals,
             first_error.map(|(k, _)| k - k0),
-            ngains,
+            nunits,
             settings.stop_fraction,
-        ) {
+        );
+        if trace {
+            let last = match outcome {
+                Outcome::Stop { j, .. } => j + 1,
+                _ => complete,
+            };
+            for j in 0..last {
+                let stats: Vec<&IterationStats> = records.iter().map(|r| &r.stats[j]).collect();
+                record.iterations.push(TraceIteration {
+                    gain_converged: stats.iter().map(|s| s.converged).sum(),
+                    gain_flagged: stats.iter().map(|s| s.flagged).sum(),
+                    product_change: stats.iter().map(|s| s.product_change).collect(),
+                    chi2: stats.iter().map(|s| s.chi2).collect(),
+                    unit: stats.iter().map(|s| s.unit).collect(),
+                    pass: stats.iter().map(|s| s.pass).collect(),
+                });
+            }
+        }
+        match outcome {
             Outcome::Stop { j, fraction } => break (j, fraction),
             Outcome::Fail(_) => {
                 let (_, interval) = first_error.expect("a failure has an error");
@@ -725,10 +1379,16 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
             }
         }
     };
+    for extra in &extras {
+        if let Some(a) = &extra.anderson {
+            record.anderson_mixes += a.mixes;
+            record.anderson_resets += a.resets;
+        }
+    }
     // The gains of the stopping (or last) iteration, from the record.
     let mut gains = Vec::with_capacity(ngains);
     let mut flags = Vec::with_capacity(ngains);
-    for snaps in snapshots.chunks(EPOCH * width).take(ngains / width) {
+    for snaps in snapshots.chunks(EPOCH * width).take(nintervals) {
         for snapshot in &snaps[j * width..(j + 1) * width] {
             // finalize_gain_flags
             let (gain, flag) = if snapshot.trend > TREND_LIMIT {
@@ -742,12 +1402,15 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
             flags.push(flag);
         }
     }
-    Ok(Solution {
-        gains,
-        flags,
-        iterations: k0 + j + 1,
-        converged_fraction: fraction,
-    })
+    Ok((
+        Solution {
+            gains,
+            flags,
+            iterations: k0 + j + 1,
+            converged_fraction: fraction,
+        },
+        record,
+    ))
 }
 
 #[cfg(test)]
@@ -1364,5 +2027,307 @@ mod tests {
         assert_eq!(states.iter().map(|s| s.flag).collect::<Vec<_>>(), flags);
         // The fully flagged interval (time bin 2, frequency bin 1) is empty.
         assert!(cells[2 * problem.nfreq_bins + 1].is_empty());
+    }
+
+    // --- Task L5 (research/l5-solver-science.md): run-time options.
+
+    #[test]
+    fn options_parse_and_reject() {
+        assert_eq!(Options::parse("").unwrap(), Options::default());
+        assert_eq!(
+            Options::parse("qp_weights=archived, stop=gain,anderson=0,freeze=0").unwrap(),
+            Options::default()
+        );
+        let o =
+            Options::parse("qp_weights=transposed,stop=product:1e-5,anderson=3,freeze=1").unwrap();
+        assert_eq!(
+            o,
+            Options {
+                transposed_qp_weights: true,
+                stop: StopTest::Product(1e-5),
+                anderson: 3,
+                freeze: true,
+            }
+        );
+        assert_eq!(
+            Options::parse("stop=loss:2e-7").unwrap().stop,
+            StopTest::Loss(2e-7)
+        );
+        for bad in [
+            "qp_weights=yes",
+            "stop=product",
+            "stop=loss:-1",
+            "stop=gain:1e-3",
+            "anderson=11",
+            "anderson=x",
+            "freeze=2",
+            "colour=blue",
+            "anderson",
+        ] {
+            assert!(
+                matches!(Options::parse(bad), Err(Error::Options(_))),
+                "{bad}"
+            );
+        }
+    }
+
+    fn jones_from(state: &mut u64, scale: f64, diagonal: f64) -> Jones {
+        std::array::from_fn(|k| {
+            let d = if k == 0 || k == 3 { diagonal } else { 0. };
+            C64::new(d + scale * noise(state), scale * noise(state))
+        })
+    }
+
+    /// One Gauss-Newton step for antenna q alone (antenna p fixed at the
+    /// truth, noise-free data) is exact only with the transposed qp weights:
+    /// the issue 452 check of `research/upstream-issues/quartical-qp-jhj-weights.md`.
+    #[test]
+    fn transposed_qp_weights_give_the_exact_gauss_newton_step() {
+        let mut state = 11u64;
+        let gp = jones_from(&mut state, 0.5, 1.);
+        let gq_true = jones_from(&mut state, 0.5, 1.);
+        let w = [1.0, 0.2, 5.0, 1.0];
+        let mut errors = Vec::new();
+        for w_qp in [w, [w[0], w[2], w[1], w[3]]] {
+            let mut sample = 5u64;
+            let (mut jhr, mut jhj) = ([C64::ZERO; 4], [[C64::ZERO; 4]; 4]);
+            for _ in 0..16 {
+                let m = jones_from(&mut sample, 1., 0.);
+                let v = jones::mul(&jones::mul(&gp, &m), &jones::adjoint(&gq_true));
+                let predicted = jones::mul(&jones::mul(&gp, &m), &jones::adjoint(&IDENTITY));
+                let residual: Jones = std::array::from_fn(|k| v[k] - predicted[k]);
+                let wr_pq: Jones = std::array::from_fn(|k| real_scale(residual[k], w[k]));
+                let rop_qp = jones::mul(&gp, &m);
+                accumulate_finite(&rop_qp, &w_qp, &jones::adjoint(&wr_pq), &mut jhr, &mut jhj);
+            }
+            fill_lower(&mut jhj);
+            let mut update = [C64::ZERO; 4];
+            conjugate_gradient(&jhj, &jhr, &mut update).unwrap();
+            let error = (0..4)
+                .map(|k| (IDENTITY[k] + update[k] - gq_true[k]).norm2().sqrt())
+                .fold(0., f64::max);
+            errors.push(error);
+        }
+        assert!(errors[0] > 1e-2, "archived weights: {errors:?}");
+        assert!(errors[1] < 1e-10, "transposed weights: {errors:?}");
+    }
+
+    #[test]
+    fn transposed_weights_are_a_no_op_when_xy_and_yx_weights_agree() {
+        let mut synthetic = Synthetic::new(4);
+        for cell in synthetic.weights.chunks_exact_mut(4) {
+            cell[2] = cell[1];
+        }
+        let problem = synthetic.problem();
+        let settings = Settings {
+            max_iterations: 20,
+            ..Settings::default()
+        };
+        let transposed = Options {
+            transposed_qp_weights: true,
+            ..Options::default()
+        };
+        let a = solve_with(&problem, &settings, &Options::default()).unwrap();
+        let b = solve_with(&problem, &settings, &transposed).unwrap();
+        assert_eq!(bits(&a), bits(&b));
+        // And unequal weights do change the iterates.
+        let unequal = Synthetic::new(4);
+        let problem = unequal.problem();
+        let a = solve_with(&problem, &settings, &Options::default()).unwrap();
+        let b = solve_with(&problem, &settings, &transposed).unwrap();
+        assert_ne!(bits(&a).0, bits(&b).0);
+    }
+
+    #[test]
+    fn default_options_are_the_archived_solver() {
+        let synthetic = Synthetic::new(1);
+        let problem = synthetic.problem();
+        let explicit = Options::parse("qp_weights=archived,stop=gain,anderson=0,freeze=0").unwrap();
+        for max_iterations in [3, 17, 50] {
+            let settings = Settings {
+                max_iterations,
+                stop_criterion: 1e-3,
+                stop_fraction: 0.8,
+            };
+            let expected = reference_solve(&problem, &settings).unwrap();
+            let got = solve_with(&problem, &settings, &explicit).unwrap();
+            assert_eq!(bits(&got), bits(&expected));
+            let (traced, trace) = solve_traced(&problem, &settings, &explicit, true).unwrap();
+            assert_eq!(bits(&traced), bits(&expected));
+            assert_eq!(trace.iterations.len(), expected.iterations);
+        }
+    }
+
+    /// The stop iteration (0-based) of `stop` replayed from a long trace.
+    fn replay(trace: &Trace, stop: StopTest, fraction: f64) -> Option<usize> {
+        trace.iterations.iter().enumerate().position(|(k, it)| {
+            let (pass, excluded, units) = match stop {
+                StopTest::Gain => (it.gain_converged, it.gain_flagged, trace.ngains),
+                StopTest::Product(t) => (
+                    it.product_change
+                        .iter()
+                        .zip(&it.unit)
+                        .filter(|&(&c, &u)| k >= 2 && u && c < t)
+                        .count(),
+                    it.unit.iter().filter(|&&u| !u).count(),
+                    trace.nintervals,
+                ),
+                StopTest::Loss(_) => unreachable!(),
+            };
+            converged_fraction(pass, excluded, units) >= fraction
+        })
+    }
+
+    #[test]
+    fn new_options_are_bit_identical_across_threads_and_match_the_trace() {
+        let mut stops = std::collections::BTreeSet::new();
+        for seed in [1, 2] {
+            let synthetic = Synthetic::new(seed);
+            let problem = synthetic.problem();
+            let long = Settings {
+                max_iterations: 60,
+                stop_criterion: 1e-5,
+                stop_fraction: 2.,
+            };
+            let (_, trace) = solve_traced(&problem, &long, &Options::default(), true).unwrap();
+            assert_eq!(trace.iterations.len(), 60);
+            for text in [
+                "qp_weights=transposed",
+                "stop=product:1e-2",
+                "stop=product:1e-3",
+                "stop=product:1e-5",
+                "stop=loss:1e-3",
+                "stop=loss:1e-6",
+                "anderson=2",
+                "anderson=3,qp_weights=transposed",
+                "stop=product:1e-3,freeze=1",
+                "stop=loss:1e-4,freeze=1,anderson=2",
+            ] {
+                let options = Options::parse(text).unwrap();
+                for fraction in [0.5, 0.9, 1.0] {
+                    let settings = Settings {
+                        max_iterations: 60,
+                        stop_criterion: 1e-5,
+                        stop_fraction: fraction,
+                    };
+                    let expected =
+                        in_pool(1, || solve_with(&problem, &settings, &options)).unwrap();
+                    for threads in [3, 8] {
+                        let got =
+                            in_pool(threads, || solve_with(&problem, &settings, &options)).unwrap();
+                        assert_eq!(bits(&got), bits(&expected), "{text} {threads}");
+                    }
+                    let plain_dynamics =
+                        options.anderson == 0 && !options.freeze && !options.transposed_qp_weights;
+                    if plain_dynamics && let StopTest::Product(_) = options.stop {
+                        // The stop the trace of the archived long run predicts.
+                        let k = replay(&trace, options.stop, fraction).map_or(60, |k| k + 1);
+                        assert_eq!(expected.iterations, k, "{text} {fraction}");
+                        // And the gains are that prefix of the long run.
+                        let prefix = Settings {
+                            max_iterations: k,
+                            ..long
+                        };
+                        let plain = solve_with(&problem, &prefix, &Options::default()).unwrap();
+                        assert_eq!(bits(&plain).0, bits(&expected).0, "{text} {fraction}");
+                    }
+                    if plain_dynamics && expected.iterations < 60 {
+                        stops.insert(expected.iterations);
+                    }
+                }
+            }
+        }
+        // Interval criteria stop inside the first and the second epoch.
+        assert!(stops.iter().any(|&k| k > 2 && k < EPOCH), "{stops:?}");
+        assert!(
+            stops.iter().any(|&k| k > EPOCH && k < 2 * EPOCH),
+            "{stops:?}"
+        );
+    }
+
+    #[test]
+    fn anderson_reaches_the_plain_fixed_point_on_noiseless_data() {
+        let truth: Vec<Jones> = (0..4)
+            .map(|a| {
+                let x = 0.05 * (a as f64 + 1.);
+                [
+                    C64::new(1. + x, 0.1 * x),
+                    C64::new(0.02, -0.01),
+                    C64::new(-0.01, 0.03),
+                    C64::new(0.95 - x, -0.2 * x),
+                ]
+            })
+            .collect();
+        let nchan = 8;
+        let (data, model, a1, a2) = simulate(&truth, nchan);
+        let nrow = a1.len();
+        let problem = Problem {
+            nrow,
+            nchan,
+            ntime_bins: 1,
+            nfreq_bins: 1,
+            nant: 4,
+            data: &data,
+            weights: &vec![1.; nrow * nchan * 4],
+            model: Model::Stored(&model),
+            flag: &vec![0; nrow * nchan * 4],
+            flag_row: &vec![0; nrow],
+            antenna1: &a1,
+            antenna2: &a2,
+            time_bin: &vec![0; nrow],
+            freq_bin: &vec![0; nchan],
+        };
+        let settings = Settings {
+            max_iterations: 200,
+            ..Settings::default()
+        };
+        let plain = solve_with(&problem, &settings, &Options::default()).unwrap();
+        for m in [2, 3, 5] {
+            let options = Options {
+                anderson: m,
+                ..Options::default()
+            };
+            let (solution, trace) = solve_traced(&problem, &settings, &options, true).unwrap();
+            assert!(solution.flags.iter().all(|&f| f == 0));
+            assert!(trace.anderson_mixes > 0, "m {m}");
+            assert!(
+                solution.iterations <= plain.iterations,
+                "m {m}: {} > {}",
+                solution.iterations,
+                plain.iterations
+            );
+            for (&p, &q) in a1.iter().zip(&a2) {
+                let (p, q) = (p as usize, q as usize);
+                let solved = jones::mul(&solution.gains[p], &jones::adjoint(&solution.gains[q]));
+                let expected = jones::mul(&truth[p], &jones::adjoint(&truth[q]));
+                for k in 0..4 {
+                    assert!((solved[k] - expected[k]).norm2().sqrt() < 1e-5, "m {m}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn trace_json_has_one_record_per_iteration() {
+        let synthetic = Synthetic::new(2);
+        let problem = synthetic.problem();
+        let settings = Settings {
+            max_iterations: 5,
+            ..Settings::default()
+        };
+        let options = Options::default();
+        let (_, trace) = solve_traced(&problem, &settings, &options, true).unwrap();
+        let json = trace.to_json(&options, &settings);
+        assert!(json.starts_with("{\"options\":"));
+        assert_eq!(json.matches("\"k\":").count(), 5);
+        assert_eq!(trace.iterations[0].chi2.len(), trace.nintervals);
+        // The fully flagged interval is never a unit and has no χ².
+        let empty = 2 * synthetic.nfreq_bins + 1;
+        assert!(
+            trace
+                .iterations
+                .iter()
+                .all(|it| !it.unit[empty] && it.chi2[empty] == 0.)
+        );
     }
 }

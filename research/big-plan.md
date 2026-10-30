@@ -261,7 +261,9 @@ CPU-heavy tasks at a time on 8 physical cores.
   self-calibration as the baselines to beat at matched cost. L4 cites the
   solution-interval and regularisation literature in "what would change the
   answer".
-- L5 solver science: the issue 452 weight-swap fix behind a compatibility
+- L5 solver science (done 2026-10-30, `l5-solver-science.md`: no default
+  change as frozen; `RANG_SOLVE_OPTIONS` opt-in with the weight fix and
+  Anderson m = 3): the issue 452 weight-swap fix behind a compatibility
   flag and the convergence criterion study, one protocol (user decision
   above); after P1 (done) and L1 (done), independent of L2/L3.
 - B1 beam and pointing on real data: protocol for the original research

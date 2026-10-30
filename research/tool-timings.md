@@ -521,3 +521,22 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P5: bench `campaign` all stations (`array-after`), 4 threads, `OPENBLAS_NUM_THREADS=1`, load 36–70 | – | **37 min 28 s** | **10,406 MiB (bench composed)**; `time -v` 9,070,168 kB is invalid under the HWM reset |  |
 | 2026-10-30 | big plan P5: `compare` after vs before; scratch archive comparisons (before and after vs L1) | – | seconds | – |  |
 | 2026-10-30 | big plan P5: `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` (4 threads, `OPENBLAS_NUM_THREADS=1`; lock wait 0 s) | – | 3 min 24 s (pytest 586 passed, 1 skipped in 2 min 17 s) | 1.50 GB |  |
+| 2026-10-30 | big plan L5: `cargo build --release` (core) | – | 54.5 s | – |  |
+| 2026-10-30 | big plan L5: `validate_core_phase2.py` | – | 12.4 s | – |  |
+| 2026-10-30 | big plan L5: `precondition_luno_campaign.py` (K) | – | 7.4 s | – |  |
+| 2026-10-30 | big plan L5: `bench_core_f.py check --target solve` vs `core-f-20261029-01` | – | 5.2 s | – |  |
+| 2026-10-30 | big plan L5: venv + `maturin develop` (setup) | – | 83 s | – |  |
+| 2026-10-30 | big plan L5: precondition `-01` (build, validator, K precondition, bench) | – | 54.5 + 12.4 + 7.4 + 5.2 s | 151 MB |  |
+| 2026-10-30 | big plan L5: compatibility `-02` (build 94 s, maturin 148 s, bench ×4, validator, K precondition) | – | ≈ 5 min | 151 MB |  |
+| 2026-10-30 | big plan L5: `cargo test --release --lib solve::` | – | 2 min 45 s build, 9.3 s tests | – |  |
+| 2026-10-30 | big plan L5: `pytest tests/test_l5_solver.py` | – | 3.5 s | – |  |
+| 2026-10-30 | big plan L5: fixture sweeps `-03`, `-06`, `-08` | – | 57–59 s each | 205–211 MB |  |
+| 2026-10-30 | big plan L5: slice sweeps `-04`, `-07`, `-09` | – | 63–84 s each | 231 MB |  |
+| 2026-10-30 | big plan L5: diagnostic `-05` (slice, R to 5,000 iterations) | – | 4 min 46 s | 93 MB |  |
+| 2026-10-30 | big plan L5: confirms `-10`…`-14` | – | 7–35 s each | 118–506 MB |  |
+| 2026-10-30 | big plan L5: 32-station sweep `-15` | – | 52 min 50 s | 3.5 GB |  |
+| 2026-10-30 | big plan L5: 32-station confirms `-16` (images), `-17` | – | 1 min 59 s, 43 s | 5.8 GB |  |
+| 2026-10-30 | big plan L5: whole-array lean sweep `-18` | – | 25 min 41 s | 10.1 GB |  |
+| 2026-10-30 | big plan L5: whole-array confirm `-19` (3 A/B pairs, images of D and C, 59 s and 55 s) | – | 4 min 38 s | 12.2 GB |  |
+| 2026-10-30 | big plan L5: `flock ~/.rang-checkall.lock bash tools/check-all.sh` (`-20.check-all.log`), head 4f9f70e | – | 5 min 16 s (lock wait 0 s) | – |  |
+| 2026-10-30 | big plan L5: `validate_core_phase2.py` `-21` on the check-all extension (Rust 1.93 build) | – | 2.1 s | – |  |

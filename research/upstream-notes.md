@@ -271,3 +271,20 @@ Every RATT observation above was checked against its latest release
   no Windows wheels, so the casacore paths stay Linux and container only;
   whole-object GETs from the af-south-1 bucket ran at 6.4 MB/s on one
   connection.
+
+## L5 numbers for QuartiCal#455 (2026-10-30; to be posted as a comment after the user's say)
+
+From the validated port of 0.2.7's `complex` term (not a fresh QuartiCal run,
+except the 50-iteration figure on the LUNO slice, which is QuartiCal's own
+archived 0.9833): on MeerKAT L-band 1934−638 (LUNO row chunk 0, 2 × 32
+solution intervals, stop_crit 1e-7, fraction 0.99) the fraction of gains
+passing at 50 iterations is 0.983 on four stations (0.99 reached at 91), 0.603
+on 32 stations and 0.833 on 56 stations, and 0.86 / 0.98 after 300 iterations
+on 32 / 56 stations. The held-out weighted MSE is within 1e-4 of a 300–500
+iteration solve by iteration 12–16 and within 1e-5 by 24 on all three. The
+gains that never pass sit in a few poorly constrained intervals. A
+gauge-invariant product criterion at 1e-3 stops at 7–35 iterations within the
+margin on the LUNO sets but costs 5.8e-5 on the fixture; a loss criterion at
+1e-5 needs 83–184 iterations. Safeguarded Anderson acceleration (m = 3) of
+the two-step map reaches 0.99 at 65 iterations on the array where plain needs
+more than 300.
