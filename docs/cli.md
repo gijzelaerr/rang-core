@@ -56,6 +56,8 @@ stages and verbs:
                   w-stacking gridder, task C (research/core-c-gridder.md)
   ms              compare
                   Measurement Set reader, task E (research/core-e-ms-reader.md)
+  meerkat         fetch | compare
+                  MeerKAT MVFv4 archives through katdal, task MK1 (research/mk1-katdal.md)
   section6        run | compare | archive
                   zarr-to-survey chain (research/core-section6.md)
   backends        compare
@@ -395,6 +397,18 @@ usage: rang-core ms VERB ARGS...
 Measurement Set reader, task E (research/core-e-ms-reader.md)
 
   compare         examples/check_ms_reader.py, unchanged (the E checker)
+```
+
+## `meerkat`
+
+```text
+$ rang-core meerkat -h
+usage: rang-core meerkat VERB ARGS...
+
+MeerKAT MVFv4 archives through katdal, task MK1 (research/mk1-katdal.md)
+
+  fetch           examples/fetch_meerkat_mvf.py, unchanged
+  compare         examples/check_meerkat_loader.py, unchanged (the MK1 checker)
 ```
 
 ## `section6`

@@ -158,6 +158,10 @@ items below are open. Results are provisional; see the
   WEIGHT_SPECTRUM and SIGMA_SPECTRUM before any calibration, for the
   calibrator scans. At 15:52 Ben asked which band (UHF, L or S), and at 15:57
   the user asked for L-band. Nothing has been received yet.
+  MK1 (2026-10-30, `mk1-katdal.md`) can read an MVF copy of the observer's
+  dataset directly; ask for MVF (an archive RDB link) rather than an mvftoms
+  MS, which reduces the flag bitfield to a boolean and derives SIGMA_SPECTRUM
+  from the weights.
 - **Noise columns do not match the DATA scatter (measured 2026-10-29).**
   `examples/check_luno_noise.py` divides adjacent-channel differences of DATA
   by the noise each hypothesis predicts. It uses MAIN_1 row chunk 0, tiles 17

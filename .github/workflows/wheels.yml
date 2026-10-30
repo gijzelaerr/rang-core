@@ -63,7 +63,7 @@ jobs:
           # carries target-cpu, which cannot be right for both halves of a
           # fat binary, and each wheel is then tested on its own hardware.
           - platform: macos-arm64
-            runner: macos-14
+            runner: macos-15
             target: aarch64-apple-darwin
             manylinux: "off"
             cpu: apple-m1
@@ -133,7 +133,7 @@ jobs:
           - platform: linux-aarch64
             runner: ubuntu-24.04-arm
           - platform: macos-arm64
-            runner: macos-14
+            runner: macos-15
           - platform: macos-x86_64
             runner: macos-15-intel
           - platform: windows-x86_64

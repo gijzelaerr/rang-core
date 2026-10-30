@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: MK1, the [MVFv4 loader](mk1-katdal.md): a `[meerkat]`
+extra (katdal 0.23) and `rang.meerkat`, MVF archives into core row chunks
+with native flag bits; exact against raw chunks, katdal and mvftoms on a
+synthetic archive (no public MVF exists); L3 is ready when data arrive.
+
 New, 2026-10-30: B1-2, [identifiability](b1-2-identifiability.md):
 per-antenna pointing and squint are constrainable on ESO137 (0.07′ and
 0.01′ in 3.5 min) and marginally on 1934; array-common pointing and

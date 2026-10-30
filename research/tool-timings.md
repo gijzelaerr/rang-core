@@ -1066,3 +1066,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan B1-2: `b1_identifiability.py archive` | 14 runs | 0.37 s | 91 MB |  |
 | 2026-10-30 | big plan B1-2: pytest `tests/test_b1_identifiability.py` | 13 tests | 2.5 s | – |  |
 | 2026-10-30 | big plan B1-2: `bash tools/check-all.sh` | worktree | 737 s | 1.91 GB | **overall: PASS**; pytest 630 passed, 5 skipped in 153.9 s; wall includes waiting for the host lock behind two other tasks; log `outputs/b1-2-20261030-check-all.log` |
+| 2026-10-30 | big plan MK1: `uv venv -p 3.14` + editable install (extension build) | worktree | 78.6 s | – | `[pointing,beam,test,imaging]`, ruff, maturin, pip |
+| 2026-10-30 | big plan MK1: `uv pip install katdal[ms]==0.23 katsdptelstate[rdb]==1.0.0` | Python 3.12 / 3.13 / 3.14, Linux | 7.9 / 2.4 / 12.6 s | – | 3.14 builds cityhash and python-lzf from sdist |
+| 2026-10-30 | big plan MK1: `uv pip install katdal==0.23 katsdptelstate[rdb]==1.0.0` | Python 3.13 / 3.14.7, native Windows | 11.7 / 14.6 s | – | MSVC builds python-lzf (and cityhash on 3.14) |
+| 2026-10-30 | big plan MK1: `mvftoms.py -f --quack 0` | MK1 fixture, 7 antennas, 19 dumps × 64 ch | 2.75 s (2.9 s in the check) | 316 MB | setuptools<81 for `pkg_resources` |
+| 2026-10-30 | big plan MK1: `examples/check_meerkat_loader.py --large` | fixture + 1.36 GB L-band-scale set | 21.4 s | 5.6 GB (writer), 2.0 GB loader child | run `outputs/mk1-20261030-03` |
+| 2026-10-30 | big plan MK1: `rang.meerkat` loader, one dump chunk | 64 antennas, 4,096 ch, 2,016 rows | 0.75 s (dask read 0.19 s) | 2.0 GB VmHWM | DASK_NUM_WORKERS=4 |
+| 2026-10-30 | big plan MK1: `examples/fetch_meerkat_mvf.py --native-flags` | fixture, 3 antennas | 0.78 s | 262 MB | 5 chunks, 57 rows |
+| 2026-10-30 | big plan MK1: pytest `tests/test_mk1_meerkat.py` | 8 tests | 4.1 s | 307 MB |  |
+| 2026-10-30 | big plan MK1: `bash tools/check-all.sh` | worktree | 124 s | – | `overall: PASS`, 669 passed, 9 skipped; log `outputs/mk1-20261030-check-all.log` |

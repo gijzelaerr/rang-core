@@ -161,3 +161,14 @@ to an unrelated package (carta-python is not on PyPI).
   needs its own polynomial; no portable query of free device memory, so a
   budget must be configured by hand on a shared GPU; on WDDM a modest
   oversubscription is paged silently and slows compute about 4×.
+
+## From MK1 (2026-10-30; SARAO `ska-sa`, not RATT; not reported by decision)
+
+| Software | Observation | Evidence | What a report would say | Status |
+| --- | --- | --- | --- | --- |
+| katdal 0.23 (`ska-sa`) | `katdal/ms_extra.py` line 30 imports `pkg_resources.parse_version`; with the setuptools 84.2.1 that katsdptelstate[rdb] pulls in on Python ≥ 3.12, `mvftoms.py` fails at import (`ModuleNotFoundError: pkg_resources`) | [mk1-katdal.md](mk1-katdal.md), deviation 3 | Use `packaging.version.parse` (packaging is already a katdal dependency) | not reported by decision |
+| katsdptelstate 1.0.0 (`ska-sa`) | The `[rdb]` extra needs python-lzf 0.2.6 (C extension) and rdbtools 0.1.15, both sdist-only on PyPI, so every install of katdal needs a C compiler | `uv pip compile --python-platform` over Windows, Linux, macOS × 3.12–3.14 ([mk1-katdal.md](mk1-katdal.md)) | Wheels for python-lzf (not SARAO's), or an optional pure-Python LZF path | not reported by decision |
+| katdal 0.23 (`ska-sa`) | Last PyPI release 2024-06-28 while the repository is active (push 2026-10-22); works unchanged on Python 3.14 and NumPy 2.5 for the paths MK1 uses | [mk1-katdal.md](mk1-katdal.md) | A new release would carry the fixes on main | nothing to report |
+| katdal 0.23 (`ska-sa`) | After a chunk 404, `S3ChunkStore` lists the bucket and needs `<Contents>` in the answer, so a non-S3 static HTTP mirror of an archive turns one missing chunk into "store unavailable" | [mk1-katdal.md](mk1-katdal.md), deviation 4 | Documented behaviour for S3; a note for anyone mirroring MVF over plain HTTP | nothing to report |
+
+(cityhash 0.4.10, not SARAO's, has no cp314 wheels; katdal needs it.)

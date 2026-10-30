@@ -265,7 +265,7 @@ CPU-heavy tasks at a time on 8 physical cores.
   slice, tables and CORRECTED_DATA archived; the DF0 base), FS1 (flux
   standards SR2016, PB2010, PB2017 in the core, `setjy` oracle), DF-IO-CT
   (CASA caltables), DF-IO-H5 (H5parm subset), DF-IO-SKY (Tigger lsm, WSClean
-  and BBS text, DicoModel read-only), MK1 (`[meerkat]` extra with katdal for
+  and BBS text, DicoModel read-only), MK1 (done 2026-10-30, `mk1-katdal.md`: `[meerkat]` extra and `rang.meerkat`; exact on a synthetic MVFv4 archive against raw chunks, katdal and mvftoms; the LUNO cross-check waits for a matching MVF) (`[meerkat]` extra with katdal for
   L3), A-FLAG (AOFlagger as second SumThreshold oracle), L5-C (CASA `gaincal`
   as second comparator), DF5-O (WSClean multiscale and pfb-imaging as
   deconvolution oracles), NB-CARTA (optional notebook helper). The matched

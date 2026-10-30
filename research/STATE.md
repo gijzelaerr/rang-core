@@ -1,5 +1,31 @@
 # Rang research state
 
+MK1 MVFv4 loader (big plan), 2026-10-30 (implemented; measured;
+[mk1-katdal.md](mk1-katdal.md)). Protocol frozen first. An optional
+`[meerkat]` extra (`katdal==0.23`, `katsdptelstate[rdb]==1.0.0`; installs
+on Python 3.12–3.14 on Linux and 3.13–3.14 on native Windows; python-lzf and rdbtools
+are sdist-only, so a C compiler is needed everywhere, and cityhash has no
+cp314 wheel) and `rang.meerkat`, which opens an MVFv4 archive (RDB URL with
+token, or a local `.rdb` and `.npy` chunk store) through katdal and yields
+row chunks in the core's layout (ANTENNA1/2, TIME, FLAG_ROW, UVW, DATA,
+FLAG, WEIGHT_SPECTRUM, plus the uint8 FLAG_BITS) with mvftoms' column
+conventions (rows time-major, baselines in its own lexicographic order);
+`examples/fetch_meerkat_mvf.py` writes them to `.npy` without an MS. No
+public MVF archive exists (SARAO's are token-gated), so the acceptance ran
+on a synthetic archive written by katdal's own writers: shuffled baseline
+order, partial chunks, a lost chunk, a zero autocorrelation and an L1 flag
+stream. Against arrays rebuilt from the raw chunks, katdal's own arrays
+(local and over HTTP) and `mvftoms.py`'s MS read by the core, DATA, FLAG,
+FLAG_BITS, WEIGHT_SPECTRUM, TIME and ANTENNA1/2 are bitwise equal; UVW is
+within 1.8e-12 m of katdal and bitwise equal to mvftoms. Weights are
+`weights × weights_channel` divided (not multiplied) by both
+autocorrelation powers. katdal by default replaces the L0 ingest flags
+with katsdpcal's `sdp_l1_flags`; L3 must open with `upgrade_flags=False`
+to see native observatory flags (bits static, cam, data_lost, ingest_rfi,
+predicted_rfi). katdal's dask read is 0.19 s of 0.75 s per 64-antenna,
+4,096-channel dump, so the chunk reader is not ported. Next: L3 when the
+observer's data arrive, preferably as MVF; then the LUNO cross-check (c).
+
 B1-2 identifiability survey (big plan wave 3), 2026-10-30 (implemented;
 measured; [b1-2-identifiability.md](b1-2-identifiability.md)). Protocol
 frozen first. Which beam and pointing directions can the data

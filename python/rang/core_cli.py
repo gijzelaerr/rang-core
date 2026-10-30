@@ -893,6 +893,11 @@ STAGES = {
         "help": "Measurement Set reader, task E (research/core-e-ms-reader.md)",
         "compare": _script("check_ms_reader.py", note="the E checker"),
     },
+    "meerkat": {
+        "help": "MeerKAT MVFv4 archives through katdal, task MK1 (research/mk1-katdal.md)",
+        "fetch": _script("fetch_meerkat_mvf.py", _first),
+        "compare": _script("check_meerkat_loader.py", _first, "the MK1 checker"),
+    },
     "section6": {
         "help": "zarr-to-survey chain (research/core-section6.md)",
         "run": _script("prototype_section6.py"),

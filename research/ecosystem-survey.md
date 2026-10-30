@@ -752,7 +752,7 @@ Not recommended:
 | AOFlagger strategies | AOFlagger 3.x | Lua `.lua` (v2 used XML `.rfis`) | read only to run the oracle | rang's strategies stay Tricolour YAML |
 | Tricolour/CARACal strategies | Tricolour 0.2.1, CARACal 1.2.1 | YAML | read (task D) | – |
 | AOFlagger flags and statistics | AOFlagger | MS `FLAG` column, `QUALITY_*` subtables (aoquality) | FLAG via MS; QUALITY tables ignore | – |
-| katdal MVFv4 | katdal 0.23 docs | `.rdb` (Redis dump, telstate keys) + S3 chunk store `<type>/<AAAAA>_<BBBBB>_<CCCCC>.npy` (`correlator_data`, `flags` bitfield, `weights`, `weights_channel`) | read | weights = `weights × weights_channel` (× autocorr power if `need_weights_power_scale`); timestamps synthesised from `sync_time` |
+| katdal MVFv4 | katdal 0.23 docs | `.rdb` (Redis dump, telstate keys) + S3 chunk store `<type>/<AAAAA>_<BBBBB>_<CCCCC>.npy` (`correlator_data`, `flags` bitfield, `weights`, `weights_channel`) | read | weights = `weights × weights_channel` (÷ (auto_i × auto_j) power if `need_weights_power_scale` (corrected by MK1, 2026-10-30; katdal `weight_power_scale` divides)); timestamps synthesised from `sync_time` |
 | Stimela/cult-cargo recipes | Stimela 2.1.4 | YAML | read (history only) | frozen recipes |
 
 ### 5.4 Oracles for the DF tasks and B1
