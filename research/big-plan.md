@@ -23,7 +23,9 @@ answer except the two items under "User items".
 - **Upstream reporting.** Report bugs and improvements to RATT software
   (QuartiCal, Tricolour, dask-ms, codex-africanus, Stimela, CARACal,
   Crystalball, pfb-imaging and other `ratt-ru` repositories) as GitHub
-  issues, after reproducing each on the latest release. Anything outside RATT
+  issues, after reproducing each on the latest release. Added 2026-10-30
+  (user, in chat): CARACal and Stimela (`caracal-pipeline` repositories) may
+  be reported too. Anything outside those
   (WSClean, casacore, Numba, Zarr/numcodecs, blosc, OpenBLAS) is listed in
   [non-ratt-observations.md](non-ratt-observations.md) and not reported.
 - **Distributable wheel.** Build the binary wheel of `rangtoy` with the core
