@@ -1,0 +1,2671 @@
+{
+ "summary": {
+  "python_modules": 51,
+  "python_lines": 22366,
+  "python_core_lines": 6430,
+  "python_flagging_lines": 13481,
+  "core_closure": [
+   "core",
+   "core_actions",
+   "core_campaign",
+   "core_cli",
+   "core_compare",
+   "core_fetch",
+   "core_flag",
+   "core_grid",
+   "core_imaging",
+   "core_injections",
+   "core_ms",
+   "core_prospective",
+   "core_signal",
+   "core_weights",
+   "core_workflow",
+   "core_zarr",
+   "flagging",
+   "flagging_actions",
+   "flagging_balanced",
+   "flagging_caracal",
+   "flagging_comparators",
+   "flagging_equivariance",
+   "flagging_imaging",
+   "flagging_influence",
+   "flagging_injections",
+   "flagging_next",
+   "flagging_prepared",
+   "flagging_prospective",
+   "flagging_response",
+   "flagging_signal",
+   "flagging_signal_guard",
+   "flagging_structured",
+   "flagging_structured_proposals",
+   "flagging_trend",
+   "flagging_workflow",
+   "imaging_sensitivity",
+   "projector"
+  ],
+  "rust_files": 24,
+  "rust_lines": 11494,
+  "examples": 68,
+  "example_lines": 11175,
+  "tests": 52,
+  "test_lines": 10969,
+  "recipes": 30,
+  "recipes_quartical": [
+   "tv-flagging-comparators.yaml",
+   "tv-flagging-structured.yaml"
+  ],
+  "dockerfiles": [
+   "tools/flagging/Dockerfile",
+   "tools/flagging/comparators/Dockerfile",
+   "tools/flagging/imaging/Dockerfile",
+   "tools/flagging/next/Dockerfile",
+   "tools/flagging/next-imaging/Dockerfile",
+   "tools/flagging/parallel/Dockerfile",
+   "tools/flagging/response/Dockerfile",
+   "tools/flagging/sky/Dockerfile",
+   "tools/ms-reader/Dockerfile"
+  ],
+  "research_md": 93,
+  "research_md_lines": 15949,
+  "results_json": 78
+ },
+ "python": {
+  "__init__": {
+   "lines": 93,
+   "imports": [],
+   "used_by": {
+    "python": [],
+    "examples": [],
+    "tests": [],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "beams": {
+   "lines": 278,
+   "imports": [
+    "pointing"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [
+     "beam_model_selection.py",
+     "blocked_benchmark.py",
+     "katbeam_observability.py",
+     "relative_pointing.py"
+    ],
+    "tests": [
+     "test_beams.py",
+     "test_blocked.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "blocked": {
+   "lines": 274,
+   "imports": [
+    "observability",
+    "pointing",
+    "projector"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [
+     "blocked_benchmark.py"
+    ],
+    "tests": [
+     "test_blocked.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "core": {
+   "lines": 690,
+   "imports": [],
+   "used_by": {
+    "python": [
+     "core_campaign",
+     "core_cli",
+     "core_fetch",
+     "core_flag",
+     "core_grid",
+     "core_imaging",
+     "core_ms",
+     "core_signal",
+     "core_weights",
+     "core_workflow",
+     "core_zarr"
+    ],
+    "examples": [
+     "bench_core_f.py",
+     "check_core_fetch.py",
+     "check_section6.py",
+     "prototype_section6.py",
+     "run_core_flags.py",
+     "run_core_gridder.py",
+     "validate_core_phase1.py",
+     "validate_core_phase2.py",
+     "validate_core_phase3c_a.py"
+    ],
+    "tests": [
+     "test_core.py",
+     "test_core_backends.py",
+     "test_core_zarr.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_actions": {
+   "lines": 186,
+   "imports": [
+    "core_workflow",
+    "flagging",
+    "flagging_actions",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli"
+    ],
+    "examples": [
+     "run_core_campaign.py"
+    ],
+    "tests": [],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_campaign": {
+   "lines": 1325,
+   "imports": [
+    "core",
+    "core_fetch",
+    "core_flag",
+    "core_grid",
+    "core_weights",
+    "core_workflow",
+    "core_zarr",
+    "flagging"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli"
+    ],
+    "examples": [
+     "check_luno_campaign.py",
+     "precondition_luno_campaign.py",
+     "run_luno_campaign.py"
+    ],
+    "tests": [
+     "test_core_campaign.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_cli": {
+   "lines": 469,
+   "imports": [
+    "core",
+    "core_actions",
+    "core_campaign",
+    "core_imaging",
+    "core_injections",
+    "core_prospective",
+    "core_signal",
+    "core_workflow",
+    "flagging_equivariance",
+    "flagging_injections",
+    "flagging_trend",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [
+     "run_luno_campaign.py"
+    ],
+    "tests": [
+     "test_core_cli.py"
+    ],
+    "recipes": [
+     "core-actions.yaml",
+     "core-cabs.yaml",
+     "core-injections.yaml",
+     "core-prospective.yaml",
+     "core-signal.yaml",
+     "core-trend.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_compare": {
+   "lines": 100,
+   "imports": [],
+   "used_by": {
+    "python": [
+     "imaging_sensitivity"
+    ],
+    "examples": [
+     "compare_core_actions.py",
+     "compare_core_prospective.py",
+     "compare_core_signal.py",
+     "compare_core_trend.py"
+    ],
+    "tests": [
+     "test_core_compare.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_fetch": {
+   "lines": 424,
+   "imports": [
+    "core",
+    "core_zarr"
+   ],
+   "used_by": {
+    "python": [
+     "core_campaign"
+    ],
+    "examples": [
+     "check_core_fetch.py",
+     "fetch_luno_slice.py"
+    ],
+    "tests": [
+     "test_core_fetch.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_flag": {
+   "lines": 400,
+   "imports": [
+    "core"
+   ],
+   "used_by": {
+    "python": [
+     "core_campaign"
+    ],
+    "examples": [
+     "run_core_flags.py"
+    ],
+    "tests": [
+     "test_core_backends.py",
+     "test_core_flag.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_grid": {
+   "lines": 298,
+   "imports": [
+    "core"
+   ],
+   "used_by": {
+    "python": [
+     "core_campaign",
+     "core_imaging"
+    ],
+    "examples": [
+     "run_core_gridder.py"
+    ],
+    "tests": [
+     "test_core_backends.py",
+     "test_core_grid.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_imaging": {
+   "lines": 774,
+   "imports": [
+    "core",
+    "core_grid",
+    "core_ms",
+    "core_weights",
+    "flagging_imaging",
+    "imaging_sensitivity"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli"
+    ],
+    "examples": [
+     "archive_core_imaging.py",
+     "compare_core_imaging.py",
+     "run_core_imaging.py"
+    ],
+    "tests": [
+     "test_core_cli.py",
+     "test_core_imaging.py"
+    ],
+    "recipes": [
+     "core-imaging.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_injections": {
+   "lines": 297,
+   "imports": [
+    "core_workflow",
+    "flagging",
+    "flagging_injections",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli"
+    ],
+    "examples": [
+     "run_core_campaign.py",
+     "run_core_injections.py"
+    ],
+    "tests": [],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_ms": {
+   "lines": 202,
+   "imports": [
+    "core"
+   ],
+   "used_by": {
+    "python": [
+     "core_imaging"
+    ],
+    "examples": [
+     "check_ms_reader.py"
+    ],
+    "tests": [
+     "test_core_backends.py",
+     "test_core_ms.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_prospective": {
+   "lines": 252,
+   "imports": [
+    "core_workflow",
+    "flagging",
+    "flagging_caracal",
+    "flagging_prospective",
+    "flagging_structured",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli"
+    ],
+    "examples": [
+     "run_core_campaign.py"
+    ],
+    "tests": [],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_signal": {
+   "lines": 377,
+   "imports": [
+    "core",
+    "core_workflow",
+    "flagging",
+    "flagging_prospective",
+    "flagging_response",
+    "flagging_signal",
+    "flagging_signal_guard",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli"
+    ],
+    "examples": [
+     "run_core_campaign.py"
+    ],
+    "tests": [],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_weights": {
+   "lines": 308,
+   "imports": [
+    "core"
+   ],
+   "used_by": {
+    "python": [
+     "core_campaign",
+     "core_imaging"
+    ],
+    "examples": [
+     "compare_core_weights.py"
+    ],
+    "tests": [
+     "test_core_backends.py",
+     "test_core_imaging.py",
+     "test_core_weights.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_workflow": {
+   "lines": 156,
+   "imports": [
+    "core",
+    "flagging"
+   ],
+   "used_by": {
+    "python": [
+     "core_actions",
+     "core_campaign",
+     "core_cli",
+     "core_injections",
+     "core_prospective",
+     "core_signal"
+    ],
+    "examples": [
+     "build_core_trend_mirror.py",
+     "check_section6.py"
+    ],
+    "tests": [
+     "test_core_workflow.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "core_zarr": {
+   "lines": 172,
+   "imports": [
+    "core"
+   ],
+   "used_by": {
+    "python": [
+     "core_campaign",
+     "core_fetch"
+    ],
+    "examples": [
+     "bench_core_f.py",
+     "check_core_fetch.py",
+     "prototype_section6.py"
+    ],
+    "tests": [
+     "test_core_backends.py",
+     "test_core_fetch.py",
+     "test_core_zarr.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging": {
+   "lines": 267,
+   "imports": [
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "core_actions",
+     "core_campaign",
+     "core_injections",
+     "core_prospective",
+     "core_signal",
+     "core_workflow",
+     "flagging_actions",
+     "flagging_balanced",
+     "flagging_caracal",
+     "flagging_comparators",
+     "flagging_equivariance",
+     "flagging_imaging",
+     "flagging_influence",
+     "flagging_injections",
+     "flagging_prepared",
+     "flagging_prospective",
+     "flagging_response",
+     "flagging_signal",
+     "flagging_signal_guard",
+     "flagging_sky",
+     "flagging_structured",
+     "flagging_trend",
+     "flagging_uncertainty",
+     "flagging_workflow"
+    ],
+    "examples": [
+     "check_section6.py",
+     "diagnose_native_support.py",
+     "prototype_section6.py",
+     "validate_core_phase1.py",
+     "validate_core_phase2.py"
+    ],
+    "tests": [
+     "test_core.py",
+     "test_core_workflow.py",
+     "test_flagging.py",
+     "test_flagging_comparators.py",
+     "test_flagging_trend.py",
+     "test_flagging_trend_review.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_actions": {
+   "lines": 464,
+   "imports": [
+    "flagging",
+    "flagging_prepared",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_actions"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_actions.py"
+    ],
+    "recipes": [
+     "tv-flagging-actions.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_balanced": {
+   "lines": 365,
+   "imports": [
+    "flagging",
+    "flagging_caracal",
+    "flagging_injections",
+    "flagging_prepared",
+    "flagging_structured",
+    "flagging_structured_proposals",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "flagging_concurrent",
+     "flagging_equivariance",
+     "flagging_prospective",
+     "flagging_trend"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_balanced.py"
+    ],
+    "recipes": [
+     "tv-flagging-balanced.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_caracal": {
+   "lines": 386,
+   "imports": [
+    "flagging",
+    "flagging_prepared",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_prospective",
+     "flagging_balanced",
+     "flagging_equivariance",
+     "flagging_prospective",
+     "flagging_signal",
+     "flagging_signal_guard",
+     "flagging_structured"
+    ],
+    "examples": [
+     "run_core_flags.py"
+    ],
+    "tests": [
+     "test_flagging_caracal.py",
+     "test_flagging_equivariance.py"
+    ],
+    "recipes": [
+     "tv-flagging-caracal.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_comparators": {
+   "lines": 580,
+   "imports": [
+    "flagging",
+    "flagging_prepared",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "flagging_signal"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_comparators.py"
+    ],
+    "recipes": [
+     "tv-flagging-comparators.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_concurrent": {
+   "lines": 237,
+   "imports": [
+    "flagging_balanced",
+    "flagging_prepared",
+    "flagging_public",
+    "flagging_signal",
+    "flagging_transfer",
+    "flagging_uncertainty",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [],
+    "tests": [
+     "test_flagging_concurrent.py"
+    ],
+    "recipes": [
+     "tv-flagging-concurrent.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "flagging_equivariance": {
+   "lines": 384,
+   "imports": [
+    "flagging",
+    "flagging_balanced",
+    "flagging_caracal",
+    "flagging_prepared",
+    "flagging_structured",
+    "flagging_structured_proposals",
+    "flagging_workflow",
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli",
+     "flagging_trend"
+    ],
+    "examples": [
+     "build_core_trend_mirror.py"
+    ],
+    "tests": [
+     "test_flagging_equivariance.py"
+    ],
+    "recipes": [
+     "tv-flagging-equivariance.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_imaging": {
+   "lines": 899,
+   "imports": [
+    "flagging",
+    "flagging_prepared",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_imaging",
+     "imaging_sensitivity"
+    ],
+    "examples": [
+     "run_imaging_sensitivity.py"
+    ],
+    "tests": [
+     "test_flagging_imaging.py"
+    ],
+    "recipes": [
+     "tv-flagging-imaging.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_influence": {
+   "lines": 780,
+   "imports": [
+    "flagging",
+    "flagging_prepared",
+    "flagging_workflow",
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "flagging_prospective",
+     "flagging_signal_guard",
+     "flagging_trend"
+    ],
+    "examples": [
+     "audit_luno_support_status.py",
+     "bench_core_f.py",
+     "prototype_section6.py",
+     "survey_luno_solved.py",
+     "survey_luno_support.py",
+     "validate_core_phase1.py",
+     "validate_core_phase2.py"
+    ],
+    "tests": [
+     "test_core.py",
+     "test_flagging_influence.py",
+     "test_flagging_prospective.py"
+    ],
+    "recipes": [
+     "tv-flagging-influence.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_injections": {
+   "lines": 500,
+   "imports": [
+    "flagging",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli",
+     "core_injections",
+     "flagging_balanced",
+     "flagging_prospective",
+     "flagging_signal_guard"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_injections.py"
+    ],
+    "recipes": [
+     "tv-flagging-injections.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_next": {
+   "lines": 151,
+   "imports": [
+    "flagging_prepared",
+    "flagging_prospective",
+    "flagging_workflow",
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "flagging_trend"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_next.py"
+    ],
+    "recipes": [
+     "tv-flagging-next.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_parallel": {
+   "lines": 176,
+   "imports": [
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [],
+    "tests": [
+     "test_flagging_parallel.py"
+    ],
+    "recipes": [
+     "tv-flagging-parallel.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "flagging_prepared": {
+   "lines": 263,
+   "imports": [
+    "flagging",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "flagging_actions",
+     "flagging_balanced",
+     "flagging_caracal",
+     "flagging_comparators",
+     "flagging_concurrent",
+     "flagging_equivariance",
+     "flagging_imaging",
+     "flagging_influence",
+     "flagging_next",
+     "flagging_prospective",
+     "flagging_response",
+     "flagging_signal",
+     "flagging_signal_guard",
+     "flagging_structured",
+     "flagging_transfer",
+     "flagging_trend"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_prepared.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_prospective": {
+   "lines": 647,
+   "imports": [
+    "flagging",
+    "flagging_balanced",
+    "flagging_caracal",
+    "flagging_influence",
+    "flagging_injections",
+    "flagging_prepared",
+    "flagging_response",
+    "flagging_structured",
+    "flagging_structured_proposals",
+    "flagging_trend",
+    "flagging_workflow",
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "core_prospective",
+     "core_signal",
+     "flagging_next",
+     "flagging_signal_guard"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_prospective.py",
+     "test_flagging_signal_guard.py"
+    ],
+    "recipes": [
+     "tv-flagging-prospective.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_provenance": {
+   "lines": 803,
+   "imports": [
+    "flagging_public"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [],
+    "tests": [
+     "test_flagging_provenance.py"
+    ],
+    "recipes": [
+     "tv-flagging-provenance.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "flagging_public": {
+   "lines": 530,
+   "imports": [],
+   "used_by": {
+    "python": [
+     "flagging_concurrent",
+     "flagging_provenance"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_public.py"
+    ],
+    "recipes": [
+     "tv-flagging-public.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "flagging_response": {
+   "lines": 929,
+   "imports": [
+    "flagging",
+    "flagging_prepared",
+    "flagging_signal",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_signal",
+     "flagging_prospective",
+     "flagging_signal_guard",
+     "flagging_trend"
+    ],
+    "examples": [
+     "oracle_wsclean_predict.py",
+     "validate_core_phase3c_a.py"
+    ],
+    "tests": [
+     "test_core.py",
+     "test_flagging_imaging.py",
+     "test_flagging_response.py"
+    ],
+    "recipes": [
+     "tv-flagging-response.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_signal": {
+   "lines": 929,
+   "imports": [
+    "flagging",
+    "flagging_caracal",
+    "flagging_comparators",
+    "flagging_prepared",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_signal",
+     "flagging_concurrent",
+     "flagging_response"
+    ],
+    "examples": [
+     "validate_core_phase3c_a.py"
+    ],
+    "tests": [
+     "test_core.py",
+     "test_flagging_response.py",
+     "test_flagging_signal.py"
+    ],
+    "recipes": [
+     "tv-flagging-signal.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_signal_guard": {
+   "lines": 934,
+   "imports": [
+    "flagging",
+    "flagging_caracal",
+    "flagging_influence",
+    "flagging_injections",
+    "flagging_prepared",
+    "flagging_prospective",
+    "flagging_response",
+    "flagging_workflow",
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "core_signal"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_signal_guard.py"
+    ],
+    "recipes": [
+     "tv-flagging-signal-guard.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_sky": {
+   "lines": 595,
+   "imports": [
+    "flagging",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [
+     "validate_core_phase3c_a.py"
+    ],
+    "tests": [
+     "test_flagging_sky.py"
+    ],
+    "recipes": [
+     "tv-flagging-sky.yaml"
+    ],
+    "tools": [
+     "tools/flagging/sky/verify_prediction.py"
+    ]
+   },
+   "needed_by_core_closure": false
+  },
+  "flagging_structured": {
+   "lines": 267,
+   "imports": [
+    "flagging",
+    "flagging_caracal",
+    "flagging_prepared",
+    "flagging_structured_proposals",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "core_prospective",
+     "flagging_balanced",
+     "flagging_equivariance",
+     "flagging_prospective"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_structured.py"
+    ],
+    "recipes": [
+     "tv-flagging-structured.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_structured_proposals": {
+   "lines": 280,
+   "imports": [],
+   "used_by": {
+    "python": [
+     "flagging_balanced",
+     "flagging_equivariance",
+     "flagging_prospective",
+     "flagging_structured",
+     "flagging_trend"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_structured_proposals.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_transfer": {
+   "lines": 519,
+   "imports": [
+    "flagging_prepared",
+    "flagging_workflow"
+   ],
+   "used_by": {
+    "python": [
+     "flagging_concurrent"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_transfer.py"
+    ],
+    "recipes": [
+     "tv-flagging-transfer.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "flagging_trend": {
+   "lines": 318,
+   "imports": [
+    "flagging",
+    "flagging_balanced",
+    "flagging_equivariance",
+    "flagging_influence",
+    "flagging_next",
+    "flagging_prepared",
+    "flagging_response",
+    "flagging_structured_proposals",
+    "flagging_workflow",
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "core_cli",
+     "flagging_prospective"
+    ],
+    "examples": [],
+    "tests": [
+     "test_core_cli.py",
+     "test_flagging_trend.py",
+     "test_flagging_trend_review.py"
+    ],
+    "recipes": [
+     "core-trend.yaml",
+     "tv-flagging-trend.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "flagging_uncertainty": {
+   "lines": 361,
+   "imports": [
+    "flagging",
+    "flagging_workflow",
+    "projector"
+   ],
+   "used_by": {
+    "python": [
+     "flagging_concurrent"
+    ],
+    "examples": [],
+    "tests": [
+     "test_flagging_uncertainty.py"
+    ],
+    "recipes": [
+     "tv-flagging-uncertainty.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "flagging_workflow": {
+   "lines": 917,
+   "imports": [
+    "flagging"
+   ],
+   "used_by": {
+    "python": [
+     "core_actions",
+     "core_cli",
+     "core_injections",
+     "core_prospective",
+     "core_signal",
+     "flagging_actions",
+     "flagging_balanced",
+     "flagging_caracal",
+     "flagging_comparators",
+     "flagging_concurrent",
+     "flagging_equivariance",
+     "flagging_imaging",
+     "flagging_influence",
+     "flagging_injections",
+     "flagging_next",
+     "flagging_parallel",
+     "flagging_prepared",
+     "flagging_prospective",
+     "flagging_response",
+     "flagging_signal",
+     "flagging_signal_guard",
+     "flagging_sky",
+     "flagging_structured",
+     "flagging_transfer",
+     "flagging_trend",
+     "flagging_uncertainty"
+    ],
+    "examples": [
+     "build_core_trend_mirror.py",
+     "run_imaging_sensitivity.py",
+     "solve_luno.py"
+    ],
+    "tests": [],
+    "recipes": [
+     "tv-flagging.yaml"
+    ],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "gauge": {
+   "lines": 97,
+   "imports": [
+    "pointing"
+   ],
+   "used_by": {
+    "python": [],
+    "examples": [
+     "gaussian_gauge.py"
+    ],
+    "tests": [
+     "test_pointing.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "imaging_sensitivity": {
+   "lines": 362,
+   "imports": [
+    "core_compare",
+    "flagging_imaging"
+   ],
+   "used_by": {
+    "python": [
+     "core_imaging"
+    ],
+    "examples": [
+     "compare_imaging_reproduction.py",
+     "run_imaging_sensitivity.py",
+     "summarize_imaging_sensitivity.py"
+    ],
+    "tests": [
+     "test_imaging_sensitivity.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "observability": {
+   "lines": 455,
+   "imports": [
+    "pointing"
+   ],
+   "used_by": {
+    "python": [
+     "blocked"
+    ],
+    "examples": [
+     "blocked_benchmark.py",
+     "gain_observability.py",
+     "gaussian_gauge.py",
+     "information_budget.py",
+     "katbeam_observability.py",
+     "observability.py",
+     "sky_locked.py"
+    ],
+    "tests": [
+     "test_beams.py",
+     "test_blocked.py",
+     "test_information_budget.py",
+     "test_pointing.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "pointing": {
+   "lines": 721,
+   "imports": [
+    "uncertainty"
+   ],
+   "used_by": {
+    "python": [
+     "beams",
+     "blocked",
+     "gauge",
+     "observability"
+    ],
+    "examples": [
+     "beam_model_selection.py",
+     "blocked_benchmark.py",
+     "gain_observability.py",
+     "gaussian_gauge.py",
+     "information_budget.py",
+     "katbeam_observability.py",
+     "mode_selection.py",
+     "observability.py",
+     "pointing.py",
+     "relative_pointing.py",
+     "sky_locked.py",
+     "sky_uncertainty.py"
+    ],
+    "tests": [
+     "test_beams.py",
+     "test_blocked.py",
+     "test_pointing.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  },
+  "projector": {
+   "lines": 150,
+   "imports": [],
+   "used_by": {
+    "python": [
+     "blocked",
+     "flagging",
+     "flagging_equivariance",
+     "flagging_influence",
+     "flagging_next",
+     "flagging_prospective",
+     "flagging_signal_guard",
+     "flagging_trend",
+     "flagging_uncertainty"
+    ],
+    "examples": [
+     "projector_scaling.py"
+    ],
+    "tests": [
+     "test_projector.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": true
+  },
+  "uncertainty": {
+   "lines": 25,
+   "imports": [],
+   "used_by": {
+    "python": [
+     "pointing"
+    ],
+    "examples": [],
+    "tests": [
+     "test_uncertainty.py"
+    ],
+    "recipes": [],
+    "tools": []
+   },
+   "needed_by_core_closure": false
+  }
+ },
+ "rust": {
+  "core/py/src/lib.rs": {
+   "lines": 681,
+   "extern_c": [],
+   "pyfunctions": 17,
+   "tests": 0
+  },
+  "core/src/blosc.rs": {
+   "lines": 633,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 6
+  },
+  "core/src/ffi.rs": {
+   "lines": 654,
+   "extern_c": [
+    "rang_core_fused",
+    "rang_core_solve_complex",
+    "rang_core_predict_components",
+    "rang_core_blosc_size",
+    "rang_core_blosc_decode",
+    "rang_core_blosc_decode_rows",
+    "rang_core_blosc_header",
+    "rang_core_blosc_decode_block",
+    "rang_core_blosc_decode_span_rows"
+   ],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "core/src/ffi_flag.rs": {
+   "lines": 283,
+   "extern_c": [
+    "rang_core_flag_rows"
+   ],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "core/src/ffi_grid.rs": {
+   "lines": 155,
+   "extern_c": [
+    "rang_core_grid_invert",
+    "rang_core_grid_kernel"
+   ],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "core/src/ffi_ms.rs": {
+   "lines": 204,
+   "extern_c": [
+    "rang_core_ms_last_error",
+    "rang_core_ms_open",
+    "rang_core_ms_close",
+    "rang_core_ms_describe",
+    "rang_core_ms_read",
+    "rang_core_ms_free"
+   ],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "core/src/ffi_weights.rs": {
+   "lines": 227,
+   "extern_c": [
+    "rang_core_weight_grid_shape",
+    "rang_core_padded_size",
+    "rang_core_stokes_i",
+    "rang_core_imaging_weights"
+   ],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "core/src/fused.rs": {
+   "lines": 529,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 5
+  },
+  "core/src/grid.rs": {
+   "lines": 900,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 5
+  },
+  "core/src/jones.rs": {
+   "lines": 82,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "core/src/lib.rs": {
+   "lines": 33,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "core/src/ms.rs": {
+   "lines": 1952,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 7
+  },
+  "core/src/predict.rs": {
+   "lines": 259,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 3
+  },
+  "core/src/robust.rs": {
+   "lines": 51,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 2
+  },
+  "core/src/solve.rs": {
+   "lines": 692,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 4
+  },
+  "core/src/sumthreshold.rs": {
+   "lines": 1347,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 8
+  },
+  "core/src/weights.rs": {
+   "lines": 543,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 7
+  },
+  "src/lib.rs": {
+   "lines": 934,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 8
+  },
+  "src/linalg.rs": {
+   "lines": 108,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 1
+  },
+  "src/main.rs": {
+   "lines": 51,
+   "extern_c": [],
+   "pyfunctions": 0,
+   "tests": 0
+  },
+  "src/projector.rs": {
+   "lines": 228,
+   "extern_c": [
+    "rang_project_out"
+   ],
+   "pyfunctions": 0,
+   "tests": 3
+  },
+  "src/response.rs": {
+   "lines": 606,
+   "extern_c": [
+    "rang_response_jacobian",
+    "rang_response_normals",
+    "rang_response_step"
+   ],
+   "pyfunctions": 0,
+   "tests": 3
+  },
+  "src/trend.rs": {
+   "lines": 201,
+   "extern_c": [
+    "rang_trend_slopes"
+   ],
+   "pyfunctions": 0,
+   "tests": 2
+  },
+  "src/tv.rs": {
+   "lines": 141,
+   "extern_c": [
+    "rang_gain_tv"
+   ],
+   "pyfunctions": 0,
+   "tests": 2
+  }
+ },
+ "recipes": {
+  "core-actions.yaml": {
+   "lines": 54,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "core_cli"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "core-cabs.yaml": {
+   "lines": 20,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "core_cli"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "core-imaging.yaml": {
+   "lines": 61,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "core_imaging"
+   ],
+   "wsclean": true,
+   "tricolour": false
+  },
+  "core-injections.yaml": {
+   "lines": 57,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "core_cli"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "core-prospective.yaml": {
+   "lines": 48,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "core_cli"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "core-signal.yaml": {
+   "lines": 52,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "core_cli"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "core-trend.yaml": {
+   "lines": 59,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "core_cli",
+    "flagging_trend"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-actions.yaml": {
+   "lines": 39,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_actions"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-balanced.yaml": {
+   "lines": 58,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_balanced"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-caracal.yaml": {
+   "lines": 40,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_caracal"
+   ],
+   "wsclean": false,
+   "tricolour": true
+  },
+  "tv-flagging-comparators.yaml": {
+   "lines": 48,
+   "goquartical": true,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_comparators"
+   ],
+   "wsclean": false,
+   "tricolour": true
+  },
+  "tv-flagging-concurrent.yaml": {
+   "lines": 78,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_concurrent"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-equivariance.yaml": {
+   "lines": 27,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_equivariance"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-imaging.yaml": {
+   "lines": 32,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_imaging"
+   ],
+   "wsclean": true,
+   "tricolour": false
+  },
+  "tv-flagging-influence.yaml": {
+   "lines": 28,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_influence"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-injections.yaml": {
+   "lines": 41,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_injections"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-next.yaml": {
+   "lines": 70,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_next"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-parallel.yaml": {
+   "lines": 78,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_parallel"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-prospective.yaml": {
+   "lines": 26,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_prospective"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-provenance.yaml": {
+   "lines": 28,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_provenance"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-public.yaml": {
+   "lines": 29,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_public"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-response.yaml": {
+   "lines": 33,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_response"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-signal-guard.yaml": {
+   "lines": 34,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_signal_guard"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-signal.yaml": {
+   "lines": 42,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_signal"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-sky.yaml": {
+   "lines": 55,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_sky"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-structured.yaml": {
+   "lines": 34,
+   "goquartical": true,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_structured"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-transfer.yaml": {
+   "lines": 23,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_transfer"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-trend.yaml": {
+   "lines": 23,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_trend"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging-uncertainty.yaml": {
+   "lines": 21,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_uncertainty"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  },
+  "tv-flagging.yaml": {
+   "lines": 105,
+   "goquartical": false,
+   "images": [],
+   "rangtoy_modules": [
+    "flagging_workflow"
+   ],
+   "wsclean": false,
+   "tricolour": false
+  }
+ },
+ "examples": {
+  "archive_core_imaging.py": {
+   "lines": 231,
+   "imports": [
+    "core_imaging"
+   ]
+  },
+  "archive_luno_campaign.py": {
+   "lines": 116,
+   "imports": []
+  },
+  "audit_luno_support_status.py": {
+   "lines": 77,
+   "imports": [
+    "flagging_influence"
+   ]
+  },
+  "beam_model_selection.py": {
+   "lines": 181,
+   "imports": [
+    "beams",
+    "pointing"
+   ]
+  },
+  "bench_core_f.py": {
+   "lines": 518,
+   "imports": [
+    "core",
+    "core_zarr",
+    "flagging_influence"
+   ]
+  },
+  "blocked_benchmark.py": {
+   "lines": 120,
+   "imports": [
+    "beams",
+    "blocked",
+    "observability",
+    "pointing"
+   ]
+  },
+  "build_core_trend_mirror.py": {
+   "lines": 84,
+   "imports": [
+    "core_workflow",
+    "flagging_equivariance",
+    "flagging_workflow"
+   ]
+  },
+  "build_luno_ms.py": {
+   "lines": 184,
+   "imports": []
+  },
+  "check_core_fetch.py": {
+   "lines": 196,
+   "imports": [
+    "core",
+    "core_fetch",
+    "core_zarr"
+   ]
+  },
+  "check_luno_campaign.py": {
+   "lines": 34,
+   "imports": [
+    "core_campaign"
+   ]
+  },
+  "check_luno_noise.py": {
+   "lines": 68,
+   "imports": []
+  },
+  "check_luno_sigma.py": {
+   "lines": 59,
+   "imports": []
+  },
+  "check_luno_solve.py": {
+   "lines": 51,
+   "imports": []
+  },
+  "check_ms_reader.py": {
+   "lines": 226,
+   "imports": [
+    "core_ms"
+   ]
+  },
+  "check_section6.py": {
+   "lines": 212,
+   "imports": [
+    "core",
+    "core_workflow",
+    "flagging"
+   ]
+  },
+  "compare_core_actions.py": {
+   "lines": 109,
+   "imports": [
+    "core_compare"
+   ]
+  },
+  "compare_core_backends.py": {
+   "lines": 234,
+   "imports": []
+  },
+  "compare_core_flags.py": {
+   "lines": 229,
+   "imports": []
+  },
+  "compare_core_gridder.py": {
+   "lines": 128,
+   "imports": []
+  },
+  "compare_core_imaging.py": {
+   "lines": 72,
+   "imports": [
+    "core_imaging"
+   ]
+  },
+  "compare_core_injections.py": {
+   "lines": 216,
+   "imports": []
+  },
+  "compare_core_prospective.py": {
+   "lines": 114,
+   "imports": [
+    "core_compare"
+   ]
+  },
+  "compare_core_signal.py": {
+   "lines": 108,
+   "imports": [
+    "core_compare"
+   ]
+  },
+  "compare_core_trend.py": {
+   "lines": 92,
+   "imports": [
+    "core_compare"
+   ]
+  },
+  "compare_core_weights.py": {
+   "lines": 298,
+   "imports": [
+    "core_weights"
+   ]
+  },
+  "compare_imaging_reproduction.py": {
+   "lines": 36,
+   "imports": [
+    "imaging_sensitivity"
+   ]
+  },
+  "decode_luno_probe.py": {
+   "lines": 119,
+   "imports": []
+  },
+  "decode_luno_text.py": {
+   "lines": 112,
+   "imports": []
+  },
+  "diagnose_native_support.py": {
+   "lines": 370,
+   "imports": [
+    "flagging"
+   ]
+  },
+  "export_ms_arrays.py": {
+   "lines": 56,
+   "imports": []
+  },
+  "extract_luno_support.py": {
+   "lines": 100,
+   "imports": []
+  },
+  "fetch_luno_slice.py": {
+   "lines": 55,
+   "imports": [
+    "core_fetch"
+   ]
+  },
+  "gain_observability.py": {
+   "lines": 58,
+   "imports": [
+    "observability",
+    "pointing"
+   ]
+  },
+  "gaussian_gauge.py": {
+   "lines": 252,
+   "imports": [
+    "gauge",
+    "observability",
+    "pointing"
+   ]
+  },
+  "information_budget.py": {
+   "lines": 79,
+   "imports": [
+    "observability",
+    "pointing"
+   ]
+  },
+  "inspect_measurement_sets.py": {
+   "lines": 153,
+   "imports": []
+  },
+  "katbeam_observability.py": {
+   "lines": 116,
+   "imports": [
+    "beams",
+    "observability",
+    "pointing"
+   ]
+  },
+  "mode_selection.py": {
+   "lines": 170,
+   "imports": [
+    "pointing"
+   ]
+  },
+  "observability.py": {
+   "lines": 63,
+   "imports": [
+    "observability",
+    "pointing"
+   ]
+  },
+  "oracle_luno_chunks.py": {
+   "lines": 74,
+   "imports": []
+  },
+  "oracle_ms_columns.py": {
+   "lines": 141,
+   "imports": []
+  },
+  "oracle_tricolour.py": {
+   "lines": 291,
+   "imports": []
+  },
+  "oracle_wsclean_gridder.py": {
+   "lines": 258,
+   "imports": []
+  },
+  "oracle_wsclean_predict.py": {
+   "lines": 176,
+   "imports": [
+    "flagging_response"
+   ]
+  },
+  "oracle_wsclean_weights.py": {
+   "lines": 234,
+   "imports": []
+  },
+  "pointing.py": {
+   "lines": 175,
+   "imports": [
+    "pointing"
+   ]
+  },
+  "pointing_history.py": {
+   "lines": 69,
+   "imports": []
+  },
+  "precondition_luno_campaign.py": {
+   "lines": 39,
+   "imports": [
+    "core_campaign"
+   ]
+  },
+  "projector_scaling.py": {
+   "lines": 177,
+   "imports": [
+    "projector"
+   ]
+  },
+  "prototype_section6.py": {
+   "lines": 341,
+   "imports": [
+    "core",
+    "core_zarr",
+    "flagging",
+    "flagging_influence"
+   ]
+  },
+  "relative_pointing.py": {
+   "lines": 576,
+   "imports": [
+    "beams",
+    "pointing"
+   ]
+  },
+  "run_core_campaign.py": {
+   "lines": 75,
+   "imports": [
+    "core_actions",
+    "core_injections",
+    "core_prospective",
+    "core_signal"
+   ]
+  },
+  "run_core_flags.py": {
+   "lines": 134,
+   "imports": [
+    "core",
+    "core_flag",
+    "flagging_caracal"
+   ]
+  },
+  "run_core_gridder.py": {
+   "lines": 189,
+   "imports": [
+    "core",
+    "core_grid"
+   ]
+  },
+  "run_core_imaging.py": {
+   "lines": 52,
+   "imports": [
+    "core_imaging"
+   ]
+  },
+  "run_core_injections.py": {
+   "lines": 69,
+   "imports": [
+    "core_injections"
+   ]
+  },
+  "run_imaging_sensitivity.py": {
+   "lines": 245,
+   "imports": [
+    "flagging_imaging",
+    "flagging_workflow",
+    "imaging_sensitivity"
+   ]
+  },
+  "run_luno_campaign.py": {
+   "lines": 71,
+   "imports": [
+    "core_campaign",
+    "core_cli"
+   ]
+  },
+  "sky_locked.py": {
+   "lines": 120,
+   "imports": [
+    "observability",
+    "pointing"
+   ]
+  },
+  "sky_uncertainty.py": {
+   "lines": 242,
+   "imports": [
+    "pointing"
+   ]
+  },
+  "solve_luno.py": {
+   "lines": 86,
+   "imports": [
+    "flagging_workflow"
+   ]
+  },
+  "summarize_imaging_sensitivity.py": {
+   "lines": 78,
+   "imports": [
+    "imaging_sensitivity"
+   ]
+  },
+  "survey_luno_solved.py": {
+   "lines": 121,
+   "imports": [
+    "flagging_influence"
+   ]
+  },
+  "survey_luno_support.py": {
+   "lines": 149,
+   "imports": [
+    "flagging_influence"
+   ]
+  },
+  "toy.py": {
+   "lines": 209,
+   "imports": []
+  },
+  "validate_core_phase1.py": {
+   "lines": 392,
+   "imports": [
+    "core",
+    "flagging",
+    "flagging_influence"
+   ]
+  },
+  "validate_core_phase2.py": {
+   "lines": 522,
+   "imports": [
+    "core",
+    "flagging",
+    "flagging_influence"
+   ]
+  },
+  "validate_core_phase3c_a.py": {
+   "lines": 174,
+   "imports": [
+    "core",
+    "flagging_response",
+    "flagging_signal",
+    "flagging_sky"
+   ]
+  }
+ },
+ "tests": {
+  "test_beams.py": {
+   "lines": 432,
+   "imports": [
+    "beams",
+    "observability",
+    "pointing"
+   ]
+  },
+  "test_blocked.py": {
+   "lines": 122,
+   "imports": [
+    "beams",
+    "blocked",
+    "observability",
+    "pointing"
+   ]
+  },
+  "test_core.py": {
+   "lines": 212,
+   "imports": [
+    "core",
+    "flagging",
+    "flagging_influence",
+    "flagging_response",
+    "flagging_signal"
+   ]
+  },
+  "test_core_backends.py": {
+   "lines": 449,
+   "imports": [
+    "core",
+    "core_flag",
+    "core_grid",
+    "core_ms",
+    "core_weights",
+    "core_zarr"
+   ]
+  },
+  "test_core_campaign.py": {
+   "lines": 201,
+   "imports": [
+    "core_campaign"
+   ]
+  },
+  "test_core_cli.py": {
+   "lines": 192,
+   "imports": [
+    "core_cli",
+    "core_imaging",
+    "flagging_trend"
+   ]
+  },
+  "test_core_compare.py": {
+   "lines": 49,
+   "imports": [
+    "core_compare"
+   ]
+  },
+  "test_core_fetch.py": {
+   "lines": 204,
+   "imports": [
+    "core_fetch",
+    "core_zarr"
+   ]
+  },
+  "test_core_flag.py": {
+   "lines": 272,
+   "imports": [
+    "core_flag"
+   ]
+  },
+  "test_core_grid.py": {
+   "lines": 107,
+   "imports": [
+    "core_grid"
+   ]
+  },
+  "test_core_imaging.py": {
+   "lines": 289,
+   "imports": [
+    "core_imaging",
+    "core_weights"
+   ]
+  },
+  "test_core_ms.py": {
+   "lines": 79,
+   "imports": [
+    "core_ms"
+   ]
+  },
+  "test_core_weights.py": {
+   "lines": 94,
+   "imports": [
+    "core_weights"
+   ]
+  },
+  "test_core_workflow.py": {
+   "lines": 91,
+   "imports": [
+    "core_workflow",
+    "flagging"
+   ]
+  },
+  "test_core_zarr.py": {
+   "lines": 37,
+   "imports": [
+    "core",
+    "core_zarr"
+   ]
+  },
+  "test_flagging.py": {
+   "lines": 136,
+   "imports": [
+    "flagging"
+   ]
+  },
+  "test_flagging_actions.py": {
+   "lines": 124,
+   "imports": [
+    "flagging_actions"
+   ]
+  },
+  "test_flagging_balanced.py": {
+   "lines": 224,
+   "imports": [
+    "flagging_balanced"
+   ]
+  },
+  "test_flagging_caracal.py": {
+   "lines": 111,
+   "imports": [
+    "flagging_caracal"
+   ]
+  },
+  "test_flagging_comparators.py": {
+   "lines": 138,
+   "imports": [
+    "flagging",
+    "flagging_comparators"
+   ]
+  },
+  "test_flagging_concurrent.py": {
+   "lines": 171,
+   "imports": [
+    "flagging_concurrent"
+   ]
+  },
+  "test_flagging_equivariance.py": {
+   "lines": 161,
+   "imports": [
+    "flagging_caracal",
+    "flagging_equivariance"
+   ]
+  },
+  "test_flagging_followup_archives.py": {
+   "lines": 357,
+   "imports": []
+  },
+  "test_flagging_imaging.py": {
+   "lines": 589,
+   "imports": [
+    "flagging_imaging",
+    "flagging_response"
+   ]
+  },
+  "test_flagging_influence.py": {
+   "lines": 302,
+   "imports": [
+    "flagging_influence"
+   ]
+  },
+  "test_flagging_injections.py": {
+   "lines": 157,
+   "imports": [
+    "flagging_injections"
+   ]
+  },
+  "test_flagging_next.py": {
+   "lines": 278,
+   "imports": [
+    "flagging_next"
+   ]
+  },
+  "test_flagging_parallel.py": {
+   "lines": 103,
+   "imports": [
+    "flagging_parallel"
+   ]
+  },
+  "test_flagging_preflight.py": {
+   "lines": 117,
+   "imports": []
+  },
+  "test_flagging_prepared.py": {
+   "lines": 221,
+   "imports": [
+    "flagging_prepared"
+   ]
+  },
+  "test_flagging_prospective.py": {
+   "lines": 659,
+   "imports": [
+    "flagging_influence",
+    "flagging_prospective"
+   ]
+  },
+  "test_flagging_provenance.py": {
+   "lines": 623,
+   "imports": [
+    "flagging_provenance"
+   ]
+  },
+  "test_flagging_public.py": {
+   "lines": 237,
+   "imports": [
+    "flagging_public"
+   ]
+  },
+  "test_flagging_response.py": {
+   "lines": 397,
+   "imports": [
+    "flagging_response",
+    "flagging_signal"
+   ]
+  },
+  "test_flagging_signal.py": {
+   "lines": 259,
+   "imports": [
+    "flagging_signal"
+   ]
+  },
+  "test_flagging_signal_guard.py": {
+   "lines": 306,
+   "imports": [
+    "flagging_prospective",
+    "flagging_signal_guard"
+   ]
+  },
+  "test_flagging_sky.py": {
+   "lines": 79,
+   "imports": [
+    "flagging_sky"
+   ]
+  },
+  "test_flagging_structured.py": {
+   "lines": 57,
+   "imports": [
+    "flagging_structured"
+   ]
+  },
+  "test_flagging_structured_proposals.py": {
+   "lines": 215,
+   "imports": [
+    "flagging_structured_proposals"
+   ]
+  },
+  "test_flagging_transfer.py": {
+   "lines": 210,
+   "imports": [
+    "flagging_transfer"
+   ]
+  },
+  "test_flagging_trend.py": {
+   "lines": 57,
+   "imports": [
+    "flagging",
+    "flagging_trend"
+   ]
+  },
+  "test_flagging_trend_review.py": {
+   "lines": 264,
+   "imports": [
+    "flagging",
+    "flagging_trend"
+   ]
+  },
+  "test_flagging_uncertainty.py": {
+   "lines": 158,
+   "imports": [
+    "flagging_uncertainty"
+   ]
+  },
+  "test_imaging_sensitivity.py": {
+   "lines": 191,
+   "imports": [
+    "imaging_sensitivity"
+   ]
+  },
+  "test_information_budget.py": {
+   "lines": 50,
+   "imports": [
+    "observability"
+   ]
+  },
+  "test_ms_inspection.py": {
+   "lines": 54,
+   "imports": []
+  },
+  "test_native_support_diagnostics.py": {
+   "lines": 121,
+   "imports": []
+  },
+  "test_pointing.py": {
+   "lines": 776,
+   "imports": [
+    "gauge",
+    "observability",
+    "pointing"
+   ]
+  },
+  "test_pointing_example.py": {
+   "lines": 36,
+   "imports": []
+  },
+  "test_projector.py": {
+   "lines": 105,
+   "imports": [
+    "projector"
+   ]
+  },
+  "test_toy.py": {
+   "lines": 72,
+   "imports": []
+  },
+  "test_uncertainty.py": {
+   "lines": 24,
+   "imports": [
+    "uncertainty"
+   ]
+  }
+ },
+ "tools": {
+  "tools/check-all.sh": 30,
+  "tools/core-j-suite.sh": 71,
+  "tools/flagging/Dockerfile": 17,
+  "tools/flagging/comparators/Dockerfile": 7,
+  "tools/flagging/comparators/requirements.lock": 25,
+  "tools/flagging/comparators/run-pilot.sh": 17,
+  "tools/flagging/fetch-luno-probe.sh": 30,
+  "tools/flagging/fetch-luno-solve.sh": 50,
+  "tools/flagging/fetch-luno-support.sh": 28,
+  "tools/flagging/fetch-luno-text.sh": 33,
+  "tools/flagging/imaging/Dockerfile": 79,
+  "tools/flagging/next/Dockerfile": 9,
+  "tools/flagging/next-imaging/Dockerfile": 5,
+  "tools/flagging/parallel/Dockerfile": 8,
+  "tools/flagging/preflight.py": 51,
+  "tools/flagging/requirements.lock": 104,
+  "tools/flagging/response/Dockerfile": 12,
+  "tools/flagging/run-balanced.sh": 26,
+  "tools/flagging/run-caracal.sh": 30,
+  "tools/flagging/run-concurrent.sh": 28,
+  "tools/flagging/run-equivariance.sh": 24,
+  "tools/flagging/run-imaging.sh": 28,
+  "tools/flagging/run-influence.sh": 24,
+  "tools/flagging/run-injections.sh": 15,
+  "tools/flagging/run-luno-solve.sh": 26,
+  "tools/flagging/run-next.sh": 37,
+  "tools/flagging/run-parallel.sh": 33,
+  "tools/flagging/run-pilot.sh": 15,
+  "tools/flagging/run-public.sh": 24,
+  "tools/flagging/run-response.sh": 26,
+  "tools/flagging/run-signal.sh": 44,
+  "tools/flagging/run-structured.sh": 27,
+  "tools/flagging/sky/Dockerfile": 14,
+  "tools/flagging/sky/requirements.lock": 5,
+  "tools/flagging/sky/run-pilot.sh": 19,
+  "tools/flagging/sky/verify_prediction.py": 101,
+  "tools/ms-reader/Dockerfile": 9
+ }
+}

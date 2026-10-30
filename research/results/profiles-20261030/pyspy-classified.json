@@ -1,0 +1,1778 @@
+{
+ "actions.raw.txt": {
+  "samples": 1831,
+  "fractions": {
+   "rust": 0.8569,
+   "numpy": 0.0847,
+   "import": 0.0295,
+   "io": 0.0224,
+   "python": 0.0066
+  },
+  "top_rust_symbols": [
+   [
+    "rang_core::solve::solve::h81fb341420328770",
+    0.3932
+   ],
+   [
+    "rang_core::solve::accumulate_finite::hb0644fb7655106bf",
+    0.2583
+   ],
+   [
+    "_$LT$core..ops..try_trait..Wrapped$LT$T$C$A$C$F$GT$$u20$as$u20$core..ops..function..FnMut$LT$$LP$A$C$$RP$$GT$$GT$::call_",
+    0.1628
+   ],
+   [
+    "rang_core::fused::run::hd630e25359cbf619",
+    0.0366
+   ],
+   [
+    "_$LT$core..iter..adapters..map..Map$LT$I$C$F$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$::fold::ha01ca2d9a",
+    0.0055
+   ],
+   [
+    "rang_toy::tv::edges::_$u7b$$u7b$closure$u7d$$u7d$::h7d77ef35236a8a58",
+    0.0005
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "solve_complex (rangtoy/core.py:519)",
+    0.7657
+   ],
+   [
+    "fused_pass (rangtoy/core.py:361)",
+    0.0907
+   ],
+   [
+    "load_state (rangtoy/flagging_workflow.py:279)",
+    0.0186
+   ],
+   [
+    "<module> (rangtoy/core_cli.py:43)",
+    0.0158
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:121)",
+    0.0093
+   ],
+   [
+    "candidate_patches (rangtoy/flagging_actions.py:83)",
+    0.0093
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:120)",
+    0.0076
+   ],
+   [
+    "protected_flags (rangtoy/flagging.py:53)",
+    0.0071
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0055
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:23)",
+    0.0049
+   ],
+   [
+    "<module> (rangtoy/core_cli.py:31)",
+    0.0049
+   ],
+   [
+    "polar_gauge (rangtoy/flagging.py:114)",
+    0.0038
+   ],
+   [
+    "candidate_patches (rangtoy/flagging_actions.py:87)",
+    0.0033
+   ],
+   [
+    "build (rangtoy/__init__.py:30)",
+    0.0027
+   ],
+   [
+    "candidate_patches (rangtoy/flagging_actions.py:85)",
+    0.0022
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "_read1 (zipfile/__init__.py:1173)",
+    0.0137
+   ],
+   [
+    "munmap (libc.so.6)",
+    0.0022
+   ],
+   [
+    "_git_status (rangtoy/core_cli.py:77)",
+    0.0016
+   ],
+   [
+    "read (libc.so.6)",
+    0.0016
+   ],
+   [
+    "_update_crc (zipfile/__init__.py:1112)",
+    0.0005
+   ],
+   [
+    "read (zipfile/__init__.py:1087)",
+    0.0005
+   ],
+   [
+    "with_segments (pathlib/__init__.py:161)",
+    0.0005
+   ],
+   [
+    "write (libc.so.6)",
+    0.0005
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "core_solve (rangtoy/core_workflow.py:121)",
+    0.0093
+   ],
+   [
+    "candidate_patches (rangtoy/flagging_actions.py:83)",
+    0.0093
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:120)",
+    0.0076
+   ],
+   [
+    "protected_flags (rangtoy/flagging.py:53)",
+    0.0071
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0055
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:23)",
+    0.0049
+   ],
+   [
+    "polar_gauge (rangtoy/flagging.py:114)",
+    0.0038
+   ],
+   [
+    "candidate_patches (rangtoy/flagging_actions.py:87)",
+    0.0033
+   ]
+  ]
+ },
+ "campaign.raw.txt": {
+  "samples": 3739,
+  "fractions": {
+   "rust": 0.8743,
+   "numpy": 0.065,
+   "import": 0.0385,
+   "io": 0.0144,
+   "python": 0.0078
+  },
+  "top_rust_symbols": [
+   [
+    "rang_core::grid::FftPlan::radix2::hf94cc15b51b71e74",
+    0.2244
+   ],
+   [
+    "rang_core::sumthreshold::box_filter_axis0::h4ddb4fc8666401c7",
+    0.1268
+   ],
+   [
+    "rang_core::solve::solve::h81fb341420328770",
+    0.1094
+   ],
+   [
+    "rang_core::solve::accumulate_finite::hb0644fb7655106bf",
+    0.0813
+   ],
+   [
+    "_$LT$core..ops..try_trait..Wrapped$LT$T$C$A$C$F$GT$$u20$as$u20$core..ops..function..FnMut$LT$$LP$A$C$$RP$$GT$$GT$::call_",
+    0.0508
+   ],
+   [
+    "rang_core::sumthreshold::convolve_flags::h6e9cb6fba0c96f04",
+    0.0412
+   ],
+   [
+    "rang_toy::linalg::eigen::ha6887d536bb5f331",
+    0.0404
+   ],
+   [
+    "rang_core::grid::Gridder::invert::hc04af50e22587760",
+    0.038
+   ],
+   [
+    "rang_core::blosc::decode_block_bytes::hbed956c21850264f",
+    0.0246
+   ],
+   [
+    "rang_core::sumthreshold::sum_threshold_axis0::h2a8eb8ced4405bfd",
+    0.0241
+   ],
+   [
+    "rang_core::blosc::decode_span_rows::h19df69c7b62c48e8",
+    0.0201
+   ],
+   [
+    "rang_core::grid::FftPlan::execute::hd3a69037d4fbfeb5",
+    0.0142
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "invert (rangtoy/core_grid.py:235)",
+    0.2848
+   ],
+   [
+    "solve_complex (rangtoy/core.py:519)",
+    0.2313
+   ],
+   [
+    "flag_rows (rangtoy/core_flag.py:383)",
+    0.2196
+   ],
+   [
+    "decode_span_rows (rangtoy/core_zarr.py:92)",
+    0.0567
+   ],
+   [
+    "anchored_response (rangtoy/flagging_influence.py:178)",
+    0.0449
+   ],
+   [
+    "fused_pass (rangtoy/core.py:361)",
+    0.0238
+   ],
+   [
+    "write_fits (rangtoy/core_grid.py:289)",
+    0.0193
+   ],
+   [
+    "training_normals (rangtoy/flagging_influence.py:151)",
+    0.0134
+   ],
+   [
+    "decode_slice (rangtoy/core_fetch.py:390)",
+    0.0115
+   ],
+   [
+    "section6_summary (rangtoy/core_campaign.py:718)",
+    0.0099
+   ],
+   [
+    "apply_gains (rangtoy/core_campaign.py:545)",
+    0.008
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0035
+   ],
+   [
+    "split_holdout (rangtoy/flagging.py:244)",
+    0.0032
+   ],
+   [
+    "apply_gains (rangtoy/core_campaign.py:542)",
+    0.0029
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0021
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "read (libc.so.6)",
+    0.0083
+   ],
+   [
+    "open (pathlib/__init__.py:772)",
+    0.0024
+   ],
+   [
+    "build_state (rangtoy/core_campaign.py:320)",
+    0.0008
+   ],
+   [
+    "raw_decode (json/decoder.py:361)",
+    0.0005
+   ],
+   [
+    "mkdir (pathlib/__init__.py:1012)",
+    0.0003
+   ],
+   [
+    "_parse_path (pathlib/__init__.py:288)",
+    0.0003
+   ],
+   [
+    "read_bytes (pathlib/__init__.py:779)",
+    0.0003
+   ],
+   [
+    "__str__ (pathlib/__init__.py:256)",
+    0.0003
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "apply_gains (rangtoy/core_campaign.py:545)",
+    0.008
+   ],
+   [
+    "section6_pass (prototype_section6.py:200)",
+    0.0043
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0035
+   ],
+   [
+    "apply_gains (rangtoy/core_campaign.py:542)",
+    0.0029
+   ],
+   [
+    "section6_pass (prototype_section6.py:201)",
+    0.0024
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0021
+   ],
+   [
+    "polar_gauge (rangtoy/flagging.py:114)",
+    0.0021
+   ],
+   [
+    "decode_slice (rangtoy/core_fetch.py:407)",
+    0.0019
+   ]
+  ]
+ },
+ "imaging.raw.txt": {
+  "samples": 18149,
+  "fractions": {
+   "rust": 0.9717,
+   "io": 0.012,
+   "numpy": 0.0076,
+   "import": 0.0052,
+   "python": 0.0036
+  },
+  "top_rust_symbols": [
+   [
+    "rang_core::grid::FftPlan::radix2::hf94cc15b51b71e74",
+    0.7826
+   ],
+   [
+    "rang_core::grid::Gridder::invert::hc04af50e22587760",
+    0.1168
+   ],
+   [
+    "rang_core::grid::FftPlan::execute::hd3a69037d4fbfeb5",
+    0.0513
+   ],
+   [
+    "round",
+    0.0088
+   ],
+   [
+    "_$LT$core..iter..adapters..map..Map$LT$I$C$F$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$::fold::hb201748f7",
+    0.0048
+   ],
+   [
+    "rang_core::grid::invert::hf9e44021dd721b5f",
+    0.0028
+   ],
+   [
+    "rang_core::weights::stokes_i_from_linear::h85bfb2d024aa2cfc",
+    0.0012
+   ],
+   [
+    "rang_core::grid::Gridder::new::ha8a051131f055b1b",
+    0.0007
+   ],
+   [
+    "rang_core_grid_invert",
+    0.0005
+   ],
+   [
+    "rang_core::weights::WeightGrid::lookup_rows::hef28fe17e37b976c",
+    0.0004
+   ],
+   [
+    "rang_core::weights::WeightGrid::grid_rows::h78e93c501ebde501",
+    0.0004
+   ],
+   [
+    "floor",
+    0.0003
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "invert (rangtoy/core_grid.py:235)",
+    0.9684
+   ],
+   [
+    "run (rangtoy/core_imaging.py:563)",
+    0.0097
+   ],
+   [
+    "write_fits (rangtoy/core_grid.py:289)",
+    0.0039
+   ],
+   [
+    "write_fits (rangtoy/core_grid.py:298)",
+    0.0018
+   ],
+   [
+    "imaging_weights (rangtoy/core_weights.py:272)",
+    0.0016
+   ],
+   [
+    "stokes_i (rangtoy/core_weights.py:172)",
+    0.0013
+   ],
+   [
+    "<module> (rangtoy/core_imaging.py:24)",
+    0.0011
+   ],
+   [
+    "linear_image_fit (rangtoy/flagging_imaging.py:196)",
+    0.0011
+   ],
+   [
+    "read_fits (rangtoy/core_imaging.py:225)",
+    0.0008
+   ],
+   [
+    "image_job (rangtoy/core_imaging.py:437)",
+    0.0007
+   ],
+   [
+    "_sha256 (rangtoy/core_imaging.py:355)",
+    0.0007
+   ],
+   [
+    "getcol (rangtoy/core_ms.py:179)",
+    0.0006
+   ],
+   [
+    "_snapshot (rangtoy/core_imaging.py:365)",
+    0.0005
+   ],
+   [
+    "linear_image_fit (rangtoy/flagging_imaging.py:209)",
+    0.0005
+   ],
+   [
+    "read_fits (rangtoy/core_imaging.py:226)",
+    0.0005
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "_read1 (zipfile/__init__.py:1173)",
+    0.0075
+   ],
+   [
+    "_update_crc (zipfile/__init__.py:1112)",
+    0.001
+   ],
+   [
+    "write (libc.so.6)",
+    0.0007
+   ],
+   [
+    "read (libc.so.6)",
+    0.0006
+   ],
+   [
+    "getdents64 (libc.so.6)",
+    0.0001
+   ],
+   [
+    "_git_status (rangtoy/core_imaging.py:373)",
+    0.0001
+   ],
+   [
+    "0x7e7eb27914ec (libcrypto.so.3)",
+    0.0001
+   ],
+   [
+    "stat (pathlib/__init__.py:655)",
+    0.0001
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "linear_image_fit (rangtoy/flagging_imaging.py:196)",
+    0.0011
+   ],
+   [
+    "run (rangtoy/core_imaging.py:563)",
+    0.0008
+   ],
+   [
+    "image_job (rangtoy/core_imaging.py:437)",
+    0.0007
+   ],
+   [
+    "linear_image_fit (rangtoy/flagging_imaging.py:209)",
+    0.0005
+   ],
+   [
+    "image_diagnostics (rangtoy/flagging_imaging.py:223)",
+    0.0004
+   ],
+   [
+    "image_diagnostics (rangtoy/flagging_imaging.py:225)",
+    0.0004
+   ],
+   [
+    "image_diagnostics (rangtoy/flagging_imaging.py:227)",
+    0.0003
+   ],
+   [
+    "image_diagnostics (rangtoy/flagging_imaging.py:226)",
+    0.0003
+   ]
+  ]
+ },
+ "injections.raw.txt": {
+  "samples": 5882,
+  "fractions": {
+   "rust": 0.7917,
+   "numpy": 0.1365,
+   "io": 0.057,
+   "import": 0.0105,
+   "python": 0.0043
+  },
+  "top_rust_symbols": [
+   [
+    "rang_core::solve::solve::h81fb341420328770",
+    0.3456
+   ],
+   [
+    "rang_core::solve::accumulate_finite::hb0644fb7655106bf",
+    0.2353
+   ],
+   [
+    "_$LT$core..ops..try_trait..Wrapped$LT$T$C$A$C$F$GT$$u20$as$u20$core..ops..function..FnMut$LT$$LP$A$C$$RP$$GT$$GT$::call_",
+    0.1448
+   ],
+   [
+    "rang_core::fused::run::hd630e25359cbf619",
+    0.0583
+   ],
+   [
+    "_$LT$core..iter..adapters..map..Map$LT$I$C$F$GT$$u20$as$u20$core..iter..traits..iterator..Iterator$GT$::fold::ha01ca2d9a",
+    0.0058
+   ],
+   [
+    "rang_toy::tv::edges::_$u7b$$u7b$closure$u7d$$u7d$::h7d77ef35236a8a58",
+    0.0014
+   ],
+   [
+    "numpy::borrow::shared::release_mut_shared::h9d8782e4cfb4576c",
+    0.0002
+   ],
+   [
+    "rang_toy::tv::edges::hfd617c2040e7da3a",
+    0.0002
+   ],
+   [
+    "numpy::borrow::shared::borrow_key::he4e78b67b7257213",
+    0.0002
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "solve_complex (rangtoy/core.py:519)",
+    0.6724
+   ],
+   [
+    "fused_pass (rangtoy/core.py:361)",
+    0.118
+   ],
+   [
+    "load_state (rangtoy/flagging_workflow.py:279)",
+    0.0427
+   ],
+   [
+    "reference_distance (rangtoy/flagging_injections.py:204)",
+    0.0146
+   ],
+   [
+    "reference_distance (rangtoy/flagging_injections.py:186)",
+    0.01
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0088
+   ],
+   [
+    "reference_distance (rangtoy/flagging_injections.py:185)",
+    0.0083
+   ],
+   [
+    "reference_distance (rangtoy/flagging_injections.py:203)",
+    0.008
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:121)",
+    0.008
+   ],
+   [
+    "<module> (rangtoy/core_cli.py:43)",
+    0.0065
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:120)",
+    0.0065
+   ],
+   [
+    "_snapshot (rangtoy/core_cli.py:69)",
+    0.0065
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0061
+   ],
+   [
+    "residual_features (rangtoy/flagging.py:187)",
+    0.006
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:23)",
+    0.0049
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "_read1 (zipfile/__init__.py:1173)",
+    0.033
+   ],
+   [
+    "_update_crc (zipfile/__init__.py:1112)",
+    0.0043
+   ],
+   [
+    "stat (pathlib/__init__.py:655)",
+    0.0031
+   ],
+   [
+    "read (libc.so.6)",
+    0.0022
+   ],
+   [
+    "munmap (libc.so.6)",
+    0.002
+   ],
+   [
+    "is_file (pathlib/__init__.py:692)",
+    0.002
+   ],
+   [
+    "getdents64 (libc.so.6)",
+    0.001
+   ],
+   [
+    "scandir (glob.py:556)",
+    0.0005
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "reference_distance (rangtoy/flagging_injections.py:204)",
+    0.0141
+   ],
+   [
+    "reference_distance (rangtoy/flagging_injections.py:186)",
+    0.01
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0087
+   ],
+   [
+    "reference_distance (rangtoy/flagging_injections.py:185)",
+    0.0083
+   ],
+   [
+    "reference_distance (rangtoy/flagging_injections.py:203)",
+    0.008
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:121)",
+    0.008
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:120)",
+    0.0065
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0061
+   ]
+  ]
+ },
+ "kcheck.raw.txt": {
+  "samples": 490,
+  "fractions": {
+   "io": 0.3939,
+   "rust": 0.3816,
+   "import": 0.1122,
+   "numpy": 0.0694,
+   "python": 0.0429
+  },
+  "top_rust_symbols": [
+   [
+    "rang_core::blosc::lz4_decompress::h458375e5132c7b75",
+    0.2469
+   ],
+   [
+    "rang_core::blosc::decode_block_bytes::hbed956c21850264f",
+    0.0918
+   ],
+   [
+    "rang_core::blosc::decode_span_rows::h19df69c7b62c48e8",
+    0.0367
+   ],
+   [
+    "alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::ha703b8cdb4663e2d",
+    0.0041
+   ],
+   [
+    "alloc::raw_vec::RawVecInner$LT$A$GT$::reserve::do_reserve_and_handle::hada53188c4b2075e",
+    0.002
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "decode_span_rows (rangtoy/core_zarr.py:92)",
+    0.3857
+   ],
+   [
+    "check (rangtoy/core_campaign.py:1158)",
+    0.2265
+   ],
+   [
+    "decode_slice (rangtoy/core_fetch.py:390)",
+    0.0735
+   ],
+   [
+    "<module> (rangtoy/core_campaign.py:24)",
+    0.0469
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:158)",
+    0.0367
+   ],
+   [
+    "check (rangtoy/core_campaign.py:1283)",
+    0.0286
+   ],
+   [
+    "<module> (rangtoy/core_fetch.py:19)",
+    0.0265
+   ],
+   [
+    "<module> (rangtoy/__init__.py:13)",
+    0.0143
+   ],
+   [
+    "<module> (rangtoy/core_fetch.py:13)",
+    0.0143
+   ],
+   [
+    "check (rangtoy/core_campaign.py:1178)",
+    0.0122
+   ],
+   [
+    "check (rangtoy/core_campaign.py:1181)",
+    0.0122
+   ],
+   [
+    "decode_slice (rangtoy/core_fetch.py:413)",
+    0.0122
+   ],
+   [
+    "archived_path (rangtoy/core_campaign.py:1132)",
+    0.0122
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:148)",
+    0.0082
+   ],
+   [
+    "check (rangtoy/core_campaign.py:1121)",
+    0.0082
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "read (libc.so.6)",
+    0.1327
+   ],
+   [
+    "0x7998c3f9127e (libcrypto.so.3)",
+    0.0122
+   ],
+   [
+    "0x7998c3f9126f (libcrypto.so.3)",
+    0.0122
+   ],
+   [
+    "0x7998c3f91423 (libcrypto.so.3)",
+    0.0102
+   ],
+   [
+    "with_segments (pathlib/__init__.py:161)",
+    0.0082
+   ],
+   [
+    "open (pathlib/__init__.py:772)",
+    0.0082
+   ],
+   [
+    "0x7998c3f914fd (libcrypto.so.3)",
+    0.0082
+   ],
+   [
+    "raw_decode (json/decoder.py:361)",
+    0.0082
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "check (rangtoy/core_campaign.py:1178)",
+    0.0122
+   ],
+   [
+    "check (rangtoy/core_campaign.py:1181)",
+    0.0122
+   ],
+   [
+    "decode_slice (rangtoy/core_fetch.py:413)",
+    0.0122
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:148)",
+    0.0082
+   ],
+   [
+    "decode_slice (rangtoy/core_fetch.py:392)",
+    0.0061
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:152)",
+    0.0041
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:171)",
+    0.0041
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:160)",
+    0.002
+   ]
+  ]
+ },
+ "precondition.raw.txt": {
+  "samples": 846,
+  "fractions": {
+   "rust": 0.7707,
+   "numpy": 0.104,
+   "io": 0.0544,
+   "import": 0.0473,
+   "python": 0.0236
+  },
+  "top_rust_symbols": [
+   [
+    "rang_toy::linalg::eigen::ha6887d536bb5f331",
+    0.1844
+   ],
+   [
+    "rang_core::blosc::decode_block_bytes::hbed956c21850264f",
+    0.1371
+   ],
+   [
+    "rang_core::blosc::decode_span_rows::h19df69c7b62c48e8",
+    0.1229
+   ],
+   [
+    "rang_core::blosc::lz4_decompress::h458375e5132c7b75",
+    0.065
+   ],
+   [
+    "rang_core::solve::accumulate_finite::hb0644fb7655106bf",
+    0.065
+   ],
+   [
+    "rang_core::solve::solve::h81fb341420328770",
+    0.0603
+   ],
+   [
+    "rang_toy::response::normals::h9a07042d7f5482bc",
+    0.0579
+   ],
+   [
+    "_$LT$core..ops..try_trait..Wrapped$LT$T$C$A$C$F$GT$$u20$as$u20$core..ops..function..FnMut$LT$$LP$A$C$$RP$$GT$$GT$::call_",
+    0.0296
+   ],
+   [
+    "rang_core::fused::run::hd630e25359cbf619",
+    0.0142
+   ],
+   [
+    "rang_toy::response::project::h59d53191b323e31e",
+    0.0106
+   ],
+   [
+    "alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::ha703b8cdb4663e2d",
+    0.0071
+   ],
+   [
+    "rang_toy::response::jacobian::h0c4f2a19fa918c1a",
+    0.0047
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "decode_span_rows (rangtoy/core_zarr.py:92)",
+    0.3333
+   ],
+   [
+    "anchored_response (rangtoy/flagging_influence.py:178)",
+    0.2057
+   ],
+   [
+    "solve_complex (rangtoy/core.py:519)",
+    0.1478
+   ],
+   [
+    "training_normals (rangtoy/flagging_influence.py:151)",
+    0.0662
+   ],
+   [
+    "section6_summary (rangtoy/core_campaign.py:718)",
+    0.0579
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:158)",
+    0.0567
+   ],
+   [
+    "fused_pass (rangtoy/core.py:361)",
+    0.0248
+   ],
+   [
+    "<module> (rangtoy/core_campaign.py:24)",
+    0.0225
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0118
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:171)",
+    0.0071
+   ],
+   [
+    "<module> (rangtoy/flagging_influence.py:13)",
+    0.0059
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:160)",
+    0.0047
+   ],
+   [
+    "anchored_response (rangtoy/flagging_influence.py:186)",
+    0.0047
+   ],
+   [
+    "build (rangtoy/__init__.py:44)",
+    0.0047
+   ],
+   [
+    "<module> (rangtoy/__init__.py:10)",
+    0.0035
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "read (libc.so.6)",
+    0.0544
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "section6_pass (prototype_section6.py:200)",
+    0.0177
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0118
+   ],
+   [
+    "section6_pass (prototype_section6.py:190)",
+    0.0095
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:171)",
+    0.0071
+   ],
+   [
+    "section6_pass (prototype_section6.py:201)",
+    0.0071
+   ],
+   [
+    "section6_pass (prototype_section6.py:114)",
+    0.0035
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:160)",
+    0.0035
+   ],
+   [
+    "section6_pass (prototype_section6.py:170)",
+    0.0035
+   ]
+  ]
+ },
+ "section6-check.raw.txt": {
+  "samples": 4004,
+  "fractions": {
+   "rust": 0.6444,
+   "io": 0.3152,
+   "numpy": 0.0232,
+   "import": 0.012,
+   "python": 0.0052
+  },
+  "top_rust_symbols": [
+   [
+    "rang_core_py::__pyfunction_blosc_decode::he4a7245afb593822",
+    0.3691
+   ],
+   [
+    "rang_core::blosc::lz4_decompress::h458375e5132c7b75",
+    0.1166
+   ],
+   [
+    "rang_core::blosc::decode_block_bytes::hbed956c21850264f",
+    0.0544
+   ],
+   [
+    "rang_toy::linalg::eigen::ha6887d536bb5f331",
+    0.0335
+   ],
+   [
+    "rang_core::solve::solve::h81fb341420328770",
+    0.0222
+   ],
+   [
+    "rang_core::solve::accumulate_finite::hb0644fb7655106bf",
+    0.0167
+   ],
+   [
+    "_$LT$core..ops..try_trait..Wrapped$LT$T$C$A$C$F$GT$$u20$as$u20$core..ops..function..FnMut$LT$$LP$A$C$$RP$$GT$$GT$::call_",
+    0.0112
+   ],
+   [
+    "rang_toy::response::normals::h9a07042d7f5482bc",
+    0.0112
+   ],
+   [
+    "rang_core::fused::run::hd630e25359cbf619",
+    0.0032
+   ],
+   [
+    "rang_toy::response::checked_eigen::hb2e98fd53bb3126b",
+    0.002
+   ],
+   [
+    "rang_toy::response::project::h59d53191b323e31e",
+    0.0012
+   ],
+   [
+    "rang_core::blosc::decode_span_rows::h19df69c7b62c48e8",
+    0.001
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "blosc_decode (rangtoy/core.py:651)",
+    0.5212
+   ],
+   [
+    "solve_complex (rangtoy/core.py:519)",
+    0.0477
+   ],
+   [
+    "anchored_response (rangtoy/flagging_influence.py:178)",
+    0.0382
+   ],
+   [
+    "decode_span_rows (rangtoy/core_zarr.py:92)",
+    0.0205
+   ],
+   [
+    "training_normals (rangtoy/flagging_influence.py:151)",
+    0.012
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:158)",
+    0.0067
+   ],
+   [
+    "fused_pass (rangtoy/core.py:361)",
+    0.0057
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:148)",
+    0.0027
+   ],
+   [
+    "build (rangtoy/__init__.py:30)",
+    0.0012
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:121)",
+    0.001
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0007
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0005
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:128)",
+    0.0005
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:171)",
+    0.0005
+   ],
+   [
+    "residual_features (rangtoy/flagging.py:187)",
+    0.0005
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "read (libc.so.6)",
+    0.0187
+   ],
+   [
+    "munmap (libc.so.6)",
+    0.017
+   ],
+   [
+    "0x749dad1912e0 (libcrypto.so.3)",
+    0.0107
+   ],
+   [
+    "0x749dad191366 (libcrypto.so.3)",
+    0.0102
+   ],
+   [
+    "0x749dad191423 (libcrypto.so.3)",
+    0.01
+   ],
+   [
+    "0x749dad191453 (libcrypto.so.3)",
+    0.0097
+   ],
+   [
+    "0x749dad1913df (libcrypto.so.3)",
+    0.0097
+   ],
+   [
+    "0x749dad19140f (libcrypto.so.3)",
+    0.0097
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "section6_pass (prototype_section6.py:201)",
+    0.0042
+   ],
+   [
+    "section6_pass (prototype_section6.py:200)",
+    0.004
+   ],
+   [
+    "main (check_section6.py:116)",
+    0.0012
+   ],
+   [
+    "core_solve (rangtoy/core_workflow.py:121)",
+    0.001
+   ],
+   [
+    "solve_flags (rangtoy/core_workflow.py:24)",
+    0.0007
+   ],
+   [
+    "section6_pass (prototype_section6.py:116)",
+    0.0007
+   ],
+   [
+    "main (check_section6.py:144)",
+    0.0007
+   ],
+   [
+    "section6_pass (prototype_section6.py:117)",
+    0.0007
+   ]
+  ]
+ },
+ "section6.raw.txt": {
+  "samples": 1528,
+  "fractions": {
+   "io": 0.502,
+   "rust": 0.3946,
+   "numpy": 0.0681,
+   "python": 0.0196,
+   "import": 0.0157
+  },
+  "top_rust_symbols": [
+   [
+    "rang_toy::linalg::eigen::ha6887d536bb5f331",
+    0.1014
+   ],
+   [
+    "rang_core::blosc::decode_block_bytes::hbed956c21850264f",
+    0.0753
+   ],
+   [
+    "rang_core::blosc::decode_span_rows::h19df69c7b62c48e8",
+    0.0596
+   ],
+   [
+    "rang_core::solve::solve::h81fb341420328770",
+    0.038
+   ],
+   [
+    "rang_core::solve::accumulate_finite::hb0644fb7655106bf",
+    0.0347
+   ],
+   [
+    "rang_toy::response::normals::h9a07042d7f5482bc",
+    0.0242
+   ],
+   [
+    "rang_core::blosc::lz4_decompress::h458375e5132c7b75",
+    0.0229
+   ],
+   [
+    "_$LT$core..ops..try_trait..Wrapped$LT$T$C$A$C$F$GT$$u20$as$u20$core..ops..function..FnMut$LT$$LP$A$C$$RP$$GT$$GT$::call_",
+    0.017
+   ],
+   [
+    "rang_core::fused::run::hd630e25359cbf619",
+    0.0079
+   ],
+   [
+    "rang_toy::response::project::h59d53191b323e31e",
+    0.0052
+   ],
+   [
+    "rang_toy::response::checked_eigen::hb2e98fd53bb3126b",
+    0.002
+   ],
+   [
+    "rang_toy::response::jacobian::h0c4f2a19fa918c1a",
+    0.0013
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "decode_span_rows (rangtoy/core_zarr.py:92)",
+    0.1597
+   ],
+   [
+    "anchored_response (rangtoy/flagging_influence.py:178)",
+    0.1113
+   ],
+   [
+    "solve_complex (rangtoy/core.py:519)",
+    0.0864
+   ],
+   [
+    "training_normals (rangtoy/flagging_influence.py:151)",
+    0.0268
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:158)",
+    0.0242
+   ],
+   [
+    "fused_pass (rangtoy/core.py:361)",
+    0.0124
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0098
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:160)",
+    0.0033
+   ],
+   [
+    "build (rangtoy/__init__.py:30)",
+    0.0026
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:216)",
+    0.002
+   ],
+   [
+    "build_core (rangtoy/core.py:81)",
+    0.002
+   ],
+   [
+    "anchored_response (rangtoy/flagging_influence.py:169)",
+    0.0013
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:161)",
+    0.0013
+   ],
+   [
+    "policy_mask (rangtoy/flagging.py:215)",
+    0.0013
+   ],
+   [
+    "<module> (rangtoy/flagging_influence.py:13)",
+    0.0013
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "read (libc.so.6)",
+    0.0884
+   ],
+   [
+    "0x7211243913f3 (libcrypto.so.3)",
+    0.0177
+   ],
+   [
+    "0x7211243912a1 (libcrypto.so.3)",
+    0.017
+   ],
+   [
+    "0x7211243912e0 (libcrypto.so.3)",
+    0.0164
+   ],
+   [
+    "0x7211243914ec (libcrypto.so.3)",
+    0.0164
+   ],
+   [
+    "0x7211243914da (libcrypto.so.3)",
+    0.0157
+   ],
+   [
+    "0x72112439146f (libcrypto.so.3)",
+    0.0157
+   ],
+   [
+    "0x721124391328 (libcrypto.so.3)",
+    0.0144
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "policy_mask (rangtoy/flagging.py:217)",
+    0.0098
+   ],
+   [
+    "section6_pass (prototype_section6.py:190)",
+    0.0098
+   ],
+   [
+    "section6_pass (prototype_section6.py:200)",
+    0.0092
+   ],
+   [
+    "section6_pass (prototype_section6.py:117)",
+    0.0059
+   ],
+   [
+    "section6_pass (prototype_section6.py:201)",
+    0.0052
+   ],
+   [
+    "ingest (prototype_section6.py:79)",
+    0.0039
+   ],
+   [
+    "read_rows (rangtoy/core_zarr.py:160)",
+    0.0033
+   ],
+   [
+    "section6_pass (prototype_section6.py:172)",
+    0.0026
+   ]
+  ]
+ },
+ "signal.raw.txt": {
+  "samples": 12550,
+  "fractions": {
+   "rust": 0.5159,
+   "numpy": 0.4479,
+   "python": 0.0202,
+   "io": 0.0129,
+   "import": 0.0031
+  },
+  "top_rust_symbols": [
+   [
+    "rang_toy::linalg::eigen::ha6887d536bb5f331",
+    0.3312
+   ],
+   [
+    "rang_toy::response::normals::h9a07042d7f5482bc",
+    0.0789
+   ],
+   [
+    "rang_core::solve::solve::h81fb341420328770",
+    0.0303
+   ],
+   [
+    "rang_core::solve::accumulate_finite::hb0644fb7655106bf",
+    0.0189
+   ],
+   [
+    "rang_toy::response::project::h59d53191b323e31e",
+    0.017
+   ],
+   [
+    "_$LT$core..ops..try_trait..Wrapped$LT$T$C$A$C$F$GT$$u20$as$u20$core..ops..function..FnMut$LT$$LP$A$C$$RP$$GT$$GT$::call_",
+    0.0137
+   ],
+   [
+    "rang_toy::response::checked_eigen::hb2e98fd53bb3126b",
+    0.0063
+   ],
+   [
+    "rang_toy::response::jacobian::h0c4f2a19fa918c1a",
+    0.0061
+   ],
+   [
+    "rang_core::fused::run::hd630e25359cbf619",
+    0.0045
+   ],
+   [
+    "_$LT$T$u20$as$u20$alloc..vec..spec_from_elem..SpecFromElem$GT$::from_elem::haf61312e4f5ee854",
+    0.0012
+   ],
+   [
+    "core::ptr::drop_in_place$LT$alloc..vec..Vec$LT$alloc..vec..Vec$LT$f64$GT$$GT$$GT$::h85d16d0692eed1a1",
+    0.0009
+   ],
+   [
+    "rang_response_normals",
+    0.0008
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "anchored_response (rangtoy/flagging_influence.py:178)",
+    0.3669
+   ],
+   [
+    "training_normals (rangtoy/flagging_influence.py:151)",
+    0.0873
+   ],
+   [
+    "train_signal_guard (rangtoy/flagging_signal_guard.py:140)",
+    0.0635
+   ],
+   [
+    "corrected_intensity (rangtoy/flagging_signal.py:144)",
+    0.0632
+   ],
+   [
+    "corrected_intensity (rangtoy/flagging_signal.py:145)",
+    0.0625
+   ],
+   [
+    "solve_complex (rangtoy/core.py:519)",
+    0.0584
+   ],
+   [
+    "train_signal_guard (rangtoy/flagging_signal_guard.py:141)",
+    0.0524
+   ],
+   [
+    "corrected_intensity (rangtoy/flagging_signal.py:149)",
+    0.0229
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:238)",
+    0.0127
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:236)",
+    0.012
+   ],
+   [
+    "fused_pass (rangtoy/core.py:361)",
+    0.0095
+   ],
+   [
+    "_training_bundle (rangtoy/flagging_influence.py:293)",
+    0.0091
+   ],
+   [
+    "train_signal_guard (rangtoy/flagging_signal_guard.py:168)",
+    0.0072
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:213)",
+    0.0069
+   ],
+   [
+    "load_state (rangtoy/flagging_workflow.py:279)",
+    0.0066
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "_read1 (zipfile/__init__.py:1173)",
+    0.0045
+   ],
+   [
+    "stat (pathlib/__init__.py:655)",
+    0.001
+   ],
+   [
+    "0x793bd7caa8a0 (_hashlib.cpython-314-x86_64-linux-gnu.so)",
+    0.0008
+   ],
+   [
+    "munmap (libc.so.6)",
+    0.0006
+   ],
+   [
+    "read (libc.so.6)",
+    0.0006
+   ],
+   [
+    "scandir (glob.py:555)",
+    0.0004
+   ],
+   [
+    "_update_crc (zipfile/__init__.py:1112)",
+    0.0004
+   ],
+   [
+    "is_file (pathlib/__init__.py:692)",
+    0.0003
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "train_signal_guard (rangtoy/flagging_signal_guard.py:140)",
+    0.0635
+   ],
+   [
+    "corrected_intensity (rangtoy/flagging_signal.py:144)",
+    0.0632
+   ],
+   [
+    "corrected_intensity (rangtoy/flagging_signal.py:145)",
+    0.0625
+   ],
+   [
+    "train_signal_guard (rangtoy/flagging_signal_guard.py:141)",
+    0.0524
+   ],
+   [
+    "corrected_intensity (rangtoy/flagging_signal.py:149)",
+    0.0229
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:238)",
+    0.0123
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:236)",
+    0.0112
+   ],
+   [
+    "_training_bundle (rangtoy/flagging_influence.py:293)",
+    0.0091
+   ]
+  ]
+ },
+ "trend.raw.txt": {
+  "samples": 13284,
+  "fractions": {
+   "numpy": 0.7552,
+   "python": 0.1673,
+   "io": 0.0739,
+   "import": 0.0027,
+   "rust": 0.0009
+  },
+  "top_rust_symbols": [
+   [
+    "rang_toy::tv::edges::_$u7b$$u7b$closure$u7d$$u7d$::h7d77ef35236a8a58",
+    0.0006
+   ],
+   [
+    "rang_toy::trend::slopes::h48ef4b56d6ad8b3a",
+    0.0002
+   ],
+   [
+    "alloc::raw_vec::RawVecInner$LT$A$GT$::finish_grow::hfa1da118d0bf8fc8",
+    0.0001
+   ],
+   [
+    "core::slice::sort::shared::smallsort::small_sort_general_with_scratch::h9dc0eabc9106f81d",
+    0.0001
+   ]
+  ],
+  "top_rangtoy_python_frames": [
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:238)",
+    0.135
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:236)",
+    0.1316
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:237)",
+    0.0814
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:223)",
+    0.0724
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:235)",
+    0.0714
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:212)",
+    0.0696
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:213)",
+    0.0681
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:221)",
+    0.0525
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:239)",
+    0.0403
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:226)",
+    0.0279
+   ],
+   [
+    "<genexpr> (rangtoy/flagging_structured_proposals.py:277)",
+    0.0237
+   ],
+   [
+    "run (rangtoy/flagging_trend.py:275)",
+    0.02
+   ],
+   [
+    "load_state (rangtoy/flagging_workflow.py:279)",
+    0.0199
+   ],
+   [
+    "_npz (rangtoy/flagging_influence.py:203)",
+    0.0179
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:227)",
+    0.0144
+   ]
+  ],
+  "top_io_frames": [
+   [
+    "_read1 (zipfile/__init__.py:1173)",
+    0.0306
+   ],
+   [
+    "0x7086dfa348a0 (_hashlib.cpython-314-x86_64-linux-gnu.so)",
+    0.0026
+   ],
+   [
+    "_update_crc (zipfile/__init__.py:1112)",
+    0.0025
+   ],
+   [
+    "read (libc.so.6)",
+    0.0021
+   ],
+   [
+    "CRYPTO_malloc (libcrypto.so.3)",
+    0.0015
+   ],
+   [
+    "0x7086dfa33325 (_hashlib.cpython-314-x86_64-linux-gnu.so)",
+    0.0011
+   ],
+   [
+    "OPENSSL_cleanse (libcrypto.so.3)",
+    0.001
+   ],
+   [
+    "0x7086df1913af (libcrypto.so.3)",
+    0.001
+   ]
+  ],
+  "numpy_callers": [
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:238)",
+    0.1284
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:236)",
+    0.123
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:237)",
+    0.0777
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:213)",
+    0.0653
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:223)",
+    0.0647
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:212)",
+    0.0647
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:235)",
+    0.0636
+   ],
+   [
+    "generate_candidates (rangtoy/flagging_structured_proposals.py:221)",
+    0.0481
+   ]
+  ]
+ }
+}
