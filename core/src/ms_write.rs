@@ -4748,6 +4748,24 @@ fn read_cells_in(
         .position(|(_, s)| *s == seq)
         .ok_or_else(|| MsError(format!("{name}: data manager {seq} is missing")))?;
     let desc = &dat.columns[index];
+    if dat.managers[slot].0 == "TiledDataStMan" {
+        // Rows past the last hypercube have no value; the hypercubes
+        // themselves are not read (no oracle makes them, E6).
+        let bytes = std::fs::read(dir.join(format!("table.f{seq}")))?;
+        let mut c = Cursor::new(&bytes, true);
+        c.magic()?;
+        c.start_expect("TiledDataStMan")?;
+        let inner = c.start_expect("TiledStMan")?;
+        c.end(&inner);
+        // `nrrowLast`: the rows the hypercubes cover.
+        let covered = c.u64()?;
+        if covered > 0 {
+            return err(format!(
+                "{name}: TiledDataStMan hypercubes are not read (E6): no oracle makes them"
+            ));
+        }
+        return Ok(vec![Cell::Undefined; count as usize]);
+    }
     if dat.managers[slot].0 == "MemoryStMan" {
         return err(format!(
             "{name}: a MemoryStMan column holds no data once its table is closed"

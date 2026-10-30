@@ -377,7 +377,7 @@ def step_determinism(run):
             hashes(run / f"core-{k}" / name) == first for k in ("twin", "perturb")
         )
     casacore = {}
-    for label in ("oracle2", "oracle-perturb"):
+    for label in ("oracle-twin", "oracle-perturb"):
         other = run / label
         if not other.exists():
             continue
@@ -661,11 +661,21 @@ def step_refusals(run):
 
     def tds_put(p):
         td = oracle.tds_desc(pt)
-        t = pt.table(str(p), td, nrow=3, dminfo=oracle.TDS_DM)
+        pt.table(str(p), td, nrow=3, dminfo=oracle.TDS_DM).close()
+        before = hashes(p)
+        t = pt.open_table(p, readonly=False)
         try:
             t.putcol("D", np.zeros((3, 4, 8), np.float32))
         finally:
             t.close()
+            after = hashes(p)
+            changed = sorted(
+                k
+                for k in before
+                if before[k] != after.get(k)
+                and not k.endswith(("table.dat", "table.lock"))
+            )
+            report["TiledDataStMan values: data files unchanged"] = not changed
 
     attempts = {
         "TiledCellStMan": lambda p: pt.create_table(
@@ -685,17 +695,17 @@ def step_refusals(run):
             report[label] = {"refused": False}
         except Exception as e:  # noqa: BLE001 - the refusal is the result
             entry = {"refused": True, "names_e6": "E6" in str(e), "message": str(e)}
-            if label == "TiledDataStMan values":
-                # The table is made; the refused put must leave its data alone.
-                entry["data_unchanged"] = True
-            else:
+            if label != "TiledDataStMan values":
                 entry["no_table"] = not (path / "table.dat").exists()
             report[label] = entry
         del before
+    flags = {k: report.pop(k) for k in list(report) if not isinstance(report[k], dict)}
     result = {
         "attempts": report,
+        "checks": flags,
         "pass": all(v["refused"] and v["names_e6"] for v in report.values())
-        and all(v.get("no_table", True) for v in report.values()),
+        and all(v.get("no_table", True) for v in report.values())
+        and all(flags.values()),
     }
     print(json.dumps(result, indent=1), flush=True)
     return write_json(run, "refusals", result, started)
