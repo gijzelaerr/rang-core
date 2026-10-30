@@ -46,7 +46,7 @@ from . import core, core_actions, core_injections, core_prospective, core_signal
 from .core_workflow import core_solve
 from .flagging_equivariance import CASES
 from .flagging_injections import PATTERNS
-from .flagging_trend import run as trend_run
+from .core_trend import run as trend_run
 from .flagging_workflow import load_state
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -178,7 +178,7 @@ def signal(run_dir, inputs_dir, uvw_dir, iterations=50):
         run_dir,
         [inputs_dir, uvw_dir],
         lambda: core_signal.run(
-            run_dir, inputs_dir, uvw_dir, iterations=int(iterations)
+            run_dir, inputs_dir, uvw_dir, iterations=int(iterations), ported=True
         ),
     )
 

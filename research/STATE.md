@@ -1,5 +1,21 @@
 # Rang research state
 
+P6 frozen Python hot spots (big plan wave 2), 2026-10-30 (implemented;
+measured; [p6-python-hotspots.md](p6-python-hotspots.md)): the trend track's
+candidate generation is ported to `core_trend.generate_candidates` (geometry
+built once per case by prefix sums and one `np.nonzero` per row group, scores
+vectorised with a bitwise-checked emulation of NumPy's pairwise sum), and the
+signal track's `train_signal_guard`, `inverse_tangent` and
+`corrected_intensity` are ported into `core_signal.py` with `cond`/`inv` once
+per run of identical gain matrices. Frozen modules untouched. Trend results
+and checkpoints byte-equal, signal results equal apart from wall times, both
+comparators pass with identical counts through the switched drivers (the
+`rang-core trend` and `signal` commands now use the ports). Trend 3.1× faster
+(34.5 → 11.2 s minimum, claimed); signal `cond`/`inv` CPU 13.1 → 0.8 s per run
+but no wall gain measurable in the frozen A/B at falling load (not claimed;
+most signal time is now the survey eigensolver, P4). S1's premise that most
+trend tiles are rejected by count was wrong: 60 % are admissible.
+
 P4 survey eigensolver (big plan wave 2), 2026-10-30 (implemented; measured;
 [p4-eigen.md](p4-eigen.md)): the anchored-response kernel's two 32 × 32
 eigenproblems per call now use Householder tridiagonalisation + implicit QL

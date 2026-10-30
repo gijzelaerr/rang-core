@@ -4,6 +4,9 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task P6, [frozen Python hot spots](p6-python-hotspots.md)
+ported: trend 3.1× with byte-equal checkpoints, signal CPU cut, drivers switched.
+
 New, 2026-10-30: big plan task P4, the [survey eigensolver](p4-eigen.md):
 Householder + implicit QL replaces Jacobi, identical decisions on 13,989
 calls, 5× per call.

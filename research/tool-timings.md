@@ -351,3 +351,30 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P4: identity analysis `-03`: 14 replays, 7 dumps, 7 `p4_dump_audit` runs, 15 diffs | `-02` recordings | replays 1–80 s (signal 80 s, 77 s), audits 0.5–30 s | 480 MB | load 28–34; all pass |
 | 2026-10-30 | big plan P4: timing suite `-04`: 6 × bench-f survey, 6 × section 6 + check, 6 × prospective, 6 × signal, interleaved; 3 × replay microbenchmark | archived inputs | 15.5 min in all; replays 9.6–10.5 s | 838 MB (signal) | load 18–32; Jacobi `section6-check` exit 1 (`8_cost`) 3 of 3, QL exit 0 3 of 3 |
 | 2026-10-30 | big plan P4: `bash tools/check-all.sh` (once, on `6d3199b` plus this document) | branch | 1,380 s (pytest 558 passed in 1,296 s) | not measured | load 31–41; overall PASS; log `outputs/p4-eigen-20261030-05/check-all.log` |
+| 2026-10-30 | big plan P6: trend | – |  | – |  |
+| 2026-10-30 | big plan P6: signal | – |  | – |  |
+| 2026-10-30 | big plan P6: trend | – |  | – |  |
+| 2026-10-30 | big plan P6: signal | – |  | – |  |
+| 2026-10-30 | big plan P6: trend | – |  | – |  |
+| 2026-10-30 | big plan P6: signal | – |  | – |  |
+| 2026-10-30 | big plan P6: base | – |  | – |  |
+| 2026-10-30 | big plan P6: new | – |  | – |  |
+| 2026-10-30 | big plan P6: `uv venv` + `uv pip install -e .[...]` + `maturin develop --release` | – | about 2 min | – | background; cached wheels |
+| 2026-10-30 | big plan P6: root crate first build (`_native_library()`) | – | 10.3 s | – | `cargo` on `PATH` |
+| 2026-10-30 | big plan P6: baseline `-01`, trend and signal × 3 | – | 0.6–1.3 s each | 44–190 MB | **failed as frozen**: `cargo` not on `PATH` |
+| 2026-10-30 | big plan P6: baseline `-02`, trend × 3 | – | 89.9, 68.2, 84.8 s | 340–344 MB | exit 1: `runtime_unchanged` audit (files created during the runs); load 26–32 |
+| 2026-10-30 | big plan P6: baseline `-02`, signal × 3 | – | 59.2, 0.2, 93.4 s | 828–834 MB | repeat 2 failed (`NameError`, half-written file); load 28–32 |
+| 2026-10-30 | big plan P6: cProfile signal base / new (`-03`) | – | 85.2 / 60.8 s (profile totals) | – | load about 30; first signal port |
+| 2026-10-30 | big plan P6: cProfile trend frozen / prefix-sum-only port (`-04`) | – | 121.4 / 103.2 s | – | load 35–45; identity pass (all 9 files) |
+| 2026-10-30 | big plan P6: one case, 8 calls, frozen / ported (scratch, development) | – | 12.4–17.8 / 2.7–8.0 s | – | load 30–44; same results checked each time |
+| 2026-10-30 | big plan P6: pytest P6 files (development, several runs) | – | 3–8 s | – |  |
+| 2026-10-30 | big plan P6: A/B `-05` | – | 0.05 s each | – | **failed as frozen**: `/usr/bin/time` cannot run shell functions (exit 127) |
+| 2026-10-30 | big plan P6: A/B `-06` (frozen measurement) | – | 12 runs, see Results | 340–872 MB | load 42 → 7 |
+| 2026-10-30 | big plan P6: identity and comparators in `-06` | – | under 1 s each | – | all pass |
+| 2026-10-30 | big plan P6: cProfile signal base / new (`-07`) | – | 60.3 / 44.1 s | 833 / 868 MB | load 15–22 |
+| 2026-10-30 | big plan P6: diagnostic `-08` (post hoc), 4 signal runs | – | 91.0, 71.2, 98.2, 65.8 s | – | load 25–38 |
+| 2026-10-30 | big plan P6: labelled trial `-09`: switched `rang-core trend` / `signal` | – | 31.7 / 34.2 s | 414 / 870 MB | load 30–33; comparators pass; reverted |
+| 2026-10-30 | big plan P6: `bash tools/check-all.sh` | – | 4,539 s | – | PASS; pytest 584 passed, 1 skipped (4,280 s); load 27 → 99 |
+| 2026-10-30 | big plan P6: `micro.py` (`cond`/`inv` per cell vs per run, 70,000 matrices) | – | about 1 s | – | load 13; default and one OpenBLAS thread |
+| 2026-10-30 | big plan P6: `negzero.py` (signed zeros, post hoc) | – | under 1 s | – | all agree |
+| 2026-10-30 | big plan P6: identity pre-P6 vs `-06` (`-10`, post hoc) | – | under 1 s | – | pass, both arms |
