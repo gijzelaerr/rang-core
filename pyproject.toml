@@ -45,6 +45,12 @@ formats = ["h5py>=3.11"]
 # lists the platforms 3.8.35 has wheels for (none for macOS x86_64 or macOS
 # arm64 cp310), so the sdist, which needs Rust and a C compiler, is never built.
 casacure = ["casacure==3.8.35; (sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64')) or (sys_platform == 'win32' and platform_machine == 'AMD64') or (sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.11')"]
+# CARTA from the notebooks (research/nb-carta.md): the PyPI dependencies of
+# CARTA's wrapper and of rang.notebook.carta. The wrapper itself (carta-python,
+# GPL-3.0) has no PyPI release and PyPI refuses direct references, so install it
+# by commit: pip install 'carta @ git+https://github.com/CARTAvis/carta-python@989af8ed97238931abe5f235add37e0813bf7e0b'
+# (the PyPI package `carta` is unrelated). The backend runs in a pinned container.
+carta = ["astropy>=6", "requests>=2.31", "simplejson>=3.19", "selenium>=4.40"]
 notebook = ["matplotlib>=3.8", "pandas>=2.1", "ipywidgets>=8.1", "ipykernel>=6.29", "jupyterlab>=4", "nbformat>=5.9", "nbconvert>=7.16"]
 # The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
 docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
