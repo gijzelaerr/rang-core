@@ -155,7 +155,9 @@ def load(dataset):
             d["gains"].shape[2],
         )
         return problem, None, None, {"seconds": time.perf_counter() - started}
-    stations = range(4) if dataset == "slice" else None
+    stations = {"slice": range(4), "array": None}.get(dataset)
+    if dataset.startswith("stations-"):
+        stations = range(int(dataset.split("-")[1]))
     arrays, rows, _ = core_campaign_array.decode_inputs(stations)
     extra = core_campaign_array.decode_extra(rows)
     nant = len(extra["antenna_names"]) if stations is None else max(stations) + 1
@@ -164,8 +166,8 @@ def load(dataset):
     counts = {
         k: int(np.count_nonzero(state[k])) for k in ("train", "validation", "test")
     }
-    expected = K_SPLIT if dataset == "slice" else L1_SPLIT
-    if counts != expected:
+    expected = {"slice": K_SPLIT, "array": L1_SPLIT}.get(dataset)
+    if expected is not None and counts != expected:
         raise RuntimeError(f"split counts {counts} differ from the archive {expected}")
     flags, frows = solve_flags(state, np.zeros_like(state["train"]))
     time_map, freq_map, gt, gf = gain_grid(state, *study.GRID)
@@ -201,7 +203,7 @@ def sweep(dataset, out):
     }
     problem, _, _, info = load(dataset)
     result["load"] = info
-    long_cap = LONG[dataset]
+    long_cap = LONG.get(dataset, LONG["array"])
 
     D = study.solve(problem, "", max_iterations=50)
     scale = study.gain_scale(D["gains"], D["valid"])
@@ -313,10 +315,34 @@ def sweep(dataset, out):
     for k in CAPS:
         arms[f"cap-{k}"] = study.solve(problem, "", max_iterations=k, stop_fraction=2.0)
         expected[f"cap-{k}"] = k
+    anderson_counts = {}
     for m in ANDERSON:
         label = f"anderson-{m}"
-        arms[label] = study.solve(problem, f"anderson={m}", max_iterations=long_cap)
+        path = out / "traces" / f"{label}-direct.json"
+        arms[label] = study.solve(
+            problem, f"anderson={m}", max_iterations=long_cap, trace=path
+        )
         expected[label] = study.stop_iteration(traces[f"AA{m}"], "gain")
+        direct = study.load_trace(path)
+        anderson_counts[label] = {
+            "mixes_to_stop": direct["anderson_mixes"],
+            "resets_to_stop": direct["anderson_resets"],
+        }
+    # Amendment 2: Anderson under the criterion Q2 selected (cap 8), freeze
+    # under it, and the combined candidate default.
+    for m in ANDERSON:
+        label = f"anderson-{m}-cap-8"
+        arms[label] = study.solve(
+            problem, f"anderson={m}", max_iterations=8, stop_fraction=2.0
+        )
+        expected[label] = 8
+    arms["freeze-cap-8"] = study.solve(
+        problem, "freeze=1", max_iterations=8, stop_fraction=2.0
+    )
+    expected["freeze-cap-8"] = 8
+    arms["transposed-anderson-3"] = study.solve(
+        problem, "qp_weights=transposed,anderson=3", max_iterations=50
+    )
     result["arms"] = {}
     for label, run in arms.items():
         record = study.summary(problem, run, R, D, scale)
@@ -327,12 +353,13 @@ def sweep(dataset, out):
         record["hit_safety_cap"] = (
             run["max_iterations"] == long_cap and run["iterations"] == long_cap
         )
+        record.update(anderson_counts.get(label, {}))
         result["arms"][label] = record
         print(label, run["iterations"], record["vs_default"]["relative"], flush=True)
 
     # Held-out curve along R (prefixes of the long run).
     curve = []
-    for k in CURVE[dataset]:
+    for k in CURVE.get(dataset, CURVE["array"]):
         if k > long_cap:
             continue
         run = study.solve(problem, "", max_iterations=k, stop_fraction=2.0)
@@ -485,7 +512,10 @@ def confirm(
                 problem, "qp_weights=transposed", max_iterations=50
             )
             solves["R"] = study.solve(
-                problem, "", max_iterations=LONG[dataset], stop_fraction=2.0
+                problem,
+                "",
+                max_iterations=LONG.get(dataset, LONG["array"]),
+                stop_fraction=2.0,
             )
             image_settings, groups, boxes = core_campaign.IMAGE, 1, None
         else:
@@ -541,10 +571,15 @@ def main():
     out = Path(args.out)
     if not str(out).startswith("outputs/l5-solver-") or out.exists():
         sys.exit("the run directory must be a fresh outputs/l5-solver-* path")
-    if args.target == "array" and (meminfo_gib() or 0) < 20:
-        sys.exit(
-            f"MemAvailable {meminfo_gib():.1f} GiB < 20 GiB: the array run does not start"
-        )
+    if args.target == "array" or args.target.startswith("stations-"):
+        need = 20.0
+        if args.target.startswith("stations-"):
+            n = int(args.target.split("-")[1])
+            need = 2.0 + 18.0 * n * (n - 1) / (56 * 55)
+        if (meminfo_gib() or 0) < need:
+            sys.exit(
+                f"MemAvailable {meminfo_gib():.1f} GiB < {need:.1f} GiB: not started"
+            )
     if args.mode == "sweep":
         sweep(args.target, out)
     else:

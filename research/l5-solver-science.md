@@ -240,6 +240,43 @@ every thread count (tested at 1, 3 and 8 threads in Rust).
 - `freeze=1` under `stop=gain` freezes an interval when every gain of it
   that is not hard-flagged passed the gain test in the same iteration.
 
+## Amendment 2 (2026-10-30, after the fixture and slice sweeps, before any array run)
+
+Written after seeing the fixture (`-03`, `-06`) and slice (`-04`, `-07`)
+sweeps and the post-hoc diagnostic `-05`; the fixture and slice results
+under this amendment are therefore **post hoc**, the array results
+**prospective**.
+
+- **Observed-pair product distance.** Run `-05` showed that 26 slice
+  intervals have only two observed baselines (one gain hard-flagged, the
+  third baseline without an unflagged cell): the third baseline product is
+  then not constrained by the data, and long runs that agree to 1e-16 in
+  training χ² differ there by up to 1.9e-4 (R_T) and 2.0e-7 (Anderson). The
+  frozen "all pairs valid in both" distance is kept and reported; the Q1
+  clause "R_T and R agree in gain products" and the Q3 clause "same fixed
+  point" are, under this amendment, evaluated on **observed pairs** (pairs
+  with at least one cell the solver uses in the interval), with the
+  precision at which R settled taken as the larger of its last-iteration
+  product change and its distance to a 10× longer run where measured
+  (slice: R500 vs R5000, 1.6e-13).
+- **Anderson depth.** The rule of acceptance 5 extended to m: the smallest
+  m tied for the fewest iterations to the gain criterion on the slice,
+  i.e. **m = 3** (21 iterations; m = 5 also 21, m = 2 23). The array and
+  the confirm runs use `anderson=3` with the archived cap 50 and fraction
+  0.99.
+- **Missing frozen arms added**: Anderson m = 2, 3, 5 under the criterion
+  Q2 selected (a fixed cap of 8, fraction 2), and `freeze=1` under the same
+  configuration; both run on all three data sets.
+- **Combined arm**: `qp_weights=transposed,anderson=3` with cap 50 and
+  fraction 0.99 on all three data sets, because a joint default
+  recommendation would otherwise rest on an unmeasured combination.
+- **Confirm runs** (A/B pairs, images) for `anderson=3` and for the
+  combined arm; five A/B pairs on the fixture and slice (cheap; the host
+  load is about 55), three on the array.
+- As frozen, Q2 selected `cap-8` (slice validation −6.9e-5 relative, within
+  δ) and it fails on the fixture test (+3.9e-3 relative), so the frozen
+  Q2 outcome is **no default change**; this amendment does not reopen it.
+
 ## Comparator precondition (run before any code change, 2026-10-30)
 
 Run `outputs/l5-solver-20261030-01` (log `outputs/l5-solver-20261030-01.log`),

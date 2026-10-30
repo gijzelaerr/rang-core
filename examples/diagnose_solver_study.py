@@ -2,7 +2,7 @@
 of the plain, transposed-weight and Anderson solvers differ in gain products,
 and which of them has the lower training χ² there?
 
-Usage: python examples/diagnose_l5_fixed_points.py {fixture,slice} outputs/<fresh-dir>
+Usage: python examples/diagnose_solver_study.py {fixture,slice} outputs/<fresh-dir>
 
 Solves R at 500, 2000 and 5000 iterations, R_T at 500 and 2000 and Anderson
 m = 2, 3, 5 at 500 (stop fraction 2: never stops early), then reports per
