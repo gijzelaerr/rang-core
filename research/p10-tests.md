@@ -106,20 +106,23 @@ run alone under each setting, two interleaved rounds, load1 30–44
 
 | Setting | Round 1 | Round 2 |
 | --- | --- | --- |
-| default (16-thread OpenBLAS, XLA default) | 147.1 / 148.7 / 749.2 | 139.8 / 141.8 / 754.6 |
-| `OPENBLAS_NUM_THREADS=1` | 20.7 / 21.7 / 11.3 | 20.4 / 22.3 / 12.3 |
-| `OPENBLAS_NUM_THREADS=2` | 11.8 / 12.8 / 14.3 | 22.4 / 24.2 / 18.0 |
-| `OPENBLAS_NUM_THREADS=4` | 13.0 / 13.9 / 26.0 | 19.8 / 20.7 / 32.8 |
-| OpenBLAS 1 + XLA single-threaded | 12.6 / 13.6 / 11.1 | 13.5 / 14.4 / 11.0 |
-| OpenBLAS 4 + XLA single-threaded | 21.9 / 23.2 / 38.4 | 16.0 / 16.9 / 31.8 |
+| default (16-thread OpenBLAS, XLA default) | 148.7 / 749.2 / 1.6 | 141.8 / 754.6 / 1.6 |
+| `OPENBLAS_NUM_THREADS=1` | 21.7 / 11.3 / 0.6 | 22.3 / 12.3 / 0.6 |
+| `OPENBLAS_NUM_THREADS=2` | 12.8 / 14.3 / 0.7 | 24.2 / 18.0 / 0.7 |
+| `OPENBLAS_NUM_THREADS=4` | 13.9 / 26.0 / 0.6 | 20.7 / 32.8 / 0.7 |
+| OpenBLAS 1 + XLA single-threaded | 13.6 / 11.1 / 0.6 | 14.4 / 11.0 / 0.7 |
+| OpenBLAS 4 + XLA single-threaded | 23.2 / 38.4 / 0.6 | 16.9 / 31.8 / 0.8 |
 
-With the default pools the test spends 750 s of *system* time in 145 s of
-wall: the OpenBLAS pools (NumPy's and SciPy's bundled scipy-openblas each
-start 15 extra threads at import) spin and yield against the other
-sessions' threads. One BLAS thread with XLA's
+With the default pools the test spends 750 s of *user* CPU in 145 s of
+wall (about 5 cores busy) for about 11 s of useful work: the OpenBLAS
+pools (NumPy's and SciPy's bundled scipy-openblas each start 15 extra
+threads at import) busy-wait in user space while competing with the other
+sessions' threads; system time stays at 0.6–1.6 s in every setting. One
+BLAS thread with XLA's
 `--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1` was the
-fastest and the cheapest in both rounds, so it is the default in
-`tests/conftest.py`. jaxlib 0.12.0.1 accepts these flags (an unknown flag
+cheapest in both rounds and the fastest in round 2 (`OPENBLAS_NUM_THREADS=2`
+was 0.8 s faster in round 1 but 9.8 s slower in round 2), so it is the
+default in `tests/conftest.py`. jaxlib 0.12.0.1 accepts these flags (an unknown flag
 would abort), but XLA's CPU client still creates its pools: a process that
 has run one JAX computation holds 82 threads with the flags and 112
 without, and the pytest process held 114 threads instead of 144–145. The
@@ -195,13 +198,19 @@ Against the three baseline runs of the same tests (mean 1,000 s wall and
 7,846 CPU-s, load 26–34), B1 and B2 took 22–31 % of the wall and 2.4–3.0 %
 of the CPU.
 
+A second, closer load match for the last `A` run: the pytest step of the
+`tools/check-all.sh` run on `B` (below) took 584 s at load 65–82, against
+A2's 4,140 s at load 68.5, i.e. 14 % (wall only: check-all runs pytest
+without junit or the thread sampler, so no per-module split).
+
 Why `test_beams.py` did not improve:
 
 - Most of the module is short `solve_pointing` fits on the thinned rows
-  (1–4 s each). With one BLAS thread under contention they lose a little.
-- The module runs first in the session, so its first test now also pays
-  for building both session references.
-- Its one full-coverage test fell from 18.1 to 12.9 s.
+  (1–4 s each). With one BLAS thread under contention they lose a little
+  (for example 2.2 → 3.5 s and 1.9 → 4.1 s in A1 → B1).
+- Its one full-coverage test fell from 18.1 to 12.9 s. The reference
+  builds cost the same in both arms (in `A` its module fixture built the
+  thinned reference and that test built the full one).
 - Its jitted kernels are module-level (`beams.py`), so sharing predictors
   would not save compilation, and the rule allows no further
   de-duplication.
@@ -237,8 +246,24 @@ the cap is estimated to cost about 1.5–2.5× wall; `OPENBLAS_NUM_THREADS`
 overrides it.
 
 **pyproject / check-all.** No `pyproject.toml` line is needed (no xdist,
-no marker). No `tools/check-all.sh` change is needed either: its pytest
-step picks up `tests/conftest.py`.
+no marker). The thread caps need no `tools/check-all.sh` change: its
+pytest step picks up `tests/conftest.py`. Proposed separately, following
+the coordinator's load-control instruction of 2026-10-30 (load 55–98 with
+up to seven concurrent suites, as seen in A2): check-all takes a host-wide
+lock itself, so suites queue instead of overlapping, near the top after
+`cd`:
+
+```bash
+# One check-all at a time on a shared host; RANG_CHECKALL_LOCK overrides.
+lock=${RANG_CHECKALL_LOCK:-$HOME/.rang-checkall.lock}
+if [ -z "${RANG_CHECKALL_LOCKED:-}" ]; then
+  export RANG_CHECKALL_LOCKED=1
+  exec flock "$lock" bash "$0" "$@"
+fi
+```
+
+The two check-all runs of this task (`-06`, `-07`) started before that
+instruction and ran without the lock.
 
 **Timing rows** (for `tool-timings.md`):
 
@@ -246,10 +271,11 @@ step picks up `tests/conftest.py`.
 | --- | --- | --- | ---: | ---: | --- |
 | 2026-10-30 | `uv venv` / `uv pip install -e .[pointing,beam,test,imaging]` / `maturin develop --release` | P10 worktree | 0.01 / 10.6 / 10.5 s | 22 / 377 / 382 MB | setup, `outputs/p10-tests-20261030-01/` |
 | 2026-10-30 | pytest 9, full suite base-1/2/3 (tests of `4167141`) | 555 tests | 946 / 760 / 1,294 s | 1,676 / 1,630 / 1,703 MB | CPU 7,679 / 6,892 / 8,968 s; load 27–34; 145 threads |
-| 2026-10-30 | pytest, one full-coverage test, 6 thread settings × 2 | 1 test | 11.8–147 s | 747–848 MB | probe table in `research/p10-tests.md` |
+| 2026-10-30 | pytest, one full-coverage test, 6 thread settings × 2 | 1 test | 12.8–148.7 s | 747–848 MB | probe table in `research/p10-tests.md` |
 | 2026-10-30 | pytest, three pointing modules after the change | 71 tests | 95.5 s | 1,370 MB | user 110 s, load 19 |
 | 2026-10-30 | pytest full suite A1 / B1 / B2 / A2 | 555 tests | 672 / 223 / 311 / 4,140 s | 1,638 / 1,631 / 1,777 / 1,528 MB | CPU 6,031 / 188 / 235 / 13,263 s; load 26.5 / 25.8 / 26.9 / 68.5 |
-| 2026-10-30 | `bash tools/check-all.sh` on `d2c6812` + this note | repo | 758 s (pytest step 584 s) | 1,770 MB | PASS; user 281 s, sys 18 s; load 65–82 (A2 took 4,140 s at load 68); `outputs/p10-tests-20261030-06/` |
+| 2026-10-30 | `bash tools/check-all.sh` on `d2c6812` + first version of this note | repo | 758 s (pytest step 584 s) | 1,770 MB | PASS; user 281 s, sys 18 s; load 65–82 (A2 took 4,140 s at load 68); `outputs/p10-tests-20261030-06/`; no lock |
+| 2026-10-30 | `bash tools/check-all.sh` on the corrected note | repo | 838 s (pytest step 701 s) | 1,813 MB | PASS; user 223 s, sys 12 s; load 73–83; `outputs/p10-tests-20261030-07/`; no lock (started before the lock instruction), lock wait 0 |
 
 **Upstream observations.** These tests exercise no RATT software (no
 caracal-pipeline, QuartiCal, Tricolour or dask-ms), so there is nothing
@@ -257,7 +283,8 @@ for U1's RATT list. Non-RATT items, for `non-ratt-observations.md`:
 
 1. The NumPy and SciPy wheels each bundle scipy-openblas, and each starts
    a pool of `ncpu - 1` threads at import. Under oversubscription the
-   pools spin and yield: 750 s of system time in a single 145 s test.
+   pools busy-wait in user space: 750 s of user CPU (1.6 s system) in a
+   single 149 s test whose single-threaded run needs 11 s of CPU.
    Setting `OPENBLAS_NUM_THREADS` before import caps both pools.
 2. jaxlib 0.12's CPU client creates about 80 threads even with
    `--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1`.
