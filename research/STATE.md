@@ -1,5 +1,27 @@
 # Rang research state
 
+RV1 re-validation (big plan), 2026-10-30 (implemented; measured;
+[rv1-revalidate.md](rv1-revalidate.md)). Neither Tricolour 0.5.0 nor
+QuartiCal 0.2.8 is released (PyPI: 0.2.1 and 0.2.7), so the release branches
+were used at recorded commits. Tricolour `0.5.0-dev` `367ff54` (Python
+≥ 3.11, Ray Serve, xarray-ms) reproduces 0.2.1 on task D's four controls: all
+44 strategy-step windows, the polarised intensity bit for bit and the final
+FLAG are identical, and the `tricolour` CLI run end to end matches
+`after-native.npz`, so task D's comparator passes the core against 0.5.0-dev
+unchanged. The one difference is latent: `apply_static_mask`'s `uvrange` now
+selects |uvw| ≤ 550 m, where 0.2.1 and the port select 0.5·|Δp|² ≤ 550²
+(up to 778 m), which affects 165 of 1540 LUNO array baselines and none of
+task D's. #112 leaves one kernel signature; #114 gives identical flags but
+needs a rebase, because its branch predates #112. QuartiCal `v0.2.8-dev`
+`d54c46b` fixes #452 (#456), which moves the capped 50-iteration gains away
+from the archived 0.2.7 oracle: entries by up to 1.7e-3 on the fixture
+(gauge only) and 2.8e-4 on LUNO, products by up to 1.1e-7 and 9.7e-5. The
+core with `RANG_SOLVE_OPTIONS=qp_weights=transposed` (L5) reproduces
+0.2.8-dev to 1.2e-15, with the same flags, iterations and converged
+fractions, and #440's default referencing of `complex` is a pure gauge change
+(products equal to 5.6e-16). A 0.2.7 rerun in a fresh venv reproduces the
+archive to 4e-16. No port change. Archive `results/rv1-revalidate.json`.
+
 CLEAN implicit objective (research question 1 of the CLEAN programme;
 [clean-implicit-objective.md](clean-implicit-objective.md)), 2026-10-30
 (proved; implemented; measured; partly checked). Högbom CLEAN with gain γ is

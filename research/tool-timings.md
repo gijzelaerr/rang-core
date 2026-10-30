@@ -895,3 +895,21 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | CLEAN implicit objective: clean `lake build` of all seven files and the audit | `formal/` | 121 s | – | 33 theorems, standard axioms only |
 | 2026-10-30 | CLEAN implicit objective: fmt check / clippy / test, after the example (incremental) | worktree | 1 s / 0.3 s / 3 s | – | |
 | 2026-10-30 | CLEAN implicit objective: `lake build` after adding `stagewise_pick_optimal` | `formal/` | 120 s | – | Stagewise and its dependents rebuilt; 34 theorems, standard axioms only |
+| 2026-10-30 | big plan RV1: PyPI JSON + GitHub API facts (tags, branches, 10 issues/PRs, comments) | 2 + ~20 requests | about 5 s | – | unauthenticated API |
+| 2026-10-30 | big plan RV1: `git clone` tricolour, QuartiCal | 2 repos | 2.4 s, 2.7 s | – | |
+| 2026-10-30 | big plan RV1: worktree venv (`uv venv` + editable install with the extension) | worktree | 86.4 s | 1.1 GB | |
+| 2026-10-30 | big plan RV1: five oracle uv venvs (tricolour 0.2.1 / 0.5.0-dev / #114, QuartiCal 0.2.7 / 0.2.8-dev) | – | 12.7, 3.8, 1.6, 2.2, 0.5 s | ≤ 117 MB | warm uv cache |
+| 2026-10-30 | big plan RV1: Tricolour 0.2.1 step chain, cold Numba (venv, Python 3.12) | 4 controls, 140 rows × 4096 ch | 101.5 s | 911 MB | 64.6 + 28.7 s compilation in control 0 |
+| 2026-10-30 | big plan RV1: Tricolour 0.5.0-dev `367ff54` step chain, cold | same | 24.1 s | 750 MB | 16.8 s compilation, one signature |
+| 2026-10-30 | big plan RV1: same, warm | same | 9.8 s | 497 MB | chain 8.1 s |
+| 2026-10-30 | big plan RV1: Tricolour PR #114 head step chain, cold / warm | same | 33.5 s / 7.6 s | 783 / 505 MB | two signatures (branch predates #112) |
+| 2026-10-30 | big plan RV1: Tricolour 0.5.0-dev `tricolour` CLI (Ray Serve, xarray-ms), `-nw 4` | per control | 13.1–15.4 s | 360 MB (driver) | warm Numba; 0.2.1 native was 302 s |
+| 2026-10-30 | big plan RV1: Tricolour 0.5.0-dev `pytest -m "not acceptance"` | 60 tests | 71.1 s | 701 MB | 58 passed, 2 skipped |
+| 2026-10-30 | big plan RV1: core flag port, `run_core_flags.py` | 4 controls | 2.2 s | 106 MB | 0.22–0.44 s per control |
+| 2026-10-30 | big plan RV1: QuartiCal 0.2.7 `goquartical`, fixture, cold / warm | 140 rows × 4096 ch, 2 × 32 | 29.4 s / 3.65 s | 652 / 398 MB | fresh uv venv, Numba 0.68.1 |
+| 2026-10-30 | big plan RV1: QuartiCal 0.2.8-dev `d54c46b`, fixture, cold / warm / `referenced=false` | same | 40.0 / 2.86 / 3.04 s | 721 / 410 / 410 MB | |
+| 2026-10-30 | big plan RV1: QuartiCal 0.2.7, LUNO slice (cache warm from fixture), two runs | 192 rows × 2048 ch | 4.58 s, 3.41 s | 375 MB | |
+| 2026-10-30 | big plan RV1: QuartiCal 0.2.8-dev, LUNO slice, verbatim ×2 / `referenced=false` | same | 3.05, 2.90 / 3.49 s | 387 MB | |
+| 2026-10-30 | big plan RV1: core `solve_complex`, fixture / LUNO, archived and `qp_weights=transposed` | 50 iterations | 0.047–0.051 s / 0.19–0.29 s solve; ≤ 0.42 s process | 93 / 79 MB | `RAYON_NUM_THREADS=4` |
+| 2026-10-30 | big plan RV1: RV1 comparators (flags ×7, QuartiCal ×1, archive build) | – | 0.4–2.3 s each | ≤ 90 MB | |
+| 2026-10-30 | big plan RV1: `bash tools/check-all.sh` (RV1 branch) | repo | 1113 s (pytest 352 s) | 1.7 GB | `overall: PASS`, 623 passed, 5 skipped; load about 2–10 |

@@ -13,6 +13,12 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: RV1, [re-validation](rv1-revalidate.md) against the
+unreleased Tricolour 0.5.0-dev (`367ff54`: flag for flag identical to
+0.2.1 and the core port, CLI included; the `uvrange` rule changed) and
+QuartiCal v0.2.8-dev (`d54c46b`: the #452 fix moves 50-iteration gains by
+up to 2.8e-4; the core's `qp_weights=transposed` reproduces it to 1e-15).
+
 New, 2026-10-30: D1, the [documentation site](d1-docs.md): Sphinx and
 myst-nb, executed tutorials, API from the docstrings, GitHub Pages
 deployment from `main` (user enables Pages).

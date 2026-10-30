@@ -194,7 +194,17 @@ CPU-heavy tasks at a time on 8 physical cores.
   renders come with D1.
 - Follow-up: Tricolour 0.5.0 is a rework about to be released (maintainer
   reply on issue 110, 2026-10-30); re-validate the task D port against its
-  flags once it ships (the archived oracle came from 0.2.1).
+  flags once it ships (the archived oracle came from 0.2.1). RV1 done 2026-10-30 (`rv1-revalidate.md`): 0.5.0-dev `367ff54`
+  identical to 0.2.1 and the port on task D's inputs; the `uvrange` rule
+  differs (RV2 proposed); QuartiCal v0.2.8-dev reproduced by the core's
+  `qp_weights=transposed` (RV3 proposed). Rerun both scripts when the
+  releases are tagged. Proposed: RV2, the 0.5.0 `uvrange` rule as an opt-in
+  `uvrange_rule="0.5"` of the core flag port (default `"0.2"`, archives
+  unchanged; equal to the released 0.5.0 chain on a synthetic 300/700/900 m
+  case and one L1 row chunk), when 0.5.0 is released or a campaign needs
+  it; RV3, `qp_weights=transposed` as the solver default once 0.2.8 is
+  released (`qp_weights=archived` keeps every 0.2.7 comparator; L5 measured
+  no held-out effect, so it is alignment, not science; the user decides).
 - DDFacet/killMS: feasibility done 2026-10-30 (`ddfacet-feasibility.md`):
   no faithful port. DF0 (oracle container with WSClean 3.7 and a simulated
   MeerKAT field) and DF1 (exact wgridder-algorithm gridder, first protocol)

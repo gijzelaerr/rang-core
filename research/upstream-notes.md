@@ -376,3 +376,27 @@ not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
   flagged reference antenna (`_determine_refant`'s replacement is discarded)
   and marks fully flagged chunks valid at their starting values; its
   ska-sdp-datamodels 1.1.0 pin stamps integrations at TIME − INTERVAL/2.
+
+## Upstream status after task RV1 (2026-10-30; `rv1-revalidate.md`)
+
+- Tricolour 0.5.0 not released; `0.5.0-dev` `367ff54` reproduces 0.2.1 flag
+  for flag on the four task D controls (kernel chain and CLI). The licence
+  metadata is BSD-3-Clause there.
+- Tricolour #110: resolved in 0.5.0-dev (no ProgressBar; the CLI takes
+  13–15 s per control, mostly Ray start-up, against 302 s).
+- Tricolour #111: fixed by #112 (one signature measured). The issue is still
+  open because the PR targeted a non-default branch; it can be closed with a
+  comment pointing to #112.
+- Tricolour `uvrange` semantics changed in 0.5.0 (|uvw| against
+  0.5·|Δp|²; effective 778 m becomes 550 m for CARACal's `0~550`; 165 of 1540
+  MeerKAT baselines). Text in `upstream-issues/tricolour-uvrange-semantics.md`;
+  a release-note request, not a defect; not filed (user item).
+- QuartiCal 0.2.8 not released; `v0.2.8-dev` `d54c46b` contains the #452
+  fix (#456), verified against the core's independent port of the fix to
+  1e-15 on two inputs. #440 makes `complex` referenced by default: rang's
+  archived command (`solver.reference_antenna=0`) now yields gains in a
+  different gauge with identical products. The dev branch still reports
+  version `0.2.7`, and Tricolour's reports `0.0.0`.
+- PR #114 (rows as lanes) needs a rebase onto `0.5.0-dev` (it predates #112;
+  conflicts in `tests/test_flagging.py`); a push to the user's fork needs the
+  user's go-ahead (user item).
