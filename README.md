@@ -178,7 +178,8 @@ quality/cost comparison, not further simulator expansion.
   statistics, the QuartiCal-style solver, the component predictor, blosc
   decoding, WSClean imaging weights and w-stacking gridder, the Tricolour
   strategies (`rang.core_flag`; `python/rang/data/` carries Tricolour's static
-  masks under its BSD notice) and a read-only Measurement Set reader
+  masks under its BSD notice); AOFlagger 3.5 is a second oracle for them
+  (`tools/oracles/aoflagger/`, `research/a-flag-aoflagger.md`) and a read-only Measurement Set reader
   (`rang.core_ms`; python-casacore is the oracle, no longer a dependency
   for writing or creating tables). Reports: `research/core-*.md`.
 - `recipes/`: core-native Stimela2 recipes `core-*.yaml`

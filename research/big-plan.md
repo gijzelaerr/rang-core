@@ -275,7 +275,11 @@ CPU-heavy tasks at a time on 8 physical cores.
   standards SR2016, PB2010, PB2017 in the core, `setjy` oracle), DF-IO-CT
   (CASA caltables), DF-IO-H5 (H5parm subset), DF-IO-SKY (Tigger lsm, WSClean
   and BBS text, DicoModel read-only), MK1 (done 2026-10-30, `mk1-katdal.md`: `[meerkat]` extra and `rang.meerkat`; exact on a synthetic MVFv4 archive against raw chunks, katdal and mvftoms; the LUNO cross-check waits for a matching MVF) (`[meerkat]` extra with katdal for
-  L3), A-FLAG (AOFlagger as second SumThreshold oracle), L5-C (CASA `gaincal`
+  L3), A-FLAG (done 2026-10-31, `a-flag-aoflagger.md`: kernel-level match with
+  AOFlagger's intended kernel up to A1/A2, every difference attributed, the
+  shipped 3.5.0 binary adds a defect; stage-level difference, mostly
+  Tricolour's input-flag growth; two AOFlagger 3.5.0 bugs; image
+  `rang-aflag-aoflagger:3.5.0`), L5-C (CASA `gaincal`
   as second comparator), DF5-O (WSClean multiscale and pfb-imaging as
   deconvolution oracles), NB-CARTA (optional notebook helper). The matched
   CARACal baseline below is O-CASA plus the Tricolour port.

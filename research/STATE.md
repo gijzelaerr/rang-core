@@ -1,5 +1,36 @@
 # Rang research state
 
+A-FLAG AOFlagger second oracle (big plan), 2026-10-31 (implemented;
+measured; [a-flag-aoflagger.md](a-flag-aoflagger.md)). Protocol frozen
+first. A pinned image, `rang-aflag-aoflagger:3.5.0` (Ubuntu 24.04 +
+KERN-10 AOFlagger 3.5.0, python-casacore 3.7.1), runs Lua translations of
+CARACal's Tricolour first-pass (and mild) `sum_threshold` steps on the
+core's polarised intensity for task D's four controls. Two strategies:
+mapped (AOFlagger idiom) and tuned (as close as the Lua API allows).
+**Kernel level: every difference attributed.** A NumPy bridge
+reproduces both Tricolour's raw SumThreshold flags (re-chained from the
+unmodified 0.2.1 functions, gate 16/16) and AOFlagger's own flags
+(absolute thresholds, hybrid test) bit for bit on all 48 passes.
+Against AOFlagger's intended kernel every differing cell lies on the
+documented differences: fixed lengths 1–256 with ρ = 4/3 (against
+1.3), clamping against exclusion, and input flags as values against as
+missing. One χ₁ = 0 chunk adds 408 cells. So the port is AOFlagger's
+SumThreshold up to those. Against the shipped 3.5.0 binary, a further
+AOFlagger defect adds cells, so the frozen rule is not met there (a
+labelled reading).
+**Stage level: the flaggers differ.** On cells unflagged at entry,
+mapped agrees 0.60–0.95 and tuned 0.63–0.95; the final FLAG agrees
+0.937–0.999. The largest cause (post hoc) is Tricolour itself: flagged
+samples enter its windows as 0 − background, so on high-SNR baselines
+every input flag is detected and grown. Removing only that takes the
+first step's 93,341 new flags to 224. Two AOFlagger 3.5.0 bugs:
+`sumthreshold_masked` reads its direction flags from the wrong Lua
+arguments, and the masked horizontal kernel keeps one missing sample in
+the running sum. The frozen hybrid run was void (wrong all-flagged-mask
+idiom); post-hoc fixes are labelled. Cost: AOFlagger 0.63–0.94 s per
+control on one thread, the port 0.92–1.48 s on one and 0.31–0.52 s on
+four. Next: none required. Upstream reports wait for the user's say.
+
 E5, the rest of the core table writer (big plan;
 [e5-table-writer-rest.md](e5-table-writer-rest.md)), 2026-10-31
 (implemented; measured):

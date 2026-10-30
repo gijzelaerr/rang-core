@@ -13,6 +13,13 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: A-FLAG, [AOFlagger 3.5 as a second SumThreshold
+oracle](a-flag-aoflagger.md): at kernel level the port is AOFlagger's
+intended SumThreshold up to its documented differences (A1/A2), bridged
+bit for bit; against the shipped 3.5.0 binary an AOFlagger defect adds
+more. At stage level the flaggers differ: 0.60–0.95 agreement, mostly
+from Tricolour growing input flags. Two AOFlagger 3.5.0 bugs found.
+
 New, 2026-10-31: E5, the [rest of the core table writer](e5-table-writer-rest.md):
 IncrementalStMan, last-row removal, tiled hypercubes, TiledDataStMan and
 MemoryStMan creation, big-endian and MultiFile tables; 21 of 23 cases

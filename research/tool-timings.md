@@ -1124,3 +1124,21 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan E5: `check_ms_rest.py serialisation` | 111 tables | 0.2 s | – |  |
 | 2026-10-31 | big plan E5: `check_ms_rest.py posthoc` | 2 cases | 0.1 s | – | post hoc |
 | 2026-10-31 | big plan E5: `bash tools/check-all.sh` | repo | 327 s | – | PASS: root 23, core 128 Rust tests; pytest 655 passed, 6 skipped (137 s); log `outputs/e5-20261031-check-all.log` |
+| 2026-10-30 | big plan A-FLAG: curl AOFlagger v3.5.0 tarball (gitlab) | 989 KB | 0.95 s | – | read as data |
+| 2026-10-30 | big plan A-FLAG: `docker build` `rang-aflag-aoflagger:3.5.0` (KERN-10 debs) | Dockerfile | 91.1 s | – | 427 MB image |
+| 2026-10-30 | big plan A-FLAG: `uv venv` + `uv pip install -e .[pointing,beam,test,imaging]` (worktree) | repo | 202.6 s | 1.1 GB | builds `rang._core` |
+| 2026-10-30 | big plan A-FLAG: `uv venv` + Tricolour 0.2.1 lock (RV1 resolution) | 26 pins | 0.9 s | – | cached wheels; freeze identical to RV1 |
+| 2026-10-30 | big plan A-FLAG: AOFlagger probes in the container | synthetic | 0.5–2 s each | – | about 15 probes |
+| 2026-10-30 | big plan A-FLAG: `tricolour_dump.py` (Tricolour 0.2.1, Numba 0.60) | 4 controls, 16 steps | 89.2 s | 413 MB | includes Numba compilation; gate PASS |
+| 2026-10-30 | big plan A-FLAG: `oracle_aoflagger.py stages` (AOFlagger 3.5.0) | 12 container runs | 19.6 s | 81–86 MB | 0.99–1.28 s per run, 99 % CPU |
+| 2026-10-30 | big plan A-FLAG: `oracle_aoflagger.py hybrid` (frozen, void) | 4 runs | 12.7 s | – |  |
+| 2026-10-30 | big plan A-FLAG: `oracle_aoflagger.py chain` port / mapped / tuned | 4 controls each | 3.3 / 19.0 / 20.3 s | – | 4 container runs per control for the AOFlagger chains |
+| 2026-10-30 | big plan A-FLAG: `run_core_flags.py` (fresh port run) | 4 controls | 3.6 s | 109 MB | 199 % CPU at `RAYON=4` |
+| 2026-10-30 | big plan A-FLAG: `oracle_aoflagger.py port-cost` | 4 controls × 2 thread counts | 0.7–1.8 s each | 84–94 MB |  |
+| 2026-10-31 | big plan A-FLAG: `oracle_aoflagger.py hybrid` (post hoc `-10`) | 4 runs, about 24,000 images each | 13.7 s | – |  |
+| 2026-10-31 | big plan A-FLAG: `oracle_aoflagger.py stages` / `chain mapped` (post hoc) |  | 12.0 / 9.2 s | – |  |
+| 2026-10-31 | big plan A-FLAG: `tricolour_dump.py` (post hoc `-14`) | 4 controls | 41.7 s | 331 MB | Numba cache warm |
+| 2026-10-31 | big plan A-FLAG: `s1_values.py` (post hoc `-15`) | 4 controls | 37.0 s | 198 MB |  |
+| 2026-10-31 | big plan A-FLAG: `compare_aoflagger.py` | all runs | 139.6 s | 152 MB | first full run 101.3 s |
+| 2026-10-31 | big plan A-FLAG: `bash tools/check-all.sh` | worktree `54dd65e` | 719 s | – | `overall: PASS`, 674 passed, 14 skipped; load 3–6 |
+| 2026-10-31 | big plan A-FLAG: `bash tools/check-all.sh` | worktree `fd9b09b` (final code) | 848 s | – | `overall: PASS`, 674 passed, 14 skipped (pytest 133 s); log `outputs/aflag-20261031-check-all.log` |

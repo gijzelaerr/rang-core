@@ -444,3 +444,30 @@ saopicc (DDFacet, killMS):
 - **DDFacet 1.0.0.0** pins `numpy<=2.3.2`, `python-casacore<=3.7.1`,
   `tables<=3.10.2`, `dask<2024.11`, which conflict with QuartiCal 0.2.7 and
   Crystalball closures (four venvs were needed).
+
+## A-FLAG observations (2026-10-31; observed, not raised; candidates to file once the user says so)
+
+- **Input flags take part in SumThreshold.**
+  - `_average_freq` zeroes flagged samples. `_sum_threshold1d` uses the
+    input flags only for the noise estimate, so a flagged sample enters
+    every window as 0 − background.
+  - Wherever the background exceeds χ₁, every input flag is detected as a
+    negative outlier. The windows, `time_extend` and `freq_extend` then
+    grow it, and each major iteration repeats the growth.
+  - On the four A-FLAG controls this makes almost all of the first
+    `sum_threshold` step's new flags: 93,341 → 224 and 119,029 → 112 when
+    only this is changed.
+  - AOFlagger removes flagged samples instead (`missing`).
+  - The code is inherited from katsdpsigproc `twodflag.py`. Worth a
+    question: is the growth intended, and should it be a documented option?
+- **Only the last major iteration is returned.** `sum_threshold_flagger`
+  returns the last major iteration's `out_flags`, not the accumulated
+  `iter_flags`. If a later iteration finds nothing new, the earlier
+  iterations' detections are discarded. The tuned⁺ ablation shows this on
+  the holdout controls: iterations 1–2 add about 10,000 cells, and the
+  step returns none.
+- **Documented differences, no report needed.**
+  - `rho: 1.3` against AOFlagger's fixed ρ = 4/3.
+  - The window sequence.
+  - A per-channel and per-chunk MAD estimate against AOFlagger's global
+    winsorized mode.

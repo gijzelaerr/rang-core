@@ -224,3 +224,14 @@ to an unrelated package (carta-python is not on PyPI).
   `TiledDataStManAccessor`, so a TiledDataStMan cannot get a hypercube.
 - casacure 3.8.35 (note): cannot open TiledDataStMan, MemoryStMan or
   MultiFile tables (it looks for `table.f0` in a MultiFile table).
+
+## From A-FLAG (2026-10-31; not reported by decision)
+
+| Software | Observation | Evidence | What a report would say | Status |
+| --- | --- | --- | --- | --- |
+| AOFlagger 3.5.0 | `Functions::sumthreshold_masked` (`lua/functionswrapper.cpp`) checks Lua arguments 5 and 6 are booleans, but reads `horizontal = lua_toboolean(L, 4)` and `vertical = lua_toboolean(L, 5)`. The x pass therefore always runs (argument 4 is a number) and the y pass follows `x_direction`. Calls with (true, true), as the shipped strategies use, are unaffected. | `a-flag-aoflagger.md` deviation 2, `tools/oracles/aoflagger/posthoc/probe9.py` | Read arguments 5 and 6 | not reported by decision |
+| AOFlagger 3.5.0 | `SumThresholdMissing::horizontal`: after the initial loop xRight can point at a missing sample, which the main loop adds (it tests only the mask) and never subtracts (xLeft visits only non-missing samples). It stays in the sum and the count for the rest of the row, so the x and y masked SumThreshold disagree on the same data (here 298,810 frequency cells). | deviation 3; bridge model exact against AOFlagger on 48 real passes and on synthetic images | Skip missing samples before the first add, as the do-while does later | not reported by decision |
+| AOFlagger 3.5.0 | `high_pass_filter` and `low_pass_filter` document `xsigma`/`ysigma` as Gaussian widths, but pass them to `SetHKernelSigmaSq`/`SetVKernelSigmaSq`: they are variances | `lua/functions.cpp`, `lua_functions.rst` | Documentation fix | not reported by decision |
+| AOFlagger 3.5.0 | `Data:clear_mask()` removes the mask (`SetNoMask`), after which `invert_mask()` is a silent no-op. Not a bug, but the obvious "flag everything" idiom fails without an error. | deviation 1 | Documentation note, or make `invert_mask` create the mask | not reported by decision |
+| AOFlagger 3.5.0 | `VerticalStacked` pads the compacted column with zero-valued, unflagged samples to the full height, so y windows can extend past the last valid sample. The x direction stops at it. Small effect: 4 cells in 40 synthetic columns. | `tools/oracles/aoflagger/posthoc/probe11.py` | Note, or stop at the valid length | not reported by decision |
+| KERN-10 `aoflagger` 3.5.0-1kern1 | The Python module installs as `/usr/lib/aoflagger.cpython-312-x86_64-linux-gnu.so`, off `sys.path`, so `import aoflagger` fails until `PYTHONPATH=/usr/lib` | Dockerfile | Install to `dist-packages` | not reported by decision |
