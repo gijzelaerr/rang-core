@@ -578,7 +578,7 @@ patch releases rule out a range.
 | `outputs/e2-casacure-20261030-01` | R1, R2, R4 `result.json` (Linux, casacure Python) |
 | `-02` | python-casacore and casacure descriptions and their diff (R5); TaQL (R7) for ms0 and ms1; the big-endian copies' receipt (copies deleted) |
 | `-03` | R6 `result.json` |
-| `-04` | W1–W5: `write.json`, `inplace.json`, `caltable.json`, the python-casacore read-backs, `tiled-reference/`, `result.json` (written MSs deleted) |
+| `-04` | W1–W5: `write.json`, `inplace.json`, `caltable.json`, the python-casacore read-back receipts, `tiled-reference/`, `result.json` (written MSs and the read-back arrays deleted) |
 | `-05` | measures cases, casacore, casacure/astropy comparison; uvw |
 | `-06` | R3 Rust result (column files deleted) |
 | `-07` | P1, P2 Windows receipts |
@@ -630,6 +630,7 @@ RSS is peak resident set.
 | `uvw` rerun with the GCRS method (post hoc, after review) | LUNO, fixture | 1.02, 0.96 s | 170 MB | 4.1 and 3.3 mm |
 | python-casacore `truncate-after-open` probe (post hoc) | fixture copy | < 2 s | — | container; raises |
 | ghcr manifest and config of `tmolteno/killms:v3.15.12` | registry metadata | < 2 s | — | source label |
+| `RANG_CHECKALL_LOCKED=1 flock ~/.rang-checkall.lock bash tools/check-all.sh` | repository at `c183430` plus this table's edits | 287 s | 1.64 GB | PASS; pytest 634 passed, 3 skipped in 171 s (`RANG_CHECKALL_LOCKED=1`, because the script takes the same lock itself and would wait on the outer `flock`) |
 | `pytest tests/test_casacure_optional.py` | — | 0.52 s | 136 MB | 3 passed |
 
 ## For the coordinator
@@ -675,9 +676,10 @@ unless the user decides to report them; candidate 10 belongs to
 **Evidence to keep:** `outputs/e2-casacure-20261030-01` … `-10` (JSON
 receipts, logs and read-backs).
 
-**Deleted scratch:** the written and copied MSs in `-02/big` and
-`-04/*.ms`, and the Rust column files in `-06/rust-linux` (regenerable
-with the commands in this file); `~/Build/tmp/20261030-e2` (the example's
+**Deleted scratch:** the written and copied MSs in `-02/big`, `-04` and
+`-08`, the python-casacore read-back arrays in `-04/readback-*`, and the
+Rust column files in `-06/rust-linux` (about 840 MB, regenerable with the
+commands in this file); `~/Build/tmp/20261030-e2` (the example's
 target directory and logs); `~/Build/tmp/20261030-casacure` (the clone,
 its venv and targets); on Windows, the scratch copies and
 `~/Build/tmp/20261030-e2-win`.
