@@ -486,8 +486,13 @@ def http_server(directory):
 # --- cost ------------------------------------------------------------------------------
 
 
-def cost(loader, root, prefix):
-    loader.select()
+def cost(loader, root, prefix, every_dump=False):
+    """Wall, katdal read time and bytes per loader chunk; with every_dump,
+    slews and one-dump scans are read too (the cost set has no long tracks)."""
+    if every_dump:
+        loader.select(states=("slew", "track", "scan", "stop"), min_scan_dumps=1)
+    else:
+        loader.select()
     stats = []
     started = time.perf_counter()
     for chunk in loader.iter_chunks():
@@ -513,12 +518,24 @@ def cost(loader, root, prefix):
         "store_bytes": disk_bytes,
         "npy_load_all_seconds": npy_seconds,
         "peak_rss_bytes": rusage.peak_rss_bytes(),
+        "vm_hwm_bytes": _vm_hwm(),
     }
+
+
+def _vm_hwm():
+    """This process's peak resident set from /proc (Linux), else None."""
+    try:
+        for line in Path("/proc/self/status").read_text().splitlines():
+            if line.startswith("VmHWM:"):
+                return int(line.split()[1]) * 1024
+    except OSError:
+        return None
+    return None
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--out", type=Path)
     parser.add_argument(
         "--large",
         type=Path,
@@ -526,7 +543,12 @@ def main():
         help="scratch directory for the L-band-scale cost set (deleted after)",
     )
     parser.add_argument("--archive", action="store_true")
+    parser.add_argument("--cost", nargs=3, metavar=("RDB", "ROOT", "PREFIX"))
     args = parser.parse_args()
+    if args.cost:
+        rdb, root, prefix = args.cost
+        print(json.dumps(cost(meerkat.open_mvf(rdb), root, prefix, every_dump=True)))
+        return 0
     if args.out.exists():
         raise SystemExit(f"{args.out} exists; use a fresh output directory")
     args.out.mkdir(parents=True)
@@ -561,9 +583,8 @@ def main():
     track = _track_dumps(loader)
     result["fixture"]["exercised"] = {
         "track_dumps": track.tolist(),
-        "bad_weight_cells_in_tracks": int(
-            np.sum(raw["weights"][track] == np.float32(2.0**-32))
-        ),
+        # 2**-32 times a stored weight of at most 255 x 2: below 1e-6.
+        "bad_weight_cells_in_tracks": int(np.sum(raw["weights"][track] < 1e-6)),
         "lost_cells_in_tracks": int(np.sum(raw["lost"][track])),
         "l0_l1_differing_cells_in_tracks": int(
             np.sum(raw["flags_l0"][track] != raw["flags_l1"][track])
@@ -623,6 +644,8 @@ def main():
         if args.large.exists():
             raise SystemExit(f"{args.large} exists")
         t0 = time.perf_counter()
+        # The loader then runs in a child process (peak from VmHWM, which execve
+        # resets; ru_maxrss carries the forked parent's RSS across execve).
         big = meerkat.write_synthetic_mvf(
             args.large,
             n_ants=64,
@@ -636,10 +659,24 @@ def main():
         )
         write_seconds = time.perf_counter() - t0
         del big["arrays"]
+        child = subprocess.run(
+            [
+                sys.executable,
+                __file__,
+                "--cost",
+                big["rdb"],
+                big["root"],
+                big["l0_prefix"],
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
         result["cost"]["large"] = {
             "params": big["params"],
             "write_seconds": write_seconds,
-            **cost(meerkat.open_mvf(big["rdb"]), big["root"], big["l0_prefix"]),
+            "note": "every dump read (slews included); loader in a child process",
+            **json.loads(child.stdout.strip().splitlines()[-1]),
         }
         shutil.rmtree(args.large)
     result["seconds"] = time.perf_counter() - t_all
