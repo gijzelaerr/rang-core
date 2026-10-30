@@ -386,19 +386,45 @@ def test_flag_rows(golden):
     )
 
 
-def test_ms_reader(golden):
-    receipt = ROOT / "outputs/core-e-oracle-20261029-01/receipt.json"
-    if not receipt.is_file():
-        pytest.skip("MS oracle not present")
-    entry = json.loads(receipt.read_text())["tables"]["ms0.ANTENNA"]
-    path = ROOT / "outputs" / Path(*Path(entry["path"]).parts[2:])
-    if not path.is_dir():
-        pytest.skip("fixture MS not present")
+def _fixture_antenna(tmp_path):
+    """ms0's ANTENNA from the public fixture zip named by RANG_FIXTURE: scan
+    9 is ms0 file for file (research/t1-casacure-ci.md), so this runs where
+    outputs/ is absent (the wheel test jobs), or None."""
+    import zipfile
+
+    from rang.notebook import data as fixture_data
+
+    source = os.environ.get("RANG_FIXTURE")
+    if not source or not Path(source).is_file():
+        return None
+    if fixture_data._sha256(source) != fixture_data.FIXTURE_SHA256:
+        pytest.fail(f"{source} is not the pinned public fixture")
+    prefix = fixture_data.FIXTURE_SCAN + "/ANTENNA/"
+    with zipfile.ZipFile(source) as zipped:
+        for info in fixture_data._safe_members(zipped, prefix):
+            zipped.extract(info, tmp_path)
+    return tmp_path / prefix
+
+
+def test_ms_reader(golden, tmp_path):
+    path = _fixture_antenna(tmp_path)
+    if path is None:
+        receipt = ROOT / "outputs/core-e-oracle-20261029-01/receipt.json"
+        if not receipt.is_file():
+            pytest.skip("MS oracle not present")
+        entry = json.loads(receipt.read_text())["tables"]["ms0.ANTENNA"]
+        path = ROOT / "outputs" / Path(*Path(entry["path"]).parts[2:])
+        if not path.is_dir():
+            pytest.skip("fixture MS not present")
     assert core_ms.has_reader()
     with core_ms.open_table(path) as table:
+        # The archive's path (ms0 in outputs/), whichever copy was read.
+        description = dict(table.description)
+        description["path"] = (
+            "<ROOT>/outputs/tv-caracal-wsl-20261029-01/original.ms/ANTENNA"
+        )
         out = [
-            # Subtable keywords carry absolute paths; make them checkout-independent.
-            json.dumps(table.description, sort_keys=True).replace(str(ROOT), "<ROOT>"),
+            json.dumps(description, sort_keys=True),
             [str(x) for x in table.getcol("NAME")],
             table.getcol("POSITION"),
             table.getcol("POSITION", 1, 2),

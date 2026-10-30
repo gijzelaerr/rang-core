@@ -7,7 +7,9 @@
 # baseline CPU), plus the sdist; tests every installed wheel on CPython 3.10
 # and 3.14 on its own OS with cargo absent from PATH (import, extension
 # backend chosen, one fused pass, tests/test_core_backends.py against a C ABI
-# built from the same commit) through tools/wheel/test.py; uploads
+# built from the same commit, and casacure as the second oracle of the core's
+# table reader and writer on the public fixture, research/t1-casacure-ci.md)
+# through tools/wheel/test.py; uploads
 # everything as artifacts; on a v* tag attaches the files to a GitHub release
 # and publishes them to PyPI by trusted publishing (environment `pypi`, which
 # needs the pending publisher registered on pypi.org first).
@@ -152,12 +154,21 @@ jobs:
         with:
           name: wheel-${{ matrix.platform }}
           path: dist
-      # tools/wheel/test.py: a fresh venv, the wheel with its test and imaging
-      # extras from public PyPI, then import, tools/wheel/smoke.py and
+      # The public fixture outer_scans.zip (45 MB), keyed on its SHA256 as in
+      # docs.yml; test.py downloads and verifies it on a miss.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/rang-fixture
+          key: rang-fixture-d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f
+      # tools/wheel/test.py: a fresh venv, the wheel with its test, imaging
+      # and casacure extras from public PyPI (no casacure sdist build), the
+      # fixture, then import, tools/wheel/smoke.py and
       # tests/test_core_backends.py (against its archive), test_toy.py,
-      # test_p7_architecture.py and test_p12_rename.py (tools/wheel/pytest_wheel.py) with every
+      # test_p7_architecture.py, test_p12_rename.py and
+      # test_t1_casacure_oracle.py (tools/wheel/pytest_wheel.py) with every
       # PATH directory that holds cargo removed (asserted) and no RANG_*
-      # variables; any skip other than the missing MS oracle fails the step.
+      # variable but RANG_FIXTURE; any skip fails the step except casacure's
+      # no-wheel cells (macos-x86_64, macos-arm64 py3.10).
       - name: Install and test the wheel with cargo absent
         env:
           PIP_INDEX_URL: https://pypi.org/simple
@@ -165,7 +176,8 @@ jobs:
         run: |
           wheel=$(ls dist/*.whl)
           python tools/wheel/test.py "$wheel" "$RUNNER_TEMP/wheel-test" \
-            --python "${{ steps.python.outputs.python-path }}"
+            --python "${{ steps.python.outputs.python-path }}" \
+            --fixture-cache "$HOME/.cache/rang-fixture"
       - if: always()
         uses: actions/upload-artifact@v4
         with:
