@@ -31,6 +31,7 @@ through ctypes; `RANG_DF1_LIB` selects a prebuilt library.
 import ctypes
 import os
 import subprocess
+import sys
 from functools import lru_cache
 from pathlib import Path
 
@@ -162,7 +163,14 @@ def build_standalone():
         cwd=out,
         check=True,
     )
-    return out / "target" / "release" / "librang_df1_core.so"
+    return (
+        out
+        / "target"
+        / "release"
+        / {"win32": "rang_df1_core.dll", "darwin": "librang_df1_core.dylib"}.get(
+            sys.platform, "librang_df1_core.so"
+        )
+    )
 
 
 def _declare(lib):

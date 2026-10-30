@@ -434,12 +434,22 @@ def rust_library():
     """ctypes handle on the standalone kernel, built offline on demand."""
     import ctypes
     import subprocess
+    import sys
 
     out = write_standalone()
     subprocess.run(
         ["cargo", "build", "--offline", "--release", "-q"], cwd=out, check=True
     )
-    lib = ctypes.CDLL(str(out / "target" / "release" / "librang_fs1_core.so"))
+    lib = ctypes.CDLL(
+        str(
+            out
+            / "target"
+            / "release"
+            / {"win32": "rang_fs1_core.dll", "darwin": "librang_fs1_core.dylib"}.get(
+                sys.platform, "librang_fs1_core.so"
+            )
+        )
+    )
     dptr = ctypes.POINTER(ctypes.c_double)
     fn = lib.rang_core_fluxstd_eval
     fn.argtypes = [ctypes.c_size_t, dptr, ctypes.c_double, ctypes.c_size_t, dptr, dptr]
