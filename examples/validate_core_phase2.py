@@ -456,7 +456,7 @@ def snapshot():
         LUNO_ARCHIVE,
     ]
     stats = {
-        str(p.relative_to(ROOT)): [p.stat().st_size, p.stat().st_mtime_ns]
+        p.relative_to(ROOT).as_posix(): [p.stat().st_size, p.stat().st_mtime_ns]
         for p in files
         if p.is_file()
     }
@@ -500,7 +500,7 @@ def main():
             "all_passed": all(passed.values()),
             "library_sha256": digest(library),
             "code_sha256": {
-                str(p.relative_to(ROOT)): digest(p)
+                p.relative_to(ROOT).as_posix(): digest(p)
                 for p in sorted((ROOT / "core/src").glob("*.rs"))
                 + [
                     ROOT / "core/Cargo.toml",

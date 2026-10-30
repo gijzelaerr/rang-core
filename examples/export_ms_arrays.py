@@ -33,7 +33,7 @@ def main():
     columns = tuple(sys.argv[3:]) or DEFAULT
     out.mkdir(parents=True, exist_ok=False)
     files = {
-        str(p.relative_to(ms)): sha256(p.read_bytes()).hexdigest()
+        p.relative_to(ms).as_posix(): sha256(p.read_bytes()).hexdigest()
         for p in sorted(ms.rglob("*"))
         if p.is_file() and p.name != "table.lock"
     }

@@ -39,9 +39,12 @@ ctypes oracle, `tests/test_p7_architecture.py` checks no cargo at run time,
 the GIL release and panic handling). Python never runs Cargo: rebuild the
 extension with `maturin develop --release --offline` after a Rust change.
 
-Supported hosts are Linux and macOS. Native Windows is not supported: the
-fresh-namespace, symlink and disk-budget guards rely on POSIX semantics, and 40
-tests fail there for that reason alone. On Windows, use a WSL2 Linux checkout on
+Supported hosts are Linux and macOS. Native Windows runs the test suite since
+task P7 (622 passed, 43 skipped: tests of the frozen modules that need
+`st_blocks` or a POSIX container path, symlinks without Developer Mode, the
+toy's Linux-archived bytes and absent archives; `research/p7-architecture.md`),
+but the frozen campaigns' fresh-namespace and disk-budget guards still rely
+on POSIX semantics. For campaign work on Windows, use a WSL2 Linux checkout on
 the Linux filesystem (not `/mnt/c`), with Docker inside WSL only to re-run the
 frozen campaigns in `history/` (`history/README.md`). Use Rust 1.93, which
 matches the container kernel stage, so the Rust sources recorded in the result

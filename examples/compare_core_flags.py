@@ -66,7 +66,7 @@ def tree_sha256(path):
     )
     digest = sha256()
     for p in files:
-        digest.update(str(p.relative_to(path)).encode())
+        digest.update(p.relative_to(path).as_posix().encode())
         digest.update(p.read_bytes())
     return digest.hexdigest()
 

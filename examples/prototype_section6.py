@@ -289,7 +289,7 @@ def main():
     receipt = {
         "input_chunk_sha256": inputs,
         "code_sha256": {
-            str(p.relative_to(ROOT)): digest(p)
+            p.relative_to(ROOT).as_posix(): digest(p)
             for p in sorted((ROOT / "core/src").glob("*.rs"))
             + [
                 ROOT / "python/rangtoy/core.py",
