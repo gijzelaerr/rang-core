@@ -448,7 +448,7 @@ def _gain_grid(seed, shape=(5, 4, 3)):
 
 
 def test_root_gain_tv(golden):
-    from rangtoy import flagging
+    from rangtoy import core_policy as flagging
 
     gains, valid, times, frequencies = _gain_grid(5)
     out = flagging.gain_tv(gains, valid, times, frequencies, scale=1.3)
@@ -461,7 +461,7 @@ def test_root_gain_tv(golden):
 
 
 def test_root_trend(golden):
-    from rangtoy import flagging_trend
+    from rangtoy import core_trend_run as flagging_trend
 
     gains, valid, times, frequencies = _gain_grid(6, (6, 5, 3))
     support = np.random.default_rng(1).uniform(size=valid.shape) > 0.1
@@ -472,7 +472,7 @@ def test_root_trend(golden):
 
 
 def test_root_response(golden):
-    from rangtoy import flagging_influence as influence
+    from rangtoy import core_influence as influence
 
     rng = np.random.default_rng(8)
 

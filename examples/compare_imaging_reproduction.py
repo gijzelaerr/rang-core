@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-from rangtoy.imaging_sensitivity import compare_reproduction
+from rangtoy.core_sensitivity import compare_reproduction
 
 
 def main(argv):

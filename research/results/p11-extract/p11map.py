@@ -1,0 +1,25 @@
+"""P11: frozen module -> verbatim extract (research/p11-extract.md)."""
+
+MAP = {
+    "flagging": "core_policy",
+    "flagging_actions": "core_patches",
+    "flagging_balanced": "core_balanced",
+    "flagging_caracal": "core_controls",
+    "flagging_comparators": None,
+    "flagging_equivariance": "core_cases",
+    "flagging_imaging": "core_image_fit",
+    "flagging_influence": "core_influence",
+    "flagging_injections": "core_injection_model",
+    "flagging_next": "core_receipts",
+    "flagging_prepared": "core_paths",
+    "flagging_prospective": "core_forecast",
+    "flagging_response": "core_response",
+    "flagging_signal": "core_templates",
+    "flagging_signal_guard": "core_guard",
+    "flagging_sky": "core_catalog",
+    "flagging_structured": "core_structured",
+    "flagging_structured_proposals": "core_proposals",
+    "flagging_trend": "core_trend_run",
+    "flagging_workflow": "core_state",
+    "imaging_sensitivity": "core_sensitivity",
+}

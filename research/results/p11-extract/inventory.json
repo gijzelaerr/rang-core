@@ -1,0 +1,2605 @@
+{
+ "totals": {
+  "statements": 4395,
+  "executed": 1293
+ },
+ "modules": {
+  "flagging": {
+   "dest": "core_policy",
+   "statements": 151,
+   "executed_statements": 106,
+   "functions_executed": [
+    "_tv_kernel",
+    "assert_preserved",
+    "axis_weights",
+    "fixed_support_tv",
+    "gain_tv",
+    "polar_gauge",
+    "policy_mask",
+    "protected_flags",
+    "residual_features"
+   ],
+   "functions_extracted_not_executed": [
+    "split_holdout"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "require_meerkat_lband",
+     "lines": [
+      17,
+      41
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "protected_flags",
+     "lines": [
+      44,
+      54
+     ],
+     "statements": 9,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "assert_preserved",
+     "lines": [
+      57,
+      60
+     ],
+     "statements": 3,
+     "executed_statements": 2,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "snapshot_flags",
+     "lines": [
+      63,
+      69
+     ],
+     "statements": 5,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_tv_kernel",
+     "lines": [
+      73,
+      84
+     ],
+     "statements": 4,
+     "executed_statements": 4,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "axis_weights",
+     "lines": [
+      87,
+      98
+     ],
+     "statements": 10,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "polar_gauge",
+     "lines": [
+      101,
+      120
+     ],
+     "statements": 11,
+     "executed_statements": 9,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "gain_tv",
+     "lines": [
+      123,
+      170
+     ],
+     "statements": 29,
+     "executed_statements": 25,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "fixed_support_tv",
+     "lines": [
+      173,
+      181
+     ],
+     "statements": 7,
+     "executed_statements": 5,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "residual_features",
+     "lines": [
+      184,
+      198
+     ],
+     "statements": 13,
+     "executed_statements": 13,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "policy_mask",
+     "lines": [
+      201,
+      226
+     ],
+     "statements": 17,
+     "executed_statements": 15,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "split_holdout",
+     "lines": [
+      229,
+      267
+     ],
+     "statements": 17,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    }
+   ]
+  },
+  "flagging_actions": {
+   "dest": "core_patches",
+   "statements": 179,
+   "executed_statements": 81,
+   "functions_executed": [
+    "candidate_patches",
+    "fit_action_model",
+    "proposal_from_model",
+    "split_actions"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "FEATURE_NAMES"
+   ],
+   "definitions": [
+    {
+     "name": "candidate_patches",
+     "lines": [
+      44,
+      114
+     ],
+     "statements": 38,
+     "executed_statements": 34,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "split_actions",
+     "lines": [
+      117,
+      126
+     ],
+     "statements": 5,
+     "executed_statements": 4,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "fit_action_model",
+     "lines": [
+      129,
+      182
+     ],
+     "statements": 24,
+     "executed_statements": 21,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "proposal_from_model",
+     "lines": [
+      185,
+      209
+     ],
+     "statements": 14,
+     "executed_statements": 8,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "run",
+     "lines": [
+      212,
+      464
+     ],
+     "statements": 84,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_balanced": {
+   "dest": "core_balanced",
+   "statements": 147,
+   "executed_statements": 36,
+   "functions_executed": [
+    "balanced_rank"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "GROUPS",
+    "RANDOM_SEED",
+    "RANKINGS"
+   ],
+   "definitions": [
+    {
+     "name": "balanced_rank",
+     "lines": [
+      31,
+      64
+     ],
+     "statements": 17,
+     "executed_statements": 14,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_clone",
+     "lines": [
+      67,
+      77
+     ],
+     "statements": 10,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_all_weights",
+     "lines": [
+      80,
+      86
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_weights_equal",
+     "lines": [
+      89,
+      94
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "make_case",
+     "lines": [
+      97,
+      183
+     ],
+     "statements": 30,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      186,
+      365
+     ],
+     "statements": 63,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_caracal": {
+   "dest": "core_controls",
+   "statements": 156,
+   "executed_statements": 38,
+   "functions_executed": [
+    "score_control",
+    "training_proposal"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "validate_strategy_steps",
+     "lines": [
+      32,
+      39
+     ],
+     "statements": 6,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "strategy_provenance",
+     "lines": [
+      42,
+      51
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "native_command",
+     "lines": [
+      54,
+      70
+     ],
+     "statements": 1,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "training_proposal",
+     "lines": [
+      73,
+      78
+     ],
+     "statements": 4,
+     "executed_statements": 3,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "score_control",
+     "lines": [
+      81,
+      110
+     ],
+     "statements": 17,
+     "executed_statements": 13,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_engine_provenance",
+     "lines": [
+      113,
+      146
+     ],
+     "statements": 5,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_native_run",
+     "lines": [
+      149,
+      243
+     ],
+     "statements": 46,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      246,
+      386
+     ],
+     "statements": 47,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_comparators": {
+   "dest": null,
+   "statements": 243,
+   "executed_statements": 24,
+   "functions_executed": [],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "import_proposals",
+     "lines": [
+      48,
+      58
+     ],
+     "statements": 9,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "pack_training_windows",
+     "lines": [
+      61,
+      85
+     ],
+     "statements": 18,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "unpack_proposals",
+     "lines": [
+      88,
+      96
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "injection_recovery",
+     "lines": [
+      99,
+      122
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "tricolour_worker",
+     "lines": [
+      125,
+      181
+     ],
+     "statements": 16,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "audit_ms",
+     "lines": [
+      184,
+      206
+     ],
+     "statements": 10,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "mad_proposal",
+     "lines": [
+      209,
+      277
+     ],
+     "statements": 29,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      280,
+      560
+     ],
+     "statements": 113,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_equivariance": {
+   "dest": "core_cases",
+   "statements": 164,
+   "executed_statements": 40,
+   "functions_executed": [
+    "phase_factors"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "CASES",
+    "PATTERNS",
+    "REFERENCE_HZ"
+   ],
+   "definitions": [
+    {
+     "name": "checkpoint",
+     "lines": [
+      63,
+      74
+     ],
+     "statements": 10,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "phase_factors",
+     "lines": [
+      77,
+      99
+     ],
+     "statements": 13,
+     "executed_statements": 10,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "gain_prediction",
+     "lines": [
+      102,
+      112
+     ],
+     "statements": 9,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "cell_phases",
+     "lines": [
+      115,
+      121
+     ],
+     "statements": 6,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "phase_replay",
+     "lines": [
+      124,
+      168
+     ],
+     "statements": 20,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_digest",
+     "lines": [
+      171,
+      172
+     ],
+     "statements": 1,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_source_receipts",
+     "lines": [
+      175,
+      190
+     ],
+     "statements": 6,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      193,
+      384
+     ],
+     "statements": 69,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_imaging": {
+   "dest": "core_image_fit",
+   "statements": 376,
+   "executed_statements": 76,
+   "functions_executed": [
+    "_read_images",
+    "image_diagnostics",
+    "image_geometry",
+    "linear_image_fit"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "IMAGE_CLOSURE_JY",
+    "SETTINGS"
+   ],
+   "definitions": [
+    {
+     "name": "_bool",
+     "lines": [
+      47,
+      51
+     ],
+     "statements": 4,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "image_flags",
+     "lines": [
+      54,
+      81
+     ],
+     "statements": 19,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "corrected_visibilities",
+     "lines": [
+      84,
+      138
+     ],
+     "statements": 36,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "paired_decomposition",
+     "lines": [
+      141,
+      162
+     ],
+     "statements": 13,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "unit_template_visibilities",
+     "lines": [
+      165,
+      182
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "linear_image_fit",
+     "lines": [
+      185,
+      214
+     ],
+     "statements": 8,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "image_diagnostics",
+     "lines": [
+      217,
+      236
+     ],
+     "statements": 8,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "wsclean_command",
+     "lines": [
+      239,
+      278
+     ],
+     "statements": 1,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "Budget",
+     "lines": [
+      281,
+      316
+     ],
+     "statements": 21,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_npz",
+     "lines": [
+      319,
+      321
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_runtime",
+     "lines": [
+      324,
+      338
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_tool_receipt",
+     "lines": [
+      341,
+      362
+     ],
+     "statements": 9,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "parser_preflight",
+     "lines": [
+      365,
+      387
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_write_column",
+     "lines": [
+      390,
+      455
+     ],
+     "statements": 26,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_table_audit",
+     "lines": [
+      458,
+      502
+     ],
+     "statements": 12,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "image_geometry",
+     "lines": [
+      505,
+      527
+     ],
+     "statements": 6,
+     "executed_statements": 4,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_read_images",
+     "lines": [
+      530,
+      572
+     ],
+     "statements": 16,
+     "executed_statements": 13,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_plot",
+     "lines": [
+      575,
+      606
+     ],
+     "statements": 18,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      609,
+      899
+     ],
+     "statements": 115,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_influence": {
+   "dest": "core_influence",
+   "statements": 281,
+   "executed_statements": 108,
+   "functions_executed": [
+    "_complex",
+    "_functions",
+    "_maps",
+    "_npz",
+    "_predict",
+    "_training_bundle",
+    "anchored_response",
+    "training_normals"
+   ],
+   "functions_extracted_not_executed": [
+    "jones_jacobian"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "INFO",
+    "REASONS"
+   ],
+   "definitions": [
+    {
+     "name": "_functions",
+     "lines": [
+      62,
+      79
+     ],
+     "statements": 11,
+     "executed_statements": 11,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_complex",
+     "lines": [
+      82,
+      86
+     ],
+     "statements": 4,
+     "executed_statements": 3,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "jones_jacobian",
+     "lines": [
+      89,
+      97
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "training_normals",
+     "lines": [
+      100,
+      155
+     ],
+     "statements": 22,
+     "executed_statements": 17,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "anchored_response",
+     "lines": [
+      158,
+      198
+     ],
+     "statements": 18,
+     "executed_statements": 15,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_npz",
+     "lines": [
+      201,
+      203
+     ],
+     "statements": 2,
+     "executed_statements": 2,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_capacity",
+     "lines": [
+      206,
+      213
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_json",
+     "lines": [
+      216,
+      219
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_runtime_receipts",
+     "lines": [
+      222,
+      248
+     ],
+     "statements": 6,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_maps",
+     "lines": [
+      251,
+      253
+     ],
+     "statements": 2,
+     "executed_statements": 2,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_predict",
+     "lines": [
+      256,
+      266
+     ],
+     "statements": 6,
+     "executed_statements": 6,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_training_bundle",
+     "lines": [
+      269,
+      326
+     ],
+     "statements": 22,
+     "executed_statements": 16,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "forecast_case",
+     "lines": [
+      329,
+      463
+     ],
+     "statements": 59,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_score_validation",
+     "lines": [
+      466,
+      502
+     ],
+     "statements": 12,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      505,
+      780
+     ],
+     "statements": 64,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_injections": {
+   "dest": "core_injection_model",
+   "statements": 225,
+   "executed_statements": 79,
+   "functions_executed": [
+    "injection_scores",
+    "make_injection",
+    "reference_distance"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "PATTERNS"
+   ],
+   "definitions": [
+    {
+     "name": "make_injection",
+     "lines": [
+      33,
+      123
+     ],
+     "statements": 58,
+     "executed_statements": 48,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "injection_scores",
+     "lines": [
+      126,
+      142
+     ],
+     "statements": 8,
+     "executed_statements": 6,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_diagnostics",
+     "lines": [
+      145,
+      147
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "score_archived_candidates",
+     "lines": [
+      150,
+      180
+     ],
+     "statements": 19,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "reference_distance",
+     "lines": [
+      183,
+      215
+     ],
+     "statements": 8,
+     "executed_statements": 8,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_write_data",
+     "lines": [
+      218,
+      231
+     ],
+     "statements": 11,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_train_policy",
+     "lines": [
+      234,
+      311
+     ],
+     "statements": 35,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      314,
+      500
+     ],
+     "statements": 67,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_next": {
+   "dest": "core_receipts",
+   "statements": 78,
+   "executed_statements": 22,
+   "functions_executed": [
+    "source_receipts"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "source_receipts",
+     "lines": [
+      17,
+      30
+     ],
+     "statements": 8,
+     "executed_statements": 8,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "initialize",
+     "lines": [
+      33,
+      81
+     ],
+     "statements": 20,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run_track",
+     "lines": [
+      84,
+      124
+     ],
+     "statements": 26,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "gather",
+     "lines": [
+      127,
+      151
+     ],
+     "statements": 10,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_prepared": {
+   "dest": "core_paths",
+   "statements": 143,
+   "executed_statements": 14,
+   "functions_executed": [
+    "reject_nested_paths"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "reject_nested_paths",
+     "lines": [
+      15,
+      20
+     ],
+     "statements": 4,
+     "executed_statements": 3,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_equal",
+     "lines": [
+      23,
+      29
+     ],
+     "statements": 6,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_require_equal",
+     "lines": [
+      32,
+      34
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_bool_shape",
+     "lines": [
+      37,
+      41
+     ],
+     "statements": 4,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "validate_prepared_arrays",
+     "lines": [
+      44,
+      153
+     ],
+     "statements": 66,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "validate_prepared_manifest",
+     "lines": [
+      156,
+      188
+     ],
+     "statements": 20,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_read_measurement_set",
+     "lines": [
+      191,
+      236
+     ],
+     "statements": 20,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "validate_prepared_state",
+     "lines": [
+      239,
+      263
+     ],
+     "statements": 10,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_prospective": {
+   "dest": "core_forecast",
+   "statements": 265,
+   "executed_statements": 93,
+   "functions_executed": [
+    "_freeze_view",
+    "forecast_family",
+    "make_shortlist",
+    "score_forecasts"
+   ],
+   "functions_extracted_not_executed": [
+    "CampaignBudget"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "MARGIN",
+    "SEEDS"
+   ],
+   "definitions": [
+    {
+     "name": "CampaignBudget",
+     "lines": [
+      50,
+      64
+     ],
+     "statements": 11,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "_clone",
+     "lines": [
+      67,
+      77
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "prepare_inputs",
+     "lines": [
+      80,
+      169
+     ],
+     "statements": 39,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "make_shortlist",
+     "lines": [
+      172,
+      221
+     ],
+     "statements": 18,
+     "executed_statements": 16,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "forecast_family",
+     "lines": [
+      224,
+      328
+     ],
+     "statements": 42,
+     "executed_statements": 36,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "score_forecasts",
+     "lines": [
+      331,
+      365
+     ],
+     "statements": 12,
+     "executed_statements": 9,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_freeze_view",
+     "lines": [
+      368,
+      372
+     ],
+     "statements": 1,
+     "executed_statements": 1,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "run",
+     "lines": [
+      375,
+      647
+     ],
+     "statements": 104,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_response": {
+   "dest": "core_response",
+   "statements": 376,
+   "executed_statements": 104,
+   "functions_executed": [
+    "Budget",
+    "_correct",
+    "_jones_samples",
+    "_product_distance",
+    "allocated_bytes",
+    "linear_response"
+   ],
+   "functions_extracted_not_executed": [
+    "_json_default",
+    "copy_bound"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "ALLOCATION_BYTES",
+    "CONDITION_LIMIT",
+    "GRIDS",
+    "RESERVE_BYTES",
+    "SKIES",
+    "SOURCES"
+   ],
+   "definitions": [
+    {
+     "name": "_json_default",
+     "lines": [
+      51,
+      56
+     ],
+     "statements": 5,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "allocated_bytes",
+     "lines": [
+      59,
+      70
+     ],
+     "statements": 10,
+     "executed_statements": 9,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "copy_bound",
+     "lines": [
+      73,
+      81
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "Budget",
+     "lines": [
+      84,
+      155
+     ],
+     "statements": 38,
+     "executed_statements": 15,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "grid_support",
+     "lines": [
+      158,
+      188
+     ],
+     "statements": 17,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "linear_response",
+     "lines": [
+      191,
+      250
+     ],
+     "statements": 16,
+     "executed_statements": 14,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_diagnostics",
+     "lines": [
+      253,
+      255
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_jones_samples",
+     "lines": [
+      258,
+      268
+     ],
+     "statements": 6,
+     "executed_statements": 6,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_correct",
+     "lines": [
+      271,
+      276
+     ],
+     "statements": 3,
+     "executed_statements": 3,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_clone",
+     "lines": [
+      279,
+      286
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_audit_native",
+     "lines": [
+      289,
+      318
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_restore_flags",
+     "lines": [
+      321,
+      333
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_predict",
+     "lines": [
+      336,
+      365
+     ],
+     "statements": 12,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_inject",
+     "lines": [
+      368,
+      441
+     ],
+     "statements": 34,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_complete_model",
+     "lines": [
+      444,
+      510
+     ],
+     "statements": 27,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_solve",
+     "lines": [
+      513,
+      525
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_product_distance",
+     "lines": [
+      528,
+      540
+     ],
+     "statements": 8,
+     "executed_statements": 8,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "run",
+     "lines": [
+      543,
+      929
+     ],
+     "statements": 118,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_signal": {
+   "dest": "core_templates",
+   "statements": 295,
+   "executed_statements": 44,
+   "functions_executed": [
+    "spatial_templates"
+   ],
+   "functions_extracted_not_executed": [
+    "corrected_intensity"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "ARCMIN",
+    "INVERSE_CONDITION_LIMIT",
+    "REFERENCE_HZ",
+    "SOURCES"
+   ],
+   "definitions": [
+    {
+     "name": "spatial_templates",
+     "lines": [
+      53,
+      84
+     ],
+     "statements": 17,
+     "executed_statements": 14,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "intrinsic_signal",
+     "lines": [
+      87,
+      96
+     ],
+     "statements": 4,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_sample_gains",
+     "lines": [
+      99,
+      112
+     ],
+     "statements": 10,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "corrected_intensity",
+     "lines": [
+      115,
+      159
+     ],
+     "statements": 18,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "fit_signal",
+     "lines": [
+      162,
+      272
+     ],
+     "statements": 34,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "select_policy",
+     "lines": [
+      275,
+      294
+     ],
+     "statements": 4,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_diagnostics",
+     "lines": [
+      297,
+      299
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_stage",
+     "lines": [
+      302,
+      310
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_prediction_and_injection",
+     "lines": [
+      313,
+      416
+     ],
+     "statements": 38,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_mask_identity",
+     "lines": [
+      419,
+      420
+     ],
+     "statements": 1,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_export",
+     "lines": [
+      423,
+      474
+     ],
+     "statements": 12,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      477,
+      929
+     ],
+     "statements": 117,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_signal_guard": {
+   "dest": "core_guard",
+   "statements": 323,
+   "executed_statements": 87,
+   "functions_executed": [
+    "_evaluate",
+    "_rfi_diagnostics",
+    "actual_acceptance",
+    "choose_slots"
+   ],
+   "functions_extracted_not_executed": [
+    "fit_transfer",
+    "inverse_tangent",
+    "train_signal_guard"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "GRID",
+    "MAXIMUM_SOLVES",
+    "MINIMUM_BENEFIT",
+    "PROBE_JY",
+    "SEEDS",
+    "TRANSFER_LIMIT"
+   ],
+   "definitions": [
+    {
+     "name": "inverse_tangent",
+     "lines": [
+      33,
+      60
+     ],
+     "statements": 17,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "fit_transfer",
+     "lines": [
+      63,
+      111
+     ],
+     "statements": 13,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "train_signal_guard",
+     "lines": [
+      114,
+      232
+     ],
+     "statements": 50,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "choose_slots",
+     "lines": [
+      235,
+      254
+     ],
+     "statements": 4,
+     "executed_statements": 4,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "actual_acceptance",
+     "lines": [
+      257,
+      271
+     ],
+     "statements": 4,
+     "executed_statements": 4,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_solve",
+     "lines": [
+      274,
+      280
+     ],
+     "statements": 2,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_saved",
+     "lines": [
+      283,
+      284
+     ],
+     "statements": 1,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_receipts",
+     "lines": [
+      287,
+      323
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_inputs",
+     "lines": [
+      326,
+      389
+     ],
+     "statements": 26,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_columns",
+     "lines": [
+      392,
+      396
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_outside_train_source_boundary",
+     "lines": [
+      399,
+      409
+     ],
+     "statements": 5,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      412,
+      805
+     ],
+     "statements": 109,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_rfi_diagnostics",
+     "lines": [
+      808,
+      832
+     ],
+     "statements": 8,
+     "executed_statements": 8,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_evaluate",
+     "lines": [
+      835,
+      934
+     ],
+     "statements": 38,
+     "executed_statements": 36,
+     "executed": true,
+     "extracted": true
+    }
+   ]
+  },
+  "flagging_sky": {
+   "dest": "core_catalog",
+   "statements": 184,
+   "executed_statements": 39,
+   "functions_executed": [
+    "point_catalog_predict"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "model_provenance",
+     "lines": [
+      30,
+      49
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "require_scalar_model",
+     "lines": [
+      52,
+      63
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "array_digest",
+     "lines": [
+      66,
+      70
+     ],
+     "statements": 4,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "point_catalog_predict",
+     "lines": [
+      73,
+      100
+     ],
+     "statements": 14,
+     "executed_statements": 14,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "comparison_summary",
+     "lines": [
+      103,
+      126
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_fingerprint",
+     "lines": [
+      129,
+      152
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_weights_preserved",
+     "lines": [
+      155,
+      173
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "_primary_control",
+     "lines": [
+      176,
+      276
+     ],
+     "statements": 28,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "complete_primary",
+     "lines": [
+      279,
+      357
+     ],
+     "statements": 28,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "compare",
+     "lines": [
+      360,
+      595
+     ],
+     "statements": 60,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_structured": {
+   "dest": "core_structured",
+   "statements": 89,
+   "executed_statements": 18,
+   "functions_executed": [
+    "_compact",
+    "choose_action"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "choose_action",
+     "lines": [
+      25,
+      47
+     ],
+     "statements": 2,
+     "executed_statements": 2,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_compact",
+     "lines": [
+      50,
+      51
+     ],
+     "statements": 1,
+     "executed_statements": 1,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_export_audit",
+     "lines": [
+      54,
+      83
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "run",
+     "lines": [
+      86,
+      267
+     ],
+     "statements": 63,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "flagging_structured_proposals": {
+   "dest": "core_proposals",
+   "statements": 124,
+   "executed_statements": 108,
+   "functions_executed": [
+    "_bool_shape",
+    "_inputs",
+    "_row_groups",
+    "generate_candidates",
+    "rank_candidates"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "FREQUENCY_WIDTHS",
+    "TV_CAP"
+   ],
+   "definitions": [
+    {
+     "name": "_bool_shape",
+     "lines": [
+      25,
+      29
+     ],
+     "statements": 4,
+     "executed_statements": 3,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_inputs",
+     "lines": [
+      32,
+      81
+     ],
+     "statements": 37,
+     "executed_statements": 29,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "_row_groups",
+     "lines": [
+      84,
+      107
+     ],
+     "statements": 9,
+     "executed_statements": 9,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "generate_candidates",
+     "lines": [
+      110,
+      261
+     ],
+     "statements": 54,
+     "executed_statements": 51,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "rank_candidates",
+     "lines": [
+      264,
+      280
+     ],
+     "statements": 11,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    }
+   ]
+  },
+  "flagging_trend": {
+   "dest": "core_trend_run",
+   "statements": 135,
+   "executed_statements": 120,
+   "functions_executed": [
+    "TrendBudget",
+    "_kernel",
+    "detrended_tv",
+    "estimate_trend",
+    "guidance_from_tv",
+    "run",
+    "training_gain_support"
+   ],
+   "functions_extracted_not_executed": [],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "_kernel",
+     "lines": [
+      30,
+      37
+     ],
+     "statements": 7,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "estimate_trend",
+     "lines": [
+      40,
+      87
+     ],
+     "statements": 17,
+     "executed_statements": 13,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "training_gain_support",
+     "lines": [
+      90,
+      141
+     ],
+     "statements": 20,
+     "executed_statements": 15,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "detrended_tv",
+     "lines": [
+      144,
+      169
+     ],
+     "statements": 8,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "guidance_from_tv",
+     "lines": [
+      172,
+      178
+     ],
+     "statements": 3,
+     "executed_statements": 3,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "TrendBudget",
+     "lines": [
+      181,
+      191
+     ],
+     "statements": 9,
+     "executed_statements": 7,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "run",
+     "lines": [
+      194,
+      318
+     ],
+     "statements": 44,
+     "executed_statements": 41,
+     "executed": true,
+     "extracted": true
+    }
+   ]
+  },
+  "flagging_workflow": {
+   "dest": "core_state",
+   "statements": 333,
+   "executed_statements": 33,
+   "functions_executed": [
+    "load_state",
+    "tree_digest"
+   ],
+   "functions_extracted_not_executed": [
+    "write_json"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [],
+   "definitions": [
+    {
+     "name": "write_json",
+     "lines": [
+      32,
+      35
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "tree_digest",
+     "lines": [
+      38,
+      47
+     ],
+     "statements": 8,
+     "executed_statements": 8,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "unpack_fixture",
+     "lines": [
+      50,
+      67
+     ],
+     "statements": 12,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "prepare",
+     "lines": [
+      70,
+      274
+     ],
+     "statements": 72,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "load_state",
+     "lines": [
+      277,
+      279
+     ],
+     "statements": 2,
+     "executed_statements": 2,
+     "executed": true,
+     "extracted": true
+    },
+    {
+     "name": "set_flags",
+     "lines": [
+      282,
+      310
+     ],
+     "statements": 14,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "solve",
+     "lines": [
+      313,
+      501
+     ],
+     "statements": 69,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "train",
+     "lines": [
+      504,
+      743
+     ],
+     "statements": 68,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "report",
+     "lines": [
+      746,
+      910
+     ],
+     "statements": 59,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    },
+    {
+     "name": "table_data",
+     "lines": [
+      913,
+      917
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": false
+    }
+   ]
+  },
+  "imaging_sensitivity": {
+   "dest": "core_sensitivity",
+   "statements": 128,
+   "executed_statements": 23,
+   "functions_executed": [],
+   "functions_extracted_not_executed": [
+    "_rel",
+    "classify_reproduction",
+    "compare_reproduction",
+    "job_metrics",
+    "pixel_differences",
+    "pixel_digest",
+    "proposed_tolerances",
+    "spread",
+    "variant_command",
+    "variant_metrics",
+    "variants"
+   ],
+   "functions_executed_not_extracted": [],
+   "constants_extracted": [
+    "ADJACENT",
+    "DEFAULTS",
+    "FITTED_JOBS",
+    "FLAGS",
+    "JOBS",
+    "ROLES",
+    "UNIT_JOBS",
+    "WEIGHT_KEYS"
+   ],
+   "definitions": [
+    {
+     "name": "variants",
+     "lines": [
+      64,
+      79
+     ],
+     "statements": 10,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "variant_command",
+     "lines": [
+      82,
+      117
+     ],
+     "statements": 28,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "pixel_digest",
+     "lines": [
+      120,
+      122
+     ],
+     "statements": 1,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "classify_reproduction",
+     "lines": [
+      125,
+      162
+     ],
+     "statements": 12,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "compare_reproduction",
+     "lines": [
+      165,
+      169
+     ],
+     "statements": 1,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "job_metrics",
+     "lines": [
+      172,
+      197
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "variant_metrics",
+     "lines": [
+      200,
+      223
+     ],
+     "statements": 9,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "pixel_differences",
+     "lines": [
+      226,
+      241
+     ],
+     "statements": 7,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "_rel",
+     "lines": [
+      244,
+      247
+     ],
+     "statements": 3,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "spread",
+     "lines": [
+      250,
+      327
+     ],
+     "statements": 19,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    },
+    {
+     "name": "proposed_tolerances",
+     "lines": [
+      330,
+      362
+     ],
+     "statements": 8,
+     "executed_statements": 0,
+     "executed": false,
+     "extracted": true
+    }
+   ]
+  }
+ }
+}

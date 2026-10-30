@@ -54,8 +54,8 @@ from .core_campaign_array import (
     valid_prediction,
     verify_object,
 )
+from .core_policy import assert_preserved, fixed_support_tv, protected_flags
 from .core_workflow import gain_grid
-from .flagging import assert_preserved, fixed_support_tv, protected_flags
 
 ROOT = core_campaign.ROOT
 BUCKET = core_campaign.BUCKET
@@ -483,7 +483,7 @@ def survey(arrays, gains=None, gain_valid=None, grid=core_campaign.GRID):
     weights positive, the model finite (rows have FLAG_ROW false). `gains`
     (ntime, nfreq, >=4, 2, 2) with `gain_valid` gives the solved-gain point;
     None gives identity. Native status from anchored_response(H, 0, 0, 0)."""
-    from .flagging_influence import anchored_response, training_normals
+    from .core_influence import anchored_response, training_normals
 
     p_all, q_all = arrays["ANTENNA1"], arrays["ANTENNA2"]
     if np.any(p_all >= 4) or np.any(q_all >= 4):

@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 
 from . import core, rusage
-from .flagging import gain_tv, polar_gauge
+from .core_policy import gain_tv, polar_gauge
 
 OPTIONS_VAR = "RANG_SOLVE_OPTIONS"
 TRACE_VAR = "RANG_SOLVE_TRACE"

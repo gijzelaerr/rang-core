@@ -23,7 +23,7 @@ from casacore.tables import table
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "history/tools/flagging/sky"))
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy.flagging_response import REFERENCE_HZ, SOURCES
+from rangtoy.core_response import REFERENCE_HZ, SOURCES
 from verify_prediction import read_catalog
 
 ARCMIN = np.pi / 10800

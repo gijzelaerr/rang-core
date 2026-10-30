@@ -1,0 +1,722 @@
+{
+ "test_flagging.py": {
+  "dest": "test_core_policy.py",
+  "tests": 7,
+  "kept": [
+   "test_rust_tv_matches_independent_full_complex_frobenius_norm",
+   "test_polar_gauge_removes_unitary_ambiguity_preserves_common_amplitude_and_rime",
+   "test_missing_gain_edges_are_rejected_and_fixed_support_is_not_changed",
+   "test_policy_requires_residual_evidence_respects_budget_and_protected_splits",
+   "test_sparse_gain_bins_are_not_emptied_by_holdout_selection"
+  ],
+  "moved_only": {
+   "test_original_cell_and_row_flags_survive_decreasing_proposals": [
+    "flagging.snapshot_flags"
+   ],
+   "test_experiment_requires_meerkat_lband_metadata": [
+    "flagging.require_meerkat_lband"
+   ]
+  },
+  "source_sha256": "e8b4ef016a5cd29b22a7c08fcf46c0cb3a5038bc04b97058ca32ed39389ebaea",
+  "rewrites": [],
+  "lines": 101
+ },
+ "test_flagging_actions.py": {
+  "dest": "test_core_patches.py",
+  "tests": 7,
+  "kept": [
+   "test_action_model_never_uses_test_labels_or_test_features_for_standardization",
+   "test_action_splits_are_fixed_disjoint_and_exhaustive",
+   "test_missing_action_labels_are_explicit_not_zero_and_invalid_splits_rejected",
+   "test_action_proposal_retains_no_change_budget_and_never_selects_test_actions",
+   "test_patch_features_ignore_holdout_residuals_and_actions_do_not_overlap"
+  ],
+  "moved_only": {
+   "test_action_run_checks_authoritative_boundary_before_any_solve": [
+    "flagging_actions.flagging_prepared",
+    "flagging_actions.run"
+   ],
+   "test_action_run_rejects_nested_source_output_before_creating_files": [
+    "flagging_actions.run"
+   ]
+  },
+  "source_sha256": "7bb4743b4afe9de78290d933ab6cff7cbd6b9132619e81701214ed558df5a222",
+  "rewrites": [],
+  "lines": 95
+ },
+ "test_flagging_balanced.py": {
+  "dest": "test_core_balanced.py",
+  "tests": 8,
+  "kept": [
+   "test_all_rankers_take_two_distinct_masks_per_canonical_group",
+   "test_empty_or_short_groups_never_borrow_slots",
+   "test_random_mask_choices_ignore_scores_and_family_iteration_order",
+   "test_residual_and_tv_rank_exact_existing_scores_with_hash_ties",
+   "test_invalid_protocol_and_duplicate_masks_are_rejected"
+  ],
+  "moved_only": {
+   "test_make_case_never_injects_an_already_contaminated_source": [
+    "flagging_balanced.flagging_prepared",
+    "flagging_balanced.make_case"
+   ],
+   "test_make_case_has_exact_train_only_delta_and_preserves_original_state": [
+    "flagging_balanced.flagging_prepared",
+    "flagging_balanced.make_case"
+   ],
+   "test_clone_rejects_nested_paths_before_mkdir": [
+    "flagging_balanced._clone"
+   ]
+  },
+  "source_sha256": "576fe35d2a52cd6c8ceba21588c4a82def0bef5878252fed4a8916db88935be5",
+  "rewrites": [],
+  "lines": 83
+ },
+ "test_flagging_caracal.py": {
+  "dest": "test_core_controls.py",
+  "tests": 8,
+  "kept": [
+   "test_native_flag_import_never_changes_heldout_eligibility",
+   "test_control_guards_never_use_test_metric",
+   "test_nonfinite_or_negative_diagnostic_inputs_cannot_pass_guard"
+  ],
+  "moved_only": {
+   "test_strategy_validation_rejects_unflag_and_missing_original_union": [
+    "flagging_caracal.validate_strategy_steps"
+   ],
+   "test_modified_or_unknown_strategy_rejected_before_yaml_dependency": [
+    "flagging_caracal.strategy_provenance"
+   ],
+   "test_native_command_matches_caracal_polarisation_and_preserves_flags": [
+    "flagging_caracal.native_command"
+   ],
+   "test_input_output_nesting_rejected_before_creation": [
+    "flagging_caracal.run"
+   ],
+   "test_unknown_settings_rejected_without_native_dependencies": [
+    "flagging_caracal.run"
+   ]
+  },
+  "source_sha256": "07d30d1b4738e7d01d1a8889de7182517b1c3bba87e4d9859be31dae33d0da93",
+  "rewrites": [],
+  "lines": 67
+ },
+ "test_flagging_equivariance.py": {
+  "dest": "test_core_cases.py",
+  "tests": 8,
+  "kept": [
+   "test_identity_and_short_time_span_freeze",
+   "test_invalid_phase_controls_refused"
+  ],
+  "moved_only": {
+   "test_all_frozen_patterns_preserve_full_jones_weighted_residuals": [
+    "flagging_equivariance.cell_phases",
+    "flagging_equivariance.gain_prediction",
+    "flagging_equivariance.phase_replay"
+   ],
+   "test_legitimate_smooth_phase_can_increase_tv_without_residual_change": [
+    "flagging_equivariance.gain_prediction",
+    "flagging_equivariance.phase_replay"
+   ],
+   "test_native_gain_grid_change_refused": [
+    "flagging_equivariance.gain_prediction"
+   ],
+   "test_existing_or_nested_outputs_refused_without_creation": [
+    "flagging_equivariance.run"
+   ],
+   "test_test_values_do_not_affect_tv_or_validation_objective": [
+    "flagging_equivariance.gain_prediction",
+    "flagging_equivariance.phase_replay"
+   ],
+   "test_checked_checkpoint_is_exclusive_and_stops_before_budget_breach": [
+    "flagging_equivariance.checkpoint"
+   ]
+  },
+  "source_sha256": "09e4f355f94807960f029b4a4085f1658748263c99fd5f6ccc4e0f711280dd85",
+  "rewrites": [],
+  "lines": 40
+ },
+ "test_flagging_imaging.py": {
+  "dest": "test_core_image_fit.py",
+  "tests": 25,
+  "kept": [
+   "test_known_family_image_fit_is_unrestricted",
+   "test_rank_deficient_image_family_is_unavailable",
+   "test_invalid_image_pixels_are_not_silently_dropped",
+   "test_fixed_dirty_offsource_diagnostic_is_not_thermal_noise",
+   "test_image_geometry_frozen_scale_and_axes"
+  ],
+  "moved_only": {
+   "test_general_full_jones_inverse_conjugation": [
+    "flagging_imaging.corrected_visibilities"
+   ],
+   "test_saved_already_spectral_unit_template_embedded_exactly_once": [
+    "flagging_imaging.unit_template_visibilities"
+   ],
+   "test_unit_template_support_protection_and_nonfinite_heldout_invariance": [
+    "flagging_imaging.unit_template_visibilities"
+   ],
+   "test_actual_response_template_producer_returns_already_spectral_units": [
+    "flagging_imaging.unit_template_visibilities",
+    "flagging_response._predict"
+   ],
+   "test_right_unitary_corrected_trace_invariance": [
+    "flagging_imaging.corrected_visibilities"
+   ],
+   "test_invalid_gain_support_is_missing_not_manufactured": [
+    "flagging_imaging.corrected_visibilities"
+   ],
+   "test_only_explicit_support_values_are_used": [
+    "flagging_imaging.corrected_visibilities"
+   ],
+   "test_original_bool_metadata_cannot_be_coerced": [
+    "flagging_imaging.image_flags"
+   ],
+   "test_image_mask_rejects_original_cells_rows_and_autos": [
+    "flagging_imaging.image_flags"
+   ],
+   "test_flags_keep_originals_and_exact_frozen_support": [
+    "flagging_imaging.image_flags"
+   ],
+   "test_additions_cannot_flag_heldout_values": [
+    "flagging_imaging.image_flags"
+   ],
+   "test_wide_decomposition_and_no_source_mutation": [
+    "flagging_imaging.VISIBILITY_CLOSURE_JY",
+    "flagging_imaging.paired_decomposition"
+   ],
+   "test_decomposition_refuses_lost_support": [
+    "flagging_imaging.paired_decomposition"
+   ],
+   "test_frozen_command_is_actual_dirty_only_wstacking": [
+    "flagging_imaging.wsclean_command"
+   ],
+   "test_real_parser_preflight_is_dry_only_and_failure_prevents_ms_mutation": [
+    "flagging_imaging.Budget",
+    "flagging_imaging.parser_preflight",
+    "flagging_imaging.subprocess"
+   ],
+   "test_run_parser_failure_precedes_state_load_copy_write_and_output_creation": [
+    "flagging_imaging.Budget",
+    "flagging_imaging.run",
+    "flagging_imaging.shutil",
+    "flagging_imaging.subprocess",
+    "flagging_response.mkdir"
+   ],
+   "test_budget_refuses_symlinks_and_reserve": [
+    "flagging_imaging.Budget",
+    "flagging_imaging.shutil"
+   ],
+   "test_bidirectional_nesting_rejected_before_tool_or_writes": [
+    "flagging_imaging.run"
+   ],
+   "test_every_native_column_write_has_exclusive_previous_backup": [
+    "flagging_imaging.Budget",
+    "flagging_imaging._write_column"
+   ],
+   "test_post_wsclean_checks_exact_written_arrays_and_native_columns": [
+    "flagging_imaging.Budget",
+    "flagging_imaging._table_audit",
+    "flagging_imaging.image_flags"
+   ]
+  },
+  "source_sha256": "bb52d577ad34024cf4d8e0179038a684655f6e0dc619528b01839ce2eee9f6c1",
+  "rewrites": [],
+  "lines": 69
+ },
+ "test_flagging_influence.py": {
+  "dest": "test_core_influence.py",
+  "tests": 12,
+  "kept": [
+   "test_polarized_model_refuses_wrong_common_u2_gauge",
+   "test_inactive_station_is_removed_not_counted_as_global_rank_failure",
+   "test_exact_general_model_jacobian_finite_differences",
+   "test_native_normals_match_explicit_weighted_real_jacobian",
+   "test_projected_anchored_response_matches_numpy_eigen_reference",
+   "test_no_deletion_has_exact_zero_response_despite_baseline_gradient",
+   "test_two_station_extra_gl_ambiguity_and_retained_rank_loss_abstain",
+   "test_large_station_update_abstains_instead_of_clipping",
+   "test_response_is_equivariant_under_left_diagonal_receiver_phase",
+   "test_malformed_native_weight_or_sample_domain_rejected",
+   "test_training_curvature_ignores_heldout_data_and_rejects_protected_overlap"
+  ],
+  "moved_only": {
+   "test_resource_ceiling_and_disk_reserve_checked_before_derived_write": [
+    "flagging_influence.DERIVED_LIMIT_BYTES",
+    "flagging_influence.RESERVE_BYTES",
+    "flagging_influence._capacity",
+    "flagging_influence.shutil"
+   ]
+  },
+  "source_sha256": "673e266142e6e8d32e20c200b231a466fabb1c2b404f9db3a8a7fa56e0ff213c",
+  "rewrites": [],
+  "lines": 279
+ },
+ "test_flagging_injections.py": {
+  "dest": "test_core_injection_model.py",
+  "tests": 6,
+  "kept": [
+   "test_injections_are_repeatable_training_only_and_protect_input",
+   "test_injections_reject_overlap_and_protected_training",
+   "test_injections_validate_pattern_and_native_weights",
+   "test_injection_score_distinguishes_known_recovery_and_unlabeled_additions",
+   "test_reference_distance_keeps_fixed_clean_support"
+  ],
+  "moved_only": {
+   "test_candidate_truth_scoring_is_post_selection_and_exclusive": [
+    "flagging_injections.score_archived_candidates"
+   ]
+  },
+  "source_sha256": "818c0bf747ef3f4286e1b7cec11a07427085d6eccadda071269f114329fa1b0b",
+  "rewrites": [],
+  "lines": 121
+ },
+ "test_flagging_next.py": {
+  "dest": "test_core_receipts.py",
+  "tests": 6,
+  "kept": [
+   "test_source_receipts_cover_modules_rust_recipes_and_actual_native_file"
+  ],
+  "moved_only": {
+   "test_five_isolated_dispatches_with_explicit_imaging_sources": [
+    "flagging_next.TRACKS",
+    "flagging_next.importlib",
+    "flagging_next.run_track"
+   ],
+   "test_invalid_dispatch_refused_before_import_or_cache_write": [
+    "flagging_next.importlib",
+    "flagging_next.run_track"
+   ],
+   "test_initialize_freezes_five_sources_and_checked_worker_resource_contract": [
+    "flagging_next.TRACKS",
+    "flagging_next.initialize"
+   ],
+   "test_gather_refuses_mutation_or_missing_branches_and_never_writes_result": [
+    "flagging_next.TRACKS",
+    "flagging_next.gather"
+   ],
+   "test_gather_all_five_results_without_inventing_scientific_success": [
+    "flagging_next.TRACKS",
+    "flagging_next.gather"
+   ]
+  },
+  "source_sha256": "30db4c72fb189c1dc67be7fb0d50c501ca8444bb0ca81c2551ef27e36a9f9551",
+  "rewrites": [],
+  "lines": 59
+ },
+ "test_flagging_prepared.py": {
+  "dest": "test_core_paths.py",
+  "tests": 13,
+  "kept": [
+   "test_nested_paths_rejected_in_either_direction_before_creating_output"
+  ],
+  "moved_only": {
+   "test_prepared_boundary_accepts_unchanged_and_documented_injected_data": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_saved_state_cannot_hide_actual_original_flags": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_data_model_and_active_native_weights_are_authoritative": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_split_masks_exclude_original_cells_rows_autos_and_outside_window": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_visibility_holdout_leakage_and_non_boolean_masks_are_rejected": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_nonfinite_and_nonpositive_weight_samples_cannot_enter_any_split": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_polar_model_requires_finite_unpolarized_scalar_correlations": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_original_nonfinite_data_cannot_be_made_eligible_by_injection": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_manifest_channels_splits_and_gain_grid_must_describe_actual_state": [
+    "flagging_prepared.validate_prepared_manifest"
+   ],
+   "test_actual_observation_metadata_enforces_meerkat_lband_and_coordinates": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_working_flags_cannot_already_violate_original_bounds": [
+    "flagging_prepared.validate_prepared_arrays"
+   ],
+   "test_original_digest_is_checked_before_any_table_access": [
+    "flagging_prepared.validate_prepared_state"
+   ]
+  },
+  "source_sha256": "121e47f17c361e3ab4cabc1ec561791653e591405c78337d47c30f55a20a2257",
+  "rewrites": [],
+  "lines": 28
+ },
+ "test_flagging_prospective.py": {
+  "dest": "test_core_forecast.py",
+  "tests": 16,
+  "kept": [],
+  "moved_only": {
+   "test_native_response_freezes_fixed_scale_support_and_prediction_payload": [
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge"
+   ],
+   "test_train_response_cannot_read_poisoned_holdout_values": [
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge"
+   ],
+   "test_unsorted_or_duplicate_masks_rejected_for_signed_and_unsigned": [
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge"
+   ],
+   "test_mask_identity_training_membership_and_exact_flag_budget": [
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge"
+   ],
+   "test_invalid_curvature_is_missing_prediction_not_zero": [
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge"
+   ],
+   "test_validation_score_uses_full_guarded_objective_and_never_test_values": [
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge"
+   ],
+   "test_validation_degradation_abstains_instead_of_using_test": [
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge"
+   ],
+   "test_campaign_exact_allocation_boundary": [
+    "flagging_prospective.RESERVE_BYTES"
+   ],
+   "test_campaign_exact_eight_gib_reserve": [
+    "flagging_prospective.RESERVE_BYTES"
+   ],
+   "test_all_forecasts_freeze_before_labels_and_exact_seventy_five_solve_ceiling": [
+    "flagging_prospective.RESERVE_BYTES",
+    "flagging_prospective._compact",
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.flagging_prepared",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge",
+    "flagging_prospective.run"
+   ],
+   "test_registry_rejects_relabelled_duplicated_or_stale_inputs_before_any_solve": [
+    "flagging_prospective.RESERVE_BYTES",
+    "flagging_prospective._compact",
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.flagging_prepared",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge",
+    "flagging_prospective.run"
+   ],
+   "test_shortlist_above_twenty_four_rejected_before_action_solve": [
+    "flagging_prospective.RESERVE_BYTES",
+    "flagging_prospective._compact",
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.flagging_prepared",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge",
+    "flagging_prospective.run"
+   ],
+   "test_duplicate_shortlist_identity_rejected_before_action_solve": [
+    "flagging_prospective.RESERVE_BYTES",
+    "flagging_prospective._compact",
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.flagging_prepared",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge",
+    "flagging_prospective.run"
+   ],
+   "test_native_metadata_protocol_rejected_before_baseline": [
+    "flagging_prospective.RESERVE_BYTES",
+    "flagging_prospective._clone",
+    "flagging_prospective._compact",
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.flagging_prepared",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge",
+    "flagging_prospective.run"
+   ],
+   "test_native_complex64_constructor_backs_up_and_changes_train_DATA_only": [
+    "flagging_prospective.RESERVE_BYTES",
+    "flagging_prospective._npz",
+    "flagging_prospective.fixed_support_tv",
+    "flagging_prospective.flagging_prepared",
+    "flagging_prospective.gain_tv",
+    "flagging_prospective.polar_gauge",
+    "flagging_prospective.prepare_inputs"
+   ],
+   "test_frozen_iterations_reject_before_output_creation": [
+    "flagging_prospective.run"
+   ]
+  }
+ },
+ "test_flagging_response.py": {
+  "dest": "test_core_response.py",
+  "tests": 17,
+  "kept": [
+   "test_linear_real_fluxes_have_no_positivity_or_spectral_bounds",
+   "test_response_decomposition_is_linear_at_fixed_support_and_weights",
+   "test_full_jones_correction_decomposition_can_show_exact_gain_cancellation",
+   "test_rank_deficiency_does_not_invent_flux_and_negative_noise_is_not_dropped",
+   "test_high_condition_full_rank_is_reported_unavailable",
+   "test_invalid_selected_samples_raise_without_silent_discard",
+   "test_nonselected_nan_values_do_not_change_explicit_support",
+   "test_budget_rejects_cap_and_reserve_before_write",
+   "test_budget_preserves_existing_backups_and_rejects_escape",
+   "test_copy_budget_rejects_source_symlinks_before_writes",
+   "test_operation_observed_reservation_breach_preserves_artifact",
+   "test_baseline_product_distance_is_common_unitary_gauge_invariant"
+  ],
+  "moved_only": {
+   "test_response_protocol_is_new_separate_and_small": [
+    "flagging_response.CONTROL_COLUMN",
+    "flagging_response.SIGNS",
+    "flagging_response.SOLVE_RESERVATION_BYTES"
+   ],
+   "test_native_complex64_DATA_delta_casts_before_subtraction_for_exact_closure": [
+    "flagging_response._inject"
+   ],
+   "test_gain_support_uses_actual_integrations_not_row_count": [
+    "flagging_response.grid_support"
+   ],
+   "test_invalid_iterations_never_create_namespace": [
+    "flagging_response.run"
+   ],
+   "test_nested_existing_and_dangling_outputs_refused_before_source_reads": [
+    "flagging_response.run"
+   ]
+  },
+  "source_sha256": "c0cb1bfa177df890461a6e0edad661c42b90ec303899c977ffe978336878a938",
+  "rewrites": [],
+  "lines": 220
+ },
+ "test_flagging_signal.py": {
+  "dest": "test_core_templates.py",
+  "tests": 9,
+  "kept": [
+   "test_frozen_sources_and_reference_frequency",
+   "test_full_jones_inverse_and_weight_propagation_match_basis_response",
+   "test_singular_or_unsupported_jones_are_unavailable_not_silently_inverted"
+  ],
+  "moved_only": {
+   "test_gaussian_integrated_flux_and_casa_w_phase_independent_formula": [
+    "flagging_signal.intrinsic_signal"
+   ],
+   "test_joint_flux_and_spectral_indices_recovered_for_exact_injected_family": [
+    "flagging_signal.fit_signal",
+    "flagging_signal.intrinsic_signal"
+   ],
+   "test_nonpositive_response_is_measured_not_removed_from_flux_fit": [
+    "flagging_signal.fit_signal",
+    "flagging_signal.intrinsic_signal"
+   ],
+   "test_unidentifiable_templates_and_invalid_samples_do_not_invent_response": [
+    "flagging_signal.fit_signal",
+    "flagging_signal.intrinsic_signal"
+   ],
+   "test_source_truth_and_test_loss_never_choose_policy": [
+    "flagging_signal.select_policy"
+   ],
+   "test_invalid_run_settings_do_not_create_output": [
+    "flagging_signal.run"
+   ]
+  },
+  "source_sha256": "dd1492aff7c40a4b5348bfadddd9178bdd3593ae3edd196d15f136ee9299d48f",
+  "rewrites": [],
+  "lines": 81
+ },
+ "test_flagging_signal_guard.py": {
+  "dest": "test_core_guard.py",
+  "tests": 16,
+  "kept": [
+   "test_full_inverse_tangent_matches_central_difference_and_decomposition",
+   "test_train_transfer_identity_certifies_and_negative_values_not_clipped",
+   "test_absolute_guard_never_normalizes_by_unsafe_baseline",
+   "test_transfer_cross_leakage_operator_norm_not_diagonal_only",
+   "test_rank_deficiency_is_missing_not_invented_safe_response",
+   "test_two_slots_deterministic_and_signal_guard_can_abstain",
+   "test_actual_acceptance_quality_1percent_and_TEST_loss_never_select",
+   "test_inverse_tangent_rejects_invalid_native_weights",
+   "test_quality_guard_unchanged_by_arbitrary_test_flux_and_truth_payload",
+   "test_native_train_signal_tangent_binding_and_no_TEST_values",
+   "test_guard_nonTRAIN_mask_and_lost_inverse_support_refuse",
+   "test_probe_rank_loss_abstains_not_support_pruning",
+   "test_root_forecast_contract_empty_family_and_nochange_slots",
+   "test_signed_unsigned_unsorted_mask_rejected_before_curvature"
+  ],
+  "moved_only": {
+   "test_invalid_iterations_never_create_run": [
+    "flagging_signal_guard.run"
+   ],
+   "test_existing_dangling_and_nested_outputs_refused_before_reads": [
+    "flagging_signal_guard.run"
+   ]
+  },
+  "source_sha256": "1c0d1749c1b64a193d65a764df17dabe0db3437d28b6c7a4ba28b4334ff57983",
+  "rewrites": [
+   {
+    "definition": [
+     "test_root_forecast_contract_empty_family_and_nochange_slots"
+    ],
+    "kind": "in-body import"
+   }
+  ],
+  "lines": 283
+ },
+ "test_flagging_sky.py": {
+  "dest": "test_core_catalog.py",
+  "tests": 4,
+  "kept": [
+   "test_independent_point_dft_and_additive_ordinary_spectrum"
+  ],
+  "moved_only": {
+   "test_scalar_sky_required_for_common_polar_gauge": [
+    "flagging_sky.require_scalar_model"
+   ],
+   "test_fixed_reference_normalization_and_support_are_not_diluted": [
+    "flagging_sky.comparison_summary"
+   ],
+   "test_model_download_identity_and_shape_sensitive_array_hash": [
+    "flagging_sky.array_digest",
+    "flagging_sky.model_provenance"
+   ]
+  },
+  "source_sha256": "a6b3c2548f626bfba4cdf5e243600e13616cc6168f42853a32a96c9b1671da03",
+  "rewrites": [],
+  "lines": 35
+ },
+ "test_flagging_structured.py": {
+  "dest": "test_core_structured.py",
+  "tests": 5,
+  "kept": [
+   "test_selection_uses_only_budgeted_ranking_and_strict_improvements",
+   "test_test_labels_never_choose_action_and_rejections_cannot_win",
+   "test_equal_objectives_prefer_less_flagging_then_stable_mask_id"
+  ],
+  "moved_only": {
+   "test_nested_paths_rejected_before_outputs": [
+    "flagging_structured.run"
+   ],
+   "test_settings_rejected_before_creating_output": [
+    "flagging_structured.run"
+   ]
+  },
+  "source_sha256": "12102754994be7289453bbd173ee96d579dab7e5986cf0eecd07b7354a7ce657",
+  "rewrites": [],
+  "lines": 44
+ },
+ "test_flagging_structured_proposals.py": {
+  "dest": "test_core_proposals.py",
+  "tests": 8,
+  "kept": [
+   "test_heldout_map_values_do_not_affect_family_scores_or_rankings",
+   "test_every_candidate_is_a_whole_aligned_train_rectangle_with_untouched_holes",
+   "test_oversized_rectangles_rejected_instead_of_trimming_to_budget",
+   "test_corrupt_training_original_bounds_or_holdout_overlap_are_rejected",
+   "test_duplicate_geometry_aliases_and_tie_handling_are_deterministic",
+   "test_both_rankings_use_identical_families_and_frozen_train_only_scores",
+   "test_tiles_must_be_complete_and_wholly_within_the_active_window",
+   "test_training_shapes_and_frozen_settings_are_validated"
+  ],
+  "moved_only": {},
+  "source_sha256": "9126c55204636a08109d3feafd55ad7f9e947288de311141ba3f43a61cdf4995",
+  "rewrites": [],
+  "lines": 223
+ },
+ "test_flagging_trend.py": {
+  "dest": "test_core_trend_run.py",
+  "tests": 4,
+  "kept": [
+   "test_train_estimated_slopes_shift_with_unaliased_receiver_trends",
+   "test_unsupported_gain_values_never_change_training_estimate",
+   "test_singular_insufficient_and_missing_fit_are_explicit",
+   "test_invalid_native_coordinates_refused"
+  ],
+  "moved_only": {},
+  "source_sha256": "a96469ef74ebf354491e73f3a9fd99e2d300c7c816922547f60a99218ee2333c",
+  "rewrites": [],
+  "lines": 67
+ },
+ "test_imaging_sensitivity.py": {
+  "dest": "test_core_sensitivity.py",
+  "tests": 9,
+  "kept": [
+   "test_variant_grid_is_frozen",
+   "test_variant_command_moves_paths_and_sets_only_gridding_options",
+   "test_variant_command_rejects_invalid_settings",
+   "test_pixel_digest_ignores_dtype_but_not_values",
+   "test_reproduction_classes",
+   "test_compare_reproduction_passes_on_header_and_timing_noise_only",
+   "test_spread_and_tolerance_rule",
+   "test_tolerance_rule_floors_at_float32_resolution",
+   "test_tolerance_rule_requires_all_adjacent_variants"
+  ],
+  "moved_only": {},
+  "source_sha256": "f9b87570502a2d2b6644a93b52643885781d6973c921ad8cfff28b457abd7bab",
+  "rewrites": [],
+  "lines": 202
+ },
+ "test_flagging_trend_review.py": {
+  "dest": "test_core_trend_run_review.py",
+  "tests": 14,
+  "kept": [
+   "test_general_complex_jones_and_nonuniform_coordinates_match_independent_oracle",
+   "test_actual_determinant_branch_crossings_do_not_alias_unaliased_scalar_steps",
+   "test_scalar_alias_limit_is_not_certifiable_from_wrapped_determinants",
+   "test_dephasing_all_four_entries_preserves_full_matrix_tv_geometry",
+   "test_determinant_normalization_avoids_finite_gain_scale_underflow_overflow",
+   "test_real_large_coordinate_gap_is_excluded_in_estimator_and_tv",
+   "test_invalid_missing_and_untrained_cells_remove_only_incident_edges",
+   "test_near_singular_station_cannot_manufacture_a_supported_fit_or_edges",
+   "test_insufficient_axis_edge_support_remains_missing",
+   "test_malformed_binding_shapes_or_nonbool_masks_rejected",
+   "test_training_gain_geometry_and_guidance_use_both_station_ids_native_grid",
+   "test_training_gain_membership_does_not_read_data_model_weights_or_heldout_values",
+   "test_finite_endpoints_with_overflowing_coordinate_difference_rejected",
+   "test_training_gain_membership_rejects_corrupted_or_protected_geometry"
+  ],
+  "moved_only": {},
+  "source_sha256": "b6670952a950a6500296f4651064c20d8fcbd0dbb5314e669445804890c51310",
+  "rewrites": [],
+  "lines": 266
+ },
+ "test_flagging_comparators.py": {
+  "dest": null,
+  "tests": 8,
+  "kept": [],
+  "moved_only": {
+   "test_import_restores_all_protected_cells_and_only_adds_train": [
+    "flagging_comparators.import_proposals"
+   ],
+   "test_import_row_flags_and_shape_validation": [
+    "flagging_comparators.import_proposals"
+   ],
+   "test_packing_preserves_time_coordinates_and_never_reads_holdouts": [
+    "flagging_comparators.pack_training_windows",
+    "flagging_comparators.unpack_proposals"
+   ],
+   "test_duplicate_baseline_time_rejected_instead_of_silent_average": [
+    "flagging_comparators.pack_training_windows"
+   ],
+   "test_unpack_missing_cells_and_shape_guard": [
+    "flagging_comparators.unpack_proposals"
+   ],
+   "test_injection_recall_and_unlabelled_outside_flags": [
+    "flagging_comparators.injection_recovery"
+   ],
+   "test_run_rejects_nested_prepared_paths_before_creating_destination": [
+    "flagging_comparators.run"
+   ],
+   "test_actual_prepared_boundary_validation_precedes_every_flag_write": [
+    "flagging_comparators.run"
+   ]
+  }
+ }
+}

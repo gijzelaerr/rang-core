@@ -17,8 +17,8 @@ from pathlib import Path
 
 import numpy as np
 from rangtoy import core
-from rangtoy.flagging import residual_features
-from rangtoy.flagging_influence import training_normals
+from rangtoy.core_influence import training_normals
+from rangtoy.core_policy import residual_features
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "outputs/tv-response-wsl-20261029-01/clean"

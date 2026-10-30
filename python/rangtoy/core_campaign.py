@@ -23,8 +23,7 @@ from pathlib import Path
 import numpy as np
 
 from . import core, core_fetch, core_flag, core_grid, core_weights, core_zarr, rusage
-from .core_workflow import core_solve, gain_grid
-from .flagging import (
+from .core_policy import (
     assert_preserved,
     fixed_support_tv,
     policy_mask,
@@ -32,6 +31,7 @@ from .flagging import (
     residual_features,
     split_holdout,
 )
+from .core_workflow import core_solve, gain_grid
 
 ROOT = Path(__file__).resolve().parents[2]
 BUCKET = (
@@ -116,7 +116,7 @@ CODE_FILES = (
     "python/rangtoy/core_weights.py",
     "python/rangtoy/core_workflow.py",
     "python/rangtoy/core_zarr.py",
-    "python/rangtoy/flagging.py",
+    "python/rangtoy/core_policy.py",
     "examples/prototype_section6.py",
 )
 

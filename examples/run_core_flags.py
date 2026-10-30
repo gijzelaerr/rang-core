@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 from rangtoy import core, core_flag
-from rangtoy.flagging_caracal import training_proposal
+from rangtoy.core_controls import training_proposal
 
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / "research/results/gain-tv-caracal.json"

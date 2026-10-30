@@ -1,0 +1,1488 @@
+{
+ "before": "outputs/p11-20261030-01",
+ "after": "outputs/p11-20261030-01r",
+ "missing": [],
+ "extra": [
+  "bench-f/check.json"
+ ],
+ "files": 213,
+ "json_files": 98,
+ "binary_equal": 115,
+ "differences": {
+  "volatile": 1129,
+  "provenance": 108,
+  "unexpected": [
+   {
+    "file": "actions-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:19+00:00",
+    "after": "2026-10-30T14:52:10+00:00"
+   },
+   {
+    "file": "actions.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:17+00:00",
+    "after": "2026-10-30T14:52:08+00:00"
+   },
+   {
+    "file": "b.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:21+00:00",
+    "after": "2026-10-30T14:53:16+00:00"
+   },
+   {
+    "file": "c.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:24+00:00",
+    "after": "2026-10-30T14:53:19+00:00"
+   },
+   {
+    "file": "c/compare-archive.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:29+00:00",
+    "after": "2026-10-30T14:53:25+00:00"
+   },
+   {
+    "file": "d-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:32+00:00",
+    "after": "2026-10-30T14:53:29+00:00"
+   },
+   {
+    "file": "d.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:29+00:00",
+    "after": "2026-10-30T14:53:26+00:00"
+   },
+   {
+    "file": "e.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:32+00:00",
+    "after": "2026-10-30T14:53:29+00:00"
+   },
+   {
+    "file": "i-compare-host.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:39+00:00",
+    "after": "2026-10-30T14:53:37+00:00"
+   },
+   {
+    "file": "i-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:39+00:00",
+    "after": "2026-10-30T14:53:36+00:00"
+   },
+   {
+    "file": "i.replay.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:33+00:00",
+    "after": "2026-10-30T14:53:30+00:00"
+   },
+   {
+    "file": "injections-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:24+00:00",
+    "after": "2026-10-30T14:52:16+00:00"
+   },
+   {
+    "file": "injections.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:19+00:00",
+    "after": "2026-10-30T14:52:10+00:00"
+   },
+   {
+    "file": "l1-precondition.precondition.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:44:27+00:00",
+    "after": "2026-10-30T14:50:54+00:00"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "cores_busy"
+    ],
+    "before": "2.024802497223123",
+    "after": "2.1911764492548436"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "cost_clause",
+     "ratio"
+    ],
+    "before": "1.8564218813805533",
+    "after": "2.0220948887285566"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "memory",
+     "available_gib_at_start"
+    ],
+    "before": "27.838157653808594",
+    "after": "28.773029327392578"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "amendment_1_calls",
+     "cores_busy"
+    ],
+    "before": "2.0138334197347416",
+    "after": "1.9868700135354318"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "decode",
+     "cores_busy"
+    ],
+    "before": "1.0000173119762745",
+    "after": "0.9999881615568367"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "flag_tricolour-firstpass",
+     "cores_busy"
+    ],
+    "before": "2.9104349381659955",
+    "after": "2.8918055913284286"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "flag_tricolour-mild",
+     "cores_busy"
+    ],
+    "before": "2.960246261967142",
+    "after": "2.8681328546829326"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "group_check",
+     "cores_busy"
+    ],
+    "before": "3.085630363440266",
+    "after": "3.110019901179471"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "image_original",
+     "cores_busy"
+    ],
+    "before": "2.0204997549968313",
+    "after": "2.4914653647804124"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "image_tricolour-firstpass",
+     "cores_busy"
+    ],
+    "before": "3.283853485920835",
+    "after": "3.2752442953004755"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "image_tricolour-firstpass+tv",
+     "cores_busy"
+    ],
+    "before": "3.210914795230442",
+    "after": "3.319172509041029"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "image_tricolour-firstpass+tv-a1",
+     "cores_busy"
+    ],
+    "before": "3.3164037286819465",
+    "after": "3.266996410094945"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "image_tricolour-mild",
+     "cores_busy"
+    ],
+    "before": "3.350264009276504",
+    "after": "3.2516117359315393"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "image_tv-policy",
+     "cores_busy"
+    ],
+    "before": "3.2744917302236423",
+    "after": "3.2967674478156423"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "image_tv-unguided-best",
+     "cores_busy"
+    ],
+    "before": "3.330962613874208",
+    "after": "3.3158645895455634"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "input_integrity",
+     "cores_busy"
+    ],
+    "before": "0.9999529615797754",
+    "after": "0.9868854057678826"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "solve_original",
+     "cores_busy"
+    ],
+    "before": "3.3217549187422124",
+    "after": "3.3058934267176454"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "solve_tricolour-firstpass",
+     "cores_busy"
+    ],
+    "before": "3.294563169643219",
+    "after": "3.3126745701204108"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "solve_tricolour-mild",
+     "cores_busy"
+    ],
+    "before": "3.544081875298805",
+    "after": "3.5266091364751158"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "split",
+     "cores_busy"
+    ],
+    "before": "1.000209466909479",
+    "after": "1.0001554875617502"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "tv_loop",
+     "cores_busy"
+    ],
+    "before": "3.496517388317062",
+    "after": "3.5026866744868728"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "tv_loop_firstpass",
+     "cores_busy"
+    ],
+    "before": "3.4855807136908417",
+    "after": "3.514277295808025"
+   },
+   {
+    "file": "l1-precondition/replay/result.json",
+    "path": [
+     "stages",
+     "tv_loop_firstpass_a1",
+     "cores_busy"
+    ],
+    "before": "3.4260989992022077",
+    "after": "3.449314736629598"
+   },
+   {
+    "file": "l1-precondition/replay/side-effects.json",
+    "path": [
+     "git_status_unchanged"
+    ],
+    "before": "True",
+    "after": "False"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "amendment_1_calls",
+     "cores_busy"
+    ],
+    "before": "2.0138334197347416",
+    "after": "1.9868700135354318"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "decode",
+     "cores_busy"
+    ],
+    "before": "1.0000173119762745",
+    "after": "0.9999881615568367"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "flag_tricolour-firstpass",
+     "cores_busy"
+    ],
+    "before": "2.9104349381659955",
+    "after": "2.8918055913284286"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "flag_tricolour-mild",
+     "cores_busy"
+    ],
+    "before": "2.960246261967142",
+    "after": "2.8681328546829326"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "group_check",
+     "cores_busy"
+    ],
+    "before": "3.085630363440266",
+    "after": "3.110019901179471"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "image_original",
+     "cores_busy"
+    ],
+    "before": "2.0204997549968313",
+    "after": "2.4914653647804124"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "image_tricolour-firstpass",
+     "cores_busy"
+    ],
+    "before": "3.283853485920835",
+    "after": "3.2752442953004755"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "image_tricolour-firstpass+tv",
+     "cores_busy"
+    ],
+    "before": "3.210914795230442",
+    "after": "3.319172509041029"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "image_tricolour-firstpass+tv-a1",
+     "cores_busy"
+    ],
+    "before": "3.3164037286819465",
+    "after": "3.266996410094945"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "image_tricolour-mild",
+     "cores_busy"
+    ],
+    "before": "3.350264009276504",
+    "after": "3.2516117359315393"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "image_tv-policy",
+     "cores_busy"
+    ],
+    "before": "3.2744917302236423",
+    "after": "3.2967674478156423"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "image_tv-unguided-best",
+     "cores_busy"
+    ],
+    "before": "3.330962613874208",
+    "after": "3.3158645895455634"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "input_integrity",
+     "cores_busy"
+    ],
+    "before": "0.9999529615797754",
+    "after": "0.9868854057678826"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "solve_original",
+     "cores_busy"
+    ],
+    "before": "3.3217549187422124",
+    "after": "3.3058934267176454"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "solve_tricolour-firstpass",
+     "cores_busy"
+    ],
+    "before": "3.294563169643219",
+    "after": "3.3126745701204108"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "solve_tricolour-mild",
+     "cores_busy"
+    ],
+    "before": "3.544081875298805",
+    "after": "3.5266091364751158"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "split",
+     "cores_busy"
+    ],
+    "before": "1.000209466909479",
+    "after": "1.0001554875617502"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "tv_loop",
+     "cores_busy"
+    ],
+    "before": "3.496517388317062",
+    "after": "3.5026866744868728"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "tv_loop_firstpass",
+     "cores_busy"
+    ],
+    "before": "3.4855807136908417",
+    "after": "3.514277295808025"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "replay_stages",
+     "tv_loop_firstpass_a1",
+     "cores_busy"
+    ],
+    "before": "3.4260989992022077",
+    "after": "3.449314736629598"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "stages",
+     "k_precondition",
+     "cores_busy"
+    ],
+    "before": "1.1384360269260843",
+    "after": "1.1298346635946277"
+   },
+   {
+    "file": "l1-precondition/result.json",
+    "path": [
+     "stages",
+     "replay",
+     "cores_busy"
+    ],
+    "before": "1.9741269736208507",
+    "after": "2.1375670754416554"
+   },
+   {
+    "file": "l2-precondition.precondition.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:44:38+00:00",
+    "after": "2026-10-30T14:51:03+00:00"
+   },
+   {
+    "file": "precondition.precondition.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:44:25+00:00",
+    "after": "2026-10-30T14:50:52+00:00"
+   },
+   {
+    "file": "prospective-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:32+00:00",
+    "after": "2026-10-30T14:52:24+00:00"
+   },
+   {
+    "file": "prospective.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:24+00:00",
+    "after": "2026-10-30T14:52:16+00:00"
+   },
+   {
+    "file": "prospective/result.json",
+    "path": [
+     "cases",
+     0,
+     "frozen_train_responses_sha256"
+    ],
+    "before": "0f56112965ab4423b5752c7e73571cd615b8919a766c03e2be38a63106189120",
+    "after": "f48010db52e0857babfa65d2a32747c3bed52700b678b8aacd344b42719bcd88"
+   },
+   {
+    "file": "prospective/result.json",
+    "path": [
+     "cases",
+     1,
+     "frozen_train_responses_sha256"
+    ],
+    "before": "b45feced104dd834d27f78a2e57349b250e0ad877b23785d3acce15177e3c242",
+    "after": "76d61722877b87832d5d2dbefe2dffa022214dc2f9ba43b0df271961b223d210"
+   },
+   {
+    "file": "prospective/result.json",
+    "path": [
+     "cases",
+     2,
+     "frozen_train_responses_sha256"
+    ],
+    "before": "06061ce2db2c8939f02ca61eefecf8bb7669269aa0cb60fa410476d88c1710dd",
+    "after": "b4d50a61c90748190d1edb57343b21934b5f0a36235364a38919dd1ee1d1e63f"
+   },
+   {
+    "file": "section6-check.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:44:50+00:00",
+    "after": "2026-10-30T14:51:14+00:00"
+   },
+   {
+    "file": "section6-check/result.json",
+    "path": [
+     "checks",
+     "8_cost",
+     "wall_excluding_decode"
+    ],
+    "before": "0.9677653872204246",
+    "after": "0.7348111959727248"
+   },
+   {
+    "file": "section6.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:44:45+00:00",
+    "after": "2026-10-30T14:51:09+00:00"
+   },
+   {
+    "file": "signal-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:43+00:00",
+    "after": "2026-10-30T14:52:35+00:00"
+   },
+   {
+    "file": "signal-p6-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:54+00:00",
+    "after": "2026-10-30T14:52:47+00:00"
+   },
+   {
+    "file": "signal-p6.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:43+00:00",
+    "after": "2026-10-30T14:52:35+00:00"
+   },
+   {
+    "file": "signal-p6/result.json",
+    "path": [
+     "acceptance_digest_core"
+    ],
+    "before": "267a994e8dcc3f7789cdfd50e015a09700ac007de3151406fff7b93bada9c3c9",
+    "after": "782892e3d1e2459669522ced139fd1f36efd2063dc2e84008b17c23382693891"
+   },
+   {
+    "file": "signal.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:32+00:00",
+    "after": "2026-10-30T14:52:24+00:00"
+   },
+   {
+    "file": "signal/result.json",
+    "path": [
+     "acceptance_digest_core"
+    ],
+    "before": "25033ca462f1571d034389aed735af99189d82d3e33467b4bc8d89197beee414",
+    "after": "78775c1d23968a26faa8b41546d451636fcfc20737015d1ad752008f17f2b5b0"
+   },
+   {
+    "file": "trend-compare-posthoc.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:21+00:00",
+    "after": "2026-10-30T14:53:16+00:00"
+   },
+   {
+    "file": "trend-compare.compare.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:21+00:00",
+    "after": "2026-10-30T14:53:16+00:00"
+   },
+   {
+    "file": "trend-mirror.mirror.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:45:55+00:00",
+    "after": "2026-10-30T14:52:48+00:00"
+   },
+   {
+    "file": "trend.run.rang-receipt.json",
+    "path": [
+     "started_utc"
+    ],
+    "before": "2026-10-30T14:46:08+00:00",
+    "after": "2026-10-30T14:53:01+00:00"
+   },
+   {
+    "file": "trend/config.json",
+    "path": [
+     "source_digest"
+    ],
+    "before": "78ee9da512693081b2d5c1b157940ca95fa99a17edb53ed9918e24d536ba5ff1",
+    "after": "d20ab644023318548802c0fedacf351819e913ca81143b44af064cfa825eade2"
+   },
+   {
+    "file": "trend/result.json",
+    "path": [
+     "configuration",
+     "source_digest"
+    ],
+    "before": "78ee9da512693081b2d5c1b157940ca95fa99a17edb53ed9918e24d536ba5ff1",
+    "after": "d20ab644023318548802c0fedacf351819e913ca81143b44af064cfa825eade2"
+   },
+   {
+    "file": "trend/side-effects.json",
+    "path": [
+     "git_status_unchanged"
+    ],
+    "before": "True",
+    "after": "False"
+   },
+   {
+    "file": "bench-f/check.json",
+    "path": [],
+    "before": "extra",
+    "after": "extra"
+   },
+   {
+    "file": "timings.tsv",
+    "path": [
+     "status"
+    ],
+    "before": "{'precondition': '0', 'l1-precondition': '1', 'l2-precondition': '1', 'section6': '0', 'section6-check': '0', 'phase1': '0', 'phase2': '0', 'phase3c-a': '0', 'bench-f': '1', 'actions': '0', 'actions-compare': '0', 'injections': '0', 'injections-compare': '0', 'prospective': '0', 'prospective-compare': '0', 'signal': '0', 'signal-compare': '0', 'signal-p6': '0', 'signal-p6-compare': '0', 'trend-mirror': '0', 'trend': '0', 'trend-compare': '1', 'trend-compare-posthoc': '0', 'b': '0', 'c': '0', 'c-compare': '0', 'd': '0', 'd-compare': '0', 'e': '0', 'i': '0', 'i-compare': '0', 'i-compare-host': '0'}",
+    "after": "{'precondition': '0', 'l1-precondition': '1', 'l2-precondition': '1', 'section6': '0', 'section6-check': '0', 'phase1': '0', 'phase2': '0', 'phase3c-a': '0', 'bench-f': '0', 'actions': '0', 'actions-compare': '0', 'injections': '0', 'injections-compare': '0', 'prospective': '0', 'prospective-compare': '0', 'signal': '0', 'signal-compare': '0', 'signal-p6': '0', 'signal-p6-compare': '0', 'trend-mirror': '0', 'trend': '0', 'trend-compare': '1', 'trend-compare-posthoc': '0', 'b': '0', 'c': '0', 'c-compare': '0', 'd': '0', 'd-compare': '0', 'e': '0', 'i': '0', 'i-compare': '0', 'i-compare-host': '0'}"
+   }
+  ]
+ },
+ "exit_status": {
+  "before": {
+   "precondition": "0",
+   "l1-precondition": "1",
+   "l2-precondition": "1",
+   "section6": "0",
+   "section6-check": "0",
+   "phase1": "0",
+   "phase2": "0",
+   "phase3c-a": "0",
+   "bench-f": "1",
+   "actions": "0",
+   "actions-compare": "0",
+   "injections": "0",
+   "injections-compare": "0",
+   "prospective": "0",
+   "prospective-compare": "0",
+   "signal": "0",
+   "signal-compare": "0",
+   "signal-p6": "0",
+   "signal-p6-compare": "0",
+   "trend-mirror": "0",
+   "trend": "0",
+   "trend-compare": "1",
+   "trend-compare-posthoc": "0",
+   "b": "0",
+   "c": "0",
+   "c-compare": "0",
+   "d": "0",
+   "d-compare": "0",
+   "e": "0",
+   "i": "0",
+   "i-compare": "0",
+   "i-compare-host": "0"
+  },
+  "after": {
+   "precondition": "0",
+   "l1-precondition": "1",
+   "l2-precondition": "1",
+   "section6": "0",
+   "section6-check": "0",
+   "phase1": "0",
+   "phase2": "0",
+   "phase3c-a": "0",
+   "bench-f": "0",
+   "actions": "0",
+   "actions-compare": "0",
+   "injections": "0",
+   "injections-compare": "0",
+   "prospective": "0",
+   "prospective-compare": "0",
+   "signal": "0",
+   "signal-compare": "0",
+   "signal-p6": "0",
+   "signal-p6-compare": "0",
+   "trend-mirror": "0",
+   "trend": "0",
+   "trend-compare": "1",
+   "trend-compare-posthoc": "0",
+   "b": "0",
+   "c": "0",
+   "c-compare": "0",
+   "d": "0",
+   "d-compare": "0",
+   "e": "0",
+   "i": "0",
+   "i-compare": "0",
+   "i-compare-host": "0"
+  },
+  "equal": false
+ },
+ "counts": {
+  "volatile": 1129,
+  "provenance": 108,
+  "unexpected": 85
+ },
+ "identical": false,
+ "keys": {
+  "volatile": [
+   "acceptance/clean_controls/metrics/seconds @ signal",
+   "acceptance/clean_controls/metrics/seconds @ signal-p6",
+   "actions/seconds @ actions",
+   "arms/original/image/seconds/correct_and_weights @ l1-precondition",
+   "arms/original/image/seconds/grid @ l1-precondition",
+   "arms/original/image/seconds/total @ l1-precondition",
+   "arms/original/metrics/feature_seconds @ l1-precondition",
+   "arms/original/metrics/seconds @ l1-precondition",
+   "arms/tricolour-firstpass+tv-a1/image/seconds/correct_and_weights @ l1-precondition",
+   "arms/tricolour-firstpass+tv-a1/image/seconds/grid @ l1-precondition",
+   "arms/tricolour-firstpass+tv-a1/image/seconds/total @ l1-precondition",
+   "arms/tricolour-firstpass+tv-a1/metrics/feature_seconds @ l1-precondition",
+   "arms/tricolour-firstpass+tv-a1/metrics/seconds @ l1-precondition",
+   "arms/tricolour-firstpass+tv/image/seconds/correct_and_weights @ l1-precondition",
+   "arms/tricolour-firstpass+tv/image/seconds/grid @ l1-precondition",
+   "arms/tricolour-firstpass+tv/image/seconds/total @ l1-precondition",
+   "arms/tricolour-firstpass+tv/metrics/feature_seconds @ l1-precondition",
+   "arms/tricolour-firstpass+tv/metrics/seconds @ l1-precondition",
+   "arms/tricolour-firstpass/image/seconds/correct_and_weights @ l1-precondition",
+   "arms/tricolour-firstpass/image/seconds/grid @ l1-precondition",
+   "arms/tricolour-firstpass/image/seconds/total @ l1-precondition",
+   "arms/tricolour-firstpass/metrics/feature_seconds @ l1-precondition",
+   "arms/tricolour-firstpass/metrics/seconds @ l1-precondition",
+   "arms/tricolour-mild/image/seconds/correct_and_weights @ l1-precondition",
+   "arms/tricolour-mild/image/seconds/grid @ l1-precondition",
+   "arms/tricolour-mild/image/seconds/total @ l1-precondition",
+   "arms/tricolour-mild/metrics/seconds @ l1-precondition",
+   "arms/tv-policy/image/seconds/correct_and_weights @ l1-precondition",
+   "arms/tv-policy/image/seconds/grid @ l1-precondition",
+   "arms/tv-policy/image/seconds/total @ l1-precondition",
+   "arms/tv-policy/metrics/feature_seconds @ l1-precondition",
+   "arms/tv-policy/metrics/seconds @ l1-precondition",
+   "arms/tv-unguided-best/image/seconds/correct_and_weights @ l1-precondition",
+   "arms/tv-unguided-best/image/seconds/grid @ l1-precondition",
+   "arms/tv-unguided-best/image/seconds/total @ l1-precondition",
+   "arms/tv-unguided-best/metrics/seconds @ l1-precondition",
+   "baseline/seconds @ actions",
+   "cases/actions/metrics/seconds @ prospective",
+   "cases/antenna-local-seed101/seconds @ trend-mirror",
+   "cases/antenna-local-seed103/seconds @ trend-mirror",
+   "cases/antenna-local-seed105/seconds @ trend-mirror",
+   "cases/balanced-clean/seconds @ trend-mirror",
+   "cases/baseline/seconds @ prospective",
+   "cases/controls/contaminated/seconds @ injections",
+   "cases/controls/injected_mask_oracle/seconds @ injections",
+   "cases/controls/selected_policy/seconds @ injections",
+   "cases/forecasts/native_response_seconds @ prospective",
+   "cases/policy_candidates/seconds @ injections",
+   "cases/time-burst-seed101/seconds @ trend-mirror",
+   "cases/time-burst-seed103/seconds @ trend-mirror",
+   "cases/time-burst-seed105/seconds @ trend-mirror",
+   "checks/8_cost/decode_seconds @ section6-check",
+   "checks/8_cost/wall_seconds @ section6-check",
+   "clean_reference/seconds @ injections",
+   "cost_clause/tricolour_firstpass_seconds @ l1-precondition",
+   "cost_clause/tv_chain_seconds @ l1-precondition",
+   "decode/seconds @ l1-precondition",
+   "decode_seconds @ section6",
+   "fixture/seconds/fused_pass @ phase1",
+   "fixture/seconds/numpy_residual_and_mse @ phase1",
+   "fixture/seconds/rust_solve @ phase2",
+   "ingest/decode_seconds @ l1-precondition",
+   "ingest/decode_seconds @ l2-precondition",
+   "ingest/decode_seconds @ precondition",
+   "ingest/decode_seconds @ section6",
+   "ingest/seconds @ l1-precondition",
+   "ingest/seconds @ l2-precondition",
+   "ingest/seconds @ precondition",
+   "ingest/seconds @ section6",
+   "integrity/seconds @ l1-precondition",
+   "jobs/caracal-firstpass-rejected--natural/seconds/imaging_weights @ b",
+   "jobs/caracal-firstpass-rejected--natural/seconds/stokes_i @ b",
+   "jobs/caracal-firstpass-rejected--uniform/seconds/imaging_weights @ b",
+   "jobs/caracal-firstpass-rejected--uniform/seconds/stokes_i @ b",
+   "jobs/caracal-firstpass-rejected/seconds/fits @ i",
+   "jobs/caracal-firstpass-rejected/seconds/grid @ c",
+   "jobs/caracal-firstpass-rejected/seconds/grid @ i",
+   "jobs/caracal-firstpass-rejected/seconds/imaging_weights @ b",
+   "jobs/caracal-firstpass-rejected/seconds/prepare @ c",
+   "jobs/caracal-firstpass-rejected/seconds/stokes_and_weights @ i",
+   "jobs/caracal-firstpass-rejected/seconds/stokes_i @ b",
+   "jobs/caracal-firstpass-rejected/seconds/total @ c",
+   "jobs/caracal-firstpass-rejected/seconds/total @ i",
+   "jobs/caracal-mild/seconds/fits @ i",
+   "jobs/caracal-mild/seconds/grid @ c",
+   "jobs/caracal-mild/seconds/grid @ i",
+   "jobs/caracal-mild/seconds/imaging_weights @ b",
+   "jobs/caracal-mild/seconds/prepare @ c",
+   "jobs/caracal-mild/seconds/stokes_and_weights @ i",
+   "jobs/caracal-mild/seconds/stokes_i @ b",
+   "jobs/caracal-mild/seconds/total @ c",
+   "jobs/caracal-mild/seconds/total @ i",
+   "jobs/caracal-no-change/seconds/fits @ i",
+   "jobs/caracal-no-change/seconds/grid @ c",
+   "jobs/caracal-no-change/seconds/grid @ i",
+   "jobs/caracal-no-change/seconds/imaging_weights @ b",
+   "jobs/caracal-no-change/seconds/prepare @ c",
+   "jobs/caracal-no-change/seconds/stokes_and_weights @ i",
+   "jobs/caracal-no-change/seconds/stokes_i @ b",
+   "jobs/caracal-no-change/seconds/total @ c",
+   "jobs/caracal-no-change/seconds/total @ i",
+   "jobs/clean-full--natural/seconds/imaging_weights @ b",
+   "jobs/clean-full--natural/seconds/stokes_i @ b",
+   "jobs/clean-full--uniform/seconds/imaging_weights @ b",
+   "jobs/clean-full--uniform/seconds/stokes_i @ b",
+   "jobs/clean-full/seconds/fits @ i",
+   "jobs/clean-full/seconds/grid @ c",
+   "jobs/clean-full/seconds/grid @ i",
+   "jobs/clean-full/seconds/imaging_weights @ b",
+   "jobs/clean-full/seconds/prepare @ c",
+   "jobs/clean-full/seconds/stokes_and_weights @ i",
+   "jobs/clean-full/seconds/stokes_i @ b",
+   "jobs/clean-full/seconds/total @ c",
+   "jobs/clean-full/seconds/total @ i",
+   "jobs/complete-adaptation/seconds/fits @ i",
+   "jobs/complete-adaptation/seconds/grid @ c",
+   "jobs/complete-adaptation/seconds/grid @ i",
+   "jobs/complete-adaptation/seconds/imaging_weights @ b",
+   "jobs/complete-adaptation/seconds/prepare @ c",
+   "jobs/complete-adaptation/seconds/stokes_and_weights @ i",
+   "jobs/complete-adaptation/seconds/stokes_i @ b",
+   "jobs/complete-adaptation/seconds/total @ c",
+   "jobs/complete-adaptation/seconds/total @ i",
+   "jobs/complete-direct/seconds/fits @ i",
+   "jobs/complete-direct/seconds/grid @ c",
+   "jobs/complete-direct/seconds/grid @ i",
+   "jobs/complete-direct/seconds/imaging_weights @ b",
+   "jobs/complete-direct/seconds/prepare @ c",
+   "jobs/complete-direct/seconds/stokes_and_weights @ i",
+   "jobs/complete-direct/seconds/stokes_i @ b",
+   "jobs/complete-direct/seconds/total @ c",
+   "jobs/complete-direct/seconds/total @ i",
+   "jobs/complete-full/seconds/fits @ i",
+   "jobs/complete-full/seconds/grid @ c",
+   "jobs/complete-full/seconds/grid @ i",
+   "jobs/complete-full/seconds/imaging_weights @ b",
+   "jobs/complete-full/seconds/prepare @ c",
+   "jobs/complete-full/seconds/stokes_and_weights @ i",
+   "jobs/complete-full/seconds/stokes_i @ b",
+   "jobs/complete-full/seconds/total @ c",
+   "jobs/complete-full/seconds/total @ i",
+   "jobs/complete-total/seconds/fits @ i",
+   "jobs/complete-total/seconds/grid @ c",
+   "jobs/complete-total/seconds/grid @ i",
+   "jobs/complete-total/seconds/imaging_weights @ b",
+   "jobs/complete-total/seconds/prepare @ c",
+   "jobs/complete-total/seconds/stokes_and_weights @ i",
+   "jobs/complete-total/seconds/stokes_i @ b",
+   "jobs/complete-total/seconds/total @ c",
+   "jobs/complete-total/seconds/total @ i",
+   "jobs/fixedG0-reference/seconds/fits @ i",
+   "jobs/fixedG0-reference/seconds/grid @ c",
+   "jobs/fixedG0-reference/seconds/grid @ i",
+   "jobs/fixedG0-reference/seconds/imaging_weights @ b",
+   "jobs/fixedG0-reference/seconds/prepare @ c",
+   "jobs/fixedG0-reference/seconds/stokes_and_weights @ i",
+   "jobs/fixedG0-reference/seconds/stokes_i @ b",
+   "jobs/fixedG0-reference/seconds/total @ c",
+   "jobs/fixedG0-reference/seconds/total @ i",
+   "jobs/omitted-adaptation/seconds/fits @ i",
+   "jobs/omitted-adaptation/seconds/grid @ c",
+   "jobs/omitted-adaptation/seconds/grid @ i",
+   "jobs/omitted-adaptation/seconds/imaging_weights @ b",
+   "jobs/omitted-adaptation/seconds/prepare @ c",
+   "jobs/omitted-adaptation/seconds/stokes_and_weights @ i",
+   "jobs/omitted-adaptation/seconds/stokes_i @ b",
+   "jobs/omitted-adaptation/seconds/total @ c",
+   "jobs/omitted-adaptation/seconds/total @ i",
+   "jobs/omitted-direct/seconds/fits @ i",
+   "jobs/omitted-direct/seconds/grid @ c",
+   "jobs/omitted-direct/seconds/grid @ i",
+   "jobs/omitted-direct/seconds/imaging_weights @ b",
+   "jobs/omitted-direct/seconds/prepare @ c",
+   "jobs/omitted-direct/seconds/stokes_and_weights @ i",
+   "jobs/omitted-direct/seconds/stokes_i @ b",
+   "jobs/omitted-direct/seconds/total @ c",
+   "jobs/omitted-direct/seconds/total @ i",
+   "jobs/omitted-full/seconds/fits @ i",
+   "jobs/omitted-full/seconds/grid @ c",
+   "jobs/omitted-full/seconds/grid @ i",
+   "jobs/omitted-full/seconds/imaging_weights @ b",
+   "jobs/omitted-full/seconds/prepare @ c",
+   "jobs/omitted-full/seconds/stokes_and_weights @ i",
+   "jobs/omitted-full/seconds/stokes_i @ b",
+   "jobs/omitted-full/seconds/total @ c",
+   "jobs/omitted-full/seconds/total @ i",
+   "jobs/omitted-total/seconds/fits @ i",
+   "jobs/omitted-total/seconds/grid @ c",
+   "jobs/omitted-total/seconds/grid @ i",
+   "jobs/omitted-total/seconds/imaging_weights @ b",
+   "jobs/omitted-total/seconds/prepare @ c",
+   "jobs/omitted-total/seconds/stokes_and_weights @ i",
+   "jobs/omitted-total/seconds/stokes_i @ b",
+   "jobs/omitted-total/seconds/total @ c",
+   "jobs/omitted-total/seconds/total @ i",
+   "jobs/unit-compact/seconds/fits @ i",
+   "jobs/unit-compact/seconds/grid @ c",
+   "jobs/unit-compact/seconds/grid @ i",
+   "jobs/unit-compact/seconds/imaging_weights @ b",
+   "jobs/unit-compact/seconds/prepare @ c",
+   "jobs/unit-compact/seconds/stokes_and_weights @ i",
+   "jobs/unit-compact/seconds/stokes_i @ b",
+   "jobs/unit-compact/seconds/total @ c",
+   "jobs/unit-compact/seconds/total @ i",
+   "jobs/unit-extended/seconds/fits @ i",
+   "jobs/unit-extended/seconds/grid @ c",
+   "jobs/unit-extended/seconds/grid @ i",
+   "jobs/unit-extended/seconds/imaging_weights @ b",
+   "jobs/unit-extended/seconds/prepare @ c",
+   "jobs/unit-extended/seconds/stokes_and_weights @ i",
+   "jobs/unit-extended/seconds/stokes_i @ b",
+   "jobs/unit-extended/seconds/total @ c",
+   "jobs/unit-extended/seconds/total @ i",
+   "luno/cost/fused_seconds @ phase2",
+   "luno/cost/load_seconds @ phase2",
+   "luno/cost/process_max_rss_mb @ phase2",
+   "luno/cost/process_wall_seconds @ phase2",
+   "luno/cost/self_maxrss_mb @ phase2",
+   "luno/cost/solve_seconds @ phase2",
+   "luno/seconds/existing_kernel_normals_incl_prep @ phase1",
+   "luno/seconds/fused_pass @ phase1",
+   "luno/seconds/rust_solve_in_validator @ phase2",
+   "max_rss_mb @ l1-precondition",
+   "max_rss_mb @ l2-precondition",
+   "max_rss_mb @ precondition",
+   "max_rss_mb_self @ section6",
+   "methods/metrics/seconds @ signal",
+   "methods/metrics/seconds @ signal-p6",
+   "provenance/ms_read_seconds/caracal @ i",
+   "provenance/ms_read_seconds/response @ i",
+   "replay_stages/amendment_1_calls/cpu_seconds @ l1-precondition",
+   "replay_stages/amendment_1_calls/max_rss_mb @ l1-precondition",
+   "replay_stages/amendment_1_calls/seconds @ l1-precondition",
+   "replay_stages/decode/cpu_seconds @ l1-precondition",
+   "replay_stages/decode/max_rss_mb @ l1-precondition",
+   "replay_stages/decode/seconds @ l1-precondition",
+   "replay_stages/flag_tricolour-firstpass/cpu_seconds @ l1-precondition",
+   "replay_stages/flag_tricolour-firstpass/max_rss_mb @ l1-precondition",
+   "replay_stages/flag_tricolour-firstpass/seconds @ l1-precondition",
+   "replay_stages/flag_tricolour-mild/cpu_seconds @ l1-precondition",
+   "replay_stages/flag_tricolour-mild/max_rss_mb @ l1-precondition",
+   "replay_stages/flag_tricolour-mild/seconds @ l1-precondition",
+   "replay_stages/group_check/cpu_seconds @ l1-precondition",
+   "replay_stages/group_check/max_rss_mb @ l1-precondition",
+   "replay_stages/group_check/seconds @ l1-precondition",
+   "replay_stages/image_original/cpu_seconds @ l1-precondition",
+   "replay_stages/image_original/max_rss_mb @ l1-precondition",
+   "replay_stages/image_original/seconds @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass+tv-a1/cpu_seconds @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass+tv-a1/max_rss_mb @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass+tv-a1/seconds @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass+tv/cpu_seconds @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass+tv/max_rss_mb @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass+tv/seconds @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass/cpu_seconds @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass/max_rss_mb @ l1-precondition",
+   "replay_stages/image_tricolour-firstpass/seconds @ l1-precondition",
+   "replay_stages/image_tricolour-mild/cpu_seconds @ l1-precondition",
+   "replay_stages/image_tricolour-mild/max_rss_mb @ l1-precondition",
+   "replay_stages/image_tricolour-mild/seconds @ l1-precondition",
+   "replay_stages/image_tv-policy/cpu_seconds @ l1-precondition",
+   "replay_stages/image_tv-policy/max_rss_mb @ l1-precondition",
+   "replay_stages/image_tv-policy/seconds @ l1-precondition",
+   "replay_stages/image_tv-unguided-best/cpu_seconds @ l1-precondition",
+   "replay_stages/image_tv-unguided-best/max_rss_mb @ l1-precondition",
+   "replay_stages/image_tv-unguided-best/seconds @ l1-precondition",
+   "replay_stages/input_integrity/cpu_seconds @ l1-precondition",
+   "replay_stages/input_integrity/max_rss_mb @ l1-precondition",
+   "replay_stages/input_integrity/seconds @ l1-precondition",
+   "replay_stages/solve_original/cpu_seconds @ l1-precondition",
+   "replay_stages/solve_original/max_rss_mb @ l1-precondition",
+   "replay_stages/solve_original/seconds @ l1-precondition",
+   "replay_stages/solve_tricolour-firstpass/cpu_seconds @ l1-precondition",
+   "replay_stages/solve_tricolour-firstpass/max_rss_mb @ l1-precondition",
+   "replay_stages/solve_tricolour-firstpass/seconds @ l1-precondition",
+   "replay_stages/solve_tricolour-mild/cpu_seconds @ l1-precondition",
+   "replay_stages/solve_tricolour-mild/max_rss_mb @ l1-precondition",
+   "replay_stages/solve_tricolour-mild/seconds @ l1-precondition",
+   "replay_stages/split/cpu_seconds @ l1-precondition",
+   "replay_stages/split/max_rss_mb @ l1-precondition",
+   "replay_stages/split/seconds @ l1-precondition",
+   "replay_stages/tv_loop/cpu_seconds @ l1-precondition",
+   "replay_stages/tv_loop/max_rss_mb @ l1-precondition",
+   "replay_stages/tv_loop/seconds @ l1-precondition",
+   "replay_stages/tv_loop_firstpass/cpu_seconds @ l1-precondition",
+   "replay_stages/tv_loop_firstpass/max_rss_mb @ l1-precondition",
+   "replay_stages/tv_loop_firstpass/seconds @ l1-precondition",
+   "replay_stages/tv_loop_firstpass_a1/cpu_seconds @ l1-precondition",
+   "replay_stages/tv_loop_firstpass_a1/max_rss_mb @ l1-precondition",
+   "replay_stages/tv_loop_firstpass_a1/seconds @ l1-precondition",
+   "seconds @ actions",
+   "seconds @ i",
+   "seconds @ injections",
+   "seconds @ l1-precondition",
+   "seconds @ l2-precondition",
+   "seconds @ precondition",
+   "seconds @ prospective",
+   "seconds @ signal",
+   "seconds @ signal-p6",
+   "seconds @ trend",
+   "seconds @ trend-mirror",
+   "seconds_total @ actions",
+   "seconds_total @ i",
+   "seconds_total @ injections",
+   "seconds_total @ prospective",
+   "seconds_total @ signal",
+   "seconds_total @ signal-p6",
+   "seconds_total @ trend-mirror",
+   "section6/step_seconds/fused @ l1-precondition",
+   "section6/step_seconds/fused @ l2-precondition",
+   "section6/step_seconds/fused @ precondition",
+   "section6/step_seconds/rank_survey @ l1-precondition",
+   "section6/step_seconds/rank_survey @ l2-precondition",
+   "section6/step_seconds/rank_survey @ precondition",
+   "section6/step_seconds/solve @ l1-precondition",
+   "section6/step_seconds/solve @ l2-precondition",
+   "section6/step_seconds/solve @ precondition",
+   "section6/step_seconds/tv_and_policy @ l1-precondition",
+   "section6/step_seconds/tv_and_policy @ l2-precondition",
+   "section6/step_seconds/tv_and_policy @ precondition",
+   "selected/seconds @ actions",
+   "sets/catalogue/rust_seconds @ phase3c-a",
+   "sets/response/rust_seconds @ phase3c-a",
+   "sets/stress/rust_seconds @ phase3c-a",
+   "stages/amendment_1_calls/cpu_seconds @ l1-precondition",
+   "stages/amendment_1_calls/max_rss_mb @ l1-precondition",
+   "stages/amendment_1_calls/seconds @ l1-precondition",
+   "stages/decode/cpu_seconds @ l1-precondition",
+   "stages/decode/max_rss_mb @ l1-precondition",
+   "stages/decode/seconds @ l1-precondition",
+   "stages/flag_tricolour-firstpass/cpu_seconds @ l1-precondition",
+   "stages/flag_tricolour-firstpass/max_rss_mb @ l1-precondition",
+   "stages/flag_tricolour-firstpass/seconds @ l1-precondition",
+   "stages/flag_tricolour-mild/cpu_seconds @ l1-precondition",
+   "stages/flag_tricolour-mild/max_rss_mb @ l1-precondition",
+   "stages/flag_tricolour-mild/seconds @ l1-precondition",
+   "stages/group_check/cpu_seconds @ l1-precondition",
+   "stages/group_check/max_rss_mb @ l1-precondition",
+   "stages/group_check/seconds @ l1-precondition",
+   "stages/image_original/cpu_seconds @ l1-precondition",
+   "stages/image_original/max_rss_mb @ l1-precondition",
+   "stages/image_original/seconds @ l1-precondition",
+   "stages/image_tricolour-firstpass+tv-a1/cpu_seconds @ l1-precondition",
+   "stages/image_tricolour-firstpass+tv-a1/max_rss_mb @ l1-precondition",
+   "stages/image_tricolour-firstpass+tv-a1/seconds @ l1-precondition",
+   "stages/image_tricolour-firstpass+tv/cpu_seconds @ l1-precondition",
+   "stages/image_tricolour-firstpass+tv/max_rss_mb @ l1-precondition",
+   "stages/image_tricolour-firstpass+tv/seconds @ l1-precondition",
+   "stages/image_tricolour-firstpass/cpu_seconds @ l1-precondition",
+   "stages/image_tricolour-firstpass/max_rss_mb @ l1-precondition",
+   "stages/image_tricolour-firstpass/seconds @ l1-precondition",
+   "stages/image_tricolour-mild/cpu_seconds @ l1-precondition",
+   "stages/image_tricolour-mild/max_rss_mb @ l1-precondition",
+   "stages/image_tricolour-mild/seconds @ l1-precondition",
+   "stages/image_tv-policy/cpu_seconds @ l1-precondition",
+   "stages/image_tv-policy/max_rss_mb @ l1-precondition",
+   "stages/image_tv-policy/seconds @ l1-precondition",
+   "stages/image_tv-unguided-best/cpu_seconds @ l1-precondition",
+   "stages/image_tv-unguided-best/max_rss_mb @ l1-precondition",
+   "stages/image_tv-unguided-best/seconds @ l1-precondition",
+   "stages/input_integrity/cpu_seconds @ l1-precondition",
+   "stages/input_integrity/max_rss_mb @ l1-precondition",
+   "stages/input_integrity/seconds @ l1-precondition",
+   "stages/k_precondition/cpu_seconds @ l1-precondition",
+   "stages/k_precondition/max_rss_mb @ l1-precondition",
+   "stages/k_precondition/seconds @ l1-precondition",
+   "stages/replay/cpu_seconds @ l1-precondition",
+   "stages/replay/max_rss_mb @ l1-precondition",
+   "stages/replay/seconds @ l1-precondition",
+   "stages/solve_original/cpu_seconds @ l1-precondition",
+   "stages/solve_original/max_rss_mb @ l1-precondition",
+   "stages/solve_original/seconds @ l1-precondition",
+   "stages/solve_tricolour-firstpass/cpu_seconds @ l1-precondition",
+   "stages/solve_tricolour-firstpass/max_rss_mb @ l1-precondition",
+   "stages/solve_tricolour-firstpass/seconds @ l1-precondition",
+   "stages/solve_tricolour-mild/cpu_seconds @ l1-precondition",
+   "stages/solve_tricolour-mild/max_rss_mb @ l1-precondition",
+   "stages/solve_tricolour-mild/seconds @ l1-precondition",
+   "stages/split/cpu_seconds @ l1-precondition",
+   "stages/split/max_rss_mb @ l1-precondition",
+   "stages/split/seconds @ l1-precondition",
+   "stages/tv_loop/cpu_seconds @ l1-precondition",
+   "stages/tv_loop/max_rss_mb @ l1-precondition",
+   "stages/tv_loop/seconds @ l1-precondition",
+   "stages/tv_loop_firstpass/cpu_seconds @ l1-precondition",
+   "stages/tv_loop_firstpass/max_rss_mb @ l1-precondition",
+   "stages/tv_loop_firstpass/seconds @ l1-precondition",
+   "stages/tv_loop_firstpass_a1/cpu_seconds @ l1-precondition",
+   "stages/tv_loop_firstpass_a1/max_rss_mb @ l1-precondition",
+   "stages/tv_loop_firstpass_a1/seconds @ l1-precondition",
+   "step_seconds/fused @ section6",
+   "step_seconds/rank_survey @ section6",
+   "step_seconds/solve @ section6",
+   "step_seconds/tv_and_policy @ section6",
+   "timings/core/strategy-00-holdout_masked/core_seconds @ d-compare",
+   "timings/core/strategy-00-holdout_masked/wall @ d-compare",
+   "timings/core/strategy-00-operational/core_seconds @ d-compare",
+   "timings/core/strategy-00-operational/wall @ d-compare",
+   "timings/core/strategy-01-holdout_masked/core_seconds @ d-compare",
+   "timings/core/strategy-01-holdout_masked/wall @ d-compare",
+   "timings/core/strategy-01-operational/core_seconds @ d-compare",
+   "timings/core/strategy-01-operational/wall @ d-compare",
+   "timings/core/total @ d-compare",
+   "timings/cpu_seconds @ actions-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ actions.run.rang-receipt.json",
+   "timings/cpu_seconds @ b.compare.rang-receipt.json",
+   "timings/cpu_seconds @ c",
+   "timings/cpu_seconds @ c.run.rang-receipt.json",
+   "timings/cpu_seconds @ d-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ d.run.rang-receipt.json",
+   "timings/cpu_seconds @ e.compare.rang-receipt.json",
+   "timings/cpu_seconds @ i-compare-host.compare.rang-receipt.json",
+   "timings/cpu_seconds @ i-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ i.replay.rang-receipt.json",
+   "timings/cpu_seconds @ injections-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ injections.run.rang-receipt.json",
+   "timings/cpu_seconds @ l1-precondition.precondition.rang-receipt.json",
+   "timings/cpu_seconds @ l2-precondition.precondition.rang-receipt.json",
+   "timings/cpu_seconds @ precondition.precondition.rang-receipt.json",
+   "timings/cpu_seconds @ prospective-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ prospective.run.rang-receipt.json",
+   "timings/cpu_seconds @ section6-check.compare.rang-receipt.json",
+   "timings/cpu_seconds @ section6.run.rang-receipt.json",
+   "timings/cpu_seconds @ signal-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ signal-p6-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ signal-p6.run.rang-receipt.json",
+   "timings/cpu_seconds @ signal.run.rang-receipt.json",
+   "timings/cpu_seconds @ trend-compare-posthoc.compare.rang-receipt.json",
+   "timings/cpu_seconds @ trend-compare.compare.rang-receipt.json",
+   "timings/cpu_seconds @ trend-mirror.mirror.rang-receipt.json",
+   "timings/cpu_seconds @ trend.run.rang-receipt.json",
+   "timings/peak_rss_mb @ actions-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ actions.run.rang-receipt.json",
+   "timings/peak_rss_mb @ b.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ c",
+   "timings/peak_rss_mb @ c.run.rang-receipt.json",
+   "timings/peak_rss_mb @ d-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ d.run.rang-receipt.json",
+   "timings/peak_rss_mb @ e.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ i-compare-host.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ i-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ i.replay.rang-receipt.json",
+   "timings/peak_rss_mb @ injections-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ injections.run.rang-receipt.json",
+   "timings/peak_rss_mb @ l1-precondition.precondition.rang-receipt.json",
+   "timings/peak_rss_mb @ l2-precondition.precondition.rang-receipt.json",
+   "timings/peak_rss_mb @ precondition.precondition.rang-receipt.json",
+   "timings/peak_rss_mb @ prospective-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ prospective.run.rang-receipt.json",
+   "timings/peak_rss_mb @ section6-check.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ section6.run.rang-receipt.json",
+   "timings/peak_rss_mb @ signal-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ signal-p6-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ signal-p6.run.rang-receipt.json",
+   "timings/peak_rss_mb @ signal.run.rang-receipt.json",
+   "timings/peak_rss_mb @ trend-compare-posthoc.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ trend-compare.compare.rang-receipt.json",
+   "timings/peak_rss_mb @ trend-mirror.mirror.rang-receipt.json",
+   "timings/peak_rss_mb @ trend.run.rang-receipt.json",
+   "timings/seconds @ e",
+   "timings/strategy-00-holdout_masked/core_seconds @ d",
+   "timings/strategy-00-holdout_masked/wall @ d",
+   "timings/strategy-00-operational/core_seconds @ d",
+   "timings/strategy-00-operational/wall @ d",
+   "timings/strategy-01-holdout_masked/core_seconds @ d",
+   "timings/strategy-01-holdout_masked/wall @ d",
+   "timings/strategy-01-operational/core_seconds @ d",
+   "timings/strategy-01-operational/wall @ d",
+   "timings/total @ d",
+   "timings/wall_seconds @ actions-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ actions.run.rang-receipt.json",
+   "timings/wall_seconds @ b.compare.rang-receipt.json",
+   "timings/wall_seconds @ c",
+   "timings/wall_seconds @ c.run.rang-receipt.json",
+   "timings/wall_seconds @ d-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ d.run.rang-receipt.json",
+   "timings/wall_seconds @ e.compare.rang-receipt.json",
+   "timings/wall_seconds @ i-compare-host.compare.rang-receipt.json",
+   "timings/wall_seconds @ i-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ i.replay.rang-receipt.json",
+   "timings/wall_seconds @ injections-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ injections.run.rang-receipt.json",
+   "timings/wall_seconds @ l1-precondition.precondition.rang-receipt.json",
+   "timings/wall_seconds @ l2-precondition.precondition.rang-receipt.json",
+   "timings/wall_seconds @ precondition.precondition.rang-receipt.json",
+   "timings/wall_seconds @ prospective-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ prospective.run.rang-receipt.json",
+   "timings/wall_seconds @ section6-check.compare.rang-receipt.json",
+   "timings/wall_seconds @ section6.run.rang-receipt.json",
+   "timings/wall_seconds @ signal-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ signal-p6-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ signal-p6.run.rang-receipt.json",
+   "timings/wall_seconds @ signal.run.rang-receipt.json",
+   "timings/wall_seconds @ trend-compare-posthoc.compare.rang-receipt.json",
+   "timings/wall_seconds @ trend-compare.compare.rang-receipt.json",
+   "timings/wall_seconds @ trend-mirror.mirror.rang-receipt.json",
+   "timings/wall_seconds @ trend.run.rang-receipt.json",
+   "tricolour-firstpass+tv-a1/solve_seconds @ l1-precondition",
+   "tricolour-firstpass+tv/solve_seconds @ l1-precondition",
+   "tricolour/tricolour-firstpass/core_seconds @ l1-precondition",
+   "tricolour/tricolour-firstpass/wall_seconds @ l1-precondition",
+   "tricolour/tricolour-mild/core_seconds @ l1-precondition",
+   "tricolour/tricolour-mild/wall_seconds @ l1-precondition",
+   "tv-policy/solve_seconds @ l1-precondition",
+   "wall_seconds @ l1-precondition",
+   "wall_seconds @ section6",
+   "wall_seconds_excluding_decode @ section6"
+  ],
+  "provenance": [
+   "commit/dirty @ l1-precondition.precondition.rang-receipt.json",
+   "commit/head @ actions-compare.compare.rang-receipt.json",
+   "commit/head @ actions.run.rang-receipt.json",
+   "commit/head @ b.compare.rang-receipt.json",
+   "commit/head @ c",
+   "commit/head @ c.run.rang-receipt.json",
+   "commit/head @ d-compare.compare.rang-receipt.json",
+   "commit/head @ d.run.rang-receipt.json",
+   "commit/head @ e.compare.rang-receipt.json",
+   "commit/head @ i-compare-host.compare.rang-receipt.json",
+   "commit/head @ i-compare.compare.rang-receipt.json",
+   "commit/head @ i.replay.rang-receipt.json",
+   "commit/head @ injections-compare.compare.rang-receipt.json",
+   "commit/head @ injections.run.rang-receipt.json",
+   "commit/head @ l2-precondition.precondition.rang-receipt.json",
+   "commit/head @ prospective-compare.compare.rang-receipt.json",
+   "commit/head @ prospective.run.rang-receipt.json",
+   "commit/head @ section6-check.compare.rang-receipt.json",
+   "commit/head @ section6.run.rang-receipt.json",
+   "commit/head @ signal-compare.compare.rang-receipt.json",
+   "commit/head @ signal-p6-compare.compare.rang-receipt.json",
+   "commit/head @ signal-p6.run.rang-receipt.json",
+   "commit/head @ signal.run.rang-receipt.json",
+   "commit/head @ trend-compare-posthoc.compare.rang-receipt.json",
+   "commit/head @ trend-compare.compare.rang-receipt.json",
+   "commit/head @ trend-mirror.mirror.rang-receipt.json",
+   "commit/head @ trend.run.rang-receipt.json",
+   "inputs/bytes @ actions-compare.compare.rang-receipt.json",
+   "inputs/bytes @ d-compare.compare.rang-receipt.json",
+   "inputs/bytes @ i-compare-host.compare.rang-receipt.json",
+   "inputs/bytes @ i-compare.compare.rang-receipt.json",
+   "inputs/bytes @ injections-compare.compare.rang-receipt.json",
+   "inputs/bytes @ prospective-compare.compare.rang-receipt.json",
+   "inputs/bytes @ section6-check.compare.rang-receipt.json",
+   "inputs/bytes @ signal-compare.compare.rang-receipt.json",
+   "inputs/bytes @ signal-p6-compare.compare.rang-receipt.json",
+   "inputs/bytes @ trend-compare-posthoc.compare.rang-receipt.json",
+   "inputs/bytes @ trend-compare.compare.rang-receipt.json",
+   "inputs/bytes @ trend.run.rang-receipt.json",
+   "inputs/listing_sha256 @ c",
+   "inputs/listing_sha256 @ d-compare.compare.rang-receipt.json",
+   "inputs/listing_sha256 @ i-compare.compare.rang-receipt.json",
+   "inputs/listing_sha256 @ section6-check.compare.rang-receipt.json",
+   "inputs/listing_sha256 @ trend.run.rang-receipt.json",
+   "inputs/sha256 @ actions-compare.compare.rang-receipt.json",
+   "inputs/sha256 @ i-compare-host.compare.rang-receipt.json",
+   "inputs/sha256 @ i-compare.compare.rang-receipt.json",
+   "inputs/sha256 @ injections-compare.compare.rang-receipt.json",
+   "inputs/sha256 @ prospective-compare.compare.rang-receipt.json",
+   "inputs/sha256 @ signal-compare.compare.rang-receipt.json",
+   "inputs/sha256 @ signal-p6-compare.compare.rang-receipt.json",
+   "inputs/sha256 @ trend-compare-posthoc.compare.rang-receipt.json",
+   "inputs/sha256 @ trend-compare.compare.rang-receipt.json",
+   "outputs/bytes @ actions-compare.compare.rang-receipt.json",
+   "outputs/bytes @ actions.run.rang-receipt.json",
+   "outputs/bytes @ b.compare.rang-receipt.json",
+   "outputs/bytes @ c",
+   "outputs/bytes @ c.run.rang-receipt.json",
+   "outputs/bytes @ d-compare.compare.rang-receipt.json",
+   "outputs/bytes @ d.run.rang-receipt.json",
+   "outputs/bytes @ e.compare.rang-receipt.json",
+   "outputs/bytes @ i-compare-host.compare.rang-receipt.json",
+   "outputs/bytes @ i-compare.compare.rang-receipt.json",
+   "outputs/bytes @ i.replay.rang-receipt.json",
+   "outputs/bytes @ injections-compare.compare.rang-receipt.json",
+   "outputs/bytes @ injections.run.rang-receipt.json",
+   "outputs/bytes @ l1-precondition.precondition.rang-receipt.json",
+   "outputs/bytes @ l2-precondition.precondition.rang-receipt.json",
+   "outputs/bytes @ precondition.precondition.rang-receipt.json",
+   "outputs/bytes @ prospective-compare.compare.rang-receipt.json",
+   "outputs/bytes @ prospective.run.rang-receipt.json",
+   "outputs/bytes @ section6.run.rang-receipt.json",
+   "outputs/bytes @ signal-compare.compare.rang-receipt.json",
+   "outputs/bytes @ signal-p6-compare.compare.rang-receipt.json",
+   "outputs/bytes @ signal-p6.run.rang-receipt.json",
+   "outputs/bytes @ signal.run.rang-receipt.json",
+   "outputs/bytes @ trend-compare-posthoc.compare.rang-receipt.json",
+   "outputs/bytes @ trend-compare.compare.rang-receipt.json",
+   "outputs/bytes @ trend-mirror.mirror.rang-receipt.json",
+   "outputs/bytes @ trend.run.rang-receipt.json",
+   "outputs/sha256 @ actions-compare.compare.rang-receipt.json",
+   "outputs/sha256 @ c",
+   "outputs/sha256 @ i-compare-host.compare.rang-receipt.json",
+   "outputs/sha256 @ i-compare.compare.rang-receipt.json",
+   "outputs/sha256 @ injections-compare.compare.rang-receipt.json",
+   "outputs/sha256 @ prospective-compare.compare.rang-receipt.json",
+   "outputs/sha256 @ signal-compare.compare.rang-receipt.json",
+   "outputs/sha256 @ signal-p6-compare.compare.rang-receipt.json",
+   "outputs/sha256 @ trend-compare-posthoc.compare.rang-receipt.json",
+   "outputs/sha256 @ trend-compare.compare.rang-receipt.json",
+   "outputs/tree_sha256 @ actions.run.rang-receipt.json",
+   "outputs/tree_sha256 @ b.compare.rang-receipt.json",
+   "outputs/tree_sha256 @ c.run.rang-receipt.json",
+   "outputs/tree_sha256 @ d-compare.compare.rang-receipt.json",
+   "outputs/tree_sha256 @ d.run.rang-receipt.json",
+   "outputs/tree_sha256 @ e.compare.rang-receipt.json",
+   "outputs/tree_sha256 @ i.replay.rang-receipt.json",
+   "outputs/tree_sha256 @ injections.run.rang-receipt.json",
+   "outputs/tree_sha256 @ l1-precondition.precondition.rang-receipt.json",
+   "outputs/tree_sha256 @ l2-precondition.precondition.rang-receipt.json",
+   "outputs/tree_sha256 @ precondition.precondition.rang-receipt.json",
+   "outputs/tree_sha256 @ prospective.run.rang-receipt.json",
+   "outputs/tree_sha256 @ section6-check.compare.rang-receipt.json",
+   "outputs/tree_sha256 @ section6.run.rang-receipt.json",
+   "outputs/tree_sha256 @ signal-p6.run.rang-receipt.json",
+   "outputs/tree_sha256 @ signal.run.rang-receipt.json",
+   "outputs/tree_sha256 @ trend-mirror.mirror.rang-receipt.json",
+   "outputs/tree_sha256 @ trend.run.rang-receipt.json"
+  ]
+ }
+}

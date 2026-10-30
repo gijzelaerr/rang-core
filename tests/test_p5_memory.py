@@ -11,14 +11,14 @@ import numpy as np
 import pytest
 from rangtoy import core, core_campaign, core_fetch, core_flag, core_zarr
 from rangtoy import core_campaign_array as array
-from rangtoy.core_workflow import gain_grid, solve_flags
-from rangtoy.flagging import (
+from rangtoy.core_policy import (
     gain_tv,
     polar_gauge,
     policy_mask,
     protected_flags,
     split_holdout,
 )
+from rangtoy.core_workflow import gain_grid, solve_flags
 
 # Task G's archived fetch of the four-station slice (K's fetch held the same
 # bytes and has since been deleted, big-plan.md "User items").

@@ -13,7 +13,7 @@ import time
 import numpy as np
 
 from . import core
-from .flagging import gain_tv, polar_gauge, protected_flags
+from .core_policy import gain_tv, polar_gauge, protected_flags
 
 
 def solve_flags(state, added, *, holdout=True):

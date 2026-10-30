@@ -8,7 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-from rangtoy.imaging_sensitivity import FITTED_JOBS
+from rangtoy.core_sensitivity import FITTED_JOBS
 
 
 def _e(value, digits=2):

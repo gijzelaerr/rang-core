@@ -12,8 +12,8 @@ from __future__ import annotations
 import numpy as np
 
 from .. import core_grid, core_weights
+from ..core_policy import protected_flags
 from ..core_workflow import gain_grid
-from ..flagging import protected_flags
 from . import _plot
 
 DEFAULTS = {

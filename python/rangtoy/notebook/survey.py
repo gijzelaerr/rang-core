@@ -125,7 +125,7 @@ def identifiability(
     """
     import pandas as pd
 
-    from ..flagging_influence import anchored_response, training_normals
+    from ..core_influence import anchored_response, training_normals
 
     s = ds.state
     nant = len(ds.names)

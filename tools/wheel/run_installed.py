@@ -63,9 +63,10 @@ def point_at_checkout(checkout):
     # the checkout's tree instead, plus the extension that actually runs
     # (task P7; the kernels are the wheel's).
     try:
-        from rangtoy import flagging_next, projector
+        from rangtoy import core_receipts as flagging_next
+        from rangtoy import projector
     except ImportError as exc:
-        print(f"shim: rangtoy.flagging_next not importable ({exc}); left alone")
+        print(f"shim: rangtoy.core_receipts not importable ({exc}); left alone")
         return
     from hashlib import sha256
 
@@ -84,7 +85,7 @@ def point_at_checkout(checkout):
         return {str(p): sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
     flagging_next.source_receipts = source_receipts
-    print(f"shim: rangtoy.flagging_next.source_receipts -> the tree of {checkout}")
+    print(f"shim: rangtoy.core_receipts.source_receipts -> the tree of {checkout}")
 
 
 if __name__ == "__main__":

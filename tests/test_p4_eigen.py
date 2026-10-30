@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-from rangtoy.flagging_influence import anchored_response, training_normals
+from rangtoy.core_influence import anchored_response, training_normals
 from rangtoy.projector import _native_library
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,7 +80,7 @@ def test_record_replay_and_dump_harness(tmp_path):
     script.write_text(
         "import numpy as np\n"
         "import tests_p4_block as t\n"
-        "from rangtoy.flagging_influence import anchored_response\n"
+        "from rangtoy.core_influence import anchored_response\n"
         "for stations in (2, 3, 4):\n"
         "    h, g, a = t.scalar_block(stations, 2, stations)\n"
         "    anchored_response(h, np.zeros(32), 0 * h, np.zeros(32), g, a)\n"

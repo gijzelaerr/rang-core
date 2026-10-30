@@ -13,7 +13,7 @@ import pathlib
 import sys
 
 import numpy as np
-from rangtoy.flagging_influence import anchored_response, training_normals
+from rangtoy.core_influence import anchored_response, training_normals
 
 source = pathlib.Path(sys.argv[1])
 GRID, CUTOFF, SEED = (2, 32), 1e-10, 20261029  # as frozen in survey_luno_support.py

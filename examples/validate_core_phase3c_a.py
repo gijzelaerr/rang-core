@@ -17,9 +17,9 @@ from pathlib import Path
 
 import numpy as np
 from rangtoy import core
-from rangtoy.flagging_response import SOURCES as RESPONSE_SOURCES
-from rangtoy.flagging_signal import spatial_templates
-from rangtoy.flagging_sky import point_catalog_predict
+from rangtoy.core_catalog import point_catalog_predict
+from rangtoy.core_response import SOURCES as RESPONSE_SOURCES
+from rangtoy.core_templates import spatial_templates
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOGUE = ROOT / "outputs/flagging-sky-inputs/fitted.PKS1934.LBand.wsclean.cat.txt"

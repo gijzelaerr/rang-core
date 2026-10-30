@@ -11,7 +11,7 @@ import sys
 from hashlib import sha256
 
 import numpy as np
-from rangtoy.flagging_influence import anchored_response, training_normals
+from rangtoy.core_influence import anchored_response, training_normals
 
 source, out = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
 GRID = (2, 32)

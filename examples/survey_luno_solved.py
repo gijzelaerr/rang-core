@@ -12,7 +12,7 @@ import sys
 from hashlib import sha256
 
 import numpy as np
-from rangtoy.flagging_influence import anchored_response, training_normals
+from rangtoy.core_influence import anchored_response, training_normals
 
 extract, solve, out = (pathlib.Path(x) for x in sys.argv[1:4])
 GRID, CUTOFF = (2, 32), 1e-10
