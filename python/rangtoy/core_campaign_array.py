@@ -40,7 +40,6 @@ import itertools
 import json
 import math
 import platform
-import resource
 import time
 from hashlib import sha256
 from pathlib import Path
@@ -55,6 +54,7 @@ from . import (
     core_grid,
     core_weights,
     core_zarr,
+    rusage,
 )
 from .core_campaign import (
     array_sha256,
@@ -139,8 +139,7 @@ CODE_FILES = (*core_campaign.CODE_FILES, "python/rangtoy/core_campaign_array.py"
 
 
 def cpu_seconds():
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    return usage.ru_utime + usage.ru_stime
+    return rusage.cpu_seconds()
 
 
 def mem_available_gib():

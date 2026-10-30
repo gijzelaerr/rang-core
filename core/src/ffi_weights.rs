@@ -81,7 +81,8 @@ unsafe fn slice_mut<'a, T>(ptr: *mut T, len: usize) -> &'a mut [T] {
     }
 }
 
-/// The weight grid shape after the super weight. Returns 0 on success.
+/// The weight grid shape after the super weight. Returns 0 on success, 1 on
+/// invalid arguments, 2 on a panic.
 ///
 /// # Safety
 /// `shape` must reference two writable usize values.
@@ -95,18 +96,22 @@ pub unsafe extern "C" fn rang_core_weight_grid_shape(
     if shape.is_null() || super_weight.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) {
         return 1;
     }
-    let (w, h) = WeightGrid::shape(width, height, super_weight);
-    // SAFETY: the caller passes two writable values.
-    let out = unsafe { slice_mut(shape, 2) };
-    out[0] = w;
-    out[1] = h;
-    0
+    std::panic::catch_unwind(|| {
+        let (w, h) = WeightGrid::shape(width, height, super_weight);
+        // SAFETY: the caller passes two writable values.
+        let out = unsafe { slice_mut(shape, 2) };
+        out[0] = w;
+        out[1] = h;
+        0
+    })
+    .unwrap_or(2)
 }
 
-/// WSClean's padded image size for `-size trimmed` and `-padding padding`.
+/// WSClean's padded image size for `-size trimmed` and `-padding padding`;
+/// 0 on a panic (never a valid size).
 #[unsafe(no_mangle)]
 pub extern "C" fn rang_core_padded_size(trimmed: usize, padding: f64) -> usize {
-    weights::padded_size(trimmed, padding)
+    std::panic::catch_unwind(|| weights::padded_size(trimmed, padding)).unwrap_or(0)
 }
 
 /// Form Stokes I visibilities and weights. Returns 0 on success, 1 on invalid

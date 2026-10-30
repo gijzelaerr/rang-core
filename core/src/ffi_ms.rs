@@ -37,21 +37,25 @@ pub struct MsColumn {
     pub nstrings: usize,
 }
 
-/// Copy the last error message into `buf`; returns its full length.
+/// Copy the last error message into `buf`; returns its full length (0 on a
+/// panic).
 ///
 /// # Safety
 /// `buf` must point to `len` writable bytes or be null.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rang_core_ms_last_error(buf: *mut u8, len: usize) -> usize {
-    LAST_ERROR.with(|e| {
-        let message = e.borrow();
-        if !buf.is_null() && len > 0 {
-            let n = message.len().min(len);
-            // SAFETY: the caller guarantees `len` writable bytes.
-            unsafe { std::ptr::copy_nonoverlapping(message.as_ptr(), buf, n) };
-        }
-        message.len()
+    std::panic::catch_unwind(|| {
+        LAST_ERROR.with(|e| {
+            let message = e.borrow();
+            if !buf.is_null() && len > 0 {
+                let n = message.len().min(len);
+                // SAFETY: the caller guarantees `len` writable bytes.
+                unsafe { std::ptr::copy_nonoverlapping(message.as_ptr(), buf, n) };
+            }
+            message.len()
+        })
     })
+    .unwrap_or(0)
 }
 
 /// Open a table directory read-only.
@@ -80,15 +84,19 @@ pub unsafe extern "C" fn rang_core_ms_open(path: *const c_char, out: *mut *mut T
     .unwrap_or(2)
 }
 
-/// Close a table opened with `rang_core_ms_open`.
+/// Close a table opened with `rang_core_ms_open`. A panic while dropping is
+/// caught (the handle is then gone either way).
 ///
 /// # Safety
 /// `table` came from `rang_core_ms_open` and is not used afterwards.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rang_core_ms_close(table: *mut Table) {
     if !table.is_null() {
-        // SAFETY: the handle was created by Box::into_raw.
-        drop(unsafe { Box::from_raw(table) });
+        let table = std::panic::AssertUnwindSafe(table);
+        let _ = std::panic::catch_unwind(move || {
+            // SAFETY: the handle was created by Box::into_raw.
+            drop(unsafe { Box::from_raw(*table) });
+        });
     }
 }
 
@@ -186,19 +194,22 @@ pub unsafe extern "C" fn rang_core_ms_read(
 /// `out` was filled by a successful `rang_core_ms_read` and is not reused.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rang_core_ms_free(out: *mut MsColumn) {
-    // SAFETY: the caller passes the struct a read filled.
-    if let Some(column) = unsafe { out.as_mut() } {
-        if !column.data.is_null() {
-            // SAFETY: the buffer was leaked from a boxed slice of this length
-            // (possibly empty, whose pointer is still valid to reconstruct).
-            drop(unsafe {
-                Box::from_raw(std::ptr::slice_from_raw_parts_mut(
-                    column.data,
-                    column.nbytes,
-                ))
-            });
+    let out = std::panic::AssertUnwindSafe(out);
+    let _ = std::panic::catch_unwind(move || {
+        // SAFETY: the caller passes the struct a read filled.
+        if let Some(column) = unsafe { (*out).as_mut() } {
+            if !column.data.is_null() {
+                // SAFETY: the buffer was leaked from a boxed slice of this length
+                // (possibly empty, whose pointer is still valid to reconstruct).
+                drop(unsafe {
+                    Box::from_raw(std::ptr::slice_from_raw_parts_mut(
+                        column.data,
+                        column.nbytes,
+                    ))
+                });
+            }
+            column.data = std::ptr::null_mut();
+            column.nbytes = 0;
         }
-        column.data = std::ptr::null_mut();
-        column.nbytes = 0;
-    }
+    });
 }

@@ -19,7 +19,7 @@ CUTOFF = 1e-10
 SEED = 20261029
 out.mkdir(parents=False, exist_ok=False)
 receipts = {
-    str(p.relative_to(source)): sha256(p.read_bytes()).hexdigest()
+    p.relative_to(source).as_posix(): sha256(p.read_bytes()).hexdigest()
     for p in sorted(source.rglob("*"))
     if p.is_file()
 }

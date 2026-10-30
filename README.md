@@ -103,7 +103,6 @@ from public PyPI in an isolated environment:
 ```sh
 python3 -m venv .venv   # or: uv venv -p /usr/bin/python3.14 .venv, where ensurepip is missing
 .venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -e '.[pointing,beam,test]' ruff maturin
-cargo build --offline --release
 .venv/bin/python examples/pointing.py --output outputs/pointing
 ```
 
@@ -111,19 +110,20 @@ Without Rust: a released wheel installs the core with no compiler,
 `pip install rangtoy-<v>-cp310-abi3-manylinux_2_28_x86_64.whl` (or
 `pip install rangtoy` once published; Linux x86_64 and aarch64, glibc 2.28 or
 newer, CPython 3.10 or newer, one abi3 binary for every version). The wheel
-covers `rangtoy.core` and the core wrappers only: the flagging TV kernels
-(`RANG_TOY_LIB`), the Tricolour static masks and the archive drivers still
-need the checkout and cargo. Build wheels locally with
+carries every kernel, the root crate's included (gain TV, phase trend,
+anchored response, projector, the pointing toy): the flagging chain and the
+notebooks run with no compiler. The Tricolour static masks and the archive
+drivers still read files from the checkout. Build wheels locally with
 `bash tools/wheel/build.sh outputs/wheel-<date>-NN` (docker) and test them
 with `bash tools/wheel/test.sh outputs/wheel-<date>-NN outputs/wheel-<date>-MM`
 (`research/wheel.md`).
 
-The core wrappers (`rangtoy.core*`) use the extension when it is importable
-and otherwise build and load the C ABI through ctypes at import time, as
-before. `RANG_CORE_BACKEND=extension` or `=ctypes` forces one; `RANG_CORE_LIB`
-selects ctypes on that library. Both backends give bit-identical results
-(`research/core-j-packaging.md`). The Stimela recipes' Python 3.13
-environment gets the same `abi3` extension from the same install.
+Every wrapper calls the extension; nothing runs Cargo at import or at a
+kernel call, and the extension releases the GIL around every kernel
+(`research/p7-architecture.md`; the ctypes backend, `RANG_CORE_LIB`,
+`RANG_TOY_LIB` and `rangtoy.build()` are gone, with results bit-identical to
+their archive). The Stimela recipes' Python 3.13 environment gets the same
+`abi3` extension from the same install.
 
 This smoke example fits smooth pointing with a fixed, correct Gaussian beam
 and sky; it is not the joint antenna-width campaign above. That campaign's
@@ -158,10 +158,11 @@ quality/cost comparison, not further simulator expansion.
 ## Repository guide
 
 - `src/`: Rust simulation, fitting and projection kernels.
-- `core/`: the Rust core loaded through ctypes (`rangtoy.core*`): fused
+- `core/`: the Rust core, reached through the extension `rangtoy._core`
+  built from `core/py` (`rangtoy.core*`): fused
   statistics, the QuartiCal-style solver, the component predictor, blosc
   decoding, WSClean imaging weights and w-stacking gridder, the Tricolour
-  strategies (`rangtoy.core_flag`; `core/data/` carries Tricolour's static
+  strategies (`rangtoy.core_flag`; `python/rangtoy/data/` carries Tricolour's static
   masks under its BSD notice) and a read-only Measurement Set reader
   (`rangtoy.core_ms`; python-casacore is still needed to write tables and
   for the oracle). Reports: `research/core-*.md`.

@@ -1,51 +1,53 @@
-"""Checked NumPy/ctypes boundary for the dependency-free Rust QR projector."""
+"""Checked NumPy boundary for the dependency-free Rust QR projector, and the
+door through which the frozen research modules reach the root crate's kernels.
 
-import ctypes
-import os
-import sys
+Before task P7 (research/p7-architecture.md) `_native_library()` built the
+root crate with Cargo on first use and loaded `librang_toy` through ctypes.
+The kernels now live in the extension `rangtoy._core`. The frozen modules
+(`flagging`, `flagging_trend`, `flagging_influence`, ...) cannot change, so
+`_native_library()` keeps its name and shape: an object whose kernel
+attributes take `.argtypes`/`.restype` assignments (ignored; the extension
+checks dtypes, contiguity and lengths itself) and the same positional
+arguments, and whose `_name` is the extension's file, the binary that runs and
+that receipts hash. The extension also exports the root crate's C symbols, so
+`ctypes.CDLL(_native_library()._name)` still works for A/B benches.
+"""
+
 from functools import lru_cache
-from pathlib import Path
 
 import numpy as np
 
-from . import build
+from . import core
+
+
+class _Kernel:
+    """One root-crate kernel called through the extension like a ctypes
+    function: positional arguments in C order, the C status returned."""
+
+    def __init__(self, function):
+        self._function = function
+        self.argtypes = None
+        self.restype = None
+
+    def __call__(self, *args):
+        return self._function(*args)
+
+
+class _RootKernels:
+    """What `ctypes.CDLL(librang_toy)` offered the frozen modules."""
+
+    def __init__(self, ext):
+        self._name = ext.__file__
+        self.rang_gain_tv = _Kernel(ext.gain_tv)
+        self.rang_trend_slopes = _Kernel(ext.trend_slopes)
+        self.rang_response_jacobian = _Kernel(ext.response_jacobian)
+        self.rang_response_normals = _Kernel(ext.response_normals)
+        self.rang_response_step = _Kernel(ext.response_step)
 
 
 @lru_cache(maxsize=1)
 def _native_library():
-    configured = os.environ.get("RANG_TOY_LIB")
-    if configured:
-        path = Path(configured).resolve()
-    else:
-        filename = (
-            "rang_toy.dll"
-            if os.name == "nt"
-            else "librang_toy.dylib"
-            if sys.platform == "darwin"
-            else "librang_toy.so"
-        )
-        path = build().parent / filename
-    return ctypes.CDLL(str(path))
-
-
-@lru_cache(maxsize=1)
-def _native_projector():
-    project = _native_library().rang_project_out
-    vector = np.ctypeslib.ndpointer(
-        dtype=np.float64, ndim=2, flags=("C_CONTIGUOUS", "ALIGNED")
-    )
-    project.argtypes = [
-        ctypes.c_size_t,
-        ctypes.c_size_t,
-        ctypes.c_size_t,
-        vector,
-        vector,
-        vector,
-        ctypes.POINTER(ctypes.c_size_t),
-        ctypes.c_double,
-    ]
-    project.restype = ctypes.c_int
-    return project
+    return _RootKernels(core.extension())
 
 
 def project_out(nuisance, targets, *, relative_tolerance=1e-12):
@@ -78,20 +80,18 @@ def project_out(nuisance, targets, *, relative_tolerance=1e-12):
     ):
         raise ValueError("finite matrices and tolerance in (0,1) required")
     output = np.empty_like(z)
-    rank = ctypes.c_size_t()
-    status = _native_projector()(
+    status, rank = core.extension().project_out(
         len(z),
         a.shape[1],
         z.shape[1],
         a,
         z,
         output,
-        ctypes.byref(rank),
-        relative_tolerance,
+        float(relative_tolerance),
     )
     if status:
         raise RuntimeError(f"Rust nuisance projection failed (status {status})")
-    return output[rank.value :], rank.value
+    return output[rank:], int(rank)
 
 
 def project_grouped(gains, shared_nuisance, targets, groups, *, backend="rust"):

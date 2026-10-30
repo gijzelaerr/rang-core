@@ -66,7 +66,7 @@ TREND_ITERATIONS = 50
 def _snapshot(inputs):
     inputs = Path(inputs)
     return {
-        str(p.relative_to(inputs)): [p.stat().st_size, p.stat().st_mtime_ns]
+        p.relative_to(inputs).as_posix(): [p.stat().st_size, p.stat().st_mtime_ns]
         for p in sorted(inputs.rglob("*"))
         if p.is_file() and p.name != "table.lock"
     }
@@ -364,7 +364,7 @@ def compare(stage, result, oracle, receipt, posthoc_slope_scale=False):
         sys.argv = saved
     report = json.loads(Path(receipt).read_text())
     report["comparator"] = {
-        "script": str(script.relative_to(ROOT)),
+        "script": script.relative_to(ROOT).as_posix(),
         "sha256": sha256(script.read_bytes()).hexdigest(),
         "exit": code,
         "posthoc_slope_scale": bool(posthoc_slope_scale),

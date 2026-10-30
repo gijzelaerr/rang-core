@@ -5,11 +5,9 @@ wrapper adds what WSClean's Measurement Set reader does before gridding
 (`stokes_i_reader`), calls the core (`invert`) and writes FITS images in
 WSClean's pixel orientation (`write_fits`). Briggs weighting is task B's; the
 imaging weights are an input here. The core is reached through the extension
-`rangtoy._core` when it is active, else through ctypes
-(research/core-j-packaging.md).
+`rangtoy._core` (research/core-j-packaging.md, research/p7-architecture.md).
 """
 
-import ctypes
 import math
 
 import numpy as np
@@ -30,66 +28,11 @@ STAT_NAMES = (
 )
 
 
-class _GridInputs(ctypes.Structure):
-    _fields_ = [
-        ("nrow", ctypes.c_size_t),
-        ("nchan", ctypes.c_size_t),
-        ("width", ctypes.c_size_t),
-        ("height", ctypes.c_size_t),
-        ("kernel_size", ctypes.c_size_t),
-        ("oversampling", ctypes.c_size_t),
-        ("n_w_layers", ctypes.c_size_t),
-        ("pixel_size_x", ctypes.c_double),
-        ("pixel_size_y", ctypes.c_double),
-        ("padding", ctypes.c_double),
-        ("uvw", ctypes.POINTER(ctypes.c_double)),
-        ("frequencies", ctypes.POINTER(ctypes.c_double)),
-        ("data", ctypes.POINTER(ctypes.c_float)),
-        ("weights", ctypes.POINTER(ctypes.c_float)),
-        ("imaging_weights", ctypes.POINTER(ctypes.c_float)),
-    ]
-
-
-class _GridOutputs(ctypes.Structure):
-    _fields_ = [
-        ("dirty", ctypes.POINTER(ctypes.c_double)),
-        ("psf", ctypes.POINTER(ctypes.c_double)),
-        ("stats", ctypes.POINTER(ctypes.c_double)),
-    ]
-
-
-def _lib():
-    lib = core.library()
-    if not getattr(lib, "_rang_grid_ready", False):
-        lib.rang_core_grid_invert.argtypes = [
-            ctypes.POINTER(_GridInputs),
-            ctypes.POINTER(_GridOutputs),
-        ]
-        lib.rang_core_grid_invert.restype = ctypes.c_int
-        lib.rang_core_grid_kernel.argtypes = [
-            ctypes.c_size_t,
-            ctypes.c_size_t,
-            ctypes.POINTER(ctypes.c_double),
-        ]
-        lib.rang_core_grid_kernel.restype = ctypes.c_int
-        lib._rang_grid_ready = True
-    return lib
-
-
-def _ptr(array, ctype):
-    return array.ctypes.data_as(ctypes.POINTER(ctype))
-
-
 def kernel(kernel_size=7, oversampling=1023):
     """The oversampled Kaiser-Bessel windowed sinc, as WSClean builds it."""
     out = np.empty(kernel_size * oversampling, np.float64)
     ext = core.extension()
-    if ext is not None:
-        code = ext.grid_kernel(kernel_size, oversampling, out)
-    else:
-        code = _lib().rang_core_grid_kernel(
-            kernel_size, oversampling, _ptr(out, ctypes.c_double)
-        )
+    code = ext.grid_kernel(kernel_size, oversampling, out)
     if code:
         raise ValueError("invalid kernel settings")
     return out
@@ -190,7 +133,8 @@ def invert(
     psf = np.empty((height, width), np.float64)
     stats = np.empty(N_STATS, np.float64)
     data_view = data.view(np.float32)
-    inputs = _GridInputs(
+    ext = core.extension()
+    code = ext.grid_invert(
         nrow,
         nchan,
         width,
@@ -201,41 +145,15 @@ def invert(
         scale_arcsec * ARCSEC,
         scale_arcsec * ARCSEC,
         float(padding),
-        _ptr(uvw, ctypes.c_double),
-        _ptr(frequencies, ctypes.c_double),
-        _ptr(data_view, ctypes.c_float),
-        _ptr(weights, ctypes.c_float),
-        _ptr(imaging_weights, ctypes.c_float),
+        uvw,
+        frequencies,
+        data_view,
+        weights,
+        imaging_weights,
+        dirty,
+        psf,
+        stats,
     )
-    outputs = _GridOutputs(
-        _ptr(dirty, ctypes.c_double),
-        _ptr(psf, ctypes.c_double),
-        _ptr(stats, ctypes.c_double),
-    )
-    ext = core.extension()
-    if ext is not None:
-        code = ext.grid_invert(
-            nrow,
-            nchan,
-            width,
-            height,
-            kernel_size,
-            oversampling,
-            w_layers,
-            scale_arcsec * ARCSEC,
-            scale_arcsec * ARCSEC,
-            float(padding),
-            uvw,
-            frequencies,
-            data_view,
-            weights,
-            imaging_weights,
-            dirty,
-            psf,
-            stats,
-        )
-    else:
-        code = _lib().rang_core_grid_invert(ctypes.byref(inputs), ctypes.byref(outputs))
     if code:
         raise RuntimeError(f"core gridder failed with code {code}")
     record = dict(zip(STAT_NAMES, (float(v) for v in stats)))

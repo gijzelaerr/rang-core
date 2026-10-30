@@ -3,6 +3,7 @@ the code it replaces on the same cells. Synthetic and offline, except the
 decode checks on the archived K fetch, which are skipped when it is absent.
 """
 
+import ctypes
 import json
 from pathlib import Path
 
@@ -412,8 +413,16 @@ def test_decode_inputs_is_byte_identical_on_four_stations():
         assert arrays[name].tobytes() == expected.tobytes(), name
 
 
-def test_p5_library_exports_the_symbols():
-    lib = core_fetch.p5_library()
-    for name in core_fetch.P5_SYMBOLS:
+def test_p5_bindings_are_in_the_extension():
+    # Task P7 removed the standalone P5 library; the extension carries the
+    # bindings and its binary still exports the C symbols.
+    ext = core_fetch.p5_extension()
+    for name in ("correct_stokes_i", "blosc_decode_span_rows_strided"):
+        assert hasattr(ext, name)
+    lib = ctypes.CDLL(ext.__file__)
+    for name in (
+        "rang_core_correct_stokes_i",
+        "rang_core_blosc_decode_span_rows_strided",
+    ):
         assert hasattr(lib, name)
     assert Path(core_fetch.__file__).exists()

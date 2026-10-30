@@ -3,7 +3,6 @@
 import hashlib
 import json
 import platform
-import subprocess
 import sys
 from pathlib import Path
 
@@ -13,7 +12,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import core, toy_output
 from rangtoy.gauge import gaussian_gauge, predict_channels
 from rangtoy.observability import sky_locked_information
 from rangtoy.pointing import Observation, component_list
@@ -105,8 +104,8 @@ def gauge_svg(orbit):
 
 def main():
     jax.config.update("jax_enable_x64", True)
-    binary = build()
-    fixture_bytes = subprocess.check_output([str(binary), "--pointing-full-reference"])
+    binary = core.library_path()
+    fixture_bytes = toy_output("--pointing-full-reference").encode()
     fixture = json.loads(fixture_bytes)
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     sky = component_list(sources[:, 0], sources[:, 1], sources[:, 2], sources[:, 3])

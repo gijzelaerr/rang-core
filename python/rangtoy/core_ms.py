@@ -6,33 +6,16 @@ cell axes in reversed casacore order, NumPy dtypes `bool`, `int32`,
 `float32`, `float64`, `complex64` and friends, and string columns as object
 arrays. Only StandardStMan, IncrementalStMan (scalars), TiledShapeStMan and
 TiledColumnStMan columns are readable; the description says which. The core
-is reached through the extension's `MsTable` when it is active, else through
-the C ABI handle (research/core-j-packaging.md); the decoding of a column's
-bytes is shared.
+is reached through the extension's `MsTable` (research/core-j-packaging.md;
+the C ABI handle path was removed by task P7, research/p7-architecture.md).
 """
 
-import ctypes
 import json
 from pathlib import Path
 
 import numpy as np
 
 from . import core
-
-_SHAPE = ctypes.c_int64 * 8
-
-
-class _Column(ctypes.Structure):
-    _fields_ = [
-        ("data", ctypes.POINTER(ctypes.c_uint8)),
-        ("nbytes", ctypes.c_size_t),
-        ("nrows", ctypes.c_uint64),
-        ("ndim", ctypes.c_size_t),
-        ("shape", _SHAPE),
-        ("dtype", ctypes.c_int32),
-        ("nstrings", ctypes.c_size_t),
-    ]
-
 
 DTYPES = {
     0: np.dtype("bool"),
@@ -51,61 +34,14 @@ DTYPES = {
 STRING = 11
 
 
-def _lib():
-    lib = core.library()
-    if not getattr(lib, "_rang_ms_ready", False):
-        if not hasattr(lib, "rang_core_ms_open"):
-            raise RuntimeError(
-                "the core library has no Measurement Set reader; "
-                "core/src/lib.rs must declare `pub mod ms;` and `pub mod ffi_ms;`"
-            )
-        lib.rang_core_ms_open.argtypes = [
-            ctypes.c_char_p,
-            ctypes.POINTER(ctypes.c_void_p),
-        ]
-        lib.rang_core_ms_open.restype = ctypes.c_int
-        lib.rang_core_ms_close.argtypes = [ctypes.c_void_p]
-        lib.rang_core_ms_close.restype = None
-        lib.rang_core_ms_describe.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_char_p,
-            ctypes.c_size_t,
-        ]
-        lib.rang_core_ms_describe.restype = ctypes.c_size_t
-        lib.rang_core_ms_read.argtypes = [
-            ctypes.c_void_p,
-            ctypes.c_char_p,
-            ctypes.c_uint64,
-            ctypes.c_uint64,
-            ctypes.POINTER(_Column),
-        ]
-        lib.rang_core_ms_read.restype = ctypes.c_int
-        lib.rang_core_ms_free.argtypes = [ctypes.POINTER(_Column)]
-        lib.rang_core_ms_free.restype = None
-        lib.rang_core_ms_last_error.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
-        lib.rang_core_ms_last_error.restype = ctypes.c_size_t
-        lib._rang_ms_ready = True
-    return lib
-
-
-def _last_error(lib):
-    needed = lib.rang_core_ms_last_error(None, 0)
-    buf = ctypes.create_string_buffer(needed + 1)
-    lib.rang_core_ms_last_error(buf, needed)
-    return buf.raw[:needed].decode("utf-8", "replace")
-
-
 def has_reader():
-    """True when the active backend exposes the Measurement Set reader."""
-    ext = core.extension()
-    if ext is not None:
-        return hasattr(ext, "MsTable")
-    return hasattr(core.library(), "rang_core_ms_open")
+    """True when the extension exposes the Measurement Set reader."""
+    return hasattr(core.extension(), "MsTable")
 
 
-def _decode(raw, nrows, cell, dtype, nstrings, own=False):
-    """A column's packed bytes as python-casacore's `getcol` returns them;
-    `own` says the uint8 array owns its memory, so no copy is needed."""
+def _decode(raw, nrows, cell, dtype, nstrings):
+    """A column's packed bytes (a uint8 array that owns its memory) as
+    python-casacore's `getcol` returns them, without a copy."""
     shape = (int(nrows),) + tuple(cell)[::-1]
     if dtype == STRING:
         packed, strings, at = raw.tobytes(), [], 0
@@ -114,8 +50,7 @@ def _decode(raw, nrows, cell, dtype, nstrings, own=False):
             strings.append(packed[at + 4 : at + 4 + n].decode("utf-8"))
             at += 4 + n
         return np.asarray(strings, dtype=object).reshape(shape)
-    values = raw.view(DTYPES[dtype])
-    return (values if own else values.copy()).reshape(shape)
+    return raw.view(DTYPES[dtype]).reshape(shape)
 
 
 class Table:
@@ -123,32 +58,12 @@ class Table:
 
     def __init__(self, path):
         self.path = Path(path)
-        self._handle = None
-        self._table = None
-        ext = core.extension()
-        if ext is not None:
-            self._table = ext.MsTable(str(self.path))
-            self.description = json.loads(self._table.describe())
-            self.nrows = int(self.description["nrows"])
-            self.columns = {c["name"]: c for c in self.description["columns"]}
-            return
-        lib = _lib()
-        handle = ctypes.c_void_p()
-        status = lib.rang_core_ms_open(str(self.path).encode(), ctypes.byref(handle))
-        if status:
-            raise OSError(_last_error(lib) if status == 1 else "core panic in open")
-        self._handle = handle
-        needed = lib.rang_core_ms_describe(self._handle, None, 0)
-        buf = ctypes.create_string_buffer(needed + 1)
-        lib.rang_core_ms_describe(self._handle, buf, needed)
-        self.description = json.loads(buf.raw[:needed].decode("utf-8"))
+        self._table = core.extension().MsTable(str(self.path))
+        self.description = json.loads(self._table.describe())
         self.nrows = int(self.description["nrows"])
         self.columns = {c["name"]: c for c in self.description["columns"]}
 
     def close(self):
-        if getattr(self, "_handle", None) is not None:
-            _lib().rang_core_ms_close(self._handle)
-            self._handle = None
         self._table = None
 
     def __enter__(self):
@@ -156,10 +71,6 @@ class Table:
 
     def __exit__(self, *exc):
         self.close()
-
-    def __del__(self):
-        if getattr(self, "_handle", None) is not None:
-            self.close()
 
     def colnames(self):
         return list(self.columns)
@@ -169,33 +80,13 @@ class Table:
 
     def getcol(self, name, startrow=0, nrow=None):
         """Rows `startrow` onwards (all, or `nrow` of them) of one column."""
-        if self._handle is None and self._table is None:
+        if self._table is None:
             raise ValueError("table is closed")
         count = 0 if nrow is None else int(nrow)
         if nrow is not None and count <= 0:
             raise ValueError("nrow must be positive")
-        if self._table is not None:
-            raw, nrows, cell, dtype, nstrings = self._table.read(
-                name, int(startrow), count
-            )
-            return _decode(raw, nrows, cell, dtype, nstrings, own=True)
-        lib = _lib()
-        out = _Column()
-        status = lib.rang_core_ms_read(
-            self._handle, name.encode(), int(startrow), count, ctypes.byref(out)
-        )
-        if status:
-            raise OSError(_last_error(lib) if status == 1 else "core panic in read")
-        try:
-            raw = (
-                np.ctypeslib.as_array(out.data, shape=(out.nbytes,))
-                if out.nbytes
-                else np.zeros(0, np.uint8)
-            )
-            cell = tuple(int(out.shape[i]) for i in range(out.ndim))
-            return _decode(raw, out.nrows, cell, out.dtype, out.nstrings)
-        finally:
-            lib.rang_core_ms_free(ctypes.byref(out))
+        raw, nrows, cell, dtype, nstrings = self._table.read(name, int(startrow), count)
+        return _decode(raw, nrows, cell, dtype, nstrings)
 
 
 def open_table(path):

@@ -78,17 +78,9 @@ sha256sum /tmp/wheel-unzip/rangtoy/_core.abi3.so | tee "$OUT/core-sha256.txt"
 tar tzvf "$dist"/*.tar.gz > "$OUT/sdist-list.txt"
 wc -l < "$OUT/sdist-list.txt"
 
-# The C ABI of core/ from the same commit and toolchain, for the ctypes half
-# of tests/test_core_backends.py against the installed wheel
-# (tools/wheel/pytest_wheel.py).
-t ctypes-lib cargo build --release --locked -q --manifest-path core/Cargo.toml
-mkdir -p "$OUT/ctypes"
-cp "$CARGO_TARGET_DIR/release/librang_core.so" "$OUT/ctypes/"
-# The root crate's kernels (TV, projector: rangtoy.projector via
-# RANG_TOY_LIB) are not part of the wheel; the phase 2 and actions drivers
-# need them, so the test receives them the same way.
-t toy-lib cargo build --release --locked -q --lib
-cp "$CARGO_TARGET_DIR/release/librang_toy.so" "$OUT/ctypes/"
+# No C ABI library is built beside the wheel any more: the backend tests
+# compare the wheel with an archive, and the root crate's kernels are in the
+# extension (task P7, research/p7-architecture.md).
 
 # The sdist must build on its own (the path CI and pip take without a wheel).
 sdist_build() {

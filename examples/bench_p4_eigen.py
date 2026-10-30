@@ -34,7 +34,10 @@ FIELDS = ("full_h", "full_b", "drop_h", "drop_b", "gains", "active")
 
 
 def loadavg():
-    return Path("/proc/loadavg").read_text().split()[0]
+    try:
+        return Path("/proc/loadavg").read_text().split()[0]
+    except OSError:  # not Linux (task P7: the harness test runs on Windows)
+        return None
 
 
 def record(out, target):

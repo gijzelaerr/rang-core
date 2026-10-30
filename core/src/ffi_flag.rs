@@ -3,6 +3,8 @@
 //! buffers described by explicit lengths, 0 on success, 1 on invalid
 //! arguments, 2 on a panic.
 
+use rayon::prelude::*;
+
 use crate::sumthreshold::{
     self, Context, Step, SumThresholdParams, Window, polarised_intensity, polarised_map,
 };
@@ -218,6 +220,14 @@ pub unsafe extern "C" fn rang_core_flag_rows(
             return 1;
         }
         // Pack: defaults NaN and flagged, later rows overwrite earlier ones.
+        // The last row of each (baseline, time) slot is found serially, then
+        // the slots are filled in parallel from their own row (task P7: the
+        // serial pack/unpack was 13-20 % of a call, research/p3-sumthreshold.md);
+        // each cell is computed exactly as before, so the window is identical.
+        let mut owner = vec![usize::MAX; i.nbl.saturating_mul(i.ntime)];
+        for r in 0..i.nrow {
+            owner[baseline_index[r] as usize * i.ntime + time_index[r] as usize] = r;
+        }
         let mut window = Window {
             nbl: i.nbl,
             ntime: i.ntime,
@@ -226,27 +236,41 @@ pub unsafe extern "C" fn rang_core_flag_rows(
             im: vec![f32::NAN; window_len],
         };
         let mut input_flags = vec![true; window_len];
-        let mut vis = vec![(0f32, 0f32); i.ncorr];
-        for r in 0..i.nrow {
-            let base = baseline_index[r] as usize * plane + time_index[r] as usize * i.nchan;
-            for f in 0..i.nchan {
-                let cell = (r * i.nchan + f) * i.ncorr;
-                let mut any = false;
-                for c in 0..i.ncorr {
-                    vis[c] = (data[2 * (cell + c)], data[2 * (cell + c) + 1]);
-                    any |= flags[cell + c] != 0;
-                }
-                window.re[base + f] = polarised_intensity(&vis, &stokes_pol);
-                window.im[base + f] = 0.0;
-                input_flags[base + f] = any;
-            }
-        }
+        let (nchan, ncorr) = (i.nchan, i.ncorr);
+        let chunk = nchan.max(1);
+        window
+            .re
+            .par_chunks_mut(chunk)
+            .zip(window.im.par_chunks_mut(chunk))
+            .zip(input_flags.par_chunks_mut(chunk))
+            .zip(owner.par_iter())
+            .for_each_init(
+                || vec![(0f32, 0f32); ncorr],
+                |vis, (((re, im), input), &r)| {
+                    if r == usize::MAX {
+                        return;
+                    }
+                    for f in 0..nchan {
+                        let cell = (r * nchan + f) * ncorr;
+                        let mut any = false;
+                        for c in 0..ncorr {
+                            vis[c] = (data[2 * (cell + c)], data[2 * (cell + c) + 1]);
+                            any |= flags[cell + c] != 0;
+                        }
+                        re[f] = polarised_intensity(vis, &stokes_pol);
+                        im[f] = 0.0;
+                        input[f] = any;
+                    }
+                },
+            );
         // SAFETY: as above.
         if let Some(out) = unsafe { slice_mut(o.intensity, 2 * window_len) } {
-            for idx in 0..window_len {
-                out[2 * idx] = window.re[idx];
-                out[2 * idx + 1] = window.im[idx];
-            }
+            out.par_chunks_mut(2)
+                .zip(window.re.par_iter().zip(window.im.par_iter()))
+                .for_each(|(pair, (&re, &im))| {
+                    pair[0] = re;
+                    pair[1] = im;
+                });
         }
         // SAFETY: as above.
         let stages = unsafe { slice_mut(o.stages, i.nsteps * window_len) };
@@ -269,14 +293,17 @@ pub unsafe extern "C" fn rang_core_flag_rows(
                     }
                 }
             });
-        for r in 0..i.nrow {
-            let base = baseline_index[r] as usize * plane + time_index[r] as usize * i.nchan;
-            for f in 0..i.nchan {
-                let value = final_flags[base + f] as u8;
-                let cell = (r * i.nchan + f) * i.ncorr;
-                out_flags[cell..cell + i.ncorr].fill(value);
-            }
-        }
+        // Unpack: every row reads its slot; rows write disjoint outputs.
+        out_flags
+            .par_chunks_mut((nchan * ncorr).max(1))
+            .enumerate()
+            .for_each(|(r, row)| {
+                let base = baseline_index[r] as usize * plane + time_index[r] as usize * nchan;
+                for f in 0..nchan {
+                    let value = final_flags[base + f] as u8;
+                    row[f * ncorr..(f + 1) * ncorr].fill(value);
+                }
+            });
         0
     });
     result.unwrap_or(2)

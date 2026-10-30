@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
 
-from rangtoy import build, run_experiment
+from rangtoy import run_experiment
 
 LABELS = {
     "fixed_beam": "Fixed beam",
@@ -162,7 +162,6 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=ROOT / "outputs" / "toy")
     parser.add_argument("--no-plot", action="store_true")
     args = parser.parse_args()
-    binary = build()
     experiments = []
     for seed in args.seeds:
         print(f"Running seed {seed}...", flush=True)
@@ -174,7 +173,6 @@ def main() -> None:
                 beam_error=args.beam_error,
                 budget=args.budget,
                 target_flux=args.target_flux,
-                binary=binary,
             )
         )
     stats = summary(experiments)

@@ -180,7 +180,7 @@ def test_invalid_iterations_never_create_run(tmp_path, iterations):
 
 
 def test_existing_dangling_and_nested_outputs_refused_before_reads(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, symlink
 ):
     source = tmp_path / "source"
     source.mkdir()
@@ -191,7 +191,7 @@ def test_existing_dangling_and_nested_outputs_refused_before_reads(
         with pytest.raises(ValueError):
             guard.run(output, [source, tmp_path / "other"])
     link = tmp_path / "link"
-    link.symlink_to(tmp_path / "missing")
+    symlink(link, tmp_path / "missing")
     with pytest.raises(ValueError):
         guard.run(link, [source, tmp_path / "other"])
     assert link.is_symlink()

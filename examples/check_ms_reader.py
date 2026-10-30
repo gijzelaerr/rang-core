@@ -29,7 +29,7 @@ RANGES = ((0, 1), (3, 5))
 
 def file_hashes(ms):
     return {
-        str(p.relative_to(ms)): sha256(p.read_bytes()).hexdigest()
+        p.relative_to(ms).as_posix(): sha256(p.read_bytes()).hexdigest()
         for p in sorted(Path(ms).rglob("*"))
         if p.is_file() and p.name != "table.lock"
     }

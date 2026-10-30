@@ -102,7 +102,7 @@ def test_five_isolated_dispatches_with_explicit_imaging_sources(
     "mutation", ["unknown", "runtime", "source", "existing", "symlink"]
 )
 def test_invalid_dispatch_refused_before_import_or_cache_write(
-    tmp_path, monkeypatch, mutation
+    tmp_path, monkeypatch, mutation, symlink
 ):
     root, _ = config_fixture(tmp_path, monkeypatch)
     track = "trend"
@@ -115,7 +115,7 @@ def test_invalid_dispatch_refused_before_import_or_cache_write(
     elif mutation == "existing":
         (root / "experiments/trend").mkdir()
     else:
-        (root / "experiments/trend").symlink_to(tmp_path / "missing")
+        symlink(root / "experiments/trend", tmp_path / "missing")
     monkeypatch.setattr(
         campaign.importlib,
         "import_module",

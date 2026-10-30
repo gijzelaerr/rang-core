@@ -12,25 +12,20 @@ Decoding writes straight into the caller's final `(row, channel, corr)`
 arrays (big plan task P5, research/p5-memory.md): each run of blocks is
 decoded by the core's strided row decoder at its channel offset, and local
 tiles are memory-mapped, so no column is held twice and no compressed span
-is copied. `p5_library` loads the P5 symbols (`core/src/ffi_correct.rs`)
-from the core library when it exports them, else from a standalone build of
-the P5 files until `core/src/lib.rs` lists them.
+is copied. The P5 kernels (`core/src/ffi_correct.rs`) are called through
+the extension; the standalone P5 build and its ctypes handle were removed by
+task P7 (research/p7-architecture.md).
 """
 
-import ctypes
 import hashlib
 import http.client
 import json
 import mmap
-import os
 import platform
-import shutil
 import ssl
-import subprocess
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -368,124 +363,10 @@ def fetch_slice(
 
 # --- the P5 kernels (core/src/correct.rs, core/src/ffi_correct.rs) -----------
 
-P5_SYMBOLS = ("rang_core_correct_stokes_i", "rang_core_blosc_decode_span_rows_strided")
-P5_SOURCES = ("blosc.rs", "correct.rs", "ffi_correct.rs")
-
-
-class CorrectInputs(ctypes.Structure):
-    """`ffi_correct::CorrectInputsC`."""
-
-    _fields_ = [
-        ("nrow", ctypes.c_size_t),
-        ("nchan", ctypes.c_size_t),
-        ("ntime_bins", ctypes.c_size_t),
-        ("nfreq_bins", ctypes.c_size_t),
-        ("nant", ctypes.c_size_t),
-        ("data", ctypes.c_void_p),
-        ("weights", ctypes.c_void_p),
-        ("flags", ctypes.c_void_p),
-        ("flag_row", ctypes.c_void_p),
-        ("added", ctypes.c_void_p),
-        ("antenna1", ctypes.c_void_p),
-        ("antenna2", ctypes.c_void_p),
-        ("time_bin", ctypes.c_void_p),
-        ("freq_bin", ctypes.c_void_p),
-        ("inverse", ctypes.c_void_p),
-        ("valid", ctypes.c_void_p),
-    ]
-
-
-def build_p5_standalone():
-    """Build the P5 files as their own cdylib (`rang_p5_core`) beside the
-    core's target directory; used only while `core/src/lib.rs` does not list
-    `correct` and `ffi_correct`. Offline; rayon comes from the core's lock."""
-    root = core.core_root()
-    src = root / "src"
-    out = root / "target" / "p5-standalone"
-    out.mkdir(parents=True, exist_ok=True)
-    (out / "Cargo.toml").write_text(
-        "[package]\n"
-        'name = "rang-p5-core"\n'
-        'version = "0.1.0"\n'
-        'edition = "2024"\n'
-        "publish = false\n\n"
-        "[lib]\n"
-        'name = "rang_p5_core"\n'
-        'path = "root.rs"\n'
-        'crate-type = ["rlib", "cdylib"]\n\n'
-        "[dependencies]\n"
-        'rayon = "1.12.0"\n\n'
-        "[profile.release]\n"
-        'lto = "thin"\n'
-        "codegen-units = 1\n\n"
-        "[workspace]\n"
-    )
-    modules = "".join(
-        f'#[path = "{src / name}"]\npub mod {name.removesuffix(".rs")};\n'
-        for name in P5_SOURCES
-    )
-    (out / "root.rs").write_text(
-        "//! Standalone build of the P5 kernels until core/src/lib.rs lists them.\n"
-        + modules
-    )
-    shutil.copyfile(root / "Cargo.lock", out / "Cargo.lock")
-    subprocess.run(
-        [
-            "cargo",
-            "build",
-            "--offline",
-            "--release",
-            "-q",
-            "--manifest-path",
-            str(out / "Cargo.toml"),
-        ],
-        cwd=out,
-        check=True,
-    )
-    return out / "target" / "release" / "librang_p5_core.so"
-
-
-@lru_cache(maxsize=1)
-def p5_library():
-    """A ctypes handle exporting the P5 symbols: `RANG_P5_LIB` if set, else
-    the core library when it exports them, else the standalone build."""
-    configured = os.environ.get("RANG_P5_LIB")
-    if configured:
-        lib = ctypes.CDLL(str(Path(configured).resolve()))
-    else:
-        lib = core.library()
-        if not all(hasattr(lib, name) for name in P5_SYMBOLS):
-            lib = ctypes.CDLL(str(build_p5_standalone()))
-    lib.rang_core_correct_stokes_i.argtypes = [
-        ctypes.POINTER(CorrectInputs),
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-    ]
-    lib.rang_core_correct_stokes_i.restype = ctypes.c_int
-    lib.rang_core_blosc_decode_span_rows_strided.argtypes = [
-        ctypes.c_char_p,
-        ctypes.c_size_t,
-        ctypes.c_size_t,
-        ctypes.c_size_t,
-        ctypes.c_void_p,
-        ctypes.c_size_t,
-        ctypes.c_size_t,
-        ctypes.c_void_p,
-        ctypes.c_size_t,
-        ctypes.c_void_p,
-        ctypes.c_size_t,
-        ctypes.c_size_t,
-    ]
-    lib.rang_core_blosc_decode_span_rows_strided.restype = ctypes.c_int
-    return lib
-
 
 def p5_extension():
-    """The extension module when it is active and carries the P5 bindings."""
-    ext = core.extension()
-    if ext is not None and hasattr(ext, "correct_stokes_i"):
-        return ext
-    return None
+    """The extension module (it carries the P5 bindings)."""
+    return core.extension()
 
 
 def decode_rows_into(head, first, count, span, row_bytes, rows, out, offset, stride):
@@ -500,24 +381,8 @@ def decode_rows_into(head, first, count, span, row_bytes, rows, out, offset, str
     if offset < 0 or offset > flat.size:
         raise ValueError("offset outside out")
     span = np.frombuffer(span, np.uint8) if isinstance(span, bytes) else span
-    ext = p5_extension()
-    if ext is not None:
-        return ext.blosc_decode_span_rows_strided(
-            bytes(head), first, count, span, row_bytes, rows, flat, offset, stride
-        )
-    return p5_library().rang_core_blosc_decode_span_rows_strided(
-        head,
-        len(head),
-        first,
-        count,
-        span.ctypes.data,
-        span.size,
-        row_bytes,
-        rows.ctypes.data,
-        len(rows),
-        flat.ctypes.data + offset,
-        flat.size - offset,
-        stride,
+    return core.extension().blosc_decode_span_rows_strided(
+        bytes(head), first, count, span, row_bytes, rows, flat, offset, stride
     )
 
 

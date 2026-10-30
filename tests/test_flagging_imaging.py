@@ -7,6 +7,13 @@ import numpy as np
 import pytest
 from rangtoy import flagging_imaging as imaging
 
+# The frozen flagging modules size their writes with os.stat_result.st_blocks,
+# which Windows lacks; they cannot change (research/p8-history.md), so these
+# tests are skipped there (research/x1-crossplatform.md, task P7).
+needs_st_blocks = pytest.mark.skipif(
+    sys.platform == "win32", reason="frozen module reads st_blocks (absent on Windows)"
+)
+
 
 @pytest.fixture
 def fixture():
@@ -401,7 +408,8 @@ def test_fixed_dirty_offsource_diagnostic_is_not_thermal_noise():
     assert "not independent thermal" in a["RMS_role"]
 
 
-def test_budget_refuses_symlinks_and_reserve(tmp_path, monkeypatch):
+@needs_st_blocks
+def test_budget_refuses_symlinks_and_reserve(tmp_path, monkeypatch, symlink):
     budget = imaging.Budget(tmp_path)
     monkeypatch.setattr(imaging.shutil, "disk_usage", lambda _: SimpleNamespace(free=1))
     with pytest.raises(RuntimeError, match="8GiB"):
@@ -409,7 +417,7 @@ def test_budget_refuses_symlinks_and_reserve(tmp_path, monkeypatch):
     monkeypatch.setattr(
         imaging.shutil, "disk_usage", lambda _: SimpleNamespace(free=20 * 1024**3)
     )
-    (tmp_path / "bad").symlink_to(tmp_path / "missing")
+    symlink(tmp_path / "bad", tmp_path / "missing")
     with pytest.raises(RuntimeError, match="symlinks"):
         budget.check()
 
@@ -429,6 +437,7 @@ def test_bidirectional_nesting_rejected_before_tool_or_writes(tmp_path, monkeypa
         imaging.run(tmp_path, source, source)
 
 
+@needs_st_blocks
 def test_every_native_column_write_has_exclusive_previous_backup(
     fixture, tmp_path, monkeypatch
 ):
@@ -515,6 +524,7 @@ def test_image_geometry_frozen_scale_and_axes(change):
         imaging.image_geometry(header)
 
 
+@needs_st_blocks
 @pytest.mark.parametrize(
     "change",
     [

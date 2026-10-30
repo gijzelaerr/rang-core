@@ -1,14 +1,32 @@
-"""The two core backends, extension and ctypes, give byte-identical results
-(research/core-j-packaging.md, criteria 3-5).
+"""The extension against the archive of the retired ctypes oracle
+(research/p7-architecture.md, criterion 1; before: research/core-j-packaging.md).
 
-Every wrapper function runs under both backends on the same inputs; outputs
-are compared with `tobytes()`. The tests skip when the extension is not
-built (`maturin develop` or `pip install -e .`).
+Every case below ran at `5965d37` under both backends of that commit (the
+extension and the ctypes C ABI of `core/`; the root-crate kernels through
+ctypes on `librang_toy` in both runs) with byte-identical results, and those
+results were archived in `tests/data/core-backends-golden.npz` (arrays) and
+`.json` (scalars, strings and the SHA-256 of every array). The ctypes path
+is gone; each case now runs on the extension and must reproduce the archive
+byte for byte on Linux x86_64, where the archive was made. Elsewhere the
+kernels that call the platform's libm (sin, cos, exp, hypot: predict, the
+gridder, gain TV, the projector) differ in the last bits (measured on
+Windows MSVC by task P7; X1's bit-equality held for the Tricolour port,
+which uses no libm), so floating-point arrays must agree within a labelled
+tolerance (relative 1e-9, absolute 1e-12 of the array's largest value), not
+bit for bit, and error messages only in their exception class.
+
+`RANG_GOLDEN_WRITE=1` writes the archive (into `RANG_GOLDEN_DIR`, default
+`tests/data`) instead of checking it; do that only for a deliberate,
+documented change of a kernel.
 """
 
+import hashlib
 import importlib.util
 import json
 import math
+import os
+import platform
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -16,50 +34,96 @@ import pytest
 from rangtoy import core, core_flag, core_grid, core_ms, core_weights, core_zarr
 
 ROOT = Path(__file__).resolve().parents[1]
+DATA = Path(os.environ.get("RANG_GOLDEN_DIR", ROOT / "tests" / "data"))
+GOLDEN_NPZ = DATA / "core-backends-golden.npz"
+GOLDEN_JSON = DATA / "core-backends-golden.json"
 HAS_EXTENSION = importlib.util.find_spec("rangtoy._core") is not None
 C_LIGHT = 299792458.0
+WRITE = os.environ.get("RANG_GOLDEN_WRITE") == "1"
+EXACT = sys.platform == "linux" and platform.machine().lower() in ("x86_64", "amd64")
+_written_arrays = {}
+_written_scalars = {}
+
+pytestmark = pytest.mark.skipif(not HAS_EXTENSION, reason="rangtoy._core is not built")
 
 
-def _select(monkeypatch, backend):
-    monkeypatch.setenv("RANG_CORE_BACKEND", backend)
-    monkeypatch.delenv("RANG_CORE_LIB", raising=False)
-    core.reset_backend()
-    assert core.backend_name() == backend
-
-
-@pytest.fixture(autouse=True)
-def _restore():
-    yield
-    core.reset_backend()
-
-
-def _both(monkeypatch, run):
-    """`run()` under each backend; returns (extension result, ctypes result)."""
-    if not HAS_EXTENSION:
-        pytest.skip("rangtoy._core is not built")
-    results = []
-    for backend in ("extension", "ctypes"):
-        _select(monkeypatch, backend)
-        results.append(run())
-    return results
-
-
-def _assert_identical(a, b):
-    if isinstance(a, dict):
-        assert set(a) == set(b)
-        for key in a:
-            _assert_identical(a[key], b[key])
-    elif isinstance(a, (list, tuple)):
-        assert len(a) == len(b)
-        for x, y in zip(a, b):
-            _assert_identical(x, y)
-    elif isinstance(a, np.ndarray):
-        assert a.dtype == b.dtype and a.shape == b.shape
-        assert a.tobytes() == b.tobytes()
-    elif a is None or isinstance(a, (bytes, str, bool, int)):
-        assert a == b
+def _flatten(value, prefix):
+    """(key, leaf) pairs of a nested result, in a stable order."""
+    if isinstance(value, dict):
+        for key in sorted(value):
+            yield from _flatten(value[key], f"{prefix}.{key}")
+    elif isinstance(value, (list, tuple)):
+        for i, item in enumerate(value):
+            yield from _flatten(item, f"{prefix}.{i}")
     else:
-        assert float(a) == float(b)
+        yield prefix, value
+
+
+def _scalar(value):
+    if isinstance(value, bytes):
+        return {"bytes_sha256": hashlib.sha256(value).hexdigest(), "len": len(value)}
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, np.integer):
+        return int(value)
+    return {"float": float(value).hex()}
+
+
+@pytest.fixture(scope="module")
+def golden():
+    if WRITE:
+        yield None
+        DATA.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(GOLDEN_NPZ, **_written_arrays)
+        GOLDEN_JSON.write_text(
+            json.dumps(_written_scalars, indent=1, sort_keys=True) + "\n"
+        )
+        return
+    if not GOLDEN_NPZ.is_file():
+        pytest.skip("golden archive missing")
+    with np.load(GOLDEN_NPZ) as arrays:
+        yield {k: arrays[k] for k in arrays.files}, json.loads(GOLDEN_JSON.read_text())
+
+
+def _check(golden, name, result):
+    """Compare a nested result with the archive (or record it)."""
+    leaves = list(_flatten(result, name))
+    if WRITE:
+        for key, value in leaves:
+            if isinstance(value, np.ndarray):
+                _written_arrays[key] = value
+                _written_scalars[key] = {
+                    "sha256": hashlib.sha256(value.tobytes()).hexdigest(),
+                    "dtype": str(value.dtype),
+                    "shape": list(value.shape),
+                }
+            else:
+                _written_scalars[key] = _scalar(value)
+        return
+    arrays, scalars = golden
+    expected = {k for k in scalars if k == name or k.startswith(name + ".")}
+    assert {k for k, _ in leaves} == expected, name
+    for key, value in leaves:
+        if isinstance(value, np.ndarray):
+            want = arrays[key]
+            assert value.dtype == want.dtype and value.shape == want.shape, key
+            if EXACT or value.dtype.kind not in "fc":
+                assert value.tobytes() == want.tobytes(), key
+                digest = hashlib.sha256(value.tobytes()).hexdigest()
+                assert digest == scalars[key]["sha256"], key
+            else:  # labelled tolerance off the archive's platform
+                finite = np.abs(want[np.isfinite(want)])
+                scale = float(finite.max()) if finite.size else 0.0
+                np.testing.assert_allclose(
+                    value, want, rtol=1e-9, atol=1e-12 * scale, equal_nan=True
+                )
+        elif isinstance(value, str) and not EXACT and name == "errors":
+            assert value.split(":")[0] == scalars[key].split(":")[0], key
+        elif EXACT or not isinstance(scalars[key], dict) or "float" not in scalars[key]:
+            assert _scalar(value) == scalars[key], key
+        else:
+            want = float.fromhex(scalars[key]["float"])
+            assert math.isclose(float(value), want, rel_tol=1e-9), key
 
 
 def _fused_case(seed=3, nchan=6):
@@ -86,28 +150,29 @@ def _fused_case(seed=3, nchan=6):
     return data, model, weights, p, q, tb, fb, gains, valid, split
 
 
-def test_fused_pass_identical(monkeypatch):
+def test_fused_pass(golden):
     data, model, weights, p, q, tb, fb, gains, valid, split = _fused_case()
-
-    def run():
-        result = core.fused_pass(
-            data, weights, p, q, tb, fb, gains, valid, split, model=model
-        )
-        scalar = core.fused_pass(
-            data,
-            weights,
-            p,
-            q,
-            tb,
-            fb,
-            gains,
-            valid,
-            split,
-            scalar_model=np.linspace(1.0, 2.0, data.shape[1]),
-            scores=False,
-            normals=False,
-        )
-        return [
+    result = core.fused_pass(
+        data, weights, p, q, tb, fb, gains, valid, split, model=model
+    )
+    scalar = core.fused_pass(
+        data,
+        weights,
+        p,
+        q,
+        tb,
+        fb,
+        gains,
+        valid,
+        split,
+        scalar_model=np.linspace(1.0, 2.0, data.shape[1]),
+        scores=False,
+        normals=False,
+    )
+    _check(
+        golden,
+        "fused",
+        [
             result.residuals,
             result.scores,
             result.diag_h,
@@ -117,65 +182,61 @@ def test_fused_pass_identical(monkeypatch):
             scalar.residuals,
             scalar.split_stats,
             scalar.scores,
-        ]
-
-    a, b = _both(monkeypatch, run)
-    _assert_identical(a, b)
+        ],
+    )
 
 
-def test_solve_complex_identical(monkeypatch):
+def solve_case():
     data, model, weights, p, q, tb, fb, _gains, _valid, _split = _fused_case(seed=11)
-    nrow, _nchan = data.shape[:2]
+    nrow = data.shape[0]
     flags = np.zeros(data.shape, bool)
     flags[:, 1] = True
     rows = np.zeros(nrow, bool)
     rows[-1] = True
-
-    def run():
-        s = core.solve_complex(
-            data,
-            weights,
-            flags,
-            rows,
-            p,
-            q,
-            tb,
-            fb,
-            ntime_bins=2,
-            nfreq_bins=2,
-            nant=4,
-            model=model,
-            max_iterations=20,
-        )
-        return [s.gains, s.flags, s.iterations, s.converged_fraction]
-
-    a, b = _both(monkeypatch, run)
-    _assert_identical(a, b)
+    return data, model, weights, p, q, tb, fb, flags, rows
 
 
-def test_predict_components_identical(monkeypatch):
+def solve(data, model, weights, p, q, tb, fb, flags, rows):
+    s = core.solve_complex(
+        data,
+        weights,
+        flags,
+        rows,
+        p,
+        q,
+        tb,
+        fb,
+        ntime_bins=2,
+        nfreq_bins=2,
+        nant=4,
+        model=model,
+        max_iterations=20,
+    )
+    return [s.gains, s.flags, s.iterations, s.converged_fraction]
+
+
+def test_solve_complex(golden):
+    _check(golden, "solve", solve(*solve_case()))
+
+
+def test_predict_components(golden):
     rng = np.random.default_rng(4)
     uvw = rng.uniform(-2000, 2000, (12, 3))
     freq = np.linspace(1.0e9, 1.4e9, 5)
     arcmin = math.pi / 10800
-
-    def run():
-        vis, spec = core.predict_components(
-            uvw,
-            freq,
-            np.array([[1.0, -2.0], [0.5, 0.25]]) * arcmin,
-            np.array([0, 1]),
-            np.array([0.06, 1.5]),
-            np.array([[-0.5], [-0.7]]),
-            np.ones(2, bool),
-            np.full(2, 1.284e9),
-            np.array([[0.0, 0.0, 0.0], [3 * arcmin, 2 * arcmin, 0.3]]),
-            spectra=True,
-        )
-        return [vis, spec]
-
-    a, b = _both(monkeypatch, run)
-    _assert_identical(a, b)
+    vis, spec = core.predict_components(
+        uvw,
+        freq,
+        np.array([[1.0, -2.0], [0.5, 0.25]]) * arcmin,
+        np.array([0, 1]),
+        np.array([0.06, 1.5]),
+        np.array([[-0.5], [-0.7]]),
+        np.ones(2, bool),
+        np.full(2, 1.284e9),
+        np.array([[0.0, 0.0, 0.0], [3 * arcmin, 2 * arcmin, 0.3]]),
+        spectra=True,
+    )
+    _check(golden, "predict", [vis, spec])
 
 
 def _memcpyed_chunk(payload, blocksize):
@@ -186,16 +247,17 @@ def _memcpyed_chunk(payload, blocksize):
     return header + payload
 
 
-def test_blosc_and_zarr_identical(monkeypatch, tmp_path):
+def test_blosc_and_zarr(golden, tmp_path):
     values = np.arange(60, dtype="<i4").reshape(20, 3)
     chunk = _memcpyed_chunk(values.tobytes(), blocksize=48)
     path = tmp_path / "0"
     path.write_bytes(chunk)
-
-    def run():
-        raw, stats = core_zarr.read_rows(path, 12, [1, 7, 19])
-        rows, blocks = core.blosc_decode_rows(chunk, 12, [0, 19])
-        return [
+    raw, stats = core_zarr.read_rows(path, 12, [1, 7, 19])
+    rows, blocks = core.blosc_decode_rows(chunk, 12, [0, 19])
+    _check(
+        golden,
+        "blosc",
+        [
             core.blosc_decode(chunk),
             raw,
             stats["blocks_decoded"],
@@ -204,13 +266,11 @@ def test_blosc_and_zarr_identical(monkeypatch, tmp_path):
             blocks,
             core_zarr.header_fields(chunk[:16]),
             core_zarr.read_chunk(path),
-        ]
-
-    a, b = _both(monkeypatch, run)
-    _assert_identical(a, b)
+        ],
+    )
 
 
-def test_weights_identical(monkeypatch):
+def test_weights(golden):
     rng = np.random.default_rng(7)
     data = (
         rng.standard_normal((5, 3, 4)) + 1j * rng.standard_normal((5, 3, 4))
@@ -221,27 +281,22 @@ def test_weights_identical(monkeypatch):
     wavelength = np.array([0.2, 0.22, 0.25])
     vis_weights = rng.uniform(0.0, 2.0, (5, 3)).astype(np.float32)
     selected = np.array([True, True, False, True, True])
-
-    def run():
-        vis, weight = core_weights.stokes_i(data, weights, flags)
-        out = [
-            vis,
-            weight,
-            core_weights.padded_size(512),
-            core_weights.grid_shape(616, 616),
-        ]
-        for mode in ("briggs", "uniform", "natural"):
-            result = core_weights.imaging_weights(
-                uvw, wavelength, vis_weights, selected, mode=mode, robust=0.5
-            )
-            out.extend([result["weights"], result["grid"], result["sums"]])
-        return out
-
-    a, b = _both(monkeypatch, run)
-    _assert_identical(a, b)
+    vis, weight = core_weights.stokes_i(data, weights, flags)
+    out = [
+        vis,
+        weight,
+        core_weights.padded_size(512),
+        core_weights.grid_shape(616, 616),
+    ]
+    for mode in ("briggs", "uniform", "natural"):
+        result = core_weights.imaging_weights(
+            uvw, wavelength, vis_weights, selected, mode=mode, robust=0.5
+        )
+        out.extend([result["weights"], result["grid"], result["sums"]])
+    _check(golden, "weights", out)
 
 
-def test_gridder_identical(monkeypatch):
+def test_gridder(golden):
     rng = np.random.default_rng(20261029)
     frequencies = np.array([1.0e9, 1.1e9])
     radius = rng.uniform(5.0, 120.0, 80)
@@ -260,26 +315,22 @@ def test_gridder_identical(monkeypatch):
     )
     data = np.exp(1j * phase).astype(np.complex64)
     weights = np.ones(data.shape, np.float32)
-
-    def run():
-        result = core_grid.invert(
-            uvw,
-            frequencies,
-            data,
-            weights,
-            weights,
-            width=48,
-            height=48,
-            scale_arcsec=60.0,
-            w_layers=4,
-        )
-        return [result["dirty"], result["psf"], result["stats"], core_grid.kernel()]
-
-    a, b = _both(monkeypatch, run)
-    _assert_identical(a, b)
+    result = core_grid.invert(
+        uvw,
+        frequencies,
+        data,
+        weights,
+        weights,
+        width=48,
+        height=48,
+        scale_arcsec=60.0,
+        w_layers=4,
+    )
+    out = [result["dirty"], result["psf"], result["stats"], core_grid.kernel()]
+    _check(golden, "grid", out)
 
 
-def test_flag_rows_identical(monkeypatch):
+def flag_case():
     rng = np.random.default_rng(20261029)
     nchan, ntime = 64, 6
     antenna1, antenna2, times = [], [], []
@@ -305,29 +356,30 @@ def test_flag_rows_identical(monkeypatch):
         "    -\n        name: c\n        task: flag_autos\n"
         "    -\n        name: d\n        task: combine_with_input_flags\n"
     )
-
-    def run():
-        result = core_flag.flag_rows(
-            data,
-            flags,
-            np.array(antenna1, np.int32),
-            np.array(antenna2, np.int32),
-            np.array(times),
-            np.array([[0.0, 0.0, 0.0], [100.0, 0.0, 0.0]]),
-            1.0e9 + 1.0e6 * np.arange(nchan),
-            np.full(nchan, 1.0e6),
-            np.array([9, 10, 11, 12], np.int32),
-            strategies,
-            masks=[np.array([1.0e9 + 3.0e6])],
-        )
-        return [result["flags"], result["intensity"], result["stages"], result["ubl"]]
-
-    a, b = _both(monkeypatch, run)
-    _assert_identical(a, b)
-    assert a[0].any(), "the strategy must flag something for the test to mean anything"
+    return (
+        data,
+        flags,
+        np.array(antenna1, np.int32),
+        np.array(antenna2, np.int32),
+        np.array(times),
+        np.array([[0.0, 0.0, 0.0], [100.0, 0.0, 0.0]]),
+        1.0e9 + 1.0e6 * np.arange(nchan),
+        np.full(nchan, 1.0e6),
+        np.array([9, 10, 11, 12], np.int32),
+        strategies,
+    )
 
 
-def test_ms_reader_identical(monkeypatch):
+def test_flag_rows(golden):
+    result = core_flag.flag_rows(*flag_case(), masks=[np.array([1.0e9 + 3.0e6])])
+    out = [result["flags"], result["intensity"], result["stages"], result["ubl"]]
+    _check(golden, "flag", out)
+    assert out[0].any(), (
+        "the strategy must flag something for the test to mean anything"
+    )
+
+
+def test_ms_reader(golden):
     receipt = ROOT / "outputs/core-e-oracle-20261029-01/receipt.json"
     if not receipt.is_file():
         pytest.skip("MS oracle not present")
@@ -335,115 +387,132 @@ def test_ms_reader_identical(monkeypatch):
     path = ROOT / "outputs" / Path(*Path(entry["path"]).parts[2:])
     if not path.is_dir():
         pytest.skip("fixture MS not present")
-
-    def run():
-        assert core_ms.has_reader()
-        with core_ms.open_table(path) as table:
-            return [
-                table.description,
-                table.getcol("NAME"),
-                table.getcol("POSITION"),
-                table.getcol("POSITION", 1, 2),
-                table.getcol("FLAG_ROW"),
-            ]
-
-    a, b = _both(monkeypatch, run)
-    assert a[0] == b[0]
-    assert a[1].tolist() == b[1].tolist()
-    _assert_identical(a[2:], b[2:])
+    assert core_ms.has_reader()
+    with core_ms.open_table(path) as table:
+        out = [
+            json.dumps(table.description, sort_keys=True),
+            [str(x) for x in table.getcol("NAME")],
+            table.getcol("POSITION"),
+            table.getcol("POSITION", 1, 2),
+            table.getcol("FLAG_ROW"),
+        ]
+    _check(golden, "ms", out)
 
 
-def test_same_errors_under_both_backends(monkeypatch):
-    def run():
-        caught = []
-        for action in (
-            lambda: core.blosc_decode(b"not a blosc chunk"),
-            lambda: core_weights.grid_shape(10, 10, super_weight=0.0),
-            lambda: core_ms.open_table(ROOT / "no-such-table.ms"),
-            lambda: core.solve_complex(
-                np.zeros((2, 2, 4), np.complex64),
-                np.ones((2, 2, 4), np.float32),
-                np.zeros((2, 2, 4), bool),
-                np.zeros(2, bool),
-                np.array([0, 0], np.uint32),
-                np.array([1, 1], np.uint32),
-                np.zeros(2, np.uint32),
-                np.zeros(2, np.uint32),
-                ntime_bins=1,
-                nfreq_bins=1,
-                nant=2,
-                model=np.zeros((2, 2, 4), np.complex64),
-            ),
-        ):
-            try:
-                action()
-                caught.append(None)
-            except Exception as exc:  # noqa: BLE001 - the class is the result
-                caught.append((type(exc).__name__, str(exc)))
-        return caught
-
-    a, b = _both(monkeypatch, run)
-    assert a == b
-    assert all(c is not None for c in a[:3])
-
-
-@pytest.mark.skipif(not HAS_EXTENSION, reason="rangtoy._core is not built")
-def test_extension_reads_arrays_in_place():
-    from rangtoy import _core
-
-    for dtype in (
-        np.float32,
-        np.float64,
-        np.uint8,
-        np.int8,
-        np.uint32,
-        np.int32,
-        np.uint64,
-        np.uintp,
+def test_errors(golden):
+    caught = []
+    for action in (
+        lambda: core.blosc_decode(b"not a blosc chunk"),
+        lambda: core_weights.grid_shape(10, 10, super_weight=0.0),
+        lambda: core_ms.open_table(ROOT / "no-such-table.ms"),
+        lambda: core.solve_complex(
+            np.zeros((2, 2, 4), np.complex64),
+            np.ones((2, 2, 4), np.float32),
+            np.zeros((2, 2, 4), bool),
+            np.zeros(2, bool),
+            np.array([0, 0], np.uint32),
+            np.array([1, 1], np.uint32),
+            np.zeros(2, np.uint32),
+            np.zeros(2, np.uint32),
+            ntime_bins=1,
+            nfreq_bins=1,
+            nant=2,
+            model=np.zeros((2, 2, 4), np.complex64),
+        ),
     ):
-        array = np.arange(24, dtype=dtype).reshape(4, 6)
-        assert _core.data_address(array) == array.ctypes.data
-        assert _core.data_address(array[1:3]) == array[1:3].ctypes.data
-        with pytest.raises(TypeError):
-            _core.data_address(array[:, ::2])  # not contiguous: refused, not copied
-    # WSClean's kernel settings; `rang_core_grid_kernel` has no catch_unwind,
-    # so unrealistic settings would abort the process on either backend.
-    out = np.zeros(7 * 1023, np.float64)
-    assert _core.grid_kernel(7, 1023, out) == 0 and out.any(), "filled in place"
-    assert _core.grid_kernel(7, 1022, out) == 1, "wrong length is refused"
-    frozen = np.zeros(7 * 1023, np.float64)
-    frozen.setflags(write=False)
-    with pytest.raises(TypeError):
-        _core.grid_kernel(7, 1023, frozen)
+        try:
+            action()
+            caught.append(None)
+        except Exception as exc:  # noqa: BLE001 - the class is the result
+            # The MS error names the checkout's path; keep it out of the archive.
+            message = str(exc).replace(str(ROOT), "<root>")
+            caught.append(f"{type(exc).__name__}: {message}")
+    _check(golden, "errors", caught)
+    assert all(c is not None for c in caught[:3])
 
 
-def test_backend_policy(monkeypatch):
-    if not HAS_EXTENSION:
-        pytest.skip("rangtoy._core is not built")
-    _select(monkeypatch, "ctypes")
-    assert core.extension() is None
-    _select(monkeypatch, "extension")
-    monkeypatch.setattr(core, "library", lambda: pytest.fail("ctypes used"))
-    data, model, weights, p, q, tb, fb, gains, valid, split = _fused_case()
-    core.fused_pass(data, weights, p, q, tb, fb, gains, valid, split, model=model)
-    assert core.library_path().name.startswith("_core")
-    monkeypatch.undo()
-    core.reset_backend()
-    # An explicit library wins over the implicit extension; the extension
-    # binary itself exports the C ABI, so it can serve as that library.
-    monkeypatch.delenv("RANG_CORE_BACKEND", raising=False)
-    from rangtoy import _core
+# The root-crate kernels (ctypes on librang_toy at 5965d37, now the extension).
 
-    monkeypatch.setenv("RANG_CORE_LIB", _core.__file__)
-    core.reset_backend()
-    assert core.backend_name() == "ctypes"
-    assert core.library_path() == Path(_core.__file__).resolve()
-    assert hasattr(core.library(), "rang_core_fused")
-    core.reset_backend()
-    monkeypatch.delenv("RANG_CORE_LIB")
-    core.reset_backend()
-    assert core.backend_name() == "extension"
-    monkeypatch.setenv("RANG_CORE_BACKEND", "nonsense")
-    core.reset_backend()
-    with pytest.raises(ValueError):
-        core.backend_name()
+
+def _gain_grid(seed, shape=(5, 4, 3)):
+    rng = np.random.default_rng(seed)
+    gains = np.eye(2) + 0.2 * (
+        rng.standard_normal((*shape, 2, 2)) + 1j * rng.standard_normal((*shape, 2, 2))
+    )
+    valid = rng.uniform(size=shape) > 0.2
+    times = np.cumsum(rng.uniform(1.0, 2.0, shape[0]))
+    times[-1] += 30.0  # one gap edge
+    frequencies = 1.0e9 + 1.0e6 * np.cumsum(rng.uniform(1.0, 1.5, shape[1]))
+    return gains, valid, times, frequencies
+
+
+def test_root_gain_tv(golden):
+    from rangtoy import flagging
+
+    gains, valid, times, frequencies = _gain_grid(5)
+    out = flagging.gain_tv(gains, valid, times, frequencies, scale=1.3)
+    caught = []
+    try:
+        flagging.gain_tv(gains * np.nan, np.ones_like(valid), times, frequencies)
+    except ValueError as exc:
+        caught.append(str(exc))
+    _check(golden, "root_tv", [out, caught])
+
+
+def test_root_trend(golden):
+    from rangtoy import flagging_trend
+
+    gains, valid, times, frequencies = _gain_grid(6, (6, 5, 3))
+    support = np.random.default_rng(1).uniform(size=valid.shape) > 0.1
+    slopes, counts = flagging_trend.estimate_trend(
+        gains, valid, times, frequencies, support
+    )
+    _check(golden, "root_trend", [slopes, counts])
+
+
+def test_root_response(golden):
+    from rangtoy import flagging_influence as influence
+
+    rng = np.random.default_rng(8)
+
+    def jones():
+        return np.eye(2) + 0.3 * (
+            rng.standard_normal((2, 2)) + 1j * rng.standard_normal((2, 2))
+        )
+
+    jac = influence.jones_jacobian(jones(), jones(), jones())
+    gains = np.stack([np.stack([jones() for _ in range(4)]) for _ in range(2)])
+    pairs = [(a, b) for a in range(4) for b in range(a + 1, 4)] * 3
+    n = len(pairs)
+    p, q = (np.array(x) for x in zip(*pairs, strict=True))
+    models = np.stack([jones() for _ in range(n)])
+    residuals = 0.01 * np.stack([jones() for _ in range(n)])
+    weights = rng.uniform(0.5, 2.0, (n, 4))
+    bins = np.arange(n) % 2
+    h, b, counts = influence.training_normals(
+        gains, models, residuals, weights, p, q, bins
+    )
+    active = np.array([True, True, True, False])
+    full = influence.anchored_response(
+        h[0], b[0], 0.1 * h[0], 0.1 * b[0], gains[0], active
+    )
+    zero_h, zero_b = np.zeros((32, 32)), np.zeros(32)
+    under = influence.anchored_response(
+        zero_h, zero_b, zero_h, zero_b, gains[0], active
+    )
+    _check(golden, "root_response", [jac, h, b, counts, full, under])
+
+
+def test_root_projector(golden):
+    from rangtoy import projector
+
+    rng = np.random.default_rng(9)
+    a = rng.standard_normal((30, 4))
+    a[:, 3] = a[:, 0] + a[:, 1]  # rank 3
+    z = rng.standard_normal((30, 2))
+    out, rank = projector.project_out(a, z)
+    groups = np.repeat([0, 1, 2], 10)
+    grouped, total = projector.project_grouped(
+        rng.standard_normal((30, 2)), rng.standard_normal((30, 2)), z, groups
+    )
+    _check(golden, "root_projector", [out, rank, grouped, total])

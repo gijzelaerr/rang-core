@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import subprocess
 import sys
 from pathlib import Path
 from time import perf_counter
@@ -13,7 +12,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import toy_output
 from rangtoy.beams import load_katbeam, make_beam_predictor
 from rangtoy.blocked import audit_blocked_design, prepare_blocked_design
 from rangtoy.observability import sky_locked_information
@@ -27,7 +26,7 @@ def main():
     if args.repeats < 1:
         parser.error("repeats must be positive")
     jax.config.update("jax_enable_x64", True)
-    f = json.loads(subprocess.check_output([str(build()), "--pointing-full-reference"]))
+    f = json.loads(toy_output("--pointing-full-reference").encode())
     r, s = np.asarray(f["rows"]), np.asarray(f["sources"])
     obs = Observation(
         jnp.asarray(r[:, :3]),

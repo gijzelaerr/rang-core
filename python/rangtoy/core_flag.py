@@ -2,17 +2,16 @@
 
 Runs Tricolour 0.2.1's `polarisation` flagging strategy, ported to Rust in
 `core/src/sumthreshold.rs`, on in-memory arrays: a strategy YAML of the kind
-CARACAL ships, the two static masks copied into `core/data/`, and the rows,
+CARACAL ships, the two static masks copied into `python/rangtoy/data/` (package data since task P7), and the rows,
 flags and metadata of one field/scan group. The Measurement Set edge stays
-outside this module. The library is the same `librang_core` as `core.py`;
-this module registers its own ctypes symbols as `core_zarr.py` does, or calls
-the extension `rangtoy._core` when it is active (research/core-j-packaging.md).
+outside this module. The kernel is called through the extension
+`rangtoy._core` (research/core-j-packaging.md, research/p7-architecture.md).
 """
 
-import ctypes
 import math
 import re
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -54,58 +53,12 @@ UVCONTSUB_DEFAULTS = {
 STATIC_MASK_FILES = ("4k_lband_meerkat.staticmask", "4k_uhfband_meerkat.staticmask")
 
 
-class _FlagInputs(ctypes.Structure):
-    _fields_ = [
-        ("nrow", ctypes.c_size_t),
-        ("nchan", ctypes.c_size_t),
-        ("ncorr", ctypes.c_size_t),
-        ("nant", ctypes.c_size_t),
-        ("nbl", ctypes.c_size_t),
-        ("ntime", ctypes.c_size_t),
-        ("nmasks", ctypes.c_size_t),
-        ("nsteps", ctypes.c_size_t),
-        ("data", ctypes.POINTER(ctypes.c_float)),
-        ("flags", ctypes.POINTER(ctypes.c_uint8)),
-        ("baseline_index", ctypes.POINTER(ctypes.c_uint32)),
-        ("time_index", ctypes.POINTER(ctypes.c_uint32)),
-        ("baselines", ctypes.POINTER(ctypes.c_uint32)),
-        ("antenna_position", ctypes.POINTER(ctypes.c_double)),
-        ("chan_freq", ctypes.POINTER(ctypes.c_double)),
-        ("chan_width", ctypes.POINTER(ctypes.c_double)),
-        ("corr_type", ctypes.POINTER(ctypes.c_int32)),
-        ("mask_freqs", ctypes.POINTER(ctypes.c_double)),
-        ("mask_offsets", ctypes.POINTER(ctypes.c_size_t)),
-        ("steps", ctypes.POINTER(ctypes.c_double)),
-    ]
-
-
-class _FlagOutputs(ctypes.Structure):
-    _fields_ = [
-        ("flags", ctypes.POINTER(ctypes.c_uint8)),
-        ("intensity", ctypes.POINTER(ctypes.c_float)),
-        ("stages", ctypes.POINTER(ctypes.c_uint8)),
-    ]
-
-
-def _lib():
-    lib = core.library()
-    if not getattr(lib, "_rang_flag_ready", False):
-        lib.rang_core_flag_rows.argtypes = [
-            ctypes.POINTER(_FlagInputs),
-            ctypes.POINTER(_FlagOutputs),
-        ]
-        lib.rang_core_flag_rows.restype = ctypes.c_int
-        lib._rang_flag_ready = True
-    return lib
-
-
-def _ptr(array, kind):
-    return array.ctypes.data_as(ctypes.POINTER(kind))
-
-
 def static_mask_files():
-    """The two Tricolour 0.2.1 static masks copied into `core/data/`."""
-    return [core.core_root() / "data" / name for name in STATIC_MASK_FILES]
+    """The two Tricolour 0.2.1 static masks, package data since task P7
+    (`python/rangtoy/data/`; `core/data/` before)."""
+    return [
+        Path(__file__).resolve().parent / "data" / name for name in STATIC_MASK_FILES
+    ]
 
 
 def load_static_mask(path):
@@ -334,65 +287,33 @@ def flag_rows(
         if want_stages
         else None
     )
-    inputs = _FlagInputs(
-        nrow=nrow,
-        nchan=nchan,
-        ncorr=ncorr,
-        nant=nant,
-        nbl=nbl,
-        ntime=ntime,
-        nmasks=len(masks),
-        nsteps=len(strategies),
-        data=_ptr(data.view(np.float32), ctypes.c_float),
-        flags=_ptr(flags.view(np.uint8), ctypes.c_uint8),
-        baseline_index=_ptr(baseline_index, ctypes.c_uint32),
-        time_index=_ptr(time_inv, ctypes.c_uint32),
-        baselines=_ptr(baselines, ctypes.c_uint32),
-        antenna_position=_ptr(antenna_position, ctypes.c_double),
-        chan_freq=_ptr(chan_freq, ctypes.c_double),
-        chan_width=_ptr(chan_width, ctypes.c_double),
-        corr_type=_ptr(corr_type, ctypes.c_int32),
-        mask_freqs=_ptr(mask_freqs, ctypes.c_double),
-        mask_offsets=_ptr(mask_offsets, ctypes.c_size_t),
-        steps=_ptr(steps, ctypes.c_double),
-    )
-    outputs = _FlagOutputs(
-        flags=_ptr(out_flags, ctypes.c_uint8),
-        intensity=_ptr(intensity.view(np.float32), ctypes.c_float)
-        if want_intensity
-        else None,
-        stages=_ptr(stages, ctypes.c_uint8) if want_stages else None,
-    )
     ext = core.extension()
     started = time.perf_counter()
-    if ext is not None:
-        code = ext.flag_rows(
-            nrow,
-            nchan,
-            ncorr,
-            nant,
-            nbl,
-            ntime,
-            len(masks),
-            len(strategies),
-            data.view(np.float32),
-            flags.view(np.uint8),
-            baseline_index,
-            time_inv,
-            baselines,
-            antenna_position,
-            chan_freq,
-            chan_width,
-            corr_type,
-            mask_freqs,
-            mask_offsets,
-            steps,
-            out_flags,
-            intensity.view(np.float32) if want_intensity else None,
-            stages,
-        )
-    else:
-        code = _lib().rang_core_flag_rows(ctypes.byref(inputs), ctypes.byref(outputs))
+    code = ext.flag_rows(
+        nrow,
+        nchan,
+        ncorr,
+        nant,
+        nbl,
+        ntime,
+        len(masks),
+        len(strategies),
+        data.view(np.float32),
+        flags.view(np.uint8),
+        baseline_index,
+        time_inv,
+        baselines,
+        antenna_position,
+        chan_freq,
+        chan_width,
+        corr_type,
+        mask_freqs,
+        mask_offsets,
+        steps,
+        out_flags,
+        intensity.view(np.float32) if want_intensity else None,
+        stages,
+    )
     seconds = time.perf_counter() - started
     if code:
         raise RuntimeError(f"rang_core_flag_rows failed with code {code}")

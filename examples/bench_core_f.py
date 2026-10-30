@@ -8,14 +8,15 @@ Usage:
 result hashes every later `check` run must reproduce bit for bit. Targets:
 `solve`, `blosc`, `survey` or `all` (default). Timings are wall seconds from
 `time.perf_counter`, single process; each series reports its minimum and
-median and the 1-minute load average before and after. The core library is
-`RANG_CORE_LIB` or `core/target/release/librang_core.so`, never rebuilt here.
+median and the 1-minute load average before and after. The core is the
+installed extension `rangtoy._core`, never rebuilt here; the blosc series
+calls its exported C symbol through ctypes as it called `librang_core.so`
+before task P7 (research/p7-architecture.md), so the timed call is unchanged.
 """
 
 import argparse
 import ctypes
 import json
-import os
 import platform
 import statistics
 import subprocess
@@ -27,9 +28,6 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-os.environ.setdefault(
-    "RANG_CORE_LIB", str(ROOT / "core/target/release/librang_core.so")
-)
 sys.path.insert(0, str(ROOT / "examples"))
 
 from rangtoy import core, core_zarr
@@ -191,7 +189,14 @@ def bench_blosc_full():
     """Criterion 2a: every oracle chunk, and timing on the 16 DATA tiles."""
     from numcodecs import blosc as cblosc
 
-    lib = core.library()
+    lib = ctypes.CDLL(str(core.library_path()))
+    lib.rang_core_blosc_decode.argtypes = [
+        ctypes.c_char_p,
+        ctypes.c_size_t,
+        ctypes.c_char_p,
+        ctypes.c_size_t,
+    ]
+    lib.rang_core_blosc_decode.restype = ctypes.c_int
     chunks = oracle_chunks()
     hashes = {}
     sizes = {}

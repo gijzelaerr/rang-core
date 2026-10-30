@@ -1,0 +1,22 @@
+{
+ "": {
+  "bytes": 4837,
+  "sha256": "e61dac113a150efd6f5c23b9c5f532279218c9c2efb60f50518736dca399816b"
+ },
+ "--beam-error 0.02": {
+  "bytes": 4835,
+  "sha256": "cc043788a1f6796fdcf1afec84e070e816fdbfdfcb5f5dae0c60427c501136cd"
+ },
+ "--pointing-full-reference": {
+  "bytes": 1980227,
+  "sha256": "01297b7720b2dfdd865d5736c5ba6b5ff1a11401d38d0f22627f23d889d1d218"
+ },
+ "--pointing-reference": {
+  "bytes": 396831,
+  "sha256": "18e1061e9e218e9816bc2a90f9ffdf259ef84a5d84e0108b28541f84576efdd9"
+ },
+ "--seed 3 --noise 0 --pointing 0 --target-flux 0": {
+  "bytes": 4436,
+  "sha256": "da9cca3f67aa84e34d42217319e265e296fcc01da43689e6a5d61df0a49b406a"
+ }
+}

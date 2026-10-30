@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def snapshot(prepared):
     files = {
-        str(p.relative_to(prepared)): [p.stat().st_size, p.stat().st_mtime_ns]
+        p.relative_to(prepared).as_posix(): [p.stat().st_size, p.stat().st_mtime_ns]
         for p in sorted(prepared.rglob("*"))
         if p.is_file() and p.name != "table.lock"
     }

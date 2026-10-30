@@ -12,10 +12,11 @@ RUSTUP_TOOLCHAIN, default 1.93.1) and maturin (`uv tool run`, default
 1.16.0, public PyPI), and RUSTFLAGS set to the target's baseline CPU, which
 overrides the x86-64-v3 of .cargo/config.toml as the CI wheels do.
 
-Writes OUT_DIR/dist/*.whl (and the sdist with --sdist),
-OUT_DIR/ctypes/<C ABI library of core/> for the backend tests of
-tools/wheel/test.py (unless --no-ctypes), build.log, sha256.txt and the wall
-time of every step in OUT_DIR/timings.tsv. The cargo target directory is
+Writes OUT_DIR/dist/*.whl (and the sdist with --sdist), build.log,
+sha256.txt and the wall time of every step in OUT_DIR/timings.tsv. Task P7
+(research/p7-architecture.md) retired the C ABI library that was built beside
+the wheel for the ctypes half of the backend tests; `--no-ctypes` is still
+accepted and changes nothing. The cargo target directory is
 OUT_DIR/target (removed afterwards unless KEEP_TARGET=1), so the checkout's
 own target directories are not touched. OUT_DIR must not exist.
 """
@@ -31,10 +32,6 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CTYPES_NAME = {
-    "win32": "rang_core.dll",
-    "darwin": "librang_core.dylib",
-}.get(sys.platform, "librang_core.so")
 
 
 def baseline_cpu():
@@ -51,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("out", type=Path)
     parser.add_argument("--sdist", action="store_true")
-    parser.add_argument("--no-ctypes", action="store_true")
+    parser.add_argument("--no-ctypes", action="store_true", help="accepted, no effect")
     args = parser.parse_args()
     out = args.out.resolve()
     if out.exists():
@@ -111,27 +108,10 @@ def main():
     )
     if args.sdist:
         step("sdist", maturin + ["sdist", "--out", str(out / "dist")])
-    if not args.no_ctypes:
-        manifest = ROOT / "core" / "Cargo.toml"
-        step(
-            "ctypes",
-            [
-                "cargo",
-                "build",
-                "--release",
-                "--locked",
-                "--manifest-path",
-                str(manifest),
-            ],
-        )
-        (out / "ctypes").mkdir()
-        shutil.copy2(out / "target" / "release" / CTYPES_NAME, out / "ctypes")
     if os.environ.get("KEEP_TARGET") != "1":
         shutil.rmtree(out / "target", ignore_errors=True)
     lines = []
-    for path in sorted((out / "dist").iterdir()) + sorted(
-        (out / "ctypes").glob("*") if (out / "ctypes").exists() else []
-    ):
+    for path in sorted((out / "dist").iterdir()):
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         lines.append(
             f"{digest}  {path.relative_to(out).as_posix()}  {path.stat().st_size}"

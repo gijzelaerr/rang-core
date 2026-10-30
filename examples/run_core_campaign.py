@@ -25,7 +25,7 @@ TRACKS = {
 
 def snapshot(inputs):
     files = {
-        str(p.relative_to(inputs)): [p.stat().st_size, p.stat().st_mtime_ns]
+        p.relative_to(inputs).as_posix(): [p.stat().st_size, p.stat().st_mtime_ns]
         for p in sorted(inputs.rglob("*"))
         if p.is_file() and p.name != "table.lock"
     }

@@ -6,21 +6,16 @@ antenna-diagonal Gauss--Newton blocks (research/core-phase1.md). Phase 2 adds
 solve_complex, a port of QuartiCal's full-Jones complex solver
 (research/core-phase2.md).
 
-Two backends reach the same Rust kernels (research/core-j-packaging.md): the
-PyO3 extension `rangtoy._core`, built by maturin from core/py, and the C ABI
-of core/ loaded through ctypes like the existing kernels. `backend_name`
-chooses: RANG_CORE_BACKEND=extension or =ctypes forces one; otherwise a set
-RANG_CORE_LIB selects ctypes on that prebuilt library; otherwise the extension
-is used when it imports, else the library is built from core/ with Cargo,
-offline. Every wrapper validates and allocates identically for both backends
-and differs only in the final call.
+The kernels are reached through the PyO3 extension `rangtoy._core`, built by
+maturin from core/py (research/core-j-packaging.md). Task P7
+(research/p7-architecture.md) removed the second door, ctypes on a library
+built by Cargo at run time: nothing here runs a compiler, and the extension
+releases the GIL around every kernel. `RANG_CORE_BACKEND` and `RANG_CORE_LIB`
+are no longer read, except that asking for the ctypes backend through either
+is refused, so an old command line cannot record a library it did not use.
 """
 
-import ctypes
-import json
 import os
-import subprocess
-import sys
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -31,174 +26,66 @@ SPLITS = ("train", "validation", "test")
 SPLIT_CODES = {"train": 1, "validation": 2, "test": 3}
 
 
-def _pointer(kind):
-    return ctypes.POINTER(kind)
-
-
-class _Inputs(ctypes.Structure):
-    _fields_ = [
-        ("nrow", ctypes.c_size_t),
-        ("nchan", ctypes.c_size_t),
-        ("ntime_bins", ctypes.c_size_t),
-        ("nfreq_bins", ctypes.c_size_t),
-        ("nant", ctypes.c_size_t),
-        ("data", _pointer(ctypes.c_float)),
-        ("weights", _pointer(ctypes.c_float)),
-        ("model_stored", _pointer(ctypes.c_float)),
-        ("model_scalar", _pointer(ctypes.c_double)),
-        ("antenna1", _pointer(ctypes.c_uint32)),
-        ("antenna2", _pointer(ctypes.c_uint32)),
-        ("time_bin", _pointer(ctypes.c_uint32)),
-        ("freq_bin", _pointer(ctypes.c_uint32)),
-        ("gains", _pointer(ctypes.c_double)),
-        ("gain_valid", _pointer(ctypes.c_uint8)),
-        ("split", _pointer(ctypes.c_uint8)),
-    ]
-
-
-class _Outputs(ctypes.Structure):
-    _fields_ = [
-        ("residuals", _pointer(ctypes.c_double)),
-        ("scores", _pointer(ctypes.c_double)),
-        ("diag_h", _pointer(ctypes.c_double)),
-        ("diag_b", _pointer(ctypes.c_double)),
-        ("diag_count", _pointer(ctypes.c_uint64)),
-        ("split_stats", _pointer(ctypes.c_double)),
-    ]
-
-
 def core_root():
+    """The core crate of the checkout (its `data/` holds the Tricolour static
+    masks). Only a source checkout has it; the wheel does not need it."""
     root = Path(__file__).resolve().parents[2] / "core"
     if not (root / "Cargo.toml").is_file():
-        raise RuntimeError("Run from the Rang checkout or set RANG_CORE_LIB")
+        raise RuntimeError("Run from the Rang checkout (core/ is not installed)")
     return root
 
 
-def build_core():
-    """Build the core library in release mode without downloading crates."""
-    root = core_root()
-    manifest = str(root / "Cargo.toml")
-    subprocess.run(
-        ["cargo", "build", "--offline", "--release", "--manifest-path", manifest],
-        cwd=root,
-        check=True,
-    )
-    metadata = json.loads(
-        subprocess.check_output(
-            [
-                "cargo",
-                "metadata",
-                "--offline",
-                "--no-deps",
-                "--format-version",
-                "1",
-                "--manifest-path",
-                manifest,
-            ],
-            cwd=root,
-            text=True,
-        )
-    )
-    name = (
-        "rang_core.dll"
-        if os.name == "nt"
-        else "librang_core.dylib"
-        if sys.platform == "darwin"
-        else "librang_core.so"
-    )
-    return Path(metadata["target_directory"]) / "release" / name
+BACKENDS = ("extension",)
 
 
-BACKENDS = ("extension", "ctypes")
-
-
-@lru_cache(maxsize=1)
-def backend_name():
-    """Which backend the wrappers use: "extension" or "ctypes"."""
+def _refuse_ctypes():
     requested = os.environ.get("RANG_CORE_BACKEND")
-    if requested and requested not in BACKENDS:
-        raise ValueError(f"RANG_CORE_BACKEND must be one of {BACKENDS}")
-    if requested == "extension":
-        from . import _core  # an ImportError is the answer
-
-        return "extension"
-    if requested == "ctypes" or os.environ.get("RANG_CORE_LIB"):
-        return "ctypes"
-    try:
-        from . import _core  # noqa: F401
-    except ImportError:
-        return "ctypes"
-    return "extension"
+    if requested and requested != "extension":
+        raise ValueError(
+            f"RANG_CORE_BACKEND={requested}: only the extension remains "
+            "(research/p7-architecture.md); unset it"
+        )
+    if os.environ.get("RANG_CORE_LIB"):
+        raise ValueError(
+            "RANG_CORE_LIB is set, but the ctypes backend was removed by task P7 "
+            "(research/p7-architecture.md); unset it"
+        )
 
 
 @lru_cache(maxsize=1)
 def extension():
-    """The extension module `rangtoy._core` when it is the active backend,
-    else None (the ctypes path is then taken)."""
-    if backend_name() != "extension":
-        return None
-    from . import _core
-
+    """The extension module `rangtoy._core`."""
+    _refuse_ctypes()
+    try:
+        from . import _core
+    except ImportError as exc:
+        raise ImportError(
+            "rangtoy._core is not built: install the wheel, or run "
+            "`maturin develop --release` (or `pip install -e .`) in the checkout"
+        ) from exc
     return _core
 
 
-def reset_backend():
-    """Forget the chosen backend and loaded library (tests only)."""
-    backend_name.cache_clear()
-    extension.cache_clear()
-    library.cache_clear()
+def backend_name():
+    """Always "extension" (kept for receipts; the ctypes backend is gone)."""
+    extension()
+    return "extension"
 
 
-@lru_cache(maxsize=1)
 def library():
-    """The ctypes handle of the C ABI (built or RANG_CORE_LIB)."""
-    configured = os.environ.get("RANG_CORE_LIB")
-    path = Path(configured).resolve() if configured else build_core()
-    lib = ctypes.CDLL(str(path))
-    lib.rang_core_fused.argtypes = [_pointer(_Inputs), _pointer(_Outputs)]
-    lib.rang_core_fused.restype = ctypes.c_int
-    lib.rang_core_solve_complex.argtypes = [
-        _pointer(_SolveInputs),
-        _pointer(_SolveOutputs),
-    ]
-    lib.rang_core_solve_complex.restype = ctypes.c_int
-    lib.rang_core_predict_components.argtypes = [
-        _pointer(_PredictInputs),
-        _pointer(_PredictOutputs),
-    ]
-    lib.rang_core_predict_components.restype = ctypes.c_int
-    lib.rang_core_blosc_size.argtypes = [
-        ctypes.c_char_p,
-        ctypes.c_size_t,
-        _pointer(ctypes.c_size_t),
-    ]
-    lib.rang_core_blosc_size.restype = ctypes.c_int
-    lib.rang_core_blosc_decode.argtypes = [
-        ctypes.c_char_p,
-        ctypes.c_size_t,
-        ctypes.c_char_p,
-        ctypes.c_size_t,
-    ]
-    lib.rang_core_blosc_decode.restype = ctypes.c_int
-    lib.rang_core_blosc_decode_rows.argtypes = [
-        ctypes.c_char_p,
-        ctypes.c_size_t,
-        ctypes.c_size_t,
-        _pointer(ctypes.c_size_t),
-        ctypes.c_size_t,
-        ctypes.c_char_p,
-        _pointer(ctypes.c_size_t),
-    ]
-    lib.rang_core_blosc_decode_rows.restype = ctypes.c_int
-    return lib
+    """The extension module. Drivers call this to load the core before timing
+    (it was the ctypes handle before task P7)."""
+    return extension()
+
+
+def reset_backend():
+    """Forget the loaded module (tests only)."""
+    extension.cache_clear()
 
 
 def library_path():
-    """The binary of the active backend, for provenance hashes."""
-    ext = extension()
-    if ext is not None:
-        return Path(ext.__file__).resolve()
-    return Path(library()._name).resolve()
+    """The extension's binary, for provenance hashes."""
+    return Path(extension().__file__).resolve()
 
 
 def _array(value, dtype, shape, label):
@@ -208,8 +95,18 @@ def _array(value, dtype, shape, label):
     return array
 
 
-def _ptr(array, kind):
-    return array.ctypes.data_as(_pointer(kind))
+def _flags(value, shape, label):
+    """Bool or uint8 flags as uint8, without a copy when already C-contiguous
+    (task P7). Nonzero means flagged, the predicate of `np.asarray(flag, bool)`
+    and of the kernel, so the kernel sees the same flags as before."""
+    array = np.asarray(value)
+    if array.dtype == np.bool_ or array.dtype == np.uint8:
+        array = np.require(array, requirements=["C", "A"]).view(np.uint8)
+    else:
+        array = np.require(array != 0, requirements=["C", "A"]).view(np.uint8)
+    if array.shape != tuple(shape):
+        raise ValueError(f"{label} must have shape {tuple(shape)}, not {array.shape}")
+    return array
 
 
 @dataclass
@@ -293,75 +190,40 @@ def fused_pass(
     labels = _array(split, np.uint8, (nrow, nchan), "split")
     if (model is None) == (scalar_model is None):
         raise ValueError("give exactly one of model and scalar_model")
-    inputs = _Inputs(
-        nrow,
-        nchan,
-        nt,
-        nf,
-        na,
-        _ptr(data, ctypes.c_float),
-        _ptr(weights, ctypes.c_float),
-        None,
-        None,
-        _ptr(a1, ctypes.c_uint32),
-        _ptr(a2, ctypes.c_uint32),
-        _ptr(tb, ctypes.c_uint32),
-        _ptr(fb, ctypes.c_uint32),
-        _ptr(gains, ctypes.c_double),
-        _ptr(valid, ctypes.c_uint8),
-        _ptr(labels, ctypes.c_uint8),
-    )
-    keep = []
     if model is not None:
         stored = _array(model, np.complex64, data.shape, "model")
-        keep.append(stored)
-        inputs.model_stored = _ptr(stored, ctypes.c_float)
     else:
-        flux = _array(scalar_model, np.float64, (nchan,), "scalar_model")
-        keep.append(flux)
-        inputs.model_scalar = _ptr(flux, ctypes.c_double)
+        stored = _array(scalar_model, np.float64, (nchan,), "scalar_model")
     out_res = np.empty(data.shape, np.complex128) if residuals else None
     out_z = np.empty((nrow, nchan)) if scores else None
     out_h = np.empty((nt, nf, na, 8, 8)) if normals else None
     out_b = np.empty((nt, nf, na, 8)) if normals else None
     out_n = np.empty((nt, nf, na), np.uint64) if normals else None
     stats = np.zeros(12)
-    outputs = _Outputs(
-        _ptr(out_res, ctypes.c_double) if residuals else None,
-        _ptr(out_z, ctypes.c_double) if scores else None,
-        _ptr(out_h, ctypes.c_double) if normals else None,
-        _ptr(out_b, ctypes.c_double) if normals else None,
-        _ptr(out_n, ctypes.c_uint64) if normals else None,
-        _ptr(stats, ctypes.c_double),
+    status = extension().fused(
+        nrow,
+        nchan,
+        nt,
+        nf,
+        na,
+        data.view(np.float32),
+        weights,
+        stored.view(np.float32) if model is not None else None,
+        stored if model is None else None,
+        a1,
+        a2,
+        tb,
+        fb,
+        gains.view(np.float64),
+        valid,
+        labels,
+        out_res.view(np.float64) if residuals else None,
+        out_z,
+        out_h,
+        out_b,
+        out_n,
+        stats,
     )
-    ext = extension()
-    if ext is not None:
-        status = ext.fused(
-            nrow,
-            nchan,
-            nt,
-            nf,
-            na,
-            data.view(np.float32),
-            weights,
-            keep[0].view(np.float32) if model is not None else None,
-            keep[0] if model is None else None,
-            a1,
-            a2,
-            tb,
-            fb,
-            gains.view(np.float64),
-            valid,
-            labels,
-            out_res.view(np.float64) if residuals else None,
-            out_z,
-            out_h,
-            out_b,
-            out_n,
-            stats,
-        )
-    else:
-        status = library().rang_core_fused(ctypes.byref(inputs), ctypes.byref(outputs))
     if status:
         raise RuntimeError(f"rang core fused pass failed with status {status}")
     split_stats = {
@@ -374,38 +236,6 @@ def fused_pass(
         for k, name in enumerate(SPLITS)
     }
     return FusedResult(out_res, out_z, out_h, out_b, out_n, split_stats)
-
-
-class _SolveInputs(ctypes.Structure):
-    _fields_ = [
-        ("nrow", ctypes.c_size_t),
-        ("nchan", ctypes.c_size_t),
-        ("ntime_bins", ctypes.c_size_t),
-        ("nfreq_bins", ctypes.c_size_t),
-        ("nant", ctypes.c_size_t),
-        ("data", _pointer(ctypes.c_float)),
-        ("weights", _pointer(ctypes.c_float)),
-        ("model_stored", _pointer(ctypes.c_float)),
-        ("model_scalar", _pointer(ctypes.c_double)),
-        ("flag", _pointer(ctypes.c_uint8)),
-        ("flag_row", _pointer(ctypes.c_uint8)),
-        ("antenna1", _pointer(ctypes.c_uint32)),
-        ("antenna2", _pointer(ctypes.c_uint32)),
-        ("time_bin", _pointer(ctypes.c_uint32)),
-        ("freq_bin", _pointer(ctypes.c_uint32)),
-        ("max_iterations", ctypes.c_size_t),
-        ("stop_criterion", ctypes.c_double),
-        ("stop_fraction", ctypes.c_double),
-    ]
-
-
-class _SolveOutputs(ctypes.Structure):
-    _fields_ = [
-        ("gains", _pointer(ctypes.c_double)),
-        ("flags", _pointer(ctypes.c_int8)),
-        ("iterations", _pointer(ctypes.c_size_t)),
-        ("converged_fraction", _pointer(ctypes.c_double)),
-    ]
 
 
 @dataclass
@@ -448,8 +278,8 @@ def solve_complex(
         raise ValueError("data must be (row, chan, 4) complex")
     nrow, nchan = data.shape[:2]
     weights = _array(weights, np.float32, data.shape, "weights")
-    flags_in = _array(np.asarray(flag, bool), np.uint8, data.shape, "flag")
-    rows_in = _array(np.asarray(flag_row, bool), np.uint8, (nrow,), "flag_row")
+    flags_in = _flags(flag, data.shape, "flag")
+    rows_in = _flags(flag_row, (nrow,), "flag_row")
     a1 = _array(antenna1, np.uint32, (nrow,), "antenna1")
     a2 = _array(antenna2, np.uint32, (nrow,), "antenna2")
     tb = _array(time_bin, np.uint32, (nrow,), "time_bin")
@@ -458,99 +288,37 @@ def solve_complex(
         raise ValueError("give exactly one of model and scalar_model")
     if max_iterations < 1:
         raise ValueError("at least one iteration required")
-    inputs = _SolveInputs(
+    if model is not None:
+        stored = _array(model, np.complex64, data.shape, "model")
+    else:
+        stored = _array(scalar_model, np.float64, (nchan,), "scalar_model")
+    gains = np.empty((ntime_bins, nfreq_bins, nant, 2, 2), np.complex128)
+    flags = np.empty((ntime_bins, nfreq_bins, nant), np.int8)
+    status, n_iterations, converged = extension().solve_complex(
         nrow,
         nchan,
         ntime_bins,
         nfreq_bins,
         nant,
-        _ptr(data, ctypes.c_float),
-        _ptr(weights, ctypes.c_float),
-        None,
-        None,
-        _ptr(flags_in, ctypes.c_uint8),
-        _ptr(rows_in, ctypes.c_uint8),
-        _ptr(a1, ctypes.c_uint32),
-        _ptr(a2, ctypes.c_uint32),
-        _ptr(tb, ctypes.c_uint32),
-        _ptr(fb, ctypes.c_uint32),
+        data.view(np.float32),
+        weights,
+        stored.view(np.float32) if model is not None else None,
+        stored if model is None else None,
+        flags_in,
+        rows_in,
+        a1,
+        a2,
+        tb,
+        fb,
         max_iterations,
         stop_criterion,
         stop_fraction,
+        gains.view(np.float64),
+        flags,
     )
-    if model is not None:
-        stored = _array(model, np.complex64, data.shape, "model")
-        inputs.model_stored = _ptr(stored, ctypes.c_float)
-    else:
-        stored = _array(scalar_model, np.float64, (nchan,), "scalar_model")
-        inputs.model_scalar = _ptr(stored, ctypes.c_double)
-    gains = np.empty((ntime_bins, nfreq_bins, nant, 2, 2), np.complex128)
-    flags = np.empty((ntime_bins, nfreq_bins, nant), np.int8)
-    iterations = ctypes.c_size_t()
-    fraction = ctypes.c_double()
-    outputs = _SolveOutputs(
-        _ptr(gains, ctypes.c_double),
-        _ptr(flags, ctypes.c_int8),
-        ctypes.pointer(iterations),
-        ctypes.pointer(fraction),
-    )
-    ext = extension()
-    if ext is not None:
-        status, n_iterations, converged = ext.solve_complex(
-            nrow,
-            nchan,
-            ntime_bins,
-            nfreq_bins,
-            nant,
-            data.view(np.float32),
-            weights,
-            stored.view(np.float32) if model is not None else None,
-            stored if model is None else None,
-            flags_in,
-            rows_in,
-            a1,
-            a2,
-            tb,
-            fb,
-            max_iterations,
-            stop_criterion,
-            stop_fraction,
-            gains.view(np.float64),
-            flags,
-        )
-    else:
-        status = library().rang_core_solve_complex(
-            ctypes.byref(inputs), ctypes.byref(outputs)
-        )
-        n_iterations, converged = iterations.value, fraction.value
     if status:
         raise RuntimeError(f"rang core complex solve failed with status {status}")
     return ComplexSolution(gains, flags, int(n_iterations), float(converged))
-
-
-class _PredictInputs(ctypes.Structure):
-    _fields_ = [
-        ("nrow", ctypes.c_size_t),
-        ("nchan", ctypes.c_size_t),
-        ("nsrc", ctypes.c_size_t),
-        ("ncoeff", ctypes.c_size_t),
-        ("uvw", _pointer(ctypes.c_double)),
-        ("frequency", _pointer(ctypes.c_double)),
-        ("lm", _pointer(ctypes.c_double)),
-        ("kind", _pointer(ctypes.c_uint8)),
-        ("flux", _pointer(ctypes.c_double)),
-        ("coeffs", _pointer(ctypes.c_double)),
-        ("log_poly", _pointer(ctypes.c_uint8)),
-        ("ref_freq", _pointer(ctypes.c_double)),
-        ("gauss_shape", _pointer(ctypes.c_double)),
-    ]
-
-
-class _PredictOutputs(ctypes.Structure):
-    _fields_ = [
-        ("vis", _pointer(ctypes.c_double)),
-        ("spectra", _pointer(ctypes.c_double)),
-    ]
 
 
 def predict_components(
@@ -589,50 +357,25 @@ def predict_components(
     refs = _array(ref_freq, np.float64, (nsrc,), "ref_freq")
     shapes = _array(gauss_shape, np.float64, (nsrc, 3), "gauss_shape")
     nrow, nchan = len(uvw), len(frequency)
-    inputs = _PredictInputs(
+    vis = np.empty((nrow, nchan), np.complex128)
+    spec = np.empty((nsrc, nchan)) if spectra else None
+    status = extension().predict_components(
         nrow,
         nchan,
         nsrc,
         coeffs.shape[1],
-        _ptr(uvw, ctypes.c_double),
-        _ptr(frequency, ctypes.c_double),
-        _ptr(lm, ctypes.c_double),
-        _ptr(kinds, ctypes.c_uint8),
-        _ptr(flux, ctypes.c_double),
-        _ptr(coeffs, ctypes.c_double),
-        _ptr(logs, ctypes.c_uint8),
-        _ptr(refs, ctypes.c_double),
-        _ptr(shapes, ctypes.c_double),
+        uvw,
+        frequency,
+        lm,
+        kinds,
+        flux,
+        coeffs,
+        logs,
+        refs,
+        shapes,
+        vis.view(np.float64),
+        spec,
     )
-    vis = np.empty((nrow, nchan), np.complex128)
-    spec = np.empty((nsrc, nchan)) if spectra else None
-    outputs = _PredictOutputs(
-        _ptr(vis, ctypes.c_double),
-        _ptr(spec, ctypes.c_double) if spectra else None,
-    )
-    ext = extension()
-    if ext is not None:
-        status = ext.predict_components(
-            nrow,
-            nchan,
-            nsrc,
-            coeffs.shape[1],
-            uvw,
-            frequency,
-            lm,
-            kinds,
-            flux,
-            coeffs,
-            logs,
-            refs,
-            shapes,
-            vis.view(np.float64),
-            spec,
-        )
-    else:
-        status = library().rang_core_predict_components(
-            ctypes.byref(inputs), ctypes.byref(outputs)
-        )
     if status:
         raise RuntimeError(
             f"rang core component prediction failed with status {status}"
@@ -644,22 +387,13 @@ def blosc_decode(payload):
     """Decode a whole blosc-1 chunk (LZ4, byte shuffle) to bytes."""
     payload = bytes(payload)
     ext = extension()
-    if ext is not None:
-        status, size = ext.blosc_size(payload)
-        if status:
-            raise ValueError("unsupported or invalid blosc chunk")
-        status, out = ext.blosc_decode(payload, size)
-        if status:
-            raise ValueError("blosc chunk failed to decode")
-        return out
-    size = ctypes.c_size_t()
-    lib = library()
-    if lib.rang_core_blosc_size(payload, len(payload), ctypes.byref(size)):
+    status, size = ext.blosc_size(payload)
+    if status:
         raise ValueError("unsupported or invalid blosc chunk")
-    out = ctypes.create_string_buffer(size.value)
-    if lib.rang_core_blosc_decode(payload, len(payload), out, size.value):
+    status, out = ext.blosc_decode(payload, size)
+    if status:
         raise ValueError("blosc chunk failed to decode")
-    return out.raw
+    return out
 
 
 def blosc_decode_rows(payload, row_bytes, rows):
@@ -668,23 +402,7 @@ def blosc_decode_rows(payload, row_bytes, rows):
     rows = np.require(np.asarray(rows, dtype=np.uintp), np.uintp, ["C", "A"])
     if rows.ndim != 1:
         raise ValueError("rows must be one-dimensional")
-    ext = extension()
-    if ext is not None:
-        status, blocks, out = ext.blosc_decode_rows(payload, row_bytes, rows)
-        if status:
-            raise ValueError("blosc row selection failed to decode")
-        return out, int(blocks)
-    out = ctypes.create_string_buffer(len(rows) * row_bytes)
-    blocks = ctypes.c_size_t()
-    status = library().rang_core_blosc_decode_rows(
-        payload,
-        len(payload),
-        row_bytes,
-        rows.ctypes.data_as(_pointer(ctypes.c_size_t)),
-        len(rows),
-        out,
-        ctypes.byref(blocks),
-    )
+    status, blocks, out = extension().blosc_decode_rows(payload, row_bytes, rows)
     if status:
         raise ValueError("blosc row selection failed to decode")
-    return out.raw, int(blocks.value)
+    return out, int(blocks)
