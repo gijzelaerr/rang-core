@@ -1,0 +1,995 @@
+{
+ "task": "MK1",
+ "protocol": "research/mk1-katdal.md",
+ "started_utc": "2026-10-30T21:19:55Z",
+ "environment": {
+  "python": "3.14.8",
+  "numpy": "2.5.4",
+  "katdal": "0.23",
+  "katsdptelstate": "1.0.0",
+  "katpoint": "0.10.3",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43"
+ },
+ "fixture": {
+  "cbid": "1700000000",
+  "n_ants": 7,
+  "n_dumps": 24,
+  "n_chans": 64,
+  "dump_chunk": 5,
+  "chan_chunk": 16,
+  "seed": 20261030,
+  "sync_time": 1700000000.0,
+  "int_time": 7.997,
+  "first_timestamp": 16.9985,
+  "scan_edges": [
+   0,
+   1,
+   12,
+   14
+  ],
+  "activity": [
+   "slew",
+   "track",
+   "slew",
+   "track"
+  ],
+  "targets": [
+   "J1939-6342 | PKS 1934-638, radec bpcal, 19:39:25.03, -63:42:45.6",
+   "J1331+3030 | 3C 286, radec gaincal, 13:31:08.29, 30:30:33.0"
+  ],
+  "dropped": {
+   "array": "correlator_data",
+   "dumps": [
+    5,
+    10
+   ],
+   "channels": [
+    32,
+    48
+   ],
+   "file": "1700000000-sdp-l0/correlator_data/00005_00032_00000.npy"
+  },
+  "zero_auto": [
+   3,
+   5,
+   14
+  ],
+  "n_bls": 112,
+  "exercised": {
+   "track_dumps": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+   ],
+   "bad_weight_cells_in_tracks": 8975,
+   "lost_cells_in_tracks": 80,
+   "l0_l1_differing_cells_in_tracks": 15479,
+   "bls_ordering_lexicographic": false
+  }
+ },
+ "metadata": {
+  "source": "outputs/mk1-20261030-03/archive/1700000000/1700000000_sdp_l0.rdb",
+  "name": "1700000000_sdp_l0",
+  "katdal": "0.23",
+  "katsdptelstate": "1.0.0",
+  "upgrade_flags": true,
+  "need_weights_power_scale": true,
+  "antennas": [
+   "m000",
+   "m001",
+   "m002",
+   "m003",
+   "m004",
+   "m005",
+   "m006"
+  ],
+  "positions_ecef": [
+   [
+    5110002.559760999,
+    2006813.0098195774,
+    -3237859.132034241
+   ],
+   [
+    5107760.293880423,
+    2007195.7813868131,
+    -3241140.5924382308
+   ],
+   [
+    5109545.645757836,
+    2004317.8426481916,
+    -3240121.5157920546
+   ],
+   [
+    5107807.150663323,
+    2006025.369943001,
+    -3241781.8878638996
+   ],
+   [
+    5106375.037075165,
+    2009800.4910329485,
+    -3241701.2396895755
+   ],
+   [
+    5108225.902374874,
+    2004279.459609019,
+    -3242204.987940396
+   ],
+   [
+    5109151.408637049,
+    2010249.0534169232,
+    -3237081.68477121
+   ]
+  ],
+  "diameters": [
+   13.5,
+   13.5,
+   13.5,
+   13.5,
+   13.5,
+   13.5,
+   13.5
+  ],
+  "channel_width": 13375000.0,
+  "corr_names": [
+   "XX",
+   "XY",
+   "YX",
+   "YY"
+  ],
+  "corr_types": [
+   9,
+   10,
+   11,
+   12
+  ],
+  "dump_period": 7.997,
+  "shape": [
+   24,
+   64,
+   84
+  ],
+  "scans": [
+   {
+    "index": 0,
+    "state": "slew",
+    "target": "J1939-6342",
+    "tags": [
+     "radec",
+     "bpcal"
+    ],
+    "dumps": 2
+   },
+   {
+    "index": 1,
+    "state": "track",
+    "target": "J1939-6342",
+    "tags": [
+     "radec",
+     "bpcal"
+    ],
+    "dumps": 10
+   },
+   {
+    "index": 2,
+    "state": "slew",
+    "target": "J1331+3030",
+    "tags": [
+     "radec",
+     "gaincal"
+    ],
+    "dumps": 3
+   },
+   {
+    "index": 3,
+    "state": "track",
+    "target": "J1331+3030",
+    "tags": [
+     "radec",
+     "gaincal"
+    ],
+    "dumps": 9
+   }
+  ],
+  "targets": [
+   "J1939-6342 | PKS 1934-638, radec bpcal, 19:39:25.03, -63:42:45.6",
+   "J1331+3030 | 3C 286, radec gaincal, 13:31:08.29, 30:30:33.0"
+  ],
+  "flag_bits": [
+   {
+    "bit": 0,
+    "name": "reserved0",
+    "description": "reserved - bit 0"
+   },
+   {
+    "bit": 1,
+    "name": "static",
+    "description": "predefined static flag list"
+   },
+   {
+    "bit": 2,
+    "name": "cam",
+    "description": "flag based on live CAM information"
+   },
+   {
+    "bit": 3,
+    "name": "data_lost",
+    "description": "no data was received"
+   },
+   {
+    "bit": 4,
+    "name": "ingest_rfi",
+    "description": "RFI detected in ingest"
+   },
+   {
+    "bit": 5,
+    "name": "predicted_rfi",
+    "description": "RFI predicted from space based pollutants"
+   },
+   {
+    "bit": 6,
+    "name": "cal_rfi",
+    "description": "RFI detected in calibration"
+   },
+   {
+    "bit": 7,
+    "name": "postproc",
+    "description": "some correction/postprocessing step could not be applied"
+   }
+  ],
+  "flag_mask": 255,
+  "selection": {
+   "scans": null,
+   "targets": null,
+   "antennas": null,
+   "channels": null,
+   "autos": false,
+   "flags": "all",
+   "states": [
+    "track",
+    "scan"
+   ],
+   "min_scan_dumps": 2
+  }
+ },
+ "a": {
+  "local": {
+   "raw_default": {
+    "selection": {
+     "scans": null,
+     "targets": null,
+     "antennas": null,
+     "channels": null,
+     "autos": false,
+     "flags": "all",
+     "states": [
+      "track",
+      "scan"
+     ],
+     "min_scan_dumps": 2
+    },
+    "rows": 399,
+    "ANTENNA1": {
+     "equal": true,
+     "shape": [
+      399
+     ],
+     "dtype": "int32"
+    },
+    "ANTENNA2": {
+     "equal": true,
+     "shape": [
+      399
+     ],
+     "dtype": "int32"
+    },
+    "DATA": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "complex64"
+    },
+    "FLAG_BITS": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "uint8"
+    },
+    "FLAG": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "bool"
+    },
+    "WEIGHT_SPECTRUM": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "float32"
+    },
+    "TIME": {
+     "equal": true,
+     "shape": [
+      399
+     ],
+     "dtype": "float64"
+    }
+   },
+   "raw_restricted": {
+    "selection": {
+     "scans": [
+      3
+     ],
+     "targets": null,
+     "antennas": [
+      "m001",
+      "m003",
+      "m004",
+      "m006"
+     ],
+     "channels": [
+      10,
+      50,
+      null
+     ],
+     "autos": false,
+     "flags": "all",
+     "states": [
+      "track",
+      "scan"
+     ],
+     "min_scan_dumps": 2
+    },
+    "rows": 54,
+    "ANTENNA1": {
+     "equal": true,
+     "shape": [
+      54
+     ],
+     "dtype": "int32"
+    },
+    "ANTENNA2": {
+     "equal": true,
+     "shape": [
+      54
+     ],
+     "dtype": "int32"
+    },
+    "DATA": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "complex64"
+    },
+    "FLAG_BITS": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "uint8"
+    },
+    "FLAG": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "bool"
+    },
+    "WEIGHT_SPECTRUM": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "float32"
+    },
+    "TIME": {
+     "equal": true,
+     "shape": [
+      54
+     ],
+     "dtype": "float64"
+    }
+   },
+   "katdal_default": {
+    "selection": {
+     "scans": null,
+     "targets": null,
+     "antennas": null,
+     "channels": null,
+     "autos": false,
+     "flags": "all",
+     "states": [
+      "track",
+      "scan"
+     ],
+     "min_scan_dumps": 2
+    },
+    "DATA": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "complex64"
+    },
+    "WEIGHT_SPECTRUM": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "float32"
+    },
+    "FLAG_BITS": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "uint8"
+    },
+    "FLAG": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "bool"
+    },
+    "TIME": {
+     "equal": true,
+     "shape": [
+      399
+     ],
+     "dtype": "float64"
+    },
+    "UVW": {
+     "max_abs_diff_m": 1.8189894035458565e-12,
+     "max_abs_diff_after_sign_flip_m": 14506.749604233424,
+     "bitwise_equal": false,
+     "tolerance_m": 1e-06,
+     "pass": true,
+     "max_abs_uvw_m": 7253.374802116711
+    },
+    "antennas": {
+     "names": true,
+     "positions": true
+    },
+    "channel_freqs": true
+   },
+   "katdal_restricted": {
+    "selection": {
+     "scans": [
+      3
+     ],
+     "targets": null,
+     "antennas": [
+      "m001",
+      "m003",
+      "m004",
+      "m006"
+     ],
+     "channels": [
+      10,
+      50,
+      null
+     ],
+     "autos": false,
+     "flags": "all",
+     "states": [
+      "track",
+      "scan"
+     ],
+     "min_scan_dumps": 2
+    },
+    "DATA": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "complex64"
+    },
+    "WEIGHT_SPECTRUM": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "float32"
+    },
+    "FLAG_BITS": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "uint8"
+    },
+    "FLAG": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "bool"
+    },
+    "TIME": {
+     "equal": true,
+     "shape": [
+      54
+     ],
+     "dtype": "float64"
+    },
+    "UVW": {
+     "max_abs_diff_m": 9.094947017729282e-13,
+     "max_abs_diff_after_sign_flip_m": 10734.614681909095,
+     "bitwise_equal": false,
+     "tolerance_m": 1e-06,
+     "pass": true,
+     "max_abs_uvw_m": 5367.307340954548
+    },
+    "antennas": {
+     "names": true,
+     "positions": true
+    },
+    "channel_freqs": true
+   }
+  },
+  "http": {
+   "url": "http://127.0.0.1:45985/1700000000/1700000000_sdp_l0.rdb",
+   "raw_default": {
+    "selection": {
+     "scans": null,
+     "targets": null,
+     "antennas": null,
+     "channels": null,
+     "autos": false,
+     "flags": "all",
+     "states": [
+      "track",
+      "scan"
+     ],
+     "min_scan_dumps": 2
+    },
+    "rows": 399,
+    "ANTENNA1": {
+     "equal": true,
+     "shape": [
+      399
+     ],
+     "dtype": "int32"
+    },
+    "ANTENNA2": {
+     "equal": true,
+     "shape": [
+      399
+     ],
+     "dtype": "int32"
+    },
+    "DATA": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "complex64"
+    },
+    "FLAG_BITS": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "uint8"
+    },
+    "FLAG": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "bool"
+    },
+    "WEIGHT_SPECTRUM": {
+     "equal": true,
+     "shape": [
+      399,
+      64,
+      4
+     ],
+     "dtype": "float32"
+    },
+    "TIME": {
+     "equal": true,
+     "shape": [
+      399
+     ],
+     "dtype": "float64"
+    }
+   },
+   "katdal_restricted": {
+    "selection": {
+     "scans": [
+      3
+     ],
+     "targets": null,
+     "antennas": [
+      "m001",
+      "m003",
+      "m004",
+      "m006"
+     ],
+     "channels": [
+      10,
+      50,
+      null
+     ],
+     "autos": false,
+     "flags": "all",
+     "states": [
+      "track",
+      "scan"
+     ],
+     "min_scan_dumps": 2
+    },
+    "DATA": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "complex64"
+    },
+    "WEIGHT_SPECTRUM": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "float32"
+    },
+    "FLAG_BITS": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "uint8"
+    },
+    "FLAG": {
+     "equal": true,
+     "shape": [
+      54,
+      40,
+      4
+     ],
+     "dtype": "bool"
+    },
+    "TIME": {
+     "equal": true,
+     "shape": [
+      54
+     ],
+     "dtype": "float64"
+    },
+    "UVW": {
+     "max_abs_diff_m": 9.094947017729282e-13,
+     "max_abs_diff_after_sign_flip_m": 10734.614681909095,
+     "bitwise_equal": false,
+     "tolerance_m": 1e-06,
+     "pass": true,
+     "max_abs_uvw_m": 5367.307340954548
+    },
+    "antennas": {
+     "names": true,
+     "positions": true
+    },
+    "channel_freqs": true
+   },
+   "server": {
+    "requests": 210,
+    "bytes": 4346487,
+    "not_found": 1
+   }
+  }
+ },
+ "b": {
+  "mvftoms_seconds": 2.8889967309951317,
+  "arguments": [
+   "-f",
+   "--quack",
+   "0"
+  ],
+  "ms_rows": 532,
+  "loader_rows": 532,
+  "unmatched_loader_rows": 0,
+  "unmatched_ms_rows": 0,
+  "row_order_identical": false,
+  "TIME": {
+   "equal": true,
+   "shape": [
+    532
+   ],
+   "dtype": "float64"
+  },
+  "ANTENNA1": {
+   "equal": true,
+   "shape": [
+    532
+   ],
+   "dtype": "int32"
+  },
+  "ANTENNA2": {
+   "equal": true,
+   "shape": [
+    532
+   ],
+   "dtype": "int32"
+  },
+  "DATA": {
+   "equal": true,
+   "shape": [
+    532,
+    64,
+    4
+   ],
+   "dtype": "complex64"
+  },
+  "FLAG": {
+   "equal": true,
+   "shape": [
+    532,
+    64,
+    4
+   ],
+   "dtype": "bool"
+  },
+  "WEIGHT_SPECTRUM": {
+   "equal": true,
+   "shape": [
+    532,
+    64,
+    4
+   ],
+   "dtype": "float32"
+  },
+  "UVW": {
+   "equal": true,
+   "shape": [
+    532,
+    3
+   ],
+   "dtype": "float64"
+  },
+  "SCAN_NUMBER": {
+   "equal": true,
+   "shape": [
+    532
+   ],
+   "dtype": "int32"
+  },
+  "FIELD_ID": {
+   "equal": true,
+   "shape": [
+    532
+   ],
+   "dtype": "int32"
+  },
+  "ANTENNA.NAME": true,
+  "ANTENNA.POSITION": {
+   "equal": true,
+   "shape": [
+    7,
+    3
+   ],
+   "dtype": "float64"
+  },
+  "CHAN_FREQ": {
+   "equal": true,
+   "shape": [
+    64
+   ],
+   "dtype": "float64"
+  },
+  "CORR_TYPE": {
+   "equal": true,
+   "shape": [
+    4
+   ],
+   "dtype": "int32"
+  },
+  "recorded": {
+   "FLAG_ROW_all_false": true,
+   "WEIGHT_is_channel_mean": true,
+   "SIGMA_SPECTRUM_is_w_pow_minus_half": true,
+   "scans_written": [
+    1,
+    2
+   ]
+  }
+ },
+ "c": {
+  "run": false,
+  "reason": "no public MVFv4 archive reachable (token-gated SARAO archive; no MVF in the RATT bucket); see research/mk1-katdal.md"
+ },
+ "d": {
+  "L0": {
+   "FLAG_BITS": {
+    "equal": true,
+    "shape": [
+     399,
+     64,
+     4
+    ],
+    "dtype": "uint8"
+   },
+   "per_bit_select": {
+    "reserved0": true,
+    "static": true,
+    "cam": true,
+    "data_lost": true,
+    "ingest_rfi": true,
+    "predicted_rfi": true,
+    "cal_rfi": true,
+    "postproc": true
+   },
+   "native_flag_fraction": 0.23782111528822056,
+   "bit_occupancy": {
+    "reserved0": 0.03934641290726817,
+    "static": 0.040100250626566414,
+    "cam": 0.040041510025062656,
+    "data_lost": 0.1020030545112782,
+    "ingest_rfi": 0.03990444862155389,
+    "predicted_rfi": 0.03919956140350877,
+    "cal_rfi": 0.04033521303258145,
+    "postproc": 0.04008067042606516
+   }
+  },
+  "upgrade_flags": {
+   "FLAG_BITS": {
+    "equal": true,
+    "shape": [
+     399,
+     64,
+     4
+    ],
+    "dtype": "uint8"
+   },
+   "per_bit_select": {
+    "reserved0": true,
+    "static": true,
+    "cam": true,
+    "data_lost": true,
+    "ingest_rfi": true,
+    "predicted_rfi": true,
+    "cal_rfi": true,
+    "postproc": true
+   },
+   "native_flag_fraction": 0.22170661027568922,
+   "bit_occupancy": {
+    "reserved0": 0.03934641290726817,
+    "static": 0.040100250626566414,
+    "cam": 0.040041510025062656,
+    "data_lost": 0.1020030545112782,
+    "ingest_rfi": 0.01981516290726817,
+    "predicted_rfi": 0.03919956140350877,
+    "cal_rfi": 0.13645441729323307,
+    "postproc": 0.04008067042606516
+   }
+  }
+ },
+ "cost": {
+  "fixture": {
+   "chunks": 5,
+   "rows": 399,
+   "wall_seconds": 0.09655258301063441,
+   "katdal_read_seconds": 0.0900925480236765,
+   "loader_total_seconds": 0.09407417100737803,
+   "per_chunk_seconds_median": 0.01837852198514156,
+   "store_files": 79,
+   "store_bytes": 1664896,
+   "npy_load_all_seconds": 0.0029007630073465407,
+   "peak_rss_bytes": 283144192,
+   "vm_hwm_bytes": 283144192
+  },
+  "large": {
+   "params": {
+    "cbid": "1700000001",
+    "n_ants": 64,
+    "n_dumps": 4,
+    "n_chans": 4096,
+    "dump_chunk": 1,
+    "chan_chunk": 256,
+    "seed": 20261030,
+    "sync_time": 1700000000.0,
+    "int_time": 7.997,
+    "first_timestamp": 16.9985,
+    "scan_edges": [
+     0,
+     1,
+     2,
+     4
+    ],
+    "activity": [
+     "slew",
+     "track",
+     "slew",
+     "track"
+    ],
+    "targets": [
+     "J1939-6342 | PKS 1934-638, radec bpcal, 19:39:25.03, -63:42:45.6",
+     "J1331+3030 | 3C 286, radec gaincal, 13:31:08.29, 30:30:33.0"
+    ]
+   },
+   "write_seconds": 9.610653660987737,
+   "note": "every dump read (slews included); loader in a child process",
+   "chunks": 4,
+   "rows": 8064,
+   "wall_seconds": 3.0308442290115636,
+   "katdal_read_seconds": 0.7523273919941857,
+   "loader_total_seconds": 2.992584949970478,
+   "per_chunk_seconds_median": 0.7462001634849003,
+   "store_files": 256,
+   "store_bytes": 1363247104,
+   "npy_load_all_seconds": 0.05953921700711362,
+   "peak_rss_bytes": 5727170560,
+   "vm_hwm_bytes": 2011099136
+  }
+ },
+ "seconds": 21.112779317016248,
+ "pass_a": true,
+ "pass_b": true,
+ "pass_d": true,
+ "pass": true
+}
