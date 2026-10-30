@@ -35,7 +35,9 @@ use rang_core::ffi;
 use rang_core::ffi_correct::CorrectInputsC;
 use rang_core::ffi_flag::{FlagInputs, FlagOutputs};
 use rang_core::ffi_grid::{GridInputs, GridOutputs};
-use rang_core::ffi_ms_write::{keyword_value, new_column};
+use rang_core::ffi_ms_write::{
+    ColumnArgs, ManagerArgs, column_descs, keyword_value, manager_specs, new_column,
+};
 use rang_core::ffi_weights::{
     ImagingWeightInputs, ImagingWeightOutputs, StokesIInputs, StokesIOutputs,
 };
@@ -1696,6 +1698,216 @@ impl MsWriter {
             None => Ok(()),
         }
     }
+
+    /// Write `count` rows of a string-array column from `start`, every
+    /// cell of `shape` (casacore order), strings in Fortran order.
+    fn put_string_cells(
+        &mut self,
+        name: &str,
+        start: u64,
+        count: u64,
+        shape: Vec<i64>,
+        strings: Vec<String>,
+    ) -> PyResult<()> {
+        self.get()?
+            .put_string_cells(name, start, count, &shape, &strings)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// The columns as (name, type code, is array), in table order.
+    fn columns(&mut self) -> PyResult<Vec<(String, i32, bool)>> {
+        Ok(self
+            .get()?
+            .dat
+            .columns
+            .iter()
+            .map(|c| (c.name.clone(), c.dtype, c.is_array()))
+            .collect())
+    }
+
+    fn add_rows(&mut self, py: Python<'_>, n: u64) -> PyResult<()> {
+        let w = self.get()?;
+        detach(py, || w.add_rows(n)).map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    fn remove_rows(&mut self, py: Python<'_>, rows: Vec<u64>) -> PyResult<()> {
+        let w = self.get()?;
+        detach(py, || w.remove_rows(&rows)).map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    fn is_defined(&mut self, name: &str, row: u64) -> PyResult<bool> {
+        self.get()?
+            .is_defined(name, row)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// Mark the table changed (casacore's `rwKeywordSet`).
+    fn mark_changed(&mut self) -> PyResult<()> {
+        self.get()?
+            .mark_changed()
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    fn put_info(&mut self, kind: &str, sub_kind: &str, readme: &str) -> PyResult<()> {
+        self.get()?
+            .put_info(kind, sub_kind, readme)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// Flush, then read cells: (0 undefined / 1 values / 2 strings, shape
+    /// in casacore order, native bytes, strings) per row.
+    fn read_cells<'py>(
+        &mut self,
+        py: Python<'py>,
+        name: &str,
+        start: u64,
+        count: u64,
+    ) -> PyResult<Vec<CellTuple<'py>>> {
+        let w = self.get()?;
+        let cells =
+            detach(py, || w.read_cells(name, start, count)).map_err(|e| PyOSError::new_err(e.0))?;
+        Ok(cells.into_iter().map(|c| cell_tuple(py, c)).collect())
+    }
+}
+
+type CellTuple<'py> = (i32, Vec<i64>, Bound<'py, PyBytes>, Vec<String>);
+
+fn cell_tuple(py: Python<'_>, cell: rang_core::ms_write::Cell) -> CellTuple<'_> {
+    use rang_core::ms_write::Cell;
+    match cell {
+        Cell::Undefined => (0, Vec::new(), PyBytes::new(py, &[]), Vec::new()),
+        Cell::Values(shape, bytes) => (1, shape, PyBytes::new(py, &bytes), Vec::new()),
+        Cell::Strings(shape, strings) => (2, shape, PyBytes::new(py, &[]), strings),
+    }
+}
+
+fn writer(w: rang_core::ms::Result<TableWriter>) -> PyResult<MsWriter> {
+    w.map(|w| MsWriter { writer: Some(w) })
+        .map_err(|e| PyOSError::new_err(e.0))
+}
+
+/// Create a table (research/e4-table-create.md): description (name,
+/// version, comment), columns and data managers as tuples
+/// (`ffi_ms_write::ColumnArgs`, `ManagerArgs`), `table.info` (type,
+/// subtype, readme), `nrows` rows; returned open for writing.
+#[pyfunction]
+#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false))]
+#[allow(clippy::too_many_arguments)]
+fn ms_create_table(
+    py: Python<'_>,
+    path: &str,
+    desc: (String, String, String),
+    columns: Vec<ColumnArgs>,
+    managers: Vec<ManagerArgs>,
+    info: (String, String, String),
+    nrows: u64,
+    big_endian: bool,
+    multifile: bool,
+) -> PyResult<MsWriter> {
+    let spec = rang_core::ms_create::TableSpec {
+        desc_name: desc.0,
+        desc_version: desc.1,
+        desc_comment: desc.2,
+        columns: column_descs(columns).map_err(PyValueError::new_err)?,
+        managers: manager_specs(managers),
+        info,
+        big_endian,
+        multifile,
+        ..Default::default()
+    };
+    writer(detach(py, || {
+        rang_core::ms_create::create_table(path, &spec, nrows)
+    }))
+}
+
+/// python-casacore's `default_ms(path, desc, dminfo)`.
+#[pyfunction]
+fn ms_default_ms(
+    py: Python<'_>,
+    path: &str,
+    columns: Vec<ColumnArgs>,
+    managers: Vec<ManagerArgs>,
+) -> PyResult<MsWriter> {
+    let extra = column_descs(columns).map_err(PyValueError::new_err)?;
+    let managers = manager_specs(managers);
+    writer(detach(py, || {
+        rang_core::ms_create::default_ms(path, &extra, &managers)
+    }))
+}
+
+/// python-casacore's `default_ms_subtable(name, path, desc, dminfo)`.
+#[pyfunction]
+fn ms_default_ms_subtable(
+    py: Python<'_>,
+    name: &str,
+    path: &str,
+    columns: Vec<ColumnArgs>,
+    managers: Vec<ManagerArgs>,
+) -> PyResult<MsWriter> {
+    let extra = column_descs(columns).map_err(PyValueError::new_err)?;
+    let managers = manager_specs(managers);
+    writer(detach(py, || {
+        rang_core::ms_create::default_ms_subtable(name, path, &extra, &managers)
+    }))
+}
+
+/// The MAIN table of a CASA calibration table with `nrows` rows.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn ms_caltable_main(
+    py: Python<'_>,
+    path: &str,
+    vis_cal: String,
+    float_param: bool,
+    ms_name: String,
+    pol_basis: String,
+    casa_version: String,
+    nrows: u64,
+) -> PyResult<MsWriter> {
+    let cal = rang_core::caltable::CalTable {
+        vis_cal,
+        float_param,
+        ms_name,
+        pol_basis,
+        casa_version,
+    };
+    let spec = rang_core::caltable::main_spec(&cal).map_err(|e| PyValueError::new_err(e.0))?;
+    writer(detach(py, || {
+        rang_core::ms_create::create_table(path, &spec, nrows)
+    }))
+}
+
+/// A calibration subtable (`OBSERVATION`, `ANTENNA`, `FIELD`,
+/// `SPECTRAL_WINDOW`, `HISTORY`) with `nrows` rows.
+#[pyfunction]
+fn ms_caltable_subtable(py: Python<'_>, path: &str, name: &str, nrows: u64) -> PyResult<MsWriter> {
+    let spec = rang_core::caltable::subtable_spec(name).map_err(|e| PyValueError::new_err(e.0))?;
+    writer(detach(py, || {
+        rang_core::ms_create::create_table(path, &spec, nrows)
+    }))
+}
+
+/// The array records a table's rows reference: (file, offset, element
+/// bits) (`ms_write::array_records`, the alignment-gap mask).
+#[pyfunction]
+fn ms_array_records(py: Python<'_>, path: &str) -> PyResult<Vec<(String, u64, u32)>> {
+    detach(py, || rang_core::ms_write::array_records(path)).map_err(|e| PyOSError::new_err(e.0))
+}
+
+/// Read cells of a table without writing (`ms_write::read_cells`).
+#[pyfunction]
+fn ms_read_cells<'py>(
+    py: Python<'py>,
+    path: &str,
+    name: &str,
+    start: u64,
+    count: u64,
+) -> PyResult<Vec<CellTuple<'py>>> {
+    let cells = detach(py, || {
+        rang_core::ms_write::read_cells(path, name, start, count, None)
+    })
+    .map_err(|e| PyOSError::new_err(e.0))?;
+    Ok(cells.into_iter().map(|c| cell_tuple(py, c)).collect())
 }
 
 /// The extension module `rang._core`.
@@ -1741,5 +1953,12 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MsTable>()?;
     m.add_class::<MsWriter>()?;
     m.add_function(wrap_pyfunction!(ms_serialisation_check, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_create_table, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_default_ms, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_default_ms_subtable, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_caltable_main, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_caltable_subtable, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_read_cells, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_array_records, m)?)?;
     Ok(())
 }

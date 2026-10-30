@@ -235,7 +235,7 @@ CPU-heavy tasks at a time on 8 physical cores.
   writer; casacure stays an optional pinned second oracle. Follow-on tasks:
   E3 done 2026-10-30 (`e3-table-writer.md`); E3 core table writer (in-place `putcol` for SSM and the tiled managers,
   `addcols` as casacore does, `table.dat`/description/keyword writer, lock
-  sync record; after P7, parallel with P9); E4 table creation (`default_ms`
+  sync record; after P7, parallel with P9); E4 done 2026-10-30 (`e4-table-create.md`); E4 table creation (`default_ms`
   with subtables, CASA caltables G/B/K/Df with `table.info`; after E3; feeds
   DF-IO); E5 ISM arrays, strings and big-endian writes (small, after E3); T1
   casacure as the second oracle in the Windows and macOS test jobs; B1

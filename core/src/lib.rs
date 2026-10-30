@@ -22,6 +22,7 @@
 
 pub mod aipsio;
 pub mod blosc;
+pub mod caltable;
 pub mod clean;
 pub mod clean_certified;
 pub mod closure;
@@ -41,7 +42,9 @@ pub mod fused;
 pub mod grid;
 pub mod jones;
 pub mod ms;
+pub mod ms_create;
 pub mod ms_desc;
+pub mod ms_schema;
 pub mod ms_write;
 pub mod predict;
 pub mod robust;

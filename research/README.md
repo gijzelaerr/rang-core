@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: E4, [core table creation](e4-table-create.md): casacore
+tables, rows, string arrays, `default_ms` and CASA caltables created by the
+core writer, byte-identical to casacore 3.8.1 and CASA 6.7.6 (gaps masked),
+`applycal` bit-identical.
+
 New, 2026-10-30: D3, the [science notebooks](d3-science-notebooks.md):
 the flagging verdict and the beam and pointing question as guided
 notebooks on the site, every number from an archive or a live cell.

@@ -987,3 +987,25 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan D3: CI emulation: `sphinx-build -W --keep-going` | executed notebooks | 33.4 s | 387 MB | 0 warnings, 17 MB site |
 | 2026-10-30 | big plan D3: `bash tools/check-all.sh` | branch tree (the three code commits and this report) | 2,121.7 s | 2.06 GB | **overall: PASS**; pytest 652 passed, 3 skipped in 194.7 s; the wall includes about 30 min waiting on the shared lock behind four other tasks; log `outputs/d3-20261030-check-all.log` |
 | 2026-10-30 | big plan D3: papermill, both notebooks, every switch on | worktree, LUNO slice, holography product | 15.6 s / 76.4 s | 0.93 / 1.03 GB | K replay exact; executed copies deleted (CC BY-NC maps) |
+| 2026-10-30 | big plan E4: `git clone --depth 1 --branch v3.8.1 casacore` | 43 MB | 5.1 s | – | format reference, scratch |
+| 2026-10-30 | big plan E4: `git clone --sparse` casa6 mirror (CalTables, MSVis) | dic-case-studies/casa6 | ~60 s | – | NewCalTable reference, scratch, not timed precisely |
+| 2026-10-30 | big plan E4: `git clone --depth 1 --branch v3.8.1 python-casacore` |  | 1.3 s | – | `default_ms` reference, scratch |
+| 2026-10-30 | big plan E4: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin pip` | worktree | 74.7 s | – |  |
+| 2026-10-30 | big plan E4: `uv pip install casacure==3.8.35` |  | 0.7 s | – | E3's second read-back oracle (criterion 7) |
+| 2026-10-30 | big plan E4: determinism inventory, python-casacore 3.8.1, 4 containers | 3 tables | 2.3 s | – | pre-freeze scratch |
+| 2026-10-30 | big plan E4: deep copy of O-CASA's K, G, B, python-casacore 3.8.1 | 3 caltables | ~3 s | – | pre-freeze scratch |
+| 2026-10-30 | big plan E4: `cargo build --release` (core) | `core/` | 150.6 s | – | first build in the worktree |
+| 2026-10-30 | big plan E4: `maturin develop --release` | extension | 108–265 s | – | six builds |
+| 2026-10-30 | big plan E4: `cargo test --release` (core, 115 tests) | `core/` | 256.6 s | – | build included |
+| 2026-10-30 | big plan E4: `pytest tests/test_e4_table_create.py tests/test_core_ms_write.py` |  | 7.8 s | – | 18 passed, 1 skipped |
+| 2026-10-30 | big plan E4: oracle `write` (run `oracle`) | 18 cases | 1.8 s | – | container; 103 MB |
+| 2026-10-30 | big plan E4: oracle `write`, second / `MALLOC_PERTURB_=85` | 18 cases | 1.5 s / 1.6 s | – |  |
+| 2026-10-30 | big plan E4: `check_ms_create.py cases` | 18 cases | 0.7 s | – |  |
+| 2026-10-30 | big plan E4: `check_ms_create.py determinism` | 2 × 18 cases | 2.3 s | – |  |
+| 2026-10-30 | big plan E4: `check_ms_create.py casa` (CASA K, G, B, Df, dump, rebuild) | O-CASA `c.ms` | 5.7 s | – | container 4.6 s; CASA tasks 0.30–0.53 s |
+| 2026-10-30 | big plan E4: `check_ms_create.py apply` | 3 × `applycal` | 6.9 s | – | container 6.5 s |
+| 2026-10-30 | big plan E4: `check_ms_create.py readback` | 103 tables | 7.6 s | – | container 3.5 s |
+| 2026-10-30 | big plan E4: `check_ms_create.py refusals` | 8 attempts | 0.4 s | – |  |
+| 2026-10-30 | big plan E4: `check_ms_create.py e3` | E3 oracle | 7.8 s | – |  |
+| 2026-10-30 | big plan E4: `check_ms_create.py serialisation` | 103 tables | 0.1 s | – |  |
+| 2026-10-30 | big plan E4: `bash tools/check-all.sh` (wiring diff present) | repo | 786 s | – | PASS: root 23, core 115 Rust tests; pytest 630 passed, 4 skipped (118 s); log `outputs/e4-20261030-check-all.log`; a first run (867 s) failed only `git diff --check` on this file's appendix |

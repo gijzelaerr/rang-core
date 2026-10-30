@@ -133,3 +133,17 @@ to an unrelated package (carta-python is not on PyPI).
   default minimum-grid-resolution upsampling; DF2b's comparison did not use
   that file (its WSClean runs were made from the gridder inputs at
   accuracy 1e-6 and agree to 2.5–4e-7).
+
+## From E4 (2026-10-30; not reported by decision)
+
+- casacore 3.8.1 (E3's item, confirmed): `table.fNi` alignment gaps hold
+  uninitialised heap bytes (4 of 18 cases differ under `MALLOC_PERTURB_=85`).
+- casacore 3.8.1 (note): the bucket cache writes its scratch buffer (the last
+  bucket read or written) into a freed StandardStMan bucket, and the string
+  handler starts a new string bucket with the previous bucket's characters:
+  file contents depend on access history (deterministic, unreferenced).
+- CASA 6.7.6 (note): calibration tables name the columns' data-manager group
+  `StandardStMan` where a casacore 3.8.1 deep copy keeps `MSMTAB`; rows are
+  sorted with a non-stable heap sort.
+- python-casacore 3.8.1 (note): Python int keywords become Int64, `getcell`
+  returns Python scalars, uChar cells come back as uint16.

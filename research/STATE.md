@@ -1,5 +1,23 @@
 # Rang research state
 
+E4 core table creation (big plan; [e4-table-create.md](e4-table-create.md)),
+2026-10-30 (implemented; measured): rang's core now creates casacore tables
+as casacore 3.8.1 does: new tables from a description (StandardStMan,
+TiledColumnStMan, TiledShapeStMan, keywords, `table.info`), rows added and
+removed on new and existing managers, string arrays, `default_ms` with its
+subtables (SOURCE on request), and CASA calibration tables (G, B, K, Df)
+written in CASA's own sequence. 18 casacore cases and CASA 6.7.6's own K,
+G, B and Df tables are byte-identical except casacore's uninitialised
+alignment gaps in `table.fNi` (masked, 7 of 22); CASA `applycal` with the
+core's copies gives bit-identical CORRECTED_DATA and FLAG, a core-made G
+table applies to 4.3e-7; read-back, determinism (twin and MALLOC_PERTURB_),
+E5 refusals, E3 and serialisation checks pass. Freed StandardStMan buckets
+are now byte-identical too (E3's open item). Deferred to E5 with an error:
+IncrementalStMan writes (an empty one is written for POINTING only),
+big-endian, variable-shape tiled columns, MultiFile, MemoryStMan,
+TiledDataStMan, removing the last StandardStMan row, creation in the C ABI.
+`outputs/e4-20261030-01`, `research/results/e4-table-create.json`.
+
 D3 science notebooks (big plan, documentation track), 2026-10-30
 (implemented; executed and built locally and on a clean export;
 documentation only; [d3-science-notebooks.md](d3-science-notebooks.md)).

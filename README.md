@@ -179,8 +179,8 @@ quality/cost comparison, not further simulator expansion.
   decoding, WSClean imaging weights and w-stacking gridder, the Tricolour
   strategies (`rang.core_flag`; `python/rang/data/` carries Tricolour's static
   masks under its BSD notice) and a read-only Measurement Set reader
-  (`rang.core_ms`; python-casacore is still needed to write tables and
-  for the oracle). Reports: `research/core-*.md`.
+  (`rang.core_ms`; python-casacore is the oracle, no longer a dependency
+  for writing or creating tables). Reports: `research/core-*.md`.
 - `recipes/`: core-native Stimela2 recipes `core-*.yaml`
   (phase 3 stages and the imaging track) driven by `rang-core`; `rang-core -h`
   lists every stage and verb (`run`, `compare`, `archive`, …), `rang-core
@@ -199,10 +199,11 @@ quality/cost comparison, not further simulator expansion.
   katbeam and EIDOS controls) and an exact port of the SARAO/SKA Gaussian
   pointing-offset fit (`examples/b1_baselines.py`;
   `research/b1-beam-pointing.md`).
-- `rang.core_ms_write` writes existing casacore tables for the core
-  (byte-identical to casacore 3.8.1 bar uninitialised padding;
-  `research/e3-table-writer.md`); python-casacore stays the oracle and is
-  still needed to create tables until E4.
+- `rang.core_ms_write` writes existing casacore tables and creates new ones,
+  Measurement Sets (`default_ms`) and CASA calibration tables (byte-identical
+  to casacore 3.8.1 and CASA 6.7.6 bar uninitialised padding;
+  `research/e3-table-writer.md`, `research/e4-table-create.md`);
+  python-casacore stays the oracle.
 - L1-M compared the stored, point and CARACal field calibrator models on LUNO
   1934−638 under L1's frozen campaign (`rang.core_campaign_fieldmodel`,
   Tigger lsm reader `rang.lsm`, `research/l1-model-completeness.md`): the
