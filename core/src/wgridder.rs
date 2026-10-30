@@ -1075,12 +1075,12 @@ fn check_common(opts: &Options, nrow: usize, nchan: usize, uvw: &[f64]) -> Resul
 
 // ------------------------------------------------------------------ layout
 
-/// One active visibility: its row, channel and first w-plane.
+/// One active visibility: its row and channel (its first w-plane is its
+/// block's).
 #[derive(Clone, Copy, Debug, Default)]
 struct VisRef {
     row: u32,
     ch: u32,
-    minplane: u32,
 }
 
 /// Coordinates in wavelengths after `FixW`, and the sign it took.
@@ -1176,7 +1176,6 @@ impl Setup {
         let r = VisRef {
             row: row as u32,
             ch: ch as u32,
-            minplane: 0,
         };
         let ([u, v, w], _) = uvw_of(bl, r);
         let (_, _, iu0, iv0) = self.getpix(u, v);
@@ -1231,13 +1230,12 @@ fn layout<T: Real>(setup: &Setup, bl: &Baselines, act: &Activity) -> Layout {
         for row in chunk_rows(c) {
             for ch in 0..nchan {
                 if act.active::<T>(row * nchan + ch) {
-                    let (t, mp) = setup.locate(&tiling, bl, row, ch);
+                    let t = setup.locate(&tiling, bl, row, ch).0;
                     // SAFETY: every chunk writes its own disjoint slots.
                     unsafe {
                         out.get().add(pos[t]).write(VisRef {
                             row: row as u32,
                             ch: ch as u32,
-                            minplane: mp as u32,
                         })
                     };
                     pos[t] += 1;
@@ -1245,38 +1243,47 @@ fn layout<T: Real>(setup: &Setup, bl: &Baselines, act: &Activity) -> Layout {
             }
         }
     });
+    // Per tile: a stable sort by first plane, and the runs of equal first
+    // plane as (first plane, length).
+    let mut parts = Vec::new();
     {
-        let mut parts = Vec::new();
         let mut rest = &mut refs[..];
-        for t in 0..ntiles {
-            let (a, b) = rest.split_at_mut(tile_start[t + 1] - tile_start[t]);
-            if a.len() > 1 {
-                parts.push(a);
+        for tile in 0..ntiles {
+            let (a, b) = rest.split_at_mut(tile_start[tile + 1] - tile_start[tile]);
+            if !a.is_empty() {
+                parts.push((tile, a));
             }
             rest = b;
         }
-        parts
-            .into_par_iter()
-            .for_each(|p| p.sort_by_key(|r| r.minplane));
     }
+    let runs: Vec<(usize, Vec<(usize, usize)>)> = parts
+        .into_par_iter()
+        .map(|(tile, part)| {
+            let mp = |r: &VisRef| setup.locate(&tiling, bl, r.row as usize, r.ch as usize).1;
+            part.sort_by_cached_key(mp);
+            let mut runs: Vec<(usize, usize)> = Vec::new();
+            for r in part.iter() {
+                let m = mp(r);
+                match runs.last_mut() {
+                    Some(last) if last.0 == m => last.1 += 1,
+                    _ => runs.push((m, 1)),
+                }
+            }
+            (tile, runs)
+        })
+        .collect();
     let mut blocks = Vec::new();
     let mut tiles = Vec::new();
-    for t in 0..ntiles {
-        let (lo, hi) = (tile_start[t], tile_start[t + 1]);
-        if lo == hi {
-            continue;
-        }
+    for (t, tile_runs) in runs {
         let b0 = blocks.len();
-        let mut start = lo;
-        for k in lo + 1..=hi {
-            if k == hi || refs[k].minplane != refs[start].minplane {
-                blocks.push(Block {
-                    minplane: refs[start].minplane as usize,
-                    start,
-                    end: k,
-                });
-                start = k;
-            }
+        let mut start = tile_start[t];
+        for (minplane, len) in tile_runs {
+            blocks.push(Block {
+                minplane,
+                start,
+                end: start + len,
+            });
+            start += len;
         }
         let (tu, tv) = (t / tiling.ntv, t % tiling.ntv);
         let edge = (tu << tiling.log2) + tiling.su > setup.nu
@@ -1330,28 +1337,54 @@ fn shift_phase<T: Real>(setup: &Setup, bl: &Baselines, r: VisRef, sign: f64) -> 
     Complex::new(cs, sn)
 }
 
-/// Gridded value per sorted visibility: `v` (times the phase) times the
-/// weight, the imaginary part times the `FixW` sign.
+/// The unit visibility's gridded value: the phase of the shift times the
+/// weight, the imaginary part times the `FixW` sign (DF1's value of a unit
+/// visibility).
+#[inline(always)]
+fn unit_value<T: Real>(setup: &Setup, bl: &Baselines, r: VisRef, w: Option<T>) -> Complex<T> {
+    let mut v = Complex::new(T::one(), T::zero());
+    if setup.shifting {
+        v = v * shift_phase::<T>(setup, bl, r, 1.0);
+    }
+    if let Some(w) = w {
+        v = v * w;
+    }
+    let (_, imflip) = fix_w(bl.coord[r.row as usize]);
+    Complex::new(v.re, v.im * T::of(imflip))
+}
+
+/// The gridded value of visibility `v` from its unit value `p`: `v` times
+/// the phase and weight, the imaginary part times the sign. The dirty
+/// image is formed this way with or without a PSF, so the two agree bit
+/// for bit; the product order differs from DF1's `(v * phase) * w` by
+/// rounding.
+#[inline(always)]
+fn data_value<T: Real>(v: Complex<T>, p: Complex<T>, imflip: T) -> Complex<T> {
+    let d = v * Complex::new(p.re, p.im * imflip);
+    Complex::new(d.re, d.im * imflip)
+}
+
+/// Stored value per sorted visibility: the unit value (with a PSF) or the
+/// data value (a dirty image alone).
 fn values<T: Real>(
     setup: &Setup,
     bl: &Baselines,
     refs: &[VisRef],
-    data: VisData,
+    data: Option<VisData>,
     wgt: Weights,
 ) -> Vec<Complex<T>> {
     let nchan = bl.f_over_c.len();
     refs.par_iter()
         .map(|&r| {
             let idx = r.row as usize * nchan + r.ch as usize;
-            let mut v = data.get::<T>(idx);
-            if setup.shifting {
-                v = v * shift_phase::<T>(setup, bl, r, 1.0);
+            let p = unit_value::<T>(setup, bl, r, wgt.get::<T>(idx));
+            match data {
+                Some(d) => {
+                    let (_, imflip) = fix_w(bl.coord[r.row as usize]);
+                    data_value(d.get::<T>(idx), p, T::of(imflip))
+                }
+                None => p,
             }
-            if let Some(w) = wgt.get::<T>(idx) {
-                v = v * w;
-            }
-            let (_, imflip) = fix_w(bl.coord[r.row as usize]);
-            Complex::new(v.re, v.im * T::of(imflip))
         })
         .collect()
 }
@@ -1360,8 +1393,8 @@ fn values<T: Real>(
 
 /// Kernel coefficients degree-major: `c[k * W + i]` is the coefficient of
 /// degree `D - k` of tap `i` (`W` taps, degree `D`), so that Horner's rule
-/// runs across the taps in fixed-size arrays the compiler vectorises. Per
-/// tap the operations and their order are DF1's scalar Horner.
+/// runs across the taps in fixed-size arrays the compiler vectorises. Each
+/// Horner step is one fused multiply-add (as ducc0 compiled with FMA).
 fn coeff_degree_major<T: Real>(kernel: &EsKernel) -> Vec<T> {
     let w = kernel.support;
     let d1 = kernel.degree + 1;
@@ -1384,8 +1417,8 @@ fn eval_taps2<T: Real, const S: usize>(c: &[T], x: T, y: T) -> ([T; S], [T; S]) 
     for k in 1..d1 {
         let ck: &[T; S] = c[k * S..(k + 1) * S].try_into().unwrap();
         for i in 0..S {
-            ru[i] = ru[i] * x + ck[i];
-            rv[i] = rv[i] * y + ck[i];
+            ru[i] = ru[i].mul_add(x, ck[i]);
+            rv[i] = rv[i].mul_add(y, ck[i]);
         }
     }
     (ru, rv)
@@ -1397,7 +1430,7 @@ fn eval_tap<T: Real, const S: usize>(c: &[T], i: usize, x: T) -> T {
     let d1 = c.len() / S;
     let mut r = c[i];
     for k in 1..d1 {
-        r = r * x + c[k * S + i];
+        r = r.mul_add(x, c[k * S + i]);
     }
     r
 }
@@ -1425,6 +1458,63 @@ fn taps<T: Real, const S: usize>(
         }
     }
     (ku, kv, iu0, iv0)
+}
+
+/// Instruction set of the gridding loops: 2 AVX-512 with FMA, 1 AVX2 with
+/// FMA, 0 the build's baseline (`RANG_WGRIDDER_SIMD` = `avx512`, `avx2` or
+/// `baseline` caps it). Every level performs the same IEEE operations
+/// lane by lane (FMA is exactly rounded everywhere; no reductions across
+/// lanes), so the results do not depend on it, only the speed.
+fn simd_level() -> u8 {
+    static LEVEL: std::sync::OnceLock<u8> = std::sync::OnceLock::new();
+    *LEVEL.get_or_init(|| {
+        let cap = match std::env::var("RANG_WGRIDDER_SIMD").as_deref() {
+            Ok("baseline") => 0,
+            Ok("avx2") => 1,
+            _ => 2,
+        };
+        #[cfg(target_arch = "x86_64")]
+        {
+            let fma = std::is_x86_feature_detected!("fma") && std::is_x86_feature_detected!("avx2");
+            let avx512 = fma
+                && std::is_x86_feature_detected!("avx512f")
+                && std::is_x86_feature_detected!("avx512vl");
+            let level = if avx512 {
+                2
+            } else if fma {
+                1
+            } else {
+                0
+            };
+            level.min(cap)
+        }
+        #[cfg(not(target_arch = "x86_64"))]
+        {
+            let _ = cap;
+            0
+        }
+    })
+}
+
+/// Call `$body` (a method of `$obj` with const generic `S`) through the
+/// instruction-set variant of `simd_level`.
+macro_rules! simd_dispatch {
+    ($obj:expr, $avx512:ident, $avx2:ident, $body:ident, $s:ident, $($arg:expr),*) => {{
+        #[cfg(target_arch = "x86_64")]
+        {
+            match simd_level() {
+                // SAFETY: the level was detected at run time.
+                2 => unsafe { $obj.$avx512::<$s>($($arg),*) },
+                // SAFETY: as above.
+                1 => unsafe { $obj.$avx2::<$s>($($arg),*) },
+                _ => $obj.$body::<$s>($($arg),*),
+            }
+        }
+        #[cfg(not(target_arch = "x86_64"))]
+        {
+            $obj.$body::<$s>($($arg),*)
+        }
+    }};
 }
 
 // ---------------------------------------------------------------- the FFTs
@@ -1670,19 +1760,82 @@ fn plane_tasks(setup: &Setup, lay: &Layout, tiles: &[usize], p: usize) -> Vec<Ta
     tasks
 }
 
+/// Add `val` times the taps to a tile buffer at offset `(ou, ov)`.
+#[inline(always)]
+fn accumulate<T: Real, const S: usize>(
+    buf: &mut TileBuf<T>,
+    val: Complex<T>,
+    ku: &[T; S],
+    kv: &[T; S],
+    ou: usize,
+    ov: usize,
+    sv: usize,
+) {
+    for (cu, &kuc) in ku.iter().enumerate() {
+        let tr = val.re * kuc;
+        let ti = val.im * kuc;
+        let base = (ou + cu) * sv + ov;
+        let br: &mut [T; S] = (&mut buf.re[base..base + S]).try_into().unwrap();
+        // Real and imaginary parts in two loops, so that each vectorises.
+        for cv in 0..S {
+            br[cv] = tr.mul_add(kv[cv], br[cv]);
+        }
+        let bi: &mut [T; S] = (&mut buf.im[base..base + S]).try_into().unwrap();
+        for cv in 0..S {
+            bi[cv] = ti.mul_add(kv[cv], bi[cv]);
+        }
+    }
+}
+
 /// Everything a gridding plane reads.
 struct GridIn<'a, T: Real> {
     setup: &'a Setup,
     bl: &'a Baselines,
     lay: &'a Layout,
-    /// One value array per output (dirty image, PSF).
-    values: Vec<&'a [Complex<T>]>,
+    /// Stored value per visibility (`values`): the only output's, or with
+    /// both outputs the PSF's (the second output).
+    stored: &'a [Complex<T>],
+    /// With both outputs: the data, from which the dirty value (the first
+    /// output) is formed per plane.
+    data: Option<VisData<'a>>,
     coeff: &'a [T],
 }
 
 impl<T: Real> GridIn<'_, T> {
     /// Grid one task into `bufs` (one per output, zeroed).
     fn grid_task<const S: usize>(&self, task: &Task, w0: f64, bufs: &mut [TileBuf<T>]) {
+        simd_dispatch!(
+            self,
+            grid_task_avx512,
+            grid_task_avx2,
+            grid_task_body,
+            S,
+            task,
+            w0,
+            bufs
+        )
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[target_feature(enable = "avx512f,avx512vl,avx2,fma")]
+    unsafe fn grid_task_avx512<const S: usize>(
+        &self,
+        task: &Task,
+        w0: f64,
+        bufs: &mut [TileBuf<T>],
+    ) {
+        self.grid_task_body::<S>(task, w0, bufs)
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[target_feature(enable = "avx2,fma")]
+    unsafe fn grid_task_avx2<const S: usize>(&self, task: &Task, w0: f64, bufs: &mut [TileBuf<T>]) {
+        self.grid_task_body::<S>(task, w0, bufs)
+    }
+
+    #[inline(always)]
+    fn grid_task_body<const S: usize>(&self, task: &Task, w0: f64, bufs: &mut [TileBuf<T>]) {
+        let nchan = self.bl.f_over_c.len();
         let s = self.setup;
         let lay = self.lay;
         let tiling = &lay.tiling;
@@ -1691,27 +1844,22 @@ impl<T: Real> GridIn<'_, T> {
         let (bu, bv) = (t.tu << tiling.log2, t.tv << tiling.log2);
         for &(nth, start, end) in &task.runs {
             for k in start..end {
-                let ([u, v, w], _) = uvw_of(self.bl, lay.refs[k]);
+                let r = lay.refs[k];
+                let ([u, v, w], imflip) = uvw_of(self.bl, r);
                 let plane = s.do_wgridding.then_some((nth, w0, w));
                 let (ku, kv, iu0, iv0) = taps::<T, S>(s, self.coeff, u, v, plane);
                 let ou = offset(iu0, s.nu, bu);
                 let ov = offset(iv0, s.nv, bv);
-                for (vals, buf) in self.values.iter().zip(bufs.iter_mut()) {
-                    let val = vals[k];
-                    for (cu, &kuc) in ku.iter().enumerate() {
-                        let tr = val.re * kuc;
-                        let ti = val.im * kuc;
-                        let base = (ou + cu) * sv + ov;
-                        let br: &mut [T; S] = (&mut buf.re[base..base + S]).try_into().unwrap();
-                        let bi: &mut [T; S] = (&mut buf.im[base..base + S]).try_into().unwrap();
-                        // Two loops, so that each vectorises on its own.
-                        for cv in 0..S {
-                            br[cv] = br[cv] + tr * kv[cv];
-                        }
-                        for cv in 0..S {
-                            bi[cv] = bi[cv] + ti * kv[cv];
-                        }
+                let st = self.stored[k];
+                match self.data {
+                    Some(data) => {
+                        let idx = r.row as usize * nchan + r.ch as usize;
+                        let d = data_value(data.get::<T>(idx), st, T::of(imflip));
+                        let (b0, b1) = bufs.split_at_mut(1);
+                        accumulate::<T, S>(&mut b0[0], d, &ku, &kv, ou, ov, sv);
+                        accumulate::<T, S>(&mut b1[0], st, &ku, &kv, ou, ov, sv);
                     }
+                    None => accumulate::<T, S>(&mut bufs[0], st, &ku, &kv, ou, ov, sv),
                 }
             }
         }
@@ -1728,7 +1876,7 @@ impl<T: Real> GridIn<'_, T> {
         let (classes, all) = plane_tiles(s, lay, p);
         let ptrs: Vec<SyncPtr<Complex<T>>> =
             grids.iter_mut().map(|g| SyncPtr(g.as_mut_ptr())).collect();
-        let nout = self.values.len();
+        let nout = if self.data.is_some() { 2 } else { 1 };
         for (ci, class) in classes.iter().enumerate() {
             let tasks = plane_tasks(s, lay, class, p);
             let bufs: Vec<Vec<TileBuf<T>>> = tasks
@@ -1955,13 +2103,11 @@ pub fn vis2dirty_multi<T: Real>(
     timer.lap("scan");
     let lay = layout::<T>(&setup, &bl, &act);
     timer.lap("layout");
-    let mut vals = Vec::new();
-    if dirty.is_some() {
-        vals.push(values::<T>(&setup, &bl, &lay.refs, data, wgt));
-    }
-    if psf.is_some() {
-        vals.push(values::<T>(&setup, &bl, &lay.refs, VisData::Unit, wgt));
-    }
+    // A dirty image alone stores data values; a PSF (alone or with the
+    // dirty image) stores unit values, the dirty value formed per plane.
+    let both = dirty.is_some() && psf.is_some();
+    let stored_data = (psf.is_none()).then_some(data);
+    let stored = values::<T>(&setup, &bl, &lay.refs, stored_data, wgt);
     timer.lap("values");
     let ffts = Ffts::<T>::new(setup.nu, setup.nv);
     let coeff = coeff_degree_major::<T>(&setup.kernel);
@@ -1976,7 +2122,8 @@ pub fn vis2dirty_multi<T: Real>(
         setup: &setup,
         bl: &bl,
         lay: &lay,
-        values: vals.iter().map(|v| &v[..]).collect(),
+        stored: &stored,
+        data: both.then_some(data),
         coeff: &coeff,
     };
     let mut images: Vec<&mut [T]> = [dirty.as_deref_mut(), psf.as_deref_mut()]
@@ -2078,58 +2225,120 @@ impl<T: Real> DegridIn<'_, T> {
         let s = self.setup;
         let lay = self.lay;
         let tiling = &lay.tiling;
-        let (su, sv) = (tiling.su, tiling.sv);
-        let nchan = self.bl.f_over_c.len();
         let w0 = s.wmin + p as f64 * s.dw;
         let (_, all) = plane_tiles(s, lay, p);
         let tasks = plane_tasks(s, lay, &all, p);
         tasks.par_iter().for_each_init(
             || TileBuf::<T>::new(tiling),
-            |buf, task| {
-                let ti = task.tile;
-                let t = &lay.tiles[ti];
-                let (bu, bv) = (t.tu << tiling.log2, t.tv << tiling.log2);
-                for i in 0..su {
-                    for j in 0..sv {
-                        let g = grid[cell(s, bu, bv, i, j)];
-                        buf.re[i * sv + j] = g.re;
-                        buf.im[i * sv + j] = g.im;
-                    }
-                }
-                for &(nth, start, end) in &task.runs {
-                    for k in start..end {
-                        let r = lay.refs[k];
-                        let ([u, v, w], imflip) = uvw_of(self.bl, r);
-                        let plane = s.do_wgridding.then_some((nth, w0, w));
-                        let (ku, kv, iu0, iv0) = taps::<T, S>(s, self.coeff, u, v, plane);
-                        let ou = offset(iu0, s.nu, bu);
-                        let ov = offset(iv0, s.nv, bv);
-                        let mut rr = T::zero();
-                        let mut ri = T::zero();
-                        for (cu, &kuc) in ku.iter().enumerate() {
-                            let base = (ou + cu) * sv + ov;
-                            let gr: &[T; S] = (&buf.re[base..base + S]).try_into().unwrap();
-                            let gi: &[T; S] = (&buf.im[base..base + S]).try_into().unwrap();
-                            let mut tr = T::zero();
-                            let mut tim = T::zero();
-                            for cv in 0..S {
-                                tr = tr + kv[cv] * gr[cv];
-                                tim = tim + kv[cv] * gi[cv];
-                            }
-                            rr = rr + kuc * tr;
-                            ri = ri + kuc * tim;
-                        }
-                        let c = Complex::new(rr, ri * T::of(imflip));
-                        let idx = r.row as usize * nchan + r.ch as usize;
-                        // SAFETY: each visibility belongs to one tile.
-                        unsafe {
-                            let o = out.get().add(idx);
-                            *o = c + *o;
-                        }
-                    }
-                }
-            },
+            |buf, task| self.degrid_task::<S>(task, w0, grid, buf, out),
         );
+    }
+
+    /// Degrid one task, adding to `out`.
+    fn degrid_task<const S: usize>(
+        &self,
+        task: &Task,
+        w0: f64,
+        grid: &[Complex<T>],
+        buf: &mut TileBuf<T>,
+        out: SyncPtr<Complex<T>>,
+    ) {
+        simd_dispatch!(
+            self,
+            degrid_task_avx512,
+            degrid_task_avx2,
+            degrid_task_body,
+            S,
+            task,
+            w0,
+            grid,
+            buf,
+            out
+        )
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[target_feature(enable = "avx512f,avx512vl,avx2,fma")]
+    unsafe fn degrid_task_avx512<const S: usize>(
+        &self,
+        task: &Task,
+        w0: f64,
+        grid: &[Complex<T>],
+        buf: &mut TileBuf<T>,
+        out: SyncPtr<Complex<T>>,
+    ) {
+        self.degrid_task_body::<S>(task, w0, grid, buf, out)
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[target_feature(enable = "avx2,fma")]
+    unsafe fn degrid_task_avx2<const S: usize>(
+        &self,
+        task: &Task,
+        w0: f64,
+        grid: &[Complex<T>],
+        buf: &mut TileBuf<T>,
+        out: SyncPtr<Complex<T>>,
+    ) {
+        self.degrid_task_body::<S>(task, w0, grid, buf, out)
+    }
+
+    #[inline(always)]
+    fn degrid_task_body<const S: usize>(
+        &self,
+        task: &Task,
+        w0: f64,
+        grid: &[Complex<T>],
+        buf: &mut TileBuf<T>,
+        out: SyncPtr<Complex<T>>,
+    ) {
+        let s = self.setup;
+        let lay = self.lay;
+        let tiling = &lay.tiling;
+        let (su, sv) = (tiling.su, tiling.sv);
+        let nchan = self.bl.f_over_c.len();
+        let ti = task.tile;
+        let t = &lay.tiles[ti];
+        let (bu, bv) = (t.tu << tiling.log2, t.tv << tiling.log2);
+        for i in 0..su {
+            for j in 0..sv {
+                let g = grid[cell(s, bu, bv, i, j)];
+                buf.re[i * sv + j] = g.re;
+                buf.im[i * sv + j] = g.im;
+            }
+        }
+        for &(nth, start, end) in &task.runs {
+            for k in start..end {
+                let r = lay.refs[k];
+                let ([u, v, w], imflip) = uvw_of(self.bl, r);
+                let plane = s.do_wgridding.then_some((nth, w0, w));
+                let (ku, kv, iu0, iv0) = taps::<T, S>(s, self.coeff, u, v, plane);
+                let ou = offset(iu0, s.nu, bu);
+                let ov = offset(iv0, s.nv, bv);
+                let mut rr = T::zero();
+                let mut ri = T::zero();
+                for (cu, &kuc) in ku.iter().enumerate() {
+                    let base = (ou + cu) * sv + ov;
+                    let gr: &[T; S] = (&buf.re[base..base + S]).try_into().unwrap();
+                    let gi: &[T; S] = (&buf.im[base..base + S]).try_into().unwrap();
+                    let mut tr = T::zero();
+                    let mut tim = T::zero();
+                    for cv in 0..S {
+                        tr = kv[cv].mul_add(gr[cv], tr);
+                        tim = kv[cv].mul_add(gi[cv], tim);
+                    }
+                    rr = kuc.mul_add(tr, rr);
+                    ri = kuc.mul_add(tim, ri);
+                }
+                let c = Complex::new(rr, ri * T::of(imflip));
+                let idx = r.row as usize * nchan + r.ch as usize;
+                // SAFETY: each visibility belongs to one tile.
+                unsafe {
+                    let o = out.get().add(idx);
+                    *o = c + *o;
+                }
+            }
+        }
     }
 }
 
