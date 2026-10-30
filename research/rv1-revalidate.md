@@ -40,6 +40,8 @@ at recorded commits.
 - **Process.** Three post-hoc fixes to RV1's own scripts, and no port change
   (section 6). Archive:
   [results/rv1-revalidate.json](results/rv1-revalidate.json).
+- **Checks.** `bash tools/check-all.sh`: `overall: PASS` (623 passed, 5
+  skipped, 1113 s; `outputs/rv1-20261030-check-all.log`).
 
 ## 1. Facts (established 2026-10-30, before freezing)
 
@@ -119,6 +121,40 @@ formatting ignored):
   (beam and parallactic angles about the pointing; not used here);
   #448, #451, #368, #428, #429, #437 (loading, FEED, DDID, jhj sizing).
 
+**Changelogs (added after freezing, before the report).**
+- Tricolour: `0.5.0-dev` `367ff54` has no changelog file. 0.2.1's
+  `HISTORY.rst`, whose last entry is 0.1.9, was removed in the rework. The
+  changes above come from the code.
+- QuartiCal: neither `v0.2.7` nor `v0.2.8-dev` carries a changelog file, and
+  the v0.2.6 and v0.2.7 GitHub releases have no notes. The commit messages
+  (`git log v0.2.7..v0.2.8-dev`) are the only record.
+- Strategy loader: 0.2.1 reads the `-c` file with `yaml.full_load` into
+  `donfig` defaults (`apps/tricolour/app.py:118`), and 0.5.0-dev with
+  `yaml.full_load` directly (`core/application/config.py:23`). Both
+  executors iterate the same `strategies` list with the same `task` and
+  `kwargs` keys.
+
+**URLs.**
+- PyPI: <https://pypi.org/pypi/tricolour/json>,
+  <https://pypi.org/pypi/quartical/json>.
+- Branches: <https://github.com/ratt-ru/tricolour/tree/0.5.0-dev>,
+  <https://github.com/ratt-ru/QuartiCal/tree/v0.2.8-dev>.
+- Tricolour issues and pulls:
+  <https://github.com/ratt-ru/tricolour/pull/108>,
+  <https://github.com/ratt-ru/tricolour/issues/110>,
+  <https://github.com/ratt-ru/tricolour/issues/111>,
+  <https://github.com/ratt-ru/tricolour/pull/112>,
+  <https://github.com/ratt-ru/tricolour/issues/113>,
+  <https://github.com/ratt-ru/tricolour/pull/114>.
+- QuartiCal issues and pulls:
+  <https://github.com/ratt-ru/QuartiCal/pull/440>,
+  <https://github.com/ratt-ru/QuartiCal/issues/452>,
+  <https://github.com/ratt-ru/QuartiCal/issues/453>,
+  <https://github.com/ratt-ru/QuartiCal/issues/455>,
+  <https://github.com/ratt-ru/QuartiCal/pull/456>.
+- The raw API responses are saved in
+  `outputs/rv1-20261030-logs/provenance/facts/`.
+
 ## 2. Inputs (archived, read-only)
 
 - **Tricolour (task D).** The four controls of
@@ -151,8 +187,13 @@ Nothing under these paths is written. Every RV1 output goes to a fresh
 
 ## 3. Environments (frozen)
 
-uv venvs from public PyPI under `~/Build/tmp/20261030-rv1/` (no
-container: the archived `rang-flagging*` images are no longer on the host):
+uv venvs from public PyPI under `~/Build/tmp/20261030-rv1/`. No container
+is used, because the archived `rang-flagging*` images are no longer on the
+host. The venvs and clones were deleted at the end. Their full resolved
+environments (`venv-*.freeze.txt`) and every driver script (`run-*.sh`,
+`setup-venvs.sh`) are kept in `outputs/rv1-20261030-logs/provenance/`.
+`run-tric-posthoc2.sh` there is the `-19` version; the `-17` invocation
+survives in that run's receipt.
 
 | venv | Python | Package | Resolved key versions |
 | --- | --- | --- | --- |
@@ -437,9 +478,20 @@ inputs, cold and warm, to 4e-16.
 Against the frozen predictions:
 - The LUNO failure of `qc028u` against 0.2.7 was predicted.
 - On the fixture, the products pass as predicted (1.1e-7, L5: 1.5e-7), but
-  the raw entries fail at 1.7e-3. The fixture's 50-iteration iterate drifts
-  in the unconstrained gauge direction, which the gauge-invariant products do
-  not see. The prediction had been stated for products only.
+  the raw entries fail at 1.7e-3. The prediction had been stated for
+  products only.
+- Post-hoc check, labelled (`rang.core_policy.polar_gauge` on both gain
+  sets): the entry difference is gauge.
+  - On the 287 intervals with all four antennas, raw entries differ by up to
+    1.7e-3, but by only 8.3e-8 after polar alignment. That is a unitary
+    gauge drift.
+  - The one interval with two valid antennas, i.e. a single baseline (time
+    bin 6, channel bin 43), carries a non-unitary GL(2) gauge,
+    `G_p → G_p X`, `G_q → G_q X^{-H}`, with X − I ≈ 2.2e-3. Its entries still
+    differ by 1.1e-3 after alignment, while its baseline product agrees to
+    2.5e-16.
+  - On LUNO the polar-aligned entry maximum is 1.6e-4, against products of
+    9.7e-5, so the LUNO difference is not only gauge.
 - The referenced and unreferenced 0.2.8-dev runs have identical products
   (4.5e-16), the same iteration count and the same converged fraction. On
   these models #440's in-loop referencing is a pure gauge change.
@@ -535,7 +587,9 @@ Numba. The CLI's 13–15 s per control is now Ray start-up rather than the
      kept);
    - the `git merge-tree` check of #114;
    - the synthetic uvrange demonstration and the whole-array baseline count
-     (`outputs/rv1-20261030-logs/`).
+     (`outputs/rv1-20261030-logs/`);
+   - the polar-gauge alignment of the 0.2.8-dev and 0.2.7 gains (5.2,
+     computed inline, not archived as a run).
 
 ## 7. Open items
 
@@ -601,7 +655,7 @@ Numba. The CLI's 13–15 s per control is now Ray start-up rather than the
 | `rv1-20261030-12`, `-13` | 98 MB each | T1 / T3 post-hoc (the references of the verdict) |
 | `rv1-20261030-19` | 0.2 MB | T2 CLI, passing run (final FLAG per control) |
 | `rv1-20261030-21`, `-22` | 12 KB each | #114 signature diagnostic (receipts only) |
-| `rv1-20261030-logs` | 0.2 MB | per-run `/usr/bin/time` logs, the dev suite log, the post-hoc scripts and logs |
+| `rv1-20261030-logs` | 0.5 MB | per-run `/usr/bin/time` logs, the dev suite log, the post-hoc scripts and logs; `provenance/` holds the venv freezes, driver scripts and the raw PyPI/GitHub JSON |
 | `rv1-20261030-check-all.log` | – | `tools/check-all.sh` |
 
 About 720 MB in all. The archived inputs (`tv-caracal-wsl-20261029-01`,
@@ -632,6 +686,7 @@ About 720 MB in all. The archived inputs (`tv-caracal-wsl-20261029-01`,
 | 2026-10-30 | QuartiCal 0.2.8-dev, LUNO slice, verbatim ×2 / `referenced=false` | same | 3.05, 2.90 / 3.49 s | 387 MB | |
 | 2026-10-30 | core `solve_complex`, fixture / LUNO, archived and `qp_weights=transposed` | 50 iterations | 0.047–0.051 s / 0.19–0.29 s solve; ≤ 0.42 s process | 93 / 79 MB | `RAYON_NUM_THREADS=4` |
 | 2026-10-30 | RV1 comparators (flags ×7, QuartiCal ×1, archive build) | – | 0.4–2.3 s each | ≤ 90 MB | |
+| 2026-10-30 | `bash tools/check-all.sh` (RV1 branch) | repo | 1113 s (pytest 352 s) | 1.7 GB | `overall: PASS`, 623 passed, 5 skipped; load about 2–10 |
 
 ## 11. For the coordinator
 
@@ -650,35 +705,27 @@ Branch `rv1-revalidate`. Owner files only: this report,
 
 **`research/STATE.md`, new top paragraph:**
 
-> RV1 re-validation (big plan), 2026-10-30 (implemented; measured;
-> [rv1-revalidate.md](rv1-revalidate.md)). Neither Tricolour 0.5.0 nor
-> QuartiCal 0.2.8 is released (PyPI: 0.2.1 and 0.2.7), so the release branches
-> were used at recorded commits.
->
-> Tricolour `0.5.0-dev` `367ff54` (Python ≥ 3.11, Ray Serve, xarray-ms)
-> reproduces 0.2.1 on task D's four controls:
-> - every one of the 44 strategy-step windows, the polarised intensity bit
->   for bit, and the final FLAG are identical;
-> - the `tricolour` CLI end to end gives FLAG equal to `after-native.npz`;
-> - so task D's comparator passes the core against 0.5.0-dev unchanged.
->
-> The one difference is latent. `apply_static_mask`'s `uvrange` now selects
-> |uvw| ≤ 550 m, where 0.2.1 and the port select 0.5·|Δp|² ≤ 550², up to
-> 778 m. That is 165 of 1540 LUNO array baselines, and none of task D's.
->
-> #112 leaves one kernel signature. #114 gives identical flags but needs a
-> rebase, because its branch predates #112.
->
-> QuartiCal `v0.2.8-dev` `d54c46b` fixes #452 (#456). That moves the gains of
-> the capped 50-iteration solves away from the archived 0.2.7 oracle: entries
-> by up to 1.7e-3 (fixture) and 2.8e-4 (LUNO), products by up to 1.1e-7 and
-> 9.7e-5. The core with `RANG_SOLVE_OPTIONS=qp_weights=transposed` (L5)
-> reproduces 0.2.8-dev to 1.2e-15, with the same flags, iterations and
-> converged fractions. #440's default referencing of `complex` is a pure
-> gauge change (products equal to 5.6e-16).
->
-> 0.2.7 rerun in a fresh venv reproduces the archive to 4e-16. No port
-> change. Archive `results/rv1-revalidate.json`.
+RV1 re-validation (big plan), 2026-10-30 (implemented; measured;
+[rv1-revalidate.md](rv1-revalidate.md)). Neither Tricolour 0.5.0 nor
+QuartiCal 0.2.8 is released (PyPI: 0.2.1 and 0.2.7), so the release branches
+were used at recorded commits. Tricolour `0.5.0-dev` `367ff54` (Python
+≥ 3.11, Ray Serve, xarray-ms) reproduces 0.2.1 on task D's four controls: all
+44 strategy-step windows, the polarised intensity bit for bit and the final
+FLAG are identical, and the `tricolour` CLI run end to end matches
+`after-native.npz`, so task D's comparator passes the core against 0.5.0-dev
+unchanged. The one difference is latent: `apply_static_mask`'s `uvrange` now
+selects |uvw| ≤ 550 m, where 0.2.1 and the port select 0.5·|Δp|² ≤ 550²
+(up to 778 m), which affects 165 of 1540 LUNO array baselines and none of
+task D's. #112 leaves one kernel signature; #114 gives identical flags but
+needs a rebase, because its branch predates #112. QuartiCal `v0.2.8-dev`
+`d54c46b` fixes #452 (#456), which moves the capped 50-iteration gains away
+from the archived 0.2.7 oracle: entries by up to 1.7e-3 on the fixture
+(gauge only) and 2.8e-4 on LUNO, products by up to 1.1e-7 and 9.7e-5. The
+core with `RANG_SOLVE_OPTIONS=qp_weights=transposed` (L5) reproduces
+0.2.8-dev to 1.2e-15, with the same flags, iterations and converged
+fractions, and #440's default referencing of `complex` is a pure gauge change
+(products equal to 5.6e-16). A 0.2.7 rerun in a fresh venv reproduces the
+archive to 4e-16. No port change. Archive `results/rv1-revalidate.json`.
 
 **`research/tool-timings.md`:** the rows of section 10.
 
