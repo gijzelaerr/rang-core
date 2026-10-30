@@ -1079,6 +1079,8 @@ def kind_of(path):
         return "tigger-html"
     if name.endswith((".skymodel", ".bbs", ".sky")):
         return "bbs"
+    if name.endswith(".wsclean"):
+        return "wsclean"
     if name.endswith((".lsm", ".lsm.txt")):
         return "tigger-ascii"
     if name.endswith(".txt"):

@@ -1408,6 +1408,269 @@ def step_fv(run):
     return write_json(run, "fv", result, started)
 
 
+# ---------------------------------------------------------------------------
+# The archive: every measured verdict, frozen and post hoc, in one table.
+
+# Which run holds which measurement (research/dfio-formats.md, "Runs").
+RUNS = {
+    "ct": ("dfio-20261030-01", "frozen"),
+    "ct-posthoc": ("dfio-20261030-02", "post hoc"),
+    "qc": (
+        "dfio-20261030-03",
+        "frozen (second attempt, the first stopped in the core decoder)",
+    ),
+    "sky": (
+        "dfio-20261030-03",
+        "frozen (second attempt, the first stopped in Crystalball)",
+    ),
+    "sky-posthoc": ("dfio-20261030-04", "post hoc"),
+    "h5": ("dfio-20261030-03", "frozen (second attempt)"),
+    "h5-posthoc": ("dfio-20261030-04", "post hoc"),
+    "kms": (
+        "dfio-20261030-03",
+        "frozen (second attempt, the first stopped in the core reader)",
+    ),
+    "fv": ("dfio-20261030-01", "frozen"),
+}
+
+
+def _strip(result):
+    return {k: v for k, v in result.items() if k != "timings"}
+
+
+def step_summary(archive):
+    started = time.perf_counter()
+    runs = {
+        k: json.loads((outputs() / run / f"{k.split('-')[0]}.json").read_text())
+        for k, (run, _) in RUNS.items()
+    }
+    ct, ctp, qc, sk, skp, h5, h5p, kms, fv = (
+        runs[k]
+        for k in (
+            "ct",
+            "ct-posthoc",
+            "qc",
+            "sky",
+            "sky-posthoc",
+            "h5",
+            "h5-posthoc",
+            "kms",
+            "fv",
+        )
+    )
+
+    def v(ok):
+        return "pass" if ok else "fail"
+
+    def worst(sem, prefix):
+        rows = {k: s for k, s in sem.items() if k.startswith(prefix)}
+        return {
+            k: [
+                s["max_relative"],
+                s.get("cells_above_1e-6"),
+                s.get("max_error_float32_eps_of_cell"),
+            ]
+            for k, s in rows.items()
+        }
+
+    table = [
+        {
+            "format": "CASA caltable",
+            "direction": "read",
+            "oracle": "python-casacore 3.8.1 dump of CASA 6.7.6's K, G, B, Df, T",
+            "verdict": v(ct["verdicts"]["CT-read"]),
+            "run": "ct",
+        },
+        {
+            "format": "CASA caltable",
+            "direction": "write",
+            "oracle": "byte rule against CASA's tables; applycal bit-identical",
+            "verdict": v(ct["verdicts"]["CT-write-identity"]),
+            "run": "ct",
+        },
+        {
+            "format": "CASA caltable",
+            "direction": "semantics (read)",
+            "oracle": "applycal CORRECTED_DATA, 1e-6 relative",
+            "verdict": v(ct["verdicts"]["CT-semantics"]),
+            "run": "ct",
+            "post_hoc": {
+                "verdict": v(ctp["verdicts"]["CT-semantics"]),
+                "max_relative_cells_eps": worst(ctp["semantics"], "casa"),
+            },
+        },
+        {
+            "format": "CASA caltable",
+            "direction": "write (core gains)",
+            "oracle": "applycal of core-made G, B, K, T, 1e-6 relative",
+            "verdict": v(ct["verdicts"]["CT-synthetic"]),
+            "run": "ct",
+            "post_hoc": {
+                "verdict": v(ctp["verdicts"]["CT-synthetic"]),
+                "max_relative_cells_eps": worst(ctp["semantics"], "synth"),
+            },
+        },
+        {
+            "format": "QuartiCal store",
+            "direction": "read",
+            "oracle": "dask-ms xds_from_zarr (QuartiCal 0.2.7 venv)",
+            "verdict": v(qc["verdicts"]["QC-read"]),
+            "run": "qc",
+        },
+        {
+            "format": "QuartiCal store",
+            "direction": "write",
+            "oracle": "metadata bytes, xds_from_zarr, QuartiCal load_from apply bit-identical, seeded 1e-6",
+            "verdict": v(
+                all(
+                    qc["verdicts"][k]
+                    for k in ("QC-write-a", "QC-write-b", "QC-write-c")
+                )
+            ),
+            "run": "qc",
+            "seeded_max_relative": qc["seeded_apply"]["max_relative"],
+        },
+        {
+            "format": "Tigger lsm (ASCII)",
+            "direction": "read",
+            "oracle": "Tigger 1.8.0 load",
+            "verdict": v(sk["verdicts"]["SKY-tigger-read"]),
+            "run": "sky",
+            "max_angle_ulps": sk["SKY-tigger-read"]["max_angle_ulps"],
+        },
+        {
+            "format": "Tigger lsm.html",
+            "direction": "write and read",
+            "oracle": "Tigger load, tigger-convert round trip",
+            "verdict": v(sk["verdicts"]["SKY-html"]),
+            "run": "sky",
+        },
+        {
+            "format": "Tigger lsm (ASCII)",
+            "direction": "write",
+            "oracle": "Tigger load; core read of tigger-convert's ASCII",
+            "verdict": v(sk["verdicts"]["SKY-ascii"]),
+            "run": "sky",
+            "note": "Tigger loads the core's file; tigger-convert writes multi-term spectra as a Python list in the spi column, which neither Tigger nor the core can read",
+        },
+        {
+            "format": "WSClean source list",
+            "direction": "write",
+            "oracle": "africanus load; Crystalball 0.4.3 predict, float32 bound",
+            "verdict": v(sk["verdicts"]["SKY-wsclean"]),
+            "run": "sky",
+            "crystalball": sk["SKY-wsclean"]["crystalball"],
+            "africanus_problems": sk["SKY-wsclean"]["africanus_reads_core"][
+                "problem_count"
+            ],
+            "post_hoc": {
+                "africanus_problems": skp["SKY-wsclean"]["africanus_reads_core"][
+                    "problem_count"
+                ]
+            },
+        },
+        {
+            "format": "WSClean source list",
+            "direction": "read",
+            "oracle": "WSClean 3.7 -save-source-list, africanus load",
+            "verdict": v(sk["SKY-wsclean"]["wsclean_list_read"]["pass"]),
+            "run": "sky",
+            "components": sk["SKY-wsclean"]["wsclean_list_read"]["components"],
+        },
+        {
+            "format": "BBS skymodel",
+            "direction": "read",
+            "oracle": "Tigger's BBS load of tigger-convert -o BBS",
+            "verdict": v(sk["verdicts"]["SKY-bbs"]),
+            "run": "sky",
+            "note": "Tigger skips the multi-term source of its own file and writes axes and orientation in radians",
+            "post_hoc": {"against_the_lsm": skp["SKY-bbs"]["against_the_lsm"][:3]},
+        },
+        {
+            "format": "DDFacet DicoModel",
+            "direction": "read",
+            "oracle": "DDFacet 1.0.0.0 MyPickle.Load",
+            "verdict": v(sk["verdicts"]["SKY-dicomodel"]),
+            "run": "sky",
+        },
+        {
+            "format": "DDFacet ClusterCat",
+            "direction": "read and write",
+            "oracle": "np.load / np.save (DDFacet's NumPy 2.3.2)",
+            "verdict": v(sk["verdicts"]["SKY-clustercat"]),
+            "run": "sky",
+        },
+        {
+            "format": "H5parm",
+            "direction": "write and read",
+            "oracle": "losoto 2.7.1 H5parm API; losoto-made file",
+            "verdict": v(h5["verdicts"]["H5-losoto"]),
+            "run": "h5",
+        },
+        {
+            "format": "H5parm",
+            "direction": "apply",
+            "oracle": "DP3 6.6.0 applycal, 1e-6 relative",
+            "verdict": v(h5["verdicts"]["H5-dp3"]),
+            "run": "h5",
+            "post_hoc": {
+                "verdict": v(h5p["verdicts"]["H5-dp3"]),
+                "max_relative": h5p["H5-dp3"].get("max_relative"),
+            },
+        },
+        {
+            "format": "killMS solutions",
+            "direction": "write",
+            "oracle": "killMS 3.3.0 MergeSols.py",
+            "verdict": v(kms["verdicts"]["KMS"]),
+            "run": "kms",
+            "G_max_relative": kms["KMS"]["G_max_relative"],
+        },
+        {
+            "format": "killMS solutions",
+            "direction": "read",
+            "oracle": "np.load(allow_pickle=True) of MergeSols' output",
+            "verdict": v(kms["KMS"]["merged_read_bit_exact"]),
+            "run": "kms",
+        },
+        {
+            "format": "CASA flag versions",
+            "direction": "write",
+            "oracle": "CASA flagmanager restore and list",
+            "verdict": v(fv["verdicts"]["FV"]),
+            "run": "fv",
+        },
+    ]
+    for row in table:
+        row["run_dir"], row["label"] = RUNS[row["run"]]
+    image = subprocess.run(
+        ["docker", "image", "inspect", FORMATS_IMAGE, "--format", "{{.Id}}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout.strip()
+    result = {
+        "task": "DF-IO (research/dfio-formats.md)",
+        "table": table,
+        "runs": {k: {"run_dir": r, "label": lab} for k, (r, lab) in RUNS.items()},
+        "oracle_images": {
+            "formats": [FORMATS_IMAGE, image],
+            "casa": CASA_IMAGE,
+            "ms_reader": MS_IMAGE,
+        },
+        "steps": {k: _strip(r) for k, r in runs.items()},
+        "timings": {k: r.get("timings", []) for k, r in runs.items()},
+        "seed": SEED,
+    }
+    Path(archive).write_text(json.dumps(result, indent=1, default=str) + "\n")
+    print(
+        json.dumps(
+            [(r["format"], r["direction"], r["verdict"]) for r in table], indent=0
+        )
+    )
+    return {"wall_s": time.perf_counter() - started}
+
+
 STEPS = {
     "ct": step_ct,
     "qc": step_qc,
@@ -1415,6 +1678,7 @@ STEPS = {
     "h5": step_h5,
     "kms": step_kms,
     "fv": step_fv,
+    "summary": step_summary,
 }
 
 

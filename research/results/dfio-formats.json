@@ -1,0 +1,3063 @@
+{
+ "task": "DF-IO (research/dfio-formats.md)",
+ "table": [
+  {
+   "format": "CASA caltable",
+   "direction": "read",
+   "oracle": "python-casacore 3.8.1 dump of CASA 6.7.6's K, G, B, Df, T",
+   "verdict": "pass",
+   "run": "ct",
+   "run_dir": "dfio-20261030-01",
+   "label": "frozen"
+  },
+  {
+   "format": "CASA caltable",
+   "direction": "write",
+   "oracle": "byte rule against CASA's tables; applycal bit-identical",
+   "verdict": "pass",
+   "run": "ct",
+   "run_dir": "dfio-20261030-01",
+   "label": "frozen"
+  },
+  {
+   "format": "CASA caltable",
+   "direction": "semantics (read)",
+   "oracle": "applycal CORRECTED_DATA, 1e-6 relative",
+   "verdict": "fail",
+   "run": "ct",
+   "post_hoc": {
+    "verdict": "fail",
+    "max_relative_cells_eps": {
+     "casa-K": [
+      2.543426651152908e-07,
+      0,
+      2.129719756724922
+     ],
+     "casa-G": [
+      3.397513001458318e-07,
+      0,
+      2.2261160497780903
+     ],
+     "casa-B": [
+      4.4955729572377874e-07,
+      0,
+      3.771159927366856
+     ],
+     "casa-Df": [
+      6.150123225763773e-05,
+      6622,
+      0.23158951014170814
+     ],
+     "casa-T": [
+      3.433131841535106e-07,
+      0,
+      2.794830011796051
+     ],
+     "casa-chain": [
+      6.85344291625889e-05,
+      13342,
+      5.372758546283334
+     ]
+    }
+   },
+   "run_dir": "dfio-20261030-01",
+   "label": "frozen"
+  },
+  {
+   "format": "CASA caltable",
+   "direction": "write (core gains)",
+   "oracle": "applycal of core-made G, B, K, T, 1e-6 relative",
+   "verdict": "fail",
+   "run": "ct",
+   "post_hoc": {
+    "verdict": "fail",
+    "max_relative_cells_eps": {
+     "synth-G": [
+      1.0372325585506527e-06,
+      28,
+      8.210641382294371
+     ],
+     "synth-B": [
+      4.678298756793726e-07,
+      0,
+      3.596372067160858
+     ],
+     "synth-K": [
+      2.679111746389662e-07,
+      0,
+      2.1070438384776886
+     ],
+     "synth-T": [
+      7.297809247145463e-07,
+      0,
+      6.121846103307841
+     ],
+     "synth-chain": [
+      1.2327124929495977e-06,
+      367,
+      10.340741880056939
+     ]
+    }
+   },
+   "run_dir": "dfio-20261030-01",
+   "label": "frozen"
+  },
+  {
+   "format": "QuartiCal store",
+   "direction": "read",
+   "oracle": "dask-ms xds_from_zarr (QuartiCal 0.2.7 venv)",
+   "verdict": "pass",
+   "run": "qc",
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in the core decoder)"
+  },
+  {
+   "format": "QuartiCal store",
+   "direction": "write",
+   "oracle": "metadata bytes, xds_from_zarr, QuartiCal load_from apply bit-identical, seeded 1e-6",
+   "verdict": "pass",
+   "run": "qc",
+   "seeded_max_relative": 5.9334562233007634e-08,
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in the core decoder)"
+  },
+  {
+   "format": "Tigger lsm (ASCII)",
+   "direction": "read",
+   "oracle": "Tigger 1.8.0 load",
+   "verdict": "pass",
+   "run": "sky",
+   "max_angle_ulps": 1,
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "Tigger lsm.html",
+   "direction": "write and read",
+   "oracle": "Tigger load, tigger-convert round trip",
+   "verdict": "pass",
+   "run": "sky",
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "Tigger lsm (ASCII)",
+   "direction": "write",
+   "oracle": "Tigger load; core read of tigger-convert's ASCII",
+   "verdict": "fail",
+   "run": "sky",
+   "note": "Tigger loads the core's file; tigger-convert writes multi-term spectra as a Python list in the spi column, which neither Tigger nor the core can read",
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "WSClean source list",
+   "direction": "write",
+   "oracle": "africanus load; Crystalball 0.4.3 predict, float32 bound",
+   "verdict": "fail",
+   "run": "sky",
+   "crystalball": {
+    "rows": 192,
+    "channels": 2048,
+    "max_error_over_bound": 0.008185813860343097,
+    "max_abs_error": 2.9802322387695312e-08,
+    "max_error_in_ulps_of_v": 0.03125,
+    "bit_identical_cells_fraction": 0.999481201171875,
+    "cross_hands_zero": true,
+    "core_predict_s": 0.9361878960044123,
+    "crystalball_wall_s": 15.396715579990996,
+    "pass": true
+   },
+   "africanus_problems": 9,
+   "post_hoc": {
+    "africanus_problems": 4
+   },
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "WSClean source list",
+   "direction": "read",
+   "oracle": "WSClean 3.7 -save-source-list, africanus load",
+   "verdict": "pass",
+   "run": "sky",
+   "components": 69,
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "BBS skymodel",
+   "direction": "read",
+   "oracle": "Tigger's BBS load of tigger-convert -o BBS",
+   "verdict": "fail",
+   "run": "sky",
+   "note": "Tigger skips the multi-term source of its own file and writes axes and orientation in radians",
+   "post_hoc": {
+    "against_the_lsm": [
+     "B301G emaj 6.002259984851044e-05 vs 2.9099777582321024e-10",
+     "B301G emin 2.356854246238352e-05 vs 1.1426351829574562e-10",
+     "B301G pa 0.9525839823339516 vs 0.016625726893486955"
+    ]
+   },
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "DDFacet DicoModel",
+   "direction": "read",
+   "oracle": "DDFacet 1.0.0.0 MyPickle.Load",
+   "verdict": "pass",
+   "run": "sky",
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "DDFacet ClusterCat",
+   "direction": "read and write",
+   "oracle": "np.load / np.save (DDFacet's NumPy 2.3.2)",
+   "verdict": "pass",
+   "run": "sky",
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  {
+   "format": "H5parm",
+   "direction": "write and read",
+   "oracle": "losoto 2.7.1 H5parm API; losoto-made file",
+   "verdict": "pass",
+   "run": "h5",
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt)"
+  },
+  {
+   "format": "H5parm",
+   "direction": "apply",
+   "oracle": "DP3 6.6.0 applycal, 1e-6 relative",
+   "verdict": "fail",
+   "run": "h5",
+   "post_hoc": {
+    "verdict": "pass",
+    "max_relative": 4.015886619742861e-07
+   },
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt)"
+  },
+  {
+   "format": "killMS solutions",
+   "direction": "write",
+   "oracle": "killMS 3.3.0 MergeSols.py",
+   "verdict": "pass",
+   "run": "kms",
+   "G_max_relative": 0.0,
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in the core reader)"
+  },
+  {
+   "format": "killMS solutions",
+   "direction": "read",
+   "oracle": "np.load(allow_pickle=True) of MergeSols' output",
+   "verdict": "pass",
+   "run": "kms",
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in the core reader)"
+  },
+  {
+   "format": "CASA flag versions",
+   "direction": "write",
+   "oracle": "CASA flagmanager restore and list",
+   "verdict": "pass",
+   "run": "fv",
+   "run_dir": "dfio-20261030-01",
+   "label": "frozen"
+  }
+ ],
+ "runs": {
+  "ct": {
+   "run_dir": "dfio-20261030-01",
+   "label": "frozen"
+  },
+  "ct-posthoc": {
+   "run_dir": "dfio-20261030-02",
+   "label": "post hoc"
+  },
+  "qc": {
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in the core decoder)"
+  },
+  "sky": {
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in Crystalball)"
+  },
+  "sky-posthoc": {
+   "run_dir": "dfio-20261030-04",
+   "label": "post hoc"
+  },
+  "h5": {
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt)"
+  },
+  "h5-posthoc": {
+   "run_dir": "dfio-20261030-04",
+   "label": "post hoc"
+  },
+  "kms": {
+   "run_dir": "dfio-20261030-03",
+   "label": "frozen (second attempt, the first stopped in the core reader)"
+  },
+  "fv": {
+   "run_dir": "dfio-20261030-01",
+   "label": "frozen"
+  }
+ },
+ "oracle_images": {
+  "formats": [
+   "rang-formats-oracle:20261030",
+   "sha256:6ddf03590ed39669ee0fb2a2128da831f173a07de4fe873f1768a3ab6388b89b"
+  ],
+  "casa": "rang-o-casa:6.7.6.14",
+  "ms_reader": "rang-ms-reader:local"
+ },
+ "steps": {
+  "ct": {
+   "read": {
+    "K": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.015651926019927487,
+     "summary": {
+      "vis_cal": "K Jones",
+      "rows": 12,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       -1
+      ],
+      "times": 3,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       1,
+       2
+      ],
+      "par_type": "Float",
+      "flagged_fraction": 0.0
+     }
+    },
+    "G": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.012452175986254588,
+     "summary": {
+      "vis_cal": "G Jones",
+      "rows": 12,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 3,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       1,
+       2
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.0
+     }
+    },
+    "B": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.010418053017929196,
+     "summary": {
+      "vis_cal": "B Jones",
+      "rows": 4,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 1,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       2048,
+       2
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.7578125
+     }
+    },
+    "Df": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.010687604022677988,
+     "summary": {
+      "vis_cal": "Df Jones",
+      "rows": 4,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 1,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       2048,
+       2
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.7578125
+     }
+    },
+    "T": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.014897098997607827,
+     "summary": {
+      "vis_cal": "T Jones",
+      "rows": 12,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 3,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       1,
+       1
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.0
+     }
+    }
+   },
+   "write_identity": {
+    "K": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.06342271598987281
+    },
+    "G": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.05814337602350861
+    },
+    "B": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.05828438600292429
+    },
+    "Df": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.05822261699358933
+    },
+    "T": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.060599314980208874
+    }
+   },
+   "apply_copies_bit_identical": {
+    "copy-core": {
+     "CORRECTED_DATA": true,
+     "FLAG": true
+    },
+    "copy-core-T": {
+     "CORRECTED_DATA": true,
+     "FLAG": true
+    }
+   },
+   "semantics": {
+    "casa-K": {
+     "tables": [
+      "/e4/x.K"
+     ],
+     "cells": 470224,
+     "max_relative": 2.5434266473189e-07,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.2280146609991789,
+     "pass": true
+    },
+    "casa-G": {
+     "tables": [
+      "/e4/x.G"
+     ],
+     "cells": 470224,
+     "max_relative": 3.3975129997603147e-07,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.17839392300811596,
+     "pass": true
+    },
+    "casa-B": {
+     "tables": [
+      "/e4/x.B"
+     ],
+     "cells": 376696,
+     "max_relative": 4.49557295912373e-07,
+     "solution_flags_applied": false,
+     "flags_equal": false,
+     "core_correct_s": 0.17086029998608865,
+     "pass": false
+    },
+    "casa-Df": {
+     "tables": [
+      "/e4/x.Df"
+     ],
+     "cells": 376696,
+     "max_relative": 0.1288882673805177,
+     "solution_flags_applied": false,
+     "flags_equal": false,
+     "core_correct_s": 0.16326796999783255,
+     "pass": false
+    },
+    "casa-T": {
+     "tables": [
+      "/run/ct/casa/x.T"
+     ],
+     "cells": 470224,
+     "max_relative": 3.433131839535564e-07,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.15459985702182166,
+     "pass": true
+    },
+    "casa-chain": {
+     "tables": [
+      "/e4/x.K",
+      "/e4/x.G",
+      "/e4/x.B",
+      "/e4/x.Df"
+     ],
+     "cells": 376696,
+     "max_relative": 0.7128917671882319,
+     "solution_flags_applied": false,
+     "flags_equal": false,
+     "core_correct_s": 0.6507431239879224,
+     "pass": false
+    },
+    "synth-G": {
+     "tables": [
+      "/run/ct/synth/s.G"
+     ],
+     "cells": 352248,
+     "max_relative": 1.988379145621888,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.16564676599227823,
+     "pass": false
+    },
+    "synth-B": {
+     "tables": [
+      "/run/ct/synth/s.B"
+     ],
+     "cells": 470224,
+     "max_relative": 4.678298758855494e-07,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.16010720800841227,
+     "pass": true
+    },
+    "synth-K": {
+     "tables": [
+      "/run/ct/synth/s.K"
+     ],
+     "cells": 470224,
+     "max_relative": 2.6791117444473205e-07,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.17968410698813386,
+     "pass": true
+    },
+    "synth-T": {
+     "tables": [
+      "/run/ct/synth/s.T"
+     ],
+     "cells": 470224,
+     "max_relative": 7.297809247145463e-07,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.17441971899825148,
+     "pass": true
+    },
+    "synth-chain": {
+     "tables": [
+      "/run/ct/synth/s.G",
+      "/run/ct/synth/s.B",
+      "/run/ct/synth/s.K"
+     ],
+     "cells": 352248,
+     "max_relative": 1.9883793993410486,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.494220778986346,
+     "pass": false
+    }
+   },
+   "verdicts": {
+    "CT-read": true,
+    "CT-write-identity": true,
+    "CT-semantics": false,
+    "CT-synthetic": false
+   },
+   "wall_s": 24.164424473012332
+  },
+  "ct-posthoc": {
+   "read": {
+    "K": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.016854227986186743,
+     "summary": {
+      "vis_cal": "K Jones",
+      "rows": 12,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       -1
+      ],
+      "times": 3,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       1,
+       2
+      ],
+      "par_type": "Float",
+      "flagged_fraction": 0.0
+     }
+    },
+    "G": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.014978569000959396,
+     "summary": {
+      "vis_cal": "G Jones",
+      "rows": 12,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 3,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       1,
+       2
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.0
+     }
+    },
+    "B": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.012323419010499492,
+     "summary": {
+      "vis_cal": "B Jones",
+      "rows": 4,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 1,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       2048,
+       2
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.7578125
+     }
+    },
+    "Df": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.012786613981006667,
+     "summary": {
+      "vis_cal": "Df Jones",
+      "rows": 4,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 1,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       2048,
+       2
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.7578125
+     }
+    },
+    "T": {
+     "problems": [],
+     "pass": true,
+     "read_s": 0.01575266500003636,
+     "summary": {
+      "vis_cal": "T Jones",
+      "rows": 12,
+      "antennas": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "reference_antenna": [
+       0
+      ],
+      "times": 3,
+      "spws": [
+       0
+      ],
+      "param_shape": [
+       1,
+       1
+      ],
+      "par_type": "Complex",
+      "flagged_fraction": 0.0
+     }
+    }
+   },
+   "write_identity": {
+    "K": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.08188465400598943
+    },
+    "G": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.059722323989262804
+    },
+    "B": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.05942619699635543
+    },
+    "Df": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.05886058497708291
+    },
+    "T": {
+     "identical_but_gaps": true,
+     "identical": false,
+     "differ": [],
+     "write_s": 0.05975925599341281
+    }
+   },
+   "apply_copies_bit_identical": {
+    "copy-core": {
+     "CORRECTED_DATA": true,
+     "FLAG": true
+    },
+    "copy-core-T": {
+     "CORRECTED_DATA": true,
+     "FLAG": true
+    }
+   },
+   "semantics": {
+    "casa-K": {
+     "tables": [
+      "/e4/x.K"
+     ],
+     "cells": 470224,
+     "max_relative": 2.543426651152908e-07,
+     "cells_above_1e-6": 0,
+     "max_error_float32_eps_of_cell": 2.129719756724922,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.0697845020040404,
+     "pass": true
+    },
+    "casa-G": {
+     "tables": [
+      "/e4/x.G"
+     ],
+     "cells": 470224,
+     "max_relative": 3.397513001458318e-07,
+     "cells_above_1e-6": 0,
+     "max_error_float32_eps_of_cell": 2.2261160497780903,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.05692668099072762,
+     "pass": true
+    },
+    "casa-B": {
+     "tables": [
+      "/e4/x.B"
+     ],
+     "cells": 470224,
+     "max_relative": 4.4955729572377874e-07,
+     "cells_above_1e-6": 0,
+     "max_error_float32_eps_of_cell": 3.771159927366856,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.10149733198340982,
+     "pass": true
+    },
+    "casa-Df": {
+     "tables": [
+      "/e4/x.Df"
+     ],
+     "cells": 470224,
+     "max_relative": 6.150123225763773e-05,
+     "cells_above_1e-6": 6622,
+     "max_error_float32_eps_of_cell": 0.23158951014170814,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.10306275301263668,
+     "pass": false
+    },
+    "casa-T": {
+     "tables": [
+      "/run/ct/casa/x.T"
+     ],
+     "cells": 470224,
+     "max_relative": 3.433131841535106e-07,
+     "cells_above_1e-6": 0,
+     "max_error_float32_eps_of_cell": 2.794830011796051,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.028790957003366202,
+     "pass": true
+    },
+    "casa-chain": {
+     "tables": [
+      "/e4/x.K",
+      "/e4/x.G",
+      "/e4/x.B",
+      "/e4/x.Df"
+     ],
+     "cells": 470224,
+     "max_relative": 6.85344291625889e-05,
+     "cells_above_1e-6": 13342,
+     "max_error_float32_eps_of_cell": 5.372758546283334,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.2321640260051936,
+     "pass": false
+    },
+    "synth-G": {
+     "tables": [
+      "/run/ct/synth/s.G"
+     ],
+     "cells": 352248,
+     "max_relative": 1.0372325585506527e-06,
+     "cells_above_1e-6": 28,
+     "max_error_float32_eps_of_cell": 8.210641382294371,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.0305256069987081,
+     "pass": false
+    },
+    "synth-B": {
+     "tables": [
+      "/run/ct/synth/s.B"
+     ],
+     "cells": 470224,
+     "max_relative": 4.678298756793726e-07,
+     "cells_above_1e-6": 0,
+     "max_error_float32_eps_of_cell": 3.596372067160858,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.07502119700075127,
+     "pass": true
+    },
+    "synth-K": {
+     "tables": [
+      "/run/ct/synth/s.K"
+     ],
+     "cells": 470224,
+     "max_relative": 2.679111746389662e-07,
+     "cells_above_1e-6": 0,
+     "max_error_float32_eps_of_cell": 2.1070438384776886,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.030147661018418148,
+     "pass": true
+    },
+    "synth-T": {
+     "tables": [
+      "/run/ct/synth/s.T"
+     ],
+     "cells": 470224,
+     "max_relative": 7.297809247145463e-07,
+     "cells_above_1e-6": 0,
+     "max_error_float32_eps_of_cell": 6.121846103307841,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.025448969012359157,
+     "pass": true
+    },
+    "synth-chain": {
+     "tables": [
+      "/run/ct/synth/s.G",
+      "/run/ct/synth/s.B",
+      "/run/ct/synth/s.K"
+     ],
+     "cells": 352248,
+     "max_relative": 1.2327124929495977e-06,
+     "cells_above_1e-6": 367,
+     "max_error_float32_eps_of_cell": 10.340741880056939,
+     "solution_flags_applied": true,
+     "flags_equal": true,
+     "core_correct_s": 0.13723763200687245,
+     "pass": false
+    }
+   },
+   "verdicts": {
+    "CT-read": true,
+    "CT-write-identity": true,
+    "CT-semantics": false,
+    "CT-synthetic": false
+   },
+   "wall_s": 23.474597527005244
+  },
+  "qc": {
+   "read": {
+    "archived": {
+     "problems": [],
+     "pass": true
+    },
+    "delay": {
+     "problems": [],
+     "pass": true
+    }
+   },
+   "seeded_store_read_by_daskms": {
+    "problems": [],
+    "pass": true
+   },
+   "rewrite": {
+    "archived": {
+     "xds_equal": true,
+     "metadata": {
+      "files": 29,
+      "only_one_side": [],
+      "differ": [],
+      "identical": true
+     },
+     "read_s": 0.0032447410048916936,
+     "write_s": 0.006698476994642988
+    },
+    "delay": {
+     "xds_equal": true,
+     "metadata": {
+      "files": 39,
+      "only_one_side": [],
+      "differ": [],
+      "identical": true
+     },
+     "read_s": 0.01045638500363566,
+     "write_s": 0.020654142019338906
+    }
+   },
+   "apply_bit_identical": {
+    "core-archived": true,
+    "core-delay": true
+   },
+   "seeded_apply": {
+    "cells": 470224,
+    "max_relative": 5.9334562233007634e-08,
+    "pass": true
+   },
+   "summary": {
+    "archived": {
+     "G": [
+      {
+       "name": "G_0",
+       "type": "complex",
+       "dims": {
+        "antenna": 4,
+        "time_chunk": 1,
+        "freq_chunk": 1,
+        "correlation": 4,
+        "direction": 1,
+        "gain_time": 16,
+        "gain_freq": 64
+       },
+       "field": "J1939-6342",
+       "scan": 2,
+       "variables": [
+        "antenna",
+        "conv_iter",
+        "conv_perc",
+        "correlation",
+        "direction",
+        "freq_chunk",
+        "gain_flags",
+        "gain_freq",
+        "gain_time",
+        "gains",
+        "jhj",
+        "time_chunk"
+       ]
+      }
+     ]
+    },
+    "delay": {
+     "K": [
+      {
+       "name": "K_0",
+       "type": "delay",
+       "dims": {
+        "antenna": 4,
+        "time_chunk": 1,
+        "freq_chunk": 1,
+        "correlation": 4,
+        "direction": 1,
+        "gain_time": 16,
+        "gain_freq": 2048,
+        "param_time": 16,
+        "param_freq": 1,
+        "param_name": 2
+       },
+       "field": "J1939-6342",
+       "scan": 2,
+       "variables": [
+        "antenna",
+        "conv_iter",
+        "conv_perc",
+        "correlation",
+        "direction",
+        "freq_chunk",
+        "gain_flags",
+        "gain_freq",
+        "gain_time",
+        "gains",
+        "jhj",
+        "param_flags",
+        "param_freq",
+        "param_name",
+        "param_time",
+        "params",
+        "time_chunk"
+       ]
+      }
+     ]
+    }
+   },
+   "verdicts": {
+    "QC-read": true,
+    "QC-write-a": true,
+    "QC-write-b": true,
+    "QC-write-c": true
+   },
+   "wall_s": 187.17303456398076
+  },
+  "sky": {
+   "lsm_sha256": "0964b9f4c547bb802bfb16a2e8fdccddff84beeec05b6f3492521a46fa77d101",
+   "components": 196,
+   "SKY-tigger-read": {
+    "problems": [],
+    "max_angle_ulps": 1,
+    "pass": true
+   },
+   "SKY-html": {
+    "tigger_loads_core": {
+     "problems": [],
+     "max_angle_ulps": 0
+    },
+    "core_reads_tigger_convert": {
+     "problems": []
+    },
+    "pass": true,
+    "reported": {
+     "tigger_fixed_point_hashseed0": true,
+     "core_html_equals_tigger_html_of_lsm": false,
+     "lines_differing_from_tigger_html_of_lsm": 201
+    }
+   },
+   "SKY-ascii": {
+    "tigger_loads_core": {
+     "problems": []
+    },
+    "core_reads_tigger_ascii": {
+     "problems": [
+      "core cannot read tigger-convert's ASCII: lsm line 2: could not convert string to float: '[-0.0977136958908,'"
+     ]
+    },
+    "pass": false
+   },
+   "SKY-wsclean": {
+    "africanus_reads_core": {
+     "problems": [
+      "F292aG MajorAxis 1.36e-20",
+      "F292aG MinorAxis 3.39e-21",
+      "I311G MinorAxis 3.39e-21",
+      "I311G Orientation 4.44e-16",
+      "K284G MinorAxis 4.24e-22",
+      "T132G MajorAxis 3.39e-21",
+      "ae041aG MajorAxis 3.39e-21",
+      "ao314G Orientation 1.11e-16",
+      "B301aG MinorAxis -4.24e-22"
+     ],
+     "problem_count": 9
+    },
+    "core_reads_its_own": {
+     "problems": [
+      "F292aG emaj 7.417734509672507e-05 vs 7.417734509672509e-05",
+      "F292aG emin 2.133667105379958e-05 vs 2.1336671053799585e-05",
+      "I311G emin 1.549052686846804e-05 vs 1.5490526868468042e-05",
+      "I311G pa 2.583856438504291 vs 2.5838564385042915",
+      "K284G emin 3.250582943096908e-06 vs 3.2505829430969085e-06",
+      "T132G emaj 1.9181475210125412e-05 vs 1.9181475210125416e-05",
+      "ae041aG emaj 2.238581069622002e-05 vs 2.2385810696220024e-05",
+      "ao314G pa 0.9704848740840293 vs 0.9704848740840294",
+      "B301aG emin 2.0114527971193367e-06 vs 2.0114527971193363e-06"
+     ]
+    },
+    "crystalball": {
+     "rows": 192,
+     "channels": 2048,
+     "max_error_over_bound": 0.008185813860343097,
+     "max_abs_error": 2.9802322387695312e-08,
+     "max_error_in_ulps_of_v": 0.03125,
+     "bit_identical_cells_fraction": 0.999481201171875,
+     "cross_hands_zero": true,
+     "core_predict_s": 0.9361878960044123,
+     "crystalball_wall_s": 15.396715579990996,
+     "pass": true
+    },
+    "wsclean_list_read": {
+     "components": 69,
+     "problems": [],
+     "pass": true
+    },
+    "pass": false
+   },
+   "SKY-bbs": {
+    "problems": [
+     "names or order differ"
+    ],
+    "problem_count": 1,
+    "max_angle_ulps": null,
+    "against_the_lsm": [
+     "A0 spectrum",
+     "B301G spectrum",
+     "B301G emaj 6.002259984851044e-05 vs 2.9099777582321024e-10",
+     "B301G emin 2.356854246238352e-05 vs 1.1426351829574562e-10",
+     "B301G pa 0.9525839823339516 vs 0.016625726893486955",
+     "C023G spectrum",
+     "C023G emaj 6.139025442144838e-05 vs 2.9762835230313353e-10",
+     "C023G emin 3.3443086152886086e-05 vs 1.6213665705444055e-10",
+     "C023G pa 2.4075705452354197 vs 0.04202003298839315",
+     "D291G spectrum"
+    ],
+    "pass": false
+   },
+   "SKY-dicomodel": {
+    "structure_equal": true,
+    "arrays_bit_exact": true,
+    "crafted_pickle_refused": true,
+    "summary": {
+     "type": "HMP",
+     "ref_freq": 1283895507.8125,
+     "model_shape": [
+      1,
+      1,
+      525,
+      525
+     ],
+     "components": 75,
+     "keys": [
+      "Comp",
+      "GD",
+      "ListScales",
+      "ModelShape",
+      "RefFreq",
+      "Type"
+     ]
+    },
+    "read_s": 0.0010744250030256808,
+    "pass": true
+   },
+   "SKY-clustercat": {
+    "read_bit_exact": true,
+    "write_byte_identical": true,
+    "dtype": "[('Name', 'S200'), ('ra', '<f8'), ('dec', '<f8'), ('SumI', '<f8'), ('Cluster', '<i8'), ('l', '<f8'), ('m', '<f8')]",
+    "rows": 9,
+    "pass": true
+   },
+   "verdicts": {
+    "SKY-tigger-read": true,
+    "SKY-html": true,
+    "SKY-ascii": false,
+    "SKY-wsclean": false,
+    "SKY-bbs": false,
+    "SKY-dicomodel": true,
+    "SKY-clustercat": true
+   },
+   "wall_s": 36.449161584023386
+  },
+  "sky-posthoc": {
+   "lsm_sha256": "0964b9f4c547bb802bfb16a2e8fdccddff84beeec05b6f3492521a46fa77d101",
+   "components": 196,
+   "SKY-tigger-read": {
+    "problems": [],
+    "max_angle_ulps": 1,
+    "pass": true
+   },
+   "SKY-html": {
+    "tigger_loads_core": {
+     "problems": [],
+     "max_angle_ulps": 0
+    },
+    "core_reads_tigger_convert": {
+     "problems": []
+    },
+    "pass": true,
+    "reported": {
+     "tigger_fixed_point_hashseed0": true,
+     "core_html_equals_tigger_html_of_lsm": false,
+     "lines_differing_from_tigger_html_of_lsm": 201
+    }
+   },
+   "SKY-ascii": {
+    "tigger_loads_core": {
+     "problems": []
+    },
+    "core_reads_tigger_ascii": {
+     "problems": [
+      "core cannot read tigger-convert's ASCII: lsm line 2: could not convert string to float: '[-0.0977136958908,'"
+     ]
+    },
+    "pass": false
+   },
+   "SKY-wsclean": {
+    "africanus_reads_core": {
+     "problems": [
+      "F292aG MinorAxis 3.39e-21",
+      "K284G MinorAxis 4.24e-22",
+      "T132G MajorAxis 3.39e-21",
+      "ae041aG MajorAxis 3.39e-21"
+     ],
+     "problem_count": 4
+    },
+    "core_reads_its_own": {
+     "problems": [
+      "F292aG emin 2.133667105379958e-05 vs 2.1336671053799585e-05",
+      "K284G emin 3.250582943096908e-06 vs 3.2505829430969085e-06",
+      "T132G emaj 1.9181475210125412e-05 vs 1.9181475210125416e-05",
+      "ae041aG emaj 2.238581069622002e-05 vs 2.2385810696220024e-05"
+     ]
+    },
+    "crystalball": {
+     "rows": 192,
+     "channels": 2048,
+     "max_error_over_bound": 0.008185813860343097,
+     "max_abs_error": 2.9802322387695312e-08,
+     "max_error_in_ulps_of_v": 0.03125,
+     "bit_identical_cells_fraction": 0.999481201171875,
+     "cross_hands_zero": true,
+     "core_predict_s": 0.8683377190027386,
+     "crystalball_wall_s": 17.481181119015673,
+     "pass": true
+    },
+    "wsclean_list_read": {
+     "components": 69,
+     "problems": [],
+     "pass": true
+    },
+    "pass": false
+   },
+   "SKY-bbs": {
+    "problems": [
+     "names or order differ"
+    ],
+    "problem_count": 1,
+    "max_angle_ulps": null,
+    "against_the_lsm": [
+     "B301G emaj 6.002259984851044e-05 vs 2.9099777582321024e-10",
+     "B301G emin 2.356854246238352e-05 vs 1.1426351829574562e-10",
+     "B301G pa 0.9525839823339516 vs 0.016625726893486955",
+     "C023G emaj 6.139025442144838e-05 vs 2.9762835230313353e-10",
+     "C023G emin 3.3443086152886086e-05 vs 1.6213665705444055e-10",
+     "C023G pa 2.4075705452354197 vs 0.04202003298839315",
+     "D291G emaj 4.9566180254484996e-05 vs 2.403036230771567e-10",
+     "D291G emin 4.788618410470615e-05 vs 2.3215877190091539e-10",
+     "D291G pa 0.8322570412679723 vs 0.01452562559303244",
+     "C023aG emaj 5.634636253155577e-05 vs 2.7317487436055987e-10"
+    ],
+    "pass": false
+   },
+   "SKY-dicomodel": {
+    "structure_equal": true,
+    "arrays_bit_exact": true,
+    "crafted_pickle_refused": true,
+    "summary": {
+     "type": "HMP",
+     "ref_freq": 1283895507.8125,
+     "model_shape": [
+      1,
+      1,
+      525,
+      525
+     ],
+     "components": 75,
+     "keys": [
+      "Comp",
+      "GD",
+      "ListScales",
+      "ModelShape",
+      "RefFreq",
+      "Type"
+     ]
+    },
+    "read_s": 0.0008150359790306538,
+    "pass": true
+   },
+   "SKY-clustercat": {
+    "read_bit_exact": true,
+    "write_byte_identical": true,
+    "dtype": "[('Name', 'S200'), ('ra', '<f8'), ('dec', '<f8'), ('SumI', '<f8'), ('Cluster', '<i8'), ('l', '<f8'), ('m', '<f8')]",
+    "rows": 9,
+    "pass": true
+   },
+   "verdicts": {
+    "SKY-tigger-read": true,
+    "SKY-html": true,
+    "SKY-ascii": false,
+    "SKY-wsclean": false,
+    "SKY-bbs": false,
+    "SKY-dicomodel": true,
+    "SKY-clustercat": true
+   },
+   "wall_s": 49.69198301399592
+  },
+  "h5": {
+   "H5-losoto": {
+    "losoto_reads_core": [],
+    "core_reads_losoto": [],
+    "core_reads_its_own": [],
+    "listing": {
+     "only_core": [],
+     "only_losoto": [],
+     "class_or_dtype_differ": [
+      "/sol000/antenna",
+      "/sol000/source"
+     ],
+     "attrs_differ": {
+      "/": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "PYTABLES_FORMAT_VERSION",
+        "'2.1'"
+       ],
+       [
+        "PYTABLES_FORMAT_VERSION",
+        "np.str_('2.1')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ]
+      ],
+      "/sol000": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ],
+       [
+        "h5parm_version",
+        "np.bytes_(b'1.0')"
+       ],
+       [
+        "h5parm_version",
+        "np.str_('1.0')"
+       ]
+      ],
+      "/sol000/amplitude000": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "TITLE",
+        "'amplitude'"
+       ],
+       [
+        "TITLE",
+        "np.str_('amplitude')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ],
+       [
+        "parmdb_type",
+        "np.bytes_(b'')"
+       ],
+       [
+        "parmdb_type",
+        "np.str_('')"
+       ]
+      ],
+      "/sol000/amplitude000/ant": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/dir": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/freq": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/pol": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/time": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/val": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/weight": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/antenna": [
+       [
+        "CLASS",
+        "'TABLE'"
+       ],
+       [
+        "CLASS",
+        "np.str_('TABLE')"
+       ],
+       [
+        "FIELD_0_NAME",
+        "'name'"
+       ],
+       [
+        "FIELD_0_NAME",
+        "np.str_('name')"
+       ],
+       [
+        "FIELD_1_NAME",
+        "'position'"
+       ],
+       [
+        "FIELD_1_NAME",
+        "np.str_('position')"
+       ],
+       [
+        "TITLE",
+        "'Antenna names and positions'"
+       ],
+       [
+        "TITLE",
+        "np.str_('Antenna names and positions')"
+       ],
+       [
+        "VERSION",
+        "'2.7'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.7')"
+       ]
+      ],
+      "/sol000/phase000": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "TITLE",
+        "'phase'"
+       ],
+       [
+        "TITLE",
+        "np.str_('phase')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ],
+       [
+        "parmdb_type",
+        "np.bytes_(b'')"
+       ],
+       [
+        "parmdb_type",
+        "np.str_('')"
+       ]
+      ],
+      "/sol000/phase000/ant": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/dir": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/freq": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/pol": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/time": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/val": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/weight": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/source": [
+       [
+        "CLASS",
+        "'TABLE'"
+       ],
+       [
+        "CLASS",
+        "np.str_('TABLE')"
+       ],
+       [
+        "FIELD_0_NAME",
+        "'name'"
+       ],
+       [
+        "FIELD_0_NAME",
+        "np.str_('name')"
+       ],
+       [
+        "FIELD_1_NAME",
+        "'dir'"
+       ],
+       [
+        "FIELD_1_NAME",
+        "np.str_('dir')"
+       ],
+       [
+        "TITLE",
+        "'Source names and directions'"
+       ],
+       [
+        "TITLE",
+        "np.str_('Source names and directions')"
+       ],
+       [
+        "VERSION",
+        "'2.7'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.7')"
+       ]
+      ]
+     }
+    },
+    "write_s": 0.08148556898231618,
+    "bytes": 16828232,
+    "pass": true
+   },
+   "H5-dp3": {
+    "error": "DP3 applycal failed: \nMsReader\n  input MS:           /run/h5/dp3.ms\n  band                0\n  startchan:          0  (0)\n  nchan:              2048  (0)\n  ncorrelations:      4\n  nbaselines:         6\n  first time:         2021/08/18/13:44:07\n  maximum time:       2021/08/18/13:48:15\n  ntimes:             32\n  time interval:      7.99662\n  DATA column:        DATA\n  extra data columns: \n  WEIGHT column:      WEIGHT_SPECTRUM\n  FLAG column:        FLAG\n  autoweight:         false\nApplyCal ac.amp.\n  H5Parm:         /run/h5/core.h5\n    SolSet:       \n    SolTab:       amplitude000\n  Direction:      0\n  Interpolation:  nearest\n  Missing antennas: error\n  Correction:       diagonal amplitude\n  Update weights:   false\n  Invert:           true\n  TimeSlotsPerParmUpdate: 200\nApplyCal ac.ph.\n  H5Parm:         /run/h5/core.h5\n    SolSet:       \n    SolTab:       phase000\n  Direction:      0\n  Interpolation:  nearest\n  Missing antennas: error\n  Correction:       diagonal phase\n  Update weights:   false\n  Invert:           true\n  TimeSlotsPerParmUpdate: 200\nMSUpdater msout.\n  MS:             /run/h5/dp3.ms\n  datacolumn:     CORRECTED_DATA  (has been added to the MS)\n  flagcolumn:     FLAG\n  weightcolumn    WEIGHT_SPECTRUM\n  writing:        data flags\n  Compressed:     no\n  flush:          0\nProcessing 32 time slots ...\n\n0%....10....20....30....40....50....60....70....80....90....100%\nTraceback (most recent call last):\n  File \"/opt/h5/bin/DP3.py\", line 10, in <module>\n    sys.exit(entrypoint())\n             ^^^^^^^^^^^^\n  File \"/opt/h5/lib/python3.12/site-packages/dp3/__init__.py\", line 81, in entrypoint\n    return execute_from_command_line(sys.argv)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: SolTab has no element m000 in ant\n\n",
+    "pass": false,
+    "open": true
+   },
+   "verdicts": {
+    "H5-losoto": true,
+    "H5-dp3": false
+   },
+   "wall_s": 8.523292367986869
+  },
+  "h5-posthoc": {
+   "H5-losoto": {
+    "losoto_reads_core": [],
+    "core_reads_losoto": [],
+    "core_reads_its_own": [],
+    "listing": {
+     "only_core": [],
+     "only_losoto": [],
+     "class_or_dtype_differ": [
+      "/sol000/antenna",
+      "/sol000/source"
+     ],
+     "attrs_differ": {
+      "/": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "PYTABLES_FORMAT_VERSION",
+        "'2.1'"
+       ],
+       [
+        "PYTABLES_FORMAT_VERSION",
+        "np.str_('2.1')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ]
+      ],
+      "/sol000": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ],
+       [
+        "h5parm_version",
+        "np.bytes_(b'1.0')"
+       ],
+       [
+        "h5parm_version",
+        "np.str_('1.0')"
+       ]
+      ],
+      "/sol000/amplitude000": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "TITLE",
+        "'amplitude'"
+       ],
+       [
+        "TITLE",
+        "np.str_('amplitude')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ],
+       [
+        "parmdb_type",
+        "np.bytes_(b'')"
+       ],
+       [
+        "parmdb_type",
+        "np.str_('')"
+       ]
+      ],
+      "/sol000/amplitude000/ant": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/dir": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/freq": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/pol": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/time": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/val": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/amplitude000/weight": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/antenna": [
+       [
+        "CLASS",
+        "'TABLE'"
+       ],
+       [
+        "CLASS",
+        "np.str_('TABLE')"
+       ],
+       [
+        "FIELD_0_NAME",
+        "'name'"
+       ],
+       [
+        "FIELD_0_NAME",
+        "np.str_('name')"
+       ],
+       [
+        "FIELD_1_NAME",
+        "'position'"
+       ],
+       [
+        "FIELD_1_NAME",
+        "np.str_('position')"
+       ],
+       [
+        "TITLE",
+        "'Antenna names and positions'"
+       ],
+       [
+        "TITLE",
+        "np.str_('Antenna names and positions')"
+       ],
+       [
+        "VERSION",
+        "'2.7'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.7')"
+       ]
+      ],
+      "/sol000/phase000": [
+       [
+        "CLASS",
+        "'GROUP'"
+       ],
+       [
+        "CLASS",
+        "np.str_('GROUP')"
+       ],
+       [
+        "TITLE",
+        "'phase'"
+       ],
+       [
+        "TITLE",
+        "np.str_('phase')"
+       ],
+       [
+        "VERSION",
+        "'1.0'"
+       ],
+       [
+        "VERSION",
+        "np.str_('1.0')"
+       ],
+       [
+        "parmdb_type",
+        "np.bytes_(b'')"
+       ],
+       [
+        "parmdb_type",
+        "np.str_('')"
+       ]
+      ],
+      "/sol000/phase000/ant": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/dir": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/freq": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/pol": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/time": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/val": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/phase000/weight": [
+       [
+        "CLASS",
+        "'ARRAY'"
+       ],
+       [
+        "CLASS",
+        "np.str_('ARRAY')"
+       ],
+       [
+        "FLAVOR",
+        "'numpy'"
+       ],
+       [
+        "FLAVOR",
+        "np.str_('numpy')"
+       ],
+       [
+        "TITLE",
+        "''"
+       ],
+       [
+        "TITLE",
+        "np.str_('')"
+       ],
+       [
+        "VERSION",
+        "'2.4'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.4')"
+       ]
+      ],
+      "/sol000/source": [
+       [
+        "CLASS",
+        "'TABLE'"
+       ],
+       [
+        "CLASS",
+        "np.str_('TABLE')"
+       ],
+       [
+        "FIELD_0_NAME",
+        "'name'"
+       ],
+       [
+        "FIELD_0_NAME",
+        "np.str_('name')"
+       ],
+       [
+        "FIELD_1_NAME",
+        "'dir'"
+       ],
+       [
+        "FIELD_1_NAME",
+        "np.str_('dir')"
+       ],
+       [
+        "TITLE",
+        "'Source names and directions'"
+       ],
+       [
+        "TITLE",
+        "np.str_('Source names and directions')"
+       ],
+       [
+        "VERSION",
+        "'2.7'"
+       ],
+       [
+        "VERSION",
+        "np.str_('2.7')"
+       ]
+      ]
+     }
+    },
+    "write_s": 0.07234399698791094,
+    "bytes": 16828312,
+    "pass": true
+   },
+   "H5-dp3": {
+    "cells": 470224,
+    "max_relative": 4.015886619742861e-07,
+    "dp3_log_tail": "0%   0%   0%\n2000-2009:       0%   0%   0%   0%   0%   0%   0%   0%   0%   0%\n2010-2019:       0%   0%   0%   0%   0%   0%   0%   0%   0%   0%\n2020-2029:       0%   0%   0%   0%   0%   0%   0%   0%   0%   0%\n2030-2039:       0%   0%   0%   0%   0%   0%   0%   0%   0%   0%\n2040-2047:       0%   0%   0%   0%   0%   0%   0%   0%\nTotal flagged:     0.000%   (0 out of 393216 visibilities)\n\nTotal DP3 time       0.19 real         0.1 user        0.13 system\n   13.3% (   24 ms) MsReader\n   30.6% (   55 ms) OneApplyCal ac.amp.\n   29.7% (   54 ms) OneApplyCal ac.ph.\n   19.4% (   35 ms) MSUpdater msout.\n",
+    "pass": true
+   },
+   "verdicts": {
+    "H5-losoto": true,
+    "H5-dp3": true
+   },
+   "wall_s": 8.965181100007612
+  },
+  "kms": {
+   "KMS": {
+    "core_files_load_without_pickle": true,
+    "merged_read_bit_exact": true,
+    "merged_members": [
+     "BeamTimes",
+     "ClusterCat",
+     "FreqDomains",
+     "MSName",
+     "MaskedSols",
+     "ModelName",
+     "SkyModel",
+     "Sols",
+     "SourceCatSub",
+     "StationNames"
+    ],
+    "merged_object_members": [],
+    "G_max_relative": 0.0,
+    "G_cells": 384,
+    "exact": {
+     "FreqDomains": true,
+     "MaskedSols": true,
+     "t0": true,
+     "t1": true
+    },
+    "read_s": 0.002595964993815869,
+    "pass": true
+   },
+   "verdicts": {
+    "KMS": true
+   },
+   "wall_s": 1.823564427002566
+  },
+  "fv": {
+   "FV": {
+    "restored_FLAG_bit_exact": true,
+    "restored_FLAG_ROW_bit_exact": true,
+    "flags_changed_by_restore": true,
+    "list_result": "{'0': {'name': 'rang_dfio', 'comment': 'DF-IO seeded flags'}, 'MS': '/run/fv/core.ms'}",
+    "save_s": 0.029880104993935674,
+    "pass": true
+   },
+   "verdicts": {
+    "FV": true
+   },
+   "wall_s": 5.990979836002225
+  }
+ },
+ "timings": {
+  "ct": [
+   {
+    "label": "casa gaincal T",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 1.65,
+    "code": 0
+   },
+   {
+    "label": "python-casacore dumps",
+    "image": "rang-ms-reader:local",
+    "wall_s": 0.39,
+    "code": 0
+   },
+   {
+    "label": "casa applycal x15",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 18.35,
+    "code": 0
+   }
+  ],
+  "ct-posthoc": [
+   {
+    "label": "casa gaincal T",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 1.98,
+    "code": 0
+   },
+   {
+    "label": "python-casacore dumps",
+    "image": "rang-ms-reader:local",
+    "wall_s": 0.39,
+    "code": 0
+   },
+   {
+    "label": "casa applycal x15",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 18.9,
+    "code": 0
+   }
+  ],
+  "qc": [
+   {
+    "label": "quartical delay solve",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 46.55,
+    "code": 0
+   },
+   {
+    "label": "xds_from_zarr dumps x5",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 11.49,
+    "code": 0
+   },
+   {
+    "label": "quartical load_from apply x5",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 101.16,
+    "code": 0
+   }
+  ],
+  "sky": [
+   {
+    "label": "tigger-convert, africanus, crystalball",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 32.58,
+    "code": 0
+   },
+   {
+    "label": "africanus load of the WSClean list",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 1.59,
+    "code": 0
+   },
+   {
+    "label": "DDFacet DicoModel and ClusterCat",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 1.23,
+    "code": 0
+   }
+  ],
+  "sky-posthoc": [
+   {
+    "label": "tigger-convert, africanus, crystalball",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 41.85,
+    "code": 0
+   },
+   {
+    "label": "wsclean -save-source-list",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 3.34,
+    "code": 0
+   },
+   {
+    "label": "africanus load of the WSClean list",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 1.82,
+    "code": 0
+   },
+   {
+    "label": "DDFacet DicoModel and ClusterCat",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 1.64,
+    "code": 0
+   }
+  ],
+  "h5": [
+   {
+    "label": "losoto read, make and list",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 3.09,
+    "code": 0
+   },
+   {
+    "label": "casa split (one field)",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 3.74,
+    "code": 0
+   },
+   {
+    "label": "DP3 applycal",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 1.29,
+    "code": 1
+   }
+  ],
+  "h5-posthoc": [
+   {
+    "label": "losoto read, make and list",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 3.26,
+    "code": 0
+   },
+   {
+    "label": "casa split (one field)",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 3.92,
+    "code": 0
+   },
+   {
+    "label": "DP3 applycal",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 1.27,
+    "code": 0
+   }
+  ],
+  "kms": [
+   {
+    "label": "killMS MergeSols",
+    "image": "rang-formats-oracle:20261030",
+    "wall_s": 1.78,
+    "code": 0
+   }
+  ],
+  "fv": [
+   {
+    "label": "casa flagmanager list and restore",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 5.84,
+    "code": 0
+   }
+  ]
+ },
+ "seed": 20261030
+}
