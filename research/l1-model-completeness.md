@@ -5,7 +5,11 @@ before any campaign code was written. Task L1-M of [big-plan.md](big-plan.md),
 first wave 3 item after P5; recommendation 1 of
 [literature-2024-2026.md](literature-2024-2026.md).
 
-Status: **protocol frozen; implemented; runs in progress (amendment 2 after a frozen PA-bound failure).**
+Status: **implemented and measured.** The premise is corrected (the stored
+model is a field model). Field against point: held-out MSE 0.981 (better).
+Field against stored: 1.031 (worse). TV changes by at most 0.7 % (null). The
+TV policy's decision is unchanged under all three models. Amendment 2 was
+made after a frozen PA-bound failure. Details are in "Measured result".
 
 ## Why, and what the pre-protocol probes changed
 
@@ -485,6 +489,247 @@ image-derived ratios in amendment 1. Everything else is unchanged: arms,
 split, solver, policy, decision rule, the memory gate and the run order.
 Point and field are rerun as `-02b-point` and `-03-field`.
 
+## Measured result (2026-10-30)
+
+Runs:
+
+- `outputs/l1m-20261030-01-stored`: 13 min 02 s, 10.6 GB peak (`time -v`);
+- `outputs/l1m-20261030-02b-point`: 11 min 57 s, 10.6 GB;
+- `outputs/l1m-20261030-03-field`: 14 min 36 s, 10.6 GB, of which 164 s is
+  the field prediction.
+
+All three ran at `RAYON_NUM_THREADS=4` with `OPENBLAS_NUM_THREADS=1` and
+23–29 GiB available at start, on a host at load 3–7. The checker wrote
+`outputs/l1m-20261030-04-check`. Archive:
+[results/l1-model-completeness.json](results/l1-model-completeness.json)
+(175.5 KB).
+
+### Criteria
+
+| Criterion | Measured | Result |
+| --- | --- | --- |
+| 1 comparator precondition | K's precondition and the group check pass; the replay is all equal under L2's tolerant comparison (image hashes only differ, P2) | **pass** |
+| 2 field model | SHA256 pinned; 196 components, 15 Gaussians, Q = U = V = 0. DFT check 2.0e-15 of the peak. The PA bound **failed as frozen** in the first point run (max 0.028 Jy against 5.8e-4 Jy); under amendment 2 it is reported: max 0.028 Jy, rms 0.0040 Jy, against a field-term rms of 0.058 Jy (6.9 %) | **pass under amendment 2** (frozen: fail) |
+| 3 same split and Tricolour flags | all four split hashes and both Tricolour `additions_sha256` identical across the three models | **pass** |
+| 4 stored = L1 | every compared non-image, non-timing field equal to L1's run `-01` (0 differences); before amendment 2's checker fix the only difference was amendment 1's residual-RMS ratio at 1.3e-15 relative | **pass** |
+| 5 L1's criteria per run | each model: 1, 5 and 7 pass; 2, 4 and 6 fail as in L1 (the derived FLAG_ROW clause; convergence 0.83 and the Tricolour arms' invalid predictions; the undecidable headline); 3 fails because L1's unedited precondition flag is false on the image hashes (P2), see criterion 1 | evaluated, as L1 |
+| 6 Q1–Q3 decidable | every call below is decidable except the frozen headline (undecidable in every model, as in L1) | **pass** |
+| 7 outputs and archive | every run has L1's files plus `l1m.json`; the archive is 175.5 KB, numbers and hashes only | **pass** |
+| 8 check-all | `bash tools/check-all.sh`: 657 passed, 3 skipped; overall PASS | **pass** |
+
+### The three models (`original` arm, same flags, same split)
+
+| Model | MSE_test | MSE_val | χ²_train | Converged | Fixed-support TV at the stored scale | Median diag. amp. | Far residual robust σ (Jy/beam) | Peak (Jy/beam) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| stored (L1) | 0.2088876 | 0.2089667 | 0.2081362 | 0.8333 | 0.0260508 | 0.79019 | 0.0039958 | 14.8004 |
+| point (lsm A0, core) | 0.2195760 | 0.2196819 | 0.2187850 | 0.8324 | 0.0264200 | 0.79034 | 0.0082616 | 14.7638 |
+| field (196 lsm components, core) | 0.2153148 | 0.2154051 | 0.2145448 | 0.8323 | 0.0262305 | 0.79037 | 0.0082629 | 14.7634 |
+
+The valid-gain fraction is 0.85435 in all three.
+
+**Q1, primary (field against stored): worse.**
+
+- MSE_test ratio 1.0308, MSE_val 1.0308, χ²_train 1.0308.
+- On matched samples: first pass 1.0308 (678 test samples dropped), mild
+  1.0308 (111 dropped).
+- By band: 0–200 m 1.084, 200–1000 m 1.043, 1–3 km 1.012, 3–9 km 1.004
+  (null); by channel quarter: 1.035, 1.006, 1.039, 1.025.
+
+The core's prediction of CARACal's field model fits the data 3 % worse
+than the stored MODEL_DATA, mostly on short baselines. That is consistent
+with item 1: the stored model holds more flux at the extended sources and
+0.06 Jy rms of structure the lsm lacks, and the data prefer it. It is at
+the low end of the pre-run bound (2.9–7.6 %).
+
+**Q1, secondary (field against point): better.**
+
+- MSE_test ratio 0.9806, MSE_val 0.9805, χ²_train 0.9806.
+- On matched samples: first pass 0.9806, mild 0.9806.
+- By band: 0–200 m 0.962, 200–1000 m 0.976, 1–3 km 0.988, 3–9 km 0.992
+  (null); by channel quarter: 0.969 at the bottom of the band, then 0.993,
+  0.978, 0.986.
+
+Adding the 195 field components to the point lowers held-out error by
+1.9 %, largest on short baselines and at low frequency, where the field
+term is largest. That is Heywood's effect, measured with one predictor.
+
+- **The pre-run expectation was wrong in size.** The bound with the gains
+  fixed (0.8–1.0 % on two station subsets) is not an upper bound for the
+  re-solved gains. Solving against an incomplete model also biases the
+  gains, and that bias costs held-out error which a fixed-gain swap does
+  not see. The protocol's sentence "re-solving can only lower it" is
+  wrong.
+- **Stored against point:** the stored model is 4.9 % better than the
+  point (0.20889 against 0.21958). K and L1 therefore did not suffer from a
+  point model.
+
+**Q2: null in both comparisons.** Fixed-support polar-gauge TV at the
+stored `original` scale and on its support:
+
+| Comparison | TV ratio | Call | Median per-antenna amplitude TV ratio | Median per-antenna phase TV ratio |
+| --- | ---: | --- | ---: | ---: |
+| field vs stored (primary) | 1.0069 | null | 1.027 | 1.005 |
+| field vs point (secondary) | 0.9928 | null | 0.977 | 0.994 |
+
+The point → field change lowers TV by 0.7 % and the per-antenna amplitude
+TV by a median 2.3 %. That is the right sign for "part of the TV is model
+error", but it is inside the ±1 % band on the frozen metric. The
+convergence and valid-gain fractions do not move (0.832–0.833, 0.854).
+
+**Q3: no change.** In all three models:
+
+- the frozen headline is undecidable (the first-pass comparator's
+  held-out loss is unavailable, as in L1);
+- amendment 1's matched headline is null (TV policy against first pass:
+  0.99943 stored, 0.99940 point, 0.99942 field);
+- `tv-policy` against `original` is null (0.999998);
+- the amended first-pass loop selects no change (1.000000);
+- the TV policy selects the unguided τ = 5, α = 0 mask (21, 30 and 18
+  cells), and no TV-guided (α > 0) mask is selected under any model.
+
+The decision does not depend on the calibrator model.
+
+**Cost clause.** The TV chain against the first-pass port: 5.66 (stored),
+5.07 (point), 5.55 (field), against the frozen factor 3. On the parallel
+kernels the Tricolour port takes 45–50 s and the TV loop 213–252 s, so the
+clause now fails, as L2 found. L1's single-threaded 1.85 no longer holds.
+
+### What this shows
+
+- **The premise "K and L1 solved against a point model" is wrong.** The
+  stored MODEL_DATA is a field model. It is consistent with CARACal's lsm
+  compact sources plus more extended flux, and it fits LUNO 1934−638 3 %
+  better than the lsm predicted without a beam and 4.9 % better than the
+  point.
+- **A point model does cost held-out error.** Field against point is
+  1.9 % better, which is Heywood's effect. It barely moves gain TV
+  (−0.7 %, null) and does not change convergence.
+- **TV-guided flagging stays null under all three models**, with identical
+  decisions. Model incompleteness is therefore not what made K and L1
+  null.
+
+### What it does not show
+
+- **Which model is closest to the sky.** The stored model's origin is still
+  unlogged. Its extra flux may be a more complete model or an artefact the
+  gains partly absorb. The held-out loss prefers it.
+- **Whether the lsm's Gaussian PA convention is right.** It is
+  documentation-based (amendment 2), and a 90° error moves 0.004 Jy rms.
+- **The beam.** No primary beam and no parallactic rotation are applied,
+  and smearing is ignored (protocol item 6). The core's field prediction
+  is the apparent-flux, no-beam reading of CARACal's own simulator call.
+
+### Post-hoc steps, labelled
+
+- **Amendment 2**, before any point or field result: the PA bound became
+  a reported number, and the stored gate exempts amendment 1's
+  image-derived ratio. The failed run `-02-point` is kept, empty apart
+  from its log.
+- The checker fix above is the only code change after the frozen stored
+  run. The stored run's result files are unchanged.
+- The smoke runs (`-00-smoke-*`, four stations) and their check are
+  labelled smokes, not results.
+
+## For the coordinator
+
+- **Shared files.** None edited. No Rust; `core/` unchanged. Added:
+  - `python/rangtoy/lsm.py`
+  - `python/rangtoy/core_campaign_fieldmodel.py`
+  - `examples/{fetch,run,check,archive}_l1m.py`
+  - `tests/test_lsm.py` (9 tests, 12 with parameters) and `tests/test_core_campaign_fieldmodel.py`
+    (14 tests)
+  - this report and `research/results/l1-model-completeness.json`
+- **`STATE.md`**, new top entry:
+
+  > L1-M model completeness (big plan wave 3), 2026-10-30 (implemented;
+  > measured; [l1-model-completeness.md](l1-model-completeness.md)). The
+  > premise was wrong: LUNO's stored 1934−638 MODEL_DATA is not a point but
+  > a field model. A least-squares decomposition shows CARACal's lsm compact
+  > sources in it at coefficients near 1, more flux at the lsm's extended
+  > sources, and a common 0.077″ offset; A0 sits 2.1″ from the phase centre,
+  > not 1.5″. Three models ran through L1's frozen campaign unedited (scoped
+  > model hook; identical split and Tricolour flags):
+  >
+  > - stored;
+  > - the lsm's A0 alone, predicted by the core;
+  > - all 196 lsm components, predicted by the core (apparent flux, no
+  >   beam, as CARACal's simulator).
+  >
+  > Results:
+  >
+  > - Field against point: held-out MSE 0.981 ("better"; 0.962 under 200 m),
+  >   which is Heywood's point-model effect.
+  > - Field against stored: 1.031 ("worse"). The stored model fits best, and
+  >   the point model is 4.9 % worse than it.
+  > - Gain TV moves by at most 0.7 % (null), and convergence stays at 0.83.
+  > - The TV policy's decisions are identical under all three models: the
+  >   headline is undecidable as frozen and null under amendment 1, and no
+  >   TV-guided mask is selected.
+  >
+  > Model incompleteness did not cause the nulls. Amendment 2: the Gaussian
+  > PA bound failed as frozen on the whole array (0.028 Jy max) and is now
+  > reported, not gated. The cost clause now fails (5.1–5.7×) on the
+  > parallel kernels. Archive `results/l1-model-completeness.json`.
+
+- **`README.md`**, one line: L1-M compared the stored, point and CARACal
+  field calibrator models on LUNO 1934−638 under L1's frozen campaign
+  (`rangtoy.core_campaign_fieldmodel`, Tigger lsm reader `rangtoy.lsm`,
+  `research/l1-model-completeness.md`). The field model beats a point by
+  1.9 % in held-out MSE, the stored model beats both, and the TV-flagging
+  decision is unchanged.
+- **`tool-timings.md`**: the rows of the timing table below.
+- **`big-plan.md`**: L1-M done (measured). The premise is corrected: the
+  stored model is a field model. C1 can proceed. `rangtoy.lsm` is the
+  DF-IO reader candidate for Tigger ASCII lsm. It does not yet read
+  Tigger's native `.lsm.html` or the BBS/WSClean text formats.
+- **Corrections to existing text** (not edited here):
+  - `luno-array-campaign.md` and STATE's L1 entry ("a 14.96 Jy point about
+    1.5″ off"): the model is a field model, and A0 is 2.1″ from the phase
+    direction, almost all in declination.
+  - The literature scan's recommendation 1 and STATE's literature entry
+    ("K and L1 solved against a 14.96 Jy point"): same correction.
+  - `flagging-luno-candidate.md`, "Still open": MODEL_DATA is consistent
+    with an lsm-based field prediction. Its origin is still unlogged.
+- **Upstream observations** (observed, not raised):
+  1. RATT, caracal-pipeline: `meerkat_skymodel` defaults to False although
+     the schema advises using the lsm. Here the lsm improves on a point by
+     1.9 % in held-out MSE, which supports the advice. The schema still says
+     "for UHF band only models for PKS 1934-638 and PKS 408-65" in the
+     `meerkat_band` text, which reads oddly for an L-band lsm.
+  2. RATT, caracal-pipeline: the lsm has no header comment giving its
+     flux convention (apparent, fitted without primary-beam correction) or
+     its origin. Its steep off-axis indices (−3 to −8.6) only make sense as
+     apparent spectra. A one-line header would help other users.
+  3. RATT, caracal-pipeline: the file is GPL-2.0 (only) as part of
+     CARACal. A data-licence note (or CC-BY) would let GPL-3 projects
+     redistribute it.
+  4. RATT, Tigger lsm format: the Gaussian PA convention is
+     documented only by the PyBDSF import path. This is the reason for
+     amendment 2.
+  5. Non-RATT (SARAO, LUNO store): MODEL_DATA's origin is not logged in the
+     store. It is a field model with a 0.077″ offset from the lsm's A0.
+     Asking the observer for the prediction step would close this.
+- **Evidence to keep:**
+  - `outputs/l1m-20261030-00-fieldmodel` (the lsm, LICENSE, probes and
+    their outputs, chain scripts)
+  - `-00-precondition`, `-01-stored`, `-02b-point`, `-03-field` and
+    `-04-check` (about 220 MB), with their logs and `-chain.log`
+- **Evidence that may be deleted:** the smokes `-00-smoke-{stored,point,field}`
+  and `-00-smoke-check` (171 MB), and `-02-point`, which is empty apart
+  from its log; keep the log.
+- **What the L4 verdict can say about model error.**
+  - The calibrator model is not why TV-guided flagging is null.
+  - Under three models, the policy makes the same decision, the
+    TV-guided masks are rejected, and gain TV changes by less than 1 %. The
+    models are: the stored field model (the best fit), a point model (4.9 %
+    worse held-out error), and CARACal's 196-component lsm (1.9 % better
+    than the point, 3.1 % worse than the stored).
+  - Model completeness does change held-out error at the percent level,
+    concentrated on short baselines and at low frequency. Most of it goes
+    to the residual, not to the gains.
+  - What remains untested: a beam-applied model (B1) and a closure-invariant
+    detector that ignores per-antenna gains (C1).
+
 ## Timings (every tool run of this task)
 
 | When (UTC) | Tool run | Wall | Peak RSS | Note |
@@ -501,3 +746,14 @@ Point and field are rerun as `-02b-point` and `-03-field`.
 | 12:35 | probe 4: stored − A0 structure (stations 0–11, then all) | about 12 s each | 7.1 GB | |
 | 12:37 | probes 5–7: least-squares decomposition of the stored model onto the lsm | 9.5–12.8 s each | 7.1 GB | probe 6's last line is a bug (it subtracts twice) and is not cited |
 | 12:44 | probe 8: model-swap ceilings (stations 0–11; every other station) | 22.2 s; 2 min 9 s | 1.2 GB; 6.4 GB | first try failed: `cargo` not on `PATH` |
+| 12:50 | `fetch_l1m.py` (file present, hash verified) and the three four-station smokes (`-00-smoke-{stored,point,field}`, labelled) | 22.8 s, 23.3 s, 25.7 s | 0.87 GB each | all ran; stored fits best on four stations too |
+| 12:55 | `check_l1m.py` on the smokes (`-00-smoke-check`, labelled) | about 15 s | 0.2 GB | exercised every path; the stored gate fails on a subset, as it must |
+| 12:56 | the new tests from the scratchpad (`pytest`, 25 then 26 tests) | 0.3–1.0 s | 70 MB | first runs found the PA check failing on synthetic resolved Gaussians (a test-data issue) |
+| 12:57 | **frozen stored run `-01-stored`** (`run_l1m.py` under `time -v`; MemAvailable 23 GiB, load 6) | **13 min 02 s** | **10.57 GB** | exit 0; equals L1 on every non-image field |
+| 13:10 | frozen point run `-02-point` | 24 s | – | **stopped: PA bound failed as frozen** (0.028 Jy against 5.8e-4 Jy); amendment 2 |
+| 13:11 | targeted tests after amendment 2 (`test_lsm`, `test_core_campaign_fieldmodel`, `test_core_campaign_array`) | 0.2 s | – | 35 passed, then 14 for the fieldmodel file |
+| 13:12 | **frozen point run `-02b-point`** (MemAvailable 28 GiB, load 3–6) | **11 min 57 s** | **10.64 GB** | exit 0; prediction 2.2 s |
+| 13:24 | **frozen field run `-03-field`** (MemAvailable 29 GiB) | **14 min 36 s** | **10.57 GB** | exit 0; the field prediction took 164 s (single-threaded; 196 components × 85.6 M samples) |
+| 13:39 | `check_l1m.py` (`-04-check`) | 12.7 s | 0.21 GB | criteria 1–7 pass (2 under amendment 2) |
+| 13:40 | `archive_l1m.py` | 0.1 s | 41 MB | 175.5 KB |
+| 13:40 | `bash tools/check-all.sh` (plain; it takes the host lock itself), once before the final commit (`outputs/l1m-20261030-check-all.log`) | 3 min 31 s (pytest 657 passed, 3 skipped in 1 min 58 s) | 1.65 GB | **overall PASS** (criterion 8) |
