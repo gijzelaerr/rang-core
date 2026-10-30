@@ -197,8 +197,9 @@ The core's exact dirty image and PSF against WSClean 3.7 `-niter 0`
 
 `d-recorded` reproduces O-CASA's `r1-dirty.fits` pixel for pixel. WSClean's
 log says why it differs: "Minimal inversion size: 18 x 18, using optimal:
-32 x 32": with 360 λ baselines and 8″ pixels the image is oversampled 70
-times, WSClean grids at the Nyquist size and upsamples, and its help text
+32 x 32": with 360 λ baselines and 8″ pixels the image has about 71 pixels
+per theoretical beam (9.54′) and is about 36 times finer than Nyquist
+sampling (about 286″), so WSClean grids at the small size and upsamples; its help text
 expects aliasing "in most cases <1%". Here it is 17 %, and the upsampled PSF
 is not a Gram matrix (a Gram matrix has `|b| ≤ b(0)` and is
 centrosymmetric). For DF1/DF2 this means the O-CASA reference should be
@@ -288,11 +289,15 @@ run `outputs/clean-certified-20261030-04-cg-sweep`):
 | 800 | 3.6967e-4 | 7.4e-6 | +12.4 | −37.4 | 271.7 s |
 | 1600 | 3.6939e-4 | 4.2e-6 | +29.2 | −90.0 | 512.3 s |
 
-The bound flattens (−0.2 %, −0.07 %, −0.08 % per doubling after 200
-iterations) near 3.69e-4 of `Q_0`, so the floor is not zero although
-`N = 262,144` pixels exceed `2M = 235,112` real data; it is still only an
-upper bound (CG's residual norm rises again after 400 iterations; CG was
-not restarted). The CG models are unphysical
+The floor reachable by CG flattens (−0.2 %, −0.07 %, −0.08 % per doubling
+after 200 iterations) near 3.69e-4 of `Q_0`, although `N = 262,144` pixels
+exceed `2M = 235,112` real data. That does not show the exact floor is
+nonzero: a normal-equations residual of 4e-6 can hide misfit along
+near-null directions (CG's residual norm rises again after 400 iterations;
+CG was not restarted), and CLEAN cannot reach those directions either. A
+nonzero reachable floor is expected (proposed, not measured): the 68′ field
+cannot fit uv structure finer than about 50 λ, while 2,048 channels sample
+each track at sub-λ spacing. The CG models are unphysical
 and keep moving while `Q` does not: net flux from −6 to +29 Jy with −30 to
 −90 Jy in negative pixels, the near-null space of Theorem 5. The quantities
 built on `Q_∞` change by about 1 % between the 200- and 1600-iteration
@@ -395,7 +400,7 @@ export PATH=$HOME/.cargo/bin:$PATH
 bash examples/clean_certified_wsclean.sh outputs/clean-certified-20261030-02-wsclean
 W=outputs/clean-certified-20261030-02-wsclean
 .venv/bin/python examples/clean_certified_export.py $W/c.ms outputs/clean-certified-20261030-03/inputs \
-  --reference r1=../Github/rang/outputs/o-casa-20261030-03-wsclean-j1/r1 \
+  --reference r1=/home/gijsm/Github/rang/outputs/o-casa-20261030-03-wsclean-j1/r1 \
   --reference recorded=$W/d-recorded --reference nominres=$W/d-nominres \
   --reference nominres-acc6=$W/d-nominres-acc6 \
   --wsclean-psf recorded=$W/d-recorded-psf.fits --wsclean-psf nominres=$W/d-nominres-acc6-psf.fits
@@ -411,9 +416,13 @@ CLEAN_CERTIFIED_CG_SWEEP=50,100,200,400,800,1600 cargo run --release --manifest-
   outputs/clean-certified-20261030-04-cg-sweep/cg-sweep.json $W research/results/clean-certified-imaging.json
 ```
 
-The `r1` reference is O-CASA's (`/home/gijsm/Github/rang/outputs/o-casa-20261030-03-wsclean-j1/r1`).
-Runs are deterministic except WSClean's float pixels (bit-identical at
-`-j 1` in O-CASA's test).
+The `r1` reference is O-CASA's. Runs are deterministic except WSClean's
+float pixels (bit-identical at `-j 1` in O-CASA's test). Provenance: the
+WSClean jobs, the export and the `-03` run (`run/`, `compare.json`) were
+produced by the code committed as `df32491`; the CG sweep, the comparison
+with `--flux-model` and the archive by `86fbe2b` (the archive's
+`code_commit`); the Python cross-check by `8adebce`
+(`examples/clean_certified_binding_check.py`).
 
 ## 9. Python interface (implemented; tested)
 
@@ -430,8 +439,9 @@ ascending steps, ERC, `Q_∞`) and one dict per major cycle.
 monotone descent with the exact beam, no ascending step under the provable
 rule with a ±2 patch, refused inputs. On the slice the binding reproduces
 the example's `exact-mgain` and `image-mgain` models and residuals bit for
-bit (`outputs/clean-certified-20261030-05-binding-check.json`; 1.5 s and
-2.2 s from Python, including the 1024² beam).
+bit (`examples/clean_certified_binding_check.py INPUTS RUN`, output
+`outputs/clean-certified-20261030-05-binding-check.json`; 1.5 s and 2.2 s
+from Python, including the 1024² beam).
 
 ## 10. Open items
 
