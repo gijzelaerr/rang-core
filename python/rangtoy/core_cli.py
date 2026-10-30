@@ -853,6 +853,21 @@ STAGES = {
         "archive": ARCHIVE,
         "legacy-archive": _script("archive_luno_1830.py"),
     },
+    "campaign-fieldmodel": {
+        "help": "PKS 1934-638 field-model arms, task L1-M (research/l1-model-completeness.md)",
+        "fetch": _script("fetch_l1m.py", _first),
+        "run": _script("run_l1m.py", _first),
+        "compare": _script("check_l1m.py", _first, "the L1-M checker"),
+        "archive": ARCHIVE,
+        "legacy-archive": _script("archive_l1m.py"),
+    },
+    "wgridder": {
+        "help": "exact w-gridder ported from ducc0, task DF1 (research/df1-wgridder.md)",
+        # Modes item0 | gates | threads put the output first or second: pass
+        # --receipt PATH until the comparator is on the engine (P11 follow-up).
+        "compare": _script("compare_core_wgridder.py", note="item0 | gates | threads"),
+        "archive": ARCHIVE,
+    },
     "flags": {
         "help": "Tricolour strategies, task D (research/core-d-tricolour.md)",
         "run": _script("run_core_flags.py"),

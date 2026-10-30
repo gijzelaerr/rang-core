@@ -696,3 +696,19 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan O-CASA: setjy SR2016 / PB2010 | – |  | – |  |
 | 2026-10-30 | big plan O-CASA: WSClean (`-j 4`) | – |  | – |  |
 | 2026-10-30 | big plan O-CASA: summarize / compare (host) | – |  | – |  |
+| 2026-10-30 | big plan P9: WSL: `uv venv` + editable install + `maturin develop --release --offline` | – | 60 s | – |  |
+| 2026-10-30 | big plan P9: identity suite `before` at `f36ff80` (20 cases) | – | 6.8 s | – | outputs above |
+| 2026-10-30 | big plan P9: identity suite `wrapper` (thin wrappers) | – | 5.7 s | – | identical to `before` |
+| 2026-10-30 | big plan P9: identity suite `cli`, `cli-final` (`517e07b`), `cli-head` (`ed3e18c`) through `rang-core STAGE VERB` | – | 5.5 s, 7.9 s, 6.5 s | – | identical to `before` |
+| 2026-10-30 | big plan P9: WSL: `rang-core check --all` at `902a74d` | – | 206 s (pytest 126 s) | – | PASS, 681 passed, 2 skipped |
+| 2026-10-30 | big plan P9: thread caps, flags comparator, 5 pairs | – | 0.45–0.52 s each | – | 0.33–0.39 vs 1.15–1.18 user CPU-s |
+| 2026-10-30 | big plan P9: bench smokes: P2 `bench` (one label, two runs), P1 `sweep` (one round) | – | 1.2 s, 1.8 s | – | hash-equal |
+| 2026-10-30 | big plan P9: Windows: clone over `\\wsl.localhost` | – | 8.1 s | – | first attempt refused (`safe.directory`) |
+| 2026-10-30 | big plan P9: Windows: `uv venv` + editable install (builds the extension) | – | 60.6 s | – |  |
+| 2026-10-30 | big plan P9: Windows: `rang-core.exe check --all` at `902a74d` | – | 212 s | – | FAIL on ext-build only (launcher in use) |
+| 2026-10-30 | big plan P9: Windows: `rang-core.exe check --all` at `252c823`; `python -m rangtoy.check --python` | – | 113 s; 105 s | – | FAIL on ext-build only (uv cache) |
+| 2026-10-30 | big plan P9: Windows: `python -m rangtoy.check --only ext-build`; `rang-core.exe check --all` at `ed3e18c` | – | 1.9 s; 106 s | – | PASS, 640 passed, 44 skipped |
+| 2026-10-30 | big plan P9: WSL: `bash tools/check-all.sh` at `ed3e18c` + report | – | 227 s (pytest 140 s) | – | PASS, 682 passed, 2 skipped |
+| 2026-10-30 | big plan P9: identity `cli-head2` (`-m`) and `console` (`.venv/bin/rang-core`), final CLI | – | about 7 s each | – | identical to `before` |
+| 2026-10-30 | big plan P9: legacy cab path `rang-core compare` on 7 real-archive cases | – | about 1 s | – | receipts minus `comparator` equal `before` |
+| 2026-10-30 | big plan P9: WSL: `bash tools/check-all.sh`, after the review fixes | – | 157 s (pytest 150 s) | – | PASS at `00c4be2`, 683 passed, 2 skipped |

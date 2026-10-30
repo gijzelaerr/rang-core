@@ -4,6 +4,9 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task P9, [one CLI](p9-cli.md): `rang-core STAGE VERB`,
+one comparator engine, versioned receipts and archives, `rang-core check`.
+
 New, 2026-10-30: [O-CASA](o-casa.md): a CASA 6.7.6 oracle image on KERN-10 runs
 CARACal's crosscal on the LUNO slice (after three necessary deviations); the
 matched baseline for the verdict, tfcrop/rflag flag fractions and a WSClean

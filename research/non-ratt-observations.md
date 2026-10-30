@@ -81,3 +81,9 @@ to an unrelated package (carta-python is not on PyPI).
   write no table return without an exception; with `casaconfig` auto-updates
   off, Ubuntu's `casacore-data` works but CASA logs SEVERE notices on start.
 - WSClean 3.7 wgridder: `-j 4` is not bit-reproducible (2e-6 relative); `-j 1` is.
+
+## From P9 (2026-10-30; not reported by decision)
+
+- maturin `develop` (through `uv pip install --force-reinstall`) cannot replace
+  a console-script launcher that is running on Windows; uv's default cache on
+  this Windows host hit "too many temporary files" (`UV_CACHE_DIR` moved it).

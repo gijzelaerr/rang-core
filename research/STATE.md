@@ -1,5 +1,20 @@
 # Rang research state
 
+P9 one CLI (big plan wave 2), 2026-10-30 (implemented; measured;
+[p9-cli.md](p9-cli.md)): one CLI, `rang-core STAGE VERB`, for every stage,
+comparator and check (`rang-core -h`); the comparators live in
+`rangtoy.core_compare` and `examples/compare_core_*.py` are thin wrappers;
+every comparator verdict and count is identical through the wrappers and the
+CLI on a 20-case suite. Every CLI call writes a `rang.receipt` v1 beside its
+output, `STAGE archive` writes a `rang.archive` v1 that the comparators read,
+and the CLI caps the BLAS/XLA pools (opt out with `--no-pin-threads`).
+`rang-core check` (= `python -m rangtoy.check`, wrapped by
+`tools/check-all.sh`) runs the full checks on Linux and native Windows (PASS
+on both). Bug found and fixed: the `rang-core` console script exited 1 after
+every successful command. The A/B benches take `--python NAME=VENV` instead
+of `RANG_CORE_LIB`. L1-M (`campaign-fieldmodel`) and DF1 (`wgridder`) are
+registered at the merge; DF1's comparator is the one not yet on the engine.
+
 O-CASA (big plan), 2026-10-30 (implemented; measured;
 [o-casa.md](o-casa.md)). A CASA oracle image (`rang-o-casa:6.7.6.14`: Ubuntu
 24.04 + KERN-10 WSClean 3.7, AOFlagger 3.5, python-casacore 3.7.1;
