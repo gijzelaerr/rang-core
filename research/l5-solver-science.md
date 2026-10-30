@@ -549,6 +549,8 @@ products to R p99 as Anderson.
 | 11:56–11:58 | 32-station confirms `-16` (images), `-17` | 1 min 59 s, 43 s | 5.8 GB | load 6–19 |
 | 11:58–12:24 | whole-array lean sweep `-18` | 25 min 41 s | 10.1 GB | load 5; MemAvailable 29.9 GiB at start |
 | 12:24–12:29 | whole-array confirm `-19` (3 A/B pairs, images of D and C, 59 s and 55 s) | 4 min 38 s | 12.2 GB | load 4–5; D's residual RMS 0.01642364968142557 = L1's `original` 0.016423649681425574 |
+| 12:30–12:35 | `flock ~/.rang-checkall.lock bash tools/check-all.sh` (`-20.check-all.log`), head 4f9f70e | 5 min 16 s (lock wait 0 s) | | **PASS**: Rust 19 + 62 tests, clippy, fmt, ruff, pytest 578 passed, 1 skipped |
+| 12:36 | `validate_core_phase2.py` `-21` on the check-all extension (Rust 1.93 build) | 2.1 s | | all 11 criteria pass |
 
 ## For the coordinator
 
@@ -572,7 +574,7 @@ equal cost. As frozen no default changes; the options are opt-in.
 **Timing rows** (research/tool-timings.md): the "Tool timings" table above;
 the longest are the 32-station sweep (52 min 50 s, 3.5 GB, load 75–80), the
 whole-array lean sweep (25 min 41 s, 10.1 GB, load 5) and its confirm with
-two array images (4 min 38 s, 12.2 GB); check-all as recorded below.
+two array images (4 min 38 s, 12.2 GB); check-all 5 min 16 s, PASS, no lock wait.
 
 **Binding lines.** None needed: no new module (everything is in
 `core/src/solve.rs`), no `pub mod`, no C function and no extension change.
