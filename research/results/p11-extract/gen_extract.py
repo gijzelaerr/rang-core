@@ -17,29 +17,8 @@ import json
 import sys
 from pathlib import Path
 
-MAP = {
-    "flagging": "core_policy",
-    "flagging_actions": "core_patches",
-    "flagging_balanced": "core_balanced",
-    "flagging_caracal": "core_controls",
-    "flagging_comparators": None,
-    "flagging_equivariance": "core_cases",
-    "flagging_imaging": "core_image_fit",
-    "flagging_influence": "core_influence",
-    "flagging_injections": "core_injection_model",
-    "flagging_next": "core_receipts",
-    "flagging_prepared": "core_paths",
-    "flagging_prospective": "core_forecast",
-    "flagging_response": "core_response",
-    "flagging_signal": "core_templates",
-    "flagging_signal_guard": "core_guard",
-    "flagging_sky": "core_catalog",
-    "flagging_structured": "core_structured",
-    "flagging_structured_proposals": "core_proposals",
-    "flagging_trend": "core_trend_run",
-    "flagging_workflow": "core_state",
-    "imaging_sensitivity": "core_sensitivity",
-}
+sys.path.insert(0, str(Path(__file__).parent))
+from p11map import MAP  # noqa: E402
 
 repo = Path(sys.argv[1])
 closure = json.load(open(sys.argv[2]))["closure"]["live"]
@@ -133,10 +112,16 @@ for src, dest in MAP.items():
             else:
                 mod = rewrite_module(node.module)
                 assert mod, (src, node.module)
-                header_imports.append(
-                    f"from .{mod} import "
-                    + ", ".join(a.name + (f" as {a.asname}" if a.asname else "") for a in keep)
-                )
+                # a needed name the copies do not use is a re-export
+                plain = [a for a in keep if a.asname or a.name in used]
+                reexport = [a for a in keep if not a.asname and a.name not in used]
+                if plain:
+                    header_imports.append(
+                        f"from .{mod} import "
+                        + ", ".join(a.name + (f" as {a.asname}" if a.asname else "") for a in plain)
+                    )
+                for a in reexport:
+                    header_imports.append(f"from .{mod} import {a.name}  # noqa: F401 (re-export)")
     # in-body imports of frozen modules
     rewrites = []
     bodies = []

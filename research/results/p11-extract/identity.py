@@ -21,19 +21,27 @@ VOLATILE = {
     "timings", "elapsed", "started", "finished", "date", "load", "rust_seconds",
     "read_seconds", "ms_read_seconds", "seconds_total", "wall_seconds_excluding_decode",
     "process_max_rss_mb", "self_maxrss_mb", "peak_rss_mb", "max_rss_mb_self", "cost",
-    "wall", "cpu", "rss", "time", "runtime", "duration",
+    "wall", "cpu", "rss", "time", "runtime", "duration", "started_utc", "cores_busy",
+    "available_gib_at_start", "wall_excluding_decode", "git_status_unchanged",
+    "parts_median", "parts_min",  # bench f timings
 }
+# Leaves that differed between two runs of the same commit (-01 and -01r):
+# digests over results that contain timings, and the L1 cost ratio of timings.
+CALIBRATION = None
 PROVENANCE = {
     "module_sha256", "runtime_receipts", "code_sha256", "commit", "environment",
     # rang receipts (P9): directory digests over (path, size, mtime) and output
     # trees that include timing fields; the files themselves are compared directly
     "inputs", "outputs", "command",
+    # the imaging comparator hashes core_imaging.py, whose import lines P11 edits
+    "comparator_sha256",
+    "git_head",
 }
 SKIP_SUFFIX = {".log", ".time"}
 
 
 def volatile_key(k):
-    return k in VOLATILE or k.endswith("_seconds") or k.endswith("_s") and k[:-2] in VOLATILE
+    return k in VOLATILE or k.endswith(("_seconds", "_gbps")) or k.endswith("_s") and k[:-2] in VOLATILE
 
 
 def walk(a, b, path, out):
@@ -54,8 +62,10 @@ def norm(text, root):
     return text.replace(str(root.resolve()), "<RUN>").replace(str(root), "<RUN>")
 
 
-def classify(path):
+def classify(path, rel=None):
     keys = [k for k in path if isinstance(k, str)]
+    if CALIBRATION and (rel, tuple(keys)) in CALIBRATION:
+        return "volatile"
     if any(volatile_key(k) for k in keys):
         return "volatile"
     if any(k in PROVENANCE for k in keys):
@@ -90,7 +100,7 @@ def main(before, after, out):
             diffs = []
             walk(ja, jb, [], diffs)
             for p, x, y in diffs:
-                report["differences"][classify(p)].append(
+                report["differences"][classify(p, rel)].append(
                     {"file": rel, "path": p, "before": str(x)[:120], "after": str(y)[:120]})
         else:
             if hashlib.sha256(pa.read_bytes()).digest() == hashlib.sha256(pb.read_bytes()).digest():
@@ -132,4 +142,13 @@ def main(before, after, out):
 
 
 if __name__ == "__main__":
+    if "--calibration" in sys.argv:
+        i = sys.argv.index("--calibration")
+        cal = json.loads(Path(sys.argv[i + 1]).read_text())
+        CALIBRATION = {
+            (d["file"], tuple(k for k in d["path"] if isinstance(k, str)))
+            for d in cal["differences"]["unexpected"]
+            if d["path"] and not d["file"].startswith("bench-f")
+        }
+        del sys.argv[i : i + 2]
     sys.exit(main(*sys.argv[1:4]))

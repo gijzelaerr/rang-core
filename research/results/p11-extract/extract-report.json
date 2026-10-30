@@ -1,0 +1,572 @@
+{
+ "commit": "2da566c",
+ "modules": {
+  "flagging": {
+   "dest": "core_policy",
+   "source_sha256": "13219d5f55fd2f553e96f00b7aefab8331fac918c17aaa83ca4f225bc11b4eba",
+   "source_lines": 267,
+   "extract_lines": 233,
+   "definitions": [
+    "_tv_kernel",
+    "assert_preserved",
+    "axis_weights",
+    "fixed_support_tv",
+    "gain_tv",
+    "polar_gauge",
+    "policy_mask",
+    "protected_flags",
+    "residual_features",
+    "split_holdout"
+   ],
+   "needed": [
+    "_native_library",
+    "_tv_kernel",
+    "assert_preserved",
+    "axis_weights",
+    "ctypes",
+    "fixed_support_tv",
+    "gain_tv",
+    "lru_cache",
+    "np",
+    "polar_gauge",
+    "policy_mask",
+    "protected_flags",
+    "residual_features",
+    "split_holdout"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_actions": {
+   "dest": "core_patches",
+   "source_sha256": "a413c4649e592305547da2311a6fb0e62d51e05b62cc9891061cc428213a15fa",
+   "source_lines": 464,
+   "extract_lines": 194,
+   "definitions": [
+    "FEATURE_NAMES",
+    "candidate_patches",
+    "fit_action_model",
+    "proposal_from_model",
+    "split_actions"
+   ],
+   "needed": [
+    "FEATURE_NAMES",
+    "candidate_patches",
+    "fit_action_model",
+    "np",
+    "proposal_from_model",
+    "split_actions"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_balanced": {
+   "dest": "core_balanced",
+   "source_sha256": "8fd6ada217130689067dda7c0379f20c0d43f1a445ace9f3debb0d172892d141",
+   "source_lines": 365,
+   "extract_lines": 59,
+   "definitions": [
+    "GROUPS",
+    "RANDOM_SEED",
+    "RANKINGS",
+    "balanced_rank"
+   ],
+   "needed": [
+    "GROUPS",
+    "RANDOM_SEED",
+    "RANKINGS",
+    "balanced_rank",
+    "np"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_caracal": {
+   "dest": "core_controls",
+   "source_sha256": "e1d946860f9069dc5314e5c9baf3c89c6aad66bc28edfee87733c39d9aa04fa8",
+   "source_lines": 386,
+   "extract_lines": 53,
+   "definitions": [
+    "score_control",
+    "training_proposal"
+   ],
+   "needed": [
+    "np",
+    "score_control",
+    "training_proposal"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_equivariance": {
+   "dest": "core_cases",
+   "source_sha256": "c2785e28e8881201244d710360b328f9d466f5c1522b3bd6dcf277005e19345e",
+   "source_lines": 384,
+   "extract_lines": 60,
+   "definitions": [
+    "CASES",
+    "PATTERNS",
+    "REFERENCE_HZ",
+    "phase_factors"
+   ],
+   "needed": [
+    "CASES",
+    "PATTERNS",
+    "REFERENCE_HZ",
+    "np",
+    "phase_factors"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_imaging": {
+   "dest": "core_image_fit",
+   "source_sha256": "a57560ebe771e55bf1d224bda5f5d64722f715ed8ab81c1285b44020e8c86488",
+   "source_lines": 899,
+   "extract_lines": 156,
+   "definitions": [
+    "IMAGE_CLOSURE_JY",
+    "SETTINGS",
+    "_read_images",
+    "image_diagnostics",
+    "image_geometry",
+    "linear_image_fit"
+   ],
+   "needed": [
+    "IMAGE_CLOSURE_JY",
+    "SETTINGS",
+    "_read_images",
+    "image_diagnostics",
+    "image_geometry",
+    "linear_image_fit",
+    "np"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_influence": {
+   "dest": "core_influence",
+   "source_sha256": "a5b8b87aea5d771cd9443505704b4cf7e01416f92cc69b56c94cd5460750a6eb",
+   "source_lines": 780,
+   "extract_lines": 263,
+   "definitions": [
+    "INFO",
+    "REASONS",
+    "_complex",
+    "_functions",
+    "_maps",
+    "_npz",
+    "_predict",
+    "_training_bundle",
+    "anchored_response",
+    "jones_jacobian",
+    "training_normals"
+   ],
+   "needed": [
+    "INFO",
+    "REASONS",
+    "_complex",
+    "_functions",
+    "_maps",
+    "_native_library",
+    "_npz",
+    "_predict",
+    "_training_bundle",
+    "anchored_response",
+    "ctypes",
+    "jones_jacobian",
+    "lru_cache",
+    "np",
+    "training_normals"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_injections": {
+   "dest": "core_injection_model",
+   "source_sha256": "93d151f2b5ea03af2fcd2e00c9fefa45aaefd00bc3acc69c1824d9660f48863d",
+   "source_lines": 500,
+   "extract_lines": 164,
+   "definitions": [
+    "PATTERNS",
+    "injection_scores",
+    "make_injection",
+    "reference_distance"
+   ],
+   "needed": [
+    "PATTERNS",
+    "injection_scores",
+    "make_injection",
+    "np",
+    "reference_distance",
+    "sha256"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_next": {
+   "dest": "core_receipts",
+   "source_sha256": "2a2ae5ed96229e0d2fca2e5e2dad81b3579b788e92d543ea5718a7a808d69754",
+   "source_lines": 151,
+   "extract_lines": 31,
+   "definitions": [
+    "source_receipts"
+   ],
+   "needed": [
+    "Path",
+    "_native_library",
+    "sha256",
+    "source_receipts"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_prepared": {
+   "dest": "core_paths",
+   "source_sha256": "8c1878cdaa3259ca2e5416b78df2a89544a87cea86aa1b47099eaf4b3d96e8ab",
+   "source_lines": 263,
+   "extract_lines": 21,
+   "definitions": [
+    "reject_nested_paths"
+   ],
+   "needed": [
+    "Path",
+    "reject_nested_paths"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_prospective": {
+   "dest": "core_forecast",
+   "source_sha256": "5a36faf8c84d6baefd2d2e6fc9ad1b736d337032b7ed204b27e84e5b73d7e638",
+   "source_lines": 647,
+   "extract_lines": 250,
+   "definitions": [
+    "CampaignBudget",
+    "MARGIN",
+    "SEEDS",
+    "_freeze_view",
+    "forecast_family",
+    "make_shortlist",
+    "score_forecasts"
+   ],
+   "needed": [
+    "CampaignBudget",
+    "MARGIN",
+    "Path",
+    "SEEDS",
+    "_freeze_view",
+    "forecast_family",
+    "generate_candidates",
+    "make_shortlist",
+    "np",
+    "score_forecasts",
+    "sha256",
+    "shutil",
+    "time"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_response": {
+   "dest": "core_response",
+   "source_sha256": "b62a9877af099d9c72875b8439818b033e8fdff22d5b931386f327dbfed5fac8",
+   "source_lines": 929,
+   "extract_lines": 259,
+   "definitions": [
+    "ALLOCATION_BYTES",
+    "Budget",
+    "CONDITION_LIMIT",
+    "GRIDS",
+    "RESERVE_BYTES",
+    "SKIES",
+    "SOURCES",
+    "_correct",
+    "_jones_samples",
+    "_json_default",
+    "_product_distance",
+    "allocated_bytes",
+    "copy_bound",
+    "linear_response"
+   ],
+   "needed": [
+    "ALLOCATION_BYTES",
+    "Budget",
+    "CONDITION_LIMIT",
+    "GRIDS",
+    "Path",
+    "REFERENCE_HZ",
+    "RESERVE_BYTES",
+    "SKIES",
+    "SOURCES",
+    "_correct",
+    "_jones_samples",
+    "_json_default",
+    "_product_distance",
+    "allocated_bytes",
+    "contextmanager",
+    "copy_bound",
+    "corrected_intensity",
+    "json",
+    "linear_response",
+    "np",
+    "shutil"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_signal": {
+   "dest": "core_templates",
+   "source_sha256": "60743c3972d8fb24a3017931d5c79ca2085c30576a848b4ec567605fe3aad81b",
+   "source_lines": 929,
+   "extract_lines": 123,
+   "definitions": [
+    "ARCMIN",
+    "INVERSE_CONDITION_LIMIT",
+    "REFERENCE_HZ",
+    "SOURCES",
+    "corrected_intensity",
+    "spatial_templates"
+   ],
+   "needed": [
+    "ARCMIN",
+    "INVERSE_CONDITION_LIMIT",
+    "REFERENCE_HZ",
+    "SOURCES",
+    "corrected_intensity",
+    "np",
+    "spatial_templates"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_signal_guard": {
+   "dest": "core_guard",
+   "source_sha256": "85b114ecf554edae2ede1fddeeb2309b0cabcfdedce733c84940eabff98aea29",
+   "source_lines": 934,
+   "extract_lines": 405,
+   "definitions": [
+    "GRID",
+    "MAXIMUM_SOLVES",
+    "MINIMUM_BENEFIT",
+    "PROBE_JY",
+    "SEEDS",
+    "TRANSFER_LIMIT",
+    "_evaluate",
+    "_rfi_diagnostics",
+    "actual_acceptance",
+    "choose_slots",
+    "fit_transfer",
+    "inverse_tangent",
+    "train_signal_guard"
+   ],
+   "needed": [
+    "GRID",
+    "MAXIMUM_SOLVES",
+    "MINIMUM_BENEFIT",
+    "PROBE_JY",
+    "SEEDS",
+    "TRANSFER_LIMIT",
+    "_evaluate",
+    "_rfi_diagnostics",
+    "actual_acceptance",
+    "choose_slots",
+    "fit_transfer",
+    "inverse_tangent",
+    "np",
+    "train_signal_guard"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_sky": {
+   "dest": "core_catalog",
+   "source_sha256": "964728135a142faa1000655d45f13e368ecdbaa127ed5021d61df994ff5e347d",
+   "source_lines": 595,
+   "extract_lines": 43,
+   "definitions": [
+    "point_catalog_predict"
+   ],
+   "needed": [
+    "np",
+    "point_catalog_predict"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_structured": {
+   "dest": "core_structured",
+   "source_sha256": "6586bdf96eb9978f702d8d0f32796d070d3bbe0184b12e3801234811cc9c2feb",
+   "source_lines": 267,
+   "extract_lines": 42,
+   "definitions": [
+    "_compact",
+    "choose_action"
+   ],
+   "needed": [
+    "_compact",
+    "choose_action",
+    "np"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_structured_proposals": {
+   "dest": "core_proposals",
+   "source_sha256": "aa1fff8f4c6601ef3d3b9e2526ae771341844d4759f850178561f18b5058d37c",
+   "source_lines": 280,
+   "extract_lines": 278,
+   "definitions": [
+    "FREQUENCY_WIDTHS",
+    "TV_CAP",
+    "_bool_shape",
+    "_inputs",
+    "_row_groups",
+    "generate_candidates",
+    "rank_candidates"
+   ],
+   "needed": [
+    "FREQUENCY_WIDTHS",
+    "TV_CAP",
+    "_bool_shape",
+    "_inputs",
+    "_row_groups",
+    "generate_candidates",
+    "np",
+    "rank_candidates",
+    "sha256"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "flagging_trend": {
+   "dest": "core_trend_run",
+   "source_sha256": "3c578c5e355a4a81d2959db9463f7bbf23025e52e01a61e72ebe9e45c5988e6b",
+   "source_lines": 318,
+   "extract_lines": 322,
+   "definitions": [
+    "TrendBudget",
+    "_kernel",
+    "detrended_tv",
+    "estimate_trend",
+    "guidance_from_tv",
+    "run",
+    "training_gain_support"
+   ],
+   "needed": [
+    "Path",
+    "TrendBudget",
+    "_kernel",
+    "_native_library",
+    "ctypes",
+    "detrended_tv",
+    "estimate_trend",
+    "generate_candidates",
+    "guidance_from_tv",
+    "json",
+    "lru_cache",
+    "np",
+    "os",
+    "platform",
+    "run",
+    "sha256",
+    "shutil",
+    "training_gain_support"
+   ],
+   "in_body_rewrites": [
+    {
+     "definition": [
+      "run"
+     ],
+     "old": "from .flagging_next import",
+     "new": "from .core_receipts import"
+    }
+   ],
+   "skipped_top_level": []
+  },
+  "flagging_workflow": {
+   "dest": "core_state",
+   "source_sha256": "137daffae931fd80a6d8d743ca20fabb39ed9a97c8dfb2a7405838a65941391a",
+   "source_lines": 917,
+   "extract_lines": 39,
+   "definitions": [
+    "load_state",
+    "tree_digest",
+    "write_json"
+   ],
+   "needed": [
+    "Path",
+    "json",
+    "load_state",
+    "np",
+    "sha256",
+    "tree_digest",
+    "write_json"
+   ],
+   "in_body_rewrites": [],
+   "skipped_top_level": []
+  },
+  "imaging_sensitivity": {
+   "dest": "core_sensitivity",
+   "source_sha256": "1cd310245d138c35a566bb146cc0a689e7e5a10d2b09e6442c0b6ba817a75f60",
+   "source_lines": 362,
+   "extract_lines": 375,
+   "definitions": [
+    "ADJACENT",
+    "DEFAULTS",
+    "FITTED_JOBS",
+    "FLAGS",
+    "JOBS",
+    "ROLES",
+    "UNIT_JOBS",
+    "WEIGHT_KEYS",
+    "_rel",
+    "classify_reproduction",
+    "compare_reproduction",
+    "job_metrics",
+    "pixel_differences",
+    "pixel_digest",
+    "proposed_tolerances",
+    "spread",
+    "variant_command",
+    "variant_metrics",
+    "variants"
+   ],
+   "needed": [
+    "ADJACENT",
+    "DEFAULTS",
+    "FITTED_JOBS",
+    "FLAGS",
+    "JOBS",
+    "ROLES",
+    "UNIT_JOBS",
+    "WEIGHT_KEYS",
+    "_rel",
+    "classify_reproduction",
+    "compare",
+    "compare_reproduction",
+    "job_metrics",
+    "key_and_parent",
+    "np",
+    "pixel_differences",
+    "pixel_digest",
+    "proposed_tolerances",
+    "sha256",
+    "spread",
+    "variant_command",
+    "variant_metrics",
+    "variants"
+   ],
+   "in_body_rewrites": [
+    {
+     "definition": [
+      "job_metrics"
+     ],
+     "old": "from .flagging_imaging import",
+     "new": "from .core_image_fit import"
+    }
+   ],
+   "skipped_top_level": []
+  }
+ }
+}
