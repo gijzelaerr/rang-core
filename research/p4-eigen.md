@@ -199,14 +199,19 @@ directory (`suite-record.sh`, `suite-timing.sh`, `identity.sh`).
 | `core_cli compare signal` vs `gain-tv-next-signal.json` | passed (261 exact, floats 1.7e-11) | passed, same classes and maxima |
 
 B against A, every leaf (`bench_p4_eigen.py diff`, `-03/diff-*.json`): no
-non-float difference anywhere. Signal: 566 leaves, only 11 timing leaves
-differ, every float equal. LUNO solved and support, status audit: all leaves
+non-float difference anywhere, and every leaf the diff set aside is in the
+frozen exclusion list (timings, absolute paths, P8's timing digests).
+Signal: 566 leaves, only 11 differ (`seconds`, `seconds_total` and
+`acceptance_digest_core`), every float equal. LUNO solved and support, status audit: all leaves
 equal. Prospective: 4,666 leaves, 109 volatile (`seconds`,
 `seconds_total`, `native_response_seconds`,
 `frozen_train_responses_sha256`), 404 floats differ by at most 1.8e-12
-relative (`predicted_cost_removed_benefit`, which carries the response
-deltas), no count, status or decision differs. Section 6 and phase 2: only
-timings and peak RSS (a float, 1e-3 relative) differ.
+relative (the response diagnostics and the forecasts built on the
+deltas, largest in `predicted_cost_removed_benefit`), no count, status or
+decision differs. Section 6 and phase 2: only
+timings and peak RSS (a float, 1e-3 relative) differ. The bench-f
+`check.json` differs only in its timing parts (`parts_min`,
+`parts_median`, `seconds`, load).
 
 ### 2. Per-call identity (pass)
 
@@ -294,7 +299,7 @@ Date for every row: 2026-10-30. Load is the 1-minute average.
 | record suite `-02`, both arms (11 steps each) | archived inputs | A: section 6 11.8 s, check 43.5 s, phase 2 5.0 s, bench-f 14.4 s, LUNO solved 1.6 s, support 5.3 s, audit 6.1 s, prospective 40.2 s, signal 94.9 s; B: 9.3, 39.3, 3.3, 8.5, 1.2, 2.7, 2.8, 37.1, 55.9 s | 973 MB (signal) | load 29–33; `section6-check` exit 1 both arms (`8_cost` only) |
 | identity analysis `-03`: 14 replays, 7 dumps, 7 `p4_dump_audit` runs, 15 diffs | `-02` recordings | replays 1–80 s (signal 80 s, 77 s), audits 0.5–30 s | 480 MB | load 28–34; all pass |
 | timing suite `-04`: 6 × bench-f survey, 6 × section 6 + check, 6 × prospective, 6 × signal, interleaved; 3 × replay microbenchmark | archived inputs | 15.5 min in all; replays 9.6–10.5 s | 838 MB (signal) | load 18–32; Jacobi `section6-check` exit 1 (`8_cost`) 3 of 3, QL exit 0 3 of 3 |
-| `bash tools/check-all.sh` (once, on `6d3199b` plus this document) | branch | 1,380 s (pytest 558 passed in 1,296 s) | not measured | load 31–41; overall PASS; log `outputs/p4-eigen-20261030-05-check-all.log` |
+| `bash tools/check-all.sh` (once, on `6d3199b` plus this document) | branch | 1,380 s (pytest 558 passed in 1,296 s) | not measured | load 31–41; overall PASS; log `outputs/p4-eigen-20261030-05/check-all.log` |
 
 ## For the coordinator
 
