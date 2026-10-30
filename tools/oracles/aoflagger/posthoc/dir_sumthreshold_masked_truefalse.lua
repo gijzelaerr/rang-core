@@ -1,0 +1,9 @@
+function execute(input)
+  local missing = input:copy()
+  local data = input:copy()
+  local all_flagged = input - input
+  all_flagged:flag_zeros()
+  data:set_mask(all_flagged)
+  aoflagger.sumthreshold_masked(data, missing, 1.0/6.0, 1.0/6.0, true, false)
+  input:set_mask(data)
+end

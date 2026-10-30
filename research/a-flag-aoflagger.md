@@ -11,17 +11,24 @@ Status (2026-10-31): **implemented; measured.** The protocol was frozen in
 `4c3f7c7`; nothing above "Measured result" changed except through the
 dated, labelled amendment there.
 
-- **Kernel level: the port matches the reference implementation, with
-  every difference attributed.** For all 48 passes (16 `sum_threshold`
-  steps × spectrum, time and frequency), a NumPy bridge kernel reproduces
-  both Tricolour's raw SumThreshold flags (the dump) and AOFlagger 3.5.0's
-  own flags (the hybrid test) bit for bit. The ladder between them
-  attributes every differing cell to one of five named rungs:
-  1. lengths 1–256 with ρ = 4/3;
-  2. clamping versus exclusion;
-  3. input flags as values versus as missing;
-  4. an AOFlagger 3.5.0 defect in the masked horizontal kernel;
-  5. one χ₁ = 0 chunk.
+- **Kernel level: every difference attributed; the frozen match claim
+  holds against AOFlagger's intended kernel, not against the shipped 3.5.0
+  binary.** For all 48 passes (16 `sum_threshold` steps × spectrum, time
+  and frequency), a NumPy bridge kernel reproduces both Tricolour's raw
+  SumThreshold flags (the dump) and AOFlagger 3.5.0's own flags (the
+  hybrid test) bit for bit.
+  - Against AOFlagger with input flags kept as values (H1), and against
+    AOFlagger's intended masked semantics (K3i), the ladder attributes
+    every differing cell to A1/A2 alone: lengths 1–256 with ρ = 4/3,
+    clamping against exclusion, and input flags as values against as
+    missing. The spectrum pass also has one χ₁ = 0 chunk (408 cells),
+    which a normalised input cannot express.
+  - Against the shipped binary (H2) a further rung remains: an AOFlagger
+    3.5.0 defect in the masked x-direction kernel, 24,253–225,955 cells
+    per pass type. That rung is not A1/A2, so rule 2.7 is not met as
+    frozen against H2.
+  - The extra cells come from an AOFlagger bug, not from Tricolour or the
+    port. This reading of 2.7 is labelled (deviation 8).
 - **Stage level: no step matches.** Agreement on cells unflagged at entry
   is 0.60–0.95 for the mapped strategy and 0.63–0.95 for tuned. A large
   part of the gap is not separated, so under the frozen rule this is
@@ -45,7 +52,7 @@ dated, labelled amendment there.
 - **Cost:** AOFlagger spends 0.63–0.94 s per control on all
   `sum_threshold` steps (one thread); the port 0.92–1.48 s at one thread
   and 0.31–0.52 s at four.
-- **Checks:** `bash tools/check-all.sh` overall PASS (section 9).
+- **Checks:** `bash tools/check-all.sh`, see section 10.
 
 ## 0. Question and context
 
@@ -538,17 +545,28 @@ rung, summed. In parentheses: cells not flagged at the pass's input.
   against 1.3 alone.
 - AOFlagger's own two directions disagree on the same masked data:
   K3 (x) against K3v (y) differs in 29,647 spectrum and 298,810 frequency
-  cells. That is the x-direction defect plus the y-direction zero tail
-  (A1/A2, deviation 3).
+  cells. That is the x-direction defect plus the y-direction zero tail,
+  both AOFlagger implementation effects (deviation 3), not A1/A2.
+- A 2-D AOFlagger strategy runs the spectrum and frequency passes along y,
+  which has no x defect. Tricolour against H2v (y, input flags missing)
+  differs in 336,247 spectrum cells (12,575 not input-flagged) and
+  4,316,798 frequency cells (83,547). Against H1 (x, input as values) the
+  counts are 44,511 (24,888), 8,556 (1,982) and 1,418,807 (394,395).
 
-**Kernel decision (frozen rule).** All three pass types have a validated
-bridge at both ends. Every Tricolour–AOFlagger difference is attributed to
-named rungs: A1 (lengths, ρ, clamp versus exclude), A2 (input handling),
-the AOFlagger defect, and the χ₁ = 0 chunk. Nothing is left as near-threshold
-rounding. **So at kernel level Tricolour's SumThreshold, and therefore the
-port, is AOFlagger's SumThreshold up to these named differences.** The two
-non-A1/A2 rungs are an AOFlagger bug and a degenerate input. Neither is a
-Tricolour or port behaviour that departs from the algorithm.
+**Kernel decision (frozen rule 2.7, as a labelled reading; deviation 8).**
+All three pass types have a validated bridge at both ends, and nothing is
+left as near-threshold rounding.
+
+- **Against H1 and against AOFlagger's intended masked kernel (K3i).**
+  Every Tricolour–AOFlagger difference lies on A1 rungs (lengths, ρ,
+  clamp against exclude) and A2 rungs (input handling). The only extra is
+  the χ₁ = 0 spectrum chunk, a degenerate input of the normalised feed.
+  **So at kernel level Tricolour's SumThreshold, and therefore the port, is
+  AOFlagger's SumThreshold up to A1 and A2.**
+- **Against the shipped 3.5.0 binary with input flags as missing (H2).**
+  The x-direction defect is a further rung, and it is not A1/A2. As
+  frozen, the rule is therefore not met against H2. The cells it adds
+  come from an AOFlagger bug, not from Tricolour or the port.
 
 ### 6. Stage level
 
@@ -711,7 +729,7 @@ load average was 5–7 throughout.
      image was zero apart from the spikes.
    - Found when the bridge disagreed with `-04`, before any `-04` number
      was used. Fixed with `flag_zeros()` on a zero image, re-verified on
-     N(0, 0.01) noise (`-01/probe/probe5.py`), and re-run as `-10`.
+     N(0, 0.01) noise (`posthoc/probe5.py`), and re-run as `-10`.
 2. **AOFlagger 3.5.0 direction-argument bug.**
    - `Functions::sumthreshold_masked` (`lua/functionswrapper.cpp`) reads
      `horizontal = lua_toboolean(L, 4)` and `vertical = lua_toboolean(L, 5)`.
@@ -757,6 +775,32 @@ load average was 5–7 throughout.
      advance.
    - A `rang-core` CLI stage. It is not needed: the oracle is a research
      tool, not a pipeline stage.
+8. **Reading of decision rule 2.7.** The frozen rule asks that H1 and H2
+   differ from Tricolour "solely by cells the bridge ladder attributes to
+   A1/A2". The defect of deviation 3 was unknown at freezing, and it adds
+   a non-A1/A2 rung between AOFlagger's intended kernel (K3i) and the
+   shipped binary (H2).
+   - The kernel-level claim is therefore made against H1 and K3i, where
+     the rule holds.
+   - Against H2 the rule is reported as not met, with the extra cells
+     attributed to the AOFlagger defect.
+   - The χ₁ = 0 chunk (408 spectrum cells) is a property of the
+     normalised hybrid feed, not of either kernel.
+
+   This reading was made after the results and is labelled as such.
+9. **Post-hoc scripts.** The scripts behind the post-hoc numbers and the
+   bug evidence are committed under `tools/oracles/aoflagger/posthoc/`:
+   - `s1_values.py` and `s1_measure.py`: the S1 split, run `-15`;
+   - `probe5.py`: the A3 re-verification;
+   - `probe9.py`: the direction-argument bug;
+   - `probe11.py`: the x-direction defect and the y zero tail;
+   - `trace_tuned_plus.py`: the tuned⁺ iteration trace.
+
+   Run the probes as `docker run --rm --network none -v $PWD:/work:ro -v
+   $PWD/outputs:/work/outputs:ro -v
+   $PWD/tools/oracles/aoflagger/posthoc:/probe:ro
+   rang-aflag-aoflagger:3.5.0 python3 /probe/<probe>.py`. The other
+   ad-hoc probes are kept in `outputs/aflag-20261030-01/probe/`.
 
 ### Open items
 
@@ -810,13 +854,15 @@ test needs them.
 - `research/README.md`, index entry:
   "New, 2026-10-31: A-FLAG, [AOFlagger 3.5 as a second SumThreshold
   oracle](a-flag-aoflagger.md): at kernel level the port is AOFlagger's
-  SumThreshold up to five named, bit-exactly bridged differences. At stage
-  level the flaggers differ: 0.60–0.95 agreement, mostly from Tricolour
-  growing input flags. Two AOFlagger 3.5.0 bugs found."
+  intended SumThreshold up to its documented differences (A1/A2), bridged
+  bit for bit; against the shipped 3.5.0 binary an AOFlagger defect adds
+  more. At stage level the flaggers differ: 0.60–0.95 agreement, mostly
+  from Tricolour growing input flags. Two AOFlagger 3.5.0 bugs found."
 - `research/big-plan.md`, line 269: replace "A-FLAG (AOFlagger as second
   SumThreshold oracle)" with "A-FLAG (done 2026-10-31,
-  `a-flag-aoflagger.md`: kernel-level match with every difference
-  attributed; stage-level difference, mostly Tricolour's input-flag
+  `a-flag-aoflagger.md`: kernel-level match with AOFlagger's intended
+  kernel up to A1/A2, every difference attributed, the shipped 3.5.0
+  binary adds a defect; stage-level difference, mostly Tricolour's input-flag
   growth; two AOFlagger 3.5.0 bugs; image `rang-aflag-aoflagger:3.5.0`)".
 - `README.md`, after "the Tricolour strategies (`rang.core_flag`; …
   BSD notice)": add "; AOFlagger 3.5 is a second oracle for them
@@ -837,13 +883,17 @@ test needs them.
 > CARACal's Tricolour first-pass (and mild) `sum_threshold` steps on the
 > core's polarised intensity for task D's four controls. Two strategies:
 > mapped (AOFlagger idiom) and tuned (as close as the Lua API allows).
-> **Kernel level: match, fully attributed.** A NumPy bridge reproduces
-> both Tricolour's raw SumThreshold flags (re-chained from the unmodified
-> 0.2.1 functions, gate 16/16) and AOFlagger's own flags (absolute
-> thresholds, hybrid test) bit for bit on all 48 passes. Every differing
-> cell falls on five named rungs: AOFlagger's fixed lengths 1–256 with
-> ρ = 4/3 (against 1.3), clamping against exclusion, input flags as
-> values against as missing, an AOFlagger defect, and one χ₁ = 0 chunk.
+> **Kernel level: every difference attributed.** A NumPy bridge
+> reproduces both Tricolour's raw SumThreshold flags (re-chained from the
+> unmodified 0.2.1 functions, gate 16/16) and AOFlagger's own flags
+> (absolute thresholds, hybrid test) bit for bit on all 48 passes.
+> Against AOFlagger's intended kernel every differing cell lies on the
+> documented differences: fixed lengths 1–256 with ρ = 4/3 (against
+> 1.3), clamping against exclusion, and input flags as values against as
+> missing. One χ₁ = 0 chunk adds 408 cells. So the port is AOFlagger's
+> SumThreshold up to those. Against the shipped 3.5.0 binary, a further
+> AOFlagger defect adds cells, so the frozen rule is not met there (a
+> labelled reading).
 > **Stage level: the flaggers differ.** On cells unflagged at entry,
 > mapped agrees 0.60–0.95 and tuned 0.63–0.95; the final FLAG agrees
 > 0.937–0.999. The largest cause (post hoc) is Tricolour itself: flagged
@@ -863,11 +913,11 @@ reported by decision)")**:
 
 | Software | Observation | Evidence | What a report would say | Status |
 | --- | --- | --- | --- | --- |
-| AOFlagger 3.5.0 | `Functions::sumthreshold_masked` (`lua/functionswrapper.cpp`) checks Lua arguments 5 and 6 are booleans, but reads `horizontal = lua_toboolean(L, 4)` and `vertical = lua_toboolean(L, 5)`. The x pass therefore always runs (argument 4 is a number) and the y pass follows `x_direction`. Calls with (true, true), as the shipped strategies use, are unaffected. | `a-flag-aoflagger.md` deviation 2, `probe9.py` | Read arguments 5 and 6 | not reported by decision |
+| AOFlagger 3.5.0 | `Functions::sumthreshold_masked` (`lua/functionswrapper.cpp`) checks Lua arguments 5 and 6 are booleans, but reads `horizontal = lua_toboolean(L, 4)` and `vertical = lua_toboolean(L, 5)`. The x pass therefore always runs (argument 4 is a number) and the y pass follows `x_direction`. Calls with (true, true), as the shipped strategies use, are unaffected. | `a-flag-aoflagger.md` deviation 2, `tools/oracles/aoflagger/posthoc/probe9.py` | Read arguments 5 and 6 | not reported by decision |
 | AOFlagger 3.5.0 | `SumThresholdMissing::horizontal`: after the initial loop xRight can point at a missing sample, which the main loop adds (it tests only the mask) and never subtracts (xLeft visits only non-missing samples). It stays in the sum and the count for the rest of the row, so the x and y masked SumThreshold disagree on the same data (here 298,810 frequency cells). | deviation 3; bridge model exact against AOFlagger on 48 real passes and on synthetic images | Skip missing samples before the first add, as the do-while does later | not reported by decision |
 | AOFlagger 3.5.0 | `high_pass_filter` and `low_pass_filter` document `xsigma`/`ysigma` as Gaussian widths, but pass them to `SetHKernelSigmaSq`/`SetVKernelSigmaSq`: they are variances | `lua/functions.cpp`, `lua_functions.rst` | Documentation fix | not reported by decision |
 | AOFlagger 3.5.0 | `Data:clear_mask()` removes the mask (`SetNoMask`), after which `invert_mask()` is a silent no-op. Not a bug, but the obvious "flag everything" idiom fails without an error. | deviation 1 | Documentation note, or make `invert_mask` create the mask | not reported by decision |
-| AOFlagger 3.5.0 | `VerticalStacked` pads the compacted column with zero-valued, unflagged samples to the full height, so y windows can extend past the last valid sample. The x direction stops at it. Small effect: 4 cells in 40 synthetic columns. | `probe11.py` | Note, or stop at the valid length | not reported by decision |
+| AOFlagger 3.5.0 | `VerticalStacked` pads the compacted column with zero-valued, unflagged samples to the full height, so y windows can extend past the last valid sample. The x direction stops at it. Small effect: 4 cells in 40 synthetic columns. | `tools/oracles/aoflagger/posthoc/probe11.py` | Note, or stop at the valid length | not reported by decision |
 | KERN-10 `aoflagger` 3.5.0-1kern1 | The Python module installs as `/usr/lib/aoflagger.cpython-312-x86_64-linux-gnu.so`, off `sys.path`, so `import aoflagger` fails until `PYTHONPATH=/usr/lib` | Dockerfile | Install to `dist-packages` | not reported by decision |
 
 **Upstream observations, Tricolour (RATT; for `research/upstream-notes.md`,
