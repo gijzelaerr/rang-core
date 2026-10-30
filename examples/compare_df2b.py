@@ -4,6 +4,7 @@ WSClean 3.7's wgridder (research/df2b-wgrid.md).
 
     python examples/compare_df2b.py floor OUT.json
     python examples/compare_df2b.py kinvert OUT_DIR [--gridder wstack|wgrid]
+    python examples/compare_df2b.py kdriver OUT_DIR   (K's image_arm and L1's driver, post hoc)
     python examples/compare_df2b.py dump-l1 OUT_DIR [--arms original ...]
     python examples/compare_df2b.py image NPZ OUT_PREFIX --gridder G [--groups N]
     python examples/compare_df2b.py ms-inputs OUT_DIR       (C and K MS inputs)
@@ -1439,6 +1440,163 @@ def cmd_summary(args):
     print("wrote", args.out)
 
 
+K_RUN = OUTPUTS / "core-k-20261030-01"
+
+
+def cmd_kdriver(args):
+    """Task K's own `core_campaign.image_arm` on K's four-station cells
+    decoded from the local tiles, with K run `-01`'s saved gains and
+    additions (hashes checked), for both gridders; then L1's driver
+    (`core_campaign_array.run`) replaying K with `gridder="wgrid"` in its
+    image dict. Post hoc (labelled): the protocol measured K through
+    `invert` on P2's dumps only."""
+    _host()
+    from rang import core, core_campaign, core_grid, core_wgridder
+    from rang import core_campaign_1830 as l2
+    from rang import core_campaign_array as array
+
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=False)
+    core.library()
+    t0 = time.perf_counter()
+    arrays, rows, _ = array.decode_inputs(core_campaign.STATIONS)
+    extra = array.decode_extra(rows)
+    state = array.build_state(arrays, extra, max(core_campaign.STATIONS) + 1)
+    del arrays
+    k_result = _load_json(K_RUN / "result.json")
+    captured = {}
+    original_invert = core_grid.invert
+
+    def capture(*a, **kw):
+        captured["args"], captured["kw"] = a, kw
+        return original_invert(*a, **kw)
+
+    core_grid.invert = capture
+    rec = {"arms": {}}
+    try:
+        for arm in ("original", "tricolour-firstpass"):
+            with np.load(K_RUN / "gains" / f"{arm}.npz") as g:
+                gains, valid = g["gains"], g["gain_valid"]
+            with np.load(K_RUN / "flags" / f"{arm}.npz") as f:
+                added = f["additions"]
+            archived = k_result["arms"][arm]
+            checks = {
+                "gains_sha256": core_campaign.array_sha256(gains)
+                == archived["gains_sha256"],
+                "additions_sha256": core_campaign.array_sha256(added)
+                == archived["additions_sha256"],
+            }
+            if not all(checks.values()):
+                raise RuntimeError(f"{arm}: K's saved gains or additions differ")
+            solve = {
+                "diagnostics": {"gains": gains, "gain_valid": valid},
+                "added": added,
+            }
+            entry = {"checks": checks}
+            for gridder in ("wstack", "wgrid"):
+                m = core_campaign.image_arm(
+                    state, extra, solve, out / "images" / gridder, arm, gridder=gridder
+                )
+                entry[gridder] = {
+                    k: m.get(k)
+                    for k in (
+                        "peak_jy_per_beam",
+                        "residual_rms",
+                        "offsource_rms",
+                        "flux_recovery",
+                        "dirty_sha256",
+                        "psf_sha256",
+                        "gridder_name",
+                    )
+                }
+                entry[gridder]["wgridder"] = m.get("wgridder")
+                if gridder == "wgrid":
+                    uvw, freq, sample, weight, imaging = captured["args"][:5]
+                    kw = captured["kw"]
+                    ref = core_wgridder.fits_image(
+                        uvw,
+                        freq,
+                        sample,
+                        weight * imaging,
+                        kw["width"],
+                        kw["height"],
+                        kw["scale_arcsec"],
+                        epsilon=EPSILON,
+                    )
+                    entry["wgrid_equals_fits_image_of_product"] = m[
+                        "dirty_sha256"
+                    ] == core_campaign.array_sha256(ref["dirty"]) and m[
+                        "psf_sha256"
+                    ] == core_campaign.array_sha256(ref["psf"])
+                    dump = load_npz(K_INPUTS / f"k-{arm}.npz")
+                    entry["inputs_equal_p2_dump"] = bool(
+                        np.array_equal(sample, dump["data"])
+                        and np.array_equal(weight, dump["weights"])
+                        and np.array_equal(imaging, dump["imaging_weights"])
+                    )
+            arch = archived["image"]
+            entry["wstack_vs_archive_relative"] = {
+                k: abs(entry["wstack"][k] - arch[k]) / abs(arch[k])
+                for k in ("peak_jy_per_beam", "residual_rms", "offsource_rms")
+            }
+            entry["wstack_pass"] = all(
+                v <= L1_TOLERANCE for v in entry["wstack_vs_archive_relative"].values()
+            )
+            rec["arms"][arm] = entry
+            print(arm, json.dumps({k: entry[k] for k in ("wstack_pass",)}), flush=True)
+    finally:
+        core_grid.invert = original_invert
+    rec["image_arm_seconds"] = time.perf_counter() - t0
+    del state
+    # L1's driver on K's stations with the exact gridder (one group).
+    t1 = time.perf_counter()
+    replay = array.run(
+        out / "replay-wgrid",
+        stations=core_campaign.STATIONS,
+        image=dict(core_campaign.IMAGE, gridder="wgrid"),
+        groups=1,
+        k_metrics=True,
+        label="DF2b: K replay through L1's driver with gridder=wgrid",
+    )
+    replay["_candidates"] = _load_json(out / "replay-wgrid" / "candidates.json")
+    exact = array.compare_replay(
+        replay, k_result, _load_json(K_RUN / "candidates.json")
+    )
+    false = []
+
+    def walk(value, path):
+        if isinstance(value, dict):
+            for k, v in value.items():
+                walk(v, (*path, k))
+        elif isinstance(value, list):
+            for i, v in enumerate(value):
+                walk(v, (*path, i))
+        elif not value:
+            false.append("/".join(str(p) for p in path))
+
+    walk(exact, ())
+    rec["replay"] = {
+        "seconds": time.perf_counter() - t1,
+        "settings_image": replay["settings"]["image"] if "settings" in replay else None,
+        "false_leaves": false,
+        "only_image_products_differ": all(
+            leaf.split("/")[-1].startswith("image_")
+            or leaf.startswith("hypotheses/0")
+            or leaf == "all_equal"
+            for leaf in false
+        ),
+        "arms_equal_to_image_arm": {
+            arm: replay["arms"][arm]["image"]["dirty_sha256"]
+            == rec["arms"][arm]["wgrid"]["dirty_sha256"]
+            for arm in rec["arms"]
+        },
+    }
+    del l2
+    rec["max_rss_mb"] = maxrss_mb()
+    write_json(out / "kdriver.json", rec)
+    print(json.dumps(rec["replay"], indent=1)[:2000])
+
+
 # ---------------------------------------------------------------- main
 
 
@@ -1499,6 +1657,9 @@ def main(argv=None):
     s.add_argument("base_dir")
     s.add_argument("out")
     s.set_defaults(fn=cmd_summary)
+    s = sub.add_parser("kdriver")
+    s.add_argument("out")
+    s.set_defaults(fn=cmd_kdriver)
     args = p.parse_args(argv)
     args.fn(args)
 

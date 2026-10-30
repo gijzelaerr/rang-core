@@ -26,7 +26,7 @@ by n. Against the archived exact-gridder images: K 5.8e-14 (bound 1.8e-13);
 C and I within one float32 ulp. Against the archived w-stacking images the
 move is aliasing, as predicted: 17–32 % of the peak at the edge and
 ≤ 0.56 % in the central half for C/I/K, but only 0.45 % and 0.01 % on L1's
-64-station image. No hypothesis call changes. Per image at 4 threads,
+53-station whole-array image. No hypothesis call changes. Per image at 4 threads,
 `wgrid` is 2.5–3.8× faster than `wstack` with 2.6–3.2× less memory on four-station
 images; on L1 it takes 8.9 s against 23.5 s.
 
@@ -341,7 +341,7 @@ tasks during `-02` (2–7 during `-00`/`-01`), so the cost figures are noisy.
 | # | Criterion | Result | Figure |
 | --- | --- | --- | --- |
 | G1 | `wstack` bit-identity | **pass** | C: 30 FITS SHA256 and every counter equal. I: 30 FITS and every image number (fits, responses, closures, PSF L∞, diagnostics) equal. K: 6 arms' float64 arrays and stats equal. L1 precondition: replay FITS (14) equal and `all_passed` true. L1 whole-array `original` with four groups: arrays and stats equal |
-| G2 | two weights and driver wiring | **pass** | `invert(gridder="wgrid")` is SHA256-equal to `fits_image(weights * imaging_weights)` on 15 C jobs, 6 K arms and 3 L1 arms. The C driver's FITS equal float32 of those arrays. I's wgrid FITS equal C's (I's inputs are C's) |
+| G2 | two weights and driver wiring | **pass** | `invert(gridder="wgrid")` is SHA256-equal to `fits_image(weights * imaging_weights)` on 15 C jobs, 6 K arms and 3 L1 arms. The C driver's FITS equal float32 of those arrays. I's wgrid FITS equal C's (I's inputs are C's). K's and L1's driver functions: see "K's and L1's drivers end to end" below (post hoc) |
 | G3 | bindings | **pass** | `compare_core_wgridder.py threads` through the extension at 1 and 4 threads: 20 hashes equal to DF2a's `threads-final.json`. `gates`: all of DF1's gated checks pass, the kernel table equals (939 rows), and single visibilities are within 1.9e-12; library `_core.abi3.so` |
 | T1 | against archived exact-gridder images | **pass** | K: 5.8e-14 (`tricolour-mild` dirty) against DF2a's references of DF1's code, bound 1.8e-13. C and I: 3.2e-8 of the peak (`omitted-full` dirty) against DF1's float32 FITS, bound 2⁻²³ = 1.2e-7; 250 of 7.9 M pixels flip one float32 ulp. L1: no archive |
 | T3 | against WSClean 3.7 wgridder, ε 1e-6 | **pass** | Dirty L∞ / peak and PSF L∞ in the table below. Counters: `WSCIMGWG` within 1.6e-15 relative and `WSCNVIS` equal on all 37 inputs |
@@ -380,6 +380,46 @@ T3 per archive (worst over the inputs; tolerance 1e-5):
   of `fits_image` agree with WSClean's own wgridder FITS to 4e-7 on every
   input. **Closed.**
 
+### K's and L1's drivers end to end (post hoc, labelled)
+
+The frozen G2 measured K through `invert` on P2's dumps. After the review,
+`compare_df2b.py kdriver` (`outputs/df2b-20261030-04-kdriver`, 13.0 s,
+499 MB) ran K's own `core_campaign.image_arm`.
+
+**Setup.**
+
+- K's four-station cells are decoded from the local tiles by L1's
+  functions.
+- K run `-01`'s saved gains and dense additions are used for `original` and
+  `tricolour-firstpass`; their SHA256 equal the K archive.
+
+**`core_campaign.image_arm`, both arms.**
+
+- `gridder="wstack"` reproduces K's archived peak, residual RMS and
+  off-source RMS within 1.2e-15 relative.
+- `gridder="wgrid"`:
+  - its images are SHA256-equal to `fits_image(weights * imaging)` on the
+    gridder inputs it built;
+  - those inputs equal P2's dumps bit for bit;
+  - the metrics record `gridder_name` and the plan (8 planes).
+  - On `original` the peak is 14.924568 and the residual RMS 0.071682.
+
+**L1's driver.** `core_campaign_array.run` replayed K on four stations with
+`image=dict(core_campaign.IMAGE, gridder="wgrid")` and one group (7.7 s).
+Against K run `-01`, exactly as PC1's comparison:
+
+- every leaf is equal except the image products of the six arms (hashes,
+  peak, residual RMS) and the residual-RMS ratio of hypothesis 0;
+- its `original` and `tricolour-firstpass` images are SHA256-equal to those
+  of `core_campaign.image_arm` above.
+
+So both drivers' wgrid paths are exercised end to end.
+
+The first run, `-03-kdriver`, gave the same numbers. Its summary flag
+`only_image_products_differ` was false only because the predicate counted
+the comparison's own `all_equal` leaf. That predicate was fixed and the run
+repeated as `-04`.
+
 ### T2: against the archived w-stacking images (reported; prediction held)
 
 - **C and I** (WSClean 3.6's archived FITS):
@@ -390,7 +430,7 @@ T3 per archive (worst over the inputs; tolerance 1e-5):
   **Holds.**
 - These are DF1's aliasing figures again. WSClean's padding-1.2 KB kernel
   folds four-station sky-wide sidelobes into the field edge.
-- **L1** (64-station PSF, far sidelobes ≤ 0.04): dirty L∞ is only 0.45 % of
+- **L1** (53-station PSF, far sidelobes ≤ 0.04): dirty L∞ is only 0.45 % of
   the peak (0.01 % central, RMS 0.05 %), PSF 0.45 %. The aliasing that
   dominates the four-station archives is small on the whole-array image.
 - **I's comparator** (`compare_core_imaging.py`, A's tolerances) fails as
@@ -492,14 +532,35 @@ comparison.
    - Neither failure touched a measured image.
 6. **Accuracy sweep and `-j 4` runs.** These were run where the protocol
    lists them (C `clean-full`, K `original`, L1 `original`).
+7. **L1's receipts do not meet the frozen "ε and the kernel plan" clause.**
+   `core_campaign_array.image_arm` stores only `products["stats"]` (and the
+   groups), so a wgrid image records its gridder only through the run's
+   `settings.image` dict, when `gridder` is passed there, and not the plan.
+   The fix belongs in `core_campaign_array.py`, outside this task. Suggested
+   lines in `image_arm` after `metrics["gridder_groups"] = ...`:
+
+   ```python
+   metrics["gridder_name"] = image.get("gridder", "wstack")
+   if "wgridder" in products:
+       metrics["wgridder"] = products["wgridder"]
+   ```
+
+   For one group, `grouped_invert` must also return `out` unchanged (it
+   already does), and for several groups keep `part["wgridder"]` in each
+   group record.
+8. **Provenance of run `-02`.** Its `head.txt` reads `1663cee` with
+   `M examples/compare_df2b.py`. The uncommitted edit was the WSClean run
+   names' `-j4` suffix, made before `measure.sh` started. The `compare` and
+   `summary` subcommands were added after the runs. All of these are
+   harness code, committed in `f27cc92`; no image path was involved.
 
 ## Open items
 
 1. `rang-core campaign run` (K) and `campaign-array run` (L1) have no
    `--gridder`: it would need edits to `core_campaign.run` and
-   `core_campaign_array.run`, outside this task's owner files.
-   `core_campaign.image_arm` takes the argument, but only its signature is
-   tested, because a K state needs the fetched bytes.
+   `core_campaign_array.run`, outside this task's owner files. The driver
+   functions themselves take it and were run end to end (post hoc
+   `kdriver`). L1's receipts lack the plan (deviation 7).
 2. WSClean's agreement floor of 2–4e-7 of the peak at accuracies 1e-6 and
    1e-8, above one float32 FITS rounding. The likely cause is WSClean's
    float32 image arithmetic; reading `wgriddingmsgridder` would confirm it.
@@ -559,48 +620,43 @@ All runs 2026-10-30. Wall and peak RSS come from GNU `time` unless noted.
 | `compare_df2b.py compare` (first) | run `-02` | 35.1 s | 2.87 GB | **failed**: accuracy file names (`0.0001`); fixed |
 | `compare_df2b.py compare` | run `-02` | 40.7 s | 2.91 GB | all gates pass |
 | `compare_df2b.py summary` | `compare.json` | 0.3 s | – | `research/results/df2b-wgrid.json` |
+| `compare_df2b.py kdriver` (post hoc, first) | K four stations, local tiles | 16.0 s | 499 MB | numbers as below; summary predicate counted `all_equal` (fixed) |
+| `compare_df2b.py kdriver` (post hoc) | same | 13.0 s | 499 MB | K `image_arm` both gridders; L1 driver replay with wgrid 7.7 s |
 
 ## For the coordinator
 
 **STATE paragraph.**
 
-DF2b, the exact gridder in the imaging drivers (big plan;
-[df2b-wgrid.md](df2b-wgrid.md)), 2026-10-30: implemented and measured; every
-gated criterion passes as frozen.
-
-- **Drivers.** `core_grid.invert(..., gridder="wstack"|"wgrid")` reaches
-  task C (`run_core_gridder.py --gridder`), task I (`core_imaging`,
-  `rang-core imaging run --gridder`), K (`core_campaign.image_arm`) and L1
-  (through its image dict). `wstack` stays the default and is bit-identical
-  to before on every C, I, K and L1 image.
-- **Two weights.** A two-weight entry point (`Weights::F32Product`,
-  `vis2dirty_ex2`) forms the reader × imaging weight in the core,
-  bit-identical to the float32 product. So the drivers' copy is gone.
-- **Bindings.** `rang._core` binds the gridder, and `core_wgridder` no
-  longer builds its standalone library. DF2a's 20 hashes and DF1's gates
-  pass through it.
-- **Against WSClean 3.7's wgridder** (O-CASA's image, ε 1e-6, an MS written
-  from the same gridder inputs and validated pixel for pixel against the
-  archived WSClean 3.6 image):
-  - the exact gridder agrees within 2.5–4.0e-7 of the peak on the 15 C/I
-    jobs, the six K arms and L1's whole-array image (34 M visibilities);
-  - the counters are equal;
-  - this closes DF1's open item 4 (orientation and normalisation), and
-    WSClean does not divide by n;
-  - at WSClean's default accuracy 1e-4 the gap is 1.5–4.2e-5.
-- **Against archived exact-gridder images:** K 5.8e-14 (bound 1.8e-13, set
-  from a measured row-permutation floor); C and I within one float32 ulp.
-- **Against the archived w-stacking images** the move is the predicted
-  aliasing:
-  - C/I/K: 17–32 % of the peak at the edge, ≤ 0.56 % in the central half;
-  - L1's 64-station image: 0.45 % at the edge, 0.01 % central;
-  - I's 23 metric values move as DF1 found;
-  - K's and L1's residual RMS move by +0.65 % and −0.36 %;
-  - no hypothesis call changes.
-- **Cost** per image at 4 threads: 0.19 s against 0.66 s on four-station
-  images (68 MB against 218 MB); 8.9 s against 23.5 s on L1 (4.4 s at 16
-  threads); WSClean 3.7 needs 42 s (`-j 4`).
-- **Not done:** `--gridder` for `campaign run` and `campaign-array run`.
+DF2b, the exact gridder in the imaging drivers (big plan), 2026-10-30
+(implemented; measured; [df2b-wgrid.md](df2b-wgrid.md)). The imaging paths
+of tasks C, I, K and L1 now take `core_grid.invert(...,
+gridder="wstack"|"wgrid")`: `run_core_gridder.py --gridder`,
+`rang-core imaging run --gridder`, `core_campaign.image_arm` and L1's
+driver through its image dict. `wstack` stays the default and is
+bit-identical to before on every C, I, K and L1 image. A two-weight entry
+point (`Weights::F32Product`, `vis2dirty_ex2`) forms the reader × imaging
+weight in the core, bit-identical to the float32 product, so the drivers'
+copy is gone. `rang._core` binds the gridder, so `core_wgridder` no longer
+builds its standalone library; DF2a's 20 hashes and DF1's gates pass
+through the binding. Against WSClean 3.7's wgridder (O-CASA's image, ε
+1e-6, run on an MS written from the same gridder inputs), the exact
+gridder agrees within 2.5–4.0e-7 of the peak on the 15 C/I jobs, the six K
+arms and L1's 34 M-visibility whole-array image. The counters are equal.
+That MS harness was first checked pixel for pixel against the archived
+WSClean 3.6 image. The comparison closes DF1's open item 4 (orientation
+and normalisation) and shows that WSClean does not divide by n; at
+WSClean's default accuracy 1e-4 the gap is 1.5–4.2e-5. Against archived
+exact-gridder images: K 5.8e-14 (bound 1.8e-13, set from a measured
+row-permutation floor); C and I within one float32 ulp. Against the
+archived w-stacking images the move is the predicted aliasing: 17–32 % of
+the peak at the edge and ≤ 0.56 % in the central half for C/I/K, but
+0.45 % and 0.01 % on L1's whole-array image. I's 23 metric values move as
+DF1 found, K's residual RMS by +0.65 % and L1's by −0.36 %, and no
+hypothesis call changes. Per image at 4 threads the exact gridder takes
+0.19 s against 0.66 s (68 against 218 MB) at four stations, and 8.9 s
+against 23.5 s on L1 (4.4 s at 16 threads); WSClean 3.7 needs 42 s at
+`-j 4`. Open: `--gridder` for `campaign run` and `campaign-array run`, and
+the plan in L1's receipts.
 
 **One-line `research/README.md` index entry.**
 
@@ -658,7 +714,8 @@ diffs against `3b875e0` in the appendix):
 | `outputs/df2b-20261030-00-precondition` | 97M | floor, MS harness, `c-clean-full.ms` |
 | `outputs/df2b-20261030-01` | 4.0G | G1 baselines (`base-*`) and the L1 dumps `l1-inputs/` (3 × 1.37 GB; regenerated by `dump-l1` in 36 s; deletable after merge) |
 | `outputs/df2b-20261030-02` | 1.1G | G1 after, G2/G3 runs, the wgrid driver runs, `images/` (float64 `.npy` per image), `wsclean/` (21 small MS, FITS, logs, timings), `compare.json` |
-| `outputs/df2b-20261030-check-all.log` | – | the final check-all |
+| ,  | 24 MB each | post-hoc K  and L1-driver replay ( superseded by ; deletable) |
+|  | – | the final check-all |
 
 The L1 MS `outputs/df2b-20261030-02/wsclean/l1-original.ms` (4.4 GB) was
 deleted after the comparison. `make-ms` rebuilds it in 27 s from
