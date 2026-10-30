@@ -882,3 +882,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | certified CLEAN: `maturin develop --release --offline` with the `clean_certified` binding | worktree | 248.2 s | 958 MB | cold build of the extension crate in this worktree |
 | 2026-10-30 | certified CLEAN: pytest `tests/test_core_clean.py` | 3 tests | 2.8 s | – | 1.2-1.7 s in pytest |
 | 2026-10-30 | certified CLEAN: binding cross-check on the slice | `exact-mgain`, `image-mgain` | 4.0 s | 148 MB | bit-identical to the example; `clean-certified-20261030-05-binding-check.json` |
+| 2026-10-30 | certified CLEAN: `bash tools/check-all.sh` at `8adebce` | worktree | 1608.4 s | 1.53 GB | PASS; the wall includes waiting for the host lock behind two coordinator runs; pytest 600 passed, 25 skipped in 365.1 s; log `outputs/clean-certified-20261030-check-all.log` |
