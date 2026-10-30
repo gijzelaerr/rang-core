@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan wave 2 kernels merged: [P1 solver and fused pass](p1-solver.md)
+(rayon over intervals, bit-identical, 5.4× at 8 threads), [P2 gridder](p2-gridder.md)
+(`rustfft`, parallel w-layers, 7× per image, margins unchanged) and
+[P3 SumThreshold](p3-sumthreshold.md) (rayon over baselines, bit-identical, 9–12×).
+
 New, 2026-10-30: big plan task P8, [history](p8-history.md): the frozen
 recipes, container builds and recipe-only modules moved to `history/`
 ([history/README.md](../history/README.md)); live tree −6,373 lines, every

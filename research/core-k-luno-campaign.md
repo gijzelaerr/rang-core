@@ -527,3 +527,11 @@ run once before the final commit: overall PASS, 739 pytest tests in 74.3 s,
   roots should resolve each key by existence, not by column name; and the
   PSF-sidelobe box should be set from the array's resolution, not copied
   from the 64-station fixture.
+
+## Note, 2026-10-30 (after P2)
+
+The dirty and PSF SHA256s in `results/core-k-luno-campaign.json` describe the
+images of the Bluestein-FFT gridder. Since the P2 merge the core uses
+`rustfft`; a rerun reproduces the images to 2e-15 of the peak and every
+image metric to 1.4e-14 relative ([p2-gridder.md](p2-gridder.md)), but not
+the hashes. Compare pixels or metrics, not hashes.

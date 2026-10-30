@@ -1,5 +1,46 @@
 # Rang research state
 
+P2 gridder (big plan wave 2), 2026-10-30 (implemented; measured): the
+w-stacking gridder buckets samples by w-layer once, grids dirty image and PSF
+in one pass, runs the layers in parallel with rayon and an ordered sum, and
+uses `rustfft` at WSClean's exact padded size. One four-station image:
+5.8 s → 0.80 s on one thread, 0.53–0.61 s at 4–16 threads on a loaded host;
+task C, I and K comparators pass with unchanged margins (dirty 6.11e-7, PSF
+4.17e-7 of peak against WSClean); images differ from the old FFT's by 2e-15
+of the peak and are identical at any thread count. Whole array: about 3–6 s
+per image (estimate). Consequence: archived image SHA256s (task K's
+`results/core-k-luno-campaign.json`, S1's profile equality) no longer match
+a rerun by design; checkers compare pixels or metrics within task A's
+tolerances. `rustfft` picks AVX/SSE/scalar at run time, so images may differ
+at 1e-15 between hosts and between the local v3 build and the wheel
+([p2-gridder.md](p2-gridder.md)).
+
+P1 solver and fused pass (big plan wave 2), 2026-10-30 (implemented;
+measured): the ported QuartiCal solver runs each (time bin × frequency bin)
+interval on rayon in epochs of 8 iterations with a serial,
+iteration-by-iteration replay of the global stop test, and the fused pass
+sweeps row blocks in parallel with a serial fold of the order-dependent sums
+and per-interval normals. Every product is bit-identical to the single-thread
+code at 1, 2, 4, 8 and 16 threads (task F checks, phase 1 and 2 validators, K
+precondition, a 45-process sweep including early-stop settings); LUNO solve
+0.252 → 0.047 s (5.4×) and fused pass 0.027 → 0.007 s at 8 threads under load
+14–26; the fixture's 5.5× is measured but below the frozen claim rule at that
+load. Thread count: `RAYON_NUM_THREADS` (default all logical CPUs, so
+concurrent campaign processes should set it). QuartiCal's swapped qp weights
+(issue 452) are reproduced unchanged; fixing them is a science protocol
+([p1-solver.md](p1-solver.md)).
+
+P3 SumThreshold (big plan wave 2), 2026-10-30 (implemented; measured): the
+Tricolour port runs in parallel over baselines (rayon, `RAYON_NUM_THREADS`)
+with per-worker scratch and a vectorised, lane-grouped box filter and
+frequency-axis SumThreshold; flags bit-identical (task D comparator 5/5 at 1
+and 16 threads, K additions hashes at 1–16 threads, every per-step window
+identical to the unmodified port). K first-pass 1.65 → 0.55 s on one thread
+and 0.14–0.16 s on 8–16; D controls 9–12×. Whole-array chunk 0 first pass
+estimated about 7 min → 25–50 s. The serial packing in `ffi_flag.rs` is now
+13–20 % of a 16-thread call (for P7). Archive `results/p3-sumthreshold.json`
+([p3-sumthreshold.md](p3-sumthreshold.md)).
+
 P8 history (big plan wave 2), 2026-10-30 (`p8-history.md`): the 23 frozen
 `tv-flagging*` recipes, `tools/flagging/` (8 Dockerfiles, wrappers, fetch
 scripts, preflight, locks) and the six recipe-only modules

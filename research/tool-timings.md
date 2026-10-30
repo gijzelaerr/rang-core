@@ -248,3 +248,71 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P8: `bash tools/check-all.sh` (once, on `8cb2665`) | branch | 689.5 s (pytest 555 passed in 663 s) | 1.72 GB | overall PASS; load 6–23 |
 | 2026-10-30 | big plan P8: `section6`, `section6-check` re-run (`-05`) | archived inputs | 19.0 s, 16.5 s | 437 MB | load 14–20; `8_cost` fails again (7.88 s), all else passes |
 | 2026-10-30 | big plan P8: post-hoc section 6 A/B (`-07` pre-first, `-08` post-first): pre-move worktree at `43dc3c7` rebuilt (venv, extension, both crates) twice, 3 + 3 alternating pairs | archived inputs | about 2 min build + about 4 min runs, each time | – | load 26–46; all 12 runs fail `8_cost` only; worktree removed both times |
+| 2026-10-30 | big plan P3: `uv venv -p /usr/bin/python3.14 .venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (public PyPI) | worktree | 0.02 s + 20.8 s | 377 MB | load 16–19 |
+| 2026-10-30 | big plan P3: `cargo +1.93 build --release --offline` core / root, `maturin develop --release --offline` | `43dc3c7` | 17.9 s, 5.9 s, 17.9 s | 386 MB | load 22 |
+| 2026-10-30 | big plan P3: bench smoke (`-00/smoke`, K only, 1 repeat, per-step) | K fetch | 10.8 s | 104 MB | additions equal the archive; layout check only |
+| 2026-10-30 | big plan P3: `run_core_flags.py` (`-01/d-port`) | D oracle arrays | 8.74 s | 98 MB | load 3.0 |
+| 2026-10-30 | big plan P3: `compare_core_flags.py run` (`-01/d-compare`) | `-01/d-port` | 0.34 s | 65 MB | pass, criteria 1–5 |
+| 2026-10-30 | big plan P3: `bench_p3_flags.py run --per-step` (`-01/bench-ext`) | D + K | 73.1 s | 127 MB | load 2.8–4.1; extension |
+| 2026-10-30 | big plan P3: `bench_p3_flags.py run` with `RANG_CORE_LIB` (`-01/bench-ctypes`) | D + K | 52.0 s | 125 MB | load 4.1–14.1; a ctypes library rebuilt by the default toolchain; slower per CPU-s than the extension under that load, not used further |
+| 2026-10-30 | big plan P3: development builds, unit tests, clippy and smokes (`-02`, post-hoc development, not results) | worktree | `cargo build` 10–18 s each, `maturin develop` 12–18 s, module tests 0.15 s, smoke benches 7–30 s, three `perf record` runs about 30 s each | 186 MB (bench) | load 15–21; every smoke identical to `-01` |
+| 2026-10-30 | big plan P3: targeted pytest `tests/test_p3_flags.py tests/test_core_flag.py` | worktree | 4.2 s (3.5 s in pytest) | 167 MB | 12 passed |
+| 2026-10-30 | big plan P3: `measure.sh` (`-03`, frozen): bench at 1, 2, 4, 8, 16 threads | D + K | 30.5, 7.4, 4.9, 3.8, 12.1 s | 131–183 MB | load 6–10; per-step replay at 1 and 16 |
+| 2026-10-30 | big plan P3: `run_core_flags.py` + `compare_core_flags.py run` at 1 and 16 threads (`-03`) | D oracle arrays | 4.92 + 0.46 s; 1.75 + 0.36 s | 102 / 148 MB | pass 5/5 both |
+| 2026-10-30 | big plan P3: A/B at 16 threads (`-03`), new | D + K | 1.64–1.68 s each | 180 MB | the three old runs **failed** (0.1 s, exit 1): the shadow package of the old extension did not resolve `core_root()`; tooling, not a result |
+| 2026-10-30 | big plan P3: probe ×16 at 1, 2, 4, 8, 16 threads (`-03`) | K ×16 + K | 64.9, 45.7, 34.0, 21.2, 20.5 s | 800–853 MB | load 6.6 → 24; old-build probe and both `compare` calls **failed** as above |
+| 2026-10-30 | big plan P3: post-hoc `-04`: the same old runs with `core/` linked | D + K | old 0.14–1.1 s (exit 1), new 2.1–2.2 s | 309 MB | **failed** again: `core_campaign.STRATEGY_DIR` resolves beside the shadow package |
+| 2026-10-30 | big plan P3: post-hoc `-05`: shadow layout with `core`, `outputs`, `research`, `data` linked (`mkold.sh`, validated first in `~/Build/tmp`); A/B three pairs at 16 threads | D + K | old 16.8–16.9 s, new 3.7–3.9 s | 126 / 181 MB | load 20–22; extension hashes `f04c2f4c…` (old) and `72ae90ba…` (new) recorded |
+| 2026-10-30 | big plan P3: `-05` old-build probe at 1 thread | K ×16 + K | 75.4 s | 624 MB | load 21–22 |
+| 2026-10-30 | big plan P3: `-05` `bench_p3_flags.py compare` (all runs against `-01`) and `compare` of the probes against the old build | bench records | 0.25 s, 0.10 s | 40 MB | 96/96 and 20/20 identical |
+| 2026-10-30 | big plan P3: archive script (scratch, not committed) | run directories | under 1 s | – | `results/p3-sumthreshold.json` |
+| 2026-10-30 | big plan P3: `bash tools/check-all.sh` (once, `-06`), code of `6b38f6c`/`3155e74` with this file's results in the tree | branch | 1,432 s (pytest 742 passed in 1,401 s) | 1.89 GB | overall PASS; load 16 → 46 (sibling sessions); later commits document-only |
+| 2026-10-30 | big plan P3: `git diff --check 43dc3c7 HEAD` | branch | under 1 s | – | clean |
+| 2026-10-30 | big plan P1: `bench_core_f.py check --target all` (`-02`, `RAYON_NUM_THREADS=1`) | – | 36.0 s | 827 MB |  |
+| 2026-10-30 | big plan P1: `validate_core_phase2.py` (`-03`) | – | 1.96 s | 116 MB |  |
+| 2026-10-30 | big plan P1: `validate_core_phase2.py --cost` | – | 0.40 s | 97 MB |  |
+| 2026-10-30 | big plan P1: `validate_core_phase1.py` (`-04`) | – | 1.02 s | 383 MB |  |
+| 2026-10-30 | big plan P1: `precondition_luno_campaign.py` (`-05-precondition`) | – | 2.34 s | 144 MB |  |
+| 2026-10-30 | big plan P1: `bench_p1_solver.py sweep`, base, one thread, 3 rounds × 5 repeats (`-07`) | – | 8.3 s | 204 MB |  |
+| 2026-10-30 | big plan P1: venv (`uv venv` + `uv pip install -e .[…]`), core and root release builds, `maturin develop` | worktree | 65 s in all (core build 14.0 s, root 7.0 s, extension 22.5 s) | 385 MB | load 13.8–22.4 |
+| 2026-10-30 | big plan P1: baseline: `bench_core_f.py check --target all` (`-02`) | archived LUNO, fixture, blosc oracle | 36.0 s | 827 MB | base library, 1 thread, load 6.4 → 4.2, all 8 checks pass |
+| 2026-10-30 | big plan P1: baseline: phase 2 validator (`-03`), `--cost`, phase 1 validator (`-04`), K precondition (`-05`) | archived inputs | 1.96 s, 0.40 s, 1.02 s, 2.34 s | 116, 97, 383, 144 MB | load 4.2; all pass as archived |
+| 2026-10-30 | big plan P1: baseline: `bench_p1_solver.py sweep` (`-07`), base, 1 thread, 3 × 5 | LUNO + fixture | 8.3 s | 204 MB | load 3.9–4.1 |
+| 2026-10-30 | big plan P1: `bench_core_f.py check --target all` at 1, 4, 16 threads (`-09`–`-11`) | as above | 56.3, 57.5, 54.8 s | 849–861 MB | new library, load 21–23, all checks pass |
+| 2026-10-30 | big plan P1: phase 2 validator (`-12`), `--cost` (1 thread / default), phase 1 validator (`-13`), K precondition (`-14-precondition`) | archived inputs | 3.19 s, 0.93 / 0.56 s, 2.17 s, 4.25 s | 120, 100 / 101, 386, 155 MB | load 22.7–23.5; all pass |
+| 2026-10-30 | big plan P1: `bench_p1_solver.py sweep` (`-16`), base / v1 / new × 1–16 threads × 3 rounds × 5 | LUNO + fixture | 3 min 20 s | 229 MB | load 14.5–25.9; all 45 processes equal |
+| 2026-10-30 | big plan P1: `perf stat` instruction counts, development variants (8 pairs) | one bench run each | 2–4 s each | about 210 MB | load 6–20 |
+| 2026-10-30 | big plan P1: `cargo test` core (51 tests, release) | – | 1.0–3.1 s | – | – |
+| 2026-10-30 | big plan P1: `tests/test_p1_solver.py` | synthetic | 0.34–0.61 s | – | three subprocesses |
+| 2026-10-30 | big plan P1: post-hoc section 6 prototype and checker, actions, injections, prospective with comparators, base (`-20`) and new (`-21`) | archived inputs | base 23.1 + 43.4 + 11.1 + 31.8 + 41.8 s; new 9.9 + 40.0 + 8.1 + 22.1 + 32.6 s (compares 0.2–0.3 s each) | up to 766 MB | load 31–40; all comparators pass identically; section 6 criterion 8 (cost) fails for both at that load; first attempt `-18`/`-19` failed without `cargo` on `PATH` (1–5 s each) |
+| 2026-10-30 | big plan P1: `bash tools/check-all.sh` (`-17`) | branch | 28 min 25 s (pytest 740 passed in 1,665 s) | 1.73 GB | PASS; load 13.7–40.0 |
+| 2026-10-30 | big plan P2: `uv venv` + `uv pip install` of the worktree venv | – | 14.5 s | – |  |
+| 2026-10-30 | big plan P2: `cargo +1.93 build --release --offline` of `core/` (baseline) | – | 10.7 s | 382 MB |  |
+| 2026-10-30 | big plan P2: `maturin develop --release --offline` (baseline) | – | 0.8 s | 34 MB |  |
+| 2026-10-30 | big plan P2: `bench_p2_gridder.py c-inputs` | – | 0.8 s | 95 MB |  |
+| 2026-10-30 | big plan P2: `bench_p2_gridder.py k-replay --dump-inputs` (baseline, precondition) | – | 27.1 s | 333 MB |  |
+| 2026-10-30 | big plan P2: `run_core_gridder.py` (baseline) | – | 118.6 s | 138 MB |  |
+| 2026-10-30 | big plan P2: `compare_core_gridder.py` (baseline) | – | 0.6 s | 65 MB |  |
+| 2026-10-30 | big plan P2: `run_core_imaging.py` (baseline) | – | 96.9 s | 212 MB |  |
+| 2026-10-30 | big plan P2: `bench_p2_gridder.py bench` K, old, t1 × 3 | – | about 100 s | 126 MB |  |
+| 2026-10-30 | big plan P2: `bench_p2_gridder.py bench` C, old, t1 × 3 | – | about 270 s | 148 MB |  |
+| 2026-10-30 | big plan P2: `perf record` + `time` K `original` (baseline) | – | about 6 s | – |  |
+| 2026-10-30 | big plan P2: `cargo build` + `cargo test grid` stage (a) | – | 5.0 s + under 1 s | – |  |
+| 2026-10-30 | big plan P2: `bench` C and K, stage (a), t1 and t16, one repeat | – | about 140 s | 402 MB |  |
+| 2026-10-30 | big plan P2: `maturin develop` run in `core/py` (operator error, at setup and stage a) | – | 0.8 s | – |  |
+| 2026-10-30 | big plan P2: `maturin develop --release --offline` from the root (stage a) | – | about 30 s | – |  |
+| 2026-10-30 | big plan P2: `k-replay` stage (a) | – | 7.3 s | 611 MB |  |
+| 2026-10-30 | big plan P2: `cargo clippy -D warnings`, `cargo fmt --check` (core) | – | about 20 s | – |  |
+| 2026-10-30 | big plan P2: `cargo build` + `cargo test grid` + clippy stage (b) | – | 25.5 s + under 1 s | – |  |
+| 2026-10-30 | big plan P2: `maturin develop --release --offline` (final) | – | 32.7 s | 681 MB |  |
+| 2026-10-30 | big plan P2: `k-replay` final | – | 7.1 s | 708 MB |  |
+| 2026-10-30 | big plan P2: `run_core_gridder.py` final | – | 7.5 s | 515 MB |  |
+| 2026-10-30 | big plan P2: `compare_core_gridder.py` final | – | 0.8 s | 66 MB |  |
+| 2026-10-30 | big plan P2: `run_core_imaging.py` final | – | 7.6 s | 568 MB |  |
+| 2026-10-30 | big plan P2: `time --save-images` C and K (t16) + `diff` | – | about 12 s | – |  |
+| 2026-10-30 | big plan P2: `perf record` K `original` final | – | about 1 s | – |  |
+| 2026-10-30 | big plan P2: `bench` K, old t1 + new t1–16, three repeats | – | 168 s | 466 MB |  |
+| 2026-10-30 | big plan P2: `bench` C, old t1 + new t1–16, three repeats | – | 426 s | 494 MB |  |
+| 2026-10-30 | big plan P2: scale probes 4×, 16×, 41× | – | 37 s | 774 MB |  |
+| 2026-10-30 | big plan P2: `pytest tests/test_p2_gridder.py tests/test_core_grid.py tests/test_core_imaging.py` | – | 1.8 s | 81 MB |  |
+| 2026-10-30 | big plan P2: `bash tools/check-all.sh` (final tree) | – | 1702.6 s | 1.88 GB |  |
