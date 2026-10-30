@@ -7,4 +7,7 @@ __pycache__/
 .venv/
 /core/py/target/
 /python/rangtoy/_core*.so
+# maturin develop on Windows (task X1): the extension and its debug symbols.
+/python/rangtoy/_core*.pyd
+/python/rangtoy/*.pdb
 /python/rangtoy.egg-info/

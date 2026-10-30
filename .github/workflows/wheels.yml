@@ -1,12 +1,16 @@
-# Distributable rangtoy wheels (research/wheel.md, big-plan task W1).
+# Distributable rangtoy wheels (research/wheel.md, big-plan task W1; the
+# macOS and Windows matrix and the PyPI job are task X1,
+# research/x1-crossplatform.md).
 #
-# Builds the abi3-py310 manylinux_2_28 wheels (x86_64 and aarch64) and the
-# sdist with maturin, tests the installed wheel on CPython 3.10 and 3.14 with
-# cargo absent from PATH (import, extension backend chosen, one fused pass,
-# tests/test_core_backends.py against a C ABI built from the same commit),
-# uploads everything as artifacts, and on a v* tag attaches the files to a
-# GitHub release. Publishing to PyPI is a separate, manual step (research/wheel.md,
-# "User item: publish").
+# Builds abi3-py310 wheels with maturin for manylinux_2_28 x86_64 and
+# aarch64, macOS arm64 and x86_64, and Windows x86_64 (each with the target's
+# baseline CPU), plus the sdist; tests every installed wheel on CPython 3.10
+# and 3.14 on its own OS with cargo absent from PATH (import, extension
+# backend chosen, one fused pass, tests/test_core_backends.py against a C ABI
+# built from the same commit) through tools/wheel/test.py; uploads
+# everything as artifacts; on a v* tag attaches the files to a GitHub release
+# and publishes them to PyPI by trusted publishing (environment `pypi`, which
+# needs the pending publisher registered on pypi.org first).
 name: wheels
 
 on:
@@ -21,6 +25,7 @@ on:
       - "core/**"
       - "src/**"
       - "Cargo.*"
+      - ".cargo/**"
   workflow_dispatch:
 
 permissions:
@@ -28,7 +33,7 @@ permissions:
 
 defaults:
   run:
-    # bash -eo pipefail, so `pytest | tee` fails when pytest fails.
+    # bash -eo pipefail on every OS (Git Bash on the Windows runners).
     shell: bash
 
 env:
@@ -38,33 +43,59 @@ env:
 
 jobs:
   wheel:
-    name: wheel ${{ matrix.target }}
-    runs-on: ubuntu-24.04
+    name: wheel ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64
+          - platform: linux-x86_64
+            runner: ubuntu-24.04
+            target: x86_64
+            manylinux: "2_28"
             cpu: x86-64
-          - target: aarch64
+          - platform: linux-aarch64
+            runner: ubuntu-24.04
+            target: aarch64
+            manylinux: "2_28"
             cpu: generic
+          # One native job per macOS architecture, not universal2: RUSTFLAGS
+          # carries target-cpu, which cannot be right for both halves of a
+          # fat binary, and each wheel is then tested on its own hardware.
+          - platform: macos-arm64
+            runner: macos-14
+            target: aarch64-apple-darwin
+            manylinux: "off"
+            cpu: apple-m1
+          # macos-13 was retired in December 2025; macos-15-intel is GitHub's
+          # Intel replacement (until the macOS 15 image retires, autumn 2027).
+          - platform: macos-x86_64
+            runner: macos-15-intel
+            target: x86_64-apple-darwin
+            manylinux: "off"
+            cpu: x86-64
+          - platform: windows-x86_64
+            runner: windows-2022
+            target: x86_64-pc-windows-msvc
+            manylinux: "off"
+            cpu: x86-64
     env:
       # Baseline ISA for distributable binaries: overrides any
-      # .cargo/config.toml rustflags (local builds use x86-64-v3).
-      # maturin-action passes RUSTFLAGS into its build container.
+      # .cargo/config.toml rustflags (local x86_64 builds use x86-64-v3).
+      # maturin-action passes RUSTFLAGS into its build container on Linux.
       RUSTFLAGS: "-C target-cpu=${{ matrix.cpu }}"
     steps:
       - uses: actions/checkout@v4
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
-          manylinux: "2_28"
+          manylinux: ${{ matrix.manylinux }}
           maturin-version: ${{ env.MATURIN_VERSION }}
           rust-toolchain: ${{ env.RUST_VERSION }}
           args: --release --locked --out dist
       - uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ matrix.target }}
+          name: wheel-${{ matrix.platform }}
           path: dist/*.whl
           if-no-files-found: error
 
@@ -84,31 +115,47 @@ jobs:
           if-no-files-found: error
 
   test:
-    name: test ${{ matrix.target }} py${{ matrix.python }}
+    name: test ${{ matrix.platform }} py${{ matrix.python }}
     needs: wheel
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         python: ["3.10", "3.14"]
-        target: [x86_64, aarch64]
+        platform: [linux-x86_64, linux-aarch64, macos-arm64, macos-x86_64, windows-x86_64]
         include:
-          - target: x86_64
+          - platform: linux-x86_64
             runner: ubuntu-24.04
-          - target: aarch64
+            ctypes: librang_core.so
+          - platform: linux-aarch64
             runner: ubuntu-24.04-arm
+            ctypes: librang_core.so
+          - platform: macos-arm64
+            runner: macos-14
+            ctypes: librang_core.dylib
+          - platform: macos-x86_64
+            runner: macos-15-intel
+            ctypes: librang_core.dylib
+          - platform: windows-x86_64
+            runner: windows-2022
+            ctypes: rang_core.dll
     steps:
+      # LF endings on Windows too, so every runner tests the same bytes (Git
+      # for Windows defaults to core.autocrlf=true).
+      - if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        id: python
         with:
           python-version: ${{ matrix.python }}
       - uses: actions/download-artifact@v4
         with:
-          name: wheel-${{ matrix.target }}
+          name: wheel-${{ matrix.platform }}
           path: dist
       - name: Build the C ABI for the ctypes half of the backend test
         env:
-          # Overrides any .cargo/config.toml target-cpu (valid on both arches).
+          # Overrides any .cargo/config.toml target-cpu (valid on every arch).
           RUSTFLAGS: "-C target-cpu=generic"
         run: |
           if ! command -v rustup; then
@@ -118,29 +165,29 @@ jobs:
           rustup toolchain install "$RUST_VERSION" --profile minimal
           cargo "+$RUST_VERSION" build --release --locked -q --manifest-path core/Cargo.toml
           mkdir -p "$RUNNER_TEMP/ctypes"
-          cp core/target/release/librang_core.so "$RUNNER_TEMP/ctypes/"
-      - name: Install the wheel into a fresh venv
+          cp "core/target/release/${{ matrix.ctypes }}" "$RUNNER_TEMP/ctypes/"
+      # tools/wheel/test.py: a fresh venv, the wheel with its test and imaging
+      # extras from public PyPI, then import, tools/wheel/smoke.py and
+      # tests/test_core_backends.py (tools/wheel/pytest_wheel.py) with every
+      # PATH directory that holds cargo removed (asserted) and no RANG_*
+      # variables; any skip other than the missing MS oracle fails the step.
+      - name: Install and test the wheel with cargo absent
+        env:
+          PIP_INDEX_URL: https://pypi.org/simple
+          PYTHONUTF8: "1"
         run: |
-          python -m venv "$RUNNER_TEMP/venv"
           wheel=$(ls dist/*.whl)
-          "$RUNNER_TEMP/venv/bin/python" -m pip install --index-url https://pypi.org/simple \
-            "${wheel}[test,imaging]"
-      - name: Import and smoke test with cargo absent
-        run: |
-          cd "$RUNNER_TEMP"
-          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 bash -c '! command -v cargo'
-          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 \
-            "$RUNNER_TEMP/venv/bin/python" -I -c "import rangtoy._core"
-          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 \
-            "$RUNNER_TEMP/venv/bin/python" -I "$GITHUB_WORKSPACE/tools/wheel/smoke.py"
-      - name: Backend test against the installed wheel
-        run: |
-          env -i HOME="$HOME" PATH=/usr/bin:/bin LANG=C.UTF-8 \
-            PYTHONPATH="$GITHUB_WORKSPACE/tools/wheel" \
-            RANG_WHEEL_CTYPES_LIB="$RUNNER_TEMP/ctypes/librang_core.so" \
-            "$RUNNER_TEMP/venv/bin/python" -m pytest -p pytest_wheel -p no:cacheprovider \
-            -o pythonpath= -rs -q tests/test_core_backends.py | tee "$RUNNER_TEMP/pytest.out"
-          ! grep -E '^SKIPPED' "$RUNNER_TEMP/pytest.out" | grep -v -E 'MS (oracle|fixture) not present|fixture MS not present'
+          python tools/wheel/test.py "$wheel" "$RUNNER_TEMP/wheel-test" \
+            --python "${{ steps.python.outputs.python-path }}" \
+            --ctypes-lib "$RUNNER_TEMP/ctypes/${{ matrix.ctypes }}"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.platform }}-py${{ matrix.python }}
+          path: |
+            ${{ runner.temp }}/wheel-test/*.log
+            ${{ runner.temp }}/wheel-test/timings.tsv
+          if-no-files-found: warn
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -152,6 +199,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: dist
+          pattern: "{wheel-*,sdist}"
           merge-multiple: true
       - name: Attach the wheels and sdist to the release
         env:
@@ -161,3 +209,27 @@ jobs:
           (cd dist && sha256sum ./* > SHA256SUMS)
           gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
             --verify-tag --title "$GITHUB_REF_NAME" --notes "Wheels and sdist built by the wheels workflow."
+
+  # PyPI by trusted publishing, no token. Before the first tag, register a
+  # pending publisher on pypi.org: owner gijzelaerr, repository ra-ng,
+  # workflow wheels.yml, environment pypi, and the project name that
+  # pyproject.toml carries at the tag (rangtoy today; ra-ng after task P12).
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [wheel, sdist, test]
+    runs-on: ubuntu-24.04
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+    steps:
+      # A fresh download, so the release job's SHA256SUMS is not uploaded.
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: "{wheel-*,sdist}"
+          merge-multiple: true
+      - run: ls -l dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
