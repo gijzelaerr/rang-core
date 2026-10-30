@@ -233,6 +233,8 @@ pub const KEYWORD_STRING: i32 = 1;
 pub const KEYWORD_ARRAY: i32 = 2;
 pub const KEYWORD_STRING_ARRAY: i32 = 3;
 pub const KEYWORD_RECORD: i32 = 4;
+/// A table keyword: `data` the stored name (`././NAME` or absolute; E4).
+pub const KEYWORD_TABLE: i32 = 5;
 
 /// Build a keyword value from the C arguments.
 pub fn keyword_value(
@@ -252,6 +254,9 @@ pub fn keyword_value(
             KeywordValue::StringArray(shape.to_vec(), unpack_strings(data, nstrings)?)
         }
         KEYWORD_RECORD => KeywordValue::Record,
+        KEYWORD_TABLE => KeywordValue::Table(
+            String::from_utf8(data.to_vec()).map_err(|_| "table name is not UTF-8")?,
+        ),
         other => return Err(format!("unknown keyword kind {other}")),
     })
 }
@@ -457,6 +462,140 @@ pub unsafe extern "C" fn rang_core_ms_write_add_column(
     .unwrap_or(2)
 }
 
+// ---------------------------------------------------------------------------
+// E4: new tables, rows and table info (research/e4-table-create.md). The
+// creation calls are made through the extension (`core/py/src/lib.rs`)
+// with the argument tuples below; the row and info calls are also C ABI.
+
+/// A column across the binding: name, type code, array, ndim, shape
+/// (casacore order), option, maximum string length, comment, data-manager
+/// type and group.
+pub type ColumnArgs = (
+    String,
+    i32,
+    bool,
+    i32,
+    Vec<i64>,
+    i32,
+    u32,
+    String,
+    String,
+    String,
+);
+
+/// A data manager across the binding: type, name, columns, BUCKETSIZE,
+/// BUCKETROWS, PERSCACHESIZE, DEFAULTTILESHAPE (casacore order).
+pub type ManagerArgs = (String, String, Vec<String>, u32, u32, u32, Vec<i64>);
+
+/// Column descriptions from the binding's tuples.
+pub fn column_descs(columns: Vec<ColumnArgs>) -> Result<Vec<crate::ms_desc::ColDesc>, String> {
+    columns
+        .into_iter()
+        .map(
+            |(name, dtype, array, ndim, shape, option, max_length, comment, dm_type, dm_group)| {
+                crate::ms_create::new_coldesc(&crate::ms_create::NewColumn {
+                    name,
+                    dtype,
+                    array,
+                    ndim,
+                    shape,
+                    option,
+                    max_length,
+                    comment,
+                    dm_type,
+                    dm_group,
+                    keywords: crate::aipsio::Record::default(),
+                })
+                .map_err(|e| e.0)
+            },
+        )
+        .collect()
+}
+
+/// Data-manager specs from the binding's tuples.
+pub fn manager_specs(managers: Vec<ManagerArgs>) -> Vec<crate::ms_create::ManagerSpec> {
+    managers
+        .into_iter()
+        .map(
+            |(kind, name, columns, bucket_size, bucket_rows, cache, tile)| {
+                crate::ms_create::ManagerSpec {
+                    kind,
+                    name,
+                    columns,
+                    bucket_size,
+                    bucket_rows,
+                    cache,
+                    tile,
+                }
+            },
+        )
+        .collect()
+}
+
+/// Add `n` rows.
+///
+/// # Safety
+/// `writer` is an open handle.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_ms_write_add_rows(writer: *mut TableWriter, n: u64) -> i32 {
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        // SAFETY: the caller passes an open handle.
+        match unsafe { writer.as_mut() } {
+            Some(w) => status(w.add_rows(n)),
+            None => set_error("null table handle"),
+        }
+    }))
+    .unwrap_or(2)
+}
+
+/// Remove `n` rows given in `rows` (any order).
+///
+/// # Safety
+/// `writer` is an open handle and `rows` points to `n` values.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_ms_write_remove_rows(
+    writer: *mut TableWriter,
+    rows: *const u64,
+    n: usize,
+) -> i32 {
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        // SAFETY: guaranteed by the caller.
+        let rows = unsafe { slice(rows, n) };
+        // SAFETY: the caller passes an open handle.
+        match unsafe { writer.as_mut() } {
+            Some(w) => status(w.remove_rows(rows)),
+            None => set_error("null table handle"),
+        }
+    }))
+    .unwrap_or(2)
+}
+
+/// Set `table.info` (type, subtype, readme).
+///
+/// # Safety
+/// `writer` is an open handle; strings are NUL-terminated or null.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_ms_write_put_info(
+    writer: *mut TableWriter,
+    kind: *const c_char,
+    sub_kind: *const c_char,
+    readme: *const c_char,
+) -> i32 {
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        // SAFETY: NUL-terminated or null strings.
+        let (k, s, r) = unsafe { (text(kind), text(sub_kind), text(readme)) };
+        // SAFETY: the caller passes an open handle.
+        match unsafe { writer.as_mut() } {
+            Some(w) => status(w.put_info(
+                &k.unwrap_or_default(),
+                &s.unwrap_or_default(),
+                &r.unwrap_or_default(),
+            )),
+            None => set_error("null table handle"),
+        }
+    }))
+    .unwrap_or(2)
+}
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1032,6 +1032,11 @@ enum SsmKind {
     String,
     Direct(usize),
     Indirect,
+    /// A string array: a 12-byte slot (bucket, offset, length) into the
+    /// string buckets; `SsmCol::fixed` set for Direct or FixedShape columns
+    /// (`SSMDirColumn`: no shape stored), else variable-shape
+    /// (`SSMIndStringColumn`: shape and a filled flag stored first).
+    StrArray,
 }
 
 #[derive(Clone, Debug)]
@@ -1060,7 +1065,7 @@ fn ssm_col(desc: &ColDesc, binding: &ColBinding) -> Result<SsmCol> {
         (DataType::Str, false, _) => (SsmKind::String, 96),
         (DataType::Bool, false, _) => (SsmKind::Scalar, 1),
         (dt, false, _) => (SsmKind::Scalar, 8 * dt.size()),
-        (DataType::Str, true, _) => (SsmKind::Indirect, 0),
+        (DataType::Str, true, _) => (SsmKind::StrArray, 96),
         (dt, true, true) => {
             let n = product(fixed.as_deref().unwrap_or(&[]));
             let bits = if dt == DataType::Bool {
@@ -1107,10 +1112,43 @@ struct SsmW {
     array_path: PathBuf,
     scratch: Vec<u8>,
     strings: Strings,
+    /// casacore's bucket-cache bookkeeping (`scratch` is its buffer).
+    cache: Cache,
+    /// Read from a file (its index is read through the cache first).
+    opened: bool,
+}
+
+/// casacore's `BucketCache` slots for one StandardStMan (LRU counters,
+/// dirty flags), kept only to know what its scratch buffer `its_Buffer`
+/// holds when a bucket is freed (research/e4-table-create.md).
+#[derive(Default)]
+struct Cache {
+    ready: bool,
+    size: usize,
+    used: usize,
+    bucket: Vec<u32>,
+    lru: Vec<u32>,
+    dirty: Vec<bool>,
+    live: Vec<bool>,
+    counter: u32,
+    actual: usize,
+    slot_of: BTreeMap<u32, usize>,
 }
 
 impl SsmW {
     fn open(dir: &Path, seq: u32, blob: &[u8], cols: Vec<SsmCol>) -> Result<Self> {
+        Self::open_mode(dir, seq, blob, cols, true)
+    }
+
+    /// Open read-only (`writable` false) for the cell reads of
+    /// `read_cells`, which never write.
+    fn open_mode(
+        dir: &Path,
+        seq: u32,
+        blob: &[u8],
+        cols: Vec<SsmCol>,
+        writable: bool,
+    ) -> Result<Self> {
         let path = dir.join(format!("table.f{seq}"));
         let (header_raw, h, indices) = read_ssm(&path, true)?;
         let blob = SsmBlob::parse(blob)?;
@@ -1119,7 +1157,7 @@ impl SsmW {
         }
         let file = OpenOptions::new()
             .read(true)
-            .write(true)
+            .write(writable)
             .open(&path)
             .map_err(|e| MsError(format!("{}: {e}", path.display())))?;
         let strings = Strings {
@@ -1142,6 +1180,8 @@ impl SsmW {
             arrays: None,
             array_path: dir.join(format!("table.f{seq}i")),
             strings,
+            cache: Cache::default(),
+            opened: true,
         })
     }
 
@@ -1269,6 +1309,8 @@ impl SsmW {
                 next: -1,
                 ..Default::default()
             },
+            cache: Cache::default(),
+            opened: false,
         };
         if s.cols.iter().any(|c| c.kind == SsmKind::Indirect) {
             // `SSMIndColumn::doCreate` opens a new array file.
@@ -1302,10 +1344,8 @@ impl SsmW {
         self.h.bucket_size as usize
     }
 
-    fn bucket(&mut self, n: u32) -> Result<&mut Vec<u8>> {
-        if n >= self.h.nr_buckets {
-            return err(format!("StandardStMan bucket {n} beyond the file"));
-        }
+    /// The current bytes of bucket `n` (loaded from the file once).
+    fn content(&mut self, n: u32) -> Result<&mut Vec<u8>> {
         if !self.buckets.contains_key(&n) {
             let size = self.size();
             let bytes = read_at(
@@ -1313,22 +1353,122 @@ impl SsmW {
                 BUCKET_START + u64::from(n) * size as u64,
                 size,
             )?;
-            self.scratch.copy_from_slice(&bytes);
             self.buckets.insert(n, bytes);
         }
         Ok(self.buckets.get_mut(&n).unwrap())
     }
 
+    /// `BucketCache::getBucket`: the bucket's bytes, with the cache's slot
+    /// bookkeeping (research/e4-table-create.md, "bucket cache").
+    fn bucket(&mut self, n: u32) -> Result<&mut Vec<u8>> {
+        if n >= self.h.nr_buckets {
+            return err(format!("StandardStMan bucket {n} beyond the file"));
+        }
+        self.access(n)?;
+        self.content(n)
+    }
+
+    /// Create the cache as `SSMBase::makeCache` does: for a manager read
+    /// from a file, `readIndexBuckets` reads the index through it first.
+    fn cache_ready(&mut self) -> Result<()> {
+        if self.cache.ready {
+            return Ok(());
+        }
+        let size = self.h.pers_cache.max(2) as usize;
+        self.cache = Cache {
+            size,
+            bucket: vec![0; size],
+            lru: vec![0; size],
+            dirty: vec![false; size],
+            live: vec![false; size],
+            ready: true,
+            ..Default::default()
+        };
+        if self.opened {
+            let mut b = self.h.first_idx_bucket;
+            for _ in 0..self.h.nr_idx_buckets {
+                if b < 0 {
+                    break;
+                }
+                self.access(b as u32)?;
+                b = be_i32(self.content(b as u32)?, 4);
+            }
+        }
+        Ok(())
+    }
+
+    fn set_lru(&mut self) {
+        let c = &mut self.cache;
+        c.counter = c.counter.wrapping_add(1);
+        c.lru[c.actual] = c.counter;
+    }
+
+    /// `BucketCache::getSlot`: a free slot or the least recently used one,
+    /// whose bucket is written (through the scratch buffer) when dirty.
+    fn get_slot(&mut self, n: u32) -> Result<()> {
+        if self.cache.used < self.cache.size {
+            self.cache.actual = self.cache.used;
+            self.cache.used += 1;
+        } else {
+            let c = &self.cache;
+            let mut slot = 0;
+            for i in 1..c.used {
+                if c.lru[i] < c.lru[slot] {
+                    slot = i;
+                }
+            }
+            self.cache.actual = slot;
+            if self.cache.dirty[slot] {
+                let old = self.cache.bucket[slot];
+                let bytes = self.content(old)?.clone();
+                self.scratch.copy_from_slice(&bytes);
+                self.cache.dirty[slot] = false;
+            }
+            if self.cache.live[slot] {
+                self.cache.live[slot] = false;
+                let old = self.cache.bucket[slot];
+                self.cache.slot_of.remove(&old);
+            }
+        }
+        self.set_lru();
+        let slot = self.cache.actual;
+        self.cache.bucket[slot] = n;
+        self.cache.live[slot] = true;
+        self.cache.slot_of.insert(n, slot);
+        Ok(())
+    }
+
+    /// The slot bookkeeping of `BucketCache::getBucket` for bucket `n`.
+    fn access(&mut self, n: u32) -> Result<()> {
+        self.cache_ready()?;
+        if let Some(&slot) = self.cache.slot_of.get(&n) {
+            self.cache.actual = slot;
+            self.set_lru();
+            return Ok(());
+        }
+        self.get_slot(n)?;
+        // `readBucket` reads the bucket through the scratch buffer.
+        let bytes = self.content(n)?.clone();
+        self.scratch.copy_from_slice(&bytes);
+        Ok(())
+    }
+
     fn set_dirty(&mut self, n: u32) {
         self.dirty.insert(n);
         self.changed = true;
+        if let Some(&slot) = self.cache.slot_of.get(&n) {
+            self.cache.dirty[slot] = true;
+        }
     }
 
-    /// `SSMBase::getNewBucket` through `BucketCache::addBucket`.
+    /// `SSMBase::getNewBucket` through `BucketCache::addBucket`: the first
+    /// free bucket (its list link read into the scratch buffer) or a new
+    /// one, zeroed.
     fn new_bucket(&mut self) -> Result<u32> {
+        self.cache_ready()?;
         let n = if self.h.first_free >= 0 {
             let n = self.h.first_free as u32;
-            let head = self.bucket(n)?[..4].to_vec();
+            let head = self.content(n)?[..4].to_vec();
             self.scratch[..4].copy_from_slice(&head);
             self.h.first_free = be_i32(&head, 0);
             self.h.nr_free -= 1;
@@ -1337,22 +1477,50 @@ impl SsmW {
             self.h.nr_buckets += 1;
             self.h.nr_buckets - 1
         };
-        self.buckets.insert(n, vec![0; self.size()]);
+        self.get_slot(n)?;
+        let size = self.size();
+        self.buckets.insert(n, vec![0; size]);
         self.set_dirty(n);
         Ok(n)
     }
 
-    /// `BucketCache::removeBucket`: the bucket joins the free list. casacore
-    /// writes its scratch buffer there with the old list head in front; the
-    /// rest of the bucket is unreferenced (research file, "free buckets").
-    fn remove_bucket(&mut self, n: u32) {
+    /// `SSMBase::removeBucket`: `getBucket`, then `BucketCache::removeBucket`
+    /// writes its scratch buffer into the bucket with the old free-list head
+    /// in front and frees the slot; the rest of the bucket is unreferenced.
+    fn remove_bucket(&mut self, n: u32) -> Result<()> {
+        self.access(n)?;
         let mut bytes = self.scratch.clone();
         bytes[..4].copy_from_slice(&self.h.first_free.to_be_bytes());
+        self.scratch[..4].copy_from_slice(&self.h.first_free.to_be_bytes());
         self.buckets.insert(n, bytes);
         self.dirty.insert(n);
+        let slot = self.cache.actual;
+        self.cache.dirty[slot] = false;
+        self.cache.live[slot] = false;
+        self.cache.slot_of.remove(&n);
+        self.cache.lru[slot] = 0;
+        self.cache.actual = 0;
         self.h.first_free = n as i32;
         self.h.nr_free += 1;
         self.changed = true;
+        Ok(())
+    }
+
+    /// `BucketCache::flush`: the dirty slots in slot order, each written
+    /// through the scratch buffer.
+    fn cache_flush(&mut self) -> Result<()> {
+        if !self.cache.ready {
+            return Ok(());
+        }
+        for i in 0..self.cache.used {
+            if self.cache.dirty[i] {
+                let b = self.cache.bucket[i];
+                let bytes = self.content(b)?.clone();
+                self.scratch.copy_from_slice(&bytes);
+                self.cache.dirty[i] = false;
+            }
+        }
+        Ok(())
     }
 
     /// (bucket, byte offset of the column in it, index of `row` in it, last
@@ -1471,7 +1639,7 @@ impl SsmW {
                     self.arrays()?.put_values(values_at, c.dtype, src)?;
                 }
             }
-            SsmKind::FixedString(_) | SsmKind::String => {
+            SsmKind::FixedString(_) | SsmKind::String | SsmKind::StrArray => {
                 return err(format!("{}: use put_strings for string columns", c.name));
             }
         }
@@ -1571,7 +1739,12 @@ impl SsmW {
         self.strings.deleted = self.str_length();
         self.strings.next = -1;
         self.strings.last = n;
-        self.strings.data = vec![0; self.str_length() as usize];
+        // casacore keeps one character buffer, zeroed once (`init`): a new
+        // bucket starts with what the previous bucket left in it.
+        let length = self.str_length() as usize;
+        if self.strings.data.len() != length {
+            self.strings.data = vec![0; length];
+        }
         Ok(())
     }
 
@@ -1586,7 +1759,7 @@ impl SsmW {
         }
         self.strings.changed = true;
         if self.strings.deleted == self.str_length() {
-            self.remove_bucket(self.strings.current as u32);
+            self.remove_bucket(self.strings.current as u32)?;
             if self.strings.current == self.strings.last {
                 self.strings.last = -1;
             }
@@ -1720,7 +1893,7 @@ impl SsmW {
             let mut b = self.h.first_idx_bucket;
             while b != -1 {
                 let next = be_i32(self.bucket(b as u32)?, 4);
-                self.remove_bucket(b as u32);
+                self.remove_bucket(b as u32)?;
                 b = next;
             }
             self.h.first_idx_bucket = old;
@@ -1730,17 +1903,15 @@ impl SsmW {
         self.h.last_string_bucket = self.strings.last;
         self.h.idx_length = idx.len() as u32;
         self.h.nr_indices = self.indices.len() as u32;
-        Ok(())
+        self.str_flush()?;
+        self.cache_flush()
     }
 
     /// `SSMBase::flush`; returns whether the manager changed.
     fn flush(&mut self) -> Result<bool> {
         self.str_flush()?;
-        // The cache writes its dirty buckets before the index is rewritten;
-        // the last one written is what its scratch buffer holds.
-        if let Some(&last) = self.dirty.iter().next_back() {
-            self.scratch.clone_from(&self.buckets[&last]);
-        }
+        // The cache writes its dirty buckets before the index is rewritten.
+        self.cache_flush()?;
         let changed = self.changed;
         if changed {
             self.write_index()?;
@@ -1879,6 +2050,528 @@ impl SsmW {
 }
 
 // ---------------------------------------------------------------------------
+// E4: cells, string arrays and rows of StandardStMan
+// (research/e4-table-create.md), step for step as `SSMIndStringColumn`,
+// `SSMStringHandler`, `SSMIndex::addRow/deleteRow` and the columns'
+// `addRow`/`deleteRow` do.
+
+/// One cell as read back: undefined, numeric values (native bytes, Bool one
+/// byte each) or strings; shapes in casacore (Fortran) order.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Cell {
+    Undefined,
+    Values(Vec<i64>, Vec<u8>),
+    Strings(Vec<i64>, Vec<String>),
+}
+
+/// `Conversion::boolToBit` without a start bit: whole bytes from the first
+/// one, the bits after the last value in its byte cleared.
+fn bool_to_bits_from_zero(out: &mut [u8], src: &[u8]) {
+    for (i, chunk) in src.chunks(8).enumerate() {
+        let mut byte = 0u8;
+        for (j, &v) in chunk.iter().enumerate() {
+            byte |= u8::from(v != 0) << j;
+        }
+        out[i] = byte;
+    }
+}
+
+fn get_bits(bytes: &[u8], start: usize, n: usize) -> Vec<u8> {
+    (start..start + n)
+        .map(|b| (bytes[b / 8] >> (b % 8)) & 1)
+        .collect()
+}
+
+impl SsmW {
+    /// Bytes per row of a column in a bucket (not for Bool).
+    fn external_bytes(&self, col: usize) -> usize {
+        self.cols[col].bits / 8
+    }
+
+    /// `getRowValue` of a 12-byte string slot: (bucket, offset, length).
+    fn str_slot(&mut self, col: usize, row: u64) -> Result<[i32; 3]> {
+        let (b, offset, first, _) = self.locate(col, row)?;
+        let at = offset + first * 12;
+        let bytes = self.bucket(b)?;
+        let word =
+            |k: usize| i32::from_le_bytes(bytes[at + 4 * k..at + 4 * k + 4].try_into().unwrap());
+        Ok([word(0), word(1), word(2)])
+    }
+
+    /// `putValue` of a 12-byte string slot.
+    fn put_str_slot(&mut self, col: usize, row: u64, words: [i32; 3]) -> Result<()> {
+        let (b, offset, first, _) = self.locate(col, row)?;
+        let at = offset + first * 12;
+        let bucket = self.bucket(b)?;
+        for (k, w) in words.iter().enumerate() {
+            bucket[at + 4 * k..at + 4 * k + 4].copy_from_slice(&w.to_le_bytes());
+        }
+        self.set_dirty(b);
+        Ok(())
+    }
+
+    /// The handler's bucket for appending: the last string bucket, or a new
+    /// one when there is none.
+    fn str_to_last(&mut self) -> Result<()> {
+        if self.strings.last == -1 {
+            self.str_new_bucket(false)
+        } else if self.strings.current != self.strings.last {
+            let last = self.strings.last;
+            self.str_get_bucket(last, false)
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Append a record of `total` bytes: a new bucket when it does not fit
+    /// and fewer than 50 bytes are left.
+    fn str_append_at(&mut self, total: i32) -> Result<[i32; 3]> {
+        self.str_to_last()?;
+        let room = self.str_length() - self.strings.used;
+        if total > room && room < 50 {
+            self.str_new_bucket(false)?;
+        }
+        Ok([self.strings.current, self.strings.used, total])
+    }
+
+    fn str_shape_bytes(shape: &[i64], flag: i32) -> Vec<Vec<u8>> {
+        let mut out = vec![(shape.len() as u32).to_be_bytes().to_vec()];
+        out.extend(shape.iter().map(|&d| (d as i32).to_be_bytes().to_vec()));
+        out.push(flag.to_be_bytes().to_vec());
+        out
+    }
+
+    /// `SSMStringHandler::putShape`: ndim, the dimensions and a 0 flag.
+    fn str_put_shape(&mut self, w: &mut [i32; 3], shape: &[i64]) -> Result<()> {
+        self.str_to_last()?;
+        let total = (shape.len() as i32 + 2) * 4;
+        if w[2] > 0 && (total > w[2] || total == 0) {
+            self.str_remove(w[0], w[1], w[2])?;
+            *w = [0, 0, 0];
+        }
+        let parts = Self::str_shape_bytes(shape, 0);
+        if w[2] > 0 {
+            if self.strings.current != w[0] {
+                self.str_get_bucket(w[0], false)?;
+            }
+            let mut offset = w[1];
+            for p in &parts {
+                self.str_replace_data(&mut offset, p)?;
+            }
+            if w[2] - total > 0 {
+                let current = self.strings.current;
+                self.str_remove(current, offset, w[2] - total)?;
+            }
+            w[2] = total;
+            return Ok(());
+        }
+        *w = self.str_append_at(total)?;
+        for p in &parts {
+            self.str_put_data(p)?;
+        }
+        Ok(())
+    }
+
+    /// `SSMStringHandler::put` of a string array, with the shape and a 1
+    /// flag first when `handle_shape`.
+    fn str_put_array(
+        &mut self,
+        w: &mut [i32; 3],
+        shape: &[i64],
+        strings: &[String],
+        handle_shape: bool,
+    ) -> Result<()> {
+        let mut total: i32 = strings.iter().map(|s| s.len() as i32 + 4).sum();
+        if handle_shape {
+            total += (shape.len() as i32 + 2) * 4;
+        }
+        if w[2] > 0 && (total > w[2] || total == 0) {
+            self.str_remove(w[0], w[1], w[2])?;
+            *w = [0, 0, 0];
+        }
+        if total == 0 {
+            return Ok(());
+        }
+        let mut parts = if handle_shape {
+            Self::str_shape_bytes(shape, 1)
+        } else {
+            Vec::new()
+        };
+        for s in strings {
+            parts.push((s.len() as u32).to_be_bytes().to_vec());
+            parts.push(s.as_bytes().to_vec());
+        }
+        if w[2] > 0 {
+            if self.strings.current != w[0] {
+                self.str_get_bucket(w[0], false)?;
+            }
+            let mut offset = w[1];
+            for p in &parts {
+                self.str_replace_data(&mut offset, p)?;
+            }
+            if w[2] - total > 0 {
+                let current = self.strings.current;
+                self.str_remove(current, offset, w[2] - total)?;
+            }
+            w[2] = total;
+            return Ok(());
+        }
+        *w = self.str_append_at(total)?;
+        for p in &parts {
+            self.str_put_data(p)?;
+        }
+        Ok(())
+    }
+
+    /// `SSMStringHandler::getData`: `n` bytes from `offset`, following the
+    /// bucket chain.
+    fn str_get_data(&mut self, offset: &mut i32, mut n: usize) -> Result<Vec<u8>> {
+        let mut out = Vec::with_capacity(n);
+        while n > 0 {
+            let avail = (self.strings.used - *offset).max(0) as usize;
+            let take = n.min(avail);
+            let at = *offset as usize;
+            out.extend_from_slice(&self.strings.data[at..at + take]);
+            n -= take;
+            *offset += take as i32;
+            if n > 0 {
+                let next = self.strings.next;
+                if next < 0 {
+                    return err("string bucket chain ends early");
+                }
+                self.str_get_bucket(next, false)?;
+                *offset = 0;
+            }
+        }
+        Ok(out)
+    }
+
+    fn str_get_int(&mut self, offset: &mut i32) -> Result<i32> {
+        Ok(i32::from_be_bytes(
+            self.str_get_data(offset, 4)?.try_into().unwrap(),
+        ))
+    }
+
+    /// `SSMStringHandler::getShape` (moves the offset past the shape).
+    fn str_get_shape(&mut self, w: [i32; 3], offset: &mut i32) -> Result<Vec<i64>> {
+        if self.strings.current != w[0] {
+            self.str_get_bucket(w[0], false)?;
+        }
+        *offset = w[1];
+        let ndim = self.str_get_int(offset)?.max(0) as usize;
+        let mut shape = Vec::with_capacity(ndim);
+        for _ in 0..ndim {
+            shape.push(i64::from(self.str_get_int(offset)?));
+        }
+        Ok(shape)
+    }
+
+    /// `SSMStringHandler::get` of a string array.
+    fn str_get_array(
+        &mut self,
+        w: [i32; 3],
+        fixed: Option<&[i64]>,
+    ) -> Result<(Vec<i64>, Vec<String>)> {
+        let mut shape = fixed.map(<[i64]>::to_vec).unwrap_or_default();
+        let mut filled = 0;
+        let mut offset = w[1];
+        if w[2] > 0 {
+            if self.strings.current != w[0] {
+                self.str_get_bucket(w[0], false)?;
+            }
+            filled = 1;
+            if fixed.is_none() {
+                shape = self.str_get_shape(w, &mut offset)?;
+                filled = self.str_get_int(&mut offset)?;
+            }
+        }
+        let n = product(&shape);
+        let mut strings = Vec::with_capacity(n);
+        for _ in 0..n {
+            if filled == 0 {
+                strings.push(String::new());
+            } else {
+                let len = self.str_get_int(&mut offset)?.max(0) as usize;
+                let bytes = self.str_get_data(&mut offset, len)?;
+                strings.push(String::from_utf8_lossy(&bytes).into_owned());
+            }
+        }
+        Ok((shape, strings))
+    }
+
+    /// Whether a row of an array column has a value (`isShapeDefined`).
+    fn is_defined(&mut self, col: usize, row: u64) -> Result<bool> {
+        let c = self.cols[col].clone();
+        match c.kind {
+            SsmKind::Indirect => {
+                let (b, at) = self.slot(col, row)?;
+                Ok(u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap()) != 0)
+            }
+            SsmKind::StrArray if c.fixed.is_none() => Ok(self.str_slot(col, row)?[2] != 0),
+            _ => Ok(true),
+        }
+    }
+
+    /// `setShape` of a variable-shape string-array row unless it has this
+    /// shape already.
+    fn set_string_shape(&mut self, col: usize, row: u64, shape: &[i64]) -> Result<()> {
+        let w = self.str_slot(col, row)?;
+        let same = w[2] != 0 && {
+            let mut offset = 0;
+            self.str_get_shape(w, &mut offset)? == shape
+        };
+        if !same {
+            let mut w = self.str_slot(col, row)?;
+            self.str_put_shape(&mut w, shape)?;
+            self.put_str_slot(col, row, w)?;
+        }
+        Ok(())
+    }
+
+    /// `putColumn` of a string-array column: shapes first (variable-shape
+    /// columns), then the values, row by row.
+    fn put_string_column(
+        &mut self,
+        col: usize,
+        start: u64,
+        count: u64,
+        shape: &[i64],
+        strings: &[String],
+    ) -> Result<()> {
+        let n = product(shape);
+        if strings.len() != n * count as usize {
+            return err("string count mismatches the rows and cell shape");
+        }
+        if self.cols[col].fixed.is_none() {
+            for i in 0..count {
+                self.set_string_shape(col, start + i, shape)?;
+            }
+        }
+        for i in 0..count {
+            let cell = &strings[i as usize * n..(i as usize + 1) * n];
+            let mut w = self.str_slot(col, start + i)?;
+            let handle_shape = self.cols[col].fixed.is_none();
+            self.str_put_array(&mut w, shape, cell, handle_shape)?;
+            self.put_str_slot(col, start + i, w)?;
+        }
+        Ok(())
+    }
+
+    /// Read one cell of an indirect or string-array column (others are
+    /// read with the task E reader).
+    fn read_cell(&mut self, col: usize, row: u64) -> Result<Cell> {
+        let c = self.cols[col].clone();
+        match c.kind {
+            SsmKind::Indirect => {
+                let (b, at) = self.slot(col, row)?;
+                let offset = u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap());
+                if offset == 0 {
+                    return Ok(Cell::Undefined);
+                }
+                let mut file = File::open(&self.array_path)?;
+                let version = u32::from_le_bytes(read_at(&mut file, 0, 4)?.try_into().unwrap());
+                let mut at = offset + if version > 0 { 4 } else { 0 };
+                let ndim =
+                    u32::from_le_bytes(read_at(&mut file, at, 4)?.try_into().unwrap()) as usize;
+                let dims = read_at(&mut file, at + 4, 4 * ndim)?;
+                let shape: Vec<i64> = dims
+                    .chunks_exact(4)
+                    .map(|d| i64::from(i32::from_le_bytes(d.try_into().unwrap())))
+                    .collect();
+                at += 4 + 4 * ndim as u64;
+                let n = product(&shape);
+                let values = if c.dtype == DataType::Bool {
+                    get_bits(&read_at(&mut file, at, n.div_ceil(8))?, 0, n)
+                } else {
+                    read_at(&mut file, at, n * c.dtype.size())?
+                };
+                Ok(Cell::Values(shape, values))
+            }
+            SsmKind::StrArray => {
+                let w = self.str_slot(col, row)?;
+                if c.fixed.is_none() && w[2] == 0 {
+                    return Ok(Cell::Undefined);
+                }
+                let (shape, strings) = self.str_get_array(w, c.fixed.as_deref())?;
+                Ok(Cell::Strings(shape, strings))
+            }
+            _ => err(format!(
+                "{}: read cells of this column with the reader",
+                c.name
+            )),
+        }
+    }
+
+    /// `SSMIndex::addRow` of index `i`: fill the last bucket, then new ones.
+    fn index_add_rows(&mut self, i: usize, mut n: u64) -> Result<()> {
+        if n == 0 {
+            return Ok(());
+        }
+        let rpb = u64::from(self.indices[i].rows_per_bucket);
+        let mut last_row = 0u64;
+        {
+            let index = &mut self.indices[i];
+            let used = index.last_row.len();
+            if used > 0 {
+                last_row = index.last_row[used - 1] + 1;
+                let mut in_last = last_row;
+                if used > 1 {
+                    in_last -= index.last_row[used - 2] + 1;
+                }
+                let add = (rpb - in_last).min(n);
+                index.last_row[used - 1] += add;
+                n -= add;
+                last_row += add;
+            }
+        }
+        while n > 0 {
+            let b = self.new_bucket()?;
+            let add = n.min(rpb);
+            last_row += add;
+            n -= add;
+            self.indices[i].bucket.push(b);
+            self.indices[i].last_row.push(last_row - 1);
+        }
+        Ok(())
+    }
+
+    /// `SSMBase::addRow64`: the indices, then the columns' `addRow` (a
+    /// FixedShape indirect column gets an array for every new row).
+    fn add_rows(&mut self, old: u64, n: u64) -> Result<()> {
+        self.cache_ready()?;
+        for i in 0..self.indices.len() {
+            self.index_add_rows(i, n)?;
+        }
+        for k in 0..self.cols.len() {
+            if let (SsmKind::Indirect, Some(shape)) =
+                (self.cols[k].kind, self.cols[k].fixed.clone())
+            {
+                let dtype = self.cols[k].dtype;
+                for row in old..old + n {
+                    let (b, at) = self.slot(k, row)?;
+                    let current =
+                        u64::from_le_bytes(self.bucket(b)?[at..at + 8].try_into().unwrap());
+                    if current != 0 && self.arrays()?.shape(current)?.0 == shape {
+                        continue;
+                    }
+                    let array = self.arrays()?.put_res(&shape, dtype)?;
+                    self.bucket(b)?[at..at + 8].copy_from_slice(&array.to_le_bytes());
+                    self.set_dirty(b);
+                }
+            }
+        }
+        self.changed = true;
+        Ok(())
+    }
+
+    /// `SSMColumn::shiftRows`: the slots after `first` move one to the left
+    /// in the bucket and the last one is cleared.
+    fn shift_rows(
+        &mut self,
+        b: u32,
+        offset: usize,
+        first: usize,
+        last: usize,
+        ext: usize,
+    ) -> Result<()> {
+        let bucket = self.bucket(b)?;
+        let to = offset + first * ext;
+        let len = (last - first) * ext;
+        bucket.copy_within(to + ext..to + ext + len, to);
+        bucket[to + len..to + len + ext].fill(0);
+        self.set_dirty(b);
+        Ok(())
+    }
+
+    /// The columns' `deleteRow` for one column.
+    fn delete_row_in(&mut self, col: usize, row: u64) -> Result<()> {
+        let c = self.cols[col].clone();
+        let (b, offset, first, end) = self.locate(col, row)?;
+        let start = row - first as u64;
+        let last = (end - start) as usize;
+        if c.kind == SsmKind::String {
+            let w = self.str_slot(col, row)?;
+            if w[2] > 8 {
+                self.str_remove(w[0], w[1], w[2])?;
+                return self.shift_rows(b, offset, first, last, 12);
+            }
+        }
+        self.bucket(b)?;
+        if row >= end {
+            return Ok(());
+        }
+        match (c.kind, c.dtype) {
+            (SsmKind::Scalar, DataType::Bool) => {
+                // `getBool` caches the bucket's values; the cache without
+                // the row is written back from bit 0 (`boolToBit`).
+                let bucket = self.bucket(b)?;
+                let mut values = get_bits(&bucket[offset..], 0, last + 1);
+                values.remove(first);
+                bool_to_bits_from_zero(&mut bucket[offset..], &values[..last]);
+                self.set_dirty(b);
+            }
+            (SsmKind::Direct(nelem), DataType::Bool) => {
+                let bucket = self.bucket(b)?;
+                let values = get_bits(
+                    &bucket[offset..],
+                    (first + 1) * nelem,
+                    (last - first) * nelem,
+                );
+                put_bits(&mut bucket[offset..], first * nelem, &values);
+                self.set_dirty(b);
+            }
+            _ => {
+                let ext = self.external_bytes(col);
+                self.shift_rows(b, offset, first, last, ext)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// `SSMIndex::deleteRow`: the bucket that became empty, if any.
+    fn index_delete_row(&mut self, i: usize, row: u64) -> Option<u32> {
+        let index = &mut self.indices[i];
+        let at = index.last_row.partition_point(|&l| l < row);
+        let mut empty = false;
+        for l in &mut index.last_row[at..] {
+            if *l > 0 {
+                *l -= 1;
+            } else {
+                empty = true;
+            }
+        }
+        let before = if at > 0 {
+            index.last_row[at - 1] as i64
+        } else {
+            -1
+        };
+        if index.last_row[at] as i64 == before || empty {
+            index.last_row.remove(at);
+            Some(index.bucket.remove(at))
+        } else {
+            None
+        }
+    }
+
+    /// `SSMBase::removeRow64` of one row; `nrows` is the row count before.
+    fn remove_row(&mut self, row: u64, nrows: u64) -> Result<()> {
+        if nrows <= 1 {
+            return err("removing the last row of a StandardStMan is not supported (E5)");
+        }
+        for k in 0..self.cols.len() {
+            self.delete_row_in(k, row)?;
+        }
+        for i in 0..self.indices.len() {
+            if let Some(b) = self.index_delete_row(i, row) {
+                self.remove_bucket(b)?;
+            }
+        }
+        self.changed = true;
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Tiled writes.
 
 struct TsmW {
@@ -1889,6 +2582,9 @@ struct TsmW {
     files: BTreeMap<usize, File>,
     changed: bool,
     write_header: bool,
+    /// The FixedShape cell shape of a TiledShapeStMan's columns (for
+    /// adding rows); None for a variable-shape one (E5).
+    fixed_cell: Option<Vec<i64>>,
 }
 
 impl TsmW {
@@ -1916,7 +2612,180 @@ impl TsmW {
             files: BTreeMap::new(),
             changed: false,
             write_header: false,
+            fixed_cell: None,
         }
+    }
+
+    /// A new TiledColumnStMan (`column`) or TiledShapeStMan with FixedShape
+    /// columns of `cell` (casacore order), tile shape `tile` (cell axes
+    /// then rows), no rows yet (`create64`; rows come with `add_rows`).
+    #[allow(clippy::too_many_arguments)]
+    fn create(
+        dir: &Path,
+        seq: u32,
+        column: bool,
+        name: &str,
+        dtypes: Vec<i32>,
+        cell: Vec<i64>,
+        tile: Vec<i64>,
+    ) -> Result<Self> {
+        if tile.len() != cell.len() + 1 || tile.iter().any(|&t| t < 1) {
+            return err(format!(
+                "{name}: give a tile shape of {} positive axes (cell axes, then rows)",
+                cell.len() + 1
+            ));
+        }
+        let kind = if column {
+            "TiledColumnStMan"
+        } else {
+            "TiledShapeStMan"
+        };
+        let nrdim = cell.len() as u32 + 1;
+        let mut h = TsmHeader {
+            kind: kind.into(),
+            column_tile: column.then(|| tile.clone()),
+            big: false,
+            seq,
+            nrows: 0,
+            dtypes,
+            hypercolumn: name.to_string(),
+            max_cache: 0,
+            nrdim,
+            files: vec![None],
+            cubes: Vec::new(),
+            default_tile: if column { Vec::new() } else { tile.clone() },
+            row_map: Vec::new(),
+            cube_map: Vec::new(),
+            pos_map: Vec::new(),
+        };
+        if column {
+            h.files = vec![Some(TsmFileEntry { seq: 0, length: 0 })];
+            h.cubes = vec![Self::new_cube(&cell, &tile, 0)];
+            File::create(dir.join(format!("table.f{seq}_TSM0")))?;
+        } else {
+            h.cubes = vec![TsmCube {
+                values: empty_values_record(),
+                extensible: false,
+                nrdim: 0,
+                shape: Vec::new(),
+                tile: Vec::new(),
+                file_seq: -1,
+                offset: 0,
+            }];
+        }
+        let mut t = Self::with_header(dir, h);
+        t.fixed_cell = Some(cell);
+        t.write_header = true;
+        t.changed = true;
+        Ok(t)
+    }
+
+    /// An extensible hypercube of no rows: `adjustTileShape` clips the cell
+    /// axes of the tile to the cube and leaves the row axis as given.
+    fn new_cube(cell: &[i64], tile: &[i64], file_seq: i32) -> TsmCube {
+        let mut shape = cell.to_vec();
+        shape.push(0);
+        let tile: Vec<i64> = tile
+            .iter()
+            .zip(&shape)
+            .map(|(&t, &s)| if s > 0 { t.min(s) } else { t })
+            .collect();
+        TsmCube {
+            values: empty_values_record(),
+            extensible: true,
+            nrdim: shape.len() as u32,
+            shape,
+            tile,
+            file_seq,
+            offset: 0,
+        }
+    }
+
+    /// `TSMCube::extend` of cube `index` by `n` rows: the tile file grows by
+    /// the new tiles (zeros, as casacore's cache initialises them).
+    fn extend_cube(&mut self, index: usize, n: u64) -> Result<()> {
+        let cube = &mut self.h.cubes[index];
+        let last = cube.shape.len() - 1;
+        cube.shape[last] += n as i64;
+        let cube = cube.clone();
+        let ntiles: i64 = cube
+            .shape
+            .iter()
+            .zip(&cube.tile)
+            .map(|(&s, &t)| (s + t - 1) / t)
+            .product();
+        let length = cube.offset + ntiles as u64 * self.bucket_size(&cube) as u64;
+        let file_seq = cube.file_seq as usize;
+        let entry = self.h.files[file_seq]
+            .as_mut()
+            .ok_or_else(|| MsError("hypercube without a tile file".into()))?;
+        entry.length = length;
+        let seq = entry.seq;
+        let path = self.dir.join(format!("table.f{}_TSM{seq}", self.h.seq));
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(&path)?;
+        if file.metadata()?.len() < length {
+            file.set_len(length)?;
+        }
+        Ok(())
+    }
+
+    /// `addRow64`: TiledColumnStMan extends its cube; a FixedShape
+    /// TiledShapeStMan gives every new row the cell shape (`setShape`: the
+    /// first row makes hypercube 1, later rows extend it, and the row map
+    /// grows as `updateRowMap` does for consecutive rows).
+    fn add_rows(&mut self, n: u64) -> Result<()> {
+        if n == 0 {
+            return Ok(());
+        }
+        let old = self.h.nrows;
+        if self.h.nrows + n > u64::from(u32::MAX) {
+            return err("tiled managers of more than 2^32-1 rows are not written");
+        }
+        if self.h.column_tile.is_some() {
+            self.extend_cube(0, n)?;
+        } else {
+            let cell = self.fixed_cell.clone().ok_or_else(|| {
+                MsError("rows of a variable-shape TiledShapeStMan are not written (E5)".into())
+            })?;
+            if self.h.cubes.len() > 2 {
+                return err("TiledShapeStMan with more than one hypercube is not written (E5)");
+            }
+            if self.h.cubes.len() == 1 {
+                let tile = self.h.default_tile.clone();
+                self.h.cubes.push(Self::new_cube(&cell, &tile, 1));
+                self.h.files.resize(2, None);
+                self.h.files[1] = Some(TsmFileEntry { seq: 1, length: 0 });
+            } else if self.h.cubes[1].shape[..cell.len()] != cell[..] {
+                return err("TiledShapeStMan hypercube shape differs from the column's");
+            }
+            for row in old..old + n {
+                let pos = self.h.cubes[1].shape[cell.len()] as u32;
+                self.extend_cube(1, 1)?;
+                let row = row as u32;
+                let next = self.h.row_map.last().map_or(0, |&r| r + 1);
+                if row != next {
+                    return err("TiledShapeStMan rows are not consecutive (E5)");
+                }
+                let i = self.h.row_map.len();
+                if i > 0 && self.h.cube_map[i - 1] == 1 && pos == self.h.pos_map[i - 1] + 1 {
+                    self.h.row_map[i - 1] += 1;
+                    self.h.pos_map[i - 1] += 1;
+                } else {
+                    self.h.row_map.push(row);
+                    self.h.cube_map.push(1);
+                    self.h.pos_map.push(pos);
+                }
+            }
+        }
+        self.h.nrows += n;
+        self.write_header = true;
+        self.changed = true;
+        Ok(())
     }
 
     fn dtype(&self, col: usize) -> DataType {
@@ -2215,6 +3084,19 @@ pub struct TableWriter {
     pub nrows: u64,
     mgrs: Vec<Mgr>,
     table_changed: bool,
+    /// `table.info` contents to write with the next `table.dat` write
+    /// (`TableInfo::flush` writes only a changed info).
+    info: Option<String>,
+    /// Managers created in this session that have not been flushed: they
+    /// report a change on their first flush (`create64` marks them
+    /// changed), the unwritten ones (an empty IncrementalStMan) included.
+    fresh: Vec<bool>,
+}
+
+/// The text of `table.info` (`TableInfo::flush`): type, subtype, an empty
+/// line, then the readme lines.
+pub fn table_info_text(kind: &str, sub_kind: &str, readme: &str) -> String {
+    format!("Type = {kind}\nSubType = {sub_kind}\n\n{readme}")
 }
 
 impl TableWriter {
@@ -2248,7 +3130,22 @@ impl TableWriter {
                     Mgr::Ssm(Box::new(SsmW::open(&dir, *seq, &dat.blobs[slot], cols)?))
                 }
                 "TiledColumnStMan" | "TiledShapeStMan" => match TsmW::open(&dir, *seq) {
-                    Ok(t) => Mgr::Tsm(Box::new(t)),
+                    Ok(mut t) => {
+                        // The FixedShape cell shape of the manager's columns.
+                        t.fixed_cell = dat
+                            .columns
+                            .iter()
+                            .zip(&dat.bindings)
+                            .find(|(_, b)| b.seq == *seq)
+                            .and_then(|(c, b)| match (&b.shape, &c.shape) {
+                                (Some(Some(s)), _) => Some(s.clone()),
+                                (_, Some(s)) if !s.is_empty() && c.option & 4 != 0 => {
+                                    Some(s.clone())
+                                }
+                                _ => None,
+                            });
+                        Mgr::Tsm(Box::new(t))
+                    }
                     Err(e) => Mgr::Other(e.0),
                 },
                 other => Mgr::Other(format!("{other} columns are not written (E5)")),
@@ -2261,7 +3158,156 @@ impl TableWriter {
             nrows,
             mgrs,
             table_changed: false,
+            info: None,
+            fresh: Vec::new(),
         })
+    }
+
+    /// A table made by `ms_create::create_table`: its parts, every manager
+    /// new, the table changed (written on the first flush) with its info.
+    pub(crate) fn from_new(
+        dir: PathBuf,
+        lock: LockFile,
+        dat: TableDat,
+        mgrs: Vec<NewMgr>,
+        info: String,
+    ) -> Self {
+        let n = mgrs.len();
+        TableWriter {
+            dir,
+            lock: Some(lock),
+            nrows: dat.nrows,
+            dat,
+            mgrs: mgrs.into_iter().map(|m| m.0).collect(),
+            table_changed: true,
+            info: Some(info),
+            fresh: vec![true; n],
+        }
+    }
+
+    /// Mark the table changed without changing it, as casacore's
+    /// `rwKeywordSet` does (`TableCopy::copySubTables` takes every
+    /// column's keyword set for writing): the next flush writes
+    /// `table.dat` and counts a table change.
+    pub fn mark_changed(&mut self) -> Result<()> {
+        self.guard()?;
+        self.table_changed = true;
+        Ok(())
+    }
+
+    /// Set `table.info` (python-casacore's `putinfo`): written with the
+    /// next `table.dat` write.
+    pub fn put_info(&mut self, kind: &str, sub_kind: &str, readme: &str) -> Result<()> {
+        self.guard()?;
+        self.info = Some(table_info_text(kind, sub_kind, readme));
+        Ok(())
+    }
+
+    /// Add `n` rows (`Table::addRow`, not initialised): every manager adds
+    /// them; IncrementalStMan and the other unwritten managers refuse (E5).
+    pub fn add_rows(&mut self, n: u64) -> Result<()> {
+        self.guard()?;
+        if n == 0 {
+            return Ok(());
+        }
+        for m in &self.mgrs {
+            if let Mgr::Other(reason) = m {
+                return err(format!("rows cannot be added: {reason}"));
+            }
+        }
+        let old = self.nrows;
+        for m in &mut self.mgrs {
+            match m {
+                Mgr::Ssm(s) => s.add_rows(old, n)?,
+                Mgr::Tsm(t) => t.add_rows(n)?,
+                Mgr::Other(_) => unreachable!(),
+            }
+        }
+        self.nrows += n;
+        Ok(())
+    }
+
+    /// Remove rows (`Table::removeRow`: sorted, from the last one down).
+    /// casacore's tiled managers cannot remove rows, so a table with one
+    /// refuses, as casacore does; IncrementalStMan refuses (E5).
+    pub fn remove_rows(&mut self, rows: &[u64]) -> Result<()> {
+        self.guard()?;
+        for m in &self.mgrs {
+            match m {
+                Mgr::Ssm(_) => {}
+                Mgr::Tsm(t) => {
+                    return err(format!(
+                        "rows cannot be removed: {} cannot remove rows (as in casacore)",
+                        t.h.kind
+                    ));
+                }
+                Mgr::Other(reason) => return err(format!("rows cannot be removed: {reason}")),
+            }
+        }
+        let mut sorted = rows.to_vec();
+        sorted.sort_unstable();
+        if sorted.windows(2).any(|w| w[0] == w[1]) {
+            return err("a row is given twice");
+        }
+        if let Some(&last) = sorted.last()
+            && last >= self.nrows
+        {
+            return err(format!("row {last} does not exist"));
+        }
+        for &row in sorted.iter().rev() {
+            for m in &mut self.mgrs {
+                if let Mgr::Ssm(s) = m {
+                    s.remove_row(row, self.nrows)?;
+                }
+            }
+            self.nrows -= 1;
+        }
+        Ok(())
+    }
+
+    /// Write one cell of an array column (`ArrayColumn::put`): numeric
+    /// arrays as native bytes (Bool one byte each), a variable-shape row
+    /// gets a new array when it had none or another shape.
+    pub fn put_cell(&mut self, name: &str, row: u64, shape: &[i64], data: &[u8]) -> Result<()> {
+        self.put_column(name, row, 1, shape, data)
+    }
+
+    /// Write rows of a string-array column, `strings` in Fortran order,
+    /// `shape` (casacore order) the shape of every cell.
+    pub fn put_string_cells(
+        &mut self,
+        name: &str,
+        start: u64,
+        count: u64,
+        shape: &[i64],
+        strings: &[String],
+    ) -> Result<()> {
+        let count = self.rows(start, count)?;
+        let (_, slot, k) = self.binding(name)?;
+        match &mut self.mgrs[slot] {
+            Mgr::Ssm(s) => s.put_string_column(k, start, count, shape, strings),
+            Mgr::Tsm(_) => err("tiled string columns do not exist"),
+            Mgr::Other(reason) => err(reason.clone()),
+        }
+        .map_err(|e| MsError(format!("{name}: {e}")))
+    }
+
+    /// Whether a row of a column has a value (`isDefined`).
+    pub fn is_defined(&mut self, name: &str, row: u64) -> Result<bool> {
+        self.rows(row, 1)?;
+        let (_, slot, k) = self.binding(name)?;
+        match &mut self.mgrs[slot] {
+            Mgr::Ssm(s) => s.is_defined(k, row),
+            _ => Ok(true),
+        }
+    }
+
+    /// Flush, then read cells of an indirect-array or string-array column
+    /// (undefined cells and rows of different shapes included) through a
+    /// read-only view of the files.
+    pub fn read_cells(&mut self, name: &str, start: u64, count: u64) -> Result<Vec<Cell>> {
+        self.flush()?;
+        read_cells(&self.dir, name, start, count, Some(self.nrows))
     }
 
     /// (manager slot, column index within the manager) of a column.
@@ -2623,12 +3669,14 @@ impl TableWriter {
     fn put_file(&mut self, always: bool) -> Result<()> {
         self.guard()?;
         let mut dm_changed = Vec::with_capacity(self.mgrs.len());
-        for m in &mut self.mgrs {
-            dm_changed.push(match m {
+        for (i, m) in self.mgrs.iter_mut().enumerate() {
+            let changed = match m {
                 Mgr::Ssm(s) => s.flush()?,
                 Mgr::Tsm(t) => t.flush()?,
                 Mgr::Other(_) => false,
-            });
+            };
+            let fresh = self.fresh.get_mut(i).is_some_and(std::mem::take);
+            dm_changed.push(changed || fresh);
         }
         let write_table = always || self.table_changed;
         if write_table {
@@ -2636,6 +3684,10 @@ impl TableWriter {
             let tmp = self.dir.join("table.dat_tmp");
             std::fs::write(&tmp, self.dat.serialise())?;
             std::fs::rename(&tmp, self.dir.join("table.dat"))?;
+            // `flushTableInfo`: a changed info is written with table.dat.
+            if let Some(info) = self.info.take() {
+                std::fs::write(self.dir.join("table.info"), info)?;
+            }
         }
         if (write_table || dm_changed.iter().any(|&c| c))
             && let Some(lock) = self.lock.as_mut()
@@ -2672,6 +3724,159 @@ impl Drop for TableWriter {
             let _ = self.put_file(true);
         }
     }
+}
+
+/// A data manager made for a new table (`ms_create`).
+pub struct NewMgr(Mgr);
+
+impl NewMgr {
+    /// A manager that is not written (writes refuse with `reason`).
+    pub fn other(reason: &str) -> Self {
+        NewMgr(Mgr::Other(reason.to_string()))
+    }
+
+    /// A new StandardStMan named `name` holding `columns` (description and
+    /// binding, in table order) with `nrows` rows (`SSMBase::create64`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn standard(
+        dir: &Path,
+        seq: u32,
+        name: &str,
+        columns: &[(ColDesc, ColBinding)],
+        nrows: u64,
+        bucket_rows: u32,
+        bucket_size: u32,
+        cache: u32,
+    ) -> Result<(Self, Vec<u8>)> {
+        let cols = columns
+            .iter()
+            .map(|(c, b)| ssm_col(c, b))
+            .collect::<Result<Vec<_>>>()?;
+        if cols.is_empty() {
+            return err(format!("data manager {name} has no columns"));
+        }
+        let s = SsmW::create(dir, seq, name, cols, nrows, bucket_rows, bucket_size, cache)?;
+        let blob = s.blob.serialise();
+        Ok((NewMgr(Mgr::Ssm(Box::new(s))), blob))
+    }
+
+    /// A new TiledColumnStMan (`column`) or TiledShapeStMan named `name`
+    /// (the hypercolumn) for FixedShape columns of one cell shape, with
+    /// `nrows` rows.
+    #[allow(clippy::too_many_arguments)]
+    pub fn tiled(
+        dir: &Path,
+        seq: u32,
+        column: bool,
+        name: &str,
+        dtypes: Vec<i32>,
+        cell: Vec<i64>,
+        tile: Vec<i64>,
+        nrows: u64,
+    ) -> Result<Self> {
+        let mut t = TsmW::create(dir, seq, column, name, dtypes, cell, tile)?;
+        t.add_rows(nrows)?;
+        Ok(NewMgr(Mgr::Tsm(Box::new(t))))
+    }
+}
+
+/// The array records the rows of a table reference in each `table.fNi`:
+/// (file name, record offset, element size in bits), for the alignment-gap
+/// mask of research/e4-table-create.md (read only).
+pub fn array_records(dir: impl AsRef<Path>) -> Result<Vec<(String, u64, u32)>> {
+    let dir = dir.as_ref();
+    let dat = TableDat::parse(&std::fs::read(dir.join("table.dat"))?)?;
+    let nrows = match std::fs::read(dir.join("table.lock"))
+        .ok()
+        .and_then(|b| SyncRecord::parse(&b).ok().flatten())
+    {
+        Some(s) if s.nrows > 0 => s.nrows,
+        _ => dat.nrows,
+    };
+    let mut out = Vec::new();
+    for (slot, (kind, seq)) in dat.managers.iter().enumerate() {
+        if kind != "StandardStMan" || !dir.join(format!("table.f{seq}i")).is_file() {
+            continue;
+        }
+        let mut cols = Vec::new();
+        for (c, b) in dat.columns.iter().zip(&dat.bindings) {
+            if b.seq == *seq {
+                cols.push(ssm_col(c, b)?);
+            }
+        }
+        let mut s = SsmW::open_mode(dir, *seq, &dat.blobs[slot], cols, false)?;
+        for k in 0..s.cols.len() {
+            if s.cols[k].kind != SsmKind::Indirect {
+                continue;
+            }
+            let bits = match s.cols[k].dtype {
+                DataType::Bool => 1,
+                dt => 8 * dt.size() as u32,
+            };
+            for row in 0..nrows {
+                let (b, at) = s.slot(k, row)?;
+                let offset = u64::from_le_bytes(s.bucket(b)?[at..at + 8].try_into().unwrap());
+                if offset != 0 {
+                    out.push((format!("table.f{seq}i"), offset, bits));
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// Read cells of a column of a table without writing anything: indirect
+/// and string arrays of StandardStMan cell by cell (undefined cells and
+/// rows of different shapes included), every other column through the
+/// task E reader. `nrows` overrides the row count (a table open for
+/// writing in this process: `table.lock` must not be touched).
+pub fn read_cells(
+    dir: impl AsRef<Path>,
+    name: &str,
+    start: u64,
+    count: u64,
+    nrows: Option<u64>,
+) -> Result<Vec<Cell>> {
+    let dir = dir.as_ref();
+    let dat = TableDat::parse(&std::fs::read(dir.join("table.dat"))?)?;
+    let index = dat.column(name)?;
+    let seq = dat.bindings[index].seq;
+    let slot = dat
+        .managers
+        .iter()
+        .position(|(_, s)| *s == seq)
+        .ok_or_else(|| MsError(format!("{name}: data manager {seq} is missing")))?;
+    let desc = &dat.columns[index];
+    if dat.managers[slot].0 == "StandardStMan" && desc.is_array() {
+        let mut cols = Vec::new();
+        let mut k = 0;
+        for (c, b) in dat.columns.iter().zip(&dat.bindings) {
+            if b.seq == seq {
+                if c.name == name {
+                    k = cols.len();
+                }
+                cols.push(ssm_col(c, b)?);
+            }
+        }
+        let kind = cols[k].kind;
+        if matches!(kind, SsmKind::Indirect | SsmKind::StrArray) {
+            let mut s = SsmW::open_mode(dir, seq, &dat.blobs[slot], cols, false)?;
+            return (start..start + count).map(|r| s.read_cell(k, r)).collect();
+        }
+    }
+    let table = crate::ms::Table::open_with_rows(dir, nrows)?;
+    let mut out = Vec::with_capacity(count as usize);
+    for r in start..start + count {
+        let data = table.read_column(name, r, 1)?;
+        out.push(
+            if data.dtype == Some(DataType::Str) || data.dtype.is_none() {
+                Cell::Strings(data.shape, data.strings)
+            } else {
+                Cell::Values(data.shape, data.bytes)
+            },
+        );
+    }
+    Ok(out)
 }
 
 /// Counts of a serialisation-identity check.
