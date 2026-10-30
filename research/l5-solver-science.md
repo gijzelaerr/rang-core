@@ -327,7 +327,13 @@ every malformed key or value.
 
 ## Measured result (2026-10-30)
 
-All runs `RAYON_NUM_THREADS=4`, library SHA256 `3a4b1378…` (core) on host
+All runs `RAYON_NUM_THREADS=4`. Binaries: the sweeps and confirms ran on
+the PyO3 extension built by `maturin develop` in `-02` with the stable
+toolchain (SHA256 `53c96538…`, recorded in every result's `environment`);
+the task F bench used the ctypes core library built with Rust 1.93
+(`3a4b1378…`). The phase 2 validator passes on both the stable extension
+(`-02`) and the 1.93 rebuild of check-all (`-21`), and D reproduced K's
+and L1's gains hashes in the sweeps. Host
 load 5–80 (siblings), timings as A/B pairs in one process. Runs:
 compatibility `-02`; fixture sweep `-08` (identical arms in `-03`, `-06`),
 slice sweep `-09` (`-04`, `-07`), post-hoc diagnostic `-05`, 32-station
@@ -442,8 +448,9 @@ The criteria, post hoc (iterations; MSE_test relative to D):
 | cap 16 | +1.6e-4 | −9.7e-6 | +2.5e-5 | +3.2e-5 |
 | cap 24 | +2.8e-5 | −7.7e-7 | +3.2e-6 | +8.2e-6 |
 
-Every interval-criterion stop equalled the trace replay (`matches_trace`
-on all arms of all four sweeps). **Answer.** No candidate both stops
+Every re-solved criterion arm stopped exactly where the trace replay
+predicted (`matches_trace`; on the array the arms that never stop within
+300 iterations reuse R under `--lean` and match by construction). **Answer.** No candidate both stops
 earlier than the cap of 50 on the real data and keeps the fixture: the
 gauge-invariant product criterion at 1e-3 stops at 7–35 iterations within
 δ on the three LUNO sets but costs 5.8e-5 on the fixture; at 1e-4 it is
@@ -451,7 +458,9 @@ within δ everywhere but runs past 50 on 32 stations (167) and the array
 (83), like the loss criterion at 1e-5 (184, 88). The products change as
 slowly as the gains in the few unsettled intervals (consistent with task
 U2's QuartiCal #455 measurement on scan 9), and the per-interval χ² change
-has the same tail. A cap of 16–24 is within δ on all four sets but is not
+has the same tail. (U2's #455 saw no early stop from products on scan 9;
+here products at 1e-3 do stop early, at 35 iterations on the array, while
+loss at 1e-5 needs 88.) A cap of 16–24 is within δ on all four sets but is not
 adaptive. The held-out floor itself may be sky-model limited on 1934−638
 (task L1-M); these arms keep K/L1's model for comparability.
 
@@ -488,7 +497,14 @@ needs 59–65 iterations for the 0.99 fraction, so the solve still ends at
 0.833):
 the frozen clause "iterations to the criterion in force drop ≥ 20 % on S
 and A" **fails on A as frozen** (both 50); counted to the criterion
-without the cap it drops by > 78 %. Anderson under a cap of 8 is worse on
+without the cap it drops by > 78 %. Literature: Anderson acceleration of
+linearly converging fixed-point maps is analysed by Evans et al. (2020),
+and on singular, gauge-like problems by Dallas (2025); the literature scan
+(task literature, `literature-2024-2026.md`) found no published radio
+calibration application. Because the gauge freedom makes the fixed point
+non-unique, this is reported as a cost result, and the implementation is
+safeguarded as those analyses advise: the history is reset and the plain
+step taken whenever the pair residual grows. Anderson under a cap of 8 is worse on
 every set (fixture +9.2e-3). `freeze=1` under cap 8 changes nothing (no
 interval passes the gain test within 8 iterations): null.
 
@@ -516,8 +532,10 @@ products to R p99 as Anderson.
   the array's 83 % at 50 iterations into 98 % at the same cost, and
   reaches 0.99 at 65); revisit the default with a Python-level option
   (a binding change, outside this task) together with a cap of about 70
-  under Anderson, which on the array would reach 0.99 at lower cost than
-  the uncapped plain solve and at the same held-out error.
+  under Anderson. Against the default that is not a cost win: on the
+  array Anderson needs 65 iterations where D stops at 50 (about 30 % more
+  solver work) in exchange for a converged fraction of 0.99 instead of
+  0.833, at the same held-out error.
 
 ## Open items
 
@@ -591,7 +609,10 @@ fraction 0.982 vs 0.833, MSE_test −6.8e-7 relative, residual RMS ratio
 1 − 1.6e-9, wall 19.8 vs 20.2 s; on the slice it stops at 21 iterations
 (wall −55 %, MSE_test −8.8e-8). If the user wants a default change, the
 candidate for a new protocol is `qp_weights=transposed,anderson=3` with a
-cap of 70 (array 0.99 at 65), judged against a converged plain reference.
+cap of 70 (array 0.99 at 65), judged against a converged plain reference;
+against D that costs about 30 % more solver work on the array (65 vs 50
+iterations) for converged gains (0.99 vs 0.833), and saves 45–55 % on the
+fixture and slice.
 
 **Upstream QuartiCal improvement (convergence criterion).** Task U2 has
 filed ratt-ru/QuartiCal#455 (QuartiCal 0.2.7 on scan 9: the iteration cap
