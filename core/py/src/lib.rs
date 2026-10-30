@@ -1523,6 +1523,32 @@ fn ms_serialisation_check(
     Ok((c.tables, c.ssm_files, c.tiled_headers, c.failures))
 }
 
+/// A table's row count and columns (name, type code, is array), read
+/// without writing (research/e5-table-writer-rest.md).
+#[pyfunction]
+fn ms_describe(py: Python<'_>, path: &str) -> PyResult<(u64, Vec<(String, i32, bool)>)> {
+    detach(py, || rang_core::ms_write::describe(path)).map_err(|e| PyOSError::new_err(e.0))
+}
+
+/// `serialise(parse(x)) == x` as `ms_serialisation_check`, with the
+/// IncrementalStMan files (research/e5-table-writer-rest.md): (tables,
+/// StandardStMan files, tiled headers, IncrementalStMan files, failures).
+#[pyfunction]
+fn ms_serialisation_check_e5(
+    py: Python<'_>,
+    path: &str,
+) -> PyResult<(usize, usize, usize, usize, Vec<String>)> {
+    let c = detach(py, || rang_core::ms_write::check_serialisation(path))
+        .map_err(|e| PyOSError::new_err(e.0))?;
+    Ok((
+        c.tables,
+        c.ssm_files,
+        c.tiled_headers,
+        c.ism_files,
+        c.failures,
+    ))
+}
+
 /// A casacore table open for writing (research/e3-table-writer.md); holds
 /// casacore's write lock until `close`.
 #[pyclass(unsendable)]
@@ -1605,6 +1631,21 @@ impl MsWriter {
             dtype.code(),
             nstrings,
         ))
+    }
+
+    /// Write one cell as `ArrayColumn::put` does (`putcell`): native bytes,
+    /// `shape` in casacore order (research/e5-table-writer-rest.md).
+    fn put_cell(
+        &mut self,
+        py: Python<'_>,
+        name: &str,
+        row: u64,
+        shape: Vec<i64>,
+        data: PyReadonlyArray1<'_, u8>,
+    ) -> PyResult<()> {
+        let bytes = data.as_slice()?;
+        let w = self.get()?;
+        detach(py, || w.put_cell(name, row, &shape, bytes)).map_err(|e| PyOSError::new_err(e.0))
     }
 
     fn put_strings(&mut self, name: &str, start: u64, values: Vec<String>) -> PyResult<()> {
@@ -1953,6 +1994,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MsTable>()?;
     m.add_class::<MsWriter>()?;
     m.add_function(wrap_pyfunction!(ms_serialisation_check, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_serialisation_check_e5, m)?)?;
+    m.add_function(wrap_pyfunction!(ms_describe, m)?)?;
     m.add_function(wrap_pyfunction!(ms_create_table, m)?)?;
     m.add_function(wrap_pyfunction!(ms_default_ms, m)?)?;
     m.add_function(wrap_pyfunction!(ms_default_ms_subtable, m)?)?;

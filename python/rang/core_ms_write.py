@@ -310,24 +310,21 @@ class Table:
     def __init__(self, path, lock_attempts=10, lock_wait=1.0, _writer=None):
         self.path = Path(path)
         self._info = None
-        if _writer is not None:
-            # A table made in this process: its columns from the writer.
-            self._writer = _writer
-            self._columns = {
-                name: {
-                    "dtype": "str" if code == STRING else DTYPES[code].name,
-                    "is_array": array,
-                }
-                for name, code, array in _writer.columns()
+        if _writer is None:
+            _writer = core.extension().MsWriter(
+                str(self.path), int(lock_attempts), int(lock_wait * 1000)
+            )
+        # The columns from the writer itself (the task E reader would open and
+        # close table.lock, dropping the lock; nor does it read every kind of
+        # table the writer writes, e.g. MultiFile tables).
+        self._writer = _writer
+        self._columns = {
+            name: {
+                "dtype": "str" if code == STRING else DTYPES[code].name,
+                "is_array": array,
             }
-            return
-        # Describe the table before taking the lock: the reader opens and
-        # closes table.lock, which would drop a lock already held (POSIX).
-        with core_ms.open_table(self.path) as reader:
-            self._columns = {name: dict(c) for name, c in reader.columns.items()}
-        self._writer = core.extension().MsWriter(
-            str(self.path), int(lock_attempts), int(lock_wait * 1000)
-        )
+            for name, code, array in _writer.columns()
+        }
 
     # -- bookkeeping ---------------------------------------------------------
     def nrows(self):
@@ -391,9 +388,19 @@ class Table:
         if self._code(columnname) == STRING and not is_array:
             self.putcol(columnname, [value], rownr, 1)
         elif is_array:
-            if self._code(columnname) == STRING:
+            code = self._code(columnname)
+            if code == STRING:
                 value = np.asarray(value, dtype=object)
-            self.putcol(columnname, np.asarray(value)[None, ...], rownr, 1)
+                self.putcol(columnname, np.asarray(value)[None, ...], rownr, 1)
+                return
+            arr = np.ascontiguousarray(value, dtype=DTYPES[code])
+            # `ArrayColumn::put`, as python-casacore's putcell does.
+            self._writer.put_cell(
+                columnname,
+                int(rownr),
+                list(arr.shape)[::-1],
+                arr.reshape(-1).view(np.uint8),
+            )
         else:
             self.putcol(columnname, np.asarray([value]), rownr, 1)
 
@@ -646,12 +653,19 @@ def default_ms_subtable(subtable, name=None, tabdesc=None, dminfo=None):
     return Table(path, _writer=writer)
 
 
+def describe(path):
+    """(row count, {column: (type code, is array)}) of a table, read
+    without writing (the task E reader does not read every kind of table
+    this module writes)."""
+    nrows, columns = core.extension().ms_describe(str(path))
+    return int(nrows), {name: (code, array) for name, code, array in columns}
+
+
 def read_cells(path, columnname, startrow=0, nrow=1):
     """Cells of a column of a table nobody writes in this process
     (undefined cells as None, rows of any shape), without writing."""
-    with core_ms.open_table(path) as reader:
-        info = reader.columns[columnname]
-    code = STRING if info["dtype"] == "str" else CODES[np.dtype(info["dtype"])]
+    _, columns = describe(path)
+    code = columns[columnname][0]
     cells = core.extension().ms_read_cells(
         str(path), columnname, int(startrow), int(nrow)
     )

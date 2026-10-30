@@ -40,6 +40,7 @@ pub mod ffi_wgridder;
 pub mod fluxstd;
 pub mod fused;
 pub mod grid;
+pub mod ism;
 pub mod jones;
 pub mod ms;
 pub mod ms_create;

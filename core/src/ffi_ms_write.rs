@@ -526,6 +526,7 @@ pub fn manager_specs(managers: Vec<ManagerArgs>) -> Vec<crate::ms_create::Manage
                     bucket_rows,
                     cache,
                     tile,
+                    ism_computed: false,
                 }
             },
         )

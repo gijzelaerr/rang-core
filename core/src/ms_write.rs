@@ -24,7 +24,7 @@ fn err<T>(message: impl Into<String>) -> Result<T> {
     Err(MsError(message.into()))
 }
 
-fn read_at(file: &mut File, offset: u64, n: usize) -> Result<Vec<u8>> {
+pub(crate) fn read_at(file: &mut File, offset: u64, n: usize) -> Result<Vec<u8>> {
     let mut out = vec![0u8; n];
     file.seek(SeekFrom::Start(offset))?;
     file.read_exact(&mut out)
@@ -32,7 +32,7 @@ fn read_at(file: &mut File, offset: u64, n: usize) -> Result<Vec<u8>> {
     Ok(out)
 }
 
-fn write_at(file: &mut File, offset: u64, bytes: &[u8]) -> Result<()> {
+pub(crate) fn write_at(file: &mut File, offset: u64, bytes: &[u8]) -> Result<()> {
     file.seek(SeekFrom::Start(offset))?;
     file.write_all(bytes).map_err(|e| {
         MsError(format!(
@@ -863,47 +863,109 @@ impl FileBuf {
 }
 
 /// The indirect-array file `table.fNi` (`StManArrayFile`, version 0 or 1,
-/// little endian), driven through `FileBuf` as casacore drives it.
-struct ArrayFile {
+/// little or big endian), driven through `FileBuf` as casacore drives it.
+pub(crate) struct ArrayFile {
     io: FileBuf,
-    version: u32,
+    pub(crate) version: u32,
     leng: u64,
     has_put: bool,
+    big: bool,
+}
+
+/// `n` in the byte order of a big- or little-endian table.
+pub(crate) fn order_u32(n: u32, big: bool) -> [u8; 4] {
+    if big {
+        n.to_be_bytes()
+    } else {
+        n.to_le_bytes()
+    }
+}
+
+pub(crate) fn order_u64(n: u64, big: bool) -> [u8; 8] {
+    if big {
+        n.to_be_bytes()
+    } else {
+        n.to_le_bytes()
+    }
+}
+
+pub(crate) fn read_order_u32(b: &[u8], big: bool) -> u32 {
+    let a: [u8; 4] = b[..4].try_into().unwrap();
+    if big {
+        u32::from_be_bytes(a)
+    } else {
+        u32::from_le_bytes(a)
+    }
+}
+
+pub(crate) fn read_order_u64(b: &[u8], big: bool) -> u64 {
+    let a: [u8; 8] = b[..8].try_into().unwrap();
+    if big {
+        u64::from_be_bytes(a)
+    } else {
+        u64::from_le_bytes(a)
+    }
+}
+
+/// Native values of `dtype` in a table's byte order (a copy; swapped per
+/// float of a complex value when the table is big-endian).
+pub(crate) fn to_order(dtype: DataType, native: &[u8], big: bool) -> Vec<u8> {
+    let unit = match dtype {
+        DataType::Complex => 4,
+        DataType::DComplex => 8,
+        dt => dt.size(),
+    };
+    if big == cfg!(target_endian = "big") || unit <= 1 {
+        return native.to_vec();
+    }
+    let mut out = native.to_vec();
+    for chunk in out.chunks_exact_mut(unit) {
+        chunk.reverse();
+    }
+    out
 }
 
 impl ArrayFile {
     /// Open the file as `StManArrayFile::resync` does: read the version and
     /// length, or write version 0, length 16 and a zero Int to a new file.
     fn open(path: &Path) -> Result<Self> {
+        Self::open_ext(path, false, 0, false)
+    }
+
+    /// Open (or, `new`, create anew as `ByteIO::New` does) an array file of
+    /// a table of byte order `big`; a new file gets `version`.
+    pub(crate) fn open_ext(path: &Path, big: bool, version: u32, new: bool) -> Result<Self> {
         let file = OpenOptions::new()
             .read(true)
             .write(true)
             .create(true)
-            .truncate(false)
+            .truncate(new)
             .open(path)
             .map_err(|e| MsError(format!("{}: {e}", path.display())))?;
         let exists = file.metadata()?.len() > 0;
         let mut io = FileBuf::new(file, 65536);
         if exists {
             io.seek(0);
-            let version = u32::from_le_bytes(io.read(4)?.try_into().unwrap());
-            let leng = u64::from_le_bytes(io.read(8)?.try_into().unwrap());
+            let version = read_order_u32(&io.read(4)?, big);
+            let leng = read_order_u64(&io.read(8)?, big);
             Ok(ArrayFile {
                 io,
                 version,
                 leng,
                 has_put: false,
+                big,
             })
         } else {
             io.seek(0);
-            io.write(&0u32.to_le_bytes())?;
-            io.write(&16u64.to_le_bytes())?;
-            io.write(&0i32.to_le_bytes())?;
+            io.write(&order_u32(version, big))?;
+            io.write(&order_u64(16, big))?;
+            io.write(&order_u32(0, big))?;
             Ok(ArrayFile {
                 io,
-                version: 0,
+                version,
                 leng: 16,
                 has_put: true,
+                big,
             })
         }
     }
@@ -911,37 +973,66 @@ impl ArrayFile {
     /// `StManArrayFile::getShape`: the shape at `offset` and the offset of
     /// its values.
     fn shape(&mut self, offset: u64) -> Result<(Vec<i64>, u64)> {
+        let (shape, n) = self.get_shape(offset)?;
+        Ok((shape, offset + n))
+    }
+
+    /// `StManArrayFile::getShape` as casacore returns it: the shape and the
+    /// length of the header (reference count, ndim, dimensions).
+    pub(crate) fn get_shape(&mut self, offset: u64) -> Result<(Vec<i64>, u64)> {
+        let big = self.big;
         self.io.seek(offset);
         let mut n = 0;
         if self.version > 0 {
             self.io.read(4)?;
             n += 4;
         }
-        let ndim = u32::from_le_bytes(self.io.read(4)?.try_into().unwrap()) as usize;
+        let ndim = read_order_u32(&self.io.read(4)?, big) as usize;
         let mut shape = Vec::with_capacity(ndim);
         for _ in 0..ndim {
-            shape.push(i64::from(i32::from_le_bytes(
-                self.io.read(4)?.try_into().unwrap(),
-            )));
+            shape.push(i64::from(read_order_u32(&self.io.read(4)?, big) as i32));
         }
         n += 4 + 4 * ndim as u64;
-        Ok((shape, offset + n))
+        Ok((shape, n))
+    }
+
+    /// `StManArrayFile::getRefCount` (1 in a version-0 file).
+    pub(crate) fn ref_count(&mut self, offset: u64) -> Result<u32> {
+        if self.version == 0 {
+            return Ok(1);
+        }
+        self.io.seek(offset);
+        Ok(read_order_u32(&self.io.read(4)?, self.big))
+    }
+
+    /// `StManArrayFile::putRefCount` (it does not mark the file changed).
+    pub(crate) fn put_ref_count(&mut self, offset: u64, count: u32) -> Result<()> {
+        if self.version == 0 {
+            return if count == 1 {
+                Ok(())
+            } else {
+                err("reference count of a version-0 array file")
+            };
+        }
+        self.io.seek(offset);
+        self.io.write(&order_u32(count, self.big))
     }
 
     /// `StManArrayFile::putRes`: reserve an array of `shape` at the end
     /// (8-byte aligned); returns the array's offset.
-    fn put_res(&mut self, shape: &[i64], dtype: DataType) -> Result<u64> {
+    pub(crate) fn put_res(&mut self, shape: &[i64], dtype: DataType) -> Result<u64> {
+        let big = self.big;
         self.leng = self.leng.div_ceil(8) * 8;
         let offset = self.leng;
         self.io.seek(offset);
         let mut n = 0;
         if self.version > 0 {
-            self.io.write(&1u32.to_le_bytes())?;
+            self.io.write(&order_u32(1, big))?;
             n += 4;
         }
-        self.io.write(&(shape.len() as u32).to_le_bytes())?;
+        self.io.write(&order_u32(shape.len() as u32, big))?;
         for &s in shape {
-            self.io.write(&(s as i32).to_le_bytes())?;
+            self.io.write(&order_u32(s as i32 as u32, big))?;
         }
         n += 4 + 4 * shape.len() as u64;
         let count = product(shape) as u64;
@@ -960,7 +1051,7 @@ impl ArrayFile {
     /// `StManArrayFile::put` of one array's values (native bytes; Bool one
     /// byte each, packed to bits keeping the trailing bits of the last
     /// byte, which casacore reads first).
-    fn put_values(&mut self, at: u64, dtype: DataType, values: &[u8]) -> Result<()> {
+    pub(crate) fn put_values(&mut self, at: u64, dtype: DataType, values: &[u8]) -> Result<()> {
         if dtype == DataType::Bool {
             let n = values.len();
             let nbytes = n.div_ceil(8);
@@ -972,6 +1063,9 @@ impl ArrayFile {
             put_bits(&mut packed, 0, values);
             self.io.seek(at);
             self.io.write(&packed)?;
+        } else if self.big != cfg!(target_endian = "big") && dtype.size() > 1 {
+            self.io.seek(at);
+            self.io.write(&to_order(dtype, values, self.big))?;
         } else {
             self.io.seek(at);
             self.io.write(values)?;
@@ -982,25 +1076,49 @@ impl ArrayFile {
 
     /// `StManArrayFile::flush` and the buffer's own flush at close.
     fn flush(&mut self) -> Result<()> {
+        self.flush_changed().map(|_| ())
+    }
+
+    /// `StManArrayFile::flush`, returning whether the file had changed (the
+    /// manager then reports a change), then the buffer's own flush.
+    pub(crate) fn flush_changed(&mut self) -> Result<bool> {
+        let changed = self.has_put;
         if self.has_put {
+            let (version, leng) = (
+                order_u32(self.version, self.big),
+                order_u64(self.leng, self.big),
+            );
             self.io.seek(0);
-            self.io.write(&self.version.to_le_bytes())?;
-            self.io.write(&self.leng.to_le_bytes())?;
+            self.io.write(&version)?;
+            self.io.write(&leng)?;
             self.has_put = false;
             self.io.flush()?;
             self.io.seek(self.leng);
         }
-        self.io.flush()
+        self.io.flush()?;
+        Ok(changed)
+    }
+
+    /// Read `n` values of an array whose values start at `at` (native bytes;
+    /// Bool one byte each), straight from the file after a flush.
+    pub(crate) fn read_values(&mut self, at: u64, dtype: DataType, n: usize) -> Result<Vec<u8>> {
+        self.io.flush()?;
+        if dtype == DataType::Bool {
+            let bytes = read_at(&mut self.io.file, at, n.div_ceil(8))?;
+            return Ok(get_bits(&bytes, 0, n));
+        }
+        let bytes = read_at(&mut self.io.file, at, n * dtype.size())?;
+        Ok(to_order(dtype, &bytes, self.big))
     }
 }
 
-fn product(shape: &[i64]) -> usize {
+pub(crate) fn product(shape: &[i64]) -> usize {
     shape.iter().map(|&s| s.max(0) as usize).product()
 }
 
 /// Set `count` bits from bit `dst` of `out` to the one-byte booleans of
 /// `src`, least significant bit first; whole bytes are packed at once.
-fn put_bits(out: &mut [u8], dst: usize, src: &[u8]) {
+pub(crate) fn put_bits(out: &mut [u8], dst: usize, src: &[u8]) {
     let mut k = 0;
     while k < src.len() {
         let bit = dst + k;
@@ -1116,6 +1234,11 @@ struct SsmW {
     cache: Cache,
     /// Read from a file (its index is read through the cache first).
     opened: bool,
+    /// `itsBucketRows` and `itsBucketSize` as `SSMBase::init` left them
+    /// (read from a file: 0 and the header's), for a `recreate`.
+    sizing: (usize, usize),
+    /// The manager's file (`table.fN`).
+    path: PathBuf,
 }
 
 /// casacore's `BucketCache` slots for one StandardStMan (LRU counters,
@@ -1151,6 +1274,7 @@ impl SsmW {
     ) -> Result<Self> {
         let path = dir.join(format!("table.f{seq}"));
         let (header_raw, h, indices) = read_ssm(&path, true)?;
+        let bucket_size = h.bucket_size as usize;
         let blob = SsmBlob::parse(blob)?;
         if blob.col_offset.len() != cols.len() {
             return err("StandardStMan column count mismatches the table");
@@ -1179,40 +1303,19 @@ impl SsmW {
             changed: false,
             arrays: None,
             array_path: dir.join(format!("table.f{seq}i")),
+            sizing: (0, bucket_size),
+            path: path.clone(),
             strings,
             cache: Cache::default(),
             opened: true,
         })
     }
 
-    /// A new StandardStMan for `cols` (`SSMBase::create64`: `init` sizes the
-    /// bucket with `setBucketSize`, one index holds every column; then the
-    /// rows are added). `bucket_rows` and `bucket_size` are the SPEC values
-    /// BUCKETROWS and BUCKETSIZE (0: not given; 32 rows by default).
-    #[allow(clippy::too_many_arguments)]
-    fn create(
-        dir: &Path,
-        seq: u32,
-        name: &str,
-        cols: Vec<SsmCol>,
-        nrows: u64,
-        bucket_rows: u32,
-        bucket_size: u32,
-        pers_cache: u32,
-    ) -> Result<Self> {
-        let bits: Vec<usize> = cols.iter().map(|c| c.bits).collect();
-        if bits.contains(&0) {
-            return err("unsupported column for a new StandardStMan");
-        }
-        let mut rows = if bucket_rows > 0 {
-            bucket_rows as usize
-        } else {
-            0
-        };
-        let mut size = bucket_size as usize;
-        if rows == 0 && size == 0 {
-            rows = 32;
-        }
+    /// `SSMBase::init`: rows per bucket (and the sizing state) for columns
+    /// of `bits` bits a row with the advised rows and bucket size.
+    fn init_sizing(bits: &[usize], rows: usize, size: usize) -> (usize, usize, usize) {
+        let mut rows = rows;
+        let mut size = size;
         let set_size = |rows: usize, size: &mut usize| -> usize {
             let total: usize = bits.iter().map(|b| b.div_ceil(8)).sum();
             *size = (*size).max(128);
@@ -1247,9 +1350,15 @@ impl SsmW {
             rows = rows.div_ceil(nb);
             rpb = set_size(rows, &mut size);
         }
-        let mut offsets = Vec::with_capacity(cols.len());
+        (rpb, rows, size)
+    }
+
+    /// The column offsets in a bucket of `rpb` rows and the new index
+    /// (`SSMIndex` with the rest of the bucket free).
+    fn layout(bits: &[usize], rpb: usize, size: usize) -> (Vec<u32>, SsmIndexFull) {
+        let mut offsets = Vec::with_capacity(bits.len());
         let mut total = 0usize;
-        for b in &bits {
+        for b in bits {
             offsets.push(total as u32);
             total += (rpb * b).div_ceil(8);
         }
@@ -1257,6 +1366,105 @@ impl SsmW {
         if size > total {
             free.push((total as i32, (size - total) as i32));
         }
+        (
+            offsets,
+            SsmIndexFull {
+                rows_per_bucket: rpb as u32,
+                n_columns: bits.len() as i32,
+                free,
+                last_row: Vec::new(),
+                bucket: Vec::new(),
+            },
+        )
+    }
+
+    /// `SSMBase::removeRow64` at its last row: `create64(0)` (`init` and
+    /// `recreate`): the file made anew, one new index, the string handler
+    /// and the array file (of indirect columns) new; nothing of the old
+    /// file is kept.
+    fn recreate(&mut self) -> Result<()> {
+        let bits: Vec<usize> = self.cols.iter().map(|c| c.bits).collect();
+        let (rpb, rows, size) = Self::init_sizing(&bits, self.sizing.0, self.sizing.1);
+        self.sizing = (rows, size);
+        let (offsets, index) = Self::layout(&bits, rpb, size);
+        self.file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(true)
+            .open(&self.path)
+            .map_err(|e| MsError(format!("{}: {e}", self.path.display())))?;
+        let pers = self.h.pers_cache;
+        self.h = SsmHeader {
+            big: self.h.big,
+            bucket_size: size as u32,
+            nr_buckets: 0,
+            pers_cache: pers,
+            nr_free: 0,
+            first_free: -1,
+            nr_idx_buckets: 0,
+            first_idx_bucket: -1,
+            idx_bucket_offset: 0,
+            last_string_bucket: -1,
+            idx_length: 0,
+            nr_indices: 1,
+        };
+        self.header_raw = vec![0; BUCKET_START as usize];
+        self.scratch = vec![0; size];
+        self.indices = vec![index];
+        self.blob.col_offset = offsets;
+        self.blob.col_index = vec![0; self.cols.len()];
+        self.buckets.clear();
+        self.dirty.clear();
+        self.cache = Cache::default();
+        self.strings = Strings {
+            current: -1,
+            last: -1,
+            next: -1,
+            ..Default::default()
+        };
+        self.opened = false;
+        if let Some(mut a) = self.arrays.take() {
+            a.flush()?;
+        }
+        if self.cols.iter().any(|c| c.kind == SsmKind::Indirect) {
+            let _ = std::fs::remove_file(&self.array_path);
+            self.arrays()?;
+        }
+        self.changed = true;
+        Ok(())
+    }
+
+    /// A new StandardStMan for `cols` (`SSMBase::create64`: `init` sizes the
+    /// bucket with `setBucketSize`, one index holds every column; then the
+    /// rows are added). `bucket_rows` and `bucket_size` are the SPEC values
+    /// BUCKETROWS and BUCKETSIZE (0: not given; 32 rows by default).
+    #[allow(clippy::too_many_arguments)]
+    fn create(
+        dir: &Path,
+        seq: u32,
+        name: &str,
+        cols: Vec<SsmCol>,
+        nrows: u64,
+        bucket_rows: u32,
+        bucket_size: u32,
+        pers_cache: u32,
+    ) -> Result<Self> {
+        let bits: Vec<usize> = cols.iter().map(|c| c.bits).collect();
+        if bits.contains(&0) {
+            return err("unsupported column for a new StandardStMan");
+        }
+        let mut rows = if bucket_rows > 0 {
+            bucket_rows as usize
+        } else {
+            0
+        };
+        let size = bucket_size as usize;
+        if rows == 0 && size == 0 {
+            rows = 32;
+        }
+        let (rpb, rows, size) = Self::init_sizing(&bits, rows, size);
+        let (offsets, index) = Self::layout(&bits, rpb, size);
         let path = dir.join(format!("table.f{seq}"));
         let file = OpenOptions::new()
             .read(true)
@@ -1285,13 +1493,7 @@ impl SsmW {
             header_raw: vec![0; BUCKET_START as usize],
             scratch: vec![0; size],
             h,
-            indices: vec![SsmIndexFull {
-                rows_per_bucket: rpb as u32,
-                n_columns: ncol as i32,
-                free,
-                last_row: Vec::new(),
-                bucket: Vec::new(),
-            }],
+            indices: vec![index],
             blob: SsmBlob {
                 name: name.to_string(),
                 col_offset: offsets,
@@ -1311,6 +1513,8 @@ impl SsmW {
             },
             cache: Cache::default(),
             opened: false,
+            sizing: (rows, size),
+            path: path.clone(),
         };
         if s.cols.iter().any(|c| c.kind == SsmKind::Indirect) {
             // `SSMIndColumn::doCreate` opens a new array file.
@@ -2066,7 +2270,7 @@ pub enum Cell {
 
 /// `Conversion::boolToBit` without a start bit: whole bytes from the first
 /// one, the bits after the last value in its byte cleared.
-fn bool_to_bits_from_zero(out: &mut [u8], src: &[u8]) {
+pub(crate) fn bool_to_bits_from_zero(out: &mut [u8], src: &[u8]) {
     for (i, chunk) in src.chunks(8).enumerate() {
         let mut byte = 0u8;
         for (j, &v) in chunk.iter().enumerate() {
@@ -2076,7 +2280,7 @@ fn bool_to_bits_from_zero(out: &mut [u8], src: &[u8]) {
     }
 }
 
-fn get_bits(bytes: &[u8], start: usize, n: usize) -> Vec<u8> {
+pub(crate) fn get_bits(bytes: &[u8], start: usize, n: usize) -> Vec<u8> {
     (start..start + n)
         .map(|b| (bytes[b / 8] >> (b % 8)) & 1)
         .collect()
@@ -2556,7 +2760,8 @@ impl SsmW {
     /// `SSMBase::removeRow64` of one row; `nrows` is the row count before.
     fn remove_row(&mut self, row: u64, nrows: u64) -> Result<()> {
         if nrows <= 1 {
-            return err("removing the last row of a StandardStMan is not supported (E5)");
+            // What the deletes would write goes with the old file.
+            return self.recreate();
         }
         for k in 0..self.cols.len() {
             self.delete_row_in(k, row)?;
@@ -3029,6 +3234,7 @@ fn put_pixels(tile: &mut [u8], dst: usize, src: &[u8], from: usize, count: usize
 enum Mgr {
     Ssm(Box<SsmW>),
     Tsm(Box<TsmW>),
+    Ism(Box<crate::ism::IsmW>),
     Other(String),
 }
 
@@ -3148,7 +3354,24 @@ impl TableWriter {
                     }
                     Err(e) => Mgr::Other(e.0),
                 },
-                other => Mgr::Other(format!("{other} columns are not written (E5)")),
+                "IncrementalStMan" => {
+                    let mut cols = Vec::new();
+                    for (c, b) in dat.columns.iter().zip(&dat.bindings) {
+                        if b.seq == *seq {
+                            cols.push(crate::ism::ism_col(c, b)?);
+                        }
+                    }
+                    Mgr::Ism(Box::new(crate::ism::IsmW::open(
+                        &dir,
+                        *seq,
+                        &dat.blobs[slot],
+                        cols,
+                        nrows,
+                        !dat.little_endian,
+                        true,
+                    )?))
+                }
+                other => Mgr::Other(format!("{other} columns are not written (E6)")),
             });
         }
         Ok(TableWriter {
@@ -3220,6 +3443,7 @@ impl TableWriter {
             match m {
                 Mgr::Ssm(s) => s.add_rows(old, n)?,
                 Mgr::Tsm(t) => t.add_rows(n)?,
+                Mgr::Ism(s) => s.add_rows(n)?,
                 Mgr::Other(_) => unreachable!(),
             }
         }
@@ -3234,7 +3458,7 @@ impl TableWriter {
         self.guard()?;
         for m in &self.mgrs {
             match m {
-                Mgr::Ssm(_) => {}
+                Mgr::Ssm(_) | Mgr::Ism(_) => {}
                 Mgr::Tsm(t) => {
                     return err(format!(
                         "rows cannot be removed: {} cannot remove rows (as in casacore)",
@@ -3256,8 +3480,10 @@ impl TableWriter {
         }
         for &row in sorted.iter().rev() {
             for m in &mut self.mgrs {
-                if let Mgr::Ssm(s) = m {
-                    s.remove_row(row, self.nrows)?;
+                match m {
+                    Mgr::Ssm(s) => s.remove_row(row, self.nrows)?,
+                    Mgr::Ism(s) => s.remove_row(row)?,
+                    _ => {}
                 }
             }
             self.nrows -= 1;
@@ -3269,7 +3495,7 @@ impl TableWriter {
     /// arrays as native bytes (Bool one byte each), a variable-shape row
     /// gets a new array when it had none or another shape.
     pub fn put_cell(&mut self, name: &str, row: u64, shape: &[i64], data: &[u8]) -> Result<()> {
-        self.put_column(name, row, 1, shape, data)
+        self.put_rows(name, row, 1, shape, data, true)
     }
 
     /// Write rows of a string-array column, `strings` in Fortran order,
@@ -3286,6 +3512,13 @@ impl TableWriter {
         let (_, slot, k) = self.binding(name)?;
         match &mut self.mgrs[slot] {
             Mgr::Ssm(s) => s.put_string_column(k, start, count, shape, strings),
+            Mgr::Ism(s) => {
+                if strings.len() != product(shape) * count as usize {
+                    err("string count mismatches the rows and cell shape")
+                } else {
+                    s.put_strings(k, start, strings)
+                }
+            }
             Mgr::Tsm(_) => err("tiled string columns do not exist"),
             Mgr::Other(reason) => err(reason.clone()),
         }
@@ -3298,6 +3531,7 @@ impl TableWriter {
         let (_, slot, k) = self.binding(name)?;
         match &mut self.mgrs[slot] {
             Mgr::Ssm(s) => s.is_defined(k, row),
+            Mgr::Ism(s) => s.is_defined(k, row),
             _ => Ok(true),
         }
     }
@@ -3339,8 +3573,24 @@ impl TableWriter {
     /// touching `table.lock` (which would drop this process's lock).
     pub fn read_column(&mut self, name: &str, start: u64, count: u64) -> Result<ColumnData> {
         self.flush()?;
-        crate::ms::Table::open_with_rows(&self.dir, Some(self.nrows))?
-            .read_column(name, start, count)
+        let direct = crate::ms::Table::open_with_rows(&self.dir, Some(self.nrows))
+            .and_then(|t| t.read_column(name, start, count));
+        match direct {
+            Ok(d) => Ok(d),
+            Err(e) => {
+                // The task E reader does not read every kind E5 writes
+                // (IncrementalStMan strings and arrays, ...): pack the
+                // writer's own cell reads when every cell has one shape.
+                let count = if count == 0 {
+                    self.nrows.saturating_sub(start)
+                } else {
+                    count
+                };
+                let dtype = DataType::from_code(self.dat.columns[self.dat.column(name)?].dtype)?;
+                let cells = read_cells(&self.dir, name, start, count, Some(self.nrows))?;
+                pack_cells(dtype, count, cells).ok_or(e)
+            }
+        }
     }
 
     fn rows(&self, start: u64, count: u64) -> Result<u64> {
@@ -3371,6 +3621,20 @@ impl TableWriter {
         shape: &[i64],
         data: &[u8],
     ) -> Result<()> {
+        self.put_rows(name, start, count, shape, data, false)
+    }
+
+    /// `put_column`, or with `cell` one cell as `ArrayColumn::put` writes
+    /// it (an IncrementalStMan indirect column reads the row's shape first).
+    fn put_rows(
+        &mut self,
+        name: &str,
+        start: u64,
+        count: u64,
+        shape: &[i64],
+        data: &[u8],
+        cell: bool,
+    ) -> Result<()> {
         let count = self.rows(start, count)?;
         let (index, slot, k) = self.binding(name)?;
         let desc = &self.dat.columns[index];
@@ -3392,6 +3656,7 @@ impl TableWriter {
         }
         let result = match &mut self.mgrs[slot] {
             Mgr::Ssm(s) => s.put(k, start, count, shape, data),
+            Mgr::Ism(s) => s.put(k, start, count, shape, data, cell),
             Mgr::Tsm(t) => {
                 if DataType::from_code(t.h.dtypes[k])? != dtype {
                     return err(format!("{name}: tiled header type mismatches the column"));
@@ -3409,6 +3674,7 @@ impl TableWriter {
         let (_, slot, k) = self.binding(name)?;
         match &mut self.mgrs[slot] {
             Mgr::Ssm(s) => s.put_strings(k, start, values),
+            Mgr::Ism(s) => s.put_strings(k, start, values),
             Mgr::Tsm(_) => err(format!("{name}: tiled string columns do not exist")),
             Mgr::Other(reason) => err(reason.clone()),
         }
@@ -3459,10 +3725,11 @@ impl TableWriter {
         self.dat.blobs.iter().any(|b| {
             let mut c = Cursor::new(b, true);
             c.magic().is_ok() && c.start().is_ok() && c.string().is_ok_and(|n| n == name)
-        }) || self
-            .mgrs
-            .iter()
-            .any(|m| matches!(m, Mgr::Tsm(t) if t.h.hypercolumn == name))
+        }) || self.mgrs.iter().any(|m| match m {
+            Mgr::Tsm(t) => t.h.hypercolumn == name,
+            Mgr::Ism(s) => s.name == name,
+            _ => false,
+        })
     }
 
     /// `addcols` of one column.
@@ -3673,6 +3940,7 @@ impl TableWriter {
             let changed = match m {
                 Mgr::Ssm(s) => s.flush()?,
                 Mgr::Tsm(t) => t.flush()?,
+                Mgr::Ism(s) => s.flush()?,
                 Mgr::Other(_) => false,
             };
             let fresh = self.fresh.get_mut(i).is_some_and(std::mem::take);
@@ -3681,6 +3949,13 @@ impl TableWriter {
         let write_table = always || self.table_changed;
         if write_table {
             self.dat.nrows = self.nrows;
+            // `SSMBase::flush` puts its current blob (a recreated manager
+            // has new column offsets).
+            for (i, m) in self.mgrs.iter().enumerate() {
+                if let Mgr::Ssm(s) = m {
+                    self.dat.blobs[i] = s.blob.serialise();
+                }
+            }
             let tmp = self.dir.join("table.dat_tmp");
             std::fs::write(&tmp, self.dat.serialise())?;
             std::fs::rename(&tmp, self.dir.join("table.dat"))?;
@@ -3760,6 +4035,32 @@ impl NewMgr {
         Ok((NewMgr(Mgr::Ssm(Box::new(s))), blob))
     }
 
+    /// A new IncrementalStMan named `name` holding `columns` with `nrows`
+    /// rows (`ISMBase::create64`); `bucket_size` 0: sized by `init`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn ism(
+        dir: &Path,
+        seq: u32,
+        name: &str,
+        columns: &[(ColDesc, ColBinding)],
+        nrows: u64,
+        bucket_size: u32,
+        cache: u32,
+        big: bool,
+    ) -> Result<(Self, Vec<u8>)> {
+        let cols = columns
+            .iter()
+            .map(|(c, b)| crate::ism::ism_col(c, b))
+            .collect::<Result<Vec<_>>>()?;
+        let size = if bucket_size == 0 {
+            crate::ism::IsmW::default_bucket_size(&cols)
+        } else {
+            bucket_size
+        };
+        let s = crate::ism::IsmW::create(dir, seq, name, cols, nrows, size, cache, big)?;
+        Ok((NewMgr(Mgr::Ism(Box::new(s))), crate::ism::ism_blob(name)))
+    }
+
     /// A new TiledColumnStMan (`column`) or TiledShapeStMan named `name`
     /// (the hypercolumn) for FixedShape columns of one cell shape, with
     /// `nrows` rows.
@@ -3795,6 +4096,27 @@ pub fn array_records(dir: impl AsRef<Path>) -> Result<Vec<(String, u64, u32)>> {
     };
     let mut out = Vec::new();
     for (slot, (kind, seq)) in dat.managers.iter().enumerate() {
+        if kind == "IncrementalStMan" && dir.join(format!("table.f{seq}i")).is_file() {
+            let mut cols = Vec::new();
+            for (c, b) in dat.columns.iter().zip(&dat.bindings) {
+                if b.seq == *seq {
+                    cols.push(crate::ism::ism_col(c, b)?);
+                }
+            }
+            let mut s = crate::ism::IsmW::open(
+                dir,
+                *seq,
+                &dat.blobs[slot],
+                cols,
+                nrows,
+                !dat.little_endian,
+                false,
+            )?;
+            for (offset, bits) in s.array_offsets()? {
+                out.push((format!("table.f{seq}i"), offset, bits));
+            }
+            continue;
+        }
         if kind != "StandardStMan" || !dir.join(format!("table.f{seq}i")).is_file() {
             continue;
         }
@@ -3825,6 +4147,20 @@ pub fn array_records(dir: impl AsRef<Path>) -> Result<Vec<(String, u64, u32)>> {
     Ok(out)
 }
 
+/// A table's row count and columns (name, type code, is array), read
+/// without writing and without the task E reader (which does not read
+/// every kind of table E5 writes).
+pub fn describe(dir: impl AsRef<Path>) -> Result<(u64, Vec<(String, i32, bool)>)> {
+    let dir = dir.as_ref();
+    let dat = TableDat::parse(&std::fs::read(dir.join("table.dat"))?)?;
+    let columns = dat
+        .columns
+        .iter()
+        .map(|c| (c.name.clone(), c.dtype, c.is_array()))
+        .collect();
+    Ok((table_rows(dir, &dat), columns))
+}
+
 /// Read cells of a column of a table without writing anything: indirect
 /// and string arrays of StandardStMan cell by cell (undefined cells and
 /// rows of different shapes included), every other column through the
@@ -3847,6 +4183,29 @@ pub fn read_cells(
         .position(|(_, s)| *s == seq)
         .ok_or_else(|| MsError(format!("{name}: data manager {seq} is missing")))?;
     let desc = &dat.columns[index];
+    if dat.managers[slot].0 == "IncrementalStMan" {
+        let nrows = nrows.unwrap_or(table_rows(dir, &dat));
+        let mut cols = Vec::new();
+        let mut k = 0;
+        for (c, b) in dat.columns.iter().zip(&dat.bindings) {
+            if b.seq == seq {
+                if c.name == name {
+                    k = cols.len();
+                }
+                cols.push(crate::ism::ism_col(c, b)?);
+            }
+        }
+        let mut s = crate::ism::IsmW::open(
+            dir,
+            seq,
+            &dat.blobs[slot],
+            cols,
+            nrows,
+            !dat.little_endian,
+            false,
+        )?;
+        return (start..start + count).map(|r| s.read_cell(k, r)).collect();
+    }
     if dat.managers[slot].0 == "StandardStMan" && desc.is_array() {
         let mut cols = Vec::new();
         let mut k = 0;
@@ -3879,12 +4238,50 @@ pub fn read_cells(
     Ok(out)
 }
 
+/// Cells of one shape as a column (None when a cell is undefined or the
+/// shapes differ).
+fn pack_cells(dtype: DataType, nrows: u64, cells: Vec<Cell>) -> Option<ColumnData> {
+    let mut out = ColumnData {
+        dtype: Some(dtype),
+        nrows,
+        ..Default::default()
+    };
+    for (i, cell) in cells.into_iter().enumerate() {
+        let (shape, bytes, strings) = match cell {
+            Cell::Undefined => return None,
+            Cell::Values(shape, bytes) => (shape, bytes, Vec::new()),
+            Cell::Strings(shape, strings) => (shape, Vec::new(), strings),
+        };
+        if i == 0 {
+            out.shape = shape;
+        } else if shape != out.shape {
+            return None;
+        }
+        out.bytes.extend(bytes);
+        out.strings.extend(strings);
+    }
+    Some(out)
+}
+
+/// The row count of a table: the sync record's, else `table.dat`'s.
+fn table_rows(dir: &Path, dat: &TableDat) -> u64 {
+    match std::fs::read(dir.join("table.lock"))
+        .ok()
+        .and_then(|b| SyncRecord::parse(&b).ok().flatten())
+    {
+        Some(s) if s.nrows > 0 => s.nrows,
+        _ => dat.nrows,
+    }
+}
+
 /// Counts of a serialisation-identity check.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct SerialisationCheck {
     pub tables: usize,
     pub ssm_files: usize,
     pub tiled_headers: usize,
+    /// IncrementalStMan files (header, index, every bucket).
+    pub ism_files: usize,
     /// Files whose parse and serialisation differ (or fail), with a reason.
     pub failures: Vec<String>,
 }
@@ -3933,12 +4330,17 @@ pub fn check_serialisation(path: impl AsRef<Path>) -> Result<SerialisationCheck>
                         let bytes = std::fs::read(&file)?;
                         Ok(TsmHeader::parse(&bytes)?.serialise() == bytes)
                     }
+                    "IncrementalStMan" => {
+                        let ncol = dat.bindings.iter().filter(|b| b.seq == *seq).count();
+                        crate::ism::check_file(&file, ncol, !dat.little_endian)
+                    }
                     _ => Ok(true),
                 }
             };
             match kind.as_str() {
                 "StandardStMan" => out.ssm_files += 1,
                 "TiledColumnStMan" | "TiledShapeStMan" => out.tiled_headers += 1,
+                "IncrementalStMan" => out.ism_files += 1,
                 _ => continue,
             }
             match check() {

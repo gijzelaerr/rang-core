@@ -235,6 +235,11 @@ pub struct ManagerSpec {
     pub cache: u32,
     /// Tiled SPEC DEFAULTTILESHAPE, casacore order (cell axes, then rows).
     pub tile: Vec<i64>,
+    /// IncrementalStMan made by its C++ constructor (as
+    /// `createDefaultSubtables` makes POINTING's): the bucket size is
+    /// computed by `ISMBase::init` when none is given; from a SPEC it is
+    /// 32768 by default.
+    pub ism_computed: bool,
 }
 
 /// A new table: its description, data managers and `table.info`.
@@ -255,18 +260,14 @@ pub struct TableSpec {
     pub multifile: bool,
 }
 
-const E5_MANAGERS: [&str; 4] = [
-    "IncrementalStMan",
-    "MemoryStMan",
-    "TiledDataStMan",
-    "TiledCellStMan",
-];
+const E6_MANAGERS: [&str; 1] = ["TiledCellStMan"];
 
 fn check_manager_kind(kind: &str) -> Result<()> {
     match kind {
-        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" => Ok(()),
-        k if E5_MANAGERS.contains(&k) => err(format!("{k} tables are not created (E5)")),
-        k => err(format!("data manager {k} is not created (E5)")),
+        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" | "IncrementalStMan"
+        | "MemoryStMan" | "TiledDataStMan" => Ok(()),
+        k if E6_MANAGERS.contains(&k) => err(format!("{k} tables are not created (E6)")),
+        k => err(format!("data manager {k} is not created (E6)")),
     }
 }
 
@@ -370,10 +371,10 @@ fn new_dir(path: &Path) -> Result<PathBuf> {
 /// TiledDataStMan and other managers, a variable-shape tiled column,
 /// big-endian and MultiFile tables.
 pub fn create_table(path: impl AsRef<Path>, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
-    create(path.as_ref(), spec, nrows, false)
+    create(path.as_ref(), spec, nrows)
 }
 
-fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<TableWriter> {
+fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     if cfg!(target_endian = "big") {
         return err("writing tables on a big-endian host is not supported (E5)");
     }
@@ -391,10 +392,10 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
     }
     let resolved = resolve(spec)?;
     for r in &resolved {
-        if r.spec.kind == "IncrementalStMan" && allow_ism && nrows == 0 {
-            continue;
-        }
         check_manager_kind(&r.spec.kind)?;
+        if r.spec.kind == "MemoryStMan" || r.spec.kind == "TiledDataStMan" {
+            return err(format!("{} tables are not created yet (E5)", r.spec.kind));
+        }
         if r.spec.kind.starts_with("Tiled") {
             for &i in &r.columns {
                 let c = &spec.columns[i];
@@ -469,7 +470,23 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
                 blobs.push(Vec::new());
             }
             "IncrementalStMan" => {
-                let (m, blob) = empty_ism(&dir, seq, &r.spec.name, &cols, r.spec.cache)?;
+                let size = if r.spec.bucket_size > 0 {
+                    r.spec.bucket_size
+                } else if r.spec.ism_computed {
+                    0
+                } else {
+                    32768
+                };
+                let (m, blob) = NewMgr::ism(
+                    &dir,
+                    seq,
+                    &r.spec.name,
+                    &cols,
+                    nrows,
+                    size,
+                    r.spec.cache,
+                    spec.big_endian,
+                )?;
                 mgrs.push(m);
                 blobs.push(blob);
             }
@@ -500,123 +517,6 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64, allow_ism: bool) -> Result<
         dat,
         mgrs,
         table_info_text(kind, sub_kind, readme),
-    ))
-}
-
-// ---------------------------------------------------------------------------
-// An empty IncrementalStMan (default_ms POINTING only; ISM rows are E5).
-
-/// Write the files of an IncrementalStMan with no rows, as
-/// `ISMBase::create64(0)` and its first flush leave them: the header, one
-/// bucket holding each column's default value at row 0 and its index, the
-/// `ISMIndex` after the bucket, and an empty `table.fNi` (version 1) when a
-/// column has indirect arrays. The manager itself is read-only afterwards
-/// (any row or value refuses, E5).
-fn empty_ism(
-    dir: &Path,
-    seq: u32,
-    name: &str,
-    cols: &[(ColDesc, ColBinding)],
-    cache: u32,
-) -> Result<(NewMgr, Vec<u8>)> {
-    use crate::aipsio::Writer;
-    let nrcol = cols.len() as u32;
-    // `ISMBase::init` sizes the bucket before the columns know their
-    // lengths, so every column counts as variable (4 * (n + 1) fixed and
-    // 32 * n variable bytes, n its number of elements).
-    let header = 4 * (nrcol + 1);
-    let (mut fixed, mut var) = (0u32, 0u32);
-    let mut nindirect = 0u32;
-    let mut data = Vec::new();
-    let mut offsets = Vec::new();
-    for (c, b) in cols {
-        let n = match (&b.shape, c.is_array()) {
-            (Some(Some(s)), true) => s.iter().product::<i64>().max(0) as u32,
-            _ => 1,
-        };
-        fixed += 8 + 4 * (n + 1);
-        var += 32 * n;
-        offsets.push(data.len() as u32);
-        let direct = !c.is_array() || matches!(&b.shape, Some(Some(_)));
-        if !direct {
-            nindirect += 1;
-            data.extend(0i64.to_le_bytes());
-            continue;
-        }
-        let n = n as usize;
-        match c.dtype {
-            tp::STRING => {
-                if n > 1 {
-                    let total = 4 + 4 * n as u32;
-                    data.extend(total.to_le_bytes());
-                    for _ in 0..n {
-                        data.extend(0u32.to_le_bytes());
-                    }
-                } else {
-                    data.extend(4u32.to_le_bytes());
-                }
-            }
-            tp::BOOL => data.extend(vec![0u8; n.div_ceil(8)]),
-            code => data.extend(vec![0u8; n * tp::scalar_size(code)]),
-        }
-    }
-    let mut bucket_size = header + 100 * (fixed + var);
-    if bucket_size < 32768 {
-        bucket_size = 32768;
-    } else if bucket_size > 327_680 {
-        bucket_size = header + 10 * (fixed + var);
-        if bucket_size > 327_680 {
-            bucket_size = (header + 2 * (fixed + var)).max(327_680);
-        }
-    }
-    let mut bucket = vec![0u8; bucket_size as usize];
-    let index_at = data.len() as u32 + 4;
-    bucket[..4].copy_from_slice(&index_at.to_le_bytes());
-    bucket[4..4 + data.len()].copy_from_slice(&data);
-    let mut at = index_at as usize;
-    for off in offsets {
-        for v in [1u32, 0, off] {
-            bucket[at..at + 4].copy_from_slice(&v.to_le_bytes());
-            at += 4;
-        }
-    }
-    let mut w = Writer::new(false);
-    w.putstart("IncrementalStMan", 5);
-    w.bool(false);
-    w.u32(bucket_size);
-    w.u32(1);
-    let pers = if cache == 0 { 1 } else { cache };
-    w.u32(pers);
-    w.u32(nindirect);
-    w.u32(0);
-    w.i32(-1);
-    w.putend();
-    let mut file = vec![0u8; 512];
-    file[..w.buf.len()].copy_from_slice(&w.buf);
-    file.extend(bucket);
-    let mut idx = Writer::new(false);
-    idx.putstart("ISMIndex", 1);
-    idx.u32(1);
-    idx.block_u32(&[0, 0]);
-    idx.block_u32(&[0]);
-    idx.putend();
-    file.extend(idx.buf);
-    std::fs::write(dir.join(format!("table.f{seq}")), file)?;
-    if nindirect > 0 {
-        let mut f = 1u32.to_le_bytes().to_vec();
-        f.extend(16u64.to_le_bytes());
-        f.extend(0i32.to_le_bytes());
-        std::fs::write(dir.join(format!("table.f{seq}i")), f)?;
-    }
-    let mut blob = Writer::new(true);
-    blob.putstart("ISM", 3);
-    blob.string(name);
-    blob.putend();
-    Ok((
-        NewMgr::other(&format!(
-            "IncrementalStMan {name}: rows and values are not written (E5)"
-        )),
-        blob.buf,
     ))
 }
 
@@ -711,6 +611,7 @@ pub fn ms_table_spec(name: &str, extra: &[ColDesc], managers: &[ManagerSpec]) ->
                 kind: "IncrementalStMan".into(),
                 name: "ISMPointing".into(),
                 columns: spec.columns.iter().map(|c| c.name.clone()).collect(),
+                ism_computed: true,
                 ..Default::default()
             },
             ManagerSpec {
@@ -734,7 +635,7 @@ pub fn default_ms_subtable(
     managers: &[ManagerSpec],
 ) -> Result<TableWriter> {
     let spec = ms_table_spec(name, extra, managers)?;
-    create(path.as_ref(), &spec, 0, name == "POINTING")
+    create(path.as_ref(), &spec, 0)
 }
 
 /// python-casacore's `default_ms(path, desc, dminfo)`: MAIN with the
@@ -748,7 +649,7 @@ pub fn default_ms(
 ) -> Result<TableWriter> {
     let path = path.as_ref();
     let spec = ms_table_spec("MAIN", extra, managers)?;
-    let mut main = create(path, &spec, 0, false)?;
+    let mut main = create(path, &spec, 0)?;
     for name in DEFAULT_SUBTABLES {
         let sub = default_ms_subtable(name, path.join(name), &[], &[])?;
         sub.close()?;
@@ -791,11 +692,12 @@ mod tests {
     }
 
     #[test]
-    fn e5_managers_are_refused() {
-        for kind in ["IncrementalStMan", "MemoryStMan", "TiledDataStMan"] {
+    fn e6_managers_are_refused() {
+        for kind in ["TiledCellStMan", "Adios2StMan"] {
             let e = check_manager_kind(kind).unwrap_err();
-            assert!(e.0.contains("E5"), "{e:?}");
+            assert!(e.0.contains("E6"), "{e:?}");
         }
+        check_manager_kind("IncrementalStMan").unwrap();
     }
 
     #[test]
