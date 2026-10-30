@@ -1,5 +1,19 @@
 # Rang research state
 
+P4 survey eigensolver (big plan wave 2), 2026-10-30 (implemented; measured;
+[p4-eigen.md](p4-eigen.md)): the anchored-response kernel's two 32 × 32
+eigenproblems per call now use Householder tridiagonalisation + implicit QL
+(`linalg::eigen_ql`) instead of classical Jacobi; Jacobi stays for the
+pointing toy and the A/B. All 13,989 `anchored_response` calls of the
+section 6 / phase 2 / LUNO surveys and the signal and prospective stages
+replay with identical statuses and ranks; every archive comparator passes as
+before (389 / 43 / 592, LUNO solved and support surveys leaf for leaf, signal
+and prospective comparators); the smallest margin to the 1e-10 rank cutoff
+over all bins is 7.3e7 above and 1.6e5 below. Under load 18–32: survey block
+0.84 → 0.34 s, 1.7 → 0.35 ms per call, section 6 pass excluding decode
+2.0 → 1.3 s (its `8_cost` criterion passes again at load 18–22), signal stage
+67 → 50 s (minimum), 79 → 53 s (median).
+
 L1 whole-array LUNO campaign (big plan wave 1), 2026-10-30 (implemented;
 measured; null). The gain-TV-guided flagging campaign ran on the whole of
 LUNO 1934−638 row chunk 0 on the core: 53 stations, 1,378 baselines, 342 M

@@ -2,8 +2,8 @@
 
 Written 2026-10-30 on the user's instruction after the core port
 ([core-parallel-plan.md](core-parallel-plan.md), tasks A–K) was merged. Status: **wave 1 complete 2026-10-30 (U1, S1, W1, L1 merged; L1 null at
-array scale); wave 2 running** (P0 applied by the coordinator; P1, P2, P3, P8 merged 2026-10-30; P4, P6, P10
-running; P5 after L1, then P7, P9, P11 in the order of `simplification-review.md` section 4). S1 found that
+array scale); wave 2 running** (P0 applied by the coordinator; P1, P2, P3, P4, P8 merged 2026-10-30; P5, P6,
+P10 running; then P7, P9, P11 in the order of `simplification-review.md` section 4). S1 found that
 every archive reproduces, that the core is single-threaded and FFT-bound at
 four stations and memory-bound (about 0.87 kB per cell, about 88 GB) at the
 whole array. Read this, [STATE.md](STATE.md) and the task files it
@@ -179,11 +179,11 @@ CPU-heavy tasks at a time on 8 physical cores.
   (QuartiCal #452, Tricolour #110 and #111 with the CARACal strategy YAMLs,
   Stimela 3.14, the rest as they are confirmed), each with a regression
   test and the project's own test suite run; `research/upstream-prs.md`.
-- Logo: a fringe-pattern mark (round aperture filled with interference
-  fringes, an orange point source), icon and `ra-ng` wordmark with the
-  hyphen as a fringe, Karoo night `#0b1d3a` and sunset `#f28c28`; draft
-  sent to the user 2026-10-30; goes into `docs/logo/` (SVG, PNG at 16–512
-  px, favicon) with D1 once approved.
+- Logo (approved by the user 2026-10-30): an interferogram mark, a round
+  aperture filled with fringe bands fading to the rim and one amber point,
+  the `ra-ng` wordmark with a single fringe as the hyphen; ink `#10131a`,
+  white and amber `#e8a33d` only. Assets in `docs/logo/` (SVG); PNG and ICO
+  renders come with D1.
 - Later, not started: a matched full CARACal pipeline baseline on the LUNO
   data (needed if any campaign turns positive) and a benchmark page that CI
   updates from the comparator timings.

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-108 -108 216 216" width="512" height="512">
+  <defs>
+    <clipPath id="disc"><circle cx="0" cy="0" r="100"/></clipPath>
+    <linearGradient id="fr" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="34" y2="0" spreadMethod="repeat" gradientTransform="rotate(-32)">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="env" cx="0" cy="0" r="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0.3" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="envm"><circle cx="0" cy="0" r="100" fill="url(#env)"/></mask>
+  </defs>
+  <circle cx="0" cy="0" r="100" fill="#10131a"/>
+  <g clip-path="url(#disc)" mask="url(#envm)"><rect x="-110" y="-110" width="220" height="220" fill="url(#fr)"/></g>
+  <circle cx="30" cy="-34" r="7" fill="#e8a33d"/>
+</svg>

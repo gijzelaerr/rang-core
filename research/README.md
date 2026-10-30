@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task P4, the [survey eigensolver](p4-eigen.md):
+Householder + implicit QL replaces Jacobi, identical decisions on 13,989
+calls, 5× per call.
+
 New, 2026-10-30: big plan task L1, the [whole-array LUNO campaign](luno-array-campaign.md)
 on the core: null at array scale (342 M cells, 2 h single-threaded, 12.5 GB),
 frozen headline undecidable, matched-sample calls null

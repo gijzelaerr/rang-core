@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo/lockup.svg" alt="ra-ng" width="420"></p>
+
 # Rang
 
 Radio Astronomy Next Generation — experimental MeerKAT calibration and flagging.
