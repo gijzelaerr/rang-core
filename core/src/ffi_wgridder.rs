@@ -1,5 +1,5 @@
 //! C ABI for the exact gridder (`wgridder.rs`), loaded through ctypes by
-//! `python/rangtoy/core_wgridder.py`, in the style of `ffi_grid.rs`.
+//! `python/rang/core_wgridder.py`, in the style of `ffi_grid.rs`.
 //! Status: 0 on success, 1 on invalid arguments (the message is kept for
 //! `rang_core_wgridder_last_error`), 2 on a panic. DF2a added the `_ex`
 //! entry points (borrowed inputs of either precision, the PSF in the same

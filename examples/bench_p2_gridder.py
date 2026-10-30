@@ -21,7 +21,7 @@ process and records per-image wall and process CPU seconds, peak RSS, load
 and output hashes; `bench` runs `time` in a fresh process per (repeat,
 thread count, build), interleaving the builds (ABAB), with
 `RAYON_NUM_THREADS` and `OPENBLAS_NUM_THREADS=1` set; each build is a venv
-interpreter with its own `rangtoy` extension (`--python NAME=PATH`; task P9,
+interpreter with its own `rang` extension (`--python NAME=PATH`; task P9,
 research/p9-cli.md, replaces the `--lib` switch through `RANG_CORE_LIB`,
 which P7 removed).
 `diff` reports old-versus-new float64 pixel differences of saved images.
@@ -114,7 +114,7 @@ def save_inputs(path, uvw, frequencies, data, weights, imaging_weights, settings
 
 def c_inputs(out):
     """Task C's fifteen jobs as `run_core_gridder.py` prepares them."""
-    from rangtoy import core_grid
+    from rang import core_grid
 
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)
@@ -161,7 +161,7 @@ def _read_fits(path):
 
 def k_replay(out, dump_inputs=False):
     """Task K's six arms imaged again from the archived inputs, compared."""
-    from rangtoy import core, core_campaign, core_fetch, core_grid
+    from rang import core, core_campaign, core_fetch, core_grid
 
     out = Path(out)
     out.mkdir(parents=True, exist_ok=False)
@@ -391,7 +391,7 @@ def _load_inputs(directory, labels=None, tile=1):
 
 
 def time_inputs(directory, output, repeats=1, labels=None, tile=1, save_images=None):
-    from rangtoy import core, core_grid
+    from rang import core, core_grid
 
     load_before = loadavg()
     items = _load_inputs(directory, labels, tile)
@@ -445,14 +445,14 @@ def time_inputs(directory, output, repeats=1, labels=None, tile=1, save_images=N
 
 
 def extension_of(python):
-    """The `rangtoy._core` file and its SHA256 that `python` loads (task P9:
+    """The `rang._core` file and its SHA256 that `python` loads (task P9:
     one venv per extension build replaces `RANG_CORE_LIB`)."""
     origin = subprocess.run(
         [
             python,
             "-c",
             "import importlib.util; print(importlib.util.find_spec("
-            + "'rangtoy._core').origin)",
+            + "'rang._core').origin)",
         ],
         capture_output=True,
         text=True,

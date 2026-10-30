@@ -1,5 +1,5 @@
 //! C ABI for `correct` (big plan task P5, `research/p5-memory.md`), loaded
-//! through ctypes by `python/rangtoy/core_fetch.py`. Same conventions as
+//! through ctypes by `python/rang/core_fetch.py`. Same conventions as
 //! `ffi.rs`: borrowed buffers described by explicit lengths, 0 on success,
 //! 1 on invalid arguments, 2 on a panic.
 

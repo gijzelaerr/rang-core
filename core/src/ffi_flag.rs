@@ -1,5 +1,5 @@
 //! C ABI for the Tricolour port (`sumthreshold`), loaded through ctypes by
-//! `python/rangtoy/core_flag.py`. Same conventions as `ffi.rs`: borrowed
+//! `python/rang/core_flag.py`. Same conventions as `ffi.rs`: borrowed
 //! buffers described by explicit lengths, 0 on success, 1 on invalid
 //! arguments, 2 on a panic.
 

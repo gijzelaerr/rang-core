@@ -8,7 +8,7 @@ from hashlib import sha256
 from pathlib import Path
 
 import pytest
-from rangtoy import core_cli
+from rang import core_cli
 
 ROOT = Path(__file__).resolve().parents[1]
 CORE_RECIPES = sorted((ROOT / "recipes").glob("core-*.yaml"))
@@ -98,9 +98,9 @@ def test_environment_records_quartical_absence_or_presence(tmp_path):
     assert saved["python"] == record["python"]
     assert isinstance(record["quartical_importable"], bool)
     assert isinstance(record["quartical_distribution_installed"], bool)
-    assert "rangtoy.core_cli" in record["rangtoy_modules_imported"]
+    assert "rang.core_cli" in record["rang_modules_imported"]
     for module in record["modules_with_quartical_references"]:
-        assert record["rangtoy_modules_imported"][module]["quartical_references"] > 0
+        assert record["rang_modules_imported"][module]["quartical_references"] > 0
 
 
 def test_compare_runs_the_script_and_records_its_hash(tmp_path, monkeypatch):
@@ -153,9 +153,9 @@ def test_core_recipes_sit_beside_the_frozen_ones_and_never_name_quartical():
         assert "quartical" not in recipe.read_text().lower(), recipe.name
     # The CLI names the solver only where it checks for its absence.
     checks = inspect.getsource(core_cli.environment) + inspect.getsource(
-        core_cli._rangtoy_modules
+        core_cli._rang_modules
     )
-    whole = (ROOT / "python/rangtoy/core_cli.py").read_text().lower()
+    whole = (ROOT / "python/rang/core_cli.py").read_text().lower()
     assert whole.count("quartical") == checks.lower().count("quartical")
 
 
@@ -177,11 +177,11 @@ def test_core_recipe_cabs_match_cli_signatures():
             command = re.search(r"command: (\S+)", body).group(1)
             module, function = command.rsplit(".", 1)
             if recipe.name == "core-imaging.yaml":
-                # Task I's cabs call rangtoy.core_imaging and are checked by
+                # Task I's cabs call rang.core_imaging and are checked by
                 # tests/test_core_imaging.py (research/core-i-imaging-replay.md).
-                assert module == "rangtoy.core_imaging"
+                assert module == "rang.core_imaging"
                 continue
-            assert module == "rangtoy.core_cli"
+            assert module == "rang.core_cli"
             parameters = inspect.signature(getattr(core_cli, function)).parameters
             names = re.findall(r"\n      ([\w]+): \{", body)
             assert set(names) == set(parameters), (recipe.name, function)
@@ -202,10 +202,10 @@ def test_frozen_consumer_and_comparators_are_the_phase3_files():
     # Since P6 the driver is core_trend.run, which calls the frozen
     # flagging_trend.run unedited (research/p6-python-hotspots.md); since P11
     # its verbatim copy in core_trend_run (research/p11-extract.md).
-    assert core_cli.trend_run.__module__ == "rangtoy.core_trend"
-    from rangtoy import core_trend
+    assert core_cli.trend_run.__module__ == "rang.core_trend"
+    from rang import core_trend
 
-    assert core_trend.flagging_trend.run.__module__ == "rangtoy.core_trend_run"
+    assert core_trend.flagging_trend.run.__module__ == "rang.core_trend_run"
     for stage, script in core_cli.COMPARATORS.items():
         assert (ROOT / "examples" / script).is_file(), stage
 
@@ -238,7 +238,7 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
     # The comparator's own receipt carries no CLI additions.
     assert "comparator" not in json.loads(out.read_text())
     receipt = json.loads((tmp_path / "compare.compare.rang-receipt.json").read_text())
-    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 1
+    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 2
     assert (receipt["stage"], receipt["verb"], receipt["exit"]) == (
         "trend",
         "compare",
@@ -300,7 +300,7 @@ def test_wrapper_script_and_cli_write_identical_receipts(tmp_path):
         [
             sys.executable,
             "-m",
-            "rangtoy.core_cli",
+            "rang.core_cli",
             "--no-receipt",
             "trend",
             "compare",
@@ -369,7 +369,7 @@ def test_pin_threads_defaults_only_where_unset():
 def test_cli_pins_before_numpy_and_honours_the_opt_out(tmp_path):
     probe = (
         "import sys\n"
-        "import rangtoy.core_cli as c\n"
+        "import rang.core_cli as c\n"
         "assert 'numpy' not in sys.modules, 'core_cli imported NumPy'\n"
         "c.main(sys.argv[1:])\n"
         "import numpy, os\n"
@@ -397,7 +397,7 @@ def test_cli_pins_before_numpy_and_honours_the_opt_out(tmp_path):
 
 
 def test_stage_table_names_existing_drivers_and_engine_comparators():
-    from rangtoy import core_compare
+    from rang import core_compare
 
     for stage, entry in core_cli.STAGES.items():
         assert entry["help"], stage
@@ -447,7 +447,7 @@ EXPECTED_STEPS = [
 
 
 def test_check_has_the_fifteen_steps_of_check_all_in_order():
-    from rangtoy import check
+    from rang import check
 
     table = check.steps()
     assert [s[0] for s in table] == EXPECTED_STEPS
@@ -458,11 +458,11 @@ def test_check_has_the_fifteen_steps_of_check_all_in_order():
     for name, _, _, argv, _, _ in table:
         assert isinstance(argv, list) and all(isinstance(a, str) for a in argv), name
     wrapper = (ROOT / "tools/check-all.sh").read_text()
-    assert "exec flock" in wrapper and "-m rangtoy.check" in wrapper
+    assert "exec flock" in wrapper and "-m rang.check" in wrapper
 
 
 def test_check_runs_every_step_and_reports_failures(tmp_path, monkeypatch, capsys):
-    from rangtoy import check
+    from rang import check
 
     monkeypatch.delenv("RANG_CHECKALL_LOCKED", raising=False)
     monkeypatch.setenv("RANG_CHECKALL_LOCK", str(tmp_path / "lock"))
@@ -491,13 +491,13 @@ def test_check_runs_every_step_and_reports_failures(tmp_path, monkeypatch, capsy
 
 
 def test_check_finds_the_checkout():
-    from rangtoy import check
+    from rang import check
 
-    assert check.find_root(ROOT / "python" / "rangtoy") == ROOT
+    assert check.find_root(ROOT / "python" / "rang") == ROOT
 
 
 def test_check_sets_running_launchers_aside_for_the_reinstall(tmp_path):
-    from rangtoy import check
+    from rang import check
 
     (tmp_path / "rang-core.exe").write_bytes(b"launcher")
     (tmp_path / "rang-core.exe.1.old").write_bytes(b"stale")
@@ -513,7 +513,7 @@ def test_check_sets_running_launchers_aside_for_the_reinstall(tmp_path):
 
 
 def test_check_writes_a_receipt_only_when_asked(tmp_path, monkeypatch, capsys):
-    from rangtoy import check
+    from rang import check
 
     def fake(argv=None, runner=None, root=None):
         args = list(argv)

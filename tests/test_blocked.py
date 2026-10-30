@@ -6,10 +6,10 @@ jax = pytest.importorskip("jax")
 jax.config.update("jax_enable_x64", True)
 import jax.numpy as jnp
 import numpy as np
-from rangtoy.beams import load_katbeam, make_beam_predictor
-from rangtoy.blocked import audit_blocked_design, prepare_blocked_design
-from rangtoy.observability import sky_locked_information
-from rangtoy.pointing import Observation
+from rang.beams import load_katbeam, make_beam_predictor
+from rang.blocked import audit_blocked_design, prepare_blocked_design
+from rang.observability import sky_locked_information
+from rang.pointing import Observation
 
 
 @pytest.fixture(scope="module")

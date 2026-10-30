@@ -723,7 +723,7 @@ def compare(result, oracle, receipt, candidate_images=None, reference_images=Non
 
 def _parser():
     parser = argparse.ArgumentParser(
-        prog="python -m rangtoy.core_imaging",
+        prog="python -m rang.core_imaging",
         description="The archived imaging track on the Rust core, without WSClean.",
     )
     sub = parser.add_subparsers(dest="stage", required=True)

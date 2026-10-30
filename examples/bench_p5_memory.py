@@ -1,6 +1,6 @@
 """Per-stage memory of the LUNO campaign drivers (research/p5-memory.md).
 
-Wraps the stage functions of `rangtoy.core_campaign_array` (and the core
+Wraps the stage functions of `rang.core_campaign_array` (and the core
 calls they make) so that each call records its wall time, the resident set
 at entry and exit and its own high-water mark. The high-water mark is exact,
 Rust allocations included: the kernel's `VmHWM` is reset through
@@ -34,7 +34,7 @@ import tracemalloc
 from pathlib import Path
 
 import numpy as np
-from rangtoy import (
+from rang import (
     core,
     core_campaign,
     core_campaign_array,
@@ -315,7 +315,7 @@ def compare_runs(run_a, run_b, dirty_tolerance=8.8e-6, psf_tolerance=2.8e-6):
     """Every non-timing field of two runs' `result.json` and `candidates.json`:
     exact, except image metrics (relative 1e-6, hashes listed) and the FITS
     pixels (task A's tolerances: dirty L-inf over the peak, PSF L-inf)."""
-    from rangtoy.core_imaging import read_fits
+    from rang.core_imaging import read_fits
 
     run_a, run_b = Path(run_a), Path(run_b)
     report = {

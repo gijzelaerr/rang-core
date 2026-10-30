@@ -8,7 +8,7 @@ use, copied verbatim in source order; only import statements point at
 the extracts (big plan task P11, research/p11-extract.md).
 """
 
-from rangtoy import core_structured as flagging_structured
+from rang import core_structured as flagging_structured
 
 
 def record(mask_id, objective, fraction=0.01, test=1e20, guard=True):

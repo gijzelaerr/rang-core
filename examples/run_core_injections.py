@@ -4,7 +4,7 @@ Usage: python examples/run_core_injections.py outputs/<fresh-run> outputs/<prepa
 
 Snapshots the size and modification time of every file in the prepared
 directory and `git status --porcelain` before and after
-`rangtoy.core_injections.run`, and writes side-effects.json next to result.json.
+`rang.core_injections.run`, and writes side-effects.json next to result.json.
 """
 
 import json
@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from rangtoy import core_injections
+from rang import core_injections
 
 ROOT = Path(__file__).resolve().parents[1]
 

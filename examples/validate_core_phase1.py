@@ -16,9 +16,9 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core
-from rangtoy.core_influence import training_normals
-from rangtoy.core_policy import residual_features
+from rang import core
+from rang.core_influence import training_normals
+from rang.core_policy import residual_features
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "outputs/tv-response-wsl-20261029-01/clean"
@@ -353,7 +353,7 @@ def main():
             for p in sorted((ROOT / "core/src").glob("*.rs"))
             + [
                 ROOT / "core/Cargo.toml",
-                ROOT / "python/rangtoy/core.py",
+                ROOT / "python/rang/core.py",
                 Path(__file__).resolve(),
             ]
         },

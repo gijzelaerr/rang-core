@@ -1,5 +1,5 @@
 //! Per-baseline robust log-amplitude scores, matching
-//! `rangtoy.flagging.residual_features`.
+//! `rang.flagging.residual_features`.
 
 /// NumPy-compatible median: the mean of the two middle values for even counts.
 pub fn median(values: &mut [f64]) -> Option<f64> {

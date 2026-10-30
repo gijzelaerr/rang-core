@@ -12,8 +12,8 @@ import copy
 
 import numpy as np
 import pytest
-from rangtoy.core_policy import gain_tv
-from rangtoy.core_trend_run import (
+from rang.core_policy import gain_tv
+from rang.core_trend_run import (
     detrended_tv,
     estimate_trend,
     guidance_from_tv,

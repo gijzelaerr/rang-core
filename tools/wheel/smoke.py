@@ -1,6 +1,6 @@
 """Smoke test of the installed wheel (tools/wheel/test.sh, step nocargo).
 
-Checks that rangtoy and its extension come from site-packages, that the
+Checks that rang and its extension come from site-packages, that the
 extension backend is chosen without RANG_CORE_BACKEND, and runs one fused
 pass; prints the import times and the extension's sha256.
 """
@@ -18,8 +18,8 @@ import numpy as np
 
 numpy_seconds = time.perf_counter() - start
 start = time.perf_counter()
-import rangtoy._core  # noqa: F401
-from rangtoy import core
+import rang._core  # noqa: F401
+from rang import core
 
 import_seconds = time.perf_counter() - start
 
@@ -57,5 +57,5 @@ print(
     f"python {sys.version.split()[0]} backend {core.backend_name()} "
     f"library {library} sha256 {hashlib.sha256(library.read_bytes()).hexdigest()} "
     f"numpy {np.__version__} import_numpy {numpy_seconds:.3f} s "
-    f"import_rangtoy {import_seconds:.3f} s first_fused {call_seconds * 1e3:.2f} ms"
+    f"import_rang {import_seconds:.3f} s first_fused {call_seconds * 1e3:.2f} ms"
 )

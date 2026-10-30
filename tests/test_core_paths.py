@@ -9,7 +9,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 """
 
 import pytest
-from rangtoy.core_paths import reject_nested_paths
+from rang.core_paths import reject_nested_paths
 
 
 @pytest.mark.parametrize(

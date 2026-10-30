@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: bash tools/wheel/build.sh OUT_DIR [x86_64|aarch64]
 #
-# Builds the distributable rangtoy wheel (abi3-py310, manylinux_2_28) and the
+# Builds the distributable rang wheel (abi3-py310, manylinux_2_28) and the
 # sdist inside the pinned manylinux container (research/wheel.md). The
 # checkout is mounted read-only at its own path, so nothing is written into
 # the tree; the cargo target directory lives in OUT_DIR/target and is removed

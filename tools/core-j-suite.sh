@@ -26,7 +26,7 @@ run() {
   [ $status = 0 ] || { echo "FAILED: $name"; fail=1; }
 }
 echo "backend: ${RANG_CORE_BACKEND:-auto} RANG_CORE_LIB=${RANG_CORE_LIB:-}"
-$py -c "from rangtoy import core; print('backend', core.backend_name(), core.library_path())" 2>/dev/null || true
+$py -c "from rang import core; print('backend', core.backend_name(), core.library_path())" 2>/dev/null || true
 
 # Phase 2: the complex solver against QuartiCal's archived gains.
 run phase2 $py examples/validate_core_phase2.py "$out/phase2"

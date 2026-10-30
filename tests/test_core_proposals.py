@@ -10,7 +10,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 
 import numpy as np
 import pytest
-from rangtoy.core_proposals import generate_candidates, rank_candidates
+from rang.core_proposals import generate_candidates, rank_candidates
 
 
 def state():

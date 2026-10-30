@@ -11,7 +11,7 @@ opts:
 cabs:
   rang-core-imaging:
     flavour: python
-    command: rangtoy.core_imaging.run
+    command: rang.core_imaging.run
     inputs:
       run_dir: {dtype: str, required: true}
       archive_dir: {dtype: Directory, required: true}
@@ -19,7 +19,7 @@ cabs:
   rang-core-imaging-compare:
     info: Compare a core replay with an archived imaging result field by field and, when image directories are given, pixel by pixel; fails the recipe on any difference outside task A's tolerances.
     flavour: python
-    command: rangtoy.core_imaging.compare
+    command: rang.core_imaging.compare
     inputs:
       result: {dtype: File, required: true}
       oracle: {dtype: File, required: true}

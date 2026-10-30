@@ -1,4 +1,4 @@
-"""Test an installed rangtoy wheel on the current OS, cargo absent.
+"""Test an installed rang wheel on the current OS, cargo absent.
 
 Usage:
     python tools/wheel/test.py WHEEL_OR_BUILD_DIR OUT_DIR
@@ -13,13 +13,14 @@ logs in OUT_DIR (which must not exist), wall times in OUT_DIR/timings.tsv:
   venv     a fresh venv: `uv venv` and `uv pip install` from public PyPI when
            uv is on PATH, else `python -m venv` and pip
   install  the wheel with its test and imaging extras
-  import   `import rangtoy._core, rangtoy.core` in isolated mode (-I) from
+  import   `import rang._core, rang.core` in isolated mode (-I) from
            OUT_DIR, with an environment whose PATH has every directory that
            holds cargo removed (asserted) and no RANG_*, PYTHONPATH or
            VIRTUAL_ENV
   smoke    tools/wheel/smoke.py in the same environment: the extension from
            site-packages is the backend and a fused pass runs
   pytest   tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py
+           tests/test_p12_rename.py
            from the source tree against the installed wheel through
            tools/wheel/pytest_wheel.py, the same environment: the extension
            against the archive of the retired ctypes oracle, the pointing
@@ -41,7 +42,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-TESTS = "tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py"
+TESTS = "tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py tests/test_p12_rename.py"
 ALLOWED_SKIPS = re.compile(
     r"MS (oracle|fixture) not present|fixture MS not present"
     r"|archived on Linux x86_64"  # the toy bytes elsewhere (P7)
@@ -162,7 +163,7 @@ def main():
             "-I",
             "-c",
             (
-                "import sys, rangtoy._core, rangtoy.core as c; "
+                "import sys, rang._core, rang.core as c; "
                 "print(sys.version.split()[0], c.backend_name(), c.library_path())"
             ),
         ],

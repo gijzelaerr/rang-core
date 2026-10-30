@@ -24,11 +24,11 @@ import time
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core_campaign, core_flag
-from rangtoy import core_campaign_1830 as l2mod
-from rangtoy import core_campaign_array as l1mod
-from rangtoy.core_campaign import STRATEGIES, STRATEGY_DIR, array_sha256
-from rangtoy.core_workflow import gain_grid
+from rang import core_campaign, core_flag
+from rang import core_campaign_1830 as l2mod
+from rang import core_campaign_array as l1mod
+from rang.core_campaign import STRATEGIES, STRATEGY_DIR, array_sha256
+from rang.core_workflow import gain_grid
 
 ROOT = core_campaign.ROOT
 NF = 64

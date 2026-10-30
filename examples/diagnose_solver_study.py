@@ -20,7 +20,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "examples"))
 
-from rangtoy import core_solver_study as study
+from rang import core_solver_study as study
 from run_l5_solver_study import environment, load
 
 RUNS = {

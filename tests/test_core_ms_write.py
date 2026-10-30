@@ -16,7 +16,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core_ms, core_ms_write
+from rang import core_ms, core_ms_write
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "outputs/tv-caracal-wsl-20261029-01/original.ms"
@@ -123,7 +123,7 @@ def test_the_lock_keeps_a_second_process_out(tmp_path):
         f"""
         import sys, time
         sys.path.insert(0, {str(ROOT / "python")!r})
-        from rangtoy import core_ms_write
+        from rang import core_ms_write
         t = core_ms_write.open_table({str(ms)!r}, readonly=False)
         print("held", flush=True)
         time.sleep(4)

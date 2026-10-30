@@ -16,10 +16,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TRACKS = {
-    "injections": "rangtoy.core_injections",
-    "prospective": "rangtoy.core_prospective",
-    "actions": "rangtoy.core_actions",
-    "signal": "rangtoy.core_signal",
+    "injections": "rang.core_injections",
+    "prospective": "rang.core_prospective",
+    "actions": "rang.core_actions",
+    "signal": "rang.core_signal",
 }
 
 

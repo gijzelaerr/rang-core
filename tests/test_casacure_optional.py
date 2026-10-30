@@ -5,7 +5,7 @@ rang; these tests skip when it is not installed, and, like
 `tests/test_core_ms.py`, when the oracle dump or the MSs in ignored
 `outputs/` are absent. They pin the two behaviours the evaluation relies on:
 casacure reads the fixture and LUNO MSs column-exactly, and a table written
-by casacure reads back through `rangtoy.core_ms` unchanged.
+by casacure reads back through `rang.core_ms` unchanged.
 """
 
 import json
@@ -63,7 +63,7 @@ def test_casacure_reads_equal_the_oracle(label):
 
 
 def test_casacure_write_reads_back_through_core_ms(tmp_path):
-    core_ms = pytest.importorskip("rangtoy.core_ms")
+    core_ms = pytest.importorskip("rang.core_ms")
     if not core_ms.has_reader():
         pytest.skip("core library built without the Measurement Set reader")
     rng = np.random.default_rng(20261030)

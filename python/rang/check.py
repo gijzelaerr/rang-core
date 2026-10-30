@@ -1,7 +1,7 @@
-"""The full local checks, portable: `rang-core check` = `python -m rangtoy.check`
+"""The full local checks, portable: `rang-core check` = `python -m rang.check`
 (task P9, research/p9-cli.md; design in research/x1-crossplatform.md).
 
-    python -m rangtoy.check [--rust | --python | --all] [--only STEP,...]
+    python -m rang.check [--rust | --python | --all] [--only STEP,...]
                             [--skip STEP,...] [--json PATH]
 
 The fifteen steps of `tools/check-all.sh` (which is now a thin wrapper of
@@ -12,7 +12,7 @@ last two lines), `FAILED: <command>` after a failing step, no stopping at
 the first failure, and `## overall: PASS|FAIL` with exit status 0 or 1.
 Every step is an argument list (no shell): cargo with `+1.93`, the Python
 tools as `<this interpreter> -m ruff|maturin|pytest`, so it runs unchanged
-on Windows (`.venv\\Scripts\\python -m rangtoy.check`).
+on Windows (`.venv\\Scripts\\python -m rang.check`).
 
 `--rust` runs the root and core crate steps and the extension's clippy and
 fmt; `--python` runs the extension build, ruff, ruff format, `git diff
@@ -25,7 +25,7 @@ One check at a time on a shared host (research/p10-tests.md): the lock file
 `flock` on POSIX (the same lock as `flock(1)` in the shell wrapper) and
 `msvcrt.locking` on Windows, unless `RANG_CHECKALL_LOCKED` is set (the
 shell wrapper sets it after taking the lock). Refuses to run outside a
-checkout. Never imports `rangtoy.core`: on Windows `maturin develop` cannot
+checkout. Never imports `rang.core`: on Windows `maturin develop` cannot
 replace a loaded extension.
 """
 

@@ -12,7 +12,7 @@ fused pass at the solved gains with every product requested, hashes every
 output and times both kernels (wall from `time.perf_counter`, CPU from
 `time.process_time`, which counts every thread of the process). It uses
 the extension of the interpreter that runs it. `sweep` compares builds by
-interpreter: each `--python NAME=PATH` is a venv with its own `rangtoy`
+interpreter: each `--python NAME=PATH` is a venv with its own `rang`
 extension (task P9, research/p9-cli.md; P7 removed the `RANG_CORE_LIB`
 library switch that `--lib` used).
 
@@ -82,7 +82,7 @@ def luno():
 
 
 def fixture():
-    from rangtoy import core
+    from rang import core
 
     with np.load(FIXTURE / "state.npz") as z:
         s = {k: z[k] for k in z.files}
@@ -130,7 +130,7 @@ VARIANTS = {
 
 
 def run_one(name, case, repeats):
-    from rangtoy import core
+    from rang import core
 
     tb, fb = case["time_bin"], case["freq_bin"]
     nt, nf = int(tb.max()) + 1, int(fb.max()) + 1
@@ -206,7 +206,7 @@ def run_one(name, case, repeats):
 
 
 def run(out, repeats):
-    from rangtoy import core
+    from rang import core
 
     before = loadavg()
     started = time.perf_counter()
@@ -232,14 +232,14 @@ def run(out, repeats):
 
 
 def extension_of(python):
-    """The `rangtoy._core` file and its SHA256 that `python` loads (task P9:
+    """The `rang._core` file and its SHA256 that `python` loads (task P9:
     one venv per extension build replaces `RANG_CORE_LIB`)."""
     origin = subprocess.run(
         [
             python,
             "-c",
             "import importlib.util; print(importlib.util.find_spec("
-            + "'rangtoy._core').origin)",
+            + "'rang._core').origin)",
         ],
         capture_output=True,
         text=True,

@@ -1,7 +1,7 @@
 """B1-0: gates G0a-G0c on the holography beam product, and the comparison
 with katbeam and EIDOS (research/b1-beam-pointing.md).
 
-The product is fetched once by `rangtoy.beam_holography.fetch_product`
+The product is fetched once by `rang.beam_holography.fetch_product`
 (about 3.7 GB by HTTP range from the 35 GB SARAO npz) into an `outputs/`
 directory; this script only reads it. Writes the compact archive
 `research/results/b1-beam-product.json` (or `--json`).
@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 
 import numpy as np
-from rangtoy import beam_holography as bh
+from rang import beam_holography as bh
 from scipy import ndimage
 
 LSM_SHA256 = "0964b9f4c547bb802bfb16a2e8fdccddff84beeec05b6f3492521a46fa77d101"
@@ -347,7 +347,7 @@ def antenna_spread(beam, channels):
 
 
 def lsm_offsets(path):
-    from rangtoy import lsm
+    from rang import lsm
 
     raw = Path(path).read_bytes()
     digest = hashlib.sha256(raw).hexdigest()

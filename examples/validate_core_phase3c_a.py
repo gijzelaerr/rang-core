@@ -16,10 +16,10 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core
-from rangtoy.core_catalog import point_catalog_predict
-from rangtoy.core_response import SOURCES as RESPONSE_SOURCES
-from rangtoy.core_templates import spatial_templates
+from rang import core
+from rang.core_catalog import point_catalog_predict
+from rang.core_response import SOURCES as RESPONSE_SOURCES
+from rang.core_templates import spatial_templates
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOGUE = ROOT / "outputs/flagging-sky-inputs/fitted.PKS1934.LBand.wsclean.cat.txt"

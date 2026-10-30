@@ -19,7 +19,7 @@ pytest.importorskip("ipykernel")
 pytest.importorskip("matplotlib")
 pytest.importorskip("pandas")
 
-from rangtoy.notebook import data
+from rang.notebook import data
 
 ROOT = Path(__file__).resolve().parents[1]
 BOOKS = sorted(p.name for p in (ROOT / "notebooks").glob("*.ipynb"))

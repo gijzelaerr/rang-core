@@ -8,7 +8,7 @@ from typing import ClassVar
 
 import numpy as np
 import pytest
-from rangtoy import core_fetch, core_zarr
+from rang import core_fetch, core_zarr
 
 
 def _memcpyed_chunk(payload, blocksize):

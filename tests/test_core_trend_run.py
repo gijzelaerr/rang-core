@@ -10,8 +10,8 @@ the extracts (big plan task P11, research/p11-extract.md).
 
 import numpy as np
 import pytest
-from rangtoy.core_policy import polar_gauge
-from rangtoy.core_trend_run import detrended_tv, estimate_trend
+from rang.core_policy import polar_gauge
+from rang.core_trend_run import detrended_tv, estimate_trend
 
 
 def fixture():

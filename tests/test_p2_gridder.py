@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core_grid
+from rang import core_grid
 
 C_LIGHT = 299792458.0
 SETTINGS = {"width": 64, "height": 48, "scale_arcsec": 30.0, "w_layers": 24}
@@ -48,7 +48,7 @@ _CHILD = """
 import json, sys
 sys.path.insert(0, {tests!r})
 from test_p2_gridder import _case, _digest, SETTINGS
-from rangtoy import core_grid
+from rang import core_grid
 products = core_grid.invert(*_case(), **SETTINGS)
 print(json.dumps(_digest(products) + [products["stats"]]))
 """

@@ -6,7 +6,7 @@
 # uv-managed CPython interpreters (default 3.10 3.11 3.12 3.13 3.14), as in
 # research/wheel.md. Per version, in OUT_DIR/py<version>/:
 #   bare     fresh venv, `uv pip install <wheel>` alone, then
-#            `import rangtoy._core` and `import rangtoy.core` with cargo absent
+#            `import rang._core` and `import rang.core` with cargo absent
 #   extras   install the wheel with its test and imaging extras
 #   nocargo  with cargo absent from PATH (env -i, outside the checkout): the
 #            backend is the extension from site-packages and a fused pass runs
@@ -71,7 +71,7 @@ for version in "${versions[@]}"; do
   "$venv/bin/python" -VV > "$dir/python.txt"
   run "$version" bare-install uv pip install --python "$bare/bin/python" "$wheel"
   run "$version" bare-import "${clean[@]}" "$bare/bin/python" -I -c \
-    "import rangtoy._core, rangtoy.core as c; print(c.backend_name(), c.library_path())"
+    "import rang._core, rang.core as c; print(c.backend_name(), c.library_path())"
   run "$version" install uv pip install --python "$venv/bin/python" "${wheel}[test,imaging]"
   uv pip freeze --python "$venv/bin/python" > "$dir/freeze.txt"
   run "$version" nocargo "${clean[@]}" bash -c "cd '$dir' && ! command -v cargo && \
@@ -79,7 +79,7 @@ for version in "${versions[@]}"; do
   run "$version" pytest "${clean[@]}" PYTHONPATH="$src/tools/wheel" \
     bash -c "set -o pipefail; cd '$src' && ! command -v cargo && \
     '$venv/bin/python' -m pytest -p pytest_wheel -p no:cacheprovider -o pythonpath= \
-    -rs -q tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py | tee '$dir/pytest.out' && \
+    -rs -q tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py tests/test_p12_rename.py | tee '$dir/pytest.out' && \
     ! grep -E '^SKIPPED' '$dir/pytest.out' | grep -v 'fixture MS not present'"
   if [ "${SUITE_ALL:-0}" = 1 ] || { [ "${SUITE:-1}" = 1 ] && { [ "$version" = 3.10 ] || [ "$version" = 3.14 ]; }; }; then
     suite=$rel/py$version/suite

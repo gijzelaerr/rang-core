@@ -2,7 +2,7 @@
 
 Rust owns the numerical work; Python owns configuration, campaigns, tables and
 plotting. Every kernel, the pointing toy included, is in the compiled
-extension `rangtoy._core` (research/p7-architecture.md): importing this
+extension `rang._core` (research/p7-architecture.md): importing this
 package or calling a kernel never runs Cargo. `run_experiment` and
 `toy_output` call the pointing toy's command line inside the extension; its
 output is byte-identical to the `rang-toy` binary's stdout, which remains for

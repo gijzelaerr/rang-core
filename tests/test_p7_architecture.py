@@ -13,8 +13,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-import rangtoy
-from rangtoy import core, core_flag
+import rang
+from rang import core, core_flag
 from test_core_backends import flag_case, solve, solve_case
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,17 +22,17 @@ ROOT = Path(__file__).resolve().parents[1]
 NO_CARGO = r"""
 import importlib, pkgutil, sys
 import numpy as np
-import rangtoy
+import rang
 skipped = []
-for info in pkgutil.iter_modules(rangtoy.__path__, "rangtoy."):
+for info in pkgutil.iter_modules(rang.__path__, "rang."):
     try:
         importlib.import_module(info.name)
     except ModuleNotFoundError as exc:  # an optional third-party extra
-        if exc.name and exc.name.split(".")[0] != "rangtoy":
+        if exc.name and exc.name.split(".")[0] != "rang":
             skipped.append(info.name)
         else:
             raise
-from rangtoy import core_influence as flagging_influence, core_policy as flagging, core_trend_run as flagging_trend, projector, toy_output
+from rang import core_influence as flagging_influence, core_policy as flagging, core_trend_run as flagging_trend, projector, toy_output
 g = np.tile(np.eye(2, dtype=complex), (3, 2, 2, 1, 1))
 v = np.ones((3, 2, 2), bool)
 flagging.gain_tv(g, v, np.arange(3.0), np.arange(2.0))
@@ -75,12 +75,12 @@ def test_no_cargo_at_import_or_kernel_call(tmp_path):
 
 
 def test_every_module_imports_without_build():
-    for info in pkgutil.iter_modules(rangtoy.__path__, "rangtoy."):
+    for info in pkgutil.iter_modules(rang.__path__, "rang."):
         try:
             importlib.import_module(info.name)
         except ModuleNotFoundError as exc:
-            assert exc.name and not exc.name.startswith("rangtoy"), exc
-    assert not hasattr(rangtoy, "build")
+            assert exc.name and exc.name.split(".")[0] != "rang", exc
+    assert not hasattr(rang, "build")
 
 
 def test_ctypes_backend_requests_are_refused(monkeypatch):
@@ -100,7 +100,7 @@ def test_kernel_panic_returns_status_not_abort():
     """Criterion 4: `grid_kernel(7, 2)` aborted the process before P7."""
     code = (
         "import numpy as np\n"
-        "from rangtoy import _core\n"
+        "from rang import _core\n"
         "print(_core.grid_kernel(7, 2, np.zeros(14)))\n"
     )
     result = subprocess.run(

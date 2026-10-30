@@ -37,7 +37,7 @@ if backend == "casacure":
     get = lambda: t.getcol("DATA")
 else:
     sys.path.insert(0, sys.argv[4])
-    from rangtoy import core_ms
+    from rang import core_ms
     t = core_ms.open_table(ms)
     get = lambda: t.getcol("DATA")
 if probe == "truncate-after-open":

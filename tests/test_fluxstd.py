@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import fluxstd, lsm
+from rang import fluxstd, lsm
 
 ARCHIVE = (
     Path(__file__).resolve().parents[1] / "research/results/fs1-flux-standards.json"

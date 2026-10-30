@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
-from rangtoy.core_imaging import JOBS, TOLERANCES, compare_replay
+from rang.core_imaging import JOBS, TOLERANCES, compare_replay
 
 
 def load(path):

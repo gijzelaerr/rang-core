@@ -1,5 +1,5 @@
 import numpy as np
-from rangtoy import core, core_zarr
+from rang import core, core_zarr
 
 
 def _memcpyed_chunk(payload, blocksize):

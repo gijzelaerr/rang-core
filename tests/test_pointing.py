@@ -6,13 +6,13 @@ jax = pytest.importorskip("jax")
 jax.config.update("jax_enable_x64", True)
 import jax.numpy as jnp
 import numpy as np
-from rangtoy.gauge import gaussian_gauge, predict_channels
-from rangtoy.observability import (
+from rang.gauge import gaussian_gauge, predict_channels
+from rang.observability import (
     channel_design,
     sky_locked_information,
     solve_sky_locked,
 )
-from rangtoy.pointing import (
+from rang.pointing import (
     component_list,
     image_components,
     predict,

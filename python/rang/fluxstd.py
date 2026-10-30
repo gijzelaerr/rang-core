@@ -357,13 +357,13 @@ def lsm_source(
     extrapolate=False,
     unverified_ok=False,
 ):
-    """A `rangtoy.lsm.Source` (point, Stokes I) carrying the standard's spectrum.
+    """A `rang.lsm.Source` (point, Stokes I) carrying the standard's spectrum.
 
     The band must lie in one piece of the standard (SR2016 breaks at
     11.1496 GHz, PB2010 1934-638 at 10 GHz) and, unless `extrapolate`, inside
     its range. `lsm.components` then feeds `core.predict_components`.
     """
-    from rangtoy import lsm
+    from rang import lsm
 
     lo, hi = band_hz
     flux(source, [lo, hi, ref_freq_hz], standard, extrapolate=extrapolate,
@@ -386,7 +386,7 @@ def lsm_source(
 
 def manual_lsm_source(ra, dec, fluxdensity, reffreq_hz, spix, *, name="manual"):
     """CASA's manual model as an lsm.Source, exact (log10 spix to Tigger ln spi)."""
-    from rangtoy import lsm
+    from rang import lsm
 
     coeffs = (math.log10(fluxdensity),) + tuple(spix)
     i0, spi = tigger_spi(coeffs, reffreq_hz, reffreq_hz)
@@ -400,13 +400,13 @@ def manual_lsm_source(ra, dec, fluxdensity, reffreq_hz, spix, *, name="manual"):
 
 
 def standalone_dir():
-    from rangtoy import core
+    from rang import core
 
     return core.core_root() / "target" / "fs1-standalone"
 
 
 def write_standalone():
-    from rangtoy import core
+    from rang import core
 
     src = core.core_root() / "src"
     out = standalone_dir()
@@ -466,10 +466,10 @@ def rust_log10_poly(lib, coeffs, unit_hz, freq_hz):
 
 def core_log10_poly(coeffs, unit_hz, freq_hz):
     """The Rust kernel through the extension once the coordinator binds
-    `rangtoy._core.fluxstd_eval(coeffs, unit_hz, freq) -> ndarray`; until then
+    `rang._core.fluxstd_eval(coeffs, unit_hz, freq) -> ndarray`; until then
     the standalone cdylib (needs cargo)."""
     try:
-        from rangtoy import _core
+        from rang import _core
     except ImportError:
         _core = None
     if _core is not None and hasattr(_core, "fluxstd_eval"):

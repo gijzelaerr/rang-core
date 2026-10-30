@@ -16,9 +16,9 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from prototype_section6 import GRID, ingest, section6_pass
-from rangtoy import core
-from rangtoy.core_policy import gain_tv, policy_mask, residual_features
-from rangtoy.core_workflow import core_solve
+from rang import core
+from rang.core_policy import gain_tv, policy_mask, residual_features
+from rang.core_workflow import core_solve
 
 ROOT = Path(__file__).resolve().parents[1]
 QC = ROOT / "outputs/luno-solve-20261029-02/solve"

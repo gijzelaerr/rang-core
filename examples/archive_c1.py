@@ -11,7 +11,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from rangtoy import core_campaign_closure as c1
+from rang import core_campaign_closure as c1
 
 LIMIT = 250_000
 

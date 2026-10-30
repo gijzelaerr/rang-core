@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from rangtoy import core_weights
+from rang import core_weights
 
 SCALE = 8.0 * np.pi / (180.0 * 60.0 * 60.0)
 

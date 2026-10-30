@@ -10,7 +10,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 
 import numpy as np
 import pytest
-from rangtoy.core_influence import (
+from rang.core_influence import (
     _training_bundle,
     anchored_response,
     jones_jacobian,

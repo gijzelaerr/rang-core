@@ -5,7 +5,7 @@
 //!
 //! Task FS1 (`research/fs1-flux-standards.md`). The standards' coefficient
 //! tables, source names, validity ranges and refusals live in the canonical
-//! Python module `rangtoy.fluxstd`; this kernel evaluates one piece of a
+//! Python module `rang.fluxstd`; this kernel evaluates one piece of a
 //! standard, `log10 S = sum_k a_k (log10(nu / unit))^k`, over many
 //! frequencies, and the piecewise form used by Stevens-Reynolds 2016. The
 //! coefficients are published facts (Perley & Butler 2017; Reynolds 1994) or

@@ -89,7 +89,7 @@ def maxrss_mb():
 
 
 def antenna_positions():
-    from rangtoy import core_zarr
+    from rang import core_zarr
 
     raw = core_zarr.read_chunk(ANTENNA_POSITION)
     return np.frombuffer(bytes(raw), "<f8").reshape(-1, 3).copy()
@@ -224,7 +224,7 @@ def cmd_refs(args):
         np.save(out / f"{key}.npy", arr)
         rec["outputs"][key] = sha256(arr)
         print(key, rec["outputs"][key][:12], flush=True)
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     rec["library"] = str(core_wgridder.library_path())
     rec["wall_s"] = time.perf_counter() - t0
@@ -270,7 +270,7 @@ def cmd_compare(args):
     res["pass_tolerance"] = bool(
         (not f64 or max(f64) <= 1e-13) and (not f32 or max(f32) <= 1e-5)
     )
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     res["library"] = str(core_wgridder.library_path())
     res["rayon_num_threads"] = os.environ.get("RAYON_NUM_THREADS")
@@ -296,7 +296,7 @@ def correction(info, nx, ny, dx, dy):
     """The gridder's correction factor per pixel (u, v and w correction
     functions, ducc0's `GLFullCorrection`), relative to the image centre,
     from the kernel row and plan in `info` (no l/m shift)."""
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     w, _, _, beta, e0, _, _ = core_wgridder.kernel_row(info["kernel_index"])
     beta *= w
@@ -329,7 +329,7 @@ def cmd_edge(args):
     and the differences divided by the correction factor."""
     import ducc0
     import oracle_ducc0 as oracle
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     t0 = time.perf_counter()
     res = {"ducc0": ducc0.__version__, "seed": args.seed, "cases": {}}
@@ -614,7 +614,7 @@ def cmd_time(args):
         result["ducc0"] = ducc0.__version__
         result["ducc0_pool"] = ducc0.misc.thread_pool_size()
     else:
-        from rangtoy import core_wgridder
+        from rang import core_wgridder
 
         result["library"] = str(core_wgridder.library_path())
     Path(args.out).write_text(json.dumps(result, indent=1))

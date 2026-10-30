@@ -2,7 +2,7 @@
 
 Ports WSClean 3.6's Briggs, uniform and natural weighting (padded half-plane
 weight grid, rank filter, nearest-cell lookup) and its Stokes I formation from
-XX/YY. Calls the extension `rangtoy._core` (research/core-j-packaging.md,
+XX/YY. Calls the extension `rang._core` (research/core-j-packaging.md,
 research/p7-architecture.md). Geometry defaults are rang's imaging
 settings: 512 pixels at 8 arcsec, padding 1.2, rank filter 3.0 over 16 cells.
 """

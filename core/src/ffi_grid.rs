@@ -1,5 +1,5 @@
 //! C ABI for the w-stacking gridder (`grid.rs`), loaded through ctypes by
-//! `python/rangtoy/core_grid.py`, in the style of `ffi.rs`.
+//! `python/rang/core_grid.py`, in the style of `ffi.rs`.
 
 use crate::grid::{self, Inputs, Settings};
 

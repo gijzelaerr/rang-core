@@ -31,20 +31,20 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core, core_flag, core_grid, core_ms, core_weights, core_zarr
+from rang import core, core_flag, core_grid, core_ms, core_weights, core_zarr
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.environ.get("RANG_GOLDEN_DIR", ROOT / "tests" / "data"))
 GOLDEN_NPZ = DATA / "core-backends-golden.npz"
 GOLDEN_JSON = DATA / "core-backends-golden.json"
-HAS_EXTENSION = importlib.util.find_spec("rangtoy._core") is not None
+HAS_EXTENSION = importlib.util.find_spec("rang._core") is not None
 C_LIGHT = 299792458.0
 WRITE = os.environ.get("RANG_GOLDEN_WRITE") == "1"
 EXACT = sys.platform == "linux" and platform.machine().lower() in ("x86_64", "amd64")
 _written_arrays = {}
 _written_scalars = {}
 
-pytestmark = pytest.mark.skipif(not HAS_EXTENSION, reason="rangtoy._core is not built")
+pytestmark = pytest.mark.skipif(not HAS_EXTENSION, reason="rang._core is not built")
 
 
 def _flatten(value, prefix):
@@ -448,7 +448,7 @@ def _gain_grid(seed, shape=(5, 4, 3)):
 
 
 def test_root_gain_tv(golden):
-    from rangtoy import core_policy as flagging
+    from rang import core_policy as flagging
 
     gains, valid, times, frequencies = _gain_grid(5)
     out = flagging.gain_tv(gains, valid, times, frequencies, scale=1.3)
@@ -461,7 +461,7 @@ def test_root_gain_tv(golden):
 
 
 def test_root_trend(golden):
-    from rangtoy import core_trend_run as flagging_trend
+    from rang import core_trend_run as flagging_trend
 
     gains, valid, times, frequencies = _gain_grid(6, (6, 5, 3))
     support = np.random.default_rng(1).uniform(size=valid.shape) > 0.1
@@ -472,7 +472,7 @@ def test_root_trend(golden):
 
 
 def test_root_response(golden):
-    from rangtoy import core_influence as influence
+    from rang import core_influence as influence
 
     rng = np.random.default_rng(8)
 
@@ -505,7 +505,7 @@ def test_root_response(golden):
 
 
 def test_root_projector(golden):
-    from rangtoy import projector
+    from rang import projector
 
     rng = np.random.default_rng(9)
     a = rng.standard_normal((30, 4))

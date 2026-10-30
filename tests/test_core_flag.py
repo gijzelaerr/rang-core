@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core_flag
+from rang import core_flag
 
 ROOT = Path(__file__).resolve().parents[1]
 FIRSTPASS = """# comment

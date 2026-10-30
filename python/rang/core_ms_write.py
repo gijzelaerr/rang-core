@@ -9,7 +9,7 @@ python-casacore default binding) or as a new tiled data manager. Values are
 given as python-casacore takes them: one leading row axis, then the cell
 axes in reversed casacore order. Everything is written on `flush()` and on
 close, once, as casacore flushes; reads (`getcol`) go through
-`rangtoy.core_ms` and see what has been flushed.
+`rang.core_ms` and see what has been flushed.
 
 A separate module from `core_ms` so that the task E reader stays unchanged.
 Not done here (E4/E5): new tables, adding rows, IncrementalStMan writes,

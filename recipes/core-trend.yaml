@@ -1,5 +1,5 @@
 # Core-native trend track: seven core baseline solves written as a mirror of
-# the concurrent suite, then the frozen rangtoy.flagging_trend.run, unedited.
+# the concurrent suite, then the frozen rang.flagging_trend.run, unedited.
 # Sits beside the frozen recipes/tv-flagging-trend.yaml and never replaces it
 # (research/core-h-recipes.md, research/core-phase3-trend.md).
 _include: core-cabs.yaml
@@ -10,13 +10,13 @@ opts:
 cabs:
   rang-core-trend-mirror:
     flavour: python
-    command: rangtoy.core_cli.trend_mirror
+    command: rang.core_cli.trend_mirror
     inputs:
       mirror_dir: {dtype: str, required: true}
       source_dir: {dtype: Directory, required: true}
   rang-core-trend:
     flavour: python
-    command: rangtoy.core_cli.trend
+    command: rang.core_cli.trend
     inputs:
       run_dir: {dtype: str, required: true}
       mirror_dir: {dtype: Directory, required: true}

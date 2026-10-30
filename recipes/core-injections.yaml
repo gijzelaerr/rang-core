@@ -9,7 +9,7 @@ opts:
 cabs:
   rang-core-injections:
     flavour: python
-    command: rangtoy.core_cli.injections
+    command: rang.core_cli.injections
     inputs:
       run_dir: {dtype: str, required: true}
       prepared_dir: {dtype: Directory, required: true}

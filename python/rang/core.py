@@ -6,7 +6,7 @@ antenna-diagonal Gauss--Newton blocks (research/core-phase1.md). Phase 2 adds
 solve_complex, a port of QuartiCal's full-Jones complex solver
 (research/core-phase2.md).
 
-The kernels are reached through the PyO3 extension `rangtoy._core`, built by
+The kernels are reached through the PyO3 extension `rang._core`, built by
 maturin from core/py (research/core-j-packaging.md). Task P7
 (research/p7-architecture.md) removed the second door, ctypes on a library
 built by Cargo at run time: nothing here runs a compiler, and the extension
@@ -54,13 +54,13 @@ def _refuse_ctypes():
 
 @lru_cache(maxsize=1)
 def extension():
-    """The extension module `rangtoy._core`."""
+    """The extension module `rang._core`."""
     _refuse_ctypes()
     try:
         from . import _core
     except ImportError as exc:
         raise ImportError(
-            "rangtoy._core is not built: install the wheel, or run "
+            "rang._core is not built: install the wheel, or run "
             "`maturin develop --release` (or `pip install -e .`) in the checkout"
         ) from exc
     return _core

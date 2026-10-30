@@ -36,13 +36,13 @@ import bench_p2_gridder as p2
 
 def one_image(impl, inputs, settings, epsilon, single):
     if impl == "wstack":
-        from rangtoy import core_grid
+        from rang import core_grid
 
         r = core_grid.invert(**inputs, **settings)
         return r["dirty"], r["psf"]
     weights = inputs["weights"] * inputs["imaging_weights"]
     if impl == "wgrid":
-        from rangtoy import core_wgridder
+        from rang import core_wgridder
 
         r = core_wgridder.fits_image(
             inputs["uvw"],

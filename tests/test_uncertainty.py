@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from rangtoy.uncertainty import propagated_standard_deviation
+from rang.uncertainty import propagated_standard_deviation
 
 
 def test_propagation_matches_linear_gaussian_covariance():

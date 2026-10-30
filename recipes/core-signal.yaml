@@ -10,7 +10,7 @@ opts:
 cabs:
   rang-core-signal:
     flavour: python
-    command: rangtoy.core_cli.signal
+    command: rang.core_cli.signal
     inputs:
       run_dir: {dtype: str, required: true}
       inputs_dir: {dtype: Directory, required: true}

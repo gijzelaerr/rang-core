@@ -9,7 +9,7 @@ result hashes every later `check` run must reproduce bit for bit. Targets:
 `solve`, `blosc`, `survey` or `all` (default). Timings are wall seconds from
 `time.perf_counter`, single process; each series reports its minimum and
 median and the 1-minute load average before and after. The core is the
-installed extension `rangtoy._core`, never rebuilt here; the blosc series
+installed extension `rang._core`, never rebuilt here; the blosc series
 calls its exported C symbol through ctypes as it called `librang_core.so`
 before task P7 (research/p7-architecture.md), so the timed call is unchanged.
 """
@@ -30,8 +30,8 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "examples"))
 
-from rangtoy import core, core_zarr
-from rangtoy.core_influence import anchored_response, training_normals
+from rang import core, core_zarr
+from rang.core_influence import anchored_response, training_normals
 from validate_core_phase2 import (
     FIXTURE,
     FIXTURE_FLAGS,

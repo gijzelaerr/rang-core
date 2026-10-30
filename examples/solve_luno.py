@@ -1,6 +1,6 @@
 """QuartiCal full-2x2 solve on the four-station LUNO MS (run in the pinned container).
 
-Uses the frozen pipeline command from rangtoy.flagging_workflow.solve (G.type=complex,
+Uses the frozen pipeline command from rang.flagging_workflow.solve (G.type=complex,
 2 x 32 intervals, 50 iterations, reference antenna 0, no robust/MAD, output.flags=false,
 single-threaded). Checks FLAG/FLAG_ROW are unchanged and saves gains and convergence.
 """

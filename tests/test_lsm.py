@@ -4,7 +4,7 @@ import math
 
 import numpy as np
 import pytest
-from rangtoy import core, lsm
+from rang import core, lsm
 
 HEADER = (
     "#format: name ra_h ra_m ra_s dec_d dec_m dec_s i i_err emaj_s emin_s pa_d "

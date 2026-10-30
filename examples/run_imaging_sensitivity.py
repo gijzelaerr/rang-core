@@ -20,8 +20,8 @@ import time
 from pathlib import Path
 
 import numpy as np
-from rangtoy.core_image_fit import _read_images
-from rangtoy.core_sensitivity import (
+from rang.core_image_fit import _read_images
+from rang.core_sensitivity import (
     JOBS,
     ROLES,
     WEIGHT_KEYS,
@@ -33,7 +33,7 @@ from rangtoy.core_sensitivity import (
     variant_metrics,
     variants,
 )
-from rangtoy.core_state import tree_digest, write_json
+from rang.core_state import tree_digest, write_json
 
 CLOSURE_JY = 1e-6
 HEADER_KEYS = (*WEIGHT_KEYS, "WSCGKRNL", "WSCNWLAY", "BMAJ", "BMIN", "BPA")

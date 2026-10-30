@@ -19,7 +19,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy.projector import project_grouped, project_out
+from rang.projector import project_grouped, project_out
 
 
 def fixture(antennas, channels, seed=71):
@@ -162,7 +162,7 @@ def main():
                     path: sha256((ROOT / path).read_bytes()).hexdigest()
                     for path in (
                         "src/projector.rs",
-                        "python/rangtoy/projector.py",
+                        "python/rang/projector.py",
                         "examples/projector_scaling.py",
                     )
                 },

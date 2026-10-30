@@ -13,9 +13,9 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import toy_output
-from rangtoy.beams import beam_table, load_katbeam, make_beam_predictor
-from rangtoy.pointing import Observation, component_list, solve_pointing, spline_design
+from rang import toy_output
+from rang.beams import beam_table, load_katbeam, make_beam_predictor
+from rang.pointing import Observation, component_list, solve_pointing, spline_design
 
 
 def main():

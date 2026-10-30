@@ -1,4 +1,4 @@
-//! `rangtoy._core`: the PyO3 extension module over the Rang core.
+//! `rang._core`: the PyO3 extension module over the Rang core.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
@@ -1296,7 +1296,7 @@ impl MsWriter {
     }
 }
 
-/// The extension module `rangtoy._core`.
+/// The extension module `rang._core`.
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add(

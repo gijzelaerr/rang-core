@@ -13,7 +13,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core_campaign, core_flag
+from rang import core_campaign, core_flag
 
 ROOT = Path(__file__).resolve().parents[1]
 STRATEGY = """strategies:
@@ -165,7 +165,7 @@ def test_task_k_additions_equal_the_archive():
     fetched = ROOT / "outputs/core-k-20261030-01/fetch"
     if not fetched.is_dir():
         pytest.skip("the task K fetch is an ignored input")
-    from rangtoy import core_fetch
+    from rang import core_fetch
 
     arrays, _ = core_fetch.decode_slice(fetched)
     rows = np.asarray(json.loads((fetched / "result.json").read_text())["rows"])

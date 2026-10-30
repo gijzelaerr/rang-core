@@ -1,4 +1,4 @@
-# Distributable rangtoy wheels (research/wheel.md, big-plan task W1; the
+# Distributable rang-core wheels (research/wheel.md, big-plan task W1; the
 # macOS and Windows matrix and the PyPI job are task X1,
 # research/x1-crossplatform.md).
 #
@@ -154,8 +154,8 @@ jobs:
           path: dist
       # tools/wheel/test.py: a fresh venv, the wheel with its test and imaging
       # extras from public PyPI, then import, tools/wheel/smoke.py and
-      # tests/test_core_backends.py (against its archive), test_toy.py and
-      # test_p7_architecture.py (tools/wheel/pytest_wheel.py) with every
+      # tests/test_core_backends.py (against its archive), test_toy.py,
+      # test_p7_architecture.py and test_p12_rename.py (tools/wheel/pytest_wheel.py) with every
       # PATH directory that holds cargo removed (asserted) and no RANG_*
       # variables; any skip other than the missing MS oracle fails the step.
       - name: Install and test the wheel with cargo absent
@@ -200,10 +200,10 @@ jobs:
           gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
             --verify-tag --title "$GITHUB_REF_NAME" --notes "Wheels and sdist built by the wheels workflow."
 
-  # PyPI by trusted publishing, no token. Before the first tag, register a
-  # pending publisher on pypi.org: owner gijzelaerr, repository ra-ng,
-  # workflow wheels.yml, environment pypi, and the project name that
-  # pyproject.toml carries at the tag (rangtoy today; ra-ng after task P12).
+  # PyPI by trusted publishing, no token. The pending publisher is registered
+  # on pypi.org for the project rang-core (pyproject.toml [project] name):
+  # owner gijzelaerr, repository rang-core, workflow wheels.yml, environment
+  # pypi. A v* tag (the user tags, e.g. v0.1.0) publishes rang-core.
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [wheel, sdist, test]

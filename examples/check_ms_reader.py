@@ -5,7 +5,7 @@ Usage:
     python examples/check_ms_reader.py --self-check <oracle-dir-1> <oracle-dir-2> outputs/<fresh-check-dir>
 
 The first form opens every table of the oracle receipt with
-`rangtoy.core_ms`, reads every oracle column in full and in two row ranges,
+`rang.core_ms`, reads every oracle column in full and in two row ranges,
 and compares column-exactly (dtype, shape and bytes; strings by value). It
 also checks that the MS tree is unchanged by hashing it before and after and
 records every read's wall time. The second form is the comparator
@@ -93,7 +93,7 @@ def compare_table(expected, actual):
 
 
 def read_with_core(path, columns, start, count, timings):
-    from rangtoy import core_ms
+    from rang import core_ms
 
     arrays, strings = {}, {}
     with core_ms.open_table(path) as t:

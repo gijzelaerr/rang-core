@@ -10,7 +10,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 
 import numpy as np
 import pytest
-from rangtoy import core_image_fit as imaging
+from rang import core_image_fit as imaging
 
 
 @pytest.mark.parametrize("coeff", [[0.06, 0.12], [-0.06, -0.12], [0, 0]])

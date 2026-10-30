@@ -10,7 +10,7 @@ import copy
 
 import numpy as np
 import pytest
-from rangtoy import core_campaign_1830 as l2
+from rang import core_campaign_1830 as l2
 
 
 def _short_rows(nrow=40, nchan=256, i0=3.0, alpha=0.4, seed=5):

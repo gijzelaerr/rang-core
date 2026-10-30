@@ -74,7 +74,7 @@ t repair auditwheel repair --plat manylinux_2_28_x86_64 -w "$OUT/repaired" "$whl
 cat "$OUT/auditwheel-repair.txt"
 /opt/python/cp312-cp312/bin/python -m zipfile -l "$whl" | tee "$OUT/unzip-l.txt"
 /opt/python/cp312-cp312/bin/python -m zipfile -e "$whl" /tmp/wheel-unzip
-sha256sum /tmp/wheel-unzip/rangtoy/_core.abi3.so | tee "$OUT/core-sha256.txt"
+sha256sum /tmp/wheel-unzip/rang/_core.abi3.so | tee "$OUT/core-sha256.txt"
 tar tzvf "$dist"/*.tar.gz > "$OUT/sdist-list.txt"
 wc -l < "$OUT/sdist-list.txt"
 
@@ -87,10 +87,10 @@ sdist_build() {
   rm -rf /tmp/sdist && mkdir -p /tmp/sdist
   tar xzf "$dist"/*.tar.gz -C /tmp/sdist
   # From the unpacked sdist's own pyproject.toml (manifest-path core/py).
-  (cd /tmp/sdist/rangtoy-* && CARGO_TARGET_DIR=/tmp/sdist-target "$tools/bin/maturin" \
+  (cd /tmp/sdist/rang_core-* && CARGO_TARGET_DIR=/tmp/sdist-target "$tools/bin/maturin" \
     build --release --locked --manylinux 2_28 -i /opt/python/cp310-cp310/bin/python \
     --out "$OUT/from-sdist")
   /opt/python/cp312-cp312/bin/python -m zipfile -e "$OUT"/from-sdist/*.whl /tmp/sdist-unzip
-  sha256sum /tmp/sdist-unzip/rangtoy/_core.abi3.so | tee "$OUT/from-sdist/core-sha256.txt"
+  sha256sum /tmp/sdist-unzip/rang/_core.abi3.so | tee "$OUT/from-sdist/core-sha256.txt"
 }
 t sdist-wheel sdist_build

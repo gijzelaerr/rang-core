@@ -1,4 +1,4 @@
-"""FS1: compare rangtoy.fluxstd with the CASA setjy oracle and write the archive.
+"""FS1: compare rang.fluxstd with the CASA setjy oracle and write the archive.
 
 Usage (from the checkout, host venv):
 
@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 
 import numpy as np
-from rangtoy import fluxstd
+from rang import fluxstd
 
 TAGS = {
     "Perley-Butler_2010": "Perley-Butler 2010",
@@ -165,7 +165,7 @@ def compare_ocasa(ocasa, reread):
     src = fluxstd.lsm_source(
         "J1939-6342", "SR2016", 0.0, 0.0, 1.284e9, (freq[0], freq[-1])
     )
-    from rangtoy import core, lsm
+    from rang import core, lsm
 
     vis = core.predict_components(
         np.array([[0.0, 0.0, 0.0], [120.0, -40.0, 3.0]]),
@@ -249,7 +249,7 @@ def manual_vs_standards():
 
 
 def builder_check():
-    from rangtoy import lsm
+    from rang import lsm
 
     nu = np.linspace(0.856e9, 1.712e9, 4096)
     out = {}
@@ -267,7 +267,7 @@ def builder_check():
     }
     comps = lsm.components([s], (0.0, 0.0))
     try:
-        from rangtoy import core
+        from rang import core
 
         vis = core.predict_components(np.array([[100.0, 50.0, 0.0]]), nu, **comps)
         out["core_predict_manual_max_rel"] = rel(

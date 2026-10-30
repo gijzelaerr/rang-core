@@ -11,7 +11,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core_ms
+from rang import core_ms
 
 ROOT = Path(__file__).resolve().parents[1]
 ORACLE = ROOT / "outputs/core-e-oracle-20261029-01"

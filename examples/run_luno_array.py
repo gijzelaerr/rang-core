@@ -18,8 +18,8 @@ import json
 import sys
 from pathlib import Path
 
-from rangtoy import core_campaign_array as array
-from rangtoy import core_cli
+from rang import core_campaign_array as array
+from rang import core_cli
 
 
 def stations_arg(text):

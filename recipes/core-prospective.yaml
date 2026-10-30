@@ -9,7 +9,7 @@ opts:
 cabs:
   rang-core-prospective:
     flavour: python
-    command: rangtoy.core_cli.prospective
+    command: rang.core_cli.prospective
     inputs:
       run_dir: {dtype: str, required: true}
       inputs_dir: {dtype: Directory, required: true}
