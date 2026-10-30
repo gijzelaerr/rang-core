@@ -130,11 +130,24 @@ def main(argv=None):
     parser.add_argument("run")
     parser.add_argument("wsclean")
     parser.add_argument("out_json")
+    parser.add_argument(
+        "--flux-model",
+        help="per-channel Stokes I of the calibrator (.npy), averaged with the gridding weights",
+    )
     args = parser.parse_args(argv)
     inputs, run, wsc = Path(args.inputs), Path(args.run), Path(args.wsclean)
     exact = Exact(inputs)
     q0, _dirty = exact.score(np.zeros((SIZE, SIZE)))
     result = {"q0": q0, "rang": {}, "wsclean": {}}
+    if args.flux_model:
+        per_channel = exact.wgt.sum(axis=0)
+        spectrum = np.load(args.flux_model).astype(np.float64).ravel()
+        result["expected_flux"] = {
+            "model": str(Path(args.flux_model).resolve()),
+            "weighted_mean_jy": float(
+                (per_channel * spectrum).sum() / per_channel.sum()
+            ),
+        }
     summary = json.loads((run / "clean-certified.json").read_text())
     for cfg in summary["runs"]:
         name = cfg["name"]

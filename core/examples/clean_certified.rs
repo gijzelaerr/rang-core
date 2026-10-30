@@ -268,6 +268,35 @@ fn main() {
         })
         .collect();
 
+    // How Q_∞'s upper bound depends on the CG budget (a separate run:
+    // `CLEAN_CERTIFIED_CG_SWEEP=100,200,400,800`), then exit.
+    if let Ok(list) = std::env::var("CLEAN_CERTIFIED_CG_SWEEP") {
+        let mut rows = Vec::new();
+        for budget in list.split(',').map(|b| b.parse::<usize>().unwrap()) {
+            let (f, model) = misfit_floor(&with_w, &dirty, budget, 1e-14).unwrap();
+            let flux: f64 = model.iter().sum();
+            let negative: f64 = model.iter().filter(|&&c| c < 0.0).sum();
+            println!(
+                "CG {budget:>5}: Q {:.6e} ({:.4e} of Q0), relative residual {:.3e}, model flux {flux:.3}, negative {negative:.3}, {:.1} s",
+                f.q_floor,
+                f.q_floor / q0,
+                f.relative_residual,
+                f.seconds
+            );
+            rows.push(obj(&[
+                ("iterations", f.iterations.to_string()),
+                ("q_floor", num(f.q_floor)),
+                ("q_floor_over_q0", num(f.q_floor / q0)),
+                ("relative_residual", num(f.relative_residual)),
+                ("model_flux", num(flux)),
+                ("model_flux_negative", num(negative)),
+                ("seconds", num(f.seconds)),
+            ]));
+        }
+        std::fs::write(outdir.join("cg-sweep.json"), arr(&rows) + "\n").unwrap();
+        return;
+    }
+
     // The misfit floor once, on the w-gridded operator.
     let (floor, _) = misfit_floor(&with_w, &dirty, CG_ITERATIONS, 1e-12).unwrap();
     println!(
