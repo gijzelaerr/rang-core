@@ -145,6 +145,18 @@ def test_tolerant_replay_exempts_image_hashes_only():
     assert not l2.compare_replay_tolerant(replay, k, {})["all_equal"]
 
 
+def test_tolerant_replay_residual_call_ratio():
+    replay, k = _replay_pair()
+    null = {"ratio": 1.0, "call": "null"}
+    k["hypotheses"] = [{"mse_test": null, "residual_rms": dict(null)}]
+    replay["hypotheses"] = [
+        {"mse_test": null, "residual_rms": {"ratio": 1.0 + 1e-14, "call": "null"}}
+    ]
+    assert l2.compare_replay_tolerant(replay, k, {})["all_equal"]
+    replay["hypotheses"][0]["mse_test"] = {"ratio": 1.0 + 1e-14, "call": "null"}
+    assert not l2.compare_replay_tolerant(replay, k, {})["all_equal"]
+
+
 def _headline(call, rms="null", cost=True):
     return {
         "matched_mse_test": {"call": call},

@@ -1070,6 +1070,20 @@ def compare_replay_tolerant(replay, k_result, k_candidates):
             record[f"{name}_relative_difference"] = relative
         exempt[label] = record
     out["image_hashes_reported"] = exempt
+    # The residual-RMS call is an image product: its verdict must be equal
+    # and its ratio within IMAGE_TOLERANCE; the MSE calls stay exact.
+    hypotheses = []
+    for h, k in zip(replay["hypotheses"], k_result["hypotheses"]):
+        a, b = h["residual_rms"], k["residual_rms"]
+        ratio_ok = (a["ratio"] is None and b["ratio"] is None) or (
+            a["ratio"] is not None
+            and b["ratio"] is not None
+            and abs(a["ratio"] - b["ratio"]) <= IMAGE_TOLERANCE * abs(b["ratio"])
+        )
+        hypotheses.append(
+            h["mse_test"] == k["mse_test"] and a["call"] == b["call"] and ratio_ok
+        )
+    out["hypotheses"] = hypotheses
 
     def flat(value):
         if isinstance(value, dict):
