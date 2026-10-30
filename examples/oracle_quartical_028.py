@@ -9,6 +9,8 @@ Usage:
     python examples/oracle_quartical_028.py core outputs/<run> <fixture|luno> <arm>
     # the comparison, in the worktree venv
     python examples/oracle_quartical_028.py compare outputs/<run> outputs/<fresh>
+    # the committed archive of both halves of RV1, from the run directories in RV1
+    python examples/oracle_quartical_028.py archive research/results/rv1-revalidate.json
 
 `solve` takes the archived `command.json` of the input verbatim, changing only
 `input_ms.path` and the output directories (and appending any extra
@@ -506,9 +508,220 @@ def compare(run, out):
     return 0
 
 
+# --- the committed archive (both halves of RV1) --------------------------------
+
+RV1 = {
+    "t0": "outputs/rv1-20261030-01",
+    "t1_frozen": "outputs/rv1-20261030-02",
+    "t3_frozen": "outputs/rv1-20261030-03",
+    "t2_frozen": "outputs/rv1-20261030-04",
+    "core_flags": "outputs/rv1-20261030-05",
+    "core_vs_021": "outputs/rv1-20261030-06",
+    "core_vs_050_frozen": "outputs/rv1-20261030-07",
+    "compare_frozen": "outputs/rv1-20261030-08",
+    "qc_run": "outputs/rv1-20261030-10",
+    "qc_compare": "outputs/rv1-20261030-11",
+    "t1": "outputs/rv1-20261030-12",
+    "t3": "outputs/rv1-20261030-13",
+    "t2_posthoc1": "outputs/rv1-20261030-14",
+    "core_vs_050": "outputs/rv1-20261030-15",
+    "t2_posthoc2": "outputs/rv1-20261030-17",
+    "t2": "outputs/rv1-20261030-19",
+    "compare": "outputs/rv1-20261030-20",
+}
+KEY_COMPARISONS = (
+    "qc027-cold vs archived-0.2.7",
+    "qc027-warm vs archived-0.2.7",
+    "qc028u vs archived-0.2.7",
+    "qc028-cold vs archived-0.2.7",
+    "qc028u vs core-T",
+    "qc028-cold vs core-T",
+    "qc028-cold vs qc028u",
+    "qc028u vs core",
+    "core vs archived-0.2.7",
+    "core-T vs archived-0.2.7",
+)
+
+
+def archive(path):
+    """research/results/rv1-revalidate.json from the RV1 run directories:
+    numbers, hashes and verdicts only, never visibilities."""
+    r = {k: ROOT / v for k, v in RV1.items()}
+
+    def read(p):
+        return json.loads(Path(p).read_text())
+
+    tric = read(r["compare"] / "result.json")
+    t1 = read(r["t1"] / "receipt.json")
+    t3 = read(r["t3"] / "receipt.json")
+    t0 = read(r["t0"] / "receipt.json")
+    t2 = read(r["t2"] / "receipt.json")
+    t1_frozen = read(r["t1_frozen"] / "receipt.json")
+    t3_frozen = read(r["t3_frozen"] / "receipt.json")
+    core = read(r["core_flags"] / "receipt.json")
+    frozen = read(r["compare_frozen"] / "result.json")
+    qc = read(r["qc_compare"] / "result.json")
+    result = {
+        "task": "RV1",
+        "date": "2026-10-30",
+        "report": "research/rv1-revalidate.md",
+        "protocol_commit": "4a23efc",
+        "runs": RV1,
+        "upstream": {
+            "tricolour": {
+                "pypi_latest": "0.2.1",
+                "release_0_5_0": None,
+                "branch": "0.5.0-dev",
+                "commit": t1["tricolour"]["direct_url"]["vcs_info"]["commit_id"],
+                "pr114_head": t3["tricolour"]["direct_url"]["vcs_info"]["commit_id"],
+                "python": "3.11-3.13 (requires-python >=3.11)",
+            },
+            "quartical": {
+                "pypi_latest": "0.2.7",
+                "release_0_2_8": None,
+                "branch": "v0.2.8-dev",
+                "commit": next(
+                    a["commit"]
+                    for a in qc["luno"]["arms"].values()
+                    if a["commit"] and a["commit"].startswith("d54c46b")
+                ),
+                "python": ">=3.10,<3.14",
+            },
+        },
+        "tricolour": {
+            "verdict": tric["verdict"],
+            "controls": {
+                label: {
+                    "t1_vs_021_stage_differences": e["t1_vs_021"]["stages"],
+                    "t1_vs_021_final_differences": e["t1_vs_021"]["final"],
+                    "t1_vs_021_intensity_bit_equal": e["t1_vs_021"][
+                        "intensity_bit_equal"
+                    ],
+                    "t1_final_vs_after_native": e["t1_final_vs_after_native"],
+                    "t0_vs_021_identical": e["t0_vs_021"]["identical"],
+                    "t3_vs_t1_identical": e["t3_vs_t1"]["identical"],
+                    "t2_final_vs_after_native": e["t2_final_vs_after_native"],
+                    "t2_final_vs_t1": e["t2_final_vs_t1"],
+                    "t2_returncode": t2["controls"][label]["returncode"],
+                    "final_fraction": t1["controls"][label]["final_fraction"],
+                    "uvw_length_range_m": t1["controls"][label]["uvw_length_range_m"],
+                }
+                for label, e in tric["controls"].items()
+            },
+            "core_vs_021_pass": read(r["core_vs_021"] / "result.json")["pass"],
+            "core_vs_050_pass": read(r["core_vs_050"] / "result.json")["pass"],
+            "core_vs_050_criteria": {
+                k: v["pass"]
+                for k, v in read(r["core_vs_050"] / "result.json")["criteria"].items()
+            },
+            "numba_get_flags_impl_signatures": {
+                "0.5.0-dev": t1_frozen["numba_signatures"]["_get_flags_impl"],
+                "pr114_head": t3_frozen["numba_signatures"]["_get_flags_impl"],
+            },
+            "frozen_runs": {
+                "t1_stage_aliasing": {
+                    "verdict": frozen["verdict"],
+                    "t1_vs_021_stage_differences": {
+                        label: e["t1_vs_021"]["stages"]
+                        for label, e in frozen["controls"].items()
+                    },
+                },
+                "t2_frozen_returncodes": {
+                    k: v["returncode"]
+                    for k, v in read(r["t2_frozen"] / "receipt.json")[
+                        "controls"
+                    ].items()
+                },
+                "t2_posthoc1_returncodes": {
+                    k: v["returncode"]
+                    for k, v in read(r["t2_posthoc1"] / "receipt.json")[
+                        "controls"
+                    ].items()
+                },
+                "t2_posthoc2_returncodes": {
+                    k: v["returncode"]
+                    for k, v in read(r["t2_posthoc2"] / "receipt.json")[
+                        "controls"
+                    ].items()
+                },
+            },
+            "seconds": {
+                "t0_tricolour_0_2_1_cold": t0["timings"],
+                "t1_0_5_0_dev_cold": t1_frozen["timings"],
+                "t1_0_5_0_dev_warm": t1["timings"],
+                "t3_pr114_cold": t3_frozen["timings"],
+                "t2_cli_per_control": {k: v["wall"] for k, v in t2["controls"].items()},
+                "t2_cli_driver_max_rss_mb": {
+                    k: v["driver_max_rss_mb"] for k, v in t2["controls"].items()
+                },
+                "core": core["timings"],
+            },
+            "host_unchanged": all(
+                x["host_unchanged"] for x in (t0, t1, t3, t2, t1_frozen, core)
+            ),
+            "versions": {
+                "t0": {"numpy": t0["numpy_version"], "numba": t0["numba_version"]},
+                "t1": {"numpy": t1["numpy_version"], "numba": t1["numba_version"]},
+            },
+        },
+        "quartical": {
+            name: {
+                "arms": qc[name]["arms"],
+                "comparisons": {
+                    k: {
+                        key: v[key]
+                        for key in (
+                            "pass",
+                            "criteria",
+                            "flags_equal",
+                            "unflagged_gains",
+                            "max_abs_gain_entry_diff",
+                            "max_abs_baseline_product_diff",
+                            "max_abs_baseline_product_diff_observed_pairs",
+                            "iterations",
+                            "reference_iterations",
+                            "converged_fraction",
+                            "reference_converged_fraction",
+                        )
+                    }
+                    for k, v in qc[name]["comparisons"].items()
+                    if k in KEY_COMPARISONS
+                },
+            }
+            for name in INPUTS
+        },
+        "quartical_inputs": read(r["qc_run"] / "inputs/receipt.json"),
+    }
+    luno, fix = result["quartical"]["luno"], result["quartical"]["fixture"]
+    result["quartical"]["verdict"] = {
+        "precondition_qc027_reproduces_archive": all(
+            x["comparisons"][k]["pass"]
+            for x in (luno, fix)
+            for k in ("qc027-cold vs archived-0.2.7", "qc027-warm vs archived-0.2.7")
+        ),
+        "qc028u_reproduces_0_2_7": {
+            n: x["comparisons"]["qc028u vs archived-0.2.7"]["pass"]
+            for n, x in (("fixture", fix), ("luno", luno))
+        },
+        "core_T_reproduces_qc028u": {
+            n: x["comparisons"]["qc028u vs core-T"]["pass"]
+            for n, x in (("fixture", fix), ("luno", luno))
+        },
+        "qc028_referenced_products_equal_core_T": {
+            n: x["comparisons"]["qc028-cold vs core-T"]["pass"]
+            for n, x in (("fixture", fix), ("luno", luno))
+        },
+    }
+    Path(path).write_text(json.dumps(result, indent=1) + "\n")
+    print(json.dumps(result["quartical"]["verdict"], indent=1))
+    print(json.dumps(result["tricolour"]["verdict"], indent=1))
+
+
 def main():
     mode = sys.argv[1]
-    if mode == "prepare":
+    if mode == "archive":
+        archive(Path(sys.argv[2]))
+    elif mode == "prepare":
         prepare(Path(sys.argv[2]))
     elif mode == "solve":
         solve(Path(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5:])
