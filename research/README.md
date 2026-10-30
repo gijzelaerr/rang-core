@@ -13,6 +13,10 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: DF2c, [`--gridder` for the campaign runs](df2c-campaign-gridder.md):
+K/L1/L2/L1-M/C1 take `wgrid` with its plan in the receipts, the default
+bit-identical; L2, L1-M and C1 re-imaged post hoc, no call changes.
+
 New, 2026-10-31: A-FLAG, [AOFlagger 3.5 as a second SumThreshold
 oracle](a-flag-aoflagger.md): at kernel level the port is AOFlagger's
 intended SumThreshold up to its documented differences (A1/A2), bridged

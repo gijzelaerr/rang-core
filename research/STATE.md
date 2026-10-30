@@ -1,5 +1,25 @@
 # Rang research state
 
+DF2c, `--gridder` for the campaign runs (big plan), 2026-10-31
+(implemented; measured; [df2c-campaign-gridder.md](df2c-campaign-gridder.md)).
+Plan frozen first. `--gridder wstack|wgrid` now reaches all five campaign
+drivers: `rang-core campaign run`, the `campaign-array`, `campaign-1830` and
+`campaign-fieldmodel` run scripts, and `run_c1.py`. For `wgrid`, L1-family
+runs image in one call. The run records `settings.gridder` with the plan
+(ε, Rayon threads, backend, the `_ex2` entry point), and every image records
+`gridder_name` and its own plan, which closes DF2b's L1 receipt gap. The
+default `wstack` is bit-identical to before: 28 precondition FITS, every
+image number and three whole-array images. L1, L2, L1-M and C1 also ran end
+to end with `wgrid` on four stations. Post hoc, all 44 archived arms of L1,
+L2, L1-M and C1 were re-imaged with `wgrid` from their saved gains and
+flags. Before that, the `wstack` replay reproduced every arm (equal numbers;
+L1 `-01` within 1.1e-15). Against the archived images the move is aliasing
+at the edge: dirty L∞ ≤ 0.45 % of the peak on chunk 0 and 0.68 % on L2,
+≤ 0.017 % in the central half. The residual RMS drops by 0.36–1.1 %. All 55
+recorded residual-RMS calls are unchanged, with ratio moves ≤ 1.4e-4. No
+verdict changes. Per whole-array image at 4 threads, `wgrid` grids in
+4.2–7.4 s against `wstack`'s 11.5–21.4 s with four groups.
+
 A-FLAG AOFlagger second oracle (big plan), 2026-10-31 (implemented;
 measured; [a-flag-aoflagger.md](a-flag-aoflagger.md)). Protocol frozen
 first. A pinned image, `rang-aflag-aoflagger:3.5.0` (Ubuntu 24.04 +

@@ -576,6 +576,11 @@ comparison.
 6. The DF1/DF2a standalone target `core/target/df1-standalone` is no longer
    built by default; the coordinator may delete it.
 
+7. Items 1 and 5 and deviation 7 closed by DF2c, 2026-10-31
+   (`df2c-campaign-gridder.md`): `--gridder` for every campaign run, the plan
+   in L1's receipts, and L2, L1-M and C1 re-imaged with `wgrid` (no call
+   changes); item 3 is enforced (one call for `wgrid`).
+
 ## Tool runs
 
 All runs 2026-10-30. Wall and peak RSS come from GNU `time` unless noted.

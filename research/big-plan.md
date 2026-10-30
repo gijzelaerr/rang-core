@@ -215,7 +215,9 @@ CPU-heavy tasks at a time on 8 physical cores.
   2026-10-30, `df2-wgridder-speed.md`: at ducc0's speed on whole-array inputs,
   1.5–2.3× on four-station images; DF2b done 2026-10-30 (`df2b-wgrid.md`): `gridder="wgrid"` in the C/I/K/L1
   drivers, `wstack` the bit-identical default, every archive within 4e-7 of
-  WSClean 3.7's wgridder; `--gridder` for the campaign runs open; it was to add `gridder="wgrid"` to the
+  WSClean 3.7's wgridder; DF2c done 2026-10-31 (`df2c-campaign-gridder.md`): `--gridder` for every
+  campaign run, the plan in the receipts, L2/L1-M/C1 re-imaged with `wgrid`
+  post hoc with no call changed; it was to add `gridder="wgrid"` to the
   imaging drivers with a tolerance restated from the rounding floor and
   re-tolerance the C/I/K/L1 archives against WSClean 3.7's wgridder from
   DF0); DF2 puts it into the imaging chains

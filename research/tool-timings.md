@@ -1142,3 +1142,18 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan A-FLAG: `compare_aoflagger.py` | all runs | 139.6 s | 152 MB | first full run 101.3 s |
 | 2026-10-31 | big plan A-FLAG: `bash tools/check-all.sh` | worktree `54dd65e` | 719 s | – | `overall: PASS`, 674 passed, 14 skipped; load 3–6 |
 | 2026-10-31 | big plan A-FLAG: `bash tools/check-all.sh` | worktree `fd9b09b` (final code) | 848 s | – | `overall: PASS`, 674 passed, 14 skipped (pytest 133 s); log `outputs/aflag-20261031-check-all.log` |
+| 2026-10-31 | big plan DF2c: `uv venv -p 3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin pip` | worktree | 2 min 57 s | 1.14 GB | builds `rang._core` |
+| 2026-10-31 | big plan DF2c: `precondition_luno_array.py` (base / after) | K slice, four stations | 15.0 / 16.0 s | 340 / 342 MB | pass, identical |
+| 2026-10-31 | big plan DF2c: `precondition_luno_1830.py` (base / after) | K slice | 12.4 / 13.8 s | 307 / 306 MB | pass, identical |
+| 2026-10-31 | big plan DF2c: `reimage_df2c.py chunk0 --gridders wstack` (base) | L1 `original`, C1 `closure-outlier` | 1 min 31 s | 10.2 GB | state 41.6 s |
+| 2026-10-31 | big plan DF2c: `reimage_df2c.py l2 --gridders wstack` (base) | L2 stored `original` | 33.8 s | 4.38 GB |  |
+| 2026-10-31 | big plan DF2c: pytest, the DF2c, DF2b, CLI, docs and five campaign test files | 106 tests | 5.3 s | 94 MB | 105 passed, 1 skipped |
+| 2026-10-31 | big plan DF2c: `reimage_df2c.py chunk0` | L1, L1-M ×3, C1: 32 arms | 6 min 58 s | 10.6 GB | load 6–8 |
+| 2026-10-31 | big plan DF2c: `reimage_df2c.py l2` | L2 stored, scalar: 12 arms | 1 min 48 s | 4.65 GB |  |
+| 2026-10-31 | big plan DF2c: `reimage_df2c.py default` ×3, `summary` (first failed: path; repeated) |  | < 1 s each | – |  |
+| 2026-10-31 | big plan DF2c: `rang-core campaign-array run --smoke --stations 0-3 --gridder wgrid` | four stations | 12.1 s | 225 MB |  |
+| 2026-10-31 | big plan DF2c: `rang-core campaign-1830 run --model stored --smoke --stations 0-3 --gridder wgrid` | four stations | 6.8 s | 168 MB |  |
+| 2026-10-31 | big plan DF2c: `core_campaign_fieldmodel.run(..., 'stored', gridder='wgrid')` | four stations | 11.5 s | 225 MB |  |
+| 2026-10-31 | big plan DF2c: `core_campaign_closure.run(..., gridder='wgrid')` (first: no cargo on PATH; repeated) | four stations | 0.3 / 17.8 s | 39 / 284 MB |  |
+| 2026-10-31 | big plan DF2c: `bash tools/check-all.sh` (takes the host lock itself; not wrapped) | worktree at `37c221c` | 10 min 17 s | – | **PASS**: Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 696 passed, 16 skipped in 198.9 s; log `outputs/df2c-20261031-check-all.log` |
+| 2026-10-31 | big plan DF2c: pytest `tests/test_pc1_preconditions.py -rs` | L1 and L2 preconditions | 17.9 s | – | 2 passed, not skipped |
