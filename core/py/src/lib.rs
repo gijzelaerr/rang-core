@@ -18,6 +18,7 @@ use pyo3::exceptions::{PyOSError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use rang_core::ffi;
+use rang_core::ffi_correct::CorrectInputsC;
 use rang_core::ffi_flag::{FlagInputs, FlagOutputs};
 use rang_core::ffi_grid::{GridInputs, GridOutputs};
 use rang_core::ffi_weights::{
@@ -377,6 +378,137 @@ fn blosc_decode_span_rows(
     })
 }
 
+/// `rang_core_correct_stokes_i` on borrowed arrays (big plan P5,
+/// `research/p5-memory.md`); `added` may be None. Returns the C status.
+#[pyfunction]
+#[pyo3(signature = (nrow, nchan, ntime_bins, nfreq_bins, nant, data, weights, flags, flag_row, added, antenna1, antenna2, time_bin, freq_bin, inverse, valid, sample, weight))]
+#[allow(clippy::too_many_arguments)]
+fn correct_stokes_i(
+    nrow: usize,
+    nchan: usize,
+    ntime_bins: usize,
+    nfreq_bins: usize,
+    nant: usize,
+    data: Ro<'_, f32>,
+    weights: Ro<'_, f32>,
+    flags: Ro<'_, u8>,
+    flag_row: Ro<'_, u8>,
+    added: Option<Ro<'_, u8>>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    time_bin: Ro<'_, u32>,
+    freq_bin: Ro<'_, u32>,
+    inverse: Ro<'_, f64>,
+    valid: Ro<'_, u8>,
+    mut sample: Rw<'_, f32>,
+    mut weight: Rw<'_, f32>,
+) -> PyResult<i32> {
+    let Some(cells) = nrow.checked_mul(nchan) else {
+        return Ok(1);
+    };
+    let gains = ntime_bins * nfreq_bins * nant;
+    let (data, weights, flags, flag_row) = (
+        data.as_slice()?,
+        weights.as_slice()?,
+        flags.as_slice()?,
+        flag_row.as_slice()?,
+    );
+    let added = match &added {
+        Some(a) => Some(a.as_slice()?),
+        None => None,
+    };
+    let (antenna1, antenna2, time_bin, freq_bin) = (
+        antenna1.as_slice()?,
+        antenna2.as_slice()?,
+        time_bin.as_slice()?,
+        freq_bin.as_slice()?,
+    );
+    let (inverse, valid) = (inverse.as_slice()?, valid.as_slice()?);
+    let (sample, weight) = (sample.as_slice_mut()?, weight.as_slice_mut()?);
+    if data.len() != 8 * cells
+        || weights.len() != 4 * cells
+        || flags.len() != 4 * cells
+        || flag_row.len() != nrow
+        || added.is_some_and(|a| a.len() != cells)
+        || antenna1.len() != nrow
+        || antenna2.len() != nrow
+        || time_bin.len() != nrow
+        || freq_bin.len() != nchan
+        || inverse.len() != 8 * gains
+        || valid.len() != gains
+        || sample.len() != 2 * cells
+        || weight.len() != cells
+    {
+        return Ok(1);
+    }
+    let inputs = CorrectInputsC {
+        nrow,
+        nchan,
+        ntime_bins,
+        nfreq_bins,
+        nant,
+        data: data.as_ptr(),
+        weights: weights.as_ptr(),
+        flags: flags.as_ptr(),
+        flag_row: flag_row.as_ptr(),
+        added: added.map_or(std::ptr::null(), |a| a.as_ptr()),
+        antenna1: antenna1.as_ptr(),
+        antenna2: antenna2.as_ptr(),
+        time_bin: time_bin.as_ptr(),
+        freq_bin: freq_bin.as_ptr(),
+        inverse: inverse.as_ptr(),
+        valid: valid.as_ptr(),
+    };
+    // SAFETY: every slice is live for the call and has the length checked above.
+    Ok(unsafe {
+        rang_core::ffi_correct::rang_core_correct_stokes_i(
+            &inputs,
+            sample.as_mut_ptr(),
+            weight.as_mut_ptr(),
+        )
+    })
+}
+
+/// `rang_core_blosc_decode_span_rows_strided`: rows land at byte
+/// `offset + i * stride` of the caller-owned uint8 array `out` (P5).
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn blosc_decode_span_rows_strided(
+    head: &[u8],
+    first: usize,
+    count: usize,
+    span: Ro<'_, u8>,
+    row_bytes: usize,
+    rows: Ro<'_, usize>,
+    mut out: Rw<'_, u8>,
+    offset: usize,
+    stride: usize,
+) -> PyResult<i32> {
+    let (span, rows) = (span.as_slice()?, rows.as_slice()?);
+    let out = out.as_slice_mut()?;
+    if offset > out.len() {
+        return Ok(1);
+    }
+    let out = &mut out[offset..];
+    // SAFETY: every slice is live for the call; `out` bounds the writes.
+    Ok(unsafe {
+        rang_core::ffi_correct::rang_core_blosc_decode_span_rows_strided(
+            head.as_ptr(),
+            head.len(),
+            first,
+            count,
+            span.as_ptr(),
+            span.len(),
+            row_bytes,
+            rows.as_ptr(),
+            rows.len(),
+            out.as_mut_ptr(),
+            out.len(),
+            stride,
+        )
+    })
+}
+
 /// `rang_core_weight_grid_shape`; returns (status, width, height).
 #[pyfunction]
 fn weight_grid_shape(width: usize, height: usize, super_weight: f64) -> (i32, usize, usize) {
@@ -669,6 +801,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(blosc_header, m)?)?;
     m.add_function(wrap_pyfunction!(blosc_decode_block, m)?)?;
     m.add_function(wrap_pyfunction!(blosc_decode_span_rows, m)?)?;
+    m.add_function(wrap_pyfunction!(blosc_decode_span_rows_strided, m)?)?;
+    m.add_function(wrap_pyfunction!(correct_stokes_i, m)?)?;
     m.add_function(wrap_pyfunction!(weight_grid_shape, m)?)?;
     m.add_function(wrap_pyfunction!(padded_size, m)?)?;
     m.add_function(wrap_pyfunction!(stokes_i, m)?)?;

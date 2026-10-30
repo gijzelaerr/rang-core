@@ -499,3 +499,25 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan X1: WSL: `uv venv` + editable install for check-all | – | 89.3 s | – |  |
 | 2026-10-30 | big plan X1: WSL: `bash tools/check-all.sh`, first run, started before the coordinator's lock rule and without it | – | 4,709 s (78 min 29 s; pytest 4,350 s) | – | overall FAIL on `ext-build` only: `maturin develop` found no pip in the uv-created venv ("if working with a uv venv try `maturin develop --uv`"); every other step passed: root 19 and core 55 Rust tests, clippy, fmt, ruff, ruff format, diff-check, **570 passed, 1 skipped**; load 50-96 from five concurrent check-all runs. Fix of the environment, not the tree: `uv pip install pip` into `.venv` |
 | 2026-10-30 | big plan X1: WSL: `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` (coordinator's load rule), `OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`, after pip was added to `.venv` | – | lock wait 1,803 s (requested 13:25:24, acquired 13:55:27, load 80 then 22); run 229.3 s (pytest 153.6 s) | – | **overall PASS**: root 19 and core 55 Rust tests, clippy, fmt, `ext-build`, ruff, ruff format, diff-check, 570 passed and 1 skipped; the first run's FAIL was the venv. Logs in `outputs/x1-crossplatform-20261030-01/check-all/` |
+| 2026-10-30 | big plan P5: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin psutil` | – | 1 min 20 s | – |  |
+| 2026-10-30 | big plan P5: `maturin develop --release --offline` | – | 1 min 21 s | – |  |
+| 2026-10-30 | big plan P5: `cargo build --release` (core) | – | 55 s | – |  |
+| 2026-10-30 | big plan P5: bench `campaign` stations 0–3 (`k4-before`) | – | 45 s (run), 1 min 14 s (process) | 577 MB (bench); 621 MB `time -v` (includes `cargo`) |  |
+| 2026-10-30 | big plan P5: bench `campaign` stations 0–7 (`s8-before`) | – | 44 s | 1,470 MB (bench) |  |
+| 2026-10-30 | big plan P5: bench `campaign` stations 0–11 (`s12-before`) | – | 1 min 44 s | 2,909 MB (bench) |  |
+| 2026-10-30 | big plan P5: `examples/precondition_luno_array.py` unmodified (`precondition-before`) | – | 39 s | 614 MB |  |
+| 2026-10-30 | big plan P5: scratch score pre-check, stations 0–3 and 0–11 | – | 14 s, 43 s | 155 MB, 1.19 GB |  |
+| 2026-10-30 | big plan P5: unmodified whole-array run (`array-before`) | – | 14 min 57 s | 13.2 GB at kill |  |
+| 2026-10-30 | big plan P5: standalone P5 crate: build, test (11), clippy `-D warnings`, rustfmt (twice; one clippy fix `collapsible_if`, one rustfmt rewrite) | – | about 1 min each | – |  |
+| 2026-10-30 | big plan P5: scratch unit checks, stations 0–3 (includes the first standalone build) | – | 48 s | 332 MB |  |
+| 2026-10-30 | big plan P5: scratch unit checks, stations 0–11 | – | 40 s | 2.97 GB |  |
+| 2026-10-30 | big plan P5: unmodified whole-array run from a pristine export (`array-before-b`), `time -v`, 8 threads, load 50–90 | – | **1 h 21 min 38 s** | **13,308,612 kB** |  |
+| 2026-10-30 | big plan P5: bench `campaign` 0–3 with the group check (`k4-after`) | – | 45 s | 380 MB (bench) |  |
+| 2026-10-30 | big plan P5: `precondition_luno_array.py` with P5 (`precondition-after`) | – | 51 s | 440 MB |  |
+| 2026-10-30 | big plan P5: targeted pytest (`test_p5_memory`, `test_core_campaign_array`, `test_core_fetch`, `test_core_zarr`, `test_core_campaign`) | – | 41 s | 161 MB |  |
+| 2026-10-30 | big plan P5: bench `campaign` 0–7 and 0–11 (`s8-after`, `s12-after`) | – | 1 min 30 s, 1 min 58 s | 646 MB, 885 MB (bench) |  |
+| 2026-10-30 | big plan P5: coordinator lines in a scratch copy (`exttest.log`): uv venv, core build/test/clippy/fmt, `maturin develop`, extension clippy/fmt, pytest on both backends, bench through the extension | – | about 20 min (load 60–90) | – |  |
+| 2026-10-30 | big plan P5: bench `campaign` 0–3 without the group check (`k4-after-b`) | – | 58 s | 366 MB (bench) |  |
+| 2026-10-30 | big plan P5: bench `campaign` all stations (`array-after`), 4 threads, `OPENBLAS_NUM_THREADS=1`, load 36–70 | – | **37 min 28 s** | **10,406 MiB (bench composed)**; `time -v` 9,070,168 kB is invalid under the HWM reset |  |
+| 2026-10-30 | big plan P5: `compare` after vs before; scratch archive comparisons (before and after vs L1) | – | seconds | – |  |
+| 2026-10-30 | big plan P5: `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` (4 threads, `OPENBLAS_NUM_THREADS=1`; lock wait 0 s) | – | 3 min 24 s (pytest 586 passed, 1 skipped in 2 min 17 s) | 1.50 GB |  |

@@ -17,7 +17,9 @@
 //! with its own `ffi_*` module and research report.
 
 pub mod blosc;
+pub mod correct;
 pub mod ffi;
+pub mod ffi_correct;
 pub mod ffi_flag;
 pub mod ffi_grid;
 pub mod ffi_ms;

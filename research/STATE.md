@@ -1,5 +1,22 @@
 # Rang research state
 
+P5 memory (big plan wave 2), 2026-10-30 (implemented; measured;
+[p5-memory.md](p5-memory.md)): one copy of the cube. Tiles decode straight
+into the final arrays (strided Rust decode, mmap), the split runs in row
+blocks with one lexsort, the base solves' outlier scores come from the fused
+pass over baseline groups and are kept sparse, additions are stored as
+indices, and gain correction plus the Stokes I reader run in Rust
+(`core/src/correct.rs`, extension bindings `blosc_decode_span_rows_strided`
+and `correct_stokes_i`) into reused buffers. Every identity gate passes: K's
+precondition masks and the four-station replay identical (images
+bit-identical); the whole-array run equals the unmodified driver on all
+1,820 non-timing fields (three dirty images within 3.1e-11 of the peak) and
+L1's archive on every non-image field. Whole-array peak 12,997 → 10,406 MiB
+(159 → 128 B per cell, −20 %; L1's "12.46 GB" was MiB); the pre-registered
+≤ 115 B per cell is missed, the gridder's per-group copies and the Tricolour
+stage planes now set the peak (for P2/P3/P7). An image takes 13–15 s instead
+of 5–10 min on the parallel kernels.
+
 L2 PKS 1830−211 campaign (big plan wave 3), 2026-10-30 (implemented;
 measured; null). The gain-TV-guided flagging campaign ran on the whole array
 for LUNO's gain calibrator PKS 1830−211 (MAIN_2, the whole 80 s scan: 56
