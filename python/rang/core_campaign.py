@@ -14,6 +14,7 @@ The licence precondition was settled by the user on 2026-10-30
 """
 
 import json
+import os
 import platform
 import subprocess
 import time
@@ -691,6 +692,36 @@ def image_arm(state, extra, solve, out_dir, label, gridder="wstack"):
     return metrics
 
 
+GRIDDERS = ("wstack", "wgrid")
+
+
+def gridder_settings(gridder, epsilon=core_grid.WGRID_EPSILON):
+    """The run's gridder record (research/df2c-campaign-gridder.md): the
+    name, and for "wgrid" the plan the images do not carry themselves:
+    epsilon, the Rayon thread setting, the backend and its entry point."""
+    if gridder not in GRIDDERS:
+        raise ValueError(f"gridder must be one of {GRIDDERS}, not {gridder!r}")
+    if gridder == "wstack":
+        return {"name": "wstack"}
+    from . import core_wgridder
+
+    threads = os.environ.get("RAYON_NUM_THREADS")
+    backend = core_wgridder.backend()
+    entry = (
+        "rang._core.wgridder_vis2dirty_f64 -> rang_core_wgridder_vis2dirty_ex2_f64"
+        if backend == "extension"
+        else "rang_core_wgridder_vis2dirty_ex_f64"
+    )
+    return {
+        "name": "wgrid",
+        "epsilon": float(epsilon),
+        "nthreads": int(threads) if threads else None,
+        "cpu_count": os.cpu_count(),
+        "backend": backend,
+        "entry_point": entry,
+    }
+
+
 # --- decision rule -----------------------------------------------------------
 
 
@@ -881,8 +912,11 @@ def _find(tree, key):
 # --- the campaign ------------------------------------------------------------
 
 
-def run(run_dir, bucket=BUCKET, workers=8, precondition_dir=None):
-    """The frozen campaign: fetch, decode, reference, arms, images, receipts."""
+def run(run_dir, bucket=BUCKET, workers=8, precondition_dir=None, gridder="wstack"):
+    """The frozen campaign: fetch, decode, reference, arms, images, receipts.
+    `gridder="wgrid"` images with the exact gridder
+    (research/df2c-campaign-gridder.md)."""
+    gridder_record = gridder_settings(gridder)
     run_dir = Path(run_dir)
     if run_dir.exists():
         raise FileExistsError(f"{run_dir} exists; use a fresh run directory")
@@ -978,7 +1012,7 @@ def run(run_dir, bucket=BUCKET, workers=8, precondition_dir=None):
             arms[label] = None
             continue
         t = time.perf_counter()
-        image = image_arm(state, extra, solve, run_dir / "images", label)
+        image = image_arm(state, extra, solve, run_dir / "images", label, gridder)
         stage(f"image_{label}", t)
         added = solve["added"]
         final, final_rows = protected_flags(
@@ -1076,6 +1110,7 @@ def run(run_dir, bucket=BUCKET, workers=8, precondition_dir=None):
             "validation_weight": VALIDATION_WEIGHT,
             "validation_tolerance": VALIDATION_TOLERANCE,
             "image": IMAGE,
+            "gridder": gridder_record,
             "robust": ROBUST,
             "decision_band": [BETTER, WORSE],
         },

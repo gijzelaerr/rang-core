@@ -1050,6 +1050,26 @@ def corrected_stokes_reference(state, gains, valid, added, block=ROW_BLOCK):
     return sample, weight, final, final_rows
 
 
+def image_settings(image, groups, gridder="wstack"):
+    """The run's image dict and channel groups for `gridder`
+    (research/df2c-campaign-gridder.md). "wgrid" is one call (per-group
+    plans differ by 3e-8 of the peak, research/df2b-wgrid.md) and is named
+    in a copy of the dict; with the default argument a gridder already
+    named in `image` holds. A contradiction or an unknown name is refused."""
+    core_campaign.gridder_settings(gridder)
+    named = image.get("gridder")
+    if named is not None:
+        core_campaign.gridder_settings(named)
+        if gridder != "wstack" and named != gridder:
+            raise ValueError(f"image names gridder {named!r}, not {gridder!r}")
+    effective = gridder if named is None else named
+    image = dict(image)
+    if effective == "wstack":
+        return image, groups
+    image["gridder"] = effective
+    return image, 1
+
+
 def grouped_invert(uvw, frequencies, sample, weight, imaging, image, groups):
     """`core_grid.invert` over `groups` contiguous channel groups, summed.
 
@@ -1083,6 +1103,8 @@ def grouped_invert(uvw, frequencies, sample, weight, imaging, image, groups):
         raw += part["dirty"] * factor
         raw_psf += part["psf"] * factor
         records.append({"channels": [int(lo), int(hi)], "skipped": False, **st})
+        if "wgridder" in part:  # each group's own plan (DF2b deviation 7)
+            records[-1]["wgridder"] = part["wgridder"]
     centre = raw_psf[h // 2, w // 2]
     used = [r for r in records if not r["skipped"]]
     image_weight = sum(r["image_weight"] for r in used)
@@ -1286,6 +1308,9 @@ def image_arm(
     metrics["imaging_weight_sums"] = imaging["sums"]
     metrics["gridder"] = products["stats"]
     metrics["gridder_groups"] = products["groups"]
+    metrics["gridder_name"] = image.get("gridder", "wstack")
+    if "wgridder" in products:
+        metrics["wgridder"] = products["wgridder"]
     header = core_grid.wcs_header(
         extra["phase_dir"],
         image["width"],
@@ -1305,6 +1330,8 @@ def image_arm(
         "WSCWEIGH": f"Briggs'({core_campaign.ROBUST})",
         "RANGARM": label,
     }
+    if metrics["gridder_name"] != "wstack":  # w-stacking FITS keep their keys
+        keys["RANGGRID"] = metrics["gridder_name"]
     core_grid.write_fits(
         out_dir / f"{label}-dirty.fits", products["dirty"], header, keys
     )
@@ -1451,15 +1478,22 @@ def run(
     group_check=False,
     precondition_dir=None,
     label="frozen",
+    gridder="wstack",
 ):
     """The frozen L1 campaign. `stations=None` is the whole array; the
     precondition's replay passes K's stations, image settings, one group and
-    `k_metrics=True`."""
+    `k_metrics=True`. `gridder="wgrid"` images with the exact gridder in one
+    call (`image_settings`, research/df2c-campaign-gridder.md)."""
+    image, groups = image_settings(
+        ARRAY_IMAGE if image is None else image, groups, gridder
+    )
+    gridder = image.get("gridder", "wstack")
+    if gridder != "wstack":
+        label = f"{label}; gridder {gridder}"
     run_dir = Path(run_dir)
     if run_dir.exists():
         raise FileExistsError(f"{run_dir} exists; use a fresh run directory")
     run_dir.mkdir(parents=True)
-    image = dict(ARRAY_IMAGE if image is None else image)
     core.library()
     available = mem_available_gib()
     before = {name: snapshot(ROOT / name) for name in ARCHIVED_INPUTS}
@@ -1791,6 +1825,7 @@ def run(
             "validation_tolerance": core_campaign.VALIDATION_TOLERANCE,
             "image": image,
             "channel_groups": groups,
+            "gridder": core_campaign.gridder_settings(gridder),
             "k_metrics": k_metrics,
             "robust": core_campaign.ROBUST,
             "decision_band": [core_campaign.BETTER, core_campaign.WORSE],

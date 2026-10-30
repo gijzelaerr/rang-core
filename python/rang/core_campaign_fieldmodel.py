@@ -466,8 +466,11 @@ def run(
     precondition_dir=None,
     label="frozen",
     others=None,
+    gridder="wstack",
 ):
-    """L1's campaign under model arm `arm`, then `l1m.json`."""
+    """L1's campaign under model arm `arm`, then `l1m.json`; `gridder` is
+    L1's (research/df2c-campaign-gridder.md)."""
+    core_campaign.gridder_settings(gridder)  # refuse an unknown name first
     started = time.perf_counter()
     sources = None
     if arm != "stored":
@@ -482,6 +485,7 @@ def run(
             stations=stations,
             precondition_dir=precondition_dir,
             label=f"{label}; L1-M model arm {arm}",
+            gridder=gridder,
         )
     record = post_run(run_dir, hook, others, started)
     hook.state = None
