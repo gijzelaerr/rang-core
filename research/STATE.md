@@ -1,5 +1,20 @@
 # Rang research state
 
+P8 history (big plan wave 2), 2026-10-30 (`p8-history.md`): the 23 frozen
+`tv-flagging*` recipes, `tools/flagging/` (8 Dockerfiles, wrappers, fetch
+scripts, preflight, locks) and the six recipe-only modules
+`flagging_{concurrent,parallel,provenance,public,transfer,uncertainty}` with
+their tests moved to `history/` by `git mv`, byte-identical (70 files, 6,258
+lines; 3 wrapper and recipe test functions cut there too). Live tree 267 → 197
+files and 59,145 → 52,772 lines; recipes 30 → 7; pytest 739 → 555 tests.
+check-all passes; S1's live-chain suite reproduces every archived verdict and
+the K replay hash for hash, except section 6's wall-time cost criterion under
+shared load (2.6 s and 7.9 s against a 2 s limit, load 14–20; a post-hoc A/B
+shows the pre-move tree failing it the same way at load 26–46). Re-running a
+frozen campaign is done from `43dc3c7` or its recorded commit with the pinned
+images (`history/README.md`). The pinned `rang-flagging*:local` images are no
+longer used by any live chain and may be pruned (user item).
+
 Wheel (big plan W1), 2026-10-30 (implemented; measured locally; CI run
 started by the merge push). `rangtoy-0.1.0-cp310-abi3-manylinux_2_28_x86_64.whl`
 (821 kB, built in the pinned manylinux_2_28 container with Rust 1.93.1 and

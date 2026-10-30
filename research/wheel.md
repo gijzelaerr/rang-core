@@ -445,6 +445,15 @@ uv tool run --index-url https://pypi.org/simple --from shellcheck-py shellcheck 
   files (the lines above); nothing else in flight edits it as far as the big
   plan shows.
 
+## First CI run (coordinator, 2026-10-30)
+
+Run 41018751702 on the merge push: the three build jobs passed (x86_64 and
+aarch64 wheels, sdist); all four test jobs failed in the skip filter, not in
+the tests (10 passed, 1 skipped per job): the filter allowed the wording
+"fixture MS not present" while `tests/test_core_backends.py:333` skips
+with "MS oracle not present". Fixed by widening the filter; the next push
+re-runs it.
+
 ## Open questions
 
 - Is `rangtoy` the name to publish under, or should the distribution be

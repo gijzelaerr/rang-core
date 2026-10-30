@@ -140,7 +140,7 @@ jobs:
             RANG_WHEEL_CTYPES_LIB="$RUNNER_TEMP/ctypes/librang_core.so" \
             "$RUNNER_TEMP/venv/bin/python" -m pytest -p pytest_wheel -p no:cacheprovider \
             -o pythonpath= -rs -q tests/test_core_backends.py | tee "$RUNNER_TEMP/pytest.out"
-          ! grep -E '^SKIPPED' "$RUNNER_TEMP/pytest.out" | grep -v 'fixture MS not present'
+          ! grep -E '^SKIPPED' "$RUNNER_TEMP/pytest.out" | grep -v -E 'MS (oracle|fixture) not present|fixture MS not present'
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

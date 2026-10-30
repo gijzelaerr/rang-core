@@ -2,8 +2,8 @@
 
 Written 2026-10-30 on the user's instruction after the core port
 ([core-parallel-plan.md](core-parallel-plan.md), tasks A–K) was merged. Status: **wave 1: U1, S1 and W1 merged 2026-10-30, L1 running; wave 2
-started** (P0 applied by the coordinator; P1, P2, P3, P8 running; the rest
-queued in the order of `simplification-review.md` section 4). S1 found that
+started** (P0 applied by the coordinator; P8 merged 2026-10-30; P1, P2, P3, P4, P10
+running; the rest queued in the order of `simplification-review.md` section 4). S1 found that
 every archive reproduces, that the core is single-threaded and FFT-bound at
 four stations and memory-bound (about 0.87 kB per cell, about 88 GB) at the
 whole array. Read this, [STATE.md](STATE.md) and the task files it
@@ -154,3 +154,6 @@ CPU-heavy tasks at a time on 8 physical cores.
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).
 - Forward the observer's full-resolution LUNO set when it arrives.
+- Prune the pinned `rang-flagging*:local` Docker images and the three
+  dangling ones (about 11.6 GB) if the disk is wanted; no live chain uses
+  them, and `history/README.md` says how the frozen campaigns were run.

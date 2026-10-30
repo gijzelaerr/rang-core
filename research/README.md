@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task P8, [history](p8-history.md): the frozen
+recipes, container builds and recipe-only modules moved to `history/`
+([history/README.md](../history/README.md)); live tree −6,373 lines, every
+archived verdict reproduced.
+
 New, 2026-10-30: big plan task W1, the [distributable wheel](wheel.md):
 manylinux_2_28 abi3 wheel tested on CPython 3.10–3.14 without cargo, a
 wheels workflow, publication left to the user.
