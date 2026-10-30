@@ -8,6 +8,8 @@
 
 use crate::jones::{self, C64, Jones};
 use crate::robust;
+use rayon::prelude::*;
+use std::ops::Range;
 
 pub const SPLITS: usize = 3;
 pub const BLOCK: usize = 8;
@@ -193,9 +195,185 @@ fn accumulate(
     }
 }
 
+/// Cells per row block of the per-cell sweep (a rayon task).
+const BLOCK_CELLS: usize = 1 << 14;
+/// Row blocks per wave: the per-cell records of one wave are folded before
+/// the next starts, which bounds their memory (16 B per labelled cell).
+const WAVE_BLOCKS: usize = 64;
+
+/// The prediction of one cell and what the sweeps need of it.
+struct Cell {
+    gp_index: usize,
+    gq_index: usize,
+    left: Jones,
+    right: Jones,
+    residual: Jones,
+    weights: [f64; 4],
+    valid: bool,
+}
+
+fn predict(inputs: &Inputs, row: usize, chan: usize) -> Cell {
+    let (na, nchan) = (inputs.nant, inputs.nchan);
+    let cell = row * nchan + chan;
+    let (p, q) = (inputs.antenna1[row] as usize, inputs.antenna2[row] as usize);
+    let t = inputs.time_bin[row] as usize;
+    let f = inputs.freq_bin[chan] as usize;
+    let gp_index = (t * inputs.nfreq_bins + f) * na + p;
+    let gq_index = (t * inputs.nfreq_bins + f) * na + q;
+    let gp = jones::from_f64(&inputs.gains[8 * gp_index..8 * gp_index + 8]);
+    let gq = jones::from_f64(&inputs.gains[8 * gq_index..8 * gq_index + 8]);
+    let model = match inputs.model {
+        Model::Stored(m) => jones::from_f32(&m[8 * cell..8 * cell + 8]),
+        Model::Scalar(s) => jones::scalar(s[chan]),
+    };
+    let left = jones::mul(&gp, &model);
+    let right = jones::mul(&model, &jones::adjoint(&gq));
+    let predicted = jones::mul(&left, &jones::adjoint(&gq));
+    let data = jones::from_f32(&inputs.data[8 * cell..8 * cell + 8]);
+    let residual: Jones = std::array::from_fn(|k| data[k] - predicted[k]);
+    let weights: [f64; 4] = std::array::from_fn(|k| f64::from(inputs.weights[4 * cell + k]));
+    let valid = inputs.gain_valid[gp_index] != 0
+        && inputs.gain_valid[gq_index] != 0
+        && jones::is_finite(&gp)
+        && jones::is_finite(&gq);
+    Cell {
+        gp_index,
+        gq_index,
+        left,
+        right,
+        residual,
+        weights,
+        valid,
+    }
+}
+
+/// What one row block contributes to the order-dependent products, in cell
+/// order: one entry per labelled cell (label, valid, mean `w |r|^2`), and
+/// one per scored train cell (cell, baseline, log amplitude).
+#[derive(Default)]
+struct BlockRecord {
+    labelled: Vec<(u8, bool, f64)>,
+    amplitudes: Vec<(usize, usize, f64)>,
+}
+
+/// Residuals, split terms and amplitudes of the rows in `rows`; `residuals`
+/// is the block's slice of the output, or empty.
+fn sweep_block(
+    inputs: &Inputs,
+    rows: Range<usize>,
+    residuals: &mut [f64],
+    want_scores: bool,
+) -> BlockRecord {
+    let (na, nchan) = (inputs.nant, inputs.nchan);
+    let first = rows.start * nchan;
+    let mut record = BlockRecord::default();
+    for row in rows {
+        let (p, q) = (inputs.antenna1[row] as usize, inputs.antenna2[row] as usize);
+        for chan in 0..nchan {
+            let cell = row * nchan + chan;
+            let c = predict(inputs, row, chan);
+            if !residuals.is_empty() {
+                let at = 8 * (cell - first);
+                for (k, value) in c.residual.iter().enumerate() {
+                    residuals[at + 2 * k] = value.re;
+                    residuals[at + 2 * k + 1] = value.im;
+                }
+            }
+            let label = inputs.split[cell];
+            if label > 0 {
+                let mse = c
+                    .residual
+                    .iter()
+                    .zip(&c.weights)
+                    .map(|(r, w)| r.norm2() * w)
+                    .sum::<f64>()
+                    / 4.;
+                record.labelled.push((label, c.valid, mse));
+            }
+            if label == 1 && want_scores {
+                // Whitening multiplies by sqrt(w) computed in single precision,
+                // as NumPy does for float32 weights.
+                let amplitude = c
+                    .residual
+                    .iter()
+                    .enumerate()
+                    .map(|(k, r)| {
+                        let s = f64::from(inputs.weights[4 * cell + k].sqrt());
+                        r.scale(s).norm2()
+                    })
+                    .sum::<f64>()
+                    .sqrt();
+                if amplitude.is_finite() {
+                    record
+                        .amplitudes
+                        .push((cell, p * na + q, amplitude.max(1e-30).ln()));
+                }
+            }
+        }
+    }
+    record
+}
+
+/// Antenna-diagonal normals of one interval (gains `(t, f, *)`): its train
+/// cells with a valid prediction, rows ascending, then channels ascending,
+/// p before q, which is each gain's order in a serial sweep over all cells.
+fn normals_interval(
+    inputs: &Inputs,
+    rows: &[usize],
+    channels: &[usize],
+    h: &mut [f64],
+    b: &mut [f64],
+    count: &mut [u64],
+) {
+    let na = inputs.nant;
+    for &row in rows {
+        for &chan in channels {
+            if inputs.split[row * inputs.nchan + chan] != 1 {
+                continue;
+            }
+            let c = predict(inputs, row, chan);
+            if !c.valid {
+                continue;
+            }
+            let values: [f64; BLOCK] = std::array::from_fn(|k| {
+                let value = c.residual[k / 2];
+                if k % 2 == 0 { value.re } else { value.im }
+            });
+            for (index, is_q) in [(c.gp_index, false), (c.gq_index, true)] {
+                let a = index % na;
+                let jac = antenna_jacobian(&c.left, &c.right, is_q);
+                accumulate(
+                    &mut h[64 * a..64 * a + 64],
+                    &mut b[8 * a..8 * a + 8],
+                    &jac,
+                    &c.weights,
+                    &values,
+                );
+                count[a] += 1;
+            }
+        }
+    }
+}
+
 /// Run the fused pass. Returns per-split statistics in train, validation,
 /// test order. Normals use train cells whose prediction is valid.
+///
+/// Every product is bit-identical to a serial sweep over the cells and
+/// independent of the thread count (rayon's global pool,
+/// `RAYON_NUM_THREADS`): residuals and amplitudes are per cell; split sums
+/// are one serial fold of the per-cell terms in cell order; per-baseline
+/// amplitudes are gathered in cell order before scoring; and each gain's
+/// normals are summed by one task over the gain's cells in serial order.
 pub fn run(inputs: &Inputs, outputs: &mut Outputs) -> Result<[SplitStats; SPLITS], Error> {
+    run_blocks(inputs, outputs, BLOCK_CELLS, WAVE_BLOCKS)
+}
+
+fn run_blocks(
+    inputs: &Inputs,
+    outputs: &mut Outputs,
+    block_cells: usize,
+    wave_blocks: usize,
+) -> Result<[SplitStats; SPLITS], Error> {
     check(inputs, outputs)?;
     let (nrow, nchan, na) = (inputs.nrow, inputs.nchan, inputs.nant);
     let want_scores = !outputs.scores.is_empty();
@@ -207,95 +385,80 @@ pub fn run(inputs: &Inputs, outputs: &mut Outputs) -> Result<[SplitStats; SPLITS
     let mut stats = [SplitStats::default(); SPLITS];
     // Per-baseline log amplitudes of whitened train residuals, with cell index.
     let mut amplitudes: Vec<Vec<(usize, f64)>> = vec![Vec::new(); na * na];
-    for row in 0..nrow {
-        let (p, q) = (inputs.antenna1[row] as usize, inputs.antenna2[row] as usize);
-        let t = inputs.time_bin[row] as usize;
-        for chan in 0..nchan {
-            let cell = row * nchan + chan;
-            let f = inputs.freq_bin[chan] as usize;
-            let gp_index = (t * inputs.nfreq_bins + f) * na + p;
-            let gq_index = (t * inputs.nfreq_bins + f) * na + q;
-            let gp = jones::from_f64(&inputs.gains[8 * gp_index..8 * gp_index + 8]);
-            let gq = jones::from_f64(&inputs.gains[8 * gq_index..8 * gq_index + 8]);
-            let model = match inputs.model {
-                Model::Stored(m) => jones::from_f32(&m[8 * cell..8 * cell + 8]),
-                Model::Scalar(s) => jones::scalar(s[chan]),
+    if nrow * nchan > 0 {
+        let block_rows = (block_cells / nchan).max(1);
+        let wave_rows = block_rows * wave_blocks.max(1);
+        let mut wave_start = 0;
+        while wave_start < nrow {
+            let wave_end = nrow.min(wave_start + wave_rows);
+            let blocks: Vec<Range<usize>> = (wave_start..wave_end)
+                .step_by(block_rows)
+                .map(|s| s..wave_end.min(s + block_rows))
+                .collect();
+            let records: Vec<BlockRecord> = if outputs.residuals.is_empty() {
+                blocks
+                    .into_par_iter()
+                    .map(|rows| sweep_block(inputs, rows, &mut [], want_scores))
+                    .collect()
+            } else {
+                outputs.residuals[8 * wave_start * nchan..8 * wave_end * nchan]
+                    .par_chunks_mut(8 * block_rows * nchan)
+                    .zip(blocks)
+                    .map(|(residuals, rows)| sweep_block(inputs, rows, residuals, want_scores))
+                    .collect()
             };
-            let left = jones::mul(&gp, &model);
-            let right = jones::mul(&model, &jones::adjoint(&gq));
-            let predicted = jones::mul(&left, &jones::adjoint(&gq));
-            let data = jones::from_f32(&inputs.data[8 * cell..8 * cell + 8]);
-            let residual: Jones = std::array::from_fn(|k| data[k] - predicted[k]);
-            if !outputs.residuals.is_empty() {
-                for (k, value) in residual.iter().enumerate() {
-                    outputs.residuals[8 * cell + 2 * k] = value.re;
-                    outputs.residuals[8 * cell + 2 * k + 1] = value.im;
+            for record in records {
+                for (label, valid, mse) in record.labelled {
+                    let stat = &mut stats[label as usize - 1];
+                    stat.cells += 1;
+                    if !valid {
+                        stat.invalid += 1;
+                    }
+                    if mse.is_finite() {
+                        stat.sum += mse;
+                    } else {
+                        stat.nonfinite += 1;
+                    }
+                }
+                for (cell, baseline, value) in record.amplitudes {
+                    amplitudes[baseline].push((cell, value));
                 }
             }
-            let weights: [f64; 4] =
-                std::array::from_fn(|k| f64::from(inputs.weights[4 * cell + k]));
-            let valid = inputs.gain_valid[gp_index] != 0
-                && inputs.gain_valid[gq_index] != 0
-                && jones::is_finite(&gp)
-                && jones::is_finite(&gq);
-            let label = inputs.split[cell] as usize;
-            if label > 0 {
-                let stat = &mut stats[label - 1];
-                stat.cells += 1;
-                if !valid {
-                    stat.invalid += 1;
-                }
-                let mse = residual
-                    .iter()
-                    .zip(&weights)
-                    .map(|(r, w)| r.norm2() * w)
-                    .sum::<f64>()
-                    / 4.;
-                if mse.is_finite() {
-                    stat.sum += mse;
-                } else {
-                    stat.nonfinite += 1;
-                }
-            }
-            if label == 1 && want_scores {
-                // Whitening multiplies by sqrt(w) computed in single precision,
-                // as NumPy does for float32 weights.
-                let amplitude = residual
-                    .iter()
-                    .enumerate()
-                    .map(|(k, r)| {
-                        let s = f64::from(inputs.weights[4 * cell + k].sqrt());
-                        r.scale(s).norm2()
-                    })
-                    .sum::<f64>()
-                    .sqrt();
-                if amplitude.is_finite() {
-                    amplitudes[p * na + q].push((cell, amplitude.max(1e-30).ln()));
-                }
-            }
-            if label == 1 && want_normals && valid {
-                let rows: [f64; BLOCK] = std::array::from_fn(|k| {
-                    let value = residual[k / 2];
-                    if k % 2 == 0 { value.re } else { value.im }
-                });
-                for (index, is_q) in [(gp_index, false), (gq_index, true)] {
-                    let jac = antenna_jacobian(&left, &right, is_q);
-                    accumulate(
-                        &mut outputs.diag_h[64 * index..64 * index + 64],
-                        &mut outputs.diag_b[8 * index..8 * index + 8],
-                        &jac,
-                        &weights,
-                        &rows,
-                    );
-                    outputs.diag_count[index] += 1;
-                }
-            }
+            wave_start = wave_end;
         }
     }
+    if want_normals && na > 0 {
+        // Rows of each time bin in ascending order (rows need not be sorted).
+        let mut rows = vec![Vec::new(); inputs.ntime_bins];
+        for (row, &t) in inputs.time_bin.iter().enumerate() {
+            rows[t as usize].push(row);
+        }
+        let mut channels = vec![Vec::new(); inputs.nfreq_bins];
+        for (chan, &f) in inputs.freq_bin.iter().enumerate() {
+            channels[f as usize].push(chan);
+        }
+        let nfreq_bins = inputs.nfreq_bins;
+        outputs
+            .diag_h
+            .par_chunks_mut(BLOCK * BLOCK * na)
+            .zip(outputs.diag_b.par_chunks_mut(BLOCK * na))
+            .zip(outputs.diag_count.par_chunks_mut(na))
+            .enumerate()
+            .for_each(|(interval, ((h, b), count))| {
+                let (t, f) = (interval / nfreq_bins, interval % nfreq_bins);
+                normals_interval(inputs, &rows[t], &channels[f], h, b, count);
+            });
+    }
     if want_scores {
-        for baseline in &amplitudes {
-            let values: Vec<f64> = baseline.iter().map(|(_, v)| *v).collect();
-            for ((cell, _), z) in baseline.iter().zip(robust::scores(&values)) {
+        let scored: Vec<Vec<f64>> = amplitudes
+            .par_iter()
+            .map(|baseline| {
+                let values: Vec<f64> = baseline.iter().map(|(_, v)| *v).collect();
+                robust::scores(&values)
+            })
+            .collect();
+        for (baseline, z) in amplitudes.iter().zip(scored) {
+            for ((cell, _), z) in baseline.iter().zip(z) {
                 outputs.scores[*cell] = z;
             }
         }
@@ -525,5 +688,274 @@ mod tests {
             diag_count: &mut [],
         };
         assert!(run(&inputs, &mut outputs).is_err());
+    }
+
+    // --- Task P1 (research/p1-solver.md): the parallel pass against the
+    // serial pass it replaced (`run` at 43dc3c7, verbatim, renamed).
+
+    fn reference_run(
+        inputs: &Inputs,
+        outputs: &mut Outputs,
+    ) -> Result<[SplitStats; SPLITS], Error> {
+        check(inputs, outputs)?;
+        let (nrow, nchan, na) = (inputs.nrow, inputs.nchan, inputs.nant);
+        let want_scores = !outputs.scores.is_empty();
+        let want_normals = !outputs.diag_h.is_empty();
+        outputs.scores.fill(0.);
+        outputs.diag_h.fill(0.);
+        outputs.diag_b.fill(0.);
+        outputs.diag_count.fill(0);
+        let mut stats = [SplitStats::default(); SPLITS];
+        // Per-baseline log amplitudes of whitened train residuals, with cell index.
+        let mut amplitudes: Vec<Vec<(usize, f64)>> = vec![Vec::new(); na * na];
+        for row in 0..nrow {
+            let (p, q) = (inputs.antenna1[row] as usize, inputs.antenna2[row] as usize);
+            let t = inputs.time_bin[row] as usize;
+            for chan in 0..nchan {
+                let cell = row * nchan + chan;
+                let f = inputs.freq_bin[chan] as usize;
+                let gp_index = (t * inputs.nfreq_bins + f) * na + p;
+                let gq_index = (t * inputs.nfreq_bins + f) * na + q;
+                let gp = jones::from_f64(&inputs.gains[8 * gp_index..8 * gp_index + 8]);
+                let gq = jones::from_f64(&inputs.gains[8 * gq_index..8 * gq_index + 8]);
+                let model = match inputs.model {
+                    Model::Stored(m) => jones::from_f32(&m[8 * cell..8 * cell + 8]),
+                    Model::Scalar(s) => jones::scalar(s[chan]),
+                };
+                let left = jones::mul(&gp, &model);
+                let right = jones::mul(&model, &jones::adjoint(&gq));
+                let predicted = jones::mul(&left, &jones::adjoint(&gq));
+                let data = jones::from_f32(&inputs.data[8 * cell..8 * cell + 8]);
+                let residual: Jones = std::array::from_fn(|k| data[k] - predicted[k]);
+                if !outputs.residuals.is_empty() {
+                    for (k, value) in residual.iter().enumerate() {
+                        outputs.residuals[8 * cell + 2 * k] = value.re;
+                        outputs.residuals[8 * cell + 2 * k + 1] = value.im;
+                    }
+                }
+                let weights: [f64; 4] =
+                    std::array::from_fn(|k| f64::from(inputs.weights[4 * cell + k]));
+                let valid = inputs.gain_valid[gp_index] != 0
+                    && inputs.gain_valid[gq_index] != 0
+                    && jones::is_finite(&gp)
+                    && jones::is_finite(&gq);
+                let label = inputs.split[cell] as usize;
+                if label > 0 {
+                    let stat = &mut stats[label - 1];
+                    stat.cells += 1;
+                    if !valid {
+                        stat.invalid += 1;
+                    }
+                    let mse = residual
+                        .iter()
+                        .zip(&weights)
+                        .map(|(r, w)| r.norm2() * w)
+                        .sum::<f64>()
+                        / 4.;
+                    if mse.is_finite() {
+                        stat.sum += mse;
+                    } else {
+                        stat.nonfinite += 1;
+                    }
+                }
+                if label == 1 && want_scores {
+                    // Whitening multiplies by sqrt(w) computed in single precision,
+                    // as NumPy does for float32 weights.
+                    let amplitude = residual
+                        .iter()
+                        .enumerate()
+                        .map(|(k, r)| {
+                            let s = f64::from(inputs.weights[4 * cell + k].sqrt());
+                            r.scale(s).norm2()
+                        })
+                        .sum::<f64>()
+                        .sqrt();
+                    if amplitude.is_finite() {
+                        amplitudes[p * na + q].push((cell, amplitude.max(1e-30).ln()));
+                    }
+                }
+                if label == 1 && want_normals && valid {
+                    let rows: [f64; BLOCK] = std::array::from_fn(|k| {
+                        let value = residual[k / 2];
+                        if k % 2 == 0 { value.re } else { value.im }
+                    });
+                    for (index, is_q) in [(gp_index, false), (gq_index, true)] {
+                        let jac = antenna_jacobian(&left, &right, is_q);
+                        accumulate(
+                            &mut outputs.diag_h[64 * index..64 * index + 64],
+                            &mut outputs.diag_b[8 * index..8 * index + 8],
+                            &jac,
+                            &weights,
+                            &rows,
+                        );
+                        outputs.diag_count[index] += 1;
+                    }
+                }
+            }
+        }
+        if want_scores {
+            for baseline in &amplitudes {
+                let values: Vec<f64> = baseline.iter().map(|(_, v)| *v).collect();
+                for ((cell, _), z) in baseline.iter().zip(robust::scores(&values)) {
+                    outputs.scores[*cell] = z;
+                }
+            }
+        }
+        Ok(stats)
+    }
+
+    fn noise(state: &mut u64) -> f64 {
+        *state = state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        ((*state >> 11) as f64 / (1u64 << 53) as f64) * 2. - 1.
+    }
+
+    struct Products {
+        residuals: Vec<f64>,
+        scores: Vec<f64>,
+        h: Vec<f64>,
+        b: Vec<f64>,
+        counts: Vec<u64>,
+    }
+
+    impl Products {
+        fn new(cells: usize, gains: usize) -> Self {
+            Self {
+                residuals: vec![f64::NAN; 8 * cells],
+                scores: vec![f64::NAN; cells],
+                h: vec![f64::NAN; 64 * gains],
+                b: vec![f64::NAN; 8 * gains],
+                counts: vec![7; gains],
+            }
+        }
+
+        fn outputs(&mut self) -> Outputs<'_> {
+            Outputs {
+                residuals: &mut self.residuals,
+                scores: &mut self.scores,
+                diag_h: &mut self.h,
+                diag_b: &mut self.b,
+                diag_count: &mut self.counts,
+            }
+        }
+
+        fn bits(&self) -> Vec<u64> {
+            self.residuals
+                .iter()
+                .chain(&self.scores)
+                .chain(&self.h)
+                .chain(&self.b)
+                .map(|x| x.to_bits())
+                .chain(self.counts.iter().copied())
+                .collect()
+        }
+    }
+
+    #[test]
+    fn parallel_pass_is_bit_identical_to_the_serial_pass() {
+        let mut state = 11;
+        let (nant, ntime_bins, nfreq_bins, nchan) = (4, 3, 4, 2_000);
+        let mut a1 = Vec::new();
+        let mut a2 = Vec::new();
+        let mut time_bin = Vec::new();
+        for t in 0..2 * ntime_bins as u32 {
+            for p in 0..nant as u32 {
+                for q in p..nant as u32 {
+                    a1.push(p);
+                    a2.push(q);
+                    time_bin.push(t / 2);
+                }
+            }
+        }
+        // Rows out of time order: the pass does not require sorted rows.
+        a1.reverse();
+        a2.reverse();
+        time_bin.reverse();
+        time_bin.swap(0, 7);
+        let nrow = a1.len();
+        let cells = nrow * nchan;
+        let gains_n = ntime_bins * nfreq_bins * nant;
+        let data: Vec<f32> = (0..8 * cells).map(|_| noise(&mut state) as f32).collect();
+        let model: Vec<f32> = (0..8 * cells).map(|_| noise(&mut state) as f32).collect();
+        let mut weights: Vec<f32> = (0..4 * cells)
+            .map(|_| 1. + noise(&mut state).abs() as f32)
+            .collect();
+        weights[4 * 17 + 2] = f32::INFINITY;
+        let flux: Vec<f64> = (0..nchan).map(|c| 1. + 0.001 * c as f64).collect();
+        let freq_bin: Vec<u32> = (0..nchan as u32).map(|c| (c * 3) % 4).collect();
+        let mut gains: Vec<f64> = (0..8 * gains_n)
+            .map(|k| if k % 8 == 0 || k % 8 == 6 { 1. } else { 0. } + 0.1 * noise(&mut state))
+            .collect();
+        gains[8 * 5 + 3] = f64::NAN;
+        let mut gain_valid = vec![1_u8; gains_n];
+        gain_valid[9] = 0;
+        let split: Vec<u8> = (0..cells)
+            .map(|_| ((noise(&mut state) + 1.) * 2.) as u8)
+            .collect();
+        for model in [Model::Stored(&model), Model::Scalar(&flux)] {
+            let inputs = Inputs {
+                nrow,
+                nchan,
+                ntime_bins,
+                nfreq_bins,
+                nant,
+                data: &data,
+                weights: &weights,
+                model,
+                antenna1: &a1,
+                antenna2: &a2,
+                time_bin: &time_bin,
+                freq_bin: &freq_bin,
+                gains: &gains,
+                gain_valid: &gain_valid,
+                split: &split,
+            };
+            let mut expected = Products::new(cells, gains_n);
+            let expected_stats = reference_run(&inputs, &mut expected.outputs()).unwrap();
+            assert!(expected_stats.iter().all(|s| s.cells > 0 && s.invalid > 0));
+            assert!(expected.counts.iter().any(|&c| c > 0));
+            for threads in [1, 3, 8] {
+                let mut got = Products::new(cells, gains_n);
+                // The default sizes (one wave here) and one-row blocks in
+                // waves of three.
+                let (block_cells, wave_blocks) = if threads == 3 {
+                    (1, 3)
+                } else {
+                    (BLOCK_CELLS, WAVE_BLOCKS)
+                };
+                let stats = rayon::ThreadPoolBuilder::new()
+                    .num_threads(threads)
+                    .build()
+                    .unwrap()
+                    .install(|| run_blocks(&inputs, &mut got.outputs(), block_cells, wave_blocks))
+                    .unwrap();
+                let stat_bits = |s: &[SplitStats; SPLITS]| {
+                    s.map(|x| (x.sum.to_bits(), x.cells, x.invalid, x.nonfinite))
+                };
+                assert_eq!(stat_bits(&stats), stat_bits(&expected_stats));
+                assert!(got.bits() == expected.bits(), "threads {threads}");
+                // Products not requested are skipped in both.
+                let mut residuals = vec![0.; 8 * cells];
+                let partial = run(
+                    &inputs,
+                    &mut Outputs {
+                        residuals: &mut residuals,
+                        scores: &mut [],
+                        diag_h: &mut [],
+                        diag_b: &mut [],
+                        diag_count: &mut [],
+                    },
+                )
+                .unwrap();
+                assert_eq!(stat_bits(&partial), stat_bits(&expected_stats));
+                assert!(
+                    residuals
+                        .iter()
+                        .zip(&expected.residuals)
+                        .all(|(a, b)| a.to_bits() == b.to_bits())
+                );
+            }
+        }
     }
 }
