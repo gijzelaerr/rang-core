@@ -214,7 +214,7 @@ needs `uv pip install -e '.[docs]'` (or the four packages) for it to run.
 | 2026-10-30 | CI emulation: `sphinx-build -W` | executed notebooks | 12.1 s | 395 MB | 0 warnings, 14 MB site |
 | 2026-10-30 | `sphinx-build -W` in the worktree | unexecuted notebooks | 7.0–8.1 s | – | 0 warnings |
 | 2026-10-30 | `pytest tests/test_d1_docs.py` | worktree | 8.0 s | – | 3 passed |
-| 2026-10-30 | `bash tools/check-all.sh` | branch tree | CHECKALL_WALL | CHECKALL_RSS | CHECKALL_NOTE |
+| 2026-10-30 | `bash tools/check-all.sh` | branch tree | 439 s | 1.99 GB | **overall: PASS**; pytest 635 passed, 3 skipped in 235 s; no lock wait; started on `1f8ee6e`, with the Markdown-only edits of `d9595d0` made during the run; log `outputs/d1-20261030-check-all.log` |
 
 ## For the coordinator
 
