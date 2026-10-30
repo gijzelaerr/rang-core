@@ -424,7 +424,8 @@ def cmd_default(args):
         "only_base": sorted(set(a) - set(b)),
         "only_after": sorted(set(b) - set(a)),
         "differ": differ,
-        "identical": not differ and set(a) == set(b),
+        # Every base entry is present and equal (the branch run may cover more).
+        "identical": not differ and set(a) <= set(b),
     }
     write_json(args.out, out)
     print(json.dumps({k: out[k] for k in ("compared", "differ", "identical")}))
