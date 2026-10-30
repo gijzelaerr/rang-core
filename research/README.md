@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: the [ecosystem survey](ecosystem-survey.md): KERN-10, CASA
+and CARTA with port/depend/oracle/format verdicts, the oracle per task and the
+22-format table for DF-IO.
+
 New, 2026-10-30: the [casacure evaluation](casacure-evaluation.md): reads
 column-exact on every platform, writes and measures not trustworthy; verdict
 build rang's own table writer, casacure as a pinned second oracle.

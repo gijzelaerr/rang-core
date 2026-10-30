@@ -306,3 +306,15 @@ more than 300.
 - Neither repository has GitHub CI; DDFacet development merges on
   cyriltasse/DDFacet and saopicc `master` is synced from it, so #74 and #76 may
   be retargeted on request.
+
+## Ecosystem survey observations (2026-10-30; reportable, not filed; `ecosystem-survey.md` section 6)
+
+- RATT / caracal-pipeline / saopicc metadata: licence conflicts in CubiCal
+  (GPL-2 vs GPLv3), simms (GPL-2 vs GPL-3-only), dask-ms and codex-africanus
+  (BSD-3 text, no PyPI licence), shadems, montblanc and crystalball
+  ("Other/Proprietary" classifier); repositories without a licence file;
+  Python version caps below 3.13/3.14; stale GitHub releases.
+- KERN packaging (the user's own): version lag (casacore 3.7.1 vs 3.8.2,
+  python-casacore 3.7.1 vs 3.8.1, stimela 2.1.2.1 vs 2.1.4, IDG 1.2.0 vs
+  1.3.0); `ihttps://` homepage typo in casaconfig; dead anonscm Vcs URL in
+  python-casacore.

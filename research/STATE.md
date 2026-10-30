@@ -1,5 +1,25 @@
 # Rang research state
 
+Ecosystem survey (big plan; read-only), 2026-10-30
+([ecosystem-survey.md](ecosystem-survey.md)): every KERN-10 package (38
+source packages, Ubuntu 24.04), the MeerKAT tools outside KERN, CASA 6.7.6
+and CARTA 6.0 assessed with licence, release date and a verdict (PORT,
+DEPEND, ORACLE, FORMAT, IGNORE). Most of the ecosystem is an ORACLE for rang;
+platform rules out DEPEND more than licence (almost nothing besides casacure,
+ducc0 and pure-Python packages has Windows wheels; CASA ships cp312/cp313
+wheels for Linux x86_64 and macOS arm64 only; CARTA has no Windows build).
+CARACal's cross-calibration is CASA (`setjy`, `gaincal`, `bandpass`,
+`fluxscale`, `applycal`, `polcal`), not QuartiCal, so a matched CARACal
+baseline needs a CASA oracle container (O-CASA, on the KERN-10 base that
+ships WSClean 3.7, AOFlagger 3.5, IDG 1.2 and casacore 3.7.1). CASA's PKS
+1934−638 flux standards are Stevens-Reynolds 2016 and Perley-Butler 2010, not
+Perley-Butler 2017 (FS1 ports them with `setjy` as oracle). Proposed: CASA
+caltable and H5parm formats, katdal as an optional `[meerkat]` extra for L3,
+AOFlagger as a second SumThreshold oracle, CASA `gaincal` as a second
+comparator in the solver protocol, a 22-format table for DF-IO and the oracle
+per planned task. KERN packaging lag and metadata issues are listed for the
+user (KERN is the user's own).
+
 QuartiCal issue 452 fix verified, 2026-10-30
 (`upstream-issues/quartical-qp-jhj-weights.md`): PR ratt-ru/QuartiCal#456
 (merged into v0.2.8-dev as d54c46b) gives the ANTENNA2 side the transposed

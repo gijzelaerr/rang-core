@@ -52,3 +52,11 @@ never-written cells; (8) no LICENSE/COPYING file; (9) Windows and macOS wheels u
 in CI; (10) `celestial-eop-data` 0.1.12 build script calls `date` (non-reproducible,
 needs POSIX `date` on Windows); (11) `addcols` rebuilds the StandardStMan the column
 joins. The user may decide to report these to the author.
+
+## From the ecosystem survey (2026-10-30; not reported by decision)
+
+CASA 6.7.6.14 wheel licence metadata contradicts itself (`GPLv2`, an LGPL
+classifier, LGPL-2.0-or-later headers) and ships no Windows wheels; IDG and
+DP3 release records are incomplete; Aegean is AFL-3.0 (GPL-incompatible per
+secondary sources); facetselfcal has no licence; the PyPI name `carta` belongs
+to an unrelated package (carta-python is not on PyPI).
