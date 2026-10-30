@@ -68,6 +68,7 @@ other commands:
   check           [--rust | --python | --all]: the full local checks, portable
   compare         STAGE RESULT ORACLE RECEIPT: legacy form (adds `comparator`)
   trend-mirror    MIRROR SOURCE: legacy form of `trend mirror`
+  formats         check PATH | convert IN OUT: read and write the tools' formats
 
 `rang-core STAGE -h` describes a stage's verbs. `compare` takes the
 arguments of examples/compare_core_<stage>.py or of the stage's checker.

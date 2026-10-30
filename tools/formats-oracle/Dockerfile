@@ -39,7 +39,8 @@ RUN /opt/uv/bin/uv venv -p /usr/bin/python3.12 /opt/ddf \
 
 # DP3: the wheel links the system GLib (missing in the first smoke run), and
 # applycal reads the measures tables (Observatories): copied from the O-CASA
-# image, Ubuntu's casacore-data 20250826-160001-5 (research/o-casa.md).
+# image, Ubuntu's casacore-data 20250826-160001-5 (research/o-casa.md); the
+# local tag was image sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libglib2.0-0t64 \
  && rm -rf /var/lib/apt/lists/* \

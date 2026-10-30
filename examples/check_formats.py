@@ -1424,8 +1424,12 @@ RUNS = {
         "frozen (second attempt, the first stopped in Crystalball)",
     ),
     "sky-posthoc": ("dfio-20261030-04", "post hoc"),
-    "h5": ("dfio-20261030-03", "frozen (second attempt)"),
-    "h5-posthoc": ("dfio-20261030-04", "post hoc"),
+    "h5": ("dfio-20261030-01", "frozen"),
+    "h5-posthoc3": (
+        "dfio-20261030-03",
+        "post hoc (setup fix, CASA split, measures data)",
+    ),
+    "h5-posthoc": ("dfio-20261030-04", "post hoc (NUL-terminated strings)"),
     "kms": (
         "dfio-20261030-03",
         "frozen (second attempt, the first stopped in the core reader)",
@@ -1444,7 +1448,7 @@ def step_summary(archive):
         k: json.loads((outputs() / run / f"{k.split('-')[0]}.json").read_text())
         for k, (run, _) in RUNS.items()
     }
-    ct, ctp, qc, sk, skp, h5, h5p, kms, fv = (
+    ct, ctp, qc, sk, skp, h5, h5p3, h5p, kms, fv = (
         runs[k]
         for k in (
             "ct",
@@ -1453,6 +1457,7 @@ def step_summary(archive):
             "sky",
             "sky-posthoc",
             "h5",
+            "h5-posthoc3",
             "h5-posthoc",
             "kms",
             "fv",
@@ -1606,6 +1611,11 @@ def step_summary(archive):
             "oracle": "losoto 2.7.1 H5parm API; losoto-made file",
             "verdict": v(h5["verdicts"]["H5-losoto"]),
             "run": "h5",
+            "note": "frozen failure in the reference values (abs/angle of the complex gains), not the format: losoto's read of -01's core.h5 equals h5py's read of it",
+            "post_hoc": {
+                "verdict": v(h5p3["verdicts"]["H5-losoto"]),
+                "run": "h5-posthoc3",
+            },
         },
         {
             "format": "H5parm",
@@ -1613,7 +1623,10 @@ def step_summary(archive):
             "oracle": "DP3 6.6.0 applycal, 1e-6 relative",
             "verdict": v(h5["verdicts"]["H5-dp3"]),
             "run": "h5",
+            "note": "frozen: DP3 refused the three FIELD rows of c.ms",
             "post_hoc": {
+                "-03": v(h5p3["verdicts"]["H5-dp3"]),
+                "-03_note": "no m000 in ant: NUL-padded strings",
                 "verdict": v(h5p["verdicts"]["H5-dp3"]),
                 "max_relative": h5p["H5-dp3"].get("max_relative"),
             },
@@ -1643,6 +1656,12 @@ def step_summary(archive):
     ]
     for row in table:
         row["run_dir"], row["label"] = RUNS[row["run"]]
+    images = {
+        "formats_first": "sha256:b279e001e022024f54af9722ab2f6ac3aee9cdc7b8db75ab0385529aebf4dab5 (no GLib; smoke run only)",
+        "formats_glib": "sha256:ff4b85b631fcb78600bf17ac206b153527a8b4e29e9bee9dd19bf2935784a26a (QC, SKY -03, KMS, H5 -01/-03 first tries)",
+        "formats_measures": "sha256:6ddf03590ed39669ee0fb2a2128da831f173a07de4fe873f1768a3ab6388b89b (H5 -03 last and -04, SKY -04); venv layers cached, locks unchanged",
+        "casa": "rang-o-casa:6.7.6.14 sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8 (also the source of the measures data layers)",
+    }
     image = subprocess.run(
         ["docker", "image", "inspect", FORMATS_IMAGE, "--format", "{{.Id}}"],
         capture_output=True,
@@ -1653,6 +1672,7 @@ def step_summary(archive):
         "task": "DF-IO (research/dfio-formats.md)",
         "table": table,
         "runs": {k: {"run_dir": r, "label": lab} for k, (r, lab) in RUNS.items()},
+        "image_history": images,
         "oracle_images": {
             "formats": [FORMATS_IMAGE, image],
             "casa": CASA_IMAGE,
