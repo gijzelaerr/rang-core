@@ -318,3 +318,14 @@ more than 300.
   python-casacore 3.7.1 vs 3.8.1, stimela 2.1.2.1 vs 2.1.4, IDG 1.2.0 vs
   1.3.0); `ihttps://` homepage typo in casaconfig; dead anonscm Vcs URL in
   python-casacore.
+
+## A1 question for CARACal and Tricolour (2026-10-30; to be filed as a question after the user's say)
+
+In CARACal's first-pass calibrator strategy, `residual_flag_initial`
+(`uvcontsub_flagger`, replace semantics) discards the all-baseline
+`background_static_mask` applied by the previous step. Measured on LUNO
+1934−638 chunk 0: the mask alone would add 5.35 M training cells and empty
+18,611 station-bins; the executed strategy adds 0.61 M and empties 691. The
+behaviour is Tricolour 0.2.1's, verified stage by stage (task D criterion 3),
+not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
+`ratt-ru/tricolour` for the executor.)

@@ -597,3 +597,15 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan E2: ghcr manifest and config of `tmolteno/killms:v3.15.12` | registry metadata | < 2 s | — | source label |
 | 2026-10-30 | big plan E2: `RANG_CHECKALL_LOCKED=1 flock ~/.rang-checkall.lock bash tools/check-all.sh` | repository at `c183430` plus this table's edits | 287 s | 1.64 GB | PASS; pytest 634 passed, 3 skipped in 171 s (`RANG_CHECKALL_LOCKED=1`, because the script takes the same lock itself and would wait on the outer `flock`) |
 | 2026-10-30 | big plan E2: `pytest tests/test_casacure_optional.py` | — | 0.52 s | 136 MB | 3 passed |
+| 2026-10-30 | big plan A1: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (public PyPI) | – | 38.3 s | – |  |
+| 2026-10-30 | big plan A1: `maturin develop --release --offline` | – | 0.3 s | – |  |
+| 2026-10-30 | big plan A1: `audit_emptied_bins.py run l2` under `/usr/bin/time -v` (MemAvailable 14 GiB) | – | 3 min 12 s | 3.38 GB |  |
+| 2026-10-30 | big plan A1: `audit_emptied_bins.py run l1` (MemAvailable 25 GiB) | – | 5 min 24 s | 10.05 GB |  |
+| 2026-10-30 | big plan A1: `summarise` (L2 only, then both, without figures) | – | 0.2 s | – |  |
+| 2026-10-30 | big plan A1: `uv pip install -e '.[…,plot]'` (matplotlib, public PyPI) | – | 30.3 s | – |  |
+| 2026-10-30 | big plan A1: `summarise` with archive and figures | – | 2.1 s | – |  |
+| 2026-10-30 | big plan A1: scratch probe: input-FLAG coverage of the static channels by baseline length (both calibrators, labelled) | – | 5.8–7.4 s | 7.3 GB |  |
+| 2026-10-30 | big plan A1: scratch probe: the rule that can run before the split against the emptied set, from `bins.npz` | – | about 1 s | – |  |
+| 2026-10-30 | big plan A1: `ruff check --fix` / `ruff format` on the script | – | < 1 s | – |  |
+| 2026-10-30 | big plan A1: `flock ~/.rang-checkall.lock bash tools/check-all.sh` (first attempt) | – | killed after about 20 min | – |  |
+| 2026-10-30 | big plan A1: `bash tools/check-all.sh`, run plainly, once before the commit (`outputs/a1-rfi-audit-20261030-01/check-all.log`) | – | 4 min 15 s (pytest 631 passed, 3 skipped in 2 min 41 s) | 1.66 GB |  |

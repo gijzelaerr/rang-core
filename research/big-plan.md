@@ -275,8 +275,10 @@ CPU-heavy tasks at a time on 8 physical cores.
   0.2–0.5 % structured amplitude errors.
 - C1 closure-invariant arm (after L1-M, before L4): GL(2,C) closure traces as
   a gauge-free flagging signal and comparator, isolating what per-antenna
-  gains cannot absorb. A1 (small, any time): RFI-band audit of the
-  station-bins the first-pass strategy emptied in L1.
+  gains cannot absorb. A1 done 2026-10-30 (`a1-rfi-audit.md`): the emptied
+  station-bins are GNSS-band residue, excision as intended, no report; L4,
+  L1-M and C1 pre-register dropping those bins' held-out samples after the
+  split, with the matched-sample rule as fallback.
 - B1 additions: B1-0 freezes SARAO's 2023 holography cubes (DOI
   10.48479/wdb0-h061) as the reference beam with katbeam as control; B1-1
   freezes the SARAO/SKA Gaussian pointing-offset fit and physical pointing

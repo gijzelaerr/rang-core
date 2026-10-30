@@ -1,5 +1,23 @@
 # Rang research state
 
+Big plan task A1 (RFI-band audit), 2026-10-30 (implemented; measured;
+explanation only; [a1-rfi-audit.md](a1-rfi-audit.md)). Reran the Tricolour
+port with per-step stages on L1 and L2, reproducing the archived additions,
+splits and invalid-prediction counts exactly. The station-bins the CARACal
+first pass empties are exactly the campaigns' lost gain bins: 691 on 1934−638
+and 122 on 1830−211. All of them are in static-mask blocks, 682/691 and
+122/122 on the GNSS carriers (1176, 1207, 1268, 1279 MHz); none is in
+1304–1498 MHz. They are the long-baseline residue (median 5 training samples,
+99.6 % already input-flagged) that SumThreshold removes; mild and a mask-free
+first pass empty the same blocks, they persist over all dumps, and the
+strategy also flags 99 % of the held-out cells there. RFI excision as
+intended; supports U2's not filing. Proposal for L4, L1-M and C1:
+pre-register dropping the emptied bins' held-out samples, computed after the
+split and before any solve (0.02 % of held-out samples), with the
+matched-sample rule as fallback. One question for the CARACal and Tricolour
+maintainers (in `upstream-notes.md`): the first pass's all-baseline static
+mask is discarded by the next replace-semantics step.
+
 Ecosystem survey (big plan; read-only), 2026-10-30
 ([ecosystem-survey.md](ecosystem-survey.md)): every KERN-10 package (38
 source packages, Ubuntu 24.04), the MeerKAT tools outside KERN, CASA 6.7.6
