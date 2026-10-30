@@ -15,19 +15,26 @@ except what DF1 already archived.
 **Status now: implemented and measured** ([Measured results](#measured-results-2026-10-30-post-freeze-runs-as-frozen)).
 Per image (dirty + PSF, f64, ε 1e-6) the exact gridder is within
 1.06–1.07× of ducc0 0.42 on the 23.8 M-visibility whole-array case at 1
-and 16 threads (DF1: 3.6× and 6.9×) and within 1.13–1.39× (one thread)
-and 0.80–1.37× (16 threads) on K × 41 (two runs), with the same or less
+and 16 threads (DF1: 3.6× and 6.9×) and 1.13× / 1.37× on K × 41 at 1 /
+16 threads (clean repeat; the frozen run 1, taken while sibling jobs
+halved ducc0's own speed, gave 1.39× / 0.80×), with the same or less
 memory (1.01–1.07× ducc0's peak on the array case, 0.68× on K × 41);
-outputs bit-identical at 1–16 threads and at every SIMD level. All speed
-and memory gates pass; DF1's five gates pass with their thresholds.
-Criterion 2's agreement bound with DF1's outputs (1e-13 in f64, 1e-5 in
-f32) fails as frozen on the 0.3 rad cases (1.1e-10), the slice (6e-12)
-and the f32 K images (3.9e-5): the bound lies below the rounding
-sensitivity of those images (the order of the input rows alone moves them
-by that much), and the f32 images are now closer to the f64 ones than
-DF1's. The 1.7e-10 edge difference from ducc0 (DF1 open item 2) is
-rounding amplified by the correction function (up to 3 × 10⁵ in the
-corners of a 0.3 rad field), not a port defect.
+outputs bit-identical at 1–16 threads and at every SIMD level. The gated
+speed and memory criteria pass (array case and K × 41); DF1's five gates
+pass with their thresholds. **Not gated: the four-station K arms (117 k
+visibilities each) stay at 1.46× ducc0 on one thread and 2.27× at 16
+threads** (fixed per-plane overhead; open item 1), outside the 2× figure
+at 16 threads. Criterion 2's agreement bound with DF1's outputs (1e-13 in
+f64, 1e-5 in f32) fails as frozen on the 0.3 rad cases (1.1e-10), the
+slice (6e-12) and the f32 K images (3.9e-5). Same mechanism as the edge
+difference from ducc0: permuting the input rows alone moves `wide-0p3rad`
+by 1.7e-11 at the border; DF2a changes every rounding stage (tile sums,
+FMA, even/odd taps) and moves it by 1.0e-10, which divided by the
+correction factor is as large at the border as inside (1.8e-14 both).
+The f32 images are now closer to the f64 ones than DF1's. The 1.7e-10
+edge difference from ducc0 (DF1 open item 2) is rounding amplified by the
+correction function (up to 3 × 10⁵ in the corners of a 0.3 rad field),
+not a port defect.
 
 ## Scope and owner files
 
@@ -394,7 +401,14 @@ Why the bound fails (measured, post hoc): the frozen 1e-13 assumed that a
 legitimate reordering of the sums moves an image by a few ulp of its peak.
 On these images it does not: permuting only the input rows of the port
 (same code, `edge.json`) moves `wide-0p3rad` by 1.7e-11 at the border, and
-DF1 itself differs from ducc0 by 1.7e-10. The slice (7,377 visibilities of
+DF1 itself differs from ducc0 by 1.7e-10. DF2a against DF1 (1.0e-10 and
+1.1e-10 at the border, 1e-13 and 2e-14 inside) is the same mechanism with
+more changed stages (tile partial sums, FMA, even/odd taps): divided by the
+correction factor (3.1e5 and 1.9e5 at the border) the difference is
+1.8e-14 at the border against 1.8e-14 inside on `wide-0p3rad`, and 5.2e-15
+against 4.3e-14 on `wide-0p3rad-rect` (`outputs/df2-20261030-02/df2-vs-df1-correction.json`,
+post-hoc probe): no excess at the edge once the amplification is removed.
+The slice (7,377 visibilities of
 four stations, sky-wide sidelobes) carries 1e-12 relative cancellation
 noise in its interior as well (DF1 against ducc0: 1.3e-12 eight pixels
 in). The f32 differences are DF1's own accumulation error: against the
@@ -490,17 +504,20 @@ monomorphised on the support and compiled for AVX-512 and AVX2 (chosen at
 run time), the dirty image and PSF in one pass, data and weights read in
 place (new `_ex` entry points). Per image (f64, ε 1e-6) 1.06–1.07× ducc0
 0.42 on a 23.8 M-visibility whole-array case at 1 and 16 threads (DF1 3.6×
-and 6.9×), 1.13–1.39× and 0.80–1.37× on K × 41, memory 0.68–1.07× ducc0's
+and 6.9×), 1.13× / 1.37× on K × 41 at 1 / 16 threads (clean repeat;
+frozen run 1 under sibling load 1.39× / 0.80×), memory 0.68–1.07× ducc0's
 peak; outputs bit-identical at 1–16 threads and at every SIMD level; all of
-DF1's gates pass. The frozen agreement bound with DF1's outputs (1e-13)
-failed on wide-field and f32 images because their rounding sensitivity is
-larger than the bound (input-row order alone moves them by 1e-11). DF1's
-open edge difference from ducc0 (1.7e-10) is rounding amplified by the
-correction function (up to 3 × 10⁵ in a 0.3 rad field's corners): the port
-and ducc0 are equally close to the DFT there. Plane groups (u/v taps
-reused across planes) gained ≤ 13 % at up to 2.7× the memory: off by
-default. The K arms (117 k visibilities) remain 1.3–2.3× ducc0
-(fixed per-plane costs).
+DF1's gates pass. Not gated: the four-station K arms (117 k visibilities)
+stay at 1.46× ducc0 on one thread and 2.27× at 16 threads (fixed
+per-plane overhead), the first images DF2b wires in. The frozen agreement
+bound with DF1's outputs (1e-13) failed on wide-field and f32 images: the
+same rounding amplification as below (row order alone moves the border by
+1.7e-11; DF2a, changing every rounding stage, by 1.0e-10, flat inside and
+out once divided by the correction). DF1's open edge difference from ducc0
+(1.7e-10) is rounding amplified by the correction function (up to 3 × 10⁵
+in a 0.3 rad field's corners): the port and ducc0 are equally close to
+the DFT there. Plane groups (u/v taps reused across planes) gained ≤ 13 %
+at up to 2.7× the memory: off by default.
 
 **Timing rows for `research/tool-timings.md`:** the table under "Tool runs"
 below (all 2026-10-30).
@@ -569,7 +586,7 @@ from DF1's code, DF1 baselines `bench-df1-*`, per-step measurements
 `quick-*`, gates and thread hashes per step, `edge.json`,
 `f32-probe.json`, `a-groups/`, logs) and `outputs/df2-20261030-02` (final
 benchmarks and the labelled repeat, `gates-final`, `threads-final.json`,
-`compare-final.json`, `simd-final`, logs), each with `SHA256SUMS` (77 MB, 347 files; 0.8 MB, 136 files).
+`compare-final.json`, `simd-final`, logs), each with `SHA256SUMS` (77 MB, 347 files; 0.8 MB, 138 files).
 Deletable after DF2b: `quick-*/` (summarised in the result file).
 
 **Deleted scratch:** `~/Build/tmp/20261030-ducc2` (ducc clone at
@@ -631,3 +648,4 @@ from sibling tasks. Wall and peak RSS from GNU `time` unless noted.
 | 2026-10-30 | `bench_df2.py bench` final | K / K × 41 / array / K f32, 3 repeats | 24.0 / 50.2 / 118.1 / 9.0 s | 0.12 / 0.79 / 1.49 / 0.11 GB | load 2–5 |
 | 2026-10-30 | `bench_df2.py bench` repeat (labelled) | K / K × 41 | 11.4 / 22.4 s | 0.13 / 0.79 GB | load 3.8–4.1 |
 | 2026-10-30 | `bench_df2.py summary` | both runs | < 1 s | – | `research/results/df2-wgridder-speed.json` |
+| 2026-10-30 | DF2a against DF1 over the correction (post-hoc probe, scratch script) | 0.3 rad cases, f64 ε 1e-7 | 0.8 s | 57 MB | flat: 1.8e-14 border and inside (`df2-vs-df1-correction.json`) |
