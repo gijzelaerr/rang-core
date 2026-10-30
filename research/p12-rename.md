@@ -233,7 +233,7 @@ Deviations); the commit adding this record.
 | --- | ---: | ---: |
 | `history/` (frozen modules, tests, recipes, tools) | 59 | 108 |
 | `research/results/` (archives, suites, receipts) | 69 | 1,115 |
-| research notes, including this note, the `research/README.md` index entries and pointer, and the `wheel.md` pointer; bodies of dated notes unchanged | 74 | 574 |
+| research notes, including this note (65), the `research/README.md` index entries and pointer, and the `wheel.md` pointer; bodies of dated notes unchanged | 74 | 590 |
 | P11 extract headers (lines 3 and 5 of 20 `python/rang/core_*.py`) | 20 | 40 |
 | `tests/test_p11_extract.py` (`SOURCE` regex, the mapped line) | 1 | 2 |
 | `tests/test_p12_rename.py` (asserts that `rangtoy` is absent) | 1 | 4 |
@@ -272,6 +272,13 @@ Also unchanged by design: `RANG_TOY_LIB`, `rang_toy_lib` and `librang_toy`
 - Before that tag, the GitHub repository must be `gijzelaerr/rang-core`
   (renamed or created), or the trusted publisher will not match. The
   workflow and `[project.urls]` already name it.
+- The sdist was checked locally only: `build.py --sdist` writes
+  `rang_core-0.1.0.tar.gz` (833 entries, top directory `rang_core-0.1.0/`,
+  no `_core` binary, `__pycache__` or `rangtoy`), and `maturin build` from
+  the unpacked sdist gives `rang_core-0.1.0-cp310-abi3-manylinux_2_35_x86_64.whl`
+  (68 s; `sdist-check/`, `sdist-unpack.log`). The docker `tools/wheel/build.sh`
+  / `test.sh` and the GitHub workflow itself were not run; the first tag (or a
+  workflow run on a branch) is their test.
 - The wheels grew from about 0.8 MB (`outputs/wheel-20261030-13`, this
   morning) to 2.8 MB. The extension has gained FS1, E3, DF1, C1 and B1 code
   since then, and nothing stray is packed (79 entries listed), so this is not
@@ -293,6 +300,7 @@ Also unchanged by design: `RANG_TOY_LIB`, `rang_toy_lib` and `librang_toy`
 | Windows `rang-core check`, `86e2a8d` (FAIL, pre-existing) / `0085b36` (PASS) | 339.8 s / 112.3 s |
 | Windows `build.py` / `test.py`, at `86e2a8d` and at `0085b36` | 102.9 s and 102.2 s / 8.7 s and 8.7 s |
 | Windows clone of main, install and the 4 failing test files | 140.5 s |
+| `build.py --sdist` Linux / `maturin build` from the unpacked sdist | 62 s / 68 s |
 
 ## For the coordinator
 
