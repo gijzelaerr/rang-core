@@ -925,6 +925,7 @@ TOP_LEVEL = {
     "check": "[--rust | --python | --all]: the full local checks, portable",
     "compare": "STAGE RESULT ORACLE RECEIPT: legacy form (adds `comparator`)",
     "trend-mirror": "MIRROR SOURCE: legacy form of `trend mirror`",
+    "formats": "check PATH | convert IN OUT: read and write the tools' formats",
 }
 # The stage functions that `run` (and `trend mirror`) call, looked up at call
 # time; the cabs call the same functions.
@@ -1147,6 +1148,10 @@ def dispatch(argv=None):
         return _check(argv[1:], options, pinned)
     if argv[0] == "compare":
         return _legacy_compare(argv[1:], options, pinned)
+    if argv[0] == "formats":
+        from .formats import cli as formats_cli
+
+        return formats_cli.main(argv[1:])
     command = ["rang-core", *argv]
     if argv[0] == "environment":
         args = _parse("rang-core environment", _configure_environment, argv[1:])

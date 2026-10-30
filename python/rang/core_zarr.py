@@ -84,6 +84,23 @@ def read_rows(path, row_bytes, rows):
             head = head + table
             starts = np.frombuffer(table, "<u4").astype(np.int64)
             ends = np.append(starts[1:], cbytes)
+            if np.any(np.diff(starts) <= 0):
+                # Blocks stored out of order (multithreaded blosc, as in
+                # QuartiCal's stores; research/dfio-formats.md): decode the
+                # whole chunk and select the rows.
+                stream.seek(0)
+                whole = stream.read()
+                stats["bytes_read"] = len(whole)
+                stats["blocks_total"] = stats["blocks_decoded"] = nblocks
+                decode_started = time.perf_counter()
+                data = np.frombuffer(core.blosc_decode(whole), np.uint8)
+                stats["decode_seconds"] = time.perf_counter() - decode_started
+                if len(rows) and (rows[-1] + 1) * row_bytes > nbytes:
+                    raise ValueError("row beyond the chunk")
+                picked = data[: (len(data) // row_bytes) * row_bytes].reshape(
+                    -1, row_bytes
+                )
+                return picked[rows].tobytes(), stats
         stats["bytes_read"] += len(head)
         if len(rows) and (rows[-1] + 1) * row_bytes > nbytes:
             raise ValueError("row beyond the chunk")

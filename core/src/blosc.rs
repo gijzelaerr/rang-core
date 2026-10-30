@@ -265,8 +265,10 @@ fn unshuffle_sse2<const T: usize, const ROUNDS: usize>(
 }
 
 /// Byte range of block `j` within the chunk: from its start offset to the
-/// next block's start (or the end of the chunk). Lets a caller read only the
-/// blocks it needs from a file or an HTTP range request.
+/// nearest larger block start (or the end of the chunk). Lets a caller read
+/// only the blocks it needs from a file or an HTTP range request. Blocks
+/// need not be stored in order: multithreaded blosc writes them as they
+/// finish (QuartiCal's dask-ms stores have such chunks; research/dfio-formats.md).
 pub fn block_span(src_head: &[u8], h: &Header, j: usize) -> Result<(usize, usize), &'static str> {
     let nblocks = h.nblocks();
     if j >= nblocks {
@@ -277,13 +279,15 @@ pub fn block_span(src_head: &[u8], h: &Header, j: usize) -> Result<(usize, usize
         return Ok((start, (start + h.blocksize).min(HEADER + h.nbytes)));
     }
     let start = u32_at(src_head, HEADER + 4 * j)?;
-    let end = if j + 1 < nblocks {
-        u32_at(src_head, HEADER + 4 * (j + 1))?
-    } else {
-        h.cbytes
-    };
+    let mut end = h.cbytes;
+    for k in 0..nblocks {
+        let other = u32_at(src_head, HEADER + 4 * k)?;
+        if other > start && other < end {
+            end = other;
+        }
+    }
     if end < start {
-        return Err("blosc block offsets are not ascending");
+        return Err("blosc block offset beyond the chunk");
     }
     Ok((start, end))
 }
@@ -501,6 +505,29 @@ mod tests {
         let mut rows = vec![0u8; 8];
         decode_rows(&src, 4, &[2, 7], &mut rows).unwrap();
         assert_eq!(rows, [8, 9, 10, 11, 28, 29, 30, 31]);
+    }
+
+    #[test]
+    fn blocks_stored_out_of_order_decode() {
+        // Two raw blocks of 8 bytes, typesize 1, the second stored first,
+        // as a multithreaded compressor may write them.
+        let a: Vec<u8> = (0..8u8).collect();
+        let b: Vec<u8> = (100..108u8).collect();
+        let second = HEADER + 8;
+        let first = second + 4 + 8;
+        let mut src = vec![2u8, 1, 0x20, 1];
+        src.extend((16u32).to_le_bytes());
+        src.extend((8u32).to_le_bytes());
+        src.extend(((first + 4 + 8) as u32).to_le_bytes());
+        src.extend((first as u32).to_le_bytes());
+        src.extend((second as u32).to_le_bytes());
+        src.extend((8u32).to_le_bytes());
+        src.extend(&b);
+        src.extend((8u32).to_le_bytes());
+        src.extend(&a);
+        let mut want = a.clone();
+        want.extend(&b);
+        assert_eq!(decode(&src).unwrap(), want);
     }
 
     #[test]
