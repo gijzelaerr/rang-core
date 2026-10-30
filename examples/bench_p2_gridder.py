@@ -5,8 +5,8 @@
     python examples/bench_p2_gridder.py k-replay OUT [--dump-inputs]
     python examples/bench_p2_gridder.py time INPUTS OUT.json [--repeats N]
         [--labels A,B] [--tile N] [--save-images DIR]
-    python examples/bench_p2_gridder.py bench INPUTS OUT_DIR --lib NAME=PATH
-        [--lib ...] [--threads 1,2,4] [--repeats 3] [--labels ...] [--tile N]
+    python examples/bench_p2_gridder.py bench INPUTS OUT_DIR --python NAME=PATH
+        [--python ...] [--threads 1,2,4] [--repeats 3] [--labels ...] [--tile N]
     python examples/bench_p2_gridder.py diff OLD_DIR NEW_DIR OUT.json
 
 `c-inputs` writes the gridder inputs of task C's fifteen jobs (archived
@@ -19,8 +19,11 @@ under task A's tolerances (exit status 1 on failure); `--dump-inputs` also
 saves the gridder inputs of each arm. `time` inverts every input in this
 process and records per-image wall and process CPU seconds, peak RSS, load
 and output hashes; `bench` runs `time` in a fresh process per (repeat,
-thread count, library), interleaving the libraries (ABAB), with
-`RAYON_NUM_THREADS`, `RANG_CORE_LIB` and `OPENBLAS_NUM_THREADS=1` set.
+thread count, build), interleaving the builds (ABAB), with
+`RAYON_NUM_THREADS` and `OPENBLAS_NUM_THREADS=1` set; each build is a venv
+interpreter with its own `rangtoy` extension (`--python NAME=PATH`; task P9,
+research/p9-cli.md, replaces the `--lib` switch through `RANG_CORE_LIB`,
+which P7 removed).
 `diff` reports old-versus-new float64 pixel differences of saved images.
 """
 
@@ -441,6 +444,23 @@ def time_inputs(directory, output, repeats=1, labels=None, tile=1, save_images=N
     return result
 
 
+def extension_of(python):
+    """The `rangtoy._core` file and its SHA256 that `python` loads (task P9:
+    one venv per extension build replaces `RANG_CORE_LIB`)."""
+    origin = subprocess.run(
+        [
+            python,
+            "-c",
+            "import importlib.util; print(importlib.util.find_spec("
+            + "'rangtoy._core').origin)",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    return {"path": origin, "sha256": sha256_file(origin)}
+
+
 def bench(directory, out_dir, libs, threads, repeats, labels=None, tile=1, single=()):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=False)
@@ -452,12 +472,10 @@ def bench(directory, out_dir, libs, threads, repeats, labels=None, tile=1, singl
                     continue
                 env = dict(os.environ)
                 env["RAYON_NUM_THREADS"] = str(n)
-                env["RANG_CORE_LIB"] = str(Path(path).resolve())
-                env["RANG_CORE_BACKEND"] = "ctypes"
                 env["OPENBLAS_NUM_THREADS"] = "1"
                 target = out_dir / f"{name}-t{n}-r{repeat}.json"
                 command = [
-                    sys.executable,
+                    path,
                     str(Path(__file__).resolve()),
                     "time",
                     str(directory),
@@ -526,8 +544,9 @@ def bench(directory, out_dir, libs, threads, repeats, labels=None, tile=1, singl
         reference[name] = {"identical_across_threads_and_repeats": len(sets) == 1}
     result = {
         "inputs": str(directory),
-        "libs": {
-            name: {"path": path, "sha256": sha256_file(path)} for name, path in libs
+        "interpreters": {
+            name: {"python": path, "extension": extension_of(path)}
+            for name, path in libs
         },
         "threads": threads,
         "repeats": repeats,
@@ -605,7 +624,9 @@ def main(argv=None):
     p = sub.add_parser("bench")
     p.add_argument("inputs")
     p.add_argument("out_dir")
-    p.add_argument("--lib", action="append", required=True, help="NAME=PATH")
+    p.add_argument(
+        "--python", action="append", required=True, help="NAME=venv interpreter"
+    )
     p.add_argument("--threads", default="1")
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--labels")
@@ -614,7 +635,7 @@ def main(argv=None):
         "--single",
         action="append",
         default=[],
-        help="NAME of a library run at the first thread count only",
+        help="NAME of a build run at the first thread count only",
     )
     p = sub.add_parser("diff")
     p.add_argument("old")
@@ -631,7 +652,7 @@ def main(argv=None):
             args.inputs, args.output, args.repeats, labels, args.tile, args.save_images
         )
     elif args.command == "bench":
-        libs = [tuple(item.split("=", 1)) for item in args.lib]
+        libs = [tuple(item.split("=", 1)) for item in args.python]
         threads = [int(n) for n in args.threads.split(",")]
         bench(
             args.inputs,

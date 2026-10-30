@@ -3,7 +3,7 @@
 Usage:
     python examples/bench_p1_solver.py run <out.json> [--repeats N]
     python examples/bench_p1_solver.py sweep outputs/<fresh-dir> \
-        --lib base=<path.so> --lib new=<path.so> \
+        --python base=<venv>/bin/python --python new=<venv>/bin/python \
         [--threads 1,2,4,8,16] [--rounds 3] [--repeats 5]
 
 `run` loads the phase 2 LUNO arrays and the fixture clean case, solves each
@@ -11,12 +11,14 @@ with the core's ported QuartiCal solver (rang's frozen settings), runs the
 fused pass at the solved gains with every product requested, hashes every
 output and times both kernels (wall from `time.perf_counter`, CPU from
 `time.process_time`, which counts every thread of the process). It uses
-whatever backend `rangtoy.core` selects; `sweep` sets `RANG_CORE_LIB`, so
-the ctypes backend on the named library.
+the extension of the interpreter that runs it. `sweep` compares builds by
+interpreter: each `--python NAME=PATH` is a venv with its own `rangtoy`
+extension (task P9, research/p9-cli.md; P7 removed the `RANG_CORE_LIB`
+library switch that `--lib` used).
 
-`sweep` runs one `run` subprocess per (round, thread count, library) with
-`RAYON_NUM_THREADS` and `OPENBLAS_NUM_THREADS=1` set, alternating the
-library order between rounds so that both libraries see the same load. It
+`sweep` runs one `run` subprocess per (round, thread count, interpreter)
+with `RAYON_NUM_THREADS` and `OPENBLAS_NUM_THREADS=1` set, alternating the
+order between rounds so that both builds see the same load. It
 writes every child's JSON, `summary.json` with minimum and median per cell
 and the equality verdict: every child's hashes must equal those of the
 first library at the first thread count (the reference).
@@ -29,7 +31,6 @@ import platform
 import resource
 import statistics
 import subprocess
-import sys
 import time
 from hashlib import sha256
 from pathlib import Path
@@ -230,6 +231,23 @@ def run(out, repeats):
     return result
 
 
+def extension_of(python):
+    """The `rangtoy._core` file and its SHA256 that `python` loads (task P9:
+    one venv per extension build replaces `RANG_CORE_LIB`)."""
+    origin = subprocess.run(
+        [
+            python,
+            "-c",
+            "import importlib.util; print(importlib.util.find_spec("
+            + "'rangtoy._core').origin)",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    return {"path": origin, "sha256": sha256(Path(origin).read_bytes()).hexdigest()}
+
+
 def sweep(out_dir, libs, threads, rounds, repeats):
     out_dir = Path(out_dir)
     if not str(out_dir).startswith("outputs/"):
@@ -244,14 +262,13 @@ def sweep(out_dir, libs, threads, rounds, repeats):
                 path = out_dir / f"r{r}-t{n}-{name}.json"
                 env = {
                     **os.environ,
-                    "RANG_CORE_LIB": str(Path(libs[name]).resolve()),
                     "RAYON_NUM_THREADS": str(n),
                     "OPENBLAS_NUM_THREADS": "1",
                 }
                 t = time.perf_counter()
                 subprocess.run(
                     [
-                        sys.executable,
+                        libs[name],
                         __file__,
                         "run",
                         str(path),
@@ -290,7 +307,9 @@ def sweep(out_dir, libs, threads, rounds, repeats):
             equal[f"r{r} {key} {case}"] = values["hashes"] == reference[case]["hashes"]
     summary = {
         "protocol": "research/p1-solver.md",
-        "libraries": {k: str(v) for k, v in libs.items()},
+        "interpreters": {
+            k: {"python": str(v), "extension": extension_of(v)} for k, v in libs.items()
+        },
         "threads": threads,
         "rounds": rounds,
         "repeats": repeats,
@@ -331,7 +350,9 @@ def main():
     p_run.add_argument("--repeats", type=int, default=5)
     p_sweep = sub.add_parser("sweep")
     p_sweep.add_argument("out_dir")
-    p_sweep.add_argument("--lib", action="append", required=True)
+    p_sweep.add_argument(
+        "--python", action="append", required=True, help="NAME=venv interpreter"
+    )
     p_sweep.add_argument("--threads", default="1,2,4,8,16")
     p_sweep.add_argument("--rounds", type=int, default=3)
     p_sweep.add_argument("--repeats", type=int, default=5)
@@ -339,7 +360,7 @@ def main():
     if args.mode == "run":
         run(args.out, args.repeats)
     else:
-        libs = dict(item.split("=", 1) for item in args.lib)
+        libs = dict(item.split("=", 1) for item in args.python)
         threads = [int(x) for x in args.threads.split(",")]
         sweep(args.out_dir, libs, threads, args.rounds, args.repeats)
 
