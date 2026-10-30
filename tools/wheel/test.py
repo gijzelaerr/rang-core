@@ -42,7 +42,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TESTS = "tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py"
-ALLOWED_SKIPS = re.compile(r"MS (oracle|fixture) not present|fixture MS not present")
+ALLOWED_SKIPS = re.compile(
+    r"MS (oracle|fixture) not present|fixture MS not present"
+    r"|archived on Linux x86_64"  # the toy bytes elsewhere (P7)
+)
 
 
 def venv_python(venv):

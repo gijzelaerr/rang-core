@@ -7,6 +7,8 @@ research/p7-architecture.md); its output must stay byte-identical to the
 
 import hashlib
 import json
+import platform
+import sys
 from pathlib import Path
 
 import pytest
@@ -21,6 +23,10 @@ def rows(experiment):
     return {row["method"]: row for row in experiment["results"]}
 
 
+@pytest.mark.skipif(
+    sys.platform != "linux" or platform.machine().lower() not in ("x86_64", "amd64"),
+    reason="archived on Linux x86_64; another libm changes printed digits (P7)",
+)
 @pytest.mark.parametrize("args", sorted(GOLDEN))
 def test_output_identical_to_the_binary(args):
     data = toy_output(*args.split()).encode()

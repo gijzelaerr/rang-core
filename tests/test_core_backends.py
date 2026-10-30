@@ -7,10 +7,13 @@ ctypes on `librang_toy` in both runs) with byte-identical results, and those
 results were archived in `tests/data/core-backends-golden.npz` (arrays) and
 `.json` (scalars, strings and the SHA-256 of every array). The ctypes path
 is gone; each case now runs on the extension and must reproduce the archive
-byte for byte on x86_64, where the archive was made (Linux and, per X1,
-Windows MSVC give the same bits). On other architectures nothing was
-archived; floating-point arrays must then agree within 4 ulp relative (a
-labelled tolerance, not an identity claim).
+byte for byte on Linux x86_64, where the archive was made. Elsewhere the
+kernels that call the platform's libm (sin, cos, exp, hypot: predict, the
+gridder, gain TV, the projector) differ in the last bits (measured on
+Windows MSVC by task P7; X1's bit-equality held for the Tricolour port,
+which uses no libm), so floating-point arrays must agree within a labelled
+tolerance (relative 1e-9, absolute 1e-12 of the array's largest value), not
+bit for bit, and error messages only in their exception class.
 
 `RANG_GOLDEN_WRITE=1` writes the archive (into `RANG_GOLDEN_DIR`, default
 `tests/data`) instead of checking it; do that only for a deliberate,
@@ -23,6 +26,7 @@ import json
 import math
 import os
 import platform
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -36,7 +40,7 @@ GOLDEN_JSON = DATA / "core-backends-golden.json"
 HAS_EXTENSION = importlib.util.find_spec("rangtoy._core") is not None
 C_LIGHT = 299792458.0
 WRITE = os.environ.get("RANG_GOLDEN_WRITE") == "1"
-EXACT = platform.machine().lower() in ("x86_64", "amd64")
+EXACT = sys.platform == "linux" and platform.machine().lower() in ("x86_64", "amd64")
 _written_arrays = {}
 _written_scalars = {}
 
@@ -107,15 +111,19 @@ def _check(golden, name, result):
                 assert value.tobytes() == want.tobytes(), key
                 digest = hashlib.sha256(value.tobytes()).hexdigest()
                 assert digest == scalars[key]["sha256"], key
-            else:  # labelled tolerance off the archive's architecture
+            else:  # labelled tolerance off the archive's platform
+                finite = np.abs(want[np.isfinite(want)])
+                scale = float(finite.max()) if finite.size else 0.0
                 np.testing.assert_allclose(
-                    value, want, rtol=4 * np.finfo(value.dtype).eps, equal_nan=True
+                    value, want, rtol=1e-9, atol=1e-12 * scale, equal_nan=True
                 )
+        elif isinstance(value, str) and not EXACT and name == "errors":
+            assert value.split(":")[0] == scalars[key].split(":")[0], key
         elif EXACT or not isinstance(scalars[key], dict) or "float" not in scalars[key]:
             assert _scalar(value) == scalars[key], key
         else:
             want = float.fromhex(scalars[key]["float"])
-            assert math.isclose(float(value), want, rel_tol=1e-15), key
+            assert math.isclose(float(value), want, rel_tol=1e-9), key
 
 
 def _fused_case(seed=3, nchan=6):
