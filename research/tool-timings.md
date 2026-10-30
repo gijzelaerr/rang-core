@@ -1104,3 +1104,23 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan T1: Windows: `tools\wheel\test.py` pip branch (uv removed from PATH), CPython 3.14 | Windows wheel | 50.3 s | — | venv 6.4 s, pip install 28.7 s, fixture 0.7 s, pytest 13.4 s; PASS |
 | 2026-10-30 | big plan T1: `bash tools/check-all.sh` (`OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`) | branch at `9ce0332` | 1,291 s including the lock wait | 1.89 GB | PASS; pytest 682 passed, 13 skipped in 322 s |
 | 2026-10-31 | big plan T1: Windows: `python -m rang.check` | branch at `9ce0332` | 696.5 s | — | PASS; pytest 651 passed, 44 skipped in 151 s |
+| 2026-10-30 | big plan E5: `git clone --depth 1 --branch v3.8.1 casacore` |  | 4.6 s | – | format reference, scratch |
+| 2026-10-30 | big plan E5: `git clone --depth 1 --branch v3.8.1 python-casacore` |  | 2.0 s | – | storage option, `tabledefinehypercolumn` |
+| 2026-10-30 | big plan E5: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin pip casacure==3.8.35` | worktree | 83.6 s | – | builds the extension |
+| 2026-10-30 | big plan E5: determinism inventory, python-casacore 3.8.1, 8 containers | 9 probes × 4 runs | 4.4–5.3 s | – | pre-freeze scratch, three passes |
+| 2026-10-30 | big plan E5: MultiFile gap probe, 4 containers | 2 tables | ~5 s | – | pre-freeze scratch, not timed precisely |
+| 2026-10-30 | big plan E5: python-ptrace syscall trace of an ISM creation in the container | 1 table | >120 s, stopped | – | abandoned (too slow); the host's strace needs a newer glibc than the image |
+| 2026-10-30 | big plan E5: `cargo check --release --all-targets` (core) | `core/` | 2–7 s | – | incremental, about 15 runs |
+| 2026-10-30/31 | big plan E5: `maturin develop --release` | extension | 50–235 s | – | ten builds |
+| 2026-10-31 | big plan E5: `cargo test` (core, 128 tests) | `core/` | 33 s | – | build included |
+| 2026-10-31 | big plan E5: clippy (core, extension), fmt, ruff, `git diff --check` | repo | 5.8–14 s | – |  |
+| 2026-10-31 | big plan E5: `pytest` of the E3, E4 and E5 table tests |  | 4.7–5.0 s | – | 25 passed, 1 skipped |
+| 2026-10-31 | big plan E5: oracle `write` + `write-mf` (`oracle`, `-twin`, `-perturb`) | 23 cases | 2.4 / 2.2 / 2.3 s | – | containers; 217 MB each |
+| 2026-10-31 | big plan E5: `check_ms_rest.py cases` | 23 cases | 1.1 s | – |  |
+| 2026-10-31 | big plan E5: `check_ms_rest.py determinism` | 2 × 23 cases | 2.8 s | – |  |
+| 2026-10-31 | big plan E5: `check_ms_rest.py readback` | 111 tables | 10.3 s | – | container 4.3 s, plus 4 MemoryStMan containers |
+| 2026-10-31 | big plan E5: `check_ms_rest.py refusals` | 3 attempts | 0.1 s | – |  |
+| 2026-10-31 | big plan E5: `check_ms_rest.py regress` | E3 and E4 oracles | 6.9 s | – |  |
+| 2026-10-31 | big plan E5: `check_ms_rest.py serialisation` | 111 tables | 0.2 s | – |  |
+| 2026-10-31 | big plan E5: `check_ms_rest.py posthoc` | 2 cases | 0.1 s | – | post hoc |
+| 2026-10-31 | big plan E5: `bash tools/check-all.sh` | repo | 327 s | – | PASS: root 23, core 128 Rust tests; pytest 655 passed, 6 skipped (137 s); log `outputs/e5-20261031-check-all.log` |

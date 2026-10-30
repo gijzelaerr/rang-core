@@ -197,3 +197,30 @@ to an unrelated package (carta-python is not on PyPI).
 | casacure 3.8.35 | `getcell`/`getvarcol` of an undefined cell return a 0-d `0.0` (casacore raises); no `iscelldefined` and no `info()` in the Python API | `outputs/t1-20261030-01/undefined-cells.json` | Raise or return None for undefined cells; add `iscelldefined` and `info` | not reported by decision (defaults by design, issue #8) |
 | casacure 3.8.35 | `getvarcol(name, start, n)` numbers its keys from the first row read (`r1`…), python-casacore from row 0 (`r{start+1}`…) | this file, Implementation | Use python-casacore's numbering | not reported by decision |
 | casacure 3.8.35 | No macOS x86_64 wheel and no cp310 macOS arm64 wheel on PyPI (Linux and Windows cover cp310–cp314) | PyPI JSON, 2026-10-30 | Publish them (the Windows/macOS wheels are not tested upstream either, E2 candidate 9) | not reported by decision |
+
+## From E5 (2026-10-31; not reported by decision)
+
+- casacore 3.8.1 (defect): `ISMIndColumn::putArrayPtr` puts a single-row
+  interval's value through `StIndArray::setShape` on a freshly read
+  `StIndArray` whose shape is not known yet, so it reserves a new array on
+  every put even when the shape is unchanged; the old array stays in the
+  file with reference count 0 (I-arrays: two records per `putcell`).
+- casacore 3.8.1 (defect): arrays reserved by `StManArrayFile::putRes` and
+  never written hold uninitialised `FilebufIO` buffer memory; for an ISM
+  FixedShape indirect column after a `recreate` (all rows removed, rows
+  added) readers get that memory as cell values (I-rows-all FF; the
+  values differ between runs).
+- casacore 3.8.1 (defect): `MultiFile::writeHeader` writes block 0 from a
+  `MemoryIO` whose bytes past the header are uninitialised (4 MiB of heap
+  memory per header write; 4,193,963 bytes change under
+  `MALLOC_PERTURB_`).
+- casacore 3.8.1 (note): a reopened MemoryStMan table's columns read as
+  zeros (Int) or uninitialised values (Direct Double array) in a fresh
+  process, but raise `MSMColumn::findExt - rownr 0 ... out of range` after
+  another column was read, and the process then aborts at exit
+  (`terminate called`).
+- python-casacore 3.8.1 (note): no storage-option argument (MultiFile only
+  through aipsrc `table.storage.option`, read via `CASARCFILES`); no
+  `TiledDataStManAccessor`, so a TiledDataStMan cannot get a hypercube.
+- casacure 3.8.35 (note): cannot open TiledDataStMan, MemoryStMan or
+  MultiFile tables (it looks for `table.f0` in a MultiFile table).

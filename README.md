@@ -200,10 +200,11 @@ quality/cost comparison, not further simulator expansion.
   pointing-offset fit (`examples/b1_baselines.py`;
   `research/b1-beam-pointing.md`).
 - `rang.core_ms_write` writes existing casacore tables and creates new ones,
-  Measurement Sets (`default_ms`) and CASA calibration tables (byte-identical
-  to casacore 3.8.1 and CASA 6.7.6 bar uninitialised padding;
-  `research/e3-table-writer.md`, `research/e4-table-create.md`);
-  python-casacore stays the oracle.
+  Measurement Sets (`default_ms`) and CASA calibration tables, every storage
+  manager of a CASA MS (IncrementalStMan included), big-endian and MultiFile
+  tables (byte-identical to casacore 3.8.1 and CASA 6.7.6 bar uninitialised
+  memory; `research/e3-table-writer.md`, `e4-table-create.md`,
+  `e5-table-writer-rest.md`); python-casacore stays the oracle.
 - L1-M compared the stored, point and CARACal field calibrator models on LUNO
   1934−638 under L1's frozen campaign (`rang.core_campaign_fieldmodel`,
   Tigger lsm reader `rang.lsm`, `research/l1-model-completeness.md`): the

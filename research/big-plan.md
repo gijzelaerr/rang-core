@@ -243,7 +243,10 @@ CPU-heavy tasks at a time on 8 physical cores.
   `addcols` as casacore does, `table.dat`/description/keyword writer, lock
   sync record; after P7, parallel with P9); E4 done 2026-10-30 (`e4-table-create.md`); E4 table creation (`default_ms`
   with subtables, CASA caltables G/B/K/Df with `table.info`; after E3; feeds
-  DF-IO); E5 ISM arrays, strings and big-endian writes (small, after E3); T1
+  DF-IO); E5 ISM arrays, strings and big-endian writes (done 2026-10-31,
+  `e5-table-writer-rest.md`; the remainder is E6: TiledDataStMan hypercube
+  values, ISM indirect string arrays, TiledCellStMan, MultiHDF5, MultiFile
+  continuation headers; small, after E3); T1
   casacure as the second oracle in the Windows and macOS test jobs (done
   2026-10-30, `t1-casacure-ci.md`: `[casacure]` extra, `rang.oracles.casacure`,
   the wheel test jobs run the reader, E3 and E4 read-backs on the fixture); B1

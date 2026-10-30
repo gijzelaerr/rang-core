@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: E5, the [rest of the core table writer](e5-table-writer-rest.md):
+IncrementalStMan, last-row removal, tiled hypercubes, TiledDataStMan and
+MemoryStMan creation, big-endian and MultiFile tables; 21 of 23 cases
+byte-identical to casacore 3.8.1, the rest casacore's uninitialised memory.
+
 New, 2026-10-30: T1, [casacure in the wheel tests](t1-casacure-ci.md):
 casacure 3.8.35 as the second oracle of the core's reader, writer and
 table creation on Linux, Windows and macOS arm64 3.14, on the public

@@ -1,5 +1,25 @@
 # Rang research state
 
+E5, the rest of the core table writer (big plan;
+[e5-table-writer-rest.md](e5-table-writer-rest.md)), 2026-10-31
+(implemented; measured):
+rang's core now writes IncrementalStMan columns (values and rows, the MS
+bookkeeping columns and POINTING), removes the last row of a
+StandardStMan, writes variable-shape and multi-hypercube TiledShapeStMan
+columns (rows without a hypercube, the fixture's FLAG_CATEGORY, new rows
+of a CASA MS), creates TiledDataStMan (no hypercube) and MemoryStMan
+tables, and writes big-endian and MultiFile tables, all as casacore 3.8.1
+does. 21 of 23 frozen cases are byte-identical (2 with the masked
+MultiFile header tail); 2 ISM cases differ only in array values casacore
+reserves and never writes, which hold uninitialised heap memory
+(casacore's own MALLOC_PERTURB_ run differs there, post hoc), so criteria
+1-3 fail as frozen; python-casacore reads the reopened MemoryStMan
+columns as zeros and uninitialised values where the protocol expected an
+error (the core refuses). E3 and E4 unchanged, refusals (E6:
+TiledDataStMan values, TiledCellStMan, MultiHDF5) and serialisation pass;
+C-ABI creation skipped (P7 removed ctypes). `outputs/e5-20261031-01`,
+`research/results/e5-table-writer-rest.json`.
+
 T1 casacure as the second oracle (big plan), 2026-10-30 (implemented;
 measured locally; [t1-casacure-ci.md](t1-casacure-ci.md)). Plan frozen
 first. An optional `[casacure]` extra (`casacure==3.8.35`, with a marker
