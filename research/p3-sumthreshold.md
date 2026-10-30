@@ -4,11 +4,12 @@ Branch `p3-sumthreshold` from `43dc3c7` (worktree
 `~/Worktrees/rang/p3-sumthreshold`). Proposal P3 of
 [simplification-review.md](simplification-review.md) (section 3 and the
 section 4 table row); plan rules in [big-plan.md](big-plan.md). Status:
-**implemented and measured: every acceptance criterion holds as frozen;
-the K first-pass strategy goes from 1.65 s to 0.55 s on one thread and
-0.14–0.16 s on 8–16 threads (10×), with flags bit-identical.** Sections 1–3
-were committed (`130c60c`) before any change to `core/src/sumthreshold.rs`;
-results in section 4, archive
+**implemented and measured: acceptance criteria A1–A5 hold as frozen and
+A6 (checks) is recorded in section 4; the K first-pass strategy goes from
+1.65 s to 0.55 s on one thread and 0.14–0.16 s on 8–16 threads (10×), with
+flags bit-identical.** Sections 1–3 were committed (`130c60c`) before any
+change to `core/src/sumthreshold.rs` was built or committed; the baseline
+was measured on the unmodified build. Results in section 4, archive
 [results/p3-sumthreshold.json](results/p3-sumthreshold.json).
 
 Owner files: `core/src/sumthreshold.rs`, `tests/test_p3_flags.py`,
@@ -206,12 +207,22 @@ itself; addresses were mapped with `nm` (text segment offset 0x1000).
   96 input records identical (final flags and every per-step window) across
   the five thread counts, six A/B runs (old and new extension) and five
   probe runs (`-05/compare.log`).
-- A4 passed: 11 module tests (8 old, 3 new).
+- A4 passed: 11 module tests (8 old, 3 new). The box-filter reference
+  calls `box_filter_axis0`, which now wraps the blocked kernel, so that
+  test checks lane independence rather than equality with the pre-P3
+  arithmetic; the SumThreshold reference uses the unchanged
+  `sum_threshold_axis0`. Equality with the unmodified port is shown by A1
+  and A3.
 - A5 passed: in the ×16 probe every copy's flags equal those of the
   original K rows at every thread count, and the probe's flags equal the
   unmodified extension's (`-05/compare-probe.log`, 20 of 20).
-- A6: clippy `-D warnings`, `fmt --check`, ruff and the targeted pytest
-  (12 tests, 3.5 s) pass; `tools/check-all.sh` result in the timings.
+- A6 passed: clippy `-D warnings`, `fmt --check`, ruff and the targeted
+  pytest (12 tests, 3.5 s); `bash tools/check-all.sh` once, overall PASS
+  (root 19 and core 50 Rust tests, clippy, fmt, extension build, ruff,
+  742 pytest passed in 1,401 s; log `outputs/p3-sumthreshold-20261030-06/
+  check-all.log`). Its `diff-check` step saw no unstaged change (every code
+  file was committed), so `git diff --check 43dc3c7 HEAD` was run
+  separately: clean. The commits after it are document-only.
 
 **Speed** (run `-03`, best of 3, core seconds of the `flag_rows` call;
 baseline `-01` at load 3–4, `-03` at load 6–10):
@@ -254,8 +265,10 @@ so (it competes for the cores the siblings use).
 | first-pass | 43.80 (34.1 CPU-s) | 10.71 | 7.50 | 5.36 | 2.43 | 3.06 | 10.5 / 13.7 |
 | mild | 25.05 (20.4 CPU-s) | 8.35 | 4.71 | 3.28 | 2.18 | 1.59 | 7.0 / 7.8 |
 
-Peak RSS 0.78–0.85 GB for 96 baselines (input arrays, stage windows and
-16 copies of the data in Python; the port's own working set is small).
+Peak RSS 0.78–0.85 GB for 96 baselines, about (830 − 130) MB / 96 ≈ 7 MB
+per baseline in the bench process (input arrays, the replicated copies,
+the window, stage windows and their `astype(bool)` copies in Python, and
+repeat overlap); scaled naively to 1,540 baselines that is about 10 GB.
 
 **Against the expectation stated in section 3**: K first-pass reached 0.14–
 0.16 s rather than about 0.4 s and D control 00 0.21–0.28 s rather than
@@ -292,23 +305,37 @@ in `ffi_flag.rs` (not this task's file); further single-thread work on
   about 25 s mild**, and a quiet host at 6–7× about 22–26 s first-pass. Add
   the serial packing, which scales with cells: about 5 s at 1,540
   baselines (0.021 s per 6 baselines).
-- **Memory at the whole array.** `core_flag.flag_rows` allocates the stage
-  windows (one byte per window cell per step: 12 × 1,540 × 65,536 ≈
-  1.2 GB for first-pass) and the intensity window (8 bytes per cell ≈
-  0.8 GB); `core_campaign.tricolour_checks` uses the stages (monotone
-  check), so L1 cannot simply pass `want_stages=False`. A candidate for P5.
+- **Memory at the whole array (for P5 and L1).** The port's window is
+  re + im float32, about 0.8 GB at 1,540 baselines, plus bool planes of
+  about 100 MB each for the running flags and each step's result.
+  `core_flag.flag_rows` allocates the stage windows (one byte per window
+  cell per step: 12 × 1,540 × 65,536 ≈ 1.2 GB for first-pass), returns
+  them as `stages[i].astype(bool)` (a second 1.2 GB), and the intensity
+  window (8 bytes per cell ≈ 0.8 GB); `core_campaign.tricolour_checks`
+  uses the stages (monotone check), so L1 cannot simply pass
+  `want_stages=False`. The probe's 7 MB per baseline in the bench process
+  (section 4) suggests about 10 GB for a whole-array call through the
+  current Python wrapper.
+- **Autocorrelations.** If chunk 0 carries autocorrelation rows, the
+  window has 1,596 rather than 1,540 baselines (about 3.6 % more work);
+  the extrapolation above scales accordingly.
 - **For P7** (owner of `ffi_flag.rs`): the packing loop (polarised
   intensity per cell) and the row unpacking are serial and are now 13–20 %
   of a 16-thread call on these slices; they split by row ranges the same
   way.
 - **Upstream observations.**
-  - RATT (Tricolour, `ratt-ru`): the port mirrors Tricolour's
-    `_box_gaussian_filter`, which filters the frequency axis one row at a
-    time, and `_sum_threshold` along axis 1, one row at a time. Grouping rows
-    into lanes gave 2.3–3.0× on one thread in the port. Not measured in
+  - RATT (Tricolour, `ratt-ru`): in Tricolour 0.2.1 `tricolour/flagging.py`
+    (sdist in `outputs/core-d-20261029-01/pypi/sdist`), `_box_gaussian_filter`
+    filters the frequency axis one row at a time (`for i in
+    range(data.shape[0]): _box_gaussian_filter1d(data[i], …)`, lines
+    461–463) and `_sum_threshold` with `axis == 1` calls `_sum_threshold1d`
+    once per row (lines 724–727), while the time axis is processed in
+    256-column blocks. Tricolour already parallelises over baselines through
+    its dask chunks, so only the rows-as-lanes grouping could be news
+    upstream; in the port it gave 2.3–3.0× on one thread. Not measured in
     Tricolour itself (Numba may vectorise differently), so not reproduced on
     the latest release and **not filed**; reproducing it would mean timing
-    `sum_threshold_flagger` on 0.5.0-dev with the rows-as-lanes change.
+    `sum_threshold_flagger` on 0.5.0-dev with and without the grouping.
     Issues #110 and #111 (U1) are unaffected.
   - RATT (`caracal-pipeline`: CARACal, Stimela): nothing new.
   - Non-RATT, not reported by decision: LLVM in rustc 1.93 did not
@@ -320,7 +347,10 @@ in `ffi_flag.rs` (not this task's file); further single-thread work on
 - **Evidence to keep.** This file, `results/p3-sumthreshold.json`,
   `examples/bench_p3_flags.py`, `tests/test_p3_flags.py`; the run
   directories `outputs/p3-sumthreshold-20261030-01` (baseline), `-03`
-  (frozen), `-05` (post-hoc A/B and old probe). `-00` (smoke), `-02`
+  (frozen), `-05` (post-hoc A/B and old probe), each with the driver
+  scripts that produced it under `scripts/` and its run log (`-01` also
+  keeps the unmodified extension as `baseline-_core.abi3.so`; `-05/scripts/
+  archive.py` writes the archive). `-00` (smoke), `-02`
   (development smokes and `perf` symbol tables) and `-04` (failed tooling)
   may be deleted.
 
@@ -348,3 +378,5 @@ Date for every row: 2026-10-30. Load is the 1-minute average.
 | `-05` old-build probe at 1 thread | K ×16 + K | 75.4 s | 624 MB | load 21–22 |
 | `-05` `bench_p3_flags.py compare` (all runs against `-01`) and `compare` of the probes against the old build | bench records | 0.25 s, 0.10 s | 40 MB | 96/96 and 20/20 identical |
 | archive script (scratch, not committed) | run directories | under 1 s | – | `results/p3-sumthreshold.json` |
+| `bash tools/check-all.sh` (once, `-06`), code of `6b38f6c`/`3155e74` with this file's results in the tree | branch | 1,432 s (pytest 742 passed in 1,401 s) | 1.89 GB | overall PASS; load 16 → 46 (sibling sessions); later commits document-only |
+| `git diff --check 43dc3c7 HEAD` | branch | under 1 s | – | clean |
