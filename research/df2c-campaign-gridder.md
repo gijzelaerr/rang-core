@@ -192,7 +192,7 @@ at `8ab6db8` (the code tree of `3a729c0`) before any driver edit. Then:
   - `rang-core campaign run --gridder`.
   - The script verbs' help notes `--gridder wstack|wgrid`.
   - `docs/cli.md` is regenerated.
-- **`8de59b7` — tests.** `tests/test_df2c_campaign_gridder.py` has 18 tests,
+- **`8de59b7` — tests.** `tests/test_df2c_campaign_gridder.py` has 17 tests,
   matching D3:
   - the CLI and the four scripts pass the gridder;
   - L1-M and C1 hand it to L1;
@@ -225,7 +225,7 @@ was 3–8 from sibling tasks.
 | # | Criterion | Result | Figure |
 | --- | --- | --- | --- |
 | D1 | default unchanged | **pass** | Preconditions: 28 FITS SHA256 and 16 image-number records (arms and hypotheses) equal, 44 entries, 0 differ. Whole-array `wstack` through `image_arm`: L1 `original` and C1 `closure-outlier` (4 groups), L2 stored `original` (1 group). Dirty and PSF SHA256, counters and metrics are equal |
-| D2 | preconditions pass | **pass** | Both pass at base and after (`all_passed` true). `tests/test_pc1_preconditions.py` ran both tests, not skipped, in check-all (see "Tool runs") |
+| D2 | preconditions pass | **pass** | Both pass at base and after (`all_passed` true). check-all `overall: PASS` (696 passed, 16 skipped); `tests/test_pc1_preconditions.py -rs` alone: 2 passed, none skipped |
 | D3 | the option reaches every driver | **pass** | 17 tests. End to end, the smokes record `settings.gridder` with the plan, `settings.image.gridder = wgrid` and one channel group. Every arm has `gridder_name = wgrid` and its `wgridder` plan, including C1's two arms. The label ends `; gridder wgrid` |
 | R | reconstruction (per arm) | **pass**, all 44 | The `wstack` replay reproduces every archived peak, residual RMS and off-source RMS. The difference is 0 except on L1 run `-01`, at ≤ 1.1e-15 relative: it predates P2. FITS agree within one float32 ulp, 3.6e-8 of the peak at worst |
 
@@ -364,3 +364,145 @@ noted.
 | `rang-core campaign-1830 run --model stored --smoke --stations 0-3 --gridder wgrid` | four stations | 6.8 s | 168 MB | |
 | `core_campaign_fieldmodel.run(..., 'stored', gridder='wgrid')` | four stations | 11.5 s | 225 MB | |
 | `core_campaign_closure.run(..., gridder='wgrid')` (first: no cargo on PATH; repeated) | four stations | 0.3 / 17.8 s | 39 / 284 MB | |
+| `bash tools/check-all.sh` (takes the host lock itself; not wrapped) | worktree at `37c221c` | 10 min 17 s | – | **PASS**: Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 696 passed, 16 skipped in 198.9 s; log `outputs/df2c-20261031-check-all.log` |
+| pytest `tests/test_pc1_preconditions.py -rs` | L1 and L2 preconditions | 17.9 s | – | 2 passed, not skipped |
+
+## For the coordinator
+
+**STATE paragraph.**
+
+DF2c, `--gridder` for the campaign runs (big plan), 2026-10-31
+(implemented; measured; [df2c-campaign-gridder.md](df2c-campaign-gridder.md)).
+Plan frozen first. `--gridder wstack|wgrid` now reaches all five campaign
+drivers: `rang-core campaign run`, the `campaign-array`, `campaign-1830` and
+`campaign-fieldmodel` run scripts, and `run_c1.py`. For `wgrid`, L1-family
+runs image in one call. The run records `settings.gridder` with the plan
+(ε, Rayon threads, backend, the `_ex2` entry point), and every image records
+`gridder_name` and its own plan, which closes DF2b's L1 receipt gap. The
+default `wstack` is bit-identical to before: 28 precondition FITS, every
+image number and three whole-array images. L1, L2, L1-M and C1 also ran end
+to end with `wgrid` on four stations. Post hoc, all 44 archived arms of L1,
+L2, L1-M and C1 were re-imaged with `wgrid` from their saved gains and
+flags. Before that, the `wstack` replay reproduced every arm (equal numbers;
+L1 `-01` within 1.1e-15). Against the archived images the move is aliasing
+at the edge: dirty L∞ ≤ 0.45 % of the peak on chunk 0 and 0.68 % on L2,
+≤ 0.017 % in the central half. The residual RMS drops by 0.36–1.1 %. All 55
+recorded residual-RMS calls are unchanged, with ratio moves ≤ 1.4e-4. No
+verdict changes. Per whole-array image at 4 threads, `wgrid` grids in
+4.2–7.4 s against `wstack`'s 11.5–21.4 s with four groups.
+
+**One-line `research/README.md` index entry.**
+
+New, 2026-10-31: DF2c, [`--gridder` for the campaign runs](df2c-campaign-gridder.md):
+K/L1/L2/L1-M/C1 take `wgrid` with its plan in the receipts, the default
+bit-identical; L2, L1-M and C1 re-imaged post hoc, no call changes.
+
+**Closure line for `research/df2b-wgrid.md`** (append to "Open items"):
+"Items 1 and 5 and deviation 7 closed by DF2c, 2026-10-31
+(`df2c-campaign-gridder.md`): `--gridder` for every campaign run, the plan
+in L1's receipts, and L2, L1-M and C1 re-imaged with `wgrid` (no call
+changes); item 3 is enforced (one call for `wgrid`)."
+
+**Plan line for `research/big-plan.md`.** In the DDFacet/killMS sentence,
+replace "`--gridder` for the campaign runs open" with: "DF2c done
+2026-10-31 (`df2c-campaign-gridder.md`): `--gridder` for every campaign run,
+the plan in the receipts, L2/L1-M/C1 re-imaged with `wgrid` post hoc with
+no call changed".
+
+**Timing rows for `research/tool-timings.md`:** the rows of "Tool runs"
+above, each prefixed `2026-10-31 | big plan DF2c: `.
+
+**Shared and non-owner file hunks** (applied on the branch, against
+`8ab6db8`):
+
+`python/rang/core_cli.py` (coordinator file):
+
+```diff
+@@ -415,11 +415,14 @@ def imaging(run_dir, archive_dir=None, export_dir=None, gridder="wstack"):
+     )
+ 
+ 
+-def campaign(run_dir, precondition=None, workers=8):
+-    """The LUNO campaign on the core (task K, `rang.core_campaign`)."""
++def campaign(run_dir, precondition=None, workers=8, gridder="wstack"):
++    """The LUNO campaign on the core (task K, `rang.core_campaign`);
++    `gridder="wgrid"` images with the exact gridder (research/df2c-campaign-gridder.md)."""
+     from . import core_campaign
+ 
+-    result = core_campaign.run(run_dir, workers=workers, precondition_dir=precondition)
++    result = core_campaign.run(
++        run_dir, workers=workers, precondition_dir=precondition, gridder=gridder
++    )
+     environment(run_dir)
+     return result
+ 
+@@ -771,6 +774,7 @@ def _configure_campaign(p):
+     p.add_argument("run_dir")
+     p.add_argument("--precondition")
+     p.add_argument("--workers", type=int, default=8)
++    p.add_argument("--gridder", choices=("wstack", "wgrid"), default="wstack")
+ 
+ 
+ def _configure_environment(p):
+@@ -843,7 +847,7 @@ STAGES = {
+     },
+     "campaign-array": {
+         "help": "LUNO whole-array campaign, task L1 (research/luno-array-campaign.md)",
+-        "run": _script("run_luno_array.py", _first),
++        "run": _script("run_luno_array.py", _first, "--gridder wstack|wgrid"),
+         "precondition": _script("precondition_luno_array.py"),
+         "compare": _script("check_luno_array.py", note="the L1 checker"),
+         "archive": ARCHIVE,
+@@ -852,7 +856,7 @@ STAGES = {
+     "campaign-1830": {
+         "help": "PKS 1830 campaign, task L2 (research/luno-1830-campaign.md)",
+         "fetch": _script("fetch_luno_1830.py", _first),
+-        "run": _script("run_luno_1830.py", _first),
++        "run": _script("run_luno_1830.py", _first, "--gridder wstack|wgrid"),
+         "precondition": _script("precondition_luno_1830.py"),
+         "compare": _script("check_luno_1830.py", note="the L2 checker"),
+         "archive": ARCHIVE,
+@@ -861,7 +865,7 @@ STAGES = {
+     "campaign-fieldmodel": {
+         "help": "PKS 1934-638 field-model arms, task L1-M (research/l1-model-completeness.md)",
+         "fetch": _script("fetch_l1m.py", _first),
+-        "run": _script("run_l1m.py", _first),
++        "run": _script("run_l1m.py", _first, "--gridder wstack|wgrid"),
+         "compare": _script("check_l1m.py", _first, "the L1-M checker"),
+         "archive": ARCHIVE,
+         "legacy-archive": _script("archive_l1m.py"),
+```
+
+The four run scripts (`examples/run_luno_array.py`, `run_luno_1830.py`,
+`run_l1m.py`, `run_c1.py`; not owner files) get the same two lines each:
+after `parser.add_argument("--smoke", action="store_true")`,
+
+```python
+    parser.add_argument("--gridder", choices=("wstack", "wgrid"), default="wstack")
+```
+
+and in the driver call, after the `label=...` argument,
+
+```python
+        gridder=args.gridder,
+```
+
+- No change to `README.md`, `research/README.md`, `research/STATE.md`,
+  `research/tool-timings.md`, `research/big-plan.md` or
+  `research/df2b-wgrid.md`. Their texts are above.
+- Upstream observations: none (no RATT or non-RATT tool was run).
+
+**Ignored output directories:**
+
+| Directory | Size | Contents |
+| --- | ---: | --- |
+| `outputs/df2c-20261031-01-default` | 85 MB | D1: preconditions at base and after, `wstack` base replays, the hash and comparison JSONs |
+| `outputs/df2c-20261031-02-reimage` | 338 MB | the post-hoc replays: `chunk0/` and `l2/` `reimage.json`, FITS per gridder (`images/{wstack,wgrid}/<archive>/`), logs, `time -v` |
+| `outputs/df2c-20261031-03-smoke` | 228 MB | four-station `wgrid` smokes of L1, L2, L1-M and C1, `summary.json` |
+| `outputs/df2c-20261031-check-all.log` | – | the final check-all |
+
+The FITS in `-02` and `-03` can be deleted after merge; the JSONs are
+enough to rebuild `research/results/df2c-campaign-gridder.json`.
+
+**Scratch:** `~/Build/tmp/20261031-df2c` is deleted at the end; the run
+scripts and `hashes.py` are kept in `outputs/df2c-20261031-01-default/`.
