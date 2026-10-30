@@ -197,3 +197,15 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | core task K stage: TV loop (scores, TV, 6 distinct candidate solves) | run `outputs/core-k-20261030-01` | 1.68 s | 293 MB |  |
 | 2026-10-30 | core task K stage: TV loop on the first-pass arm | run `outputs/core-k-20261030-01` | 1.67 s | 323 MB |  |
 | 2026-10-30 | core task K stage: each inversion (six arms) | run `outputs/core-k-20261030-01` | 3.87–3.96 s | 461 MB | task I 3.96–4.09 s; WSClean 1.4–1.7 s |
+| 2026-10-30 | big plan U1: uv venvs for quartical 0.2.7, tricolour 0.2.1, dask-ms 0.2.32 (Python 3.13/3.12) | 3 venvs | 155.8 s | – |  |
+| 2026-10-30 | big plan U1: `goquartical` 0.2.7, cold cache | scan 9, G complex 2×32, 50 iterations | 29.3 s | – | execute graph 25.49 s |
+| 2026-10-30 | big plan U1: `goquartical` 0.2.7, warm cache | same | 4.0 s | – | graph 1.65 s; cache 4.3 MB |
+| 2026-10-30 | big plan U1: Tricolour 0.2.1 `sum_threshold_flagger`, cold cache | 1×1×64×256 window | 79.7 s | – | compiles 50.8 s (float) + 28.2 s (int) |
+| 2026-10-30 | big plan U1: same, warm cache | same | 0.71 s | – |  |
+| 2026-10-30 | big plan U1: Tricolour `uvcontsub_flagger` scaling | 32–256 baselines × 20 × 1024 | 1.36 s | – | quadratic in baselines per window |
+| 2026-10-30 | big plan U1: dask `ProgressBar(dt=300)`, non-TTY | 1 s task | 300.0 s | – | Tricolour #110 |
+| 2026-10-30 | big plan U1: QuartiCal element-kernel JHJ check | synthetic | 3.3 s and 1.4 s | – | two script versions; QuartiCal #452 |
+| 2026-10-30 | big plan U1: `dask-ms convert` to zarr | scan 9 | 2.2 s | – |  |
+| 2026-10-30 | big plan U1: `uv venv` + editable install (Python 3.14) | worktree | 9 s | – |  |
+| 2026-10-30 | big plan U1: `tools/check-all.sh` | repo, 739 tests | 578 s | – | PASS; pytest 554 s under concurrent load |
+| 2026-10-30 | big plan U1: `tools/check-all.sh` | repo, 739 tests | 1105 s | – | PASS; pytest 1090 s, four agents sharing the cores |

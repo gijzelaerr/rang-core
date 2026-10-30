@@ -157,3 +157,34 @@ for the measurements. None of these has been sent anywhere.
   rebuild them to 66 %, and `combine_with_input_flags` restores the input;
   166 new cells in all. Nothing wrong, but worth knowing when reading its
   logs on pre-flagged calibrator data.
+
+## Upstream status after task U1 (2026-10-30; details in `upstream-issues/`)
+
+Every RATT observation above was checked against its latest release
+(QuartiCal 0.2.7 and v0.2.8-dev, Tricolour 0.2.1 and 0.5.0-dev, dask-ms 0.2.32).
+
+- QuartiCal conjugate-baseline weights: **filed**
+  <https://github.com/ratt-ru/QuartiCal/issues/452> (the qp half of JHJ in the
+  `complex` term uses the pq weight order, swapping XY and YX weights; JHr and
+  the fixed point are unaffected, the update step is not; verified against
+  QuartiCal's own element kernel on 0.2.7, same pattern on v0.2.8-dev).
+- QuartiCal HISTORY row: **filed** <https://github.com/ratt-ru/QuartiCal/issues/453>.
+- QuartiCal JIT and cache: not filed. Upstream already caches; the cold cost was
+  rang's `/tmp` `NUMBA_CACHE_DIR`. 0.2.7 measured cold 29.3 s, warm 4.0 s. See #278.
+- QuartiCal `fastmath` bit differences: not filed; rounding-level, cause not isolated.
+- QuartiCal `complex` and `reference_antenna`: not filed. Documented as
+  diagonal-only in 0.2.7; PR #440 on v0.2.8-dev references `complex` by default.
+- QuartiCal 50-iteration cap: not filed; not a defect, the port gives the same fraction.
+- Tricolour licence metadata: not filed; 0.5.0-dev declares BSD-3-Clause (c36d982).
+  This settles the task D question in the direction rang assumed.
+- Tricolour compile cost: 300 s of the archived 302 s per run is the non-TTY
+  `ProgressBar(dt=300)`, **filed** <https://github.com/ratt-ru/tricolour/issues/110>;
+  the second compilation from the integer `spike_width_time` is **filed**
+  <https://github.com/ratt-ru/tricolour/issues/111>. Caching is already on upstream.
+- dask-ms FEED fan-out: not filed; deliberate per-row grouping (#191).
+- dask-ms object encoding: not filed; JSON since #310 (2024-03).
+- CARACal first-pass strategy intermediate state: not filed; by design, and the
+  repository is under `caracal-pipeline`. Stimela 2.1.4 on Python 3.14: not
+  filed; the release declares `<3.14`, repository under `caracal-pipeline`.
+- Non-RATT items: [non-ratt-observations.md](non-ratt-observations.md), not
+  reported by decision.

@@ -1,5 +1,20 @@
 # Rang research state
 
+Task U1 (big plan), 2026-10-30 (done). Every RATT observation in
+`upstream-notes.md` was checked against its latest release (QuartiCal 0.2.7 and
+v0.2.8-dev, Tricolour 0.2.1 and 0.5.0-dev, dask-ms 0.2.32). Four issues were
+filed: QuartiCal #452 (the qp normal equations use swapped XY/YX weights,
+verified against QuartiCal's own kernel), QuartiCal #453 (HISTORY row),
+Tricolour #110 (non-TTY ProgressBar adds up to 300 s per run, the source of the
+archived 302 s runs) and Tricolour #111 (integer `spike_width_time` causes a
+second compilation). Nine observations were closed with reasons in
+`research/upstream-issues/`. The Tricolour licence question is settled:
+0.5.0-dev declares BSD-3-Clause. Non-RATT items are in
+`research/non-ratt-observations.md`. Implication for the core: the phase 2
+solver port reproduces QuartiCal bit-for-bit and therefore carries the #452
+weight swap; wave 2's solver task should fix it as a validated deviation
+(same fixed point, fewer iterations expected when w_XY ≠ w_YX).
+
 Big plan started, 2026-10-30 (user decisions in chat; [big-plan.md](big-plan.md)).
 Four lines of work run in parallel from here: a simplification and
 optimisation review of the whole chain (then its implementation), the
