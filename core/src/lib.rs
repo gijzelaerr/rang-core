@@ -14,7 +14,11 @@
 //! Wave 1 of `research/core-parallel-plan.md` adds `weights` (WSClean imaging
 //! weights and Stokes I), `grid` (the w-stacking gridder), `sumthreshold`
 //! (Tricolour strategies) and `ms` (a read-only Measurement Set reader), each
-//! with its own `ffi_*` module and research report.
+//! with its own `ffi_*` module and research report. Task P7
+//! (`research/p7-architecture.md`) re-exports the root crate as `toy`, so the
+//! extension links its kernels (gain TV, phase trend, anchored response with
+//! the P4 eigensolver, projector, the pointing toy) and nothing builds the
+//! root crate at run time.
 
 pub mod blosc;
 pub mod correct;
@@ -33,3 +37,5 @@ pub mod robust;
 pub mod solve;
 pub mod sumthreshold;
 pub mod weights;
+
+pub use rang_toy as toy;

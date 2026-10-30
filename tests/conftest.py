@@ -1,4 +1,5 @@
-"""Shared test setup: thread caps and the pointing reference fixtures.
+"""Shared test setup: thread caps, the pointing reference fixtures and the
+symlink-or-skip fixture.
 
 The caps keep one pytest process from oversubscribing a shared host
 (research/p10-tests.md): with NumPy/SciPy's OpenBLAS and XLA's CPU pools at
@@ -10,7 +11,6 @@ imports them, and pytest imports this file before any test module.
 
 import json
 import os
-import subprocess
 
 import pytest
 
@@ -28,10 +28,10 @@ def _pointing_reference(flag):
     jax.config.update("jax_enable_x64", True)
     import jax.numpy as jnp
     import numpy as np
-    from rangtoy import build
+    from rangtoy import toy_output
     from rangtoy.pointing import Observation, component_list
 
-    reference = json.loads(subprocess.check_output([str(build()), flag]))
+    reference = json.loads(toy_output(flag))
     rows = np.asarray(reference["rows"])
     sky = np.asarray(reference["sources"])
     obs = Observation(
@@ -54,3 +54,18 @@ def pointing_reference():
 def pointing_full_reference():
     """Complete-coverage reference (24 x 4 x 28 rows), built once."""
     return _pointing_reference("--pointing-full-reference")
+
+
+@pytest.fixture
+def symlink():
+    """`symlink(link, target)`: create a symbolic link, or skip the test where
+    the platform refuses (Windows without Developer Mode or administrator
+    rights raises WinError 1314; research/x1-crossplatform.md, task P7)."""
+
+    def make(link, target):
+        try:
+            link.symlink_to(target)
+        except OSError as exc:
+            pytest.skip(f"symlinks need Developer Mode on Windows: {exc}")
+
+    return make

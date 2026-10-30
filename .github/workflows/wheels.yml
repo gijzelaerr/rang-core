@@ -130,19 +130,14 @@ jobs:
         include:
           - platform: linux-x86_64
             runner: ubuntu-24.04
-            ctypes: librang_core.so
           - platform: linux-aarch64
             runner: ubuntu-24.04-arm
-            ctypes: librang_core.so
           - platform: macos-arm64
             runner: macos-14
-            ctypes: librang_core.dylib
           - platform: macos-x86_64
             runner: macos-15-intel
-            ctypes: librang_core.dylib
           - platform: windows-x86_64
             runner: windows-2022
-            ctypes: rang_core.dll
     steps:
       # LF endings on Windows too, so every runner tests the same bytes (Git
       # for Windows defaults to core.autocrlf=true).
@@ -157,22 +152,10 @@ jobs:
         with:
           name: wheel-${{ matrix.platform }}
           path: dist
-      - name: Build the C ABI for the ctypes half of the backend test
-        env:
-          # Overrides any .cargo/config.toml target-cpu (valid on every arch).
-          RUSTFLAGS: "-C target-cpu=generic"
-        run: |
-          if ! command -v rustup; then
-            curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
-            export PATH=$HOME/.cargo/bin:$PATH
-          fi
-          rustup toolchain install "$RUST_VERSION" --profile minimal
-          cargo "+$RUST_VERSION" build --release --locked -q --manifest-path core/Cargo.toml
-          mkdir -p "$RUNNER_TEMP/ctypes"
-          cp "core/target/release/${{ matrix.ctypes }}" "$RUNNER_TEMP/ctypes/"
       # tools/wheel/test.py: a fresh venv, the wheel with its test and imaging
       # extras from public PyPI, then import, tools/wheel/smoke.py and
-      # tests/test_core_backends.py (tools/wheel/pytest_wheel.py) with every
+      # tests/test_core_backends.py (against its archive), test_toy.py and
+      # test_p7_architecture.py (tools/wheel/pytest_wheel.py) with every
       # PATH directory that holds cargo removed (asserted) and no RANG_*
       # variables; any skip other than the missing MS oracle fails the step.
       - name: Install and test the wheel with cargo absent
@@ -182,8 +165,7 @@ jobs:
         run: |
           wheel=$(ls dist/*.whl)
           python tools/wheel/test.py "$wheel" "$RUNNER_TEMP/wheel-test" \
-            --python "${{ steps.python.outputs.python-path }}" \
-            --ctypes-lib "$RUNNER_TEMP/ctypes/${{ matrix.ctypes }}"
+            --python "${{ steps.python.outputs.python-path }}"
       - if: always()
         uses: actions/upload-artifact@v4
         with:

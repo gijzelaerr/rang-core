@@ -21,15 +21,15 @@ python3 -m venv .venv
 .venv/bin/python examples/toy.py --seeds 7 11 19
 ```
 
-Use `--no-plot` for a Python-standard-library-only run. The script builds the Rust executable offline in release mode, prints a comparison and writes `results.json`, `comparison.png`, and `comparison.pdf`. The JSON includes seeds, input settings, binary hash, runtime, metrics, true/fitted pointings and solver termination. Reusing an output directory replaces those generated files. Build dependencies for Python installation may require network access; running directly from the checkout does not require installation.
+Use `--no-plot` for a Python-standard-library-only run. The script runs the toy inside the installed extension `rangtoy._core` (no Cargo at run time), prints a comparison and writes `results.json`, `comparison.png`, and `comparison.pdf`. The JSON includes seeds, input settings, binary hash, runtime, metrics, true/fitted pointings and solver termination. Reusing an output directory replaces those generated files. Build dependencies for Python installation may require network access; running directly from the checkout does not require installation.
 
 Python scripting interface, after installation (or with `PYTHONPATH=python`):
 
 ```python
-from rangtoy import build, run_experiment
+from rangtoy import run_experiment, toy_output
 
-binary = build()
-result = run_experiment(seed=7, pointing=0.6, budget=0.01, binary=binary)
+result = run_experiment(seed=7, pointing=0.6, budget=0.01)  # in the extension
+reference = toy_output("--pointing-reference")  # the binary's stdout, same bytes
 for row in result["results"]:
     print(row["method"], row["flux_jy"])
 ```

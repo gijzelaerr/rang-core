@@ -134,7 +134,8 @@ pub unsafe extern "C" fn rang_core_grid_invert(
 }
 
 /// Fill `kernel` (`kernel_size * oversampling` doubles) with the oversampled
-/// Kaiser–Bessel kernel. Returns 0 on success, 1 on invalid arguments.
+/// Kaiser–Bessel kernel. Returns 0 on success, 1 on invalid arguments, 2 on
+/// a panic (for example `(7, 2)`, which aborted the process before task P7).
 ///
 /// # Safety
 /// `kernel` must hold `kernel_size * oversampling` writable doubles.
@@ -144,12 +145,18 @@ pub unsafe extern "C" fn rang_core_grid_kernel(
     oversampling: usize,
     kernel: *mut f64,
 ) -> i32 {
-    if kernel.is_null() || kernel_size == 0 || oversampling == 0 {
+    let Some(len) = kernel_size.checked_mul(oversampling) else {
+        return 1;
+    };
+    if kernel.is_null() || len == 0 {
         return 1;
     }
-    let values = grid::kaiser_bessel_kernel(kernel_size, oversampling);
-    // SAFETY: the caller provides the documented length.
-    let out = unsafe { std::slice::from_raw_parts_mut(kernel, kernel_size * oversampling) };
-    out.copy_from_slice(&values);
-    0
+    std::panic::catch_unwind(|| {
+        let values = grid::kaiser_bessel_kernel(kernel_size, oversampling);
+        // SAFETY: the caller provides the documented length.
+        let out = unsafe { std::slice::from_raw_parts_mut(kernel, len) };
+        out.copy_from_slice(&values);
+        0
+    })
+    .unwrap_or(2)
 }

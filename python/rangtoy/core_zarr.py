@@ -5,11 +5,10 @@ blosc decoder. `read_rows` reads only the byte spans of the blosc blocks that
 hold the requested rows, using the block-start table, so a large chunk is
 neither read nor decoded in full. The same spans could be fetched with HTTP
 range requests. Object and pickle columns are not handled here. The core is
-reached through `core.extension()` when it is active, else through the
-ctypes symbols registered here (research/core-j-packaging.md).
+reached through `core.extension()` (research/core-j-packaging.md,
+research/p7-architecture.md).
 """
 
-import ctypes
 import json
 import time
 from pathlib import Path
@@ -20,42 +19,6 @@ from . import core
 
 HEADER = 16
 MEMCPYED = 0x02
-
-
-def _lib():
-    lib = core.library()
-    if not getattr(lib, "_rang_zarr_ready", False):
-        lib.rang_core_blosc_header.argtypes = [
-            ctypes.c_char_p,
-            ctypes.c_size_t,
-            ctypes.POINTER(ctypes.c_size_t),
-        ]
-        lib.rang_core_blosc_header.restype = ctypes.c_int
-        lib.rang_core_blosc_decode_block.argtypes = [
-            ctypes.c_char_p,
-            ctypes.c_size_t,
-            ctypes.c_size_t,
-            ctypes.c_char_p,
-            ctypes.c_size_t,
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-        ]
-        lib.rang_core_blosc_decode_block.restype = ctypes.c_int
-        lib.rang_core_blosc_decode_span_rows.argtypes = [
-            ctypes.c_char_p,
-            ctypes.c_size_t,
-            ctypes.c_size_t,
-            ctypes.c_size_t,
-            ctypes.c_char_p,
-            ctypes.c_size_t,
-            ctypes.c_size_t,
-            ctypes.c_void_p,
-            ctypes.c_size_t,
-            ctypes.c_void_p,
-        ]
-        lib.rang_core_blosc_decode_span_rows.restype = ctypes.c_int
-        lib._rang_zarr_ready = True
-    return lib
 
 
 def array_meta(array_dir):
@@ -70,11 +33,7 @@ def array_meta(array_dir):
 
 def header_fields(head):
     ext = core.extension()
-    if ext is not None:
-        status, fields = ext.blosc_header(bytes(head))
-    else:
-        fields = (ctypes.c_size_t * 4)()
-        status = _lib().rang_core_blosc_header(head, len(head), fields)
+    status, fields = ext.blosc_header(bytes(head))
     if status:
         raise ValueError("unsupported or invalid blosc header")
     nbytes, blocksize, nblocks, typesize = (int(x) for x in fields)
@@ -86,22 +45,8 @@ def decode_span_rows(head, first, count, span, row_bytes, rows, out):
     compressed bytes from block `first`'s offset) and copy `rows` (uintp,
     ascending) into `out` (uint8, `len(rows) * row_bytes`). Returns the
     core's status code, 0 on success."""
-    ext = core.extension()
-    if ext is not None:
-        return ext.blosc_decode_span_rows(
-            bytes(head), first, count, bytes(span), row_bytes, rows, out
-        )
-    return _lib().rang_core_blosc_decode_span_rows(
-        head,
-        len(head),
-        first,
-        count,
-        span,
-        len(span),
-        row_bytes,
-        rows.ctypes.data,
-        len(rows),
-        out.ctypes.data,
+    return core.extension().blosc_decode_span_rows(
+        bytes(head), first, count, bytes(span), row_bytes, rows, out
     )
 
 

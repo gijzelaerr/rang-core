@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -16,7 +15,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import toy_output
 from rangtoy.pointing import Observation, component_list, predict, solve_pointing
 
 
@@ -81,7 +80,7 @@ def main():
     if not np.isfinite(args.noise) or args.noise <= 0 or args.knots < 2:
         parser.error("noise must be positive and finite; at least two knots required")
     jax.config.update("jax_enable_x64", True)
-    fixture_bytes = subprocess.check_output([str(build()), "--pointing-reference"])
+    fixture_bytes = toy_output("--pointing-reference").encode()
     fixture = json.loads(fixture_bytes)
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     components = component_list(
@@ -164,7 +163,7 @@ def main():
     print(f"Converged: {fit['success']} ({fit['message']})")
     print(f"Pointing RMSE: {60 * result['pointing_rmse_arcmin']:.3f} arcsec")
     print(
-        f"Held-out RMS: {1000 * result['fixed_heldout_rms_jy']:.3f} → {1000 * result['fit_heldout_rms_jy']:.3f} mJy/component"
+        f"Held-out RMS: {1000 * result['fixed_heldout_rms_jy']:.3f} -> {1000 * result['fit_heldout_rms_jy']:.3f} mJy/component"
     )
     print(f"Results: {args.output / 'results.json'}")
     if not fit["success"]:

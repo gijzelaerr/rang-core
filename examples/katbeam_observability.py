@@ -1,7 +1,6 @@
 """Ablate chromatic shape, squint and profile in a holography-informed beam."""
 
 import json
-import subprocess
 import sys
 from hashlib import sha256
 from pathlib import Path
@@ -12,7 +11,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import toy_output
 from rangtoy.beams import beam_table, load_katbeam, make_beam_predictor
 from rangtoy.observability import sky_locked_information
 from rangtoy.pointing import Observation, component_list
@@ -20,7 +19,7 @@ from rangtoy.pointing import Observation, component_list
 
 def main():
     jax.config.update("jax_enable_x64", True)
-    fixture_bytes = subprocess.check_output([str(build()), "--pointing-full-reference"])
+    fixture_bytes = toy_output("--pointing-full-reference").encode()
     fixture = json.loads(fixture_bytes)
     r, s = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     obs = Observation(

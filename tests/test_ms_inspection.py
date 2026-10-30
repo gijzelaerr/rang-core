@@ -19,7 +19,9 @@ spec.loader.exec_module(reader)
 @pytest.mark.parametrize("name", ["../escape", "/absolute", "a/../../escape", "a\\b"])
 def test_unsafe_archive_paths(name):
     with pytest.raises(ValueError, match="unsafe"):
-        reader.validate_members([ZipInfo(name)])
+        info = ZipInfo("x")
+        info.filename = name  # ZipInfo(name) turns a backslash into "/" on Windows
+        reader.validate_members([info])
 
 
 def test_archive_limits_links_and_duplicate_targets():

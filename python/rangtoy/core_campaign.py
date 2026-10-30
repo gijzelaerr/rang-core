@@ -14,7 +14,6 @@ Results are provisional: the licence precondition of the protocol is open.
 
 import json
 import platform
-import resource
 import subprocess
 import time
 from contextlib import ExitStack
@@ -23,7 +22,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import core, core_fetch, core_flag, core_grid, core_weights, core_zarr
+from . import core, core_fetch, core_flag, core_grid, core_weights, core_zarr, rusage
 from .core_workflow import core_solve, gain_grid
 from .flagging import (
     assert_preserved,
@@ -138,7 +137,7 @@ def array_sha256(array):
 
 
 def rss_mb():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+    return rusage.peak_rss_mb()
 
 
 def write_json(path, payload):

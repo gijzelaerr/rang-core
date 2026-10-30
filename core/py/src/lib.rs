@@ -3,15 +3,26 @@
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
-//! Task J of `research/core-parallel-plan.md` (`research/core-j-packaging.md`).
-//! Every function here is a second entry door into the same C ABI function
-//! of `rang_core::ffi*`: NumPy arrays are borrowed in place as read-only or
-//! read-write slices (never copied; non-contiguous arrays and read-only
-//! outputs are refused), their pointers fill the `#[repr(C)]` structs, and the
-//! status code of the C function is returned for the Python wrapper to
-//! interpret exactly as it interprets the ctypes call. The Measurement Set
-//! reader is a `MsTable` class over `rang_core::ms::Table` whose column bytes
-//! move into a NumPy array without a copy. No kernel code lives here.
+//! Task J of `research/core-parallel-plan.md` (`research/core-j-packaging.md`)
+//! made this a second entry door into the C ABI of `rang_core::ffi*`; task P7
+//! (`research/p7-architecture.md`) made it the only one. Every function calls
+//! the same C function a C consumer would: NumPy arrays are borrowed in place
+//! as read-only or read-write slices (never copied; non-contiguous arrays and
+//! read-only outputs are refused), their pointers fill the `#[repr(C)]`
+//! structs, and the status code of the C function is returned for the Python
+//! wrapper to interpret. P7 adds the root crate's kernels (`rang_toy`, reached
+//! as `rang_core::toy`: gain TV, phase trend, anchored response, projector)
+//! and the pointing toy's command line, and releases the GIL around every
+//! kernel call, so Python threads overlap decode, solves and images. The
+//! Measurement Set reader is a `MsTable` class over `rang_core::ms::Table`
+//! whose column bytes move into a NumPy array without a copy. No kernel code
+//! lives here.
+//!
+//! With the GIL released, a kernel reads and writes the borrowed buffers
+//! while other Python threads run. The NumPy borrow flags stop another
+//! extension call from taking a conflicting borrow, but Python code writing
+//! into an input array during the call races with the kernel, exactly as it
+//! did under ctypes (which also released the GIL): do not do that.
 
 use numpy::{Element, IntoPyArray, PyArray1, PyReadonlyArrayDyn, PyReadwriteArrayDyn};
 use pyo3::exceptions::{PyOSError, PyValueError};
@@ -25,11 +36,35 @@ use rang_core::ffi_weights::{
     ImagingWeightInputs, ImagingWeightOutputs, StokesIInputs, StokesIOutputs,
 };
 use rang_core::ms::{DataType, Table};
+use rang_core::toy;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
 /// A column read: packed bytes, nrows, cell shape, dtype code, nstrings.
 type Column<'py> = (Bound<'py, PyArray1<u8>>, u64, Vec<i64>, i32, usize);
+
+/// A job that runs with the GIL released. It holds raw pointers into NumPy
+/// buffers (not `Send`); they stay valid because the borrowed arrays outlive
+/// the call, and the job runs on the calling thread.
+struct Detached<F>(F);
+
+// SAFETY: `Python::detach` runs the closure on the current thread before it
+// returns; nothing crosses to another thread. The bound only asks that the
+// closure not touch Python objects, which no job here does.
+unsafe impl<F> Send for Detached<F> {}
+
+impl<F: FnOnce() -> R, R> Detached<F> {
+    fn run(self) -> R {
+        (self.0)()
+    }
+}
+
+/// Run `f` without the GIL (task P7). The result is wrapped too, because
+/// the MS reader's table is not `Send` either; it stays on this thread.
+fn detach<R, F: FnOnce() -> R>(py: Python<'_>, f: F) -> R {
+    let job = Detached(f);
+    py.detach(move || Detached(job.run())).0
+}
 
 /// Borrowed pointer of a required input array.
 fn ptr<T: Element>(a: &Ro<'_, T>) -> PyResult<*const T> {
@@ -55,6 +90,18 @@ fn opt_ptr_mut<T: Element>(a: &mut Option<Rw<'_, T>>) -> PyResult<*mut T> {
         None => Ok(std::ptr::null_mut()),
         Some(a) => ptr_mut(a),
     }
+}
+
+/// Pointer of an input that must hold exactly `len` elements.
+fn sized<T: Element>(a: &Ro<'_, T>, len: usize) -> PyResult<Option<*const T>> {
+    let s = a.as_slice()?;
+    Ok((s.len() == len).then_some(s.as_ptr()))
+}
+
+/// Pointer of an output that must hold exactly `len` elements.
+fn sized_mut<T: Element>(a: &mut Rw<'_, T>, len: usize) -> PyResult<Option<*mut T>> {
+    let s = a.as_slice_mut()?;
+    Ok((s.len() == len).then_some(s.as_mut_ptr()))
 }
 
 /// The address the extension reads an array at, through the same
@@ -95,6 +142,7 @@ fn data_address(array: &Bound<'_, PyAny>) -> PyResult<usize> {
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn fused(
+    py: Python<'_>,
     nrow: usize,
     nchan: usize,
     ntime_bins: usize,
@@ -147,13 +195,16 @@ fn fused(
     // SAFETY: every pointer borrows a live, contiguous NumPy buffer held by
     // the arguments for the duration of the call; the Python wrapper sizes
     // them as the C ABI documents.
-    Ok(unsafe { ffi::rang_core_fused(&inputs, &mut outputs) })
+    Ok(detach(py, || unsafe {
+        ffi::rang_core_fused(&inputs, &mut outputs)
+    }))
 }
 
 /// `rang_core_solve_complex`; returns (status, iterations, converged fraction).
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn solve_complex(
+    py: Python<'_>,
     nrow: usize,
     nchan: usize,
     ntime_bins: usize,
@@ -204,7 +255,9 @@ fn solve_complex(
         converged_fraction: &mut converged,
     };
     // SAFETY: as in `fused`.
-    let status = unsafe { ffi::rang_core_solve_complex(&inputs, &mut outputs) };
+    let status = detach(py, || unsafe {
+        ffi::rang_core_solve_complex(&inputs, &mut outputs)
+    });
     Ok((status, iterations, converged))
 }
 
@@ -212,6 +265,7 @@ fn solve_complex(
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn predict_components(
+    py: Python<'_>,
     nrow: usize,
     nchan: usize,
     nsrc: usize,
@@ -248,7 +302,9 @@ fn predict_components(
         spectra: opt_ptr_mut(&mut spectra)?,
     };
     // SAFETY: as in `fused`.
-    Ok(unsafe { ffi::rang_core_predict_components(&inputs, &mut outputs) })
+    Ok(detach(py, || unsafe {
+        ffi::rang_core_predict_components(&inputs, &mut outputs)
+    }))
 }
 
 /// `rang_core_blosc_size`; returns (status, decoded length).
@@ -270,15 +326,16 @@ fn blosc_decode<'py>(
 ) -> PyResult<(i32, Bound<'py, PyBytes>)> {
     let mut status = 0;
     let out = PyBytes::new_with(py, size, |buf| {
-        // SAFETY: `buf` is the fresh bytes object's buffer of `size` bytes.
-        status = unsafe {
+        // SAFETY: `buf` is the fresh bytes object's buffer of `size` bytes;
+        // `payload` borrows an immutable bytes object held by the caller.
+        status = detach(py, || unsafe {
             ffi::rang_core_blosc_decode(
                 payload.as_ptr(),
                 payload.len(),
                 buf.as_mut_ptr(),
                 buf.len(),
             )
-        };
+        });
         Ok(())
     })?;
     Ok((status, out))
@@ -298,7 +355,7 @@ fn blosc_decode_rows<'py>(
     let mut blocks = 0usize;
     let out = PyBytes::new_with(py, rows.len() * row_bytes, |buf| {
         // SAFETY: `buf` holds `nrows * row_bytes` bytes; `rows` is live.
-        status = unsafe {
+        status = detach(py, || unsafe {
             ffi::rang_core_blosc_decode_rows(
                 payload.as_ptr(),
                 payload.len(),
@@ -308,7 +365,7 @@ fn blosc_decode_rows<'py>(
                 buf.as_mut_ptr(),
                 &mut blocks,
             )
-        };
+        });
         Ok(())
     })?;
     Ok((status, blocks, out))
@@ -327,10 +384,16 @@ fn blosc_header(head: &[u8]) -> (i32, (usize, usize, usize, usize)) {
 
 /// `rang_core_blosc_decode_block` into a caller-owned uint8 array.
 #[pyfunction]
-fn blosc_decode_block(head: &[u8], j: usize, block: &[u8], mut out: Rw<'_, u8>) -> PyResult<i32> {
+fn blosc_decode_block(
+    py: Python<'_>,
+    head: &[u8],
+    j: usize,
+    block: &[u8],
+    mut out: Rw<'_, u8>,
+) -> PyResult<i32> {
     let out = out.as_slice_mut()?;
     // SAFETY: every slice is live for the call.
-    Ok(unsafe {
+    Ok(detach(py, || unsafe {
         ffi::rang_core_blosc_decode_block(
             head.as_ptr(),
             head.len(),
@@ -340,7 +403,7 @@ fn blosc_decode_block(head: &[u8], j: usize, block: &[u8], mut out: Rw<'_, u8>) 
             out.as_mut_ptr(),
             out.len(),
         )
-    })
+    }))
 }
 
 /// `rang_core_blosc_decode_span_rows` into a caller-owned uint8 array of
@@ -348,6 +411,7 @@ fn blosc_decode_block(head: &[u8], j: usize, block: &[u8], mut out: Rw<'_, u8>) 
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn blosc_decode_span_rows(
+    py: Python<'_>,
     head: &[u8],
     first: usize,
     count: usize,
@@ -362,7 +426,7 @@ fn blosc_decode_span_rows(
         return Ok(1);
     }
     // SAFETY: every slice is live for the call and `out` has the documented length.
-    Ok(unsafe {
+    Ok(detach(py, || unsafe {
         ffi::rang_core_blosc_decode_span_rows(
             head.as_ptr(),
             head.len(),
@@ -375,7 +439,7 @@ fn blosc_decode_span_rows(
             rows.len(),
             out.as_mut_ptr(),
         )
-    })
+    }))
 }
 
 /// `rang_core_correct_stokes_i` on borrowed arrays (big plan P5,
@@ -384,6 +448,7 @@ fn blosc_decode_span_rows(
 #[pyo3(signature = (nrow, nchan, ntime_bins, nfreq_bins, nant, data, weights, flags, flag_row, added, antenna1, antenna2, time_bin, freq_bin, inverse, valid, sample, weight))]
 #[allow(clippy::too_many_arguments)]
 fn correct_stokes_i(
+    py: Python<'_>,
     nrow: usize,
     nchan: usize,
     ntime_bins: usize,
@@ -460,13 +525,13 @@ fn correct_stokes_i(
         valid: valid.as_ptr(),
     };
     // SAFETY: every slice is live for the call and has the length checked above.
-    Ok(unsafe {
+    Ok(detach(py, || unsafe {
         rang_core::ffi_correct::rang_core_correct_stokes_i(
             &inputs,
             sample.as_mut_ptr(),
             weight.as_mut_ptr(),
         )
-    })
+    }))
 }
 
 /// `rang_core_blosc_decode_span_rows_strided`: rows land at byte
@@ -474,6 +539,7 @@ fn correct_stokes_i(
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn blosc_decode_span_rows_strided(
+    py: Python<'_>,
     head: &[u8],
     first: usize,
     count: usize,
@@ -491,7 +557,7 @@ fn blosc_decode_span_rows_strided(
     }
     let out = &mut out[offset..];
     // SAFETY: every slice is live for the call; `out` bounds the writes.
-    Ok(unsafe {
+    Ok(detach(py, || unsafe {
         rang_core::ffi_correct::rang_core_blosc_decode_span_rows_strided(
             head.as_ptr(),
             head.len(),
@@ -506,7 +572,7 @@ fn blosc_decode_span_rows_strided(
             out.len(),
             stride,
         )
-    })
+    }))
 }
 
 /// `rang_core_weight_grid_shape`; returns (status, width, height).
@@ -534,6 +600,7 @@ fn padded_size(trimmed: usize, padding: f64) -> usize {
 /// `rang_core_stokes_i`; returns its status code.
 #[pyfunction]
 fn stokes_i(
+    py: Python<'_>,
     ncell: usize,
     data: Ro<'_, f32>,
     weights: Ro<'_, f32>,
@@ -552,13 +619,16 @@ fn stokes_i(
         weight: ptr_mut(&mut weight)?,
     };
     // SAFETY: as in `fused`.
-    Ok(unsafe { rang_core::ffi_weights::rang_core_stokes_i(&inputs, &mut outputs) })
+    Ok(detach(py, || unsafe {
+        rang_core::ffi_weights::rang_core_stokes_i(&inputs, &mut outputs)
+    }))
 }
 
 /// `rang_core_imaging_weights`; returns its status code.
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn imaging_weights(
+    py: Python<'_>,
     nrow: usize,
     nchan: usize,
     uvw: Ro<'_, f64>,
@@ -601,13 +671,16 @@ fn imaging_weights(
         sums: opt_ptr_mut(&mut sums)?,
     };
     // SAFETY: as in `fused`.
-    Ok(unsafe { rang_core::ffi_weights::rang_core_imaging_weights(&inputs, &mut outputs) })
+    Ok(detach(py, || unsafe {
+        rang_core::ffi_weights::rang_core_imaging_weights(&inputs, &mut outputs)
+    }))
 }
 
 /// `rang_core_grid_invert`; returns its status code.
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn grid_invert(
+    py: Python<'_>,
     nrow: usize,
     nchan: usize,
     width: usize,
@@ -650,26 +723,35 @@ fn grid_invert(
         stats: ptr_mut(&mut stats)?,
     };
     // SAFETY: as in `fused`.
-    Ok(unsafe { rang_core::ffi_grid::rang_core_grid_invert(&inputs, &mut outputs) })
+    Ok(detach(py, || unsafe {
+        rang_core::ffi_grid::rang_core_grid_invert(&inputs, &mut outputs)
+    }))
 }
 
-/// `rang_core_grid_kernel` into a caller-owned float64 array.
+/// `rang_core_grid_kernel` into a caller-owned float64 array; 2 on a panic
+/// of the kernel (task P7; before, `(7, 2)` aborted the process).
 #[pyfunction]
-fn grid_kernel(kernel_size: usize, oversampling: usize, mut kernel: Rw<'_, f64>) -> PyResult<i32> {
+fn grid_kernel(
+    py: Python<'_>,
+    kernel_size: usize,
+    oversampling: usize,
+    mut kernel: Rw<'_, f64>,
+) -> PyResult<i32> {
     let out = kernel.as_slice_mut()?;
-    if out.len() != kernel_size * oversampling {
+    if Some(out.len()) != kernel_size.checked_mul(oversampling) {
         return Ok(1);
     }
     // SAFETY: `out` has the documented length.
-    Ok(unsafe {
+    Ok(detach(py, || unsafe {
         rang_core::ffi_grid::rang_core_grid_kernel(kernel_size, oversampling, out.as_mut_ptr())
-    })
+    }))
 }
 
 /// `rang_core_flag_rows`; returns its status code.
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn flag_rows(
+    py: Python<'_>,
     nrow: usize,
     nchan: usize,
     ncorr: usize,
@@ -722,7 +804,244 @@ fn flag_rows(
         stages: opt_ptr_mut(&mut stages)?,
     };
     // SAFETY: as in `fused`.
-    Ok(unsafe { rang_core::ffi_flag::rang_core_flag_rows(&inputs, &mut outputs) })
+    Ok(detach(py, || unsafe {
+        rang_core::ffi_flag::rang_core_flag_rows(&inputs, &mut outputs)
+    }))
+}
+
+// The root crate's kernels (task P7). Each binding takes the arguments of its
+// C function in order, as the frozen modules pass them through
+// `projector._native_library()`, checks every buffer length against the
+// sizes (1 on a mismatch, as for invalid arguments; ctypes could not check),
+// and returns the C status (0 ok, 1 invalid, 2 panic, 3-6 for the step).
+
+/// `rang_gain_tv`: time edges then frequency edges, `2 * nt * nf * na`.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn gain_tv(
+    py: Python<'_>,
+    nt: usize,
+    nf: usize,
+    na: usize,
+    gains: Ro<'_, f64>,
+    valid: Ro<'_, u8>,
+    time_weights: Ro<'_, f64>,
+    freq_weights: Ro<'_, f64>,
+    mut output: Rw<'_, f64>,
+) -> PyResult<i32> {
+    let n = match nt.checked_mul(nf).and_then(|v| v.checked_mul(na)) {
+        Some(n) if n > 0 && n <= usize::MAX / 8 => n,
+        _ => return Ok(1),
+    };
+    let (Some(g), Some(v), Some(tw), Some(fw), Some(out)) = (
+        sized(&gains, 8 * n)?,
+        sized(&valid, n)?,
+        sized(&time_weights, nt - 1)?,
+        sized(&freq_weights, nf - 1)?,
+        sized_mut(&mut output, 2 * n)?,
+    ) else {
+        return Ok(1);
+    };
+    // SAFETY: every buffer has the length the C function documents.
+    Ok(detach(py, || unsafe {
+        toy::tv::rang_gain_tv(nt, nf, na, g, v, tw, fw, out)
+    }))
+}
+
+/// `rang_trend_slopes`: median phase gradients and sample counts, `2 * na`.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn trend_slopes(
+    py: Python<'_>,
+    nt: usize,
+    nf: usize,
+    na: usize,
+    gains: Ro<'_, f64>,
+    valid: Ro<'_, u8>,
+    times: Ro<'_, f64>,
+    frequencies: Ro<'_, f64>,
+    mut output: Rw<'_, f64>,
+    mut counts: Rw<'_, usize>,
+) -> PyResult<i32> {
+    let n = match nt.checked_mul(nf).and_then(|v| v.checked_mul(na)) {
+        Some(n) if n > 0 && n <= usize::MAX / 8 => n,
+        _ => return Ok(1),
+    };
+    let (Some(g), Some(v), Some(t), Some(f), Some(out), Some(c)) = (
+        sized(&gains, 8 * n)?,
+        sized(&valid, n)?,
+        sized(&times, nt)?,
+        sized(&frequencies, nf)?,
+        sized_mut(&mut output, 2 * na)?,
+        sized_mut(&mut counts, 2 * na)?,
+    ) else {
+        return Ok(1);
+    };
+    // SAFETY: every buffer has the length the C function documents.
+    Ok(detach(py, || unsafe {
+        toy::trend::rang_trend_slopes(nt, nf, na, g, v, t, f, out, c)
+    }))
+}
+
+/// `rang_response_jacobian`: eight Re/Im rows by sixteen parameters.
+#[pyfunction]
+fn response_jacobian(
+    py: Python<'_>,
+    gp: Ro<'_, f64>,
+    gq: Ro<'_, f64>,
+    model: Ro<'_, f64>,
+    mut output: Rw<'_, f64>,
+) -> PyResult<i32> {
+    let (Some(p), Some(q), Some(m), Some(out)) = (
+        sized(&gp, 8)?,
+        sized(&gq, 8)?,
+        sized(&model, 8)?,
+        sized_mut(&mut output, 128)?,
+    ) else {
+        return Ok(1);
+    };
+    // SAFETY: every buffer has the length the C function documents.
+    Ok(detach(py, || unsafe {
+        toy::response::rang_response_jacobian(p, q, m, out)
+    }))
+}
+
+/// `rang_response_normals`: per-bin 32x32 normals, right-hand sides, counts.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn response_normals(
+    py: Python<'_>,
+    samples: usize,
+    gain_bins: usize,
+    gains: Ro<'_, f64>,
+    models: Ro<'_, f64>,
+    residuals: Ro<'_, f64>,
+    weights: Ro<'_, f64>,
+    p: Ro<'_, usize>,
+    q: Ro<'_, usize>,
+    bins: Ro<'_, usize>,
+    mut h: Rw<'_, f64>,
+    mut b: Rw<'_, f64>,
+    mut counts: Rw<'_, usize>,
+) -> PyResult<i32> {
+    let (Some(s8), Some(g32), Some(g1024)) = (
+        samples.checked_mul(8),
+        gain_bins.checked_mul(32),
+        gain_bins.checked_mul(1024),
+    ) else {
+        return Ok(1);
+    };
+    let (Some(g), Some(m), Some(r), Some(w), Some(pp), Some(qq), Some(bb)) = (
+        sized(&gains, g32)?,
+        sized(&models, s8)?,
+        sized(&residuals, s8)?,
+        sized(&weights, 4 * samples)?,
+        sized(&p, samples)?,
+        sized(&q, samples)?,
+        sized(&bins, samples)?,
+    ) else {
+        return Ok(1);
+    };
+    let (Some(hh), Some(rhs), Some(c)) = (
+        sized_mut(&mut h, g1024)?,
+        sized_mut(&mut b, g32)?,
+        sized_mut(&mut counts, gain_bins)?,
+    ) else {
+        return Ok(1);
+    };
+    // SAFETY: every buffer has the length the C function documents.
+    Ok(detach(py, || unsafe {
+        toy::response::rang_response_normals(samples, gain_bins, g, m, r, w, pp, qq, bb, hh, rhs, c)
+    }))
+}
+
+/// `rang_response_step`: the anchored step and ten diagnostics.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn response_step(
+    py: Python<'_>,
+    full_h: Ro<'_, f64>,
+    full_b: Ro<'_, f64>,
+    drop_h: Ro<'_, f64>,
+    drop_b: Ro<'_, f64>,
+    gains: Ro<'_, f64>,
+    active: Ro<'_, u8>,
+    mut delta: Rw<'_, f64>,
+    mut diagnostics: Rw<'_, f64>,
+) -> PyResult<i32> {
+    let (Some(fh), Some(fb), Some(dh), Some(db), Some(g), Some(a)) = (
+        sized(&full_h, 1024)?,
+        sized(&full_b, 32)?,
+        sized(&drop_h, 1024)?,
+        sized(&drop_b, 32)?,
+        sized(&gains, 32)?,
+        sized(&active, 4)?,
+    ) else {
+        return Ok(1);
+    };
+    let (Some(d), Some(info)) = (sized_mut(&mut delta, 32)?, sized_mut(&mut diagnostics, 10)?)
+    else {
+        return Ok(1);
+    };
+    // SAFETY: every buffer has the length the C function documents.
+    Ok(detach(py, || unsafe {
+        toy::response::rang_response_step(fh, fb, dh, db, g, a, d, info)
+    }))
+}
+
+/// `rang_project_out`; returns (status, nuisance rank).
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn project_out(
+    py: Python<'_>,
+    rows: usize,
+    nuisance_cols: usize,
+    target_cols: usize,
+    nuisance: Ro<'_, f64>,
+    targets: Ro<'_, f64>,
+    mut output: Rw<'_, f64>,
+    relative_tolerance: f64,
+) -> PyResult<(i32, usize)> {
+    let (Some(na), Some(nz)) = (
+        rows.checked_mul(nuisance_cols),
+        rows.checked_mul(target_cols),
+    ) else {
+        return Ok((1, 0));
+    };
+    let (Some(a), Some(z), Some(out)) = (
+        sized(&nuisance, na)?,
+        sized(&targets, nz)?,
+        sized_mut(&mut output, nz)?,
+    ) else {
+        return Ok((1, 0));
+    };
+    let mut rank = 0usize;
+    // SAFETY: every buffer has the length the C function documents.
+    let status = detach(py, || unsafe {
+        toy::projector::rang_project_out(
+            rows,
+            nuisance_cols,
+            target_cols,
+            a,
+            z,
+            out,
+            &mut rank,
+            relative_tolerance,
+        )
+    });
+    Ok((status, rank))
+}
+
+/// The `rang-toy` command line (`rang_toy::cli`): (true, stdout text) or
+/// (false, error message). The text lacks the final newline the binary adds.
+#[pyfunction]
+fn toy_cli(py: Python<'_>, args: Vec<String>) -> (bool, String) {
+    let result = py.detach(|| std::panic::catch_unwind(|| toy::cli(&args)));
+    match result {
+        Ok(Ok(text)) => (true, text),
+        Ok(Err(error)) => (false, error),
+        Err(_) => (false, "panic in the pointing toy".to_string()),
+    }
 }
 
 /// An open casacore table (read-only), the counterpart of the C ABI handle.
@@ -734,8 +1053,8 @@ struct MsTable {
 #[pymethods]
 impl MsTable {
     #[new]
-    fn new(path: &str) -> PyResult<Self> {
-        match Table::open(path) {
+    fn new(py: Python<'_>, path: &str) -> PyResult<Self> {
+        match detach(py, || Table::open(path)) {
             Ok(table) => Ok(MsTable { table }),
             Err(e) => Err(PyOSError::new_err(format!("{path}: {e}"))),
         }
@@ -757,9 +1076,8 @@ impl MsTable {
         start: u64,
         count: u64,
     ) -> PyResult<Column<'py>> {
-        let data = self
-            .table
-            .read_column(name, start, count)
+        let table = &self.table;
+        let data = detach(py, || table.read_column(name, start, count))
             .map_err(|e| PyOSError::new_err(e.0))?;
         if data.shape.len() > 8 {
             return Err(PyOSError::new_err("more than 8 cell axes"));
@@ -789,7 +1107,7 @@ impl MsTable {
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add(
         "__doc__",
-        "PyO3 extension over the Rang core (research/core-j-packaging.md)",
+        "PyO3 extension over the Rang core (research/core-j-packaging.md, research/p7-architecture.md)",
     )?;
     m.add_function(wrap_pyfunction!(data_address, m)?)?;
     m.add_function(wrap_pyfunction!(fused, m)?)?;
@@ -810,6 +1128,13 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(grid_invert, m)?)?;
     m.add_function(wrap_pyfunction!(grid_kernel, m)?)?;
     m.add_function(wrap_pyfunction!(flag_rows, m)?)?;
+    m.add_function(wrap_pyfunction!(gain_tv, m)?)?;
+    m.add_function(wrap_pyfunction!(trend_slopes, m)?)?;
+    m.add_function(wrap_pyfunction!(response_jacobian, m)?)?;
+    m.add_function(wrap_pyfunction!(response_normals, m)?)?;
+    m.add_function(wrap_pyfunction!(response_step, m)?)?;
+    m.add_function(wrap_pyfunction!(project_out, m)?)?;
+    m.add_function(wrap_pyfunction!(toy_cli, m)?)?;
     m.add_class::<MsTable>()?;
     Ok(())
 }

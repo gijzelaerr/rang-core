@@ -381,7 +381,7 @@ def luno():
     loss_rust = losses_at(*args, rust.gains, rust_valid, labels)["train"]
     loss_qc = losses_at(*args, qc, qc_valid, labels)["train"]
     survey = rank_survey(a, rust.gains, rust.flags, tb, fb)
-    env = {**os.environ, "RANG_CORE_LIB": str(core.library_path())}
+    env = dict(os.environ)  # the same interpreter, so the same extension
     proc = subprocess.run(
         [
             "/usr/bin/time",

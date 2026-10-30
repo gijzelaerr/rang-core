@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -12,7 +11,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import toy_output
 from rangtoy.pointing import Observation, component_list, predict, solve_pointing
 
 
@@ -23,9 +22,7 @@ def main():
     parser.add_argument("--output", type=Path, default=ROOT / "outputs/mode-selection")
     args = parser.parse_args()
     jax.config.update("jax_enable_x64", True)
-    fixture = json.loads(
-        subprocess.check_output([str(build()), "--pointing-reference"])
-    )
+    fixture = json.loads(toy_output("--pointing-reference").encode())
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     actual_sky = component_list(
         sources[:, 0], sources[:, 1], sources[:, 2], sources[:, 3]

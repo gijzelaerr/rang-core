@@ -3,7 +3,6 @@
 import argparse
 import hashlib
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -13,7 +12,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import toy_output
 from rangtoy.pointing import Observation, component_list, predict, solve_pointing
 
 
@@ -42,7 +41,7 @@ def main():
     ):
         parser.error("spectral-prior must be finite and positive")
     jax.config.update("jax_enable_x64", True)
-    fixture_bytes = subprocess.check_output([str(build()), "--pointing-reference"])
+    fixture_bytes = toy_output("--pointing-reference").encode()
     fixture = json.loads(fixture_bytes)
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     truth_sky = component_list(

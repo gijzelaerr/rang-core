@@ -10,7 +10,9 @@
 #   extras   install the wheel with its test and imaging extras
 #   nocargo  with cargo absent from PATH (env -i, outside the checkout): the
 #            backend is the extension from site-packages and a fused pass runs
-#   pytest   tests/test_core_backends.py from the source tree against the
+#   pytest   tests/test_core_backends.py (extension against the archive of
+#            the retired ctypes oracle), tests/test_toy.py and
+#            tests/test_p7_architecture.py from the source tree against the
 #            installed wheel (tools/wheel/pytest_wheel.py), cargo absent;
 #            any skip other than the fixture-MS one fails the step
 #   suite    when SUITE=1 (default for 3.10 and 3.14, SUITE_ALL=1 for every
@@ -39,7 +41,6 @@ versions=("$@")
 mkdir -p "$out"
 out=$(cd "$out" && pwd -P)
 wheel=$(ls "$build"/dist/*.whl)
-ctypes_lib=$build/ctypes/librang_core.so
 reference=${REFERENCE:-$src/outputs/core-j-20261029-02-extension}
 export UV_INDEX_URL=https://pypi.org/simple
 log=$out/timings.tsv
@@ -76,9 +77,9 @@ for version in "${versions[@]}"; do
   run "$version" nocargo "${clean[@]}" bash -c "cd '$dir' && ! command -v cargo && \
     '$venv/bin/python' -I '$src/tools/wheel/smoke.py'"
   run "$version" pytest "${clean[@]}" PYTHONPATH="$src/tools/wheel" \
-    RANG_WHEEL_CTYPES_LIB="$ctypes_lib" bash -c "set -o pipefail; cd '$src' && ! command -v cargo && \
+    bash -c "set -o pipefail; cd '$src' && ! command -v cargo && \
     '$venv/bin/python' -m pytest -p pytest_wheel -p no:cacheprovider -o pythonpath= \
-    -rs -q tests/test_core_backends.py | tee '$dir/pytest.out' && \
+    -rs -q tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py | tee '$dir/pytest.out' && \
     ! grep -E '^SKIPPED' '$dir/pytest.out' | grep -v 'fixture MS not present'"
   if [ "${SUITE_ALL:-0}" = 1 ] || { [ "${SUITE:-1}" = 1 ] && { [ "$version" = 3.10 ] || [ "$version" = 3.14 ]; }; }; then
     suite=$rel/py$version/suite
@@ -89,24 +90,15 @@ for version in "${versions[@]}"; do
     # names at the checkout; the code and kernels are still the wheel's.
     shim=("${clean[@]}" RANG_WHEEL_CHECKOUT="$src" "$venv/bin/python" \
       "$src/tools/wheel/run_installed.py")
-    # Phase 2, section 6 and actions call the root crate's TV kernel (rangtoy.projector),
-    # which the wheel does not ship: RANG_TOY_LIB names the container build.
-    toy=("${clean[@]}" RANG_TOY_LIB="$build/ctypes/librang_toy.so")
-    # The section 6 prototype calls core.library() (the ctypes handle) before
-    # timing even under the extension; RANG_CORE_BACKEND=extension keeps the
-    # extension active while RANG_CORE_LIB lets that call load the wheel's
-    # own binary, which exports the C ABI (research/core-j-packaging.md).
-    ext_so=$(echo "$venv"/lib/python*/site-packages/rangtoy/_core.abi3.so)
-    s6=("${toy[@]}" RANG_CORE_BACKEND=extension RANG_CORE_LIB="$ext_so" \
-      "$venv/bin/python" "$src/tools/wheel/run_installed.py")
-    run "$version" phase2 "${toy[@]}" "$venv/bin/python" "$src/tools/wheel/run_installed.py" \
-      examples/validate_core_phase2.py "$suite/phase2"
+    # Since task P7 the wheel carries the root crate's kernels and the
+    # drivers need no C ABI library: no RANG_TOY_LIB or RANG_CORE_LIB.
+    s6=("${py[@]}")
+    run "$version" phase2 "${py[@]}" examples/validate_core_phase2.py "$suite/phase2"
     run "$version" section6 "${s6[@]}" examples/prototype_section6.py "$suite/section6"
     run "$version" section6-check "${s6[@]}" examples/check_section6.py "$suite/section6" \
       outputs/core-section6-oracle-20261029-01 \
       "$(awk '{printf "%.0f", $2 / 1024 + 0.5}' "$dir/section6.time")" "$suite/section6-check"
-    run "$version" actions "${toy[@]}" RANG_WHEEL_CHECKOUT="$src" "$venv/bin/python" \
-      "$src/tools/wheel/run_installed.py" examples/run_core_campaign.py actions "$suite/actions" \
+    run "$version" actions "${shim[@]}" examples/run_core_campaign.py actions "$suite/actions" \
       outputs/core-phase3-actions-inputs-20261029-01
     run "$version" actions-compare "${py[@]}" examples/compare_core_actions.py \
       "$suite/actions/result.json" research/results/gain-tv-actions.json \

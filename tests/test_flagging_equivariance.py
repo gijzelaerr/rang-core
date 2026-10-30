@@ -1,5 +1,7 @@
 """Full-matrix phase symmetry, frozen controls and missing outcome boundaries."""
 
+import sys
+
 import numpy as np
 import pytest
 from rangtoy import flagging_equivariance as equivariance
@@ -12,6 +14,13 @@ from rangtoy.flagging_equivariance import (
     phase_factors,
     phase_replay,
     run,
+)
+
+# The frozen flagging modules size their writes with os.stat_result.st_blocks,
+# which Windows lacks; they cannot change (research/p8-history.md), so these
+# tests are skipped there (research/x1-crossplatform.md, task P7).
+needs_st_blocks = pytest.mark.skipif(
+    sys.platform == "win32", reason="frozen module reads st_blocks (absent on Windows)"
 )
 
 
@@ -149,6 +158,7 @@ def test_test_values_do_not_affect_tv_or_validation_objective():
     )
 
 
+@needs_st_blocks
 def test_checked_checkpoint_is_exclusive_and_stops_before_budget_breach(
     tmp_path, monkeypatch
 ):

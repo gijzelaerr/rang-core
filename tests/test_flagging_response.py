@@ -327,13 +327,15 @@ def test_budget_preserves_existing_backups_and_rejects_escape(tmp_path, monkeypa
     assert not (tmp_path / "escape.json").exists()
 
 
-def test_copy_budget_rejects_source_symlinks_before_writes(tmp_path, monkeypatch):
+def test_copy_budget_rejects_source_symlinks_before_writes(
+    tmp_path, monkeypatch, symlink
+):
     root, budget = budget_fixture(tmp_path, monkeypatch)
     source = tmp_path / "source"
     source.mkdir()
     protected = tmp_path / "protected.dat"
     protected.write_bytes(b"immutable")
-    (source / "link").symlink_to(protected)
+    symlink(source / "link", protected)
     with pytest.raises(ValueError, match="symlinks"):
         budget.copy(source, root / "copy")
     assert not (root / "copy").exists() and protected.read_bytes() == b"immutable"
@@ -361,7 +363,7 @@ def test_invalid_iterations_never_create_namespace(tmp_path, iterations):
 
 
 def test_nested_existing_and_dangling_outputs_refused_before_source_reads(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, symlink
 ):
     source = tmp_path / "source"
     source.mkdir()
@@ -376,7 +378,7 @@ def test_nested_existing_and_dangling_outputs_refused_before_source_reads(
         with pytest.raises(ValueError):
             response.run(output, prepared)
     dangling = tmp_path / "dangling"
-    dangling.symlink_to(tmp_path / "missing")
+    symlink(dangling, tmp_path / "missing")
     with pytest.raises(ValueError):
         response.run(dangling, source)
     assert dangling.is_symlink()

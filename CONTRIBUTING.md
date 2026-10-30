@@ -34,8 +34,10 @@ the editable build, `tools/wheel/test.sh` the installed wheel.
 
 The PyO3 crate `core/py` has no `cargo test`: an extension-module cdylib
 cannot link a test binary, so it is tested from Python
-(`tests/test_core_backends.py`, which checks both backends give identical
-bytes).
+(`tests/test_core_backends.py` compares it with the archive of the retired
+ctypes oracle, `tests/test_p7_architecture.py` checks no cargo at run time,
+the GIL release and panic handling). Python never runs Cargo: rebuild the
+extension with `maturin develop --release --offline` after a Rust change.
 
 Supported hosts are Linux and macOS. Native Windows is not supported: the
 fresh-namespace, symlink and disk-budget guards rely on POSIX semantics, and 40

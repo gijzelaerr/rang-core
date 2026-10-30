@@ -1,5 +1,7 @@
 """Pinned full-strategy boundaries, native command and honest control scoring."""
 
+import sys
+
 import numpy as np
 import pytest
 from rangtoy import flagging_caracal
@@ -23,6 +25,10 @@ def test_modified_or_unknown_strategy_rejected_before_yaml_dependency(tmp_path):
         flagging_caracal.strategy_provenance(path)
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="frozen flagging_caracal builds the POSIX container path with Path (X1)",
+)
 def test_native_command_matches_caracal_polarisation_and_preserves_flags():
     command = flagging_caracal.native_command(
         "/isolated/bin/python", "copy.ms", "pinned.yaml"

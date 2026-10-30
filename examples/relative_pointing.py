@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import subprocess
 import sys
 from hashlib import sha256
 from pathlib import Path
@@ -14,7 +13,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import toy_output
 from rangtoy.beams import beam_table, load_katbeam, make_beam_predictor
 from rangtoy.pointing import Observation, component_list, solve_pointing, spline_design
 
@@ -158,7 +157,7 @@ def main():
             "--held-out requires --joint-gains for the gain/sky-only comparison"
         )
     jax.config.update("jax_enable_x64", True)
-    raw = subprocess.check_output([str(build()), "--pointing-full-reference"])
+    raw = toy_output("--pointing-full-reference").encode()
     fixture = json.loads(raw)
     r, s = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     obs = Observation(

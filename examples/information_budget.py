@@ -1,7 +1,6 @@
 """Separate visibility information from uncertain external flux constraints."""
 
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -11,16 +10,14 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import build
+from rangtoy import toy_output
 from rangtoy.observability import sky_locked_information
 from rangtoy.pointing import Observation, component_list
 
 
 def main():
     jax.config.update("jax_enable_x64", True)
-    fixture = json.loads(
-        subprocess.check_output([str(build()), "--pointing-full-reference"])
-    )
+    fixture = json.loads(toy_output("--pointing-full-reference").encode())
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     sky = component_list(sources[:, 0], sources[:, 1], sources[:, 2], sources[:, 3])
     obs = Observation(
