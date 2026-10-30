@@ -191,7 +191,7 @@ def write(path, payload):
     path.write_text(json.dumps(payload, indent=1, default=float) + "\n")
 
 
-def sweep(dataset, out):
+def sweep(dataset, out, lean=False):
     out.mkdir(parents=True)
     (out / "traces").mkdir()
     started = time.perf_counter()
@@ -296,22 +296,33 @@ def sweep(dataset, out):
     arms = {"D": D}
     expected = {}
     arms["D_T"] = study.solve(problem, "qp_weights=transposed", max_iterations=50)
-    arms["gain-1e-7-uncapped"] = study.solve(problem, "", max_iterations=long_cap)
-    expected["gain-1e-7-uncapped"] = study.stop_iteration(traces["R"], "gain")
+
+    def prefix_or_run(label, options, predicted):
+        # `--lean`: a criterion the trace says never stops within the cap
+        # is the long run R itself (a bit-identical prefix), so R is reused.
+        expected[label] = predicted
+        if lean and predicted is None:
+            arms[label] = {**R, "options": options, "reused_R": True}
+        else:
+            arms[label] = study.solve(problem, options, max_iterations=long_cap)
+
+    prefix_or_run("gain-1e-7-uncapped", "", study.stop_iteration(traces["R"], "gain"))
     for t in GAIN:
         arms[f"gain-{t:g}"] = study.solve(
             problem, "", max_iterations=long_cap, stop_criterion=t
         )
     for t in PRODUCT:
         label = f"product-{t:g}"
-        arms[label] = study.solve(
-            problem, f"stop=product:{t:g}", max_iterations=long_cap
+        prefix_or_run(
+            label,
+            f"stop=product:{t:g}",
+            study.stop_iteration(traces["R"], "product", t),
         )
-        expected[label] = study.stop_iteration(traces["R"], "product", t)
     for t in LOSS:
         label = f"loss-{t:g}"
-        arms[label] = study.solve(problem, f"stop=loss:{t:g}", max_iterations=long_cap)
-        expected[label] = study.stop_iteration(traces["R"], "loss", t)
+        prefix_or_run(
+            label, f"stop=loss:{t:g}", study.stop_iteration(traces["R"], "loss", t)
+        )
     for k in CAPS:
         arms[f"cap-{k}"] = study.solve(problem, "", max_iterations=k, stop_fraction=2.0)
         expected[f"cap-{k}"] = k
@@ -354,12 +365,15 @@ def sweep(dataset, out):
             run["max_iterations"] == long_cap and run["iterations"] == long_cap
         )
         record.update(anderson_counts.get(label, {}))
+        record["reused_R"] = bool(run.get("reused_R", False))
         result["arms"][label] = record
         print(label, run["iterations"], record["vs_default"]["relative"], flush=True)
 
     # Held-out curve along R (prefixes of the long run).
     curve = []
-    for k in CURVE.get(dataset, CURVE["array"]):
+    for k in (
+        (8, 12, 16, 24, 50, 100, 200) if lean else CURVE.get(dataset, CURVE["array"])
+    ):
         if k > long_cap:
             continue
         run = study.solve(problem, "", max_iterations=k, stop_fraction=2.0)
@@ -564,6 +578,7 @@ def main():
     parser.add_argument("--stop-criterion", type=float, default=1e-7)
     parser.add_argument("--pairs", type=int, default=3)
     parser.add_argument("--image", action="store_true")
+    parser.add_argument("--lean", action="store_true")
     args = parser.parse_args()
     if args.mode == "select":
         select(args.target)
@@ -581,7 +596,7 @@ def main():
                 f"MemAvailable {meminfo_gib():.1f} GiB < {need:.1f} GiB: not started"
             )
     if args.mode == "sweep":
-        sweep(args.target, out)
+        sweep(args.target, out, lean=args.lean)
     else:
         confirm(
             args.target,
