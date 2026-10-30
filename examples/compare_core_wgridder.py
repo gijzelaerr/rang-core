@@ -626,6 +626,207 @@ def cmd_threads(args):
     )
 
 
+def cmd_science(args):
+    """Run an existing C/I/K driver with `core_grid.invert`'s pixels taken
+    from the exact gridder (f64, `--epsilon`, WSClean's FITS orientation and
+    PSF-centre normalisation); the counters still come from the w-stacking
+    call so the drivers' counter checks keep their meaning. No file is
+    edited; the substitution lives in this process only."""
+    import runpy
+
+    from rangtoy import core_grid, core_wgridder
+
+    original = core_grid.invert
+    calls = []
+
+    def exact_invert(
+        uvw,
+        frequencies,
+        data,
+        weights,
+        imaging_weights,
+        width=512,
+        height=512,
+        scale_arcsec=8.0,
+        **kw,
+    ):
+        ref = original(
+            uvw,
+            frequencies,
+            data,
+            weights,
+            imaging_weights,
+            width,
+            height,
+            scale_arcsec,
+            **kw,
+        )
+        weight = np.asarray(weights, np.float32) * np.asarray(
+            imaging_weights, np.float32
+        )
+        t0 = time.perf_counter()
+        ex = core_wgridder.fits_image(
+            uvw,
+            frequencies,
+            data,
+            weight,
+            width,
+            height,
+            scale_arcsec,
+            epsilon=args.epsilon,
+        )
+        peak = np.abs(ref["dirty"]).max()
+        h, w = height, width
+        inner = (slice(h // 4, 3 * h // 4), slice(w // 4, 3 * w // 4))
+        calls.append(
+            {
+                "wall_s": time.perf_counter() - t0,
+                "info": ex["info"],
+                "dirty_linf_vs_wstack_rel_peak": float(
+                    np.abs(ex["dirty"] - ref["dirty"]).max() / peak
+                ),
+                "dirty_inner_linf_vs_wstack_rel_peak": float(
+                    np.abs(ex["dirty"] - ref["dirty"])[inner].max() / peak
+                ),
+                "psf_linf_vs_wstack": float(np.abs(ex["psf"] - ref["psf"]).max()),
+                "psf_inner_linf_vs_wstack": float(
+                    np.abs(ex["psf"] - ref["psf"])[inner].max()
+                ),
+            }
+        )
+        return {"dirty": ex["dirty"], "psf": ex["psf"], "stats": ref["stats"]}
+
+    core_grid.invert = exact_invert
+    sys.argv = [args.script, *args.script_args]
+    status = 0
+    try:
+        runpy.run_path(args.script, run_name="__main__")
+    except SystemExit as exc:
+        status = (
+            exc.code if isinstance(exc.code, int) else (0 if exc.code is None else 1)
+        )
+    finally:
+        core_grid.invert = original
+    rec = {
+        "script": args.script,
+        "args": args.script_args,
+        "epsilon": args.epsilon,
+        "exit_status": status,
+        "calls": calls,
+        "max_dirty_linf_vs_wstack_rel_peak": max(
+            (c["dirty_linf_vs_wstack_rel_peak"] for c in calls), default=None
+        ),
+        "max_dirty_inner_linf_vs_wstack_rel_peak": max(
+            (c["dirty_inner_linf_vs_wstack_rel_peak"] for c in calls), default=None
+        ),
+        "max_psf_linf_vs_wstack": max(
+            (c["psf_linf_vs_wstack"] for c in calls), default=None
+        ),
+    }
+    Path(args.out).write_text(json.dumps(rec, indent=1))
+    print("science run exit status", status, "calls", len(calls), flush=True)
+
+
+def cmd_kpixels(args):
+    """Task K's six arms from P2's dumped gridder inputs (the archived
+    fetched bytes that `k-replay` needs are no longer on the host): the
+    exact gridder's images against the core w-stacking images, pixels only."""
+    import bench_p2_gridder as p2
+    from rangtoy import core_grid, core_wgridder
+
+    res = {}
+    for label, inputs, settings in p2._load_inputs(args.inputs):
+        ref = core_grid.invert(**inputs, **settings)
+        weight = inputs["weights"] * inputs["imaging_weights"]
+        ex = core_wgridder.fits_image(
+            inputs["uvw"],
+            inputs["frequencies"],
+            inputs["data"],
+            weight,
+            settings["width"],
+            settings["height"],
+            settings["scale_arcsec"],
+            epsilon=args.epsilon,
+        )
+        h, w = settings["height"], settings["width"]
+        inner = (slice(h // 4, 3 * h // 4), slice(w // 4, 3 * w // 4))
+        peak = np.abs(ref["dirty"]).max()
+        dd = np.abs(ex["dirty"] - ref["dirty"])
+        dp = np.abs(ex["psf"] - ref["psf"])
+        res[label] = {
+            "dirty_linf_rel_peak": float(dd.max() / peak),
+            "dirty_inner_linf_rel_peak": float(dd[inner].max() / peak),
+            "dirty_rms_rel_peak": float(np.sqrt(np.mean(dd**2)) / peak),
+            "psf_linf": float(dp.max()),
+            "psf_inner_linf": float(dp[inner].max()),
+            "dirty_peak_wstack": float(peak),
+            "dirty_peak_exact": float(np.abs(ex["dirty"]).max()),
+            "info": ex["info"],
+        }
+        print(
+            label,
+            json.dumps({k: v for k, v in res[label].items() if k != "info"}),
+            flush=True,
+        )
+    Path(args.out).write_text(json.dumps(res, indent=1))
+
+
+def cmd_summary(args):
+    """Collect the frozen runs of one output directory into the compact
+    result file `research/results/df1-wgridder.json`."""
+    o = Path(args.dir)
+    gates = json.loads((o / "gates" / "gates.json").read_text())
+    threads = json.loads((o / "threads.json").read_text())
+    item0 = json.loads((o / "item0" / "item0.json").read_text())
+    res = {
+        "task": "big-plan DF1, exact gridder (research/df1-wgridder.md)",
+        "output_dir": str(o),
+        "ducc0": gates["ducc0"],
+        "gated_epsilons": [list(g) for g in GATED],
+        "criteria": {
+            "1_2_3_5_failures": gates["failures"],
+            "4_identical_sha256_threads": threads["identical"],
+            "4_threads": sorted(int(t) for t in threads["threads"]),
+            "4_outputs_hashed": threads["outputs"],
+            "5_kernel_table": gates.get("kernel_table"),
+        },
+        "worst": {},
+        "adjointness": {},
+        "single_visibility": gates["single_visibility"],
+        "item0": {
+            "map_check": item0["map_check_point_60_25_w_x100"],
+            "core_vs_dft_fixed_map": item0["core_vs_dft_fixed_map"],
+            "aliasing_prediction_w0": item0["aliasing_prediction_w0"],
+        },
+    }
+    for name, rec in gates["cases"].items():
+        for key, e in rec.items():
+            if key == "adjointness":
+                res["adjointness"][name] = [a["rel"] for a in e]
+                continue
+            for c in e["checks"]:
+                k = f"{key} {c['what']}"
+                res["worst"][k] = max(res["worst"].get(k, 0.0), c["value"])
+    bench = {}
+    for d in sorted(o.glob("bench-*")):
+        if (d / "summary.json").is_file():
+            bench[d.name] = json.loads((d / "summary.json").read_text())
+    res["cost"] = bench
+    sci = {}
+    for k in ("c", "i", "k"):
+        p = o / "science" / f"{k}.json"
+        if p.is_file():
+            s = json.loads(p.read_text())
+            sci[k] = {key: v for key, v in s.items() if key != "calls"}
+            sci[k]["n_images"] = len(s["calls"])
+    cmp_c = o / "science" / "c-compare-wsclean.json"
+    if cmp_c.is_file():
+        sci["c_compare_wsclean"] = json.loads(cmp_c.read_text())
+    res["science_reported"] = sci
+    Path(args.out).write_text(json.dumps(res, indent=1) + "\n")
+    print(json.dumps(res["criteria"], indent=1))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -656,6 +857,21 @@ def main(argv=None):
     h.add_argument("synth")
     h.add_argument("slice")
     h.set_defaults(func=cmd_hashes)
+    s = sub.add_parser("science")
+    s.add_argument("out")
+    s.add_argument("script")
+    s.add_argument("script_args", nargs=argparse.REMAINDER)
+    s.add_argument("--epsilon", type=float, default=1e-6)
+    s.set_defaults(func=cmd_science)
+    kp = sub.add_parser("kpixels")
+    kp.add_argument("inputs")
+    kp.add_argument("out")
+    kp.add_argument("--epsilon", type=float, default=1e-6)
+    kp.set_defaults(func=cmd_kpixels)
+    m = sub.add_parser("summary")
+    m.add_argument("dir")
+    m.add_argument("out")
+    m.set_defaults(func=cmd_summary)
     args = p.parse_args(argv)
     args.func(args)
 

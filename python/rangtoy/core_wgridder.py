@@ -24,7 +24,6 @@ selects a prebuilt library.
 
 import ctypes
 import os
-import shutil
 import subprocess
 from functools import lru_cache
 from pathlib import Path
@@ -95,7 +94,8 @@ def write_standalone():
     root = core.core_root()
     out = standalone_dir()
     out.mkdir(parents=True, exist_ok=True)
-    (out / "Cargo.toml").write_text(
+    _write_if_changed(
+        out / "Cargo.toml",
         "[package]\n"
         'name = "rang-df1-core"\n'
         'version = "0.1.0"\n'
@@ -112,18 +112,26 @@ def write_standalone():
         "[profile.release]\n"
         'lto = "thin"\n'
         "codegen-units = 1\n\n"
-        "[workspace]\n"
+        "[workspace]\n",
     )
     modules = "".join(
         f'#[path = "{root / "src" / name}"]\npub mod {name.removesuffix(".rs")};\n'
         for name in SOURCES
     )
-    (out / "root.rs").write_text(
+    _write_if_changed(
+        out / "root.rs",
         "//! Standalone build of the DF1 gridder until core/src/lib.rs lists it.\n"
-        + modules
+        + modules,
     )
-    shutil.copyfile(root / "Cargo.lock", out / "Cargo.lock")
+    _write_if_changed(out / "Cargo.lock", (root / "Cargo.lock").read_text())
     return out
+
+
+def _write_if_changed(path, text):
+    """Write only on change, so that cargo's fingerprints stay valid."""
+    path = Path(path)
+    if not path.is_file() or path.read_text() != text:
+        path.write_text(text)
 
 
 def build_standalone():
