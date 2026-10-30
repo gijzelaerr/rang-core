@@ -1,5 +1,24 @@
 # Rang research state
 
+L5 solver science (big plan wave 3), 2026-10-30 (implemented; measured; no
+default changes; [l5-solver-science.md](l5-solver-science.md)): the core
+solver gains run-time options through `RANG_SOLVE_OPTIONS` (default = archived
+QuartiCal 0.2.7, bit-identical: task F checks at 1/4/8 threads, phase 2
+validator, K precondition, K's and L1's `original` gains hashes): the issue 452
+qp weight fix, gauge-invariant product and loss stop tests, safeguarded
+Anderson acceleration of the two-step Gauss–Newton map, per-interval freeze,
+and a per-iteration trace (`RANG_SOLVE_TRACE`). Measured on the fixture, the
+four-station slice, 32 stations and the whole array (56 stations): the weight
+fix changes no held-out error (≤ 8e-9 relative); no stop criterion beats the
+50 cap on all sets (the frozen selection, cap 8, fails the fixture by 3.9e-3);
+Anderson m = 3 reaches the 0.99 criterion at 27 / 21 / 65 / 65 iterations
+where plain needs 55 / 91 / > 300 / > 300, with the same held-out error and
+fixed point where the plain run converged, and at the cap of 50 lifts the
+array's converged fraction from 0.833 to 0.982 at equal cost. As frozen no
+default changes; `qp_weights=transposed,anderson=3` is the documented opt-in;
+a future default protocol would pair it with a cap of 70 against a converged
+plain reference. Archive `results/l5-solver-science.json`.
+
 P5 memory (big plan wave 2), 2026-10-30 (implemented; measured;
 [p5-memory.md](p5-memory.md)): one copy of the cube. Tiles decode straight
 into the final arrays (strided Rust decode, mmap), the split runs in row

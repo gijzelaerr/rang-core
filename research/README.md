@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task L5, [solver science](l5-solver-science.md): the
+weight fix, stop criteria and Anderson acceleration as opt-in solver options;
+no default change passes as frozen; Anderson converges the array solve.
+
 New, 2026-10-30: big plan task P5, [memory](p5-memory.md): one copy of the
 cube, Rust decode-in-place and gain correction, whole-array peak −20 %,
 identities kept.
