@@ -83,5 +83,5 @@ imports `rangtoy.flagging_provenance` for its provenance track;
    `outputs/` run directory). Recipes driven on the host need Stimela in a
    Python 3.13 venv (task I, [core-i-imaging-replay.md](../research/core-i-imaging-replay.md));
    the host's Python 3.14 runs the core only.
-4. To run the moved tests, run `pytest` in that checkout; they passed there
-   (739 tests, S1).
+4. To run the moved tests, run `pytest` in that checkout (the full suite
+   there is 739 tests; S1 and W1 report it passing).

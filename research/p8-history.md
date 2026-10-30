@@ -200,8 +200,9 @@ without `core/data`): **267 → 197 files, 59,145 → 52,772 lines (−6,373)**:
 the 6,258 moved lines plus the 115 lines cut from three test files. Recipes
 30 → 7, Dockerfiles 9 → 1 (`tools/ms-reader`), Python modules in
 `python/rangtoy` 51 → 45. `history/` holds 74 files and 6,482 lines. Tests:
-**739 → 555 collected** (175 in the seven moved files plus 9 cut out; counted
-on the pre-move tree).
+**739 → 555 collected** (175 in the seven moved files plus 9 cut out; collected on
+the main checkout at `35e3cd5`, where these files equal `43dc3c7`'s; W1's
+check-all on main reports the same 739).
 
 ### Acceptance
 
@@ -226,8 +227,17 @@ on the pre-move tree).
    7.88 s in a re-run (`-05`) at load 14–20, against 1.46 s in S1's run.
    It is the same load-dependent criterion that task J's cold run failed
    (S1 section 1.4); the science criteria are unchanged and P8 changed no
-   code on that path. Recorded as a timing failure under shared load, not
-   re-run on an idle host.
+   code on that path. Post-hoc A/B (labelled post-hoc; not in the frozen
+   protocol): `prototype_section6.py` + `check_section6.py` alternated
+   between a detached pre-move worktree at `43dc3c7` and this branch,
+   three pairs pre-first (`-07`, load 26–30) and three post-first (`-08`,
+   load 37–46). Every one of the 12 runs fails `8_cost` and passes the
+   other 10 criteria. Wall excluding decode, pre / post: 3.17 / 4.00,
+   2.14 / 3.57, 2.75 / 3.72 s (pre first), then 6.12 / 4.52, 3.91 / 5.64,
+   4.33 / 4.92 s (post first): means 3.74 s pre and 4.40 s post, with the
+   ordering effect larger than the difference; the pre-move tree fails the
+   same way at the same load. So the criterion is load-bound here, not a
+   P8 regression; it was not re-run on an idle host.
    **S1's `-08` validators (`outputs/p8-history-20261030-02`)**: phase 1 as
    archived (criterion 4 fails as frozen, post-hoc 4b passes); phase 3c-a
    all pass, bit-identical to africanus (it imports `flagging_sky`, which
@@ -295,6 +305,7 @@ Date for every row: 2026-10-30. Load is the 1-minute average.
 | pre-move baseline (`-03`): worktree at `43dc3c7`, venv, extension and both crates built, then `core_cli prospective`, `signal` | archived inputs | build not timed (about 2 min); 20.5 s, 52.7 s | 836 MB | worktree removed afterwards |
 | `bash tools/check-all.sh` (once, on `8cb2665`) | branch | 689.5 s (pytest 555 passed in 663 s) | 1.72 GB | overall PASS; load 6–23 |
 | `section6`, `section6-check` re-run (`-05`) | archived inputs | 19.0 s, 16.5 s | 437 MB | load 14–20; `8_cost` fails again (7.88 s), all else passes |
+| post-hoc section 6 A/B (`-07` pre-first, `-08` post-first): pre-move worktree at `43dc3c7` rebuilt (venv, extension, both crates) twice, 3 + 3 alternating pairs | archived inputs | about 2 min build + about 4 min runs, each time | – | load 26–46; all 12 runs fail `8_cost` only; worktree removed both times |
 
 ## For the coordinator
 
@@ -308,7 +319,8 @@ Date for every row: 2026-10-30. Load is the 1-minute average.
   555 tests. check-all passes; S1's live-chain suite reproduces every
   archived verdict and the K replay hash for hash, except section 6's
   wall-time cost criterion under shared load (2.6 s and 7.9 s against a 2 s
-  limit, load 14–20). Re-running a frozen campaign is done from `43dc3c7` or
+  limit, load 14–20; a post-hoc A/B shows the pre-move tree failing it the
+  same way at load 26–46). Re-running a frozen campaign is done from `43dc3c7` or
   its recorded commit with the pinned images (`history/README.md`)."
 - **tool-timings.md rows.** The table above, prefixed "P8".
 - **README.md** (changed here; three places): line 20 link
@@ -351,5 +363,6 @@ Date for every row: 2026-10-30. Load is the 1-minute average.
   in `history/tests/`.
 - **Evidence to keep**: `outputs/p8-history-20261030-01` (suite), `-02`
   (validators, backends receipt), `-03-baseline` (pre-move prospective and
-  signal), `-04-check-all.log`, `-05` (section 6 re-run).
+  signal), `-04-check-all.log`, `-05` (section 6 re-run), `-07-section6-ab`
+  and `-08-section6-ba` (post-hoc A/B).
 - **Upstream**: none.
