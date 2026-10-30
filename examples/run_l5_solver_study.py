@@ -232,6 +232,7 @@ def sweep(dataset, out):
         traces[label] = study.load_trace(path)
         print(label, f"{long_runs[label]['wall_seconds']:.1f} s", flush=True)
     R = long_runs["R"]
+    observed = study.observed_pairs(problem)
 
     def curves(trace):
         return {
@@ -273,6 +274,9 @@ def sweep(dataset, out):
             "curves": curves(traces[label]),
             "product_distance_to_R": study.product_distance(
                 run["gains"], run["valid"], R["gains"], R["valid"]
+            ),
+            "product_distance_to_R_observed": study.product_distance(
+                run["gains"], run["valid"], R["gains"], R["valid"], observed
             ),
             "valid_gain_fraction": float(np.mean(run["valid"])),
             "flagged_gains": int(np.count_nonzero(run["flags"] != 0)),
@@ -349,6 +353,9 @@ def sweep(dataset, out):
                 "product_distance_to_D": study.product_distance(
                     run["gains"], run["valid"], D["gains"], D["valid"]
                 ),
+                "product_distance_to_R_observed": study.product_distance(
+                    run["gains"], run["valid"], R["gains"], R["valid"], observed
+                ),
                 "polar_tv": study.polar_tv(problem, run["gains"], run["valid"], scale),
                 "wall_seconds": run["wall_seconds"],
             }
@@ -362,6 +369,17 @@ def sweep(dataset, out):
         "D_T_vs_D": study.product_distance(
             arms["D_T"]["gains"], arms["D_T"]["valid"], D["gains"], D["valid"]
         ),
+        "R_T_vs_R_observed": study.product_distance(
+            long_runs["R_T"]["gains"],
+            long_runs["R_T"]["valid"],
+            R["gains"],
+            R["valid"],
+            observed,
+        ),
+        "D_T_vs_D_observed": study.product_distance(
+            arms["D_T"]["gains"], arms["D_T"]["valid"], D["gains"], D["valid"], observed
+        ),
+        "observed_pairs": int(np.count_nonzero(np.triu(observed, 1))),
         "gain_criterion_stop_R": study.stop_iteration(traces["R"], "gain"),
         "gain_criterion_stop_R_T": study.stop_iteration(traces["R_T"], "gain"),
     }

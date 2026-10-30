@@ -271,9 +271,38 @@ def matched_losses(problem, run, reference):
     }
 
 
-def product_distance(gains, valid, ref_gains, ref_valid):
+def observed_pairs(problem):
+    """(time bin, freq bin, antenna, antenna) mask of the station pairs with
+    at least one cell the solver uses in the interval (not FLAG or FLAG_ROW,
+    nonzero XX/YY data and weight, as `solve::data_flags`). Products of
+    unobserved pairs are not constrained by the data (post hoc, L5)."""
+    if "observed" in problem:
+        return problem["observed"]
+    ok = ~(
+        np.asarray(problem["flag"], bool).any(-1)
+        | np.asarray(problem["flag_row"], bool)[:, None]
+    )
+    ok &= (problem["weights"][..., [0, 3]] != 0).all(-1)
+    ok &= (problem["data"][..., [0, 3]] != 0).all(-1)
+    nf, na = problem["nfreq_bins"], problem["nant"]
+    per = np.zeros((ok.shape[0], nf), bool)
+    for f in range(nf):
+        per[:, f] = ok[:, problem["freq_map"] == f].any(axis=1)
+    del ok
+    rows, fbin = np.nonzero(per)
+    t = problem["time_map"][rows]
+    p, q = problem["antenna1"][rows], problem["antenna2"][rows]
+    out = np.zeros((problem["ntime_bins"], nf, na, na), bool)
+    out[t, fbin, p, q] = True
+    out[t, fbin, q, p] = True
+    problem["observed"] = out
+    return out
+
+
+def product_distance(gains, valid, ref_gains, ref_valid, observed=None):
     """Relative baseline-product distance |P - P_ref|_F / |P_ref|_F over
-    pairs p < q of one interval valid in both solutions."""
+    pairs p < q of one interval valid in both solutions (and, if given,
+    observed in the interval: `observed_pairs`)."""
     nant = gains.shape[2]
     both = valid & ref_valid
     values = []
@@ -282,6 +311,8 @@ def product_distance(gains, valid, ref_gains, ref_valid):
         if not q.size:
             continue
         pair = both[..., p, None] & both[..., q]
+        if observed is not None:
+            pair = pair & observed[..., p, p + 1 :]
         if not pair.any():
             continue
         a = gains[..., p, None, :, :] @ gains[..., q, :, :].conj().swapaxes(-1, -2)
@@ -346,6 +377,21 @@ def summary(problem, run, reference, default, scale):
         ),
         "product_distance_to_default": product_distance(
             run["gains"], run["valid"], default["gains"], default["valid"]
+        ),
+        # Post hoc (L5): only the pairs the interval's data constrain.
+        "product_distance_to_reference_observed": product_distance(
+            run["gains"],
+            run["valid"],
+            reference["gains"],
+            reference["valid"],
+            observed_pairs(problem),
+        ),
+        "product_distance_to_default_observed": product_distance(
+            run["gains"],
+            run["valid"],
+            default["gains"],
+            default["valid"],
+            observed_pairs(problem),
         ),
         "polar_tv": polar_tv(problem, run["gains"], run["valid"], scale),
         "gains_sha256": core_sha256(run["gains"]),
