@@ -787,8 +787,13 @@ def run(
             state, fp["diagnostics"]["gain_valid"], time_map, freq_map
         )
         state_m = {**state, "validation": state["validation"] & ok_fp}
+        # A stored solve keeps its additions as sorted cell indices (P5).
         base_m = solve_arm(
-            state_m, fp["added"], "tricolour-firstpass", scale=scale0, features=True
+            state_m,
+            array.additions_dense(state, fp["added"]),
+            "tricolour-firstpass",
+            scale=scale0,
+            features=True,
         )
         amendment_loop = {
             "validation_samples": int(np.count_nonzero(state_m["validation"])),
@@ -843,7 +848,7 @@ def run(
         del products
         if not k_metrics and boxes is None:
             boxes = metrics["boxes_used"]
-        added = solve["added"]
+        added = array.additions_dense(state, solve["added"])
         final, final_rows, row_clause = derived_row_flags(
             state["original_flags"], state["original_rows"], added
         )
