@@ -1,36 +1,30 @@
 """Dense, NumPy-blocked and Rust-blocked local information must agree."""
 
-import json
-import subprocess
-
 import pytest
 
 jax = pytest.importorskip("jax")
 jax.config.update("jax_enable_x64", True)
 import jax.numpy as jnp
 import numpy as np
-from rangtoy import build
 from rangtoy.beams import load_katbeam, make_beam_predictor
 from rangtoy.blocked import audit_blocked_design, prepare_blocked_design
 from rangtoy.observability import sky_locked_information
-from rangtoy.pointing import Observation, component_list
+from rangtoy.pointing import Observation
 
 
 @pytest.fixture(scope="module")
-def fixture():
-    f = json.loads(subprocess.check_output([str(build()), "--pointing-full-reference"]))
-    r, s = np.asarray(f["rows"]), np.asarray(f["sources"])
-    obs = Observation(
-        jnp.asarray(r[:, :3]),
-        jnp.asarray(r[:, 3]),
-        *(jnp.asarray(r[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(r[:, 7]),
-    )
-    return component_list(s[:, 0], s[:, 1], s[:, 2], s[:, 3]), obs
+def fixture(pointing_full_reference):
+    # Session-scoped in conftest.py: built once for every module.
+    _, components, obs = pointing_full_reference
+    return components, obs
 
 
-@pytest.mark.parametrize("frequency_blocking", [False, True])
-def test_blocked_matches_dense_and_numpy(fixture, frequency_blocking):
+@pytest.fixture(scope="module")
+def dense_reference(fixture):
+    """The dense audit both frequency_blocking cases compare against.
+
+    It does not depend on frequency_blocking, so it is computed once.
+    """
     pytest.importorskip("katbeam")
     sky, obs = fixture
     table, metadata = load_katbeam()
@@ -47,6 +41,14 @@ def test_blocked_matches_dense_and_numpy(fixture, frequency_blocking):
         common_time_variation=True,
         log_flux_prior_covariance=covariance,
     )
+    return predictor, covariance, dense
+
+
+@pytest.mark.parametrize("frequency_blocking", [False, True])
+def test_blocked_matches_dense_and_numpy(fixture, dense_reference, frequency_blocking):
+    pytest.importorskip("katbeam")
+    sky, obs = fixture
+    predictor, covariance, dense = dense_reference
     for backend in ("rust", "numpy"):
         design = prepare_blocked_design(
             sky,

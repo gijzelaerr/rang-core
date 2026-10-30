@@ -1,15 +1,11 @@
 """JAX DFT, derivative, spline and recovery controls."""
 
-import json
-import subprocess
-
 import pytest
 
 jax = pytest.importorskip("jax")
 jax.config.update("jax_enable_x64", True)
 import jax.numpy as jnp
 import numpy as np
-from rangtoy import build
 from rangtoy.gauge import gaussian_gauge, predict_channels
 from rangtoy.observability import (
     channel_design,
@@ -17,7 +13,6 @@ from rangtoy.observability import (
     solve_sky_locked,
 )
 from rangtoy.pointing import (
-    Observation,
     component_list,
     image_components,
     predict,
@@ -28,20 +23,15 @@ from rangtoy.pointing import (
 
 
 @pytest.fixture(scope="module")
-def reference():
-    fixture = json.loads(
-        subprocess.check_output([str(build()), "--pointing-reference"])
-    )
-    rows = np.asarray(fixture["rows"])
-    sky = np.asarray(fixture["sources"])
-    obs = Observation(
-        jnp.asarray(rows[:, :3]),
-        jnp.asarray(rows[:, 3]),
-        *(jnp.asarray(rows[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(rows[:, 7]),
-    )
-    components = component_list(sky[:, 0], sky[:, 1], sky[:, 2], sky[:, 3])
-    return fixture, components, obs
+def reference(pointing_reference):
+    # Session-scoped in conftest.py: built once for every module.
+    return pointing_reference
+
+
+@pytest.fixture(scope="module")
+def full_observation(pointing_full_reference):
+    """Complete-coverage Observation, built once (conftest.py)."""
+    return pointing_full_reference[2]
 
 
 def test_dft_and_autodiff_agree_with_rust(reference):
@@ -518,11 +508,11 @@ def test_gain_nuisances_cannot_increase_pointing_information(reference):
         sky_locked_information(components, obs, 8, noise_jy=0.001, gain_model="typo")
 
 
-def test_complete_reference_preserves_thinned_fixture(reference):
+def test_complete_reference_preserves_thinned_fixture(
+    reference, pointing_full_reference
+):
     fixture, _, _ = reference
-    full = json.loads(
-        subprocess.check_output([str(build()), "--pointing-full-reference"])
-    )
+    full = pointing_full_reference[0]
     rows = np.asarray(full["rows"])
     assert rows.shape == (24 * 4 * 28, 8)
     np.testing.assert_array_equal(rows[::5], fixture["rows"])
@@ -535,18 +525,11 @@ def test_complete_reference_preserves_thinned_fixture(reference):
             assert len(set(map(tuple, selected[:, 4:6]))) == 28
 
 
-def test_full_coverage_retains_modes_with_gains_and_differential_pointing(reference):
+def test_full_coverage_retains_modes_with_gains_and_differential_pointing(
+    reference, full_observation
+):
     _, sky, thinned = reference
-    full = json.loads(
-        subprocess.check_output([str(build()), "--pointing-full-reference"])
-    )
-    rows = np.asarray(full["rows"])
-    obs = Observation(
-        jnp.asarray(rows[:, :3]),
-        jnp.asarray(rows[:, 3]),
-        *(jnp.asarray(rows[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(rows[:, 7]),
-    )
+    obs = full_observation
     kwargs = {
         "noise_jy": 0.001,
         "gain_model": "per_time_channel",
@@ -608,18 +591,9 @@ def test_general_common_motion_restores_gaussian_ambiguity(reference):
     assert free["common_time_nuisance_parameters"] == 46
 
 
-def test_nonquadratic_rotating_beam_breaks_local_gauge(reference):
+def test_nonquadratic_rotating_beam_breaks_local_gauge(reference, full_observation):
     _, sky, _ = reference
-    fixture = json.loads(
-        subprocess.check_output([str(build()), "--pointing-full-reference"])
-    )
-    rows = np.asarray(fixture["rows"])
-    obs = Observation(
-        jnp.asarray(rows[:, :3]),
-        jnp.asarray(rows[:, 3]),
-        *(jnp.asarray(rows[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(rows[:, 7]),
-    )
+    obs = full_observation
     kwargs = {
         "noise_jy": 0.001,
         "gain_model": "per_time_channel",
@@ -636,18 +610,11 @@ def test_nonquadratic_rotating_beam_breaks_local_gauge(reference):
         sky_locked_information(sky, obs, 8, noise_jy=0.001, beam_quartic=-1)
 
 
-def test_flux_anchor_geometry_controls_number_of_common_modes(reference):
+def test_flux_anchor_geometry_controls_number_of_common_modes(
+    reference, full_observation
+):
     _, sky, _ = reference
-    fixture = json.loads(
-        subprocess.check_output([str(build()), "--pointing-full-reference"])
-    )
-    rows = np.asarray(fixture["rows"])
-    obs = Observation(
-        jnp.asarray(rows[:, :3]),
-        jnp.asarray(rows[:, 3]),
-        *(jnp.asarray(rows[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(rows[:, 7]),
-    )
+    obs = full_observation
     for fixed, expected in [([], 0), ([0], 0), ([0, 1], 1), ([0, 1, 2], 2)]:
         result = sky_locked_information(
             sky,
@@ -720,18 +687,11 @@ def test_gauge_composition_and_noisy_likelihood(reference):
     assert abs(first_chi2 - second_chi2) < 1e-8
 
 
-def test_correlated_flux_constraints_do_not_create_data_information(reference):
-    _, sky, _ = reference
-    fixture = json.loads(
-        subprocess.check_output([str(build()), "--pointing-full-reference"])
-    )
-    rows = np.asarray(fixture["rows"])
-    obs = Observation(
-        jnp.asarray(rows[:, :3]),
-        jnp.asarray(rows[:, 3]),
-        *(jnp.asarray(rows[:, i], dtype=int) for i in (4, 5, 6)),
-        jnp.asarray(rows[:, 7]),
-    )
+def test_correlated_flux_constraints_do_not_create_data_information(
+    reference, full_observation
+):
+    _, sky, thinned = reference
+    obs = full_observation
     kwargs = {
         "noise_jy": 0.001,
         "beam_axis_ratio": 1.1,
@@ -770,7 +730,9 @@ def test_correlated_flux_constraints_do_not_create_data_information(reference):
         0 < f < 0.02
         for f in shaped["information_budget"]["data_only_fraction_eigenvalues"]
     )
+    # The validation runs after the nuisance design is built, so it is
+    # checked on the thinned rows: the same four channels and 16 x 16 shape.
     with pytest.raises(ValueError, match="positive definite"):
         sky_locked_information(
-            sky, obs, 8, log_flux_prior_covariance=-covariance, **kwargs
+            sky, thinned, 8, log_flux_prior_covariance=-covariance, **kwargs
         )
