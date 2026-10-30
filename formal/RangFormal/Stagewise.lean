@@ -22,6 +22,9 @@ takes `h = ε`, Högbom CLEAN with gain `γ` takes `h = γ |r_p|`.
 * `misfit_stagewise_step`: a signed step of length `ε` lowers it by
   `ε |r_p| − ε² / 2`, so the first-order decrease per unit ℓ1 arc length is
   `|r_p|`, maximal at the argmax pick.
+* `stagewise_pick_optimal`: exactly (second-order term included), the signed
+  step at the argmax pixel leaves the smallest misfit among all steps `±ε` at
+  any pixel.
 * `step_eq_stagewise`, `l1_step_sub`: a CLEAN step is a stagewise step of
   length `|γ| |r_p|` in the direction of `sign r_p`.
 * `l1_iterate_le_arc`: the ℓ1 norm of the CLEAN model never exceeds the ℓ1
@@ -150,6 +153,28 @@ theorem sgn_mul_abs (x : ℝ) : sgn x * |x| = x := by
   split_ifs with h
   · rw [one_mul, abs_of_nonneg h]
   · rw [abs_of_neg (not_le.mp h)]; ring
+
+/-- **The greedy pick is optimal among single-coordinate steps of the same ℓ1 size.**
+If `p` carries the largest `|r|`, the signed step of length `ε ≥ 0` at `p` leaves a
+misfit no larger than any step `±ε` at any pixel `q`, exactly (second-order term
+included). -/
+theorem stagewise_pick_optimal (v : E) (a : ι → E) (m : ι → ℝ) (p q : ι)
+    (hp : ‖a p‖ = 1) (hq : ‖a q‖ = 1) {ε s : ℝ} (hε : 0 ≤ ε) (hs : |s| = 1)
+    (hmax : ∀ i, |dirty v a m i| ≤ |dirty v a m p|) :
+    misfit v a (m + Pi.single p (ε * sgn (dirty v a m p))) ≤
+      misfit v a (m + Pi.single q (ε * s)) := by
+  rw [misfit_stagewise_step v a m p ε _ hp (abs_sgn _) (sgn_mul_self _),
+    misfit_add_single v a m q _ hq]
+  have hs2 : s ^ 2 = 1 := by rw [← sq_abs, hs]; norm_num
+  have hsq : s * dirty v a m q ≤ |dirty v a m p| :=
+    calc s * dirty v a m q ≤ |s * dirty v a m q| := le_abs_self _
+      _ = |dirty v a m q| := by rw [abs_mul, hs, one_mul]
+      _ ≤ |dirty v a m p| := hmax q
+  have hmul : ε * (s * dirty v a m q) ≤ ε * |dirty v a m p| :=
+    mul_le_mul_of_nonneg_left hsq hε
+  have hexp : (ε * s) ^ 2 = ε ^ 2 := by rw [mul_pow, hs2, mul_one]
+  rw [hexp]
+  nlinarith [hmul]
 
 /-- **CLEAN is stagewise.** A CLEAN step with gain `γ` is the stagewise step of length
 `γ |r_p|` in the direction of `sign r_p`. -/

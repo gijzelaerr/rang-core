@@ -875,3 +875,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | CLEAN implicit objective: `lake build` of `Separation` and `Clark`, failing / passing | `formal/` | 38 s / 38 s | – | |
 | 2026-10-30 | CLEAN implicit objective: clean `lake build` of all seven files and the audit | `formal/` | 121 s | – | 33 theorems, standard axioms only |
 | 2026-10-30 | CLEAN implicit objective: fmt check / clippy / test, after the example (incremental) | worktree | 1 s / 0.3 s / 3 s | – | |
+| 2026-10-30 | CLEAN implicit objective: `lake build` after adding `stagewise_pick_optimal` | `formal/` | 120 s | – | Stagewise and its dependents rebuilt; 34 theorems, standard axioms only |

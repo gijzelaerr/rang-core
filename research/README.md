@@ -17,12 +17,14 @@ New, 2026-10-30: [what CLEAN minimises](clean-implicit-objective.md):
 small-gain Högbom CLEAN is forward stagewise regression, and a proof that as
 the gain tends to zero it converges (in ℓ1 arc length) to the same limit as
 FS_ε, unique in data space (the gradient flow of the peak residual) and equal
-to Hastie et al.'s monotone lasso when the tied atoms are independent; there
+to Hastie et al.'s monotone lasso when the tied atoms are independent (for
+extended emission that condition seems to fail, so model convergence there
+is measured, not proved); there
 is no pointwise objective, only steepest descent of the misfit per unit ℓ1
 arc length. Measured on MeerKAT PSFs: CLEAN → FS₀ at rate about γ^0.8-1.4;
 the lasso path is far from monotone for extended emission, so small-gain
 CLEAN and the lasso differ there (and small gain wins on a disc, loses on
-point sources on the snapshot); 20 new Lean theorems, including
+point sources on the snapshot); 21 new Lean theorems, including
 Proposition 4' and Theorem 6 of the CLEAN note
 ([archive](results/clean-implicit-objective.json)).
 

@@ -23,10 +23,13 @@ there (rms 0.13-0.25); on the track six-source scene the lasso is monotone
 and the two agree to 3e-7. FS₀ itself goes negative on the snapshot (−0.22),
 so small gain does not imply positivity; the disc's near-tied sets become
 numerically dependent, so model convergence for extended emission is
-measured, not proved. Lean: `Stagewise.lean` (step lemmas, ℓ1 steepest
-descent, arc length, data-space uniqueness of the limit), `Separation.lean`
-(Proposition 4'), `Clark.lean` (Theorem 6); 33 audited theorems, standard
-axioms only. Branch `clean-implicit-objective`.
+measured, not proved: the conjecture holds unconditionally for residuals
+and misfit, for models only under tied-atom independence. Lean:
+`Stagewise.lean` (step lemmas, ℓ1 steepest descent, optimality of the argmax
+pick, arc length, data-space uniqueness for right-differentiable limit
+curves; the compactness and almost-everywhere steps are prose only),
+`Separation.lean` (Proposition 4'), `Clark.lean` (Theorem 6); 34 audited
+theorems, standard axioms only. Branch `clean-implicit-objective`.
 
 P12 rename (big plan), 2026-10-30 (implemented; measured;
 [p12-rename.md](p12-rename.md)). The package is `rang` (`import rang`,

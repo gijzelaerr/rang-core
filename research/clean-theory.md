@@ -235,7 +235,7 @@ machine-checked later on 2026-10-30 (branch `clean-implicit-objective`):
 `B_SS` and the pick on the support) and `RangFormal/Clark.lean` (Theorem 6,
 the provable minor-cycle rule end to end); see
 [clean-implicit-objective.md](clean-implicit-objective.md) §7, where the
-audit covers 33 theorems.
+audit covers 34 theorems.
 
 ## 4. Implementation (implemented; tested)
 

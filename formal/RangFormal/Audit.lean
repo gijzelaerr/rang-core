@@ -31,6 +31,7 @@ prints the list. -/
 #print axioms Clean.misfit_add_single
 #print axioms Clean.misfit_stagewise_step
 #print axioms Clean.l1_stagewise_step
+#print axioms Clean.stagewise_pick_optimal
 #print axioms Clean.step_eq_stagewise
 #print axioms Clean.l1_step_sub
 #print axioms Clean.l1_iterate_le_arc

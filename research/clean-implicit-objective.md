@@ -20,7 +20,7 @@ Sources read in full for this note: Hastie, Taylor, Tibshirani and Walther
 Journal of Statistics 1, 1-29 (arXiv:0705.0269; cited as HTTW), and Freund,
 Grigas and Mazumder (2017), "A new perspective on boosting in linear
 regression via subgradient optimization and relatives" (arXiv:1505.04243,
-2015; later in the Annals of Statistics; cited as FGM). Marsh and Richardson
+2015; read from arXiv; cited as FGM). Marsh and Richardson
 (1987) was not retrievable from this host (ADS redirects to a page that returned
 no text), so nothing here characterises their result. Efron, Hastie,
 Johnstone and Tibshirani (2004, "Least angle regression") is cited only
@@ -43,10 +43,16 @@ through HTTW; the proofs below do not use it.
    the weighted visibility metric; in model space whenever the atoms tied for
    the peak are linearly independent, to the monotone lasso path of HTTW
    (their Definition 3), and the converged small-gain model to the end point
-   of that path. So the conjecture of the task is a theorem, with a proof
-   that does not need HTTW's sketched limit argument, Efron et al.'s
-   "one at a time" condition, or any coherence bound, and holds on the
-   rank-deficient (`N > 2M`), strongly correlated pixel dictionary.
+   of that path. So the conjecture of the task is proved in two strengths:
+   **unconditionally for the residual, the residual image and the misfit**
+   (data space), and **for the model under the independence condition**.
+   The proof does not need HTTW's sketched limit argument, Efron et al.'s
+   "one at a time" condition or any coherence bound, and holds on the
+   rank-deficient (`N > 2M`), strongly correlated pixel dictionary. For
+   extended emission, the case that motivated the question, §6 finds the
+   independence condition plausibly violated (the near-tied pixels of the
+   disc become linearly dependent), so there the model convergence is
+   **measured, not proved**.
 3. **The implicit objective (proved, with HTTW).** There is no objective
    that the small-gain model minimises at each arc length (HTTW Lemma 2:
    no path minimises the misfit among all paths of a given ℓ1 arc length).
@@ -409,9 +415,10 @@ Theorem A(iii) requires (`Q(L)` is one function): track disc at `1e-3`,
 `L = 166.84` (γ = 1), 154.88, 154.82, 154.809, 154.808, 154.808 against FS₀'s
 154.808. Below `Q/Q_0 = 1e-4` the residual comparison is limited by the
 reference itself: on the track disc at `1e-5` FS at 4ε differs from FS₀ by
-8.5e-5 in the residual, CLEAN at 0.003 by 2.3e-5. Small-gain CLEAN is there
-the better discretisation of the flow, because its step shrinks with the
-residual while FS's does not.
+8.5e-5 in the residual, so the reference's own error is about 3e-5 if it
+scales linearly in `ε`, and CLEAN at 0.003 (2.3e-5 from the reference) is
+within it. Below `1e-4` the residual comparison cannot rank the two schemes;
+it only bounds CLEAN's distance to the flow by the reference error.
 
 **What the paths look like (measured).** At matched misfit; `L` is the ℓ1
 arc length of each path (for the lasso, of the exact lasso path), "negative
@@ -511,15 +518,22 @@ lasso agree to 3e-7 (the reference's own precision) at every level, as HTTW
 after any move), `misfit_add_ge` (ℓ1 steepest descent, Lemma 2),
 `misfit_add_single` (Lemma 1), `misfit_stagewise_step` (a signed step of
 ℓ1 size `ε` changes `Q` by `−ε|r_p| + ε²/2`), `l1_stagewise_step`,
-`step_eq_stagewise` and `l1_step_sub` (a CLEAN step is the stagewise step of
-length `|γ||r_p|`), `l1_iterate_le_arc` (Lemma 3), `subgradient_monotone`
+`stagewise_pick_optimal` (exactly, second-order term included, the signed
+step at the argmax pixel leaves the smallest misfit among all steps `±ε` at
+any pixel), `step_eq_stagewise` and `l1_step_sub` (a CLEAN step is the
+stagewise step of length `|γ||r_p|`), `l1_iterate_le_arc` (Lemma 3),
+`subgradient_monotone`
 (monotonicity of the ℓ∞ subdifferential) and `flow_residual_unique` (Step 3
 of Theorem A: two right-differentiable residual curves driven by
 subgradients of the peak residual from the same start coincide; proved with
-Mathlib's `image_le_of_deriv_right_le_deriv_boundary`). Not formalised: the
-compactness and almost-everywhere arguments of Steps 2 and 4-7, which need
-Arzelà-Ascoli and Rademacher's theorem in a form Mathlib does not package
-for this use.
+Mathlib's `image_le_of_deriv_right_le_deriv_boundary`). The Lean statement
+assumes curves that are right-differentiable at every point; the limits of
+Step 2 are only shown to be Lipschitz and differentiable almost everywhere,
+so the machine-checked uniqueness covers the prose Step 3 only for such
+curves (Brezis's solutions are right-differentiable everywhere, but that is
+not formalised). Not formalised either: the compactness and
+almost-everywhere arguments of Steps 2 and 4-7, which need Arzelà-Ascoli and
+Rademacher's theorem in a form Mathlib does not package for this use.
 
 For [clean-theory.md](clean-theory.md), whose §3 listed them as not
 formalised: `Separation.lean` proves Proposition 4' as
@@ -532,7 +546,7 @@ sources); `Clark.lean` proves Theorem 6 as `clark_descends_iff` (descent iff
 `r_p/r̃_p > γ/2`), `truncation_error_le` (`‖r − r̃‖_∞ ≤ f Σ|c_k|`), `dirty_add`,
 `clark_rule_descends` and `clark_minor_cycle_descends` (the provable
 minor-cycle rule, end to end). `RangFormal/Audit.lean` prints the axioms of
-33 theorems (13 before, 20 new); all rest on `propext`, `Classical.choice`
+34 theorems (13 before, 21 new); all rest on `propext`, `Classical.choice`
 and `Quot.sound` only.
 
 ## 8. Novelty, as AGENTS.md asks
@@ -541,8 +555,11 @@ Known: CLEAN is matching pursuit (Mallat and Zhang; clean-theory.md), which
 FGM identify with LS-Boost(ε); FS and LS-Boost are subgradient methods on the
 peak residual (FGM Proposition 3.2); FS₀ is the monotone lasso, with the
 `ε → 0` limit argued heuristically (HTTW Theorem 1 and Proposition 1); the
-gradient-flow theory of convex functions is classical (Brezis 1973). New
-here, as far as the two papers read and the earlier literature search show:
+gradient-flow theory of convex functions is classical (Brezis 1973). Only
+HTTW and FGM were read for this note; no search was made for rigorous proofs
+of the `FS_ε → FS₀` limit or for subgradient flows in the boosting
+literature, so the following is new only relative to those two papers and
+the CLEAN literature of clean-theory.md:
 a complete proof that small-gain CLEAN and `FS_ε` share one limit, unique in
 data space for any dictionary (including rank-deficient ones), equal to the
 gradient flow of the peak residual with its minimum-norm (HTTW) direction,
