@@ -11,14 +11,23 @@ with `git mv` and is byte-identical to its last live version, so
 `git log --follow history/<path>` shows its full history and the sha256 in
 each campaign receipt still matches.
 
+Task P11 ([research/p11-extract.md](../research/p11-extract.md)) moved the
+last 21 frozen modules here on 2026-10-30, after copying what the live chains
+use from them verbatim into `python/rangtoy/core_*.py` extracts (one per
+module; each names its source, commit `2da566c` and SHA256, and
+`tests/test_p11_extract.py` checks every copied definition against the file
+here). The package no longer contains any frozen module (a temporary
+`python/rangtoy/flagging.py` re-exports three `core_policy` names for task
+C1's branch until its merge).
+
 ## What is here
 
 | Directory | Was | Contents |
 | --- | --- | --- |
 | `recipes/` | `recipes/` | the 23 frozen Stimela2 recipes `tv-flagging*.yaml` |
 | `tools/flagging/` | `tools/flagging/` | 8 Dockerfiles of the pinned `rang-flagging*:local` images, 3 `requirements.lock`, 16 `run-*.sh` wrappers, 4 `fetch-luno-*.sh`, `preflight.py`, `sky/verify_prediction.py` |
-| `python/` | `python/rangtoy/` | the six recipe-only modules `flagging_{concurrent,parallel,provenance,public,transfer,uncertainty}.py` (they used package-relative imports as `rangtoy.*` submodules; here they are on no import path) |
-| `tests/` | `tests/` | the tests of those six modules, `test_flagging_preflight.py`, and three test functions cut verbatim from live test files (each file names its origin) |
+| `python/` | `python/rangtoy/` | P8: the six recipe-only modules `flagging_{concurrent,parallel,provenance,public,transfer,uncertainty}.py`. P11: the 21 modules the core used to import, `flagging.py`, `flagging_{actions, balanced, caracal, comparators, equivariance, imaging, influence, injections, next, prepared, prospective, response, signal, signal_guard, sky, structured, structured_proposals, trend, workflow}.py`, `imaging_sensitivity.py`. They used package-relative imports as `rangtoy.*` submodules; here they are on no import path |
+| `tests/` | `tests/` | P8: the tests of those six modules, `test_flagging_preflight.py`, and three test functions cut verbatim from live test files (each file names its origin). P11: the 21 test files of the P11 modules (`test_flagging*.py` except `test_flagging_followup_archives.py`, `test_imaging_sensitivity.py`); their test functions that use only extracted names also run live, copied verbatim into `tests/test_core_<extract>.py` |
 
 Not collected by pytest (`testpaths = ["tests"]`) and excluded from ruff
 (`pyproject.toml`): the files are frozen and hashed, and the tests import
@@ -61,8 +70,7 @@ The core replacement and comparator of each superseded stage are in
 ## Re-running a frozen campaign
 
 Do not run anything from `history/`: the receipts hash files at their
-original paths, and three frozen modules that stay in the package still name
-those paths (`flagging_workflow.py` hashes `recipes/tv-flagging.yaml` and
+original paths, and three frozen modules (now here too) name those paths (`flagging_workflow.py` hashes `recipes/tv-flagging.yaml` and
 `tools/flagging/{Dockerfile,requirements.lock}`; `flagging_next.py` globs
 `recipes/tv-flagging*.yaml` and `tools/flagging/` in `source_receipts()` and
 imports `rangtoy.flagging_provenance` for its provenance track;
@@ -70,7 +78,8 @@ imports `rangtoy.flagging_provenance` for its provenance track;
 
 1. Check out the commit the campaign's receipt records, or `43dc3c7`, the
    last commit with every file in place:
-   `git worktree add ~/Worktrees/rang/history-rerun 43dc3c7`.
+   `git worktree add ~/Worktrees/rang/history-rerun 43dc3c7`. (`2da566c` is
+   the last commit with the 21 P11 modules in the package.)
 2. Use the pinned images, built from `tools/flagging/` there:
    `rang-flagging:local` (base: Rust 1.93 kernels and Python 3.12 with the
    lock), then `rang-flagging-comparators`, `-sky`, `-response`, `-next`,
