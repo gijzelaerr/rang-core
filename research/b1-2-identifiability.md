@@ -10,6 +10,29 @@ Status: **proposed** (this section). Results are appended below the
 protocol when measured; nothing above "Measured result" changes after this
 commit except through a dated, labelled amendment.
 
+Status (2026-10-30): **implemented and measured; B1 does not close null at
+B1-2.** No amendment. The frozen convergence rule fired on S1, so the
+verdict uses the beam evaluated at 16-channel sub-blocks. Under the frozen
+decision rule, these directions are constrainable:
+
+- **Per-antenna pointing** on the ESO137 pilot and track: σ ≈ 0.06–0.2′,
+  with ρ ≈ 0.8–0.9 of the signature outside the nuisance span. It is
+  marginal on the whole-array 1934 set: σ ≈ 0.18′, ρ ≈ 0.12, 52 of 53
+  antennas.
+- **Squint** on S2, S4 and S5: σ ≈ 0.004–0.04′.
+- **Array-common pointing and ellipticity** on the track. They come from
+  its 160° of parallactic rotation: σ ≈ 0.005′ and 0.06 %.
+
+Array-common width is constrainable on no set: σ = 0.54 % on S2 and S5,
+against the 0.5 % threshold.
+
+The array-common pointing that passes on the snapshots (S2, S3, S4) does so
+only through the beam's frequency structure inside a 32-channel gain
+interval. A per-channel bandpass would remove it exactly on the single
+point source S3 (post hoc).
+
+Details in "Measured result".
+
 ## The frozen B1-2 design, restated
 
 From [b1-beam-pointing.md](b1-beam-pointing.md), unchanged:
@@ -493,3 +516,541 @@ result is seen.
 
 The held-out split (seed 7, [flagging-verdict.md](flagging-verdict.md)) is
 reserved for B1-3's held-out visibility metric. B1-2 fits nothing.
+
+## Errata and implementation notes (2026-10-30, after the protocol; labelled)
+
+None of these changes a frozen threshold, set, direction or measure.
+
+- **Station counts (erratum to the set table).** S2 is not "64 stations,
+  2,016 baselines". The 1934 chunk has 53 stations with data and 1,378
+  baselines (41,786 kept rows) of the 56 rows in the ANTENNA table, as L1
+  recorded. S1 is 192 rows (6 baselines × 32 dumps); 70 % of its samples
+  are flagged. S3 is 56 stations, 1,540 baselines and 15,400 rows over 72 s
+  (10 dumps).
+- **measures.** The first closed-form implementation skipped the rotation
+  from apparent to ICRS north. Its test caught 0.21° (precession and
+  nutation since J2000 at ESO137 in 2019) before any measurement, and the
+  fix rotates by the ICRS position angle of apparent north. The frozen
+  0.01° tolerance passes.
+- **Inactive antennas.** Run `-03` (S1) counted antennas without data in its
+  per-antenna family line (56 instead of 4) and in the family-marginal
+  zero-mean constraint. Run `-06` repeats S1 with the fix; every
+  conditional σ and ρ is identical to `-03`. `-03` is kept as the run that
+  fired the convergence rule.
+- **Amplitude scale from gains.** The first `scan_scale` took the median
+  |g_p g_q| over every block, including fully flagged blocks whose gains
+  stay at 1. Post-hoc run `-08` exposed it by taking that branch on S1 by
+  mistake (c = 1). The fix (`gain_scale`: solved baseline-blocks only) was
+  in place before S4 and S5 ran. The field model's own `fieldmodel.json` "c"
+  predates it; the survey recomputes c. `-08` is superseded by `-18`.
+- **Field-model bookkeeping.** The CLEAN threshold's robust σ is taken from
+  the dirty window at the start of each round, not from the residual. E0's
+  "residual-plus-model peak" is the dirty-image peak. The window is CLEANed
+  as frozen.
+
+## Measured result (2026-10-30)
+
+Status: **implemented and measured** on all five frozen sets. The verdict
+uses the 16-channel beam evaluation ("sub16"), as the convergence rule
+requires. The 32-channel evaluation ("nominal") is reported beside it.
+
+### Runs
+
+All runs on the WSL host, this branch, `OPENBLAS_NUM_THREADS=1`,
+`RAYON_NUM_THREADS=4`, under `outputs/`.
+
+| Dir | Role | What |
+| --- | --- | --- |
+| `b1-2-20261030-00-probe`, `-00-probe-data`, `-00-probe-track` | pre-protocol probes | above |
+| `b1-2-20261030-01-pilot` | fetch | S4 pilot, 1,043,366,221 B in 100.3 s (planned 1,043,355,673; bound 1.25 GB) |
+| `b1-2-20261030-02-track` | fetch | S5 track, 1,882,001,185 B in 188.8 s (planned 1,881,959,542; bound 2.0 GB) |
+| `b1-2-20261030-03-S1` | trigger | S1; fired the convergence rule |
+| `b1-2-20261030-04-fieldmodel` | field model | ESO137 field model, three rounds, E0 |
+| `b1-2-20261030-06-S1` | **verdict** | S1 (nominal, sub16, rot90 at 32 channels) and the native anchored response |
+| `b1-2-20261030-07-S2` | **verdict** | S2 (nominal, sub16) |
+| `b1-2-20261030-09-S3` | **verdict** | S3 (nominal, sub16) |
+| `b1-2-20261030-12-S4` | **verdict** | S4 (nominal, sub16, rot90 at 16 channels) |
+| `b1-2-20261030-13-S5` | **verdict** | S5 (nominal, sub16) |
+| `b1-2-20261030-05-posthoc` | post hoc | factor chromaticity, noise by time differences, field-model gains, model against data by baseline length |
+| `-10`, `-11` | post hoc | S3, S1 with the beam sampled at the 9.2 MHz product channels |
+| `-14`, `-15` | post hoc | S3, S1 with a per-antenna gain slope across each gain bin |
+| `-16`, `-17` | post hoc | S3 with per-channel beam evaluation, without and with the slope |
+| `-18` | post hoc | S1 at 8-channel sub-blocks (supersedes `-08`) |
+| `-19` | post hoc | S4 with the model scaled to the data's amplitude by baseline band |
+
+Committed archive: [results/b1-2-identifiability.json](results/b1-2-identifiability.json).
+It holds derived numbers only, keyed by run, with the role of each run.
+`closes_null` is computed from the five verdict runs.
+
+### Noise and amplitude scales
+
+The noise is measured from adjacent-channel pairs (frozen). *Post hoc*, it
+agrees with adjacent-dump differences on the same samples to 2–15 %
+(`-05-posthoc/noise-*.json`). The stored weights are off by large factors
+on LUNO.
+
+| Set | s² (X, Y) | c (X, Y) | κ = c²/s² (X, Y) | adjacent-dump s² (post hoc) |
+| --- | --- | --- | --- | --- |
+| S1 | 0.103, 0.087 | 0.622, 0.618 | 3.74, 4.40 | 0.110, 0.092 |
+| S2 | 0.071, 0.061 | 0.624, 0.624 | 5.49, 6.42 | – |
+| S3 | 0.0167, 0.0152 | 1.000, 0.999 | 59.8, 65.7 | 0.0191, 0.0176 |
+| S4 | 0.512, 0.513 | 0.967, 0.889 | 1.83, 1.54 | 0.522, 0.522 |
+| S5 (7 scans) | 0.510–0.512 | 0.87–1.27 | 1.47–3.15 | – |
+
+- The ESO137 (CARACal) weights are consistent with a complex-sample
+  variance of 1/w.
+- The LUNO (QuartiCal) weights over-state the noise variance by 10–16× on
+  1934 and 60× on 1830. The raw-weight σ in the tables shows the size of
+  that error.
+- The amplitude scale c on LUNO is about the K/L1 gains squared (0.79²).
+
+### The ESO137 field model (S4, S5)
+
+Gate **E0 passes**: final peak S/N 79.5, and the kept components carry 100 %
+of the CLEAN flux. The orientation check recovers an injected point at
+(0.2°, −0.1°) to the pixel. The round-1 model fits the data better than its
+conjugate (χ² 1.312e10 against 1.329e10).
+
+| Round | Gains | Dirty peak | Dirty robust σ | CLEAN iterations | Components | CLEAN flux | Positive 12″ cells |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 | phase, point at centre | 0.490 | 0.0063 | 84 | 70 | 1.60 | 23 |
+| 1 | phase, round-0 model | 0.487 | 0.0061 | 468 | 380 | 4.94 | 107 |
+| 2 | amplitude and phase, round-1 model | 0.882 | 0.0217 | 329 | 268 | 7.33 | 157 |
+
+The model is 157 components (7.33 units of corrected flux). All of them lie
+within 0.26° of the centre:
+
+- 82 % of the flux is within 6′;
+- 0.16 units are beyond 10′;
+- the brightest component is 0.38.
+
+The half-power radius is 0.53°, so this is ESO 137-006 and little else.
+The snapshot CLEAN's σ is set by PSF sidelobes. The expectation
+"components across the main lobe" is therefore **not realised by the
+frozen procedure**, and S4/S5 test a bright, extended source at the
+pointing centre. See "Post hoc" 3 and 4 for the model's amplitude errors.
+
+### The convergence rule (fired)
+
+On S1 the 16-channel evaluation changed the array-common pointing σ from
+18.7′ to 1.56′ (x) and from 34.6′ to 0.56′ (y), and squint by 11–45 %. That
+is far over the frozen 5 %. So sub16 is the verdict evaluation for every
+set, as the rule says. On S4 the change is 30–49 % for common pointing,
+under 1 % for everything else.
+
+### Verdict tables (σ in the direction's unit; primary sky arm; calibrated noise)
+
+Columns:
+
+- **ρ**: the span fraction.
+- **call**: the frozen rule on sub16.
+- **σ nominal, ρ nominal**: the 32-channel evaluation.
+- **σ family**: the family-marginal σ.
+- **σ raw w**: σ with the stored weights.
+- **anchored**: the median and maximum over gain bins of the relative
+  station step per 1′ or per 1 % (diagonal gains, sky fixed).
+
+Thresholds: 0.3′ for pointing and squint, 0.005 for width and ellipticity,
+and ρ ≥ 0.01.
+
+**S1, PKS 1934−638, four stations** (`-06`): nothing is constrainable.
+
+| Direction | σ | ρ | call | σ nominal | ρ nominal | σ strict | σ family | σ raw w | anchored |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| pointing x (′) | 1.56 | 0.031 | no | 18.7 | 0.0026 | 1.66 | 1.71 | 3.08 | 1.5e-4, 1.2e-3 |
+| pointing y (′) | 0.564 | 0.075 | no | 34.6 | 0.0012 | 0.758 | 0.749 | 1.17 | 2.5e-4, 8.8e-4 |
+| log-width | 0.297 | 0.016 | no | 0.299 | 0.016 | 0.601 | 0.345 | 0.601 | 4.7e-5, 1.4e-4 |
+| ellipticity | 0.308 | 0.028 | no | 0.309 | 0.028 | 0.383 | 0.367 | 0.622 | 2.6e-5, 1.0e-4 |
+| squint x (′) | 1.46 | 0.066 | no | 1.64 | 0.059 | 1.48 | 1.66 | 2.93 | 7.5e-5, 5.9e-4 |
+| squint y (′) | 0.922 | 0.091 | no | 1.67 | 0.050 | 1.03 | 1.24 | 1.89 | 1.3e-4, 4.4e-4 |
+| per-antenna x (4) | 3.26 (median) | 0.036 | 0 of 4 | 30.4 | 0.0040 | – | 2.88 | – | – |
+| per-antenna y (4) | 1.16 | 0.081 | 0 of 4 | 54.7 | 0.0017 | – | 1.03 | – | – |
+
+**S2, PKS 1934−638, whole array** (`-07`):
+
+| Direction | σ | ρ | call | σ nominal | ρ nominal | σ strict | σ family | σ raw w | anchored |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| pointing x (′) | 0.0821 | 0.032 | **yes** | 0.385 | 0.0068 | 0.0838 | 0.0852 | 0.193 | 1.0e-4, 1.2e-3 |
+| pointing y (′) | 0.0316 | 0.075 | **yes** | 0.666 | 0.0036 | 0.0317 | 0.0358 | 0.0792 | 3.0e-4, 1.0e-3 |
+| log-width | 0.00537 | 0.068 | no | 0.00537 | 0.068 | 0.0168 | 0.00768 | 0.0131 | 2.7e-5, 1.4e-4 |
+| ellipticity | 0.00721 | 0.067 | no | 0.00722 | 0.067 | 0.0163 | 0.0103 | 0.0176 | 2.1e-5, 1.1e-4 |
+| squint x (′) | 0.0357 | 0.148 | **yes** | 0.0365 | 0.144 | 0.0357 | 0.0364 | 0.0867 | 5.2e-5, 6.0e-4 |
+| squint y (′) | 0.0404 | 0.118 | **yes** | 0.0524 | 0.091 | 0.0404 | 0.0457 | 0.0994 | 1.5e-4, 5.0e-4 |
+| per-antenna x (53) | 0.177 (min 0.149) | 0.130 | **52 of 53** | 0.187 | 0.123 | – | 0.176 | – | – |
+| per-antenna y (53) | 0.177 (min 0.147) | 0.111 | **52 of 53** | 0.271 | 0.073 | – | 0.176 | – | – |
+
+**S3, PKS 1830−211, point model** (`-09`):
+
+| Direction | σ | ρ | call | σ nominal | ρ nominal | σ strict | σ family | σ raw w |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| pointing x (′) | 0.206 | 0.031 | **yes** (alone only) | ∞ | 0 | 0.206 | 0.444 | 1.60 |
+| pointing y (′) | 0.0760 | 0.076 | **yes** | ∞ | 0 | 0.0760 | 0.109 | 0.612 |
+| log-width, ellipticity | ∞ | – | no (no signature at the centre) | ∞ | – | ∞ | – | ∞ |
+| squint x (′) | 0.412 | 0.031 | no | ∞ | 0 | 0.412 | 0.889 | 3.20 |
+| squint y (′) | 0.152 | 0.076 | **yes** | ∞ | 0 | 0.152 | 0.217 | 1.22 |
+| per-antenna x, y (53) | 1.50, 0.601 | 0.040, 0.085 | 0 of 53 | ∞ | 0 | – | 1.49, 0.598 | – |
+
+The 32-channel evaluation reproduces the analytic control exactly
+(ρ = 0). Everything that passes on S3 comes from inside a gain interval
+("Post hoc" 1).
+
+**S4, ESO137 pilot** (`-12`):
+
+| Direction | σ | ρ | call | σ nominal | ρ nominal | σ strict | σ family | σ raw w | anchored |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| pointing x (′) | 0.331 | 0.013 | no | 0.469 | 0.0093 | 0.332 | 0.430 | 0.437 | 2.3e-3, 4.6e-2 |
+| pointing y (′) | 0.280 | 0.018 | **yes** (alone only) | 0.551 | 0.0094 | 0.281 | 0.311 | 0.352 | 2.3e-3, 3.4e-2 |
+| log-width | 0.00748 | 0.065 | no | 0.00749 | 0.065 | 0.00752 | 0.00896 | 0.00965 | 1.9e-4, 2.3e-3 |
+| ellipticity | 0.0135 | 0.066 | no | 0.0135 | 0.066 | 0.0147 | 0.0175 | 0.0173 | 8.5e-5, 1.4e-3 |
+| squint x (′) | 0.0103 | 0.844 | **yes** | 0.0103 | 0.844 | 0.0103 | 0.0202 | 0.0133 | 1.1e-3, 2.3e-2 |
+| squint y (′) | 0.0116 | 0.887 | **yes** | 0.0116 | 0.887 | 0.0116 | 0.0186 | 0.0150 | 1.1e-3, 1.7e-2 |
+| per-antenna x (60) | 0.0637 (min 0.0355) | 0.812 | **60 of 60** | 0.0638 | 0.812 | – | 0.0867 | – | – |
+| per-antenna y (60) | 0.0714 (min 0.0419) | 0.841 | **60 of 60** | 0.0714 | 0.840 | – | 0.101 | – | – |
+
+**S5, ESO137 track** (`-13`): seven scan chunks, q from −65° to +78°.
+
+| Direction | σ | ρ | call | σ nominal | ρ nominal | σ strict | σ family | σ raw w | anchored |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| pointing x (′) | 0.00555 | 0.554 | **yes** | 0.00556 | 0.553 | 0.00556 | 0.00825 | 0.00832 | 1.9e-3, 4.7e-3 |
+| pointing y (′) | 0.00428 | 0.811 | **yes** | 0.00429 | 0.811 | 0.00428 | 0.00639 | 0.00651 | 2.0e-3, 3.2e-3 |
+| log-width | 0.00545 | 0.064 | no | 0.00544 | 0.064 | 0.00545 | 0.0160 | 0.0082 | 1.6e-4, 2.5e-4 |
+| ellipticity | 0.000553 | 0.880 | **yes** | 0.000553 | 0.880 | 0.000553 | 0.000993 | 0.000813 | 1.2e-4, 2.1e-4 |
+| squint x (′) | 0.00706 | 0.871 | **yes** | 0.00706 | 0.870 | 0.00706 | 0.0111 | 0.0104 | 9.7e-4, 2.4e-3 |
+| squint y (′) | 0.00761 | 0.914 | **yes** | 0.00761 | 0.914 | 0.00761 | 0.00764 | 0.0110 | 9.9e-4, 1.6e-3 |
+
+S5 per-antenna pointing per scan chunk (sub16; nominal identical):
+
+| Scan chunk | x: pass of 60, σ median | y: pass of 60, σ median | ρ median (x, y) |
+| --- | --- | --- | --- |
+| 0 (q −65°) | 60, 0.092′ | 60, 0.107′ | 0.86, 0.87 |
+| 1 (−44°) | 60, 0.095′ | 52, 0.182′ | 0.85, 0.85 |
+| 2 (−18°) | 60, 0.083′ | 52, 0.210′ | 0.85, 0.82 |
+| 3 (+10°) | 60, 0.103′ | 57, 0.166′ | 0.87, 0.88 |
+| 4 (+37°) | 58, 0.146′ | 60, 0.114′ | 0.85, 0.90 |
+| 5 (+59°) | 48, 0.193′ | 60, 0.096′ | 0.84, 0.89 |
+| 6 (+78°) | 56, 0.173′ | 60, 0.082′ | 0.85, 0.88 |
+
+**Summary of the frozen verdict (sub16):**
+
+| Direction | S1 | S2 | S3 | S4 | S5 |
+| --- | --- | --- | --- | --- | --- |
+| per-antenna pointing | no | **52/53 each axis** (0.18′) | no | **60/60** (0.064–0.071′) | **48–60 of 60 per scan** (0.08–0.21′) |
+| array-common pointing | no | **yes** (0.08′, 0.03′; sub16 only) | **yes** (0.21′ alone only, 0.076′; sub16 only) | y alone only (0.28′; sub16 only) | **yes** (0.0056′, 0.0043′) |
+| log-width | no | no (0.54 %) | no | no (0.75 %) | no (0.55 %) |
+| ellipticity | no | no (0.72 %) | no | no (1.35 %) | **yes** (0.055 %) |
+| squint | no | **yes** (0.036′, 0.040′) | y only, sub16 only | **yes** (0.010′, 0.012′) | **yes** (0.007′, 0.008′) |
+
+So **B1 does not close null at B1-2**.
+
+### Native anchored response (S1)
+
+There were 6,048 calls (14 directions × 432 gain bins with four-station
+samples having all four weights positive):
+
+- 5,446 passed the guard (status 0);
+- 602 returned status 3, "underidentified full curvature": bins where a
+  station drops out;
+- no status 6.
+
+Where the native call passes, the diagonal part of its full-Jones delta
+equals the NumPy diagonal response to **2.5e-14** relative (frozen
+tolerance 1e-6). The two definitions agree, and the anchored numbers in the
+tables can be read as the native response's diagonal block.
+
+### Labelled checks
+
+- **Frame rotated by +90°.**
+  - On S1 (at 32 channels) nothing changes the call.
+  - On S4 (at 16 channels) the calls are unchanged: per-antenna 60/60,
+    squint yes, common pointing y alone only.
+  - Width and ellipticity trade places: width σ 0.0147, ellipticity σ
+    0.0074. That is expected, since a 90° rotation swaps the x/y
+    ellipticity axes.
+- **Receptor angles.** They are recorded, not applied: [0, 0] on LUNO and
+  [−π/2, −π/2] on ESO137.
+- **Per-antenna beam check on S1: not run.** The factorised survey assumes
+  one beam for all antennas; see "Deviations".
+
+### Post hoc (labelled; none of this changes the verdict)
+
+1. **The array-common pointing on the snapshots is bandpass granularity,
+   not sky leverage.**
+   - With a single component (S3), every beam direction multiplies V_pq by
+     a factor separable into antenna terms E_p(ν) conj(E_q(ν)). Diagonal
+     gains free per channel would absorb it exactly, so ρ = 0 identically.
+   - The frozen gain interval is 32 channels. What the 16-channel
+     evaluation adds is the change of the beam's on-axis gradient within an
+     interval.
+   - That change is real in the product. For the centre component, the
+     pointing factor changes by 7 % (1070 MHz) and 11 % (1284 MHz) between
+     the two halves of a block, against 0.5 % for components 12–50′ off
+     axis (`-05-posthoc/chromatic.log`).
+   - It survives sampling the beam only at the 9.2 MHz product channels
+     (S3 `-10`: y 0.114′, ρ 0.051).
+   - Freeing a per-antenna amplitude and phase slope across each gain bin
+     removes x and most of y:
+
+     | S3 run | beam evaluation | gain slope | common pointing x | common pointing y | squint y |
+     | --- | --- | --- | --- | --- | --- |
+     | `-09` | sub16 | no | 0.206′, ρ 0.031 | 0.076′, ρ 0.076 | 0.152′ |
+     | `-16` | per channel | no | 0.179′, ρ 0.036 | 0.068′, ρ 0.085 | 0.137′ |
+     | `-14` | sub16 | yes | 0.407′, ρ 0.016 | 0.150′, ρ 0.039 | 0.301′ |
+     | `-17` | per channel | yes | 1.92′, ρ 0.0034 | 0.222′, ρ 0.026 | 0.444′ |
+
+     What remains in y with per-channel evaluation is the curvature of the
+     elevation gradient across 6.7 MHz in the native channels. A
+     per-channel bandpass would absorb it too.
+   - On S1 the slope raises the sub16 common-pointing σ from 1.56′/0.56′ to
+     2.68′/1.08′ (`-15`), and product sampling gives 1.70′/0.93′ (`-11`).
+   - The same mechanism carries S2's and S4's common pointing: nominal
+     fails, sub16 passes.
+   - Squint and per-antenna pointing on S2, S4 and S5, and every S5 common
+     direction, are **not** of this kind. They pass identically at 32
+     channels.
+2. **The noise scale is not an artefact of correlated channels.**
+   Adjacent-dump differences give s² within 2–15 % of the adjacent-channel
+   value on S1, S3 and S4. That moves σ by at most 7 %.
+3. **The field model's amplitude is wrong by baseline length.** Median
+   |data| / |model| (raw data, no gains) is:
+   - 3.9 below 200 m;
+   - 2.1 at 0.2–1 km;
+   - 0.84 at 1–3 km;
+   - 0.33 above 3 km.
+
+   The merged-point CLEAN model misses the diffuse emission and
+   over-predicts long baselines (`-05-posthoc/fieldmodel-by-length.json`).
+   Scaling the model's visibilities band by band to the data (`-19`) makes
+   S4 *more* informative:
+   - per-antenna pointing σ 0.026′/0.029′ (59 and 58 of 60);
+   - squint 0.004′;
+   - common pointing 0.12′/0.11′;
+   - width 0.26 % and ellipticity 0.49 % pass.
+
+   So the S4 per-antenna and squint calls are not an artefact of the
+   model's long-baseline excess. The width call is sensitive to the model
+   (0.75 % against 0.26 %) and stays "no" as frozen.
+4. **The round-2 field-model gains are degenerate on the outer antennas.**
+   - 385 of 1,920 solved amplitudes lie outside 0.5–2× the median, from
+     0.005 to 2.65 (`-05-posthoc/fieldmodel-gains.json`).
+   - Antennas 45, 46 and 54–57 collapse to 0.03–0.15, because the round-1
+     model over-predicts their long baselines.
+   - This is a property of the frozen procedure (amplitude self-calibration
+     against an incomplete model), and it is recorded, not rerun. The
+     medians c (0.97, 0.89) are not affected materially.
+   - The S4 calls sit 4–30× inside their thresholds, so a factor-2 error in
+     κ cannot change them. S4's common pointing y (0.28′) and S2's width
+     (0.54 %) are the near-threshold numbers.
+5. **Sub-block convergence.**
+   - 8-channel evaluation on S1 lowers σ by a further 6 % (`-18`).
+   - Per-channel evaluation on S3 lowers it by 10–13 % (`-16`).
+   - The rule's evaluation (16 channels) has therefore not converged for
+     the in-interval directions of item 1. It has converged for all others,
+     which do not depend on it.
+
+### What this shows, and what it does not
+
+- **Squint and per-antenna pointing are first-order observable** on a bright
+  extended source at the pointing centre. ESO 137-006 spans a few arcmin;
+  the beam gradient across it differs between antennas, and gains cannot
+  absorb that. The pilot gives about 0.07′ in 3.5 min, ρ ≈ 0.8.
+  - B1's expectation was the opposite (per-antenna "if at all"), because it
+    reasoned from compact sources.
+  - On 1934 the off-axis 2.4 % of the flux gives 0.18′ with ρ ≈ 0.12.
+- **Array-common pointing and ellipticity need parallactic rotation.** The
+  track gives 0.004–0.006′ and 0.055 % with ρ 0.55–0.88. Every snapshot
+  gives either nothing or the bandpass-granularity signal of item 1.
+- **Array-common width is not constrainable anywhere.** σ is 0.54 % on S2
+  and S5, 0.75 % on S4 and 30 % on S1, with ρ 0.016–0.068. Width is
+  rotation-invariant and largely absorbed by free component fluxes. B1's
+  calibrator expectation ("at best array-common width") fails narrowly.
+- **Not shown:**
+  - whether these directions can be *estimated* without bias from real data
+    (B1-3);
+  - whether the holography beam is good enough at the level these σ imply.
+    A 0.07′ offset changes I_b by about 2e-4 at 2′ from the centre, which
+    is comparable to the product's error beam (about 1e-3) and to
+    antenna-to-antenna differences (0.12–0.21 % RMS in the main lobe);
+  - how a deeper ESO137 field model (sources across the main lobe) changes
+    any of this.
+
+### Deviations
+
+- **Per-antenna beam check on S1** (frozen as a labelled check): not run.
+  The factorised Gram computation (`block_normals`) uses one beam per
+  component for every antenna. Per-antenna beams need antenna-dependent
+  factors in every block; that is a code change for B1-3.
+- **The rot90 check on S1** ran at 32 channels (it was in run `-03` before
+  the rule fired). S4's ran at 16 channels.
+- Nothing else deviates from the frozen procedure. The errata above are
+  facts and bookkeeping.
+
+### Open items
+
+- The in-interval chromatic signal (post hoc 1) has not converged at 16
+  channels, and it vanishes with a per-channel bandpass. B1-3 must decide
+  the gain or bandpass nuisance first.
+- The ESO137 field model is the bright central source only, with
+  baseline-dependent amplitude errors of 3–4×.
+- The per-antenna beam check is not run.
+- The LUNO weights scale (10–60× in variance) is a processing product to
+  report upstream.
+
+### What B1-3 should do given this result
+
+1. **Re-run the survey with a per-channel diagonal gain (bandpass) nuisance
+   before fitting anything.** Any direction that survives only through
+   gain-interval granularity is not a pointing measurement. Expected:
+   - S2/S3/S4 snapshot common pointing goes;
+   - squint, per-antenna pointing and the S5 common directions stay. This
+     is to be verified, not assumed.
+2. **Fit only what survives:**
+   - per-antenna pointing on the ESO137 sets (and S2);
+   - squint;
+   - array-common pointing and ellipticity on the track.
+
+   Width is excluded.
+3. **Use per-antenna holography beams** (B1-0 product, m000–m063) or treat
+   per-antenna beam-shape differences as a nuisance. At σ ≈ 0.07′ the
+   per-antenna pointing signal is comparable to those differences.
+4. **Build a deeper ESO137 field model** before the faint-source metric
+   (B1 metric 3): an image of the track, or a catalogue if the user allows
+   one.
+5. Keep B1's frozen metrics: recovered offset against truth, held-out
+   visibility error (seed 7), faint-source distortion, and cost.
+
+### Timings (every tool run of this task)
+
+WSL host, this branch. Wall and peak RSS from `/usr/bin/time` unless noted.
+
+| Date | Tool / stage | Input | Wall | Peak RSS | Notes |
+| --- | --- | --- | ---: | ---: | --- |
+| 2026-10-30 | uv venv + install (builds the extension) | worktree | 88.4 s | 1.12 GB | `.[pointing,beam,test,imaging]` ruff maturin pip |
+| 2026-10-30 | `fetch_eso137_pilot.py probe` | subset metadata, row columns, FLAG, MODEL_DATA | 14.5 s | 52 MB | 5,531,329 B |
+| 2026-10-30 | `core_fetch.fetch_slice` DATA probe | 4 stations, row chunk 0 | 12.1 s | 67 MB | 105,573,706 B |
+| 2026-10-30 | HEAD sizing of the track | 7 scans × 8 objects | 19.5 s | 24 MB | |
+| 2026-10-30 | astropy parallactic-angle spans | 4 sets | 1.3 s | 169 MB | |
+| 2026-10-30 | `fetch_eso137_pilot.py fetch` (S4) | 1,043,366,221 B | 100.5 s | 969 MB | 10.4 MB/s |
+| 2026-10-30 | `fetch_eso137_pilot.py track` (S5) | 1,882,001,185 B | 189.0 s | 284 MB | 10.0 MB/s |
+| 2026-10-30 | `b1_identifiability.py survey S1` (`-03`) | 192 rows × 2,048 ch, 3 variants | 196.4 s | 1.22 GB | fired the convergence rule; family-line bug |
+| 2026-10-30 | `b1_identifiability.py fieldmodel` (`-04`) | 46,822 rows × 500 ch | 1,979 s | 14.4 GB | orientation check 196 s, rounds 631, 591, 555 s; 4096² images |
+| 2026-10-30 | survey S1 (`-06`) | as `-03` | 226.0 s | 1.21 GB | native anchored 6,048 calls included |
+| 2026-10-30 | survey S2 (`-07`) | 41,786 rows × 2,048 ch, 196 components, 2 variants | 3,064.7 s | 6.48 GB | survey 2,663 s; noise + model 365 s |
+| 2026-10-30 | survey S1-posthoc (`-08`) | as S1 | 90.1 s | 1.21 GB | superseded (c = 1 bug) |
+| 2026-10-30 | survey S3 (`-09`) | 15,400 rows × 2,048 ch, 1 component | 70.9 s | 2.60 GB | |
+| 2026-10-30 | post hoc: chromatic factors | 3 × 32 channels | ~2 s | – | not timed |
+| 2026-10-30 | post hoc: noise by dump, S1 / S3 / S4 | – | 1.9 / 429.9 / 348.2 s | 0.13 / 2.97 / 2.38 GB | per-baseline Python loop |
+| 2026-10-30 | post hoc: S3 product sampling (`-10`) | | 78.9 s | 2.43 GB | |
+| 2026-10-30 | post hoc: S1 product sampling (`-11`) | | 108.0 s | 0.68 GB | |
+| 2026-10-30 | survey S4 (`-12`) | 46,822 rows × 500 ch, 157 components, 3 variants | 1,471.6 s | 1.95 GB | |
+| 2026-10-30 | survey S5 (`-13`) | 7 × ≈ 46,700 rows × 128 ch, 2 variants | 2,261.0 s | 2.97 GB | per-scan gain solves 662 s |
+| 2026-10-30 | post hoc: S3 / S1 with gain slope (`-14`, `-15`) | | 129.3 / 78.8 s | 2.56 / 1.18 GB | |
+| 2026-10-30 | post hoc: S3 per channel (`-16`, `-17`) | | 175.0 / 164.3 s | 2.74 / 2.74 GB | |
+| 2026-10-30 | post hoc: S1 8-channel (`-18`) | | 80.6 s | 1.21 GB | |
+| 2026-10-30 | post hoc: field-model gains, model by length | | ~10 s, 5.8 s | –, 1.67 GB | |
+| 2026-10-30 | post hoc: S4 tapered (`-19`) | 1 variant | 545.2 s | 1.86 GB | |
+| 2026-10-30 | `b1_identifiability.py archive` | 14 runs | 0.37 s | 91 MB | |
+| 2026-10-30 | pytest `tests/test_b1_identifiability.py` | 13 tests | 2.5 s | – | |
+| 2026-10-30 | `bash tools/check-all.sh` | worktree | 737 s | 1.91 GB | **overall: PASS**; pytest 630 passed, 5 skipped in 153.9 s; wall includes waiting for the host lock behind two other tasks; log `outputs/b1-2-20261030-check-all.log` |
+
+## For the coordinator
+
+- **Shared files.** None edited. Added:
+  - `research/b1-2-identifiability.md` (this file);
+  - `research/results/b1-2-identifiability.json` (259 kB, derived numbers
+    keyed by run);
+  - `python/rang/beam_identifiability.py`, `python/rang/measures.py`;
+  - `examples/fetch_eso137_pilot.py`, `examples/b1_identifiability.py`;
+  - `tests/test_b1_identifiability.py` (13 tests; the measures test skips
+    without astropy, which is in the `[imaging]` extra).
+
+  No Rust: the survey is NumPy/SciPy (the S2 run is 51 min single-threaded,
+  dominated by the K² sky Gram per gain bin); no `pub mod` or PyO3 change.
+- **`STATE.md`**, new top entry:
+
+  > B1-2 identifiability survey (big plan wave 3), 2026-10-30 (implemented;
+  > measured; [b1-2-identifiability.md](b1-2-identifiability.md)). Protocol
+  > frozen first. Which beam and pointing directions can the data
+  > constrain once per-antenna diagonal gains (2 dumps × 32 channels) and
+  > the sky fluxes (flux and spectral index per component) are profiled?
+  > Five sets: LUNO 1934−638 chunk 0 on four stations and on the whole array
+  > (CARACal lsm), 1830−211 (a point), the ESO137 pilot (subset row chunk
+  > 0, fetched 1.04 GB) and a new ESO137 track set (one 3.5-min chunk of
+  > tile 20 from each of the 7 scans, 1.88 GB, 160° of parallactic angle).
+  > Beam: the B1-0 holography array average with analytic spline
+  > derivatives. Noise: calibrated from adjacent-channel differences (the
+  > LUNO weights over-state the variance by 10–60×). Field model for ESO137:
+  > the stored MODEL_DATA is all zero and the subset DATA is uncalibrated,
+  > so three frozen self-calibration and CLEAN rounds; E0 passes, but the
+  > model is the central radio galaxy only (157 components within 0.26°).
+  > The frozen convergence rule fired, so the verdict uses 16-channel beam
+  > evaluation. **B1 does not close null:**
+  > - per-antenna pointing is constrainable on the ESO137 pilot (60/60
+  >   antennas, σ ≈ 0.07′ in 3.5 min, ρ ≈ 0.8) and per track chunk, and
+  >   marginally on 1934 (52/53, 0.18′);
+  > - squint is constrainable on 1934 and ESO137 (0.004–0.04′);
+  > - array-common pointing and ellipticity are constrainable only on the
+  >   track (0.005′, 0.06 %);
+  > - array-common width is constrainable nowhere (0.54 % against 0.5 %).
+  >
+  > The snapshot array-common pointing that passes on 1934, 1830 and the
+  > pilot is the beam's chromaticity inside a 32-channel gain interval: a
+  > per-channel bandpass removes it exactly on the 1830 point (post hoc).
+  > Native anchored response: 5,446 of 6,048 calls pass; it agrees with
+  > NumPy to 2.5e-14. Next: B1-3, which first re-runs the survey with a
+  > per-channel bandpass nuisance and per-antenna beams, then fits only the
+  > surviving directions against both baselines.
+- **`research/README.md`** index entry:
+
+  > New, 2026-10-30: B1-2, [identifiability](b1-2-identifiability.md):
+  > per-antenna pointing and squint are constrainable on ESO137 (0.07′ and
+  > 0.01′ in 3.5 min) and marginally on 1934; array-common pointing and
+  > ellipticity only on a 7-scan track; width nowhere; snapshot common
+  > pointing is bandpass granularity; B1 continues to B1-3.
+- **`big-plan.md`**, wave 3: "B1-2 done 2026-10-30 (`b1-2-identifiability.md`):
+  not null. Constrainable on the frozen rule: per-antenna pointing and
+  squint (ESO137, 1934), array-common pointing and ellipticity (ESO137
+  track); width nowhere. B1-3 starts with a per-channel-bandpass rerun of
+  the survey and per-antenna beams, then pointing self-calibration and the
+  rang method on the surviving directions. It needs a deeper ESO137 field
+  model (track image, or a catalogue: user decision)."
+- **`tool-timings.md`**: the rows of the timings table above.
+- **Upstream observations, RATT** (for `upstream-notes.md`; candidates to
+  file in the RATT data stores' tracker):
+  - *ESO137 `ms1_target_subset.zarr`* (ratt-public-data):
+    - MODEL_DATA is identically zero (row chunk 0; 61 MB for the column);
+    - DATA is uncalibrated: antenna-dependent XX–YY phases up to 1.9 rad,
+      and no CORRECTED_DATA in the subset. This is worth documenting for
+      users who image it directly;
+    - every string column (ANTENNA/NAME, FIELD/NAME, FEED/POLARIZATION_TYPE,
+      …) is a pickle-filtered object array, so reading names means
+      unpickling remote data. json2 or vlen-utf8 would be safe;
+    - FEED RECEPTOR_ANGLE is −π/2 for both receptors (LUNO has 0 for both).
+  - *LUNO calibrator stores*: WEIGHT_SPECTRUM over-states the noise
+    variance by 10–16× (1934, MAIN_1) and 60× (1830, MAIN_2). This was
+    measured from adjacent-channel and adjacent-dump differences, which
+    agree to 2–15 %. It extends C1's factor of about 5.6 for the closure
+    noise.
+  - caracal-pipeline, saopicc: nothing new.
+- **Upstream observations, non-RATT** (for `non-ratt-observations.md`):
+  - *SARAO holography release*: the array-average beam's on-axis gradient
+    changes by 7–11 % between the halves of a 6.7 MHz interval at
+    1070–1284 MHz, so the beam centroid has real frequency structure at
+    that scale. This is informational: it matters to anyone solving
+    pointing with coarse bandpass intervals.
+  - *astropy 8.0.2*: none (the frame-rotation subtlety is documented here,
+    not a bug).
+- **Ignored output directories** (none committed; ESO137 is CC BY 4.0, the
+  holography CC BY-NC 4.0):
+
+  | Dir under `outputs/` | Size | Keep? |
+  | --- | ---: | --- |
+  | `b1-2-20261030-01-pilot` | 996 MB | yes, until B1-3 (refetch 100 s) |
+  | `b1-2-20261030-02-track` | 1.8 GB | yes, until B1-3 (refetch 190 s) |
+  | `b1-2-20261030-04-fieldmodel` | 193 MB | yes (components, gains, three 4096² FITS) |
+  | `b1-2-20261030-00-probe-data` | 102 MB | can be deleted |
+  | `b1-2-20261030-00-probe`, `-00-probe-track`, `-05-posthoc` | 5.8 MB | keep (scripts and logs) |
+  | `b1-2-20261030-03-S1` … `-19-S4-posthoc-taper` (survey runs, `.log`, `.time`) | about 8 MB | keep (`survey.json` per run) |
+  | `b1-2-20261030-check-all.log` | small | keep |
+- **User items.** Whether to allow an external catalogue (SUMSS, RACS) for
+  the ESO137 field model in B1-3: the protocol allowed only MODEL_DATA or
+  an image.
