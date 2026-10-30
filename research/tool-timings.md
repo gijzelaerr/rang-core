@@ -879,3 +879,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | certified CLEAN: `examples/clean_certified_compare.py` | 10 rang + 4 WSClean models | 3.5 s | 138 MB | every model scored through the exact operator |
 | 2026-10-30 | certified CLEAN: `clean_certified` CG sweep, 50-1600 iterations | `-03` inputs | 970.5 s | 180 MB | 3,150 normal-operator applications, 0.22-0.34 s each |
 | 2026-10-30 | certified CLEAN: `examples/archive_clean_certified.py` | run, comparison, sweep, WSClean logs | 0.09 s | 17 MB | 113 kB archive |
+| 2026-10-30 | certified CLEAN: `maturin develop --release --offline` with the `clean_certified` binding | worktree | 248.2 s | 958 MB | cold build of the extension crate in this worktree |
+| 2026-10-30 | certified CLEAN: pytest `tests/test_core_clean.py` | 3 tests | 2.8 s | – | 1.2-1.7 s in pytest |
+| 2026-10-30 | certified CLEAN: binding cross-check on the slice | `exact-mgain`, `image-mgain` | 4.0 s | 148 MB | bit-identical to the example; `clean-certified-20261030-05-binding-check.json` |

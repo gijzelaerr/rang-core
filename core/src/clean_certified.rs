@@ -46,7 +46,7 @@
 use crate::clean::{self, CleanStep, Grid, Psf, Sampling, Vis, argmax_abs, subtract};
 use crate::wgridder::{self, Options, VisData, Weights};
 use rayon::prelude::*;
-use rustfft::num_complex::Complex;
+pub use rustfft::num_complex::Complex;
 use std::time::Instant;
 
 /// What a major cycle needs from the data.

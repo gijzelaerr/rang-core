@@ -25,7 +25,7 @@ ascending steps but its low-misfit models put 4.7-7 Jy off-centre and up to
 WSClean reference `r1-*.fits` uses WSClean's default minimum-grid-resolution
 upsampling and is 17 % (L∞/peak) off the exact transform on this field;
 `-no-min-grid-resolution -wgridder-accuracy 1e-6` matches the core to
-2.6e-7. Not done: the Python binding. Archive
+2.6e-7. Python: `rang.core_clean.certified_clean` (PyO3, 3 tests). Archive
 `results/clean-certified-imaging.json`.
 
 P12 rename (big plan), 2026-10-30 (implemented; measured;

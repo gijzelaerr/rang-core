@@ -21,9 +21,9 @@ Archive: [results/clean-certified-imaging.json](results/clean-certified-imaging.
   major cycle the Gram-consistency gap, an audit of ascending minor steps
   and the greedy ratio; `Q_∞` by conjugate gradients on the normal operator;
   the ERC of the final component list by one Cholesky factorisation. Six
-  unit tests. The example `core/examples/clean_certified.rs` runs it on the
-  slice; three scripts export the data through the core, run WSClean and
-  compare.
+  unit tests; `rang.core_clean.certified_clean` exposes it in Python (§9).
+  The example `core/examples/clean_certified.rs` runs it on the slice;
+  three scripts export the data through the core, run WSClean and compare.
 - **Measured, the reference.** WSClean 3.7 at the O-CASA reference setting
   (`-gridder wgridder`, default minimum-grid-resolution) images this field on
   a 32 × 32 Nyquist grid and upsamples: its dirty image differs from the
@@ -415,11 +415,26 @@ The `r1` reference is O-CASA's (`/home/gijsm/Github/rang/outputs/o-casa-20261030
 Runs are deterministic except WSClean's float pixels (bit-identical at
 `-j 1` in O-CASA's test).
 
-## 9. Open items
+## 9. Python interface (implemented; tested)
 
-- **Python binding (task deliverable 3): not done.** The driver is reachable
-  from Rust and through the example; a PyO3 entry and a `rang` function
-  following `core_grid.py` remain.
+`rang.core_clean.certified_clean(uvw, freq, vis, weights, *, side, scale_arcsec,
+epsilon, wgridding, flip_v, flip_w, gain, threshold, max_components,
+max_major, max_minor, rule, mgain, patch, beam, floor_iterations,
+floor_tolerance, divergence_limit, audit, erc_max_k)` calls
+`rang._core.clean_certified` (`core/py/src/clean.rs`, PyO3, GIL released),
+which runs `clean_certified::run` on a `WgridMeasurement` and returns the
+model, the exact residual (gridder layout; `.T` is WSClean's FITS order with
+the default flips), a summary (`Q_0`, `Q`, components, cycles, stop, `f`,
+ascending steps, ERC, `Q_∞`) and one dict per major cycle.
+`tests/test_core_clean.py` (3 tests, 1.2 s): Gram gap below 1e-8 of `Q` and
+monotone descent with the exact beam, no ascending step under the provable
+rule with a ±2 patch, refused inputs. On the slice the binding reproduces
+the example's `exact-mgain` and `image-mgain` models and residuals bit for
+bit (`outputs/clean-certified-20261030-05-binding-check.json`; 1.5 s and
+2.2 s from Python, including the 1024² beam).
+
+## 10. Open items
+
 - A position-dependent (w-term) Gram beam, or faceted beams, would remove
   the 1.4e-4 gap; not needed at this field size.
 - The O-CASA WSClean reference (`r1`) should be regenerated with

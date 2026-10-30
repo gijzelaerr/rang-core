@@ -42,6 +42,8 @@ use rang_core::ms::{DataType, Table};
 use rang_core::ms_write::TableWriter;
 use rang_core::toy;
 
+mod clean;
+
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
 /// A column read: packed bytes, nrows, cell shape, dtype code, nstrings.
@@ -1321,6 +1323,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(imaging_weights, m)?)?;
     m.add_function(wrap_pyfunction!(grid_invert, m)?)?;
     m.add_function(wrap_pyfunction!(grid_kernel, m)?)?;
+    m.add_function(wrap_pyfunction!(clean::clean_certified, m)?)?;
     m.add_function(wrap_pyfunction!(flag_rows, m)?)?;
     m.add_function(wrap_pyfunction!(gain_tv, m)?)?;
     m.add_function(wrap_pyfunction!(trend_slopes, m)?)?;
