@@ -25,7 +25,8 @@
 //! did under ctypes (which also released the GIL): do not do that.
 
 use numpy::{
-    Element, IntoPyArray, PyArray1, PyReadonlyArray1, PyReadonlyArrayDyn, PyReadwriteArrayDyn,
+    Complex32, Complex64, Element, IntoPyArray, PyArray1, PyReadonlyArray1, PyReadonlyArrayDyn,
+    PyReadwriteArrayDyn,
 };
 use pyo3::exceptions::{PyOSError, PyValueError};
 use pyo3::prelude::*;
@@ -38,9 +39,11 @@ use rang_core::ffi_ms_write::{keyword_value, new_column};
 use rang_core::ffi_weights::{
     ImagingWeightInputs, ImagingWeightOutputs, StokesIInputs, StokesIOutputs,
 };
+use rang_core::ffi_wgridder::{self, WgridderOptions};
 use rang_core::ms::{DataType, Table};
 use rang_core::ms_write::TableWriter;
 use rang_core::toy;
+use std::ffi::c_void;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
@@ -751,6 +754,403 @@ fn grid_kernel(
     }))
 }
 
+// ------------------------------------------- exact gridder (DF2b bindings)
+
+/// `WgridderOptions` from its 18 fields in declaration order (sizes and
+/// flags as floats; every value is exact in a double).
+fn wgridder_options(o: &[f64]) -> PyResult<WgridderOptions> {
+    if o.len() != 18 {
+        return Err(PyValueError::new_err("18 gridder options required"));
+    }
+    Ok(WgridderOptions {
+        nx: o[0] as usize,
+        ny: o[1] as usize,
+        pixsize_x: o[2],
+        pixsize_y: o[3],
+        epsilon: o[4],
+        center_x: o[5],
+        center_y: o[6],
+        sigma_min: o[7],
+        sigma_max: o[8],
+        do_wgridding: o[9] as i32,
+        divide_by_n: o[10] as i32,
+        flip_u: o[11] as i32,
+        flip_v: o[12] as i32,
+        flip_w: o[13] as i32,
+        allow_nshift: o[14] as i32,
+        kernel_index: o[15] as i64,
+        nu: o[16] as usize,
+        nv: o[17] as usize,
+    })
+}
+
+/// A borrowed visibility array of either complex precision (or none:
+/// unit visibilities).
+enum VisArg<'py> {
+    Unit,
+    C64(Ro<'py, Complex32>),
+    C128(Ro<'py, Complex64>),
+}
+
+impl<'py> VisArg<'py> {
+    fn extract(a: Option<&Bound<'py, PyAny>>) -> PyResult<Self> {
+        let Some(a) = a else {
+            return Ok(VisArg::Unit);
+        };
+        if let Ok(v) = a.extract::<Ro<'py, Complex32>>() {
+            return Ok(VisArg::C64(v));
+        }
+        if let Ok(v) = a.extract::<Ro<'py, Complex64>>() {
+            return Ok(VisArg::C128(v));
+        }
+        Err(PyValueError::new_err("vis must be complex64 or complex128"))
+    }
+
+    fn len(&self) -> Option<usize> {
+        match self {
+            VisArg::Unit => None,
+            VisArg::C64(v) => Some(v.as_array().len()),
+            VisArg::C128(v) => Some(v.as_array().len()),
+        }
+    }
+
+    fn ptr_kind(&self) -> PyResult<(*const c_void, i32)> {
+        Ok(match self {
+            VisArg::Unit => (std::ptr::null(), ffi_wgridder::WGRIDDER_VIS_UNIT),
+            VisArg::C64(v) => (ptr(v)? as *const c_void, ffi_wgridder::WGRIDDER_VIS_C64),
+            VisArg::C128(v) => (ptr(v)? as *const c_void, ffi_wgridder::WGRIDDER_VIS_C128),
+        })
+    }
+}
+
+/// A borrowed weight array of either real precision, or none.
+enum WgtArg<'py> {
+    None,
+    F32(Ro<'py, f32>),
+    F64(Ro<'py, f64>),
+}
+
+impl<'py> WgtArg<'py> {
+    fn extract(a: Option<&Bound<'py, PyAny>>) -> PyResult<Self> {
+        let Some(a) = a else {
+            return Ok(WgtArg::None);
+        };
+        if let Ok(w) = a.extract::<Ro<'py, f32>>() {
+            return Ok(WgtArg::F32(w));
+        }
+        if let Ok(w) = a.extract::<Ro<'py, f64>>() {
+            return Ok(WgtArg::F64(w));
+        }
+        Err(PyValueError::new_err("weights must be float32 or float64"))
+    }
+
+    fn len(&self) -> Option<usize> {
+        match self {
+            WgtArg::None => None,
+            WgtArg::F32(w) => Some(w.as_array().len()),
+            WgtArg::F64(w) => Some(w.as_array().len()),
+        }
+    }
+
+    fn ptr_kind(&self) -> PyResult<(*const c_void, i32)> {
+        Ok(match self {
+            WgtArg::None => (std::ptr::null(), ffi_wgridder::WGRIDDER_WGT_NONE),
+            WgtArg::F32(w) => (ptr(w)? as *const c_void, ffi_wgridder::WGRIDDER_WGT_F32),
+            WgtArg::F64(w) => (ptr(w)? as *const c_void, ffi_wgridder::WGRIDDER_WGT_F64),
+        })
+    }
+}
+
+/// The `_ex2` gridding entry point of one precision.
+type V2dFn<T> = unsafe extern "C" fn(
+    *const WgridderOptions,
+    usize,
+    usize,
+    *const f64,
+    *const f64,
+    *const c_void,
+    i32,
+    *const c_void,
+    *const c_void,
+    i32,
+    *const u8,
+    *mut T,
+    *mut T,
+    *mut f64,
+) -> i32;
+
+/// The `_ex` degridding entry point of one precision.
+type D2vFn<T> = unsafe extern "C" fn(
+    *const WgridderOptions,
+    usize,
+    usize,
+    *const f64,
+    *const f64,
+    *const T,
+    *const c_void,
+    i32,
+    *const u8,
+    *mut T,
+    *mut f64,
+) -> i32;
+
+/// One gridding call of either precision through the `_ex2` entry point.
+#[allow(clippy::too_many_arguments)]
+fn wgridder_v2d<T: Element>(
+    py: Python<'_>,
+    opts: Vec<f64>,
+    uvw: Ro<'_, f64>,
+    freq: Ro<'_, f64>,
+    vis: Option<&Bound<'_, PyAny>>,
+    wgt: Option<&Bound<'_, PyAny>>,
+    wgt2: Option<Ro<'_, f32>>,
+    mask: Option<Ro<'_, u8>>,
+    mut dirty: Option<Rw<'_, T>>,
+    mut psf: Option<Rw<'_, T>>,
+    mut info: Rw<'_, f64>,
+    run: V2dFn<T>,
+) -> PyResult<i32> {
+    let opts = wgridder_options(&opts)?;
+    let nrow = uvw.as_array().len() / 3;
+    let nchan = freq.as_array().len();
+    let n = nrow * nchan;
+    let npix = opts.nx * opts.ny;
+    let vis = VisArg::extract(vis)?;
+    let wgt = WgtArg::extract(wgt)?;
+    let (vis_ptr, vis_kind) = vis.ptr_kind()?;
+    let (wgt_ptr, mut wgt_kind) = wgt.ptr_kind()?;
+    let wgt2_ptr = match &wgt2 {
+        None => std::ptr::null(),
+        Some(b) => {
+            // Two weights: both float32, multiplied in the core.
+            if wgt_kind != ffi_wgridder::WGRIDDER_WGT_F32 {
+                return Err(PyValueError::new_err("two weights must both be float32"));
+            }
+            wgt_kind = ffi_wgridder::WGRIDDER_WGT_F32_PRODUCT;
+            ptr(b)? as *const c_void
+        }
+    };
+    let sizes_ok = uvw.as_array().len() == nrow * 3
+        && vis.len().is_none_or(|l| l == n)
+        && wgt.len().is_none_or(|l| l == n)
+        && wgt2.as_ref().is_none_or(|b| b.as_array().len() == n)
+        && mask.as_ref().is_none_or(|m| m.as_array().len() == n)
+        && dirty.as_ref().is_none_or(|d| d.as_array().len() == npix)
+        && psf.as_ref().is_none_or(|d| d.as_array().len() == npix)
+        && info.as_array().len() == rang_core::wgridder::N_INFO;
+    if !sizes_ok {
+        return Err(PyValueError::new_err("gridder array sizes disagree"));
+    }
+    let uvw_ptr = ptr(&uvw)?;
+    let freq_ptr = ptr(&freq)?;
+    let mask_ptr = opt_ptr(&mask)?;
+    let dirty_ptr = opt_ptr_mut(&mut dirty)?;
+    let psf_ptr = opt_ptr_mut(&mut psf)?;
+    let info_ptr = ptr_mut(&mut info)?;
+    // SAFETY: every pointer borrows a live NumPy buffer of the checked
+    // length for the duration of the call.
+    Ok(detach(py, || unsafe {
+        run(
+            &opts, nrow, nchan, uvw_ptr, freq_ptr, vis_ptr, vis_kind, wgt_ptr, wgt2_ptr, wgt_kind,
+            mask_ptr, dirty_ptr, psf_ptr, info_ptr,
+        )
+    }))
+}
+
+/// `rang_core_wgridder_vis2dirty_ex2_f64`: data of either complex
+/// precision and weights of either real precision read in place (`wgt2`,
+/// float32, multiplies a float32 `wgt` in the core); `dirty` and/or `psf`
+/// float64 outputs; `info` the plan. Returns the status code.
+#[pyfunction]
+#[pyo3(signature = (opts, uvw, freq, vis, wgt, wgt2, mask, dirty, psf, info))]
+#[allow(clippy::too_many_arguments)]
+fn wgridder_vis2dirty_f64(
+    py: Python<'_>,
+    opts: Vec<f64>,
+    uvw: Ro<'_, f64>,
+    freq: Ro<'_, f64>,
+    vis: Option<&Bound<'_, PyAny>>,
+    wgt: Option<&Bound<'_, PyAny>>,
+    wgt2: Option<Ro<'_, f32>>,
+    mask: Option<Ro<'_, u8>>,
+    dirty: Option<Rw<'_, f64>>,
+    psf: Option<Rw<'_, f64>>,
+    info: Rw<'_, f64>,
+) -> PyResult<i32> {
+    wgridder_v2d(
+        py,
+        opts,
+        uvw,
+        freq,
+        vis,
+        wgt,
+        wgt2,
+        mask,
+        dirty,
+        psf,
+        info,
+        ffi_wgridder::rang_core_wgridder_vis2dirty_ex2_f64,
+    )
+}
+
+/// As `wgridder_vis2dirty_f64`, working in single precision (float32
+/// outputs).
+#[pyfunction]
+#[pyo3(signature = (opts, uvw, freq, vis, wgt, wgt2, mask, dirty, psf, info))]
+#[allow(clippy::too_many_arguments)]
+fn wgridder_vis2dirty_f32(
+    py: Python<'_>,
+    opts: Vec<f64>,
+    uvw: Ro<'_, f64>,
+    freq: Ro<'_, f64>,
+    vis: Option<&Bound<'_, PyAny>>,
+    wgt: Option<&Bound<'_, PyAny>>,
+    wgt2: Option<Ro<'_, f32>>,
+    mask: Option<Ro<'_, u8>>,
+    dirty: Option<Rw<'_, f32>>,
+    psf: Option<Rw<'_, f32>>,
+    info: Rw<'_, f64>,
+) -> PyResult<i32> {
+    wgridder_v2d(
+        py,
+        opts,
+        uvw,
+        freq,
+        vis,
+        wgt,
+        wgt2,
+        mask,
+        dirty,
+        psf,
+        info,
+        ffi_wgridder::rang_core_wgridder_vis2dirty_ex2_f32,
+    )
+}
+
+/// One degridding call of either precision through the `_ex` entry point;
+/// `vis` is the real view (`2 * nrow * nchan` values) of the output.
+#[allow(clippy::too_many_arguments)]
+fn wgridder_d2v<T: Element>(
+    py: Python<'_>,
+    opts: Vec<f64>,
+    uvw: Ro<'_, f64>,
+    freq: Ro<'_, f64>,
+    dirty: Ro<'_, T>,
+    wgt: Option<&Bound<'_, PyAny>>,
+    mask: Option<Ro<'_, u8>>,
+    mut vis: Rw<'_, T>,
+    mut info: Rw<'_, f64>,
+    run: D2vFn<T>,
+) -> PyResult<i32> {
+    let opts = wgridder_options(&opts)?;
+    let nrow = uvw.as_array().len() / 3;
+    let nchan = freq.as_array().len();
+    let n = nrow * nchan;
+    let wgt = WgtArg::extract(wgt)?;
+    let (wgt_ptr, wgt_kind) = wgt.ptr_kind()?;
+    let sizes_ok = uvw.as_array().len() == nrow * 3
+        && dirty.as_array().len() == opts.nx * opts.ny
+        && vis.as_array().len() == 2 * n
+        && wgt.len().is_none_or(|l| l == n)
+        && mask.as_ref().is_none_or(|m| m.as_array().len() == n)
+        && info.as_array().len() == rang_core::wgridder::N_INFO;
+    if !sizes_ok {
+        return Err(PyValueError::new_err("gridder array sizes disagree"));
+    }
+    let uvw_ptr = ptr(&uvw)?;
+    let freq_ptr = ptr(&freq)?;
+    let dirty_ptr = ptr(&dirty)?;
+    let mask_ptr = opt_ptr(&mask)?;
+    let vis_ptr = ptr_mut(&mut vis)?;
+    let info_ptr = ptr_mut(&mut info)?;
+    // SAFETY: as in `wgridder_v2d`.
+    Ok(detach(py, || unsafe {
+        run(
+            &opts, nrow, nchan, uvw_ptr, freq_ptr, dirty_ptr, wgt_ptr, wgt_kind, mask_ptr, vis_ptr,
+            info_ptr,
+        )
+    }))
+}
+
+/// `rang_core_wgridder_dirty2vis_ex_f64`; returns its status code.
+#[pyfunction]
+#[pyo3(signature = (opts, uvw, freq, dirty, wgt, mask, vis, info))]
+#[allow(clippy::too_many_arguments)]
+fn wgridder_dirty2vis_f64(
+    py: Python<'_>,
+    opts: Vec<f64>,
+    uvw: Ro<'_, f64>,
+    freq: Ro<'_, f64>,
+    dirty: Ro<'_, f64>,
+    wgt: Option<&Bound<'_, PyAny>>,
+    mask: Option<Ro<'_, u8>>,
+    vis: Rw<'_, f64>,
+    info: Rw<'_, f64>,
+) -> PyResult<i32> {
+    wgridder_d2v(
+        py,
+        opts,
+        uvw,
+        freq,
+        dirty,
+        wgt,
+        mask,
+        vis,
+        info,
+        ffi_wgridder::rang_core_wgridder_dirty2vis_ex_f64,
+    )
+}
+
+/// `rang_core_wgridder_dirty2vis_ex_f32`; returns its status code.
+#[pyfunction]
+#[pyo3(signature = (opts, uvw, freq, dirty, wgt, mask, vis, info))]
+#[allow(clippy::too_many_arguments)]
+fn wgridder_dirty2vis_f32(
+    py: Python<'_>,
+    opts: Vec<f64>,
+    uvw: Ro<'_, f64>,
+    freq: Ro<'_, f64>,
+    dirty: Ro<'_, f32>,
+    wgt: Option<&Bound<'_, PyAny>>,
+    mask: Option<Ro<'_, u8>>,
+    vis: Rw<'_, f32>,
+    info: Rw<'_, f64>,
+) -> PyResult<i32> {
+    wgridder_d2v(
+        py,
+        opts,
+        uvw,
+        freq,
+        dirty,
+        wgt,
+        mask,
+        vis,
+        info,
+        ffi_wgridder::rang_core_wgridder_dirty2vis_ex_f32,
+    )
+}
+
+/// `rang_core_wgridder_kernel_row` into seven doubles; 1 past the end.
+#[pyfunction]
+fn wgridder_kernel_row(index: usize, mut out: Rw<'_, f64>) -> PyResult<i32> {
+    let Some(p) = sized_mut(&mut out, 7)? else {
+        return Ok(1);
+    };
+    // SAFETY: `p` holds seven doubles.
+    Ok(unsafe { ffi_wgridder::rang_core_wgridder_kernel_row(index, p) })
+}
+
+/// The message of this thread's last status-1 gridder failure.
+#[pyfunction]
+fn wgridder_last_error() -> String {
+    // SAFETY: a null buffer asks for the length only; `buf` then holds it.
+    let n = unsafe { ffi_wgridder::rang_core_wgridder_last_error(std::ptr::null_mut(), 0) };
+    let mut buf = vec![0_u8; n];
+    // SAFETY: `buf` holds `n` bytes.
+    unsafe { ffi_wgridder::rang_core_wgridder_last_error(buf.as_mut_ptr(), n) };
+    String::from_utf8_lossy(&buf).into_owned()
+}
+
 /// `rang_core_flag_rows`; returns its status code.
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
@@ -1321,6 +1721,12 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(imaging_weights, m)?)?;
     m.add_function(wrap_pyfunction!(grid_invert, m)?)?;
     m.add_function(wrap_pyfunction!(grid_kernel, m)?)?;
+    m.add_function(wrap_pyfunction!(wgridder_vis2dirty_f64, m)?)?;
+    m.add_function(wrap_pyfunction!(wgridder_vis2dirty_f32, m)?)?;
+    m.add_function(wrap_pyfunction!(wgridder_dirty2vis_f64, m)?)?;
+    m.add_function(wrap_pyfunction!(wgridder_dirty2vis_f32, m)?)?;
+    m.add_function(wrap_pyfunction!(wgridder_kernel_row, m)?)?;
+    m.add_function(wrap_pyfunction!(wgridder_last_error, m)?)?;
     m.add_function(wrap_pyfunction!(flag_rows, m)?)?;
     m.add_function(wrap_pyfunction!(gain_tv, m)?)?;
     m.add_function(wrap_pyfunction!(trend_slopes, m)?)?;

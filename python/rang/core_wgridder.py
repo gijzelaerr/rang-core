@@ -22,10 +22,14 @@ Since DF2a the data and weights are passed to the core as they are
 exactly as NumPy's cast would), and `dirty_psf` grids a dirty image and its
 PSF in one pass (`fits_image` uses it).
 
-Until `core/src/lib.rs` lists `wgridder` and `ffi_wgridder` in a library
-loadable through ctypes (the extension does not bind them), the two files
-are built as a standalone cdylib in `core/target/df1-standalone` and loaded
-through ctypes; `RANG_DF1_LIB` selects a prebuilt library.
+Since DF2b (research/df2b-wgrid.md) the extension `rang._core` binds the
+`_ex` entry points (`wgridder_vis2dirty_f64` etc.) and every call goes
+through it; `fits_image` and `dirty_psf` also take the imaging weight
+separately (`imaging_weights` / `wgt2`, float32), multiplied by the reader
+weight in the core (bit-identical to passing the float32 product). Only
+when `RANG_DF1_LIB` names a prebuilt library, or the extension predates the
+bindings, are the two Rust files built as a standalone cdylib in
+`core/target/df1-standalone` and called through ctypes, as before.
 """
 
 import ctypes
@@ -203,11 +207,33 @@ def _declare(lib):
     return lib
 
 
+EXTENSION_FUNCTIONS = (
+    "wgridder_vis2dirty_f64",
+    "wgridder_vis2dirty_f32",
+    "wgridder_dirty2vis_f64",
+    "wgridder_dirty2vis_f32",
+    "wgridder_kernel_row",
+    "wgridder_last_error",
+)
+
+
+@lru_cache(maxsize=1)
+def extension():
+    """The extension when it binds the gridder (DF2b) and `RANG_DF1_LIB` is
+    unset; else None (the ctypes path below)."""
+    if os.environ.get("RANG_DF1_LIB"):
+        return None
+    ext = core.extension()
+    if all(hasattr(ext, name) for name in EXTENSION_FUNCTIONS):
+        return ext
+    return None
+
+
 @lru_cache(maxsize=1)
 def library():
-    """A ctypes handle exporting the gridder's symbols: `RANG_DF1_LIB` if
-    set, else the core library when it exports them, else the standalone
-    build."""
+    """A ctypes handle exporting the gridder's symbols (the fallback when
+    the extension does not bind them): `RANG_DF1_LIB` if set, else the core
+    library when it exports them, else the standalone build."""
     configured = os.environ.get("RANG_DF1_LIB")
     if configured:
         return _declare(ctypes.CDLL(str(Path(configured).resolve())))
@@ -217,7 +243,15 @@ def library():
     return _declare(ctypes.CDLL(str(build_standalone())))
 
 
+def backend():
+    """ "extension" or "ctypes" (recorded in receipts)."""
+    return "extension" if extension() is not None else "ctypes"
+
+
 def library_path():
+    """The binary the gridder runs in: the extension, or the ctypes library."""
+    if extension() is not None:
+        return core.library_path()
     return Path(library()._name).resolve()
 
 
@@ -256,11 +290,18 @@ def _check(lib, status):
     if status == 0:
         return
     if status == 1:
+        if lib is None:
+            raise ValueError(extension().wgridder_last_error())
         n = lib.rang_core_wgridder_last_error(None, 0)
         buf = ctypes.create_string_buffer(n + 1)
         lib.rang_core_wgridder_last_error(buf, n)
         raise ValueError(buf.raw[:n].decode())
     raise RuntimeError(f"core gridder failed with status {status}")
+
+
+def _option_values(opts):
+    """The 18 `Options` fields in declaration order, for the extension."""
+    return [float(getattr(opts, name)) for name, _ in Options._fields_]
 
 
 def _coords(uvw, freq):
@@ -298,16 +339,55 @@ def _borrow_vis(vis, shape):
     return vis
 
 
-def _gridding(uvw, freq, vis, wgt, mask, npix, pix, epsilon, single, outputs, kw):
-    """Call `vis2dirty_ex` for `outputs`, a subset of ("dirty", "psf")."""
+def _two_weights(wgt, wgt2, shape):
+    """`wgt2` (the imaging weight) beside a float32 `wgt`: both float32 and
+    contiguous, multiplied in the core. Any other dtype pair falls back to
+    NumPy's product (the same value the core would form for float32)."""
+    if wgt2 is None:
+        return wgt, None
+    wgt2 = np.asarray(wgt2)
+    if wgt is None:
+        raise ValueError("wgt2 needs wgt")
+    if wgt.dtype == np.float32 and wgt2.dtype == np.float32:
+        wgt2 = np.ascontiguousarray(wgt2)
+        if wgt2.shape != shape:
+            raise ValueError("wgt2 must be (nrow, nchan)")
+        return wgt, wgt2
+    return np.ascontiguousarray(wgt * wgt2), None
+
+
+def _gridding(
+    uvw, freq, vis, wgt, mask, npix, pix, epsilon, single, outputs, kw, wgt2=None
+):
+    """Call `vis2dirty_ex2` for `outputs`, a subset of ("dirty", "psf")."""
     uvw, freq, shape = _coords(uvw, freq)
     vis = _borrow_vis(vis, shape)
     wgt, mask = _borrow_weights(wgt, mask, shape)
+    wgt, wgt2 = _two_weights(wgt, wgt2, shape)
     opts = _options(npix[0], npix[1], pix[0], pix[1], epsilon, dict(kw))
     real = np.float32 if single else np.float64
     kind = ctypes.c_float if single else ctypes.c_double
     images = {name: np.empty((int(npix[0]), int(npix[1])), real) for name in outputs}
     info = np.empty(N_INFO, np.float64)
+    ext = extension()
+    if ext is not None:
+        fn = getattr(ext, f"wgridder_vis2dirty_{'f32' if single else 'f64'}")
+        status = fn(
+            _option_values(opts),
+            uvw,
+            freq,
+            vis,
+            wgt,
+            wgt2,
+            mask,
+            images.get("dirty"),
+            images.get("psf"),
+            info,
+        )
+        _check(None, status)
+        return images, info_dict(info)
+    if wgt2 is not None:  # the ctypes `_ex` entry has one weight array
+        wgt, wgt2 = np.ascontiguousarray(wgt * wgt2), None
     lib = library()
     fn = getattr(lib, f"rang_core_wgridder_vis2dirty_ex_{'f32' if single else 'f64'}")
     status = fn(
@@ -382,6 +462,7 @@ def dirty_psf(
     epsilon,
     single=False,
     return_info=False,
+    wgt2=None,
     **kw,
 ):
     """The dirty image of `vis` and the PSF (unit visibilities with the same
@@ -389,7 +470,8 @@ def dirty_psf(
     precision. Both use the plan of the PSF's active visibilities
     (`wgt * mask != 0`); a separate `vis2dirty` call uses
     `|vis|^2 * wgt * mask != 0`, so the two agree bit for bit when no
-    visibility with nonzero weight is exactly zero."""
+    visibility with nonzero weight is exactly zero. `wgt2` (float32, with a
+    float32 `wgt`) multiplies the weight in the core (DF2b)."""
     images, info = _gridding(
         uvw,
         freq,
@@ -402,6 +484,7 @@ def dirty_psf(
         single,
         ("dirty", "psf"),
         kw,
+        wgt2=wgt2,
     )
     if return_info:
         return images["dirty"], images["psf"], info
@@ -435,6 +518,16 @@ def dirty2vis(
     )
     vis = np.empty(shape, np.complex64 if single else np.complex128)
     info = np.empty(N_INFO, np.float64)
+    ext = extension()
+    if ext is not None:
+        fn = getattr(ext, f"wgridder_dirty2vis_{'f32' if single else 'f64'}")
+        status = fn(
+            _option_values(opts), uvw, freq, dirty, wgt, mask, vis.view(real), info
+        )
+        _check(None, status)
+        if return_info:
+            return vis, info_dict(info)
+        return vis
     lib = library()
     fn = getattr(lib, f"rang_core_wgridder_dirty2vis_ex_{'f32' if single else 'f64'}")
     kind = ctypes.c_float if single else ctypes.c_double
@@ -468,7 +561,13 @@ def kernel_row(index):
     """Row `index` of the kernel table: (W, ofactor, epsilon, beta, e0,
     ndim, singleprec), or None past its end."""
     out = np.empty(7, np.float64)
-    if library().rang_core_wgridder_kernel_row(int(index), _ptr(out, ctypes.c_double)):
+    ext = extension()
+    if ext is not None:
+        if ext.wgridder_kernel_row(int(index), out):
+            return None
+    elif library().rang_core_wgridder_kernel_row(
+        int(index), _ptr(out, ctypes.c_double)
+    ):
         return None
     return (int(out[0]), *(float(v) for v in out[1:5]), int(out[5]), bool(out[6]))
 
@@ -490,19 +589,26 @@ def fits_image(
     scale_arcsec,
     epsilon=1e-6,
     single=False,
+    imaging_weights=None,
+    **kw,
 ):
     """Dirty image and PSF as `(height, width)` arrays in WSClean's FITS
     pixel order, both scaled so that the PSF centre is one (as
     `core_grid.invert`). WSClean's FITS image is the rang-convention image
     of the data with v and w flipped, transposed (research/df1-wgridder.md,
     item 0). `weights` is the full gridding weight (reader weight times
-    imaging weight). One pass over the data gives both images (`dirty_psf`,
-    the plan of `weights != 0`); data and weights are read in place."""
+    imaging weight), or, with `imaging_weights` given, the reader weight:
+    two float32 arrays are then multiplied in the core (DF2b, bit-identical
+    to passing their float32 product). One pass over the data gives both
+    images (`dirty_psf`, the plan of `weights != 0`); data and weights are
+    read in place. `kw` passes gridder options (e.g. `divide_by_n`)."""
     dirty, psf, info = dirty_psf(
         uvw=uvw,
         freq=freq,
         vis=data,
         wgt=weights,
+        wgt2=imaging_weights,
+        **kw,
         npix_x=width,
         npix_y=height,
         pixsize_x=scale_arcsec * ARCSEC,
