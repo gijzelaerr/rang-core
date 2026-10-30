@@ -316,3 +316,30 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P2: scale probes 4×, 16×, 41× | – | 37 s | 774 MB |  |
 | 2026-10-30 | big plan P2: `pytest tests/test_p2_gridder.py tests/test_core_grid.py tests/test_core_imaging.py` | – | 1.8 s | 81 MB |  |
 | 2026-10-30 | big plan P2: `bash tools/check-all.sh` (final tree) | – | 1702.6 s | 1.88 GB |  |
+| 2026-10-30 | big plan L1: `uv venv -p /usr/bin/python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (public PyPI) | – | 7.9 s | – | uv cache warm |
+| 2026-10-30 | big plan L1: three scratch probes of the archived row columns, UVW and tile headers (row structure, uv extent, dead stations) | – | 1–3 s each | – | before the protocol |
+| 2026-10-30 | big plan L1: `pytest tests/test_core_campaign_array.py` while writing (8, then 10 tests) | – | 0.2–1.6 s | 71–209 MB | one run failed on `cargo` missing from `PATH` (the TV kernel builds on demand), as in K |
+| 2026-10-30 | big plan L1: **precondition**, `examples/precondition_luno_array.py` (`-00-precondition`, code `4584936`) | – | 47.4 s | 310 MB | all three parts pass |
+| 2026-10-30 | big plan L1: labelled smoke, stations 0–11 (`-00-smoke`) | – | 69.9 s | 1.2 GB | **crashed**: the frozen first-pass TV loop raised because its base had no validation loss; bug fix (record the arm as unavailable), see amendment 1 |
+| 2026-10-30 | big plan L1: labelled smoke, stations 0–11 (`-00-smoke-b`) | – | 15 min 13 s | 2.6 GB | completed; found the invalid-prediction mechanism |
+| 2026-10-30 | big plan L1: scratch mechanism check on `-00-smoke-b` (station-bins 4 and 5 × frequency bin 9) | – | about 10 s | – | after the smoke, before the amendment |
+| 2026-10-30 | big plan L1: **precondition** rerun with the amended code (`-00-precondition-b`, code `e6e0d07`) | – | 2 min 34 s | 314 MB | all three parts pass; ran beside the next smoke |
+| 2026-10-30 | big plan L1: labelled smoke, stations 0–11 (`-00-smoke-c`, amended code) | – | 19 min 30 s | 2.6 GB | amendment paths exercised |
+| 2026-10-30 | big plan L1: **frozen run `-01`**, `examples/run_luno_array.py` under `/usr/bin/time -v`; MemAvailable 27.2 GiB at start; load average 28 from sibling pytest runs | – | **2 h 07 min 40 s** (user 5,164 s, sys 140 s, 69 % CPU) | **12.46 GB** | stage table below |
+| 2026-10-30 | big plan L1: `examples/check_luno_array.py` (`outputs/luno-array-campaign-check-20261030-01`) | – | 5.7 s | 210 MB | criteria 2, 4 and 6 FAIL as frozen; 1, 3, 5 and 7 pass |
+| 2026-10-30 | big plan L1: post-hoc diagnostic (labelled): derived FLAG_ROW, and model Stokes I by baseline length (`outputs/luno-array-campaign-20261030-01-posthoc.json`) | – | 25.4 s | 5.3 GB | not part of the frozen run |
+| 2026-10-30 | big plan L1: `examples/archive_luno_array.py` | – | 0.1 s | 21 MB | 84.7 KB archive |
+| 2026-10-30 | big plan L1: `bash tools/check-all.sh`, once before the final commit (`outputs/luno-array-campaign-20261030-01.check-all.log`) | – | 22 min 04 s (pytest 749 passed in 21 min 22 s) | 1.87 GB | overall PASS (criterion 8); load average 19–27 from sibling sessions, against K's 96.6 s on an idle host |
+| 2026-10-30 | big plan L1: input integrity (hash 92 objects, 5.9 GB, against the receipts) | – | 3.9 s | 51 MB | 0.62 |
+| 2026-10-30 | big plan L1: decode (64 whole tiles, Rust blosc) | – | 38.2 s | 7.25 GB | 0.54 |
+| 2026-10-30 | big plan L1: split (seed 7) | – | 31.8 s | 9.87 GB | 0.50 |
+| 2026-10-30 | big plan L1: solve `original` + per-baseline features | – | 269.0 s | 10.08 GB | 0.56 |
+| 2026-10-30 | big plan L1: plain solve (`tricolour-firstpass`) | – | 90.7 s | 11.47 GB | 1.00 |
+| 2026-10-30 | big plan L1: solve `tricolour-mild` | – | 149.6 s | 12.46 GB | 0.89 |
+| 2026-10-30 | big plan L1: Tricolour first-pass port (12 steps) | – | 763.5 s | 11.42 GB | 0.62 |
+| 2026-10-30 | big plan L1: Tricolour mild port (10 steps) | – | 278.2 s | 12.46 GB | 0.93 |
+| 2026-10-30 | big plan L1: TV loop (scores, TV, 9 distinct candidate solves of 86–163 s each) | – | 1,146.9 s | 12.46 GB | 0.90 |
+| 2026-10-30 | big plan L1: first-pass TV loop, frozen (its base has no validation loss) | – | 0.0 s | – | – |
+| 2026-10-30 | big plan L1: first-pass TV loop, amendment 1 (base re-solve and 8 candidate solves) | – | 1,418.1 s | 12.46 GB | 0.82 |
+| 2026-10-30 | big plan L1: image, per arm (correct and weight, 4 × 512-channel grid groups) | – | 232–840 s | 12.46 GB | 0.42–0.97 |
+| 2026-10-30 | big plan L1: amendment 1 calls (19 restricted fused passes) | – | 56.2 s | 12.46 GB | 0.92 |

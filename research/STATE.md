@@ -1,5 +1,27 @@
 # Rang research state
 
+L1 whole-array LUNO campaign (big plan wave 1), 2026-10-30 (implemented;
+measured; null). The gain-TV-guided flagging campaign ran on the whole of
+LUNO 1934−638 row chunk 0 on the core: 53 stations, 1,378 baselines, 342 M
+cells, local whole tiles, no fetch. The array driver
+(`rangtoy.core_campaign_array`) reproduces K's run bit for bit on four
+stations and caps memory at 12.5 GB by row-block reimplementation (K's driver
+would have needed about 88 GB). The run took 2 h 08 min on a shared host
+before the P1–P3 kernels were merged. Frozen criteria 2, 4 and 6 fail as
+frozen: the derived FLAG_ROW covers 571 input-flagged rows, convergence is
+0.83 at the 50-iteration cap (0.98 on four stations), and the headline is
+undecidable because the Tricolour first pass flags every training sample of
+some station-bins, so the comparator's held-out loss is unavailable.
+Amendment 1 (committed before the run) adds matched-sample calls, which are
+null on every pair (TV policy against first pass: MSE ratio 0.99943, residual
+RMS 0.9954); the policy selects a 21-cell unguided mask and rejects every
+TV-guided mask; cost comparable (1.85). Diagnosed post hoc: the 1934−638
+MODEL_DATA is a 14.96 Jy point about 1.5″ off the phase centre. The result is
+null at both four-station and array scale. Archive
+`results/luno-array-campaign.json` ([luno-array-campaign.md](luno-array-campaign.md)).
+Next: L2 (1830−211) and L3 (native flags) for the L4 verdict; the array
+solve's convergence goes to the wave 3 solver protocol.
+
 P2 gridder (big plan wave 2), 2026-10-30 (implemented; measured): the
 w-stacking gridder buckets samples by w-layer once, grids dirty image and PSF
 in one pass, runs the layers in parallel with rayon and an ordered sum, and

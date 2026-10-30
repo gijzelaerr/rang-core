@@ -185,6 +185,10 @@ items below are open. Results are provisional; see the
   campaign ran on the four-station slice entirely on the core
   ([core-k-luno-campaign.md](core-k-luno-campaign.md)) with a null result.
   Its results wait on the licence confirmation like everything above.
+- **Model offset (2026-10-30, L1 post hoc).** The 1934−638 MODEL_DATA is a
+  14.96 Jy point about 1.5″ from the FIELD phase direction; mean Re I falls
+  to 8.45 Jy on 3–8 km baselines. More evidence for an unlogged prediction
+  step ([luno-array-campaign.md](luno-array-campaign.md)).
 - **Gain-bin support.** Measure TRAIN identifiability on the 1934−638 and
   1830−211 scans before freezing any protocol, as in the
   [gain-support survey](flagging-next-gain-support.md). This is only worth doing

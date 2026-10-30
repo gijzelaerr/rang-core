@@ -167,6 +167,10 @@ quality/cost comparison, not further simulator expansion.
   (phase 3 stages and the imaging track) driven by `rang-core`
   (`python -m rangtoy.core_cli`), which need no QuartiCal. Stimela 2.1.4 needs
   a Python 3.13 environment; its native backend fails on 3.14.
+- The whole-array LUNO campaign ran on the core too
+  (`rangtoy.core_campaign_array`, `research/luno-array-campaign.md`): null at
+  array scale, about 2 h single-threaded on 342 M cells before the parallel
+  kernels landed.
 - The first real-data campaign on the LUNO calibrator slice ran entirely on
   the core (`rangtoy.core_campaign`, `rang-core campaign`;
   `research/core-k-luno-campaign.md`) with a null result, provisional while

@@ -32,3 +32,9 @@ report would contain if that decision changes. RATT items, filed or not, are in
   of the section 6 checker's samples sit in that frame (first-touch page faults
   and fill), a cost of the decode-to-new-object API, not of LZ4. Rang's own;
   addressed in P5.
+
+## From L1 (2026-10-30; not reported by decision)
+
+- The public store's 50,000-row × 128-channel zarr chunking forces whole-tile
+  decode for any station subset (38 s single-threaded for chunk 0); the
+  blosc block tables allow partial reads only along rows.

@@ -200,3 +200,15 @@ Every RATT observation above was checked against its latest release
   loss-based or gauge-invariant criterion would stop an estimated 3–5× earlier.
   To be reproduced on QuartiCal's latest release before filing (U1 closed the
   plain iteration-cap note as not a defect; this is the improvement case).
+
+## L1 observations (2026-10-30; observed, not raised)
+
+- **QuartiCal `complex` at array scale** (ported, same settings as the
+  archived four-station solve): 50 iterations converge 83 % of intervals on
+  the 53-station LUNO chunk against 98 % on four stations. Together with S1's
+  convergence curve this is the improvement case for the iteration cap and
+  criterion; to be reproduced on the latest release before filing.
+- **CARACal first-pass strategy on pre-flagged calibrator data**
+  (`caracal-pipeline`): it flags 762,924 new cells of chunk 0 and some
+  station × 32-channel bins lose every unflagged sample, so a solver loses
+  those gains. Worth a documentation note once reproduced with CARACal itself.

@@ -4,6 +4,11 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task L1, the [whole-array LUNO campaign](luno-array-campaign.md)
+on the core: null at array scale (342 M cells, 2 h single-threaded, 12.5 GB),
+frozen headline undecidable, matched-sample calls null
+([archive](results/luno-array-campaign.json)).
+
 New, 2026-10-30: big plan wave 2 kernels merged: [P1 solver and fused pass](p1-solver.md)
 (rayon over intervals, bit-identical, 5.4× at 8 threads), [P2 gridder](p2-gridder.md)
 (`rustfft`, parallel w-layers, 7× per image, margins unchanged) and
