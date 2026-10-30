@@ -74,7 +74,7 @@ ValueError: operands could not be broadcast together with shapes (192,2048) (128
 bool)` turned them into a length-128 boolean vector, which the row block of
 192 rows cannot broadcast against. Had it got past that line,
 `derived_row_flags(..., solve["added"])` in the image loop would have failed
-(or, for a solve with no additions, silently broadcast an empty vector).
+the same way (`np.broadcast_to` of an `(n, 1)` index vector to the cube).
 
 ## 2. Bisection
 
@@ -154,7 +154,7 @@ the dense mask exists only transiently, per arm, as in L1's driver.
 | K precondition | `-14-k-precondition` (1.7 s) | all checks pass, χ² 0.26823507037914956 equal to the archive |
 | C1 checker on the archived run with the new precondition | `-12-c1-check` vs `c1-20261030-02-check` | identical except `passed_as_l1.replay` and L1 criterion `3_precondition`, both false → true, and the precondition path |
 | L1-M checker on the archived runs with the new precondition | `-13-l1m-check` vs `l1m-20261030-04-check` | identical except `passed_as_l1.replay` and the three per-model L1 `3_precondition`, false → true, and the path |
-| Campaign tests | `tests/test_pc1_preconditions.py tests/test_core_campaign*.py` | 60 passed |
+| Campaign tests | `tests/test_pc1_preconditions.py tests/test_core_campaign*.py` | 59 passed, none skipped (16.3 s) |
 
 No archived number changes. The full L2 campaign (`campaign-1830 run` on
 MAIN_2) was not rerun: it is the same `run` function whose four-station
@@ -181,8 +181,17 @@ are shape conversions with no arithmetic.
 | 17:41 | `precondition_luno_campaign.py` (`-14`) | 1.7 s | 150 MB | all pass |
 | 17:44 | pytest, the two new tests | 17.7 s | – | 2 passed |
 | 17:45 | `bash tools/check-all.sh` (`-15-check-all.log`) | 4 min 44 s | 1.9 GB | PASS: 106 Rust tests, clippy, fmt, ruff, 599 passed and 5 skipped in pytest |
+| 17:52 | `bash tools/check-all.sh` plain, after the report fixes (`-16-check-all.log`) | 2 min 0 s | – | PASS: 599 passed and 5 skipped in pytest |
 
 ## Open items
+
+- Main moved to `e3dd42a` (P11 record, DF2a) during this task. DF2a changes
+  only the w-gridder (`core/src/wgridder.rs`, `core_wgridder.py`), which no
+  campaign driver uses, and the C1 import; the branch merges cleanly
+  (`git merge-tree`). The preconditions were not rerun on the merge.
+- After the fix the exact `replay.all_equal` of the L1 precondition is still
+  false by design (image hashes); only `replay.pass`, from
+  `replay.tolerant.all_equal`, gates.
 
 - The L2 campaign run itself has not been re-executed since P5; the replay
   identity covers its code path, not MAIN_2's 64-station memory.
@@ -199,7 +208,8 @@ are shape conversions with no arithmetic.
   exactly and has failed on main since the L1 merge `cbf9003`, because P2
   (rustfft gridder, image pixels within 2e-15) merged first; it now gates on
   L2's tolerant comparison, as L1-M and C1 already did, and keeps the exact
-  comparison in its output. L2's driver broke at the P5 merge `29d67b4`: P5
+  comparison in its output (so `replay.all_equal` stays false by design;
+  `replay.pass` follows `replay.tolerant.all_equal`). L2's driver broke at the P5 merge `29d67b4`: P5
   stores additions as cell indices and L2's `run` (not in P5's base) passed
   them as a mask; it now expands them with `additions_dense`. No archived
   number changes; the L2 replay equals pre-P5 main on every non-timing field
