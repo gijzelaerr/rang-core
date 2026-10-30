@@ -9,6 +9,11 @@ the same physical controls, not ten new independent realizations.
 The old [signal experiment](flagging-signal.md) and its bounded spectral fits
 remain unchanged. This is a new diagnostic, not a retrospective bound expansion.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Measured response: sky completeness matters more than this coarsening
 
 Full evidence: [all controls, fits and provenance](results/gain-tv-response.json),

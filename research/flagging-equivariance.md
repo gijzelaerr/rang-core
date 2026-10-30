@@ -6,6 +6,11 @@ Per native gainbin define diagonal unit-modulusD_a, same phase for both receptor
 Reference1283.791015625MHz; span is actual first-to-last gaincentre span (zero
 drift for one-time grid). Referenceantenna0 hasD0=I. Frozen settings:
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 | Pattern | Delay ns, antennas0–3 | Total drift rad, antennas0–3 |
 | --- | --- | --- |
 | Identity | 0,0,0,0 | 0,0,0,0 |

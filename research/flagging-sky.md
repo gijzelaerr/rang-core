@@ -4,6 +4,11 @@ Status: final three-control Stimela2 recipe completed successfully in
 `outputs/tv-flagging-sky-02`. All input preservation audits passed. No flagging
 or imaging improvement is claimed.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 This is a paired diagnostic alongside the TV-guided flagging experiment. It does
 not choose additional flags or claim that a lower-TV sky model is physically
 correct. Both actual QuartiCal full-Jones complex 2x2 solves use the same real

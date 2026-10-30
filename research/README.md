@@ -149,7 +149,7 @@ The [419-check image verification](flagging-next-imaging-verification.md),
 gains; the [invalid-basis failure](results/gain-tv-next-imaging-invalid-basis.json)
 is retained separately. The [TRAIN rank survey](flagging-next-gain-support.md)
 finds just one two-cell underidentified bin, not broad unsupported data.
-[Real-parser and source-family gates](../tools/flagging/run-imaging.sh) protect
+[Real-parser and source-family gates](../history/tools/flagging/run-imaging.sh) protect
 the separately fresh imaging step; raw measurements are never overwritten.
 
 [Concurrent follow-up protocol](flagging-concurrent.md), started2026-09-24,
@@ -178,30 +178,30 @@ mandatory. Lower TV alone is not sufficient evidence for removing data.
 
 | Evidence/workstream | Report | Compact measured archive | Executable recipe |
 | --- | --- | --- | --- |
-| Baseline TV-conditioned outlier model | [Strategy](flagging.md) | [Baseline](results/gain-tv-flagging.json) | [Pilot](../recipes/tv-flagging.yaml) |
-| Six controlled RFI cases and evaluation-only oracles | [Injections](flagging-injections.md) | [Controls](results/gain-tv-injections.json) | [Injections](../recipes/tv-flagging-injections.yaml) |
-| Point, official primary and full apparent-scale catalog | [Sky adequacy](flagging-sky.md) | [Sky comparison](results/gain-tv-sky.json) | [Sky](../recipes/tv-flagging-sky.yaml) |
-| Genuine QuartiCal MAD and Tricolour kernel | [Comparators](flagging-comparators.md) | [Matched diagnostics](results/gain-tv-comparators.json) | [Comparators](../recipes/tv-flagging-comparators.yaml) |
-| Counterfactual patch-action ridge learner | [Action learning](flagging-actions.md) | [Clean](results/gain-tv-actions.json), [contaminated](results/gain-tv-actions-injected.json) | [Actions](../recipes/tv-flagging-actions.yaml) |
-| Actual four-worker concurrent replay and preservation audits | [Parallel verification](flagging-parallel.md) | [Suite](results/gain-tv-parallel.json) | [Native scatter](../recipes/tv-flagging-parallel.yaml) |
-| Unmodified full native CARACAL Tricolour strategies | [Production verification](flagging-caracal.md) | [Four controls](results/gain-tv-caracal.json) | [Native strategies](../recipes/tv-flagging-caracal.yaml) |
-| Matched structured residual/TV rankings, seven controls | [Structured search](flagging-structured.md) | [101 solves](results/gain-tv-structured.json) | [Structured actions](../recipes/tv-flagging-structured.yaml) |
-| Geometry-balanced residual/TV/random follow-up | [Balanced search](flagging-balanced.md) | [Seven cases,130 solves](results/gain-tv-balanced.json) | [Balanced](../recipes/tv-flagging-balanced.yaml) |
-| Synthetic gain-TV/noise/physical-trend controls | [Uncertainty guidance](flagging-uncertainty.md) | [180 gain-only controls](results/gain-tv-uncertainty.json), not real solver uncertainty | [Uncertainty](../recipes/tv-flagging-uncertainty.yaml) |
-| Bounded public numeric visibility acquisition/inspection | [Ingestion](flagging-public-ingestion.md) | [75 object hashes](results/meerkat-public-ingestion.json), [two61-antenna pilots](results/meerkat-public-pilot.json) | [Offline inspection](../recipes/tv-flagging-public.yaml) |
-| Paired intrinsic science-signal diagnostic | [Signals](flagging-signal.md) | [16 paired solves and constrained fits](results/gain-tv-signal.json) | [Signals](../recipes/tv-flagging-signal.yaml) |
-| Fitted grouped guarded-objective action predictor | [Transfer model](flagging-transfer.md) | [105 labels/frozen predictions](results/gain-tv-transfer.json) | [Transfer](../recipes/tv-flagging-transfer.yaml) |
-| Five-track concurrent execution with label-dependent fit | [Frozen protocol](flagging-concurrent.md) | [Completed suite](results/gain-tv-concurrent.json) | [Concurrent](../recipes/tv-flagging-concurrent.yaml) |
-| Projected TRAIN-only physical deletion-response surrogate | [Influence design](flagging-influence.md), [independent verification](flagging-influence-verification.md) | [123 retrospective forecasts/labels](results/gain-tv-influence.json), [audit](results/gain-tv-influence-audit.json) | [Influence](../recipes/tv-flagging-influence.yaml) |
-| Signed complete/omitted sky and gain-grid response controls | [Response protocol and measurements](flagging-response.md), [independent checks](flagging-response-verification.md) | [Ten frozen controls and preserved retry provenance](results/gain-tv-response.json), [audit](results/gain-tv-response-audit.json) | [Response](../recipes/tv-flagging-response.yaml) |
-| Legitimate smooth receiver-phase specificity controls | [Phase design](flagging-equivariance.md), [independent checks](flagging-equivariance-verification.md) | [520 saved-gain replays](results/gain-tv-equivariance.json), [audit](results/gain-tv-equivariance-audit.json) | [Equivariance](../recipes/tv-flagging-equivariance.yaml) |
+| Baseline TV-conditioned outlier model | [Strategy](flagging.md) | [Baseline](results/gain-tv-flagging.json) | [Pilot](../history/recipes/tv-flagging.yaml) |
+| Six controlled RFI cases and evaluation-only oracles | [Injections](flagging-injections.md) | [Controls](results/gain-tv-injections.json) | [Injections](../history/recipes/tv-flagging-injections.yaml) |
+| Point, official primary and full apparent-scale catalog | [Sky adequacy](flagging-sky.md) | [Sky comparison](results/gain-tv-sky.json) | [Sky](../history/recipes/tv-flagging-sky.yaml) |
+| Genuine QuartiCal MAD and Tricolour kernel | [Comparators](flagging-comparators.md) | [Matched diagnostics](results/gain-tv-comparators.json) | [Comparators](../history/recipes/tv-flagging-comparators.yaml) |
+| Counterfactual patch-action ridge learner | [Action learning](flagging-actions.md) | [Clean](results/gain-tv-actions.json), [contaminated](results/gain-tv-actions-injected.json) | [Actions](../history/recipes/tv-flagging-actions.yaml) |
+| Actual four-worker concurrent replay and preservation audits | [Parallel verification](flagging-parallel.md) | [Suite](results/gain-tv-parallel.json) | [Native scatter](../history/recipes/tv-flagging-parallel.yaml) |
+| Unmodified full native CARACAL Tricolour strategies | [Production verification](flagging-caracal.md) | [Four controls](results/gain-tv-caracal.json) | [Native strategies](../history/recipes/tv-flagging-caracal.yaml) |
+| Matched structured residual/TV rankings, seven controls | [Structured search](flagging-structured.md) | [101 solves](results/gain-tv-structured.json) | [Structured actions](../history/recipes/tv-flagging-structured.yaml) |
+| Geometry-balanced residual/TV/random follow-up | [Balanced search](flagging-balanced.md) | [Seven cases,130 solves](results/gain-tv-balanced.json) | [Balanced](../history/recipes/tv-flagging-balanced.yaml) |
+| Synthetic gain-TV/noise/physical-trend controls | [Uncertainty guidance](flagging-uncertainty.md) | [180 gain-only controls](results/gain-tv-uncertainty.json), not real solver uncertainty | [Uncertainty](../history/recipes/tv-flagging-uncertainty.yaml) |
+| Bounded public numeric visibility acquisition/inspection | [Ingestion](flagging-public-ingestion.md) | [75 object hashes](results/meerkat-public-ingestion.json), [two61-antenna pilots](results/meerkat-public-pilot.json) | [Offline inspection](../history/recipes/tv-flagging-public.yaml) |
+| Paired intrinsic science-signal diagnostic | [Signals](flagging-signal.md) | [16 paired solves and constrained fits](results/gain-tv-signal.json) | [Signals](../history/recipes/tv-flagging-signal.yaml) |
+| Fitted grouped guarded-objective action predictor | [Transfer model](flagging-transfer.md) | [105 labels/frozen predictions](results/gain-tv-transfer.json) | [Transfer](../history/recipes/tv-flagging-transfer.yaml) |
+| Five-track concurrent execution with label-dependent fit | [Frozen protocol](flagging-concurrent.md) | [Completed suite](results/gain-tv-concurrent.json) | [Concurrent](../history/recipes/tv-flagging-concurrent.yaml) |
+| Projected TRAIN-only physical deletion-response surrogate | [Influence design](flagging-influence.md), [independent verification](flagging-influence-verification.md) | [123 retrospective forecasts/labels](results/gain-tv-influence.json), [audit](results/gain-tv-influence-audit.json) | [Influence](../history/recipes/tv-flagging-influence.yaml) |
+| Signed complete/omitted sky and gain-grid response controls | [Response protocol and measurements](flagging-response.md), [independent checks](flagging-response-verification.md) | [Ten frozen controls and preserved retry provenance](results/gain-tv-response.json), [audit](results/gain-tv-response-audit.json) | [Response](../history/recipes/tv-flagging-response.yaml) |
+| Legitimate smooth receiver-phase specificity controls | [Phase design](flagging-equivariance.md), [independent checks](flagging-equivariance-verification.md) | [520 saved-gain replays](results/gain-tv-equivariance.json), [audit](results/gain-tv-equivariance-audit.json) | [Equivariance](../history/recipes/tv-flagging-equivariance.yaml) |
 | Native noise-column and partial-Jones support review | [Supported data](flagging-supported-data.md) | [Read-only diagnostics](results/meerkat-supported-data-candidates.json) | Diagnostic regeneration script, not a calibration recipe |
-| Five-track results strategy; four original branches plus corrected imaging retry | [Latest results](flagging-next-summary.md), [frozen plan](flagging-next-results.md) | Five next-* measured archives with individual source/hash receipts | [Stimela2 research graph](../recipes/tv-flagging-next.yaml) |
-| TRAIN-estimated trend-aware full-Jones guidance | [Trend](flagging-trend.md), [verification](flagging-next-trend-verification.md) | [28 replays](results/gain-tv-next-trend.json) | [Trend](../recipes/tv-flagging-trend.yaml) |
-| Prospective local physical confirmation, three cases | [Verification](flagging-next-prospective-verification.md) | [54 actual solves](results/gain-tv-next-prospective.json) | [Prospective](../recipes/tv-flagging-prospective.yaml) |
-| Absolute signal guard and original TRAIN identifiability | [Guard](flagging-next-signal-verification.md), [rank survey](flagging-next-gain-support.md) | [Nine paired solves](results/gain-tv-next-signal.json), [rank map](results/gain-tv-next-gain-support.json) | [Guard](../recipes/tv-flagging-signal-guard.yaml) |
-| Bounded textual native-data provenance recovery | [Verification](flagging-next-provenance-verification.md) | [85 chunks/21 HISTORY rows](results/gain-tv-next-provenance.json) | [Offline provenance](../recipes/tv-flagging-provenance.yaml) |
-| Actual matched dirty-image/PSF and CARACAL diagnostics | [Frozen image protocol](flagging-imaging.md) | [15 corrected inversions](results/gain-tv-next-imaging.json), [retained semantic failure](results/gain-tv-next-imaging-invalid-basis.json) | [Images](../recipes/tv-flagging-imaging.yaml) |
+| Five-track results strategy; four original branches plus corrected imaging retry | [Latest results](flagging-next-summary.md), [frozen plan](flagging-next-results.md) | Five next-* measured archives with individual source/hash receipts | [Stimela2 research graph](../history/recipes/tv-flagging-next.yaml) |
+| TRAIN-estimated trend-aware full-Jones guidance | [Trend](flagging-trend.md), [verification](flagging-next-trend-verification.md) | [28 replays](results/gain-tv-next-trend.json) | [Trend](../history/recipes/tv-flagging-trend.yaml) |
+| Prospective local physical confirmation, three cases | [Verification](flagging-next-prospective-verification.md) | [54 actual solves](results/gain-tv-next-prospective.json) | [Prospective](../history/recipes/tv-flagging-prospective.yaml) |
+| Absolute signal guard and original TRAIN identifiability | [Guard](flagging-next-signal-verification.md), [rank survey](flagging-next-gain-support.md) | [Nine paired solves](results/gain-tv-next-signal.json), [rank map](results/gain-tv-next-gain-support.json) | [Guard](../history/recipes/tv-flagging-signal-guard.yaml) |
+| Bounded textual native-data provenance recovery | [Verification](flagging-next-provenance-verification.md) | [85 chunks/21 HISTORY rows](results/gain-tv-next-provenance.json) | [Offline provenance](../history/recipes/tv-flagging-provenance.yaml) |
+| Actual matched dirty-image/PSF and CARACAL diagnostics | [Frozen image protocol](flagging-imaging.md) | [15 corrected inversions](results/gain-tv-next-imaging.json), [retained semantic failure](results/gain-tv-next-imaging-invalid-basis.json) | [Images](../history/recipes/tv-flagging-imaging.yaml) |
 
 Main findings: the current policies select no added flags on the unmodified
 fixture. Earlier structured search recovers only2.89% of a strong time-burst;
@@ -251,7 +251,8 @@ establish robust flagging, observation transfer, imaging or SOTA superiority.
 ## Resume safely
 
 Read [next flagging hypotheses](flagging-next.md) and latest state before editing.
-Pinned container environments live under `tools/flagging/`; the host Python3.14
+Pinned container environments live under `history/tools/flagging/`
+([history/README.md](../history/README.md)); the host Python3.14
 cannot run the pinned QuartiCal solver. Sky and Tricolour dependencies need
 separate venvs, not a combined pip environment. The checkout is mounted read-only
 and solver runtime is network-disabled. QuartiCal uses `G.type=complex`, two

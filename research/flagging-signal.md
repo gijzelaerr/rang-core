@@ -5,6 +5,11 @@ implemented and measured in the concurrent suite; the frozen method below is
 retained and actual outcomes are labelled separately at the end.
 This track follows the common `research/flagging-concurrent.md` protocol.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Source and applicability freeze
 
 Reference frequency1283.791015625MHz. Both sources are unpolarized, with intrinsic

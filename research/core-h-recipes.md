@@ -10,6 +10,11 @@ rules; two recipes failed to parse on their first run and were corrected**
 AGENTS.md not a scientific contribution, and no archived result may change
 because of it.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Question
 
 Can the five phase 3 stages (injections, actions, trend, prospective,

@@ -5,6 +5,11 @@ previous [bounded design](flagging-supported-provenance-plan.md); no new outcome
 are available at this freeze. The user requests five parallel workstreams;
 root schedules this metadata-only track separately from calibration tracks.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Frozen scope and execution gates
 
 Exactly82 nonempty object-string chunks/505 elements plus three numeric HISTORY

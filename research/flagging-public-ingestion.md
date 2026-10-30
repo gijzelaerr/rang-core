@@ -7,6 +7,11 @@ WEIGHT/WEIGHT_SPECTRUM/SIGMA/SIGMA_SPECTRUM for two bounded tiles. No received
 flag or weight is modified. Offline complete-integration inspection and native-MS
 conversion/calibration/transfer remain separate statuses, not inherited success.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Frozen acquisition
 
 Pinned numeric-reader [module](../python/rangtoy/flagging_public.py). First-row

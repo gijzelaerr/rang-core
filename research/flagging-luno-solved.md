@@ -5,6 +5,11 @@ fetched. This follows the [processed-support survey](flagging-luno-support.md)
 and is provisional for the same reasons: the licence and the native weights are
 unconfirmed (Ben Hugo has been asked), and no visibilities are redistributed.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Question
 
 The processed-support survey evaluated four-station rank at identity and at

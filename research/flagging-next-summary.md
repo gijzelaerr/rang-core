@@ -8,6 +8,11 @@ separately fresh 03 imaging-only retry succeed. No original master
 gather/result is invented. This is a reproducible prototype result, not a
 validated telescope flagger or state-of-the-art claim.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 Scientific source for the original branches is `ec2f17d`; corrected imaging
 retry source is `e3cab8c`. All 63 new QuartiCal invocations use native weights,
 full complex 2×2 gains, 2-integration × 32-channel intervals and 50 iterations. The

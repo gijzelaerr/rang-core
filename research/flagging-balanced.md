@@ -5,6 +5,11 @@ Protocol frozen on 2026-09-24 before outcomes in
 pure tests and actual measurements now pass. The frozen method below is retained;
 measured outcomes are labelled separately at the end of this report.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 Use the exact existing whole-rectangle TRAIN family: 16/32/64/128 aligned native
 channel tiles wholly inside the experiment window, one/all unique integration
 times, global/antenna-star/physical-baseline groups, at least eight samples and

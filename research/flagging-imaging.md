@@ -5,6 +5,11 @@ and the15-image02 retry exposed a semantic template error (retained below).
 Root approved all settings,15 jobs and tolerances before results. This follows the measured
 [visibility-response controls](flagging-response.md), not a flag-policy retune.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 WSClean is absent from the recovered102767... solver image. The official
 [Debian13 package](https://packages.debian.org/trixie/wsclean) is3.6-1. A small
 child of NEW`rang-flagging-next:local` adds only that package and its exact signed

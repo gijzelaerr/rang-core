@@ -8,7 +8,7 @@ from rangtoy import core_cli
 
 ROOT = Path(__file__).resolve().parents[1]
 CORE_RECIPES = sorted((ROOT / "recipes").glob("core-*.yaml"))
-FROZEN_RECIPES = sorted((ROOT / "recipes").glob("tv-flagging*.yaml"))
+FROZEN_RECIPES = sorted((ROOT / "history/recipes").glob("tv-flagging*.yaml"))
 
 
 def test_audited_stage_writes_side_effects_and_reports(tmp_path, capsys):

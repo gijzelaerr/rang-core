@@ -17,7 +17,7 @@ The active real-data flagging experiment trains an interpretable policy using
 the TV norm/maps of QuartiCal full 2×2 complex gains, with immutable original
 flags, recoverable backups, a flag budget and held-out checks.
 [Strategy, first negative result and reproduction](research/flagging.md) ·
-[Stimela2 recipe](recipes/tv-flagging.yaml).
+[Stimela2 recipe](history/recipes/tv-flagging.yaml).
 
 [Parallel diagnostic suite](research/flagging-parallel.md) now adds controlled
 RFI/oracle tests, a verified SARAO calibrator sky, established flagger comparisons
@@ -152,7 +152,7 @@ quality/cost comparison, not further simulator expansion.
   masks under its BSD notice) and a read-only Measurement Set reader
   (`rangtoy.core_ms`; python-casacore is still needed to write tables and
   for the oracle). Reports: `research/core-*.md`.
-- `recipes/`: frozen Stimela2 recipes beside core-native `core-*.yaml` ones
+- `recipes/`: core-native Stimela2 recipes `core-*.yaml`
   (phase 3 stages and the imaging track) driven by `rang-core`
   (`python -m rangtoy.core_cli`), which need no QuartiCal. Stimela 2.1.4 needs
   a Python 3.13 environment; its native backend fails on 3.14.
@@ -165,6 +165,9 @@ quality/cost comparison, not further simulator expansion.
 - `examples/` and `tests/`: reproducible experiments and regression tests.
 - `research/`: derivations, reports and compact result archives.
 - `data/`: fixture provenance and limitations.
+- `history/`: the frozen campaigns' Stimela recipes, container builds,
+  wrappers and recipe-only modules, retired from the live tree by task P8
+  (`history/README.md`, `research/p8-history.md`).
 
 ## Licence
 

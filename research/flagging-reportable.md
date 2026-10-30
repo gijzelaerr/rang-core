@@ -5,6 +5,11 @@ continued research and checked intermediate pushes until interesting findings.
 A reproducible mechanism/limitation is reportable, but not a novel successful
 RFI method or mature-method quality/cost win without matched evidence.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Common safeguards
 
 MeerKAT L band, genuine QuartiCal`G.type=complex` full2x2 gains, nativeRust TV.

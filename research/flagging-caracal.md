@@ -7,6 +7,11 @@ Downloaded files remain in ignored `outputs/caracal-strategy-inputs-8f7bb363/`.
 Hashes, active tasks and exact inspected settings are archived in
 [caracal-strategies.json](results/caracal-strategies.json).
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## What the official worker actually runs
 
 The [flag worker](https://github.com/caracal-pipeline/caracal/blob/8f7bb363876f5f0daecbf2167c36bb597c7e5160/caracal/workers/flag_worker.py)

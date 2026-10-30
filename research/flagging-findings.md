@@ -7,6 +7,11 @@ state-of-the-art flagger. The seven development cases reuse one four-antenna
 MeerKAT L-band pointing scan. Every original/received Observatory flag and
 native DATA/weight/SIGMA column remains authoritative and protected.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 ## Latest prospective, specificity and image-domain evidence
 
 The [five-track measured report](flagging-next-summary.md) now extends these

@@ -8,6 +8,11 @@ come from actual frozen QuartiCal complex 2×2 re-solves at the existing TV
 scale/support. Missing solutions, support loss, budget/validation guard
 failures and nonfinite outcomes are missing labels, never zero benefits.
 
+Paths (2026-10-30, task P8): the frozen `tv-flagging*` recipes,
+`tools/flagging/` and the recipe-only modules named here now live under
+[`history/`](../history/README.md); this text keeps the paths it was written
+with.
+
 New balanced cases: seed101 train, seed103 validation, seed105 test; all
 morphologies with one seed share a group. Group identifiers must not cross
 splits. These still reuse one reference scan and do not establish independent
