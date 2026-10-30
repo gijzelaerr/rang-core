@@ -823,3 +823,31 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | CLEAN theory: `lake update mathlib && lake exe cache get` | Mathlib v4.33.1, 8,690 cached files | 290 s | – | Windows, first time, clone included; `formal/.lake` ignored |
 | 2026-10-30 | CLEAN theory: `lake build` (`Clean.lean` + axiom audit) | `formal/` | 44 s (48.9 s first build) | – | all but 2 s is loading Mathlib |
 | 2026-10-30 | CLEAN theory: `python -m rangtoy.check` on native Windows (`.venv\Scripts\python`) | repo at the `clean-theory` branch tip | 321 s (first attempt 228 s) | – | root 23 and core 111 Rust tests, clippy, fmt, extension build, ruff, format, diff check PASS; pytest 537 passed, 31 skipped, **37 failed**, all pre-existing Windows-environment failures in untouched modules (`test_core_closure` builds `core/target/c1-standalone` with an unescaped Windows path in `core_closure.py`; `test_p11_extract`, `test_core_wgridder`, `test_core_grid`, `test_fluxstd`); the first attempt failed earlier because the venv lacked maturin (installed 1.16.0) |
+| 2026-10-30 | big plan B1: zip central-directory probe of `MeerKAT_L_band_primary_beam.npz` by HTTP range | – | ~5 s | – |  |
+| 2026-10-30 | big plan B1: small arrays + metrics file | – | 9.1 s | 83 MB |  |
+| 2026-10-30 | big plan B1: upstream sources, shallow clones | – | – | – |  |
+| 2026-10-30 | big plan B1: fixture extract | – | ~3 s | – |  |
+| 2026-10-30 | big plan B1: ESO137 metadata probe | – | 74.3 s + 2.2 s | 26 MB / 45 MB |  |
+| 2026-10-30 | big plan B1: Python urllib, zip central-directory probe | L-band npz, 6 range reads | ~5 s | – | not timed; member offsets and npy headers |
+| 2026-10-30 | big plan B1: Python urllib, small arrays + metrics npz | 4 range reads + 28,235,140 B | 9.1 s | 83 MB | `b1-20261030-01` |
+| 2026-10-30 | big plan B1: git shallow clones + wheel | 3 GitLab repos, scikits.fitting 0.7.2 | – | – | not timed; `b1-20261030-02-ska-pointing-src` |
+| 2026-10-30 | big plan B1: Python zipfile, fixture extract | `outer_scans.zip` | ~3 s | – | not timed; `b1-20261030-03-fixture` |
+| 2026-10-30 | big plan B1: Python urllib, ESO137 S3 listing + `.zarray` probe | 3 stores, 15 MAIN groups | 74.3 s | 26 MB | latency-bound listings |
+| 2026-10-30 | big plan B1: core blosc decode, PHASE_DIR / CHAN_FREQ | 5 small chunks | 2.2 s | 45 MB |  |
+| 2026-10-30 | big plan B1: uv venv + install, `maturin develop --release --offline` | worktree | 0.35 s (maturin) | 37 MB | extension already built in the checkout's target |
+| 2026-10-30 | big plan B1: Python urllib, holography product fetch | 24,320 + 64 range reads, 3.72 GB | 1993.4 s | 6.9 GB | about 1.9 MB/s; RSS is the memmap's resident pages; user 82 s, sys 33 s |
+| 2026-10-30 | big plan B1: `examples/b1_baselines.py` G1a, run 1 | fixture, 5 scans | 0.65 s | 226 MB | **failed**: refused a fully flagged reference antenna (upstream keeps it) |
+| 2026-10-30 | big plan B1: `examples/b1_baselines.py` G1a, run 2 | fixture | 1.20 s | 221 MB | **G1a failed**: 4.4e-6 rad; current datamodels time stamps |
+| 2026-10-30 | big plan B1: `examples/b1_baselines.py` G1a, run 3 | fixture | ~1.2 s | – | pass, 8.9e-16; wall not captured (the run 4 row times the same code) |
+| 2026-10-30 | big plan B1: scikits.fitting 0.7.2 oracle | 56 chunk fits | 0.99 s | 87 MB | separate venv; 0.0′ difference |
+| 2026-10-30 | big plan B1: EIDOS 1.1.2 probe, three attempts | 3 frequencies | 0.9 s each | 112 MB | **failed**: `recon_par` location; NumPy 2.5.4 refuses `np.sum(generator)` inside EIDOS (an error since 2.4.0); scipy `spline_filter` has no `axes` |
+| 2026-10-30 | big plan B1: EIDOS probe, re-expressed reconstruction | 3 frequencies | 1.64 s | 131 MB | 0.2 s per channel |
+| 2026-10-30 | big plan B1: `examples/b1_beam_product.py`, smoke | every 20th channel | 1.79 s | 2.93 GB |  |
+| 2026-10-30 | big plan B1: `examples/b1_beam_product.py`, full | 82 channels, 815 held-out channels | 23.3 s | 4.17 GB | rerun with the compact archive 23.8 s, 4.17 GB |
+| 2026-10-30 | big plan B1: `examples/b1_baselines.py` with G1b, run 4 | fixture + 13 injections × 200 seeds | 55.9 s | 494 MB | baseline 0.37 s, sep-pol 0.38 s, G1b 54.5 s |
+| 2026-10-30 | big plan B1: post-hoc EIDOS flip check | 82 channels × 2 flips | 36.1 s | 717 MB | labelled post hoc |
+| 2026-10-30 | big plan B1: pytest, the two new test files | 13 tests | 1.6 s | – |  |
+| 2026-10-30 | big plan B1: `bash tools/check-all.sh` | worktree | 254.8 s | 1.67 GB | PASS; pytest 739 passed, 5 skipped in 123.9 s; log `outputs/b1-20261030-check-all.log` |
+| 2026-10-30 | big plan B1: post-hoc squint decomposition of G1b | 4 antennas × 14 chunks | 2.65 s | 296 MB | first attempt gave NaN (NaN-σ chunks not excluded); `squint.log` is the rerun |
+| 2026-10-30 | big plan B1: post-hoc stuck-chunk check | fixture amplitudes | ~1 s | – | not timed; `stuck.log` |
+| 2026-10-30 | big plan B1: `bash tools/check-all.sh`, after the post-hoc edits | worktree | 95 s | – | PASS; pytest 739 passed, 5 skipped in 91.6 s (Rust steps cached); log `outputs/b1-20261030-check-all-2.log` |

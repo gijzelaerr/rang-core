@@ -31,6 +31,35 @@ pixels to −1.9 peak at gain 1. No pipeline change; three diagnostics proposed
 (Gram-consistency gap, Q_∞ floor and κ, ERC certificate). Archive
 `results/clean-theory.json`; `data/meerkat.itrf.txt` added with provenance.
 
+B1 beam and pointing, B1-0 and B1-1 (i) (big plan wave 3), 2026-10-30
+(implemented; measured; [b1-beam-pointing.md](b1-beam-pointing.md)). Protocol
+frozen first. B1-0: SARAO's 2023 L-band holography cube (de Villiers 2023,
+DOI 10.48479/wdb0-h061, CC BY-NC 4.0; only derived statistics are committed,
+the maps stay in ignored outputs, attribution in the report) is read by HTTP
+range from its stored 35 GB npz (3.72 GB: array average at 1,024 channels, 64
+antennas at 9.2 MHz), oriented (s = +1, from the metrics file and katbeam's
+squint sign), spline-interpolated and normalised; all three gates pass
+(metrics reproduced to 0.08′ and 0.2 %; frequency interpolation 1.0e-3
+median, spatial 6e-5). Against it, over 900–1650 MHz, katbeam errs 0.83 %
+(median max) in the main lobe and 0.54× the signal of a 30″ offset on the
+half-power ring, with a fixed 0.50 % sidelobe (measured 0.30–0.76 %); EIDOS
+errs 2.1 % in the core (1.8× the 30″ signal) and 0.05 % RMS in the sidelobe,
+with an ambiguous grid orientation (post hoc). Antennas differ from the array
+average by 0.12–0.21 % RMS in the main lobe. B1-1 (i): the SARAO/SKA Gaussian
+pointing-offset fit (SKA SDP pipeline `5ede554` with its pinned dependencies)
+is ported and reproduces the pipeline's own reference on the five-scan fixture
+to 8.9e-16 (scan 9 is the on-source point of a five-point pattern). On the
+fixture it gives offsets of 1.4–6.0′ with formal σ 1.2–7.3′ (all within 1.9σ
+of zero; 3–4 informative chunks of 14, plus three fully flagged GNSS chunks it
+marks valid at their starting values). Against simulated truth with the
+holography beam it over-recovers offsets by 1.2–1.5× and returns up to 0.6′
+at zero offset, about half of it the beam's squint and up to 0.37′ shape bias
+(post hoc); its 1σ interval covers the truth 59–78 % of the time. ESO137
+(`ms1_target`, CC BY 4.0, 734 GB DATA) is the B1 target; no public store has
+pointing scans. Measures frozen as the geodetic parallactic angle with astropy
+as reference. Next: B1-2 identifiability survey over beam and pointing
+parameters, then B1-3 pointing self-calibration against both baselines.
+
 PC1 preconditions (big plan; [pc1-preconditions.md](pc1-preconditions.md)),
 2026-10-30 (fixed; measured): the L1 and L2 preconditions pass again. Both
 failures were merge interactions, not regressions inside a task. L1's

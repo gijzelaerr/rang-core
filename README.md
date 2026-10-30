@@ -176,6 +176,11 @@ quality/cost comparison, not further simulator expansion.
 - Tutorials: `pip install -e '.[notebook]'` and open `notebooks/` (01 data and
   rank, 02 flagging step by step, 03 gains and TV, 04 imaging, 05 the flagging
   experiment); see `research/d2-notebook.md`.
+- B1 adds the SARAO holography beam as rang's reference beam
+  (`rangtoy.beam_holography`: range reader, per-component Jones sampler,
+  katbeam and EIDOS controls) and an exact port of the SARAO/SKA Gaussian
+  pointing-offset fit (`examples/b1_baselines.py`;
+  `research/b1-beam-pointing.md`).
 - `rangtoy.core_ms_write` writes existing casacore tables for the core
   (byte-identical to casacore 3.8.1 bar uninitialised padding;
   `research/e3-table-writer.md`); python-casacore stays the oracle and is

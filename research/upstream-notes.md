@@ -363,3 +363,16 @@ not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
   SR2016/PB2010 to ≤ 6.4e-8 below 3.5 GHz (harmless for MeerKAT); above 11 GHz
   it diverges (up to 140 % against SR2016 by 50 GHz) because it has no
   high-frequency piece.
+
+## B1 observations (2026-10-30)
+
+- RATT (`ratt-ru/eidos`, candidate to file): EIDOS 1.1.2 breaks on NumPy ≥ 2.4
+  because it calls `np.sum` on a generator; a one-line fix. Its grid
+  orientation convention is undocumented (B1 found it ambiguous).
+- Non-RATT: the SARAO 2023 holography release (DOI 10.48479/wdb0-h061) is
+  CC BY-NC 4.0 (the literature scan said CC BY) and stores a 35 GB npz
+  uncompressed; its metrics file reports power half-widths at half maximum in
+  arcminutes without saying so. The SKA SDP pointing pipeline keeps a fully
+  flagged reference antenna (`_determine_refant`'s replacement is discarded)
+  and marks fully flagged chunks valid at their starting values; its
+  ska-sdp-datamodels 1.1.0 pin stamps integrations at TIME − INTERVAL/2.

@@ -31,7 +31,7 @@ Repository = "https://github.com/gijzelaerr/rang"
 plot = ["matplotlib>=3.8"]
 test = ["pytest>=8"]
 pointing = ["jax>=0.4.30", "numpy>=1.26", "scipy>=1.12"]
-beam = ["katbeam==0.1"]
+beam = ["katbeam==0.1", "eidos==1.1.2"]
 flagging = ["quartical==0.2.7", "stimela==2.1.4", "python-casacore==3.8.1", "numpy>=1.26", "matplotlib>=3.8"]
 recipes = ["stimela==2.1.4"]
 imaging = ["astropy>=6"]

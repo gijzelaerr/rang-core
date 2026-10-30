@@ -311,6 +311,13 @@ CPU-heavy tasks at a time on 8 physical cores.
   Anderson m = 3): the issue 452 weight-swap fix behind a compatibility
   flag and the convergence criterion study, one protocol (user decision
   above); after P1 (done) and L1 (done), independent of L2/L3.
+- B1-0 and B1-1 (i) done 2026-10-30 (`b1-beam-pointing.md`): holography beam
+  product frozen (CC BY-NC 4.0, derived statistics only committed), katbeam
+  and EIDOS measured against it, the SARAO/SKA Gaussian fit ported bit-exact
+  and found weak on the fixture; ESO137 the target; next B1-2 identifiability
+  (`beam_identifiability.py`, `measures.py`, `fetch_eso137_pilot.py`), then
+  B1-3 pointing self-calibration (`pointing_selfcal.py`) against both
+  baselines at matched cost.
 - B1 beam and pointing on real data: protocol for the original research
   question on LUNO with the core (predictor, solver, the existing pointing
   solver and JAX reference path): can small pointing/beam corrections be
