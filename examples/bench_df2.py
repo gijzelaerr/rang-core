@@ -7,6 +7,8 @@ ducc0's speed (research/df2-wgridder-speed.md).
     python examples/bench_df2.py time SET OUT.json --impl wgrid|ducc [--repeats N]
     python examples/bench_df2.py bench SET OUT_DIR [--impls wgrid,ducc]
         [--threads 1,4,16] [--repeats 3]
+    python examples/bench_df2.py edge SYNTH_DIR OUT.json
+    python examples/bench_df2.py summary RUN_STEPS RUN_FINAL OUT.json
 
 SET names an input set: `k` (the six K arms of P2's dumped gridder inputs,
 `--k-inputs`), `k41` (K `original` tiled 41 times) or `array` (the
@@ -22,7 +24,9 @@ against DF1's archive; `compare` recomputes them with the current code and
 reports bit-identity and L-infinity over the reference peak per output.
 `bench` runs `time` in a fresh process per (repeat, threads, impl), the
 implementations interleaved, with `OMP_NUM_THREADS` removed from the
-environment (it caps ducc0's pool) and `OPENBLAS_NUM_THREADS=1`.
+environment (it caps ducc0's pool) and `OPENBLAS_NUM_THREADS=1`. `edge`
+is the experiment on the edge-pixel difference from ducc0 (protocol item
+f); `summary` compiles the compact result archive.
 """
 
 import argparse
@@ -408,6 +412,156 @@ def cmd_edge(args):
     Path(args.out).write_text(json.dumps(res, indent=1))
 
 
+# ------------------------------------------------------------------ summary
+
+# Speed and memory targets of the protocol (gated sets).
+GATED_SETS = ("k41", "array")
+TARGET = {1: 1.5, 16: 2.0}
+MEMORY_FACTOR = 1.2
+
+
+def _rel(path):
+    try:
+        return str(Path(path).resolve().relative_to(ROOT.resolve()))
+    except ValueError:
+        return str(path)
+
+
+def _table(path):
+    rows = json.loads(Path(path).read_text())
+    return {(r["impl"], r["threads"]): r for r in rows if "threads" in r}, {
+        r["impl"]: r["hashes_identical_across_runs"] for r in rows if "threads" not in r
+    }
+
+
+def _compare_rows(table):
+    out = []
+    for threads in sorted({t for _, t in table}):
+        w, d = table.get(("wgrid", threads)), table.get(("ducc", threads))
+        if not (w and d):
+            continue
+        out.append(
+            {
+                "threads": threads,
+                "core_wall_per_image": w["wall_per_image_median"],
+                "core_wall_range": w["wall_total_range"],
+                "ducc0_wall_per_image": d["wall_per_image_median"],
+                "ducc0_wall_range": d["wall_total_range"],
+                "ratio": w["wall_total_median"] / d["wall_total_median"],
+                "core_ns_per_visibility": w["ns_per_gridded_visibility_per_image"],
+                "ducc0_ns_per_visibility": d["ns_per_gridded_visibility_per_image"],
+                "core_max_rss_mb": w["max_rss_mb"],
+                "ducc0_max_rss_mb": d["max_rss_mb"],
+                "rss_ratio": w["max_rss_mb"] / d["max_rss_mb"],
+                "core_rss_over_inputs_mb": w["max_rss_mb"]
+                - w["rss_mb_after_loading_inputs"],
+                "ducc0_rss_over_inputs_mb": d["max_rss_mb"]
+                - d["rss_mb_after_loading_inputs"],
+            }
+        )
+    return out
+
+
+def cmd_summary(args):
+    steps, final = Path(args.steps), Path(args.final)
+    res = {"task": "DF2a", "runs": [_rel(steps), _rel(final)], "sets": {}}
+    for name in ("k", "k41", "array", "k-f32"):
+        entry = {}
+        base = steps / f"bench-df1-{name}" / "table.json"
+        if base.is_file():
+            table, ident = _table(base)
+            entry["df1_baseline"] = _compare_rows(table)
+            entry["df1_hashes_identical_across_runs"] = ident
+        for key, suffix in (("final", ""), ("final_repeat_labelled", "-repeat")):
+            fin = final / f"bench-{name}{suffix}" / "table.json"
+            if not fin.is_file():
+                continue
+            table, ident = _table(fin)
+            rows = _compare_rows(table)
+            for r in rows:
+                if name in GATED_SETS and r["threads"] in TARGET:
+                    r["speed_target"] = TARGET[r["threads"]]
+                    r["speed_pass"] = bool(r["ratio"] <= TARGET[r["threads"]])
+                if name in GATED_SETS or name == "k":
+                    r["memory_pass"] = bool(r["rss_ratio"] <= MEMORY_FACTOR)
+            entry[key] = rows
+            entry[key + "_hashes_identical_across_runs_and_threads"] = ident
+        res["sets"][name] = entry
+    res["steps"] = []
+    for path in sorted(steps.glob("quick-*/summary.json")):
+        tag, _, set_name = path.parent.name.removeprefix("quick-").rpartition("-")
+        for r in json.loads(path.read_text()):
+            res["steps"].append(
+                {
+                    "step": tag,
+                    "set": set_name,
+                    "threads": r["threads"],
+                    "core_wall_total": r["wall_total"],
+                    "max_rss_mb": r["max_rss_mb"],
+                    "load_before": r["loadavg_before_after"][0][0],
+                }
+            )
+    for key, name in (
+        ("edge", "edge.json"),
+        ("f32_probe", "f32-probe.json"),
+    ):
+        if (steps / name).is_file():
+            res[key] = json.loads((steps / name).read_text())
+    groups = steps / "logs" / "a-groups.log"
+    if groups.is_file():
+        res["plane_groups"] = groups.read_text().splitlines()
+    gates = final / "gates-final" / "gates.json"
+    if gates.is_file():
+        g = json.loads(gates.read_text())
+        res["gates"] = {
+            "failures": g["failures"],
+            "pass_criteria_1_2_3_5": g["pass_criteria_1_2_3_5"],
+            "kernel_table": g.get("kernel_table"),
+            "single_visibility": g["single_visibility"],
+            "cases": {
+                case: {
+                    key: (
+                        [a["rel"] for a in e]
+                        if key == "adjointness"
+                        else {
+                            d: {
+                                "vs_dft": e[d]["vs_dft"]["linf_rel_peak"],
+                                "vs_ducc0": e[d]["vs_ducc0"]["linf_rel_peak"],
+                                "plan_equal": e[d]["plan"]["equal"],
+                            }
+                            for d in ("vis2dirty", "psf", "dirty2vis")
+                            if d in e
+                        }
+                    )
+                    for key, e in rec.items()
+                }
+                for case, rec in g["cases"].items()
+            },
+        }
+    threads = final / "threads-final.json"
+    if threads.is_file():
+        t = json.loads(threads.read_text())
+        res["threads"] = {"identical": t["identical"], "outputs": t["outputs"]}
+    comp = final / "compare-final.json"
+    if comp.is_file():
+        c = json.loads(comp.read_text())
+        res["agreement_with_df1"] = {
+            "worst_f64": c["worst_f64"],
+            "worst_f32": c["worst_f32"],
+            "pass_tolerance": c["pass_tolerance"],
+            "outputs": {
+                k: {kk: v[kk] for kk in ("identical", "linf_rel_peak") if kk in v}
+                for k, v in c["outputs"].items()
+            },
+        }
+    simd = sorted((final / "simd-final").glob("*.txt"))
+    if simd:
+        lines = {p.stem: p.read_text().splitlines()[0] for p in simd}
+        res["simd_levels_identical"] = len(set(lines.values())) == 1
+    Path(args.out).write_text(json.dumps(res, indent=1) + "\n")
+    print("wrote", args.out)
+
+
 # ------------------------------------------------------------------- timing
 
 
@@ -578,6 +732,11 @@ def main(argv=None):
     e.add_argument("--epsilons", default="1e-5,1e-7,1e-9,1e-11")
     e.add_argument("--seed", type=int, default=7)
     e.set_defaults(func=cmd_edge)
+    m = sub.add_parser("summary")
+    m.add_argument("steps")
+    m.add_argument("final")
+    m.add_argument("out")
+    m.set_defaults(func=cmd_summary)
     for name, func in (("time", cmd_time), ("bench", cmd_bench)):
         q = sub.add_parser(name)
         q.add_argument("set", choices=("k", "k41", "array"))
