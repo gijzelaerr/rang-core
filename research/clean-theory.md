@@ -229,8 +229,13 @@ bounded by `C ρ^{k/2}` and the increments are summable
 axioms: all thirteen audited theorems depend on `propext`,
 `Classical.choice` and `Quot.sound` only. The build takes 41-44 s on the
 Windows workstation after `lake exe cache get` (4 min 50 s, clone included).
-Not formalised: Proposition 4' and Theorem 6, whose proofs are the short
-arguments in §2.2.
+Not formalised in this revision: Proposition 4' and Theorem 6. Both were
+machine-checked later on 2026-10-30 (branch `clean-implicit-objective`):
+`RangFormal/Separation.lean` (Proposition 4', with the invertibility of
+`B_SS` and the pick on the support) and `RangFormal/Clark.lean` (Theorem 6,
+the provable minor-cycle rule end to end); see
+[clean-implicit-objective.md](clean-implicit-objective.md) §7, where the
+audit covers 34 theorems.
 
 ## 4. Implementation (implemented; tested)
 
@@ -489,7 +494,8 @@ example 68.8 s of compute (71.1 s with E2c and E7; PSFs 0.02-0.33 s, CG
   and the exact two-source rule, in
   [clean-phase-transition.md](clean-phase-transition.md).
 - Formalise Proposition 4' (Neumann series) and Theorem 6 (the provable
-  minor-cycle rule); both are finite algebra.
+  minor-cycle rule): done on branch `clean-implicit-objective`
+  (`Separation.lean`, `Clark.lean`).
 - A noise-margin statement for Theorem 4: Tropp's `η(S) < 1 − 2ε/‖r_S‖_∞`
   explains E2c's adjacent-pixel failures quantitatively; measure it.
 - Multi-scale CLEAN: with coherence 0.98-0.99 the guarantee question is

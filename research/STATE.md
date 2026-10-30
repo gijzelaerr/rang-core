@@ -1,5 +1,36 @@
 # Rang research state
 
+CLEAN implicit objective (research question 1 of the CLEAN programme;
+[clean-implicit-objective.md](clean-implicit-objective.md)), 2026-10-30
+(proved; implemented; measured; partly checked). Högbom CLEAN with gain γ is
+incremental forward stagewise (FS) with step γ|r_p| (LS-Boost; the
+subgradient method on the peak residual, Freund, Grigas and Mazumder). New
+proof: as γ → 0 and ε → 0, parametrised by ℓ1 arc length, CLEAN and FS_ε
+converge to one limit; in data space it is unique for any dictionary (the
+gradient flow of the peak residual, by monotonicity of the ℓ∞
+subdifferential), its direction is the minimum-norm (non-negative least
+squares) one, and in model space it is Hastie, Taylor, Tibshirani and
+Walther's monotone lasso when the tied atoms are independent; the converged
+small-gain model tends to the path's end point. No pointwise objective
+exists (their Lemma 2); the implicit objective is local: dQ/dL = −max|r|,
+the steepest possible per unit arc length. Example `clean_implicit`
+(36.5 s; track-uniform and snapshot-natural, noiseless disc and six
+sources, matched misfit 1e-1 to 1e-5, exact lasso homotopy): CLEAN model →
+FS₀ by 22-64× (disc) and 280-2,400× (points) from γ = 1 to 0.003, rate about
+γ^0.76-0.86 (disc) and γ^1.0-1.4 (points); the lasso path has 3,503-5,836
+zero crossings on the disc (arc 64-70× its norm), so lasso ≠ small-gain CLEAN
+there (rms 0.13-0.25); on the track six-source scene the lasso is monotone
+and the two agree to 3e-7. FS₀ itself goes negative on the snapshot (−0.22),
+so small gain does not imply positivity; the disc's near-tied sets become
+numerically dependent, so model convergence for extended emission is
+measured, not proved: the conjecture holds unconditionally for residuals
+and misfit, for models only under tied-atom independence. Lean:
+`Stagewise.lean` (step lemmas, ℓ1 steepest descent, optimality of the argmax
+pick, arc length, data-space uniqueness for right-differentiable limit
+curves; the compactness and almost-everywhere steps are prose only),
+`Separation.lean` (Proposition 4'), `Clark.lean` (Theorem 6); 34 audited
+theorems, standard axioms only. Branch `clean-implicit-objective`.
+
 CLEAN phase transition (question 2 of the CLEAN programme; user-directed;
 [clean-phase-transition.md](clean-phase-transition.md)), 2026-10-30
 (implemented; measured). The question: when does Högbom CLEAN recover point
