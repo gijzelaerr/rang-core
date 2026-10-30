@@ -40,6 +40,11 @@ imaging = ["astropy>=6"]
 meerkat = ["katdal==0.23", "katsdptelstate[rdb]==1.0.0"]
 # DF-IO (research/dfio-formats.md): the H5parm reader and writer.
 formats = ["h5py>=3.11"]
+# casacure as the second, read-only oracle of the core's table reader and
+# writer on every OS (research/t1-casacure-ci.md); pinned exactly. The marker
+# lists the platforms 3.8.35 has wheels for (none for macOS x86_64 or macOS
+# arm64 cp310), so the sdist, which needs Rust and a C compiler, is never built.
+casacure = ["casacure==3.8.35; (sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64')) or (sys_platform == 'win32' and platform_machine == 'AMD64') or (sys_platform == 'darwin' and platform_machine == 'arm64' and python_version >= '3.11')"]
 notebook = ["matplotlib>=3.8", "pandas>=2.1", "ipywidgets>=8.1", "ipykernel>=6.29", "jupyterlab>=4", "nbformat>=5.9", "nbconvert>=7.16"]
 # The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
 docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
