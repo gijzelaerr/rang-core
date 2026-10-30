@@ -168,7 +168,7 @@ def main():
         target = args.python or sys.executable
         ok = run("venv", [uv, "venv", "-q", "-p", target, venv], base_env)
         install = [uv, "pip", "install", "--python", python]
-        install += ["--no-build-package", "casacure"]
+        install += ["--only-binary", "casacure"]
     else:
         interpreter = args.python or sys.executable
         ok = run("venv", [interpreter, "-m", "venv", venv], base_env)
