@@ -32,8 +32,8 @@ See [the research story](research/index.md) and the verdict,
 
 What exists, all tested against archived oracles:
 
-- a Rust core reached through the compiled extension `rang._core`: a
-  read-only Measurement Set reader and an in-place table writer, zarr ingest
+- a Rust core, reached mostly through the compiled extension `rang._core`
+  ({doc}`installation` names the exceptions): a read-only Measurement Set reader and an in-place table writer, zarr ingest
   with HTTP range fetch, a port of QuartiCal's full-Jones complex solver, the
   fused residual pass, gain total variation, Tricolour's SumThreshold
   strategies, WSClean's imaging weights and w-stacking gridder, an exact port

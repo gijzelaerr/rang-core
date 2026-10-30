@@ -6,11 +6,18 @@
 pip install rang-core
 ```
 
-The wheel carries the compiled core, so no Rust compiler is needed. Every
-kernel is inside the extension `rang._core`, including the root crate's
-(gain TV, phase trend, anchored response, projector, the pointing toy):
-importing `rang` or calling a kernel never runs Cargo, and the extension
-releases the GIL around every kernel.
+The wheel carries the compiled core, so no Rust compiler is needed for the
+flagging chain, imaging and the tutorials. The kernels are inside the
+extension `rang._core`, including the root crate's (gain TV, phase trend,
+anchored response, projector, the pointing toy); importing `rang` never runs
+Cargo, and the extension releases the GIL around every kernel.
+
+Three later additions are not in the extension yet: the exact wgridder
+(`rang.core_wgridder`), the closure statistic (`rang.core_closure`) and the
+Rust path of the flux standards (`rang.fluxstd`; its Python tables need no
+build) build a standalone library with `cargo` from a source checkout on
+first use. The archive drivers and comparators read archived inputs from a
+checkout too.
 
 Wheels are built by {gh}`.github/workflows/wheels.yml` as one `abi3` binary
 for CPython 3.10 and newer:
