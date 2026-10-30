@@ -41,6 +41,12 @@ HAS_EXTENSION = importlib.util.find_spec("rang._core") is not None
 C_LIGHT = 299792458.0
 WRITE = os.environ.get("RANG_GOLDEN_WRITE") == "1"
 EXACT = sys.platform == "linux" and platform.machine().lower() in ("x86_64", "amd64")
+# Leaves whose bits come from NumPy's bundled LAPACK (lstsq, qr, svd), not from
+# a kernel of this project: they differ in the last bits between NumPy wheels
+# (the wheels workflow's Linux x86_64 runners failed on `root_projector.2` with
+# NumPy 2.2.6 against this archive written with NumPy 2.5), so they take the
+# labelled tolerance on every platform.
+NUMPY_LAPACK = {"root_projector"}
 _written_arrays = {}
 _written_scalars = {}
 
@@ -101,13 +107,14 @@ def _check(golden, name, result):
                 _written_scalars[key] = _scalar(value)
         return
     arrays, scalars = golden
+    exact = EXACT and name not in NUMPY_LAPACK
     expected = {k for k in scalars if k == name or k.startswith(name + ".")}
     assert {k for k, _ in leaves} == expected, name
     for key, value in leaves:
         if isinstance(value, np.ndarray):
             want = arrays[key]
             assert value.dtype == want.dtype and value.shape == want.shape, key
-            if EXACT or value.dtype.kind not in "fc":
+            if exact or value.dtype.kind not in "fc":
                 assert value.tobytes() == want.tobytes(), key
                 digest = hashlib.sha256(value.tobytes()).hexdigest()
                 assert digest == scalars[key]["sha256"], key
@@ -117,9 +124,9 @@ def _check(golden, name, result):
                 np.testing.assert_allclose(
                     value, want, rtol=1e-9, atol=1e-12 * scale, equal_nan=True
                 )
-        elif isinstance(value, str) and not EXACT and name == "errors":
+        elif isinstance(value, str) and not exact and name == "errors":
             assert value.split(":")[0] == scalars[key].split(":")[0], key
-        elif EXACT or not isinstance(scalars[key], dict) or "float" not in scalars[key]:
+        elif exact or not isinstance(scalars[key], dict) or "float" not in scalars[key]:
             assert _scalar(value) == scalars[key], key
         else:
             want = float.fromhex(scalars[key]["float"])
