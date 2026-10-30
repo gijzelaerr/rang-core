@@ -810,7 +810,8 @@ the largest single process, not the sum over DDFacet's forked workers.
 | `uv pip install meqtrees-cattery` | PyPI | 9.5 s | 55 MB | 1.8.0; imports |
 | `kMS.py` CohJones, scalar, `--DicoModel` from the HMP run | LUNO slice | 8.3 s | 221 MB | **failed**: `AsyncProcessPool._init_default` missing in DDFacet 1.0.0.0 |
 | evidence copy and SHA256SUMS | – | seconds | – | `outputs/ddfacet-feasibility-20261030-01`, 15 MB |
-| `bash tools/check-all.sh` | worktree | see the commit log | – | documents only |
+| `bash tools/check-all.sh` (first attempt, without the lock) | worktree at `e2296e0` | about 60 min, then stopped | – | stopped during pytest on the coordinator's load-control instruction; log `check-all-aborted-unlocked.log` |
+| `flock /home/gijsm/.rang-checkall.lock bash tools/check-all.sh` | worktree at `5aaf758` (documents only) | 2,534.8 s; lock wait 0 s | 1.83 GB | **PASS**; pytest 570 passed and 1 skipped in 2,225.6 s; root 19 and core 55 Rust tests; clippy, fmt, ruff clean; load 77–81 at the start; log `check-all.log` |
 
 ## For the coordinator
 
