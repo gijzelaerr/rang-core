@@ -386,6 +386,44 @@ def sample_columns(a, pt, bl, sigma, ncom):
     return y1, y2, d
 
 
+def _row_terms(pt, blr, ncols):
+    """Per row of a time bin (baseline index blr): the factor F (n, K) and
+    the derivative stack [dp_x, dp_y, dq_x, dq_y, de, dw][:ncols] as (n,
+    ncols, K), contiguous, for the batched contraction in `_task`."""
+    out = {"F": np.ascontiguousarray(pt["F"][blr])}
+    if ncols:
+        parts = [pt["dp"][..., 0], pt["dp"][..., 1], pt["dq"][..., 0], pt["dq"][..., 1]]
+        parts += [pt["de"], pt["dw"]][: ncols - 4]
+        out["D"] = np.ascontiguousarray(np.stack(parts, axis=1)[blr])
+    return out
+
+
+def _contract(d_rows, amps, chunk=512):
+    """y[i, c, j] = sum_k d_rows[i, c, k] amps[j, i, k] for every row i:
+    (n, ncols, K) x (nch, n, K) -> (n, ncols, nch), by row chunks."""
+    n = d_rows.shape[0]
+    out = np.empty((n, d_rows.shape[1], amps.shape[0]), complex)
+    for r0 in range(0, n, chunk):
+        sl = slice(r0, min(r0 + chunk, n))
+        out[sl] = np.matmul(d_rows[sl], amps[:, sl].transpose(1, 2, 0))
+    return out
+
+
+def _columns_from(y, sigma, ncom):
+    """y1, y2 (n, 2) and d (n, ncom) = [squint_x, squint_y, ellipticity,
+    log-width][:ncom] from the contracted stack y (n, ncols)."""
+    y1, y2 = y[:, 0:2], y[:, 2:4]
+    cols = []
+    if ncom >= 2:
+        cols += [
+            0.5 * sigma * (y1[:, 0] + y2[:, 0]),
+            0.5 * sigma * (y1[:, 1] + y2[:, 1]),
+        ]
+    cols += [y[:, 4 + i] for i in range(max(ncom - 2, 0))]
+    d = np.stack(cols, axis=1) if cols else np.zeros((len(y), 0), complex)
+    return y1, y2, d
+
+
 def stefcal_warm(
     data, model, weight, a1, a2, nant, g0, iterations=STEFCAL_ITER, tol=STEFCAL_TOL
 ):
@@ -513,7 +551,12 @@ def _sub_blocks(nch, width):
 
 
 def _task(args):
-    """One (scan, 32-channel block) of a pass. See `Problem.run_pass`."""
+    """One (scan, 32-channel block) of a pass. See `Problem.run_pass`.
+
+    Loop: time bin, then 16-channel runs (phase recurrence, the component
+    amplitudes of every channel of the run, the beam terms of each variant
+    at its sub-block centres and their batched contraction), then channel
+    and hand (the per-bin work)."""
     ctx = _CTX
     s, f, params, gains_in, mode = args
     scan = ctx["scans"][s]
@@ -525,6 +568,7 @@ def _task(args):
     chans = np.arange(f * BLOCK, min((f + 1) * BLOCK, len(freqs)))
     nu0 = cfg["nu0"]
     started = time.perf_counter()
+    per_antenna = False
     if mode == "survey":
         variants = cfg["variants"]  # [(beams, sub width)]
         ncom = NCOM_SURVEY
@@ -546,15 +590,17 @@ def _task(args):
     gains_out = np.ones((nbins, len(chans), 2, nant), complex)
     if gains_in is not None:
         gains_out[:] = gains_in
-    n_loc = (
-        2 * ncomp
-        + (2 * nant if mode != "survey" and per_antenna else 0)
-        + (ncom if mode != "survey" else 0)
-    )
-    h_acc = np.zeros((n_loc, n_loc)) if mode == "fit" else None
-    b_acc = np.zeros(n_loc) if mode == "fit" else None
-    nraw = n_loc - 2 * ncomp
-    raw_acc = np.zeros((nraw, nraw)) if mode == "fit" else None
+    if mode == "survey":
+        ncols = 4 + NCOM_SURVEY - 2
+    elif mode == "fit" and per_antenna:
+        ncols = 4 + max(ncom - 2, 0)
+    else:
+        ncols = 0
+    nth = (2 * nant + ncom) if per_antenna else 0
+    if mode == "fit":
+        mom = [np.zeros((ncomp + nth, ncomp + nth)) for _ in range(3)]
+        bmom = [np.zeros(ncomp + nth) for _ in range(2)]
+        raw_acc = np.zeros((nth, nth))
     chi2 = 0.0
     nsamp = 0
     nsolve = 0
@@ -567,66 +613,58 @@ def _task(args):
     if mode == "faint":
         fsky = ctx["faint_sky"]
         nf = len(fsky["lm"])
-        faint = {
-            "h": np.zeros((len(chans), nf, nf)),
-            "b": np.zeros((len(chans), nf)),
-        }
+        faint = {"h": np.zeros((len(chans), nf, nf)), "b": np.zeros((len(chans), nf))}
+    two_pi_c = 2j * np.pi / LIGHT
     for ti, rows_t in enumerate(scan["rows_by_bin"]):
         q = scan["q"][ti]
         x, y = measures.sky_to_beam(lm[:, 0], lm[:, 1], q)
         u_deg = np.stack((np.degrees(x), np.degrees(y)), axis=1)
-        if mode == "faint":
-            fx, fy = measures.sky_to_beam(fsky["lm"][:, 0], fsky["lm"][:, 1], q)
-            fu_deg = np.stack((np.degrees(fx), np.degrees(fy)), axis=1)
         uvw = scan["uvw"][rows_t]
         tau = _delays(uvw, lm)
         gauss = _gauss_terms(uvw, sky)
         if mode == "faint":
+            fx, fy = measures.sky_to_beam(fsky["lm"][:, 0], fsky["lm"][:, 1], q)
+            fu_deg = np.stack((np.degrees(fx), np.degrees(fy)), axis=1)
             ftau = _delays(uvw, fsky["lm"])
         a1 = scan["a1"][rows_t]
         a2 = scan["a2"][rows_t]
         blr = scan["bl"][rows_t]
-        pair_cache = {}
-        run_start = None
-        for ci, c in enumerate(chans):
-            nu = freqs[c]
-            # phase recurrence, re-anchored at every 16-channel run
-            if run_start is None or (c - chans[0]) % SUB == 0:
-                run_start = c
-                end = min(run_start + SUB, chans[-1] + 1)
-                dnu = freqs[c + 1] - nu if end - run_start > 1 else 0.0
-                uniform = end - run_start <= 1 or np.allclose(
-                    np.diff(freqs[run_start:end]), dnu, rtol=0, atol=1e-3
-                )
-                cur = np.exp((2j * np.pi / LIGHT) * nu * tau)
-                pstep = np.exp((2j * np.pi / LIGHT) * dnu * tau) if uniform else None
-                if mode == "faint":
-                    fcur = np.exp((2j * np.pi / LIGHT) * nu * ftau)
-                    fstep = (
-                        np.exp((2j * np.pi / LIGHT) * dnu * ftau) if uniform else None
-                    )
-            elif uniform:
-                cur = cur * pstep
-                if mode == "faint":
-                    fcur = fcur * fstep
-            else:
-                cur = np.exp((2j * np.pi / LIGHT) * nu * tau)
-                if mode == "faint":
-                    fcur = np.exp((2j * np.pi / LIGHT) * nu * ftau)
-            phase = _envelope(cur, gauss, nu)
-            lf = math.log(nu / nu0)
-            spec = base[:, c] * np.exp(a_sky + b_sky * lf)
-            amp = phase * spec[None]
-            # beam pair terms per variant at the sub-block centre
-            vterms = []
+        for r0 in range(0, len(chans), SUB):
+            run = chans[r0 : r0 + SUB]
+            nrun = len(run)
+            # component amplitudes (phase x spectrum) of every channel of the run
+            dnu = freqs[run[1]] - freqs[run[0]] if nrun > 1 else 0.0
+            uniform = nrun <= 1 or np.allclose(
+                np.diff(freqs[run]), dnu, rtol=0, atol=1e-3
+            )
+            amps = np.empty((nrun, len(rows_t), ncomp), complex)
+            cur = np.exp(two_pi_c * freqs[run[0]] * tau)
+            step = np.exp(two_pi_c * dnu * tau) if uniform else None
+            lfs = np.log(freqs[run] / nu0)
+            for i, c in enumerate(run):
+                if i:
+                    cur = cur * step if uniform else np.exp(two_pi_c * freqs[c] * tau)
+                spec = base[:, c] * np.exp(a_sky + b_sky * lfs[i])
+                amps[i] = _envelope(cur, gauss, freqs[c]) * spec[None]
+            if mode == "faint":
+                famps = np.empty((nrun, len(rows_t), nf), complex)
+                fcur = np.exp(two_pi_c * freqs[run[0]] * ftau)
+                fstep = np.exp(two_pi_c * dnu * ftau) if uniform else None
+                for i, c in enumerate(run):
+                    if i:
+                        fcur = (
+                            fcur * fstep
+                            if uniform
+                            else np.exp(two_pi_c * freqs[c] * ftau)
+                        )
+                    famps[i] = fcur
+            # beam terms per variant and sub-block, contracted for the run
+            chan_terms = {}
             for v, (beams, width) in enumerate(variants):
-                sb = (c - chans[0]) // width
-                key = (v, sb)
-                if key not in pair_cache:
-                    lo = chans[0] + sb * width
-                    hi = min(lo + width, chans[-1] + 1)
-                    feval = float(freqs[lo:hi].mean())
-                    hkey = (v, sb)
+                for s0 in range(0, nrun, width):
+                    sbc = run[s0 : s0 + width]
+                    hkey = (v, int((sbc[0] - chans[0]) // width))
+                    feval = float(freqs[sbc].mean())
                     if hkey not in handles:
                         handles[hkey] = beams.prepare(feval)
                     terms = beam_terms(
@@ -646,120 +684,120 @@ def _task(args):
                             pair_terms(t, scan["bp"], scan["bq"], "fit", beamed=beamed)
                             for t in terms
                         ]
+                    rts = [_row_terms(pt, blr, ncols) for pt in pts]
+                    ys = (
+                        [_contract(rt["D"], amps[s0 : s0 + len(sbc)]) for rt in rts]
+                        if ncols
+                        else None
+                    )
                     fpts = None
                     if mode == "faint":
                         fterms = beam_terms(
                             beams, handles[hkey], fu_deg, delta, squint, ellip
                         )
                         fpts = [
-                            pair_terms(t, scan["bp"], scan["bq"], "fit")["F"]
+                            np.ascontiguousarray(
+                                pair_terms(t, scan["bp"], scan["bq"], "fit")["F"][blr]
+                            )
                             for t in fterms
                         ]
-                    pair_cache[key] = (pts, fpts)
-                vterms.append(pair_cache[key])
-            if mode == "faint":
-                fphase = fcur
-            for h, corr in HANDS:
-                if mode == "survey":
-                    sel = scan["elig"][rows_t, c, h]
-                elif mode in ("fit", "gains"):
-                    sel = scan["train"][rows_t, c, h]
-                elif mode == "eval":
-                    sel = scan["test"][rows_t, c]
-                elif mode == "faint":
-                    sel = scan["elig"][rows_t, c, h]
-                else:  # predict
-                    sel = np.ones(len(rows_t), bool)
-                if not sel.any():
-                    continue
-                loc = np.flatnonzero(sel)
-                idx = rows_t[loc]
-                bli = blr[loc]
-                p, qq = a1[loc], a2[loc]
-                am = amp[loc]
-                pts0 = vterms[0][0][h]
-                z0 = am * pts0["F"][bli]
-                m0 = z0.sum(axis=1)
-                if mode == "survey":
-                    w = scan["weight"][idx, c, corr].astype(float)
-                    sw = np.sqrt(w)
-                    z = z0 * sw[:, None]
-                    cols = []
-                    for v in range(len(variants)):
-                        y1, y2, dd = sample_columns(
-                            am, vterms[v][0][h], bli, SIGMA_HAND[h], NCOM_SURVEY
+                    for j, c in enumerate(sbc):
+                        chan_terms[(v, int(c))] = (
+                            [rt["F"] for rt in rts],
+                            None if ys is None else [y_[:, :, j] for y_ in ys],
+                            fpts,
                         )
-                        cols.append(
-                            (y1 * sw[:, None], y2 * sw[:, None], dd * sw[:, None])
+            for i, c in enumerate(run):
+                ci = int(c - chans[0])
+                lf = float(lfs[i])
+                amp = amps[i]
+                f_rows, y_rows, fpts = chan_terms[(0, int(c))]
+                for h, corr in HANDS:
+                    if mode == "survey":
+                        sel = scan["elig"][rows_t, c, h]
+                    elif mode == "fit":
+                        sel = scan["train"][rows_t, c, h]
+                    elif mode == "eval":
+                        sel = scan["test"][rows_t, c]
+                    elif mode == "faint":
+                        sel = scan["elig"][rows_t, c, h]
+                    else:  # predict
+                        sel = np.ones(len(rows_t), bool)
+                    if not sel.any():
+                        continue
+                    loc = np.flatnonzero(sel)
+                    idx = rows_t[loc]
+                    p, qq = a1[loc], a2[loc]
+                    z0 = (amp * f_rows[h])[loc]
+                    m0 = z0.sum(axis=1)
+                    if mode == "survey":
+                        w = scan["weight"][idx, c, corr].astype(float)
+                        sw = np.sqrt(w)
+                        z = z0 * sw[:, None]
+                        cols = []
+                        for v in range(len(variants)):
+                            yv = chan_terms[(v, int(c))][1][h][loc]
+                            y1, y2, dd = _columns_from(yv, SIGMA_HAND[h], NCOM_SURVEY)
+                            cols.append(
+                                (y1 * sw[:, None], y2 * sw[:, None], dd * sw[:, None])
+                            )
+                        hm = bi.normals_columns(p, qq, nant, z, cols)
+                        acc.add(s, f, h, lf, hm, len(idx))
+                        continue
+                    if mode == "predict":
+                        gt = ctx["truth_gains"][s][c, h]
+                        pred[idx, ci, h] = (gt[p] * np.conj(gt[qq]) * m0).astype(
+                            np.complex64
                         )
-                    hm = bi.normals_columns(p, qq, nant, z, cols)
-                    acc.add(s, f, h, lf, hm, len(idx))
-                    continue
-                g = gains_out[ti, ci, h]
-                if mode == "predict":
-                    gt = ctx["truth_gains"][s][c, h]
-                    pred[idx, ci, h] = (gt[p] * np.conj(gt[qq]) * m0).astype(
-                        np.complex64
-                    )
-                    continue
-                d = scan["data"][idx, c, corr].astype(complex)
-                w = scan["weight"][idx, c, corr].astype(float) / scan["s2"][h]
-                if mode in ("fit", "gains"):
-                    g, it = stefcal_warm(d, m0, w, p, qq, nant, g)
-                    gains_out[ti, ci, h] = g
-                    nsolve += 1
-                    niter += it
-                gg = g[p] * np.conj(g[qq])
-                r = d - gg * m0
-                if mode == "eval":
-                    ok = ctx["predictable"][s][ti, ci, h]
-                    good = ok[p] & ok[qq]
-                    val = w * np.abs(r) ** 2
-                    eval_idx.append(
-                        np.stack((idx, np.full(len(idx), c), np.full(len(idx), h)), 1)[
-                            good
-                        ]
-                    )
-                    eval_val.append(val[good])
-                    continue
-                if mode == "faint":
-                    fz = fphase[loc] * vterms[0][1][h][bli] * gg[:, None]
+                        continue
+                    g = gains_out[ti, ci, h]
+                    d = scan["data"][idx, c, corr].astype(complex)
+                    w = scan["weight"][idx, c, corr].astype(float) / scan["s2"][h]
+                    if mode == "fit":
+                        g, it = stefcal_warm(d, m0, w, p, qq, nant, g)
+                        gains_out[ti, ci, h] = g
+                        nsolve += 1
+                        niter += it
+                    gg = g[p] * np.conj(g[qq])
+                    r = d - gg * m0
+                    if mode == "eval":
+                        ok = ctx["predictable"][s][ti, c, h]
+                        good = ok[p] & ok[qq]
+                        val = w * np.abs(r) ** 2
+                        eval_idx.append(
+                            np.stack(
+                                (idx, np.full(len(idx), c), np.full(len(idx), h)), 1
+                            )[good]
+                        )
+                        eval_val.append(val[good])
+                        continue
                     sw = np.sqrt(w)
-                    fz = fz * sw[:, None]
                     rw = r * sw
-                    faint["h"][ci] += fz.real.T @ fz.real + fz.imag.T @ fz.imag
-                    faint["b"][ci] += fz.real.T @ rw.real + fz.imag.T @ rw.imag
-                    continue
-                sw = np.sqrt(w)
-                rw = r * sw
-                chi2 += float(np.sum(np.abs(rw) ** 2))
-                nsamp += len(idx)
-                if mode == "gains":
-                    continue
-                gs = gg * sw
-                z = z0 * gs[:, None]
-                cols = []
-                if per_antenna or ncom:
-                    y1, y2, dd = sample_columns(am, pts0, bli, SIGMA_HAND[h], ncom)
-                    if not per_antenna:
-                        y1 = np.zeros_like(y1)
-                        y2 = np.zeros_like(y2)
-                    cols.append((y1 * gs[:, None], y2 * gs[:, None], dd * gs[:, None]))
-                hm, bm = bi.normals_columns(p, qq, nant, z, cols, rw)
-                ng = 2 * nant
-                if per_antenna or ncom:
-                    keep_idx = np.r_[
-                        np.arange(ng + ncomp),
-                        (ng + ncomp + np.arange(2 * nant)) if per_antenna else [],
-                        ng + ncomp + 2 * nant + np.arange(ncom),
-                    ].astype(int)
-                    hm = hm[np.ix_(keep_idx, keep_idx)]
-                    bm = bm[keep_idx]
-                hr, br = bi.schur_rhs(hm, bm, ng)
-                h_acc += bi.lf_map(hr, ncomp, lf)
-                b_acc += bi.lf_map_vector(br, ncomp, lf)
-                if nraw:
-                    raw_acc += hm[ng + ncomp :, ng + ncomp :]
+                    if mode == "faint":
+                        fz = famps[i][loc] * fpts[h][loc] * (gg * sw)[:, None]
+                        faint["h"][ci] += fz.real.T @ fz.real + fz.imag.T @ fz.imag
+                        faint["b"][ci] += fz.real.T @ rw.real + fz.imag.T @ rw.imag
+                        continue
+                    chi2 += float(np.sum(np.abs(rw) ** 2))
+                    nsamp += len(idx)
+                    gs = gg * sw
+                    z = z0 * gs[:, None]
+                    cols = []
+                    if per_antenna:
+                        y1, y2, dd = _columns_from(y_rows[h][loc], SIGMA_HAND[h], ncom)
+                        cols.append(
+                            (y1 * gs[:, None], y2 * gs[:, None], dd * gs[:, None])
+                        )
+                    hm, bm = bi.normals_columns(p, qq, nant, z, cols, rw)
+                    ng = 2 * nant
+                    hr, br = bi.schur_rhs(hm, bm, ng)
+                    mom[0] += hr
+                    mom[1] += lf * hr
+                    mom[2] += (lf * lf) * hr
+                    bmom[0] += br
+                    bmom[1] += lf * br
+                    if nth:
+                        raw_acc += hm[ng + ncomp :, ng + ncomp :]
     out = {"scan": s, "block": f, "seconds": time.perf_counter() - started}
     if mode == "survey":
         out["acc"] = acc
@@ -777,9 +815,10 @@ def _task(args):
             samples=nsamp,
             solves=nsolve,
             stefcal_iterations=niter,
+            h=bi.lf_assemble(*mom, ncomp),
+            b=bi.lf_assemble_vector(*bmom, ncomp),
+            raw=raw_acc,
         )
-        if mode == "fit":
-            out.update(h=h_acc, b=b_acc, raw=raw_acc)
     return out
 
 
@@ -794,7 +833,7 @@ def split_cells(scans_elig, group_channels, seed=SPLIT_SEED):
     of (elig (rows, chans) bool, tbin (rows,), baseline (rows,)) in scan
     order; the draw covers their row concatenation. Returns per scan
     (train, validation, test) cell masks."""
-    from .core_policy import split_holdout
+    from .core_campaign_array import split_holdout_lean
 
     elig = np.concatenate([e for e, _, _ in scans_elig], axis=0)
     groups = []
@@ -809,7 +848,9 @@ def split_cells(scans_elig, group_channels, seed=SPLIT_SEED):
         groups.append(g)
         offset += ntb * ncb * nbl
     groups = np.concatenate(groups, axis=0)
-    train, val, test = split_holdout(elig, seed, groups=groups, minimum_train=2)
+    train, val, test = split_holdout_lean(
+        elig, seed, lambda rows: groups[rows], minimum_train=2
+    )
     out = []
     at = 0
     for e, _, _ in scans_elig:
@@ -1291,8 +1332,17 @@ def solve(problem, arm, candidates=(), log=print, max_passes=LM_MAX_PASSES):
             if lam > LM_LAMBDA_MAX:
                 break
     wall = time.perf_counter() - started
+    # formal covariance of the free beam parameters at the solution
+    sigma_theta = np.zeros(nt_full)
+    if design.shape[1]:
+        hfin = lmat.T @ current["h"] @ lmat + np.diag(pdiag)
+        cov = bi.pinv_psd(hfin)[nsky:, nsky:]
+        sigma_theta = np.sqrt(
+            np.clip(np.einsum("ij,jk,ik->i", design, cov, design), 0, None)
+        )
     return {
         "arm": arm,
+        "sigma_theta": sigma_theta,
         "state": state,
         "gains": current["gains"],
         "theta_full": theta_full,
@@ -1397,7 +1447,73 @@ def raster_amplitude(grad, freq, pos_deg):
     return amp, g
 
 
-def fit_raster(x_scan, y, std, freqs, grad, select, prior_arcmin=PRIOR_ARCMIN):
+class RasterBeam:
+    """Stokes I amplitude 1/2 (|E_HH| + |E_VV|) of one holography antenna
+    (index, or "array_average") at the chunk frequencies, every chunk at
+    once: the B1-0 sampler's spline coefficients interpolated linearly in
+    frequency (the B1-0 rule), cropped to `radius_deg`."""
+
+    def __init__(self, product, antenna, freqs, radius_deg=1.4):
+        half = math.ceil(radius_deg / beam_holography.PIXEL_DEG) + 4
+        lo = beam_holography.CENTRE_INDEX - half
+        hi = beam_holography.CENTRE_INDEX + half + 1
+        self.lo, self.half = lo, half
+        self.flip = product.flip
+        self.margin0 = float(product.margin_deg[0])
+        stacks = []
+        for f in freqs:
+            c_lo, c_hi, w = product.bracket(antenna, float(f))
+            acc = 0.0
+            for ch, wt in ((c_lo, 1 - w), (c_hi, w)):
+                if wt == 0:
+                    continue
+                maps = product._maps(antenna, int(ch))
+                real = beam_holography._prefilter(maps.real)
+                imag = beam_holography._prefilter(maps.imag)
+                acc = acc + wt * _stack8(real, imag)[lo:hi, lo:hi]
+            stacks.append(acc)
+        self.coeffs = np.array(stacks)  # (nchunk, ny, nx, 8)
+        zero = np.full((len(freqs), 1), float(half))
+        v, _, _ = sample_stack(self.coeffs, zero, zero)
+        e = _to_jones(v[:, 0])
+        self.norm = np.sqrt(0.5 * np.sum(np.abs(e) ** 2, axis=(-2, -1)))
+
+    def __call__(self, pos_deg, chunks):
+        """Amplitude (nc, n) and gradient per degree (nc, n, 2) at the
+        positions (n, 2) for chunk indices `chunks`."""
+        step = beam_holography.PIXEL_DEG
+        col = (pos_deg[:, 0] - self.margin0) / step - self.lo
+        row = (self.flip * pos_deg[:, 1] - self.margin0) / step - self.lo
+        nc = len(chunks)
+        rows = np.broadcast_to(row, (nc, len(row)))
+        cols = np.broadcast_to(col, (nc, len(col)))
+        v, dc, dr = sample_stack(self.coeffs[chunks], rows, cols)
+        norm = self.norm[chunks][:, None]
+        e, ex, ey = _to_jones(v), _to_jones(dc) / step, self.flip * _to_jones(dr) / step
+        amp = np.zeros(rows.shape)
+        grad = np.zeros(rows.shape + (2,))
+        for h in range(2):
+            val = e[..., h, h]
+            a = np.abs(val)
+            safe = np.where(a > 0, a, 1.0)
+            amp += 0.5 * a
+            grad[..., 0] += 0.5 * np.real(np.conj(val) * ex[..., h, h]) / safe
+            grad[..., 1] += 0.5 * np.real(np.conj(val) * ey[..., h, h]) / safe
+        return amp / norm, grad / norm[..., None]
+
+
+def per_frequency_amplitude(grad, freqs):
+    """An amplitude function for `fit_raster` from a per-frequency
+    `HolographyGradient`-like sampler (tests)."""
+
+    def amp_fn(pos, chunks):
+        out = [raster_amplitude(grad, freqs[c], pos) for c in chunks]
+        return np.array([o[0] for o in out]), np.array([o[1] for o in out])
+
+    return amp_fn
+
+
+def fit_raster(x_scan, y, std, freqs, amp_fn, select, prior_arcmin=PRIOR_ARCMIN):
     """Fit one antenna's gain amplitudes y[chunk, scan] (sigma std) at the
     commanded positions x_scan (scan, 2) degrees as height_chunk x amplitude
     (x - offset). `select`: R's rule (an axis is fitted only if its
@@ -1414,18 +1530,11 @@ def fit_raster(x_scan, y, std, freqs, grad, select, prior_arcmin=PRIOR_ARCMIN):
             "evaluations": 0,
         }
     yy, ss = y[chunks], std[chunks]
-    ff = np.asarray(freqs)[chunks]
     nfev = [0]
 
     def model(off):
         nfev[0] += 1
-        pos = x_scan - np.asarray(off) / 60.0
-        amps, grads = [], []
-        for f in ff:
-            a, g = raster_amplitude(grad, f, pos)
-            amps.append(a)
-            grads.append(g)
-        return np.array(amps), np.array(grads)
+        return amp_fn(x_scan - np.asarray(off) / 60.0, chunks)
 
     a0, g0 = model(np.zeros(2))
     w = 1.0 / ss**2
@@ -1511,6 +1620,7 @@ def fit_raster(x_scan, y, std, freqs, grad, select, prior_arcmin=PRIOR_ARCMIN):
 __all__ = [
     "AntennaBeams",
     "Problem",
+    "RasterBeam",
     "ScaledGaussianBeams",
     "ToyBeams",
     "beam_terms",
@@ -1518,6 +1628,7 @@ __all__ = [
     "heldout",
     "pair_terms",
     "paired",
+    "per_frequency_amplitude",
     "predictable",
     "prepare_scan",
     "raster_amplitude",

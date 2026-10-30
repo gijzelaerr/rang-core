@@ -849,7 +849,10 @@ def normals_columns(a1, a2, nant, z, variants, r=None):
     common (m)], with eta, phi the log-amplitude and phase of the gains
     (antenna 1 enters as g, antenna 2 as conj(g)). Cross-variant blocks are
     left at zero (only within-variant blocks are used). With `r` (n,) the
-    whitened residual, also returns b = Re(J^H r)."""
+    whitened residual, also returns b = Re(J^H r).
+
+    Off-diagonal blocks are filled once (upper triangle) and mirrored; the
+    sky Gram is one symmetric rank-k product of the real-stacked terms."""
     ncomp = z.shape[1]
     model = z.sum(axis=1)
     i1, i2 = _incidence(a1, nant), _incidence(a2, nant)
@@ -859,13 +862,6 @@ def normals_columns(a1, a2, nant, z, variants, r=None):
     b = None if r is None else np.zeros(size)
     eta, phi = slice(0, nant), slice(nant, 2 * nant)
     sky = slice(2 * nant, 2 * nant + ncomp)
-    h[sky, sky] = z.real.T @ z.real + z.imag.T @ z.imag
-    m2 = np.abs(model) ** 2
-    diag = np.bincount(a1, m2, nant) + np.bincount(a2, m2, nant)
-    off = _pair_sum(a1, a2, m2, nant)
-    off = off + off.T
-    h[eta, eta] = np.diag(diag) + off
-    h[phi, phi] = np.diag(diag) - off
     cm = np.conj(model)
 
     def gains_against(values):
@@ -878,14 +874,15 @@ def normals_columns(a1, a2, nant, z, variants, r=None):
         b[sky] = z.real.T @ r.real + z.imag.T @ r.imag
         re, im = gains_against(r[:, None])
         b[eta], b[phi] = re[:, 0], im[:, 0]
+    diag_blocks = []
     base = 2 * nant + ncomp
     for (y1, y2, d), nb in zip(variants, sizes, strict=True):
         px = slice(base, base + nant)
         py = slice(base + nant, base + 2 * nant)
         pc = slice(base + 2 * nant, base + nb)
         base += nb
-        h[pc, pc] = d.real.T @ d.real + d.imag.T @ d.imag
-        h[pc, sky] = d.real.T @ z.real + d.imag.T @ z.imag
+        diag_blocks.append((pc, d.real.T @ d.real + d.imag.T @ d.imag))
+        h[sky, pc] = z.real.T @ d.real + z.imag.T @ d.imag
         re, im = gains_against(d)
         h[eta, pc], h[phi, pc] = re, im
         if r is not None:
@@ -893,7 +890,7 @@ def normals_columns(a1, a2, nant, z, variants, r=None):
         for j, pj in enumerate((px, py)):
             w1 = np.conj(y1[:, j])[:, None]
             w2 = np.conj(y2[:, j])[:, None]
-            h[pj, sky] = i1 @ (w1 * z).real + i2 @ (w2 * z).real
+            h[sky, pj] = (i1 @ (w1 * z).real + i2 @ (w2 * z).real).T
             h[pj, pc] = i1 @ (w1 * d).real + i2 @ (w2 * d).real
             if r is not None:
                 b[pj] = i1 @ (w1[:, 0] * r).real + i2 @ (w2[:, 0] * r).real
@@ -926,14 +923,21 @@ def normals_columns(a1, a2, nant, z, variants, r=None):
                 r21 = (np.conj(y2[:, j]) * y1[:, k]).real
                 blk = np.diag(np.bincount(a1, r11, nant) + np.bincount(a2, r22, nant))
                 blk = blk + _pair_sum(a1, a2, r12, nant) + _pair_sum(a2, a1, r21, nant)
-                h[pj, pk] = blk
-                if k != j:
-                    h[pk, pj] = blk.T
-    upper = np.triu_indices(size, 1)
-    lower = (upper[1], upper[0])
-    sym = np.where(h[upper] != 0, h[upper], h[lower])
-    h[upper] = sym
-    h[lower] = sym
+                if k == j:
+                    diag_blocks.append((pj, blk))
+                else:
+                    h[pj, pk] = blk
+    h += h.T
+    zs = np.concatenate((z.real, z.imag))
+    h[sky, sky] = zs.T @ zs
+    m2 = np.abs(model) ** 2
+    diag = np.bincount(a1, m2, nant) + np.bincount(a2, m2, nant)
+    off = _pair_sum(a1, a2, m2, nant)
+    off = off + off.T
+    h[eta, eta] = np.diag(diag) + off
+    h[phi, phi] = np.diag(diag) - off
+    for sl, blk in diag_blocks:
+        h[sl, sl] = blk
     return h if r is None else (h, b)
 
 
@@ -973,6 +977,31 @@ def lf_map_vector(v, ncomp, lf):
     return np.concatenate((v[:k], lf * v[:k], v[k:]))
 
 
+def lf_assemble(m0, m1, m2, ncomp):
+    """`lf_map` summed over channels from the moments m0 = sum m, m1 = sum
+    lf m, m2 = sum lf^2 m of (K + n) blocks [sky flux | theta]: the
+    primary-arm block [ln S0 (K) | alpha (K) | theta (n)]."""
+    k = ncomp
+    n = m0.shape[0] - k
+    out = np.empty((2 * k + n, 2 * k + n))
+    out[:k, :k] = m0[:k, :k]
+    out[:k, k : 2 * k] = m1[:k, :k]
+    out[k : 2 * k, :k] = m1[:k, :k]
+    out[k : 2 * k, k : 2 * k] = m2[:k, :k]
+    out[:k, 2 * k :] = m0[:k, k:]
+    out[k : 2 * k, 2 * k :] = m1[:k, k:]
+    out[2 * k :, :k] = m0[k:, :k]
+    out[2 * k :, k : 2 * k] = m1[k:, :k]
+    out[2 * k :, 2 * k :] = m0[k:, k:]
+    return out
+
+
+def lf_assemble_vector(b0, b1, ncomp):
+    """`lf_map_vector` summed over channels from b0 = sum b, b1 = sum lf b."""
+    k = ncomp
+    return np.concatenate((b0[:k], b1[:k], b0[k:]))
+
+
 class ChannelSurvey:
     """The survey accumulator for per-channel gain bins (B1-3 rerun).
 
@@ -1004,11 +1033,12 @@ class ChannelSurvey:
     def add_blocks(self, scan, block, hand, lf, raw, reduced, samples=0):
         for which, m in (("raw", raw), ("reduced", reduced)):
             key = (scan, hand)
-            mp = lf_map(m, self.ncomp, lf)
-            if key in self.prim[which]:
-                self.prim[which][key] += mp
-            else:
-                self.prim[which][key] = mp
+            mom = self.prim[which].get(key)
+            if mom is None:
+                mom = self.prim[which][key] = [np.zeros_like(m) for _ in range(3)]
+            mom[0] += m
+            mom[1] += lf * m
+            mom[2] += (lf * lf) * m
             key = (scan, block, hand)
             if key in self.strict[which]:
                 self.strict[which][key] += m
@@ -1023,10 +1053,13 @@ class ChannelSurvey:
             for which in ("raw", "reduced"):
                 mine = getattr(self, part)[which]
                 for key, m in getattr(other, part)[which].items():
-                    if key in mine:
-                        mine[key] += m
-                    else:
+                    if key not in mine:
                         mine[key] = m
+                    elif part == "prim":
+                        for a, b in zip(mine[key], m, strict=True):
+                            a += b
+                    else:
+                        mine[key] += m
         self.bins += other.bins
         self.samples += other.samples
 
@@ -1049,9 +1082,9 @@ class ChannelSurvey:
         out = {}
         for which in ("raw", "reduced"):
             big = np.zeros((2 * k + nt, 2 * k + nt))
-            for (scan, hand), m in self.prim[which].items():
+            for (scan, hand), mom in self.prim[which].items():
                 idx = np.r_[np.arange(2 * k), 2 * k + self.theta_index(scan)]
-                big[np.ix_(idx, idx)] += kappa[(scan, hand)] * m
+                big[np.ix_(idx, idx)] += kappa[(scan, hand)] * lf_assemble(*mom, k)
             tt = big[2 * k :, 2 * k :]
             st = big[: 2 * k, 2 * k :]
             primary = tt - st.T @ pinv_psd(big[: 2 * k, : 2 * k]) @ st
@@ -1117,6 +1150,8 @@ __all__ = [
     "factors_at",
     "family_marginal",
     "hogbom",
+    "lf_assemble",
+    "lf_assemble_vector",
     "lf_map",
     "lf_map_vector",
     "measures_from",

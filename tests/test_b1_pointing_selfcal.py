@@ -392,19 +392,19 @@ def test_jax_reference_path_gradient():
 # The solver on a toy array
 
 
-def _toy_problem(seed=0, noise=0.0, nant=6):
-    d = _toy_scan(nant=nant, ntime=8, nchan=32, seed=seed)
+def _toy_problem(seed=0, noise=0.0, nant=6, nchan=32):
+    d = _toy_scan(nant=nant, ntime=8, nchan=nchan, seed=seed)
     nu0 = float(d["freqs"].mean())
     lm = np.radians([[0.35, -0.2], [-0.3, 0.25], [0.1, 0.4], [0.0, 0.0]])
     flux = np.array([1.0, 0.8, 0.6, 2.0])
-    sky = _sky(lm, flux, 32, nu0)
+    sky = _sky(lm, flux, nchan, nu0)
     rng = np.random.default_rng(seed + 10)
     squints = [tuple(rng.normal(0, 0.01, 2)) for _ in range(nant)]
     beams = _toy_beams(nant, squints)
     delta = rng.normal(0, 0.6, (nant, 2))
     gains = np.exp(
-        rng.normal(0, 0.05, (32, 2, nant))
-        + 1j * rng.uniform(-np.pi, np.pi, (32, 2, nant))
+        rng.normal(0, 0.05, (nchan, 2, nant))
+        + 1j * rng.uniform(-np.pi, np.pi, (nchan, 2, nant))
     )
     d = _simulate(d, sky, beams, delta, gains)
     if noise:
@@ -521,7 +521,7 @@ def test_split_reserves_training_cells_per_group():
 
 
 def test_heldout_is_lower_with_the_right_pointing():
-    d, sky, beams, _delta, nu0 = _toy_problem(seed=2, noise=1e-3)
+    d, sky, beams, _delta, nu0 = _toy_problem(seed=2, noise=1e-3, nchan=64)
     e = ps.eligible_both(d)
     tb, blr = ps.scan_bins(d)
     ((train, _val, test),) = ps.split_cells([(e, tb, blr)], 32)
@@ -550,5 +550,27 @@ def test_fit_raster_recovers_offset():
     )
     std = np.full_like(y, 1e-4)
     for select in (False, True):
-        fit = ps.fit_raster(x_scan, y, std, freqs, grad, select)
+        fit = ps.fit_raster(
+            x_scan, y, std, freqs, ps.per_frequency_amplitude(grad, freqs), select
+        )
         assert np.allclose(fit["offset"], truth, atol=1e-4), fit
+
+
+def test_raster_beam_matches_the_b10_sampler(product):
+    beam, freqs, _ = product
+    f = np.array([freqs[1] + 1e6, freqs[3]])
+    rb = ps.RasterBeam(beam, 1, f, radius_deg=0.6)
+    pos = np.array([[0.1, -0.2], [0.0, 0.3], [-0.25, 0.05]])
+    amp, grad = rb(pos, np.arange(2))
+    for c in range(2):
+        j = beam.jones(1, pos[:, 0], pos[:, 1], f[c])
+        ref = 0.5 * (np.abs(j[:, 0, 0]) + np.abs(j[:, 1, 1]))
+        assert np.max(np.abs(amp[c] - ref)) < 1e-6
+    eps = 1e-5
+    for k in range(2):
+        dp = pos.copy()
+        dp[:, k] += eps
+        dm = pos.copy()
+        dm[:, k] -= eps
+        fd = (rb(dp, np.arange(2))[0] - rb(dm, np.arange(2))[0]) / (2 * eps)
+        assert np.max(np.abs(grad[..., k] - fd)) < 1e-6
