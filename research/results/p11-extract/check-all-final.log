@@ -1,0 +1,31 @@
+## root-build
+## root-test
+test result: ok. 23 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.19s
+## root-clippy
+## root-fmt
+## core-build
+## core-test
+test result: ok. 74 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.80s
+## core-clippy
+## core-fmt
+## ext-build
+🍹 Building a mixed python/rust project
+🐍 Found CPython 3.14 at /home/gijsm/Worktrees/rang/p11-retire/.venv/bin/python
+🔗 Found pyo3 bindings with abi3-py3.10 support
+Checked 21 packages in 1ms
+📦 Built wheel for abi3 Python ≥ 3.10 to /tmp/.tmpU3Jlrt/rangtoy-0.1.0-cp310-abi3-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed rangtoy-0.1.0
+## ext-clippy
+## ext-fmt
+## ruff
+All checks passed!
+## ruff-format
+226 files already formatted
+## diff-check
+## pytest
+....................................................................     [100%]
+570 passed, 3 skipped in 106.12s (0:01:46)
+## overall: PASS
+196.38 s
+exit 0

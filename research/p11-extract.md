@@ -178,6 +178,7 @@ executed statements, extracted) is
 | imaging `provenance.module_sha256` | `core_imaging._module_sha256` over `MODULES` | includes `flagging_imaging` | includes `core_image_fit` instead | it hashes the module whose functions ran; the key is in the imaging comparator's excluded set (`core_compare`, volatile and provenance keys) |
 | section 6 receipt `code_sha256` | `prototype_section6.py` hashes itself, `core.py`, `core_zarr.py`, `core/src/*.rs` | script SHA256 | changes (import lines) | records the script that ran; `check_section6` checks the key's presence only |
 | rang receipts `commit`, `inputs`/`outputs` digests, timings | `rang-core` (P9) | HEAD `2da566c` | branch HEAD | volatile by design |
+| campaign `code_sha256` (K, L1, L2, L1-M receipts; found after the protocol, see Results) | `core_campaign.CODE_FILES`, inherited by `core_campaign_array`, `_1830`, `_fieldmodel` | includes `python/rangtoy/flagging.py` | includes `python/rangtoy/core_policy.py` instead (one string in `CODE_FILES`) | it hashes the module that runs; the key is copied into archives and excluded by every comparator; without the edit the receipt would hash the C1 re-export, or fail once it is deleted |
 | frozen-only receipts (`flagging_actions.run`, `flagging_balanced`, `flagging_caracal.run`, `flagging_structured.run`, `flagging_equivariance.run`, `flagging_influence.run`, `flagging_comparators.run`, `flagging_imaging` tool receipts) | not extracted | – | – | not on any live chain; the history copies are byte-identical |
 
 ### Compatibility re-exports for running siblings
@@ -254,7 +255,9 @@ this task; listed under open items.
 
 Commits on `p11-retire`: `1040854` protocol; `2223f05` extracts and rewiring
 (frozen modules still present); `0fb637d` the move (42 renames, all `R100`);
-`0dbf6ff` the C1 re-export; the final commit adds this section and the evidence.
+`0dbf6ff` the C1 re-export; `a04766d` campaign `CODE_FILES` names
+`core_policy.py`, and `test_p11_extract` allows exactly C1's import; the final
+commit adds this section and the evidence.
 
 ### 1. Byte identity of the moved files: pass
 
@@ -293,6 +296,20 @@ and three digests over results that contain timings
 | --- | --- | ---: | ---: | --- |
 | `-02` | `2223f05` (extracts used, frozen present) | 214 (99 / 115) | 3, all `phase3c-a` criterion 4 `git_status_unchanged`: I generated test files while it ran; `-02b` (quiet tree) passes criterion 4 and `bench f` | equal except that step |
 | `-03` | `0dbf6ff` (frozen moved) | 214 (99 / 115) | **0** | **all equal** |
+| `-04` | `a04766d` (campaign `CODE_FILES` fixed; extension rebuilt by check-all) | 214 (99 / 115) | **0** | **all equal** |
+
+`-04` also differs in `library_sha256` / `core_library_sha256` /
+`native_library_sha256`: check-all's `ext-build` step rebuilt the extension
+between `-03` and `-04` from unchanged Rust sources (`git diff 2da566c --
+core src Cargo.toml Cargo.lock` is empty; maturin builds are not
+byte-reproducible); classified as provenance.
+
+The `archive` verbs, which the suite does not run, were run once on `-01r` and
+`-04` (`outputs/p11-20261030-05`): `rang-core {imaging, actions, trend,
+signal} archive` and `imaging legacy-archive` all exit 0, and the archives
+differ only in timings, provenance (`module_sha256` with `core_image_fit` for
+`flagging_imaging`, library hash) and `result_sha256` / the calibrated digests,
+which hash results that contain timings.
 
 Every comparator verdict and class count in `-03` equals the baseline (the
 protocol's list: actions 61/102/24, injections 864/940/24/54, prospective
@@ -334,10 +351,10 @@ Reports: `identity-01r-02.json`, `identity-01r-03.json`.
 
 ### 6. check-all
 
-`bash tools/check-all.sh` at the final tree (the commits above plus this
+`bash tools/check-all.sh` at `61e3b26` and again at the final tree (`a04766d` plus this
 note and the evidence files): **PASS**, every step (core tests 74, clippy,
 fmt, extension build, ruff, ruff format 226 files, diff check), pytest **570
-passed, 3 skipped** in 136 s.
+passed, 3 skipped** in 136 s (first) and 106 s (final).
 
 ### 7. Lines
 
@@ -347,8 +364,8 @@ passed, 3 skipped** in 136 s.
 | `tests` | 13,042 | 10,784 | −2,258 (−4,838 moved, +2,393 live copies, +185 `test_p11_extract.py`) |
 | `examples` | 18,287 | 18,287 | 0 (import lines only) |
 
-S1 estimated −7,300 package lines. Tests collected: 722 at the base, 572
-after: 342 collected items left with the 21 test files; 169 of them run live
+S1 estimated −7,300 package lines. Tests collected (`pytest --collect-only`):
+722 at the base, 572 after (check-all's run reports 570 passed and 3 skipped): 342 collected items left with the 21 test files; 169 of them run live
 again from 19 new `tests/test_core_<extract>.py` files (111 test functions and
 their 21 helpers, 132 definitions checked verbatim by `check_tests.py`), plus
 the 23 new P11 tests. The 99 test functions that stay in history only need
@@ -357,6 +374,13 @@ containers, a frozen `run`, `flagging_comparators`, `flagging_prospective`'s
 campaign driver).
 
 ### Deviations from the protocol
+
+- After the first results commit, a review found that `core_campaign.CODE_FILES`
+  (K, and through inheritance L1, L2, L1-M) hashes `python/rangtoy/flagging.py`
+  by file name: after the move that is the C1 re-export. It now names
+  `core_policy.py` (`a04766d`); `test_p11_extract` gained a check that no
+  package file names a frozen module by file name, and fails on the old line.
+  Suite `-04` reran everything after that edit.
 
 - The identity tool gained a calibration step (two base runs) after the first
   comparison showed digests over timing-bearing results differing between two
@@ -400,7 +424,10 @@ campaign driver).
 | 2026-10-30 | targeted pytest (new live copies) | 2.4 s | 169 passed |
 | 2026-10-30 | targeted pytest (rewired tests, notebooks) | 23 s | 120 passed |
 | 2026-10-30 | pytest collect-only at the base (temporary worktree, removed) | 2.4 s | 722 collected |
-| 2026-10-30 | `bash tools/check-all.sh` | 482 s (pytest 136 s) | PASS, 570 passed, 3 skipped |
+| 2026-10-30 | `bash tools/check-all.sh` at `61e3b26` | 482 s (pytest 136 s) | PASS, 570 passed, 3 skipped |
+| 2026-10-30 | suite `-04` at `a04766d` | 170 s (steps) | identical, 0 unexpected |
+| 2026-10-30 | `archive` verbs and `imaging legacy-archive` on `-01r` and `-04` | about 10 s | all exit 0; timings and provenance only |
+| 2026-10-30 | `bash tools/check-all.sh` at the final tree | 196 s (pytest 106 s) | PASS, 570 passed, 3 skipped |
 
 ## For the coordinator
 
@@ -419,22 +446,39 @@ campaign driver).
   from `history/` (coverage, a blocked-import check, a static check). Tests
   722 → 572 collected (169 of the moved tests run live again)."
 - **Timing rows** for `research/tool-timings.md`: the table above.
-- **README / CONTRIBUTING lines.** README, repository guide: "`history/` holds
-  the frozen campaign recipes, containers and modules (P8, P11); the package
-  holds their verbatim extracts `core_*` (research/p11-extract.md)." Any
-  README line that names `python/rangtoy/flagging*.py` as live code should
-  point at the extracts instead (none edited here).
-- **Compatibility re-export for running siblings.** Only C1:
-  `core_campaign_closure.py` line 37 `from .flagging import fixed_support_tv,
-  gain_tv, polar_gauge`. This branch adds `python/rangtoy/flagging.py`
-  re-exporting those three names from `core_policy`. At C1's merge change that
-  line to `from .core_policy import fixed_support_tv, gain_tv, polar_gauge`
-  and delete `python/rangtoy/flagging.py` (then `test_p11_extract` still
-  passes: it allows the file but does not need it). DF2a, E3 and FS1 import
-  no frozen module. Siblings whose branches carry an older `core_cli.py` with
-  top-level `from .flagging_equivariance/_injections/_workflow import …` lines
-  (all four, from their bases) must take this branch's `core_cli.py` import
-  lines (`core_cases`, `core_injection_model`, `core_state`) on merge.
+- **README / CONTRIBUTING lines.** README, repository guide, after the P8
+  `history/` sentence: "Since P11 `history/python/` also holds the 21 frozen
+  campaign modules; the package keeps verbatim extracts of what the core uses
+  (`core_policy`, `core_influence`, `core_trend_run`, …;
+  research/p11-extract.md)." `README.md`, `CONTRIBUTING.md`,
+  `examples/README.md`, `docs/`, `.github/` and `pyproject.toml` name no moved
+  file (grep), so nothing there breaks.
+- **Research notes that name moved files** (links that now 404; P8 added one
+  pointer line after the status paragraph, the same line works here: "Paths:
+  the frozen modules named here moved to [`history/`](../history/README.md)
+  on 2026-10-30 (task P11); their live definitions are in the `core_*`
+  extracts of [p11-extract.md](p11-extract.md)."):
+  `core-a-imaging-sensitivity.md:262`, `core-h-recipes.md:205`,
+  `core-phase1.md:64`, `core-phase2.md:17`, `core-phase3-trend.md:51`,
+  `flagging-equivariance-verification.md:152`, `flagging-structured.md:16-17`,
+  `stack-consolidation-feasibility.md` (44 links from line 55),
+  `x1-crossplatform.md:84`, `tool-timings.md:90` (coordinator file), and
+  `simplification-review.md` (describes the pre-move tree).
+- **Compatibility re-export for running siblings.** Only C1 imports a frozen
+  module: `python/rangtoy/core_campaign_closure.py:37` `from .flagging import
+  fixed_support_tv, gain_tv, polar_gauge` (C1, E3 and FS1 are on main since
+  this task started; DF2a and their diffs against their merge bases import no
+  frozen module). This branch adds `python/rangtoy/flagging.py`, re-exporting
+  those three names from `core_policy`, so the merge with main works as is
+  (`git merge-tree HEAD main`: clean, no file changed on both sides);
+  `test_p11_extract` accepts exactly that import in exactly that file and
+  checks that the re-export is `core_policy`'s objects. After merging, change
+  line 37 to `from .core_policy import fixed_support_tv, gain_tv, polar_gauge`
+  and delete `python/rangtoy/flagging.py`. Files whose import lines P11
+  changed (expect textual conflicts only if a later branch edits the same
+  lines): the `core_*` drivers listed under "Rewiring", `core_cli.py` (four
+  lazy imports), `notebook/{data,image,survey}.py`, 18 examples,
+  `tools/wheel/run_installed.py`, and the tests listed under "Tests".
 - **What P12 must rename.** The 20 extracts, `core_*` modules all, plus the
   extract headers' "`rangtoy.<frozen>`" mentions (they name the historical
   module and can stay); `tests/test_p11_extract.py` matches `rangtoy.` in its
@@ -446,6 +490,6 @@ campaign driver).
 - **`numcodecs`** is needed by `rang-core bench f` but in no extra.
 - **Evidence to keep.** `research/results/p11-extract/` (scripts, inventory,
   closure, manifests, extract and test-split reports, calibration and identity
-  reports). Raw runs in `outputs/p11-20261030-{01,01b,01r,02,02b,03}`
-  (1.7 GB in total, mostly trend mirrors and images); `-01r` and `-03` are the
+  reports). Raw runs in `outputs/p11-20261030-{01,01b,01r,02,02b,03,04,05}`
+  (about 2 GB in total, mostly trend mirrors and images); `-01r`, `-03` and `-04` are the
   pair the acceptance cites.

@@ -36,6 +36,9 @@ PROVENANCE = {
     # the imaging comparator hashes core_imaging.py, whose import lines P11 edits
     "comparator_sha256",
     "git_head",
+    # the extension file: check-all's ext-build rebuilt it between -03 and -04
+    # from unchanged Rust sources (maturin builds are not byte-reproducible)
+    "library_sha256", "core_library_sha256", "native_library_sha256",
 }
 SKIP_SUFFIX = {".log", ".time"}
 
