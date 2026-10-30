@@ -246,7 +246,8 @@ def wsclean_dump(path, out):
     columns = {}
     for name, values in load(path):
         columns[name] = [
-            repr(v) if isinstance(v, float) else _jsonable(v) for v in values
+            repr(float(v)) if isinstance(v, (float, np.floating)) else _jsonable(v)
+            for v in values
         ]
     Path(out).write_text(json.dumps(columns, indent=1))
 
@@ -385,6 +386,54 @@ def npy_save(values, key, out):
     np.save(out, np.load(values)[key])
 
 
+def npy_dump(path, out):
+    """A `.npy` as `np.load` reads it (DDFacet's numpy)."""
+    np.savez(out, a=np.load(path))
+
+
+def wsclean_list(ms, name):
+    """WSClean 3.7 cleans `ms` (field J1939-6342) and saves its source list."""
+    start = time.perf_counter()
+    proc = subprocess.run(
+        [
+            "wsclean",
+            "-name",
+            name,
+            "-size",
+            "512",
+            "512",
+            "-scale",
+            "2asec",
+            "-niter",
+            "200",
+            "-mgain",
+            "0.8",
+            "-field",
+            "1",
+            "-data-column",
+            "DATA",
+            "-save-source-list",
+            "-j",
+            "4",
+            ms,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    Path(name + ".json").write_text(
+        json.dumps(
+            {
+                "code": proc.returncode,
+                "wall_s": time.perf_counter() - start,
+                "log": (proc.stdout + proc.stderr)[-3000:],
+            }
+        )
+    )
+    if proc.returncode:
+        raise SystemExit(proc.stdout[-2000:] + proc.stderr[-2000:])
+
+
 def npz_dump(path, out):
     """A killMS npz as `np.load(allow_pickle=True)` reads it."""
     z = np.load(path, allow_pickle=True)
@@ -410,7 +459,9 @@ MODES = {
     "losoto-make": losoto_make,
     "dicomodel-dump": dicomodel_dump,
     "npy-save": npy_save,
+    "npy-dump": npy_dump,
     "npz-dump": npz_dump,
+    "wsclean-list": wsclean_list,
 }
 
 

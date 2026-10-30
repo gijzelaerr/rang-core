@@ -703,7 +703,353 @@ def step_qc(run):
     return write_json(run, "qc", result, started)
 
 
-STEPS = {"ct": step_ct, "qc": step_qc}
+# ---------------------------------------------------------------------------
+# F3: sky models.
+
+LSM = "l1m-20261030-00-fieldmodel/pks1934-638.lsm"
+LSM_SHA256 = "0964b9f4c547bb802bfb16a2e8fdccddff84beeec05b6f3492521a46fa77d101"
+DDF_RUN = "ddfacet-feasibility-20261030-01/runs/clean-hmp"
+
+
+def ulps(a, b):
+    a, b = float(a), float(b)
+    if a == b:
+        return 0
+    return abs(int(np.float64(a).view(np.int64)) - int(np.float64(b).view(np.int64)))
+
+
+def compare_tigger(
+    sources, dump, angle_ulps=0, fields=("i", "q", "u", "v", "freq0", "spi", "shape")
+):
+    """Core sources against a Tigger dump: names and every value; angles
+    may differ by `angle_ulps` (reported)."""
+    problems, worst = [], 0
+    theirs = dump["sources"]
+    if [s.name for s in sources] != [d["name"] for d in theirs]:
+        return ["names or order differ"], None
+    for s, d in zip(sources, theirs):
+        for key in ("ra", "dec"):
+            u = ulps(getattr(s, key), float(d[key]))
+            worst = max(worst, u)
+            if u > angle_ulps:
+                problems.append(f"{s.name} {key} {u} ulp")
+        for key in ("i", "q", "u", "v"):
+            if key in fields and float(getattr(s, key)) != float(d[key]):
+                problems.append(f"{s.name} {key}")
+        if "freq0" in fields and s.spi and float(d["freq0"]) != float(s.freq0):
+            problems.append(f"{s.name} freq0")
+        flat = not s.spi and d["spi"] in ([], ["0.0"], ["0"])
+        if (
+            "spi" in fields
+            and tuple(float(x) for x in d["spi"]) != tuple(s.spi)
+            and not flat
+        ):
+            problems.append(f"{s.name} spi {d['spi']} vs {s.spi}")
+        if "shape" in fields:
+            shape = None if not s.gaussian else [s.emaj, s.emin, s.pa]
+            got = None if d["shape"] is None else [float(x) for x in d["shape"]]
+            if shape != got:
+                problems.append(f"{s.name} shape {got} vs {shape}")
+    return problems, worst
+
+
+def compare_sources(a, b, angle_tol=0.0, shape_rel=0.0):
+    problems = []
+    if [s.name for s in a] != [s.name for s in b]:
+        return ["names or order differ"]
+    for s, t in zip(a, b):
+        for key in ("ra", "dec"):
+            if abs(getattr(s, key) - getattr(t, key)) > angle_tol:
+                problems.append(
+                    f"{s.name} {key} {getattr(s, key) - getattr(t, key):.3g}"
+                )
+        for key in ("i", "q", "u", "v"):
+            if float(getattr(s, key)) != float(getattr(t, key)):
+                problems.append(f"{s.name} {key}")
+        if tuple(s.spi) != tuple(t.spi) or (s.spi and s.freq0 != t.freq0):
+            problems.append(f"{s.name} spectrum")
+        for key in ("emaj", "emin", "pa"):
+            x, y = getattr(s, key), getattr(t, key)
+            if abs(x - y) > shape_rel * max(abs(x), abs(y)):
+                problems.append(f"{s.name} {key} {x} vs {y}")
+    return problems
+
+
+def step_sky(run):
+    import oracle_formats
+    from rang import core, core_ms
+    from rang.formats import sky
+
+    started = time.perf_counter()
+    run = Path(run)
+    d = run / "sky"
+    d.mkdir(parents=True, exist_ok=True)
+    lsm_path = outputs() / LSM
+    sha = e4.hashlib.sha256(lsm_path.read_bytes()).hexdigest()
+    if sha != LSM_SHA256:
+        raise SystemExit(f"CARACal lsm SHA256 {sha} != {LSM_SHA256}")
+    sources = sky.load(lsm_path)
+    # The core writes the model in each format.
+    (d / "core.lsm.html").write_text(sky.dumps_html(sources, freq0=1.3e9))
+    (d / "core.txt").write_text(sky.dumps_ascii(sources))
+    (d / "core.wsclean.txt").write_text(sky.dumps_wsclean(sources))
+    py = "/opt/sky/bin/python -I /ex/oracle_formats.py"
+    tc = "/opt/sky/bin/tigger-convert -f"
+    m = mounts(run, (lsm_path, "/o/m.lsm", "ro"), (casa_ms(), "/o/c.ms", "ro"))
+    script = " && ".join(
+        [
+            f"{py} tigger-dump /o/m.lsm /run/sky/tigger-of-lsm.json",
+            f"{py} tigger-dump /run/sky/core.lsm.html /run/sky/tigger-of-core-html.json",
+            f"{py} tigger-dump /run/sky/core.txt /run/sky/tigger-of-core-ascii.json",
+            f"{tc} /run/sky/core.lsm.html /run/sky/t.lsm.html > /run/sky/convert.log 2>&1",
+            f"PYTHONHASHSEED=0 {tc} /run/sky/t.lsm.html /run/sky/t2.lsm.html >> /run/sky/convert.log 2>&1",
+            f"{tc} /run/sky/core.lsm.html /run/sky/t.txt >> /run/sky/convert.log 2>&1",
+            f"PYTHONHASHSEED=0 {tc} /o/m.lsm /run/sky/tigger-own.lsm.html >> /run/sky/convert.log 2>&1",
+            f"{tc} -o BBS /o/m.lsm /run/sky/t.cat >> /run/sky/convert.log 2>&1",
+            f"{py} tigger-dump /run/sky/t.cat /run/sky/tigger-of-bbs.json",
+            f"{py} wsclean-dump /run/sky/core.wsclean.txt /run/sky/africanus-of-core.json",
+            f"cp -r /o/c.ms /run/sky/cb.ms && {py} crystalball /run/sky/cb.ms /run/sky/core.wsclean.txt",
+        ]
+    )
+    docker(
+        FORMATS_IMAGE, ["sh", "-c", script], m, "tigger-convert, africanus, crystalball"
+    )
+    # WSClean 3.7 writes a source list of its own.
+    if not (d / "ws-sources.txt").exists():
+        docker(
+            CASA_IMAGE,
+            [
+                "sh",
+                "-c",
+                "cp -r /o/c.ms /tmp/w.ms && /usr/bin/python3 -I /ex/oracle_formats.py wsclean-list /tmp/w.ms /run/sky/ws",
+            ],
+            m,
+            "wsclean -save-source-list",
+        )
+    docker(
+        FORMATS_IMAGE,
+        [
+            "sh",
+            "-c",
+            f"{py} wsclean-dump /run/sky/ws-sources.txt /run/sky/africanus-of-wsclean.json",
+        ],
+        m,
+        "africanus load of the WSClean list",
+    )
+
+    def load(name):
+        return json.loads((d / name).read_text())
+
+    res = {}
+    p, worst = compare_tigger(sources, load("tigger-of-lsm.json"), angle_ulps=4)
+    res["SKY-tigger-read"] = {
+        "problems": p[:20],
+        "max_angle_ulps": worst,
+        "pass": not p,
+    }
+    p1, w1 = compare_tigger(sources, load("tigger-of-core-html.json"))
+    t_html = sky.load_html(d / "t.lsm.html")
+    p2 = compare_sources(sources, t_html.sources)
+    own = (d / "tigger-own.lsm.html").read_text()
+    ours = (d / "core.lsm.html").read_text()
+    res["SKY-html"] = {
+        "tigger_loads_core": {"problems": p1[:20], "max_angle_ulps": w1},
+        "core_reads_tigger_convert": {"problems": p2[:20]},
+        "pass": not p1 and not p2,
+        "reported": {
+            "tigger_fixed_point_hashseed0": (d / "t.lsm.html").read_text()
+            == (d / "t2.lsm.html").read_text(),
+            "core_html_equals_tigger_html_of_lsm": ours == own,
+            "lines_differing_from_tigger_html_of_lsm": sum(
+                1 for x, y in zip(ours.splitlines(), own.splitlines()) if x != y
+            ),
+        },
+    }
+    p1, _ = compare_tigger(sources, load("tigger-of-core-ascii.json"))
+    try:
+        p2 = compare_sources(sources, sky.load(d / "t.txt"))
+    except ValueError as err:
+        p2 = [f"core cannot read tigger-convert's ASCII: {err}"]
+    res["SKY-ascii"] = {
+        "tigger_loads_core": {"problems": p1[:20]},
+        "core_reads_tigger_ascii": {"problems": p2[:20]},
+        "pass": not p1 and not p2,
+    }
+    # WSClean text: africanus' read of the core's list.
+    af = load("africanus-of-core.json")
+    core_back = sky.load_wsclean(d / "core.wsclean.txt")
+    p = []
+    for k, s in enumerate(sources):
+        if af["Name"][k] != s.name:
+            p.append(f"name {k}")
+            continue
+        for key, val in (("Ra", s.ra), ("Dec", s.dec)):
+            if abs(float(af[key][k]) - val) > 1e-12:
+                p.append(f"{s.name} {key} {float(af[key][k]) - val:.3g}")
+        spi = [float(x) for x in af["SpectralIndex"][k]]
+        while spi and spi[-1] == 0.0:  # the writer pads with zero terms
+            spi.pop()
+        if float(af["I"][k]) != s.i or spi != list(s.spi):
+            p.append(f"{s.name} I or SpectralIndex")
+        if s.spi and float(af["ReferenceFrequency"][k]) != s.freq0:
+            p.append(f"{s.name} ReferenceFrequency")
+        if af["LogarithmicSI"][k] is not True:
+            p.append(f"{s.name} LogarithmicSI")
+        if s.gaussian:
+            for key, val in (
+                ("MajorAxis", s.emaj),
+                ("MinorAxis", s.emin),
+                ("Orientation", s.pa),
+            ):
+                if float(af[key][k]) != val:
+                    p.append(f"{s.name} {key} {float(af[key][k]) - val:.3g}")
+    p_back = compare_sources(sources, core_back, angle_tol=1e-12, shape_rel=0.0)
+    # Crystalball against the core's prediction (field J1939-6342).
+    cb = ms_columns(d / "cb.ms", ("MODEL_DATA", "UVW", "FIELD_ID", "FLAG"))
+    fid = field_index(casa_ms())
+    with core_ms.open_table(casa_ms() / "FIELD") as t:
+        ra0, dec0 = t.getcol("PHASE_DIR")[fid, 0]
+    freqs = ms_frequencies(casa_ms())
+    rows = cb["FIELD_ID"] == fid
+    comp = sky.components(sources, (ra0, dec0))
+    start = time.perf_counter()
+    vis = core.predict_components(cb["UVW"][rows], freqs, **comp)
+    predict_s = time.perf_counter() - start
+    v_core = vis.astype(np.complex64)
+    model = cb["MODEL_DATA"][rows]
+    flux_sum = np.sum(np.abs([s.flux(freqs) for s in sources]), axis=0)
+    bound = 2.0**-22 * flux_sum
+    dxx = np.abs(v_core - model[..., 0])
+    dyy = np.abs(v_core - model[..., 3])
+    worst = float(max((dxx / bound).max(), (dyy / bound).max()))
+    cross_zero = bool(np.all(model[..., 1] == 0) and np.all(model[..., 2] == 0))
+    ulp = np.spacing(np.abs(v_core).astype(np.float32))
+    res["SKY-wsclean"] = {
+        "africanus_reads_core": {"problems": p[:20], "problem_count": len(p)},
+        "core_reads_its_own": {"problems": p_back[:20]},
+        "crystalball": {
+            "rows": int(rows.sum()),
+            "channels": len(freqs),
+            "max_error_over_bound": worst,
+            "max_abs_error": float(max(dxx.max(), dyy.max())),
+            "max_error_in_ulps_of_v": float(max((dxx / ulp).max(), (dyy / ulp).max())),
+            "bit_identical_cells_fraction": float(np.mean(v_core == model[..., 0])),
+            "cross_hands_zero": cross_zero,
+            "core_predict_s": predict_s,
+            "crystalball_wall_s": json.loads(
+                (d / "cb.ms.crystalball.json").read_text()
+            )["wall_s"],
+            "pass": worst <= 1.0 and cross_zero,
+        },
+    }
+    afw = load("africanus-of-wsclean.json")
+    ws = sky.load_wsclean(d / "ws-sources.txt")
+    pw = []
+    if [s.name for s in ws] != afw["Name"]:
+        pw.append("names differ")
+    for k, s in enumerate(ws):
+        for key, val in (("Ra", s.ra), ("Dec", s.dec), ("I", s.i)):
+            if float(afw[key][k]) != val:
+                pw.append(f"{s.name} {key} {float(afw[key][k]) - val:.3g}")
+        spi = [float(x) for x in afw["SpectralIndex"][k]]
+        while spi and spi[-1] == 0.0:  # the core drops trailing zero terms
+            spi.pop()
+        if spi != list(s.spi):
+            pw.append(f"{s.name} SpectralIndex")
+        if afw["LogarithmicSI"][k] != s.log_si:
+            pw.append(f"{s.name} LogarithmicSI")
+    res["SKY-wsclean"]["wsclean_list_read"] = {
+        "components": len(ws),
+        "problems": pw[:20],
+        "pass": not pw,
+    }
+    res["SKY-wsclean"]["pass"] = (
+        not p and not p_back and res["SKY-wsclean"]["crystalball"]["pass"] and not pw
+    )
+    # BBS: Tigger's BBS file read by the core and by Tigger.
+    bbs = sky.load_bbs(d / "t.cat")
+    pb, wb = compare_tigger(bbs, load("tigger-of-bbs.json"), angle_ulps=4)
+    res["SKY-bbs"] = {
+        "problems": pb[:20],
+        "problem_count": len(pb),
+        "max_angle_ulps": wb,
+        "against_the_lsm": compare_sources(
+            sources, bbs, angle_tol=1e-9, shape_rel=1e-9
+        )[:10],
+        "pass": not pb,
+    }
+    # DicoModel: the restricted unpickler against DDFacet's own load.
+    ddf = outputs() / DDF_RUN
+    md = mounts(run, (ddf, "/ddf", "ro"))
+    dpy = "/opt/ddf/bin/python -I /ex/oracle_formats.py"
+    nodes = sky.read_clustercat(ddf / "img.NodesCatImaged.npy")
+    np.savez(d / "clustercat-values.npz", cat=nodes)
+    sky.write_clustercat(d / "core-clustercat.npy", nodes)
+    docker(
+        FORMATS_IMAGE,
+        [
+            "sh",
+            "-c",
+            (
+                f"{dpy} dicomodel-dump /ddf/img.DicoModel /run/sky/dicomodel-ddf.npz && "
+                f"{dpy} npy-dump /ddf/img.NodesCatImaged.npy /run/sky/clustercat-ddf.npz && "
+                f"{dpy} npy-save /run/sky/clustercat-values.npz cat /run/sky/clustercat-ddf.npy"
+            ),
+        ],
+        md,
+        "DDFacet DicoModel and ClusterCat",
+    )
+    start = time.perf_counter()
+    dico = sky.load_dicomodel(ddf / "img.DicoModel")
+    dico_s = time.perf_counter() - start
+    arrays, meta = {}, {}
+    oracle_formats._flatten("", dico, arrays, meta)
+    theirs_meta = json.loads((d / "dicomodel-ddf.npz.json").read_text())
+    with np.load(d / "dicomodel-ddf.npz", allow_pickle=False) as z:
+        theirs = [z[f"a{i}"] for i in range(len(z.files))]
+    same_meta = (
+        json.loads(json.dumps(meta)) == theirs_meta["meta"]
+        and list(arrays) == theirs_meta["arrays"]
+    )
+    same_arrays = len(theirs) == len(arrays) and all(
+        e4.same_array(a, b) for a, b in zip(arrays.values(), theirs)
+    )
+    bad = d / "evil.pickle"
+    bad.write_bytes(b"cos\nsystem\n(S'echo pwned'\ntR.")
+    try:
+        sky.load_dicomodel(bad)
+        refused = False
+    except Exception as err:  # noqa: BLE001 - the refusal is the result
+        refused = "not allowed" in str(err)
+    res["SKY-dicomodel"] = {
+        "structure_equal": bool(same_meta),
+        "arrays_bit_exact": bool(same_arrays),
+        "crafted_pickle_refused": refused,
+        "summary": sky.dicomodel_summary(dico),
+        "read_s": dico_s,
+        "pass": bool(same_meta and same_arrays and refused),
+    }
+    with np.load(d / "clustercat-ddf.npz", allow_pickle=False) as z:
+        cat_ddf = z["a"]
+    cc = {
+        "read_bit_exact": bool(e4.same_array(nodes, cat_ddf)),
+        "write_byte_identical": (d / "core-clustercat.npy").read_bytes()
+        == (d / "clustercat-ddf.npy").read_bytes(),
+        "dtype": str(nodes.dtype),
+        "rows": len(nodes),
+    }
+    cc["pass"] = cc["read_bit_exact"] and cc["write_byte_identical"]
+    res["SKY-clustercat"] = cc
+    result = {
+        "lsm_sha256": sha,
+        "components": len(sources),
+        **res,
+        "verdicts": {k: v["pass"] for k, v in res.items()},
+    }
+    return write_json(run, "sky", result, started)
+
+
+STEPS = {"ct": step_ct, "qc": step_qc, "sky": step_sky}
 
 
 def main(argv):
