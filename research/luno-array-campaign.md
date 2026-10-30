@@ -493,6 +493,7 @@ before the frozen run (`-00-precondition-b`). The frozen run points at it.
 | 08:31 | `examples/check_luno_array.py` (`outputs/luno-array-campaign-check-20261030-01`) | 5.7 s | 210 MB | criteria 2, 4 and 6 FAIL as frozen; 1, 3, 5 and 7 pass |
 | 08:33 | post-hoc diagnostic (labelled): derived FLAG_ROW, and model Stokes I by baseline length (`outputs/luno-array-campaign-20261030-01-posthoc.json`) | 25.4 s | 5.3 GB | not part of the frozen run |
 | 08:34 | `examples/archive_luno_array.py` | 0.1 s | 21 MB | 84.7 KB archive |
+| 08:32 | `bash tools/check-all.sh`, once before the final commit (`outputs/luno-array-campaign-20261030-01.check-all.log`) | 22 min 04 s (pytest 749 passed in 21 min 22 s) | 1.87 GB | overall PASS (criterion 8); load average 19–27 from sibling sessions, against K's 96.6 s on an idle host |
 
 Stage times inside the frozen run (`result.json` `stages`). Peak RSS is the
 process high-water mark after the stage. Cores busy is
