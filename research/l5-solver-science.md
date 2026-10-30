@@ -224,6 +224,22 @@ every thread count (tested at 1, 3 and 8 threads in Rust).
   the iterations to the gain criterion substantially; the flag ladder and
   the half-step pairing may make it erratic.
 
+## Amendment 1 (2026-10-30, after implementation, before any measurement)
+
+- The tolerance of the interval criteria is part of the option
+  (`stop=product:<tol>`, `stop=loss:<tol>`), not the `stop_criterion`
+  argument: the flag ladder of `update_gain_flags` uses `stop_criterion`
+  (its "converged" branch resets soft flags), so reusing it would change
+  the dynamics with the tolerance. With the tolerance in the option, a
+  product or loss run is a deterministic prefix of the archived long run
+  and the trace predicts its stop exactly (tested in Rust and pytest). The
+  gain criterion at τ = 1e-6 and 1e-5 changes the ladder and is therefore
+  run directly, not replayed.
+- The interval criteria, like the archived gain test, cannot pass before
+  iteration index 2.
+- `freeze=1` under `stop=gain` freezes an interval when every gain of it
+  that is not hard-flagged passed the gain test in the same iteration.
+
 ## Comparator precondition (run before any code change, 2026-10-30)
 
 Run `outputs/l5-solver-20261030-01` (log `outputs/l5-solver-20261030-01.log`),
