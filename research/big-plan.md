@@ -39,6 +39,38 @@ answer except the two items under "User items".
   extension module `rang._core`, CLI, tests, recipes, docs and CI; archived
   receipts and research notes keep the historical `rangtoy` paths. No PyPI
   upload before the rename.
+- **Repository and publishing (user, 2026-10-30).** The GitHub repository is
+  renamed `gijzelaerr/ra-ng` (done 2026-10-30; GitHub redirects the old
+  name; remotes updated; the local folders `~/Github/rang` and
+  `~/Worktrees/rang` move to `ra-ng` with task P12, when no session depends
+  on the old path). The user wants the package on PyPI: the `wheels.yml`
+  workflow gets a publish job on `v*` tags through PyPI trusted publishing
+  (`pypa/gh-action-pypi-publish`, environment `pypi`); the user registers
+  the pending publisher on pypi.org once (project `ra-ng`, owner
+  `gijzelaerr`, repository `ra-ng`, workflow `wheels.yml`, environment
+  `pypi`) and creates the first tag after P12 and wave 4. The coordinator
+  never tags.
+- **Solver science (user, 2026-10-30: "do what you propose").** One wave 3
+  protocol (task L5) fixes the QuartiCal qp weight swap (issue 452) in the
+  core as a validated deviation behind a compatibility flag that keeps the
+  archived behaviour, and studies a loss-based or gauge-invariant
+  convergence criterion against the 50-iteration cap (S1 section 2.7, L1's
+  0.83 at array scale): held-out error, gain products and cost on the
+  fixture, the four-station slice and the whole array; the default changes
+  only if the protocol passes, and every archive comparator keeps passing
+  under the compatibility flag.
+- **Cross-platform (user, 2026-10-30).** The core must build and run
+  natively on Linux, Windows and macOS, so development no longer depends on
+  WSL and the GPU path no longer depends on CUDA. Consequences: wheels and
+  tests for `manylinux` x86_64/aarch64, `macosx` arm64/x86_64 and
+  `win_amd64` in `wheels.yml`; no bash, `/usr/bin/time`, `/tmp` or
+  POSIX-only paths on the live Python paths (pathlib, `subprocess` without a
+  shell, `resource`/`psutil` for RSS); the GPU track uses `wgpu`
+  (Vulkan/Metal/DX12) behind a cargo feature instead of CUDA; the
+  checks run as a Python or Rust entry point (`rang-core check`) that
+  `tools/check-all.sh` wraps. Tasks X1 and X2 below. The WSL checkout stays
+  the data host for the LUNO runs until a native Windows run reproduces an
+  archive.
 - **Science continues until there is no more research to do**, in parallel
   sessions, under frozen protocols as before. "The original experiment" is read
   as the active one, gain-TV-guided flagging, run to a positive or a settled
@@ -110,8 +142,51 @@ survey eigensolver; P8 frozen recipes, containers and recipe-only modules to
 `history/`; P10 test-suite speed (after P8); P7 architecture (drop ctypes, GIL,
 `catch_unwind`; after W1 and P1–P6, alone); P9 one CLI and archive format
 (after P7); P11 extract and retire the frozen modules (after P6 and P7); P12
-rename `rangtoy` to `ra-ng`/`rang` (after P7, P9 and P11). Three CPU-heavy
-tasks at a time on 8 physical cores.
+rename `rangtoy` to `ra-ng`/`rang` (after P7, P9 and P11); X1 cross-platform
+build, CI matrix and portability of the live paths (after P7; Windows and
+macOS wheels and tests, native Windows reproduction of one archive); X2 GPU
+gridder and FFT through `wgpu` behind a feature (after P2 and X1; measured
+against the task C/I/K comparators on the RTX 4070 Ti from native Windows,
+no CUDA toolkit); PyPI publish job in `wheels.yml` (with X1). Three
+CPU-heavy tasks at a time on 8 physical cores.
+
+## Documentation, teaching and upstream fixes (user, 2026-10-30; parallel)
+
+- D1 documentation site: Sphinx or MkDocs built by CI and published on
+  GitHub Pages; installation from the wheel, concepts (MS and zarr ingest,
+  gains, TV maps, SumThreshold strategies, weighting, gridding), API
+  reference from the core wrappers' docstrings, the research story with
+  links to the archives; tutorials are notebooks executed in CI on small
+  public data (`nbval`/`papermill`). After P12 (uses the `rang` name).
+- D2 notebook tooling: a `notebook` module (`rangtoy.notebook`, renamed with
+  P12) for Jupyter: load the fixture scan or the four-station LUNO slice via
+  the range fetch, inspect flags and weights per baseline and channel, solve
+  and view gain amplitude, phase and TV maps per antenna, run a Tricolour
+  strategy step by step, image and compare dirty images and PSFs; plots as
+  plain functions, `ipywidgets` as a thin steering layer (solution
+  intervals, strategy, robustness, iteration cap → held-out error and
+  image). Dependencies in a `[notebook]` extra. Starts now.
+- D3 science notebooks: the two research questions as guided notebooks,
+  gain-TV-guided flagging with the null results on real data and the
+  decision rule, and the beam and pointing question with the pointing
+  solver, observability audits and the JAX reference path; the wave 3
+  protocols map onto them. After D1.
+- U2 upstream fixes (started 2026-10-30): file the remaining findings after
+  reproduction (CARACal first-pass strategy on pre-flagged data, Stimela on
+  Python 3.14, QuartiCal convergence criterion with the measured curve,
+  Tricolour rows-as-lanes if faster in Numba) and open pull requests from
+  a fork under the user's account for every filed issue with a fix
+  (QuartiCal #452, Tricolour #110 and #111 with the CARACal strategy YAMLs,
+  Stimela 3.14, the rest as they are confirmed), each with a regression
+  test and the project's own test suite run; `research/upstream-prs.md`.
+- Logo: a fringe-pattern mark (round aperture filled with interference
+  fringes, an orange point source), icon and `ra-ng` wordmark with the
+  hyphen as a fringe, Karoo night `#0b1d3a` and sunset `#f28c28`; draft
+  sent to the user 2026-10-30; goes into `docs/logo/` (SVG, PNG at 16–512
+  px, favicon) with D1 once approved.
+- Later, not started: a matched full CARACal pipeline baseline on the LUNO
+  data (needed if any campaign turns positive) and a benchmark page that CI
+  updates from the comparator timings.
 
 ## Wave 3 (science, after L1's verdict; parallel where independent)
 
@@ -128,6 +203,9 @@ tasks at a time on 8 physical cores.
   any is positive, the follow-up is a matched CARACal full-pipeline
   comparison on the same data (quality and cost), which is what the novelty
   rule asks for.
+- L5 solver science: the issue 452 weight-swap fix behind a compatibility
+  flag and the convergence criterion study, one protocol (user decision
+  above); after P1 (done) and L1 (done), independent of L2/L3.
 - B1 beam and pointing on real data: protocol for the original research
   question on LUNO with the core (predictor, solver, the existing pointing
   solver and JAX reference path): can small pointing/beam corrections be
@@ -158,9 +236,9 @@ tasks at a time on 8 physical cores.
 
 ## User items (not blocking)
 
-- Publish to PyPI as `ra-ng` after task P12 (rename): create the project on
-  PyPI with trusted publishing for the `wheels.yml` workflow of
-  `gijzelaerr/rang`, or run the command in `research/wheel.md`.
+- Register the PyPI pending publisher for `ra-ng` (owner `gijzelaerr`,
+  repository `ra-ng`, workflow `wheels.yml`, environment `pypi`) and, after
+  P12 and wave 4, create the tag `v0.1.0`; the workflow publishes.
 - Delete `~/Build/tmp/20261029-rang-core`, the root-owned
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).
