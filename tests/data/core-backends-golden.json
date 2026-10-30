@@ -1,0 +1,520 @@
+{
+ "blosc.0": {
+  "bytes_sha256": "73d12d1733bd4b05c024ec5d6b4adbb1c9e8a1cd1afb48d6d904fcb536eadc40",
+  "len": 240
+ },
+ "blosc.1": {
+  "bytes_sha256": "168fc42f82398b0ab311be317d9a10ad3994c33cf14b5475612d89fe94440b6c",
+  "len": 36
+ },
+ "blosc.2": 3,
+ "blosc.3": 5,
+ "blosc.4": {
+  "bytes_sha256": "178d35e4c6bcd2487e7f92d667df282128dd4894847fcf568ad9ea4191d5817b",
+  "len": 24
+ },
+ "blosc.5": 2,
+ "blosc.6.0": 240,
+ "blosc.6.1": 48,
+ "blosc.6.2": 5,
+ "blosc.6.3": 4,
+ "blosc.7": {
+  "bytes_sha256": "73d12d1733bd4b05c024ec5d6b4adbb1c9e8a1cd1afb48d6d904fcb536eadc40",
+  "len": 240
+ },
+ "errors.0": "ValueError: unsupported or invalid blosc chunk",
+ "errors.1": "ValueError: positive super weight required",
+ "errors.2": "OSError: <root>/no-such-table.ms: <root>/no-such-table.ms/table.dat: No such file or directory (os error 2)",
+ "errors.3": null,
+ "flag.0": {
+  "dtype": "bool",
+  "sha256": "bfc3c3bf9e563d5f4253dce99e03e6da193ca962ddca6685e02876c7dcc22681",
+  "shape": [
+   18,
+   64,
+   4
+  ]
+ },
+ "flag.1": {
+  "dtype": "complex64",
+  "sha256": "4ab9235ab550dcea0df254d2e4f844d7c49c53b4d235ed4acbaa76d7000ac7c4",
+  "shape": [
+   3,
+   1,
+   6,
+   64
+  ]
+ },
+ "flag.2.00-flag_nans_zeros": {
+  "dtype": "bool",
+  "sha256": "4cf9816ed1062189ff0c8d427fba5e912cc68fc9af76cf7f08fd255977de3b33",
+  "shape": [
+   3,
+   1,
+   6,
+   64
+  ]
+ },
+ "flag.2.01-sum_threshold": {
+  "dtype": "bool",
+  "sha256": "4cf9816ed1062189ff0c8d427fba5e912cc68fc9af76cf7f08fd255977de3b33",
+  "shape": [
+   3,
+   1,
+   6,
+   64
+  ]
+ },
+ "flag.2.02-flag_autos": {
+  "dtype": "bool",
+  "sha256": "06c8376fb7583c9c7d714259a0310bf6b97ad874d0ddd3c2789714187d86d214",
+  "shape": [
+   3,
+   1,
+   6,
+   64
+  ]
+ },
+ "flag.2.03-combine_with_input_flags": {
+  "dtype": "bool",
+  "sha256": "06c8376fb7583c9c7d714259a0310bf6b97ad874d0ddd3c2789714187d86d214",
+  "shape": [
+   3,
+   1,
+   6,
+   64
+  ]
+ },
+ "flag.3": {
+  "dtype": "int32",
+  "sha256": "c972bad6492c0500bad5ab473471161c84a4f7268527085fc09c50df08e556c6",
+  "shape": [
+   3,
+   2
+  ]
+ },
+ "fused.0": {
+  "dtype": "complex128",
+  "sha256": "1140f41c76e7519421053d433807d1c302271e38b0c8bdb2ebb3787b37f53575",
+  "shape": [
+   24,
+   6,
+   4
+  ]
+ },
+ "fused.1": {
+  "dtype": "float64",
+  "sha256": "cb2c97659d76b2bf078a9c9c99221a48d181a9cef882de7dfb1bff60fc570529",
+  "shape": [
+   24,
+   6
+  ]
+ },
+ "fused.2": {
+  "dtype": "float64",
+  "sha256": "392e67c659e2a24b5db13e0563f78e739c43cf6771c82a17f52cc40d92395d54",
+  "shape": [
+   2,
+   2,
+   4,
+   8,
+   8
+  ]
+ },
+ "fused.3": {
+  "dtype": "float64",
+  "sha256": "8ac64c53951626800ae0aaa57a4f7bd68928f0396a69f4f14baa2f39d96e0d3b",
+  "shape": [
+   2,
+   2,
+   4,
+   8
+  ]
+ },
+ "fused.4": {
+  "dtype": "uint64",
+  "sha256": "44f98631c1c7beb700ac946101e7c67f1aab286f0ebf57ab9e4cc04967feb9a1",
+  "shape": [
+   2,
+   2,
+   4
+  ]
+ },
+ "fused.5.test.cells": 33,
+ "fused.5.test.invalid": 0,
+ "fused.5.test.nonfinite": 0,
+ "fused.5.test.sum": {
+  "float": "0x1.6a6ba7e784176p+7"
+ },
+ "fused.5.train.cells": 35,
+ "fused.5.train.invalid": 0,
+ "fused.5.train.nonfinite": 0,
+ "fused.5.train.sum": {
+  "float": "0x1.53913aceb6420p+7"
+ },
+ "fused.5.validation.cells": 41,
+ "fused.5.validation.invalid": 0,
+ "fused.5.validation.nonfinite": 0,
+ "fused.5.validation.sum": {
+  "float": "0x1.683f74ed5c6ccp+7"
+ },
+ "fused.6": {
+  "dtype": "complex128",
+  "sha256": "d4973bf888c87cb5c44774979c3aa61452116cd9b640150967971b19c6a21d2d",
+  "shape": [
+   24,
+   6,
+   4
+  ]
+ },
+ "fused.7.test.cells": 33,
+ "fused.7.test.invalid": 0,
+ "fused.7.test.nonfinite": 0,
+ "fused.7.test.sum": {
+  "float": "0x1.05526d026540dp+7"
+ },
+ "fused.7.train.cells": 35,
+ "fused.7.train.invalid": 0,
+ "fused.7.train.nonfinite": 0,
+ "fused.7.train.sum": {
+  "float": "0x1.16108c77e0d4dp+7"
+ },
+ "fused.7.validation.cells": 41,
+ "fused.7.validation.invalid": 0,
+ "fused.7.validation.nonfinite": 0,
+ "fused.7.validation.sum": {
+  "float": "0x1.26cc32cf06663p+7"
+ },
+ "fused.8": null,
+ "grid.0": {
+  "dtype": "float64",
+  "sha256": "2389d5f29a3bb5bd96c4e49e8171ee8a27b1de47408ec47c37f0cc89151e3e21",
+  "shape": [
+   48,
+   48
+  ]
+ },
+ "grid.1": {
+  "dtype": "float64",
+  "sha256": "71397022b26067db531aa94500430b9617739be80a83a6f43fdf77b8274c9c33",
+  "shape": [
+   48,
+   48
+  ]
+ },
+ "grid.2.gridded_count": 160,
+ "grid.2.image_weight": {
+  "float": "0x1.4000000000000p+7"
+ },
+ "grid.2.max_gridded_weight": {
+  "float": "0x1.0000000000000p+0"
+ },
+ "grid.2.max_w": {
+  "float": "0x1.1eb4895cb1b4ep+5"
+ },
+ "grid.2.min_w": {
+  "float": "0x1.7cc995cfb0df7p-9"
+ },
+ "grid.2.n_w_layers": 4,
+ "grid.2.psf_normalization": {
+  "float": "0x1.000058a855931p+0"
+ },
+ "grid.2.visibility_weight_sum": {
+  "float": "0x1.4000000000000p+7"
+ },
+ "grid.3": {
+  "dtype": "float64",
+  "sha256": "aad7219bb8de25157ec7ece5f37aa6d1ebd8ec10bd0ce194518d0666c5f146eb",
+  "shape": [
+   7161
+  ]
+ },
+ "ms.0": "{\"columns\": [{\"dtype\": \"float64\", \"is_array\": true, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"OFFSET\", \"ndim\": 1, \"option\": 5, \"shape\": [3], \"supported\": true}, {\"dtype\": \"float64\", \"is_array\": true, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"POSITION\", \"ndim\": 1, \"option\": 5, \"shape\": [3], \"supported\": true}, {\"dtype\": \"str\", \"is_array\": false, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"TYPE\", \"ndim\": 0, \"option\": 0, \"shape\": [], \"supported\": true}, {\"dtype\": \"float64\", \"is_array\": false, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"DISH_DIAMETER\", \"ndim\": 0, \"option\": 0, \"shape\": [], \"supported\": true}, {\"dtype\": \"bool\", \"is_array\": false, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"FLAG_ROW\", \"ndim\": 0, \"option\": 0, \"shape\": [], \"supported\": true}, {\"dtype\": \"str\", \"is_array\": false, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"MOUNT\", \"ndim\": 0, \"option\": 0, \"shape\": [], \"supported\": true}, {\"dtype\": \"str\", \"is_array\": false, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"NAME\", \"ndim\": 0, \"option\": 0, \"shape\": [], \"supported\": true}, {\"dtype\": \"str\", \"is_array\": false, \"manager_name\": \"StandardStMan\", \"manager_seq\": 0, \"manager_type\": \"StandardStMan\", \"max_length\": 0, \"name\": \"STATION\", \"ndim\": 0, \"option\": 0, \"shape\": [], \"supported\": true}], \"little_endian\": true, \"nrows\": 4, \"path\": \"/home/gijsm/Worktrees/rang/p7-architecture/outputs/tv-caracal-wsl-20261029-01/original.ms/ANTENNA\"}",
+ "ms.1.0": "m000",
+ "ms.1.1": "m001",
+ "ms.1.2": "m002",
+ "ms.1.3": "m003",
+ "ms.2": {
+  "dtype": "float64",
+  "sha256": "b3a85599944fd776ec958b215cebd6ef0e02cd333038b2010637ad91fc46a4c7",
+  "shape": [
+   4,
+   3
+  ]
+ },
+ "ms.3": {
+  "dtype": "float64",
+  "sha256": "a631464e66cc4a9ea3f230e5117840639271cef5308816405effdc3c74e39323",
+  "shape": [
+   2,
+   3
+  ]
+ },
+ "ms.4": {
+  "dtype": "bool",
+  "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+  "shape": [
+   4
+  ]
+ },
+ "predict.0": {
+  "dtype": "complex128",
+  "sha256": "697953a6d00474a11e9aa5d612f62eb44dd21c6317d9d888e99706656b0af556",
+  "shape": [
+   12,
+   5
+  ]
+ },
+ "predict.1": {
+  "dtype": "float64",
+  "sha256": "a02e7ecc95a9f3507fdca7bb3aa4d692b1e98962cbaad379a8b88c90bc279cfd",
+  "shape": [
+   2,
+   5
+  ]
+ },
+ "root_projector.0": {
+  "dtype": "float64",
+  "sha256": "36f8fea8f5c1fe37735f68c6fc4e37a6fca46cb1b5f9272c473192c59953c39b",
+  "shape": [
+   27,
+   2
+  ]
+ },
+ "root_projector.1": 3,
+ "root_projector.2": {
+  "dtype": "float64",
+  "sha256": "14813d46deaf61a38472c9960d45f5e4462aa07b6b6109084364dd587bfaed84",
+  "shape": [
+   10,
+   2
+  ]
+ },
+ "root_projector.3": 8,
+ "root_response.0": {
+  "dtype": "float64",
+  "sha256": "20946af41fbf1ec701a51ae4856452220c45334a1ea8a4e4860f149d90af4f54",
+  "shape": [
+   8,
+   16
+  ]
+ },
+ "root_response.1": {
+  "dtype": "float64",
+  "sha256": "95c529f4c13579e3ced1aa1b346558f37066cdc0ca790fc8b114d9987c91b1a1",
+  "shape": [
+   2,
+   32,
+   32
+  ]
+ },
+ "root_response.2": {
+  "dtype": "float64",
+  "sha256": "d006424decbc8251dba7a4335fb0aa59d50da78e1d2f01a0d98a326aff1cb740",
+  "shape": [
+   2,
+   32
+  ]
+ },
+ "root_response.3": {
+  "dtype": "uint64",
+  "sha256": "ae4a25ab66bdbc983c96ad862d9b2c0a66b47e1973bc3aa931752bf358a1bcdf",
+  "shape": [
+   2
+  ]
+ },
+ "root_response.4.delta": null,
+ "root_response.4.diagnostics.baseline_projected_score_norm": null,
+ "root_response.4.diagnostics.condition": null,
+ "root_response.4.diagnostics.damping": null,
+ "root_response.4.diagnostics.full_rank": null,
+ "root_response.4.diagnostics.gauge_null_relative": null,
+ "root_response.4.diagnostics.gauge_rank": null,
+ "root_response.4.diagnostics.largest_curvature": null,
+ "root_response.4.diagnostics.max_relative_step": null,
+ "root_response.4.diagnostics.retained_rank": null,
+ "root_response.4.diagnostics.smallest_retained_curvature": null,
+ "root_response.4.guard_pass": false,
+ "root_response.4.native_status": 6,
+ "root_response.4.reason": "U2 gauge-null mismatch",
+ "root_response.5.delta": null,
+ "root_response.5.diagnostics.baseline_projected_score_norm": null,
+ "root_response.5.diagnostics.condition": null,
+ "root_response.5.diagnostics.damping": null,
+ "root_response.5.diagnostics.full_rank": null,
+ "root_response.5.diagnostics.gauge_null_relative": null,
+ "root_response.5.diagnostics.gauge_rank": null,
+ "root_response.5.diagnostics.largest_curvature": null,
+ "root_response.5.diagnostics.max_relative_step": null,
+ "root_response.5.diagnostics.retained_rank": null,
+ "root_response.5.diagnostics.smallest_retained_curvature": null,
+ "root_response.5.guard_pass": false,
+ "root_response.5.native_status": 3,
+ "root_response.5.reason": "underidentified full curvature",
+ "root_trend.0": {
+  "dtype": "float64",
+  "sha256": "51575bbf7e9a969620e8e11520b2d0aea54199e6355231911c1622fbd0bb2e70",
+  "shape": [
+   3,
+   2
+  ]
+ },
+ "root_trend.1": {
+  "dtype": "uint64",
+  "sha256": "d690cff69308321a5cb24bc92f7c8f0b99c451cd59fa91e9eea44081bf05ca0f",
+  "shape": [
+   3,
+   2
+  ]
+ },
+ "root_tv.0.edges": {
+  "dtype": "float64",
+  "sha256": "841bc7a8db82d4671e27a59496dbc50aa997503b522f0118c80810bca9144e23",
+  "shape": [
+   2,
+   5,
+   4,
+   3
+  ]
+ },
+ "root_tv.0.frequency": {
+  "float": "0x1.1b59c007635f1p-1"
+ },
+ "root_tv.0.map": {
+  "dtype": "float64",
+  "sha256": "86e290d1d6547323b560346a3783f19c65d399bcf7e2e1e977094a11cc536178",
+  "shape": [
+   5,
+   4,
+   3
+  ]
+ },
+ "root_tv.0.time": {
+  "float": "0x1.2486838ee1304p-1"
+ },
+ "root_tv.0.total": {
+  "float": "0x1.1ff021cb2247ap+0"
+ },
+ "root_tv.1.0": "Rust TV kernel failed (status 1)",
+ "solve.0": {
+  "dtype": "complex128",
+  "sha256": "076e2bee3295d5a0e5e648575daabd748ce8820ff7d79f63eae0d16bb1e76174",
+  "shape": [
+   2,
+   2,
+   4,
+   2,
+   2
+  ]
+ },
+ "solve.1": {
+  "dtype": "int8",
+  "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+  "shape": [
+   2,
+   2,
+   4
+  ]
+ },
+ "solve.2": 20,
+ "solve.3": {
+  "float": "0x0.0p+0"
+ },
+ "weights.0": {
+  "dtype": "complex64",
+  "sha256": "bc26d2626127850cc8c3a5446c50574c3b3c90c96ee64726ff04233c54680def",
+  "shape": [
+   5,
+   3
+  ]
+ },
+ "weights.1": {
+  "dtype": "float32",
+  "sha256": "76437afbd997fa5fc03e14611bb7a5f52cb4e7d60c7f936abfd5c3b82327ed0b",
+  "shape": [
+   5,
+   3
+  ]
+ },
+ "weights.10": {
+  "dtype": "float32",
+  "sha256": "749505050ab4bbe39584d0d9c98df69b130dfb88480b35092f1d5b098210abda",
+  "shape": [
+   5,
+   3
+  ]
+ },
+ "weights.11": {
+  "dtype": "float64",
+  "sha256": "c296c7ec67aebb5a2e584747f6a8294270bc868f0e87f9ae807f14c34f140631",
+  "shape": [
+   308,
+   616
+  ]
+ },
+ "weights.12.count": 12,
+ "weights.12.max_gridded_weight": {
+  "float": "0x1.e3bd6c0000000p+0"
+ },
+ "weights.12.total_weight": {
+  "float": "0x1.affc64d600000p+3"
+ },
+ "weights.12.visibility_weight_sum": {
+  "float": "0x1.affc64d600000p+3"
+ },
+ "weights.2": 616,
+ "weights.3.0": 616,
+ "weights.3.1": 616,
+ "weights.4": {
+  "dtype": "float32",
+  "sha256": "f8d5677fab672d57cb048409766ccabdfd9fca58652c65c3940e36a1d1c3f830",
+  "shape": [
+   5,
+   3
+  ]
+ },
+ "weights.5": {
+  "dtype": "float64",
+  "sha256": "8bb2c631e5f465e1e83bde02b95889d5dfea59799063eba9a3214a0843ddf3c5",
+  "shape": [
+   308,
+   616
+  ]
+ },
+ "weights.6.count": 12,
+ "weights.6.max_gridded_weight": {
+  "float": "0x1.e95ce60000000p-2"
+ },
+ "weights.6.total_weight": {
+  "float": "0x1.129bd3ac00000p+2"
+ },
+ "weights.6.visibility_weight_sum": {
+  "float": "0x1.affc64d600000p+3"
+ },
+ "weights.7": {
+  "dtype": "float32",
+  "sha256": "cf2225eee51215db630963381d0de52c8b992bc2150cae2a7c4401ade6d00bdf",
+  "shape": [
+   5,
+   3
+  ]
+ },
+ "weights.8": {
+  "dtype": "float64",
+  "sha256": "74f3330265cd154ce7bbfe1bf923987fdf218e51a97cbb12bc98eed33ab4c149",
+  "shape": [
+   308,
+   616
+  ]
+ },
+ "weights.9.count": 12,
+ "weights.9.max_gridded_weight": {
+  "float": "0x1.0000000000000p+0"
+ },
+ "weights.9.total_weight": {
+  "float": "0x1.5cc47ab000000p+3"
+ },
+ "weights.9.visibility_weight_sum": {
+  "float": "0x1.affc64d600000p+3"
+ }
+}
