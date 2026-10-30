@@ -1,0 +1,21 @@
+# CASA closure for the O-CASA venv (Python 3.12), resolved from public PyPI on
+# 2026-10-30. casatools wheel sha256 9dac2c1be31ce393440786b48814db24309832a2fea4c84221e7c47068af1dea
+# (cp312 manylinux_2_34_x86_64), casatasks wheel sha256 f99ca8c781e286bebc4a7fe1e2b4dd8fe2d1ef184d8bc4737849c9338630ea3d.
+casaconfig==1.5.2
+casatasks==6.7.6.14
+casatools==6.7.6.14
+certifi==2026.10.23
+contourpy==1.4.0
+cycler==0.12.1
+fonttools==4.68.0
+kiwisolver==1.5.1
+matplotlib==3.11.2
+numpy==2.5.4
+packaging==26.3
+pillow==13.0.0
+pyerfa==2.0.1.5
+pyparsing==3.3.3
+python-dateutil==3.0.0
+scipy==1.18.1
+six==1.17.0
+tzdata==2026.6
