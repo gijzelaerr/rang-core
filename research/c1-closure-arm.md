@@ -442,10 +442,20 @@ Training cells only (27.4 M); 53 stations, 1,378 baselines.
 | log amplitude | 0.795 (0.885) | 0.868 | −0.115 | −0.037 | 0.141 | 0.0063 | 0.461 | distinct |
 
 657,404 baseline-bins compared (trace). The closure-TV map built from even
-channels predicts the one built from odd channels (ρ = 0.81), so it is not
-noise; the gain-TV guidance explains 0.35 % of its log-variance, and the
-rank correlations with the gain map are near zero or slightly negative at
-baseline and antenna level.
+channels predicts the one built from odd channels (ρ = 0.81); the gain-TV
+guidance explains 0.35 % of its log-variance, and the rank correlations
+with the gain map are near zero or slightly negative at baseline and
+antenna level.
+
+**Caveat (post-hoc, labelled).** The split-half reference is not
+independent: a sample's closure TV averages its frequency edges (c, c ± 1),
+so an even-channel and an odd-channel sample share edges, and ρ_half is
+inflated by construction. The frozen 0.5 threshold is therefore not a pure
+noise reference. Post-hoc probe 2 (below) measures the null with the same
+mask, weights and kernel on noise-only data: ρ_half **0.37** (trace) and
+0.40 (phase). The measured 0.81 and 0.86 are well above that null, so the
+map is reproducible beyond the shared-edge baseline; the frozen call
+"distinct" stands as recorded.
 
 What the structure is:
 
@@ -453,14 +463,17 @@ What the structure is:
   are at 1164, 1190, 1217, 1230, 1237 and 1251 MHz (0.36–0.45 against a
   median of 0.29): the GNSS range of A1. The quietest are at 1465–1478 MHz
   (0.26).
-- **Antennas.** About half of the map's log-variance (R²_add 0.47) is an
-  antenna-additive pattern. A closure is blind to gains, so an
-  antenna-additive pattern in normalised closure TV is per-antenna noise
-  (the weights' per-antenna scale differs from the real noise), not gain
-  structure. Per-antenna medians span 0.236–0.311.
+- **Antennas.** About half of the map's log-variance (R²_add 0.47; 0.15
+  on the noise-only null of probe 2) is an antenna-additive pattern. A
+  closure is blind to gains, so this is not gain structure. It is
+  consistent with per-antenna noise that the weights scale wrongly, but
+  per-antenna differences in closure survival (stations with more flagged
+  edges) or in RFI exposure by baseline length would produce it too; C1
+  did not separate these. Per-antenna medians span 0.236–0.311.
 
-So the frozen call "distinct" holds, with two explanations that are not
-calibration signal: RFI in the GNSS band and per-antenna weight scale.
+So the frozen call "distinct" holds. The one explanation measured here is
+RFI in the GNSS band; the antenna-additive part is not calibration signal
+either, whatever its cause.
 
 ### Q2: no change to the decision; every call is null
 
@@ -478,8 +491,12 @@ L1); 114,059 have a finite closure guidance; guidance scale 0.292.
 
 All six closure-guided (α > 0) masks were admissible (validation within
 1 %) and **none was accepted**: each has a higher objective than the
-unguided τ = 5 mask, because the guidance adds flags (2 × flag fraction)
-without lowering gain TV. The policy selects L1's unguided 21-cell mask,
+unguided τ = 5 mask. Fixed-support gain TV against the base's 0.0260506
+(read from the trials after the run): the 21-cell unguided mask lowers it
+to 0.0260440 (−0.025 %); the best guided mask (α = 1, τ = 8, 624 cells)
+to 0.0260455 (−0.020 %), less, while paying a larger flag term; the
+guided masks of 32,778 cells and more raise it (0.0260728–0.0261263,
++0.09 to +0.29 %). The policy selects L1's unguided 21-cell mask,
 so `closure-tv-policy` is `tv-policy` (same additions and gains; its image
 metrics are reused).
 
@@ -531,8 +548,10 @@ removed down to a residue.
 
 - The gauge-free signal exists and is **not** what gain TV measures: the
   closure-TV map is reproducible (split-half 0.81) and the gain-TV map
-  explains 0.35 % of it. Its structure is RFI in the GNSS band and
-  per-antenna noise scale; neither is calibration structure.
+  explains 0.35 % of it; its reproducibility (0.81) is well above the
+  shared-edge null (0.37, probe 2). Its structure is RFI in the GNSS band
+  plus an antenna-additive part consistent with per-antenna noise scale;
+  neither is calibration structure.
 - Used as guidance, it changes nothing: every closure-guided mask is
   rejected by the frozen objective, which rewards lower gain TV and
   charges for flags. Used directly as a flag mask (918 cells), it moves
@@ -549,8 +568,11 @@ removed down to a residue.
 
 - A closure statistic with correctly scaled weights. The weights overstate
   the noise several-fold (a QuartiCal product), and part of the "distinct"
-  structure is per-antenna weight scale; the masks are scale-free (robust
-  z per baseline), the maps are not.
+  structure may be per-antenna weight scale (not separated from closure
+  survival or RFI exposure); the masks are scale-free (robust z per
+  baseline), the maps are not.
+- An independent split-half reference. The frozen ρ_half shares frequency
+  edges between halves; the null of probe 2 (0.37) is post hoc.
 - Other closure sets. Only the cyclic quadrangles (traces, log
   amplitudes) and all triangles (phases) were used, with the protocol's
   re-routing rule; not the construction of Kumar et al., and not checked
@@ -558,6 +580,26 @@ removed down to a residue.
 - Other policies. The objective is L1's; a closure-based objective (for
   example, minimising closure TV) was not pre-registered and was not run.
 - A second calibrator. 1830−211 (L2) was not run with the closure arms.
+
+### Post-hoc steps, labelled
+
+- **Probe 2, the split-half null** (`outputs/c1-20261030-03-posthoc`,
+  `probe2.py` and `probe2.out`; 2 min 42 s, 9.0 GB), run after the frozen
+  run and the check because the split-half reference shares frequency
+  edges between halves. The whole-array state with DATA replaced by MODEL
+  plus complex Gaussian noise with E|n|² = 0.18/w (probe 1's scale; seed
+  20261030), the same training mask and weights, the same kernel and maps:
+
+  | Family | ρ_half null (measured) | ρ_half per antenna null (measured) | R²_add null (measured) | median R² null (measured) |
+  | --- | ---: | ---: | ---: | ---: |
+  | trace | 0.365 (0.813) | 0.308 (0.889) | 0.149 (0.467) | 0.122 (0.080) |
+  | phase | 0.403 (0.859) | 0.325 (0.883) | 0.153 (0.516) | 0.121 (0.076) |
+
+  The measured reproducibility is well above the null. The real data's
+  median R² is below the null's, so the real noise is lower still than
+  0.18/w. Nothing in the frozen record changes.
+- **Gain TV of the closure loop's trials**, read from `c1.json` after the
+  run (Q2 paragraph); no new computation.
 
 ### Cost (frozen run, four threads)
 
@@ -617,8 +659,10 @@ amplitudes per closure.
   > traces are invariant under random 2×2 gains to 1e-10. L1's campaign
   > ran unedited (reproduced on every non-image field) with two added arms.
   > Q1: the closure-TV map is reproducible (split-half ρ 0.81) and
-  > unrelated to the gain-TV map (R² 0.0035): "distinct", but its
-  > structure is the GNSS band and per-antenna weight scale. Q2: every
+  > unrelated to the gain-TV map (R² 0.0035): "distinct" (the frozen
+  > split-half shares frequency edges; a post-hoc noise-only null gives
+  > 0.37), but its structure is the GNSS band plus an antenna-additive part
+  > consistent with per-antenna weight scale. Q2: every
   > closure-guided mask (α > 0) is rejected by the frozen objective; the
   > policy selects L1's 21-cell unguided mask; the 918-cell closure-outlier
   > arm moves MSE by 1.5e-7; against the CARACal first pass both arms are
@@ -645,23 +689,27 @@ amplitudes per closure.
   - on LUNO 1934−638, the TV policy, its closure-guided variant and a
     direct closure-outlier mask all make the same decision: no flag beyond
     L1's 21-cell unguided mask; every call against `original` and against
-    the CARACal first pass is null (|1 − ratio| ≤ 0.06 %), now decidable
-    under A1's drop as well as under amendment 1;
+    the CARACal first pass is null (MSE within 0.06 %, residual RMS within
+    0.5 %, all inside the ±1 % band), now decidable under A1's drop as well
+    as under amendment 1;
   - this holds under three calibrator models (L1-M) and for both an
     antenna-factorable (gain TV) and a gauge-free (closure) statistic;
   - the gauge-free statistic does see real non-factorable structure, but
     it is RFI in the GNSS band that Tricolour's first pass already targets
-    (lift 11.5), plus per-antenna weight scale;
+    (lift 11.5), plus an antenna-additive part consistent with per-antenna
+    weight scale;
   - untested: a closure-based objective, a second calibrator with closure
     arms, correctly scaled weights.
 - **Upstream observations** (observed, not raised):
   1. Non-RATT (SARAO, LUNO store; QuartiCal weights): WEIGHT_SPECTRUM
      overstates the visibility noise several-fold (χ² 0.21 here, closure
-     z² 0.17–0.18 in the probe), and its per-antenna scale is uneven
-     enough to give normalised closure TV an antenna-additive component
-     (R² 0.47). Anyone using these weights as inverse variances (closure
-     noise, χ² tests) needs a per-antenna rescale. Not a bug claim: the
-     weight convention is not documented in the store.
+     z² 0.17–0.18 in the probe). Normalised closure TV also has an
+     antenna-additive component (R² 0.47 against 0.15 on a noise-only
+     null), consistent with an uneven per-antenna weight scale but not
+     separated from closure survival or RFI exposure. Anyone using these
+     weights as inverse variances (closure noise, χ² tests) should check
+     the scale per antenna. Not a bug claim: the weight convention is not
+     documented in the store.
   2. RATT, caracal-pipeline: CARACal's strategies have no closure-based
      flagging step; C1 found no reason to propose one at calibrator SNR on
      these data (the outliers are GNSS RFI the first pass already
@@ -693,3 +741,5 @@ amplitudes per closure.
 | 14:37 | `check_c1.py` (`-02-check`) | 8.8 s | 0.21 GB | criteria 1–6 pass |
 | 14:37 | `archive_c1.py` | 0.1 s | 40 MB | 61.7 KB |
 | 14:40 | `bash tools/check-all.sh` (plain; it takes the host lock itself), once before the final commit (`outputs/c1-20261030-check-all.log`) | 4 min 18 s (pytest 701 passed, 5 skipped in 2 min 06 s) | 1.66 GB | **overall PASS** |
+| 14:46 | post-hoc probe 2, the split-half null (`-03-posthoc`, labelled; MemAvailable 28 GiB) | 2 min 42 s | 9.0 GB | null ρ_half 0.37 (trace), 0.40 (phase) |
+| 14:50 | `bash tools/check-all.sh` (plain), again before the commit of the post-hoc text (`outputs/c1-20261030-check-all-2.log`) | 1 min 41 s (pytest 701 passed, 5 skipped in 1 min 36 s) | 1.62 GB | **overall PASS** |
