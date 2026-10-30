@@ -227,7 +227,9 @@ def run_control(host_run, strategy_path, label, out, masks):
             raise ValueError(f"Invalid task {task}")
         name = f"{index:02d}-{task}"
         timings[name] = time.perf_counter() - tic
-        stages[name] = np.ascontiguousarray(bp_flags, dtype=bool)
+        # A copy: the 0.5.0 executor updates bp_flags in place, so a view would
+        # alias later steps (post-hoc fix, research/rv1-revalidate.md section 6).
+        stages[name] = np.array(bp_flags, dtype=bool, order="C", copy=True)
 
     bp_flags = np.any(bp_flags, axis=1, keepdims=True)
     bp_flags = np.broadcast_to(bp_flags, (nbl, ncorr, ntime, nchan))
@@ -368,7 +370,6 @@ def cli(host_run, strategy_dir, out):
             row_before = t.getcol("FLAG_ROW")
         command = [
             str(exe),
-            str(ms),
             "-fs",
             "polarisation",
             "-c",
@@ -377,6 +378,9 @@ def cli(host_run, strategy_dir, out):
             "4",
             "-tc",
             "100",
+            # Options precede the MS: the CLI is a Typer group, so options after
+            # the positional are not parsed (post-hoc fix, section 6).
+            str(ms),
         ]
         record = {"command": command, "strategy": strategy}
         load_before = loadavg()
