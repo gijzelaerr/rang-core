@@ -5,21 +5,28 @@ decision and evaluation function is reused unchanged. Prediction, DATA
 injection and the complete-sky model, which the original performs through a
 Measurement Set, are computed in memory with the same arithmetic and the same
 complex64 storage rounding. UVW comes from a frozen export of the case MSs.
+
+With RANG_P6=1 (task P6, research/p6-python-hotspots.md) the guard and the
+corrected-intensity algebra run as ported copies that call `numpy.linalg` once
+per gain instead of once per cell; results are bit-identical.
 """
 
 import json
+import os
 import time
+from contextlib import contextmanager
 from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
 
-from . import core
+from . import core, core_trend
+from . import flagging_influence as influence
 from . import flagging_prospective as prospective
 from . import flagging_response as response
 from .core_workflow import core_solve
 from .flagging import fixed_support_tv
-from .flagging_signal import spatial_templates
+from .flagging_signal import INVERSE_CONDITION_LIMIT, spatial_templates
 from .flagging_signal_guard import (
     GRID,
     MAXIMUM_SOLVES,
@@ -31,6 +38,7 @@ from .flagging_signal_guard import (
     _rfi_diagnostics,
     actual_acceptance,
     choose_slots,
+    fit_transfer,
     train_signal_guard,
 )
 from .flagging_workflow import load_state
@@ -168,8 +176,19 @@ def _inputs(inputs_dir, uvw_dir):
     return inputs
 
 
-def run(run_dir, inputs_dir, uvw_dir, iterations=50):
-    """Two seeds, frozen TRAIN guards and slots, paired injected-sky arms."""
+def run(run_dir, inputs_dir, uvw_dir, iterations=50, ported=None):
+    """Two seeds, frozen TRAIN guards and slots, paired injected-sky arms.
+
+    `ported=True` (or `RANG_P6=1` when `ported` is None) runs the task P6
+    ports below; the results are bit-identical apart from wall times.
+    """
+    if not (enabled() if ported is None else ported):
+        return _run(run_dir, inputs_dir, uvw_dir, iterations, train_signal_guard)
+    with ported_signal():
+        return _run(run_dir, inputs_dir, uvw_dir, iterations, train_signal_guard_p6)
+
+
+def _run(run_dir, inputs_dir, uvw_dir, iterations, train_signal_guard):
     if iterations != 50:
         raise ValueError("frozen 50-iteration solve required")
     started = time.perf_counter()
@@ -375,3 +394,256 @@ def run(run_dir, inputs_dir, uvw_dir, iterations=50):
         json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n"
     )
     return result
+
+
+# --- Task P6 (research/p6-python-hotspots.md): `cond`/`inv` once per gain ---
+#
+# Opt-in with RANG_P6=1; unset, `run` makes exactly the frozen calls. The three
+# functions below are verbatim copies of the frozen ones in which only the
+# `np.linalg.cond`/`np.linalg.inv` calls go through `_per_run`: the cells come
+# in row-major (row, channel) order and the solution grid is 2 x 32, so runs
+# of consecutive cells carry bit-identical gain matrices. `numpy.linalg` is
+# called once per run on the same matrix and its result repeated, which is
+# elementwise the same LAPACK call, so the outputs are bit-identical. No
+# matrix the frozen code would not have passed to `numpy.linalg` is passed.
+
+
+def _per_run(function, matrices):
+    """`function(matrices)` computed once per run of bit-identical matrices."""
+    matrices = np.asarray(matrices)
+    flat = np.ascontiguousarray(matrices.reshape(-1, *matrices.shape[-2:]))
+    if len(flat) < 2 or (flat.itemsize * flat[0].size) % 8:
+        return function(matrices)
+    bits = flat.view(np.int64).reshape(len(flat), -1)
+    start = np.empty(len(flat), bool)
+    start[0] = True
+    np.any(bits[1:] != bits[:-1], axis=1, out=start[1:])
+    run = np.cumsum(start) - 1
+    values = function(flat[start])[run]
+    return values.reshape(*matrices.shape[:-2], *values.shape[1:])
+
+
+def _cond(matrices):
+    return _per_run(np.linalg.cond, matrices)
+
+
+def _inv(matrices):
+    return _per_run(np.linalg.inv, matrices)
+
+
+def corrected_intensity(data, gp, gq, gain_valid, native_weights):
+    """`flagging_signal.corrected_intensity` with `cond`/`inv` per gain run."""
+    data, native_weights = np.asarray(data), np.asarray(native_weights, float)
+    gp, gq = np.asarray(gp), np.asarray(gq)
+    valid = np.asarray(gain_valid, bool).copy()
+    if (
+        data.shape[-1] != 4
+        or data.shape != native_weights.shape
+        or gp.shape != (*data.shape[:2], 2, 2)
+        or gq.shape != gp.shape
+        or valid.shape != data.shape[:2]
+    ):
+        raise ValueError(
+            "four correlations and matched per-sample Jones/weights required"
+        )
+    valid &= (
+        np.isfinite(data).all(axis=-1)
+        & np.isfinite(native_weights).all(axis=-1)
+        & (native_weights > 0).all(axis=-1)
+    )
+    valid &= np.isfinite(gp).all(axis=(-1, -2)) & np.isfinite(gq).all(axis=(-1, -2))
+    # Invalid matrices are never inverted or silently included in a fit.
+    safe_p = np.where(valid[..., None, None], gp, np.eye(2))
+    safe_q = np.where(valid[..., None, None], gq, np.eye(2))
+    valid &= (_cond(safe_p) <= INVERSE_CONDITION_LIMIT) & (
+        _cond(safe_q) <= INVERSE_CONDITION_LIMIT
+    )
+    safe_p = np.where(valid[..., None, None], gp, np.eye(2))
+    safe_q = np.where(valid[..., None, None], gq, np.eye(2))
+    inverse_p, inverse_q = _inv(safe_p), _inv(safe_q)
+    coefficients = 0.5 * (inverse_q.conj().swapaxes(-1, -2) @ inverse_p).swapaxes(
+        -1, -2
+    ).reshape(data.shape)
+    intensity = np.sum(coefficients * data, axis=-1)
+    variance = np.sum(
+        np.abs(coefficients) ** 2 / np.where(native_weights > 0, native_weights, 1),
+        axis=-1,
+    )
+    valid &= np.isfinite(intensity) & np.isfinite(variance) & (variance > 0)
+    return np.where(valid, intensity, np.nan), np.where(valid, variance, np.nan), valid
+
+
+def inverse_tangent(data, injected, gp, gq, dp, dq, weights):
+    """`flagging_signal_guard.inverse_tangent` with `cond`/`inv` per gain run."""
+    data, injected = np.asarray(data), np.asarray(injected)
+    matrices = [np.asarray(x, complex) for x in (gp, gq, dp, dq)]
+    weights = np.asarray(weights, float)
+    n = len(data)
+    if (
+        data.shape != (n, 4)
+        or injected.shape != data.shape
+        or weights.shape != data.shape
+        or any(x.shape != (n, 2, 2) for x in matrices)
+        or not all(np.isfinite(x).all() for x in (data, injected, weights, *matrices))
+        or (weights <= 0).any()
+    ):
+        raise ValueError("finite matched four-correlation TRAIN samples required")
+    gp, gq, dp, dq = matrices
+    if (_cond(gp) > 1e8).any() or (_cond(gq) > 1e8).any():
+        raise ValueError("TRAIN Jones inverse condition exceeds1e8")
+    ip, iq = _inv(gp), _inv(gq)
+    iqh = iq.conj().swapaxes(-1, -2)
+    corrected = ip @ data.reshape(n, 2, 2) @ iqh
+    direct = ip @ injected.reshape(n, 2, 2) @ iqh
+    adaptation = -ip @ dp @ corrected - corrected @ (iq @ dq).conj().swapaxes(-1, -2)
+
+    def trace(x):
+        return 0.5 * np.trace(x, axis1=-2, axis2=-1)
+
+    return trace(direct + adaptation), trace(direct), trace(adaptation)
+
+
+def train_signal_guard_p6(state, baseline, predicted_gains, indices, templates):
+    """`flagging_signal_guard.train_signal_guard` with `cond`/`inv` per gain run.
+
+    Call inside `ported_signal()` so that `response._correct` also runs the
+    ported `corrected_intensity`.
+    """
+    bundle = influence._training_bundle(state, baseline)
+    flat, bins = bundle["flat_indices"], bundle["bin_ids"]
+    indices = np.asarray(indices)
+    if (
+        indices.dtype.kind not in "iu"
+        or indices.ndim != 1
+        or np.any(indices[1:] <= indices[:-1])
+    ):
+        raise ValueError("sorted unique TRAIN indices required")
+    positions = np.searchsorted(flat, indices)
+    if np.any(positions >= len(flat)) or not np.array_equal(flat[positions], indices):
+        raise ValueError("signal guard mask contains non-TRAIN cells")
+    retained = np.ones(len(flat), bool)
+    retained[positions] = False
+    gains = np.asarray(predicted_gains, complex)
+    if gains.shape != baseline["gains"].shape:
+        raise ValueError("forecast full-Jones grid differs from baseline")
+    gains = gains.reshape(-1, 4, 2, 2)
+    rows, channels = np.where(state["train"])
+    p, q = bundle["p"], bundle["q"]
+    gp, gq = gains[bins, p], gains[bins, q]
+    if (
+        not np.isfinite(gp).all()
+        or not np.isfinite(gq).all()
+        or (_cond(gp) > 1e8).any()
+        or (_cond(gq) > 1e8).any()
+    ):
+        return {
+            "available": False,
+            "guard_pass": False,
+            "reason": "forecast original TRAIN inverse support lost",
+        }
+    original_active = np.zeros(gains.shape[:2], bool)
+    original_active[bins, p] = True
+    original_active[bins, q] = True
+    ref = bundle["gains"]
+    rp, rq = ref[bins, p], ref[bins, q]
+    data, weights = state["data"][rows, channels], bundle["weights"]
+    sample_templates = np.asarray(templates)[:, rows, channels]
+    _, variance, valid = response._correct(
+        data, weights, (rp, rq, np.ones(len(rows), bool))
+    )
+    if not valid.all():
+        return {
+            "available": False,
+            "guard_pass": False,
+            "reason": "fixed original TRAIN reference support lost",
+        }
+    native_audits, total, direct, adaptation = [], [], [], []
+    for source_template in sample_templates:
+        injected = (
+            rp
+            @ (PROBE_JY * source_template[:, None, None] * np.eye(2))
+            @ rq.conj().swapaxes(-1, -2)
+        ).reshape(-1, 4)
+        h, b, counts = influence.training_normals(
+            gains,
+            bundle["models"][retained],
+            injected[retained].reshape(-1, 2, 2),
+            weights[retained],
+            p[retained],
+            q[retained],
+            bins[retained],
+        )
+        tangent = np.zeros_like(gains)
+        source_audits = []
+        for bin_id in np.unique(bins):
+            active = np.asarray(
+                [
+                    np.trace(h[bin_id, i * 8 : (i + 1) * 8, i * 8 : (i + 1) * 8]) > 0
+                    for i in range(4)
+                ]
+            )
+            if (
+                not np.array_equal(active, original_active[bin_id])
+                or counts[bin_id] == 0
+            ):
+                return {
+                    "available": False,
+                    "guard_pass": False,
+                    "reason": "retained TRAIN station/bin support lost",
+                }
+            step = influence.anchored_response(
+                h[bin_id],
+                np.zeros(32),
+                np.zeros((32, 32)),
+                -b[bin_id],
+                gains[bin_id],
+                active,
+            )
+            source_audits.append(
+                {
+                    "bin_id": int(bin_id),
+                    **{k: v for k, v in step.items() if k != "delta"},
+                }
+            )
+            if not step["guard_pass"]:
+                return {
+                    "available": False,
+                    "guard_pass": False,
+                    "reason": "TRAIN probe curvature/gauge/trust abstention",
+                    "native_audits": source_audits,
+                }
+            tangent[bin_id] = step["delta"]
+        values = inverse_tangent(
+            data, injected, gp, gq, tangent[bins, p], tangent[bins, q], weights
+        )
+        for target, value in zip((total, direct, adaptation), values):
+            target.append(value / PROBE_JY)
+        native_audits.append(source_audits)
+    report = fit_transfer(total, direct, adaptation, sample_templates, 1 / variance)
+    return {
+        **report,
+        "probe_jy": PROBE_JY,
+        "native_audits": native_audits,
+        "TEST_or_truth_used": False,
+    }
+
+
+def enabled():
+    """True when RANG_P6=1 selects the ported functions (task P6)."""
+    return os.environ.get("RANG_P6", "") == "1"
+
+
+@contextmanager
+def ported_signal():
+    """Install the ported functions where the frozen modules look them up.
+
+    `corrected_intensity` for `response._correct`, and the prefix-sum
+    `core_trend.generate_candidates` for `prospective.make_shortlist`.
+    """
+    frozen = response.corrected_intensity
+    response.corrected_intensity = corrected_intensity
+    try:
+        with core_trend.ported_candidates(prospective):
+            yield
+    finally:
+        response.corrected_intensity = frozen
