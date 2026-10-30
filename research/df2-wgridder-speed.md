@@ -592,7 +592,7 @@ Deletable after DF2b: `quick-*/` (summarised in the result file).
 **Deleted scratch:** `~/Build/tmp/20261030-ducc2` (ducc clone at
 `ducc0_0_42_0`, `42ce8ab5`, read-only reference) and
 `~/Build/tmp/20261030-df2-scratch` (experiment crates `exp-*`, the DF1
-`perf` record, assembly listings, the pre-group source copy).
+`perf` record, assembly listings, the pre-group source copy); also five files written to `/tmp` by quick timing runs and the assembly inspection (`exp.json`, `x.json`, `d.json`, `k.json`, `gt8.s`), removed.
 
 ## Open items
 
@@ -649,3 +649,4 @@ from sibling tasks. Wall and peak RSS from GNU `time` unless noted.
 | 2026-10-30 | `bench_df2.py bench` repeat (labelled) | K / K × 41 | 11.4 / 22.4 s | 0.13 / 0.79 GB | load 3.8–4.1 |
 | 2026-10-30 | `bench_df2.py summary` | both runs | < 1 s | – | `research/results/df2-wgridder-speed.json` |
 | 2026-10-30 | DF2a against DF1 over the correction (post-hoc probe, scratch script) | 0.3 rad cases, f64 ε 1e-7 | 0.8 s | 57 MB | flat: 1.8e-14 border and inside (`df2-vs-df1-correction.json`) |
+| 2026-10-30 | `bash tools/check-all.sh` (takes the host lock itself; wall from timestamps, not wrapped) | worktree at `7240935` | 293.1 s | – | **PASS**: root 23 and core 74 Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 656 passed, 4 skipped in 96.2 s; log `outputs/df2-20261030-02/logs/check-all.log` |
