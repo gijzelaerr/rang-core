@@ -1009,3 +1009,60 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan E4: `check_ms_create.py e3` | E3 oracle | 7.8 s | – |  |
 | 2026-10-30 | big plan E4: `check_ms_create.py serialisation` | 103 tables | 0.1 s | – |  |
 | 2026-10-30 | big plan E4: `bash tools/check-all.sh` (wiring diff present) | repo | 786 s | – | PASS: root 23, core 115 Rust tests; pytest 630 passed, 4 skipped (118 s); log `outputs/e4-20261030-check-all.log`; a first run (867 s) failed only `git diff --check` on this file's appendix |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `cp -r --no-preserve=mode` of the comparator inputs to `C:\Users\gijsm\Build\tmp\20261030-rang-x2\inputs` | – | 4.8 s | – | 532 MB (X1: 116 s for 1 GB) |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `uv venv -p 3.14` + `uv pip install -e ".[pointing,beam,test,imaging]" ruff maturin pip` | – | 130.7 s | – | builds the extension |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `cargo build --release` of the wgpu adapter probe (first wgpu 30.0.1 download) | – | 39 s | – | probe outside the repository |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): C driver + comparator, CPU, precondition | – | 4.8 s + 1.1 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): I driver, CPU, precondition | – | 5.7 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `bench_x2_gpu.py k-inputs`, CPU, precondition | – | 2.7 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `bench_x2_gpu.py array-inputs` | – | 1.5 s | – | 424 MB npz |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): baseline CPU images, C/K/array at 1 and 16 threads | – | 6.6 / 4.2, 3.3 / 2.0, 6.2 / 3.4 s | 1.6–2.2 GB (array) | `x2-20261030-01/baseline` |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `python -m rang.check` on the untouched CRLF tree | – | 508 s | – | FAIL: 20 `test_p11_extract` cases (CRLF), all else pass |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `cargo build --release` of `core/`, feature off / on | – | 86 s / 185 s | – | first build with wgpu |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `cargo test --release --features gpu` of `core/` (each, incl. build) | – | 159–302 s | – | 19 grid/gpu tests, 1–2 s to run |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `maturin develop --release --features gpu` | – | 310–412 s | – | thin LTO, codegen-units 1, with wgpu |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `cargo clippy --all-targets --features gpu -D warnings` | – | 18–75 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): development probe builds (`lto = false`, outside the repository) | – | 52–104 s | – | used for the post-hoc design iterations |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): comparators `x2-20261030-03`: C driver + compare (f64 / f32 / CPU) | – | 12.1 + 3.8 / 7.4 + 3.7 / 11.5 + 3.6 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): I driver (f64 / f32 / CPU) | – | 11.9 / 9.7 / 12.9 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): K inputs replay (f64 / f32 / CPU) | – | 6.5 / 5.6 / 6.2 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `bench_x2_gpu.py bench` K / C / array, 4 configs × 3 repeats (`-04`) | – | 42.0 / 74.6 / 64.8 s | 2.2 GB (array) |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): one-layer-batch GPU runs K / C | – | 2.7 / 3.2 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): post-hoc 4 GiB budget benches K / array (GPU configs) | – | 14 / 25 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `bench_x2_gpu.py summarize` | – | about 15 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `cargo fetch --locked` of `core/` | – | 3.7 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `uv pip install -e …` | – | 104.1 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `cargo build --offline --locked --release` of `core/`, feature off | – | 76.8 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `cargo build --offline --release --features gpu` (wired copy) | – | 136.6 s | – |  |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `cargo test --offline --release --features gpu -- gpu grid` | – | 128.3 s | – | 19 passed, GPU tests skipped (llvmpipe rejected) |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): `python -m rang.check` on `7af8917` (final code, feature off) | – | 481 s | – | `## overall: PASS`; pytest 593 passed, 34 skipped |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): feature-off CPU images C/K/array at 1 and 16 threads (criterion 6) | – | about 40 s | – | all bit-identical to the baseline |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `bash tools/check-all.sh` on `abb913a` (`OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`) | – | 787 s | – | `## overall: PASS`; pytest 620 passed, 7 skipped; load 2.4–2.6 at the end |
+| 2026-10-30 | big plan X2 (Windows unless marked WSL): WSL `uv pip install -e ".[test]"` + `maturin develop --release --features gpu` (scratch wired checkout) | – | 75.5 s + 101.4 s | – | then `pytest tests/test_x2_gpu.py`: 3 passed, 2 skipped |
+| 2026-10-30 | big plan B1-2: uv venv + install (builds the extension) | worktree | 88.4 s | 1.12 GB | `.[pointing,beam,test,imaging]` ruff maturin pip |
+| 2026-10-30 | big plan B1-2: `fetch_eso137_pilot.py probe` | subset metadata, row columns, FLAG, MODEL_DATA | 14.5 s | 52 MB | 5,531,329 B |
+| 2026-10-30 | big plan B1-2: `core_fetch.fetch_slice` DATA probe | 4 stations, row chunk 0 | 12.1 s | 67 MB | 105,573,706 B |
+| 2026-10-30 | big plan B1-2: HEAD sizing of the track | 7 scans × 8 objects | 19.5 s | 24 MB |  |
+| 2026-10-30 | big plan B1-2: astropy parallactic-angle spans | 4 sets | 1.3 s | 169 MB |  |
+| 2026-10-30 | big plan B1-2: `fetch_eso137_pilot.py fetch` (S4) | 1,043,366,221 B | 100.5 s | 969 MB | 10.4 MB/s |
+| 2026-10-30 | big plan B1-2: `fetch_eso137_pilot.py track` (S5) | 1,882,001,185 B | 189.0 s | 284 MB | 10.0 MB/s |
+| 2026-10-30 | big plan B1-2: `b1_identifiability.py survey S1` (`-03`) | 192 rows × 2,048 ch, 3 variants | 196.4 s | 1.22 GB | fired the convergence rule; family-line bug |
+| 2026-10-30 | big plan B1-2: `b1_identifiability.py fieldmodel` (`-04`) | 46,822 rows × 500 ch | 1,979 s | 14.4 GB | orientation check 196 s, rounds 631, 591, 555 s; 4096² images |
+| 2026-10-30 | big plan B1-2: survey S1 (`-06`) | as `-03` | 226.0 s | 1.21 GB | native anchored 6,048 calls included |
+| 2026-10-30 | big plan B1-2: survey S2 (`-07`) | 41,786 rows × 2,048 ch, 196 components, 2 variants | 3,064.7 s | 6.48 GB | survey 2,663 s; noise + model 365 s |
+| 2026-10-30 | big plan B1-2: survey S1-posthoc (`-08`) | as S1 | 90.1 s | 1.21 GB | superseded (c = 1 bug) |
+| 2026-10-30 | big plan B1-2: survey S3 (`-09`) | 15,400 rows × 2,048 ch, 1 component | 70.9 s | 2.60 GB |  |
+| 2026-10-30 | big plan B1-2: post hoc: chromatic factors | 3 × 32 channels | ~2 s | – | not timed |
+| 2026-10-30 | big plan B1-2: post hoc: noise by dump, S1 / S3 / S4 | – | 1.9 / 429.9 / 348.2 s | 0.13 / 2.97 / 2.38 GB | per-baseline Python loop |
+| 2026-10-30 | big plan B1-2: post hoc: S3 product sampling (`-10`) |  | 78.9 s | 2.43 GB |  |
+| 2026-10-30 | big plan B1-2: post hoc: S1 product sampling (`-11`) |  | 108.0 s | 0.68 GB |  |
+| 2026-10-30 | big plan B1-2: survey S4 (`-12`) | 46,822 rows × 500 ch, 157 components, 3 variants | 1,471.6 s | 1.95 GB |  |
+| 2026-10-30 | big plan B1-2: survey S5 (`-13`) | 7 × ≈ 46,700 rows × 128 ch, 2 variants | 2,261.0 s | 2.97 GB | per-scan gain solves 662 s |
+| 2026-10-30 | big plan B1-2: post hoc: S3 / S1 with gain slope (`-14`, `-15`) |  | 129.3 / 78.8 s | 2.56 / 1.18 GB |  |
+| 2026-10-30 | big plan B1-2: post hoc: S3 per channel (`-16`, `-17`) |  | 175.0 / 164.3 s | 2.74 / 2.74 GB |  |
+| 2026-10-30 | big plan B1-2: post hoc: S1 8-channel (`-18`) |  | 80.6 s | 1.21 GB |  |
+| 2026-10-30 | big plan B1-2: post hoc: field-model gains, model by length |  | ~10 s, 5.8 s | –, 1.67 GB |  |
+| 2026-10-30 | big plan B1-2: post hoc: S4 tapered (`-19`) | 1 variant | 545.2 s | 1.86 GB |  |
+| 2026-10-30 | big plan B1-2: `b1_identifiability.py archive` | 14 runs | 0.37 s | 91 MB |  |
+| 2026-10-30 | big plan B1-2: pytest `tests/test_b1_identifiability.py` | 13 tests | 2.5 s | – |  |
+| 2026-10-30 | big plan B1-2: `bash tools/check-all.sh` | worktree | 737 s | 1.91 GB | **overall: PASS**; pytest 630 passed, 5 skipped in 153.9 s; wall includes waiting for the host lock behind two other tasks; log `outputs/b1-2-20261030-check-all.log` |

@@ -148,7 +148,9 @@ survey eigensolver; P8 frozen recipes, containers and recipe-only modules to
 rename `rangtoy` to `rang` (project `rang-core`; after P7, P9 and P11); X1 cross-platform
 build, CI matrix and portability of the live paths (after P7; Windows and
 macOS wheels and tests, native Windows reproduction of one archive); X2 GPU
-gridder and FFT through `wgpu` behind a feature (after P2 and X1; measured
+gridder and FFT through `wgpu` behind a feature (done 2026-10-30, `x2-wgpu.md`:
+f64 passes C/I/K on the RTX 4070 Ti, 2.5–3.3× at four stations, 1.2× whole
+array; f32 experimental; after P2 and X1; measured
 against the task C/I/K comparators on the RTX 4070 Ti from native Windows,
 no CUDA toolkit); PyPI publish job in `wheels.yml` (with X1). Three
 CPU-heavy tasks at a time on 8 physical cores.
@@ -330,7 +332,13 @@ CPU-heavy tasks at a time on 8 physical cores.
   and found weak on the fixture; ESO137 the target; next B1-2 identifiability
   (`beam_identifiability.py`, `measures.py`, `fetch_eso137_pilot.py`), then
   B1-3 pointing self-calibration (`pointing_selfcal.py`) against both
-  baselines at matched cost.
+  baselines at matched cost. B1-2 done 2026-10-30 (`b1-2-identifiability.md`):
+  not null. Constrainable on the frozen rule: per-antenna pointing and
+  squint (ESO137, 1934), array-common pointing and ellipticity (ESO137
+  track); width nowhere. B1-3 starts with a per-channel-bandpass rerun of
+  the survey and per-antenna beams, then pointing self-calibration and the
+  rang method on the surviving directions. It needs a deeper ESO137 field
+  model (track image, or a catalogue: user decision).
 - B1 beam and pointing on real data: protocol for the original research
   question on LUNO with the core (predictor, solver, the existing pointing
   solver and JAX reference path): can small pointing/beam corrections be
@@ -361,6 +369,19 @@ CPU-heavy tasks at a time on 8 physical cores.
 
 ## User items (not blocking)
 
+- Enable GitHub Pages once (Settings → Pages → Source: GitHub Actions) so
+  the `docs.yml` deploy job stops failing at `configure-pages`; the build job
+  and its artifact already pass (D1, 2026-10-30).
+- B1-3: allow or refuse an external catalogue (SUMSS, RACS) for the ESO137
+  field model; B1-2's protocol allowed only MODEL_DATA or an image, and the
+  self-calibrated model is the central radio galaxy only.
+- File or decline B1-2's data-store observations on the RATT trackers
+  (`upstream-notes.md`, "B1-2 observations": ESO137 subset MODEL_DATA zero,
+  DATA uncalibrated, pickled string columns, RECEPTOR_ANGLE; LUNO
+  WEIGHT_SPECTRUM 10–60× too pessimistic) and RV1's Tricolour `uvrange`
+  release-note request (`upstream-issues/tricolour-uvrange-semantics.md`).
+- Rebase rang's Tricolour PR #114 onto `0.5.0-dev` (a push to the user's
+  fork; RV1).
 - The PyPI pending publisher is registered (user, 2026-10-30) and the tree
   is renamed (P12): tag `v0.1.0` and push the tag; the workflow publishes
   `rang-core`. (Originally: register the pending publisher for `rang-core`, owner `gijzelaerr`,

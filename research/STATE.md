@@ -1,5 +1,52 @@
 # Rang research state
 
+B1-2 identifiability survey (big plan wave 3), 2026-10-30 (implemented;
+measured; [b1-2-identifiability.md](b1-2-identifiability.md)). Protocol
+frozen first. Which beam and pointing directions can the data
+constrain once per-antenna diagonal gains (2 dumps × 32 channels) and
+the sky fluxes (flux and spectral index per component) are profiled?
+Five sets: LUNO 1934−638 chunk 0 on four stations and on the whole array
+(CARACal lsm), 1830−211 (a point), the ESO137 pilot (subset row chunk
+0, fetched 1.04 GB) and a new ESO137 track set (one 3.5-min chunk of
+tile 20 from each of the 7 scans, 1.88 GB, 160° of parallactic angle).
+Beam: the B1-0 holography array average with analytic spline
+derivatives. Noise: calibrated from adjacent-channel differences (the
+LUNO weights over-state the variance by 10–60×). Field model for ESO137:
+the stored MODEL_DATA is all zero and the subset DATA is uncalibrated,
+so three frozen self-calibration and CLEAN rounds; E0 passes, but the
+model is the central radio galaxy only (157 components within 0.26°).
+The frozen convergence rule fired, so the verdict uses 16-channel beam
+evaluation. **B1 does not close null.** Per-antenna pointing is
+constrainable on the ESO137 pilot (60/60 antennas, σ ≈ 0.07′ in 3.5 min,
+ρ ≈ 0.8) and per track chunk, and marginally on 1934 (52/53, 0.18′, only
+with the recalibrated noise). Squint is constrainable on 1934 and
+ESO137 (0.004–0.04′). Array-common pointing and ellipticity are
+constrainable only on the track (0.005′, 0.06 %), and array-common width
+nowhere (0.54 % against 0.5 %). The snapshot array-common pointing that passes on 1934, 1830 and the
+pilot is the beam's chromaticity inside a 32-channel gain interval: a
+per-channel bandpass removes it exactly on the 1830 point (post hoc).
+Native anchored response: 5,446 of 6,048 calls pass; it agrees with
+NumPy to 2.5e-14. Next: B1-3, which first re-runs the survey with a
+per-channel bandpass nuisance and per-antenna beams, then fits only the
+surviving directions against both baselines.
+
+X2 GPU gridder (big plan), 2026-10-30
+(implemented; measured; [x2-wgpu.md](x2-wgpu.md)). The w-stacking
+gridder runs on the GPU through `wgpu` 30 behind the cargo feature `gpu`
+(`RANG_GRIDDER_DEVICE=gpu`), no CUDA: gather gridding without atomics, a
+mixed-radix Stockham FFT in WGSL at WSClean's exact padded size and the
+projection with an ordered layer sum, in f64 (Vulkan `SHADER_F64`) with
+the counters from the CPU code. On the RTX 4070 Ti from native Windows the
+f64 path passes the task C, I and K comparators with the CPU's margins
+(response fraction 1.31e-7 of 1.6e-7), differs from the CPU images by at
+most 2.2e-15 of the peak and is deterministic; one frozen clause fails
+(the PSF normalisation entry is not bit-equal, 4.4e-16). Per image, f64
+including transfers: four stations 0.09–0.12 s against 0.30 s on 16
+threads (2.5–3.3×), the 23.8 M-visibility whole-array image 2.5 s against
+3.1 s, where the CPU's serial counters pass (1.1 s) now dominates. An f32
+path passes C and I but fails K's residual metrics and stays
+experimental. Archive `results/x2-wgpu.json`.
+
 E4 core table creation (big plan; [e4-table-create.md](e4-table-create.md)),
 2026-10-30 (implemented; measured): rang's core now creates casacore tables
 as casacore 3.8.1 does: new tables from a description (StandardStMan,

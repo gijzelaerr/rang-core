@@ -400,3 +400,18 @@ not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
 - PR #114 (rows as lanes) needs a rebase onto `0.5.0-dev` (it predates #112;
   conflicts in `tests/test_flagging.py`); a push to the user's fork needs the
   user's go-ahead (user item).
+
+## B1-2 observations (2026-10-30; data stores; candidates to file on the RATT data trackers)
+
+- ESO137 `ms1_target_subset.zarr` (ratt-public-data): MODEL_DATA is
+  identically zero (row chunk 0); DATA is uncalibrated (antenna-dependent
+  XX–YY phases up to 1.9 rad, no CORRECTED_DATA in the subset), worth
+  documenting for users who image it directly; every string column is a
+  pickle-filtered object array, so reading names means unpickling remote
+  data (json2 or vlen-utf8 would be safe); FEED RECEPTOR_ANGLE is −π/2 for
+  both receptors (LUNO has 0 for both).
+- LUNO calibrator stores: WEIGHT_SPECTRUM over-states the noise variance by
+  10–16× (1934, MAIN_1) and 60× (1830, MAIN_2), measured from adjacent-channel
+  and adjacent-dump differences (agree to 2–15 %); extends C1's factor of
+  about 5.6 for the closure noise.
+- caracal-pipeline, saopicc: nothing new.

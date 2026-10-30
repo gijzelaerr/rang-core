@@ -13,6 +13,17 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: B1-2, [identifiability](b1-2-identifiability.md):
+per-antenna pointing and squint are constrainable on ESO137 (0.07′ and
+0.01′ in 3.5 min) and marginally on 1934; array-common pointing and
+ellipticity only on a 7-scan track; width nowhere; snapshot common
+pointing is bandpass granularity; B1 continues to B1-3.
+
+New, 2026-10-30: X2, the [GPU gridder](x2-wgpu.md): the w-stacking gridder
+and FFT on wgpu (feature `gpu`, f64), C/I/K comparators pass on the RTX
+4070 Ti, 2.5–3.3× over 16 CPU threads at four stations, 1.2× at whole-array
+scale; f32 fails K.
+
 New, 2026-10-30: E4, [core table creation](e4-table-create.md): casacore
 tables, rows, string arrays, `default_ms` and CASA caltables created by the
 core writer, byte-identical to casacore 3.8.1 and CASA 6.7.6 (gaps masked),

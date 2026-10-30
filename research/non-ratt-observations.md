@@ -147,3 +147,17 @@ to an unrelated package (carta-python is not on PyPI).
   sorted with a non-stable heap sort.
 - python-casacore 3.8.1 (note): Python int keywords become Int64, `getcell`
   returns Python scalars, uChar cells come back as uint16.
+
+## From B1-2 and X2 (2026-10-30; not reported by decision)
+
+- SARAO holography release: the array-average beam's on-axis gradient changes
+  by 7–11 % between the halves of a 6.7 MHz interval at 1070–1284 MHz, so the
+  beam centroid has real frequency structure at that scale (informational;
+  it matters to pointing solves with coarse bandpass intervals).
+- wgpu 30.0.1: the DX12 backend did not expose `Features::SHADER_F64` on an
+  RTX 4070 Ti (driver 621.01) while Vulkan does on the same card (cause not
+  investigated); naga rejects `active` as an identifier (reserved word);
+  WGSL and SPIR-V GLSL.std.450 have no f64 `sin`/`cos`, so an f64 phasor
+  needs its own polynomial; no portable query of free device memory, so a
+  budget must be configured by hand on a shared GPU; on WDDM a modest
+  oversubscription is paged silently and slows compute about 4×.
