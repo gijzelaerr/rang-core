@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core_grid, core_wgridder
+from rang import core_grid, core_wgridder
 
 C_LIGHT = 299792458.0
 ROOT = Path(__file__).resolve().parents[1]

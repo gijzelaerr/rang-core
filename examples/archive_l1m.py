@@ -11,7 +11,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from rangtoy import core_campaign_fieldmodel as l1m
+from rang import core_campaign_fieldmodel as l1m
 
 LIMIT = 200_000
 

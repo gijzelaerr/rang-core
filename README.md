@@ -1,6 +1,6 @@
-<p align="center"><img src="docs/logo/lockup.svg" alt="ra-ng" width="420"></p>
+<p align="center"><img src="docs/logo/lockup.svg" alt="rang-core" width="520"></p>
 
-# Rang
+# rang-core
 
 Radio Astronomy Next Generation — experimental MeerKAT calibration and flagging.
 
@@ -14,6 +14,17 @@ at comparable cost, or comparable quality with substantially less computation.
 Neither advantage over state of the art has yet been established.
 
 [Research handoff/index](research/README.md) · [Latest progress](research/STATE.md).
+
+## Names
+
+The project, its GitHub repository and its PyPI distribution are
+**rang-core** (`pip install rang-core`); the Python package is **`rang`**
+(`import rang`, with the compiled core in `rang._core`) and the command line
+is `rang-core`. "Rang" began as Radio Astronomy Next Generation, and *rang*
+is also Dutch for *rank*, which is the first thing the identifiability survey
+measures. Until 2026-10-30 the package was called `rangtoy`; research notes,
+receipts and archives written before then keep that name
+(`research/p12-rename.md`).
 
 The active real-data flagging experiment trains an interpretable policy using
 the TV norm/maps of QuartiCal full 2×2 complex gains, with immutable original
@@ -96,7 +107,7 @@ Structured projection benchmarks are not end-to-end calibrator speedups.
 
 Requires Rust 1.93 (edition 2024) on `PATH` and Python 3.10+ with compatible
 dependency wheels. `pip install -e .` builds the core's PyO3 extension
-`rangtoy._core` through maturin, so `cargo` must be on `PATH` at install time
+`rang._core` through maturin, so `cargo` must be on `PATH` at install time
 (`RUSTUP_TOOLCHAIN=1.93` pins it when a newer default is installed). Install
 from public PyPI in an isolated environment:
 
@@ -107,8 +118,8 @@ python3 -m venv .venv   # or: uv venv -p /usr/bin/python3.14 .venv, where ensure
 ```
 
 Without Rust: a released wheel installs the core with no compiler,
-`pip install rangtoy-<v>-cp310-abi3-manylinux_2_28_x86_64.whl` (or
-`pip install rangtoy` once published; Linux x86_64 and aarch64, glibc 2.28 or
+`pip install rang_core-<v>-cp310-abi3-manylinux_2_28_x86_64.whl` (or
+`pip install rang-core` once published; Linux x86_64 and aarch64, glibc 2.28 or
 newer, CPython 3.10 or newer, one abi3 binary for every version). The wheel
 carries every kernel, the root crate's included (gain TV, phase trend,
 anchored response, projector, the pointing toy): the flagging chain and the
@@ -121,7 +132,7 @@ with `bash tools/wheel/test.sh outputs/wheel-<date>-NN outputs/wheel-<date>-MM`
 Every wrapper calls the extension; nothing runs Cargo at import or at a
 kernel call, and the extension releases the GIL around every kernel
 (`research/p7-architecture.md`; the ctypes backend, `RANG_CORE_LIB`,
-`RANG_TOY_LIB` and `rangtoy.build()` are gone, with results bit-identical to
+`RANG_TOY_LIB` and `rang.build()` are gone, with results bit-identical to
 their archive). The Stimela recipes' Python 3.13 environment gets the same
 `abi3` extension from the same install.
 
@@ -158,51 +169,51 @@ quality/cost comparison, not further simulator expansion.
 ## Repository guide
 
 - `src/`: Rust simulation, fitting and projection kernels.
-- `core/`: the Rust core, reached through the extension `rangtoy._core`
-  built from `core/py` (`rangtoy.core*`): fused
+- `core/`: the Rust core, reached through the extension `rang._core`
+  built from `core/py` (`rang.core*`): fused
   statistics, the QuartiCal-style solver, the component predictor, blosc
   decoding, WSClean imaging weights and w-stacking gridder, the Tricolour
-  strategies (`rangtoy.core_flag`; `python/rangtoy/data/` carries Tricolour's static
+  strategies (`rang.core_flag`; `python/rang/data/` carries Tricolour's static
   masks under its BSD notice) and a read-only Measurement Set reader
-  (`rangtoy.core_ms`; python-casacore is still needed to write tables and
+  (`rang.core_ms`; python-casacore is still needed to write tables and
   for the oracle). Reports: `research/core-*.md`.
 - `recipes/`: core-native Stimela2 recipes `core-*.yaml`
   (phase 3 stages and the imaging track) driven by `rang-core`; `rang-core -h`
   lists every stage and verb (`run`, `compare`, `archive`, …), `rang-core
   <stage> compare` takes the arguments of `examples/compare_core_<stage>.py`,
   and each call writes `<output>.<verb>.rang-receipt.json`
-  (`python -m rangtoy.core_cli`), which need no QuartiCal. Stimela 2.1.4 needs
+  (`python -m rang.core_cli`), which need no QuartiCal. Stimela 2.1.4 needs
   a Python 3.13 environment; its native backend fails on 3.14.
 - Tutorials: `pip install -e '.[notebook]'` and open `notebooks/` (01 data and
   rank, 02 flagging step by step, 03 gains and TV, 04 imaging, 05 the flagging
   experiment); see `research/d2-notebook.md`.
 - B1 adds the SARAO holography beam as rang's reference beam
-  (`rangtoy.beam_holography`: range reader, per-component Jones sampler,
+  (`rang.beam_holography`: range reader, per-component Jones sampler,
   katbeam and EIDOS controls) and an exact port of the SARAO/SKA Gaussian
   pointing-offset fit (`examples/b1_baselines.py`;
   `research/b1-beam-pointing.md`).
-- `rangtoy.core_ms_write` writes existing casacore tables for the core
+- `rang.core_ms_write` writes existing casacore tables for the core
   (byte-identical to casacore 3.8.1 bar uninitialised padding;
   `research/e3-table-writer.md`); python-casacore stays the oracle and is
   still needed to create tables until E4.
 - L1-M compared the stored, point and CARACal field calibrator models on LUNO
-  1934−638 under L1's frozen campaign (`rangtoy.core_campaign_fieldmodel`,
-  Tigger lsm reader `rangtoy.lsm`, `research/l1-model-completeness.md`): the
+  1934−638 under L1's frozen campaign (`rang.core_campaign_fieldmodel`,
+  Tigger lsm reader `rang.lsm`, `research/l1-model-completeness.md`): the
   field model beats a point by 1.9 % in held-out MSE, the stored model beats
   both, and the TV-flagging decision is unchanged.
 - The PKS 1830−211 campaign ran on the core under a stored and a scalar model
-  (`rangtoy.core_campaign_1830`, `research/luno-1830-campaign.md`): null
+  (`rang.core_campaign_1830`, `research/luno-1830-campaign.md`): null
   under both, 25–37 min per model on the parallel kernels.
 - The whole-array LUNO campaign ran on the core too
-  (`rangtoy.core_campaign_array`, `research/luno-array-campaign.md`): null at
+  (`rang.core_campaign_array`, `research/luno-array-campaign.md`): null at
   array scale, about 2 h single-threaded on 342 M cells before the parallel
   kernels landed.
 - The first real-data campaign on the LUNO calibrator slice ran entirely on
-  the core (`rangtoy.core_campaign`, `rang-core campaign`;
+  the core (`rang.core_campaign`, `rang-core campaign`;
   `research/core-k-luno-campaign.md`) with a null result, provisional while
   the other caveats of `research/core-k-luno-campaign.md` (licence settled
   by user decision 2026-10-30, `research/big-plan.md`).
-- `python/rangtoy/`: Python interfaces and JAX inference/audit implementations.
+- `python/rang/`: Python interfaces and JAX inference/audit implementations.
 - `examples/` and `tests/`: reproducible experiments and regression tests.
 - `research/`: derivations, reports and compact result archives.
 - `data/`: fixture provenance and limitations.

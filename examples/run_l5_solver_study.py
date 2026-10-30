@@ -30,9 +30,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "examples"))
 
-from rangtoy import core, core_campaign, core_campaign_array
-from rangtoy import core_solver_study as study
-from rangtoy.core_workflow import gain_grid, solve_flags
+from rang import core, core_campaign, core_campaign_array
+from rang import core_solver_study as study
+from rang.core_workflow import gain_grid, solve_flags
 
 DELTA = 1e-4
 LONG = {"fixture": 500, "slice": 500, "array": 300}

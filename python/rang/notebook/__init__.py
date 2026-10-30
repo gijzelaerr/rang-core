@@ -17,7 +17,7 @@ Modules, in teaching order:
 - `steer`: sliders and dropdowns that rerun the affected stage.
 
 Install with the `notebook` extra (matplotlib, pandas, ipywidgets, a
-Jupyter kernel). Submodules import lazily, so `import rangtoy.notebook`
+Jupyter kernel). Submodules import lazily, so `import rang.notebook`
 is cheap.
 """
 

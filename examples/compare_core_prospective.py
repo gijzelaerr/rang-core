@@ -9,12 +9,12 @@ criteria 1-5; the receipt also carries the reported margins (criterion 6).
 """
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
-# and exit status live in rangtoy.core_compare ("prospective"); also
+# and exit status live in rang.core_compare ("prospective"); also
 # `rang-core prospective compare ...`.
 
 import sys
 
-from rangtoy.core_compare import main
+from rang.core_compare import main
 
 if __name__ == "__main__":
     sys.exit(main("prospective"))

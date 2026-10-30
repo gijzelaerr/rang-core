@@ -15,7 +15,7 @@ Usage, on the host (the core writes; python-casacore runs in the container
 
 `<oracle-dir>` is the output of `examples/oracle_ms_write.py write` (cases)
 and `scale-build`/`scale-write` (scale). `cases` replays every frozen case
-of `<oracle-dir>/cases.json` with `rangtoy.core_ms_write` on a fresh copy of
+of `<oracle-dir>/cases.json` with `rang.core_ms_write` on a fresh copy of
 its input and compares every file with casacore's copy (criterion 1). The
 other steps are criteria 2 to 8 in the order of the protocol. Each step
 writes `<step>.json` into `<out>` with its wall time; `summary` combines them
@@ -40,7 +40,7 @@ sys.path.insert(0, str(ROOT / "python"))
 
 from check_ms_reader import compare_arrays, compare_strings
 from oracle_ms_write import apply
-from rangtoy import core, core_ms, core_ms_write
+from rang import core, core_ms, core_ms_write
 
 IMAGE = "rang-ms-reader:local"
 LOCK_REQUESTS = 260
@@ -632,7 +632,7 @@ def step_reader(out, task_e_oracle):
             "--quiet",
             "f36ff80",
             "--",
-            "python/rangtoy/core_ms.py",
+            "python/rang/core_ms.py",
             "examples/check_ms_reader.py",
             "examples/oracle_ms_columns.py",
         ]
@@ -865,7 +865,7 @@ def step_locks(out, ms):
     holder = (
         "import sys, time\n"
         f"sys.path.insert(0, {str(ROOT / 'python')!r})\n"
-        "from rangtoy import core_ms_write\n"
+        "from rang import core_ms_write\n"
         f"t = core_ms_write.open_table({str(core_held)!r}, readonly=False)\n"
         "print('held', flush=True)\n"
         f"time.sleep({hold})\n"

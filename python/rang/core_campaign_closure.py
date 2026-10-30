@@ -5,7 +5,7 @@ Two scoped hooks keep references to what the C1 arms need: `build_state`
 keeps the state and `extra`, and `tv_loop` keeps the `original` base solve of
 the `tv` loop (with its policy features). After the run, in the same process:
 
-- the closure kernel (`rangtoy.core_closure`) scores every training sample
+- the closure kernel (`rang.core_closure`) scores every training sample
   with closure traces (primary), closure phases and log closure amplitudes,
   each checked against the NumPy reference on a subset;
 - the closure-TV map on the gain grid, per baseline and per antenna, and the
@@ -60,8 +60,8 @@ PAIRS = (
 )
 CODE_FILES = (
     *array.CODE_FILES,
-    "python/rangtoy/core_closure.py",
-    "python/rangtoy/core_campaign_closure.py",
+    "python/rang/core_closure.py",
+    "python/rang/core_campaign_closure.py",
     "core/src/closure.rs",
     "core/src/ffi_closure.rs",
 )

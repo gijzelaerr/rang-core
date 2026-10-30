@@ -25,9 +25,9 @@ cargo fmt --check --manifest-path core/py/Cargo.toml
 git diff --check
 ```
 
-`rang-core check [--rust|--python|--all]` (or `python -m rangtoy.check`, which
+`rang-core check [--rust|--python|--all]` (or `python -m rang.check`, which
 is what `tools/check-all.sh` runs) is the same check on any platform; on
-Windows run `.venv\Scripts\python -m rangtoy.check`.
+Windows run `.venv\Scripts\python -m rang.check`.
 `bash tools/check-all.sh` runs all of the above with Rust 1.93 and reports
 PASS or FAIL per step. Optional packaging check: `bash tools/wheel/build.sh
 outputs/wheel-<date>-NN` builds the manylinux wheel in docker and

@@ -16,7 +16,7 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core, core_fetch, core_zarr
+from rang import core, core_fetch, core_zarr
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPPORT = ROOT / "outputs/luno-support-20261029-01/slice"

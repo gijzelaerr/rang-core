@@ -2,8 +2,8 @@
 
 import numpy as np
 import pytest
-from rangtoy import core_campaign_array as array
-from rangtoy import core_campaign_closure as c1
+from rang import core_campaign_array as array
+from rang import core_campaign_closure as c1
 
 
 def tiny_state(nant=4, ntime=4, nchan=6, seed=0):

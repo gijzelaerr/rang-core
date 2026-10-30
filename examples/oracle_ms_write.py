@@ -18,7 +18,7 @@ the values it wrote in `<out>/values/<case>.npz` and the case list in
 `<out>/cases.json` with the wall time of every case. The host checker
 (`examples/check_ms_writer.py`) replays the same cases with the core writer
 through `apply`, which works with python-casacore's table and with
-`rangtoy.core_ms_write.Table` alike. `readback` dumps every readable column
+`rang.core_ms_write.Table` alike. `readback` dumps every readable column
 and the keywords of the given tables (`<label>.npz` and `<label>.json`).
 """
 

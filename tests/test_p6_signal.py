@@ -10,12 +10,12 @@ import os
 
 import numpy as np
 import pytest
-from rangtoy import core_forecast as prospective
-from rangtoy import core_response as response
-from rangtoy import core_signal, core_trend
-from rangtoy.core_guard import inverse_tangent as frozen_tangent
-from rangtoy.core_guard import train_signal_guard as frozen_guard
-from rangtoy.core_templates import corrected_intensity as frozen_corrected
+from rang import core_forecast as prospective
+from rang import core_response as response
+from rang import core_signal, core_trend
+from rang.core_guard import inverse_tangent as frozen_tangent
+from rang.core_guard import train_signal_guard as frozen_guard
+from rang.core_templates import corrected_intensity as frozen_corrected
 
 
 def _same(left, right):

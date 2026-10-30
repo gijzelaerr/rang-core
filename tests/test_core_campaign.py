@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 import pytest
-from rangtoy import core_campaign
+from rang import core_campaign
 
 
 def _memcpyed_chunk(payload, blocksize=0):

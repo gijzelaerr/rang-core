@@ -1,7 +1,7 @@
 """Host side of the O-CASA oracle: the seed-7 split and the comparisons to rang.
 
-Runs in the worktree venv (rangtoy importable). Read-only use of
-`rangtoy.core_campaign` (research/o-casa.md, "Comparisons to rang").
+Runs in the worktree venv (rang importable). Read-only use of
+`rang.core_campaign` (research/o-casa.md, "Comparisons to rang").
   compare.py split <run>     write <run>/split.npz from build_state on the archived tiles
   compare.py compare <run>   CASA applied products and held-out MSE against the core
 """
@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core_campaign as cc
+from rang import core_campaign as cc
 
 ARCHIVED_ORIGINAL = {
     "validation": 0.27528890864724964,

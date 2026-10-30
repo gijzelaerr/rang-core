@@ -13,7 +13,7 @@ import sys
 import time
 from pathlib import Path
 
-from rangtoy import core_fetch
+from rang import core_fetch
 
 BUCKET = (
     "https://ratt-public-data.s3.af-south-1.amazonaws.com/LBAND_LUNO_CALIBRATORS.zarr"

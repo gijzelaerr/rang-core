@@ -96,7 +96,7 @@ def read_scan(ms_path):
     weight (T, B, F, 4) from the per-row WEIGHT broadcast over channels,
     frequency (F,), antenna count, SOURCE_OFFSET (nants, ntimes, 2) in
     degrees and pointing TIME (ntimes,) of one antenna."""
-    from rangtoy import core_ms
+    from rang import core_ms
 
     main = core_ms.open_table(ms_path)
     interval = main.getcol("INTERVAL")
@@ -661,7 +661,7 @@ def main(argv=None):
     }
     if args.beam:
         sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
-        from rangtoy.beam_holography import HolographyBeam
+        from rang.beam_holography import HolographyBeam
 
         beam = HolographyBeam(args.beam, flip=args.flip)
         injections = (

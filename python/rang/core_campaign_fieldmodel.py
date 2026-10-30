@@ -69,8 +69,8 @@ L1_RUN = ROOT / "outputs/luno-array-campaign-20261030-01"
 LIGHTSPEED = 299_792_458.0
 CODE_FILES = (
     *array.CODE_FILES,
-    "python/rangtoy/lsm.py",
-    "python/rangtoy/core_campaign_fieldmodel.py",
+    "python/rang/lsm.py",
+    "python/rang/core_campaign_fieldmodel.py",
 )
 
 

@@ -1,4 +1,4 @@
-"""Every `rangtoy.notebook` plot and table function on the fixture, headless.
+"""Every `rang.notebook` plot and table function on the fixture, headless.
 
 Skips when the notebook extra (matplotlib, pandas) or the fixture archive
 (`outputs/ska-pointing/outer_scans.zip`, or `RANG_FIXTURE`) is absent.
@@ -15,7 +15,7 @@ pytest.importorskip("matplotlib")
 pytest.importorskip("pandas")
 
 from matplotlib.figure import Figure
-from rangtoy.notebook import data, experiment, flags, gains, image, steer, survey
+from rang.notebook import data, experiment, flags, gains, image, steer, survey
 
 ROOT = Path(__file__).resolve().parents[1]
 SMALL = {"width": 128, "height": 128, "scale_arcsec": 16.0, "w_layers": 8}

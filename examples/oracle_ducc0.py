@@ -130,7 +130,7 @@ def dft_vis(u, v, w, image, L, M):
 
 
 def cmd_export(args):
-    from rangtoy import core_ms
+    from rang import core_ms
 
     t0 = time.time()
     out = Path(args.out)

@@ -19,9 +19,9 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core, core_zarr
-from rangtoy.core_influence import anchored_response, training_normals
-from rangtoy.core_policy import gain_tv, polar_gauge, policy_mask
+from rang import core, core_zarr
+from rang.core_influence import anchored_response, training_normals
+from rang.core_policy import gain_tv, polar_gauge, policy_mask
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPPORT = ROOT / "outputs/luno-support-20261029-01/slice/MAIN/MAIN_1"
@@ -292,8 +292,8 @@ def main():
             p.relative_to(ROOT).as_posix(): digest(p)
             for p in sorted((ROOT / "core/src").glob("*.rs"))
             + [
-                ROOT / "python/rangtoy/core.py",
-                ROOT / "python/rangtoy/core_zarr.py",
+                ROOT / "python/rang/core.py",
+                ROOT / "python/rang/core_zarr.py",
                 Path(__file__).resolve(),
             ]
         },

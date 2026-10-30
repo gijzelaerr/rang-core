@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
 
-from rangtoy import run_experiment
+from rang import run_experiment
 
 LABELS = {
     "fixed_beam": "Fixed beam",

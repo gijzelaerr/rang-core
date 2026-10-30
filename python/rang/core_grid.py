@@ -5,7 +5,7 @@ wrapper adds what WSClean's Measurement Set reader does before gridding
 (`stokes_i_reader`), calls the core (`invert`) and writes FITS images in
 WSClean's pixel orientation (`write_fits`). Briggs weighting is task B's; the
 imaging weights are an input here. The core is reached through the extension
-`rangtoy._core` (research/core-j-packaging.md, research/p7-architecture.md).
+`rang._core` (research/core-j-packaging.md, research/p7-architecture.md).
 """
 
 import math

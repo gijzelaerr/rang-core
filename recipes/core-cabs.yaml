@@ -1,17 +1,17 @@
 # Cabs shared by the core-native recipes (research/core-h-recipes.md).
 # Python-flavour cabs on the native backend; the interpreter is the `python`
-# on PATH, which must be the venv with rangtoy and stimela and no solver subprocess.
+# on PATH, which must be the venv with rang and stimela and no solver subprocess.
 cabs:
   rang-core-environment:
     info: Record the interpreter and whether the frozen solver package is installed, importable or on PATH.
     flavour: python
-    command: rangtoy.core_cli.environment
+    command: rang.core_cli.environment
     inputs:
       run_dir: {dtype: Directory, required: true}
   rang-core-compare:
-    info: Run the stage comparator (rangtoy.core_compare, the rules of examples/compare_core_<stage>.py unchanged) and record the engine SHA256; fails the recipe on any difference.
+    info: Run the stage comparator (rang.core_compare, the rules of examples/compare_core_<stage>.py unchanged) and record the engine SHA256; fails the recipe on any difference.
     flavour: python
-    command: rangtoy.core_cli.compare
+    command: rang.core_cli.compare
     inputs:
       stage: {dtype: str, required: true, choices: [injections, actions, trend, prospective, signal, imaging]}
       result: {dtype: File, required: true}

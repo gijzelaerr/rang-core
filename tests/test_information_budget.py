@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("jax")
 import numpy as np
-from rangtoy.observability import nuisance_information_budget
+from rang.observability import nuisance_information_budget
 
 
 def test_exact_degeneracy_with_external_anchor():

@@ -16,7 +16,7 @@ Usage (each writes `result.json` or the named file into a fresh directory):
     python examples/eval_casacure.py uvw <ms> <out.json>
     python examples/eval_casacure.py perf <backend> <what> <ms> <out.json>
 
-`reads` needs only NumPy and casacure (plus `rangtoy.core_ms` unless
+`reads` needs only NumPy and casacure (plus `rang.core_ms` unless
 `--no-core`), so it runs on a native Windows venv too; the comparator
 functions are loaded by path from `examples/check_ms_reader.py`, so
 "column-exact" means what it meant in task E. Writes go only into the fresh
@@ -1237,7 +1237,7 @@ def cmd_perf(backend, what, ms, out):
             return ct.table(str(p), ack=False)
     elif backend == "core_ms":
         sys.path.insert(0, str(HERE.parent / "python"))
-        from rangtoy import core_ms
+        from rang import core_ms
 
         def opener(p):
             return core_ms.open_table(p)

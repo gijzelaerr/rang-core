@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 license = "GPL-3.0-or-later"
 publish = false
-description = "PyO3 extension module rangtoy._core over the Rang core"
+description = "PyO3 extension module rang._core over the Rang core"
 
 [lib]
 name = "rang_core_py"

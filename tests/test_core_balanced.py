@@ -12,7 +12,7 @@ from collections import Counter
 
 import numpy as np
 import pytest
-from rangtoy import core_balanced as balanced
+from rang import core_balanced as balanced
 
 
 def candidates():

@@ -108,15 +108,15 @@ SECTION6_ARCHIVE = ROOT / "research/results/core-section6.json"
 SECTION6_RUN = ROOT / "outputs/core-section6-20261029-02"
 SOLVED_ARCHIVE = ROOT / "research/results/meerkat-luno-solved.json"
 CODE_FILES = (
-    "python/rangtoy/core.py",
-    "python/rangtoy/core_campaign.py",
-    "python/rangtoy/core_fetch.py",
-    "python/rangtoy/core_flag.py",
-    "python/rangtoy/core_grid.py",
-    "python/rangtoy/core_weights.py",
-    "python/rangtoy/core_workflow.py",
-    "python/rangtoy/core_zarr.py",
-    "python/rangtoy/core_policy.py",
+    "python/rang/core.py",
+    "python/rang/core_campaign.py",
+    "python/rang/core_fetch.py",
+    "python/rang/core_flag.py",
+    "python/rang/core_grid.py",
+    "python/rang/core_weights.py",
+    "python/rang/core_workflow.py",
+    "python/rang/core_zarr.py",
+    "python/rang/core_policy.py",
     "examples/prototype_section6.py",
 )
 

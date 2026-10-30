@@ -10,7 +10,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 
 import numpy as np
 import pytest
-from rangtoy.core_cases import phase_factors
+from rang.core_cases import phase_factors
 
 
 def test_identity_and_short_time_span_freeze():

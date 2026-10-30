@@ -11,7 +11,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 from hashlib import sha256
 from types import SimpleNamespace
 
-from rangtoy import core_receipts as campaign
+from rang import core_receipts as campaign
 
 
 def test_source_receipts_cover_modules_rust_recipes_and_actual_native_file(
@@ -19,8 +19,8 @@ def test_source_receipts_cover_modules_rust_recipes_and_actual_native_file(
 ):
     root = tmp_path / "repo"
     files = {
-        "python/rangtoy/flagging_next.py": b"campaign",
-        "python/rangtoy/flagging_signal_guard.py": b"signal",
+        "python/rang/flagging_next.py": b"campaign",
+        "python/rang/flagging_signal_guard.py": b"signal",
         "src/lib.rs": b"Rust",
         "recipes/tv-flagging-next.yaml": b"recipe",
         "recipes/unrelated.yaml": b"not a flagging recipe",
@@ -40,7 +40,7 @@ def test_source_receipts_cover_modules_rust_recipes_and_actual_native_file(
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(value)
     monkeypatch.setattr(
-        campaign, "__file__", str(root / "python/rangtoy/flagging_next.py")
+        campaign, "__file__", str(root / "python/rang/flagging_next.py")
     )
     monkeypatch.setattr(
         campaign,

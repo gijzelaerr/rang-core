@@ -4,9 +4,9 @@ import math
 
 import numpy as np
 import pytest
-from rangtoy import core_campaign_array as array
-from rangtoy import core_campaign_fieldmodel as l1m
-from rangtoy import lsm
+from rang import core_campaign_array as array
+from rang import core_campaign_fieldmodel as l1m
+from rang import lsm
 
 PHASE = (5.14617966, -1.11198611)
 

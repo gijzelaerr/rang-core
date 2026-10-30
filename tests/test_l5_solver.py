@@ -7,8 +7,8 @@ import os
 
 import numpy as np
 import pytest
-from rangtoy import core
-from rangtoy import core_solver_study as study
+from rang import core
+from rang import core_solver_study as study
 
 
 def synthetic(seed=5):
@@ -54,8 +54,8 @@ def synthetic(seed=5):
 @pytest.fixture(params=["extension"])
 def backend(request, monkeypatch):
     # The ctypes backend was removed by task P7 (research/p7-architecture.md).
-    if importlib.util.find_spec("rangtoy._core") is None:
-        pytest.skip("rangtoy._core is not built")
+    if importlib.util.find_spec("rang._core") is None:
+        pytest.skip("rang._core is not built")
     monkeypatch.delenv("RANG_CORE_BACKEND", raising=False)
     monkeypatch.delenv("RANG_CORE_LIB", raising=False)
     core.reset_backend()

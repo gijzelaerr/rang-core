@@ -80,7 +80,7 @@ def masked_metrics(test, ref, inner=False):
 
 
 def run_core(uvw, freq, vis, wgt, padding=1.2, kernel=7, layers=64):
-    from rangtoy import core_grid
+    from rang import core_grid
 
     t0 = time.perf_counter()
     r = core_grid.invert(
@@ -126,7 +126,7 @@ def kb_transform(kernel_size, oversampling, positions, period):
     """Fourier transform of WSClean's oversampled 1-D kernel at image
     positions `positions` (pixels of a padded grid of `period` cells), as
     the gridder's taper: sum_i k_i cos(2 pi s_i t / period), s_i in cells."""
-    from rangtoy import core_grid
+    from rang import core_grid
 
     k = core_grid.kernel(kernel_size, oversampling)
     n = k.size
@@ -286,7 +286,7 @@ def all_cases(synth, slice_dir, subset=None):
 
 
 def core_v2d(case, prec, eps, vis=None):
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     cdt, rdt = (
         (np.complex64, np.float32) if prec == "f32" else (np.complex128, np.float64)
@@ -310,7 +310,7 @@ def core_v2d(case, prec, eps, vis=None):
 
 
 def core_d2v(case, prec, eps, image=None):
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     rdt = np.float32 if prec == "f32" else np.float64
     image = case["image"] if image is None else image
@@ -336,7 +336,7 @@ def plan_matches(info, report):
 
 
 def kernel_check(rows_path):
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     res = {"rows_txt": str(rows_path)}
     text = Path(rows_path).read_text()
@@ -373,7 +373,7 @@ def single_vis_check():
     """One visibility at many sub-cell offsets, w = 0 and w != 0, against
     ducc0 (f64, epsilon 1e-7): the kernel values directly (reported)."""
     import ducc0
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     nx, dx = 64, 1e-3
     freq = np.array([C_LIGHT])  # uvw in metres = wavelengths
@@ -570,9 +570,7 @@ def cmd_gates(args):
     print("single visibility", json.dumps(res["single_visibility"]), flush=True)
     res["failures"] = fails
     res["pass_criteria_1_2_3_5"] = not fails
-    res["library"] = str(
-        __import__("rangtoy.core_wgridder").core_wgridder.library_path()
-    )
+    res["library"] = str(__import__("rang.core_wgridder").core_wgridder.library_path())
     res["wall_s"] = time.time() - t_start
     res["maxrss_mb"] = maxrss_mb()
     (out / "gates.json").write_text(json.dumps(res, indent=1))
@@ -634,7 +632,7 @@ def cmd_science(args):
     edited; the substitution lives in this process only."""
     import runpy
 
-    from rangtoy import core_grid, core_wgridder
+    from rang import core_grid, core_wgridder
 
     original = core_grid.invert
     calls = []
@@ -732,7 +730,7 @@ def cmd_kpixels(args):
     fetched bytes that `k-replay` needs are no longer on the host): the
     exact gridder's images against the core w-stacking images, pixels only."""
     import bench_p2_gridder as p2
-    from rangtoy import core_grid, core_wgridder
+    from rang import core_grid, core_wgridder
 
     res = {}
     for label, inputs, settings in p2._load_inputs(args.inputs):
@@ -777,7 +775,7 @@ def cmd_fitscheck(args):
     (+60, +25) pixels on the slice's uvw with w scaled x100, both w signs,
     against `core_grid.invert` at padding 2, kernel 15, 512 layers; the peak
     pixel of both in FITS order `[Y, X]`."""
-    from rangtoy import core_wgridder
+    from rang import core_wgridder
 
     d = Path(args.slice)
     uvw, freq, _vis, wgt = oracle.slice_arrays(d)

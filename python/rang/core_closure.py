@@ -26,6 +26,7 @@ a prebuilt library.
 import ctypes
 import os
 import subprocess
+import sys
 import warnings
 from functools import lru_cache
 from pathlib import Path
@@ -104,7 +105,7 @@ def write_standalone():
         "[workspace]\n",
     )
     modules = "".join(
-        f'#[path = "{root / "src" / name}"]\npub mod {name.removesuffix(".rs")};\n'
+        f'#[path = "{(root / "src" / name).as_posix()}"]\npub mod {name.removesuffix(".rs")};\n'
         for name in SOURCES
     )
     _write_if_changed(
@@ -131,7 +132,14 @@ def build_standalone():
         cwd=out,
         check=True,
     )
-    return out / "target" / "release" / "librang_c1_core.so"
+    return (
+        out
+        / "target"
+        / "release"
+        / {"win32": "rang_c1_core.dll", "darwin": "librang_c1_core.dylib"}.get(
+            sys.platform, "librang_c1_core.so"
+        )
+    )
 
 
 def _declare(lib):

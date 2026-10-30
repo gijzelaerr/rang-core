@@ -28,8 +28,8 @@ def _pointing_reference(flag):
     jax.config.update("jax_enable_x64", True)
     import jax.numpy as jnp
     import numpy as np
-    from rangtoy import toy_output
-    from rangtoy.pointing import Observation, component_list
+    from rang import toy_output
+    from rang.pointing import Observation, component_list
 
     reference = json.loads(toy_output(flag))
     rows = np.asarray(reference["rows"])

@@ -2,7 +2,7 @@
 
 import numpy as np
 import pytest
-from rangtoy import core_closure as cc
+from rang import core_closure as cc
 
 
 def layout(nant, ntime, drop=()):

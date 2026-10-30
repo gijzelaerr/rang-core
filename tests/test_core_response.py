@@ -12,8 +12,8 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-from rangtoy import core_response as response
-from rangtoy.core_templates import spatial_templates
+from rang import core_response as response
+from rang.core_templates import spatial_templates
 
 
 def family():

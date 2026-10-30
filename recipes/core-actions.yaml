@@ -9,7 +9,7 @@ opts:
 cabs:
   rang-core-actions:
     flavour: python
-    command: rangtoy.core_cli.actions
+    command: rang.core_cli.actions
     inputs:
       run_dir: {dtype: str, required: true}
       prepared_dir: {dtype: Directory, required: true}

@@ -15,12 +15,12 @@ on any difference or missing file.
 """
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
-# and exit status live in rangtoy.core_compare ("backends"); also
+# and exit status live in rang.core_compare ("backends"); also
 # `rang-core backends compare ...`.
 
 import sys
 
-from rangtoy.core_compare import main
+from rang.core_compare import main
 
 if __name__ == "__main__":
     sys.exit(main("backends"))

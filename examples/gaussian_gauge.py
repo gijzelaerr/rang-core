@@ -12,10 +12,10 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import core, toy_output
-from rangtoy.gauge import gaussian_gauge, predict_channels
-from rangtoy.observability import sky_locked_information
-from rangtoy.pointing import Observation, component_list
+from rang import core, toy_output
+from rang.gauge import gaussian_gauge, predict_channels
+from rang.observability import sky_locked_information
+from rang.pointing import Observation, component_list
 
 
 def gauge_svg(orbit):
@@ -227,9 +227,9 @@ def main():
                 name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
                 for name in [
                     "examples/gaussian_gauge.py",
-                    "python/rangtoy/gauge.py",
-                    "python/rangtoy/pointing.py",
-                    "python/rangtoy/observability.py",
+                    "python/rang/gauge.py",
+                    "python/rang/pointing.py",
+                    "python/rang/observability.py",
                 ]
             },
         },

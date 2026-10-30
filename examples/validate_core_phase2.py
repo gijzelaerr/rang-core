@@ -20,7 +20,7 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core
+from rang import core
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "outputs/tv-response-wsl-20261029-01/clean"
@@ -108,7 +108,7 @@ def relative(a, b):
 
 
 def fixture():
-    from rangtoy.core_policy import gain_tv, polar_gauge
+    from rang.core_policy import gain_tv, polar_gauge
 
     with np.load(FIXTURE / "state.npz") as z:
         s = {k: z[k] for k in z.files}
@@ -208,7 +208,7 @@ def fixture():
 
 def rank_survey(arrays, gains, flags, tb, fb):
     """examples/survey_luno_solved.py's classification, in memory."""
-    from rangtoy.core_influence import anchored_response, training_normals
+    from rang.core_influence import anchored_response, training_normals
 
     flag, weight, model = (
         arrays["FLAG"],
@@ -504,7 +504,7 @@ def main():
                 for p in sorted((ROOT / "core/src").glob("*.rs"))
                 + [
                     ROOT / "core/Cargo.toml",
-                    ROOT / "python/rangtoy/core.py",
+                    ROOT / "python/rang/core.py",
                     Path(__file__).resolve(),
                 ]
             },

@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from rangtoy import run_experiment, toy_output
+from rang import run_experiment, toy_output
 
 GOLDEN = json.loads(
     (Path(__file__).resolve().parent / "data" / "toy-golden.json").read_text()

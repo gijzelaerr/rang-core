@@ -8,7 +8,7 @@ import json
 
 import numpy as np
 import pytest
-from rangtoy import beam_holography as bh
+from rang import beam_holography as bh
 
 
 def _gaussian_maps(margin, x0, y0, fwhm, nchan):

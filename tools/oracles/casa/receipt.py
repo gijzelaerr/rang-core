@@ -25,7 +25,7 @@ CODE = (
     "tools/oracles/casa/inspect_tables.py",
     "tools/oracles/casa/compare.py",
     "tools/oracles/casa/receipt.py",
-    "python/rangtoy/core_campaign.py",
+    "python/rang/core_campaign.py",
     "examples/prototype_section6.py",
 )
 # Files that carry time stamps, process ids or host paths; hashed but not compared.

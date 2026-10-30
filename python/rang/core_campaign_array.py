@@ -1,7 +1,7 @@
 """The whole-array LUNO 1934-638 campaign on the core (research/luno-array-campaign.md).
 
 Task L1 of research/big-plan.md: task K's frozen campaign
-(`rangtoy.core_campaign`) on all stations of LUNO row chunk 0. Changes from
+(`rang.core_campaign`) on all stations of LUNO row chunk 0. Changes from
 K only where the array's scale forces them, each bit-identical to K's code on
 K's four-station slice (the precondition's replay checks this):
 
@@ -132,7 +132,7 @@ EXTRA_KEYS = (
     "POLARIZATION/POLARIZATION_0/CORR_TYPE/.zarray",
     "POLARIZATION/POLARIZATION_0/CORR_TYPE/0.0",
 )
-CODE_FILES = (*core_campaign.CODE_FILES, "python/rangtoy/core_campaign_array.py")
+CODE_FILES = (*core_campaign.CODE_FILES, "python/rang/core_campaign_array.py")
 
 
 # --- cost bookkeeping --------------------------------------------------------

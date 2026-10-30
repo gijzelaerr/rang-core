@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 import pytest
-from rangtoy import core_grid
+from rang import core_grid
 
 C_LIGHT = 299792458.0
 

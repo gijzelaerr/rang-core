@@ -12,7 +12,7 @@ import json
 import sys
 from pathlib import Path
 
-from rangtoy import core_campaign
+from rang import core_campaign
 
 
 def main():

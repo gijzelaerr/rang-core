@@ -787,7 +787,7 @@ fn numbers(values: &[f64]) -> String {
 
 /// The `rang-toy` command line: the text it prints on stdout (without the
 /// final newline) or the error it reports. `main.rs` and the extension
-/// (`rangtoy._core.toy_cli`, task P7) both call this, so their output is the
+/// (`rang._core.toy_cli`, task P7) both call this, so their output is the
 /// same bytes.
 pub fn cli(args: &[String]) -> Result<String, String> {
     if args == ["--pointing-full-reference"] {

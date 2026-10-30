@@ -9,7 +9,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 """
 
 import numpy as np
-from rangtoy.core_templates import REFERENCE_HZ, SOURCES, corrected_intensity
+from rang.core_templates import REFERENCE_HZ, SOURCES, corrected_intensity
 
 
 def test_frozen_sources_and_reference_frequency():

@@ -14,7 +14,7 @@ Writes result.json with the criteria, Q1-Q3 and L1's own checker per run
 import argparse
 import json
 
-from rangtoy import core_campaign_fieldmodel as l1m
+from rang import core_campaign_fieldmodel as l1m
 
 
 def run_arg(text):

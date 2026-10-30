@@ -8,14 +8,14 @@
 Stages and verbs (`STAGES`): every stage has `compare` (its comparator) and
 most have `run` and `archive`. `compare` of injections, actions, prospective,
 signal, trend, imaging, flags, weights, gridder and backends runs the
-comparator engine `rangtoy.core_compare` in this process with the arguments
+comparator engine `rang.core_compare` in this process with the arguments
 of the frozen `examples/compare_core_<stage>.py`, and prints, writes and
 exits exactly as that script does. Verbs of kind "script" run the named
 driver in `examples/` unchanged (a checkout is needed); the others call the
 package. `rang-core STAGE archive RUN OUT.json` writes a `rang.archive`
 (version 1) that every comparator accepts as an oracle.
 
-Every invocation writes a `rang.receipt` (version 1): command, commit,
+Every invocation writes a `rang.receipt` (version 2): command, commit,
 environment (interpreter, platform, the extension and every thread setting),
 inputs and outputs with hashes, timings, exit status and, for `compare`, the
 verdict (`check` writes one only with `--receipt PATH`). By default it is
@@ -56,7 +56,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RECEIPT_SCHEMA = "rang.receipt"
-RECEIPT_VERSION = 1
+# Version 2 (task P12, research/p12-rename.md): environment.rangtoy became
+# environment.rang_core when the package was renamed; nothing else changed.
+RECEIPT_VERSION = 2
 ARCHIVE_SCHEMA = "rang.archive"
 ARCHIVE_VERSION = 1
 # The cab `compare` (legacy form): stage -> comparator script in examples/.
@@ -334,12 +336,12 @@ def trend(run_dir, mirror_dir):
     )
 
 
-def _rangtoy_modules():
+def _rang_modules():
     modules = {}
     for name, module in sorted(sys.modules.items()):
         file = getattr(module, "__file__", None)
-        if name.startswith("rangtoy") and file:
-            # The extension module rangtoy._core is a binary
+        if (name == "rang" or name.startswith("rang.")) and file:
+            # The extension module rang._core is a binary
             # (research/core-j-packaging.md): recorded, not read as text.
             binary = Path(file).suffix != ".py"
             text = "" if binary else Path(file).read_text(encoding="utf-8").lower()
@@ -361,7 +363,7 @@ def environment(run_dir):
     distributions = sorted(
         f"{d.metadata['Name']}=={d.version}" for d in importlib.metadata.distributions()
     )
-    modules = _rangtoy_modules()
+    modules = _rang_modules()
     record = {
         "python": sys.version,
         "executable": sys.executable,
@@ -378,7 +380,7 @@ def environment(run_dir):
             m for m in sys.modules if m.split(".")[0] == "quartical"
         ),
         "goquartical_on_path": shutil.which("goquartical"),
-        "rangtoy_modules_imported": modules,
+        "rang_modules_imported": modules,
         "modules_with_quartical_references": sorted(
             m for m, v in modules.items() if v["quartical_references"]
         ),
@@ -401,7 +403,7 @@ def environment(run_dir):
 
 
 def imaging(run_dir, archive_dir=None, export_dir=None):
-    """The imaging track replay on the core (task I, `rangtoy.core_imaging`)."""
+    """The imaging track replay on the core (task I, `rang.core_imaging`)."""
     from . import core_imaging
 
     return core_imaging.run(
@@ -412,7 +414,7 @@ def imaging(run_dir, archive_dir=None, export_dir=None):
 
 
 def campaign(run_dir, precondition=None, workers=8):
-    """The LUNO campaign on the core (task K, `rangtoy.core_campaign`)."""
+    """The LUNO campaign on the core (task K, `rang.core_campaign`)."""
     from . import core_campaign
 
     result = core_campaign.run(run_dir, workers=workers, precondition_dir=precondition)
@@ -446,7 +448,7 @@ def compare(stage, result, oracle, receipt, posthoc_slope_scale=False):
     `comparator` added to its receipt (the python-flavour cab
     `rang-core-compare`).
 
-    The phase 3 comparators run in `rangtoy.core_compare` (task P9): the
+    The phase 3 comparators run in `rang.core_compare` (task P9): the
     record keeps the wrapper script's path, names the engine and gives the
     engine module's SHA256. `campaign` runs the K checker script unchanged
     and records that script's SHA256, as before P9. Exits nonzero, as the
@@ -462,7 +464,7 @@ def compare(stage, result, oracle, receipt, posthoc_slope_scale=False):
         code = core_compare.main(stage, argv)
         record = {
             "script": script.relative_to(ROOT).as_posix(),
-            "engine": "rangtoy.core_compare",
+            "engine": "rang.core_compare",
             "sha256": sha256(Path(core_compare.__file__).read_bytes()).hexdigest(),
         }
     else:
@@ -525,7 +527,7 @@ def archive(stage, run_dir, out, status=None, comparisons=()):
 
 
 # ---------------------------------------------------------------------------
-# The receipt (rang.receipt version 1).
+# The receipt (rang.receipt version 2).
 
 
 def _commit():
@@ -580,7 +582,7 @@ def _path_record(path, content):
 
 def _extension():
     try:
-        spec = importlib.util.find_spec("rangtoy._core")
+        spec = importlib.util.find_spec("rang._core")
     except (ImportError, ValueError):
         spec = None
     if spec is None or not spec.origin:
@@ -591,7 +593,7 @@ def _extension():
 
 def _environment_record(pinned):
     try:
-        version = importlib.metadata.version("rangtoy")
+        version = importlib.metadata.version("rang-core")
     except importlib.metadata.PackageNotFoundError:
         version = None
     return {
@@ -601,7 +603,7 @@ def _environment_record(pinned):
         "system": platform.system(),
         "machine": platform.machine(),
         "cpu_count": os.cpu_count(),
-        "rangtoy": version,
+        "rang_core": version,
         "extension": _extension(),
         "threads": {name: os.environ.get(name) for name in THREAD_VARIABLES},
         "threads_pinned_by_cli": pinned,
@@ -705,7 +707,7 @@ def _function(function, configure):
 
 
 def _engine(name, primary):
-    """`compare` through `rangtoy.core_compare` (the script's arguments)."""
+    """`compare` through `rang.core_compare` (the script's arguments)."""
     return {"kind": "engine", "name": name, "primary": primary}
 
 
@@ -963,13 +965,13 @@ def stage_usage(stage):
                 text += f" ({spec['note']})"
         elif spec["kind"] == "engine":
             text = (
-                f"rangtoy.core_compare {spec['name']!r}: the arguments of "
+                f"rang.core_compare {spec['name']!r}: the arguments of "
                 f"examples/compare_core_{spec['name']}.py"
             )
         elif spec["kind"] == "archive":
             text = "RUN_DIR OUT.json [--status S] [--compare RECEIPT]: a rang.archive"
         else:
-            text = f"rangtoy.core_cli.{spec['function'].__name__} (-h for arguments)"
+            text = f"rang.core_cli.{spec['function'].__name__} (-h for arguments)"
         lines.append(f"  {verb:15s} {text}")
     return "\n".join(lines)
 
@@ -1069,7 +1071,7 @@ def _legacy_compare(argv, options, pinned):
 
 
 def _check(args, options, pinned):
-    """`rang-core check`: `rangtoy.check`, plus a receipt only when
+    """`rang-core check`: `rang.check`, plus a receipt only when
     `--receipt PATH` is given (a check has no output to sit beside); its
     verdict counts each step's exit status."""
     import tempfile

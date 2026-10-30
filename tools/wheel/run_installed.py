@@ -1,10 +1,10 @@
-"""Run an example driver against the installed rangtoy wheel.
+"""Run an example driver against the installed rang wheel.
 
     python tools/wheel/run_installed.py SCRIPT [ARGS...]
 
 Some drivers put the checkout's `python/` first on `sys.path`; importing
-rangtoy here first pins the installed package in `sys.modules`, so their
-later imports resolve to the wheel. Refuses to run unless rangtoy and the
+rang here first pins the installed package in `sys.modules`, so their
+later imports resolve to the wheel. Refuses to run unless rang and the
 extension backend come from site-packages, before and after the driver
 (research/wheel.md).
 
@@ -24,17 +24,17 @@ import sys
 import sysconfig
 from pathlib import Path
 
-import rangtoy
-from rangtoy import core
+import rang
+from rang import core
 
 SITE = Path(sysconfig.get_paths()["purelib"]).resolve()
 CHECKOUT_MODULES = ("core_imaging", "core_campaign", "core_cli")
 
 
 def check():
-    package = Path(rangtoy.__file__).resolve()
+    package = Path(rang.__file__).resolve()
     if not package.is_relative_to(SITE):
-        raise SystemExit(f"rangtoy imported from {package}, not {SITE}")
+        raise SystemExit(f"rang imported from {package}, not {SITE}")
     if core.backend_name() != "extension":
         raise SystemExit(f"backend is {core.backend_name()}, not the extension")
     library = core.library_path()
@@ -46,32 +46,32 @@ def check():
 def point_at_checkout(checkout):
     checkout = Path(checkout).resolve()
     core.core_root = lambda: checkout / "core"
-    print(f"shim: rangtoy.core.core_root -> {checkout / 'core'}")
+    print(f"shim: rang.core.core_root -> {checkout / 'core'}")
     for name in CHECKOUT_MODULES:
         try:
-            module = importlib.import_module(f"rangtoy.{name}")
+            module = importlib.import_module(f"rang.{name}")
         except ImportError as exc:  # an extra the driver does not need
-            print(f"shim: rangtoy.{name} not importable ({exc}); left alone")
+            print(f"shim: rang.{name} not importable ({exc}); left alone")
             continue
         old = Path(module.__file__).resolve().parents[2]
         for key, value in list(vars(module).items()):
             if isinstance(value, Path) and value.is_relative_to(old):
                 setattr(module, key, checkout / value.relative_to(old))
-                print(f"shim: rangtoy.{name}.{key} -> {getattr(module, key)}")
+                print(f"shim: rang.{name}.{key} -> {getattr(module, key)}")
     # The frozen trend ablation hashes the source tree into its receipt
     # (`flagging_next.source_receipts`, found from the module's own file): hash
     # the checkout's tree instead, plus the extension that actually runs
     # (task P7; the kernels are the wheel's).
     try:
-        from rangtoy import core_receipts as flagging_next
-        from rangtoy import projector
+        from rang import core_receipts as flagging_next
+        from rang import projector
     except ImportError as exc:
-        print(f"shim: rangtoy.core_receipts not importable ({exc}); left alone")
+        print(f"shim: rang.core_receipts not importable ({exc}); left alone")
         return
     from hashlib import sha256
 
     def source_receipts():
-        paths = list((checkout / "python/rangtoy").glob("*.py"))
+        paths = list((checkout / "python/rang").glob("*.py"))
         paths += list((checkout / "src").glob("*.rs"))
         paths += list((checkout / "recipes").glob("tv-flagging*.yaml"))
         paths += [
@@ -85,11 +85,11 @@ def point_at_checkout(checkout):
         return {str(p): sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
     flagging_next.source_receipts = source_receipts
-    print(f"shim: rangtoy.core_receipts.source_receipts -> the tree of {checkout}")
+    print(f"shim: rang.core_receipts.source_receipts -> the tree of {checkout}")
 
 
 if __name__ == "__main__":
-    print(f"wheel: rangtoy {Path(rangtoy.__file__).parent} extension {check()}")
+    print(f"wheel: rang {Path(rang.__file__).parent} extension {check()}")
     if os.environ.get("RANG_WHEEL_CHECKOUT"):
         point_at_checkout(os.environ["RANG_WHEEL_CHECKOUT"])
     script = sys.argv[1]

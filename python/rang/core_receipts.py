@@ -18,7 +18,7 @@ from .projector import _native_library
 
 def source_receipts():
     root = Path(__file__).resolve().parents[2]
-    paths = list((root / "python/rangtoy").glob("*.py"))
+    paths = list((root / "python/rang").glob("*.py"))
     paths += list((root / "src").glob("*.rs"))
     paths += list((root / "recipes").glob("tv-flagging*.yaml"))
     paths += [

@@ -22,7 +22,7 @@ def _widgets():
         import ipywidgets
     except ImportError as exc:  # pragma: no cover - depends on the extra
         raise ImportError(
-            "install the notebook extra: pip install 'rangtoy[notebook]'"
+            "install the notebook extra: pip install 'rang-core[notebook]'"
         ) from exc
     return ipywidgets
 

@@ -9,7 +9,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 """
 
 import numpy as np
-from rangtoy.core_catalog import point_catalog_predict
+from rang.core_catalog import point_catalog_predict
 
 
 def test_independent_point_dft_and_additive_ordinary_spectrum():

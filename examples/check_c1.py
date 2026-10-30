@@ -11,7 +11,7 @@ run (`l1-check/`), into the fresh check directory.
 import argparse
 import json
 
-from rangtoy import core_campaign_closure as c1
+from rang import core_campaign_closure as c1
 
 
 def main():

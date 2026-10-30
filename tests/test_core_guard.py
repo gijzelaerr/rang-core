@@ -12,7 +12,7 @@ import copy
 
 import numpy as np
 import pytest
-from rangtoy import core_guard as guard
+from rang import core_guard as guard
 
 
 def family():
@@ -256,7 +256,7 @@ def test_probe_rank_loss_abstains_not_support_pruning():
 
 
 def test_root_forecast_contract_empty_family_and_nochange_slots():
-    from rangtoy import core_forecast as flagging_prospective
+    from rang import core_forecast as flagging_prospective
 
     state, baseline, _ = train_fixture()
     forecast = flagging_prospective.forecast_family(state, baseline, metrics(), [])

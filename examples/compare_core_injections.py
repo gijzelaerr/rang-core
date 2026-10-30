@@ -12,12 +12,12 @@ exits nonzero on any failure.
 """
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
-# and exit status live in rangtoy.core_compare ("injections"); also
+# and exit status live in rang.core_compare ("injections"); also
 # `rang-core injections compare ...`.
 
 import sys
 
-from rangtoy.core_compare import main
+from rang.core_compare import main
 
 if __name__ == "__main__":
     sys.exit(main("injections"))

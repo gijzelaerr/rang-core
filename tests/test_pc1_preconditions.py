@@ -10,8 +10,8 @@ inputs or K's run -01 are not on this host.
 from pathlib import Path
 
 import pytest
-from rangtoy import core_campaign_1830 as l2
-from rangtoy import core_campaign_array as array
+from rang import core_campaign_1830 as l2
+from rang import core_campaign_array as array
 
 SURVEY_COLUMNS = ("MODEL_DATA", "FLAG", "WEIGHT_SPECTRUM")
 

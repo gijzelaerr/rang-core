@@ -10,8 +10,8 @@ value. Prints the record and the parsed summary.
 import argparse
 import json
 
-from rangtoy import core_campaign_fieldmodel as l1m
-from rangtoy import lsm
+from rang import core_campaign_fieldmodel as l1m
+from rang import lsm
 
 
 def main():

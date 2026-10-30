@@ -6,7 +6,7 @@ Usage:
     python examples/bench_p4_eigen.py dump <calls.npz> <records.f64>
     python examples/bench_p4_eigen.py diff <a.json> <b.json> <out.json>
 
-`record` wraps `rangtoy.core_influence.anchored_response` before the
+`record` wraps `rang.core_influence.anchored_response` before the
 target runs (no module is edited), so every call made by the target, also
 through `from ... import anchored_response`, is saved with the exact arrays
 handed to `rang_response_step` and the native status it returned under the
@@ -41,7 +41,7 @@ def loadavg():
 
 
 def record(out, target):
-    from rangtoy import core_influence as influence
+    from rang import core_influence as influence
 
     original = influence.anchored_response
     calls = {k: [] for k in (*FIELDS, "status")}

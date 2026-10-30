@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the O-CASA oracle once into a fresh run directory (research/o-casa.md).
 # Usage: bash tools/oracles/casa/run.sh outputs/o-casa-20261030-NN [image]
-# Needs the worktree .venv (compare.py imports rangtoy) and the built image.
+# Needs the worktree .venv (compare.py imports rang) and the built image.
 set -euo pipefail
 export PATH=$HOME/.cargo/bin:$PATH  # compare.py builds the TV kernel on demand
 root=$(cd "$(dirname "$0")/../../.." && pwd)

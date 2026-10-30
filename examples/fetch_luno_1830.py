@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-from rangtoy import core_campaign_1830 as l2
+from rang import core_campaign_1830 as l2
 
 
 def main():

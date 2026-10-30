@@ -2,7 +2,7 @@
 
 import numpy as np
 import pytest
-from rangtoy.projector import project_grouped, project_out
+from rang.projector import project_grouped, project_out
 
 
 @pytest.mark.parametrize(

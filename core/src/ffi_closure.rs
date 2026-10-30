@@ -1,5 +1,5 @@
 //! C ABI for `closure` (big plan task C1, `research/c1-closure-arm.md`),
-//! loaded through ctypes by `python/rangtoy/core_closure.py`. Same
+//! loaded through ctypes by `python/rang/core_closure.py`. Same
 //! conventions as `ffi.rs`: borrowed buffers described by explicit lengths,
 //! 0 on success, 1 on invalid arguments (message from
 //! `rang_core_closure_last_error`), 2 on a panic.

@@ -1,4 +1,4 @@
-"""Build the native rangtoy wheel on the current OS, without docker.
+"""Build the native rang wheel on the current OS, without docker.
 
 Usage:
     python tools/wheel/build.py OUT_DIR [--sdist] [--no-ctypes]

@@ -11,8 +11,8 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import toy_output
-from rangtoy.pointing import Observation, component_list, predict, solve_pointing
+from rang import toy_output
+from rang.pointing import Observation, component_list, predict, solve_pointing
 
 
 def main():

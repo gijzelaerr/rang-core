@@ -10,9 +10,9 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rangtoy import toy_output
-from rangtoy.observability import channel_design, solve_sky_locked
-from rangtoy.pointing import Observation, component_list
+from rang import toy_output
+from rang.observability import channel_design, solve_sky_locked
+from rang.pointing import Observation, component_list
 
 
 def main():

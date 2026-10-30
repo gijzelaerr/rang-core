@@ -1,4 +1,4 @@
-from rangtoy.core_compare import compare, key_and_parent
+from rang.core_compare import compare, key_and_parent
 
 
 def classify(path):
@@ -53,7 +53,7 @@ def test_key_and_parent_skip_indices():
 
 
 def test_tolerance_table_accumulated_reports_and_reason():
-    from rangtoy.core_compare import INJ_TOLERANCES, injections_classify
+    from rang.core_compare import INJ_TOLERANCES, injections_classify
 
     archived = {
         "polar_gauge_gain_mse_to_clean": 1e-13,
@@ -89,7 +89,7 @@ def test_tolerance_table_accumulated_reports_and_reason():
 
 
 def test_injections_classify_takes_the_key_before_a_trailing_index():
-    from rangtoy.core_compare import injections_classify
+    from rang.core_compare import injections_classify
 
     assert injections_classify(["cases", 0, "delta_abs_jy_quantiles", 2]) == (
         "injection_float"
@@ -98,7 +98,7 @@ def test_injections_classify_takes_the_key_before_a_trailing_index():
 
 
 def test_unwrap_reads_the_new_archive_and_the_legacy_layouts():
-    from rangtoy.core_compare import unwrap
+    from rang.core_compare import unwrap
 
     result = {"x": 1}
     assert unwrap({"schema": "rang.archive", "version": 1, "result": result}) is result
@@ -110,7 +110,7 @@ def test_unwrap_reads_the_new_archive_and_the_legacy_layouts():
 def test_run_returns_the_verdict_contract(tmp_path, capsys):
     import json
 
-    from rangtoy import core_compare
+    from rang import core_compare
 
     result = tmp_path / "result.json"
     oracle = tmp_path / "oracle.json"
@@ -131,7 +131,7 @@ def test_run_returns_the_verdict_contract(tmp_path, capsys):
 
 
 def test_backends_skips_cli_receipts(tmp_path):
-    from rangtoy.core_compare import backends_files
+    from rang.core_compare import backends_files
 
     (tmp_path / "a.json").write_text("{}")
     (tmp_path / "a.run.rang-receipt.json").write_text("{}")

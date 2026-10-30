@@ -12,7 +12,7 @@ import pytest
 CHILD = r"""
 import hashlib, json
 import numpy as np
-from rangtoy import core
+from rang import core
 
 rng = np.random.default_rng(5)
 pairs = [(p, q) for p in range(4) for q in range(p, 4)]

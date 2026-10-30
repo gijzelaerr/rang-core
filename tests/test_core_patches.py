@@ -10,7 +10,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 
 import numpy as np
 import pytest
-from rangtoy.core_patches import (
+from rang.core_patches import (
     candidate_patches,
     fit_action_model,
     proposal_from_model,

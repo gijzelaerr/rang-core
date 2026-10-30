@@ -1,7 +1,7 @@
 """The LUNO PKS 1830-211 campaign on the core (research/luno-1830-campaign.md).
 
 Task L2 of research/big-plan.md: the whole-array campaign of task L1
-(`rangtoy.core_campaign_array`) on the gain calibrator PKS 1830-211
+(`rang.core_campaign_array`) on the gain calibrator PKS 1830-211
 (`MAIN/MAIN_2`, scan 3, the whole 80 s scan), under two model arms:
 
 - `stored`: MODEL_DATA as stored, with its ~1e-3 cross-hand terms;
@@ -112,7 +112,7 @@ ARCHIVED_SURVEY_GROUP2 = {
     "no_train": 160,
     "status": {"over_rank status6": 145, "underidentified status6": 15},
 }
-CODE_FILES = (*array.CODE_FILES, "python/rangtoy/core_campaign_1830.py")
+CODE_FILES = (*array.CODE_FILES, "python/rang/core_campaign_1830.py")
 
 
 # --- fetch -------------------------------------------------------------------

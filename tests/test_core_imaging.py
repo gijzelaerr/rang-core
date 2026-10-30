@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rangtoy import core_imaging, core_weights
+from rang import core_imaging, core_weights
 
 ROOT = Path(__file__).resolve().parents[1]
 RECIPE = ROOT / "recipes" / "core-imaging.yaml"
@@ -280,7 +280,7 @@ def test_recipe_cabs_match_the_module_signatures_and_name_no_imager():
         body = match.group("body")
         command = re.search(r"command: (\S+)", body).group(1)
         module, function = command.rsplit(".", 1)
-        assert module == "rangtoy.core_imaging"
+        assert module == "rang.core_imaging"
         parameters = inspect.signature(getattr(core_imaging, function)).parameters
         names = re.findall(r"\n      ([\w]+): \{", body)
         assert set(names) == set(parameters), (match.group("cab"), function)

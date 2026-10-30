@@ -5,7 +5,7 @@ Usage:
         [--inputs d,k]
     python examples/bench_p3_flags.py compare <reference-run> <run> [<run> ...]
 
-`run` times `rangtoy.core_flag.flag_rows` on the archived inputs of task D
+`run` times `rang.core_flag.flag_rows` on the archived inputs of task D
 (the four CARACAL controls exported by the oracle step) and task K (the
 fetched LUNO chunk-0 slice, both CARACAL strategies), with the thread count
 taken from `RAYON_NUM_THREADS` in the environment. Per call it records wall
@@ -29,7 +29,7 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core, core_campaign, core_fetch, core_flag
+from rang import core, core_campaign, core_fetch, core_flag
 
 ROOT = Path(__file__).resolve().parents[1]
 ORACLE = ROOT / "outputs/core-d-oracle-20261029-01/run"

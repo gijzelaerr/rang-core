@@ -4,7 +4,7 @@ Usage:
     python examples/run_core_flags.py <oracle-dir> <host-run> <strategy-dir> outputs/<fresh>
 
 Reads the arrays the oracle step exported for each control, runs
-`rangtoy.core_flag.flag_rows` with the pinned CARACAL strategy, derives the
+`rang.core_flag.flag_rows` with the pinned CARACAL strategy, derives the
 training proposal from the host run's `state.npz`, and writes per control
 `flags.npz` (FLAG and `added`), `intensity.npz` and `stages.npz`, plus
 `receipt.json` with timings and the host input hashes.
@@ -19,8 +19,8 @@ from hashlib import sha256
 from pathlib import Path
 
 import numpy as np
-from rangtoy import core, core_flag
-from rangtoy.core_controls import training_proposal
+from rang import core, core_flag
+from rang.core_controls import training_proposal
 
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / "research/results/gain-tv-caracal.json"

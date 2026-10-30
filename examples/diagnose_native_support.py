@@ -252,7 +252,7 @@ def rank_diagnostic():
 
 
 def gauge_diagnostic():
-    from rangtoy.core_policy import gain_tv, polar_gauge
+    from rang.core_policy import gain_tv, polar_gauge
 
     library = os.environ.get("RANG_TOY_LIB")
     if not library or not Path(library).is_file():

@@ -9,7 +9,7 @@ the extracts (big plan task P11, research/p11-extract.md).
 """
 
 import numpy as np
-from rangtoy.core_policy import (
+from rang.core_policy import (
     axis_weights,
     fixed_support_tv,
     gain_tv,
