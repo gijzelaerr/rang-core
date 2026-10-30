@@ -6,6 +6,17 @@ before any flux-standard code. Task FS1 of the ecosystem survey
 core"), with the O-CASA oracle ([o-casa.md](o-casa.md)) as its precondition.
 Status at freeze: proposed; nothing implemented, one probe run (below).
 
+**Status now: implemented and measured** ([Measured results](#measured-results-2026-10-30)).
+Perley-Butler 2010 (7 sources), Baars (6) and Stevens-Reynolds 2016
+(1934−638) equal CASA 6.7.6 `setjy` to ≤ 1.6e-14 relative on 0.05–50 GHz
+and bit-for-bit in float32 MODEL_DATA; so does CARACal's `manual` model.
+CASA stores its compiled coefficients as float32 and evaluates in double;
+the port does the same. O-CASA's 2.7e-6 "coincidence" is not CASA's: it is
+the float32 mean over 192 rows in O-CASA's own reduction, replayed
+bit-identically here; CASA's MODEL_DATA differs from the Reynolds 1994
+polynomial by ≤ 6e-8. Perley-Butler 2017 is transcribed from the paper but
+**not verified** (CASA's coefficient table is not in the image).
+
 ## Why
 
 The core predicts component models (`core/src/predict.rs`, `rangtoy.lsm`)
@@ -206,3 +217,173 @@ is reported as a finding, not tuned away.
 `examples/oracle_setjy.py`, `examples/check_fluxstd.py`,
 `tests/test_fluxstd.py`, `research/results/fs1-flux-standards.json`, this
 report.
+
+## Measured results (2026-10-30)
+
+Everything below is post-freeze. Oracle: `rang-o-casa:6.7.6.14` (image
+`sha256:24822b4038c5…`), casatools 6.7.6-14, `--network none`, Ubuntu
+`casacore-data` measures (no casarundata). Runs:
+
+- `outputs/fs1-20261030-01`: the protocol's oracle (`oracle_setjy.py`), 18
+  field names × 5 standards + `manual` + the frame/epoch check; 85
+  single-channel SPWs over 0.05–50 GHz and one 1001-channel 0.8–1.8 GHz SPW;
+  114 arrays, hashed in `oracle.json` (sha256 `a40c377c…`).
+- `outputs/fs1-20261030-03`: `--dense-1934`, post-hoc after run 01 showed
+  piece breaks for 1934−638 between sample points: 303 SPWs over
+  9.6–12.1 GHz (10 MHz steps, each 0.1 GHz value ±1 kHz), SR2016 and PB2010
+  (`oracle.json` sha256 `0336d724…`).
+- `outputs/fs1-20261030-02/ocasa-model-check.json`: post-hoc per-row re-read
+  of O-CASA's `fs-sr2016.ms`/`fs-pb2010.ms` MODEL_DATA (read-only mount;
+  script in the session scratchpad, logic reproduced in
+  `examples/check_fluxstd.py`'s O-CASA replay).
+- Comparison: `examples/check_fluxstd.py` → `research/results/fs1-flux-standards.json`
+  (compact: the doubles per canonical source, every 50th L-band channel of
+  the float32 MODEL_DATA, all comparison rows, hashes; no MS data).
+
+### What CASA does (identified from the oracle)
+
+| Standard | Source (aliases recognised) | CASA's model | Unit |
+| --- | --- | --- | --- |
+| PB2010 | 3C48 (0137+331) | 1.3197, −0.7253, −0.2023, 0.0540 | log10 ν/GHz |
+| PB2010 | 3C138 (0521+166) | 1.0053, −0.4384, −0.1855, 0.0511 | GHz |
+| PB2010 | 3C147 (0542+498) | 1.4428, −0.6300, −0.3142, 0.1032 | GHz |
+| PB2010 | 3C286 (1331+305, J1331+3030) | 1.2361, −0.4127, −0.1864, 0.0294 | GHz |
+| PB2010 | 3C295 | 1.4605, −0.7043, −0.3951, 0.0815 | GHz |
+| PB2010 | 3C196 | 1.2753, −0.7971, −0.2255, 0.0380 | GHz |
+| PB2010 | 1934−638 (J1939-6342, PKS1934-638) | ν ≤ 10 GHz: Reynolds in GHz 1.170418, 0.248618, −1.649694, 0.605334; ν > 10 GHz: −2.5739, 10.0707, −10.0595, 2.9372 | GHz |
+| Baars | 3C48 | 2.345, 0.071, −0.138 | log10 ν/MHz |
+| Baars | 3C138 | 2.009, −0.07176, −0.0862 | MHz |
+| Baars | 3C147 | 1.766, 0.447, −0.184 | MHz |
+| Baars | 3C286 | 1.480, 0.292, −0.124 | MHz |
+| Baars | 3C295 | 1.485, 0.759, −0.255 | MHz |
+| Baars | 1934−638 | −23.839, 19.569, −4.8168, 0.35836 (not from Baars et al. 1977) | MHz |
+| SR2016 | 1934−638 only | ν < 11.1496 GHz: Reynolds in GHz as PB2010; above: power law 1.7581, −1.3763 | GHz |
+| manual | CARACal 1934−638 | `S0 (ν/ν0)^(Σ spix_k log10(ν/ν0)^k)`, all double | — |
+
+- **Float32 coefficients, double arithmetic.** Each compiled set is a
+  short decimal stored as float32: fitting `setjy`'s returned doubles in the
+  stated form gives e.g. 1.236099958 for 3C286's a0, which is
+  `float32(1.2361)`; with the float32 values the port reproduces every
+  double to ≤ 1.6e-14 (one or two double ulps from Horner versus CASA's
+  order). With the decimals in double precision instead, the residuals are
+  up to 3.1e-7 (PB2010 and Baars, sources other than 1934−638). The Baars
+  sets are stored in MHz form, PB2010 and the 1934−638 pieces in GHz form
+  (each recovers short decimals only in its own unit). The Baars et al.
+  (1977) text was not in hand, so the agreement of these digits with the
+  paper is not checked here.
+- **1934−638 low piece.** Reynolds 1994 (log10 ν/MHz) re-expanded exactly to
+  GHz is (1.170418, 0.248618, −1.649694, 0.605334) to 15 digits; CASA uses
+  these six-decimal values in float32. Against the MHz polynomial in double
+  the effect is ≤ 2.5e-7 on 0.05–11 GHz and ≤ 6.0e-8 on O-CASA's
+  1.07–1.50 GHz.
+- **Piece breaks.** PB2010 takes Reynolds up to and including 10.000000 GHz
+  and the cubic from 10.000001 GHz (a 0.04 % step at 10 GHz). SR2016
+  switches between 11.14 and 11.15 GHz, where the Reynolds piece and the
+  power law cross (11.1496 GHz): the model is continuous there and is the
+  smaller of the two pieces everywhere on 0.05–50 GHz. CASA's documentation
+  says "below 11 GHz"; the measured switch is the crossing. The port puts
+  the SR2016 break at the crossing (bisection on the float32 pieces).
+- **No range handling in CASA.** Every standard is evaluated on all of
+  0.05–50 GHz without a warning or clamp; Baars outside 408 MHz–15 GHz and
+  PB2010/SR2016 far outside their data are silent extrapolations.
+- **Unrecognised names.** CASA writes 1 Jy and logs SEVERE "… is not
+  recognized by …" without raising (24 (standard, name) cases, including
+  3C123, 3C380, 3C444 and J0408−6545 everywhere, 3C196 under Baars, and
+  every non-1934 name under SR2016). Recognised aliases give identical values.
+- **No frame or epoch dependence.** TOPO 2020, LSRK 2020 (MEAS_FREQ_REF
+  rewritten) and TOPO 2010 give bit-identical `fluxd` at the stored channel
+  frequencies; CASA evaluates at CHAN_FREQ as stored.
+- **Stokes.** Q = U = V = 0 in the returned `fluxd` and in MODEL_DATA
+  (XY = YX = 0, XX = YY, imaginary parts 0) for every standard and source.
+- **PB2017/PB2013.** `setjy` returns `{}` (table missing) for every name it
+  accepts, without raising, so a pipeline that does not check the return
+  value keeps the previous MODEL_DATA. J0408−6545 is "not recognized" before
+  the table lookup; 1934−638 is *not* rejected at that stage under PB2017
+  or PB2013, which this run cannot resolve further (the survey says 1934−638
+  is not in either table).
+
+### Acceptance (as frozen)
+
+| Criterion | Result |
+| --- | --- |
+| 1. Doubles ≤ 1e-6 relative in range | **pass**: max 1.6e-14 (Baars 1934−638); all other sets ≤ 3.1e-15 |
+| 2. Float32 MODEL_DATA within 1 ulp | **pass**: 0 ulps, every channel of 1001, every source and alias (31 rows) |
+| 3. 1934−638 coincidence | **pass, re-attributed**: SR2016 and PB2010 bit-identical below 10 GHz; O-CASA's saved arrays reproduced *bit-identically* by replaying its reduction on the port's values; CASA's own per-row MODEL_DATA equals the port to 0 ulps on all 2048 channels × 192 rows (see below) |
+| 4. Manual model | **pass**: 2.3e-15 on the doubles, 0 ulps on L-band |
+| 5. Out of range | CASA extrapolates silently; the port refuses by default and with `extrapolate=True` meets criterion 1 on all of 0.05–50 GHz (max 1.6e-14). Unknown names: CASA 1 Jy, port refuses (24/24) |
+| 6. Rust ↔ Python | **pass**: 34 models' pieces on 1100 frequencies, max 1.6e-14 (≤ 1e-13); the archived oracle values are also Rust unit tests |
+| PB2017 | **not assessed**: oracle pending (no CASA table) |
+
+Maximum relative error against CASA per standard and canonical source (max
+over recognised aliases; doubles on 0.05–50 GHz / L-band float32 ulps):
+
+| Standard | 3C48 | 3C138 | 3C147 | 3C286 | 3C295 | 3C196 | 1934−638 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Perley-Butler 2010 | 5.6e-16 / 0 | 2.2e-16 / 0 | 6.7e-16 / 0 | 6.7e-16 / 0 | 5.6e-16 / 0 | 1.6e-15 / 0 | 3.1e-15 (dense) / 0 |
+| Baars | 3.1e-15 / 0 | 2.0e-15 / 0 | 1.6e-15 / 0 | 1.6e-15 / 0 | 2.7e-15 / 0 | refused (CASA: 1 Jy) | 1.6e-14 / 0 |
+| Stevens-Reynolds 2016 | refused | refused | refused | refused | refused | refused | 1.1e-15 (dense) / 0 |
+| manual (CARACal) | | | | | | | 2.3e-15 / 0 |
+| Perley-Butler 2017 | pending | pending | pending | pending | pending | pending | not in PB2017 |
+
+### The 2.7e-6 of O-CASA, attributed
+
+O-CASA reported SR2016 = PB2010 = Reynolds 1994 "to 2.7e-6 relative" from
+`fs-{sr2016,pb2010}-stokes-i.npy`. Those arrays are
+`0.5 * (XX + YY).real.mean(axis=0)` over 192 rows in float32
+(`tools/oracles/casa/inspect_tables.py`). Re-reading the MS per row: all
+192 rows are identical and equal to the port in float32 to 0 ulps on every
+channel; the float64 mean is 3.2e-8 from the port in double (float32
+storage); the float32 mean over rows is 2.65e-6 off. Replaying that float32
+reduction on the port's values gives O-CASA's arrays bit for bit. So the
+residual O-CASA measured is its reduction's float32 accumulation, and the
+CASA/Reynolds difference is ≤ 6.0e-8 on that band (coefficient rounding).
+The port reproduces both numbers; the protocol's "reproduce 2.7e-6"
+criterion is met in that sense, with the attribution corrected.
+
+### Implementation
+
+- `python/rangtoy/fluxstd.py` (canonical): the tables above with
+  provenance, `flux(source, freq_hz, standard, *, extrapolate=False,
+  unverified_ok=False)` → `(..., 4)` I, Q, U, V; `manual(...)` and
+  `CARACAL_1934`; `model`, `standards`, `sources`; `lsm_source(...)` and
+  `manual_lsm_source(...)`, exact re-expansions of the log10 polynomials in
+  Tigger's natural-log `spi` about a reference frequency (≤ 9e-16 against
+  `flux` on 0.856–1.712 GHz; through `core.predict_components` the manual
+  model's point-source visibilities equal `manual` to 4.4e-16). Ranges:
+  Baars 408 MHz–15 GHz (CASA docs); PB2017 per source from the paper;
+  PB2010 and SR2016 have no range in hand and use the oracle's 0.05–50 GHz.
+- `core/src/fluxstd.rs`: `log10_flux`, `log10_poly`, `piecewise`;
+  `core/src/ffi_fluxstd.rs`: `rang_core_fluxstd_eval`. Until `lib.rs`
+  lists them they build as a standalone cdylib (`core/target/fs1-standalone`,
+  `fluxstd.rust_library()`), as P5 and DF1 did.
+- Tests: 9 Rust unit tests (one checks six archived CASA doubles to 1e-13),
+  `tests/test_fluxstd.py` (12 tests on the archive, refusals, aliases, the
+  component builder and Rust parity).
+
+### Rejected and open
+
+- Rejected: evaluating PB2010/Baars in double from the decimals (residual
+  up to 3.1e-7, not CASA's); a hard SR2016 break at 11 GHz (contradicted by the
+  dense run); reproducing CASA's 1 Jy for unknown names.
+- Open: PB2017 and PB2013 against CASA need `casarundata`'s
+  `nrao/VLA/standards/PerleyButler2017Coeffs` (and `…2013Coeffs`), a
+  download for the user to approve. Then mount the table directories
+  read-only and run `oracle_setjy.py /run --tables /tables`; inspect the
+  table's columns for epoch terms first. Until then PB2017 is opt-in only.
+- Open: whether CASA's PB2017 accepts 1934−638 by name (above).
+- Open: Stevens-Reynolds 2016's published text (the power law's source) and
+  the Reynolds memo's own validity range were not in hand.
+
+### Tool runs
+
+| Date | Tool | Input | Wall | Peak RSS | Notes |
+| --- | --- | --- | ---: | ---: | --- |
+| 2026-10-30 | `setjy` probe (6 standards × 2 fields) | `rang-o-casa:6.7.6.14`, 11-channel MS | ~5 s | – | found PB2013/PB2017/SH2012 tables missing; SR2016 3C286 → 1 Jy |
+| 2026-10-30 | `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` | worktree, public PyPI | 63.4 s | 891 MB | |
+| 2026-10-30 | `oracle_setjy.py` (docker) | run `fs1-20261030-01` | 166.1 s (inside 165.7 s; build 31 s, PB2010 46 s, Baars 42 s, SR2016 11 s, frame check 28 s) | 295 MB (container) | 114 arrays |
+| 2026-10-30 | `oracle_setjy.py --dense-1934` (docker) | run `fs1-20261030-03` | 29.8 s (inside 29.2 s) | 282 MB | 303 SPWs, 2 standards |
+| 2026-10-30 | O-CASA MS re-read (python-casacore in the image) | `o-casa-20261030-01/fs-*.ms` | ~1 s | – | `ocasa-model-check.json` |
+| 2026-10-30 | `cargo test` / `clippy -D warnings` / `build --release` standalone | `fs1-standalone` | 0.3 / 0.1 / 0.3 s | 145 / 122 / 121 MB | 9 passed; clean |
+| 2026-10-30 | `check_fluxstd.py` | runs 01, 03, O-CASA | 0.1 s | 44 MB | all acceptance true |
+| 2026-10-30 | `pytest tests/test_fluxstd.py` | archive | 0.2 s | 54 MB | 12 passed |
+| 2026-10-30 | `bash tools/check-all.sh`, once before the final commit | branch at `e3436aa` + the FS1 files (log `outputs/fs1-20261030-02/check-all.log`) | 333.5 s (pytest 698 passed, 5 skipped in 152.8 s) | 1.67 GB | PASS |
