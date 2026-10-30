@@ -9,7 +9,7 @@ cabs:
     inputs:
       run_dir: {dtype: Directory, required: true}
   rang-core-compare:
-    info: Run the phase 3 comparator of a stage unchanged and record its SHA256; fails the recipe on any difference.
+    info: Run the stage comparator (rangtoy.core_compare, the rules of examples/compare_core_<stage>.py unchanged) and record the engine SHA256; fails the recipe on any difference.
     flavour: python
     command: rangtoy.core_cli.compare
     inputs:
