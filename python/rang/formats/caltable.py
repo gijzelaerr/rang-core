@@ -21,7 +21,9 @@ model frozen in the protocol from CASA's sources:
   phase (`RIorAPArray::f(true)`) or the float parameters, in float32 with
   times relative to floor(t0 - 1) (`CTTimeInterp1`), the nearest slot
   outside the solution range, exact slots as they are; either bracketing
-  slot's flag flags the result.
+  slot's flag flags the result; or `nearest` (task L5-C): the slot whose
+  float32 relative time is closest, ties to the earlier slot, with that
+  slot's value and flag.
 """
 
 from dataclasses import dataclass, field
@@ -257,16 +259,24 @@ def _track_phase(phase):
     return out
 
 
-def _interpolate(times, values, flags, at):
-    """CTTimeInterp1 `linear` for one (antenna, window) series: `values`
-    (slot, ...) float32 (amp/phase stacked for complex), `times` sorted
-    float64; returns the values and flags at each time of `at`."""
+def _interpolate(times, values, flags, at, mode="linear"):
+    """CTTimeInterp1 `linear` (or `nearest`) for one (antenna, window)
+    series: `values` (slot, ...) float32 (amp/phase stacked for complex),
+    `times` sorted float64; returns the values and flags at each time of
+    `at`."""
+    if mode not in ("linear", "nearest"):
+        raise ValueError(f"unsupported time interpolation {mode!r}")
     ref = np.floor(times[0] - 1.0)
     tl = (times - ref).astype(np.float32)
     ft = (np.asarray(at, float) - ref).astype(np.float32)
     out = np.empty((len(ft),) + values.shape[1:], np.float32)
     fout = np.empty((len(ft),) + flags.shape[1:], bool)
     n = len(tl)
+    if mode == "nearest":
+        for k, x in enumerate(ft):
+            i = int(np.argmin(np.abs(tl - x)))  # first minimum: ties go earlier
+            out[k], fout[k] = values[i], flags[i]
+        return out, fout
     for k, x in enumerate(ft):
         if n == 1 or x <= tl[0]:
             i, exact = 0, True
@@ -351,7 +361,9 @@ def _resample_freq(values, flags, fin, fout, complex_par):
     return out, oflag
 
 
-def jones_terms(table, antenna, spw, field_id, row_times, frequencies):
+def jones_terms(
+    table, antenna, spw, field_id, row_times, frequencies, time_interp="linear"
+):
     """The table's per-receptor parameters for `antenna` at each time and
     channel: (time, chan, 2) complex128 values and (time, chan, 2) flags.
     G, B, T: the diagonal gains; K: exp(i phase); Df: the leakages d0, d1
@@ -366,9 +378,13 @@ def jones_terms(table, antenna, spw, field_id, row_times, frequencies):
     if complex_par:
         amp = np.abs(params).astype(np.float32)
         ph = _track_phase(np.angle(params).astype(np.float32))
-        vals, fl = _interpolate(t, np.stack([amp, ph], -1), flags, row_times)
+        vals, fl = _interpolate(
+            t, np.stack([amp, ph], -1), flags, row_times, time_interp
+        )
     else:
-        vals, fl = _interpolate(t, params.astype(np.float32), flags, row_times)
+        vals, fl = _interpolate(
+            t, params.astype(np.float32), flags, row_times, time_interp
+        )
     fin = table.solution_frequencies(spw)
     npar = params.shape[2]
     p = np.empty((nt, nf, npar), complex)
@@ -396,11 +412,21 @@ def jones_terms(table, antenna, spw, field_id, row_times, frequencies):
 
 
 def correct(
-    data, flag, time, antenna1, antenna2, frequencies, tables, field_id=0, spw=0
+    data,
+    flag,
+    time,
+    antenna1,
+    antenna2,
+    frequencies,
+    tables,
+    field_id=0,
+    spw=0,
+    time_interp="linear",
 ):
     """Apply `tables` (CalTable list) to `data` (row, chan, 4) linear
     correlations XX, XY, YX, YY as `applycal(applymode='calflag',
-    interp='linear')`; returns (corrected complex128, flags). Diagonal
+    interp='linear')` (or `interp='nearest'` in time with
+    `time_interp='nearest'`); returns (corrected complex128, flags). Diagonal
     terms divide V_pq,ab by g_p,a conj(g_q,b) and flag the correlations of
     a flagged receptor; Df is CASA's linear approximation (`JonesGenLin`):
     XY -= d0_p YY + conj(d1_q) XX, YX -= d1_p XX + conj(d0_q) YY, parallel
@@ -420,7 +446,9 @@ def correct(
         fp = np.empty((nrow, nchan, 2), bool)
         fq = np.empty_like(fp)
         for a in antennas:
-            g, f = jones_terms(table, int(a), spw, field_id, times, frequencies)
+            g, f = jones_terms(
+                table, int(a), spw, field_id, times, frequencies, time_interp
+            )
             for sel, gg, ff in ((antenna1 == a, gp, fp), (antenna2 == a, gq, fq)):
                 gg[sel] = g[tindex[sel]]
                 ff[sel] = f[tindex[sel]]
