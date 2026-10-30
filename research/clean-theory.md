@@ -503,3 +503,4 @@ example 68.8 s of compute (71.1 s with E2c and E7; PSFs 0.02-0.33 s, CG
   lists and the scale-weighting bias.
 - Wire the Gram-consistency check and `Q_∞` into the imaging comparator
   alongside the WSClean oracle (`research/core-i-imaging-replay.md`).
+  Done on the LUNO slice: [clean-certified-imaging.md](clean-certified-imaging.md).

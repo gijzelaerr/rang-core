@@ -1,5 +1,33 @@
 # Rang research state
 
+Certified CLEAN on real data (CLEAN programme question 3;
+[clean-certified-imaging.md](clean-certified-imaging.md)), 2026-10-30
+(implemented; measured on the LUNO 1934−638 four-station slice; branch
+`clean-certified-imaging`). `core/src/clean_certified.rs` is a Cotton-Schwab
+driver over the exact wgridder with Clark, Theorem 6 and WSClean-mgain minor
+rules and the four diagnostics (Gram gap per major cycle, `Q_∞` by CG, ERC
+of the component list, ascending-step audit); six tests, including the
+closed form of the gap (a quadratic form in the components with the ignored
+beam, both signs: the expected "positive with a patch" is false) and no
+ascending step under the provable rule in 72 runs. On O-CASA arm C's
+`c.ms` through the core reader, Stokes I and Briggs 0.5 (117,556
+visibilities and weight sum equal to WSClean's): **WSClean 3.7 diverges at
+gain 0.1, mgain 0.8, 50 mJy in all four variants**; the driver with
+WSClean's image-size beam reproduces that run to 5e-6 Jy and shows the
+cause (Gram gap 99 Q and 158 ascending steps in the third major cycle,
+components at the image edge where the truncated beam misses 0.77 of the
+peak); with the exact 1024² beam it converges in 65 components and 4 major
+cycles, residual rms 22 mJy, flux 14.885 Jy against the band-averaged
+model's 14.953 Jy. `Q_∞/Q_0` ≤ 3.69e-4 (flat in the CG budget); the ERC
+never certifies on this beam (coherence 0.99972). The provable rule removes
+ascending steps but its low-misfit models put 4.7-7 Jy off-centre and up to
+2.5 Jy negative: descent certified, model not. **For DF1/DF2b:** O-CASA's
+WSClean reference `r1-*.fits` uses WSClean's default minimum-grid-resolution
+upsampling and is 17 % (L∞/peak) off the exact transform on this field;
+`-no-min-grid-resolution -wgridder-accuracy 1e-6` matches the core to
+2.6e-7. Python: `rang.core_clean.certified_clean` (PyO3, 3 tests). Archive
+`results/clean-certified-imaging.json`.
+
 DF2b, the exact gridder in the imaging drivers (big plan), 2026-10-30
 (implemented; measured; [df2b-wgrid.md](df2b-wgrid.md)). The imaging paths
 of tasks C, I, K and L1 now take `core_grid.invert(...,

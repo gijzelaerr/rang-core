@@ -54,6 +54,14 @@ point sources on the snapshot); 21 new Lean theorems, including
 Proposition 4' and Theorem 6 of the CLEAN note
 ([archive](results/clean-implicit-objective.json)).
 
+New, 2026-10-30: [certified CLEAN](clean-certified-imaging.md) on the
+LUNO 1934−638 slice: the instrumented driver reproduces WSClean 3.7's CLEAN
+to 5e-6 Jy, divergence included, names the cause (image-size beam, Gram gap
+99 Q, 158 ascending steps) and converges with the exact beam (65 components,
+rms 22 mJy); O-CASA's WSClean reference is 17 % off the exact transform
+because of WSClean's minimum-grid-resolution upsampling
+([archive](results/clean-certified-imaging.json)).
+
 New, 2026-10-30: [CLEAN theory](clean-theory.md): the claim that CLEAN was
 never proven is folklore (Schwarz 1978 proved the data fit converges for
 0 < g < 2); a Gram-matrix formalism reduces his three conditions to one,

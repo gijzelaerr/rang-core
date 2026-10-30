@@ -45,6 +45,8 @@ use rang_core::ms_write::TableWriter;
 use rang_core::toy;
 use std::ffi::c_void;
 
+mod clean;
+
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
 /// A column read: packed bytes, nrows, cell shape, dtype code, nstrings.
@@ -1727,6 +1729,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(wgridder_dirty2vis_f32, m)?)?;
     m.add_function(wrap_pyfunction!(wgridder_kernel_row, m)?)?;
     m.add_function(wrap_pyfunction!(wgridder_last_error, m)?)?;
+    m.add_function(wrap_pyfunction!(clean::clean_certified, m)?)?;
     m.add_function(wrap_pyfunction!(flag_rows, m)?)?;
     m.add_function(wrap_pyfunction!(gain_tv, m)?)?;
     m.add_function(wrap_pyfunction!(trend_slopes, m)?)?;

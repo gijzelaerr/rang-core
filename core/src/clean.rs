@@ -250,6 +250,25 @@ pub fn least_squares_model(
     iterations: usize,
     tolerance: f64,
 ) -> (Vec<f64>, usize, f64) {
+    conjugate_gradients(|p| Ok(convolve(psf, p)), dirty, iterations, tolerance)
+        .expect("convolution cannot fail")
+}
+
+/// Conjugate gradients for `B x = rhs` with a symmetric positive
+/// semidefinite operator `apply(x) = B x`, from zero: the solver behind
+/// [`least_squares_model`] for any measurement operator (the certified
+/// driver applies `Aᴴ W A` through the gridder). Returns the solution, the
+/// iterations used and `‖rhs − B x‖ / ‖rhs‖`.
+pub fn conjugate_gradients<F>(
+    mut apply: F,
+    rhs: &[f64],
+    iterations: usize,
+    tolerance: f64,
+) -> Result<(Vec<f64>, usize, f64), String>
+where
+    F: FnMut(&[f64]) -> Result<Vec<f64>, String>,
+{
+    let dirty = rhs;
     let dot = |x: &[f64], y: &[f64]| x.iter().zip(y).map(|(a, b)| a * b).sum::<f64>();
     let norm_d = dot(dirty, dirty).sqrt();
     let mut x = vec![0.0; dirty.len()];
@@ -258,7 +277,7 @@ pub fn least_squares_model(
     let mut rr = dot(&r, &r);
     let mut used = 0;
     while used < iterations && rr.sqrt() > tolerance * norm_d {
-        let ap = convolve(psf, &p);
+        let ap = apply(&p)?;
         let pap = dot(&p, &ap);
         if pap <= 0.0 {
             break;
@@ -276,7 +295,7 @@ pub fn least_squares_model(
         rr = rr_next;
         used += 1;
     }
-    (x, used, rr.sqrt() / norm_d)
+    Ok((x, used, rr.sqrt() / norm_d))
 }
 
 /// `residual −= c · b(· − x_p)`; with `patch = Some(h)` only offsets within
