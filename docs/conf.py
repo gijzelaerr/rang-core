@@ -105,7 +105,9 @@ def _copy_notebooks(app):
     """Render executed copies when docs/execute_notebooks.py made them,
     otherwise the committed notebooks (no outputs)."""
     TUTORIALS.mkdir(parents=True, exist_ok=True)
-    for source in sorted(NOTEBOOKS.glob("*.ipynb")):
+    # The tutorials, then the science notebooks (D3), into one flat directory.
+    sources = [*NOTEBOOKS.glob("*.ipynb"), *NOTEBOOKS.glob("science/*.ipynb")]
+    for source in sorted(sources, key=lambda path: path.name):
         target = TUTORIALS / source.name
         if not target.exists() or target.stat().st_mtime < source.stat().st_mtime:
             shutil.copyfile(source, target)
@@ -118,7 +120,7 @@ def _md_cell(text):
 def _write_constants(app):
     """The constants of `rang.notebook` written to be quoted (D2), as MyST
     snippets in `_generated/` that the pages include."""
-    from rang.notebook import experiment, gains, survey
+    from rang.notebook import experiment, gains, science, survey
 
     status = [
         "| Code | Label | Meaning |",
@@ -132,12 +134,30 @@ def _write_constants(app):
         "status.md": "\n".join(status) + "\n",
         "gauge_note.md": f"> {gains.GAUGE_NOTE}\n",
         "decision_rule.md": f"> {experiment.DECISION_RULE}\n",
+        # D3 (research/d3-science-notebooks.md): the frozen flagging policy
+        # from rang.core_campaign, and the B1 rules quoted by notebook 07.
+        "flagging_rules.md": "\n".join(
+            [
+                "| Frozen setting | Value |",
+                "| --- | --- |",
+                *(
+                    f"| {_md_cell(name)} | {_md_cell(str(value))} |"
+                    for name, value in science.flagging_rules().items()
+                ),
+            ]
+        )
+        + "\n",
+        "b1_rules.md": (
+            f"B1-2, `B1_2_DECISION_RULE`:\n\n> {science.B1_2_DECISION_RULE}\n\n"
+            "B1-3, `B1_3_DECISION_RULE` and `B1_3_MATCHED_COST`:\n\n"
+            f"> {science.B1_3_DECISION_RULE} {science.B1_3_MATCHED_COST}\n"
+        ),
     }
     GENERATED.mkdir(exist_ok=True)
     for name, text in snippets.items():
         path = GENERATED / name
-        if not path.exists() or path.read_text() != text:
-            path.write_text(text)
+        if not path.exists() or path.read_text(encoding="utf-8") != text:
+            path.write_text(text, encoding="utf-8")
 
 
 def setup(app):
