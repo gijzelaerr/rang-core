@@ -14,3 +14,9 @@ __pycache__/
 /python/rang_core.egg-info/
 # Lean: Mathlib and build products of the formal proofs (research/clean-theory.md).
 /formal/.lake/
+# LaTeX build products of research/paper (keep the sources, rebuild the PDF).
+research/paper/**/*.aux
+research/paper/**/*.log
+research/paper/**/*.out
+research/paper/**/*.pdf
+research/paper/**/*.synctex.gz

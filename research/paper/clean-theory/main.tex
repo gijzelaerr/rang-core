@@ -1,0 +1,149 @@
+% What CLEAN computes. Draft, 2026-10-30. Build: pdflatex main.tex (twice).
+\documentclass[twocolumn,10pt]{article}
+\usepackage[a4paper,margin=18mm,columnsep=7mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage[authoryear,round]{natbib}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\ip}[2]{\langle #1,\,#2\rangle}
+\newcommand{\norm}[1]{\lVert #1\rVert}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Qinf}{Q_\infty}
+\newcommand{\erc}{\eta}
+
+\title{\vspace{-8mm}What CLEAN computes:\\ a one-line law, a certified minor cycle,\\ and the case of the diverging production imager}
+\author{G.~Molenaar\thanks{Draft of 2026-10-30. Every number is archived with its seed, settings and run time in the \texttt{rang} repository (\texttt{research/clean-theory.md}, \texttt{clean-phase-transition.md}, \texttt{clean-implicit-objective.md}, \texttt{clean-certified-imaging.md}); the Lean proofs are in \texttt{formal/}. Affiliation to be added.}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Write H\"ogbom's CLEAN as the greedy algorithm on the dictionary of pixel atoms in the weighted visibility space and the point-spread function becomes a Gram matrix. Everything follows from one line: a component $\gamma r_p$ at pixel $p$ changes the misfit by exactly $-\tfrac{\gamma(2-\gamma)}{2}r_p^2$, so CLEAN descends for $0<\gamma<2$ under a single condition, that the beam subtracted from the residual image is the Gram matrix of the atoms that made it. Schwarz's three 1978 conditions are this sentence; every known way of breaking CLEAN violates it. From the same line we get the least-squares floor CLEAN converges to and its geometric rate, the exact recovery coefficient as the one-sided law for finding point sources (never wrong in $30\,206$ trials on four arrays) with an exact rule for two sources ($40\,000$ of $40\,000$), the identification of small-gain CLEAN with forward stagewise regression (so CLEAN minimises no objective, closing a question open since 1987), a provable replacement for Clark's minor-cycle heuristic, and the fact that multi-scale dictionaries have coherence 0.98. Thirty-four of these statements are machine-checked in Lean~4. Turned into a diagnostic, the one line catches a production imager in the act: on a MeerKAT observation of PKS\,1934$-$638, WSClean~3.7 diverges at matched settings; our driver with WSClean's image-sized beam reproduces its run to $5\times10^{-6}$\,Jy and shows a Gram gap of 99 times the misfit in the fatal cycle, while the same loop with the exact beam converges to the calibrator flux within 0.45\,\%.
+\end{abstract}
+
+\section{One line}
+
+Let $E$ be the real inner-product space of weighted visibilities, $\ip{x}{y}=\sum_k w_k(\mathrm{Re}\,x_k\mathrm{Re}\,y_k+\mathrm{Im}\,x_k\mathrm{Im}\,y_k)$ with $\sum_kw_k=1$. Pixel $p$ owns the atom $a_p$, the visibilities of a unit point source there, so $\norm{a_p}=1$. For data $v$ and model $m\in\R^N$: residual $e=v-\sum_pm_pa_p$, misfit $Q=\tfrac12\norm e^2$, residual dirty image $r_p=\ip{e}{a_p}=-\partial Q/\partial m_p$, and PSF $B_{pq}=\ip{a_p}{a_q}$. CLEAN picks $p=\arg\max|r_p|$ and adds $\gamma r_p$ to $m_p$. Then
+\begin{equation}\label{eq:law}
+Q(m+\gamma r_pe_p)=Q(m)-\tfrac{\gamma(2-\gamma)}{2}\,r_p^2 ,
+\end{equation}
+because $\norm{e-\gamma r_pa_p}^2=\norm e^2-2\gamma r_p\ip{e}{a_p}+\gamma^2r_p^2$. That is the whole proof of convergence of the fit, and it is Schwarz's $\Delta H=g(2-g)r^2$ of 1978 \citep{schwarz78,schwarz84}; his conditions that the beam be symmetric, positive semidefinite and have the dirty image in its range are properties of every Gram matrix. The only hypothesis left is structural:
+
+\begin{quote}\itshape
+The beam subtracted from the residual image must be the Gram matrix of the atoms under which the dirty image was formed.
+\end{quote}
+
+A beam patch, a beam computed on the image grid and hence truncated for components near the edge, a smoothed beam whose transform goes negative, a gridding mismatch between dirty image and PSF: these are the known ways CLEAN diverges, and each is a violation of the sentence. Measured on MeerKAT sampling, Eq.~(\ref{eq:law}) holds to $2\times10^{-13}$ with the exact beam, gain 2.1 blows up as predicted, a beam on the image grid breaks descent on about half of the steps, and a $\pm8$-pixel patch on a natural-weight beam reaches $Q/Q_0\sim10^{24}$ in 400 steps at gain~1.
+
+\section{Where it goes, and how fast}
+
+Summing (\ref{eq:law}) makes the picked peaks square-summable, so the residual dirty image tends to zero. Split $v=w+z$ with $w$ in the span $S$ of the atoms and $z\perp S$: the dirty image, hence every CLEAN step, ignores $z$, and $Q(m)=Q_w(m)+\tfrac12\norm z^2$. So $\Qinf=\tfrac12\norm z^2$ is a floor below every pixel model, CLEAN converges to the weighted least-squares fit for any grid size, and the model itself converges. The rate is exact:
+\begin{align}
+Q_{k+1}-\Qinf&=\bigl(1-\gamma(2-\gamma)\kappa_k\bigr)(Q_k-\Qinf),\\
+\kappa_k&=\frac{r_{p_k}^2}{2(Q_k-\Qinf)},\nonumber
+\end{align}
+with the greedy ratio $\kappa_k\ge\lambda_{\min}(B_{SS})/k$ on a $k$-pixel residual and $\kappa_k\approx1/N$ on noise. Measured: the minimum of $\kappa_k$ along noiseless runs is 1.5--3.2 times its bound; on pure noise its median is $2.3$--$3.6\times10^{-4}$ against $1/N=2.4\times10^{-4}$. CLEAN cleaning noise removes one pixel's worth per step, which is why it feels endless.
+
+\section{Which sources}
+
+The coherence condition of sparse approximation \citep{tropp04,gribonval06} transfers verbatim, $2\mu k<1+\mu$ with $\mu$ the peak sidelobe, and is vacuous: at 2.8 pixels per fringe adjacent pixels correlate at 0.68--0.93 on every array, so it allows one source. The right quantity is Tropp's exact recovery coefficient $\erc(S)=\max_{q\notin S}\norm{B_{SS}^{-1}B_{S,q}}_1$, since $r_q=B_{qS}B_{SS}^{-1}r_S$ for a residual carried by $S$ and so $|r_q|\le\erc\,\norm{r_S}_\infty$. It is a one-sided law: in $30\,206$ pooled noiseless trials on MeerKAT, VLA-C, WSRT and KAT-7 every trial with $\erc<1$ succeeded, and above 1 nothing collapses the arrays onto one curve. For two sources the question closes:
+
+\begin{proposition}
+Two on-grid sources are recovered exactly at gain 1 if and only if the dirty-image peak lies on a source and $\max_{q\notin S}\norm{B_{SS}^{-1}B_{S,q}}_\infty<1$.
+\end{proposition}
+
+It matched $40\,000$ of $40\,000$ trials. For more sources the real transition sits far below any sufficient condition: on the uniform-weight MeerKAT and VLA-C tracks, 32 sources three pixels apart are recovered in 100 of 100 trials while $\erc<1$ in 0 and 1 of them (Table~\ref{tab:dstar}); PSFs with a far-sidelobe floor above 0.2 saturate at 22--93\,\% however far apart the sources are. With one per cent noise no array reaches 95\,\% exact support at any separation: the picks stay on the support 89--99.7\,\% of the time, and the failures are the adjacent pixel, exactly where the correlation is 0.7--0.9.
+
+\begin{table}
+\centering
+\caption{Smallest pairwise separation (pixels) with $\ge95\,\%$ exact noiseless recovery of $k$ sources, gain 1, 100 trials per cell; dash: never.}
+\label{tab:dstar}
+\begin{tabular}{lccccc}
+\toprule
+ & $k{=}2$ & 4 & 8 & 16 & 32\\
+\midrule
+MeerKAT track, natural & 1 & 1 & 4 & 8 & --\\
+MeerKAT track, uniform & 1 & 1 & 1 & 3 & 3\\
+VLA-C track, uniform & 1 & 1 & 1 & 2 & 3\\
+WSRT track, natural & 1 & 6 & 12 & -- & --\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{What small gain does}
+
+Forward stagewise regression \citep{hastie07} picks the most correlated predictor and moves it by a fixed $\varepsilon$; CLEAN picks the same coordinate and moves it by $\gamma|r_p|$. They are discretisations of one direction field, and CLEAN is also LS-Boost, the subgradient method on the peak residual $\varphi=\max_p|r_p|$ \citep{freund17}.
+
+\begin{theorem}
+Parametrised by $\ell_1$ arc length, CLEAN as $\gamma\to0$ and stagewise as $\varepsilon\to0$ share one limit for any finite dictionary. Its residual is the gradient flow of $\varphi$, unique, with $Q(L)=Q_0-\int_0^L\varphi$, reaching the least-squares residual at finite arc length. When the atoms tied for the peak are independent, the limit model is the monotone lasso of \citet{hastie07}.
+\end{theorem}
+
+So there is no objective that small-gain CLEAN minimises, which is why \citet{marsh87} never got a tidy answer: CLEAN is locally steepest per unit of added $\ell_1$ flux, nothing more. Gain~1 overshoots on correlated atoms, the mechanism of Schwarz's striped, negative disc; small gain does not make the model non-negative (the limit itself reaches $-0.22$ of the peak on a disc with snapshot sampling). Measured, the CLEAN model approaches the stagewise reference by factors 22--64 on a disc and 280--2400 on point sources between $\gamma=1$ and $0.003$; the exact lasso path is monotone on six point sources, where it coincides with the limit to $3\times10^{-7}$, and has 5\,836 sign changes on the disc, where lasso and small-gain CLEAN differ by a quarter of the peak and small gain is the one closer to the sky.
+
+\section{The minor cycle, certified}
+
+Let $\tilde r$ be the working residual updated with a beam patch and $r$ the true one. A component $c=\gamma\tilde r_p$ changes the true misfit by $-c\,r_p+c^2/2$, so it descends iff $r_p/\tilde r_p>\gamma/2$; and $\norm{r-\tilde r}_\infty\le f\sum_j|c_j|$ with $f$ the peak of the beam outside the patch. Hence:
+
+\begin{quote}\itshape
+Continue the minor cycle while $f\sum_j|c_j|<(1-\gamma/2)\,|\tilde r_p|$.
+\end{quote}
+
+Clark's 1980 rule (stop when the peak falls below $f$ times the cycle's first peak) is not of this form. On 200-step cycles from an exact residual it left 0--119 ascending steps per cycle; the rule above left none in 24 cases, at the price of 1--4 steps per cycle at gain 1 and 17--64 at gain 0.1. The Cotton--Schwab major cycle resets the working residual; it does not make the minor steps descend, and no theorem says it does. Multi-scale CLEAN inherits Eq.~(\ref{eq:law}) and the floor, but a dictionary of deltas and Gaussians of 2, 4, 8 pixels has coherence 0.98--0.99 under every PSF we tried: no recovery guarantee of the coherence type can exist for it, and its scale choice is decided by sub-per-cent correlation differences.
+
+\section{The production imager}
+
+Equation~(\ref{eq:law}) is a diagnostic. Per minor cycle the exact change of $Q$ is available from the model visibilities that a major cycle computes anyway; subtracting $-\tfrac{\gamma(2-\gamma)}{2}\sum\tilde r^2$ gives the \emph{Gram gap}, the beam-truncation error in misfit units, which is identically $\sum_{i<j}c_ic_jD(x_j-x_i)+\tfrac12\sum_jc_j^2D(0)$ with $D$ the part of the beam the minor cycle ignores. We put the gap, the floor $\Qinf$, an audit of ascending steps and the recovery coefficient into a Cotton--Schwab driver whose major cycles go through the exact gridder, and ran it on a MeerKAT observation: the CASA-calibrated four-station slice of PKS\,1934$-$638 (192 rows, 2\,048 channels, 117\,556 visibilities, weight sum $669\,036.3$, both equal to WSClean's), $512^2$ pixels of $8''$, Briggs 0.5, gain 0.1, mgain 0.8, threshold 50\,mJy.
+
+\begin{table}
+\centering
+\caption{PKS\,1934$-$638, matched settings. Flux in Jy; expected band-averaged calibrator flux 14.953\,Jy.}
+\label{tab:real}
+\footnotesize
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+run & comps & rms & flux & neg.\\
+\midrule
+WSClean 3.7, 4 variants & 304 & 0.559 & 14.76 & $-7.95$\\
+driver, WSClean's beam & 304 & 0.559 & 14.76 & $-7.95$\\
+driver, exact beam & 65 & 0.022 & 14.885 & $-0.04$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+WSClean 3.7 diverges in all four of its variants (with or without its grid upsampling, with or without the fast sub-minor loop). The driver with WSClean's beam, the image-sized PSF, reproduces WSClean's run to $5.4\times10^{-6}$\,Jy: the same 39 model pixels, the same 304 components, divergence in the third major cycle. The diagnostics say why. In that cycle the minor loop believes it removed 15.9\,Jy$^2$ of misfit while the true misfit rose by 2.6\,Jy$^2$: a Gram gap of 99 times $Q$, 158 of 272 steps ascending, 24 of 39 model pixels within eight pixels of the image edge, where the image-sized beam is cut and misses $f=0.77$ of its peak. The same loop with the exact beam (a PSF of twice the image size) converges with no ascending step: 65 components in four cycles, residual rms 22\,mJy, peak 47\,mJy, model flux $-0.45\,\%$ from the calibrator value, gap $\le10^{-11}Q$ without the $w$-term and $1.4\times10^{-4}Q$ with it. $\Qinf/Q_0\le3.7\times10^{-4}$: the data were fittable, the imager was not fitting them. Honesty requires two remarks. A four-station PSF whose sidelobes stay at 0.77 to the edge is the worst case for beam truncation, not the 64-dish array, and cleaning the centre of a padded field is a known remedy. What is new is that the failure is named in numbers while it happens; WSClean reports only a fourfold peak rise. Along the way we found that WSClean's default minimum-grid-resolution upsampling puts this field's reference dirty image 17\,\% of the peak off the exact transform; with it off, WSClean and our gridder agree to $2.6\times10^{-7}$.
+
+\section{Checked, not trusted}
+
+The core of Sects.~1--5 is formalised in Lean~4 with Mathlib over an arbitrary real inner-product space and finite pixel type: the law and its descent window, square-summability and convergence of the residual image, the positive greedy constant by compactness, the floor and the geometric rate for arbitrary data, convergence of the model, the coherence pick condition, the separated-source bound, the stagewise step lemmas and uniqueness of the flow residual for right-differentiable curves, and the minor-cycle rule end to end. Thirty-four audited theorems rest on \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} only. Not formalised: the compactness steps of the stagewise limit, the two-source rule, the gap identity.
+
+\section{Take-home}
+
+\begin{itemize}\itemsep1pt
+\item CLEAN converges, as a fit, by Eq.~(\ref{eq:law}); the single condition is that the beam be the Gram matrix of the atoms. Everything that breaks CLEAN breaks that.
+\item It converges to the least-squares floor at a rate set by a measurable greedy ratio, and the model converges.
+\item Point sources: the recovery coefficient is a one-sided law, exact for two sources; coherence bounds are useless at critical sampling; noise moves picks to the neighbouring pixel.
+\item Small gain is forward stagewise regression. CLEAN minimises nothing global.
+\item The minor cycle admits a provable stopping rule; Clark's has none.
+\item The Gram gap caught WSClean diverging on real MeerKAT data and the exact-beam loop fixed it. Compute the gap, the floor and the certificate; they cost a major cycle's bookkeeping.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem[Freund et al.(2017)]{freund17} Freund, R.~M., Grigas, P., \& Mazumder, R. 2017, Ann. Statist., 45, 2328
+\bibitem[Gribonval \& Vandergheynst(2006)]{gribonval06} Gribonval, R., \& Vandergheynst, P. 2006, IEEE Trans. Inf. Theory, 52, 255
+\bibitem[Hastie et al.(2007)]{hastie07} Hastie, T., Taylor, J., Tibshirani, R., \& Walther, G. 2007, Electron. J. Statist., 1, 1
+\bibitem[Marsh \& Richardson(1987)]{marsh87} Marsh, K.~A., \& Richardson, J.~M. 1987, A\&A, 182, 174
+\bibitem[Schwarz(1978)]{schwarz78} Schwarz, U.~J. 1978, A\&A, 65, 345
+\bibitem[Schwarz(1984)]{schwarz84} Schwarz, U.~J. 1984, in IAU Colloq.~49, ed. C. van Schooneveld (Reidel), 261
+\bibitem[Tropp(2004)]{tropp04} Tropp, J.~A. 2004, IEEE Trans. Inf. Theory, 50, 2231
+\end{thebibliography}
+
+\end{document}
