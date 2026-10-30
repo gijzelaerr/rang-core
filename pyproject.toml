@@ -36,6 +36,8 @@ flagging = ["quartical==0.2.7", "stimela==2.1.4", "python-casacore==3.8.1", "num
 recipes = ["stimela==2.1.4"]
 imaging = ["astropy>=6"]
 notebook = ["matplotlib>=3.8", "pandas>=2.1", "ipywidgets>=8.1", "ipykernel>=6.29", "jupyterlab>=4", "nbformat>=5.9", "nbconvert>=7.16"]
+# The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
+docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
 
 [project.scripts]
 rang-core = "rang.core_cli:main"
