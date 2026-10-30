@@ -243,7 +243,9 @@ def set_aside_launchers(scripts=None):
 
     A running `.exe` cannot be replaced or deleted on Windows but can be
     renamed, and `rang-core check` runs inside `rang-core.exe`; without this
-    the reinstall fails with "Access is denied". Launchers set aside by
+    the reinstall fails with "Access is denied". Each launcher is renamed to
+    `<name>.<pid>.old` and copied back under its own name, so the venv keeps
+    a working launcher even if the reinstall fails. Launchers set aside by
     earlier runs are deleted when no longer in use. Returns the new names.
     """
     if os.name != "nt" and scripts is None:
@@ -255,9 +257,12 @@ def set_aside_launchers(scripts=None):
     moved = []
     for launcher in scripts.glob("rang-core*.exe"):
         target = launcher.with_name(f"{launcher.name}.{os.getpid()}.old")
-        with contextlib.suppress(OSError):
+        try:
             launcher.rename(target)
-            moved.append(target)
+        except OSError:
+            continue
+        shutil.copy2(target, launcher)
+        moved.append(target)
     return moved
 
 
