@@ -505,5 +505,7 @@ def test_check_sets_running_launchers_aside_for_the_reinstall(tmp_path):
     assert [p.name for p in moved] == [f"rang-core.exe.{os.getpid()}.old"]
     assert sorted(p.name for p in tmp_path.iterdir()) == [
         "python.exe",
+        "rang-core.exe",
         f"rang-core.exe.{os.getpid()}.old",
     ]
+    assert (tmp_path / "rang-core.exe").read_bytes() == b"launcher"
