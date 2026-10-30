@@ -7,16 +7,21 @@
 //! GPL-3.0; <https://gitlab.com/aroffringa/wsclean>), as read from the verified
 //! Debian source in `outputs/wsclean-3.6-1-source-20261029/`. The translation
 //! is part of Rang (GPL-3.0-or-later). Validation protocol:
-//! `research/core-c-gridder.md` (wave 1 task C).
+//! `research/core-c-gridder.md` (wave 1 task C); the layer-parallel
+//! structure is big-plan task P2 (`research/p2-gridder.md`).
 //!
-//! Differences from the original, fixed in the protocol: the grid, the FFT
+//! Differences from the original, fixed in the protocols: the grid, the FFT
 //! and the kernel correction are double precision (WSClean grids in single
-//! precision with FFTW); the FFT is a radix-2 / Bluestein transform written
-//! here; the kernel correction is a direct type-III DCT sum. Layers are
-//! gridded one at a time, which changes memory use but not the result.
-//! Only the real (non-complex) image path, one polarization, one pass and
-//! one thread are ported, which is how rang runs WSClean.
+//! precision with FFTW); the kernel correction is a direct type-III DCT sum.
+//! Samples are bucketed by w-layer once; the dirty image and the PSF are
+//! gridded, transformed and projected in the same pass over each layer; the
+//! layers run in parallel (rayon, `RAYON_NUM_THREADS`), each into its own
+//! projected image, and the projected images are added to the result in
+//! layer order, so the sum is the serial one and the result does not depend
+//! on the thread count. Only the real (non-complex) image path, one
+//! polarization and one pass are ported, which is how rang runs WSClean.
 
+use rayon::prelude::*;
 use std::f64::consts::PI;
 
 /// Speed of light as casacore and aocommon use it.
@@ -24,6 +29,10 @@ pub const C_LIGHT: f64 = 299792458.0;
 
 /// Kaiser–Bessel window parameter of WSClean's default kernel.
 const KB_ALPHA: f64 = 8.6;
+
+/// Layers whose projected images are held at once before they are added in
+/// layer order; fixed, so memory is bounded and independent of threads.
+const LAYER_BATCH: usize = 16;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct C64 {
@@ -188,12 +197,13 @@ pub fn kaiser_bessel_kernel(kernel_size: usize, oversampling: usize) -> Vec<f64>
 }
 
 /// The `oversampling` sub-cell kernels of `kernel_size` taps, indexed as
-/// WSClean's `_griddingKernels` (reversed order).
-fn gridding_kernels(kernel_1d: &[f64], kernel_size: usize, oversampling: usize) -> Vec<Vec<f64>> {
-    let mut kernels = vec![vec![0.0; kernel_size]; oversampling];
+/// WSClean's `_griddingKernels` (reversed order), stored flat:
+/// kernel `k`, tap `x` at `k * kernel_size + x`.
+fn gridding_kernels(kernel_1d: &[f64], kernel_size: usize, oversampling: usize) -> Vec<f64> {
+    let mut kernels = vec![0.0; kernel_size * oversampling];
     for i in 0..oversampling {
-        let kernel = &mut kernels[oversampling - i - 1];
-        for (x, value) in kernel.iter_mut().enumerate() {
+        let start = (oversampling - i - 1) * kernel_size;
+        for (x, value) in kernels[start..start + kernel_size].iter_mut().enumerate() {
             *value = kernel_1d[x * oversampling + i];
         }
     }
@@ -338,19 +348,34 @@ fn fft(data: &mut [C64], sign: f64) {
 
 /// Unnormalised 2-D backward transform of a `[x + y * width]` grid, as
 /// `fftw_plan_dft_2d(height, width, ..., FFTW_BACKWARD)`.
-fn fft2_backward(grid: &mut [C64], plan_x: &FftPlan, plan_y: &FftPlan, scratch: &mut Vec<C64>) {
-    let (width, height) = (plan_x.len(), plan_y.len());
-    for row in grid.chunks_mut(width) {
-        plan_x.execute(row, scratch);
-    }
-    let mut column = vec![C64::ZERO; height];
-    for x in 0..width {
-        for y in 0..height {
-            column[y] = grid[x + y * width];
+struct Fft2 {
+    plan_x: FftPlan,
+    plan_y: FftPlan,
+}
+
+impl Fft2 {
+    fn new(width: usize, height: usize) -> Fft2 {
+        Fft2 {
+            plan_x: FftPlan::new(width, 1.0),
+            plan_y: FftPlan::new(height, 1.0),
         }
-        plan_y.execute(&mut column, scratch);
-        for y in 0..height {
-            grid[x + y * width] = column[y];
+    }
+
+    #[inline(never)]
+    fn backward(&self, grid: &mut [C64], ws_column: &mut [C64], scratch: &mut Vec<C64>) {
+        let (width, height) = (self.plan_x.len(), self.plan_y.len());
+        for row in grid.chunks_mut(width) {
+            self.plan_x.execute(row, scratch);
+        }
+        let column = &mut ws_column[..height];
+        for x in 0..width {
+            for y in 0..height {
+                column[y] = grid[x + y * width];
+            }
+            self.plan_y.execute(column, scratch);
+            for y in 0..height {
+                grid[x + y * width] = column[y];
+            }
         }
     }
 }
@@ -370,13 +395,36 @@ fn dct3_prefix(input: &[f64], n: usize, count: usize) -> Vec<f64> {
         .collect()
 }
 
+/// One visibility as the gridder adds it, after `AddDataSample`'s
+/// conjugation of negative-w samples, its rounding to a cell (wrapped into
+/// the grid) and its choice of sub-cell kernels. The weighted Stokes sample
+/// and the PSF weight stay single precision: both are the `f32` products the
+/// reader forms, so storing them rounds nothing.
+#[derive(Clone, Copy, Debug, Default)]
+struct Sample {
+    x: i32,
+    y: i32,
+    x_kernel: u16,
+    y_kernel: u16,
+    re: f32,
+    im: f32,
+    weight: f32,
+}
+
+/// Per-layer working memory of one rayon task.
+struct Workspace {
+    dirty: Vec<C64>,
+    psf: Vec<C64>,
+    column: Vec<C64>,
+    scratch: Vec<C64>,
+}
+
 /// The w-stacking gridder state for one inversion.
 pub struct Gridder {
     settings: Settings,
-    plan_x: FftPlan,
-    plan_y: FftPlan,
+    fft: Fft2,
     kernel_1d: Vec<f64>,
-    kernels: Vec<Vec<f64>>,
+    kernels: Vec<f64>,
     min_w: f64,
     max_w: f64,
     sqrt_lm: Vec<f64>,
@@ -390,8 +438,7 @@ impl Gridder {
         let max_w = if min_w == max_w { max_w + 1.0 } else { max_w };
         let mut gridder = Gridder {
             settings,
-            plan_x: FftPlan::new(settings.width, 1.0),
-            plan_y: FftPlan::new(settings.height, 1.0),
+            fft: Fft2::new(settings.width, settings.height),
             kernel_1d,
             kernels,
             min_w,
@@ -459,18 +506,28 @@ impl Gridder {
         self.sqrt_lm = table;
     }
 
-    /// `AddDataSample` for the layer currently being gridded. `sample` is the
-    /// weighted Stokes visibility; `uvw` in wavelengths.
-    fn add_sample(&self, grid: &mut [C64], layer: usize, sample: C64, u: f64, v: f64, w: f64) {
-        let (mut sample, mut u, mut v, mut w) = (sample, u, v, w);
+    /// The cell and sub-cell kernels `AddDataSample` chooses for one sample
+    /// (`uvw` in wavelengths), or `None` where it drops the sample: outside
+    /// every layer or outside the grid. `re`, `im` are the weighted Stokes
+    /// sample and `weight` the PSF weight.
+    fn place(
+        &self,
+        re: f32,
+        im: f32,
+        weight: f32,
+        u: f64,
+        v: f64,
+        w: f64,
+    ) -> Option<(usize, Sample)> {
+        let layer = self.w_to_layer(w)?;
+        if layer >= self.settings.n_w_layers {
+            return None;
+        }
+        let (mut u, mut v, mut im) = (u, v, im);
         if w < 0.0 {
             u = -u;
             v = -v;
-            w = -w;
-            sample = sample.conj();
-        }
-        if self.w_to_layer(w) != Some(layer) {
-            return;
+            im = -im;
         }
         let s = &self.settings;
         let (width, height) = (s.width as i64, s.height as i64);
@@ -483,49 +540,88 @@ impl Gridder {
         let mut y_kernel = ((y_exact - y as f64) * s.oversampling as f64).round() as i64;
         x_kernel = (x_kernel + (ovs * 3) / 2) % ovs;
         y_kernel = (y_kernel + (ovs * 3) / 2) % ovs;
-        let x_kernel = &self.kernels[x_kernel as usize];
-        let y_kernel = &self.kernels[y_kernel as usize];
-        let mid = (s.kernel_size / 2) as i64;
-        if x > -width / 2 && y > -height / 2 && x <= width / 2 && y <= height / 2 {
-            if x < 0 {
-                x += width;
-            }
-            if y < 0 {
-                y += height;
-            }
-            let ksize = s.kernel_size as i64;
+        if !(x > -width / 2 && y > -height / 2 && x <= width / 2 && y <= height / 2) {
+            return None;
+        }
+        if x < 0 {
+            x += width;
+        }
+        if y < 0 {
+            y += height;
+        }
+        Some((
+            layer,
+            Sample {
+                x: x as i32,
+                y: y as i32,
+                x_kernel: x_kernel as u16,
+                y_kernel: y_kernel as u16,
+                re,
+                im,
+                weight,
+            },
+        ))
+    }
+
+    /// `AddDataSample` of every sample of one layer, into the dirty grid
+    /// (the weighted Stokes sample) and the PSF grid (the weight), in the
+    /// samples' order.
+    #[inline(never)]
+    fn grid_layer(&self, samples: &[Sample], dirty: &mut [C64], psf: &mut [C64]) {
+        let s = &self.settings;
+        let (width, height) = (s.width as i64, s.height as i64);
+        let ksize = s.kernel_size;
+        let mid = (ksize / 2) as i64;
+        for sample in samples {
+            let (x, y) = (sample.x as i64, sample.y as i64);
+            let xk = &self.kernels[sample.x_kernel as usize * ksize..][..ksize];
+            let yk = &self.kernels[sample.y_kernel as usize * ksize..][..ksize];
+            let (re, im) = (sample.re as f64, sample.im as f64);
+            let weight = sample.weight as f64;
             if x < mid || x + mid + 1 >= width || y < mid || y + mid + 1 >= height {
-                for j in 0..ksize {
-                    let yk = y_kernel[j as usize];
-                    let cy = ((y + j + height - mid) % height) * width;
-                    for i in 0..ksize {
-                        let cx = (x + i + width - mid) % width;
-                        let k = yk * x_kernel[i as usize];
-                        let cell = &mut grid[(cx + cy) as usize];
-                        cell.re += sample.re * k;
-                        cell.im += sample.im * k;
+                for (j, &ky) in yk.iter().enumerate() {
+                    let cy = ((y + j as i64 + height - mid) % height) * width;
+                    for (i, &kx) in xk.iter().enumerate() {
+                        let cx = (x + i as i64 + width - mid) % width;
+                        let k = ky * kx;
+                        let index = (cx + cy) as usize;
+                        let cell = &mut dirty[index];
+                        cell.re += re * k;
+                        cell.im += im * k;
+                        // The PSF sample is real: its imaginary part adds
+                        // signed zeros to a +0 cell, which stays +0.
+                        psf[index].re += weight * k;
                     }
                 }
             } else {
                 let x0 = x - mid;
-                let mut yy = y - mid;
-                for j in 0..ksize {
-                    let yk = y_kernel[j as usize];
-                    let base = (x0 + yy * width) as usize;
-                    for i in 0..ksize {
-                        let k = yk * x_kernel[i as usize];
-                        let cell = &mut grid[base + i as usize];
-                        cell.re += sample.re * k;
-                        cell.im += sample.im * k;
+                for (j, &ky) in yk.iter().enumerate() {
+                    let base = (x0 + (y - mid + j as i64) * width) as usize;
+                    let row_d = &mut dirty[base..base + ksize];
+                    let row_p = &mut psf[base..base + ksize];
+                    for ((cell, cell_p), &kx) in row_d.iter_mut().zip(row_p.iter_mut()).zip(xk) {
+                        let k = ky * kx;
+                        cell.re += re * k;
+                        cell.im += im * k;
+                        cell_p.re += weight * k;
                     }
-                    yy += 1;
                 }
             }
         }
     }
 
-    /// `projectOnImageAndCorrect<false>` for one transformed layer.
-    fn project(&self, source: &[C64], w: f64, image: &mut [f64]) {
+    /// `projectOnImageAndCorrect<false>` of one transformed layer, for the
+    /// dirty and the PSF grid with the same phasor: each output pixel is
+    /// written once, so the result is this layer's term of the sum.
+    #[inline(never)]
+    fn project(
+        &self,
+        dirty_grid: &[C64],
+        psf_grid: &[C64],
+        w: f64,
+        dirty: &mut [f64],
+        psf: &mut [f64],
+    ) {
         let (width, height) = (self.settings.width, self.settings.height);
         let two_pi_w = -2.0 * PI * w;
         let mut index = 0;
@@ -541,15 +637,97 @@ impl Gridder {
                 }
                 let rad = two_pi_w * self.sqrt_lm[index];
                 let (sn, cs) = rad.sin_cos();
-                let value = source[index];
-                image[x_src + y_src * width] += value.re * cs - value.im * sn;
+                let target = x_src + y_src * width;
+                let value = dirty_grid[index];
+                dirty[target] = value.re * cs - value.im * sn;
+                let value = psf_grid[index];
+                psf[target] = value.re * cs - value.im * sn;
                 index += 1;
             }
         }
     }
 
+    /// Grid, transform and project one layer; returns its dirty and PSF terms.
+    fn layer_terms(
+        &self,
+        samples: &[Sample],
+        layer: usize,
+        ws: &mut Workspace,
+    ) -> (Vec<f64>, Vec<f64>) {
+        ws.dirty.fill(C64::ZERO);
+        ws.psf.fill(C64::ZERO);
+        self.grid_layer(samples, &mut ws.dirty, &mut ws.psf);
+        self.fft
+            .backward(&mut ws.dirty, &mut ws.column, &mut ws.scratch);
+        self.fft
+            .backward(&mut ws.psf, &mut ws.column, &mut ws.scratch);
+        let pixels = self.settings.width * self.settings.height;
+        let mut dirty = vec![0.0; pixels];
+        let mut psf = vec![0.0; pixels];
+        self.project(
+            &ws.dirty,
+            &ws.psf,
+            self.layer_to_w(layer),
+            &mut dirty,
+            &mut psf,
+        );
+        (dirty, psf)
+    }
+
+    fn workspace(&self) -> Workspace {
+        let (width, height) = (self.settings.width, self.settings.height);
+        Workspace {
+            dirty: vec![C64::ZERO; width * height],
+            psf: vec![C64::ZERO; width * height],
+            column: vec![C64::ZERO; width.max(height)],
+            scratch: Vec::new(),
+        }
+    }
+
+    /// Grid, transform and project every layer of the bucketed samples
+    /// (`offsets[layer]..offsets[layer + 1]`), layers in parallel, terms
+    /// added in layer order; then `FinalizeImage(1 / image_weight)` of both.
+    fn invert(
+        &self,
+        samples: &[Sample],
+        offsets: &[usize],
+        image_weight: f64,
+    ) -> (Vec<f64>, Vec<f64>) {
+        let pixels = self.settings.width * self.settings.height;
+        let mut dirty = vec![0.0; pixels];
+        let mut psf = vec![0.0; pixels];
+        let layers: Vec<usize> = (0..self.settings.n_w_layers)
+            .filter(|&layer| offsets[layer + 1] > offsets[layer])
+            .collect();
+        for batch in layers.chunks(LAYER_BATCH) {
+            let terms: Vec<(Vec<f64>, Vec<f64>)> = batch
+                .par_iter()
+                .map_init(
+                    || self.workspace(),
+                    |ws, &layer| {
+                        self.layer_terms(&samples[offsets[layer]..offsets[layer + 1]], layer, ws)
+                    },
+                )
+                .collect();
+            for (term_d, term_p) in &terms {
+                for (value, term) in dirty.iter_mut().zip(term_d) {
+                    *value += term;
+                }
+                for (value, term) in psf.iter_mut().zip(term_p) {
+                    *value += term;
+                }
+            }
+        }
+        let factor = 1.0 / image_weight;
+        for value in dirty.iter_mut().chain(psf.iter_mut()) {
+            *value *= factor;
+        }
+        self.correct_for_kernel(&mut dirty, &mut psf);
+        (dirty, psf)
+    }
+
     /// `correctImageForKernel<false>`: divide by the kernel's image response.
-    fn correct_for_kernel(&self, image: &mut [f64]) {
+    fn correct_for_kernel(&self, dirty: &mut [f64], psf: &mut [f64]) {
         let s = &self.settings;
         let half = s.kernel_size * s.oversampling / 2;
         let right = &self.kernel_1d[half..=half + s.kernel_size * s.oversampling / 2];
@@ -573,40 +751,12 @@ impl Gridder {
                 } else {
                     out_x[s.width / 2 - x]
                 };
-                image[index] /= x_val * y_val * norm;
+                let divisor = x_val * y_val * norm;
+                dirty[index] /= divisor;
+                psf[index] /= divisor;
                 index += 1;
             }
         }
-    }
-
-    /// Grid, transform and project every layer of `samples` (weighted Stokes
-    /// visibilities with `(u, v, w)` in wavelengths), then `FinalizeImage`.
-    fn invert(&self, samples: &[(C64, f64, f64, f64)], image_weight: f64) -> Vec<f64> {
-        let (width, height) = (self.settings.width, self.settings.height);
-        let mut image = vec![0.0; width * height];
-        let mut grid = vec![C64::ZERO; width * height];
-        let mut scratch = Vec::new();
-        for layer in 0..self.settings.n_w_layers {
-            grid.fill(C64::ZERO);
-            let mut any = false;
-            for &(sample, u, v, w) in samples {
-                if self.w_to_layer(w) == Some(layer) {
-                    any = true;
-                    self.add_sample(&mut grid, layer, sample, u, v, w);
-                }
-            }
-            if !any {
-                continue;
-            }
-            fft2_backward(&mut grid, &self.plan_x, &self.plan_y, &mut scratch);
-            self.project(&grid, self.layer_to_w(layer), &mut image);
-        }
-        let factor = 1.0 / image_weight;
-        for value in image.iter_mut() {
-            *value *= factor;
-        }
-        self.correct_for_kernel(&mut image);
-        image
     }
 }
 
@@ -669,6 +819,7 @@ pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> 
         || settings.kernel_size.is_multiple_of(2)
         || settings.padding.is_nan()
         || settings.padding < 1.0
+        || settings.oversampling > usize::from(u16::MAX)
     {
         return Err("invalid image or kernel settings".into());
     }
@@ -680,6 +831,9 @@ pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> 
         return Err("input lengths disagree".into());
     }
     let (padded_width, padded_height) = settings.padded_size();
+    if padded_width > i32::MAX as usize || padded_height > i32::MAX as usize {
+        return Err("image too large".into());
+    }
     let padded = Settings {
         width: padded_width,
         height: padded_height,
@@ -692,8 +846,13 @@ pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> 
         max_w,
         ..Stats::default()
     };
-    let mut samples = Vec::with_capacity(nrow * nchan);
-    let mut psf_samples = Vec::with_capacity(nrow * nchan);
+    // One pass in row-channel order: the counters (in WSClean's summation
+    // order) and the gridded samples with their layers. Samples whose
+    // weighted value and weight are both zero add only signed zeros to the
+    // grids and are not kept.
+    let mut placed = Vec::new();
+    let mut layers = Vec::new();
+    let mut counts = vec![0usize; settings.n_w_layers];
     for row in 0..nrow {
         let (um, vm, wm) = (
             inputs.uvw[row * 3],
@@ -720,15 +879,35 @@ pub fn invert(settings: &Settings, inputs: &Inputs) -> Result<Products, String> 
             stats.image_weight += cum_weight as f64;
             let re = inputs.data[index * 2] * cum_weight;
             let im = inputs.data[index * 2 + 1] * cum_weight;
-            samples.push((C64::new(re as f64, im as f64), u, v, w));
-            psf_samples.push((C64::new(cum_weight as f64, 0.0), u, v, w));
+            if cum_weight == 0.0 && re == 0.0 && im == 0.0 {
+                continue;
+            }
+            if let Some((layer, sample)) = gridder.place(re, im, cum_weight, u, v, w) {
+                placed.push(sample);
+                layers.push(layer as u32);
+                counts[layer] += 1;
+            }
         }
     }
     if stats.image_weight == 0.0 {
         return Err("no visibility carries weight".into());
     }
-    let mut dirty = gridder.invert(&samples, stats.image_weight);
-    let mut psf = gridder.invert(&psf_samples, stats.image_weight);
+    // Stable counting sort by layer: within a layer the samples keep their
+    // row-channel order, the order in which WSClean grids them.
+    let mut offsets = vec![0usize; settings.n_w_layers + 1];
+    for (layer, count) in counts.iter().enumerate() {
+        offsets[layer + 1] = offsets[layer] + count;
+    }
+    let mut cursor = offsets.clone();
+    let mut samples = vec![Sample::default(); placed.len()];
+    for (sample, &layer) in placed.iter().zip(&layers) {
+        samples[cursor[layer as usize]] = *sample;
+        cursor[layer as usize] += 1;
+    }
+    drop(placed);
+    drop(layers);
+    let (mut dirty, mut psf) = gridder.invert(&samples, &offsets, stats.image_weight);
+    drop(samples);
     if (padded_width, padded_height) != (settings.width, settings.height) {
         dirty = trim(
             &dirty,
@@ -840,24 +1019,13 @@ mod tests {
         }
     }
 
-    #[test]
-    fn point_source_lands_at_wsclean_pixel() {
-        // A point source at (l, m) = (5, -3) pixels, positive MS phase
-        // convention, must peak at x = W/2 - 5, y = H/2 - 3.
-        let settings = Settings {
-            width: 32,
-            height: 32,
-            pixel_size_x: 1e-3,
-            pixel_size_y: 1e-3,
-            kernel_size: 7,
-            oversampling: 1023,
-            n_w_layers: 4,
-            padding: 1.2,
-        };
+    /// A point source at (l, m) = (5, -3) pixels, positive MS phase
+    /// convention, on a small array with w terms.
+    fn point_source(settings: &Settings) -> (Vec<f64>, Vec<f64>, Vec<f32>, Vec<f32>) {
         let l = 5.0 * settings.pixel_size_x;
         let m = -3.0 * settings.pixel_size_y;
         let n = (1.0 - l * l - m * m).sqrt();
-        let frequencies = [1.0e9, 1.2e9];
+        let frequencies = vec![1.0e9, 1.2e9];
         let mut uvw = Vec::new();
         let mut data = Vec::new();
         let mut weights = Vec::new();
@@ -871,9 +1039,31 @@ mod tests {
                 let phase = 2.0 * PI * (u * l + v * m + w * (n - 1.0)) / lambda;
                 data.push(phase.cos() as f32);
                 data.push(phase.sin() as f32);
-                weights.push(1.0f32);
+                // One flagged sample per row exercises the skipped zeros.
+                weights.push(if i % 5 == 0 && freq > 1.1e9 { 0.0 } else { 1.0 });
             }
         }
+        (uvw, frequencies, data, weights)
+    }
+
+    fn small_settings(n_w_layers: usize) -> Settings {
+        Settings {
+            width: 32,
+            height: 32,
+            pixel_size_x: 1e-3,
+            pixel_size_y: 1e-3,
+            kernel_size: 7,
+            oversampling: 1023,
+            n_w_layers,
+            padding: 1.2,
+        }
+    }
+
+    #[test]
+    fn point_source_lands_at_wsclean_pixel() {
+        // The peak must be at x = W/2 - 5, y = H/2 - 3.
+        let settings = small_settings(4);
+        let (uvw, frequencies, data, weights) = point_source(&settings);
         let imaging = vec![1.0f32; weights.len()];
         let inputs = Inputs {
             uvw: &uvw,
@@ -895,6 +1085,38 @@ mod tests {
         let centre = 16 + 16 * 32;
         assert!((products.psf[centre] - 1.0).abs() <= 2.0 * f64::EPSILON);
         assert!((best_value - 1.0).abs() < 0.05, "peak {best_value}");
-        assert_eq!(products.stats.gridded_count, 120);
+        assert_eq!(products.stats.gridded_count, 108);
+    }
+
+    #[test]
+    fn result_does_not_depend_on_the_thread_count() {
+        let settings = small_settings(40);
+        let (uvw, frequencies, data, weights) = point_source(&settings);
+        let imaging: Vec<f32> = (0..weights.len()).map(|i| 0.5 + (i % 3) as f32).collect();
+        let inputs = Inputs {
+            uvw: &uvw,
+            frequencies: &frequencies,
+            data: &data,
+            weights: &weights,
+            imaging_weights: &imaging,
+        };
+        let run = |threads: usize| {
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap()
+                .install(|| invert(&settings, &inputs).unwrap())
+        };
+        let one = run(1);
+        for threads in [2, 3, 8] {
+            let many = run(threads);
+            assert_eq!(one.stats, many.stats);
+            for (a, b) in one.dirty.iter().zip(&many.dirty) {
+                assert_eq!(a.to_bits(), b.to_bits());
+            }
+            for (a, b) in one.psf.iter().zip(&many.psf) {
+                assert_eq!(a.to_bits(), b.to_bits());
+            }
+        }
     }
 }
