@@ -655,15 +655,22 @@ def run(
     precondition_dir=None,
     label="frozen",
     with_survey=True,
+    gridder="wstack",
 ):
     """The frozen L2 campaign for one model arm (L1's `run` with the group,
     roots and model as parameters). The precondition's replay passes K's
-    group, stations and image settings with `k_metrics=True`."""
+    group, stations and image settings with `k_metrics=True`.
+    `gridder="wgrid"` as L1's (research/df2c-campaign-gridder.md)."""
+    image, groups = array.image_settings(
+        array.ARRAY_IMAGE if image is None else image, groups, gridder
+    )
+    gridder = image.get("gridder", "wstack")
+    if gridder != "wstack":
+        label = f"{label}; gridder {gridder}"
     run_dir = Path(run_dir)
     if run_dir.exists():
         raise FileExistsError(f"{run_dir} exists; use a fresh run directory")
     run_dir.mkdir(parents=True)
-    image = dict(array.ARRAY_IMAGE if image is None else image)
     roots = roots_for(group, fetch_dir)
     fetched = None
     if fetch_dir is not None and group != K_GROUP:
@@ -1003,6 +1010,7 @@ def run(
             "validation_tolerance": core_campaign.VALIDATION_TOLERANCE,
             "image": image,
             "channel_groups": groups,
+            "gridder": core_campaign.gridder_settings(gridder),
             "k_metrics": k_metrics,
             "robust": core_campaign.ROBUST,
             "decision_band": [core_campaign.BETTER, core_campaign.WORSE],

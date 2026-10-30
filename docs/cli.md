@@ -282,7 +282,7 @@ LUNO campaign, task K (research/core-k-luno-campaign.md)
 ```text
 $ rang-core campaign run -h
 usage: rang-core campaign run [-h] [--precondition PRECONDITION]
-                              [--workers WORKERS]
+                              [--workers WORKERS] [--gridder {wstack,wgrid}]
                               run_dir
 
 positional arguments:
@@ -292,6 +292,7 @@ options:
   -h, --help            show this help message and exit
   --precondition PRECONDITION
   --workers WORKERS
+  --gridder {wstack,wgrid}
 ```
 
 ## `campaign-array`
@@ -302,7 +303,7 @@ usage: rang-core campaign-array VERB ARGS...
 
 LUNO whole-array campaign, task L1 (research/luno-array-campaign.md)
 
-  run             examples/run_luno_array.py, unchanged
+  run             examples/run_luno_array.py, unchanged (--gridder wstack|wgrid)
   precondition    examples/precondition_luno_array.py, unchanged
   compare         examples/check_luno_array.py, unchanged (the L1 checker)
   archive         RUN_DIR OUT.json [--status S] [--compare RECEIPT]: a rang.archive
@@ -318,7 +319,7 @@ usage: rang-core campaign-1830 VERB ARGS...
 PKS 1830 campaign, task L2 (research/luno-1830-campaign.md)
 
   fetch           examples/fetch_luno_1830.py, unchanged
-  run             examples/run_luno_1830.py, unchanged
+  run             examples/run_luno_1830.py, unchanged (--gridder wstack|wgrid)
   precondition    examples/precondition_luno_1830.py, unchanged
   compare         examples/check_luno_1830.py, unchanged (the L2 checker)
   archive         RUN_DIR OUT.json [--status S] [--compare RECEIPT]: a rang.archive
@@ -334,7 +335,7 @@ usage: rang-core campaign-fieldmodel VERB ARGS...
 PKS 1934-638 field-model arms, task L1-M (research/l1-model-completeness.md)
 
   fetch           examples/fetch_l1m.py, unchanged
-  run             examples/run_l1m.py, unchanged
+  run             examples/run_l1m.py, unchanged (--gridder wstack|wgrid)
   compare         examples/check_l1m.py, unchanged (the L1-M checker)
   archive         RUN_DIR OUT.json [--status S] [--compare RECEIPT]: a rang.archive
   legacy-archive  examples/archive_l1m.py, unchanged

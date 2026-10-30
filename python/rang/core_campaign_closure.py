@@ -775,8 +775,13 @@ def closure_arms(run_dir, hooks, result, started=None):
     return record
 
 
-def run(run_dir, stations=None, precondition_dir=None, label="frozen"):
-    """L1's campaign unedited with the C1 hooks, then `c1.json`."""
+def run(
+    run_dir, stations=None, precondition_dir=None, label="frozen", gridder="wstack"
+):
+    """L1's campaign unedited with the C1 hooks, then `c1.json`. `gridder` is
+    L1's; the two C1 arms follow it through the run's image settings
+    (research/df2c-campaign-gridder.md)."""
+    core_campaign.gridder_settings(gridder)  # refuse an unknown name first
     started = time.perf_counter()
     core_closure.library()  # build or load the kernel before any timing
     hooks = Hooks()
@@ -786,6 +791,7 @@ def run(run_dir, stations=None, precondition_dir=None, label="frozen"):
             stations=stations,
             precondition_dir=precondition_dir,
             label=f"{label}; C1 closure arms",
+            gridder=gridder,
         )
     record = closure_arms(run_dir, hooks, result, started)
     hooks.state = hooks.base = None

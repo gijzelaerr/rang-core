@@ -32,6 +32,7 @@ def main():
     parser.add_argument("run_dir")
     parser.add_argument("--precondition", default=None)
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--gridder", choices=("wstack", "wgrid"), default="wstack")
     parser.add_argument("--stations", type=stations_arg, default=None)
     args = parser.parse_args()
     run_dir = Path(args.run_dir)
@@ -54,6 +55,7 @@ def main():
         stations=args.stations,
         precondition_dir=args.precondition,
         label="labelled smoke (not the campaign)" if args.smoke else "frozen",
+        gridder=args.gridder,
     )
     core_cli.environment(run_dir)
     print(

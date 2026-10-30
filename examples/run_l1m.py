@@ -45,6 +45,7 @@ def main():
     parser.add_argument("--lsm", default=None)
     parser.add_argument("--precondition", default=None)
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--gridder", choices=("wstack", "wgrid"), default="wstack")
     parser.add_argument("--stations", type=stations_arg, default=None)
     parser.add_argument("--compare", type=compare_arg, action="append", default=[])
     args = parser.parse_args()
@@ -70,6 +71,7 @@ def main():
         stations=args.stations,
         precondition_dir=args.precondition,
         label="labelled smoke (not the campaign)" if args.smoke else "frozen",
+        gridder=args.gridder,
         others=dict(args.compare) or None,
     )
     core_cli.environment(run_dir)
