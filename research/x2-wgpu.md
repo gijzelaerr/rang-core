@@ -28,7 +28,10 @@ relative (the seven counters proper are exact). Speed on the RTX 4070 Ti
 against 0.30 s on 16 CPU threads (2.5–3.3×) and 0.80–0.82 s on one (7–9×);
 the 23.8 M-visibility whole-array image 2.5 s against 3.1 s and 7.6 s, of
 which 1.1 s is the CPU's own serial counters pass that both paths share
-(GPU compute alone 0.8 s, 0.43 s with a 4 GiB budget). The experimental f32
+(GPU compute alone 0.8 s, 0.43 s with a 4 GiB budget). Checks: Windows
+`rang.check` and Linux `check-all.sh` print `## overall: PASS` with the
+feature off; the feature builds and its tests pass (Windows) or skip
+(Linux, no usable adapter) with the coordinator's wiring applied. The experimental f32
 path passes C and I (I with a smaller response-fraction difference, 2.9e-8,
 than f64: WSClean grids in f32) and **fails K** on the residual metrics
 (1.2–3.5e-5 relative against 8.8e-6), so it cannot stand in for the CPU path.
@@ -378,8 +381,8 @@ average 3.7–7.2 throughout (sibling sessions; the CPUs are shared).
 | 5 | Determinism | **pass** | every C and K GPU image one SHA256 over three fresh-process repeats; default batching (K: 4 batches × 9 layers; C: 5 × 9) and one-layer batches bit-identical; the whole-array images too over the repeats |
 | 6 | CPU path unchanged | **pass** | every C (15), K (6) and whole-array image at 1 and 16 threads bit-identical to the `3b875e0` baseline, with the feature-on extension (`device=cpu`, `x2-20261030-04/compare-*-cpu-t*.json`) and with the feature-off extension that the final Windows check built from `7af8917` (`x2-20261030-04/feature-off`) |
 | 7 | Correctness tests | **pass** | Rust: `stockham_scheme_matches_a_direct_dft` (17 lengths, factors 2, 3, 4, 5, 7, 11, 13, lengths 1, 2, 16, 616; 1e-12), `gpu_fft_matches_rustfft` (f64 1e-12, f32 1e-5 of the largest output; 12×30, 77×13, 1×8, 16×5, three 616² grids), `gpu_inversion_matches_the_cpu_and_ignores_batching` (f64 1e-12 of peak, f32 1e-4; batching bit-neutral), `unsupported_sizes_are_refused`, `pack_layer_sorts_stably_by_cell`, `radices_cover_the_comparator_sizes` |
-| 8 | Clean failure | **pass** | Windows, feature off: GPU tests skip, the RuntimeError test passes; WSL: `skipped: no usable GPU adapter …; seen: [llvmpipe (LLVM 21.1.8, 256 bits) (Vulkan, Cpu)]` |
-| 9 | Builds and checks | **pass** (Windows check PASS; Linux check-all below) | see [Checks](#checks-on-both-platforms) |
+| 8 | Clean failure | **pass** | Windows, feature off: GPU tests skip, the RuntimeError test passes. WSL, feature on (binding built): pytest 3 passed, 2 skipped, the only Vulkan adapter being llvmpipe, which is rejected, and likewise with no adapter at all (`VK_ICD_FILENAMES=/nonexistent`); the Rust GPU tests return early (`skipped: no usable GPU adapter …`). The protocol's "WSL (no Vulkan loader)" was inexact: WSL has a loader; a host without any loader was not tested |
+| 9 | Builds and checks | **pass** | Windows `rang.check` `## overall: PASS`; Linux `check-all.sh` `## overall: PASS`; feature-on builds and tests on both; see [Checks](#checks-on-both-platforms) |
 
 ### The f32 path (criterion 10, reported, not gated)
 
@@ -486,7 +489,17 @@ rest.
   (Vulkan, Metal or DX12, not a CPU rasteriser); seen: [llvmpipe (LLVM
   21.1.8, 256 bits) (Vulkan, Cpu)]`).
 - **Linux (WSL), `bash tools/check-all.sh`** with
-  `OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`, feature off: pending at this commit (recorded in the next one).
+  `OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`, feature off, on `abb913a` (the code of the final head; the final
+  commit adds only these lines of this file): **`## overall: PASS`**,
+  787 s, pytest 620 passed, 7 skipped. Log
+  `outputs/x2-20261030-04/linux/check-all.log`.
+- **Linux (WSL), pytest with the binding present** (wiring applied to a
+  scratch checkout of `abb913a`, `maturin develop --release --features
+  gpu`): `tests/test_x2_gpu.py` 3 passed, 2 skipped, reason `no usable GPU
+  adapter …; seen: [llvmpipe (LLVM 21.1.8, 256 bits) (Vulkan, Cpu)]`; with
+  `VK_ICD_FILENAMES=/nonexistent` (no adapter at all) the same, `seen: []`.
+  The RuntimeError test passes in both. Log
+  `outputs/x2-20261030-04/linux/pytest-gpu.txt`.
 
 ## Deviations and post-hoc items
 
@@ -589,6 +602,10 @@ All on native Windows unless marked WSL; walls of the loaded host (WSL load
 | 2026-10-30 | WSL `cargo build --offline --locked --release` of `core/`, feature off | 76.8 s | – | |
 | 2026-10-30 | WSL `cargo build --offline --release --features gpu` (wired copy) | 136.6 s | – | |
 | 2026-10-30 | WSL `cargo test --offline --release --features gpu -- gpu grid` | 128.3 s | – | 19 passed, GPU tests skipped (llvmpipe rejected) |
+| 2026-10-30 | `python -m rang.check` on `7af8917` (final code, feature off) | 481 s | – | `## overall: PASS`; pytest 593 passed, 34 skipped |
+| 2026-10-30 | feature-off CPU images C/K/array at 1 and 16 threads (criterion 6) | about 40 s | – | all bit-identical to the baseline |
+| 2026-10-30 | WSL `bash tools/check-all.sh` on `abb913a` (`OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`) | 787 s | – | `## overall: PASS`; pytest 620 passed, 7 skipped; load 2.4–2.6 at the end |
+| 2026-10-30 | WSL `uv pip install -e ".[test]"` + `maturin develop --release --features gpu` (scratch wired checkout) | 75.5 s + 101.4 s | – | then `pytest tests/test_x2_gpu.py`: 3 passed, 2 skipped |
 
 ## For the coordinator
 
@@ -637,9 +654,10 @@ All on native Windows unless marked WSL; walls of the loaded host (WSL load
   1.2× at whole-array scale; f32 fails K."
 - **`research/tool-timings.md` rows:** the "Tool runs" table above.
 - **Upstream observations (listed, not filed):** RATT and caracal-pipeline:
-  none. Non-RATT: (1) wgpu 30.0.1's DX12 backend does not expose
-  `Features::SHADER_F64` on an RTX 4070 Ti (driver 621.01) although D3D12
-  supports double-precision shaders; Vulkan exposes it on the same card;
+  none. Non-RATT: (1) wgpu 30.0.1's DX12 backend did not expose
+  `Features::SHADER_F64` on an RTX 4070 Ti (driver 621.01) while Vulkan
+  does on the same card (observed; cause not investigated: wgpu may gate it
+  on the shader compiler, DXC against FXC);
   (2) naga's WGSL front end rejects `active` as an identifier (reserved
   word) with a clear message, fine; no f64 `sin`/`cos` exists in WGSL or
   SPIR-V GLSL.std.450, so an f64 phasor needs its own polynomial (a known
