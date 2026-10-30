@@ -44,6 +44,10 @@ ARMS = {
     "c": (3, True, "", "m000"),  # the baseline arm
     "ch": (3, True, "", "m000"),
     "sh": (3, False, "", "m000"),
+    # Post-hoc after run -02: is minblperant=3 needed once uvrange is lifted?
+    "e": (None, True, "", "m000"),
+    # ... and is the uvrange cut fatal once minblperant=3 and refant are set?
+    "f": (3, True, ">50", "m000"),
 }
 
 

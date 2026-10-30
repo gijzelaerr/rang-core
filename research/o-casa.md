@@ -4,8 +4,18 @@ Protocol frozen 2026-10-30 on branch `o-casa` (from origin/main `b87ba3c`),
 before the image was built or any CASA task was run. Task O-CASA of
 [big-plan.md](big-plan.md), section "Plan additions" of the
 [ecosystem survey](ecosystem-survey.md) (oracles: section 5.4).
-Status: **proposed** (this commit). Results are added below the protocol,
-never edited into it.
+Status: **implemented; measured (provisional under the open LUNO
+licence).** CARACal's crosscal defaults do not calibrate a four-station
+core set: the automatic reference antenna is empty and K stops. The
+smallest deviation that solves needs three changes: `refant` set by hand,
+`minblperant=3`, and no `uvrange` cut. With those, CASA's K·G·B
+calibration reproduces in hash over two runs. Its applied gains agree with
+the core's QuartiCal port to 0.4 % in amplitude and 0.33° in phase (median,
+stored model). On held-out cells its MSE is 10 % higher on the parallel
+hands and 58 % higher on the cross hands, because K·G·B has no
+off-diagonal term. See "Measured result". Results are added below the
+protocol, never edited into it; this status line is the only edit above
+the amendment.
 
 ## Why
 
@@ -374,3 +384,335 @@ post-hoc and labelled.
    core with its off-diagonal gain terms zeroed.
 
 The smoke numbers are not results; `-01` and `-02` are.
+
+## Measured result (2026-10-30, provisional)
+
+Runs `outputs/o-casa-20261030-01` and `-02` used `run.sh` at commit
+`7162468`, image `rang-o-casa:6.7.6.14`. The image ID
+`sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8`
+is its content digest; the image is local and has no registry digest. It
+is 1,413,632,658 bytes and built in 56.1 s. Each run took 47.4 s and 44.9 s
+wall in all, with a peak RSS of 521 MB. Archive:
+[results/o-casa-crosscal.json](results/o-casa-crosscal.json) (135 KB).
+It holds numbers and hashes only; no visibilities.
+
+### Inputs
+
+- **Receipts.** All 122 + 2,625 receipt lines match in size and SHA256.
+- **MS rebuild.** The builder rebuilt the MS in 4.1 s. It equals the
+  archived `work.ms` in all 13 tables and 122 columns.
+- **Split.** The seed-7 split is 94,047 / 11,742 / 11,767 cells, equal to
+  core K, and the row gate passes. The 23,509 held-out cells carry no
+  original flag.
+
+### The model (`setjy`)
+
+**CARACal's manual model.** CARACal issues
+`fluxdensity=14.907688923 Jy` at `1.400000GHz` with
+`spix=[-0.19473727, -1.38432520, 0.60533435, 1.43e-06]` (fit standard
+errors ≤ 1.6e-9). `setjy` writes:
+
+| | 1070.0 MHz | 1284.0 MHz | 1400 MHz | 1497.8 MHz |
+| --- | ---: | ---: | ---: | ---: |
+| Stokes I (Jy) | 15.0077 | 15.0918 | 14.9077 | 14.6732 |
+
+The log-log slope over the band is −0.0731.
+
+**Which `spix` convention CASA uses.** CASA's model equals the *log10*
+reading of `spix` to 2.6e-6 relative; the natural-log reading would be
+6.8 % off. So CASA's `spix` convention is log10, as CARACal assumes.
+
+**The stored MODEL_DATA**, the model the core campaigns used, is
+different. It is 14.9028 Jy at 1.4 GHz, 14.855 at 1070 MHz and 14.708 at
+1497.8 MHz, with a slope of −0.0405. That is 1.0 % below CASA's model at
+the bottom of the band and 0.2 % above it at the top. It is also not a
+pure point at the phase centre: its Stokes I varies by up to 0.48 Jy
+between rows and has an imaginary part up to 0.50 Jy. That fits a model
+with structure or an offset; its origin is still unlogged.
+
+**FS1 side outputs.** `standard='Stevens-Reynolds 2016'` and
+`'Perley-Butler 2010'` write bit-identical MODEL_DATA. `setjy` returns
+`fluxd` 15.0077077 Jy for both. Per channel, both equal the Reynolds 1994
+polynomial (CARACal's `southern_calibrators.txt` coefficients) to 2.7e-6
+relative, and CARACal's manual fit to 4.8e-6. The per-channel arrays are
+`fs-{sr2016,pb2010}-stokes-i.npy` with `chan-freq.npy` in the run
+directory.
+
+**Not run.**
+- `fluxscale`: CARACal does not issue it here (`no_secondary` branch).
+- `polcal`: there is no polarised calibrator and no parallactic-angle
+  coverage.
+
+### The arms
+
+| Arm | Settings | Outcome |
+| --- | --- | --- |
+| A (frozen) | CARACal defaults | `setjy` ok. `gaincal` K raises "Please specify a good reference antenna (refant) explicitly". The auto rule returns no antenna: the four stations are 171–226 m from the centre, but their baselines are 29–74 m, all under `minbase` 150 m. No tables, no `applycal`. |
+| B (frozen) | + `minblperant=3` | Identical to A: it stops at K. |
+| D (post-hoc) | CARACal defaults + `refant='m000'` | K solves: 3/3 intervals per antenna pass even at `minblperant` 4. G finds 0/3 intervals above `minblperant` with `uvrange='>50'`. `gaincal` returns normally but writes no table. `bandpass` then logs SEVERE "Table d.G0 does not exist" and also returns normally. |
+| E (post-hoc, `-04-arm-e`) | D without the `uvrange` cut | G again 0/3 above `minblperant` 4; no G table. |
+| F (post-hoc, `-05-arm-f`) | D with `minblperant=3` | G 0/3 (with `uvrange='>50'`, at most two baselines per antenna); no G table. |
+| **C** | `refant='m000'`, `minblperant=3`, no `uvrange` | All tasks succeed (table below). |
+| CH | C, solved with the seed-7 held-out cells flagged | All succeed; FLAG restored byte for byte before `applycal`. |
+| SH | CH on the stored MODEL_DATA (no `setjy`) | All succeed. |
+
+So the frozen expectation was wrong on the mechanism. Arm A fails at
+`refant` before `minblperant` matters. `minblperant` 4 stops G but not K.
+`uvrange='>50'` stops G on its own. C's three changes are each necessary
+(D, E, F).
+
+**Arm C's tables** (refant m000):
+
+- **K.** 3 intervals × 4 antennas × 2 polarisations, none flagged. Delays
+  are within ±0.011 ns of m000; the processed data are already
+  delay-calibrated. The K SNR column is 0.
+- **G.** Shape (12, 1, 2), none flagged, SNR median 132. Median amplitude
+  per antenna for X / Y:
+
+  | | m000 | m001 | m002 | m003 |
+  | --- | ---: | ---: | ---: | ---: |
+  | X | 0.776 | 0.789 | 0.795 | 0.794 |
+  | Y | 0.770 | 0.790 | 0.791 | 0.793 |
+
+  Phases relative to m000 are +3.8°/+3.9° (m001), −1.7°/−1.6° (m002) and
+  −3.2°/−3.2° (m003). The spread over the three 120 s intervals is
+  ≤ 0.45°. The core reports a median diagonal amplitude of 0.788.
+- **B.** (4, 2048, 2), 75.8 % flagged, SNR median 105. Amplitudes are
+  0.965–1.017 with medians 0.999–1.001; phase std ≤ 0.51°.
+- **CORRECTED_DATA.** `calflag` adds no flags; 29.9 % of cells are
+  unflagged. Stokes I mean is 14.957 Jy (1.0003 × model), Stokes I real
+  std 0.213 Jy, imaginary std 0.259 Jy. The mean cross-hand |V| is
+  0.380 Jy.
+- **SH's G.** Medians 0.784–0.790. Phases +3.4°/+3.5°, −2.4°/−2.3° and
+  −4.1°/−4.1°.
+
+### Comparison with the core
+
+**Gauge-free gain products.** Applied products `P = DATA/CORRECTED`
+against the core's `g_p g_q*`, over all 117,556 eligible cells. The core's
+gains are the core-k `original` arm: hash `4ed2aa89…`, equal to the
+archive.
+
+| CASA arm | Hand | Amplitude rel. diff., median / p95 | Phase diff., median / p95 |
+| --- | --- | ---: | ---: |
+| SH (stored model, held-out) | XX | 0.40 % / 1.19 % | 0.33° / 1.05° |
+| SH (stored model, held-out) | YY | 0.39 % / 1.25 % | 0.32° / 1.05° |
+| C (setjy model) | XX | 1.00 % / 2.30 % | 0.72° / 1.79° |
+| C (setjy model) | YY | 1.04 % / 2.42 % | 0.70° / 1.76° |
+
+Per baseline (SH) the medians are 0.34–0.46 % and 0.25–0.44°. The C
+numbers include the model's spectral difference, which the bandpass
+absorbs.
+
+**Held-out MSE.** The frozen metric on the seed-7 cells. Every CASA
+prediction is available (0 unavailable cells).
+
+| | MSE_val | MSE_test | test, parallel hands | test, cross hands |
+| --- | ---: | ---: | ---: | ---: |
+| core `original` (archive; recomputed by numpy to 2e-15) | 0.275289 | 0.276009 | 0.229422 | 0.322596 |
+| core with off-diagonal gains zeroed | – | 0.369746 | 0.229442 | 0.510050 |
+| **SH** CASA, stored model, held out | 0.378808 | **0.381487** (×1.382) | 0.252925 (×1.102) | 0.510050 |
+| CH CASA, setjy model, held out | 0.393731 | 0.397161 (×1.439) | 0.284272 | 0.510050 |
+| C CASA, setjy model, solved on all cells (in-sample) | 0.389008 | 0.392471 | 0.274892 | 0.510050 |
+
+**Reading.** CARACal's K·G·B chain has no off-diagonal term. On the cross
+hands it therefore predicts the same as the core with its off-diagonal
+gains zeroed: 0.51005, identical to six digits. The core's complex 2×2
+solve has an off-diagonal median of 0.006, which absorbs a leakage-like
+cross-hand signal and lowers the cross-hand MSE by 37 %. CARACal would
+solve leakage only in its separate `polcal` worker, which needs a
+polarised calibrator.
+
+On the parallel hands, with the same model, cells and weights, CASA's
+chain is 10.2 % worse than the core. Its G and K are per 120 s across the
+whole band; the core solves per 2 integrations × 32 channels.
+
+The `setjy` model costs CASA a further 12 % on the parallel hands. It
+differs from the stored model in spectrum by 1 % and has no row structure,
+which suggests the stored model is closer to the data.
+
+This is a measurement for L4, not a claim. It is a four-station slice with
+processed weights and flags, and the model has no logged origin.
+
+### Second flagging baseline (for L4)
+
+`flagdata` on a copy of `work.ms` (70.10 % flagged before), flags only:
+
+| Mode | New flags | New cells | Fraction of unflagged | Flagged after |
+| --- | ---: | ---: | ---: | ---: |
+| tfcrop, CARACal flag-worker defaults on DATA | 7,024 | 1,756 | 1.49 % | 70.55 % |
+| rflag, CASA defaults (labelled; CARACal ships none) | 680 | 170 | 0.14 % | 70.15 % |
+
+Both modes flag uniformly over the four correlations and keep the original
+flags. For reference, core K's Tricolour first-pass port added 128
+training cells (0.14 %).
+
+### WSClean 3.7 reference image (for DF1/DF2)
+
+Arm C's CORRECTED_DATA, imaged with `-gridder wgridder -field 1 -size 512
+512 -scale 8asec -weight briggs 0.5 -pol I -niter 0 -make-psf -j 4`.
+117,556 visibilities gridded, 1.1 s.
+
+| Metric | Value |
+| --- | ---: |
+| Dirty peak | 14.9723 Jy/beam |
+| Peak pixel (y, x) | (254, 259) |
+| PSF at the centre pixel / PSF maximum | 1.0 / 1.0016 at the dirty-peak pixel (1.0014 outside the central 9 × 9) |
+| Off-source RMS | 3.846 Jy/beam |
+| Point-source residual RMS | 0.02857 Jy/beam |
+
+- **Where the peak is.** With 29–74 m baselines the main lobe is nearly
+  flat over the inner pixels, so WSClean's PSF maximum is not at its
+  centre pixel (CRPIX 257).
+- **Files.** The FITS stay in `outputs/o-casa-20261030-01/wsclean/`. Pixel
+  hashes: dirty `2288e159…`, PSF `839977ec…`.
+- **Not bit-reproducible.** With `-j 4` the two runs' pixels differ by up
+  to 3.1e-5 Jy (2.0e-6 relative).
+- **Post-hoc, labelled.** `outputs/o-casa-20261030-03-wsclean-j1` ran the
+  same command with `-j 1` twice on a copy of `-01`'s `c.ms`. The two runs
+  are bit-identical: dirty FITS sha256 `84ad3396…`, PSF `6710c1ff…`, peak
+  14.97230, residual RMS 0.028570. They differ from `-j 4` by 2.3e-5
+  relative. **DF1/DF2 should use the `-j 1` FITS (`r1-*.fits`) as the
+  reference.**
+- **Not comparable with core K.** Core K's own imager on the core's gains
+  gave a peak of 14.9246 and a residual RMS of 0.0712. That is a different
+  imager on different gains; matching them is DF1's job.
+
+### Acceptance
+
+| Criterion | Result |
+| --- | --- |
+| 1 task exits | **Fails as frozen for B.** B stops at K, as A does. It **passes for the amended baseline C/CH/SH**: every CASA call returns without exception, and both `flagdata` runs, the builder and WSClean exit 0. The no-table returns of D/E/F are recorded. |
+| 2 readable by python-casacore | Pass: every caltable and MS is read by KERN python-casacore 3.7.1 in `summarize`. |
+| 3 receipts | Pass: `receipt.json` has the input check, code and output hashes, image, timings and settings. `image-{debs,pip}.txt` are copied into each run. |
+| 4 reproducible | **CASA: pass.** All 119 gated hashes match except the two WSClean pixel arrays: every caltable column, CORRECTED_DATA, FLAG and MODEL_DATA of every arm, flagdata, flux standards, MS columns and the split. **WSClean `-j 4`: fail** (2e-6 relative); `-j 1` is deterministic (post-hoc). Raw tree hashes differ for c.K/G/B and ch.K/G; they are not gated. |
+| 5 check-all | Pass: `bash tools/check-all.sh` once before the final commit, overall PASS (pytest 645 passed, 4 skipped). |
+
+### Timings (every tool run of this task)
+
+| When | Tool run | Wall | Peak RSS | Note |
+| --- | --- | ---: | ---: | --- |
+| 2026-10-30 | `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (worktree venv) | 28.7 s | 638 MB | |
+| 2026-10-30 | KERN-10 probes in `ubuntu:24.04` (package versions, PyPI closure, casalite deb listing), scratch | ~1–3 min each | – | three probes |
+| 2026-10-30 | `build.sh` first image (casatools `manylinux_2_34`) | 170.7 s | 53 MB (client) | built; casatools does not import (OpenSSL); image deleted |
+| 2026-10-30 | `build.sh` final image (`manylinux_2_28`), apt layer cached | 56.1 s | – | 1.41 GB, ID `24822b40…` |
+| 2026-10-30 | labelled smoke `-00-smoke` … `-00-smoke-f` (six attempts) | 5–90 s each | ≤ 521 MB | fixes listed in the amendment; directories deleted |
+| 2026-10-30 | **run `-01`** (`run.sh` under `/usr/bin/time -v`) | 47.4 s | 521 MB | |
+| 2026-10-30 | **run `-02`** | 44.9 s | 521 MB | identical CASA hashes |
+| 2026-10-30 | post-hoc WSClean `-j 1` ×2 (`-03-wsclean-j1`) | 0.91 s, 0.92 s | 77 MB | bit-identical |
+| 2026-10-30 | post-hoc arms E, F (`-04-arm-e`, `-05-arm-f`), solve + apply | 1.8 + 1.1 s each | 320 MB | |
+| 2026-10-30 | `archive.py` | < 1 s | – | 135 KB archive |
+| 2026-10-30 | `bash tools/check-all.sh`, once before the final commit (`outputs/o-casa-20261030-01.check-all.log`) | 404.7 s (pytest 645 passed, 4 skipped in 120.3 s) | 1.53 GB | overall PASS; the wall includes the first maturin and cargo builds of this worktree |
+
+Steps inside run `-01` (wall in s / peak RSS in MB, in-container `/usr/bin/time`):
+
+| Step | Wall / RSS | Step | Wall / RSS |
+| --- | ---: | --- | ---: |
+| inputs (host hash check, 2,747 files) | 3.4 / 21 | solve-c (setjy, K, G, B) | 2.2 / 317 |
+| split (host, `build_state`) | 1.2 / 93 | apply-c | 1.4 / 299 |
+| build (`build_luno_ms.py`) | 4.1 / 466 | solve-ch / restore / apply | 2.3 / 0.1 / 1.5 |
+| equal (13 tables) | 0.2 / 97 | solve-sh / restore / apply | 2.1 / 0.1 / 1.6 |
+| prepare (10 copies) | 0.5 / 87 | flagdata tfcrop / rflag | 2.2 / 1.9 (293) |
+| solve-a / apply-a | 1.3 / 1.1 | setjy SR2016 / PB2010 | 1.8 / 1.5 (305) |
+| solve-b / apply-b | 1.3 / 1.1 | WSClean (`-j 4`) | 1.1 / 76 |
+| solve-d / apply-d | 1.7 / 1.1 | summarize / compare (host) | 0.5 / 2.3 (509) |
+
+The CASA tasks themselves take 0.2–0.34 s each (`casa/*.json`); about 1 s
+per step is Python start-up and CASA import inside the container.
+
+## For the coordinator
+
+- **Shared files: none edited.** Added: `tools/oracles/casa/`
+  (`Dockerfile`, `requirements.lock`, `build.sh`, `run.sh`, `crosscal.py`,
+  `inspect_tables.py`, `compare.py`, `receipt.py`, `archive.py`), this
+  report, `research/results/o-casa-crosscal.json` and
+  `tests/test_o_casa_optional.py`.
+- **`STATE.md`, new top entry.** "O-CASA, 2026-10-30 (implemented;
+  measured; provisional). A CASA oracle image (`rang-o-casa:6.7.6.14`:
+  Ubuntu 24.04 + KERN-10 WSClean 3.7, AOFlagger 3.5, python-casacore
+  3.7.1; casatools/casatasks 6.7.6.14 from PyPI, the manylinux_2_28 wheel
+  because the 2_34 wheel does not import on Noble) runs CARACal's crosscal
+  sequence by hand on the LUNO 1934−638 four-station slice.
+  - CARACal's defaults stop at K: the automatic reference antenna is
+    empty, because all baselines are under 150 m. Solving needs
+    `refant`, `minblperant=3` and no `uvrange` cut (arms D/E/F show each
+    is necessary).
+  - With those, CASA's K·G·B reproduces in hash over two runs (119 gated
+    hashes; only WSClean `-j 4` pixels differ, at 2e-6).
+  - Against the core's QuartiCal port: applied gains agree to 0.4 % and
+    0.33° (median, stored model). Held-out test MSE is 0.3815 against
+    0.2760: ×1.10 on the parallel hands, and ×1.58 on the cross hands,
+    because K·G·B has no off-diagonal term.
+  - Flagging baselines: tfcrop with CARACal's defaults adds 1.49 % of
+    unflagged cells; rflag 0.14 %.
+  - `setjy` SR2016 and PB2010 equal the Reynolds 1994 polynomial (and
+    CARACal's manual model) to 3e-6.
+
+  Archive `results/o-casa-crosscal.json` (`o-casa.md`)."
+- **`tool-timings.md`.** The rows of the timings table above.
+- **`big-plan.md`.** O-CASA done (measured). FS1 and L4 are unblocked;
+  DF0 can share the base (`ubuntu:24.04` digest and the KERN pins in
+  `tools/oracles/casa/Dockerfile`).
+- **FS1 can use** the per-channel SR2016/PB2010 Stokes I arrays
+  (`outputs/o-casa-20261030-01/fs-*-stokes-i.npy`, `chan-freq.npy`). Its
+  acceptance: the core's SR2016 and PB2010 for 1934−638 should match
+  them to the float32 storage of MODEL_DATA. Two cautions:
+  - CASA's two standards are bit-identical here and equal Reynolds 1994
+    to 2.7e-6, so a port must reproduce that residual, not a tighter one.
+  - `setjy` `spix` is log10.
+- **L4 can use** these matched baseline numbers on the same cells:
+  - CASA/CARACal crosscal (arm SH) held-out MSE_test 0.381487 against the
+    core's 0.276009, 0.252925 against 0.229422 on the parallel hands;
+  - tfcrop +1.49 %, rflag +0.14 %, Tricolour first pass +0.14 %.
+
+  All arms are in the archive. The CARACal baseline as CARACal ships it
+  does not run on four core stations; L4 should say so and cite arm C as
+  the minimal deviation.
+- **Upstream observations** (observed, not raised):
+  - caracal-pipeline:
+    1. `refant: auto` uses `minbase` as "all baselines ≥ 150 m". On a core
+       sub-array, and for any antenna with a close neighbour, that returns
+       no antenna. The worker then logs an error and passes `refant=''`,
+       which `gaincal` K rejects.
+    2. The default `uvrange: '>50'` plus CASA's `minblperant` 4 leaves G
+       with no solutions on short-baseline sets. `gaincal` and `bandpass`
+       return normally without writing tables, so the failure only
+       surfaces at `applycal`.
+    3. The CASA-fallback standard is "the first listed" (`standards:
+       1,3,…` → Perley-Butler 2010 for 1934−638). `casa_calibrators.yml`
+       is still labelled "CASA 4.7.1", although SR2016 exists.
+    4. `get_last_gain` iterates a `set` of single-letter terms, so the
+       `gaintable` order passed to `applycal` depends on string hashing.
+       This is harmless for diagonal Jones terms.
+  - Non-RATT, CASA:
+    1. The casatools 6.7.6.14 `manylinux_2_34` wheel bundles `libssl` 3.2
+       and `libldap` but relies on a system `libcrypto` ≥ 3.2 with MD2.
+       It does not import on Ubuntu 24.04; the `manylinux_2_28` wheel
+       does.
+    2. `gaincal` K passes `minblperant` 4 with three baselines per antenna
+       where G does not.
+    3. Tasks that write no table return without an exception.
+    4. With `casaconfig`'s auto-updates off, an Ubuntu `casacore-data`
+       works, but CASA logs SEVERE notices on every start.
+  - WSClean: wgridder with `-j 4` is not bit-reproducible (2e-6 relative);
+    with `-j 1` it is.
+- **Evidence to keep.**
+  - Image `rang-o-casa:6.7.6.14` (ID `sha256:24822b4038c5…`).
+  - `outputs/o-casa-20261030-01` and `-02` (654 MB each: MS copies and
+    exports).
+  - `-03-wsclean-j1` (67 MB, the reference FITS).
+  - `-04-arm-e` and `-05-arm-f` (37 MB each).
+  - `-00-build` and `-00-build2` (build logs).
+  - `-02` may be reduced to `summary.json`, `receipt.json` and the logs
+    once the archive is accepted.
+- **Deleted scratch.**
+  - The six smoke directories (2.5 GB); their `.log` files are kept.
+  - The failed first image (`31cf5410…`).
+  - The probe scripts in the session scratchpad.
+- **Open.**
+  - The LUNO licence.
+  - Whether CARACal's `polcal` (Df on 1934−638) would close the
+    cross-hand gap. That needs a polarised calibrator scan, which this
+    slice lacks.
+  - An L4 decision on whether the matched baseline is arm SH or a
+    CARACal run with leakage.
