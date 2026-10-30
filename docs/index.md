@@ -7,8 +7,8 @@
 ```
 
 Experimental MeerKAT calibration, flagging and imaging research on one Rust
-core, driven from Python (`pip install rang-core`, `import rang`, command line
-`rang-core`). "Rang" began as Radio Astronomy Next Generation; *rang* is also
+core, driven from Python (distribution `rang-core`, `import rang`, command line
+`rang-core`; see {doc}`installation`, the first PyPI release is pending). "Rang" began as Radio Astronomy Next Generation; *rang* is also
 Dutch for *rank*, the first thing the identifiability survey measures.
 
 ```{important}

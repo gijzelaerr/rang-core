@@ -99,7 +99,8 @@ Validation: `uv tool run --from actionlint-py actionlint
 
 ## Measured (2026-10-30, WSL2 host, load 1–4)
 
-**CI emulation** (`~/Build/tmp/20261030-d1/ci.sh`, now deleted): a clean
+**CI emulation** (script, log and notebook timings kept in the ignored
+`outputs/d1-20261030-ci-emulation/`; the scratch tree was deleted): a clean
 `git archive` of `1f8ee6e` (no `outputs/` link, so nothing could fall back
 to local data), a fresh `uv` venv on Python 3.14, then the workflow's steps
 in order with `CARGO_BUILD_JOBS=4` (the runner's core count):
@@ -128,7 +129,8 @@ GitHub.
 
 **Local strict builds in the worktree** (unexecuted notebooks): 3.6 s
 before the API pages existed, 7.0 s with the 66 module pages, 8.1 s with
-`-E`; 0 warnings each. `tests/test_d1_docs.py`: 3 passed in 8.0 s.
+`-E`; 0 warnings each. `tests/test_d1_docs.py`: 3 passed in 8.0 s (4 with the
+link test, 9.0 s).
 
 **Rendered output checked in a browser** (served from the CI emulation's
 build): the landing page's two boxes, furo's lockup in the sidebar, math in
@@ -144,7 +146,8 @@ the notebook 03 page, and `|M n X|` rendered literally on the
 is stable) and names every stage; a full strict Sphinx build into
 `tmp_path` (skipped without the `docs` extra) with no warning, module pages
 for five core wrappers, and the status line and "closed as null" on the
-landing page. The build test writes only gitignored files under `docs/`
+landing page; and every `{gh}`/`{ghdir}` link target in `docs/` exists in
+the checkout (external URLs that `-W` cannot check). The build test writes only gitignored files under `docs/`
 (`_generated/`, `api/generated/`, `tutorials/notebooks/`). A venv without
 the `docs` extra skips the build test; the coordinator's main-checkout venv
 needs `uv pip install -e '.[docs]'` (or the four packages) for it to run.
@@ -162,6 +165,10 @@ needs `uv pip install -e '.[docs]'` (or the four packages) for it to run.
   whose repr of a dict of tuples would be unreadable.
 - The build job uses `rustup` on the runner instead of a third-party
   toolchain action, and `actions/cache` instead of a Rust cache action.
+- The concurrency group cancels an older build on a newer push except on
+  `main`, so a running deployment always finishes.
+- The site says plainly that `rang-core` is not on PyPI until `v0.1.0` is
+  tagged, and that the macOS wheel jobs have not run.
 - The installation page states, against the README's "every kernel" wording,
   that `core_wgridder`, `core_closure` and the Rust path of `fluxstd` still
   build a standalone cdylib with `cargo` from a checkout on first use (read
@@ -184,6 +191,11 @@ needs `uv pip install -e '.[docs]'` (or the four packages) for it to run.
 - The notebooks' LUNO sections and the CARACAL comparator are never executed
   in CI (no slice, no YAMLs; D2 wishes 8 and 9). Shipping or pinning the
   YAMLs would let CI render notebook 02's CARACAL section.
+- `tests/test_d1_docs.py` was run on Linux only. Its CLI test spawns
+  `rang-core STAGE [VERB] -h` for every stage; the configure paths import
+  only `core_injection_model` lazily and no module with a top-level
+  `import resource`, so it should pass on native Windows, but that is not
+  measured.
 - `myst-nb` loads the ipywidgets HTML manager from a CDN to show widget
   state; offline readers see the text fallback.
 - The PNG renders must be remade (`python docs/logo/render.py`) whenever a
@@ -214,7 +226,8 @@ needs `uv pip install -e '.[docs]'` (or the four packages) for it to run.
 | 2026-10-30 | CI emulation: `sphinx-build -W` | executed notebooks | 12.1 s | 395 MB | 0 warnings, 14 MB site |
 | 2026-10-30 | `sphinx-build -W` in the worktree | unexecuted notebooks | 7.0–8.1 s | – | 0 warnings |
 | 2026-10-30 | `pytest tests/test_d1_docs.py` | worktree | 8.0 s | – | 3 passed |
-| 2026-10-30 | `bash tools/check-all.sh` | branch tree | 439 s | 1.99 GB | **overall: PASS**; pytest 635 passed, 3 skipped in 235 s; no lock wait; started on `1f8ee6e`, with the Markdown-only edits of `d9595d0` made during the run; log `outputs/d1-20261030-check-all.log` |
+| 2026-10-30 | `bash tools/check-all.sh` | branch tree | 439 s | 1.99 GB | **overall: PASS**, first run on `1f8ee6e` (pytest 635 passed, 3 skipped in 235 s) |
+| 2026-10-30 | `bash tools/check-all.sh`, final | branch tree | CHECKALL2 |
 
 ## For the coordinator
 
@@ -229,6 +242,21 @@ docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
 
 Tested with Sphinx 9.2.0, furo 2025.12.19, myst-nb 1.4.0, myst-parser
 5.1.0, papermill 2.7.0, docutils 0.22.4 on Python 3.14.
+
+**Docstring fix (optional, `python/rang/core_campaign.py`, module
+docstring)**, so the published API page stops contradicting the licence
+decision. Replace
+
+```
+Results are provisional: the licence precondition of the protocol is open.
+```
+
+with
+
+```
+The licence precondition was settled by the user on 2026-10-30
+(research/big-plan.md); the protocol's other caveats stand.
+```
 
 **README line** (after the status paragraph's links, or under "Run a small
 example"):

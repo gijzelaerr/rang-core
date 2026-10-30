@@ -6,6 +6,13 @@
 pip install rang-core
 ```
 
+```{note}
+`rang-core` is not on PyPI until the first release is tagged (`v0.1.0`
+publishes it). Until then, install [from source](#from-source), or download
+a wheel from the artifacts of a `wheels` workflow run and
+`pip install rang_core-<version>-cp310-abi3-<platform>.whl`.
+```
+
 The wheel carries the compiled core, so no Rust compiler is needed for the
 flagging chain, imaging and the tutorials. The kernels are inside the
 extension `rang._core`, including the root crate's (gain TV, phase trend,
@@ -19,8 +26,10 @@ build) build a standalone library with `cargo` from a source checkout on
 first use. The archive drivers and comparators read archived inputs from a
 checkout too.
 
-Wheels are built by {gh}`.github/workflows/wheels.yml` as one `abi3` binary
-for CPython 3.10 and newer:
+{gh}`.github/workflows/wheels.yml` builds and tests one `abi3` wheel per
+platform for CPython 3.10 and newer. The Linux and Windows wheels were also
+built and tested locally (P12); the macOS jobs are written and lint clean but
+were not run before the first push ({gh}`research/x1-crossplatform.md`):
 
 | Platform | Wheel tag | Built on |
 | --- | --- | --- |
@@ -32,7 +41,7 @@ for CPython 3.10 and newer:
 
 Each wheel is built for the platform's baseline CPU and tested on CPython
 3.10 and 3.14 on its own operating system with `cargo` absent from `PATH`.
-A `v*` tag attaches the wheels and the sdist to a GitHub release and
+On GitHub, a `v*` tag attaches the wheels and the sdist to a GitHub release and
 publishes `rang-core` to PyPI by trusted publishing. The macOS and Windows
 wheels are newer than the Linux ones; the frozen campaigns' guards still
 assume POSIX ({gh}`research/x1-crossplatform.md`).

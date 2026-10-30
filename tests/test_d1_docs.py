@@ -10,6 +10,7 @@ without the `docs` extra; it renders the tutorials from whatever
 """
 
 import importlib.util
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -38,6 +39,21 @@ def test_cli_page_covers_every_stage():
     page = (DOCS / "cli.md").read_text(encoding="utf-8")
     for stage in STAGES:
         assert f"$ rang-core {stage} -h\n" in page
+
+
+def test_repository_links_exist():
+    """`{gh}` and `{ghdir}` links are external URLs, which a strict build
+    cannot check; every target must exist in the checkout."""
+    role = re.compile(r"\{gh(?:dir)?\}`([^`]+)`")
+    sources = [*DOCS.rglob("*.md"), DOCS / "gen_cli.py"]
+    targets = set()
+    for source in sources:
+        if "_build" in source.parts or "generated" in source.parts:
+            continue
+        targets.update(role.findall(source.read_text(encoding="utf-8")))
+    assert len(targets) > 40
+    missing = sorted(t for t in targets if not (ROOT / t).exists())
+    assert not missing, missing
 
 
 def test_site_builds_without_warnings(tmp_path):

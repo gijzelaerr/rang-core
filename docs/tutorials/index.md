@@ -24,7 +24,7 @@ from the tracked archives.
 To run them yourself:
 
 ```sh
-pip install 'rang-core[notebook,imaging]'
+pip install -e '.[notebook,imaging]'   # from a checkout; rang-core[notebook,imaging] once released
 export RANG_NOTEBOOK_CACHE=/path/of/your/choice   # default ~/.cache/rang-notebook
 jupyter lab notebooks/
 ```
