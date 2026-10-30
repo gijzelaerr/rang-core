@@ -373,7 +373,7 @@ def cli(host_run, strategy_dir, out):
             "-fs",
             "polarisation",
             "-c",
-            str(strategy_dir / strategy),
+            str((strategy_dir / strategy).resolve()),
             "-nw",
             "4",
             "-tc",
