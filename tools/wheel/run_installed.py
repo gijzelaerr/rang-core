@@ -58,6 +58,33 @@ def point_at_checkout(checkout):
             if isinstance(value, Path) and value.is_relative_to(old):
                 setattr(module, key, checkout / value.relative_to(old))
                 print(f"shim: rangtoy.{name}.{key} -> {getattr(module, key)}")
+    # The frozen trend ablation hashes the source tree into its receipt
+    # (`flagging_next.source_receipts`, found from the module's own file): hash
+    # the checkout's tree instead, plus the extension that actually runs
+    # (task P7; the kernels are the wheel's).
+    try:
+        from rangtoy import flagging_next, projector
+    except ImportError as exc:
+        print(f"shim: rangtoy.flagging_next not importable ({exc}); left alone")
+        return
+    from hashlib import sha256
+
+    def source_receipts():
+        paths = list((checkout / "python/rangtoy").glob("*.py"))
+        paths += list((checkout / "src").glob("*.rs"))
+        paths += list((checkout / "recipes").glob("tv-flagging*.yaml"))
+        paths += [
+            p
+            for p in (checkout / "tools/flagging").rglob("*")
+            if p.is_file()
+            and (p.suffix in (".py", ".sh", ".txt") or p.name == "Dockerfile")
+        ]
+        paths += [checkout / n for n in ("Cargo.toml", "Cargo.lock", "pyproject.toml")]
+        paths.append(Path(projector._native_library()._name).resolve())
+        return {str(p): sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
+
+    flagging_next.source_receipts = source_receipts
+    print(f"shim: rangtoy.flagging_next.source_receipts -> the tree of {checkout}")
 
 
 if __name__ == "__main__":
