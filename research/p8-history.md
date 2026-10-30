@@ -3,8 +3,8 @@
 Big plan wave 2 task P8 ([big-plan.md](big-plan.md); proposal in
 [simplification-review.md](simplification-review.md) section 3 "P8", section 4
 table row). Branch `p8-history` from origin/main `43dc3c7`, worktree
-`~/Worktrees/rang/p8-history`. Status: **protocol frozen before any move**
-(this section); the moves, checks and timings follow in later sections.
+`~/Worktrees/rang/p8-history`. Status: **done, measured.** The protocol below was frozen and committed
+(`ce6ff94`) before any move; results, timings and the coordinator notes follow it.
 
 ## Protocol (frozen before moving)
 
@@ -167,3 +167,189 @@ files at their original paths.
    synthetic fixture of `test_flagging_next.py::test_source_receipts_*`, which
    builds a fake tree in `tmp_path` to test the frozen `source_receipts()`;
    and the repointed `history/` paths.
+
+## Results (measured 2026-10-30)
+
+Moves and edits are in commit `8cb2665` (on top of the protocol commit
+`ce6ff94`); this section was added afterwards (document only).
+
+### What changed
+
+- **70 files moved** with `git mv` exactly as listed in the protocol; the
+  sha256 manifest of all 70 is identical before and after (6,258 lines).
+- **Three test functions cut** verbatim into
+  `history/tests/test_flagging_{balanced_wrapper,signal_wrapper,next_recipe}.py`
+  (102 lines; 9 collected tests), with the now unused imports removed from the
+  three live files by `ruff --select F401 --fix` and one blank line by
+  `ruff format`.
+- `tests/test_core_cli.py`: `FROZEN_RECIPES` globs `history/recipes` (the
+  count of 23 and the no-shared-name check are kept).
+- `examples/oracle_wsclean_predict.py`: `sys.path` entry
+  `tools/flagging/sky` → `history/tools/flagging/sky` (container-only oracle).
+- `pyproject.toml`: `[tool.ruff] extend-exclude = ["history"]` with a comment.
+- `history/README.md` (what, why, archive per item, how to re-run).
+- Docs: `README.md`, `CONTRIBUTING.md`, `research/README.md` (lines listed
+  under "For the coordinator"); `examples/README.md` names no moved path and is
+  unchanged. 33 research notes gain the pointer line (the 31 under
+  `research/` that name a moved path, `simplification-review.md` among them,
+  and the two `research/upstream-issues/` drafts); `STATE.md`,
+  `upstream-notes.md` and `big-plan.md` are left to the coordinator.
+
+Live tree (`python`, `examples`, `tests`, `tools`, `recipes`, `src`, `core`
+without `core/data`): **267 → 197 files, 59,145 → 52,772 lines (−6,373)**:
+the 6,258 moved lines plus the 115 lines cut from three test files. Recipes
+30 → 7, Dockerfiles 9 → 1 (`tools/ms-reader`), Python modules in
+`python/rangtoy` 51 → 45. `history/` holds 74 files and 6,482 lines. Tests:
+**739 → 555 collected** (175 in the seven moved files plus 9 cut out; counted
+on the pre-move tree).
+
+### Acceptance
+
+1. **Byte identity: pass** (`manifest.sh before|after`, 70 hashes equal).
+2. **Not importable: pass.** `python -c "import rangtoy.flagging_X"` raises
+   `ModuleNotFoundError` for all six in a fresh process. The only remaining
+   name in the live tree is the frozen dispatch table of `flagging_next.py:104`
+   (`"provenance": "flagging_provenance"`), reached only by the frozen
+   `tv-flagging-next` recipe; its unit test monkeypatches `import_module`.
+3. **`bash tools/check-all.sh`: PASS** on `8cb2665` (root 19 and core 47 Rust
+   tests, clippy, fmt, extension build, ruff, ruff-format, diff-check, 555
+   pytest passed in 663 s); 689.5 s wall, 1.72 GB peak; load 6 → 23 (sibling
+   sessions). Log `outputs/p8-history-20261030-04-check-all.log`.
+4. **S1 live-chain suite (`outputs/p8-history-20261030-01`): 28 of 29 steps
+   exit 0 with their archived verdicts**: K precondition and checker pass;
+   the offline K replay equals the archived gains, dirty images and PSFs of
+   three arms hash for hash (`equality_with_archive` all true); phase 2 all
+   pass; F bench check; actions, injections, prospective, signal and trend
+   comparators `passed: true`; B, C, D, E and I pass. The 29th,
+   `section6-check`, passes 10 of 11 criteria and fails `8_cost`, the
+   wall-time limit (2.0 s excluding decode): 2.57 s at load 19–20 here and
+   7.88 s in a re-run (`-05`) at load 14–20, against 1.46 s in S1's run.
+   It is the same load-dependent criterion that task J's cold run failed
+   (S1 section 1.4); the science criteria are unchanged and P8 changed no
+   code on that path. Recorded as a timing failure under shared load, not
+   re-run on an idle host.
+   **S1's `-08` validators (`outputs/p8-history-20261030-02`)**: phase 1 as
+   archived (criterion 4 fails as frozen, post-hoc 4b passes); phase 3c-a
+   all pass, bit-identical to africanus (it imports `flagging_sky`, which
+   stays); task G fetch checker all pass.
+   **`compare_core_backends.py`** S1's suite → this suite (167 files, 16,576
+   JSON leaves, 242 arrays, 68 FITS HDUs): every array and FITS HDU equal;
+   925 listed items, of which 860 are timing leaves this comparator does not
+   treat as volatile (`calls/*/cpu`, bench `runs`, `image_seconds`, ...), and
+   65 are: `cores_busy` (24), absolute paths naming the worktree (21), the
+   timing parts of the survey bench (10), `git_head` and `library` path (2),
+   `native_library_sha256` and `source_digest` (4; P0 rebuilt the library
+   with thin LTO and `x86-64-v3` after S1, and the sources changed), the
+   section 6 cost verdict (2), and four digests that hash timings:
+   `core_prospective`'s `frozen_train_responses_sha256` (3) hashes
+   `flagging_prospective._freeze_view`, which includes
+   `full_training_normals_seconds`, and `core_signal`'s
+   `acceptance_digest_core` (1) includes each arm's `metrics.seconds`. To
+   check that these differ run to run and not because of P8, prospective and
+   signal were re-run on the pre-move tree `43dc3c7` (detached worktree,
+   `outputs/p8-history-20261030-03-baseline`): its digests differ from both
+   S1's and this run's, and every other leaf of both results equals this
+   run's apart from `seconds` fields.
+5. **Acceptance grep**: no live use of an old path. Every hit, by category:
+   - frozen modules, unedited (container-only paths, not reached by any live
+     chain): `python/rangtoy/flagging_next.py:24` (and `:21`, the
+     `tv-flagging*.yaml` glob, which the pattern does not match),
+     `flagging_sky.py:226,488`, `flagging_workflow.py:265,266` (and `:264`,
+     `recipes/tv-flagging.yaml`);
+   - docstrings naming where an input came from:
+     `examples/build_luno_ms.py:3,5`, `examples/check_luno_sigma.py:5`,
+     `examples/extract_luno_support.py:3`;
+   - comments in the core recipes, kept because task H's Stimela logs record
+     these recipes: `recipes/core-{imaging,injections,prospective,trend,signal,actions}.yaml`
+     (one line each);
+   - the synthetic tree of
+     `tests/test_flagging_next.py::test_source_receipts_*` (lines 213–244),
+     built in `tmp_path` to test the frozen `source_receipts()`;
+   - the repointed `examples/oracle_wsclean_predict.py:24`
+     (`history/tools/flagging/sky`).
+
+### Other observations
+
+- A bare `ruff check .` from the repository root fails before and after this
+  task on `research/results/profiles-20261030/scripts/` (S1's measurement
+  scripts: SIM115, I001, BLE001, ...); `check-all` lints only `python examples
+  tests`. Not changed here (S1's archived scripts).
+- The wheel task (W1, merged on main as `4982e4b` after this branch's base)
+  edits `pyproject.toml` elsewhere; `git merge-tree` of main and this branch
+  is clean, and W1's `tools/wheel/` names no moved file.
+- No upstream observation.
+
+## Timings (every tool run of this task)
+
+Date for every row: 2026-10-30. Load is the 1-minute average.
+
+| Tool run | Input | Wall | Peak RSS | Notes |
+| --- | --- | ---: | ---: | --- |
+| `uv venv -p python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin numcodecs` (public PyPI) | worktree | 23.3 s | – | |
+| `maturin develop --release --offline` (Rust 1.93) | worktree | 24.1 s | 385 MB | first build of the extension in this worktree |
+| `manifest.sh before`, `move.sh` (`git mv`), `manifest.sh after` | 70 files | under 1 s each | – | hashes identical |
+| `extract.py`, `docs.py`, `pointer.py`, `wrap.py`, `ruff --fix`/`format` on 3 tests | tests, docs, 33 notes | under 1 s each | – | |
+| `pytest` on the five edited or dependent test files | 53 tests | 2.5 s | 107 MB | 53 passed |
+| S1 suite `suite.sh` (`-01`), 29 steps | archived inputs of every chain | 613 s in all | 846 MB (F bench) | load 8–20; 28 exit 0, `section6-check` exit 1 (cost criterion) |
+| validators (`-02`): phase 1, phase 3c-a, task G fetch checker, backends comparator against S1's `-01` | archived inputs | 1.0 s, 11.4 s, 2.0 s, 4.3 s | 1.90 GB (3c-a) | load 12–17; verdicts above |
+| pre-move baseline (`-03`): worktree at `43dc3c7`, venv, extension and both crates built, then `core_cli prospective`, `signal` | archived inputs | build not timed (about 2 min); 20.5 s, 52.7 s | 836 MB | worktree removed afterwards |
+| `bash tools/check-all.sh` (once, on `8cb2665`) | branch | 689.5 s (pytest 555 passed in 663 s) | 1.72 GB | overall PASS; load 6–23 |
+| `section6`, `section6-check` re-run (`-05`) | archived inputs | 19.0 s, 16.5 s | 437 MB | load 14–20; `8_cost` fails again (7.88 s), all else passes |
+
+## For the coordinator
+
+- **STATE.md, new entry.** "P8 history (big plan wave 2), 2026-10-30
+  (`p8-history.md`): the 23 frozen `tv-flagging*` recipes, `tools/flagging/`
+  (8 Dockerfiles, wrappers, fetch scripts, preflight, locks) and the six
+  recipe-only modules `flagging_{concurrent,parallel,provenance,public,transfer,uncertainty}`
+  with their tests moved to `history/` by `git mv`, byte-identical (70 files,
+  6,258 lines; 3 wrapper and recipe test functions cut there too). Live tree
+  267 → 197 files and 59,145 → 52,772 lines; recipes 30 → 7; pytest 739 →
+  555 tests. check-all passes; S1's live-chain suite reproduces every
+  archived verdict and the K replay hash for hash, except section 6's
+  wall-time cost criterion under shared load (2.6 s and 7.9 s against a 2 s
+  limit, load 14–20). Re-running a frozen campaign is done from `43dc3c7` or
+  its recorded commit with the pinned images (`history/README.md`)."
+- **tool-timings.md rows.** The table above, prefixed "P8".
+- **README.md** (changed here; three places): line 20 link
+  `recipes/tv-flagging.yaml` → `history/recipes/tv-flagging.yaml`; line 155
+  "`recipes/`: frozen Stimela2 recipes beside core-native `core-*.yaml` ones"
+  → "`recipes/`: core-native Stimela2 recipes `core-*.yaml`"; three new lines
+  after the `data/` bullet: "`history/`: the frozen campaigns' Stimela
+  recipes, container builds, wrappers and recipe-only modules, retired from
+  the live tree by task P8 (`history/README.md`, `research/p8-history.md`)."
+  Still to add by the coordinator: an index line for `p8-history.md`.
+- **CONTRIBUTING.md** line 39: "the Linux filesystem (not `/mnt/c`) with
+  Docker inside WSL." → "the Linux filesystem (not `/mnt/c`), with Docker
+  inside WSL only to re-run the frozen campaigns in `history/`
+  (`history/README.md`)." (one line became two).
+- **research/README.md**: line 152 wrapper link → `../history/tools/flagging/run-imaging.sh`;
+  lines 181–204, the recipe column of the 23 flagging rows, `../recipes/tv-flagging*`
+  → `../history/recipes/tv-flagging*`; line 254 "Pinned container
+  environments live under `tools/flagging/`" → "under
+  `history/tools/flagging/` ([history/README.md](../history/README.md))"
+  (one line became two). W1's merge adds 4 lines elsewhere in this file;
+  the merge is clean.
+- **pyproject.toml**: appended `[tool.ruff]` with the comment "history/ holds
+  frozen files that campaign receipts hash (research/p8-history.md): never
+  lint or reformat them." and `extend-exclude = ["history"]`. Merges cleanly
+  with W1's edits.
+- **STATE.md, upstream-notes.md, big-plan.md** name moved paths historically;
+  give each the pointer line used in the other notes if wanted.
+- **Docker images that may now be pruned (user item).** None is needed by a
+  live chain: `rang-flagging:local`, `rang-flagging-comparators:local`,
+  `rang-flagging-sky:local`, `rang-flagging-response:local`,
+  `rang-flagging-next:local`, `rang-flagging-imaging:local`,
+  `rang-flagging-next-imaging:local`, `rang-flagging-parallel:local` (about
+  11.6 GB as listed by `docker images`, shared layers counted once by
+  `docker system df`) and three dangling `<none>` images (1.14 GB, 901 MB,
+  901 MB). Keep `tools/ms-reader` (the task E oracle's Dockerfile). The
+  frozen campaigns ran in exactly these local builds; a rebuild from
+  `history/tools/flagging/` gives new image IDs.
+- **P10**: none of P10's files moved (`test_pointing.py`, `test_blocked.py`,
+  `test_beams.py`); the six `test_flagging_*` files P10 must not edit are now
+  in `history/tests/`.
+- **Evidence to keep**: `outputs/p8-history-20261030-01` (suite), `-02`
+  (validators, backends receipt), `-03-baseline` (pre-move prospective and
+  signal), `-04-check-all.log`, `-05` (section 6 re-run).
+- **Upstream**: none.
