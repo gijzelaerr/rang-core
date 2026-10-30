@@ -87,3 +87,10 @@ to an unrelated package (carta-python is not on PyPI).
 - maturin `develop` (through `uv pip install --force-reinstall`) cannot replace
   a console-script launcher that is running on Windows; uv's default cache on
   this Windows host hit "too many temporary files" (`UV_CACHE_DIR` moved it).
+
+## From C1 (2026-10-30; data, not software)
+
+- LUNO's QuartiCal-derived WEIGHT_SPECTRUM overstates the noise several-fold
+  (closure z² of 0.17–0.18 against 1 expected), and normalised closure TV has
+  an antenna-additive component (R² 0.47 against a 0.15 null) consistent with
+  an uneven per-antenna weight scale.

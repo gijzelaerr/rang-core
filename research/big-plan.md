@@ -284,6 +284,9 @@ CPU-heavy tasks at a time on 8 physical cores.
   arms as L1; held-out error, gain TV and the decision rule against the point
   model. Heywood et al. 2020 (arXiv:2004.00454): a point model leaves
   0.2–0.5 % structured amplitude errors.
+- C1 done 2026-10-30 (`c1-closure-arm.md`): null on the decision; closure TV
+  sees GNSS-band and antenna-additive structure that gain TV cannot, none of
+  it a flag that helps. L4 verdict next.
 - C1 closure-invariant arm (after L1-M, before L4): GL(2,C) closure traces as
   a gauge-free flagging signal and comparator, isolating what per-antenna
   gains cannot absorb. A1 done 2026-10-30 (`a1-rfi-audit.md`): the emptied

@@ -1,5 +1,29 @@
 # Rang research state
 
+C1 closure-invariant arm (big plan wave 3), 2026-10-30 (implemented;
+measured; [c1-closure-arm.md](c1-closure-arm.md)). A Rust kernel
+(`core/src/closure.rs`) scores every training sample of LUNO 1934−638 chunk 0
+(53 stations) with closure traces (GL(2,C) invariant, Broderick & Pesce 2020;
+cyclic quadrangles with re-routing around missing baselines), parallel-hand
+closure phases and log closure amplitudes, normalised by noise from
+WEIGHT_SPECTRUM; it matches a NumPy reference to 8.6e-8, and closure traces
+are invariant under random 2×2 gains to 1e-10. L1's campaign ran unedited
+(reproduced on every non-image field) with two added arms. Q1: the closure-TV
+map is reproducible (split-half ρ 0.81; a post-hoc noise-only null gives
+0.37) and unrelated to the gain-TV map (R² 0.0035), but its structure is the
+GNSS band plus an antenna-additive part consistent with an uneven per-antenna
+weight scale. Q2: every closure-guided mask is rejected by the frozen
+objective; the policy selects L1's 21-cell unguided mask; the 918-cell
+closure-outlier arm moves MSE by 1.5e-7; against the CARACal first pass both
+arms are null under amendment 1 and under A1's emptied-bin drop (0.99943,
+decidable without the matched fallback). Q3: closure outliers coincide with
+the first-pass additions (lift 11.5) and the GNSS range (78 %, lift 8.5), not
+with A1's emptied bins. The closure chain costs 1.18× the TV chain and 6.2×
+the first-pass port. Neither the antenna-factorable (gain TV) nor the
+non-factorable (closure) statistic improves on the first pass. Archive
+`results/c1-closure-arm.json`. This was the last pre-registered arm before
+the verdict (L4).
+
 P9 one CLI (big plan wave 2), 2026-10-30 (implemented; measured;
 [p9-cli.md](p9-cli.md)): one CLI, `rang-core STAGE VERB`, for every stage,
 comparator and check (`rang-core -h`); the comparators live in

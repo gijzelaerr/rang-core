@@ -21,8 +21,10 @@
 //! root crate at run time.
 
 pub mod blosc;
+pub mod closure;
 pub mod correct;
 pub mod ffi;
+pub mod ffi_closure;
 pub mod ffi_correct;
 pub mod ffi_flag;
 pub mod ffi_grid;

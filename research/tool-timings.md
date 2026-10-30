@@ -712,3 +712,20 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan P9: identity `cli-head2` (`-m`) and `console` (`.venv/bin/rang-core`), final CLI | – | about 7 s each | – | identical to `before` |
 | 2026-10-30 | big plan P9: legacy cab path `rang-core compare` on 7 real-archive cases | – | about 1 s | – | receipts minus `comparator` equal `before` |
 | 2026-10-30 | big plan P9: WSL: `bash tools/check-all.sh`, after the review fixes | – | 157 s (pytest 150 s) | – | PASS at `00c4be2`, 683 passed, 2 skipped |
+| 2026-10-30 | big plan C1: `uv venv -p /usr/bin/python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (public PyPI) | – | 45.2 s | 0.93 GB |  |
+| 2026-10-30 | big plan C1: `maturin develop --release --offline` | – | 0.3 s | 37 MB |  |
+| 2026-10-30 | big plan C1: probe 1 (closure SNR and weight scale, stations 0–11), run twice (scratch, then archived) | – | 12.1 s; 12.9 s | 0.54 GB |  |
+| 2026-10-30 | big plan C1: standalone crate: rustfmt, `cargo test`, clippy `-D warnings`, build | – | 9.0 s | 0.29 GB |  |
+| 2026-10-30 | big plan C1: `pytest tests/test_core_closure.py` | – | 3.6 s | 0.30 GB |  |
+| 2026-10-30 | big plan C1: **L1 precondition** unedited (`-00-precondition`) | – | 9.9 s | 0.35 GB |  |
+| 2026-10-30 | big plan C1: four-station smoke (`-00-smoke-4`, labelled) | – | 22.1 s | 0.87 GB |  |
+| 2026-10-30 | big plan C1: R²_add debug on the four-station data (scratch) | – | about 3 s | 0.3 GB |  |
+| 2026-10-30 | big plan C1: twelve-station smoke (`-00-smoke-12`, labelled) | – | 1 min 06 s | 1.34 GB |  |
+| 2026-10-30 | big plan C1: `check_c1.py` and `archive_c1.py` on the smoke (`-00-smoke-check`, labelled) | – | 3.1 s | 55 MB |  |
+| 2026-10-30 | big plan C1: targeted pytest (both C1 test files) | – | 0.4 s | 0.3 GB |  |
+| 2026-10-30 | big plan C1: **frozen run `-01`** (`run_c1.py` under `time -v`; MemAvailable 27.5 GiB, load 1–2) | – | **19 min 48 s** | **10.9 GB** |  |
+| 2026-10-30 | big plan C1: `check_c1.py` (`-02-check`) | – | 8.8 s | 0.21 GB |  |
+| 2026-10-30 | big plan C1: `archive_c1.py` | – | 0.1 s | 40 MB |  |
+| 2026-10-30 | big plan C1: `bash tools/check-all.sh` (plain; it takes the host lock itself), once before the final commit (`outputs/c1-20261030-check-all.log`) | – | 4 min 18 s (pytest 701 passed, 5 skipped in 2 min 06 s) | 1.66 GB |  |
+| 2026-10-30 | big plan C1: post-hoc probe 2, the split-half null (`-03-posthoc`, labelled; MemAvailable 28 GiB) | – | 2 min 42 s | 9.0 GB |  |
+| 2026-10-30 | big plan C1: `bash tools/check-all.sh` (plain), again before the commit of the post-hoc text (`outputs/c1-20261030-check-all-2.log`) | – | 1 min 41 s (pytest 701 passed, 5 skipped in 1 min 36 s) | 1.62 GB |  |
