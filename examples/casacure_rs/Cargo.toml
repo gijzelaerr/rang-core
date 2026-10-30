@@ -1,0 +1,13 @@
+[package]
+name = "eval-casacure-rs"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+publish = false
+
+# Standalone evaluation program of research/casacure-evaluation.md; not part of
+# the core build (its own workspace, built with --target-dir outside the tree).
+[workspace]
+
+[dependencies]
+casacure = "=3.8.35"
