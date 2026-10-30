@@ -233,7 +233,7 @@ Deviations); the commit adding this record.
 | --- | ---: | ---: |
 | `history/` (frozen modules, tests, recipes, tools) | 59 | 108 |
 | `research/results/` (archives, suites, receipts) | 69 | 1,115 |
-| research notes, including this note (65), the `research/README.md` index entries and pointer, and the `wheel.md` pointer; bodies of dated notes unchanged | 74 | 590 |
+| research notes, including this note (66), the `research/README.md` index entries and pointer, and the `wheel.md` pointer; bodies of dated notes unchanged | 74 | 591 |
 | P11 extract headers (lines 3 and 5 of 20 `python/rang/core_*.py`) | 20 | 40 |
 | `tests/test_p11_extract.py` (`SOURCE` regex, the mapped line) | 1 | 2 |
 | `tests/test_p12_rename.py` (asserts that `rangtoy` is absent) | 1 | 4 |
