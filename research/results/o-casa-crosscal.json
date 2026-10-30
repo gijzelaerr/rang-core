@@ -1,0 +1,5738 @@
+{
+ "arms": {
+  "a": {
+   "flag_fraction_after_apply": 0.7010396321614584,
+   "flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "model": {
+    "cross_hand_max_abs": 0.0,
+    "imag_max_abs": 1.7553601801278962e-12,
+    "log10_s_at_1400mhz_fit": 1.1734370195166774,
+    "max_row_spread": 3.910064697265625e-05,
+    "spectral_index_loglog": -0.07308817289365623,
+    "stokes_i_at_1400mhz": 14.907685226369127,
+    "stokes_i_channels_mhz": {
+     "1070.0": 15.007729530334473,
+     "1177.0": 15.13436222076416,
+     "1284.0": 15.091780662536621,
+     "1391.0": 14.926030158996582,
+     "1497.8": 14.67318344116211
+    }
+   },
+   "new_flags_vs_original": 0,
+   "original_flags_kept": true,
+   "refant": "",
+   "setjy_at_1070mhz": 15.007729530334473,
+   "setjy_vs_caracal_reading": {
+    "ln": {
+     "at_1070mhz_model": 14.047358283820804,
+     "max_rel_diff": 0.06836667984896394
+    },
+    "log10": {
+     "at_1070mhz_model": 15.007706822264346,
+     "max_rel_diff": 2.61565899895011e-06
+    }
+   },
+   "tables": {
+    "B": {
+     "exists": false
+    },
+    "G": {
+     "exists": false
+    },
+    "K": {
+     "exists": false
+    }
+   }
+  },
+  "b": {
+   "flag_fraction_after_apply": 0.7010396321614584,
+   "flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "model": {
+    "cross_hand_max_abs": 0.0,
+    "imag_max_abs": 1.7553601801278962e-12,
+    "log10_s_at_1400mhz_fit": 1.1734370195166774,
+    "max_row_spread": 3.910064697265625e-05,
+    "spectral_index_loglog": -0.07308817289365623,
+    "stokes_i_at_1400mhz": 14.907685226369127,
+    "stokes_i_channels_mhz": {
+     "1070.0": 15.007729530334473,
+     "1177.0": 15.13436222076416,
+     "1284.0": 15.091780662536621,
+     "1391.0": 14.926030158996582,
+     "1497.8": 14.67318344116211
+    }
+   },
+   "new_flags_vs_original": 0,
+   "original_flags_kept": true,
+   "refant": "",
+   "setjy_at_1070mhz": 15.007729530334473,
+   "setjy_vs_caracal_reading": {
+    "ln": {
+     "at_1070mhz_model": 14.047358283820804,
+     "max_rel_diff": 0.06836667984896394
+    },
+    "log10": {
+     "at_1070mhz_model": 15.007706822264346,
+     "max_rel_diff": 2.61565899895011e-06
+    }
+   },
+   "tables": {
+    "B": {
+     "exists": false
+    },
+    "G": {
+     "exists": false
+    },
+    "K": {
+     "exists": false
+    }
+   }
+  },
+  "c": {
+   "corrected": {
+    "cross_hand_abs_mean": 0.3798697292804718,
+    "stokes_i_imag_std": 0.25924745202064514,
+    "stokes_i_over_model_mean": 1.0003128051757812,
+    "stokes_i_real_mean": 14.957321166992188,
+    "stokes_i_real_std": 0.21281607449054718,
+    "unflagged_fraction": 0.2989603678385417
+   },
+   "corrected_sha256": "d43a78d9cc4589807421678fba99592ba87dbd0eaa12eb9701d4663faccd15b4",
+   "flag_fraction_after_apply": 0.7010396321614584,
+   "flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "model": {
+    "cross_hand_max_abs": 0.0,
+    "imag_max_abs": 1.7553601801278962e-12,
+    "log10_s_at_1400mhz_fit": 1.1734370195166774,
+    "max_row_spread": 3.910064697265625e-05,
+    "spectral_index_loglog": -0.07308817289365623,
+    "stokes_i_at_1400mhz": 14.907685226369127,
+    "stokes_i_channels_mhz": {
+     "1070.0": 15.007729530334473,
+     "1177.0": 15.13436222076416,
+     "1284.0": 15.091780662536621,
+     "1391.0": 14.926030158996582,
+     "1497.8": 14.67318344116211
+    }
+   },
+   "new_flags_vs_original": 0,
+   "original_flags_kept": true,
+   "refant": "m000",
+   "setjy_at_1070mhz": 15.007729530334473,
+   "setjy_vs_caracal_reading": {
+    "ln": {
+     "at_1070mhz_model": 14.047358283820804,
+     "max_rel_diff": 0.06836667984896394
+    },
+    "log10": {
+     "at_1070mhz_model": 15.007706822264346,
+     "max_rel_diff": 2.61565899895011e-06
+    }
+   },
+   "tables": {
+    "B": {
+     "cparam_or_fparam_sha256": "f4820b506256af02944fab27ecf2765537be5b2f5852dcaa1da26124fa5e2512",
+     "exists": true,
+     "flagged_fraction": 0.7578125,
+     "n_times": 1,
+     "par_column": "CPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "amp_max": 1.0171427726745605,
+        "amp_median": 1.001408576965332,
+        "amp_min": 0.9647149443626404,
+        "phase_median_deg": -5.36687708163619e-11,
+        "phase_std_deg": 5.6594982034141594e-09,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0113558769226074,
+        "amp_median": 1.0010433197021484,
+        "amp_min": 0.9701727628707886,
+        "phase_median_deg": 6.110227601663354e-11,
+        "phase_std_deg": 6.3993752519309055e-09,
+        "valid": 496
+       }
+      },
+      "m001": {
+       "pol0": {
+        "amp_max": 1.010628581047058,
+        "amp_median": 0.9994714856147766,
+        "amp_min": 0.9863793253898621,
+        "phase_median_deg": -0.005223777145147324,
+        "phase_std_deg": 0.4833279252052307,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0144529342651367,
+        "amp_median": 1.000025987625122,
+        "amp_min": 0.9826453328132629,
+        "phase_median_deg": 0.03180582448840141,
+        "phase_std_deg": 0.511333167552948,
+        "valid": 496
+       }
+      },
+      "m002": {
+       "pol0": {
+        "amp_max": 1.0167733430862427,
+        "amp_median": 0.9990388751029968,
+        "amp_min": 0.9858949780464172,
+        "phase_median_deg": 0.007391647901386023,
+        "phase_std_deg": 0.2757017910480499,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.010132908821106,
+        "amp_median": 0.9993393421173096,
+        "amp_min": 0.9885420799255371,
+        "phase_median_deg": 0.0010377662256360054,
+        "phase_std_deg": 0.2653200328350067,
+        "valid": 496
+       }
+      },
+      "m003": {
+       "pol0": {
+        "amp_max": 1.0156409740447998,
+        "amp_median": 1.0005613565444946,
+        "amp_min": 0.9838078022003174,
+        "phase_median_deg": 0.009253916330635548,
+        "phase_std_deg": 0.3760347366333008,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.015802025794983,
+        "amp_median": 1.0000908374786377,
+        "amp_min": 0.9843776226043701,
+        "phase_median_deg": 0.0390685498714447,
+        "phase_std_deg": 0.4237399995326996,
+        "valid": 496
+       }
+      }
+     },
+     "shape": [
+      4,
+      2048,
+      2
+     ],
+     "snr_median": 104.67411804199219,
+     "table_type": "Calibration",
+     "type": "B Jones"
+    },
+    "G": {
+     "cparam_or_fparam_sha256": "fb1558f9e19847e35266839f8b99568faa09b00153249c780d11cf495e078985",
+     "exists": true,
+     "flagged_fraction": 0.0,
+     "n_times": 3,
+     "par_column": "CPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "amp_max": 0.7763545513153076,
+        "amp_median": 0.7760365009307861,
+        "amp_min": 0.7758169174194336,
+        "phase_median_deg": -1.052799070144772e-09,
+        "phase_std_deg": 1.0292181551463386e-09,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7699913382530212,
+        "amp_median": 0.7699680328369141,
+        "amp_min": 0.7691791653633118,
+        "phase_median_deg": -4.73003081147283e-10,
+        "phase_std_deg": 1.8715476390873675e-10,
+        "valid": 3
+       }
+      },
+      "m001": {
+       "pol0": {
+        "amp_max": 0.7893519401550293,
+        "amp_median": 0.7887201905250549,
+        "amp_min": 0.7885810732841492,
+        "phase_median_deg": 3.764275074005127,
+        "phase_std_deg": 0.18913032114505768,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7896270155906677,
+        "amp_median": 0.7895969748497009,
+        "amp_min": 0.7893671989440918,
+        "phase_median_deg": 3.9011805057525635,
+        "phase_std_deg": 0.2282986342906952,
+        "valid": 3
+       }
+      },
+      "m002": {
+       "pol0": {
+        "amp_max": 0.796375572681427,
+        "amp_median": 0.7949283123016357,
+        "amp_min": 0.7940511107444763,
+        "phase_median_deg": -1.6631094217300415,
+        "phase_std_deg": 0.3750019371509552,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7921622395515442,
+        "amp_median": 0.7910670638084412,
+        "amp_min": 0.7904950976371765,
+        "phase_median_deg": -1.6222838163375854,
+        "phase_std_deg": 0.32231563329696655,
+        "valid": 3
+       }
+      },
+      "m003": {
+       "pol0": {
+        "amp_max": 0.794852077960968,
+        "amp_median": 0.7944571375846863,
+        "amp_min": 0.7940259575843811,
+        "phase_median_deg": -3.153592348098755,
+        "phase_std_deg": 0.44518762826919556,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7935259938240051,
+        "amp_median": 0.7933409810066223,
+        "amp_min": 0.7930420637130737,
+        "phase_median_deg": -3.2196104526519775,
+        "phase_std_deg": 0.4134511351585388,
+        "valid": 3
+       }
+      }
+     },
+     "shape": [
+      12,
+      1,
+      2
+     ],
+     "snr_median": 131.9949188232422,
+     "table_type": "Calibration",
+     "type": "G Jones"
+    },
+    "K": {
+     "cparam_or_fparam_sha256": "9f1c0bc08127ac5470bab3d3d5c754daa5206412817bdf41e9b15a9b35fad5ea",
+     "exists": true,
+     "flagged_fraction": 0.0,
+     "n_times": 3,
+     "par_column": "FPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       }
+      },
+      "m001": {
+       "pol0": {
+        "delay_ns_max": -0.0036396156065165997,
+        "delay_ns_median": -0.003707743249833584,
+        "delay_ns_min": -0.006559853442013264,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": -0.006845064461231232,
+        "delay_ns_median": -0.007985907606780529,
+        "delay_ns_min": -0.010670104995369911,
+        "valid": 3
+       }
+      },
+      "m002": {
+       "pol0": {
+        "delay_ns_max": 0.004848587326705456,
+        "delay_ns_median": 0.004563376307487488,
+        "delay_ns_min": 0.0021702100057154894,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0021697578486055136,
+        "delay_ns_median": -0.001711266115307808,
+        "delay_ns_min": -0.001711266115307808,
+        "valid": 3
+       }
+      },
+      "m003": {
+       "pol0": {
+        "delay_ns_max": 0.005367176607251167,
+        "delay_ns_median": 0.005133798345923424,
+        "delay_ns_min": 0.002281688153743744,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.003314029425382614,
+        "delay_ns_median": 0.002281688153743744,
+        "delay_ns_min": 0.001283449586480856,
+        "valid": 3
+       }
+      }
+     },
+     "shape": [
+      12,
+      1,
+      2
+     ],
+     "snr_median": 0.0,
+     "table_type": "Calibration",
+     "type": "K Jones"
+    }
+   }
+  },
+  "ch": {
+   "corrected": {
+    "cross_hand_abs_mean": 0.3798840045928955,
+    "stokes_i_imag_std": 0.2598257064819336,
+    "stokes_i_over_model_mean": 1.000357985496521,
+    "stokes_i_real_mean": 14.958000183105469,
+    "stokes_i_real_std": 0.21379633247852325,
+    "unflagged_fraction": 0.2989603678385417
+   },
+   "corrected_sha256": "c9b609209e3001cb1a26bdeffabd0e44e312b4618fab38880f07f021bc7d5f11",
+   "flag_fraction_after_apply": 0.7010396321614584,
+   "flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "model": {
+    "cross_hand_max_abs": 0.0,
+    "imag_max_abs": 1.7553601801278962e-12,
+    "log10_s_at_1400mhz_fit": 1.1734370195166774,
+    "max_row_spread": 3.910064697265625e-05,
+    "spectral_index_loglog": -0.07308817289365623,
+    "stokes_i_at_1400mhz": 14.907685226369127,
+    "stokes_i_channels_mhz": {
+     "1070.0": 15.007729530334473,
+     "1177.0": 15.13436222076416,
+     "1284.0": 15.091780662536621,
+     "1391.0": 14.926030158996582,
+     "1497.8": 14.67318344116211
+    }
+   },
+   "new_flags_vs_original": 0,
+   "original_flags_kept": true,
+   "refant": "m000",
+   "setjy_at_1070mhz": 15.007729530334473,
+   "setjy_vs_caracal_reading": {
+    "ln": {
+     "at_1070mhz_model": 14.047358283820804,
+     "max_rel_diff": 0.06836667984896394
+    },
+    "log10": {
+     "at_1070mhz_model": 15.007706822264346,
+     "max_rel_diff": 2.61565899895011e-06
+    }
+   },
+   "tables": {
+    "B": {
+     "cparam_or_fparam_sha256": "f00c5e9dfedfe483eb308cfcb7b8ca8633ade8011f07124458bc6d4bdd842c92",
+     "exists": true,
+     "flagged_fraction": 0.7578125,
+     "n_times": 1,
+     "par_column": "CPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "amp_max": 1.0172535181045532,
+        "amp_median": 1.0014867782592773,
+        "amp_min": 0.9651417136192322,
+        "phase_median_deg": 5.828823968628827e-12,
+        "phase_std_deg": 5.607178277244884e-09,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0125106573104858,
+        "amp_median": 1.0012625455856323,
+        "amp_min": 0.9684888124465942,
+        "phase_median_deg": 1.958399414858647e-10,
+        "phase_std_deg": 6.964041787682618e-09,
+        "valid": 496
+       }
+      },
+      "m001": {
+       "pol0": {
+        "amp_max": 1.0106168985366821,
+        "amp_median": 0.9995006322860718,
+        "amp_min": 0.9870039820671082,
+        "phase_median_deg": -0.015303881838917732,
+        "phase_std_deg": 0.4956881105899811,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.015356183052063,
+        "amp_median": 0.9999723434448242,
+        "amp_min": 0.9833122491836548,
+        "phase_median_deg": 0.024063602089881897,
+        "phase_std_deg": 0.5234311819076538,
+        "valid": 496
+       }
+      },
+      "m002": {
+       "pol0": {
+        "amp_max": 1.016216516494751,
+        "amp_median": 0.9990923404693604,
+        "amp_min": 0.9872033596038818,
+        "phase_median_deg": 0.0024601579643785954,
+        "phase_std_deg": 0.28698572516441345,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0104502439498901,
+        "amp_median": 0.9992315769195557,
+        "amp_min": 0.9879670143127441,
+        "phase_median_deg": 0.021250557154417038,
+        "phase_std_deg": 0.2769556939601898,
+        "valid": 496
+       }
+      },
+      "m003": {
+       "pol0": {
+        "amp_max": 1.0158129930496216,
+        "amp_median": 1.000349521636963,
+        "amp_min": 0.9832954406738281,
+        "phase_median_deg": 0.012438692152500153,
+        "phase_std_deg": 0.38451260328292847,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0166943073272705,
+        "amp_median": 1.0001192092895508,
+        "amp_min": 0.9843398928642273,
+        "phase_median_deg": 0.04264151304960251,
+        "phase_std_deg": 0.43347248435020447,
+        "valid": 496
+       }
+      }
+     },
+     "shape": [
+      4,
+      2048,
+      2
+     ],
+     "snr_median": 103.84211730957031,
+     "table_type": "Calibration",
+     "type": "B Jones"
+    },
+    "G": {
+     "cparam_or_fparam_sha256": "3b2fd49d714d246f0df84205c9847123289ea94f673dbf3098cb0241581fef85",
+     "exists": true,
+     "flagged_fraction": 0.0,
+     "n_times": 3,
+     "par_column": "CPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "amp_max": 0.7763221859931946,
+        "amp_median": 0.7762705087661743,
+        "amp_min": 0.7758238911628723,
+        "phase_median_deg": -7.637974697161098e-10,
+        "phase_std_deg": 5.158095617296965e-10,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7700361013412476,
+        "amp_median": 0.7700039744377136,
+        "amp_min": 0.7691331505775452,
+        "phase_median_deg": 3.4563803208431665e-11,
+        "phase_std_deg": 1.6785348111447718e-10,
+        "valid": 3
+       }
+      },
+      "m001": {
+       "pol0": {
+        "amp_max": 0.7890245914459229,
+        "amp_median": 0.7886993885040283,
+        "amp_min": 0.7885922789573669,
+        "phase_median_deg": 3.7763404846191406,
+        "phase_std_deg": 0.19868850708007812,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7895932793617249,
+        "amp_median": 0.7894263863563538,
+        "amp_min": 0.7892838716506958,
+        "phase_median_deg": 3.9147441387176514,
+        "phase_std_deg": 0.22700008749961853,
+        "valid": 3
+       }
+      },
+      "m002": {
+       "pol0": {
+        "amp_max": 0.7966777086257935,
+        "amp_median": 0.7948517799377441,
+        "amp_min": 0.7940458655357361,
+        "phase_median_deg": -1.6865546703338623,
+        "phase_std_deg": 0.40377190709114075,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7923559546470642,
+        "amp_median": 0.7911233901977539,
+        "amp_min": 0.7905007600784302,
+        "phase_median_deg": -1.6219456195831299,
+        "phase_std_deg": 0.3264893591403961,
+        "valid": 3
+       }
+      },
+      "m003": {
+       "pol0": {
+        "amp_max": 0.7950210571289062,
+        "amp_median": 0.7944652438163757,
+        "amp_min": 0.794082760810852,
+        "phase_median_deg": -3.170746326446533,
+        "phase_std_deg": 0.4673648178577423,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7934919595718384,
+        "amp_median": 0.7933911085128784,
+        "amp_min": 0.7930566072463989,
+        "phase_median_deg": -3.2249176502227783,
+        "phase_std_deg": 0.42125147581100464,
+        "valid": 3
+       }
+      }
+     },
+     "shape": [
+      12,
+      1,
+      2
+     ],
+     "snr_median": 131.55967712402344,
+     "table_type": "Calibration",
+     "type": "G Jones"
+    },
+    "K": {
+     "cparam_or_fparam_sha256": "191433cda53754726fbd13138639d630eab342c62f116753a930b3c7ce6e05e2",
+     "exists": true,
+     "flagged_fraction": 0.0,
+     "n_times": 3,
+     "par_column": "FPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       }
+      },
+      "m001": {
+       "pol0": {
+        "delay_ns_max": -0.003398103406652808,
+        "delay_ns_median": -0.004563376307487488,
+        "delay_ns_min": -0.006845064461231232,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": -0.007415486499667168,
+        "delay_ns_median": -0.008271118625998497,
+        "delay_ns_min": -0.010850362479686737,
+        "valid": 3
+       }
+      },
+      "m002": {
+       "pol0": {
+        "delay_ns_max": 0.006274642422795296,
+        "delay_ns_median": 0.004705981817096472,
+        "delay_ns_min": 0.0022017203737050295,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0019371624803170562,
+        "delay_ns_median": -0.0019964769016951323,
+        "delay_ns_min": -0.0019964769016951323,
+        "valid": 3
+       }
+      },
+      "m003": {
+       "pol0": {
+        "delay_ns_max": 0.005015917122364044,
+        "delay_ns_median": 0.00499119283631444,
+        "delay_ns_min": 0.003279926721006632,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0032736104913055897,
+        "delay_ns_median": 0.00213908264413476,
+        "delay_ns_min": 0.001711266115307808,
+        "valid": 3
+       }
+      }
+     },
+     "shape": [
+      12,
+      1,
+      2
+     ],
+     "snr_median": 0.0,
+     "table_type": "Calibration",
+     "type": "K Jones"
+    }
+   }
+  },
+  "d": {
+   "flag_fraction_after_apply": 0.7010396321614584,
+   "flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "model": {
+    "cross_hand_max_abs": 0.0,
+    "imag_max_abs": 1.7553601801278962e-12,
+    "log10_s_at_1400mhz_fit": 1.1734370195166774,
+    "max_row_spread": 3.910064697265625e-05,
+    "spectral_index_loglog": -0.07308817289365623,
+    "stokes_i_at_1400mhz": 14.907685226369127,
+    "stokes_i_channels_mhz": {
+     "1070.0": 15.007729530334473,
+     "1177.0": 15.13436222076416,
+     "1284.0": 15.091780662536621,
+     "1391.0": 14.926030158996582,
+     "1497.8": 14.67318344116211
+    }
+   },
+   "new_flags_vs_original": 0,
+   "original_flags_kept": true,
+   "refant": "m000",
+   "setjy_at_1070mhz": 15.007729530334473,
+   "setjy_vs_caracal_reading": {
+    "ln": {
+     "at_1070mhz_model": 14.047358283820804,
+     "max_rel_diff": 0.06836667984896394
+    },
+    "log10": {
+     "at_1070mhz_model": 15.007706822264346,
+     "max_rel_diff": 2.61565899895011e-06
+    }
+   },
+   "tables": {
+    "B": {
+     "exists": false
+    },
+    "G": {
+     "exists": false
+    },
+    "K": {
+     "cparam_or_fparam_sha256": "9f1c0bc08127ac5470bab3d3d5c754daa5206412817bdf41e9b15a9b35fad5ea",
+     "exists": true,
+     "flagged_fraction": 0.0,
+     "n_times": 3,
+     "par_column": "FPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       }
+      },
+      "m001": {
+       "pol0": {
+        "delay_ns_max": -0.0036396156065165997,
+        "delay_ns_median": -0.003707743249833584,
+        "delay_ns_min": -0.006559853442013264,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": -0.006845064461231232,
+        "delay_ns_median": -0.007985907606780529,
+        "delay_ns_min": -0.010670104995369911,
+        "valid": 3
+       }
+      },
+      "m002": {
+       "pol0": {
+        "delay_ns_max": 0.004848587326705456,
+        "delay_ns_median": 0.004563376307487488,
+        "delay_ns_min": 0.0021702100057154894,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0021697578486055136,
+        "delay_ns_median": -0.001711266115307808,
+        "delay_ns_min": -0.001711266115307808,
+        "valid": 3
+       }
+      },
+      "m003": {
+       "pol0": {
+        "delay_ns_max": 0.005367176607251167,
+        "delay_ns_median": 0.005133798345923424,
+        "delay_ns_min": 0.002281688153743744,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.003314029425382614,
+        "delay_ns_median": 0.002281688153743744,
+        "delay_ns_min": 0.001283449586480856,
+        "valid": 3
+       }
+      }
+     },
+     "shape": [
+      12,
+      1,
+      2
+     ],
+     "snr_median": 0.0,
+     "table_type": "Calibration",
+     "type": "K Jones"
+    }
+   }
+  },
+  "sh": {
+   "corrected": {
+    "cross_hand_abs_mean": 0.37915247678756714,
+    "stokes_i_imag_std": 0.30335667729377747,
+    "stokes_i_over_model_mean": 1.000425934791565,
+    "stokes_i_real_mean": 14.946621894836426,
+    "stokes_i_real_std": 0.28067755699157715,
+    "unflagged_fraction": 0.2989603678385417
+   },
+   "corrected_sha256": "59c820d11db7a2225f81111b741204a655e1008b25f340de752fa572c325d518",
+   "flag_fraction_after_apply": 0.7010396321614584,
+   "flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "model": {
+    "cross_hand_max_abs": 0.0,
+    "imag_max_abs": 0.5038247108459473,
+    "log10_s_at_1400mhz_fit": 1.1733359217351107,
+    "max_row_spread": 0.48268890380859375,
+    "spectral_index_loglog": -0.040500473099809295,
+    "stokes_i_at_1400mhz": 14.902773562992845,
+    "stokes_i_channels_mhz": {
+     "1070.0": 14.855072975158691,
+     "1177.0": 15.053665161132812,
+     "1284.0": 15.042201042175293,
+     "1391.0": 14.916465759277344,
+     "1497.8": 14.707561492919922
+    }
+   },
+   "new_flags_vs_original": 0,
+   "original_flags_kept": true,
+   "refant": "m000",
+   "tables": {
+    "B": {
+     "cparam_or_fparam_sha256": "763a5c051737dbfdb4fb83829900003fa04b818c7bed39ccd719e5fac8c1863f",
+     "exists": true,
+     "flagged_fraction": 0.7578125,
+     "n_times": 1,
+     "par_column": "CPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "amp_max": 1.0130380392074585,
+        "amp_median": 1.000011682510376,
+        "amp_min": 0.9837634563446045,
+        "phase_median_deg": 1.0010004977689668e-11,
+        "phase_std_deg": 5.718253426323372e-09,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0125234127044678,
+        "amp_median": 0.9994176030158997,
+        "amp_min": 0.9875492453575134,
+        "phase_median_deg": -7.489147496597681e-11,
+        "phase_std_deg": 6.857447498731517e-09,
+        "valid": 496
+       }
+      },
+      "m001": {
+       "pol0": {
+        "amp_max": 1.0109809637069702,
+        "amp_median": 0.9995318055152893,
+        "amp_min": 0.9862372279167175,
+        "phase_median_deg": -0.03735269606113434,
+        "phase_std_deg": 0.3122173547744751,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0159578323364258,
+        "amp_median": 0.9997938871383667,
+        "amp_min": 0.9837511777877808,
+        "phase_median_deg": 0.005605512764304876,
+        "phase_std_deg": 0.3313334584236145,
+        "valid": 496
+       }
+      },
+      "m002": {
+       "pol0": {
+        "amp_max": 1.0145282745361328,
+        "amp_median": 0.9993447065353394,
+        "amp_min": 0.9854388236999512,
+        "phase_median_deg": 0.05630835145711899,
+        "phase_std_deg": 0.27324652671813965,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0105952024459839,
+        "amp_median": 0.9996951818466187,
+        "amp_min": 0.9849856495857239,
+        "phase_median_deg": 0.06129196286201477,
+        "phase_std_deg": 0.28142109513282776,
+        "valid": 496
+       }
+      },
+      "m003": {
+       "pol0": {
+        "amp_max": 1.0149732828140259,
+        "amp_median": 0.999714732170105,
+        "amp_min": 0.9853475093841553,
+        "phase_median_deg": 0.07462311536073685,
+        "phase_std_deg": 0.2995016872882843,
+        "valid": 496
+       },
+       "pol1": {
+        "amp_max": 1.0156638622283936,
+        "amp_median": 0.9995373487472534,
+        "amp_min": 0.9850813150405884,
+        "phase_median_deg": 0.08751213550567627,
+        "phase_std_deg": 0.38597407937049866,
+        "valid": 496
+       }
+      }
+     },
+     "shape": [
+      4,
+      2048,
+      2
+     ],
+     "snr_median": 248.5635986328125,
+     "table_type": "Calibration",
+     "type": "B Jones"
+    },
+    "G": {
+     "cparam_or_fparam_sha256": "96b542833418a6d34ad077440ae2bef3f12fbfbe752e9d50995c8b0dcdc26680",
+     "exists": true,
+     "flagged_fraction": 0.0,
+     "n_times": 3,
+     "par_column": "CPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "amp_max": 0.7902482748031616,
+        "amp_median": 0.7901496291160583,
+        "amp_min": 0.7896293997764587,
+        "phase_median_deg": -1.1521519849289064e-10,
+        "phase_std_deg": 8.406998708299085e-11,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7837560176849365,
+        "amp_median": 0.783755362033844,
+        "amp_min": 0.7827624678611755,
+        "phase_median_deg": -3.5949818122382737e-10,
+        "phase_std_deg": 3.2775122893458075e-11,
+        "valid": 3
+       }
+      },
+      "m001": {
+       "pol0": {
+        "amp_max": 0.7889556884765625,
+        "amp_median": 0.7883157134056091,
+        "amp_min": 0.7882335782051086,
+        "phase_median_deg": 3.3643805980682373,
+        "phase_std_deg": 0.21059419214725494,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.789220929145813,
+        "amp_median": 0.7891559600830078,
+        "amp_min": 0.7891532182693481,
+        "phase_median_deg": 3.489685297012329,
+        "phase_std_deg": 0.24034488201141357,
+        "valid": 3
+       }
+      },
+      "m002": {
+       "pol0": {
+        "amp_max": 0.7922215461730957,
+        "amp_median": 0.7906150817871094,
+        "amp_min": 0.7898303866386414,
+        "phase_median_deg": -2.3727147579193115,
+        "phase_std_deg": 0.39565518498420715,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7879198789596558,
+        "amp_median": 0.7868908047676086,
+        "amp_min": 0.7863039970397949,
+        "phase_median_deg": -2.305129289627075,
+        "phase_std_deg": 0.31862592697143555,
+        "valid": 3
+       }
+      },
+      "m003": {
+       "pol0": {
+        "amp_max": 0.7885221242904663,
+        "amp_median": 0.7878525257110596,
+        "amp_min": 0.7874511480331421,
+        "phase_median_deg": -4.077308177947998,
+        "phase_std_deg": 0.4658486247062683,
+        "valid": 3
+       },
+       "pol1": {
+        "amp_max": 0.7869075536727905,
+        "amp_median": 0.786865770816803,
+        "amp_min": 0.7864381074905396,
+        "phase_median_deg": -4.127156734466553,
+        "phase_std_deg": 0.4225160479545593,
+        "valid": 3
+       }
+      }
+     },
+     "shape": [
+      12,
+      1,
+      2
+     ],
+     "snr_median": 654.16552734375,
+     "table_type": "Calibration",
+     "type": "G Jones"
+    },
+    "K": {
+     "cparam_or_fparam_sha256": "2b5f45b774f51d1757c2e672bc3eaa1beb280687b893b704df50093a1578c03b",
+     "exists": true,
+     "flagged_fraction": 0.0,
+     "n_times": 3,
+     "par_column": "FPARAM",
+     "per_antenna": {
+      "m000": {
+       "pol0": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.0,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": 0.0,
+        "valid": 3
+       }
+      },
+      "m001": {
+       "pol0": {
+        "delay_ns_max": 0.007664541248232126,
+        "delay_ns_median": 0.006845064461231232,
+        "delay_ns_min": 0.00427816528826952,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": 0.003707743249833584,
+        "delay_ns_median": 0.002994715701788664,
+        "delay_ns_min": 0.00020024972036480904,
+        "valid": 3
+       }
+      },
+      "m002": {
+       "pol0": {
+        "delay_ns_max": 0.001853871624916792,
+        "delay_ns_median": 0.0,
+        "delay_ns_min": -0.0028654467314481735,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": -0.0031310399062931538,
+        "delay_ns_median": -0.006559853442013264,
+        "delay_ns_min": -0.006845064461231232,
+        "valid": 3
+       }
+      },
+      "m003": {
+       "pol0": {
+        "delay_ns_max": -0.003707743249833584,
+        "delay_ns_median": -0.004036565776914358,
+        "delay_ns_min": -0.0054190088994801044,
+        "valid": 3
+       },
+       "pol1": {
+        "delay_ns_max": -0.005737200379371643,
+        "delay_ns_median": -0.006845064461231232,
+        "delay_ns_min": -0.006845064461231232,
+        "valid": 3
+       }
+      }
+     },
+     "shape": [
+      12,
+      1,
+      2
+     ],
+     "snr_median": 0.0,
+     "table_type": "Calibration",
+     "type": "K Jones"
+    }
+   }
+  }
+ },
+ "casa_calls": {
+  "a-apply": {
+   "skipped": "missing tables ['/run/a.K0', '/run/a.G0', '/run/a.B0']",
+   "tasks": {}
+  },
+  "a-solve": {
+   "antennas": {
+    "m000": {
+     "array_centre_dist_m": 207.14497296714754,
+     "baselines_m": [
+      36.74674815855517,
+      29.256520999577873,
+      58.47021245191399
+     ],
+     "flagged_fraction": 0.7233022054036459,
+     "rows_fully_flagged": 0
+    },
+    "m001": {
+     "array_centre_dist_m": 171.48151864982083,
+     "baselines_m": [
+      36.74674815855517,
+      62.11293322865822,
+      74.20313530118369
+     ],
+     "flagged_fraction": 0.7042592366536459,
+     "rows_fully_flagged": 0
+    },
+    "m002": {
+     "array_centre_dist_m": 226.2163414437249,
+     "baselines_m": [
+      29.256520999577873,
+      62.11293322865822,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6941375732421875,
+     "rows_fully_flagged": 0
+    },
+    "m003": {
+     "array_centre_dist_m": 212.65914622255784,
+     "baselines_m": [
+      58.47021245191399,
+      74.20313530118369,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6824595133463541,
+     "rows_fully_flagged": 0
+    }
+   },
+   "baseline_lengths_m": [
+    [
+     "m000-m001",
+     36.746748158850735
+    ],
+    [
+     "m000-m002",
+     29.25652099959939
+    ],
+    [
+     "m000-m003",
+     58.47021245258135
+    ],
+    [
+     "m001-m002",
+     62.112933228515296
+    ],
+    [
+     "m001-m003",
+     74.20313530101004
+    ],
+    [
+     "m002-m003",
+     40.81758034536098
+    ]
+   ],
+   "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+   "field": "J1939-6342",
+   "manual_model": {
+    "fit_ok": true,
+    "fluxdensity": 14.907688923070978,
+    "ghz_coefficients": [
+     1.1704179999999944,
+     0.248618000000004,
+     -1.6496939999999993,
+     0.605334
+    ],
+    "reffreq": "1.400000GHz",
+    "spix": [
+     -0.19473726830031884,
+     -1.3843251994858228,
+     0.6053343549925667,
+     1.4326836688117861e-06
+    ],
+    "spix_stderr": [
+     1.908048350804203e-11,
+     1.7420054686089336e-10,
+     1.083107892767014e-09,
+     1.6002433562277443e-09
+    ]
+   },
+   "minblperant": null,
+   "refant": "",
+   "refant_auto": "",
+   "tasks": {
+    "gaincal_K": {
+     "error": "RuntimeError: Error in Calibrater::setsolve.",
+     "ok": false,
+     "params": {
+      "caltable": "/run/a.K0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gaintype": "K",
+      "refant": "",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "vis": "/run/a.ms"
+     },
+     "returned": null,
+     "seconds": 0.012
+    },
+    "setjy": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "field": "J1939-6342",
+      "fluxdensity": 14.907688923070978,
+      "reffreq": "1.400000GHz",
+      "scalebychan": true,
+      "spix": [
+       -0.19473726830031884,
+       -1.3843251994858228,
+       0.6053343549925667,
+       1.4326836688117861e-06
+      ],
+      "standard": "manual",
+      "usescratch": true,
+      "vis": "/run/a.ms"
+     },
+     "returned": {
+      "1": {
+       "0": {
+        "fluxd": [
+         15.007706822264348,
+         0.0,
+         0.0,
+         0.0
+        ]
+       },
+       "fieldName": "J1939-6342"
+      },
+      "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+     },
+     "seconds": 0.202
+    }
+   },
+   "uvrange": ">50"
+  },
+  "b-apply": {
+   "skipped": "missing tables ['/run/b.K0', '/run/b.G0', '/run/b.B0']",
+   "tasks": {}
+  },
+  "b-solve": {
+   "antennas": {
+    "m000": {
+     "array_centre_dist_m": 207.14497296714754,
+     "baselines_m": [
+      36.74674815855517,
+      29.256520999577873,
+      58.47021245191399
+     ],
+     "flagged_fraction": 0.7233022054036459,
+     "rows_fully_flagged": 0
+    },
+    "m001": {
+     "array_centre_dist_m": 171.48151864982083,
+     "baselines_m": [
+      36.74674815855517,
+      62.11293322865822,
+      74.20313530118369
+     ],
+     "flagged_fraction": 0.7042592366536459,
+     "rows_fully_flagged": 0
+    },
+    "m002": {
+     "array_centre_dist_m": 226.2163414437249,
+     "baselines_m": [
+      29.256520999577873,
+      62.11293322865822,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6941375732421875,
+     "rows_fully_flagged": 0
+    },
+    "m003": {
+     "array_centre_dist_m": 212.65914622255784,
+     "baselines_m": [
+      58.47021245191399,
+      74.20313530118369,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6824595133463541,
+     "rows_fully_flagged": 0
+    }
+   },
+   "baseline_lengths_m": [
+    [
+     "m000-m001",
+     36.746748158850735
+    ],
+    [
+     "m000-m002",
+     29.25652099959939
+    ],
+    [
+     "m000-m003",
+     58.47021245258135
+    ],
+    [
+     "m001-m002",
+     62.112933228515296
+    ],
+    [
+     "m001-m003",
+     74.20313530101004
+    ],
+    [
+     "m002-m003",
+     40.81758034536098
+    ]
+   ],
+   "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+   "field": "J1939-6342",
+   "manual_model": {
+    "fit_ok": true,
+    "fluxdensity": 14.907688923070978,
+    "ghz_coefficients": [
+     1.1704179999999944,
+     0.248618000000004,
+     -1.6496939999999993,
+     0.605334
+    ],
+    "reffreq": "1.400000GHz",
+    "spix": [
+     -0.19473726830031884,
+     -1.3843251994858228,
+     0.6053343549925667,
+     1.4326836688117861e-06
+    ],
+    "spix_stderr": [
+     1.908048350804203e-11,
+     1.7420054686089336e-10,
+     1.083107892767014e-09,
+     1.6002433562277443e-09
+    ]
+   },
+   "minblperant": 3,
+   "refant": "",
+   "refant_auto": "",
+   "tasks": {
+    "gaincal_K": {
+     "error": "RuntimeError: Error in Calibrater::setsolve.",
+     "ok": false,
+     "params": {
+      "caltable": "/run/b.K0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gaintype": "K",
+      "minblperant": 3,
+      "refant": "",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "vis": "/run/b.ms"
+     },
+     "returned": null,
+     "seconds": 0.012
+    },
+    "setjy": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "field": "J1939-6342",
+      "fluxdensity": 14.907688923070978,
+      "reffreq": "1.400000GHz",
+      "scalebychan": true,
+      "spix": [
+       -0.19473726830031884,
+       -1.3843251994858228,
+       0.6053343549925667,
+       1.4326836688117861e-06
+      ],
+      "standard": "manual",
+      "usescratch": true,
+      "vis": "/run/b.ms"
+     },
+     "returned": {
+      "1": {
+       "0": {
+        "fluxd": [
+         15.007706822264348,
+         0.0,
+         0.0,
+         0.0
+        ]
+       },
+       "fieldName": "J1939-6342"
+      },
+      "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+     },
+     "seconds": 0.198
+    }
+   },
+   "uvrange": ">50"
+  },
+  "c-apply": {
+   "tasks": {
+    "applycal": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "applymode": "calflag",
+      "calwt": [
+       false
+      ],
+      "field": "J1939-6342",
+      "flagbackup": false,
+      "gainfield": [
+       "nearest",
+       "nearest",
+       "nearest"
+      ],
+      "gaintable": [
+       "/run/c.K0",
+       "/run/c.G0",
+       "/run/c.B0"
+      ],
+      "interp": [
+       "linear",
+       "linear",
+       "linear"
+      ],
+      "parang": false,
+      "vis": "/run/c.ms"
+     },
+     "returned": null,
+     "seconds": 0.203
+    }
+   }
+  },
+  "c-solve": {
+   "antennas": {
+    "m000": {
+     "array_centre_dist_m": 207.14497296714754,
+     "baselines_m": [
+      36.74674815855517,
+      29.256520999577873,
+      58.47021245191399
+     ],
+     "flagged_fraction": 0.7233022054036459,
+     "rows_fully_flagged": 0
+    },
+    "m001": {
+     "array_centre_dist_m": 171.48151864982083,
+     "baselines_m": [
+      36.74674815855517,
+      62.11293322865822,
+      74.20313530118369
+     ],
+     "flagged_fraction": 0.7042592366536459,
+     "rows_fully_flagged": 0
+    },
+    "m002": {
+     "array_centre_dist_m": 226.2163414437249,
+     "baselines_m": [
+      29.256520999577873,
+      62.11293322865822,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6941375732421875,
+     "rows_fully_flagged": 0
+    },
+    "m003": {
+     "array_centre_dist_m": 212.65914622255784,
+     "baselines_m": [
+      58.47021245191399,
+      74.20313530118369,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6824595133463541,
+     "rows_fully_flagged": 0
+    }
+   },
+   "baseline_lengths_m": [
+    [
+     "m000-m001",
+     36.746748158850735
+    ],
+    [
+     "m000-m002",
+     29.25652099959939
+    ],
+    [
+     "m000-m003",
+     58.47021245258135
+    ],
+    [
+     "m001-m002",
+     62.112933228515296
+    ],
+    [
+     "m001-m003",
+     74.20313530101004
+    ],
+    [
+     "m002-m003",
+     40.81758034536098
+    ]
+   ],
+   "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+   "field": "J1939-6342",
+   "manual_model": {
+    "fit_ok": true,
+    "fluxdensity": 14.907688923070978,
+    "ghz_coefficients": [
+     1.1704179999999944,
+     0.248618000000004,
+     -1.6496939999999993,
+     0.605334
+    ],
+    "reffreq": "1.400000GHz",
+    "spix": [
+     -0.19473726830031884,
+     -1.3843251994858228,
+     0.6053343549925667,
+     1.4326836688117861e-06
+    ],
+    "spix_stderr": [
+     1.908048350804203e-11,
+     1.7420054686089336e-10,
+     1.083107892767014e-09,
+     1.6002433562277443e-09
+    ]
+   },
+   "minblperant": 3,
+   "refant": "m000",
+   "refant_auto": "",
+   "tasks": {
+    "bandpass_B": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "bandtype": "B",
+      "caltable": "/run/c.B0",
+      "combine": "scan",
+      "field": "J1939-6342",
+      "fillgaps": 70,
+      "gainfield": [
+       "J1939-6342",
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/c.K0",
+       "/run/c.G0"
+      ],
+      "interp": [
+       "linear",
+       "linear"
+      ],
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "inf",
+      "solnorm": false,
+      "uvrange": "",
+      "vis": "/run/c.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        1,
+        1
+       ],
+       "above_minsnr": [
+        1,
+        1
+       ],
+       "data_unflagged": [
+        1,
+        1
+       ],
+       "expected": [
+        1,
+        1
+       ],
+       "spw0": {
+        "above_minblperant": [
+         1,
+         1
+        ],
+        "above_minsnr": [
+         1,
+         1
+        ],
+        "ant0": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          1
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         1,
+         1
+        ],
+        "expected": [
+         1,
+         1
+        ]
+       }
+      }
+     },
+     "seconds": 0.339
+    },
+    "gaincal_G": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "calmode": "ap",
+      "caltable": "/run/c.G0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gainfield": [
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/c.K0"
+      ],
+      "gaintype": "G",
+      "interp": [
+       "linear"
+      ],
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "uvrange": "",
+      "vis": "/run/c.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        3,
+        3
+       ],
+       "above_minsnr": [
+        3,
+        3
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         3,
+         3
+        ],
+        "above_minsnr": [
+         3,
+         3
+        ],
+        "ant0": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          3
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.25
+    },
+    "gaincal_K": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "caltable": "/run/c.K0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gaintype": "K",
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "vis": "/run/c.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        3,
+        3
+       ],
+       "above_minsnr": [
+        3,
+        3
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         3,
+         3
+        ],
+        "above_minsnr": [
+         3,
+         3
+        ],
+        "ant0": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.251
+    },
+    "setjy": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "field": "J1939-6342",
+      "fluxdensity": 14.907688923070978,
+      "reffreq": "1.400000GHz",
+      "scalebychan": true,
+      "spix": [
+       -0.19473726830031884,
+       -1.3843251994858228,
+       0.6053343549925667,
+       1.4326836688117861e-06
+      ],
+      "standard": "manual",
+      "usescratch": true,
+      "vis": "/run/c.ms"
+     },
+     "returned": {
+      "1": {
+       "0": {
+        "fluxd": [
+         15.007706822264348,
+         0.0,
+         0.0,
+         0.0
+        ]
+       },
+       "fieldName": "J1939-6342"
+      },
+      "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+     },
+     "seconds": 0.201
+    }
+   },
+   "uvrange": ""
+  },
+  "ch-apply": {
+   "tasks": {
+    "applycal": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "applymode": "calflag",
+      "calwt": [
+       false
+      ],
+      "field": "J1939-6342",
+      "flagbackup": false,
+      "gainfield": [
+       "nearest",
+       "nearest",
+       "nearest"
+      ],
+      "gaintable": [
+       "/run/ch.K0",
+       "/run/ch.G0",
+       "/run/ch.B0"
+      ],
+      "interp": [
+       "linear",
+       "linear",
+       "linear"
+      ],
+      "parang": false,
+      "vis": "/run/ch.ms"
+     },
+     "returned": null,
+     "seconds": 0.195
+    }
+   }
+  },
+  "ch-solve": {
+   "antennas": {
+    "m000": {
+     "array_centre_dist_m": 207.14497296714754,
+     "baselines_m": [
+      36.74674815855517,
+      29.256520999577873,
+      58.47021245191399
+     ],
+     "flagged_fraction": 0.7790069580078125,
+     "rows_fully_flagged": 0
+    },
+    "m001": {
+     "array_centre_dist_m": 171.48151864982083,
+     "baselines_m": [
+      36.74674815855517,
+      62.11293322865822,
+      74.20313530118369
+     ],
+     "flagged_fraction": 0.7627665201822916,
+     "rows_fully_flagged": 0
+    },
+    "m002": {
+     "array_centre_dist_m": 226.2163414437249,
+     "baselines_m": [
+      29.256520999577873,
+      62.11293322865822,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.755340576171875,
+     "rows_fully_flagged": 0
+    },
+    "m003": {
+     "array_centre_dist_m": 212.65914622255784,
+     "baselines_m": [
+      58.47021245191399,
+      74.20313530118369,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.7461903889973959,
+     "rows_fully_flagged": 0
+    }
+   },
+   "baseline_lengths_m": [
+    [
+     "m000-m001",
+     36.746748158850735
+    ],
+    [
+     "m000-m002",
+     29.25652099959939
+    ],
+    [
+     "m000-m003",
+     58.47021245258135
+    ],
+    [
+     "m001-m002",
+     62.112933228515296
+    ],
+    [
+     "m001-m003",
+     74.20313530101004
+    ],
+    [
+     "m002-m003",
+     40.81758034536098
+    ]
+   ],
+   "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+   "field": "J1939-6342",
+   "manual_model": {
+    "fit_ok": true,
+    "fluxdensity": 14.907688923070978,
+    "ghz_coefficients": [
+     1.1704179999999944,
+     0.248618000000004,
+     -1.6496939999999993,
+     0.605334
+    ],
+    "reffreq": "1.400000GHz",
+    "spix": [
+     -0.19473726830031884,
+     -1.3843251994858228,
+     0.6053343549925667,
+     1.4326836688117861e-06
+    ],
+    "spix_stderr": [
+     1.908048350804203e-11,
+     1.7420054686089336e-10,
+     1.083107892767014e-09,
+     1.6002433562277443e-09
+    ]
+   },
+   "minblperant": 3,
+   "refant": "m000",
+   "refant_auto": "",
+   "tasks": {
+    "bandpass_B": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "bandtype": "B",
+      "caltable": "/run/ch.B0",
+      "combine": "scan",
+      "field": "J1939-6342",
+      "fillgaps": 70,
+      "gainfield": [
+       "J1939-6342",
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/ch.K0",
+       "/run/ch.G0"
+      ],
+      "interp": [
+       "linear",
+       "linear"
+      ],
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "inf",
+      "solnorm": false,
+      "uvrange": "",
+      "vis": "/run/ch.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        1,
+        1
+       ],
+       "above_minsnr": [
+        1,
+        1
+       ],
+       "data_unflagged": [
+        1,
+        1
+       ],
+       "expected": [
+        1,
+        1
+       ],
+       "spw0": {
+        "above_minblperant": [
+         1,
+         1
+        ],
+        "above_minsnr": [
+         1,
+         1
+        ],
+        "ant0": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          1
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         1,
+         1
+        ],
+        "expected": [
+         1,
+         1
+        ]
+       }
+      }
+     },
+     "seconds": 0.316
+    },
+    "gaincal_G": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "calmode": "ap",
+      "caltable": "/run/ch.G0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gainfield": [
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/ch.K0"
+      ],
+      "gaintype": "G",
+      "interp": [
+       "linear"
+      ],
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "uvrange": "",
+      "vis": "/run/ch.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        3,
+        3
+       ],
+       "above_minsnr": [
+        3,
+        3
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         3,
+         3
+        ],
+        "above_minsnr": [
+         3,
+         3
+        ],
+        "ant0": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          3
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.26
+    },
+    "gaincal_K": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "caltable": "/run/ch.K0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gaintype": "K",
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "vis": "/run/ch.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        3,
+        3
+       ],
+       "above_minsnr": [
+        3,
+        3
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         3,
+         3
+        ],
+        "above_minsnr": [
+         3,
+         3
+        ],
+        "ant0": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.25
+    },
+    "setjy": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "field": "J1939-6342",
+      "fluxdensity": 14.907688923070978,
+      "reffreq": "1.400000GHz",
+      "scalebychan": true,
+      "spix": [
+       -0.19473726830031884,
+       -1.3843251994858228,
+       0.6053343549925667,
+       1.4326836688117861e-06
+      ],
+      "standard": "manual",
+      "usescratch": true,
+      "vis": "/run/ch.ms"
+     },
+     "returned": {
+      "1": {
+       "0": {
+        "fluxd": [
+         15.007706822264348,
+         0.0,
+         0.0,
+         0.0
+        ]
+       },
+       "fieldName": "J1939-6342"
+      },
+      "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+     },
+     "seconds": 0.196
+    }
+   },
+   "uvrange": ""
+  },
+  "d-apply": {
+   "skipped": "missing tables ['/run/d.G0', '/run/d.B0']",
+   "tasks": {}
+  },
+  "d-solve": {
+   "antennas": {
+    "m000": {
+     "array_centre_dist_m": 207.14497296714754,
+     "baselines_m": [
+      36.74674815855517,
+      29.256520999577873,
+      58.47021245191399
+     ],
+     "flagged_fraction": 0.7233022054036459,
+     "rows_fully_flagged": 0
+    },
+    "m001": {
+     "array_centre_dist_m": 171.48151864982083,
+     "baselines_m": [
+      36.74674815855517,
+      62.11293322865822,
+      74.20313530118369
+     ],
+     "flagged_fraction": 0.7042592366536459,
+     "rows_fully_flagged": 0
+    },
+    "m002": {
+     "array_centre_dist_m": 226.2163414437249,
+     "baselines_m": [
+      29.256520999577873,
+      62.11293322865822,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6941375732421875,
+     "rows_fully_flagged": 0
+    },
+    "m003": {
+     "array_centre_dist_m": 212.65914622255784,
+     "baselines_m": [
+      58.47021245191399,
+      74.20313530118369,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.6824595133463541,
+     "rows_fully_flagged": 0
+    }
+   },
+   "baseline_lengths_m": [
+    [
+     "m000-m001",
+     36.746748158850735
+    ],
+    [
+     "m000-m002",
+     29.25652099959939
+    ],
+    [
+     "m000-m003",
+     58.47021245258135
+    ],
+    [
+     "m001-m002",
+     62.112933228515296
+    ],
+    [
+     "m001-m003",
+     74.20313530101004
+    ],
+    [
+     "m002-m003",
+     40.81758034536098
+    ]
+   ],
+   "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+   "field": "J1939-6342",
+   "manual_model": {
+    "fit_ok": true,
+    "fluxdensity": 14.907688923070978,
+    "ghz_coefficients": [
+     1.1704179999999944,
+     0.248618000000004,
+     -1.6496939999999993,
+     0.605334
+    ],
+    "reffreq": "1.400000GHz",
+    "spix": [
+     -0.19473726830031884,
+     -1.3843251994858228,
+     0.6053343549925667,
+     1.4326836688117861e-06
+    ],
+    "spix_stderr": [
+     1.908048350804203e-11,
+     1.7420054686089336e-10,
+     1.083107892767014e-09,
+     1.6002433562277443e-09
+    ]
+   },
+   "minblperant": null,
+   "refant": "m000",
+   "refant_auto": "",
+   "tasks": {
+    "bandpass_B": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "bandtype": "B",
+      "caltable": "/run/d.B0",
+      "combine": "scan",
+      "field": "J1939-6342",
+      "fillgaps": 70,
+      "gainfield": [
+       "J1939-6342",
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/d.K0",
+       "/run/d.G0"
+      ],
+      "interp": [
+       "linear",
+       "linear"
+      ],
+      "refant": "m000",
+      "scan": "",
+      "solint": "inf",
+      "solnorm": false,
+      "uvrange": ">50",
+      "vis": "/run/d.ms"
+     },
+     "returned": {},
+     "seconds": 0.015
+    },
+    "gaincal_G": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "calmode": "ap",
+      "caltable": "/run/d.G0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gainfield": [
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/d.K0"
+      ],
+      "gaintype": "G",
+      "interp": [
+       "linear"
+      ],
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "uvrange": ">50",
+      "vis": "/run/d.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        0,
+        0
+       ],
+       "above_minsnr": [
+        0,
+        0
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         0,
+         0
+        ],
+        "above_minsnr": [
+         0,
+         0
+        ],
+        "ant0": {
+         "above_minblperant": [
+          0,
+          0
+         ],
+         "above_minsnr": [
+          0,
+          0
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          0,
+          0
+         ],
+         "above_minsnr": [
+          0,
+          0
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          0,
+          0
+         ],
+         "above_minsnr": [
+          0,
+          0
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          0,
+          0
+         ],
+         "above_minsnr": [
+          0,
+          0
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.103
+    },
+    "gaincal_K": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "caltable": "/run/d.K0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gaintype": "K",
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "vis": "/run/d.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        3,
+        3
+       ],
+       "above_minsnr": [
+        3,
+        3
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         3,
+         3
+        ],
+        "above_minsnr": [
+         3,
+         3
+        ],
+        "ant0": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.245
+    },
+    "setjy": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "field": "J1939-6342",
+      "fluxdensity": 14.907688923070978,
+      "reffreq": "1.400000GHz",
+      "scalebychan": true,
+      "spix": [
+       -0.19473726830031884,
+       -1.3843251994858228,
+       0.6053343549925667,
+       1.4326836688117861e-06
+      ],
+      "standard": "manual",
+      "usescratch": true,
+      "vis": "/run/d.ms"
+     },
+     "returned": {
+      "1": {
+       "0": {
+        "fluxd": [
+         15.007706822264348,
+         0.0,
+         0.0,
+         0.0
+        ]
+       },
+       "fieldName": "J1939-6342"
+      },
+      "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+     },
+     "seconds": 0.215
+    }
+   },
+   "uvrange": ">50"
+  },
+  "flagdata-rflag": {
+   "tasks": {
+    "flagdata_rflag": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "datacolumn": "data",
+      "flagbackup": false,
+      "mode": "rflag",
+      "vis": "/run/rflag.ms"
+     },
+     "returned": {},
+     "seconds": 0.429
+    }
+   }
+  },
+  "flagdata-tfcrop": {
+   "tasks": {
+    "flagdata_tfcrop": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "combinescans": false,
+      "correlation": "",
+      "datacolumn": "data",
+      "field": "J1939-6342",
+      "flagbackup": false,
+      "flagdimension": "freqtime",
+      "freqcutoff": 3.0,
+      "mode": "tfcrop",
+      "timecutoff": 4.0,
+      "usewindowstats": "std",
+      "vis": "/run/tfcrop.ms"
+     },
+     "returned": {},
+     "seconds": 0.405
+    }
+   }
+  },
+  "setjy-Perley-Butler_2010": {
+   "tasks": {
+    "setjy": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "field": "J1939-6342",
+      "scalebychan": true,
+      "standard": "Perley-Butler 2010",
+      "usescratch": true,
+      "vis": "/run/fs-pb2010.ms"
+     },
+     "returned": {
+      "1": {
+       "0": {
+        "fluxd": [
+         15.007707661437205,
+         0.0,
+         0.0,
+         0.0
+        ]
+       },
+       "fieldName": "J1939-6342"
+      },
+      "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+     },
+     "seconds": 0.202
+    }
+   }
+  },
+  "setjy-Stevens-Reynolds_2016": {
+   "tasks": {
+    "setjy": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "field": "J1939-6342",
+      "scalebychan": true,
+      "standard": "Stevens-Reynolds 2016",
+      "usescratch": true,
+      "vis": "/run/fs-sr2016.ms"
+     },
+     "returned": {
+      "1": {
+       "0": {
+        "fluxd": [
+         15.007707661437205,
+         0.0,
+         0.0,
+         0.0
+        ]
+       },
+       "fieldName": "J1939-6342"
+      },
+      "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+     },
+     "seconds": 0.267
+    }
+   }
+  },
+  "sh-apply": {
+   "tasks": {
+    "applycal": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "applymode": "calflag",
+      "calwt": [
+       false
+      ],
+      "field": "J1939-6342",
+      "flagbackup": false,
+      "gainfield": [
+       "nearest",
+       "nearest",
+       "nearest"
+      ],
+      "gaintable": [
+       "/run/sh.K0",
+       "/run/sh.G0",
+       "/run/sh.B0"
+      ],
+      "interp": [
+       "linear",
+       "linear",
+       "linear"
+      ],
+      "parang": false,
+      "vis": "/run/sh.ms"
+     },
+     "returned": null,
+     "seconds": 0.234
+    }
+   }
+  },
+  "sh-solve": {
+   "antennas": {
+    "m000": {
+     "array_centre_dist_m": 207.14497296714754,
+     "baselines_m": [
+      36.74674815855517,
+      29.256520999577873,
+      58.47021245191399
+     ],
+     "flagged_fraction": 0.7790069580078125,
+     "rows_fully_flagged": 0
+    },
+    "m001": {
+     "array_centre_dist_m": 171.48151864982083,
+     "baselines_m": [
+      36.74674815855517,
+      62.11293322865822,
+      74.20313530118369
+     ],
+     "flagged_fraction": 0.7627665201822916,
+     "rows_fully_flagged": 0
+    },
+    "m002": {
+     "array_centre_dist_m": 226.2163414437249,
+     "baselines_m": [
+      29.256520999577873,
+      62.11293322865822,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.755340576171875,
+     "rows_fully_flagged": 0
+    },
+    "m003": {
+     "array_centre_dist_m": 212.65914622255784,
+     "baselines_m": [
+      58.47021245191399,
+      74.20313530118369,
+      40.81758034496882
+     ],
+     "flagged_fraction": 0.7461903889973959,
+     "rows_fully_flagged": 0
+    }
+   },
+   "baseline_lengths_m": [
+    [
+     "m000-m001",
+     36.746748158850735
+    ],
+    [
+     "m000-m002",
+     29.25652099959939
+    ],
+    [
+     "m000-m003",
+     58.47021245258135
+    ],
+    [
+     "m001-m002",
+     62.112933228515296
+    ],
+    [
+     "m001-m003",
+     74.20313530101004
+    ],
+    [
+     "m002-m003",
+     40.81758034536098
+    ]
+   ],
+   "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+   "field": "J1939-6342",
+   "minblperant": 3,
+   "refant": "m000",
+   "refant_auto": "",
+   "tasks": {
+    "bandpass_B": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "bandtype": "B",
+      "caltable": "/run/sh.B0",
+      "combine": "scan",
+      "field": "J1939-6342",
+      "fillgaps": 70,
+      "gainfield": [
+       "J1939-6342",
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/sh.K0",
+       "/run/sh.G0"
+      ],
+      "interp": [
+       "linear",
+       "linear"
+      ],
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "inf",
+      "solnorm": false,
+      "uvrange": "",
+      "vis": "/run/sh.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        1,
+        1
+       ],
+       "above_minsnr": [
+        1,
+        1
+       ],
+       "data_unflagged": [
+        1,
+        1
+       ],
+       "expected": [
+        1,
+        1
+       ],
+       "spw0": {
+        "above_minblperant": [
+         1,
+         1
+        ],
+        "above_minsnr": [
+         1,
+         1
+        ],
+        "ant0": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          1
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          1,
+          1
+         ],
+         "above_minsnr": [
+          1,
+          1
+         ],
+         "data_unflagged": [
+          1,
+          1
+         ],
+         "expected": [
+          1,
+          1
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         1,
+         1
+        ],
+        "expected": [
+         1,
+         1
+        ]
+       }
+      }
+     },
+     "seconds": 0.317
+    },
+    "gaincal_G": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "calmode": "ap",
+      "caltable": "/run/sh.G0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gainfield": [
+       "J1939-6342"
+      ],
+      "gaintable": [
+       "/run/sh.K0"
+      ],
+      "gaintype": "G",
+      "interp": [
+       "linear"
+      ],
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "uvrange": "",
+      "vis": "/run/sh.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        3,
+        3
+       ],
+       "above_minsnr": [
+        3,
+        3
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         3,
+         3
+        ],
+        "above_minsnr": [
+         3,
+         3
+        ],
+        "ant0": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          3
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.248
+    },
+    "gaincal_K": {
+     "error": null,
+     "ok": true,
+     "params": {
+      "caltable": "/run/sh.K0",
+      "combine": "",
+      "field": "J1939-6342",
+      "gaintype": "K",
+      "minblperant": 3,
+      "refant": "m000",
+      "scan": "",
+      "solint": "120s",
+      "spw": "",
+      "vis": "/run/sh.ms"
+     },
+     "returned": {
+      "solvestats": {
+       "above_minblperant": [
+        3,
+        3
+       ],
+       "above_minsnr": [
+        3,
+        3
+       ],
+       "data_unflagged": [
+        3,
+        3
+       ],
+       "expected": [
+        3,
+        3
+       ],
+       "spw0": {
+        "above_minblperant": [
+         3,
+         3
+        ],
+        "above_minsnr": [
+         3,
+         3
+        ],
+        "ant0": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant1": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant2": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "ant3": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "used_as_refant": [
+          0
+         ]
+        },
+        "data_unflagged": [
+         3,
+         3
+        ],
+        "expected": [
+         3,
+         3
+        ]
+       }
+      }
+     },
+     "seconds": 0.277
+    }
+   },
+   "uvrange": ""
+  }
+ },
+ "comparison": {
+  "arms": {
+   "c": {
+    "available": true,
+    "cells_test": 11767,
+    "cells_train": 94047,
+    "cells_validation": 11742,
+    "core_diagonal_only_mse_test_same_cells": 0.3697461589227004,
+    "core_mse_test_same_cells": 0.27600925040826674,
+    "core_mse_train_same_cells": 0.26741037484313374,
+    "core_mse_validation_same_cells": 0.27528890864725014,
+    "mse_test": 0.3924708135613903,
+    "mse_test_cross_casa": 0.5100500097828682,
+    "mse_test_cross_core": 0.32259621004222927,
+    "mse_test_cross_core_diagonal_only": 0.5100500097828682,
+    "mse_test_parallel_casa": 0.2748916173399123,
+    "mse_test_parallel_core": 0.22942229077430412,
+    "mse_test_parallel_core_diagonal_only": 0.2294423080625326,
+    "mse_train": 0.38969966353716434,
+    "mse_validation": 0.3890078895989946,
+    "products_vs_core": {
+     "XX": {
+      "amp_ratio_median": 1.0009844865634046,
+      "amp_rel_diff_median": 0.010031003986468223,
+      "amp_rel_diff_p95": 0.02301402531561242,
+      "cells": 117556,
+      "per_baseline": {
+       "m000-m001": {
+        "amp_rel_diff_median": 0.01607760671353975,
+        "cells": 16805,
+        "phase_diff_deg_median": 0.29887026857820737
+       },
+       "m000-m002": {
+        "amp_rel_diff_median": 0.012172302652276756,
+        "cells": 17171,
+        "phase_diff_deg_median": 0.7759714746900442
+       },
+       "m000-m003": {
+        "amp_rel_diff_median": 0.008748877943987488,
+        "cells": 20425,
+        "phase_diff_deg_median": 1.0700682404171418
+       },
+       "m001-m002": {
+        "amp_rel_diff_median": 0.005186917630074506,
+        "cells": 21149,
+        "phase_diff_deg_median": 0.7502723230190688
+       },
+       "m001-m003": {
+        "amp_rel_diff_median": 0.008481440148894626,
+        "cells": 20191,
+        "phase_diff_deg_median": 1.1601365623120088
+       },
+       "m002-m003": {
+        "amp_rel_diff_median": 0.012424709463223493,
+        "cells": 21815,
+        "phase_diff_deg_median": 0.41433904931204624
+       }
+      },
+      "phase_diff_deg_median": 0.7173828590134868,
+      "phase_diff_deg_p95": 1.7871923384882262
+     },
+     "YY": {
+      "amp_ratio_median": 1.000155399789867,
+      "amp_rel_diff_median": 0.01037377905343645,
+      "amp_rel_diff_p95": 0.02418019361844892,
+      "cells": 117556,
+      "per_baseline": {
+       "m000-m001": {
+        "amp_rel_diff_median": 0.015846475539608496,
+        "cells": 16805,
+        "phase_diff_deg_median": 0.33495391537173513
+       },
+       "m000-m002": {
+        "amp_rel_diff_median": 0.012268081810321796,
+        "cells": 17171,
+        "phase_diff_deg_median": 0.7985281086611552
+       },
+       "m000-m003": {
+        "amp_rel_diff_median": 0.008368221556904754,
+        "cells": 20425,
+        "phase_diff_deg_median": 1.1017281296248693
+       },
+       "m001-m002": {
+        "amp_rel_diff_median": 0.005819898347325436,
+        "cells": 21149,
+        "phase_diff_deg_median": 0.7391191625397243
+       },
+       "m001-m003": {
+        "amp_rel_diff_median": 0.007994868020374968,
+        "cells": 20191,
+        "phase_diff_deg_median": 1.0939809334701547
+       },
+       "m002-m003": {
+        "amp_rel_diff_median": 0.013889172769462999,
+        "cells": 21815,
+        "phase_diff_deg_median": 0.3471462206085687
+       }
+      },
+      "phase_diff_deg_median": 0.6972000371961584,
+      "phase_diff_deg_p95": 1.762851265803456
+     }
+    },
+    "ratio_test_casa_over_core": 1.4219480433386062,
+    "ratio_train_casa_over_core": 1.4573094397170157,
+    "ratio_validation_casa_over_core": 1.4130895847222882,
+    "unavailable_test": 0,
+    "unavailable_train": 0,
+    "unavailable_validation": 0
+   },
+   "ch": {
+    "available": true,
+    "cells_test": 11767,
+    "cells_train": 94047,
+    "cells_validation": 11742,
+    "core_diagonal_only_mse_test_same_cells": 0.3697461589227004,
+    "core_mse_test_same_cells": 0.27600925040826674,
+    "core_mse_train_same_cells": 0.26741037484313374,
+    "core_mse_validation_same_cells": 0.27528890864725014,
+    "mse_test": 0.39716091654770475,
+    "mse_test_cross_casa": 0.5100500097828682,
+    "mse_test_cross_core": 0.32259621004222927,
+    "mse_test_cross_core_diagonal_only": 0.5100500097828682,
+    "mse_test_parallel_casa": 0.28427182331254114,
+    "mse_test_parallel_core": 0.22942229077430412,
+    "mse_test_parallel_core_diagonal_only": 0.2294423080625326,
+    "mse_train": 0.3895095854335178,
+    "mse_validation": 0.3937314653867927,
+    "products_vs_core": {
+     "XX": {
+      "amp_ratio_median": 1.0007202921672715,
+      "amp_rel_diff_median": 0.00990703020614836,
+      "amp_rel_diff_p95": 0.023089812301388152,
+      "cells": 117556,
+      "per_baseline": {
+       "m000-m001": {
+        "amp_rel_diff_median": 0.016021985898492908,
+        "cells": 16805,
+        "phase_diff_deg_median": 0.3034873665889685
+       },
+       "m000-m002": {
+        "amp_rel_diff_median": 0.012014000720026674,
+        "cells": 17171,
+        "phase_diff_deg_median": 0.7808135700112333
+       },
+       "m000-m003": {
+        "amp_rel_diff_median": 0.008736283549084178,
+        "cells": 20425,
+        "phase_diff_deg_median": 1.0739531830790559
+       },
+       "m001-m002": {
+        "amp_rel_diff_median": 0.005194568319203174,
+        "cells": 21149,
+        "phase_diff_deg_median": 0.7538143545520893
+       },
+       "m001-m003": {
+        "amp_rel_diff_median": 0.008195347765617145,
+        "cells": 20191,
+        "phase_diff_deg_median": 1.1462915674592113
+       },
+       "m002-m003": {
+        "amp_rel_diff_median": 0.01216847107314778,
+        "cells": 21815,
+        "phase_diff_deg_median": 0.415949962919334
+       }
+      },
+      "phase_diff_deg_median": 0.7213384803254348,
+      "phase_diff_deg_p95": 1.7944341226033222
+     },
+     "YY": {
+      "amp_ratio_median": 1.0002118341764827,
+      "amp_rel_diff_median": 0.010491047207016935,
+      "amp_rel_diff_p95": 0.024499633146575772,
+      "cells": 117556,
+      "per_baseline": {
+       "m000-m001": {
+        "amp_rel_diff_median": 0.015957433022314116,
+        "cells": 16805,
+        "phase_diff_deg_median": 0.34073355683089945
+       },
+       "m000-m002": {
+        "amp_rel_diff_median": 0.012131894647608554,
+        "cells": 17171,
+        "phase_diff_deg_median": 0.7992753560460103
+       },
+       "m000-m003": {
+        "amp_rel_diff_median": 0.008316672179308648,
+        "cells": 20425,
+        "phase_diff_deg_median": 1.1119152529895702
+       },
+       "m001-m002": {
+        "amp_rel_diff_median": 0.005986623733388541,
+        "cells": 21149,
+        "phase_diff_deg_median": 0.7383255273490718
+       },
+       "m001-m003": {
+        "amp_rel_diff_median": 0.008446615103567812,
+        "cells": 20191,
+        "phase_diff_deg_median": 1.1007422321662834
+       },
+       "m002-m003": {
+        "amp_rel_diff_median": 0.013978823523355999,
+        "cells": 21815,
+        "phase_diff_deg_median": 0.34379728166315626
+       }
+      },
+      "phase_diff_deg_median": 0.6988926347335209,
+      "phase_diff_deg_p95": 1.7732426710191702
+     }
+    },
+    "ratio_test_casa_over_core": 1.4389406005785428,
+    "ratio_train_casa_over_core": 1.4565986292117836,
+    "ratio_validation_casa_over_core": 1.4302481975084314,
+    "unavailable_test": 0,
+    "unavailable_train": 0,
+    "unavailable_validation": 0
+   },
+   "sh": {
+    "available": true,
+    "cells_test": 11767,
+    "cells_train": 94047,
+    "cells_validation": 11742,
+    "core_diagonal_only_mse_test_same_cells": 0.3697461589227004,
+    "core_mse_test_same_cells": 0.27600925040826674,
+    "core_mse_train_same_cells": 0.26741037484313374,
+    "core_mse_validation_same_cells": 0.27528890864725014,
+    "mse_test": 0.3814872941273623,
+    "mse_test_cross_casa": 0.5100500097828682,
+    "mse_test_cross_core": 0.32259621004222927,
+    "mse_test_cross_core_diagonal_only": 0.5100500097828682,
+    "mse_test_parallel_casa": 0.25292457847185656,
+    "mse_test_parallel_core": 0.22942229077430412,
+    "mse_test_parallel_core_diagonal_only": 0.2294423080625326,
+    "mse_train": 0.3749019752623129,
+    "mse_validation": 0.37880766849513897,
+    "products_vs_core": {
+     "XX": {
+      "amp_ratio_median": 0.9994956476781793,
+      "amp_rel_diff_median": 0.003981517585349481,
+      "amp_rel_diff_p95": 0.01192354420573577,
+      "cells": 117556,
+      "per_baseline": {
+       "m000-m001": {
+        "amp_rel_diff_median": 0.0039297321921937245,
+        "cells": 16805,
+        "phase_diff_deg_median": 0.28667828686462116
+       },
+       "m000-m002": {
+        "amp_rel_diff_median": 0.003914414855546999,
+        "cells": 17171,
+        "phase_diff_deg_median": 0.249000151983186
+       },
+       "m000-m003": {
+        "amp_rel_diff_median": 0.004209632754377135,
+        "cells": 20425,
+        "phase_diff_deg_median": 0.3538284195264621
+       },
+       "m001-m002": {
+        "amp_rel_diff_median": 0.00383891911912293,
+        "cells": 21149,
+        "phase_diff_deg_median": 0.3711180525601722
+       },
+       "m001-m003": {
+        "amp_rel_diff_median": 0.003761572073110786,
+        "cells": 20191,
+        "phase_diff_deg_median": 0.4418811831316679
+       },
+       "m002-m003": {
+        "amp_rel_diff_median": 0.004275589838502292,
+        "cells": 21815,
+        "phase_diff_deg_median": 0.29669649247489605
+       }
+      },
+      "phase_diff_deg_median": 0.3279440545804204,
+      "phase_diff_deg_p95": 1.0546528130982449
+     },
+     "YY": {
+      "amp_ratio_median": 0.9995828173083925,
+      "amp_rel_diff_median": 0.0038499108786878566,
+      "amp_rel_diff_p95": 0.012452169817602943,
+      "cells": 117556,
+      "per_baseline": {
+       "m000-m001": {
+        "amp_rel_diff_median": 0.0038918055124347317,
+        "cells": 16805,
+        "phase_diff_deg_median": 0.3137037269516121
+       },
+       "m000-m002": {
+        "amp_rel_diff_median": 0.003970811420590303,
+        "cells": 17171,
+        "phase_diff_deg_median": 0.2521978749482596
+       },
+       "m000-m003": {
+        "amp_rel_diff_median": 0.003951003261590147,
+        "cells": 20425,
+        "phase_diff_deg_median": 0.3521992214086026
+       },
+       "m001-m002": {
+        "amp_rel_diff_median": 0.004625822318123363,
+        "cells": 21149,
+        "phase_diff_deg_median": 0.4130375851115924
+       },
+       "m001-m003": {
+        "amp_rel_diff_median": 0.003413681516841627,
+        "cells": 20191,
+        "phase_diff_deg_median": 0.3984693435415332
+       },
+       "m002-m003": {
+        "amp_rel_diff_median": 0.003465800354937598,
+        "cells": 21815,
+        "phase_diff_deg_median": 0.24991508276114366
+       }
+      },
+      "phase_diff_deg_median": 0.324803340202282,
+      "phase_diff_deg_p95": 1.0521058268370367
+     }
+    },
+    "ratio_test_casa_over_core": 1.3821540168058672,
+    "ratio_train_casa_over_core": 1.4019724383627041,
+    "ratio_validation_casa_over_core": 1.376036798418696,
+    "unavailable_test": 0,
+    "unavailable_train": 0,
+    "unavailable_validation": 0
+   }
+  },
+  "core": {
+   "gains_match_core_k_archive": true,
+   "gains_sha256": "4ed2aa89a68aad5bce6f48a62da4071f948502e043c302812ceda094440d4aa8",
+   "losses": {
+    "test": 0.27600925040826674,
+    "train": 0.26741037484313346,
+    "validation": 0.27528890864724964
+   },
+   "losses_match_archive": true,
+   "numpy_losses": {
+    "test": 0.27600925040826674,
+    "validation": 0.27528890864725014
+   },
+   "numpy_matches_core": true
+  },
+  "seconds": 2.1862631519907154
+ },
+ "flagdata": {
+  "rflag": {
+   "flag_fraction_after": 0.7014719645182291,
+   "flag_fraction_before": 0.7010396321614584,
+   "flag_sha256": "bc952a1695224d6ff1f26e3b10c2c8abba3f7d4cdb2baf3db67c2d690653e1bb",
+   "new_cells_any_corr": 170,
+   "new_flags": 680,
+   "new_fraction_of_unflagged": 0.0014461192963353636,
+   "original_kept": true,
+   "uniform_over_corr": true
+  },
+  "tfcrop": {
+   "flag_fraction_after": 0.70550537109375,
+   "flag_fraction_before": 0.7010396321614584,
+   "flag_sha256": "1cd5dac5fc1e53a35d45038c3d71bcf5a247488b12a2f88a55f9860c70a602e2",
+   "new_cells_any_corr": 1756,
+   "new_flags": 7024,
+   "new_fraction_of_unflagged": 0.014937561672734696,
+   "original_kept": true,
+   "uniform_over_corr": true
+  }
+ },
+ "flux_standards": {
+  "Perley-Butler 2010": {
+   "cross_hand_max_abs": 0.0,
+   "imag_max_abs": 1.7553602885481134e-12,
+   "log10_s_at_1400mhz_fit": 1.1734370479945981,
+   "max_row_spread": 3.910064697265625e-05,
+   "sha256": "740b3fcd84a6c123a6cbfcb16af7a34ba647beb43e474a51085e745cdcb9961e",
+   "spectral_index_loglog": -0.073088132870213,
+   "stokes_i_at_1400mhz": 14.907685226369127,
+   "stokes_i_channels_mhz": {
+    "1070.0": 15.007729530334473,
+    "1177.0": 15.13436222076416,
+    "1284.0": 15.091780662536621,
+    "1391.0": 14.926030158996582,
+    "1497.8": 14.67318344116211
+   }
+  },
+  "Stevens-Reynolds 2016": {
+   "cross_hand_max_abs": 0.0,
+   "imag_max_abs": 1.7553602885481134e-12,
+   "log10_s_at_1400mhz_fit": 1.1734370479945981,
+   "max_row_spread": 3.910064697265625e-05,
+   "sha256": "740b3fcd84a6c123a6cbfcb16af7a34ba647beb43e474a51085e745cdcb9961e",
+   "spectral_index_loglog": -0.073088132870213,
+   "stokes_i_at_1400mhz": 14.907685226369127,
+   "stokes_i_channels_mhz": {
+    "1070.0": 15.007729530334473,
+    "1177.0": 15.13436222076416,
+    "1284.0": 15.091780662536621,
+    "1391.0": 14.926030158996582,
+    "1497.8": 14.67318344116211
+   }
+  }
+ },
+ "frequency_mhz": [
+  1070.0,
+  1497.791015625
+ ],
+ "image": {
+  "build_seconds": 56.1,
+  "date": "2026-10-30T13:38:45Z",
+  "id": "sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8",
+  "receipt": {
+   "created": "2026-10-30T15:38:43.909709075+02:00",
+   "id": "sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8",
+   "size_bytes": 1413632658,
+   "tag": "rang-o-casa:6.7.6.14"
+  },
+  "size_bytes": 1413632658,
+  "tag": "rang-o-casa:6.7.6.14"
+ },
+ "images": {
+  "c": {
+   "dirty_pixels_sha256": "2288e1598d493b3db9e0740f999836adc594b13d1e92fac2148ad7ee5a33cacc",
+   "header": {
+    "BUNIT": "JY",
+    "CDELT1": "-0.00222222222222222",
+    "CDELT2": "0.00222222222222222",
+    "CRVAL1": "-65.145625",
+    "CRVAL2": "-63.7121111111111",
+    "CRVAL3": "1283895507.8125",
+    "NAXIS1": "512",
+    "NAXIS2": "512"
+   },
+   "model_stokes_i_mean": 14.907685226369127,
+   "offsource_rms": 3.845917004389882,
+   "peak_jy_per_beam": 14.972304344177246,
+   "peak_pixel": [
+    254,
+    259
+   ],
+   "psf_centre": 1.0,
+   "psf_max_sidelobe": 1.0014445781707764,
+   "psf_pixels_sha256": "839977eccaac6578fbc1240d18eaddf58f72b54e5dd6dd27047abf5cddca1ad0",
+   "residual_rms": 0.02857056538661397,
+   "residual_rms_offsource": 0.028719329662801597
+  }
+ },
+ "inputs_check": {
+  "all_match": true,
+  "outputs/luno-solve-20261029-02/inputs/receipt.txt": {
+   "lines": 2625,
+   "mismatches": [],
+   "receipt_sha256": "98e51a06bc5c58dc04f1d66b0d09b0f12588d8db20be116be8a9ed0a7bb5cc8e"
+  },
+  "outputs/luno-support-20261029-01/slice/receipt.txt": {
+   "lines": 122,
+   "mismatches": [],
+   "receipt_sha256": "9a2b7d5a0a35ba8fdf970dd76ef5d5b738564fba20f817837d8207c13bf3643c"
+  }
+ },
+ "ms_equality": {
+  "columns": 122,
+  "differences": [],
+  "identical": true,
+  "tables": 13
+ },
+ "original_flag_fraction": 0.7010396321614584,
+ "post_hoc": {
+  "o-casa-20261030-03-wsclean-j1": {
+   "timings": {
+    "wsclean-1": [
+     "0.91",
+     "78492",
+     "0"
+    ],
+    "wsclean-2": [
+     "0.92",
+     "78720",
+     "0"
+    ]
+   },
+   "wsclean_j1": {
+    "r1": {
+     "dirty_fits_sha256": "84ad3396e7d94a6024a62634ff2149b0e0da76d2978f0d9f152c3431cba46991",
+     "dirty_pixels_sha256": "f2eb05d518967da74be69d8d53227983ca8c8d2b6e0cb3be176fa10d72bb9116",
+     "offsource_rms": 3.8459267767127185,
+     "peak_jy_per_beam": 14.972298622131348,
+     "peak_pixel": [
+      254,
+      259
+     ],
+     "psf_centre": 1.0,
+     "psf_fits_sha256": "6710c1ffd69a6d7aff6c90edbe84134ebb8cca9b12de23e78b023fb720850db9",
+     "psf_max_sidelobe": 1.0014448165893555,
+     "psf_pixels_sha256": "0bbdf76cf0cfad5d9bc64c1ecc772a219ad54dc9b6426b25a1e9ea2a1e4a1ac2",
+     "residual_rms": 0.028569932996327013,
+     "residual_rms_offsource": 0.028718679925381737
+    },
+    "r2": {
+     "dirty_fits_sha256": "a4fce2609129dac522f037164e2d616a394d517f3f3e3b0b119580d75e26a1c0",
+     "dirty_pixels_sha256": "f2eb05d518967da74be69d8d53227983ca8c8d2b6e0cb3be176fa10d72bb9116",
+     "offsource_rms": 3.8459267767127185,
+     "peak_jy_per_beam": 14.972298622131348,
+     "peak_pixel": [
+      254,
+      259
+     ],
+     "psf_centre": 1.0,
+     "psf_fits_sha256": "1931980d20f29a86f5e8dee5fdd69fa553a6cb5be1132373e5a2015699247952",
+     "psf_max_sidelobe": 1.0014448165893555,
+     "psf_pixels_sha256": "0bbdf76cf0cfad5d9bc64c1ecc772a219ad54dc9b6426b25a1e9ea2a1e4a1ac2",
+     "residual_rms": 0.028569932996327013,
+     "residual_rms_offsource": 0.028718679925381737
+    }
+   }
+  },
+  "o-casa-20261030-04-arm-e": {
+   "casa_calls": {
+    "e-apply": {
+     "skipped": "missing tables ['/run/e.G0', '/run/e.B0']",
+     "tasks": {}
+    },
+    "e-solve": {
+     "antennas": {
+      "m000": {
+       "array_centre_dist_m": 207.14497296714754,
+       "baselines_m": [
+        36.74674815855517,
+        29.256520999577873,
+        58.47021245191399
+       ],
+       "flagged_fraction": 0.7233022054036459,
+       "rows_fully_flagged": 0
+      },
+      "m001": {
+       "array_centre_dist_m": 171.48151864982083,
+       "baselines_m": [
+        36.74674815855517,
+        62.11293322865822,
+        74.20313530118369
+       ],
+       "flagged_fraction": 0.7042592366536459,
+       "rows_fully_flagged": 0
+      },
+      "m002": {
+       "array_centre_dist_m": 226.2163414437249,
+       "baselines_m": [
+        29.256520999577873,
+        62.11293322865822,
+        40.81758034496882
+       ],
+       "flagged_fraction": 0.6941375732421875,
+       "rows_fully_flagged": 0
+      },
+      "m003": {
+       "array_centre_dist_m": 212.65914622255784,
+       "baselines_m": [
+        58.47021245191399,
+        74.20313530118369,
+        40.81758034496882
+       ],
+       "flagged_fraction": 0.6824595133463541,
+       "rows_fully_flagged": 0
+      }
+     },
+     "baseline_lengths_m": [
+      [
+       "m000-m001",
+       36.746748158850735
+      ],
+      [
+       "m000-m002",
+       29.25652099959939
+      ],
+      [
+       "m000-m003",
+       58.47021245258135
+      ],
+      [
+       "m001-m002",
+       62.112933228515296
+      ],
+      [
+       "m001-m003",
+       74.20313530101004
+      ],
+      [
+       "m002-m003",
+       40.81758034536098
+      ]
+     ],
+     "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+     "field": "J1939-6342",
+     "manual_model": {
+      "fit_ok": true,
+      "fluxdensity": 14.907688923070978,
+      "ghz_coefficients": [
+       1.1704179999999944,
+       0.248618000000004,
+       -1.6496939999999993,
+       0.605334
+      ],
+      "reffreq": "1.400000GHz",
+      "spix": [
+       -0.19473726830031884,
+       -1.3843251994858228,
+       0.6053343549925667,
+       1.4326836688117861e-06
+      ],
+      "spix_stderr": [
+       1.908048350804203e-11,
+       1.7420054686089336e-10,
+       1.083107892767014e-09,
+       1.6002433562277443e-09
+      ]
+     },
+     "minblperant": null,
+     "refant": "m000",
+     "refant_auto": "",
+     "tasks": {
+      "bandpass_B": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "bandtype": "B",
+        "caltable": "/run/e.B0",
+        "combine": "scan",
+        "field": "J1939-6342",
+        "fillgaps": 70,
+        "gainfield": [
+         "J1939-6342",
+         "J1939-6342"
+        ],
+        "gaintable": [
+         "/run/e.K0",
+         "/run/e.G0"
+        ],
+        "interp": [
+         "linear",
+         "linear"
+        ],
+        "refant": "m000",
+        "scan": "",
+        "solint": "inf",
+        "solnorm": false,
+        "uvrange": "",
+        "vis": "/run/e.ms"
+       },
+       "returned": {},
+       "seconds": 0.014
+      },
+      "gaincal_G": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "calmode": "ap",
+        "caltable": "/run/e.G0",
+        "combine": "",
+        "field": "J1939-6342",
+        "gainfield": [
+         "J1939-6342"
+        ],
+        "gaintable": [
+         "/run/e.K0"
+        ],
+        "gaintype": "G",
+        "interp": [
+         "linear"
+        ],
+        "refant": "m000",
+        "scan": "",
+        "solint": "120s",
+        "spw": "",
+        "uvrange": "",
+        "vis": "/run/e.ms"
+       },
+       "returned": {
+        "solvestats": {
+         "above_minblperant": [
+          0,
+          0
+         ],
+         "above_minsnr": [
+          0,
+          0
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "spw0": {
+          "above_minblperant": [
+           0,
+           0
+          ],
+          "above_minsnr": [
+           0,
+           0
+          ],
+          "ant0": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant1": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant2": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant3": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "data_unflagged": [
+           3,
+           3
+          ],
+          "expected": [
+           3,
+           3
+          ]
+         }
+        }
+       },
+       "seconds": 0.152
+      },
+      "gaincal_K": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "caltable": "/run/e.K0",
+        "combine": "",
+        "field": "J1939-6342",
+        "gaintype": "K",
+        "refant": "m000",
+        "scan": "",
+        "solint": "120s",
+        "spw": "",
+        "vis": "/run/e.ms"
+       },
+       "returned": {
+        "solvestats": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "spw0": {
+          "above_minblperant": [
+           3,
+           3
+          ],
+          "above_minsnr": [
+           3,
+           3
+          ],
+          "ant0": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant1": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant2": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant3": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "data_unflagged": [
+           3,
+           3
+          ],
+          "expected": [
+           3,
+           3
+          ]
+         }
+        }
+       },
+       "seconds": 0.291
+      },
+      "setjy": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "field": "J1939-6342",
+        "fluxdensity": 14.907688923070978,
+        "reffreq": "1.400000GHz",
+        "scalebychan": true,
+        "spix": [
+         -0.19473726830031884,
+         -1.3843251994858228,
+         0.6053343549925667,
+         1.4326836688117861e-06
+        ],
+        "standard": "manual",
+        "usescratch": true,
+        "vis": "/run/e.ms"
+       },
+       "returned": {
+        "1": {
+         "0": {
+          "fluxd": [
+           15.007706822264348,
+           0.0,
+           0.0,
+           0.0
+          ]
+         },
+         "fieldName": "J1939-6342"
+        },
+        "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+       },
+       "seconds": 0.247
+      }
+     },
+     "uvrange": ""
+    }
+   },
+   "timings": {
+    "apply-e": [
+     "1.06",
+     "288816",
+     "0"
+    ],
+    "compare-e": [
+     "0.09",
+     "62380",
+     "1"
+    ],
+    "solve-e": [
+     "1.84",
+     "327596",
+     "0"
+    ]
+   }
+  },
+  "o-casa-20261030-05-arm-f": {
+   "casa_calls": {
+    "f-apply": {
+     "skipped": "missing tables ['/run/f.G0', '/run/f.B0']",
+     "tasks": {}
+    },
+    "f-solve": {
+     "antennas": {
+      "m000": {
+       "array_centre_dist_m": 207.14497296714754,
+       "baselines_m": [
+        36.74674815855517,
+        29.256520999577873,
+        58.47021245191399
+       ],
+       "flagged_fraction": 0.7233022054036459,
+       "rows_fully_flagged": 0
+      },
+      "m001": {
+       "array_centre_dist_m": 171.48151864982083,
+       "baselines_m": [
+        36.74674815855517,
+        62.11293322865822,
+        74.20313530118369
+       ],
+       "flagged_fraction": 0.7042592366536459,
+       "rows_fully_flagged": 0
+      },
+      "m002": {
+       "array_centre_dist_m": 226.2163414437249,
+       "baselines_m": [
+        29.256520999577873,
+        62.11293322865822,
+        40.81758034496882
+       ],
+       "flagged_fraction": 0.6941375732421875,
+       "rows_fully_flagged": 0
+      },
+      "m003": {
+       "array_centre_dist_m": 212.65914622255784,
+       "baselines_m": [
+        58.47021245191399,
+        74.20313530118369,
+        40.81758034496882
+       ],
+       "flagged_fraction": 0.6824595133463541,
+       "rows_fully_flagged": 0
+      }
+     },
+     "baseline_lengths_m": [
+      [
+       "m000-m001",
+       36.746748158850735
+      ],
+      [
+       "m000-m002",
+       29.25652099959939
+      ],
+      [
+       "m000-m003",
+       58.47021245258135
+      ],
+      [
+       "m001-m002",
+       62.112933228515296
+      ],
+      [
+       "m001-m003",
+       74.20313530101004
+      ],
+      [
+       "m002-m003",
+       40.81758034536098
+      ]
+     ],
+     "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+     "field": "J1939-6342",
+     "manual_model": {
+      "fit_ok": true,
+      "fluxdensity": 14.907688923070978,
+      "ghz_coefficients": [
+       1.1704179999999944,
+       0.248618000000004,
+       -1.6496939999999993,
+       0.605334
+      ],
+      "reffreq": "1.400000GHz",
+      "spix": [
+       -0.19473726830031884,
+       -1.3843251994858228,
+       0.6053343549925667,
+       1.4326836688117861e-06
+      ],
+      "spix_stderr": [
+       1.908048350804203e-11,
+       1.7420054686089336e-10,
+       1.083107892767014e-09,
+       1.6002433562277443e-09
+      ]
+     },
+     "minblperant": 3,
+     "refant": "m000",
+     "refant_auto": "",
+     "tasks": {
+      "bandpass_B": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "bandtype": "B",
+        "caltable": "/run/f.B0",
+        "combine": "scan",
+        "field": "J1939-6342",
+        "fillgaps": 70,
+        "gainfield": [
+         "J1939-6342",
+         "J1939-6342"
+        ],
+        "gaintable": [
+         "/run/f.K0",
+         "/run/f.G0"
+        ],
+        "interp": [
+         "linear",
+         "linear"
+        ],
+        "minblperant": 3,
+        "refant": "m000",
+        "scan": "",
+        "solint": "inf",
+        "solnorm": false,
+        "uvrange": ">50",
+        "vis": "/run/f.ms"
+       },
+       "returned": {},
+       "seconds": 0.018
+      },
+      "gaincal_G": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "calmode": "ap",
+        "caltable": "/run/f.G0",
+        "combine": "",
+        "field": "J1939-6342",
+        "gainfield": [
+         "J1939-6342"
+        ],
+        "gaintable": [
+         "/run/f.K0"
+        ],
+        "gaintype": "G",
+        "interp": [
+         "linear"
+        ],
+        "minblperant": 3,
+        "refant": "m000",
+        "scan": "",
+        "solint": "120s",
+        "spw": "",
+        "uvrange": ">50",
+        "vis": "/run/f.ms"
+       },
+       "returned": {
+        "solvestats": {
+         "above_minblperant": [
+          0,
+          0
+         ],
+         "above_minsnr": [
+          0,
+          0
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "spw0": {
+          "above_minblperant": [
+           0,
+           0
+          ],
+          "above_minsnr": [
+           0,
+           0
+          ],
+          "ant0": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant1": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant2": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant3": {
+           "above_minblperant": [
+            0,
+            0
+           ],
+           "above_minsnr": [
+            0,
+            0
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "data_unflagged": [
+           3,
+           3
+          ],
+          "expected": [
+           3,
+           3
+          ]
+         }
+        }
+       },
+       "seconds": 0.117
+      },
+      "gaincal_K": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "caltable": "/run/f.K0",
+        "combine": "",
+        "field": "J1939-6342",
+        "gaintype": "K",
+        "minblperant": 3,
+        "refant": "m000",
+        "scan": "",
+        "solint": "120s",
+        "spw": "",
+        "vis": "/run/f.ms"
+       },
+       "returned": {
+        "solvestats": {
+         "above_minblperant": [
+          3,
+          3
+         ],
+         "above_minsnr": [
+          3,
+          3
+         ],
+         "data_unflagged": [
+          3,
+          3
+         ],
+         "expected": [
+          3,
+          3
+         ],
+         "spw0": {
+          "above_minblperant": [
+           3,
+           3
+          ],
+          "above_minsnr": [
+           3,
+           3
+          ],
+          "ant0": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant1": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant2": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "ant3": {
+           "above_minblperant": [
+            3,
+            3
+           ],
+           "above_minsnr": [
+            3,
+            3
+           ],
+           "data_unflagged": [
+            3,
+            3
+           ],
+           "expected": [
+            3,
+            3
+           ],
+           "used_as_refant": [
+            0
+           ]
+          },
+          "data_unflagged": [
+           3,
+           3
+          ],
+          "expected": [
+           3,
+           3
+          ]
+         }
+        }
+       },
+       "seconds": 0.275
+      },
+      "setjy": {
+       "error": null,
+       "ok": true,
+       "params": {
+        "field": "J1939-6342",
+        "fluxdensity": 14.907688923070978,
+        "reffreq": "1.400000GHz",
+        "scalebychan": true,
+        "spix": [
+         -0.19473726830031884,
+         -1.3843251994858228,
+         0.6053343549925667,
+         1.4326836688117861e-06
+        ],
+        "standard": "manual",
+        "usescratch": true,
+        "vis": "/run/f.ms"
+       },
+       "returned": {
+        "1": {
+         "0": {
+          "fluxd": [
+           15.007706822264348,
+           0.0,
+           0.0,
+           0.0
+          ]
+         },
+         "fieldName": "J1939-6342"
+        },
+        "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+       },
+       "seconds": 0.216
+      }
+     },
+     "uvrange": ">50"
+    }
+   },
+   "timings": {
+    "apply-f": [
+     "1.37",
+     "288884",
+     "0"
+    ],
+    "compare-f": [
+     "0.09",
+     "62552",
+     "1"
+    ],
+    "solve-f": [
+     "1.86",
+     "328092",
+     "0"
+    ]
+   }
+  }
+ },
+ "prepare": {
+  "ch_flag_original_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+  "holdout_already_flagged": 0,
+  "holdout_cells": 23509,
+  "row_gate": {
+   "ANTENNA1": true,
+   "ANTENNA2": true,
+   "TIME": true
+  },
+  "sh_flag_original_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b"
+ },
+ "protocol": "research/o-casa.md",
+ "provisional": "LUNO licence: SARAO written confirmation pending; no visibilities",
+ "reproducible": {
+  "differences": [
+   "images.c.dirty",
+   "images.c.psf"
+  ],
+  "gated_hashes": 119,
+  "gated_sha256_run1": {
+   "arms.a.flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "arms.a.model": "982e840ac78c527f86dfa1b5876368b56d466759bc87e3857033dbac28bc07ee",
+   "arms.b.flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "arms.b.model": "982e840ac78c527f86dfa1b5876368b56d466759bc87e3857033dbac28bc07ee",
+   "arms.c.B.ANTENNA1": "ad87fa9776cb959c97cb8384d5c5b69df5f3616508ac2b494309a85f3dc19df6",
+   "arms.c.B.CPARAM": "f4820b506256af02944fab27ecf2765537be5b2f5852dcaa1da26124fa5e2512",
+   "arms.c.B.FLAG": "6bf9ba2cebfc2353e22f3558d975c669786ba6df14f42ec5576f2d54ad8bc8bd",
+   "arms.c.B.PARAMERR": "3dfa1b39f2ad8a29399f0243f8095caff406993dba719f183636bc316834410c",
+   "arms.c.B.SNR": "e16e07bbb745b2f167feb01b29f77c5516914beee919b470d6a494c73d131708",
+   "arms.c.B.SPECTRAL_WINDOW_ID": "63dee1cd5eb04de0cea022c399898d9b250d34727095a08473e1317edf7cd460",
+   "arms.c.B.TIME": "4da2e6bd9539a2badca50bfad6959e718e3d358ce32e43d24540d4e58af790d1",
+   "arms.c.G.ANTENNA1": "3c3d92d4df3099ed62e23e62d61a31062c7f559eee7262e28a8846e43ee646a5",
+   "arms.c.G.CPARAM": "fb1558f9e19847e35266839f8b99568faa09b00153249c780d11cf495e078985",
+   "arms.c.G.FLAG": "f11c021c43150d763ed326a50369df7f61cc7a0488827684300cfe1adbf840cf",
+   "arms.c.G.PARAMERR": "06e23e4d4622459fbcaebae427068a973878f61d5576f95ecae1f7c48c737f75",
+   "arms.c.G.SNR": "fcaaa8622314be0f722a9d5f3366288d5de9460446a2a23ff171f8eb3e22180d",
+   "arms.c.G.SPECTRAL_WINDOW_ID": "1e1cb2d8e50274280cfcef935516073de978712e040cb107309f11bd2459ed55",
+   "arms.c.G.TIME": "5b826f60ea54d3bcff170b76787b22c1b5852fb0f96e2d79a0aeb7c9790b467c",
+   "arms.c.K.ANTENNA1": "3c3d92d4df3099ed62e23e62d61a31062c7f559eee7262e28a8846e43ee646a5",
+   "arms.c.K.FLAG": "f11c021c43150d763ed326a50369df7f61cc7a0488827684300cfe1adbf840cf",
+   "arms.c.K.FPARAM": "9f1c0bc08127ac5470bab3d3d5c754daa5206412817bdf41e9b15a9b35fad5ea",
+   "arms.c.K.PARAMERR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.c.K.SNR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.c.K.SPECTRAL_WINDOW_ID": "1e1cb2d8e50274280cfcef935516073de978712e040cb107309f11bd2459ed55",
+   "arms.c.K.TIME": "91252b5735b5da75a374ab099eb051f6b0fe32b1e232c79f3a26c967df2c9867",
+   "arms.c.corrected_sha256": "d43a78d9cc4589807421678fba99592ba87dbd0eaa12eb9701d4663faccd15b4",
+   "arms.c.flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "arms.c.model": "982e840ac78c527f86dfa1b5876368b56d466759bc87e3857033dbac28bc07ee",
+   "arms.ch.B.ANTENNA1": "ad87fa9776cb959c97cb8384d5c5b69df5f3616508ac2b494309a85f3dc19df6",
+   "arms.ch.B.CPARAM": "f00c5e9dfedfe483eb308cfcb7b8ca8633ade8011f07124458bc6d4bdd842c92",
+   "arms.ch.B.FLAG": "6bf9ba2cebfc2353e22f3558d975c669786ba6df14f42ec5576f2d54ad8bc8bd",
+   "arms.ch.B.PARAMERR": "661969ce947b3a361e1b39088732c339329d2b202242c54e7506f9a9f32d7729",
+   "arms.ch.B.SNR": "ffa9568a2c42fdbd619a8408d3bfd8073857a46813887d20f8481337e070fbfb",
+   "arms.ch.B.SPECTRAL_WINDOW_ID": "63dee1cd5eb04de0cea022c399898d9b250d34727095a08473e1317edf7cd460",
+   "arms.ch.B.TIME": "4da2e6bd9539a2badca50bfad6959e718e3d358ce32e43d24540d4e58af790d1",
+   "arms.ch.G.ANTENNA1": "3c3d92d4df3099ed62e23e62d61a31062c7f559eee7262e28a8846e43ee646a5",
+   "arms.ch.G.CPARAM": "3b2fd49d714d246f0df84205c9847123289ea94f673dbf3098cb0241581fef85",
+   "arms.ch.G.FLAG": "f11c021c43150d763ed326a50369df7f61cc7a0488827684300cfe1adbf840cf",
+   "arms.ch.G.PARAMERR": "bab6ee2a3cdef113cf851115b52e2a9f67df2dc36cacd4a86d411f867c7a4dc9",
+   "arms.ch.G.SNR": "4b3d1dbd5dbc3465d4cd9395ef429340218ed3adfba9364bfb9217ade11eee9d",
+   "arms.ch.G.SPECTRAL_WINDOW_ID": "1e1cb2d8e50274280cfcef935516073de978712e040cb107309f11bd2459ed55",
+   "arms.ch.G.TIME": "2e47472390f2220db5819da58ff8bb8decb22184f41b5a6d5ad1f83d8a1bcc77",
+   "arms.ch.K.ANTENNA1": "3c3d92d4df3099ed62e23e62d61a31062c7f559eee7262e28a8846e43ee646a5",
+   "arms.ch.K.FLAG": "f11c021c43150d763ed326a50369df7f61cc7a0488827684300cfe1adbf840cf",
+   "arms.ch.K.FPARAM": "191433cda53754726fbd13138639d630eab342c62f116753a930b3c7ce6e05e2",
+   "arms.ch.K.PARAMERR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.ch.K.SNR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.ch.K.SPECTRAL_WINDOW_ID": "1e1cb2d8e50274280cfcef935516073de978712e040cb107309f11bd2459ed55",
+   "arms.ch.K.TIME": "f12ce79aeaa52a36e95ba8044365330b69219484226cc3ba0294629364331645",
+   "arms.ch.corrected_sha256": "c9b609209e3001cb1a26bdeffabd0e44e312b4618fab38880f07f021bc7d5f11",
+   "arms.ch.flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "arms.ch.model": "982e840ac78c527f86dfa1b5876368b56d466759bc87e3857033dbac28bc07ee",
+   "arms.d.K.ANTENNA1": "3c3d92d4df3099ed62e23e62d61a31062c7f559eee7262e28a8846e43ee646a5",
+   "arms.d.K.FLAG": "f11c021c43150d763ed326a50369df7f61cc7a0488827684300cfe1adbf840cf",
+   "arms.d.K.FPARAM": "9f1c0bc08127ac5470bab3d3d5c754daa5206412817bdf41e9b15a9b35fad5ea",
+   "arms.d.K.PARAMERR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.d.K.SNR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.d.K.SPECTRAL_WINDOW_ID": "1e1cb2d8e50274280cfcef935516073de978712e040cb107309f11bd2459ed55",
+   "arms.d.K.TIME": "91252b5735b5da75a374ab099eb051f6b0fe32b1e232c79f3a26c967df2c9867",
+   "arms.d.flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "arms.d.model": "982e840ac78c527f86dfa1b5876368b56d466759bc87e3857033dbac28bc07ee",
+   "arms.sh.B.ANTENNA1": "ad87fa9776cb959c97cb8384d5c5b69df5f3616508ac2b494309a85f3dc19df6",
+   "arms.sh.B.CPARAM": "763a5c051737dbfdb4fb83829900003fa04b818c7bed39ccd719e5fac8c1863f",
+   "arms.sh.B.FLAG": "6bf9ba2cebfc2353e22f3558d975c669786ba6df14f42ec5576f2d54ad8bc8bd",
+   "arms.sh.B.PARAMERR": "a9c7664ed530486244ee0e7ceca27c23757ce281ce14c9d56610df8fab77a445",
+   "arms.sh.B.SNR": "6ee918aed0d2df86a25279b11663f84d055410f88997bf738ffab16a735b18fa",
+   "arms.sh.B.SPECTRAL_WINDOW_ID": "63dee1cd5eb04de0cea022c399898d9b250d34727095a08473e1317edf7cd460",
+   "arms.sh.B.TIME": "9c5f85eb344d015ac72f8f24e92532d2ff1270d1665a5f02df436e1d70abf483",
+   "arms.sh.G.ANTENNA1": "3c3d92d4df3099ed62e23e62d61a31062c7f559eee7262e28a8846e43ee646a5",
+   "arms.sh.G.CPARAM": "96b542833418a6d34ad077440ae2bef3f12fbfbe752e9d50995c8b0dcdc26680",
+   "arms.sh.G.FLAG": "f11c021c43150d763ed326a50369df7f61cc7a0488827684300cfe1adbf840cf",
+   "arms.sh.G.PARAMERR": "0cb54003a9d100797d317ff84b6c4b8720cbe813165cc7a3fee94d4d7bc4a70e",
+   "arms.sh.G.SNR": "0c62c56c603d3eb5250daf6ff61884fe65a2042cb5be13fd7a070f0a78acc307",
+   "arms.sh.G.SPECTRAL_WINDOW_ID": "1e1cb2d8e50274280cfcef935516073de978712e040cb107309f11bd2459ed55",
+   "arms.sh.G.TIME": "c4d03e3c2233053a1d7d3f6b6cc96b536825208a260b025cd77b58653d07622d",
+   "arms.sh.K.ANTENNA1": "3c3d92d4df3099ed62e23e62d61a31062c7f559eee7262e28a8846e43ee646a5",
+   "arms.sh.K.FLAG": "f11c021c43150d763ed326a50369df7f61cc7a0488827684300cfe1adbf840cf",
+   "arms.sh.K.FPARAM": "2b5f45b774f51d1757c2e672bc3eaa1beb280687b893b704df50093a1578c03b",
+   "arms.sh.K.PARAMERR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.sh.K.SNR": "e2194352409cce6aa81f961effe3d5f053a67798aa45752784befce91e8d25ba",
+   "arms.sh.K.SPECTRAL_WINDOW_ID": "1e1cb2d8e50274280cfcef935516073de978712e040cb107309f11bd2459ed55",
+   "arms.sh.K.TIME": "0e3cbeb365aa129112d97ca48e458877dfdfaf2fd49df880eb4d659ec50ee27e",
+   "arms.sh.corrected_sha256": "59c820d11db7a2225f81111b741204a655e1008b25f340de752fa572c325d518",
+   "arms.sh.flag_sha256": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "arms.sh.model": "2af0e198ed0a5b2014ed661f6126b90ccfb94f8750a05687166b19cc8418f74f",
+   "flagdata.rflag": "bc952a1695224d6ff1f26e3b10c2c8abba3f7d4cdb2baf3db67c2d690653e1bb",
+   "flagdata.tfcrop": "1cd5dac5fc1e53a35d45038c3d71bcf5a247488b12a2f88a55f9860c70a602e2",
+   "flux_standards.Perley-Butler 2010": "740b3fcd84a6c123a6cbfcb16af7a34ba647beb43e474a51085e745cdcb9961e",
+   "flux_standards.Stevens-Reynolds 2016": "740b3fcd84a6c123a6cbfcb16af7a34ba647beb43e474a51085e745cdcb9961e",
+   "images.c.dirty": "2288e1598d493b3db9e0740f999836adc594b13d1e92fac2148ad7ee5a33cacc",
+   "images.c.psf": "839977eccaac6578fbc1240d18eaddf58f72b54e5dd6dd27047abf5cddca1ad0",
+   "split.test": "effdb5a0a5fd7285da7cdaf0befe0c495b468b1353b061318a1e9ef34a66b1d7",
+   "split.validation": "851839ca10ff35492235da656d9f05eec9381261c60d41e893f0a42d04271f72",
+   "work_ms.ANTENNA1": "504b64440c363069fe9d5f6af72e43cf4d3b83d2deaa9391369231c65d26cc0d",
+   "work_ms.ANTENNA2": "433bf51446b19c96dec006318140035aee6f76898b6dc7cbebf55d5f5e57c28d",
+   "work_ms.ARRAY_ID": "a64f81796be7d8055eef0b5fb38333a97483ade7c69872c5a82d214d65d94c8a",
+   "work_ms.DATA": "e74681231c502b9b3096f8e0d5315f6a757d41cd1d5213c29b9e0dfedf0f0dd0",
+   "work_ms.DATA_DESC_ID": "a64f81796be7d8055eef0b5fb38333a97483ade7c69872c5a82d214d65d94c8a",
+   "work_ms.EXPOSURE": "c36670981f8a274bf551e6a6caddfec4735304b21bd752545dfd60a5b507137b",
+   "work_ms.FEED1": "a64f81796be7d8055eef0b5fb38333a97483ade7c69872c5a82d214d65d94c8a",
+   "work_ms.FEED2": "a64f81796be7d8055eef0b5fb38333a97483ade7c69872c5a82d214d65d94c8a",
+   "work_ms.FIELD_ID": "fb7cee6afc50e237300e1b463894e263766cfafc4c6555e571c323e0caa16168",
+   "work_ms.FLAG": "efafb3d1fb079ef38729f6aee4623931e6663b86ffa4187e92d9582df14ff84b",
+   "work_ms.FLAG_CATEGORY": "c2a8851ad85a342e3076572c327ab09c1d49700cd5c840965036bbdeff2524de",
+   "work_ms.FLAG_ROW": "5e043446d9f802b699bd946ead023f89ddc22ae14bf920dfa9f4003b3a0d24ea",
+   "work_ms.INTERVAL": "c36670981f8a274bf551e6a6caddfec4735304b21bd752545dfd60a5b507137b",
+   "work_ms.MODEL_DATA": "2af0e198ed0a5b2014ed661f6126b90ccfb94f8750a05687166b19cc8418f74f",
+   "work_ms.OBSERVATION_ID": "a64f81796be7d8055eef0b5fb38333a97483ade7c69872c5a82d214d65d94c8a",
+   "work_ms.PROCESSOR_ID": "5c35e09f79ff9a5fa37527f6ba8764b347283c7f99f69769a0924f75eacc4789",
+   "work_ms.SCAN_NUMBER": "81b7619f98b24fcad46e041f7a90ed3d6be5ed574f343ba61a22a00b942398f5",
+   "work_ms.SIGMA": "2a3a16ad5b0b65b672d4beafb1a17992d52434f5c6e2238b9043c1aa55378521",
+   "work_ms.SIGMA_SPECTRUM": "82c33eccd1e6f75ac026d3b2ae1526aa7c46a7005443eeff26c68fbaa5c41619",
+   "work_ms.STATE_ID": "fb7cee6afc50e237300e1b463894e263766cfafc4c6555e571c323e0caa16168",
+   "work_ms.TIME": "378b0b893200250752a87b4d5a395358df1c04b84d8285becfd1a6c8e11560cb",
+   "work_ms.TIME_CENTROID": "378b0b893200250752a87b4d5a395358df1c04b84d8285becfd1a6c8e11560cb",
+   "work_ms.UVW": "95401c78603d4cf5f821a8c025b19d927a0fdf940729d0a334a49df5b9a39658",
+   "work_ms.WEIGHT": "dd8e5edae41c284e0d92e2f661cbc3d77bf852fefce2945216275df8de834416",
+   "work_ms.WEIGHT_SPECTRUM": "ac32af9501538c189fe2a743e9e45a8fd99828ff935593357d32cccc8d4d2002",
+   "work_ms._nrows": 192
+  },
+  "identical": false,
+  "tree_differences": [
+   "c.B",
+   "c.G",
+   "c.K",
+   "ch.G",
+   "ch.K"
+  ],
+  "tree_sha256_identical": false
+ },
+ "runs": {
+  "o-casa-20261030-01": {
+   "code_sha256": {
+    "examples/build_luno_ms.py": "c73e76e90639ef2164cbe7f7ba5c4e0be394d5855b3f123d13682511267991f2",
+    "examples/prototype_section6.py": "dec1776e8ed7a663ecf722e797cdae4cf1860574ef6fd197a6761a167fb44aef",
+    "python/rangtoy/core_campaign.py": "e5394df28c3ab26342bd125a71ad2951135e8761ae1fb20284303a5e1f12c84d",
+    "tools/oracles/casa/Dockerfile": "87d8aed424309e5b86ecadba9421c776d84b775577a7ce89621414dd13538759",
+    "tools/oracles/casa/build.sh": "c35d8bf75cd8bfdfc36e5248e91a92070ff6dbbb32acc5fc1881ac55ebb1e30d",
+    "tools/oracles/casa/compare.py": "35de59bd4bf4c0e4dead9b2742b3a2a07096e46c385ffd3a51a8f332597aaf9a",
+    "tools/oracles/casa/crosscal.py": "c5c347f3beaa8654e214e952ec76cdc07e5090ccefec933133853591c582138e",
+    "tools/oracles/casa/inspect_tables.py": "0b7e127c7cd5e6dae647bd9a4b12417458a8b492ede02be3176d7d8b67957f82",
+    "tools/oracles/casa/receipt.py": "9e4fe08b00f8a86820a3db1aa995b6432b275eb5e2b7bdf17532a0e1951e5db6",
+    "tools/oracles/casa/requirements.lock": "1ec04e2508a006b4dd0f3c78d31784cea0eda4f13fb30e7bae9923aacc9baad8",
+    "tools/oracles/casa/run.sh": "abafb517bd08e1e2d90f032e9797f4cc19b954092bc084200612d422bc6545fb"
+   },
+   "outputs": 1035,
+   "timings": [
+    {
+     "exit": 0,
+     "max_rss_mb": 279.671875,
+     "step": "apply-a",
+     "wall_seconds": 1.08
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 282.59765625,
+     "step": "apply-b",
+     "wall_seconds": 1.12
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 298.9765625,
+     "step": "apply-c",
+     "wall_seconds": 1.42
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 300.5546875,
+     "step": "apply-ch",
+     "wall_seconds": 1.48
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 279.77734375,
+     "step": "apply-d",
+     "wall_seconds": 1.12
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 301.16796875,
+     "step": "apply-sh",
+     "wall_seconds": 1.63
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 466.125,
+     "step": "build",
+     "wall_seconds": 4.13
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 508.98046875,
+     "step": "compare",
+     "wall_seconds": 2.32
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 96.66796875,
+     "step": "equal",
+     "wall_seconds": 0.22
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 291.73046875,
+     "step": "flagdata-rflag",
+     "wall_seconds": 1.9
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 292.95703125,
+     "step": "flagdata-tfcrop",
+     "wall_seconds": 2.18
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 2.0078125,
+     "step": "image-lists",
+     "wall_seconds": 0.0
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 21.24609375,
+     "step": "inputs",
+     "wall_seconds": 3.39
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 87.11328125,
+     "step": "prepare",
+     "wall_seconds": 0.51
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 64.453125,
+     "step": "restore-ch",
+     "wall_seconds": 0.11
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 64.23828125,
+     "step": "restore-sh",
+     "wall_seconds": 0.09
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 304.68359375,
+     "step": "setjy-pb2010",
+     "wall_seconds": 1.5
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 304.5546875,
+     "step": "setjy-sr2016",
+     "wall_seconds": 1.84
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 306.8671875,
+     "step": "solve-a",
+     "wall_seconds": 1.32
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 309.05078125,
+     "step": "solve-b",
+     "wall_seconds": 1.32
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 317.2734375,
+     "step": "solve-c",
+     "wall_seconds": 2.23
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 317.08203125,
+     "step": "solve-ch",
+     "wall_seconds": 2.26
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 317.66015625,
+     "step": "solve-d",
+     "wall_seconds": 1.68
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 305.546875,
+     "step": "solve-sh",
+     "wall_seconds": 2.05
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 92.5703125,
+     "step": "split",
+     "wall_seconds": 1.18
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 154.93359375,
+     "step": "summarize",
+     "wall_seconds": 0.51
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 76.35546875,
+     "step": "wsclean-c",
+     "wall_seconds": 1.1
+    }
+   ]
+  },
+  "o-casa-20261030-02": {
+   "code_sha256": {
+    "examples/build_luno_ms.py": "c73e76e90639ef2164cbe7f7ba5c4e0be394d5855b3f123d13682511267991f2",
+    "examples/prototype_section6.py": "dec1776e8ed7a663ecf722e797cdae4cf1860574ef6fd197a6761a167fb44aef",
+    "python/rangtoy/core_campaign.py": "e5394df28c3ab26342bd125a71ad2951135e8761ae1fb20284303a5e1f12c84d",
+    "tools/oracles/casa/Dockerfile": "87d8aed424309e5b86ecadba9421c776d84b775577a7ce89621414dd13538759",
+    "tools/oracles/casa/build.sh": "c35d8bf75cd8bfdfc36e5248e91a92070ff6dbbb32acc5fc1881ac55ebb1e30d",
+    "tools/oracles/casa/compare.py": "35de59bd4bf4c0e4dead9b2742b3a2a07096e46c385ffd3a51a8f332597aaf9a",
+    "tools/oracles/casa/crosscal.py": "c5c347f3beaa8654e214e952ec76cdc07e5090ccefec933133853591c582138e",
+    "tools/oracles/casa/inspect_tables.py": "0b7e127c7cd5e6dae647bd9a4b12417458a8b492ede02be3176d7d8b67957f82",
+    "tools/oracles/casa/receipt.py": "9e4fe08b00f8a86820a3db1aa995b6432b275eb5e2b7bdf17532a0e1951e5db6",
+    "tools/oracles/casa/requirements.lock": "1ec04e2508a006b4dd0f3c78d31784cea0eda4f13fb30e7bae9923aacc9baad8",
+    "tools/oracles/casa/run.sh": "abafb517bd08e1e2d90f032e9797f4cc19b954092bc084200612d422bc6545fb"
+   },
+   "outputs": 1035,
+   "timings": [
+    {
+     "exit": 0,
+     "max_rss_mb": 282.41015625,
+     "step": "apply-a",
+     "wall_seconds": 1.18
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 282.4765625,
+     "step": "apply-b",
+     "wall_seconds": 1.19
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 301.43359375,
+     "step": "apply-c",
+     "wall_seconds": 1.33
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 301.16796875,
+     "step": "apply-ch",
+     "wall_seconds": 1.35
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 281.77734375,
+     "step": "apply-d",
+     "wall_seconds": 1.28
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 299.7421875,
+     "step": "apply-sh",
+     "wall_seconds": 1.27
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 466.03515625,
+     "step": "build",
+     "wall_seconds": 4.25
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 508.37109375,
+     "step": "compare",
+     "wall_seconds": 2.2
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 96.61328125,
+     "step": "equal",
+     "wall_seconds": 0.23
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 291.58984375,
+     "step": "flagdata-rflag",
+     "wall_seconds": 1.5
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 294.3203125,
+     "step": "flagdata-tfcrop",
+     "wall_seconds": 1.37
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 2.07421875,
+     "step": "image-lists",
+     "wall_seconds": 0.0
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 21.15625,
+     "step": "inputs",
+     "wall_seconds": 3.13
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 86.9453125,
+     "step": "prepare",
+     "wall_seconds": 0.57
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 64.34765625,
+     "step": "restore-ch",
+     "wall_seconds": 0.09
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 64.45703125,
+     "step": "restore-sh",
+     "wall_seconds": 0.09
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 304.1640625,
+     "step": "setjy-pb2010",
+     "wall_seconds": 1.3
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 305.0703125,
+     "step": "setjy-sr2016",
+     "wall_seconds": 1.26
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 309.0546875,
+     "step": "solve-a",
+     "wall_seconds": 1.37
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 308.68359375,
+     "step": "solve-b",
+     "wall_seconds": 1.4
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 317.5625,
+     "step": "solve-c",
+     "wall_seconds": 2.35
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 318.390625,
+     "step": "solve-ch",
+     "wall_seconds": 2.19
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 320.05859375,
+     "step": "solve-d",
+     "wall_seconds": 1.76
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 307.60546875,
+     "step": "solve-sh",
+     "wall_seconds": 2.0
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 92.14453125,
+     "step": "split",
+     "wall_seconds": 1.26
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 154.41796875,
+     "step": "summarize",
+     "wall_seconds": 0.48
+    },
+    {
+     "exit": 0,
+     "max_rss_mb": 76.4296875,
+     "step": "wsclean-c",
+     "wall_seconds": 1.07
+    }
+   ]
+  }
+ },
+ "split": {
+  "counts": {
+   "test": 11767,
+   "train": 94047,
+   "validation": 11742
+  },
+  "matches_core_k": true,
+  "seconds": 1.0917168199957814,
+  "test_sha256": "effdb5a0a5fd7285da7cdaf0befe0c495b468b1353b061318a1e9ef34a66b1d7",
+  "validation_sha256": "851839ca10ff35492235da656d9f05eec9381261c60d41e893f0a42d04271f72"
+ },
+ "stored_model": {
+  "cross_hand_max_abs": 0.0,
+  "imag_max_abs": 0.5038247108459473,
+  "log10_s_at_1400mhz_fit": 1.1733359217351107,
+  "max_row_spread": 0.48268890380859375,
+  "spectral_index_loglog": -0.040500473099809295,
+  "stokes_i_at_1400mhz": 14.902773562992845,
+  "stokes_i_channels_mhz": {
+   "1070.0": 14.855072975158691,
+   "1177.0": 15.053665161132812,
+   "1284.0": 15.042201042175293,
+   "1391.0": 14.916465759277344,
+   "1497.8": 14.707561492919922
+  }
+ }
+}
