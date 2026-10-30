@@ -34,12 +34,16 @@ frozen archives in {ghdir}`research/results`.
 | 6. Gain-TV-guided flagging: the experiment and its verdict | the question, the policy and the frozen decision rule; the method live on the fixture (exploratory); every pre-registered call, the TV policy's selections and the cost clause from `flagging-verdict.json`; model completeness (L1-M), closure structure (C1), convergence (L5) and the GNSS bins (A1); what would reopen it (L3, native data); an optional replay of task K |
 | 7. Beam and pointing: the original question | the forward model on the Rust toy with the JAX reference path checked against Rust; the Rust beam-width experiment; the smooth pointing solver; the observability audits (the Gaussian gauge, gains, thinned coverage, chromatic beam shape, the information budget); B1-0 (the holography reference beam against katbeam and EIDOS) and B1-1 (the SARAO/SKA Gaussian fit reproduced live on the fixture); B1-2 and B1-3 as proposed |
 
-Three switches, all off on this site: `RANG_NOTEBOOK_LUNO=1` replays task K
+Four switches, all off on this site: `RANG_NOTEBOOK_LUNO=1` replays task K
 from a local LUNO slice (notebook 6), `RANG_NOTEBOOK_SLOW=1` runs the katbeam
-audit with its long JAX compile (notebook 7), and `RANG_NOTEBOOK_HOLOGRAPHY=1`
+audit with its long JAX compile (notebook 7), `RANG_NOTEBOOK_HOLOGRAPHY=1`
 draws maps of a local copy of the B1-0 holography product (notebook 7; SARAO
-data under CC BY-NC 4.0, never published here). A gated cell prints its skip
-line instead. Notebook 6's switch is opt-in (`=1`), unlike the
+data under CC BY-NC 4.0, never published here), and `RANG_NOTEBOOK_CARTA=1`
+opens notebook 4's dirty image in a running [CARTA](https://cartavis.org)
+backend through `rang.notebook.carta` (Linux or macOS; the `carta` extra, the
+CARTA wrapper installed from its pinned commit and a backend, e.g. the pinned
+container: {gh}`research/nb-carta.md`). A gated cell prints its skip line
+instead. Notebook 6's switch is opt-in (`=1`), unlike the
 `RANG_NOTEBOOK_LUNO=0` opt-out of notebooks 1 and 5.
 
 The frozen rules they quote, as `rang.core_campaign` and

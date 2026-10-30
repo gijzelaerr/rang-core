@@ -26,8 +26,10 @@ Configuration, all optional:
   instead (the session id shown in CARTA's "About" dialog);
 - `RANG_CARTA_DIR`: the session directory the files are written to
   (default `<RANG_NOTEBOOK_CACHE>/carta`);
-- `RANG_CARTA_ROOT`: that directory as the backend sees it (default
-  `/images`, the container's mount; for a native backend, the same path).
+- `RANG_CARTA_ROOT`: that directory as the backend sees it, relative to the
+  backend's top-level folder (default `/`: the container mounts it as its
+  top-level folder `/images`; for a native backend started with the
+  top-level folder `/`, the directory's absolute path).
 """
 
 from __future__ import annotations
@@ -62,7 +64,8 @@ BROWSER_CONTAINER = "rang-carta-chromium"
 PORT = 3002
 WEBDRIVER_PORT = 4444
 DEFAULT_WEBDRIVER = f"http://127.0.0.1:{WEBDRIVER_PORT}"
-DEFAULT_ROOT = "/images"
+MOUNT = "/images"  # the container's top-level folder
+DEFAULT_ROOT = "/"  # the session directory, relative to the top-level folder
 # CARTA draws the raster with WebGL; a headless Chromium without a GPU needs
 # SwiftShader, or the snapshot shows the axes around an empty raster.
 CHROME_OPTIONS = (
@@ -261,8 +264,9 @@ def channel_cube(ds, sol=None, planes=8, mode="briggs", robust=0.5, **geometry):
     Each plane is `image.image` with the channels outside its block flagged
     on top of the solve's (or no) added flags; nothing is reimplemented.
     The channel count must divide by `planes` so the frequency axis is
-    linear. Returns `cube` `(planes, y, x)`, its `header`, the block
-    centre `frequencies` and the per-plane `metrics`.
+    linear. A block whose cells are all flagged (an RFI-occupied band) is a
+    NaN plane with metrics None. Returns `cube` `(planes, y, x)`, its
+    `header`, the block centre `frequencies` and the per-plane `metrics`.
     """
     from . import image as imaging
 
@@ -273,17 +277,22 @@ def channel_cube(ds, sol=None, planes=8, mode="briggs", robust=0.5, **geometry):
     base = (
         np.asarray(sol["added"], bool) if sol is not None else np.zeros_like(s["train"])
     )
+    params = {**imaging.DEFAULTS, **geometry}
+    flagged = np.asarray(s["original_flags"], bool).all(axis=-1) | base
     blocks = np.arange(len(freqs)).reshape(planes, -1)
     cube, metrics = [], []
-    img = None
     for block in blocks:
+        if flagged[:, block].all():
+            cube.append(np.full((params["height"], params["width"]), np.nan))
+            metrics.append(None)
+            continue
         outside = np.ones(len(freqs), bool)
         outside[block] = False
         added = base | outside[np.newaxis, :]
         img = imaging.image(ds, sol, added=added, mode=mode, robust=robust, **geometry)
         cube.append(img["dirty"])
         metrics.append(img["metrics"])
-    header = image_header(ds, img)
+    header = image_header(ds, {"params": params})
     step = freqs[1] - freqs[0] if len(freqs) > 1 else 0.0
     width = step * blocks.shape[1]
     header["CRVAL3"] = float(freqs[blocks[0]].mean())
@@ -378,7 +387,7 @@ def open(path_or_array, *, wcs=None, name=None, session=None):
     path = _stage(path_or_array, wcs, name)
     if session is None:
         session = connect()
-    session.open_image(f"{backend_root().rstrip('/')}/{path.name}")
+    session.open_image(backend_root().rstrip("/") + "/" + path.name)
     return session
 
 
@@ -441,7 +450,7 @@ def docker_commands(data_dir=None, port=PORT):
         "docker", "run", "-d", "--rm", "--name", CONTAINER,
         "-p", f"127.0.0.1:{port}:{port}",
         "-p", f"127.0.0.1:{WEBDRIVER_PORT}:{WEBDRIVER_PORT}",
-        "-v", f"{data_dir.resolve()}:{DEFAULT_ROOT}:ro",
+        "-v", f"{data_dir.resolve()}:{MOUNT}:ro",
         CARTA_IMAGE, "--enable_scripting", "--port", str(port),
     ]  # fmt: skip
     browser = [
@@ -459,6 +468,8 @@ def start_docker(data_dir=None, timeout=60):
     import re
 
     data_dir = Path(data_dir) if data_dir else session_dir()
+    # Create it first: a bind-mount source docker creates is owned by root.
+    data_dir.mkdir(parents=True, exist_ok=True)
     for command in docker_commands(data_dir):
         subprocess.run(command, check=True, capture_output=True, text=True)
     pattern = re.compile(r"CARTA is accessible at (http://\S+)")
