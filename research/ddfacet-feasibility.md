@@ -54,8 +54,12 @@ DDFacet and killMS as pinned external oracles.**
 2. **A faithful port is the wrong target (estimate).**
    - It would reproduce kernel approximations that an exact gridder no
      longer needs.
-   - About 60 % of the code is deconvolution heuristics, with no clean
-     oracle for a port and FFT/fast-math nondeterminism in the original.
+   - About 49 k of the 106 k Python lines (46 %) are deconvolution
+     heuristics. That count covers `MultiSliceDeconv`, `SSD`, `SSD2`,
+     `SSD3`, `GA`, `HOGBOM`, `MSMF`, `WSCMS`, `WSCMS2` and `SASIR`, and
+     includes 13.7 k lines of vendored MORESANE and Orieux code. There is
+     no clean oracle for a port, and the original has fast-math
+     nondeterminism.
      The C++ is built with `-ffast-math` (`pyproject.toml`,
      `ENABLE_FAST_MATH=ON`).
    - WSClean 3.6 itself defaults to the wgridder (`main/settings.h:49`) and
@@ -73,15 +77,18 @@ DDFacet and killMS as pinned external oracles.**
    `lshift`/`mshift` sub-images) is therefore a gridder with a tolerance set
    by an epsilon, validated against a pip-installable oracle and a DFT. That
    is the first protocol.
-4. **Facets cannot carry the pointing science; the DFT predictor can
-   (measured).** Holding the beam constant across a facet misrepresents the
-   MeerKAT L-band beam (katbeam, 1284 MHz, power FWHM 1.087°) by more than a
-   30″ pointing offset changes it:
-   - by 47× with 9 facets over a 2×FWHM field;
-   - by 13× with 100 facets;
-   - by 1.6× even with 6,400 facets.
+4. **Facets cannot carry the pointing science away from their nodes; the
+   DFT predictor can (measured).** A facet-constant Jones is exact at the
+   facet node, where killMS and DDFacet put the bright sources. Away from
+   the node, holding the beam constant misrepresents the MeerKAT L-band beam
+   (katbeam, 1284 MHz, power FWHM 1.087°) by more than a 30″ pointing offset
+   changes it. These are worst cases at the facet edge:
+   - by up to 47× with 9 facets over a 2×FWHM field;
+   - by up to 13× with 100 facets;
+   - by up to 1.6× even with 6,400 facets.
 
-   The beam/pointing solver must therefore keep evaluating the beam per
+   The off-node emission is the faint emission B1 asks about. The
+   beam/pointing solver must therefore keep evaluating the beam per
    component and per antenna, which the core's DFT predictor and the JAX
    reference path already do. Facets with per-facet Jones serve DD *gain*
    calibration and wide-field imaging of extended emission, not pointing.
@@ -95,7 +102,10 @@ DDFacet and killMS as pinned external oracles.**
    - DF5: Hogbom and multiscale CLEAN, with major cycles through the
      degridder.
    - DF6: image-domain gridding (IDG) on `wgpu`, only if B1 needs
-     antenna-dependent A-terms on extended emission.
+     antenna-dependent A-terms on extended emission. WSClean 3.7's
+     `facet-idg` is the production precedent and the oracle.
+   - DF1b: WSClean 3.7's w-towers variant of DF1, only when full-track
+     memory binds.
 
    B1 needs DF1 and DF2, not DF3–DF6. DF3–DF5 are the rewrite the user
    asked for and are sized below. Under AGENTS.md, none of it is a
@@ -328,9 +338,12 @@ There is no degridder, no deconvolution and no DD anything.
       (`ClassModelMachineHogbom.py:184`) and was stopped after about
       10 min.
     - HMP stopped after 161 minor iterations ("diverging w.r.t. floor")
-      and finished in 234 s with an **8.9 GB** peak.
+      and finished in 234 s with an **8.9 GB** peak (measured).
     - The degrid jobs averaged 61 s of single-core time per facet. With
-      `NDegridBand 0` the model is a cube over all 2,048 channels.
+      `NDegridBand 0` the model is a cube over all 2,048 channels; the log
+      prints the model image at every channel frequency. That this cube
+      causes the 8.9 GB peak and the degrid time is inferred from the log,
+      not measured.
 - **Fixture scan 9** (58 MB). Same four stations, same limits.
 - **Whole-array LUNO chunk 0** (L1: 53 stations, 1,378 baselines, 41,786
   rows, 342 M cells).
@@ -402,15 +415,18 @@ both w signs, gives:
 - 1.6 % of the PSF peak on the PSF.
 
 The core already matches WSClean's w-stacking images to 6.1e-7 (task C), so
-this is not an accuracy statement about the core. The core's sign and
-orientation convention against a plain DFT has never been established, and
-this study did not establish it. A synthetic point source at (+20, +5)
-pixels lands at (col 276, row 251) with peak 0.99999, so position and flux
-of a single point are right.
+this is not an accuracy statement about the core. Position and flux of a
+single point are right: a synthetic point source at (+20, +5) pixels lands
+at (col 276, row 251) with peak 0.99999.
 
-On this PSF, whose sidelobes reach 0.80 at the field edge, aliasing of the
-padded w-stacking grid is also a plausible part of the difference. Pinning
-the convention against the DFT is item 0 of the first protocol.
+The full-image residual (19 %, 12 % and 1.6 % above) is unexplained, and
+this study does not attribute it. Candidates are:
+
+- a convention difference that the brute-force search did not cover;
+- aliasing of the padded w-stacking grid, on a PSF whose sidelobes reach
+  0.80 at the field edge.
+
+Pinning it against the DFT is item 0 of the first protocol.
 
 **DDFacet faceting on the slice (measured).** Dirty images, Briggs 0.5, 525²
 at 8″:
@@ -444,8 +460,11 @@ square. Facets are centred at 0.25, 0.5 and 1 FWHM from the pointing centre.
 | 6,400 | 0.8′ | 0.008–0.013 | 0.0049–0.0080 | 1.6–1.7 |
 
 To first order both are a beam gradient times a distance (half-width
-against δ). A facet-constant Jones model is therefore blind to pointing
-offsets smaller than the facet half-width.
+against δ). The table is the worst case at the facet edge; at the node
+itself a facet-constant Jones is exact. For emission away from the nodes,
+a facet-constant Jones model is therefore blind to pointing offsets
+smaller than the facet half-width. That off-node emission is what B1's
+faint-emission question is about.
 
 DDFacet partly compensates in the image plane: per-pixel average-beam
 correction and `SumJones` normalisation. That corrects the image's
@@ -479,7 +498,63 @@ ducc0 0.42 removed the experimental "tuning" methods. WSClean 3.6 still
 offers `tuned-wgridder` (`main/commandline.cpp:1348`). Whether that option
 survives a WSClean built against ducc0 0.42 is not checked.
 
-### 3.3 Recommendation
+### 3.3 Later inputs: WSClean 3.7 and an active DDFacet
+
+Added after the coordinator's literature scan; read from the changelog, not
+run.
+
+WSClean 3.7 was released on 2026-02-16 ([changelog](https://wsclean.readthedocs.io/en/latest/changelogs/v3.7.html)).
+It adds three things relevant here:
+
+- **A w-towers gridder** (`-gridder wtowers`). W-towers comes from the
+  SKA streaming-imaging work of Wortmann, Kent and Nikolic
+  ("Imaging swiFTly", [arXiv:2108.10720](https://arxiv.org/abs/2108.10720);
+  SKAO `ska-sdp-func` `gridder_wstack_wtower`).
+  - The uv plane is split into subgrids, and each subgrid stacks its own
+    small set of w-planes (a "tower").
+  - Image facets and subgrids are processed in a streaming,
+    distributable way, without assembling the full uvw grid.
+- **Facet-IDG** (`-gridder facet-idg`): faceted IDG runs with facet
+  corrections.
+- **Frequency-direction BDA**, which the changelog calls its largest
+  feature.
+
+**Weighed against the recommendation:**
+
+- **W-towers is a memory and distribution strategy over the same
+  exact-gridding mathematics, not a different accuracy class.** It still
+  uses a separable kernel with w-stacking and a w-correction. DF1's kernel,
+  w-correction and degridder carry over to it.
+  - It matters when the full grid and image stack do not fit. That is the
+    full-track MeerKAT case on a 30 GiB host (section 5), not the
+    one-chunk images rang makes now.
+  - It therefore becomes a **DF1b** follow-on (subgrid towers over DF1's
+    kernel), measured against DF1 at L1 scale and beyond. It does not
+    replace DF1 as the first step.
+  - Its oracle is WSClean 3.7 `-gridder wtowers`; `ska-sdp-func` is a
+    second implementation. Its licence was not checked here.
+- **Facet-IDG is the precedent for combining (b) and (c).** WSClean now
+  applies per-antenna A-terms through IDG inside facets, with facet
+  corrections on top.
+  - This supports keeping per-antenna, direction-varying beams in IDG
+    (DF6) rather than in facet-constant Jones (DF3).
+  - It makes WSClean 3.7 the oracle for DF3 and DF6 beside DDFacet.
+  - DF0 should therefore build WSClean **3.7** (Ubuntu resolute carries
+    `3.7-1`) rather than rebuilding the 3.6-1 container. 3.6-1 is kept
+    only to reproduce the task C archive.
+- **DDFacet is actively maintained** (v1.0.0.0, 2026-06-23, with
+  dependency pins updated for NumPy 2.3 and Python 3.12). That strengthens
+  "oracle, not fork".
+  - A faithful port would diverge from a moving upstream.
+  - Pinning DDFacet as an oracle keeps the reference current at the cost
+    of one container per version.
+  - The killMS/DDFacet break measured above shows the cost of that motion.
+
+The recommendation below is unchanged in order (exact gridder first). Two
+things change: DF6 is now backed by a production precedent (facet-IDG),
+and a w-towers variant is added as DF1b.
+
+### 3.4 Recommendation
 
 **(b), with the beam/pointing path outside the facets, and (c) deferred.**
 
@@ -498,8 +573,8 @@ survives a WSClean built against ducc0 0.42 is not checked.
   what a faceted image looks like at a stated tolerance (2.5 % on the
   slice), not for bit-identity.
 - **Not facets for pointing.** The measured beam table shows a
-  facet-constant beam is blind to 30″ offsets unless facets are under
-  about 1′. B1's forward model stays the DFT predictor with per-component,
+  facet-constant beam is blind to 30″ offsets away from the facet nodes
+  unless facets are under about 1′. B1's forward model stays the DFT predictor with per-component,
   per-antenna beams. That already exists in the core (predictor) and in
   JAX (beam, pointing). The exact gridder makes the residual and
   injection images of meerkat-scope step 4 fast and accurate.
@@ -532,13 +607,31 @@ and DF4–DF5 are not.
 
 | | Task | Inputs and oracle | Done when | Owner files | Size | Parallel with |
 | --- | --- | --- | --- | --- | --- | --- |
-| DF0 | **Oracle container and simulated target field.** Pinned image with DDFacet v1.0.0.0, Cattery, ducc0 0.42.0, and killMS 3.3.0 on DDFacet v0.9.1 (second venv), built with `-Wno-error=incompatible-pointer-types`; a WSClean 3.6-1 build from the verified Debian source (`outputs/wsclean-3.6-1-source-20261029/`) with wgridder; the simulated MeerKAT L-band target-field MS (core predictor, katbeam, known DD gains and pointing offsets, seeds recorded); a MeerKAT FITS beam cube from katbeam for DDFacet | the tools reproduce themselves (two runs equal, or a recorded nondeterminism bound under fast-math); DDFacet dirty on the slice equals this study's FITS | image digests and SHA256SUMS recorded; nondeterminism bound measured; simulated MS hashed | `tools/oracles/ddfacet/`, `examples/simulate_target_field.py`, `research/df0-oracles.md` | 1–2 | DF1 |
+| DF0 | **Oracle container and simulated target field.** Pinned image with DDFacet v1.0.0.0, Cattery, ducc0 0.42.0, and killMS 3.3.0 on DDFacet v0.9.1 (second venv), built with `-Wno-error=incompatible-pointer-types`; a WSClean 3.7 build (Ubuntu resolute `3.7-1` source, verified like task C's 3.6-1) for `wgridder`, `wtowers` and `facet-idg`, and the 3.6-1 build from `outputs/wsclean-3.6-1-source-20261029/` only to reproduce task C; the simulated MeerKAT L-band target-field MS (core predictor, katbeam, known DD gains and pointing offsets, seeds recorded); a MeerKAT FITS beam cube from katbeam for DDFacet | the tools reproduce themselves (two runs equal, or a recorded nondeterminism bound under fast-math); DDFacet dirty on the slice equals this study's FITS | image digests and SHA256SUMS recorded; nondeterminism bound measured; simulated MS hashed | `tools/oracles/ddfacet/`, `examples/simulate_target_field.py`, `research/df0-oracles.md` | 1–2 | DF1 |
 | DF1 | **Exact gridder and degridder (wgridder algorithm), facet-free.** First protocol, below | ducc0 0.42.0 wheel at fixed threads; DFT on small and wide-field synthetic cases; this study's slice export; C/I/K archives reported | gated criteria below pass; speed and memory reported against P2's w-stacking and ducc0 | `core/src/wgrid.rs`, `core/src/es_kernel.rs`, `core/src/ffi_wgrid.rs`, `python/rangtoy/core_wgrid.py`, `examples/{oracle,compare}_wgrid*.py`, `tests/test_core_wgrid.py`, `research/df1-wgridder.md` | 1–3 | DF0, science tasks |
+| DF1b | **W-towers over DF1's kernel (only when memory binds).** Subgrids with local w-stacks, streaming visibility chunks, image facets never assembled on the uv side | WSClean 3.7 `-gridder wtowers`; DF1 on the same inputs (exact to DF1's epsilon) | same images as DF1 within epsilon; peak memory and wall at L1 scale and on a multi-chunk track against DF1 | `core/src/wtowers.rs`, `research/df1b-wtowers.md` | 2–3 | DF3 |
 | DF2 | **Exact gridder in the imaging chains**, beside w-stacking: `core_imaging`/`core_campaign` take `gridder="wgrid"`; w-stacking stays the default and the archive reproducer | task I/K replays with `wgrid`; WSClean `-gridder wgridder` FITS from DF0 on the fifteen C jobs | every K/I science call unchanged, or the changes listed with their size; WSClean wgridder pixels within the DF1 epsilon plus WSClean's float tolerance | `python/rangtoy/core_imaging.py` option (coordinator edit), `research/df2-imaging.md` | 1 | B1 |
 | DF3 | **Facets with per-facet Jones, beam first.** Tessellation (Voronoi, clipping, `DiamMax`), padded sub-images through DF1's shift, stitching and normalisation (`SumJones`, a smooth-beam image); Jones per facet and time block from katbeam; then from killMS-format solutions | DDFacet `Dirty` on the slice and the simulated field with the same `CatNodes`, `NFacets`, padding and FITS beam; tolerance from the DDFacet-to-DDFacet facet spread (2.5 % on the slice, to be measured on the simulated field) | facet geometry identical to DDFacet's `facetCoord.txt`/`NodesCatImaged.npy`; images within the frozen spread; beam-corrected flux of the injected sources against truth | `core/src/facets.rs`, `python/rangtoy/core_facets.py`, `research/df3-facets.md` | 2–4 | DF4 design |
 | DF4 | **DD solver (CohJones, scalar then diagonal).** Per-antenna Jacobian over directions, LM with `1/(1+λ)` damping and SVD inverse as killMS; directions from a `ClusterCat`; predicts per direction from the DFT predictor (components) or DF3's degridded facets (images) | killMS on the simulated field (pinned pair); truth gains | gains within a frozen tolerance of killMS on intervals both converge; truth recovery no worse than killMS; npz readable by DDFacet | `core/src/dd_solve.rs`, `python/rangtoy/core_dd.py`, `research/df4-dd-solver.md` | 3–5 | DF5 |
 | DF5 | **Deconvolution.** Hogbom then WSClean-style multiscale with major cycles through DF1's degridder; frequency polynomial per component; restoring beam fit; component-list model and a `DicoModel` reader | DDFacet Hogbom and WSCMS, WSClean `-multiscale` on the simulated field; truth sky | model flux and positions against truth within frozen tolerances; residual RMS no worse than both tools at matched iterations; the ported loop's per-iteration peaks equal a NumPy transcription | `core/src/deconv.rs`, `python/rangtoy/core_deconv.py`, `research/df5-deconvolution.md` | 3–6 | – |
-| DF6 | **IDG on the GPU (only if B1 asks).** Subgrid gridder with A-terms per antenna and time on `wgpu` | DFT with per-antenna beams (exact); DF1 on the A-term-free case | A-term images within a frozen tolerance of the DFT; measured cost against DF1 plus DFT predict | `core/src/idg/`, `research/df6-idg.md` | 4–8 | after X2 |
+| DF6 | **IDG on the GPU (only if B1 asks).** Subgrid gridder with A-terms per antenna and time on `wgpu` | DFT with per-antenna beams (exact); DF1 on the A-term-free case; WSClean 3.7 `-gridder facet-idg` with the same beams | A-term images within a frozen tolerance of the DFT; measured cost against DF1 plus DFT predict | `core/src/idg/`, `research/df6-idg.md` | 4–8 | after X2 |
+
+**Anderson acceleration** (a user interest) applies to the CohJones and
+StefCal fixed-point iterations. In DF4 it is an option, measured against
+plain LM on the same intervals. For the direction-independent solver it
+belongs with L5's convergence study, which already questions the
+50-iteration cap.
+
+**Deviations from the brief.**
+
+- **WSClean wgridder output moves out of the first phase.** The brief put
+  it in DF1. It is now in DF0, which rebuilds the container, and DF2,
+  which uses it. The pinned WSClean container is gone from this host. The
+  ducc0 wheel is the same algorithm that WSClean vendors
+  (`external/schaapcommon/external/ducc0`). WSClean adds only its reader,
+  weighting and normalisation chain, which DF2 covers.
+- **The C/I/K archives are reported in DF1, not gated.** Task A's
+  tolerances compare w-stacking with w-stacking (see 4.1).
 
 Not proposed:
 
@@ -734,9 +827,9 @@ the largest single process, not the sum over DDFacet's forked workers.
   - Then facets as shifted sub-images with per-facet Jones, a scalar
     CohJones and Hogbom/multiscale, against DDFacet/killMS on a simulated
     MeerKAT target field.
-  - B1 keeps per-component beams in the DFT predictor: a facet-constant
-    beam is 13–50× larger in error than a 30″ pointing signal at 9–100
-    facets (katbeam, measured).
+  - B1 keeps per-component beams in the DFT predictor: away from the facet
+    nodes, a facet-constant beam errs by up to 13–50× a 30″ pointing signal
+    at 9–100 facets (katbeam, measured, worst case at the facet edge).
 
   Measured on the host:
   - killMS 3.3.0 does not build on GCC 15 without a flag and does not run
@@ -749,7 +842,8 @@ the largest single process, not the sum over DDFacet's forked workers.
   rewrite: feasibility done 2026-10-30 (`ddfacet-feasibility.md`); tasks
   DF0 (oracle container and simulated field) and DF1 (exact wgridder,
   first protocol) can start now beside the science wave; DF2 before B1's
-  imaging; DF3–DF5 after B1's protocol says what it needs; DF6 after X2."
+  imaging; DF3–DF5 after B1's protocol says what it needs; DF1b (w-towers)
+  when memory binds; DF6 after X2 (facet-IDG in WSClean 3.7 as oracle)."
 - **Correction to the brief.** ducc0 is GPL-2-or-later, not GPL-3
   (`src/ducc0/wgridder/wgridder.h` 1–5, classifier "GPLv2+").
 - **Upstream observations, `saopicc` (RATT-adjacent; list separately, not
@@ -799,6 +893,22 @@ the largest single process, not the sum over DDFacet's forked workers.
 - **Shared files.** None edited.
 - **Tool timings rows.** Section 6.
 
+## Open questions for the user
+
+1. **May `saopicc` issues be filed** (the killMS GCC 15 build and the
+   killMS/DDFacet API break)? The reporting decision covers `ratt-ru` and
+   `caracal-pipeline` only.
+2. **Is a simulated MeerKAT target field acceptable as the oracle for
+   DF3–DF5,** with truth known and DDFacet/killMS run on it? The
+   alternatives are to wait for L3's full-resolution data or to get an
+   archive account for a public target field.
+3. **Are DF3–DF5 (facets, DD solver, deconvolution) wanted before B1 asks
+   for them?** The alternative is DF0–DF2 now and the rest when B1's
+   protocol shows a need.
+4. **Is compatibility with DDFacet's `DicoModel` and killMS's npz formats
+   a requirement,** or are a core component list and gain arrays enough,
+   with converters only for the oracle runs?
+
 ## References
 
 - C. Tasse et al. 2018, "Faceting for direction-dependent spectral
@@ -816,6 +926,10 @@ the largest single process, not the sum over DDFacet's forked workers.
 - P. Arras, M. Reinecke, R. Westermann and T. Enßlin 2021, "Efficient
   wide-field radio interferometry response", A&A 646, A58,
   [arXiv:2010.10122](https://arxiv.org/abs/2010.10122) (wgridder).
+- P. Wortmann, J. Kent and B. Nikolic, "Imaging swiFTly: streaming
+  widefield Fourier transformations for large-scale interferometry",
+  [arXiv:2108.10720](https://arxiv.org/abs/2108.10720) (w-towers; WSClean
+  3.7 `-gridder wtowers`).
 - S. van der Tol, B. Veenboer and A. Offringa 2018, "Image Domain
   Gridding: a fast method for convolutional resampling of visibilities",
   A&A 616, A27, [arXiv:1909.07226](https://arxiv.org/abs/1909.07226) (IDG).
