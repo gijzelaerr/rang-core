@@ -853,3 +853,16 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan B1: `bash tools/check-all.sh`, after the post-hoc edits | worktree | 95 s | – | PASS; pytest 739 passed, 5 skipped in 91.6 s (Rust steps cached); log `outputs/b1-20261030-check-all-2.log` |
 | 2026-10-30 | CLEAN theory (continued): `clean_theory` example with E2c and E7 | four MeerKAT configurations | 71.1 s compute | – | Windows; E2c 100 trials × 5 k per config, E7 Gram-exact blob inner products |
 | 2026-10-30 | CLEAN theory (continued): `lake build` with `FiniteDim.lean`, `Projection.lean` and the audit | `formal/` | 40.6 s | – | thirteen theorems, standard axioms only |
+| 2026-10-30 | big plan P12: venv + editable install, before / after (WSL, uv) | – | 69 s / 64 s | – |  |
+| 2026-10-30 | big plan P12: targeted pytest (pc1, notebooks, P11, receipts, CLI), before / after / final | – | 31.7 s / 29.6 s / 24.6 s | – |  |
+| 2026-10-30 | big plan P12: P9 identity suite through `rang-core`, before / after / final | – | 6.2 s / 6.2 s / 8.1 s | – |  |
+| 2026-10-30 | big plan P12: full pytest, before / after | – | 168.2 s / 165.0 s | – |  |
+| 2026-10-30 | big plan P12: `bash tools/check-all.sh` at `86e2a8d` (cold extension build) / `0085b36` | – | 334.9 s / 134.8 s | – |  |
+| 2026-10-30 | big plan P12: `rang-core check` (Linux) | – | 132.5 s | – |  |
+| 2026-10-30 | big plan P12: `tools/wheel/build.py` Linux, `86e2a8d` / `0085b36` | – | 73.8 s / about 70 s (maturin step 67.2 s) | – |  |
+| 2026-10-30 | big plan P12: `tools/wheel/test.py` Linux | – | 11.1 s | – |  |
+| 2026-10-30 | big plan P12: Windows clone / venv / editable install (MSVC extension) | – | 11.5 s / 0.1 s / 124.8 s | – |  |
+| 2026-10-30 | big plan P12: Windows `rang-core check`, `86e2a8d` (FAIL, pre-existing) / `0085b36` (PASS) | – | 339.8 s / 112.3 s | – |  |
+| 2026-10-30 | big plan P12: Windows `build.py` / `test.py`, at `86e2a8d` and at `0085b36` | – | 102.9 s and 102.2 s / 8.7 s and 8.7 s | – |  |
+| 2026-10-30 | big plan P12: Windows clone of main, install and the 4 failing test files | – | 140.5 s | – |  |
+| 2026-10-30 | big plan P12: `build.py --sdist` Linux / `maturin build` from the unpacked sdist | – | 62 s / 68 s | – |  |

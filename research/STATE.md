@@ -1,5 +1,19 @@
 # Rang research state
 
+P12 rename (big plan), 2026-10-30 (implemented; measured;
+[p12-rename.md](p12-rename.md)). The package is `rang` (`import rang`,
+extension `rang._core`, `python/rang/`); the project, repository and PyPI
+distribution are `rang-core`; the CLI is still `rang-core`. The move used
+`git mv` with history (71 × R100). On P9's 20-case suite through `rang-core`,
+every comparator verdict, count, stdout and receipt is identical. CLI
+receipts are now `rang.receipt` v2 (`environment.rang_core`). The wheel is
+`rang_core-0.1.0-cp310-abi3-*` and passes the cargo-absent test on Linux and
+Windows, and the full checks pass on both. Archived notes, results and
+`history/` keep `rangtoy`. Windows `rang-core check` is green again: 18
+pre-existing failures, from the C1/DF1/FS1 standalone builds and the P11
+test's encoding, are fixed. Publishing is the user's: tagging `v0.1.0` runs
+the workflow, which publishes `rang-core` by trusted publishing.
+
 CLEAN theory, continued (user-directed; [clean-theory.md](clean-theory.md)
 §3, §5), 2026-10-30 (implemented; measured). Lean now covers Theorems 2 and
 3 in full: `formal/RangFormal/FiniteDim.lean` (a positive greedy constant on

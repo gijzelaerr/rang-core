@@ -21,6 +21,10 @@ measurements show the one-step identity to 1e-13, the coherence bound
 vacuous, Tropp's ERC exact in 9,600 trials, Clark's rule without guarantee
 and a provable minor-cycle rule with one ([archive](results/clean-theory.json)).
 
+New, 2026-10-30: P12, the [rename](p12-rename.md): package `rang`, project and
+distribution `rang-core`; everything identical through the CLI; both wheels
+pass with cargo absent.
+
 New, 2026-10-30: B1-0 and B1-1, [beam and pointing](b1-beam-pointing.md): the
 SARAO holography cube as the reference beam (katbeam 0.8 %, EIDOS 2.1 % off),
 the SARAO/SKA Gaussian pointing fit ported bit-exact and found weak on the
