@@ -1,5 +1,20 @@
 # Rang research state
 
+Wheel (big plan W1), 2026-10-30 (implemented; measured locally; CI run
+started by the merge push). `rangtoy-0.1.0-cp310-abi3-manylinux_2_28_x86_64.whl`
+(821 kB, built in the pinned manylinux_2_28 container with Rust 1.93.1 and
+maturin 1.16.0, auditwheel-clean, nothing grafted) installs from public PyPI
+on clean CPython 3.10–3.14 and runs the extension backend with no cargo;
+backend tests pass and task J's archive run reproduces through the wheel
+(task I included) with arrays and images identical on every version and JSON
+leaves identical on NumPy 2.5 (last-bit differences on 3.10/3.11 follow their
+older NumPy). aarch64 cross-builds by zig but was not run. NumPy is now a
+declared dependency (a bare install was broken). The wheel does not carry the
+root crate's TV kernel, the Tricolour static masks or the archive drivers'
+checkout paths. Wheels are built with the baseline ISA (`RUSTFLAGS` overrides
+the local `x86-64-v3` config). Publication is a user item ([wheel.md](wheel.md));
+open: the distribution name (`rangtoy` or `rang`) before the first upload.
+
 Simplification review S1 (big plan wave 1), 2026-10-30 (measured; no code
 changed). Every archived chain was re-run and reproduces its archived outcome
 (29 timed steps plus the phase 1 and 3c-a validators, the fetch checker and

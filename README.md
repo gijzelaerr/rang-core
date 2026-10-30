@@ -105,6 +105,17 @@ cargo build --offline --release
 .venv/bin/python examples/pointing.py --output outputs/pointing
 ```
 
+Without Rust: a released wheel installs the core with no compiler,
+`pip install rangtoy-<v>-cp310-abi3-manylinux_2_28_x86_64.whl` (or
+`pip install rangtoy` once published; Linux x86_64 and aarch64, glibc 2.28 or
+newer, CPython 3.10 or newer, one abi3 binary for every version). The wheel
+covers `rangtoy.core` and the core wrappers only: the flagging TV kernels
+(`RANG_TOY_LIB`), the Tricolour static masks and the archive drivers still
+need the checkout and cargo. Build wheels locally with
+`bash tools/wheel/build.sh outputs/wheel-<date>-NN` (docker) and test them
+with `bash tools/wheel/test.sh outputs/wheel-<date>-NN outputs/wheel-<date>-MM`
+(`research/wheel.md`).
+
 The core wrappers (`rangtoy.core*`) use the extension when it is importable
 and otherwise build and load the C ABI through ctypes at import time, as
 before. `RANG_CORE_BACKEND=extension` or `=ctypes` forces one; `RANG_CORE_LIB`

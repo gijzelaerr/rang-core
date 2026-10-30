@@ -26,7 +26,11 @@ git diff --check
 ```
 
 `bash tools/check-all.sh` runs all of the above with Rust 1.93 and reports
-PASS or FAIL per step.
+PASS or FAIL per step. Optional packaging check: `bash tools/wheel/build.sh
+outputs/wheel-<date>-NN` builds the manylinux wheel in docker and
+`bash tools/wheel/test.sh outputs/wheel-<date>-NN outputs/wheel-<date>-MM`
+installs it on clean CPython 3.10–3.14; `pytest` of the source tree tests
+the editable build, `tools/wheel/test.sh` the installed wheel.
 
 The PyO3 crate `core/py` has no `cargo test`: an extension-module cdylib
 cannot link a test binary, so it is tested from Python

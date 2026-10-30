@@ -4,6 +4,10 @@ Start with [STATE.md](STATE.md), then [active MeerKAT scope](meerkat-scope.md).
 This index routes new collaborators to evidence; it is not a novelty claim.
 Updated 2026-10-29 (wave 1 merged). User instructions and Git attribution live in [AGENTS.md](../AGENTS.md).
 
+New, 2026-10-30: big plan task W1, the [distributable wheel](wheel.md):
+manylinux_2_28 abi3 wheel tested on CPython 3.10–3.14 without cargo, a
+wheels workflow, publication left to the user.
+
 New, 2026-10-30: big plan task S1, the [simplification and optimisation
 review](simplification-review.md) with [profiles](results/profiles-20261030/):
 every archive reproduces, the core is single-threaded and FFT-bound, the
