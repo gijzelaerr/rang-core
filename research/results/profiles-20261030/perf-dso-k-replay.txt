@@ -1,0 +1,16 @@
+    79.27%  _core.abi3.so
+     5.00%  librang_toy.so
+     4.54%  libscipy_openblas64_-f48b354e.so
+     2.94%  libc.so.6
+     2.79%  python3.14
+     2.71%  _multiarray_umath.cpython-314-x86_64-linux-gnu.so
+     2.41%  libm.so.6
+     0.11%  cargo
+     0.08%  ld-linux-x86-64.so.2
+     0.05%  libcrypto.so.3
+     0.03%  _ctypes.cpython-314-x86_64-linux-gnu.so
+     0.02%  _umath_linalg.cpython-314-x86_64-linux-gnu.so
+     0.02%  libgcc_s.so.1
+     0.01%  _pcg64.cpython-314-x86_64-linux-gnu.so
+     0.01%  mtrand.cpython-314-x86_64-linux-gnu.so
+     0.01%  rustup

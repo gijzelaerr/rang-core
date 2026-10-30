@@ -1,0 +1,244 @@
+{
+ "chains": [
+  "K replay",
+  "K precondition",
+  "K checker",
+  "section 6",
+  "actions",
+  "injections",
+  "prospective",
+  "signal",
+  "trend mirror",
+  "trend",
+  "imaging replay",
+  "Tricolour controls"
+ ],
+ "groups": {
+  "core": {
+   "statements": 2627,
+   "executed": 1888,
+   "fraction": 0.719
+  },
+  "frozen_imported_by_core": {
+   "statements": 4281,
+   "executed": 1340,
+   "fraction": 0.313
+  },
+  "frozen_recipe_only": {
+   "statements": 1498,
+   "executed": 0,
+   "fraction": 0.0
+  },
+  "pointing": {
+   "statements": 783,
+   "executed": 19,
+   "fraction": 0.024
+  }
+ },
+ "files": {
+  "__init__": {
+   "statements": 34,
+   "executed": 19
+  },
+  "beams": {
+   "statements": 109,
+   "executed": 0
+  },
+  "blocked": {
+   "statements": 125,
+   "executed": 0
+  },
+  "core": {
+   "statements": 251,
+   "executed": 191
+  },
+  "core_actions": {
+   "statements": 80,
+   "executed": 58
+  },
+  "core_campaign": {
+   "statements": 517,
+   "executed": 372
+  },
+  "core_cli": {
+   "statements": 190,
+   "executed": 145
+  },
+  "core_compare": {
+   "statements": 65,
+   "executed": 5
+  },
+  "core_fetch": {
+   "statements": 224,
+   "executed": 80
+  },
+  "core_flag": {
+   "statements": 175,
+   "executed": 156
+  },
+  "core_grid": {
+   "statements": 118,
+   "executed": 75
+  },
+  "core_imaging": {
+   "statements": 320,
+   "executed": 282
+  },
+  "core_injections": {
+   "statements": 100,
+   "executed": 86
+  },
+  "core_ms": {
+   "statements": 111,
+   "executed": 50
+  },
+  "core_prospective": {
+   "statements": 89,
+   "executed": 75
+  },
+  "core_signal": {
+   "statements": 145,
+   "executed": 129
+  },
+  "core_weights": {
+   "statements": 108,
+   "executed": 77
+  },
+  "core_workflow": {
+   "statements": 47,
+   "executed": 43
+  },
+  "core_zarr": {
+   "statements": 87,
+   "executed": 64
+  },
+  "flagging": {
+   "statements": 151,
+   "executed": 119
+  },
+  "flagging_actions": {
+   "statements": 179,
+   "executed": 81
+  },
+  "flagging_balanced": {
+   "statements": 147,
+   "executed": 36
+  },
+  "flagging_caracal": {
+   "statements": 156,
+   "executed": 38
+  },
+  "flagging_comparators": {
+   "statements": 243,
+   "executed": 24
+  },
+  "flagging_concurrent": {
+   "statements": 126,
+   "executed": 0
+  },
+  "flagging_equivariance": {
+   "statements": 164,
+   "executed": 40
+  },
+  "flagging_imaging": {
+   "statements": 376,
+   "executed": 76
+  },
+  "flagging_influence": {
+   "statements": 281,
+   "executed": 108
+  },
+  "flagging_injections": {
+   "statements": 225,
+   "executed": 79
+  },
+  "flagging_next": {
+   "statements": 78,
+   "executed": 22
+  },
+  "flagging_parallel": {
+   "statements": 83,
+   "executed": 0
+  },
+  "flagging_prepared": {
+   "statements": 143,
+   "executed": 14
+  },
+  "flagging_prospective": {
+   "statements": 265,
+   "executed": 93
+  },
+  "flagging_provenance": {
+   "statements": 435,
+   "executed": 0
+  },
+  "flagging_public": {
+   "statements": 287,
+   "executed": 0
+  },
+  "flagging_response": {
+   "statements": 376,
+   "executed": 104
+  },
+  "flagging_signal": {
+   "statements": 295,
+   "executed": 61
+  },
+  "flagging_signal_guard": {
+   "statements": 323,
+   "executed": 125
+  },
+  "flagging_sky": {
+   "statements": 184,
+   "executed": 0
+  },
+  "flagging_structured": {
+   "statements": 89,
+   "executed": 18
+  },
+  "flagging_structured_proposals": {
+   "statements": 124,
+   "executed": 108
+  },
+  "flagging_transfer": {
+   "statements": 216,
+   "executed": 0
+  },
+  "flagging_trend": {
+   "statements": 135,
+   "executed": 120
+  },
+  "flagging_uncertainty": {
+   "statements": 167,
+   "executed": 0
+  },
+  "flagging_workflow": {
+   "statements": 333,
+   "executed": 33
+  },
+  "gauge": {
+   "statements": 43,
+   "executed": 0
+  },
+  "imaging_sensitivity": {
+   "statements": 128,
+   "executed": 23
+  },
+  "observability": {
+   "statements": 169,
+   "executed": 0
+  },
+  "pointing": {
+   "statements": 290,
+   "executed": 0
+  },
+  "projector": {
+   "statements": 70,
+   "executed": 18
+  },
+  "uncertainty": {
+   "statements": 13,
+   "executed": 0
+  }
+ }
+}

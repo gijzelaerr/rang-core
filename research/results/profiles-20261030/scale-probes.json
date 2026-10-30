@@ -1,0 +1,401 @@
+{
+ "note": "labelled probes on subsets of the K slice, load 13-19; one image, no section 6 reference, OPENBLAS_NUM_THREADS=1",
+ "probes": [
+  {
+   "run": "scale-b1-c2048",
+   "rows": 32,
+   "channels": 2048,
+   "cells": 65536,
+   "peak_rss_mb": 115.65625,
+   "stages": {
+    "decode": {
+     "wall": 1.0616,
+     "cpu": 1.0613,
+     "max_rss_mb": 80.8
+    },
+    "split": {
+     "wall": 0.011,
+     "cpu": 0.0104,
+     "max_rss_mb": 80.8
+    },
+    "solve_original": {
+     "wall": 0.0477,
+     "cpu": 0.0227,
+     "max_rss_mb": 80.8
+    },
+    "flag_tricolour-firstpass": {
+     "wall": 0.2723,
+     "cpu": 0.2723,
+     "max_rss_mb": 80.8
+    },
+    "solve_tricolour-firstpass": {
+     "wall": 0.0164,
+     "cpu": 0.0164,
+     "max_rss_mb": 80.8
+    },
+    "flag_tricolour-mild": {
+     "wall": 0.1569,
+     "cpu": 0.1569,
+     "max_rss_mb": 80.8
+    },
+    "solve_tricolour-mild": {
+     "wall": 0.0162,
+     "cpu": 0.0162,
+     "max_rss_mb": 80.8
+    },
+    "tv_loop": {
+     "wall": 0.0561,
+     "cpu": 0.0561,
+     "max_rss_mb": 83.4
+    },
+    "image_original": {
+     "wall": 7.595,
+     "cpu": 7.0226,
+     "max_rss_mb": 115.7
+    }
+   },
+   "loadavg_before_after": [
+    [
+     "15.82",
+     "8.84",
+     "4.27"
+    ],
+    [
+     "15.35",
+     "8.96",
+     "4.36"
+    ]
+   ]
+  },
+  {
+   "run": "scale-b2-c2048",
+   "rows": 64,
+   "channels": 2048,
+   "cells": 131072,
+   "peak_rss_mb": 168.21484375,
+   "stages": {
+    "decode": {
+     "wall": 1.4854,
+     "cpu": 1.2941,
+     "max_rss_mb": 80.9
+    },
+    "split": {
+     "wall": 0.0244,
+     "cpu": 0.0203,
+     "max_rss_mb": 83.1
+    },
+    "solve_original": {
+     "wall": 0.0872,
+     "cpu": 0.0488,
+     "max_rss_mb": 83.1
+    },
+    "flag_tricolour-firstpass": {
+     "wall": 0.6874,
+     "cpu": 0.6608,
+     "max_rss_mb": 83.1
+    },
+    "solve_tricolour-firstpass": {
+     "wall": 0.0302,
+     "cpu": 0.0302,
+     "max_rss_mb": 83.6
+    },
+    "flag_tricolour-mild": {
+     "wall": 0.3328,
+     "cpu": 0.3328,
+     "max_rss_mb": 86.1
+    },
+    "solve_tricolour-mild": {
+     "wall": 0.0403,
+     "cpu": 0.0403,
+     "max_rss_mb": 92.6
+    },
+    "tv_loop": {
+     "wall": 0.1718,
+     "cpu": 0.1711,
+     "max_rss_mb": 114.6
+    },
+    "image_original": {
+     "wall": 3.3813,
+     "cpu": 3.2576,
+     "max_rss_mb": 168.2
+    }
+   },
+   "loadavg_before_after": [
+    [
+     "15.35",
+     "8.96",
+     "4.36"
+    ],
+    [
+     "15.73",
+     "9.15",
+     "4.44"
+    ]
+   ]
+  },
+  {
+   "run": "scale-b3-c2048",
+   "rows": 96,
+   "channels": 2048,
+   "cells": 196608,
+   "peak_rss_mb": 226.6015625,
+   "stages": {
+    "decode": {
+     "wall": 1.5491,
+     "cpu": 1.299,
+     "max_rss_mb": 80.8
+    },
+    "split": {
+     "wall": 0.0298,
+     "cpu": 0.0293,
+     "max_rss_mb": 88.2
+    },
+    "solve_original": {
+     "wall": 0.147,
+     "cpu": 0.0719,
+     "max_rss_mb": 88.2
+    },
+    "flag_tricolour-firstpass": {
+     "wall": 1.278,
+     "cpu": 1.0469,
+     "max_rss_mb": 88.4
+    },
+    "solve_tricolour-firstpass": {
+     "wall": 0.0653,
+     "cpu": 0.0652,
+     "max_rss_mb": 99.7
+    },
+    "flag_tricolour-mild": {
+     "wall": 0.6944,
+     "cpu": 0.6183,
+     "max_rss_mb": 102.7
+    },
+    "solve_tricolour-mild": {
+     "wall": 0.0456,
+     "cpu": 0.0456,
+     "max_rss_mb": 113.3
+    },
+    "tv_loop": {
+     "wall": 0.3525,
+     "cpu": 0.3113,
+     "max_rss_mb": 160.1
+    },
+    "image_original": {
+     "wall": 4.9082,
+     "cpu": 3.8875,
+     "max_rss_mb": 226.6
+    }
+   },
+   "loadavg_before_after": [
+    [
+     "15.73",
+     "9.15",
+     "4.44"
+    ],
+    [
+     "16.23",
+     "9.47",
+     "4.60"
+    ]
+   ]
+  },
+  {
+   "run": "scale-b6-c1024",
+   "rows": 192,
+   "channels": 1024,
+   "cells": 196608,
+   "peak_rss_mb": 241.58984375,
+   "stages": {
+    "decode": {
+     "wall": 1.3379,
+     "cpu": 1.2487,
+     "max_rss_mb": 81.0
+    },
+    "split": {
+     "wall": 0.0459,
+     "cpu": 0.0333,
+     "max_rss_mb": 104.2
+    },
+    "solve_original": {
+     "wall": 0.2637,
+     "cpu": 0.0994,
+     "max_rss_mb": 114.9
+    },
+    "flag_tricolour-firstpass": {
+     "wall": 1.2802,
+     "cpu": 1.1307,
+     "max_rss_mb": 118.7
+    },
+    "solve_tricolour-firstpass": {
+     "wall": 0.079,
+     "cpu": 0.0778,
+     "max_rss_mb": 131.6
+    },
+    "flag_tricolour-mild": {
+     "wall": 0.9198,
+     "cpu": 0.6998,
+     "max_rss_mb": 132.7
+    },
+    "solve_tricolour-mild": {
+     "wall": 0.1068,
+     "cpu": 0.0729,
+     "max_rss_mb": 145.0
+    },
+    "tv_loop": {
+     "wall": 0.3194,
+     "cpu": 0.3107,
+     "max_rss_mb": 173.5
+    },
+    "image_original": {
+     "wall": 4.8585,
+     "cpu": 4.1241,
+     "max_rss_mb": 241.6
+    }
+   },
+   "loadavg_before_after": [
+    [
+     "17.18",
+     "10.24",
+     "4.98"
+    ],
+    [
+     "17.46",
+     "10.53",
+     "5.13"
+    ]
+   ]
+  },
+  {
+   "run": "scale-b6-c2048",
+   "rows": 192,
+   "channels": 2048,
+   "cells": 393216,
+   "peak_rss_mb": 400.98828125,
+   "stages": {
+    "decode": {
+     "wall": 1.1936,
+     "cpu": 1.1927,
+     "max_rss_mb": 81.0
+    },
+    "split": {
+     "wall": 0.0533,
+     "cpu": 0.0526,
+     "max_rss_mb": 90.1
+    },
+    "solve_original": {
+     "wall": 0.5704,
+     "cpu": 0.5118,
+     "max_rss_mb": 118.6
+    },
+    "flag_tricolour-firstpass": {
+     "wall": 2.3008,
+     "cpu": 2.0135,
+     "max_rss_mb": 126.0
+    },
+    "solve_tricolour-firstpass": {
+     "wall": 0.4227,
+     "cpu": 0.4227,
+     "max_rss_mb": 148.6
+    },
+    "flag_tricolour-mild": {
+     "wall": 1.2748,
+     "cpu": 1.2101,
+     "max_rss_mb": 153.1
+    },
+    "solve_tricolour-mild": {
+     "wall": 0.4096,
+     "cpu": 0.4095,
+     "max_rss_mb": 178.5
+    },
+    "tv_loop": {
+     "wall": 2.3829,
+     "cpu": 2.3777,
+     "max_rss_mb": 268.6
+    },
+    "image_original": {
+     "wall": 7.9452,
+     "cpu": 6.3006,
+     "max_rss_mb": 401.0
+    }
+   },
+   "loadavg_before_after": [
+    [
+     "16.23",
+     "9.47",
+     "4.60"
+    ],
+    [
+     "16.84",
+     "9.94",
+     "4.83"
+    ]
+   ]
+  },
+  {
+   "run": "scale-b6-c512",
+   "rows": 192,
+   "channels": 512,
+   "cells": 98304,
+   "peak_rss_mb": 172.11328125,
+   "stages": {
+    "decode": {
+     "wall": 1.5841,
+     "cpu": 1.3153,
+     "max_rss_mb": 80.9
+    },
+    "split": {
+     "wall": 0.0203,
+     "cpu": 0.0194,
+     "max_rss_mb": 104.1
+    },
+    "solve_original": {
+     "wall": 0.1565,
+     "cpu": 0.0622,
+     "max_rss_mb": 104.1
+    },
+    "flag_tricolour-firstpass": {
+     "wall": 0.6502,
+     "cpu": 0.6062,
+     "max_rss_mb": 104.1
+    },
+    "solve_tricolour-firstpass": {
+     "wall": 0.0524,
+     "cpu": 0.0524,
+     "max_rss_mb": 105.7
+    },
+    "flag_tricolour-mild": {
+     "wall": 0.4326,
+     "cpu": 0.3749,
+     "max_rss_mb": 106.5
+    },
+    "solve_tricolour-mild": {
+     "wall": 0.0659,
+     "cpu": 0.0659,
+     "max_rss_mb": 112.5
+    },
+    "tv_loop": {
+     "wall": 0.3754,
+     "cpu": 0.3754,
+     "max_rss_mb": 127.7
+    },
+    "image_original": {
+     "wall": 4.3065,
+     "cpu": 3.5494,
+     "max_rss_mb": 172.1
+    }
+   },
+   "loadavg_before_after": [
+    [
+     "16.84",
+     "9.94",
+     "4.83"
+    ],
+    [
+     "17.18",
+     "10.24",
+     "4.98"
+    ]
+   ]
+  }
+ ]
+}
