@@ -1,6 +1,6 @@
 # Tricolour: an integer `spike_width_time` compiles the SumThreshold kernel twice
 
-Repository: ratt-ru/tricolour. Status: **to be filed** (URL recorded here once filed).
+Repository: ratt-ru/tricolour. Status: **filed 2026-10-30, https://github.com/ratt-ru/tricolour/issues/111**.
 Checked 2026-10-30 on Tricolour 0.2.1 (PyPI), Numba 0.60.0, NumPy 2.0.2, Python 3.12;
 `master` 7514d81 and 0.5.0-dev b01ac8f have the same `default.yaml` line and kernels.
 Origin: the 39 s second compilation in [core-d-tricolour.md](../core-d-tricolour.md), section 5.

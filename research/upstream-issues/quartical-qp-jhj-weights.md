@@ -1,6 +1,6 @@
 # QuartiCal: the qp half of the complex-term JHJ uses the pq weight order
 
-Repository: ratt-ru/QuartiCal. Status: **to be filed** (URL recorded here once filed).
+Repository: ratt-ru/QuartiCal. Status: **filed 2026-10-30, https://github.com/ratt-ru/QuartiCal/issues/452**.
 Checked 2026-10-30 on QuartiCal 0.2.7 (PyPI, identical to `main` 942f77f), Numba 0.68.1,
 NumPy 2.5.4, Python 3.13; v0.2.8-dev (059c806) inspected, not run. Origin: rang's port of the
 `complex` term ([stack-consolidation-feasibility.md](../stack-consolidation-feasibility.md)).
