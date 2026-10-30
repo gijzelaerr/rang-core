@@ -54,6 +54,8 @@
 
 use std::f64::consts::PI;
 
+use rayon::prelude::*;
+
 /// Ratio between the median absolute deviation and the standard deviation of
 /// a Gaussian distribution (`tricolour.flagging.MAD_NORMAL`).
 pub const MAD_NORMAL: f64 = 1.4826;
@@ -328,21 +330,57 @@ fn interpolate_nans_1d(data: &mut [f32]) {
     }
 }
 
+/// Reusable buffers of the box filters, one set per worker (task P3,
+/// `research/p3-sumthreshold.md`). Contents never carry over between calls:
+/// every user clears and resizes what it takes.
+#[derive(Default)]
+struct Scratch {
+    padded: Vec<f32>,
+    acc: Vec<f64>,
+    lanes: Vec<f32>,
+    weight: Vec<f32>,
+}
+
+/// Rows of a block filtered together along its second axis: the rows become
+/// the lanes of the column-wise kernels (`box_gaussian_filter`,
+/// `sum_threshold`).
+const LANE_GROUP: usize = 64;
+
 /// `_box_gaussian_filter1d` along the first axis of a `(rows, cols)` block,
 /// in place: `passes` boxcar sums of radius `r` in a double accumulator with
 /// float32 storage between passes, then division by `(2r+1)^passes` in
 /// float32 (Numba evaluates `float32 ** int` in float32).
+#[cfg(test)]
 fn box_filter_axis0(buf: &mut [f32], rows: usize, cols: usize, r: usize, passes: usize) {
+    let (mut padded, mut acc) = (Vec::new(), Vec::new());
+    box_filter_axis0_with(buf, rows, cols, r, passes, &mut padded, &mut acc);
+}
+
+/// `box_filter_axis0` with caller-owned buffers. Every column is an
+/// independent lane with the same sequence of float operations as a
+/// one-column call, so grouping columns (or transposed rows) into lanes does
+/// not change any value; the lane loops are what the compiler vectorises.
+fn box_filter_axis0_with(
+    buf: &mut [f32],
+    rows: usize,
+    cols: usize,
+    r: usize,
+    passes: usize,
+    padded: &mut Vec<f32>,
+    s: &mut Vec<f64>,
+) {
     if rows == 0 || passes == 0 {
         return;
     }
     let d = 2 * r + 1;
     let padding = r * passes;
     let prow = rows + padding;
-    let mut padded = vec![0f32; prow * cols];
+    padded.clear();
+    padded.resize(prow * cols, 0.0);
     padded[padding * cols..].copy_from_slice(&buf[..rows * cols]);
     let mut prev_start = padding as isize;
-    let mut s = vec![0f64; cols];
+    s.clear();
+    s.resize(cols, 0.0);
     for p in 1..=passes {
         s.fill(0.0);
         let mut start = padding as isize - 2 * (r * p) as isize;
@@ -353,35 +391,118 @@ fn box_filter_axis0(buf: &mut [f32], rows: usize, cols: usize, r: usize, passes:
         let pre_end = (start + 2 * r as isize).min(prow as isize);
         for i in prev_start..pre_end {
             let row = &padded[i as usize * cols..(i as usize + 1) * cols];
-            for (acc, &v) in s.iter_mut().zip(row) {
-                *acc += v as f64;
-            }
+            lanes_add(s, row);
         }
         for i in start..tail {
             let i = i as usize;
             let (head, right) = padded.split_at_mut((i + 2 * r) * cols);
-            let current = &mut head[i * cols..(i + 1) * cols];
-            for ((acc, value), &incoming) in s.iter_mut().zip(current).zip(&right[..cols]) {
-                *acc += incoming as f64;
-                let prev = *value;
-                *value = *acc as f32;
-                *acc -= prev as f64;
-            }
+            lanes_slide(s, &mut head[i * cols..(i + 1) * cols], &right[..cols]);
         }
         for i in tail.max(start)..stop {
             let i = i as usize;
-            let current = &mut padded[i * cols..(i + 1) * cols];
-            for (acc, value) in s.iter_mut().zip(current) {
-                let prev = *value;
-                *value = *acc as f32;
-                *acc -= prev as f64;
-            }
+            lanes_drain(s, &mut padded[i * cols..(i + 1) * cols]);
         }
         prev_start = start;
     }
     let scale = powi_f32(d as f32, passes);
     for (out, &v) in buf[..rows * cols].iter_mut().zip(&padded[..rows * cols]) {
         *out = v / scale;
+    }
+}
+
+// The lane loops of the box filter. Blocks of `LANES` lanes are loaded into
+// registers, updated and stored back, so the compiler emits vector
+// instructions without having to prove that the reused buffers do not
+// overlap; every lane performs the scalar loop's operations in its order.
+
+/// Lanes per register block (two AVX2 registers of doubles).
+const LANES: usize = 8;
+
+/// `acc += row` in double precision.
+#[inline(always)]
+fn lanes_add(acc: &mut [f64], row: &[f32]) {
+    let n = acc.len().min(row.len());
+    let (acc, row) = (&mut acc[..n], &row[..n]);
+    let mut a_blocks = acc.chunks_exact_mut(LANES);
+    let mut r_blocks = row.chunks_exact(LANES);
+    for (a, r) in (&mut a_blocks).zip(&mut r_blocks) {
+        let mut av: [f64; LANES] = a.try_into().expect("block");
+        let rv: [f32; LANES] = r.try_into().expect("block");
+        for k in 0..LANES {
+            av[k] += rv[k] as f64;
+        }
+        a.copy_from_slice(&av);
+    }
+    for (a, &v) in a_blocks
+        .into_remainder()
+        .iter_mut()
+        .zip(r_blocks.remainder())
+    {
+        *a += v as f64;
+    }
+}
+
+/// One step of the running boxcar: take in `incoming`, store the sum in
+/// `current` as float32, drop the value `current` held.
+#[inline(always)]
+fn lanes_slide(acc: &mut [f64], current: &mut [f32], incoming: &[f32]) {
+    let n = acc.len().min(current.len()).min(incoming.len());
+    let (acc, current, incoming) = (&mut acc[..n], &mut current[..n], &incoming[..n]);
+    let mut a_blocks = acc.chunks_exact_mut(LANES);
+    let mut c_blocks = current.chunks_exact_mut(LANES);
+    let mut x_blocks = incoming.chunks_exact(LANES);
+    for ((a, c), x) in (&mut a_blocks).zip(&mut c_blocks).zip(&mut x_blocks) {
+        let mut av: [f64; LANES] = (&*a).try_into().expect("block");
+        let mut cv: [f32; LANES] = (&*c).try_into().expect("block");
+        let xv: [f32; LANES] = x.try_into().expect("block");
+        for k in 0..LANES {
+            av[k] += xv[k] as f64;
+            let prev = cv[k];
+            cv[k] = av[k] as f32;
+            av[k] -= prev as f64;
+        }
+        a.copy_from_slice(&av);
+        c.copy_from_slice(&cv);
+    }
+    for ((a, value), &x) in a_blocks
+        .into_remainder()
+        .iter_mut()
+        .zip(c_blocks.into_remainder())
+        .zip(x_blocks.remainder())
+    {
+        *a += x as f64;
+        let prev = *value;
+        *value = *a as f32;
+        *a -= prev as f64;
+    }
+}
+
+/// The boxcar's tail: store the sum, drop the value `current` held.
+#[inline(always)]
+fn lanes_drain(acc: &mut [f64], current: &mut [f32]) {
+    let n = acc.len().min(current.len());
+    let (acc, current) = (&mut acc[..n], &mut current[..n]);
+    let mut a_blocks = acc.chunks_exact_mut(LANES);
+    let mut c_blocks = current.chunks_exact_mut(LANES);
+    for (a, c) in (&mut a_blocks).zip(&mut c_blocks) {
+        let mut av: [f64; LANES] = (&*a).try_into().expect("block");
+        let mut cv: [f32; LANES] = (&*c).try_into().expect("block");
+        for k in 0..LANES {
+            let prev = cv[k];
+            cv[k] = av[k] as f32;
+            av[k] -= prev as f64;
+        }
+        a.copy_from_slice(&av);
+        c.copy_from_slice(&cv);
+    }
+    for (a, value) in a_blocks
+        .into_remainder()
+        .iter_mut()
+        .zip(c_blocks.into_remainder())
+    {
+        let prev = *value;
+        *value = *a as f32;
+        *a -= prev as f64;
     }
 }
 
@@ -404,32 +525,76 @@ fn box_radius(sigma: f64, passes: usize) -> usize {
     (0.5 * (12.0 * (sigma * sigma) / passes as f64 + 1.0).sqrt()) as i64 as usize
 }
 
+/// `out[j * rows + i] = src[i * cols + j]` for a `(rows, cols)` block.
+fn transpose<T: Copy>(src: &[T], rows: usize, cols: usize, out: &mut [T]) {
+    for (i, row) in src[..rows * cols].chunks_exact(cols).enumerate() {
+        for (j, &v) in row.iter().enumerate() {
+            out[j * rows + i] = v;
+        }
+    }
+}
+
 /// `_box_gaussian_filter` on a `(rows, cols)` block, in place.
-fn box_gaussian_filter(buf: &mut [f32], rows: usize, cols: usize, sigma: [f64; 2]) {
+fn box_gaussian_filter(
+    buf: &mut [f32],
+    rows: usize,
+    cols: usize,
+    sigma: [f64; 2],
+    scratch: &mut Scratch,
+) {
     let r0 = box_radius(sigma[0], PASSES);
     let r1 = box_radius(sigma[1], PASSES);
+    let Scratch {
+        padded, acc, lanes, ..
+    } = scratch;
     if r0 > 0 {
         // Column chunks keep the padded working set in cache, as Tricolour's
         // `step = 256` does; columns are independent, so the result is the
         // same.
         const STEP: usize = 256;
-        let mut scratch = vec![0f32; rows * STEP];
+        lanes.clear();
+        lanes.resize(rows * STEP.min(cols), 0.0);
         for c0 in (0..cols).step_by(STEP) {
             let width = (cols - c0).min(STEP);
             for i in 0..rows {
-                scratch[i * width..(i + 1) * width]
+                lanes[i * width..(i + 1) * width]
                     .copy_from_slice(&buf[i * cols + c0..i * cols + c0 + width]);
             }
-            box_filter_axis0(&mut scratch[..rows * width], rows, width, r0, PASSES);
+            box_filter_axis0_with(
+                &mut lanes[..rows * width],
+                rows,
+                width,
+                r0,
+                PASSES,
+                padded,
+                acc,
+            );
             for i in 0..rows {
                 buf[i * cols + c0..i * cols + c0 + width]
-                    .copy_from_slice(&scratch[i * width..(i + 1) * width]);
+                    .copy_from_slice(&lanes[i * width..(i + 1) * width]);
             }
         }
     }
     if r1 > 0 {
-        for i in 0..rows {
-            box_filter_axis0(&mut buf[i * cols..(i + 1) * cols], cols, 1, r1, PASSES);
+        // Along the second axis: groups of rows transposed into lanes, so
+        // that each row is filtered with the same operations as a
+        // one-column call but the rows advance together (task P3).
+        lanes.clear();
+        lanes.resize(cols * LANE_GROUP.min(rows), 0.0);
+        for i0 in (0..rows).step_by(LANE_GROUP) {
+            let group = (rows - i0).min(LANE_GROUP);
+            let block = &mut buf[i0 * cols..(i0 + group) * cols];
+            transpose(block, group, cols, lanes);
+            box_filter_axis0_with(
+                &mut lanes[..cols * group],
+                cols,
+                group,
+                r1,
+                PASSES,
+                padded,
+                acc,
+            );
+            transpose(&lanes[..cols * group], cols, group, block);
         }
     }
 }
@@ -443,14 +608,17 @@ fn masked_gaussian_filter(
     cols: usize,
     sigma: [f64; 2],
     out: &mut [f32],
+    scratch: &mut Scratch,
 ) {
-    let mut weight = vec![0f32; rows * cols];
+    let mut weight = std::mem::take(&mut scratch.weight);
+    weight.clear();
+    weight.resize(rows * cols, 0.0);
     for idx in 0..rows * cols {
         weight[idx] = if flags[idx] { 0.0 } else { 1.0 };
         out[idx] = if flags[idx] { 0.0 } else { data[idx] };
     }
-    box_gaussian_filter(&mut weight, rows, cols, sigma);
-    box_gaussian_filter(out, rows, cols, sigma);
+    box_gaussian_filter(&mut weight, rows, cols, sigma, scratch);
+    box_gaussian_filter(out, rows, cols, sigma, scratch);
     for idx in 0..rows * cols {
         if weight[idx] == 0.0 {
             out[idx] = f32::NAN;
@@ -458,6 +626,7 @@ fn masked_gaussian_filter(
             out[idx] /= weight[idx];
         }
     }
+    scratch.weight = weight;
 }
 
 /// `_get_background2d` on a `(rows, cols)` block.
@@ -471,6 +640,7 @@ fn background_2d(
     spike_width: [f64; 2],
     reject_threshold: f64,
     chunk_ends: &[usize],
+    scratch: &mut Scratch,
 ) -> Vec<f32> {
     let mut flags = flags.to_vec();
     let mut background = vec![0f32; rows * cols];
@@ -482,7 +652,7 @@ fn background_2d(
             extend_factor as f64 * spike_width[0],
             extend_factor as f64 * spike_width[1],
         ];
-        masked_gaussian_filter(data, &flags, rows, cols, sigma, &mut background);
+        masked_gaussian_filter(data, &flags, rows, cols, sigma, &mut background, scratch);
         for c in 0..chunk_ends.len() - 1 {
             let (lo, hi) = (chunk_ends[c], chunk_ends[c + 1]);
             residual_values.clear();
@@ -508,7 +678,15 @@ fn background_2d(
         }
         extend_factor -= 1;
     }
-    masked_gaussian_filter(data, &flags, rows, cols, spike_width, &mut background);
+    masked_gaussian_filter(
+        data,
+        &flags,
+        rows,
+        cols,
+        spike_width,
+        &mut background,
+        scratch,
+    );
     for i in 0..rows {
         interpolate_nans_1d(&mut background[i * cols..(i + 1) * cols]);
     }
@@ -662,18 +840,31 @@ fn sum_threshold(
         1 => {
             let default = [0, n1];
             let chunks = chunks.unwrap_or(&default);
-            for i in 0..n0 {
+            // Each row is an independent one-column problem; groups of rows
+            // are transposed into the lanes of one axis-0 call, which keeps
+            // every lane's operations as in a one-column call (task P3).
+            let group_max = LANE_GROUP.min(n0);
+            let mut lane_data = vec![0f32; n1 * group_max];
+            let mut lane_flags = vec![false; n1 * group_max];
+            let mut lane_out = vec![false; n1 * group_max];
+            for i0 in (0..n0).step_by(LANE_GROUP) {
+                let group = (n0 - i0).min(LANE_GROUP);
+                let len = n1 * group;
+                let rows = i0 * n1..(i0 + group) * n1;
+                transpose(&data[rows.clone()], group, n1, &mut lane_data);
+                transpose(&flags[rows.clone()], group, n1, &mut lane_flags);
                 sum_threshold_axis0(
-                    &data[i * n1..(i + 1) * n1],
-                    &flags[i * n1..(i + 1) * n1],
-                    &mut out[i * n1..(i + 1) * n1],
+                    &lane_data[..len],
+                    &lane_flags[..len],
+                    &mut lane_out[..len],
                     n1,
-                    1,
+                    group,
                     windows,
                     outlier_nsigma,
                     rho,
                     chunks,
                 );
+                transpose(&lane_out[..len], n1, group, &mut out[rows]);
             }
         }
         0 => {
@@ -818,6 +1009,7 @@ fn baseline_flags(
     windows_time: &[i64],
     windows_freq: &[i64],
     chunk_ends: &[usize],
+    scratch: &mut Scratch,
 ) {
     let (mut spec_data, spec_flags) = time_median(data, flags, ntime, a_freq);
     let spec_background = background_2d(
@@ -829,6 +1021,7 @@ fn baseline_flags(
         [0.0, p.spike_width_freq],
         p.background_reject,
         chunk_ends,
+        scratch,
     );
     for (v, b) in spec_data.iter_mut().zip(&spec_background) {
         *v -= *b;
@@ -858,6 +1051,7 @@ fn baseline_flags(
         [p.spike_width_time, p.spike_width_freq],
         p.background_reject,
         chunk_ends,
+        scratch,
     );
     for (v, b) in data.iter_mut().zip(&background) {
         *v -= *b;
@@ -945,34 +1139,42 @@ pub fn sum_threshold_flagger(window: &Window, flags: &[bool], p: &SumThresholdPa
         .collect();
     let plane = ntime * nchan;
     let mut out = vec![false; nbl * plane];
-    let mut iter_flags = flags.to_vec();
-    for _ in 0..p.num_major_iterations {
-        for b in 0..nbl {
+    if plane == 0 {
+        return out;
+    }
+    // Baselines are independent: a major iteration reads and writes only the
+    // baseline's own plane, so each baseline runs all its major iterations
+    // on one worker, with the operations of the serial loop (task P3).
+    let mut iter_flags = flags[..nbl * plane].to_vec();
+    out.par_chunks_mut(plane)
+        .zip(iter_flags.par_chunks_mut(plane))
+        .enumerate()
+        .for_each_init(Scratch::default, |scratch, (b, (out_b, iter_b))| {
             let re = &window.re[b * plane..(b + 1) * plane];
             let im = &window.im[b * plane..(b + 1) * plane];
-            let in_flags = &iter_flags[b * plane..(b + 1) * plane];
-            let (mut data, mut a_flags) = average_freq(re, im, in_flags, ntime, nchan, factor);
-            let out_b = &mut out[b * plane..(b + 1) * plane];
-            baseline_flags(
-                &mut data,
-                &mut a_flags,
-                ntime,
-                a_freq,
-                out_b,
-                nchan,
-                p,
-                &windows_time,
-                &windows_freq,
-                &chunk_ends,
-            );
-            for idx in 0..plane {
-                out_b[idx] = out_b[idx] || re[idx].is_nan() || im[idx].is_nan();
+            for _ in 0..p.num_major_iterations {
+                let (mut data, mut a_flags) = average_freq(re, im, iter_b, ntime, nchan, factor);
+                baseline_flags(
+                    &mut data,
+                    &mut a_flags,
+                    ntime,
+                    a_freq,
+                    out_b,
+                    nchan,
+                    p,
+                    &windows_time,
+                    &windows_freq,
+                    &chunk_ends,
+                    scratch,
+                );
+                for idx in 0..plane {
+                    out_b[idx] = out_b[idx] || re[idx].is_nan() || im[idx].is_nan();
+                }
+                for (i, o) in iter_b.iter_mut().zip(out_b.iter()) {
+                    *i |= *o;
+                }
             }
-        }
-        for (i, o) in iter_flags.iter_mut().zip(&out) {
-            *i |= *o;
-        }
-    }
+        });
     out
 }
 
@@ -1046,76 +1248,119 @@ pub fn uvcontsub_flagger(
 ) -> Vec<bool> {
     let (nbl, ntime, nchan) = (window.nbl, window.ntime, window.nchan);
     let plane = ntime * nchan;
-    let mut result = flags.to_vec();
+    let mut result = flags[..nbl * plane].to_vec();
+    if plane == 0 {
+        return result;
+    }
     let sigma32 = sigma as f32;
-    let mut avg_re = vec![0f32; nchan];
-    let mut avg_im = vec![0f32; nchan];
-    let mut residual = vec![0f32; plane];
-    let mut scratch = vec![0f32; plane];
-    for cycle in 0..major_cycles {
-        for b in 0..nbl {
+    // No coupling between baselines in this flagger: a cycle reads and
+    // writes only the baseline's own plane, so each baseline runs all its
+    // cycles on one worker, in the serial loop's order (task P3).
+    let buffers = || {
+        (
+            vec![0f32; nchan],
+            vec![0f32; nchan],
+            vec![0f32; plane],
+            vec![0f32; plane],
+        )
+    };
+    result.par_chunks_mut(plane).enumerate().for_each_init(
+        buffers,
+        |(avg_re, avg_im, residual, scratch), (b, current)| {
             let re = &window.re[b * plane..(b + 1) * plane];
             let im = &window.im[b * plane..(b + 1) * plane];
-            let current = &result[b * plane..(b + 1) * plane];
-            if current.iter().all(|&f| f) {
-                continue;
+            for cycle in 0..major_cycles {
+                uvcontsub_cycle(
+                    re,
+                    im,
+                    current,
+                    ntime,
+                    nchan,
+                    cycle >= or_original_from_cycle,
+                    taylor_degrees,
+                    sigma32,
+                    (
+                        &mut avg_re[..],
+                        &mut avg_im[..],
+                        &mut residual[..],
+                        &mut scratch[..],
+                    ),
+                );
             }
-            // nanmean over time of the complex64 values with flagged samples
-            // set to NaN: a sequential float32 sum of the non-NaN samples,
-            // divided in double precision as NumPy's complex128 loop does
-            // (multiplication by the reciprocal), rounded to complex64.
-            for f in 0..nchan {
-                let (mut tr, mut ti, mut count) = (0.0f32, 0.0f32, 0usize);
-                for t in 0..ntime {
-                    let idx = t * nchan + f;
-                    let nan = current[idx] || re[idx].is_nan() || im[idx].is_nan();
-                    if !nan {
-                        tr += re[idx];
-                        ti += im[idx];
-                        count += 1;
-                    }
-                }
-                if count == 0 {
-                    avg_re[f] = 0.0;
-                    avg_im[f] = 0.0;
-                } else {
-                    let scl = 1.0 / count as f64;
-                    avg_re[f] = (tr as f64 * scl) as f32;
-                    avg_im[f] = (ti as f64 * scl) as f32;
-                }
-            }
-            let (fit_re, fit_im) = lowpass_fit(&avg_re, &avg_im, taylor_degrees);
-            for t in 0..ntime {
-                for f in 0..nchan {
-                    let idx = t * nchan + f;
-                    residual[idx] = (re[idx] - fit_re[f]).hypot(im[idx] - fit_im[f]);
-                }
-            }
-            for idx in 0..plane {
-                scratch[idx] = if current[idx] {
-                    f32::NAN
-                } else {
-                    residual[idx]
-                };
-            }
-            let median = nanmedian_f32(&scratch);
-            for value in scratch.iter_mut() {
-                *value = (value.abs() - median).abs();
-            }
-            let mad = nanmedian_f32(&scratch);
-            let threshold = sigma32 * mad;
-            let target = &mut result[b * plane..(b + 1) * plane];
-            for idx in 0..plane {
-                let new = residual[idx] > threshold;
-                if cycle >= or_original_from_cycle {
-                    target[idx] |= new;
-                } else {
-                    target[idx] = new;
-                }
+        },
+    );
+    result
+}
+
+/// One cycle of `uvcontsub_flagger` on one baseline's plane, in place.
+#[allow(clippy::too_many_arguments)]
+fn uvcontsub_cycle(
+    re: &[f32],
+    im: &[f32],
+    current: &mut [bool],
+    ntime: usize,
+    nchan: usize,
+    or_original: bool,
+    taylor_degrees: usize,
+    sigma32: f32,
+    (avg_re, avg_im, residual, scratch): (&mut [f32], &mut [f32], &mut [f32], &mut [f32]),
+) {
+    let plane = ntime * nchan;
+    if current.iter().all(|&f| f) {
+        return;
+    }
+    // nanmean over time of the complex64 values with flagged samples
+    // set to NaN: a sequential float32 sum of the non-NaN samples,
+    // divided in double precision as NumPy's complex128 loop does
+    // (multiplication by the reciprocal), rounded to complex64.
+    for f in 0..nchan {
+        let (mut tr, mut ti, mut count) = (0.0f32, 0.0f32, 0usize);
+        for t in 0..ntime {
+            let idx = t * nchan + f;
+            let nan = current[idx] || re[idx].is_nan() || im[idx].is_nan();
+            if !nan {
+                tr += re[idx];
+                ti += im[idx];
+                count += 1;
             }
         }
+        if count == 0 {
+            avg_re[f] = 0.0;
+            avg_im[f] = 0.0;
+        } else {
+            let scl = 1.0 / count as f64;
+            avg_re[f] = (tr as f64 * scl) as f32;
+            avg_im[f] = (ti as f64 * scl) as f32;
+        }
     }
-    result
+    let (fit_re, fit_im) = lowpass_fit(avg_re, avg_im, taylor_degrees);
+    for t in 0..ntime {
+        for f in 0..nchan {
+            let idx = t * nchan + f;
+            residual[idx] = (re[idx] - fit_re[f]).hypot(im[idx] - fit_im[f]);
+        }
+    }
+    for idx in 0..plane {
+        scratch[idx] = if current[idx] {
+            f32::NAN
+        } else {
+            residual[idx]
+        };
+    }
+    let median = nanmedian_f32(scratch);
+    for value in scratch.iter_mut() {
+        *value = (value.abs() - median).abs();
+    }
+    let mad = nanmedian_f32(scratch);
+    let threshold = sigma32 * mad;
+    for idx in 0..plane {
+        let new = residual[idx] > threshold;
+        if or_original {
+            current[idx] |= new;
+        } else {
+            current[idx] = new;
+        }
+    }
 }
 
 /// `flag_nans_and_zeros`: "value is zero or NaN", which the executor ORs
@@ -1123,7 +1368,7 @@ pub fn uvcontsub_flagger(
 pub fn flag_nans_zeros(window: &Window) -> Vec<bool> {
     window
         .re
-        .iter()
+        .par_iter()
         .zip(&window.im)
         .map(|(&r, &i)| (r == 0.0 && i == 0.0) || r.is_nan() || i.is_nan())
         .collect()
@@ -1149,23 +1394,26 @@ pub fn static_mask(ctx: &Context, window: &Window, uv_low: f64, uv_high: f64) ->
     }
     let plane = window.ntime * nchan;
     let mut out = vec![false; window.nbl * plane];
-    for (b, &(a1, a2)) in ctx.baselines.iter().enumerate() {
-        let mut d2 = 0.0f64;
-        for k in 0..3 {
-            let delta = ctx.antenna_position[a1 * 3 + k] - ctx.antenna_position[a2 * 3 + k];
-            d2 += delta * delta;
-        }
-        d2 *= 0.5;
-        let low = uv_low.min(uv_high);
-        let high = uv_low.max(uv_high);
-        if d2 >= low * low && d2 <= high * high {
-            for t in 0..window.ntime {
-                for f in 0..nchan {
-                    out[b * plane + t * nchan + f] = channel_mask[f];
+    if plane == 0 {
+        return out;
+    }
+    out.par_chunks_mut(plane)
+        .zip(ctx.baselines.par_iter())
+        .for_each(|(out_b, &(a1, a2))| {
+            let mut d2 = 0.0f64;
+            for k in 0..3 {
+                let delta = ctx.antenna_position[a1 * 3 + k] - ctx.antenna_position[a2 * 3 + k];
+                d2 += delta * delta;
+            }
+            d2 *= 0.5;
+            let low = uv_low.min(uv_high);
+            let high = uv_low.max(uv_high);
+            if d2 >= low * low && d2 <= high * high {
+                for row in out_b.chunks_exact_mut(nchan) {
+                    row.copy_from_slice(&channel_mask);
                 }
             }
-        }
-    }
+        });
     out
 }
 
@@ -1308,6 +1556,155 @@ mod tests {
         assert_eq!(polarised_intensity(&vis, &map), 0.0);
         let vis = [(2.0f32, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 0.0)];
         assert_eq!(polarised_intensity(&vis, &map), 1.0);
+    }
+
+    /// Deterministic xorshift noise with sparse bright spikes and flags.
+    fn noise(n: usize, seed: u64) -> (Vec<f32>, Vec<bool>) {
+        let mut state = seed | 1;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            (state >> 11) as f64 / (1u64 << 53) as f64
+        };
+        let mut data = Vec::with_capacity(n);
+        let mut flags = Vec::with_capacity(n);
+        for _ in 0..n {
+            let mut v = (0..4).map(|_| next()).sum::<f64>() - 2.0;
+            if next() < 0.01 {
+                v += 40.0 * next();
+            }
+            data.push(v as f32);
+            flags.push(next() < 0.05);
+        }
+        (data, flags)
+    }
+
+    /// `_box_gaussian_filter` in Tricolour's per-row form: the time axis in
+    /// one call over all columns, the frequency axis one row at a time with
+    /// one column per call (task D's arrangement before task P3).
+    fn box_gaussian_filter_reference(buf: &mut [f32], rows: usize, cols: usize, sigma: [f64; 2]) {
+        let r0 = box_radius(sigma[0], PASSES);
+        let r1 = box_radius(sigma[1], PASSES);
+        if r0 > 0 {
+            box_filter_axis0(buf, rows, cols, r0, PASSES);
+        }
+        if r1 > 0 {
+            for i in 0..rows {
+                box_filter_axis0(&mut buf[i * cols..(i + 1) * cols], cols, 1, r1, PASSES);
+            }
+        }
+    }
+
+    fn bits(values: &[f32]) -> Vec<u32> {
+        values.iter().map(|v| v.to_bits()).collect()
+    }
+
+    #[test]
+    fn lane_grouped_box_filter_equals_per_row_calls() {
+        let mut scratch = Scratch::default();
+        for &(rows, cols, sigma) in &[
+            (1usize, 4096usize, [0.0, 10.0]),
+            (14, 4096, [12.5, 10.0]),
+            (70, 301, [2.0, 3.7]),
+            (129, 37, [0.0, 1.5]),
+            (5, 3, [6.0, 9.0]),
+        ] {
+            let (data, _) = noise(rows * cols, (rows * 31 + cols) as u64);
+            let mut expected = data.clone();
+            box_gaussian_filter_reference(&mut expected, rows, cols, sigma);
+            let mut got = data.clone();
+            box_gaussian_filter(&mut got, rows, cols, sigma, &mut scratch);
+            assert_eq!(bits(&got), bits(&expected), "{rows}x{cols} {sigma:?}");
+        }
+    }
+
+    #[test]
+    fn lane_grouped_sum_threshold_equals_per_row_calls() {
+        let windows = [1i64, 2, 4, 8, 16];
+        for &(n0, n1, nchunks) in &[(1usize, 4096usize, 10usize), (70, 257, 3), (14, 409, 1)] {
+            let (data, flags) = noise(n0 * n1, (n0 * 7 + n1) as u64);
+            let chunks = linspace_int(n1, nchunks);
+            let mut expected = vec![false; n0 * n1];
+            for i in 0..n0 {
+                sum_threshold_axis0(
+                    &data[i * n1..(i + 1) * n1],
+                    &flags[i * n1..(i + 1) * n1],
+                    &mut expected[i * n1..(i + 1) * n1],
+                    n1,
+                    1,
+                    &windows,
+                    4.5,
+                    1.3,
+                    &chunks,
+                );
+            }
+            let got = sum_threshold(&data, &flags, n0, n1, 1, &windows, 4.5, 1.3, Some(&chunks));
+            assert!(
+                expected.iter().any(|&f| f),
+                "the test data must flag something"
+            );
+            assert_eq!(got, expected, "{n0}x{n1}");
+        }
+    }
+
+    fn default_params() -> SumThresholdParams {
+        SumThresholdParams {
+            outlier_nsigma: 4.5,
+            windows_time: vec![1, 2, 4, 8],
+            windows_freq: vec![1, 2, 4, 8],
+            background_reject: 2.0,
+            background_iterations: 1,
+            spike_width_time: 12.5,
+            spike_width_freq: 10.0,
+            time_extend: 3,
+            freq_extend: 3,
+            freq_chunks: 10,
+            average_freq: 1,
+            flag_all_time_frac: 0.6,
+            flag_all_freq_frac: 0.8,
+            rho: 1.3,
+            num_major_iterations: 5,
+        }
+    }
+
+    #[test]
+    fn flaggers_are_identical_across_thread_counts() {
+        let (nbl, ntime, nchan) = (7, 20, 300);
+        let (re, flags) = noise(nbl * ntime * nchan, 11);
+        let (im, _) = noise(nbl * ntime * nchan, 12);
+        let mut flags = flags;
+        // One fully flagged baseline exercises the uvcontsub early exit.
+        flags[2 * ntime * nchan..3 * ntime * nchan].fill(true);
+        let window = Window {
+            nbl,
+            ntime,
+            nchan,
+            re,
+            im,
+        };
+        let p = default_params();
+        let mut reference = None;
+        for threads in [1, 3, 8] {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .expect("thread pool");
+            let result = pool.install(|| {
+                (
+                    sum_threshold_flagger(&window, &flags, &p),
+                    uvcontsub_flagger(&window, &flags, 5, 1, 20, 5.0),
+                    flag_nans_zeros(&window),
+                )
+            });
+            match &reference {
+                None => {
+                    assert!(result.0.iter().any(|&f| f) && !result.0.iter().all(|&f| f));
+                    reference = Some(result);
+                }
+                Some(expected) => assert_eq!(&result, expected, "{threads} threads"),
+            }
+        }
     }
 
     #[test]
