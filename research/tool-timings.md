@@ -654,3 +654,26 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan DF1: `bench_df1.py bench --impls ducc,wgrid` with `OMP_NUM_THREADS` unset (post hoc) | K six arms, 1/4/16 | 6.6 s | – | ducc0 0.039 s per image at 4 threads, 0.059 s at 16 |
 | 2026-10-30 | big plan DF1: same, `--tile 41` | K `original` × 41 | 19.3 s | – | ducc0 2.35 / 0.69 / 0.38 s at 1 / 4 / 16 threads |
 | 2026-10-30 | big plan DF1: `compare_core_wgridder.py summary`; ruff check, format check, `git diff --check` on the later edits | outputs, examples | under 1 s each | – | clean; result file with repository-relative paths |
+| 2026-10-30 | big plan L1-M: `uv venv -p /usr/bin/python3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin` (public PyPI) | – | 27.5 s | – |  |
+| 2026-10-30 | big plan L1-M: `maturin develop --release --offline` | – | 0.3 s | 38 MB |  |
+| 2026-10-30 | big plan L1-M: GitHub API (commit of the lsm, master) and `curl` of the lsm, LICENSE and master copy into `outputs/l1m-20261030-00-fieldmodel` | – | about 3 s | – |  |
+| 2026-10-30 | big plan L1-M: download and unpack of the astro-tigger-lsm 1.8.0 wheel (PyPI, SHA256 `44e8516b…`) into the scratchpad, read only | – | about 2 s | – |  |
+| 2026-10-30 | big plan L1-M: `curl` of CARACal's `crosscal_worker.py`, `crosscal_schema.yml`, `southern_calibrators.txt`, tree listing | – | about 3 s | – |  |
+| 2026-10-30 | big plan L1-M: probe 1: phase centre, stored model vs A0, predictor sign and speed (all stations) | – | 10.9 s | 9.3 GB |  |
+| 2026-10-30 | big plan L1-M: probe 2: lsm content and weights (stations 0–11) | – | 1.6 s | 0.45 GB |  |
+| 2026-10-30 | big plan L1-M: **L1 precondition** unedited (`-00-precondition`) | – | 1 min 23 s | 568 MB |  |
+| 2026-10-30 | big plan L1-M: probe 3: DFT check, PA bound, first ceiling (stations 0–11) | – | 38.5 s | 1.2 GB |  |
+| 2026-10-30 | big plan L1-M: probe 4: stored − A0 structure (stations 0–11, then all) | – | about 12 s each | 7.1 GB |  |
+| 2026-10-30 | big plan L1-M: probes 5–7: least-squares decomposition of the stored model onto the lsm | – | 9.5–12.8 s each | 7.1 GB |  |
+| 2026-10-30 | big plan L1-M: probe 8: model-swap ceilings (stations 0–11; every other station) | – | 22.2 s; 2 min 9 s | 1.2 GB; 6.4 GB |  |
+| 2026-10-30 | big plan L1-M: `fetch_l1m.py` (file present, hash verified) and the three four-station smokes (`-00-smoke-{stored,point,field}`, labelled) | – | 22.8 s, 23.3 s, 25.7 s | 0.87 GB each |  |
+| 2026-10-30 | big plan L1-M: `check_l1m.py` on the smokes (`-00-smoke-check`, labelled) | – | about 15 s | 0.2 GB |  |
+| 2026-10-30 | big plan L1-M: the new tests from the scratchpad (`pytest`, 25 then 26 tests) | – | 0.3–1.0 s | 70 MB |  |
+| 2026-10-30 | big plan L1-M: **frozen stored run `-01-stored`** (`run_l1m.py` under `time -v`; MemAvailable 23 GiB, load 6) | – | **13 min 02 s** | **10.57 GB** |  |
+| 2026-10-30 | big plan L1-M: frozen point run `-02-point` | – | 24 s | – |  |
+| 2026-10-30 | big plan L1-M: targeted tests after amendment 2 (`test_lsm`, `test_core_campaign_fieldmodel`, `test_core_campaign_array`) | – | 0.2 s | – |  |
+| 2026-10-30 | big plan L1-M: **frozen point run `-02b-point`** (MemAvailable 28 GiB, load 3–6) | – | **11 min 57 s** | **10.64 GB** |  |
+| 2026-10-30 | big plan L1-M: **frozen field run `-03-field`** (MemAvailable 29 GiB) | – | **14 min 36 s** | **10.57 GB** |  |
+| 2026-10-30 | big plan L1-M: `check_l1m.py` (`-04-check`) | – | 12.7 s | 0.21 GB |  |
+| 2026-10-30 | big plan L1-M: `archive_l1m.py` | – | 0.1 s | 41 MB |  |
+| 2026-10-30 | big plan L1-M: `bash tools/check-all.sh` (plain; it takes the host lock itself), once before the final commit (`outputs/l1m-20261030-check-all.log`) | – | 3 min 31 s (pytest 657 passed, 3 skipped in 1 min 58 s) | 1.65 GB |  |

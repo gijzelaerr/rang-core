@@ -650,3 +650,11 @@ changed.
   whether #452 or #453 was fixed requires the commit log.
 - katbeam has had no PyPI release since 0.1 (2020) and EIDOS none since 1.1.2
   (2024-01). Neither is a bug.
+
+## Correction, 2026-10-30 (after L1-M)
+
+Recommendation 1 assumed K and L1 solved against a point model. L1-M showed the
+stored MODEL_DATA is itself a field model that fits better than CARACal's lsm
+(held-out MSE ratio 1.031 field/stored); the field model does beat a pure point
+(0.981), confirming Heywood et al. 2020, but model completeness did not cause
+the null results ([l1-model-completeness.md](l1-model-completeness.md)).

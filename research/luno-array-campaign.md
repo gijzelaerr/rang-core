@@ -774,3 +774,11 @@ comparator: the expected outcome.
      channel groups are not needed;
   3. a parallel Tricolour port over baselines;
   4. the fused pass's own scores instead of `residual_features`.
+
+## Correction, 2026-10-30 (after L1-M)
+
+The post-hoc model diagnosis above ("a 14.96 Jy point about 1.5″ off") is
+superseded: L1-M decomposed the stored MODEL_DATA onto CARACal's 196-component
+lsm and found a field model with the compact sources at coefficients near 1
+and A0 2.1″ from the phase direction, almost all in declination
+([l1-model-completeness.md](l1-model-completeness.md)).

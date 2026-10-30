@@ -329,3 +329,17 @@ In CARACal's first-pass calibrator strategy, `residual_flag_initial`
 behaviour is Tricolour 0.2.1's, verified stage by stage (task D criterion 3),
 not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
 `ratt-ru/tricolour` for the executor.)
+
+## L1-M observations (2026-10-30; observed, not raised)
+
+- caracal-pipeline: `meerkat_skymodel` defaults to False although the schema
+  advises the lsm; on LUNO 1934−638 the lsm improves on a point by 1.9 % in
+  held-out MSE, which supports the advice. The `meerkat_band` help text still
+  says "for UHF band only models for PKS 1934-638 and PKS 408-65", odd for an
+  L-band lsm.
+- caracal-pipeline: `pks1934-638.lsm` has no header giving its flux
+  convention (apparent, fitted without primary-beam correction) or origin, no
+  data licence, and the Gaussian position-angle convention is undocumented;
+  its steep off-axis indices (−3 to −8.6) only make sense as apparent spectra.
+- Non-RATT (data): the LUNO store does not log where its MODEL_DATA came
+  from; L1-M shows it is consistent with an lsm-based field prediction.

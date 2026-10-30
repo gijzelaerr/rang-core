@@ -173,6 +173,11 @@ quality/cost comparison, not further simulator expansion.
 - Tutorials: `pip install -e '.[notebook]'` and open `notebooks/` (01 data and
   rank, 02 flagging step by step, 03 gains and TV, 04 imaging, 05 the flagging
   experiment); see `research/d2-notebook.md`.
+- L1-M compared the stored, point and CARACal field calibrator models on LUNO
+  1934−638 under L1's frozen campaign (`rangtoy.core_campaign_fieldmodel`,
+  Tigger lsm reader `rangtoy.lsm`, `research/l1-model-completeness.md`): the
+  field model beats a point by 1.9 % in held-out MSE, the stored model beats
+  both, and the TV-flagging decision is unchanged.
 - The PKS 1830−211 campaign ran on the core under a stored and a scalar model
   (`rangtoy.core_campaign_1830`, `research/luno-1830-campaign.md`): null
   under both, 25–37 min per model on the parallel kernels.

@@ -186,7 +186,9 @@ items below are open. Results are provisional; see the
   ([core-k-luno-campaign.md](core-k-luno-campaign.md)) with a null result.
   Its results wait on the licence confirmation like everything above.
 - **Model offset (2026-10-30, L1 post hoc).** The 1934−638 MODEL_DATA is a
-  14.96 Jy point about 1.5″ from the FIELD phase direction; mean Re I falls
+  14.96 Jy source about 1.5″ from the FIELD phase direction (L1-M, 2026-10-30:
+  a field model consistent with CARACal's lsm, A0 at 2.1″, origin still
+  unlogged; [l1-model-completeness.md](l1-model-completeness.md)); mean Re I falls
   to 8.45 Jy on 3–8 km baselines. More evidence for an unlogged prediction
   step ([luno-array-campaign.md](luno-array-campaign.md)).
 - **1830−211 model (2026-10-30, L2).** The stored MODEL_DATA is offset from

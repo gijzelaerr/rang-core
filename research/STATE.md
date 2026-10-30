@@ -1,5 +1,28 @@
 # Rang research state
 
+L1-M model completeness (big plan wave 3), 2026-10-30 (implemented;
+measured; [l1-model-completeness.md](l1-model-completeness.md)). The premise
+was wrong: LUNO's stored 1934−638 MODEL_DATA is not a point but a field model.
+A least-squares decomposition shows CARACal's lsm compact sources in it at
+coefficients near 1, more flux at the lsm's extended sources, and a common
+0.077″ offset; A0 sits 2.1″ from the phase centre, not 1.5″. Three models ran
+through L1's frozen campaign unedited (scoped model hook; identical split and
+Tricolour flags): the stored model; the lsm's A0 alone, predicted by the core;
+all 196 lsm components, predicted by the core (apparent flux, no beam, as
+CARACal's simulator). Field against point: held-out MSE 0.981 (better; 0.962
+under 200 m), Heywood's point-model effect. Field against stored: 1.031
+(worse); the stored model fits best and the point model is 4.9 % worse than
+it. Gain TV moves by at most 0.7 % (null) and convergence stays at 0.83. The
+TV policy's decisions are identical under all three models: the headline is
+undecidable as frozen and null under amendment 1, and no TV-guided mask is
+selected. Model incompleteness did not cause the nulls. Amendment 2: the
+Gaussian PA bound failed as frozen on the whole array (0.028 Jy max) and is
+reported, not gated. The cost clause fails (5.1–5.7×) on the parallel
+kernels. `rangtoy.lsm` reads Tigger ASCII sky models (the first DF-IO reader).
+Archive `results/l1-model-completeness.json`. Corrections: the L1 entry below
+and the literature entry's "14.96 Jy point" wording are superseded by this
+finding.
+
 DF1 exact gridder (big plan; [df1-wgridder.md](df1-wgridder.md)),
 2026-10-30 (implemented; measured): a Rust port of ducc0 0.42's wgridder
 (`core/src/wgridder.rs`, `ffi_wgridder.rs`, `core_wgridder.py`), f32 and f64,
@@ -272,7 +295,8 @@ beams and pointing, mathematics and software; every source was accessed
 active experiment is calibrator model completeness: Heywood et al. (2020)
 show a point model of PKS 1934−638 imparts 0.2–0.5 % structured amplitude
 errors at MeerKAT, and CARACal ships a 196-component 1934 field model; K and
-L1 solved against a 14.96 Jy point, so part of the gain structure that TV
+L1 solved against the stored model (later shown by L1-M to be a field model
+itself), so part of the gain structure that TV
 measures may be model error (task L1-M). Other recommendations: safeguarded
 Anderson acceleration after the #452 fix (theory only, no radio precedent);
 a closure-invariant (GL(2,C) gauge-free) comparator arm (C1), which isolates
@@ -328,7 +352,8 @@ Amendment 1 (committed before the run) adds matched-sample calls, which are
 null on every pair (TV policy against first pass: MSE ratio 0.99943, residual
 RMS 0.9954); the policy selects a 21-cell unguided mask and rejects every
 TV-guided mask; cost comparable (1.85). Diagnosed post hoc: the 1934−638
-MODEL_DATA is a 14.96 Jy point about 1.5″ off the phase centre. The result is
+MODEL_DATA is a 14.96 Jy source about 1.5″ off the phase centre (L1-M: a field
+model with A0 at 2.1″). The result is
 null at both four-station and array scale. Archive
 `results/luno-array-campaign.json` ([luno-array-campaign.md](luno-array-campaign.md)).
 Next: L2 (1830−211) and L3 (native flags) for the L4 verdict; the array

@@ -270,6 +270,10 @@ CPU-heavy tasks at a time on 8 physical cores.
   any is positive, the follow-up is a matched CARACal full-pipeline
   comparison on the same data (quality and cost), which is what the novelty
   rule asks for.
+- L1-M done 2026-10-30 (`l1-model-completeness.md`): the stored model is a
+  field model and fits best; TV decisions unchanged under all three models;
+  model incompleteness did not cause the nulls. C1 proceeds; `rangtoy.lsm`
+  is the first DF-IO reader (Tigger ASCII only so far).
 - L1-M model completeness (from the literature scan, first wave 3 item after
   P5): re-solve LUNO chunk 0 with CARACal's 196-component PKS 1934−638 field
   model (`caracal/data/meerkat_files/pks1934-638.lsm`, spectral convention
