@@ -23,6 +23,7 @@
 pub mod aipsio;
 pub mod blosc;
 pub mod clean;
+pub mod clean_certified;
 pub mod closure;
 pub mod correct;
 pub mod ffi;
