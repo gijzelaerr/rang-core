@@ -11,3 +11,5 @@ __pycache__/
 /python/rangtoy/_core*.pyd
 /python/rangtoy/*.pdb
 /python/rangtoy.egg-info/
+# Lean: Mathlib and build products of the formal proofs (research/clean-theory.md).
+/formal/.lake/
