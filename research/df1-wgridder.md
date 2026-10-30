@@ -277,11 +277,29 @@ the DFT 2.9e-6 and 2.3e-10, against ducc0 9.5e-7 and 3.6e-12.
 1e-14–5e-12 of the peak, except `vis2dirty` on the 0.3 rad cases (1.7e-10
 and 8.4e-11 at ε 1e-7). The difference sits in the outermost pixels:
 excluding a border of 1, 2, 4 and 8 pixels it falls to 5.1e-11, 7.0e-12,
-1.4e-12 and 7.7e-13. It is rounding amplified by the correction function,
-which is largest at the field edge, and it is the same in a single-row
-case (1e-9 at ε 1e-7, all at edge pixels); `dirty2vis`, which applies the
-same correction before the FFT, matches to 1e-12. Single visibilities at
-40 sub-cell offsets: 1.8e-12 (w = 0) and 2.0e-12 (w ≠ 0) of ducc0's peak.
+1.4e-12 and 7.7e-13. It appears in a single-row case too (1e-9 at ε 1e-7,
+at edge pixels) and in `dirty2vis` when the image has flux in the corner
+pixel (8.9e-9 of the peak visibility at ε 1e-7 for pixel (0, 0); border
+pixels away from the corner and interior pixels 2.5e-13–3.6e-13). It is
+not rounding: it scales with ε (corner pixel, w-gridding: 2.8e-9, 8.9e-9,
+1.1e-10, 5.8e-13 at ε 1e-5, 1e-7, 1e-9, 1e-11; without w-gridding 1.1e-11,
+2.5e-10, 5.4e-11, 6.8e-13), so it is a kernel-level difference amplified
+by the correction functions where they are largest (the image corner, and
+there most with the w correction). Mirroring the upper half of the taps as
+ducc0's `TemplateKernel` does (post hoc prototype in a scratch crate, not
+adopted) changes it only from 1.7e-10 to 1.4e-10 and the corner from
+8.9e-9 to 8.6e-9, so that is not the cause; **the cause is not identified**
+(open item). It stays below 0.1 ε. Single visibilities at 40 sub-cell
+offsets: 1.8e-12 (w = 0) and 2.0e-12 (w ≠ 0) of ducc0's peak.
+
+**`fits_image` at large w (post hoc).** Item 0's asymmetric point at
+(+60, +25) pixels with the slice's w scaled by ±100, through
+`core_wgridder.fits_image` and through `core_grid.invert` at padding 2,
+kernel 15, 512 layers: both peaks land on the same FITS pixel (`[Y, X]` =
+[241, 292] and [214, 355], the w term displacing them), dirty images within
+4.6e-5 and 5.3e-5 of the peak, PSFs within 4.3e-5 (`item0/fitscheck.json`).
+So the WSClean orientation and w sign of `fits_image` hold where the w term
+matters, not only on the centrosymmetric C/I/K images.
 
 In f32 the port and ducc0 differ by about the f32 accumulation error
 (1e-7–1e-5 of the peak); both are within ε of each other and within 10 ε
@@ -323,7 +341,9 @@ w-stacking call), drivers and comparators unedited
   at the border).
 - **Task K**: `bench_p2_gridder.py k-replay` cannot run any more: the
   archived fetched bytes (`outputs/core-k-20261030-01/fetch/`) are no
-  longer on the host (failure recorded). Pixels only, from P2's dumped
+  longer on the host (failure recorded; the run's `receipt.json` still
+  names `fetch/receipt.json` and `fetch/receipt-extra.json`, and no copy is
+  under `outputs/` or `~/Build/cache`). Pixels only, from P2's dumped
   gridder inputs of the six arms (`kpixels`): dirty L∞ 19.0 % of the peak,
   inner half 0.32 %, RMS 2.7 %; PSF L∞ 0.190, inner 0.0032; the same on
   every arm. The K science calls (residual-RMS ratios) are not re-measured.
@@ -333,19 +353,22 @@ w-stacking call), drivers and comparators unedited
 Per image = dirty + PSF (w-stacking: one call; exact gridder and ducc0: two
 `vis2dirty` calls). f64, ε 1e-6, fresh process per (implementation,
 threads), load 8.5–10.8 (one-minute), two repeats on the six K arms
-(medians; range over repeats). ducc0's pool was capped at one thread by
-`OMP_NUM_THREADS=1` in the run environment, so its rows are single-threaded
-whatever `RAYON_NUM_THREADS` says (post hoc finding).
+(medians; range over repeats). In the first benchmark ducc0's pool was
+capped at one thread by `OMP_NUM_THREADS=1` in the run environment
+(`ducc0.misc.thread_pool_size()` = 1; 16 with it unset), so its 4- and
+16-thread rows came out single-threaded; ducc0 was re-timed with
+`OMP_NUM_THREADS` unset (post hoc, `bench-k-ducc-threads`,
+`bench-tile41-ducc-threads`, load 5.0–5.2, with the exact gridder alongside).
 
-| Input (visibilities gridded) | Threads | w-stacking (P2) | exact gridder | ducc0 (1 thread) |
+| Input (visibilities gridded) | Threads | w-stacking (P2) | exact gridder | ducc0 0.42 |
 | --- | ---: | ---: | ---: | ---: |
-| K six arms (117 k) | 1 | 0.66–0.72 s, 204 MB | 0.41–0.44 s, 121 MB | 0.11–0.13 s, 112 MB |
-| | 4 | 0.38–0.39 s, 256 MB | 0.16–0.19 s, 171 MB | – |
-| | 16 | 0.38–0.41 s, 466 MB | 0.13–0.16 s, 328–356 MB | – |
-| K, f32 ε 1e-4 | 1 / 16 | – | 0.26 s / 0.074 s | 0.077 s |
-| K `original` × 4 (470 k) | 1 / 16 | 0.69 / 0.29 s | 1.07 / 0.40 s, 348 MB | 0.30 s |
-| × 16 (1.9 M) | 1 / 16 | 0.94 / 0.53 s | 3.69 / 1.14 s, 619 MB | 0.93 s |
-| × 41 (4.8 M) | 1 / 16 | 1.51 / 0.70 s, 773 MB | 8.70 / 2.51 s, 1.24 GB | 1.96 s, 749 MB |
+| K six arms (117 k) | 1 | 0.66–0.72 s, 204 MB | 0.37–0.44 s, 121 MB | 0.11–0.14 s, 112 MB |
+| | 4 | 0.38–0.39 s, 256 MB | 0.14–0.19 s, 171 MB | 0.039 s, 113 MB |
+| | 16 | 0.38–0.41 s, 466 MB | 0.11–0.16 s, 300–356 MB | 0.059 s, 117 MB |
+| K, f32 ε 1e-4 | 1 / 16 | – | 0.26 s / 0.074 s | 0.077 s (1 thread) |
+| K `original` × 4 (470 k) | 1 / 16 | 0.69 / 0.29 s | 1.07 / 0.40 s, 348 MB | 0.30 s (1 thread) |
+| × 16 (1.9 M) | 1 / 16 | 0.94 / 0.53 s | 3.69 / 1.14 s, 619 MB | 0.93 s (1 thread) |
+| × 41 (4.8 M) | 1 / 4 / 16 | 1.51 / – / 0.70 s, 773 MB | 8.5–8.7 / 3.74 / 2.5–2.6 s, 1.25 GB | 1.96–2.35 / 0.69 / 0.38 s, 768 MB |
 
 The exact gridder is faster than w-stacking at four stations (it needs 8
 planes of a 900² grid against 64 layers of 616²) but its per-visibility
@@ -360,7 +383,8 @@ PSF, plus 48 + 48 + 16 bytes per visibility in the core.
 **Whole-array estimate (not measured).** LUNO chunk 0 (56 stations,
 100.9 M cells, about 30 M gridded): about 50 s per image on one thread and
 15 s at 16 threads with the code as it is, against 3–6 s for P2's
-w-stacking and about 12 s for ducc0 on one thread; memory several GB from
+w-stacking and about 12 s for ducc0 on one thread (about 2.5 s at 16
+threads, from the 41× tile's 6× speed-up); memory several GB from
 the wrapper copies. Before DF2 puts the gridder into the whole-array
 chains, the gridding loop needs the optimisations listed in the open items.
 
@@ -372,8 +396,9 @@ branch `df1-wgridder`): a Rust port of ducc0 0.42's wgridder
 f64, both directions, ducc0's 939-row kernel table and a thread-free kernel
 choice. All five gated criteria pass as frozen: against a float64 DFT
 ≤ 10 ε (worst 4.0e-5 at f32 1e-4, 4.1e-8 at f64 1e-7), against ducc0 ≤ ε
-(1e-12–1e-14 in f64 away from the field edge, 1.7e-10 at the edge of a
-0.3 rad field from correction-amplified rounding), adjoint to 4.2e-13,
+(1e-12–1e-14 in f64 away from the field edge; up to 1.7e-10 in the
+outermost pixels of a 0.3 rad field, a kernel-level difference that scales
+with ε and stays below 0.1 ε, cause not identified), adjoint to 4.2e-13,
 bit-identical at 1–16 threads, kernel table and choices equal to ducc0's.
 Item 0 of the DDFacet study is attributed: the core w-stacking image's 19 %
 from the DFT on the LUNO slice is aliasing of WSClean's KB kernel at
@@ -382,8 +407,9 @@ padding 2 with kernel 15), plus a pixel mis-map in the study's search; no
 defect in `grid.rs`. Through the exact gridder the C/I/K images move by
 19–32 % of the peak at the edge and 0.3–0.6 % inside; task I's response
 fractions move by up to 0.036 (no sign changes). Cost: 0.13–0.16 s per
-four-station image at 16 threads (w-stacking 0.38–0.41 s) but 3.7–4.4× slower than ducc0
-per visibility, so whole-array use needs the gridding loop optimised first.
+four-station image at 16 threads (w-stacking 0.38–0.41 s, ducc0 0.06 s),
+but 3.7–4.4× slower than ducc0 per visibility on one thread, so
+whole-array use needs the gridding loop optimised first.
 
 **Lines for `core/src/lib.rs`** (alphabetical, beside the others):
 
@@ -448,7 +474,7 @@ below (all 2026-10-30).
   (already noted by task C).
 - RATT, caracal-pipeline: none.
 
-**Evidence to keep:** `outputs/df1-wgridder-20261030-01` (81 MB): slice
+**Evidence to keep:** `outputs/df1-wgridder-20261030-01` (81 MB, `SHA256SUMS` over its 216 files): slice
 export and DFT, synthetic cases, ducc0 outputs and reports, `item0/`,
 `kerneldb/rows.txt` (the extracted table; the ducc clone is deleted),
 `gates*/`, `threads*.json`, `bench-*`, `science/` (C images, I run and
@@ -465,13 +491,16 @@ comparisons, K pixels), `logs/`. Deletable: `smoke-gates-01`,
    tap loops, tile the grid writes; drop the wrapper's float64/complex128
    copies and the unit-visibility array for the PSF (a PSF mode in the
    core). Target: ducc0's 0.4 µs per visibility per image.
-2. ducc0 multi-thread timings with `OMP_NUM_THREADS` unset (only the
-   one-thread figures are valid here).
+2. The edge-pixel difference from ducc0 (up to 0.09 ε at the image
+   corner, scaling with ε): cause not identified; mirrored taps ruled out.
+   Next candidates: ducc0's Gauss–Legendre nodes and the SIMD `corfunc`
+   table against this port's, and the even/odd polynomial evaluation.
 3. Task K science calls through the exact gridder need a fresh fetch.
 4. DF0's WSClean 3.7 `-gridder wgridder` FITS as the external oracle of the
    FITS orientation and normalisation used by `fits_image` (verified here
-   against core w-stacking at padding 2, kernel 15, to 1e-3 in a test and
-   2.1e-5 on the slice).
+   against core w-stacking at padding 2, kernel 15: to 1e-3 in a test, and
+   to 5.3e-5 of the peak on the slice's uvw with w scaled ±100, peak on the
+   same displaced pixel).
 5. BDA input, facets (DF3) and w-towers (DF1b) are out of scope.
 
 ## Tool runs
@@ -479,38 +508,45 @@ comparisons, K pixels), `logs/`. Deletable: `smoke-gates-01`,
 Host: WSL2 workstation, 16 threads, 30 GiB; load 4–11 (one-minute)
 throughout. Wall and peak RSS from GNU `time` unless noted.
 
-| Tool | Input | Wall | Max RSS | Notes |
-| --- | --- | ---: | ---: | --- |
-| `git clone` ducc (GitLab) + checkout | `ducc0_0_42_0` | 4.2 s | – | read-only reference; deleted at the end |
-| `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin ducc0==0.42.0` | worktree | 60.2 s | 605 MB | |
-| `maturin develop --release --offline` | worktree | 0.5 s | 37 MB | |
-| `oracle_ducc0.py export` | LUNO slice MS | 0.30 s | 72 MB | nvis 7,377, weight sum 129,363.328125 (study's numbers) |
-| `oracle_ducc0.py synthetic` | 4 cases | 1.6 s | 100 MB | |
-| `oracle_ducc0.py convention` | `wide-0p3rad` | 0.42 s | 52 MB | `flip_w=True, divide_by_n=False` 9.2e-13 |
-| `oracle_ducc0.py dft-slice` | slice, 512² | 47.4 s | 448 MB | dirty and PSF |
-| `oracle_ducc0.py ducc` | synthetic, 4 ε | 0.86 s | 56 MB | |
-| `oracle_ducc0.py ducc` | slice, 4 ε | 0.29 s | 79 MB | |
-| `compare_core_wgridder.py item0` | slice | 48.1 s | 1.96 GB | 680 ducc0 calls for the aliasing prediction |
-| `oracle_ducc0.py kerneldb` (first) | `gridding_kernel.cc` | 0.08 s | 38 MB | **failed**: 938 rows, the last row's `}};` not matched; fixed |
-| `oracle_ducc0.py kerneldb` | same | 0.08 s | 38 MB | 939 rows, SHA256 `0427f594…` |
-| `cargo build` standalone (first) | `df1-standalone` | 6.5 s | 376 MB | **failed**: trait bounds (13 errors); fixed |
-| `cargo test` standalone | same | 32.1 s | 832 MB | **1 failed**: wrong expected `good_size_complex` values in the test (181 → 189, 1025 → 1029); test fixed |
-| `cargo test` standalone | same | 39.5 s | 791 MB | 7 passed |
-| `compare_core_wgridder.py gates` (smoke, labelled) | 2 synthetic cases | 77.7 s | 792 MB | includes a core library build; all checks pass |
-| `compare_core_wgridder.py gates` | all cases | 33.6 s | 811 MB | **pass**; about 28 s was a standalone rebuild (wrapper rewrote its files each process; fixed later) |
-| `compare_core_wgridder.py threads` | 1, 2, 4, 8, 16 | 141.0 s | 817 MB | identical; 26–30 s per process, the same rebuild |
-| pytest `test_core_wgridder.py` | 6 tests | 37.4 s | 779 MB | pass |
-| `cargo clippy -D warnings` standalone | same | 2.8 s | 361 MB | **failed**: 6 lints (needless range loops, `chunks_exact`, items after tests, negated comparisons); fixed |
-| `cargo clippy -D warnings`, `rustfmt --check`, `cargo test` | same | 0.3 s, –, 26.8 s | 838 MB | clean; 7 passed |
-| pytest `test_core_wgridder.py` without cargo on PATH | 6 tests | 0.7 s | – | **6 errors**: the shell lacked `~/.cargo/bin` (environment, not code); rerun below |
-| pytest `test_core_wgridder.py test_core_grid.py` | 10 tests | 23.9 s | 829 MB | pass |
-| `bench_df1.py time` smoke ×3 (labelled) | K `original` | 0.64 s / 28.5 s / 0.24 s | 223 / 814 / 79 MB | the 28.5 s was the rebuild; fixed (`_write_if_changed`), then 0.11 s per call |
-| `bench_df1.py bench` | K six arms, 1/4/16 threads, 2 repeats | 35.0 s | 477 MB | table above |
-| `bench_df1.py bench --single --epsilon 1e-4` | K six arms, 1/16 | 4.0 s | 181 MB | |
-| `bench_df1.py bench --tile 4/16/41` | K `original` | 3.9 / 9.1 / 18.4 s | 463 MB / 634 MB / 1.27 GB | |
-| `compare_core_wgridder.py science` + `run_core_gridder.py` | task C, 15 jobs | 7.9 s | 339 MB | driver criteria pass |
-| `compare_core_gridder.py` (first) | C images | 0.26 s | 57 MB | **failed**: wrong candidate path (`c-run` instead of `c-run/images`); rerun 0.36 s |
-| `compare_core_wgridder.py science` + `run_core_imaging.py` | task I | 8.4 s | 400 MB | exit 1: comparisons fail (reported above) |
-| `compare_core_wgridder.py science` + `bench_p2_gridder.py k-replay` | task K | 0.15 s | 44 MB | **failed**: `outputs/core-k-20261030-01/fetch/result.json` no longer on the host |
-| `compare_core_wgridder.py kpixels` | K six arms | 2.7 s | 355 MB | |
-| `compare_core_wgridder.py gates` / `threads` (final code) | all | 1.1 s / 2.5 s | 136 / 204 MB | all outputs identical to the first runs |
+| Date | Tool | Input | Wall | Max RSS | Notes |
+| --- | --- | --- | ---: | ---: | --- |
+| 2026-10-30 | `git clone` ducc (GitLab) + checkout | `ducc0_0_42_0` | 4.2 s | – | read-only reference; deleted at the end |
+| 2026-10-30 | `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin ducc0==0.42.0` | worktree | 60.2 s | 605 MB | |
+| 2026-10-30 | `maturin develop --release --offline` | worktree | 0.5 s | 37 MB | |
+| 2026-10-30 | `oracle_ducc0.py export` | LUNO slice MS | 0.30 s | 72 MB | nvis 7,377, weight sum 129,363.328125 (study's numbers) |
+| 2026-10-30 | `oracle_ducc0.py synthetic` | 4 cases | 1.6 s | 100 MB | |
+| 2026-10-30 | `oracle_ducc0.py convention` | `wide-0p3rad` | 0.42 s | 52 MB | `flip_w=True, divide_by_n=False` 9.2e-13 |
+| 2026-10-30 | `oracle_ducc0.py dft-slice` | slice, 512² | 47.4 s | 448 MB | dirty and PSF |
+| 2026-10-30 | `oracle_ducc0.py ducc` | synthetic, 4 ε | 0.86 s | 56 MB | |
+| 2026-10-30 | `oracle_ducc0.py ducc` | slice, 4 ε | 0.29 s | 79 MB | |
+| 2026-10-30 | `compare_core_wgridder.py item0` | slice | 48.1 s | 1.96 GB | 680 ducc0 calls for the aliasing prediction |
+| 2026-10-30 | `oracle_ducc0.py kerneldb` (first) | `gridding_kernel.cc` | 0.08 s | 38 MB | **failed**: 938 rows, the last row's `}};` not matched; fixed |
+| 2026-10-30 | `oracle_ducc0.py kerneldb` | same | 0.08 s | 38 MB | 939 rows, SHA256 `0427f594…` |
+| 2026-10-30 | `cargo build` standalone (first) | `df1-standalone` | 6.5 s | 376 MB | **failed**: trait bounds (13 errors); fixed |
+| 2026-10-30 | `cargo test` standalone | same | 32.1 s | 832 MB | **1 failed**: wrong expected `good_size_complex` values in the test (181 → 189, 1025 → 1029); test fixed |
+| 2026-10-30 | `cargo test` standalone | same | 39.5 s | 791 MB | 7 passed |
+| 2026-10-30 | `compare_core_wgridder.py gates` (smoke, labelled) | 2 synthetic cases | 77.7 s | 792 MB | includes a core library build; all checks pass |
+| 2026-10-30 | `compare_core_wgridder.py gates` | all cases | 33.6 s | 811 MB | **pass**; about 28 s was a standalone rebuild (wrapper rewrote its files each process; fixed later) |
+| 2026-10-30 | `compare_core_wgridder.py threads` | 1, 2, 4, 8, 16 | 141.0 s | 817 MB | identical; 26–30 s per process, the same rebuild |
+| 2026-10-30 | pytest `test_core_wgridder.py` | 6 tests | 37.4 s | 779 MB | pass |
+| 2026-10-30 | `cargo clippy -D warnings` standalone | same | 2.8 s | 361 MB | **failed**: 6 lints (needless range loops, `chunks_exact`, items after tests, negated comparisons); fixed |
+| 2026-10-30 | `cargo clippy -D warnings`, `rustfmt --check`, `cargo test` | same | 0.3 s, –, 26.8 s | 838 MB | clean; 7 passed |
+| 2026-10-30 | pytest `test_core_wgridder.py` without cargo on PATH | 6 tests | 0.7 s | – | **6 errors**: the shell lacked `~/.cargo/bin` (environment, not code); rerun below |
+| 2026-10-30 | pytest `test_core_wgridder.py test_core_grid.py` | 10 tests | 23.9 s | 829 MB | pass |
+| 2026-10-30 | `bench_df1.py time` smoke ×3 (labelled) | K `original` | 0.64 s / 28.5 s / 0.24 s | 223 / 814 / 79 MB | the 28.5 s was the rebuild; fixed (`_write_if_changed`), then 0.11 s per call |
+| 2026-10-30 | `bench_df1.py bench` | K six arms, 1/4/16 threads, 2 repeats | 35.0 s | 477 MB | table above |
+| 2026-10-30 | `bench_df1.py bench --single --epsilon 1e-4` | K six arms, 1/16 | 4.0 s | 181 MB | |
+| 2026-10-30 | `bench_df1.py bench --tile 4/16/41` | K `original` | 3.9 / 9.1 / 18.4 s | 463 MB / 634 MB / 1.27 GB | |
+| 2026-10-30 | `compare_core_wgridder.py science` + `run_core_gridder.py` | task C, 15 jobs | 7.9 s | 339 MB | driver criteria pass |
+| 2026-10-30 | `compare_core_gridder.py` (first) | C images | 0.26 s | 57 MB | **failed**: wrong candidate path (`c-run` instead of `c-run/images`); rerun 0.36 s |
+| 2026-10-30 | `compare_core_wgridder.py science` + `run_core_imaging.py` | task I | 8.4 s | 400 MB | exit 1: comparisons fail (reported above) |
+| 2026-10-30 | `compare_core_wgridder.py science` + `bench_p2_gridder.py k-replay` | task K | 0.15 s | 44 MB | **failed**: `outputs/core-k-20261030-01/fetch/result.json` no longer on the host |
+| 2026-10-30 | `compare_core_wgridder.py kpixels` | K six arms | 2.7 s | 355 MB | |
+| 2026-10-30 | `compare_core_wgridder.py gates` / `threads` (final code) | all | 1.1 s / 2.5 s | 136 / 204 MB | all outputs identical to the first runs |
+| 2026-10-30 | `bash tools/check-all.sh` (takes the host lock itself) | worktree at `d682714` plus the uncommitted examples/research edits | 283.5 s | 1.66 GB | **PASS**: root 23 and core 60 Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 637 passed, 3 skipped in 176.2 s; load 5–9; log `logs/check-all.log` |
+| 2026-10-30 | `compare_core_wgridder.py fitscheck` (post hoc) | slice uvw, w ×±100 | 12.8 s | 586 MB | `fits_image` and padded w-stacking agree to 5.3e-5, same peak pixel |
+| 2026-10-30 | probes (scratch scripts, not wrapped in `time`) | wide case, single rows, border and corner pixels | seconds each | – | edge difference scales with ε; not rounding |
+| 2026-10-30 | `cargo build` of a mirrored-tap prototype (scratch crate `core/target/df1-mirror`, deleted) | `wgridder.rs` copy | about 40 s (not wrapped) | – | mirrored taps change the edge difference only 1.7e-10 → 1.4e-10; not adopted |
+| 2026-10-30 | `bench_df1.py bench --impls ducc,wgrid` with `OMP_NUM_THREADS` unset (post hoc) | K six arms, 1/4/16 | 6.6 s | 307 MB | ducc0 0.039 s per image at 4 threads, 0.059 s at 16 |
+| 2026-10-30 | same, `--tile 41` | K `original` × 41 | 19.3 s | 1.32 GB | ducc0 2.35 / 0.69 / 0.38 s at 1 / 4 / 16 threads |
+| 2026-10-30 | `compare_core_wgridder.py summary`; ruff check, format check, `git diff --check` on the later edits | outputs, examples | under 1 s each | – | clean; result file with repository-relative paths |

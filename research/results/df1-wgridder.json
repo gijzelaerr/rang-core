@@ -1,6 +1,6 @@
 {
  "task": "big-plan DF1, exact gridder (research/df1-wgridder.md)",
- "output_dir": "/home/gijsm/Worktrees/rang/df1-wgridder/outputs/df1-wgridder-20261030-01",
+ "output_dir": "outputs/df1-wgridder-20261030-01",
  "ducc0": "0.42.0",
  "gated_epsilons": [
   [
@@ -24,7 +24,7 @@
   ],
   "4_outputs_hashed": 20,
   "5_kernel_table": {
-   "rows_txt": "/home/gijsm/Worktrees/rang/df1-wgridder/outputs/df1-wgridder-20261030-01/kerneldb/rows.txt",
+   "rows_txt": "outputs/df1-wgridder-20261030-01/kerneldb/rows.txt",
    "rows_core": 939,
    "rows_ducc0": 939,
    "values_equal": true,
@@ -667,6 +667,146 @@
     ]
    }
   ],
+  "bench-k-ducc-threads": [
+   {
+    "impl": "ducc",
+    "threads": 1,
+    "repeat": 0,
+    "images": 6,
+    "wall_per_image_median": 0.1432085564956651,
+    "wall_per_image_min": 0.12292790900391992,
+    "cpu_per_image_median": 0.1432039,
+    "max_rss_mb": 111.3359375,
+    "rss_mb_after_loading_inputs": 72.375,
+    "loadavg_before_after": [
+     [
+      4.99560546875,
+      5.783203125,
+      6.08935546875
+     ],
+     [
+      4.99560546875,
+      5.783203125,
+      6.08935546875
+     ]
+    ]
+   },
+   {
+    "impl": "wgrid",
+    "threads": 1,
+    "repeat": 0,
+    "images": 6,
+    "wall_per_image_median": 0.3709550495041185,
+    "wall_per_image_min": 0.3274169630021788,
+    "cpu_per_image_median": 0.370959051,
+    "max_rss_mb": 121.4765625,
+    "rss_mb_after_loading_inputs": 72.41796875,
+    "loadavg_before_after": [
+     [
+      4.99560546875,
+      5.783203125,
+      6.08935546875
+     ],
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ]
+    ]
+   },
+   {
+    "impl": "ducc",
+    "threads": 4,
+    "repeat": 0,
+    "images": 6,
+    "wall_per_image_median": 0.038557448497158475,
+    "wall_per_image_min": 0.034908978996099904,
+    "cpu_per_image_median": 0.10714337499999999,
+    "max_rss_mb": 112.93359375,
+    "rss_mb_after_loading_inputs": 72.484375,
+    "loadavg_before_after": [
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ],
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ]
+    ]
+   },
+   {
+    "impl": "wgrid",
+    "threads": 4,
+    "repeat": 0,
+    "images": 6,
+    "wall_per_image_median": 0.13936270099657122,
+    "wall_per_image_min": 0.12249390900251456,
+    "cpu_per_image_median": 0.42087628749999995,
+    "max_rss_mb": 170.77734375,
+    "rss_mb_after_loading_inputs": 72.46875,
+    "loadavg_before_after": [
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ],
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ]
+    ]
+   },
+   {
+    "impl": "ducc",
+    "threads": 16,
+    "repeat": 0,
+    "images": 6,
+    "wall_per_image_median": 0.059202777498285286,
+    "wall_per_image_min": 0.04776392399799079,
+    "cpu_per_image_median": 0.23517335949999998,
+    "max_rss_mb": 117.39453125,
+    "rss_mb_after_loading_inputs": 72.484375,
+    "loadavg_before_after": [
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ],
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ]
+    ]
+   },
+   {
+    "impl": "wgrid",
+    "threads": 16,
+    "repeat": 0,
+    "images": 6,
+    "wall_per_image_median": 0.11140836499544093,
+    "wall_per_image_min": 0.10224531599669717,
+    "cpu_per_image_median": 0.6032382610000002,
+    "max_rss_mb": 299.7265625,
+    "rss_mb_after_loading_inputs": 72.296875,
+    "loadavg_before_after": [
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ],
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ]
+    ]
+   }
+  ],
   "bench-k-f32": [
    {
     "impl": "wgrid",
@@ -1180,6 +1320,146 @@
      ]
     ]
    }
+  ],
+  "bench-tile41-ducc-threads": [
+   {
+    "impl": "ducc",
+    "threads": 1,
+    "repeat": 0,
+    "images": 1,
+    "wall_per_image_median": 2.346506721005426,
+    "wall_per_image_min": 2.346506721005426,
+    "cpu_per_image_median": 2.347449492,
+    "max_rss_mb": 748.44140625,
+    "rss_mb_after_loading_inputs": 283.1875,
+    "loadavg_before_after": [
+     [
+      4.99609375,
+      5.77001953125,
+      6.08349609375
+     ],
+     [
+      4.99658203125,
+      5.7568359375,
+      6.07763671875
+     ]
+    ]
+   },
+   {
+    "impl": "wgrid",
+    "threads": 1,
+    "repeat": 0,
+    "images": 1,
+    "wall_per_image_median": 8.484460742009105,
+    "wall_per_image_min": 8.484460742009105,
+    "cpu_per_image_median": 8.420698394,
+    "max_rss_mb": 1220.046875,
+    "rss_mb_after_loading_inputs": 283.1953125,
+    "loadavg_before_after": [
+     [
+      4.99658203125,
+      5.7568359375,
+      6.07763671875
+     ],
+     [
+      4.99755859375,
+      5.7314453125,
+      6.06591796875
+     ]
+    ]
+   },
+   {
+    "impl": "ducc",
+    "threads": 4,
+    "repeat": 0,
+    "images": 1,
+    "wall_per_image_median": 0.6861992039921461,
+    "wall_per_image_min": 0.6861992039921461,
+    "cpu_per_image_median": 2.362276735,
+    "max_rss_mb": 749.1875,
+    "rss_mb_after_loading_inputs": 283.09765625,
+    "loadavg_before_after": [
+     [
+      4.99755859375,
+      5.7314453125,
+      6.06591796875
+     ],
+     [
+      4.99755859375,
+      5.7314453125,
+      6.06591796875
+     ]
+    ]
+   },
+   {
+    "impl": "wgrid",
+    "threads": 4,
+    "repeat": 0,
+    "images": 1,
+    "wall_per_image_median": 3.740867733999039,
+    "wall_per_image_min": 3.740867733999039,
+    "cpu_per_image_median": 9.679231591,
+    "max_rss_mb": 1290.46484375,
+    "rss_mb_after_loading_inputs": 283.29296875,
+    "loadavg_before_after": [
+     [
+      4.99755859375,
+      5.7314453125,
+      6.06591796875
+     ],
+     [
+      5.23828125,
+      5.76953125,
+      6.07666015625
+     ]
+    ]
+   },
+   {
+    "impl": "ducc",
+    "threads": 16,
+    "repeat": 0,
+    "images": 1,
+    "wall_per_image_median": 0.3794087060086895,
+    "wall_per_image_min": 0.3794087060086895,
+    "cpu_per_image_median": 3.494585549,
+    "max_rss_mb": 767.6328125,
+    "rss_mb_after_loading_inputs": 283.34375,
+    "loadavg_before_after": [
+     [
+      5.23828125,
+      5.76953125,
+      6.07666015625
+     ],
+     [
+      5.23828125,
+      5.76953125,
+      6.07666015625
+     ]
+    ]
+   },
+   {
+    "impl": "wgrid",
+    "threads": 16,
+    "repeat": 0,
+    "images": 1,
+    "wall_per_image_median": 2.6297331730020232,
+    "wall_per_image_min": 2.6297331730020232,
+    "cpu_per_image_median": 10.705233884,
+    "max_rss_mb": 1248.68359375,
+    "rss_mb_after_loading_inputs": 283.3359375,
+    "loadavg_before_after": [
+     [
+      5.23828125,
+      5.76953125,
+      6.07666015625
+     ],
+     [
+      5.23828125,
+      5.76953125,
+      6.07666015625
+     ]
+    ]
+   }
   ]
  },
  "science_reported": {
@@ -1188,7 +1468,7 @@
    "args": [
     "outputs/tv-next-imaging-wsl-20261029-01",
     "outputs/core-c-20261029-01",
-    "/home/gijsm/Worktrees/rang/df1-wgridder/outputs/df1-wgridder-20261030-01/science/c-run"
+    "outputs/df1-wgridder-20261030-01/science/c-run"
    ],
    "epsilon": 1e-06,
    "exit_status": 0,
@@ -1200,7 +1480,7 @@
   "i": {
    "script": "examples/run_core_imaging.py",
    "args": [
-    "/home/gijsm/Worktrees/rang/df1-wgridder/outputs/df1-wgridder-20261030-01/science/i-run"
+    "outputs/df1-wgridder-20261030-01/science/i-run"
    ],
    "epsilon": 1e-06,
    "exit_status": 1,
@@ -1210,7 +1490,7 @@
    "n_images": 15
   },
   "c_compare_wsclean": {
-   "candidate": "/home/gijsm/Worktrees/rang/df1-wgridder/outputs/df1-wgridder-20261030-01/science/c-run/images",
+   "candidate": "outputs/df1-wgridder-20261030-01/science/c-run/images",
    "criterion_4_wcs": true,
    "jobs": {
     "caracal-firstpass-rejected": {
@@ -1917,6 +2197,36 @@
      "max_rms_difference": 0.0312869477177961
     }
    }
+  }
+ },
+ "fits_image_large_w_check": {
+  "w x100": {
+   "wstack_peak_at_YX": [
+    241,
+    292
+   ],
+   "exact_peak_at_YX": [
+    241,
+    292
+   ],
+   "wstack_peak": 0.9998603935224057,
+   "exact_peak": 0.9998611728765872,
+   "dirty_linf_rel_peak": 4.584941690272135e-05,
+   "psf_linf": 4.1341263246091886e-05
+  },
+  "w x-100": {
+   "wstack_peak_at_YX": [
+    214,
+    355
+   ],
+   "exact_peak_at_YX": [
+    214,
+    355
+   ],
+   "wstack_peak": 0.9402900292026031,
+   "exact_peak": 0.940297455948564,
+   "dirty_linf_rel_peak": 5.259401526915822e-05,
+   "psf_linf": 4.3016577309679116e-05
   }
  }
 }

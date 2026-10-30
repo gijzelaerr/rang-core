@@ -771,6 +771,50 @@ def cmd_kpixels(args):
     Path(args.out).write_text(json.dumps(res, indent=1))
 
 
+def cmd_fitscheck(args):
+    """`core_wgridder.fits_image` against the core w-stacking image at large
+    w (post hoc, after the advisor's review): item 0's asymmetric point at
+    (+60, +25) pixels on the slice's uvw with w scaled x100, both w signs,
+    against `core_grid.invert` at padding 2, kernel 15, 512 layers; the peak
+    pixel of both in FITS order `[Y, X]`."""
+    from rangtoy import core_wgridder
+
+    d = Path(args.slice)
+    uvw, freq, _vis, wgt = oracle.slice_arrays(d)
+    lam = freq[None, :] / C_LIGHT
+    l0, m0 = 60 * CELL, 25 * CELL
+    n0m1 = np.sqrt(1 - l0**2 - m0**2) - 1
+    res = {}
+    for label, sw in (("w x100", 100.0), ("w x-100", -100.0)):
+        big = uvw * [1.0, 1.0, sw]
+        u, v, w = (big[:, i, None] * lam for i in range(3))
+        pt = np.exp(-2j * np.pi * (u * l0 + v * m0 + w * n0m1)).astype(np.complex64)
+        pt = np.where(wgt > 0, pt, 0).astype(np.complex64)
+        ref = run_core(big, freq, pt, wgt, 2.0, 15, 512)
+        ex = core_wgridder.fits_image(
+            big, freq, pt, wgt, N, N, CELL_ARCSEC, epsilon=1e-7
+        )
+        peak = np.abs(ref["dirty"]).max()
+        res[label] = {
+            "wstack_peak_at_YX": [
+                int(x)
+                for x in np.unravel_index(np.argmax(ref["dirty"]), ref["dirty"].shape)
+            ],
+            "exact_peak_at_YX": [
+                int(x)
+                for x in np.unravel_index(np.argmax(ex["dirty"]), ex["dirty"].shape)
+            ],
+            "wstack_peak": float(ref["dirty"].max()),
+            "exact_peak": float(ex["dirty"].max()),
+            "dirty_linf_rel_peak": float(
+                np.abs(ex["dirty"] - ref["dirty"]).max() / peak
+            ),
+            "psf_linf": float(np.abs(ex["psf"] - ref["psf"]).max()),
+        }
+        print(label, json.dumps(res[label]), flush=True)
+    Path(args.out).write_text(json.dumps(res, indent=1))
+
+
 def cmd_summary(args):
     """Collect the frozen runs of one output directory into the compact
     result file `research/results/df1-wgridder.json`."""
@@ -823,7 +867,12 @@ def cmd_summary(args):
     if cmp_c.is_file():
         sci["c_compare_wsclean"] = json.loads(cmp_c.read_text())
     res["science_reported"] = sci
-    Path(args.out).write_text(json.dumps(res, indent=1) + "\n")
+    fc = o / "item0" / "fitscheck.json"
+    if fc.is_file():
+        res["fits_image_large_w_check"] = json.loads(fc.read_text())
+    # Repository-relative paths (the worktree is temporary).
+    text = json.dumps(res, indent=1).replace(str(ROOT) + "/", "")
+    Path(args.out).write_text(text + "\n")
     print(json.dumps(res["criteria"], indent=1))
 
 
@@ -868,6 +917,10 @@ def main(argv=None):
     kp.add_argument("out")
     kp.add_argument("--epsilon", type=float, default=1e-6)
     kp.set_defaults(func=cmd_kpixels)
+    fc = sub.add_parser("fitscheck")
+    fc.add_argument("slice")
+    fc.add_argument("out")
+    fc.set_defaults(func=cmd_fitscheck)
     m = sub.add_parser("summary")
     m.add_argument("dir")
     m.add_argument("out")
