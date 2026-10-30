@@ -1,5 +1,36 @@
 # Rang research state
 
+DF2b, the exact gridder in the imaging drivers (big plan), 2026-10-30
+(implemented; measured; [df2b-wgrid.md](df2b-wgrid.md)). The imaging paths
+of tasks C, I, K and L1 now take `core_grid.invert(...,
+gridder="wstack"|"wgrid")`: `run_core_gridder.py --gridder`,
+`rang-core imaging run --gridder`, `core_campaign.image_arm` and L1's
+driver through its image dict. `wstack` stays the default and is
+bit-identical to before on every C, I, K and L1 image. A two-weight entry
+point (`Weights::F32Product`, `vis2dirty_ex2`) forms the reader × imaging
+weight in the core, bit-identical to the float32 product, so the drivers'
+copy is gone. `rang._core` binds the gridder, so `core_wgridder` no longer
+builds its standalone library; DF2a's 20 hashes and DF1's gates pass
+through the binding. Against WSClean 3.7's wgridder (O-CASA's image, ε
+1e-6, run on an MS written from the same gridder inputs), the exact
+gridder agrees within 2.5–4.0e-7 of the peak on the 15 C/I jobs, the six K
+arms and L1's 34 M-visibility whole-array image. The counters are equal.
+That MS harness was first checked pixel for pixel against the archived
+WSClean 3.6 image. The comparison closes DF1's open item 4 (orientation
+and normalisation) and shows that WSClean does not divide by n; at
+WSClean's default accuracy 1e-4 the gap is 1.5–4.2e-5. Against archived
+exact-gridder images: K 5.8e-14 (bound 1.8e-13, set from a measured
+row-permutation floor); C and I within one float32 ulp. Against the
+archived w-stacking images the move is the predicted aliasing: 17–32 % of
+the peak at the edge and ≤ 0.56 % in the central half for C/I/K, but
+0.45 % and 0.01 % on L1's whole-array image. I's 23 metric values move as
+DF1 found, K's residual RMS by +0.65 % and L1's by −0.36 %, and no
+hypothesis call changes. Per image at 4 threads the exact gridder takes
+0.19 s against 0.66 s (68 against 218 MB) at four stations, and 8.9 s
+against 23.5 s on L1 (4.4 s at 16 threads); WSClean 3.7 needs 42 s at
+`-j 4`. Open: `--gridder` for `campaign run` and `campaign-array run`, and
+the plan in L1's receipts.
+
 RV1 re-validation (big plan), 2026-10-30 (implemented; measured;
 [rv1-revalidate.md](rv1-revalidate.md)). Neither Tricolour 0.5.0 nor
 QuartiCal 0.2.8 is released (PyPI: 0.2.1 and 0.2.7), so the release branches

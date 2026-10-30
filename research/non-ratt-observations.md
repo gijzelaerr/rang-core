@@ -118,3 +118,18 @@ to an unrelated package (carta-python is not on PyPI).
   the peak (rounding amplified by the gridding correction, up to 3 × 10⁵ in a
   0.3 rad field's corners), so bit-level comparisons need a matching tolerance;
   `do_wgridding=False` is the default, a second trap beside `divide_by_n`.
+
+## From DF2b (2026-10-30; not reported by decision)
+
+- WSClean 3.7 (KERN `3.7-1kern1`): the log does not state the wgridder's
+  precision or kernel; agreement with an exact gridder stops at 2–4e-7 of the
+  peak even at `-wgridder-accuracy 1e-8`, which points to float32 image
+  buffers after the inversion (not verified in the source). The default
+  accuracy 1e-4 leaves 1.5–4.2e-5 of the peak. The wgridder does not divide
+  by n (ducc0's default is the opposite). On L1 accuracy 1e-4 took longer
+  than 1e-6 (98 s against 68 s, one run each, load 10–13); not investigated.
+  The certified-imaging study found the same day that O-CASA's archived
+  `r1-*.fits` reference is 17 % off the exact transform through WSClean's
+  default minimum-grid-resolution upsampling; DF2b's comparison did not use
+  that file (its WSClean runs were made from the gridder inputs at
+  accuracy 1e-6 and agree to 2.5–4e-7).

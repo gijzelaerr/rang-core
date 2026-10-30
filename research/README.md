@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: DF2b, the [exact gridder in the imaging drivers](df2b-wgrid.md):
+`gridder="wgrid"` for C/I/K/L1, `wstack` bit-identical, the archives within
+4e-7 of WSClean 3.7's wgridder, two-weight entry point and extension
+bindings.
+
 New, 2026-10-30: RV1, [re-validation](rv1-revalidate.md) against the
 unreleased Tricolour 0.5.0-dev (`367ff54`: flag for flag identical to
 0.2.1 and the core port, CLI included; the `uvrange` rule changed) and

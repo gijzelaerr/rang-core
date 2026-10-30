@@ -211,7 +211,9 @@ CPU-heavy tasks at a time on 8 physical cores.
   can start beside the science wave (DF1 done 2026-10-30, `df1-wgridder.md`:
   all gates pass; item 0 attributed to WSClean padding-1.2 aliasing; DF2a done
   2026-10-30, `df2-wgridder-speed.md`: at ducc0's speed on whole-array inputs,
-  1.5–2.3× on four-station images; DF2b adds `gridder="wgrid"` to the
+  1.5–2.3× on four-station images; DF2b done 2026-10-30 (`df2b-wgrid.md`): `gridder="wgrid"` in the C/I/K/L1
+  drivers, `wstack` the bit-identical default, every archive within 4e-7 of
+  WSClean 3.7's wgridder; `--gridder` for the campaign runs open; it was to add `gridder="wgrid"` to the
   imaging drivers with a tolerance restated from the rounding floor and
   re-tolerance the C/I/K/L1 archives against WSClean 3.7's wgridder from
   DF0); DF2 puts it into the imaging chains

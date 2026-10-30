@@ -913,3 +913,46 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan RV1: core `solve_complex`, fixture / LUNO, archived and `qp_weights=transposed` | 50 iterations | 0.047–0.051 s / 0.19–0.29 s solve; ≤ 0.42 s process | 93 / 79 MB | `RAYON_NUM_THREADS=4` |
 | 2026-10-30 | big plan RV1: RV1 comparators (flags ×7, QuartiCal ×1, archive build) | – | 0.4–2.3 s each | ≤ 90 MB | |
 | 2026-10-30 | big plan RV1: `bash tools/check-all.sh` (RV1 branch) | repo | 1113 s (pytest 352 s) | 1.7 GB | `overall: PASS`, 623 passed, 5 skipped; load about 2–10 |
+| 2026-10-30 | big plan DF2b: `uv venv -p 3.14` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin pip` | worktree | 73.0 s | 1.18 GB | builds `rang._core` |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py floor` | C `clean-full`, K `original` | 48.9 s | 1.02 GB | includes the standalone cargo build (about 40 s) |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py ms-inputs` + `make-ms` + WSClean 3.7 w-stacking and wgridder (precondition) | C `clean-full` | 0.2 + 1.1 + 2.8 + 1.7 s | 55 MB (host) | pixel-identical to the 3.6 archive |
+| 2026-10-30 | big plan DF2b: harness check (scratch script) | precondition run | 0.65 s | 73 MB | |
+| 2026-10-30 | big plan DF2b: `run_core_gridder.py` (base) | 15 C jobs | 6.5 s | 302 MB | |
+| 2026-10-30 | big plan DF2b: `python -m rang.core_imaging run` (base) | 15 I jobs | 5.2 s | 365 MB | |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py kinvert` (base) | 6 K arms | 1.9 s | 242 MB | |
+| 2026-10-30 | big plan DF2b: `precondition_luno_array.py` (base) | K slice, four stations | 12.9 s | 360 MB | pass |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py dump-l1` | whole array, three arms | 36.0 s | 9.2 GB | decode, state, correct, Briggs |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py image` wstack, four groups (base) | L1 `original` | 17.9 s | 2.80 GB | gridding 16.9 s |
+| 2026-10-30 | big plan DF2b: `cargo build --release` (`core/py`, first) | bindings | – | – | **failed**: 12 type errors (`len()` returns `PyResult` on dynamic arrays); fixed with `as_array().len()` |
+| 2026-10-30 | big plan DF2b: `maturin develop --release` ×3 | worktree | 34.4 s (one timed) | 611 MB | |
+| 2026-10-30 | big plan DF2b: `cargo test --release --lib wgridder` | core | 117.2 s | 1.14 GB | 8 passed (build-dominated) |
+| 2026-10-30 | big plan DF2b: `cargo clippy --release --all-targets -D warnings` (core and `core/py`), `cargo fmt` | | 8.6 s | – | clean after `cargo fmt` |
+| 2026-10-30 | big plan DF2b: pytest (first): `test_df2b_wgrid`, `test_core_wgridder`, `test_core_grid`, `test_core_imaging` | 25 tests | 3.1 s | 85 MB | **4 failed**: two test-side errors in the new file and the two task I tests above; fixed |
+| 2026-10-30 | big plan DF2b: pytest, the same files plus `test_core_cli` and `test_core_campaign` | 54 tests | 1.1 s | – | 53 passed, 1 skipped (ducc0, before it was installed) |
+| 2026-10-30 | big plan DF2b: `compare_core_wgridder.py threads` (extension, 1 and 4 threads) | DF1 gate cases | 4.9 s | 65 MB | 20 hashes equal DF2a's |
+| 2026-10-30 | big plan DF2b: `compare_core_wgridder.py gates` (first) | all cases | 0.19 s | 37 MB | **failed**: no ducc0 in the venv |
+| 2026-10-30 | big plan DF2b: `uv pip install ducc0==0.42.0` | venv | 0.6 s | – | public PyPI |
+| 2026-10-30 | big plan DF2b: `compare_core_wgridder.py gates` | all cases | 7.7 s | 86 MB | all gated checks pass |
+| 2026-10-30 | big plan DF2b: `run_core_gridder.py` / `core_imaging run` / `kinvert` / L1 precondition / L1 wstack image (after) | as base | 11.0 / 11.7 / 5.5 / 18.8 / 27.3 s | 0.31 / 0.36 / 0.24 / 0.35 / 2.80 GB | load 10–20 |
+| 2026-10-30 | big plan DF2b: `rang-core gridder run ... --gridder wgrid` | 15 C jobs | 3.8 s | 140 MB | criteria 1–3 pass |
+| 2026-10-30 | big plan DF2b: `rang-core imaging run ... --gridder wgrid` | 15 I jobs | 3.9 s | 212 MB | |
+| 2026-10-30 | big plan DF2b: `compare_core_imaging.py` (wgrid I against the archive) | I run | 1.1 s | 67 MB | exit 1: 53 failures, as reported |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py kinvert --gridder wgrid` | 6 K arms | 1.1 s | 97 MB | |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py image` ×42 (C, K; wstack and wgrid, 3 repeats) | per input | 0.3–0.9 s each | 70–227 MB | table "Cost" |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py image` wgrid ×3 (4 threads), ×1 (16 threads), four groups ×1 | L1 `original` | 11.6–18.8 / 5.6 / 12.0 s | 2.46–2.51 GB | process wall; gridding 8.7–13.9 / 4.4 / 10.8 s |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py image` wgrid and wstack (four groups) | L1 `tricolour-firstpass`, `tv-policy` | 12.2–13.7 / 21.8–27.2 s | 2.45 / 2.80 GB | |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py image` wgrid ×15 | C jobs | 0.3–0.7 s each | 70 MB | |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py make-ms` (container) ×21 | C jobs, K arms | 0.6–1.1 s each | 36–82 MB | |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py make-ms` (container) | L1 `original` | 27.3 s | 2.43 GB | 4.4 GB MS |
+| 2026-10-30 | big plan DF2b: WSClean 3.7 wgridder `-j 1`, accuracy 1e-6 ×21 | C jobs, K arms | 1.6–3.2 s each | 70–71 MB | container wall |
+| 2026-10-30 | big plan DF2b: WSClean 3.7 wgridder `-j 1`, accuracy 1e-4 / 1e-6 / 1e-8 | L1 `original` | 98.1 / 67.7 / 133.2 s | 833–847 MB | |
+| 2026-10-30 | big plan DF2b: WSClean 3.7 wgridder `-j 1`, accuracy 1e-4 and 1e-8 | C `clean-full`, K `original` | 1.9–2.6 s | 70–75 MB | |
+| 2026-10-30 | big plan DF2b: WSClean 3.7 wgridder `-j 4`, accuracy 1e-6 | C `clean-full` / K `original` / L1 `original` | 4.4 / 2.1 / 42.4 s | 70 / 71 / 847 MB | timing only; load about 20 |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py compare` (first) | run `-02` | 35.1 s | 2.87 GB | **failed**: accuracy file names (`0.0001`); fixed |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py compare` | run `-02` | 40.7 s | 2.91 GB | all gates pass |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py summary` | `compare.json` | 0.3 s | – | `research/results/df2b-wgrid.json` |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py kdriver` (post hoc, first) | K four stations, local tiles | 16.0 s | 499 MB | numbers as below; summary predicate counted `all_equal` (fixed) |
+| 2026-10-30 | big plan DF2b: `compare_df2b.py kdriver` (post hoc) | same | 13.0 s | 499 MB | K `image_arm` both gridders; L1 driver replay with wgrid 7.7 s |
+| 2026-10-30 | big plan DF2b: `bash tools/check-all.sh` (first; cancelled while queued on the host lock, before it started, because the tree changed) | `f27cc92` + record | – | – | no output |
+| 2026-10-30 | big plan DF2b: `bash tools/check-all.sh` (takes the host lock itself; not wrapped) | worktree at `00a50d7` | 32 min 53 s from the call, mostly queued behind four other tasks' runs | – | **PASS**: root 23 and core 112 Rust tests, clippy, fmt, extension build, ruff, format, diff check; pytest 624 passed, 4 skipped in 170.4 s; log `outputs/df2b-20261030-check-all.log` |
+| 2026-10-30 | big plan DF2b: pytest `tests/test_pc1_preconditions.py -rs` | L1 and L2 preconditions | 26.1 s | – | 2 passed (not skipped: the LUNO inputs are on the host) |
