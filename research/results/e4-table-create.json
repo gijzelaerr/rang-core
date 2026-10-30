@@ -1,0 +1,571 @@
+{
+ "task": "E4 casacore table creation (research/e4-table-create.md)",
+ "run": "outputs/e4-20261030-01",
+ "oracles": {
+  "python-casacore": "3.8.1 in rang-ms-reader:local",
+  "casa": "casatools/casatasks 6.7.6.14 in rang-o-casa:6.7.6.14"
+ },
+ "seed": 20261030,
+ "result": {
+  "1 byte identity, casacore cases": true,
+  "2 byte identity, CASA caltables": true,
+  "3 read-back": true,
+  "4 CASA applies the core's tables": true,
+  "5 determinism": true,
+  "6 refusals": true,
+  "7 E3 unchanged": true,
+  "8 serialisation identity": true,
+  "all_pass": true
+ },
+ "cases": [
+  {
+   "name": "N-scalars",
+   "files": 4,
+   "bytes": 18085,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.027042614005040377,
+   "casacore_s": 0.03905525998561643,
+   "rows": null
+  },
+  {
+   "name": "N-arrays",
+   "files": 5,
+   "bytes": 30257,
+   "identical": false,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {
+    "table.f0i": 580
+   },
+   "core_s": 0.005410087993368506,
+   "casacore_s": 0.01729187398450449,
+   "rows": null
+  },
+  {
+   "name": "N-strarr",
+   "files": 4,
+   "bytes": 20039,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.006114351999713108,
+   "casacore_s": 0.020726390997879207,
+   "rows": null
+  },
+  {
+   "name": "N-tiled",
+   "files": 8,
+   "bytes": 46864,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.005221667990554124,
+   "casacore_s": 0.017624222004087642,
+   "rows": null
+  },
+  {
+   "name": "N-buckets",
+   "files": 5,
+   "bytes": 114808,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.008914309000829235,
+   "casacore_s": 0.03349830399383791,
+   "rows": null
+  },
+  {
+   "name": "R-add-new",
+   "files": 5,
+   "bytes": 16239,
+   "identical": false,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {
+    "table.f0i": 50
+   },
+   "core_s": 0.00485571101307869,
+   "casacore_s": 0.015939542994601652,
+   "rows": null
+  },
+  {
+   "name": "R-add-scalars",
+   "files": 4,
+   "bytes": 22765,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.004245353979058564,
+   "casacore_s": 0.013012200011871755,
+   "rows": null
+  },
+  {
+   "name": "R-add-arrays",
+   "files": 5,
+   "bytes": 47585,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.0036073449882678688,
+   "casacore_s": 0.012053931975970045,
+   "rows": null
+  },
+  {
+   "name": "R-add-tiled",
+   "files": 8,
+   "bytes": 59664,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.00532619800651446,
+   "casacore_s": 0.011354490998201072,
+   "rows": null
+  },
+  {
+   "name": "R-add-luno",
+   "files": 59,
+   "bytes": 62000142,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.02398384897969663,
+   "casacore_s": 0.0582994080032222,
+   "rows": null
+  },
+  {
+   "name": "R-remove-scalars",
+   "files": 4,
+   "bytes": 18085,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.004841745016165078,
+   "casacore_s": 0.01132563198916614,
+   "rows": null
+  },
+  {
+   "name": "R-remove-strarr",
+   "files": 4,
+   "bytes": 20039,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.0033967900089919567,
+   "casacore_s": 0.010250362975057214,
+   "rows": null
+  },
+  {
+   "name": "R-remove-buckets",
+   "files": 5,
+   "bytes": 115221,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.00410262297373265,
+   "casacore_s": 0.02104484199662693,
+   "rows": null
+  },
+  {
+   "name": "R-remove-luno",
+   "files": 59,
+   "bytes": 38257794,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.003734056983375922,
+   "casacore_s": 0.014798797987168655,
+   "rows": null
+  },
+  {
+   "name": "R-remove-tiled",
+   "files": 8,
+   "bytes": 46864,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.004347059002611786,
+   "casacore_s": 0.0036542390007525682,
+   "rows": null
+  },
+  {
+   "name": "D-plain",
+   "files": 59,
+   "bytes": 149144,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.0683181400236208,
+   "casacore_s": 0.14922481100074947,
+   "rows": null
+  },
+  {
+   "name": "D-source",
+   "files": 63,
+   "bytes": 156329,
+   "identical": true,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {},
+   "core_s": 0.07446964998962358,
+   "casacore_s": 0.17331595299765468,
+   "rows": null
+  },
+  {
+   "name": "D-data",
+   "files": 61,
+   "bytes": 207569,
+   "identical": false,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {
+    "table.f1i": 40
+   },
+   "core_s": 0.056609669991303235,
+   "casacore_s": 0.16261822899105027,
+   "rows": null
+  }
+ ],
+ "caltables": [
+  {
+   "name": "C-K",
+   "files": 27,
+   "bytes": 66366,
+   "identical": false,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {
+    "FIELD/table.f0i": 24,
+    "table.f0i": 175
+   },
+   "core_s": 0.10591680399375036,
+   "casacore_s": null,
+   "rows": 12
+  },
+  {
+   "name": "C-G",
+   "files": 27,
+   "bytes": 66464,
+   "identical": false,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {
+    "FIELD/table.f0i": 24,
+    "table.f0i": 45
+   },
+   "core_s": 0.07224570101243444,
+   "casacore_s": null,
+   "rows": 12
+  },
+  {
+   "name": "C-B",
+   "files": 27,
+   "bytes": 395264,
+   "identical": false,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {
+    "FIELD/table.f0i": 24,
+    "table.f0i": 4
+   },
+   "core_s": 0.07161481500952505,
+   "casacore_s": null,
+   "rows": 4
+  },
+  {
+   "name": "C-Df",
+   "files": 27,
+   "bytes": 395267,
+   "identical": false,
+   "identical_but_gaps": true,
+   "gap_bytes_masked": {
+    "FIELD/table.f0i": 24,
+    "table.f0i": 4
+   },
+   "core_s": 0.07319980399915949,
+   "casacore_s": null,
+   "rows": 4
+  }
+ ],
+ "casa_task_s": {
+  "gaincal_K": 0.35598615297931246,
+  "gaincal_G": 0.29644974699476734,
+  "bandpass_B": 0.3676045599859208,
+  "polcal_Df": 0.5319328829937149
+ },
+ "apply": {
+  "copies_bit_identical": {
+   "CORRECTED_DATA": true,
+   "FLAG": true
+  },
+  "synthetic": {
+   "cells_compared": 345362,
+   "max_relative": 4.3176845565540134e-07,
+   "solution_flags_applied": true,
+   "pass": true
+  },
+  "apply_wall_s": 6.516534755995963,
+  "pass": true
+ },
+ "readback": {
+  "tables": 103,
+  "cells": 46933,
+  "pass": true
+ },
+ "determinism": {
+  "core_identical_between_runs": {
+   "N-scalars": true,
+   "N-arrays": true,
+   "N-strarr": true,
+   "N-tiled": true,
+   "N-buckets": true,
+   "R-add-new": true,
+   "R-add-scalars": true,
+   "R-add-arrays": true,
+   "R-add-tiled": true,
+   "R-add-luno": true,
+   "R-remove-scalars": true,
+   "R-remove-strarr": true,
+   "R-remove-buckets": true,
+   "R-remove-luno": true,
+   "R-remove-tiled": true,
+   "D-plain": true,
+   "D-source": true,
+   "D-data": true
+  },
+  "casacore": {
+   "oracle2": {
+    "N-scalars": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "N-arrays": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "N-strarr": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "N-tiled": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "N-buckets": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-new": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-scalars": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-arrays": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-tiled": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-luno": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-scalars": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-strarr": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-buckets": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-luno": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-tiled": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "D-plain": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "D-source": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "D-data": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    }
+   },
+   "oracle-perturb": {
+    "N-scalars": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "N-arrays": {
+     "identical": false,
+     "identical_but_gaps": true,
+     "masked": [
+      [
+       "table.f0i",
+       1035
+      ]
+     ]
+    },
+    "N-strarr": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "N-tiled": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "N-buckets": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-new": {
+     "identical": false,
+     "identical_but_gaps": true,
+     "masked": [
+      [
+       "table.f0i",
+       220
+      ]
+     ]
+    },
+    "R-add-scalars": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-arrays": {
+     "identical": false,
+     "identical_but_gaps": true,
+     "masked": [
+      [
+       "table.f0i",
+       1672
+      ]
+     ]
+    },
+    "R-add-tiled": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-add-luno": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-scalars": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-strarr": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-buckets": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-luno": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "R-remove-tiled": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "D-plain": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "D-source": {
+     "identical": true,
+     "identical_but_gaps": true,
+     "masked": []
+    },
+    "D-data": {
+     "identical": false,
+     "identical_but_gaps": true,
+     "masked": [
+      [
+       "table.f1i",
+       76
+      ]
+     ]
+    }
+   }
+  },
+  "pass": true,
+  "wall_s": 2.2440634890226647
+ },
+ "refusals": {
+  "IncrementalStMan": "IncrementalStMan tables are not created (E5)",
+  "MemoryStMan": "MemoryStMan tables are not created (E5)",
+  "TiledDataStMan": "TiledDataStMan tables are not created (E5)",
+  "variable-shape TiledShapeStMan": "V: variable-shape tiled columns are not created (E5)",
+  "MultiFile": "MultiFile tables are not created (E5)",
+  "big-endian": "big-endian tables are not created (E5)",
+  "add rows (IncrementalStMan)": "rows cannot be added: IncrementalStMan columns are not written (E5)",
+  "remove rows (IncrementalStMan)": "rows cannot be removed: IncrementalStMan columns are not written (E5)"
+ },
+ "e3": {
+  "cases_identical": 20,
+  "cases_padding_only": 4,
+  "roundtrip_pass": true,
+  "serialisation_pass": true,
+  "pass": true
+ },
+ "serialisation": {
+  "tables": 103,
+  "ssm_files": 105,
+  "tiled_headers": 7,
+  "failures": {},
+  "pass": true
+ },
+ "code_sha256": {
+  "examples/oracle_ms_create.py": "0eab374e35eb1a2c043090b4587634b14005ca52f0321cad5121fb8cb9367b45",
+  "examples/check_ms_create.py": "0c903efdb84874f1333a6d65f20210a9a59f98394e36f4887720c7d2d022544f",
+  "core/src/ms_create.rs": "efe713590318674008e3bb0da8f5b108942c200e3bada60eeff2ba60b5152ac7",
+  "core/src/caltable.rs": "dff0ed9fbb5c01c891a43a4de49ed6e80a6134f48c87784bb176f5f8c2322b88",
+  "core/src/ms_write.rs": "58c11fbd82aff09f0e3bcabbb115a0c45202929ab570e4641215146aae2e3467",
+  "python/rang/core_ms_write.py": "b33745063431204eab2e79a62f47d9a7c66221f66f7de19c3ab3c6f1582ac4da"
+ }
+}

@@ -11,7 +11,14 @@ from `3b875e0`. Protocol frozen 2026-10-30 in the commit that adds this
 file, before any E4 code. Before freezing, two scratch measurements were
 made (the determinism inventory and the CASA deep-copy check below);
 nothing else was measured.
-Status: **protocol frozen; not implemented.**
+Status: **implemented and measured (frozen check `outputs/e4-20261030-01`):
+all eight criteria pass.** 18 casacore cases (new tables, rows added and
+removed, string arrays, `default_ms`) and CASA's own K, G, B and Df tables
+are byte-identical to casacore 3.8.1 / CASA 6.7.6, the alignment gaps of
+`table.fNi` (E3's exception, masked by the frozen rule) excepted in 7 of 22;
+CASA `applycal` with the core's copies gives bit-identical CORRECTED_DATA
+and FLAG, and a core-made G table applies to 4.3e-7 relative. Archive:
+[results/e4-table-create.json](results/e4-table-create.json).
 
 The user's decision (2026-10-30) stands: the core reads and writes every
 format of the tools it replaces ([ecosystem-survey.md](ecosystem-survey.md)
@@ -309,3 +316,558 @@ post hoc, and the frozen result stays in this file.
   images, the oracle outputs or the binding).
 
 Every tool run is timed and listed under Timings.
+
+## What is implemented
+
+As planned, with these additions (all measured by the frozen run):
+
+- `core/src/ms_create.rs` (≈770 lines with tests): `create_table` (bound
+  managers in `dminfo` order, then one manager per data-manager group of
+  the unbound columns in column order, sequence numbers in that order; a
+  new `table.lock`; `table.dat`, `table.info` and the sync record on the
+  first flush through E3's `TableWriter`); `default_ms` and
+  `default_ms_subtable` (POINTING bound as `createDefaultSubtables` binds
+  it: IncrementalStMan `ISMPointing`, ANTENNA_ID in a 32768-byte
+  StandardStMan `SSMPointing`); and, for that POINTING table only, the
+  files of an **empty** IncrementalStMan (header, one bucket of default
+  values, the index, an empty version-1 array file; its rows and values
+  refuse, E5).
+- `core/src/ms_schema.rs` (≈770, data): the required descriptions of MAIN,
+  the 13 MS subtables and CASA's calibration MAIN table, generated once
+  from casacore's and CASA's `table.dat` by a scratch tool and checked by
+  the byte comparisons (column names, types, comments, units and measure
+  references are the MS v2 and NewCalTable definitions). CASA's
+  calibration subtables use exactly the MS descriptions (measured).
+- `core/src/caltable.rs` (≈190): the calibration MAIN spec (CPARAM or
+  FPARAM, one StandardStMan `MSMTAB` whose columns name type and group
+  `StandardStMan`, the five keywords, the links, `table.info`) and the
+  subtable specs.
+- `core/src/ms_write.rs` (E3, +≈1,100): string arrays (variable-shape:
+  `setShape`, then the put with shape and flag, replaced in place or
+  removed and appended as `SSMStringHandler` does; Direct and FixedShape:
+  no shape), undefined cells, read-only cell reads (`read_cells`),
+  `add_rows` (`SSMIndex::addRow`, FixedShape indirect arrays reserved;
+  TiledColumnStMan extends its cube, a FixedShape TiledShapeStMan makes
+  and extends hypercube 1 with its row map), `remove_rows` (each column's
+  `deleteRow`, including the Bool cache rewrite and the string-heap
+  release, `SSMIndex::deleteRow`, emptied buckets freed), `put_info`,
+  `mark_changed` (casacore's `rwKeywordSet`), `array_records` (the gap
+  mask's record list), and a model of casacore's **bucket cache** (LRU
+  slots, dirty flags and its scratch buffer `its_Buffer`): casacore writes
+  that buffer into every bucket it frees, so freed buckets are now
+  byte-identical (E3's open item; R-remove-buckets and R-remove-luno free
+  buckets). Found on the way: casacore's string handler keeps one
+  character buffer, so a new string bucket starts with the previous
+  bucket's bytes (E3 zeroed it; no E3 case exercised it).
+- `core/src/aipsio.rs`: table-valued keywords (`KeywordValue::Table`, the
+  field naming an empty table description) and field comments
+  (`MS_VERSION` has one).
+- `core/src/ffi_ms_write.rs`: keyword kind 5 (table), C ABI
+  `rang_core_ms_write_add_rows/remove_rows/put_info`, and the tuple types
+  and converters of the extension's creation calls (creation itself is
+  only in the extension; open item).
+- `python/rang/core_ms_write.py`: `create_table` and a python-casacore
+  style `table(name, desc, nrow, dminfo=...)`, `default_ms`,
+  `default_ms_subtable`, `create_caltable` (CASA's write sequence: rows
+  sorted by SPECTRAL_WINDOW_ID, TIME, ANTENNA1, ANTENNA2 with duplicates
+  refused; MAIN filled row by row and flushed; each subtable created,
+  filled row by row, flushed, marked changed and flushed again as
+  `TableCopy::copySubTables` does; then MAIN's links defined and flushed),
+  `read_cells`; on `Table`: string-array `putcol`/`putcell`, `getcell`,
+  `iscelldefined`, `addrows`/`add_rows`, `removerows`/`remove_rows`,
+  `putinfo` (a non-empty readme is one added line, as python-casacore),
+  `Table: <path>` keywords. Two python-casacore 3.8.1 conventions adopted
+  after measuring them: a Python int keyword is stored as Int64, and a
+  default value's type follows Python's (int → Int, float → double,
+  complex → DComplex).
+- `examples/oracle_ms_create.py`: the frozen cases as functions run with
+  either `casacore.tables` or `rang.core_ms_write` as `pt`; modes `write`,
+  `readback`, `casa-solve` (K, G, B as O-CASA arm C on field J1939-6342,
+  then Df) and `casa-apply`. `examples/check_ms_create.py`: the eight
+  criteria and `summary`. `tests/test_e4_table_create.py`: 9 tests of the
+  core alone (skipping without the E4 binding) and the archived verdict.
+
+## Measured result (2026-10-30)
+
+Run `outputs/e4-20261030-01`, all steps by one script, every step timed in
+`timing/` with logs in `logs/`: `oracle` (casacore `write`), `oracle2`,
+`oracle-perturb` (`MALLOC_PERTURB_=85`), then `cases`, `determinism`,
+`casa`, `apply`, `readback`, `refusals`, `e3`, `serialisation`, `summary`
+→ `result.json` (`all_pass: true`). Code: commit `c609f71` plus the
+wiring diff of the appendix. Inputs read in place, never written: the LUNO
+export, O-CASA run `-01`'s `c.ms` (copied inside the container), the
+fixture (copied for the refusals), E3's oracle `outputs/e3-20261030-01`.
+Development runs preceded it in scratch (deleted); the frozen run is the
+first in `outputs/`.
+
+**Criterion 1, casacore cases: passes.**
+
+| Case | Files | Bytes | Against casacore 3.8.1 | Core (ms) | casacore (ms) |
+| --- | ---: | ---: | --- | ---: | ---: |
+| N-scalars | 4 | 18,085 | identical | 27.0 | 39.1 |
+| N-arrays | 5 | 30,257 | identical but 580 gap bytes in `table.f0i` | 5.4 | 17.3 |
+| N-strarr | 4 | 20,039 | identical | 6.1 | 20.7 |
+| N-tiled | 8 | 46,864 | identical | 5.2 | 17.6 |
+| N-buckets | 5 | 114,808 | identical | 8.9 | 33.5 |
+| R-add-new | 5 | 16,239 | identical but 50 gap bytes in `table.f0i` | 4.9 | 15.9 |
+| R-add-scalars | 4 | 22,765 | identical | 4.2 | 13.0 |
+| R-add-arrays | 5 | 47,585 | identical | 3.6 | 12.1 |
+| R-add-tiled | 8 | 59,664 | identical | 5.3 | 11.4 |
+| R-add-luno (+120 rows) | 59 | 62,000,142 | identical | 24.0 | 58.3 |
+| R-remove-scalars | 4 | 18,085 | identical | 4.8 | 11.3 |
+| R-remove-strarr | 4 | 20,039 | identical | 3.4 | 10.3 |
+| R-remove-buckets (a data bucket emptied) | 5 | 115,221 | identical | 4.1 | 21.0 |
+| R-remove-luno (100 rows) | 59 | 38,257,794 | identical | 3.7 | 14.8 |
+| R-remove-tiled | 8 | 46,864 | both refuse; files identical | 4.3 | 3.7 |
+| D-plain | 59 | 149,144 | identical | 68.3 | 149.2 |
+| D-source | 63 | 156,329 | identical | 74.5 | 173.3 |
+| D-data | 61 | 207,569 | identical but 40 gap bytes in `table.f1i` | 56.6 | 162.6 |
+
+Every `table.lock` sync record is equal. casacore's times are its own
+process's (container start excluded), the core's the checker's.
+
+**Criterion 2, CASA's calibration tables: passes.** CASA 6.7.6 solved on
+a copy of O-CASA's `c.ms` (gaincal K 0.36 s, G 0.30 s, bandpass 0.37 s,
+polcal Df 0.53 s); the core read each table and wrote it again with
+`create_caltable`:
+
+| Case | Rows | Files | Bytes | Against CASA | Core (ms) |
+| --- | ---: | ---: | ---: | --- | ---: |
+| C-K (FPARAM) | 12 | 27 | 66,366 | identical but 199 gap bytes | 105.9 |
+| C-G | 12 | 27 | 66,464 | identical but 69 gap bytes | 72.2 |
+| C-B | 4 | 27 | 395,264 | identical but 28 gap bytes | 71.6 |
+| C-Df | 4 | 27 | 395,267 | identical but 28 gap bytes | 73.2 |
+
+All differing bytes are gaps of MAIN's `table.f0i`; `table.dat`,
+`table.f0`, `table.info`, every subtable file and every sync record (2,
+2, [1] for MAIN and subtables) are identical.
+
+**Criterion 3, read-back: passes.** 103 tables (the 18 cases with their
+subtables on both sides, CASA's four and the core's four with subtables),
+46,933 defined cells: python-casacore reads the core's tables exactly as
+casacore's (keywords, column keywords, info, definedness, every cell), and
+the core reads casacore's and CASA's tables exactly as python-casacore
+does; one convention compared by value: python-casacore returns uChar
+cells as uint16 (the core uint8).
+
+**Criterion 4, CASA consumes the core's tables: passes.** `applycal` (K,
+G, B, Df; O-CASA's apply settings) on two copies of the MS, CASA's tables
+on one and the core's on the other: CORRECTED_DATA and FLAG bit-identical.
+The synthetic G table (seeded gains, one solution per antenna, one
+flagged, subtables from the MS with one channel per window as gaincal
+writes them) applied alone: 345,362 unflagged cells of J1939-6342 compared
+with V_pq / (g_p,a conj(g_q,b)) computed on the host, max relative error
+4.3e-7; the flagged solution's correlations are flagged.
+
+**Criterion 5, determinism: passes.** The core's outputs of every case are
+identical between two runs and a `MALLOC_PERTURB_=85` run (no mask).
+casacore's second run equals its first; its perturbed run differs only in
+masked gaps (N-arrays 1,035 bytes, R-add-new 220, R-add-arrays 1,672,
+D-data 76, all `table.fNi`), as the inventory predicted.
+
+**Criterion 6, refusals: passes.** IncrementalStMan, MemoryStMan,
+TiledDataStMan, a variable-shape TiledShapeStMan column, MultiFile and
+big-endian creation refuse naming E5 and leave no table; adding and
+removing rows of a fixture copy refuse (E5) and change no data file.
+
+**Criterion 7, E3 unchanged: passes.** E3's checker against its frozen
+oracle: 20 cases identical, 4 identical but alignment padding; round trip
+and serialisation pass; `tests/test_core_ms_write.py` passes.
+
+**Criterion 8, serialisation identity: passes**: 103 tables, 105
+StandardStMan files and 7 tiled headers of casacore's and CASA's tables.
+
+## Deviations
+
+- Scope item 4 needed an IncrementalStMan: `createDefaultSubtables` binds
+  POINTING to one. The core writes the files of an empty IncrementalStMan
+  for that table only (inside `default_ms`); `create_table` still refuses
+  IncrementalStMan (criterion 6) and the POINTING table's rows refuse (E5).
+- The read-back comparator uses python-casacore's `getcol` for scalar
+  cells (`getcell` returns Python ints) and compares uChar by value; both
+  fixed in development, before the frozen run.
+- C-synthetic's SPECTRAL_WINDOW has one channel per window: during
+  development CASA aborted on a 2048-channel window for a one-channel G
+  table.
+
+## Open items
+
+- Removing the last row of a StandardStMan (casacore recreates the
+  manager) is refused.
+- Table creation is not in the C ABI (extension only); rows and info are.
+- The task E reader (`ms.rs`, not this task's file) still treats
+  variable-shape string arrays as indirect arrays and refuses undefined
+  cells; `core_ms_write.read_cells` and `Table.getcell` cover both.
+- `default_ms` writes each subtable when it is created, casacore when MAIN
+  closes; the files are identical (measured).
+- Nothing large was created; speed was not tuned (the core is 1.5–4×
+  faster than python-casacore on these tables).
+
+## Timings
+
+| Date | Tool / stage | Input | Wall | Notes |
+| --- | --- | --- | ---: | --- |
+| 2026-10-30 | `git clone --depth 1 --branch v3.8.1 casacore` | 43 MB | 5.1 s | format reference, scratch |
+| 2026-10-30 | `git clone --sparse` casa6 mirror (CalTables, MSVis) | dic-case-studies/casa6 | ~60 s | NewCalTable reference, scratch, not timed precisely |
+| 2026-10-30 | `git clone --depth 1 --branch v3.8.1 python-casacore` | | 1.3 s | `default_ms` reference, scratch |
+| 2026-10-30 | `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin pip` | worktree | 74.7 s | |
+| 2026-10-30 | `uv pip install casacure==3.8.35` | | 0.7 s | E3's second read-back oracle (criterion 7) |
+| 2026-10-30 | determinism inventory, python-casacore 3.8.1, 4 containers | 3 tables | 2.3 s | pre-freeze scratch |
+| 2026-10-30 | deep copy of O-CASA's K, G, B, python-casacore 3.8.1 | 3 caltables | ~3 s | pre-freeze scratch |
+| 2026-10-30 | `cargo build --release` (core) | `core/` | 150.6 s | first build in the worktree |
+| 2026-10-30 | `maturin develop --release` | extension | 108–265 s | six builds |
+| 2026-10-30 | `cargo test --release` (core, 115 tests) | `core/` | 256.6 s | build included |
+| 2026-10-30 | `pytest tests/test_e4_table_create.py tests/test_core_ms_write.py` | | 7.8 s | 18 passed, 1 skipped |
+| 2026-10-30 | oracle `write` (run `oracle`) | 18 cases | 1.8 s | container; 103 MB |
+| 2026-10-30 | oracle `write`, second / `MALLOC_PERTURB_=85` | 18 cases | 1.5 s / 1.6 s | |
+| 2026-10-30 | `check_ms_create.py cases` | 18 cases | 0.7 s | |
+| 2026-10-30 | `check_ms_create.py determinism` | 2 × 18 cases | 2.3 s | |
+| 2026-10-30 | `check_ms_create.py casa` (CASA K, G, B, Df, dump, rebuild) | O-CASA `c.ms` | 5.7 s | container 4.6 s; CASA tasks 0.30–0.53 s |
+| 2026-10-30 | `check_ms_create.py apply` | 3 × `applycal` | 6.9 s | container 6.5 s |
+| 2026-10-30 | `check_ms_create.py readback` | 103 tables | 7.6 s | container 3.5 s |
+| 2026-10-30 | `check_ms_create.py refusals` | 8 attempts | 0.4 s | |
+| 2026-10-30 | `check_ms_create.py e3` | E3 oracle | 7.8 s | |
+| 2026-10-30 | `check_ms_create.py serialisation` | 103 tables | 0.1 s | |
+| 2026-10-30 | `bash tools/check-all.sh` (wiring diff present) | repo | 786 s | PASS: root 23, core 115 Rust tests; pytest 630 passed, 4 skipped (118 s); log `outputs/e4-20261030-check-all.log`; a first run (867 s) failed only `git diff --check` on this file's appendix |
+
+## For the coordinator
+
+- `core/src/lib.rs`, alphabetical: `pub mod caltable;`, `pub mod
+  ms_create;`, `pub mod ms_schema;` (no new dependency, `Cargo.lock`
+  unchanged).
+- `core/py/src/lib.rs`: the appendix diff (new `MsWriter` methods
+  `put_string_cells`, `columns`, `add_rows`, `remove_rows`, `is_defined`,
+  `mark_changed`, `put_info`, `read_cells`; functions `ms_create_table`,
+  `ms_default_ms`, `ms_default_ms_subtable`, `ms_caltable_main`,
+  `ms_caltable_subtable`, `ms_read_cells`, `ms_array_records`; the
+  `ffi_ms_write` import). Without it `tests/test_e4_table_create.py`
+  skips. `tools/check-all.sh` ran with the diff present.
+- STATE paragraph: "E4 (core table creation) measured: rang's core now
+  creates casacore tables as casacore 3.8.1 does: new tables from a
+  description (StandardStMan, TiledColumnStMan, TiledShapeStMan, keywords,
+  `table.info`), rows added and removed on new and existing managers,
+  string arrays, `default_ms` with its subtables (SOURCE on request), and
+  CASA calibration tables (G, B, K, Df) written in CASA's own sequence. 18
+  casacore cases and CASA 6.7.6's own K, G, B and Df tables are
+  byte-identical except casacore's uninitialised alignment gaps in
+  `table.fNi` (masked, 7 of 22); CASA `applycal` with the core's copies
+  gives bit-identical CORRECTED_DATA and FLAG, a core-made G table applies
+  to 4.3e-7; read-back, determinism (twin and MALLOC_PERTURB_), E5
+  refusals, E3 and serialisation checks pass. `outputs/e4-20261030-01`,
+  `research/results/e4-table-create.json`."
+- `research/README.md` index line: "[e4-table-create.md](e4-table-create.md)
+  — E4: casacore table creation, rows, string arrays, `default_ms` and CASA
+  caltables in the core writer; byte-identical to casacore 3.8.1 and CASA
+  6.7.6 (gaps masked), applycal bit-identical (measured)."
+- `research/tool-timings.md`: the Timings rows above and the check-all row
+  in the final report.
+- `research/big-plan.md`: E4 done 2026-10-30 (`e4-table-create.md`).
+- README: `rang.core_ms_write` creates casacore tables, MeasurementSets
+  (`default_ms`) and CASA calibration tables; python-casacore is no longer
+  needed to create them (it stays the oracle).
+- Upstream observations (all non-RATT, for
+  `research/non-ratt-observations.md`; nothing RATT, caracal-pipeline or
+  saopicc):
+  - casacore 3.8.1 (E3's item, confirmed): `table.fNi` alignment gaps hold
+    uninitialised heap bytes (4 of 18 cases differ under
+    `MALLOC_PERTURB_=85`).
+  - casacore 3.8.1 (note): the bucket cache writes its scratch buffer (the
+    last bucket read or written) into a freed StandardStMan bucket, and the
+    string handler starts a new string bucket with the previous bucket's
+    characters: file contents depend on access history (deterministic,
+    unreferenced).
+  - CASA 6.7.6 (note): calibration tables name the columns' data-manager
+    group `StandardStMan` where a casacore 3.8.1 deep copy keeps `MSMTAB`;
+    rows are sorted with a non-stable heap sort.
+  - python-casacore 3.8.1 (note): Python int keywords become Int64,
+    `getcell` returns Python scalars, uChar cells come back as uint16.
+- DF-IO-CT should pick up: `create_caltable` (sorted rows, WEIGHT left
+  undefined as CASA leaves it, SPECTRAL_WINDOW with one channel per window
+  for G/K/Df), the `applycal` round trip of `check_ms_create.py apply`,
+  and per-VisCal semantics (parameter layouts, interpolation, reference
+  antenna), which E4 does not interpret.
+- E5 should pick up: IncrementalStMan rows and values (only the empty
+  POINTING ISM is written), big-endian, variable-shape tiled columns (more
+  than one hypercube), MultiFile, MemoryStMan, TiledDataStMan, removing
+  the last row of a StandardStMan, creation in the C ABI.
+- Ignored output: `outputs/e4-20261030-01` (2.7 GB: `e3/` 1.7 GB, E3's
+  re-run, can be deleted; `refusals/` 80 MB, `apply/` 183 MB and `dumps/`
+  185 MB can be trimmed to their JSON) and
+  `outputs/e4-20261030-check-all.log`.
+- Scratch `~/Build/tmp/20261030-e4` (clones, development runs, the
+  generator) is deleted at the end of the task.
+
+## Appendix: the wiring diff
+
+Exactly what `tools/check-all.sh` compiled (`git apply` from the
+repository root):
+
+```diff
+diff --git a/core/py/src/lib.rs b/core/py/src/lib.rs
+index 8cd49b9..e88889c 100644
+--- a/core/py/src/lib.rs
++++ b/core/py/src/lib.rs
+@@ -34,7 +34,9 @@ use rang_core::ffi;
+ use rang_core::ffi_correct::CorrectInputsC;
+ use rang_core::ffi_flag::{FlagInputs, FlagOutputs};
+ use rang_core::ffi_grid::{GridInputs, GridOutputs};
+-use rang_core::ffi_ms_write::{keyword_value, new_column};
++use rang_core::ffi_ms_write::{
++    ColumnArgs, ManagerArgs, column_descs, keyword_value, manager_specs, new_column,
++};
+ use rang_core::ffi_weights::{
+     ImagingWeightInputs, ImagingWeightOutputs, StokesIInputs, StokesIOutputs,
+ };
+@@ -1294,6 +1296,216 @@ impl MsWriter {
+             None => Ok(()),
+         }
+     }
++
++    /// Write `count` rows of a string-array column from `start`, every
++    /// cell of `shape` (casacore order), strings in Fortran order.
++    fn put_string_cells(
++        &mut self,
++        name: &str,
++        start: u64,
++        count: u64,
++        shape: Vec<i64>,
++        strings: Vec<String>,
++    ) -> PyResult<()> {
++        self.get()?
++            .put_string_cells(name, start, count, &shape, &strings)
++            .map_err(|e| PyOSError::new_err(e.0))
++    }
++
++    /// The columns as (name, type code, is array), in table order.
++    fn columns(&mut self) -> PyResult<Vec<(String, i32, bool)>> {
++        Ok(self
++            .get()?
++            .dat
++            .columns
++            .iter()
++            .map(|c| (c.name.clone(), c.dtype, c.is_array()))
++            .collect())
++    }
++
++    fn add_rows(&mut self, py: Python<'_>, n: u64) -> PyResult<()> {
++        let w = self.get()?;
++        detach(py, || w.add_rows(n)).map_err(|e| PyOSError::new_err(e.0))
++    }
++
++    fn remove_rows(&mut self, py: Python<'_>, rows: Vec<u64>) -> PyResult<()> {
++        let w = self.get()?;
++        detach(py, || w.remove_rows(&rows)).map_err(|e| PyOSError::new_err(e.0))
++    }
++
++    fn is_defined(&mut self, name: &str, row: u64) -> PyResult<bool> {
++        self.get()?
++            .is_defined(name, row)
++            .map_err(|e| PyOSError::new_err(e.0))
++    }
++
++    /// Mark the table changed (casacore's `rwKeywordSet`).
++    fn mark_changed(&mut self) -> PyResult<()> {
++        self.get()?
++            .mark_changed()
++            .map_err(|e| PyOSError::new_err(e.0))
++    }
++
++    fn put_info(&mut self, kind: &str, sub_kind: &str, readme: &str) -> PyResult<()> {
++        self.get()?
++            .put_info(kind, sub_kind, readme)
++            .map_err(|e| PyOSError::new_err(e.0))
++    }
++
++    /// Flush, then read cells: (0 undefined / 1 values / 2 strings, shape
++    /// in casacore order, native bytes, strings) per row.
++    fn read_cells<'py>(
++        &mut self,
++        py: Python<'py>,
++        name: &str,
++        start: u64,
++        count: u64,
++    ) -> PyResult<Vec<CellTuple<'py>>> {
++        let w = self.get()?;
++        let cells =
++            detach(py, || w.read_cells(name, start, count)).map_err(|e| PyOSError::new_err(e.0))?;
++        Ok(cells.into_iter().map(|c| cell_tuple(py, c)).collect())
++    }
++}
++
++type CellTuple<'py> = (i32, Vec<i64>, Bound<'py, PyBytes>, Vec<String>);
++
++fn cell_tuple(py: Python<'_>, cell: rang_core::ms_write::Cell) -> CellTuple<'_> {
++    use rang_core::ms_write::Cell;
++    match cell {
++        Cell::Undefined => (0, Vec::new(), PyBytes::new(py, &[]), Vec::new()),
++        Cell::Values(shape, bytes) => (1, shape, PyBytes::new(py, &bytes), Vec::new()),
++        Cell::Strings(shape, strings) => (2, shape, PyBytes::new(py, &[]), strings),
++    }
++}
++
++fn writer(w: rang_core::ms::Result<TableWriter>) -> PyResult<MsWriter> {
++    w.map(|w| MsWriter { writer: Some(w) })
++        .map_err(|e| PyOSError::new_err(e.0))
++}
++
++/// Create a table (research/e4-table-create.md): description (name,
++/// version, comment), columns and data managers as tuples
++/// (`ffi_ms_write::ColumnArgs`, `ManagerArgs`), `table.info` (type,
++/// subtype, readme), `nrows` rows; returned open for writing.
++#[pyfunction]
++#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false))]
++#[allow(clippy::too_many_arguments)]
++fn ms_create_table(
++    py: Python<'_>,
++    path: &str,
++    desc: (String, String, String),
++    columns: Vec<ColumnArgs>,
++    managers: Vec<ManagerArgs>,
++    info: (String, String, String),
++    nrows: u64,
++    big_endian: bool,
++    multifile: bool,
++) -> PyResult<MsWriter> {
++    let spec = rang_core::ms_create::TableSpec {
++        desc_name: desc.0,
++        desc_version: desc.1,
++        desc_comment: desc.2,
++        columns: column_descs(columns).map_err(PyValueError::new_err)?,
++        managers: manager_specs(managers),
++        info,
++        big_endian,
++        multifile,
++        ..Default::default()
++    };
++    writer(detach(py, || {
++        rang_core::ms_create::create_table(path, &spec, nrows)
++    }))
++}
++
++/// python-casacore's `default_ms(path, desc, dminfo)`.
++#[pyfunction]
++fn ms_default_ms(
++    py: Python<'_>,
++    path: &str,
++    columns: Vec<ColumnArgs>,
++    managers: Vec<ManagerArgs>,
++) -> PyResult<MsWriter> {
++    let extra = column_descs(columns).map_err(PyValueError::new_err)?;
++    let managers = manager_specs(managers);
++    writer(detach(py, || {
++        rang_core::ms_create::default_ms(path, &extra, &managers)
++    }))
++}
++
++/// python-casacore's `default_ms_subtable(name, path, desc, dminfo)`.
++#[pyfunction]
++fn ms_default_ms_subtable(
++    py: Python<'_>,
++    name: &str,
++    path: &str,
++    columns: Vec<ColumnArgs>,
++    managers: Vec<ManagerArgs>,
++) -> PyResult<MsWriter> {
++    let extra = column_descs(columns).map_err(PyValueError::new_err)?;
++    let managers = manager_specs(managers);
++    writer(detach(py, || {
++        rang_core::ms_create::default_ms_subtable(name, path, &extra, &managers)
++    }))
++}
++
++/// The MAIN table of a CASA calibration table with `nrows` rows.
++#[pyfunction]
++#[allow(clippy::too_many_arguments)]
++fn ms_caltable_main(
++    py: Python<'_>,
++    path: &str,
++    vis_cal: String,
++    float_param: bool,
++    ms_name: String,
++    pol_basis: String,
++    casa_version: String,
++    nrows: u64,
++) -> PyResult<MsWriter> {
++    let cal = rang_core::caltable::CalTable {
++        vis_cal,
++        float_param,
++        ms_name,
++        pol_basis,
++        casa_version,
++    };
++    let spec = rang_core::caltable::main_spec(&cal).map_err(|e| PyValueError::new_err(e.0))?;
++    writer(detach(py, || {
++        rang_core::ms_create::create_table(path, &spec, nrows)
++    }))
++}
++
++/// A calibration subtable (`OBSERVATION`, `ANTENNA`, `FIELD`,
++/// `SPECTRAL_WINDOW`, `HISTORY`) with `nrows` rows.
++#[pyfunction]
++fn ms_caltable_subtable(py: Python<'_>, path: &str, name: &str, nrows: u64) -> PyResult<MsWriter> {
++    let spec = rang_core::caltable::subtable_spec(name).map_err(|e| PyValueError::new_err(e.0))?;
++    writer(detach(py, || {
++        rang_core::ms_create::create_table(path, &spec, nrows)
++    }))
++}
++
++/// The array records a table's rows reference: (file, offset, element
++/// bits) (`ms_write::array_records`, the alignment-gap mask).
++#[pyfunction]
++fn ms_array_records(py: Python<'_>, path: &str) -> PyResult<Vec<(String, u64, u32)>> {
++    detach(py, || rang_core::ms_write::array_records(path)).map_err(|e| PyOSError::new_err(e.0))
++}
++
++/// Read cells of a table without writing (`ms_write::read_cells`).
++#[pyfunction]
++fn ms_read_cells<'py>(
++    py: Python<'py>,
++    path: &str,
++    name: &str,
++    start: u64,
++    count: u64,
++) -> PyResult<Vec<CellTuple<'py>>> {
++    let cells = detach(py, || {
++        rang_core::ms_write::read_cells(path, name, start, count, None)
++    })
++    .map_err(|e| PyOSError::new_err(e.0))?;
++    Ok(cells.into_iter().map(|c| cell_tuple(py, c)).collect())
+ }
+
+ /// The extension module `rang._core`.
+@@ -1332,5 +1544,12 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
+     m.add_class::<MsTable>()?;
+     m.add_class::<MsWriter>()?;
+     m.add_function(wrap_pyfunction!(ms_serialisation_check, m)?)?;
++    m.add_function(wrap_pyfunction!(ms_create_table, m)?)?;
++    m.add_function(wrap_pyfunction!(ms_default_ms, m)?)?;
++    m.add_function(wrap_pyfunction!(ms_default_ms_subtable, m)?)?;
++    m.add_function(wrap_pyfunction!(ms_caltable_main, m)?)?;
++    m.add_function(wrap_pyfunction!(ms_caltable_subtable, m)?)?;
++    m.add_function(wrap_pyfunction!(ms_read_cells, m)?)?;
++    m.add_function(wrap_pyfunction!(ms_array_records, m)?)?;
+     Ok(())
+ }
+diff --git a/core/src/lib.rs b/core/src/lib.rs
+index 4df6968..fcc6932 100644
+--- a/core/src/lib.rs
++++ b/core/src/lib.rs
+@@ -22,6 +22,7 @@
+
+ pub mod aipsio;
+ pub mod blosc;
++pub mod caltable;
+ pub mod clean;
+ pub mod closure;
+ pub mod correct;
+@@ -40,7 +41,9 @@ pub mod fused;
+ pub mod grid;
+ pub mod jones;
+ pub mod ms;
++pub mod ms_create;
+ pub mod ms_desc;
++pub mod ms_schema;
+ pub mod ms_write;
+ pub mod predict;
+ pub mod robust;
+```
