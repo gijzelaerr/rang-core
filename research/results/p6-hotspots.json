@@ -1,0 +1,695 @@
+{
+ "task": "P6 frozen Python hot spots (research/p6-python-hotspots.md)",
+ "head_measured": "0c074e6f101245013ae69a221ab72098d0a905e2",
+ "baseline_02": [
+  {
+   "label": "base",
+   "stage": "trend",
+   "repeat": 1,
+   "load_before": "31.35 26.60 27.51",
+   "load_after": "32.21 28.15 27.98",
+   "wall_s": 89.86,
+   "user_s": 47.65,
+   "sys_s": 0.3,
+   "peak_rss_mb": 343.5,
+   "exit": 1
+  },
+  {
+   "label": "base",
+   "stage": "signal",
+   "repeat": 1,
+   "load_before": "32.21 28.15 27.98",
+   "load_after": "26.02 27.01 27.59",
+   "wall_s": 59.23,
+   "user_s": 51.23,
+   "sys_s": 0.73,
+   "peak_rss_mb": 833.8,
+   "exit": 0
+  },
+  {
+   "label": "base",
+   "stage": "trend",
+   "repeat": 2,
+   "load_before": "26.02 27.01 27.59",
+   "load_after": "28.29 27.34 27.66",
+   "wall_s": 68.19,
+   "user_s": 46.69,
+   "sys_s": 0.33,
+   "peak_rss_mb": 340.9,
+   "exit": 1
+  },
+  {
+   "label": "base",
+   "stage": "signal",
+   "repeat": 2,
+   "load_before": "28.29 27.34 27.66",
+   "load_after": "28.29 27.34 27.66",
+   "wall_s": 0.21,
+   "user_s": 0.45,
+   "sys_s": 0.03,
+   "peak_rss_mb": 38.4,
+   "exit": 1
+  },
+  {
+   "label": "base",
+   "stage": "trend",
+   "repeat": 3,
+   "load_before": "28.29 27.34 27.66",
+   "load_after": "30.66 28.01 27.84",
+   "wall_s": 84.77,
+   "user_s": 48.16,
+   "sys_s": 0.3,
+   "peak_rss_mb": 340.4,
+   "exit": 1
+  },
+  {
+   "label": "base",
+   "stage": "signal",
+   "repeat": 3,
+   "load_before": "30.66 28.01 27.84",
+   "load_after": "31.59 29.01 28.22",
+   "wall_s": 93.42,
+   "user_s": 57.98,
+   "sys_s": 0.76,
+   "peak_rss_mb": 828.3,
+   "exit": 0
+  }
+ ],
+ "frozen_ab_06": {
+  "runs": [
+   {
+    "stage": "trend",
+    "arm": "base",
+    "repeat": 1,
+    "load_before": "34.53 34.74 33.41",
+    "load_after": "42.56 37.89 34.74",
+    "wall_s": 124.89,
+    "user_s": 51.03,
+    "sys_s": 0.39,
+    "peak_rss_mb": 340.8,
+    "exit": 0
+   },
+   {
+    "stage": "trend",
+    "arm": "new",
+    "repeat": 1,
+    "load_before": "42.56 37.89 34.74",
+    "load_after": "39.32 37.55 34.73",
+    "wall_s": 30.0,
+    "user_s": 17.87,
+    "sys_s": 0.96,
+    "peak_rss_mb": 416.1,
+    "exit": 0
+   },
+   {
+    "stage": "signal",
+    "arm": "base",
+    "repeat": 1,
+    "load_before": "39.32 37.55 34.73",
+    "load_after": "29.14 35.18 34.12",
+    "wall_s": 67.68,
+    "user_s": 52.56,
+    "sys_s": 1.07,
+    "peak_rss_mb": 828.8,
+    "exit": 0
+   },
+   {
+    "stage": "signal",
+    "arm": "new",
+    "repeat": 1,
+    "load_before": "29.14 35.18 34.12",
+    "load_after": "23.94 33.21 33.50",
+    "wall_s": 34.19,
+    "user_s": 37.36,
+    "sys_s": 0.79,
+    "peak_rss_mb": 871.9,
+    "exit": 0
+   },
+   {
+    "stage": "trend",
+    "arm": "new",
+    "repeat": 2,
+    "load_before": "23.94 33.21 33.50",
+    "load_after": "21.97 32.16 33.14",
+    "wall_s": 17.23,
+    "user_s": 15.64,
+    "sys_s": 0.87,
+    "peak_rss_mb": 416.0,
+    "exit": 0
+   },
+   {
+    "stage": "trend",
+    "arm": "base",
+    "repeat": 2,
+    "load_before": "21.97 32.16 33.14",
+    "load_after": "19.35 29.70 32.25",
+    "wall_s": 56.21,
+    "user_s": 51.3,
+    "sys_s": 0.47,
+    "peak_rss_mb": 340.3,
+    "exit": 0
+   },
+   {
+    "stage": "signal",
+    "arm": "new",
+    "repeat": 2,
+    "load_before": "19.35 29.70 32.25",
+    "load_after": "17.56 28.16 31.64",
+    "wall_s": 32.97,
+    "user_s": 36.56,
+    "sys_s": 1.19,
+    "peak_rss_mb": 868.0,
+    "exit": 0
+   },
+   {
+    "stage": "signal",
+    "arm": "base",
+    "repeat": 2,
+    "load_before": "17.56 28.16 31.64",
+    "load_after": "11.56 25.69 30.70",
+    "wall_s": 31.91,
+    "user_s": 39.33,
+    "sys_s": 1.23,
+    "peak_rss_mb": 827.3,
+    "exit": 0
+   },
+   {
+    "stage": "trend",
+    "arm": "base",
+    "repeat": 3,
+    "load_before": "11.56 25.69 30.70",
+    "load_after": "8.49 23.33 29.72",
+    "wall_s": 34.48,
+    "user_s": 35.01,
+    "sys_s": 0.3,
+    "peak_rss_mb": 340.7,
+    "exit": 0
+   },
+   {
+    "stage": "trend",
+    "arm": "new",
+    "repeat": 3,
+    "load_before": "8.49 23.33 29.72",
+    "load_after": "7.34 22.59 29.42",
+    "wall_s": 11.17,
+    "user_s": 11.42,
+    "sys_s": 0.63,
+    "peak_rss_mb": 408.8,
+    "exit": 0
+   },
+   {
+    "stage": "signal",
+    "arm": "base",
+    "repeat": 3,
+    "load_before": "7.34 22.59 29.42",
+    "load_after": "8.93 20.98 28.58",
+    "wall_s": 37.68,
+    "user_s": 41.79,
+    "sys_s": 1.07,
+    "peak_rss_mb": 828.4,
+    "exit": 0
+   },
+   {
+    "stage": "signal",
+    "arm": "new",
+    "repeat": 3,
+    "load_before": "8.93 20.98 28.58",
+    "load_after": "14.42 21.00 28.30",
+    "wall_s": 34.64,
+    "user_s": 38.03,
+    "sys_s": 0.7,
+    "peak_rss_mb": 872.0,
+    "exit": 0
+   }
+  ],
+  "summary": {
+   "trend": {
+    "base": {
+     "min": 34.48,
+     "median": 56.21,
+     "walls": [
+      124.89,
+      56.21,
+      34.48
+     ],
+     "user": [
+      51.03,
+      51.3,
+      35.01
+     ]
+    },
+    "new": {
+     "min": 11.17,
+     "median": 17.23,
+     "walls": [
+      30.0,
+      17.23,
+      11.17
+     ],
+     "user": [
+      17.87,
+      15.64,
+      11.42
+     ]
+    },
+    "claim_rule": {
+     "base_spread": 21.73,
+     "margin": 23.31,
+     "claimed": true
+    }
+   },
+   "signal": {
+    "base": {
+     "min": 31.91,
+     "median": 37.68,
+     "walls": [
+      67.68,
+      31.91,
+      37.68
+     ],
+     "user": [
+      52.56,
+      39.33,
+      41.79
+     ]
+    },
+    "new": {
+     "min": 32.97,
+     "median": 34.19,
+     "walls": [
+      34.19,
+      32.97,
+      34.64
+     ],
+     "user": [
+      37.36,
+      36.56,
+      38.03
+     ]
+    },
+    "claim_rule": {
+     "base_spread": 5.77,
+     "margin": -1.06,
+     "claimed": false
+    }
+   }
+  },
+  "checks": {
+   "identity-trend-1": {
+    "checkpoint-antenna-local-seed101.json": true,
+    "checkpoint-antenna-local-seed103.json": true,
+    "checkpoint-antenna-local-seed105.json": true,
+    "checkpoint-balanced-clean.json": true,
+    "checkpoint-time-burst-seed101.json": true,
+    "checkpoint-time-burst-seed103.json": true,
+    "checkpoint-time-burst-seed105.json": true,
+    "config.json": true,
+    "result.json": true
+   },
+   "compare-trend-base-1": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 875,
+     "float": 168
+    },
+    "excluded": 1
+   },
+   "compare-trend-new-1": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 875,
+     "float": 168
+    },
+    "excluded": 1
+   },
+   "identity-signal-1": {
+    "result.json": true
+   },
+   "compare-signal-base-1": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 261,
+     "float": 208,
+     "difference": 4,
+     "reported": 12
+    },
+    "excluded": 15
+   },
+   "compare-signal-new-1": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 261,
+     "float": 208,
+     "difference": 4,
+     "reported": 12
+    },
+    "excluded": 15
+   },
+   "identity-trend-2": {
+    "checkpoint-antenna-local-seed101.json": true,
+    "checkpoint-antenna-local-seed103.json": true,
+    "checkpoint-antenna-local-seed105.json": true,
+    "checkpoint-balanced-clean.json": true,
+    "checkpoint-time-burst-seed101.json": true,
+    "checkpoint-time-burst-seed103.json": true,
+    "checkpoint-time-burst-seed105.json": true,
+    "config.json": true,
+    "result.json": true
+   },
+   "compare-trend-base-2": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 875,
+     "float": 168
+    },
+    "excluded": 1
+   },
+   "compare-trend-new-2": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 875,
+     "float": 168
+    },
+    "excluded": 1
+   },
+   "identity-signal-2": {
+    "result.json": true
+   },
+   "compare-signal-base-2": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 261,
+     "float": 208,
+     "difference": 4,
+     "reported": 12
+    },
+    "excluded": 15
+   },
+   "compare-signal-new-2": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 261,
+     "float": 208,
+     "difference": 4,
+     "reported": 12
+    },
+    "excluded": 15
+   },
+   "identity-trend-3": {
+    "checkpoint-antenna-local-seed101.json": true,
+    "checkpoint-antenna-local-seed103.json": true,
+    "checkpoint-antenna-local-seed105.json": true,
+    "checkpoint-balanced-clean.json": true,
+    "checkpoint-time-burst-seed101.json": true,
+    "checkpoint-time-burst-seed103.json": true,
+    "checkpoint-time-burst-seed105.json": true,
+    "config.json": true,
+    "result.json": true
+   },
+   "compare-trend-base-3": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 875,
+     "float": 168
+    },
+    "excluded": 1
+   },
+   "compare-trend-new-3": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 875,
+     "float": 168
+    },
+    "excluded": 1
+   },
+   "identity-signal-3": {
+    "result.json": true
+   },
+   "compare-signal-base-3": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 261,
+     "float": 208,
+     "difference": 4,
+     "reported": 12
+    },
+    "excluded": 15
+   },
+   "compare-signal-new-3": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 261,
+     "float": 208,
+     "difference": 4,
+     "reported": 12
+    },
+    "excluded": 15
+   }
+  }
+ },
+ "post_hoc_diagnostic_signal_08": [
+  {
+   "arm": "base",
+   "wall": 91.04474833700806,
+   "cpu": 55.911287992000005,
+   "functions": {
+    "core_solve": {
+     "calls": 9,
+     "wall": 3.767,
+     "cpu": 3.045
+    },
+    "generate_candidates": {
+     "calls": 4,
+     "wall": 6.985,
+     "cpu": 3.458
+    },
+    "np.linalg.cond": {
+     "calls": 192,
+     "wall": 21.658,
+     "cpu": 11.788
+    },
+    "np.linalg.inv": {
+     "calls": 122,
+     "wall": 2.295,
+     "cpu": 1.329
+    },
+    "training_normals": {
+     "calls": 35,
+     "wall": 7.208,
+     "cpu": 3.713
+    },
+    "anchored_response": {
+     "calls": 9030,
+     "wall": 30.607,
+     "cpu": 20.158
+    }
+   },
+   "load_before": [
+    "24.63",
+    "21.33",
+    "26.92"
+   ]
+  },
+  {
+   "arm": "new",
+   "wall": 71.18355246901046,
+   "cpu": 41.206236114,
+   "functions": {
+    "core_solve": {
+     "calls": 9,
+     "wall": 3.705,
+     "cpu": 3.076
+    },
+    "np.linalg.cond": {
+     "calls": 192,
+     "wall": 1.321,
+     "cpu": 0.725
+    },
+    "np.linalg.inv": {
+     "calls": 122,
+     "wall": 0.217,
+     "cpu": 0.1
+    },
+    "training_normals": {
+     "calls": 35,
+     "wall": 7.662,
+     "cpu": 3.61
+    },
+    "anchored_response": {
+     "calls": 9030,
+     "wall": 35.355,
+     "cpu": 20.076
+    }
+   },
+   "load_before": [
+    "35.77",
+    "25.38",
+    "27.79"
+   ]
+  },
+  {
+   "arm": "base",
+   "wall": 98.22071539300669,
+   "cpu": 55.039335498,
+   "functions": {
+    "core_solve": {
+     "calls": 9,
+     "wall": 3.746,
+     "cpu": 3.053
+    },
+    "generate_candidates": {
+     "calls": 4,
+     "wall": 6.498,
+     "cpu": 3.381
+    },
+    "np.linalg.cond": {
+     "calls": 192,
+     "wall": 23.895,
+     "cpu": 11.849
+    },
+    "np.linalg.inv": {
+     "calls": 122,
+     "wall": 2.858,
+     "cpu": 1.396
+    },
+    "training_normals": {
+     "calls": 35,
+     "wall": 7.608,
+     "cpu": 3.75
+    },
+    "anchored_response": {
+     "calls": 9030,
+     "wall": 33.092,
+     "cpu": 20.388
+    }
+   },
+   "load_before": [
+    "37.81",
+    "28.11",
+    "28.56"
+   ]
+  },
+  {
+   "arm": "new",
+   "wall": 65.84297458500077,
+   "cpu": 39.007721419,
+   "functions": {
+    "core_solve": {
+     "calls": 9,
+     "wall": 4.04,
+     "cpu": 3.055
+    },
+    "np.linalg.cond": {
+     "calls": 192,
+     "wall": 1.426,
+     "cpu": 0.712
+    },
+    "np.linalg.inv": {
+     "calls": 122,
+     "wall": 0.196,
+     "cpu": 0.098
+    },
+    "training_normals": {
+     "calls": 35,
+     "wall": 7.399,
+     "cpu": 3.639
+    },
+    "anchored_response": {
+     "calls": 9030,
+     "wall": 30.914,
+     "cpu": 19.337
+    }
+   },
+   "load_before": [
+    "35.03",
+    "30.15",
+    "29.26"
+   ]
+  }
+ ],
+ "labelled_trial_09": {
+  "switch_diff": "diff --git a/python/rangtoy/core_cli.py b/python/rangtoy/core_cli.py\nindex 0f34056..ae5bdd1 100644\n--- a/python/rangtoy/core_cli.py\n+++ b/python/rangtoy/core_cli.py\n@@ -46,7 +46,7 @@ from . import core, core_actions, core_injections, core_prospective, core_signal\n from .core_workflow import core_solve\n from .flagging_equivariance import CASES\n from .flagging_injections import PATTERNS\n-from .flagging_trend import run as trend_run\n+from .core_trend import run as trend_run\n from .flagging_workflow import load_state\n \n ROOT = Path(__file__).resolve().parents[2]\n@@ -178,7 +178,7 @@ def signal(run_dir, inputs_dir, uvw_dir, iterations=50):\n         run_dir,\n         [inputs_dir, uvw_dir],\n         lambda: core_signal.run(\n-            run_dir, inputs_dir, uvw_dir, iterations=int(iterations)\n+            run_dir, inputs_dir, uvw_dir, iterations=int(iterations), ported=True\n         ),\n     )\n \n",
+  "stages": {
+   "trend": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 875,
+     "float": 168
+    },
+    "excluded": 1,
+    "side_effects": {
+     "stage": "trend",
+     "inputs": [
+      "outputs/core-trend-mirror-20261029-01"
+     ],
+     "input_files_checked": 29,
+     "inputs_unchanged": true,
+     "git_status_unchanged": true,
+     "run_dir_files": [
+      "checkpoint-antenna-local-seed101.json",
+      "checkpoint-antenna-local-seed103.json",
+      "checkpoint-antenna-local-seed105.json",
+      "checkpoint-balanced-clean.json",
+      "checkpoint-time-burst-seed101.json",
+      "checkpoint-time-burst-seed103.json",
+      "checkpoint-time-burst-seed105.json",
+      "config.json",
+      "result.json"
+     ],
+     "only_result_written": false,
+     "seconds": 31.438422820996493
+    }
+   },
+   "signal": {
+    "passed": true,
+    "failures": [],
+    "classes": {
+     "exact": 261,
+     "float": 208,
+     "difference": 4,
+     "reported": 12
+    },
+    "excluded": 15,
+    "side_effects": {
+     "stage": "signal",
+     "inputs": [
+      "outputs/tv-next-wsl-20261029-01/inputs",
+      "outputs/core-phase3c-b-uvw-20261029-01"
+     ],
+     "input_files_checked": 505,
+     "inputs_unchanged": true,
+     "git_status_unchanged": true,
+     "run_dir_files": [
+      "result.json"
+     ],
+     "only_result_written": true,
+     "seconds": 33.9609268589993
+    }
+   }
+  },
+  "loads": [
+   "trend before 32.76 30.97 29.66 35/804 460632",
+   "trend rc=0 after 30.29 30.58 29.58 7/1006 461847 time 31.69 19.08 1.18 423812",
+   "signal before 30.29 30.58 29.58 7/1006 461849",
+   "signal rc=0 after 26.59 29.53 29.25 24/849 463742 time 34.19 37.48 0.99 890944",
+   "compare trend rc=0",
+   "compare signal rc=0",
+   "?? outputs",
+   "{\"stage\": \"signal\", \"pass\": true}",
+   "trial-done"
+  ]
+ }
+}
