@@ -8,9 +8,19 @@ imaging weights are an input here. The core is reached through the extension
 `rang._core` (research/core-j-packaging.md, research/p7-architecture.md).
 `invert(..., gridder="wgrid")` uses the exact gridder of DF1/DF2a instead
 (research/df2b-wgrid.md); "wstack" stays the default.
+
+`invert` runs on the CPU by default. `RANG_GRIDDER_DEVICE=gpu` (or
+`device="gpu"`) runs the same inversion through `wgpu` (big-plan task X2,
+research/x2-wgpu.md) when the extension was built with the cargo feature
+`gpu`; `RANG_GRIDDER_GPU_PRECISION` (or `precision=`) selects `f64`, the
+default and the path validated against the archived comparators, or `f32`,
+a separately toleranced experimental path. Without the feature or without a
+usable adapter the GPU request fails with a RuntimeError; it never falls
+back to the CPU silently.
 """
 
 import math
+import os
 
 import numpy as np
 
@@ -31,6 +41,73 @@ STAT_NAMES = (
     "psf_normalization",
     "n_w_layers",
 )
+
+
+DEVICE_ENV = "RANG_GRIDDER_DEVICE"
+PRECISION_ENV = "RANG_GRIDDER_GPU_PRECISION"
+DEVICES = ("cpu", "gpu")
+PRECISIONS = ("f64", "f32")
+N_GPU_TIMINGS = 14
+GPU_TIMING_NAMES = (
+    "context_s",
+    "compile_s",
+    "prepare_s",
+    "upload_s",
+    "compute_s",
+    "download_s",
+    "finish_s",
+    "gpu_bytes",
+    "batches",
+    "layers_per_batch",
+    "grid_s",
+    "fft_s",
+    "project_s",
+    "bucket_s",
+)
+
+
+def resolve_device(value=None):
+    """The gridder device: `value`, else `RANG_GRIDDER_DEVICE`, else cpu."""
+    value = value if value is not None else os.environ.get(DEVICE_ENV, "cpu")
+    value = value.strip().lower() or "cpu"
+    if value not in DEVICES:
+        raise ValueError(f"{DEVICE_ENV} must be one of {DEVICES}, not {value!r}")
+    return value
+
+
+def resolve_precision(value=None):
+    """The GPU precision: `value`, else `RANG_GRIDDER_GPU_PRECISION`, else f64."""
+    value = value if value is not None else os.environ.get(PRECISION_ENV, "f64")
+    value = value.strip().lower() or "f64"
+    if value not in PRECISIONS:
+        raise ValueError(f"{PRECISION_ENV} must be one of {PRECISIONS}, not {value!r}")
+    return value
+
+
+def gpu_compiled():
+    """Whether this build of `rang._core` carries the wgpu gridder."""
+    return hasattr(core.extension(), "grid_invert_gpu")
+
+
+def gpu_adapter():
+    """Description of the adapter the GPU gridder uses (initialising it once);
+    RuntimeError when the feature is not compiled or no adapter is usable."""
+    ext = core.extension()
+    if not hasattr(ext, "grid_gpu_adapter"):
+        raise RuntimeError(
+            "the GPU gridder is not compiled into rang._core; build the "
+            "extension with the cargo feature `gpu` "
+            "(maturin develop --release --features gpu)"
+        )
+    return ext.grid_gpu_adapter()
+
+
+def gpu_available():
+    """(True, adapter) or (False, reason), without raising."""
+    try:
+        return True, gpu_adapter()
+    except RuntimeError as error:
+        return False, str(error)
 
 
 def kernel(kernel_size=7, oversampling=1023):
@@ -120,6 +197,8 @@ def invert(
     padding=1.2,
     gridder="wstack",
     epsilon=WGRID_EPSILON,
+    device=None,
+    precision=None,
 ):
     """Dirty image and PSF, `(height, width)` arrays in FITS pixel order, with
     WSClean's counters. `data` is the complex64 Stokes sample per (row,
@@ -132,7 +211,11 @@ def invert(
     `epsilon`, research/df2b-wgrid.md): one pass for dirty and PSF in
     double precision, the two weights multiplied in the core, the same
     orientation, PSF-centre normalisation and counter names; `w_layers`,
-    `kernel_size`, `oversampling` and `padding` do not apply to it."""
+    `kernel_size`, `oversampling` and `padding` do not apply to it.
+
+    `device` and `precision` default to the environment (module docstring);
+    on the GPU the
+    result also carries `gpu`, the path's timing breakdown."""
     if gridder == "wgrid":
         return _invert_wgrid(
             uvw,
@@ -147,6 +230,7 @@ def invert(
         )
     if gridder != "wstack":
         raise ValueError(f"gridder must be one of {GRIDDERS}, not {gridder!r}")
+    device = resolve_device(device)
     uvw = np.ascontiguousarray(uvw, np.float64)
     frequencies = np.ascontiguousarray(frequencies, np.float64)
     data = np.ascontiguousarray(data, np.complex64)
@@ -162,6 +246,43 @@ def invert(
     stats = np.empty(N_STATS, np.float64)
     data_view = data.view(np.float32)
     ext = core.extension()
+    gpu = None
+    if device == "gpu":
+        precision = resolve_precision(precision)
+        gpu_adapter()
+        timings = np.zeros(N_GPU_TIMINGS, np.float64)
+        code = ext.grid_invert_gpu(
+            nrow,
+            nchan,
+            width,
+            height,
+            kernel_size,
+            oversampling,
+            w_layers,
+            scale_arcsec * ARCSEC,
+            scale_arcsec * ARCSEC,
+            float(padding),
+            uvw,
+            frequencies,
+            data_view,
+            weights,
+            imaging_weights,
+            precision,
+            dirty,
+            psf,
+            stats,
+            timings,
+        )
+        gpu = dict(zip(GPU_TIMING_NAMES, (float(v) for v in timings)))
+        gpu["precision"] = precision
+        for key in ("gpu_bytes", "batches", "layers_per_batch"):
+            gpu[key] = int(gpu[key])
+        if code:
+            raise RuntimeError(f"core GPU gridder failed with code {code}")
+        record = dict(zip(STAT_NAMES, (float(v) for v in stats)))
+        record["gridded_count"] = int(record["gridded_count"])
+        record["n_w_layers"] = int(record["n_w_layers"])
+        return {"dirty": dirty, "psf": psf, "stats": record, "gpu": gpu}
     code = ext.grid_invert(
         nrow,
         nchan,

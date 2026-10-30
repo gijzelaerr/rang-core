@@ -28,6 +28,8 @@ use numpy::{
     Complex32, Complex64, Element, IntoPyArray, PyArray1, PyReadonlyArray1, PyReadonlyArrayDyn,
     PyReadwriteArrayDyn,
 };
+#[cfg(feature = "gpu")]
+use pyo3::exceptions::PyRuntimeError;
 use pyo3::exceptions::{PyOSError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
@@ -737,6 +739,79 @@ fn grid_invert(
     Ok(detach(py, || unsafe {
         rang_core::ffi_grid::rang_core_grid_invert(&inputs, &mut outputs)
     }))
+}
+
+/// `rang_core::gpu::ffi::grid_invert` (task X2, research/x2-wgpu.md):
+/// `grid_invert`'s buffers plus the precision (`"f64"` or `"f32"`) and a
+/// float64 array of `N_TIMINGS` timings; returns 0, or raises RuntimeError
+/// with the reason when the GPU path fails.
+#[cfg(feature = "gpu")]
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn grid_invert_gpu(
+    py: Python<'_>,
+    nrow: usize,
+    nchan: usize,
+    width: usize,
+    height: usize,
+    kernel_size: usize,
+    oversampling: usize,
+    n_w_layers: usize,
+    pixel_size_x: f64,
+    pixel_size_y: f64,
+    padding: f64,
+    uvw: Ro<'_, f64>,
+    frequencies: Ro<'_, f64>,
+    data: Ro<'_, f32>,
+    weights: Ro<'_, f32>,
+    imaging_weights: Ro<'_, f32>,
+    precision: &str,
+    mut dirty: Rw<'_, f64>,
+    mut psf: Rw<'_, f64>,
+    mut stats: Rw<'_, f64>,
+    mut timings: Rw<'_, f64>,
+) -> PyResult<i32> {
+    let precision = rang_core::gpu::Precision::parse(precision).map_err(PyValueError::new_err)?;
+    if timings.as_slice()?.len() != rang_core::gpu::ffi::N_TIMINGS {
+        return Err(PyValueError::new_err("timings must hold N_TIMINGS doubles"));
+    }
+    let inputs = GridInputs {
+        nrow,
+        nchan,
+        width,
+        height,
+        kernel_size,
+        oversampling,
+        n_w_layers,
+        pixel_size_x,
+        pixel_size_y,
+        padding,
+        uvw: ptr(&uvw)?,
+        frequencies: ptr(&frequencies)?,
+        data: ptr(&data)?,
+        weights: ptr(&weights)?,
+        imaging_weights: ptr(&imaging_weights)?,
+    };
+    let mut outputs = GridOutputs {
+        dirty: ptr_mut(&mut dirty)?,
+        psf: ptr_mut(&mut psf)?,
+        stats: ptr_mut(&mut stats)?,
+    };
+    let timings = ptr_mut(&mut timings)?;
+    // SAFETY: as in `fused`; `timings` holds N_TIMINGS doubles.
+    detach(py, || unsafe {
+        rang_core::gpu::ffi::grid_invert(&inputs, &mut outputs, precision, timings)
+    })
+    .map(|()| 0)
+    .map_err(PyRuntimeError::new_err)
+}
+
+/// The adapter the GPU gridder uses (created on first call); RuntimeError
+/// when none is usable.
+#[cfg(feature = "gpu")]
+#[pyfunction]
+fn grid_gpu_adapter(py: Python<'_>) -> PyResult<String> {
+    detach(py, rang_core::gpu::adapter_description).map_err(PyRuntimeError::new_err)
 }
 
 /// `rang_core_grid_kernel` into a caller-owned float64 array; 2 on a panic
@@ -1942,6 +2017,10 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(wgridder_kernel_row, m)?)?;
     m.add_function(wrap_pyfunction!(wgridder_last_error, m)?)?;
     m.add_function(wrap_pyfunction!(clean::clean_certified, m)?)?;
+    #[cfg(feature = "gpu")]
+    m.add_function(wrap_pyfunction!(grid_invert_gpu, m)?)?;
+    #[cfg(feature = "gpu")]
+    m.add_function(wrap_pyfunction!(grid_gpu_adapter, m)?)?;
     m.add_function(wrap_pyfunction!(flag_rows, m)?)?;
     m.add_function(wrap_pyfunction!(gain_tv, m)?)?;
     m.add_function(wrap_pyfunction!(trend_slopes, m)?)?;
