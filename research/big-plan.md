@@ -229,7 +229,11 @@ CPU-heavy tasks at a time on 8 physical cores.
   formats of the tools it replaces, not just convert for oracle runs:
   DDFacet `DicoModel` sky models, killMS solution files, QuartiCal gain
   stores, CASA calibration tables, Tigger/`.lsm` sky models, and the
-  Measurement Set and zarr stores it already reads (task DF-IO, with DF2).
+  Measurement Set and zarr stores it already reads (task DF-IO, with DF2;
+  done 2026-10-30, `dfio-formats.md`: `rang.formats` and `rang-core formats`,
+  each format judged by its own tool; open: the core's own applycal model for
+  Df to 1e-6, DicoModel and BBS writes, parametrised QuartiCal terms, H5parm
+  fulljones/tec, DDFacet reading a core killMS file).
 - X1 done 2026-10-30 (`x1-crossplatform.md`): native Windows build, task D
   comparator bit-identical on Windows, five-platform wheel matrix and the
   PyPI publish job; portability fixes for the live paths listed for P7/P9/P12.

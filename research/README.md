@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-30: DF-IO, the [tools' file formats](dfio-formats.md):
+CASA caltables, QuartiCal stores, Tigger/WSClean/BBS sky models,
+DicoModel, ClusterCat, H5parm, killMS solutions and CASA flag versions,
+each judged by its own tool; `rang-core formats check|convert`.
+
 New, 2026-10-30: MK1, the [MVFv4 loader](mk1-katdal.md): a `[meerkat]`
 extra (katdal 0.23) and `rang.meerkat`, MVF archives into core row chunks
 with native flag bits; exact against raw chunks, katdal and mvftoms on a

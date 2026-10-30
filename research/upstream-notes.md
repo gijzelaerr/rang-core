@@ -415,3 +415,32 @@ not a port artefact. Was that intended? (`caracal-pipeline/caracal`, with
   and adjacent-dump differences (agree to 2–15 %); extends C1's factor of
   about 5.6 for the closure noise.
 - caracal-pipeline, saopicc: nothing new.
+
+## DF-IO observations (2026-10-30; `dfio-formats.md`; to reproduce on the latest releases and file)
+
+RATT (reportable under the user's rule; reproduce on the latest release
+first):
+- **Tigger (tigger-lsm 1.8.0)**: `ASCII.save` writes a multi-term
+  spectral index as a Python list repr into the `spi` column (`[-0.0977,
+  -0.606, …]`), which its own loader cannot parse; `BBS.save` writes
+  MajorAxis/MinorAxis and Orientation in radians where makesourcedb/LSMTool
+  read arcsec and degrees (and `BBS.load` reads them back unconverted), and
+  writes the list into `SpectralIndex:0`, so `BBS.load` skips that source;
+  `ModelHTML.load` uses `eval` on `mdlval` (a crafted `.lsm.html` runs
+  code); extra source attributes are rendered from a `set`, so `.lsm.html`
+  bytes depend on `PYTHONHASHSEED`; many `SyntaxWarning: invalid escape
+  sequence` on Python 3.12.
+- **Crystalball 0.4.3**: `import_from_wsclean` stacks the SpectralIndex
+  lists with `np.asarray`, so a list with components of different spectral
+  orders fails under NumPy 2 ("inhomogeneous shape").
+- **QuartiCal 0.2.7 / dask-ms**: chunks are written by multithreaded blosc
+  with blocks out of order (valid blosc; noted because readers that assume
+  ascending block offsets fail).
+
+saopicc (DDFacet, killMS):
+- **killMS 3.3.0** `MergeSols.py` writes `last_InterPol.obj` (a pickle of
+  its options) into the working directory and reads it back with
+  `pickle.load`; `ClassMergeSols` loads inputs with `allow_pickle=True`.
+- **DDFacet 1.0.0.0** pins `numpy<=2.3.2`, `python-casacore<=3.7.1`,
+  `tables<=3.10.2`, `dask<2024.11`, which conflict with QuartiCal 0.2.7 and
+  Crystalball closures (four venvs were needed).

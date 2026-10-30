@@ -172,3 +172,18 @@ to an unrelated package (carta-python is not on PyPI).
 | katdal 0.23 (`ska-sa`) | After a chunk 404, `S3ChunkStore` lists the bucket and needs `<Contents>` in the answer, so a non-S3 static HTTP mirror of an archive turns one missing chunk into "store unavailable" | [mk1-katdal.md](mk1-katdal.md), deviation 4 | Documented behaviour for S3; a note for anyone mirroring MVF over plain HTTP | nothing to report |
 
 (cityhash 0.4.10, not SARAO's, has no cp314 wheels; katdal needs it.)
+
+## From DF-IO (2026-10-30; not reported by decision)
+
+- **DP3 6.6.0 (PyPI wheel)**: needs the system GLib (`libglib-2.0.so.0`)
+  and the casacore measures tables (Observatories) though `applycal` of a
+  direction-independent H5parm uses neither; refuses a Measurement Set with
+  more than one FIELD row; does not match antenna names stored as
+  NUL-padded fixed-length HDF5 strings (h5py's default for `S` arrays),
+  which losoto reads.
+- **CASA 6.7.6**: `Df Jones` is applied in the linear approximation
+  (parallel hands unchanged), and flagged frequency channels of B/Df
+  solutions are bridged by interpolation under `interp='linear'`
+  (documented behaviour, recorded for the core's model).
+- **losoto 2.7.1**: reads h5py-written H5parms although PyTables classes
+  the compound `antenna`/`source` datasets differently.

@@ -1,5 +1,26 @@
 # Rang research state
 
+DF-IO formats (big plan; [dfio-formats.md](dfio-formats.md)),
+2026-10-30 (implemented; measured): `rang.formats` reads and writes the
+file formats of the tools the core replaces, each judged by its own tool.
+Passing as frozen: CASA caltables read (K, G, B, Df, T) and written
+(CASA's bytes but the masked gaps, `applycal` bit-identical); QuartiCal
+0.2.7 gain stores read and written (metadata byte-identical, `load_from`
+bit-identical, a core-made store to 5.9e-8; a core blosc defect with
+out-of-order blocks fixed); Tigger ASCII and `.lsm.html`; WSClean lists
+read and predicted by Crystalball within the float32 bound (99.95 % of
+cells bit-identical); DicoModel read through a restricted unpickler;
+ClusterCat; killMS solutions merged by `MergeSols`; CASA flag versions
+restored by `flagmanager`. Failing as frozen: the core's own `applycal`
+model to 1e-6 (post hoc K, G, B, T pass; Df and the chain within 10.3
+float32 eps but up to 6.9e-5 relative where cross hands cancel), WSClean
+shape text (1 ulp, a format limit), Tigger's ASCII and BBS writers (Tigger
+defects), and the H5parm (a setup error and DP3's one-field rule; post hoc
+losoto reads and writes it exactly and DP3 `applycal` applies it to 4.0e-7
+after NUL-terminated strings). `rang-core formats check|convert`; image
+`rang-formats-oracle:20261030`; `outputs/dfio-20261030-01` to `-04`,
+`research/results/dfio-formats.json`.
+
 MK1 MVFv4 loader (big plan), 2026-10-30 (implemented; measured;
 [mk1-katdal.md](mk1-katdal.md)). Protocol frozen first. An optional
 `[meerkat]` extra (`katdal==0.23`, `katsdptelstate[rdb]==1.0.0`; installs

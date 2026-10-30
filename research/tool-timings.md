@@ -1075,3 +1075,16 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan MK1: `examples/fetch_meerkat_mvf.py --native-flags` | fixture, 3 antennas | 0.78 s | 262 MB | 5 chunks, 57 rows |
 | 2026-10-30 | big plan MK1: pytest `tests/test_mk1_meerkat.py` | 8 tests | 4.1 s | 307 MB |  |
 | 2026-10-30 | big plan MK1: `bash tools/check-all.sh` | worktree | 124 s | – | `overall: PASS`, 669 passed, 9 skipped; log `outputs/mk1-20261030-check-all.log` |
+| 2026-10-30 | big plan DF-IO: `docker build` `rang-formats-oracle:20261030` | four venvs, DDFacet and killMS built from sdists | 206.7 s | – | then 10.0 s (GLib layer), 1.0-1.1 s (measures data layers); one failed apt attempt 9.7 s |
+| 2026-10-30 | big plan DF-IO: `uv venv` + editable install with the extension build | worktree | 78.1 s | – |  |
+| 2026-10-30 | big plan DF-IO: `cargo test --release --lib blosc` | core | 61.9 s | – | 7 tests |
+| 2026-10-30 | big plan DF-IO: `maturin develop --release` | core | 75.0 s | – | after the blosc fix |
+| 2026-10-30 | big plan DF-IO: CASA 6.7.6 `flagmanager(mode='save')` probe | `c.ms` copy | 2.3 s | – | before freezing |
+| 2026-10-30 | big plan DF-IO: `check_formats.py ct` (frozen `-01`; post hoc `-02`) | 5 CASA tables, 4 synthetic, 15 `applycal` | 24.3 s; 23.6 s | 765,512 KB; 642,584 KB | `applycal` ×15 18.4 s; `gaincal` T 1.7 s; python-casacore dumps 0.4 s; core read 0.01 s and write 0.06 s per table |
+| 2026-10-30 | big plan DF-IO: `check_formats.py qc` (`-03`) | 2 stores (16 × 64 × 4 × 1 × 4; delay 16 × 2048), 5 QuartiCal applies | 187.3 s | 350,812 KB | delay solve 46.6 s; `xds_from_zarr` ×5 11.5 s; `load_from` apply ×5 101.2 s; core read 3-10 ms, write 7-21 ms |
+| 2026-10-30 | big plan DF-IO: `check_formats.py sky` (`-03`; post hoc `-04`) | 196 components; 192 rows × 2048 ch × 4 | 36.6 s; 50.0 s | 88,664 KB; 89,704 KB | Crystalball 0.4.3 15.4 s; core predict 0.94 s; WSClean 3.7 clean + source list 3.3 s; DicoModel read 1 ms |
+| 2026-10-30 | big plan DF-IO: `check_formats.py h5` (frozen `-01`; post hoc `-03`, `-04`) | 32 × 2048 × 4 × 1 × 2 | 2.4 s; 9.4 s; 9.2 s | 193,432 KB; 184,480 KB; 245,876 KB | losoto read, make, list 3.1 s; CASA split 3.7 s; DP3 6.6.0 applycal 1.3 s; core write 0.07 s (16.8 MB) |
+| 2026-10-30 | big plan DF-IO: `check_formats.py kms` (`-03`) | 2 files, 3 × 2 × 4 × 2 × 2 × 2 | 2.1 s | 47,272 KB | killMS `MergeSols.py` 1.8 s (container) |
+| 2026-10-30 | big plan DF-IO: `check_formats.py fv` (`-01`) | `c.ms` copy | 6.2 s | 58,520 KB | `flagmanager` list + restore 5.8 s; core save 0.03 s |
+| 2026-10-30 | big plan DF-IO: `pytest tests/test_dfio_formats.py` | – | 0.3 s | – | 16 tests |
+| 2026-10-31 | big plan DF-IO: `tools/check-all.sh` | worktree | 587 s (first run: FAIL on a stale `docs/cli.md` and trailing blanks in this file, both fixed); the final run's time is in its log | – | final run `overall: PASS`, log `outputs/dfio-20261030-check-all.log` |
