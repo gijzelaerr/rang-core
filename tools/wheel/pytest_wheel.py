@@ -3,6 +3,9 @@
     PYTHONPATH=tools/wheel RANG_WHEEL_CTYPES_LIB=.../librang_core.so \
         python -m pytest -p pytest_wheel -o pythonpath= tests/test_core_backends.py
 
+(tools/wheel/test.py runs this on every OS; RANG_WHEEL_NO_CTYPES=1 instead of
+the library makes the comparisons against ctypes skip.)
+
 1. Fails the session unless rangtoy and `rangtoy._core` are imported from the
    venv's site-packages (not the checkout's `python/`, which pyproject's
    `pythonpath` would otherwise put first; `-o pythonpath=` clears it).
@@ -32,8 +35,21 @@ def pytest_configure(config):
         path = Path(module.__file__).resolve()
         if not path.is_relative_to(SITE):
             raise pytest.UsageError(f"{name} imported from {path}, not {SITE}")
+    if os.environ.get("RANG_WHEEL_NO_CTYPES") == "1":
+        # No C ABI library on this runner (tools/wheel/test.py --no-ctypes):
+        # the tests that compare against ctypes skip, the rest run.
+        def no_library():
+            pytest.skip("no C ABI library (RANG_WHEEL_NO_CTYPES=1)")
+
+        core.build_core = no_library
+        print(f"\nwheel: {Path(_core.__file__).resolve()}\nctypes: none")
+        return
     library = os.environ.get("RANG_WHEEL_CTYPES_LIB")
     if not library or not Path(library).is_file():
-        raise pytest.UsageError("set RANG_WHEEL_CTYPES_LIB to librang_core.so")
+        raise pytest.UsageError(
+            "set RANG_WHEEL_CTYPES_LIB to the C ABI library of core/ "
+            "(librang_core.so, librang_core.dylib or rang_core.dll), "
+            "or RANG_WHEEL_NO_CTYPES=1"
+        )
     core.build_core = lambda: Path(library).resolve()
     print(f"\nwheel: {Path(_core.__file__).resolve()}\nctypes: {library}")

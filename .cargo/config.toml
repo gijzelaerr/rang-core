@@ -1,5 +1,7 @@
 # P0 of research/simplification-review.md: local builds target x86-64-v3
 # (measured -22 % instructions, bit-identical results). Distributable wheels
 # override this with RUSTFLAGS="-C target-cpu=x86-64" in tools/wheel and CI.
-[build]
+# Scoped to x86_64 hosts (task X1, research/x1-crossplatform.md), so native
+# builds on Apple silicon and aarch64 Linux keep their own default CPU.
+[target.'cfg(target_arch = "x86_64")']
 rustflags = ["-C", "target-cpu=x86-64-v3"]
