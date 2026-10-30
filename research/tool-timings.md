@@ -1088,3 +1088,19 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan DF-IO: `check_formats.py fv` (`-01`) | `c.ms` copy | 6.2 s | 58,520 KB | `flagmanager` list + restore 5.8 s; core save 0.03 s |
 | 2026-10-30 | big plan DF-IO: `pytest tests/test_dfio_formats.py` | – | 0.3 s | – | 16 tests |
 | 2026-10-31 | big plan DF-IO: `tools/check-all.sh` | worktree | 587 s (first run: FAIL on a stale `docs/cli.md` and trailing blanks in this file, both fixed); the final run's time is in its log | – | final run `overall: PASS`, log `outputs/dfio-20261030-check-all.log` |
+| 2026-10-30 | big plan T1: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging]' ruff maturin pip casacure==3.8.35` | worktree | 87.5 s | 1.21 GB | builds the extension |
+| 2026-10-30 | big plan T1: scratch inventory, `core_ms` vs casacure | 5 fixture MSs, 70 tables, 665 columns | 1.20 s | 165 MB | includes extracting the 45 MB zip (82 MB) |
+| 2026-10-30 | big plan T1: container python-casacore probes (string array, ragged column) | synthetic tables | < 2 s each | — | `rang-ms-reader:local` |
+| 2026-10-30 | big plan T1: `pytest tests/test_t1_casacure_oracle.py` | fixture zip | 2.7 s (3.3 s process) | 238 MB | 15 passed |
+| 2026-10-30 | big plan T1: `tools/wheel/build.py` (Linux) | worktree | 181.8 s | 1.14 GB | `CARGO_BUILD_JOBS=4`, shared host |
+| 2026-10-30 | big plan T1: `tools/wheel/test.py --python 3.10 --fixture-cache` (WSL) | Linux wheel | 24.6 s | 256 MB | fixture downloaded 4.9 s; pytest 15.7 s; 52 passed |
+| 2026-10-30 | big plan T1: same, `--python 3.14`, warm cache | Linux wheel | 18.4 s | 261 MB | fixture verify 0.5 s; pytest 16.9 s; 52 passed |
+| 2026-10-30 | big plan T1: `actionlint` (`uv tool run --from actionlint-py`) | `wheels.yml` | 0.9 s | — | clean |
+| 2026-10-30 | big plan T1: Windows: `uv venv` + editable install as above | worktree | 269.9 s | — | includes the extension build; shared host |
+| 2026-10-30 | big plan T1: Windows: `pytest` T1 + `test_core_backends.py` | fixture zip | 12.3 s | — | 28 passed |
+| 2026-10-30 | big plan T1: Windows: `tools\wheel\build.py` | worktree | 226.3 s | — | `win_amd64` wheel |
+| 2026-10-30 | big plan T1: Windows: `tools\wheel\test.py --python 3.10 --fixture-cache` | Windows wheel | 38.3 s | — | fixture downloaded 4.6 s; pytest 24.6 s; 47 passed, 5 P7 skips |
+| 2026-10-30 | big plan T1: Windows: same, `--python 3.14` | Windows wheel | 28.1 s | — | pytest 24.3 s |
+| 2026-10-31 | big plan T1: Windows: `tools\wheel\test.py` pip branch (uv removed from PATH), CPython 3.14 | Windows wheel | 50.3 s | — | venv 6.4 s, pip install 28.7 s, fixture 0.7 s, pytest 13.4 s; PASS |
+| 2026-10-30 | big plan T1: `bash tools/check-all.sh` (`OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`) | branch at `9ce0332` | 1,291 s including the lock wait | 1.89 GB | PASS; pytest 682 passed, 13 skipped in 322 s |
+| 2026-10-31 | big plan T1: Windows: `python -m rang.check` | branch at `9ce0332` | 696.5 s | — | PASS; pytest 651 passed, 44 skipped in 151 s |

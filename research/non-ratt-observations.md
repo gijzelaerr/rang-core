@@ -187,3 +187,13 @@ to an unrelated package (carta-python is not on PyPI).
   (documented behaviour, recorded for the core's model).
 - **losoto 2.7.1**: reads h5py-written H5parms although PyTables classes
   the compound `antenna`/`source` datasets differently.
+
+## From T1 (2026-10-30; not reported by decision, casacure is outside the reporting rule)
+
+| Software | Observation | Evidence | What a report would say | Status |
+| --- | --- | --- | --- | --- |
+| casacure 3.8.35 (Tim Molteno) | A Direct fixed-shape string-array column (`makearrcoldesc(..., shape=[2], options=1)`) cannot be read at all: `getcol` and `getcell` raise `bad string reference: bucket 0, offset 8, length 0`, also for a table python-casacore 3.8.1 wrote; casacore and the rang core read it | `outputs/t1-20261030-01/sd-casacore.txt`, `sd-casacure.txt` | Read Direct string arrays (casacore stores them in the StandardStMan string buckets) | not reported by decision |
+| casacure 3.8.35 | `getcol` of a variable-shape array column whose rows differ in shape returns an array in the first row's shape, silently dropping the rest of every longer row; casacore raises `StManIndArray::get/put shapes not conforming` | `outputs/t1-20261030-01/ragged-*.txt` | Raise, as casacore, or return per-row cells | not reported by decision |
+| casacure 3.8.35 | `getcell`/`getvarcol` of an undefined cell return a 0-d `0.0` (casacore raises); no `iscelldefined` and no `info()` in the Python API | `outputs/t1-20261030-01/undefined-cells.json` | Raise or return None for undefined cells; add `iscelldefined` and `info` | not reported by decision (defaults by design, issue #8) |
+| casacure 3.8.35 | `getvarcol(name, start, n)` numbers its keys from the first row read (`r1`…), python-casacore from row 0 (`r{start+1}`…) | this file, Implementation | Use python-casacore's numbering | not reported by decision |
+| casacure 3.8.35 | No macOS x86_64 wheel and no cp310 macOS arm64 wheel on PyPI (Linux and Windows cover cp310–cp314) | PyPI JSON, 2026-10-30 | Publish them (the Windows/macOS wheels are not tested upstream either, E2 candidate 9) | not reported by decision |

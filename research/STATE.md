@@ -1,5 +1,26 @@
 # Rang research state
 
+T1 casacure as the second oracle (big plan), 2026-10-30 (implemented;
+measured locally; [t1-casacure-ci.md](t1-casacure-ci.md)). Plan frozen
+first. An optional `[casacure]` extra (`casacure==3.8.35`, with a marker
+for the platforms that have wheels: none for macOS x86_64 or for cp310 on
+macOS arm64) and a read-only adapter `rang.oracles.casacure`. The wheel
+test (`tools/wheel/test.py --fixture-cache`, `wheels.yml` `test` jobs)
+now downloads the public fixture (45 MB, hash-verified, cached) and runs
+`tests/test_t1_casacure_oracle.py`: the core reader against casacure on
+every column of the five fixture MSs (70 tables), the golden archive's MS
+entry through casacure, and the core's E3 writes and E4 creations read
+back by casacure (cells and keywords; casacure's writes are never a
+reference). The backend golden test's MS case now runs from the fixture
+(scan 9 is ms0 file for file) instead of skipping, on every job including
+macOS x86_64. Passes on WSL and natively on Windows (Python 3.10 and
+3.14, wheels built fresh, no unexpected skip); macOS and aarch64 run on
+the merge push. Two new casacure defects: it cannot read a fixed-shape
+Direct string array even when casacore wrote it, and its `getcol` of a
+ragged variable-shape column silently returns the first row's shape (the
+adapter refuses it). The core reader's misleading errors on string-array
+columns are an E5 item. Next: the first CI run's timings.
+
 DF-IO formats (big plan; [dfio-formats.md](dfio-formats.md)),
 2026-10-30 (implemented; measured): `rang.formats` reads and writes the
 file formats of the tools the core replaces, each judged by its own tool.
