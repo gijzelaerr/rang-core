@@ -378,7 +378,8 @@ that raises still writes its receipt (`exit: "exception: …"`).
   report: **PASS** in 227 s, pytest 682 passed and 2 skipped; the `## `
   lines equal the P7 log line for line (`check-all.log`). After the
   review fixes (receipt for `check`, `dirty` without untracked files,
-  wording): CHECKALL2. The Windows PASS predates those fixes, which do
+  wording) at `00c4be2`: **PASS** in 157 s, pytest 683 passed and 2
+  skipped, `## ` lines identical (`check-all-2.log`). The Windows PASS predates those fixes, which do
   not touch `check.py`.
 - Behaviour change of the wrapper: with no usable `.venv` (no
   `.venv/bin/python` or no editable `rangtoy`), `tools/check-all.sh` now
@@ -502,4 +503,4 @@ returned, as S1 measured for the comparators.
 | 2026-10-30 | WSL: `bash tools/check-all.sh` at `ed3e18c` + report | 227 s (pytest 140 s) | PASS, 682 passed, 2 skipped |
 | 2026-10-30 | identity `cli-head2` (`-m`) and `console` (`.venv/bin/rang-core`), final CLI | about 7 s each | identical to `before` |
 | 2026-10-30 | legacy cab path `rang-core compare` on 7 real-archive cases | about 1 s | receipts minus `comparator` equal `before` |
-| 2026-10-30 | WSL: `bash tools/check-all.sh`, after the review fixes | CHECKALL2ROW |
+| 2026-10-30 | WSL: `bash tools/check-all.sh`, after the review fixes | 157 s (pytest 150 s) | PASS at `00c4be2`, 683 passed, 2 skipped |
