@@ -13,7 +13,8 @@
 //!    truncated beams; E2 exact support recovery against the coherence bound
 //!    and the exact recovery coefficient; E3 the greedy ratio that sets the
 //!    rate; E4 an off-grid source; E5 the Clark minor-cycle descent
-//!    condition; E6 extended emission and the gain dependence of the limit.
+//!    condition; E6 extended emission and the gain dependence of the limit;
+//!    E2c recovery with noise; E7 the coherence of a multi-scale dictionary.
 
 use rang_core::clean::{
     CleanSettings, Grid, Psf, Sampling, Vis, add_atom, argmax_abs, convolve, dirty, erc, gram,
@@ -367,6 +368,8 @@ fn main() {
         e4_offgrid(&s, &grid, &b, &mut json);
         e5_clark(&s, &grid, &b, &sc, &mut json);
         e6_extended(&s, &grid, &b, &mut json);
+        e2c_noisy(&s, &grid, &b, &mut rng, &mut json);
+        e7_multiscale(&b, &mut json);
         json.close();
     }
     json.close_list();
@@ -900,4 +903,236 @@ fn e6_extended(s: &Sampling, grid: &Grid, b: &Psf, json: &mut Json) {
         json.close();
     }
     json.close_list();
+}
+
+/// E2c: recovery with noise. Sources at least 8 pixels apart, fluxes 0.2-1,
+/// image noise 0.01 (one per cent of a unit source), gain 0.1, stop at
+/// `|r| < 5σ`. Counts picks on the support, exact supports (every source
+/// found, no false pixel) and the flux error, against the ERC.
+fn e2c_noisy(s: &Sampling, grid: &Grid, b: &Psf, rng: &mut Rng, json: &mut Json) {
+    let trials = 100;
+    let sigma_img = 0.01;
+    let sum_w2: f64 = s.w.iter().map(|w| w * w).sum();
+    let sigma_vis = sigma_img / sum_w2.sqrt();
+    let noise: Vec<Vec<f64>> = (0..5)
+        .map(|_| {
+            let vis: Vec<Vis> = (0..s.len())
+                .map(|_| (sigma_vis * rng.normal(), sigma_vis * rng.normal()))
+                .collect();
+            dirty(s, grid, &vis)
+        })
+        .collect();
+    let measured_sigma =
+        (noise[0].iter().map(|v| v * v).sum::<f64>() / noise[0].len() as f64).sqrt();
+    println!(
+        "\nE2c recovery with noise, {trials} trials per k, sources ≥ 8 px apart, image noise {sigma_img} (measured {measured_sigma:.4}), gain 0.1, stop at |r| < 5σ"
+    );
+    println!(
+        "| k | all picks on support | exact support | mean picks on support | mean false pixels | rms flux error / σ | ERC < 1 | exact support given ERC |"
+    );
+    println!("| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
+    json.open_list("e2c");
+    for k in [2usize, 4, 6, 8, 12] {
+        let mut all_on = 0;
+        let mut exact = 0;
+        let mut frac_sum = 0.0;
+        let mut false_sum = 0.0;
+        let mut err_sum = 0.0;
+        let mut erc_ok = 0;
+        let mut exact_given_erc = 0;
+        for trial in 0..trials {
+            let mut support: Vec<usize> = Vec::with_capacity(k);
+            while support.len() < k {
+                let p = rng.below(grid.pixels());
+                let far = support.iter().all(|&q| {
+                    let dx = (p % grid.n) as isize - (q % grid.n) as isize;
+                    let dy = (p / grid.n) as isize - (q / grid.n) as isize;
+                    dx.abs().max(dy.abs()) >= 8
+                });
+                if far {
+                    support.push(p);
+                }
+            }
+            let mut truth = vec![0.0; grid.pixels()];
+            for &p in &support {
+                truth[p] = 0.2 + 0.8 * rng.uniform();
+            }
+            let mut d = convolve(b, &truth);
+            for (v, n) in d.iter_mut().zip(&noise[trial % noise.len()]) {
+                *v += n;
+            }
+            let result = hogbom(
+                &d,
+                b,
+                &CleanSettings {
+                    gain: 0.1,
+                    iterations: 5000,
+                    threshold: 5.0 * sigma_img,
+                    patch: None,
+                },
+            );
+            let on = result
+                .steps
+                .iter()
+                .filter(|st| support.contains(&st.pixel))
+                .count();
+            let total = result.steps.len().max(1);
+            let found = support.iter().all(|&p| result.model[p] != 0.0);
+            let false_pixels = result
+                .model
+                .iter()
+                .enumerate()
+                .filter(|&(p, &v)| v != 0.0 && !support.contains(&p))
+                .count();
+            let err = (support
+                .iter()
+                .map(|&p| (result.model[p] - truth[p]).powi(2))
+                .sum::<f64>()
+                / k as f64)
+                .sqrt()
+                / sigma_img;
+            let is_exact = found && false_pixels == 0;
+            if on == result.steps.len() {
+                all_on += 1;
+            }
+            if is_exact {
+                exact += 1;
+            }
+            frac_sum += on as f64 / total as f64;
+            false_sum += false_pixels as f64;
+            err_sum += err;
+            if erc(b, grid, &support).is_some_and(|eta| eta < 1.0) {
+                erc_ok += 1;
+                if is_exact {
+                    exact_given_erc += 1;
+                }
+            }
+        }
+        let n = trials as f64;
+        println!(
+            "| {k} | {all_on} | {exact} | {:.3} | {:.2} | {:.2} | {erc_ok} | {exact_given_erc} |",
+            frac_sum / n,
+            false_sum / n,
+            err_sum / n
+        );
+        json.item();
+        json.int("k", k);
+        json.int("trials", trials);
+        json.int("all_picks_on_support", all_on);
+        json.int("exact_support", exact);
+        json.num("mean_pick_fraction", frac_sum / n);
+        json.num("mean_false_pixels", false_sum / n);
+        json.num("rms_flux_error_sigma", err_sum / n);
+        json.int("erc_holds", erc_ok);
+        json.int("exact_given_erc", exact_given_erc);
+        json.close();
+    }
+    json.num("e2c_measured_sigma", measured_sigma);
+    json.close_list();
+}
+
+/// A Gaussian blob kernel of the given FWHM in pixels (a delta for 0),
+/// as (half-width, values over the (2h+1)² square).
+fn blob(fwhm: f64) -> (isize, Vec<f64>) {
+    if fwhm <= 0.0 {
+        return (0, vec![1.0]);
+    }
+    let sigma = fwhm / (8.0 * 2f64.ln()).sqrt();
+    let h = (3.5 * sigma).ceil() as isize;
+    let w = (2 * h + 1) as usize;
+    let mut g = vec![0.0; w * w];
+    for j in -h..=h {
+        for i in -h..=h {
+            g[(i + h) as usize + w * (j + h) as usize] =
+                (-((i * i + j * j) as f64) / (2.0 * sigma * sigma)).exp();
+        }
+    }
+    (h, g)
+}
+
+/// `⟨A, C⟩` for a blob atom `A` at the origin and a blob atom `C` at offset
+/// `(dx, dy)`: `Σ_{p∈A} Σ_{q∈C} g_A(p) g_C(q) b(p − q − (dx, dy))`.
+fn blob_inner(b: &Psf, a: &(isize, Vec<f64>), c: &(isize, Vec<f64>), dx: isize, dy: isize) -> f64 {
+    let (ha, ga) = a;
+    let (hc, gc) = c;
+    let wa = (2 * ha + 1) as usize;
+    let wc = (2 * hc + 1) as usize;
+    let mut sum = 0.0;
+    for j in -ha..=*ha {
+        for i in -ha..=*ha {
+            let g1 = ga[(i + ha) as usize + wa * (j + ha) as usize];
+            for l in -hc..=*hc {
+                for k in -hc..=*hc {
+                    let g2 = gc[(k + hc) as usize + wc * (l + hc) as usize];
+                    sum += g1 * g2 * b.at(i - k - dx, j - l - dy);
+                }
+            }
+        }
+    }
+    sum
+}
+
+/// E7: coherence of a multi-scale dictionary (delta and Gaussians of FWHM
+/// 2, 4, 8 pixels) under the same PSF: the largest normalised inner product
+/// between distinct atoms over offsets `(dx, 0)` and `(dx, dx)`, `dx ≤ 16`.
+fn e7_multiscale(b: &Psf, json: &mut Json) {
+    let scales = [0.0, 2.0, 4.0, 8.0];
+    let kernels: Vec<(isize, Vec<f64>)> = scales.iter().map(|&f| blob(f)).collect();
+    let norms: Vec<f64> = kernels
+        .iter()
+        .map(|k| blob_inner(b, k, k, 0, 0).sqrt())
+        .collect();
+    println!("\nE7 multi-scale dictionary coherence (delta, Gaussian FWHM 2, 4, 8 px)");
+    println!("| scale A | scale C | max |⟨A,C⟩| / norms | at offset | within-scale, unit offset |");
+    println!("| ---: | ---: | ---: | --- | ---: |");
+    json.open_list("e7");
+    let mut overall = 0.0_f64;
+    for ia in 0..scales.len() {
+        for ic in ia..scales.len() {
+            let mut best = 0.0_f64;
+            let mut at = (0, 0);
+            for dx in 0..=16isize {
+                for &dy in &[0isize, dx] {
+                    if ia == ic && dx == 0 && dy == 0 {
+                        continue;
+                    }
+                    let v = blob_inner(b, &kernels[ia], &kernels[ic], dx, dy).abs()
+                        / (norms[ia] * norms[ic]);
+                    if v > best {
+                        best = v;
+                        at = (dx, dy);
+                    }
+                }
+            }
+            let unit = if ia == ic {
+                blob_inner(b, &kernels[ia], &kernels[ic], 1, 0).abs() / (norms[ia] * norms[ic])
+            } else {
+                f64::NAN
+            };
+            overall = overall.max(best);
+            println!(
+                "| {} | {} | {best:.4} | ({}, {}) | {} |",
+                scales[ia],
+                scales[ic],
+                at.0,
+                at.1,
+                if unit.is_nan() {
+                    "–".to_string()
+                } else {
+                    format!("{unit:.4}")
+                }
+            );
+            json.item();
+            json.num("scale_a", scales[ia]);
+            json.num("scale_c", scales[ic]);
+            json.num("max_coherence", best);
+            json.int("at_dx", at.0 as usize);
+            json.int("at_dy", at.1 as usize);
+            json.num("unit_offset", unit);
+            json.close();
+        }
+    }
+    json.close_list();
+    json.num("e7_overall_coherence", overall);
+    println!("overall multi-scale coherence {overall:.4}");
 }

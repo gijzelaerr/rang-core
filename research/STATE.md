@@ -1,5 +1,21 @@
 # Rang research state
 
+CLEAN theory, continued (user-directed; [clean-theory.md](clean-theory.md)
+§3, §5), 2026-10-30 (implemented; measured). Lean now covers Theorems 2 and
+3 in full: `formal/RangFormal/FiniteDim.lean` (a positive greedy constant on
+the finite-dimensional span by compactness; geometric rate for data in the
+span) and `Projection.lean` (the CLEAN sequence ignores the data component
+orthogonal to the atoms; the misfit floor Q_∞; Q_K − Q_∞ ≤ ρ^K (Q_0 − Q_∞)
+for arbitrary data; the model converges); thirteen audited theorems, standard
+axioms only, 41 s builds. Two experiments added: E2c, recovery with 1 %
+image noise and sources 8 px apart, keeps 89-99.7 % of picks on the support
+but exact supports are rare except on the uniform-weight track (32-79 %),
+the failures being adjacent-pixel components (neighbour coherence
+0.68-0.93); E7, the coherence of a delta + Gaussian (2, 4, 8 px) dictionary
+is 0.98-0.99 on every MeerKAT PSF, so no coherence-type guarantee exists
+for multi-scale CLEAN. Archive `results/clean-theory.json` refreshed
+(71.1 s run).
+
 CLEAN theory (user-directed study; [clean-theory.md](clean-theory.md)),
 2026-10-30 (implemented; measured). Verdict on "CLEAN was never proven":
 false for Högbom's iteration as a data fit (Schwarz 1978; his 1984 summary

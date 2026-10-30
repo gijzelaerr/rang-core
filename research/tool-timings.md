@@ -851,3 +851,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-30 | big plan B1: post-hoc squint decomposition of G1b | 4 antennas × 14 chunks | 2.65 s | 296 MB | first attempt gave NaN (NaN-σ chunks not excluded); `squint.log` is the rerun |
 | 2026-10-30 | big plan B1: post-hoc stuck-chunk check | fixture amplitudes | ~1 s | – | not timed; `stuck.log` |
 | 2026-10-30 | big plan B1: `bash tools/check-all.sh`, after the post-hoc edits | worktree | 95 s | – | PASS; pytest 739 passed, 5 skipped in 91.6 s (Rust steps cached); log `outputs/b1-20261030-check-all-2.log` |
+| 2026-10-30 | CLEAN theory (continued): `clean_theory` example with E2c and E7 | four MeerKAT configurations | 71.1 s compute | – | Windows; E2c 100 trials × 5 k per config, E7 Gram-exact blob inner products |
+| 2026-10-30 | CLEAN theory (continued): `lake build` with `FiniteDim.lean`, `Projection.lean` and the audit | `formal/` | 40.6 s | – | thirteen theorems, standard axioms only |
