@@ -47,9 +47,11 @@ measurement; criteria unchanged).** Item 1 as written (one fork–join per
 iteration) was implemented first (`solve-v1-per-iteration.rs` and its
 library in `outputs/p1-solver-20261030-08`) and was bit-identical, but under
 this host's load (14–20 on 16 hardware threads) its wall time *grew* with
-the thread count (LUNO 0.37 s at one thread, 0.68 s at 4, 1.11 s at 16,
-CPU far below wall): with 50 barriers per solve, any preempted worker
-stalls every other. It was replaced by **epochs**: until the global stop
+the thread count in development runs (scratchpad, not archived: LUNO
+0.37 s at one thread, 0.68 s at 4, 1.11 s at 16, CPU far below wall): with
+50 barriers per solve, any preempted worker stalls every other. The
+archived evidence is the frozen sweep `-16`, where v1 is an arm: at 16
+threads its LUNO median is 0.147 s against 0.080 s for the epoch design. It was replaced by **epochs**: until the global stop
 test passes, an interval's trajectory depends only on its own state (the
 `km1_gain` copy happens on every iteration that does not stop, and nothing
 reads it after the loop), so each interval runs `EPOCH = 8` iterations on
@@ -234,9 +236,13 @@ physical cores, and the host was oversubscribed). The epoch design beats
 the per-iteration v1 at 8 and 16 threads on both inputs, by 1.26–1.6×,
 with less CPU.
 
-Peak RSS of the sweep process rises by 9–19 MB (per-interval cell lists,
-epoch records, rayon threads' stacks and allocator arenas); the phase 2
-cost process rises from 96.5 to 99.7–101 MB.
+Peak RSS of the sweep process rises by 9–19 MB; the phase 2 cost process
+rises from 96.5 to 99.7–101 MB. The causes are read from the code, not
+measured: per-interval cell lists (16 B per unflagged cell, about 2 MB
+here), epoch records (80 B × 8 per gain, 2.6 MB here), worker stacks and
+per-thread allocator arenas. On the whole array the cell lists are about
+16 B × 30 M unflagged cells ≈ 0.5 GB and the records about 74 MB, which
+count against P5's memory budget.
 
 `perf stat` at one thread (whole bench process with the early-stop
 variants, two runs each, load 16): base 39.241 G instructions, new 38.538 G
@@ -268,8 +274,34 @@ about 13 s per solve. Task L1's run is the place to measure it.
 - `EPOCH = 8` was chosen, not tuned: it bounds the overrun past an early
   stop to 7 iterations and the barriers to 7 per 50 iterations.
 
-**`bash tools/check-all.sh`** (once, on the working tree of the final
-commit; `outputs/p1-solver-20261030-17-check-all.log`): overall **PASS**
+## Post-hoc: the review's other P1 archive checks (labelled post-hoc)
+
+Section 3 "P1" of the review also names the section 6 checker (fused pass)
+and the phase 3 comparators; the frozen protocol above left them out, so
+they were run afterwards, once with the base library and once with the new
+one (`RANG_CORE_LIB`, S1's `suite.sh` invocations, `RUSTUP_TOOLCHAIN=1.93`),
+at load 31–40. A first attempt (`-18`, `-19`) failed in every step before
+any kernel ran because `cargo` was not on the script's `PATH` (the root
+crate's kernels are located through cargo); the rerun is `-20` (base) and
+`-21` (new).
+
+| Step | Base (`-20`) | New (`-21`) | Verdict |
+| --- | --- | --- | --- |
+| section 6 prototype | 23.1 s, 205 MB (solve 1.04 s, fused 0.109 s) | 9.9 s, 154 MB (solve 0.32 s, fused 0.088 s) | 50 iterations, 0.9833234067897558, χ² 0.26823507037914956 in both |
+| section 6 checker | 43.4 s, 652 MB | 40.0 s, 653 MB | criteria 1–7, 9–11 pass in both; **criterion 8 (cost: ≤ 2.0 s excluding decode) fails in both**: base 14.97 s, new 3.38 s, at load 31–33, where the base's TV-and-policy step alone took 10.8 s against 0.30 s in the new run; a load failure, not a P1 regression |
+| actions + compare | 11.1 s (stage 10.8 s), 242 MB | 8.1 s (7.8 s), 260 MB | pass in both, identical figures (0 failures; max rel 6.6e-15 float, 1.8e-11 difference) |
+| injections + compare | 31.8 s (31.1 s), 724 MB | 22.1 s (21.2 s), 766 MB | pass in both, identical figures (max rel 1.3e-14, 1.5e-14) |
+| prospective + compare | 41.8 s (41.3 s), 560 MB | 32.6 s (32.2 s), 589 MB | pass in both, identical figures (max rel 1.4e-14, 7.6e-10) |
+
+Every comparator verdict and every reported deviation is identical between
+the two libraries. The stage walls were taken at load 31–40, about twice
+S1's (actions 5.5 s, injections 15.9 s at load 2), so they show the
+direction (−27 %, −32 %, −22 %) but not the review's estimate (about 2 s
+and 5 s), which needs a quiet host.
+
+**`bash tools/check-all.sh`** (once, on commit `0470c4d`'s code with this
+file's measurement section still uncommitted; the follow-up commits are
+document-only; `outputs/p1-solver-20261030-17-check-all.log`): overall **PASS**
 (root 19 and core 51 Rust tests, clippy, fmt, extension build, ruff,
 diff-check, pytest 740 passed in 1,665 s); 28 min 25 s, 1.73 GB, load
 13.7 → 40.0.
@@ -308,16 +340,15 @@ diff-check, pytest 740 passed in 1,665 s); 28 min 25 s, 1.73 GB, load
 | `perf stat` instruction counts, development variants (8 pairs) | one bench run each | 2–4 s each | about 210 MB | load 6–20 |
 | `cargo test` core (51 tests, release) | – | 1.0–3.1 s | – | – |
 | `tests/test_p1_solver.py` | synthetic | 0.34–0.61 s | – | three subprocesses |
+| post-hoc section 6 prototype and checker, actions, injections, prospective with comparators, base (`-20`) and new (`-21`) | archived inputs | base 23.1 + 43.4 + 11.1 + 31.8 + 41.8 s; new 9.9 + 40.0 + 8.1 + 22.1 + 32.6 s (compares 0.2–0.3 s each) | up to 766 MB | load 31–40; all comparators pass identically; section 6 criterion 8 (cost) fails for both at that load; first attempt `-18`/`-19` failed without `cargo` on `PATH` (1–5 s each) |
 | `bash tools/check-all.sh` (`-17`) | branch | 28 min 25 s (pytest 740 passed in 1,665 s) | 1.73 GB | PASS; load 13.7–40.0 |
 
-- **Upstream observations.** RATT: none new; the solver reproduces QuartiCal
-  0.2.7 bit for bit at any thread count, including issue 452's swapped qp
-  weights, which stay a science follow-up. A note QuartiCal could use:
-  its intervals are independent until the global stop test, so per-interval
-  epochs with a replayed stop test parallelise without changing results
-  (not filed; an optimisation idea, not a bug). Non-RATT: none.
+- **Upstream observations.** RATT (including caracal-pipeline): none new;
+  issue 452's swapped qp weights are reproduced unchanged and stay a science
+  follow-up. Non-RATT: none.
 - **Evidence to keep** (ignored outputs): `outputs/p1-solver-20261030-01`
   (base library and commit), `-02`–`-05`, `-07` (baseline), `-08` (base,
   v1, full-hoist and final libraries, v1 source), `-09`–`-14-precondition`
   (validators), `-16` (sweep: 45 child JSONs and `summary.json`), `-17`
-  check-all log. `-06` and `-15` unused.
+  check-all log, `-20`/`-21` (post-hoc section 6 and phase 3 runs; `-18`,
+  `-19` the failed first attempt). `-06` and `-15` unused.
