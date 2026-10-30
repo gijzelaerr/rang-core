@@ -30,24 +30,26 @@ answer except the two items under "User items".
   [non-ratt-observations.md](non-ratt-observations.md) and not reported.
 - **Distributable wheel.** Build the binary wheel of `rangtoy` with the core
   extension for Linux, test it on clean interpreters, publish the build in CI.
-- **Name (user, 2026-10-30).** The distribution is published as **`ra-ng`**
-  ("radio astronomy next generation"; `rang` on PyPI belongs to an unrelated
-  package). The import name becomes `rang` unless the user objects (it
-  would collide only with that unrelated package installed side by side;
-  the alternative is `ra_ng`). The rename from `rangtoy` is task P12, after
-  P7 and P9, which touch the same entry points: package directory, imports,
-  extension module `rang._core`, CLI, tests, recipes, docs and CI; archived
-  receipts and research notes keep the historical `rangtoy` paths. No PyPI
-  upload before the rename.
+- **Name (user, 2026-10-30, final).** Project, GitHub repository and PyPI
+  distribution are **`rang-core`** (`gijzelaerr/rang-core`, renamed the same
+  day from `rang` via `ra-ng`; `rang` on PyPI belongs to an unrelated package
+  and PyPI's confusable-name rule rejected `ra-ng`). The Python module and
+  core module name is **`rang`** (`import rang`, extension `rang._core`).
+  "rang" is also Dutch for rank, which the identifiability survey measures
+  first. The rename from `rangtoy` is task P12, after P7 and P9, which touch
+  the same entry points: package directory, imports, extension module, CLI,
+  tests, recipes, docs, CI, the wordmark (`rang-core` with the fringe as the
+  hyphen); archived receipts and research notes keep the historical
+  `rangtoy` paths. No PyPI upload before the rename.
 - **Repository and publishing (user, 2026-10-30).** The GitHub repository is
-  renamed `gijzelaerr/ra-ng` (done 2026-10-30; GitHub redirects the old
-  name; remotes updated; the local folders `~/Github/rang` and
-  `~/Worktrees/rang` move to `ra-ng` with task P12, when no session depends
+  `gijzelaerr/rang-core` (renamed 2026-10-30; GitHub redirects the old
+  names; remotes updated; the local folders `~/Github/rang` and
+  `~/Worktrees/rang` move to `rang-core` with task P12, when no session depends
   on the old path). The user wants the package on PyPI: the `wheels.yml`
   workflow gets a publish job on `v*` tags through PyPI trusted publishing
   (`pypa/gh-action-pypi-publish`, environment `pypi`); the user registers
-  the pending publisher on pypi.org once (project `ra-ng`, owner
-  `gijzelaerr`, repository `ra-ng`, workflow `wheels.yml`, environment
+  the pending publisher on pypi.org once (project `rang-core`, owner
+  `gijzelaerr`, repository `rang-core`, workflow `wheels.yml`, environment
   `pypi`) and creates the first tag after P12 and wave 4. The coordinator
   never tags.
 - **Solver science (user, 2026-10-30: "do what you propose").** One wave 3
@@ -142,7 +144,7 @@ survey eigensolver; P8 frozen recipes, containers and recipe-only modules to
 `history/`; P10 test-suite speed (after P8); P7 architecture (drop ctypes, GIL,
 `catch_unwind`; after W1 and P1–P6, alone); P9 one CLI and archive format
 (after P7); P11 extract and retire the frozen modules (after P6 and P7); P12
-rename `rangtoy` to `ra-ng`/`rang` (after P7, P9 and P11); X1 cross-platform
+rename `rangtoy` to `rang` (project `rang-core`; after P7, P9 and P11); X1 cross-platform
 build, CI matrix and portability of the live paths (after P7; Windows and
 macOS wheels and tests, native Windows reproduction of one archive); X2 GPU
 gridder and FFT through `wgpu` behind a feature (after P2 and X1; measured
@@ -181,9 +183,13 @@ CPU-heavy tasks at a time on 8 physical cores.
   test and the project's own test suite run; `research/upstream-prs.md`.
 - Logo (approved by the user 2026-10-30): an interferogram mark, a round
   aperture filled with fringe bands fading to the rim and one amber point,
-  the `ra-ng` wordmark with a single fringe as the hyphen; ink `#10131a`,
+  the `rang-core` wordmark (drafted as `ra-ng`, to be re-cut with P12) with a
+  single fringe as the hyphen; ink `#10131a`,
   white and amber `#e8a33d` only. Assets in `docs/logo/` (SVG); PNG and ICO
   renders come with D1.
+- Follow-up: Tricolour 0.5.0 is a rework about to be released (maintainer
+  reply on issue 110, 2026-10-30); re-validate the task D port against its
+  flags once it ships (the archived oracle came from 0.2.1).
 - Later, not started: a matched full CARACal pipeline baseline on the LUNO
   data (needed if any campaign turns positive) and a benchmark page that CI
   updates from the comparator timings.
@@ -236,8 +242,8 @@ CPU-heavy tasks at a time on 8 physical cores.
 
 ## User items (not blocking)
 
-- Register the PyPI pending publisher for `ra-ng` (owner `gijzelaerr`,
-  repository `ra-ng`, workflow `wheels.yml`, environment `pypi`) and, after
+- Register the PyPI pending publisher for `rang-core` (owner `gijzelaerr`,
+  repository `rang-core`, workflow `wheels.yml`, environment `pypi`) and, after
   P12 and wave 4, create the tag `v0.1.0`; the workflow publishes.
 - Delete `~/Build/tmp/20261029-rang-core`, the root-owned
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
