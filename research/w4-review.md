@@ -2,11 +2,13 @@
 
 Status, 2026-10-31: **review done; nothing changed in the code.** The review
 read `main` at `17653e4` closely, ran the static tools, the full check, a
-determinism matrix, a local wheel and sdist build, and six reproduction
-scripts. It found **17 findings: 1 high, 8 medium and 8 low.** No archived
-result is affected. `bash tools/check-all.sh` passes (784 passed, 10
-skipped), and every live kernel gives the same bits at 1, 2, 3 and 4 rayon
-threads and under the gridder's SIMD and plane-group settings.
+determinism matrix, a local wheel and sdist build, and seven reproduction
+scripts (r01–r06 and r03b). It found **17 findings: 1 high, 8 medium and 8
+low.** No archived result is affected. `bash tools/check-all.sh` passes (784
+passed, 10 skipped). The suite's archive comparisons pass, with one skipped:
+`test_task_k_additions_equal_the_archive`, whose task K fetch is an ignored
+input that is absent here. Every live kernel gives the same bits at 1, 2, 3
+and 4 rayon threads and under the gridder's SIMD and plane-group settings.
 
 What is wrong:
 
@@ -19,7 +21,8 @@ What is wrong:
 - **The extension trusts the caller.** It takes array sizes on trust and
   reads Fortran-ordered arrays transposed. An 11-double out-of-bounds write
   was reproduced (W4R-04). One public wrapper, `core_flag.flag_rows`, can
-  reach the same unchecked read (W4R-05).
+  reach the same unchecked read: given an `antenna1` one row short, it
+  returns different flags with no error (W4R-05).
 - **Two kernels still run Cargo.** The closure and flux-standard kernels
   build a crate with `cargo` when they are first called, so they fail from
   the wheel. The README says nothing runs Cargo at a kernel call (W4R-06).
@@ -79,9 +82,10 @@ greps for patterns:
 - python-casacore 3.8.1 in a scratch Python 3.13 venv, as the oracle for
   W4R-03
 
-`cargo-audit` was installed with `cargo install --locked`; its result is in
-the timings. pyright was not run: the package has no type annotations to
-check.
+cargo-audit 0.22.2 was installed with `cargo install --locked` and run on
+all three lock files. It loaded 1,395 advisories and found none in the 117
+(core), 130 (extension) and 1 (root) crates. pip-audit found no known
+vulnerability in the venv. pyright was installed but not run.
 
 **Host:** AMD Ryzen 7 7700X with AVX-512, AVX2 and FMA. It was shared with
 three other tasks (load 5–7), so wall times are load-dependent.
@@ -111,8 +115,54 @@ serially (`fused.rs:400-424`, `grid.rs:572-590`). The only parallel
 `reduce` (`wgridder.rs:1017-1039`) works on integers and min/max. Task
 chunking depends on the data size, not on the thread count
 (`wgridder.rs:1209`). The docstrings' claims that the gridder's SIMD level
-and plane group do not change the result are confirmed. The 2 GPU tests
-were not run (no `gpu` build in the check).
+and plane group do not change the result are confirmed. The 2 Python GPU
+tests were not run (no `gpu` build in the check). The Rust tests with
+`--features gpu` pass (135).
+
+### Checked and clean
+
+- **Aliasing of NumPy views.** One buffer passed as both a read-only input
+  and a read-write output of one binding is refused: `TypeError: The given
+  array is already borrowed` (r06). The documented caveat stands: another
+  Python thread can still write an input during a GIL-released call
+  (`core/py/src/lib.rs:21-25`).
+- **`catch_unwind` coverage.** Every `extern "C"` function catches panics,
+  either itself or through a guarded helper:
+  - `ffi.rs` 9/9, `ffi_ms.rs` 6/6, `ffi_ms_write.rs` 13/13,
+    `ffi_weights.rs` 4/4, `ffi_grid.rs` 2/2, `ffi_correct.rs` 2/2,
+    `ffi_flag.rs` 1/1, `gpu/ffi.rs` 1/1
+  - the root crate's 6/6
+  - `ffi_closure.rs`: `scores` guarded; `last_error` only copies a string
+  - `ffi_wgridder.rs`: the 10 gridding entry points delegate to `run`,
+    `run_ex` and `run_d2v_ex`, each guarded; `kernel_row` and `last_error`
+    are table lookups and copies
+
+  The exception is `ffi_fluxstd.rs` (W4R-10). The PyO3 methods
+  (`MsTable`, `MsWriter`, `toy_cli`) convert panics to `PanicException`.
+- **Old repository names.** None outside `research/` and `history/`
+  (`git grep 'gijzelaerr/rang'` without `-core`, `ra-ng`,
+  `github.io/rang`).
+- **Untrusted files.**
+  - The DicoModel unpickler allows NumPy reconstructors and
+    `OrderedDict` only, and the CLI asks for `--trust`
+    (`formats/sky.py:973-1007`, `formats/cli.py:105`).
+  - Every other `np.load` passes `allow_pickle=False`.
+  - Fixture zips are checked against a pinned SHA256 and extracted
+    member by member through `_safe_members` (no absolute, `..`,
+    backslash or symlink members).
+  - Downloads (fixture, CARACal lsm) are verified before they are renamed
+    into place.
+- **Subprocesses and POSIX assumptions.**
+  - Every `subprocess` call is an argument list; there is no `shell=True`.
+  - No live module uses `/tmp`.
+  - `resource` is imported lazily (`rusage.py`), and `/proc/meminfo` is
+    only recorded.
+  - No tracked text file starts with a BOM.
+- **Table reader offsets.** `ms.rs`, `ism.rs`, `aipsio.rs` and
+  `multifile.rs` do unchecked arithmetic on file offsets, but every access
+  is a bounds-checked slice or `get`. No path that would silently read at a
+  wrong offset was found (not fuzzed). Big-endian files are byte-swapped
+  per element size (`ms.rs:376-390,937,1472`).
 
 ## Findings
 
@@ -137,14 +187,14 @@ Verdicts:
 | W4R-02 | Med | 1 | `core_cli.py:57,120-131,538-546`; `core_campaign.py:37,171-182`; `core_receipts.py:19-32` | `ROOT = parents[2]` is the checkout only for an editable install; in a wheel it is `<venv>/lib/python3.X`. | The receipt names the HEAD of any git repository around the venv as the commit (r05: an unrelated repository's HEAD, `dirty: false`); `source_receipts()` raises `FileNotFoundError` (`Cargo.lock`). | C (r05) | Use `check.find_root`'s test (Cargo.toml + core/Cargo.toml + pyproject.toml at ROOT), otherwise record `commit: null` with the distribution version and extension SHA256, and hash the installed package files. | `core_cli.py`*, `core_campaign.py`, `core_receipts.py`, `core_imaging.py` |
 | W4R-03 | Med | 1 | `python/rang/core_ms_write.py:491-495` | 2-D string-array keywords are flattened in Fortran order with the shape reversed; numeric keywords and python-casacore use C order. | `putkeyword("TXT", [["a","b","c"],["d","e","f"]])` stores `a,d,b,e,c,f`; python-casacore 3.8.1 stores `a,b,c,d,e,f`. This breaks the byte-identity claim of E3–E5. | C (r03, r03b) | `arr.reshape(-1)` (C order), plus a 2-D string-keyword case in the oracle tests. | `core_ms_write.py`, `tests/test_t1_casacure_oracle.py` or `tests/test_e5_table_writer_rest.py` |
 | W4R-04 | Med | 2 | `core/py/src/lib.rs:83-106` and the bindings `fused`, `solve_complex`, `predict_components`, `stokes_i`, `imaging_weights`, `grid_invert`, `grid_invert_gpu`, `flag_rows`; `core/src/ffi.rs:47-63` | The bindings pass pointers with no length check, and `as_slice` accepts F-contiguous arrays; the module docstring says non-contiguous arrays are refused. | Direct `rang._core` calls: a 1-element `split_stats` gets 11 doubles written past it (r01a); a Fortran-ordered `uvw` is read transposed and status 0 is returned (r01b). The shipped wrappers coerce to C order and size their outputs, so this is not reachable through them, except W4R-05. | C (r01) | `sized`/`sized_mut` on every binding (as P7's root-kernel bindings already do), an `is_c_contiguous()` check in `ptr`/`ptr_mut`, and `checked_mul` for `nrow*3`, `cells*2` and `ntime*nfreq*nant`. | `core/py/src/lib.rs`*, `core/src/ffi_grid.rs`, `core/src/gpu/ffi.rs`, `tests/test_p7_architecture.py` |
-| W4R-05 | Med | 2 | `python/rang/core_flag.py:247-270` | `flag_rows` does not check that `antenna1`/`antenna2`/`times` have `nrow` entries (`zip` truncates `baseline_index`) or that `corr_type` has `ncorr`. | The kernel reads `nrow` and `ncorr` elements (`ffi_flag.rs:181-187`) past the shorter buffers and flags from heap bytes, with no error. | C (code) | Validate every length in the wrapper; W4R-04 also catches it in the binding. | `core_flag.py`, `tests/test_core_flag.py` |
+| W4R-05 | Med | 2 | `python/rang/core_flag.py:247-270` | `flag_rows` does not check that `antenna1`/`antenna2`/`times` have `nrow` entries (`zip` truncates `baseline_index`) or that `corr_type` has `ncorr`. | The kernel reads `nrow` and `ncorr` elements (`ffi_flag.rs:181-187`) past the shorter buffers. On P3's synthetic case, `antenna1`/`antenna2` or `times` one row short return different flags with no error; `corr_type[:1]` returned the reference flags this time. | C (r06) | Validate every length in the wrapper; W4R-04 also catches it in the binding. | `core_flag.py`, `tests/test_core_flag.py` |
 | W4R-06 | Med | 4 | `core_closure.py:71-165`; `fluxstd.py:398-491` | The C1 closure and FS1 flux kernels build a standalone crate with `cargo` on first call, although `lib.rs` lists both modules and `_core.abi3.so` exports `rang_core_closure_scores` and `rang_core_fluxstd_eval`. | From the wheel both raise `RuntimeError: Run from the Rang checkout` (r05). The check builds `core/target/{c1,fs1}-standalone` during pytest. The README says nothing runs Cargo at a kernel call (README:136). | C (r05, nm, pytest) | Bind `closure_scores` and `fluxstd_eval` in the extension, call them from the wrappers, delete the standalone builders and verify the C1 and FS1 archives. | `core/py/src/lib.rs`*, `core_closure.py`, `fluxstd.py`, `tests/test_core_closure.py`, `tests/test_fluxstd.py` |
 | W4R-07 | Med | 4 | `core_cli.py` (parser); `python/rang/__init__.py` | No `rang-core --version` and no `rang.__version__`. | `rang-core --version` prints "unknown option --version" and exits 1 (r05). | C (r05) | Add `--version` from `importlib.metadata.version("rang-core")` and `__version__` in `__init__`. | `core_cli.py`*, `python/rang/__init__.py` |
-| W4R-08 | Med | 4 | `pyproject.toml:15-28`; `README.md:1,16,…` | The classifiers list only `Operating System :: POSIX :: Linux`, though CI builds and tests win_amd64 and macOS wheels. There are no Python version classifiers, and Repository is the only URL. On PyPI the README's logo (`docs/logo/lockup.svg`) and about 40 relative links break. | PyPI shows a Linux-only, logo-less page with dead links; `twine check` passes, so CI does not notice. | C | Add Windows, macOS and `Python :: 3.10`–`3.14` classifiers, Documentation and Issues URLs, and absolute URLs (or a short PyPI README). | `pyproject.toml`, `README.md`* |
-| W4R-09 | Low | 1 | `core_zarr.py:24-31`; `core_fetch.py:39-44,56-70,297-312,409-462,486-489` | Zarr ingest never checks `.zarray` `order`, and `core_fetch` hard-codes the row-column dtypes. `core_fetch`'s block table lacks `core_zarr.read_rows`'s fallback for blocks stored out of order. | An F-order store would decode transposed without error, and a row column stored as `<i8` would be misread. A QuartiCal-style chunk with out-of-order blocks fails to decode instead of falling back. Latent: all 400 archived `.zarray` files are `order: C`, and the row dtypes match. | C (code), latent | Assert `order == "C"` and the expected dtypes, and share one block-table helper with the out-of-order fallback. | `core_zarr.py`, `core_fetch.py` |
-| W4R-10 | Low | 2 | `core/src/blosc.rs:369-410`; `core/src/ffi_fluxstd.rs:14` | `decode_span_rows` does not check that every requested row lies inside blocks `first..first+count`. `rang_core_fluxstd_eval` has no `catch_unwind`. | Rows outside the run are left as the caller's `np.empty` bytes, and status 0 is returned (the wrappers always cover them). A panic in `fluxstd` aborts the process. | C (code) | Return 1 when a row is not covered, and wrap the function in `catch_unwind`. | `core/src/blosc.rs`, `core/src/ffi_correct.rs`, `core/src/ffi_fluxstd.rs` |
+| W4R-08 | Med | 4 | `pyproject.toml:15-28`; `README.md:1,16,…` | The classifiers list only `Operating System :: POSIX :: Linux`, though CI builds and tests win_amd64 and macOS wheels. There are no Python version classifiers, and Repository is the only URL. On PyPI the README's relative logo (`docs/logo/lockup.svg`) and its 23 relative links break. | PyPI shows a Linux-only, logo-less page with dead links; `twine check` passes, so CI does not notice. | C | Add Windows, macOS and `Python :: 3.10`–`3.14` classifiers, Documentation and Issues URLs, and absolute URLs (or a short PyPI README). | `pyproject.toml`, `README.md`* |
 | W4R-11 | Med | 3 | 73 `read_text()` and about 29 `write_text(` with no `encoding`, e.g. `formats/sky.py:246,462,868,968,1116`, `formats/quartical_store.py:111-276`, `formats/_aipsio.py:193`, `formats/flagversions.py:29,94`, `core_ms_write.py:607` | Before Python 3.15, Windows reads and writes these in the locale code page. CI cannot see it because `wheels.yml:175` sets `PYTHONUTF8=1`. | A Tigger or BBS sky model with non-ASCII names, or a `table.info` readme, is mis-decoded or raises on a stock Windows Python. | C (code) | Pass `encoding="utf-8"` (and `newline="\n"` where a file is hashed), add a test or ruff `PLW1514` (preview), and run one CI job without `PYTHONUTF8`. | the files listed, `.github/workflows/wheels.yml` |
-| W4R-12 | Low | 3 | repository root (no `.gitattributes`) | 13 tracked files are CRLF, including the packaged `python/rang/notebook/science.py`, `tests/test_core_imaging.py`, `tests/test_d3_notebooks.py`, `docs/execute_notebooks.py` and 7 SVGs. X1's `* text=auto eol=lf` was never added. | A Windows clone without `core.autocrlf=false` hashes and formats differently; the CI works around this with a global git setting. | C | Add `.gitattributes` and renormalise once; check that no receipt hashes a renormalised file. | `.gitattributes`, the 13 files |
+| W4R-09 | Low | 1 | `core_zarr.py:24-31`; `core_fetch.py:39-44,56-70,297-312,409-462,486-489` | Zarr ingest never checks `.zarray` `order`, and `core_fetch` hard-codes the row-column dtypes. `core_fetch`'s block table lacks `core_zarr.read_rows`'s fallback for blocks stored out of order. | An F-order store would decode transposed without error, and a row column stored as `<i8` would be misread. A QuartiCal-style chunk with out-of-order blocks fails to decode instead of falling back. Latent: all 5,313 `.zarray` files under `outputs/` are `order: C`, and every archived `MAIN_1` row-column `.zarray` (3 copies per column) has the hard-coded dtype. | C (code), latent | Assert `order == "C"` and the expected dtypes, and share one block-table helper with the out-of-order fallback. | `core_zarr.py`, `core_fetch.py` |
+| W4R-10 | Low | 2 | `core/src/blosc.rs:369-410`; `core/src/ffi_fluxstd.rs:14` | `decode_span_rows` does not check that every requested row lies inside blocks `first..first+count`. `rang_core_fluxstd_eval` has no `catch_unwind`. | Rows outside the run are left as the caller's `np.empty` bytes, and status 0 is returned (the wrappers always cover them). A panic in `fluxstd` aborts the process. | C (code) | Return 1 when a row is not covered, and wrap the function in `catch_unwind`. | `core/src/blosc.rs`, `core/src/ffi_correct.rs`, `core/src/ffi_fluxstd.rs` |
+| W4R-12 | Low | 3 | repository root (no `.gitattributes`) | 13 tracked files are CRLF, including the packaged `python/rang/notebook/science.py`, `tests/test_core_imaging.py`, `tests/test_d3_notebooks.py`, `docs/execute_notebooks.py` and 7 SVGs. X1's `* text=auto eol=lf` was never added. | A Windows clone without `core.autocrlf=false` hashes and formats differently; the CI works around this with a global git setting. | C | Add `.gitattributes` (with `research/results/**` and `history/**` as `-text`) and renormalise the rest once; check that no receipt hashes a renormalised file. | `.gitattributes`, the 13 files |
 | W4R-13 | Low | 4 | `.github/workflows/wheels.yml:190-241`; repository root | Publishing runs on any `v*` tag without checking that the tag equals `pyproject` `version`. There is no CHANGELOG. `checkout@v4`, `setup-python@v5`, `upload-`/`download-artifact@v4` and `cache@v4` run on the deprecated Node 20. | Tagging `v0.1.1` without the bump publishes a second `0.1.0` attempt, which PyPI rejects only after the release job has run. | C | Add a tag-equals-version step to `release` and `publish`, a `CHANGELOG.md`, and bump the actions. | `.github/workflows/wheels.yml`, `CHANGELOG.md` |
 | W4R-14 | Low | 4 | `pyproject.toml` `[tool.maturin]` (no include/exclude) | The sdist packs the whole tree: 1,010 entries and 5.4 MB, including `research/` (393 files, among them derived statistics of the CC BY-NC 4.0 holography product), `history/` (116), `formal/` and `docs/`. | A GPL-3.0 sdist on PyPI redistributes CC BY-NC-derived numbers and frozen history; a licence ambiguity. | P | List the sdist's contents in `[tool.maturin] include`/`exclude` (crates, `python/`, `tests/`, README, LICENSE). | `pyproject.toml` |
 | W4R-15 | Low | 5 | `python/rang/check.py:50-139` | The check never builds, lints or tests the `gpu` feature, so the X2 code is outside the gate; the 2 GPU tests skip in every check run. | A change to `core/src/gpu/` that breaks the build passes `rang-core check`. (Today `clippy --all-features -D warnings` and `cargo test --features gpu` pass; see the timings.) | C | Add the steps `core-clippy-gpu` (`--features gpu -D warnings`) and `core-test-gpu` (`--features gpu`). | `check.py`, `CONTRIBUTING.md` |
@@ -237,6 +287,14 @@ every session").
 `zip(antenna1, antenna2)` (`core_flag.py:252-255`) and `time_inv` from
 `times`, then passes `nrow` from `data.shape`. `corr_type` is never compared
 with `ncorr`. The binding passes raw pointers (W4R-04).
+`outputs/w4-review-20261031-02/r06_flag_rows_lengths.py` runs P3's
+synthetic case (252 rows, 4 correlations) three ways:
+
+- with `antenna1` and `antenna2` one row short: no error, digest
+  `344d3325…` against the reference `bc3ef20a…`;
+- with `times` one row short: no error, `a9bb6efc…`;
+- with `corr_type[:1]`: no error and the reference digest. Whatever the
+  three values read past the buffer were, they did not matter this time.
 
 **W4R-06, Cargo at a kernel call.**
 
@@ -266,7 +324,16 @@ with `ncorr`. The binding passes raw pointers (W4R-04).
 `Operating System :: POSIX :: Linux` classifier and a single `Project-URL`.
 `twine check` passes for the wheel and the sdist. It does not resolve
 relative links, so it cannot see that PyPI renders `docs/logo/lockup.svg`
-and the relative links as broken.
+and the 23 relative links as broken.
+
+**W4R-11.** This is item 10 of X1's portability inventory, partly undone in
+the live package. X1 counted 189 `read_text()` calls in the tree; 73 remain
+in `python/rang`. The sky-model readers in `formats/sky.py` (Tigger, HTML,
+WSClean and BBS text) and the zarr metadata reader and writer in
+`formats/quartical_store.py` are user-facing on Windows. Ruff's `PLW1514`
+sees only 20 of the calls, because it recognises `Path(...)` literals and
+not path variables. `wheels.yml` sets `PYTHONUTF8=1` for the wheel tests,
+so the Windows CI job reads UTF-8 whatever the code says.
 
 **W4R-09.** The fetch path and the local path are listed here because both
 feed every LUNO campaign:
@@ -285,25 +352,53 @@ after the decoded blocks. The Python callers always pass covered rows, from
 `extern "C"` function aborts the process instead of being undefined
 behaviour.
 
-**W4R-11 to W4R-12.** These are X1's portability items 10 and 11. Two parts
-of X1's inventory are partly or wholly undone in the live package:
+**W4R-12.** X1 proposed this `.gitattributes` in its item 10, and it was
+never added. `git ls-files --eol` lists 13 `i/crlf` files. One of them,
+`research/results/p11-extract/closure.py`, is an archive and must keep its
+bytes, so the fix must exempt `research/results/**` and `history/**` with
+`-text`.
 
-- X1 counted 189 `read_text()` calls in the tree; 73 remain in
-  `python/rang`.
-- The `.gitattributes` it proposed was never added.
+**W4R-13.** The `release` and `publish` jobs check only
+`startsWith(github.ref, 'refs/tags/v')` (`wheels.yml:191,220`). Nothing
+compares `GITHUB_REF_NAME` with the wheel's version. The latest run's
+annotations warn that `checkout@v4`, `setup-python@v5`, `cache@v4` and
+`upload`/`download-artifact@v4` target Node 20 and are forced onto Node 24.
+The release notes are a fixed string (`wheels.yml:213`), and the tree has
+no CHANGELOG.
+
+**W4R-14.** `tar tzf rang_core-0.1.0.tar.gz` lists 1,010 entries: 393 under
+`research/`, 116 under `history/`, 134 under `examples/` and 52 under
+`core/`. `pyproject.toml` has no include or exclude list. The licence point
+comes from `research/b1-beam-pointing.md`, which says the CC BY-NC 4.0
+holography product's "derived statistics only" are committed. Whether those
+numbers may ship in a GPL-3.0 sdist is not settled here, hence PLAUSIBLE.
+
+**W4R-15.** `check.steps()` runs `cargo clippy --all-targets` and
+`cargo test` without `--features gpu`. The extension build is
+`maturin develop` without features, so `tests/test_x2_gpu.py` skips both of
+its cases ("the GPU gridder is not compiled"). This review's separate run
+with the feature passed: clippy with `-D warnings`, and 135 Rust tests.
+
+**W4R-16.**
+- `core_fetch.p5_extension()` returns `core.extension()`, which raises
+  rather than returning None. The `else` branch of
+  `core_campaign_array.correct_stokes_i` (lines 988-1000) can therefore never
+  run, and it names `core_fetch.CorrectInputs` and `core_fetch.p5_library`,
+  which no longer exist.
+- `core_wgridder.library()` is used only when `extension()` returns None.
+  That happens when `RANG_DF1_LIB` is set, and then `library()` loads that
+  file directly. It also happens when the extension lacks the DF2b
+  bindings, and every build since DF2b has them. Its second and third
+  branches are therefore dead:
+  - asking `core.library()`, now the extension module, for C symbols it
+    has no attributes for;
+  - `build_standalone()`.
 
 `core_campaign_array.mem_available_gib` reads `/proc/meminfo`, but the
-value is only recorded (None elsewhere), so it is not a finding.
-
-**W4R-13 to W4R-16.** Each is visible in the cited lines.
-
-- The latest `wheels` run (`41146407352`, `17653e4`) is green on all five
-  platforms and both Python versions.
-- The `docs` deploy fails at `configure-pages` until Pages is enabled; that
-  is a user item already.
-- The derived-statistics licence point (W4R-14) comes from
-  `research/b1-beam-pointing.md` ("CC BY-NC 4.0, derived statistics only
-  committed").
+value is only recorded (None elsewhere), so it is not a finding. The latest
+`wheels` run (`41146407352`, `17653e4`) is green on all five platforms and
+both Python versions. The `docs` deploy fails at `configure-pages` until
+Pages is enabled; that is already a user item.
 
 ## Release readiness (v0.1.0)
 
@@ -326,10 +421,10 @@ value is only recorded (None elsewhere), so it is not a finding.
 | Receipts from a wheel install | **fail** | W4R-02. |
 | Full check | pass | 730 s, `overall: PASS`. |
 
-**Verdict: no-go as it stands. Go after W4-1, W4-3 and W4-5** (about a day
-of work). W4-2 and W4-4 are recommended before the tag, but they do not
-block it: their defects are not reachable through the documented chain, or
-are rare. W4-6 to W4-8 can follow in 0.1.x.
+**Verdict: no-go as it stands. Go after W4-1, W4-3 and W4-5.** W4-2 and
+W4-4 are recommended before the tag, but they do not block it: their
+defects are either not reachable through the documented chain with
+consistent inputs, or rare. W4-6 to W4-8 can follow in 0.1.x.
 
 ## Simplification debt (ranked)
 
@@ -391,7 +486,10 @@ two versions.
 | `cargo clippy -W clippy::pedantic` core / ext / root | 7.3 s / 48.1 s / 1.5 s | 4,804 pedantic warnings in core, mostly literal separators, doc backticks and casts; the `usize→u32` casts are casacore format fields |
 | `cargo doc --no-deps --all-features` (core) | 4.5 s | no warnings |
 | `cargo test --release --features gpu` (core) | 327.3 s | 135 passed (129 without the feature); whether its GPU tests found an adapter was not checked |
-| SEE_AUDIT_ROW |
+| `cargo install --locked cargo-audit` (0.22.2) | 213.7 s | into `~/.cargo/bin` |
+| `cargo audit` on `core` / `core/py` / root `Cargo.lock` | 7.2 s / 2.2 s / 0.9 s | 1,395 advisories loaded, none found (117 / 130 / 1 crates) |
+| reproduction r06 (`flag_rows` lengths, aliasing) | 0.7 s | |
+| `find` over `outputs/` for `.zarray` order and dtypes | about 60 s | 5,313 files, all `order: C` |
 
 Slowest tests (from the JUnit XML of the check run,
 `outputs/w4-review-20261031-01/pytest-junit.xml`):
@@ -435,14 +533,17 @@ The 10 skips:
 Ignored outputs:
 
 - `outputs/w4-review-20261031-check-all.log`
-- `outputs/w4-review-20261031-01/`: JUnit XML, vulture, radon, bandit,
-  importers, `ruff-PLW1514`
-- `outputs/w4-review-20261031-02/`: r01–r03b and r05, with logs and the
-  tables they wrote
+- `outputs/w4-review-20261031-01/`:
+  - JUnit XML, vulture, radon, bandit, `ruff-PLW1514`
+  - `importers.py`/`importers.tsv` and `links.py`
+  - `setup.sh`/`setup.log` (the venv), the `.zarray` list
+- `outputs/w4-review-20261031-02/`: r01–r03b, r05 and r06, with logs and
+  the tables they wrote
 - `outputs/w4-review-20261031-03/`: r04 and its log
-- `outputs/w4-review-20261031-04/`: wheel, sdist, listing, timings,
-  build log
-- `outputs/w4-review-20261031-05/`: Rust static passes
+- `outputs/w4-review-20261031-04/`: wheel, sdist, `wheel-listing.txt`,
+  timings, build log
+- `outputs/w4-review-20261031-05/`: Rust static passes (`rust_static.sh`,
+  clippy, doc, gpu tests, cargo-audit logs, `rust-timings.tsv`)
 
 ## For the coordinator
 
@@ -513,6 +614,12 @@ Owners: `core/py/src/lib.rs`*, `core_closure.py`, `fluxstd.py`,
 1. PyO3 `closure_scores` and `fluxstd_eval`, with sized buffers and the GIL
    released.
 2. The wrappers call them.
+
+   An interim route, if the coordinator wants Cargo gone before touching
+   `core/py/src/lib.rs`: the extension already exports both C symbols, so
+   `ctypes.CDLL(core.library_path())` in `core_closure.library()` and
+   `fluxstd.rust_library()` removes the build and the checkout dependency.
+   The PyO3 bindings can follow.
 3. Delete the standalone builders, the ctypes fallbacks and the dead P5
    branch (W4R-06, W4R-16; about 400 lines).
 
@@ -569,16 +676,24 @@ Owners: `formats/*.py`, `core_ms_write.py`, `core_campaign*.py`,
 2. A test that greps `python/rang` for `read_text()` and for `write_text(`
    or `open(` in text mode with no `encoding` (ruff `PLW1514` misses
    `path.read_text()`).
-3. `.gitattributes` with `* text=auto eol=lf`, and `*.staticmask`, `*.png`,
-   `*.npz` as binary; renormalise the 13 CRLF files.
+3. `.gitattributes` with:
+   - `* text=auto eol=lf`;
+   - `*.staticmask`, `*.png` and `*.npz` as binary;
+   - `research/results/** -text` and `history/** -text`, so that archived
+     and frozen bytes are never rewritten.
+
+   Then renormalise the 12 CRLF files outside those trees.
+   `research/results/p11-extract/closure.py` keeps its CRLF.
 4. One Windows test job without `PYTHONUTF8`.
 
 Acceptance:
 
 - The Windows CI job is green without `PYTHONUTF8`.
-- `git ls-files --eol` shows no `i/crlf`.
-- The receipts that hash code are unchanged on Linux (none of the 13 files
-  is in a `CODE_FILES` list; check this).
+- `git ls-files --eol` shows no `i/crlf` outside `research/results/` and
+  `history/`.
+- The receipts that hash code are unchanged on Linux. None of the
+  renormalised files may be in a `CODE_FILES` list or a P11 extract hash;
+  check this.
 
 **W4-7, the GPU feature in the gate.**
 Owners: `check.py`, `CONTRIBUTING.md`, `tests/test_core_cli.py`.
@@ -607,9 +722,11 @@ W4 final review (big plan wave 4), 2026-10-31 (reviewed; measured;
 `17653e4`:
 
 - **Checks.** `bash tools/check-all.sh` passes (784 passed, 10 skipped,
-  730 s). The live kernels are bit-identical at 1–4 rayon threads and under
-  the gridder's SIMD and plane-group settings. Every archive comparator
-  passes.
+  730 s). The suite's archive comparisons pass, with one skipped:
+  `test_task_k_additions_equal_the_archive`, whose input is absent. The
+  live kernels are bit-identical at 1–4 rayon threads and under the
+  gridder's SIMD and plane-group settings. cargo-audit and pip-audit report
+  no advisories.
 - **Findings.** 17: 1 high, 8 medium, 8 low.
 - **High.** `RANG_SOLVE_OPTIONS` changes the solver's gains, and no receipt
   records it.
@@ -617,7 +734,8 @@ W4 final review (big plan wave 4), 2026-10-31 (reviewed; measured;
   - Wheel installs record the commit of any enclosing git repository.
   - The extension takes array sizes on trust and reads Fortran-ordered
     arrays transposed; an out-of-bounds write was reproduced.
-  - `flag_rows` does not check its input lengths.
+  - `flag_rows` does not check its input lengths; one row short gives
+    different flags and no error.
   - The closure and flux-standard kernels still build with Cargo, so they
     fail from the wheel.
   - 2-D string-array keywords are stored in an element order different from
@@ -653,4 +771,5 @@ medium; 8 low. v0.1.0 is go after W4-1, W4-3 and W4-5.
 | 2026-10-31 | big plan W4: clippy pedantic core / ext / root | worktree | 7.3 s / 48.1 s / 1.5 s | – | 4,804 pedantic warnings in core, none promoted |
 | 2026-10-31 | big plan W4: `cargo doc --no-deps --all-features` | core | 4.5 s | – | no warnings |
 | 2026-10-31 | big plan W4: `cargo test --release --features gpu` | core | 327.3 s | – | 135 passed (6 more than the check runs) |
-| SEE_AUDIT_TT |
+| 2026-10-31 | big plan W4: `cargo install --locked cargo-audit` (0.22.2) | crates.io | 213.7 s | – | |
+| 2026-10-31 | big plan W4: `cargo audit` core / `core/py` / root lock | worktree | 7.2 s / 2.2 s / 0.9 s | – | no advisory among 1,395 |
