@@ -138,7 +138,7 @@ def test_fluxstd_binding_refuses_bad_buffers():
 
 
 def test_closure_kernel_runs_in_threads():
-    """Two threads run the kernel at once (the GIL is released); both equal the serial result."""
+    """Two threads run the kernel concurrently; both equal the serial result."""
     c = closure_case(nant=12, nchan=16)
     serial = raw_closure(c)
     results = [None, None]

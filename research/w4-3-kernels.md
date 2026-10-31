@@ -394,16 +394,32 @@ is now true and needs no change.
 
 ### STATE paragraph
 
-> W4-3 (2026-10-31, implemented and measured; [w4-3-kernels.md](w4-3-kernels.md)):
-> the closure scores and the flux-standard evaluator are bound in the
-> extension (`closure_scores`, `fluxstd_eval`: sized, C-order checked, the GIL
-> released, `catch_unwind`). No kernel call runs Cargo any more. The C1, FS1
-> and DF1 standalone builders, the ctypes fallbacks and the dead P5 branch are
-> deleted (−543 / +61 lines in four modules). The kernels are byte-identical to
-> the standalone builds on 171 arrays. The C1 checker and the FS1 `setjy` check
-> equal their archives except wall time. A wheel without cargo runs both
-> kernels (r05; `tools/wheel/test.py` PASS with a new `kernels` step). This
-> closes W4R-06 and W4R-16, and v0.1.0's "kernels in the wheel" item now passes.
+> W4-3 (2026-10-31, measured; [w4-3-kernels.md](w4-3-kernels.md)): the
+> extension binds `closure_scores` and `fluxstd_eval`, and no kernel call runs
+> Cargo. The standalone builders, the ctypes fallbacks and the dead P5 branch
+> are gone. The kernels are byte-identical to the standalone builds, and a
+> wheel without cargo runs both. This closes W4R-06 and W4R-16.
+
+### Merge notes
+
+- **W4-1:** `RANG_C1_LIB` and `RANG_DF1_LIB` are no longer read anywhere
+  since W4-3. W4-1's registry of result-affecting `RANG_*` variables
+  (W4R-01) should drop them rather than record dead variables in receipts.
+- **Docker path:** `tools/wheel/test.sh` (the docker manylinux path,
+  line 82) has its own pytest list, which does not include
+  `tests/test_w4_3_kernels.py`. The test-list comment in
+  `.github/workflows/wheels.yml` (near line 166) is stale in the same way.
+  The workflow itself runs `tools/wheel/test.py`, which does include it.
+- **W4-2 (unverified):** rust-numpy's `as_slice` accepts F-contiguous as
+  well as C-contiguous arrays. Existing bindings that check only the length
+  through `ptr()` or `sized()` would therefore take an F-ordered
+  multi-dimensional array without complaint. This comes from the
+  `as_slice` contract and was not tested on an existing binding.
+  `exact_input` and `exact_output` here check `is_standard_layout()`.
+- **No stale callers:** a grep of `notebooks/`, `docs/`, `recipes/`,
+  `history/`, `tools/`, `.github/` and `src/` for the removed names finds
+  none. The only hit is the unrelated key `rust_library_sha256` in
+  `history/`.
 
 ### `research/README.md` index entry
 
