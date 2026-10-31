@@ -340,6 +340,38 @@ bytes written, whether the masked continuation bytes were equal.
 Failures are recorded as measured; any later fix is a new run labelled
 post hoc, and the frozen result stays in this file.
 
+## Amendments before the frozen run (deviations, 2026-10-31)
+
+Made during implementation, before the frozen run; the frozen text above is
+unchanged.
+
+1. **C-fixed**: the frozen `putcol` of rows 4–6 makes casacore 3.8.1 raise
+   (`TSMShape::offset - shapes do not conform`, found in a development
+   oracle run): a ranged `putcol` of a TiledCellStMan goes through
+   `TSMDataColumn::accessColumnCells`, which reads a row axis
+   (`rowpos(lastAxis)`) a TiledCellStMan cube does not have (its position
+   is the cell shape only; reading past an `IPosition`, undefined
+   behaviour). A whole-column `putcol` and `putcell` work. The new rows are
+   put with `putcell` one by one instead; the core writes a ranged `putcol`
+   of a TiledCellStMan correctly (not compared with casacore).
+2. **K-arrays (task W4-4, absorbed by E6 at the coordinator's request after
+   the freeze)**: the wave-4 review (finding W4R-03) found the core storing
+   2-D string-array keywords in Fortran element order. A case is added:
+   O-py, 2 rows, table keywords S23 (string 2×3), D23 (Double 2×3), I32
+   (Int 3×2), S222 (string 2×2×2) and column keywords of I: CS (string 3×2)
+   and CF (Float 2×4); byte comparison under criterion 1, read-back under
+   criterion 2 (python-casacore's and, added for this, casacure's keywords).
+   Measured before the fix on the development oracle: `table.dat` differs
+   in 61 bytes; after: identical. Numeric-array keywords were already in C
+   order (the bytes of a C-contiguous array with the reversed shape).
+3. **Mask 1 and orphaned string bodies**: in development the frozen walk
+   does not reach the end of IS-arrays' `table.f0i`: a string record put
+   again in place (`ISMIndColumn::putArrayPtr` keeps the record of the last
+   row put when its shape is unchanged) leaves its first put's bodies after
+   it, which no offset references. The frozen rule is kept (IS-arrays is
+   expected to fail criterion 1 as frozen); a post hoc step walks again
+   with those bodies consumed (`check_ms_final.py posthoc`, labelled).
+
 ## Implementation plan
 
 - `core/src/tiled_data.rs` (new) or `ms_write.rs`: TiledDataStMan with

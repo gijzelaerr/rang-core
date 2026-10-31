@@ -9,6 +9,7 @@
     python examples/check_ms_final.py serialisation <run>
     python examples/check_ms_final.py crossversion <run>
     python examples/check_ms_final.py summary <run>
+    python examples/check_ms_final.py posthoc <run>
 
 `oracle` runs the O-py cases (`examples/oracle_ms_final.py write`, and
 `write-mf` once per MultiFile block size with its aipsrc file) in the
@@ -520,7 +521,10 @@ def step_readback(run):
                 same = set(cc_ours) == set(cc_theirs) and all(
                     same_array(cc_ours[k], cc_theirs[k]) for k in cc_ours
                 )
-                casacure = {"reads": True, "same": same}
+                kw = casacure_keywords(run / "core" / name / suffix.lstrip(".")) == (
+                    casacure_keywords(table)
+                )
+                casacure = {"reads": True, "same": same and kw, "keywords_same": kw}
             report[f"{name}{suffix}"] = {
                 "python_casacore_same": not problems,
                 "core_reads_same": not core_problems,
@@ -768,6 +772,72 @@ def step_crossversion(run):
     return write_json(run, "crossversion", result, started)
 
 
+def casacure_keywords(path):
+    """casacure's table and column keywords of a table, as plain values."""
+    try:
+        from casacure import tables as cc
+    except ImportError:
+        return None
+    try:
+        t = cc.table(str(path), ack=False)
+    except Exception:  # noqa: BLE001 - read elsewhere
+        return None
+    try:
+        out = {"": oracle.oracle_ms_create.plain(t.getkeywords())}
+        for c in t.colnames():
+            out[c] = oracle.oracle_ms_create.plain(t.getcolkeywords(c))
+        return json.dumps(out, sort_keys=True, default=str)
+    finally:
+        t.close()
+
+
+def step_posthoc(run):
+    """Post hoc (after the frozen summary; not a criterion): the cases
+    whose array files differ outside the frozen gap mask, walked again with
+    the bodies of a string record's first put consumed after it."""
+    started = time.perf_counter()
+    run = Path(run)
+    cases = json.loads((run / "cases.json").read_text())["cases"]
+    report = {}
+    for c in cases:
+        if c["identical_but_masked"] or c.get("error"):
+            continue
+        entry = {}
+        for d in c["differ"]:
+            file = d["file"]
+            theirs = run / "oracle" / "casacore" / c["name"] / file
+            ours = run / "core" / c["name"] / file
+            x, y = ours.read_bytes(), theirs.read_bytes()
+            if len(x) != len(y) or not Path(file).name.endswith("i"):
+                entry[file] = {"not_an_array_file_or_lengths_differ": True}
+                continue
+            diff = np.flatnonzero(
+                np.frombuffer(x, np.uint8) != np.frombuffer(y, np.uint8)
+            )
+            mask = gap_mask(
+                theirs.parent, Path(file).name, y, ORPHAN_BITS.get(c["name"]), True
+            )
+            entry[file] = {
+                "bytes_differing": int(diff.size),
+                "walk_ends": mask is not None,
+                "outside_extended_mask": None
+                if mask is None
+                else int((~mask[diff]).sum()),
+            }
+        report[c["name"]] = entry
+    result = {
+        "label": "post hoc",
+        "cases": report,
+        "all_gaps": all(
+            v.get("outside_extended_mask") == 0
+            for e in report.values()
+            for v in e.values()
+        ),
+    }
+    print(json.dumps(result, indent=1), flush=True)
+    return write_json(run, "posthoc", result, started)
+
+
 def step_summary(run):
     run = Path(run)
     names = {
@@ -800,6 +870,7 @@ def main(argv):
         "serialisation": step_serialisation,
         "crossversion": step_crossversion,
         "summary": step_summary,
+        "posthoc": step_posthoc,
     }
     if len(argv) < 2 or argv[1] not in steps:
         print(__doc__)
