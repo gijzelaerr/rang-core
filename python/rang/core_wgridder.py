@@ -26,18 +26,10 @@ Since DF2b (research/df2b-wgrid.md) the extension `rang._core` binds the
 `_ex` entry points (`wgridder_vis2dirty_f64` etc.) and every call goes
 through it; `fits_image` and `dirty_psf` also take the imaging weight
 separately (`imaging_weights` / `wgt2`, float32), multiplied by the reader
-weight in the core (bit-identical to passing the float32 product). Only
-when `RANG_DF1_LIB` names a prebuilt library, or the extension predates the
-bindings, are the two Rust files built as a standalone cdylib in
-`core/target/df1-standalone` and called through ctypes, as before.
+weight in the core (bit-identical to passing the float32 product). Task W4-3
+(research/w4-3-kernels.md) removed the ctypes fallback and its standalone
+build (`RANG_DF1_LIB`, `core/target/df1-standalone`).
 """
-
-import ctypes
-import os
-import subprocess
-import sys
-from functools import lru_cache
-from pathlib import Path
 
 import numpy as np
 
@@ -60,208 +52,32 @@ INFO_NAMES = (
     "wmin",
     "ofactor",
 )
-SOURCES = ("wgridder.rs", "ffi_wgridder.rs")
-SYMBOLS = (
-    "rang_core_wgridder_vis2dirty_f64",
-    "rang_core_wgridder_vis2dirty_f32",
-    "rang_core_wgridder_dirty2vis_f64",
-    "rang_core_wgridder_dirty2vis_f32",
-    "rang_core_wgridder_vis2dirty_ex_f64",
-    "rang_core_wgridder_vis2dirty_ex_f32",
-    "rang_core_wgridder_dirty2vis_ex_f64",
-    "rang_core_wgridder_dirty2vis_ex_f32",
-    "rang_core_wgridder_kernel_row",
-    "rang_core_wgridder_last_error",
-)
 ARCSEC = np.pi / (180.0 * 3600.0)
 # Kinds of the `_ex` entry points (ffi_wgridder.rs).
 VIS_KIND = {np.dtype(np.complex64): 1, np.dtype(np.complex128): 2}
 WGT_KIND = {np.dtype(np.float32): 1, np.dtype(np.float64): 2}
 
 
-class Options(ctypes.Structure):
-    _fields_ = [
-        ("nx", ctypes.c_size_t),
-        ("ny", ctypes.c_size_t),
-        ("pixsize_x", ctypes.c_double),
-        ("pixsize_y", ctypes.c_double),
-        ("epsilon", ctypes.c_double),
-        ("center_x", ctypes.c_double),
-        ("center_y", ctypes.c_double),
-        ("sigma_min", ctypes.c_double),
-        ("sigma_max", ctypes.c_double),
-        ("do_wgridding", ctypes.c_int32),
-        ("divide_by_n", ctypes.c_int32),
-        ("flip_u", ctypes.c_int32),
-        ("flip_v", ctypes.c_int32),
-        ("flip_w", ctypes.c_int32),
-        ("allow_nshift", ctypes.c_int32),
-        ("kernel_index", ctypes.c_int64),
-        ("nu", ctypes.c_size_t),
-        ("nv", ctypes.c_size_t),
-    ]
-
-
-def standalone_dir():
-    return core.core_root() / "target" / "df1-standalone"
-
-
-def write_standalone():
-    """Write the standalone crate (`rang_df1_core`) whose root includes the
-    two DF1 files by path; rayon and rustfft come from the core's lock."""
-    root = core.core_root()
-    out = standalone_dir()
-    out.mkdir(parents=True, exist_ok=True)
-    _write_if_changed(
-        out / "Cargo.toml",
-        "[package]\n"
-        'name = "rang-df1-core"\n'
-        'version = "0.1.0"\n'
-        'edition = "2024"\n'
-        'license = "GPL-3.0-or-later"\n'
-        "publish = false\n\n"
-        "[lib]\n"
-        'name = "rang_df1_core"\n'
-        'path = "root.rs"\n'
-        'crate-type = ["rlib", "cdylib"]\n\n'
-        "[dependencies]\n"
-        'rayon = "1.12.0"\n'
-        'rustfft = "6.4.1"\n\n'
-        "[profile.release]\n"
-        'lto = "thin"\n'
-        "codegen-units = 1\n\n"
-        "[workspace]\n",
-    )
-    modules = "".join(
-        f'#[path = "{(root / "src" / name).as_posix()}"]\npub mod {name.removesuffix(".rs")};\n'
-        for name in SOURCES
-    )
-    _write_if_changed(
-        out / "root.rs",
-        "//! Standalone build of the DF1 gridder until core/src/lib.rs lists it.\n"
-        + modules,
-    )
-    _write_if_changed(out / "Cargo.lock", (root / "Cargo.lock").read_text())
-    return out
-
-
-def _write_if_changed(path, text):
-    """Write only on change, so that cargo's fingerprints stay valid."""
-    path = Path(path)
-    if not path.is_file() or path.read_text() != text:
-        path.write_text(text)
-
-
-def build_standalone():
-    out = write_standalone()
-    subprocess.run(
-        [
-            "cargo",
-            "build",
-            "--offline",
-            "--release",
-            "-q",
-            "--manifest-path",
-            str(out / "Cargo.toml"),
-        ],
-        cwd=out,
-        check=True,
-    )
-    return (
-        out
-        / "target"
-        / "release"
-        / {"win32": "rang_df1_core.dll", "darwin": "librang_df1_core.dylib"}.get(
-            sys.platform, "librang_df1_core.so"
-        )
-    )
-
-
-def _declare(lib):
-    dptr = ctypes.POINTER(ctypes.c_double)
-    fptr = ctypes.POINTER(ctypes.c_float)
-    u8ptr = ctypes.POINTER(ctypes.c_uint8)
-    opt = ctypes.POINTER(Options)
-    size = ctypes.c_size_t
-    vptr = ctypes.c_void_p
-    i32 = ctypes.c_int32
-    for prec, ptr in (("f64", dptr), ("f32", fptr)):
-        for name in (
-            f"rang_core_wgridder_vis2dirty_{prec}",
-            f"rang_core_wgridder_dirty2vis_{prec}",
-        ):
-            fn = getattr(lib, name)
-            fn.argtypes = [opt, size, size, dptr, dptr, ptr, ptr, u8ptr, ptr, dptr]
-            fn.restype = ctypes.c_int
-        fn = getattr(lib, f"rang_core_wgridder_vis2dirty_ex_{prec}")
-        fn.argtypes = [opt, size, size, dptr, dptr, vptr, i32, vptr, i32, u8ptr]
-        fn.argtypes += [ptr, ptr, dptr]
-        fn.restype = ctypes.c_int
-        fn = getattr(lib, f"rang_core_wgridder_dirty2vis_ex_{prec}")
-        fn.argtypes = [opt, size, size, dptr, dptr, ptr, vptr, i32, u8ptr, ptr, dptr]
-        fn.restype = ctypes.c_int
-    lib.rang_core_wgridder_kernel_row.argtypes = [size, dptr]
-    lib.rang_core_wgridder_kernel_row.restype = ctypes.c_int
-    lib.rang_core_wgridder_last_error.argtypes = [ctypes.c_char_p, size]
-    lib.rang_core_wgridder_last_error.restype = size
-    return lib
-
-
-EXTENSION_FUNCTIONS = (
-    "wgridder_vis2dirty_f64",
-    "wgridder_vis2dirty_f32",
-    "wgridder_dirty2vis_f64",
-    "wgridder_dirty2vis_f32",
-    "wgridder_kernel_row",
-    "wgridder_last_error",
-)
-
-
-@lru_cache(maxsize=1)
 def extension():
-    """The extension when it binds the gridder (DF2b) and `RANG_DF1_LIB` is
-    unset; else None (the ctypes path below)."""
-    if os.environ.get("RANG_DF1_LIB"):
-        return None
-    ext = core.extension()
-    if all(hasattr(ext, name) for name in EXTENSION_FUNCTIONS):
-        return ext
-    return None
-
-
-@lru_cache(maxsize=1)
-def library():
-    """A ctypes handle exporting the gridder's symbols (the fallback when
-    the extension does not bind them): `RANG_DF1_LIB` if set, else the core
-    library when it exports them, else the standalone build."""
-    configured = os.environ.get("RANG_DF1_LIB")
-    if configured:
-        return _declare(ctypes.CDLL(str(Path(configured).resolve())))
-    lib = core.library()
-    if all(hasattr(lib, name) for name in SYMBOLS):
-        return _declare(lib)
-    return _declare(ctypes.CDLL(str(build_standalone())))
+    """The extension module that runs the gridder (`rang._core`)."""
+    return core.extension()
 
 
 def backend():
-    """ "extension" or "ctypes" (recorded in receipts)."""
-    return "extension" if extension() is not None else "ctypes"
+    """ "extension" (recorded in receipts; the ctypes path is gone)."""
+    return "extension"
 
 
 def library_path():
-    """The binary the gridder runs in: the extension, or the ctypes library."""
-    if extension() is not None:
-        return core.library_path()
-    return Path(library()._name).resolve()
-
-
-def _ptr(array, kind):
-    return None if array is None else array.ctypes.data_as(ctypes.POINTER(kind))
+    """The binary the gridder runs in: the extension."""
+    return core.library_path()
 
 
 def _options(npix_x, npix_y, pixsize_x, pixsize_y, epsilon, kw):
+    """The 18 gridder options as floats, in the order of `WgridderOptions`
+    (ffi_wgridder.rs), as the extension takes them."""
     kernel = kw.pop("kernel", None)
-    opts = Options(
+    opts = (
         int(npix_x),
         int(npix_y),
         float(pixsize_x),
@@ -283,25 +99,15 @@ def _options(npix_x, npix_y, pixsize_x, pixsize_y, epsilon, kw):
     )
     if kw:
         raise TypeError(f"unexpected options {sorted(kw)}")
-    return opts
+    return [float(v) for v in opts]
 
 
-def _check(lib, status):
+def _check(status):
     if status == 0:
         return
     if status == 1:
-        if lib is None:
-            raise ValueError(extension().wgridder_last_error())
-        n = lib.rang_core_wgridder_last_error(None, 0)
-        buf = ctypes.create_string_buffer(n + 1)
-        lib.rang_core_wgridder_last_error(buf, n)
-        raise ValueError(buf.raw[:n].decode())
+        raise ValueError(extension().wgridder_last_error())
     raise RuntimeError(f"core gridder failed with status {status}")
-
-
-def _option_values(opts):
-    """The 18 `Options` fields in declaration order, for the extension."""
-    return [float(getattr(opts, name)) for name, _ in Options._fields_]
 
 
 def _coords(uvw, freq):
@@ -366,46 +172,22 @@ def _gridding(
     wgt, wgt2 = _two_weights(wgt, wgt2, shape)
     opts = _options(npix[0], npix[1], pix[0], pix[1], epsilon, dict(kw))
     real = np.float32 if single else np.float64
-    kind = ctypes.c_float if single else ctypes.c_double
     images = {name: np.empty((int(npix[0]), int(npix[1])), real) for name in outputs}
     info = np.empty(N_INFO, np.float64)
-    ext = extension()
-    if ext is not None:
-        fn = getattr(ext, f"wgridder_vis2dirty_{'f32' if single else 'f64'}")
-        status = fn(
-            _option_values(opts),
-            uvw,
-            freq,
-            vis,
-            wgt,
-            wgt2,
-            mask,
-            images.get("dirty"),
-            images.get("psf"),
-            info,
-        )
-        _check(None, status)
-        return images, info_dict(info)
-    if wgt2 is not None:  # the ctypes `_ex` entry has one weight array
-        wgt, wgt2 = np.ascontiguousarray(wgt * wgt2), None
-    lib = library()
-    fn = getattr(lib, f"rang_core_wgridder_vis2dirty_ex_{'f32' if single else 'f64'}")
+    fn = getattr(extension(), f"wgridder_vis2dirty_{'f32' if single else 'f64'}")
     status = fn(
-        ctypes.byref(opts),
-        shape[0],
-        shape[1],
-        _ptr(uvw, ctypes.c_double),
-        _ptr(freq, ctypes.c_double),
-        vis.ctypes.data,
-        VIS_KIND[vis.dtype],
-        None if wgt is None else wgt.ctypes.data,
-        0 if wgt is None else WGT_KIND[wgt.dtype],
-        _ptr(mask, ctypes.c_uint8),
-        _ptr(images.get("dirty"), kind),
-        _ptr(images.get("psf"), kind),
-        _ptr(info, ctypes.c_double),
+        opts,
+        uvw,
+        freq,
+        vis,
+        wgt,
+        wgt2,
+        mask,
+        images.get("dirty"),
+        images.get("psf"),
+        info,
     )
-    _check(lib, status)
+    _check(status)
     return images, info_dict(info)
 
 
@@ -518,33 +300,9 @@ def dirty2vis(
     )
     vis = np.empty(shape, np.complex64 if single else np.complex128)
     info = np.empty(N_INFO, np.float64)
-    ext = extension()
-    if ext is not None:
-        fn = getattr(ext, f"wgridder_dirty2vis_{'f32' if single else 'f64'}")
-        status = fn(
-            _option_values(opts), uvw, freq, dirty, wgt, mask, vis.view(real), info
-        )
-        _check(None, status)
-        if return_info:
-            return vis, info_dict(info)
-        return vis
-    lib = library()
-    fn = getattr(lib, f"rang_core_wgridder_dirty2vis_ex_{'f32' if single else 'f64'}")
-    kind = ctypes.c_float if single else ctypes.c_double
-    status = fn(
-        ctypes.byref(opts),
-        shape[0],
-        shape[1],
-        _ptr(uvw, ctypes.c_double),
-        _ptr(freq, ctypes.c_double),
-        _ptr(dirty, kind),
-        None if wgt is None else wgt.ctypes.data,
-        0 if wgt is None else WGT_KIND[wgt.dtype],
-        _ptr(mask, ctypes.c_uint8),
-        _ptr(vis.view(real), kind),
-        _ptr(info, ctypes.c_double),
-    )
-    _check(lib, status)
+    fn = getattr(extension(), f"wgridder_dirty2vis_{'f32' if single else 'f64'}")
+    status = fn(opts, uvw, freq, dirty, wgt, mask, vis.view(real), info)
+    _check(status)
     if return_info:
         return vis, info_dict(info)
     return vis
@@ -561,13 +319,7 @@ def kernel_row(index):
     """Row `index` of the kernel table: (W, ofactor, epsilon, beta, e0,
     ndim, singleprec), or None past its end."""
     out = np.empty(7, np.float64)
-    ext = extension()
-    if ext is not None:
-        if ext.wgridder_kernel_row(int(index), out):
-            return None
-    elif library().rang_core_wgridder_kernel_row(
-        int(index), _ptr(out, ctypes.c_double)
-    ):
+    if extension().wgridder_kernel_row(int(index), out):
         return None
     return (int(out[0]), *(float(v) for v in out[1:5]), int(out[5]), bool(out[6]))
 

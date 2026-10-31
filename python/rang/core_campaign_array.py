@@ -35,7 +35,6 @@ per-cell temporaries, each change bit-identical except the gain correction
 Original FLAG and FLAG_ROW are never modified.
 """
 
-import ctypes
 import itertools
 import json
 import math
@@ -973,30 +972,16 @@ def correct_stokes_i(state, gains, valid, added, sample=None, weight=None):
     }
     if arrays["added"] is not None and arrays["added"].shape != (nrow, nchan):
         raise ValueError("added must be (row, chan)")
-    ext = core_fetch.p5_extension()
-    if ext is not None:
-        status = ext.correct_stokes_i(
-            nrow,
-            nchan,
-            nt,
-            nf,
-            na,
-            *arrays.values(),
-            sample.view(np.float32),
-            weight,
-        )
-    else:
-        inputs = core_fetch.CorrectInputs(
-            nrow,
-            nchan,
-            nt,
-            nf,
-            na,
-            *(None if a is None else a.ctypes.data for a in arrays.values()),
-        )
-        status = core_fetch.p5_library().rang_core_correct_stokes_i(
-            ctypes.byref(inputs), sample.ctypes.data, weight.ctypes.data
-        )
+    status = core_fetch.p5_extension().correct_stokes_i(
+        nrow,
+        nchan,
+        nt,
+        nf,
+        na,
+        *arrays.values(),
+        sample.view(np.float32),
+        weight,
+    )
     if status:
         raise RuntimeError(f"rang_core_correct_stokes_i failed with status {status}")
     return sample, weight

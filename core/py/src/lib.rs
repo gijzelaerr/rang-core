@@ -2086,6 +2086,176 @@ fn ms_read_cells<'py>(
     Ok(cells.into_iter().map(|c| cell_tuple(py, c)).collect())
 }
 
+// Task W4-3 (research/w4-3-kernels.md): the closure scores (C1) and the
+// flux-standard evaluator (FS1), which built a standalone library with Cargo
+// before. Each binding takes typed arrays (a wrong dtype is a TypeError),
+// refuses one that is not C-contiguous or not of the expected shape
+// (ValueError), calls the C function with the GIL released inside
+// `catch_unwind`, and raises on its status.
+
+/// Pointer of a C-contiguous input of exactly `shape`.
+fn exact_input<T: Element>(a: &Ro<'_, T>, name: &str, shape: &[usize]) -> PyResult<*const T> {
+    let view = a.as_array();
+    if !view.is_standard_layout() {
+        return Err(PyValueError::new_err(format!(
+            "{name} must be C-contiguous"
+        )));
+    }
+    if view.shape() != shape {
+        return Err(PyValueError::new_err(format!(
+            "{name} must have shape {shape:?}, not {:?}",
+            view.shape()
+        )));
+    }
+    ptr(a)
+}
+
+/// Pointer of a C-contiguous output of exactly `shape`.
+fn exact_output<T: Element>(a: &mut Rw<'_, T>, name: &str, shape: &[usize]) -> PyResult<*mut T> {
+    let view = a.as_array();
+    if !view.is_standard_layout() {
+        return Err(PyValueError::new_err(format!(
+            "{name} must be C-contiguous"
+        )));
+    }
+    if view.shape() != shape {
+        return Err(PyValueError::new_err(format!(
+            "{name} must have shape {shape:?}, not {:?}",
+            view.shape()
+        )));
+    }
+    ptr_mut(a)
+}
+
+/// The closure kernel's last error message on this thread.
+fn closure_last_error() -> String {
+    // SAFETY: a null buffer asks for the length only; `buf` then holds it.
+    let n =
+        unsafe { rang_core::ffi_closure::rang_core_closure_last_error(std::ptr::null_mut(), 0) };
+    let mut buf = vec![0_u8; n];
+    // SAFETY: `buf` holds `n` bytes.
+    unsafe { rang_core::ffi_closure::rang_core_closure_last_error(buf.as_mut_ptr(), n) };
+    String::from_utf8_lossy(&buf).into_owned()
+}
+
+/// `rang_core_closure_scores`: per-sample closure scores of one family.
+/// `data`, `model` (complex64) and `weights` (float32) are `(nrow, nchan,
+/// 4)`, `usable` (uint8) and the outputs `residual`, `tv` (float32) and
+/// `count` (uint16) `(nrow, nchan)`, the row columns (uint32) `(nrow,)`.
+/// Raises ValueError on invalid input (the core's message) and
+/// RuntimeError on a panic in the core.
+#[pyfunction]
+#[pyo3(signature = (
+    data, model, weights, usable, antenna1, antenna2, time_index, stations,
+    nant, ntime, family, min_closures, reroute, residual, tv, count
+))]
+#[allow(clippy::too_many_arguments)]
+fn closure_scores(
+    py: Python<'_>,
+    data: Ro<'_, Complex32>,
+    model: Ro<'_, Complex32>,
+    weights: Ro<'_, f32>,
+    usable: Ro<'_, u8>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    time_index: Ro<'_, u32>,
+    stations: Ro<'_, u32>,
+    nant: usize,
+    ntime: usize,
+    family: u32,
+    min_closures: u32,
+    reroute: u32,
+    mut residual: Rw<'_, f32>,
+    mut tv: Rw<'_, f32>,
+    mut count: Rw<'_, u16>,
+) -> PyResult<()> {
+    let shape = data.as_array().shape().to_vec();
+    if shape.len() != 3 || shape[2] != 4 {
+        return Err(PyValueError::new_err(format!(
+            "data must be (row, chan, 4), not {shape:?}"
+        )));
+    }
+    let (nrow, nchan) = (shape[0], shape[1]);
+    let nstation = stations.as_array().len();
+    let inputs = rang_core::ffi_closure::ClosureInputsC {
+        nrow,
+        nchan,
+        nant,
+        ntime,
+        nstation,
+        data: exact_input(&data, "data", &[nrow, nchan, 4])? as *const f32,
+        model: exact_input(&model, "model", &[nrow, nchan, 4])? as *const f32,
+        weights: exact_input(&weights, "weights", &[nrow, nchan, 4])?,
+        usable: exact_input(&usable, "usable", &[nrow, nchan])?,
+        antenna1: exact_input(&antenna1, "antenna1", &[nrow])?,
+        antenna2: exact_input(&antenna2, "antenna2", &[nrow])?,
+        time_index: exact_input(&time_index, "time_index", &[nrow])?,
+        stations: exact_input(&stations, "stations", &[nstation])?,
+        family,
+        min_closures,
+        reroute,
+    };
+    let residual = exact_output(&mut residual, "residual", &[nrow, nchan])?;
+    let tv = exact_output(&mut tv, "tv", &[nrow, nchan])?;
+    let count = exact_output(&mut count, "count", &[nrow, nchan])?;
+    // SAFETY: every pointer borrows a live NumPy buffer of the checked shape
+    // for the duration of the call; the outputs are distinct writable arrays.
+    let status = detach(py, || {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+            rang_core::ffi_closure::rang_core_closure_scores(&inputs, residual, tv, count)
+        }))
+        .unwrap_or(2)
+    });
+    match status {
+        0 => Ok(()),
+        1 => Err(PyValueError::new_err(format!(
+            "closure kernel failed (1): {}",
+            closure_last_error()
+        ))),
+        s => Err(pyo3::exceptions::PyRuntimeError::new_err(format!(
+            "closure kernel failed ({s}): a panic in the core"
+        ))),
+    }
+}
+
+/// `rang_core_fluxstd_eval`: `out[k] = 10^(sum_j coeffs[j] *
+/// log10(freq[k] / unit_hz)^j)`, all float64, `out` as long as `freq`.
+/// Raises ValueError when the core rejects the input (no coefficients, a
+/// non-positive frequency or unit) and RuntimeError on a panic.
+#[pyfunction]
+fn fluxstd_eval(
+    py: Python<'_>,
+    coeffs: Ro<'_, f64>,
+    unit_hz: f64,
+    freq: Ro<'_, f64>,
+    mut out: Rw<'_, f64>,
+) -> PyResult<()> {
+    let ncoeff = coeffs.as_array().len();
+    let nfreq = freq.as_array().len();
+    let coeffs = exact_input(&coeffs, "coeffs", &[ncoeff])?;
+    let freq = exact_input(&freq, "freq", &[nfreq])?;
+    let out = exact_output(&mut out, "out", &[nfreq])?;
+    // SAFETY: the pointers borrow live NumPy buffers of the checked lengths;
+    // `out` is a distinct writable array.
+    let status = detach(py, || {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+            rang_core::ffi_fluxstd::rang_core_fluxstd_eval(
+                ncoeff, coeffs, unit_hz, nfreq, freq, out,
+            )
+        }))
+        .unwrap_or(2)
+    });
+    match status {
+        0 => Ok(()),
+        1 => Err(PyValueError::new_err(
+            "rang_core_fluxstd_eval rejected its input (no coefficients, or a non-positive frequency or unit)",
+        )),
+        s => Err(pyo3::exceptions::PyRuntimeError::new_err(format!(
+            "rang_core_fluxstd_eval failed ({s}): a panic in the core"
+        ))),
+    }
+}
+
 /// The extension module `rang._core`.
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -2144,5 +2314,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ms_caltable_subtable, m)?)?;
     m.add_function(wrap_pyfunction!(ms_read_cells, m)?)?;
     m.add_function(wrap_pyfunction!(ms_array_records, m)?)?;
+    m.add_function(wrap_pyfunction!(closure_scores, m)?)?;
+    m.add_function(wrap_pyfunction!(fluxstd_eval, m)?)?;
     Ok(())
 }
