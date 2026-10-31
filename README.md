@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/logo/lockup.svg" alt="rang-core" width="520"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/gijzelaerr/rang-core/main/docs/logo/lockup.svg" alt="rang-core" width="520"></p>
 
 # rang-core
 
@@ -13,7 +13,7 @@ demonstrated novel algorithm.** The objective is better calibration and imaging
 at comparable cost, or comparable quality with substantially less computation.
 Neither advantage over state of the art has yet been established.
 
-[Research handoff/index](research/README.md) · [Latest progress](research/STATE.md).
+[Research handoff/index](https://github.com/gijzelaerr/rang-core/blob/main/research/README.md) · [Latest progress](https://github.com/gijzelaerr/rang-core/blob/main/research/STATE.md).
 
 Documentation: <https://gijzelaerr.github.io/rang-core/> (installation,
 concepts, the command line, the executed tutorials, the API reference and
@@ -33,16 +33,16 @@ receipts and archives written before then keep that name
 The active real-data flagging experiment trains an interpretable policy using
 the TV norm/maps of QuartiCal full 2×2 complex gains, with immutable original
 flags, recoverable backups, a flag budget and held-out checks.
-[Strategy, first negative result and reproduction](research/flagging.md) ·
-[Stimela2 recipe](history/recipes/tv-flagging.yaml).
+[Strategy, first negative result and reproduction](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging.md) ·
+[Stimela2 recipe](https://github.com/gijzelaerr/rang-core/blob/main/history/recipes/tv-flagging.yaml).
 
-[Parallel diagnostic suite](research/flagging-parallel.md) now adds controlled
+[Parallel diagnostic suite](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-parallel.md) now adds controlled
 RFI/oracle tests, a verified SARAO calibrator sky, established flagger comparisons
 and measured patch-action learning. These small MeerKAT L-band pilots retain
 negative results; lower gain TV does not consistently mean better prediction,
 and no flagging or imaging superiority is established.
 
-[Latest flagging findings](research/flagging-findings.md): a TRAIN-only physical
+[Latest flagging findings](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-findings.md): a TRAIN-only physical
 gain-response surrogate predicts the counterfactual objective beyond the known
 flag cost (7.26× smaller matched-coverage RMSE in the held-out seed group), while
 legitimate smooth receiver phases change TV-guided decisions despite invariant
@@ -66,26 +66,26 @@ the antenna mean:
 Ranges cover three seeds and two shared-pointing settings. These are matched-family
 synthetic tests, not measurements of MeerKAT beam errors. Joint sky/beam/pointing
 inference has prior art; this result strengthens our baseline rather than proving
-novelty. [Experiment, controls and reproduction](research/antenna-beam-widths.md).
+novelty. [Experiment, controls and reproduction](https://github.com/gijzelaerr/rang-core/blob/main/research/antenna-beam-widths.md).
 
 Other findings:
 
 - **Relative and shared pointing must be distinguished.** The solver can impose
   exactly zero antenna-mean relative pointing, following Oleg Smirnov's feedback.
   An optional prior-constrained common trajectory is separate; its physical value
-  is not established by the zero-mean convention. [Common pointing](research/common-pointing-priors.md).
+  is not established by the zero-mean convention. [Common pointing](https://github.com/gijzelaerr/rang-core/blob/main/research/common-pointing-priors.md).
 - **Gaussian beams admit an exact pointing–sky–gain ambiguity**, including rotating
   elliptical beams when the compensating sky and gain freedom is available.
-  [Derivation and numerical controls](research/gaussian-gauge.md).
+  [Derivation and numerical controls](https://github.com/gijzelaerr/rang-core/blob/main/research/gaussian-gauge.md).
 - **Good residuals do not guarantee accurate astronomy.** Beam mismatch can bias
   flux even with nearly perfect injected-signal response. Relative-pointing
   interval coverage improves when antenna widths are fitted, but shared-mode
-  coverage remains less reliable. [Flux-bias control](research/first-results.md) ·
-  [Coverage experiment](research/antenna-beam-widths.md#separate-relative-and-common-uncertainties).
+  coverage remains less reliable. [Flux-bias control](https://github.com/gijzelaerr/rang-core/blob/main/research/first-results.md) ·
+  [Coverage experiment](https://github.com/gijzelaerr/rang-core/blob/main/research/antenna-beam-widths.md#separate-relative-and-common-uncertainties).
 - **Negative results are retained.** Earlier mode selection did not improve
   pointing accuracy over a fairly tuned joint fit. Polynomial gain compression
   fails when the fitted order is too low.
-  [Mode selection](research/spectral-pointing.md) · [Chromatic gains](research/chromatic-gains.md).
+  [Mode selection](https://github.com/gijzelaerr/rang-core/blob/main/research/spectral-pointing.md) · [Chromatic gains](https://github.com/gijzelaerr/rang-core/blob/main/research/chromatic-gains.md).
 
 ## Scope and limitations
 
@@ -103,9 +103,9 @@ pointing calibration or improved deconvolved images. Actual QuartiCal gain solve
 in the separate flagging pilots are visibility-space research diagnostics.
 Structured projection benchmarks are not end-to-end calibrator speedups.
 
-[Geometry and provenance](data/README.md) ·
-[Real-data inspection](research/measurement-set-inspection.md) ·
-[Compute benchmark](research/frequency-blocking.md)
+[Geometry and provenance](https://github.com/gijzelaerr/rang-core/blob/main/data/README.md) ·
+[Real-data inspection](https://github.com/gijzelaerr/rang-core/blob/main/research/measurement-set-inspection.md) ·
+[Compute benchmark](https://github.com/gijzelaerr/rang-core/blob/main/research/frequency-blocking.md)
 
 ## Run a small example
 
@@ -121,14 +121,17 @@ python3 -m venv .venv   # or: uv venv -p /usr/bin/python3.14 .venv, where ensure
 .venv/bin/python examples/pointing.py --output outputs/pointing
 ```
 
-Without Rust: a released wheel installs the core with no compiler,
-`pip install rang_core-<v>-cp310-abi3-manylinux_2_28_x86_64.whl` (or
-`pip install rang-core` once published; Linux x86_64 and aarch64, glibc 2.28 or
-newer, CPython 3.10 or newer, one abi3 binary for every version). The wheel
+Without Rust: `pip install rang-core` installs a released wheel with no
+compiler. There is one abi3 wheel per platform for CPython 3.10 or newer:
+Linux x86_64 and aarch64 (manylinux, glibc 2.28 or newer), macOS arm64 and
+x86_64, and Windows x86_64; each is tested on CPython 3.10 and 3.14 on its
+own OS by `.github/workflows/wheels.yml`. The wheel
 carries every kernel, the root crate's included (gain TV, phase trend,
 anchored response, projector, the pointing toy): the flagging chain and the
-notebooks run with no compiler. The Tricolour static masks and the archive
-drivers still read files from the checkout. Build wheels locally with
+notebooks run with no compiler. The Tricolour static masks are package data
+(`rang/data/`, with Tricolour's BSD notice); the archive drivers and
+comparators still read archived inputs from a checkout. `rang-core --version`
+prints the installed version ([CHANGELOG.md](https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md)). Build wheels locally with
 `bash tools/wheel/build.sh outputs/wheel-<date>-NN` (docker) and test them
 with `bash tools/wheel/test.sh outputs/wheel-<date>-NN outputs/wheel-<date>-MM`
 (`research/wheel.md`).
@@ -142,7 +145,7 @@ their archive). The Stimela recipes' Python 3.13 environment gets the same
 
 This smoke example fits smooth pointing with a fixed, correct Gaussian beam
 and sky; it is not the joint antenna-width campaign above. That campaign's
-command is in its [experiment report](research/antenna-beam-widths.md#implementation-and-reproduction).
+command is in its [experiment report](https://github.com/gijzelaerr/rang-core/blob/main/research/antenna-beam-widths.md#implementation-and-reproduction).
 Generated outputs belong in ignored `outputs/`; reusing a destination can replace
 previous generated files.
 
@@ -152,13 +155,13 @@ The original Rust toy also runs without Python dependencies:
 python3 examples/toy.py --seeds 7 --no-plot --output outputs/demo
 ```
 
-[Experiment guide](examples/README.md) · [Full local checks](CONTRIBUTING.md)
+[Experiment guide](https://github.com/gijzelaerr/rang-core/blob/main/examples/README.md) · [Full local checks](https://github.com/gijzelaerr/rang-core/blob/main/CONTRIBUTING.md)
 
 ## Next research decision
 
 For the active flagging objective, test structured multiscale flag proposals,
 noise/support-aware gain-TV diagnostics, signal preservation and independent
-MeerKAT L-band transfer. [Flagging research questions and go/no-go criteria](research/flagging-next.md).
+MeerKAT L-band transfer. [Flagging research questions and go/no-go criteria](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-next.md).
 
 The earlier pointing research has enough infrastructure to test a focused hypothesis: can selecting
 pointing/beam parameters using separate limits on signal distortion and
@@ -166,9 +169,9 @@ model-error contamination beat a well-tuned joint fit? The proposed decision rul
 is not yet implemented or validated. The next phase prioritizes a falsifiable
 quality/cost comparison, not further simulator expansion.
 
-[Current assessment and verification](research/status.md) ·
-[Future plan and go/no-go criteria](research/development-roadmap.md) ·
-[Prior-art boundaries](research/novelty.md)
+[Current assessment and verification](https://github.com/gijzelaerr/rang-core/blob/main/research/status.md) ·
+[Future plan and go/no-go criteria](https://github.com/gijzelaerr/rang-core/blob/main/research/development-roadmap.md) ·
+[Prior-art boundaries](https://github.com/gijzelaerr/rang-core/blob/main/research/novelty.md)
 
 ## Repository guide
 
@@ -241,7 +244,7 @@ quality/cost comparison, not further simulator expansion.
 ## Licence
 
 Rang is free software under the GNU General Public License, version 3 or (at
-your option) any later version; see [LICENSE](LICENSE). The user chose GPL on
+your option) any later version; see [LICENSE](https://github.com/gijzelaerr/rang-core/blob/main/LICENSE). The user chose GPL on
 2026-10-29 so that GPL-3 radio-astronomy tools such as WSClean and AOFlagger
 can be ported into the core. GPL-2-only upstreams cannot be combined with GPL-3
 code, so each upstream's exact licence is checked before porting it. Ported code keeps

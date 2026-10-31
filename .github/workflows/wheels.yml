@@ -10,9 +10,11 @@
 # built from the same commit, and casacure as the second oracle of the core's
 # table reader and writer on the public fixture, research/t1-casacure-ci.md)
 # through tools/wheel/test.py; uploads
-# everything as artifacts; on a v* tag attaches the files to a GitHub release
-# and publishes them to PyPI by trusted publishing (environment `pypi`, which
-# needs the pending publisher registered on pypi.org first).
+# everything as artifacts; on a v* tag that equals the pyproject.toml version
+# (checked in both jobs before any upload, task W4-5) attaches the files to a
+# GitHub release with the tag's CHANGELOG.md section as notes and publishes
+# them to PyPI by trusted publishing (environment `pypi`, which needs the
+# pending publisher registered on pypi.org first).
 name: wheels
 
 on:
@@ -91,7 +93,7 @@ jobs:
       # out, and receipts hash them (Git for Windows defaults to autocrlf).
       - if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
@@ -99,7 +101,7 @@ jobs:
           maturin-version: ${{ env.MATURIN_VERSION }}
           rust-toolchain: ${{ env.RUST_VERSION }}
           args: --release --locked --out dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wheel-${{ matrix.platform }}
           path: dist/*.whl
@@ -108,13 +110,13 @@ jobs:
   sdist:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: PyO3/maturin-action@v1
         with:
           command: sdist
           maturin-version: ${{ env.MATURIN_VERSION }}
           args: --out dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sdist
           path: dist/*.tar.gz
@@ -145,18 +147,18 @@ jobs:
       # for Windows defaults to core.autocrlf=true).
       - if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         id: python
         with:
           python-version: ${{ matrix.python }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: wheel-${{ matrix.platform }}
           path: dist
       # The public fixture outer_scans.zip (45 MB), keyed on its SHA256 as in
       # docs.yml; test.py downloads and verifies it on a miss.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/rang-fixture
           key: rang-fixture-d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f
@@ -179,7 +181,7 @@ jobs:
             --python "${{ steps.python.outputs.python-path }}" \
             --fixture-cache "$HOME/.cache/rang-fixture"
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-logs-${{ matrix.platform }}-py${{ matrix.python }}
           path: |
@@ -194,15 +196,63 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      # pyproject.toml and CHANGELOG.md of the tagged commit.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           pattern: wheel-*
           merge-multiple: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: sdist
           path: dist
+      # The tag must equal the pyproject.toml version, which maturin wrote
+      # into every file name (rang_core-<version>[-tags].whl/.tar.gz):
+      # tagging v0.1.1 without the bump fails here, before any upload.
+      - name: Check that the tag equals the version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          status=0
+          for file in dist/*.whl dist/*.tar.gz; do
+            name=$(basename "$file")
+            version=${name#rang_core-}
+            version=${version%.tar.gz}
+            version=${version%%-*}
+            if [ "$version" != "$tag" ]; then
+              echo "::error::$name is version $version, the tag $GITHUB_REF_NAME says $tag"
+              status=1
+            fi
+          done
+          wheels=$(ls dist/*.whl | wc -l)
+          sdists=$(ls dist/*.tar.gz | wc -l)
+          if [ "$wheels" -ne 5 ] || [ "$sdists" -ne 1 ]; then
+            echo "::error::expected 5 wheels and 1 sdist, found $wheels and $sdists"
+            status=1
+          fi
+          project=$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          if [ "$project" != "$tag" ]; then
+            echo "::error::pyproject.toml is version $project, the tag $GITHUB_REF_NAME says $tag"
+            status=1
+          fi
+          exit "$status"
+      # The release notes are the CHANGELOG.md section of the version
+      # ("## 0.1.0 ..." up to the next "## "); an empty section fails.
+      - name: Extract the release notes from CHANGELOG.md
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          awk -v head="## $tag" '
+            index($0, head) == 1 && (length($0) == length(head) || substr($0, length(head) + 1, 1) == " ") { on = 1; next }
+            on && /^## / { exit }
+            on { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/notes.md"; then
+            echo "::error::CHANGELOG.md has no section for $tag"
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/notes.md"
       - name: Attach the wheels and sdist to the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -210,7 +260,7 @@ jobs:
           ls -l dist
           (cd dist && sha256sum ./* > SHA256SUMS)
           gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
-            --verify-tag --title "$GITHUB_REF_NAME" --notes "Wheels and sdist built by the wheels workflow."
+            --verify-tag --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md"
 
   # PyPI by trusted publishing, no token. The pending publisher is registered
   # on pypi.org for the project rang-core (pyproject.toml [project] name):
@@ -226,16 +276,40 @@ jobs:
       id-token: write
     steps:
       # A fresh download, so the release job's SHA256SUMS is not uploaded.
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           pattern: wheel-*
           merge-multiple: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: sdist
           path: dist
       - run: ls -l dist
+      # The tag must equal the pyproject.toml version, which maturin wrote
+      # into every file name (rang_core-<version>[-tags].whl/.tar.gz):
+      # tagging v0.1.1 without the bump fails here, before any upload.
+      - name: Check that the tag equals the version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          status=0
+          for file in dist/*.whl dist/*.tar.gz; do
+            name=$(basename "$file")
+            version=${name#rang_core-}
+            version=${version%.tar.gz}
+            version=${version%%-*}
+            if [ "$version" != "$tag" ]; then
+              echo "::error::$name is version $version, the tag $GITHUB_REF_NAME says $tag"
+              status=1
+            fi
+          done
+          wheels=$(ls dist/*.whl | wc -l)
+          sdists=$(ls dist/*.tar.gz | wc -l)
+          if [ "$wheels" -ne 5 ] || [ "$sdists" -ne 1 ]; then
+            echo "::error::expected 5 wheels and 1 sdist, found $wheels and $sdists"
+            status=1
+          fi
+          exit "$status"
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
