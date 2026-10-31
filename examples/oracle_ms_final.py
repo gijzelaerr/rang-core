@@ -100,7 +100,9 @@ def tds_desc(pt):
         pt.makescacoldesc("ID", 0),
     ]
     desc = pt.maketabdesc(cols)
-    pt.tabledefinehypercolumn(desc, "TDS", 3, ["DATA", "FLAG"], ["FREQ", "", "TIME"], ["ID"])
+    pt.tabledefinehypercolumn(
+        desc, "TDS", 3, ["DATA", "FLAG"], ["FREQ", "", "TIME"], ["ID"]
+    )
     return desc
 
 
@@ -357,7 +359,9 @@ def f_multi(pt, path, v, src):
         "*2": ssm("B", ["L", "V"], BUCKETSIZE=1024, PERSCACHESIZE=2),
         "*3": ism("M", ["M"], BUCKETSIZE=512),
     }
-    t = pt.table(path, pt.maketabdesc(cols), nrow=n, dminfo=dm, **LOCK, **mf_kw(pt, 4096))
+    t = pt.table(
+        path, pt.maketabdesc(cols), nrow=n, dminfo=dm, **LOCK, **mf_kw(pt, 4096)
+    )
     t.putcol("I", cell(v, "I", n, "int32"))
     t.putcol("L", cell(v, "L", n, "int64"))
     t.putcol("D", cell(v, "D", n, "float64"))
@@ -370,7 +374,9 @@ def f_multi(pt, path, v, src):
     t.putcol("I", cell(v, "I.new", 1000, "int32"), n, 1000)
     t.putcol("L", cell(v, "L.new", 1000, "int64"), n, 1000)
     t.putcol("D", cell(v, "D.new", 1000, "float64"), n, 1000)
-    t.putcol("M", run_values(v, "M.new", 1000, lambda r: numeric(r, 5, "int32")), n, 1000)
+    t.putcol(
+        "M", run_values(v, "M.new", 1000, lambda r: numeric(r, 5, "int32")), n, 1000
+    )
     for row in range(n, n + 1000, 5):
         t.putcell("V", row, cell(v, f"V{row}", 1 + row % 7, "float64"))
     t.close()
@@ -404,7 +410,9 @@ def f_cont(pt, path, v, src):
         "*2": tiled("TiledShapeStMan", "T", ["T"], [8, 4]),
         "*3": ism("M", ["M"], BUCKETSIZE=512),
     }
-    t = pt.table(path, pt.maketabdesc(cols), nrow=n, dminfo=dm, **LOCK, **mf_kw(pt, 512))
+    t = pt.table(
+        path, pt.maketabdesc(cols), nrow=n, dminfo=dm, **LOCK, **mf_kw(pt, 512)
+    )
     t.putcol("I", cell(v, "I", n, "int32"))
     for row in range(n):
         t.putcell("V", row, cell(v, f"V{row}", 1 + row % 9, "float64"))
@@ -433,7 +441,9 @@ def f_free(pt, path, v, src):
         pt.makescacoldesc("M", 0),
     ]
     dm = {"*1": ssm("A", ["I", "V"], BUCKETSIZE=512), "*2": ism("M", ["M"])}
-    t = pt.table(path, pt.maketabdesc(cols), nrow=n, dminfo=dm, **LOCK, **mf_kw(pt, 1024))
+    t = pt.table(
+        path, pt.maketabdesc(cols), nrow=n, dminfo=dm, **LOCK, **mf_kw(pt, 1024)
+    )
     t.putcol("I", cell(v, "I", n, "int32"))
     t.putcol("M", run_values(v, "M", n, lambda r: numeric(r, 5, "int32")))
     for row in range(n):
@@ -567,7 +577,9 @@ def write_cases(out, block):
             out / "values" / f"{name}.npz",
             **{k: np.asarray(x) for k, x in values.items()},
         )
-        record.append({"name": name, "wall_s": wall, "source": getattr(f, "source", None)})
+        record.append(
+            {"name": name, "wall_s": wall, "source": getattr(f, "source", None)}
+        )
         print(f"{name}: {wall:.3f} s", flush=True)
     label = "" if block is None else f"-mf{block}"
     (out / f"cases{label}.json").write_text(json.dumps(record, indent=1))
@@ -601,7 +613,10 @@ def step_prepare(out):
             continue
         v = Values()
         f(null, "", v, None)
-        np.savez(out / "values" / f"{name}.npz", **{k: np.asarray(x) for k, x in v.out.items()})
+        np.savez(
+            out / "values" / f"{name}.npz",
+            **{k: np.asarray(x) for k, x in v.out.items()},
+        )
         d = out / "cpp" / name
         d.mkdir(parents=True, exist_ok=True)
         for k, x in v.out.items():

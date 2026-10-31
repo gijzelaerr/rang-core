@@ -3204,6 +3204,7 @@ impl TsmW {
 
     /// A new TiledCellStMan (`create64`: tile file 0 created; rows come
     /// with `add_rows`, each with its own hypercube).
+    #[allow(clippy::too_many_arguments)]
     fn create_cell(
         dir: &Path,
         seq: u32,
@@ -4406,7 +4407,7 @@ impl TsmW {
                 reused[i] = true;
             }
         }
-        let max = self.h.max_cache as u64;
+        let max = self.h.max_cache;
         let bucket = self.bucket_size(cube) as u64;
         let valid = |n: u64| {
             let maxnb = ((1024.0 * 1024.0 * max as f64 / bucket.max(1) as f64) as u64).max(1);
@@ -4788,7 +4789,7 @@ impl TableWriter {
                     )?))
                 }
                 "TiledColumnStMan" | "TiledShapeStMan" | "TiledCellStMan" | "TiledDataStMan" => {
-                    match open_tiled(&dir, &dat, *seq) {
+                    match open_tiled(&dir, dat, *seq) {
                         Ok(t) => Mgr::Tsm(Box::new(t)),
                         Err(e) => Mgr::Other(e.0),
                     }
@@ -4829,7 +4830,7 @@ impl TableWriter {
     ) -> Self {
         let fresh = mgrs.iter().map(NewMgr::reports_creation).collect();
         let files = mf.as_ref().map_or(dir.clone(), |m| m.staging.clone());
-        let w = TableWriter {
+        TableWriter {
             dir,
             lock: Some(lock),
             nrows: dat.nrows,
@@ -4840,8 +4841,7 @@ impl TableWriter {
             fresh,
             files,
             mf,
-        };
-        w
+        }
     }
 
     /// The table's flush of its MultiFile container (after the managers'
@@ -6318,6 +6318,8 @@ mod tests {
             row_map: Vec::new(),
             cube_map: Vec::new(),
             pos_map: Vec::new(),
+            nrrow_last: 0,
+            data_row_map: Vec::new(),
         };
         let bytes = h.serialise();
         assert_eq!(TsmHeader::parse(&bytes).unwrap(), h);

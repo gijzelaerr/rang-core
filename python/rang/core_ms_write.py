@@ -465,7 +465,10 @@ class Table:
         its last axis), `values` an ordered dict of id values (scalars) and
         coordinate vectors (1-D arrays)."""
         self._writer.add_hypercube(
-            name, [int(s) for s in shape], [int(t) for t in tileshape], _record_items(values)
+            name,
+            [int(s) for s in shape],
+            [int(t) for t in tileshape],
+            _record_items(values),
         )
 
     def extendhypercube(self, name, incr, values):

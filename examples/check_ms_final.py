@@ -57,8 +57,14 @@ from rang import core, core_ms_write
 CPP_IMAGE = "rang-casacore-cpp:3.7.1"
 # Records no row references any more, by case: the element size of the
 # column whose old value they hold (0: a string array).
-ORPHAN_BITS = {"IS-arrays": 0, "IS-big": 0, "F-multi": 64, "F-multi-write": 64,
-               "F-cont": 64, "F-free": 64}
+ORPHAN_BITS = {
+    "IS-arrays": 0,
+    "IS-big": 0,
+    "F-multi": 64,
+    "F-multi-write": 64,
+    "F-cont": 64,
+    "F-free": 64,
+}
 MF_BLOCKS = (4096, 512, 1024, 0)
 
 
@@ -81,7 +87,7 @@ def gap_mask(table_dir, name, data, orphan_bits, first_put_bodies=False):
         if file == name:
             refs[offset] = bits
     order = "big" if array_file_order(data) else "little"
-    u32 = lambda at: int.from_bytes(data[at : at + 4], order)  # noqa: E731
+    u32 = lambda at: int.from_bytes(data[at : at + 4], order)
     version = u32(0)
     mask = np.zeros(len(data), bool)
     bodies = set()
@@ -117,7 +123,9 @@ def gap_mask(table_dir, name, data, orphan_bits, first_put_bodies=False):
         if ndim > 16:
             return None
         dims = [
-            int.from_bytes(data[head + 4 + 4 * i : head + 8 + 4 * i], order, signed=True)
+            int.from_bytes(
+                data[head + 4 + 4 * i : head + 8 + 4 * i], order, signed=True
+            )
             for i in range(ndim)
         ]
         n = int(np.prod(dims)) if dims else 1
@@ -143,8 +151,8 @@ def continuation_lists(data):
     """The two continuation lists and `ncont_used` of a MultiFile header
     (read here, independently of the core): the header is block 0, then the
     continuation blocks chained by their first 8 bytes."""
-    be = lambda b, at: int.from_bytes(b[at : at + 8], "big", signed=True)  # noqa: E731
-    u32 = lambda b, at: int.from_bytes(b[at : at + 4], "big")  # noqa: E731
+    be = lambda b, at: int.from_bytes(b[at : at + 8], "big", signed=True)
+    u32 = lambda b, at: int.from_bytes(b[at : at + 4], "big")
     length, block, nxt = be(data, 32), be(data, 40), be(data, 8)
     h = bytearray(data[:block])
     while len(h) < length and nxt:
@@ -164,8 +172,12 @@ def continuation_lists(data):
 
     def vector(at, size=8):
         n = be(h, at)
-        return [int.from_bytes(h[at + 8 + size * i : at + 8 + size * (i + 1)], "big", signed=True)
-                for i in range(n)], at + 8 + size * n
+        return [
+            int.from_bytes(
+                h[at + 8 + size * i : at + 8 + size * (i + 1)], "big", signed=True
+            )
+            for i in range(n)
+        ], at + 8 + size * n
 
     for _ in range(nfiles + 1):  # block lists, the free list
         _, at = vector(at)
@@ -187,7 +199,7 @@ def multifile_mask(data):
     cont = np.zeros(len(data), bool)
     if len(data) < 64:
         return mask, cont
-    be = lambda at: int.from_bytes(data[at : at + 8], "big", signed=True)  # noqa: E731
+    be = lambda at: int.from_bytes(data[at : at + 8], "big", signed=True)
     length, block, first = be(32), be(40), be(8)
     if length <= block:
         mask[length : min(block, len(data))] = True
@@ -278,7 +290,9 @@ def step_oracle(run, label="", *envs):
     env = dict(e.split("=", 1) for e in envs)
     mounts = [(str(run), "/run", "rw"), (str(HERE), "/ex", "ro")]
     walls, logs = {}, []
-    wall, log = docker(MS_IMAGE, ["/ex/oracle_ms_final.py", "write", f"/run/{name}"], mounts, env)
+    wall, log = docker(
+        MS_IMAGE, ["/ex/oracle_ms_final.py", "write", f"/run/{name}"], mounts, env
+    )
     walls["write"] = wall
     logs.append(log)
     for block in MF_BLOCKS:
@@ -370,14 +384,18 @@ def step_cases(run, label="", *only):
         wall, error = walls[name]
         entry = {
             "name": name,
-            "oracle": "casacore 3.7.1" if name in oracle.CPP_CASES else "casacore 3.8.1",
+            "oracle": "casacore 3.7.1"
+            if name in oracle.CPP_CASES
+            else "casacore 3.8.1",
             "core_s": wall,
             "casacore_s": cwalls.get(name),
             "error": error,
         }
         if error is None:
             entry.update(
-                compare_trees(root / name, oracle_dir / "casacore" / name, ORPHAN_BITS.get(name))
+                compare_trees(
+                    root / name, oracle_dir / "casacore" / name, ORPHAN_BITS.get(name)
+                )
             )
             files = tree(root / name)
             entry["files"] = len(files)
@@ -391,8 +409,10 @@ def step_cases(run, label="", *only):
             else ("masked only" if entry["identical_but_masked"] else "DIFFERS")
         )
         detail = entry.get("differ", error)
-        print(f"{name}: {state} {detail if detail else ''} {entry.get('masked', '') or ''}",
-              flush=True)
+        print(
+            f"{name}: {state} {detail if detail else ''} {entry.get('masked', '') or ''}",
+            flush=True,
+        )
     result = {"cases": report, "pass": all(r["identical_but_masked"] for r in report)}
     return write_json(run, "cases" + (f"-{label}" if label else ""), result, started)
 
@@ -409,7 +429,9 @@ def step_determinism(run):
     core_ok = {}
     for name, _ in oracle.CASES:
         first = hashes(run / "core" / name)
-        core_ok[name] = all(hashes(run / f"core-{k}" / name) == first for k in ("twin", "perturb"))
+        core_ok[name] = all(
+            hashes(run / f"core-{k}" / name) == first for k in ("twin", "perturb")
+        )
     casacore, mfh5 = {}, {}
     for label in ("oracle-twin", "oracle-perturb"):
         other = run / label
@@ -418,13 +440,20 @@ def step_determinism(run):
         per = {}
         for name, _ in oracle.CASES:
             d = compare_trees(
-                other / "casacore" / name, run / "oracle" / "casacore" / name, ORPHAN_BITS.get(name)
+                other / "casacore" / name,
+                run / "oracle" / "casacore" / name,
+                ORPHAN_BITS.get(name),
             )
             per[name] = {
                 "identical": d["identical"],
                 "identical_but_masked": d["identical_but_masked"],
                 "masked": [
-                    (m["file"], m.get("gap_bytes_masked", m.get("multifile_header_bytes_masked")))
+                    (
+                        m["file"],
+                        m.get(
+                            "gap_bytes_masked", m.get("multifile_header_bytes_masked")
+                        ),
+                    )
                     for m in d["masked"]
                 ],
                 "differ": d["differ"],
@@ -435,14 +464,21 @@ def step_determinism(run):
         if a.exists() and b.exists():
             x, y = a.read_bytes(), b.read_bytes()
             n = min(len(x), len(y))
-            diff = np.flatnonzero(np.frombuffer(x[:n], np.uint8) != np.frombuffer(y[:n], np.uint8))
-            mfh5[label] = {"lengths": [len(x), len(y)], "differing": [int(d) for d in diff[:20]]}
+            diff = np.flatnonzero(
+                np.frombuffer(x[:n], np.uint8) != np.frombuffer(y[:n], np.uint8)
+            )
+            mfh5[label] = {
+                "lengths": [len(x), len(y)],
+                "differing": [int(d) for d in diff[:20]],
+            }
     result = {
         "core_identical_between_runs": core_ok,
         "casacore": casacore,
         "h_mfh5_runs": mfh5,
         "pass": all(core_ok.values())
-        and all(v["identical_but_masked"] for per in casacore.values() for v in per.values()),
+        and all(
+            v["identical_but_masked"] for per in casacore.values() for v in per.values()
+        ),
     }
     print(json.dumps({"core": core_ok}, indent=0), flush=True)
     return write_json(run, "determinism", result, started)
@@ -463,8 +499,11 @@ def step_readback(run):
             f"core.{name}={e5.guest(run, run / 'core' / name)}",
             f"cc.{name}={e5.guest(run, run / 'oracle' / 'casacore' / name)}",
         ]
-    wall, _ = docker(MS_IMAGE, ["/ex/oracle_ms_final.py", "readback", e5.guest(run, dumps), *pairs],
-                     mounts)
+    wall, _ = docker(
+        MS_IMAGE,
+        ["/ex/oracle_ms_final.py", "readback", e5.guest(run, dumps), *pairs],
+        mounts,
+    )
     report = {}
     for name, _ in oracle.CASES:
         path = run / "oracle" / "casacore" / name
@@ -501,9 +540,16 @@ def step_readback(run):
     result = {
         "tables": len(report),
         "cells": sum(v["cells"] for v in report.values()),
-        "casacure_unreadable": sorted(k for k, v in report.items() if not v["casacure"]["reads"]),
-        "casacure_reasons": sorted({v["casacure"].get("reason", "")[:120]
-                                    for v in report.values() if not v["casacure"]["reads"]}),
+        "casacure_unreadable": sorted(
+            k for k, v in report.items() if not v["casacure"]["reads"]
+        ),
+        "casacure_reasons": sorted(
+            {
+                v["casacure"].get("reason", "")[:120]
+                for v in report.values()
+                if not v["casacure"]["reads"]
+            }
+        ),
         "failures": bad,
         "container_s": wall,
         "pass": not bad,
@@ -533,8 +579,12 @@ def step_refusals(run):
                 r.close()
             entry = {"refused": False}
         except Exception as e:  # noqa: BLE001 - the refusal is the result
-            entry = {"refused": True, "message": str(e), "names_e6": "E6" in str(e),
-                     "not_supported": "not supported" in str(e)}
+            entry = {
+                "refused": True,
+                "message": str(e),
+                "names_e6": "E6" in str(e),
+                "not_supported": "not supported" in str(e),
+            }
         after = hashes(path) if path.exists() else None
         entry["unchanged"] = before == after if table_expected else after is None
         report[label] = entry
@@ -555,30 +605,44 @@ def step_refusals(run):
     report["R-tcsm-remove"]["casacore_refuses"] = casacore_refuses_remove(run, target)
     # R-mfh5: create, and open for writing and reading.
     arr = pt.makearrcoldesc("A", 0.0, shape=[4], valuetype="float")
-    attempt("R-mfh5 create", lambda p: pt.create_table(p, [arr], 3, multifile="multihdf5"),
-            scratch / "R-mfh5-create")
+    attempt(
+        "R-mfh5 create",
+        lambda p: pt.create_table(p, [arr], 3, multifile="multihdf5"),
+        scratch / "R-mfh5-create",
+    )
     h = scratch / "R-mfh5-open"
     shutil.copytree(run / "oracle" / "casacore" / "H-mfh5", h)
     attempt("R-mfh5 open write", lambda p: pt.table(str(p), readonly=False), h, True)
     attempt("R-mfh5 open read", lambda p: pt.read_cells(str(p), "I", 0, 1), h, True)
     # R-other: a data manager the core does not write.
     other = {"*1": {"TYPE": "Adios2StMan", "NAME": "X", "SPEC": {}, "COLUMNS": ["A"]}}
-    attempt("R-other", lambda p: pt.create_table(p, [arr], 3, other), scratch / "R-other")
+    attempt(
+        "R-other", lambda p: pt.create_table(p, [arr], 3, other), scratch / "R-other"
+    )
     # No message of the writer names E6.
     sources = {}
     for root in (HERE.parent / "core" / "src", HERE.parent / "python" / "rang"):
         for p in sorted(root.rglob("*")):
             if p.suffix in (".rs", ".py"):
                 text = p.read_text(errors="replace")
-                hits = [i + 1 for i, line in enumerate(text.splitlines()) if "E6" in line]
+                hits = [
+                    i + 1 for i, line in enumerate(text.splitlines()) if "E6" in line
+                ]
                 if hits:
                     sources[str(p.relative_to(HERE.parent))] = hits
     result = {
         "attempts": report,
         "sources_naming_e6": sources,
-        "pass": all(v["refused"] and not v["names_e6"] and v["unchanged"] for v in report.values())
+        "pass": all(
+            v["refused"] and not v["names_e6"] and v["unchanged"]
+            for v in report.values()
+        )
         and report["R-tcsm-remove"]["casacore_refuses"]
-        and all(report[k]["not_supported"] for k in report if k.startswith(("R-mfh5", "R-other")))
+        and all(
+            report[k]["not_supported"]
+            for k in report
+            if k.startswith(("R-mfh5", "R-other"))
+        )
         and not sources,
     }
     print(json.dumps(result, indent=1), flush=True)
@@ -631,13 +695,19 @@ def step_regress(run):
         same_bytes = [(d["file"], d["bytes_differing"]) for d in c["differ"]] == [
             (d["file"], d["bytes_differing"]) for d in f["differ"]
         ]
-        verdicts[c["name"]] = {"same_verdict": same_verdict, "same_differing_bytes": same_bytes,
-                               "identical_but_masked": c["identical_but_masked"]}
+        verdicts[c["name"]] = {
+            "same_verdict": same_verdict,
+            "same_differing_bytes": same_bytes,
+            "identical_but_masked": c["identical_but_masked"],
+        }
     result = {
         "e3_e4": {k: v for k, v in r34.items() if k != "details"},
         "e5_cases": verdicts,
-        "e5_identical_or_masked": sum(v["identical_but_masked"] for v in verdicts.values()),
-        "pass": bool(r34["pass"]) and all(
+        "e5_identical_or_masked": sum(
+            v["identical_but_masked"] for v in verdicts.values()
+        ),
+        "pass": bool(r34["pass"])
+        and all(
             v["same_verdict"] and v["same_differing_bytes"] for v in verdicts.values()
         ),
     }
@@ -655,8 +725,15 @@ def step_serialisation(run):
         if (t / "table.mf").exists():
             failures += core.extension().ms_multifile_check(str(t))
             multifile += 1
-        n_tables, ssm, tiled, ism, more = core.extension().ms_serialisation_check_e5(str(t))
-        totals = [totals[0] + n_tables, totals[1] + ssm, totals[2] + tiled, totals[3] + ism]
+        n_tables, ssm, tiled, ism, more = core.extension().ms_serialisation_check_e5(
+            str(t)
+        )
+        totals = [
+            totals[0] + n_tables,
+            totals[1] + ssm,
+            totals[2] + tiled,
+            totals[3] + ism,
+        ]
         report[name] = failures + more
     e5_oracle = outputs_root() / "e5-20261031-01" / "oracle" / "casacore"
     e5_fail = {}
