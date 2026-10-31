@@ -4,8 +4,8 @@
     python -m rang.check [--rust | --python | --all] [--only STEP,...]
                             [--skip STEP,...] [--json PATH]
 
-The fifteen steps of `tools/check-all.sh` (which is now a thin wrapper of
-this module), in the same order and with the same output: a `## <step>`
+The seventeen steps of `tools/check-all.sh` (which is now a thin wrapper
+of this module), in the same order and with the same output: a `## <step>`
 line before each step, the step's own output (for the Rust tests only the
 first `test result` line, and the whole log on failure; for pytest the
 last two lines), `FAILED: <command>` after a failing step, no stopping at
@@ -13,6 +13,11 @@ the first failure, and `## overall: PASS|FAIL` with exit status 0 or 1.
 Every step is an argument list (no shell): cargo with `+1.93`, the Python
 tools as `<this interpreter> -m ruff|maturin|pytest`, so it runs unchanged
 on Windows (`.venv\\Scripts\\python -m rang.check`).
+
+The core crate's `gpu` feature (task X2, research/x2-wgpu.md) has its own
+clippy and test steps, `core-clippy-gpu` and `core-test-gpu` (task W4-7);
+its GPU tests skip without an adapter. `--skip core-clippy-gpu,core-test-gpu`
+leaves them out.
 
 `--rust` runs the root and core crate steps and the extension's clippy and
 fmt; `--python` runs the extension build, ruff, ruff format, `git diff
@@ -55,6 +60,7 @@ def steps(python=None):
     py = python or sys.executable
     core = ["--manifest-path", "core/Cargo.toml"]
     ext = ["--manifest-path", "core/py/Cargo.toml"]
+    gpu = ["--features", "gpu"]
     build = [*CARGO, "build", "--offline", "--release", "-q"]
     clippy = [*CARGO, "clippy", "--offline", "--all-targets", "-q"]
     fmt = [*CARGO, "fmt", "--check"]
@@ -94,6 +100,22 @@ def steps(python=None):
             " ".join([*clippy, *core, "--", "-D", "warnings"]),
         ),
         ("core-fmt", "rust", "plain", [*fmt, *core], {}, " ".join([*fmt, *core])),
+        (
+            "core-clippy-gpu",
+            "rust",
+            "plain",
+            [*clippy, *core, *gpu, "--", "-D", "warnings"],
+            {},
+            " ".join([*clippy, *core, *gpu, "--", "-D", "warnings"]),
+        ),
+        (
+            "core-test-gpu",
+            "rust",
+            "rust_test",
+            [*test, *core, *gpu],
+            {},
+            "rust_test " + " ".join([*core, *gpu]),
+        ),
         (
             "ext-build",
             "python",
