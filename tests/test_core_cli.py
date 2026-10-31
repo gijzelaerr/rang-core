@@ -263,7 +263,7 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
     assert list(env["rang_environment"]) == [
         v.name for v in core.environment_variables()
     ]
-    assert {"RANG_SOLVE_OPTIONS", "RANG_GRIDDER_DEVICE", "RANG_DF1_LIB"} <= set(
+    assert {"RANG_SOLVE_OPTIONS", "RANG_GRIDDER_DEVICE", "RANG_GPU_ADAPTER"} <= set(
         env["rang_environment"]
     )
     assert receipt["source"]["checkout"] == ROOT.as_posix()

@@ -60,6 +60,7 @@ KINDS = {
     "refused": "removed; setting it is an error",
     "viewer": "the notebook's CARTA viewer connection; not recorded",
     "test": "a Rust unit-test fixture; not recorded",
+    "retired": "read by no code any more (kept so old receipts stay explained); not recorded",
 }
 RECORDED_KINDS = ("result", "input", "speed", "output", "process", "refused")
 
@@ -129,11 +130,12 @@ ENVIRONMENT = (
     ),
     _v(
         "RANG_DF1_LIB",
-        "unset (the extension)",
-        "result",
-        "a prebuilt w-gridder library loaded through ctypes instead",
-        "df1-wgridder",
-        "python/rang/core_wgridder.py",
+        "no longer read",
+        "retired",
+        "was a prebuilt w-gridder library loaded through ctypes (DF1); W4-3 "
+        "removed the fallback",
+        "w4-3-kernels",
+        "-",
     ),
     _v(
         "RANG_WGRIDDER_SIMD",
@@ -161,11 +163,12 @@ ENVIRONMENT = (
     ),
     _v(
         "RANG_C1_LIB",
-        "unset (the extension or the C1 standalone build)",
-        "result",
-        "a prebuilt closure-score library loaded through ctypes",
-        "c1-closure-arm",
-        "python/rang/core_closure.py",
+        "no longer read",
+        "retired",
+        "was a prebuilt closure-score library loaded through ctypes (C1); "
+        "W4-3 moved the kernel into the extension",
+        "w4-3-kernels",
+        "-",
     ),
     _v(
         "RANG_P6",

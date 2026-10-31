@@ -154,13 +154,20 @@ def test_registry_covers_every_rang_variable_in_the_sources():
     registered = {v.name for v in core.ENVIRONMENT}
     missing = sorted(set(found) - registered - set(core.NOT_ENVIRONMENT))
     assert not missing, f"add these to rang.core.ENVIRONMENT: {missing}"
-    stale = sorted(registered - set(found))
-    assert not stale, f"no longer read anywhere: {stale}"
+    live = {v.name for v in core.ENVIRONMENT if v.kind != "retired"}
+    stale = sorted(live - set(found))
+    assert not stale, f"no longer read anywhere (mark them retired): {stale}"
     assert len(registered) == len(core.ENVIRONMENT)
     for v in core.ENVIRONMENT:
         assert v.kind in core.KINDS, v
         assert (ROOT / v.report).is_file(), v
-        assert v.reader in found[v.name], (v.name, sorted(found[v.name]))
+        if v.kind != "retired":
+            assert v.reader in found[v.name], (v.name, sorted(found[v.name]))
+    # W4-3 removed the two ctypes libraries: nothing reads them.
+    for path in (ROOT / "python/rang").rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        for name in ("RANG_C1_LIB", "RANG_DF1_LIB"):
+            assert f'environ.get("{name}")' not in text, (path, name)
     for name in core.NOT_ENVIRONMENT:
         assert name in found
 
@@ -176,7 +183,8 @@ def test_the_rust_core_reads_no_solver_variable():
 def test_settings_record_every_recorded_kind_and_only_those():
     settings = core.environment_settings({"RANG_SOLVE_OPTIONS": "anderson=2"})
     assert settings["RANG_SOLVE_OPTIONS"] == "anderson=2"
-    assert settings["RANG_DF1_LIB"] is None
+    assert settings["RANG_GRIDDER_DEVICE"] is None
+    assert "RANG_DF1_LIB" not in settings  # retired by W4-3
     kinds = {v.name: v.kind for v in core.ENVIRONMENT}
     assert {kinds[n] for n in settings} <= set(core.RECORDED_KINDS)
     assert set(settings) == {

@@ -499,6 +499,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 - **refused**: removed; setting it is an error
 - **viewer**: the notebook's CARTA viewer connection; not recorded
 - **test**: a Rust unit-test fixture; not recorded
+- **retired**: read by no code any more (kept so old receipts stay explained); not recorded
 
 | Variable | Default | Kind | What it changes | Report | Read by |
 | --- | --- | --- | --- | --- | --- |
@@ -509,11 +510,11 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_GPU_ADAPTER` | unset (the best adapter) | result | substring of the name of the GPU adapter to use | `research/x2-wgpu.md` | `core/src/gpu/context.rs` |
 | `RANG_GPU_MEMORY_MB` | 256 | speed | device-memory budget per GPU inversion (batching only) | `research/x2-wgpu.md` | `core/src/gpu/invert.rs` |
 | `RANG_GPU_LAYERS_PER_BATCH` | unset (as many as the budget allows) | speed | upper bound on the w-layers per GPU batch | `research/x2-wgpu.md` | `core/src/gpu/invert.rs` |
-| `RANG_DF1_LIB` | unset (the extension) | result | a prebuilt w-gridder library loaded through ctypes instead | `research/df1-wgridder.md` | `python/rang/core_wgridder.py` |
+| `RANG_DF1_LIB` | no longer read | retired | was a prebuilt w-gridder library loaded through ctypes (DF1); W4-3 removed the fallback | `research/w4-3-kernels.md` | `-` |
 | `RANG_WGRIDDER_SIMD` | unset (AVX-512 where available) | speed | `avx2` or `baseline` caps the w-gridder's instruction set | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_WGRIDDER_PLANE_GROUP` | 1 | speed | w-planes gridded together | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_WGRIDDER_TIMING` | unset | output | phase timings of the w-gridder on stderr | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
-| `RANG_C1_LIB` | unset (the extension or the C1 standalone build) | result | a prebuilt closure-score library loaded through ctypes | `research/c1-closure-arm.md` | `python/rang/core_closure.py` |
+| `RANG_C1_LIB` | no longer read | retired | was a prebuilt closure-score library loaded through ctypes (C1); W4-3 moved the kernel into the extension | `research/w4-3-kernels.md` | `-` |
 | `RANG_P6` | unset (the frozen calls) | result | `1` runs the signal track's ported guard and influence functions | `research/p6-python-hotspots.md` | `python/rang/core_signal.py` |
 | `RANG_TOY_BIN` | unset (the extension) | result | a pointing-toy binary run instead of the extension | `research/p7-architecture.md` | `python/rang/__init__.py` |
 | `RANG_FLAGGING_SUITE_IMAGE` | unset | result | the container image the trend run's configuration records | `research/flagging-parallel.md` | `python/rang/core_trend_run.py` |
