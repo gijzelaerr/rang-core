@@ -25,8 +25,9 @@ Each stage has `run` (the driver), `compare` (one comparator engine: the
 verdict and counts against an archive) and `archive` (a versioned
 `rang.archive` file); `rang-core check` runs the full local checks on any
 platform. Every call writes a receipt, `<output>.<verb>.rang-receipt.json`
-(schema `rang.receipt` version 2: the command, its inputs, the environment
-and the commit), unless `--no-receipt` is given. The OpenBLAS, OpenMP, MKL
+(schema `rang.receipt` version 3: the command, its inputs, the environment
+with every recorded `RANG_*` variable, and the commit, null outside a
+source checkout), unless `--no-receipt` is given. The OpenBLAS, OpenMP, MKL
 and XLA thread pools are capped at one thread where their variables are
 unset, unless `--no-pin-threads` is given or `RANG_PIN_THREADS=0` is set;
 `RAYON_NUM_THREADS` sets the core's own threads.
@@ -76,7 +77,25 @@ def page():
                 parts.append(f"```text\n$ rang-core {stage} {verb} -h\n{text}\n```\n")
     for command in ("check", "environment"):
         parts.append(_block(f"`{command}`", f"rang-core {command} -h", _help(command)))
+    parts.append(environment_section())
     return "\n".join(parts)
+
+
+def environment_section():
+    """The `RANG_*` variables, from the one registry `rang.core.ENVIRONMENT`
+    that the receipts record too (task W4-1, research/w4-1-receipts.md)."""
+    from rang.core import KINDS, environment_markdown
+
+    kinds = "\n".join(f"- **{kind}**: {text}" for kind, text in KINDS.items())
+    return (
+        "## Environment variables\n\n"
+        "Every `RANG_*` variable that the package or the Rust core reads. "
+        "Each receipt records the current value of every variable of the "
+        "kinds result, input, speed, output, process and refused, null when "
+        "unset (`environment.rang_environment`); the campaign receipts "
+        "record the same under `rang_environment`. Kinds:\n\n"
+        f"{kinds}\n\n{environment_markdown()}"
+    )
 
 
 def main(argv):
