@@ -136,8 +136,9 @@ pub unsafe extern "C" fn rang_core_correct_stokes_i(
 }
 
 /// Decode blocks `first..first + count` of a blosc chunk and copy the rows
-/// `rows` (`nrows` ascending usize) into `out` with a destination stride of
-/// `stride` bytes per row (`out_len` bytes writable). `head` (`head_len`
+/// `rows` (`nrows` ascending usize, each inside those blocks, else 1) into
+/// `out` with a destination stride of `stride` bytes per row (`out_len`
+/// bytes writable). `head` (`head_len`
 /// bytes) is the chunk's header and block-start table, `span` (`span_len`
 /// bytes) the compressed bytes from block `first`'s offset.
 ///
@@ -180,6 +181,10 @@ pub unsafe extern "C" fn rang_core_blosc_decode_span_rows_strided(
             let Ok((span_start, _)) = blosc::block_span(head, &h, first) else {
                 return 1;
             };
+            // Every row must lie inside the decoded blocks (task W4-2).
+            if blosc::check_rows_covered(&h, first, count, row_bytes, rows).is_err() {
+                return 1;
+            }
             match correct::decode_rows_strided(
                 head, &h, first, count, span, span_start, row_bytes, rows, out, out_len, stride,
             ) {

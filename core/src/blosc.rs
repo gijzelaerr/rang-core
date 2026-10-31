@@ -361,10 +361,44 @@ pub fn decode_block(
     decode_block_bytes(h, j, block, dest, scratch)
 }
 
+/// Check that the rows `rows` (non-decreasing, `row_bytes` bytes each) lie
+/// entirely inside the decoded bytes of blocks `first..first + count` (task
+/// W4-2, W4R-10). The span decoders copy only the parts of rows that overlap
+/// the blocks they decode, so a row outside them would be left as whatever
+/// the caller's buffer held, with success reported.
+pub fn check_rows_covered(
+    h: &Header,
+    first: usize,
+    count: usize,
+    row_bytes: usize,
+    rows: &[usize],
+) -> Result<(), &'static str> {
+    const OVERFLOW: &str = "row or block offset overflows";
+    let end = first.checked_add(count).ok_or(OVERFLOW)?;
+    let lo = first.checked_mul(h.blocksize).ok_or(OVERFLOW)?;
+    let hi = end.checked_mul(h.blocksize).ok_or(OVERFLOW)?.min(h.nbytes);
+    let mut previous = 0usize;
+    for &row in rows {
+        if row < previous {
+            return Err("rows are not ascending");
+        }
+        previous = row;
+        if row_bytes == 0 {
+            continue;
+        }
+        let start = row.checked_mul(row_bytes).ok_or(OVERFLOW)?;
+        let stop = start.checked_add(row_bytes).ok_or(OVERFLOW)?;
+        if start < lo || stop > hi {
+            return Err("row outside the decoded blocks");
+        }
+    }
+    Ok(())
+}
+
 /// Decode the consecutive blocks `first..first + nblocks_in_span` from their
 /// compressed bytes `span` (which starts at block `first`'s offset, given as
 /// `span_start`), and copy rows `rows` (ascending, each lying entirely inside
-/// those blocks) into `out` at `row_bytes` per row.
+/// those blocks, else an error) into `out` at `row_bytes` per row.
 #[allow(clippy::too_many_arguments)]
 pub fn decode_span_rows(
     head: &[u8],
@@ -377,9 +411,10 @@ pub fn decode_span_rows(
     rows: &[usize],
     out: &mut [u8],
 ) -> Result<(), &'static str> {
-    if out.len() != rows.len() * row_bytes {
+    if Some(out.len()) != rows.len().checked_mul(row_bytes) {
         return Err("row selection buffer mismatch");
     }
+    check_rows_covered(h, first, count, row_bytes, rows)?;
     let mut block = Vec::new();
     let mut scratch = Vec::new();
     let mut next = 0usize;
@@ -505,6 +540,30 @@ mod tests {
         let mut rows = vec![0u8; 8];
         decode_rows(&src, 4, &[2, 7], &mut rows).unwrap();
         assert_eq!(rows, [8, 9, 10, 11, 28, 29, 30, 31]);
+    }
+
+    #[test]
+    fn span_rows_outside_the_decoded_blocks_are_an_error() {
+        // Five memcpyed blocks of 8 bytes; rows of 4 bytes.
+        let payload: Vec<u8> = (0..40u8).collect();
+        let mut src = vec![2u8, 1, MEMCPYED, 1];
+        src.extend((40u32).to_le_bytes());
+        src.extend((8u32).to_le_bytes());
+        src.extend(((HEADER + 40) as u32).to_le_bytes());
+        src.extend(&payload);
+        let h = parse_header(&src).unwrap();
+        let (span_start, _) = block_span(&src, &h, 1).unwrap();
+        let span = &src[span_start..HEADER + 24];
+        let mut out = vec![0u8; 8];
+        // Blocks 1 and 2 hold rows 2 to 5.
+        decode_span_rows(&src, &h, 1, 2, span, span_start, 4, &[2, 5], &mut out).unwrap();
+        assert_eq!(out, [8, 9, 10, 11, 20, 21, 22, 23]);
+        for rows in [[1usize, 2], [2, 6], [5, 2]] {
+            let err = decode_span_rows(&src, &h, 1, 2, span, span_start, 4, &rows, &mut out);
+            assert!(err.is_err(), "{rows:?}");
+        }
+        assert!(check_rows_covered(&h, usize::MAX, 2, 4, &[2]).is_err());
+        assert!(check_rows_covered(&h, 1, 2, 4, &[usize::MAX]).is_err());
     }
 
     #[test]
