@@ -14,9 +14,39 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 import time
 from pathlib import Path
+
+
+def _version() -> str:
+    """The installed distribution's version, else (a checkout on
+    `sys.path` with no install) the `[project]` version of the checkout's
+    pyproject.toml; pyproject.toml is the one source (research/w4-5-release.md)."""
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        return version("rang-core")
+    except PackageNotFoundError:
+        pass
+    pyproject = Path(__file__).resolve().parents[2] / "pyproject.toml"
+    try:
+        text = pyproject.read_text(encoding="utf-8")
+    except OSError:
+        return "unknown"
+    # A regex, not tomllib: Python 3.10 has no tomllib.
+    project = re.search(
+        r"^\[project\]\n(.*?)(?=^\[|\Z)", text, re.MULTILINE | re.DOTALL
+    )
+    if project and re.search(r'^name = "rang-core"$', project.group(1), re.MULTILINE):
+        found = re.search(r'^version = "([^"]+)"$', project.group(1), re.MULTILINE)
+        if found:
+            return found.group(1)
+    return "unknown"
+
+
+__version__ = _version()
 
 
 def toy_output(*args: str) -> str:
@@ -80,4 +110,4 @@ def run_experiment(
     return result
 
 
-__all__ = ["run_experiment", "toy_output"]
+__all__ = ["__version__", "run_experiment", "toy_output"]

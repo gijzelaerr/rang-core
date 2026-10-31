@@ -28,7 +28,8 @@ from importlib.metadata import version as _version
 try:
     release = _version("rang-core")
 except PackageNotFoundError:  # only without an installed distribution
-    release = "unknown"
+    _project = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    release = re.search(r'^version = "([^"]+)"$', _project, re.MULTILINE).group(1)
 version = release
 
 extensions = [
