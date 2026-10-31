@@ -20,7 +20,14 @@ from rang import core_cli
 ROOT = Path(__file__).resolve().parents[1]
 
 
+# The sdist carries no .github/ and no docs/ (pyproject.toml [tool.maturin]
+# exclude); the tests of those files run from a checkout only.
+CHECKOUT_ONLY = (".github/", "docs/")
+
+
 def _text(path):
+    if path.startswith(CHECKOUT_ONLY) and not (ROOT / ".github").is_dir():
+        pytest.skip(f"{path} is in a checkout, not in the sdist")
     return (ROOT / path).read_text(encoding="utf-8")
 
 
@@ -70,6 +77,11 @@ def test_versions_agree():
     assert lock_versions("core/py/Cargo.lock")["rang-core-py"] == version
     assert rang.__version__ == version
     assert importlib.metadata.version("rang-core") == version
+
+
+def test_docs_version_agrees():
+    version = pyproject_version()
+    assert "release = _version(" in _text("docs/conf.py")
     conf = runpy.run_path(str(ROOT / "docs" / "conf.py"))
     assert conf["release"] == conf["version"] == version
 
