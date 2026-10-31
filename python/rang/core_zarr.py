@@ -21,14 +21,32 @@ HEADER = 16
 MEMCPYED = 0x02
 
 
-def array_meta(array_dir):
-    """The `.zarray` metadata, refusing filters and object dtypes."""
-    meta = json.loads((Path(array_dir) / ".zarray").read_text())
+def check_meta(meta, name="zarr array", dtype=None):
+    """Refuse `.zarray` metadata the core would decode wrongly (task W4-2,
+    W4R-09): filters, object dtypes, other compressors, Fortran order (read
+    in C order it comes out transposed), big-endian dtypes, and a dtype other
+    than `dtype` when one is expected. Returns `meta`."""
     if meta.get("filters") or "O" in meta["dtype"]:
-        raise ValueError("object or filtered zarr arrays are not supported")
-    if meta["compressor"]["id"] != "blosc":
-        raise ValueError("only blosc-compressed zarr arrays are supported")
+        raise ValueError(f"{name}: object or filtered zarr arrays are not supported")
+    if (meta.get("compressor") or {}).get("id") != "blosc":
+        raise ValueError(f"{name}: only blosc-compressed zarr arrays are supported")
+    if meta.get("order") != "C":
+        order = meta.get("order")
+        raise ValueError(
+            f"{name}: only C-ordered zarr arrays are supported, not order {order!r}"
+        )
+    if np.dtype(meta["dtype"]).byteorder == ">":
+        raise ValueError(f"{name}: big-endian dtype {meta['dtype']} is not supported")
+    if dtype is not None and np.dtype(meta["dtype"]) != np.dtype(dtype):
+        raise ValueError(f"{name}: dtype {meta['dtype']}, expected {dtype}")
     return meta
+
+
+def array_meta(array_dir, dtype=None):
+    """The checked `.zarray` metadata (`check_meta`)."""
+    path = Path(array_dir) / ".zarray"
+    meta = json.loads(path.read_text(encoding="utf-8"))
+    return check_meta(meta, str(array_dir), dtype)
 
 
 def header_fields(head):
@@ -40,11 +58,63 @@ def header_fields(head):
     return nbytes, blocksize, nblocks, typesize
 
 
+def block_table(prefix):
+    """(starts, ends, prefix length, nblocks) from a chunk's first bytes: the
+    header and, unless the chunk is memcpyed, its block-start table. `ends`
+    assumes the blocks are stored in order (see `blocks_in_order`)."""
+    nbytes, blocksize, nblocks, _ = header_fields(prefix[:HEADER])
+    cbytes = int.from_bytes(prefix[12:16], "little")
+    if prefix[2] & MEMCPYED:
+        starts = HEADER + np.arange(nblocks, dtype=np.int64) * blocksize
+        ends = np.minimum(starts + blocksize, HEADER + nbytes)
+        used = HEADER
+    else:
+        used = HEADER + 4 * nblocks
+        if len(prefix) < used:
+            raise ValueError("blosc start table longer than the fetched prefix")
+        starts = np.frombuffer(prefix[HEADER:used], "<u4").astype(np.int64)
+        ends = np.append(starts[1:], cbytes)
+    return starts, ends, used, nblocks
+
+
+def blocks_in_order(starts):
+    """True when the blocks are stored in ascending order. Multithreaded
+    blosc (as in QuartiCal's stores; research/dfio-formats.md) may store them
+    out of order; then a run of blocks is not one byte span, and the readers
+    decode the whole chunk instead (`whole_chunk_rows`)."""
+    return not np.any(np.diff(starts) <= 0)
+
+
+def whole_chunk_rows(chunk, row_bytes, rows):
+    """Rows `rows` of a whole chunk (bytes or a uint8 array) decoded in full,
+    as a `(len(rows), row_bytes)` uint8 array: the out-of-order fallback."""
+    data = np.frombuffer(core.blosc_decode(bytes(chunk)), np.uint8)
+    if len(rows) and (rows[-1] + 1) * row_bytes > len(data):
+        raise ValueError("row beyond the chunk")
+    return data[: (len(data) // row_bytes) * row_bytes].reshape(-1, row_bytes)[rows]
+
+
+def check_rows_covered(head, first, count, row_bytes, rows):
+    """ValueError unless every row of `rows` (ascending) lies entirely inside
+    the decoded bytes of blocks `first`..`first + count` (task W4-2, W4R-10;
+    the core refuses such rows too)."""
+    nbytes, blocksize, _, _ = header_fields(head[:HEADER])
+    rows = np.asarray(rows, dtype=np.int64)
+    lo, hi = first * blocksize, min((first + count) * blocksize, nbytes)
+    if len(rows) and (
+        np.any(np.diff(rows) < 0)
+        or rows[0] * row_bytes < lo
+        or (rows[-1] + 1) * row_bytes > hi
+    ):
+        raise ValueError(f"rows outside blosc blocks {first}+{count}")
+
+
 def decode_span_rows(head, first, count, span, row_bytes, rows, out):
     """Decode blocks `first`..`first + count` of a chunk from `span` (the
     compressed bytes from block `first`'s offset) and copy `rows` (uintp,
-    ascending) into `out` (uint8, `len(rows) * row_bytes`). Returns the
-    core's status code, 0 on success."""
+    ascending, inside those blocks) into `out` (uint8, `len(rows) *
+    row_bytes`). Returns the core's status code, 0 on success."""
+    check_rows_covered(head, first, count, row_bytes, rows)
     return core.extension().blosc_decode_span_rows(
         bytes(head), first, count, bytes(span), row_bytes, rows, out
     )
@@ -74,33 +144,20 @@ def read_rows(path, row_bytes, rows):
         head = stream.read(HEADER)
         nbytes, blocksize, nblocks, _ = header_fields(head)
         stats["blocks_total"] = nblocks
-        memcpyed = head[2] & MEMCPYED
-        cbytes = int.from_bytes(head[12:16], "little")
-        if memcpyed:
-            starts = HEADER + np.arange(nblocks, dtype=np.int64) * blocksize
-            ends = np.minimum(starts + blocksize, HEADER + nbytes)
-        else:
-            table = stream.read(4 * nblocks)
-            head = head + table
-            starts = np.frombuffer(table, "<u4").astype(np.int64)
-            ends = np.append(starts[1:], cbytes)
-            if np.any(np.diff(starts) <= 0):
-                # Blocks stored out of order (multithreaded blosc, as in
-                # QuartiCal's stores; research/dfio-formats.md): decode the
-                # whole chunk and select the rows.
-                stream.seek(0)
-                whole = stream.read()
-                stats["bytes_read"] = len(whole)
-                stats["blocks_total"] = stats["blocks_decoded"] = nblocks
-                decode_started = time.perf_counter()
-                data = np.frombuffer(core.blosc_decode(whole), np.uint8)
-                stats["decode_seconds"] = time.perf_counter() - decode_started
-                if len(rows) and (rows[-1] + 1) * row_bytes > nbytes:
-                    raise ValueError("row beyond the chunk")
-                picked = data[: (len(data) // row_bytes) * row_bytes].reshape(
-                    -1, row_bytes
-                )
-                return picked[rows].tobytes(), stats
+        if not head[2] & MEMCPYED:
+            head = head + stream.read(4 * nblocks)
+        starts, ends, _, _ = block_table(head)
+        if not blocks_in_order(starts):
+            # Blocks stored out of order: decode the whole chunk and select
+            # the rows (`blocks_in_order`).
+            stream.seek(0)
+            whole = stream.read()
+            stats["bytes_read"] = len(whole)
+            stats["blocks_total"] = stats["blocks_decoded"] = nblocks
+            decode_started = time.perf_counter()
+            picked = whole_chunk_rows(whole, row_bytes, rows)
+            stats["decode_seconds"] = time.perf_counter() - decode_started
+            return picked.tobytes(), stats
         stats["bytes_read"] += len(head)
         if len(rows) and (rows[-1] + 1) * row_bytes > nbytes:
             raise ValueError("row beyond the chunk")
