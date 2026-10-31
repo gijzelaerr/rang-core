@@ -45,7 +45,6 @@ from check_ms_rest import (
     array_file_order,
     casacure_reads,
     compare_dumps,
-    core_vs_dump,
     hashes,
     load_dump,
     same_array,
@@ -559,6 +558,43 @@ def step_readback(run):
         "pass": not bad,
     }
     return write_json(run, "readback", result, started)
+
+
+def as_dumped(value):
+    """A core cell as python-casacore's `getcell` gives it and the dump
+    stores it: a string array of more than one axis is a dict of its shape
+    and its strings, kept as the dict's text."""
+    if value is not None and value.dtype.kind in "USO" and value.ndim > 1:
+        text = str(
+            {"shape": list(value.shape), "array": [str(x) for x in value.reshape(-1)]}
+        )
+        return np.asarray(text, dtype=str)
+    return value
+
+
+def core_vs_dump(path, dump):
+    """E5's comparison of the core's cells of a table with python-casacore's
+    dump (string arrays of more than one axis as python-casacore gives
+    them)."""
+    cells, meta = dump
+    nrows, core_cells, errors = e5.read_table_cells(path)
+    problems = [f"{k}: {v}" for k, v in errors.items()]
+    if nrows != meta["nrows"]:
+        problems.append(f"nrows {nrows} != {meta['nrows']}")
+    for name, values in core_cells.items():
+        if "error" in meta["columns"].get(name, {}):
+            continue
+        for row, value in enumerate(values):
+            key = f"{name}/{row}"
+            value = as_dumped(value)
+            if value is None:
+                if key in cells:
+                    problems.append(f"{key} undefined in the core")
+            elif key not in cells:
+                problems.append(f"{key} undefined in casacore")
+            elif not same_array(value, cells[key]):
+                problems.append(f"{key} differs")
+    return problems
 
 
 # ---------------------------------------------------------------------------
