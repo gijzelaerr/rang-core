@@ -368,7 +368,10 @@ CPU-heavy tasks at a time on 8 physical cores.
   truth with history linked; AGENTS.md updated for the simplified layout.
 - Release candidate: version bump, wheel built by CI from a tag, the PyPI
   command handed to the user.
-- Final review session (`/code-review` style) on the simplified core.
+- Final review session (`/code-review` style) on the simplified core: done
+  2026-10-31 (`w4-review.md`: 17 findings, 1 high; v0.1.0 is go after the fix
+  tasks W4-1 receipts, W4-3 kernels into the extension and W4-5 release
+  metadata; W4-2, W4-4, W4-6, W4-7, W4-8 follow).
 
 ## Coordinator loop (this session, day and night)
 

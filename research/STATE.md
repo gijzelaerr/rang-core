@@ -1,5 +1,37 @@
 # Rang research state
 
+W4 final review (big plan wave 4), 2026-10-31 (reviewed; measured;
+[w4-review.md](w4-review.md)). It is a read-only `/code-review` of `main` at
+`17653e4`:
+
+- **Checks.** `bash tools/check-all.sh` passes (784 passed, 10 skipped,
+  730 s). The suite's archive comparisons pass, with one skipped:
+  `test_task_k_additions_equal_the_archive`, whose input is absent. The
+  live kernels are bit-identical at 1–4 rayon threads and under the
+  gridder's SIMD and plane-group settings. cargo-audit and pip-audit report
+  no advisories.
+- **Findings.** 17: 1 high, 8 medium, 8 low.
+- **High.** `RANG_SOLVE_OPTIONS` changes the solver's gains, and no receipt
+  records it.
+- **Medium.**
+  - Wheel installs record the commit of any enclosing git repository.
+  - The extension takes array sizes on trust and reads Fortran-ordered
+    arrays transposed; an out-of-bounds write was reproduced.
+  - `flag_rows` does not check its input lengths; one row short gives
+    different flags and no error.
+  - The closure and flux-standard kernels still build with Cargo, so they
+    fail from the wheel.
+  - 2-D string-array keywords are stored in an element order different from
+    python-casacore 3.8.1.
+  - There is no `--version`.
+  - The classifiers list Linux only, and the README breaks on PyPI.
+  - Text I/O depends on the Windows locale.
+- **Release.** v0.1.0 is no-go as it stands; it is go after W4-1
+  (receipts), W4-3 (kernels into the extension) and W4-5 (release
+  metadata).
+- **Fix tasks.** W4-1 to W4-8.
+- **Outputs.** `outputs/w4-review-20261031-0{1..5}`.
+
 NB-CARTA, an optional CARTA helper for the notebooks (big plan;
 [nb-carta.md](nb-carta.md)), 2026-10-31 (implemented; measured):
 `rang.notebook.carta` writes a NumPy image or cube, or the core's dirty

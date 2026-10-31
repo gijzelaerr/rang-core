@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: W4, the [final review](w4-review.md): no archived result
+is affected, and the kernels are bit-identical across thread counts. There
+are 17 findings: 1 high, the solver options missing from receipts; 8
+medium; 8 low. v0.1.0 is go after W4-1, W4-3 and W4-5.
+
 New, 2026-10-31: NB-CARTA, the [CARTA helper](nb-carta.md): `rang.notebook.carta`
 opens images and cubes in CARTA 6.0 from a notebook (open, snapshot), the
 `[carta]` extra and the pinned wrapper and containers; skips cleanly on Windows.

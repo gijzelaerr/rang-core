@@ -1176,3 +1176,16 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: papermill notebook 04 via `docs/execute_notebooks.py` `execute`, switch off | fixture | 8.2 s | — | skip line printed |
 | 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: Windows: `pytest` of the scratch copy, main mirror's `.venv` | Windows | 2.3 s | — | 8 passed, 7 skipped |
 | 2026-10-31 | big plan NB-CARTA: big plan NB-CARTA: `bash tools/check-all.sh` | branch at `654c61e` | 502.4 s including the lock wait | 2.06 GB | `overall: PASS`; pytest 731 passed, 14 skipped in 172.9 s |
+| 2026-10-31 | big plan W4: `uv venv` + editable install, all extras | worktree | 190 s | – | extension built by maturin |
+| 2026-10-31 | big plan W4: `bash tools/check-all.sh` | `17653e4` | 730 s | – | `overall: PASS`; pytest 784 passed, 10 skipped in 383.1 s (load 5–7) |
+| 2026-10-31 | big plan W4: determinism matrix (8 processes) | synthetic P1/P2/DF2b/P3 cases | 6 s | – | every hash identical |
+| 2026-10-31 | big plan W4: `tools/wheel/build.py --sdist` | `17653e4` | 181 s | – | maturin 180.2 s; wheel 3.19 MB, 95 entries |
+| 2026-10-31 | big plan W4: `twine check` | wheel + sdist | 5 s | – | pass |
+| 2026-10-31 | big plan W4: pip-audit 2.10.1 | worktree venv | 31 s | – | no known vulnerabilities |
+| 2026-10-31 | big plan W4: bandit / vulture / radon | `python/rang` | 4 s / 2.7 s / 2.6 s | – | no security finding; one unused argument |
+| 2026-10-31 | big plan W4: clippy `--all-features -D warnings` (core, `gpu`) | worktree | 37.5 s | – | pass |
+| 2026-10-31 | big plan W4: clippy pedantic core / ext / root | worktree | 7.3 s / 48.1 s / 1.5 s | – | 4,804 pedantic warnings in core, none promoted |
+| 2026-10-31 | big plan W4: `cargo doc --no-deps --all-features` | core | 4.5 s | – | no warnings |
+| 2026-10-31 | big plan W4: `cargo test --release --features gpu` | core | 327.3 s | – | 135 passed (6 more than the check runs) |
+| 2026-10-31 | big plan W4: `cargo install --locked cargo-audit` (0.22.2) | crates.io | 213.7 s | – | |
+| 2026-10-31 | big plan W4: `cargo audit` core / `core/py` / root lock | worktree | 7.2 s / 2.2 s / 0.9 s | – | no advisory among 1,395 |
