@@ -270,3 +270,22 @@ def test_flag_rows_rejects_mismatched_inputs():
         core_flag.encode_steps(
             [{"task": "apply_static_mask", "kwargs": {"accumulation_mode": "xor"}}]
         )
+
+
+@pytest.mark.parametrize(
+    ("name", "short"),
+    [
+        ("antenna1", lambda m: {**m, "antenna1": m["antenna1"][:-1]}),
+        ("antenna1", lambda m: {**m, "antenna1": m["antenna1"][:-1],
+                                "antenna2": m["antenna2"][:-1]}),
+        ("antenna2", lambda m: {**m, "antenna2": m["antenna2"][:-1]}),
+        ("times", lambda m: {**m, "times": m["times"][:-1]}),
+        ("corr_type", lambda m: {**m, "corr_type": m["corr_type"][:1]}),
+    ],
+)  # fmt: skip
+def test_flag_rows_refuses_short_row_arrays(name, short):
+    """W4-2 (W4R-05): a short per-row array was read past its end, and
+    returned different flags with no error."""
+    data, flags, meta = _synthetic()
+    with pytest.raises(ValueError, match=name):
+        _run(data, flags, short(meta), [], masks=[])
