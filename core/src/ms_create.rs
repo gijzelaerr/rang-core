@@ -269,6 +269,9 @@ pub struct TableSpec {
     pub private_keywords: Record,
     pub big_endian: bool,
     pub multifile: bool,
+    /// The MultiFile block size (`table.storage.blocksize`; 0: casacore's
+    /// default of 4 MiB).
+    pub block_size: i64,
     /// Hypercolumn definitions (private keywords `Hypercolumn_<name>`; the
     /// columns get the tiled data-manager type and the group).
     pub hypercolumns: Vec<Hypercolumn>,
@@ -287,6 +290,9 @@ fn define_hypercolumns(spec: &mut TableSpec) -> Result<()> {
         }
         let mut fixed = true;
         for name in h.data.iter().chain(&h.coord).chain(&h.id) {
+            if name.is_empty() {
+                continue;
+            }
             let c = spec
                 .columns
                 .iter()
@@ -329,14 +335,11 @@ fn define_hypercolumns(spec: &mut TableSpec) -> Result<()> {
     Ok(())
 }
 
-const E6_MANAGERS: [&str; 1] = ["TiledCellStMan"];
-
 fn check_manager_kind(kind: &str) -> Result<()> {
     match kind {
-        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" | "IncrementalStMan"
-        | "MemoryStMan" | "TiledDataStMan" => Ok(()),
-        k if E6_MANAGERS.contains(&k) => err(format!("{k} tables are not created (E6)")),
-        k => err(format!("data manager {k} is not created (E6)")),
+        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" | "TiledCellStMan"
+        | "IncrementalStMan" | "MemoryStMan" | "TiledDataStMan" => Ok(()),
+        k => err(crate::ms_write::unsupported_manager(k)),
     }
 }
 
@@ -459,7 +462,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     let resolved = resolve(spec)?;
     for r in &resolved {
         check_manager_kind(&r.spec.kind)?;
-        if r.spec.kind.starts_with("Tiled") {
+        if r.spec.kind.starts_with("Tiled") && r.spec.kind != "TiledDataStMan" {
             for &i in &r.columns {
                 let c = &spec.columns[i];
                 let fixed = c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty());
@@ -469,7 +472,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                         c.name
                     ));
                 }
-                if !fixed && r.spec.kind != "TiledShapeStMan" {
+                if !fixed && r.spec.kind == "TiledColumnStMan" {
                     return err(format!(
                         "{}: {} needs FixedShape columns (variable shapes: TiledShapeStMan)",
                         c.name, r.spec.kind
@@ -490,15 +493,17 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
             return err(format!("data manager name {} is used twice", r.spec.name));
         }
     }
+    let block_size = if spec.block_size > 0 {
+        spec.block_size
+    } else {
+        crate::multifile::DEFAULT_BLOCK_SIZE
+    };
     let table_dir = new_dir(path)?;
     let lock = new_lock(&table_dir)?;
     // A MultiFile table: the managers write into the container's staging
     // directory (`multifile::Container`), packed on every flush.
     let mf = if spec.multifile {
-        Some(crate::multifile::Container::create(
-            &table_dir,
-            crate::multifile::DEFAULT_BLOCK_SIZE,
-        )?)
+        Some(crate::multifile::Container::create(&table_dir, block_size)?)
     } else {
         None
     };
@@ -533,7 +538,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                 mgrs.push(m);
                 blobs.push(blob);
             }
-            "TiledColumnStMan" | "TiledShapeStMan" => {
+            "TiledColumnStMan" | "TiledShapeStMan" | "TiledCellStMan" => {
                 let is_fixed = |c: &ColDesc| {
                     c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty())
                 };
@@ -563,18 +568,33 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                         r.spec.name
                     ));
                 }
-                let m = NewMgr::tiled(
-                    &dir,
-                    seq,
-                    r.spec.kind == "TiledColumnStMan",
-                    &r.spec.name,
-                    cols.iter().map(|(c, _)| c.dtype).collect(),
-                    cell,
-                    ndim,
-                    r.spec.tile.clone(),
-                    nrows,
-                    spec.big_endian,
-                )?;
+                let dtypes = cols.iter().map(|(c, _)| c.dtype).collect();
+                let m = if r.spec.kind == "TiledCellStMan" {
+                    NewMgr::tiled_cell(
+                        &dir,
+                        seq,
+                        &r.spec.name,
+                        dtypes,
+                        cell,
+                        ndim,
+                        r.spec.tile.clone(),
+                        nrows,
+                        spec.big_endian,
+                    )?
+                } else {
+                    NewMgr::tiled(
+                        &dir,
+                        seq,
+                        r.spec.kind == "TiledColumnStMan",
+                        &r.spec.name,
+                        dtypes,
+                        cell,
+                        ndim,
+                        r.spec.tile.clone(),
+                        nrows,
+                        spec.big_endian,
+                    )?
+                };
                 mgrs.push(m);
                 blobs.push(Vec::new());
             }
@@ -597,11 +617,14 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                     &dir,
                     seq,
                     &r.spec.name,
-                    cols.iter().map(|(c, _)| c.dtype).collect(),
+                    &cols,
+                    &h.data,
+                    &h.coord,
+                    &h.id,
                     h.ndim,
                     nrows,
                     spec.big_endian,
-                ));
+                )?);
                 blobs.push(Vec::new());
             }
             "IncrementalStMan" => {
@@ -625,7 +648,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                 mgrs.push(m);
                 blobs.push(blob);
             }
-            other => return err(format!("data manager {other} is not created (E5)")),
+            other => return err(crate::ms_write::unsupported_manager(other)),
         }
         managers.push((r.spec.kind.clone(), seq));
     }
@@ -642,7 +665,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
         // MultiFile) and block size when the table has a MultiFile.
         set_version: if spec.multifile { -3 } else { -2 },
         storage: if spec.multifile {
-            (0, crate::multifile::DEFAULT_BLOCK_SIZE as i32)
+            (0, block_size as i32)
         } else {
             (0, 0)
         },
@@ -834,12 +857,13 @@ mod tests {
     }
 
     #[test]
-    fn e6_managers_are_refused() {
-        for kind in ["TiledCellStMan", "Adios2StMan"] {
+    fn unsupported_managers_are_refused() {
+        for kind in ["Adios2StMan", "StManAipsIO"] {
             let e = check_manager_kind(kind).unwrap_err();
-            assert!(e.0.contains("E6"), "{e:?}");
+            assert!(e.0.contains("not supported"), "{e:?}");
         }
         check_manager_kind("IncrementalStMan").unwrap();
+        check_manager_kind("TiledCellStMan").unwrap();
     }
 
     #[test]

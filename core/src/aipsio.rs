@@ -44,6 +44,15 @@ pub mod tp {
         }
     }
 
+    /// The scalar type code of an array type code.
+    pub fn scalar_of(code: i32) -> Option<i32> {
+        match code {
+            13..=24 => Some(code - 13),
+            30 => Some(29),
+            _ => None,
+        }
+    }
+
     /// True for the array type codes.
     pub fn is_array(code: i32) -> bool {
         (13..=24).contains(&code) || code == 30
@@ -427,7 +436,13 @@ impl Record {
 
     /// Write as a `TableRecord` object.
     pub fn write(&self, w: &mut Writer) {
-        w.putstart("TableRecord", 1);
+        self.write_kind(w, "TableRecord");
+    }
+
+    /// Write as an object of type `kind` (`TableRecord` for keyword sets,
+    /// `Record` for a tiled hypercube's values; same layout).
+    pub fn write_kind(&self, w: &mut Writer, kind: &str) {
+        w.putstart(kind, 1);
         self.desc.write(w);
         w.i32(self.record_type);
         self.write_data(w);
@@ -608,6 +623,21 @@ impl KeywordValue {
             }
         })
     }
+}
+
+/// The strings of an `Array<String>` record field (its object bytes, no
+/// magic value), in storage order.
+pub fn decode_string_array(raw: &[u8]) -> Result<Vec<String>> {
+    let mut c = Cursor::new(raw, true);
+    let obj = c.start_expect("Array<String>")?;
+    let ndim = c.u32()? as usize;
+    for _ in 0..ndim {
+        c.u32()?;
+    }
+    let n = c.u32()? as usize;
+    let out = (0..n).map(|_| c.string()).collect::<Result<Vec<_>>>()?;
+    c.end(&obj);
+    Ok(out)
 }
 
 /// Native-endian values to canonical big-endian (complex as two floats).

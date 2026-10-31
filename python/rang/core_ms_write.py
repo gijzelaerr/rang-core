@@ -457,6 +457,23 @@ class Table:
     def iscelldefined(self, columnname, rownr):
         return bool(self._writer.is_defined(columnname, int(rownr)))
 
+    # -- TiledDataStMan hypercubes --------------------------------------------
+    def addhypercube(self, name, shape, tileshape, values):
+        """casacore's `TiledDataStManAccessor::addHypercube` (python-casacore
+        has no such call) of the TiledDataStMan `name`: `shape` and
+        `tileshape` in casacore axis order (an extensible cube has 0 rows on
+        its last axis), `values` an ordered dict of id values (scalars) and
+        coordinate vectors (1-D arrays)."""
+        self._writer.add_hypercube(
+            name, [int(s) for s in shape], [int(t) for t in tileshape], _record_items(values)
+        )
+
+    def extendhypercube(self, name, incr, values):
+        """`TiledDataStManAccessor::extendHypercube`: extend the hypercube
+        whose id values `values` gives by `incr` on its last axis (with
+        values of its last coordinate, if given)."""
+        self._writer.extend_hypercube(name, int(incr), _record_items(values))
+
     # -- rows ------------------------------------------------------------------
     def addrows(self, nrows=1):
         """Add rows (not initialised, as python-casacore's `addrows`)."""
@@ -607,6 +624,30 @@ class Table:
         self.close()
 
 
+def _record_items(values):
+    """A dict as the binding's record fields (name, kind, code, shape,
+    bytes): scalars kind 0, strings 1, arrays 2 (casacore axis order)."""
+    out = []
+    for name, value in values.items():
+        if isinstance(value, str):
+            out.append((name, 1, STRING, [], value.encode()))
+            continue
+        if isinstance(value, bool):
+            value = np.bool_(value)
+        elif isinstance(value, int):
+            value = np.int32(value)
+        elif isinstance(value, float):
+            value = np.float64(value)
+        arr = np.asarray(value)
+        code = CODES[arr.dtype]
+        if arr.ndim == 0:
+            out.append((name, 0, code, [], arr.tobytes()))
+        else:
+            data = np.ascontiguousarray(arr).tobytes()
+            out.append((name, 2, code, list(arr.shape)[::-1], data))
+    return out
+
+
 def _read_info(path):
     """[type, subType, readme] of a table's `table.info` (empty if none)."""
     try:
@@ -634,12 +675,26 @@ def create_table(
     """A new table (python-casacore's `table(path, tabledesc, nrow,
     dminfo=dminfo, endian=endian)`): StandardStMan for unbound columns, the
     managers of `dminfo` (StandardStMan, IncrementalStMan, TiledColumnStMan,
-    TiledShapeStMan, MemoryStMan, TiledDataStMan) for bound ones; `nrow`
-    rows, not initialised; big-endian with `endian="big"`, a MultiFile
-    table with `multifile=True` (casacore's aipsrc `table.storage.option`).
-    Returned open for writing."""
-    if multifile not in (True, False):
-        raise ValueError(f"storage option {multifile!r} is not written (E6): MultiHDF5")
+    TiledShapeStMan, TiledCellStMan, MemoryStMan, TiledDataStMan) for bound
+    ones; `nrow` rows, not initialised; big-endian with `endian="big"`, a
+    MultiFile table with `multifile=True` (casacore's aipsrc
+    `table.storage.option`) or `multifile=<block size>` (aipsrc
+    `table.storage.blocksize`). MultiHDF5 (`multifile="multihdf5"`) is not
+    supported (research/e6-table-writer-final.md). Returned open for
+    writing."""
+    if isinstance(multifile, str) and multifile.lower() in ("multihdf5", "hdf5"):
+        raise ValueError(
+            "MultiHDF5 tables are not supported: a MultiHDF5 container is a libhdf5 "
+            "file whose layout is libhdf5's internal behaviour and whose object headers "
+            "carry modification times (two casacore runs differ), so it cannot be "
+            "written byte-identically without libhdf5"
+        )
+    if isinstance(multifile, bool):
+        block = 0
+    elif isinstance(multifile, int) and multifile > 0:
+        multifile, block = True, int(multifile)
+    else:
+        raise ValueError(f"multifile={multifile!r}: give True, False or a block size")
     if endian not in ("little", "big", "local"):
         raise ValueError(f"endian {endian!r}: give 'little', 'big' or 'local'")
     desc = maketabdesc(tabledesc)
@@ -656,6 +711,7 @@ def create_table(
         endian == "big",
         multifile,
         hypercolumns,
+        block,
     )
     t = Table(path, _writer=writer)
     t._info = [info.get("type", ""), info.get("subType", ""), info.get("readme", "")]

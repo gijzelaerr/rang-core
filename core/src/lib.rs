@@ -54,6 +54,7 @@ pub mod predict;
 pub mod robust;
 pub mod solve;
 pub mod sumthreshold;
+pub mod tiled;
 pub mod weights;
 pub mod wgridder;
 
