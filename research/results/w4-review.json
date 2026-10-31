@@ -1,0 +1,531 @@
+{
+ "schema": "rang.review",
+ "version": 1,
+ "task": "W4 final review (big plan wave 4)",
+ "date": "2026-10-31",
+ "reviewed_commit": "17653e4",
+ "report": "research/w4-review.md",
+ "counts": {
+  "high": 1,
+  "medium": 8,
+  "low": 8,
+  "total": 17
+ },
+ "release_verdict": {
+  "version": "0.1.0",
+  "ready_as_is": false,
+  "ready_after": [
+   "W4-1",
+   "W4-3",
+   "W4-5"
+  ]
+ },
+ "checks": {
+  "check_all": {
+   "command": "bash tools/check-all.sh",
+   "overall": "PASS",
+   "wall_seconds": 730,
+   "pytest_passed": 784,
+   "pytest_skipped": 10,
+   "pytest_seconds": 383.1,
+   "log": "outputs/w4-review-20261031-check-all.log"
+  },
+  "determinism": {
+   "script": "outputs/w4-review-20261031-03/r04_determinism.py",
+   "configurations": [
+    "RAYON_NUM_THREADS=1",
+    "RAYON_NUM_THREADS=2",
+    "RAYON_NUM_THREADS=3",
+    "RAYON_NUM_THREADS=4",
+    "RAYON_NUM_THREADS=4 (repeat)",
+    "RANG_WGRIDDER_SIMD=baseline",
+    "RANG_WGRIDDER_SIMD=avx2",
+    "RANG_WGRIDDER_PLANE_GROUP=4"
+   ],
+   "kernels": [
+    "solve_cap",
+    "solve_early",
+    "fused",
+    "wstack",
+    "wgrid",
+    "wgrid_large",
+    "wstack_large",
+    "flags"
+   ],
+   "all_identical": true
+  },
+  "wheel": {
+   "file": "rang_core-0.1.0-cp310-abi3-manylinux_2_35_x86_64.whl",
+   "entries": 95,
+   "bytes": 3187139,
+   "sha256": "60524364efcd8504b68143b7e3e381411dc4e590d5cd6c0ef93cb0e2f8d2e4bb",
+   "stray_files": [],
+   "static_masks_present": true,
+   "twine_check": "PASS"
+  },
+  "sdist": {
+   "file": "rang_core-0.1.0.tar.gz",
+   "entries": 1010,
+   "bytes": 5375227,
+   "sha256": "ff7d9fd385af7b54c820b07b5cc50f91088eb30c32719b294a797f3729170f44",
+   "twine_check": "PASS"
+  },
+  "ci_wheels_run": {
+   "id": 41146407352,
+   "commit": "17653e4",
+   "conclusion": "success",
+   "platforms": 5,
+   "pythons": [
+    "3.10",
+    "3.14"
+   ]
+  },
+  "audits": {
+   "cargo_audit": {
+    "version": "0.22.2",
+    "advisories_loaded": 1395,
+    "lockfiles": {
+     "core/Cargo.lock": 117,
+     "core/py/Cargo.lock": 130,
+     "Cargo.lock": 1
+    },
+    "found": 0
+   },
+   "pip_audit": {
+    "version": "2.10.1",
+    "found": 0
+   }
+  },
+  "archive_comparisons": {
+   "pass": true,
+   "skipped": [
+    "tests/test_p3_flags.py::test_task_k_additions_equal_the_archive (ignored input absent)"
+   ]
+  },
+  "aliasing": {
+   "overlapping_input_output": "refused (TypeError: already borrowed)",
+   "evidence": "outputs/w4-review-20261031-02/r06_flag_rows_lengths.log"
+  }
+ },
+ "findings": [
+  {
+   "id": "W4R-01",
+   "severity": "high",
+   "category": 1,
+   "where": [
+    "core/src/solve.rs:202-208",
+    "core/src/solve.rs:1227",
+    "python/rang/core_cli.py:83"
+   ],
+   "defect": "The solver reads RANG_SOLVE_OPTIONS inside every solve; no CLI or campaign receipt records it, nor RANG_GRIDDER_DEVICE, RANG_GRIDDER_GPU_PRECISION, RANG_DF1_LIB or RANG_C1_LIB.",
+   "failure": "A shell with RANG_SOLVE_OPTIONS=qp_weights=transposed runs a campaign; the gains differ and the receipt looks like the archived default.",
+   "verdict": "CONFIRMED",
+   "evidence": "outputs/w4-review-20261031-02/r02_solve_env.log",
+   "fix": "One registry of result-affecting RANG_* variables recorded in every receipt; solver options passed as an argument instead of the process environment.",
+   "owners": [
+    "python/rang/core_cli.py",
+    "python/rang/core.py",
+    "python/rang/core_campaign*.py",
+    "python/rang/core_solver_study.py",
+    "core/src/solve.rs",
+    "core/src/ffi.rs"
+   ],
+   "task": "W4-1"
+  },
+  {
+   "id": "W4R-02",
+   "severity": "medium",
+   "category": 1,
+   "where": [
+    "python/rang/core_cli.py:57",
+    "python/rang/core_cli.py:538-546",
+    "python/rang/core_campaign.py:37",
+    "python/rang/core_receipts.py:19-32"
+   ],
+   "defect": "ROOT = parents[2] is the checkout only for an editable install; for a wheel it is <venv>/lib/python3.X.",
+   "failure": "Receipts record the HEAD of any git repository around the venv; source_receipts raises FileNotFoundError.",
+   "verdict": "CONFIRMED",
+   "evidence": "outputs/w4-review-20261031-02/r05_wheel.log",
+   "fix": "Accept ROOT only when it holds the three manifests; otherwise commit null plus distribution version and extension SHA256; hash the installed package.",
+   "owners": [
+    "python/rang/core_cli.py",
+    "python/rang/core_campaign.py",
+    "python/rang/core_receipts.py",
+    "python/rang/core_imaging.py"
+   ],
+   "task": "W4-1"
+  },
+  {
+   "id": "W4R-03",
+   "severity": "medium",
+   "category": 1,
+   "where": [
+    "python/rang/core_ms_write.py:491-495"
+   ],
+   "defect": "2-D string-array keywords are flattened in Fortran order with a reversed shape; python-casacore 3.8.1 and the numeric path use C order.",
+   "failure": "[[a,b,c],[d,e,f]] is stored a,d,b,e,c,f instead of a,b,c,d,e,f.",
+   "verdict": "CONFIRMED",
+   "evidence": "outputs/w4-review-20261031-02/r03_string_keyword.log, r03b_pycasacore.log",
+   "fix": "arr.reshape(-1) (C order) and a 2-D string keyword in the oracle tests.",
+   "owners": [
+    "python/rang/core_ms_write.py",
+    "tests/test_t1_casacure_oracle.py"
+   ],
+   "task": "W4-4"
+  },
+  {
+   "id": "W4R-04",
+   "severity": "medium",
+   "category": 2,
+   "where": [
+    "core/py/src/lib.rs:83-106",
+    "core/src/ffi.rs:47-63",
+    "core/src/ffi_grid.rs:81-85",
+    "core/src/gpu/ffi.rs:45-49",
+    "core/py/src/lib.rs:487"
+   ],
+   "defect": "Bindings pass pointers without length checks and accept F-contiguous arrays (docstring says non-contiguous arrays are refused); unchecked size products.",
+   "failure": "Direct rang._core calls: 11 doubles written past a 1-element split_stats; Fortran-ordered uvw read transposed with status 0. Not reachable through the shipped wrappers except W4R-05.",
+   "verdict": "CONFIRMED",
+   "evidence": "outputs/w4-review-20261031-02/r01_ffi_bounds.log",
+   "fix": "sized/sized_mut on every binding, a C-contiguity check in ptr/ptr_mut, checked_mul on the size products.",
+   "owners": [
+    "core/py/src/lib.rs",
+    "core/src/ffi_grid.rs",
+    "core/src/gpu/ffi.rs",
+    "tests/test_p7_architecture.py"
+   ],
+   "task": "W4-2"
+  },
+  {
+   "id": "W4R-05",
+   "severity": "medium",
+   "category": 2,
+   "where": [
+    "python/rang/core_flag.py:247-270",
+    "core/src/ffi_flag.rs:181-187"
+   ],
+   "defect": "flag_rows does not check antenna1/antenna2/times against nrow (zip truncates) or corr_type against ncorr.",
+   "failure": "The kernel reads past the shorter buffers; on the P3 synthetic case antenna1/antenna2 or times one row short return different flags with no error, corr_type[:1] returned the reference flags.",
+   "verdict": "CONFIRMED",
+   "evidence": "outputs/w4-review-20261031-02/r06_flag_rows_lengths.log",
+   "fix": "Validate every length in the wrapper (and in the binding, W4R-04).",
+   "owners": [
+    "python/rang/core_flag.py",
+    "tests/test_core_flag.py"
+   ],
+   "task": "W4-2"
+  },
+  {
+   "id": "W4R-06",
+   "severity": "medium",
+   "category": 4,
+   "where": [
+    "python/rang/core_closure.py:71-165",
+    "python/rang/fluxstd.py:398-491"
+   ],
+   "defect": "The C1 closure and FS1 flux kernels build a standalone crate with cargo on first call although the extension already exports their C symbols.",
+   "failure": "From the wheel both raise RuntimeError (no checkout); pytest builds core/target/c1-standalone and fs1-standalone; contradicts README 'nothing runs Cargo at a kernel call'.",
+   "verdict": "CONFIRMED",
+   "evidence": "outputs/w4-review-20261031-02/r05_wheel_kernels.log; nm -D _core.abi3.so",
+   "fix": "PyO3 closure_scores and fluxstd_eval; wrappers call them; delete the standalone builders; verify C1 and FS1 archives.",
+   "owners": [
+    "core/py/src/lib.rs",
+    "python/rang/core_closure.py",
+    "python/rang/fluxstd.py",
+    "tests/test_core_closure.py",
+    "tests/test_fluxstd.py"
+   ],
+   "task": "W4-3"
+  },
+  {
+   "id": "W4R-07",
+   "severity": "medium",
+   "category": 4,
+   "where": [
+    "python/rang/core_cli.py",
+    "python/rang/__init__.py"
+   ],
+   "defect": "No rang-core --version and no rang.__version__.",
+   "failure": "rang-core --version: unknown option, exit 1.",
+   "verdict": "CONFIRMED",
+   "evidence": "outputs/w4-review-20261031-02/r05_wheel.log",
+   "fix": "--version and __version__ from importlib.metadata.",
+   "owners": [
+    "python/rang/core_cli.py",
+    "python/rang/__init__.py"
+   ],
+   "task": "W4-5"
+  },
+  {
+   "id": "W4R-08",
+   "severity": "medium",
+   "category": 4,
+   "where": [
+    "pyproject.toml:15-28",
+    "README.md"
+   ],
+   "defect": "Linux-only OS classifier though Windows and macOS wheels are built and tested; no Python version classifiers; only a Repository URL; the relative logo and 23 relative README links break on PyPI.",
+   "failure": "PyPI page claims Linux only, with a broken logo and dead links; twine check passes.",
+   "verdict": "CONFIRMED",
+   "evidence": "wheel METADATA",
+   "fix": "Classifiers, Documentation and Issues URLs, absolute README URLs or a PyPI README.",
+   "owners": [
+    "pyproject.toml",
+    "README.md"
+   ],
+   "task": "W4-5"
+  },
+  {
+   "id": "W4R-11",
+   "severity": "medium",
+   "category": 3,
+   "where": [
+    "python/rang/formats/sky.py:246,462,868,968,1116",
+    "python/rang/formats/quartical_store.py:111-276",
+    "python/rang/formats/_aipsio.py:193",
+    "python/rang/formats/flagversions.py:29,94",
+    "python/rang/core_ms_write.py:607",
+    ".github/workflows/wheels.yml:175"
+   ],
+   "defect": "73 read_text() and about 29 write_text( calls without encoding in python/rang; CI sets PYTHONUTF8=1 and cannot see it.",
+   "failure": "Non-ASCII sky models or table.info readmes are mis-decoded or raise on a stock Windows Python before 3.15.",
+   "verdict": "CONFIRMED",
+   "evidence": "grep; ruff PLW1514 (preview) 20 hits",
+   "fix": "encoding='utf-8' (and newline='\\n' for hashed files), a lint test, one CI job without PYTHONUTF8.",
+   "owners": [
+    "python/rang/formats/*.py",
+    "python/rang/core_ms_write.py",
+    "python/rang/core_campaign*.py",
+    ".github/workflows/wheels.yml"
+   ],
+   "task": "W4-6"
+  },
+  {
+   "id": "W4R-09",
+   "severity": "low",
+   "category": 1,
+   "where": [
+    "python/rang/core_zarr.py:24-31",
+    "python/rang/core_fetch.py:39-44",
+    "python/rang/core_fetch.py:56-70",
+    "python/rang/core_fetch.py:409-462"
+   ],
+   "defect": "Zarr ingest never checks .zarray order, hard-codes row-column dtypes, and core_fetch lacks the out-of-order block fallback of core_zarr.read_rows.",
+   "failure": "An F-order store or a different row dtype would be misread silently; out-of-order chunks fail instead of falling back. Latent: all 5,313 .zarray files under outputs/ are order C and every archived MAIN_1 row-column .zarray has the hard-coded dtype.",
+   "verdict": "CONFIRMED (latent)",
+   "evidence": "code; outputs/w4-review-20261031-01/zarrays.txt",
+   "fix": "Assert order and dtypes; one shared block-table helper with the fallback.",
+   "owners": [
+    "python/rang/core_zarr.py",
+    "python/rang/core_fetch.py"
+   ],
+   "task": "W4-2"
+  },
+  {
+   "id": "W4R-10",
+   "severity": "low",
+   "category": 2,
+   "where": [
+    "core/src/blosc.rs:369-410",
+    "core/src/ffi_fluxstd.rs:14"
+   ],
+   "defect": "decode_span_rows does not verify that every requested row is covered by the decoded blocks; rang_core_fluxstd_eval has no catch_unwind.",
+   "failure": "Uncovered rows keep the caller's np.empty bytes with status 0 (wrappers always cover them); a panic aborts the process.",
+   "verdict": "CONFIRMED",
+   "evidence": "code",
+   "fix": "Return 1 for an uncovered row; wrap fluxstd_eval in catch_unwind.",
+   "owners": [
+    "core/src/blosc.rs",
+    "core/src/ffi_correct.rs",
+    "core/src/ffi_fluxstd.rs"
+   ],
+   "task": "W4-2"
+  },
+  {
+   "id": "W4R-12",
+   "severity": "low",
+   "category": 3,
+   "where": [
+    ".gitattributes (absent)"
+   ],
+   "defect": "13 tracked CRLF files, including the packaged python/rang/notebook/science.py; X1's .gitattributes never added.",
+   "failure": "Windows clones without core.autocrlf=false hash and format differently.",
+   "verdict": "CONFIRMED",
+   "evidence": "git ls-files --eol",
+   "fix": "Add .gitattributes (* text=auto eol=lf, binaries, research/results/** and history/** -text) and renormalise the rest.",
+   "owners": [
+    ".gitattributes"
+   ],
+   "task": "W4-6"
+  },
+  {
+   "id": "W4R-13",
+   "severity": "low",
+   "category": 4,
+   "where": [
+    ".github/workflows/wheels.yml:190-241"
+   ],
+   "defect": "No tag-equals-version check before release and publish; no CHANGELOG; Node 20 actions deprecated.",
+   "failure": "A tag without the version bump runs release and a failing publish.",
+   "verdict": "CONFIRMED",
+   "evidence": "workflow; CI annotations",
+   "fix": "Version-check step, CHANGELOG.md with --notes-file, bump the actions.",
+   "owners": [
+    ".github/workflows/wheels.yml",
+    "CHANGELOG.md"
+   ],
+   "task": "W4-5"
+  },
+  {
+   "id": "W4R-14",
+   "severity": "low",
+   "category": 4,
+   "where": [
+    "pyproject.toml [tool.maturin]"
+   ],
+   "defect": "The sdist packs the whole tree (1,010 entries, 5.4 MB) including research/ with CC BY-NC-derived statistics and history/.",
+   "failure": "A GPL-3.0 sdist on PyPI redistributes CC BY-NC-derived numbers and frozen history; a licence ambiguity.",
+   "verdict": "PLAUSIBLE",
+   "evidence": "sdist listing",
+   "fix": "include/exclude list in [tool.maturin].",
+   "owners": [
+    "pyproject.toml"
+   ],
+   "task": "W4-5"
+  },
+  {
+   "id": "W4R-15",
+   "severity": "low",
+   "category": 5,
+   "where": [
+    "python/rang/check.py:50-139"
+   ],
+   "defect": "The check never builds, lints or tests the gpu feature.",
+   "failure": "A change that breaks core/src/gpu passes rang-core check (today clippy --all-features and cargo test --features gpu pass).",
+   "verdict": "CONFIRMED",
+   "evidence": "check.py steps; 2 GPU tests skipped",
+   "fix": "core-clippy-gpu and core-test-gpu steps.",
+   "owners": [
+    "python/rang/check.py",
+    "CONTRIBUTING.md"
+   ],
+   "task": "W4-7"
+  },
+  {
+   "id": "W4R-16",
+   "severity": "low",
+   "category": 5,
+   "where": [
+    "python/rang/core_campaign_array.py:976-1000",
+    "python/rang/core_wgridder.py:20-40,105-243"
+   ],
+   "defect": "Dead fallbacks: a P5 ctypes branch naming core_fetch.CorrectInputs and p5_library (both gone) and the wgridder ctypes/standalone path.",
+   "failure": "Unreachable today; AttributeError or a cargo build if reached.",
+   "verdict": "CONFIRMED",
+   "evidence": "code",
+   "fix": "Delete both fallbacks.",
+   "owners": [
+    "python/rang/core_campaign_array.py",
+    "python/rang/core_wgridder.py",
+    "python/rang/core_fetch.py"
+   ],
+   "task": "W4-3"
+  },
+  {
+   "id": "W4R-17",
+   "severity": "low",
+   "category": 6,
+   "where": [
+    "AGENTS.md:6-7",
+    "README.md:33-52,124-141,157-161",
+    "CONTRIBUTING.md:45-55",
+    "docs/installation.md:18-38,86",
+    "core/py/src/lib.rs:10-11",
+    "core/src/ffi.rs:1-5",
+    "python/rang/core_closure.py:20-23",
+    "python/rang/fluxstd.py:396-398"
+   ],
+   "defect": "Statements the tree no longer matches (active experiment, wheel platforms, masks location, nothing runs Cargo, supported hosts, macOS jobs, contiguity, ctypes header).",
+   "failure": "Readers and new sessions start from stale rules.",
+   "verdict": "CONFIRMED",
+   "evidence": "research/w4-review.md, Documentation drift",
+   "fix": "Edits listed in the report's Documentation drift table.",
+   "owners": [
+    "AGENTS.md",
+    "README.md",
+    "CONTRIBUTING.md",
+    "docs/installation.md",
+    "research/README.md"
+   ],
+   "task": "W4-8"
+  }
+ ],
+ "tasks": {
+  "W4-1": {
+   "title": "receipts record what changed the result",
+   "science_verification": true,
+   "findings": [
+    "W4R-01",
+    "W4R-02"
+   ]
+  },
+  "W4-2": {
+   "title": "boundary checks at the extension and in the wrappers",
+   "science_verification": true,
+   "findings": [
+    "W4R-04",
+    "W4R-05",
+    "W4R-09",
+    "W4R-10"
+   ]
+  },
+  "W4-3": {
+   "title": "closure and fluxstd kernels into the extension; dead fallbacks out",
+   "science_verification": true,
+   "findings": [
+    "W4R-06",
+    "W4R-16"
+   ]
+  },
+  "W4-4": {
+   "title": "string-array keyword order",
+   "science_verification": true,
+   "findings": [
+    "W4R-03"
+   ]
+  },
+  "W4-5": {
+   "title": "release metadata",
+   "science_verification": false,
+   "findings": [
+    "W4R-07",
+    "W4R-08",
+    "W4R-13",
+    "W4R-14"
+   ]
+  },
+  "W4-6": {
+   "title": "portability hygiene",
+   "science_verification": false,
+   "findings": [
+    "W4R-11",
+    "W4R-12"
+   ]
+  },
+  "W4-7": {
+   "title": "gpu feature in the gate",
+   "science_verification": false,
+   "findings": [
+    "W4R-15"
+   ]
+  },
+  "W4-8": {
+   "title": "documentation drift",
+   "science_verification": false,
+   "findings": [
+    "W4R-17"
+   ]
+  }
+ }
+}
