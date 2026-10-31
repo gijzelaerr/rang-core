@@ -55,6 +55,9 @@ STEFCAL_TOL = 1e-8
 # Amendment 1 (2026-10-31): Gauss-Newton polishing of each bin's gains.
 POLISH_STEPS = 5
 POLISH_TOL = 1e-10
+# Amendment 1a (2026-10-31): the polishing is safeguarded.
+POLISH_HALVINGS = 20
+POLISH_MAX_STEP = 1.0
 SPLIT_SEED = 7
 
 # --------------------------------------------------------------------------
@@ -433,13 +436,24 @@ def polish_gains(
     """Gauss-Newton steps on one bin's diagonal gains after StefCal
     (amendment 1): log-amplitude and phase updates from the gains-only
     normal equations (minimum norm in the phase gauge), until the largest
-    update is below `tol` or after `steps`. Returns (g, steps taken)."""
+    update is below `tol` or after `steps`. Safeguarded (amendment 1a): a
+    step is taken only if it does not raise the bin's chi^2, halving it up
+    to POLISH_HALVINGS times, else polishing stops. Returns (g, steps
+    taken, halvings)."""
     g = np.array(g, complex)
     sw = np.sqrt(weight)
+    dw = data * sw
+    mw = model * sw
     taken = 0
+    halvings = 0
+
+    def chi2(x):
+        return float(np.sum(np.abs(dw - x[a1] * np.conj(x[a2]) * mw) ** 2))
+
+    current = chi2(g)
     for taken in range(1, steps + 1):
-        m = g[a1] * np.conj(g[a2]) * model * sw
-        r = data * sw - m
+        m = g[a1] * np.conj(g[a2]) * mw
+        r = dw - m
         m2 = np.abs(m) ** 2
         diag = np.bincount(a1, m2, nant) + np.bincount(a2, m2, nant)
         off = bi._pair_sum(a1, a2, m2, nant)
@@ -453,10 +467,23 @@ def polish_gains(
             np.bincount(a1, cr.imag, nant) - np.bincount(a2, cr.imag, nant),
         ]
         delta = bi.pinv_psd(h) @ b
-        g = g * np.exp(delta[:nant] + 1j * delta[nant:])
-        if np.max(np.abs(delta)) < tol:
+        if not np.all(np.isfinite(delta)):
             break
-    return g, taken
+        t = 1.0
+        accepted = False
+        for _ in range(POLISH_HALVINGS + 1):
+            step = t * delta
+            if np.max(np.abs(step)) <= POLISH_MAX_STEP:
+                trial = g * np.exp(step[:nant] + 1j * step[nant:])
+                value = chi2(trial)
+                if np.isfinite(value) and value <= current:
+                    g, current, accepted = trial, value, True
+                    break
+            t *= 0.5
+            halvings += 1
+        if not accepted or np.max(np.abs(t * delta)) < tol:
+            break
+    return g, taken, halvings
 
 
 def stefcal_warm(
@@ -641,6 +668,7 @@ def _task(args):
     nsolve = 0
     niter = 0
     npolish = 0
+    nhalve = 0
     pred = None
     if mode == "predict":
         pred = np.zeros((len(scan["a1"]), len(chans), 2), np.complex64)
@@ -801,8 +829,9 @@ def _task(args):
                             params.get("stefcal_iter", STEFCAL_ITER),
                         )
                         if params.get("polish", True):
-                            g, ip = polish_gains(d, m0, w, p, qq, nant, g)
+                            g, ip, ih = polish_gains(d, m0, w, p, qq, nant, g)
                             npolish += ip
+                            nhalve += ih
                         gains_out[ti, ci, h] = g
                         nsolve += 1
                         niter += it
@@ -864,6 +893,7 @@ def _task(args):
             solves=nsolve,
             stefcal_iterations=niter,
             polish_steps=npolish,
+            polish_halvings=nhalve,
             h=bi.lf_assemble(*mom, ncomp),
             b=bi.lf_assemble_vector(*bmom, ncomp),
             raw=raw_acc,
@@ -1069,7 +1099,13 @@ class Problem:
         raw = {}
         out_gains = {}
         chi2 = 0.0
-        stats = {"samples": 0, "solves": 0, "stefcal_iterations": 0, "polish_steps": 0}
+        stats = {
+            "samples": 0,
+            "solves": 0,
+            "stefcal_iterations": 0,
+            "polish_steps": 0,
+            "polish_halvings": 0,
+        }
         for r in results:
             out_gains[(r["scan"], r["block"])] = r["gains"]
             chi2 += r["chi2"]
@@ -1427,6 +1463,9 @@ def solve(problem, arm, candidates=(), log=print, max_passes=LM_MAX_PASSES):
             sum(p["stefcal_iterations"] for p in problem.passes[-passes:])
         ),
         "polish_steps": int(sum(p["polish_steps"] for p in problem.passes[-passes:])),
+        "polish_halvings": int(
+            sum(p["polish_halvings"] for p in problem.passes[-passes:])
+        ),
     }
 
 

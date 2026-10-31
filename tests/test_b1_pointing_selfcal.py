@@ -589,7 +589,7 @@ def test_polished_gains_are_the_exact_optimum():
     data = data + 0.01 * (rng.normal(size=n) + 1j * rng.normal(size=n))
     w = np.ones(n)
     g, _ = ps.stefcal_warm(data, model, w, a1, a2, nant, np.ones(nant), iterations=5)
-    g, _steps = ps.polish_gains(data, model, w, a1, a2, nant, g, steps=20)
+    g, _steps, _halvings = ps.polish_gains(data, model, w, a1, a2, nant, g, steps=20)
     ref, _ = ps.stefcal_warm(
         data, model, w, a1, a2, nant, np.ones(nant), iterations=20000, tol=1e-14
     )
@@ -601,3 +601,22 @@ def test_polished_gains_are_the_exact_optimum():
     # equal up to the global phase gauge
     ratio = g / ref
     assert np.max(np.abs(ratio / ratio[0] - 1)) < 1e-8
+
+
+def test_polishing_never_raises_chi2_from_a_bad_start():
+    """Amendment 1a: from a start far from the optimum the safeguarded steps
+    only lower the bin's chi^2 and stay finite."""
+    rng = np.random.default_rng(12)
+    nant, n = 6, 12
+    a1 = rng.integers(0, nant - 1, n)
+    a2 = np.minimum(a1 + 1, nant - 1)
+    model = rng.normal(size=n) + 1j * rng.normal(size=n)
+    data = rng.normal(size=n) + 1j * rng.normal(size=n)
+    w = np.ones(n)
+    g0 = np.exp(1j * rng.uniform(-np.pi, np.pi, nant))
+
+    def chi2(x):
+        return np.sum(np.abs(data - x[a1] * np.conj(x[a2]) * model) ** 2)
+
+    g, _steps, _halvings = ps.polish_gains(data, model, w, a1, a2, nant, g0)
+    assert np.all(np.isfinite(g)) and chi2(g) <= chi2(g0)

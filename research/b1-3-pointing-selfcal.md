@@ -517,3 +517,31 @@ the bright components' radius, a bug now fixed: the crop includes the faint
 positions) and are kept as failures with their simulation `-07-sim-F2`. The
 fixture runs (`-08-fixture`) are unaffected (no gains are solved there and
 no visibilities are predicted). Every set is measured after this amendment.
+
+**What had been seen when this amendment was written.** The fixture runs
+(F1, F1r) and the first F3 runs. F1: RMS offset error (i) 0.634′, (ii)
+0.200′, R 0.357′ (R holds an axis that fails its rule at zero; m003 x fails
+in most seeds); F1r costs (i) 0.63 s, (ii) 0.90 s, R 0.81 s end to end.
+First F3: offsets RMS (ii) 0.193′, R 0.110′, G 0.608′; held-out MSE G
+2.06301, (ii) 2.054770, R 2.054771. One consequence follows from F1 alone
+under the frozen overall rule and is stated here, before any ESO137 fit
+under the amendment: R/(ii) on F1 is 1.78 > 1.1, so clause 1 ("metric 1 no
+worse on F1") fails and the cost branch (which needs "matches" on every
+set) is out. **The overall result can only be "matched" or "negative", and
+B1 closes null** whatever the ESO137 sets show. The fixture rule for R is
+not revisited (that would move a rule after a result).
+
+## Amendment 1a (2026-10-31, dated and labelled; before any real-set measurement)
+
+On the first real set (S4, arm G, run `b1-3-20261030-46-S4-G`, kept as a
+failure) the polishing of amendment 1 diverged on some bins: an undamped
+Gauss–Newton step from a poor StefCal start overflowed, the gains became
+infinite and every trial objective was NaN. **The polishing is now
+safeguarded:** a step is taken only if it does not raise that bin's χ²
+(halving it up to 20 times, and never larger than 1 in log-amplitude or
+phase); otherwise polishing stops. On the simulated sets the safeguard
+changes nothing: the first-pass χ² of F3 and F2 equal the recorded ones of
+runs `-35` and `-38` to the last digit (its halvings there are rounding-level
+at the last step). The F2 and F3 results under amendment 1 therefore stand;
+S4, S5, S1 and S2 are measured under 1a. No margin, set, arm or rule
+changes.

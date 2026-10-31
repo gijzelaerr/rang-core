@@ -931,16 +931,22 @@ def faint_call(a, b):
 
 
 def set_call(metrics, cost_ratio):
-    calls = [m["call"] for m in metrics.values()]
-    if cost_ratio > COST_FACTOR or "worse" in calls:
+    """The frozen per-set label: "worse" if any applicable metric is worse
+    or the wall ratio exceeds 1.5; "beats" if held-out and offsets (where
+    applicable) are better, metric 3 (F2) being a veto only (not worse);
+    "matches" otherwise."""
+    calls = {k: m["call"] for k, m in metrics.items()}
+    if cost_ratio > COST_FACTOR or "worse" in calls.values():
         return "worse"
-    if calls and all(c == "better" for c in calls):
+    required = [c for k, c in calls.items() if k != "faint"]
+    if required and all(c == "better" for c in required):
         return "beats"
     return "matches"
 
 
-def compare(out_json, sets):
-    """sets: {set name: {arm: run dir}}; plus the fixture run under "F1"."""
+def compare(out_json, sets, rerun_runs=()):
+    """sets: {set name: {arm: run dir}}; plus the fixture run under "F1".
+    `rerun_runs`: the Part 1 rerun directories, archived alongside."""
     payload = {
         "protocol": "research/b1-3-pointing-selfcal.md",
         "note": "derived numbers only; holography beam CC BY-NC 4.0 (de Villiers 2023, doi:10.48479/wdb0-h061); ESO137 CC BY 4.0 (Ramatsoku et al. 2020)",
@@ -1060,6 +1066,11 @@ def compare(out_json, sets):
             "noise-free twin of F2 (metric 3); not a separate call"
         )
     payload["overall"] = overall(payload["sets"])
+    if rerun_runs:
+        tmp = Path(out_json).with_suffix(".rerun.json")
+        rerun.archive(tmp, rerun_runs)
+        payload["survey_rerun"] = json.loads(tmp.read_text())
+        tmp.unlink()
     write_json(out_json, rerun._rounded(payload))
     log("overall", payload["overall"])
     return payload
@@ -1173,13 +1184,14 @@ def main(argv=None):
         fit(args.set, args.arm, args.out, args.fit_beam, args.nproc, args.max_passes)
     else:
         spec = json.loads(Path(args.spec).read_text())
+        rerun_runs = [ROOT / r for r in spec.pop("rerun", [])]
         sets = {
             k: (
                 {a: ROOT / r for a, r in v.items()} if isinstance(v, dict) else ROOT / v
             )
             for k, v in spec.items()
         }
-        compare(args.out_json, sets)
+        compare(args.out_json, sets, rerun_runs)
 
 
 if __name__ == "__main__":
