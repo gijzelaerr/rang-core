@@ -17,19 +17,11 @@ closure. This module loads the kernel, holds an independent NumPy reference
 for the tests and the in-run gate, and turns the per-sample scores into the
 protocol's gain-grid maps, the robust outlier score and the Q1 statistics.
 
-Until `core/src/lib.rs` lists `closure` and `ffi_closure` (a coordinator
-edit), the files are built with `jones.rs` as a standalone cdylib in
-`core/target/c1-standalone` and loaded through ctypes; `RANG_C1_LIB` selects
-a prebuilt library.
+Since task W4-3 (research/w4-3-kernels.md) the kernel runs in the extension
+`rang._core` (`closure_scores`); nothing is built at import or at a call.
 """
 
-import ctypes
-import os
-import subprocess
-import sys
 import warnings
-from functools import lru_cache
-from pathlib import Path
 
 import numpy as np
 
@@ -39,140 +31,20 @@ FAMILIES = {"trace": 0, "phase": 1, "logamp": 2}
 MIN_CLOSURES = 5
 REROUTE = 3
 MAD_FLOOR = 0.05
-SOURCES = ("jones.rs", "closure.rs", "ffi_closure.rs")
-SYMBOLS = ("rang_core_closure_scores", "rang_core_closure_last_error")
 CORR_LINEAR = (9, 10, 11, 12)
 
 
 # --- loading -----------------------------------------------------------------
 
 
-class ClosureInputs(ctypes.Structure):
-    _fields_ = [
-        ("nrow", ctypes.c_size_t),
-        ("nchan", ctypes.c_size_t),
-        ("nant", ctypes.c_size_t),
-        ("ntime", ctypes.c_size_t),
-        ("nstation", ctypes.c_size_t),
-        ("data", ctypes.c_void_p),
-        ("model", ctypes.c_void_p),
-        ("weights", ctypes.c_void_p),
-        ("usable", ctypes.c_void_p),
-        ("antenna1", ctypes.c_void_p),
-        ("antenna2", ctypes.c_void_p),
-        ("time_index", ctypes.c_void_p),
-        ("stations", ctypes.c_void_p),
-        ("family", ctypes.c_uint32),
-        ("min_closures", ctypes.c_uint32),
-        ("reroute", ctypes.c_uint32),
-    ]
-
-
-def standalone_dir():
-    return core.core_root() / "target" / "c1-standalone"
-
-
-def _write_if_changed(path, text):
-    """Write only on change, so that cargo's fingerprints stay valid."""
-    path = Path(path)
-    if not path.is_file() or path.read_text() != text:
-        path.write_text(text)
-
-
-def write_standalone():
-    """The standalone crate (`rang_c1_core`) whose root includes the C1 files
-    and `jones.rs` by path; rayon comes from the core's lock."""
-    root = core.core_root()
-    out = standalone_dir()
-    out.mkdir(parents=True, exist_ok=True)
-    _write_if_changed(
-        out / "Cargo.toml",
-        "[package]\n"
-        'name = "rang-c1-core"\n'
-        'version = "0.1.0"\n'
-        'edition = "2024"\n'
-        'license = "GPL-3.0-or-later"\n'
-        "publish = false\n\n"
-        "[lib]\n"
-        'name = "rang_c1_core"\n'
-        'path = "root.rs"\n'
-        'crate-type = ["rlib", "cdylib"]\n\n'
-        "[dependencies]\n"
-        'rayon = "1.12.0"\n\n'
-        "[profile.release]\n"
-        'lto = "thin"\n'
-        "codegen-units = 1\n\n"
-        "[workspace]\n",
-    )
-    modules = "".join(
-        f'#[path = "{(root / "src" / name).as_posix()}"]\npub mod {name.removesuffix(".rs")};\n'
-        for name in SOURCES
-    )
-    _write_if_changed(
-        out / "root.rs",
-        "//! Standalone build of the C1 closure kernel until core/src/lib.rs lists it.\n"
-        + modules,
-    )
-    _write_if_changed(out / "Cargo.lock", (root / "Cargo.lock").read_text())
-    return out
-
-
-def build_standalone():
-    out = write_standalone()
-    subprocess.run(
-        [
-            "cargo",
-            "build",
-            "--offline",
-            "--release",
-            "-q",
-            "--manifest-path",
-            str(out / "Cargo.toml"),
-        ],
-        cwd=out,
-        check=True,
-    )
-    return (
-        out
-        / "target"
-        / "release"
-        / {"win32": "rang_c1_core.dll", "darwin": "librang_c1_core.dylib"}.get(
-            sys.platform, "librang_c1_core.so"
-        )
-    )
-
-
-def _declare(lib):
-    lib.rang_core_closure_scores.argtypes = [
-        ctypes.POINTER(ClosureInputs),
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-        ctypes.c_void_p,
-    ]
-    lib.rang_core_closure_scores.restype = ctypes.c_int
-    lib.rang_core_closure_last_error.argtypes = [ctypes.c_char_p, ctypes.c_size_t]
-    lib.rang_core_closure_last_error.restype = ctypes.c_size_t
-    return lib
-
-
-@lru_cache(maxsize=1)
 def library():
-    """A ctypes handle exporting the C1 symbols: `RANG_C1_LIB` if set, else
-    the standalone build."""
-    configured = os.environ.get("RANG_C1_LIB")
-    if configured:
-        return _declare(ctypes.CDLL(str(Path(configured).resolve())))
-    return _declare(ctypes.CDLL(str(build_standalone())))
+    """The extension module that runs the kernel (`rang._core`)."""
+    return core.extension()
 
 
 def library_path():
-    return Path(library()._name).resolve()
-
-
-def _last_error(lib):
-    buf = ctypes.create_string_buffer(512)
-    n = lib.rang_core_closure_last_error(buf, len(buf))
-    return buf.value[:n].decode(errors="replace")
+    """The binary the kernel runs in (provenance hashes)."""
+    return core.library_path()
 
 
 # --- the kernel --------------------------------------------------------------
@@ -214,33 +86,13 @@ def scores(
         raise ValueError("row columns must have one entry per row")
     nant = int(max(a1.max(initial=0), a2.max(initial=0)) + 1) if nant is None else nant
     ntime = int(ti.max(initial=0)) + 1 if nrow else 0
-    inputs = ClosureInputs(
-        nrow,
-        nchan,
-        nant,
-        ntime,
-        len(st),
-        data.ctypes.data,
-        model.ctypes.data,
-        weights.ctypes.data,
-        usable.ctypes.data,
-        a1.ctypes.data,
-        a2.ctypes.data,
-        ti.ctypes.data,
-        st.ctypes.data,
-        FAMILIES[family],
-        int(min_closures),
-        int(reroute),
-    )
     residual = np.empty((nrow, nchan), np.float32)
     tv = np.empty((nrow, nchan), np.float32)
     count = np.empty((nrow, nchan), np.uint16)
-    lib = library()
-    status = lib.rang_core_closure_scores(
-        ctypes.byref(inputs), residual.ctypes.data, tv.ctypes.data, count.ctypes.data
-    )
-    if status:
-        raise ValueError(f"closure kernel failed ({status}): {_last_error(lib)}")
+    library().closure_scores(
+        data, model, weights, usable, a1, a2, ti, st, nant, ntime,
+        FAMILIES[family], int(min_closures), int(reroute), residual, tv, count,
+    )  # fmt: skip
     return {"residual": residual, "tv": tv, "count": count}
 
 
