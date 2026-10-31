@@ -91,7 +91,10 @@ def test_version_falls_back_to_pyproject(monkeypatch):
         raise importlib.metadata.PackageNotFoundError(name)
 
     monkeypatch.setattr(importlib.metadata, "version", missing)
-    assert rang._version() == pyproject_version()
+    # From a checkout the checkout's pyproject.toml; from an installed wheel
+    # (no pyproject.toml beside site-packages) "unknown".
+    in_checkout = Path(rang.__file__).resolve().parents[2] == ROOT
+    assert rang._version() == (pyproject_version() if in_checkout else "unknown")
 
 
 @pytest.mark.parametrize("flag", ["--version", "-V"])
