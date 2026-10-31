@@ -473,6 +473,24 @@ f_default.multifile = 0  # casacore's default block size (4 MiB)
 
 
 # ---------------------------------------------------------------------------
+# W4-4 (absorbed by E6, added 2026-10-31 after the protocol was frozen): 2-D
+# string and numeric array keywords (research/e6-table-writer-final.md).
+
+
+def k_arrays(pt, path, v, src):
+    cols = [pt.makescacoldesc("I", 0)]
+    t = pt.table(path, pt.maketabdesc(cols), nrow=2, **LOCK)
+    t.putcol("I", cell(v, "I", 2, "int32"))
+    t.putkeyword("S23", np.array([["a", "b", "c"], ["d", "e", "f"]]))
+    t.putkeyword("D23", cell(v, "D23", (2, 3), "float64"))
+    t.putkeyword("I32", cell(v, "I32", (3, 2), "int32"))
+    t.putkeyword("S222", str_cell(v, "S222", (2, 2, 2)))
+    t.putcolkeyword("I", "CS", np.array([["x", "yy"], ["zzz", ""], ["p", "q"]]))
+    t.putcolkeyword("I", "CF", cell(v, "CF", (2, 4), "float32"))
+    t.close()
+
+
+# ---------------------------------------------------------------------------
 # Inputs of the refusals (O-cpp).
 
 
@@ -505,6 +523,7 @@ CASES = [
     ("F-cont", f_cont),
     ("F-free", f_free),
     ("F-default", f_default),
+    ("K-arrays", k_arrays),
 ]
 # X-371 is C-var's sequence by casacore 3.7.1.
 CPP_CASES = {"D-cubes", "D-reopen", "D-multiaxis", "D-be", "X-371"}

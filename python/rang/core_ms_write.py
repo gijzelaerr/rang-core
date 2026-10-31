@@ -412,8 +412,14 @@ class Table:
         elif is_array:
             code = self._code(columnname)
             if code == STRING:
-                value = np.asarray(value, dtype=object)
-                self.putcol(columnname, np.asarray(value)[None, ...], rownr, 1)
+                arr = np.asarray(value, dtype=object)
+                # `ArrayColumn::put`, as python-casacore's putcell does.
+                self._writer.put_string_cell(
+                    columnname,
+                    int(rownr),
+                    list(arr.shape)[::-1],
+                    [str(s) for s in arr.reshape(-1)],
+                )
                 return
             arr = np.ascontiguousarray(value, dtype=DTYPES[code])
             # `ArrayColumn::put`, as python-casacore's putcell does.
@@ -489,7 +495,7 @@ class Table:
             value = np.complex128(value)
         arr = np.asarray(value)
         if arr.dtype.kind in "USO":
-            strings = [str(s) for s in arr.reshape(-1, order="F")]
+            strings = [str(s) for s in arr.reshape(-1)]
             self._writer.put_keyword(
                 column, path, 3, STRING, list(arr.shape)[::-1], b"", strings
             )

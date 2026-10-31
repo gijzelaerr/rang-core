@@ -1842,6 +1842,20 @@ impl MsWriter {
             .map_err(|e| PyOSError::new_err(e.0))
     }
 
+    /// Write one cell of a string-array column as `ArrayColumn::put` does
+    /// (`putcell`; research/e6-table-writer-final.md).
+    fn put_string_cell(
+        &mut self,
+        name: &str,
+        row: u64,
+        shape: Vec<i64>,
+        strings: Vec<String>,
+    ) -> PyResult<()> {
+        self.get()?
+            .put_string_cell(name, row, &shape, &strings)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
     /// The columns as (name, type code, is array), in table order.
     fn columns(&mut self) -> PyResult<Vec<(String, i32, bool)>> {
         Ok(self

@@ -1054,9 +1054,11 @@ impl ArrayFile {
         }
         n += 4 + 4 * shape.len() as u64;
         let count = product(shape) as u64;
-        // Int64(n * lenElem + 0.95): ceil(n / 8) for Bool.
+        // Int64(n * lenElem + 0.95): ceil(n / 8) for Bool; a string array
+        // reserves one uInt offset per string.
         let bytes = match dtype {
             DataType::Bool => count.div_ceil(8),
+            DataType::Str => count * 4,
             dt => count * dt.size() as u64,
         };
         self.leng += n + bytes;
@@ -1090,6 +1092,72 @@ impl ArrayFile {
         }
         self.has_put = true;
         Ok(())
+    }
+
+    /// `StManArrayFile::put` of `values.len()` uInts at `at` (one write).
+    pub(crate) fn put_u32s(&mut self, at: u64, values: &[u32]) -> Result<()> {
+        let mut bytes = Vec::with_capacity(4 * values.len());
+        for &v in values {
+            bytes.extend(order_u32(v, self.big));
+        }
+        self.io.seek(at);
+        self.io.write(&bytes)?;
+        self.has_put = true;
+        Ok(())
+    }
+
+    /// `StManArrayFile::putShape` of a string array: `putRes` with one uInt
+    /// per string, then those offsets put as zeros; returns the record's
+    /// offset.
+    pub(crate) fn put_res_strings(&mut self, shape: &[i64]) -> Result<u64> {
+        let offset = self.put_res(shape, DataType::Str)?;
+        let head = if self.version > 0 { 4 } else { 0 } + 4 + 4 * shape.len() as u64;
+        self.put_u32s(offset + head, &vec![0; product(shape)])?;
+        Ok(offset)
+    }
+
+    /// `StManArrayFile::put` of strings whose offsets start at `at`: in
+    /// batches of 4096, each string's length and characters appended at the
+    /// end of the file, then the batch's offsets.
+    pub(crate) fn put_strings(&mut self, at: u64, strings: &[String]) -> Result<()> {
+        let mut offs = at;
+        for batch in strings.chunks(4096) {
+            let mut buf = Vec::with_capacity(batch.len());
+            self.io.seek(self.leng);
+            for s in batch {
+                if self.leng >= 1 << 32 {
+                    return err("StManArrayFile: string offset beyond 2^32");
+                }
+                buf.push(self.leng as u32);
+                self.io.write(&order_u32(s.len() as u32, self.big))?;
+                self.io.write(s.as_bytes())?;
+                self.leng += 4 + s.len() as u64;
+            }
+            self.put_u32s(offs, &buf)?;
+            offs += 4 * batch.len() as u64;
+        }
+        self.has_put = true;
+        Ok(())
+    }
+
+    /// `StManArrayFile::get` of `n` strings whose offsets start at `at`
+    /// (offset 0: an empty string), straight from the file after a flush.
+    pub(crate) fn read_strings(&mut self, at: u64, n: usize) -> Result<Vec<String>> {
+        self.io.flush()?;
+        let big = self.big;
+        let offs = read_at(&mut self.io.file, at, 4 * n)?;
+        let mut out = Vec::with_capacity(n);
+        for k in 0..n {
+            let o = u64::from(read_order_u32(&offs[4 * k..], big));
+            if o == 0 {
+                out.push(String::new());
+                continue;
+            }
+            let len = read_order_u32(&read_at(&mut self.io.file, o, 4)?, big) as usize;
+            let chars = read_at(&mut self.io.file, o + 4, len)?;
+            out.push(String::from_utf8_lossy(&chars).into_owned());
+        }
+        Ok(out)
     }
 
     /// `StManArrayFile::flush` and the buffer's own flush at close.
@@ -3995,10 +4063,38 @@ impl TableWriter {
         shape: &[i64],
         strings: &[String],
     ) -> Result<()> {
+        self.put_string_rows(name, start, count, shape, strings, false)
+    }
+
+    /// Write one cell of a string-array column as `ArrayColumn::put` does
+    /// (python-casacore's `putcell`; differs from a one-row `putcol` for an
+    /// IncrementalStMan indirect column).
+    pub fn put_string_cell(
+        &mut self,
+        name: &str,
+        row: u64,
+        shape: &[i64],
+        strings: &[String],
+    ) -> Result<()> {
+        self.put_string_rows(name, row, 1, shape, strings, true)
+    }
+
+    fn put_string_rows(
+        &mut self,
+        name: &str,
+        start: u64,
+        count: u64,
+        shape: &[i64],
+        strings: &[String],
+        cell: bool,
+    ) -> Result<()> {
         let count = self.rows(start, count)?;
         let (_, slot, k) = self.binding(name)?;
         match &mut self.mgrs[slot] {
             Mgr::Ssm(s) => s.put_string_column(k, start, count, shape, strings),
+            Mgr::Ism(s) if s.is_indirect_strings(k) => {
+                s.put_string_cells(k, start, count, shape, strings, cell)
+            }
             Mgr::Ism(s) => {
                 if strings.len() != product(shape) * count as usize {
                     err("string count mismatches the rows and cell shape")
