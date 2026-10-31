@@ -39,12 +39,21 @@ pub unsafe fn grid_invert(
         .nrow
         .checked_mul(i.nchan)
         .ok_or("row and channel counts overflow")?;
+    // Every size product is checked (task W4-2).
+    let uvw_len = i.nrow.checked_mul(3).ok_or("row count overflows")?;
+    let data_len = cells
+        .checked_mul(2)
+        .ok_or("row and channel counts overflow")?;
+    let pixels = i
+        .width
+        .checked_mul(i.height)
+        .ok_or("image size overflows")?;
     // SAFETY: lengths follow the documented contract.
     let (uvw, frequencies, data, weights, imaging_weights) = unsafe {
         (
-            std::slice::from_raw_parts(i.uvw, i.nrow * 3),
+            std::slice::from_raw_parts(i.uvw, uvw_len),
             std::slice::from_raw_parts(i.frequencies, i.nchan),
-            std::slice::from_raw_parts(i.data, cells * 2),
+            std::slice::from_raw_parts(i.data, data_len),
             std::slice::from_raw_parts(i.weights, cells),
             std::slice::from_raw_parts(i.imaging_weights, cells),
         )
@@ -67,7 +76,6 @@ pub unsafe fn grid_invert(
         imaging_weights,
     };
     let (products, t) = super::invert(&settings, &grid_inputs, precision)?;
-    let pixels = i.width * i.height;
     // SAFETY: caller-owned output buffers of the documented sizes.
     let (dirty, psf, stats, times) = unsafe {
         (

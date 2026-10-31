@@ -28,6 +28,7 @@ use numpy::{
     Complex32, Complex64, Element, IntoPyArray, PyArray1, PyReadonlyArray1, PyReadonlyArrayDyn,
     PyReadwriteArrayDyn,
 };
+use numpy::{PyReadonlyArray, PyReadwriteArray, PyUntypedArrayMethods, ndarray::Dimension};
 #[cfg(feature = "gpu")]
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::exceptions::{PyOSError, PyValueError};
@@ -79,9 +80,86 @@ fn detach<R, F: FnOnce() -> R>(py: Python<'_>, f: F) -> R {
     py.detach(move || Detached(job.run())).0
 }
 
+/// The slice of a C-contiguous input array (task W4-2, W4R-04): rust-numpy's
+/// `as_slice` also accepts a Fortran-ordered array, which a kernel would read
+/// transposed, so that is a ValueError naming the argument.
+fn c_slice<'a, T: Element, D: Dimension>(
+    a: &'a PyReadonlyArray<'_, T, D>,
+    name: &str,
+) -> PyResult<&'a [T]> {
+    if !a.is_c_contiguous() {
+        return Err(PyValueError::new_err(format!(
+            "{name} must be C-contiguous"
+        )));
+    }
+    Ok(a.as_slice()?)
+}
+
+/// The slice of a C-contiguous output array (as `c_slice`).
+fn c_slice_mut<'a, T: Element, D: Dimension>(
+    a: &'a mut PyReadwriteArray<'_, T, D>,
+    name: &str,
+) -> PyResult<&'a mut [T]> {
+    if !a.is_c_contiguous() {
+        return Err(PyValueError::new_err(format!(
+            "{name} must be C-contiguous"
+        )));
+    }
+    Ok(a.as_slice_mut()?)
+}
+
+/// The product of buffer sizes, or a ValueError naming it on overflow (W4-2).
+fn size(name: &str, factors: &[usize]) -> PyResult<usize> {
+    factors
+        .iter()
+        .try_fold(1usize, |p, &f| p.checked_mul(f))
+        .ok_or_else(|| PyValueError::new_err(format!("{name} overflows")))
+}
+
+/// Pointer of a C-contiguous input `name` of exactly `len` elements, else a
+/// ValueError naming it (W4-2).
+fn arg<T: Element>(a: &Ro<'_, T>, name: &str, len: usize) -> PyResult<*const T> {
+    let s = c_slice(a, name)?;
+    if s.len() != len {
+        return Err(PyValueError::new_err(format!(
+            "{name} must hold {len} elements, not {}",
+            s.len()
+        )));
+    }
+    Ok(s.as_ptr())
+}
+
+/// As `arg` for an optional input; null when absent.
+fn opt_arg<T: Element>(a: &Option<Ro<'_, T>>, name: &str, len: usize) -> PyResult<*const T> {
+    match a {
+        None => Ok(std::ptr::null()),
+        Some(a) => arg(a, name, len),
+    }
+}
+
+/// As `arg` for an output.
+fn arg_mut<T: Element>(a: &mut Rw<'_, T>, name: &str, len: usize) -> PyResult<*mut T> {
+    let s = c_slice_mut(a, name)?;
+    if s.len() != len {
+        return Err(PyValueError::new_err(format!(
+            "{name} must hold {len} elements, not {}",
+            s.len()
+        )));
+    }
+    Ok(s.as_mut_ptr())
+}
+
+/// As `arg_mut` for an optional output; null when absent.
+fn opt_arg_mut<T: Element>(a: &mut Option<Rw<'_, T>>, name: &str, len: usize) -> PyResult<*mut T> {
+    match a {
+        None => Ok(std::ptr::null_mut()),
+        Some(a) => arg_mut(a, name, len),
+    }
+}
+
 /// Borrowed pointer of a required input array.
 fn ptr<T: Element>(a: &Ro<'_, T>) -> PyResult<*const T> {
-    Ok(a.as_slice()?.as_ptr())
+    Ok(c_slice(a, "array")?.as_ptr())
 }
 
 /// Borrowed pointer of an optional input array; null when absent.
@@ -94,7 +172,7 @@ fn opt_ptr<T: Element>(a: &Option<Ro<'_, T>>) -> PyResult<*const T> {
 
 /// Borrowed pointer of a required output array.
 fn ptr_mut<T: Element>(a: &mut Rw<'_, T>) -> PyResult<*mut T> {
-    Ok(a.as_slice_mut()?.as_mut_ptr())
+    Ok(c_slice_mut(a, "array")?.as_mut_ptr())
 }
 
 /// Borrowed pointer of an optional output array; null when absent.
@@ -107,13 +185,13 @@ fn opt_ptr_mut<T: Element>(a: &mut Option<Rw<'_, T>>) -> PyResult<*mut T> {
 
 /// Pointer of an input that must hold exactly `len` elements.
 fn sized<T: Element>(a: &Ro<'_, T>, len: usize) -> PyResult<Option<*const T>> {
-    let s = a.as_slice()?;
+    let s = c_slice(a, "array")?;
     Ok((s.len() == len).then_some(s.as_ptr()))
 }
 
 /// Pointer of an output that must hold exactly `len` elements.
 fn sized_mut<T: Element>(a: &mut Rw<'_, T>, len: usize) -> PyResult<Option<*mut T>> {
-    let s = a.as_slice_mut()?;
+    let s = c_slice_mut(a, "array")?;
     Ok((s.len() == len).then_some(s.as_mut_ptr()))
 }
 
@@ -122,7 +200,7 @@ fn sized_mut<T: Element>(a: &mut Rw<'_, T>, len: usize) -> PyResult<Option<*mut 
 #[pyfunction]
 fn data_address(array: &Bound<'_, PyAny>) -> PyResult<usize> {
     fn address<T: Element>(a: Ro<'_, T>) -> PyResult<usize> {
-        Ok(a.as_slice()?.as_ptr() as usize)
+        Ok(c_slice(&a, "array")?.as_ptr() as usize)
     }
     if let Ok(a) = array.extract::<Ro<'_, f32>>() {
         return address(a);
@@ -179,35 +257,49 @@ fn fused(
     mut diag_count: Option<Rw<'_, u64>>,
     mut split_stats: Rw<'_, f64>,
 ) -> PyResult<i32> {
+    let cells = size("nrow * nchan", &[nrow, nchan])?;
+    let ngain = size(
+        "ntime_bins * nfreq_bins * nant",
+        &[ntime_bins, nfreq_bins, nant],
+    )?;
+    let (c8, g8, g64) = (
+        size("8 * nrow * nchan", &[8, cells])?,
+        size("8 * gains", &[8, ngain])?,
+        size("64 * gains", &[64, ngain])?,
+    );
     let inputs = ffi::FusedInputs {
         nrow,
         nchan,
         ntime_bins,
         nfreq_bins,
         nant,
-        data: ptr(&data)?,
-        weights: ptr(&weights)?,
-        model_stored: opt_ptr(&model_stored)?,
-        model_scalar: opt_ptr(&model_scalar)?,
-        antenna1: ptr(&antenna1)?,
-        antenna2: ptr(&antenna2)?,
-        time_bin: ptr(&time_bin)?,
-        freq_bin: ptr(&freq_bin)?,
-        gains: ptr(&gains)?,
-        gain_valid: ptr(&gain_valid)?,
-        split: ptr(&split)?,
+        data: arg(&data, "data", c8)?,
+        weights: arg(&weights, "weights", 4 * cells)?,
+        model_stored: opt_arg(&model_stored, "model_stored", c8)?,
+        model_scalar: opt_arg(&model_scalar, "model_scalar", nchan)?,
+        antenna1: arg(&antenna1, "antenna1", nrow)?,
+        antenna2: arg(&antenna2, "antenna2", nrow)?,
+        time_bin: arg(&time_bin, "time_bin", nrow)?,
+        freq_bin: arg(&freq_bin, "freq_bin", nchan)?,
+        gains: arg(&gains, "gains", g8)?,
+        gain_valid: arg(&gain_valid, "gain_valid", ngain)?,
+        split: arg(&split, "split", cells)?,
     };
     let mut outputs = ffi::FusedOutputs {
-        residuals: opt_ptr_mut(&mut residuals)?,
-        scores: opt_ptr_mut(&mut scores)?,
-        diag_h: opt_ptr_mut(&mut diag_h)?,
-        diag_b: opt_ptr_mut(&mut diag_b)?,
-        diag_count: opt_ptr_mut(&mut diag_count)?,
-        split_stats: ptr_mut(&mut split_stats)?,
+        residuals: opt_arg_mut(&mut residuals, "residuals", c8)?,
+        scores: opt_arg_mut(&mut scores, "scores", cells)?,
+        diag_h: opt_arg_mut(&mut diag_h, "diag_h", g64)?,
+        diag_b: opt_arg_mut(&mut diag_b, "diag_b", g8)?,
+        diag_count: opt_arg_mut(&mut diag_count, "diag_count", ngain)?,
+        split_stats: arg_mut(
+            &mut split_stats,
+            "split_stats",
+            4 * rang_core::fused::SPLITS,
+        )?,
     };
-    // SAFETY: every pointer borrows a live, contiguous NumPy buffer held by
-    // the arguments for the duration of the call; the Python wrapper sizes
-    // them as the C ABI documents.
+    // SAFETY: every pointer borrows a live, C-contiguous NumPy buffer held by
+    // the arguments for the duration of the call, of the length the C ABI
+    // documents (checked above).
     Ok(detach(py, || unsafe {
         ffi::rang_core_fused(&inputs, &mut outputs)
     }))
@@ -239,6 +331,28 @@ fn solve_complex(
     mut gains: Rw<'_, f64>,
     mut flags: Rw<'_, i8>,
 ) -> PyResult<(i32, usize, f64)> {
+    // Every buffer's length and order (task W4-2): a ValueError naming it.
+    let cells = size("nrow * nchan", &[nrow, nchan])?;
+    let ngain = size(
+        "ntime_bins * nfreq_bins * nant",
+        &[ntime_bins, nfreq_bins, nant],
+    )?;
+    let (c8, g8) = (
+        size("8 * nrow * nchan", &[8, cells])?,
+        size("8 * gains", &[8, ngain])?,
+    );
+    arg(&data, "data", c8)?;
+    arg(&weights, "weights", 4 * cells)?;
+    opt_arg(&model_stored, "model_stored", c8)?;
+    opt_arg(&model_scalar, "model_scalar", nchan)?;
+    arg(&flag, "flag", 4 * cells)?;
+    arg(&flag_row, "flag_row", nrow)?;
+    arg(&antenna1, "antenna1", nrow)?;
+    arg(&antenna2, "antenna2", nrow)?;
+    arg(&time_bin, "time_bin", nrow)?;
+    arg(&freq_bin, "freq_bin", nchan)?;
+    arg_mut(&mut gains, "gains", g8)?;
+    arg_mut(&mut flags, "flags", ngain)?;
     let inputs = ffi::SolveInputs {
         nrow,
         nchan,
@@ -295,24 +409,37 @@ fn predict_components(
     mut vis: Rw<'_, f64>,
     mut spectra: Option<Rw<'_, f64>>,
 ) -> PyResult<i32> {
+    let (r3, s2, s3) = (
+        size("3 * nrow", &[3, nrow])?,
+        size("2 * nsrc", &[2, nsrc])?,
+        size("3 * nsrc", &[3, nsrc])?,
+    );
     let inputs = ffi::PredictInputs {
         nrow,
         nchan,
         nsrc,
         ncoeff,
-        uvw: ptr(&uvw)?,
-        frequency: ptr(&frequency)?,
-        lm: ptr(&lm)?,
-        kind: ptr(&kind)?,
-        flux: ptr(&flux)?,
-        coeffs: ptr(&coeffs)?,
-        log_poly: ptr(&log_poly)?,
-        ref_freq: ptr(&ref_freq)?,
-        gauss_shape: ptr(&gauss_shape)?,
+        uvw: arg(&uvw, "uvw", r3)?,
+        frequency: arg(&frequency, "frequency", nchan)?,
+        lm: arg(&lm, "lm", s2)?,
+        kind: arg(&kind, "kind", nsrc)?,
+        flux: arg(&flux, "flux", nsrc)?,
+        coeffs: arg(&coeffs, "coeffs", size("nsrc * ncoeff", &[nsrc, ncoeff])?)?,
+        log_poly: arg(&log_poly, "log_poly", nsrc)?,
+        ref_freq: arg(&ref_freq, "ref_freq", nsrc)?,
+        gauss_shape: arg(&gauss_shape, "gauss_shape", s3)?,
     };
     let mut outputs = ffi::PredictOutputs {
-        vis: ptr_mut(&mut vis)?,
-        spectra: opt_ptr_mut(&mut spectra)?,
+        vis: arg_mut(
+            &mut vis,
+            "vis",
+            size("2 * nrow * nchan", &[2, nrow, nchan])?,
+        )?,
+        spectra: opt_arg_mut(
+            &mut spectra,
+            "spectra",
+            size("nsrc * nchan", &[nsrc, nchan])?,
+        )?,
     };
     // SAFETY: as in `fused`.
     Ok(detach(py, || unsafe {
@@ -363,10 +490,11 @@ fn blosc_decode_rows<'py>(
     row_bytes: usize,
     rows: Ro<'_, usize>,
 ) -> PyResult<(i32, usize, Bound<'py, PyBytes>)> {
-    let rows = rows.as_slice()?;
+    let rows = c_slice(&rows, "rows")?;
     let mut status = 0;
     let mut blocks = 0usize;
-    let out = PyBytes::new_with(py, rows.len() * row_bytes, |buf| {
+    let nbytes = size("len(rows) * row_bytes", &[rows.len(), row_bytes])?;
+    let out = PyBytes::new_with(py, nbytes, |buf| {
         // SAFETY: `buf` holds `nrows * row_bytes` bytes; `rows` is live.
         status = detach(py, || unsafe {
             ffi::rang_core_blosc_decode_rows(
@@ -404,7 +532,7 @@ fn blosc_decode_block(
     block: &[u8],
     mut out: Rw<'_, u8>,
 ) -> PyResult<i32> {
-    let out = out.as_slice_mut()?;
+    let out = c_slice_mut(&mut out, "out")?;
     // SAFETY: every slice is live for the call.
     Ok(detach(py, || unsafe {
         ffi::rang_core_blosc_decode_block(
@@ -433,9 +561,9 @@ fn blosc_decode_span_rows(
     rows: Ro<'_, usize>,
     mut out: Rw<'_, u8>,
 ) -> PyResult<i32> {
-    let rows = rows.as_slice()?;
-    let out = out.as_slice_mut()?;
-    if out.len() != rows.len() * row_bytes {
+    let rows = c_slice(&rows, "rows")?;
+    let out = c_slice_mut(&mut out, "out")?;
+    if Some(out.len()) != rows.len().checked_mul(row_bytes) {
         return Ok(1);
     }
     // SAFETY: every slice is live for the call and `out` has the documented length.
@@ -484,25 +612,34 @@ fn correct_stokes_i(
     let Some(cells) = nrow.checked_mul(nchan) else {
         return Ok(1);
     };
-    let gains = ntime_bins * nfreq_bins * nant;
+    // `8 * cells` and `8 * gains` below must not wrap either (W4-2).
+    let Ok(gains) = size("gains", &[ntime_bins, nfreq_bins, nant]) else {
+        return Ok(1);
+    };
+    if cells.checked_mul(8).is_none() || gains.checked_mul(8).is_none() {
+        return Ok(1);
+    }
     let (data, weights, flags, flag_row) = (
-        data.as_slice()?,
-        weights.as_slice()?,
-        flags.as_slice()?,
-        flag_row.as_slice()?,
+        c_slice(&data, "data")?,
+        c_slice(&weights, "weights")?,
+        c_slice(&flags, "flags")?,
+        c_slice(&flag_row, "flag_row")?,
     );
     let added = match &added {
-        Some(a) => Some(a.as_slice()?),
+        Some(a) => Some(c_slice(a, "added")?),
         None => None,
     };
     let (antenna1, antenna2, time_bin, freq_bin) = (
-        antenna1.as_slice()?,
-        antenna2.as_slice()?,
-        time_bin.as_slice()?,
-        freq_bin.as_slice()?,
+        c_slice(&antenna1, "antenna1")?,
+        c_slice(&antenna2, "antenna2")?,
+        c_slice(&time_bin, "time_bin")?,
+        c_slice(&freq_bin, "freq_bin")?,
     );
-    let (inverse, valid) = (inverse.as_slice()?, valid.as_slice()?);
-    let (sample, weight) = (sample.as_slice_mut()?, weight.as_slice_mut()?);
+    let (inverse, valid) = (c_slice(&inverse, "inverse")?, c_slice(&valid, "valid")?);
+    let (sample, weight) = (
+        c_slice_mut(&mut sample, "sample")?,
+        c_slice_mut(&mut weight, "weight")?,
+    );
     if data.len() != 8 * cells
         || weights.len() != 4 * cells
         || flags.len() != 4 * cells
@@ -563,8 +700,8 @@ fn blosc_decode_span_rows_strided(
     offset: usize,
     stride: usize,
 ) -> PyResult<i32> {
-    let (span, rows) = (span.as_slice()?, rows.as_slice()?);
-    let out = out.as_slice_mut()?;
+    let (span, rows) = (c_slice(&span, "span")?, c_slice(&rows, "rows")?);
+    let out = c_slice_mut(&mut out, "out")?;
     if offset > out.len() {
         return Ok(1);
     }
@@ -621,15 +758,16 @@ fn stokes_i(
     mut vis: Rw<'_, f32>,
     mut weight: Rw<'_, f32>,
 ) -> PyResult<i32> {
+    let c4 = size("4 * ncell", &[4, ncell])?;
     let inputs = StokesIInputs {
         ncell,
-        data: ptr(&data)?,
-        weights: ptr(&weights)?,
-        flags: ptr(&flags)?,
+        data: arg(&data, "data", size("8 * ncell", &[8, ncell])?)?,
+        weights: arg(&weights, "weights", c4)?,
+        flags: arg(&flags, "flags", c4)?,
     };
     let mut outputs = StokesIOutputs {
-        vis: ptr_mut(&mut vis)?,
-        weight: ptr_mut(&mut weight)?,
+        vis: arg_mut(&mut vis, "vis", 2 * ncell)?,
+        weight: arg_mut(&mut weight, "weight", ncell)?,
     };
     // SAFETY: as in `fused`.
     Ok(detach(py, || unsafe {
@@ -661,13 +799,22 @@ fn imaging_weights(
     mut grid: Option<Rw<'_, f64>>,
     mut sums: Option<Rw<'_, f64>>,
 ) -> PyResult<i32> {
+    let cells = size("nrow * nchan", &[nrow, nchan])?;
+    // The grid's length follows `rang_core_weight_grid_shape`; with an
+    // invalid super weight the kernel returns 1 before writing it.
+    let grid_len = if super_weight > 0.0 {
+        let (w, h) = rang_core::weights::WeightGrid::shape(width, height, super_weight);
+        size("grid width * height", &[w, h])? / 2
+    } else {
+        0
+    };
     let inputs = ImagingWeightInputs {
         nrow,
         nchan,
-        uvw: ptr(&uvw)?,
-        wavelength: ptr(&wavelength)?,
-        weights: ptr(&weights)?,
-        row_selected: ptr(&row_selected)?,
+        uvw: arg(&uvw, "uvw", size("3 * nrow", &[3, nrow])?)?,
+        wavelength: arg(&wavelength, "wavelength", nchan)?,
+        weights: arg(&weights, "weights", cells)?,
+        row_selected: arg(&row_selected, "row_selected", nrow)?,
         class,
         robust,
         width,
@@ -679,9 +826,13 @@ fn imaging_weights(
         rank_filter_size,
     };
     let mut outputs = ImagingWeightOutputs {
-        weights: ptr_mut(&mut out_weights)?,
-        grid: opt_ptr_mut(&mut grid)?,
-        sums: opt_ptr_mut(&mut sums)?,
+        weights: arg_mut(&mut out_weights, "out_weights", cells)?,
+        grid: if super_weight > 0.0 {
+            opt_arg_mut(&mut grid, "grid", grid_len)?
+        } else {
+            opt_ptr_mut(&mut grid)?
+        },
+        sums: opt_arg_mut(&mut sums, "sums", 4)?,
     };
     // SAFETY: as in `fused`.
     Ok(detach(py, || unsafe {
@@ -713,6 +864,8 @@ fn grid_invert(
     mut psf: Rw<'_, f64>,
     mut stats: Rw<'_, f64>,
 ) -> PyResult<i32> {
+    let cells = size("nrow * nchan", &[nrow, nchan])?;
+    let pixels = size("width * height", &[width, height])?;
     let inputs = GridInputs {
         nrow,
         nchan,
@@ -724,16 +877,16 @@ fn grid_invert(
         pixel_size_x,
         pixel_size_y,
         padding,
-        uvw: ptr(&uvw)?,
-        frequencies: ptr(&frequencies)?,
-        data: ptr(&data)?,
-        weights: ptr(&weights)?,
-        imaging_weights: ptr(&imaging_weights)?,
+        uvw: arg(&uvw, "uvw", size("3 * nrow", &[3, nrow])?)?,
+        frequencies: arg(&frequencies, "frequencies", nchan)?,
+        data: arg(&data, "data", size("2 * nrow * nchan", &[2, cells])?)?,
+        weights: arg(&weights, "weights", cells)?,
+        imaging_weights: arg(&imaging_weights, "imaging_weights", cells)?,
     };
     let mut outputs = GridOutputs {
-        dirty: ptr_mut(&mut dirty)?,
-        psf: ptr_mut(&mut psf)?,
-        stats: ptr_mut(&mut stats)?,
+        dirty: arg_mut(&mut dirty, "dirty", pixels)?,
+        psf: arg_mut(&mut psf, "psf", pixels)?,
+        stats: arg_mut(&mut stats, "stats", rang_core::ffi_grid::N_STATS)?,
     };
     // SAFETY: as in `fused`.
     Ok(detach(py, || unsafe {
@@ -772,9 +925,8 @@ fn grid_invert_gpu(
     mut timings: Rw<'_, f64>,
 ) -> PyResult<i32> {
     let precision = rang_core::gpu::Precision::parse(precision).map_err(PyValueError::new_err)?;
-    if timings.as_slice()?.len() != rang_core::gpu::ffi::N_TIMINGS {
-        return Err(PyValueError::new_err("timings must hold N_TIMINGS doubles"));
-    }
+    let cells = size("nrow * nchan", &[nrow, nchan])?;
+    let pixels = size("width * height", &[width, height])?;
     let inputs = GridInputs {
         nrow,
         nchan,
@@ -786,18 +938,18 @@ fn grid_invert_gpu(
         pixel_size_x,
         pixel_size_y,
         padding,
-        uvw: ptr(&uvw)?,
-        frequencies: ptr(&frequencies)?,
-        data: ptr(&data)?,
-        weights: ptr(&weights)?,
-        imaging_weights: ptr(&imaging_weights)?,
+        uvw: arg(&uvw, "uvw", size("3 * nrow", &[3, nrow])?)?,
+        frequencies: arg(&frequencies, "frequencies", nchan)?,
+        data: arg(&data, "data", size("2 * nrow * nchan", &[2, cells])?)?,
+        weights: arg(&weights, "weights", cells)?,
+        imaging_weights: arg(&imaging_weights, "imaging_weights", cells)?,
     };
     let mut outputs = GridOutputs {
-        dirty: ptr_mut(&mut dirty)?,
-        psf: ptr_mut(&mut psf)?,
-        stats: ptr_mut(&mut stats)?,
+        dirty: arg_mut(&mut dirty, "dirty", pixels)?,
+        psf: arg_mut(&mut psf, "psf", pixels)?,
+        stats: arg_mut(&mut stats, "stats", rang_core::ffi_grid::N_STATS)?,
     };
-    let timings = ptr_mut(&mut timings)?;
+    let timings = arg_mut(&mut timings, "timings", rang_core::gpu::ffi::N_TIMINGS)?;
     // SAFETY: as in `fused`; `timings` holds N_TIMINGS doubles.
     detach(py, || unsafe {
         rang_core::gpu::ffi::grid_invert(&inputs, &mut outputs, precision, timings)
@@ -823,7 +975,7 @@ fn grid_kernel(
     oversampling: usize,
     mut kernel: Rw<'_, f64>,
 ) -> PyResult<i32> {
-    let out = kernel.as_slice_mut()?;
+    let out = c_slice_mut(&mut kernel, "kernel")?;
     if Some(out.len()) != kernel_size.checked_mul(oversampling) {
         return Ok(1);
     }
@@ -992,8 +1144,8 @@ fn wgridder_v2d<T: Element>(
     let opts = wgridder_options(&opts)?;
     let nrow = uvw.as_array().len() / 3;
     let nchan = freq.as_array().len();
-    let n = nrow * nchan;
-    let npix = opts.nx * opts.ny;
+    let n = size("nrow * nchan", &[nrow, nchan])?;
+    let npix = size("nx * ny", &[opts.nx, opts.ny])?;
     let vis = VisArg::extract(vis)?;
     let wgt = WgtArg::extract(wgt)?;
     let (vis_ptr, vis_kind) = vis.ptr_kind()?;
@@ -1124,12 +1276,12 @@ fn wgridder_d2v<T: Element>(
     let opts = wgridder_options(&opts)?;
     let nrow = uvw.as_array().len() / 3;
     let nchan = freq.as_array().len();
-    let n = nrow * nchan;
+    let n = size("nrow * nchan", &[nrow, nchan])?;
     let wgt = WgtArg::extract(wgt)?;
     let (wgt_ptr, wgt_kind) = wgt.ptr_kind()?;
     let sizes_ok = uvw.as_array().len() == nrow * 3
-        && dirty.as_array().len() == opts.nx * opts.ny
-        && vis.as_array().len() == 2 * n
+        && dirty.as_array().len() == size("nx * ny", &[opts.nx, opts.ny])?
+        && vis.as_array().len() == size("2 * nrow * nchan", &[2, n])?
         && wgt.len().is_none_or(|l| l == n)
         && mask.as_ref().is_none_or(|m| m.as_array().len() == n)
         && info.as_array().len() == rang_core::wgridder::N_INFO;
@@ -1259,6 +1411,10 @@ fn flag_rows(
     mut intensity: Option<Rw<'_, f32>>,
     mut stages: Option<Rw<'_, u8>>,
 ) -> PyResult<i32> {
+    let cells = size("nrow * nchan * ncorr", &[nrow, nchan, ncorr])?;
+    let window = size("nbl * ntime * nchan", &[nbl, ntime, nchan])?;
+    let offsets = c_slice(&mask_offsets, "mask_offsets")?;
+    let nmask_freqs = offsets.last().copied().unwrap_or(0);
     let inputs = FlagInputs {
         nrow,
         nchan,
@@ -1268,23 +1424,42 @@ fn flag_rows(
         ntime,
         nmasks,
         nsteps,
-        data: ptr(&data)?,
-        flags: ptr(&flags)?,
-        baseline_index: ptr(&baseline_index)?,
-        time_index: ptr(&time_index)?,
-        baselines: ptr(&baselines)?,
-        antenna_position: ptr(&antenna_position)?,
-        chan_freq: ptr(&chan_freq)?,
-        chan_width: ptr(&chan_width)?,
-        corr_type: ptr(&corr_type)?,
-        mask_freqs: ptr(&mask_freqs)?,
-        mask_offsets: ptr(&mask_offsets)?,
-        steps: ptr(&steps)?,
+        data: arg(&data, "data", size("2 * cells", &[2, cells])?)?,
+        flags: arg(&flags, "flags", cells)?,
+        baseline_index: arg(&baseline_index, "baseline_index", nrow)?,
+        time_index: arg(&time_index, "time_index", nrow)?,
+        baselines: arg(&baselines, "baselines", size("2 * nbl", &[2, nbl])?)?,
+        antenna_position: arg(
+            &antenna_position,
+            "antenna_position",
+            size("3 * nant", &[3, nant])?,
+        )?,
+        chan_freq: arg(&chan_freq, "chan_freq", nchan)?,
+        chan_width: arg(&chan_width, "chan_width", nchan)?,
+        corr_type: arg(&corr_type, "corr_type", ncorr)?,
+        mask_freqs: arg(&mask_freqs, "mask_freqs", nmask_freqs)?,
+        mask_offsets: arg(&mask_offsets, "mask_offsets", nmasks.saturating_add(1))?,
+        steps: arg(
+            &steps,
+            "steps",
+            size(
+                "nsteps * STEP_WIDTH",
+                &[nsteps, rang_core::ffi_flag::STEP_WIDTH],
+            )?,
+        )?,
     };
     let mut outputs = FlagOutputs {
-        flags: ptr_mut(&mut out_flags)?,
-        intensity: opt_ptr_mut(&mut intensity)?,
-        stages: opt_ptr_mut(&mut stages)?,
+        flags: arg_mut(&mut out_flags, "out_flags", cells)?,
+        intensity: opt_arg_mut(
+            &mut intensity,
+            "intensity",
+            size("2 * window", &[2, window])?,
+        )?,
+        stages: opt_arg_mut(
+            &mut stages,
+            "stages",
+            size("nsteps * window", &[nsteps, window])?,
+        )?,
     };
     // SAFETY: as in `fused`.
     Ok(detach(py, || unsafe {

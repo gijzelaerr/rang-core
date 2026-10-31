@@ -74,13 +74,21 @@ pub unsafe extern "C" fn rang_core_grid_invert(
         {
             return 1;
         }
-        let cells = i.nrow * i.nchan;
+        // Size products that wrap are invalid arguments (task W4-2).
+        let (Some(cells), Some(uvw_len), Some(data_len), Some(pixels)) = (
+            i.nrow.checked_mul(i.nchan),
+            i.nrow.checked_mul(3),
+            i.nrow.checked_mul(i.nchan).and_then(|c| c.checked_mul(2)),
+            i.width.checked_mul(i.height),
+        ) else {
+            return 1;
+        };
         // SAFETY: lengths follow the documented contract.
         let (uvw, frequencies, data, weights, imaging_weights) = unsafe {
             (
-                std::slice::from_raw_parts(i.uvw, i.nrow * 3),
+                std::slice::from_raw_parts(i.uvw, uvw_len),
                 std::slice::from_raw_parts(i.frequencies, i.nchan),
-                std::slice::from_raw_parts(i.data, cells * 2),
+                std::slice::from_raw_parts(i.data, data_len),
                 std::slice::from_raw_parts(i.weights, cells),
                 std::slice::from_raw_parts(i.imaging_weights, cells),
             )
@@ -106,7 +114,6 @@ pub unsafe extern "C" fn rang_core_grid_invert(
             Ok(products) => products,
             Err(_) => return 1,
         };
-        let pixels = i.width * i.height;
         // SAFETY: caller-owned output buffers of the documented sizes.
         let (dirty, psf, stats) = unsafe {
             (
