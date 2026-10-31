@@ -1,7 +1,6 @@
 """FS1 flux standards against the CASA setjy oracle archive."""
 
 import json
-import shutil
 from pathlib import Path
 
 import numpy as np
@@ -124,8 +123,8 @@ def test_tigger_spi_reexpansion():
     assert np.max(np.abs(got / fluxstd.log10_poly(coeffs, 1e9, nu) - 1)) < 1e-12
 
 
-@pytest.mark.skipif(shutil.which("cargo") is None, reason="needs cargo")
 def test_rust_kernel_matches_python():
+    # The kernel is in the extension since W4-3: no cargo, so no skip.
     lib = fluxstd.rust_library()
     nu = np.geomspace(0.05e9, 50e9, 301)
     for m in fluxstd.MODELS.values():
