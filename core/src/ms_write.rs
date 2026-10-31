@@ -596,7 +596,10 @@ impl TsmHeader {
             _ => return err(format!("tiled manager {kind} is not supported")),
         };
         if outer.version != expect {
-            return err(format!("{kind} header version {} is not supported", outer.version));
+            return err(format!(
+                "{kind} header version {} is not supported",
+                outer.version
+            ));
         }
         let column_tile = if kind == "TiledColumnStMan" || kind == "TiledCellStMan" {
             Some(h.iposition()?)
@@ -809,6 +812,9 @@ struct FileBuf {
     buf_len: u64,
     dirty: bool,
     off: u64,
+    /// In a MultiFile table: the log and the logical file's name. The file
+    /// is then written directly, as `MFFileIO` does (no `FilebufIO`).
+    mf: Option<(crate::multifile::MfLog, String)>,
 }
 
 impl FileBuf {
@@ -821,6 +827,7 @@ impl FileBuf {
             buf_len: 0,
             dirty: false,
             off: 0,
+            mf: None,
         }
     }
 
@@ -883,8 +890,18 @@ impl FileBuf {
         Ok(())
     }
 
-    /// `FilebufIO::write`.
+    /// `FilebufIO::write` (`MFFileIO::write` in a MultiFile table).
     fn write(&mut self, data: &[u8]) -> Result<()> {
+        if let Some((log, name)) = &self.mf {
+            write_at(&mut self.file, self.off, data)?;
+            log.lock().unwrap().push(crate::multifile::Event::Write(
+                name.clone(),
+                self.off,
+                data.len() as u64,
+            ));
+            self.off += data.len() as u64;
+            return Ok(());
+        }
         let size = data.len() as u64;
         let st = self.off.div_ceil(self.size);
         let end = (self.off + size) / self.size;
@@ -920,6 +937,11 @@ impl FileBuf {
 
     /// `FilebufIO::read` of small values (never whole blocks here).
     fn read(&mut self, n: usize) -> Result<Vec<u8>> {
+        if self.mf.is_some() {
+            let out = read_at(&mut self.file, self.off, n)?;
+            self.off += n as u64;
+            return Ok(out);
+        }
         let mut out = vec![0u8; n];
         let st = self.off.div_ceil(self.size);
         let end = (self.off + n as u64) / self.size;
@@ -1023,6 +1045,16 @@ impl ArrayFile {
             .map_err(|e| MsError(format!("{}: {e}", path.display())))?;
         let exists = file.metadata()?.len() > 0;
         let mut io = FileBuf::new(file, 65536);
+        if let Some(log) = crate::multifile::current() {
+            let name = crate::multifile::name_of(path);
+            if !exists {
+                crate::multifile::emit(
+                    &Some(log.clone()),
+                    crate::multifile::Event::Create(name.clone()),
+                );
+            }
+            io.mf = Some((log, name));
+        }
         if exists {
             io.seek(0);
             let version = read_order_u32(&io.read(4)?, big);
@@ -1386,6 +1418,8 @@ struct SsmW {
     sizing: (usize, usize),
     /// The manager's file (`table.fN`).
     path: PathBuf,
+    /// The write log of a MultiFile table.
+    mf: Option<crate::multifile::MfLog>,
 }
 
 /// casacore's `BucketCache` slots for one StandardStMan (LRU counters,
@@ -1456,6 +1490,7 @@ impl SsmW {
             strings,
             cache: Cache::default(),
             opened: true,
+            mf: crate::multifile::current(),
         })
     }
 
@@ -1542,6 +1577,7 @@ impl SsmW {
             .truncate(true)
             .open(&self.path)
             .map_err(|e| MsError(format!("{}: {e}", self.path.display())))?;
+        self.event_create();
         let pers = self.h.pers_cache;
         self.h = SsmHeader {
             big: self.h.big,
@@ -1664,7 +1700,9 @@ impl SsmW {
             opened: false,
             sizing: (rows, size),
             path: path.clone(),
+            mf: crate::multifile::current(),
         };
+        s.event_create();
         if s.cols.iter().any(|c| c.kind == SsmKind::Indirect) {
             // `SSMIndColumn::doCreate` opens a new array file.
             let _ = std::fs::remove_file(&s.array_path);
@@ -1799,6 +1837,7 @@ impl SsmW {
                 let bytes = self.content(old)?.clone();
                 self.scratch.copy_from_slice(&bytes);
                 self.cache.dirty[slot] = false;
+                self.event_bucket(old);
             }
             if self.cache.live[slot] {
                 self.cache.live[slot] = false;
@@ -1865,6 +1904,7 @@ impl SsmW {
     /// in front and frees the slot; the rest of the bucket is unreferenced.
     fn remove_bucket(&mut self, n: u32) -> Result<()> {
         self.access(n)?;
+        self.event_bucket(n);
         let mut bytes = self.scratch.clone();
         bytes[..4].copy_from_slice(&self.h.first_free.to_be_bytes());
         self.scratch[..4].copy_from_slice(&self.h.first_free.to_be_bytes());
@@ -1894,6 +1934,7 @@ impl SsmW {
                 let bytes = self.content(b)?.clone();
                 self.scratch.copy_from_slice(&bytes);
                 self.cache.dirty[i] = false;
+                self.event_bucket(b);
             }
         }
         Ok(())
@@ -1921,9 +1962,33 @@ impl SsmW {
 
     fn arrays(&mut self) -> Result<&mut ArrayFile> {
         if self.arrays.is_none() {
-            self.arrays = Some(ArrayFile::open_ext(&self.array_path, self.h.big, 0, false)?);
+            let (path, big) = (self.array_path.clone(), self.h.big);
+            self.arrays = Some(crate::multifile::with_log(self.mf.as_ref(), || {
+                ArrayFile::open_ext(&path, big, 0, false)
+            })?);
         }
         Ok(self.arrays.as_mut().unwrap())
+    }
+
+    /// MultiFile events: the file made anew (`BucketFile` with
+    /// `ByteIO::New`), a write of `n` bytes at `at`.
+    fn event_create(&self) {
+        crate::multifile::emit(
+            &self.mf,
+            crate::multifile::Event::Create(crate::multifile::name_of(&self.path)),
+        );
+    }
+
+    fn event_write(&self, at: u64, n: usize) {
+        crate::multifile::emit(
+            &self.mf,
+            crate::multifile::Event::Write(crate::multifile::name_of(&self.path), at, n as u64),
+        );
+    }
+
+    fn event_bucket(&self, b: u32) {
+        let size = self.size();
+        self.event_write(BUCKET_START + u64::from(b) * size as u64, size);
     }
 
     /// Write `count` rows of a numeric or Bool column from native bytes.
@@ -2303,6 +2368,7 @@ impl SsmW {
             let header = self.h.serialise();
             self.header_raw[..header.len()].copy_from_slice(&header);
             write_at(&mut self.file, 0, &header)?;
+            self.event_write(0, header.len());
         }
         if let Some(a) = self.arrays.as_mut() {
             a.flush()?;
@@ -2982,17 +3048,47 @@ struct TsmW {
     /// Tiles written since the last flush, by (tile file, offset): the
     /// cubes' caches, written at the manager's flush.
     pending: BTreeMap<(usize, u64), Vec<u8>>,
+    /// The write log of a MultiFile table and each tile file's length at
+    /// the last flush.
+    mf: Option<crate::multifile::MfLog>,
+    flushed: BTreeMap<usize, u64>,
+    /// The hypercubes' tile caches (`TSMCube::cache_p`) and each tile
+    /// file's physical size as casacore has written it.
+    caches: BTreeMap<usize, TileCache>,
+    phys: BTreeMap<usize, u64>,
 }
 
 impl TsmW {
     fn open(dir: &Path, seq: u32) -> Result<Self> {
         let h = TsmHeader::parse(&std::fs::read(dir.join(format!("table.f{seq}")))?)?;
         let n = h.dtypes.len();
-        Ok(Self::with_header(dir, h, vec![TsmRole::Data; n], vec![String::new(); n]))
+        let mut t = Self::with_header(dir, h, vec![TsmRole::Data; n], vec![String::new(); n]);
+        for (i, f) in t.h.files.iter().enumerate() {
+            if let Some(f) = f {
+                t.flushed.insert(i, f.length);
+                let path = dir.join(format!("table.f{seq}_TSM{}", f.seq));
+                t.phys.insert(i, std::fs::metadata(path).map_or(0, |m| m.len()));
+            }
+        }
+        Ok(t)
+    }
+
+    /// A MultiFile event of this manager's file `name`.
+    fn event(&self, e: crate::multifile::Event) {
+        crate::multifile::emit(&self.mf, e);
+    }
+
+    fn tile_name(&self, file: usize) -> String {
+        let seq = self.h.files[file].as_ref().map_or(file as u32, |f| f.seq);
+        format!("table.f{}_TSM{seq}", self.h.seq)
     }
 
     fn with_header(dir: &Path, h: TsmHeader, roles: Vec<TsmRole>, names: Vec<String>) -> Self {
-        let size = |c: usize| DataType::from_code(h.dtypes[c]).map(|d| d.size()).unwrap_or(0);
+        let size = |c: usize| {
+            DataType::from_code(h.dtypes[c])
+                .map(|d| d.size())
+                .unwrap_or(0)
+        };
         let data: Vec<usize> = (0..h.dtypes.len())
             .filter(|&c| roles[c] == TsmRole::Data)
             .collect();
@@ -3019,6 +3115,10 @@ impl TsmW {
             write_header: false,
             fixed_cell: None,
             pending: BTreeMap::new(),
+            mf: crate::multifile::current(),
+            flushed: BTreeMap::new(),
+            caches: BTreeMap::new(),
+            phys: BTreeMap::new(),
         }
     }
 
@@ -3028,8 +3128,12 @@ impl TsmW {
     fn set_columns(&mut self, roles: Vec<TsmRole>, names: Vec<String>, ncell: Option<usize>) {
         let h = std::mem::replace(&mut self.h, TsmHeader::parse_empty());
         let fixed = self.fixed_cell.take();
+        let flushed = std::mem::take(&mut self.flushed);
+        let phys = std::mem::take(&mut self.phys);
         *self = Self::with_header(&self.dir.clone(), h, roles, names);
         self.fixed_cell = fixed;
+        self.flushed = flushed;
+        self.phys = phys;
         if let Some(n) = ncell {
             self.ncell = n;
         }
@@ -3077,6 +3181,10 @@ impl TsmW {
             shape.push(0);
             t.h.cubes = vec![Self::new_cube(&shape, &tile, 0, 0, empty_values_record())];
             File::create(dir.join(format!("table.f{seq}_TSM0")))?;
+            crate::multifile::emit(
+                &crate::multifile::current(),
+                crate::multifile::Event::Create(format!("table.f{seq}_TSM0")),
+            );
         } else {
             t.h.cubes = vec![TsmCube {
                 values: empty_values_record(),
@@ -3111,6 +3219,10 @@ impl TsmW {
         h.files = vec![Some(TsmFileEntry { seq: 0, length: 0 })];
         File::create(dir.join(format!("table.f{seq}_TSM0")))?;
         let n = h.dtypes.len();
+        crate::multifile::emit(
+            &crate::multifile::current(),
+            crate::multifile::Event::Create(format!("table.f{seq}_TSM0")),
+        );
         let mut t = Self::with_header(dir, h, vec![TsmRole::Data; n], vec![String::new(); n]);
         t.fixed_cell = fixed;
         t.write_header = true;
@@ -3144,7 +3256,13 @@ impl TsmW {
     /// A hypercube of `shape` (an extensible one has 0 rows on its last
     /// axis) at `offset` of tile file `file_seq`, its tile shape adjusted
     /// as `TSMCube::setShape` does.
-    fn new_cube(shape: &[i64], tile: &[i64], file_seq: i32, offset: u64, values: Vec<u8>) -> TsmCube {
+    fn new_cube(
+        shape: &[i64],
+        tile: &[i64],
+        file_seq: i32,
+        offset: u64,
+        values: Vec<u8>,
+    ) -> TsmCube {
         let last = shape.len() - 1;
         TsmCube {
             values,
@@ -3174,7 +3292,9 @@ impl TsmW {
         let at = entry.length;
         entry.length += bytes;
         let length = entry.length;
-        let path = self.dir.join(format!("table.f{}_TSM{}", self.h.seq, entry.seq));
+        let path = self
+            .dir
+            .join(format!("table.f{}_TSM{}", self.h.seq, entry.seq));
         let f = OpenOptions::new()
             .read(true)
             .write(true)
@@ -3189,6 +3309,8 @@ impl TsmW {
 
     /// `TSMCube::extend` of cube `index` by `n` on its last axis.
     fn extend_cube(&mut self, index: usize, n: u64) -> Result<()> {
+        // `TSMCube::extend`: the cache is made first, then extended.
+        self.make_cache(index);
         let old = Self::ntiles(&self.h.cubes[index]);
         let cube = &mut self.h.cubes[index];
         let last = cube.shape.len() - 1;
@@ -3196,6 +3318,7 @@ impl TsmW {
         let cube = cube.clone();
         let new = Self::ntiles(&cube);
         let bucket = self.bucket_size(&cube) as u64;
+        self.caches.get_mut(&index).unwrap().new += new - old;
         self.extend_file(cube.file_seq as usize, (new - old) * bucket)?;
         Ok(())
     }
@@ -3258,7 +3381,10 @@ impl TsmW {
     fn place(&self, row: u64) -> Result<Option<Place>> {
         let h = &self.h;
         if row >= h.nrows {
-            return err(format!("row {row} beyond the {} rows of {}", h.nrows, h.hypercolumn));
+            return err(format!(
+                "row {row} beyond the {} rows of {}",
+                h.nrows, h.hypercolumn
+            ));
         }
         if h.is_column() {
             return Ok(Some((0, vec![row as i64])));
@@ -3323,13 +3449,20 @@ impl TsmW {
                     length: 0,
                 }));
                 File::create(self.dir.join(format!("table.f{}_TSM{file}", self.h.seq)))?;
+                self.event(crate::multifile::Event::Create(format!(
+                    "table.f{}_TSM{file}",
+                    self.h.seq
+                )));
                 let mut cube_shape = shape.to_vec();
                 cube_shape.push(0);
                 let tile = self.h.default_tile.clone();
                 let values = self.h.cubes[0].values.clone();
-                self.h.cubes
+                self.h
+                    .cubes
                     .push(Self::new_cube(&cube_shape, &tile, file as i32, 0, values));
-                self.h.cubes.len() - 1
+                let c = self.h.cubes.len() - 1;
+                self.make_cache(c);
+                c
             }
         };
         let pos = *self.h.cubes[index].shape.last().unwrap() as u32;
@@ -3355,19 +3488,16 @@ impl TsmW {
         let r = row as usize;
         let offset = self.h.files[0].as_ref().map_or(0, |f| f.length);
         let mut cube = self.h.cubes[r].clone();
-        if cube.nrdim > 0 {
-            // `TSMCube::setShape` deletes the cube's cache unflushed: what
-            // was put into the old shape since the last flush is lost.
-            let end = cube.offset + Self::ntiles(&cube) * self.bucket_size(&cube) as u64;
-            self.pending
-                .retain(|&(f, at), _| f != 0 || at < cube.offset || at >= end);
-        }
+        // `TSMCube::setShape`: the cube's cache is deleted unflushed (what
+        // was put into the old shape since then is lost), a new one made.
+        self.delete_cache(r);
         cube.nrdim = shape.len() as u32;
         cube.shape = shape.to_vec();
         cube.tile = crate::tiled::adjust_tile_shape(shape, &tile);
         cube.offset = offset;
         let bytes = Self::ntiles(&cube) * self.bucket_size(&cube) as u64;
         self.h.cubes[r] = cube;
+        self.make_cache(r);
         self.extend_file(0, bytes)?;
         self.write_header = true;
         self.changed = true;
@@ -3497,9 +3627,17 @@ impl TsmW {
     /// `TSMCube::extendCoordinates`: the coordinate vector of column `c`
     /// grows to `length` (zeros), its last values set from `given` (when
     /// it has the field).
-    fn extend_coordinates(rec: &mut crate::aipsio::Record, name: &str, code: i32, length: i64, given: Option<&crate::aipsio::Record>) -> Result<()> {
+    fn extend_coordinates(
+        rec: &mut crate::aipsio::Record,
+        name: &str,
+        code: i32,
+        length: i64,
+        given: Option<&crate::aipsio::Record>,
+    ) -> Result<()> {
         let current = crate::tiled::array_field(rec, name);
-        let have = current.as_ref().map_or(0, |(_, s, _)| s.first().copied().unwrap_or(0));
+        let have = current
+            .as_ref()
+            .map_or(0, |(_, s, _)| s.first().copied().unwrap_or(0));
         let extra = length - have;
         if extra == 0 {
             return Ok(());
@@ -3551,13 +3689,22 @@ impl TsmW {
     }
 
     /// `TiledDataStMan::addHypercube(shape, tileShape, values)`.
-    pub(crate) fn add_hypercube(&mut self, shape: &[i64], tile: &[i64], values: crate::aipsio::Record) -> Result<()> {
+    pub(crate) fn add_hypercube(
+        &mut self,
+        shape: &[i64],
+        tile: &[i64],
+        values: crate::aipsio::Record,
+    ) -> Result<()> {
         if !self.h.is_data() {
             return err("hypercubes are added to a TiledDataStMan only");
         }
         let nrdim = self.h.nrdim as usize;
-        if shape.len() != nrdim || shape[..nrdim - 1].iter().any(|&s| s < 1) || shape[nrdim - 1] < 0 {
-            return err(format!("addHypercube dimensionality mismatch in {}", self.h.hypercolumn));
+        if shape.len() != nrdim || shape[..nrdim - 1].iter().any(|&s| s < 1) || shape[nrdim - 1] < 0
+        {
+            return err(format!(
+                "addHypercube dimensionality mismatch in {}",
+                self.h.hypercolumn
+            ));
         }
         let rows = self.added_rows(shape, shape[nrdim - 1] as u64);
         if self.h.nrrow_last + rows > self.h.nrows {
@@ -3586,17 +3733,34 @@ impl TsmW {
                 length: 0,
             });
             File::create(self.dir.join(format!("table.f{}_TSM{file}", self.h.seq)))?;
+            self.event(crate::multifile::Event::Create(format!(
+                "table.f{}_TSM{file}",
+                self.h.seq
+            )));
         }
         let offset = self.h.files[file].as_ref().unwrap().length;
         let mut rec = values;
         for (axis, c) in self.coord_columns() {
-            Self::extend_coordinates(&mut rec, &self.names[c], self.h.dtypes[c], shape[axis], None)?;
+            Self::extend_coordinates(
+                &mut rec,
+                &self.names[c],
+                self.h.dtypes[c],
+                shape[axis],
+                None,
+            )?;
         }
-        let cube = Self::new_cube(shape, tile, file as i32, offset, crate::tiled::values_bytes(&rec));
+        let cube = Self::new_cube(
+            shape,
+            tile,
+            file as i32,
+            offset,
+            crate::tiled::values_bytes(&rec),
+        );
         let bytes = Self::ntiles(&cube) * self.bucket_size(&cube) as u64;
-        self.extend_file(file, bytes)?;
         self.h.cubes.push(cube);
         let ncube = self.h.cubes.len() - 1;
+        self.make_cache(ncube);
+        self.extend_file(file, bytes)?;
         self.update_data_row_map(ncube, shape[nrdim - 1] as u64);
         self.write_header = true;
         self.changed = true;
@@ -3604,7 +3768,11 @@ impl TsmW {
     }
 
     /// `TiledDataStMan::extendHypercube(incr, values)`.
-    pub(crate) fn extend_hypercube(&mut self, incr: u64, values: crate::aipsio::Record) -> Result<()> {
+    pub(crate) fn extend_hypercube(
+        &mut self,
+        incr: u64,
+        values: crate::aipsio::Record,
+    ) -> Result<()> {
         if !self.h.is_data() {
             return err("hypercubes are extended in a TiledDataStMan only");
         }
@@ -3626,7 +3794,13 @@ impl TsmW {
         let length = self.h.cubes[index].shape[nrdim - 1];
         if let Some(&(_, c)) = self.coord_columns().iter().find(|(a, _)| *a == nrdim - 1) {
             let mut rec = crate::tiled::parse_values(&self.h.cubes[index].values)?;
-            Self::extend_coordinates(&mut rec, &self.names[c], self.h.dtypes[c], length, Some(&values))?;
+            Self::extend_coordinates(
+                &mut rec,
+                &self.names[c],
+                self.h.dtypes[c],
+                length,
+                Some(&values),
+            )?;
             self.h.cubes[index].values = crate::tiled::values_bytes(&rec);
         }
         self.update_data_row_map(index, incr);
@@ -3638,7 +3812,11 @@ impl TsmW {
     /// `TiledStMan::addedNrrow`.
     fn added_rows(&self, shape: &[i64], incr: u64) -> u64 {
         let nrdim = shape.len();
-        shape[self.ncell..nrdim - 1].iter().map(|&s| s as u64).product::<u64>() * incr
+        shape[self.ncell..nrdim - 1]
+            .iter()
+            .map(|&s| s as u64)
+            .product::<u64>()
+            * incr
     }
 
     /// `TiledDataStMan::updateRowMap`.
@@ -3795,11 +3973,37 @@ impl TsmW {
         } else {
             data
         };
+        // casacore's access path: a whole column of a manager of one
+        // hypercube (`accessColumn`), a range of rows (`accessColumnCells`)
+        // or cell by cell (`accessCell`).
+        let column = start == 0 && count == self.h.nrows && count > 1 && self.h.cubes.len() == 1;
+        let range = count > 1 && !(start == 0 && count == self.h.nrows);
+        let mut last_cube = None;
         for i in 0..count {
             let row = start + i;
             let (ci, pos) = self
                 .place(row)?
                 .ok_or_else(|| MsError(format!("row {row} has no array (no hypercube)")))?;
+            if column {
+                if i == 0 {
+                    self.touch_tiles(ci, None, true)?;
+                }
+            } else if range {
+                if last_cube != Some(ci) {
+                    let n = self.calc_cache_size(ci, &self.h.cubes[ci].shape.clone());
+                    self.resize_cache(ci, n)?;
+                    self.caches.get_mut(&ci).unwrap().cell_access = false;
+                    last_cube = Some(ci);
+                }
+                for t in self.section_tiles(ci, Some(&pos)) {
+                    self.get_tile(ci, t)?;
+                    let cache = self.caches.get_mut(&ci).unwrap();
+                    let a = cache.actual;
+                    cache.slots[a].dirty = true;
+                }
+            } else {
+                self.touch_tiles(ci, Some(&pos), false)?;
+            }
             let cube = self.h.cubes[ci].clone();
             let cell = &cube.shape[..self.ncell];
             if cell != shape {
@@ -3830,7 +4034,14 @@ impl TsmW {
 
     /// Coordinate and id column puts: the cube's values record
     /// (`TSMCoordColumn::put`, `TSMIdColumn::put`).
-    fn put_values(&mut self, col: usize, start: u64, count: u64, shape: &[i64], data: &[u8]) -> Result<()> {
+    fn put_values(
+        &mut self,
+        col: usize,
+        start: u64,
+        count: u64,
+        shape: &[i64],
+        data: &[u8],
+    ) -> Result<()> {
         let dt = self.dtype(col);
         let code = self.h.dtypes[col];
         let n = product(shape).max(1) * dt.size();
@@ -3847,8 +4058,10 @@ impl TsmW {
                     crate::tiled::define_array(&mut rec, &name, code, shape, value)?;
                 }
                 TsmRole::Coord(axis) => {
-                    let (fcode, fshape, raw) = crate::tiled::array_field(&rec, &name)
-                        .ok_or_else(|| MsError(format!("{name}: no coordinate values in the hypercube")))?;
+                    let (fcode, fshape, raw) =
+                        crate::tiled::array_field(&rec, &name).ok_or_else(|| {
+                            MsError(format!("{name}: no coordinate values in the hypercube"))
+                        })?;
                     let scalar = crate::aipsio::tp::scalar_of(fcode).unwrap_or(code);
                     let fdt = DataType::from_code(scalar)?;
                     let mut native = to_order(fdt, &raw, true);
@@ -3883,7 +4096,8 @@ impl TsmW {
         match self.roles[col] {
             TsmRole::Coord(axis) => {
                 let (fcode, _, raw) = crate::tiled::array_field(rec, name).unwrap_or_default();
-                let fdt = DataType::from_code(crate::aipsio::tp::scalar_of(fcode).unwrap_or(fcode))?;
+                let fdt =
+                    DataType::from_code(crate::aipsio::tp::scalar_of(fcode).unwrap_or(fcode))?;
                 let native = to_order(fdt, &raw, true);
                 if axis < self.ncell {
                     Ok(native)
@@ -3948,21 +4162,343 @@ impl TsmW {
         Ok(Cell::Values(cell, out))
     }
 
+    /// `TiledStMan::flush`: the cubes' caches (new tiles, then the tiles
+    /// written since the last flush), then, when anything changed, the
+    /// header file made anew.
     fn flush(&mut self) -> Result<bool> {
+        // The cubes' caches in order (`flushCaches`), then what is left.
+        for c in 0..self.h.cubes.len() {
+            self.flush_cache(c)?;
+        }
         for ((file, at), bytes) in std::mem::take(&mut self.pending) {
             write_at(self.file(file)?, at, &bytes)?;
         }
-        if self.write_header {
+        let changed = self.changed || self.write_header;
+        if changed {
             self.h.writable()?;
-            std::fs::write(
-                self.dir.join(format!("table.f{}", self.h.seq)),
-                self.h.serialise(),
-            )?;
+            let bytes = self.h.serialise();
+            std::fs::write(self.dir.join(format!("table.f{}", self.h.seq)), &bytes)?;
+            let name = format!("table.f{}", self.h.seq);
+            self.event(crate::multifile::Event::Create(name.clone()));
+            self.event(crate::multifile::Event::Write(name, 0, bytes.len() as u64));
             self.write_header = false;
         }
-        let changed = self.changed;
         self.changed = false;
         Ok(changed)
+    }
+}
+
+/// One slot of a hypercube's tile cache.
+#[derive(Clone, Debug)]
+struct TileSlot {
+    tile: u64,
+    dirty: bool,
+    lru: u32,
+}
+
+/// A hypercube's `BucketCache` (its tiles): slots with LRU counters and
+/// dirty flags, the tiles in the file (`its_CurNrOfBuckets`) and in all
+/// (`its_NewNrOfBuckets`), and whether the last access was a cell access
+/// (`TSMCube::CellAccess`).
+#[derive(Clone, Debug)]
+struct TileCache {
+    size: usize,
+    slots: Vec<TileSlot>,
+    actual: usize,
+    counter: u32,
+    cur: u64,
+    new: u64,
+    cell_access: bool,
+}
+
+impl TsmW {
+    fn cube_file(&self, c: usize) -> usize {
+        self.h.cubes[c].file_seq.max(0) as usize
+    }
+
+    fn tile_at(&self, c: usize, tile: u64) -> u64 {
+        let cube = &self.h.cubes[c];
+        cube.offset + tile * self.bucket_size(cube) as u64
+    }
+
+    /// `TSMCube::makeCache`: one slot; the tiles in the file counted from
+    /// its physical size (what casacore has written of it).
+    fn make_cache(&mut self, c: usize) {
+        if self.caches.contains_key(&c) {
+            return;
+        }
+        let cube = &self.h.cubes[c];
+        let bucket = self.bucket_size(cube) as u64;
+        let new = Self::ntiles(cube);
+        let phys = self.phys.get(&self.cube_file(c)).copied().unwrap_or(0);
+        let cur = if phys > cube.offset && bucket > 0 {
+            ((phys - cube.offset) / bucket).min(new)
+        } else {
+            0
+        };
+        self.caches.insert(
+            c,
+            TileCache {
+                size: 1,
+                slots: Vec::new(),
+                actual: 0,
+                counter: 0,
+                cur,
+                new,
+                cell_access: false,
+            },
+        );
+    }
+
+    /// `TSMCube::deleteCache` (`setShape`): the cache dropped unflushed;
+    /// what its dirty tiles held is lost.
+    fn delete_cache(&mut self, c: usize) {
+        if let Some(cache) = self.caches.remove(&c) {
+            let file = self.cube_file(c);
+            for s in cache.slots.iter().filter(|s| s.dirty) {
+                let at = self.tile_at(c, s.tile);
+                self.pending.remove(&(file, at));
+            }
+        }
+    }
+
+    /// `BucketCache::writeBucket` of slot `i`: the tile written (and its
+    /// MultiFile event).
+    fn write_slot(&mut self, c: usize, i: usize) -> Result<()> {
+        let tile = self.caches[&c].slots[i].tile;
+        let file = self.cube_file(c);
+        let at = self.tile_at(c, tile);
+        let bucket = self.bucket_size(&self.h.cubes[c]) as u64;
+        if let Some(bytes) = self.pending.remove(&(file, at)) {
+            write_at(self.file(file)?, at, &bytes)?;
+        }
+        let name = self.tile_name(file);
+        self.event(crate::multifile::Event::Write(name, at, bucket));
+        let p = self.phys.entry(file).or_insert(0);
+        *p = (*p).max(at + bucket);
+        self.caches.get_mut(&c).unwrap().slots[i].dirty = false;
+        Ok(())
+    }
+
+    fn set_lru(&mut self, c: usize) {
+        let cache = self.caches.get_mut(&c).unwrap();
+        cache.counter = cache.counter.wrapping_add(1);
+        let a = cache.actual;
+        cache.slots[a].lru = cache.counter;
+    }
+
+    /// `BucketCache::getSlot` for `tile`.
+    fn get_slot(&mut self, c: usize, tile: u64) -> Result<()> {
+        let cache = &self.caches[&c];
+        if cache.slots.len() < cache.size {
+            let cache = self.caches.get_mut(&c).unwrap();
+            cache.actual = cache.slots.len();
+            cache.slots.push(TileSlot {
+                tile,
+                dirty: false,
+                lru: 0,
+            });
+        } else {
+            let mut a = 0;
+            for i in 1..cache.slots.len() {
+                if cache.slots[i].lru < cache.slots[a].lru {
+                    a = i;
+                }
+            }
+            let dirty = cache.slots[a].dirty;
+            self.caches.get_mut(&c).unwrap().actual = a;
+            if dirty {
+                self.write_slot(c, a)?;
+            }
+            self.caches.get_mut(&c).unwrap().slots[a].tile = tile;
+        }
+        self.set_lru(c);
+        Ok(())
+    }
+
+    /// `BucketCache::initializeBuckets` up to `tile`.
+    fn initialize_tiles(&mut self, c: usize, tile: u64) -> Result<()> {
+        while self.caches[&c].cur <= tile {
+            let t = self.caches[&c].cur;
+            self.get_slot(c, t)?;
+            let cache = self.caches.get_mut(&c).unwrap();
+            let a = cache.actual;
+            cache.slots[a].dirty = true;
+            cache.cur += 1;
+        }
+        Ok(())
+    }
+
+    /// `BucketCache::getBucket(tile)`; the slot is the actual one after.
+    fn get_tile(&mut self, c: usize, tile: u64) -> Result<()> {
+        self.make_cache(c);
+        if let Some(i) = self.caches[&c].slots.iter().position(|s| s.tile == tile) {
+            self.caches.get_mut(&c).unwrap().actual = i;
+            self.set_lru(c);
+            return Ok(());
+        }
+        if tile < self.caches[&c].cur {
+            self.get_slot(c, tile)
+        } else {
+            self.initialize_tiles(c, tile)
+        }
+    }
+
+    /// `BucketCache::resize(n)` (`clear(n)` writes the dirty slots past n).
+    fn resize_cache(&mut self, c: usize, n: usize) -> Result<()> {
+        self.make_cache(c);
+        let used = self.caches[&c].slots.len();
+        for i in n..used {
+            if self.caches[&c].slots[i].dirty {
+                self.write_slot(c, i)?;
+            }
+        }
+        let cache = self.caches.get_mut(&c).unwrap();
+        cache.slots.truncate(n);
+        cache.size = n.max(1);
+        cache.actual = 0;
+        Ok(())
+    }
+
+    /// `BucketCache::flush`: the tiles not yet in the file made, then the
+    /// dirty slots written in slot order.
+    fn flush_cache(&mut self, c: usize) -> Result<()> {
+        if !self.caches.contains_key(&c) {
+            return Ok(());
+        }
+        let new = self.caches[&c].new;
+        if new > 0 {
+            self.initialize_tiles(c, new - 1)?;
+        }
+        for i in 0..self.caches[&c].slots.len() {
+            if self.caches[&c].slots[i].dirty {
+                self.write_slot(c, i)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// `TSMCube::calcCacheSize` for a slice of `slice` (window: the whole
+    /// cube; access path: the axes in order).
+    fn calc_cache_size(&self, c: usize, slice: &[i64]) -> usize {
+        let cube = &self.h.cubes[c];
+        let nrdim = cube.shape.len();
+        let tile = &cube.tile;
+        let start = vec![0i64; nrdim];
+        let mut end = cube.shape.clone();
+        if cube.extensible {
+            // C++ integer division (towards zero), as casacore computes it.
+            let i = nrdim - 1;
+            end[i] = tile[i] * (1 + (end[i] - 1) / tile[i]);
+        }
+        let end: Vec<i64> = end.iter().map(|e| e - 1).collect();
+        let mut ntiles = vec![0i64; nrdim];
+        let mut reused = vec![false; nrdim];
+        let mut slice_tiles = vec![0i64; nrdim];
+        for i in 0..nrdim {
+            let sl = slice.get(i).copied().filter(|&s| s > 0).unwrap_or(1);
+            let st_tile = start[i] / tile[i];
+            let en_tile = end[i].max(0) / tile[i];
+            ntiles[i] = 1 + en_tile - st_tile;
+            let st = start[i] % tile[i];
+            slice_tiles[i] = 1 + (st + sl - 1) / tile[i];
+            if sl < 1 + end[i] - start[i] && (sl < tile[i] || st != 0 || sl % tile[i] != 0) {
+                reused[i] = true;
+            }
+        }
+        let max = self.h.max_cache as u64;
+        let bucket = self.bucket_size(cube) as u64;
+        let valid = |n: u64| {
+            let maxnb = ((1024.0 * 1024.0 * max as f64 / bucket.max(1) as f64) as u64).max(1);
+            if max > 0 && n > maxnb && 10 * n > 11 * maxnb {
+                maxnb
+            } else {
+                n
+            }
+        };
+        let mut nrd = nrdim;
+        while nrd > 0 {
+            nrd -= 1;
+            let mut nr = nrd;
+            while nr > 0 && !reused[nr] {
+                nr -= 1;
+            }
+            let mut size: u64 = ntiles[..nr].iter().map(|&n| n as u64).product();
+            if reused[nr] {
+                for &s in &slice_tiles[nr + 1..=nrd] {
+                    size *= s as u64;
+                }
+            }
+            if size == valid(size) {
+                return size as usize;
+            }
+            nrd = nr;
+        }
+        1
+    }
+
+    /// The tiles of a cell (or of the whole cube) in `accessSection`'s
+    /// order (axis 0 fastest).
+    fn section_tiles(&self, c: usize, pos: Option<&[i64]>) -> Vec<u64> {
+        let cube = &self.h.cubes[c];
+        let nrdim = cube.shape.len();
+        let (_, grid, _) = Self::grid(cube);
+        let mut lo = vec![0i64; nrdim];
+        let mut hi = vec![0i64; nrdim];
+        for d in 0..nrdim {
+            let (s, e) = match pos {
+                Some(p) if d >= self.ncell => (p[d - self.ncell], p[d - self.ncell]),
+                _ => (0, cube.shape[d] - 1),
+            };
+            lo[d] = s / cube.tile[d];
+            hi[d] = e.max(0) / cube.tile[d];
+        }
+        let mut out = Vec::new();
+        let mut idx = lo.clone();
+        loop {
+            out.push(idx.iter().zip(&grid).map(|(&i, &g)| (i * g) as u64).sum());
+            let mut d = 0;
+            while d < nrdim {
+                idx[d] += 1;
+                if idx[d] <= hi[d] {
+                    break;
+                }
+                idx[d] = lo[d];
+                d += 1;
+            }
+            if d == nrdim {
+                break;
+            }
+        }
+        out
+    }
+
+    /// The cache's bookkeeping of a write of one cell (`accessCell`, sized
+    /// for a cell when the last access was not one) or, `column`, of a
+    /// whole cube (`accessColumn`): the tiles fetched in order, each made
+    /// dirty.
+    fn touch_tiles(&mut self, c: usize, pos: Option<&[i64]>, column: bool) -> Result<Vec<u64>> {
+        self.make_cache(c);
+        let cube = self.h.cubes[c].clone();
+        if column {
+            let n = self.calc_cache_size(c, &cube.shape);
+            self.resize_cache(c, n)?;
+            self.caches.get_mut(&c).unwrap().cell_access = false;
+        } else if !self.caches[&c].cell_access {
+            let mut slice = cube.shape[..self.ncell].to_vec();
+            slice.resize(cube.shape.len(), 1);
+            let n = self.calc_cache_size(c, &slice);
+            self.resize_cache(c, n)?;
+            self.caches.get_mut(&c).unwrap().cell_access = true;
+        }
+        let tiles = self.section_tiles(c, pos);
+        for &t in &tiles {
+            self.get_tile(c, t)?;
+            let cache = self.caches.get_mut(&c).unwrap();
+            let a = cache.actual;
+            cache.slots[a].dirty = true;
+        }
+        Ok(tiles)
     }
 }
 
@@ -3999,7 +4535,11 @@ impl TsmHeader {
 /// definition (`Hypercolumn_<name>`: data, coord, id), the column names and
 /// the cell dimensionality (the first data column's); all data columns
 /// when the table defines no hypercolumn of that name.
-fn tiled_columns(dat: &TableDat, seq: u32, hypercolumn: &str) -> (Vec<TsmRole>, Vec<String>, Option<usize>) {
+fn tiled_columns(
+    dat: &TableDat,
+    seq: u32,
+    hypercolumn: &str,
+) -> (Vec<TsmRole>, Vec<String>, Option<usize>) {
     let cols: Vec<&ColDesc> = dat
         .columns
         .iter()
@@ -4209,6 +4749,26 @@ impl TableWriter {
             Some(s) if s.nrows > 0 => s.nrows,
             _ => dat.nrows,
         };
+        let log = mf.as_ref().map(|m| m.log.clone());
+        let mgrs =
+            crate::multifile::with_log(log.as_ref(), || Self::open_managers(&dir, &dat, nrows))?;
+        Ok(TableWriter {
+            dir: table_dir,
+            lock: Some(lock),
+            dat,
+            nrows,
+            mgrs,
+            table_changed: false,
+            info: None,
+            fresh: Vec::new(),
+            files: dir,
+            mf,
+        })
+    }
+
+    /// The managers of a table opened for writing.
+    fn open_managers(dir: &Path, dat: &TableDat, nrows: u64) -> Result<Vec<Mgr>> {
+        let dir = dir.to_path_buf();
         let mut mgrs = Vec::with_capacity(dat.managers.len());
         for (slot, (kind, seq)) in dat.managers.iter().enumerate() {
             mgrs.push(match kind.as_str() {
@@ -4254,18 +4814,7 @@ impl TableWriter {
                 other => Mgr::Other(unsupported_manager(other)),
             });
         }
-        Ok(TableWriter {
-            dir: table_dir,
-            lock: Some(lock),
-            dat,
-            nrows,
-            mgrs,
-            table_changed: false,
-            info: None,
-            fresh: Vec::new(),
-            files: dir,
-            mf,
-        })
+        Ok(mgrs)
     }
 
     /// A table made by `ms_create::create_table`: its parts, every manager
@@ -4280,7 +4829,7 @@ impl TableWriter {
     ) -> Self {
         let fresh = mgrs.iter().map(NewMgr::reports_creation).collect();
         let files = mf.as_ref().map_or(dir.clone(), |m| m.staging.clone());
-        let mut w = TableWriter {
+        let w = TableWriter {
             dir,
             lock: Some(lock),
             nrows: dat.nrows,
@@ -4292,83 +4841,16 @@ impl TableWriter {
             files,
             mf,
         };
-        w.mf_created();
         w
     }
 
-    /// The logical files casacore creates (`createFile`) and first writes
-    /// while it creates the managers, in their order: an IncrementalStMan
-    /// writes bucket 0 at once (its cache's `resync`), array files write
-    /// their header when opened; tile files of hypercubes made at creation
-    /// only exist (research/e5-table-writer-rest.md).
-    fn mf_created(&mut self) {
-        let Some(mf) = self.mf.as_mut() else {
-            return;
-        };
-        for (m, (_, seq)) in self.mgrs.iter().zip(&self.dat.managers) {
-            let f = format!("table.f{seq}");
-            let fi = format!("table.f{seq}i");
-            match m {
-                Mgr::Ism(_) => {
-                    mf.touch(&f);
-                    if self.files.join(&fi).is_file() {
-                        mf.touch(&fi);
-                    }
-                }
-                Mgr::Ssm(_) => {
-                    mf.add_file(&f);
-                    if self.files.join(&fi).is_file() {
-                        mf.touch(&fi);
-                    }
-                }
-                Mgr::Tsm(t) => {
-                    for e in t.h.files.iter().flatten() {
-                        mf.add_file(&format!("table.f{seq}_TSM{}", e.seq));
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    /// The first writes of a flush, in the managers' order (tiles, then a
-    /// tiled manager's header; a StandardStMan's file at its first flush),
-    /// then the container is packed.
+    /// The table's flush of its MultiFile container (after the managers'
+    /// flushes, which logged their writes).
     fn mf_flush(&mut self) -> Result<()> {
-        let Some(mf) = self.mf.as_mut() else {
-            return Ok(());
-        };
-        for (m, (_, seq)) in self.mgrs.iter().zip(&self.dat.managers) {
-            let f = format!("table.f{seq}");
-            let fi = format!("table.f{seq}i");
-            match m {
-                Mgr::Tsm(t) => {
-                    for e in t.h.files.iter().flatten() {
-                        let name = format!("table.f{seq}_TSM{}", e.seq);
-                        mf.add_file(&name);
-                        let len = std::fs::metadata(self.files.join(&name)).map_or(0, |m| m.len());
-                        if len > 0 && !mf.is_touched(&name) {
-                            mf.touch(&name);
-                        }
-                    }
-                    mf.touch(&f);
-                }
-                Mgr::Ssm(_) => {
-                    mf.touch(&f);
-                    if self.files.join(&fi).is_file() {
-                        mf.touch(&fi);
-                    }
-                }
-                Mgr::Ism(_) => {
-                    mf.touch(&f);
-                    if self.files.join(&fi).is_file() {
-                        mf.touch(&fi);
-                    }
-                }
-                _ => {}
-            }
+        match self.mf.as_mut() {
+            Some(mf) => mf.pack(),
+            None => Ok(()),
         }
-        mf.pack()
     }
 
     /// Mark the table changed without changing it, as casacore's
@@ -4800,6 +5282,11 @@ impl TableWriter {
 
     /// `addcols` of one column.
     pub fn add_column(&mut self, spec: &NewColumn) -> Result<()> {
+        let log = self.mf.as_ref().map(|m| m.log.clone());
+        crate::multifile::with_log(log.as_ref(), || self.add_column_in(spec))
+    }
+
+    fn add_column_in(&mut self, spec: &NewColumn) -> Result<()> {
         self.guard()?;
         if self.dat.column(&spec.name).is_ok() {
             return err(format!("column {} already exists", spec.name));
@@ -4958,7 +5445,12 @@ impl TableWriter {
                     .zip(&cube_tile)
                     .map(|(&s, &t)| (s + t - 1) / t)
                     .product();
-                let mut t = TsmW::with_header(&self.files, h.clone(), vec![TsmRole::Data], vec![spec.name.clone()]);
+                let mut t = TsmW::with_header(
+                    &self.files,
+                    h.clone(),
+                    vec![TsmRole::Data],
+                    vec![spec.name.clone()],
+                );
                 let length = ntiles as u64 * t.bucket_size(&cube) as u64;
                 let file_seq = if column { 0 } else { 1 };
                 if column {
@@ -4983,6 +5475,10 @@ impl TableWriter {
                     h.pos_map = vec![last];
                 }
                 let tiles = File::create(self.files.join(format!("table.f{seq}_TSM{file_seq}")))?;
+                crate::multifile::emit(
+                    &crate::multifile::current(),
+                    crate::multifile::Event::Create(format!("table.f{seq}_TSM{file_seq}")),
+                );
                 tiles.set_len(length)?;
                 t.h = h;
                 t.write_header = true;
@@ -5548,7 +6044,8 @@ pub fn check_serialisation(path: impl AsRef<Path>) -> Result<SerialisationCheck>
                             && index == on_disk
                             && SsmBlob::parse(blob)?.serialise() == *blob)
                     }
-                    "TiledColumnStMan" | "TiledShapeStMan" | "TiledCellStMan" | "TiledDataStMan" => {
+                    "TiledColumnStMan" | "TiledShapeStMan" | "TiledCellStMan"
+                    | "TiledDataStMan" => {
                         let bytes = std::fs::read(&file)?;
                         Ok(TsmHeader::parse(&bytes)?.serialise() == bytes)
                     }

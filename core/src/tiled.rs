@@ -244,9 +244,18 @@ pub fn array_field(r: &Record, name: &str) -> Option<(i32, Vec<i64>, Vec<u8>)> {
 
 /// Define (or replace) the array field `name` of scalar type `code` with
 /// native-endian `values` of `shape`.
-pub fn define_array(r: &mut Record, name: &str, code: i32, shape: &[i64], values: &[u8]) -> Result<()> {
+pub fn define_array(
+    r: &mut Record,
+    name: &str,
+    code: i32,
+    shape: &[i64],
+    values: &[u8],
+) -> Result<()> {
     if array_code(code).is_none() {
         return Err(MsError(format!("no array type for type {code}")));
     }
-    r.define(name, KeywordValue::Array(code, shape.to_vec(), values.to_vec()))
+    r.define(
+        name,
+        KeywordValue::Array(code, shape.to_vec(), values.to_vec()),
+    )
 }
