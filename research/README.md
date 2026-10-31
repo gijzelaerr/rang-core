@@ -13,6 +13,10 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: W4-3, [closure and flux-standard kernels in the extension](w4-3-kernels.md):
+no kernel call runs Cargo; standalone builders and dead fallbacks deleted;
+byte-identical, a wheel without cargo runs both (W4R-06, W4R-16).
+
 New, 2026-10-31: W4, the [final review](w4-review.md): no archived result
 is affected, and the kernels are bit-identical across thread counts. There
 are 17 findings: 1 high, the solver options missing from receipts; 8

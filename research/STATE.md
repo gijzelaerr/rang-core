@@ -1,5 +1,11 @@
 # Rang research state
 
+W4-3 (2026-10-31, measured; [w4-3-kernels.md](w4-3-kernels.md)): the
+extension binds `closure_scores` and `fluxstd_eval`, and no kernel call runs
+Cargo. The standalone builders, the ctypes fallbacks and the dead P5 branch
+are gone. The kernels are byte-identical to the standalone builds, and a
+wheel without cargo runs both. This closes W4R-06 and W4R-16.
+
 W4 final review (big plan wave 4), 2026-10-31 (reviewed; measured;
 [w4-review.md](w4-review.md)). It is a read-only `/code-review` of `main` at
 `17653e4`:
