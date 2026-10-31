@@ -11,12 +11,21 @@ license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 readme = "README.md"
 authors = [{name = "Gijs Molenaar"}]
-keywords = ["radio astronomy", "MeerKAT", "calibration", "flagging", "interferometry"]
+keywords = ["radio astronomy", "MeerKAT", "calibration", "flagging", "interferometry", "imaging", "measurement set"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Rust",
     "Topic :: Scientific/Engineering :: Astronomy",
 ]
@@ -25,14 +34,19 @@ classifiers = [
 dependencies = ["numpy>=1.26"]
 
 [project.urls]
+Documentation = "https://gijzelaerr.github.io/rang-core/"
 Repository = "https://github.com/gijzelaerr/rang-core"
+Issues = "https://github.com/gijzelaerr/rang-core/issues"
+Changelog = "https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.8"]
 test = ["pytest>=8"]
-pointing = ["jax>=0.4.30", "numpy>=1.26", "scipy>=1.12"]
+pointing = ["jax>=0.4.30", "scipy>=1.12"]
 beam = ["katbeam==0.1", "eidos==1.1.2"]
-flagging = ["quartical==0.2.7", "stimela==2.1.4", "python-casacore==3.8.1", "numpy>=1.26", "matplotlib>=3.8"]
+# No `flagging` extra since W4-5 (research/w4-5-release.md): it pinned the
+# frozen QuartiCal 0.2.7 / Stimela 2.1.4 / python-casacore 3.8.1 stack that
+# only history/ used; history/tools/flagging/requirements.lock keeps the pins.
 recipes = ["stimela==2.1.4"]
 imaging = ["astropy>=6"]
 # MeerKAT MVFv4 archives through katdal (research/mk1-katdal.md); python-lzf and
@@ -64,6 +78,36 @@ rang-core = "rang.core_cli:main"
 python-source = "python"
 manifest-path = "core/py/Cargo.toml"
 module-name = "rang._core"
+# The sdist holds what builds the wheel and what tests the installed wheel
+# (research/w4-5-release.md): the three crates, python/, tests/ (the wheel
+# subset of tools/wheel/pytest_wheel.py runs from it; the full suite reads
+# research/ and needs a checkout), tools/wheel/, README, CHANGELOG and LICENSE.
+# The root crate rang-toy is a path dependency at the repository root, so
+# without this list cargo's file list puts the whole tree in the sdist.
+# .cargo/config.toml (x86-64-v3 for local builds) stays out: an sdist build
+# targets the builder's baseline CPU.
+exclude = [
+    { path = ".cargo/**/*", format = "sdist" },
+    { path = ".github/**/*", format = "sdist" },
+    { path = "core/examples/**/*", format = "sdist" },
+    { path = "data/**/*", format = "sdist" },
+    { path = "docs/**/*", format = "sdist" },
+    { path = "examples/**/*", format = "sdist" },
+    { path = "formal/**/*", format = "sdist" },
+    { path = "history/**/*", format = "sdist" },
+    { path = "notebooks/**/*", format = "sdist" },
+    { path = "outputs/**/*", format = "sdist" },
+    { path = "recipes/**/*", format = "sdist" },
+    { path = "research/**/*", format = "sdist" },
+    { path = "tools/check-all.sh", format = "sdist" },
+    { path = "tools/core-j-suite.sh", format = "sdist" },
+    { path = "tools/formats-oracle/**/*", format = "sdist" },
+    { path = "tools/ms-reader/**/*", format = "sdist" },
+    { path = "tools/oracles/**/*", format = "sdist" },
+    { path = "AGENTS.md", format = "sdist" },
+    { path = "CONTRIBUTING.md", format = "sdist" },
+    { path = ".gitignore", format = "sdist" },
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
