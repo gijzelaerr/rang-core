@@ -1378,6 +1378,8 @@ BACKENDS_VOLATILE = {
     "core_library_sha256",
     "code_sha256",
     "module_sha256",
+    # Task W4-1: the environment record added to receipts and provenance.
+    "rang_environment",
     "rang_core_lib",
     "rang_core_backend",
     "executable",

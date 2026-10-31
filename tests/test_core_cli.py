@@ -238,7 +238,7 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
     # The comparator's own receipt carries no CLI additions.
     assert "comparator" not in json.loads(out.read_text())
     receipt = json.loads((tmp_path / "compare.compare.rang-receipt.json").read_text())
-    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 2
+    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 3
     assert (receipt["stage"], receipt["verb"], receipt["exit"]) == (
         "trend",
         "compare",
@@ -257,6 +257,46 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
     assert env["platform"] and env["machine"]
     assert set(receipt["timings"]) == {"wall_seconds", "cpu_seconds", "peak_rss_mb"}
     assert set(receipt["commit"]) == {"head", "dirty"}
+    # Version 3 (task W4-1): the registry's variables and the source.
+    from rang import core
+
+    assert list(env["rang_environment"]) == [
+        v.name for v in core.environment_variables()
+    ]
+    assert {"RANG_SOLVE_OPTIONS", "RANG_GRIDDER_DEVICE", "RANG_DF1_LIB"} <= set(
+        env["rang_environment"]
+    )
+    assert receipt["source"]["checkout"] == ROOT.as_posix()
+    assert receipt["source"]["distribution"] == "rang-core"
+    assert receipt["source"]["extension_sha256"] == env["extension"]["sha256"]
+
+
+def test_receipt_records_a_set_variable_when_the_command_starts(monkeypatch):
+    """W4R-01 (r02): a result-affecting variable appears in the receipt."""
+    monkeypatch.setenv("RANG_SOLVE_OPTIONS", "qp_weights=transposed")
+    monkeypatch.delenv("RANG_GRIDDER_DEVICE", raising=False)
+    receipt = core_cli.Receipt(["rang-core", "x"], "x", None, [], [])
+    monkeypatch.setenv("RANG_SOLVE_OPTIONS", "changed later")
+    env = receipt.record(0)["environment"]["rang_environment"]
+    assert env["RANG_SOLVE_OPTIONS"] == "qp_weights=transposed"
+    assert env["RANG_GRIDDER_DEVICE"] is None
+    assert "RANG_CARTA_SESSION_ID" not in env and "RANG_MS_FIXTURE" not in env
+    # Read live when called directly, as r02 does.
+    live = core_cli._environment_record([])["rang_environment"]
+    assert live["RANG_SOLVE_OPTIONS"] == "changed later"
+
+
+def test_receipt_outside_a_checkout_records_no_commit(monkeypatch):
+    """W4R-02 (r05): no checkout, no commit; the distribution identifies it."""
+    from rang import core
+
+    monkeypatch.setattr(core, "checkout_root", lambda: None)
+    record = core_cli.Receipt(["rang-core", "x"], "x", None, [], []).record(0)
+    assert record["commit"] is None
+    assert record["source"]["checkout"] is None
+    assert record["source"]["version"] == core_cli._distribution_version()
+    assert record["source"]["extension_sha256"] == core_cli._extension()["sha256"]
+    assert core_cli._git_status() is None
 
 
 def test_failing_compare_exits_like_the_script_and_records_the_verdict(tmp_path):
