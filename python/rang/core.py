@@ -188,7 +188,7 @@ ENVIRONMENT = (
         "unset",
         "result",
         "the container image the trend run's configuration records",
-        "core-phase3-trend",
+        "flagging-parallel",
         "python/rang/core_trend_run.py",
     ),
     _v(

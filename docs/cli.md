@@ -516,7 +516,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_C1_LIB` | unset (the extension or the C1 standalone build) | result | a prebuilt closure-score library loaded through ctypes | `research/c1-closure-arm.md` | `python/rang/core_closure.py` |
 | `RANG_P6` | unset (the frozen calls) | result | `1` runs the signal track's ported guard and influence functions | `research/p6-python-hotspots.md` | `python/rang/core_signal.py` |
 | `RANG_TOY_BIN` | unset (the extension) | result | a pointing-toy binary run instead of the extension | `research/p7-architecture.md` | `python/rang/__init__.py` |
-| `RANG_FLAGGING_SUITE_IMAGE` | unset | result | the container image the trend run's configuration records | `research/core-phase3-trend.md` | `python/rang/core_trend_run.py` |
+| `RANG_FLAGGING_SUITE_IMAGE` | unset | result | the container image the trend run's configuration records | `research/flagging-parallel.md` | `python/rang/core_trend_run.py` |
 | `RANG_STRATEGY_DIR` | unset (the CARACAL strategy inputs under outputs/) | input | directory of the Tricolour strategies the notebook flags with | `research/d2-notebook.md` | `python/rang/notebook/flags.py` |
 | `RANG_FIXTURE` | unset (outputs/ska-pointing/outer_scans.zip) | input | the notebook's pointing fixture | `research/d2-notebook.md` | `python/rang/notebook/data.py` |
 | `RANG_LUNO_SLICE` | unset (task G's fetch) | input | the notebook's LUNO slice directory | `research/d2-notebook.md` | `python/rang/notebook/data.py` |
