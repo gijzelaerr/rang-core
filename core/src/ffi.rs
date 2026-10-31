@@ -188,6 +188,94 @@ pub struct SolveInputs {
     pub max_iterations: usize,
     pub stop_criterion: f64,
     pub stop_fraction: f64,
+    /// Run-time solver options (task W4-1: passed, no longer read from
+    /// `RANG_SOLVE_OPTIONS` by the core); all zero is the archived solver.
+    pub options: SolveOptions,
+    /// UTF-8 path of a per-iteration trace to write, `trace_len` bytes; null
+    /// or empty means no trace (task W4-1: was `RANG_SOLVE_TRACE`).
+    pub trace: *const u8,
+    pub trace_len: usize,
+}
+
+/// The parts of `solve::Options` (see `solve::Options::from_parts`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SolveOptions {
+    /// 1: issue 452's transposed qp weights; 0 archived.
+    pub transposed_qp_weights: u8,
+    /// 0 gain (archived), 1 product, 2 loss.
+    pub stop: u8,
+    /// Tolerance of the product and loss tests (ignored for gain).
+    pub tolerance: f64,
+    /// Anderson depth, 0 off, at most `solve::MAX_ANDERSON`.
+    pub anderson: usize,
+    /// 1: an interval that passes its test stops iterating.
+    pub freeze: u8,
+}
+
+impl SolveOptions {
+    fn options(&self) -> Result<solve::Options, solve::Error> {
+        if self.transposed_qp_weights > 1 || self.freeze > 1 {
+            return Err(solve::Error::Options("flags are 0 or 1"));
+        }
+        solve::Options::from_parts(
+            self.transposed_qp_weights == 1,
+            self.stop,
+            self.tolerance,
+            self.anderson,
+            self.freeze == 1,
+        )
+    }
+}
+
+/// Parse the `RANG_SOLVE_OPTIONS` syntax (`solve::OPTIONS_SYNTAX`), `len`
+/// UTF-8 bytes, into `out`: the one parser of the solver options, which the
+/// Python wrapper calls before `rang_core_solve_complex` (task W4-1).
+/// Returns 0 on success, 1 on malformed text or invalid arguments, 2 on a
+/// panic.
+///
+/// # Safety
+/// `text` must reference `len` live bytes (or be null with `len` 0) and
+/// `out` a live `SolveOptions`.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_solve_options_parse(
+    text: *const u8,
+    len: usize,
+    out: *mut SolveOptions,
+) -> i32 {
+    let result = std::panic::catch_unwind(|| {
+        // SAFETY: the caller passes a valid output pointer.
+        let Some(out) = (unsafe { out.as_mut() }) else {
+            return 1;
+        };
+        // SAFETY: `len` live bytes, per the contract.
+        let bytes = if len == 0 {
+            &[][..]
+        } else {
+            match unsafe { slice(text, len) } {
+                Some(b) => b,
+                None => return 1,
+            }
+        };
+        let Ok(text) = std::str::from_utf8(bytes) else {
+            return 1;
+        };
+        match solve::Options::parse(text) {
+            Ok(options) => {
+                let (transposed, stop, tolerance, anderson, freeze) = options.parts();
+                *out = SolveOptions {
+                    transposed_qp_weights: u8::from(transposed),
+                    stop,
+                    tolerance,
+                    anderson,
+                    freeze: u8::from(freeze),
+                };
+                0
+            }
+            Err(_) => 1,
+        }
+    });
+    result.unwrap_or(2)
 }
 
 /// Caller-owned outputs of the `complex` solver.
@@ -201,8 +289,10 @@ pub struct SolveOutputs {
     pub converged_fraction: *mut f64,
 }
 
-/// Run the ported QuartiCal `complex` solver. Returns 0 on success, 1 on
-/// invalid arguments, 3 on a complex division by zero, 2 on a panic.
+/// Run the ported QuartiCal `complex` solver with `inputs.options` and, if
+/// `inputs.trace` names a file, its trace. Returns 0 on success, 1 on
+/// invalid arguments (invalid options, an unwritable trace), 3 on a complex
+/// division by zero, 2 on a panic.
 ///
 /// # Safety
 /// Every non-null pointer must reference live, aligned, nonoverlapping
@@ -286,7 +376,18 @@ pub unsafe extern "C" fn rang_core_solve_complex(
                 stop_criterion: i.stop_criterion,
                 stop_fraction: i.stop_fraction,
             };
-            match solve::solve(&problem, &settings) {
+            let Ok(options) = i.options.options() else {
+                return 1;
+            };
+            let trace = if i.trace_len == 0 {
+                None
+            } else {
+                match slice(i.trace, i.trace_len).map(std::str::from_utf8) {
+                    Some(Ok(path)) => Some(std::path::Path::new(path)),
+                    _ => return 1,
+                }
+            };
+            match solve::solve_recorded(&problem, &settings, &options, trace) {
                 Ok(solution) => {
                     let gains = slice_mut(o.gains, 8 * ngains);
                     for (g, jones) in solution.gains.iter().enumerate() {

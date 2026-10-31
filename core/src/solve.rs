@@ -84,11 +84,10 @@ impl Default for Settings {
     }
 }
 
-/// Environment variable with the run-time solver options (task L5,
-/// `research/l5-solver-science.md`): a comma-separated `key=value` list,
-/// read by `solve` on every call so that the C ABI and the Python extension
-/// reach the options without a signature change. Unset or empty means the
-/// archived QuartiCal 0.2.7 behaviour. Keys:
+/// The run-time solver options' text syntax (task L5,
+/// `research/l5-solver-science.md`), parsed by `Options::parse`: a
+/// comma-separated `key=value` list; empty means the archived QuartiCal
+/// 0.2.7 behaviour. Keys:
 ///
 /// - `qp_weights=archived|transposed`: `transposed` fixes QuartiCal issue
 ///   452 by giving the qp half of `J^H W J` the weights of `V_qp = V_pq^H`,
@@ -106,12 +105,15 @@ impl Default for Settings {
 ///   `m` per interval, one map evaluation being the pair (even half step,
 ///   odd full step) of the archived iteration; safeguarded (see `Anderson`).
 /// - `freeze=0|1`: an interval that passes its test stops iterating.
-pub const OPTIONS_VAR: &str = "RANG_SOLVE_OPTIONS";
-/// Environment variable naming a file that `solve` writes a per-iteration
-/// JSON trace to (task L5 instrumentation; unset means no trace).
-pub const TRACE_VAR: &str = "RANG_SOLVE_TRACE";
+///
+/// Task W4-1 (research/w4-1-receipts.md) moved the environment out of the
+/// core: the Python wrapper `rang.core.solve_complex` reads
+/// `RANG_SOLVE_OPTIONS` and `RANG_SOLVE_TRACE` (its environment registry),
+/// records them and passes the parsed options and the trace path in
+/// `ffi::SolveInputs`; nothing in this crate reads them.
+pub const OPTIONS_SYNTAX: &str = "qp_weights=archived|transposed, stop=gain|product:<tol>|loss:<tol>, anderson=<0..10>, freeze=0|1";
 /// Largest Anderson depth accepted.
-const MAX_ANDERSON: usize = 10;
+pub const MAX_ANDERSON: usize = 10;
 /// Tikhonov regularisation of the Anderson normal equations, relative to
 /// their trace.
 const ANDERSON_REGULARISATION: f64 = 1e-12;
@@ -198,13 +200,55 @@ impl Options {
         Ok(options)
     }
 
-    /// The options in `RANG_SOLVE_OPTIONS`, or the defaults when it is unset.
-    pub fn from_env() -> Result<Self, Error> {
-        match std::env::var(OPTIONS_VAR) {
-            Ok(text) => Self::parse(&text),
-            Err(std::env::VarError::NotPresent) => Ok(Self::default()),
-            Err(std::env::VarError::NotUnicode(_)) => Err(Error::Options("not unicode")),
+    /// Options from their parts, with the checks of `parse`: `stop` is 0
+    /// gain, 1 product or 2 loss (the tolerance is ignored for gain), and
+    /// `anderson` is at most `MAX_ANDERSON`.
+    pub fn from_parts(
+        transposed_qp_weights: bool,
+        stop: u8,
+        tolerance: f64,
+        anderson: usize,
+        freeze: bool,
+    ) -> Result<Self, Error> {
+        let positive = |t: f64| {
+            if t.is_finite() && t > 0. {
+                Ok(t)
+            } else {
+                Err(Error::Options("a tolerance must be a positive number"))
+            }
+        };
+        let stop = match stop {
+            0 => StopTest::Gain,
+            1 => StopTest::Product(positive(tolerance)?),
+            2 => StopTest::Loss(positive(tolerance)?),
+            _ => return Err(Error::Options("stop: gain, product:<tol> or loss:<tol>")),
+        };
+        if anderson > MAX_ANDERSON {
+            return Err(Error::Options("anderson: an integer from 0 to 10"));
         }
+        Ok(Self {
+            transposed_qp_weights,
+            stop,
+            anderson,
+            freeze,
+        })
+    }
+
+    /// The parts `from_parts` takes: (transposed, stop code, tolerance,
+    /// anderson, freeze); the tolerance is 0 for the gain test.
+    pub fn parts(&self) -> (bool, u8, f64, usize, bool) {
+        let (stop, tolerance) = match self.stop {
+            StopTest::Gain => (0, 0.),
+            StopTest::Product(t) => (1, t),
+            StopTest::Loss(t) => (2, t),
+        };
+        (
+            self.transposed_qp_weights,
+            stop,
+            tolerance,
+            self.anderson,
+            self.freeze,
+        )
     }
 }
 
@@ -223,7 +267,7 @@ pub enum Error {
     Shape(&'static str),
     Order(&'static str),
     ZeroDivision,
-    /// Malformed `RANG_SOLVE_OPTIONS`.
+    /// Malformed solver options (the `RANG_SOLVE_OPTIONS` syntax).
     Options(&'static str),
     /// The trace file could not be written.
     Trace(String),
@@ -1220,19 +1264,30 @@ impl Trace {
     }
 }
 
-/// Solve for one `complex` term as QuartiCal 0.2.7 does with rang's settings,
-/// with the run-time options of `RANG_SOLVE_OPTIONS` (default: archived) and,
-/// if `RANG_SOLVE_TRACE` names a file, a per-iteration trace written there.
+/// Solve for one `complex` term as QuartiCal 0.2.7 does with rang's settings
+/// and the archived options (`Options::default()`). Before task W4-1 this
+/// read `RANG_SOLVE_OPTIONS` and `RANG_SOLVE_TRACE`; see `solve_recorded`.
 pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> {
-    let options = Options::from_env()?;
-    match std::env::var_os(TRACE_VAR) {
-        Some(path) if !path.is_empty() => {
-            let (solution, trace) = solve_traced(problem, settings, &options, true)?;
-            std::fs::write(&path, trace.to_json(&options, settings))
+    solve_with(problem, settings, &Options::default())
+}
+
+/// `solve` with explicit options and, when `trace` names a file (non-empty),
+/// a per-iteration trace written there: the entry of `ffi::SolveInputs`,
+/// whose options and trace path the Python wrapper passes (task W4-1).
+pub fn solve_recorded(
+    problem: &Problem,
+    settings: &Settings,
+    options: &Options,
+    trace: Option<&std::path::Path>,
+) -> Result<Solution, Error> {
+    match trace {
+        Some(path) if !path.as_os_str().is_empty() => {
+            let (solution, trace) = solve_traced(problem, settings, options, true)?;
+            std::fs::write(path, trace.to_json(options, settings))
                 .map_err(|e| Error::Trace(e.to_string()))?;
             Ok(solution)
         }
-        _ => solve_with(problem, settings, &options),
+        _ => solve_with(problem, settings, options),
     }
 }
 
@@ -2030,6 +2085,48 @@ mod tests {
     }
 
     // --- Task L5 (research/l5-solver-science.md): run-time options.
+
+    /// Task W4-1: the parts round trip through `from_parts`, which applies
+    /// `parse`'s checks, and `solve_recorded` without a trace is `solve_with`.
+    #[test]
+    fn options_parts_round_trip_and_recorded_solve_is_solve_with() {
+        for text in [
+            "",
+            "qp_weights=transposed",
+            "stop=product:1e-5,anderson=3",
+            "stop=loss:2e-7,freeze=1",
+        ] {
+            let options = Options::parse(text).unwrap();
+            let (t, stop, tol, m, f) = options.parts();
+            assert_eq!(Options::from_parts(t, stop, tol, m, f).unwrap(), options);
+        }
+        for (stop, tol, m) in [(3, 0., 0), (1, 0., 0), (2, f64::NAN, 0), (0, 0., 11)] {
+            assert!(matches!(
+                Options::from_parts(false, stop, tol, m, false),
+                Err(Error::Options(_))
+            ));
+        }
+        let synthetic = Synthetic::new(1);
+        let problem = synthetic.problem();
+        let settings = Settings::default();
+        for text in ["", "qp_weights=transposed,anderson=2"] {
+            let options = Options::parse(text).unwrap();
+            let a = solve_with(&problem, &settings, &options).unwrap();
+            let b = solve_recorded(&problem, &settings, &options, None).unwrap();
+            let c = solve_recorded(
+                &problem,
+                &settings,
+                &options,
+                Some(std::path::Path::new("")),
+            )
+            .unwrap();
+            assert_eq!(bits(&a), bits(&b));
+            assert_eq!(bits(&a), bits(&c));
+        }
+        let plain = solve(&problem, &settings).unwrap();
+        let default = solve_with(&problem, &settings, &Options::default()).unwrap();
+        assert_eq!(bits(&plain), bits(&default));
+    }
 
     #[test]
     fn options_parse_and_reject() {
