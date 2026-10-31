@@ -25,8 +25,14 @@ logs in OUT_DIR (which must not exist), wall times in OUT_DIR/timings.tsv:
            VIRTUAL_ENV
   smoke    tools/wheel/smoke.py in the same environment: the extension from
            site-packages is the backend and a fused pass runs
+  kernels  in the same environment, one call of the closure kernel
+           (`rang.core_closure.scores`, 8 stations, finite scores asserted)
+           and of the flux-standard kernel (`rang.fluxstd.core_log10_poly`,
+           within 1e-13 of the Python evaluator); both built a standalone
+           library with cargo before task W4-3 (research/w4-3-kernels.md)
   pytest   tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py
            tests/test_p12_rename.py tests/test_t1_casacure_oracle.py
+           tests/test_w4_3_kernels.py
            from the source tree against the installed wheel through
            tools/wheel/pytest_wheel.py, the same environment: the extension
            against the archive of the retired ctypes oracle, the pointing
@@ -56,7 +62,28 @@ ROOT = Path(__file__).resolve().parents[2]
 TESTS = (
     "tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py"
     " tests/test_p12_rename.py tests/test_t1_casacure_oracle.py"
+    " tests/test_w4_3_kernels.py"
 )
+# The kernels step: the closure and flux-standard kernels from the wheel.
+KERNELS_CODE = """
+import numpy as np
+from rang import core_closure, fluxstd
+a1, a2 = (x.astype(np.uint32) for x in np.triu_indices(8, 1))
+nrow = len(a1)
+model = np.zeros((nrow, 2, 4), np.complex64)
+model[..., 0] = model[..., 3] = 10.0
+rng = np.random.default_rng(1)
+data = (model + 0.05 * rng.normal(size=model.shape)).astype(np.complex64)
+out = core_closure.scores(
+    data, model, np.ones(model.shape, np.float32), np.ones((nrow, 2), np.uint8),
+    a1, a2, np.zeros(nrow, np.uint32), np.arange(8, dtype=np.uint32), "trace",
+)
+assert np.isfinite(out["residual"]).all() and out["count"].min() == 6, out
+coeffs, nu = (1.2481, -0.4507, -0.1798, 0.0357), np.geomspace(0.5e9, 20e9, 41)
+rs = fluxstd.core_log10_poly(coeffs, 1e9, nu)
+assert np.max(np.abs(rs / fluxstd.log10_poly(coeffs, 1e9, nu) - 1)) < 1e-13
+print("closure", float(np.median(out["residual"])), "fluxstd", float(rs[0]))
+"""
 EXTRAS = "test,imaging,casacure"
 # Always allowed: the toy bytes elsewhere (P7); the cells where casacure
 # 3.8.35 has no wheel (T1, decided in tests/test_t1_casacure_oracle.py).
@@ -206,6 +233,7 @@ def main():
         clean,
     )
     run("smoke", [python, "-I", ROOT / "tools" / "wheel" / "smoke.py"], clean)
+    run("kernels", [python, "-I", "-c", KERNELS_CODE], clean)
 
     def skips(text):
         bad = [

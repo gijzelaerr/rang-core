@@ -394,98 +394,27 @@ def manual_lsm_source(ra, dec, fluxdensity, reffreq_hz, spix, *, name="manual"):
 
 
 # --- The Rust kernel ------------------------------------------------------
-# Until core/src/lib.rs lists `fluxstd` (the coordinator's step), the two Rust
-# files build as a standalone cdylib in core/target/fs1-standalone, as P5 and
-# DF1 did. No dependencies, so no lock file is needed.
-
-
-def standalone_dir():
-    from rang import core
-
-    return core.core_root() / "target" / "fs1-standalone"
-
-
-def write_standalone():
-    from rang import core
-
-    src = core.core_root() / "src"
-    out = standalone_dir()
-    out.mkdir(parents=True, exist_ok=True)
-    files = {
-        "Cargo.toml": "[package]\n"
-        'name = "rang-fs1-core"\nversion = "0.1.0"\nedition = "2024"\n'
-        'license = "GPL-3.0-or-later"\npublish = false\n\n[lib]\n'
-        'name = "rang_fs1_core"\npath = "root.rs"\n'
-        'crate-type = ["rlib", "cdylib"]\n\n[workspace]\n',
-        "root.rs": "//! Standalone build of FS1 until core/src/lib.rs lists it.\n"
-        + "".join(
-            f'#[path = "{(src / f"{m}.rs").as_posix()}"]\npub mod {m};\n'
-            for m in ("fluxstd", "ffi_fluxstd")
-        ),
-    }
-    for name, text in files.items():
-        path = out / name
-        if not path.is_file() or path.read_text() != text:
-            path.write_text(text)
-    return out
+# `core/src/fluxstd.rs` runs in the extension (`rang._core.fluxstd_eval`,
+# task W4-3, research/w4-3-kernels.md); nothing is built at a call.
 
 
 def rust_library():
-    """ctypes handle on the standalone kernel, built offline on demand."""
-    import ctypes
-    import subprocess
-    import sys
+    """The extension module that runs the kernel (`rang._core`)."""
+    from rang import core
 
-    out = write_standalone()
-    subprocess.run(
-        ["cargo", "build", "--offline", "--release", "-q"], cwd=out, check=True
-    )
-    lib = ctypes.CDLL(
-        str(
-            out
-            / "target"
-            / "release"
-            / {"win32": "rang_fs1_core.dll", "darwin": "librang_fs1_core.dylib"}.get(
-                sys.platform, "librang_fs1_core.so"
-            )
-        )
-    )
-    dptr = ctypes.POINTER(ctypes.c_double)
-    fn = lib.rang_core_fluxstd_eval
-    fn.argtypes = [ctypes.c_size_t, dptr, ctypes.c_double, ctypes.c_size_t, dptr, dptr]
-    fn.restype = ctypes.c_int
-    return lib
+    return core.extension()
 
 
 def rust_log10_poly(lib, coeffs, unit_hz, freq_hz):
-    """`log10_poly` through the Rust kernel (`rang_core_fluxstd_eval`)."""
-    import ctypes
-
-    c = np.ascontiguousarray(coeffs, dtype=float)
+    """`log10_poly` through the Rust kernel (`fluxstd_eval` of `lib`, the
+    extension); ValueError when the core rejects the input."""
+    c = np.ascontiguousarray(coeffs, dtype=float).ravel()
     f = np.ascontiguousarray(freq_hz, dtype=float).ravel()
     out = np.empty_like(f)
-    dptr = ctypes.POINTER(ctypes.c_double)
-    rc = lib.rang_core_fluxstd_eval(
-        len(c), c.ctypes.data_as(dptr), unit_hz, len(f),
-        f.ctypes.data_as(dptr), out.ctypes.data_as(dptr),
-    )  # fmt: skip
-    if rc != 0:
-        raise ValueError("rang_core_fluxstd_eval rejected its input")
+    lib.fluxstd_eval(c, float(unit_hz), f, out)
     return out.reshape(np.shape(freq_hz))
 
 
 def core_log10_poly(coeffs, unit_hz, freq_hz):
-    """The Rust kernel through the extension once the coordinator binds
-    `rang._core.fluxstd_eval(coeffs, unit_hz, freq) -> ndarray`; until then
-    the standalone cdylib (needs cargo)."""
-    try:
-        from rang import _core
-    except ImportError:
-        _core = None
-    if _core is not None and hasattr(_core, "fluxstd_eval"):
-        freq = np.ascontiguousarray(freq_hz, dtype=float)
-        coeffs = np.ascontiguousarray(coeffs, dtype=float)
-        return np.asarray(_core.fluxstd_eval(coeffs, unit_hz, freq.ravel())).reshape(
-            freq.shape
-        )
+    """`log10_poly` through the Rust kernel in the extension."""
     return rust_log10_poly(rust_library(), coeffs, unit_hz, freq_hz)

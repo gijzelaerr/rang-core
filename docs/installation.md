@@ -14,17 +14,16 @@ a wheel from the artifacts of a `wheels` workflow run and
 ```
 
 The wheel carries the compiled core, so no Rust compiler is needed for the
-flagging chain, imaging and the tutorials. The kernels are inside the
+flagging chain, imaging and the tutorials. Every kernel is inside the
 extension `rang._core`, including the root crate's (gain TV, phase trend,
-anchored response, projector, the pointing toy); importing `rang` never runs
-Cargo, and the extension releases the GIL around every kernel.
-
-Three later additions are not in the extension yet: the exact wgridder
+anchored response, projector, the pointing toy), the exact wgridder
 (`rang.core_wgridder`), the closure statistic (`rang.core_closure`) and the
-Rust path of the flux standards (`rang.fluxstd`; its Python tables need no
-build) build a standalone library with `cargo` from a source checkout on
-first use. The archive drivers and comparators read archived inputs from a
-checkout too.
+Rust path of the flux standards (`rang.fluxstd`). Neither importing `rang`
+nor calling a kernel runs Cargo, and the extension releases the GIL around
+every kernel.
+
+The archive drivers and comparators read archived inputs from a source
+checkout.
 
 {gh}`.github/workflows/wheels.yml` builds and tests one `abi3` wheel per
 platform for CPython 3.10 and newer. The Linux and Windows wheels were also

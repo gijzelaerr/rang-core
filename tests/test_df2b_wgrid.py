@@ -2,6 +2,7 @@
 two-weight entry point and the extension bindings (research/df2b-wgrid.md)."""
 
 import inspect
+import subprocess
 
 import numpy as np
 import pytest
@@ -43,10 +44,14 @@ def _inputs(nrow=40, nchan=3, seed=5, scale_arcsec=120.0, npix=32):
 
 
 def test_extension_binds_the_gridder_without_the_standalone_build(monkeypatch):
-    def refuse():
-        raise AssertionError("the standalone build must not be needed")
+    def refuse(*args, **kwargs):
+        raise AssertionError("no subprocess (cargo) may run for the gridder")
 
-    monkeypatch.setattr(core_wgridder, "build_standalone", refuse)
+    # W4-3 removed the standalone build and the ctypes fallback.
+    monkeypatch.setattr(subprocess, "run", refuse)
+    monkeypatch.setattr(subprocess, "Popen", refuse)
+    for name in ("build_standalone", "write_standalone", "library", "Options"):
+        assert not hasattr(core_wgridder, name), name
     assert core_wgridder.backend() == "extension"
     assert core_wgridder.library_path() == core_wgridder.core.library_path()
     assert core_wgridder.kernel_row(0) is not None
