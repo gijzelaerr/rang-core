@@ -4,18 +4,89 @@
 
 Update this block when a merge changes it. The log below is the record.
 
-- **What `main` is:** rang-core 0.1.0 before its first tag: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
-- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
+- **What `main` is:** rang-core after the 0.1.0 release: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
+- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-8, the reference imager [gmclean](gmclean.md) with its [benchmark](gmclean-benchmark.md) and the flagged [Gram operator](gridder-theory.md) (their times provisional); see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the CLEAN programme's gmclean branches arrive separately.
-- **Next:** the owner's v0.1.0 tag, then Landman's self-supervised flagger (protocol first), then DF5 with an RML arm, then B1 with an external catalogue.
-- **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; forward the observer's native data when it arrives.
+- **Running:** Landman's flagger, its early test (Stages 1a and 1b on branch `f1-tv-flagger`).
+- **Next:** Landman's self-supervised flagger ([protocol](f1-tv-flagger.md); early test first), then DF5 with an RML arm, then B1 with an external catalogue.
+- **User items** ([big plan](big-plan.md#user-items-not-blocking)): allow JAX on the flagger's training path; ask Landman the three protocol questions; forward the observer's native data when it arrives.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
 
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+gmclean family merged, 2026-11-02 (merge record; the science is in the three paragraphs below).
+`gmclean-bench` as `8ed836b`, `gmclean` as `ef6d2ed` with follow-ups `303478d` and `705085d`
+(`RANG_GMCLEAN_SIMD` registered, a script formatted, the CLI page regenerated), `gridder-gram` as
+`ce03bf2`. Check-all passes on each pushed head; `lake build` of the merged tree passes with 73
+audited theorems on the standard axioms. Not exercised by check-all: the ducc0 comparison in
+`tests/test_core_wgridder.py` is skipped because ducc0 is not in the venv. Every speed figure in
+these notes stays provisional until the idle-host pass.
+
+Gridder theory, 2026-11-02 (prototype behind a flag; accuracy and instructions measured;
+**times provisional**; [gridder-theory.md](gridder-theory.md), branch `gridder-gram`):
+
+- **Implemented.** `gmclean -gram-operator S,THETA`: major cycles from a w-node Toeplitz
+  operator, no visibilities after the setup. 23 Lean theorems (`Gridder.lean`).
+- **Measured.** 2048²: one apply 23.7 G instructions at any `N_vis`, against 307 G for
+  grid+degrid at 31 M, same error at ε 1e-6. Same Q, false flux and peak as the default on
+  S1-S3. S1 at 87 major cycles: 480 → 140 s (load 13-15).
+- **Negative.** No wall-time gain on gmclean's own 3-5 cycles: setup costs 2-3 passes. At
+  4096² the cube is 8.3 GB in `f32` and the apply only 15 % cheaper at 31 M. Operator Q is
+  unreliable near the floor. Visibility averaging and per-baseline support: nothing.
+- **Prior art.** Fessler et al. 2005 (the sum), Dabbech and Wiaux 2026 (visibility-free with
+  w, sparse). Not a novelty claim.
+- **Next.** Try it in a solver with many passes; the weight-aware kernel budget (Briggs
+  only, ×0.64-0.99 in `S³`, counted); idle-host wall times.
+
+gmclean, 2026-11-02 (implemented; accuracy measured; **all times provisional**,
+shared host; [gmclean.md](gmclean.md), branch `gmclean`):
+
+- **Implemented.** A reference CLEAN whose minor step takes the exact image-domain
+  value at the pixel it cleans: the binary `gmclean` (MS in, WSClean-oriented FITS
+  out), SIMD kernels, a real-input FFT resync, a kept gridder plan
+  (`wgridder::Prepared`), 4 Lean lemmas.
+- **Measured.** A long minor cycle fits the phase-centre beam's off-centre error as
+  false components; a misfit fraction and the gap do not see it. Benchmark `961e162`
+  to `0d804e4` were wrong on S1 (1,000,000 components, 20.3 Jy false flux). Fixed:
+  cycles now end at the pointwise error the last major cycle measured. S1, S2, S3: 5,
+  5, 4 major cycles, false flux 4.3, 4.9, 1.6 mJy; WSClean's Högbom loop 6, 6, 5 and
+  5.4, 6.7, 1.7 mJy.
+- **Negative.** "1-3 major cycles" is not reachable at low false flux here. The gridder
+  is about 60 % of the time. Explicit SIMD helps only the minor loop, invisible in a whole run. Slice
+  central flux still −12.4 %. The rule's ρ and g were chosen on the same skies.
+- **Next.** Re-test the timing decisions in gmclean.md §5.4 on an idle host, re-run
+  the benchmark at the current commit (its `-mgain 0.8` now means WSClean's peak
+  fraction, so drop it to get the default).
+
+gmclean benchmark, 2026-11-02 (implemented; accuracy measured; speed PROVISIONAL;
+[gmclean-benchmark.md](gmclean-benchmark.md), branch `gmclean-bench`):
+
+- **Datasets.** Three simulated 64-dish MS (S1 50 points, S2 plus a 40″ disc, S3 500
+  points; 1,814,400 rows × 8 channels, exact DFT, rang's own table writer, natural
+  noise 19.84 µJy) and the LUNO slice; core against WSClean 2.3e-7 of the peak.
+- **Baselines.** At 100 µJy, neither imager diverges on the full array. gmclean
+  `d94850e` is 0.03 to 0.27 % lower in misfit, with the same flux recovery, and stops
+  at the threshold where WSClean's fast loop leaves 178 to 245 µJy.
+- **Negative.** At gmclean's mgain 0.8, S1 and S2 carry 263 to 368 mJy of false flux,
+  100 times WSClean's. On S1 `-mgain 0.1` removes it and gives WSClean's plain-loop
+  answer at 59 major cycles.
+- **Slice.** WSClean diverges at `abs`, `-padding 2` included, and cleans nothing at
+  `auto`. gmclean converges (Q/Q0 4.7e-4), with central flux −12 % at `abs`, −0.9 % at
+  `auto`.
+- **Later commit.** The same S1 job at `0d804e4` stops on the 1,000,000-component
+  limit with Q/Q_truth 1.244 (§4.5 of the note); cause not investigated.
+- **Speed.** Every time is contended: no speed ratio is final. The rerun subset is in
+  §7 of the note (`examples/gmclean_bench_timing.sh`).
+
+v0.1.0 released, 2026-11-02. The owner tagged `09bb03f`; the wheels workflow built and tested the
+five wheels and the sdist, created the GitHub release and published to PyPI by trusted publishing.
+`pip install rang-core==0.1.0` from PyPI on native Windows runs `rang-core --version` and imports
+`rang._core`. Merged with this note: the F1 protocol ([f1-tv-flagger.md](f1-tv-flagger.md),
+proposed; nothing trained; its early test waits for the owner's decision on JAX in training).
+
 
 U4, upstream findings filed (big plan), 2026-11-02 (implemented; measured;
 [u4-upstream.md](u4-upstream.md)). Filed, each reproduced on the latest release: tigger-lsm#55, #56,

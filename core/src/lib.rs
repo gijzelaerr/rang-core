@@ -40,9 +40,11 @@ pub mod ffi_weights;
 pub mod ffi_wgridder;
 pub mod fluxstd;
 pub mod fused;
+pub mod gmclean;
 #[cfg(feature = "gpu")]
 pub mod gpu;
 pub mod grid;
+pub mod gridder_gram;
 pub mod ism;
 pub mod jones;
 pub mod ms;

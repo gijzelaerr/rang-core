@@ -1368,3 +1368,46 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | big plan U4: casacure `cargo test --release --workspace` | fix branch | 52.5 s | 980 MB |  |
 | 2026-11-02 | big plan U4: casacure `pytest tests/` (shim) | fix branch | 55.8 s | 246 MB | 471 passed |
 | 2026-11-02 | big plan U4: `bash tools/check-all.sh` | this branch | 998.1 s (includes lock wait) | 2.11 GB | overall PASS; pytest 824 passed, 19 skipped. A first run (877.0 s) failed at collection: the briefed venv extras lack scipy; rerun with `.[pointing,beam,test,imaging,formats]` |
+| 2026-11-02 | uv pip install editable venv | worktree | 227.5 s | – |  |
+| 2026-11-02 | gmclean-bench simulate S1 / S2 / S3 (rang writer) | 1,814,400 rows × 8 × 4 | 36.5 / 36.8 / 206.9 s | 0.40 / 0.39 / 0.49 GB | PROVISIONAL (contended); DFT |
+| 2026-11-02 | gmclean-bench WSClean `-niter 0` checks | 8 jobs, -j 16 | 300.0 s | 0.64 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench prepare S1 / S2 / S3 / slice | exact dirty and PSF, ε 1e-9, noise images | 37.6 / 31.2 / 32.3 / 2.0 s | 2.5 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 36 jobs -j 16 | simulations and slice, fast and plain loop | 4,036 s | 0.78 GB | PROVISIONAL; plain loop 284-571 s per job |
+| 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 30 jobs -j 1 | fast loop, slice plain loop | 4,551 s | 0.78 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench WSClean plain loop S1 abs nominres -j 1 | 85,000 iterations | 924 s | 0.77 GB | PROVISIONAL; deconvolution 725 s |
+| 2026-11-02 | gmclean-bench `tools/check-all.sh` | `62670bf` | 426 s | – | pass; shared host |
+| 2026-11-02 | gmclean-bench `cargo build --release --bin gmclean` | `d94850e` | 215.4 s | – | contended |
+| 2026-11-02 | gmclean-bench gmclean matrix, 8 jobs -j 16 / 8 jobs -j 1 | `d94850e` | 1,043 / 2,571 s | 2.48 GB | PROVISIONAL; not a speed comparison |
+| 2026-11-02 | gmclean-bench gmclean S1 abs `-tau-min 0.9` / `-mgain 0.1` | `d94850e`, -j 16 | 601 / 479 s | 2.5 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench scoring | per simulated model, 4 threads | about 20 s | 2.6 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench gmclean rebuild and S1 abs -j 16 at `0d804e4` | 1,000,000 components (limit) | 177 / 111 s | 2.85 GB | PROVISIONAL |
+| 2026-11-02 | gmclean: `cargo build --release` core, first (Windows) | worktree | 300 s | – | shared host |
+| 2026-11-02 | gmclean: `cargo test --release` core, full (Windows) | 143 tests | 335 s | – | build included, load from other sessions |
+| 2026-11-02 | gmclean: `cargo build --release` example and bin (WSL, ext4 target) | worktree | 126-263 s | – | |
+| 2026-11-02 | gmclean_sim write, 1024² MS, NTFS | 241,920 rows × 8 | 78 s | – | 76 s in the table writer on NTFS |
+| 2026-11-02 | gmclean_sim write, 1024² MS, ext4 | 241,920 rows × 8 | 4.2 s | – | same writer, 3.4 s |
+| 2026-11-02 | gmclean_sim sim, 2048² sky, ext4 | 483,840 rows × 64 (1.5 GB) | 17-30 s | – | three skies |
+| 2026-11-02 | gmclean binary, first version, `perf record`, 3 skies, 2048² | 31 M vis | 92-100 s each | 3.7 GB | load 17-26 |
+| 2026-11-02 | gmclean_compare cmp1-cmp5 sweeps | 3 repeats, 2048² | 20-50 min each | – | interleaved, load 4-17 |
+| 2026-11-02 | gmclean_sim minor, 3 skies, 5 repeats | 12 variants | about 10 min | – | load 6-12 |
+| 2026-11-02 | WSClean 3.7 on 2048² skies, 3 repeats | `-j 8`, default accuracy | 22-39 s per job | – | load 4-16 |
+| 2026-11-02 | gmclean S1 bisection, 4 builds and runs | `s1-abs`, `-j 16` | 74-411 s per run | – | `961e162` first bad; flock |
+| 2026-11-02 | gmclean stop rules, S1, S2, S3 | 13 rules | 22-41 s per job | – | flock; load 4-10 |
+| 2026-11-02 | gmclean S1 `-j 1` | 14.5 M vis | 151 s | – | bit-identical to `-j 16` (34 s) |
+| 2026-11-02 | gmclean_sim bench, 1024², 5 repeats | 14 variants and kernels | about 6 min | – | machine load 7-12 recorded per repeat |
+| 2026-11-02 | `lake build` with Gmclean.lean | formal | 203-552 s | – | |
+| 2026-11-02 | gmclean quieter retest: `minor`, 2 skies, and `cmp6`, 5 repeats | 2048² | about 25 min | – | under the lock, load 2.6-8 |
+| 2026-11-02 | `lake build` with Gridder.lean | formal, packages linked | 69 s (first build of the base 284 s) | – | Windows |
+| 2026-11-02 | `gridder_gram_bench`, `point` sky | pass, operator, sweeps | 28 + 187 + 326 s | – | flock; load 1.4-9 |
+| 2026-11-02 | gridder-gram whole jobs | 6 skies × 6 variants, `-j 8` | 20-67 s per job | – | flock; load 4-17 |
+| 2026-11-02 | gmclean S1 `-mgain 0.1` | default, operator; 87 major cycles | 480, 140 s | – | flock; load 13-15 |
+| 2026-11-02 | `gmclean_bench_compare.py score` | 20 jobs, 3 skies; budget; 4096² | about 6 min in all | – | flock; load 8-13 |
+| 2026-11-02 | `lake build` with Gridder.lean | formal, packages linked | 69 s (first build of the base 284 s) | – | Windows |
+| 2026-11-02 | `gridder_gram_bench`, `point` sky | pass, operator, sweeps | 28 + 187 + 326 s | – | flock; load 1.4-9 |
+| 2026-11-02 | gridder-gram whole jobs | 6 skies × 6 variants, `-j 8` | 20-67 s per job | – | flock; load 4-17 |
+| 2026-11-02 | gmclean S1 `-mgain 0.1` | default, operator; 87 major cycles | 480, 140 s | – | flock; load 13-15 |
+| 2026-11-02 | `gmclean_bench_compare.py score` | 20 jobs, 3 skies; budget; 4096² | about 6 min in all | – | flock; load 8-13 |
+| 2026-11-02 | `tools/check-all.sh`, `gmclean-bench` merge | `8ed836b` | 555 s | – | pass; a first run (462 s) failed only because `uv` was not on the launcher's PATH |
+| 2026-11-02 | `tools/check-all.sh`, `gmclean` merge | `ef6d2ed`, `303478d`, `705085d` | 694, 534, 538 s | – | fail (ruff format, registry), fail (CLI page), pass |
+| 2026-11-02 | `tools/check-all.sh`, `gridder-gram` merge | `ce03bf2` | 850 s | – | pass; the wall includes waiting for the heavy lock |
+| 2026-11-02 | `lake build` of the merged formal tree (Windows) | `303478d`, `ce03bf2` | 116, 85 s | – | 50 and 73 audited theorems |

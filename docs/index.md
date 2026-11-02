@@ -8,8 +8,7 @@
 
 **MeerKAT calibration, flagging and imaging research on one Rust core, driven
 from Python.** The project, PyPI distribution and command line are `rang-core`;
-the Python package is `rang` ({doc}`installation`; the first PyPI release, v0.1.0,
-is pending). "Rang" began as Radio Astronomy Next Generation, and *rang* is Dutch
+the Python package is `rang` ({doc}`installation`). "Rang" began as Radio Astronomy Next Generation, and *rang* is Dutch
 for *rank*, the first thing the identifiability survey measures.
 
 ```{important}

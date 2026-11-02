@@ -9,6 +9,8 @@ import RangFormal.Stagewise
 import RangFormal.Separation
 import RangFormal.Clark
 import RangFormal.MajorCycle
+import RangFormal.Gmclean
+import RangFormal.Gridder
 
 /-! Axiom audit: every theorem of `RangFormal` should rest on the three
 standard axioms only (`propext`, `Classical.choice`, `Quot.sound`); `lake build`
@@ -60,3 +62,30 @@ prints the list. -/
 #print axioms Clean.major_linear_rate_of_gap
 #print axioms Clean.truncation_error_le_pixel
 #print axioms Clean.clark_minor_cycle_descends_pixel
+#print axioms Clean.exact_value_identity
+#print axioms Clean.exact_value_step
+#print axioms Clean.certificate_bound
+#print axioms Clean.weak_greedy_of_certificate
+#print axioms Clean.degrid_eq_sum
+#print axioms Clean.grid_apply
+#print axioms Clean.grid_eq_dirty
+#print axioms Clean.grid_degrid_eq_gram
+#print axioms Clean.grid_degrid_symm
+#print axioms Clean.gram_quadratic_nonneg
+#print axioms Clean.dirty_update
+#print axioms Clean.misfit_add_single_general
+#print axioms Clean.misfit_step_general
+#print axioms Clean.residual_perturbation
+#print axioms Clean.dirty_perturbation
+#print axioms Clean.misfit_perturbation
+#print axioms Clean.gram_residual_bound
+#print axioms Clean.gram_quadratic_bound
+#print axioms Clean.working_step_descends
+#print axioms Clean.operator_step_descends
+#print axioms Clean.gram_eq_node_sum
+#print axioms Clean.gram_node_sum_error
+#print axioms Clean.sub_cast_injective
+#print axioms Clean.exists_embedding
+#print axioms Clean.dft_circConv
+#print axioms Clean.invDFT_product
+#print axioms Clean.embedded_convolution
