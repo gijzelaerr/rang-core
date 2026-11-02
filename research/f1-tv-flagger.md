@@ -1,7 +1,7 @@
 # F1: a self-supervised flagger trained on the total variation of calibrated gains (protocol)
 
 Task F1 of [big-plan.md](big-plan.md) ("Next, decided by the user 2026-11-02"). Protocol written
-2026-11-02 on branch `f1-tv-flagger`. **Status: proposed.** Nothing here is implemented or trained.
+2026-11-02 on branch `f1-tv-flagger`. **Status now (2026-11-02): implemented through Stage 1b; measured; NO-GO, outcome D, stopped as frozen** ([measured result](#13-measured-result-stages-1a-and-1b)). Nothing is trained. **Status at freeze: proposed.** Nothing here was implemented or trained.
 The only measurements are the four sizing probes of section 10, labelled as probes. Results will be
 appended under a "Measured result" heading. Nothing above that heading changes after this commit
 except through a dated, labelled amendment.
@@ -595,6 +595,102 @@ Not probed, deliberately: saliency, AUC or any training. Those are Stage 1.
    this extends it to training only, with inference in Rust. Is that acceptable?
 6. **If the outcome is B**, a fast network fitted to Tricolour's or residual labels: is that a
    satisfactory end for Landman, or is the project only interested if TV does the training?
+
+## 13. Measured result: stages 1a and 1b
+
+Archive: [results/f1-stage1.json](results/f1-stage1.json). Everything in this section is measured unless labelled post hoc.
+
+**Stage 1a: the gradient is right. All gates pass, by orders of magnitude.** Run `outputs/f1-20261102-04-validate-dense`
+(dense path, the one Stage 1b used), repeating `outputs/f1-20261102-01-validate` (MINRES). Dense and MINRES saliency agree to 3.7e-10 and 4.4e-10.
+
+| Check (bound) | Synthetic, 12 antennas | LUNO four stations |
+| --- | ---: | ---: |
+| Polish, products (≤ 1e-8) | 3.8e-14 | 6.4e-12 |
+| Gauge component (≤ 1e-8) | 1.1e-16 | 1.2e-16 |
+| Homogeneity (≤ 1e-7) | 5.7e-13 | 1.9e-10 |
+| FD, 300 cells: median error (≤ 1 %) | 2.8e-7 | 3.5e-6 |
+| FD, 300 cells: 95th percentile (≤ 5 %) | 2.9e-7 | 2.8e-5 |
+| FD, 300 cells: correlation (≥ 0.999) | 1.000000 | 0.99999999999 |
+| FD, 30 patches: median (≤ 1 %) | 2.8e-7 | 3.4e-6 |
+| FD, 30 patches: 95th percentile (≤ 3 %) | 2.8e-7 | 1.3e-5 |
+| Unrolled, 4,009 cells: median (≤ 1 %) | 7.7e-12 | not run, as frozen in Amendment 2's script |
+
+JAX TV equals the Rust kernel's to 1e-15. On the slice, 43 of the 432 intervals with a gradient are excluded by the residual rule: the same count as the
+43 tree-shaped bins of the [support survey](flagging-luno-support.md).
+
+**Stage 1b: NO-GO.** Run `outputs/f1-20261102-03-golive`, LUNO 1934−638, 27.4 M training cells, three seeds, thresholds as frozen in section 4. The clean solve converged
+to 0.9906 in 65 iterations. No contaminated interval was unconverged; at least 98.9 % of injected cells had a defined saliency; 27 clean intervals were excluded by the adjoint residual.
+
+| Gate | Requirement | Measured | Call |
+| --- | --- | --- | --- |
+| A | Stage 1a | above | **pass** |
+| B1 | t ≥ 5, strength 10 | narrowband 10.0, time burst 2.9, antenna-local 4.3, single-baseline 7.1, drifting 7.5 | 3 of 5 |
+| B2 | patch AUC ≥ 0.80, strength 10 | 0.550, 0.536, 0.576, 0.841, 0.634 | 1 of 5 |
+| B | B1 and B2 together on ≥ 3 of 5 | single-baseline only, and its AUC is 0.97, 0.57, 0.98 by seed | **fail** |
+| C | \|t\| < 3 at strength 0, all five | −3.28, −0.28, −2.98, −1.20, −0.28 | **fail** (narrowband) |
+| D | removal lowers TV in ≥ 80 % | 45 of 45 | **pass** |
+| E | top z bin positive, t ≥ 5 (decidable: 2,719 cells, 338 intervals) | mean 1.6e-8, t = 0.38 | **fail** |
+
+**Frozen verdict: NO-GO, outcome D. Gain TV is not a usable training signal at MeerKAT array scale on this data. Work stops here: no F-SIM, no network, no training.** The verdict
+is conditional on the scope below. No threshold was moved.
+
+**Reported, not gating.**
+
+| Patch AUC by strength | 3 | 10 | 30 | 100 | Residual z at 10 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| narrowband | 0.557 | 0.550 | 0.544 | 0.541 | 0.998 |
+| time burst | 0.519 | 0.536 | 0.544 | 0.527 | 0.972 |
+| antenna-local | 0.525 | 0.576 | 0.610 | 0.647 | 0.994 |
+| single-baseline | 0.658 | 0.841 | 0.995 | 0.999 | 1.000 |
+| drifting | 0.620 | 0.634 | 0.637 | 0.613 | 0.987 |
+
+- Saliency barely improves with strength, except on a single baseline. Residual z reaches 0.97–1.00 at 10σ with no adjoint.
+- Cell-level AUC at strength 10: saliency 0.75, 0.84, 0.54, 0.83, 0.81; residual z 1.00, 1.00, 0.91, 1.00, 1.00.
+- TV²: no morphology passes B1 and B2 (patch AUC 0.48, 0.55, 0.57, 0.73, 0.64), so owner question 3 does not arise.
+- Array size, seed 19, strength 10, patch AUC (one seed per size, so noisy). Narrowband: 0.94 at 8 stations, 0.97 at 16, 0.80 at 32, 0.52 at 53. Single-baseline: 1.00, 0.53, 0.90, 0.97.
+- Saliency against first-pass additions, cell AUC: 0.505 on all cells, 0.495 on the far stratum (22.4 % of training cells, 13,829 additions). Residual z: 0.718 and 0.592.
+- Whole-array edges against half-set noise: time 0.0155 against 0.0023 (ratio 6.7), frequency 0.0048 against 0.0022 (2.2). Median cosine of successive edges −0.06 and −0.04, neither noise-like (−0.5) nor smooth (+1). So the array is structure-dominated, unlike the four stations of probe P4.
+- Gate D's removal effect is large for strong all-baseline RFI (TV −42 % for narrowband at 100σ, −5 % at 10σ) and tiny for a single baseline (−0.002 % at 10σ, −0.07 % at 100σ).
+
+**Post hoc reading (not a test).** D passing while B fails is the main finding. Taking a whole contaminated mask out does lower TV, 45 times of 45, so TV responds to RFI as a global objective. But the derivative at a cell, which is what would train a network,
+does not reliably mark contaminated cells: it is signed, varies strongly between intervals, and saturates with strength. This agrees with section 4's point that a cell reaches TV only through its residual. The array curve is consistent with loss of signal as stations are added, but it is one seed per size. The residual z-score is the same information without the adjoint.
+
+**What this does not show.**
+
+- LUNO only: one processed observation, three seeds, simple coherent injections. F-SIM and native data were not run; as frozen, a NO-GO on LUNO ends the stage.
+- Tiles were scored globally across the scan, as frozen. A score normalised per interval might rank better. That would be a new test, so it is not done here.
+- It says nothing against a fast network as such, or against Z, R, F-RES or F-IMI, none of which ran. The residual AUCs above are for injected RFI at known cells, not evidence of parity with Tricolour.
+- Non-TV training signals are untested.
+
+**Deviations, all committed before the run they affect.** Amendments 1–4 above. Two launches of 1b were stopped unseen (31 min at about 7 cores; about 90 min in matrix-free MINRES). The dense adjoint replaced MINRES. Stage 1a used a synthetic 12-antenna problem, as F-SIM is built only after 1b. Section 8's ≤ 3 h for 1b: actual 28 min.
+
+**Timings.**
+
+| Tool | Input | Wall | Peak RSS | Notes |
+| --- | --- | ---: | ---: | --- |
+| `f1_adjoint_validate.py`, MINRES | 2 problems | 35 s | 0.81 GB | load 5–10, unpinned |
+| `f1_adjoint_validate.py`, dense | 2 problems | 31 s | 1.5 GB | 4 CPUs |
+| `f1_saliency.py --probe` | LUNO 1934−638 | 84 s | 20.7 GB | one Hessian product 7.8 s, unpinned |
+| `f1_saliency.py`, stopped | clean adjoint | 31 min | 15 GB | about 7 cores; no result |
+| `f1_saliency.py`, stopped | clean adjoint, 4 CPUs | about 90 min | 15 GB | MINRES; no result |
+| `f1_saliency.py`, Stage 1b | 60 cases, 15 removals, curve | 27 min 55 s | 25.0 GB | 4 CPUs; clean adjoint, both powers, 119 s; first pass 39.9 s |
+| `tools/check-all.sh` | 3 runs | about 3 min each | – | |
+
+## 14. For the coordinator, Stages 1a and 1b
+
+- **Ignored outputs:** `outputs/f1-20261102-00-probes`, `-01-validate`, `-02-probe`, `-03-golive`, `-03-golive-stopped*.log`, `-04-validate-dense`, and the logs and `.time` files. All small (under 1 MB). Nothing on `/mnt/d`.
+- **Owner files added:** `python/rang/tvflag_adjoint.py`, `examples/f1_adjoint_validate.py`, `examples/f1_saliency.py`, `tests/test_f1_adjoint.py`, `research/results/f1-stage1.json`. No Rust.
+- **`research/STATE.md`, new top paragraph:** "F1 Stages 1a and 1b, 2026-11-02 (implemented; measured; [note](f1-tv-flagger.md)): **NO-GO, outcome D**, as frozen. The implicit gradient of gain TV through the solver's fixed point is right (finite differences within 3.5e-6 median, bound 1 %), but on LUNO 1934−638 at 53 stations it does not mark injected RFI: patch AUC 0.54–0.64 on four of five morphologies at 10σ (bar 0.80), against 0.97–1.00 for the residual z-score; gates B, C and E fail, A and D pass. Removing a whole contaminated mask does lower TV (45 of 45). LUNO only; no network was trained; F-SIM not built. Whether to test the non-TV arms is the owner's call."
+- **`research/big-plan.md`, flagger line:** "F1 Stages 1a and 1b done 2026-11-02 (`f1-tv-flagger.md`): NO-GO on LUNO, outcome D; the TV-loss route stops. Stage 1c and later not run. Non-TV arms (Z, R, F-RES) await the owner."
+- **`research/README.md`, replace the F1 line with:** "- [F1, a flagger trained on gain TV](f1-tv-flagger.md): protocol and Stages 1a and 1b; the adjoint is right, but gain-TV saliency does not mark injected RFI at array scale on LUNO: NO-GO, nothing trained."
+- **`research/tool-timings.md`, rows:**
+
+  | Date | Tool | Input | Wall | Peak RSS | Notes |
+  | --- | --- | --- | --- | --- | --- |
+  | 2026-11-02 | F1 `f1_adjoint_validate.py` | 2 problems, dense adjoint | 31 s | 1.5 GB | 4 CPUs |
+  | 2026-11-02 | F1 `f1_saliency.py --probe` | LUNO 1934−638 | 84 s | 20.7 GB | no saliency |
+  | 2026-11-02 | F1 `f1_saliency.py` | LUNO 1934−638, 60 cases | 27 min 55 s | 25.0 GB | 4 CPUs |
+  | 2026-11-02 | F1 `f1_saliency.py`, two stopped launches | clean adjoint, MINRES | 31 min; about 90 min | 15 GB | no result; replaced by the dense adjoint |
 
 ## 12. For the coordinator
 
