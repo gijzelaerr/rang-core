@@ -69,3 +69,10 @@ per-antenna pointing and squint constrainable on the calibrator and ESO137
 data, array-common pointing and ellipticity on the ESO137 track, and beam
 width nowhere. Pointing self-calibration against those baselines is the
 next step. Negative results are kept in `research/`.
+
+**Provenance and the wheel (wave 4 fixes).** Receipts (`rang.receipt`
+version 3) record every result-affecting `RANG_*` variable from one registry
+and the package source; the solver takes its options as an argument; `commit`
+is null outside a checkout (W4-1). The closure and flux-standard kernels run
+in the extension, so no kernel call builds with Cargo and the wheel is
+self-contained (W4-3).

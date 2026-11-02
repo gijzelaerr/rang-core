@@ -504,3 +504,16 @@ returned, as S1 measured for the comparators.
 | 2026-10-30 | identity `cli-head2` (`-m`) and `console` (`.venv/bin/rang-core`), final CLI | about 7 s each | identical to `before` |
 | 2026-10-30 | legacy cab path `rang-core compare` on 7 real-archive cases | about 1 s | receipts minus `comparator` equal `before` |
 | 2026-10-30 | WSL: `bash tools/check-all.sh`, after the review fixes | 157 s (pytest 150 s) | PASS at `00c4be2`, 683 passed, 2 skipped |
+
+## Successor: receipt version 3 (W4-1, 2026-10-31)
+
+**Successor (task W4-1, research/w4-1-receipts.md): `rang.receipt`
+version 3.** Version 3 adds `environment.rang_environment`, the value
+of every recorded variable of `rang.core.ENVIRONMENT` when the command
+starts, null when unset. It also adds a top-level `source` (`checkout`,
+`distribution`, `version`, `extension_sha256`). `commit` is null when
+the package does not run from a checkout, meaning `parents[2]` lacks
+`pyproject.toml`, `Cargo.toml` or `core/Cargo.toml`. Nothing else
+changed. Readers of version 2 receipts need no change. A comparison of
+version 2 with version 3 receipts treats the new keys as provenance, as
+P12 treated the version 1 to 2 rename.

@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: W4-1, [receipts](w4-1-receipts.md): `rang.receipt` version 3
+records the `RANG_*` registry and the source; the solver takes options
+explicitly; `commit: null` outside a checkout (W4R-01, W4R-02); results
+unchanged.
+
 New, 2026-10-31: W4-5, the [release metadata](w4-5-release.md) for v0.1.0:
 `rang-core --version`, classifiers and URLs, a PyPI-safe README, the
 CHANGELOG, the tag-equals-version guard, Node 24 actions, the slim sdist
