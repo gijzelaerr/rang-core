@@ -130,3 +130,12 @@ def test_finite_differences(problem):
             x = ta.sanitize(solution.gains, solution.flags)[0]
             values.append(ta.tv(x, problem["support"]))
         assert (values[0] - values[1]) / 0.02 == pytest.approx(s[i], rel=0.05)
+
+
+def test_dense_adjoint_matches_minres(problem):
+    dense = ta.DenseAdjoint(problem["cells"], problem["x"])
+    lam, residual = dense.solve(problem["gradient"])
+    assert residual.max() < 1e-6
+    s = problem["operator"].cell_saliency(lam)[0]
+    error = np.linalg.norm(s - problem["s"]) / np.linalg.norm(s)
+    assert error < 1e-5

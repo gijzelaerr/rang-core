@@ -203,11 +203,26 @@ class Fixture:
         self.operator = ta.Operator(self.cells, self.x, self.valid)
         started = time.perf_counter()
         self.gradient = ta.tv_gradient(self.x, self.support) * self.valid[..., None]
-        self.lam, self.residual, self.minres_iterations = ta.minres(
-            self.operator, self.gradient
-        )
+        self.dense = ta.DenseAdjoint(self.cells, self.x)
+        self.lam, self.residual = self.dense.solve(self.gradient)
         self.adjoint_seconds = time.perf_counter() - started
         self.s, _ = self.operator.cell_saliency(self.lam)
+        started = time.perf_counter()
+        lam, _, self.minres_iterations = ta.minres(
+            self.operator, self.gradient, tolerance=1e-9
+        )
+        self.minres_seconds = time.perf_counter() - started
+        s_minres, _ = self.operator.cell_saliency(lam)
+        kept = (
+            self.residual[
+                problem["time_bin"][self.cells.rows],
+                problem["freq_bin"][self.cells.channels],
+            ]
+            <= ADJOINT_RESIDUAL
+        )
+        self.dense_vs_minres = float(
+            np.linalg.norm(self.s[kept] - s_minres[kept]) / np.linalg.norm(self.s[kept])
+        )
         self.good_interval = self.residual <= ADJOINT_RESIDUAL
         t = p["time_bin"][self.cells.rows]
         f = p["freq_bin"][self.cells.channels]
@@ -263,7 +278,7 @@ def checks_static(fix):
     """Polish, gauge and homogeneity checks."""
     out = {}
     stationarity = fix.operator.stationarity()
-    step, relative, _ = ta.minres(fix.operator, -stationarity)
+    step, relative = fix.dense.solve(-stationarity)
     good = fix.good_interval
     out["stationarity_max"] = float(np.abs(stationarity).max())
     out["polish_relative_residual_median"] = float(np.median(relative[good]))
@@ -455,6 +470,8 @@ def run(problem, output, unroll):
         "adjoint": {
             "seconds": fix.adjoint_seconds,
             "minres_iterations": fix.minres_iterations,
+            "minres_seconds": fix.minres_seconds,
+            "dense_vs_minres_relative": fix.dense_vs_minres,
         },
         "tv_rust": fix.rust_tv,
         "tv_jax": fix.jax_tv,

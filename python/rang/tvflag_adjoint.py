@@ -16,12 +16,13 @@ the chunks of cells on N threads.
 
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from functools import partial
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 
-CHUNK = 1 << 20
+CHUNK = 1 << 18
 
 
 def enable_x64():
@@ -347,6 +348,114 @@ def minres(operator, b, tolerance=1e-7, iterations=200, check=5):
         if not active.any():
             break
     return best, true_residual(best), used
+
+
+def _cell_chi2(y, data, model, weight):
+    g = to_complex(y.reshape(2, 8))
+    r = data - g[0] @ model @ jnp.conj(g[1]).T
+    return jnp.sum(weight * (r.real**2 + r.imag**2))
+
+
+@partial(jax.jit, static_argnames="segments")
+def _baseline_blocks(x, cell, segment, segments):
+    """The exact 16 x 16 Hessian of each (interval, baseline), summed over cells."""
+    interval_t, interval_f, p, q, data, model, weight = cell
+    y = jnp.concatenate(
+        [x[interval_t, interval_f, p], x[interval_t, interval_f, q]], axis=-1
+    )
+    blocks = jax.vmap(jax.hessian(_cell_chi2))(y, data, model, weight)
+    return jax.ops.segment_sum(blocks, segment, segments)
+
+
+class DenseAdjoint:
+    """`H` assembled per interval and its pseudo-inverse.
+
+    The same exact Hessian as the matrix-free `Operator.hessian` (Amendment 4 of
+    research/f1-tv-flagger.md). Interval dimension: 8 reals per antenna.
+    """
+
+    def __init__(self, cells, x, active=None, rcond=1e-10, threads=4):
+        nt, nf = cells.grid
+        self.grid, self.rcond = (nt, nf), rcond
+        nant = x.shape[2]
+        n = nant * 8
+        present = np.unique(np.concatenate(cells.chunk_intervals))
+        if active is not None:
+            present = present[active.ravel()[present]]
+        self.keys = present
+        where = np.full(nt * nf, -1)
+        where[present] = np.arange(len(present))
+        self.hessian = np.zeros((len(present), n, n))
+        devices = [next(iter(c[0].devices())) for c in cells.chunks]
+        offsets = np.arange(8)
+
+        def blocks(index):
+            cell = cells.chunks[index]
+            count = cells.counts[index]
+            t = np.asarray(cell[0])[:count].astype(np.int64)
+            f = np.asarray(cell[1])[:count].astype(np.int64)
+            p = np.asarray(cell[2])[:count].astype(np.int64)
+            q = np.asarray(cell[3])[:count].astype(np.int64)
+            key = (t * nf + f) * nant**2 + p * nant + q
+            unique, inverse = np.unique(key, return_inverse=True)
+            size = len(cell[0])
+            segment = np.zeros(size, np.int32)
+            segment[:count] = inverse
+            # The zero-weight padding adds nothing to segment 0.
+            segments = 1 << int(np.ceil(np.log2(max(len(unique), 2))))
+            part = _baseline_blocks(
+                jax.device_put(x, devices[index]), cell, segment, segments
+            )
+            return unique, np.asarray(part)[: len(unique)]
+
+        with ThreadPoolExecutor(max(1, len(set(devices)))) as pool:
+            for unique, part in pool.map(blocks, range(len(cells.chunks))):
+                pair = unique % nant**2
+                interval = where[unique // nant**2]
+                keep = interval >= 0
+                p, q = pair[keep] // nant, pair[keep] % nant
+                index = np.concatenate(
+                    [p[:, None] * 8 + offsets, q[:, None] * 8 + offsets], axis=1
+                )
+                np.add.at(
+                    self.hessian,
+                    (
+                        interval[keep][:, None, None],
+                        index[:, :, None],
+                        index[:, None, :],
+                    ),
+                    part[keep],
+                )
+        self.inverse = np.empty_like(self.hessian)
+
+        def invert(i):
+            h = self.hessian[i]
+            values, vectors = np.linalg.eigh((h + h.T) / 2)
+            cut = rcond * np.abs(values).max() if len(values) else 0
+            use = np.abs(values) > max(cut, 1e-300)
+            self.inverse[i] = (vectors[:, use] / values[use]) @ vectors[:, use].T
+
+        with ThreadPoolExecutor(threads) as pool:
+            list(pool.map(invert, range(len(present))))
+
+    def solve(self, b):
+        """`(lam, relative residual)`, both on the grid; other intervals are 0."""
+        nt, nf = self.grid
+        flat = b.reshape(nt * nf, -1)[self.keys]
+        solved = (self.inverse @ flat[..., None])[..., 0]
+        residual = (self.hessian @ solved[..., None])[..., 0] - flat
+        norm = np.linalg.norm(flat, axis=-1)
+        relative = np.divide(
+            np.linalg.norm(residual, axis=-1),
+            norm,
+            out=np.zeros(len(norm)),
+            where=norm > 0,
+        )
+        lam = np.zeros((nt * nf, b.shape[2] * 8))
+        lam[self.keys] = solved
+        grid = np.zeros(nt * nf)
+        grid[self.keys] = relative
+        return lam.reshape(b.shape), grid.reshape(nt, nf)
 
 
 def _sqrt2(a):

@@ -283,12 +283,13 @@ class Campaign:
     def adjoint(self, cells, x, valid, support, active, powers):
         """`{power: (s, residual norms, excluded intervals, iterations)}`."""
         operator = ta.Operator(cells, x, valid)
+        dense = ta.DenseAdjoint(cells, x, active=active)
         out = {}
         for power in powers:
             support.norm = self.norms.get(power, 1.0)
             gradient = ta.tv_gradient(x, support, power) * valid[..., None]
             gradient[~active] = 0
-            lam, residual, used = ta.minres(operator, gradient)
+            lam, residual = dense.solve(gradient)
             bad = (residual > ADJOINT_RESIDUAL) & active
             lam[bad] = 0
             s, amplitude = operator.cell_saliency(lam)
@@ -296,7 +297,7 @@ class Campaign:
                 "s": s,
                 "amplitude": amplitude,
                 "excluded": bad,
-                "iterations": used,
+                "iterations": 0,
                 "residual_max": float(residual[active & ~bad].max())
                 if (active & ~bad).any()
                 else None,
