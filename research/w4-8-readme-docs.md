@@ -1,7 +1,7 @@
 # W4-8: the documentation pass
 
 Status: **implemented and checked; documentation only, no numerical code or
-result changed.** check-all: CHECKALL_RESULT.
+result changed.** check-all: `overall: PASS` (816 passed, 13 skipped).
 
 The owner's instruction: the README "has become a bit of a mess"; clean it up
 and restructure it. The wave 4 pass and the "Documentation drift" table of
@@ -98,7 +98,7 @@ on GitHub. The job stays useful on forks.
 | `cffconvert --validate` (uv tool) | 6.1 s | valid |
 | `sphinx -W`, without executing notebooks | 58 s | passes |
 | `bash tools/check-all.sh`, first run | 3,023 s | FAIL, one test (above); most of it lock wait; pytest 377.6 s |
-| `bash tools/check-all.sh`, second run | CHECKALL_WALL | CHECKALL_RESULT |
+| `bash tools/check-all.sh`, second run | 2031 s | `overall: PASS`, pytest 816 passed, 13 skipped in 212.2 s; includes lock wait |
 
 ## For the coordinator
 
