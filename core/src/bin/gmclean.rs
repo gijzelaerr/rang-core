@@ -36,10 +36,11 @@ const USAGE: &str = "usage: gmclean [options] <ms>
   -niter <n>                maximum number of components (default 0: dirty image only)
   -gain <g>                 loop gain (default 0.1)
   -mgain <g>                end every minor cycle at (1 - g) of its first peak, as WSClean's -mgain
-                            (default: the measured rule below, with g = 0.95 for the first cycle)
+                            (without it: the measured rule below, with g = 0.95 for the first cycle)
   -mgain-misfit <f>         end it instead when a fraction f of the misfit has gone (with the forcing rule)
   -stale-rule <rho>         end it at rho times the pointwise error measured by the last major cycle,
-                            per unit of flux cleaned (default 1; the first cycle uses -mgain, given first)
+                            per unit of flux cleaned (default 1; the first cycle uses -mgain as g);
+                            wins over -mgain as a rule, whatever the order
   -minor-to-threshold       never hand back before the threshold
   -nmiter <n>               maximum number of major cycles (default 20)
   -threshold <Jy>           absolute stopping threshold (alias -abs-threshold)
@@ -167,6 +168,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     };
     let mut i = 0;
     let mut positional = Vec::new();
+    let (mut mgain_given, mut misfit_given, mut to_threshold) = (false, false, false);
+    let mut stale_rho: Option<f64> = None;
     let value = |i: &mut usize| -> Result<String, String> {
         *i += 1;
         raw.get(*i)
@@ -202,19 +205,14 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-gain" => a.gain = number(flag, value(&mut i)?)?,
             "-mgain" => {
                 a.mgain = number(flag, value(&mut i)?)?;
-                a.cycle_stop = CycleStop::PeakFraction(a.mgain);
+                mgain_given = true;
             }
             "-mgain-misfit" => {
                 a.mgain_misfit = number(flag, value(&mut i)?)?;
-                a.cycle_stop = CycleStop::MisfitFraction;
+                misfit_given = true;
             }
-            "-stale-rule" => {
-                a.cycle_stop = CycleStop::MeasuredStale {
-                    rho: number(flag, value(&mut i)?)?,
-                    g: a.mgain,
-                };
-            }
-            "-minor-to-threshold" => a.cycle_stop = CycleStop::Threshold,
+            "-stale-rule" => stale_rho = Some(number(flag, value(&mut i)?)?),
+            "-minor-to-threshold" => to_threshold = true,
             "-nmiter" => a.nmiter = number(flag, value(&mut i)?)?,
             "-threshold" | "-abs-threshold" => a.threshold = number(flag, value(&mut i)?)?,
             "-auto-threshold" => a.auto_threshold = Some(number(flag, value(&mut i)?)?),
@@ -258,6 +256,21 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         }
         i += 1;
     }
+    // The rule does not depend on the order of the flags.
+    a.cycle_stop = if to_threshold {
+        CycleStop::Threshold
+    } else if misfit_given {
+        CycleStop::MisfitFraction
+    } else if let Some(rho) = stale_rho {
+        CycleStop::MeasuredStale { rho, g: a.mgain }
+    } else if mgain_given {
+        CycleStop::PeakFraction(a.mgain)
+    } else {
+        CycleStop::MeasuredStale {
+            rho: 1.0,
+            g: a.mgain,
+        }
+    };
     match positional.as_slice() {
         [ms] => a.ms = PathBuf::from(ms),
         _ => return Err(format!("exactly one Measurement Set is needed\n\n{USAGE}")),
@@ -674,6 +687,31 @@ mod tests {
         assert_eq!(a.size, 64);
         assert_eq!(a.weight, WeightClass::Briggs(-0.5));
         assert_eq!(a.niter, 10);
+        for (line, want) in [
+            (
+                "-size 64 64 -scale 2asec x.ms",
+                CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
+            ),
+            (
+                "-size 64 64 -scale 2asec -mgain 0.8 x.ms",
+                CycleStop::PeakFraction(0.8),
+            ),
+            (
+                "-size 64 64 -scale 2asec -stale-rule 2 -mgain 0.8 x.ms",
+                CycleStop::MeasuredStale { rho: 2.0, g: 0.8 },
+            ),
+            (
+                "-size 64 64 -scale 2asec -mgain 0.8 -stale-rule 2 x.ms",
+                CycleStop::MeasuredStale { rho: 2.0, g: 0.8 },
+            ),
+            (
+                "-size 64 64 -scale 2asec -mgain-misfit 0.5 -mgain 0.8 x.ms",
+                CycleStop::MisfitFraction,
+            ),
+        ] {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            assert_eq!(parse_args(&raw).unwrap().cycle_stop, want, "{line}");
+        }
         let bad: Vec<String> = "-size 64 32 -scale 2asec x.ms"
             .split(' ')
             .map(String::from)

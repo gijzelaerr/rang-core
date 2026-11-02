@@ -68,7 +68,9 @@ the bound with the exact value at the one pixel about to be cleaned.
    end once `|r_p| ≤ ρ δ Σ|c|`, with `δ = ‖r_exact − r̃‖_∞ / Σ|c|` from the previous
    major cycle. `-mgain g` selects `PeakFraction(g)`, which is WSClean's `-mgain`
    and only now the same setting; `-mgain-misfit f` the misfit fraction of the
-   first version, a different setting; `-minor-to-threshold` no hand-back.
+   first version, a different setting; `-minor-to-threshold` no hand-back. The rule
+   does not depend on the flag order; `-stale-rule` wins over `-mgain`, which is then
+   the first cycle's `g`.
 6. **Restoring.** A Gaussian fitted by linear least squares to `−ln b` over the
    connected pixels above half maximum, convolved by the same FFT machinery. BPA
    is measured in the FITS frame (north `+y`, east `−x`).
@@ -352,4 +354,16 @@ gmclean -name OUT/s1 -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 10
     -nmiter 1000 -abs-threshold 0.0001 -data-column DATA -field 0 -j 16 s1.ms
 ```
 
-Heavy runs on the shared host go under `flock /home/gijsm/.rang-heavy.lock`.
+Heavy runs on the shared host go under `flock /home/gijsm/.rang-heavy.lock`. The
+interleaved comparison specs and the scoring job are in
+`results/gmclean-optimisation.json` (`comparison_specs`, `job_script`); scoring uses
+`gmclean_bench_compare.py score` from `origin/gmclean-bench`.
+
+Provenance. Bisection: the commits named. Sweeps `cmp1`: tree between `961e162` and
+`49e1258`; `cmp2`, `cmp3`: tree of `49e1258` with the `-beam-no-w` flag and parallel
+Stokes I, plan not yet kept; `cmp4`: tree of `0d804e4` before its defaults; `cmp5`:
+code of `b39e241`. Stop rules: code of `987ee49`. Final default, thread check, profiles
+and `results/gmclean.json`: code of `b39e241` (later commits change tests, records,
+the flag parser and a profile only). Run directories, deleted except for the MSs:
+`~/Build/tmp/20261102-gmclean-opt/` in WSL (`{point,disc,crowded}/sim.ms`,
+`archive/sim.ms`, `small/sim.ms` kept for the quiet-host pass).

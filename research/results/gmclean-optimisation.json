@@ -92,6 +92,416 @@
 "total_flux_error": 0.002147463982135278
 }
 },
+"comparison_specs": {
+"cmp1": {
+"base": [
+"-size",
+"2048",
+"2048",
+"-scale",
+"1.5asec",
+"-weight",
+"briggs",
+"0",
+"-niter",
+"2000000",
+"-patch",
+"64",
+"-data-column",
+"DATA",
+"-j",
+"8"
+],
+"ms": {
+"crowded": "/home/gijsm/Build/tmp/20261102-gmclean-opt/crowded/sim.ms",
+"disc": "/home/gijsm/Build/tmp/20261102-gmclean-opt/disc/sim.ms",
+"point": "/home/gijsm/Build/tmp/20261102-gmclean-opt/point/sim.ms"
+},
+"repeats": 3,
+"scratch": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cmp1",
+"skies": [
+"disc",
+"point"
+],
+"sky_args": {
+"crowded": [
+"-abs-threshold",
+"3e-4"
+],
+"disc": [
+"-abs-threshold",
+"1e-3"
+],
+"point": [
+"-abs-threshold",
+"1e-4"
+]
+},
+"variants": [
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/base/gmclean",
+"name": "base"
+},
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "new"
+},
+{
+"args": [
+"-eager-tiles"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "new-eager"
+},
+{
+"args": [
+"-single"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "new-single"
+},
+{
+"args": [
+"-single",
+"-wgridder-accuracy",
+"1e-4"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "new-single-eps4"
+}
+]
+},
+"cmp2": {
+"base": [
+"-size",
+"2048",
+"2048",
+"-scale",
+"1.5asec",
+"-weight",
+"briggs",
+"0",
+"-niter",
+"2000000",
+"-data-column",
+"DATA",
+"-j",
+"8",
+"-nmiter",
+"1",
+"-mgain",
+"1"
+],
+"ms": {
+"crowded": "/home/gijsm/Build/tmp/20261102-gmclean-opt/crowded/sim.ms",
+"disc": "/home/gijsm/Build/tmp/20261102-gmclean-opt/disc/sim.ms",
+"point": "/home/gijsm/Build/tmp/20261102-gmclean-opt/point/sim.ms"
+},
+"repeats": 3,
+"scratch": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cmp2",
+"skies": [
+"disc",
+"crowded"
+],
+"sky_args": {
+"crowded": [
+"-abs-threshold",
+"1e-4"
+],
+"disc": [
+"-abs-threshold",
+"1e-3"
+],
+"point": [
+"-abs-threshold",
+"1e-4"
+]
+},
+"variants": [
+{
+"args": [
+"-patch",
+"64"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p64-t32-lazy"
+},
+{
+"args": [
+"-patch",
+"64",
+"-eager-tiles"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p64-t32-eager"
+},
+{
+"args": [
+"-patch",
+"64",
+"-tile",
+"16"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p64-t16-lazy"
+},
+{
+"args": [
+"-patch",
+"64",
+"-tile",
+"64"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p64-t64-lazy"
+},
+{
+"args": [
+"-patch",
+"16"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p16-t32-lazy"
+},
+{
+"args": [
+"-patch",
+"32"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p32-t32-lazy"
+},
+{
+"args": [
+"-patch",
+"128"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p128-t32-lazy"
+},
+{
+"args": [
+"-patch",
+"64",
+"-tau-min",
+"0.25"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p64-tau0.25"
+},
+{
+"args": [
+"-patch",
+"64",
+"-resync-every",
+"8000"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "p64-every8000"
+}
+]
+},
+"cmp3": {
+"base": [
+"-size",
+"2048",
+"2048",
+"-scale",
+"1.5asec",
+"-weight",
+"briggs",
+"0",
+"-niter",
+"2000000",
+"-patch",
+"64",
+"-data-column",
+"DATA",
+"-j",
+"8"
+],
+"ms": {
+"crowded": "/home/gijsm/Build/tmp/20261102-gmclean-opt/crowded/sim.ms",
+"disc": "/home/gijsm/Build/tmp/20261102-gmclean-opt/disc/sim.ms",
+"point": "/home/gijsm/Build/tmp/20261102-gmclean-opt/point/sim.ms"
+},
+"repeats": 3,
+"scratch": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cmp3",
+"skies": [
+"point",
+"disc",
+"crowded"
+],
+"sky_args": {
+"crowded": [
+"-abs-threshold",
+"3e-4"
+],
+"disc": [
+"-abs-threshold",
+"1e-3"
+],
+"point": [
+"-abs-threshold",
+"1e-4"
+]
+},
+"variants": [
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "mgain0.8"
+},
+{
+"args": [
+"-mgain",
+"1"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "mgain1"
+},
+{
+"args": [
+"-mgain",
+"1",
+"-beam-no-w"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "mgain1-beamnow"
+},
+{
+"args": [
+"-mgain",
+"1",
+"-wgridder-accuracy",
+"1e-4"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "mgain1-eps4"
+}
+]
+},
+"cmp4": {
+"base": [
+"-size",
+"2048",
+"2048",
+"-scale",
+"1.5asec",
+"-weight",
+"briggs",
+"0",
+"-niter",
+"2000000",
+"-patch",
+"64",
+"-data-column",
+"DATA",
+"-j",
+"8"
+],
+"ms": {
+"crowded": "/home/gijsm/Build/tmp/20261102-gmclean-opt/crowded/sim.ms",
+"disc": "/home/gijsm/Build/tmp/20261102-gmclean-opt/disc/sim.ms",
+"point": "/home/gijsm/Build/tmp/20261102-gmclean-opt/point/sim.ms"
+},
+"repeats": 3,
+"scratch": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cmp4",
+"skies": [
+"point",
+"disc"
+],
+"sky_args": {
+"crowded": [
+"-abs-threshold",
+"3e-4"
+],
+"disc": [
+"-abs-threshold",
+"1e-3"
+],
+"point": [
+"-abs-threshold",
+"1e-4"
+]
+},
+"variants": [
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "plan-reuse"
+},
+{
+"args": [
+"-no-plan-reuse"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "no-plan-reuse"
+},
+{
+"args": [
+"-j",
+"16"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "plan-reuse-j16"
+}
+]
+},
+"cmp5": {
+"base": [
+"-size",
+"2048",
+"2048",
+"-scale",
+"1.5asec",
+"-weight",
+"briggs",
+"0",
+"-niter",
+"2000000",
+"-data-column",
+"DATA",
+"-j",
+"8",
+"-abs-threshold",
+"1e-3"
+],
+"ms": {
+"crowded": "/home/gijsm/Build/tmp/20261102-gmclean-opt/crowded/sim.ms",
+"disc": "/home/gijsm/Build/tmp/20261102-gmclean-opt/disc/sim.ms",
+"point": "/home/gijsm/Build/tmp/20261102-gmclean-opt/point/sim.ms"
+},
+"repeats": 3,
+"scratch": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cmp5",
+"skies": [
+"disc"
+],
+"sky_args": {
+"disc": []
+},
+"variants": [
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/bin-thin/gmclean",
+"name": "thin-lto"
+},
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/bin-fat/gmclean",
+"name": "fat-lto"
+},
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/bin-baseline/gmclean",
+"name": "baseline-x86-64"
+},
+{
+"args": [
+"-simd",
+"avx2"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/bin-thin/gmclean",
+"name": "thin-avx2"
+}
+]
+}
+},
 "engineering_comparisons": {
 "cmp1": [
 {
@@ -2921,6 +3331,7 @@
 "total_flux_error": 0.18281482193916965
 }
 },
+"job_script": "#!/bin/bash\n# job.sh BINARY OUTDIR NAME DATASET [extra gmclean args]: one benchmark job under the lock, scored.\nL=/home/gijsm/.rang-heavy.lock\nB=/home/gijsm/Worktrees/rang/gmclean-bench\nD=/home/gijsm/Build/tmp/20261102-gmclean-bench\nbin=$1; out=$2; name=$3; ds=$4; shift 4\nsize=2048; scale=1.5; col=DATA; field=0; thr=${THR:-0.0001}; beam=10.76\nif [ \"$ds\" = slice ]; then size=512; scale=8; col=CORRECTED_DATA; field=1; thr=0.05; beam=${BEAM_SLICE:-600}; fi\nmkdir -p \"$out\"\ns=$(date +%s.%N)\nflock $L \"$bin\" -name \"$out/$name\" -size $size $size -scale ${scale}asec -weight briggs 0.5 -niter 1000000 -gain 0.1 \\\n  -nmiter 1000 -abs-threshold $thr -data-column $col -field $field -j ${J:-16} \"$@\" \"$D/$ds.ms\" > \"$out/$name.log\" 2>&1\ne=$(date +%s.%N)\ntail -n 2 \"$out/$name.log\" | head -n 1 | cut -c1-170\nflock $L \"$B/.venv/bin/python\" \"$B/examples/gmclean_bench_compare.py\" score \"$B/outputs/gmclean-bench-20261102/prep/$ds\" \"$D/$ds.json\" \"$out\" \"$out/score-$name.json\" --jobs \"$name\" --beam-arcsec $beam --force > /dev/null 2>&1\npython3 - \"$out/score-$name.json\" \"$name\" \"$(echo \"$e - $s\" | bc)\" <<'PY'\nimport json,sys\nd=json.load(open(sys.argv[1],encoding=\"utf-8\"))\nr=(d.get(\"jobs\") or d).get(sys.argv[2]) if isinstance(d.get(\"jobs\") or d,dict) else None\nif r is None:\n    print(\"no score\", list(d)[:10]); sys.exit()\ng=lambda k: r.get(k) if r.get(k) is not None else float(\"nan\")\nprint(f\"{sys.argv[2]:34s} Q/Qt {g('q_over_q_truth'):.5f} Q/Q0 {g('q_over_q0'):.4e} false_px {g('false_pixels')} false_abs {g('false_flux_abs'):.5f} inner_peak {g('residual_inner_peak_abs'):.3e} model_px {g('model_pixels')} flux_err {g('total_flux_error'):.5f} wall+wait {float(sys.argv[3]):.0f}s\")\nPY\n",
 "minor_loop_log": [
 "=== minor disc 6.25",
 "p64-t32-lazy-k2000     minor   1.548 /   1.643 corr  0.496 resync  2.317 | comps   76370 resyncs   41 terms    74748420 px  1270873170 rescanned   510854144 same-picks true flux 62.452648 dQ -3.483998e0",
