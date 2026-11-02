@@ -386,9 +386,11 @@ fn kernel_curve(sigma: f64) -> Vec<(usize, f64, f64)> {
     best
 }
 
-/// Weight-aware budget: minimise `Σ_q S_q^3` under `Σ_q W_q ε(S_q) ≤ ε`
-/// (`Σ W = 1`) by a Lagrange sweep over the histogram of weights. The bound
-/// is the triangle bound on `⟨e, a_p⟩`; `S³` counts w-kernel, u and v taps.
+/// Weight-aware budget: minimise `Σ_q S_q^3` under `Σ_q W_q ε(S_q)^k ≤ ε^k`
+/// (`Σ W = 1`) by a Lagrange sweep over the histogram of weights. `k = 1` is
+/// the triangle bound on `⟨e, a_p⟩`; `k = 2` is the weighted norm `‖e‖_W`,
+/// which Cauchy-Schwarz puts above it, so its savings cannot exceed those of
+/// `k = 1`. `S³` counts w-kernel, u and v taps.
 fn budget(inp: &Input) -> Result<(), String> {
     let nvis = inp.wgt.iter().filter(|w| **w != 0.0).count() as f64;
     let mean = 1.0 / nvis;
@@ -429,7 +431,7 @@ fn budget(inp: &Input) -> Result<(), String> {
         r2 / nvis,
         nvis / r2
     );
-    for sigma in [1.5, 2.0] {
+    for (sigma, power) in [(1.5, 1), (2.0, 1), (1.5, 2), (2.0, 2)] {
         let curve = kernel_curve(sigma);
         for target in [1e-3, 1e-4, 1e-6] {
             // Global: smallest support at or below the target.
@@ -438,7 +440,7 @@ fn budget(inp: &Input) -> Result<(), String> {
             };
             let cost_global = (global.0 as f64).powi(3);
             // Lagrange sweep: each bin picks argmin S³/(W count) ... + λ ε(S).
-            let (mut lo, mut hi) = (1e-6_f64, 1e16_f64);
+            let (mut lo, mut hi) = (1e-6_f64, 1e24_f64);
             let mut best = (cost_global, target);
             for _ in 0..80 {
                 let lam = (lo * hi).sqrt();
@@ -450,25 +452,26 @@ fn budget(inp: &Input) -> Result<(), String> {
                     let (mut bc, mut be, mut bj) = (f64::INFINITY, 0.0, f64::INFINITY);
                     for c in &curve {
                         let s3 = (c.0 as f64).powi(3);
-                        let j = count[b] * s3 + lam * total[b] * c.1;
+                        let cost_e = c.1.powi(power);
+                        let j = count[b] * s3 + lam * total[b] * cost_e;
                         if j < bj {
                             bj = j;
                             bc = count[b] * s3;
-                            be = total[b] * c.1;
+                            be = total[b] * cost_e;
                         }
                     }
                     cost += bc;
                     err += be;
                 }
-                if err <= target {
+                if err <= f64::powi(target, power) {
                     hi = lam;
-                    best = (cost / nvis, err);
+                    best = (cost / nvis, err.powf(1.0 / f64::from(power)));
                 } else {
                     lo = lam;
                 }
             }
             println!(
-                "{{\"mode\":\"budget\",\"sigma\":{sigma},\"target\":{target:e},\"global_supp\":{},\"global_eps\":{:e},\"global_s3\":{cost_global},\"aware_s3\":{:.2},\"aware_err\":{:e},\"s3_ratio\":{:.4}}}",
+                "{{\"mode\":\"budget\",\"norm\":{power},\"sigma\":{sigma},\"target\":{target:e},\"global_supp\":{},\"global_eps\":{:e},\"global_s3\":{cost_global},\"aware_s3\":{:.2},\"aware_err\":{:e},\"s3_ratio\":{:.4}}}",
                 global.0,
                 global.1,
                 best.0,

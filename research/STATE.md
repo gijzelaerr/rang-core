@@ -14,7 +14,7 @@ Gridder theory, 2026-11-02 (prototype behind a flag; accuracy and instructions m
 - **Prior art.** Fessler et al. 2005 (the sum), Dabbech and Wiaux 2026 (visibility-free with
   w, sparse). Not a novelty claim.
 - **Next.** Try it in a solver with many passes; the weight-aware kernel budget (Briggs
-  only, ×0.64-0.97 in `S³`, counted); idle-host wall times.
+  only, ×0.64-0.99 in `S³`, counted); idle-host wall times.
 
 gmclean, 2026-11-02 (implemented; accuracy measured; **all times provisional**,
 shared host; [gmclean.md](gmclean.md), branch `gmclean`):

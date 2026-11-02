@@ -92,8 +92,8 @@ pass, `n` inverse row FFTs, on two `n × 2n` buffers.
 
 The single sum is symmetric but **not provably PSD**: it can go negative at the level of its error.
 gmclean tolerates this because its steps rest on the image-domain beam; a solver
-that needs strict descent should check it. `working_step_descends` states what is
-needed.
+that needs strict descent should check it. `operator_step_descends` needs no PSD
+hypothesis on the approximate operator, only the margin, so it covers the single sum.
 
 ## 3. Measured
 
@@ -216,6 +216,12 @@ at ε 1e-9, on `origin/gmclean-bench`):
 The default path is untouched: `s1-base-model.fits` has the same SHA-256 as the `58e07e1`
 benchmark job at `-j 16`, fat LTO.
 
+**What the gram path certifies.** It stops at the threshold on the operator's residual,
+not the gridder's. In `f64` the exact residual peak is 100.03, 100.10 and 99.99 µJy on S1,
+S2, S3 against the 100.00 µJy threshold, and the last residual differs from the gridder's
+by 0.49, 0.49 and 0.07 µJy in L-inf. The paper bound `sup_error ‖W‖₁ ‖m‖₁` is about
+5 µJy on S1 (4.7e-7 × 11 Jy), so it holds there with a factor of 10 to spare.
+
 Same science in `f64`, differences well inside what `-beam-no-w` itself moves. In `f32`
 neither path meets the threshold in the exact residual; that is the known floor of
 ε 1e-4 and is not caused by the operator.
@@ -308,7 +314,7 @@ sum; item (d) of the task, a discrete aliasing identity, not attempted; Poisson 
 
 | candidate | result | decision |
 | --- | --- | --- |
-| Weight-aware error budget | Bound on `⟨e, a_p⟩` is `Σ W_q |e_q|`, so low weights can take coarser kernels. Optimal `Σ S³` on the kernel table: natural **×1.00** (no spread); Briggs 0 on `point` ×0.64-0.87 (one case ×1.00); Briggs 0.5 on S1 ×0.70-0.97 (one ×1.00). **Counted, not implemented.** Against a triangle bound; kernels are about 60 % of the job, so at most some 20 % of a Briggs job, nothing on natural weights | The best small lead here: needs per-visibility support inside the tiles. A follow-up, with a real error test |
+| Weight-aware error budget | Two valid bounds on `⟨e, a_p⟩`. Triangle, `Σ W_q |e_q|` (so `ε_q` as `1/W_q`): `Σ S³` ×0.64-0.87 Briggs 0 on `point`, ×0.70-0.97 Briggs 0.5 on S1, ×1.00 in one coarse case each. Weighted norm, `‖e‖_W` (the task's `√w` form): ×0.70-0.98 and ×0.75-0.99, again ×1.00 in one case each. The norm bound lies above the triangle bound, so it cannot save more, and it does not. Natural weights: **×1.00**. **Counted, not implemented, no error test.** Part of it is slack, not weights: at σ 2, ε 1e-6 the global support 8 reaches 1.2e-7, and the budget spends that gap. Kernels are about 60 % of a job, so at most some 20 % of a Briggs job | The best small lead here: needs per-visibility support inside the tiles. A follow-up, with a real error test |
 | Per-baseline support or w-plane assignment | Gridding error does not depend on the baseline beyond its weight; a plane's FFT is run if any visibility touches it, and small-w visibilities already touch only central planes | Dropped, no gain to take |
 | Sparse Δm, image to grid | Row skip saves under a quarter of the 4-5 % FFT share; the plane loop on the image side could skip empty pixels, up to about a tenth of a job from the profile in `gmclean.md` §5.1. **Estimate, not implemented** | Not pursued; the row skip exists in the operator and is not visible there |
 | Visibility compression with a proved bound | Averaging moves an atom by about `δ²/24`. Rows left, time only: `point` (60 s) 1.000, 1.000, 0.997 at ε 1e-6, 1e-4, 1e-3; S1 (8 s) 1.000, 0.980, 0.834. Time-averaging estimated from earth rotation | Dropped: nothing at the gridder's accuracy |
