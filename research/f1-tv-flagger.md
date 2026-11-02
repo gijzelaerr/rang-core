@@ -8,6 +8,37 @@ except through a dated, labelled amendment.
 
 **Amendment 1, 2026-11-02, before any Stage 1 run.** The owner answered decision 5 of section 11, verbatim: "go for it, do the jax flagger stuff, impress landman". JAX may be used on the training path and in the adjoint; inference stays in Rust. Stages 1a and 1b run now; Stage 1c and later do not. No threshold changes.
 
+**Amendment 2, 2026-11-02, after Stage 1a passed and before any saliency on LUNO.** It fixes details the
+protocol left open for Stage 1b. No threshold of section 4 changes. Stage 1b tests LUNO only, so its best
+result is "continue to Stage 1c", not a final GO. The only look at LUNO before this commit was run
+`outputs/f1-20261102-02-probe`: solve, cost, convergence and injection sizes, no saliency.
+
+- *Solves.* `anderson=3`, cap 100, otherwise the solver's defaults, training cells of the seed-7 split, 56 solver
+  stations (53 have rows). A case solves only the bins it contaminates, replaces only those intervals in the clean
+  grid, and runs the adjoint on them and their neighbours, the only intervals whose TV gradient changes. Elsewhere
+  `s_c` is the clean value. TV is normalised by the clean TV throughout.
+- *Exclusions.* A gain is converged if its scalar-Jacobi step (`|F_p| / D_p / |g_p|`, with `D_p` the Gauss-Newton diagonal)
+  is at most 1e-5. The probe's clean maximum is 2.6e-6. An interval with an unconverged gain or a relative adjoint
+  residual above 1e-6 is left out, and counted. Its cells have no `s_c`.
+- *Injections.* Seeds 19, 20, 21; training cells only; the same complex amplitude in all four correlations, with phase
+  jitter 0.15 rad; amplitude = strength × σ_b, where σ_b is the real-component noise of the baseline, 1.4826 × MAD of the
+  real and imaginary parts of parallel-hand adjacent-channel differences, / √2. Narrowband, time burst, antenna-local: the masks and
+  phases of `make_injection` at occupancy 0.005. Single-baseline: one baseline drawn from the better-occupied half, 8
+  contiguous channels, all dumps. Drifting: every baseline, 8 channels wide, 2 channels per dump.
+- *B1 and C.* For each contaminated interval, mean `s_c` of injected cells minus mean of its other training cells. Pool over
+  the three seeds; t = mean / SE, with SE from 2,000 bootstrap resamples of intervals within each seed. B1 is one-sided.
+- *B2.* Tiles of 8 dumps × 8 channels per baseline across the whole scan, scored by mean `s_c` of training cells. A tile is
+  positive if it holds any injected cell. Mean of the three seeds' AUC. A morphology counts only if it passes B1 and B2.
+- *D.* 45 cases: each morphology, seed and strength in 10, 30, 100. TV on the support common to the two solves, gains lost counted.
+- *E.* Maximum over correlations of section 2's input z-score. t from a bootstrap of per-interval means of the top bin.
+- *Reports, not gates.* TV² at strength 10 only. Array-size curve at 8, 16, 32 stations for narrowband and single-baseline at
+  strength 10, seed 19 (the whole array is 53, not 64). Residual z-score from the clean per-baseline median and MAD.
+- *Corrections to section 3, found in Stage 1a development.* (a) For a constant non-scalar model the null space of `H` is the
+  group `W M Wᴴ = M`, not U(2), and the polar TV is not invariant under it. The gradient then has a component outside the range of
+  `H`, and plain MINRES diverges. So MINRES now tracks the true residual, keeps its best iterate and stops when that
+  stops improving, and such intervals fall to the residual exclusion. Stage 1a's synthetic problem uses a scalar model, as
+  the polar gauge assumes. (b) Unrolling freezes the Gauss-Newton step matrix at the solution; the protocol did not say.
+
 **In one paragraph.** Train a 2,713-weight convolutional network that reads the raw visibility
 amplitudes of one baseline and outputs a per-cell flag. Its only training signal is the gain TV of a
 calibrator solve, differentiated through the solver's fixed point by an adjoint. At inference there
