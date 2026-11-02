@@ -1205,3 +1205,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | gmclean_sim bench, 1024², 5 repeats | 14 variants and kernels | about 6 min | – | machine load 7-12 recorded per repeat |
 | 2026-11-02 | `lake build` with Gmclean.lean | formal | 203-552 s | – | |
 | 2026-11-02 | gmclean quieter retest: `minor`, 2 skies, and `cmp6`, 5 repeats | 2048² | about 25 min | – | under the lock, load 2.6-8 |
+| 2026-11-02 | `lake build` with Gridder.lean | formal, packages linked | 69 s (first build of the base 284 s) | – | Windows |
+| 2026-11-02 | `gridder_gram_bench`, `point` sky | pass, operator, sweeps | 28 + 187 + 326 s | – | flock; load 1.4-9 |
+| 2026-11-02 | gridder-gram whole jobs | 6 skies × 6 variants, `-j 8` | 20-67 s per job | – | flock; load 4-17 |
+| 2026-11-02 | gmclean S1 `-mgain 0.1` | default, operator; 87 major cycles | 480, 140 s | – | flock; load 13-15 |
+| 2026-11-02 | `gmclean_bench_compare.py score` | 20 jobs, 3 skies; budget; 4096² | about 6 min in all | – | flock; load 8-13 |

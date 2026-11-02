@@ -1,5 +1,21 @@
 # Rang research state
 
+Gridder theory, 2026-11-02 (prototype behind a flag; accuracy and instructions measured;
+**times provisional**; [gridder-theory.md](gridder-theory.md), branch `gridder-gram`):
+
+- **Implemented.** `gmclean -gram-operator S,THETA`: major cycles from a w-node Toeplitz
+  operator, no visibilities after the setup. 23 Lean theorems (`Gridder.lean`).
+- **Measured.** 2048²: one apply 23.7 G instructions at any `N_vis`, against 307 G for
+  grid+degrid at 31 M, same error at ε 1e-6. Same Q, false flux and peak as the default on
+  S1-S3. S1 at 87 major cycles: 480 → 140 s (load 13-15).
+- **Negative.** No wall-time gain on gmclean's own 3-5 cycles: setup costs 2-3 passes. At
+  4096² the cube is 8.3 GB in `f32` and the apply only 15 % cheaper at 31 M. Operator Q is
+  unreliable near the floor. Visibility averaging and per-baseline support: nothing.
+- **Prior art.** Fessler et al. 2005 (the sum), Dabbech and Wiaux 2026 (visibility-free with
+  w, sparse). Not a novelty claim.
+- **Next.** Try it in a solver with many passes; the weight-aware kernel budget (Briggs
+  only, ×0.64-0.97 in `S³`, counted); idle-host wall times.
+
 gmclean, 2026-11-02 (implemented; accuracy measured; **all times provisional**,
 shared host; [gmclean.md](gmclean.md), branch `gmclean`):
 

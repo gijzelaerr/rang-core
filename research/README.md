@@ -13,6 +13,8 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-11-02: [a visibility-free major cycle and the gridder's Lean theorems](gridder-theory.md): a fixed-cost w-aware normal operator, ×13 fewer instructions per pass at 31 M visibilities, no gain on gmclean's 3-5 cycles, ×3.4 at 87; known idea, prior art in the note.
+
 New, 2026-11-02: [gmclean](gmclean.md), a reference CLEAN with an exact
 image-domain value per step, a binary and an optimisation log: minor cycles must stop
 at the measured pointwise error or they fit the beam's off-centre error (20 Jy of

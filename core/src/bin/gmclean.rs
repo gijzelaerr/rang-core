@@ -22,6 +22,7 @@ use rang_core::gmclean::json::{arr, num, obj, opt, text};
 use rang_core::gmclean::kernels::{self, Level};
 use rang_core::gmclean::measure::GridMeasurement;
 use rang_core::gmclean::{self, Beam, CycleStop, Settings};
+use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
 use rang_core::weights::WeightClass;
 use rang_core::wgridder::{Options, Real};
 use std::path::{Path, PathBuf};
@@ -56,6 +57,10 @@ const USAGE: &str = "usage: gmclean [options] <ms>
   -wgridder-accuracy <eps>  gridder accuracy (default 1e-6, double precision)
   -no-wgridding             disable the w-term
   -single                   grid in single precision (default double)
+  -gram-operator S,THETA    major cycles without visibilities: the w-node Toeplitz
+                            operator of research/gridder-theory.md, S stencil nodes
+                            at phase step THETA; prototype, off by default; the final
+                            residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -floor-iterations <n>     estimate Q_inf by n conjugate-gradient iterations (default 0: off)
@@ -97,6 +102,7 @@ struct Args {
     restore: bool,
     tile: usize,
     single: bool,
+    gram_operator: Option<(usize, f64)>,
     plan_reuse: bool,
     beam_no_w: bool,
     lazy_bounds: bool,
@@ -162,6 +168,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         restore: true,
         tile: 64,
         single: false,
+        gram_operator: None,
         plan_reuse: true,
         beam_no_w: false,
         lazy_bounds: true,
@@ -247,6 +254,12 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-tile" => a.tile = number(flag, value(&mut i)?)?,
             "-eager-tiles" => a.lazy_bounds = false,
             "-single" => a.single = true,
+            "-gram-operator" => {
+                let v = value(&mut i)?;
+                let (s, t) = v.split_once(',').ok_or("-gram-operator takes S,THETA")?;
+                a.gram_operator =
+                    Some((number(flag, s.to_string())?, number(flag, t.to_string())?));
+            }
             "-no-plan-reuse" => a.plan_reuse = false,
             "-beam-no-w" => a.beam_no_w = true,
             s if s.starts_with('-') && s.len() > 1 => {
@@ -319,6 +332,47 @@ fn deconvolve<T: Real + Send + Sync>(
     opts: Options,
 ) -> Result<Cleaned, String> {
     let n = args.size;
+    let gram_operator = match args.gram_operator {
+        Some((stencil, theta)) => {
+            let t = Instant::now();
+            let sum: f64 = wgt.iter().sum();
+            let normalised: Vec<f64> = wgt.iter().map(|w| w / sum).collect();
+            let ridge = 1e-3 * (args.epsilon * args.epsilon).max(1e-14);
+            let expansion = WExpansion::new(stencil, theta, ridge)?;
+            let op = GramOperator::<T>::new(
+                &Options {
+                    nx: n,
+                    ny: n,
+                    pixsize_x: args.scale,
+                    pixsize_y: args.scale,
+                    epsilon: args.epsilon,
+                    ..opts
+                },
+                &uvw,
+                freq,
+                &normalised,
+                &expansion,
+                args.epsilon,
+            )?;
+            println!(
+                "gram operator: {} nodes, stencil {}, theta {}, w {:.1}-{:.1}, n-1 range {:.3e}, expansion error {:.2e}, Lebesgue {:.2}, cube {:.2} GB, {:.1} s (grid {:.1} s, FFT {:.1} s)",
+                op.stats.planes,
+                op.stats.stencil,
+                op.stats.theta,
+                op.stats.wmin,
+                op.stats.wmax,
+                op.stats.x_range,
+                op.stats.sup_error,
+                op.stats.lebesgue,
+                op.stats.cube_bytes as f64 / 1e9,
+                t.elapsed().as_secs_f64(),
+                op.stats.setup_grid_seconds,
+                op.stats.setup_fft_seconds
+            );
+            Some(op)
+        }
+        None => None,
+    };
     let measurement: GridMeasurement<T> = GridMeasurement::new(
         uvw,
         freq.to_vec(),
@@ -335,7 +389,11 @@ fn deconvolve<T: Real + Send + Sync>(
         measurement.without_plan_reuse()
     };
     let t = Instant::now();
-    let psf2n = measurement.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?;
+    // With the operator and -beam-no-w the PSF needs no gridding pass of its own.
+    let psf2n = match (&gram_operator, args.beam_no_w) {
+        (Some(op), true) => op.psf_no_w.clone(),
+        _ => measurement.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?,
+    };
     let t_psf = t.elapsed().as_secs_f64();
     let t = Instant::now();
     let beam = Beam::from_double(n, &psf2n, args.patch)?;
@@ -388,7 +446,33 @@ fn deconvolve<T: Real + Send + Sync>(
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
     };
-    let outcome = gmclean::run(&measurement, &beam, &settings, q_floor)?;
+    let outcome = match gram_operator {
+        None => gmclean::run(&measurement, &beam, &settings, q_floor)?,
+        Some(op) => {
+            let (dirty, q0) = measurement.residual(&vec![0.0; n * n])?;
+            let gram = GramMeasurement::new(op, dirty, q0);
+            let mut outcome = gmclean::run(&gram, &beam, &settings, q_floor)?;
+            // The score of the run comes from the gridder, not from the operator.
+            let t = Instant::now();
+            let (exact, q_exact) = measurement.residual(&outcome.model)?;
+            let gap = exact
+                .iter()
+                .zip(&outcome.residual)
+                .map(|(a, b)| (a - b).abs())
+                .fold(0.0, f64::max);
+            println!(
+                "gram operator: last residual against the gridder, L-inf {:.3e}; Q {:.10e} operator, {:.10e} gridder; exact pass {:.2} s; major cycles were {:.2} s",
+                gap,
+                outcome.q_final,
+                q_exact,
+                t.elapsed().as_secs_f64(),
+                outcome.timings.major
+            );
+            outcome.residual = exact;
+            outcome.q_final = q_exact;
+            outcome
+        }
+    };
     Ok(Cleaned {
         psf2n,
         beam,
