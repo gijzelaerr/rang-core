@@ -1407,3 +1407,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | gridder-gram whole jobs | 6 skies × 6 variants, `-j 8` | 20-67 s per job | – | flock; load 4-17 |
 | 2026-11-02 | gmclean S1 `-mgain 0.1` | default, operator; 87 major cycles | 480, 140 s | – | flock; load 13-15 |
 | 2026-11-02 | `gmclean_bench_compare.py score` | 20 jobs, 3 skies; budget; 4096² | about 6 min in all | – | flock; load 8-13 |
+| 2026-11-02 | `tools/check-all.sh`, `gmclean-bench` merge | `8ed836b` | 555 s | – | pass; a first run (462 s) failed only because `uv` was not on the launcher's PATH |
+| 2026-11-02 | `tools/check-all.sh`, `gmclean` merge | `ef6d2ed`, `303478d`, `705085d` | 694, 534, 538 s | – | fail (ruff format, registry), fail (CLI page), pass |
+| 2026-11-02 | `tools/check-all.sh`, `gridder-gram` merge | `ce03bf2` | 850 s | – | pass; the wall includes waiting for the heavy lock |
+| 2026-11-02 | `lake build` of the merged formal tree (Windows) | `303478d`, `ce03bf2` | 116, 85 s | – | 50 and 73 audited theorems |

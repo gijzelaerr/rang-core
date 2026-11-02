@@ -5,10 +5,10 @@
 Update this block when a merge changes it. The log below is the record.
 
 - **What `main` is:** rang-core after the 0.1.0 release: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
-- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
+- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-8, the reference imager [gmclean](gmclean.md) with its [benchmark](gmclean-benchmark.md) and the flagged [Gram operator](gridder-theory.md) (their times provisional); see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the CLEAN programme's gmclean branches arrive separately.
+- **Running:** Landman's flagger, its early test (Stages 1a and 1b on branch `f1-tv-flagger`).
 - **Next:** Landman's self-supervised flagger ([protocol](f1-tv-flagger.md); early test first), then DF5 with an RML arm, then B1 with an external catalogue.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): allow JAX on the flagger's training path; ask Landman the three protocol questions; forward the observer's native data when it arrives.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -16,6 +16,14 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+gmclean family merged, 2026-11-02 (merge record; the science is in the three paragraphs below).
+`gmclean-bench` as `8ed836b`, `gmclean` as `ef6d2ed` with follow-ups `303478d` and `705085d`
+(`RANG_GMCLEAN_SIMD` registered, a script formatted, the CLI page regenerated), `gridder-gram` as
+`ce03bf2`. Check-all passes on each pushed head; `lake build` of the merged tree passes with 73
+audited theorems on the standard axioms. Not exercised by check-all: the ducc0 comparison in
+`tests/test_core_wgridder.py` is skipped because ducc0 is not in the venv. Every speed figure in
+these notes stays provisional until the idle-host pass.
 
 Gridder theory, 2026-11-02 (prototype behind a flag; accuracy and instructions measured;
 **times provisional**; [gridder-theory.md](gridder-theory.md), branch `gridder-gram`):

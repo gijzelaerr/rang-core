@@ -464,3 +464,7 @@ Upstream: U4 filed everything approved on 2026-11-02 (`u4-upstream.md`), includi
 casacure#28, #29, tigger-lsm#57, pfb-imaging#391. Watch their replies; review PRs casacure#27 and
 tricolour#114. Still unfiled by decision: Tricolour input-flag growth, DDFacet pins, the data-store
 notes, DF5-O items 3 and 4.
+
+CLEAN programme: gmclean, its benchmark and the flagged Gram operator merged 2026-11-02 (`ce03bf2`). Still theirs:
+the idle-host timing pass, the benchmark rerun at the current commit, and the GeMClean rename. Not yet
+exercised in check-all: the ducc0 comparison in `tests/test_core_wgridder.py`.
