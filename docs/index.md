@@ -16,9 +16,11 @@ for *rank*, the first thing the identifiability survey measures.
 **Status, November 2026: a tested research demonstrator,
 not an operational calibrator.** No novelty is claimed: the goal is better
 calibration and imaging at comparable cost, or comparable quality at much lower cost, and
-neither has been shown. Both research questions are closed as null: gain-TV
-flagging ({gh}`research/flagging-verdict.md`), and beam and pointing at B1-3
-({gh}`research/b1-3-pointing-selfcal.md`). A deeper field model (an external
+neither has been shown. Two questions are closed as null, as tested: a
+gain-TV-guided threshold flagging policy ({gh}`research/flagging-verdict.md`), and
+beam and pointing ({gh}`research/b1-3-pointing-selfcal.md`). A flagger trained on
+gain TV is a separate question, not yet tested, and the next experiment. A deeper
+field model (an external
 catalogue) is the first condition for reopening beam and pointing on real data.
 ```
 

@@ -435,3 +435,6 @@ used is 14.9028 Jy at 1.4 GHz (O-CASA); the standard gives 14.9077 Jy,
 Since W4-3 (2026-10-31) the evaluator runs in the extension
 (`rang._core.fluxstd_eval`); the `fs1-standalone` build is gone
 ([w4-3-kernels.md](w4-3-kernels.md)).
+
+"Oracle pending" is resolved by [FS2](fs2-casarundata.md): 4 of 20 PB2017 sources regular, PB2013
+measured but not ported, 1934-638 in neither table.

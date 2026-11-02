@@ -1,5 +1,12 @@
 # Verdict: gain-TV-guided flagging on MeerKAT L-band (closed: null)
 
+**Scope note, 2026-11-02 (added after the verdict; the text below is unchanged).** This verdict
+covers a two-parameter TV-guided threshold policy with re-solves on every observation, judged on
+better prediction or lower cost. It does not answer the question Landman raised on 2026-11-02: gain
+TV as the loss that trains an ML flagger, self-supervised, for a faster flagger with fewer tunable
+parameters, with no improvement in calibration expected. Its "not cheaper" clause says nothing about
+such a flagger, which would not re-solve at inference. That is the next experiment.
+
 Task L4 of [big-plan.md](big-plan.md), written 2026-10-30 on branch
 `l4-verdict` from `46a319f`. Documents only: no new run. Every number below
 comes from a committed archive under `research/results/`. The consolidated

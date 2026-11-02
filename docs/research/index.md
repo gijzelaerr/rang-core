@@ -33,6 +33,8 @@ reimplementations and engineering, not scientific contributions.
 
 ## 2. The flagging experiment, closed as null
 
+This covers a gain-TV-guided threshold policy with re-solves on every observation. A flagger trained on gain TV (self-supervised, aiming to be faster with fewer tunable parameters) was not tested; it is the next experiment.
+
 **Question.** Gains of a well-behaved telescope vary smoothly; does the total
 variation (TV) of full-Jones gain solutions show where to flag? The policy,
 objective and decision rule were frozen on 2026-09-23 before any real-data

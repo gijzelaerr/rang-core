@@ -59,7 +59,7 @@ CLI receipts are `rang.receipt` version 2 from then on (key
 
 ## The flagging experiment and verdict
 
-Closed 2026-10-30 as null: gain-TV-guided flagging on the fixture and both LUNO calibrators.
+Closed 2026-10-30 as null: a gain-TV-guided threshold policy on the fixture and both LUNO calibrators. A flagger trained on gain TV (self-supervised, aiming to be faster with fewer tunable parameters) was not tested; it is the next experiment.
 
 - [L4, the flagging verdict](flagging-verdict.md): 90 calls, none better or worse, not cheaper than the CARACal first pass; what would reopen it, and the move to B1.
 - [C1, the closure-invariant arm](c1-closure-arm.md): a gauge-free closure statistic sees real GNSS-band structure but no flag improves on the first pass; the last pre-registered arm before the verdict.
@@ -254,6 +254,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 
 ## Cross-platform, wheel, docs and release
 
+- [W4-6 portability hygiene](w4-6-portability.md): UTF-8 on every text read and write in the package, LF by `.gitattributes`, one Windows CI cell with UTF-8 mode off.
 - [W4-8, the documentation pass](w4-8-readme-docs.md): the README as a landing page, this index by theme, STATE trimmed with its history linked, AGENTS.md for the layout, a deploy job that skips without GitHub Pages.
 - [W4-5, the release metadata](w4-5-release.md) for v0.1.0: `rang-core --version`, classifiers and URLs, a PyPI-safe README, the CHANGELOG, the tag-equals-version guard, Node 24 actions, the slim sdist (250 entries, 1.2 MB) and the release procedure.
 - [NB-CARTA, the CARTA helper](nb-carta.md): `rang.notebook.carta` opens images and cubes in CARTA 6.0 from a notebook (open, snapshot), the `[carta]` extra and the pinned wrapper and containers; skips cleanly on Windows.

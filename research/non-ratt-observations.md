@@ -325,3 +325,11 @@ to an unrelated package (carta-python is not on PyPI).
 
 - At full-band sensitivity the per-antenna beams are needed for pointing below
   about 0.2′ (array average 0.18′ against 0.054′ RMS on a simulated track).
+
+## From FS2 (2026-11-02; CASA and NRAO; not reported by decision)
+
+- `setjy` returns `{}` without raising when a source is not in the table; the log says "does not appears".
+- Table keywords have the typos "Perely-Butler" and "Revison".
+- On the table path `fluxd` is float32 and out-of-range logs WARN; FS1's compiled path gave doubles and no warning.
+- Unspaced names such as `FORNAXA` give 1 Jy with SEVERE, while `FORNAX_A` and `3C144` are recognised.
+- One transient `FilebufIO::readBlock` error on the table mounted from `/mnt/d` (1 of 152 calls); it did not recur and no verdict rests on it. Cause not checked.

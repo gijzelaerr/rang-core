@@ -6,16 +6,47 @@ Update this block when a merge changes it. The log below is the record.
 
 - **What `main` is:** rang-core 0.1.0 before its first tag: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
-- **Closed as null:** gain-TV-guided flagging ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
+- **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** W4-6, the last wave 4 fix ([big plan](big-plan.md)); the CLEAN programme's gmclean branches arrive separately.
-- **Next:** finish wave 4 and the user's v0.1.0 tag.
-- **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; allow or refuse an external catalogue for the ESO137 field model; file or decline the B1-2 and RV1 upstream observations; rebase Tricolour PR #114.
+- **Running:** U4, the upstream filing; the CLEAN programme's gmclean branches arrive separately.
+- **Next:** the owner's v0.1.0 tag, then Landman's self-supervised flagger (protocol first), then DF5 with an RML arm, then B1 with an external catalogue.
+- **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; forward the observer's native data when it arrives.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
 
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+Scope of the flagging verdict narrowed, 2026-11-02. Landman pointed out that the original idea
+was gain TV as the loss that trains an ML flagger, self-supervised, for a faster flagger with
+fewer tunable parameters, with no improvement in calibration expected. The closed experiment
+tested a two-parameter threshold policy with re-solves on every observation, so it does not
+answer that. The README, CHANGELOG, docs and verdict now say so; the numbers are unchanged. The
+user asked for that flagger as the next experiment, after the v0.1.0 tag.
+
+FS2, PB2017 and PB2013 against `setjy` (big plan), 2026-11-02 (implemented; measured;
+[fs2-casarundata.md](fs2-casarundata.md)). CASA 6.7.6 `setjy` with CASA's own tables
+(`casarundata-2026.10.27-1`, byte-identical to the rsync tree; 80 KB on D:). 3C123, 3C286,
+3C295 and Hercules A equal `setjy` at 0 float32 ulps and are now regular, stored float32
+as CASA stores them. The other 16 PB2017 sources stay opt-in: the core equals the paper's
+Table 5 (no transcription error), but CASA's table is not Table 5 (an extra decimal on 12,
+epoch rows for 3C48, 3C138, 3C147, a different a3 for 3C353, a different range for 3C380).
+PB2013 is measured and archived, not ported. 1934-638 is in neither table and J0408-6545 is
+not recognised, so these standards do not cover MeerKAT's primaries. User decisions: the
+per-source lift stands, the 16 stay on the printed table, PB2013 and the journal check for
+3C353 are skipped for now.
+
+W4-6, portability hygiene (big plan wave 4), 2026-11-02 (implemented; measured).
+`python/rang` names UTF-8 on 90 text reads and writes and LF on every write;
+three verbatim P11 sites stay as frozen and are listed in the new AST test.
+`.gitattributes` makes the tree LF outside `research/results/` and `history/`
+(11 files renormalised, none hashed; `closure.py` keeps its CRLF). 19 example
+scripts use `as_posix()`. The identity suite is identical before and after, and
+`python -m rang.check` passes on native Windows with UTF-8 mode off and
+`core.autocrlf=true`. The Windows py3.14 CI cell now sets `PYTHONUTF8=0`; it has
+not run on GitHub yet, and its local equivalent passes.
+[Note](w4-6-portability.md).
+
 
 W4-8, the documentation pass (big plan wave 4), 2026-11-02 (implemented; checked;
 [w4-8-readme-docs.md](w4-8-readme-docs.md)). The README is a 151-line landing page

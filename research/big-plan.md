@@ -281,7 +281,7 @@ CPU-heavy tasks at a time on 8 physical cores.
   (`o-casa.md`; CASA/CARACal matched baseline ×1.10 worse held-out than the
   core's port on the parallel hands; FS1 and L4 unblocked; FS1 done
   2026-10-30, `fs1-flux-standards.md`: setjy standards bit-exact, PB2017
-  opt-in pending casarundata) (CASA 6.7.6 oracle
+  opt-in; FS2 done 2026-11-02, `fs2-casarundata.md`: 4 sources regular, 16 opt-in) (CASA 6.7.6 oracle
   container on KERN-10, CARACal's crosscal sequence by hand on the LUNO 1934
   slice, tables and CORRECTED_DATA archived; the DF0 base), FS1 (flux
   standards SR2016, PB2010, PB2017 in the core, `setjy` oracle), DF-IO-CT
@@ -390,7 +390,7 @@ CPU-heavy tasks at a time on 8 physical cores.
 - Final review session (`/code-review` style) on the simplified core: done
   2026-10-31 (`w4-review.md`: 17 findings, 1 high; v0.1.0 is go after the fix
   tasks W4-1 receipts (done 2026-10-31, `w4-1-receipts.md`), W4-3 kernels into the extension (done 2026-10-31, `w4-3-kernels.md`) and W4-5 release
-  metadata (done 2026-10-31, `w4-5-release.md`); W4-2 and W4-7 done 2026-11-02 (`w4-2-boundaries.md`); W4-6, W4-8 follow; W4-4 done within E6).
+  metadata (done 2026-10-31, `w4-5-release.md`); W4-2 and W4-7 done 2026-11-02 (`w4-2-boundaries.md`); W4-6 done 2026-11-02 (`w4-6-portability.md`); W4-8 and W4-4 done).
 
 ## Coordinator loop (this session, day and night)
 
@@ -405,12 +405,18 @@ CPU-heavy tasks at a time on 8 physical cores.
    items" and carry on.
 4. Keep `tool-timings.md`, `upstream-notes.md` and memory current.
 
+## Next, decided by the user 2026-11-02
+
+In order, after the merges now running: the owner tags v0.1.0 (not held for the flagger);
+Landman's self-supervised flagger, gain TV as the training loss, judged against the Rust
+Tricolour port on speed and tunable parameters at comparable quality, frozen protocol first;
+DF5 with an RML arm (TV, sparsity) against the DF5-O oracles at matched cost; B1 reopened with
+an external catalogue (SUMSS, RACS) for the ESO137 model, which is allowed. FS2: 4 PB2017
+sources regular, 16 opt-in on the printed table, PB2013 and the 3C353 journal check skipped.
+casacure findings go in as ordinary issues and PRs; no separate contact is needed.
+
 ## User items (not blocking)
 
-- B1 on real data: allow or refuse an external catalogue (SUMSS, RACS) for the
-  ESO137 field model. B1-3 closed B1 null with the self-calibrated model; this
-  is the first condition for reopening it. Whether the rule should stand as
-  frozen on the fixture clause is a question for a new protocol.
 - File or decline B1-2's data-store observations on the RATT trackers
   (`upstream-notes.md`, "B1-2 observations": ESO137 subset MODEL_DATA zero,
   DATA uncalibrated, pickled string columns, RECEPTOR_ANGLE; LUNO
@@ -453,11 +459,3 @@ CPU-heavy tasks at a time on 8 physical cores.
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).
 - Forward the observer's full-resolution LUNO set when it arrives.
-- Approve the download of CASA's casarundata tables
-  (`nrao/VLA/standards/PerleyButler2017Coeffs`, `…2013Coeffs`) so FS1 can
-  verify the paper-transcribed PB2017/PB2013 against `setjy`.
-- Contact Tim Molteno about casacure and his DDFacet/killMS ports before the
-  DF tasks start, to coordinate rather than duplicate.
-- Prune the pinned `rang-flagging*:local` Docker images and the three
-  dangling ones (about 11.6 GB) if the disk is wanted; no live chain uses
-  them, and `history/README.md` says how the frozen campaigns were run.

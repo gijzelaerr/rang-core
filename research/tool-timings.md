@@ -1338,3 +1338,19 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, third run, after merging `f376d4b` | – | 1697 s | – | `overall: PASS`, pytest 840 passed, 13 skipped in 246.1 s; includes lock wait |
 | 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, final run, after merging `378b66b` | – | 1236 s | – | `overall: PASS`, pytest 858 passed, 13 skipped in 297.1 s; includes lock wait |
 | 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, last run, after merging `4263f7c` (notes only) | – | 576 s | – | `overall: PASS`, pytest 858 passed, 13 skipped in 280.8 s; includes lock wait |
+| 2026-11-02 | big plan W4-6: uv venv + editable install | WSL | 90 s | – |  |
+| 2026-11-02 | big plan W4-6: identity suite, before / after | WSL | 8 s / 7 s | – | 20 cases |
+| 2026-11-02 | big plan W4-6: pc1, p11 and backends tests, before / after | WSL | 23 s / 21 s | – | 37 passed |
+| 2026-11-02 | big plan W4-6: `bash tools/check-all.sh` at `c658ec6` | WSL | 742 s | – | PASS; includes any lock wait; pytest 332 s |
+| 2026-11-02 | big plan W4-6: `bash tools/check-all.sh` at `7fb4299` | WSL | 872 s | – | FAIL on the index test only; includes any lock wait; pytest 220 s |
+| 2026-11-02 | big plan W4-6: uv venv + editable install | Windows | 190 s | – | includes the extension build |
+| 2026-11-02 | big plan W4-6: `python -m rang.check` | Windows | 874 s | – | PASS with UTF-8 mode off; pytest 206 s |
+| 2026-11-02 | big plan W4-6: `tools/wheel/build.py` / `test.py` | Windows | 136 s / 31 s | – | `PYTHONUTF8=0` |
+| 2026-11-02 | big plan W4-6: actionlint | WSL | 0.9 s | – |  |
+| 2026-11-02 | big plan FS2: `rsync` two tables | – | 10.9 s | – | 79,874 bytes |
+| 2026-11-02 | big plan FS2: `curl` into selective `tar`, casarundata-2026.10.27-1 | – | 129 s | – | 352,724,572 bytes streamed, 8 files kept |
+| 2026-11-02 | big plan FS2: `oracle_setjy.py --dump-tables` (docker) | `fs2-20261102-01` | 2.4 s | 30 MB | client |
+| 2026-11-02 | big plan FS2: `oracle_setjy.py --fs2` (docker) | `fs2-20261102-01` | 781.6 s | 293 MB | container; control 40, PB2017 81, PB2013 67, secondary 157, epoch arm 408 s |
+| 2026-11-02 | big plan FS2: `oracle_setjy.py --fs2-epoch` (docker) | `fs2-20261102-02` | 171.3 s | 31 MB | post hoc |
+| 2026-11-02 | big plan FS2: `check_fluxstd.py --fs2` | runs 01, 02, FS1 run 01 | 0.3 s | 49 MB | |
+| 2026-11-02 | big plan FS2: `bash tools/check-all.sh` | branch | 528.0 s | 1.99 GB | PASS, pytest 200.6 s |

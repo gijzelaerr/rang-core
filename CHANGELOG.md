@@ -69,6 +69,8 @@ per-antenna pointing and squint constrainable on the calibrator and ESO137
 data, array-common pointing and ellipticity on the ESO137 track, and beam
 width nowhere. Pointing self-calibration against those baselines is the
 next step. Negative results are kept in `research/`.
+This covers a gain-TV-guided threshold policy; a flagger trained on gain TV
+is a separate question, not yet tested.
 
 **Provenance and the wheel (wave 4 fixes).** Receipts (`rang.receipt`
 version 3) record every result-affecting `RANG_*` variable from one registry
