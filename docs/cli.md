@@ -511,6 +511,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_GPU_MEMORY_MB` | 256 | speed | device-memory budget per GPU inversion (batching only) | `research/x2-wgpu.md` | `core/src/gpu/invert.rs` |
 | `RANG_GPU_LAYERS_PER_BATCH` | unset (as many as the budget allows) | speed | upper bound on the w-layers per GPU batch | `research/x2-wgpu.md` | `core/src/gpu/invert.rs` |
 | `RANG_DF1_LIB` | no longer read | retired | was a prebuilt w-gridder library loaded through ctypes (DF1); W4-3 removed the fallback | `research/w4-3-kernels.md` | `-` |
+| `RANG_GMCLEAN_SIMD` | unset (the best the CPU has) | speed | `scalar`, `avx2` or `avx512` caps gmclean's kernels; the gather sum agrees to rounding only | `research/gmclean.md` | `core/src/gmclean/kernels.rs` |
 | `RANG_WGRIDDER_SIMD` | unset (AVX-512 where available) | speed | `avx2` or `baseline` caps the w-gridder's instruction set | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_WGRIDDER_PLANE_GROUP` | 1 | speed | w-planes gridded together | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_WGRIDDER_TIMING` | unset | output | phase timings of the w-gridder on stderr | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
