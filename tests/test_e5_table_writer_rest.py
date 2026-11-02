@@ -182,8 +182,10 @@ def test_memory_and_tiled_data_managers(tmp_path):
     }
     with (
         w.create_table(tds, td, nrow=2, dminfo=dmi) as t,
-        pytest.raises(OSError, match="E6"),
+        pytest.raises(OSError, match="no hypercube"),
     ):
+        # E6 writes TiledDataStMan values; a row without a hypercube has
+        # none (casacore: `getHypercube: rownr is too high`).
         t.putcol("D", np.zeros((2, 4, 8), np.float32))
     assert w.read_cells(tds, "D", 0, 2) == [None, None]
 

@@ -2049,6 +2049,46 @@ impl MsWriter {
             .map_err(|e| PyOSError::new_err(e.0))
     }
 
+    /// `TiledDataStManAccessor::addHypercube` of the TiledDataStMan `name`:
+    /// shapes in casacore order, `values` the id and coordinate values as
+    /// (field, keyword kind, type code, shape, native bytes), in order
+    /// (research/e6-table-writer-final.md).
+    fn add_hypercube(
+        &mut self,
+        name: &str,
+        shape: Vec<i64>,
+        tile: Vec<i64>,
+        values: Vec<RecordItem>,
+    ) -> PyResult<()> {
+        let rec = record_of(values)?;
+        self.get()?
+            .add_hypercube(name, &shape, &tile, rec)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// `TiledDataStManAccessor::extendHypercube` of the TiledDataStMan
+    /// `name` by `incr` on the last axis (`values` as in `add_hypercube`).
+    fn extend_hypercube(&mut self, name: &str, incr: u64, values: Vec<RecordItem>) -> PyResult<()> {
+        let rec = record_of(values)?;
+        self.get()?
+            .extend_hypercube(name, incr, rec)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
+    /// Write one cell of a string-array column as `ArrayColumn::put` does
+    /// (`putcell`; research/e6-table-writer-final.md).
+    fn put_string_cell(
+        &mut self,
+        name: &str,
+        row: u64,
+        shape: Vec<i64>,
+        strings: Vec<String>,
+    ) -> PyResult<()> {
+        self.get()?
+            .put_string_cell(name, row, &shape, &strings)
+            .map_err(|e| PyOSError::new_err(e.0))
+    }
+
     /// The columns as (name, type code, is array), in table order.
     fn columns(&mut self) -> PyResult<Vec<(String, i32, bool)>> {
         Ok(self
@@ -2107,6 +2147,20 @@ impl MsWriter {
 
 type CellTuple<'py> = (i32, Vec<i64>, Bound<'py, PyBytes>, Vec<String>);
 
+/// A record field: name, keyword kind, type code, shape, native bytes.
+type RecordItem = (String, i32, i32, Vec<i64>, Vec<u8>);
+
+/// The record of a hypercube's id and coordinate values.
+fn record_of(items: Vec<RecordItem>) -> PyResult<rang_core::aipsio::Record> {
+    let mut rec = rang_core::aipsio::Record::default();
+    for (name, kind, code, shape, data) in items {
+        let value = keyword_value(kind, code, &shape, &data, 0).map_err(PyValueError::new_err)?;
+        rec.define(&name, value)
+            .map_err(|e| PyValueError::new_err(e.0))?;
+    }
+    Ok(rec)
+}
+
 /// A hypercolumn definition: name, ndim, data, coordinate and id columns.
 type HypercolumnArgs = (String, u32, Vec<String>, Vec<String>, Vec<String>);
 
@@ -2129,7 +2183,7 @@ fn writer(w: rang_core::ms::Result<TableWriter>) -> PyResult<MsWriter> {
 /// (`ffi_ms_write::ColumnArgs`, `ManagerArgs`), `table.info` (type,
 /// subtype, readme), `nrows` rows; returned open for writing.
 #[pyfunction]
-#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false, hypercolumns=Vec::new()))]
+#[pyo3(signature = (path, desc, columns, managers, info, nrows, big_endian=false, multifile=false, hypercolumns=Vec::new(), block_size=0))]
 #[allow(clippy::too_many_arguments)]
 fn ms_create_table(
     py: Python<'_>,
@@ -2142,6 +2196,7 @@ fn ms_create_table(
     big_endian: bool,
     multifile: bool,
     hypercolumns: Vec<HypercolumnArgs>,
+    block_size: i64,
 ) -> PyResult<MsWriter> {
     let spec = rang_core::ms_create::TableSpec {
         desc_name: desc.0,
@@ -2152,6 +2207,7 @@ fn ms_create_table(
         info,
         big_endian,
         multifile,
+        block_size,
         hypercolumns: hypercolumns
             .into_iter()
             .map(

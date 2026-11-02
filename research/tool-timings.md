@@ -1203,3 +1203,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan W4-5: `maturin build --release --locked` from the unpacked sdist | sdist | 196.4 s / 194.0 s | – | then the wheel test subset from the sdist's tests, 15.7 s |
 | 2026-10-31 | big plan W4-5: `actionlint` both workflows | worktree | 0.7 s | – | 0 errors |
 | 2026-10-31 | big plan W4-5: `tools/check-all.sh` | worktree | 1278 s (lock wait included) | – | `overall: PASS`, log `outputs/w4-5-20261031-check-all.log` |
+| 2026-10-31 | big plan W4-1: `uv venv` + `uv pip install -e .[pointing,beam,test,imaging,formats]` | public PyPI | 230 s | – | builds the extension |
+| 2026-10-31 | big plan W4-1: acceptance `before` (identity, K/L1/L2 pre, L1/L2/L1-M/C1 checks, L5 fixture sweep, L1 smoke) | `outputs/w4-1-20261031-01/before` | 20.1 + 4.0 + 19.8 + 7.0 + 8.7 + 18.6 + 5.8 + 12.2 + 37.8 + 15.4 s | – | at ecccbf0 |
+| 2026-10-31 | big plan W4-1: acceptance `after` (same cases) | `outputs/w4-1-20261031-01/after` | 14.6 + 2.9 + 16.2 + 5.6 + 4.5 + 16.7 + 6.4 + 12.4 + 39.0 + 14.3 s | – | at eca9061; identical apart from the new fields |
+| 2026-10-31 | big plan W4-1: `maturin develop --release` | worktree | 188 s | – |  |
+| 2026-10-31 | big plan W4-1: `cargo test --release --lib solve::` | core | 173 s build, 0.9 s tests | – | 15 pass |
+| 2026-10-31 | big plan W4-1: r02 / r05 (wheel in a scratch repository) | `outputs/w4-1-20261031-01` | 1.1 s / 0.9 s | – | wheel build 1 s (target reused) |
+| 2026-10-31 | big plan W4-1: `bash tools/check-all.sh` | branch `w4-1-receipts` | 1156 s (lock wait included) | – | overall PASS; pytest 750 passed, 18 skipped |

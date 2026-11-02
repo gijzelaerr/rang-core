@@ -1,5 +1,19 @@
 # Rang research state
 
+W4-1 receipts record what changed the result (big plan wave 4 fix task;
+[w4-1-receipts.md](w4-1-receipts.md)), 2026-10-31 (implemented; measured).
+`rang.receipt` version 3 records the value of every result-affecting
+`RANG_*` variable, from one registry (`rang.core.ENVIRONMENT`, 37 names, 29
+recorded; a grep test fails on any unregistered variable), and a `source`
+record (checkout or distribution, version, extension SHA256). The K, L1, L2,
+L1-M, C1, imaging and L5 records carry the same `rang_environment`. The
+solver takes `options=` and `trace=` explicitly; the Rust core reads no
+environment. From a wheel, `commit` is null and `source_receipts()` hashes
+the installed package (W4R-01, W4R-02). Results are unchanged: the P9
+identity suite and the K, L1, L2, L1-M, C1 and L5 comparators are identical,
+and L5 run through the new argument equals the archived sweep bit for bit.
+`RANG_C1_LIB` and `RANG_DF1_LIB` are retired (W4-3).
+
 W4-5, the release metadata (big plan wave 4 fix task;
 [w4-5-release.md](w4-5-release.md)), 2026-10-31 (implemented; measured):
 `rang.__version__` and `rang-core --version` (`rang-core 0.1.0`) read the
