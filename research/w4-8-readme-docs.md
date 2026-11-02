@@ -19,7 +19,7 @@ and restructure it. The wave 4 pass and the "Documentation drift" table of
 | `CONTRIBUTING.md` | 96 → 97 | Docs URL, the full-check extras, the platform paragraph. |
 | `docs/index.md` | 66 → 59 | The README's tagline and status box; the verdict's detail is left to the research story. |
 | `docs/installation.md` | 123 → 127 | The extras table gains `meerkat`, `formats`, `carta` and `casacure`. |
-| `.github/workflows/docs.yml` | 107 → 131 | The conditional deploy job. |
+| `.github/workflows/docs.yml` | 107 → 133 | The conditional deploy job. |
 | `pyproject.toml` | one line | `Documentation = "https://pythonic.nl/rang-core/"` (coordinator's update). |
 | `CITATION.cff` | new, 12 | Owner's name, repository, version 0.1.0; no ORCID in the repository. |
 | `core/src/ffi.rs`, `core/py/src/lib.rs` | comments only | See "For the coordinator". |
