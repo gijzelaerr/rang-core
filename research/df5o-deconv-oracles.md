@@ -10,6 +10,20 @@ DDFacet HMP/SSD, pfb-imaging 0.0.11, truth from the simulated field;
 positions against truth within frozen tolerances; residual RMS no worse than
 both tools at matched iterations").
 
+**Status now (2026-11-02): implemented; measured; the oracles are frozen**
+([measured results](#6-measured-results-post-freeze-runs-as-frozen)). The
+field is simulated through the core (MS by the core writer, prediction by
+the exact degridder, DFT check 1.2e-11) and hashed; both tools read it
+bit-identically and their dirty images agree with the core's to 1.7e-7
+(WSClean) and 2.6e-7 (pfb) of the peak. WSClean Högbom, WSClean multiscale
+and pfb kclean/Clark meet the truth tolerances A1/A2 (multiscale fails A1 on
+2–3 faint points next to its large-scale flux); pfb sara at the release's
+recipe settings has not converged in 10 major cycles (residual RMS 30σ).
+DF5's acceptance bounds are in section 6.5. Deviations D1–D6 (section 7);
+DDFacet was not run (open item). WSClean Högbom and pfb kclean/Clark are
+bit-reproducible run to run; the multiscale arms and sara are not (residual
+RMS spread ≤ 0.34 %).
+
 **Status at freeze: proposed.** Nothing below is implemented or measured,
 except the pfb-imaging image recipe and lock (tooling, section 2.3), which
 were written before the freeze to find out whether pfb-imaging installs on
@@ -341,7 +355,7 @@ gain 0.1, mgain 0.8, no mask), measured by `compare_df5o.py`:
 Nothing here claims novelty. A DF5 that passes A1–A4 is a port at oracle
 quality, not an improvement.
 
-## 5. Implementation plan (owner files)
+## 5. Implementation (owner files)
 
 `examples/simulate_df5_field.py` (truth, MS through the core, prediction,
 FITS truth, hashes, `field.json`), `examples/oracle_wsclean_clean.py`
@@ -349,3 +363,299 @@ FITS truth, hashes, `field.json`), `examples/oracle_wsclean_clean.py`
 arms in the container, timings), `examples/compare_df5o.py` (sections 3–4,
 the archive), `tools/oracles/pfb-imaging/` (image), `tests/test_df5o.py`,
 `research/results/df5o-deconv-oracles.json`, this note.
+
+## 6. Measured results (post-freeze runs, as frozen)
+
+Run `outputs/df5o-20261031-01` (field, WSClean arms, pfb sara, the misfit
+floor, preconditions, measures) and `outputs/df5o-20261102-02` (the pfb
+kclean/Clark arms, rerun after deviation D4); archive
+[results/df5o-deconv-oracles.json](results/df5o-deconv-oracles.json)
+(`examples/compare_df5o.py archive`: derived numbers and the synthetic truth
+component list). Every number below was produced by the committed scripts.
+
+### 6.1 The field (measured)
+
+- 241,920 rows (2,016 baselines × 120 dumps), 16 channels; local hour angle
+  −1.989 h to +1.989 h (120 s dumps of solar time), elevation 53.8°–59.6°.
+- Noise: σ = 3.955 mJy per correlation, σ_I = 2.796 mJy, **σ_img = 1.421 µJy**
+  (MFS, exact from the weights); the noise-only MFS dirty image has RMS
+  1.408 µJy (whole image) and 1.433 µJy (inner half); threshold
+  3σ_img = 4.264 µJy.
+- PSF (natural, MFS): FWHM 11.58 × 7.23 pixels (23.2″ × 14.5″), so `b = 12`
+  and the multiscale scales are 0, 24, 48, 96, 192 pixels.
+- Truth: 58 components in 45 sources (40 points, 4 Gaussians, the radio
+  galaxy of 14 parts), 97.94 mJy at 1,284 MHz, 99.71 mJy in the MFS truth
+  image, brightest pixel 17.92 mJy.
+- Checks: the FITS pixel `(x, y)` is the DFT direction `(−l_r, +m_r)` of the
+  gridder layout (the other three sign choices miss by the full amplitude);
+  the header WCS reproduces those `(l, m)` to 5.7e-16; the 41 point
+  components through `predict_components` equal the degridded points-only
+  cube to **1.2e-11** of the summed flux on every channel.
+- Hashes (SHA256): MS digest (sorted file list) `978e2720…a684b877`;
+  `field.npz` `b0f1fda4…02071a3f`; `truth-mfs.fits` `9b3a5253…d408ca4c1d`;
+  `truth-cube.fits` `2883c85f…bb1e41a1e`; columns DATA `e6365242…f3393a`,
+  UVW `e422f148…74e1dbf8`, WEIGHT_SPECTRUM `9fbc97e6…0e58217`; full digests
+  in `field.json` and the archive.
+
+### 6.2 Preconditions (measured)
+
+| check | WSClean 3.7 (O-CASA image) | pfb-imaging 0.0.11 |
+| --- | --- | --- |
+| P1, python-casacore reads the core-written MS (DATA, UVW, WEIGHT_SPECTRUM, FLAG, TIME hashes, rows, CHAN_FREQ) | pass (3.7.1) | pass (3.8.1) |
+| P2, dirty L∞/peak, worst channel | 1.74e-7 (MFS 1.49e-7) | 2.57e-7 |
+| P2, PSF L∞ | 1.81e-7 | 1.35e-7 (central 1024² of its 1440² PSF) |
+| counters | 241,920 visibilities gridded per channel (log) | – |
+| orientation | WSClean's (by construction) | identity (the other seven symmetries miss by ≥ 0.85 of the peak), CRPIX 513 |
+
+### 6.3 The misfit floor (measured)
+
+`Q_0 = 4.432e-4 Jy²`, `Q_truth = 7.815e-6` (the noise: σ_I² = 7.819e-6),
+`Q_∞ ≤ 6.278e-6` (200 CG iterations per channel, 66 min). The core's `Q_0`
+equals the Python one to 1.5e-12. The CG budget sweep on channel 8 gives
+6.311e-6, 6.240e-6, 6.205e-6 at 100, 200, 400 iterations: the bound still
+falls by 0.6 % per doubling, so `Q_∞` is an upper bound, as stated. With
+1 M pixels against 484 k real data per channel the floor lies below the
+noise energy, so every reducible fraction below is dominated by the noise
+(`(Q_truth − Q_∞)/(Q_0 − Q_∞) = 3.52e-3`).
+
+### 6.4 The oracles (measured; repeat 1, repeat 2 in the archive)
+
+Residuals are the **core-recomputed** exact residuals of each tool's model.
+`cons.` is `‖r_tool − r_core(m_tool)‖∞`; `signal left` is
+`(Q − Q_truth)/(Q_0 − Q_truth)`; κ is the MFS greedy ratio at the end.
+pfb wall and RSS include `init` and `grid`.
+
+| arm | model / truth | RMS inner (σ_img) | peak (σ_img) | cons. (σ_img) | Q/Q_0 | reducible | signal left | κ | A1 | A2 | spurious + / − (mJy) | major | minor | wall (s) r1 / r2 | RSS (MB) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `ws-hogbom` | 0.99588 | 1.6055 µJy (1.130) | 3.16 | 0.0014 | 0.017630 | 3.514e-3 | −3.9e-6 | 6.6e-6 | pass | pass | 0.221 / −0.161 | 7 | 5,119 | 675 / 789 | 282 |
+| `pfb-clark` | 0.99583 | 1.5663 µJy (1.102) | 2.94 | 0.0014 | 0.017628 | 3.512e-3 | −5.9e-6 | 5.7e-6 | pass | pass | 0.260 / −0.210 | 5 | – | 262 / 246 | 3,419 |
+| `pfb-kclean` | identical to `pfb-clark` (≤ 2e-22 Jy) | | | | | | | | pass | pass | | 5 | – | 257 / 327 | 3,423 |
+| `ws-multiscale` | 0.99966 | 1.4463 µJy (1.018) | 3.42 | 0.0014 | 0.017635 | 3.519e-3 | +0.9e-6 | 7.7e-6 | **fail** (p16, p23, p26; r2: p23, p26) | pass | 2.861 / −3.335 | 7 | 40,819 | 1,199 / 1,437 | 915 |
+| `ws-multiscale-mask` (reported) | 1.00115 | 1.2192 µJy (0.858) | 4.19 | 0.0014 | 0.017639 | 3.523e-3 | +5.4e-6 | 1.2e-5 | pass | pass | 3.318 / −3.085 | 7 | 84,749 | 2,452 / 2,182 | 918 |
+| `pfb-sara` (reported) | 1.03052 | 42.52 µJy (29.9) | 693 | 0.0014 | 0.04800 | 3.43e-2 | 3.09e-2 | 0.032 | **fail** (30 sources) | **fail** (6) | 0 / 0 | 10 | – | 5,151 / 4,549 | 5,479 |
+
+Per source (ΔS/S of repeat 1; all 45 are in the archive), the sources the
+tolerances single out:
+
+| source | S_truth (mJy) | S/σ_ap | ws-hogbom | pfb-clark | ws-multiscale | ws-ms-mask | pfb-sara |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| radio galaxy | 9.224 | 439 | −0.008 | −0.008 | +0.000 | +0.000 | −0.057 |
+| g0 (12″) | 0.511 | 150 | −0.007 | −0.006 | +0.054 | +0.031 | −0.050 |
+| g1 (24″) | 1.020 | 236 | −0.017 | −0.016 | +0.018 | +0.016 | −0.104 |
+| g2 (40″) | 2.028 | 339 | −0.013 | −0.013 | −0.011 | −0.008 | −0.095 |
+| g3 (64″) | 3.959 | 450 | −0.009 | −0.009 | +0.003 | +0.001 | −0.131 |
+| p16 | 0.254 | 85 | −0.015 | −0.015 | +0.087 | +0.023 | −0.121 |
+| p23 | 0.086 | 29 | −0.056 | −0.051 | +0.162 | +0.142 | −1.000 |
+| p26 | 0.230 | 77 | −0.012 | −0.010 | +0.090 | +0.042 | −0.049 |
+| p04 | 0.053 | 18 | −0.067 | −0.064 | +0.077 | +0.068 | −1.000 |
+| p31 | 0.026 | 9 | −0.250 | −0.250 | −0.027 | −0.054 | −1.000 |
+
+- The CLEANs lose 0.4 % of the flux (faint points 6–25 % low, below 20σ_ap
+  where A1 does not apply); the multiscale arms recover the total to 0.03 %
+  and 0.1 % but put ±3 mJy of large-scale flux outside every aperture (1 M
+  non-zero pixels), which also lifts faint points beside it by 9–16 %.
+- Positions: every point within 0.022 (Högbom, Clark), 0.056 (multiscale)
+  and 0.041 (mask) of the PSF FWHM.
+- Spectral indices (25 sources at ≥ 100σ_ap): median |Δα| 0.003 (Högbom,
+  Clark), 0.017 (multiscale), 0.011 (mask), 0.041 (sara); worst 0.037,
+  0.087, 0.054, 0.166.
+- The tool residuals agree with the core-recomputed ones to 1.9e-9 Jy
+  (0.0014σ_img) on every arm: the float32 FITS, nothing else. pfb's flux mop
+  ran (`Extracting flux at iter 5`) but changed nothing: the post-mop model
+  and residual equal the pre-mop ones, so kclean and Clark coincide here.
+- WSClean's source list (practice arm, `-fit-spectral-pol 4`): 4,953
+  components (4,048 Gaussians), ordinary polynomial spectra, read by
+  `rang.formats.sky.load_wsclean`; its flux per channel equals the model
+  FITS to 1.1e-6 relative.
+- sara: 10 cycles of about 12 min, stopped by `niter` with `eps = 7.8e-3`
+  against `tol = 5e-4` (not converged); its `rmsfactor 1` threshold and
+  positivity keep faint points at zero (the A1 failures are the sources
+  below about 0.3 mJy plus the shrunk Gaussians).
+- Reproducibility (repeat 2 − repeat 1, inner residual RMS): ws-hogbom 0,
+  pfb-clark 0, pfb-kclean 2e-22 Jy, ws-multiscale 4.9e-9 Jy (0.34 %), mask
+  2.6e-9 Jy (0.21 %), sara 5.6e-9 Jy (0.013 %); largest per-source flux
+  difference 1.1 µJy (multiscale), 3.4 µJy (mask).
+
+### 6.5 DF5's acceptance (frozen bounds, from the measured oracles)
+
+For DF5 on this field with the protocol's settings (section 4):
+
+- **A1 and A2, Högbom**: the matched oracles meet both, so DF5 Högbom must
+  too: total MFS flux within 2 % of 99.71 mJy; every source with
+  `S ≥ 20σ_ap` (39 of 45) within `0.05 S + 3σ_ap`; points within 0.1 PSF
+  FWHM (2.3″), extended sources within 0.25.
+- **A1, multiscale**: `ws-multiscale` fails A1 on p23 and p26 (both repeats)
+  and p16 (repeat 1), so for those three DF5 multiscale must be no worse
+  than ws-multiscale's worse repeat (ΔS/S ≤ +0.162, +0.090, +0.087); every
+  other source as A1. A2 as Högbom.
+- **A3, residual RMS (inner half, core-recomputed)**: Högbom
+  **≤ 1.5976 µJy** (the best matched oracle, pfb-clark 1.5663 µJy, + 2 %;
+  the matched spreads are 0); multiscale **≤ 1.4753 µJy** (ws-multiscale
+  1.4463 µJy + 2 %, larger than twice its 4.9e-9 Jy spread).
+- **A4, reducible fraction**: Högbom ≤ 3.582e-3, multiscale ≤ 3.589e-3
+  (both noise-dominated, section 6.3; the more informative `signal left` of
+  the matched oracles lies between −6e-6 and +1.6e-6).
+- **A5, cost** (reported): ws-hogbom 675–789 s and 282 MB, pfb-clark
+  246–262 s and 3.4 GB, ws-multiscale 1,199–1,437 s and 915 MB, at 4 threads.
+
+## 7. Deviations from the protocol
+
+- **D1**: WSClean 3.7 refuses `-save-source-list` with several output
+  channels and no `-fit-spectral-pol` ("Saving a source list with multiple
+  channels requires specifying a fitting method"). The matched arms run
+  without it; the reported practice arm `ws-multiscale-mask` carries
+  `-fit-spectral-pol 4 -save-source-list`, so it is no longer a pure
+  masked variant of `ws-multiscale`. The first launch of the three arms
+  failed on this flag within a second and was deleted.
+- **D2**: WSClean opens the MS read/write even with
+  `-no-update-model-required` ("cannot be opened for read/write" on the
+  read-only mount, after the first minor cycle). Each WSClean run images a
+  copy, checked unchanged (column hashes) after the run and removed; the
+  failed runs were deleted.
+- **D3**: the pfb-imaging closure needs `xarray<2026.4` (`requirements.in`):
+  xarray 2026.4 dropped zarr 2 while dask-ms 0.2.32 requires zarr < 3, and
+  pfb-imaging 0.0.11 states neither, so `pfb init` failed with
+  `open_group() got an unexpected keyword argument 'zarr_format'`. xarray
+  2026.2.0 is pinned; the image was rebuilt (`sha256:226e8e81…`).
+- **D4**: `pfb kclean` forces `NUMBA_THREADING_LAYER=tbb`; the tbb wheel
+  installs `libtbb.so.12` in `/opt/pfb/lib`, off the loader path, so kclean
+  failed ("No threading layer could be loaded") in all four first attempts
+  (`outputs/df5o-20261031-01/pfb/pfb-{kclean,clark}-r{1,2}`, logs kept). The
+  driver now passes `LD_LIBRARY_PATH=/opt/pfb/lib`; the four runs were
+  repeated into `outputs/df5o-20261102-02` (image unchanged). sara ran
+  without it and completed.
+- **D5**: small facts differ from the protocol's text: the hour angle spans
+  ±1.989 h (the protocol gave the solar ±1.983 h), antenna names are the
+  ITRF file's (`M000`…), and a FEED subtable is written.
+- **D6**: the session was interrupted (API limit) between the floor run
+  (2026-10-31) and the measures (2026-11-02); no run was cut, only D4's
+  reruns and the measures were done after it.
+- Caveat, not a deviation: WSClean runs with the frozen `-no-reorder`, which
+  rereads the whole MS per channel image (a third of its wall is system
+  time); its cost is not tuned.
+
+## 8. Open items
+
+- DDFacet HMP/SSD on this field (`rang-formats-oracle:20261030`): not run.
+- pfb's `.mds` component model has no `rang.formats` reader.
+- sara at a converging budget (its `tol`), as a convex-solver reference for
+  a later novelty question; not a DF5 gate.
+- Off-grid sources, a primary beam and Briggs weighting: the next field
+  variants once DF5 passes this one.
+- PyBDSF on the restored images (the survey's recovered-flux check): the
+  aperture photometry against the known truth replaces it here.
+
+## 9. Tool runs
+
+| tool / step | input | wall | peak RSS | threads | notes |
+| --- | --- | ---: | ---: | ---: | --- |
+| `uv venv` + editable install (`.[pointing,beam,test,imaging,formats]`) | worktree | 172 s | – | 4 | extension built |
+| `uv pip compile` pfb-imaging lock | requirements.in | 4.2 s | – | – | CPython 3.12, manylinux_2_39 |
+| `docker build` pfb-imaging image (first; rebuilt for D3) | lock | 116 s; 76 s | – | – | 2.45 GB image |
+| `simulate_df5_field.py` | – | 21.7 s | 857 MB | 4 | MS write 1.2 s, predict 4.9 s |
+| P1 MS read-back (O-CASA; pfb image) | field.ms | 1.2 s; 1.4 s | – | 1 | |
+| WSClean 3.7 `-niter 0` (16 channels, PSF) | field.ms | 137 s | 122 MB | 4 | |
+| WSClean Högbom | field.ms | 675 s; 789 s | 282 MB | 4 | 7 major, 5,119 minor |
+| WSClean multiscale | field.ms | 1,199 s; 1,437 s | 915 MB | 4 | 7 major, 40,819 minor |
+| WSClean multiscale, auto-mask, fit-spectral-pol 4 | field.ms | 2,452 s; 2,182 s | 918 MB | 4 | 7 major, 84,749 minor |
+| pfb init | field.ms | 41–68 s | 544 MB | 4 | |
+| pfb grid | xds | 43–76 s | 1,120 MB | 4 | |
+| pfb kclean (mop) | dds | 140 s; 154 s | 3,423 MB | 4 | 5 major |
+| pfb kclean `--no-mop-flux` | dds | 111 s; 94 s | 3,419 MB | 4 | 5 major |
+| pfb sara | dds | 5,020 s; 4,463 s | 5,479 MB | 4 | 10 major |
+| `compare_df5o.py p2` | all dirty images | 20.1 s | 1,295 MB | 4 | |
+| `compare_df5o.py floor` (16 channels × 200 CG, sweep 100/200/400) | field.npz | 3,986 s | 740 MB | 4 | 175–185 s per channel |
+| `compare_df5o.py measure` (each of 12 runs) | FITS + field.npz | 19–30 s | 735 MB | 4 | |
+
+## 10. For the coordinator
+
+### Shared-file lines (verbatim)
+
+- `research/README.md`, after the "New, 2026-10-31: E5" paragraph:
+
+  > New, 2026-11-02: DF5-O, the [deconvolution oracles](df5o-deconv-oracles.md):
+  > a simulated MeerKAT field (core-made MS, truth on the grid, hashed),
+  > WSClean 3.7 Högbom/multiscale and pfb-imaging 0.0.11 kclean/sara frozen
+  > on it with truth measures and the CLEAN diagnostics; DF5's tolerances.
+
+- `research/STATE.md`, new top paragraph:
+
+  > DF5-O, the deconvolution oracles (big plan;
+  > [df5o-deconv-oracles.md](df5o-deconv-oracles.md)), 2026-11-02
+  > (implemented; measured): a simulated MeerKAT L-band field (64 antennas,
+  > 4 h, 16 channels 900–1,670 MHz, radiometer noise σ_img = 1.42 µJy, 40
+  > points from 15 µJy to 20 mJy, four Gaussians and an ESO 137−006-like
+  > radio galaxy, all on the grid) predicted by the core's exact degridder
+  > (DFT check 1.2e-11) into an MS the core creates, read bit-identically by
+  > both tools' python-casacore; their dirty images agree with the core's to
+  > 1.7e-7 (WSClean) and 2.6e-7 (pfb). Frozen, with the core-recomputed
+  > residuals: WSClean Högbom 1.606 µJy RMS (1.13σ) in 7 major cycles and
+  > pfb kclean/Clark 1.566 µJy in 5, both meeting the truth tolerances (flux
+  > within 5 % + 3σ for every source above 20σ, points within 0.1 beam);
+  > WSClean multiscale 1.446 µJy and total flux to 0.03 %, but ±3 mJy of
+  > large-scale flux outside the sources and faint points beside it 9–16 %
+  > high; pfb sara at its recipe settings unconverged in 10 cycles (30σ).
+  > DF5 Högbom must reach ≤ 1.598 µJy, multiscale ≤ 1.475 µJy. pfb's flux mop
+  > changed nothing here; four tool defects found (pfb closure, tbb path,
+  > WSClean read/write and source-list rules). DDFacet open.
+  > `outputs/df5o-20261031-01`, `outputs/df5o-20261102-02`,
+  > `research/results/df5o-deconv-oracles.json`.
+
+- `research/big-plan.md`, in the DDFacet/killMS paragraph after "DF3–DF5
+  (facets with per-facet Jones, scalar CohJones, Hogbom/multiscale) after B1
+  says what it needs;":
+
+  > DF5-O done 2026-11-02 (`df5o-deconv-oracles.md`): DF5's acceptance on the
+  > simulated field (16 channels, natural, ≤ 10 major cycles, 3σ threshold,
+  > gain 0.1, mgain 0.8): total MFS flux within 2 % of the truth, every
+  > source above 20σ_ap within 5 % + 3σ_ap (multiscale: p16, p23, p26 no
+  > worse than WSClean multiscale), points within 0.1 PSF FWHM; the
+  > core-recomputed inner residual RMS ≤ 1.598 µJy (Högbom, against WSClean
+  > Högbom and pfb Clark) and ≤ 1.475 µJy (multiscale, against WSClean
+  > multiscale); reducible fraction ≤ 3.58e-3 / 3.59e-3; the per-cycle Gram
+  > gap recorded by DF5's driver; DDFacet HMP on the field open;
+
+- `research/tool-timings.md`: the rows of section 9, dated 2026-10-31 to
+  2026-11-02, task DF5-O.
+
+- `research/upstream-notes.md` (pfb-imaging is RATT; list for filing):
+  1. pfb-imaging 0.0.11: the `[full]` closure resolves to xarray ≥ 2026.4,
+     which needs zarr ≥ 3, while dask-ms 0.2.32 needs zarr < 3; `pfb init`
+     fails (`open_group() got an unexpected keyword argument
+     'zarr_format'`). Proposed: an `xarray<2026.4` bound in the `full` extra
+     (or a zarr-3 dask-ms).
+  2. pfb-imaging 0.0.11: `set_envs` forces `NUMBA_THREADING_LAYER=tbb` and
+     loads the wheel's `libtbb.so` with `ctypes`, but numba's `tbbpool` still
+     cannot find `libtbb.so.12` in a plain venv (`<venv>/lib` is not on the
+     loader path): `kclean` stops with "No threading layer could be loaded".
+     Proposed: preload `libtbb.so.12`, or fall back to `omp`.
+  3. pfb-imaging 0.0.11: `kclean`'s flux mop writes its products only to
+     `*_postmop{k}_*_mfs.fits` and `MODEL_BEST`; on this field it changed
+     nothing (post-mop model equal to pre-mop). Observation, not an issue
+     yet.
+  4. pfb-imaging 0.0.11 ships `deconv/hogbom.py` but no command uses it
+     (`kclean` is Clark); a Högbom minor cycle on the CLI would give a Högbom
+     oracle. Feature request.
+- `research/non-ratt-observations.md` (WSClean; not filed):
+  1. WSClean 3.7 opens the MS read/write with `-niter > 0` even with
+     `-no-update-model-required`, failing on a read-only MS after the first
+     minor cycle.
+  2. WSClean 3.7 refuses `-save-source-list` with `-channels-out > 1` unless
+     `-fit-spectral-pol` is given (by design; not in its help text).
+  3. WSClean 3.7 warns that `-threshold` is deprecated for `-abs-threshold`.
+  4. WSClean's fitted natural-weighting beam (52″ × 39″ at 924 MHz) is far
+     wider than the half-maximum main lobe (about 32″ there; 23″ × 14″ MFS):
+     MeerKAT's natural PSF plateau dominates the fit.
+
+### No CLI stage
+
+No `rang-core` stage is added; `core_cli.py` and `docs/cli.md` are unchanged.
+
+### Ignored output directories
+
+| directory | size | content |
+| --- | ---: | --- |
+| `outputs/df5o-20261031-00` | 20 KB | pfb image build log and record |
+| `outputs/df5o-20261031-01` | 4.7 GB | field (MS, truth, npz: 697 MB), WSClean arms (FITS), pfb sara and grid (FITS; xds/dds stores removed), the failed first kclean attempts (logs only), floor, preconditions, measures |
+| `outputs/df5o-20261102-02` | 2.1 GB | pfb kclean/Clark arms (FITS; stores removed) |
+| `outputs/df5o-20261102-check-all.log` | small | check-all log |
