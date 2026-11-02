@@ -1373,6 +1373,7 @@ def solve(problem, arm, candidates=(), log=print, max_passes=LM_MAX_PASSES):
     passes = 1
     accepted = 0
     rejected = 0
+    outside = 0
     history = [{"pass": 1, "objective": obj, "accepted": True, "lambda": None}]
     theta_full = np.zeros(nt_full)
     while passes < max_passes:
@@ -1391,8 +1392,16 @@ def solve(problem, arm, candidates=(), log=print, max_passes=LM_MAX_PASSES):
         t_phi = phi + step[nsky:]
         t_theta = design @ t_phi if design.shape[1] else np.zeros(nt_full)
         trial = _apply_theta({**state, "a": t_a, "b": t_b}, problem, t_theta)
-        res = problem.run_pass(trial, current["gains"], "fit")
         passes += 1
+        try:
+            res = problem.run_pass(trial, current["gains"], "fit")
+        except ValueError as exc:
+            # a trial outside the beam grid has no finite objective: rejected
+            if "outside" not in str(exc):
+                raise
+            problem.close()
+            res = {"chi2": math.inf}
+            outside += 1
         t_obj = (
             res["chi2"] + float(np.sum((t_phi / priors) ** 2))
             if len(phi)
@@ -1456,6 +1465,7 @@ def solve(problem, arm, candidates=(), log=print, max_passes=LM_MAX_PASSES):
         "rejected": rejected,
         "history": history,
         "solver_wall_s": wall,
+        "rejected_outside_beam_grid": outside,
         "free_parameters": int(nfree),
         "free_beam_parameters": int(design.shape[1]),
         "solves": int(sum(p["solves"] for p in problem.passes[-passes:])),

@@ -545,3 +545,12 @@ runs `-35` and `-38` to the last digit (its halvings there are rounding-level
 at the last step). The F2 and F3 results under amendment 1 therefore stand;
 S4, S5, S1 and S2 are measured under 1a. No margin, set, arm or rule
 changes.
+
+## Bookkeeping fix (2026-11-02, labelled; before the S4 and S5 pointing arms)
+
+Runs `b1-3-20261030-59-S4-ii`, `-60-S4-R`, `-62-S5-ii` and `-63-S5-R` (kept
+as failures) stopped with "beam coordinates outside the cropped grid": an LM
+trial put a pointing offset beyond the crop (the components' radius plus
+7′). A trial outside the beam grid has no finite objective, so it is now
+counted as a rejected step (λ × 10, as for any rejected step) instead of
+ending the run; the count is recorded per arm. Nothing else changes.

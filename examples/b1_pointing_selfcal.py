@@ -647,6 +647,7 @@ def fit(name, arm, out, fit_beam="antenna", nproc=4, max_passes=ps.LM_MAX_PASSES
         "chi2_train": res["chi2"],
         "objective": res["objective"],
         "passes": res["passes"],
+        "rejected_outside_beam_grid": res["rejected_outside_beam_grid"],
         "accepted": res["accepted"],
         "rejected": res["rejected"],
         "history": res["history"],
