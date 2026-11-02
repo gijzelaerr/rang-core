@@ -4,7 +4,8 @@ Repository: ratt-ru/tricolour. Status: **filed 2026-10-30 (task U2),
 https://github.com/ratt-ru/tricolour/issues/113** (improvement, with numbers).
 
 PR: https://github.com/ratt-ru/tricolour/pull/114 on `0.5.0-dev` (branch
-`lanes-frequency-axis`, commit 2f476ad). CI: no checks reported yet (fork PR; the project's
+`lanes-frequency-axis`; rebased by U4 on 2026-11-02 from 2f476ad to c1000f1 on `367ff54`,
+[../u4-upstream.md](../u4-upstream.md)). CI: no checks reported yet (fork PR; the project's
 `ratt-priv-ci` asks an admin to verify fork patches).
 
 Origin: [../p3-sumthreshold.md](../p3-sumthreshold.md) section 5 (rows as lanes gave 2.3-3.0x on

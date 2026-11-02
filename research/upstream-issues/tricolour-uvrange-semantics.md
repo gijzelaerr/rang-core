@@ -1,13 +1,13 @@
 # Tricolour 0.5.0: `apply_static_mask` `uvrange` now means |uvw|, where 0.2.x used 0.5·|Δp|²
 
 Repository: ratt-ru/tricolour (with caracal-pipeline/caracal for the strategies). Status:
-**not filed; text for the coordinator (list or file after the user's say).** Found by task
-RV1 ([../rv1-revalidate.md](../rv1-revalidate.md)) on 2026-10-30, reading `0.5.0-dev`
-`367ff54` against 0.2.1 and reproduced with both versions on a synthetic case
-(`outputs/rv1-20261030-logs/uvrange_demo.py`, `uvrange-demo.log`). It is a behaviour change
-of a release still to come, not a regression in a released version. The 0.5.0 rule looks
-like the intended one, so this asks for a release note and a CARACal check rather than a code
-change.
+**filed 2026-11-02 (U4), https://github.com/ratt-ru/tricolour/issues/115**. Found by task RV1 ([../rv1-revalidate.md](../rv1-revalidate.md)) on 2026-10-30,
+reading `0.5.0-dev` `367ff54` against 0.2.1 and reproduced with both versions on a synthetic case.
+U4 reran [../u4-upstream-files/uvrange_demo.py](../u4-upstream-files/uvrange_demo.py) on 2026-11-02 with
+the same result (`outputs/u4-20261102-01/logs/uvrange-demo.log`; `367ff54` is still the head of
+`0.5.0-dev`, 0.5.0 is not released). The 0.5.0 rule looks like the intended one, so this asks for a
+release note and a CARACal check rather than a code change. Input-flag growth is not part of this
+issue (not approved).
 
 <!-- issue-title: 0.5.0: apply_static_mask's uvrange selects |uvw| <= hi, where 0.2.x selected 0.5*|dp|^2 <= hi^2 (a sqrt(2) wider range); worth a release note -->
 <!-- issue-body -->
