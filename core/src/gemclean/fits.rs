@@ -1,4 +1,4 @@
-//! A minimal FITS writer (and reader, for tests) for gmclean's images.
+//! A minimal FITS writer (and reader, for tests) for gemclean's images.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
@@ -256,7 +256,7 @@ mod tests {
 
     #[test]
     fn round_trip_header_blocks_and_orientation() {
-        let dir = std::env::temp_dir().join(format!("gmclean-fits-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("gemclean-fits-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let n = 6;
         // A gridder image with one off-centre pixel at (x = 4, y = 1).
@@ -267,7 +267,7 @@ mod tests {
         let scale = (8.0 / 3600.0_f64).to_radians();
         let mut cards = wcs_cards(5.1461782, -1.11199581, n, scale, &[1e9, 1.1e9]);
         cards.push(card("BMAJ", Value::Float(0.01), ""));
-        cards.push(card("ORIGIN", Value::Str("gmclean test".into()), ""));
+        cards.push(card("ORIGIN", Value::Str("gemclean test".into()), ""));
         for bitpix in [-32, -64] {
             let path = dir.join(format!("t{}.fits", -bitpix));
             write(&path, n, n, &fits, bitpix, &cards).unwrap();
@@ -288,7 +288,7 @@ mod tests {
             assert_eq!(get("CRPIX1").parse::<f64>().unwrap(), 4.0);
             assert!((get("CRVAL1").parse::<f64>().unwrap() + 65.1457083333333).abs() < 1e-6);
             assert!((get("CRVAL2").parse::<f64>().unwrap() + 63.7126666666667).abs() < 1e-6);
-            assert_eq!(get("ORIGIN"), "gmclean test");
+            assert_eq!(get("ORIGIN"), "gemclean test");
             assert!((get("CDELT2").parse::<f64>().unwrap() - 8.0 / 3600.0).abs() < 1e-15);
             assert_eq!(get("NAXIS"), "4");
         }

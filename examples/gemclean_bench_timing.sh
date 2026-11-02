@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# The timing subset of the gmclean benchmark, for a quiet host only
-# (research/gmclean-benchmark.md, "Timing subset to rerun"): every repeat runs
-# each job of both imagers interleaved, WSClean first on odd repeats and gmclean
-# first on even ones. It records what examples/gmclean_bench_run.sh records
+# The timing subset of the gemclean benchmark, for a quiet host only
+# (research/gemclean-benchmark.md, "Timing subset to rerun"): every repeat runs
+# each job of both imagers interleaved, WSClean first on odd repeats and gemclean
+# first on even ones. It records what examples/gemclean_bench_run.sh records
 # (load before, during and after, the busy processes, GNU time -v).
 #
-# Usage: bash examples/gmclean_bench_timing.sh GMCLEAN_BINARY OUT_DIR [REPEATS]
+# Usage: bash examples/gemclean_bench_timing.sh GEMCLEAN_BINARY OUT_DIR [REPEATS]
 #   REPEATS defaults to 3. BENCH_TIMING_DATASETS (default "s1 s2 s3") and
 #   BENCH_TIMING_THREADS (default "16 1") narrow the subset.
 set -euo pipefail
@@ -18,11 +18,11 @@ threads=${BENCH_TIMING_THREADS:-"16 1"}
 
 wsclean() {  # wsclean <run> <dataset> <threads>
   BENCH_THREADS=$3 BENCH_MODES=abs BENCH_LOOPS=fast BENCH_GRIDS="minres nominres" \
-    bash "$root/examples/gmclean_bench_run.sh" wsclean "$1/wsclean" "$2"
+    bash "$root/examples/gemclean_bench_run.sh" wsclean "$1/wsclean" "$2"
 }
 gm() {  # gm <run> <dataset> <threads>
   BENCH_THREADS=$3 BENCH_MODES=abs \
-    bash "$root/examples/gmclean_bench_gmclean.sh" "$binary" "$1/gmclean" "$2"
+    bash "$root/examples/gemclean_bench_gemclean.sh" "$binary" "$1/gemclean" "$2"
 }
 
 for ((rep = 1; rep <= repeats; rep++)); do
@@ -45,6 +45,6 @@ first_ds=${datasets%% *}
 first_t=${threads%% *}
 for ((rep = 1; rep <= repeats; rep++)); do
   BENCH_THREADS=$first_t BENCH_MODES=abs BENCH_LOOPS=hogbom BENCH_GRIDS=nominres \
-    bash "$root/examples/gmclean_bench_run.sh" wsclean "$out/rep$rep/wsclean" "$first_ds"
+    bash "$root/examples/gemclean_bench_run.sh" wsclean "$out/rep$rep/wsclean" "$first_ds"
 done
 echo "## done $out"

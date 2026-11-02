@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Whole imaging jobs for research/gridder-theory.md: gmclean's default against
+# Whole imaging jobs for research/gridder-theory.md: gemclean's default against
 # the visibility-free major cycle (-gram-operator), on the benchmark skies S1-S3
 # and the optimisation skies point, disc, crowded. One job at a time, each under
 # the heavy lock; every job prints wall time and load.
@@ -8,7 +8,7 @@
 # GRAM_F64 and GRAM_F32 are S,THETA for the double and single precision runs.
 set -uo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
-bin=$root/core/target/release/gmclean
+bin=$root/core/target/release/gemclean
 out=$1
 f64=$2
 f32=$3

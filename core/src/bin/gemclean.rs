@@ -1,40 +1,40 @@
-//! `gmclean`: a reference CLEAN imager for Measurement Sets with WSClean-like
-//! flags (`research/gmclean.md`).
+//! `gemclean`: a reference CLEAN imager for Measurement Sets with WSClean-like
+//! flags (`research/gemclean.md`).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
 //! ```text
-//! gmclean -name out -size 1024 1024 -scale 2asec -weight briggs 0 \
+//! gemclean -name out -size 1024 1024 -scale 2asec -weight briggs 0 \
 //!     -niter 100000 -gain 0.1 -mgain 0.8 -auto-threshold 3 obs.ms
 //! ```
 //!
 //! Reads the MS with the core reader, forms Stokes I and WSClean's imaging
 //! weights, images with the exact `wgridder` (w-gridding, f64), runs the
-//! gmclean minor/major loop and writes `-dirty`, `-psf`, `-model`,
+//! gemclean minor/major loop and writes `-dirty`, `-psf`, `-model`,
 //! `-residual` and `-image` FITS files in WSClean's orientation, plus
 //! `-report.json`.
 
 use rang_core::clean_certified::{Complex, Measurement, misfit_floor};
-use rang_core::gmclean::fits::{self, Card, Value, card};
-use rang_core::gmclean::input::{self, Selection};
-use rang_core::gmclean::json::{arr, num, obj, opt, text};
-use rang_core::gmclean::kernels::{self, Level};
-use rang_core::gmclean::measure::GridMeasurement;
-use rang_core::gmclean::{self, Beam, CycleStop, Settings};
+use rang_core::gemclean::fits::{self, Card, Value, card};
+use rang_core::gemclean::input::{self, Selection};
+use rang_core::gemclean::json::{arr, num, obj, opt, text};
+use rang_core::gemclean::kernels::{self, Level};
+use rang_core::gemclean::measure::GridMeasurement;
+use rang_core::gemclean::{self, Beam, CycleStop, Settings};
 use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
 use rang_core::weights::WeightClass;
 use rang_core::wgridder::{Options, Real};
 
 #[cfg(all(target_os = "linux", target_pointer_width = "64"))]
 #[global_allocator]
-static ALLOCATOR: rang_core::gmclean::host::HugePageAlloc = rang_core::gmclean::host::HugePageAlloc;
+static ALLOCATOR: rang_core::gemclean::host::HugePageAlloc = rang_core::gemclean::host::HugePageAlloc;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
-const USAGE: &str = "usage: gmclean [options] <ms>
+const USAGE: &str = "usage: gemclean [options] <ms>
 
-  -name <prefix>            output prefix (default gmclean)
+  -name <prefix>            output prefix (default gemclean)
   -size <width> <height>    image size in pixels (square, even)
   -scale <angle>            pixel size: 8asec, 1.5amin, 0.002deg, 500mas (plain number: degrees)
   -weight <mode> [robust]   natural | uniform | briggs <robust> (default uniform)
@@ -143,7 +143,7 @@ fn parse_angle(s: &str) -> Result<f64, String> {
 fn parse_args(raw: &[String]) -> Result<Args, String> {
     let mut a = Args {
         ms: PathBuf::new(),
-        name: "gmclean".into(),
+        name: "gemclean".into(),
         size: 0,
         scale: 0.0,
         weight: WeightClass::Uniform,
@@ -199,7 +199,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 let w: usize = number(flag, value(&mut i)?)?;
                 let h: usize = number(flag, value(&mut i)?)?;
                 if w != h {
-                    return Err("gmclean images square fields: -size W H needs W = H".into());
+                    return Err("gemclean images square fields: -size W H needs W = H".into());
                 }
                 a.size = w;
             }
@@ -318,8 +318,8 @@ fn write_image(
 struct Cleaned {
     psf2n: Vec<f64>,
     beam: Beam,
-    restoring: gmclean::RestoringBeam,
-    outcome: gmclean::Outcome,
+    restoring: gemclean::RestoringBeam,
+    outcome: gemclean::Outcome,
     floor_json: String,
     q_floor: Option<f64>,
     t_psf: f64,
@@ -402,7 +402,7 @@ fn deconvolve<T: Real + Send + Sync>(
     let t = Instant::now();
     let beam = Beam::from_double(n, &psf2n, args.patch)?;
     let t_beam = t.elapsed().as_secs_f64();
-    let restoring = gmclean::fit_restoring_beam(n, &psf2n);
+    let restoring = gemclean::fit_restoring_beam(n, &psf2n);
     let scale_deg = args.scale.to_degrees();
     println!(
         "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} main-lobe pixels); PSF {:.2} s, FFT {:.2} s",
@@ -451,11 +451,11 @@ fn deconvolve<T: Real + Send + Sync>(
         lazy_bounds: args.lazy_bounds,
     };
     let outcome = match gram_operator {
-        None => gmclean::run(&measurement, &beam, &settings, q_floor)?,
+        None => gemclean::run(&measurement, &beam, &settings, q_floor)?,
         Some(op) => {
             let (dirty, q0) = measurement.residual(&vec![0.0; n * n])?;
             let gram = GramMeasurement::new(op, dirty, q0);
-            let mut outcome = gmclean::run(&gram, &beam, &settings, q_floor)?;
+            let mut outcome = gemclean::run(&gram, &beam, &settings, q_floor)?;
             // The score of the run comes from the gridder, not from the operator.
             let t = Instant::now();
             let (exact, q_exact) = measurement.residual(&outcome.model)?;
@@ -622,7 +622,7 @@ fn run() -> Result<(), String> {
             Value::Float(outcome.cycles.len() as f64),
             "major cycles",
         ),
-        card("ORIGIN", Value::Str("gmclean (rang-core)".into()), ""),
+        card("ORIGIN", Value::Str("gemclean (rang-core)".into()), ""),
     ]);
     let jy_pixel = [card("BUNIT", Value::Str("JY/PIXEL".into()), "")];
     let prefix = &args.name;
@@ -659,7 +659,7 @@ fn run() -> Result<(), String> {
     )?;
     let t_restore = Instant::now();
     if args.restore {
-        let image = gmclean::restore(n, &outcome.model, &outcome.residual, &restoring);
+        let image = gemclean::restore(n, &outcome.model, &outcome.residual, &restoring);
         write_image(&path("image"), n, &image, args.bitpix, &base, &[])?;
     }
     let t_restore = t_restore.elapsed().as_secs_f64();
@@ -668,7 +668,7 @@ fn run() -> Result<(), String> {
     let threads = rayon::current_num_threads();
     let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
     let report = obj(&[
-        ("tool", text("gmclean")),
+        ("tool", text("gemclean")),
         ("version", text(env!("CARGO_PKG_VERSION"))),
         ("argv", arr(&argv)),
         ("ms", text(&args.ms.display().to_string())),
@@ -737,7 +737,7 @@ fn run() -> Result<(), String> {
         ("simd_detected", text(kernels::detected().name())),
         (
             "peak_memory_bytes",
-            gmclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
+            gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
@@ -751,7 +751,7 @@ fn data_rows_total(ms: &Path) -> Option<u64> {
 
 fn main() {
     if let Err(e) = run() {
-        eprintln!("gmclean: {e}");
+        eprintln!("gemclean: {e}");
         std::process::exit(2);
     }
 }

@@ -1,6 +1,6 @@
-"""Simulated full-MeerKAT Measurement Sets for the gmclean benchmark.
+"""Simulated full-MeerKAT Measurement Sets for the gemclean benchmark.
 
-Research note: research/gmclean-benchmark.md. Builds a 64-dish MeerKAT
+Research note: research/gemclean-benchmark.md. Builds a 64-dish MeerKAT
 track (data/meerkat.itrf.txt) at declination -30 deg, predicts a sky of
 point sources (and, for S2, a Gaussian disc) exactly by direct Fourier sums
 through the core (`rang.core.predict_components`, f64, positive phase as in
@@ -29,7 +29,7 @@ natural-weight image noise is --noise-ujy; XX = YY = I, XY = YX = noise. The sam
 seed and chunking give the same noise for every sky.
 
 Usage:
-    .venv/bin/python examples/gmclean_bench_simulate.py OUT.ms --sky S1 \
+    .venv/bin/python examples/gemclean_bench_simulate.py OUT.ms --sky S1 \
         [--nant 64] [--hours 2] [--dt 8] [--catalogue OUT.json] [--noise-out NOISE.c64]
 """
 
@@ -323,7 +323,7 @@ def fill_subtables(ms, names, xyz, diameter, freq, ra, dec, times, dt):
         direction = np.array([[ra, dec]])
         for col in ("DELAY_DIR", "PHASE_DIR", "REFERENCE_DIR"):
             t.putcell(col, 0, direction)
-        t.putcol("NAME", np.array(["GMCLEAN_BENCH"]))
+        t.putcol("NAME", np.array(["GEMCLEAN_BENCH"]))
         t.putcol("CODE", np.array(["T"]))
         t.putcol("TIME", np.array([times[0]]))
         t.putcol("NUM_POLY", np.array([0], np.int32))
@@ -332,8 +332,8 @@ def fill_subtables(ms, names, xyz, diameter, freq, ra, dec, times, dt):
     with sub("OBSERVATION", 1) as t:
         t.putcol("TELESCOPE_NAME", np.array(["MeerKAT"]))
         t.putcell("TIME_RANGE", 0, np.array([times[0] - dt / 2, times[-1] + dt / 2]))
-        t.putcol("OBSERVER", np.array(["rang gmclean-bench simulation"]))
-        t.putcol("PROJECT", np.array(["gmclean-bench"]))
+        t.putcol("OBSERVER", np.array(["rang gemclean-bench simulation"]))
+        t.putcol("PROJECT", np.array(["gemclean-bench"]))
         t.putcol("RELEASE_DATE", np.array([times[0]]))
         t.putcol("SCHEDULE_TYPE", np.array([""]))
         t.putcell("LOG", 0, np.array([""]))

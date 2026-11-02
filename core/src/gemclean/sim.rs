@@ -1,4 +1,4 @@
-//! Simulated MeerKAT Measurement Sets for gmclean's experiments and profiles.
+//! Simulated MeerKAT Measurement Sets for gemclean's experiments and profiles.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.

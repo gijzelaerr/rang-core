@@ -1,9 +1,9 @@
 # Rang: a visibility-free major cycle, and what a proof can do for the gridder
 
 Branch `gridder-gram`, from `58e07e1`, 2026-11-02. Status: **implemented as a
-prototype behind a flag (`gmclean -gram-operator S,THETA`); accuracy measured;
+prototype behind a flag (`gemclean -gram-operator S,THETA`); accuracy measured;
 instruction counts measured; wall times provisional** (load 2-5 for the operator
-measurements, 4-17 for the whole jobs, shared host). The default of gmclean is
+measurements, 4-17 for the whole jobs, shared host). The default of gemclean is
 unchanged. Archive: [results/gridder-theory.json](results/gridder-theory.json).
 Lean: [`formal/RangFormal/Gridder.lean`](../formal/RangFormal/Gridder.lean).
 Code: `core/src/gridder_gram.rs`, `core/src/bin/gridder_gram_bench.rs`,
@@ -15,14 +15,14 @@ Code: `core/src/gridder_gram.rs`, `core/src/bin/gridder_gram_bench.rs`,
   23.7 G instructions on 2048² at any visibility count, against 307 G for
   grid+degrid at 31 M visibilities (×13 in instructions, ×5.6 in wall time at
   low load), at the same error against the gridder at ε 1e-10.
-- **It does not pay on gmclean's own jobs.** Setting it up costs more than the 3-5
-  major cycles gmclean runs recover. Whole jobs at 14.5-31 M visibilities: wall time
+- **It does not pay on gemclean's own jobs.** Setting it up costs more than the 3-5
+  major cycles gemclean runs recover. Whole jobs at 14.5-31 M visibilities: wall time
   equal or worse under load, user CPU from +1 to −26 %, peak memory +1.5 to +1.9 GB
   (some of which a production path would free). No speed claim follows.
 - **It pays with many passes.** S1 at `-mgain 0.1`, 87 major cycles: 480 → 140 s
   wall, 2,873 → 619 s user CPU (load 13-15), with the same Q, false flux and
   residual peak. The natural customers are iterative solvers that apply the normal
-  operator often, not gmclean's default.
+  operator often, not gemclean's default.
 - **It does not scale to wide fields.** Nodes grow as the square of the field, so
   the cube grows as its fourth power. At 4096² in `f32` one apply costs 31.5 CPU-s
   against 37.0 for a pass at 31 M visibilities, with an 8.3 GB cube. Measured.
@@ -91,7 +91,7 @@ pass, `n` inverse row FFTs, on two `n × 2n` buffers.
 | Sparse spectra | 3-5 % of cells below 1e-7 of the peak on 2048² (16 % at 4096²): the `2n` crop's Dirichlet tails fill the plane |
 
 The single sum is symmetric but **not provably PSD**: it can go negative at the level of its error.
-gmclean tolerates this because its steps rest on the image-domain beam; a solver
+gemclean tolerates this because its steps rest on the image-domain beam; a solver
 that needs strict descent should check it. `operator_step_descends` needs no PSD
 hypothesis on the approximate operator, only the margin, so it covers the single sum.
 
@@ -166,8 +166,8 @@ cycles and ×2.1 at 5. A dedicated gridder for real weights might halve the setu
 ### Whole jobs
 
 `-j 8`; `gram` adds one exact pass at the end for the score, which a production path
-could skip. Thresholds as in `gmclean.md` §5 for `point`, `disc`, `crowded` and as in
-`gmclean-benchmark.md` for S1-S3. Load 4-17: **wall times are provisional and scatter
+could skip. Thresholds as in `gemclean.md` §5 for `point`, `disc`, `crowded` and as in
+`gemclean-benchmark.md` for S1-S3. Load 4-17: **wall times are provisional and scatter
 by more than some differences.** User CPU is less sensitive. Every variant of every
 sky is in the archive; this table is a selection.
 
@@ -194,7 +194,7 @@ sky is in the archive; this table is a selection.
 | **S1 `-mgain 0.1` default** | **480** | **2,873** | 87 | 450 | | 2.7 |
 | **S1 `-mgain 0.1` gram** | **140** | **619** | 87 | 92 | 15.7 | 4.2 |
 
-Science, by the benchmark's exact quadratic (`gmclean_bench_compare.py score`, gridder
+Science, by the benchmark's exact quadratic (`gemclean_bench_compare.py score`, gridder
 at ε 1e-9, on `origin/gmclean-bench`):
 
 | job | Q/Q_truth | false flux, pixels | exact residual peak, µJy | flux error, Jy |
@@ -280,7 +280,7 @@ correction-free compact LS `ψ`, the one-call Hartley setup, and a matched compa
 against a gridder at ducc0's speed. That is a gap in a limited search, not a novelty claim.
 
 Against the project's rule: "comparable quality at materially lower cost" is **not met**
-on gmclean's own default jobs. It is met only for many passes, and only against the
+on gemclean's own default jobs. It is met only for many passes, and only against the
 gridder. **No comparison with Dabbech and Wiaux's code was run.** A dense real plane
 stores one number per cell where a sparse `H_p` stores up to `(2S−1)²` per occupied
 cell, which should favour the dense form when `N_vis ≫ n²` and the sparse one when
@@ -316,7 +316,7 @@ sum; item (d) of the task, a discrete aliasing identity, not attempted; Poisson 
 | --- | --- | --- |
 | Weight-aware error budget | Two valid bounds on `⟨e, a_p⟩`. Triangle, `Σ W_q |e_q|` (so `ε_q` as `1/W_q`): `Σ S³` ×0.64-0.87 Briggs 0 on `point`, ×0.70-0.97 Briggs 0.5 on S1, ×1.00 in one coarse case each. Weighted norm, `‖e‖_W` (the task's `√w` form): ×0.70-0.98 and ×0.75-0.99, again ×1.00 in one case each. The norm bound lies above the triangle bound, so it cannot save more, and it does not. Natural weights: **×1.00**. **Counted, not implemented, no error test.** Part of it is slack, not weights: at σ 2, ε 1e-6 the global support 8 reaches 1.2e-7, and the budget spends that gap. Kernels are about 60 % of a job, so at most some 20 % of a Briggs job | The best small lead here: needs per-visibility support inside the tiles. A follow-up, with a real error test |
 | Per-baseline support or w-plane assignment | Gridding error does not depend on the baseline beyond its weight; a plane's FFT is run if any visibility touches it, and small-w visibilities already touch only central planes | Dropped, no gain to take |
-| Sparse Δm, image to grid | Row skip saves under a quarter of the 4-5 % FFT share; the plane loop on the image side could skip empty pixels, up to about a tenth of a job from the profile in `gmclean.md` §5.1. **Estimate, not implemented** | Not pursued; the row skip exists in the operator and is not visible there |
+| Sparse Δm, image to grid | Row skip saves under a quarter of the 4-5 % FFT share; the plane loop on the image side could skip empty pixels, up to about a tenth of a job from the profile in `gemclean.md` §5.1. **Estimate, not implemented** | Not pursued; the row skip exists in the operator and is not visible there |
 | Visibility compression with a proved bound | Averaging moves an atom by about `δ²/24`. Rows left, time only: `point` (60 s) 1.000, 1.000, 0.997 at ε 1e-6, 1e-4, 1e-3; S1 (8 s) 1.000, 0.980, 0.834. Time-averaging estimated from earth rotation | Dropped: nothing at the gridder's accuracy |
 
 ## 7. To test on an idle host
@@ -331,7 +331,7 @@ sum; item (d) of the task, a discrete aliasing identity, not attempted; Poisson 
 ## 8. Reproduction
 
 ```bash
-cargo +1.93 build --release --manifest-path core/Cargo.toml --bin gridder_gram_bench --bin gmclean
+cargo +1.93 build --release --manifest-path core/Cargo.toml --bin gridder_gram_bench --bin gemclean
 B=core/target/release/gridder_gram_bench; M=$HOME/Build/tmp/20261102-gmclean-opt/point/sim.ms
 $B $M 2048 1.5 0 pass 1e-6 double 2
 $B $M 2048 1.5 0 apply 8 0.69 double 1e-6 3

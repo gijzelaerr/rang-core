@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build and verify the gmclean benchmark datasets (research/gmclean-benchmark.md).
+# Build and verify the gemclean benchmark datasets (research/gemclean-benchmark.md).
 #
-# Usage: bash examples/gmclean_bench_datasets.sh [OUT_DIR]
+# Usage: bash examples/gemclean_bench_datasets.sh [OUT_DIR]
 #   OUT_DIR defaults to outputs/gmclean-bench-20261102. Makes OUT_DIR/data
 #   (s1.ms s2.ms s3.ms with catalogues s1.json s2.json s3.json, the Stokes I
 #   noise noise.c64 shared by all three, slice.ms and slice.json), the
 #   WSClean -niter 0 checks in OUT_DIR/wsclean-dirty and the scoring inputs
-#   in OUT_DIR/prep/<dataset> (examples/gmclean_bench_compare.py prepare).
+#   in OUT_DIR/prep/<dataset> (examples/gemclean_bench_compare.py prepare).
 #   Every step is timed into OUT_DIR/datasets-timing.tsv.
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
@@ -27,7 +27,7 @@ for s in 1 2 3; do
   if [ ! -d "$d/s$s.ms" ]; then
     noise=()
     [ $s = 1 ] && noise=(--noise-out "$d/noise.c64")
-    timed "simulate S$s" "$py" "$root/examples/gmclean_bench_simulate.py" "$d/s$s.ms" \
+    timed "simulate S$s" "$py" "$root/examples/gemclean_bench_simulate.py" "$d/s$s.ms" \
       --sky S$s --catalogue "$d/s$s.json" "${noise[@]}"
   fi
 done
@@ -42,7 +42,7 @@ if [ ! -d "$d/slice.ms" ]; then
 EOF
 fi
 timed "wsclean -niter 0 checks" env BENCH_DATA="$d" BENCH_MODES=dirty BENCH_GRIDS="minres nominres" \
-  BENCH_LOOPS=fast BENCH_THREADS=16 bash "$root/examples/gmclean_bench_run.sh" wsclean "$out/wsclean-dirty"
+  BENCH_LOOPS=fast BENCH_THREADS=16 bash "$root/examples/gemclean_bench_run.sh" wsclean "$out/wsclean-dirty"
 w=$out/wsclean-dirty
 for ds in s1 s2 s3 slice; do
   [ -d "$out/prep/$ds" ] && continue
@@ -51,7 +51,7 @@ for ds in s1 s2 s3 slice; do
   else
     extra=(--size 2048 --scale 1.5 --noise "$d/noise.c64")
   fi
-  timed "prepare $ds" "$py" "$root/examples/gmclean_bench_compare.py" prepare "$d/$ds.ms" "$d/$ds.json" \
+  timed "prepare $ds" "$py" "$root/examples/gemclean_bench_compare.py" prepare "$d/$ds.ms" "$d/$ds.json" \
     "$out/prep/$ds" "${extra[@]}" --wsclean-dirty "$w/$ds-dirty-minres-fast-j16" \
     --wsclean-dirty "$w/$ds-dirty-nominres-fast-j16" > "$out/prep/$ds.log" 2>&1
 done

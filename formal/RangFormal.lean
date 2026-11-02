@@ -5,6 +5,6 @@ import RangFormal.Stagewise
 import RangFormal.Separation
 import RangFormal.Clark
 import RangFormal.MajorCycle
-import RangFormal.Gmclean
+import RangFormal.Gemclean
 import RangFormal.Gridder
 import RangFormal.Audit

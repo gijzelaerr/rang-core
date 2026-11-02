@@ -17,8 +17,8 @@
 //! `s` or `d`.
 
 use rang_core::clean_certified::{Complex, Measurement};
-use rang_core::gmclean::input::{self, Selection};
-use rang_core::gmclean::measure::GridMeasurement;
+use rang_core::gemclean::input::{self, Selection};
+use rang_core::gemclean::measure::GridMeasurement;
 use rang_core::gridder_gram::{GramOperator, WExpansion};
 use rang_core::weights::WeightClass;
 use rang_core::wgridder::{self, C_LIGHT, Options, Real};

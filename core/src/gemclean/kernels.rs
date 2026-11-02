@@ -1,4 +1,4 @@
-//! SIMD kernels of the gmclean minor cycle, with runtime dispatch.
+//! SIMD kernels of the gemclean minor cycle, with runtime dispatch.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
@@ -15,7 +15,7 @@
 //! bit-identical too and resolves ties to the lowest index; the gather sum
 //! adds in a different order per level and agrees to rounding.
 //!
-//! `RANG_GMCLEAN_SIMD` = `scalar`, `avx2` or `avx512` caps the level of the
+//! `RANG_GEMCLEAN_SIMD` = `scalar`, `avx2` or `avx512` caps the level of the
 //! process (default: the best the CPU has).
 
 #[cfg(target_arch = "x86_64")]
@@ -62,11 +62,11 @@ pub fn detected() -> Level {
     }
 }
 
-/// The level of this process: [`detected`] capped by `RANG_GMCLEAN_SIMD`.
+/// The level of this process: [`detected`] capped by `RANG_GEMCLEAN_SIMD`.
 pub fn level() -> Level {
     static LEVEL: std::sync::OnceLock<Level> = std::sync::OnceLock::new();
     *LEVEL.get_or_init(|| {
-        let cap = match std::env::var("RANG_GMCLEAN_SIMD").as_deref() {
+        let cap = match std::env::var("RANG_GEMCLEAN_SIMD").as_deref() {
             Ok("scalar") | Ok("baseline") => Level::Scalar,
             Ok("avx2") => Level::Avx2,
             _ => Level::Avx512,
@@ -237,7 +237,7 @@ fn max_abs_value_avx512(x: &[f64]) -> f64 {
 ///
 /// The caller guarantees `0 ≤ base − keys[j] < table.len()` for every `j`
 /// (the scalar path checks it; the SIMD paths gather without a check, so a
-/// violation there would read out of bounds). `gmclean` builds `base` and
+/// violation there would read out of bounds). `gemclean` builds `base` and
 /// the keys from pixel indices of the image, for which the offset index
 /// into the `(2n − 1)²` beam table is always valid.
 pub(crate) fn gather_sum(

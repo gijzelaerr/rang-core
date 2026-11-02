@@ -1,14 +1,14 @@
-"""Collect the gmclean benchmark records into one JSON archive.
+"""Collect the gemclean benchmark records into one JSON archive.
 
-Research note: research/gmclean-benchmark.md. Reads the catalogues and the
+Research note: research/gemclean-benchmark.md. Reads the catalogues and the
 prepare records of the datasets and the scored jobs of each imager, and writes
-research/results/gmclean-benchmark.json: dataset provenance and checksums, the
+research/results/gemclean-benchmark.json: dataset provenance and checksums, the
 exact checks, the catalogues, one record per job (settings, exact command,
-timing with its contention record, metrics, gmclean's report without the
+timing with its contention record, metrics, gemclean's report without the
 per-cycle lists, kept in outputs/).
 
 Usage:
-    .venv/bin/python examples/gmclean_bench_archive.py OUT_ROOT OUT_JSON
+    .venv/bin/python examples/gemclean_bench_archive.py OUT_ROOT OUT_JSON
 """
 
 import argparse
@@ -28,7 +28,7 @@ def read(path):
 
 
 def slim_report(report):
-    """gmclean's report without its per-cycle table."""
+    """gemclean's report without its per-cycle table."""
     out = {k: v for k, v in report.items() if k != "run"}
     out["run"] = {k: v for k, v in report["run"].items() if k != "cycles"}
     return out
@@ -60,17 +60,17 @@ def main(argv=None):
     args = parser.parse_args(argv)
     root = Path(args.root)
     archive = {
-        "note": "research/gmclean-benchmark.md",
+        "note": "research/gemclean-benchmark.md",
         "output_root": str(root.resolve()),
         "code_commit": subprocess.run(
             ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
         ).stdout.strip(),
-        "gmclean_commit": "d94850e",
+        "gemclean_commit": "d94850e",
         "timing_status": TIMING_STATUS,
         "datasets": {n: dataset_record(root, n) for n in DATASETS},
         "imagers": {},
     }
-    for imager in ("wsclean", "gmclean"):
+    for imager in ("wsclean", "gemclean"):
         archive["imagers"][imager] = {}
         for name in DATASETS:
             path = root / "scores" / f"{imager}-{name}.json"
@@ -82,9 +82,9 @@ def main(argv=None):
             archive["imagers"][imager][name] = scored
     extras = {
         "thread_dependence": root / "scores" / "thread-dependence.json",
-        "gmclean_tau_min_0p9_s1": root / "scores" / "gmclean-tau09-s1.json",
-        "gmclean_mgain_0p1_s1": root / "scores" / "gmclean-mgain01-s1.json",
-        "gmclean_0d804e4_s1": root / "scores" / "gmclean-0d804e4-s1.json",
+        "gemclean_tau_min_0p9_s1": root / "scores" / "gemclean-tau09-s1.json",
+        "gemclean_mgain_0p1_s1": root / "scores" / "gemclean-mgain01-s1.json",
+        "gemclean_0d804e4_s1": root / "scores" / "gmclean-0d804e4-s1.json",
     }
     for key, path in extras.items():
         if path.exists():

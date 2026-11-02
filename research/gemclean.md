@@ -1,17 +1,17 @@
-# gmclean: lazy exact CLEAN with a certified step
+# gemclean: lazy exact CLEAN with a certified step
 
 Status, 2026-11-02: **implemented and tested; accuracy measured on simulated
 MeerKAT data and the LUNO slice; every time is PROVISIONAL** (shared host, load
 average 4 to 25; no final speed claim is made here and none should be quoted).
-Branch `gmclean`. Code: `core/src/gmclean.rs`, `core/src/gmclean/` (`kernels`,
-`fits`, `input`, `measure`, `sim`, `host`), `core/src/bin/gmclean.rs`,
-`core/examples/gmclean_sim.rs`, `examples/gmclean_compare.py`,
-`wgridder::Prepared` (additive), `formal/RangFormal/Gmclean.lean`. Archives:
-[results/gmclean.json](results/gmclean.json) (the 1024² simulated MS, with the
+Branch `gemclean`. Code: `core/src/gemclean.rs`, `core/src/gemclean/` (`kernels`,
+`fits`, `input`, `measure`, `sim`, `host`), `core/src/bin/gemclean.rs`,
+`core/examples/gemclean_sim.rs`, `examples/gemclean_compare.py`,
+`wgridder::Prepared` (additive), `formal/RangFormal/Gemclean.lean`. Archives:
+[results/gemclean.json](results/gemclean.json) (the 1024² simulated MS, with the
 timing benchmark) and
-[results/gmclean-optimisation.json](results/gmclean-optimisation.json) (the
+[results/gemclean-optimisation.json](results/gemclean-optimisation.json) (the
 bisection, the stop rules, the sweeps at 2048²). Benchmark and its datasets:
-[gmclean-benchmark.md](gmclean-benchmark.md) on `origin/gmclean-bench`.
+[gemclean-benchmark.md](gemclean-benchmark.md) on `origin/gmclean-bench`.
 
 Credit: the exact per-step correction, the larger patch and the drift stopping
 signal were suggested by an early reader of the draft on 2026-11-02.
@@ -26,7 +26,7 @@ signal were suggested by an early reader of the draft on 2026-11-02.
   pointwise error the previous major cycle measured. On S1, S2 and S3 that gives
   **5, 5 and 4 major cycles and 4.3, 4.9 and 1.6 mJy of false flux**, against
   WSClean's Högbom loop at 6, 6 and 5 cycles and 5.4, 6.7 and 1.7 mJy, and its
-  fast loop at 9, 9 and 6 cycles and 3.5, 3.2 and 1.5 mJy. gmclean reaches the
+  fast loop at 9, 9 and 6 cycles and 3.5, 3.2 and 1.5 mJy. gemclean reaches the
   threshold exactly (inner peak 100 µJy against 102-117 and 197-245 µJy).
 - **Negative results.** The "1-3 major cycles" this design expected do not exist
   at low false flux on these skies: 4 cycles at `-mgain 0.99` carry 72-77 mJy of
@@ -41,7 +41,7 @@ signal were suggested by an early reader of the draft on 2026-11-02.
 ## 2. Design (implemented)
 
 The provable rule of [clean-certified-imaging.md](clean-certified-imaging.md)
-bounds the beam-truncation error by the worst case `f Σ|c_j|`. gmclean replaces
+bounds the beam-truncation error by the worst case `f Σ|c_j|`. gemclean replaces
 the bound with the exact value at the one pixel about to be cleaned.
 
 1. **Exact beam.** The PSF on the `2n × 2n` grid holds every offset two image
@@ -101,9 +101,9 @@ that beam is wrong. The per-step certificate held throughout the 20 Jy run.
 
 ## 4. The long minor cycle (measured)
 
-Datasets S1, S2, S3 and the job of [gmclean-benchmark.md](gmclean-benchmark.md):
+Datasets S1, S2, S3 and the job of [gemclean-benchmark.md](gemclean-benchmark.md):
 2048², 1.5″, Briggs 0.5, threshold 100 µJy, gain 0.1, `-j 16`, one noise
-realisation, sources off the pixel grid. Scored by `gmclean_bench_compare.py
+realisation, sources off the pixel grid. Scored by `gemclean_bench_compare.py
 score` (beam 10.76″; "false" is farther than two beams from any source).
 
 ### 4.1 The regression, bisected
@@ -176,7 +176,7 @@ Answer to the question put by the benchmark: a default with low false flux and f
 major cycles exists on these three skies, with few meaning 4-5, not 1-3. It is
 level with WSClean's plain loop on accuracy at one cycle fewer, and three to four
 cycles fewer than its fast loop, which has less false flux but stops at 197-245 µJy.
-gmclean's last cycles are short (S1: 195 components; S2: 77; S3: 91): the exact
+gemclean's last cycles are short (S1: 195 components; S2: 77; S3: 91): the exact
 peak is a hair above the threshold, and that pass is what the exact stop costs.
 Caveats: ρ and g were chosen on these same skies and one noise realisation; `δ` is
 extrapolated from the previous cycle and is not a bound; the rule has no theorem.
@@ -223,7 +223,7 @@ at 1.5″, on three skies: `point` (50 sources), `disc` (8 discs, 20 points),
 | rustfft butterflies | about 4 % | about 5 % | about 5 % |
 | memcpy/memset (libc) | 4.9 % | 6.1 % | 5.9 % |
 | `wgridder::dump` | 2.6 % | 2.7 % | 3.0 % |
-| gmclean's own minor loop and resync lines | under 1 % | about 1-2 % | about 1 % |
+| gemclean's own minor loop and resync lines | under 1 % | about 1-2 % | about 1 % |
 
 Wall by phase at `-j 8` on `point` before the last changes: major 24 s, PSF 5.6 s,
 read 3 s, dirty 3 s, resync 0.6 s, weights 0.5 s, restore 0.4 s, minor 0.24 s, FITS
@@ -240,7 +240,7 @@ to give on these sizes.
 | Tile 64 | no resolved difference from tile 32 on the quieter host (0.72 against 0.70 s, 1.51 against 1.56 s; the gain seen under load was not real); 128 and 256 worse (0.81, 1.33 s; 1.96, 3.42 s) | picks bit-identical |
 | Plan, layout and tables kept (`wgridder::Prepared`) | **instructions −10.6 % on `point`, −9.9 % on `disc`** (deterministic); quieter host: wall 25.6 against 28.5 s, major 12.7 against 15.4 s | identical; `GridMeasurement<f64>` equals `WgridMeasurement` bit for bit in a test, and `-niter 0` dirty, PSF and residual FITS on S1 are bit-identical to `d94850e`. Zero-weight visibilities are no longer predicted (nothing reads them) |
 | Stokes I per row in parallel | read phase about 3 s, not isolated | bit-identical arithmetic, tested |
-| `[profile.gmclean]`, fat LTO, the binary only (`cargo build --profile gmclean --bin gmclean`); the crate-wide release profile is unchanged | instructions −5.9 % (1,647 → 1,551 G on `disc`); quieter host: wall 24.6 against 25.6 s | Q identical to all printed digits |
+| `[profile.gemclean]`, fat LTO, the binary only (`cargo build --profile gemclean --bin gemclean`); the crate-wide release profile is unchanged | instructions −5.9 % (1,647 → 1,551 G on `disc`); quieter host: wall 24.6 against 25.6 s | Q identical to all printed digits |
 | Stop rule of §4 | 3-4 fewer major cycles than fast WSClean; each pass is 8-12 % of the run | §4 |
 
 Optional, not default: `-single` gridding in `f32`, with `-wgridder-accuracy 1e-4`
@@ -269,7 +269,7 @@ on the image-domain beam (regression test `single_precision_keeps_the_amplitudes
 ### 5.4 Decisions resting on timings under load
 
 Most comparisons ran under load 4-25. The close calls were repeated under the lock
-at load 2.6-8 (`gmclean_sim minor` on `disc`, `crowded`, five repeats; `cmp6` on `disc`,
+at load 2.6-8 (`gemclean_sim minor` on `disc`, `crowded`, five repeats; `cmp6` on `disc`,
 five repeats), most of that load being the runs themselves but with no idle-host
 guarantee; that changed the conclusions on tile size, `K` and SIMD above. Still to
 re-test on an idle host before the final benchmark: tile 64 against 32 (no resolved
@@ -298,13 +298,13 @@ perfect, only that the bulk of the time is no longer in anything written here.
 WSClean 3.7 (`-gridder wgridder`, default accuracy, `-j 8`) on the `sim` skies, three
 interleaved repeats of each, fastest wall time:
 
-| sky | WSClean default | `-parallel-deconvolution 1024` | gmclean default (`f64`, ε 1e-6) | gmclean `-single`, ε 1e-4 |
+| sky | WSClean default | `-parallel-deconvolution 1024` | gemclean default (`f64`, ε 1e-6) | gemclean `-single`, ε 1e-4 |
 | --- | ---: | ---: | ---: | ---: |
 | point | 22.5 s (6 majors) | 24.5 s | 24.4 s (3) | 14.9 s (3) |
 | disc | 29.3 s (5) | 21.9 s | 33.5 s (4) | 21.6 s (4) |
 | crowded | 29.6 s (5) | 22.4 s | 30.6 s (4) | 18.9 s (4) |
 
-Residual peak: gmclean 0.1, 1, 0.3 mJy (the thresholds); WSClean default 0.14, 1.8,
+Residual peak: gemclean 0.1, 1, 0.3 mJy (the thresholds); WSClean default 0.14, 1.8,
 0.30 mJy. This is not a speed claim: repeats scatter by up to 50 % at load 5-13.
 
 ### 5.7 Second pass: the stalls (branch `gmclean-opt2`, measured)
@@ -352,7 +352,7 @@ was a memory problem, and instruction counts had hidden it. Shares of `2994c97`:
 | `image_to_grid`: zero only the needed rows' non-image columns, scatter only needed rows | with below | with below | part of the next two rows |
 | Gather and output by rows of a column block (both FFT directions), untouched rows not read, tile copy by rows and once per tile per thread | −0.8 % | −4.6 % | one pair, unresolved alone; `p1` against `base0` |
 | Row-stride prefetch in the FFT loops, 8 rows ahead | +0.5 % | −5.5 % | three pairs: 655, 653, 645 against 694, 689, 688 G |
-| `HugePageAlloc`, the gmclean binary's allocator: blocks ≥ 4 MiB mapped on 2 MiB-aligned `MADV_HUGEPAGE` pages | +0.2 % | −5.6 % | one pair, borderline against the noise; the solid number is the faults, 2.48 → 0.06 M. Wall 24.7 → 19.4 s. Library and wheels unaffected |
+| `HugePageAlloc`, the gemclean binary's allocator: blocks ≥ 4 MiB mapped on 2 MiB-aligned `MADV_HUGEPAGE` pages | +0.2 % | −5.6 % | one pair, borderline against the noise; the solid number is the faults, 2.48 → 0.06 M. Wall 24.7 → 19.4 s. Library and wheels unaffected |
 | Non-temporal zeroing of grid rows (AVX2 builds) | +0.2 % | **−3.6 %** | three pairs: 633, 626, 629 against 655, 651, 658 G |
 | Tile buffer and FFT work space pools, no allocation or zeroing per task or rayon split; `stored` kept between passes | +0.4 % | −1.9 % | one pair, unresolved; faults −0.31 M |
 | One set of grids for both directions of `Prepared` | none | none | peak RSS 4.92 → 3.50 GB with plane groups of 4 |
@@ -387,7 +387,7 @@ shows: a peak 1.3 % over the threshold and Q higher by 3e-5 of itself or less. I
 alters the stopping point, so it is left for the user to decide.
 
 **`-beam-no-w` (option, default unchanged).** Added sets, simulated as the benchmark
-(`gmclean_bench_simulate.py`, `DEC_DEG` overridden, seeds as in S1 and S3): `w6`, `w12`
+(`gemclean_bench_simulate.py`, `DEC_DEG` overridden, seeds as in S1 and S3): `w6`, `w12`
 are S3's sky at 6″, 12″ (3.4°, 6.8° field), dec −30°; `l20` is S1 at dec +20°; `lw` is S3 at
 6″, dec +20°. Threshold 100 µJy, final binary before non-temporal zeroing:
 
@@ -426,7 +426,7 @@ initial dirty 0.7, resync 2.2, minor 0.45, major about 6, restore and FITS 0.3.
 `wgridder::plane_group`, so it applies to every `vis2dirty` and `dirty2vis` in the
 library (Python wheels, `WgridMeasurement`, `gridder_gram`), and it reverses the opt-in
 "for memory-rich runs" of [df2-wgridder-speed.md](df2-wgridder-speed.md). Results do not
-depend on it (tested bit for bit), only memory. Whether to scope it to gmclean is for
+depend on it (tested bit for bit), only memory. Whether to scope it to gemclean is for
 the user to decide. Final binary on S1:
 
 | | `2994c97` | `RANG_WGRIDDER_PLANE_GROUP=1` | default (4) |
@@ -440,7 +440,7 @@ Group 1 costs more instructions than the old code (the prefetches, and the degri
 extra indirection), and an image too large for two grids in 2 GiB takes that path:
 4096² in `f64`, whose grid is about 1.1 GB, as the 2n PSF of 2048² does here.
 
-Provenance. Binaries: `cargo +1.93 build --offline --profile gmclean --bin gmclean`, at
+Provenance. Binaries: `cargo +1.93 build --offline --profile gemclean --bin gemclean`, at
 `2994c97` and this branch; measurement knobs were temporary environment variables on
 uncommitted patches and are not in the tree. Host: Ryzen 7 7700X under WSL2, runs under
 `flock /home/gijsm/.rang-heavy.lock`, sharing the host with other sessions. Scratch
@@ -455,18 +455,18 @@ threshold 1 mJy, seed 20261102, default rule.
 
 | run | components | major | resyncs | Q/Q0 | max \|gap\|/Q | τ min / median | wall |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| gmclean ±8 | 2218 | 3 | 24 | 1.179e-5 | 7.3e-5 | 0.500 / 0.689 | 1.81 s |
-| gmclean ±64 | 2218 | 3 | 6 | 1.179e-5 | 7.5e-5 | 0.506 / 0.807 | 1.69 s |
-| gmclean full beam | 2218 | 3 | 2 | 1.179e-5 | 7.3e-5 | 1.000 / 1.000 | 2.53 s |
+| gemclean ±8 | 2218 | 3 | 24 | 1.179e-5 | 7.3e-5 | 0.500 / 0.689 | 1.81 s |
+| gemclean ±64 | 2218 | 3 | 6 | 1.179e-5 | 7.5e-5 | 0.506 / 0.807 | 1.69 s |
+| gemclean full beam | 2218 | 3 | 2 | 1.179e-5 | 7.3e-5 | 1.000 / 1.000 | 2.53 s |
 | certified provable ±64 | 2206 | 5 | – | 1.225e-5 | 4.9e-4 | – | 4.41 s |
 | certified mgain 0.8 ±64 | 2209 | 6 | – | 1.212e-5 | 7.1e-4 | – | 5.14 s |
 | certified mgain 0.8 full | 2207 | 5 | – | 1.215e-5 | 5.3e-5 | – | 7.41 s |
 | certified Clark ±64 | 86,320 | 7 | – | 1.54e-3 | 5.7e-2 | – | 52 s, once |
-| 16 antennas, gmclean | 1589 | 3 | 25 | 3.613e-4 | 4.7e-5 | 0.500 / 0.708 | 0.94 s |
+| 16 antennas, gemclean | 1589 | 3 | 25 | 3.613e-4 | 4.7e-5 | 0.500 / 0.708 | 0.94 s |
 | 16 antennas, provable | 1614 | 27 | – | 3.631e-4 | 8.7e-3 | – | 6.09 s |
 
 Lazy against brute force (`-audit`): under 1e-15 Jy. Wall is the minimum of five
-interleaved repeats (`gmclean_sim bench`, median machine load 7-12).
+interleaved repeats (`gemclean_sim bench`, median machine load 7-12).
 
 Negative results:
 
@@ -487,35 +487,35 @@ Negative results:
 
 ```bash
 # 1024² archive (the timing pass is one command: bench)
-cargo build --release --manifest-path core/Cargo.toml --example gmclean_sim --bin gmclean
-core/target/release/examples/gmclean_sim write OUT
-core/target/release/gmclean -name OUT/bin -size 1024 1024 -scale 2asec -weight briggs 0 \
+cargo build --release --manifest-path core/Cargo.toml --example gemclean_sim --bin gemclean
+core/target/release/examples/gemclean_sim write OUT
+core/target/release/gemclean -name OUT/bin -size 1024 1024 -scale 2asec -weight briggs 0 \
     -niter 200000 -abs-threshold 1e-3 OUT/sim.ms
-core/target/release/examples/gmclean_sim bench OUT 5
-core/target/release/examples/gmclean_sim compare OUT
+core/target/release/examples/gemclean_sim bench OUT 5
+core/target/release/examples/gemclean_sim compare OUT
 # 2048² skies and the minor-loop comparison
-core/target/release/examples/gmclean_sim sim OUT/disc disc 2048 1.5 240 64 4
-core/target/release/examples/gmclean_sim minor OUT/disc/sim.ms 2048 1.5 1e-3 5
-python3 examples/gmclean_compare.py SPEC.json OUT.json   # interleaved, under perf stat
+core/target/release/examples/gemclean_sim sim OUT/disc disc 2048 1.5 240 64 4
+core/target/release/examples/gemclean_sim minor OUT/disc/sim.ms 2048 1.5 1e-3 5
+python3 examples/gemclean_compare.py SPEC.json OUT.json   # interleaved, under perf stat
 # §5.7: the last pass (natural count less one: S1, S2 -nmiter 4; S3 -nmiter 3, in place of
-# -nmiter 1000), and the -beam-no-w sets: gmclean_bench_simulate.py with DEC_DEG overridden
-#   python -c "import gmclean_bench_simulate as m; m.DEC_DEG = DEC; m.main([MS, '--sky', SKY, '--scale', SCALE, '--catalogue', CAT])"
+# -nmiter 1000), and the -beam-no-w sets: gemclean_bench_simulate.py with DEC_DEG overridden
+#   python -c "import gemclean_bench_simulate as m; m.DEC_DEG = DEC; m.main([MS, '--sky', SKY, '--scale', SCALE, '--catalogue', CAT])"
 #   w6: S3 6 -30; w12: S3 12 -30; l20: S1 1.5 20; lw: S3 6 20 (imaged at -scale SCALE, with and without -beam-no-w)
 # The benchmark job
-gmclean -name OUT/s1 -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 \
+gemclean -name OUT/s1 -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 \
     -nmiter 1000 -abs-threshold 0.0001 -data-column DATA -field 0 -j 16 s1.ms
 ```
 
 Heavy runs on the shared host go under `flock /home/gijsm/.rang-heavy.lock`. The
 interleaved comparison specs and the scoring job are in
-`results/gmclean-optimisation.json` (`comparison_specs`, `job_script`); scoring uses
-`gmclean_bench_compare.py score` from `origin/gmclean-bench`.
+`results/gemclean-optimisation.json` (`comparison_specs`, `job_script`); scoring uses
+`gemclean_bench_compare.py score` from `origin/gmclean-bench`.
 
 Provenance. Bisection: the commits named. Sweeps `cmp1`: tree between `961e162` and
 `49e1258`; `cmp2`, `cmp3`: tree of `49e1258` with the `-beam-no-w` flag and parallel
 Stokes I, plan not yet kept; `cmp4`: tree of `0d804e4` before its defaults; `cmp5`:
 code of `b39e241`. Stop rules: code of `987ee49`. Final default, thread check, profiles
-and `results/gmclean.json`: code of `b39e241` (later commits change tests, records,
+and `results/gemclean.json`: code of `b39e241` (later commits change tests, records,
 the flag parser and a profile only). Run directories, deleted except for the MSs:
 `~/Build/tmp/20261102-gmclean-opt/` in WSL (`{point,disc,crowded}/sim.ms`,
 `archive/sim.ms`, `small/sim.ms` kept for the quiet-host pass).

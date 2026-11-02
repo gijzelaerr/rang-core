@@ -1,4 +1,4 @@
-//! Measurement Set input of gmclean: Stokes I visibilities, WSClean's
+//! Measurement Set input of gemclean: Stokes I visibilities, WSClean's
 //! imaging weights and the field and band metadata, through the core's own
 //! read-only reader ([`crate::ms`]).
 //!
@@ -553,7 +553,7 @@ pub fn write_ms(path: &Path, a: &MsArrays) -> Result<(), String> {
         .map_err(e)?;
     t.put_strings("OBSERVER", 0, &["rang".to_string()])
         .map_err(e)?;
-    t.put_strings("PROJECT", 0, &["gmclean".to_string()])
+    t.put_strings("PROJECT", 0, &["gemclean".to_string()])
         .map_err(e)?;
     t.put_strings("SCHEDULE_TYPE", 0, &[String::new()])
         .map_err(e)?;
@@ -640,7 +640,7 @@ mod tests {
 
     #[test]
     fn simulated_ms_round_trips_through_the_reader() {
-        let dir = std::env::temp_dir().join(format!("gmclean-ms-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("gemclean-ms-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("t.ms");
         let (nrow, nchan) = (5usize, 3usize);
