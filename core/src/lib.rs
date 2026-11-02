@@ -25,6 +25,7 @@ pub mod blosc;
 pub mod caltable;
 pub mod clean;
 pub mod clean_certified;
+pub mod clean_major;
 pub mod closure;
 pub mod correct;
 pub mod ffi;

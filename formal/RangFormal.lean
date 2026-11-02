@@ -4,4 +4,5 @@ import RangFormal.Projection
 import RangFormal.Stagewise
 import RangFormal.Separation
 import RangFormal.Clark
+import RangFormal.MajorCycle
 import RangFormal.Audit
