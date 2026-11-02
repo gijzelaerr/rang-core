@@ -523,7 +523,7 @@ def cmd_measure(args):
         ]
         rec["kappa_channel_median"] = float(np.median(kap))
     rec["tolerances"] = tolerances(rows, totals, field)
-    rec["cost"] = cost(run)
+    rec["cost"] = cost(run, arm_dir)
     rec["seconds"] = time.perf_counter() - t0
     Path(args.out).write_text(json.dumps(rec, indent=1))
     brief = {
@@ -541,7 +541,35 @@ def cmd_measure(args):
     print(json.dumps(brief, indent=1))
 
 
-def cost(run):
+def wsclean_counts(log):
+    """Major cycles and minor iterations from WSClean 3.7's log."""
+    import re
+
+    majors = re.findall(r"(\d+) major iterations were performed", log)
+    minors = re.findall(r"Performed (\d+) iterations in total", log)
+    if not minors:  # multiscale logs "Iteration N, scale S px" instead
+        minors = re.findall(r"Iteration (\d+), scale", log)
+    return {
+        "major_cycles": int(majors[-1]) if majors else None,
+        "minor_iterations": int(minors[-1]) if minors else 0,
+        "stop": (re.findall(r"^Stopped on .*$", log, re.MULTILINE) or [None])[-1],
+    }
+
+
+def pfb_counts(arm_dir):
+    """Major cycles from pfb's kclean/sara logs (one 'Iter k:' line per cycle)."""
+    import re
+
+    text = ""
+    for name in ("kclean.log", "sara.log"):
+        f = Path(arm_dir) / name
+        if f.exists():
+            text += f.read_text()
+    iters = [int(k) for k in re.findall(r"Iter (\d+):", text)]
+    return {"major_cycles": max(iters) if iters else None}
+
+
+def cost(run, arm_dir):
     if "steps" in run:  # pfb
         steps = {
             s["step"]: {"wall_s": s["docker_wall_s"], **s["time_v"]}
@@ -553,11 +581,13 @@ def cost(run):
                 (s.get("peak_rss_mb", 0) for s in steps.values()), default=None
             ),
             "steps": steps,
+            **pfb_counts(arm_dir),
         }
+    log = (Path(arm_dir) / "wsclean.log").read_text()
     return {
         "docker_wall_s": run["docker_wall_s"],
         **run["time_v"],
-        "log": run.get("log", {}),
+        **wsclean_counts(log),
     }
 
 

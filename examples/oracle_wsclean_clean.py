@@ -4,7 +4,7 @@
     python examples/oracle_wsclean_clean.py msread-check FIELD_DIR OUT.json [--image IMAGE]
     python examples/oracle_wsclean_clean.py msread MS          (inside a container)
 
-`run` images `FIELD_DIR/field.ms` (mounted read-only) in O-CASA's image
+`run` images a copy of `FIELD_DIR/field.ms` (WSClean opens it read/write) in O-CASA's image
 `rang-o-casa:6.7.6.14` (WSClean 3.7) with `--network none` and writes
 `RUN_DIR/ARM-rK/` (FITS, source list, log, `run.json` with the command, wall
 time, peak RSS from `/usr/bin/time -v` and the counts parsed from the log).
@@ -22,6 +22,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -135,10 +136,26 @@ def cmd_run(args):
         *wargs,
         "-name",
         f"/out/{args.arm}",
-        "/field/field.ms",
+        "/out/field.ms",
     ]
+    # WSClean opens the MS read/write even with -no-update-model-required
+    # (deviation D2): it images a copy, removed after the run once its
+    # columns are checked unchanged against field.json.
+    shutil.copytree(field_dir / "field.ms", out / "field.ms")
     proc, wall, cmd = docker(field_dir, out, command)
     (out / "wsclean.log").write_text(proc.stdout + "\n--- stderr ---\n" + proc.stderr)
+    check, _, _ = docker(
+        field_dir,
+        out,
+        ["python3", "-I", "/src/oracle_wsclean_clean.py", "msread", "/out/field.ms"],
+    )
+    got = (
+        json.loads(check.stdout.strip().splitlines()[-1])
+        if check.returncode == 0
+        else {}
+    )
+    copy_unchanged = all(got.get(k) == v for k, v in field["hashes"]["columns"].items())
+    shutil.rmtree(out / "field.ms")
     rec = {
         "arm": args.arm,
         "repeat": args.repeat,
@@ -150,6 +167,7 @@ def cmd_run(args):
         "time_v": parse_time_v(proc.stderr),
         "log": parse_wsclean_log(proc.stdout),
         "field_ms_digest": field["hashes"]["ms_digest"],
+        "ms_copy_columns_unchanged": copy_unchanged,
     }
     (out / "run.json").write_text(json.dumps(rec, indent=1))
     print(

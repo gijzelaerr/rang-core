@@ -29,7 +29,16 @@ THREADS = 4
 def steps(arm, field):
     threshold = f"{field['noise']['threshold_3sigma_jy']:.6e}"
     base = "/out/pfb"
-    common = ["--nthreads", str(THREADS), "--nworkers", "1", "--backend", "native", "--log-directory", "/out/logs"]
+    common = [
+        "--nthreads",
+        str(THREADS),
+        "--nworkers",
+        "1",
+        "--backend",
+        "native",
+        "--log-directory",
+        "/out/logs",
+    ]
     init = [
         "pfb", "init", "--ms", "/field/field.ms", "--output-filename", base,
         "--data-column", "DATA", "--weight-column", "WEIGHT_SPECTRUM",
@@ -75,6 +84,9 @@ def docker(field_dir, out_dir, command):
         "-e", f"OMP_NUM_THREADS={THREADS}", "-e", f"NUMBA_NUM_THREADS={THREADS}",
         "-e", "OPENBLAS_NUM_THREADS=1", "-e", "HOME=/tmp", "-e", "NUMBA_CACHE_DIR=/out/numba-cache",
         "-e", "RAY_USAGE_STATS_ENABLED=0",
+        # Deviation D4: pfb forces NUMBA_THREADING_LAYER=tbb and the tbb wheel puts
+        # libtbb.so.12 in /opt/pfb/lib, off the loader path; kclean fails without this.
+        "-e", "LD_LIBRARY_PATH=/opt/pfb/lib",
         "-v", f"{Path(field_dir).resolve()}:/field:ro",
         "-v", f"{Path(out_dir).resolve()}:/out",
         "-w", "/out", IMAGE, "/usr/bin/time", "-v", *command,
@@ -94,7 +106,9 @@ def cmd_run(args):
     records = []
     for name, command in steps(args.arm, field):
         proc, wall, cmd = docker(field_dir, out, command)
-        (out / f"{name}.log").write_text(proc.stdout + "\n--- stderr ---\n" + proc.stderr)
+        (out / f"{name}.log").write_text(
+            proc.stdout + "\n--- stderr ---\n" + proc.stderr
+        )
         rec = {
             "step": name,
             "command": command,
@@ -104,7 +118,12 @@ def cmd_run(args):
             "time_v": parse_time_v(proc.stderr),
         }
         records.append(rec)
-        print(json.dumps({k: rec[k] for k in ("step", "returncode", "docker_wall_s", "time_v")}), flush=True)
+        print(
+            json.dumps(
+                {k: rec[k] for k in ("step", "returncode", "docker_wall_s", "time_v")}
+            ),
+            flush=True,
+        )
         if proc.returncode:
             break
     run = {
@@ -122,7 +141,9 @@ def cmd_run(args):
 
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     sub = p.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")
     r.add_argument("field")
