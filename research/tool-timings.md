@@ -1415,3 +1415,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | F1 `f1_saliency.py --probe` | LUNO 1934−638 | 84 s | 20.7 GB | no saliency |
 | 2026-11-02 | F1 `f1_saliency.py` | LUNO 1934−638, 60 cases | 27 min 55 s | 25.0 GB | 4 CPUs |
 | 2026-11-02 | F1 `f1_saliency.py`, two stopped launches | clean adjoint, MINRES | 31 min; about 90 min | 15 GB | no result; replaced by the dense adjoint |
+| 2026-11-02 | `perf record --call-graph fp`, gmclean S1 | `force-frame-pointers`, 499 Hz | 35 s | – | flock; load 5-9 |
+| 2026-11-02 | gmclean S1, `2994c97` against `gmclean-opt2` | `-j 16`, three interleaved pairs under `perf stat` | 26.0-27.0, 14.7-15.3 s | – | flock; load 6-13 |
+| 2026-11-02 | gmclean S1 `-j 8` | three pairs with `-j 16` | 15.2-16.2 s | – | flock; load 4-12 |
+| 2026-11-02 | gmclean PGO, S1 | build 91 s; three pairs | 14.8-15.2 s, as without | – | flock; load 5-12; `llvm-tools` from rustup |
+| 2026-11-02 | `gmclean_bench_simulate.py`, w6, w12, l20, lw | 14.5 M vis, S1 or S3 sky | about 115 s each | – | flock; `DEC_DEG` overridden |
+| 2026-11-02 | gmclean `-beam-no-w` | S1-S3, w6, w12, l20, lw, each with the default | 11-76 s per job | – | flock; load 4-12 |
+| 2026-11-02 | `gmclean_bench_compare.py score` | six jobs, last-pass comparison | a few minutes in all | – | flock; not separately timed |
+| 2026-11-02 | `cargo test --release`, fat LTO gmclean build | core; one bin | 117-155 s; 130-150 s | – | flock; lock queueing excluded |
+| 2026-11-02 | `tools/check-all.sh`, then `pytest` alone, `gmclean-opt2` | core, extension, ruff; 705 passed, 45 skipped | 99, 97 s | fail: `ruff format` on one example not touched here | flock; the first pytest lacked dependencies |

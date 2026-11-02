@@ -25,6 +25,10 @@ use rang_core::gmclean::{self, Beam, CycleStop, Settings};
 use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
 use rang_core::weights::WeightClass;
 use rang_core::wgridder::{Options, Real};
+
+#[cfg(all(target_os = "linux", target_pointer_width = "64"))]
+#[global_allocator]
+static ALLOCATOR: rang_core::gmclean::host::HugePageAlloc = rang_core::gmclean::host::HugePageAlloc;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 

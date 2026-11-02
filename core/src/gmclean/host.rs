@@ -174,3 +174,125 @@ mod tests {
         assert_eq!(min_median(&[]), None);
     }
 }
+
+/// The gmclean binary's allocator: large blocks are mapped directly, aligned
+/// to 2 MiB and marked for transparent huge pages (where the system offers
+/// them only on request), everything else is the system's. The gridder walks
+/// its grids, visibilities and tables with strides far beyond 4 KiB, where
+/// small pages mean a TLB miss per access and a page fault per first touch.
+#[cfg(all(target_os = "linux", target_pointer_width = "64"))]
+pub struct HugePageAlloc;
+
+#[cfg(all(target_os = "linux", target_pointer_width = "64"))]
+mod huge {
+    use super::HugePageAlloc;
+    use std::alloc::{GlobalAlloc, Layout, System};
+    use std::ffi::c_void;
+
+    const PAGE: usize = 1 << 21;
+    const THRESHOLD: usize = 1 << 22;
+    const PROT_READ_WRITE: i32 = 1 | 2;
+    const MAP_PRIVATE_ANONYMOUS: i32 = 0x02 | 0x20;
+    const MADV_HUGEPAGE: i32 = 14;
+
+    unsafe extern "C" {
+        fn mmap(
+            addr: *mut c_void,
+            len: usize,
+            prot: i32,
+            flags: i32,
+            fd: i32,
+            off: i64,
+        ) -> *mut c_void;
+        fn munmap(addr: *mut c_void, len: usize) -> i32;
+        fn madvise(addr: *mut c_void, len: usize, advice: i32) -> i32;
+    }
+
+    fn is_large(layout: &Layout) -> bool {
+        layout.size() >= THRESHOLD && layout.align() <= PAGE
+    }
+
+    fn rounded(size: usize) -> usize {
+        size.next_multiple_of(PAGE)
+    }
+
+    /// Fresh zero pages, or null.
+    unsafe fn map(size: usize) -> *mut u8 {
+        let len = rounded(size);
+        // SAFETY: an anonymous mapping and its own unaligned ends; a failed
+        // madvise only means small pages.
+        unsafe {
+            let raw = mmap(
+                std::ptr::null_mut(),
+                len + PAGE,
+                PROT_READ_WRITE,
+                MAP_PRIVATE_ANONYMOUS,
+                -1,
+                0,
+            );
+            if raw as isize == -1 {
+                return std::ptr::null_mut();
+            }
+            let head = (raw as usize).next_multiple_of(PAGE) - raw as usize;
+            if head > 0 {
+                munmap(raw, head);
+            }
+            let start = raw.cast::<u8>().add(head);
+            if head < PAGE {
+                munmap(start.add(len).cast(), PAGE - head);
+            }
+            madvise(start.cast(), len, MADV_HUGEPAGE);
+            start
+        }
+    }
+
+    // SAFETY: large blocks come from `map` and return by `munmap` with the same
+    // rounded length, chosen by the layout alone; the rest is `System`'s.
+    unsafe impl GlobalAlloc for HugePageAlloc {
+        unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+            if is_large(&layout) {
+                unsafe { map(layout.size()) }
+            } else {
+                unsafe { System.alloc(layout) }
+            }
+        }
+
+        unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+            if is_large(&layout) {
+                unsafe { map(layout.size()) }
+            } else {
+                unsafe { System.alloc_zeroed(layout) }
+            }
+        }
+
+        unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+            if is_large(&layout) {
+                unsafe { munmap(ptr.cast(), rounded(layout.size())) };
+            } else {
+                unsafe { System.dealloc(ptr, layout) }
+            }
+        }
+
+        unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+            // SAFETY: the caller's contract for `realloc`.
+            unsafe {
+                let new = Layout::from_size_align_unchecked(new_size, layout.align());
+                if !is_large(&layout) && !is_large(&new) {
+                    return System.realloc(ptr, layout, new_size);
+                }
+                if is_large(&layout)
+                    && is_large(&new)
+                    && rounded(new_size) == rounded(layout.size())
+                {
+                    return ptr;
+                }
+                let out = self.alloc(new);
+                if !out.is_null() {
+                    std::ptr::copy_nonoverlapping(ptr, out, layout.size().min(new_size));
+                    self.dealloc(ptr, layout);
+                }
+                out
+            }
+        }
+    }
+}

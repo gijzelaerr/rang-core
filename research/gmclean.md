@@ -281,6 +281,10 @@ instruction counts, rescan counts, resync and major-cycle counts.
 
 ### 5.5 Where this stopped
 
+Superseded by §5.7, which attributed the profile and took the gains listed here as
+unattributed. The hot-spot table in §5.1 and the times in §5.6 are from before it.
+The text as it stood:
+
 Headroom I think remains, in order: (1) the 5 % in memcpy and the 20 % in rayon
 closures have not been attributed line by line; a frame-pointer profile was planned
 and dropped for the accuracy work; (2) a last pass of a few dozen components costs
@@ -302,6 +306,145 @@ interleaved repeats of each, fastest wall time:
 
 Residual peak: gmclean 0.1, 1, 0.3 mJy (the thresholds); WSClean default 0.14, 1.8,
 0.30 mJy. This is not a speed claim: repeats scatter by up to 50 % at load 5-13.
+
+### 5.7 Second pass: the stalls (branch `gmclean-opt2`, measured)
+
+Against `2994c97`, S1, the full-accuracy job at `-j 16`, three interleaved pairs under
+`perf stat`, load 6-13 from other sessions (`perf` cannot count kernel events in WSL,
+so cycles are user cycles):
+
+| | `2994c97` | this branch | change |
+| --- | ---: | ---: | ---: |
+| instructions | 1027.3, 1027.3, 1027.6 G | 836.2, 836.7, 836.6 G | **−18.6 %** |
+| cycles | 1313, 1305, 1290 G | 626, 627, 624 G | **−52 %** |
+| wall (provisional) | 26.0, 26.0, 27.0 s | 15.1, 14.7, 15.3 s | −43 % |
+| user + sys CPU | 307, 308, 318 s | 157, 156, 160 s | −50 % |
+| page faults | 2.06 M | 0.06-0.09 M | |
+| peak RSS | 2.84 GB | 3.38 GB | **+19 %** |
+
+**Science.** Model, dirty, PSF, residual and restored FITS of S1 are byte-identical
+to `2994c97` (`cmp`). So are the models of S2, S3 and S1 with `-single`, and `-j 8`
+against `-j 16`. 85,337 components, 5 majors, unchanged. No kept change is a numerical
+change. `2994c97`'s own `base0` and `b1` runs differ by 4.6 % in cycles, so a single
+pair under about 5 % is not resolved; those marked "pairs" below are interleaved.
+
+**What the profile was.** Frame-pointer profile (`-C force-frame-pointers=yes`,
+`perf record --call-graph fp`, addresses through `addr2line -i`). IPC was 0.82: this
+was a memory problem, and instruction counts had hidden it. Shares of `2994c97`:
+
+| where (the "rayon closures" and memset of §5.1) | share | what it does |
+| --- | ---: | --- |
+| `grid_to_image` column task | 8.0 % | gathers a column at a time across rows 64 KiB apart (4.4 %), then writes the image a column at a time (2.8 %) |
+| `transpose_into` | 7.2 % | the convolver's two transposes: 2 × 134 MB per resync, 85 resyncs |
+| libc `memset` | 6.7 % | mainly `row.fill` of the whole grid per plane in `image_to_grid`, and zeroing touched rows after gridding; memset has no frame, so its callers come from the `zero` lap and the response to the changes, not from stacks |
+| `image_to_grid` column task | 3.4 % | gather, FFT and scatter a column at a time |
+| `fix_w`, `get` in `values` and the kernels | 5-6 % | a cache miss per visibility on `coord[row]`, `wgt[idx]`, `vis[idx]`, reached in sorted order |
+| libm `sincos` | 2.0 % | the shift phase per visibility per pass (1.1 %), the w-screen |
+| page faults | not in user cycles | 2.06 M faults; sys time is 5 % of the CPU |
+
+**Kept**, with the runs that isolate each. Percentages are of the variant without it.
+
+| change | instructions | cycles | evidence |
+| --- | ---: | ---: | --- |
+| Prefetch `coord`, `wgt`, `vis`, the output 12 visibilities ahead (grid, degrid, `values`) | +1.8 % | **−25 %** | one pair; `k1` against `X_PFA=0`. The largest single gain: 967 against 1294 G |
+| Plane groups of 4 in both directions (u, v taps once per visibility per group); before this gridding only, default 1. Capped at 2 GiB of grids, so the 2n PSF stays at 1 | **−24 %** | **−22 %** | one pair; 847 against 1120 G instructions, 684 against 880 G cycles. Groups 2, 3: 949, 898 G; 805, 783 G |
+| Convolver: blocks of 8 columns taken out of the rows in place, no transposes; zero rows not stored or read | −0.1 % | **−14 %** | `k3` against `k4`, one pair plus three repeats at 645-655 G; resync 4.16 → 2.22 s. The pair also holds the FFT work-space pool; the resync time says the convolver is most of it |
+| `image_to_grid`: zero only the needed rows' non-image columns, scatter only needed rows | with below | with below | part of the next two rows |
+| Gather and output by rows of a column block (both FFT directions), untouched rows not read, tile copy by rows and once per tile per thread | −0.8 % | −4.6 % | one pair, unresolved alone; `p1` against `base0` |
+| Row-stride prefetch in the FFT loops, 8 rows ahead | +0.5 % | −5.5 % | three pairs: 655, 653, 645 against 694, 689, 688 G |
+| `HugePageAlloc`, the gmclean binary's allocator: blocks ≥ 4 MiB mapped on 2 MiB-aligned `MADV_HUGEPAGE` pages | +0.2 % | −5.6 % | one pair, borderline against the noise; the solid number is the faults, 2.48 → 0.06 M. Wall 24.7 → 19.4 s. Library and wheels unaffected |
+| Non-temporal zeroing of grid rows (AVX2 builds) | +0.2 % | **−3.6 %** | three pairs: 633, 626, 629 against 655, 651, 658 G |
+| Tile buffer and FFT work space pools, no allocation or zeroing per task or rayon split; `stored` kept between passes | +0.4 % | −1.9 % | one pair, unresolved; faults −0.31 M |
+| One set of grids for both directions of `Prepared` | none | none | peak RSS 4.92 → 3.50 GB with plane groups of 4 |
+
+**Rejected.**
+
+| candidate | numbers | decision |
+| --- | --- | --- |
+| Prefetch inside the convolver's column blocks | 3 pairs: 655, 653, 645 with it against 661, 648, 654 G without: null | removed |
+| `COL_BLOCK` 4 against 8 | 959 against 967 G: unresolved | stays 8 |
+| Prefetch distance 4, 24, 48 against 12 | +0.9, +1.6, +3.7 %, one run each: unresolved except possibly 48 | stays 12 |
+| Transpose block 4, 8 against 16 | 722, 712 against 684 G, one run each, no gain | moot: the transposes are gone from resync |
+| `MALLOC_MMAP_THRESHOLD_` and related, by environment | −3 % against −8 % for huge pages by `GLIBC_TUNABLES`, both one run | replaced by `HugePageAlloc` in the code |
+| PGO (`llvm-tools` in rustup, profile from S1, three pairs) | instructions +0.3 %, cycles 650-655 against 654-658 G (−0.5 %, unresolved), wall the same, model identical | **not worth having in the build instructions** |
+
+**Threads, three pairs.** `-j 8` against `-j 16`: cycles 441, 442, 435 against 655, 653,
+654 G (−33 %), instructions −0.8 %, wall 16.2, 15.7, 15.2 against 14.9, 14.7, 15.2 s.
+Cycles cannot decide this: SMT siblings both count. `-j 16` is about 5 % faster
+in wall time for half as much work again; on a shared host `-j 8` is the better citizen.
+
+**The last pass (option, default unchanged).** `-nmiter` one below the natural count;
+the passes before it are identical. Final binary:
+
+| sky | last pass | instructions | cycles | wall | Q/Q0 | residual peak (threshold 100 µJy) | false flux | total flux |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | 195 comps | 836 → 726 G (−13 %) | 627 → 548 G (−13 %) | 14.3 → 12.7 s | 2.22668 → 2.22676e-3 | 99.99 → 101.25 µJy | 4.34 → 4.30 mJy | 10.9594, same to 5 digits |
+| S2 | 77 | 843 → 733 G (−13 %) | 636 → 559 G (−12 %) | 14.0 → 12.7 s | 2.13501 → 2.13504e-3 | 100.00 → 100.84 | 4.88 → 4.84 | disc −4.009 → −4.019 mJy |
+| S3 | 91 | 692 → 581 G (−16 %) | 511 → 436 G (−15 %) | 11.4 → 10.1 s | 2.68088 → 2.68092e-2 | 99.99 → 101.34 | 1.57 → 1.52 | 7.86425 → 7.86422 |
+
+A tolerance of 1.5 % on the exact stop would take these. Its cost is what the table
+shows: a peak 1.3 % over the threshold and Q higher by 3e-5 of itself or less. It
+alters the stopping point, so it is left for the user to decide.
+
+**`-beam-no-w` (option, default unchanged).** Added sets, simulated as the benchmark
+(`gmclean_bench_simulate.py`, `DEC_DEG` overridden, seeds as in S1 and S3): `w6`, `w12`
+are S3's sky at 6″, 12″ (3.4°, 6.8° field), dec −30°; `l20` is S1 at dec +20°; `lw` is S3 at
+6″, dec +20°. Threshold 100 µJy, final binary before non-temporal zeroing:
+
+| set | majors | components | Q/Q0 | rms (MAD) | model difference | PSF | cycles | wall |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | 5, 5 | 85,337; 85,223 | 2.22668; 2.22668e-3 | 24.66; 24.66 µJy | 1.2 % | 1.70; 0.46 s | −10 % | 15.3; 13.1 s |
+| S2 | 5, 5 | 90,905; 90,422 | 2.13501; 2.13546e-3 | 24.88; 24.90 | 5.3 % | 2.57; 0.34 | −11 % | 16.5; 13.2 |
+| S3 | 4, 4 | 45,803; 45,786 | 2.68088; 2.68096e-2 | 24.84; 24.84 | 1.6 % | 2.49; 0.36 | −15 % | 13.1; 11.0 |
+| w6 | 11, 11 | 713,726; 715,547 | 3.00392; 3.00414e-2 | 30.37; 30.37 | 0.45 % | 4.80; 0.55 | −10 % | 50.1; 46.7 |
+| w12 | 13, 13 | 769,301; 761,072 | 3.06860; 3.07207e-2 | 35.90; 35.97 | 0.60 % | 5.82; 0.68 | −13 % | 59.3; 53.4 |
+| l20 | **6, 7** | 67,175; 67,136 | 2.22507; 2.22512e-3 | 24.81; 24.81 | 2.9 % | 2.53; 0.45 | −1 % | 18.0; 17.5 |
+| lw | **10, 12** | 489,696; 494,903 | 2.94561; 2.94378e-2 | 29.49; 29.45 | 0.77 % | 11.06; 0.54 | −6 % | 75.7; 72.1 |
+
+The major cycle keeps the w-term, so the answer stays an exact-residual one and the
+beam-fit size agrees to all printed digits. The worst Q is +0.11 % and the worst rms
++0.18 % (`w12`). The saving is 10-15 % at dec −30° but 1-6 % at dec +20°, where
+the wrong beam costs one or two major cycles. **Not established as a safe default:** it
+is a numerical change, on one sky per geometry, with no per-source scoring on the added
+sets. As an option on fields like the benchmark's it holds. Beyond the benchmark sets
+its gain may vanish.
+
+**Headroom left, largest first (S1, final).** Wall 14.3 s: read 1.5, weights 0.2, PSF 2.2,
+initial dirty 0.7, resync 2.2, minor 0.45, major about 6, restore and FITS 0.3.
+1. The last pass (above): −13 %, a stated numerical change, the user's call.
+2. `-beam-no-w` (above): −10-15 % at dec −30°.
+3. Read (1.5 s, 10 % of wall, little CPU): not looked at; it may be I/O on a shared disk.
+4. The kernels and FFTs: `accumulate` 12 %, degrid 10 %, taps 6 %, rustfft about 15 %. A
+   pruned FFT would be a real gain, but changes rounding; I did not try it. Gridder speed
+   against ducc0 was not re-measured here and §5.1's "at ducc0's speed" is out of date.
+5. Caching the shift phases per visibility: libm 1.7 % plus its loads, about 3 %, for
+   232 MB more. Not implemented.
+6. Thread overhead: sys 9-11 s at `-j 16` against 4 s at `-j 8`, mostly rayon's idling.
+   Not reduced.
+
+**Plane groups: the one trade, and it reaches every caller.** Default 4 is in
+`wgridder::plane_group`, so it applies to every `vis2dirty` and `dirty2vis` in the
+library (Python wheels, `WgridMeasurement`, `gridder_gram`), and it reverses the opt-in
+"for memory-rich runs" of [df2-wgridder-speed.md](df2-wgridder-speed.md). Results do not
+depend on it (tested bit for bit), only memory. Whether to scope it to gmclean is for
+the user to decide. Final binary on S1:
+
+| | `2994c97` | `RANG_WGRIDDER_PLANE_GROUP=1` | default (4) |
+| --- | ---: | ---: | ---: |
+| instructions | 1027 G | 1110 G (+8 %) | 836 G (−19 %) |
+| cycles | 1303 G | 740 G (−43 %) | 621-627 G (−52 %) |
+| wall (provisional) | 26-27 s | 16.4 s | 13.7-15.3 s |
+| peak RSS | 2.84 GB | 2.31 GB | 3.38 GB |
+
+Group 1 costs more instructions than the old code (the prefetches, and the degrid loop's
+extra indirection), and an image too large for two grids in 2 GiB takes that path:
+4096² in `f64`, whose grid is about 1.1 GB, as the 2n PSF of 2048² does here.
+
+Provenance. Binaries: `cargo +1.93 build --offline --profile gmclean --bin gmclean`, at
+`2994c97` and this branch; measurement knobs were temporary environment variables on
+uncommitted patches and are not in the tree. Host: Ryzen 7 7700X under WSL2, runs under
+`flock /home/gijsm/.rang-heavy.lock`, sharing the host with other sessions. Scratch
+under `~/Build/tmp/20261102-gmclean-opt2/`, deleted.
 
 ## 6. Measured, 1024² simulated MS (timings provisional)
 
@@ -354,6 +497,10 @@ core/target/release/examples/gmclean_sim compare OUT
 core/target/release/examples/gmclean_sim sim OUT/disc disc 2048 1.5 240 64 4
 core/target/release/examples/gmclean_sim minor OUT/disc/sim.ms 2048 1.5 1e-3 5
 python3 examples/gmclean_compare.py SPEC.json OUT.json   # interleaved, under perf stat
+# §5.7: the last pass (natural count less one: S1, S2 -nmiter 4; S3 -nmiter 3, in place of
+# -nmiter 1000), and the -beam-no-w sets: gmclean_bench_simulate.py with DEC_DEG overridden
+#   python -c "import gmclean_bench_simulate as m; m.DEC_DEG = DEC; m.main([MS, '--sky', SKY, '--scale', SCALE, '--catalogue', CAT])"
+#   w6: S3 6 -30; w12: S3 12 -30; l20: S1 1.5 20; lw: S3 6 20 (imaged at -scale SCALE, with and without -beam-no-w)
 # The benchmark job
 gmclean -name OUT/s1 -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 \
     -nmiter 1000 -abs-threshold 0.0001 -data-column DATA -field 0 -j 16 s1.ms
