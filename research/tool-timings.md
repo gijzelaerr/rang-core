@@ -1198,3 +1198,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | clean-major-cycles: `clean_major_cycles` final run | `de303bf`, 16 threads | 1,314.2 s, PROVISIONAL | – | 158 runs; contended host, CPU time not recorded; over the 15 min asked for |
 | 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 1 rayon thread | Windows | 95.8 s, PROVISIONAL | – | crossover and 4 schemes on one sky |
 | 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 16 threads | Windows | 37.5 s, PROVISIONAL | – | the same |
+| 2026-11-02 | clean-major-cycles: pre-commit check (fmt, clippy, test, `lake build`) | Windows worktree, before `9f07507` | not timed separately | – | 134 passed; contended host |

@@ -403,7 +403,7 @@ only on the wide field).
 | 1024 × 4″ | −70 | natural | 2,751 | 0.0117 | 2 (cap) | 1.13e-2 | 0.006 | 7.9e-3 | 23.17 |
 | 1024 × 4″ | −70 | Briggs 0 | 4,393 | 0.0105 | 2 (cap) | 1.51e-2 | 0.008 | – | – |
 
-The bound holds everywhere and is 67-200 times loose in the single entry
+The bound holds everywhere and is 67-185 times loose in the single entry
 (`|cos α − cos β| ≤ |α − β|` ignores cancellation over baselines; the 1024² ratios
 are against the capped value). The measured deviation grows more slowly than the
 bound's `w̄ L²`: a field four times wider raises it by 4.2-4.6 with natural
@@ -458,7 +458,7 @@ Reading it:
    These runs are not the same stopping point as the others.
 5. **Thread count.** Four schemes on one crowded sky, at 1 and at 16 rayon threads,
    gave identical passes, components and printed gaps, equal to the full run's. 74
-   runs following the same schedule in an earlier full run gave identical passes
+   runs following the same schedule in the earlier smoke run gave identical passes
    and components. No dependence on thread count was seen where tested; only that
    one sky was tested at 1 thread.
 
@@ -535,12 +535,16 @@ shared and was heavily loaded: the coordinator reports a load average of 16.8 of
 after the run, at 11:37 on 2026-11-02, read Windows CPU load 88 % and WSL load
 average 12.43, 10.73, 9.21; this is not the load during the runs. **Process CPU time
 and load during the runs were not recorded** (Git Bash's `time` does not report the
-Windows executable's CPU time), and nothing was rerun for timing.
+Windows executable's CPU time). The thread comparison below comes from two
+timing-mode runs made before that report of the load arrived; nothing was run after
+it.
 
-Repeat variation: 74 runs following an identical path in two full runs of the
-example differ by a median factor of 1.16 in wall time, 90th percentile 1.52, and
-at most 2.55 (minor 1.59, major 2.80). One of those two runs competed with a Lean
-build. **Below a factor of about 3 no conclusion is drawn.**
+Repeat variation: 74 runs following an identical path in the final run and in the
+smoke run differ by a median factor of 1.16 in wall time, 90th percentile 1.52, and
+at most 2.55 (minor 1.59, major 2.80). The smoke run (512² only, the earlier scheme
+set, a cap of 60, stopped by hand near the end) competed with a Lean build, so one
+side of each pair was more contended. **Below a factor of about 3 no conclusion is
+drawn.**
 
 Sums over the 12 datasets at 512² (s):
 

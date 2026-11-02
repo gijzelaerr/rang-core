@@ -31,5 +31,5 @@ The first command downloads Mathlib's compiled files (8,690 files; about
 4 min 50 s on the Windows workstation, the clone included); the build itself
 takes 41-44 s, almost all of it loading Mathlib (121 s for a clean rebuild of
 all seven files on 2026-10-30, after `Stagewise`, `Separation` and `Clark`
-were added). `.lake/` is ignored by
+were added; `MajorCycle` makes eight). `.lake/` is ignored by
 Git. The axiom audit prints as `info` lines of the build.
