@@ -16,7 +16,7 @@ from rang import core_campaign_1830 as l2
 
 def main():
     out = Path(sys.argv[1])
-    if not str(out).startswith("outputs/") or out.exists():
+    if not out.as_posix().startswith("outputs/") or out.exists():
         sys.exit("the fetch directory must be a fresh path beneath outputs/")
     result = l2.fetch(out)
     print(

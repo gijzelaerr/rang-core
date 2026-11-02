@@ -67,7 +67,7 @@ def snapshot(paths):
 
 def main():
     oracle_dir, out = Path(sys.argv[1]), Path(sys.argv[2])
-    if not str(out).startswith("outputs/") or out.exists():
+    if not out.as_posix().startswith("outputs/") or out.exists():
         raise SystemExit("run directory must be new and beneath outputs/")
     out.mkdir(parents=True)
     inputs = [oracle_dir / "oracle.npz", oracle_dir / "receipt.json", CATALOGUE]

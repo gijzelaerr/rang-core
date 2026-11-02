@@ -250,7 +250,7 @@ def extension_of(python):
 
 def sweep(out_dir, libs, threads, rounds, repeats):
     out_dir = Path(out_dir)
-    if not str(out_dir).startswith("outputs/"):
+    if not out_dir.as_posix().startswith("outputs/"):
         raise SystemExit("output directory must be beneath outputs/")
     out_dir.mkdir(parents=True, exist_ok=False)
     names = list(libs)

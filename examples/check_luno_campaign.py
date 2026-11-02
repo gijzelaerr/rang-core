@@ -19,7 +19,7 @@ from rang import core_campaign
 
 def main():
     run_dir, precondition_dir, check_dir = (Path(a) for a in sys.argv[1:4])
-    if not str(check_dir).startswith("outputs/") or check_dir.exists():
+    if not check_dir.as_posix().startswith("outputs/") or check_dir.exists():
         sys.exit("the check directory must be a fresh path beneath outputs/")
     summary = core_campaign.check(run_dir, precondition_dir, check_dir)
     for name, criterion in summary["criteria"].items():

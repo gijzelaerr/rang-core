@@ -17,7 +17,7 @@ from rang import core_campaign
 
 def main():
     out = Path(sys.argv[1])
-    if not str(out).startswith("outputs/") or out.exists():
+    if not out.as_posix().startswith("outputs/") or out.exists():
         sys.exit("the precondition directory must be a fresh path beneath outputs/")
     result = core_campaign.precondition(out)
     print(

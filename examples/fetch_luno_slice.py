@@ -29,7 +29,7 @@ def main():
     parser.add_argument("--workers", type=int, default=8)
     args = parser.parse_args()
     out = Path(args.out)
-    if not str(out).startswith("outputs/") or out.exists():
+    if not out.as_posix().startswith("outputs/") or out.exists():
         sys.exit("the output directory must be a fresh path beneath outputs/")
     started = time.perf_counter()
     result = core_fetch.fetch_slice(

@@ -35,7 +35,7 @@ def snapshot(prepared):
 
 def main():
     run_dir, prepared = Path(sys.argv[1]), Path(sys.argv[2])
-    if not str(run_dir).startswith("outputs/") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/") or run_dir.exists():
         raise SystemExit("run directory must be new and beneath outputs/")
     before = snapshot(prepared)
     result = core_injections.run(run_dir, prepared)
