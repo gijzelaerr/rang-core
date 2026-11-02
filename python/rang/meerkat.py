@@ -359,7 +359,9 @@ class MvfLoader:
                 if not key.startswith("_"):
                     np.save(folder / f"{key}.npy", value)
             manifest["chunks"].append({"path": folder.name, **chunk["_stats"]})
-        (out / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
+        (out / "manifest.json").write_text(
+            json.dumps(manifest, indent=1) + "\n", encoding="utf-8", newline="\n"
+        )
         return manifest
 
 

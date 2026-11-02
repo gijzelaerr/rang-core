@@ -353,8 +353,12 @@ def fetch_slice(
         "python": platform.python_version(),
         "openssl": ssl.OPENSSL_VERSION,
     }
-    (out / "receipt.json").write_text(json.dumps(records, indent=1) + "\n")
-    (out / "result.json").write_text(json.dumps(result, indent=1) + "\n")
+    (out / "receipt.json").write_text(
+        json.dumps(records, indent=1) + "\n", encoding="utf-8", newline="\n"
+    )
+    (out / "result.json").write_text(
+        json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n"
+    )
     return result
 
 
@@ -500,7 +504,7 @@ def decode_slice(fetched):
     corr)` array at its tile's channel offset (tile order).
     """
     fetched = Path(fetched)
-    result = json.loads((fetched / "result.json").read_text())
+    result = json.loads((fetched / "result.json").read_text(encoding="utf-8"))
     group = result["group"]
     rows = np.asarray(result["rows"], dtype=np.int64)
     stats = {"blocks_decoded": 0, "decode_seconds": 0.0, "bytes_decoded": 0}

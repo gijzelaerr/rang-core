@@ -42,7 +42,7 @@ def run(run_dir, prepared_dir, seed=29, action_count=16, iterations=50):
     run_dir, prepared = Path(run_dir), Path(prepared_dir)
     run_dir.mkdir(parents=True, exist_ok=False)
     state = load_state(prepared)
-    manifest = json.loads((prepared / "manifest.json").read_text())
+    manifest = json.loads((prepared / "manifest.json").read_text(encoding="utf-8"))
     time_interval, freq_interval = manifest["split_gain_intervals"]
     state["action_intervals"] = np.array([time_interval, freq_interval])
     configuration = {
@@ -180,7 +180,9 @@ def run(run_dir, prepared_dir, seed=29, action_count=16, iterations=50):
         "seconds_total": time.perf_counter() - started,
     }
     (run_dir / "result.json").write_text(
-        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n"
+        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     result["actual_QC_solves"] = 1 + len(records) + (proposal is not None)
     return result

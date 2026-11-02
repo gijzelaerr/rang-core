@@ -113,7 +113,7 @@ def problem_from_state(
 def load_trace(path):
     """A trace written by the core as arrays: per iteration (K) and, for the
     per-interval quantities, (K, intervals); null becomes NaN."""
-    raw = json.loads(Path(path).read_text())
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
     its = raw["iterations"]
 
     def floats(key):

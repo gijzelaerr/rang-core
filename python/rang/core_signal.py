@@ -129,8 +129,8 @@ def _inputs(inputs_dir, uvw_dir):
         name = f"time-burst-seed{seed}"
         source = Path(inputs_dir) / "cases" / name
         state = load_state(source)
-        manifest = json.loads((source / "manifest.json").read_text())
-        metadata = json.loads((source / "injection.json").read_text())
+        manifest = json.loads((source / "manifest.json").read_text(encoding="utf-8"))
+        metadata = json.loads((source / "injection.json").read_text(encoding="utf-8"))
         if (
             metadata["seed"] != seed
             or metadata["pattern"] != "time-burst"
@@ -391,7 +391,9 @@ def _run(run_dir, inputs_dir, uvw_dir, iterations, train_signal_guard):
         }
     )
     (root / "result.json").write_text(
-        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n"
+        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     return result
 

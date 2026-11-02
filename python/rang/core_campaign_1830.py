@@ -130,7 +130,7 @@ def fetch(out, bucket=BUCKET, keys=FETCH_KEYS):
     out.mkdir(parents=True)
     started_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     summary = core_campaign.fetch_extra(bucket, out, keys)
-    records = json.loads((out / "receipt-extra.json").read_text())
+    records = json.loads((out / "receipt-extra.json").read_text(encoding="utf-8"))
     lines = []
     objects = []
     for record in records:
@@ -151,7 +151,9 @@ def fetch(out, bucket=BUCKET, keys=FETCH_KEYS):
                 "last_modified": record["headers"].get("Last-Modified"),
             }
         )
-    (out / "objects" / "receipt.txt").write_text("\n".join(lines) + "\n")
+    (out / "objects" / "receipt.txt").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8", newline="\n"
+    )
     result = {
         "protocol": "research/luno-1830-campaign.md",
         "base_url": bucket,
@@ -277,7 +279,7 @@ def decode_extra(group, rows, roots, channels=CHANNELS):
             resolve(key, roots).parent, key.split("/")[-1], chunk
         )
 
-    attrs = json.loads(resolve(f"{group}/.zattrs", roots).read_text())
+    attrs = json.loads(resolve(f"{group}/.zattrs", roots).read_text(encoding="utf-8"))
     field = int(attrs["FIELD_ID"])
     lo, hi = channels
     uvw = obj(f"{group}/UVW", "0.0")
@@ -674,7 +676,9 @@ def run(
     roots = roots_for(group, fetch_dir)
     fetched = None
     if fetch_dir is not None and group != K_GROUP:
-        fetched = json.loads((Path(fetch_dir) / "result.json").read_text())
+        fetched = json.loads(
+            (Path(fetch_dir) / "result.json").read_text(encoding="utf-8")
+        )
     watched = list(array.ARCHIVED_INPUTS)
     if fetch_dir is not None:
         path = Path(fetch_dir)
@@ -1127,7 +1131,7 @@ def precondition(out_dir):
     mark = stages.start()
     k_pre = core_campaign.precondition(out_dir / "k-precondition")
     stages.stop("k_precondition", mark)
-    archive = json.loads(array.K_ARCHIVE.read_text())
+    archive = json.loads(array.K_ARCHIVE.read_text(encoding="utf-8"))
     sec6 = k_pre["section6"]
     arch6 = archive["section6_reference"]
     part1 = {
@@ -1170,12 +1174,12 @@ def precondition(out_dir):
     )
     stages.stop("replay", mark)
     replay["_candidates"] = json.loads(
-        (out_dir / "replay" / "candidates.json").read_text()
+        (out_dir / "replay" / "candidates.json").read_text(encoding="utf-8")
     )
     part2 = compare_replay_tolerant(
         replay,
-        json.loads(k_result_path.read_text()),
-        json.loads((array.K_RUN / "candidates.json").read_text()),
+        json.loads(k_result_path.read_text(encoding="utf-8")),
+        json.loads((array.K_RUN / "candidates.json").read_text(encoding="utf-8")),
     )
     part2["k_result_hash_matches_archive"] = k_hash_ok
     part2["pass"] = bool(part2["all_equal"] and k_hash_ok)
@@ -1274,17 +1278,19 @@ def check(run_dirs, precondition_dir, fetch_dir, check_dir):
     check_dir = Path(check_dir)
     check_dir.mkdir(parents=True, exist_ok=False)
     started = time.perf_counter()
-    pre = json.loads((Path(precondition_dir) / "result.json").read_text())
-    fetched = json.loads((Path(fetch_dir) / "result.json").read_text())
+    pre = json.loads(
+        (Path(precondition_dir) / "result.json").read_text(encoding="utf-8")
+    )
+    fetched = json.loads((Path(fetch_dir) / "result.json").read_text(encoding="utf-8"))
     roots = roots_for(GROUP, fetch_dir)
     receipts = archived_receipts(roots)
     per_arm = {}
     results = {}
     for model_arm, run_dir in run_dirs.items():
         run_dir = Path(run_dir)
-        result = json.loads((run_dir / "result.json").read_text())
+        result = json.loads((run_dir / "result.json").read_text(encoding="utf-8"))
         results[model_arm] = result
-        integrity = json.loads((run_dir / "integrity.json").read_text())
+        integrity = json.loads((run_dir / "integrity.json").read_text(encoding="utf-8"))
         crit = {}
         rehashed = [
             verify_object(r["key"], receipts, roots) for r in integrity["objects"]
@@ -1316,7 +1322,7 @@ def check(run_dirs, precondition_dir, fetch_dir, check_dir):
             "fetched_seconds": fetched["seconds"],
             "mismatches": [r["key"] for r in rehashed if not r["ok"]][:10],
         }
-        audit = json.loads((run_dir / "side-effects.json").read_text())
+        audit = json.loads((run_dir / "side-effects.json").read_text(encoding="utf-8"))
         arms = {k: v for k, v in result["arms"].items() if v is not None}
         flag_ok = {
             label: arm["superset_of_original"]

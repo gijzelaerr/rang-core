@@ -143,7 +143,7 @@ def cpu_seconds():
 
 def mem_available_gib():
     try:
-        for line in Path("/proc/meminfo").read_text().splitlines():
+        for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
             if line.startswith("MemAvailable:"):
                 return int(line.split()[1]) / 2**20
     except OSError:
@@ -296,7 +296,7 @@ def decode_extra(rows, roots=ROOTS, channels=CHANNELS):
             resolve(key, roots).parent, key.split("/")[-1], chunk
         )
 
-    attrs = json.loads(resolve(f"{GROUP}/.zattrs", roots).read_text())
+    attrs = json.loads(resolve(f"{GROUP}/.zattrs", roots).read_text(encoding="utf-8"))
     field = int(attrs["FIELD_ID"])
     lo, hi = channels
     uvw = obj(f"{GROUP}/UVW", "0.0")
@@ -889,7 +889,7 @@ def tv_loop(state, base, scale, prefix):
 
 def tricolour_arm(state, extra, strategy_path):
     """K's `tricolour_arm` without the intensity output (flags unaffected)."""
-    text = Path(strategy_path).read_text()
+    text = Path(strategy_path).read_text(encoding="utf-8")
     strategies = core_flag.parse_strategy(text)
     started = time.perf_counter()
     result = core_flag.flag_rows(
@@ -1861,7 +1861,7 @@ def run(
 
 
 def _load(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def compare_replay(replay, k_result, k_candidates):

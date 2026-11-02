@@ -290,7 +290,9 @@ def fetch_product(out_dir, url=L_BAND_URL, antennas=range(64), threads=16, log=p
             "bytes": (out / name).stat().st_size,
         }
     manifest["wall_s"] = time.perf_counter() - started
-    (out / "manifest.json").write_text(json.dumps(manifest, indent=1))
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, indent=1), encoding="utf-8", newline="\n"
+    )
     return manifest
 
 
@@ -376,7 +378,7 @@ class HolographyBeam(_Sampler):
         self.average = np.load(self.dir / "array_average_native.npy", mmap_mode="r")
         sampled = self.dir / "antennas_sampled.npy"
         self.sampled = np.load(sampled, mmap_mode="r") if sampled.exists() else None
-        manifest = json.loads((self.dir / "manifest.json").read_text())
+        manifest = json.loads((self.dir / "manifest.json").read_text(encoding="utf-8"))
         self.product_channels = np.asarray(manifest["channels_sampled"], int)
         self.sampled_antennas = list(manifest.get("antennas_sampled", range(64)))
         self.native_average = native_average

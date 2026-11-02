@@ -294,7 +294,7 @@ def build_trend_mirror(source_dir, mirror_dir):
         (dst / "trials/baseline").mkdir(parents=True)
         for name in ("state.npz", "manifest.json"):
             shutil.copy2(src / name, dst / name)
-        manifest = json.loads((dst / "manifest.json").read_text())
+        manifest = json.loads((dst / "manifest.json").read_text(encoding="utf-8"))
         if manifest["split_gain_intervals"] != list(TREND_GRID):
             raise ValueError("frozen 2x32 grid required")
         state = load_state(dst)
@@ -308,7 +308,7 @@ def build_trend_mirror(source_dir, mirror_dir):
         np.savez_compressed(dst / "trials/baseline/diagnostics.npz", **diagnostics)
         solver = metrics.pop("solver")
         (dst / "trials/baseline/metrics.json").write_text(
-            json.dumps(metrics, indent=2) + "\n"
+            json.dumps(metrics, indent=2) + "\n", encoding="utf-8", newline="\n"
         )
         with np.load(src / "trials/baseline/diagnostics.npz") as saved:
             qc_gains, qc_valid = saved["gains"], saved["gain_valid"]

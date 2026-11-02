@@ -952,7 +952,7 @@ def weights_load_runs(output):
     for path in sorted((output / "oracle").glob("*.json")):
         if path.name == "summary.json":
             continue
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         record["arrays"] = np.load(output / "oracle" / f"{record['name']}.npz")
         runs[record["name"]] = record
     return runs
@@ -1428,8 +1428,8 @@ def _equal_leaf(a, b):
 
 
 def backends_compare_json(ref, cand, record, roots=("", "")):
-    a = json.loads(ref.read_text())
-    b = json.loads(cand.read_text())
+    a = json.loads(ref.read_text(encoding="utf-8"))
+    b = json.loads(cand.read_text(encoding="utf-8"))
     ours = dict(_leaves(a))
     theirs = dict(_leaves(b))
     failures = []

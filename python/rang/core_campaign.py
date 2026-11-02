@@ -143,7 +143,11 @@ def rss_mb():
 
 
 def write_json(path, payload):
-    Path(path).write_text(json.dumps(payload, indent=1, default=_json_default) + "\n")
+    Path(path).write_text(
+        json.dumps(payload, indent=1, default=_json_default) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
 
 def _json_default(value):
@@ -189,7 +193,7 @@ def receipt_lines(*paths):
     """`size sha256 key` lines of the archived curl receipts, keyed by object."""
     hashes = {}
     for path in paths:
-        for line in Path(path).read_text().splitlines():
+        for line in Path(path).read_text(encoding="utf-8").splitlines():
             size, digest, key = line.split()
             hashes[key] = (int(size), digest)
     return hashes
@@ -230,7 +234,7 @@ def decode_object(objects, array_key, chunk):
     the dtype string and the shape); nothing else is accepted.
     """
     objects = Path(objects)
-    meta = json.loads((objects / array_key / ".zarray").read_text())
+    meta = json.loads((objects / array_key / ".zarray").read_text(encoding="utf-8"))
     if meta["compressor"]["id"] != "blosc":
         raise ValueError(f"{array_key}: only blosc arrays are supported")
     raw = core.blosc_decode((objects / array_key / chunk).read_bytes())
@@ -254,7 +258,7 @@ def decode_object(objects, array_key, chunk):
 def decode_extra(fetched, rows, channels=CHANNELS):
     """Geometry and metadata for the kept rows from the extra objects."""
     objects = Path(fetched) / "objects"
-    attrs = json.loads((objects / GROUP / ".zattrs").read_text())
+    attrs = json.loads((objects / GROUP / ".zattrs").read_text(encoding="utf-8"))
     field = int(attrs["FIELD_ID"])
     lo, hi = channels
     uvw = decode_object(objects, f"{GROUP}/UVW", "0.0")
@@ -396,7 +400,7 @@ def tricolour_checks(result, input_flags, strategies, block=4096):
 
 def tricolour_arm(state, extra, strategy_path):
     """The comparator: the ported CARACAL strategy on DATA with the original flags."""
-    text = Path(strategy_path).read_text()
+    text = Path(strategy_path).read_text(encoding="utf-8")
     strategies = core_flag.parse_strategy(text)
     started = time.perf_counter()
     result = core_flag.flag_rows(
@@ -811,9 +815,9 @@ def precondition(out_dir):
                     -1, -2
                 )
                 worst = max(worst, float(np.abs(a - b)[pair].max()))
-    section6 = json.loads(SECTION6_ARCHIVE.read_text())
+    section6 = json.loads(SECTION6_ARCHIVE.read_text(encoding="utf-8"))
     run02 = section6["run_02"]
-    solved = json.loads(SOLVED_ARCHIVE.read_text())
+    solved = json.loads(SOLVED_ARCHIVE.read_text(encoding="utf-8"))
     # The committed archive carries chi-squared and the mask counts; the mask
     # hashes live in the run's result.json, which the archive pins by SHA256.
     chi2_archived = run02.get("checks", {}).get("3_chi2", {}).get("core")
@@ -823,7 +827,7 @@ def precondition(out_dir):
     run02_result = SECTION6_RUN / "result.json"
     run02_hash_ok = file_sha256(run02_result) == run02.get("result_sha256")
     masks_archived = (
-        json.loads(run02_result.read_text()).get("policy_mask_sha256")
+        json.loads(run02_result.read_text(encoding="utf-8")).get("policy_mask_sha256")
         if run02_hash_ok
         else None
     )
@@ -1125,7 +1129,9 @@ def run(run_dir, bucket=BUCKET, workers=8, precondition_dir=None, gridder="wstac
         "fetch_extra_receipt": "fetch/receipt-extra.json",
         "fetched_object_sha256": {
             r["key"]: r["sha256"]
-            for r in json.loads((fetched / "receipt-extra.json").read_text())
+            for r in json.loads(
+                (fetched / "receipt-extra.json").read_text(encoding="utf-8")
+            )
         },
         "code_sha256": {name: file_sha256(ROOT / name) for name in CODE_FILES},
         "library": str(core.library_path()),
@@ -1174,12 +1180,14 @@ def check(run_dir, precondition_dir, check_dir):
     )
     check_dir.mkdir(parents=True, exist_ok=False)
     started = time.perf_counter()
-    result = json.loads((run_dir / "result.json").read_text())
-    pre = json.loads((precondition_dir / "result.json").read_text())
+    result = json.loads((run_dir / "result.json").read_text(encoding="utf-8"))
+    pre = json.loads((precondition_dir / "result.json").read_text(encoding="utf-8"))
     fetched = run_dir / "fetch"
-    fetch_result = json.loads((fetched / "result.json").read_text())
-    receipt = json.loads((fetched / "receipt.json").read_text())
-    receipt_extra = json.loads((fetched / "receipt-extra.json").read_text())
+    fetch_result = json.loads((fetched / "result.json").read_text(encoding="utf-8"))
+    receipt = json.loads((fetched / "receipt.json").read_text(encoding="utf-8"))
+    receipt_extra = json.loads(
+        (fetched / "receipt-extra.json").read_text(encoding="utf-8")
+    )
     criteria = {}
 
     # 1. Fetch integrity.
@@ -1261,7 +1269,7 @@ def check(run_dir, precondition_dir, check_dir):
     }
 
     # 2. Flags preserved and no side effects.
-    audit = json.loads((run_dir / "side-effects.json").read_text())
+    audit = json.loads((run_dir / "side-effects.json").read_text(encoding="utf-8"))
     arms = {k: v for k, v in result["arms"].items() if v is not None}
     flag_ok = {
         label: arm["superset_of_original"]
