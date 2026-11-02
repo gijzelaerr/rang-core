@@ -50,7 +50,7 @@ def main():
     parser.add_argument("--compare", type=compare_arg, action="append", default=[])
     args = parser.parse_args()
     run_dir = Path(args.run_dir)
-    if not str(run_dir).startswith("outputs/l1m-") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/l1m-") or run_dir.exists():
         sys.exit("the run directory must be a fresh path beneath outputs/l1m-")
     if args.model != "stored" and args.lsm is None:
         sys.exit("a predicted model arm needs --lsm")
