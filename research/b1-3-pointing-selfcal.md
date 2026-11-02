@@ -1033,7 +1033,7 @@ would still close null. The novelty rule is not met on either branch.
 WSL host, four workers (`OPENBLAS_NUM_THREADS=1`), date 2026-10-30 to 11-02.
 Wall and peak RSS (largest process) from `/usr/bin/time`. The S4/S5 pointing
 reruns and the post-hoc runs are 2026-11-02; everything else ran in one go on
-2026-10-30/31 (a usage cut-off of the session on 10-31 hit no running job).
+2026-10-30/31 (a usage cut-off of the session on 10-31 hit no running job). The S4 and S5 (ii) and R runs `-70` to `-73` are reruns after the grid fix; the failed `-59`, `-60`, `-62`, `-63` are kept.
 
 | Run | Wall | Peak RSS | Notes |
 | --- | ---: | ---: | --- |
@@ -1087,7 +1087,10 @@ reruns and the post-hoc runs are 2026-11-02; everything else ran in one go on
 | `b1-3-20261030-75-compare` | 4 s | 0.37 GB |  |
 | one S4 task, cProfile (3 attempts while optimising) | 29–31 s | – | 896 hand-bins |
 | `tests/test_b1_pointing_selfcal.py` | about 10 s | – | 18 tests |
-CHECK_ROW
+| 2026-10-31 scratch diagnostics: `linesearch.py` (twice, F2), `stefcal_diag.py` (cap sweep, then with polishing), `conv.py` (toy), `halvings.py` (F3, F2, S4) | about 2–10 min each | – | not timed; scripts in `-74-posthoc-gains`, the F2 ones rerun there with a log |
+| F2 G smoke fit (4 passes, scratch), F2 simulation smoke | 3 min, 25 s | – | not timed; the first showed the slow convergence |
+| partial `compare` dry runs (twice) | seconds | – | not timed |
+| `bash tools/check-all.sh` | 17:35.65 | 1.74 GB | **overall: PASS**; pytest 679 passed, 9 skipped in 153.2 s; wall includes waiting for the host lock behind other tasks; log `outputs/b1-3-20261030-check-all.log`; ran on the code of the final commit (afterwards only this table changed) |
 
 ## For the coordinator
 
