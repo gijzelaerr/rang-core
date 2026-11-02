@@ -34,7 +34,7 @@ classifiers = [
 dependencies = ["numpy>=1.26"]
 
 [project.urls]
-Documentation = "https://gijzelaerr.github.io/rang-core/"
+Documentation = "https://pythonic.nl/rang-core/"
 Repository = "https://github.com/gijzelaerr/rang-core"
 Issues = "https://github.com/gijzelaerr/rang-core/issues"
 Changelog = "https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md"
