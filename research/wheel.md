@@ -474,3 +474,7 @@ re-runs it.
   costs a PyPI project transfer.
 - Should a wheel without the flagging kernels be published at all, or wait
   for the root crate's kernels to move into the core?
+
+- Done 2026-10-31 (W4-5, `w4-5-release.md`): the sdist `exclude` list is in
+  place (250 entries, 1.2 MB), `twine check --strict` passes, the release job
+  checks that the tag equals the version and uses `CHANGELOG.md` as notes.

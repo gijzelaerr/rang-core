@@ -1,5 +1,27 @@
 # Rang research state
 
+W4-5, the release metadata (big plan wave 4 fix task;
+[w4-5-release.md](w4-5-release.md)), 2026-10-31 (implemented; measured):
+`rang.__version__` and `rang-core --version` (`rang-core 0.1.0`) read the
+one version in `pyproject.toml`, and a test checks that the three
+`Cargo.toml`s, the lock files and `docs/conf.py` agree. The classifiers list
+all five wheel platforms and Python 3.10–3.14; Documentation, Issues and
+Changelog URLs are added; the frozen `flagging` extra is dropped. The
+README renders on PyPI with no relative URL. `CHANGELOG.md` has a 0.1.0
+section, and the release job uses it as notes. `release` and `publish`
+refuse a tag that differs from the version before any upload. The actions
+are on their Node 24 majors, and actionlint is clean. The sdist is 250
+entries and 1.2 MB, down from 1,012 and 5.4 MB; it builds a wheel and runs
+the wheel test subset on its own. check-all `overall: PASS`. The workflow has
+not run on GitHub; a `workflow_dispatch` of the pushed branch is the next
+check. v0.1.0 still waits on W4-1 and W4-3.
+
+W4-3 (2026-10-31, measured; [w4-3-kernels.md](w4-3-kernels.md)): the
+extension binds `closure_scores` and `fluxstd_eval`, and no kernel call runs
+Cargo. The standalone builders, the ctypes fallbacks and the dead P5 branch
+are gone. The kernels are byte-identical to the standalone builds, and a
+wheel without cargo runs both. This closes W4R-06 and W4R-16.
+
 W4 final review (big plan wave 4), 2026-10-31 (reviewed; measured;
 [w4-review.md](w4-review.md)). It is a read-only `/code-review` of `main` at
 `17653e4`:

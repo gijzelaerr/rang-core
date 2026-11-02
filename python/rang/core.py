@@ -13,6 +13,15 @@ built by Cargo at run time: nothing here runs a compiler, and the extension
 releases the GIL around every kernel. `RANG_CORE_BACKEND` and `RANG_CORE_LIB`
 are no longer read, except that asking for the ctypes backend through either
 is refused, so an old command line cannot record a library it did not use.
+
+Task W4-1 (research/w4-1-receipts.md): `ENVIRONMENT` is the one registry of
+every `RANG_*` variable the package or the Rust core reads; receipts record
+`environment_settings()` and docs/environment.md is generated from it
+(`environment_markdown`). `solve_complex` takes `options=` and `trace=`
+explicitly; only when they are None does it read `RANG_SOLVE_OPTIONS` and
+`RANG_SOLVE_TRACE`, once per call, and the core itself reads neither.
+`checkout_root()` is the checkout the package runs from, or None for an
+installed wheel.
 """
 
 import os
@@ -24,6 +33,388 @@ import numpy as np
 
 SPLITS = ("train", "validation", "test")
 SPLIT_CODES = {"train": 1, "validation": 2, "test": 3}
+
+
+# --- the environment registry (task W4-1, research/w4-1-receipts.md) --------
+
+
+@dataclass(frozen=True)
+class Variable:
+    """One environment variable read by the package or the Rust core."""
+
+    name: str
+    default: str
+    kind: str
+    effect: str
+    report: str
+    reader: str
+
+
+# What each kind means; receipts record the kinds in RECORDED_KINDS.
+KINDS = {
+    "result": "changes computed numbers, or which code or binary computes them",
+    "input": "selects input data or files",
+    "speed": "changes speed or memory only (measured result-neutral)",
+    "output": "adds a diagnostic output; the results are unchanged",
+    "process": "changes how a command, check or notebook runs",
+    "refused": "removed; setting it is an error",
+    "viewer": "the notebook's CARTA viewer connection; not recorded",
+    "test": "a Rust unit-test fixture; not recorded",
+    "retired": "read by no code any more (kept so old receipts stay explained); not recorded",
+}
+RECORDED_KINDS = ("result", "input", "speed", "output", "process", "refused")
+
+
+def _v(name, default, kind, effect, report, reader):
+    return Variable(name, default, kind, effect, f"research/{report}.md", reader)
+
+
+ENVIRONMENT = (
+    _v(
+        "RANG_SOLVE_OPTIONS",
+        "unset (the archived solver)",
+        "result",
+        "solver options `qp_weights`, `stop`, `anderson`, `freeze`; read by "
+        "`core.solve_complex` when `options=` is None",
+        "l5-solver-science",
+        "python/rang/core.py",
+    ),
+    _v(
+        "RANG_SOLVE_TRACE",
+        "unset (no trace)",
+        "output",
+        "file for the per-iteration solver trace; read by "
+        "`core.solve_complex` when `trace=` is None",
+        "l5-solver-science",
+        "python/rang/core.py",
+    ),
+    _v(
+        "RANG_GRIDDER_DEVICE",
+        "cpu",
+        "result",
+        "`gpu` runs the inversion on wgpu (cargo feature `gpu`)",
+        "x2-wgpu",
+        "python/rang/core_grid.py",
+    ),
+    _v(
+        "RANG_GRIDDER_GPU_PRECISION",
+        "f64",
+        "result",
+        "`f32` selects the GPU path toleranced to 1e-4",
+        "x2-wgpu",
+        "python/rang/core_grid.py",
+    ),
+    _v(
+        "RANG_GPU_ADAPTER",
+        "unset (the best adapter)",
+        "result",
+        "substring of the name of the GPU adapter to use",
+        "x2-wgpu",
+        "core/src/gpu/context.rs",
+    ),
+    _v(
+        "RANG_GPU_MEMORY_MB",
+        "256",
+        "speed",
+        "device-memory budget per GPU inversion (batching only)",
+        "x2-wgpu",
+        "core/src/gpu/invert.rs",
+    ),
+    _v(
+        "RANG_GPU_LAYERS_PER_BATCH",
+        "unset (as many as the budget allows)",
+        "speed",
+        "upper bound on the w-layers per GPU batch",
+        "x2-wgpu",
+        "core/src/gpu/invert.rs",
+    ),
+    _v(
+        "RANG_DF1_LIB",
+        "no longer read",
+        "retired",
+        "was a prebuilt w-gridder library loaded through ctypes (DF1); W4-3 "
+        "removed the fallback",
+        "w4-3-kernels",
+        "-",
+    ),
+    _v(
+        "RANG_WGRIDDER_SIMD",
+        "unset (AVX-512 where available)",
+        "speed",
+        "`avx2` or `baseline` caps the w-gridder's instruction set",
+        "df2-wgridder-speed",
+        "core/src/wgridder.rs",
+    ),
+    _v(
+        "RANG_WGRIDDER_PLANE_GROUP",
+        "1",
+        "speed",
+        "w-planes gridded together",
+        "df2-wgridder-speed",
+        "core/src/wgridder.rs",
+    ),
+    _v(
+        "RANG_WGRIDDER_TIMING",
+        "unset",
+        "output",
+        "phase timings of the w-gridder on stderr",
+        "df2-wgridder-speed",
+        "core/src/wgridder.rs",
+    ),
+    _v(
+        "RANG_C1_LIB",
+        "no longer read",
+        "retired",
+        "was a prebuilt closure-score library loaded through ctypes (C1); "
+        "W4-3 moved the kernel into the extension",
+        "w4-3-kernels",
+        "-",
+    ),
+    _v(
+        "RANG_P6",
+        "unset (the frozen calls)",
+        "result",
+        "`1` runs the signal track's ported guard and influence functions",
+        "p6-python-hotspots",
+        "python/rang/core_signal.py",
+    ),
+    _v(
+        "RANG_TOY_BIN",
+        "unset (the extension)",
+        "result",
+        "a pointing-toy binary run instead of the extension",
+        "p7-architecture",
+        "python/rang/__init__.py",
+    ),
+    _v(
+        "RANG_FLAGGING_SUITE_IMAGE",
+        "unset",
+        "result",
+        "the container image the trend run's configuration records",
+        "flagging-parallel",
+        "python/rang/core_trend_run.py",
+    ),
+    _v(
+        "RANG_STRATEGY_DIR",
+        "unset (the CARACAL strategy inputs under outputs/)",
+        "input",
+        "directory of the Tricolour strategies the notebook flags with",
+        "d2-notebook",
+        "python/rang/notebook/flags.py",
+    ),
+    _v(
+        "RANG_FIXTURE",
+        "unset (outputs/ska-pointing/outer_scans.zip)",
+        "input",
+        "the notebook's pointing fixture",
+        "d2-notebook",
+        "python/rang/notebook/data.py",
+    ),
+    _v(
+        "RANG_LUNO_SLICE",
+        "unset (task G's fetch)",
+        "input",
+        "the notebook's LUNO slice directory",
+        "d2-notebook",
+        "python/rang/notebook/data.py",
+    ),
+    _v(
+        "RANG_LUNO_EXTRA",
+        "unset (the solve inputs)",
+        "input",
+        "the notebook's LUNO extra-columns directory",
+        "d2-notebook",
+        "python/rang/notebook/data.py",
+    ),
+    _v(
+        "RANG_HOLOGRAPHY_PRODUCT",
+        "unset (outputs/b1-20261030-05-holography)",
+        "input",
+        "the notebook's holography product",
+        "d3-science-notebooks",
+        "python/rang/notebook/science.py",
+    ),
+    _v(
+        "RANG_NOTEBOOK_CACHE",
+        "unset (~/.cache/rang-notebook)",
+        "process",
+        "the notebook's download cache",
+        "d2-notebook",
+        "python/rang/notebook/data.py",
+    ),
+    _v(
+        "RANG_NOTEBOOK_LUNO",
+        "unset (off)",
+        "process",
+        "`1` runs the notebook's LUNO section",
+        "d2-notebook",
+        "python/rang/notebook/science.py",
+    ),
+    _v(
+        "RANG_NOTEBOOK_SLOW",
+        "unset (off)",
+        "process",
+        "`1` runs the notebook's slow JAX audits",
+        "d3-science-notebooks",
+        "python/rang/notebook/science.py",
+    ),
+    _v(
+        "RANG_NOTEBOOK_HOLOGRAPHY",
+        "unset (off)",
+        "process",
+        "`1` draws the notebook's holography maps",
+        "d3-science-notebooks",
+        "python/rang/notebook/science.py",
+    ),
+    _v(
+        "RANG_NOTEBOOK_CARTA",
+        "0",
+        "process",
+        "`1` opens the notebook's images in CARTA",
+        "nb-carta",
+        "python/rang/notebook/carta.py",
+    ),
+    _v(
+        "RANG_PIN_THREADS",
+        "unset (caps on)",
+        "process",
+        "`0` turns off the CLI's BLAS and XLA thread caps (the thread "
+        "variables themselves are recorded under `threads`)",
+        "p9-cli",
+        "python/rang/core_cli.py",
+    ),
+    _v(
+        "RANG_CHECKALL_LOCK",
+        "unset (~/.rang-checkall-v2.lock)",
+        "process",
+        "the check's host lock file",
+        "p10-tests",
+        "python/rang/check.py",
+    ),
+    _v(
+        "RANG_CHECKALL_LOCKED",
+        "unset",
+        "process",
+        "set by the check while it holds the lock",
+        "p10-tests",
+        "python/rang/check.py",
+    ),
+    _v(
+        "RANG_CORE_BACKEND",
+        "unset",
+        "refused",
+        "the removed ctypes backend; anything but `extension` is refused",
+        "p7-architecture",
+        "python/rang/core.py",
+    ),
+    _v(
+        "RANG_CORE_LIB",
+        "unset",
+        "refused",
+        "the removed ctypes library; setting it is refused",
+        "p7-architecture",
+        "python/rang/core.py",
+    ),
+    _v(
+        "RANG_TOY_LIB",
+        "unset",
+        "refused",
+        "the removed toy ctypes library; recorded by `rang-core environment`",
+        "p7-architecture",
+        "python/rang/core_cli.py",
+    ),
+    _v(
+        "RANG_CARTA_URL",
+        "unset",
+        "viewer",
+        "the CARTA backend's URL",
+        "nb-carta",
+        "python/rang/notebook/carta.py",
+    ),
+    _v(
+        "RANG_CARTA_WEBDRIVER",
+        "unset",
+        "viewer",
+        "the CARTA backend's webdriver",
+        "nb-carta",
+        "python/rang/notebook/carta.py",
+    ),
+    _v(
+        "RANG_CARTA_SESSION_ID",
+        "unset",
+        "viewer",
+        "the CARTA session",
+        "nb-carta",
+        "python/rang/notebook/carta.py",
+    ),
+    _v(
+        "RANG_CARTA_DIR",
+        "unset (`<RANG_NOTEBOOK_CACHE>/carta`)",
+        "viewer",
+        "where the images for CARTA are written",
+        "nb-carta",
+        "python/rang/notebook/carta.py",
+    ),
+    _v(
+        "RANG_CARTA_ROOT",
+        "unset",
+        "viewer",
+        "that directory as the CARTA backend sees it",
+        "nb-carta",
+        "python/rang/notebook/carta.py",
+    ),
+    _v(
+        "RANG_MS_FIXTURE",
+        "unset (the tests skip)",
+        "test",
+        "a real Measurement Set for the reader and writer unit tests",
+        "core-e-ms-reader",
+        "core/src/ms.rs",
+    ),
+)
+# `RANG_` names in the sources that are not environment variables.
+NOT_ENVIRONMENT = {"RANG_E3": "a Measurement Set keyword written by a Rust test"}
+
+
+def environment_variables(kinds=RECORDED_KINDS):
+    """The registry entries of the given kinds, in registry order."""
+    return [v for v in ENVIRONMENT if v.kind in kinds]
+
+
+def environment_settings(environ=None):
+    """{name: value, or None when unset} of every recorded registry variable:
+    the `rang_environment` record of the receipts (task W4-1)."""
+    environ = os.environ if environ is None else environ
+    return {v.name: environ.get(v.name) for v in environment_variables()}
+
+
+def environment_markdown():
+    """The registry as a Markdown table (docs/environment.md)."""
+    lines = [
+        "| Variable | Default | Kind | What it changes | Report | Read by |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for v in ENVIRONMENT:
+        lines.append(
+            f"| `{v.name}` | {v.default} | {v.kind} | {v.effect} | "
+            f"`{v.report}` | `{v.reader}` |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+MANIFESTS = ("pyproject.toml", "Cargo.toml", "core/Cargo.toml")
+
+
+def checkout_root():
+    """The source checkout the package runs from, or None.
+
+    `parents[2]` of this file is the checkout only for an editable install;
+    for an installed wheel it is `<venv>/lib/python3.X`, which may sit inside
+    any git repository. It counts only if it holds the three manifests
+    (`check.find_root`'s test), so a receipt names a commit only when there
+    is one (task W4-1)."""
+    root = Path(__file__).resolve().parents[2]
+    return root if all((root / name).is_file() for name in MANIFESTS) else None
 
 
 def core_root():
@@ -238,14 +629,78 @@ def fused_pass(
     return FusedResult(out_res, out_z, out_h, out_b, out_n, split_stats)
 
 
+SOLVE_OPTIONS_VAR = "RANG_SOLVE_OPTIONS"
+SOLVE_TRACE_VAR = "RANG_SOLVE_TRACE"
+STOP_TESTS = ("gain", "product", "loss")
+
+
+@dataclass(frozen=True)
+class SolveOptions:
+    """Parsed run-time solver options (`core/src/solve.rs`, task L5); the
+    defaults are the archived solver. `text` is what was parsed."""
+
+    text: str = ""
+    transposed_qp_weights: bool = False
+    stop: str = "gain"
+    tolerance: float = 0.0
+    anderson: int = 0
+    freeze: bool = False
+
+    def parts(self):
+        """The tuple the extension's `solve_complex` takes."""
+        return (
+            int(self.transposed_qp_weights),
+            STOP_TESTS.index(self.stop),
+            float(self.tolerance),
+            int(self.anderson),
+            int(self.freeze),
+        )
+
+    def record(self):
+        """The options as a receipt entry."""
+        return {
+            "text": self.text,
+            "qp_weights": "transposed" if self.transposed_qp_weights else "archived",
+            "stop": self.stop,
+            "tolerance": self.tolerance if self.stop != "gain" else None,
+            "anderson": self.anderson,
+            "freeze": self.freeze,
+        }
+
+
+def solve_options(options=None):
+    """`options` parsed by the core's one parser (`Options::parse`): a
+    `SolveOptions` as it is, a string in the `RANG_SOLVE_OPTIONS` syntax, or
+    None for that variable (unset means the archived solver). Raises
+    ValueError when malformed."""
+    if isinstance(options, SolveOptions):
+        return options
+    text = os.environ.get(SOLVE_OPTIONS_VAR, "") if options is None else str(options)
+    status, transposed, stop, tolerance, anderson, freeze = (
+        extension().solve_options_parse(text)
+    )
+    if status:
+        raise ValueError(
+            f"malformed solver options {text!r}: expected qp_weights=archived|"
+            "transposed, stop=gain|product:<tol>|loss:<tol>, anderson=<0..10>, "
+            "freeze=0|1"
+        )
+    return SolveOptions(
+        text, bool(transposed), STOP_TESTS[stop], tolerance, anderson, bool(freeze)
+    )
+
+
 @dataclass
 class ComplexSolution:
-    """Gains (time_bin, freq_bin, antenna, 2, 2), flags (1 flagged), counts."""
+    """Gains (time_bin, freq_bin, antenna, 2, 2), flags (1 flagged), counts,
+    and the options and trace file the solve used (task W4-1)."""
 
     gains: np.ndarray
     flags: np.ndarray
     iterations: int
     converged_fraction: float
+    options: SolveOptions | None = None
+    trace: str | None = None
 
 
 def solve_complex(
@@ -266,13 +721,28 @@ def solve_complex(
     max_iterations=50,
     stop_criterion=1e-7,
     stop_fraction=0.99,
+    options=None,
+    trace=None,
 ):
     """Ported QuartiCal 0.2.7 `complex` solve with rang's frozen settings.
 
     Rows must be sorted by time bin. See research/core-phase2.md for what is
     and is not ported. Defaults match rang's QuartiCal command (50 iterations,
     convergence criterion 1e-7) and QuartiCal's convergence fraction (0.99).
+    `options` (see `solve_options`) and `trace` (a file for the L5 trace)
+    default to `RANG_SOLVE_OPTIONS` and `RANG_SOLVE_TRACE`, read here once
+    per call; the solution records both. Malformed options raise
+    RuntimeError with status 1, as the core did before task W4-1.
     """
+    try:
+        options = solve_options(options)
+    except ValueError as exc:
+        raise RuntimeError(
+            f"rang core complex solve failed with status 1: {exc}"
+        ) from exc
+    if trace is None:
+        trace = os.environ.get(SOLVE_TRACE_VAR) or None
+    trace = None if trace is None or str(trace) == "" else str(trace)
     data = np.require(data, np.complex64, ["C", "A"])
     if data.ndim != 3 or data.shape[-1] != 4:
         raise ValueError("data must be (row, chan, 4) complex")
@@ -315,10 +785,14 @@ def solve_complex(
         stop_fraction,
         gains.view(np.float64),
         flags,
+        options.parts(),
+        trace,
     )
     if status:
         raise RuntimeError(f"rang core complex solve failed with status {status}")
-    return ComplexSolution(gains, flags, int(n_iterations), float(converged))
+    return ComplexSolution(
+        gains, flags, int(n_iterations), float(converged), options, trace
+    )
 
 
 def predict_components(

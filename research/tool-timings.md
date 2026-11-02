@@ -1189,3 +1189,17 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan W4: `cargo test --release --features gpu` | core | 327.3 s | – | 135 passed (6 more than the check runs) |
 | 2026-10-31 | big plan W4: `cargo install --locked cargo-audit` (0.22.2) | crates.io | 213.7 s | – | |
 | 2026-10-31 | big plan W4: `cargo audit` core / `core/py` / root lock | worktree | 7.2 s / 2.2 s / 0.9 s | – | no advisory among 1,395 |
+| 2026-10-31 | big plan W4-3: venv (`uv venv`, `uv pip install -e`) | worktree | 237 s | – | |
+| 2026-10-31 | big plan W4-3: kernel parity before/after (`parity.py`) | 171 arrays | 1.8 s / < 2 s | – | byte-identical |
+| 2026-10-31 | big plan W4-3: `check_c1.py` / `check_fluxstd.py`, no cargo | C1 frozen run / FS1 runs | 5.4 s / 0.23 s | – | equal to archives except wall time |
+| 2026-10-31 | big plan W4-3: `maturin develop --release` | `core/py` | 0.9 s (a wrong first invocation 67.5 s) | – | |
+| 2026-10-31 | big plan W4-3: `tools/wheel/build.py` | branch `0cebcbe` | 190.3 s | – | 3.2 MB wheel |
+| 2026-10-31 | big plan W4-3: `tools/wheel/test.py` (3.14) | that wheel | 28.3 s | – | PASS, 56 passed |
+| 2026-10-31 | big plan W4-3: r05 rerun | that wheel | 0.95 s | – | both kernels ran |
+| 2026-10-31 | big plan W4-3: `bash tools/check-all.sh` | `0cebcbe` | 672.6 s (lock wait included; pytest 301.5 s) | – | overall PASS, 735 passed, 19 skipped |
+| 2026-10-31 | big plan W4-5: `uv venv` + `uv pip install -e ".[pointing,beam,test,imaging]"` + tools | worktree | 245 s | – | includes the extension build |
+| 2026-10-31 | big plan W4-5: `maturin sdist` (1.16.0) before / after the exclude list | worktree | 1.3 s / 1.0 s | – | 1,012 → 250 entries, 5,401,998 → 1,216,930 B |
+| 2026-10-31 | big plan W4-5: `tools/wheel/build.py OUT --sdist` | worktree | 179.6 s / 181.2 s | – | host wheel (manylinux_2_35_x86_64) and sdist; `twine check --strict` 0.5 s, PASSED |
+| 2026-10-31 | big plan W4-5: `maturin build --release --locked` from the unpacked sdist | sdist | 196.4 s / 194.0 s | – | then the wheel test subset from the sdist's tests, 15.7 s |
+| 2026-10-31 | big plan W4-5: `actionlint` both workflows | worktree | 0.7 s | – | 0 errors |
+| 2026-10-31 | big plan W4-5: `tools/check-all.sh` | worktree | 1278 s (lock wait included) | – | `overall: PASS`, log `outputs/w4-5-20261031-check-all.log` |

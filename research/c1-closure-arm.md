@@ -743,3 +743,7 @@ amplitudes per closure.
 | 14:40 | `bash tools/check-all.sh` (plain; it takes the host lock itself), once before the final commit (`outputs/c1-20261030-check-all.log`) | 4 min 18 s (pytest 701 passed, 5 skipped in 2 min 06 s) | 1.66 GB | **overall PASS** |
 | 14:46 | post-hoc probe 2, the split-half null (`-03-posthoc`, labelled; MemAvailable 28 GiB) | 2 min 42 s | 9.0 GB | null ρ_half 0.37 (trace), 0.40 (phase) |
 | 14:50 | `bash tools/check-all.sh` (plain), again before the commit of the post-hoc text (`outputs/c1-20261030-check-all-2.log`) | 1 min 41 s (pytest 701 passed, 5 skipped in 1 min 36 s) | 1.62 GB | **overall PASS** |
+
+Since W4-3 (2026-10-31) the kernel runs in the extension
+(`rang._core.closure_scores`); the standalone build and `RANG_C1_LIB` are
+gone ([w4-3-kernels.md](w4-3-kernels.md)).

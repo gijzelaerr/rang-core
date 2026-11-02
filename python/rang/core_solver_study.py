@@ -1,17 +1,18 @@
 """Task L5 solver study helpers (research/l5-solver-science.md).
 
-The core solver reads run-time options from `RANG_SOLVE_OPTIONS` and writes a
-per-iteration trace to the file named by `RANG_SOLVE_TRACE` (both documented
-in `core/src/solve.rs`; unset means the archived QuartiCal 0.2.7 behaviour).
-This module sets them around one solve, replays the stop rule of any
+The core solver takes run-time options in the `RANG_SOLVE_OPTIONS` syntax and
+writes a per-iteration trace to a named file (documented in
+`core/src/solve.rs`; empty means the archived QuartiCal 0.2.7 behaviour).
+Since task W4-1 (research/w4-1-receipts.md) this module passes both to
+`core.solve_complex` as arguments, so the process environment neither
+changes nor is changed by a study solve (before, it set the two variables
+around the call). It replays the stop rule of any
 criterion on a long run's trace, and computes the study's metrics: held-out
 and training losses (the fused pass, K's definition), gain-product distances,
 polar-gauge TV and cost. Read-only on every input.
 """
 
-import contextlib
 import json
-import os
 import time
 from pathlib import Path
 
@@ -20,28 +21,9 @@ import numpy as np
 from . import core, rusage
 from .core_policy import gain_tv, polar_gauge
 
-OPTIONS_VAR = "RANG_SOLVE_OPTIONS"
-TRACE_VAR = "RANG_SOLVE_TRACE"
+OPTIONS_VAR = core.SOLVE_OPTIONS_VAR
+TRACE_VAR = core.SOLVE_TRACE_VAR
 GRID = (2, 32)
-
-
-@contextlib.contextmanager
-def solver_options(options="", trace=None):
-    """Set `RANG_SOLVE_OPTIONS` (and `RANG_SOLVE_TRACE`) for the block only."""
-    saved = {k: os.environ.get(k) for k in (OPTIONS_VAR, TRACE_VAR)}
-    try:
-        os.environ[OPTIONS_VAR] = options
-        if trace is None:
-            os.environ.pop(TRACE_VAR, None)
-        else:
-            os.environ[TRACE_VAR] = str(trace)
-        yield
-    finally:
-        for key, value in saved.items():
-            if value is None:
-                os.environ.pop(key, None)
-            else:
-                os.environ[key] = value
 
 
 def cpu_seconds():
@@ -60,26 +42,29 @@ def solve(
     """One core solve of `problem` (see `problem_from_state`) with options.
 
     Returns gains, flags, validity, iterations, converged fraction, wall and
-    CPU seconds (the process's user + system time, so rayon threads count)."""
+    CPU seconds (the process's user + system time, so rayon threads count).
+    `options` and `trace` are explicit: the environment is not read (an
+    unset `trace` means no trace, as before)."""
     wall, cpu = time.perf_counter(), cpu_seconds()
-    with solver_options(options, trace):
-        solution = core.solve_complex(
-            problem["data"],
-            problem["weights"],
-            problem["flag"],
-            problem["flag_row"],
-            problem["antenna1"],
-            problem["antenna2"],
-            problem["time_map"],
-            problem["freq_map"],
-            ntime_bins=problem["ntime_bins"],
-            nfreq_bins=problem["nfreq_bins"],
-            nant=problem["nant"],
-            model=problem["model"],
-            max_iterations=max_iterations,
-            stop_criterion=stop_criterion,
-            stop_fraction=stop_fraction,
-        )
+    solution = core.solve_complex(
+        problem["data"],
+        problem["weights"],
+        problem["flag"],
+        problem["flag_row"],
+        problem["antenna1"],
+        problem["antenna2"],
+        problem["time_map"],
+        problem["freq_map"],
+        ntime_bins=problem["ntime_bins"],
+        nfreq_bins=problem["nfreq_bins"],
+        nant=problem["nant"],
+        model=problem["model"],
+        max_iterations=max_iterations,
+        stop_criterion=stop_criterion,
+        stop_fraction=stop_fraction,
+        options=str(options),
+        trace="" if trace is None else str(trace),
+    )
     wall, cpu = time.perf_counter() - wall, cpu_seconds() - cpu
     gains = solution.gains
     return {

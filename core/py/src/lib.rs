@@ -305,7 +305,26 @@ fn fused(
     }))
 }
 
+/// `rang_core_solve_options_parse`; returns (status, transposed qp weights,
+/// stop code, tolerance, anderson, freeze), the parts `solve_complex` takes.
+#[pyfunction]
+fn solve_options_parse(text: &str) -> (i32, u8, u8, f64, usize, u8) {
+    let mut out = ffi::SolveOptions::default();
+    // SAFETY: `text` is a live UTF-8 buffer of its length; `out` is local.
+    let status = unsafe { ffi::rang_core_solve_options_parse(text.as_ptr(), text.len(), &mut out) };
+    (
+        status,
+        out.transposed_qp_weights,
+        out.stop,
+        out.tolerance,
+        out.anderson,
+        out.freeze,
+    )
+}
+
 /// `rang_core_solve_complex`; returns (status, iterations, converged fraction).
+/// `options` are the parts from `solve_options_parse` and `trace` the trace
+/// file or None (task W4-1: the core no longer reads the environment).
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn solve_complex(
@@ -330,6 +349,8 @@ fn solve_complex(
     stop_fraction: f64,
     mut gains: Rw<'_, f64>,
     mut flags: Rw<'_, i8>,
+    options: (u8, u8, f64, usize, u8),
+    trace: Option<String>,
 ) -> PyResult<(i32, usize, f64)> {
     // Every buffer's length and order (task W4-2): a ValueError naming it.
     let cells = size("nrow * nchan", &[nrow, nchan])?;
@@ -353,6 +374,8 @@ fn solve_complex(
     arg(&freq_bin, "freq_bin", nchan)?;
     arg_mut(&mut gains, "gains", g8)?;
     arg_mut(&mut flags, "flags", ngain)?;
+    let (transposed_qp_weights, stop, tolerance, anderson, freeze) = options;
+    let trace = trace.unwrap_or_default();
     let inputs = ffi::SolveInputs {
         nrow,
         nchan,
@@ -372,6 +395,15 @@ fn solve_complex(
         max_iterations,
         stop_criterion,
         stop_fraction,
+        options: ffi::SolveOptions {
+            transposed_qp_weights,
+            stop,
+            tolerance,
+            anderson,
+            freeze,
+        },
+        trace: trace.as_ptr(),
+        trace_len: trace.len(),
     };
     let mut iterations = 0usize;
     let mut converged = 0f64;
@@ -2409,6 +2441,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(data_address, m)?)?;
     m.add_function(wrap_pyfunction!(fused, m)?)?;
     m.add_function(wrap_pyfunction!(solve_complex, m)?)?;
+    m.add_function(wrap_pyfunction!(solve_options_parse, m)?)?;
     m.add_function(wrap_pyfunction!(predict_components, m)?)?;
     m.add_function(wrap_pyfunction!(blosc_size, m)?)?;
     m.add_function(wrap_pyfunction!(blosc_decode, m)?)?;

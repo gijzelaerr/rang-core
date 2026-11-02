@@ -54,6 +54,23 @@ matches the container kernel stage, so the Rust sources recorded in the result
 receipts remain unchanged: `cargo +1.93 ...` with the commands above. Newer
 Clippy releases add lints that would otherwise require kernel edits.
 
+## Releasing
+
+The version is set once, in `pyproject.toml` `[project] version`; bump the
+three `Cargo.toml` package versions with it and refresh the three lock files
+with `cargo metadata --offline --format-version 1 > /dev/null` in `.`,
+`core/` and `core/py/` (CI builds with `--locked`).
+`tests/test_w4_5_release.py` checks that all
+of them, `docs/conf.py` and `rang.__version__` agree. Move the `CHANGELOG.md`
+entries from "Unreleased" into a section `## <version> (<date>)`, run the
+full local checks, commit and push to `main`, then tag:
+`git tag v<version> && git push origin v<version>`. The `wheels` workflow
+refuses a tag that differs from the version (in both the release and the
+publish job, before any upload), takes the release notes from the
+changelog section, and publishes to PyPI by trusted publishing. The sdist
+carries only the crates, `python/`, `tests/` and `tools/wheel/`
+(`[tool.maturin] exclude` in `pyproject.toml`).
+
 ## Scientific reporting
 
 Use fenced `math` blocks for display equations and dollar-delimited LaTeX for

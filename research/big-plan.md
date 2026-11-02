@@ -370,8 +370,8 @@ CPU-heavy tasks at a time on 8 physical cores.
   command handed to the user.
 - Final review session (`/code-review` style) on the simplified core: done
   2026-10-31 (`w4-review.md`: 17 findings, 1 high; v0.1.0 is go after the fix
-  tasks W4-1 receipts, W4-3 kernels into the extension and W4-5 release
-  metadata; W4-2, W4-4, W4-6, W4-7, W4-8 follow).
+  tasks W4-1 receipts, W4-3 kernels into the extension (done 2026-10-31, `w4-3-kernels.md`) and W4-5 release
+  metadata (done 2026-10-31, `w4-5-release.md`); W4-2, W4-4, W4-6, W4-7, W4-8 follow).
 
 ## Coordinator loop (this session, day and night)
 
@@ -401,11 +401,37 @@ CPU-heavy tasks at a time on 8 physical cores.
   release-note request (`upstream-issues/tricolour-uvrange-semantics.md`).
 - Rebase rang's Tricolour PR #114 onto `0.5.0-dev` (a push to the user's
   fork; RV1).
-- The PyPI pending publisher is registered (user, 2026-10-30) and the tree
-  is renamed (P12): tag `v0.1.0` and push the tag; the workflow publishes
-  `rang-core`. (Originally: register the pending publisher for `rang-core`, owner `gijzelaerr`,
-  repository `rang-core`, workflow `wheels.yml`, environment `pypi`, and, after
-  P12 and wave 4, create the tag `v0.1.0`; the workflow publishes.
+- **Release v0.1.0** after W4-1, W4-3 and W4-5 are merged and `main`'s
+  `wheels` run is green:
+  1. In `CHANGELOG.md`, change the heading
+     `## 0.1.0 (unreleased: dated the day v0.1.0 is tagged)` to
+     `## 0.1.0 (<YYYY-MM-DD>)`.
+  2. Commit that change and push it to `main`.
+  3. From the `main` checkout, run
+     `git tag v0.1.0 && git push origin v0.1.0`.
+
+  The tag starts `wheels.yml`, which:
+  - builds the five abi3 wheels and the sdist;
+  - tests every wheel on CPython 3.10 and 3.14 on its own OS, with Cargo
+    absent;
+  - in `release`, checks that `v0.1.0` equals the version of every file
+    and of `pyproject.toml`, extracts the `## 0.1.0` section of
+    `CHANGELOG.md` and creates the GitHub release `v0.1.0` with the files
+    and `SHA256SUMS`;
+  - in `publish`, repeats the file-name check and uploads to PyPI as
+    `rang-core` by trusted publishing (environment `pypi`, publisher
+    already registered).
+
+  A tag that does not equal the version fails before any upload. Check the
+  result at <https://pypi.org/project/rang-core/>, then run
+  `pip install rang-core && rang-core --version`.
+
+  For a later release:
+  1. Bump `pyproject.toml` and the three `Cargo.toml`s.
+  2. Run `cargo metadata --offline --format-version 1 > /dev/null` in `.`,
+     `core/` and `core/py/`.
+  3. Move the "Unreleased" entries into a dated `## <version>` section.
+  4. Commit, run check-all, push, tag `v<version>` and push the tag.
 - Delete `~/Build/tmp/20261029-rang-core`, the root-owned
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).

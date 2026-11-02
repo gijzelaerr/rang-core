@@ -41,15 +41,15 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Rust toolchain
         run: |
           rustup toolchain install "$RUST_VERSION" --profile minimal
           echo "RUSTUP_TOOLCHAIN=$RUST_VERSION" >> "$GITHUB_ENV"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -66,7 +66,7 @@ jobs:
           VIRTUAL_ENV=$PWD/.venv .venv/bin/maturin develop --release --locked \
             --extras docs,notebook,imaging,pointing,beam
           .venv/bin/python -c "import rang.core as c; print('backend', c.backend_name())"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/rang-fixture
           key: rang-fixture-d4dae56f7ad1bb4a49ab8c4a3846871d5b8ebb4b731ee958cb9f1baf3306144f
@@ -84,7 +84,7 @@ jobs:
         run: python docs/gen_cli.py --check
       - name: Build the site (warnings are errors)
         run: sphinx-build -W --keep-going -b html docs docs/_build/html
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: docs/_build/html
 
@@ -102,6 +102,6 @@ jobs:
       group: pages
       cancel-in-progress: false
     steps:
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

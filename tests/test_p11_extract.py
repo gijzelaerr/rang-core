@@ -37,6 +37,9 @@ def _extracts():
 
 EXTRACTS = _extracts()
 INVERSE = {dest: source for dest, (source, *_rest) in EXTRACTS.items()}
+# Task W4-1 (research/w4-1-receipts.md) made `core_receipts` a live module;
+# the in-body import of it in `core_trend_run` still maps to `flagging_next`.
+INVERSE["core_receipts"] = "flagging_next"
 
 
 def _segments(text):
@@ -66,7 +69,10 @@ def _segments(text):
 
 
 def test_every_frozen_module_has_one_extract_or_none():
-    assert len(EXTRACTS) == 20
+    # 19 since task W4-1 (research/w4-1-receipts.md): `core_receipts`, the
+    # extract of `flagging_next`, became a live module so that receipts work
+    # outside a checkout.
+    assert len(EXTRACTS) == 19
     sources = [source for source, *_ in EXTRACTS.values()]
     assert len(set(sources)) == len(sources)
     for source, commit, history, _digest in EXTRACTS.values():

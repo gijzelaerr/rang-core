@@ -1836,6 +1836,8 @@ def run(
         "python": platform.python_version(),
         "numpy": np.__version__,
         "precondition_dir": str(precondition_dir) if precondition_dir else None,
+        # Task W4-1: every recorded RANG_* variable (null when unset).
+        "rang_environment": core.environment_settings(),
     }
     write_json(run_dir / "receipt.json", receipt)
     audit = {

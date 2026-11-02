@@ -431,3 +431,7 @@ used is 14.9028 Jy at 1.4 GHz (O-CASA); the standard gives 14.9077 Jy,
 | 2026-10-30 | `pytest tests/test_fluxstd.py` | archive | 0.2 s | 54 MB | 12 passed |
 | 2026-10-30 | `bash tools/check-all.sh`, once before the final commit | branch at `e3436aa` + the FS1 files (log `outputs/fs1-20261030-02/check-all.log`) | 333.5 s (pytest 698 passed, 5 skipped in 152.8 s) | 1.67 GB | PASS |
 | 2026-10-30 | `bash tools/check-all.sh`, before the second commit | branch at `eb88550` + the re-read, arm and manual-comparison changes (log `outputs/fs1-20261030-06/check-all.log`) | 214.8 s (pytest 698 passed, 5 skipped in 99.2 s) | 1.59 GB | PASS |
+
+Since W4-3 (2026-10-31) the evaluator runs in the extension
+(`rang._core.fluxstd_eval`); the `fs1-standalone` build is gone
+([w4-3-kernels.md](w4-3-kernels.md)).

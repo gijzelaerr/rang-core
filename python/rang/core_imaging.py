@@ -370,6 +370,9 @@ def _snapshot(root):
 
 
 def _git_status():
+    # None outside a source checkout (task W4-1, `core.checkout_root`).
+    if core.checkout_root() is None:
+        return None
     try:
         return subprocess.run(
             ["git", "status", "--porcelain"],
@@ -688,6 +691,8 @@ def run(
             "export_checks": export_checks,
             "core_library_sha256": _sha256(core.library_path()),
             "module_sha256": _module_sha256(),
+            # Task W4-1: every recorded RANG_* variable (null when unset).
+            "rang_environment": core.environment_settings(),
             "ms_read_seconds": read_seconds,
         },
         "seconds_total": seconds_total,

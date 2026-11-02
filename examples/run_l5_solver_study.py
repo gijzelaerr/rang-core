@@ -124,6 +124,8 @@ def environment():
             np.frombuffer(core.library_path().read_bytes(), np.uint8)
         ),
         "rayon_num_threads": os.environ.get("RAYON_NUM_THREADS"),
+        # Task W4-1: every recorded RANG_* variable (null when unset).
+        "rang_environment": core.environment_settings(),
         "python": platform.python_version(),
         "numpy": np.__version__,
         "loadavg": os.getloadavg(),

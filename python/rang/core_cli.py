@@ -15,8 +15,10 @@ driver in `examples/` unchanged (a checkout is needed); the others call the
 package. `rang-core STAGE archive RUN OUT.json` writes a `rang.archive`
 (version 1) that every comparator accepts as an oracle.
 
-Every invocation writes a `rang.receipt` (version 2): command, commit,
-environment (interpreter, platform, the extension and every thread setting),
+Every invocation writes a `rang.receipt` (version 3): command, commit (null
+outside a source checkout), source (checkout, distribution version and
+extension SHA256), environment (interpreter, platform, the extension, every
+thread setting and every recorded `RANG_*` variable of `core.ENVIRONMENT`),
 inputs and outputs with hashes, timings, exit status and, for `compare`, the
 verdict (`check` writes one only with `--receipt PATH`). By default it is
 written beside the primary output as `<output>.<verb>.rang-receipt.json`:
@@ -58,7 +60,11 @@ ROOT = Path(__file__).resolve().parents[2]
 RECEIPT_SCHEMA = "rang.receipt"
 # Version 2 (task P12, research/p12-rename.md): environment.rangtoy became
 # environment.rang_core when the package was renamed; nothing else changed.
-RECEIPT_VERSION = 2
+# Version 3 (task W4-1, research/w4-1-receipts.md): environment.rang_environment
+# (every recorded `core.ENVIRONMENT` variable, null when unset, read when the
+# command starts) and `source` (checkout, distribution, extension SHA256) were
+# added, and `commit` is null outside a checkout (`core.checkout_root`).
+RECEIPT_VERSION = 3
 ARCHIVE_SCHEMA = "rang.archive"
 ARCHIVE_VERSION = 1
 # The cab `compare` (legacy form): stage -> comparator script in examples/.
@@ -117,11 +123,23 @@ def _snapshot(inputs):
     }
 
 
+def _checkout():
+    """`core.checkout_root()`: ROOT if it holds the three manifests, else None
+    (an installed wheel; task W4-1). Imported late: `rang.core` loads NumPy."""
+    from .core import checkout_root
+
+    return checkout_root()
+
+
 def _git(*args):
+    """git in the checkout; None outside one, or when git fails."""
+    root = _checkout()
+    if root is None:
+        return None
     try:
         return subprocess.run(
             ["git", *args],
-            cwd=ROOT,
+            cwd=root,
             capture_output=True,
             text=True,
             check=True,
@@ -384,6 +402,8 @@ def environment(run_dir):
         "modules_with_quartical_references": sorted(
             m for m, v in modules.items() if v["quartical_references"]
         ),
+        # Task W4-1: every recorded RANG_* variable (null when unset).
+        "rang_environment": core.environment_settings(),
     }
     _write_json(Path(run_dir) / "environment.json", record)
     print(
@@ -532,12 +552,15 @@ def archive(stage, run_dir, out, status=None, comparisons=()):
 
 
 # ---------------------------------------------------------------------------
-# The receipt (rang.receipt version 2).
+# The receipt (rang.receipt version 3).
 
 
 def _commit():
     """HEAD and whether tracked files differ from it (untracked files such as
-    a worktree's `outputs` link do not make a tree dirty)."""
+    a worktree's `outputs` link do not make a tree dirty); None outside a
+    source checkout, where `_source` identifies the code (task W4-1)."""
+    if _checkout() is None:
+        return None
     head = _git("rev-parse", "HEAD")
     status = _git("status", "--porcelain", "--untracked-files=no")
     return {
@@ -596,11 +619,39 @@ def _extension():
     return {"path": origin.as_posix(), "sha256": _file_sha256(origin)}
 
 
-def _environment_record(pinned):
+def _distribution_version():
     try:
-        version = importlib.metadata.version("rang-core")
+        return importlib.metadata.version("rang-core")
     except importlib.metadata.PackageNotFoundError:
-        version = None
+        return None
+
+
+def _rang_environment():
+    """Every recorded `core.ENVIRONMENT` variable, None when unset (W4-1)."""
+    from .core import environment_settings
+
+    return environment_settings()
+
+
+def _source():
+    """What code ran (task W4-1): the checkout, or None for an installed
+    package, whose distribution version and extension SHA256 identify it."""
+    root = _checkout()
+    extension = _extension()
+    return {
+        "checkout": root.as_posix() if root is not None else None,
+        "distribution": "rang-core",
+        "version": _distribution_version(),
+        "extension_sha256": extension["sha256"] if extension else None,
+    }
+
+
+def _environment_record(pinned, rang_environment=None):
+    """The receipt's `environment`; `rang_environment` is the registry
+    snapshot taken when the command started (read now when None)."""
+    version = _distribution_version()
+    if rang_environment is None:
+        rang_environment = _rang_environment()
     return {
         "python": sys.version,
         "executable": Path(sys.executable).as_posix(),
@@ -612,6 +663,7 @@ def _environment_record(pinned):
         "extension": _extension(),
         "threads": {name: os.environ.get(name) for name in THREAD_VARIABLES},
         "threads_pinned_by_cli": pinned,
+        "rang_environment": rang_environment,
     }
 
 
@@ -632,6 +684,7 @@ class Receipt:
             p: _path_record(p, content=False) for p in self.paths if Path(p).exists()
         }
         self.started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        self.rang_environment = _rang_environment()
         self.clock = time.perf_counter()
 
     def record(self, exit_code, verdict=None):
@@ -656,7 +709,8 @@ class Receipt:
             "verb": self.verb,
             "started_utc": self.started,
             "commit": _commit(),
-            "environment": _environment_record(self.pinned),
+            "source": _source(),
+            "environment": _environment_record(self.pinned, self.rang_environment),
             "inputs": inputs,
             "outputs": outputs,
             "timings": {
@@ -1142,6 +1196,11 @@ def dispatch(argv=None):
     """Run one command line; return what the command returned (a stage
     function's summary or record, a comparator's verdict)."""
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] in (["--version"], ["-V"]):
+        from . import __version__
+
+        print(f"rang-core {__version__}")
+        return None
     options = _global_options(argv)
     # Before NumPy: nothing above imports it.
     pinned = pin_threads() if options["pin"] else []

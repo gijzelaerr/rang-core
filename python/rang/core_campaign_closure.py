@@ -770,6 +770,8 @@ def closure_arms(run_dir, hooks, result, started=None):
         "code_sha256": {name: file_sha256(ROOT / name) for name in CODE_FILES},
         "python": platform.python_version(),
         "numpy": np.__version__,
+        # Task W4-1: every recorded RANG_* variable (null when unset).
+        "rang_environment": core.environment_settings(),
     }
     write_json(run_dir / "c1.json", record)
     return record
