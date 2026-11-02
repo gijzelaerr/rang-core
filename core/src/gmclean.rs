@@ -54,6 +54,7 @@ pub mod sim;
 
 use crate::clean::{CleanStep, argmax_abs};
 use crate::clean_certified::Measurement;
+use crate::wgridder::{Lease, Pool, SyncPtr};
 use kernels::Level;
 use rayon::prelude::*;
 use rustfft::num_complex::Complex;
@@ -106,9 +107,19 @@ fn transpose_into(
 struct ConvolverBuffers {
     /// `rows × (m/2 + 1)`: half spectra of the rows.
     rows: Vec<C64>,
-    /// `(m/2 + 1) × m`: columns of the half spectrum.
-    columns: Vec<C64>,
+    /// Per row of the input: not all zero. A zero row's spectrum is not stored.
+    nonzero: Vec<bool>,
 }
+
+/// Columns of the half spectrum transformed together: a task's work space then
+/// stays in the second-level cache, and its rows are read and written whole.
+const COLUMN_BLOCK: usize = 8;
+
+/// Stride of a column in the work space: `m + COLUMN_PAD`, so that with `m` a
+/// power of two the columns do not all fall in the same cache sets.
+const COLUMN_PAD: usize = 16;
+
+type ConvolverWork = (Vec<C64>, Vec<C64>);
 
 /// Linear convolution of an `n × n` image with a kernel given on the
 /// `2n × 2n` grid centred on pixel `(n, n)`, by one real FFT pair on the `2n`
@@ -128,6 +139,7 @@ pub struct Convolver {
     inverse: Arc<dyn Fft<f64>>,
     scratch: usize,
     buffers: std::sync::Mutex<ConvolverBuffers>,
+    work: Pool<ConvolverWork>,
 }
 
 impl Convolver {
@@ -151,6 +163,7 @@ impl Convolver {
             inverse,
             scratch,
             buffers: std::sync::Mutex::new(ConvolverBuffers::default()),
+            work: Pool::new(),
         };
         // Shift the centre to index 0: row r holds kernel[(r + n) % m][(· + n) % m].
         let mut rows = vec![ZERO; m * half];
@@ -159,6 +172,7 @@ impl Convolver {
             |r, x| kernel[((r + n) % m) * m + (x + n) % m],
             m,
             &mut rows,
+            &mut vec![false; m],
         );
         let mut spectrum = vec![ZERO; half * m];
         transpose_into(&rows, half, m, half, &mut spectrum, m);
@@ -173,20 +187,29 @@ impl Convolver {
     }
 
     /// Half spectra of `rows` real rows of width `width` (padded to `m`):
-    /// `out[y][kx]`, `kx ≤ m/2`.
-    fn forward_rows<F>(&self, rows: usize, value: F, width: usize, out: &mut [C64])
-    where
+    /// `out[y][kx]`, `kx ≤ m/2`. A pair of zero rows leaves `out` as it was and
+    /// is marked in `nonzero`.
+    fn forward_rows<F>(
+        &self,
+        rows: usize,
+        value: F,
+        width: usize,
+        out: &mut [C64],
+        nonzero: &mut [bool],
+    ) where
         F: Fn(usize, usize) -> f64 + Sync,
     {
         let m = 2 * self.n;
         let half = m / 2 + 1;
-        let scratch = self.scratch;
         out[..rows * half]
             .par_chunks_mut(2 * half)
+            .zip(nonzero[..rows].par_chunks_mut(2))
             .enumerate()
             .for_each_init(
-                || (vec![ZERO; m], vec![ZERO; scratch]),
-                |(z, s), (pair, chunk)| {
+                || self.lease(),
+                |work, (pair, (chunk, marks))| {
+                    let (z, s) = &mut **work;
+                    let z = &mut z[..m];
                     let (ya, yb) = (2 * pair, 2 * pair + 1);
                     let two = chunk.len() == 2 * half;
                     let mut any = false;
@@ -196,8 +219,8 @@ impl Convolver {
                         any |= a != 0.0 || b != 0.0;
                         *cell = Complex::new(a, b);
                     }
+                    marks.fill(any);
                     if !any {
-                        chunk.fill(ZERO);
                         return;
                     }
                     z[width..].fill(ZERO);
@@ -215,6 +238,16 @@ impl Convolver {
                     }
                 },
             );
+    }
+
+    fn lease(&self) -> Lease<'_, ConvolverWork> {
+        let m = 2 * self.n;
+        self.work.lease(|| {
+            (
+                vec![ZERO; (m + COLUMN_PAD) * COLUMN_BLOCK],
+                vec![ZERO; self.scratch],
+            )
+        })
     }
 
     pub fn side(&self) -> usize {
@@ -237,33 +270,67 @@ impl Convolver {
         assert_eq!(input.len(), n * n, "input must be n × n");
         assert_eq!(out.len(), n * n, "output must be n × n");
         let mut guard = self.buffers.lock().expect("no panic while convolving");
-        let ConvolverBuffers { rows, columns } = &mut *guard;
+        let ConvolverBuffers { rows, nonzero } = &mut *guard;
         rows.resize(n * half, ZERO);
-        columns.resize(half * m, ZERO);
-        self.forward_rows(n, |y, x| input[y * n + x], n, rows);
-        transpose_into(rows, half, n, half, columns, m);
-        let (forward, inverse, scratch) = (&self.forward, &self.inverse, self.scratch);
+        nonzero.resize(n, false);
+        self.forward_rows(n, |y, x| input[y * n + x], n, rows, nonzero);
+        let (forward, inverse) = (&self.forward, &self.inverse);
         let scale = 1.0 / (m * m) as f64;
-        columns
-            .par_chunks_mut(m)
-            .zip(self.spectrum.par_chunks(m))
+        let stride = m + COLUMN_PAD;
+        let nonzero: &[bool] = nonzero;
+        let spectrum: &[C64] = &self.spectrum;
+        let shared = SyncPtr(rows.as_mut_ptr());
+        // Each task takes a block of columns out of the half spectra of the
+        // rows, convolves them, and puts the first n rows of the result back.
+        (0..half.div_ceil(COLUMN_BLOCK))
+            .into_par_iter()
             .for_each_init(
-                || vec![ZERO; scratch],
-                |s, (col, spec)| {
-                    forward.process_with_scratch(col, s);
-                    for (v, k) in col.iter_mut().zip(spec) {
-                        *v *= k * scale;
+                || self.lease(),
+                |work, block| {
+                    let (columns, s) = &mut **work;
+                    let c0 = block * COLUMN_BLOCK;
+                    let h = COLUMN_BLOCK.min(half - c0);
+                    let at = |r: usize| shared.get().wrapping_add(r * half + c0);
+                    for (r, &hit) in nonzero.iter().enumerate() {
+                        if !hit {
+                            for c in 0..h {
+                                columns[c * stride + r] = ZERO;
+                            }
+                            continue;
+                        }
+                        // SAFETY: inside `rows`; this task alone touches these
+                        // columns.
+                        let line = unsafe { std::slice::from_raw_parts(at(r), h) };
+                        for (c, v) in line.iter().enumerate() {
+                            columns[c * stride + r] = *v;
+                        }
                     }
-                    inverse.process_with_scratch(col, s);
+                    for c in 0..h {
+                        let col = &mut columns[c * stride..c * stride + m];
+                        col[n..].fill(ZERO);
+                        forward.process_with_scratch(col, s);
+                        let spec = &spectrum[(c0 + c) * m..(c0 + c + 1) * m];
+                        for (v, k) in col.iter_mut().zip(spec) {
+                            *v *= k * scale;
+                        }
+                        inverse.process_with_scratch(col, s);
+                    }
+                    for r in 0..n {
+                        // SAFETY: as above.
+                        let line = unsafe { std::slice::from_raw_parts_mut(at(r), h) };
+                        for (c, v) in line.iter_mut().enumerate() {
+                            *v = columns[c * stride + r];
+                        }
+                    }
                 },
             );
-        // Only the first n output rows are needed.
-        transpose_into(columns, m, half, n, rows, half);
         rows.par_chunks(2 * half)
             .zip(out.par_chunks_mut(2 * n))
             .for_each_init(
-                || (vec![ZERO; m], vec![ZERO; scratch]),
-                |(z, s), (chunk, o)| {
+                || self.lease(),
+                |work, (chunk, o)| {
+                    let (z, s) = &mut **work;
+                    let z = &mut z[..m];
                     let two = chunk.len() == 2 * half;
                     let (a, b) = chunk.split_at(half);
                     for (k, cell) in z.iter_mut().enumerate() {
@@ -1794,6 +1861,11 @@ mod tests {
         // A second call reuses the buffers; the reference agrees.
         let again = conv.apply(&model);
         assert_eq!(fast, again);
+        // A dense input in between leaves nothing behind for a sparse one's
+        // zero rows, which are not stored.
+        let dense: Vec<f64> = (0..GRID.pixels()).map(|_| rng.next() - 0.5).collect();
+        let _ = conv.apply(&dense);
+        assert_eq!(fast, conv.apply(&model));
         let reference = ReferenceConvolver::new(GRID.n, &double(&psf)).unwrap();
         for (a, b) in fast.iter().zip(&reference.apply(&model)) {
             assert!((a - b).abs() < 1e-12, "{a} against {b}");

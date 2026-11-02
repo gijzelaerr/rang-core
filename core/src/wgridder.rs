@@ -1176,12 +1176,16 @@ fn offset(i0: i64, n: usize, base: usize) -> usize {
     d as usize
 }
 
+/// How many rows ahead the FFT loops prefetch: their reads and writes stride
+/// by a whole grid row, which the hardware prefetchers do not follow.
+const PREFETCH_ROWS: usize = 8;
+
 /// How far ahead the gridding loops prefetch a visibility's scattered data.
 const PREFETCH_AHEAD: usize = 12;
 
 /// A hint that `*p` is read soon; it has no other effect.
 #[inline(always)]
-fn prefetch<P>(p: *const P) {
+pub(crate) fn prefetch<P>(p: *const P) {
     #[cfg(target_arch = "x86_64")]
     // SAFETY: a prefetch does not access memory architecturally, whatever `p`.
     unsafe {
@@ -1357,7 +1361,7 @@ fn layout<T: Real>(setup: &Setup, bl: &Baselines, act: &Activity) -> Layout {
 
 /// A raw pointer shared by tasks writing disjoint elements.
 #[derive(Clone, Copy)]
-struct SyncPtr<T>(*mut T);
+pub(crate) struct SyncPtr<T>(pub(crate) *mut T);
 // SAFETY: used only for writes to disjoint elements (documented per use).
 unsafe impl<T: Send> Send for SyncPtr<T> {}
 // SAFETY: as above.
@@ -1366,7 +1370,7 @@ unsafe impl<T: Send> Sync for SyncPtr<T> {}
 impl<T> SyncPtr<T> {
     /// The pointer (a method, so that closures capture the whole wrapper).
     #[inline(always)]
-    fn get(self) -> *mut T {
+    pub(crate) fn get(self) -> *mut T {
         self.0
     }
 }
@@ -1570,26 +1574,6 @@ fn w_factor<T: Real, const S: usize>(
     eval_tap::<T, S>(coeff, nth, locz)
 }
 
-/// The kernel taps of one visibility on plane `p` (DF1's `taps`): `ku`
-/// times the w factor, `kv`, and the first taps' grid indices.
-#[inline(always)]
-fn taps<T: Real, const S: usize>(
-    setup: &Setup,
-    coeff: &[T],
-    u: f64,
-    v: f64,
-    plane: Option<(usize, usize, f64)>,
-) -> ([T; S], [T; S], i64, i64) {
-    let (mut ku, kv, iu0, iv0) = taps_uv::<T, S>(setup, coeff, u, v);
-    if let Some((nth, p, w)) = plane {
-        let kw = w_factor::<T, S>(setup, coeff, nth, p, w);
-        for k in ku.iter_mut() {
-            *k = *k * kw;
-        }
-    }
-    (ku, kv, iu0, iv0)
-}
-
 /// Instruction set of the gridding loops: 2 AVX-512 with FMA, 1 AVX2 with
 /// FMA, 0 the build's baseline (`RANG_WGRIDDER_SIMD` = `avx512`, `avx2` or
 /// `baseline` caps it). Every level performs the same IEEE operations
@@ -1649,13 +1633,64 @@ macro_rules! simd_dispatch {
 
 // ---------------------------------------------------------------- the FFTs
 
+/// Work spaces lent to parallel tasks and kept between them: a rayon split
+/// costs no allocation and no zeroing, and the last one returned, likely still
+/// in cache, is lent first.
+pub(crate) struct Pool<V>(std::sync::Mutex<Vec<V>>);
+
+impl<V> Pool<V> {
+    pub(crate) fn new() -> Pool<V> {
+        Pool(std::sync::Mutex::new(Vec::new()))
+    }
+
+    pub(crate) fn lease(&self, make: impl FnOnce() -> V) -> Lease<'_, V> {
+        let value = self.0.lock().expect("no panic in a pool").pop();
+        Lease {
+            pool: self,
+            value: Some(value.unwrap_or_else(make)),
+        }
+    }
+}
+
+/// A work space of a [`Pool`], returned when dropped.
+pub(crate) struct Lease<'a, V> {
+    pool: &'a Pool<V>,
+    value: Option<V>,
+}
+
+impl<V> std::ops::Deref for Lease<'_, V> {
+    type Target = V;
+    fn deref(&self) -> &V {
+        self.value.as_ref().expect("held until dropped")
+    }
+}
+
+impl<V> std::ops::DerefMut for Lease<'_, V> {
+    fn deref_mut(&mut self) -> &mut V {
+        self.value.as_mut().expect("held until dropped")
+    }
+}
+
+impl<V> Drop for Lease<'_, V> {
+    fn drop(&mut self) {
+        if let (Some(v), Ok(mut pool)) = (self.value.take(), self.pool.0.lock()) {
+            pool.push(v);
+        }
+    }
+}
+
 struct Ffts<T: FftNum> {
     u_inv: Arc<dyn Fft<T>>,
     v_inv: Arc<dyn Fft<T>>,
     u_fwd: Arc<dyn Fft<T>>,
     v_fwd: Arc<dyn Fft<T>>,
+    nu: usize,
     scratch: usize,
+    /// A block of columns and FFT scratch space per task.
+    work: Pool<FftWork<T>>,
 }
+
+type FftWork<T> = (Vec<Complex<T>>, Vec<Complex<T>>);
 
 impl<T: Real> Ffts<T> {
     fn new(nu: usize, nv: usize) -> Ffts<T> {
@@ -1674,8 +1709,19 @@ impl<T: Real> Ffts<T> {
             v_inv,
             u_fwd,
             v_fwd,
+            nu,
             scratch,
+            work: Pool::new(),
         }
+    }
+
+    fn lease(&self) -> Lease<'_, FftWork<T>> {
+        self.work.lease(|| {
+            (
+                vec![czero(); self.nu * COL_BLOCK],
+                vec![czero(); self.scratch],
+            )
+        })
     }
 }
 
@@ -2148,19 +2194,33 @@ macro_rules! with_supp {
     };
 }
 
-/// Planes gridded together (the u and v taps evaluated once per
-/// visibility for the group): `RANG_WGRIDDER_PLANE_GROUP` if set, else one.
-/// Results do not depend on it.
-fn plane_group(setup: &Setup, _nout: usize) -> usize {
-    let g = std::env::var("RANG_WGRIDDER_PLANE_GROUP")
+/// Planes gridded or degridded together when the memory allows.
+const PLANE_GROUP: usize = 4;
+
+/// The grids of one plane group may take this much memory in all.
+const PLANE_GROUP_BYTES: usize = 1 << 31;
+
+/// Planes taken together (the u and v taps evaluated once per visibility for
+/// the group, and the visibility's planes in order, so the results do not
+/// depend on the size of the group): `RANG_WGRIDDER_PLANE_GROUP` if set, else
+/// [`PLANE_GROUP`] within [`PLANE_GROUP_BYTES`], and at least one.
+fn plane_group<T>(setup: &Setup, nout: usize) -> usize {
+    if !setup.do_wgridding {
+        return 1;
+    }
+    #[cfg(test)]
+    {
+        let g = tests::FORCED_GROUP.load(std::sync::atomic::Ordering::Relaxed);
+        if g > 0 {
+            return g.clamp(1, setup.supp);
+        }
+    }
+    let grid = 2 * std::mem::size_of::<T>() * setup.nu * setup.nv * nout;
+    std::env::var("RANG_WGRIDDER_PLANE_GROUP")
         .ok()
         .and_then(|v| v.parse::<usize>().ok())
-        .unwrap_or(1);
-    if setup.do_wgridding {
-        g.clamp(1, setup.supp)
-    } else {
-        1
-    }
+        .unwrap_or_else(|| PLANE_GROUP.min(PLANE_GROUP_BYTES / grid.max(1)))
+        .clamp(1, setup.supp)
 }
 
 /// The w-screens of one plane, per table pixel (parallel, per pixel as
@@ -2201,10 +2261,10 @@ fn grid_to_image<T: Real>(
 ) {
     let (nu, nv, ny) = (setup.nu, setup.nv, setup.ny);
     grid.par_chunks_exact_mut(nv).enumerate().for_each_init(
-        || vec![czero::<T>(); ffts.scratch],
-        |scratch, (r, row)| {
+        || ffts.lease(),
+        |work, (r, row)| {
             if touched[r] {
-                ffts.v_inv.process_with_scratch(row, scratch);
+                ffts.v_inv.process_with_scratch(row, &mut work.1);
             }
         },
     );
@@ -2212,17 +2272,20 @@ fn grid_to_image<T: Real>(
     let (_, tny) = setup.table_dims();
     let out = SyncPtr(image.as_mut_ptr());
     cols.par_chunks(COL_BLOCK).enumerate().for_each_init(
-        || {
-            (
-                vec![czero::<T>(); nu * COL_BLOCK],
-                vec![czero::<T>(); ffts.scratch],
-            )
-        },
-        |(colbuf, scratch), (block, jblock)| {
+        || ffts.lease(),
+        |work, (block, jblock)| {
+            let (colbuf, scratch) = &mut **work;
             // Row by row: the block's cells of one row share cache lines, and
             // a row that was never touched is zero and need not be read.
             for (r, &hit) in touched.iter().enumerate() {
                 if hit {
+                    if let Some(ahead) =
+                        grid.get((r + PREFETCH_ROWS) * nv..(r + PREFETCH_ROWS + 1) * nv)
+                    {
+                        prefetch(&ahead[jblock[0]]);
+                        prefetch(&ahead[jblock[jblock.len() / 2]]);
+                        prefetch(&ahead[jblock[jblock.len() - 1]]);
+                    }
                     let line = &grid[r * nv..(r + 1) * nv];
                     for (c, &jx) in jblock.iter().enumerate() {
                         colbuf[c * nu + r] = line[jx];
@@ -2239,6 +2302,14 @@ fn grid_to_image<T: Real>(
             }
             // Row by row again: the block's pixels of one image row are adjacent.
             for (i, &ix) in rows.iter().enumerate() {
+                let j0 = block * COL_BLOCK;
+                if i + PREFETCH_ROWS < rows.len() {
+                    let ahead = i + PREFETCH_ROWS;
+                    prefetch(out.get().wrapping_add(ahead * ny + j0));
+                    if setup.do_wgridding {
+                        prefetch(&screen[setup.table_index(ahead, j0, tny)]);
+                    }
+                }
                 for c in 0..jblock.len() {
                     let j = block * COL_BLOCK + c;
                     let g = colbuf[c * nu + ix];
@@ -2461,7 +2532,7 @@ fn grid_images<T: Real>(
     };
     let mut images: Vec<&mut [T]> = [dirty, psf].into_iter().flatten().collect();
     let nout = images.len();
-    let group = plane_group(setup, nout);
+    let group = plane_group::<T>(setup, nout);
     while grids.len() < group * nout {
         grids.push(vec![czero::<T>(); setup.nu * setup.nv]);
     }
@@ -2556,20 +2627,21 @@ struct DegridIn<'a, T: Real> {
 impl<T: Real> DegridIn<'_, T> {
     /// Add plane `p`'s contribution to every visibility it touches (`out`
     /// in visibility order; each visibility is written by one task).
-    fn degrid_plane<const S: usize>(
+    fn degrid_group<const S: usize>(
         &self,
-        p: usize,
-        grid: &[Complex<T>],
+        p0: usize,
+        grids: &[Vec<Complex<T>>],
         out: SyncPtr<Complex<T>>,
     ) {
         let s = self.setup;
         let lay = self.lay;
         let tiling = &lay.tiling;
-        let (_, all) = plane_tiles(s, lay, p, p);
-        let tasks = plane_tasks(s, lay, &all, p, p);
+        let p1 = p0 + grids.len() - 1;
+        let (_, all) = plane_tiles(s, lay, p0, p1);
+        let tasks = plane_tasks(s, lay, &all, p0, p1);
         tasks.par_iter().for_each_init(
-            || TileBuf::<T>::new(tiling),
-            |buf, task| self.degrid_task::<S>(task, p, grid, buf, out),
+            || -> Vec<TileBuf<T>> { grids.iter().map(|_| TileBuf::new(tiling)).collect() },
+            |bufs, task| self.degrid_task::<S>(task, p0, grids, bufs, out),
         );
     }
 
@@ -2577,9 +2649,9 @@ impl<T: Real> DegridIn<'_, T> {
     fn degrid_task<const S: usize>(
         &self,
         task: &Task,
-        p: usize,
-        grid: &[Complex<T>],
-        buf: &mut TileBuf<T>,
+        p0: usize,
+        grids: &[Vec<Complex<T>>],
+        bufs: &mut [TileBuf<T>],
         out: SyncPtr<Complex<T>>,
     ) {
         simd_dispatch!(
@@ -2589,9 +2661,9 @@ impl<T: Real> DegridIn<'_, T> {
             degrid_task_body,
             S,
             task,
-            p,
-            grid,
-            buf,
+            p0,
+            grids,
+            bufs,
             out
         )
     }
@@ -2601,12 +2673,12 @@ impl<T: Real> DegridIn<'_, T> {
     unsafe fn degrid_task_avx512<const S: usize>(
         &self,
         task: &Task,
-        p: usize,
-        grid: &[Complex<T>],
-        buf: &mut TileBuf<T>,
+        p0: usize,
+        grids: &[Vec<Complex<T>>],
+        bufs: &mut [TileBuf<T>],
         out: SyncPtr<Complex<T>>,
     ) {
-        self.degrid_task_body::<S>(task, p, grid, buf, out)
+        self.degrid_task_body::<S>(task, p0, grids, bufs, out)
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -2614,21 +2686,21 @@ impl<T: Real> DegridIn<'_, T> {
     unsafe fn degrid_task_avx2<const S: usize>(
         &self,
         task: &Task,
-        p: usize,
-        grid: &[Complex<T>],
-        buf: &mut TileBuf<T>,
+        p0: usize,
+        grids: &[Vec<Complex<T>>],
+        bufs: &mut [TileBuf<T>],
         out: SyncPtr<Complex<T>>,
     ) {
-        self.degrid_task_body::<S>(task, p, grid, buf, out)
+        self.degrid_task_body::<S>(task, p0, grids, bufs, out)
     }
 
     #[inline(always)]
     fn degrid_task_body<const S: usize>(
         &self,
         task: &Task,
-        p: usize,
-        grid: &[Complex<T>],
-        buf: &mut TileBuf<T>,
+        p0: usize,
+        grids: &[Vec<Complex<T>>],
+        bufs: &mut [TileBuf<T>],
         out: SyncPtr<Complex<T>>,
     ) {
         let s = self.setup;
@@ -2640,7 +2712,12 @@ impl<T: Real> DegridIn<'_, T> {
         let t = &lay.tiles[ti];
         let (bu, bv) = (t.tu << tiling.log2, t.tv << tiling.log2);
         // Consecutive tasks of a tile on one thread read the same cells.
-        if buf.loaded != Some(ti) {
+        for (g, (buf, grid)) in bufs.iter_mut().zip(grids).enumerate() {
+            let p = p0 + g;
+            let active = !s.do_wgridding || (t.plo <= p && p < t.phi + s.supp);
+            if !active || buf.loaded == Some(ti) {
+                continue;
+            }
             buf.loaded = Some(ti);
             let c0 = (bv + s.nv / 2) % s.nv;
             for i in 0..su {
@@ -2663,6 +2740,15 @@ impl<T: Real> DegridIn<'_, T> {
             }
         }
         for &(mp, start, end) in &task.runs {
+            // The planes of the group this run of visibilities reaches.
+            let (g0, g1) = if s.do_wgridding {
+                (
+                    mp.saturating_sub(p0),
+                    (mp + S).saturating_sub(p0).min(bufs.len()),
+                )
+            } else {
+                (0, 1)
+            };
             for k in start..end {
                 let r = lay.refs[k];
                 if let Some(next) = lay.refs.get(k + PREFETCH_AHEAD) {
@@ -2673,31 +2759,40 @@ impl<T: Real> DegridIn<'_, T> {
                     });
                 }
                 let ([u, v, w], imflip) = uvw_of(self.bl, r);
-                let plane = s.do_wgridding.then_some((p - mp, p, w));
-                let (ku, kv, iu0, iv0) = taps::<T, S>(s, self.coeff, u, v, plane);
+                let (ku0, kv, iu0, iv0) = taps_uv::<T, S>(s, self.coeff, u, v);
                 let ou = offset(iu0, s.nu, bu);
                 let ov = offset(iv0, s.nv, bv);
-                let mut rr = T::zero();
-                let mut ri = T::zero();
-                for (cu, &kuc) in ku.iter().enumerate() {
-                    let base = (ou + cu) * sv + ov;
-                    let gr: &[T; S] = (&buf.re[base..base + S]).try_into().unwrap();
-                    let gi: &[T; S] = (&buf.im[base..base + S]).try_into().unwrap();
-                    let mut tr = T::zero();
-                    let mut tim = T::zero();
-                    for cv in 0..S {
-                        tr = kv[cv].mul_add(gr[cv], tr);
-                        tim = kv[cv].mul_add(gi[cv], tim);
-                    }
-                    rr = kuc.mul_add(tr, rr);
-                    ri = kuc.mul_add(tim, ri);
-                }
-                let c = Complex::new(rr, ri * T::of(imflip));
                 let idx = r.row as usize * nchan + r.ch as usize;
-                // SAFETY: each visibility belongs to one tile.
-                unsafe {
-                    let o = out.get().add(idx);
-                    *o = c + *o;
+                for (g, buf) in bufs.iter().enumerate().take(g1).skip(g0) {
+                    let p = p0 + g;
+                    let mut ku = ku0;
+                    if s.do_wgridding {
+                        let kw = w_factor::<T, S>(s, self.coeff, p - mp, p, w);
+                        for kk in ku.iter_mut() {
+                            *kk = *kk * kw;
+                        }
+                    }
+                    let mut rr = T::zero();
+                    let mut ri = T::zero();
+                    for (cu, &kuc) in ku.iter().enumerate() {
+                        let base = (ou + cu) * sv + ov;
+                        let gr: &[T; S] = (&buf.re[base..base + S]).try_into().unwrap();
+                        let gi: &[T; S] = (&buf.im[base..base + S]).try_into().unwrap();
+                        let mut tr = T::zero();
+                        let mut tim = T::zero();
+                        for cv in 0..S {
+                            tr = kv[cv].mul_add(gr[cv], tr);
+                            tim = kv[cv].mul_add(gi[cv], tim);
+                        }
+                        rr = kuc.mul_add(tr, rr);
+                        ri = kuc.mul_add(tim, ri);
+                    }
+                    let c = Complex::new(rr, ri * T::of(imflip));
+                    // SAFETY: each visibility belongs to one tile.
+                    unsafe {
+                        let o = out.get().add(idx);
+                        *o = c + *o;
+                    }
                 }
             }
         }
@@ -2720,24 +2815,21 @@ fn image_to_grid<T: Real>(
 ) {
     let (nu, nv, ny) = (setup.nu, setup.nv, setup.ny);
     let (_, tny) = setup.table_dims();
-    // Only the needed rows are read after this, by the v transforms below.
+    // Only the needed rows are read after this, by the v transforms below, and
+    // their image columns are all stored below: the other columns become zero.
     grid.par_chunks_exact_mut(nv)
         .zip(needed.par_iter())
         .with_min_len(64)
         .for_each(|(row, &hit)| {
             if hit {
-                row.fill(czero());
+                row[ny - ny / 2..nv - ny / 2].fill(czero());
             }
         });
     let g = SyncPtr(grid.as_mut_ptr());
     cols.par_chunks(COL_BLOCK).enumerate().for_each_init(
-        || {
-            (
-                vec![czero::<T>(); nu * COL_BLOCK],
-                vec![czero::<T>(); ffts.scratch],
-            )
-        },
-        |(colbuf, scratch), (block, jblock)| {
+        || ffts.lease(),
+        |work, (block, jblock)| {
+            let (colbuf, scratch) = &mut **work;
             // The columns of the block are formed, transformed and stored in
             // the work space, row by row where they meet memory in that order.
             for (r, &i) in inv_rows.iter().enumerate() {
@@ -2746,6 +2838,15 @@ fn image_to_grid<T: Real>(
                         colbuf[c * nu + r] = czero();
                     }
                     continue;
+                }
+                let j0 = block * COL_BLOCK;
+                if let Some(&ahead) = inv_rows.get(r + PREFETCH_ROWS)
+                    && ahead != usize::MAX
+                {
+                    prefetch(image.as_ptr().wrapping_add(ahead * ny + j0));
+                    if setup.do_wgridding {
+                        prefetch(&screen[setup.table_index(ahead, j0, tny)]);
+                    }
                 }
                 for c in 0..jblock.len() {
                     let j = block * COL_BLOCK + c;
@@ -2764,6 +2865,12 @@ fn image_to_grid<T: Real>(
             }
             for (r, &hit) in needed.iter().enumerate() {
                 if hit {
+                    if r + PREFETCH_ROWS < nu {
+                        let ahead = (r + PREFETCH_ROWS) * nv;
+                        prefetch(g.get().wrapping_add(ahead + jblock[0]));
+                        prefetch(g.get().wrapping_add(ahead + jblock[jblock.len() / 2]));
+                        prefetch(g.get().wrapping_add(ahead + jblock[jblock.len() - 1]));
+                    }
                     for (c, &jx) in jblock.iter().enumerate() {
                         // SAFETY: each task writes its own columns `jx`.
                         unsafe { *g.get().add(r * nv + jx) = colbuf[c * nu + r] };
@@ -2773,10 +2880,10 @@ fn image_to_grid<T: Real>(
         },
     );
     grid.par_chunks_exact_mut(nv).enumerate().for_each_init(
-        || vec![czero::<T>(); ffts.scratch],
-        |scratch, (r, row)| {
+        || ffts.lease(),
+        |work, (r, row)| {
             if needed[r] {
-                ffts.v_fwd.process_with_scratch(row, scratch);
+                ffts.v_fwd.process_with_scratch(row, &mut work.1);
             }
         },
     );
@@ -2825,22 +2932,24 @@ pub fn dirty2vis_multi<T: Real>(
     let lay = layout::<T>(&setup, &bl, &act);
     timer.lap("layout");
     let tables = Tables::<T>::new(&setup);
-    let mut grid = Vec::new();
+    let mut grids = Vec::new();
     Ok(degrid_images::<T>(
-        &setup, &bl, &lay, &tables, &mut grid, dirty, wgt, vis, timer,
+        &setup, &bl, &lay, &tables, &mut grids, false, dirty, wgt, vis, timer,
     ))
 }
 
 /// The degridding half of `dirty2vis_multi` on a finished plan and layout;
-/// `vis` is zero on entry. `grid` is a work grid to reuse; every pass fills
-/// the rows it reads.
+/// `vis` is zero on entry. `grids` are work grids to reuse; every pass fills
+/// the rows it reads, and with `leave_zero` zeroes them again for the gridding
+/// direction.
 #[allow(clippy::too_many_arguments)]
 fn degrid_images<T: Real>(
     setup: &Setup,
     bl: &Baselines,
     lay: &Layout,
     tables: &Tables<T>,
-    grid: &mut Vec<Complex<T>>,
+    grids: &mut Vec<Vec<Complex<T>>>,
+    leave_zero: bool,
     dirty: &[T],
     wgt: Weights,
     vis: &mut [Complex<T>],
@@ -2882,26 +2991,52 @@ fn degrid_images<T: Real>(
         lay,
         coeff,
     };
-    grid.resize(setup.nu * setup.nv, czero::<T>());
+    let group = plane_group::<T>(setup, 1);
+    while grids.len() < group {
+        grids.push(vec![czero::<T>(); setup.nu * setup.nv]);
+    }
     let mut screen = Vec::new();
     let out = SyncPtr(vis.as_mut_ptr());
+    let mut written = vec![vec![false; setup.nu]; if leave_zero { group } else { 0 }];
     timer.lap("setup");
-    for p in 0..setup.nplanes.max(1) {
-        let (_, all) = plane_tiles(setup, lay, p, p);
-        if all.is_empty() {
-            continue;
+    let nplanes = setup.nplanes.max(1);
+    let mut p0 = 0;
+    while p0 < nplanes {
+        let ng = group.min(nplanes - p0);
+        for (g, grid) in grids[..ng].iter_mut().enumerate() {
+            let p = p0 + g;
+            // A plane without tiles is read by no visibility.
+            let (_, all) = plane_tiles(setup, lay, p, p);
+            if all.is_empty() {
+                continue;
+            }
+            let needed = tile_rows(setup, lay, &all);
+            if let Some(rows) = written.get_mut(g) {
+                rows.iter_mut().zip(&needed).for_each(|(w, n)| *w |= *n);
+            }
+            let w0 = setup.wmin + p as f64 * setup.dw;
+            if setup.do_wgridding {
+                screen_par(table, w0, false, &mut screen);
+            }
+            timer.lap("screen");
+            image_to_grid(setup, ffts, &image, &screen, inv_rows, cols, &needed, grid);
+            timer.lap("fft");
         }
-        let needed = tile_rows(setup, lay, &all);
-        let w0 = setup.wmin + p as f64 * setup.dw;
-        if setup.do_wgridding {
-            screen_par(table, w0, false, &mut screen);
-        }
-        timer.lap("screen");
-        image_to_grid(setup, ffts, &image, &screen, inv_rows, cols, &needed, grid);
-        timer.lap("fft");
-        with_supp!(setup.supp, degrid_plane, input, p, grid, out);
+        with_supp!(setup.supp, degrid_group, input, p0, &grids[..ng], out);
         timer.lap("degrid");
+        p0 += ng;
     }
+    for (grid, rows) in grids.iter_mut().zip(&written) {
+        grid.par_chunks_mut(setup.nv)
+            .zip(rows.par_iter())
+            .with_min_len(64)
+            .for_each(|(r, &w)| {
+                if w {
+                    r.fill(czero());
+                }
+            });
+    }
+    timer.lap("zero");
     let nchan = bl.f_over_c.len();
     lay.refs.par_iter().for_each(|&r| {
         let idx = r.row as usize * nchan + r.ch as usize;
@@ -2932,10 +3067,8 @@ pub struct Prepared<T: Real> {
     bl: Baselines,
     prepared: Option<(Setup, Layout, Tables<T>)>,
     n: usize,
-    /// The work space of the gridding direction.
+    /// The work space of both directions; its grids are zero between passes.
     grids: std::sync::Mutex<GridWork<T>>,
-    /// The work grid of the degridding direction.
-    work: std::sync::Mutex<Vec<Complex<T>>>,
 }
 
 impl<T: Real> Prepared<T> {
@@ -2976,7 +3109,6 @@ impl<T: Real> Prepared<T> {
             prepared,
             n,
             grids: std::sync::Mutex::new(GridWork::default()),
-            work: std::sync::Mutex::new(Vec::new()),
         })
     }
 
@@ -3028,7 +3160,8 @@ impl<T: Real> Prepared<T> {
                 &self.bl,
                 lay,
                 tables,
-                &mut self.work.lock().expect("no panic while degridding"),
+                &mut self.grids.lock().expect("no panic while degridding").grids,
+                true,
                 dirty,
                 wgt,
                 vis,
@@ -4185,6 +4318,52 @@ mod tests {
             .unwrap();
             let err = rel_linf(&dirty, &dft_dirty(&c));
             assert!(err < 1e-8, "{nx}x{ny}: {err}");
+        }
+    }
+
+    /// A plane group for the test below; other tests may run under it, as their
+    /// results do not depend on it.
+    pub(super) static FORCED_GROUP: std::sync::atomic::AtomicUsize =
+        std::sync::atomic::AtomicUsize::new(0);
+
+    #[test]
+    fn plane_groups_and_kept_work_change_no_bit() {
+        let bits = |v: &[Complex<f64>]| -> Vec<(u64, u64)> {
+            v.iter().map(|a| (a.re.to_bits(), a.im.to_bits())).collect()
+        };
+        let image_bits = |v: &[f64]| -> Vec<u64> { v.iter().map(|a| a.to_bits()).collect() };
+        let c = case(64, 64, 0.3, 2000.0, 400, 21);
+        let mut s = 5u64;
+        let x: Vec<f64> = (0..64 * 64).map(|_| lcg(&mut s) - 0.5).collect();
+        let forward = |x: &[f64]| {
+            let mut v = vec![Complex::new(0.0, 0.0); c.vis.len()];
+            dirty2vis(&c.opts, &c.uvw, &c.freq, x, Some(&c.wgt), None, &mut v).unwrap();
+            v
+        };
+        let adjoint = || {
+            let mut d = vec![0.0; 64 * 64];
+            vis2dirty(&c.opts, &c.uvw, &c.freq, &c.vis, Some(&c.wgt), None, &mut d).unwrap();
+            d
+        };
+        let (ax, aty) = (forward(&x), adjoint());
+        for g in [1, 2, 3, 5] {
+            FORCED_GROUP.store(g, std::sync::atomic::Ordering::Relaxed);
+            assert_eq!(bits(&ax), bits(&forward(&x)), "group {g}");
+            assert_eq!(image_bits(&aty), image_bits(&adjoint()), "group {g}");
+        }
+        // The kept work space, shared by both directions, in either order.
+        let wgt = Weights::F64(&c.wgt);
+        let kept = Prepared::<f64>::new(&c.opts, &c.uvw, &c.freq, wgt).unwrap();
+        for g in [2, 0] {
+            FORCED_GROUP.store(g, std::sync::atomic::Ordering::Relaxed);
+            for _ in 0..2 {
+                let mut v = vec![Complex::new(0.0, 0.0); c.vis.len()];
+                kept.dirty2vis(&x, wgt, &mut v).unwrap();
+                assert_eq!(bits(&ax), bits(&v));
+                let mut d = vec![0.0; 64 * 64];
+                kept.vis2dirty(VisData::C128(&c.vis), wgt, &mut d).unwrap();
+                assert_eq!(image_bits(&aty), image_bits(&d));
+            }
         }
     }
 
