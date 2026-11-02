@@ -216,15 +216,27 @@ class Operator:
 
         return self._sum(run) * self.mask
 
-    def hessian(self, v, active=None):
-        def run(cell, device):
+    def hessian(self, v):
+        """`H v`; chunks whose intervals all have `v = 0` contribute nothing."""
+        moving = np.any(v != 0, axis=(2, 3)).ravel()
+        total = np.zeros_like(self.x)
+        devices = [next(iter(c[0].devices())) for c in self.cells.chunks]
+        wanted = [
+            i for i, keys in enumerate(self.cells.chunk_intervals) if moving[keys].any()
+        ]
+
+        def one(index):
+            device = devices[index]
             return _hvp(
                 jax.device_put(self.x, device),
                 jax.device_put(v * self.mask, device),
-                cell,
+                self.cells.chunks[index],
             )
 
-        return self._sum(run) * self.mask
+        with ThreadPoolExecutor(max(1, len(set(devices)))) as pool:
+            for part in pool.map(one, wanted):
+                total += np.asarray(part)
+        return total * self.mask
 
     def jacobi_step(self):
         """Relative size of one scalar-Jacobi step per gain, `(nt, nf, na)`."""
@@ -264,7 +276,7 @@ def _dot(a, b):
     return np.sum(a * b, axis=(-1, -2))
 
 
-def minres(operator, b, tolerance=1e-9, iterations=200, check=5):
+def minres(operator, b, tolerance=1e-7, iterations=200, check=5):
     """MINRES on the block-diagonal Hessian, one system per interval.
 
     Returns `lam`, the true relative residual per interval and the iterations.
@@ -325,7 +337,7 @@ def minres(operator, b, tolerance=1e-9, iterations=200, check=5):
         estimate = np.divide(phibar, beta1, out=np.zeros(shape), where=beta1 > 0)
         ended = (estimate <= tolerance) | (beta_new <= 1e-14 * beta1)
         if used % check == 0 or (active & ended).any():
-            measured = true_residual(x)
+            measured = true_residual(x * active[..., None, None])
             improved = active & (measured < best_residual)
             best[improved] = x[improved]
             best_residual[improved] = measured[improved]

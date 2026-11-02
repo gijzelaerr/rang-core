@@ -39,6 +39,8 @@ result is "continue to Stage 1c", not a final GO. The only look at LUNO before t
   stops improving, and such intervals fall to the residual exclusion. Stage 1a's synthetic problem uses a scalar model, as
   the polar gauge assumes. (b) Unrolling freezes the Gauss-Newton step matrix at the solution; the protocol did not say.
 
+**Amendment 3, 2026-11-02, before the Stage 1b run that counts.** A first launch (`outputs/f1-20261102-03-golive-stopped.log`) was stopped after 31 min, still in the clean adjoint, with no saliency written or seen. It also used about 7 cores against the rule of at most 4. The rerun pins the process to 4 CPUs, skips chunks whose MINRES intervals have all stopped, and uses a MINRES tolerance of 1e-7, still below the frozen 1e-6 exclusion. No gate changes.
+
 **In one paragraph.** Train a 2,713-weight convolutional network that reads the raw visibility
 amplitudes of one baseline and outputs a per-cell flag. Its only training signal is the gain TV of a
 calibrator solve, differentiated through the solver's fixed point by an adjoint. At inference there
