@@ -35,7 +35,7 @@ const USAGE: &str = "usage: gmclean [options] <ms>
   -weight <mode> [robust]   natural | uniform | briggs <robust> (default uniform)
   -niter <n>                maximum number of components (default 0: dirty image only)
   -gain <g>                 loop gain (default 0.1)
-  -mgain <f>                fraction of the misfit a minor cycle removes before a major cycle (default 0.8)
+  -mgain <f>                fraction of the misfit a minor cycle removes before a major cycle (default 1: run to the threshold)
   -nmiter <n>               maximum number of major cycles (default 20)
   -threshold <Jy>           absolute stopping threshold (alias -abs-threshold)
   -auto-threshold <sigma>   stopping threshold in robust sigma (1.4826 MAD) of the residual
@@ -50,12 +50,13 @@ const USAGE: &str = "usage: gmclean [options] <ms>
   -wgridder-accuracy <eps>  gridder accuracy (default 1e-6, double precision)
   -no-wgridding             disable the w-term
   -single                   grid in single precision (default double)
+  -no-plan-reuse            replan every gridder call (same images, for comparison)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -floor-iterations <n>     estimate Q_inf by n conjugate-gradient iterations (default 0: off)
   -audit                    recompute every exact peak by brute force and report the largest error
   -simd <level>             cap the kernels at scalar | avx2 | avx512
   -bitpix <32|64>           FITS sample format (default 32)
-  -tile <pixels>            tile side of the argmax (default 32)
+  -tile <pixels>            tile side of the argmax (default 64)
   -eager-tiles              rescan every tile a patch touches (same picks, for comparison)
   -no-restore               do not write the restored image";
 
@@ -88,6 +89,7 @@ struct Args {
     restore: bool,
     tile: usize,
     single: bool,
+    plan_reuse: bool,
     beam_no_w: bool,
     lazy_bounds: bool,
 }
@@ -129,7 +131,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         weight: WeightClass::Uniform,
         niter: 0,
         gain: 0.1,
-        mgain: 0.8,
+        mgain: 1.0,
         nmiter: 20,
         threshold: 0.0,
         auto_threshold: None,
@@ -148,8 +150,9 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         simd: None,
         bitpix: -32,
         restore: true,
-        tile: 32,
+        tile: 64,
         single: false,
+        plan_reuse: true,
         beam_no_w: false,
         lazy_bounds: true,
     };
@@ -223,6 +226,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-tile" => a.tile = number(flag, value(&mut i)?)?,
             "-eager-tiles" => a.lazy_bounds = false,
             "-single" => a.single = true,
+            "-no-plan-reuse" => a.plan_reuse = false,
             "-beam-no-w" => a.beam_no_w = true,
             s if s.starts_with('-') && s.len() > 1 => {
                 return Err(format!("unknown option {s}\n\n{USAGE}"));
@@ -289,6 +293,11 @@ fn deconvolve<T: Real + Send + Sync>(
         args.epsilon,
         opts,
     )?;
+    let measurement = if args.plan_reuse {
+        measurement
+    } else {
+        measurement.without_plan_reuse()
+    };
     let t = Instant::now();
     let psf2n = measurement.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?;
     let t_psf = t.elapsed().as_secs_f64();

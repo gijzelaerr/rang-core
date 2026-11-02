@@ -789,7 +789,7 @@ impl Default for Settings {
     fn default() -> Settings {
         Settings {
             gain: 0.1,
-            major_fraction: 0.8,
+            major_fraction: 1.0,
             threshold: 0.0,
             auto_threshold: None,
             max_components: 100_000,
@@ -800,7 +800,7 @@ impl Default for Settings {
             resync_every: 2000,
             audit: false,
             level: None,
-            tile: 32,
+            tile: 64,
             lazy_bounds: true,
         }
     }
@@ -1527,6 +1527,9 @@ pub fn peak_memory_bytes() -> Option<u64> {
 pub struct KernelTiming {
     pub level: Level,
     pub patch_ns_per_pixel: f64,
+    /// The same patch loop on an `f32` map, compiled for the build's baseline
+    /// (the evidence for or against an `f32` working map).
+    pub patch_f32_ns_per_pixel: f64,
     pub argmax_ns_per_pixel: f64,
     pub gather_ns_per_term: f64,
 }
@@ -1565,8 +1568,10 @@ pub fn kernel_benchmark(
         }
         let mut work = map.clone();
         let tiles = n.div_ceil(32);
-        let (mut patch_ns, mut argmax_ns, mut gather_ns) =
-            (f64::INFINITY, f64::INFINITY, f64::INFINITY);
+        let (mut patch_ns, mut patch_f32_ns, mut argmax_ns, mut gather_ns) =
+            (f64::INFINITY, f64::INFINITY, f64::INFINITY, f64::INFINITY);
+        let mut work32: Vec<f32> = map.iter().map(|&v| v as f32).collect();
+        let beam32: Vec<f32> = beam.iter().map(|&v| v as f32).collect();
         for _ in 0..rounds.max(1) {
             let t = Instant::now();
             for rep in 0..reps {
@@ -1577,6 +1582,18 @@ pub fn kernel_benchmark(
             }
             let per = t.elapsed().as_secs_f64() * 1e9 / (reps * pw.min(n) * pw.min(n)) as f64;
             patch_ns = patch_ns.min(per);
+            let t = Instant::now();
+            for rep in 0..reps {
+                let c = 1e-3 * rep as f32;
+                for row in 0..pw.min(n) {
+                    let r = &mut work32[row * n..row * n + pw.min(n)];
+                    for (v, b) in r.iter_mut().zip(&beam32) {
+                        *v -= c * b;
+                    }
+                }
+            }
+            let per = t.elapsed().as_secs_f64() * 1e9 / (reps * pw.min(n) * pw.min(n)) as f64;
+            patch_f32_ns = patch_f32_ns.min(per);
             let t = Instant::now();
             let mut sink = 0usize;
             for _ in 0..reps.div_ceil(20) {
@@ -1599,6 +1616,7 @@ pub fn kernel_benchmark(
         out.push(KernelTiming {
             level,
             patch_ns_per_pixel: patch_ns,
+            patch_f32_ns_per_pixel: patch_f32_ns,
             argmax_ns_per_pixel: argmax_ns,
             gather_ns_per_term: gather_ns,
         });

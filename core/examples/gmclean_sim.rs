@@ -816,7 +816,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         .into_iter()
         .filter(|&l| l <= kernels::detected())
         .collect();
-    let mut kernel_samples = vec![(Vec::new(), Vec::new(), Vec::new()); levels.len()];
+    let mut kernel_samples = vec![(Vec::new(), Vec::new(), Vec::new(), Vec::new()); levels.len()];
     let mut kernel_load = Vec::new();
     for repeat in 0..repeats {
         println!("round {} of {repeats}", repeat + 1);
@@ -834,6 +834,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
             samples.0.push(k.patch_ns_per_pixel);
             samples.1.push(k.argmax_ns_per_pixel);
             samples.2.push(k.gather_ns_per_term);
+            samples.3.push(k.patch_f32_ns_per_pixel);
         }
     }
     let runs: Vec<String> = timed.iter().map(Timed::json).collect();
@@ -843,9 +844,10 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         .map(|(level, s)| {
             let median = |x: &[f64]| min_median(x).map_or(f64::NAN, |v| v.1);
             println!(
-                "kernels {:<8} median patch {:.3} ns/px, tile argmax {:.3} ns/px, gather {:.3} ns/term",
+                "kernels {:<8} median patch {:.3} ns/px (f32 map {:.3}), tile argmax {:.3} ns/px, gather {:.3} ns/term",
                 level.name(),
                 median(&s.0),
+                median(&s.3),
                 median(&s.1),
                 median(&s.2)
             );
@@ -854,6 +856,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
                 ("patch_ns_per_pixel", sample_json(&s.0)),
                 ("tile_argmax_ns_per_pixel", sample_json(&s.1)),
                 ("gather_ns_per_term", sample_json(&s.2)),
+                ("patch_f32_ns_per_pixel", sample_json(&s.3)),
             ])
         })
         .collect();
@@ -877,6 +880,210 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     ]);
     std::fs::write(outdir.join("gmclean-bench.json"), json + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.1} s", wall.elapsed().as_secs_f64());
+    Ok(())
+}
+
+/// A measurement frozen at its first residual, so a run is one minor cycle and
+/// no gridding: the engineering comparison of the minor loop alone.
+struct Frozen {
+    side: usize,
+    dirty: Vec<f64>,
+    q0: f64,
+    calls: std::sync::atomic::AtomicUsize,
+}
+
+impl Measurement for Frozen {
+    fn side(&self) -> usize {
+        self.side
+    }
+
+    fn residual(&self, _model: &[f64]) -> Result<(Vec<f64>, f64), String> {
+        use std::sync::atomic::Ordering;
+        if self.calls.fetch_add(1, Ordering::Relaxed) == 0 {
+            Ok((self.dirty.clone(), self.q0))
+        } else {
+            Ok((vec![0.0; self.dirty.len()], self.q0))
+        }
+    }
+
+    fn gram_apply(&self, _x: &[f64]) -> Result<Vec<f64>, String> {
+        Err("not available".into())
+    }
+}
+
+/// `minor MS SIDE CELL_ARCSEC THRESHOLD [repeats]`: the minor cycle alone on
+/// one sky, its variants interleaved, with work counts and the science checks.
+fn minor(args: &[String]) -> Result<(), String> {
+    let field = |i: usize| -> Result<f64, String> {
+        args.get(i)
+            .and_then(|a| a.parse().ok())
+            .ok_or_else(|| "minor MS SIDE CELL_ARCSEC THRESHOLD [repeats]".to_string())
+    };
+    let ms = Path::new(args.get(2).ok_or("minor needs an MS")?);
+    let (side, cell_arcsec, threshold) = (field(3)? as usize, field(4)?, field(5)?);
+    let repeats = args.get(6).and_then(|r| r.parse().ok()).unwrap_or(5);
+    let cell = (cell_arcsec / 3600.0).to_radians();
+    let data = input::read_ms(ms, &Selection::default())?;
+    let weights = input::gridding_weights(&data, WeightClass::Briggs(0.0), side, cell)?;
+    let m = WgridMeasurement::new(
+        data.uvw.clone(),
+        data.freq.clone(),
+        data.vis.clone(),
+        weights.weights.clone(),
+        side,
+        cell,
+        1e-6,
+        opts(),
+    )?;
+    drop(data);
+    let (dirty, q0) = m.residual(&vec![0.0; side * side])?;
+    let psf2n = m.psf_image(2 * side)?;
+    drop(m);
+    let patches = [32usize, 64, 96, 128];
+    let beams: Vec<Beam> = patches
+        .iter()
+        .map(|&p| Beam::from_double(side, &psf2n, p))
+        .collect::<Result<_, _>>()?;
+    let base = Settings {
+        gain: GAIN,
+        threshold,
+        max_components: 2_000_000,
+        major_fraction: 1.0,
+        max_major: 1,
+        ..Settings::default()
+    };
+    let beam_of = |p: usize| patches.iter().position(|&q| q == p).unwrap();
+    let variants: Vec<(String, usize, Settings)> = vec![
+        ("p64-t32-lazy-k2000".into(), 64, base),
+        (
+            "p64-t32-eager-k2000".into(),
+            64,
+            Settings {
+                lazy_bounds: false,
+                ..base
+            },
+        ),
+        (
+            "p64-t64-lazy-k2000".into(),
+            64,
+            Settings { tile: 64, ..base },
+        ),
+        (
+            "p64-t64-eager-k2000".into(),
+            64,
+            Settings {
+                tile: 64,
+                lazy_bounds: false,
+                ..base
+            },
+        ),
+        (
+            "p64-t128-lazy-k2000".into(),
+            64,
+            Settings { tile: 128, ..base },
+        ),
+        (
+            "p64-t256-lazy-k2000".into(),
+            64,
+            Settings { tile: 256, ..base },
+        ),
+        (
+            "p64-t64-lazy-k8000".into(),
+            64,
+            Settings {
+                tile: 64,
+                resync_every: 8000,
+                ..base
+            },
+        ),
+        (
+            "p64-t64-lazy-k32000".into(),
+            64,
+            Settings {
+                tile: 64,
+                resync_every: 32000,
+                ..base
+            },
+        ),
+        (
+            "p32-t64-lazy-k8000".into(),
+            32,
+            Settings {
+                tile: 64,
+                resync_every: 8000,
+                ..base
+            },
+        ),
+        (
+            "p96-t64-lazy-k8000".into(),
+            96,
+            Settings {
+                tile: 64,
+                resync_every: 8000,
+                ..base
+            },
+        ),
+        (
+            "p64-t64-scalar".into(),
+            64,
+            Settings {
+                tile: 64,
+                level: Some(Level::Scalar),
+                ..base
+            },
+        ),
+        (
+            "p64-t64-avx2".into(),
+            64,
+            Settings {
+                tile: 64,
+                level: Some(Level::Avx2),
+                ..base
+            },
+        ),
+    ];
+    let mut samples: Vec<(Vec<f64>, Vec<f64>, Vec<f64>)> =
+        vec![(Vec::new(), Vec::new(), Vec::new()); variants.len()];
+    let mut last: Vec<Option<Outcome>> = vec![None; variants.len()];
+    for _ in 0..repeats {
+        for (i, (_, patch, settings)) in variants.iter().enumerate() {
+            let frozen = Frozen {
+                side,
+                dirty: dirty.clone(),
+                q0,
+                calls: std::sync::atomic::AtomicUsize::new(0),
+            };
+            let out = gmclean::run(&frozen, &beams[beam_of(*patch)], settings, None)?;
+            samples[i].0.push(out.timings.minor);
+            samples[i].1.push(out.timings.resync);
+            samples[i].2.push(out.timings.correction);
+            last[i] = Some(out);
+        }
+    }
+    println!("{q0:e} Q0; {repeats} repeats, interleaved; minimum seconds");
+    let reference = last[0].as_ref().unwrap();
+    let flux = |o: &Outcome| o.model.iter().sum::<f64>();
+    for (i, (name, _, _)) in variants.iter().enumerate() {
+        let o = last[i].as_ref().unwrap();
+        let (minor_min, minor_median) = min_median(&samples[i].0).unwrap();
+        let same = o.steps.len() == reference.steps.len()
+            && o.steps
+                .iter()
+                .zip(&reference.steps)
+                .all(|(a, b)| a.pixel == b.pixel);
+        println!(
+            "{name:<22} minor {minor_min:7.3} / {minor_median:7.3} corr {:6.3} resync {:6.3} | comps {:>7} resyncs {:>4} terms {:>11} px {:>11} rescanned {:>11} same-picks {same} flux {:.6} dQ {:.6e}",
+            min_median(&samples[i].2).unwrap().0,
+            min_median(&samples[i].1).unwrap().0,
+            o.steps.len(),
+            o.resyncs.total(),
+            o.correction_terms,
+            o.work.pixels_subtracted,
+            o.work.pixels_rescanned,
+            flux(o),
+            o.cycles[0].dq_predicted,
+        );
+    }
     Ok(())
 }
 
@@ -908,6 +1115,7 @@ fn main() {
         (Some("write"), Some(out)) => write(Path::new(out), &default_spec()),
         (Some("sim"), Some(out)) => sim_args(&args).and_then(|spec| write(Path::new(out), &spec)),
         (Some("compare"), Some(out)) => compare(Path::new(out)),
+        (Some("minor"), Some(_)) => minor(&args),
         (Some("bench"), Some(out)) => {
             let repeats = args.get(3).and_then(|r| r.parse().ok()).unwrap_or(5);
             bench(Path::new(out), repeats)

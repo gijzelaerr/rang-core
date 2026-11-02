@@ -544,6 +544,24 @@ pub fn write_ms(path: &Path, a: &MsArrays) -> Result<(), String> {
         .map_err(e)?;
     t.close().map_err(e)?;
 
+    let mut t = open("OBSERVATION")?;
+    t.add_rows(1).map_err(e)?;
+    let (first, last) = (a.time[0], a.time[nrow - 1]);
+    t.put_cell("TIME_RANGE", 0, &[2], &f64_bytes(&[first, last]))
+        .map_err(e)?;
+    t.put_strings("TELESCOPE_NAME", 0, &["MeerKAT".to_string()])
+        .map_err(e)?;
+    t.put_strings("OBSERVER", 0, &["rang".to_string()])
+        .map_err(e)?;
+    t.put_strings("PROJECT", 0, &["gmclean".to_string()])
+        .map_err(e)?;
+    t.put_strings("SCHEDULE_TYPE", 0, &[String::new()])
+        .map_err(e)?;
+    t.put_column("RELEASE_DATE", 0, 1, &[], &f64_bytes(&[0.0]))
+        .map_err(e)?;
+    t.put_column("FLAG_ROW", 0, 1, &[], &[0u8]).map_err(e)?;
+    t.close().map_err(e)?;
+
     let mut t = open("POLARIZATION")?;
     t.add_rows(1).map_err(e)?;
     t.put_column("NUM_CORR", 0, 1, &[], &i32_bytes(&[4]))

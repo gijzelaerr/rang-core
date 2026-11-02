@@ -15,7 +15,7 @@
 //! binary stays `f64`.
 
 use crate::clean_certified::{Complex, Measurement};
-use crate::wgridder::{self, Options, Real, VisData};
+use crate::wgridder::{self, Options, Prepared, Real, VisData, Weights};
 use rayon::prelude::*;
 use std::sync::Mutex;
 
@@ -27,6 +27,8 @@ pub struct GridMeasurement<T: Real> {
     /// Weights normalised to sum to one.
     wgt: Vec<T>,
     opts: Options,
+    /// The plan and layout of the image grid, reused by every major cycle.
+    prepared: Option<Prepared<T>>,
     buffer: Mutex<Vec<Complex<T>>>,
 }
 
@@ -51,6 +53,16 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
         if sum <= 0.0 || sum.is_nan() {
             return Err("weights must have a positive sum".into());
         }
+        let wgt: Vec<T> = wgt.iter().map(|w| T::of(w / sum)).collect();
+        let opts = Options {
+            nx: side,
+            ny: side,
+            pixsize_x: cell,
+            pixsize_y: cell,
+            epsilon,
+            ..opts
+        };
+        let prepared = Some(Prepared::new(&opts, &uvw, &freq, T::weights(&wgt))?);
         Ok(GridMeasurement {
             uvw,
             freq,
@@ -58,17 +70,18 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 .iter()
                 .map(|v| Complex::new(T::of(v.re), T::of(v.im)))
                 .collect(),
-            wgt: wgt.iter().map(|w| T::of(w / sum)).collect(),
-            opts: Options {
-                nx: side,
-                ny: side,
-                pixsize_x: cell,
-                pixsize_y: cell,
-                epsilon,
-                ..opts
-            },
+            wgt,
+            opts,
+            prepared,
             buffer: Mutex::new(Vec::new()),
         })
+    }
+
+    /// Plan every gridder call afresh (for comparison; the images agree to
+    /// the rounding of the tile order at most).
+    pub fn without_plan_reuse(mut self) -> Self {
+        self.prepared = None;
+        self
     }
 
     /// The PSF on a `side × side` grid of the same cell, centred on
@@ -100,21 +113,32 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
 
     fn image(&self, vis: &[Complex<T>]) -> Result<Vec<f64>, String> {
         let mut out = vec![T::of(0.0); self.opts.nx * self.opts.ny];
-        wgridder::vis2dirty(
-            &self.opts,
-            &self.uvw,
-            &self.freq,
-            vis,
-            Some(&self.wgt),
-            None,
-            &mut out,
-        )?;
+        match &self.prepared {
+            Some(p) => {
+                p.vis2dirty(T::vis_data(vis), T::weights(&self.wgt), &mut out)?;
+            }
+            None => {
+                wgridder::vis2dirty(
+                    &self.opts,
+                    &self.uvw,
+                    &self.freq,
+                    vis,
+                    Some(&self.wgt),
+                    None,
+                    &mut out,
+                )?;
+            }
+        }
         Ok(widen(&out))
     }
 
     fn predict_into(&self, model: &[f64], out: &mut [Complex<T>]) -> Result<(), String> {
         let m: Vec<T> = model.par_iter().map(|&c| T::of(c)).collect();
-        wgridder::dirty2vis(&self.opts, &self.uvw, &self.freq, &m, None, None, out)?;
+        match &self.prepared {
+            // Visibilities of zero weight are not predicted: nothing reads them.
+            Some(p) => p.dirty2vis(&m, Weights::None, out)?,
+            None => wgridder::dirty2vis(&self.opts, &self.uvw, &self.freq, &m, None, None, out)?,
+        };
         Ok(())
     }
 }

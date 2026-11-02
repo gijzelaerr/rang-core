@@ -2239,42 +2239,121 @@ pub fn vis2dirty_multi<T: Real>(
     timer.lap("scan");
     let lay = layout::<T>(&setup, &bl, &act);
     timer.lap("layout");
+    let tables = Tables::<T>::new(&setup);
+    let mut buffers = Vec::new();
+    Ok(grid_images::<T>(
+        &setup,
+        &bl,
+        &lay,
+        &tables,
+        &mut buffers,
+        data,
+        wgt,
+        dirty,
+        psf,
+        timer,
+    ))
+}
+
+/// What a gridding or degridding pass derives from its plan alone: FFT plans,
+/// kernel coefficients, the per-pixel tables and the row and column maps.
+struct Tables<T: Real> {
+    ffts: Ffts<T>,
+    coeff: Vec<T>,
+    table: Vec<f64>,
+    rows: Vec<usize>,
+    cols: Vec<usize>,
+    inv_rows: Vec<usize>,
+    corr: Vec<f64>,
+    cfuv: (Vec<f64>, Vec<f64>),
+}
+
+impl<T: Real> Tables<T> {
+    fn new(setup: &Setup) -> Tables<T> {
+        let rows = image_rows(setup);
+        let mut inv_rows = vec![usize::MAX; setup.nu];
+        for (i, &ix) in rows.iter().enumerate() {
+            inv_rows[ix] = i;
+        }
+        Tables {
+            ffts: Ffts::<T>::new(setup.nu, setup.nv),
+            coeff: coeff_even_odd::<T>(&setup.kernel),
+            table: if setup.do_wgridding {
+                setup.screen_table()
+            } else {
+                Vec::new()
+            },
+            rows,
+            cols: image_cols(setup),
+            inv_rows,
+            corr: if setup.do_wgridding {
+                setup.global_corrections()
+            } else {
+                Vec::new()
+            },
+            cfuv: if setup.do_wgridding {
+                (Vec::new(), Vec::new())
+            } else {
+                setup.uv_corrections()
+            },
+        }
+    }
+}
+
+/// The gridding half of `vis2dirty_multi` on a finished plan and layout; the
+/// outputs are zero on entry. `buffers` holds zeroed grids to reuse, and is
+/// left zeroed.
+#[allow(clippy::too_many_arguments)]
+fn grid_images<T: Real>(
+    setup: &Setup,
+    bl: &Baselines,
+    lay: &Layout,
+    tables: &Tables<T>,
+    buffers: &mut Vec<Vec<Complex<T>>>,
+    data: VisData,
+    wgt: Weights,
+    dirty: Option<&mut [T]>,
+    psf: Option<&mut [T]>,
+    mut timer: Timer,
+) -> Plan {
     // A dirty image alone stores data values; a PSF (alone or with the
     // dirty image) stores unit values, the dirty value formed per plane.
     let both = dirty.is_some() && psf.is_some();
     let stored_data = (psf.is_none()).then_some(data);
-    let stored = values::<T>(&setup, &bl, &lay.refs, stored_data, wgt);
+    let stored = values::<T>(setup, bl, &lay.refs, stored_data, wgt);
     timer.lap("values");
-    let ffts = Ffts::<T>::new(setup.nu, setup.nv);
-    let coeff = coeff_even_odd::<T>(&setup.kernel);
-    let table = if setup.do_wgridding {
-        setup.screen_table()
-    } else {
-        Vec::new()
-    };
-    let rows = image_rows(&setup);
-    let cols = image_cols(&setup);
+    let Tables {
+        ffts,
+        coeff,
+        table,
+        rows,
+        cols,
+        corr,
+        cfuv,
+        ..
+    } = tables;
     let input = GridIn {
-        setup: &setup,
-        bl: &bl,
-        lay: &lay,
+        setup,
+        bl,
+        lay,
         stored: &stored,
         data: both.then_some(data),
-        coeff: &coeff,
+        coeff,
     };
     let mut images: Vec<&mut [T]> = [dirty, psf].into_iter().flatten().collect();
     let nout = images.len();
-    let group = plane_group(&setup, nout);
-    let mut grids: Vec<Vec<Complex<T>>> = (0..group * nout)
-        .map(|_| vec![czero::<T>(); setup.nu * setup.nv])
-        .collect();
+    let group = plane_group(setup, nout);
+    let grids = buffers;
+    while grids.len() < group * nout {
+        grids.push(vec![czero::<T>(); setup.nu * setup.nv]);
+    }
     let mut screen = Vec::new();
     timer.lap("setup");
     let nplanes = setup.nplanes.max(1);
     let mut p0 = 0;
     while p0 < nplanes {
         let ng = group.min(nplanes - p0);
-        let (_, active) = plane_tiles(&setup, &lay, p0, p0 + ng - 1);
+        let (_, active) = plane_tiles(setup, lay, p0, p0 + ng - 1);
         if active.is_empty() {
             p0 += ng;
             continue;
@@ -2288,12 +2367,12 @@ pub fn vis2dirty_multi<T: Real>(
             }
             let w0 = setup.wmin + (p0 + g) as f64 * setup.dw;
             if setup.do_wgridding {
-                screen_par(&table, w0, true, &mut screen);
+                screen_par(table, w0, true, &mut screen);
             }
             timer.lap("screen");
             for (o, img) in images.iter_mut().enumerate() {
                 let grid = &mut gridded[g * nout + o];
-                grid_to_image(&setup, &ffts, grid, rows_needed, &screen, &rows, &cols, img);
+                grid_to_image(setup, ffts, grid, rows_needed, &screen, rows, cols, img);
             }
             timer.lap("fft");
         }
@@ -2313,23 +2392,12 @@ pub fn vis2dirty_multi<T: Real>(
         timer.lap("zero");
         p0 += ng;
     }
-    drop(grids);
-    let corr = if setup.do_wgridding {
-        setup.global_corrections()
-    } else {
-        Vec::new()
-    };
-    let cfuv = if setup.do_wgridding {
-        (Vec::new(), Vec::new())
-    } else {
-        setup.uv_corrections()
-    };
     for img in images.iter_mut() {
-        correct_image(&setup, img, &corr, &cfuv);
+        correct_image(setup, img, corr, cfuv);
     }
     timer.lap("corrections");
     timer.report("vis2dirty");
-    Ok(setup.plan)
+    setup.plan
 }
 
 /// `vis2dirty`: visibilities `vis` (`nrow * nchan`, row-major) with optional
@@ -2597,20 +2665,42 @@ pub fn dirty2vis_multi<T: Real>(
     timer.lap("scan");
     let lay = layout::<T>(&setup, &bl, &act);
     timer.lap("layout");
+    let tables = Tables::<T>::new(&setup);
+    let mut grid = Vec::new();
+    Ok(degrid_images::<T>(
+        &setup, &bl, &lay, &tables, &mut grid, dirty, wgt, vis, timer,
+    ))
+}
+
+/// The degridding half of `dirty2vis_multi` on a finished plan and layout;
+/// `vis` is zero on entry. `grid` is a work grid to reuse; every pass fills
+/// the rows it reads.
+#[allow(clippy::too_many_arguments)]
+fn degrid_images<T: Real>(
+    setup: &Setup,
+    bl: &Baselines,
+    lay: &Layout,
+    tables: &Tables<T>,
+    grid: &mut Vec<Complex<T>>,
+    dirty: &[T],
+    wgt: Weights,
+    vis: &mut [Complex<T>],
+    mut timer: Timer,
+) -> Plan {
     let (nx, ny) = (setup.nx, setup.ny);
     // The corrected copy of the image (dirty2grid_pre / apply_global_corrections).
     let mut image: Vec<T> = dirty.to_vec();
-    let corr = if setup.do_wgridding {
-        setup.global_corrections()
-    } else {
-        Vec::new()
-    };
+    let Tables {
+        ffts,
+        coeff,
+        table,
+        rows: _,
+        cols,
+        inv_rows,
+        corr,
+        cfuv,
+    } = tables;
     let (_, tny) = setup.table_dims();
-    let cfuv = if setup.do_wgridding {
-        (Vec::new(), Vec::new())
-    } else {
-        setup.uv_corrections()
-    };
     image
         .par_chunks_exact_mut(ny)
         .enumerate()
@@ -2627,45 +2717,30 @@ pub fn dirty2vis_multi<T: Real>(
                 }
             }
         });
-    let ffts = Ffts::<T>::new(setup.nu, setup.nv);
-    let coeff = coeff_even_odd::<T>(&setup.kernel);
-    let table = if setup.do_wgridding {
-        setup.screen_table()
-    } else {
-        Vec::new()
-    };
-    let rows = image_rows(&setup);
-    let mut inv_rows = vec![usize::MAX; setup.nu];
-    for (i, &ix) in rows.iter().enumerate() {
-        inv_rows[ix] = i;
-    }
-    let cols = image_cols(&setup);
     let input = DegridIn {
-        setup: &setup,
-        bl: &bl,
-        lay: &lay,
-        coeff: &coeff,
+        setup,
+        bl,
+        lay,
+        coeff,
     };
-    let mut grid = vec![czero::<T>(); setup.nu * setup.nv];
+    grid.resize(setup.nu * setup.nv, czero::<T>());
     let mut screen = Vec::new();
     let out = SyncPtr(vis.as_mut_ptr());
     timer.lap("setup");
     for p in 0..setup.nplanes.max(1) {
-        let (_, all) = plane_tiles(&setup, &lay, p, p);
+        let (_, all) = plane_tiles(setup, lay, p, p);
         if all.is_empty() {
             continue;
         }
-        let needed = tile_rows(&setup, &lay, &all);
+        let needed = tile_rows(setup, lay, &all);
         let w0 = setup.wmin + p as f64 * setup.dw;
         if setup.do_wgridding {
-            screen_par(&table, w0, false, &mut screen);
+            screen_par(table, w0, false, &mut screen);
         }
         timer.lap("screen");
-        image_to_grid(
-            &setup, &ffts, &image, &screen, &inv_rows, &cols, &needed, &mut grid,
-        );
+        image_to_grid(setup, ffts, &image, &screen, inv_rows, cols, &needed, grid);
         timer.lap("fft");
-        with_supp!(setup.supp, degrid_plane, input, p, &grid, out);
+        with_supp!(setup.supp, degrid_plane, input, p, grid, out);
         timer.lap("degrid");
     }
     let nchan = bl.f_over_c.len();
@@ -2676,7 +2751,7 @@ pub fn dirty2vis_multi<T: Real>(
         unsafe {
             let o = out.get().add(idx);
             *o = if setup.shifting {
-                let ph = shift_phase::<T>(&setup, &bl, r, -1.0);
+                let ph = shift_phase::<T>(setup, bl, r, -1.0);
                 *o * Complex::new(ph.re * twgt, ph.im * twgt)
             } else {
                 *o * twgt
@@ -2685,7 +2760,123 @@ pub fn dirty2vis_multi<T: Real>(
     });
     timer.lap("phases");
     timer.report("dirty2vis");
-    Ok(setup.plan)
+    setup.plan
+}
+
+/// The plan and layout of a fixed set of visibilities, kept between calls:
+/// repeated degridding and gridding of the same uvw, weights and image skip
+/// the scan, the kernel choice and the sort. The active set is the nonzero
+/// `wgt`: a visibility that is exactly zero is still gridded, with no effect
+/// on the image beyond the rounding order within its tile.
+pub struct Prepared<T: Real> {
+    opts: Options,
+    bl: Baselines,
+    prepared: Option<(Setup, Layout, Tables<T>)>,
+    n: usize,
+    /// Zeroed grids of the gridding direction.
+    grids: std::sync::Mutex<Vec<Vec<Complex<T>>>>,
+    /// The work grid of the degridding direction.
+    work: std::sync::Mutex<Vec<Complex<T>>>,
+}
+
+impl<T: Real> Prepared<T> {
+    /// `uvw` is `nrow * 3`, `wgt` `nrow * nchan`.
+    pub fn new(
+        opts: &Options,
+        uvw: &[f64],
+        freq: &[f64],
+        wgt: Weights,
+    ) -> Result<Prepared<T>, String> {
+        let nchan = freq.len();
+        let nrow = uvw.len() / 3;
+        check_common(opts, nrow, nchan, uvw)?;
+        let n = nrow * nchan;
+        if wgt.len().is_some_and(|l| l != n) {
+            return Err("array lengths disagree".into());
+        }
+        let (r_l, r_m) = recentring(opts);
+        let flips = [opts.flip_u, opts.flip_v, !opts.flip_w];
+        let bl = Baselines::new(uvw, freq, flips, r_l, r_m)?;
+        let act = Activity {
+            vis: None,
+            wgt,
+            mask: None,
+        };
+        let (nvis, wmin_d, wmax_d) = scan::<T>(&bl, &act);
+        let prepared = if nvis == 0 {
+            None
+        } else {
+            let setup = Setup::new::<T>(opts, nvis, wmin_d, wmax_d, r_l, r_m, true)?;
+            let lay = layout::<T>(&setup, &bl, &act);
+            let tables = Tables::<T>::new(&setup);
+            Some((setup, lay, tables))
+        };
+        Ok(Prepared {
+            opts: *opts,
+            bl,
+            prepared,
+            n,
+            grids: std::sync::Mutex::new(Vec::new()),
+            work: std::sync::Mutex::new(Vec::new()),
+        })
+    }
+
+    /// `vis2dirty` of `data` with the prepared plan, with weights `wgt`.
+    pub fn vis2dirty(&self, data: VisData, wgt: Weights, dirty: &mut [T]) -> Result<Plan, String> {
+        if data.len().is_some_and(|l| l != self.n)
+            || wgt.len().is_some_and(|l| l != self.n)
+            || dirty.len() != self.opts.nx * self.opts.ny
+        {
+            return Err("array lengths disagree".into());
+        }
+        dirty.fill(T::zero());
+        Ok(match &self.prepared {
+            None => Plan::default(),
+            Some((setup, lay, tables)) => grid_images::<T>(
+                setup,
+                &self.bl,
+                lay,
+                tables,
+                &mut self.grids.lock().expect("no panic while gridding"),
+                data,
+                wgt,
+                Some(dirty),
+                None,
+                Timer::new(),
+            ),
+        })
+    }
+
+    /// `dirty2vis` with the prepared plan, times the optional weights;
+    /// inactive visibilities come back zero.
+    pub fn dirty2vis(
+        &self,
+        dirty: &[T],
+        wgt: Weights,
+        vis: &mut [Complex<T>],
+    ) -> Result<Plan, String> {
+        if vis.len() != self.n
+            || wgt.len().is_some_and(|l| l != self.n)
+            || dirty.len() != self.opts.nx * self.opts.ny
+        {
+            return Err("array lengths disagree".into());
+        }
+        vis.par_iter_mut().for_each(|v| *v = czero());
+        Ok(match &self.prepared {
+            None => Plan::default(),
+            Some((setup, lay, tables)) => degrid_images::<T>(
+                setup,
+                &self.bl,
+                lay,
+                tables,
+                &mut self.work.lock().expect("no panic while degridding"),
+                dirty,
+                wgt,
+                vis,
+                Timer::new(),
+            ),
+        })
+    }
 }
 
 /// `dirty2vis`: the image `dirty` (`nx * ny`, first axis l) to visibilities
