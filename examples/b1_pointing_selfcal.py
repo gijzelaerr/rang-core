@@ -1019,6 +1019,27 @@ def compare(out_json, sets, rerun_runs=()):
                 if k in rec
             }
             entry["arms"][a]["run"] = rec["_run"]
+            # post hoc (labelled, no call): the mean can be set by a few cells
+            v = rec["_vals"]
+            pct = np.percentile(v, [50, 90, 99, 99.9, 100])
+            top = np.sort(v)[: int(0.999 * len(v))]
+            entry["arms"][a]["post_hoc_heldout"] = {
+                "median": float(pct[0]),
+                "p90": float(pct[1]),
+                "p99": float(pct[2]),
+                "p99p9": float(pct[3]),
+                "max": float(pct[4]),
+                "mean_lowest_99p9_percent": float(top.mean()),
+            }
+            d = np.asarray(rec["delta_arcmin"], float)
+            act = np.asarray(rec["active"], bool)
+            entry["arms"][a]["post_hoc_offsets"] = {
+                "rms_arcmin": float(np.sqrt(np.mean(d[act] ** 2))),
+                "max_abs_arcmin": float(np.abs(d[act]).max()),
+            }
+            for key in ("rejected_outside_beam_grid", "elevation_deg_per_scan"):
+                if key in rec:
+                    entry["arms"][a][key] = rec[key]
             for k in ("offsets", "selection", "squint_arcmin", "ellipticity"):
                 if k in rec:
                     entry["arms"][a][k] = (
