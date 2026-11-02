@@ -15,6 +15,10 @@ crate-type = ["rlib", "cdylib"]
 name = "gmclean"
 path = "src/bin/gmclean.rs"
 
+[[bin]]
+name = "gridder_gram_bench"
+path = "src/bin/gridder_gram_bench.rs"
+
 [dependencies]
 rang-toy = { path = ".." }
 rayon = "1.12.0"
