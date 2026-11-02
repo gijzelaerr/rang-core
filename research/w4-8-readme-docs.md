@@ -1,7 +1,7 @@
 # W4-8: the documentation pass
 
 Status: **implemented and checked; documentation only, no numerical code or
-result changed.** check-all: LAST_RESULT.
+result changed.** check-all: `overall: PASS` (858 passed, 13 skipped).
 
 The owner's instruction: the README "has become a bit of a mess"; clean it up
 and restructure it. The wave 4 pass and the "Documentation drift" table of
@@ -109,7 +109,7 @@ on GitHub. The job stays useful on forks.
 | `bash tools/check-all.sh`, second run | 2031 s | `overall: PASS`, pytest 816 passed, 13 skipped in 212.2 s; includes lock wait |
 | `bash tools/check-all.sh`, third run, after merging `f376d4b` | 1697 s | `overall: PASS`, pytest 840 passed, 13 skipped in 246.1 s; includes lock wait |
 | `bash tools/check-all.sh`, final run, after merging `378b66b` | 1236 s | `overall: PASS`, pytest 858 passed, 13 skipped in 297.1 s; includes lock wait |
-| `bash tools/check-all.sh`, last run, after merging `4263f7c` (notes only) | LAST_WALL | LAST_RESULT |
+| `bash tools/check-all.sh`, last run, after merging `4263f7c` (notes only) | 576 s | `overall: PASS`, pytest 858 passed, 13 skipped in 280.8 s; includes lock wait |
 
 ## For the coordinator
 
