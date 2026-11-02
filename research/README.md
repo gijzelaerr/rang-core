@@ -243,6 +243,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 - [MK1, the MVFv4 loader](mk1-katdal.md): a `[meerkat]` extra (katdal 0.23) and `rang.meerkat`, MVF archives into core row chunks with native flag bits; exact against raw chunks, katdal and mvftoms on a synthetic archive (no public MVF exists); L3 is ready when data arrive.
 - [RV1, re-validation](rv1-revalidate.md): against the unreleased Tricolour 0.5.0-dev (`367ff54`: flag for flag identical to 0.2.1 and the core port, CLI included; the `uvrange` rule changed) and QuartiCal v0.2.8-dev (`d54c46b`: the #452 fix moves 50-iteration gains by up to 2.8e-4; the core's `qp_weights=transposed` reproduces it to 1e-15).
 - [FS1, flux standards](fs1-flux-standards.md): CASA's `setjy` standards in the core to the last bit; an erratum for O-CASA's residuals.
+- [FS2, PB2017 and PB2013 against `setjy`](fs2-casarundata.md): CASA's own tables; 3C123, 3C286, 3C295 and Hercules A equal and regular, 16 sources stay opt-in because CASA's table is not the paper's Table 5 (more digits, epoch rows, 3C353's a3); no transcription error.
 
 ## Upstream reporting
 

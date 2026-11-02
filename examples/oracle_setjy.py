@@ -10,6 +10,10 @@ With `--tables DIR` the process works in DIR, where CASA looks for the
 `PerleyButler2017Coeffs`/`PerleyButler2013Coeffs` tables (mount them
 read-only); the run directory is then given as an absolute path.
 
+FS2 (research/fs2-casarundata.md): `--dump-tables --tables DIR` records the
+tables' columns; `--fs2 --tables DIR` runs PB2017 and PB2013 on FS1's grid, the
+PB2010 control, the secondary sources and the epoch and frame arm.
+
 Writes into the (empty or new) run directory only: the template MSs, one MS
 copy per standard, one CASA log per `setjy` call, `.npy` arrays and
 `oracle.json` (SHA-256 of every array, versions, wall times).
@@ -47,6 +51,28 @@ FIELDS = {
     "PKS1934-638": ("19h39m25.0s", "-63d42m46s"),
     "J0408-6545": ("04h08m20.4s", "-65d45m09s"),
 }
+# FS2's secondary arm: the PB2017 sources FIELDS lacks, with the names to try.
+_FS2_SOURCES = (
+    (("J0133-3629",), "01h33m04.0s", "-36d29m34s"),
+    (("FORNAX_A", "FORNAXA"), "03h22m41.7s", "-37d12m30s"),
+    (("J0444-2809",), "04h44m37.7s", "-28d09m54s"),
+    (("PICTOR_A", "PICTORA"), "05h19m49.7s", "-45d46m44s"),
+    (("TAURUS_A", "TAURUSA", "3C144"), "05h34m32.0s", "22d00m52s"),
+    (("HYDRA_A", "HYDRAA", "3C218"), "09h18m05.7s", "-12d05m44s"),
+    (("VIRGO_A", "VIRGOA", "3C274"), "12h30m49.4s", "12d23m28s"),
+    (("HERCULES_A", "HERCULESA", "3C348"), "16h51m08.1s", "04d59m33s"),
+    (("3C353",), "17h20m28.2s", "-00d58m47s"),
+    (("CYGNUS_A", "CYGNUSA", "3C405"), "19h59m28.4s", "40d44m02s"),
+    (("CASSIOPEIA_A", "CASSIOPEIAA", "3C461"), "23h23m24.0s", "58d48m54s"),
+)
+FS2_FIELDS = {n: (ra, dec) for names, ra, dec in _FS2_SOURCES for n in names}
+FS2_EPOCH_FIELDS = ("3C48", "3C138", "3C147", "3C286", "3C295", "3C380")
+FS2_EPOCHS = (
+    ("topo-2000", "2000/01/01/00:00:00", False),
+    ("topo-2010", "2010/01/01/00:00:00", False),
+    ("topo-2020", "2020/01/01/00:00:00", False),
+    ("lsrk-2020", "2020/01/01/00:00:00", True),
+)
 FRAME_FIELDS = ("3C286", "1934-638")
 STANDARDS = ("Perley-Butler 2010", "Baars", "Stevens-Reynolds 2016")
 PENDING = ("Perley-Butler 2017", "Perley-Butler 2013")
@@ -115,7 +141,8 @@ def build(ms, epoch, lband, freqs_ghz=None, fields=None):
         )
         spws.append("L")
     sm.setfeed(mode="perfect X Y")
-    fields = {k: FIELDS[k] for k in (fields or (FIELDS if lband else FRAME_FIELDS))}
+    known = FIELDS | FS2_FIELDS
+    fields = {k: known[k] for k in (fields or (FIELDS if lband else FRAME_FIELDS))}
     for name, (ra, dec) in fields.items():
         sm.setfield(sourcename=name, sourcedirection=me.direction("J2000", ra, dec))
     sm.setlimits(shadowlimit=0.0, elevationlimit="-90deg")
@@ -295,6 +322,89 @@ def reread_ocasa(run, ocasa):
     print(json.dumps(out))
 
 
+def dump_tables(run, tables):
+    """FS2: columns, types, keywords and values of the mounted tables, read-only."""
+    tb = table()
+    out = {}
+    for name in sorted(os.listdir(tables)):
+        tb.open(str(tables / name), nomodify=True)
+        cols = {}
+        for col in tb.colnames():
+            desc = tb.getcoldesc(col)
+            cols[col] = {
+                "valueType": desc.get("valueType"),
+                "ndim": desc.get("ndim"),
+                "keywords": {k: str(v) for k, v in tb.getcolkeywords(col).items()},
+                "values": np.asarray(tb.getcol(col)).T.tolist(),
+            }
+        out[name] = {
+            "nrows": tb.nrows(),
+            "keywords": {k: str(v) for k, v in tb.getkeywords().items()},
+            "columns": cols,
+        }
+        tb.close()
+    (run / "table-dump.json").write_text(json.dumps(out, indent=1, default=str))
+    print(json.dumps({k: [v["nrows"], list(v["columns"])[:6]] for k, v in out.items()}))
+
+
+def fs2(run, record, hashes):
+    """FS2's arms (research/fs2-casarundata.md); the template and MS as FS1."""
+    start = time.time()
+    template = run / "template.ms"
+    build(str(template), "2020/01/01/00:00:00", lband=True)
+    record["spw"] = spw_table(template)
+    for standard in ("Perley-Butler 2010",) + PENDING:
+        t0 = time.time()
+        run_standard(run, template, standard, list(FIELDS), record["standards"], hashes)
+        record["timing"][standard] = round(time.time() - t0, 3)
+    shutil.rmtree(template)
+    t0 = time.time()
+    build(str(template), "2020/01/01/00:00:00", True, fields=list(FS2_FIELDS))
+    record["secondary"] = {}
+    for standard in PENDING:
+        run_standard(
+            run, template, standard, list(FS2_FIELDS), record["secondary"], hashes
+        )
+    shutil.rmtree(template)
+    record["timing"]["secondary_s"] = round(time.time() - t0, 3)
+    t0 = time.time()
+    fs2_epoch_arm(run, record, FS2_EPOCH_FIELDS)
+    record["timing"]["epoch_check_s"] = round(time.time() - t0, 3)
+    record["timing"]["total_s"] = round(time.time() - start, 3)
+    record["array_sha256"] = hashes
+    (run / "oracle.json").write_text(json.dumps(record, indent=1, default=float))
+    print(json.dumps({"arrays": len(hashes), "total_s": record["timing"]["total_s"]}))
+
+
+def fs2_epoch_arm(run, record, fields):
+    """`fluxd` on the single-channel SPWs per epoch and frame, both standards."""
+    record["epoch_check"] = {}
+    for label, epoch, lsrk in FS2_EPOCHS:
+        ms = run / f"epoch-{label}.ms"
+        build(str(ms), epoch, False, fields=list(fields))
+        if lsrk:
+            tb = table()
+            tb.open(f"{ms}/SPECTRAL_WINDOW", nomodify=False)
+            tb.putcol("MEAS_FREQ_REF", np.ones(tb.nrows(), dtype=np.int32))
+            tb.close()
+        spws = spw_table(ms)
+        out = {"meas_freq_ref": sorted(set(spws["meas_freq_ref"]))}
+        for standard in PENDING:
+            per = {}
+            for field in fields:
+                entry = call_setjy(
+                    run, ms, field, standard,
+                    f"epoch-{label}-{standard.replace(' ', '_')}-{field}",
+                )  # fmt: skip
+                per[field] = [
+                    [spws["chan"][i][0], entry["fluxd"].get(i, [np.nan])[0]]
+                    for i in range(len(spws["name"]))
+                ]
+            out[standard] = per
+        record["epoch_check"][label] = out
+        shutil.rmtree(ms)
+
+
 def main(argv):
     run = Path(argv[1]).resolve()
     if "--reread-ocasa" in argv:
@@ -306,6 +416,9 @@ def main(argv):
         tables = Path(argv[argv.index("--tables") + 1]).resolve()
     (run / "logs").mkdir(parents=True, exist_ok=True)
     (run / "arrays").mkdir(exist_ok=True)
+    if "--dump-tables" in argv:
+        dump_tables(run, tables)
+        return
     if tables:
         os.chdir(tables)
     import casatools
@@ -323,6 +436,15 @@ def main(argv):
         "frame_check": {},
     }
     hashes = {}
+    if "--fs2" in argv:
+        fs2(run, record, hashes)
+        return
+    if "--fs2-epoch" in argv:  # post-hoc: the epoch arm on named fields
+        start = time.time()
+        fs2_epoch_arm(run, record, argv[argv.index("--fs2-epoch") + 1].split(","))
+        record["timing"]["total_s"] = round(time.time() - start, 3)
+        (run / "oracle.json").write_text(json.dumps(record, indent=1, default=float))
+        return
     start = time.time()
     template = run / "template.ms"
     if "--dense-1934" in argv:  # pin the 1934-638 piece breaks (second run)

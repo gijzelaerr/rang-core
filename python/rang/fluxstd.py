@@ -19,8 +19,12 @@ Every standard is a log-polynomial `log10 S = sum_k a_k x^k`,
 - **manual** is `setjy(standard='manual')`:
   `S = S0 (nu/nu0)^(sum_k spix_k log10(nu/nu0)^k)`, all in double.
 - **Perley-Butler 2017** is transcribed from Perley & Butler (2017, ApJS
-  230, 7, Table 5). CASA's table for it is not in the oracle image, so it is
-  *not verified against CASA*; `flux` refuses it unless `unverified_ok=True`.
+  230, 7, Table 5). Against `setjy` with CASA's own table (FS2,
+  research/fs2-casarundata.md) 3C123, 3C286, 3C295 and Hercules A are equal:
+  CASA's table holds Table 5's decimals in float32, and so does this table
+  for those four. CASA's table differs for the other sixteen (more digits,
+  epoch rows for 3C48, 3C138 and 3C147, one different value and one range),
+  so `flux` refuses them unless `unverified_ok=True`.
 
 Stokes Q, U and V are zero for every standard here (as `setjy` writes for
 them). Outside a model's range `flux` refuses unless `extrapolate=True`,
@@ -159,7 +163,7 @@ _BAARS = {  # Baars et al. 1977, log10 nu/MHz, quadratic (CASA float32)
     "3C295": (1.485, 0.759, -0.255),
 }
 # Perley & Butler 2017 (ApJS 230, 7; arXiv:1609.05940 Table 5), log10 nu/GHz,
-# with each source's range of validity in GHz. Not verified against CASA.
+# with each source's range of validity in GHz. Only _PB2017_VERIFIED equals CASA.
 _PB2017 = {
     "J0133-3629": ((1.0440, -0.662, -0.225), (0.2, 4)),
     "3C48": ((1.3253, -0.7553, -0.1914, 0.0498), (0.05, 50)),
@@ -182,6 +186,11 @@ _PB2017 = {
     "3C444": ((1.1064, -1.005, -0.075, -0.077), (0.2, 12)),
     "Cassiopeia A": ((3.3584, -0.7518, -0.035, -0.071), (0.2, 4)),
 }
+
+# FS2: equal to `setjy` with CASA's table, no epoch rows, the same range; stored
+# float32, as CASA's table stores Table 5's decimals (a labelled post-hoc
+# representation fix, research/fs2-casarundata.md; the digits did not change).
+_PB2017_VERIFIED = frozenset({"3C123", "3C286", "3C295", "Hercules A"})
 
 # Names CASA 6.7.6 recognised in the oracle (each alias gave identical values).
 ALIASES = {
@@ -248,10 +257,13 @@ def _models():
         True,
     )
     for src, (c, (lo, hi)) in _PB2017.items():
+        ok = src in _PB2017_VERIFIED
         models["Perley-Butler 2017", src] = Model(
-            "Perley-Butler 2017", src, (Piece(0.0, INF, GHZ, tuple(c)),),
+            "Perley-Butler 2017", src, (Piece(0.0, INF, GHZ, _f32(c) if ok else tuple(c)),),
             (lo * GHZ, hi * GHZ), f"{lo}-{hi} GHz (Perley & Butler 2017, Table 5)",
-            "Perley & Butler 2017 Table 5 (paper-transcribed; CASA oracle pending)", False,
+            "Perley & Butler 2017 Table 5, in float32 as CASA's table (FS2)" if ok else
+            "Perley & Butler 2017 Table 5 (paper-transcribed; differs from CASA's "
+            "table, research/fs2-casarundata.md)", ok,
         )  # fmt: skip
     return models
 
