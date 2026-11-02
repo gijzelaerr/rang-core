@@ -618,6 +618,8 @@ the walk with the first-put bodies consumed (`posthoc.json`).
 | 2026-10-31 | `check_ms_final.py refusals` | 5 attempts | 1.1 s | one python-casacore container |
 | 2026-10-31 | `check_ms_final.py regress` | E3, E4, E5 oracles | 16.1 s | |
 | 2026-10-31 | `check_ms_final.py serialisation`, `crossversion`, `summary`, `posthoc` | | 0.3 s each | |
+| 2026-10-31 | `bash tools/check-all.sh` | repo | 1111 s | FAIL: core `cargo fmt --check` only (formatting after the frozen run); log `outputs/e6-20261031-check-all.log` |
+| 2026-11-02 | `bash tools/check-all.sh` | repo | 754 s | PASS: root 23, core 131 Rust tests; pytest 756 passed, 17 skipped (295 s); log `outputs/e6-20261102-check-all.log` |
 
 ## For the coordinator
 
