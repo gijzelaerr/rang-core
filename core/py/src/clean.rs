@@ -10,7 +10,7 @@
 //! `CYCLE_COLUMNS` per major cycle; a `SUMMARY`-long summary). Returns 0, or
 //! 1 when an array has the wrong length; a driver error raises `ValueError`.
 
-use crate::{Ro, Rw, detach};
+use crate::{Ro, Rw, c_slice, c_slice_mut, detach};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use rang_core::clean_certified::{
@@ -88,13 +88,19 @@ pub fn clean_certified(
         return Ok(1);
     };
     let (uvw, freq, vis, wgt) = (
-        uvw.as_slice()?,
-        freq.as_slice()?,
-        vis.as_slice()?,
-        wgt.as_slice()?,
+        c_slice(&uvw, "uvw")?,
+        c_slice(&freq, "freq")?,
+        c_slice(&vis, "vis")?,
+        c_slice(&wgt, "wgt")?,
     );
-    let (model, residual) = (model.as_slice_mut()?, residual.as_slice_mut()?);
-    let (cycles, summary) = (cycles.as_slice_mut()?, summary.as_slice_mut()?);
+    let (model, residual) = (
+        c_slice_mut(&mut model, "model")?,
+        c_slice_mut(&mut residual, "residual")?,
+    );
+    let (cycles, summary) = (
+        c_slice_mut(&mut cycles, "cycles")?,
+        c_slice_mut(&mut summary, "summary")?,
+    );
     let rule = match rule {
         0 => MinorRule::Clark,
         1 => MinorRule::Provable,

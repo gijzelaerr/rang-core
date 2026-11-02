@@ -36,7 +36,7 @@ def main():
     parser.add_argument("--stations", type=stations_arg, default=None)
     args = parser.parse_args()
     run_dir = Path(args.run_dir)
-    if not str(run_dir).startswith("outputs/") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/") or run_dir.exists():
         sys.exit("the run directory must be a fresh path beneath outputs/")
     if not args.smoke:
         if args.stations is not None:
@@ -47,7 +47,8 @@ def main():
         if not pre["all_passed"]:
             sys.exit("the precondition failed; the campaign does not run")
         available = array.mem_available_gib()
-        print(f"MemAvailable {available:.1f} GiB", flush=True)
+        if available is not None:  # None outside Linux
+            print(f"MemAvailable {available:.1f} GiB", flush=True)
         if available is not None and available < array.MIN_AVAILABLE_GIB:
             sys.exit(f"less than {array.MIN_AVAILABLE_GIB} GiB available; not started")
     result = array.run(

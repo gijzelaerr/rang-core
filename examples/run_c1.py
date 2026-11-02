@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--stations", type=stations_arg, default=None)
     args = parser.parse_args()
     run_dir = Path(args.run_dir)
-    if not str(run_dir).startswith("outputs/c1-") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/c1-") or run_dir.exists():
         sys.exit("the run directory must be a fresh path beneath outputs/c1-")
     if not args.smoke:
         if args.stations is not None:

@@ -250,6 +250,13 @@ def flag_rows(
         raise ValueError("flags must match data")
     antenna1 = np.asarray(antenna1, dtype=np.int32)
     antenna2 = np.asarray(antenna2, dtype=np.int32)
+    # Every per-row array has `nrow` entries (task W4-2, W4R-05): `zip` and
+    # `np.unique` would otherwise silently use a shorter one.
+    for name, values in (("antenna1", antenna1), ("antenna2", antenna2)):
+        if values.shape != (nrow,):
+            raise ValueError(f"{name} must have {nrow} entries, not {values.shape}")
+    if np.shape(times) != (nrow,):
+        raise ValueError(f"times must have {nrow} entries, not {np.shape(times)}")
     ubl = unique_baselines(antenna1, antenna2)
     lookup = {(int(a1), int(a2)): b for b, (a1, a2) in enumerate(ubl)}
     baseline_index = np.array(
@@ -268,6 +275,8 @@ def flag_rows(
     if chan_freq.shape != (nchan,) or chan_width.shape != (nchan,):
         raise ValueError("chan_freq and chan_width must have nchan entries")
     corr_type = np.require(corr_type, np.int32, ["C", "A"])
+    if corr_type.shape != (ncorr,):
+        raise ValueError(f"corr_type must have {ncorr} entries, not {corr_type.shape}")
     if masks is None:
         masks = [load_static_mask(path) for path in static_mask_files()]
     masks = [np.require(m, np.float64, ["C", "A"]).reshape(-1) for m in masks]

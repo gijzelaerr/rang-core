@@ -53,32 +53,26 @@ RECORDED_HEADERS = (
 _local = threading.local()
 
 
-def block_table(prefix):
-    """(starts, ends, prefix length, nblocks) from a chunk's first bytes."""
-    nbytes, blocksize, nblocks, _ = core_zarr.header_fields(prefix[:HEADER])
-    cbytes = int.from_bytes(prefix[12:16], "little")
-    if prefix[2] & MEMCPYED:
-        starts = HEADER + np.arange(nblocks, dtype=np.int64) * blocksize
-        ends = np.minimum(starts + blocksize, HEADER + nbytes)
-        used = HEADER
-    else:
-        used = HEADER + 4 * nblocks
-        if len(prefix) < used:
-            raise ValueError("blosc start table longer than the fetched prefix")
-        starts = np.frombuffer(prefix[HEADER:used], "<u4").astype(np.int64)
-        ends = np.append(starts[1:], cbytes)
-    return starts, ends, used, nblocks
+# The block table and the out-of-order test are `core_zarr`'s (task W4-2,
+# W4R-09): one copy for the local and the fetched paths.
+block_table = core_zarr.block_table
 
 
 def plan_runs(prefix, row_bytes, rows):
-    """Runs of needed blocks as (first_block, count, start, end), like read_rows."""
+    """Runs of needed blocks as (first_block, count, start, end), like read_rows.
+
+    When the blocks are stored out of order (`core_zarr.blocks_in_order`) the
+    plan is the whole chunk, `(0, nblocks, 0, cbytes)`, decoded in full."""
     rows = np.asarray(rows, dtype=np.int64)
     if rows.ndim != 1 or np.any(np.diff(rows) <= 0):
         raise ValueError("rows must be ascending and unique")
-    starts, ends, _, _ = block_table(prefix)
+    starts, ends, _, nblocks = block_table(prefix)
     nbytes, blocksize, _, _ = core_zarr.header_fields(prefix[:HEADER])
     if len(rows) and (rows[-1] + 1) * row_bytes > nbytes:
         raise ValueError("row beyond the chunk")
+    if not core_zarr.blocks_in_order(starts):
+        cbytes = int.from_bytes(prefix[12:16], "little")
+        return [(0, nblocks, 0, cbytes)] if len(rows) else []
     first = rows * row_bytes // blocksize
     last = ((rows + 1) * row_bytes - 1) // blocksize
     if not len(rows):
@@ -257,9 +251,12 @@ def fetch_slice(
     lock = threading.Lock()
 
     def client():
-        if not hasattr(_local, "client"):
-            _local.client = Client(base_url)
-        return _local.client
+        # One connection per thread and store: a thread's client of an
+        # earlier call must not serve another base URL (found by W4-2).
+        clients = _local.__dict__.setdefault("clients", {})
+        if base_url not in clients:
+            clients[base_url] = Client(base_url)
+        return clients[base_url]
 
     def whole(key):
         record, body = client().get(key)
@@ -294,9 +291,9 @@ def fetch_slice(
                 for name in tile_columns
             }
         )
+        expected = dict(row_columns)
         for name, meta in metas.items():
-            if meta["compressor"]["id"] != "blosc" or meta.get("filters"):
-                raise ValueError(f"{name}: only plain blosc arrays are supported")
+            core_zarr.check_meta(meta, name, expected.get(name))
         row_payloads = dict(
             zip(
                 [name for name, _ in row_columns],
@@ -380,10 +377,33 @@ def decode_rows_into(head, first, count, span, row_bytes, rows, out, offset, str
     flat = out.reshape(-1).view(np.uint8)
     if offset < 0 or offset > flat.size:
         raise ValueError("offset outside out")
+    core_zarr.check_rows_covered(head, first, count, row_bytes, rows)
     span = np.frombuffer(span, np.uint8) if isinstance(span, bytes) else span
     return core.extension().blosc_decode_span_rows_strided(
         bytes(head), first, count, span, row_bytes, rows, flat, offset, stride
     )
+
+
+def _write_rows(out, offset, stride, picked):
+    """Write the `(n, row_bytes)` uint8 rows `picked` at byte `offset + i *
+    stride` of `out` (a writable C-contiguous array), as the strided decoder
+    does; the out-of-order fallback's writer."""
+    if not out.flags.c_contiguous or not out.flags.writeable:
+        raise ValueError("out must be a writable C-contiguous array")
+    flat = out.reshape(-1).view(np.uint8)
+    n, row_bytes = picked.shape
+    if not n:
+        return
+    if (
+        offset < 0
+        or stride < row_bytes
+        or offset + (n - 1) * stride + row_bytes > flat.size
+    ):
+        raise ValueError("rows outside out")
+    dest = np.lib.stride_tricks.as_strided(
+        flat[offset:], shape=(n, row_bytes), strides=(stride, 1), writeable=True
+    )
+    dest[...] = picked
 
 
 def _runs(blocksize, row_bytes, rows):
@@ -432,6 +452,16 @@ def read_rows_into(path, row_bytes, rows, out, offset):
         if not head[2] & MEMCPYED:
             head = bytes(view[: HEADER + 4 * nblocks])
         starts, ends, _, _ = block_table(head)
+        if not core_zarr.blocks_in_order(starts):
+            # Blocks stored out of order: decode the whole chunk, as
+            # `core_zarr.read_rows` does, and write the rows at their offsets.
+            stats["bytes_read"] = view.size
+            stats["blocks_decoded"] = nblocks
+            started = time.perf_counter()
+            picked = core_zarr.whole_chunk_rows(view, row_bytes, rows)
+            stats["decode_seconds"] = time.perf_counter() - started
+            _write_rows(out, offset, stride, picked)
+            return stats
         stats["bytes_read"] += len(head)
         if len(rows) and (rows[-1] + 1) * row_bytes > nbytes:
             raise ValueError("row beyond the chunk")
@@ -483,7 +513,7 @@ def decode_slice(fetched):
         )
         stats["decode_seconds"] += time.perf_counter() - started
     for name in result["tile_columns"]:
-        meta = json.loads((fetched / "objects" / group / name / ".zarray").read_text())
+        meta = core_zarr.array_meta(fetched / "objects" / group / name)
         nchan, ncorr = meta["chunks"][1], meta["chunks"][2]
         dtype = np.dtype(meta["dtype"])
         out = np.empty((len(rows), nchan * len(result["tiles"]), ncorr), dtype)
@@ -494,9 +524,20 @@ def decode_slice(fetched):
             if row_bytes != nchan * ncorr * dtype.itemsize:
                 raise ValueError(f"{key}: row size disagrees with the metadata")
             prefix = (fetched / "spans" / key / "head").read_bytes()
-            _, _, used, _ = block_table(prefix)
+            starts, _, used, nblocks = block_table(prefix)
             head = prefix[:used]
             _, blocksize, _, _ = core_zarr.header_fields(head)
+            if not core_zarr.blocks_in_order(starts):
+                # The plan fetched the whole chunk (`plan_runs`).
+                if len(rows):
+                    body = (fetched / "spans" / key / f"0-{nblocks}").read_bytes()
+                    started = time.perf_counter()
+                    picked = core_zarr.whole_chunk_rows(body, row_bytes, rows)
+                    stats["decode_seconds"] += time.perf_counter() - started
+                    _write_rows(out, position * row_bytes, out.strides[0], picked)
+                    stats["blocks_decoded"] += nblocks
+                    stats["bytes_decoded"] += len(body)
+                continue
             runs = {
                 (first, count): part
                 for first, count, part in _runs(blocksize, row_bytes, rows)

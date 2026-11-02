@@ -1,6 +1,7 @@
 //! C ABI for the flux-standard kernel (`fluxstd.rs`, task FS1). Every pointer
-//! has an explicit length; the return code is 0 on success and 1 on bad
-//! input (null pointer, empty coefficients, non-positive frequency or unit).
+//! has an explicit length; the return code is 0 on success, 1 on bad input
+//! (null pointer, empty coefficients, non-positive frequency or unit) and 2
+//! on a panic (task W4-2: a panic no longer aborts the process).
 
 use crate::fluxstd;
 
@@ -22,27 +23,30 @@ pub unsafe extern "C" fn rang_core_fluxstd_eval(
     if coeffs.is_null() || (nfreq > 0 && (freq.is_null() || out.is_null())) {
         return 1;
     }
-    // SAFETY: the caller guarantees the lengths and that `out` is unaliased.
-    let (coeffs, freq) = unsafe {
-        (
-            std::slice::from_raw_parts(coeffs, ncoeff),
-            if nfreq == 0 {
-                &[][..]
-            } else {
-                std::slice::from_raw_parts(freq, nfreq)
-            },
-        )
-    };
-    match fluxstd::log10_poly(coeffs, unit_hz, freq) {
-        Ok(values) => {
-            if nfreq > 0 {
-                // SAFETY: as above.
-                unsafe { std::slice::from_raw_parts_mut(out, nfreq) }.copy_from_slice(&values);
+    std::panic::catch_unwind(|| {
+        // SAFETY: the caller guarantees the lengths and that `out` is unaliased.
+        let (coeffs, freq) = unsafe {
+            (
+                std::slice::from_raw_parts(coeffs, ncoeff),
+                if nfreq == 0 {
+                    &[][..]
+                } else {
+                    std::slice::from_raw_parts(freq, nfreq)
+                },
+            )
+        };
+        match fluxstd::log10_poly(coeffs, unit_hz, freq) {
+            Ok(values) => {
+                if nfreq > 0 {
+                    // SAFETY: as above.
+                    unsafe { std::slice::from_raw_parts_mut(out, nfreq) }.copy_from_slice(&values);
+                }
+                0
             }
-            0
+            Err(_) => 1,
         }
-        Err(_) => 1,
-    }
+    })
+    .unwrap_or(2)
 }
 
 #[cfg(test)]
