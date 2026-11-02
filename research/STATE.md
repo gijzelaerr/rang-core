@@ -4,18 +4,25 @@
 
 Update this block when a merge changes it. The log below is the record.
 
-- **What `main` is:** rang-core 0.1.0 before its first tag: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
+- **What `main` is:** rang-core after the 0.1.0 release: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
 - **Running:** the CLEAN programme's gmclean branches arrive separately.
-- **Next:** the owner's v0.1.0 tag, then Landman's self-supervised flagger (protocol first), then DF5 with an RML arm, then B1 with an external catalogue.
-- **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; forward the observer's native data when it arrives.
+- **Next:** Landman's self-supervised flagger ([protocol](f1-tv-flagger.md); early test first), then DF5 with an RML arm, then B1 with an external catalogue.
+- **User items** ([big plan](big-plan.md#user-items-not-blocking)): allow JAX on the flagger's training path; ask Landman the three protocol questions; forward the observer's native data when it arrives.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
 
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+v0.1.0 released, 2026-11-02. The owner tagged `09bb03f`; the wheels workflow built and tested the
+five wheels and the sdist, created the GitHub release and published to PyPI by trusted publishing.
+`pip install rang-core==0.1.0` from PyPI on native Windows runs `rang-core --version` and imports
+`rang._core`. Merged with this note: the F1 protocol ([f1-tv-flagger.md](f1-tv-flagger.md),
+proposed; nothing trained; its early test waits for the owner's decision on JAX in training).
+
 
 U4, upstream findings filed (big plan), 2026-11-02 (implemented; measured;
 [u4-upstream.md](u4-upstream.md)). Filed, each reproduced on the latest release: tigger-lsm#55, #56,

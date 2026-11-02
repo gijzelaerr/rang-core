@@ -7,11 +7,9 @@ pip install rang-core
 ```
 
 ```{note}
-`rang-core` is not on PyPI until the first release is tagged (`v0.1.0`
-publishes it). Until then, install [from source](#from-source), or download
-a wheel from the artifacts of a `wheels` workflow run and
-`pip install rang_core-<version>-cp310-abi3-<platform>.whl`.
-```
+`rang-core` is on [PyPI](https://pypi.org/project/rang-core/); the wheels are also attached to each
+[GitHub release](https://github.com/gijzelaerr/rang-core/releases). To build it yourself, install
+[from source](#from-source).
 
 The wheel carries the compiled core, so no Rust compiler is needed for the
 flagging chain, imaging and the tutorials. Every kernel is inside the

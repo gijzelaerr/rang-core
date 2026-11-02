@@ -36,7 +36,7 @@
 pip install rang-core
 ```
 
-The first PyPI release, v0.1.0, is pending; until then, build from source. One
+One
 `abi3` wheel per platform serves CPython 3.10 and newer, needs no Rust compiler
 and carries every kernel: Linux x86_64 and aarch64 (glibc 2.28 or newer), macOS
 arm64 and x86_64, Windows x86_64.

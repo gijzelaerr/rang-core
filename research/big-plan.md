@@ -407,7 +407,7 @@ CPU-heavy tasks at a time on 8 physical cores.
 
 ## Next, decided by the user 2026-11-02
 
-In order, after the merges now running: the owner tags v0.1.0 (not held for the flagger);
+v0.1.0 released 2026-11-02 (tag on `09bb03f`, on PyPI). Then, in order:
 Landman's self-supervised flagger, gain TV as the training loss, judged against the Rust
 Tricolour port on speed and tunable parameters at comparable quality, frozen protocol first;
 DF5 with an RML arm (TV, sparsity) against the DF5-O oracles at matched cost; B1 reopened with
@@ -424,8 +424,8 @@ casacure findings go in as ordinary issues and PRs; no separate contact is neede
   release-note request (`upstream-issues/tricolour-uvrange-semantics.md`).
 - Rebase rang's Tricolour PR #114 onto `0.5.0-dev` (a push to the user's
   fork; RV1).
-- **Release v0.1.0** after W4-1, W4-3 and W4-5 are merged and `main`'s
-  `wheels` run is green:
+- Later releases follow what v0.1.0 did (done 2026-11-02). Tag a named commit
+  whose `wheels` run is green, since the mirror's `main` may be stale:
   1. In `CHANGELOG.md`, change the heading
      `## 0.1.0 (unreleased: dated the day v0.1.0 is tagged)` to
      `## 0.1.0 (<YYYY-MM-DD>)`.
