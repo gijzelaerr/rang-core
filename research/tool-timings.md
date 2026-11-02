@@ -1210,3 +1210,22 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan W4-1: `cargo test --release --lib solve::` | core | 173 s build, 0.9 s tests | – | 15 pass |
 | 2026-10-31 | big plan W4-1: r02 / r05 (wheel in a scratch repository) | `outputs/w4-1-20261031-01` | 1.1 s / 0.9 s | – | wheel build 1 s (target reused) |
 | 2026-10-31 | big plan W4-1: `bash tools/check-all.sh` | branch `w4-1-receipts` | 1156 s (lock wait included) | – | overall PASS; pytest 750 passed, 18 skipped |
+| 2026-10-31 | big plan E6: `git clone --depth 1 --branch v3.8.1 casacore` (and v3.7.1) |  | 4.4 s | – | format reference, scratch |
+| 2026-10-31 | big plan E6: KERN-10 package probe (container, network) |  | 54.5 s | – | deb versions before pinning |
+| 2026-10-31 | big plan E6: `build.sh rang-casacore-cpp:3.7.1` (first build) | Dockerfile | 83.4 s | – | apt from KERN-10 |
+| 2026-10-31 | big plan E6: `build.sh` rebuilds with `oracle.cc` |  | 6.9 s / 1.8 s | – | cached layers; the second in the frozen run |
+| 2026-10-31 | big plan E6: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging,casacure]' ruff maturin pip` | worktree | 186 s | – | builds the extension |
+| 2026-10-31 | big plan E6: pre-freeze probes (python-casacore, C++, MultiFile continuation), 3 runs each |  | 1.6–5 s | – | scratch |
+| 2026-10-31 | big plan E6: `cargo check --release` (core) | `core/` | 5.8–13 s | – | incremental, about 15 runs |
+| 2026-10-31 | big plan E6: `maturin develop --release` | extension | 190–200 s | – | eight builds |
+| 2026-10-31 | big plan E6: `cargo test --release` (core, 131 tests) | `core/` | 177 s | – | build included |
+| 2026-10-31 | big plan E6: `pytest` E3, E4, E5, T1 table tests / E6 tests |  | 8.9 s / 0.3 s | – | 44 passed / 6 passed, 1 skipped |
+| 2026-10-31 | big plan E6: frozen `oracle` (python-casacore write + 4 write-mf + 6 C++ cases) | 21 cases + H-mfh5 | 8.8 s | – | twin 8.2 s, perturbed 8.2 s |
+| 2026-10-31 | big plan E6: `check_ms_final.py cases` | 21 cases | 0.8 s | – |  |
+| 2026-10-31 | big plan E6: `check_ms_final.py determinism` | 2 × 21 cases | 2.0 s | – |  |
+| 2026-10-31 | big plan E6: `check_ms_final.py readback` | 21 tables | 12.9 s | – | container included |
+| 2026-10-31 | big plan E6: `check_ms_final.py refusals` | 5 attempts | 1.1 s | – | one python-casacore container |
+| 2026-10-31 | big plan E6: `check_ms_final.py regress` | E3, E4, E5 oracles | 16.1 s | – |  |
+| 2026-10-31 | big plan E6: `check_ms_final.py serialisation`, `crossversion`, `summary`, `posthoc` |  | 0.3 s each | – |  |
+| 2026-10-31 | big plan E6: `bash tools/check-all.sh` | repo | 1111 s | – | FAIL: core `cargo fmt --check` only (formatting after the frozen run); log `outputs/e6-20261031-check-all.log` |
+| 2026-11-02 | big plan E6: `bash tools/check-all.sh` | repo | 754 s | – | PASS: root 23, core 131 Rust tests; pytest 756 passed, 17 skipped (295 s); log `outputs/e6-20261102-check-all.log` |

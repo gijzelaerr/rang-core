@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-10-31: E6, the [last of the core table writer](e6-table-writer-final.md):
+TiledDataStMan hypercubes, TiledCellStMan, ISM string arrays, default tile
+shapes and MultiFile block order and continuation; MultiHDF5 refused; 20 of 21
+cases byte-identical to casacore, the rest alignment gaps; W4-4 absorbed.
+
 New, 2026-10-31: W4-1, [receipts](w4-1-receipts.md): `rang.receipt` version 3
 records the `RANG_*` registry and the source; the solver takes options
 explicitly; `commit: null` outside a checkout (W4R-01, W4R-02); results

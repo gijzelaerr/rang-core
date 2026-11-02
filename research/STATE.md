@@ -1,5 +1,28 @@
 # Rang research state
 
+E6, the last of the core table writer (big plan;
+[e6-table-writer-final.md](e6-table-writer-final.md)), 2026-10-31
+(implemented; measured):
+rang's core now writes TiledDataStMan hypercubes (addHypercube and
+extendHypercube, coordinate and id values, rows added to a hypercube,
+hypercubes of several row axes), TiledCellStMan tables, IncrementalStMan
+string arrays, tiled managers without a default tile shape and MultiFile
+tables of any block size with casacore's block order (bucket- and
+tile-cache writes during a session, the free list, header continuation),
+as casacore does. 20 of 21 frozen cases are byte-identical to casacore
+(3.8.1 through python-casacore; 3.7.1 through a pinned C++ oracle for the
+hypercubes; 3 with the masked MultiFile header tail); IS-arrays differs
+only in array-file alignment gaps that the frozen gap walk could not
+mask (post hoc: all 677 bytes are gaps), so criteria 1 and 3 fail as
+frozen; read-back, E3-E5 regressions, serialisation, refusals and the
+cross-version check (3.7.1 and 3.8.1 write the same TiledCellStMan table)
+pass. MultiHDF5 is refused as not supported (libhdf5 layout; two
+casacore runs differ in an HDF5 modification time); no writer error
+names E6. W4-4 is absorbed: 2-D string-array keywords are now stored in
+C order as python-casacore stores them (a 2x3 keyword table.dat differed
+in 61 bytes before, identical after). `outputs/e6-20261031-01`,
+`research/results/e6-table-writer-final.json`.
+
 W4-1 receipts record what changed the result (big plan wave 4 fix task;
 [w4-1-receipts.md](w4-1-receipts.md)), 2026-10-31 (implemented; measured).
 `rang.receipt` version 3 records the value of every result-affecting

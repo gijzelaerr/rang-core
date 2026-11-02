@@ -246,9 +246,10 @@ CPU-heavy tasks at a time on 8 physical cores.
   sync record; after P7, parallel with P9); E4 done 2026-10-30 (`e4-table-create.md`); E4 table creation (`default_ms`
   with subtables, CASA caltables G/B/K/Df with `table.info`; after E3; feeds
   DF-IO); E5 ISM arrays, strings and big-endian writes (done 2026-10-31,
-  `e5-table-writer-rest.md`; the remainder is E6: TiledDataStMan hypercube
-  values, ISM indirect string arrays, TiledCellStMan, MultiHDF5, MultiFile
-  continuation headers; small, after E3); T1
+  `e5-table-writer-rest.md`) and E6 (done 2026-10-31, `e6-table-writer-final.md`:
+  TiledDataStMan hypercubes, TiledCellStMan, ISM string arrays, MultiFile
+  block order; MultiHDF5 refused as not supported; the writer is complete
+  for MS and calibration tables); T1
   casacure as the second oracle in the Windows and macOS test jobs (done
   2026-10-30, `t1-casacure-ci.md`: `[casacure]` extra, `rang.oracles.casacure`,
   the wheel test jobs run the reader, E3 and E4 read-backs on the fixture); B1
@@ -371,7 +372,7 @@ CPU-heavy tasks at a time on 8 physical cores.
 - Final review session (`/code-review` style) on the simplified core: done
   2026-10-31 (`w4-review.md`: 17 findings, 1 high; v0.1.0 is go after the fix
   tasks W4-1 receipts (done 2026-10-31, `w4-1-receipts.md`), W4-3 kernels into the extension (done 2026-10-31, `w4-3-kernels.md`) and W4-5 release
-  metadata (done 2026-10-31, `w4-5-release.md`); W4-2, W4-4, W4-6, W4-7, W4-8 follow).
+  metadata (done 2026-10-31, `w4-5-release.md`); W4-2, W4-6, W4-7, W4-8 follow; W4-4 done within E6).
 
 ## Coordinator loop (this session, day and night)
 
