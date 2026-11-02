@@ -2,7 +2,11 @@
 
 Updated 23 September 2026. Active scope; supersedes the original generic low-frequency experiment.
 
-Current active experiment: [gain-TV-guided flagging](flagging.md) on small real
+Status (2026-11-02): both experiments below are closed as null
+([flagging verdict](flagging-verdict.md), [beam and pointing](b1-3-pointing-selfcal.md)).
+The text is kept as the scope they were run under.
+
+Active experiment until 2026-10-30: [gain-TV-guided flagging](flagging.md) on small real
 MeerKAT **L-band** data, using QuartiCal full complex 2×2 gains as the training
 objective and TV maps as flagging guidance. Preserve every original `FLAG` and
 `FLAG_ROW`, maintain recoverable backups, and express the workflow as a Stimela2

@@ -8,7 +8,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
 - **Closed as null:** gain-TV-guided flagging ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** W4-6 and W4-8, the last wave 4 fixes ([big plan](big-plan.md)).
+- **Running:** W4-6, the last wave 4 fix ([big plan](big-plan.md)); the CLEAN programme's gmclean branches arrive separately.
 - **Next:** finish wave 4 and the user's v0.1.0 tag.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; allow or refuse an external catalogue for the ESO137 field model; file or decline the B1-2 and RV1 upstream observations; rebase Tricolour PR #114.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -16,6 +16,15 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+W4-8, the documentation pass (big plan wave 4), 2026-11-02 (implemented; checked;
+[w4-8-readme-docs.md](w4-8-readme-docs.md)). The README is a 151-line landing page
+and the research index is by theme with every note linked. STATE has a status
+block and a log heading, and its entries before 2026-10-29 moved unedited to
+[STATE-history.md](STATE-history.md). AGENTS.md matches the layout. The docs deploy
+job warns and skips without GitHub Pages. The status box says both questions are closed as null. The canonical site is
+<https://pythonic.nl/rang-core/>. No numerical code or result changed.
+
 B1-3 pointing self-calibration against both baselines (big plan wave 3),
 2026-11-02 (implemented; measured;
 [b1-3-pointing-selfcal.md](b1-3-pointing-selfcal.md)). Protocol frozen

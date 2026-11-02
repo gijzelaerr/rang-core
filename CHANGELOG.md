@@ -50,7 +50,7 @@ wheels and the sdist to a GitHub release and publishes them to PyPI by
 trusted publishing. The sdist holds only the crates, the Python package
 and the tests the wheel runs.
 
-**Documentation.** A Sphinx site (<https://gijzelaerr.github.io/rang-core/>)
+**Documentation.** A Sphinx site (<https://pythonic.nl/rang-core/>)
 with installation, concepts, the command line, the API reference and the
 research story; five executed tutorial notebooks (data and rank, flagging
 step by step, gains and TV, imaging, the flagging experiment) and two

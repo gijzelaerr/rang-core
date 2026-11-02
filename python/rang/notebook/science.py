@@ -64,9 +64,9 @@ B1_3_METRICS = (
 B1_TASKS = (
     ("B1-0", "the reference beam: SARAO's 2023 holography release", "measured"),
     ("B1-1 (i)", "baseline: the SARAO/SKA Gaussian pointing-offset fit", "measured"),
-    ("B1-1 (ii)", "baseline: physical pointing self-calibration", "proposed"),
-    ("B1-2", "identifiability survey over beam and pointing directions", "proposed"),
-    ("B1-3", "pointing self-calibration and rang's method at matched cost", "proposed"),
+    ("B1-1 (ii)", "baseline: physical pointing self-calibration", "measured"),
+    ("B1-2", "identifiability survey over beam and pointing directions", "measured"),
+    ("B1-3", "pointing self-calibration and rang's method at matched cost", "measured"),
 )
 
 # The environment switches of the two notebooks. All default off: the

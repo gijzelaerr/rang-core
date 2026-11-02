@@ -2,14 +2,16 @@
 
 <p align="center"><b>MeerKAT calibration, flagging and imaging research on one Rust core, driven from Python.</b></p>
 
+<p align="center"><a href="https://github.com/gijzelaerr/rang-core/actions/workflows/wheels.yml"><img src="https://github.com/gijzelaerr/rang-core/actions/workflows/wheels.yml/badge.svg?branch=main" alt="wheels"></a> <a href="https://github.com/gijzelaerr/rang-core/actions/workflows/docs.yml"><img src="https://github.com/gijzelaerr/rang-core/actions/workflows/docs.yml/badge.svg?branch=main" alt="docs"></a></p>
+
 <p align="center"><a href="https://pythonic.nl/rang-core/">Documentation</a> · <a href="https://pythonic.nl/rang-core/tutorials/index.html">Tutorials</a> · <a href="https://github.com/gijzelaerr/rang-core/blob/main/research/README.md">Research index</a> · <a href="https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md">Changelog</a></p>
 
 > **Status, November 2026: a tested research demonstrator, not an operational
 > calibrator.** No novelty is claimed: the goal is better calibration and
 > imaging at comparable cost, or comparable quality at much lower cost, and
 > neither has been shown. Both research questions are closed as null: gain-TV
-> flagging, and beam and pointing at B1-3. A deeper field model (an external
-> catalogue) is the first condition for reopening beam and pointing on real data.
+> flagging, and beam and pointing. A deeper field model (an external catalogue)
+> is the first condition for reopening beam and pointing on real data.
 
 ## What it is
 
@@ -100,7 +102,7 @@ The command line's main stages (`rang-core -h` lists them all):
 | --- | --- | --- |
 | Port the pipeline to one Rust core | Done: the archived chains reproduce, the solver to 1.4e-15; engineering, not a scientific claim | [architecture](https://github.com/gijzelaerr/rang-core/blob/main/research/p7-architecture.md), [simplification](https://github.com/gijzelaerr/rang-core/blob/main/research/simplification-review.md) |
 | Does gain-TV-guided flagging help? | **Null**: 90 pre-registered calls, none better or worse, at 4.6–5.9× the cost of CARACal's first pass | [verdict](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-verdict.md) |
-| Can selected pointing corrections beat the baselines on real data? | **Null** at B1-3: self-calibration works in simulation (0.62′ to 0.054′), selection adds nothing measurable, and neither arm measures pointing on ESO137 with the self-calibrated model; an external catalogue is the first reopening condition | [B1-3](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-3-pointing-selfcal.md), [B1-2](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-2-identifiability.md), [B1](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-beam-pointing.md) |
+| Can selected pointing corrections beat the baselines on real data? | **Null**: self-calibration works in simulation (0.62′ to 0.054′), selection adds nothing measurable, and neither arm measures pointing on ESO137 with the self-calibrated model; an external catalogue is the first reopening condition | [B1-3](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-3-pointing-selfcal.md), [B1-2](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-2-identifiability.md), [B1](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-beam-pointing.md) |
 | What is proven about CLEAN? | Data-fit convergence since Schwarz (1978); here a Gram-matrix formalism, Lean proofs and the measured exact-recovery transition | [theory](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-theory.md), [transition](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-phase-transition.md) |
 | An exact gridder | ducc0's wgridder ported at its speed; the w-stacking gridder on a GPU gains 1.2–3.3× over 16 threads | [wgridder](https://github.com/gijzelaerr/rang-core/blob/main/research/df1-wgridder.md), [GPU](https://github.com/gijzelaerr/rang-core/blob/main/research/x2-wgpu.md) |
 | A casacore table writer | Byte-identical to casacore 3.8.1 and CASA 6.7.6, bar uninitialised memory and alignment gaps | [writer](https://github.com/gijzelaerr/rang-core/blob/main/research/e5-table-writer-rest.md), [the last of it](https://github.com/gijzelaerr/rang-core/blob/main/research/e6-table-writer-final.md) |

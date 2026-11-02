@@ -1327,3 +1327,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | big plan B1-3: F2 G smoke fit (4 passes, scratch), F2 simulation smoke | 3 min, 25 s | – | not timed; the first showed the slow convergence |
 | 2026-11-02 | big plan B1-3: partial `compare` dry runs (twice) | seconds | – | not timed |
 | 2026-11-02 | big plan B1-3: `bash tools/check-all.sh` | 17:35.65 | 1.74 GB | **overall: PASS**; pytest 679 passed, 9 skipped in 153.2 s; wall includes waiting for the host lock behind other tasks; log `outputs/b1-3-20261030-check-all.log`; ran on the code of the final commit (afterwards only this table changed) |
+| 2026-11-02 | big plan W4-8: `uv venv` + editable install, all extras in the brief | – | 325 s | – | shared host |
+| 2026-11-02 | big plan W4-8: `rang-core -h`, renderer install | – | seconds | – |  |
+| 2026-11-02 | big plan W4-8: Quick start | – | 1.9 s | – | excluding the download |
+| 2026-11-02 | big plan W4-8: `actionlint` (uv tool) | – | 1.9 s | – | clean |
+| 2026-11-02 | big plan W4-8: `cffconvert --validate` (uv tool) | – | 6.1 s | – | valid |
+| 2026-11-02 | big plan W4-8: `sphinx -W`, without executing notebooks | – | 58 s | – | passes |
+| 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, first run | – | 3,023 s | – | FAIL, one test (above); most of it lock wait; pytest 377.6 s |
+| 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, second run | – | 2031 s | – | `overall: PASS`, pytest 816 passed, 13 skipped in 212.2 s; includes lock wait |
+| 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, third run, after merging `f376d4b` | – | 1697 s | – | `overall: PASS`, pytest 840 passed, 13 skipped in 246.1 s; includes lock wait |
+| 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, final run, after merging `378b66b` | – | 1236 s | – | `overall: PASS`, pytest 858 passed, 13 skipped in 297.1 s; includes lock wait |
+| 2026-11-02 | big plan W4-8: `bash tools/check-all.sh`, last run, after merging `4263f7c` (notes only) | – | 576 s | – | `overall: PASS`, pytest 858 passed, 13 skipped in 280.8 s; includes lock wait |

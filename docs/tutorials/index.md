@@ -32,7 +32,7 @@ frozen archives in {ghdir}`research/results`.
 | Notebook | What it covers |
 | --- | --- |
 | 6. Gain-TV-guided flagging: the experiment and its verdict | the question, the policy and the frozen decision rule; the method live on the fixture (exploratory); every pre-registered call, the TV policy's selections and the cost clause from `flagging-verdict.json`; model completeness (L1-M), closure structure (C1), convergence (L5) and the GNSS bins (A1); what would reopen it (L3, native data); an optional replay of task K |
-| 7. Beam and pointing: the original question | the forward model on the Rust toy with the JAX reference path checked against Rust; the Rust beam-width experiment; the smooth pointing solver; the observability audits (the Gaussian gauge, gains, thinned coverage, chromatic beam shape, the information budget); B1-0 (the holography reference beam against katbeam and EIDOS) and B1-1 (the SARAO/SKA Gaussian fit reproduced live on the fixture); B1-2 and B1-3 as proposed |
+| 7. Beam and pointing: the original question | the forward model on the Rust toy with the JAX reference path checked against Rust; the Rust beam-width experiment; the smooth pointing solver; the observability audits (the Gaussian gauge, gains, thinned coverage, chromatic beam shape, the information budget); B1-0 (the holography reference beam against katbeam and EIDOS) and B1-1 (the SARAO/SKA Gaussian fit reproduced live on the fixture); B1-2 and B1-3 in outline, with their reports |
 
 Four switches, all off on this site: `RANG_NOTEBOOK_LUNO=1` replays task K
 from a local LUNO slice (notebook 6), `RANG_NOTEBOOK_SLOW=1` runs the katbeam

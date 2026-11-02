@@ -130,9 +130,16 @@ def test_relative_targets_detector():
 def test_readme_has_no_relative_url():
     readme = _text("README.md")
     assert relative_targets(readme) == []
-    # Images from raw.githubusercontent.com: a blob/ URL serves HTML.
+    # Images from raw.githubusercontent.com (a blob/ URL serves HTML), or this
+    # repository's workflow status badges, which serve SVG.
+    badge = re.compile(
+        r"https://github\.com/gijzelaerr/rang-core/actions/workflows/"
+        r"[\w.-]+/badge\.svg(\?branch=main)?$"
+    )
     for source in re.findall(r'src="([^"]+)"', readme):
-        assert source.startswith("https://raw.githubusercontent.com/"), source
+        assert source.startswith("https://raw.githubusercontent.com/") or badge.match(
+            source
+        ), source
 
 
 def test_rendered_readme_has_no_relative_url():

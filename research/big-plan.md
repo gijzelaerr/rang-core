@@ -381,6 +381,8 @@ CPU-heavy tasks at a time on 8 physical cores.
 
 ## Wave 4 (consolidation)
 
+- W4-8 documentation pass done 2026-11-02 (`w4-8-readme-docs.md`; the docs are
+  served at <https://pythonic.nl/rang-core/>).
 - Documentation pass: README, `research/README.md`, STATE trimmed to current
   truth with history linked; AGENTS.md updated for the simplified layout.
 - Release candidate: version bump, wheel built by CI from a tag, the PyPI
@@ -405,9 +407,6 @@ CPU-heavy tasks at a time on 8 physical cores.
 
 ## User items (not blocking)
 
-- Enable GitHub Pages once (Settings → Pages → Source: GitHub Actions) so
-  the `docs.yml` deploy job stops failing at `configure-pages`; the build job
-  and its artifact already pass (D1, 2026-10-30).
 - B1 on real data: allow or refuse an external catalogue (SUMSS, RACS) for the
   ESO137 field model. B1-3 closed B1 null with the self-calibrated model; this
   is the first condition for reopening it. Whether the rule should stand as
