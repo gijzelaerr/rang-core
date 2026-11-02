@@ -1,0 +1,13 @@
+# LF everywhere, whatever core.autocrlf says, so every host hashes and formats
+# the same bytes (task W4-6, research/w4-6-portability.md).
+* text=auto eol=lf
+
+*.staticmask binary
+*.png binary
+*.npz binary
+*.ico binary
+
+# Archived and frozen bytes are never rewritten:
+# research/results/p11-extract/closure.py keeps its CRLF.
+research/results/** -text
+history/** -text
