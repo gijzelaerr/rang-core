@@ -11,7 +11,7 @@ the release notes are the section of this file for that version.
 
 Nothing yet.
 
-## 0.1.0 (unreleased: dated the day `v0.1.0` is tagged)
+## 0.1.0 (2026-11-02)
 
 First release. A research demonstrator for MeerKAT calibration and
 flagging, not an operational calibrator; no advantage over the state of
