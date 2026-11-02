@@ -36,14 +36,16 @@
 //!    at the end, and record the realised Gram gap (exact `ΔQ` minus the
 //!    image-domain prediction): what the image-domain model cannot know, the
 //!    w-term and the gridder's accuracy. When `|gap| > (1 − θ) |predicted|`
-//!    the fraction is halved (an inexact-Newton forcing rule), otherwise it
-//!    returns towards its initial value.
+//!    the fraction is halved (an inexact-Newton forcing rule); otherwise the
+//!    distance `1 − φ` shrinks by the ratio of the gap to that allowance, so
+//!    a cycle whose prediction held lets the next one run to the threshold.
 //!
 //! "Exact" therefore means exact for the image-domain beam at the phase
 //! centre; the per-step certificate is not a statement about the
 //! visibility-space misfit, whose departure the major cycle measures.
 
 pub mod fits;
+pub mod host;
 pub mod input;
 pub mod kernels;
 
@@ -334,15 +336,19 @@ impl Working {
         let (ty, tx) = (t / tiles, t % tiles);
         let (y0, y1) = (ty * TILE, ((ty + 1) * TILE).min(n));
         let (x0, x1) = (tx * TILE, ((tx + 1) * TILE).min(n));
-        let mut best = (-1.0, usize::MAX);
+        let (mut best, mut row) = (-1.0, y0);
         for y in y0..y1 {
-            let (i, v) = kernels::max_abs(level, &r[y * n + x0..y * n + x1]);
+            let v = kernels::max_abs_value(level, &r[y * n + x0..y * n + x1]);
             // Rows ascend, so a later equal value has a larger index.
-            if v > best.0 {
-                best = (v, y * n + x0 + i);
+            if v > best {
+                best = v;
+                row = y;
             }
         }
-        best
+        // Locate the value once, in the first row that holds it.
+        let segment = &r[row * n + x0..row * n + x1];
+        let i = segment.iter().position(|v| v.abs() == best).unwrap_or(0);
+        (best, row * n + x0 + i)
     }
 
     fn refresh_all(&mut self) {
@@ -450,8 +456,9 @@ pub struct Settings {
     pub auto_threshold: Option<f64>,
     pub max_components: usize,
     pub max_major: usize,
-    /// The forcing parameter `θ`: halve `φ` when the realised gap exceeds
-    /// `(1 − θ)` of the predicted decrease.
+    /// The forcing parameter `θ` (`0 ≤ θ < 1`): halve `φ` when the realised
+    /// gap exceeds `(1 − θ)` of the predicted decrease, otherwise move `φ`
+    /// towards one.
     pub theta: f64,
     /// Resync when `|r_p − r̃_p| > drift · |r̃_p|`.
     pub drift: f64,
@@ -977,10 +984,15 @@ pub fn run<M: Measurement>(
         resyncs_all.every += resyncs.every;
         resyncs_all.threshold += resyncs.threshold;
         if predicted < 0.0 {
-            if gap.abs() > (1.0 - s.theta) * predicted.abs() {
+            // The forcing rule: the realised gap against the allowance
+            // `(1 − θ) |predicted|`. Over it, halve the fraction; under it,
+            // shrink the distance `1 − φ` by the same ratio, so a cycle whose
+            // prediction held goes on to the threshold.
+            let ratio = gap.abs() / ((1.0 - s.theta) * predicted.abs());
+            if ratio > 1.0 {
                 fraction *= 0.5;
             } else {
-                fraction = (fraction * 2.0).min(s.major_fraction);
+                fraction = 1.0 - (1.0 - fraction) * ratio.max(1e-6);
             }
         }
         residual = next;
@@ -1164,8 +1176,15 @@ pub struct KernelTiming {
 }
 
 /// Time the three kernels at every level the CPU has, on a synthetic
-/// `n × n` map, `±patch` beam patches and `terms` gathered components.
-pub fn kernel_benchmark(n: usize, patch: usize, terms: usize, reps: usize) -> Vec<KernelTiming> {
+/// `n × n` map, `±patch` beam patches and `terms` gathered components; the
+/// fastest of `rounds` passes per kernel.
+pub fn kernel_benchmark(
+    n: usize,
+    patch: usize,
+    terms: usize,
+    reps: usize,
+    rounds: usize,
+) -> Vec<KernelTiming> {
     let mut state = 0x9e37_79b9_7f4a_7c15u64;
     let mut next = || {
         state ^= state << 13;
@@ -1189,29 +1208,37 @@ pub fn kernel_benchmark(n: usize, patch: usize, terms: usize, reps: usize) -> Ve
             continue;
         }
         let mut work = map.clone();
-        let t = Instant::now();
-        for rep in 0..reps {
-            for row in 0..pw.min(n) {
-                let r = &mut work[row * n..row * n + pw.min(n)];
-                kernels::sub_scaled(level, r, &beam, 1e-3 * rep as f64);
+        let tiles = n.div_ceil(TILE);
+        let (mut patch_ns, mut argmax_ns, mut gather_ns) =
+            (f64::INFINITY, f64::INFINITY, f64::INFINITY);
+        for _ in 0..rounds.max(1) {
+            let t = Instant::now();
+            for rep in 0..reps {
+                for row in 0..pw.min(n) {
+                    let r = &mut work[row * n..row * n + pw.min(n)];
+                    kernels::sub_scaled(level, r, &beam, 1e-3 * rep as f64);
+                }
             }
-        }
-        let patch_ns = t.elapsed().as_secs_f64() * 1e9 / (reps * pw.min(n) * pw.min(n)) as f64;
-        let t = Instant::now();
-        let mut sink = 0usize;
-        for _ in 0..reps {
-            for row in work.chunks(TILE) {
-                sink = sink.wrapping_add(kernels::max_abs(level, row).0);
+            let per = t.elapsed().as_secs_f64() * 1e9 / (reps * pw.min(n) * pw.min(n)) as f64;
+            patch_ns = patch_ns.min(per);
+            let t = Instant::now();
+            let mut sink = 0usize;
+            for _ in 0..reps.div_ceil(20) {
+                for tile in 0..tiles * tiles {
+                    sink = sink.wrapping_add(Working::tile_best(&work, n, tiles, tile, level).1);
+                }
             }
+            let per = t.elapsed().as_secs_f64() * 1e9 / (reps.div_ceil(20) * n * n) as f64;
+            argmax_ns = argmax_ns.min(per);
+            let t = Instant::now();
+            let mut total = 0.0;
+            for _ in 0..reps {
+                total += kernels::gather_sum(level, &table, base, &keys, &flux);
+            }
+            let per = t.elapsed().as_secs_f64() * 1e9 / (reps * terms.max(1)) as f64;
+            gather_ns = gather_ns.min(per);
+            std::hint::black_box((sink, total));
         }
-        let argmax_ns = t.elapsed().as_secs_f64() * 1e9 / (reps * n * n) as f64;
-        let t = Instant::now();
-        let mut total = 0.0;
-        for _ in 0..reps {
-            total += kernels::gather_sum(level, &table, base, &keys, &flux);
-        }
-        let gather_ns = t.elapsed().as_secs_f64() * 1e9 / (reps * terms.max(1)) as f64;
-        std::hint::black_box((sink, total));
         out.push(KernelTiming {
             level,
             patch_ns_per_pixel: patch_ns,
@@ -1425,6 +1452,47 @@ mod tests {
         model[7 * n + 30] = 2.5;
         let restored = restore(n, &model, &vec![0.0; n * n], &fit);
         assert!((restored[7 * n + 30] - 2.5).abs() < 1e-10);
+    }
+
+    /// A source east and north of the phase centre, with visibilities of the
+    /// MS's positive Fourier phase `exp(+2πi (u l + v m + w (n − 1)))` (as
+    /// `predict.rs` states), lands where the FITS WCS puts it: `CDELT1 < 0`
+    /// means east is towards smaller FITS `x`.
+    #[test]
+    fn flips_put_a_source_where_the_wcs_says() {
+        use crate::clean_certified::WgridMeasurement;
+        use crate::wgridder::Options;
+        let mut rng = Rng(99);
+        let (n, cell) = (64usize, 1.0e-4);
+        let (dx, dy) = (10.0, 5.0);
+        let (l, m) = (dx * cell, dy * cell);
+        let nn = (1.0f64 - l * l - m * m).sqrt();
+        let mut uvw = Vec::new();
+        let mut vis = Vec::new();
+        for _ in 0..4000 {
+            let (u, v, w) = (
+                (rng.next() - 0.5) * 8000.0,
+                (rng.next() - 0.5) * 8000.0,
+                (rng.next() - 0.5) * 2000.0,
+            );
+            uvw.extend_from_slice(&[u, v, w]);
+            let phase = 2.0 * std::f64::consts::PI * (u * l + v * m + w * (nn - 1.0));
+            vis.push(Complex::new(phase.cos(), phase.sin()));
+        }
+        let opts = Options {
+            flip_v: true,
+            flip_w: true,
+            ..Options::default()
+        };
+        let wgt = vec![1.0; 4000];
+        let meas =
+            WgridMeasurement::new(uvw, vec![299_792_458.0], vis, wgt, n, cell, 1e-9, opts).unwrap();
+        let (dirty, _) = meas.residual(&vec![0.0; n * n]).unwrap();
+        let fits_image = fits::gridder_to_fits(n, &dirty);
+        let (p, value) = clean::argmax_abs(&fits_image);
+        let (x, y) = (p % n, p / n);
+        assert!(value > 0.9, "peak {value}");
+        assert_eq!((x, y), (n / 2 - 10, n / 2 + 5));
     }
 
     #[test]

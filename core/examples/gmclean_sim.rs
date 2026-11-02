@@ -9,8 +9,13 @@
 //! cargo run --release --manifest-path core/Cargo.toml --example gmclean_sim -- write OUTDIR
 //! core/target/release/gmclean -name OUTDIR/bin -size 1024 1024 -scale 2asec -weight briggs 0 \
 //!     -niter 100000 -abs-threshold 1e-3 -patch 64 OUTDIR/sim.ms
+//! cargo run --release --manifest-path core/Cargo.toml --example gmclean_sim -- bench OUTDIR
 //! cargo run --release --manifest-path core/Cargo.toml --example gmclean_sim -- compare OUTDIR
 //! ```
+//!
+//! `bench OUTDIR [repeats]` is the timing pass alone, one command (it writes
+//! the MS if needed): repeats default 5, variants interleaved, with wall
+//! time, CPU time and machine load per repeat, minimum and median.
 //!
 //! `write` makes `OUTDIR/sim.ms` (64 antennas of `data/meerkat.itrf.txt`, a
 //! 2 h track of 60 s dumps, 8 channels, 50 point sources log-uniform over
@@ -29,6 +34,7 @@ use rang_core::clean::Psf;
 use rang_core::clean_certified::{
     self, Certified, DriverSettings, Measurement, MinorRule, WgridMeasurement, psf_from_double,
 };
+use rang_core::gmclean::host::{Measured, Probe, min_median};
 use rang_core::gmclean::input::{self, MsArrays, Selection};
 use rang_core::gmclean::json::{arr, num, obj, text};
 use rang_core::gmclean::kernels::{self, Level};
@@ -55,6 +61,7 @@ const NOISE_FRACTION: f64 = 0.005;
 const THRESHOLD: f64 = 1e-3;
 const GAIN: f64 = 0.1;
 const MAX_COMPONENTS: usize = 200_000;
+const TIMING_STATUS: &str = "PROVISIONAL: measured on a shared, loaded host; read with the recorded machine load; no final speedup is stated";
 
 struct Rng(u64);
 
@@ -389,6 +396,35 @@ fn driver_entry(name: &str, out: &Certified, settings: &DriverSettings) -> Strin
     obj(&fields)
 }
 
+/// The rows of the first `nant` antennas (the row order of [`write`]), with
+/// natural weights.
+fn sparse_subset(
+    data: &input::StokesI,
+    nant: usize,
+    side: usize,
+    cell: f64,
+) -> Result<WgridMeasurement, String> {
+    let total = antennas().len();
+    let nchan = data.freq.len();
+    let (mut uvw, mut vis, mut wgt) = (Vec::new(), Vec::new(), Vec::new());
+    let mut row = 0;
+    for _ in 0..DUMPS {
+        for p in 0..total {
+            for q in p + 1..total {
+                if q < nant {
+                    uvw.extend_from_slice(&data.uvw[3 * row..3 * row + 3]);
+                    vis.extend_from_slice(&data.vis[row * nchan..(row + 1) * nchan]);
+                    for &w in &data.weight[row * nchan..(row + 1) * nchan] {
+                        wgt.push(f64::from(w));
+                    }
+                }
+                row += 1;
+            }
+        }
+    }
+    WgridMeasurement::new(uvw, data.freq.clone(), vis, wgt, side, cell, 1e-6, opts())
+}
+
 fn compare(outdir: &Path) -> Result<(), String> {
     let wall = Instant::now();
     let ms = outdir.join("sim.ms");
@@ -521,6 +557,66 @@ fn compare(outdir: &Path) -> Result<(), String> {
     )?;
     let deep_entry = gmclean_entry("gmclean-deep-1e-4", &deep);
 
+    // A hard beam: the baselines of the first antennas of the same MS
+    // (natural weights), where the sidelobes stay high to the image edge.
+    let mut sparse_runs = Vec::new();
+    for (nant, threshold, budget) in [(4usize, 0.05, 3000usize), (16, 0.005, 10_000)] {
+        let sub = sparse_subset(&data, nant, SIDE, cell())?;
+        let psf = sub.psf_image(2 * SIDE)?;
+        let full = psf_from_double(SIDE, &psf);
+        let beam = Beam::from_double(SIDE, &psf, 64)?;
+        println!(
+            "sparse {nant} antennas: f(±64) {:.4}, coherence {:.4}",
+            beam.f,
+            full.coherence()
+        );
+        let out = gmclean::run(
+            &sub,
+            &beam,
+            &Settings {
+                threshold,
+                max_components: budget,
+                max_major: 40,
+                ..base
+            },
+            None,
+        )?;
+        let lazy = gmclean_entry(&format!("sparse{nant}-gmclean-patch64"), &out);
+        let driver = DriverSettings {
+            gain: GAIN,
+            threshold,
+            max_components: budget,
+            max_major: 200,
+            max_minor: usize::MAX,
+            patch: Some(64),
+            rule: MinorRule::Provable,
+            floor_tolerance: None,
+            audit: false,
+            divergence_limit: 0.0,
+        };
+        let provable = clean_certified::run(&sub, &full, &full, &driver, None)?;
+        let clark_settings = DriverSettings {
+            rule: MinorRule::Clark,
+            ..driver
+        };
+        let clark = clean_certified::run(&sub, &full, &full, &clark_settings, None)?;
+        sparse_runs.push(obj(&[
+            ("antennas", nant.to_string()),
+            ("threshold_jy", num(threshold)),
+            ("f_outside_64", num(beam.f)),
+            ("coherence", num(full.coherence())),
+            ("gmclean", lazy),
+            (
+                "provable",
+                driver_entry(&format!("sparse{nant}-provable"), &provable, &driver),
+            ),
+            (
+                "clark",
+                driver_entry(&format!("sparse{nant}-clark"), &clark, &clark_settings),
+            ),
+        ]));
+    }
+
     // The plain certified driver on the same data, same gain and threshold.
     let t = Instant::now();
     let mut driver_runs = Vec::new();
@@ -532,7 +628,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
         gain: GAIN,
         threshold: THRESHOLD,
         max_components: MAX_COMPONENTS,
-        max_major: 300,
+        max_major: 200,
         max_minor: usize::MAX,
         patch: Some(64),
         rule: MinorRule::Provable,
@@ -576,39 +672,18 @@ fn compare(outdir: &Path) -> Result<(), String> {
     )?);
     let t_driver = t.elapsed().as_secs_f64();
 
-    let timings = gmclean::kernel_benchmark(1024, 64, 2000, 200);
-    let kernel_json: Vec<String> = timings
-        .iter()
-        .map(|k| {
-            println!(
-                "kernels {:<8} patch {:.3} ns/px, argmax {:.3} ns/px, gather {:.3} ns/term",
-                k.level.name(),
-                k.patch_ns_per_pixel,
-                k.argmax_ns_per_pixel,
-                k.gather_ns_per_term
-            );
-            obj(&[
-                ("level", text(k.level.name())),
-                ("patch_ns_per_pixel", num(k.patch_ns_per_pixel)),
-                ("argmax_ns_per_pixel", num(k.argmax_ns_per_pixel)),
-                ("gather_ns_per_term", num(k.gather_ns_per_term)),
-            ])
-        })
-        .collect();
-
-    let report_path = outdir.join("bin-report.json");
-    let binary = std::fs::read_to_string(&report_path)
-        .map(|s| s.trim().to_string())
-        .unwrap_or_else(|_| "null".into());
-    let truth = std::fs::read_to_string(outdir.join("truth.json"))
-        .map(|s| s.trim().to_string())
-        .unwrap_or_else(|_| "null".into());
+    let read_json = |name: &str| {
+        std::fs::read_to_string(outdir.join(name))
+            .map(|s| s.trim().to_string())
+            .unwrap_or_else(|_| "null".into())
+    };
     let json = obj(&[
         (
             "experiment",
             text("gmclean on a simulated MeerKAT MS (research/gmclean.md)"),
         ),
-        ("truth", truth),
+        ("timing_status", text(TIMING_STATUS)),
+        ("truth", read_json("truth.json")),
         ("threads", rayon::current_num_threads().to_string()),
         ("simd_detected", text(kernels::detected().name())),
         (
@@ -644,11 +719,294 @@ fn compare(outdir: &Path) -> Result<(), String> {
         ("simd_levels", arr(&level_runs)),
         ("fraction_sweep", arr(&fraction_runs)),
         ("deep", deep_entry),
+        ("sparse", arr(&sparse_runs)),
         ("certified_driver", arr(&driver_runs)),
-        ("kernels", arr(&kernel_json)),
-        ("binary_report", binary),
+        ("binary_report", read_json("bin-report.json")),
+        ("benchmark", read_json("gmclean-bench.json")),
     ]);
     std::fs::write(outdir.join("gmclean.json"), json + "\n").map_err(|e| e.to_string())?;
+    println!("wall {:.1} s", wall.elapsed().as_secs_f64());
+    Ok(())
+}
+
+/// A sample with its minimum and median.
+fn sample_json(sample: &[f64]) -> String {
+    let stats = min_median(sample);
+    let values: Vec<String> = sample.iter().map(|&v| num(v)).collect();
+    obj(&[
+        ("min", stats.map_or("null".into(), |s| num(s.0))),
+        ("median", stats.map_or("null".into(), |s| num(s.1))),
+        ("samples", arr(&values)),
+    ])
+}
+
+/// Repeated wall time, CPU time and machine load of one variant.
+#[derive(Default)]
+struct Timed {
+    name: String,
+    wall: Vec<f64>,
+    cpu: Vec<f64>,
+    load: Vec<f64>,
+    components: usize,
+    major_cycles: usize,
+}
+
+impl Timed {
+    fn push(&mut self, m: Measured) {
+        self.wall.push(m.wall);
+        self.cpu.extend(m.cpu);
+        self.load.extend(m.load);
+    }
+
+    fn json(&self) -> String {
+        let (wall_min, wall_median) = min_median(&self.wall).unwrap_or((f64::NAN, f64::NAN));
+        let load = min_median(&self.load).map_or(f64::NAN, |s| s.1);
+        println!(
+            "{:<30} wall min {wall_min:8.3} s median {wall_median:8.3} s; median machine load {load:5.1}",
+            self.name
+        );
+        obj(&[
+            ("name", text(&self.name)),
+            ("components", self.components.to_string()),
+            ("major_cycles", self.major_cycles.to_string()),
+            ("wall_seconds", sample_json(&self.wall)),
+            ("cpu_seconds", sample_json(&self.cpu)),
+            ("machine_load_cores", sample_json(&self.load)),
+        ])
+    }
+}
+
+/// The timing benchmark, one command: every variant `repeats` times,
+/// interleaved round by round, with wall time, CPU time and machine load per
+/// repeat, and the minimum and median. Writes the simulated MS first when it
+/// is not there; writes `OUTDIR/gmclean-bench.json`.
+fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
+    let wall = Instant::now();
+    if !outdir.join("sim.ms").join("table.dat").exists() {
+        write(outdir)?;
+    }
+    let data = input::read_ms(&outdir.join("sim.ms"), &Selection::default())?;
+    let weights = input::gridding_weights(&data, WeightClass::Briggs(0.0), SIDE, cell())?;
+    let m = WgridMeasurement::new(
+        data.uvw.clone(),
+        data.freq.clone(),
+        data.vis.clone(),
+        weights.weights.clone(),
+        SIDE,
+        cell(),
+        1e-6,
+        opts(),
+    )?;
+    let psf2n = m.psf_image(2 * SIDE)?;
+    let exact = psf_from_double(SIDE, &psf2n);
+    let sparse = sparse_subset(&data, 16, SIDE, cell())?;
+    let sparse_psf = sparse.psf_image(2 * SIDE)?;
+    let sparse_exact = psf_from_double(SIDE, &sparse_psf);
+    let sparse_beam = Beam::from_double(SIDE, &sparse_psf, 64)?;
+    let patches = [8, 32, 64, 128, SIDE - 1];
+    let beams: Vec<Beam> = patches
+        .iter()
+        .map(|&p| Beam::from_double(SIDE, &psf2n, p))
+        .collect::<Result<_, _>>()?;
+    let beam64 = &beams[2];
+    let base = Settings {
+        gain: GAIN,
+        threshold: THRESHOLD,
+        max_components: MAX_COMPONENTS,
+        ..Settings::default()
+    };
+    let driver = DriverSettings {
+        gain: GAIN,
+        threshold: THRESHOLD,
+        max_components: MAX_COMPONENTS,
+        max_major: 200,
+        max_minor: usize::MAX,
+        patch: Some(64),
+        rule: MinorRule::Provable,
+        floor_tolerance: None,
+        audit: false,
+        divergence_limit: 0.0,
+    };
+    let lazy = |measurement: &WgridMeasurement, beam: &Beam, settings: Settings| {
+        gmclean::run(measurement, beam, &settings, None).map(|o| (o.steps.len(), o.cycles.len()))
+    };
+    let plain = |measurement: &WgridMeasurement, psf: &Psf, settings: DriverSettings| {
+        clean_certified::run(measurement, psf, psf, &settings, None)
+            .map(|o| (o.steps.len(), o.cycles.len()))
+    };
+    type Variant<'a> = (String, Box<dyn Fn() -> Result<(usize, usize), String> + 'a>);
+    let mut variants: Vec<Variant> = Vec::new();
+    for (patch, beam) in patches.iter().zip(&beams) {
+        let (lazy, m) = (&lazy, &m);
+        variants.push((
+            format!("gmclean-patch{patch}"),
+            Box::new(move || lazy(m, beam, base)),
+        ));
+    }
+    for level in [Level::Scalar, Level::Avx2, Level::Avx512] {
+        if level <= kernels::detected() {
+            let (lazy, m) = (&lazy, &m);
+            variants.push((
+                format!("gmclean-patch64-{}", level.name()),
+                Box::new(move || {
+                    lazy(
+                        m,
+                        beam64,
+                        Settings {
+                            level: Some(level),
+                            ..base
+                        },
+                    )
+                }),
+            ));
+        }
+    }
+    {
+        let (lazy, m) = (&lazy, &m);
+        variants.push((
+            "gmclean-fraction1".into(),
+            Box::new(move || {
+                lazy(
+                    m,
+                    beam64,
+                    Settings {
+                        major_fraction: 1.0,
+                        ..base
+                    },
+                )
+            }),
+        ));
+    }
+    let rules = [
+        ("driver-provable-patch64", MinorRule::Provable, Some(64)),
+        (
+            "driver-mgain0.8-patch64",
+            MinorRule::MajorGain(0.8),
+            Some(64),
+        ),
+        ("driver-mgain0.8-fullbeam", MinorRule::MajorGain(0.8), None),
+    ];
+    for (name, rule, patch) in rules {
+        let (plain, m, exact) = (&plain, &m, &exact);
+        variants.push((
+            name.into(),
+            Box::new(move || {
+                plain(
+                    m,
+                    exact,
+                    DriverSettings {
+                        rule,
+                        patch,
+                        ..driver
+                    },
+                )
+            }),
+        ));
+    }
+    {
+        let (lazy, sparse, sparse_beam) = (&lazy, &sparse, &sparse_beam);
+        variants.push((
+            "sparse16-gmclean-patch64".into(),
+            Box::new(move || {
+                lazy(
+                    sparse,
+                    sparse_beam,
+                    Settings {
+                        threshold: 0.005,
+                        max_components: 10_000,
+                        max_major: 40,
+                        ..base
+                    },
+                )
+            }),
+        ));
+        let (plain, sparse_exact) = (&plain, &sparse_exact);
+        variants.push((
+            "sparse16-driver-provable-patch64".into(),
+            Box::new(move || {
+                plain(
+                    sparse,
+                    sparse_exact,
+                    DriverSettings {
+                        threshold: 0.005,
+                        max_components: 10_000,
+                        ..driver
+                    },
+                )
+            }),
+        ));
+    }
+    let mut timed: Vec<Timed> = variants
+        .iter()
+        .map(|(name, _)| Timed {
+            name: name.clone(),
+            ..Timed::default()
+        })
+        .collect();
+    let levels: Vec<Level> = [Level::Scalar, Level::Avx2, Level::Avx512]
+        .into_iter()
+        .filter(|&l| l <= kernels::detected())
+        .collect();
+    let mut kernel_samples = vec![(Vec::new(), Vec::new(), Vec::new()); levels.len()];
+    let mut kernel_load = Vec::new();
+    for repeat in 0..repeats {
+        println!("round {} of {repeats}", repeat + 1);
+        for ((_, run), record) in variants.iter().zip(&mut timed) {
+            let probe = Probe::start();
+            let (components, cycles) = run()?;
+            record.push(probe.stop());
+            record.components = components;
+            record.major_cycles = cycles;
+        }
+        let probe = Probe::start();
+        let result = gmclean::kernel_benchmark(1024, 64, 2000, 200, 1);
+        kernel_load.extend(probe.stop().load);
+        for (k, samples) in result.iter().zip(&mut kernel_samples) {
+            samples.0.push(k.patch_ns_per_pixel);
+            samples.1.push(k.argmax_ns_per_pixel);
+            samples.2.push(k.gather_ns_per_term);
+        }
+    }
+    let runs: Vec<String> = timed.iter().map(Timed::json).collect();
+    let kernel_json: Vec<String> = levels
+        .iter()
+        .zip(&kernel_samples)
+        .map(|(level, s)| {
+            let median = |x: &[f64]| min_median(x).map_or(f64::NAN, |v| v.1);
+            println!(
+                "kernels {:<8} median patch {:.3} ns/px, tile argmax {:.3} ns/px, gather {:.3} ns/term",
+                level.name(),
+                median(&s.0),
+                median(&s.1),
+                median(&s.2)
+            );
+            obj(&[
+                ("level", text(level.name())),
+                ("patch_ns_per_pixel", sample_json(&s.0)),
+                ("tile_argmax_ns_per_pixel", sample_json(&s.1)),
+                ("gather_ns_per_term", sample_json(&s.2)),
+            ])
+        })
+        .collect();
+    let json = obj(&[
+        ("timing_status", text(TIMING_STATUS)),
+        ("repeats", repeats.to_string()),
+        ("order", text("interleaved: every variant once per round")),
+        ("threads", rayon::current_num_threads().to_string()),
+        (
+            "logical_cpus",
+            std::thread::available_parallelism()
+                .map_or(0, |n| n.get())
+                .to_string(),
+        ),
+        ("simd_detected", text(kernels::detected().name())),
+        ("os", text(std::env::consts::OS)),
+        ("runs", arr(&runs)),
+        ("kernels", arr(&kernel_json)),
+        ("kernels_machine_load_cores", sample_json(&kernel_load)),
+        ("wall_seconds", num(wall.elapsed().as_secs_f64())),
+    ]);
+    std::fs::write(outdir.join("gmclean-bench.json"), json + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.1} s", wall.elapsed().as_secs_f64());
     Ok(())
 }
@@ -658,7 +1016,11 @@ fn main() {
     let result = match (args.get(1).map(String::as_str), args.get(2)) {
         (Some("write"), Some(out)) => write(Path::new(out)),
         (Some("compare"), Some(out)) => compare(Path::new(out)),
-        _ => Err("usage: gmclean_sim write|compare OUTDIR".to_string()),
+        (Some("bench"), Some(out)) => {
+            let repeats = args.get(3).and_then(|r| r.parse().ok()).unwrap_or(5);
+            bench(Path::new(out), repeats)
+        }
+        _ => Err("usage: gmclean_sim write|compare OUTDIR, or bench OUTDIR [repeats]".to_string()),
     };
     if let Err(e) = result {
         eprintln!("gmclean_sim: {e}");

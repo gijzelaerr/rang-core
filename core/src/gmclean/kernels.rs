@@ -155,19 +155,25 @@ fn sub_scaled_avx512(row: &mut [f64], beam: &[f64], c: f64) {
 /// must not be empty. Values are assumed finite (a NaN is never picked by
 /// the scalar path; the SIMD paths do not define what it does).
 pub fn max_abs(level: Level, x: &[f64]) -> (usize, f64) {
+    let best = max_abs_value(level, x);
+    // The maximum is exact, so its first occurrence is the scalar answer.
+    let index = x.iter().position(|v| v.abs() == best).unwrap_or(0);
+    (index, best)
+}
+
+/// The largest `|x[i]|`; `x` must not be empty. The per-tile scan calls this
+/// per row and locates the value only once.
+pub fn max_abs_value(level: Level, x: &[f64]) -> f64 {
     assert!(!x.is_empty(), "max_abs of an empty slice");
-    let best = match effective(level) {
+    match effective(level) {
         #[cfg(target_arch = "x86_64")]
         // SAFETY: the CPU has AVX-512F/VL (see `effective`).
         Level::Avx512 => unsafe { max_abs_value_avx512(x) },
         #[cfg(target_arch = "x86_64")]
         // SAFETY: the CPU has AVX2 (see `effective`).
         Level::Avx2 => unsafe { max_abs_value_avx2(x) },
-        _ => return max_abs_scalar(x),
-    };
-    // The maximum is exact, so its first occurrence is the scalar answer.
-    let index = x.iter().position(|v| v.abs() == best).unwrap_or(0);
-    (index, best)
+        _ => max_abs_scalar(x).1,
+    }
 }
 
 fn max_abs_scalar(x: &[f64]) -> (usize, f64) {

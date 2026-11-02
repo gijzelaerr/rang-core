@@ -11,7 +11,8 @@ the CLEAN convergence core of [research/clean-theory.md](../research/clean-theor
 | `RangFormal/Stagewise.lean` | CLEAN as forward stagewise regression ([research/clean-implicit-objective.md](../research/clean-implicit-objective.md)): the exact misfit after any move, ℓ1 steepest descent (`Q(m + d) ≥ Q(m) − max|r| ‖d‖₁`), the signed stagewise step and its misfit change `−ε|r_p| + ε²/2`, optimality of the argmax pick among all single-coordinate steps of the same size, a CLEAN step as a stagewise step of length `|γ||r_p|`, ℓ1 norm bounded by arc length, monotonicity of the ℓ∞ subdifferential, and uniqueness in data space of right-differentiable small-gain limit curves (`flow_residual_unique`). |
 | `RangFormal/Separation.lean` | Proposition 4' of `clean-theory.md`: the ℓ1 Neumann-series bound, the off-support column bound for sources at least `d` apart, the exact recovery coefficient below one, invertibility of `B_SS`, and the argmax staying on the support. |
 | `RangFormal/Clark.lean` | Theorem 6 of `clean-theory.md`: the descent condition `r_p / r̃_p > γ/2` for a step taken on a working residual, the truncation-error bound `f Σ|c_k|`, and the provable minor-cycle rule end to end. |
-| `RangFormal/Audit.lean` | `#print axioms` for every theorem; all 34 rest on `propext`, `Classical.choice` and `Quot.sound` only. |
+| `RangFormal/Gmclean.lean` | The arithmetic of a gmclean minor step ([research/gmclean.md](../research/gmclean.md)): the exact value from the working value through the ignored beam, a step with the exact value is a CLEAN step at any proposed pixel, and the recorded certificate `|r_p| ≥ τ (M + e)` makes the pick `τ`-weak greedy. |
+| `RangFormal/Audit.lean` | `#print axioms` for every theorem; all 38 rest on `propext`, `Classical.choice` and `Quot.sound` only. |
 
 ## Building
 
