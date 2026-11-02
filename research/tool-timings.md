@@ -1257,3 +1257,19 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | big plan W4-2: Windows `python -m rang.check`, final | final code | 1,008 s | – | PASS, 753 passed, 54 skipped |
 | 2026-11-02 | big plan W4-2: WSL `tools/check-all.sh` | branch + `d03a95a` | 3,013 s (with lock wait) | – | PASS, 780 passed, 20 skipped |
 | 2026-11-02 | big plan W4-2: WSL `tools/check-all.sh`, final | final code | 4,117 s (with lock wait) | – | PASS, 787 passed, 20 skipped |
+| 2026-10-31 | big plan DF5-O: `docker build` pfb-imaging 0.0.11 image (first; rebuilt for the xarray bound) | lock | 116 s; 76 s | – | 2.45 GB, `sha256:226e8e81…` |
+| 2026-10-31 | big plan DF5-O: `simulate_df5_field.py` | 241,920 rows × 16 channels | 21.7 s | 857 MB | 4 threads; MS write 1.2 s, predict 4.9 s |
+| 2026-10-31 | big plan DF5-O: WSClean 3.7 `-niter 0`, 16 channels | field.ms | 137 s | 122 MB | `-j 4`, `-no-reorder` |
+| 2026-10-31 | big plan DF5-O: WSClean 3.7 Högbom (two runs) | field.ms | 675 s; 789 s | 282 MB | 7 major, 5,119 minor; bit-identical |
+| 2026-10-31 | big plan DF5-O: WSClean 3.7 multiscale (two runs) | field.ms | 1,199 s; 1,437 s | 915 MB | 7 major, 40,819 minor |
+| 2026-10-31 | big plan DF5-O: WSClean 3.7 multiscale, auto-mask, fit-spectral-pol 4 (two runs) | field.ms | 2,452 s; 2,182 s | 918 MB | 7 major, 84,749 minor |
+| 2026-10-31 | big plan DF5-O: WSClean 3.7 arms, failed first launches (`-save-source-list`; read-only MS) | field.ms | ≤ 1 s; 147 s | 282 MB | deviations D1, D2 |
+| 2026-10-31 | big plan DF5-O: pfb 0.0.11 `init` (each arm) | field.ms | 41–68 s | 544 MB | 4 threads; first attempt failed on xarray/zarr (42 s, D3) |
+| 2026-10-31 | big plan DF5-O: pfb 0.0.11 `grid` (each arm) | xds | 43–76 s | 1,120 MB | 4 threads |
+| 2026-10-31 | big plan DF5-O: pfb 0.0.11 `sara` (two runs) | dds | 5,020 s; 4,463 s | 5,479 MB | 10 major, not converged |
+| 2026-10-31 | big plan DF5-O: pfb 0.0.11 `kclean`, failed on the tbb path (four runs) | dds | 10–14 s | 523 MB | deviation D4 |
+| 2026-11-02 | big plan DF5-O: pfb 0.0.11 `kclean` with mop (two runs) | dds | 140 s; 154 s | 3,423 MB | 5 major |
+| 2026-11-02 | big plan DF5-O: pfb 0.0.11 `kclean --no-mop-flux` (two runs) | dds | 111 s; 94 s | 3,419 MB | 5 major; bit-identical |
+| 2026-10-31 | big plan DF5-O: `compare_df5o.py floor` | 16 channels × 200 CG, sweep | 3,986 s | 740 MB | 175–185 s per channel |
+| 2026-11-02 | big plan DF5-O: `compare_df5o.py p2`; `measure` (12 runs) | FITS, field.npz | 20.1 s; 19–30 s each | 1,295 MB; 735 MB | 4 threads |
+| 2026-11-02 | big plan DF5-O: `bash tools/check-all.sh` | repo | see log | – | PASS: root 23, core 129 Rust tests; pytest 693 passed, 15 skipped (527 s); log `outputs/df5o-20261102-check-all.log` |

@@ -13,6 +13,12 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+
+New, 2026-11-02: DF5-O, the [deconvolution oracles](df5o-deconv-oracles.md):
+a simulated MeerKAT field (core-made MS, truth on the grid, hashed),
+WSClean 3.7 Högbom/multiscale and pfb-imaging 0.0.11 kclean/sara frozen
+on it with truth measures and the CLEAN diagnostics; DF5's tolerances.
+
 New, 2026-11-02: W4-2 and W4-7, [boundary checks](w4-2-boundaries.md): sized,
 C-order and overflow checks on every extension binding; `flag_rows` lengths;
 span-row coverage; zarr order and dtype checks and the out-of-order fallback
