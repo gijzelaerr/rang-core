@@ -34,12 +34,13 @@ hash, and no SHA256 of their old bytes appears in `research`, `tests`, `python`,
 | Identity suite, same tree before and after (Linux) | `identical`, all 20 cases, with the known failures unchanged (`trend-frozen`, `campaign-check`, `backends`) | `outputs/w4-6-20261102-01/base-head-diff.txt` |
 | `test_pc1_preconditions`, `test_p11_extract`, `test_core_backends`, before and after | 37 passed each, no skips, so the replays did run | `base-pytest.log`, `head-pytest.log` in the same directory |
 | Native Windows `python -m rang.check` | `overall: PASS`, 812 passed, 78 skipped; `utf8_mode 0`, cp1252, `core.autocrlf=true`, working files `w/lf` except `closure.py` | `outputs/w4-6-20261102-02/windows-check.log`, `mode.txt` |
-| WSL `bash tools/check-all.sh` at `c658ec6` | `overall: PASS`, 879 passed, 11 skipped | `outputs/w4-6-20261102-check-all.log` |
+| WSL `bash tools/check-all.sh` at `c658ec6`, the last code commit | `overall: PASS`, 879 passed, 11 skipped | `outputs/w4-6-20261102-check-all-c658ec6.log` |
+| WSL `bash tools/check-all.sh` at `7fb4299`, this note added, index line not yet added | `overall: FAIL`, 878 passed, 11 skipped, 1 failed: `test_every_note_is_in_the_research_index` only. Expected, see "For the coordinator". `test_w4_8_docs.py` passes (12) with a temporary index line. | `outputs/w4-6-20261102-check-all-7fb4299.log` |
 | Windows wheel test, py3.14, `PYTHONUTF8=0`, with the fixture | `overall: PASS`, 51 passed, 5 skipped | `outputs/w4-6-20261102-02/wheel-test.log` |
 | actionlint on `wheels.yml`, `docs.yml` | clean | run through `actionlint-py` |
 | The sky-model test detects the fault | With the `6beec0a` `sky.py`, it fails on Linux (`LC_ALL=C`) and on Windows (cp1252) | `windows-portability-basereader.log` |
 
-The test ran at `c658ec6`, the last code commit. Only this note follows it.
+The Windows runs are at `c658ec6`. Only this note follows that commit.
 
 ## Deviations
 
@@ -74,7 +75,8 @@ was not checked.
 | 2026-11-02 | uv venv + editable install | WSL | 90 s | |
 | 2026-11-02 | identity suite, before / after | WSL | 8 s / 7 s | 20 cases |
 | 2026-11-02 | pc1, p11 and backends tests, before / after | WSL | 23 s / 21 s | 37 passed |
-| 2026-11-02 | `bash tools/check-all.sh` at `c658ec6` | WSL | 742 s | includes any lock wait; pytest 332 s |
+| 2026-11-02 | `bash tools/check-all.sh` at `c658ec6` | WSL | 742 s | PASS; includes any lock wait; pytest 332 s |
+| 2026-11-02 | `bash tools/check-all.sh` at `7fb4299` | WSL | 872 s | FAIL on the index test only; includes any lock wait; pytest 220 s |
 | 2026-11-02 | uv venv + editable install | Windows | 190 s | includes the extension build |
 | 2026-11-02 | `python -m rang.check` | Windows | 874 s | PASS with UTF-8 mode off; pytest 206 s |
 | 2026-11-02 | `tools/wheel/build.py` / `test.py` | Windows | 136 s / 31 s | `PYTHONUTF8=0` |
@@ -82,9 +84,11 @@ was not checked.
 
 ## For the coordinator
 
-**Merge order.** `tests/test_w4_8_docs.py` requires every note in the index, so
-this note fails that test until the index line below is added. The check-all
-and Windows logs are from `c658ec6`, the commit before this note.
+**Merge order.** `tests/test_w4_8_docs.py` requires every note in the index, and
+`research/README.md` is yours. So this branch's head prints `overall: FAIL` on
+that one test until the index line below is added, and a check-all after your
+index edit is still to run. `overall: PASS` is measured at `c658ec6`, the commit
+before this note.
 
 **Index line** (`research/README.md`, with the portability or release theme):
 
@@ -108,4 +112,5 @@ and Windows logs are from `c658ec6`, the commit before this note.
 **tool-timings rows:** the table under "Timings".
 
 **Ignored outputs:** `outputs/w4-6-20261102-01` (identity suite and test logs),
-`outputs/w4-6-20261102-02` (Windows logs), `outputs/w4-6-20261102-check-all.log`.
+`outputs/w4-6-20261102-02` (Windows logs), `outputs/w4-6-20261102-check-all-c658ec6.log`,
+`outputs/w4-6-20261102-check-all-7fb4299.log`.
