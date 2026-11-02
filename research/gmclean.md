@@ -283,6 +283,15 @@ instruction counts, rescan counts, resync and major-cycle counts.
 
 Superseded by §5.7, which attributed the profile and took the gains listed here as
 unattributed. The hot-spot table in §5.1 and the times in §5.6 are from before it.
+The text as it stood:
+
+Headroom I think remains, in order: (1) the 5 % in memcpy and the 20 % in rayon
+closures have not been attributed line by line; a frame-pointer profile was planned
+and dropped for the accuracy work; (2) a last pass of a few dozen components costs
+a full major cycle (8-12 % of the run) and a tolerance on the exact stop would save
+it, at a different stopping point; (3) `-beam-no-w` saves most of the PSF if it holds
+on wide fields; (4) the gridder itself has no easy gain. I do not think the code is
+perfect, only that the bulk of the time is no longer in anything written here.
 
 ### 5.6 Target (provisional, under load)
 
@@ -339,11 +348,11 @@ was a memory problem, and instruction counts had hidden it. Shares of `2994c97`:
 | --- | ---: | ---: | --- |
 | Prefetch `coord`, `wgt`, `vis`, the output 12 visibilities ahead (grid, degrid, `values`) | +1.8 % | **−25 %** | one pair; `k1` against `X_PFA=0`. The largest single gain: 967 against 1294 G |
 | Plane groups of 4 in both directions (u, v taps once per visibility per group); before this gridding only, default 1. Capped at 2 GiB of grids, so the 2n PSF stays at 1 | **−24 %** | **−22 %** | one pair; 847 against 1120 G instructions, 684 against 880 G cycles. Groups 2, 3: 949, 898 G; 805, 783 G |
-| Convolver: blocks of 8 columns taken out of the rows in place, no transposes; zero rows not stored or read | −0.1 % | **−14 %** | `k3` against `k4`, one pair plus three repeats at 645-655 G; resync 4.16 → 2.22 s |
+| Convolver: blocks of 8 columns taken out of the rows in place, no transposes; zero rows not stored or read | −0.1 % | **−14 %** | `k3` against `k4`, one pair plus three repeats at 645-655 G; resync 4.16 → 2.22 s. The pair also holds the FFT work-space pool; the resync time says the convolver is most of it |
 | `image_to_grid`: zero only the needed rows' non-image columns, scatter only needed rows | with below | with below | part of the next two rows |
 | Gather and output by rows of a column block (both FFT directions), untouched rows not read, tile copy by rows and once per tile per thread | −0.8 % | −4.6 % | one pair, unresolved alone; `p1` against `base0` |
 | Row-stride prefetch in the FFT loops, 8 rows ahead | +0.5 % | −5.5 % | three pairs: 655, 653, 645 against 694, 689, 688 G |
-| `HugePageAlloc`, the gmclean binary's allocator: blocks ≥ 4 MiB mapped on 2 MiB-aligned `MADV_HUGEPAGE` pages | +0.2 % | −5.6 % | one pair; faults 2.48 → 0.06 M, wall 24.7 → 19.4 s. Library and wheels unaffected |
+| `HugePageAlloc`, the gmclean binary's allocator: blocks ≥ 4 MiB mapped on 2 MiB-aligned `MADV_HUGEPAGE` pages | +0.2 % | −5.6 % | one pair, borderline against the noise; the solid number is the faults, 2.48 → 0.06 M. Wall 24.7 → 19.4 s. Library and wheels unaffected |
 | Non-temporal zeroing of grid rows (AVX2 builds) | +0.2 % | **−3.6 %** | three pairs: 633, 626, 629 against 655, 651, 658 G |
 | Tile buffer and FFT work space pools, no allocation or zeroing per task or rayon split; `stored` kept between passes | +0.4 % | −1.9 % | one pair, unresolved; faults −0.31 M |
 | One set of grids for both directions of `Prepared` | none | none | peak RSS 4.92 → 3.50 GB with plane groups of 4 |
@@ -413,9 +422,23 @@ initial dirty 0.7, resync 2.2, minor 0.45, major about 6, restore and FITS 0.3.
 6. Thread overhead: sys 9-11 s at `-j 16` against 4 s at `-j 8`, mostly rayon's idling.
    Not reduced.
 
-Peak memory rose by 19 % for the plane groups. `RANG_WGRIDDER_PLANE_GROUP=1` gives it
-back, at +32 % instructions and +29 % cycles before the later changes. It is the one
-trade in this pass that a memory-limited run may want to reverse.
+**Plane groups: the one trade, and it reaches every caller.** Default 4 is in
+`wgridder::plane_group`, so it applies to every `vis2dirty` and `dirty2vis` in the
+library (Python wheels, `WgridMeasurement`, `gridder_gram`), and it reverses the opt-in
+"for memory-rich runs" of [df2-wgridder-speed.md](df2-wgridder-speed.md). Results do not
+depend on it (tested bit for bit), only memory. Whether to scope it to gmclean is for
+the user to decide. Final binary on S1:
+
+| | `2994c97` | `RANG_WGRIDDER_PLANE_GROUP=1` | default (4) |
+| --- | ---: | ---: | ---: |
+| instructions | 1027 G | 1110 G (+8 %) | 836 G (−19 %) |
+| cycles | 1303 G | 740 G (−43 %) | 621-627 G (−52 %) |
+| wall (provisional) | 26-27 s | 16.4 s | 13.7-15.3 s |
+| peak RSS | 2.84 GB | 2.31 GB | 3.38 GB |
+
+Group 1 costs more instructions than the old code (the prefetches, and the degrid loop's
+extra indirection), and an image too large for two grids in 2 GiB takes that path:
+4096² in `f64`, whose grid is about 1.1 GB, as the 2n PSF of 2048² does here.
 
 Provenance. Binaries: `cargo +1.93 build --offline --profile gmclean --bin gmclean`, at
 `2994c97` and this branch; measurement knobs were temporary environment variables on
@@ -474,6 +497,10 @@ core/target/release/examples/gmclean_sim compare OUT
 core/target/release/examples/gmclean_sim sim OUT/disc disc 2048 1.5 240 64 4
 core/target/release/examples/gmclean_sim minor OUT/disc/sim.ms 2048 1.5 1e-3 5
 python3 examples/gmclean_compare.py SPEC.json OUT.json   # interleaved, under perf stat
+# §5.7: the last pass (natural count less one: S1, S2 -nmiter 4; S3 -nmiter 3, in place of
+# -nmiter 1000), and the -beam-no-w sets: gmclean_bench_simulate.py with DEC_DEG overridden
+#   python -c "import gmclean_bench_simulate as m; m.DEC_DEG = DEC; m.main([MS, '--sky', SKY, '--scale', SCALE, '--catalogue', CAT])"
+#   w6: S3 6 -30; w12: S3 12 -30; l20: S1 1.5 20; lw: S3 6 20 (imaged at -scale SCALE, with and without -beam-no-w)
 # The benchmark job
 gmclean -name OUT/s1 -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 \
     -nmiter 1000 -abs-threshold 0.0001 -data-column DATA -field 0 -j 16 s1.ms
