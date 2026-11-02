@@ -613,7 +613,7 @@ Archive: [results/f1-stage1.json](results/f1-stage1.json). Everything in this se
 | FD, 300 cells: correlation (≥ 0.999) | 1.000000 | 0.99999999999 |
 | FD, 30 patches: median (≤ 1 %) | 2.8e-7 | 3.4e-6 |
 | FD, 30 patches: 95th percentile (≤ 3 %) | 2.8e-7 | 1.3e-5 |
-| Unrolled, 4,009 cells: median (≤ 1 %) | 7.7e-12 | not run, as frozen in Amendment 2's script |
+| Unrolled, 4,009 cells: median (≤ 1 %) | 7.7e-12 | not run (deviation) |
 
 JAX TV equals the Rust kernel's to 1e-15. On the slice, 43 of the 432 intervals with a gradient are excluded by the residual rule: the same count as the
 43 tree-shaped bins of the [support survey](flagging-luno-support.md).
@@ -652,7 +652,7 @@ is conditional on the scope below. No threshold was moved.
 - Whole-array edges against half-set noise: time 0.0155 against 0.0023 (ratio 6.7), frequency 0.0048 against 0.0022 (2.2). Median cosine of successive edges −0.06 and −0.04, neither noise-like (−0.5) nor smooth (+1). So the array is structure-dominated, unlike the four stations of probe P4.
 - Gate D's removal effect is large for strong all-baseline RFI (TV −42 % for narrowband at 100σ, −5 % at 10σ) and tiny for a single baseline (−0.002 % at 10σ, −0.07 % at 100σ).
 
-**Post hoc reading (not a test).** D passing while B fails is the main finding. Taking a whole contaminated mask out does lower TV, 45 times of 45, so TV responds to RFI as a global objective. But the derivative at a cell, which is what would train a network,
+**Post hoc reading (not a test).** Gate C's failure means the contrast statistic is not centred under the null (−3.28 on narrowband at strength 0), so the passing B1 t-values are weaker evidence than they look. D passing while B fails is the main finding. Taking a whole contaminated mask out does lower TV, 45 times of 45, so TV responds to RFI as a global objective. But the derivative at a cell, which is what would train a network,
 does not reliably mark contaminated cells: it is signed, varies strongly between intervals, and saturates with strength. This agrees with section 4's point that a cell reaches TV only through its residual. The array curve is consistent with loss of signal as stations are added, but it is one seed per size. The residual z-score is the same information without the adjoint.
 
 **What this does not show.**
@@ -662,7 +662,13 @@ does not reliably mark contaminated cells: it is signed, varies strongly between
 - It says nothing against a fast network as such, or against Z, R, F-RES or F-IMI, none of which ran. The residual AUCs above are for injected RFI at known cells, not evidence of parity with Tricolour.
 - Non-TV training signals are untested.
 
-**Deviations, all committed before the run they affect.** Amendments 1–4 above. Two launches of 1b were stopped unseen (31 min at about 7 cores; about 90 min in matrix-free MINRES). The dense adjoint replaced MINRES. Stage 1a used a synthetic 12-antenna problem, as F-SIM is built only after 1b. Section 8's ≤ 3 h for 1b: actual 28 min.
+**Deviations.**
+
+- *Stage 1a code fixes, recorded after the run.* Between failed attempts and the passing run `-01-validate`, the code changed: a crash in the polish check, the MINRES divergence on a non-scalar synthetic model, removal of that model's cross-hand terms, the MINRES safeguard, an indexing error. Amendment 2 records these but was committed after that run. No bound moved. They are the protocol's one allowed round of fixes. Stage 1a was then rerun on the dense path (`-04`) before 1b.
+- *Unrolled check.* Section 3 names both problems; it ran only on the synthetic one (7.7e-12). The LUNO unrolled check was not run. Gate A passes with this noted, and the NO-GO does not depend on A.
+- *Stage 1a's problem.* A synthetic 12-antenna scan instead of an F-SIM subset, as F-SIM is built only after 1b.
+- *Stage 1b, committed before the run it affects.* Amendments 2–4. Two launches were stopped unseen (31 min at about 7 cores; about 90 min in matrix-free MINRES). The dense adjoint replaced MINRES.
+- Section 8's ≤ 3 h for 1b: actual 28 min.
 
 **Timings.**
 
@@ -692,7 +698,7 @@ does not reliably mark contaminated cells: it is signed, varies strongly between
   | 2026-11-02 | F1 `f1_saliency.py` | LUNO 1934−638, 60 cases | 27 min 55 s | 25.0 GB | 4 CPUs |
   | 2026-11-02 | F1 `f1_saliency.py`, two stopped launches | clean adjoint, MINRES | 31 min; about 90 min | 15 GB | no result; replaced by the dense adjoint |
 
-## 12. For the coordinator
+## 12. For the coordinator (at the protocol's merge; applied)
 
 Shared-file lines, verbatim:
 
