@@ -1,8 +1,9 @@
-//! C ABI for the Python layer (ctypes), in the style of the existing kernels.
+//! C ABI of the core, for C consumers and benches.
 //!
-//! Phase 1 deliberately uses a C ABI rather than PyO3: the existing kernels
-//! are loaded through ctypes, the checks build offline, and no new crates are
-//! needed. Every pointer is described by an explicit length in the structs.
+//! The Python layer reaches these functions through the PyO3 extension
+//! `rang._core` (`core/py`); ctypes is gone since task P7
+//! (`research/p7-architecture.md`). Every pointer is described by an explicit
+//! length in the structs.
 
 use crate::blosc;
 use crate::fused::{self, Inputs, Model, Outputs, SPLITS};

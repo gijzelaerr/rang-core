@@ -3,8 +3,9 @@
 ## Start here and leave a trail
 
 - Read `research/README.md` for the research index and `research/STATE.md` for
-  the latest progress before starting work. The active experiment is MeerKAT
-  L-band gain-TV-guided flagging; older pointing reports are separate history.
+  the latest progress before starting work. The active question is beam and
+  pointing on real MeerKAT data (`research/b1-beam-pointing.md`); gain-TV-guided
+  flagging is closed as null (`research/flagging-verdict.md`).
 - Save meaningful progress, exact run paths, seeds/settings, provenance, checks,
   rejected/null outcomes and next steps in the repository as work proceeds.
   Distinguish proposed, implemented and measured work. Link compact result
@@ -13,9 +14,22 @@
   astronomers can follow progress. Run the full local checks before every commit;
   push normally, never force-push. Keep scientific status and handoff links current.
 
+## Layout
+
+| Path | Contents |
+| --- | --- |
+| `python/rang` | the Python package and the `rang-core` command line |
+| `core/`, `src/` | the Rust core (`core/py` builds the extension `rang._core`); the root crate |
+| `history/` | the frozen campaigns' recipes, containers and modules |
+| `research/` | reports and compact result archives |
+| `docs/`, `formal/` | the documentation site; Lean proofs |
+
+`notebooks/`, `examples/`, `recipes/`, `tests/`, `tools/` and `data/` hold what
+their names say. Raw data and run outputs go in ignored `outputs/`.
+
 ## Research scope
 
-- Focus on MeerKAT. The current experiment is specified in `research/meerkat-scope.md`.
+- Focus on MeerKAT. The scope is specified in `research/meerkat-scope.md`.
 - Use simulations and comparisons to test research hypotheses; distinguish proposed methods, implemented methods and measured results.
 - Preserve reproducible experiment settings, seeds, data provenance and relevant negative results.
 - Inspect CARACAL's shipped MeerKAT strategies and flag-worker semantics when
