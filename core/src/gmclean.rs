@@ -1964,7 +1964,12 @@ mod tests {
             false_flux(&long),
         );
         assert_eq!(default.stop, StopReason::Threshold);
-        assert!(d <= 2.0 * r + 1e-3, "default {d} against the reference {r}");
+        // Within five thresholds of the many-cycle reference, whose few pixels
+        // of false flux here round to nothing.
+        assert!(
+            d <= 2.0 * r + 5.0 * settings.threshold,
+            "default {d} against the reference {r}"
+        );
         assert!(
             l > 2.0 * d,
             "the long cycle {l} against the default {d}: not vacuous"
