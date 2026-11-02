@@ -3067,7 +3067,8 @@ impl TsmW {
             if let Some(f) = f {
                 t.flushed.insert(i, f.length);
                 let path = dir.join(format!("table.f{seq}_TSM{}", f.seq));
-                t.phys.insert(i, std::fs::metadata(path).map_or(0, |m| m.len()));
+                t.phys
+                    .insert(i, std::fs::metadata(path).map_or(0, |m| m.len()));
             }
         }
         Ok(t)

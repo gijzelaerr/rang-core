@@ -7,7 +7,24 @@ casacore. Branch `e6-table-writer-final` from `17653e4`. Protocol frozen
 2026-10-31 in the commit that adds this file, before any E6 code. Before
 freezing, scratch probes were made (listed below, labelled pre-freeze);
 nothing else was measured.
-Status: **protocol frozen; not yet implemented.**
+Status: **implemented and measured (frozen run `outputs/e6-20261031-01`,
+code `7721e96`): criteria 2, 4, 5, 6 and 7 pass; 1 and 3 fail as frozen
+on one case.** 20 of 21 cases are byte-identical to casacore (17
+identical, among them F-cont with its continuation blocks; F-multi,
+F-multi-write and F-free identical but the masked MultiFile header tail);
+IS-arrays differs only in alignment-gap bytes of its array file, but the
+frozen gap walk does not reach the end of the file (string bodies a later
+put left unreferenced; amendment 3), so its gaps are not masked
+(criterion 1) and casacore's own twin and perturbed runs differ there
+(criterion 3). Post hoc (labelled), the walk with those bodies consumed
+masks all 677 differing bytes. TiledDataStMan hypercubes, TiledCellStMan,
+IncrementalStMan string arrays, default tile shapes and MultiFile block
+order with continuation headers are written as casacore writes them;
+casacore 3.7.1 (C++) and 3.8.1 (python-casacore) write the cross-version
+table identically; MultiHDF5 is refused as not supported (two casacore
+runs differ); no writer error names E6. W4-4 (2-D string keywords in C
+order) is absorbed. Archive:
+[results/e6-table-writer-final.json](results/e6-table-writer-final.json).
 
 The user's decision (2026-10-30) stands: the core reads and writes every
 format of the tools it replaces ([ecosystem-survey.md](ecosystem-survey.md)
@@ -398,3 +415,303 @@ unchanged.
   the oracle outputs or the binding).
 
 Every tool run is timed and listed under Timings.
+
+## What is implemented
+
+As planned, with these additions (all measured by the frozen run):
+
+- `core/src/tiled.rs` (new): `adjust_tile_shape` and `make_tile_shape`
+  (casacore's `Float rem` kept in single precision), the hypercube values
+  record (`Record` objects in the tiled header; array fields read and
+  defined).
+- `core/src/ms_write.rs`, tiled managers: one header type for the four
+  kinds (TiledColumnStMan and TiledCellStMan write a tile shape first,
+  TiledShapeStMan its default tile and 32-bit row maps, TiledDataStMan
+  version 2 with `nrrowLast` and a 64-bit row map); one writer whose
+  columns have roles from the hypercolumn definition (data in the tiles,
+  coordinates and ids in each cube's record); a cell's place
+  (`getHypercube(row, position)`: the row map of TiledShapeStMan and
+  TiledDataStMan, positions over several row axes, one cube per row of a
+  TiledCellStMan); `addHypercube`/`extendHypercube` (`makeHypercube`'s file
+  choice, `initCoordinates`, `extendCoordinates`, `updateRowMap`,
+  `getCubeIndex` by id values, the row check); coordinate and id reads and
+  puts; TiledCellStMan `setShape` (new tiles appended, the old cube's cache
+  dropped unflushed as `TSMCube::setShape` does: what was put into it since
+  the last flush is lost, measured in C-var); and each cube's
+  `BucketCache` (slots, LRU, dirty flags, `initializeBuckets`, the tiles in
+  the file counted from its physical size, `calcCacheSize` for cell,
+  column and row-range access), so tiles are written when casacore writes
+  them. The header is rewritten at every flush after a change, as
+  `TiledStMan::flush` does.
+- `core/src/ism.rs`: indirect string arrays (`putShape` of strings: the
+  offsets reserved and zeroed; the bodies appended in batches of 4096,
+  then the offsets; reads), `putcell` of a string array as
+  `ArrayColumn::put`.
+- `core/src/multifile.rs` (rewritten): the header with continuation
+  (`readRemainder`, `writeRemainder` with its two sets, the block count
+  patched, chunks written through one buffer), casacore's `MultiFileBase`
+  as a model (`write` extending and marking changed, `extendVF` from the
+  descending free list's tail, `deleteFile` and `truncateIfNeeded`, slots
+  of deleted files reused), and a write log the managers fill: the
+  StandardStMan and IncrementalStMan bucket caches at every bucket write
+  (evictions included), headers and indexes, array files written directly
+  as `MFFileIO` does (no `FilebufIO` buffer), tile caches, tiled headers
+  made anew at every flush, files made anew by `recreate`. At each table
+  flush the log is replayed and the blocks of the written files are
+  written from the staged contents.
+- `core/src/ms_create.rs`: TiledCellStMan and TiledDataStMan (with
+  coordinate and id columns) creation, the MultiFile block size; other
+  managers refused as "not supported" with a reason; MultiHDF5 refused.
+- `core/src/aipsio.rs`: `Record::write_kind` (a `Record` object), array
+  type helpers, `decode_string_array`.
+- `python/rang/core_ms_write.py`: `addhypercube`, `extendhypercube`,
+  `multifile=<block size>`, the MultiHDF5 refusal, string-array `putcell`
+  as `ArrayColumn::put`, and (W4-4) string-array keywords in C order.
+- `tools/oracles/casacore-cpp/` (Dockerfile, build.sh, oracle.cc: the
+  O-cpp cases through casacore's `TableProxy` with python-casacore's
+  description records), `examples/oracle_ms_final.py`,
+  `examples/check_ms_final.py`, `tests/test_e6_table_writer_final.py`.
+
+## Measured result (2026-10-31)
+
+Run `outputs/e6-20261031-01`, all steps by one script (scratch
+`frozen_run.sh`: `image` (`build.sh` with the record `image.json`),
+`oracle`, `oracle-twin`, `oracle-perturb` (`MALLOC_PERTURB_=85`), `cases`,
+`determinism`, `readback`, `refusals`, `regress`, `serialisation`,
+`crossversion`, `summary` → `result.json`, then `posthoc`, labelled post
+hoc), every step timed in `timing/`, logs in `logs/`. Code `7721e96`
+(`commit.txt`). Oracle image `rang-casacore-cpp:3.7.1`, id
+`sha256:4484743b0289c45febbb0b71794cb05195314b8018a7fd9766b0dda60cbdc242`,
+547,529,202 bytes, debs `casacore-dev=3.7.1-1kern1`,
+`libcasa-tables8=3.7.1-1kern1`, `g++-13=13.3.0-6ubuntu2~24.04.1` (all in
+`image.json`). Inputs read in place: E3's, E4's and E5's oracle runs.
+Development runs preceded it in scratch (deleted); the frozen run is the
+first E6 run in `outputs/`.
+
+**Criterion 1, byte identity: fails as frozen (20 of 21 cases pass).**
+
+| Case | Oracle | Files | Bytes | Against casacore | Core (ms) | casacore (ms) |
+| --- | --- | ---: | ---: | --- | ---: | ---: |
+| D-cubes | 3.7.1 | 6 | 5,032 | identical | 30.8 | 37.1 |
+| D-reopen | 3.7.1 | 6 | 5,608 | identical | 13.9 | 11.5 |
+| D-multiaxis | 3.7.1 | 5 | 3,094 | identical | 6.5 | 23.8 |
+| D-be | 3.7.1 | 6 | 5,031 | identical | 5.0 | 16.3 |
+| C-var | 3.8.1 | 5 | 3,171 | identical | 6.4 | 17.1 |
+| C-fixed | 3.8.1 | 5 | 3,209 | identical (amended, 1) | 6.0 | 16.6 |
+| C-write | 3.8.1 | 5 | 4,374 | identical | 4.9 | 10.1 |
+| C-be | 3.8.1 | 5 | 3,170 | identical | 6.6 | 15.2 |
+| C-notile | 3.8.1 | 5 | 484,476 | identical | 7.6 | 18.6 |
+| X-371 | 3.7.1 | 5 | 3,171 | identical | 5.3 | 17.6 |
+| IS-arrays | 3.8.1 | 5 | 47,209 | **differs**: `table.f0i` 677 bytes, all alignment gaps (post hoc); the frozen walk does not end | 11.1 | 23.5 |
+| IS-big | 3.8.1 | 5 | 361,736 | identical | 10.4 | 139.0 |
+| T-notile | 3.8.1 | 8 | 1,052,407 | identical | 8.8 | 19.8 |
+| T-notile-fixed | 3.8.1 | 5 | 132,348 | identical | 7.6 | 17.4 |
+| T-notile-column | 3.8.1 | 5 | 263,228 | identical | 6.2 | 16.5 |
+| F-multi | 3.8.1 | 4 | 194,427 | identical but 2,734 masked header-tail bytes | 40.4 | 98.8 |
+| F-multi-write | 3.8.1 | 4 | 194,427 | identical but 3,250 masked header-tail bytes | 12.8 | 11.9 |
+| F-cont | 3.8.1 | 4 | 57,995 | identical (continuation blocks included; nothing masked) | 62.4 | 73.4 |
+| F-free | 3.8.1 | 4 | 40,178 | identical but 534 masked header-tail bytes | 26.6 | 45.6 |
+| F-default | 3.8.1 | 4 | 16,778,527 | identical | 56.6 | 144.8 |
+| K-arrays | 3.8.1 | 4 | 2,473 | identical (amended, 2) | 6.4 | 20.1 |
+
+Every `table.lock` sync record is equal. casacore's times are its own
+process's (container start excluded), the core's the checker's. No masked
+continuation byte differs (reported, not gated).
+
+**Criterion 2, read-back: passes.** 21 tables, 65,226 defined cells:
+python-casacore reads every core-written table exactly as casacore's
+(cells, definedness, keywords, column keywords, `table.info`); the core
+reads casacore's tables column-exactly as python-casacore does (data,
+coordinate and id columns of the TiledDataStMan tables included); casacure
+3.8.35 reads 12 cases alike on both sides, keywords included, and cannot
+open D-cubes, D-reopen, D-multiaxis, D-be (`unsupported data-manager type
+TiledDataStMan`) and the five MultiFile cases (it looks for `table.f0`).
+
+**Criterion 3, determinism: fails as frozen.** The core's outputs of every
+case are identical between two runs and a `MALLOC_PERTURB_=85` run (no
+mask). casacore's twin and perturbed runs differ only in masked bytes
+(MultiFile header tails: F-multi 2,429 / 3,669, F-multi-write 3,425 /
+3,668, F-free 472 / 472, F-default 4,194,072 in the perturbed run), except
+IS-arrays' `table.f0i` (827 and 1,794 bytes), the gaps the frozen walk
+cannot mask. H-mfh5 (excluded): every casacore run differs from the first
+at byte 1980 (an HDF5 object modification time).
+
+**Criterion 4, E3, E4 and E5 unchanged: passes.** E3: 20 cases identical,
+4 identical but padding, round trip and serialisation pass; E4: 18 of 18
+identical or gaps only; E5's `cases` against `outputs/e5-20261031-01`: 21
+identical or masked, I-arrays and I-rows-all differing in exactly E5's
+bytes (440 and 34); the E3, E4, E5, T1 and E6 tests pass (check-all
+below).
+
+**Criterion 5, serialisation identity: passes**: 21 tables, 14 tiled
+headers (TiledDataStMan with hypercubes, TiledCellStMan, TiledShapeStMan,
+TiledColumnStMan), 8 StandardStMan and 7 IncrementalStMan files, 5
+MultiFile headers (F-cont's with continuation), and E5's tables again.
+
+**Criterion 6, refusals: passes.** R-tcsm-remove: the core and
+python-casacore refuse `removerows([1])`, files unchanged; R-mfh5: create
+and open (write and read) refuse with "MultiHDF5 tables are not
+supported: ..." and leave no table or change no file; R-other:
+"Adios2StMan columns are not supported: ..."; no source line under
+`core/src` or `python/rang` names E6.
+
+**Criterion 7, cross-version identity: passes.** X-371 (casacore 3.7.1)
+equals C-var (casacore 3.8.1) byte for byte, `table.lock` included.
+
+**Post hoc (labelled)**: IS-arrays' 677 differing bytes all lie in gaps of
+the walk with the first-put bodies consumed (`posthoc.json`).
+
+## Deviations
+
+- Amendments 1–3 above (before the frozen run): C-fixed's new rows put by
+  `putcell` (casacore raises on the frozen ranged `putcol`); the K-arrays
+  case added for W4-4; the frozen gap walk kept for IS-arrays, a post hoc
+  walk added.
+- The C++ oracle makes its tables through casacore's `TableProxy` with the
+  records python-casacore builds rather than through `SetupNewTable`
+  directly (the protocol named only "a C++ program"); X-371 shows the two
+  oracles then write identical bytes.
+- Tile-cache access paths of whole-column and row-range puts are modelled
+  as `accessColumn`/`accessColumnCells` size their cache (`calcCacheSize`
+  of the cube shape), the tiles of each cell fetched in order; the strided
+  iteration order inside `accessStrided` is not ported (it changes no
+  bytes; it could change MultiFile block order only when another logical
+  file grows during the same put, which no case does).
+
+## Open items
+
+- What the writer still does not do, each refused with "not supported"
+  and its reason: MultiHDF5 (libhdf5's layout and modification times);
+  Adios2StMan and other data managers that are not MS or calibration-table
+  storage managers; tiled headers, tile files or hypercube offsets of
+  2 GiB or more and tiled managers of 2^31 rows or more (their version-2/3
+  records); MultiFile containers with block CRCs (casacore's `useCRC`,
+  off by default) and version-1 MultiFile headers.
+- Coordinate and id columns are written for TiledDataStMan only (a
+  hypercolumn with coordinates bound to a TiledShapeStMan or
+  TiledCellStMan is not given coordinate values; no case or MS uses them).
+- The gaps of string-array files under the frozen rule (IS-arrays), and
+  E5's uninitialised values and gaps: the core writes zeros where casacore
+  leaves heap memory.
+- A ranged `putcol` of a TiledCellStMan is written correctly by the core;
+  casacore raises (or misbehaves) there (amendment 1), so it is not
+  compared.
+
+## Timings
+
+| Date | Tool / stage | Input | Wall | Notes |
+| --- | --- | --- | ---: | --- |
+| 2026-10-31 | `git clone --depth 1 --branch v3.8.1 casacore` (and v3.7.1) | | 4.4 s | format reference, scratch |
+| 2026-10-31 | KERN-10 package probe (container, network) | | 54.5 s | deb versions before pinning |
+| 2026-10-31 | `build.sh rang-casacore-cpp:3.7.1` (first build) | Dockerfile | 83.4 s | apt from KERN-10 |
+| 2026-10-31 | `build.sh` rebuilds with `oracle.cc` | | 6.9 s / 1.8 s | cached layers; the second in the frozen run |
+| 2026-10-31 | `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging,casacure]' ruff maturin pip` | worktree | 186 s | builds the extension |
+| 2026-10-31 | pre-freeze probes (python-casacore, C++, MultiFile continuation), 3 runs each | | 1.6–5 s | scratch |
+| 2026-10-31 | `cargo check --release` (core) | `core/` | 5.8–13 s | incremental, about 15 runs |
+| 2026-10-31 | `maturin develop --release` | extension | 190–200 s | eight builds |
+| 2026-10-31 | `cargo test --release` (core, 131 tests) | `core/` | 177 s | build included |
+| 2026-10-31 | `pytest` E3, E4, E5, T1 table tests / E6 tests | | 8.9 s / 0.3 s | 44 passed / 6 passed, 1 skipped |
+| 2026-10-31 | frozen `oracle` (python-casacore write + 4 write-mf + 6 C++ cases) | 21 cases + H-mfh5 | 8.8 s | twin 8.2 s, perturbed 8.2 s |
+| 2026-10-31 | `check_ms_final.py cases` | 21 cases | 0.8 s | |
+| 2026-10-31 | `check_ms_final.py determinism` | 2 × 21 cases | 2.0 s | |
+| 2026-10-31 | `check_ms_final.py readback` | 21 tables | 12.9 s | container included |
+| 2026-10-31 | `check_ms_final.py refusals` | 5 attempts | 1.1 s | one python-casacore container |
+| 2026-10-31 | `check_ms_final.py regress` | E3, E4, E5 oracles | 16.1 s | |
+| 2026-10-31 | `check_ms_final.py serialisation`, `crossversion`, `summary`, `posthoc` | | 0.3 s each | |
+
+## For the coordinator
+
+- Shared files, committed on the branch (the appendix has the exact diff
+  against `17653e4`):
+  - `core/src/lib.rs`, alphabetical: `pub mod tiled;` (no new dependency,
+    `Cargo.lock` unchanged).
+  - `core/py/src/lib.rs`: `MsWriter.add_hypercube`,
+    `MsWriter.extend_hypercube`, `MsWriter.put_string_cell`, the
+    `RecordItem` type and `record_of`, the `block_size` keyword argument of
+    `ms_create_table`.
+  - Also changed, not an owner file: `tests/test_e5_table_writer_rest.py`
+    (`test_memory_and_tiled_data_managers` expected an E6 refusal of
+    TiledDataStMan values; it now expects casacore's refusal of a row
+    without a hypercube).
+  - `README.md`, `research/README.md`, `research/STATE.md`,
+    `research/tool-timings.md`, `research/big-plan.md`,
+    `research/non-ratt-observations.md` and `python/rang/core_cli.py` are
+    not touched; their changes follow.
+- STATE paragraph: "E6 (the last of the core table writer) measured:
+  rang's core now writes TiledDataStMan hypercubes (addHypercube and
+  extendHypercube, coordinate and id values, rows added to a hypercube,
+  hypercubes of several row axes), TiledCellStMan tables, IncrementalStMan
+  string arrays, tiled managers without a default tile shape and MultiFile
+  tables of any block size with casacore's block order (bucket- and
+  tile-cache writes during a session, the free list, header continuation),
+  as casacore does. 20 of 21 frozen cases are byte-identical to casacore
+  (3.8.1 through python-casacore; 3.7.1 through a pinned C++ oracle for the
+  hypercubes; 3 with the masked MultiFile header tail); IS-arrays differs
+  only in array-file alignment gaps that the frozen gap walk could not
+  mask (post hoc: all 677 bytes are gaps), so criteria 1 and 3 fail as
+  frozen; read-back, E3-E5 regressions, serialisation, refusals and the
+  cross-version check (3.7.1 and 3.8.1 write the same TiledCellStMan table)
+  pass. MultiHDF5 is refused as not supported (libhdf5 layout; two
+  casacore runs differ in an HDF5 modification time); no writer error
+  names E6. W4-4 is absorbed: 2-D string-array keywords are now stored in
+  C order as python-casacore stores them (a 2x3 keyword table.dat differed
+  in 61 bytes before, identical after). `outputs/e6-20261031-01`,
+  `research/results/e6-table-writer-final.json`."
+- `research/README.md` index line:
+  "[e6-table-writer-final.md](e6-table-writer-final.md) — E6:
+  TiledDataStMan hypercubes, TiledCellStMan, ISM string arrays, default
+  tile shapes and MultiFile block order and continuation in the core
+  writer, MultiHDF5 refused; 20 of 21 cases byte-identical to casacore, the
+  rest alignment gaps (measured); W4-4 absorbed."
+- `research/tool-timings.md`: the Timings rows above and the check-all row.
+- `research/big-plan.md`: E6 done 2026-10-31 (`e6-table-writer-final.md`);
+  W4-4 done within E6; nothing of the table writer is left but the open
+  items above.
+- README: `rang.core_ms_write` writes every casacore storage manager of an
+  MS or calibration table (TiledDataStMan hypercubes with
+  `addhypercube`/`extendhypercube`, TiledCellStMan included), big-endian
+  and MultiFile tables (`multifile=<block size>`); MultiHDF5 is not
+  supported.
+- Upstream observations (all non-RATT, for
+  `research/non-ratt-observations.md`; nothing RATT, caracal-pipeline or
+  saopicc):
+  - casacore 3.8.1 (defect): a ranged `putcol` (`putColumnRange`) of a
+    TiledCellStMan column goes through
+    `TSMDataColumn::accessColumnCells`, which reads `rowpos(lastAxis)`, an
+    axis a TiledCellStMan cube does not have (its position is the cell
+    shape only), and raises `TSMShape::offset - shapes do not conform`
+    (undefined behaviour: past the end of an `IPosition`); a whole-column
+    `putcol` and `putcell` work.
+  - casacore 3.8.1 (note): `TiledCellStMan::setShape` of a row whose cube
+    has unflushed tiles deletes the cube's cache unflushed
+    (`TSMCube::setShape` → `deleteCache`), so the values put into the old
+    shape since the last flush never reach the file, while values flushed
+    earlier stay in it as unreferenced bytes.
+  - casacore 3.8.1 (defect): `MultiFile::writeRemainder` writes a single
+    continuation chunk from a `malloc`'d buffer it does not clear; the
+    block's bytes after the chunk are whatever the heap held (fragments of
+    file names and an AipsIO `RecordDesc` in a probe).
+  - casacore 3.7.1 (note): MultiHDF5 containers are not reproducible:
+    libhdf5 1.10.10 writes object modification times (two runs a second
+    apart differ at bytes 1980 and 3285).
+  - python-casacore 3.8.1 (note): `getcell` of a string array of more than
+    one axis returns a dict of its shape and strings, not an array.
+  - casacure 3.8.35 (note): reads TiledCellStMan tables and
+    IncrementalStMan string arrays like python-casacore; cannot open
+    TiledDataStMan or MultiFile tables (as in E5).
+- W4-4 (absorbed): the string-array keyword fix is in
+  `python/rang/core_ms_write.py` (`_put_keyword`: C order instead of
+  Fortran order); numeric-array keywords were already right; E3's and E4's
+  byte-identity cases still pass (criterion 4); measured before/after on
+  K-arrays: 61 bytes of `table.dat` differ / identical.
+- DF-IO-CT should pick up: nothing new for calibration tables; MS writes
+  may now use TiledDataStMan and TiledCellStMan tables (older MeasurementSets)
+  and any MultiFile block size.
+- Ignored output: `outputs/e6-20261031-01` (2.2 GB: `e5/` 1.7 GB and
+  `e5-cases/` 213 MB are the E3, E4 and E5 regression re-runs and can be
+  deleted; `dumps/` 46 MB can be trimmed to its JSON; `oracle*` 31 MB and
+  `core*` 20 MB each, keep `oracle/` and `core/`) and
+  `outputs/e6-20261031-check-all.log`.
+- Scratch `~/Build/tmp/20261031-e6` (the casacore v3.7.1 and v3.8.1
+  clones, the probes, development runs) is deleted at the end of the task;
+  the image `rang-casacore-cpp:3.7.1` stays (the oracle).
