@@ -372,7 +372,7 @@ CPU-heavy tasks at a time on 8 physical cores.
 - Final review session (`/code-review` style) on the simplified core: done
   2026-10-31 (`w4-review.md`: 17 findings, 1 high; v0.1.0 is go after the fix
   tasks W4-1 receipts (done 2026-10-31, `w4-1-receipts.md`), W4-3 kernels into the extension (done 2026-10-31, `w4-3-kernels.md`) and W4-5 release
-  metadata (done 2026-10-31, `w4-5-release.md`); W4-2, W4-6, W4-7, W4-8 follow; W4-4 done within E6).
+  metadata (done 2026-10-31, `w4-5-release.md`); W4-2 and W4-7 done 2026-11-02 (`w4-2-boundaries.md`); W4-6, W4-8 follow; W4-4 done within E6).
 
 ## Coordinator loop (this session, day and night)
 

@@ -1239,3 +1239,21 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 1 rayon thread | Windows | 95.8 s, PROVISIONAL | – | crossover and 4 schemes on one sky |
 | 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 16 threads | Windows | 37.5 s, PROVISIONAL | – | the same |
 | 2026-11-02 | clean-major-cycles: pre-commit check (fmt, clippy, test, `lake build`) | Windows worktree, before `9f07507` | not timed separately | – | 134 passed; contended host |
+| 2026-10-31 | big plan W4-2: uv venv + editable install (WSL) | worktree | 226 s | – | includes the extension build |
+| 2026-10-31 | big plan W4-2: `maturin develop --release` (WSL) | after the Rust changes | 187 s | – | 73 s at setup, 50 s after the merge |
+| 2026-10-31 | big plan W4-2: fmt, clippy core and ext, blosc tests (WSL) | branch | 198 s | – | all pass |
+| 2026-10-31 | big plan W4-2: pytest full (WSL, cargo not on PATH) | branch, first build | 306 s | – | 721 passed; 9 `test_core_closure` failures from the missing `cargo` (pre-W4-3 standalone build) |
+| 2026-10-31 | big plan W4-2: base `ecccbf0` unpack + venv + build | `~/Build/tmp` | 198 s | – | identity reference |
+| 2026-10-31 | big plan W4-2: identity suite, base / head | 33 steps | 244 s / 249 s | 1.9 GB (phase3c-a) | statuses equal |
+| 2026-10-31 | big plan W4-2: `rang-core backends compare` | base vs head | 7 s | – | 572 non-numerical failures, 0 numerical |
+| 2026-10-31 | big plan W4-2: phase1/2/3c-a + bench-f rerun, base and head | git-checkout base | about 60 s | – | identical but for 3 `rust_seconds` |
+| 2026-10-31 | big plan W4-2: cold gpu cost (clippy, test, both features) | throwaway target | 639 s | – | table above |
+| 2026-10-31 | big plan W4-2: targeted pytest after the merge (9 files) | branch + `fdf186b` | 41 s | – | 83 passed |
+| 2026-10-31 | big plan W4-2: Windows uv venv + editable install | Windows worktree | 258 s | – | includes the extension build |
+| 2026-10-31 | big plan W4-2: Windows `python -m rang.check`, first run | CRLF checkout, branch + `fdf186b` | not recorded | – | FAIL: 20 `test_p11_extract` (CRLF), 4 df2c (run scripts); cold GPU steps pass, 136 tests |
+| 2026-11-02 | big plan W4-2: Windows `python -m rang.check`, LF checkout | branch + `d03a95a` | 1,829 s | – | FAIL: 4 df2c (run scripts) |
+| 2026-11-02 | big plan W4-2: Windows `python -m rang.check`, LF checkout | branch + `9813608`, `as_posix` only | 1,843 s | – | FAIL: 1 df2c (`None` from `mem_available_gib`) |
+| 2026-11-02 | big plan W4-2: Windows `cargo test --features gpu gpu:: --nocapture` | RTX 4070 Ti | 353 s (build included) | – | 6 of 6 pass, no skip |
+| 2026-11-02 | big plan W4-2: Windows `python -m rang.check`, final | final code | 1,008 s | – | PASS, 753 passed, 54 skipped |
+| 2026-11-02 | big plan W4-2: WSL `tools/check-all.sh` | branch + `d03a95a` | 3,013 s (with lock wait) | – | PASS, 780 passed, 20 skipped |
+| 2026-11-02 | big plan W4-2: WSL `tools/check-all.sh`, final | final code | 4,117 s (with lock wait) | – | PASS, 787 passed, 20 skipped |

@@ -1,5 +1,25 @@
 # Rang research state
 
+W4-2 and W4-7 boundary checks and GPU gate (big plan
+wave 4), 2026-11-02 (implemented; measured;
+[w4-2-boundaries.md](w4-2-boundaries.md)). Every `rang._core` binding now
+refuses arrays that are not C-contiguous, and arrays of the wrong length,
+with a ValueError naming the argument. Size products are checked. The
+review's r01 out-of-bounds write and the transposed Fortran-ordered `uvw`
+now raise. Changes in the wrappers and core:
+- `flag_rows` checks its per-row arrays.
+- The blosc span decoders refuse rows outside the decoded blocks.
+- `fluxstd_eval` catches panics.
+- Zarr metadata with Fortran order, big-endian or unexpected dtypes is
+  refused.
+- `core_fetch` shares `core_zarr`'s block table and its fallback for
+  out-of-order blocks.
+
+The identity suite is numerically identical to `ecccbf0`: 282 arrays,
+88 FITS HDUs and 22,500 JSON leaves, with C, D, I, K and P5 passing.
+`rang-core check` gains `core-clippy-gpu` and `core-test-gpu`: 6.1 min
+cold, 3 s warm, skippable with `--skip`.
+
 How many major cycles CLEAN needs, 2026-11-02 (proposed; implemented; measured;
 timings provisional; [clean-major-cycles.md](clean-major-cycles.md), branch
 `clean-major-cycles`):

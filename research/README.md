@@ -13,6 +13,11 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-11-02: W4-2 and W4-7, [boundary checks](w4-2-boundaries.md): sized,
+C-order and overflow checks on every extension binding; `flag_rows` lengths;
+span-row coverage; zarr order and dtype checks and the out-of-order fallback
+in `core_fetch`; the `gpu` feature in `rang-core check`.
+
 New, 2026-10-31: E6, the [last of the core table writer](e6-table-writer-final.md):
 TiledDataStMan hypercubes, TiledCellStMan, ISM string arrays, default tile
 shapes and MultiFile block order and continuation; MultiHDF5 refused; 20 of 21
