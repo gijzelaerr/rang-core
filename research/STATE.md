@@ -1,5 +1,23 @@
 # Rang research state
 
+gmclean benchmark, 2026-11-02 (implemented; accuracy measured; speed PROVISIONAL;
+[gmclean-benchmark.md](gmclean-benchmark.md), branch `gmclean-bench`):
+
+- **Datasets.** Three simulated 64-dish MS (S1 50 points, S2 plus a 40″ disc, S3 500
+  points; 1,814,400 rows × 8 channels, exact DFT, rang's own table writer, natural
+  noise 19.84 µJy) and the LUNO slice; core against WSClean 2.3e-7 of the peak.
+- **Baselines.** At 100 µJy, neither imager diverges on the full array. gmclean
+  `d94850e` is 0.03 to 0.27 % lower in misfit, with the same flux recovery, and stops
+  at the threshold where WSClean's fast loop leaves 178 to 245 µJy.
+- **Negative.** At gmclean's mgain 0.8, S1 and S2 carry 263 to 368 mJy of false flux,
+  100 times WSClean's. On S1 `-mgain 0.1` removes it and gives WSClean's plain-loop
+  answer at 59 major cycles.
+- **Slice.** WSClean diverges at `abs`, `-padding 2` included, and cleans nothing at
+  `auto`. gmclean converges (Q/Q0 4.7e-4), with central flux −12 % at `abs`, −0.9 % at
+  `auto`.
+- **Speed.** Every time is contended: no speed ratio is final. The rerun subset is in
+  §7 of the note (`examples/gmclean_bench_timing.sh`).
+
 W4 final review (big plan wave 4), 2026-10-31 (reviewed; measured;
 [w4-review.md](w4-review.md)). It is a read-only `/code-review` of `main` at
 `17653e4`:

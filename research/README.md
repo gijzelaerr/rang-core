@@ -13,6 +13,8 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-11-02: the [gmclean benchmark](gmclean-benchmark.md): three simulated full-MeerKAT Measurement Sets and the LUNO slice, WSClean 3.7 baselines and one scorer for every imager. On the full array gmclean `d94850e` and WSClean agree in flux recovery, gmclean stops exactly at the threshold, and its mgain 0.8 leaves 100 times WSClean's false flux on S1 and S2 (removed on S1 by `-mgain 0.1`). On the slice WSClean diverges and gmclean converges. All timings are provisional (contended host); the rerun subset is listed.
+
 New, 2026-10-31: W4, the [final review](w4-review.md): no archived result
 is affected, and the kernels are bit-identical across thread counts. There
 are 17 findings: 1 high, the solver options missing from receipts; 8

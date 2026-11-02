@@ -17,6 +17,10 @@
 #   BENCH_GRIDS     gridding variants, default "minres nominres pad2"
 #   BENCH_LOOPS     minor loops, default "fast hogbom"
 #   BENCH_FILTER    extended regex; only job names matching it run
+#   BENCH_LOCK      host lock held for each job, including its load records
+#                   (default /home/gijsm/.rang-heavy.lock: heavy jobs on this
+#                   host take turns); wall times come from GNU time, not
+#                   from jobs.tsv alone, so the wait for the lock is not counted
 #   BENCH_TEMPLATE  command line for a non-WSClean imager, with placeholders
 #                   {ms} {datacol} {field} {size} {scale} {threads} {mode}
 #                   {abs_threshold} {threshold_args} {grid} {loop} {out} {niter}
@@ -64,6 +68,8 @@ if [ "$imager" != wsclean ] && [ -z "${BENCH_TEMPLATE:-}" ]; then
   echo "BENCH_TEMPLATE is required for imager $imager" >&2
   exit 2
 fi
+lock=${BENCH_LOCK:-/home/gijsm/.rang-heavy.lock}
+exec 9>"$lock"
 mkdir -p "$run/ms" "$run/timing" "$run/load" "$run/tmp"
 [ -f "$run/jobs.tsv" ] || printf 'name\texit\twall_s\tstart\n' > "$run/jobs.tsv"
 
@@ -102,6 +108,7 @@ for ds in "${datasets[@]}"; do
           name=$ds-$mode-$grid-$loop-j$threads
           [[ $name =~ $filter ]] || continue
           [ -f "$run/timing/$name.txt" ] && continue
+          flock 9
           start=$(date -Iseconds)
           busy before > "$run/load/$name.busy.txt"
           cat /proc/loadavg > "$run/load/$name.txt"
@@ -155,6 +162,7 @@ for ds in "${datasets[@]}"; do
           kill "$sampler" 2>/dev/null || true
           wait "$sampler" 2>/dev/null || true
           busy after >> "$run/load/$name.busy.txt"
+          flock -u 9
           wall=$(python3 -c "print(round($e - $s, 3))")
           printf '%s\t%s\t%s\t%s\n' "$name" "$rc" "$wall" "$start" >> "$run/jobs.tsv"
           echo "## $name exit $rc ${wall}s"

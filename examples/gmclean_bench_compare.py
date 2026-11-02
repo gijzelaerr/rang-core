@@ -648,16 +648,18 @@ def tables(args):
             t, lg = r.get("time", {}), r.get("log", {})
             rep = (r.get("report") or {}).get("run") or {}
             majors = lg.get("major_iterations") or rep.get("major_cycles")
-            comps = (
-                lg.get("components")
-                or lg.get("last_logged_iteration")
-                or rep.get("components")
-            )
+            comps = lg.get("components")
+            if comps is None:
+                comps = rep.get("components")
+            comps_text = _f(comps, "d")
+            if comps is None and lg.get("last_logged_iteration"):
+                # The plain minor loop logs every 10th or 100th iteration.
+                comps_text = f"≥ {lg['last_logged_iteration']}"
             rss = t.get("max_rss_kb")
             print(
                 f"| {name} | {_f(t.get('wall_s'), '.1f')} | {_f(t.get('cpu_s'), '.1f')} "
                 f"| {_f(rss and rss / 1048576, '.2f')} | {_f(majors, 'd')} "
-                f"| {_f(comps, 'd')} | {r['residual_inner_rms']:.3e} "
+                f"| {comps_text} | {r['residual_inner_rms']:.3e} "
                 f"| {r['residual_inner_peak_abs']:.3e} | {_f(r.get('dynamic_range'), '.0f')} "
                 f"| {r['q_over_q0']:.4e} | {_f(r.get('q_over_q_truth'), '.4f')} "
                 f"| {r['total_flux_error']:+.4f} "

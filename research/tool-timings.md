@@ -1189,3 +1189,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan W4: `cargo test --release --features gpu` | core | 327.3 s | – | 135 passed (6 more than the check runs) |
 | 2026-10-31 | big plan W4: `cargo install --locked cargo-audit` (0.22.2) | crates.io | 213.7 s | – | |
 | 2026-10-31 | big plan W4: `cargo audit` core / `core/py` / root lock | worktree | 7.2 s / 2.2 s / 0.9 s | – | no advisory among 1,395 |
+| 2026-11-02 | uv pip install editable venv | worktree | 227.5 s | – |  |
+| 2026-11-02 | gmclean-bench simulate S1 / S2 / S3 (rang writer) | 1,814,400 rows × 8 × 4 | 36.5 / 36.8 / 206.9 s | 0.40 / 0.39 / 0.49 GB | PROVISIONAL (contended); DFT |
+| 2026-11-02 | gmclean-bench WSClean `-niter 0` checks | 8 jobs, -j 16 | 300.0 s | 0.64 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench prepare S1 / S2 / S3 / slice | exact dirty and PSF, ε 1e-9, noise images | 37.6 / 31.2 / 32.3 / 2.0 s | 2.5 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 36 jobs -j 16 | simulations and slice, fast and plain loop | 4,036 s | 0.78 GB | PROVISIONAL; plain loop 284-571 s per job |
+| 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 30 jobs -j 1 | fast loop, slice plain loop | 4,551 s | 0.78 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench `cargo build --release --bin gmclean` | `d94850e` | 215.4 s | – | contended |
+| 2026-11-02 | gmclean-bench gmclean matrix, 8 jobs -j 16 / 8 jobs -j 1 | `d94850e` | 1,043 / 2,571 s | 2.48 GB | PROVISIONAL; not a speed comparison |
+| 2026-11-02 | gmclean-bench gmclean S1 abs `-tau-min 0.9` / `-mgain 0.1` | `d94850e`, -j 16 | 601 / 479 s | 2.5 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench scoring | per simulated model, 4 threads | about 20 s | 2.6 GB | PROVISIONAL |
