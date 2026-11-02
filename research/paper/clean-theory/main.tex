@@ -1,4 +1,5 @@
-% What CLEAN computes. Draft, 2026-10-30. Build: pdflatex main.tex (twice).
+% What CLEAN computes. Draft, 2026-11-02. No timing is quoted until the quiet-host pass.
+% Build: pdflatex main.tex (twice).
 \documentclass[twocolumn,10pt]{article}
 \usepackage[a4paper,margin=18mm,columnsep=7mm]{geometry}
 \usepackage{amsmath,amssymb,amsthm}
@@ -19,15 +20,15 @@
 \newcommand{\Qinf}{Q_\infty}
 \newcommand{\erc}{\eta}
 
-\title{\vspace{-8mm}What CLEAN computes:\\ a one-line law, a certified minor cycle,\\ and the case of the diverging production imager}
-\author{G.~Molenaar\thanks{Draft of 2026-10-30. Every number is archived with its seed, settings and run time in the \texttt{rang} repository (\texttt{research/clean-theory.md}, \texttt{clean-phase-transition.md}, \texttt{clean-implicit-objective.md}, \texttt{clean-certified-imaging.md}); the Lean proofs are in \texttt{formal/}. Affiliation to be added.}}
+\title{\vspace{-8mm}What CLEAN computes:\\ a one-line law, an exact minor cycle,\\ and the case of the diverging production imager}
+\author{G.~Molenaar\thanks{Draft of 2026-11-02. Wall-clock comparisons are withheld until a quiet-host benchmark. Every number is archived with its seed, settings and run time in the \texttt{rang} repository (\texttt{research/clean-theory.md}, \texttt{clean-phase-transition.md}, \texttt{clean-implicit-objective.md}, \texttt{clean-certified-imaging.md}, \texttt{clean-major-cycles.md}, \texttt{gmclean.md}, \texttt{gmclean-benchmark.md}, \texttt{gridder-theory.md}); the Lean proofs are in \texttt{formal/}. Affiliation to be added.}}
 \date{}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Write H\"ogbom's CLEAN as the greedy algorithm on the dictionary of pixel atoms in the weighted visibility space and the point-spread function becomes a Gram matrix. Everything follows from one line: a component $\gamma r_p$ at pixel $p$ changes the misfit by exactly $-\tfrac{\gamma(2-\gamma)}{2}r_p^2$, so CLEAN descends for $0<\gamma<2$ under a single condition, that the beam subtracted from the residual image is the Gram matrix of the atoms that made it. Schwarz's three 1978 conditions are this sentence; every known way of breaking CLEAN violates it. From the same line we get the least-squares floor CLEAN converges to and its geometric rate, the exact recovery coefficient as the one-sided law for finding point sources (never wrong in $30\,206$ trials on four arrays) with an exact rule for two sources ($40\,000$ of $40\,000$), the identification of small-gain CLEAN with forward stagewise regression (so CLEAN minimises no objective, closing a question open since 1987), a provable replacement for Clark's minor-cycle heuristic, and the fact that multi-scale dictionaries have coherence 0.98. Thirty-four of these statements are machine-checked in Lean~4. Turned into a diagnostic, the one line catches a production imager in the act: on a MeerKAT observation of PKS\,1934$-$638, WSClean~3.7 diverges at matched settings; our driver with WSClean's image-sized beam reproduces its run to $5\times10^{-6}$\,Jy and shows a Gram gap of 99 times the misfit in the fatal cycle, while the same loop with the exact beam converges to the calibrator flux within 0.45\,\%.
+Write H\"ogbom's CLEAN as the greedy algorithm on the dictionary of pixel atoms in the weighted visibility space and the point-spread function becomes a Gram matrix. Everything follows from one line: a component $\gamma r_p$ at pixel $p$ changes the misfit by exactly $-\tfrac{\gamma(2-\gamma)}{2}r_p^2$, so CLEAN descends for $0<\gamma<2$ under a single condition, that the beam subtracted from the residual image is the Gram matrix of the atoms that made it. Schwarz's three 1978 conditions are this sentence; every known way of breaking CLEAN violates it. From the same line we get the least-squares floor CLEAN converges to and its geometric rate, the exact recovery coefficient as the one-sided law for finding point sources (never wrong in $30\,206$ trials on four arrays) with an exact rule for two sources ($40\,000$ of $40\,000$), the identification of small-gain CLEAN with forward stagewise regression (so CLEAN minimises no objective, closing a question open since 1987), and the fact that multi-scale dictionaries have coherence 0.98. Seventy-three statements are machine-checked in Lean~4. Turned into a diagnostic, the one line catches a production imager in the act: on a MeerKAT observation of PKS\,1934$-$638, WSClean~3.7 diverges at matched settings; our driver with WSClean's image-sized beam reproduces its run to $5\times10^{-6}$\,Jy and shows a Gram gap of 99 times the misfit in the fatal cycle, while the same loop with the exact beam converges to the calibrator flux within 0.45\,\%. The law also rebuilds the minor cycle: GeMClean, a reference imager, takes the exact value of every peak from the Gram sum, and reaches the threshold exactly on simulated MeerKAT data with fewer major cycles than WSClean's plain loop at comparable false flux. Major cycles exist because of the $w$-term: without it one pass suffices, and with it about five remain on these skies.
 \end{abstract}
 
 \section{One line}
@@ -89,15 +90,63 @@ Parametrised by $\ell_1$ arc length, CLEAN as $\gamma\to0$ and stagewise as $\va
 
 So there is no objective that small-gain CLEAN minimises, which is why \citet{marsh87} never got a tidy answer: CLEAN is locally steepest per unit of added $\ell_1$ flux, nothing more. Gain~1 overshoots on correlated atoms, the mechanism of Schwarz's striped, negative disc; small gain does not make the model non-negative (the limit itself reaches $-0.22$ of the peak on a disc with snapshot sampling). Measured, the CLEAN model approaches the stagewise reference by factors 22--64 on a disc and 280--2400 on point sources between $\gamma=1$ and $0.003$; the exact lasso path is monotone on six point sources, where it coincides with the limit to $3\times10^{-7}$, and has 5\,836 sign changes on the disc, where lasso and small-gain CLEAN differ by a quarter of the peak and small gain is the one closer to the sky.
 
-\section{The minor cycle, certified}
+\section{The minor cycle, exact}
 
-Let $\tilde r$ be the working residual updated with a beam patch and $r$ the true one. A component $c=\gamma\tilde r_p$ changes the true misfit by $-c\,r_p+c^2/2$, so it descends iff $r_p/\tilde r_p>\gamma/2$; and $\norm{r-\tilde r}_\infty\le f\sum_j|c_j|$ with $f$ the peak of the beam outside the patch. Hence:
+Let $\tilde r$ be the working residual updated with a beam patch and $r$ the true one. A component $c=\gamma\tilde r_p$ changes the true misfit by $-c\,r_p+c^2/2$, so it descends iff $r_p/\tilde r_p>\gamma/2$; and $\norm{r-\tilde r}_\infty\le f\sum_j|c_j|$ with $f$ the peak of the beam outside the patch. A worst-case stopping rule follows, and we proved it. It is too blunt: an early reader of this draft pointed out that it halts after one to four components at gain~1, which abolishes the minor cycle rather than replacing Clark's, and asked why we did not use the exact correction per step. They were right. The omitted part of the Gram sum is known in closed form,
+\begin{equation}\label{eq:exact}
+r_p=\tilde r_p+\sum_{j}c_j\,D(x_p-x_j),
+\end{equation}
+with $D$ the beam outside the patch, so the amplitude can be taken from $r_p$ itself. With the PSF on a grid of twice the image side this is exact for the planar gridded operator, and most evaluations can be skipped: $\tilde r$ is kept lazily, a real-input FFT resynchronises it when the sum grows, and the pick is certified by $\tau=|r_p|/\max_q|r_q|$. On the 64-dish track at $1024^2$ the lazy loop matches the brute-force one to $10^{-15}$\,Jy (Table~\ref{tab:minor}); at $2048^2$ the minor loop is at most 2\,\% of a whole job's profile.
 
-\begin{quote}\itshape
-Continue the minor cycle while $f\sum_j|c_j|<(1-\gamma/2)\,|\tilde r_p|$.
-\end{quote}
+\begin{table}
+\centering
+\caption{Minor-cycle rules in one driver, 64 dishes, $1024^2$, threshold 1\,mJy. $\tau$ is the certified pick quality of the patch.}
+\label{tab:minor}
+\footnotesize
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+rule & comps & majors & note\\
+\midrule
+exact, $\pm64$ patch & 2\,218 & 3 & $\tau\ge0.506$\\
+exact, full beam & 2\,218 & 3 & $\tau=1$\\
+worst-case bound & 2\,206 & 5 & \\
+Clark & 86\,320 & 7 & 14.1\,Jy off source\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-Clark's 1980 rule (stop when the peak falls below $f$ times the cycle's first peak) is not of this form. On 200-step cycles from an exact residual it left 0--119 ascending steps per cycle; the rule above left none in 24 cases, at the price of 1--4 steps per cycle at gain 1 and 17--64 at gain 0.1. The Cotton--Schwab major cycle resets the working residual; it does not make the minor steps descend, and no theorem says it does. Multi-scale CLEAN inherits Eq.~(\ref{eq:law}) and the floor, but a dictionary of deltas and Gaussians of 2, 4, 8 pixels has coherence 0.98--0.99 under every PSF we tried: no recovery guarantee of the coherence type can exist for it, and its scale choice is decided by sub-per-cent correlation differences.
+Exactness moves the question to when to hand back. A long cycle does not diverge; it fits the beam's off-centre $w$ error, which the phase-centre PSF cannot see. A misfit-based stop cannot see it either: the worst cycle has a gap of only 1.1\,\% of its prediction and leaves 20\,Jy of false flux. So a cycle ends once $|r_p|\le\delta\sum|c_j|$, with $\delta$ the pointwise error per unit flux that the previous major cycle measured. This rule is empirical and has no theorem.
+
+Multi-scale CLEAN inherits Eq.~(\ref{eq:law}) and the floor, but a dictionary of deltas and Gaussians of 2, 4, 8 pixels has coherence 0.98--0.99 under every PSF we tried: no recovery guarantee of the coherence type can exist for it.
+
+\section{How many major cycles}
+
+A major cycle is a correction for using a beam that is not the Gram matrix. With the $2n$ PSF the planar operator needs one pass, in 14 of 14 runs; the whole computation then lives in FFTs on the image. The $w$-term is what remains. In 158 runs on 4-hour MeerKAT tracks no cycle raised the misfit, and the descent and rate over cycles are in Lean, as $\mathrm{d}Q\le\theta\,\mathrm{d}\tilde Q$ when the gap is below $(1-\theta)|\mathrm{d}\tilde Q|$. The theorem does not make the count small. In practice the count is set pointwise: on point-source tracks at $512^2$ we need 2--3 passes against 4--7 for WSClean's scheme, and after the first pass the gap is at most 2\,\% of the prediction while a single peak of 15.6--24.2\,mJy against a 15\,mJy threshold forces the second.
+
+Table~\ref{tab:sims} is the harder test: 64 dishes, 2\,h, $2048^2$ at $1.5''$, Briggs 0.5, threshold 100\,$\mu$Jy, thermal noise, with a true catalogue. S1 has 50 points, S2 adds a $40''$ disc, S3 has 500 points. False flux counts model flux beyond two beams of any true source. GeMClean reaches the threshold exactly, uses one to four fewer major cycles, and matches WSClean's accuracy. It does not beat it: the false flux of WSClean's fast loop is lower. Two caveats. The rule's constants were chosen on these three skies with one noise realisation, so this is not a held-out test. And few cycles have a floor: 1--3 cycles at low false flux are not reachable, four cycles at mgain 0.99 leave 72--77\,mJy, and one cycle run to the threshold on S1 hits the limit of $10^6$ components with 51\,Jy of false flux.
+
+\begin{table}
+\centering
+\caption{S1/S2/S3 at matched threshold.}
+\label{tab:sims}
+\footnotesize
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & GeMClean & WSC plain & WSC fast\\
+\midrule
+majors & 5/5/4 & 6/6/5 & 9/9/6\\
+false flux, mJy & 4.3/4.9/1.6 & 5.4/6.7/1.7 & 3.5/3.2/1.5\\
+peak res., $\mu$Jy & 100 & 102--117 & 197--245\\
+$Q/Q_{\rm truth}$, S1 & 1.0136 & 1.0136 & 1.0141\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+GeMClean's output is also a function of its input: on S1, its images are bit-identical at 1 and 16 threads, while WSClean's default grid differs between those thread counts by up to 6.9\,mJy on all six simulated jobs.
+
+\section{A cycle without visibilities}
+
+Equation~(\ref{eq:law}) needs only the normal operator, so a major cycle needs no visibilities. Grid the weights once per $w$ node; then $\tilde Gm=\mathrm{Re}\sum_ke_k(K_k\circledast\bar e_km)$ is a sum of Toeplitz operators on the $2n$ grid, costing FFTs alone. This is the time-segmented MRI form of \citet{fessler05}, and a visibility-free $w$-aware operator in radio is already in \citet{dabbech26}; our variant is a compact least-squares stencil with no correction function. It matches the gridder to $2.8\times10^{-7}$. At $2048^2$ and 31 million visibilities one apply costs 24\,G instructions against 307\,G for grid and degrid, independent of data size, after a 443\,G setup and with a 2\,GB cube. It does not pay at GeMClean's five cycles; at 87 cycles (mgain 0.1) the job's user CPU falls by a provisional factor of 4.6. The cube grows about tenfold per doubling of the field side (275\,GB at $8192^2$), and time-variable beams or $A$-terms break the structure. It is an operator for many-pass solvers, not an improvement to CLEAN.
 
 \section{The production imager}
 
@@ -119,11 +168,11 @@ driver, exact beam & 65 & 0.022 & 14.885 & $-0.04$\\
 \end{tabular}
 \end{table}
 
-WSClean 3.7 diverges in all four of its variants (with or without its grid upsampling, with or without the fast sub-minor loop). The driver with WSClean's beam, the image-sized PSF, reproduces WSClean's run to $5.4\times10^{-6}$\,Jy: the same 39 model pixels, the same 304 components, divergence in the third major cycle. The diagnostics say why. In that cycle the minor loop believes it removed 15.9\,Jy$^2$ of misfit while the true misfit rose by 2.6\,Jy$^2$: a Gram gap of 99 times $Q$, 158 of 272 steps ascending, 24 of 39 model pixels within eight pixels of the image edge, where the image-sized beam is cut and misses $f=0.77$ of its peak. The same loop with the exact beam (a PSF of twice the image size) converges with no ascending step: 65 components in four cycles, residual rms 22\,mJy, peak 47\,mJy, model flux $-0.45\,\%$ from the calibrator value, gap $\le10^{-11}Q$ without the $w$-term and $1.4\times10^{-4}Q$ with it. $\Qinf/Q_0\le3.7\times10^{-4}$: the data were fittable, the imager was not fitting them. Honesty requires two remarks. A four-station PSF whose sidelobes stay at 0.77 to the edge is the worst case for beam truncation, not the 64-dish array, and cleaning the centre of a padded field is a known remedy. What is new is that the failure is named in numbers while it happens; WSClean reports only a fourfold peak rise. Along the way we found that WSClean's default minimum-grid-resolution upsampling puts this field's reference dirty image 17\,\% of the peak off the exact transform; with it off, WSClean and our gridder agree to $2.6\times10^{-7}$.
+WSClean 3.7 diverges in all four of its variants (with or without its grid upsampling, with or without the fast sub-minor loop). The driver with WSClean's beam, the image-sized PSF, reproduces WSClean's run to $5.4\times10^{-6}$\,Jy: the same 39 model pixels, the same 304 components, divergence in the third major cycle. The diagnostics say why. In that cycle the minor loop believes it removed 15.9\,Jy$^2$ of misfit while the true misfit rose by 2.6\,Jy$^2$: a Gram gap of 99 times $Q$, 158 of 272 steps ascending, 24 of 39 model pixels within eight pixels of the image edge, where the image-sized beam is cut and misses $f=0.77$ of its peak. The same loop with the exact beam (a PSF of twice the image size) converges with no ascending step: 65 components in four cycles, residual rms 22\,mJy, peak 47\,mJy, model flux $-0.45\,\%$ from the calibrator value, gap $\le10^{-11}Q$ without the $w$-term and $1.4\times10^{-4}Q$ with it. $\Qinf/Q_0\le3.7\times10^{-4}$: the data were fittable, the imager was not fitting them. GeMClean converges too (93 components, three cycles, $Q/Q_0=4.8\times10^{-4}$, no ascending cycle), with a central flux 12.4\,\% low at this threshold and 0.9\,\% low at an automatic one; total model flux is $+1.2\,\%$. WSClean also diverges with \texttt{-padding 2}, which pads the gridding and not the PSF. Honesty requires two remarks. A four-station PSF whose sidelobes stay at 0.77 to the edge is the worst case for beam truncation: on 64 dishes truncation is about 1\,\%, neither imager diverges, and flux recovery matches. Cleaning the centre of a padded field is a known remedy. What is new is that the failure is named in numbers while it happens; WSClean reports only a fourfold peak rise. Along the way we found that WSClean's default minimum-grid-resolution upsampling puts this field's reference dirty image 17\,\% of the peak off the exact transform; with it off, WSClean and our gridder agree to $2.6\times10^{-7}$.
 
 \section{Checked, not trusted}
 
-The core of Sects.~1--5 is formalised in Lean~4 with Mathlib over an arbitrary real inner-product space and finite pixel type: the law and its descent window, square-summability and convergence of the residual image, the positive greedy constant by compactness, the floor and the geometric rate for arbitrary data, convergence of the model, the coherence pick condition, the separated-source bound, the stagewise step lemmas and uniqueness of the flow residual for right-differentiable curves, and the minor-cycle rule end to end. Thirty-four audited theorems rest on \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} only. Not formalised: the compactness steps of the stagewise limit, the two-source rule, the gap identity.
+The core of Sects.~1--6 is formalised in Lean~4 with Mathlib over an arbitrary real inner-product space and finite pixel type: the law and its descent window, square-summability and convergence of the residual image, the positive greedy constant by compactness, the floor and the geometric rate for arbitrary data, convergence of the model, the coherence pick condition, the separated-source bound, the stagewise step lemmas and uniqueness of the flow residual for right-differentiable curves, the worst-case minor-cycle rule end to end, the descent over major cycles, the adjoint-implies-Gram law for an approximate gridder with its perturbation bounds, and the Toeplitz identity of Sect.~7. Seventy-three audited theorems rest on \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} only. Not formalised: the compactness steps of the stagewise limit, the two-source rule, the hand-back rule, the operator's expansion error, gridding aliasing.
 
 \section{Take-home}
 
@@ -132,11 +181,14 @@ The core of Sects.~1--5 is formalised in Lean~4 with Mathlib over an arbitrary r
 \item It converges to the least-squares floor at a rate set by a measurable greedy ratio, and the model converges.
 \item Point sources: the recovery coefficient is a one-sided law, exact for two sources; coherence bounds are useless at critical sampling; noise moves picks to the neighbouring pixel.
 \item Small gain is forward stagewise regression. CLEAN minimises nothing global.
-\item The minor cycle admits a provable stopping rule; Clark's has none.
-\item The Gram gap caught WSClean diverging on real MeerKAT data and the exact-beam loop fixed it. Compute the gap, the floor and the certificate; they cost a major cycle's bookkeeping.
+\item The minor cycle can be exact per step, at most 2\,\% of a job's profile. Clark's rule took 39 times the components in our driver.
+\item Major cycles exist for the $w$-term: one pass without it, and four to five at low false flux with it on these skies.
+\item The Gram gap caught WSClean diverging on real MeerKAT data, and the exact beam fixed it.
 \end{itemize}
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{11}
+\bibitem[Dabbech \& Wiaux(2026)]{dabbech26} Dabbech, A., \& Wiaux, Y. 2026, arXiv:2605.26347
+\bibitem[Fessler et al.(2005)]{fessler05} Fessler, J.~A., Lee, S., Olafsson, V.~T., Shi, H.~R., \& Noll, D.~C. 2005, IEEE Trans. Signal Process., 53, 3393
 \bibitem[Freund et al.(2017)]{freund17} Freund, R.~M., Grigas, P., \& Mazumder, R. 2017, Ann. Statist., 45, 2328
 \bibitem[Gribonval \& Vandergheynst(2006)]{gribonval06} Gribonval, R., \& Vandergheynst, P. 2006, IEEE Trans. Inf. Theory, 52, 255
 \bibitem[Hastie et al.(2007)]{hastie07} Hastie, T., Taylor, J., Tibshirani, R., \& Walther, G. 2007, Electron. J. Statist., 1, 1
