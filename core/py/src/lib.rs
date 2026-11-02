@@ -7,8 +7,9 @@
 //! made this a second entry door into the C ABI of `rang_core::ffi*`; task P7
 //! (`research/p7-architecture.md`) made it the only one. Every function calls
 //! the same C function a C consumer would: NumPy arrays are borrowed in place
-//! as read-only or read-write slices (never copied; non-contiguous arrays and
-//! read-only outputs are refused), their pointers fill the `#[repr(C)]`
+//! as read-only or read-write slices (never copied; arrays that are not
+//! C-contiguous and read-only outputs are refused, task W4-2), their pointers
+//! fill the `#[repr(C)]`
 //! structs, and the status code of the C function is returned for the Python
 //! wrapper to interpret. P7 adds the root crate's kernels (`rang_toy`, reached
 //! as `rang_core::toy`: gain TV, phase trend, anchored response, projector)

@@ -1,256 +1,151 @@
-<p align="center"><img src="https://raw.githubusercontent.com/gijzelaerr/rang-core/main/docs/logo/lockup.svg" alt="rang-core" width="520"></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gijzelaerr/rang-core/main/docs/logo/lockup-on-dark.svg"><img src="https://raw.githubusercontent.com/gijzelaerr/rang-core/main/docs/logo/lockup.svg" alt="rang-core" width="520"></picture></p>
 
-# rang-core
+<p align="center"><b>MeerKAT calibration, flagging and imaging research on one Rust core, driven from Python.</b></p>
 
-Radio Astronomy Next Generation — experimental MeerKAT calibration and flagging.
+<p align="center"><a href="https://pythonic.nl/rang-core/">Documentation</a> · <a href="https://pythonic.nl/rang-core/tutorials/index.html">Tutorials</a> · <a href="https://github.com/gijzelaerr/rang-core/blob/main/research/README.md">Research index</a> · <a href="https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md">Changelog</a></p>
 
-Rang investigates smoothly time-varying antenna pointing errors together with
-uncertain sky, gains and beam response. It combines component-list DFT prediction
-and JAX automatic differentiation with Rust simulation and numerical kernels.
+> **Status, November 2026: a tested research demonstrator, not an operational
+> calibrator.** No novelty is claimed: the goal is better calibration and
+> imaging at comparable cost, or comparable quality at much lower cost, and
+> neither has been shown. Both research questions are closed as null: gain-TV
+> flagging, and beam and pointing at B1-3. A deeper field model (an external
+> catalogue) is the first condition for reopening beam and pointing on real data.
 
-**Status: a tested research demonstrator, not an operational calibrator or a
-demonstrated novel algorithm.** The objective is better calibration and imaging
-at comparable cost, or comparable quality with substantially less computation.
-Neither advantage over state of the art has yet been established.
+## What it is
 
-[Research handoff/index](https://github.com/gijzelaerr/rang-core/blob/main/research/README.md) · [Latest progress](https://github.com/gijzelaerr/rang-core/blob/main/research/STATE.md).
+- **A Rust core.** A Measurement Set reader and casacore table writer, zarr
+  ingest with HTTP range fetch, QuartiCal's full-Jones solver, Tricolour's
+  SumThreshold strategies, WSClean's imaging weights and w-stacking gridder (CPU
+  and GPU), ducc0's wgridder, CASA's flux standards and a component predictor.
+- **A Python package and command line.** `import rang` reaches every kernel
+  through the extension `rang._core`, which releases the GIL. `rang-core STAGE VERB`
+  replays, compares and archives each chain and writes a versioned receipt.
+- **The tools' file formats.** CASA calibration tables, QuartiCal stores, Tigger,
+  WSClean and BBS sky models, H5parm, killMS solutions, CASA flag versions and
+  MeerKAT MVFv4 archives (`rang-core formats check` and `convert`).
+- **Oracles.** Each port is gated on reproducing the upstream tool's output:
+  QuartiCal, Tricolour, AOFlagger, WSClean, ducc0, casacore, CASA and katdal.
 
-Documentation: <https://gijzelaerr.github.io/rang-core/> (installation,
-concepts, the command line, the executed tutorials, the API reference and
-the research story; built by `.github/workflows/docs.yml`).
-
-## Names
-
-The project, its GitHub repository and its PyPI distribution are
-**rang-core** (`pip install rang-core`); the Python package is **`rang`**
-(`import rang`, with the compiled core in `rang._core`) and the command line
-is `rang-core`. "Rang" began as Radio Astronomy Next Generation, and *rang*
-is also Dutch for *rank*, which is the first thing the identifiability survey
-measures. Until 2026-10-30 the package was called `rangtoy`; research notes,
-receipts and archives written before then keep that name
-(`research/p12-rename.md`).
-
-The active real-data flagging experiment trains an interpretable policy using
-the TV norm/maps of QuartiCal full 2×2 complex gains, with immutable original
-flags, recoverable backups, a flag budget and held-out checks.
-[Strategy, first negative result and reproduction](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging.md) ·
-[Stimela2 recipe](https://github.com/gijzelaerr/rang-core/blob/main/history/recipes/tv-flagging.yaml).
-
-[Parallel diagnostic suite](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-parallel.md) now adds controlled
-RFI/oracle tests, a verified SARAO calibrator sky, established flagger comparisons
-and measured patch-action learning. These small MeerKAT L-band pilots retain
-negative results; lower gain TV does not consistently mean better prediction,
-and no flagging or imaging superiority is established.
-
-[Latest flagging findings](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-findings.md): a TRAIN-only physical
-gain-response surrogate predicts the counterfactual objective beyond the known
-flag cost (7.26× smaller matched-coverage RMSE in the held-out seed group), while
-legitimate smooth receiver phases change TV-guided decisions despite invariant
-residual magnitudes. Signed-source controls also show substantial calibration absorption
-when the sky is incomplete, even with lower TV and no added flags. These findings
-reuse one four-antenna observation; they motivate safer candidate triage,
-sky-completeness and signal-preservation controls, not an operational flagger.
-
-## What we have learned
-
-Small dish-to-dish beam differences can masquerade as pointing. In an
-eight-antenna simulation with synthetic 1% log-width scatter before removing
-the antenna mean:
-
-| Beam treatment | Relative pointing RMSE |
-| --- | ---: |
-| Ignore antenna differences; fit one shared width | 6.33–9.19 arcsec |
-| Fit shared width and seven relative antenna widths | 0.79–1.10 arcsec |
-| Supply the exact antenna widths (oracle) | 0.73–1.07 arcsec |
-
-Ranges cover three seeds and two shared-pointing settings. These are matched-family
-synthetic tests, not measurements of MeerKAT beam errors. Joint sky/beam/pointing
-inference has prior art; this result strengthens our baseline rather than proving
-novelty. [Experiment, controls and reproduction](https://github.com/gijzelaerr/rang-core/blob/main/research/antenna-beam-widths.md).
-
-Other findings:
-
-- **Relative and shared pointing must be distinguished.** The solver can impose
-  exactly zero antenna-mean relative pointing, following Oleg Smirnov's feedback.
-  An optional prior-constrained common trajectory is separate; its physical value
-  is not established by the zero-mean convention. [Common pointing](https://github.com/gijzelaerr/rang-core/blob/main/research/common-pointing-priors.md).
-- **Gaussian beams admit an exact pointing–sky–gain ambiguity**, including rotating
-  elliptical beams when the compensating sky and gain freedom is available.
-  [Derivation and numerical controls](https://github.com/gijzelaerr/rang-core/blob/main/research/gaussian-gauge.md).
-- **Good residuals do not guarantee accurate astronomy.** Beam mismatch can bias
-  flux even with nearly perfect injected-signal response. Relative-pointing
-  interval coverage improves when antenna widths are fitted, but shared-mode
-  coverage remains less reliable. [Flux-bias control](https://github.com/gijzelaerr/rang-core/blob/main/research/first-results.md) ·
-  [Coverage experiment](https://github.com/gijzelaerr/rang-core/blob/main/research/antenna-beam-widths.md#separate-relative-and-common-uncertainties).
-- **Negative results are retained.** Earlier mode selection did not improve
-  pointing accuracy over a fairly tuned joint fit. Polynomial gain compression
-  fails when the fitted order is too low.
-  [Mode selection](https://github.com/gijzelaerr/rang-core/blob/main/research/spectral-pointing.md) · [Chromatic gains](https://github.com/gijzelaerr/rang-core/blob/main/research/chromatic-gains.md).
-
-## Scope and limitations
-
-Main experiments use eight approximate MeerKAT core positions, scalar beams,
-four frequencies and a small component sky. The DFT includes the non-coplanar
-phase. The JAX solver supports smooth pointing, source fluxes/spectral indices,
-complex gains and selected beam parameters; it is a reference implementation,
-not a streaming or full-polarization pipeline.
-
-The katbeam adapter provides a simplified holography-informed scalar response,
-not complete measured antenna Jones beams. A public Measurement Set reader has
-been exercised, but antenna-label and pointing-coordinate conventions remain
-unresolved. The pointing demonstrator does not establish real-observation
-pointing calibration or improved deconvolved images. Actual QuartiCal gain solves
-in the separate flagging pilots are visibility-space research diagnostics.
-Structured projection benchmarks are not end-to-end calibrator speedups.
-
-[Geometry and provenance](https://github.com/gijzelaerr/rang-core/blob/main/data/README.md) ·
-[Real-data inspection](https://github.com/gijzelaerr/rang-core/blob/main/research/measurement-set-inspection.md) ·
-[Compute benchmark](https://github.com/gijzelaerr/rang-core/blob/main/research/frequency-blocking.md)
-
-## Run a small example
-
-Requires Rust 1.93 (edition 2024) on `PATH` and Python 3.10+ with compatible
-dependency wheels. `pip install -e .` builds the core's PyO3 extension
-`rang._core` through maturin, so `cargo` must be on `PATH` at install time
-(`RUSTUP_TOOLCHAIN=1.93` pins it when a newer default is installed). Install
-from public PyPI in an isolated environment:
+## Install
 
 ```sh
-python3 -m venv .venv   # or: uv venv -p /usr/bin/python3.14 .venv, where ensurepip is missing
-.venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -e '.[pointing,beam,test]' ruff maturin
-.venv/bin/python examples/pointing.py --output outputs/pointing
+pip install rang-core
 ```
 
-Without Rust: `pip install rang-core` installs a released wheel with no
-compiler. There is one abi3 wheel per platform for CPython 3.10 or newer:
-Linux x86_64 and aarch64 (manylinux, glibc 2.28 or newer), macOS arm64 and
-x86_64, and Windows x86_64; each is tested on CPython 3.10 and 3.14 on its
-own OS by `.github/workflows/wheels.yml`. The wheel
-carries every kernel, the root crate's included (gain TV, phase trend,
-anchored response, projector, the pointing toy): the flagging chain and the
-notebooks run with no compiler. The Tricolour static masks are package data
-(`rang/data/`, with Tricolour's BSD notice); the archive drivers and
-comparators still read archived inputs from a checkout. `rang-core --version`
-prints the installed version ([CHANGELOG.md](https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md)). Build wheels locally with
-`bash tools/wheel/build.sh outputs/wheel-<date>-NN` (docker) and test them
-with `bash tools/wheel/test.sh outputs/wheel-<date>-NN outputs/wheel-<date>-MM`
-(`research/wheel.md`).
+The first PyPI release, v0.1.0, is pending; until then, build from source. One
+`abi3` wheel per platform serves CPython 3.10 and newer, needs no Rust compiler
+and carries every kernel: Linux x86_64 and aarch64 (glibc 2.28 or newer), macOS
+arm64 and x86_64, Windows x86_64.
 
-Every wrapper calls the extension; nothing runs Cargo at import or at a
-kernel call, and the extension releases the GIL around every kernel
-(`research/p7-architecture.md`; the ctypes backend, `RANG_CORE_LIB`,
-`RANG_TOY_LIB` and `rang.build()` are gone, with results bit-identical to
-their archive). The Stimela recipes' Python 3.13 environment gets the same
-`abi3` extension from the same install.
+| Extra | For |
+| --- | --- |
+| `notebook` | the tutorials and `rang.notebook` |
+| `imaging` | FITS output of the gridders |
+| `pointing`, `beam` | the JAX pointing path; the katbeam and EIDOS beam controls |
+| `meerkat`, `formats` | MVFv4 archives through katdal; H5parm |
+| `recipes`, `carta` | the Stimela2 recipes (Python 3.13); CARTA from the notebooks |
+| `test`, `docs` | the test suite; the documentation site |
 
-This smoke example fits smooth pointing with a fixed, correct Gaussian beam
-and sky; it is not the joint antenna-width campaign above. That campaign's
-command is in its [experiment report](https://github.com/gijzelaerr/rang-core/blob/main/research/antenna-beam-widths.md#implementation-and-reproduction).
-Generated outputs belong in ignored `outputs/`; reusing a destination can replace
-previous generated files.
-
-The original Rust toy also runs without Python dependencies:
+From source, with Rust 1.93 and `cargo` on `PATH` (more in the [installation guide](https://pythonic.nl/rang-core/installation.html)):
 
 ```sh
-python3 examples/toy.py --seeds 7 --no-plot --output outputs/demo
+git clone https://github.com/gijzelaerr/rang-core && cd rang-core
+python3 -m venv .venv
+.venv/bin/python -m pip install -e '.[notebook,test]'
 ```
 
-[Experiment guide](https://github.com/gijzelaerr/rang-core/blob/main/examples/README.md) · [Full local checks](https://github.com/gijzelaerr/rang-core/blob/main/CONTRIBUTING.md)
+## Quick start
 
-## Next research decision
+Load the public 45 MB MeerKAT fixture (four antennas on PKS 1934−638) and solve
+its full-Jones gains on the Rust core. With `pip install 'rang-core[notebook]'`:
 
-For the active flagging objective, test structured multiscale flag proposals,
-noise/support-aware gain-TV diagnostics, signal preservation and independent
-MeerKAT L-band transfer. [Flagging research questions and go/no-go criteria](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-next.md).
+```python
+from rang.notebook import data, gains
 
-The earlier pointing research has enough infrastructure to test a focused hypothesis: can selecting
-pointing/beam parameters using separate limits on signal distortion and
-model-error contamination beat a well-tuned joint fit? The proposed decision rule
-is not yet implemented or validated. The next phase prioritizes a falsifiable
-quality/cost comparison, not further simulator expansion.
+zip_path = data.download_fixture("rang-cache")   # once; SHA256 checked
+ds = data.load_fixture(zip_path, cache_dir="rang-cache")
+s = data.summary(ds)
+print(s["dataset"], "|", s["antennas"], "|", s["channels"], "channels")
+m = gains.solve(ds)["metrics"]
+print(f"gain TV {m['tv']:.4f}  test MSE {m['losses']['test']:.3f}")
+```
 
-[Current assessment and verification](https://github.com/gijzelaerr/rang-core/blob/main/research/status.md) ·
-[Future plan and go/no-go criteria](https://github.com/gijzelaerr/rang-core/blob/main/research/development-roadmap.md) ·
-[Prior-art boundaries](https://github.com/gijzelaerr/rang-core/blob/main/research/novelty.md)
+After the download it takes about two seconds and prints:
+
+```text
+fixture scan 9 (J1939-6342) | m000, m001, m002, m003 | 4096 channels
+gain TV 0.1474  test MSE 24.920
+```
+
+The command line's main stages (`rang-core -h` lists them all):
+
+| Stage | Chain |
+| --- | --- |
+| `flags` | Tricolour's SumThreshold strategies |
+| `gridder`, `wgridder`, `weights`, `imaging` | gridders, imaging weights, the imaging replay |
+| `campaign`, `campaign-array`, `campaign-1830`, `campaign-fieldmodel` | the LUNO real-data campaigns |
+| `injections`, `actions`, `prospective`, `signal`, `trend` | the flagging experiment's tracks |
+| `ms`, `meerkat`, `formats` | the readers and file formats |
+| `check` | the full local checks, on any platform |
+
+## Documentation
+
+- [The site](https://pythonic.nl/rang-core/): installation, concepts, the command line and the research story.
+- [Tutorials and science notebooks](https://pythonic.nl/rang-core/tutorials/index.html): five tutorials (data and rank, flagging, gains and TV, imaging, the flagging experiment) and two research notebooks (the flagging verdict; beam and pointing), executed on the fixture.
+- [API reference](https://pythonic.nl/rang-core/api/index.html), generated from the docstrings.
+
+## Research results
+
+| Question | Verdict | Report |
+| --- | --- | --- |
+| Port the pipeline to one Rust core | Done: the archived chains reproduce, the solver to 1.4e-15; engineering, not a scientific claim | [architecture](https://github.com/gijzelaerr/rang-core/blob/main/research/p7-architecture.md), [simplification](https://github.com/gijzelaerr/rang-core/blob/main/research/simplification-review.md) |
+| Does gain-TV-guided flagging help? | **Null**: 90 pre-registered calls, none better or worse, at 4.6–5.9× the cost of CARACal's first pass | [verdict](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-verdict.md) |
+| Can selected pointing corrections beat the baselines on real data? | **Null** at B1-3: self-calibration works in simulation (0.62′ to 0.054′), selection adds nothing measurable, and neither arm measures pointing on ESO137 with the self-calibrated model; an external catalogue is the first reopening condition | [B1-3](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-3-pointing-selfcal.md), [B1-2](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-2-identifiability.md), [B1](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-beam-pointing.md) |
+| What is proven about CLEAN? | Data-fit convergence since Schwarz (1978); here a Gram-matrix formalism, Lean proofs and the measured exact-recovery transition | [theory](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-theory.md), [transition](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-phase-transition.md) |
+| An exact gridder | ducc0's wgridder ported at its speed; the w-stacking gridder on a GPU gains 1.2–3.3× over 16 threads | [wgridder](https://github.com/gijzelaerr/rang-core/blob/main/research/df1-wgridder.md), [GPU](https://github.com/gijzelaerr/rang-core/blob/main/research/x2-wgpu.md) |
+| A casacore table writer | Byte-identical to casacore 3.8.1 and CASA 6.7.6, bar uninitialised memory and alignment gaps | [writer](https://github.com/gijzelaerr/rang-core/blob/main/research/e5-table-writer-rest.md), [the last of it](https://github.com/gijzelaerr/rang-core/blob/main/research/e6-table-writer-final.md) |
+| Re-validation against upstream | Tricolour 0.5.0-dev flag-identical; QuartiCal's #452 fix reproduced to 1e-15; AOFlagger agrees at kernel level, differs at stage level; CASA `gaincal` is 75–350× slower | [RV1](https://github.com/gijzelaerr/rang-core/blob/main/research/rv1-revalidate.md), [AOFlagger](https://github.com/gijzelaerr/rang-core/blob/main/research/a-flag-aoflagger.md), [gaincal](https://github.com/gijzelaerr/rang-core/blob/main/research/l5c-casa-gaincal.md) |
+
+Everything else, including the negative results and the earlier pointing pilots,
+is in the [research index](https://github.com/gijzelaerr/rang-core/blob/main/research/README.md);
+the latest progress is in [STATE](https://github.com/gijzelaerr/rang-core/blob/main/research/STATE.md).
 
 ## Repository guide
 
-- `src/`: Rust simulation, fitting and projection kernels.
-- `core/`: the Rust core, reached through the extension `rang._core`
-  built from `core/py` (`rang.core*`): fused
-  statistics, the QuartiCal-style solver, the component predictor, blosc
-  decoding, WSClean imaging weights and w-stacking gridder, the Tricolour
-  strategies (`rang.core_flag`; `python/rang/data/` carries Tricolour's static
-  masks under its BSD notice); AOFlagger 3.5 is a second oracle for them
-  (`tools/oracles/aoflagger/`, `research/a-flag-aoflagger.md`) and a read-only Measurement Set reader
-  (`rang.core_ms`; python-casacore is the oracle, no longer a dependency
-  for writing or creating tables). Reports: `research/core-*.md`.
-- `recipes/`: core-native Stimela2 recipes `core-*.yaml`
-  (phase 3 stages and the imaging track) driven by `rang-core`; `rang-core -h`
-  lists every stage and verb (`run`, `compare`, `archive`, …), `rang-core
-  <stage> compare` takes the arguments of `examples/compare_core_<stage>.py`,
-  and each call writes `<output>.<verb>.rang-receipt.json`
-  (`python -m rang.core_cli`), which need no QuartiCal. Stimela 2.1.4 needs
-  a Python 3.13 environment; its native backend fails on 3.14.
-- Tutorials: `pip install -e '.[notebook]'` and open `notebooks/` (01 data and
-  rank, 02 flagging step by step, 03 gains and TV, 04 imaging, 05 the flagging
-  experiment); see `research/d2-notebook.md`.
-- Science notebooks: `notebooks/science/` (06 the gain-TV flagging experiment
-  and its null verdict; 07 beam and pointing: the toy, the JAX path,
-  observability, B1-0 and B1-1); see `research/d3-science-notebooks.md`.
-- CARTA from the notebooks (optional; Linux or macOS): `pip install -e '.[carta]'`,
-  CARTA's wrapper from its pinned commit and a backend (the pinned container);
-  `rang.notebook.carta.open/snapshot`, notebook 04 with `RANG_NOTEBOOK_CARTA=1`;
-  see `research/nb-carta.md`.
-- B1 adds the SARAO holography beam as rang's reference beam
-  (`rang.beam_holography`: range reader, per-component Jones sampler,
-  katbeam and EIDOS controls) and an exact port of the SARAO/SKA Gaussian
-  pointing-offset fit (`examples/b1_baselines.py`;
-  `research/b1-beam-pointing.md`).
-- `rang.core_ms_write` writes existing casacore tables and creates new ones,
-  Measurement Sets (`default_ms`) and CASA calibration tables, every casacore
-  storage manager of an MS or calibration table (TiledDataStMan hypercubes
-  with `addhypercube`/`extendhypercube`, TiledCellStMan and IncrementalStMan
-  included), big-endian and MultiFile tables (`multifile=<block size>`),
-  byte-identical to casacore 3.8.1 and CASA 6.7.6 bar uninitialised memory
-  (`research/e3-table-writer.md`, `e4-table-create.md`,
-  `e5-table-writer-rest.md`, `e6-table-writer-final.md`); MultiHDF5 is not
-  supported; python-casacore stays the oracle.
-- L1-M compared the stored, point and CARACal field calibrator models on LUNO
-  1934−638 under L1's frozen campaign (`rang.core_campaign_fieldmodel`,
-  Tigger lsm reader `rang.lsm`, `research/l1-model-completeness.md`): the
-  field model beats a point by 1.9 % in held-out MSE, the stored model beats
-  both, and the TV-flagging decision is unchanged.
-- The PKS 1830−211 campaign ran on the core under a stored and a scalar model
-  (`rang.core_campaign_1830`, `research/luno-1830-campaign.md`): null
-  under both, 25–37 min per model on the parallel kernels.
-- The whole-array LUNO campaign ran on the core too
-  (`rang.core_campaign_array`, `research/luno-array-campaign.md`): null at
-  array scale, about 2 h single-threaded on 342 M cells before the parallel
-  kernels landed.
-- The first real-data campaign on the LUNO calibrator slice ran entirely on
-  the core (`rang.core_campaign`, `rang-core campaign`;
-  `research/core-k-luno-campaign.md`) with a null result, provisional while
-  the other caveats of `research/core-k-luno-campaign.md` (licence settled
-  by user decision 2026-10-30, `research/big-plan.md`).
-- `python/rang/`: Python interfaces and JAX inference/audit implementations.
-- `examples/` and `tests/`: reproducible experiments and regression tests.
-- `research/`: derivations, reports and compact result archives.
-- `data/`: fixture provenance and limitations.
-- `history/`: the frozen campaigns' Stimela recipes, container builds,
-  wrappers and recipe-only modules, retired from the live tree by task P8
-  (`history/README.md`, `research/p8-history.md`).
-- Since P11 `history/python/` also holds the 21 frozen campaign modules; the
-  package keeps verbatim extracts of what the core uses (`core_policy`,
-  `core_influence`, `core_trend_run`, …; `research/p11-extract.md`).
+| Path | Contents |
+| --- | --- |
+| [`core/`](https://github.com/gijzelaerr/rang-core/tree/main/core), [`src/`](https://github.com/gijzelaerr/rang-core/tree/main/src) | the Rust core (`core/py` builds `rang._core`); the root crate with the pointing toy and gain TV |
+| [`python/rang/`](https://github.com/gijzelaerr/rang-core/tree/main/python/rang) | the Python package, the command line and the JAX reference path |
+| [`notebooks/`](https://github.com/gijzelaerr/rang-core/tree/main/notebooks), [`docs/`](https://github.com/gijzelaerr/rang-core/tree/main/docs) | the tutorials and science notebooks; the documentation site |
+| [`examples/`](https://github.com/gijzelaerr/rang-core/tree/main/examples), [`tests/`](https://github.com/gijzelaerr/rang-core/tree/main/tests) | reproducible experiments and comparators; the test suite |
+| [`recipes/`](https://github.com/gijzelaerr/rang-core/tree/main/recipes) | core-native Stimela2 recipes |
+| [`research/`](https://github.com/gijzelaerr/rang-core/tree/main/research), [`formal/`](https://github.com/gijzelaerr/rang-core/tree/main/formal) | reports and compact result archives; Lean proofs |
+| [`history/`](https://github.com/gijzelaerr/rang-core/tree/main/history), [`data/`](https://github.com/gijzelaerr/rang-core/tree/main/data) | the frozen campaigns; fixture provenance |
 
-## Licence
+## Names
 
-Rang is free software under the GNU General Public License, version 3 or (at
-your option) any later version; see [LICENSE](https://github.com/gijzelaerr/rang-core/blob/main/LICENSE). The user chose GPL on
-2026-10-29 so that GPL-3 radio-astronomy tools such as WSClean and AOFlagger
-can be ported into the core. GPL-2-only upstreams cannot be combined with GPL-3
-code, so each upstream's exact licence is checked before porting it. Ported code keeps
-its upstream copyright notices. Tricolour 0.2.1 is treated as BSD-3-Clause on
-the strength of its `LICENSE` file (`research/core-d-tricolour.md`); Crystalball
-is GPL-2.0-only and is not ported.
+The project, repository, PyPI distribution and command line are **rang-core**; the
+Python package is **`rang`** (`rangtoy` in notes written before the rename). "Rang"
+began as Radio Astronomy Next Generation, and *rang* is Dutch for *rank*, the first
+thing the identifiability survey measures.
+
+## Contributing
+
+[CONTRIBUTING.md](https://github.com/gijzelaerr/rang-core/blob/main/CONTRIBUTING.md) has the local checks, the release procedure and the reporting rules.
+
+## Licence and data acknowledgements
+
+rang-core is free software under the [GNU General Public License, version 3 or later](https://github.com/gijzelaerr/rang-core/blob/main/LICENSE).
+Ported code keeps its upstream notices; no raw visibilities or beam maps are redistributed.
+
+- **MeerKAT data.** The MeerKAT telescope is operated by the South African Radio
+  Astronomy Observatory, which is a facility of the National Research Foundation,
+  an agency of the Department of Science and Innovation.
+- **L-band holography beams** (de Villiers 2023, DOI 10.48479/wdb0-h061): CC BY-NC 4.0.
+- **ESO137 field** (Ramatsoku et al. 2020): CC BY 4.0.
+
+Per upstream and dataset: [licence and acknowledgements](https://pythonic.nl/rang-core/licence.html).
+
+## Citation
+
+Cite the software through [CITATION.cff](https://github.com/gijzelaerr/rang-core/blob/main/CITATION.cff) (GitHub's "Cite this repository").

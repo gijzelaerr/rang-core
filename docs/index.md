@@ -6,44 +6,37 @@
 :align: right
 ```
 
-Experimental MeerKAT calibration, flagging and imaging research on one Rust
-core, driven from Python (distribution `rang-core`, `import rang`, command line
-`rang-core`; see {doc}`installation`, the first PyPI release is pending). "Rang" began as Radio Astronomy Next Generation; *rang* is also
-Dutch for *rank*, the first thing the identifiability survey measures.
+**MeerKAT calibration, flagging and imaging research on one Rust core, driven
+from Python.** The project, PyPI distribution and command line are `rang-core`;
+the Python package is `rang` ({doc}`installation`; the first PyPI release, v0.1.0,
+is pending). "Rang" began as Radio Astronomy Next Generation, and *rang* is Dutch
+for *rank*, the first thing the identifiability survey measures.
 
 ```{important}
-**Status: a tested research demonstrator, not an operational calibrator or a
-demonstrated novel algorithm.** The objective is better calibration and
-imaging at comparable cost, or comparable quality with substantially less
-computation. Neither advantage over the state of the art has been
-established.
+**Status, November 2026: a tested research demonstrator,
+not an operational calibrator.** No novelty is claimed: the goal is better
+calibration and imaging at comparable cost, or comparable quality at much lower cost, and
+neither has been shown. Both research questions are closed as null: gain-TV
+flagging ({gh}`research/flagging-verdict.md`), and beam and pointing at B1-3
+({gh}`research/b1-3-pointing-selfcal.md`). A deeper field model (an external
+catalogue) is the first condition for reopening beam and pointing on real data.
 ```
 
-```{warning}
-**The flagging experiment is closed as null.** Gain-TV-guided flagging gave
-no measurable improvement in calibration or imaging quality over CARACal's
-first-pass Tricolour strategy on the evidence available (one MeerKAT L-band
-observation with two calibrators, and a four-antenna fixture): of 90
-pre-registered calls, 64 are null and 26 undecidable, none better and none
-worse, and the TV chain costs 4.6 to 5.9 times the first pass.
-See [the research story](research/index.md) and the verdict,
-{gh}`research/flagging-verdict.md`.
-```
+What it is:
 
-What exists, all tested against archived oracles:
-
-- a Rust core, reached mostly through the compiled extension `rang._core`
-  ({doc}`installation` names the exceptions): a read-only Measurement Set reader and an in-place table writer, zarr ingest
-  with HTTP range fetch, a port of QuartiCal's full-Jones complex solver, the
-  fused residual pass, gain total variation, Tricolour's SumThreshold
-  strategies, WSClean's imaging weights and w-stacking gridder, an exact port
-  of ducc0's wgridder, and CASA's flux standards;
-- one command line, `rang-core STAGE VERB`, that replays and compares every
-  archived chain and writes versioned receipts;
-- five tutorial notebooks and two science notebooks (the flagging verdict; beam
-  and pointing) on a public 45 MB MeerKAT fixture and the Rust toy;
-- research notes, compact result archives and negative results for every
-  question asked so far.
+- **A Rust core**, reached through the compiled extension `rang._core`: a
+  Measurement Set reader and casacore table writer, zarr ingest with HTTP range
+  fetch, QuartiCal's full-Jones solver, Tricolour's SumThreshold strategies,
+  WSClean's imaging weights and w-stacking gridder (CPU and GPU), ducc0's
+  wgridder, CASA's flux standards and a component predictor.
+- **A Python package and command line.** `rang-core STAGE VERB` ({doc}`cli`)
+  replays, compares and archives each chain and writes a versioned receipt.
+- **The tools' file formats**: CASA calibration tables, QuartiCal stores, sky
+  models, H5parm, killMS solutions, CASA flag versions and MVFv4 archives.
+- **Oracles.** Each port is gated on reproducing the upstream tool's output.
+- **Tutorials and research.** Five tutorial and two science notebooks
+  ({doc}`tutorials/index`) on a public 45 MB MeerKAT fixture and the Rust toy;
+  [the research story](research/index.md) keeps the negative results.
 
 ```{toctree}
 :maxdepth: 2

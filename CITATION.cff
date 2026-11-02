@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it with these metadata."
+title: "rang-core"
+type: software
+authors:
+  - family-names: "Molenaar"
+    given-names: "Gijs"
+repository-code: "https://github.com/gijzelaerr/rang-core"
+url: "https://pythonic.nl/rang-core/"
+license: GPL-3.0-or-later
+version: 0.1.0
+abstract: "MeerKAT calibration, flagging and imaging research on one Rust core, driven from Python."

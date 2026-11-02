@@ -81,7 +81,13 @@ errs 0.54 times and EIDOS 1.8 times the signal of a 30″ offset at half
 power. The SARAO/SKA Gaussian pointing-offset fit was ported bit for bit
 and reproduces the reference on the five-scan fixture; against the measured
 beam it over-recovers offsets by 1.2 to 1.5 times and returns up to 0.6′ at
-zero offset, about half of it the beam's squint. B1-2 and B1-3 are proposed.
+zero offset, about half of it the beam's squint. B1-2 found per-antenna
+pointing and squint constrainable ({gh}`research/b1-2-identifiability.md`).
+B1-3 closes the question as null ({gh}`research/b1-3-pointing-selfcal.md`):
+pointing self-calibration works in simulation, distinguishability selection
+adds nothing measurable over fitting every antenna, and on real ESO137 data
+with the self-calibrated model neither arm measures pointing. Reopening needs
+a deeper field model, an external catalogue being an owner decision.
 
 ## 4. CLEAN theory
 

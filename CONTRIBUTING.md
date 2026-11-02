@@ -1,13 +1,13 @@
 # Contributing to Rang
 
-Contributions should make a scientific claim easier to reproduce, test or reject. Use Rust for numerical kernels and Python for interfaces, experiments and analysis.
+Contributions should make a scientific claim easier to reproduce, test or reject. Use Rust for numerical kernels and Python for interfaces, experiments and analysis. The documentation is at <https://pythonic.nl/rang-core/>.
 
 ## Local checks
 
-Create the Python environment described in the README, then run all checks before committing:
+Create the Python environment described in the README, then run all checks before committing. The optional tests use every extra below; with fewer, more of them skip:
 
 ```sh
-.venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -e '.[pointing,beam,test]' ruff maturin  # needs cargo on PATH
+.venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -e '.[pointing,beam,test,imaging,formats,casacure,docs,notebook]' ruff maturin  # needs cargo on PATH
 cargo build --offline --release
 cargo test --offline --release
 cargo clippy --offline --all-targets -- -D warnings
@@ -48,12 +48,13 @@ ctypes oracle, `tests/test_p7_architecture.py` checks no cargo at run time,
 the GIL release and panic handling). Python never runs Cargo: rebuild the
 extension with `maturin develop --release --offline` after a Rust change.
 
-Supported hosts are Linux and macOS. Native Windows runs the test suite since
-task P7 (622 passed, 43 skipped: tests of the frozen modules that need
-`st_blocks` or a POSIX container path, symlinks without Developer Mode, the
-toy's Linux-archived bytes and absent archives; `research/p7-architecture.md`),
-but the frozen campaigns' fresh-namespace and disk-budget guards still rely
-on POSIX semantics. For campaign work on Windows, use a WSL2 Linux checkout on
+Linux, macOS and Windows are native build and CI targets: `wheels.yml` builds
+and tests Linux x86_64 and aarch64, macOS arm64 and x86_64, and Windows x86_64
+(`research/x1-crossplatform.md`). Some tests skip on Windows: those of the
+frozen modules that need `st_blocks` or a POSIX container path, symlinks without
+Developer Mode, the toy's Linux-archived bytes and absent archives. The frozen
+campaigns' fresh-namespace and disk-budget guards still rely on POSIX semantics.
+For campaign work on Windows, use a WSL2 Linux checkout on
 the Linux filesystem (not `/mnt/c`), with Docker inside WSL only to re-run the
 frozen campaigns in `history/` (`history/README.md`). Use Rust 1.93, which
 matches the container kernel stage, so the Rust sources recorded in the result
