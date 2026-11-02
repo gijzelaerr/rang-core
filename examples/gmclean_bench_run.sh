@@ -19,22 +19,22 @@
 #   BENCH_FILTER    extended regex; only job names matching it run
 #   BENCH_TEMPLATE  command line for a non-WSClean imager, with placeholders
 #                   {ms} {datacol} {field} {size} {scale} {threads} {mode}
-#                   {abs_threshold} {grid} {loop} {out} {niter}
+#                   {abs_threshold} {threshold_args} {grid} {loop} {out} {niter}
+#                   ({threshold_args}: BENCH_AUTO_ARGS, default
+#                   "-auto-threshold 3", for auto; "-abs-threshold X" for abs).
 #                   It must write {out}-model.fits and {out}-residual.fits
 #                   in WSClean's FITS orientation (and may write
 #                   {out}-image.fits and {out}-report.json). It runs on the
-#                   host under /usr/bin/time -v. Example for gmclean (the CLI
-#                   is assumed, adapt it to the binary):
-#     BENCH_TEMPLATE='/home/gijsm/Worktrees/rang/gmclean-build/core/target/release/gmclean
-#       --ms {ms} --data-column {datacol} --field {field} --size {size}
-#       --scale-arcsec {scale} --weight briggs --robust 0.5 --gain 0.1 --mgain 0.8
-#       --threshold-mode {mode} --abs-threshold {abs_threshold} --auto-threshold 3
-#       --auto-mask 5 --threads {threads} --out {out}'
+#                   host under /usr/bin/time -v. gmclean, one command:
+#     bash examples/gmclean_bench_gmclean.sh BINARY RUN_DIR [DATASET ...]
 #
 # Job name: <dataset>-<mode>-<grid>-<loop>-j<threads>. Per job the run
 # directory gets <name>-*.fits, <name>.log, timing/<name>.txt (GNU time -v),
-# load/<name>.txt (/proc/loadavg before and after) and jobs.tsv
-# (name, exit, wall_s, start ISO time). The Measurement Sets are copied into
+# load/<name>.txt (/proc/loadavg before and after),
+# load/<name>.samples.txt (/proc/loadavg every 60 s during the job),
+# load/<name>.busy.txt (the commands of every process above 50 % CPU before
+# and after the job, WSL and Windows, since both share the hardware) and
+# jobs.tsv (name, exit, wall_s, start ISO time). The Measurement Sets are copied into
 # RUN_DIR/ms once; their main-table SHA-256s are recorded before and after
 # (ms-sha256-{before,after}.txt) so that a write by the imager shows.
 # Settings common to every job: Briggs 0.5, gain 0.1, mgain 0.8, niter 1e6,
@@ -75,6 +75,15 @@ settings() {  # settings <dataset>: sets size scale datacol field abs
   esac
 }
 
+busy() {  # busy <label>: processes above 50 % of one core, WSL then Windows
+  echo "== $1 $(date -Iseconds) WSL"
+  top -b -n 2 -d 1 -c -w 200 | awk '/^top - /{n++} n==2 && $1 ~ /^[0-9]+$/ && $9+0 > 50'
+  echo "== $1 Windows"
+  timeout 20 /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -Command \
+    'Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Where-Object { $_.PercentProcessorTime -gt 50 -and $_.Name -notmatch "^(_Total|Idle)$" } | ForEach-Object { "$($_.PercentProcessorTime) $($_.Name)" }' \
+    2>/dev/null | tr -d '\r' || echo "(not available)"
+}
+
 ms_sha() {  # ms_sha <ms> : SHA-256 of the main-table files
   (cd "$1" && find . -maxdepth 1 -type f ! -name table.lock -printf '%f\n' | sort |
     xargs sha256sum)
@@ -94,7 +103,10 @@ for ds in "${datasets[@]}"; do
           [[ $name =~ $filter ]] || continue
           [ -f "$run/timing/$name.txt" ] && continue
           start=$(date -Iseconds)
+          busy before > "$run/load/$name.busy.txt"
           cat /proc/loadavg > "$run/load/$name.txt"
+          ( while :; do cat /proc/loadavg; /usr/bin/sleep 60; done ) > "$run/load/$name.samples.txt" &
+          sampler=$!
           if [ "$imager" = wsclean ]; then
             args=(-gridder wgridder -data-column "$datacol" -field "$field"
               -size "$size" "$size" -scale "${scale}asec" -weight briggs 0.5 -pol I
@@ -121,10 +133,13 @@ for ds in "${datasets[@]}"; do
             set -e
             printf '%s\n' "wsclean ${args[*]} -name /run/$name /run/ms/$ds.ms" > "$run/$name.cmd"
           else
+            if [ "$mode" = auto ]; then threshold_args=${BENCH_AUTO_ARGS:--auto-threshold 3}
+            else threshold_args="-abs-threshold $abs"; fi
             cmd=${BENCH_TEMPLATE//$'\n'/ }
             for kv in "ms=$run/ms/$ds.ms" "datacol=$datacol" "field=$field" "size=$size" \
               "scale=$scale" "threads=$threads" "mode=$mode" "abs_threshold=$abs" \
-              "grid=$grid" "loop=$loop" "out=$run/$name" "niter=$niter"; do
+              "grid=$grid" "loop=$loop" "out=$run/$name" "niter=$niter" \
+              "threshold_args=$threshold_args"; do
               cmd=${cmd//\{${kv%%=*}\}/${kv#*=}}
             done
             printf '%s\n' "$cmd" > "$run/$name.cmd"
@@ -137,6 +152,9 @@ for ds in "${datasets[@]}"; do
           fi
           e=$(date +%s.%N)
           cat /proc/loadavg >> "$run/load/$name.txt"
+          kill "$sampler" 2>/dev/null || true
+          wait "$sampler" 2>/dev/null || true
+          busy after >> "$run/load/$name.busy.txt"
           wall=$(python3 -c "print(round($e - $s, 3))")
           printf '%s\t%s\t%s\t%s\n' "$name" "$rc" "$wall" "$start" >> "$run/jobs.tsv"
           echo "## $name exit $rc ${wall}s"

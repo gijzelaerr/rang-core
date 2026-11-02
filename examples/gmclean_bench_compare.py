@@ -33,6 +33,10 @@ score PREP_DIR CATALOGUE RUN_DIR OUT_JSON [--jobs NAME ...]
     weights, w-gridding, WSClean's flips), with the exact residual's rms and
     peak.
 
+truth PREP_DIR CATALOGUE RUN_DIR [--name truth]
+    Writes the catalogue pixelised on the image grid as NAME-model.fits with
+    its exact residual, to check the metrics and give the on-grid misfit.
+
 tables JSON [JSON ...]
     Markdown tables of scored runs (for the note and the paper).
 
@@ -347,7 +351,7 @@ def wsclean_log(path):
     text = path.read_text(encoding="utf-8", errors="replace")
     iters = [int(x) for x in re.findall(r"Performed (\d+) iterations in total", text)]
     majors = re.findall(r"(\d+) major iterations were performed", text)
-    stops = re.findall(r"Iteration (\d+), ", text)
+    logged = [int(x) for x in re.findall(r"^Iteration (\d+):", text, re.MULTILINE)]
     timing = re.findall(
         r"Inversion: ([\d:.]+), prediction: ([\d:.]+), deconvolution: ([\d:.]+)", text
     )
@@ -360,7 +364,9 @@ def wsclean_log(path):
         "components": iters[-1] if iters else None,
         "major_iterations": int(majors[-1]) if majors else None,
         "diverged": "divergence" in text.lower(),
-        "last_iteration_line": stops[-1] if stops else None,
+        # The plain minor loop only logs every 10th or 100th iteration: a lower
+        # bound on its component count.
+        "last_logged_iteration": max(logged) if logged else None,
         "auto_threshold_lines": re.findall(r"Estimated standard deviation[^\n]*", text)[
             -3:
         ],
@@ -389,8 +395,10 @@ def flux_metrics(model, cat, beam_px):
         return out
     pos = np.array([[c["x"], c["y"]] for c in comps])
     tree = cKDTree(pos)
-    d, idx = tree.query(np.column_stack([xx, yy])) if vals.size else ([], [])
-    d, idx = np.asarray(d), np.asarray(idx)
+    if vals.size:
+        d, idx = tree.query(np.column_stack([xx, yy]))
+    else:
+        d, idx = np.zeros(0), np.zeros(0, int)
     disc = [i for i, c in enumerate(comps) if c["kind"] == "gaussian"]
     # A disc's pixels: within 2 FWHM of its centre; they are not "false".
     in_disc = np.zeros(vals.size, bool)
@@ -505,6 +513,17 @@ def score_job(exact, cat, run, name, beam_px, noise_rms):
         rec["loadavg_before_after"] = [
             line.split()[:3] for line in load.read_text(encoding="utf-8").splitlines()
         ]
+    samples = run / "load" / f"{name}.samples.txt"
+    if samples.exists():
+        one = [
+            float(line.split()[0])
+            for line in samples.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        rec["loadavg1_samples_max"] = max(one) if one else None
+    busy = run / "load" / f"{name}.busy.txt"
+    if busy.exists():
+        rec["busy_processes"] = busy.read_text(encoding="utf-8").splitlines()
     cmd = run / f"{name}.cmd"
     if cmd.exists():
         rec["command"] = cmd.read_text(encoding="utf-8").strip()
@@ -546,6 +565,7 @@ def score(args):
             "q_truth": (exact.meta.get("noise") or {}).get("q_truth"),
             "briggs_noise": noise_rms,
             "beam_arcsec": beam_arcsec,
+            "timing_status": args.timing_status,
         }
     )
     result.setdefault("jobs", {})
@@ -562,6 +582,39 @@ def score(args):
             flush=True,
         )
     _write_json(out, result)
+
+
+# -- truth ---------------------------------------------------------------------
+
+
+def truth_image(cat, size):
+    """The catalogue on the image grid: points at their nearest pixel, a disc
+    as its sampled Gaussian with the catalogue flux."""
+    image = np.zeros((size, size))
+    yy, xx = np.mgrid[0:size, 0:size]
+    for c in cat["components"]:
+        if c["kind"] == "point":
+            image[round(c["y"]), round(c["x"])] += c["flux"]
+        else:
+            fwhm = c["fwhm_arcsec"] / cat["image"]["scale_arcsec"]
+            sig2 = (fwhm / (2 * math.sqrt(2 * math.log(2)))) ** 2
+            g = np.exp(-((xx - c["x"]) ** 2 + (yy - c["y"]) ** 2) / (2 * sig2))
+            image += c["flux"] * g / g.sum()
+    return image
+
+
+def truth(args):
+    """Writes NAME-{model,residual}.fits of the pixelised catalogue: a check of
+    the metrics (recovery 1, no false flux) and the misfit of the on-grid sky."""
+    from astropy.io import fits
+
+    exact = Exact(Path(args.prep))
+    model = truth_image(catalogue(args.catalogue), exact.size)
+    _, residual = exact.score(model)
+    run = Path(args.run)
+    run.mkdir(parents=True, exist_ok=True)
+    fits.writeto(run / f"{args.name}-model.fits", model, overwrite=True)
+    fits.writeto(run / f"{args.name}-residual.fits", residual, overwrite=True)
 
 
 # -- tables -------------------------------------------------------------------
@@ -583,15 +636,23 @@ def tables(args):
                 f"Briggs image noise {res['briggs_noise'] * 1e6:.2f} µJy\n"
             )
         print(
+            "Wall and CPU times are PROVISIONAL (contended host) unless "
+            "this table says it comes from the quiet-window rerun.\n"
+        )
+        print(
             "| job | wall s | CPU s | RSS GB | majors | comps | inner rms | inner peak "
             "| DR | Q/Q0 | Q/Q_truth | flux err | recovery (flux-wt) | false \\|flux\\| |"
         )
         print("| --- | " + "---: | " * 13)
         for name, r in sorted(res["jobs"].items()):
             t, lg = r.get("time", {}), r.get("log", {})
-            rep = r.get("report") or {}
+            rep = (r.get("report") or {}).get("run") or {}
             majors = lg.get("major_iterations") or rep.get("major_cycles")
-            comps = lg.get("components") or rep.get("components")
+            comps = (
+                lg.get("components")
+                or lg.get("last_logged_iteration")
+                or rep.get("components")
+            )
             rss = t.get("max_rss_kb")
             print(
                 f"| {name} | {_f(t.get('wall_s'), '.1f')} | {_f(t.get('cpu_s'), '.1f')} "
@@ -640,14 +701,29 @@ def tables(args):
                 print(
                     f"| {name} | {r['calibrator_flux']:.4f} | {r['calibrator_flux_error_relative']:+.4%} |"
                 )
-        reps = {n: r["report"] for n, r in res["jobs"].items() if r.get("report")}
+        reps = {
+            n: r["report"]
+            for n, r in res["jobs"].items()
+            if (r.get("report") or {}).get("run")
+        }
         if reps:
-            print("\n| job | report.json (gmclean) |")
-            print("| --- | --- |")
+            print(
+                "\n| job (gmclean report.json) | major | resyncs | max \\|gap\\|/Q "
+                "| ascending majors | τ min | τ median | minor s | resync s | major s | stop |"
+            )
+            print("| --- | " + "---: | " * 9 + "--- |")
             for name, rep in sorted(reps.items()):
-                keys = ("major_cycles", "resyncs", "max_gram_gap", "ascending_steps")
+                run = rep["run"]
+                tau = run.get("tau") or {}
+                sec = run.get("seconds") or {}
+                total = (run.get("resyncs") or {}).get("total")
                 print(
-                    f"| {name} | " + ", ".join(f"{k} {rep.get(k)}" for k in keys) + " |"
+                    f"| {name} | {run.get('major_cycles')} | {total} "
+                    f"| {_f(run.get('max_abs_gap_relative'), '.2e')} "
+                    f"| {run.get('ascending_major_cycles')} | {_f(tau.get('min'), '.3f')} "
+                    f"| {_f(tau.get('median'), '.3f')} | {_f(sec.get('minor'), '.1f')} "
+                    f"| {_f(sec.get('resync'), '.1f')} | {_f(sec.get('major'), '.1f')} "
+                    f"| {run.get('stop')} |"
                 )
 
 
@@ -673,10 +749,21 @@ def main(argv=None):
     b.add_argument("--jobs", nargs="*")
     b.add_argument("--beam-arcsec", type=float)
     b.add_argument("--force", action="store_true")
+    b.add_argument(
+        "--timing-status",
+        default="PROVISIONAL (contended): shared host, not for speed comparisons",
+    )
+    t = sub.add_parser("truth")
+    t.add_argument("prep")
+    t.add_argument("catalogue")
+    t.add_argument("run")
+    t.add_argument("--name", default="truth")
     c = sub.add_parser("tables")
     c.add_argument("json", nargs="+")
     args = p.parse_args(argv)
-    {"prepare": prepare, "score": score, "tables": tables}[args.cmd](args)
+    {"prepare": prepare, "score": score, "truth": truth, "tables": tables}[args.cmd](
+        args
+    )
 
 
 if __name__ == "__main__":
