@@ -13,9 +13,9 @@ is pending). "Rang" began as Radio Astronomy Next Generation, and *rang* is Dutc
 for *rank*, the first thing the identifiability survey measures.
 
 ```{important}
-**Status, November 2026: a tested research demonstrator, not an operational
-calibrator.** No novelty is claimed: the goal is better calibration and
-imaging at comparable cost, or comparable quality at much lower cost, and
+**Status, November 2026: a tested research demonstrator,
+not an operational calibrator.** No novelty is claimed: the goal is better
+calibration and imaging at comparable cost, or comparable quality at much lower cost, and
 neither has been shown. The gain-TV flagging experiment is closed as null
 ({gh}`research/flagging-verdict.md`). The beam-and-pointing question is open:
 B1-2 found per-antenna pointing constrainable on real data

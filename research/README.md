@@ -249,6 +249,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 
 ## Cross-platform, wheel, docs and release
 
+- [W4-8, the documentation pass](w4-8-readme-docs.md): the README as a landing page, this index by theme, STATE trimmed with its history linked, AGENTS.md for the layout, a deploy job that skips without GitHub Pages.
 - [W4-5, the release metadata](w4-5-release.md) for v0.1.0: `rang-core --version`, classifiers and URLs, a PyPI-safe README, the CHANGELOG, the tag-equals-version guard, Node 24 actions, the slim sdist (250 entries, 1.2 MB) and the release procedure.
 - [NB-CARTA, the CARTA helper](nb-carta.md): `rang.notebook.carta` opens images and cubes in CARTA 6.0 from a notebook (open, snapshot), the `[carta]` extra and the pinned wrapper and containers; skips cleanly on Windows.
 - [D3, the science notebooks](d3-science-notebooks.md): the flagging verdict and the beam and pointing question as guided notebooks on the site, every number from an archive or a live cell.
