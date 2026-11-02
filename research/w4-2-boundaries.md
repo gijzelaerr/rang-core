@@ -207,13 +207,13 @@ feature); its 6 GPU tests print `skipped: …` and pass without an adapter.
   `run_c1.py` are outside the owner list. DF2c's test fails on native Windows
   because of them, and the acceptance requires `python -m rang.check` to pass
   there, so the fix is two small changes (`as_posix()`, a `None` guard). The
-  same `str(...).startswith("outputs/")` pattern remains in 15 other example
+  same `str(...).startswith("outputs/")` pattern remains in 17 other example
   scripts that no test exercises: `validate_core_phase1`, `validate_core_phase2`,
   `validate_core_phase3c_a`, `fetch_luno_slice`, `fetch_luno_1830`,
   `prototype_section6`, `check_luno_campaign`, `check_luno_array`,
   `check_luno_1830`, `run_core_campaign`, `run_core_injections`,
   `run_luno_campaign`, `precondition_luno_array`, `precondition_luno_campaign`,
-  `precondition_luno_1830`, plus `bench_p1_solver` and
+  `precondition_luno_1830`, `bench_p1_solver` and
   `build_core_trend_mirror`. Those are left for W4-6 or a later portability
   pass. The unguarded `MemAvailable` print in `run_l5_solver_study.py` and
   `run_c1.py` was not checked.
