@@ -6,16 +6,37 @@ Update this block when a merge changes it. The log below is the record.
 
 - **What `main` is:** rang-core 0.1.0 before its first tag: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the file formats (DF-IO), CLEAN theory, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
-- **Closed:** gain-TV-guided flagging, null ([verdict](flagging-verdict.md)).
-- **Open:** beam and pointing. [B1-2](b1-2-identifiability.md) found per-antenna pointing and squint constrainable on ESO137; B1-3 runs.
+- **Closed as null:** gain-TV-guided flagging ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
+- **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
 - **Running:** W4-6 and W4-8, the last wave 4 fixes ([big plan](big-plan.md)).
-- **Next:** finish wave 4, B1-3 against both baselines at matched cost, and the user's v0.1.0 tag.
-- **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; allow or refuse an external catalogue for B1-3's ESO137 field model; file or decline the B1-2 and RV1 upstream observations; rebase Tricolour PR #114.
+- **Next:** finish wave 4 and the user's v0.1.0 tag.
+- **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; allow or refuse an external catalogue for the ESO137 field model; file or decline the B1-2 and RV1 upstream observations; rebase Tricolour PR #114.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
 
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+DF5-O, the deconvolution oracles (big plan;
+[df5o-deconv-oracles.md](df5o-deconv-oracles.md)), 2026-11-02
+(implemented; measured): a simulated MeerKAT L-band field (64 antennas,
+4 h, 16 channels 900–1,670 MHz, radiometer noise σ_img = 1.42 µJy, 40
+points from 15 µJy to 20 mJy, four Gaussians and an ESO 137−006-like
+radio galaxy, all on the grid) predicted by the core's exact degridder
+(DFT check 1.2e-11) into an MS the core creates, read bit-identically by
+both tools' python-casacore; their dirty images agree with the core's to
+1.7e-7 (WSClean) and 2.6e-7 (pfb). Frozen, with the core-recomputed
+residuals: WSClean Högbom 1.606 µJy RMS (1.13σ) in 7 major cycles and
+pfb kclean/Clark 1.566 µJy in 5, both meeting the truth tolerances (flux
+within 5 % + 3σ for every source above 20σ, points within 0.1 beam);
+WSClean multiscale 1.446 µJy and total flux to 0.03 %, but ±3 mJy of
+large-scale flux outside the sources and faint points beside it 9–16 %
+high; pfb sara at its recipe settings unconverged in 10 cycles (30σ).
+DF5 Högbom must reach ≤ 1.598 µJy, multiscale ≤ 1.475 µJy. pfb's flux mop
+moved nothing here; two pfb packaging defects (closure, tbb path) and two
+WSClean rules (read/write MS, source list) recorded. DDFacet open.
+`outputs/df5o-20261031-01`, `outputs/df5o-20261102-02`,
+`research/results/df5o-deconv-oracles.json`.
+
 W4-2 and W4-7 boundary checks and GPU gate (big plan
 wave 4), 2026-11-02 (implemented; measured;
 [w4-2-boundaries.md](w4-2-boundaries.md)). Every `rang._core` binding now

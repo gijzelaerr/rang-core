@@ -7,9 +7,9 @@
 > **Status, November 2026: a tested research demonstrator, not an operational
 > calibrator.** No novelty is claimed: the goal is better calibration and
 > imaging at comparable cost, or comparable quality at much lower cost, and
-> neither has been shown. The gain-TV flagging experiment is closed as null.
-> The beam-and-pointing question is open: B1-2 found per-antenna pointing
-> constrainable on real data, and B1-3 is running.
+> neither has been shown. Both research questions are closed as null: gain-TV
+> flagging, and beam and pointing at B1-3. A deeper field model (an external
+> catalogue) is the first condition for reopening beam and pointing on real data.
 
 ## What it is
 
@@ -100,7 +100,7 @@ The command line's main stages (`rang-core -h` lists them all):
 | --- | --- | --- |
 | Port the pipeline to one Rust core | Done: the archived chains reproduce, the solver to 1.4e-15; engineering, not a scientific claim | [architecture](https://github.com/gijzelaerr/rang-core/blob/main/research/p7-architecture.md), [simplification](https://github.com/gijzelaerr/rang-core/blob/main/research/simplification-review.md) |
 | Does gain-TV-guided flagging help? | **Null**: 90 pre-registered calls, none better or worse, at 4.6–5.9× the cost of CARACal's first pass | [verdict](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-verdict.md) |
-| Can beam and pointing be constrained on real data? | **Open**: per-antenna pointing (0.07′) and squint are, on ESO137; B1-3 is running | [B1-2](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-2-identifiability.md), [B1](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-beam-pointing.md) |
+| Can selected pointing corrections beat the baselines on real data? | **Null** at B1-3: self-calibration works in simulation (0.62′ to 0.054′), selection adds nothing measurable, and neither arm measures pointing on ESO137 with the self-calibrated model; an external catalogue is the first reopening condition | [B1-3](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-3-pointing-selfcal.md), [B1-2](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-2-identifiability.md), [B1](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-beam-pointing.md) |
 | What is proven about CLEAN? | Data-fit convergence since Schwarz (1978); here a Gram-matrix formalism, Lean proofs and the measured exact-recovery transition | [theory](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-theory.md), [transition](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-phase-transition.md) |
 | An exact gridder | ducc0's wgridder ported at its speed; the w-stacking gridder on a GPU gains 1.2–3.3× over 16 threads | [wgridder](https://github.com/gijzelaerr/rang-core/blob/main/research/df1-wgridder.md), [GPU](https://github.com/gijzelaerr/rang-core/blob/main/research/x2-wgpu.md) |
 | A casacore table writer | Byte-identical to casacore 3.8.1 and CASA 6.7.6, bar uninitialised memory and alignment gaps | [writer](https://github.com/gijzelaerr/rang-core/blob/main/research/e5-table-writer-rest.md), [the last of it](https://github.com/gijzelaerr/rang-core/blob/main/research/e6-table-writer-final.md) |

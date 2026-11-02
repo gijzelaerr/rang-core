@@ -308,3 +308,15 @@ to an unrelated package (carta-python is not on PyPI).
 - casacure 3.8.35 (note): reads TiledCellStMan tables and
   IncrementalStMan string arrays like python-casacore; cannot open
   TiledDataStMan or MultiFile tables (as in E5).
+
+## From DF5-O (2026-11-02; WSClean 3.7; not reported by decision)
+
+1. WSClean 3.7 opens the MS read/write with `-niter > 0` even with
+   `-no-update-model-required`, failing on a read-only MS after the first
+   minor cycle.
+2. WSClean 3.7 refuses `-save-source-list` with `-channels-out > 1` unless
+   `-fit-spectral-pol` is given (by design; not in its help text).
+3. WSClean 3.7 warns that `-threshold` is deprecated for `-abs-threshold`.
+4. WSClean's fitted natural-weighting beam (52″ × 39″ at 924 MHz) is far
+   wider than the half-maximum main lobe (about 32″ there; 23″ × 14″ MFS):
+   MeerKAT's natural PSF plateau dominates the fit.

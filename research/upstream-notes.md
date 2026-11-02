@@ -475,3 +475,23 @@ saopicc (DDFacet, killMS):
 ## L5-C observation (2026-10-31; QuartiCal #455 comment to file once the user says so)
 
 - CASA 6.7.6 `gaincal` G solved on the same 2 × 32 intervals of the LUNO four-station slice is slowest in the same intervals as QuartiCal 0.2.7's `complex` (measured with rang's validated port of it: Spearman 0.70 of the per-interval distance to each solver's own long run; all 4 intervals whose products still move by 1e-4 between 50 and 500 iterations are unsettled for CASA; post hoc, all 7 intervals with a gain failing the 1e-7 test at 50 iterations are in CASA's top 2 %, and six of the seven are under-constrained: an antenna with one observed baseline, or no observed triangle). CASA shows no tail because its chi-squared stop ends earlier (its own 50-iteration cap never binds; its products stay 4e-5 median from its restarted solution), with a held-out error within 1e-4 of the port's. This supports counting only constrained intervals in the stop fraction.
+
+## DF5-O observations (2026-11-02; pfb-imaging; candidates to file once the user says so)
+
+1. pfb-imaging 0.0.11: the `[full]` closure resolves to xarray ≥ 2026.4,
+   which needs zarr ≥ 3, while dask-ms 0.2.32 needs zarr < 3; `pfb init`
+   fails (`open_group() got an unexpected keyword argument
+   'zarr_format'`). Proposed: an `xarray<2026.4` bound in the `full` extra
+   (or a zarr-3 dask-ms).
+2. pfb-imaging 0.0.11: `set_envs` forces `NUMBA_THREADING_LAYER=tbb` and
+   loads the wheel's `libtbb.so` with `ctypes`, but numba's `tbbpool` still
+   cannot find `libtbb.so.12` in a plain venv (`<venv>/lib` is not on the
+   loader path): `kclean` stops with "No threading layer could be loaded".
+   Proposed: preload `libtbb.so.12`, or fall back to `omp`.
+3. pfb-imaging 0.0.11: `kclean`'s flux mop moved no pixel by more than
+   3.6e-12 Jy on this field (model cube with and without it, thresholds
+   reached in 5 cycles). Observation, not an issue yet: whether the mop
+   does anything at the threshold stop deserves a look.
+4. pfb-imaging 0.0.11 ships `deconv/hogbom.py` but no command uses it
+   (`kclean` is Clark); a Högbom minor cycle on the CLI would give a Högbom
+   oracle. Feature request.

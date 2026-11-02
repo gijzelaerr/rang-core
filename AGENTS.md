@@ -3,9 +3,9 @@
 ## Start here and leave a trail
 
 - Read `research/README.md` for the research index and `research/STATE.md` for
-  the latest progress before starting work. The active question is beam and
-  pointing on real MeerKAT data (`research/b1-beam-pointing.md`); gain-TV-guided
-  flagging is closed as null (`research/flagging-verdict.md`).
+  the latest progress before starting work. Gain-TV-guided flagging
+  (`research/flagging-verdict.md`) and beam and pointing
+  (`research/b1-3-pointing-selfcal.md`) are both closed as null.
 - Save meaningful progress, exact run paths, seeds/settings, provenance, checks,
   rejected/null outcomes and next steps in the repository as work proceeds.
   Distinguish proposed, implemented and measured work. Link compact result

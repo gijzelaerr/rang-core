@@ -197,10 +197,11 @@ check capacity before copying more MS. No cleanup has been authorized.
 
 ## Beam and pointing
 
-The active question: can small pointing and beam corrections be constrained on real data?
+Closed as null at B1-3. A deeper field model (an external catalogue, an owner decision) is the first condition for reopening it on real data.
 
-- [B1-2, identifiability](b1-2-identifiability.md): per-antenna pointing and squint are constrainable on ESO137 (0.07′ and 0.01′ in 3.5 min) and marginally on 1934; array-common pointing and ellipticity only on a 7-scan track; width nowhere; snapshot common pointing is bandpass granularity; B1 continues to B1-3.
-- [B1-0 and B1-1, beam and pointing](b1-beam-pointing.md): the SARAO holography cube as the reference beam (katbeam 0.8 %, EIDOS 2.1 % off), the SARAO/SKA Gaussian pointing fit ported bit-exact and found weak on the fixture; B1-2 and B1-3 proposed.
+- [B1-3, pointing self-calibration at matched cost](b1-3-pointing-selfcal.md): overall negative under the frozen rule; physical pointing self-calibration works in simulation (0.62′ to 0.054′, held-out error down 3 %), distinguishability selection adds nothing measurable over fitting every antenna, and on real ESO137 data with the self-calibrated model neither arm measures pointing.
+- [B1-2, identifiability](b1-2-identifiability.md): per-antenna pointing and squint are constrainable on ESO137 (0.07′ and 0.01′ in 3.5 min) and marginally on 1934; array-common pointing and ellipticity only on a 7-scan track; width nowhere; snapshot common pointing is bandpass granularity.
+- [B1-0 and B1-1, beam and pointing](b1-beam-pointing.md): the SARAO holography cube as the reference beam (katbeam 0.8 %, EIDOS 2.1 % off), the SARAO/SKA Gaussian pointing fit ported bit-exact and found weak on the fixture.
 
 The 2026-09 simulations that led here are under [Historical pilots](#historical-pilots).
 

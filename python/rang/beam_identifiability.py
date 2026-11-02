@@ -830,8 +830,318 @@ def hogbom(dirty, psf, window, gain=0.1, threshold=0.0, max_iter=10000):
     return comp, res, it
 
 
+# --------------------------------------------------------------------------
+# B1-3 additions (research/b1-3-pointing-selfcal.md): generic per-sample
+# columns (per-antenna beams), right-hand sides, and the per-channel survey.
+
+
+def normals_columns(a1, a2, nant, z, variants, r=None):
+    """Gram matrix (and gradient) of one gain bin and hand in the whitened
+    metric from per-sample columns, the generalisation of `block_normals`
+    to beams that differ between antennas.
+
+    z (n, K) whitened component terms (model per component, gains applied);
+    `variants` a list of (y1 (n, 2), y2 (n, 2), d (n, m)): y1[:, j] the
+    derivative of the sample's model with respect to the pointing of its
+    first antenna along axis j, y2 that of its second antenna, d the
+    derivatives along m directions shared by all antennas. Parameter
+    order: [eta (N) | phi (N) | sky (K) | per variant: P_x (N), P_y (N),
+    common (m)], with eta, phi the log-amplitude and phase of the gains
+    (antenna 1 enters as g, antenna 2 as conj(g)). Cross-variant blocks are
+    left at zero (only within-variant blocks are used). With `r` (n,) the
+    whitened residual, also returns b = Re(J^H r).
+
+    Off-diagonal blocks are filled once (upper triangle) and mirrored; the
+    sky Gram is one symmetric rank-k product of the real-stacked terms."""
+    ncomp = z.shape[1]
+    model = z.sum(axis=1)
+    i1, i2 = _incidence(a1, nant), _incidence(a2, nant)
+    sizes = [2 * nant + v[2].shape[1] for v in variants]
+    size = 2 * nant + ncomp + sum(sizes)
+    h = np.zeros((size, size))
+    b = None if r is None else np.zeros(size)
+    eta, phi = slice(0, nant), slice(nant, 2 * nant)
+    sky = slice(2 * nant, 2 * nant + ncomp)
+    cm = np.conj(model)
+
+    def gains_against(values):
+        w = cm[:, None] * values
+        return i1 @ w.real + i2 @ w.real, i1 @ w.imag - i2 @ w.imag
+
+    re, im = gains_against(z)
+    h[eta, sky], h[phi, sky] = re, im
+    if r is not None:
+        b[sky] = z.real.T @ r.real + z.imag.T @ r.imag
+        re, im = gains_against(r[:, None])
+        b[eta], b[phi] = re[:, 0], im[:, 0]
+    diag_blocks = []
+    base = 2 * nant + ncomp
+    for (y1, y2, d), nb in zip(variants, sizes, strict=True):
+        px = slice(base, base + nant)
+        py = slice(base + nant, base + 2 * nant)
+        pc = slice(base + 2 * nant, base + nb)
+        base += nb
+        diag_blocks.append((pc, d.real.T @ d.real + d.imag.T @ d.imag))
+        h[sky, pc] = z.real.T @ d.real + z.imag.T @ d.imag
+        re, im = gains_against(d)
+        h[eta, pc], h[phi, pc] = re, im
+        if r is not None:
+            b[pc] = d.real.T @ r.real + d.imag.T @ r.imag
+        for j, pj in enumerate((px, py)):
+            w1 = np.conj(y1[:, j])[:, None]
+            w2 = np.conj(y2[:, j])[:, None]
+            h[sky, pj] = (i1 @ (w1 * z).real + i2 @ (w2 * z).real).T
+            h[pj, pc] = i1 @ (w1 * d).real + i2 @ (w2 * d).real
+            if r is not None:
+                b[pj] = i1 @ (w1[:, 0] * r).real + i2 @ (w2[:, 0] * r).real
+            c1 = cm * y1[:, j]
+            c2 = cm * y2[:, j]
+            e_blk = np.diag(
+                np.bincount(a1, c1.real, nant) + np.bincount(a2, c2.real, nant)
+            )
+            e_blk = (
+                e_blk
+                + _pair_sum(a2, a1, c1.real, nant)
+                + _pair_sum(a1, a2, c2.real, nant)
+            )
+            f_blk = np.diag(
+                np.bincount(a1, c1.imag, nant) - np.bincount(a2, c2.imag, nant)
+            )
+            f_blk = (
+                f_blk
+                - _pair_sum(a2, a1, c1.imag, nant)
+                + _pair_sum(a1, a2, c2.imag, nant)
+            )
+            h[eta, pj] = e_blk
+            h[phi, pj] = f_blk
+            for k, pk in enumerate((px, py)):
+                if k < j:
+                    continue
+                r11 = (np.conj(y1[:, j]) * y1[:, k]).real
+                r22 = (np.conj(y2[:, j]) * y2[:, k]).real
+                r12 = (np.conj(y1[:, j]) * y2[:, k]).real
+                r21 = (np.conj(y2[:, j]) * y1[:, k]).real
+                blk = np.diag(np.bincount(a1, r11, nant) + np.bincount(a2, r22, nant))
+                blk = blk + _pair_sum(a1, a2, r12, nant) + _pair_sum(a2, a1, r21, nant)
+                if k == j:
+                    diag_blocks.append((pj, blk))
+                else:
+                    h[pj, pk] = blk
+    h += h.T
+    zs = np.concatenate((z.real, z.imag))
+    h[sky, sky] = zs.T @ zs
+    m2 = np.abs(model) ** 2
+    diag = np.bincount(a1, m2, nant) + np.bincount(a2, m2, nant)
+    off = _pair_sum(a1, a2, m2, nant)
+    off = off + off.T
+    h[eta, eta] = np.diag(diag) + off
+    h[phi, phi] = np.diag(diag) - off
+    for sl, blk in diag_blocks:
+        h[sl, sl] = blk
+    return h if r is None else (h, b)
+
+
+def schur_rhs(h, b, ng, cutoff=CUTOFF):
+    """Eliminate the first `ng` parameters (the gains) from (h, b):
+    returns (h_rr - h_rg A^+ h_gr, b_r - h_rg A^+ b_g) with A = h_gg."""
+    a = h[:ng, :ng]
+    x = h[:ng, ng:]
+    inv = pinv_psd(a, cutoff)
+    t = x.T @ inv
+    return h[ng:, ng:] - t @ x, b[ng:] - t @ b[:ng]
+
+
+def lf_map(m, ncomp, lf):
+    """Map a (K + n) block over [sky flux | theta] of one channel to the
+    primary sky arm [ln S0 (K) | alpha (K) | theta (n)], alpha's column
+    being lf = ln(nu / nu0) times ln S0's."""
+    k = ncomp
+    n = m.shape[0] - k
+    out = np.empty((2 * k + n, 2 * k + n))
+    ss, st, tt = m[:k, :k], m[:k, k:], m[k:, k:]
+    out[:k, :k] = ss
+    out[:k, k : 2 * k] = lf * ss
+    out[k : 2 * k, :k] = lf * ss
+    out[k : 2 * k, k : 2 * k] = lf * lf * ss
+    out[:k, 2 * k :] = st
+    out[k : 2 * k, 2 * k :] = lf * st
+    out[2 * k :, :k] = st.T
+    out[2 * k :, k : 2 * k] = lf * st.T
+    out[2 * k :, 2 * k :] = tt
+    return out
+
+
+def lf_map_vector(v, ncomp, lf):
+    """`lf_map` for a right-hand side over [sky flux | theta]."""
+    k = ncomp
+    return np.concatenate((v[:k], lf * v[:k], v[k:]))
+
+
+def lf_assemble(m0, m1, m2, ncomp):
+    """`lf_map` summed over channels from the moments m0 = sum m, m1 = sum
+    lf m, m2 = sum lf^2 m of (K + n) blocks [sky flux | theta]: the
+    primary-arm block [ln S0 (K) | alpha (K) | theta (n)]."""
+    k = ncomp
+    n = m0.shape[0] - k
+    out = np.empty((2 * k + n, 2 * k + n))
+    out[:k, :k] = m0[:k, :k]
+    out[:k, k : 2 * k] = m1[:k, :k]
+    out[k : 2 * k, :k] = m1[:k, :k]
+    out[k : 2 * k, k : 2 * k] = m2[:k, :k]
+    out[:k, 2 * k :] = m0[:k, k:]
+    out[k : 2 * k, 2 * k :] = m1[:k, k:]
+    out[2 * k :, :k] = m0[k:, :k]
+    out[2 * k :, k : 2 * k] = m1[k:, :k]
+    out[2 * k :, 2 * k :] = m0[k:, k:]
+    return out
+
+
+def lf_assemble_vector(b0, b1, ncomp):
+    """`lf_map_vector` summed over channels from b0 = sum b, b1 = sum lf b."""
+    k = ncomp
+    return np.concatenate((b0[:k], b1[:k], b0[k:]))
+
+
+class ChannelSurvey:
+    """The survey accumulator for per-channel gain bins (B1-3 rerun).
+
+    Each bin is one channel, one 2-dump interval and one hand, with Gram
+    matrix [gains (2N) | sky (K) | per variant: P_x (N), P_y (N), common
+    (ncom)] from `normals_columns`. Kept per (scan, hand): the primary-arm
+    blocks [ln S0 | alpha | theta_local] (exact lf mapping per channel), and
+    per (scan, 32-channel block, hand) the strict-arm blocks [flux | theta];
+    both raw and with the gains Schur-eliminated. The noise calibration
+    kappa_{scan, hand} is applied at combination (exact)."""
+
+    def __init__(self, nant, ncomp, nscan, nvar, ncom=4):
+        self.nant, self.ncomp, self.nscan = nant, ncomp, nscan
+        self.nvar, self.ncom = nvar, ncom
+        self.nloc = nvar * (2 * nant + ncom)
+        self.prim = {"raw": {}, "reduced": {}}
+        self.strict = {"raw": {}, "reduced": {}}
+        self.bins = 0
+        self.samples = 0
+
+    def add(self, scan, block, hand, lf, h, samples):
+        """Add one bin's Gram matrix (gains first)."""
+        ng = 2 * self.nant
+        rest = np.arange(ng, h.shape[0])
+        reduced = schur(h, np.arange(ng), rest)
+        raw = h[np.ix_(rest, rest)]
+        self.add_blocks(scan, block, hand, lf, raw, reduced, samples)
+
+    def add_blocks(self, scan, block, hand, lf, raw, reduced, samples=0):
+        for which, m in (("raw", raw), ("reduced", reduced)):
+            key = (scan, hand)
+            mom = self.prim[which].get(key)
+            if mom is None:
+                mom = self.prim[which][key] = [np.zeros_like(m) for _ in range(3)]
+            mom[0] += m
+            mom[1] += lf * m
+            mom[2] += (lf * lf) * m
+            key = (scan, block, hand)
+            if key in self.strict[which]:
+                self.strict[which][key] += m
+            else:
+                self.strict[which][key] = m.copy()
+        self.bins += 1
+        self.samples += int(samples)
+
+    def merge(self, other):
+        """Add another accumulator's blocks (from a worker)."""
+        for part in ("prim", "strict"):
+            for which in ("raw", "reduced"):
+                mine = getattr(self, part)[which]
+                for key, m in getattr(other, part)[which].items():
+                    if key not in mine:
+                        mine[key] = m
+                    elif part == "prim":
+                        for a, b in zip(mine[key], m, strict=True):
+                            a += b
+                    else:
+                        mine[key] += m
+        self.bins += other.bins
+        self.samples += other.samples
+
+    def theta_size(self):
+        return self.nvar * self.nscan * 2 * self.nant + self.nvar * self.ncom
+
+    def theta_index(self, scan):
+        """Global theta indices of a scan's local [per variant: P (2N), C]."""
+        n2 = 2 * self.nant
+        idx = []
+        for v in range(self.nvar):
+            p0 = v * self.nscan * n2 + scan * n2
+            c0 = self.nvar * self.nscan * n2 + v * self.ncom
+            idx.append(np.r_[np.arange(p0, p0 + n2), np.arange(c0, c0 + self.ncom)])
+        return np.concatenate(idx)
+
+    def information(self, kappa):
+        """theta-theta information (keys as `Survey.information`)."""
+        k, nt = self.ncomp, self.theta_size()
+        out = {}
+        for which in ("raw", "reduced"):
+            big = np.zeros((2 * k + nt, 2 * k + nt))
+            for (scan, hand), mom in self.prim[which].items():
+                idx = np.r_[np.arange(2 * k), 2 * k + self.theta_index(scan)]
+                big[np.ix_(idx, idx)] += kappa[(scan, hand)] * lf_assemble(*mom, k)
+            tt = big[2 * k :, 2 * k :]
+            st = big[: 2 * k, 2 * k :]
+            primary = tt - st.T @ pinv_psd(big[: 2 * k, : 2 * k]) @ st
+            per_block = {}
+            for (scan, block, hand), m in self.strict[which].items():
+                ss, st_b, tt_b = per_block.setdefault(
+                    block, [np.zeros((k, k)), np.zeros((k, nt)), np.zeros((nt, nt))]
+                )
+                idx = self.theta_index(scan)
+                m = kappa[(scan, hand)] * m
+                ss += m[:k, :k]
+                st_b[:, idx] += m[:k, k:]
+                tt_b[np.ix_(idx, idx)] += m[k:, k:]
+            strict = np.zeros((nt, nt))
+            for ss, st_b, tt_b in per_block.values():
+                strict += tt_b - st_b.T @ pinv_psd(ss) @ st_b
+            if which == "raw":
+                out["raw"] = tt.copy()
+                out["sky_primary"] = primary
+                out["sky_strict"] = strict
+            else:
+                out["gains"] = tt.copy()
+                out["both_primary"] = primary
+                out["both_strict"] = strict
+        return out
+
+    def label_transform(self, active=None):
+        """L (theta_size x labels) from this layout to B1-2's label layout:
+        per variant, scan, axis, antenna the per-antenna pointing, then per
+        variant COMMON (pointing_x, pointing_y, log_width, ellipticity,
+        squint_x, squint_y). Common pointing is the sum over every scan and
+        `active` antenna (default all) of the per-antenna columns; the
+        common columns are ordered (squint_x, squint_y, ellipticity,
+        log_width)."""
+        n2, nant = 2 * self.nant, self.nant
+        nper = self.nvar * self.nscan * n2
+        lab = np.zeros((self.theta_size(), nper + 6 * self.nvar))
+        lab[np.arange(nper), np.arange(nper)] = 1.0
+        act = np.ones(nant, bool) if active is None else np.asarray(active, bool)
+        on = np.flatnonzero(act)
+        for v in range(self.nvar):
+            c0 = nper + 6 * v
+            s0 = self.nvar * self.nscan * n2 + v * self.ncom
+            for s in range(self.nscan):
+                p0 = v * self.nscan * n2 + s * n2
+                lab[p0 + on, c0 + 0] = 1.0
+                lab[p0 + nant + on, c0 + 1] = 1.0
+            lab[s0 + 3, c0 + 2] = 1.0
+            lab[s0 + 2, c0 + 3] = 1.0
+            lab[s0 + 0, c0 + 4] = 1.0
+            lab[s0 + 1, c0 + 5] = 1.0
+        return lab
+
+
 __all__ = [
     "COMMON",
+    "ChannelSurvey",
     "GaussianToyBeam",
     "HolographyGradient",
     "Survey",
@@ -840,11 +1150,17 @@ __all__ = [
     "factors_at",
     "family_marginal",
     "hogbom",
+    "lf_assemble",
+    "lf_assemble_vector",
+    "lf_map",
+    "lf_map_vector",
     "measures_from",
     "noise_scale",
+    "normals_columns",
     "phase_terms",
     "pinv_psd",
     "schur",
+    "schur_rhs",
     "spectra",
     "spline_sample",
     "stefcal",

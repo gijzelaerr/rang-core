@@ -15,7 +15,7 @@ and restructure it. The wave 4 pass and the "Documentation drift" table of
 | `research/README.md` | 556 → about 330 | Whole file. Start here, the rename note, then one section per theme, newest first, one line per report; a compact Timeline. The evidence table, pilot findings, checkpoints and resume notes are kept. The history the README dropped is here: the beam-width table, the 7.26× surrogate, chromatic gains, scope and limitations. |
 | `research/STATE.md` | 2632 → 1674 | A "Current status" block and a "Log (newest first)" heading; no paragraph edited. A new paragraph now goes directly under the log heading. |
 | `research/STATE-history.md` | new, 980 | Every entry before 2026-10-29, unedited. |
-| `AGENTS.md` | 41 → 55 | The active question; a Layout section. Every rule stays. |
+| `AGENTS.md` | 41 → 55 | Both questions closed; a Layout section. Every rule stays. |
 | `CONTRIBUTING.md` | 96 → 97 | Docs URL, the full-check extras, the platform paragraph. |
 | `docs/index.md` | 66 → 59 | The README's tagline and status box; the verdict's detail is left to the research story. |
 | `docs/installation.md` | 123 → 127 | The extras table gains `meerkat`, `formats`, `carta` and `casacure`. |
@@ -69,9 +69,9 @@ on GitHub. The job stays useful on forks.
 
 ## Deviations
 
-- **`main` merged into the branch twice** (`9813608`, then `f376d4b`), because each new
+- **`main` merged into the branch three times** (`9813608`, `f376d4b`, `378b66b`), because each new
   note would fail the every-note test and main's top paragraphs conflict with the new
-  STATE structure. Entries added for E6, W4-2/W4-7, the CLEAN major cycles and DF5-O,
+  STATE structure. Entries added for E6, W4-2/W4-7, the CLEAN major cycles, DF5-O and B1-3,
   rewritten from main's stack paragraphs; main's STATE paragraphs sit under the log heading.
 - **Documentation URL** is `https://pythonic.nl/rang-core/`, the coordinator's
   update; the brief's `github.io` URL redirects there.
@@ -79,10 +79,16 @@ on GitHub. The job stays useful on forks.
   Its 0.1.0 section becomes the release notes, so the hunk is below.
 - **"What it is" uses bullets**, as briefed; the extras are one table, platforms one sentence.
 - **Historical research notes** keep the old URL (`d1-docs.md`, `w4-5-release.md`, `w4-review.md`).
+- **B1-3 closed null** while this task ran: the coordinator's update replaced the briefed
+  status ("B1-2 positive, B1-3 running") in the README, the docs index, AGENTS.md, STATE and the
+  index. `docs/research/index.md` said "B1-2 and B1-3 are proposed", so it was updated too,
+  though it is not on this task's file list.
 - **Check-all log**: copied to `outputs/w4-8-20261102-check-all.log` as briefed.
 
 ## Open items
 
+- `docs/tutorials/index.md` and notebook 7 still describe "B1-2 and B1-3 as proposed";
+  the notebook needs its own edit and rerun.
 - `research/meerkat-scope.md` still calls gain-TV flagging the "current active
   experiment"; AGENTS.md points to it for scope. It was outside this task's files.
 - STATE's status block goes stale unless the merge routine updates it.
@@ -108,7 +114,7 @@ on GitHub. The job stays useful on forks.
 
 - `README.md`, `research/README.md`: whole file (structure above).
 - `research/STATE.md`: the block and heading only; old body otherwise unchanged. **Insert new paragraphs under `## Log (newest first)`.**
-- `AGENTS.md`: replaces "The active experiment is MeerKAT L-band gain-TV-guided flagging; older pointing reports are separate history." with "The active question is beam and pointing on real MeerKAT data (`research/b1-beam-pointing.md`); gain-TV-guided flagging is closed as null (`research/flagging-verdict.md`)."; adds `## Layout`; "The current experiment is specified in" becomes "The scope is specified in".
+- `AGENTS.md`: replaces "The active experiment is MeerKAT L-band gain-TV-guided flagging; older pointing reports are separate history." with "Gain-TV-guided flagging (`research/flagging-verdict.md`) and beam and pointing (`research/b1-3-pointing-selfcal.md`) are both closed as null."; adds `## Layout`; "The current experiment is specified in" becomes "The scope is specified in".
 - `core/src/ffi.rs`: header becomes "C ABI of the core, for C consumers and benches. The Python layer reaches these functions through the PyO3 extension `rang._core` (`core/py`); ctypes is gone since task P7 (`research/p7-architecture.md`). Every pointer is described by an explicit length in the structs."
 - `core/py/src/lib.rs`: "non-contiguous arrays and read-only outputs are refused" becomes "arrays that are not C-contiguous and read-only outputs are refused, task W4-2".
 

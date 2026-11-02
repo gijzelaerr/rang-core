@@ -222,7 +222,16 @@ CPU-heavy tasks at a time on 8 physical cores.
   re-tolerance the C/I/K/L1 archives against WSClean 3.7's wgridder from
   DF0); DF2 puts it into the imaging chains
   before B1's imaging; DF3–DF5 (facets with per-facet Jones, scalar
-  CohJones, Hogbom/multiscale) after B1 says what it needs; DF1b (w-towers)
+  CohJones, Hogbom/multiscale) after B1 says what it needs;
+  DF5-O done 2026-11-02 (`df5o-deconv-oracles.md`): DF5's acceptance on the
+  simulated field (16 channels, natural, ≤ 10 major cycles, 3σ threshold,
+  gain 0.1, mgain 0.8): total MFS flux within 2 % of the truth, every
+  source above 20σ_ap within 5 % + 3σ_ap (multiscale: p16, p23, p26 no
+  worse than WSClean multiscale), points within 0.1 PSF FWHM; the
+  core-recomputed inner residual RMS ≤ 1.598 µJy (Högbom, against WSClean
+  Högbom and pfb Clark) and ≤ 1.475 µJy (multiscale, against WSClean
+  multiscale); reducible fraction ≤ 3.58e-3 / 3.59e-3; the per-cycle Gram
+  gap recorded by DF5's driver; DDFacet HMP on the field open; DF1b (w-towers)
   when memory binds; DF6 (facet-IDG on `wgpu`) after X2. User decisions
   (2026-10-30): `saopicc` (DDFacet, killMS) issues and pull requests may be
   filed like the RATT ones (task U3, done 2026-10-30: six issues, four PRs,
