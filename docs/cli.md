@@ -6,8 +6,9 @@ Each stage has `run` (the driver), `compare` (one comparator engine: the
 verdict and counts against an archive) and `archive` (a versioned
 `rang.archive` file); `rang-core check` runs the full local checks on any
 platform. Every call writes a receipt, `<output>.<verb>.rang-receipt.json`
-(schema `rang.receipt` version 2: the command, its inputs, the environment
-and the commit), unless `--no-receipt` is given. The OpenBLAS, OpenMP, MKL
+(schema `rang.receipt` version 3: the command, its inputs, the environment
+with every recorded `RANG_*` variable, and the commit, null outside a
+source checkout), unless `--no-receipt` is given. The OpenBLAS, OpenMP, MKL
 and XLA thread pools are capped at one thread where their variables are
 unset, unless `--no-pin-threads` is given or `RANG_PIN_THREADS=0` is set;
 `RAYON_NUM_THREADS` sets the core's own threads.
@@ -485,3 +486,57 @@ positional arguments:
 options:
   -h, --help  show this help message and exit
 ```
+
+## Environment variables
+
+Every `RANG_*` variable that the package or the Rust core reads. Each receipt records the current value of every variable of the kinds result, input, speed, output, process and refused, null when unset (`environment.rang_environment`); the campaign receipts record the same under `rang_environment`. Kinds:
+
+- **result**: changes computed numbers, or which code or binary computes them
+- **input**: selects input data or files
+- **speed**: changes speed or memory only (measured result-neutral)
+- **output**: adds a diagnostic output; the results are unchanged
+- **process**: changes how a command, check or notebook runs
+- **refused**: removed; setting it is an error
+- **viewer**: the notebook's CARTA viewer connection; not recorded
+- **test**: a Rust unit-test fixture; not recorded
+- **retired**: read by no code any more (kept so old receipts stay explained); not recorded
+
+| Variable | Default | Kind | What it changes | Report | Read by |
+| --- | --- | --- | --- | --- | --- |
+| `RANG_SOLVE_OPTIONS` | unset (the archived solver) | result | solver options `qp_weights`, `stop`, `anderson`, `freeze`; read by `core.solve_complex` when `options=` is None | `research/l5-solver-science.md` | `python/rang/core.py` |
+| `RANG_SOLVE_TRACE` | unset (no trace) | output | file for the per-iteration solver trace; read by `core.solve_complex` when `trace=` is None | `research/l5-solver-science.md` | `python/rang/core.py` |
+| `RANG_GRIDDER_DEVICE` | cpu | result | `gpu` runs the inversion on wgpu (cargo feature `gpu`) | `research/x2-wgpu.md` | `python/rang/core_grid.py` |
+| `RANG_GRIDDER_GPU_PRECISION` | f64 | result | `f32` selects the GPU path toleranced to 1e-4 | `research/x2-wgpu.md` | `python/rang/core_grid.py` |
+| `RANG_GPU_ADAPTER` | unset (the best adapter) | result | substring of the name of the GPU adapter to use | `research/x2-wgpu.md` | `core/src/gpu/context.rs` |
+| `RANG_GPU_MEMORY_MB` | 256 | speed | device-memory budget per GPU inversion (batching only) | `research/x2-wgpu.md` | `core/src/gpu/invert.rs` |
+| `RANG_GPU_LAYERS_PER_BATCH` | unset (as many as the budget allows) | speed | upper bound on the w-layers per GPU batch | `research/x2-wgpu.md` | `core/src/gpu/invert.rs` |
+| `RANG_DF1_LIB` | no longer read | retired | was a prebuilt w-gridder library loaded through ctypes (DF1); W4-3 removed the fallback | `research/w4-3-kernels.md` | `-` |
+| `RANG_WGRIDDER_SIMD` | unset (AVX-512 where available) | speed | `avx2` or `baseline` caps the w-gridder's instruction set | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
+| `RANG_WGRIDDER_PLANE_GROUP` | 1 | speed | w-planes gridded together | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
+| `RANG_WGRIDDER_TIMING` | unset | output | phase timings of the w-gridder on stderr | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
+| `RANG_C1_LIB` | no longer read | retired | was a prebuilt closure-score library loaded through ctypes (C1); W4-3 moved the kernel into the extension | `research/w4-3-kernels.md` | `-` |
+| `RANG_P6` | unset (the frozen calls) | result | `1` runs the signal track's ported guard and influence functions | `research/p6-python-hotspots.md` | `python/rang/core_signal.py` |
+| `RANG_TOY_BIN` | unset (the extension) | result | a pointing-toy binary run instead of the extension | `research/p7-architecture.md` | `python/rang/__init__.py` |
+| `RANG_FLAGGING_SUITE_IMAGE` | unset | result | the container image the trend run's configuration records | `research/flagging-parallel.md` | `python/rang/core_trend_run.py` |
+| `RANG_STRATEGY_DIR` | unset (the CARACAL strategy inputs under outputs/) | input | directory of the Tricolour strategies the notebook flags with | `research/d2-notebook.md` | `python/rang/notebook/flags.py` |
+| `RANG_FIXTURE` | unset (outputs/ska-pointing/outer_scans.zip) | input | the notebook's pointing fixture | `research/d2-notebook.md` | `python/rang/notebook/data.py` |
+| `RANG_LUNO_SLICE` | unset (task G's fetch) | input | the notebook's LUNO slice directory | `research/d2-notebook.md` | `python/rang/notebook/data.py` |
+| `RANG_LUNO_EXTRA` | unset (the solve inputs) | input | the notebook's LUNO extra-columns directory | `research/d2-notebook.md` | `python/rang/notebook/data.py` |
+| `RANG_HOLOGRAPHY_PRODUCT` | unset (outputs/b1-20261030-05-holography) | input | the notebook's holography product | `research/d3-science-notebooks.md` | `python/rang/notebook/science.py` |
+| `RANG_NOTEBOOK_CACHE` | unset (~/.cache/rang-notebook) | process | the notebook's download cache | `research/d2-notebook.md` | `python/rang/notebook/data.py` |
+| `RANG_NOTEBOOK_LUNO` | unset (off) | process | `1` runs the notebook's LUNO section | `research/d2-notebook.md` | `python/rang/notebook/science.py` |
+| `RANG_NOTEBOOK_SLOW` | unset (off) | process | `1` runs the notebook's slow JAX audits | `research/d3-science-notebooks.md` | `python/rang/notebook/science.py` |
+| `RANG_NOTEBOOK_HOLOGRAPHY` | unset (off) | process | `1` draws the notebook's holography maps | `research/d3-science-notebooks.md` | `python/rang/notebook/science.py` |
+| `RANG_NOTEBOOK_CARTA` | 0 | process | `1` opens the notebook's images in CARTA | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
+| `RANG_PIN_THREADS` | unset (caps on) | process | `0` turns off the CLI's BLAS and XLA thread caps (the thread variables themselves are recorded under `threads`) | `research/p9-cli.md` | `python/rang/core_cli.py` |
+| `RANG_CHECKALL_LOCK` | unset (~/.rang-checkall-v2.lock) | process | the check's host lock file | `research/p10-tests.md` | `python/rang/check.py` |
+| `RANG_CHECKALL_LOCKED` | unset | process | set by the check while it holds the lock | `research/p10-tests.md` | `python/rang/check.py` |
+| `RANG_CORE_BACKEND` | unset | refused | the removed ctypes backend; anything but `extension` is refused | `research/p7-architecture.md` | `python/rang/core.py` |
+| `RANG_CORE_LIB` | unset | refused | the removed ctypes library; setting it is refused | `research/p7-architecture.md` | `python/rang/core.py` |
+| `RANG_TOY_LIB` | unset | refused | the removed toy ctypes library; recorded by `rang-core environment` | `research/p7-architecture.md` | `python/rang/core_cli.py` |
+| `RANG_CARTA_URL` | unset | viewer | the CARTA backend's URL | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
+| `RANG_CARTA_WEBDRIVER` | unset | viewer | the CARTA backend's webdriver | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
+| `RANG_CARTA_SESSION_ID` | unset | viewer | the CARTA session | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
+| `RANG_CARTA_DIR` | unset (`<RANG_NOTEBOOK_CACHE>/carta`) | viewer | where the images for CARTA are written | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
+| `RANG_CARTA_ROOT` | unset | viewer | that directory as the CARTA backend sees it | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
+| `RANG_MS_FIXTURE` | unset (the tests skip) | test | a real Measurement Set for the reader and writer unit tests | `research/core-e-ms-reader.md` | `core/src/ms.rs` |

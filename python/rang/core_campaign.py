@@ -170,6 +170,9 @@ def snapshot(root):
 
 
 def git_status():
+    # None outside a source checkout (task W4-1, `core.checkout_root`).
+    if core.checkout_root() is None:
+        return None
     try:
         return subprocess.run(
             ["git", "status", "--porcelain"],
@@ -1138,6 +1141,8 @@ def run(run_dir, bucket=BUCKET, workers=8, precondition_dir=None, gridder="wstac
         "python": platform.python_version(),
         "numpy": np.__version__,
         "precondition_dir": str(precondition_dir) if precondition_dir else None,
+        # Task W4-1: every recorded RANG_* variable (null when unset).
+        "rang_environment": core.environment_settings(),
     }
     write_json(run_dir / "receipt.json", receipt)
     audit = {

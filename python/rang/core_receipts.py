@@ -1,32 +1,48 @@
-"""Offline five-track Stimela2 campaign with independent branch outputs.
+"""SHA256 receipts of the code a run used (`source_receipts`).
 
-Verbatim extract of the frozen `rangtoy.flagging_next` (big plan task P11,
-research/p11-extract.md): the definitions the live chains use, copied
-byte for byte in source order from python/rangtoy/flagging_next.py at commit
-2da566c (now history/python/flagging_next.py),
-sha256 2a2ae5ed96229e0d2fca2e5e2dad81b3579b788e92d543ea5718a7a808d69754.
-Only import statements differ: frozen modules are replaced by their core
-extracts. tests/test_p11_extract.py checks every definition against the
-history copy.
+Until task W4-1 this module was the P11 extract of the frozen
+`rangtoy.flagging_next` (research/p11-extract.md; the history copy is
+history/python/flagging_next.py). Its globs assumed a checkout: an installed
+wheel raised FileNotFoundError on `Cargo.lock`, and the recipe and
+`tools/flagging` globs matched nothing after P8 moved those files to
+`history/` (research/w4-review.md, W4R-02). Now, in a checkout (the three
+manifests of `core.checkout_root`), the receipts cover what they covered
+on disk before (`python/rang/*.py`, `src/*.rs`, the root manifests and the
+loaded extension); outside one, every file of the installed package and
+the extension. The CLI receipt format (`rang.receipt`, version 3 since
+W4-1) is `core_cli`'s, not this module's.
 """
 
 from hashlib import sha256
 from pathlib import Path
 
+from .core import MANIFESTS
 from .projector import _native_library
 
 
-def source_receipts():
-    root = Path(__file__).resolve().parents[2]
-    paths = list((root / "python/rang").glob("*.py"))
-    paths += list((root / "src").glob("*.rs"))
-    paths += list((root / "recipes").glob("tv-flagging*.yaml"))
-    paths += [
+def _package_files(package):
+    return [
         p
-        for p in (root / "tools/flagging").rglob("*")
-        if p.is_file()
-        and (p.suffix in (".py", ".sh", ".txt") or p.name == "Dockerfile")
+        for p in package.rglob("*")
+        if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
     ]
-    paths += [root / name for name in ("Cargo.toml", "Cargo.lock", "pyproject.toml")]
+
+
+def source_receipts():
+    """{path: SHA256} of the running code: a checkout's Python modules, root
+    Rust sources and manifests, or an installed package's files; and the
+    native library actually loaded."""
+    package = Path(__file__).resolve().parent
+    root = package.parents[1]
+    if all((root / name).is_file() for name in MANIFESTS):
+        paths = list((root / "python/rang").glob("*.py"))
+        paths += list((root / "src").glob("*.rs"))
+        paths += [
+            root / name
+            for name in ("Cargo.toml", "Cargo.lock", "pyproject.toml")
+            if (root / name).is_file()
+        ]
+    else:
+        paths = _package_files(package)
     paths.append(Path(_native_library()._name).resolve())
-    return {str(p): sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
+    return {str(p): sha256(p.read_bytes()).hexdigest() for p in sorted(set(paths))}

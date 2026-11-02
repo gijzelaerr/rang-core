@@ -453,6 +453,8 @@ def post_run(run_dir, hook, others=None, started=None):
         },
         "max_rss_mb": rss_mb(),
         "code_sha256": {name: file_sha256(ROOT / name) for name in CODE_FILES},
+        # Task W4-1: every recorded RANG_* variable (null when unset).
+        "rang_environment": core.environment_settings(),
     }
     write_json(run_dir / "l1m.json", record)
     return record
