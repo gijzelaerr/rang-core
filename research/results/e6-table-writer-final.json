@@ -1,0 +1,721 @@
+{
+ "task": "E6",
+ "protocol": "research/e6-table-writer-final.md",
+ "run": "outputs/e6-20261031-01",
+ "commit": "7721e96e59b86e4ad7e0d29ec3be94cea829fd18",
+ "image": {
+  "tag": "rang-casacore-cpp:3.7.1",
+  "id": "sha256:4484743b0289c45febbb0b71794cb05195314b8018a7fd9766b0dda60cbdc242",
+  "size_bytes": 547529202,
+  "build_seconds": 1.1,
+  "date": "2026-10-31T01:35:10+00:00",
+  "base": "ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852",
+  "ppa": "ppa:kernsuite/kern-10",
+  "debs": {
+   "casacore-dev": "3.7.1-1kern1",
+   "g++": "4:13.2.0-7ubuntu1",
+   "g++-13": "13.3.0-6ubuntu2~24.04.1",
+   "g++-13-x86-64-linux-gnu": "13.3.0-6ubuntu2~24.04.1",
+   "g++-x86-64-linux-gnu": "4:13.2.0-7ubuntu1",
+   "libcasa-casa8": "3.7.1-1kern1",
+   "libcasa-coordinates8": "3.7.1-1kern1",
+   "libcasa-derivedmscal8": "3.7.1-1kern1",
+   "libcasa-fits8": "3.7.1-1kern1",
+   "libcasa-images8": "3.7.1-1kern1",
+   "libcasa-lattices8": "3.7.1-1kern1",
+   "libcasa-meas8": "3.7.1-1kern1",
+   "libcasa-measures8": "3.7.1-1kern1",
+   "libcasa-mirlib8": "3.7.1-1kern1",
+   "libcasa-ms8": "3.7.1-1kern1",
+   "libcasa-msfits8": "3.7.1-1kern1",
+   "libcasa-python3-8": "3.7.1-1kern1",
+   "libcasa-scimath-f8": "3.7.1-1kern1",
+   "libcasa-scimath8": "3.7.1-1kern1",
+   "libcasa-tables8": "3.7.1-1kern1",
+   "libhdf5-103-1t64": "1.10.10+repack-3.1ubuntu4"
+  },
+  "deb_count": 268
+ },
+ "result": {
+  "1 byte identity": false,
+  "2 read-back": true,
+  "3 determinism": false,
+  "4 E3, E4 and E5 unchanged": true,
+  "5 serialisation identity": true,
+  "6 refusals": true,
+  "7 cross-version identity": true,
+  "all_pass": false
+ },
+ "cases": [
+  {
+   "name": "D-cubes",
+   "oracle": "casacore 3.7.1",
+   "files": 6,
+   "bytes": 5032,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.03077813598793,
+   "casacore_s": 0.03707,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "D-reopen",
+   "oracle": "casacore 3.7.1",
+   "files": 6,
+   "bytes": 5608,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.013877163000870496,
+   "casacore_s": 0.0114954,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "D-multiaxis",
+   "oracle": "casacore 3.7.1",
+   "files": 5,
+   "bytes": 3094,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.006528617988806218,
+   "casacore_s": 0.0238496,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "D-be",
+   "oracle": "casacore 3.7.1",
+   "files": 6,
+   "bytes": 5031,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.005009932006942108,
+   "casacore_s": 0.0163367,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "C-var",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 3171,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.006390558002749458,
+   "casacore_s": 0.01708865398541093,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "C-fixed",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 3209,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.005975188978482038,
+   "casacore_s": 0.016598759015323594,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "C-write",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 4374,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.004896041995380074,
+   "casacore_s": 0.010065861017210409,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "C-be",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 3170,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.006600779015570879,
+   "casacore_s": 0.015185522992396727,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "C-notile",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 484476,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.007636800000909716,
+   "casacore_s": 0.018638175999512896,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "X-371",
+   "oracle": "casacore 3.7.1",
+   "files": 5,
+   "bytes": 3171,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.005317447998095304,
+   "casacore_s": 0.0176302,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "IS-arrays",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 47209,
+   "identical": false,
+   "identical_but_masked": false,
+   "core_s": 0.011103602009825408,
+   "casacore_s": 0.0234779060119763,
+   "error": null,
+   "masked": [],
+   "differ": [
+    [
+     "table.f0i",
+     677
+    ]
+   ]
+  },
+  {
+   "name": "IS-big",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 361736,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.01042885601054877,
+   "casacore_s": 0.13903745499555953,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "T-notile",
+   "oracle": "casacore 3.8.1",
+   "files": 8,
+   "bytes": 1052407,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.008818909002002329,
+   "casacore_s": 0.01980462099891156,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "T-notile-fixed",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 132348,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.007579360011732206,
+   "casacore_s": 0.01738943299278617,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "T-notile-column",
+   "oracle": "casacore 3.8.1",
+   "files": 5,
+   "bytes": 263228,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.0062418439774774015,
+   "casacore_s": 0.016465795983094722,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "F-multi",
+   "oracle": "casacore 3.8.1",
+   "files": 4,
+   "bytes": 194427,
+   "identical": false,
+   "identical_but_masked": true,
+   "core_s": 0.04043424900737591,
+   "casacore_s": 0.09883728600107133,
+   "error": null,
+   "masked": [
+    [
+     "table.mf",
+     2734,
+     0
+    ]
+   ],
+   "differ": []
+  },
+  {
+   "name": "F-multi-write",
+   "oracle": "casacore 3.8.1",
+   "files": 4,
+   "bytes": 194427,
+   "identical": false,
+   "identical_but_masked": true,
+   "core_s": 0.012835190020268783,
+   "casacore_s": 0.011938145995372906,
+   "error": null,
+   "masked": [
+    [
+     "table.mf",
+     3250,
+     0
+    ]
+   ],
+   "differ": []
+  },
+  {
+   "name": "F-cont",
+   "oracle": "casacore 3.8.1",
+   "files": 4,
+   "bytes": 57995,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.062406034994637594,
+   "casacore_s": 0.07337969000218436,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "F-free",
+   "oracle": "casacore 3.8.1",
+   "files": 4,
+   "bytes": 40178,
+   "identical": false,
+   "identical_but_masked": true,
+   "core_s": 0.02659344600397162,
+   "casacore_s": 0.04561977001139894,
+   "error": null,
+   "masked": [
+    [
+     "table.mf",
+     534,
+     0
+    ]
+   ],
+   "differ": []
+  },
+  {
+   "name": "F-default",
+   "oracle": "casacore 3.8.1",
+   "files": 4,
+   "bytes": 16778527,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.05663442800869234,
+   "casacore_s": 0.14482827100437135,
+   "error": null,
+   "masked": [],
+   "differ": []
+  },
+  {
+   "name": "K-arrays",
+   "oracle": "casacore 3.8.1",
+   "files": 4,
+   "bytes": 2473,
+   "identical": true,
+   "identical_but_masked": true,
+   "core_s": 0.006430086010368541,
+   "casacore_s": 0.02013116900343448,
+   "error": null,
+   "masked": [],
+   "differ": []
+  }
+ ],
+ "determinism": {
+  "core_identical": {
+   "D-cubes": true,
+   "D-reopen": true,
+   "D-multiaxis": true,
+   "D-be": true,
+   "C-var": true,
+   "C-fixed": true,
+   "C-write": true,
+   "C-be": true,
+   "C-notile": true,
+   "X-371": true,
+   "IS-arrays": true,
+   "IS-big": true,
+   "T-notile": true,
+   "T-notile-fixed": true,
+   "T-notile-column": true,
+   "F-multi": true,
+   "F-multi-write": true,
+   "F-cont": true,
+   "F-free": true,
+   "F-default": true,
+   "K-arrays": true
+  },
+  "casacore_not_identical": {
+   "oracle-twin": {
+    "IS-arrays": {
+     "masked": [],
+     "differ": [
+      [
+       "table.f0i",
+       827
+      ]
+     ]
+    },
+    "F-multi": {
+     "masked": [
+      [
+       "table.mf",
+       2429
+      ]
+     ],
+     "differ": []
+    },
+    "F-multi-write": {
+     "masked": [
+      [
+       "table.mf",
+       3425
+      ]
+     ],
+     "differ": []
+    },
+    "F-free": {
+     "masked": [
+      [
+       "table.mf",
+       472
+      ]
+     ],
+     "differ": []
+    }
+   },
+   "oracle-perturb": {
+    "IS-arrays": {
+     "masked": [],
+     "differ": [
+      [
+       "table.f0i",
+       1794
+      ]
+     ]
+    },
+    "F-multi": {
+     "masked": [
+      [
+       "table.mf",
+       3669
+      ]
+     ],
+     "differ": []
+    },
+    "F-multi-write": {
+     "masked": [
+      [
+       "table.mf",
+       3668
+      ]
+     ],
+     "differ": []
+    },
+    "F-free": {
+     "masked": [
+      [
+       "table.mf",
+       472
+      ]
+     ],
+     "differ": []
+    },
+    "F-default": {
+     "masked": [
+      [
+       "table.mf",
+       4194072
+      ]
+     ],
+     "differ": []
+    }
+   }
+  },
+  "h_mfh5_runs": {
+   "oracle-twin": {
+    "lengths": [
+     4206440,
+     4206440
+    ],
+    "differing": [
+     1980
+    ]
+   },
+   "oracle-perturb": {
+    "lengths": [
+     4206440,
+     4206440
+    ],
+    "differing": [
+     1980
+    ]
+   }
+  }
+ },
+ "readback": {
+  "tables": 21,
+  "cells": 65226,
+  "casacure_unreadable": [
+   "D-be",
+   "D-cubes",
+   "D-multiaxis",
+   "D-reopen",
+   "F-cont",
+   "F-default",
+   "F-free",
+   "F-multi",
+   "F-multi-write"
+  ],
+  "casacure_reasons": [
+   "storage error: /home/gijsm/Github/rang/outputs/e6-20261031-01/core/F-cont/table.f0: No such file or directory (os error ",
+   "storage error: /home/gijsm/Github/rang/outputs/e6-20261031-01/core/F-default/table.f0: No such file or directory (os err",
+   "storage error: /home/gijsm/Github/rang/outputs/e6-20261031-01/core/F-free/table.f0: No such file or directory (os error ",
+   "storage error: /home/gijsm/Github/rang/outputs/e6-20261031-01/core/F-multi-write/table.f0: No such file or directory (os",
+   "storage error: /home/gijsm/Github/rang/outputs/e6-20261031-01/core/F-multi/table.f0: No such file or directory (os error",
+   "storage error: unsupported data-manager type TiledDataStMan"
+  ],
+  "container_s": 5.507559381017927,
+  "pass": true,
+  "wall_s": 12.690604092000285
+ },
+ "refusals": {
+  "attempts": {
+   "R-tcsm-remove": {
+    "refused": true,
+    "message": "rows cannot be removed: TiledCellStMan cannot remove rows (as in casacore)",
+    "names_e6": false,
+    "not_supported": false,
+    "unchanged": true,
+    "casacore_refuses": true
+   },
+   "R-mfh5 create": {
+    "refused": true,
+    "message": "MultiHDF5 tables are not supported: a MultiHDF5 container is a libhdf5 file whose layout is libhdf5's internal behaviour and whose object headers carry modification times (two casacore runs differ), so it cannot be written byte-identically without libhdf5",
+    "names_e6": false,
+    "not_supported": true,
+    "unchanged": true
+   },
+   "R-mfh5 open write": {
+    "refused": true,
+    "message": "/home/gijsm/Worktrees/rang/e6-table-writer-final/outputs/e6-20261031-01/refusals/R-mfh5-open: MultiHDF5 tables are not supported: a MultiHDF5 container is a libhdf5 file whose layout is libhdf5's internal behaviour and whose object headers carry modification times (two casacore runs differ), so it cannot be written byte-identically without libhdf5",
+    "names_e6": false,
+    "not_supported": true,
+    "unchanged": true
+   },
+   "R-mfh5 open read": {
+    "refused": true,
+    "message": "MultiHDF5 tables are not supported: a MultiHDF5 container is a libhdf5 file whose layout is libhdf5's internal behaviour and whose object headers carry modification times (two casacore runs differ), so it cannot be written byte-identically without libhdf5",
+    "names_e6": false,
+    "not_supported": true,
+    "unchanged": true
+   },
+   "R-other": {
+    "refused": true,
+    "message": "Adios2StMan columns are not supported: it needs the ADIOS2 library and no oracle of this writer makes it",
+    "names_e6": false,
+    "not_supported": true,
+    "unchanged": true
+   }
+  },
+  "sources_naming_e6": {},
+  "pass": true,
+  "wall_s": 0.7937874310009647
+ },
+ "regress": {
+  "e3_e4": {
+   "e3_cases_identical": 20,
+   "e3_cases_padding_only": 4,
+   "e3_roundtrip_pass": true,
+   "e3_serialisation_pass": true,
+   "e4_cases_identical_or_gaps": 18,
+   "e4_cases": 18,
+   "pass": true,
+   "wall_s": 14.110397725977236
+  },
+  "e5_cases": {
+   "I-scalars": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "I-arrays": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": false
+   },
+   "I-rows": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "I-rows-all": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": false
+   },
+   "I-fixture": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "I-fixture-pointing": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "I-pointing": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "I-create": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "S-remove-all": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "S-remove-all-luno": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "T-var": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "T-reshape": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "T-multishape": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "T-fixture-add": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "T-fixture-flagcat": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "D-tds": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "D-tds-rows": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "B-new": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "B-write": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "B-rows": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "M-new": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "F-new": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   },
+   "F-write": {
+    "same_verdict": true,
+    "same_differing_bytes": true,
+    "identical_but_masked": true
+   }
+  },
+  "e5_identical_or_masked": 21,
+  "pass": true,
+  "wall_s": 15.847028591000708
+ },
+ "serialisation": {
+  "tables": 21,
+  "ssm_files": 8,
+  "tiled_headers": 14,
+  "ism_files": 7,
+  "multifile_headers": 5,
+  "failures": {},
+  "e5_failures": {},
+  "pass": true,
+  "wall_s": 0.06398115798947401
+ },
+ "crossversion": true,
+ "posthoc": {
+  "label": "post hoc",
+  "cases": {
+   "IS-arrays": {
+    "table.f0i": {
+     "bytes_differing": 677,
+     "walk_ends": true,
+     "outside_extended_mask": 0
+    }
+   }
+  },
+  "all_gaps": true,
+  "wall_s": 0.009391525003593415
+ },
+ "timings_s": {
+  "cases": 0.8,
+  "crossversion": 0.26,
+  "determinism": 1.99,
+  "image": 1.78,
+  "oracle-perturb": 8.15,
+  "oracle-twin": 8.24,
+  "oracle": 8.77,
+  "posthoc": 0.26,
+  "readback": 12.91,
+  "refusals": 1.06,
+  "regress": 16.09,
+  "serialisation": 0.3,
+  "summary": 0.24
+ }
+}

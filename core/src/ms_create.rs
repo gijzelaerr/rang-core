@@ -269,6 +269,9 @@ pub struct TableSpec {
     pub private_keywords: Record,
     pub big_endian: bool,
     pub multifile: bool,
+    /// The MultiFile block size (`table.storage.blocksize`; 0: casacore's
+    /// default of 4 MiB).
+    pub block_size: i64,
     /// Hypercolumn definitions (private keywords `Hypercolumn_<name>`; the
     /// columns get the tiled data-manager type and the group).
     pub hypercolumns: Vec<Hypercolumn>,
@@ -287,6 +290,9 @@ fn define_hypercolumns(spec: &mut TableSpec) -> Result<()> {
         }
         let mut fixed = true;
         for name in h.data.iter().chain(&h.coord).chain(&h.id) {
+            if name.is_empty() {
+                continue;
+            }
             let c = spec
                 .columns
                 .iter()
@@ -329,14 +335,11 @@ fn define_hypercolumns(spec: &mut TableSpec) -> Result<()> {
     Ok(())
 }
 
-const E6_MANAGERS: [&str; 1] = ["TiledCellStMan"];
-
 fn check_manager_kind(kind: &str) -> Result<()> {
     match kind {
-        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" | "IncrementalStMan"
-        | "MemoryStMan" | "TiledDataStMan" => Ok(()),
-        k if E6_MANAGERS.contains(&k) => err(format!("{k} tables are not created (E6)")),
-        k => err(format!("data manager {k} is not created (E6)")),
+        "StandardStMan" | "TiledColumnStMan" | "TiledShapeStMan" | "TiledCellStMan"
+        | "IncrementalStMan" | "MemoryStMan" | "TiledDataStMan" => Ok(()),
+        k => err(crate::ms_write::unsupported_manager(k)),
     }
 }
 
@@ -459,7 +462,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
     let resolved = resolve(spec)?;
     for r in &resolved {
         check_manager_kind(&r.spec.kind)?;
-        if r.spec.kind.starts_with("Tiled") {
+        if r.spec.kind.starts_with("Tiled") && r.spec.kind != "TiledDataStMan" {
             for &i in &r.columns {
                 let c = &spec.columns[i];
                 let fixed = c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty());
@@ -469,7 +472,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
                         c.name
                     ));
                 }
-                if !fixed && r.spec.kind != "TiledShapeStMan" {
+                if !fixed && r.spec.kind == "TiledColumnStMan" {
                     return err(format!(
                         "{}: {} needs FixedShape columns (variable shapes: TiledShapeStMan)",
                         c.name, r.spec.kind
@@ -490,145 +493,172 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
             return err(format!("data manager name {} is used twice", r.spec.name));
         }
     }
+    let block_size = if spec.block_size > 0 {
+        spec.block_size
+    } else {
+        crate::multifile::DEFAULT_BLOCK_SIZE
+    };
     let table_dir = new_dir(path)?;
     let lock = new_lock(&table_dir)?;
     // A MultiFile table: the managers write into the container's staging
     // directory (`multifile::Container`), packed on every flush.
     let mf = if spec.multifile {
-        Some(crate::multifile::Container::create(
-            &table_dir,
-            crate::multifile::DEFAULT_BLOCK_SIZE,
-        )?)
+        Some(crate::multifile::Container::create(&table_dir, block_size)?)
     } else {
         None
     };
     let dir = mf.as_ref().map_or(table_dir.clone(), |m| m.staging.clone());
-    let mut bindings: Vec<ColBinding> = spec.columns.iter().map(|c| binding(c, 0)).collect();
-    let mut managers = Vec::new();
-    let mut blobs = Vec::new();
-    let mut mgrs = Vec::new();
-    for (seq, r) in resolved.iter().enumerate() {
-        let seq = seq as u32;
-        for &i in &r.columns {
-            bindings[i].seq = seq;
-        }
-        let cols: Vec<(ColDesc, ColBinding)> = r
-            .columns
-            .iter()
-            .map(|&i| (spec.columns[i].clone(), bindings[i].clone()))
-            .collect();
-        match r.spec.kind.as_str() {
-            "StandardStMan" => {
-                let (m, blob) = NewMgr::standard(
-                    &dir,
-                    seq,
-                    &r.spec.name,
-                    &cols,
-                    nrows,
-                    r.spec.bucket_rows,
-                    r.spec.bucket_size,
-                    r.spec.cache,
-                    spec.big_endian,
-                )?;
-                mgrs.push(m);
-                blobs.push(blob);
-            }
-            "TiledColumnStMan" | "TiledShapeStMan" => {
-                let is_fixed = |c: &ColDesc| {
-                    c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty())
-                };
-                let fixed = cols.iter().all(|(c, _)| is_fixed(c));
-                let cell = if fixed {
-                    let cell = cols[0].0.shape.clone().unwrap_or_default();
-                    if cols.iter().any(|(c, _)| c.shape.as_ref() != Some(&cell)) {
-                        return err(format!(
-                            "{}: the columns of a tiled manager need one cell shape",
-                            r.spec.name
-                        ));
-                    }
-                    Some(cell)
-                } else {
-                    None
-                };
-                let ndim = match &cell {
-                    Some(c) => c.len(),
-                    None => cols[0].0.ndim.max(0) as usize,
-                };
-                if cols
-                    .iter()
-                    .any(|(c, _)| c.ndim > 0 && c.ndim as usize != ndim)
-                {
-                    return err(format!(
-                        "TiledStMan: dimensionality of the columns of {} differs",
-                        r.spec.name
-                    ));
+    // The managers write their logical files' events on the container's log.
+    let log = mf.as_ref().map(|m| m.log.clone());
+    let (managers, blobs, mgrs, bindings) =
+        crate::multifile::with_log(log.as_ref(), || -> Result<_> {
+            let mut bindings: Vec<ColBinding> =
+                spec.columns.iter().map(|c| binding(c, 0)).collect();
+            let mut managers = Vec::new();
+            let mut blobs = Vec::new();
+            let mut mgrs = Vec::new();
+            for (seq, r) in resolved.iter().enumerate() {
+                let seq = seq as u32;
+                for &i in &r.columns {
+                    bindings[i].seq = seq;
                 }
-                let m = NewMgr::tiled(
-                    &dir,
-                    seq,
-                    r.spec.kind == "TiledColumnStMan",
-                    &r.spec.name,
-                    cols.iter().map(|(c, _)| c.dtype).collect(),
-                    cell,
-                    ndim,
-                    r.spec.tile.clone(),
-                    nrows,
-                    spec.big_endian,
-                )?;
-                mgrs.push(m);
-                blobs.push(Vec::new());
-            }
-            "MemoryStMan" => {
-                mgrs.push(NewMgr::memory());
-                blobs.push(Vec::new());
-            }
-            "TiledDataStMan" => {
-                let h = spec
-                    .hypercolumns
+                let cols: Vec<(ColDesc, ColBinding)> = r
+                    .columns
                     .iter()
-                    .find(|h| h.name == r.spec.name)
-                    .ok_or_else(|| {
-                        MsError(format!(
-                            "RecordInterface: field Hypercolumn_{} is unknown",
-                            r.spec.name
-                        ))
-                    })?;
-                mgrs.push(NewMgr::tds(
-                    &dir,
-                    seq,
-                    &r.spec.name,
-                    cols.iter().map(|(c, _)| c.dtype).collect(),
-                    h.ndim,
-                    nrows,
-                    spec.big_endian,
-                ));
-                blobs.push(Vec::new());
+                    .map(|&i| (spec.columns[i].clone(), bindings[i].clone()))
+                    .collect();
+                match r.spec.kind.as_str() {
+                    "StandardStMan" => {
+                        let (m, blob) = NewMgr::standard(
+                            &dir,
+                            seq,
+                            &r.spec.name,
+                            &cols,
+                            nrows,
+                            r.spec.bucket_rows,
+                            r.spec.bucket_size,
+                            r.spec.cache,
+                            spec.big_endian,
+                        )?;
+                        mgrs.push(m);
+                        blobs.push(blob);
+                    }
+                    "TiledColumnStMan" | "TiledShapeStMan" | "TiledCellStMan" => {
+                        let is_fixed = |c: &ColDesc| {
+                            c.option & 4 != 0 && c.shape.as_ref().is_some_and(|s| !s.is_empty())
+                        };
+                        let fixed = cols.iter().all(|(c, _)| is_fixed(c));
+                        let cell = if fixed {
+                            let cell = cols[0].0.shape.clone().unwrap_or_default();
+                            if cols.iter().any(|(c, _)| c.shape.as_ref() != Some(&cell)) {
+                                return err(format!(
+                                    "{}: the columns of a tiled manager need one cell shape",
+                                    r.spec.name
+                                ));
+                            }
+                            Some(cell)
+                        } else {
+                            None
+                        };
+                        let ndim = match &cell {
+                            Some(c) => c.len(),
+                            None => cols[0].0.ndim.max(0) as usize,
+                        };
+                        if cols
+                            .iter()
+                            .any(|(c, _)| c.ndim > 0 && c.ndim as usize != ndim)
+                        {
+                            return err(format!(
+                                "TiledStMan: dimensionality of the columns of {} differs",
+                                r.spec.name
+                            ));
+                        }
+                        let dtypes = cols.iter().map(|(c, _)| c.dtype).collect();
+                        let m = if r.spec.kind == "TiledCellStMan" {
+                            NewMgr::tiled_cell(
+                                &dir,
+                                seq,
+                                &r.spec.name,
+                                dtypes,
+                                cell,
+                                ndim,
+                                r.spec.tile.clone(),
+                                nrows,
+                                spec.big_endian,
+                            )?
+                        } else {
+                            NewMgr::tiled(
+                                &dir,
+                                seq,
+                                r.spec.kind == "TiledColumnStMan",
+                                &r.spec.name,
+                                dtypes,
+                                cell,
+                                ndim,
+                                r.spec.tile.clone(),
+                                nrows,
+                                spec.big_endian,
+                            )?
+                        };
+                        mgrs.push(m);
+                        blobs.push(Vec::new());
+                    }
+                    "MemoryStMan" => {
+                        mgrs.push(NewMgr::memory());
+                        blobs.push(Vec::new());
+                    }
+                    "TiledDataStMan" => {
+                        let h = spec
+                            .hypercolumns
+                            .iter()
+                            .find(|h| h.name == r.spec.name)
+                            .ok_or_else(|| {
+                                MsError(format!(
+                                    "RecordInterface: field Hypercolumn_{} is unknown",
+                                    r.spec.name
+                                ))
+                            })?;
+                        mgrs.push(NewMgr::tds(
+                            &dir,
+                            seq,
+                            &r.spec.name,
+                            &cols,
+                            &h.data,
+                            &h.coord,
+                            &h.id,
+                            h.ndim,
+                            nrows,
+                            spec.big_endian,
+                        )?);
+                        blobs.push(Vec::new());
+                    }
+                    "IncrementalStMan" => {
+                        let size = if r.spec.bucket_size > 0 {
+                            r.spec.bucket_size
+                        } else if r.spec.ism_computed {
+                            0
+                        } else {
+                            32768
+                        };
+                        let (m, blob) = NewMgr::ism(
+                            &dir,
+                            seq,
+                            &r.spec.name,
+                            &cols,
+                            nrows,
+                            size,
+                            r.spec.cache,
+                            spec.big_endian,
+                        )?;
+                        mgrs.push(m);
+                        blobs.push(blob);
+                    }
+                    other => return err(crate::ms_write::unsupported_manager(other)),
+                }
+                managers.push((r.spec.kind.clone(), seq));
             }
-            "IncrementalStMan" => {
-                let size = if r.spec.bucket_size > 0 {
-                    r.spec.bucket_size
-                } else if r.spec.ism_computed {
-                    0
-                } else {
-                    32768
-                };
-                let (m, blob) = NewMgr::ism(
-                    &dir,
-                    seq,
-                    &r.spec.name,
-                    &cols,
-                    nrows,
-                    size,
-                    r.spec.cache,
-                    spec.big_endian,
-                )?;
-                mgrs.push(m);
-                blobs.push(blob);
-            }
-            other => return err(format!("data manager {other} is not created (E5)")),
-        }
-        managers.push((r.spec.kind.clone(), seq));
-    }
+            Ok((managers, blobs, mgrs, bindings))
+        })?;
     let dat = TableDat {
         nrows,
         little_endian: !spec.big_endian,
@@ -642,7 +672,7 @@ fn create(path: &Path, spec: &TableSpec, nrows: u64) -> Result<TableWriter> {
         // MultiFile) and block size when the table has a MultiFile.
         set_version: if spec.multifile { -3 } else { -2 },
         storage: if spec.multifile {
-            (0, crate::multifile::DEFAULT_BLOCK_SIZE as i32)
+            (0, block_size as i32)
         } else {
             (0, 0)
         },
@@ -834,12 +864,13 @@ mod tests {
     }
 
     #[test]
-    fn e6_managers_are_refused() {
-        for kind in ["TiledCellStMan", "Adios2StMan"] {
+    fn unsupported_managers_are_refused() {
+        for kind in ["Adios2StMan", "StManAipsIO"] {
             let e = check_manager_kind(kind).unwrap_err();
-            assert!(e.0.contains("E6"), "{e:?}");
+            assert!(e.0.contains("not supported"), "{e:?}");
         }
         check_manager_kind("IncrementalStMan").unwrap();
+        check_manager_kind("TiledCellStMan").unwrap();
     }
 
     #[test]

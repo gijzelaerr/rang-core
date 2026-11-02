@@ -110,12 +110,8 @@ pub(crate) fn ism_col(desc: &ColDesc, binding: &ColBinding) -> Result<IsmCol> {
             IsmKind::Values(n)
         }
     } else {
-        if dtype == DataType::Str {
-            return err(format!(
-                "{}: indirect string arrays in an IncrementalStMan are not written (E6)",
-                desc.name
-            ));
-        }
+        // Indirect arrays, string arrays included (`StIndArray` keeps a
+        // string array as uInt offsets of the strings in the array file).
         IsmKind::Indirect(fixed.clone())
     };
     Ok(IsmCol {
@@ -835,6 +831,8 @@ pub(crate) struct IsmW {
     data_changed: bool,
     arrays: Option<ArrayFile>,
     array_path: PathBuf,
+    /// The write log of a MultiFile table.
+    mf: Option<crate::multifile::MfLog>,
 }
 
 /// The header fields of an IncrementalStMan file.
@@ -1028,6 +1026,7 @@ impl IsmW {
             data_changed: false,
             arrays,
             array_path,
+            mf: crate::multifile::current(),
         })
     }
 
@@ -1102,6 +1101,7 @@ impl IsmW {
             data_changed: false,
             arrays: None,
             array_path: dir.join(format!("table.f{seq}i")),
+            mf: crate::multifile::current(),
         };
         s.recreate(false)?;
         s.add_rows(nrow)?;
@@ -1112,6 +1112,11 @@ impl IsmW {
     /// flushes an empty bucket 0), then each column's `doCreate` puts its
     /// undefined value at row 0 of bucket 0.
     fn recreate(&mut self, truncate: bool) -> Result<()> {
+        // `ISMBase::recreate`: the file made anew (`BucketFile`, New).
+        crate::multifile::emit(
+            &self.mf,
+            crate::multifile::Event::Create(crate::multifile::name_of(&self.path)),
+        );
         if truncate {
             self.arrays = None;
             self.file = OpenOptions::new()
@@ -1148,8 +1153,10 @@ impl IsmW {
                 IsmKind::Strings(n) => encode_strings(&vec![String::new(); *n], self.big),
                 IsmKind::Indirect(_) => {
                     if self.arrays.is_none() {
-                        self.arrays =
-                            Some(ArrayFile::open_ext(&self.array_path, self.big, 1, true)?);
+                        let (path, big) = (self.array_path.clone(), self.big);
+                        self.arrays = Some(crate::multifile::with_log(self.mf.as_ref(), || {
+                            ArrayFile::open_ext(&path, big, 1, true)
+                        })?);
                     }
                     vec![0u8; 8]
                 }
@@ -1197,6 +1204,7 @@ impl IsmW {
         }
         let at = self.bucket_offset(n);
         write_at(&mut self.file, at, &self.cache.buffer)?;
+        self.event_write(at, self.cache.buffer.len());
         self.cache.slots[slot].dirty = false;
         Ok(())
     }
@@ -1340,6 +1348,7 @@ impl IsmW {
         self.cache.buffer[..4].copy_from_slice(&self.cache.first_free.to_be_bytes());
         let at = self.bucket_offset(n);
         write_at(&mut self.file, at, &self.cache.buffer)?;
+        self.event_write(at, self.cache.buffer.len());
         self.cache.slots[a].dirty = false;
         self.cache.first_free = n as i32;
         self.cache.nfree += 1;
@@ -1720,7 +1729,11 @@ impl IsmW {
         }
         let dtype = self.cols[c].dtype;
         let arrays = self.arrays()?;
-        let offset = arrays.put_res(shape, dtype)?;
+        let offset = if dtype == DataType::Str {
+            arrays.put_res_strings(shape)?
+        } else {
+            arrays.put_res(shape, dtype)?
+        };
         let n = header_length(arrays.version, shape);
         let ind = &mut self.cols[c].ind;
         ind.shape = shape.to_vec();
@@ -1842,6 +1855,77 @@ impl IsmW {
         Ok(())
     }
 
+    /// Write `count` rows of an indirect string-array column (`strings` in
+    /// Fortran order, `shape` every cell's), as `put` does for numeric
+    /// indirect arrays; `cell` for `ArrayColumn::put` of one row.
+    pub(crate) fn put_string_cells(
+        &mut self,
+        c: usize,
+        start: u64,
+        count: u64,
+        shape: &[i64],
+        strings: &[String],
+        cell: bool,
+    ) -> Result<()> {
+        let col = self.cols[c].clone();
+        let IsmKind::Indirect(fixed) = &col.kind else {
+            return err(format!("{} is not an indirect string array", col.name));
+        };
+        if let Some(f) = fixed
+            && f.as_slice() != shape
+        {
+            return err(format!(
+                "{}: the column has the fixed shape {f:?}, not {shape:?}",
+                col.name
+            ));
+        }
+        let n = product(shape);
+        if strings.len() != n * count as usize {
+            return err("string count mismatches the rows and cell shape");
+        }
+        if cell && count == 1 {
+            // `ArrayColumn::put` (acbPut).
+            if !self.get_array_ptr(c, start)? {
+                self.ind_shape_for(c, start, shape)?;
+            } else {
+                self.ind_get_shape(c)?;
+                if self.cols[c].ind.shape != shape {
+                    self.ind_shape_for(c, start, shape)?;
+                }
+            }
+            return self.ind_put_strings(c, start, shape, strings);
+        }
+        if fixed.is_none() {
+            for i in 0..count {
+                self.ind_shape_for(c, start + i, shape)?;
+            }
+        }
+        for i in 0..count {
+            let cell = &strings[i as usize * n..(i as usize + 1) * n];
+            self.ind_put_strings(c, start + i, shape, cell)?;
+        }
+        Ok(())
+    }
+
+    /// `ISMIndColumn::putArrayV` of a string array: `putShape`, then the
+    /// strings (`StIndArray::putArrayString`).
+    fn ind_put_strings(
+        &mut self,
+        c: usize,
+        row: u64,
+        shape: &[i64],
+        strings: &[String],
+    ) -> Result<()> {
+        self.put_array_ptr(c, row, shape)?;
+        let at = self.cols[c].ind.offset + self.cols[c].ind.arr_offset;
+        self.arrays()?.put_strings(at, strings)
+    }
+
+    /// Whether column `c` is an indirect string array.
+    pub(crate) fn is_indirect_strings(&self, c: usize) -> bool {
+        matches!(self.cols[c].kind, IsmKind::Indirect(_)) && self.cols[c].dtype == DataType::Str
+    }
+
     /// Write strings: a scalar string column (one string per row) or a
     /// Direct string array (`per_row` strings per row).
     pub(crate) fn put_strings(&mut self, c: usize, start: u64, strings: &[String]) -> Result<()> {
@@ -1951,11 +2035,23 @@ impl IsmW {
             nfree: self.cache.nfree,
             first_free: self.cache.first_free,
         };
-        write_at(&mut self.file, 0, &h.serialise())?;
+        let head = h.serialise();
+        write_at(&mut self.file, 0, &head)?;
+        self.event_write(0, head.len());
         let mut w = Writer::new(self.big);
         self.index.write(&mut w);
         let at = self.bucket_offset(self.cache.new);
-        write_at(&mut self.file, at, &w.buf)
+        write_at(&mut self.file, at, &w.buf)?;
+        self.event_write(at, w.buf.len());
+        Ok(())
+    }
+
+    /// A MultiFile event: a write of `n` bytes at `at` of the file.
+    fn event_write(&self, at: u64, n: usize) {
+        crate::multifile::emit(
+            &self.mf,
+            crate::multifile::Event::Write(crate::multifile::name_of(&self.path), at, n as u64),
+        );
     }
 
     /// `ISMBase::flush`: the columns (the array file), the cache, then the
@@ -2013,8 +2109,11 @@ impl IsmW {
                 if !matches!(col.kind, IsmKind::Indirect(_)) {
                     continue;
                 }
+                // A string array's values are uInt offsets: element bits 0
+                // marks it (research/e6-table-writer-final.md, mask 1).
                 let bits = match col.dtype {
                     DataType::Bool => 1,
+                    DataType::Str => 0,
                     dt => 8 * dt.size() as u32,
                 };
                 for &o in &b.offs[c] {
@@ -2052,6 +2151,10 @@ impl IsmW {
                 }
                 let mut a = ArrayFile::open_ext(&self.array_path, self.big, 1, false)?;
                 let (shape, n) = a.get_shape(offset)?;
+                if col.dtype == DataType::Str {
+                    let strings = a.read_strings(offset + n, product(&shape))?;
+                    return Ok(Cell::Strings(shape, strings));
+                }
                 let values = a.read_values(offset + n, col.dtype, product(&shape))?;
                 Ok(Cell::Values(shape, values))
             }
