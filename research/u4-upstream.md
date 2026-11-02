@@ -16,7 +16,7 @@ Host: WSL2 Ubuntu, Python 3.12.15 (Tricolour 3.13), fresh uv venvs from public P
 | 1b | Tigger: `ModelHTML.load` uses `eval` on `mdlval` | 1.8.0 and `master` | [tigger-lsm#56](https://github.com/ratt-ru/tigger-lsm/issues/56) | public: no security policy found (below); checked with `1+1+1` only; suggests `ast.literal_eval` |
 | 2 | Crystalball: `import_from_wsclean` fails on SpectralIndex lists of different lengths | 0.4.3, NumPy 2.5.4; `master` 21213bcc same | [crystalball#83](https://github.com/caracal-pipeline/crystalball/issues/83) | equal lengths load |
 | 3a | pfb-imaging: `[full]` pairs xarray ≥ 2026.4 with zarr < 3 | 0.0.11: xarray 2026.9.0, zarr 2.18.7; real `pfb init` fails; passes with `xarray<2026.4` | [pfb-imaging#390](https://github.com/ratt-ru/pfb-imaging/issues/390) | `main` 4cbbf625 resolves the same pair |
-| 3b | pfb-imaging: `kclean` cannot load `libtbb.so.12` in a plain venv | 0.0.11, with a narrower cause (below) | **not filed** | `kclean` is removed on `main`; text and cause in [pfb-imaging-kclean-tbb.md](upstream-issues/pfb-imaging-kclean-tbb.md) |
+| 3b | pfb-imaging 0.0.x: `kclean` stops on the TBB threading layer | 0.0.11, with a narrower cause (below) | [pfb-imaging#391](https://github.com/ratt-ru/pfb-imaging/issues/391) | second round; states that `kclean` is gone on `main` and that the cause is `set_num_threads` before `set_envs` |
 | 4 | Tricolour: release note for the `uvrange` change in 0.5.0, with CARACal's `0~550` question | 0.2.1 and `367ff54` (head of `0.5.0-dev`): 700 m baseline 1700 against 0 channels | [tricolour#115](https://github.com/ratt-ru/tricolour/issues/115) | request, not a defect |
 | 5 | QuartiCal #455: L5-C's result | no rerun; archived L5-C numbers | [comment](https://github.com/ratt-ru/QuartiCal/issues/455#issuecomment-6577475036) | L5-C's text verbatim; no earlier comments on the issue |
 | 6 | killMS: `MergeSols.py` pickle in the working directory, `allow_pickle=True` | v3.3.0 = `master` 350f22c, DDFacet logger stubbed | [killMS#28](https://github.com/saopicc/killMS/issues/28) | public: no security policy found; harmless marker only; says that `driver()` overwrites the file just before reading |
@@ -24,8 +24,14 @@ Host: WSL2 Ubuntu, Python 3.12.15 (Tricolour 3.13), fresh uv venvs from public P
 | 7b | casacure: `getcol` on a ragged column returns the first row's shape | 3.8.36 | [casacure#25](https://github.com/tmolteno/casacure/issues/25), [PR #27](https://github.com/tmolteno/casacure/pull/27) | fix and regression test, gate below |
 | 7c | casacure: smaller notes (`getvarcol` numbering, `iscelldefined`, MemoryStMan, MultiFile, cp310 macOS wheel) | 3.8.36 | [casacure#26](https://github.com/tmolteno/casacure/issues/26) | left out: see below |
 | 8 | Tricolour PR #114 rebased onto `0.5.0-dev` | head c1000f1 on `367ff54` | [tricolour#114](https://github.com/ratt-ru/tricolour/pull/114) | mergeable, CI 4 of 4 pass, flags bit-identical on RV1's check |
+| 9 | Purr: `setup.py` declares `kittens` where Purr imports `Kittens` from astro-kittens | purr 1.5.3 | [purr#39](https://github.com/ratt-ru/purr/issues/39), [PR #40](https://github.com/ratt-ru/purr/pull/40) | second round; **corrects the first report**, see below |
+| 10 | casacure: casacore cannot read fixed-shape string columns casacure wrote | 3.8.36, python-casacore 3.8.1 | [casacure#28](https://github.com/tmolteno/casacure/issues/28) | second round; links #24 |
+| 11 | casacure: `putcell` refuses arrays for float, int64, short, complex, dcomplex columns; `putcol` works | 3.8.36 | [casacure#29](https://github.com/tmolteno/casacure/issues/29) | second round; broader than the variable-shape float case first noted |
+| 12 | Tigger: `ASCII.save` writes `np.float64(...)` for NumPy scalars, and the loader skips the source | 1.8.0, NumPy 2.5.4 | [tigger-lsm#57](https://github.com/ratt-ru/tigger-lsm/issues/57) | second round; links #55 |
 
-Nothing on the list failed to reproduce. 3b reproduces, but not with DF5-O's cause.
+Nothing on the list failed to reproduce. 3b reproduces, but not with DF5-O's cause. Rows 3b and 9
+to 12 are a second round: the first report listed them as not filed, and the coordinator relayed the
+owner's approval the same day.
 
 ## Duplicates and security policies
 
@@ -49,7 +55,16 @@ approved. Contributing rules: GitHub's community profile lists a file only for T
   `numba.set_num_threads` at line 77, one line before `set_envs`, whose `ctypes` load is what
   numba needs. In that order the error appears; swapped, it does not
   (`pfb_repro_tbb_order.py`). The real `pfb kclean` fails at line 77 and passes with
-  `LD_LIBRARY_PATH`. `main` removed `kclean`, so it was skipped as fixed.
+  `LD_LIBRARY_PATH`. `main` removed `kclean`, which the issue says plainly.
+- **The first U4 report on `kittens` was wrong about Linux.** It said a fresh astro-tigger-lsm does not
+  import because PyPI `kittens` overwrites `astro-kittens`. That was measured with the venv on `/mnt/d`,
+  NTFS through WSL, where `kittens/` and `Kittens/` are one directory. On a case-sensitive filesystem
+  (`/dev/shm`, and the image `rang-formats-oracle:20261030`, which holds both directories) `import Tigger`
+  works. What stands: `purr` declares the wrong name, so `purr` alone fails on `Kittens`, and on a
+  case-insensitive volume astro-tigger-lsm fails too (measured on NTFS; macOS not tested). So
+  `tools/formats-oracle` `sky.lock` and `qc.lock` are fine on Linux, and nothing needs changing there
+  for this reason. The earlier reading of `kittens` as a concern was not supported: it is an unrelated
+  package, installed only because of the name, and nothing suggests it is malicious.
 - **casacure fixed-shape strings.** T1 said Direct; FixedShape without Direct fails too. The cause
   is a layout difference: casacore stores no `[ndim][dims][flag]` header for these cells.
 - **casacure wheels.** macOS x86_64 is deliberately not built (README), so it is not reported.
@@ -107,70 +122,58 @@ rebase, so the second signature goes.
 
 Kept (ignored): `outputs/u4-20261102-01/logs` (220 KB: installs, freezes, repro logs, `timings.txt`),
 `outputs/u4-20261102-02` (98 MB, T3 arrays on the rebased head), `outputs/u4-20261102-03` (12 KB,
-comparison), `outputs/u4-20261102-check-all.log` (and `-check-all-1-no-scipy.log`). Deleted and checked absent:
-`D:\rang\scratch\u4` (all clones, venvs and tables). Stays: fork gijzelaerr/casacure and its branch.
+comparison), `outputs/u4-20261102-04/logs` (second round), `outputs/u4-20261102-check-all.log` (and `-check-all-1-no-scipy.log`). Deleted and checked absent:
+`D:\rang\scratch\u4` (all clones, venvs and tables). The two short `/dev/shm` venvs of the second round (the case-sensitive checks) are deleted too. Stay: forks gijzelaerr/casacure and gijzelaerr/purr and their branches.
 
 ## For the coordinator
 
-**New observations, not filed: not on the approved list.** Each needs the owner's say.
+**Second round (owner's approval relayed by the coordinator, 2026-11-02).** All five filed, rows 3b and 9
+to 12. Item 1 was filed in its corrected form: a dependency-name mistake in `ratt-ru/purr`, with the
+case-insensitive failure described as such, not "a fresh install fails on import". Please pass that
+correction to the owner, since the approval was given on the earlier wording.
 
-1. **Tigger does not import from a fresh install.** `uv pip install astro-tigger-lsm` (1.8.0)
-   pulls meqtrees-cattery 1.8.0 → purr 1.5.3 → PyPI `kittens` 0.1.2, an unrelated package ("sending
-   friendly images of kittens to a target") that installs a top-level `Kittens` over
-   astro-kittens 1.4.6. Here it won: `import Tigger` failed, first on `requests`, then on
-   `config.get("mogreet", ...)`. Its `__init__` reads `~/.kitten.conf` and `/etc/kitten.conf`, and it
-   has send code for api.mogreet.com. It failed on import here, sending nothing. Purr most likely
-   means astro-kittens. Reporting it to Purr looks worth it. The U4 venv removed `kittens` and
-   reinstalled `astro-kittens`, which #55's environment line reflects. `tools/formats-oracle`
-   locks both packages: **check `sky.lock` and `qc.lock`**, which pin `kittens==0.1.2`.
-2. **casacure writes fixed-shape string tables casacore cannot read.** python-casacore 3.8.1 raises
-   on both (`casacure-write2.log`). Related to #24, whose text says only that casacure's writer
-   stores the header.
-3. **casacure: `valuetype="float"` on a variable-shape column.**
-   `makearrcoldesc("V", 0.0, ndim=1, valuetype="float")` gives a column where `putcell` raises
-   `array cannot be stored in column V (valueType float)` for float32 and float64, and `getcol`
-   returns scalars. A double column works. Fixed-shape float columns are covered by casacure's own tests.
-4. **Tigger with NumPy 2 scalars.** `ASCII.save` writes `np.float64(20.0)` into the shape columns when
-   the model holds NumPy scalars. Other DF-IO notes (`.lsm.html` hash-seed order, `SyntaxWarning`s)
-   were not on the list and were not rechecked.
-
-**Not filed.** 3b, as above: the owner may still want it against 0.0.x; the text is ready. Per the
-brief: DF5-O items 3 and 4, Tricolour input-flag growth, DDFacet pins, the data-store notes.
+**Not filed.** Per the brief: DF5-O items 3 and 4, Tricolour input-flag growth, DDFacet pins, the
+data-store notes. Other DF-IO Tigger notes (`.lsm.html` hash-seed order, `SyntaxWarning`s) were not
+on either list.
 
 **Lines for `research/upstream-prs.md`** (a new section "After U4"):
 
 - Tricolour rows as lanes: tricolour#114 rebased onto `0.5.0-dev` by U4, head c1000f1: CI 4 of 4 pass, mergeable, flags bit-identical to `367ff54` on RV1's four controls, one `_get_flags_impl` signature.
 - casacure `getcol` on ragged columns: [casacure#25](https://github.com/tmolteno/casacure/issues/25), [PR #27](https://github.com/tmolteno/casacure/pull/27). Tests: new test fails before, passes after; `pytest tests/` 471 passed; cargo fmt, clippy, test pass.
+- Purr dependency name: [purr#39](https://github.com/ratt-ru/purr/issues/39), [PR #40](https://github.com/ratt-ru/purr/pull/40) (one line in `setup.py`: `astro-kittens`, `six`). Tests: `import Tigger` on NTFS fails before, works after; the repository has no test suite.
 
 **Lines for `research/upstream-notes.md`** (a new section "Upstream status after U4 (2026-11-02; `u4-upstream.md`)"):
 
-- Tigger 1.8.0: **filed** ratt-ru/tigger-lsm#55 (ASCII and BBS save) and #56 (`eval` in `ModelHTML.load`, public: no security policy).
+- Tigger 1.8.0: **filed** ratt-ru/tigger-lsm#55 (ASCII and BBS save), #56 (`eval` in `ModelHTML.load`, public: no security policy) and #57 (`np.float64(...)` from NumPy scalars).
+- Purr 1.5.3: **filed** ratt-ru/purr#39, **PR** #40 (declares `kittens`, imports `Kittens` from astro-kittens; on a case-insensitive filesystem this also breaks astro-tigger-lsm).
 - Crystalball 0.4.3: **filed** caracal-pipeline/crystalball#83.
-- pfb-imaging 0.0.11: **filed** ratt-ru/pfb-imaging#390 (`[full]` closure, also on `main`). `kclean`/TBB **not filed**: the cause is `set_num_threads` before `set_envs` in `core/kclean.py`, and `kclean` is gone on `main`; `upstream-issues/pfb-imaging-kclean-tbb.md`.
+- pfb-imaging 0.0.11: **filed** ratt-ru/pfb-imaging#390 (`[full]` closure, also on `main`) and #391 (`kclean`/TBB against 0.0.x: `set_num_threads` before `set_envs` in `core/kclean.py`; `kclean` is gone on `main`).
 - Tricolour: **filed** ratt-ru/tricolour#115 (`uvrange` release note); #114 rebased to c1000f1, mergeable, CI green.
 - QuartiCal #455: L5-C comment **posted**.
 - killMS 3.3.0: **filed** saopicc/killMS#28 (public: no security policy).
-- casacure 3.8.36: **filed** tmolteno/casacure#24, #25, #26; **PR** #27 (ragged `getcol` raises).
-- New, not filed: PyPI `kittens` shadows `astro-kittens` through purr, so a fresh Tigger does not import; casacore cannot read casacure's fixed-shape string tables; casacure refuses `putcell` on a variable-shape `valuetype="float"` column; Tigger `ASCII.save` writes `np.float64(...)`.
+- casacure 3.8.36: **filed** tmolteno/casacure#24, #25, #26, #28 (casacore cannot read its fixed-shape string columns), #29 (`putcell` refuses arrays for float, int64, short, complex, dcomplex); **PR** #27 (ragged `getcol` raises).
 
-**STATE paragraph:**
+**STATE paragraph (replaces the earlier text):**
 
 > U4, upstream findings filed (big plan), 2026-11-02 (implemented; measured;
-> [u4-upstream.md](u4-upstream.md)). Filed from the owner's list, each reproduced on the latest
-> release: tigger-lsm#55, #56; crystalball#83; pfb-imaging#390; tricolour#115; killMS#28; casacure#24,
-> #25, #26 with PR #27; the L5-C comment on QuartiCal#455. `eval` and pickle went in as public issues:
-> neither repository has a security policy. Not filed: pfb `kclean`/TBB, which reproduces on 0.0.11 but
-> is caused by the call order in `core/kclean.py` (DF5-O's plain-venv wording was too broad), and
-> `kclean` is gone on `main`. Tricolour #114 is rebased to c1000f1: mergeable, CI 4 of 4, flags
-> bit-identical to `367ff54` on RV1's four controls, one kernel signature. New and not filed, for the
-> owner: PyPI `kittens` shadows `astro-kittens` through purr, so a fresh Tigger does not import, and
-> casacore cannot read casacure's fixed-shape string tables.
+> [u4-upstream.md](u4-upstream.md)). Filed, each reproduced on the latest release: tigger-lsm#55, #56,
+> #57; crystalball#83; pfb-imaging#390, #391; tricolour#115; killMS#28; casacure#24, #25, #26, #28, #29
+> with PR #27; purr#39 with PR #40; the L5-C comment on QuartiCal#455. `eval` and pickle went in as public
+> issues: neither repository has a security policy. Tricolour #114 is rebased to c1000f1: mergeable, CI 4
+> of 4, flags bit-identical to `367ff54` on RV1's four controls, one kernel signature. Correction: `purr`
+> declares PyPI `kittens` instead of `astro-kittens`, but that breaks astro-tigger-lsm only on a
+> case-insensitive filesystem (measured on NTFS through WSL), not on ordinary Linux; `purr` alone fails
+> everywhere. DF5-O's `kclean` failure comes from the call order in `core/kclean.py`, not from a plain venv.
+
+**Replacement for the plan line "Decide the new upstream findings":** "New upstream findings decided and
+filed 2026-11-02 (U4 second round, `u4-upstream.md`): purr#39 with PR #40, casacure#28, #29,
+tigger-lsm#57, pfb-imaging#391."
 
 **Research-index line** (already added to `research/README.md`, section "Upstream reporting", so the
 index test passes):
 
-> - [U4, findings filed](u4-upstream.md): ten filings on Tigger, Crystalball, pfb-imaging, Tricolour, QuartiCal, killMS and casacure, a casacure PR, and tricolour#114 rebased and green.
+> - [U4, findings filed](u4-upstream.md): fifteen filings on Tigger, Crystalball, pfb-imaging, Tricolour, QuartiCal, killMS, casacure and Purr, two pull requests, and tricolour#114 rebased and green.
 
 **Tool-timings rows:** the table above.
 
-**To watch:** casacure#27, #24, #25, #26; tricolour#114 (now reviewable), #115; pfb-imaging#390; tigger-lsm#55, #56; crystalball#83; killMS#28. `research/big-plan.md`: "U4 done 2026-11-02 (`u4-upstream.md`)".
+**To watch:** casacure#27, #24, #25, #26, #28, #29; tricolour#114 (now reviewable), #115; pfb-imaging#390, #391; tigger-lsm#55, #56, #57; crystalball#83; killMS#28; purr#39, #40. `research/big-plan.md`: "U4 done 2026-11-02 (`u4-upstream.md`)".

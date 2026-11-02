@@ -1,9 +1,33 @@
-# pfb-imaging 0.0.11: kclean stops on the TBB threading layer in a plain venv
+# pfb-imaging 0.0.11: kclean stops on the TBB threading layer
 
-Repository: ratt-ru/pfb-imaging. Status: **not filed (U4, 2026-11-02): reproduced on 0.0.11, but
-`kclean` no longer exists on `main`** (4cbbf625; README: the legacy `init`, `grid`, `kclean`,
-`sara`, `fluxtractor` pipeline "was removed in 0.1.0"). Issues are skipped when already fixed,
-so this stays here for the owner's say.
+Repository: ratt-ru/pfb-imaging. Status: **filed 2026-11-02 (U4), https://github.com/ratt-ru/pfb-imaging/issues/391**. Held back at first because `kclean` is gone on
+`main`; filed against 0.0.x on the owner's approval, relayed by the coordinator, 2026-11-02. Rerun on
+0.0.11 the same day (`outputs/u4-20261102-04/logs/pfb-tbb-order.log`).
+
+<!-- issue-title: 0.0.x: kclean fails with "No threading layer could be loaded" because set_num_threads runs before set_envs -->
+<!-- issue-body -->
+This is against the 0.0.x line: `kclean` is gone on `main` (4cbbf625), so this only matters if another 0.0.x release is planned, and it can be closed otherwise.
+
+In pfb-imaging 0.0.11 (numba 0.68.1, tbb 2023.2.0, Python 3.12, fresh uv venv), `pfb kclean` stops with:
+
+```
+core/kclean.py:77   set_num_threads(nthreads)
+ValueError: No threading layer could be loaded.
+HINT: Intel TBB is required, try: $ conda/pip install tbb
+```
+
+The cause is the call order in `core/kclean.py`: `numba.set_num_threads` at line 77 runs before `set_envs` at line 78, and `set_envs` is what loads the wheel's `libtbb.so` with `ctypes`. Importing `pfb_imaging` has already set `NUMBA_THREADING_LAYER=tbb`, so numba needs the library at line 77.
+
+```python
+from pfb_imaging import set_envs
+from numba import set_num_threads
+
+set_num_threads(2)   # ValueError, as above
+set_envs(2, 2)
+```
+
+With the two calls swapped there is no error. Setting `LD_LIBRARY_PATH=<venv>/lib` also gets `pfb kclean` through, to exit 0 on a simulated field. Swapping lines 77 and 78 should be the whole fix; I tested that order in the script above, not in `kclean` itself.
+<!-- /issue-body -->
 
 Measured, correcting DF5-O's wording (a plain venv is not the cause by itself):
 

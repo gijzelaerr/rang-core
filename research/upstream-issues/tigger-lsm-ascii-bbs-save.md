@@ -3,10 +3,10 @@
 Repository: ratt-ru/tigger-lsm. Status: **filed 2026-11-02 (U4), https://github.com/ratt-ru/tigger-lsm/issues/55**. Found by DF-IO
 ([../dfio-formats.md](../dfio-formats.md)), reproduced by U4 on 1.8.0 with
 [../u4-upstream-files/tigger_repro.py](../u4-upstream-files/tigger_repro.py); `master`
-11131bec has the same lines. Environment detail for the record: on a fresh venv 1.8.0 does
-not import because PyPI `kittens` (through purr) overwrites `astro-kittens`; the run removed
-`kittens` and reinstalled `astro-kittens`. That is a separate candidate, not in this issue
-(see [../u4-upstream.md](../u4-upstream.md)).
+11131bec has the same lines. Environment detail for the record: the scratch venv was on NTFS through WSL, where PyPI
+`kittens` (through purr) overwrites `Kittens/`, so the run removed `kittens` and reinstalled
+`astro-kittens`. On a case-sensitive filesystem this does not arise; see
+[purr-kittens-dependency.md](purr-kittens-dependency.md).
 
 <!-- issue-title: ASCII.save and BBS.save: a multi-term spectral index is written as a list repr their loaders skip, and BBS shapes are written in radians -->
 <!-- issue-body -->

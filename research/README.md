@@ -247,7 +247,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 ## Upstream reporting
 
 - [Upstream notes](upstream-notes.md): the status of each observation.
-- [U4, findings filed](u4-upstream.md): ten filings on Tigger, Crystalball, pfb-imaging, Tricolour, QuartiCal, killMS and casacure, a casacure PR, and tricolour#114 rebased and green.
+- [U4, findings filed](u4-upstream.md): fifteen filings on Tigger, Crystalball, pfb-imaging, Tricolour, QuartiCal, killMS, casacure and Purr, two pull requests, and tricolour#114 rebased and green.
 - [U3, saopicc upstream](upstream-saopicc.md): six issues and four pull requests on DDFacet and killMS; Hogbom diverges with more than one facet.
 - [U2, upstream fixes](upstream-prs.md): three issues and four pull requests (tricolour#112 merged, caracal#1708 approved, tricolour#114 and stimela#620 open).
 - [U1, upstream issues](upstream-issues/) on RATT software (QuartiCal #452, #453; Tricolour #110, #111) and the [non-RATT list](non-ratt-observations.md).
