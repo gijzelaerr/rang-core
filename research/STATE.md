@@ -17,6 +17,26 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+gmclean, 2026-11-02 (implemented; accuracy measured; **all times provisional**,
+shared host; [gmclean.md](gmclean.md), branch `gmclean`):
+
+- **Implemented.** A reference CLEAN whose minor step takes the exact image-domain
+  value at the pixel it cleans: the binary `gmclean` (MS in, WSClean-oriented FITS
+  out), SIMD kernels, a real-input FFT resync, a kept gridder plan
+  (`wgridder::Prepared`), 4 Lean lemmas.
+- **Measured.** A long minor cycle fits the phase-centre beam's off-centre error as
+  false components; a misfit fraction and the gap do not see it. Benchmark `961e162`
+  to `0d804e4` were wrong on S1 (1,000,000 components, 20.3 Jy false flux). Fixed:
+  cycles now end at the pointwise error the last major cycle measured. S1, S2, S3: 5,
+  5, 4 major cycles, false flux 4.3, 4.9, 1.6 mJy; WSClean's Högbom loop 6, 6, 5 and
+  5.4, 6.7, 1.7 mJy.
+- **Negative.** "1-3 major cycles" is not reachable at low false flux here. The gridder
+  is about 60 % of the time. Explicit SIMD helps only the minor loop, invisible in a whole run. Slice
+  central flux still −12.4 %. The rule's ρ and g were chosen on the same skies.
+- **Next.** Re-test the timing decisions in gmclean.md §5.4 on an idle host, re-run
+  the benchmark at the current commit (its `-mgain 0.8` now means WSClean's peak
+  fraction, so drop it to get the default).
+
 gmclean benchmark, 2026-11-02 (implemented; accuracy measured; speed PROVISIONAL;
 [gmclean-benchmark.md](gmclean-benchmark.md), branch `gmclean-bench`):
 

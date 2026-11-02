@@ -12,7 +12,8 @@ the CLEAN convergence core of [research/clean-theory.md](../research/clean-theor
 | `RangFormal/Separation.lean` | Proposition 4' of `clean-theory.md`: the ℓ1 Neumann-series bound, the off-support column bound for sources at least `d` apart, the exact recovery coefficient below one, invertibility of `B_SS`, and the argmax staying on the support. |
 | `RangFormal/Clark.lean` | Theorem 6 of `clean-theory.md`: the descent condition `r_p / r̃_p > γ/2` for a step taken on a working residual, the truncation-error bound `f Σ|c_k|`, and the provable minor-cycle rule end to end. |
 | `RangFormal/MajorCycle.lean` | Major cycles as inexact Newton ([research/clean-major-cycles.md](../research/clean-major-cycles.md)): the exact misfit change of a batch, the Gram-gap identity for any beam and pick order, per-cycle descent, the running gap bound and the provable per-cycle rule, the forcing term of a greedy cycle, the outer linear rate over major cycles, and Theorem 6 with a per-component bound. |
-| `RangFormal/Audit.lean` | `#print axioms` for every theorem; all 46 rest on `propext`, `Classical.choice` and `Quot.sound` only. |
+| `RangFormal/Gmclean.lean` | The arithmetic of a gmclean minor step ([research/gmclean.md](../research/gmclean.md)): the exact value from the working value through the ignored beam, a step with the exact value is a CLEAN step at any proposed pixel, and the recorded certificate `|r_p| ≥ τ (M + e)` makes the pick `τ`-weak greedy. |
+| `RangFormal/Audit.lean` | `#print axioms` for every theorem; all 50 rest on `propext`, `Classical.choice` and `Quot.sound` only. |
 
 ## Building
 

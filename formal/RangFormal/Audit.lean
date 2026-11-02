@@ -9,6 +9,7 @@ import RangFormal.Stagewise
 import RangFormal.Separation
 import RangFormal.Clark
 import RangFormal.MajorCycle
+import RangFormal.Gmclean
 
 /-! Axiom audit: every theorem of `RangFormal` should rest on the three
 standard axioms only (`propext`, `Classical.choice`, `Quot.sound`); `lake build`
@@ -60,3 +61,7 @@ prints the list. -/
 #print axioms Clean.major_linear_rate_of_gap
 #print axioms Clean.truncation_error_le_pixel
 #print axioms Clean.clark_minor_cycle_descends_pixel
+#print axioms Clean.exact_value_identity
+#print axioms Clean.exact_value_step
+#print axioms Clean.certificate_bound
+#print axioms Clean.weak_greedy_of_certificate
