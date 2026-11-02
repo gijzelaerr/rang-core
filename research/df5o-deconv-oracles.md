@@ -15,9 +15,9 @@ both tools at matched iterations").
 field is simulated through the core (MS by the core writer, prediction by
 the exact degridder, DFT check 1.2e-11) and hashed; both tools read it
 bit-identically and their dirty images agree with the core's to 1.7e-7
-(WSClean) and 2.6e-7 (pfb) of the peak. WSClean Högbom, WSClean multiscale
-and pfb kclean/Clark meet the truth tolerances A1/A2 (multiscale fails A1 on
-2–3 faint points next to its large-scale flux); pfb sara at the release's
+(WSClean) and 2.6e-7 (pfb) of the peak. WSClean Högbom and pfb kclean/Clark meet
+the truth tolerances A1 and A2; WSClean multiscale meets A2 and fails A1 on
+p16, p23 and p26 (29–85σ_ap, beside its large-scale flux); pfb sara at the release's
 recipe settings has not converged in 10 major cycles (residual RMS 30σ).
 DF5's acceptance bounds are in section 6.5. Deviations D1–D6 (section 7);
 DDFacet was not run (open item). WSClean Högbom and pfb kclean/Clark are
@@ -429,7 +429,7 @@ pfb wall and RSS include `init` and `grid`.
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | `ws-hogbom` | 0.99588 | 1.6055 µJy (1.130) | 3.16 | 0.0014 | 0.017630 | 3.514e-3 | −3.9e-6 | 6.6e-6 | pass | pass | 0.221 / −0.161 | 7 | 5,119 | 675 / 789 | 282 |
 | `pfb-clark` | 0.99583 | 1.5663 µJy (1.102) | 2.94 | 0.0014 | 0.017628 | 3.512e-3 | −5.9e-6 | 5.7e-6 | pass | pass | 0.260 / −0.210 | 5 | – | 262 / 246 | 3,419 |
-| `pfb-kclean` | identical to `pfb-clark` (≤ 2e-22 Jy) | | | | | | | | pass | pass | | 5 | – | 257 / 327 | 3,423 |
+| `pfb-kclean` | equal to `pfb-clark` in every listed measure (cubes differ by ≤ 3.6e-12 Jy/pixel) | | | | | | | | pass | pass | | 5 | – | 257 / 327 | 3,423 |
 | `ws-multiscale` | 0.99966 | 1.4463 µJy (1.018) | 3.42 | 0.0014 | 0.017635 | 3.519e-3 | +0.9e-6 | 7.7e-6 | **fail** (p16, p23, p26; r2: p23, p26) | pass | 2.861 / −3.335 | 7 | 40,819 | 1,199 / 1,437 | 915 |
 | `ws-multiscale-mask` (reported) | 1.00115 | 1.2192 µJy (0.858) | 4.19 | 0.0014 | 0.017639 | 3.523e-3 | +5.4e-6 | 1.2e-5 | pass | pass | 3.318 / −3.085 | 7 | 84,749 | 2,452 / 2,182 | 918 |
 | `pfb-sara` (reported) | 1.03052 | 42.52 µJy (29.9) | 693 | 0.0014 | 0.04800 | 3.43e-2 | 3.09e-2 | 0.032 | **fail** (30 sources) | **fail** (6) | 0 / 0 | 10 | – | 5,151 / 4,549 | 5,479 |
@@ -461,8 +461,8 @@ tolerances single out:
   0.087, 0.054, 0.166.
 - The tool residuals agree with the core-recomputed ones to 1.9e-9 Jy
   (0.0014σ_img) on every arm: the float32 FITS, nothing else. pfb's flux mop
-  ran (`Extracting flux at iter 5`) but changed nothing: the post-mop model
-  and residual equal the pre-mop ones, so kclean and Clark coincide here.
+  ran (`Extracting flux at iter 5`) but moved no pixel by more than 3.6e-12 Jy
+  (kclean's model cube against Clark's, repeat 1), so the two coincide here.
 - WSClean's source list (practice arm, `-fit-spectral-pol 4`): 4,953
   components (4,048 Gaussians), ordinary polynomial spectra, read by
   `rang.formats.sky.load_wsclean`; its flux per channel equals the model
@@ -567,6 +567,36 @@ For DF5 on this field with the protocol's settings (section 4):
 | `compare_df5o.py floor` (16 channels × 200 CG, sweep 100/200/400) | field.npz | 3,986 s | 740 MB | 4 | 175–185 s per channel |
 | `compare_df5o.py measure` (each of 12 runs) | FITS + field.npz | 19–30 s | 735 MB | 4 | |
 
+### Reproduce
+
+From the worktree, with `OPENBLAS_NUM_THREADS=1 RAYON_NUM_THREADS=4`, one job
+at a time (`B=outputs/df5o-20261031-01`, `C=outputs/df5o-20261102-02`,
+`F=$B/field`; `.venv/bin/python`):
+
+```bash
+bash tools/oracles/pfb-imaging/build.sh rang-pfb-imaging:0.0.11 outputs/df5o-20261031-00/pfb-image.json
+python examples/simulate_df5_field.py $F
+python examples/oracle_wsclean_clean.py msread-check $F $B/precondition/p1-ocasa.json
+python examples/oracle_wsclean_clean.py msread-check $F $B/precondition/p1-pfb.json --image rang-pfb-imaging:0.0.11
+python examples/oracle_wsclean_clean.py run $F $B/wsclean dirty --repeat 1
+for rep in 1 2; do for arm in ws-hogbom ws-multiscale ws-multiscale-mask; do
+  python examples/oracle_wsclean_clean.py run $F $B/wsclean $arm --repeat $rep; done; done
+python examples/oracle_pfb.py run $F $B/pfb grid --repeat 1
+for rep in 1 2; do python examples/oracle_pfb.py run $F $B/pfb pfb-sara --repeat $rep
+  for arm in pfb-kclean pfb-clark; do       # in $C because of D4
+    python examples/oracle_pfb.py run $F $C/pfb $arm --repeat $rep; done; done
+python examples/compare_df5o.py floor $F $B/floor.json --iterations 200 --sweep-channel 8
+python examples/compare_df5o.py p2 $F $B $B/precondition/p2.json
+for d in $B/wsclean/ws-*-r[12] $B/pfb/pfb-sara-r[12] $C/pfb/pfb-*-r[12]; do
+  python examples/compare_df5o.py measure $F $d $B/measures/$(basename $d).json \
+    --floor $B/floor.json --p2 $B/precondition/p2.json; done
+python examples/compare_df5o.py archive $F $B research/results/df5o-deconv-oracles.json
+```
+
+The pfb `.xds` and `.dds` stores and numba caches were deleted from the run
+directories after the measures (they are per-run copies of the data); the FITS
+the measures read are kept.
+
 ## 10. For the coordinator
 
 ### Shared-file lines (verbatim)
@@ -596,8 +626,8 @@ For DF5 on this field with the protocol's settings (section 4):
   > large-scale flux outside the sources and faint points beside it 9–16 %
   > high; pfb sara at its recipe settings unconverged in 10 cycles (30σ).
   > DF5 Högbom must reach ≤ 1.598 µJy, multiscale ≤ 1.475 µJy. pfb's flux mop
-  > changed nothing here; four tool defects found (pfb closure, tbb path,
-  > WSClean read/write and source-list rules). DDFacet open.
+  > moved nothing here; two pfb packaging defects (closure, tbb path) and two
+  > WSClean rules (read/write MS, source list) recorded. DDFacet open.
   > `outputs/df5o-20261031-01`, `outputs/df5o-20261102-02`,
   > `research/results/df5o-deconv-oracles.json`.
 
@@ -615,8 +645,26 @@ For DF5 on this field with the protocol's settings (section 4):
   > multiscale); reducible fraction ≤ 3.58e-3 / 3.59e-3; the per-cycle Gram
   > gap recorded by DF5's driver; DDFacet HMP on the field open;
 
-- `research/tool-timings.md`: the rows of section 9, dated 2026-10-31 to
-  2026-11-02, task DF5-O.
+- `research/tool-timings.md`, rows:
+
+  ```
+  | 2026-10-31 | big plan DF5-O: `docker build` pfb-imaging 0.0.11 image (first; rebuilt for the xarray bound) | lock | 116 s; 76 s | – | 2.45 GB, `sha256:226e8e81…` |
+  | 2026-10-31 | big plan DF5-O: `simulate_df5_field.py` | 241,920 rows × 16 channels | 21.7 s | 857 MB | 4 threads; MS write 1.2 s, predict 4.9 s |
+  | 2026-10-31 | big plan DF5-O: WSClean 3.7 `-niter 0`, 16 channels | field.ms | 137 s | 122 MB | `-j 4`, `-no-reorder` |
+  | 2026-10-31 | big plan DF5-O: WSClean 3.7 Högbom (two runs) | field.ms | 675 s; 789 s | 282 MB | 7 major, 5,119 minor; bit-identical |
+  | 2026-10-31 | big plan DF5-O: WSClean 3.7 multiscale (two runs) | field.ms | 1,199 s; 1,437 s | 915 MB | 7 major, 40,819 minor |
+  | 2026-10-31 | big plan DF5-O: WSClean 3.7 multiscale, auto-mask, fit-spectral-pol 4 (two runs) | field.ms | 2,452 s; 2,182 s | 918 MB | 7 major, 84,749 minor |
+  | 2026-10-31 | big plan DF5-O: WSClean 3.7 arms, failed first launches (`-save-source-list`; read-only MS) | field.ms | ≤ 1 s; 147 s | 282 MB | deviations D1, D2 |
+  | 2026-10-31 | big plan DF5-O: pfb 0.0.11 `init` (each arm) | field.ms | 41–68 s | 544 MB | 4 threads; first attempt failed on xarray/zarr (42 s, D3) |
+  | 2026-10-31 | big plan DF5-O: pfb 0.0.11 `grid` (each arm) | xds | 43–76 s | 1,120 MB | 4 threads |
+  | 2026-10-31 | big plan DF5-O: pfb 0.0.11 `sara` (two runs) | dds | 5,020 s; 4,463 s | 5,479 MB | 10 major, not converged |
+  | 2026-10-31 | big plan DF5-O: pfb 0.0.11 `kclean`, failed on the tbb path (four runs) | dds | 10–14 s | 523 MB | deviation D4 |
+  | 2026-11-02 | big plan DF5-O: pfb 0.0.11 `kclean` with mop (two runs) | dds | 140 s; 154 s | 3,423 MB | 5 major |
+  | 2026-11-02 | big plan DF5-O: pfb 0.0.11 `kclean --no-mop-flux` (two runs) | dds | 111 s; 94 s | 3,419 MB | 5 major; bit-identical |
+  | 2026-10-31 | big plan DF5-O: `compare_df5o.py floor` | 16 channels × 200 CG, sweep | 3,986 s | 740 MB | 175–185 s per channel |
+  | 2026-11-02 | big plan DF5-O: `compare_df5o.py p2`; `measure` (12 runs) | FITS, field.npz | 20.1 s; 19–30 s each | 1,295 MB; 735 MB | 4 threads |
+  | 2026-11-02 | big plan DF5-O: `bash tools/check-all.sh` | repo | see log | – | PASS: root 23, core 129 Rust tests; pytest 693 passed, 15 skipped (527 s); log `outputs/df5o-20261102-check-all.log` |
+  ```
 
 - `research/upstream-notes.md` (pfb-imaging is RATT; list for filing):
   1. pfb-imaging 0.0.11: the `[full]` closure resolves to xarray ≥ 2026.4,
@@ -629,10 +677,10 @@ For DF5 on this field with the protocol's settings (section 4):
      cannot find `libtbb.so.12` in a plain venv (`<venv>/lib` is not on the
      loader path): `kclean` stops with "No threading layer could be loaded".
      Proposed: preload `libtbb.so.12`, or fall back to `omp`.
-  3. pfb-imaging 0.0.11: `kclean`'s flux mop writes its products only to
-     `*_postmop{k}_*_mfs.fits` and `MODEL_BEST`; on this field it changed
-     nothing (post-mop model equal to pre-mop). Observation, not an issue
-     yet.
+  3. pfb-imaging 0.0.11: `kclean`'s flux mop moved no pixel by more than
+     3.6e-12 Jy on this field (model cube with and without it, thresholds
+     reached in 5 cycles). Observation, not an issue yet: whether the mop
+     does anything at the threshold stop deserves a look.
   4. pfb-imaging 0.0.11 ships `deconv/hogbom.py` but no command uses it
      (`kclean` is Clark); a Högbom minor cycle on the CLI would give a Högbom
      oracle. Feature request.
@@ -659,3 +707,6 @@ No `rang-core` stage is added; `core_cli.py` and `docs/cli.md` are unchanged.
 | `outputs/df5o-20261031-01` | 4.7 GB | field (MS, truth, npz: 697 MB), WSClean arms (FITS), pfb sara and grid (FITS; xds/dds stores removed), the failed first kclean attempts (logs only), floor, preconditions, measures |
 | `outputs/df5o-20261102-02` | 2.1 GB | pfb kclean/Clark arms (FITS; stores removed) |
 | `outputs/df5o-20261102-check-all.log` | small | check-all log |
+
+Images kept on the host for DF5 reruns: `rang-pfb-imaging:0.0.11` (2.45 GB,
+`sha256:226e8e81…`); the superseded first build was removed.
