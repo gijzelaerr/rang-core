@@ -1218,4 +1218,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | gmclean `-beam-no-w` | S1-S3, w6, w12, l20, lw, each with the default | 11-76 s per job | – | flock; load 4-12 |
 | 2026-11-02 | `gmclean_bench_compare.py score` | six jobs, last-pass comparison | a few minutes in all | – | flock; not separately timed |
 | 2026-11-02 | `cargo test --release`, fat LTO gmclean build | core; one bin | 117-155 s; 130-150 s | – | flock; lock queueing excluded |
-| 2026-11-02 | ,  on  | core, extension, ruff; 705 passed, 45 skipped | 99, 97 s | fail: 53 files reformatted, 518 files left unchanged on one example not touched here | flock |
+| 2026-11-02 | `tools/check-all.sh`, then `pytest` alone, `gmclean-opt2` | core, extension, ruff; 705 passed, 45 skipped | 99, 97 s | fail: `ruff format` on one example not touched here | flock; the first pytest lacked dependencies |
