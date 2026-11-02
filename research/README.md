@@ -61,6 +61,7 @@ CLI receipts are `rang.receipt` version 2 from then on (key
 
 Closed 2026-10-30 as null: a gain-TV-guided threshold policy on the fixture and both LUNO calibrators. A flagger trained on gain TV (self-supervised, aiming to be faster with fewer tunable parameters) was not tested; it is the next experiment.
 
+- [F1, a flagger trained on gain TV (proposed)](f1-tv-flagger.md): frozen protocol for Landman's self-supervised flagger, judged on speed and tunable parameters at comparable quality, with a no-training go/no-go first; nothing trained.
 - [L4, the flagging verdict](flagging-verdict.md): 90 calls, none better or worse, not cheaper than the CARACal first pass; what would reopen it, and the move to B1.
 - [C1, the closure-invariant arm](c1-closure-arm.md): a gauge-free closure statistic sees real GNSS-band structure but no flag improves on the first pass; the last pre-registered arm before the verdict.
 - [L5-C, CASA gaincal comparator](l5c-casa-gaincal.md): CASA G on L5's intervals is within the held-out margin of the core on the slice (+7.6e-5) and outside it on the fixture (+1.2e-4), and slow in the same intervals (the slice's tail is in the data), at 75–350× the cost.
