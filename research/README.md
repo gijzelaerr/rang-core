@@ -13,6 +13,12 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-11-02: [how many major cycles does CLEAN need?](clean-major-cycles.md)
+Theory in Lean (the Gram-gap identity, per-cycle descent, the outer rate). In
+simulations through the exact gridder, passes fall from 4-7 (WSClean's scheme) to
+2-3 with a double-size PSF run to the threshold, and to 1 without the w-term; the
+certified rules cost more passes, not fewer. Timings are provisional.
+
 New, 2026-10-31: W4, the [final review](w4-review.md): no archived result
 is affected, and the kernels are bit-identical across thread counts. There
 are 17 findings: 1 high, the solver options missing from receipts; 8

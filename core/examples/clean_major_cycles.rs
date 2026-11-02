@@ -19,7 +19,9 @@
 //! seed is fixed. Schemes: WSClean's (image-size PSF, mgain 0.8) and the
 //! variants of `rang_core::clean_major`. Optional environment variables:
 //! `CLEAN_MAJOR_CG` (CG iterations for `Q_∞`, default 20), `CLEAN_MAJOR_WIDE=0`
-//! to skip the 1024² field.
+//! to skip the 1024² field. `CLEAN_MAJOR_TIMING=1` instead runs only the FFT
+//! crossover and four schemes on one crowded sky, for a thread-count
+//! comparison under `RAYON_NUM_THREADS` (writes `timing-<threads>.json`).
 
 use rang_core::clean::Psf;
 use rang_core::clean_certified::{
@@ -695,11 +697,106 @@ fn run_scheme(
     Outcome { json, row }
 }
 
+/// The batch size at which one FFT pair beats direct subtraction, and four
+/// schemes on the crowded sky, at the current rayon thread count.
+fn timing(outdir: &str) {
+    let threads = rayon::current_num_threads();
+    let mut sizes = Vec::new();
+    for (side, cell_arcsec) in [(512usize, 2.0f64), (1024, 4.0)] {
+        let cell = cell_arcsec / 3600.0 * PI / 180.0;
+        let uvw = track(-30.0);
+        let wgt = weights(&uvw, side, cell, false);
+        let op = operator(&uvw, &wgt, side, cell, true);
+        let mut rng = Rng(5);
+        let comps: Vec<(usize, f64)> = (0..64)
+            .map(|_| (rng.below(side * side), rng.uniform() - 0.5))
+            .collect();
+        let mut image = vec![0.0; side * side];
+        let t = Instant::now();
+        for &(p, c) in &comps {
+            rang_core::clean::subtract(&mut image, &op.double, p, c, None);
+        }
+        let direct = t.elapsed().as_secs_f64() / comps.len() as f64;
+        let t = Instant::now();
+        let mut peak = 0.0;
+        for _ in 0..comps.len() {
+            peak += rang_core::clean::argmax_abs(&image).1;
+        }
+        let argmax = t.elapsed().as_secs_f64() / comps.len() as f64;
+        let t = Instant::now();
+        for _ in 0..8 {
+            peak += op.fft.apply(&comps)[0];
+        }
+        let fft = t.elapsed().as_secs_f64() / 8.0;
+        println!(
+            "{side}: threads {threads}, direct {:.3} ms, argmax {:.3} ms per component; FFT pair {:.2} ms; crossover K {:.0} ({:.0} with argmax) [{peak:.1e}]",
+            direct * 1e3,
+            argmax * 1e3,
+            fft * 1e3,
+            fft / direct,
+            fft / (direct + argmax)
+        );
+        sizes.push(obj(&[
+            ("side", side.to_string()),
+            ("direct_subtract_seconds", num(direct)),
+            ("argmax_seconds", num(argmax)),
+            ("fft_pair_seconds", num(fft)),
+            ("crossover_components", num(fft / direct)),
+            ("crossover_with_argmax", num(fft / (direct + argmax))),
+        ]));
+    }
+    let side = 512;
+    let cell = 2.0 / 3600.0 * PI / 180.0;
+    let uvw = track(-30.0);
+    let wgt = weights(&uvw, side, cell, false);
+    let mut op = operator(&uvw, &wgt, side, cell, true);
+    let sky = sky("crowded", side, 1002);
+    let mut noise_rng = Rng(79);
+    let noise: Vec<Complex<f64>> = (0..wgt.len())
+        .map(|_| Complex::new(noise_rng.normal(), noise_rng.normal()))
+        .collect();
+    let image = op.m.image(&noise).unwrap();
+    let rms = (image.iter().map(|x| x * x).sum::<f64>() / image.len() as f64).sqrt();
+    let clean = op.m.predict(&sky.truth).unwrap();
+    op.m.vis = clean
+        .iter()
+        .zip(&noise)
+        .map(|(c, e)| c + e * (NOISE_RMS / rms))
+        .collect();
+    let mut runs = Vec::new();
+    for scheme in schemes() {
+        if !matches!(
+            scheme.name,
+            "wsclean" | "double-mgain" | "double-threshold" | "fft-threshold-margin"
+        ) {
+            continue;
+        }
+        let outcome = run_scheme(&scheme, &op, &op.m, &sky.truth, None, "crowded");
+        println!("{}", outcome.row);
+        runs.push(outcome.json);
+    }
+    let json = obj(&[
+        ("threads", threads.to_string()),
+        ("sizes", arr(&sizes)),
+        ("runs", arr(&runs)),
+    ]);
+    std::fs::write(
+        Path::new(outdir).join(format!("timing-{threads}.json")),
+        json + "
+",
+    )
+    .unwrap();
+}
+
 fn main() {
     let outdir = std::env::args()
         .nth(1)
         .unwrap_or_else(|| "outputs/clean-major-cycles".to_string());
     std::fs::create_dir_all(&outdir).expect("output directory");
+    if std::env::var("CLEAN_MAJOR_TIMING").is_ok() {
+        timing(&outdir);
+        return;
+    }
     let wall = Instant::now();
     let cg_iterations: usize = std::env::var("CLEAN_MAJOR_CG")
         .ok()
@@ -875,6 +972,10 @@ fn main() {
     }
     let json = obj(&[
         ("date", text("2026-11-02")),
+        (
+            "timing_status",
+            text("PROVISIONAL unless the host was idle: wall times only, no CPU time or load"),
+        ),
         ("frequency_hz", num(FREQUENCY)),
         (
             "track",

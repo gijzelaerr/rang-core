@@ -1189,3 +1189,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan W4: `cargo test --release --features gpu` | core | 327.3 s | – | 135 passed (6 more than the check runs) |
 | 2026-10-31 | big plan W4: `cargo install --locked cargo-audit` (0.22.2) | crates.io | 213.7 s | – | |
 | 2026-10-31 | big plan W4: `cargo audit` core / `core/py` / root lock | worktree | 7.2 s / 2.2 s / 0.9 s | – | no advisory among 1,395 |
+| 2026-11-02 | clean-major-cycles: `cargo test --release` new tests, first build | Windows worktree | 4 min 24 s, then 4 min 47 s | – | 5 new tests; contended host |
+| 2026-11-02 | clean-major-cycles: `cargo build --release --example clean_major_cycles` | Windows worktree | 4 min 50 s; 1 min 29 s after the timing-mode edit | – | contended host |
+| 2026-11-02 | clean-major-cycles: `lake build`, first in the worktree, one error | Windows, competing with the smoke run | 14 min 6 s | – | rebuilds all RangFormal files |
+| 2026-11-02 | clean-major-cycles: `lake build` after the fix | Windows worktree | 1 min 47 s | – | 46 theorems on the standard axioms |
+| 2026-11-02 | clean-major-cycles: `cargo test --release` full | Windows worktree | 5 min 3 s | – | 134 passed |
+| 2026-11-02 | clean-major-cycles: smoke run of the example, 512² only, stopped by hand | Windows, competing with Lean | not timed; killed near the end | – | 112 table rows; earlier schemes, cap 60 |
+| 2026-11-02 | clean-major-cycles: `clean_major_cycles` final run | `de303bf`, 16 threads | 1,314.2 s, PROVISIONAL | – | 158 runs; contended host, CPU time not recorded; over the 15 min asked for |
+| 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 1 rayon thread | Windows | 95.8 s, PROVISIONAL | – | crossover and 4 schemes on one sky |
+| 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 16 threads | Windows | 37.5 s, PROVISIONAL | – | the same |

@@ -11,7 +11,8 @@ the CLEAN convergence core of [research/clean-theory.md](../research/clean-theor
 | `RangFormal/Stagewise.lean` | CLEAN as forward stagewise regression ([research/clean-implicit-objective.md](../research/clean-implicit-objective.md)): the exact misfit after any move, ℓ1 steepest descent (`Q(m + d) ≥ Q(m) − max|r| ‖d‖₁`), the signed stagewise step and its misfit change `−ε|r_p| + ε²/2`, optimality of the argmax pick among all single-coordinate steps of the same size, a CLEAN step as a stagewise step of length `|γ||r_p|`, ℓ1 norm bounded by arc length, monotonicity of the ℓ∞ subdifferential, and uniqueness in data space of right-differentiable small-gain limit curves (`flow_residual_unique`). |
 | `RangFormal/Separation.lean` | Proposition 4' of `clean-theory.md`: the ℓ1 Neumann-series bound, the off-support column bound for sources at least `d` apart, the exact recovery coefficient below one, invertibility of `B_SS`, and the argmax staying on the support. |
 | `RangFormal/Clark.lean` | Theorem 6 of `clean-theory.md`: the descent condition `r_p / r̃_p > γ/2` for a step taken on a working residual, the truncation-error bound `f Σ|c_k|`, and the provable minor-cycle rule end to end. |
-| `RangFormal/Audit.lean` | `#print axioms` for every theorem; all 34 rest on `propext`, `Classical.choice` and `Quot.sound` only. |
+| `RangFormal/MajorCycle.lean` | Major cycles as inexact Newton ([research/clean-major-cycles.md](../research/clean-major-cycles.md)): the exact misfit change of a batch, the Gram-gap identity for any beam and pick order, per-cycle descent, the running gap bound and the provable per-cycle rule, the forcing term of a greedy cycle, the outer linear rate over major cycles, and Theorem 6 with a per-component bound. |
+| `RangFormal/Audit.lean` | `#print axioms` for every theorem; all 46 rest on `propext`, `Classical.choice` and `Quot.sound` only. |
 
 ## Building
 
