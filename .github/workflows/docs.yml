@@ -9,7 +9,9 @@
 # `rang-core -h`, and builds the site with Sphinx, failing on any warning.
 # Every push and pull request uploads the site as the `github-pages`
 # artifact; pushes to main deploy it to GitHub Pages
-# (https://gijzelaerr.github.io/rang-core/; Pages source "GitHub Actions").
+# (https://pythonic.nl/rang-core/; Pages source "GitHub Actions"). The build job
+# is the gate: on a repository without Pages (a fork, say), the deploy job warns
+# and succeeds without deploying (research/w4-8-readme-docs.md).
 name: docs
 
 on:
@@ -102,6 +104,30 @@ jobs:
       group: pages
       cancel-in-progress: false
     steps:
-      - uses: actions/configure-pages@v6
-      - id: deployment
+      - name: Check that GitHub Pages is enabled
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages")
+          case "$status" in
+            200)
+              echo 'enabled=true' >> "$GITHUB_OUTPUT"
+              ;;
+            404)
+              echo "::warning::GitHub Pages is not enabled for this repository: enable it under Settings > Pages > Source: GitHub Actions, or run: gh api -X POST repos/$GITHUB_REPOSITORY/pages -f build_type=workflow"
+              echo 'enabled=false' >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::GET /repos/$GITHUB_REPOSITORY/pages returned $status"
+              exit 1
+              ;;
+          esac
+      - if: steps.pages.outputs.enabled == 'true'
+        uses: actions/configure-pages@v6
+      - if: steps.pages.outputs.enabled == 'true'
+        id: deployment
         uses: actions/deploy-pages@v5
