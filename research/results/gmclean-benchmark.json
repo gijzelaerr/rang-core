@@ -1,5 +1,5 @@
 {
- "code_commit": "62670bf15092c4af7078bca7d685d92b8007405b",
+ "code_commit": "488f43ad332fc493f72defcf623151f8efb94556",
  "datasets": {
   "s1": {
    "catalogue": {
@@ -7881,6 +7881,253 @@
     "weighting": "briggs 0.5, padded weight grid 616"
    }
   }
+ },
+ "gmclean_0d804e4_s1": {
+  "beam_arcsec": 10.761531523459142,
+  "briggs_noise": 2.3192519764466785e-05,
+  "jobs": {
+   "s1-abs-nominres-fast-j16": {
+    "between_1_and_2_beams_flux": 0.0039774807992216665,
+    "busy_processes": [
+     "== before 2026-11-02T14:31:31+02:00 WSL",
+     "== before Windows",
+     "586 MsMpEng",
+     "68 dllhost#2",
+     "279 rustc",
+     "332 vmmemWSL",
+     "== after 2026-11-02T14:33:25+02:00 WSL",
+     " 293554 gijsm     20   0 2041096   1.1g  81516 S 100.0   3.4   0:42.68 /home/gijsm/.rustup/toolchains/1.93-x86_64-unknown-linux-gnu/bin/rustc --crate-name rang_core --edition=2024 /home/gijsm/Worktr+",
+     " 292275 gijsm     20   0   10.0g   1.2g 255664 S  67.3   3.8   1:59.75 /home/gijsm/Worktrees/rang/w4-6-encoding/.venv/bin/python -m pytest -q",
+     "== after Windows",
+     "221 MsMpEng",
+     "52 dllhost#2",
+     "99 rustc",
+     "63 rustc#3",
+     "405 vmmemWSL"
+    ],
+    "command": "/home/gijsm/Worktrees/rang/gmclean-build/core/target/release/gmclean -name /home/gijsm/Worktrees/rang/gmclean-bench/outputs/gmclean-bench-20261102/gmclean-0d804e4/s1-abs-nominres-fast-j16 -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 -mgain 0.8 -nmiter 1000 -abs-threshold 0.0001 -data-column DATA -field 0 -j 16  /home/gijsm/Worktrees/rang/gmclean-bench/outputs/gmclean-bench-20261102/gmclean-0d804e4/ms/s1.ms",
+    "dynamic_range": 10255.48870893046,
+    "exact_residual_inner_peak_abs": 0.0010711212715626371,
+    "exact_residual_inner_rms": 9.355267814941198e-05,
+    "exact_vs_imager_residual_inner_linf": 2.3638229648648926e-07,
+    "false_flux_abs": 20.25715848524578,
+    "false_flux_negative": -10.11525292825263,
+    "false_flux_positive": 10.141905556993152,
+    "false_pixels": 191870,
+    "loadavg1_samples_max": 16.35,
+    "loadavg_before_after": [
+     [
+      "12.47",
+      "9.32",
+      "9.72"
+     ],
+     [
+      "17.12",
+      "12.37",
+      "10.81"
+     ]
+    ],
+    "log": {
+     "auto_threshold_lines": [],
+     "components": null,
+     "diverged": false,
+     "last_logged_iteration": null,
+     "major_iterations": null
+    },
+    "model_fits_sha256": "7298486f8ea53bff869f27c4e1d50ea3fd3d4f7bcf7baf03a15ac96b6dc078f5",
+    "model_flux_negative": -11.363905680324933,
+    "model_flux_total": 10.977193109024483,
+    "model_pixels": 194920,
+    "name": "s1-abs-nominres-fast-j16",
+    "q": 0.007221684655471495,
+    "q_over_q0": 0.0027338463955196204,
+    "q_over_q_truth": 1.2444379879871341,
+    "recovery_all": {
+     "flux_weighted": 0.9988934715609179,
+     "mean": 0.9979982237027852,
+     "n": 50,
+     "std": 0.006105980842534568
+    },
+    "recovery_by_decade": {
+     "0.01-0.1 Jy": {
+      "mean": 0.9971724776950361,
+      "min": 0.9835505640217521,
+      "n": 23,
+      "std": 0.008333487035846479
+     },
+     "0.1-1 Jy": {
+      "mean": 0.9987016369686458,
+      "min": 0.9908934770148081,
+      "n": 27,
+      "std": 0.0029678956605621474
+     }
+    },
+    "report": {
+     "argv": [
+      "-name",
+      "/home/gijsm/Worktrees/rang/gmclean-bench/outputs/gmclean-bench-20261102/gmclean-0d804e4/s1-abs-nominres-fast-j16",
+      "-size",
+      "2048",
+      "2048",
+      "-scale",
+      "1.5asec",
+      "-weight",
+      "briggs",
+      "0.5",
+      "-niter",
+      "1000000",
+      "-gain",
+      "0.1",
+      "-mgain",
+      "0.8",
+      "-nmiter",
+      "1000",
+      "-abs-threshold",
+      "0.0001",
+      "-data-column",
+      "DATA",
+      "-field",
+      "0",
+      "-j",
+      "16",
+      "/home/gijsm/Worktrees/rang/gmclean-bench/outputs/gmclean-bench-20261102/gmclean-0d804e4/ms/s1.ms"
+     ],
+     "beam": {
+      "bmaj_deg": 0.00277708789313684,
+      "bmin_deg": 0.0022203902321670157,
+      "bpa_deg": -10.856099473990175,
+      "f_outside_patch": 0.00908334377634474,
+      "main_lobe_pixels": 29,
+      "peak": 0.9999999240055375
+     },
+     "channels": 8,
+     "data_column": "DATA",
+     "field": 0,
+     "floor": null,
+     "gridder_single": false,
+     "ms": "/home/gijsm/Worktrees/rang/gmclean-bench/outputs/gmclean-bench-20261102/gmclean-0d804e4/ms/s1.ms",
+     "peak_memory_bytes": 2920726528,
+     "phase_dir_rad": [
+      3.4085993268032633,
+      -0.5235987755982988
+     ],
+     "rows_gridded": 1814400,
+     "rows_total": 1814400,
+     "run": {
+      "ascending_major_cycles": 0,
+      "audit_max_error": null,
+      "components": 1000000,
+      "correction_seconds_per_step": 8.553171573000247e-06,
+      "correction_terms": 539185386,
+      "f_outside_patch": 0.00908334377634474,
+      "major_cycles": 2,
+      "max_abs_gap_relative": 0.010900881236676263,
+      "model_flux": 10.977193084036184,
+      "model_pixels": 194920,
+      "patch": 64,
+      "q0": 2.6415839116774884,
+      "q_final": 0.007221685719535634,
+      "q_final_over_q0": 0.0027338467983588064,
+      "q_floor": null,
+      "reducible_final": null,
+      "residual_mad_sigma": 7.881371172124159e-05,
+      "residual_peak_abs": 0.0010713437527024798,
+      "resyncs": {
+       "drift": 0,
+       "every": 0,
+       "tau": 918,
+       "threshold": 0,
+       "total": 918
+      },
+      "seconds": {
+       "correction": 8.553171573000247,
+       "initial_dirty": 2.290739699,
+       "major": 8.576924929,
+       "minor": 31.05636131399997,
+       "resync": 58.114148095000026,
+       "total": 100.182605992
+      },
+      "simd": "avx512",
+      "stop": "Components",
+      "tau": {
+       "mean": 0.6950973082039261,
+       "median": 0.6689629057838038,
+       "min": 0.5000027873631419,
+       "p01": 0.5041459805973185,
+       "p10": 0.5284023291017577
+      },
+      "work": {
+       "full_scans": 920,
+       "pixels_rescanned": 18956869632,
+       "pixels_subtracted": 16049627047,
+       "tile_rescans": 4628142
+      }
+     },
+     "scale_arcsec": 1.5,
+     "seconds": {
+      "beam_fft": 0.216830616,
+      "clean": 100.182605992,
+      "psf_2n": 4.89726918,
+      "read": 2.414165056,
+      "restore": 0.625411516,
+      "wall": 110.654505739,
+      "weights": 0.477130233,
+      "write": 0.46521284499999993
+     },
+     "settings": {
+      "audit": false,
+      "auto_threshold": null,
+      "drift": 0.1,
+      "gain": 0.1,
+      "mgain": 0.8,
+      "niter": 1000000,
+      "nmiter": 1000,
+      "patch": 64,
+      "resync_every": 2000,
+      "tau_min": 0.5,
+      "theta": 0.5,
+      "threshold": 0.0001
+     },
+     "simd_detected": "avx512",
+     "size": 2048,
+     "threads": 16,
+     "tool": "gmclean",
+     "version": "0.1.0",
+     "visibilities_weighted": 14515200,
+     "weight_grid_padded": 2460,
+     "weight_sum": 2659151193.4416146,
+     "wgridder_accuracy": 1e-06,
+     "wgridding": true
+    },
+    "residual_fits_sha256": "12d2a0aa77c163bf98b64cf9c31a18ee6fba681ec9540a86d2c7ef757360d2df",
+    "residual_inner_peak_abs": 0.0010713437804952264,
+    "residual_inner_rms": 9.355274160842284e-05,
+    "residual_inner_rms_over_noise": 4.033746335391932,
+    "residual_rms": 9.353218830933104e-05,
+    "restored_peak": 0.9594290852546692,
+    "restoring_beam_arcsec": [
+     9.997516415292623,
+     7.993404835801258
+    ],
+    "score_seconds": 16.070629005998853,
+    "time": {
+     "cpu_percent": 661.0,
+     "cpu_s": 733.12,
+     "exit_status": 0.0,
+     "max_rss_kb": 2852272.0,
+     "system_s": 79.08,
+     "user_s": 654.04,
+     "wall_s": 110.78
+    },
+    "total_flux_error": 0.0185040083948369,
+    "true_flux_total": 10.958689100629647
+   }
+  },
+  "prep": "/home/gijsm/Worktrees/rang/gmclean-bench/outputs/gmclean-bench-20261102/prep/s1",
+  "q0": 2.641583911702864,
+  "q_truth": 0.005803169563436823,
+  "run": "/home/gijsm/Worktrees/rang/gmclean-bench/outputs/gmclean-bench-20261102/gmclean-0d804e4",
+  "timing_status": "PROVISIONAL (contended): shared host, not for speed comparisons"
  },
  "gmclean_commit": "d94850e",
  "gmclean_mgain_0p1_s1": {

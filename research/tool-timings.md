@@ -1201,3 +1201,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | gmclean-bench gmclean matrix, 8 jobs -j 16 / 8 jobs -j 1 | `d94850e` | 1,043 / 2,571 s | 2.48 GB | PROVISIONAL; not a speed comparison |
 | 2026-11-02 | gmclean-bench gmclean S1 abs `-tau-min 0.9` / `-mgain 0.1` | `d94850e`, -j 16 | 601 / 479 s | 2.5 GB | PROVISIONAL |
 | 2026-11-02 | gmclean-bench scoring | per simulated model, 4 threads | about 20 s | 2.6 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench gmclean rebuild and S1 abs -j 16 at `0d804e4` | 1,000,000 components (limit) | 177 / 111 s | 2.85 GB | PROVISIONAL |

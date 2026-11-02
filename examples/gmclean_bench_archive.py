@@ -84,6 +84,7 @@ def main(argv=None):
         "thread_dependence": root / "scores" / "thread-dependence.json",
         "gmclean_tau_min_0p9_s1": root / "scores" / "gmclean-tau09-s1.json",
         "gmclean_mgain_0p1_s1": root / "scores" / "gmclean-mgain01-s1.json",
+        "gmclean_0d804e4_s1": root / "scores" / "gmclean-0d804e4-s1.json",
     }
     for key, path in extras.items():
         if path.exists():

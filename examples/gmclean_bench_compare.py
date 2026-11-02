@@ -637,7 +637,9 @@ def tables(args):
             )
         print(
             "Wall and CPU times are PROVISIONAL (contended host) unless "
-            "this table says it comes from the quiet-window rerun.\n"
+            "this table says it comes from the quiet-window rerun. DR is restored "
+            "peak over residual rms at each imager's own restoring beam: compare "
+            "beams before comparing DR.\n"
         )
         print(
             "| job | wall s | CPU s | RSS GB | majors | comps | inner rms | inner peak "

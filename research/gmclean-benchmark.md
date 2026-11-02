@@ -190,7 +190,7 @@ reports no total. Full tables: `gmclean_bench_compare.py tables` on
 | S3 WSClean auto nominres fast | 67 | 340 | 0.76 | 6 | 34,676 | 29.54 | 409 | 2.6945e-2 | 1.0150 | −25.8 | 0.9964 | 0 | 0 | 3,642 |
 | S3 gmclean auto | 169 | 793 | 2.48 | 10 | 72,631 | 24.50 | 72 | 2.6726e-2 | 1.0067 | −7.2 | 0.9985 | 3,427 | 39.3 | 9,607 |
 
-The Briggs image noise of the noise alone is 23.19 µJy; the remaining `auto` jobs
+Dynamic range is not tabulated here and is not comparable between imagers as `tables` prints it: gmclean restores with 10.0″ × 8.0″, WSClean with 13.9″ × 8.3″. The Briggs image noise of the noise alone is 23.19 µJy; the remaining `auto` jobs
 of WSClean are in the archive. RSS does not depend on load.
 
 ### 4.2 Flux per decade and the disc
@@ -275,6 +275,19 @@ note's `exact-mgain` (Q/Q0 4.66e-4) had 14.897 Jy there. That is Theorem 5's
 non-uniqueness again: descent is certified, the model is not. The slice is the
 worst case for an image-size PSF and says nothing about MeerKAT at large.
 
+### 4.5 A later gmclean commit, one job (measured; report to the gmclean work)
+
+`origin/gmclean` moved during this work. The same S1 `abs` `-j 16` command at
+`0d804e4` ("run minor cycles to the threshold by default"), `-mgain 0.8` still passed,
+**did not reach the threshold**: it stopped on the 1,000,000-component limit after 2
+major cycles, with Q/Q_truth 1.2444 (1.0115 at `d94850e`), inner residual rms 93.6 µJy
+and peak 1.07 mJy, 191,870 false pixels holding 20.3 Jy of absolute flux, and flux
+recovery 0.9989. The first cycle has 137 components and a gap of
+-5.2e-05 of Q; 0 major cycles ascend. The cause was not investigated, and this is
+one job at a moving branch tip. Everything else in this note is `d94850e`; none of its
+gmclean numbers should be taken to describe `0d804e4` or later. Scores:
+`gmclean_0d804e4_s1` in the archive.
+
 ## 5. Thread dependence (measured; model and residual FITS, `-j 1` against `-j 16`)
 
 | group | jobs | model L∞ | residual L∞ |
@@ -322,8 +335,8 @@ Estimated from the contended numbers: about 1.1 h per repeat, 3.3 h in all;
 `BENCH_TIMING_DATASETS=s1` cuts it to about 1.5 h. Report Docker start-up for WSClean,
 which runs in a container, as gmclean does not. Use the gmclean commit that will be
 cited, and rerun its accuracy jobs too: `origin/gmclean` had already moved from
-`d94850e` to `49e1258` (a real-input FFT resync, an f32 gridder option) when this
-note was written.
+`d94850e` to `0d804e4` when this note was written (§4.5), and the matrix there must
+go to a new RUN_DIR, because the run script skips any job with a timing file.
 
 ## 8. Timings of this work (PROVISIONAL)
 
@@ -357,8 +370,9 @@ The full WSClean matrix is 24 jobs per dataset; this run did not do all of it (�
 - WSClean's plain loop on the simulations ran at `-j 16` on `nominres` only (6 jobs)
   and at `-j 1` on S1 `abs` `nominres` only (924 s, PROVISIONAL). The other 12 jobs at
   `-j 16` and 17 at `-j 1` were not run: about 6 h of the host lock, which the gmclean
-  work also needs, for little: the fast-loop grids agree in Q to 0.01 %. The run script skips
+  work also needs, for little: the fast-loop grids agree in Q to about 0.1 %. The run script skips
   finished jobs, so `bash examples/gmclean_bench_run.sh wsclean
   outputs/gmclean-bench-20261102/wsclean s1 s2 s3` completes the 24 jobs per dataset.
 - The quiet-window timing (§7). No speed result exists.
-- gmclean tuning is running elsewhere; these results describe `d94850e` only.
+- The gmclean matrix at the current tip of `gmclean`. gmclean work is continuing elsewhere;
+  these results describe `d94850e` only, except §4.5.

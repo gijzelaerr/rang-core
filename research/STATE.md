@@ -15,6 +15,8 @@ gmclean benchmark, 2026-11-02 (implemented; accuracy measured; speed PROVISIONAL
 - **Slice.** WSClean diverges at `abs`, `-padding 2` included, and cleans nothing at
   `auto`. gmclean converges (Q/Q0 4.7e-4), with central flux −12 % at `abs`, −0.9 % at
   `auto`.
+- **Later commit.** The same S1 job at `0d804e4` stops on the 1,000,000-component
+  limit with Q/Q_truth 1.244 (§4.5 of the note); cause not investigated.
 - **Speed.** Every time is contended: no speed ratio is final. The rerun subset is in
   §7 of the note (`examples/gmclean_bench_timing.sh`).
 
