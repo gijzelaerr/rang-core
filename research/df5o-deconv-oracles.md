@@ -21,7 +21,7 @@ p16, p23 and p26 (29–85σ_ap, beside its large-scale flux); pfb sara at the re
 recipe settings has not converged in 10 major cycles (residual RMS 30σ).
 DF5's acceptance bounds are in section 6.5. Deviations D1–D6 (section 7);
 DDFacet was not run (open item). WSClean Högbom and pfb kclean/Clark are
-bit-reproducible run to run; the multiscale arms and sara are not (residual
+bit-reproducible run to run (kclean to 8e-22 Jy); the multiscale arms and sara are not (residual
 RMS spread ≤ 0.34 %).
 
 **Status at freeze: proposed.** Nothing below is implemented or measured,
