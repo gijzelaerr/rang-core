@@ -35,10 +35,10 @@
 //!    grid) when the minor cycle has removed a fraction `φ` of the misfit, or
 //!    at the end, and record the realised Gram gap (exact `ΔQ` minus the
 //!    image-domain prediction): what the image-domain model cannot know, the
-//!    w-term and the gridder's accuracy. When `|gap| > (1 − θ) |predicted|`
-//!    the fraction is halved (an inexact-Newton forcing rule); otherwise the
-//!    distance `1 − φ` shrinks by the ratio of the gap to that allowance, so
-//!    a cycle whose prediction held lets the next one run to the threshold.
+//!    w-term and the gridder's accuracy. [`CycleStop`] chooses when a minor
+//!    cycle hands back; a long cycle against the phase-centre beam fits the
+//!    beam's error at the source positions as false components (§5 of the
+//!    note), so the default stops on the exact peak, as WSClean's `-mgain`.
 //!
 //! "Exact" therefore means exact for the image-domain beam at the phase
 //! centre; the per-step certificate is not a statement about the
@@ -747,14 +747,35 @@ impl Since {
 // ---------------------------------------------------------------------------
 // The driver.
 
+/// When a minor cycle hands back to the major cycle. Every rule takes the
+/// first step of a cycle, and the threshold ends a cycle under all of them.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum CycleStop {
+    /// WSClean's `-mgain`: end the cycle once the exact peak falls below
+    /// `(1 − g)` times the cycle's first peak.
+    PeakFraction(f64),
+    /// End the cycle once a fraction `φ` of the reducible misfit has been
+    /// predicted removed, with the forcing rule on `φ`. Not WSClean's `-mgain`.
+    MisfitFraction,
+    /// The measured ℓ∞ rule. A major cycle measures the largest difference
+    /// between the image-domain prediction and the exact residual per unit of
+    /// flux cleaned, `δ = ‖r − r̃‖_∞ / Σ|c|`. Later cycles end once the exact
+    /// peak falls to `ρ δ Σ|c|`, where the prediction can no longer be told
+    /// from the peak. The first cycle, before any measurement, uses
+    /// `PeakFraction(g)`.
+    MeasuredStale { rho: f64, g: f64 },
+    /// No hand-back: the minor cycle runs to the threshold.
+    Threshold,
+}
+
 /// Settings of a gmclean run.
 #[derive(Clone, Copy, Debug)]
 pub struct Settings {
     /// The loop gain `γ` (`0 < γ < 2`).
     pub gain: f64,
-    /// The initial fraction `φ` of the reducible misfit a minor cycle removes
-    /// before a major cycle (WSClean's `-mgain` in spirit; here a misfit
-    /// fraction, not a peak ratio).
+    /// When a minor cycle hands back to the major cycle.
+    pub cycle_stop: CycleStop,
+    /// The initial fraction `φ` of [`CycleStop::MisfitFraction`].
     pub major_fraction: f64,
     /// Absolute threshold on the exact peak (Jy/beam).
     pub threshold: f64,
@@ -789,6 +810,7 @@ impl Default for Settings {
     fn default() -> Settings {
         Settings {
             gain: 0.1,
+            cycle_stop: CycleStop::PeakFraction(0.8),
             major_fraction: 1.0,
             threshold: 0.0,
             auto_threshold: None,
@@ -813,6 +835,8 @@ pub enum MinorStop {
     Threshold,
     /// The fraction `φ` of the reducible misfit was removed.
     MajorFraction,
+    /// The peak fell to the peak fraction or the measured stale level.
+    PeakRule,
     /// The component budget is spent.
     Budget,
 }
@@ -879,6 +903,13 @@ pub struct Cycle {
     pub gap_relative: f64,
     /// The exact misfit rose over the cycle.
     pub ascending: bool,
+    /// `Σ |c_j|` of the cycle.
+    pub abs_flux: f64,
+    /// `‖r_exact − r̃‖_∞` at the end of the cycle: what the image-domain model
+    /// got wrong anywhere in the map.
+    pub stale_linf: f64,
+    /// The level at which the cycle's stale rule would stop, when it has one.
+    pub stale_per_flux_used: f64,
     pub tau_min: f64,
     pub timings: Timings,
 }
@@ -1013,6 +1044,9 @@ impl Outcome {
                     ("gap", num(c.gap)),
                     ("gap_relative", num(c.gap_relative)),
                     ("ascending", c.ascending.to_string()),
+                    ("abs_flux", num(c.abs_flux)),
+                    ("stale_linf", num(c.stale_linf)),
+                    ("stale_per_flux_used", num(c.stale_per_flux_used)),
                     ("tau_min", num(c.tau_min)),
                     ("reducible_after", opt(reducible(c.q_after))),
                     ("seconds", timings_json(&c.timings)),
@@ -1174,6 +1208,7 @@ pub fn run<M: Measurement>(
     let dirty = residual.clone();
     let mut q = q0;
     let mut fraction = s.major_fraction;
+    let mut stale_per_flux = 0.0_f64;
     let mut steps: Vec<CleanStep> = Vec::new();
     let mut taus = Vec::new();
     let mut cycles: Vec<Cycle> = Vec::new();
@@ -1203,7 +1238,10 @@ pub fn run<M: Measurement>(
         let mut predicted = 0.0;
         let mut resyncs = Resyncs::default();
         let mut tau_min = f64::INFINITY;
+        let mut abs_flux = 0.0_f64;
         let goal = fraction * (q - q_floor.unwrap_or(0.0)).max(0.0);
+        let first_peak = peak.abs();
+        let stale_used = stale_per_flux;
         let taken_before = steps.len();
         let minor_start = Instant::now();
         let minor_stop = loop {
@@ -1271,7 +1309,25 @@ pub fn run<M: Measurement>(
             if steps.len() >= s.max_components {
                 break MinorStop::Budget;
             }
+            // The ℓ∞ rules read the exact value, and take a cycle's first step.
+            if steps.len() > taken_before {
+                let stop_here = match s.cycle_stop {
+                    CycleStop::PeakFraction(g) => r.abs() < (1.0 - g) * first_peak,
+                    CycleStop::MeasuredStale { rho, g } => {
+                        if cycles.is_empty() {
+                            r.abs() < (1.0 - g) * first_peak
+                        } else {
+                            r.abs() <= rho * stale_used * abs_flux
+                        }
+                    }
+                    CycleStop::MisfitFraction | CycleStop::Threshold => false,
+                };
+                if stop_here {
+                    break MinorStop::PeakRule;
+                }
+            }
             let c = s.gain * r / beam.peak;
+            abs_flux += c.abs();
             model[p] += c;
             predicted -= decrease * r * r / beam.peak;
             work.subtract_patch(beam, p, c);
@@ -1282,7 +1338,7 @@ pub fn run<M: Measurement>(
             steps.push(CleanStep { pixel: p, peak: r });
             taus.push(tau);
             tau_min = tau_min.min(tau);
-            if goal > 0.0 && -predicted >= goal {
+            if s.cycle_stop == CycleStop::MisfitFraction && goal > 0.0 && -predicted >= goal {
                 break MinorStop::MajorFraction;
             }
             let drifted = (r - rt).abs() > s.drift * rt.abs();
@@ -1305,11 +1361,34 @@ pub fn run<M: Measurement>(
                 }
             }
         };
+        // The prediction at the end of the cycle, exact for the image-domain
+        // beam, to measure what the major cycle corrects.
+        if since.steps > 0 {
+            let tr = Instant::now();
+            resync(
+                &mut work,
+                &mut since,
+                beam,
+                &model,
+                &model_major,
+                &residual,
+                &mut resync_buffers,
+            );
+            ct.resync += tr.elapsed().as_secs_f64();
+        }
         ct.minor = minor_start.elapsed().as_secs_f64() - ct.resync;
         work_all.add(&work.work);
         let tm = Instant::now();
         let (next, q_next) = measurement.residual(&model)?;
         ct.major = tm.elapsed().as_secs_f64();
+        let stale_linf = next
+            .par_iter()
+            .zip(work.r.par_iter())
+            .map(|(a, b)| (a - b).abs())
+            .reduce(|| 0.0, f64::max);
+        if abs_flux > 0.0 {
+            stale_per_flux = stale_linf / abs_flux;
+        }
         let dq_exact = q_next - q;
         let gap = dq_exact - predicted;
         cycles.push(Cycle {
@@ -1327,6 +1406,9 @@ pub fn run<M: Measurement>(
             gap,
             gap_relative: gap / q,
             ascending: dq_exact > 0.0,
+            abs_flux,
+            stale_linf,
+            stale_per_flux_used: stale_used,
             tau_min,
             timings: ct,
         });
@@ -1339,15 +1421,15 @@ pub fn run<M: Measurement>(
         resyncs_all.every += resyncs.every;
         resyncs_all.threshold += resyncs.threshold;
         if predicted < 0.0 {
-            // The forcing rule: the realised gap against the allowance
-            // `(1 − θ) |predicted|`. Over it, halve the fraction; under it,
-            // shrink the distance `1 − φ` by the same ratio, so a cycle whose
-            // prediction held goes on to the threshold.
-            let ratio = gap.abs() / ((1.0 - s.theta) * predicted.abs());
-            if ratio > 1.0 {
+            // The forcing rule: halve φ when the realised gap exceeds the
+            // allowance `(1 − θ) |predicted|`, otherwise return towards the
+            // initial value. The gap is a misfit: it does not see a small
+            // pointwise error, so φ must not grow past its initial value
+            // (research/gmclean.md, §5).
+            if gap.abs() > (1.0 - s.theta) * predicted.abs() {
                 fraction *= 0.5;
             } else {
-                fraction = 1.0 - (1.0 - fraction) * ratio.max(1e-6);
+                fraction = (fraction * 2.0).min(s.major_fraction);
             }
         }
         residual = next;
@@ -1796,6 +1878,99 @@ mod tests {
         }
     }
 
+    /// The regression test of the long minor cycle (found on the benchmark's
+    /// S1 at `0d804e4`): the phase-centre beam is not the Gram matrix off
+    /// centre when the w-term matters, a cycle run down to the threshold fits
+    /// that error with false components, and the misfit gap does not show it.
+    /// The default hands back on the exact peak, stays close to the many-cycle
+    /// reference and spends no cycle's budget.
+    #[test]
+    fn long_minor_cycles_do_not_fit_the_beam_error() {
+        use crate::clean_certified::WgridMeasurement;
+        use crate::wgridder::Options;
+        let mut rng = Rng(2026);
+        let (n, cell) = (128usize, 3.0e-4);
+        let nvis = 8000;
+        let mut uvw = Vec::with_capacity(3 * nvis);
+        for _ in 0..nvis {
+            uvw.push((rng.next() - 0.5) * 6000.0);
+            uvw.push((rng.next() - 0.5) * 6000.0);
+            uvw.push((rng.next() - 0.5) * 6000.0);
+        }
+        let opts = Options {
+            flip_v: true,
+            flip_w: true,
+            ..Options::default()
+        };
+        let freq = vec![299_792_458.0];
+        let wgt = vec![1.0; nvis];
+        let empty = vec![Complex::new(0.0, 0.0); nvis];
+        let mut truth = vec![0.0; n * n];
+        let sources = [
+            (14usize, 20usize, 1.0),
+            (110, 30, 0.7),
+            (25, 105, 0.5),
+            (100, 100, 0.3),
+            (64, 20, 0.2),
+        ];
+        for &(i, j, f) in &sources {
+            truth[i * n + j] = f;
+        }
+        let mut m = WgridMeasurement::new(uvw, freq, empty, wgt, n, cell, 1e-9, opts).unwrap();
+        m.vis = m.predict(&truth).unwrap();
+        for v in &mut m.vis {
+            v.re += 0.02 * (rng.next() - 0.5);
+            v.im += 0.02 * (rng.next() - 0.5);
+        }
+        let beam = Beam::from_double(n, &m.psf_image(2 * n).unwrap(), 16).unwrap();
+        let false_flux = |o: &Outcome| {
+            let mut total = 0.0;
+            for (p, &c) in o.model.iter().enumerate() {
+                let (i, j) = ((p / n) as i64, (p % n) as i64);
+                let near = sources
+                    .iter()
+                    .any(|&(a, b, _)| (i - a as i64).abs() <= 2 && (j - b as i64).abs() <= 2);
+                if !near {
+                    total += c.abs();
+                }
+            }
+            total
+        };
+        let settings = Settings {
+            threshold: 2e-3,
+            max_components: 40_000,
+            max_major: 400,
+            ..Settings::default()
+        };
+        let run_with = |cycle_stop: CycleStop| {
+            run(
+                &m,
+                &beam,
+                &Settings {
+                    cycle_stop,
+                    ..settings
+                },
+                None,
+            )
+            .unwrap()
+        };
+        let reference = run_with(CycleStop::PeakFraction(0.3));
+        let default = run(&m, &beam, &settings, None).unwrap();
+        let long = run_with(CycleStop::Threshold);
+        let (r, d, l) = (
+            false_flux(&reference),
+            false_flux(&default),
+            false_flux(&long),
+        );
+        assert_eq!(default.stop, StopReason::Threshold);
+        assert!(d <= 2.0 * r + 1e-3, "default {d} against the reference {r}");
+        assert!(
+            l > 2.0 * d,
+            "the long cycle {l} against the default {d}: not vacuous"
+        );
+        assert!(default.cycles.len() >= 3);
+    }
+
     /// The bounds only postpone rescans: the picks and values of the lazy
     /// tile maxima are those of the eager rescans, whatever the tile size.
     #[test]
@@ -1812,6 +1987,7 @@ mod tests {
         let base = Settings {
             threshold: 1e-3,
             max_components: 500,
+            cycle_stop: CycleStop::Threshold,
             ..Settings::default()
         };
         let reference = run(

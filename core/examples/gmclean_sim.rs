@@ -38,6 +38,7 @@ use rang_core::gmclean::host::{Measured, Probe, min_median};
 use rang_core::gmclean::input::{self, Selection};
 use rang_core::gmclean::json::{arr, num, obj, text};
 use rang_core::gmclean::kernels::{self, Level};
+use rang_core::gmclean::measure::GridMeasurement;
 use rang_core::gmclean::sim::{self, SimSpec, Sky};
 use rang_core::gmclean::{self, Beam, Outcome, Settings};
 use rang_core::weights::WeightClass;
@@ -265,6 +266,21 @@ fn driver_entry(name: &str, out: &Certified, settings: &DriverSettings) -> Strin
     obj(&fields)
 }
 
+/// The same data as the operator with the kept plan (weights already
+/// normalised, so normalising again changes nothing).
+fn grid_measurement(m: &WgridMeasurement) -> Result<GridMeasurement<f64>, String> {
+    GridMeasurement::new(
+        m.uvw.clone(),
+        m.freq.clone(),
+        m.vis.clone(),
+        m.wgt.clone(),
+        m.opts.nx,
+        m.opts.pixsize_x,
+        m.opts.epsilon,
+        m.opts,
+    )
+}
+
 /// The rows of the first `nant` antennas (the row order of [`write`]), with
 /// natural weights.
 fn sparse_subset(
@@ -407,6 +423,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
             &m,
             &beam,
             &Settings {
+                cycle_stop: gmclean::CycleStop::MisfitFraction,
                 major_fraction: fraction,
                 ..base
             },
@@ -696,7 +713,10 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         audit: false,
         divergence_limit: 0.0,
     };
-    let lazy = |measurement: &WgridMeasurement, beam: &Beam, settings: Settings| {
+    // gmclean runs on the operator with the kept plan, as the binary does.
+    let gm = grid_measurement(&m)?;
+    let gm_sparse = grid_measurement(&sparse)?;
+    let lazy = |measurement: &GridMeasurement<f64>, beam: &Beam, settings: Settings| {
         gmclean::run(measurement, beam, &settings, None).map(|o| (o.steps.len(), o.cycles.len()))
     };
     let plain = |measurement: &WgridMeasurement, psf: &Psf, settings: DriverSettings| {
@@ -706,7 +726,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     type Variant<'a> = (String, Box<dyn Fn() -> Result<(usize, usize), String> + 'a>);
     let mut variants: Vec<Variant> = Vec::new();
     for (patch, beam) in patches.iter().zip(&beams) {
-        let (lazy, m) = (&lazy, &m);
+        let (lazy, m) = (&lazy, &gm);
         variants.push((
             format!("gmclean-patch{patch}"),
             Box::new(move || lazy(m, beam, base)),
@@ -714,7 +734,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     }
     for level in [Level::Scalar, Level::Avx2, Level::Avx512] {
         if level <= kernels::detected() {
-            let (lazy, m) = (&lazy, &m);
+            let (lazy, m) = (&lazy, &gm);
             variants.push((
                 format!("gmclean-patch64-{}", level.name()),
                 Box::new(move || {
@@ -731,15 +751,16 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         }
     }
     {
-        let (lazy, m) = (&lazy, &m);
+        let (lazy, m) = (&lazy, &gm);
         variants.push((
-            "gmclean-fraction1".into(),
+            "gmclean-fraction0.8".into(),
             Box::new(move || {
                 lazy(
                     m,
                     beam64,
                     Settings {
-                        major_fraction: 1.0,
+                        cycle_stop: gmclean::CycleStop::MisfitFraction,
+                        major_fraction: 0.8,
                         ..base
                     },
                 )
@@ -773,12 +794,12 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         ));
     }
     {
-        let (lazy, sparse, sparse_beam) = (&lazy, &sparse, &sparse_beam);
+        let (lazy, sparse_gm, sparse, sparse_beam) = (&lazy, &gm_sparse, &sparse, &sparse_beam);
         variants.push((
             "sparse16-gmclean-patch64".into(),
             Box::new(move || {
                 lazy(
-                    sparse,
+                    sparse_gm,
                     sparse_beam,
                     Settings {
                         threshold: 0.005,
@@ -948,7 +969,7 @@ fn minor(args: &[String]) -> Result<(), String> {
         gain: GAIN,
         threshold,
         max_components: 2_000_000,
-        major_fraction: 1.0,
+        cycle_stop: gmclean::CycleStop::Threshold,
         max_major: 1,
         ..Settings::default()
     };

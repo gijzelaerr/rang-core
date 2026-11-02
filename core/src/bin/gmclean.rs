@@ -21,7 +21,7 @@ use rang_core::gmclean::input::{self, Selection};
 use rang_core::gmclean::json::{arr, num, obj, opt, text};
 use rang_core::gmclean::kernels::{self, Level};
 use rang_core::gmclean::measure::GridMeasurement;
-use rang_core::gmclean::{self, Beam, Settings};
+use rang_core::gmclean::{self, Beam, CycleStop, Settings};
 use rang_core::weights::WeightClass;
 use rang_core::wgridder::{Options, Real};
 use std::path::{Path, PathBuf};
@@ -35,7 +35,10 @@ const USAGE: &str = "usage: gmclean [options] <ms>
   -weight <mode> [robust]   natural | uniform | briggs <robust> (default uniform)
   -niter <n>                maximum number of components (default 0: dirty image only)
   -gain <g>                 loop gain (default 0.1)
-  -mgain <f>                fraction of the misfit a minor cycle removes before a major cycle (default 1: run to the threshold)
+  -mgain <g>                end a minor cycle at (1 - g) of its first peak, as WSClean's -mgain (default 0.8)
+  -mgain-misfit <f>         end it instead when a fraction f of the misfit has gone (with the forcing rule)
+  -stale-rule <rho>         end it at rho times the measured stale error (the first cycle uses -mgain; give -mgain first)
+  -minor-to-threshold       never hand back before the threshold
   -nmiter <n>               maximum number of major cycles (default 20)
   -threshold <Jy>           absolute stopping threshold (alias -abs-threshold)
   -auto-threshold <sigma>   stopping threshold in robust sigma (1.4826 MAD) of the residual
@@ -69,6 +72,8 @@ struct Args {
     niter: usize,
     gain: f64,
     mgain: f64,
+    mgain_misfit: f64,
+    cycle_stop: CycleStop,
     nmiter: usize,
     threshold: f64,
     auto_threshold: Option<f64>,
@@ -131,7 +136,9 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         weight: WeightClass::Uniform,
         niter: 0,
         gain: 0.1,
-        mgain: 1.0,
+        mgain: 0.8,
+        mgain_misfit: 0.8,
+        cycle_stop: CycleStop::PeakFraction(0.8),
         nmiter: 20,
         threshold: 0.0,
         auto_threshold: None,
@@ -191,7 +198,21 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             }
             "-niter" => a.niter = number(flag, value(&mut i)?)?,
             "-gain" => a.gain = number(flag, value(&mut i)?)?,
-            "-mgain" => a.mgain = number(flag, value(&mut i)?)?,
+            "-mgain" => {
+                a.mgain = number(flag, value(&mut i)?)?;
+                a.cycle_stop = CycleStop::PeakFraction(a.mgain);
+            }
+            "-mgain-misfit" => {
+                a.mgain_misfit = number(flag, value(&mut i)?)?;
+                a.cycle_stop = CycleStop::MisfitFraction;
+            }
+            "-stale-rule" => {
+                a.cycle_stop = CycleStop::MeasuredStale {
+                    rho: number(flag, value(&mut i)?)?,
+                    g: a.mgain,
+                };
+            }
+            "-minor-to-threshold" => a.cycle_stop = CycleStop::Threshold,
             "-nmiter" => a.nmiter = number(flag, value(&mut i)?)?,
             "-threshold" | "-abs-threshold" => a.threshold = number(flag, value(&mut i)?)?,
             "-auto-threshold" => a.auto_threshold = Some(number(flag, value(&mut i)?)?),
@@ -337,7 +358,8 @@ fn deconvolve<T: Real + Send + Sync>(
     }
     let settings = Settings {
         gain: args.gain,
-        major_fraction: args.mgain,
+        cycle_stop: args.cycle_stop,
+        major_fraction: args.mgain_misfit,
         threshold: args.threshold,
         auto_threshold: args.auto_threshold,
         max_components: args.niter,
@@ -569,6 +591,7 @@ fn run() -> Result<(), String> {
             obj(&[
                 ("gain", num(args.gain)),
                 ("mgain", num(args.mgain)),
+                ("cycle_stop", text(&format!("{:?}", args.cycle_stop))),
                 ("niter", args.niter.to_string()),
                 ("nmiter", args.nmiter.to_string()),
                 ("threshold", num(args.threshold)),
