@@ -138,6 +138,14 @@ ENVIRONMENT = (
         "-",
     ),
     _v(
+        "RANG_GMCLEAN_SIMD",
+        "unset (the best the CPU has)",
+        "speed",
+        "`scalar`, `avx2` or `avx512` caps gmclean's kernels; the gather sum agrees to rounding only",
+        "gmclean",
+        "core/src/gmclean/kernels.rs",
+    ),
+    _v(
         "RANG_WGRIDDER_SIMD",
         "unset (AVX-512 where available)",
         "speed",
