@@ -386,7 +386,11 @@ def _git_status():
 
 
 def _write_json(path, payload):
-    Path(path).write_text(json.dumps(payload, indent=1, sort_keys=True) + "\n")
+    Path(path).write_text(
+        json.dumps(payload, indent=1, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
 
 def read_ms_inputs(ms, channels=CHANNELS):
@@ -581,7 +585,9 @@ def run(
     for label in JOBS:
         job_start = time.perf_counter()
         role = json.loads(
-            (archive / "checkpoints" / f"{label}-result.json").read_text()
+            (archive / "checkpoints" / f"{label}-result.json").read_text(
+                encoding="utf-8"
+            )
         )["role"]
         if role != ROLES[label]:
             raise RuntimeError(f"{label}: archived role {role} unexpected")
@@ -723,9 +729,9 @@ def compare(result, oracle, receipt, candidate_images=None, reference_images=Non
     """Compare a replay with an oracle (the archive or the host reproduction)
     and, when image directories are given, the pixels; write the receipt and
     exit nonzero on failure (the recipe's compare cab)."""
-    archived = json.loads(Path(oracle).read_text())
+    archived = json.loads(Path(oracle).read_text(encoding="utf-8"))
     archived = archived.get("raw_result", archived)
-    replay = json.loads(Path(result).read_text())
+    replay = json.loads(Path(result).read_text(encoding="utf-8"))
     replay = replay.get("raw_result", replay)
     report = compare_replay(archived, replay)
     report["result"], report["oracle"] = str(result), str(oracle)
@@ -735,7 +741,11 @@ def compare(result, oracle, receipt, candidate_images=None, reference_images=Non
         report["pixels"] = pixel_comparison(reference_images, candidate_images)
         report["passed"] = bool(report["passed"] and report["pixels"]["passed"])
     report["comparator_sha256"] = _sha256(__file__)
-    Path(receipt).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    Path(receipt).write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     print(
         json.dumps(
             {

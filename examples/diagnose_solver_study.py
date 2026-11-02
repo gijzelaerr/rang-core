@@ -71,7 +71,7 @@ def interval_chi2(problem, run):
 
 def main():
     dataset, out = sys.argv[1], Path(sys.argv[2])
-    if not str(out).startswith("outputs/l5-solver-") or out.exists():
+    if not out.as_posix().startswith("outputs/l5-solver-") or out.exists():
         sys.exit("the run directory must be a fresh outputs/l5-solver-* path")
     out.mkdir(parents=True)
     started = time.perf_counter()

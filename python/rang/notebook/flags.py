@@ -78,7 +78,9 @@ def strategy_library(strategy_dir=None):
         for name, filename in CARACAL_STRATEGIES.items():
             path = strategy_dir / filename
             if path.is_file():
-                library[name] = core_flag.parse_strategy(path.read_text())
+                library[name] = core_flag.parse_strategy(
+                    path.read_text(encoding="utf-8")
+                )
     return library
 
 

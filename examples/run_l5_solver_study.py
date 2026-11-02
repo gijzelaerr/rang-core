@@ -586,7 +586,7 @@ def main():
         select(args.target)
         return
     out = Path(args.out)
-    if not str(out).startswith("outputs/l5-solver-") or out.exists():
+    if not out.as_posix().startswith("outputs/l5-solver-") or out.exists():
         sys.exit("the run directory must be a fresh outputs/l5-solver-* path")
     if args.target == "array" or args.target.startswith("stations-"):
         need = 20.0

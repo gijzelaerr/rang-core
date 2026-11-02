@@ -63,7 +63,7 @@ def run(run_dir, inputs_dir, iterations=50):
     for case_id in CASE_IDS:
         directory = source / "cases" / case_id
         state = load_state(directory)
-        manifest = json.loads((directory / "manifest.json").read_text())
+        manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
         if (
             manifest["split_gain_intervals"] != [2, 32]
             or manifest["scope"]["telescope"].casefold() != "meerkat"
@@ -247,6 +247,8 @@ def run(run_dir, inputs_dir, iterations=50):
         "seconds_total": time.perf_counter() - started,
     }
     (run_dir / "result.json").write_text(
-        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n"
+        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     return result

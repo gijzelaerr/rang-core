@@ -132,7 +132,7 @@ def run(
     run_dir, prepared = Path(run_dir), Path(prepared_dir)
     run_dir.mkdir(parents=True, exist_ok=False)
     clean_state = load_state(prepared)
-    manifest = json.loads((prepared / "manifest.json").read_text())
+    manifest = json.loads((prepared / "manifest.json").read_text(encoding="utf-8"))
     if manifest["split_gain_intervals"] != [2, 32] or manifest["seed"] != 7:
         raise ValueError("prepared input must use the frozen seed-7 2x32 setup")
     settings = (2, 32, iterations)
@@ -159,7 +159,9 @@ def run(
                 "delta_equal": bool(np.array_equal(delta[mask], saved_delta)),
                 "data_equal": bool(np.array_equal(state["data"], saved_data)),
                 "metadata_equal": metadata
-                == json.loads((saved_dir / "injection.json").read_text()),
+                == json.loads(
+                    (saved_dir / "injection.json").read_text(encoding="utf-8")
+                ),
             }
             log = {}
             contaminated, contaminated_tv, residuals, guidance, diag_c = core_solve(
@@ -286,7 +288,9 @@ def run(
         "seconds_total": time.perf_counter() - start,
     }
     (run_dir / "result.json").write_text(
-        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n"
+        json.dumps(result, indent=1, allow_nan=False, default=_json_default) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     return result
 

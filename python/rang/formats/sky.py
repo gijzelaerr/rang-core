@@ -243,7 +243,7 @@ def loads(text, default_freq0=None):
 
 
 def load(path, default_freq0=None):
-    return loads(Path(path).read_text(), default_freq0)
+    return loads(Path(path).read_text(encoding="utf-8"), default_freq0)
 
 
 def direction_cosines(ra, dec, ra0, dec0):
@@ -459,7 +459,7 @@ def loads_html(text):
 
 
 def load_html(path):
-    return loads_html(Path(path).read_text())
+    return loads_html(Path(path).read_text(encoding="utf-8"))
 
 
 def _resolve(tags):
@@ -865,7 +865,7 @@ def loads_wsclean(text):
 
 
 def load_wsclean(path):
-    return loads_wsclean(Path(path).read_text())
+    return loads_wsclean(Path(path).read_text(encoding="utf-8"))
 
 
 # -- BBS (read) -------------------------------------------------------------------
@@ -965,7 +965,7 @@ def loads_bbs(text):
 
 
 def load_bbs(path):
-    return loads_bbs(Path(path).read_text())
+    return loads_bbs(Path(path).read_text(encoding="utf-8"))
 
 
 # -- DDFacet DicoModel (read only) and ClusterCat ------------------------------------
@@ -1085,7 +1085,9 @@ def kind_of(path):
         return "tigger-ascii"
     if name.endswith(".txt"):
         head = (
-            Path(path).read_text().lstrip()[:80].lower() if Path(path).exists() else ""
+            Path(path).read_text(encoding="utf-8").lstrip()[:80].lower()
+            if Path(path).exists()
+            else ""
         )
         return "wsclean" if head.startswith("format") else "tigger-ascii"
     raise ValueError(f"unknown sky-model format for {path}")
@@ -1113,7 +1115,7 @@ def save_any(sources, path, kind=None):
         text = dumps_wsclean(sources)
     else:
         raise ValueError(f"{kind} is read only")
-    Path(path).write_text(text)
+    Path(path).write_text(text, encoding="utf-8", newline="\n")
     return Path(path)
 
 

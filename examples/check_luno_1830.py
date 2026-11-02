@@ -21,7 +21,7 @@ def main():
     parser.add_argument("--fetch", required=True)
     args = parser.parse_args()
     check_dir = Path(args.check_dir)
-    if not str(check_dir).startswith("outputs/") or check_dir.exists():
+    if not check_dir.as_posix().startswith("outputs/") or check_dir.exists():
         sys.exit("the check directory must be a fresh path beneath outputs/")
     summary = l2.check(
         {"stored": args.stored, "scalar": args.scalar},

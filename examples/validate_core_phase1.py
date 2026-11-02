@@ -337,7 +337,7 @@ def snapshot():
 
 def main():
     out = Path(sys.argv[1])
-    if not str(out).startswith("outputs/"):
+    if not out.as_posix().startswith("outputs/"):
         raise SystemExit("output directory must be beneath outputs/")
     out.mkdir(parents=True, exist_ok=False)
     library = core.library_path()

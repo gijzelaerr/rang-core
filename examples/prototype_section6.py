@@ -248,7 +248,7 @@ def digest(path):
 
 def main():
     out = Path(sys.argv[1])
-    if not str(out).startswith("outputs/") or out.exists():
+    if not out.as_posix().startswith("outputs/") or out.exists():
         raise SystemExit("run directory must be new and beneath outputs/")
     core.extension()  # load before timing
     wall = time.perf_counter()

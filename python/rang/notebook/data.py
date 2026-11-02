@@ -252,7 +252,9 @@ def extract_fixture(archive, cache_dir):
     with zipfile.ZipFile(archive) as zipped:
         for info in _safe_members(zipped, FIXTURE_SCAN + "/"):
             zipped.extract(info, partial)
-    (partial / "COMPLETE").write_text(FIXTURE_SHA256 + "\n")
+    (partial / "COMPLETE").write_text(
+        FIXTURE_SHA256 + "\n", encoding="utf-8", newline="\n"
+    )
     if done.exists():
         shutil.rmtree(done)
     partial.replace(done)
@@ -486,7 +488,7 @@ def fetch_luno(cache_dir, progress=print_progress, workers=8, interval=1.0):
             _bytes_under(partial), LUNO_EXPECTED_BYTES, time.perf_counter() - started
         )
         print()
-    (partial / "COMPLETE").write_text("fetched\n")
+    (partial / "COMPLETE").write_text("fetched\n", encoding="utf-8", newline="\n")
     if done_dir.exists():
         shutil.rmtree(done_dir)
     partial.replace(done_dir)
@@ -505,7 +507,7 @@ def _luno_extra(objects_root, rows):
     attrs_path = Path(objects_root) / LUNO_GROUP / ".zattrs"
     field_id = 0
     if attrs_path.is_file():
-        field_id = int(json.loads(attrs_path.read_text())["FIELD_ID"])
+        field_id = int(json.loads(attrs_path.read_text(encoding="utf-8"))["FIELD_ID"])
     return {
         "field_id": field_id,
         "uvw": np.ascontiguousarray(uvw[np.asarray(rows)], np.float64),
@@ -563,7 +565,9 @@ def load_luno(slice_dir=None, extra_dir=None, cache_dir=None, fetch=False, **kwa
     if extra_dir is None:
         extra_dir = Path(slice_dir) / "objects"
     arrays, decode_stats = core_fetch.decode_slice(slice_dir)
-    rows = json.loads((Path(slice_dir) / "result.json").read_text())["rows"]
+    rows = json.loads((Path(slice_dir) / "result.json").read_text(encoding="utf-8"))[
+        "rows"
+    ]
     extra = _luno_extra(extra_dir, rows)
     state = build_state(arrays, extra)
     return Dataset(

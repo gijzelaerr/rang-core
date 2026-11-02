@@ -1084,7 +1084,9 @@ def pointing_fixture(cache_dir):
         for info in _safe_members(zipped, "outer_scans/"):
             if PurePosixPath(info.filename).parts[0] == "outer_scans":
                 zipped.extract(info, partial)
-    (partial / "COMPLETE").write_text(FIXTURE_SHA256 + "\n")
+    (partial / "COMPLETE").write_text(
+        FIXTURE_SHA256 + "\n", encoding="utf-8", newline="\n"
+    )
     if done.exists():
         import shutil
 

@@ -24,7 +24,7 @@ from rang.core_workflow import core_solve
 
 def main():
     source, mirror = Path(sys.argv[1]), Path(sys.argv[2])
-    if not str(mirror).startswith("outputs/") or mirror.exists():
+    if not mirror.as_posix().startswith("outputs/") or mirror.exists():
         raise SystemExit("mirror must be new and beneath outputs/")
     started = time.perf_counter()
     receipt = {"source": str(source), "cases": {}}

@@ -44,7 +44,7 @@ def main():
     extra = [Path(x) for x in sys.argv[4:]]
     if track not in TRACKS:
         raise SystemExit(f"unknown track; choose from {sorted(TRACKS)}")
-    if not str(run_dir).startswith("outputs/") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/") or run_dir.exists():
         raise SystemExit("run directory must be new and beneath outputs/")
     module = importlib.import_module(TRACKS[track])
     before = [snapshot(p) for p in (inputs, *extra)]

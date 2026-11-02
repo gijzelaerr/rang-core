@@ -253,7 +253,7 @@ def load_archive(name):
         raise FileNotFoundError(
             f"{ARCHIVES.get(name, name)} not found under research/results"
         )
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def archive_hypotheses(name):
@@ -322,6 +322,6 @@ def amendment_1_calls():
     for root in _search_roots():
         path = root / "outputs" / L1_RUN / "result.json"
         if path.is_file():
-            pairs = json.loads(path.read_text())["amendment_1"]["pairs"]
+            pairs = json.loads(path.read_text(encoding="utf-8"))["amendment_1"]["pairs"]
             return pd.DataFrame([_flatten(p) for p in pairs])
     return None

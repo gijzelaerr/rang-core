@@ -812,7 +812,7 @@ def _changed(a, b):
 
 
 def _load(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 # --- the checker -------------------------------------------------------------

@@ -26,7 +26,7 @@ def versions(ms):
     if not path.exists():
         return []
     out = []
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip():
             name, _, comment = line.partition(" : ")
             out.append((name.strip(), comment))
@@ -91,7 +91,7 @@ def save(ms, name, comment="", flag=None, flag_row=None):
         t.putcol("FLAG_ROW", flag_row)
     finally:
         t.close()
-    with (root / "FLAG_VERSION_LIST").open("a") as f:
+    with (root / "FLAG_VERSION_LIST").open("a", encoding="utf-8", newline="\n") as f:
         f.write(f"{name} : {comment}\n")
     return path
 

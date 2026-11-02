@@ -630,7 +630,9 @@ def closure_arms(run_dir, hooks, result, started=None):
     trials, best, unguided = hooks.tv_loop(state, base_c, scale0, "closure-tv")
     stages.stop("closure_tv_loop", mark)
     del base_c
-    tv_trials = json.loads((run_dir / "candidates.json").read_text())["tv-policy"]
+    tv_trials = json.loads((run_dir / "candidates.json").read_text(encoding="utf-8"))[
+        "tv-policy"
+    ]
     gates["closure_loop_unguided_equal_tv_loop"] = unguided_equal(trials, tv_trials)
     solves = {
         "closure-tv-policy": {
@@ -804,7 +806,7 @@ def run(
 
 
 def _load(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def check(run_dir, precondition_dir, check_dir, l1_run=L1_RUN):

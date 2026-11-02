@@ -29,7 +29,7 @@ def main():
     )
     args = parser.parse_args()
     run_dir = Path(args.run_dir)
-    if not str(run_dir).startswith("outputs/") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/") or run_dir.exists():
         sys.exit("the run directory must be a fresh path beneath outputs/")
     if args.precondition is not None:
         pre = json.loads((Path(args.precondition) / "result.json").read_text())

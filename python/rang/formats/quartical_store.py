@@ -108,7 +108,7 @@ def _chunk_keys(shape, chunks):
 
 def _read_array(path):
     path = Path(path)
-    meta = json.loads((path / ".zarray").read_text())
+    meta = json.loads((path / ".zarray").read_text(encoding="utf-8"))
     if meta.get("filters"):
         raise ValueError(f"{path}: zarr filters are not supported")
     dtype = np.dtype(meta["dtype"])
@@ -140,11 +140,11 @@ def _read_array(path):
 
 def read_partition(path):
     path = Path(path)
-    attrs = json.loads((path / ".zattrs").read_text())
+    attrs = json.loads((path / ".zattrs").read_text(encoding="utf-8"))
     variables = {}
     for array in sorted(p.parent for p in path.glob("*/.zarray")):
         meta, data = _read_array(array)
-        zattrs = json.loads((array / ".zattrs").read_text())
+        zattrs = json.loads((array / ".zattrs").read_text(encoding="utf-8"))
         info = zattrs.get(DAT, {})
         variables[array.name] = Variable(
             dims=tuple(zattrs.get("_ARRAY_DIMENSIONS", info.get("dims", ()))),
@@ -235,14 +235,14 @@ def write_partition(part, path):
                 chunks[d] = [c] * (n // c) + ([n % c] if n % c else [])
         attrs[DAT] = {"chunks": chunks}
     metadata = {".zattrs": attrs, ".zgroup": group}
-    (path / ".zgroup").write_text(dumps(group))
-    (path / ".zattrs").write_text(dumps(attrs))
+    (path / ".zgroup").write_text(dumps(group), encoding="utf-8", newline="\n")
+    (path / ".zattrs").write_text(dumps(attrs), encoding="utf-8", newline="\n")
     for name, var in sorted(part.variables.items()):
         d = path / name
         d.mkdir()
         meta, zattrs = _array_meta(var), _array_attrs(var)
-        (d / ".zarray").write_text(dumps(meta))
-        (d / ".zattrs").write_text(dumps(zattrs))
+        (d / ".zarray").write_text(dumps(meta), encoding="utf-8", newline="\n")
+        (d / ".zattrs").write_text(dumps(zattrs), encoding="utf-8", newline="\n")
         metadata[f"{name}/.zarray"] = meta
         metadata[f"{name}/.zattrs"] = zattrs
         data = np.ascontiguousarray(var.data)
@@ -262,7 +262,9 @@ def write_partition(part, path):
                     blosc_frame(raw, data.dtype.itemsize, var.compressor)
                 )
     (path / ".zmetadata").write_text(
-        dumps({"metadata": metadata, "zarr_consolidated_format": 1})
+        dumps({"metadata": metadata, "zarr_consolidated_format": 1}),
+        encoding="utf-8",
+        newline="\n",
     )
 
 
@@ -270,10 +272,14 @@ def write(terms, path):
     """Write {term: [Partition, ...]} as a gain store at `path` (new)."""
     path = Path(path)
     path.mkdir(parents=True, exist_ok=False)
-    (path / ".zgroup").write_text(dumps({"zarr_format": 2}))
+    (path / ".zgroup").write_text(
+        dumps({"zarr_format": 2}), encoding="utf-8", newline="\n"
+    )
     for term, parts in terms.items():
         (path / term).mkdir()
-        (path / term / ".zgroup").write_text(dumps({"zarr_format": 2}))
+        (path / term / ".zgroup").write_text(
+            dumps({"zarr_format": 2}), encoding="utf-8", newline="\n"
+        )
         for i, part in enumerate(parts):
             write_partition(part, path / term / f"{term}_{i}")
     return path

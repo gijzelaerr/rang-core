@@ -174,7 +174,9 @@ jobs:
       - name: Install and test the wheel with cargo absent
         env:
           PIP_INDEX_URL: https://pypi.org/simple
-          PYTHONUTF8: "1"
+          # One Windows cell runs with UTF-8 mode off, in the runner's code page
+          # as on a stock Windows Python (task W4-6).
+          PYTHONUTF8: ${{ (matrix.platform == 'windows-x86_64' && matrix.python == '3.14') && '0' || '1' }}
         run: |
           wheel=$(ls dist/*.whl)
           python tools/wheel/test.py "$wheel" "$RUNNER_TEMP/wheel-test" \

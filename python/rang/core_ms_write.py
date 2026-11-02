@@ -654,7 +654,7 @@ def _record_items(values):
 def _read_info(path):
     """[type, subType, readme] of a table's `table.info` (empty if none)."""
     try:
-        text = (Path(path) / "table.info").read_text()
+        text = (Path(path) / "table.info").read_text(encoding="utf-8")
     except OSError:
         return ["", "", ""]
     head, _, readme = text.partition("\n\n")
