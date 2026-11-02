@@ -501,3 +501,14 @@ saopicc (DDFacet, killMS):
 - The ESO137 subset's ANTENNA has 61 antennas without m014, m017, m032 (read by
   opcode scan). LUNO's ANTENNA table has 56, without m006, m008, m015–m017, m028,
   m034, m060. caracal-pipeline, saopicc: nothing.
+
+## Upstream status after U4 (2026-11-02; `u4-upstream.md`)
+
+- Tigger 1.8.0: **filed** ratt-ru/tigger-lsm#55 (ASCII and BBS save), #56 (`eval` in `ModelHTML.load`, public: no security policy) and #57 (`np.float64(...)` from NumPy scalars).
+- Purr 1.5.3: **filed** ratt-ru/purr#39, **PR** #40 (declares `kittens`, imports `Kittens` from astro-kittens; on a case-insensitive filesystem this also breaks astro-tigger-lsm).
+- Crystalball 0.4.3: **filed** caracal-pipeline/crystalball#83.
+- pfb-imaging 0.0.11: **filed** ratt-ru/pfb-imaging#390 (`[full]` closure, also on `main`) and #391 (`kclean`/TBB against 0.0.x: `set_num_threads` before `set_envs` in `core/kclean.py`; `kclean` is gone on `main`).
+- Tricolour: **filed** ratt-ru/tricolour#115 (`uvrange` release note); #114 rebased to c1000f1, mergeable, CI green.
+- QuartiCal #455: L5-C comment **posted**.
+- killMS 3.3.0: **filed** saopicc/killMS#28 (public: no security policy).
+- casacure 3.8.36: **filed** tmolteno/casacure#24, #25, #26, #28 (casacore cannot read its fixed-shape string columns), #29 (`putcell` refuses arrays for float, int64, short, complex, dcomplex); **PR** #27 (ragged `getcol` raises).

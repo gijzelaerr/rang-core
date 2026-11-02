@@ -459,3 +459,8 @@ casacure findings go in as ordinary issues and PRs; no separate contact is neede
   `outputs/core-a-20261029-00-smoke`, and the 725 MB
   `outputs/core-k-20261030-01/fetch` (same bytes as `core-g-20261029-01`).
 - Forward the observer's full-resolution LUNO set when it arrives.
+
+Upstream: U4 filed everything approved on 2026-11-02 (`u4-upstream.md`), including purr#39 with PR #40,
+casacure#28, #29, tigger-lsm#57, pfb-imaging#391. Watch their replies; review PRs casacure#27 and
+tricolour#114. Still unfiled by decision: Tricolour input-flag growth, DDFacet pins, the data-store
+notes, DF5-O items 3 and 4.

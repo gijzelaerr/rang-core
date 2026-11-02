@@ -1354,3 +1354,17 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | big plan FS2: `oracle_setjy.py --fs2-epoch` (docker) | `fs2-20261102-02` | 171.3 s | 31 MB | post hoc |
 | 2026-11-02 | big plan FS2: `check_fluxstd.py --fs2` | runs 01, 02, FS1 run 01 | 0.3 s | 49 MB | |
 | 2026-11-02 | big plan FS2: `bash tools/check-all.sh` | branch | 528.0 s | 1.99 GB | PASS, pytest 200.6 s |
+| 2026-11-02 | big plan U4: `uv venv` + install, per tool | public PyPI, on D: | tigger 17.2 s, crystalball 18.2 s, casacure 15.8 s, pfb `[full]` 79.7 s | 46, 56, 39, 164 MB |  |
+| 2026-11-02 | big plan U4: `pfb init`, `[full]` closure as resolved | DF5-O `field.ms` | 117.0 s | 484 MB | fails on `zarr_format` |
+| 2026-11-02 | big plan U4: `pfb init`, `xarray<2026.4` | same | 96.5 s | 491 MB | exit 0 |
+| 2026-11-02 | big plan U4: `pfb grid`, 256 px | same | 223.9 s | 620 MB | exit 0 |
+| 2026-11-02 | big plan U4: `pfb kclean`, plain venv | same | 54.4 s | 463 MB | exit 1, threading layer |
+| 2026-11-02 | big plan U4: `pfb kclean`, `LD_LIBRARY_PATH=<venv>/lib` | same | 179.0 s | 791 MB | exit 0 |
+| 2026-11-02 | big plan U4: Tricolour PR venv install | `0.5.0-dev` + PR, Python 3.13 | 54.3 s | 105 MB |  |
+| 2026-11-02 | big plan U4: Tricolour `pytest -m "not acceptance"` | rebased head | 31.3 s (warm) | 400 MB | 59 passed, 2 skipped; a first run without `zarr` took 123.5 s and stopped on the import |
+| 2026-11-02 | big plan U4: `oracle_tricolour_050.py oracle` | 4 controls, rebased head, cold | 39.9 s | 735 MB | oracle total 30.2 s |
+| 2026-11-02 | big plan U4: casacure `cargo fmt` + `clippy` | fix branch | 29.5 s | 428 MB |  |
+| 2026-11-02 | big plan U4: casacure `maturin develop --release` | fix branch | 57.4 s | 576 MB |  |
+| 2026-11-02 | big plan U4: casacure `cargo test --release --workspace` | fix branch | 52.5 s | 980 MB |  |
+| 2026-11-02 | big plan U4: casacure `pytest tests/` (shim) | fix branch | 55.8 s | 246 MB | 471 passed |
+| 2026-11-02 | big plan U4: `bash tools/check-all.sh` | this branch | 998.1 s (includes lock wait) | 2.11 GB | overall PASS; pytest 824 passed, 19 skipped. A first run (877.0 s) failed at collection: the briefed venv extras lack scipy; rerun with `.[pointing,beam,test,imaging,formats]` |

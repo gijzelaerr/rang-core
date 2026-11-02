@@ -8,7 +8,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** U4, the upstream filing; the CLEAN programme's gmclean branches arrive separately.
+- **Running:** the CLEAN programme's gmclean branches arrive separately.
 - **Next:** the owner's v0.1.0 tag, then Landman's self-supervised flagger (protocol first), then DF5 with an RML arm, then B1 with an external catalogue.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; forward the observer's native data when it arrives.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -16,6 +16,17 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+U4, upstream findings filed (big plan), 2026-11-02 (implemented; measured;
+[u4-upstream.md](u4-upstream.md)). Filed, each reproduced on the latest release: tigger-lsm#55, #56,
+#57; crystalball#83; pfb-imaging#390, #391; tricolour#115; killMS#28; casacure#24, #25, #26, #28, #29
+with PR #27; purr#39 with PR #40; the L5-C comment on QuartiCal#455. `eval` and pickle went in as public
+issues: neither repository has a security policy. Tricolour #114 is rebased to c1000f1: mergeable, CI 4
+of 4, flags bit-identical to `367ff54` on RV1's four controls, one kernel signature. Correction: `purr`
+declares PyPI `kittens` instead of `astro-kittens`, but that breaks astro-tigger-lsm only on a
+case-insensitive filesystem (measured on NTFS through WSL), not on ordinary Linux; `purr` alone fails
+everywhere. DF5-O's `kclean` failure comes from the call order in `core/kclean.py`, not from a plain venv.
+
 
 Scope of the flagging verdict narrowed, 2026-11-02. Landman pointed out that the original idea
 was gain TV as the loss that trains an ML flagger, self-supervised, for a faster flagger with

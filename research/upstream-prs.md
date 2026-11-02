@@ -152,3 +152,9 @@ Everything needed to reproduce is in `upstream-prs-files/` and on the fork branc
 - **Open items**: watch #620 (review required), #114 (CI needs admin approval), #1708 (approved,
   not merged), #111 (open although #112 merged); the Python 3.9 CI failures on Stimela and
   CARACal are a runner change (3.9 unavailable on Ubuntu 26.04), not these PRs.
+
+## After U4 (2026-11-02)
+
+- Tricolour rows as lanes: tricolour#114 rebased onto `0.5.0-dev` by U4, head c1000f1: CI 4 of 4 pass, mergeable, flags bit-identical to `367ff54` on RV1's four controls, one `_get_flags_impl` signature.
+- casacure `getcol` on ragged columns: [casacure#25](https://github.com/tmolteno/casacure/issues/25), [PR #27](https://github.com/tmolteno/casacure/pull/27). Tests: new test fails before, passes after; `pytest tests/` 471 passed; cargo fmt, clippy, test pass.
+- Purr dependency name: [purr#39](https://github.com/ratt-ru/purr/issues/39), [PR #40](https://github.com/ratt-ru/purr/pull/40) (one line in `setup.py`: `astro-kittens`, `six`). Tests: `import Tigger` on NTFS fails before, works after; the repository has no test suite.
