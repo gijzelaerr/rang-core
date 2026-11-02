@@ -414,6 +414,7 @@ DF5 with an RML arm (TV, sparsity) against the DF5-O oracles at matched cost; B1
 an external catalogue (SUMSS, RACS) for the ESO137 model, which is allowed. FS2: 4 PB2017
 sources regular, 16 opt-in on the printed table, PB2013 and the 3C353 journal check skipped.
 casacure findings go in as ordinary issues and PRs; no separate contact is needed.
+F1 Stages 1a and 1b done 2026-11-02 (`f1-tv-flagger.md`): NO-GO on LUNO, outcome D; the TV-loss route stops. Stage 1c and later not run. Non-TV arms (Z, R, F-RES) await the owner.
 
 ## User items (not blocking)
 

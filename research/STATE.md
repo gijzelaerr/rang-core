@@ -7,15 +7,18 @@ Update this block when a merge changes it. The log below is the record.
 - **What `main` is:** rang-core after the 0.1.0 release: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-8, the reference imager [gmclean](gmclean.md) with its [benchmark](gmclean-benchmark.md) and the flagged [Gram operator](gridder-theory.md) (their times provisional); see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
+- **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** Landman's flagger, its early test (Stages 1a and 1b on branch `f1-tv-flagger`).
-- **Next:** Landman's self-supervised flagger ([protocol](f1-tv-flagger.md); early test first), then DF5 with an RML arm, then B1 with an external catalogue.
-- **User items** ([big plan](big-plan.md#user-items-not-blocking)): allow JAX on the flagger's training path; ask Landman the three protocol questions; forward the observer's native data when it arrives.
+- **Running:** nothing from the big plan; the CLEAN programme continues in its own session.
+- **Next:** DF5 with an RML arm, then B1 with an external catalogue. The flagger's non-TV arms wait for an owner decision.
+- **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
 
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+F1 Stages 1a and 1b, 2026-11-02 (implemented; measured; [note](f1-tv-flagger.md)): **NO-GO, outcome D**, as frozen. The implicit gradient of gain TV through the solver's fixed point is right (finite differences within 3.5e-6 median, bound 1 %), but on LUNO 1934−638 at 53 stations it does not mark injected RFI: patch AUC 0.54–0.64 on four of five morphologies at 10σ (bar 0.80), against 0.97–1.00 for the residual z-score; gates B, C and E fail, A and D pass. Removing a whole contaminated mask does lower TV (45 of 45). LUNO only; no network was trained; F-SIM not built. Whether to test the non-TV arms is the owner's call.
 
 gmclean family merged, 2026-11-02 (merge record; the science is in the three paragraphs below).
 `gmclean-bench` as `8ed836b`, `gmclean` as `ef6d2ed` with follow-ups `303478d` and `705085d`

@@ -11,8 +11,8 @@
 > imaging at comparable cost, or comparable quality at much lower cost, and
 > neither has been shown. Two questions are closed as null, as tested: a
 > gain-TV-guided threshold flagging policy, and beam and pointing. A flagger
-> trained on gain TV is a separate question, not yet tested, and the next
-> experiment. A deeper field model (an external catalogue) is the first condition
+> trained on gain TV stopped at its go/no-go test on one observation, before any
+> training. A deeper field model (an external catalogue) is the first condition
 > for reopening beam and pointing on real data.
 
 ## What it is
@@ -104,7 +104,7 @@ The command line's main stages (`rang-core -h` lists them all):
 | --- | --- | --- |
 | Port the pipeline to one Rust core | Done: the archived chains reproduce, the solver to 1.4e-15; engineering, not a scientific claim | [architecture](https://github.com/gijzelaerr/rang-core/blob/main/research/p7-architecture.md), [simplification](https://github.com/gijzelaerr/rang-core/blob/main/research/simplification-review.md) |
 | Does a gain-TV-guided threshold policy improve flagging? | **Null**: 90 pre-registered calls, none better or worse, at 4.6–5.9× the cost of CARACal's first pass | [verdict](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-verdict.md) |
-| Can a flagger trained on gain TV be faster, with fewer tunable parameters? | **Open**: not tested yet; the row above does not answer it | [what the verdict covers](https://github.com/gijzelaerr/rang-core/blob/main/research/flagging-verdict.md) |
+| Can a flagger trained on gain TV be faster, with fewer tunable parameters? | **Stopped before training**: on one observation the gradient of gain TV barely ranks injected RFI (patch AUC 0.54–0.64 on four of five patterns, bar 0.80), where a residual score reaches 0.97–1.00. No network was trained, so speed and parameter count were not measured | [F1](https://github.com/gijzelaerr/rang-core/blob/main/research/f1-tv-flagger.md) |
 | Can selected pointing corrections beat the baselines on real data? | **Null**: self-calibration works in simulation (0.62′ to 0.054′), selection adds nothing measurable, and neither arm measures pointing on ESO137 with the self-calibrated model; an external catalogue is the first reopening condition | [B1-3](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-3-pointing-selfcal.md), [B1-2](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-2-identifiability.md), [B1](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-beam-pointing.md) |
 | What is proven about CLEAN? | Data-fit convergence since Schwarz (1978); here a Gram-matrix formalism, Lean proofs and the measured exact-recovery transition | [theory](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-theory.md), [transition](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-phase-transition.md) |
 | An exact gridder | ducc0's wgridder ported at its speed; the w-stacking gridder on a GPU gains 1.2–3.3× over 16 threads | [wgridder](https://github.com/gijzelaerr/rang-core/blob/main/research/df1-wgridder.md), [GPU](https://github.com/gijzelaerr/rang-core/blob/main/research/x2-wgpu.md) |

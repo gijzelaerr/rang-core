@@ -18,7 +18,8 @@ calibration and imaging at comparable cost, or comparable quality at much lower 
 neither has been shown. Two questions are closed as null, as tested: a
 gain-TV-guided threshold flagging policy ({gh}`research/flagging-verdict.md`), and
 beam and pointing ({gh}`research/b1-3-pointing-selfcal.md`). A flagger trained on
-gain TV is a separate question, not yet tested, and the next experiment. A deeper
+gain TV stopped at its go/no-go test on one observation, before any training
+({gh}`research/f1-tv-flagger.md`). A deeper
 field model (an external
 catalogue) is the first condition for reopening beam and pointing on real data.
 ```

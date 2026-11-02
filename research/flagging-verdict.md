@@ -5,7 +5,8 @@ covers a two-parameter TV-guided threshold policy with re-solves on every observ
 better prediction or lower cost. It does not answer the question Landman raised on 2026-11-02: gain
 TV as the loss that trains an ML flagger, self-supervised, for a faster flagger with fewer tunable
 parameters, with no improvement in calibration expected. Its "not cheaper" clause says nothing about
-such a flagger, which would not re-solve at inference. That is the next experiment.
+such a flagger, which would not re-solve at inference. That is the next experiment. (Later the same day:
+its go/no-go test stopped it before any training, on one observation; see [F1](f1-tv-flagger.md).)
 
 Task L4 of [big-plan.md](big-plan.md), written 2026-10-30 on branch
 `l4-verdict` from `46a319f`. Documents only: no new run. Every number below

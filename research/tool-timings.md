@@ -1411,3 +1411,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | `tools/check-all.sh`, `gmclean` merge | `ef6d2ed`, `303478d`, `705085d` | 694, 534, 538 s | – | fail (ruff format, registry), fail (CLI page), pass |
 | 2026-11-02 | `tools/check-all.sh`, `gridder-gram` merge | `ce03bf2` | 850 s | – | pass; the wall includes waiting for the heavy lock |
 | 2026-11-02 | `lake build` of the merged formal tree (Windows) | `303478d`, `ce03bf2` | 116, 85 s | – | 50 and 73 audited theorems |
+| 2026-11-02 | F1 `f1_adjoint_validate.py` | 2 problems, dense adjoint | 31 s | 1.5 GB | 4 CPUs |
+| 2026-11-02 | F1 `f1_saliency.py --probe` | LUNO 1934−638 | 84 s | 20.7 GB | no saliency |
+| 2026-11-02 | F1 `f1_saliency.py` | LUNO 1934−638, 60 cases | 27 min 55 s | 25.0 GB | 4 CPUs |
+| 2026-11-02 | F1 `f1_saliency.py`, two stopped launches | clean adjoint, MINRES | 31 min; about 90 min | 15 GB | no result; replaced by the dense adjoint |
