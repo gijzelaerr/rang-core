@@ -162,6 +162,10 @@ feature); its 6 GPU tests print `skipped: …` and pass without an adapter.
 
 ## Checks
 
+Both final checks ran on the tree of `aac6af8` (branch with `main` `9813608` merged;
+later commits touch only this report). `main` `cd84a8e` does not touch this task's
+files.
+
 - **WSL:** `bash tools/check-all.sh`, plain:
   `## overall: PASS`, 17 steps, `core-test-gpu` 139 tests (GPU tests skip
   without an adapter), pytest 787 passed, 20 skipped.
