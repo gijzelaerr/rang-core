@@ -10,6 +10,9 @@ from rang import fluxstd, lsm
 ARCHIVE = (
     Path(__file__).resolve().parents[1] / "research/results/fs1-flux-standards.json"
 )
+ARCHIVE_FS2 = (
+    Path(__file__).resolve().parents[1] / "research/results/fs2-casarundata.json"
+)
 
 
 @pytest.fixture(scope="module")
@@ -77,7 +80,7 @@ def test_refusals():
     with pytest.raises(ValueError, match="outside"):
         fluxstd.flux("3C286", [20e9], "Baars")
     with pytest.raises(ValueError, match="not verified"):
-        fluxstd.flux("3C286", [1.4e9], "Perley-Butler 2017")
+        fluxstd.flux("3C353", [1.4e9], "Perley-Butler 2017")
     with pytest.raises(ValueError, match="unknown standard"):
         fluxstd.flux("3C286", [1.4e9], "Perley-Butler 2013")
     with pytest.raises(ValueError, match="positive"):
@@ -85,9 +88,9 @@ def test_refusals():
 
 
 def test_pb2017_paper_values():
-    # Perley & Butler 2017: a0 is log10 S at 1 GHz.
-    s = fluxstd.flux("3C286", [1e9], "PB2017", unverified_ok=True)[0, 0]
-    assert s == pytest.approx(10**1.2481, rel=1e-15)
+    # Perley & Butler 2017: a0 is log10 S at 1 GHz. The transcription stays opt-in.
+    s = fluxstd.flux("3C444", [1e9], "PB2017", unverified_ok=True)[0, 0]
+    assert s == pytest.approx(10**1.1064, rel=1e-15)
     with pytest.raises(ValueError, match="outside"):
         fluxstd.flux("Fornax A", [1e9], "PB2017", unverified_ok=True)
 
@@ -134,3 +137,53 @@ def test_rust_kernel_matches_python():
             assert np.max(np.abs(rs / py - 1)) < 1e-13
     with pytest.raises(ValueError):
         fluxstd.rust_log10_poly(lib, (1.0,), 1e9, [-1.0])
+
+
+# FS2: setjy with CASA's tables, from the committed archive only (no tables, no Docker).
+
+
+@pytest.fixture(scope="module")
+def fs2():
+    return json.loads(ARCHIVE_FS2.read_text())
+
+
+def test_fs2_acceptance_recorded(fs2):
+    assert all(fs2["acceptance"].values())
+    assert fs2["regular_sources"] == ["3C123", "3C286", "3C295", "Hercules A"]
+
+
+def test_fs2_regular_sources_equal_setjy(fs2):
+    nu_l = np.array(fs2["archive"]["lband_freq_hz"])
+    for src in fs2["regular_sources"]:
+        v = fs2["archive"]["pb2017"][src]
+        nu, casa = np.array(v["freq_hz"]), np.array(v["casa_fluxd_i"])
+        assert fluxstd.model(src, "PB2017").verified
+        port = fluxstd.flux(src, nu, "PB2017", extrapolate=True)[:, 0]
+        # The table path returns float32 in `fluxd`; criterion 1 is 1e-6.
+        assert np.max(np.abs(port / casa - 1)) < 1e-7, src
+        got = fluxstd.flux(src, nu_l, "PB2017", extrapolate=True)[:, 0]
+        want = np.array(v["lband_casa_i_f32"], dtype=np.float32)
+        assert np.array_equal(got.astype(np.float32), want), src
+
+
+def test_fs2_other_sources_keep_the_opt_in(fs2):
+    for src, verdict in fs2["verdict_pb2017"].items():
+        assert fluxstd.model(src, "PB2017").verified == verdict["regular_by_rule"]
+        if not verdict["regular_by_rule"]:
+            with pytest.raises(ValueError, match="not verified"):
+                fluxstd.flux(src, [0.3e9], "PB2017")
+    assert fs2["table_vs_table5"]["3C48"]["epoch_rows_vary"]
+    assert fs2["table_vs_table5"]["3C353"]["kind"] == "table differs from Table 5"
+
+
+def test_fs2_pb2013_measured_not_ported(fs2):
+    assert "3C286" in fs2["archive"]["pb2013"]
+    with pytest.raises(ValueError, match="unknown standard"):
+        fluxstd.flux("3C286", [1.4e9], "Perley-Butler 2013", unverified_ok=True)
+
+
+def test_fs2_1934_not_in_casa_tables(fs2):
+    fields = {e["field"] for e in fs2["outcomes_pb2017"]["not_in_table"]}
+    assert "1934-638" in fields
+    with pytest.raises(ValueError, match="not in"):
+        fluxstd.flux("1934-638", [1.4e9], "PB2017")
