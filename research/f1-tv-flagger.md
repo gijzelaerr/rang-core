@@ -81,7 +81,9 @@ validation set.
 **Pipeline around the network, shared by both arms.** `flag_nans_zeros`, the two shipped static
 masks, `flag_autos`, `combine_with_input_flags`. The network replaces the `sum_threshold` and
 `uvcontsub_flagger` steps only. The static masks are knowledge about the MeerKAT band that a
-translation-invariant network cannot have, so they are counted on both sides.
+translation-invariant network cannot have, so they are counted on both sides. In TV training the
+static masks are applied first and treated as input flags. Q1 and Q2 are scored only on cells outside
+the shared masks, so neither arm gets free recall or free false flags there.
 
 **What "tunable parameters" means here.** Weights are not tunable: nobody sets them. Tiers:
 
@@ -149,7 +151,8 @@ Why this and not the alternatives:
 
 200 refreshes, `T` from 1 to 0.25 geometrically. Each refresh logs the actual change of `L` against
 the one predicted by the fixed `s_c`. If actual and predicted disagree in sign on more than a third
-of refreshes after the first 20, K halves once, by dated amendment.
+of refreshes after the first 20, K halves once, by dated amendment. That uses up the one change of
+hyperparameters section 8 allows.
 
 **Which code.**
 
@@ -179,8 +182,8 @@ of refreshes after the first 20, K halves once, by dated amendment.
   flags.
 - TV is not differentiable at a zero edge. Take the subgradient 0; count such edges.
 
-**Validation against finite differences (Stage 1a, all gates frozen).** On a 12-antenna subset of
-F-SIM and of the LUNO slice, solved to `stop_criterion=1e-13`, stop fraction 1.0, up to 5,000
+**Validation against finite differences (Stage 1a, all gates frozen).** On a small synthetic
+12-antenna problem and on the LUNO four-station slice, solved to `stop_criterion=1e-13`, stop fraction 1.0, up to 5,000
 iterations:
 
 | Check | Pass |
@@ -264,8 +267,8 @@ single-baseline response is 4.3 times larger.
 Cases: five morphologies (narrowband persistent; time burst; antenna-local narrowband;
 **single-baseline narrowband**; drifting carrier), strengths 0, 3, 10, 30, 100 in units of the
 measured per-baseline noise (scaled MAD of channel differences, not inverse weights: LUNO's weights
-overstate the noise, χ² about 0.2), three seeds, on two datasets at full array: F-SIM and LUNO
-1934−638 with injections on training cells. Saliency `s_c` is positive where down-weighting lowers
+overstate the noise, χ² about 0.2), three seeds, on two datasets at full array: LUNO 1934−638 with
+injections on training cells, and F-SIM. Saliency `s_c` is positive where down-weighting lowers
 TV. Patches are the 8 × 8 tiles of a baseline's plane, scored by the mean of `s_c`.
 
 **GO** requires all of:
@@ -277,7 +280,11 @@ TV. Patches are the 8 × 8 tiles of a baseline's plane, scored by the mean of `s
 | B2 | strength 10: patch AUC against the injection mask | ≥ 0.80 on the same ≥ 3 morphologies |
 | C | strength 0, same mask: B1's statistic | \|t\| < 3 on all five (a null that must stay null) |
 | D | re-solve with the injection mask removed: TV_fs lower than contaminated | ≥ 80 % of strength ≥ 10 cases, on each dataset |
-| E | LUNO, no injection: mean `s_c` by amplitude bin of the input z-score | top bin (z ≥ 10) positive with t ≥ 5 |
+| E | LUNO, no injection: mean `s_c` by amplitude bin of the input z-score | top bin (z ≥ 10) positive with t ≥ 5. Gating only if that bin holds ≥ 1,000 cells across ≥ 50 intervals; below the floor it is reported, since LUNO's input flags may have left too few strong cells |
+
+**Order: LUNO first.** Its data are on disk, so gates B1, B2, D and E run there first (Stage 1b). A
+failure on LUNO is already a NO-GO under "on each dataset". F-SIM is built only after LUNO passes
+(Stage 1c), and the test then repeats on it.
 
 **NO-GO** means stop and write it up. That is outcome D: "TV is not a usable training signal at
 MeerKAT array scale".
@@ -329,8 +336,9 @@ radiometer noise. New simulator, `examples/simulate_f1_field.py`:
   of the training observations and appears only in test: it is the held-out morphology. The second
   test observation has a 5 Jy calibrator, a different hour angle and 58 antennas.
 - No input flags, which gives Tricolour's flags without the growth artefact of section 6.
-- An RFI-free copy of every observation is kept for scoring: held-out cells are flagged while solving
-  and scored against their RFI-free values.
+- The RFI is stored as a seeded sparse additive layer beside the RFI-free DATA, so scoring needs no
+  second copy and the 25 GB stands. Held-out cells are flagged while solving and scored against their
+  RFI-free values.
 
 **Possible today:** Stages 1–5 on F-SIM, LUNO, the fixture and ESO137. **Waiting for L3:** any
 statement about real, unprocessed RFI. The frozen weights run on it unchanged, without retraining,
@@ -386,9 +394,10 @@ on Q4 is a failure, and anything else says nothing about quality. Quality theref
 
 **Agreement with T**, on real data, far stratum. Jaccard of added cells:
 
-- LUNO 1830−211 and the fixture: J ≥ 0.40. The mild strategy added 299,575 cells and first pass
-  613,116 on L1, so J(mild, first pass) cannot exceed 0.489 by counts. Two shipped strategies are that
-  far apart.
+- LUNO 1830−211 and the fixture: J(F-TV, T) ≥ J(T-mild, T) − 0.05, on the same cells and stratum,
+  computed in the same run. The bar is relative because two shipped strategies are themselves far
+  apart: mild added 299,575 cells and first pass 613,116 on L1, so J(T-mild, T) cannot exceed 0.489 by
+  counts. That figure is an upper bound, not a measurement, and on the far stratum it is unknown.
 - J is a bar for "behaves like a flagger of this family", not truth. Failing it blocks a real-data
   claim but not a simulated one.
 - F-SIM: J reported, not gated. Q1 and Q2 decide.
@@ -432,7 +441,7 @@ Otherwise T1 + T2 + T3. P holds if that count is under half of the first pass's 
 **A positive claim under the novelty rule** needs more than A. A software win against a toy baseline
 establishes nothing ([AGENTS.md](../AGENTS.md)):
 
-- Outcome A, **and** C3 ≤ 0.5, and agreement J ≥ 0.40 on real data;
+- Outcome A, **and** C3 ≤ 0.5, and the relative agreement bar above met on real data;
 - **and real, unprocessed data.** Until L3 runs, the strongest permitted sentence is: "on simulated
   RFI and on processed L-band data, comparable to the CARACal first pass at under half its wall". That
   is a conditional result, not a claim of a better flagger;
@@ -447,18 +456,19 @@ reported and is not the result.
 | --- | --- | --- | ---: | --- |
 | 0 | This protocol; owner decides section 11 | done | – | owner says so |
 | 1a | JAX adjoint, finite-difference validation | 1 session | ≤ 30 min | validation fails after one round of fixes |
-| 1b | F-SIM builder, injections, **go/no-go** | 1 session | ≤ 2 h | **NO-GO: outcome D** |
+| 1b | **Go/no-go on LUNO 1934−638**, injected (data on disk; `core_injection_model.make_injection` extended) | ½–1 session | ≤ 3 h (estimate: about 120 solves and 90 re-solves at 25–40 s, plus adjoints) | **NO-GO: outcome D** |
+| 1c | F-SIM builder, then the same go/no-go on F-SIM. Built only after 1b passes | 1 session | ≤ 3 h | **NO-GO: outcome D** |
 | 2 | Rust inference kernel with JAX parity; Z, U, R, F-RES, F-IMI; first look at Q1, Q2, C1 on validation | 1–2 sessions | ≤ 4 h | C1 > 0.75 for U on a real window: no speed to win. Z meets Q on validation: report to the owner before spending on TV |
 | 3 | TV overfit test: train on one F-SIM observation, evaluate on it | 1 session | ≤ 4 h | recall < 0.50 at ≥ 10σ on its own training scan: outcome E |
 | 4 | Full F-TV (3 seeds), guards G1–G6, F-TV-LUNO | 1–2 sessions | ≤ 4 h per seed; ≤ 20 h in total | a guard fails: outcome E |
 | 5 | Frozen test observations, real data, cost; verdict; archive | 1 session | ≤ 2 h | – |
 | 6 | L3 on the frozen weights, on arrival | ½ session | ≤ 1 h | – |
 
-If it stops at the go/no-go, this costs about 2 sessions. All stages about 6–8.
+If it stops at the LUNO go/no-go, this costs about 2 sessions. All stages about 7–9.
 
 **At most one change of hyperparameters** in the whole protocol, by dated amendment, on validation
 only, before any test observation is opened. Test observations are generated by a script hashed at
-Stage 1b and first read at Stage 5.
+Stage 1c and first read at Stage 5.
 
 **One refresh, estimated.** Rust solve about 30 s (one whole-array solve is 24.6–28.9 s; Anderson's 65
 iterations against 50 add time); adjoint about 10 s if MINRES takes 30 Hessian products (Stage 1a
@@ -510,6 +520,7 @@ plausible on simulated RFI, which is why Z runs before any TV training.
 ## 10. Sizing probes (labelled scratch, run 2026-11-02, no flagger code)
 
 `outputs/f1-20261102-00-probes/` (`count.py`, `kernel.rs`, `edges.py`, `edges.json`). Host load 5–7.
+These files are the record; the first `edges.py` launch stopped on a wrong array name before solving.
 
 - **P1, YAML count** (`count.py`, from `outputs/caracal-strategy-inputs-8f7bb363`). First pass: 12
   steps, 72 kwarg keys, 96 scalar values, 21 distinct task-and-key kinds, 31 distinct task/key/value
