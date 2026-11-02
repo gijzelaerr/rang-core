@@ -11,6 +11,10 @@ name = "rang_core"
 path = "src/lib.rs"
 crate-type = ["rlib", "cdylib"]
 
+[[bin]]
+name = "gmclean"
+path = "src/bin/gmclean.rs"
+
 [dependencies]
 rang-toy = { path = ".." }
 rayon = "1.12.0"
