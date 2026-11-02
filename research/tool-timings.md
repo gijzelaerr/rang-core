@@ -1204,3 +1204,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | gmclean S1 `-j 1` | 14.5 M vis | 151 s | – | bit-identical to `-j 16` (34 s) |
 | 2026-11-02 | gmclean_sim bench, 1024², 5 repeats | 14 variants and kernels | about 6 min | – | machine load 7-12 recorded per repeat |
 | 2026-11-02 | `lake build` with Gmclean.lean | formal | 203-552 s | – | |
+| 2026-11-02 | gmclean quieter retest: `minor`, 2 skies, and `cmp6`, 5 repeats | 2048² | about 25 min | – | under the lock, load 2.6-8 |

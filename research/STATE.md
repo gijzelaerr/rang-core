@@ -14,7 +14,7 @@ shared host; [gmclean.md](gmclean.md), branch `gmclean`):
   5, 4 major cycles, false flux 4.3, 4.9, 1.6 mJy; WSClean's Högbom loop 6, 6, 5 and
   5.4, 6.7, 1.7 mJy.
 - **Negative.** "1-3 major cycles" is not reachable at low false flux here. The gridder
-  is about 60 % of the time. No meaningful explicit-SIMD gain on this host. Slice
+  is about 60 % of the time. Explicit SIMD helps only the minor loop, invisible in a whole run. Slice
   central flux still −12.4 %. The rule's ρ and g were chosen on the same skies.
 - **Next.** Re-test the timing decisions in gmclean.md §5.4 on an idle host, re-run
   the benchmark at the current commit (its `-mgain 0.8` now means WSClean's peak

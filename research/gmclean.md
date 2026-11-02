@@ -32,7 +32,8 @@ signal were suggested by an early reader of the draft on 2026-11-02.
   at low false flux on these skies: 4 cycles at `-mgain 0.99` carry 72-77 mJy of
   false flux. The large speedups an image-domain Gram step seemed to promise come
   mostly from where the gridder is cheap; the gridder is about 60 % of the time
-  and was already at ducc0's speed. The slice's central flux is still −12.4 %.
+  and was already at ducc0's speed. Explicit SIMD gives 24-39 % on the minor loop and
+  nothing visible in the whole run. The slice's central flux is still −12.4 %.
 - **Regression found by the benchmark, fixed.** `961e162` made a cycle whose gap
   was small run to the threshold: 1,000,000 components, 20.3 Jy false flux on S1.
   §4.1.
@@ -235,11 +236,11 @@ to give on these sizes.
 | change | evidence | science |
 | --- | --- | --- |
 | Real-input FFT resync: half spectra, row pairs, pruned rows, zero-row skip; work space kept | `disc` resync 16.35 → 1.94 s minimum, S1 368 → 45 s (918 resyncs, both under load); 3m → 1.5m FFTs by count, the rest is page faults on 4096² buffers | Q and components identical to all digits printed; 1e-12 against direct subtraction in a test |
-| Lazy tile bounds | rescanned pixels ×0.26 on `disc`, ×0.14 on `crowded` (deterministic); minor loop 1.20 against 1.44 s, 2.24 against 3.00 s | picks bit-identical, tested |
-| Tile 64 | 1.20 against 1.55 s on `disc`, 2.24 against 2.31 s on `crowded`, 0.062 against 0.076 s on `point`; tile 256 worse (2.32 s, 7.92 s, 0.166 s), 128 a little worse, 16 worse in a whole-run comparison | picks bit-identical |
-| Plan, layout and tables kept (`wgridder::Prepared`) | **instructions −10.6 % on `point`, −9.9 % on `disc`** (deterministic) | identical; `GridMeasurement<f64>` equals `WgridMeasurement` bit for bit in a test. Zero-weight visibilities are no longer predicted (nothing reads them) |
+| Lazy tile bounds | rescanned pixels ×0.26 on `disc`, ×0.14 on `crowded` at tile 32 (deterministic); on the quieter host minor loop 0.72 against 0.85 s, 1.51 against 1.90 s at tile 64; not visible in whole-run wall time | picks bit-identical, tested |
+| Tile 64 | no resolved difference from tile 32 on the quieter host (0.72 against 0.70 s, 1.51 against 1.56 s; the gain seen under load was not real); 128 and 256 worse (0.81, 1.33 s; 1.96, 3.42 s) | picks bit-identical |
+| Plan, layout and tables kept (`wgridder::Prepared`) | **instructions −10.6 % on `point`, −9.9 % on `disc`** (deterministic); quieter host: wall 25.6 against 28.5 s, major 12.7 against 15.4 s | identical; `GridMeasurement<f64>` equals `WgridMeasurement` bit for bit in a test, and `-niter 0` dirty, PSF and residual FITS on S1 are bit-identical to `d94850e`. Zero-weight visibilities are no longer predicted (nothing reads them) |
 | Stokes I per row in parallel | read phase about 3 s, not isolated | bit-identical arithmetic, tested |
-| `[profile.gmclean]`, fat LTO, the binary only (`cargo build --profile gmclean --bin gmclean`); the crate-wide release profile is unchanged | instructions −5.9 % (1,647 → 1,551 G on `disc`) | Q identical to all printed digits |
+| `[profile.gmclean]`, fat LTO, the binary only (`cargo build --profile gmclean --bin gmclean`); the crate-wide release profile is unchanged | instructions −5.9 % (1,647 → 1,551 G on `disc`); quieter host: wall 24.6 against 25.6 s | Q identical to all printed digits |
 | Stop rule of §4 | 3-4 fewer major cycles than fast WSClean; each pass is 8-12 % of the run | §4 |
 
 Optional, not default: `-single` gridding in `f32`, with `-wgridder-accuracy 1e-4`
@@ -255,9 +256,9 @@ on the image-domain beam (regression test `single_precision_keeps_the_amplitudes
 | `f32` working map with exact `f64` correction | patch 0.15 ns/px against 0.117 for `f64` (cache-bound, no gain); the loop is under 3 % of the profile | rejected, not implemented; the kernel benchmark holds the number |
 | Patch 8, 16, 32 | resync 24 s at ±16 against 2.0 s at ±64 on `disc` | rejected; ±64 stays |
 | Patch 96, 128 | minor 2.09 s against 1.33 s at ±64, 2.79 against 1.30; resync gains under 0.5 s | rejected |
-| `K` 8000, 32000 | resyncs 28 against 41 (−0.7 s), but correction terms ×1.57: minor +0.12 s on `disc`, +1.2 s or more on `crowded` | mixed; `K` stays 2000; re-test |
+| `K` 8000, 32000 | quieter host: resyncs 28 against 41, resync −0.58 s, minor +0.04 s on `disc`; 30 against 46, −0.67 s, +0.35 s on `crowded`: a net 0.3-0.5 s of 25 s. Under load it had looked mixed. It changes the picks slightly | `K` stays 2000; a small gain left on the table |
 | Spatial index for the correction | every exterior term is needed; a term costs about 0.8 ns in the kernel, 9 ns in the loop's cache pattern | not implemented; 1 % of the time |
-| Explicit SIMD on this build | patch 0.117, 0.114, 0.128 ns/px at scalar, AVX2, AVX-512 (memory-bound); tile argmax 0.346, 0.184, 0.236; gather 0.797, 0.788, 0.776. Whole loop: no resolved difference | kept for non-v3 builds; **no meaningful speedup measured, and AVX-512 is no faster than AVX2 on Zen 4** |
+| Explicit SIMD on this build | kernels at load 7-12: patch 0.117, 0.114, 0.128 ns/px at scalar, AVX2, AVX-512 (memory-bound; "scalar" is AVX2 here by autovectorisation); tile argmax 0.346, 0.184, 0.236; gather 0.797, 0.788, 0.776. Minor loop on the quieter host: 1.157, 0.709, 0.720 s on `disc`, 2.086, 1.585, 1.514 s on `crowded`: **24-39 % on the minor loop, from the argmax, and nothing in whole-run wall time** (25.7, 25.5, 25.6 s). AVX-512 is no faster than AVX2 on Zen 4 | kept |
 | `x86-64` baseline build | 1,685 G instructions against 1,647 G: +2.3 % | fine for wheels; dispatch does its job |
 | Plane groups | df2-wgridder-speed.md, negative | not repeated |
 | Pruned FFT beyond the dropped rows | estimated under 10 % of the resync | not implemented |
@@ -267,12 +268,16 @@ on the image-domain beam (regression test `single_precision_keeps_the_amplitudes
 
 ### 5.4 Decisions resting on timings under load
 
-To re-test on an idle host before the final benchmark: tile 64 against 32; `K`;
-lazy against eager in wall time (the counts are solid); AVX2 against AVX-512 as the
-dispatch default on Zen 4; `-j`; the fat LTO wall gain (its instruction count is
-solid); resync gain (the FFT count is solid, the size of the page-fault part is not).
-Not dependent on load: everything in §4, plan reuse and fat LTO instruction counts,
-tile rescan counts, resync and major-cycle counts.
+Most comparisons ran under load 4-25. The close calls were repeated under the lock
+at load 2.6-8 (`gmclean_sim minor` on `disc`, `crowded`, five repeats; `cmp6` on `disc`,
+five repeats), most of that load being the runs themselves but with no idle-host
+guarantee; that changed the conclusions on tile size, `K` and SIMD above. Still to
+re-test on an idle host before the final benchmark: tile 64 against 32 (no resolved
+difference so far); `K`; AVX2 against AVX-512 as the dispatch default on Zen 4; `-j`;
+the size of the resync gain, of which the FFT count is solid and the page-fault part
+is not; every number in §5.6. The patch choice, ±64, rests on resync and rescan counts
+as well as times. Not dependent on load: everything in §4, the plan reuse and fat LTO
+instruction counts, rescan counts, resync and major-cycle counts.
 
 ### 5.5 Where this stopped
 

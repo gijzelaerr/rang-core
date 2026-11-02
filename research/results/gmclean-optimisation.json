@@ -500,6 +500,77 @@
 "name": "thin-avx2"
 }
 ]
+},
+"cmp6": {
+"base": [
+"-size",
+"2048",
+"2048",
+"-scale",
+"1.5asec",
+"-weight",
+"briggs",
+"0",
+"-niter",
+"2000000",
+"-data-column",
+"DATA",
+"-j",
+"16",
+"-abs-threshold",
+"1e-3"
+],
+"ms": {
+"disc": "/home/gijsm/Build/tmp/20261102-gmclean-opt/disc/sim.ms"
+},
+"repeats": 5,
+"scratch": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cmp6",
+"skies": [
+"disc"
+],
+"sky_args": {
+"disc": []
+},
+"variants": [
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "thin"
+},
+{
+"args": [
+"-no-plan-reuse"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "thin-noplan"
+},
+{
+"args": [
+"-eager-tiles"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "thin-eager"
+},
+{
+"args": [
+"-simd",
+"avx2"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "thin-avx2"
+},
+{
+"args": [
+"-simd",
+"scalar"
+],
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean",
+"name": "thin-scalar"
+},
+{
+"binary": "/home/gijsm/Build/tmp/20261102-gmclean-opt/bin-fat/gmclean",
+"name": "fat"
+}
+]
 }
 },
 "engineering_comparisons": {
@@ -2002,6 +2073,200 @@
 "tile_rescans": 267900
 }
 }
+],
+"cmp6": [
+{
+"cache_misses_min": 6373569968.0,
+"components": 76287,
+"correction_min": 0.22372680799999564,
+"cpu_min": 292.454604469,
+"instructions_min": 1653935104145.0,
+"load": [
+8.08,
+18.31,
+15.06,
+12.58,
+12.06
+],
+"major_cycles": 4,
+"major_min": 12.735184634000001,
+"minor_min": 0.7880722479999996,
+"model_flux": 62.44305678112045,
+"psf_2n_min": 4.049163001,
+"q_final": 0.0015267079521399712,
+"resync_min": 1.9343866430000003,
+"resyncs": 40,
+"sky": "disc",
+"variant": "thin",
+"wall_median": 29.095649086,
+"wall_min": 25.612542468,
+"work": {
+"full_scans": 46,
+"pixels_rescanned": 1097318400,
+"pixels_subtracted": 1269491967,
+"tile_rescans": 267900
+}
+},
+{
+"cache_misses_min": 6585642111.0,
+"components": 76287,
+"correction_min": 0.23494898799999675,
+"cpu_min": 310.265261867,
+"instructions_min": 1844950831180.0,
+"load": [
+11.47,
+18.71,
+14.32,
+12.89,
+11.59
+],
+"major_cycles": 4,
+"major_min": 15.437283730999997,
+"minor_min": 0.7591201230000001,
+"model_flux": 62.44305678112045,
+"psf_2n_min": 4.131526107,
+"q_final": 0.0015267079521399712,
+"resync_min": 1.8775663919999999,
+"resyncs": 40,
+"sky": "disc",
+"variant": "thin-noplan",
+"wall_median": 33.047259235,
+"wall_min": 28.521378538,
+"work": {
+"full_scans": 46,
+"pixels_rescanned": 1097318400,
+"pixels_subtracted": 1269491967,
+"tile_rescans": 267900
+}
+},
+{
+"cache_misses_min": 6536074782.0,
+"components": 76287,
+"correction_min": 0.24964308599999774,
+"cpu_min": 293.853837069,
+"instructions_min": 1655728891475.0,
+"load": [
+11.87,
+14.26,
+16.15,
+13.32,
+11.4
+],
+"major_cycles": 4,
+"major_min": 12.770264588,
+"minor_min": 0.9181635890000003,
+"model_flux": 62.44305678112045,
+"psf_2n_min": 4.018916919,
+"q_final": 0.0015267079521399712,
+"resync_min": 1.9025021089999998,
+"resyncs": 40,
+"sky": "disc",
+"variant": "thin-eager",
+"wall_median": 28.307915866,
+"wall_min": 25.517367508,
+"work": {
+"full_scans": 46,
+"pixels_rescanned": 2812243968,
+"pixels_subtracted": 1269491967,
+"tile_rescans": 686583
+}
+},
+{
+"cache_misses_min": 6356738403.0,
+"components": 76287,
+"correction_min": 0.23723715999999664,
+"cpu_min": 290.660106478,
+"instructions_min": 1656023136765.0,
+"load": [
+13.73,
+14.32,
+14.79,
+12.74,
+12.1
+],
+"major_cycles": 4,
+"major_min": 12.631900469000001,
+"minor_min": 0.8019577870000001,
+"model_flux": 62.443056781120454,
+"psf_2n_min": 4.081349772,
+"q_final": 0.0015267079521399708,
+"resync_min": 1.901001358,
+"resyncs": 40,
+"sky": "disc",
+"variant": "thin-avx2",
+"wall_median": 27.351290382,
+"wall_min": 25.5082628,
+"work": {
+"full_scans": 46,
+"pixels_rescanned": 1097318400,
+"pixels_subtracted": 1269491967,
+"tile_rescans": 267900
+}
+},
+{
+"cache_misses_min": 6521682094.0,
+"components": 76287,
+"correction_min": 0.27558391399999865,
+"cpu_min": 291.192288192,
+"instructions_min": 1662183613849.0,
+"load": [
+12.97,
+14.66,
+15.09,
+13.15,
+12.57
+],
+"major_cycles": 4,
+"major_min": 12.501386078,
+"minor_min": 1.2077277499999999,
+"model_flux": 62.443056781120454,
+"psf_2n_min": 4.03469467,
+"q_final": 0.0015267079521399714,
+"resync_min": 1.8995758670000003,
+"resyncs": 40,
+"sky": "disc",
+"variant": "thin-scalar",
+"wall_median": 27.074537744,
+"wall_min": 25.676829727,
+"work": {
+"full_scans": 46,
+"pixels_rescanned": 1097318400,
+"pixels_subtracted": 1269491967,
+"tile_rescans": 267900
+}
+},
+{
+"cache_misses_min": 6542671082.0,
+"components": 76287,
+"correction_min": 0.23165906399999658,
+"cpu_min": 279.529031141,
+"instructions_min": 1555032029487.0,
+"load": [
+11.17,
+15.14,
+13.88,
+11.43,
+11.77
+],
+"major_cycles": 4,
+"major_min": 11.883074976,
+"minor_min": 0.7830850930000001,
+"model_flux": 62.44305678112045,
+"psf_2n_min": 3.97353189,
+"q_final": 0.0015267079521399712,
+"resync_min": 1.902464527,
+"resyncs": 40,
+"sky": "disc",
+"variant": "fat",
+"wall_median": 24.714455651,
+"wall_min": 24.590212512,
+"work": {
+"full_scans": 46,
+"pixels_rescanned": 1097318400,
+"pixels_subtracted": 1269491967,
+"tile_rescans": 267900
+}
+}
 ]
 },
 "experiment": "gmclean optimisation and minor-cycle stop rules (research/gmclean.md)",
@@ -3372,6 +3637,36 @@
 "p96-t64-lazy-k8000     minor   0.098 /   0.147 corr  0.018 resync  0.179 | comps    6672 resyncs    3 terms     3210820 px   226276100 rescanned    69926912 same-picks false flux 11.229513 dQ -2.885882e0",
 "p64-t64-scalar         minor   0.084 /   0.104 corr  0.018 resync  0.208 | comps    6672 resyncs    4 terms     2699594 px   104205328 rescanned    61677568 same-picks true flux 11.229797 dQ -2.885881e0",
 "p64-t64-avx2           minor   0.062 /   0.084 corr  0.015 resync  0.204 | comps    6672 resyncs    4 terms     2699594 px   104205328 rescanned    61677568 same-picks true flux 11.229797 dQ -2.885881e0"
+],
+"minor_loop_log_quieter": [
+"=== minor disc load 2.59",
+"p64-t32-lazy-k2000     minor   0.703 /   0.709 corr  0.215 resync  1.768 | comps   76370 resyncs   41 terms    74748420",
+"p64-t32-eager-k2000    minor   0.835 /   0.888 corr  0.217 resync  1.751 | comps   76370 resyncs   41 terms    74748420",
+"p64-t64-lazy-k2000     minor   0.720 /   0.723 corr  0.217 resync  1.782 | comps   76370 resyncs   41 terms    74748420",
+"p64-t64-eager-k2000    minor   0.846 /   0.889 corr  0.224 resync  1.757 | comps   76370 resyncs   41 terms    74748420",
+"p64-t128-lazy-k2000    minor   0.809 /   0.817 corr  0.226 resync  1.751 | comps   76370 resyncs   41 terms    74748420",
+"p64-t256-lazy-k2000    minor   1.330 /   1.416 corr  0.252 resync  1.769 | comps   76370 resyncs   41 terms    74748420",
+"p64-t64-lazy-k8000     minor   0.756 /   0.779 corr  0.265 resync  1.201 | comps   76385 resyncs   28 terms   117045740",
+"p64-t64-lazy-k32000    minor   0.755 /   0.789 corr  0.270 resync  1.224 | comps   76385 resyncs   28 terms   117045740",
+"p32-t64-lazy-k8000     minor   0.462 /   0.475 corr  0.165 resync  3.345 | comps   76394 resyncs   78 terms    38468744",
+"p96-t64-lazy-k8000     minor   1.149 /   1.232 corr  0.324 resync  0.904 | comps   76333 resyncs   21 terms   147822632",
+"p64-t64-scalar         minor   1.157 /   1.205 corr  0.254 resync  1.781 | comps   76370 resyncs   41 terms    74748420",
+"p64-t64-avx2           minor   0.709 /   0.753 corr  0.217 resync  1.772 | comps   76370 resyncs   41 terms    74748420",
+"load after 7.63",
+"=== minor crowded load 7.63",
+"p64-t32-lazy-k2000     minor   1.559 /   1.620 corr  0.539 resync  1.989 | comps   83585 resyncs   46 terms    77127509",
+"p64-t32-eager-k2000    minor   1.865 /   1.924 corr  0.555 resync  1.986 | comps   83585 resyncs   46 terms    77127509",
+"p64-t64-lazy-k2000     minor   1.514 /   1.629 corr  0.535 resync  1.963 | comps   83585 resyncs   46 terms    77127509",
+"p64-t64-eager-k2000    minor   1.902 /   2.016 corr  0.555 resync  2.000 | comps   83585 resyncs   46 terms    77127509",
+"p64-t128-lazy-k2000    minor   1.957 /   2.014 corr  0.561 resync  2.001 | comps   83585 resyncs   46 terms    77127509",
+"p64-t256-lazy-k2000    minor   3.419 /   3.658 corr  0.605 resync  2.025 | comps   83585 resyncs   46 terms    77127509",
+"p64-t64-lazy-k8000     minor   1.867 /   1.941 corr  0.791 resync  1.296 | comps   83576 resyncs   30 terms   119580812",
+"p64-t64-lazy-k32000    minor   1.864 /   2.060 corr  0.787 resync  1.291 | comps   83576 resyncs   30 terms   119580812",
+"p32-t64-lazy-k8000     minor   0.900 /   1.019 corr  0.323 resync  3.726 | comps   83581 resyncs   86 terms    41252474",
+"p96-t64-lazy-k8000     minor   2.728 /   3.102 corr  0.955 resync  1.064 | comps   83573 resyncs   24 terms   148115845",
+"p64-t64-scalar         minor   2.086 /   2.297 corr  0.560 resync  2.005 | comps   83585 resyncs   46 terms    77127509",
+"p64-t64-avx2           minor   1.585 /   1.898 corr  0.551 resync  2.006 | comps   83585 resyncs   46 terms    77127509",
+"load after 8.08"
 ],
 "stop_rules": {
 "s1-misfit0.8": {
