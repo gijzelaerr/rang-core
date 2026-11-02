@@ -22,6 +22,7 @@ CLI receipts are `rang.receipt` version 2 from then on (key
 
 ## The core port and simplification
 
+- [W4-2 and W4-7, boundary checks](w4-2-boundaries.md): sized, C-order and overflow checks on every extension binding; `flag_rows` lengths; span-row coverage; zarr order and dtype checks and the out-of-order fallback in `core_fetch`; the `gpu` feature in `rang-core check`.
 - [W4 final review](w4-review.md): no archived result is affected and the kernels are bit-identical across thread counts; 17 findings (1 high, the solver options missing from receipts; 8 medium; 8 low); v0.1.0 is go after W4-1, W4-3 and W4-5.
 - [W4-3, closure and flux-standard kernels in the extension](w4-3-kernels.md): no kernel call runs Cargo; standalone builders and dead fallbacks deleted; byte-identical, and a wheel without cargo runs both (W4R-06, W4R-16).
 - [W4-1, receipts](w4-1-receipts.md): `rang.receipt` version 3 records the `RANG_*` registry and the source; the solver takes options explicitly; `commit: null` outside a checkout (W4R-01, W4R-02); results unchanged.
@@ -205,6 +206,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 
 ## CLEAN theory programme
 
+- [How many major cycles does CLEAN need?](clean-major-cycles.md): theory in Lean (the Gram-gap identity, per-cycle descent, the outer rate); in simulations through the exact gridder, passes fall from 4-7 (WSClean's scheme) to 2-3 with a double-size PSF run to the threshold, and to 1 without the w-term; the certified rules cost more passes, not fewer; timings are provisional.
 - [CLEAN phase transition](clean-phase-transition.md): when Högbom CLEAN recovers point sources exactly, on MeerKAT, VLA-C, WSRT and KAT-7. Proven: an exact gain-one two-source rule (an ℓ∞ ERC plus the first pick), which agrees with all 40,000 trials, and a sharper sufficient condition (Theorem 8, anchored), which certifies 14 of 80 cases against 3 for Proposition 4'. Measured: the transition `d*(k)` per array, coverage and weighting, with every sufficient condition far above it for `k ≥ 4`. Negative: no universal curve beyond the ERC threshold `η = 1`, and with 1 % noise no configuration reaches 95 % exact support ([archive](results/clean-phase-transition.json)).
 - [What CLEAN minimises](clean-implicit-objective.md): small-gain Högbom CLEAN is forward stagewise regression, proved to converge (in ℓ1 arc length) to the same limit as FS_ε, unique in data space (the gradient flow of the peak residual) and equal to Hastie et al.'s monotone lasso when the tied atoms are independent (for extended emission that condition seems to fail, so model convergence there is measured, not proved); no pointwise objective, only steepest descent of the misfit per unit ℓ1 arc length. Measured on MeerKAT PSFs: CLEAN → FS₀ at rate about γ^0.8-1.4; the lasso path is far from monotone for extended emission (small gain wins on a disc, loses on point sources on the snapshot); 21 new Lean theorems, including Proposition 4' and Theorem 6 of the CLEAN note ([archive](results/clean-implicit-objective.json)).
 - [Certified CLEAN](clean-certified-imaging.md) on the LUNO 1934−638 slice: the instrumented driver reproduces WSClean 3.7's CLEAN to 5e-6 Jy, divergence included, names the cause (image-size beam, Gram gap 99 Q, 158 ascending steps) and converges with the exact beam (65 components, rms 22 mJy); O-CASA's WSClean reference is 17 % off the exact transform because of WSClean's minimum-grid-resolution upsampling ([archive](results/clean-certified-imaging.json)).
@@ -212,6 +214,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 
 ## Gridders and imaging
 
+- [DF5-O, the deconvolution oracles](df5o-deconv-oracles.md): WSClean and pfb-imaging frozen on a simulated MeerKAT field; their dirty images agree with the core's to 1.7e-7 and 2.6e-7 of the peak; WSClean Högbom and pfb kclean/Clark meet the truth tolerances A1 and A2, and WSClean multiscale meets A2 and fails A1 on three sources.
 - [DF2c, `--gridder` for the campaign runs](df2c-campaign-gridder.md): K/L1/L2/L1-M/C1 take `wgrid` with its plan in the receipts, the default bit-identical; L2, L1-M and C1 re-imaged post hoc, no call changes.
 - [X2, the GPU gridder](x2-wgpu.md): the w-stacking gridder and FFT on wgpu (feature `gpu`, f64), C/I/K comparators pass on the RTX 4070 Ti, 2.5–3.3× over 16 CPU threads at four stations, 1.2× at whole-array scale; f32 fails K.
 - [DF2b, the exact gridder in the imaging drivers](df2b-wgrid.md): `gridder="wgrid"` for C/I/K/L1, `wstack` bit-identical, the archives within 4e-7 of WSClean 3.7's wgridder, two-weight entry point and extension bindings.

@@ -476,6 +476,8 @@ EXPECTED_STEPS = [
     "core-test",
     "core-clippy",
     "core-fmt",
+    "core-clippy-gpu",
+    "core-test-gpu",
     "ext-build",
     "ext-clippy",
     "ext-fmt",
@@ -486,7 +488,7 @@ EXPECTED_STEPS = [
 ]
 
 
-def test_check_has_the_fifteen_steps_of_check_all_in_order():
+def test_check_has_the_seventeen_steps_of_check_all_in_order():
     from rang import check
 
     table = check.steps()
@@ -494,6 +496,10 @@ def test_check_has_the_fifteen_steps_of_check_all_in_order():
     labels = {s[0]: s[5] for s in table}
     assert labels["root-build"] == "cargo +1.93 build --offline --release -q"
     assert labels["core-test"] == "rust_test --manifest-path core/Cargo.toml"
+    assert labels["core-test-gpu"] == (
+        "rust_test --manifest-path core/Cargo.toml --features gpu"
+    )
+    assert "--features gpu -- -D warnings" in labels["core-clippy-gpu"]
     assert labels["ruff"] == ".venv/bin/ruff check python examples tests"
     for name, _, _, argv, _, _ in table:
         assert isinstance(argv, list) and all(isinstance(a, str) for a in argv), name
@@ -521,7 +527,7 @@ def test_check_runs_every_step_and_reports_failures(tmp_path, monkeypatch, capsy
         "overall: FAIL",
     ]
     assert "FAILED: .venv/bin/ruff check python examples tests" in out
-    assert len(seen) == 15 and all(locked == "1" for _, locked in seen)
+    assert len(seen) == len(EXPECTED_STEPS) and all(locked == "1" for _, locked in seen)
     assert json.loads(receipt.read_text())["pass"] is False
     assert (tmp_path / "lock").exists()
     code = check.main(["--rust"], runner=lambda *a: 0, root=ROOT)

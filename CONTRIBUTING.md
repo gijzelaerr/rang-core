@@ -16,6 +16,8 @@ cargo build --offline --release --manifest-path core/Cargo.toml
 cargo test --offline --release --manifest-path core/Cargo.toml
 cargo clippy --offline --all-targets --manifest-path core/Cargo.toml -- -D warnings
 cargo fmt --check --manifest-path core/Cargo.toml
+cargo clippy --offline --all-targets --manifest-path core/Cargo.toml --features gpu -- -D warnings
+cargo test --offline --release --manifest-path core/Cargo.toml --features gpu  # GPU tests skip without an adapter
 .venv/bin/maturin develop --release --offline
 cargo clippy --offline --all-targets --manifest-path core/py/Cargo.toml -- -D warnings
 cargo fmt --check --manifest-path core/py/Cargo.toml
@@ -28,6 +30,10 @@ git diff --check
 `rang-core check [--rust|--python|--all]` (or `python -m rang.check`, which
 is what `tools/check-all.sh` runs) is the same check on any platform; on
 Windows run `.venv\Scripts\python -m rang.check`.
+
+The steps `core-clippy-gpu` and `core-test-gpu` build the core's `gpu`
+feature (wgpu): about 6 minutes cold, a few seconds warm. Leave them
+out with `rang-core check --skip core-clippy-gpu,core-test-gpu`.
 `bash tools/check-all.sh` runs all of the above with Rust 1.93 and reports
 PASS or FAIL per step. Optional packaging check: `bash tools/wheel/build.sh
 outputs/wheel-<date>-NN` builds the manylinux wheel in docker and

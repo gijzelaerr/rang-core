@@ -281,3 +281,30 @@ to an unrelated package (carta-python is not on PyPI).
 7. `carta/backend.py` starts the backend with `preexec_fn=os.setpgrp`, so
    `Session.start_and_*` cannot work on Windows (consistent with CARTA
    having no Windows build).
+
+## From E6 (2026-10-31; not reported by decision)
+
+- casacore 3.8.1 (defect): a ranged `putcol` (`putColumnRange`) of a
+  TiledCellStMan column goes through
+  `TSMDataColumn::accessColumnCells`, which reads `rowpos(lastAxis)`, an
+  axis a TiledCellStMan cube does not have (its position is the cell
+  shape only), and raises `TSMShape::offset - shapes do not conform`
+  (undefined behaviour: past the end of an `IPosition`); a whole-column
+  `putcol` and `putcell` work.
+- casacore 3.8.1 (note): `TiledCellStMan::setShape` of a row whose cube
+  has unflushed tiles deletes the cube's cache unflushed
+  (`TSMCube::setShape` → `deleteCache`), so the values put into the old
+  shape since the last flush never reach the file, while values flushed
+  earlier stay in it as unreferenced bytes.
+- casacore 3.8.1 (defect): `MultiFile::writeRemainder` writes a single
+  continuation chunk from a `malloc`'d buffer it does not clear; the
+  block's bytes after the chunk are whatever the heap held (fragments of
+  file names and an AipsIO `RecordDesc` in a probe).
+- casacore 3.7.1 (note): MultiHDF5 containers are not reproducible:
+  libhdf5 1.10.10 writes object modification times (two runs a second
+  apart differ at bytes 1980 and 3285).
+- python-casacore 3.8.1 (note): `getcell` of a string array of more than
+  one axis returns a dict of its shape and strings, not an array.
+- casacure 3.8.35 (note): reads TiledCellStMan tables and
+  IncrementalStMan string arrays like python-casacore; cannot open
+  TiledDataStMan or MultiFile tables (as in E5).

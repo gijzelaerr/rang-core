@@ -1210,3 +1210,50 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan W4-1: `cargo test --release --lib solve::` | core | 173 s build, 0.9 s tests | – | 15 pass |
 | 2026-10-31 | big plan W4-1: r02 / r05 (wheel in a scratch repository) | `outputs/w4-1-20261031-01` | 1.1 s / 0.9 s | – | wheel build 1 s (target reused) |
 | 2026-10-31 | big plan W4-1: `bash tools/check-all.sh` | branch `w4-1-receipts` | 1156 s (lock wait included) | – | overall PASS; pytest 750 passed, 18 skipped |
+| 2026-10-31 | big plan E6: `git clone --depth 1 --branch v3.8.1 casacore` (and v3.7.1) |  | 4.4 s | – | format reference, scratch |
+| 2026-10-31 | big plan E6: KERN-10 package probe (container, network) |  | 54.5 s | – | deb versions before pinning |
+| 2026-10-31 | big plan E6: `build.sh rang-casacore-cpp:3.7.1` (first build) | Dockerfile | 83.4 s | – | apt from KERN-10 |
+| 2026-10-31 | big plan E6: `build.sh` rebuilds with `oracle.cc` |  | 6.9 s / 1.8 s | – | cached layers; the second in the frozen run |
+| 2026-10-31 | big plan E6: `uv venv` + `uv pip install -e '.[pointing,beam,test,imaging,casacure]' ruff maturin pip` | worktree | 186 s | – | builds the extension |
+| 2026-10-31 | big plan E6: pre-freeze probes (python-casacore, C++, MultiFile continuation), 3 runs each |  | 1.6–5 s | – | scratch |
+| 2026-10-31 | big plan E6: `cargo check --release` (core) | `core/` | 5.8–13 s | – | incremental, about 15 runs |
+| 2026-10-31 | big plan E6: `maturin develop --release` | extension | 190–200 s | – | eight builds |
+| 2026-10-31 | big plan E6: `cargo test --release` (core, 131 tests) | `core/` | 177 s | – | build included |
+| 2026-10-31 | big plan E6: `pytest` E3, E4, E5, T1 table tests / E6 tests |  | 8.9 s / 0.3 s | – | 44 passed / 6 passed, 1 skipped |
+| 2026-10-31 | big plan E6: frozen `oracle` (python-casacore write + 4 write-mf + 6 C++ cases) | 21 cases + H-mfh5 | 8.8 s | – | twin 8.2 s, perturbed 8.2 s |
+| 2026-10-31 | big plan E6: `check_ms_final.py cases` | 21 cases | 0.8 s | – |  |
+| 2026-10-31 | big plan E6: `check_ms_final.py determinism` | 2 × 21 cases | 2.0 s | – |  |
+| 2026-10-31 | big plan E6: `check_ms_final.py readback` | 21 tables | 12.9 s | – | container included |
+| 2026-10-31 | big plan E6: `check_ms_final.py refusals` | 5 attempts | 1.1 s | – | one python-casacore container |
+| 2026-10-31 | big plan E6: `check_ms_final.py regress` | E3, E4, E5 oracles | 16.1 s | – |  |
+| 2026-10-31 | big plan E6: `check_ms_final.py serialisation`, `crossversion`, `summary`, `posthoc` |  | 0.3 s each | – |  |
+| 2026-10-31 | big plan E6: `bash tools/check-all.sh` | repo | 1111 s | – | FAIL: core `cargo fmt --check` only (formatting after the frozen run); log `outputs/e6-20261031-check-all.log` |
+| 2026-11-02 | big plan E6: `bash tools/check-all.sh` | repo | 754 s | – | PASS: root 23, core 131 Rust tests; pytest 756 passed, 17 skipped (295 s); log `outputs/e6-20261102-check-all.log` |
+| 2026-11-02 | clean-major-cycles: `cargo test --release` new tests, first build | Windows worktree | 4 min 24 s, then 4 min 47 s | – | 5 new tests; contended host |
+| 2026-11-02 | clean-major-cycles: `cargo build --release --example clean_major_cycles` | Windows worktree | 4 min 50 s; 1 min 29 s after the timing-mode edit | – | contended host |
+| 2026-11-02 | clean-major-cycles: `lake build`, first in the worktree, one error | Windows, competing with the smoke run | 14 min 6 s | – | rebuilds all RangFormal files |
+| 2026-11-02 | clean-major-cycles: `lake build` after the fix | Windows worktree | 1 min 47 s | – | 46 theorems on the standard axioms |
+| 2026-11-02 | clean-major-cycles: `cargo test --release` full | Windows worktree | 5 min 3 s | – | 134 passed |
+| 2026-11-02 | clean-major-cycles: smoke run of the example, 512² only, stopped by hand | Windows, competing with Lean | not timed; killed near the end | – | 112 table rows; earlier schemes, cap 60 |
+| 2026-11-02 | clean-major-cycles: `clean_major_cycles` final run | `de303bf`, 16 threads | 1,314.2 s, PROVISIONAL | – | 158 runs; contended host, CPU time not recorded; over the 15 min asked for |
+| 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 1 rayon thread | Windows | 95.8 s, PROVISIONAL | – | crossover and 4 schemes on one sky |
+| 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 16 threads | Windows | 37.5 s, PROVISIONAL | – | the same |
+| 2026-11-02 | clean-major-cycles: pre-commit check (fmt, clippy, test, `lake build`) | Windows worktree, before `9f07507` | not timed separately | – | 134 passed; contended host |
+| 2026-10-31 | big plan W4-2: uv venv + editable install (WSL) | worktree | 226 s | – | includes the extension build |
+| 2026-10-31 | big plan W4-2: `maturin develop --release` (WSL) | after the Rust changes | 187 s | – | 73 s at setup, 50 s after the merge |
+| 2026-10-31 | big plan W4-2: fmt, clippy core and ext, blosc tests (WSL) | branch | 198 s | – | all pass |
+| 2026-10-31 | big plan W4-2: pytest full (WSL, cargo not on PATH) | branch, first build | 306 s | – | 721 passed; 9 `test_core_closure` failures from the missing `cargo` (pre-W4-3 standalone build) |
+| 2026-10-31 | big plan W4-2: base `ecccbf0` unpack + venv + build | `~/Build/tmp` | 198 s | – | identity reference |
+| 2026-10-31 | big plan W4-2: identity suite, base / head | 33 steps | 244 s / 249 s | 1.9 GB (phase3c-a) | statuses equal |
+| 2026-10-31 | big plan W4-2: `rang-core backends compare` | base vs head | 7 s | – | 572 non-numerical failures, 0 numerical |
+| 2026-10-31 | big plan W4-2: phase1/2/3c-a + bench-f rerun, base and head | git-checkout base | about 60 s | – | identical but for 3 `rust_seconds` |
+| 2026-10-31 | big plan W4-2: cold gpu cost (clippy, test, both features) | throwaway target | 639 s | – | table above |
+| 2026-10-31 | big plan W4-2: targeted pytest after the merge (9 files) | branch + `fdf186b` | 41 s | – | 83 passed |
+| 2026-10-31 | big plan W4-2: Windows uv venv + editable install | Windows worktree | 258 s | – | includes the extension build |
+| 2026-10-31 | big plan W4-2: Windows `python -m rang.check`, first run | CRLF checkout, branch + `fdf186b` | not recorded | – | FAIL: 20 `test_p11_extract` (CRLF), 4 df2c (run scripts); cold GPU steps pass, 136 tests |
+| 2026-11-02 | big plan W4-2: Windows `python -m rang.check`, LF checkout | branch + `d03a95a` | 1,829 s | – | FAIL: 4 df2c (run scripts) |
+| 2026-11-02 | big plan W4-2: Windows `python -m rang.check`, LF checkout | branch + `9813608`, `as_posix` only | 1,843 s | – | FAIL: 1 df2c (`None` from `mem_available_gib`) |
+| 2026-11-02 | big plan W4-2: Windows `cargo test --features gpu gpu:: --nocapture` | RTX 4070 Ti | 353 s (build included) | – | 6 of 6 pass, no skip |
+| 2026-11-02 | big plan W4-2: Windows `python -m rang.check`, final | final code | 1,008 s | – | PASS, 753 passed, 54 skipped |
+| 2026-11-02 | big plan W4-2: WSL `tools/check-all.sh` | branch + `d03a95a` | 3,013 s (with lock wait) | – | PASS, 780 passed, 20 skipped |
+| 2026-11-02 | big plan W4-2: WSL `tools/check-all.sh`, final | final code | 4,117 s (with lock wait) | – | PASS, 787 passed, 20 skipped |

@@ -40,7 +40,7 @@ on GitHub. The job stays useful on forks.
 | README: active flagging, next decision, wheels, masks, "nothing runs Cargo" | Fixed by the rewrite. |
 | `docs/installation.md` Cargo statement and macOS jobs | Already fixed by W4-3 and W4-5; the text was checked and left. |
 | `CONTRIBUTING.md:45-55`, `:10` | Fixed here. |
-| `core/py/src/lib.rs:10-11` | Fixed here: states F-contiguous behaviour as the code does today. |
+| `core/py/src/lib.rs:10-11` | Fixed here: W4-2 now refuses arrays that are not C-contiguous, and the docstring says so. |
 | `core/src/ffi.rs:1-5` | Fixed here. |
 | `core_closure.py`, `fluxstd.py` | Already fixed by W4-3. |
 | `research/README.md`: eight unreachable notes, `tool-timings.md` | Fixed here: all 21 notes the index did not link directly are linked. |
@@ -69,8 +69,10 @@ on GitHub. The job stays useful on forks.
 
 ## Deviations
 
-- **`main` merged into the branch** at `9813608`, because E6's note would fail the
-  new every-note test. It also adds an E6 entry, and a table-writer README link.
+- **`main` merged into the branch twice** (`9813608`, then `f376d4b`), because each new
+  note would fail the every-note test and main's top paragraphs conflict with the new
+  STATE structure. Entries added for E6, W4-2/W4-7, the CLEAN major cycles and DF5-O,
+  rewritten from main's stack paragraphs; main's STATE paragraphs sit under the log heading.
 - **Documentation URL** is `https://pythonic.nl/rang-core/`, the coordinator's
   update; the brief's `github.io` URL redirects there.
 - **`CHANGELOG.md:53`** still has the old URL, as it is not a file of this task.
@@ -108,7 +110,7 @@ on GitHub. The job stays useful on forks.
 - `research/STATE.md`: the block and heading only; old body otherwise unchanged. **Insert new paragraphs under `## Log (newest first)`.**
 - `AGENTS.md`: replaces "The active experiment is MeerKAT L-band gain-TV-guided flagging; older pointing reports are separate history." with "The active question is beam and pointing on real MeerKAT data (`research/b1-beam-pointing.md`); gain-TV-guided flagging is closed as null (`research/flagging-verdict.md`)."; adds `## Layout`; "The current experiment is specified in" becomes "The scope is specified in".
 - `core/src/ffi.rs`: header becomes "C ABI of the core, for C consumers and benches. The Python layer reaches these functions through the PyO3 extension `rang._core` (`core/py`); ctypes is gone since task P7 (`research/p7-architecture.md`). Every pointer is described by an explicit length in the structs."
-- `core/py/src/lib.rs`: "non-contiguous arrays and read-only outputs are refused" gains ", and a Fortran-contiguous array is accepted and read in memory order, W4R-04". Update it if W4-2 changes that behaviour.
+- `core/py/src/lib.rs`: "non-contiguous arrays and read-only outputs are refused" becomes "arrays that are not C-contiguous and read-only outputs are refused, task W4-2".
 
 **CHANGELOG hunk.** `CHANGELOG.md:53`: replace `https://gijzelaerr.github.io/rang-core/` with `https://pythonic.nl/rang-core/`.
 

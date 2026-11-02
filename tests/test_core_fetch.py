@@ -202,3 +202,49 @@ def test_ranged_get_retries_a_whole_object_response(server):
     assert [a["status"] for a in record["attempts"]] == [200, 206]
     assert "ranged request" in record["attempts"][0]["failure"]
     client.close()
+
+
+def test_out_of_order_blocks_fall_back_to_the_whole_chunk(server, tmp_path):
+    """W4-2 (W4R-09): `core_fetch` gets `core_zarr.read_rows`'s fallback for
+    blocks stored out of order, locally and over HTTP."""
+    from test_core_zarr import reordered_chunk
+
+    store, _handler, url = server
+    values = store.tiles["DATA"][0]
+    row_bytes = values[0].nbytes
+    key = "MAIN/MAIN_1/DATA/0.0.0"
+    store.objects[key] = reordered_chunk(values.tobytes(), 2 * row_bytes)
+    path = tmp_path / "0.0.0"
+    path.write_bytes(store.objects[key])
+    rows = np.array([0, 1, 5, 9, 11])
+    out = np.zeros((len(rows), 2 * values.shape[1], values.shape[2]), values.dtype)
+    stats = core_fetch.read_rows_into(path, row_bytes, rows, out, row_bytes)
+    np.testing.assert_array_equal(out[:, values.shape[1] :], values[rows])
+    assert not out[:, : values.shape[1]].any()
+    assert stats["blocks_decoded"] == 6
+    raw, _ = core_zarr.read_rows(path, row_bytes, rows)
+    assert raw == values[rows].tobytes()
+    plan = core_fetch.plan_runs(
+        store.objects[key][: core_fetch.PREFIX], row_bytes, rows
+    )
+    assert plan == [(0, 6, 0, len(store.objects[key]))]
+    fetched = tmp_path / "fetched"
+    result = core_fetch.fetch_slice(
+        url, "MAIN/MAIN_1", (0, 1, 2, 3), (0, 1), fetched, workers=2,
+        tile_columns=("DATA",),
+    )  # fmt: skip
+    arrays, _ = core_fetch.decode_slice(fetched)
+    picked = np.array(result["rows"])
+    np.testing.assert_array_equal(
+        arrays["DATA"], np.concatenate(store.tiles["DATA"], axis=1)[picked]
+    )
+
+
+def test_fetch_refuses_a_row_column_of_another_dtype(server, tmp_path):
+    store, _handler, url = server
+    store.objects["MAIN/MAIN_1/ANTENNA1/.zarray"] = _zarray((12,), (12,), "<i8")
+    with pytest.raises(ValueError, match="ANTENNA1: dtype <i8, expected <i4"):
+        core_fetch.fetch_slice(
+            url, "MAIN/MAIN_1", (0, 1, 2, 3), (0, 1), tmp_path / "f",
+            tile_columns=("DATA",),
+        )  # fmt: skip

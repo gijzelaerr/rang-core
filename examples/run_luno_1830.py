@@ -38,10 +38,11 @@ def main():
     parser.add_argument("--stations", type=stations_arg, default=None)
     args = parser.parse_args()
     run_dir = Path(args.run_dir)
-    if not str(run_dir).startswith("outputs/") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/") or run_dir.exists():
         sys.exit("the run directory must be a fresh path beneath outputs/")
     available = l2.mem_available_gib()
-    print(f"MemAvailable {available:.1f} GiB", flush=True)
+    if available is not None:  # None outside Linux
+        print(f"MemAvailable {available:.1f} GiB", flush=True)
     if not args.smoke:
         if args.stations is not None:
             sys.exit("the frozen run uses every station; --stations is for --smoke")

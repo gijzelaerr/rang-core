@@ -5,10 +5,10 @@
 Update this block when a merge changes it. The log below is the record.
 
 - **What `main` is:** rang-core 0.1.0 before its first tag: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
-- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the file formats (DF-IO), CLEAN theory, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1, W4-3, W4-4 and W4-5; see the [research index](README.md).
+- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the file formats (DF-IO), CLEAN theory, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-5 and W4-7; see the [research index](README.md).
 - **Closed:** gain-TV-guided flagging, null ([verdict](flagging-verdict.md)).
 - **Open:** beam and pointing. [B1-2](b1-2-identifiability.md) found per-antenna pointing and squint constrainable on ESO137; B1-3 runs.
-- **Running:** the remaining wave 4 fixes ([big plan](big-plan.md)).
+- **Running:** W4-6 and W4-8, the last wave 4 fixes ([big plan](big-plan.md)).
 - **Next:** finish wave 4, B1-3 against both baselines at matched cost, and the user's v0.1.0 tag.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; allow or refuse an external catalogue for B1-3's ESO137 field model; file or decline the B1-2 and RV1 upstream observations; rebase Tricolour PR #114.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -16,6 +16,75 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+W4-2 and W4-7 boundary checks and GPU gate (big plan
+wave 4), 2026-11-02 (implemented; measured;
+[w4-2-boundaries.md](w4-2-boundaries.md)). Every `rang._core` binding now
+refuses arrays that are not C-contiguous, and arrays of the wrong length,
+with a ValueError naming the argument. Size products are checked. The
+review's r01 out-of-bounds write and the transposed Fortran-ordered `uvw`
+now raise. Changes in the wrappers and core:
+- `flag_rows` checks its per-row arrays.
+- The blosc span decoders refuse rows outside the decoded blocks.
+- `fluxstd_eval` catches panics.
+- Zarr metadata with Fortran order, big-endian or unexpected dtypes is
+  refused.
+- `core_fetch` shares `core_zarr`'s block table and its fallback for
+  out-of-order blocks.
+
+The identity suite is numerically identical to `ecccbf0`: 282 arrays,
+88 FITS HDUs and 22,500 JSON leaves, with C, D, I, K and P5 passing.
+`rang-core check` gains `core-clippy-gpu` and `core-test-gpu`: 6.1 min
+cold, 3 s warm, skippable with `--skip`.
+
+How many major cycles CLEAN needs, 2026-11-02 (proposed; implemented; measured;
+timings provisional; [clean-major-cycles.md](clean-major-cycles.md), branch
+`clean-major-cycles`):
+
+- **Theory.** Theorems for the batch quadratic, the Gram-gap identity, per-cycle
+  descent, a running gap bound, the forcing term and the outer linear rate; 12 new
+  theorems in `formal/RangFormal/MajorCycle.lean`, 46 audited in all, standard axioms
+  only. The worst case is one Högbom step per cycle, so the theory does not promise
+  few cycles.
+- **Implemented.** `core/src/clean_major.rs`: a driver with provable and threshold
+  schedules, exact FFT batches on the `2n` grid, an optimisation phase and an analytic
+  w-term bound. Research code; no pipeline uses it.
+- **Measured.** MeerKAT 4 h tracks at two declinations through the exact gridder, 158
+  runs, seeds fixed, [archive](results/clean-major-cycles.json). Passes at 512²:
+  WSClean's scheme 4-7, double-size PSF with mgain 0.8 3-4, run to the threshold 2-3,
+  planar control 1. The remaining passes come from the w-term moving pixels across the
+  threshold (exact peak 15.6-24.2 mJy against 15), not from the misfit gap (at most
+  2e-2 of the believed decrease).
+- **Negative.** The certified rules with the analytic w bound take 7-30 passes (19 of
+  36 runs hit the cap of 30), because the bound is 6e3-4e6 times the gap. The
+  optimisation phase raises passes to 6-10. The image-size PSF does not diverge on 64
+  dishes. `Q_∞` from 20 CG iterations is too loose to use.
+- **Timing.** Provisional: contended host, CPU time and load during the runs not
+  recorded. A speed-up from FFT batches is not established.
+- **Next.** Timings on an idle host, real data with many visibilities, faceted PSFs,
+  an ℓ∞ stopping analysis.
+
+E6, the last of the core table writer (big plan;
+[e6-table-writer-final.md](e6-table-writer-final.md)), 2026-10-31
+(implemented; measured):
+rang's core now writes TiledDataStMan hypercubes (addHypercube and
+extendHypercube, coordinate and id values, rows added to a hypercube,
+hypercubes of several row axes), TiledCellStMan tables, IncrementalStMan
+string arrays, tiled managers without a default tile shape and MultiFile
+tables of any block size with casacore's block order (bucket- and
+tile-cache writes during a session, the free list, header continuation),
+as casacore does. 20 of 21 frozen cases are byte-identical to casacore
+(3.8.1 through python-casacore; 3.7.1 through a pinned C++ oracle for the
+hypercubes; 3 with the masked MultiFile header tail); IS-arrays differs
+only in array-file alignment gaps that the frozen gap walk could not
+mask (post hoc: all 677 bytes are gaps), so criteria 1 and 3 fail as
+frozen; read-back, E3-E5 regressions, serialisation, refusals and the
+cross-version check (3.7.1 and 3.8.1 write the same TiledCellStMan table)
+pass. MultiHDF5 is refused as not supported (libhdf5 layout; two
+casacore runs differ in an HDF5 modification time); no writer error
+names E6. W4-4 is absorbed: 2-D string-array keywords are now stored in
+C order as python-casacore stores them (a 2x3 keyword table.dat differed
+in 61 bytes before, identical after). `outputs/e6-20261031-01`,
+`research/results/e6-table-writer-final.json`.
 
 W4-1 receipts record what changed the result (big plan wave 4 fix task;
 [w4-1-receipts.md](w4-1-receipts.md)), 2026-10-31 (implemented; measured).

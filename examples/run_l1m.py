@@ -50,7 +50,7 @@ def main():
     parser.add_argument("--compare", type=compare_arg, action="append", default=[])
     args = parser.parse_args()
     run_dir = Path(args.run_dir)
-    if not str(run_dir).startswith("outputs/l1m-") or run_dir.exists():
+    if not run_dir.as_posix().startswith("outputs/l1m-") or run_dir.exists():
         sys.exit("the run directory must be a fresh path beneath outputs/l1m-")
     if args.model != "stored" and args.lsm is None:
         sys.exit("a predicted model arm needs --lsm")
@@ -60,7 +60,8 @@ def main():
         if args.precondition is None:
             sys.exit("the frozen run needs --precondition")
         available = array.mem_available_gib()
-        print(f"MemAvailable {available:.1f} GiB", flush=True)
+        if available is not None:  # None outside Linux
+            print(f"MemAvailable {available:.1f} GiB", flush=True)
         if available is not None and available < l1m.MIN_AVAILABLE_GIB:
             print(f"less than {l1m.MIN_AVAILABLE_GIB} GiB available; not started")
             sys.exit(3)
