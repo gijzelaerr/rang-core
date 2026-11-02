@@ -429,7 +429,10 @@ fn compare(outdir: &Path) -> Result<(), String> {
             },
             None,
         )?;
-        fraction_runs.push(gemclean_entry(&format!("gemclean-fraction{fraction}"), &out));
+        fraction_runs.push(gemclean_entry(
+            &format!("gemclean-fraction{fraction}"),
+            &out,
+        ));
     }
     let deep = gemclean::run(
         &m,

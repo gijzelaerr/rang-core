@@ -1,6 +1,6 @@
 # Rang: the gemclean benchmark, datasets and WSClean 3.7 baselines
 
-Benchmark of gemclean (the reference CLEAN of branch `gmclean`, measured at
+Benchmark of gemclean (the reference CLEAN, measured at
 `d94850e`) against WSClean 3.7 on simulated full-array MeerKAT data and the
 LUNO 1934−638 four-station slice. Branch `gemclean-bench`, 2026-11-02. Status:
 **implemented (simulator, run matrix, metrics); accuracy measured; speed not

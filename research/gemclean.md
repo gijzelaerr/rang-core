@@ -3,7 +3,7 @@
 Status, 2026-11-02: **implemented and tested; accuracy measured on simulated
 MeerKAT data and the LUNO slice; every time is PROVISIONAL** (shared host, load
 average 4 to 25; no final speed claim is made here and none should be quoted).
-Branch `gemclean`. Code: `core/src/gemclean.rs`, `core/src/gemclean/` (`kernels`,
+Code: `core/src/gemclean.rs`, `core/src/gemclean/` (`kernels`,
 `fits`, `input`, `measure`, `sim`, `host`), `core/src/bin/gemclean.rs`,
 `core/examples/gemclean_sim.rs`, `examples/gemclean_compare.py`,
 `wgridder::Prepared` (additive), `formal/RangFormal/Gemclean.lean`. Archives:

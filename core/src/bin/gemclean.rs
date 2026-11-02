@@ -28,7 +28,8 @@ use rang_core::wgridder::{Options, Real};
 
 #[cfg(all(target_os = "linux", target_pointer_width = "64"))]
 #[global_allocator]
-static ALLOCATOR: rang_core::gemclean::host::HugePageAlloc = rang_core::gemclean::host::HugePageAlloc;
+static ALLOCATOR: rang_core::gemclean::host::HugePageAlloc =
+    rang_core::gemclean::host::HugePageAlloc;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
