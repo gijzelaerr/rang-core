@@ -48,6 +48,8 @@ pub mod fits;
 pub mod host;
 pub mod input;
 pub mod kernels;
+pub mod measure;
+pub mod sim;
 
 use crate::clean::{CleanStep, argmax_abs};
 use crate::clean_certified::Measurement;
@@ -66,12 +68,230 @@ const ZERO: C64 = Complex { re: 0.0, im: 0.0 };
 // ---------------------------------------------------------------------------
 // The 2n FFT convolver.
 
+/// `dst[c * dst_stride + r] = src[r * src_stride + c]` for `r < rows`,
+/// `c < cols`; the rest of each `dst` row (`dst_stride > rows`) becomes zero.
+/// Blocked over destination rows, so the source is read along its rows.
+fn transpose_into(
+    src: &[C64],
+    src_stride: usize,
+    rows: usize,
+    cols: usize,
+    dst: &mut [C64],
+    dst_stride: usize,
+) {
+    const BLOCK: usize = 16;
+    dst[..cols * dst_stride]
+        .par_chunks_mut(BLOCK * dst_stride)
+        .enumerate()
+        .for_each(|(block, chunk)| {
+            let c0 = block * BLOCK;
+            let h = chunk.len() / dst_stride;
+            for r in 0..rows {
+                let s = &src[r * src_stride + c0..r * src_stride + c0 + h];
+                for (dc, v) in s.iter().enumerate() {
+                    chunk[dc * dst_stride + r] = *v;
+                }
+            }
+            if dst_stride > rows {
+                for row in chunk.chunks_exact_mut(dst_stride) {
+                    row[rows..].fill(ZERO);
+                }
+            }
+        });
+}
+
+/// The reusable work space of a [`Convolver`].
+#[derive(Default)]
+struct ConvolverBuffers {
+    /// `rows × (m/2 + 1)`: half spectra of the rows.
+    rows: Vec<C64>,
+    /// `(m/2 + 1) × m`: columns of the half spectrum.
+    columns: Vec<C64>,
+}
+
 /// Linear convolution of an `n × n` image with a kernel given on the
-/// `2n × 2n` grid centred on pixel `(n, n)`, by one FFT pair on the `2n`
+/// `2n × 2n` grid centred on pixel `(n, n)`, by one real FFT pair on the `2n`
 /// grid: `out(y, x) = Σ in(y', x') k(y − y', x − x')` for every output pixel
 /// of the `n × n` image (offsets up to `±(n − 1)` never wrap). Row-major,
 /// rows are the slow index (`dy`).
+///
+/// Real input means half the spectrum: two real rows travel as one complex
+/// row (`z = a + i b`) and only `m/2 + 1` columns are transformed. Input rows
+/// `n..2n` are zero and output rows `n..2n` are dropped, and an all-zero pair
+/// of rows skips its transform. Work space is kept between calls.
 pub struct Convolver {
+    n: usize,
+    /// The kernel's half spectrum, `[kx][ky]`, `(m/2 + 1) × m`.
+    spectrum: Vec<C64>,
+    forward: Arc<dyn Fft<f64>>,
+    inverse: Arc<dyn Fft<f64>>,
+    scratch: usize,
+    buffers: std::sync::Mutex<ConvolverBuffers>,
+}
+
+impl Convolver {
+    /// `kernel` is `2n × 2n`, centred on `(n, n)`.
+    pub fn new(n: usize, kernel: &[f64]) -> Result<Convolver, String> {
+        let m = 2 * n;
+        if n == 0 || kernel.len() != m * m {
+            return Err("the kernel must be 2n × 2n".into());
+        }
+        let mut planner = FftPlanner::new();
+        let forward = planner.plan_fft_forward(m);
+        let inverse = planner.plan_fft_inverse(m);
+        let scratch = forward
+            .get_inplace_scratch_len()
+            .max(inverse.get_inplace_scratch_len());
+        let half = m / 2 + 1;
+        let mut c = Convolver {
+            n,
+            spectrum: Vec::new(),
+            forward,
+            inverse,
+            scratch,
+            buffers: std::sync::Mutex::new(ConvolverBuffers::default()),
+        };
+        // Shift the centre to index 0: row r holds kernel[(r + n) % m][(· + n) % m].
+        let mut rows = vec![ZERO; m * half];
+        c.forward_rows(
+            m,
+            |r, x| kernel[((r + n) % m) * m + (x + n) % m],
+            m,
+            &mut rows,
+        );
+        let mut spectrum = vec![ZERO; half * m];
+        transpose_into(&rows, half, m, half, &mut spectrum, m);
+        drop(rows);
+        let forward = &c.forward;
+        spectrum.par_chunks_mut(m).for_each_init(
+            || vec![ZERO; scratch],
+            |s, col| forward.process_with_scratch(col, s),
+        );
+        c.spectrum = spectrum;
+        Ok(c)
+    }
+
+    /// Half spectra of `rows` real rows of width `width` (padded to `m`):
+    /// `out[y][kx]`, `kx ≤ m/2`.
+    fn forward_rows<F>(&self, rows: usize, value: F, width: usize, out: &mut [C64])
+    where
+        F: Fn(usize, usize) -> f64 + Sync,
+    {
+        let m = 2 * self.n;
+        let half = m / 2 + 1;
+        let scratch = self.scratch;
+        out[..rows * half]
+            .par_chunks_mut(2 * half)
+            .enumerate()
+            .for_each_init(
+                || (vec![ZERO; m], vec![ZERO; scratch]),
+                |(z, s), (pair, chunk)| {
+                    let (ya, yb) = (2 * pair, 2 * pair + 1);
+                    let two = chunk.len() == 2 * half;
+                    let mut any = false;
+                    for (x, cell) in z.iter_mut().enumerate().take(width) {
+                        let a = value(ya, x);
+                        let b = if two { value(yb, x) } else { 0.0 };
+                        any |= a != 0.0 || b != 0.0;
+                        *cell = Complex::new(a, b);
+                    }
+                    if !any {
+                        chunk.fill(ZERO);
+                        return;
+                    }
+                    z[width..].fill(ZERO);
+                    self.forward.process_with_scratch(z, s);
+                    let (first, second) = chunk.split_at_mut(half);
+                    for k in 0..half {
+                        let p = z[k];
+                        let q = z[(m - k) % m].conj();
+                        first[k] = (p + q) * 0.5;
+                        if two {
+                            // (p − q) / 2i
+                            let d = (p - q) * 0.5;
+                            second[k] = Complex::new(d.im, -d.re);
+                        }
+                    }
+                },
+            );
+    }
+
+    pub fn side(&self) -> usize {
+        self.n
+    }
+
+    /// The kernel convolved with `input` (`n × n`), on the `n × n` image.
+    pub fn apply(&self, input: &[f64]) -> Vec<f64> {
+        let mut out = vec![0.0; self.n * self.n];
+        self.apply_into(input, &mut out);
+        out
+    }
+
+    /// [`Convolver::apply`] into `out`, without allocating after the first
+    /// call (rayon's per-thread scratch aside).
+    pub fn apply_into(&self, input: &[f64], out: &mut [f64]) {
+        let n = self.n;
+        let m = 2 * n;
+        let half = m / 2 + 1;
+        assert_eq!(input.len(), n * n, "input must be n × n");
+        assert_eq!(out.len(), n * n, "output must be n × n");
+        let mut guard = self.buffers.lock().expect("no panic while convolving");
+        let ConvolverBuffers { rows, columns } = &mut *guard;
+        rows.resize(n * half, ZERO);
+        columns.resize(half * m, ZERO);
+        self.forward_rows(n, |y, x| input[y * n + x], n, rows);
+        transpose_into(rows, half, n, half, columns, m);
+        let (forward, inverse, scratch) = (&self.forward, &self.inverse, self.scratch);
+        let scale = 1.0 / (m * m) as f64;
+        columns
+            .par_chunks_mut(m)
+            .zip(self.spectrum.par_chunks(m))
+            .for_each_init(
+                || vec![ZERO; scratch],
+                |s, (col, spec)| {
+                    forward.process_with_scratch(col, s);
+                    for (v, k) in col.iter_mut().zip(spec) {
+                        *v *= k * scale;
+                    }
+                    inverse.process_with_scratch(col, s);
+                },
+            );
+        // Only the first n output rows are needed.
+        transpose_into(columns, m, half, n, rows, half);
+        rows.par_chunks(2 * half)
+            .zip(out.par_chunks_mut(2 * n))
+            .for_each_init(
+                || (vec![ZERO; m], vec![ZERO; scratch]),
+                |(z, s), (chunk, o)| {
+                    let two = chunk.len() == 2 * half;
+                    let (a, b) = chunk.split_at(half);
+                    for (k, cell) in z.iter_mut().enumerate() {
+                        let (ka, conj) = if k < half { (k, false) } else { (m - k, true) };
+                        let mut p = a[ka];
+                        let mut q = if two { b[ka] } else { ZERO };
+                        if conj {
+                            p = p.conj();
+                            q = q.conj();
+                        }
+                        // z = p + i q
+                        *cell = Complex::new(p.re - q.im, p.im + q.re);
+                    }
+                    inverse.process_with_scratch(z, s);
+                    let (first, second) = o.split_at_mut(n);
+                    for x in 0..n {
+                        first[x] = z[x].re;
+                    }
+                    for (x, v) in second.iter_mut().enumerate() {
+                        *v = z[x].im;
+                    }
+                },
+            );
+    }
+}
+
+/// The first implementation of [`Convolver`] on complex transforms of the
+/// whole grid: the reference in tests and in the optimisation benchmark.
+pub struct ReferenceConvolver {
     n: usize,
     /// The kernel spectrum, transposed (`[kx][ky]`).
     spectrum: Vec<C64>,
@@ -106,9 +326,9 @@ fn rows_fft(data: &mut [C64], m: usize, rows: usize, fft: &Arc<dyn Fft<f64>>) {
     );
 }
 
-impl Convolver {
+impl ReferenceConvolver {
     /// `kernel` is `2n × 2n`, centred on `(n, n)`.
-    pub fn new(n: usize, kernel: &[f64]) -> Result<Convolver, String> {
+    pub fn new(n: usize, kernel: &[f64]) -> Result<ReferenceConvolver, String> {
         let m = 2 * n;
         if n == 0 || kernel.len() != m * m {
             return Err("the kernel must be 2n × 2n".into());
@@ -128,16 +348,12 @@ impl Convolver {
         let mut t = transpose(&a, m, m);
         drop(a);
         rows_fft(&mut t, m, m, &forward);
-        Ok(Convolver {
+        Ok(ReferenceConvolver {
             n,
             spectrum: t,
             forward,
             inverse,
         })
-    }
-
-    pub fn side(&self) -> usize {
-        self.n
     }
 
     /// The kernel convolved with `input` (`n × n`), on the `n × n` image.
@@ -207,6 +423,8 @@ pub struct Beam {
     /// The patch half-width `P` (at most `n − 1`).
     pub patch: usize,
     patch_values: Vec<f64>,
+    /// `ring[d]`: the largest `|b|` in the patch at `∞`-norm distance `≥ d`.
+    ring: Vec<f64>,
     /// `(2n − 1)²` values, `[dy + n − 1][dx + n − 1]`, zero inside the patch.
     exterior: Vec<f64>,
     /// `max |b(Δ)| / b(0)` outside the patch (Theorem 6's `f`).
@@ -254,6 +472,17 @@ impl Beam {
                 patch_values[(dy + h) as usize * pw + (dx + h) as usize] = at(dx, dy);
             }
         }
+        // ring[d] = max |b| over offsets in the patch at ∞-norm distance ≥ d.
+        let mut ring = vec![0.0_f64; patch + 1];
+        for dy in -h..=h {
+            for dx in -h..=h {
+                let d = dx.abs().max(dy.abs()) as usize;
+                ring[d] = ring[d].max(at(dx, dy).abs());
+            }
+        }
+        for d in (0..patch).rev() {
+            ring[d] = ring[d].max(ring[d + 1]);
+        }
         let f = exterior.iter().fold(0.0_f64, |a, v| a.max(v.abs())) / peak;
         let convolver = Convolver::new(n, psf2n)?;
         Ok(Beam {
@@ -261,6 +490,7 @@ impl Beam {
             peak,
             patch,
             patch_values,
+            ring,
             exterior,
             f,
             convolver,
@@ -302,40 +532,80 @@ impl Beam {
 // ---------------------------------------------------------------------------
 // The working map with cached tile maxima.
 
-const TILE: usize = 32;
-
-fn better(a: (f64, usize), b: (f64, usize)) -> bool {
-    a.0 > b.0 || (a.0 == b.0 && a.1 < b.1)
-}
-
-/// The working residual and the first argmax of `|r̃|` in each `32 × 32`
-/// tile, so a step rescans only the tiles its patch touched.
+/// The working residual and, per tile, the first argmax of `|r̃|` or an upper
+/// bound on it. With `lazy` a step only raises the bounds of the tiles its
+/// patch touched, by `|c|` times the largest beam value that can reach them,
+/// and a tile is rescanned only when its bound wins the argmax. The result is
+/// the argmax of the eager rescan (the bound is rigorous, ties included), so
+/// the picks do not change.
 struct Working {
     n: usize,
     r: Vec<f64>,
+    tile: usize,
     tiles: usize,
-    best: Vec<(f64, usize)>,
+    /// Upper bound on `max |r̃|` per tile; exact where not `stale`.
+    upper: Vec<f64>,
+    /// The first pixel attaining the maximum, where not `stale`.
+    pixel: Vec<usize>,
+    stale: Vec<bool>,
+    lazy: bool,
     level: Level,
+    work: Work,
+}
+
+/// Deterministic work counts of a run (they do not depend on the host).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Work {
+    /// Working-map pixels updated by patch subtractions.
+    pub pixels_subtracted: u64,
+    /// Working-map pixels read by tile rescans.
+    pub pixels_rescanned: u64,
+    /// Tile rescans (excluding full refreshes).
+    pub tile_rescans: u64,
+    /// Full scans of the working map.
+    pub full_scans: u64,
+}
+
+impl Work {
+    fn add(&mut self, o: &Work) {
+        self.pixels_subtracted += o.pixels_subtracted;
+        self.pixels_rescanned += o.pixels_rescanned;
+        self.tile_rescans += o.tile_rescans;
+        self.full_scans += o.full_scans;
+    }
 }
 
 impl Working {
-    fn new(r: Vec<f64>, n: usize, level: Level) -> Working {
-        let tiles = n.div_ceil(TILE);
+    fn new(r: Vec<f64>, n: usize, level: Level, tile: usize, lazy: bool) -> Working {
+        let tile = tile.max(1);
+        let tiles = n.div_ceil(tile);
         let mut w = Working {
             n,
             r,
+            tile,
             tiles,
-            best: Vec::new(),
+            upper: vec![0.0; tiles * tiles],
+            pixel: vec![0; tiles * tiles],
+            stale: vec![false; tiles * tiles],
+            lazy,
             level,
+            work: Work::default(),
         };
         w.refresh_all();
         w
     }
 
-    fn tile_best(r: &[f64], n: usize, tiles: usize, t: usize, level: Level) -> (f64, usize) {
+    fn tile_best(
+        r: &[f64],
+        n: usize,
+        tile: usize,
+        tiles: usize,
+        t: usize,
+        level: Level,
+    ) -> (f64, usize) {
         let (ty, tx) = (t / tiles, t % tiles);
-        let (y0, y1) = (ty * TILE, ((ty + 1) * TILE).min(n));
-        let (x0, x1) = (tx * TILE, ((tx + 1) * TILE).min(n));
+        let (y0, y1) = (ty * tile, ((ty + 1) * tile).min(n));
+        let (x0, x1) = (tx * tile, ((tx + 1) * tile).min(n));
         let (mut best, mut row) = (-1.0, y0);
         for y in y0..y1 {
             let v = kernels::max_abs_value(level, &r[y * n + x0..y * n + x1]);
@@ -352,32 +622,48 @@ impl Working {
     }
 
     fn refresh_all(&mut self) {
-        let (r, n, tiles, level) = (&self.r, self.n, self.tiles, self.level);
-        self.best = (0..tiles * tiles)
-            .into_par_iter()
-            .map(|t| Self::tile_best(r, n, tiles, t, level))
-            .collect();
+        let (r, n, tile, tiles, level) = (&self.r, self.n, self.tile, self.tiles, self.level);
+        self.upper
+            .par_iter_mut()
+            .zip(self.pixel.par_iter_mut())
+            .enumerate()
+            .for_each(|(t, (u, p))| {
+                (*u, *p) = Self::tile_best(r, n, tile, tiles, t, level);
+            });
+        self.stale.fill(false);
+        self.work.full_scans += 1;
     }
 
-    /// Rescan the tiles meeting rows `y0..=y1`, columns `x0..=x1`.
-    fn refresh_rect(&mut self, y0: usize, y1: usize, x0: usize, x1: usize) {
-        for ty in y0 / TILE..=y1 / TILE {
-            for tx in x0 / TILE..=x1 / TILE {
-                let t = ty * self.tiles + tx;
-                self.best[t] = Self::tile_best(&self.r, self.n, self.tiles, t, self.level);
-            }
-        }
+    fn rescan(&mut self, t: usize) {
+        (self.upper[t], self.pixel[t]) =
+            Self::tile_best(&self.r, self.n, self.tile, self.tiles, t, self.level);
+        self.stale[t] = false;
+        self.work.tile_rescans += 1;
+        self.work.pixels_rescanned += (self.tile * self.tile) as u64;
     }
 
     /// The first pixel of the largest `|r̃|` and its value.
-    fn argmax(&self) -> (usize, f64) {
-        let mut b = self.best[0];
-        for &c in &self.best[1..] {
-            if better(c, b) {
-                b = c;
+    fn argmax(&mut self) -> (usize, f64) {
+        loop {
+            let top = kernels::max_abs_value(self.level, &self.upper);
+            // Among the tiles at the top: any stale one first, then the
+            // lowest pixel, as a raster scan would find it.
+            let mut stale = None;
+            let mut first = usize::MAX;
+            for (t, &u) in self.upper.iter().enumerate() {
+                if u == top {
+                    if self.stale[t] {
+                        stale = Some(t);
+                        break;
+                    }
+                    first = first.min(self.pixel[t]);
+                }
+            }
+            match stale {
+                Some(t) => self.rescan(t),
+                None => return (first, self.r[first]),
             }
         }
-        (b.1, self.r[b.1])
     }
 
     /// `r̃ −= c b(· − x_p)` within the patch.
@@ -398,7 +684,28 @@ impl Working {
                 c,
             );
         }
-        self.refresh_rect(y0, y1, x0, x1);
+        self.work.pixels_subtracted += ((y1 - y0 + 1) * len) as u64;
+        let tile = self.tile;
+        for ty in y0 / tile..=y1 / tile {
+            for tx in x0 / tile..=x1 / tile {
+                let t = ty * self.tiles + tx;
+                if self.lazy {
+                    // The nearest pixel of the tile to p, in the ∞-norm.
+                    let dy = (ty * tile)
+                        .saturating_sub(py)
+                        .max(py.saturating_sub((ty + 1) * tile - 1));
+                    let dx = (tx * tile)
+                        .saturating_sub(px)
+                        .max(px.saturating_sub((tx + 1) * tile - 1));
+                    let reach = c.abs() * beam.ring[dx.max(dy)];
+                    // Inflated past rounding, so the bound stays rigorous.
+                    self.upper[t] = (self.upper[t] + reach) * (1.0 + 1e-15);
+                    self.stale[t] = true;
+                } else {
+                    self.rescan(t);
+                }
+            }
+        }
     }
 }
 
@@ -471,6 +778,11 @@ pub struct Settings {
     pub audit: bool,
     /// The SIMD level (`None`: [`kernels::level`]).
     pub level: Option<Level>,
+    /// Tile side of the argmax, pixels.
+    pub tile: usize,
+    /// Rescan a tile only when its upper bound wins the argmax. The picks are
+    /// those of rescanning every touched tile.
+    pub lazy_bounds: bool,
 }
 
 impl Default for Settings {
@@ -488,6 +800,8 @@ impl Default for Settings {
             resync_every: 2000,
             audit: false,
             level: None,
+            tile: 32,
+            lazy_bounds: true,
         }
     }
 }
@@ -591,6 +905,7 @@ pub struct Outcome {
     pub timings: Timings,
     /// Gathered beam terms over all corrections.
     pub correction_terms: u64,
+    pub work: Work,
     /// Largest `|r_p(lazy) − r_p(brute force)|` (audit only).
     pub audit_max_error: Option<f64>,
     pub level: Level,
@@ -763,6 +1078,15 @@ impl Outcome {
                 ]),
             ),
             ("correction_terms", self.correction_terms.to_string()),
+            (
+                "work",
+                obj(&[
+                    ("pixels_subtracted", self.work.pixels_subtracted.to_string()),
+                    ("pixels_rescanned", self.work.pixels_rescanned.to_string()),
+                    ("tile_rescans", self.work.tile_rescans.to_string()),
+                    ("full_scans", self.work.full_scans.to_string()),
+                ]),
+            ),
             ("correction_seconds_per_step", opt(corr_per_step)),
             ("audit_max_error", opt(self.audit_max_error)),
             ("simd", text(self.level.name())),
@@ -804,17 +1128,21 @@ fn resync(
     model: &[f64],
     model_major: &[f64],
     r_major: &[f64],
+    buffers: &mut [Vec<f64>; 2],
 ) {
-    let delta: Vec<f64> = model
-        .par_iter()
+    let [delta, conv] = buffers;
+    delta.resize(model.len(), 0.0);
+    conv.resize(model.len(), 0.0);
+    delta
+        .par_iter_mut()
+        .zip(model)
         .zip(model_major)
-        .map(|(a, b)| a - b)
-        .collect();
-    let conv = beam.convolve(&delta);
+        .for_each(|((d, a), b)| *d = a - b);
+    beam.convolver.apply_into(delta, conv);
     work.r
         .par_iter_mut()
         .zip(r_major)
-        .zip(&conv)
+        .zip(conv.par_iter())
         .for_each(|((w, r), c)| *w = r - c);
     work.refresh_all();
     since.clear();
@@ -851,6 +1179,8 @@ pub fn run<M: Measurement>(
     let mut cycles: Vec<Cycle> = Vec::new();
     let mut resyncs_all = Resyncs::default();
     let mut correction_terms = 0u64;
+    let mut work_all = Work::default();
+    let mut resync_buffers = [Vec::new(), Vec::new()];
     let mut audit_max: Option<f64> = s.audit.then_some(0.0);
     let decrease = s.gain * (2.0 - s.gain) / 2.0;
     let stop = loop {
@@ -867,7 +1197,7 @@ pub fn run<M: Measurement>(
         }
         let mut ct = Timings::default();
         let model_major = model.clone();
-        let mut work = Working::new(residual.clone(), n, level);
+        let mut work = Working::new(residual.clone(), n, level, s.tile, s.lazy_bounds);
         let mut since = Since::default();
         let mut delta: HashMap<usize, f64> = HashMap::new();
         let mut predicted = 0.0;
@@ -908,7 +1238,15 @@ pub fn run<M: Measurement>(
                     break MinorStop::Threshold;
                 }
                 let tr = Instant::now();
-                resync(&mut work, &mut since, beam, &model, &model_major, &residual);
+                resync(
+                    &mut work,
+                    &mut since,
+                    beam,
+                    &model,
+                    &model_major,
+                    &residual,
+                    &mut resync_buffers,
+                );
                 ct.resync += tr.elapsed().as_secs_f64();
                 resyncs.threshold += 1;
                 continue;
@@ -917,7 +1255,15 @@ pub fn run<M: Measurement>(
             let tau = r.abs() / (rt.abs() + e);
             if tau < s.tau_min {
                 let tr = Instant::now();
-                resync(&mut work, &mut since, beam, &model, &model_major, &residual);
+                resync(
+                    &mut work,
+                    &mut since,
+                    beam,
+                    &model,
+                    &model_major,
+                    &residual,
+                    &mut resync_buffers,
+                );
                 ct.resync += tr.elapsed().as_secs_f64();
                 resyncs.tau += 1;
                 continue;
@@ -942,7 +1288,15 @@ pub fn run<M: Measurement>(
             let drifted = (r - rt).abs() > s.drift * rt.abs();
             if drifted || since.steps >= s.resync_every {
                 let tr = Instant::now();
-                resync(&mut work, &mut since, beam, &model, &model_major, &residual);
+                resync(
+                    &mut work,
+                    &mut since,
+                    beam,
+                    &model,
+                    &model_major,
+                    &residual,
+                    &mut resync_buffers,
+                );
                 ct.resync += tr.elapsed().as_secs_f64();
                 if drifted {
                     resyncs.drift += 1;
@@ -952,6 +1306,7 @@ pub fn run<M: Measurement>(
             }
         };
         ct.minor = minor_start.elapsed().as_secs_f64() - ct.resync;
+        work_all.add(&work.work);
         let tm = Instant::now();
         let (next, q_next) = measurement.residual(&model)?;
         ct.major = tm.elapsed().as_secs_f64();
@@ -1014,6 +1369,7 @@ pub fn run<M: Measurement>(
         resyncs: resyncs_all,
         timings,
         correction_terms,
+        work: work_all,
         audit_max_error: audit_max,
         level,
     })
@@ -1208,7 +1564,7 @@ pub fn kernel_benchmark(
             continue;
         }
         let mut work = map.clone();
-        let tiles = n.div_ceil(TILE);
+        let tiles = n.div_ceil(32);
         let (mut patch_ns, mut argmax_ns, mut gather_ns) =
             (f64::INFINITY, f64::INFINITY, f64::INFINITY);
         for _ in 0..rounds.max(1) {
@@ -1225,7 +1581,8 @@ pub fn kernel_benchmark(
             let mut sink = 0usize;
             for _ in 0..reps.div_ceil(20) {
                 for tile in 0..tiles * tiles {
-                    sink = sink.wrapping_add(Working::tile_best(&work, n, tiles, tile, level).1);
+                    sink =
+                        sink.wrapping_add(Working::tile_best(&work, n, 32, tiles, tile, level).1);
                 }
             }
             let per = t.elapsed().as_secs_f64() * 1e9 / (reps.div_ceil(20) * n * n) as f64;
@@ -1333,6 +1690,30 @@ mod tests {
         for (a, b) in fast.iter().zip(&direct) {
             assert!((a - b).abs() < 1e-12, "{a} against {b}");
         }
+        // A second call reuses the buffers; the reference agrees.
+        let again = conv.apply(&model);
+        assert_eq!(fast, again);
+        let reference = ReferenceConvolver::new(GRID.n, &double(&psf)).unwrap();
+        for (a, b) in fast.iter().zip(&reference.apply(&model)) {
+            assert!((a - b).abs() < 1e-12, "{a} against {b}");
+        }
+    }
+
+    #[test]
+    fn convolver_handles_odd_sides_and_empty_rows() {
+        for n in [7usize, 9, 16] {
+            let g = Grid { n, cell: 1.0e-4 };
+            let s = sampling(90, 40 + n as u64);
+            let psf = clean::psf(&s, &g);
+            let conv = Convolver::new(n, &double(&psf)).unwrap();
+            let mut model = vec![0.0; n * n];
+            model[n - 1] = 0.7; // first row only, then an empty stretch
+            model[n * n - 1] = -0.4; // last row of an odd side has no partner
+            let direct = clean::convolve(&psf, &model);
+            for (a, b) in conv.apply(&model).iter().zip(&direct) {
+                assert!((a - b).abs() < 1e-12, "side {n}: {a} against {b}");
+            }
+        }
     }
 
     #[test]
@@ -1340,7 +1721,7 @@ mod tests {
         let mut rng = Rng(21);
         for n in [5, 32, 33, 70] {
             let r: Vec<f64> = (0..n * n).map(|_| rng.next() - 0.5).collect();
-            let mut w = Working::new(r.clone(), n, kernels::level());
+            let mut w = Working::new(r.clone(), n, kernels::level(), 32, false);
             assert_eq!(w.argmax().0, clean::argmax_abs(&r).0);
             // A tie across tiles resolves to the lower index.
             let v = 2.0;
@@ -1394,6 +1775,57 @@ mod tests {
             } else {
                 assert!(out.f > 0.0 && out.correction_terms > 0);
             }
+        }
+    }
+
+    /// The bounds only postpone rescans: the picks and values of the lazy
+    /// tile maxima are those of the eager rescans, whatever the tile size.
+    #[test]
+    fn lazy_bounds_keep_the_picks_bit_identical() {
+        let s = sampling(160, 17);
+        let vis = data(&s, 17);
+        let m = DftMeasurement {
+            sampling: &s,
+            grid: GRID,
+            vis: &vis,
+        };
+        let psf = clean::psf(&s, &GRID);
+        let beam = Beam::from_double(GRID.n, &double(&psf), 5).unwrap();
+        let base = Settings {
+            threshold: 1e-3,
+            max_components: 500,
+            ..Settings::default()
+        };
+        let reference = run(
+            &m,
+            &beam,
+            &Settings {
+                lazy_bounds: false,
+                tile: 4,
+                ..base
+            },
+            None,
+        )
+        .unwrap();
+        assert!(reference.steps.len() > 50);
+        for (lazy_bounds, tile) in [(true, 2), (true, 4), (true, 16), (false, 8)] {
+            let out = run(
+                &m,
+                &beam,
+                &Settings {
+                    lazy_bounds,
+                    tile,
+                    ..base
+                },
+                None,
+            )
+            .unwrap();
+            assert_eq!(out.steps.len(), reference.steps.len());
+            for (a, b) in out.steps.iter().zip(&reference.steps) {
+                assert_eq!(a.pixel, b.pixel);
+                assert_eq!(a.peak.to_bits(), b.peak.to_bits());
+            }
+            assert_eq!(out.model, reference.model);
         }
     }
 

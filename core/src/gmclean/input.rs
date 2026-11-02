@@ -20,6 +20,7 @@
 
 use crate::ms::{ColumnData, DataType, Table};
 use crate::weights::{WeightClass, WeightSettings, imaging_weights, padded_size};
+use rayon::prelude::*;
 use rustfft::num_complex::Complex;
 use std::path::Path;
 
@@ -276,25 +277,34 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
                     start + count
                 ));
             }
-            for (i, &k) in keep.iter().enumerate() {
-                if !k {
-                    continue;
-                }
+            // Stokes I per row in parallel: the rows are independent.
+            let kept: Vec<usize> = (0..keep.len()).filter(|&i| keep[i]).collect();
+            for &i in &kept {
                 out.uvw.extend_from_slice(&uvw[3 * i..3 * i + 3]);
                 out.flag_row.push(flag_row[i] != 0);
-                for ch in 0..nchan {
-                    let cell = i * cells + ch * ncorr;
-                    let (v, w) = stokes_cell(
-                        &data[2 * cell..2 * (cell + ncorr)],
-                        &weights[cell..cell + ncorr],
-                        &flag[cell..cell + ncorr],
-                        a,
-                        b,
-                    );
-                    out.vis.push(Complex::new(f64::from(v.0), f64::from(v.1)));
-                    out.weight.push(w);
-                }
             }
+            let first = out.vis.len();
+            let cells_kept = kept.len() * nchan;
+            out.vis.resize(first + cells_kept, Complex::new(0.0, 0.0));
+            out.weight.resize(first + cells_kept, 0.0);
+            out.vis[first..]
+                .par_chunks_mut(nchan)
+                .zip(out.weight[first..].par_chunks_mut(nchan))
+                .zip(kept.par_iter())
+                .for_each(|((vis, wgt), &i)| {
+                    for ch in 0..nchan {
+                        let cell = i * cells + ch * ncorr;
+                        let (v, w) = stokes_cell(
+                            &data[2 * cell..2 * (cell + ncorr)],
+                            &weights[cell..cell + ncorr],
+                            &flag[cell..cell + ncorr],
+                            a,
+                            b,
+                        );
+                        vis[ch] = Complex::new(f64::from(v.0), f64::from(v.1));
+                        wgt[ch] = w;
+                    }
+                });
         }
         start += count;
     }

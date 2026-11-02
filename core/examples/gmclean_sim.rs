@@ -35,14 +35,13 @@ use rang_core::clean_certified::{
     self, Certified, DriverSettings, Measurement, MinorRule, WgridMeasurement, psf_from_double,
 };
 use rang_core::gmclean::host::{Measured, Probe, min_median};
-use rang_core::gmclean::input::{self, MsArrays, Selection};
+use rang_core::gmclean::input::{self, Selection};
 use rang_core::gmclean::json::{arr, num, obj, text};
 use rang_core::gmclean::kernels::{self, Level};
+use rang_core::gmclean::sim::{self, SimSpec, Sky};
 use rang_core::gmclean::{self, Beam, Outcome, Settings};
 use rang_core::weights::WeightClass;
 use rang_core::wgridder::Options;
-use rustfft::num_complex::Complex;
-use std::f64::consts::PI;
 use std::path::Path;
 use std::time::Instant;
 
@@ -55,88 +54,14 @@ const DUMP_SECONDS: f64 = 60.0;
 const DEC_DEG: f64 = -30.0;
 const RA_RAD: f64 = 0.5;
 const SOURCES: usize = 50;
-const FLUX_MIN: f64 = 0.01;
-const FLUX_MAX: f64 = 1.0;
-const NOISE_FRACTION: f64 = 0.005;
+const NOISE_SIGMA: f64 = 0.005;
 const THRESHOLD: f64 = 1e-3;
 const GAIN: f64 = 0.1;
 const MAX_COMPONENTS: usize = 200_000;
 const TIMING_STATUS: &str = "PROVISIONAL: measured on a shared, loaded host; read with the recorded machine load; no final speedup is stated";
 
-struct Rng(u64);
-
-impl Rng {
-    fn uniform(&mut self) -> f64 {
-        self.0 ^= self.0 << 13;
-        self.0 ^= self.0 >> 7;
-        self.0 ^= self.0 << 17;
-        (self.0 >> 11) as f64 / (1u64 << 53) as f64
-    }
-
-    fn normal(&mut self) -> f64 {
-        let u = self.uniform().max(1e-300);
-        let v = self.uniform();
-        (-2.0 * u.ln()).sqrt() * (2.0 * PI * v).cos()
-    }
-}
-
-fn antennas() -> Vec<[f64; 3]> {
-    include_str!("../../data/meerkat.itrf.txt")
-        .lines()
-        .filter(|line| !line.trim().is_empty())
-        .map(|line| {
-            let f: Vec<f64> = line
-                .split_whitespace()
-                .take(3)
-                .map(|v| v.parse().expect("ITRF coordinate"))
-                .collect();
-            [f[0], f[1], f[2]]
-        })
-        .collect()
-}
-
-/// ITRF to east-north-up about the array centroid, and its latitude.
-fn enu(itrf: &[[f64; 3]]) -> (Vec<[f64; 3]>, f64) {
-    let n = itrf.len() as f64;
-    let c = itrf.iter().fold([0.0; 3], |acc, p| {
-        [acc[0] + p[0] / n, acc[1] + p[1] / n, acc[2] + p[2] / n]
-    });
-    let lon = c[1].atan2(c[0]);
-    let lat = c[2].atan2((c[0] * c[0] + c[1] * c[1]).sqrt());
-    let (sl, cl) = lon.sin_cos();
-    let (sp, cp) = lat.sin_cos();
-    let positions = itrf
-        .iter()
-        .map(|p| {
-            let d = [p[0] - c[0], p[1] - c[1], p[2] - c[2]];
-            [
-                -sl * d[0] + cl * d[1],
-                -sp * cl * d[0] - sp * sl * d[1] + cp * d[2],
-                cp * cl * d[0] + cp * sl * d[1] + sp * d[2],
-            ]
-        })
-        .collect();
-    (positions, lat)
-}
-
-/// Baseline east-north-up to `(u, v, w)` metres at hour angle `h`.
-fn baseline_uvw(d: [f64; 3], lat: f64, h: f64, dec: f64) -> [f64; 3] {
-    let x = -d[1] * lat.sin() + d[2] * lat.cos();
-    let y = d[0];
-    let z = d[1] * lat.cos() + d[2] * lat.sin();
-    [
-        h.sin() * x + h.cos() * y,
-        -dec.sin() * h.cos() * x + dec.sin() * h.sin() * y + dec.cos() * z,
-        dec.cos() * h.cos() * x - dec.cos() * h.sin() * y + dec.sin() * z,
-    ]
-}
-
 fn opts() -> Options {
-    Options {
-        flip_v: true,
-        flip_w: true,
-        ..Options::default()
-    }
+    sim::imaging_options()
 }
 
 fn cell() -> f64 {
@@ -144,136 +69,80 @@ fn cell() -> f64 {
 }
 
 fn truth_sources() -> Vec<(usize, usize, f64)> {
-    let mut rng = Rng(SEED);
-    let margin = SIDE / 20;
-    let span = (SIDE - 2 * margin) as f64;
-    (0..SOURCES)
-        .map(|_| {
-            let i = margin + (rng.uniform() * span) as usize;
-            let j = margin + (rng.uniform() * span) as usize;
-            let flux = FLUX_MIN * (FLUX_MAX / FLUX_MIN).powf(rng.uniform());
-            (i, j, flux)
-        })
-        .collect()
+    sim::point_sources(SIDE, SOURCES, SEED)
 }
 
-fn write(outdir: &Path) -> Result<(), String> {
+fn default_spec() -> SimSpec {
+    SimSpec {
+        sky: Sky::Point { count: SOURCES },
+        side: SIDE,
+        cell_arcsec: CELL_ARCSEC,
+        dumps: DUMPS,
+        dump_seconds: DUMP_SECONDS,
+        nchan: NCHAN,
+        hours: 2.0,
+        first_freq: 1.2e9,
+        channel_width: 25e6,
+        dec_deg: DEC_DEG,
+        ra_rad: RA_RAD,
+        noise_sigma: NOISE_SIGMA,
+        seed: SEED,
+    }
+}
+
+fn write(outdir: &Path, spec: &SimSpec) -> Result<(), String> {
     std::fs::create_dir_all(outdir).map_err(|e| e.to_string())?;
     let wall = Instant::now();
-    let itrf = antennas();
-    let (positions, lat) = enu(&itrf);
-    let dec = DEC_DEG.to_radians();
-    let freq: Vec<f64> = (0..NCHAN).map(|c| 1.2e9 + 25e6 * c as f64).collect();
-    let mut uvw = Vec::new();
-    let mut ant1 = Vec::new();
-    let mut ant2 = Vec::new();
-    let mut time = Vec::new();
-    for t in 0..DUMPS {
-        let hours = (t as f64 + 0.5) / DUMPS as f64 * 2.0 - 1.0;
-        let h = hours * PI / 12.0;
-        for p in 0..positions.len() {
-            for q in p + 1..positions.len() {
-                let d = [
-                    positions[p][0] - positions[q][0],
-                    positions[p][1] - positions[q][1],
-                    positions[p][2] - positions[q][2],
-                ];
-                uvw.extend_from_slice(&baseline_uvw(d, lat, h, dec));
-                ant1.push(p as i32);
-                ant2.push(q as i32);
-                time.push(5.0e9 + DUMP_SECONDS * t as f64);
-            }
-        }
-    }
-    let nrow = ant1.len();
-    let mut truth = vec![0.0; SIDE * SIDE];
-    let sources = truth_sources();
-    for &(i, j, flux) in &sources {
-        truth[i * SIDE + j] += flux;
-    }
-    let vis0 = vec![Complex::new(0.0, 0.0); nrow * NCHAN];
-    let wgt = vec![1.0; nrow * NCHAN];
-    let m = WgridMeasurement::new(
-        uvw.clone(),
-        freq.clone(),
-        vis0,
-        wgt,
-        SIDE,
-        cell(),
-        1e-9,
-        opts(),
-    )?;
-    let t = Instant::now();
-    let predicted = m.predict(&truth)?;
-    println!(
-        "predicted {} visibilities in {:.2} s",
-        predicted.len(),
-        t.elapsed().as_secs_f64()
-    );
-    let mut rng = Rng(SEED ^ 0x5555_aaaa_5555_aaaa);
-    let sigma = NOISE_FRACTION * FLUX_MAX;
-    let mut data = vec![0.0f32; 2 * nrow * NCHAN * 4];
-    for (k, v) in predicted.iter().enumerate() {
-        let cell = k * 4;
-        for corr in 0..4 {
-            let parallel = corr == 0 || corr == 3;
-            let (re, im) = if parallel { (v.re, v.im) } else { (0.0, 0.0) };
-            data[2 * (cell + corr)] = (re + sigma * rng.normal()) as f32;
-            data[2 * (cell + corr) + 1] = (im + sigma * rng.normal()) as f32;
-        }
-    }
-    let weight = vec![1.0f32; nrow * NCHAN * 4];
     let path = outdir.join("sim.ms");
-    let t = Instant::now();
-    input::write_ms(
-        &path,
-        &MsArrays {
-            uvw: &uvw,
-            antenna1: &ant1,
-            antenna2: &ant2,
-            time: &time,
-            interval: DUMP_SECONDS,
-            freq: &freq,
-            data: &data,
-            weight_spectrum: &weight,
-            antennas: &itrf,
-            dish_diameter: 13.5,
-            phase_dir: (RA_RAD, dec),
-        },
-    )?;
-    let t_write = t.elapsed().as_secs_f64();
-    let items: Vec<String> = sources
-        .iter()
-        .map(|&(i, j, f)| {
-            obj(&[
-                ("i", i.to_string()),
-                ("j", j.to_string()),
-                ("flux_jy", num(f)),
-            ])
-        })
-        .collect();
+    let out = sim::simulate(&path, spec)?;
+    let pixels = out.model.iter().filter(|&&c| c != 0.0).count();
+    let items: Vec<String> = match spec.sky {
+        Sky::Point { count } => sim::point_sources(spec.side, count, spec.seed)
+            .iter()
+            .map(|&(i, j, f)| {
+                obj(&[
+                    ("i", i.to_string()),
+                    ("j", j.to_string()),
+                    ("flux_jy", num(f)),
+                ])
+            })
+            .collect(),
+        _ => Vec::new(),
+    };
     let meta = obj(&[
-        ("seed", SEED.to_string()),
-        ("side", SIDE.to_string()),
-        ("cell_arcsec", num(CELL_ARCSEC)),
-        ("rows", nrow.to_string()),
-        ("channels", NCHAN.to_string()),
-        ("dumps", DUMPS.to_string()),
-        ("dump_seconds", num(DUMP_SECONDS)),
-        ("dec_deg", num(DEC_DEG)),
-        ("noise_sigma_jy_per_part_per_correlation", num(sigma)),
+        ("sky", text(&spec.sky.name())),
+        ("seed", spec.seed.to_string()),
+        ("side", spec.side.to_string()),
+        ("cell_arcsec", num(spec.cell_arcsec)),
+        ("rows", out.rows.to_string()),
+        ("channels", spec.nchan.to_string()),
+        ("dumps", spec.dumps.to_string()),
+        ("dump_seconds", num(spec.dump_seconds)),
+        ("hours", num(spec.hours)),
+        ("dec_deg", num(spec.dec_deg)),
+        (
+            "noise_sigma_jy_per_part_per_correlation",
+            num(spec.noise_sigma),
+        ),
         (
             "predict",
             text("dirty2vis on pixel positions, epsilon 1e-9, flip_v, flip_w"),
         ),
+        ("model_pixels", pixels.to_string()),
+        ("model_flux_jy", num(out.model.iter().sum())),
         ("sources", arr(&items)),
-        ("seconds_write_ms", num(t_write)),
+        ("seconds_predict", num(out.seconds_predict)),
+        ("seconds_write_ms", num(out.seconds_write)),
         ("seconds_wall", num(wall.elapsed().as_secs_f64())),
     ]);
     std::fs::write(outdir.join("truth.json"), meta + "\n").map_err(|e| e.to_string())?;
     println!(
-        "wrote {} ({nrow} rows, {NCHAN} channels) in {t_write:.2} s; wall {:.2} s",
+        "wrote {} ({} rows, {} channels, {pixels} model pixels): predict {:.2} s, MS {:.2} s; wall {:.2} s",
         path.display(),
+        out.rows,
+        spec.nchan,
+        out.seconds_predict,
+        out.seconds_write,
         wall.elapsed().as_secs_f64()
     );
     Ok(())
@@ -404,7 +273,7 @@ fn sparse_subset(
     side: usize,
     cell: f64,
 ) -> Result<WgridMeasurement, String> {
-    let total = antennas().len();
+    let total = sim::antennas().len();
     let nchan = data.freq.len();
     let (mut uvw, mut vis, mut wgt) = (Vec::new(), Vec::new(), Vec::new());
     let mut row = 0;
@@ -783,7 +652,7 @@ impl Timed {
 fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     let wall = Instant::now();
     if !outdir.join("sim.ms").join("table.dat").exists() {
-        write(outdir)?;
+        write(outdir, &default_spec())?;
     }
     let data = input::read_ms(&outdir.join("sim.ms"), &Selection::default())?;
     let weights = input::gridding_weights(&data, WeightClass::Briggs(0.0), SIDE, cell())?;
@@ -1011,10 +880,33 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     Ok(())
 }
 
+/// `sim OUTDIR SKY SIDE CELL_ARCSEC DUMPS NCHAN HOURS`.
+fn sim_args(args: &[String]) -> Result<SimSpec, String> {
+    let field = |i: usize| -> Result<f64, String> {
+        args.get(i)
+            .and_then(|a| a.parse().ok())
+            .ok_or_else(|| "sim OUTDIR SKY SIDE CELL_ARCSEC DUMPS NCHAN HOURS".to_string())
+    };
+    let (dumps, nchan, hours) = (field(6)?, field(7)?, field(8)?);
+    Ok(SimSpec {
+        sky: Sky::parse(args.get(3).map_or("", String::as_str))?,
+        side: field(4)? as usize,
+        cell_arcsec: field(5)?,
+        dumps: dumps as usize,
+        dump_seconds: hours * 3600.0 / dumps,
+        nchan: nchan as usize,
+        hours,
+        // The same 200 MHz whatever the channel count.
+        channel_width: 200e6 / nchan,
+        ..default_spec()
+    })
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let result = match (args.get(1).map(String::as_str), args.get(2)) {
-        (Some("write"), Some(out)) => write(Path::new(out)),
+        (Some("write"), Some(out)) => write(Path::new(out), &default_spec()),
+        (Some("sim"), Some(out)) => sim_args(&args).and_then(|spec| write(Path::new(out), &spec)),
         (Some("compare"), Some(out)) => compare(Path::new(out)),
         (Some("bench"), Some(out)) => {
             let repeats = args.get(3).and_then(|r| r.parse().ok()).unwrap_or(5);

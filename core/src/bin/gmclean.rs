@@ -15,14 +15,15 @@
 //! `-residual` and `-image` FITS files in WSClean's orientation, plus
 //! `-report.json`.
 
-use rang_core::clean_certified::{Measurement, WgridMeasurement, misfit_floor};
+use rang_core::clean_certified::{Complex, Measurement, misfit_floor};
 use rang_core::gmclean::fits::{self, Card, Value, card};
 use rang_core::gmclean::input::{self, Selection};
 use rang_core::gmclean::json::{arr, num, obj, opt, text};
 use rang_core::gmclean::kernels::{self, Level};
+use rang_core::gmclean::measure::GridMeasurement;
 use rang_core::gmclean::{self, Beam, Settings};
 use rang_core::weights::WeightClass;
-use rang_core::wgridder::Options;
+use rang_core::wgridder::{Options, Real};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
@@ -48,10 +49,14 @@ const USAGE: &str = "usage: gmclean [options] <ms>
   -j <threads>              worker threads (default: all cores)
   -wgridder-accuracy <eps>  gridder accuracy (default 1e-6, double precision)
   -no-wgridding             disable the w-term
+  -single                   grid in single precision (default double)
+  -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -floor-iterations <n>     estimate Q_inf by n conjugate-gradient iterations (default 0: off)
   -audit                    recompute every exact peak by brute force and report the largest error
   -simd <level>             cap the kernels at scalar | avx2 | avx512
   -bitpix <32|64>           FITS sample format (default 32)
+  -tile <pixels>            tile side of the argmax (default 32)
+  -eager-tiles              rescan every tile a patch touches (same picks, for comparison)
   -no-restore               do not write the restored image";
 
 struct Args {
@@ -81,6 +86,10 @@ struct Args {
     simd: Option<Level>,
     bitpix: i32,
     restore: bool,
+    tile: usize,
+    single: bool,
+    beam_no_w: bool,
+    lazy_bounds: bool,
 }
 
 /// An angle with WSClean's units, in radians (plain numbers are degrees).
@@ -139,6 +148,10 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         simd: None,
         bitpix: -32,
         restore: true,
+        tile: 32,
+        single: false,
+        beam_no_w: false,
+        lazy_bounds: true,
     };
     let mut i = 0;
     let mut positional = Vec::new();
@@ -207,6 +220,10 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 }
             }
             "-no-restore" => a.restore = false,
+            "-tile" => a.tile = number(flag, value(&mut i)?)?,
+            "-eager-tiles" => a.lazy_bounds = false,
+            "-single" => a.single = true,
+            "-beam-no-w" => a.beam_no_w = true,
             s if s.starts_with('-') && s.len() > 1 => {
                 return Err(format!("unknown option {s}\n\n{USAGE}"));
             }
@@ -238,6 +255,104 @@ fn write_image(
     let mut cards = base.to_vec();
     cards.extend_from_slice(extra);
     fits::write(path, n, n, &fits::gridder_to_fits(n, grid), bitpix, &cards)
+}
+
+/// The beam, the fitted restoring beam and the CLEAN run.
+struct Cleaned {
+    psf2n: Vec<f64>,
+    beam: Beam,
+    restoring: gmclean::RestoringBeam,
+    outcome: gmclean::Outcome,
+    floor_json: String,
+    q_floor: Option<f64>,
+    t_psf: f64,
+    t_beam: f64,
+}
+
+/// The gridder-precision-dependent part of the run.
+fn deconvolve<T: Real + Send + Sync>(
+    args: &Args,
+    uvw: Vec<f64>,
+    freq: &[f64],
+    vis: Vec<Complex<f64>>,
+    wgt: Vec<f64>,
+    opts: Options,
+) -> Result<Cleaned, String> {
+    let n = args.size;
+    let measurement: GridMeasurement<T> = GridMeasurement::new(
+        uvw,
+        freq.to_vec(),
+        vis,
+        wgt,
+        n,
+        args.scale,
+        args.epsilon,
+        opts,
+    )?;
+    let t = Instant::now();
+    let psf2n = measurement.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?;
+    let t_psf = t.elapsed().as_secs_f64();
+    let t = Instant::now();
+    let beam = Beam::from_double(n, &psf2n, args.patch)?;
+    let t_beam = t.elapsed().as_secs_f64();
+    let restoring = gmclean::fit_restoring_beam(n, &psf2n);
+    let scale_deg = args.scale.to_degrees();
+    println!(
+        "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} main-lobe pixels); PSF {:.2} s, FFT {:.2} s",
+        beam.peak,
+        beam.patch,
+        beam.f,
+        restoring.major * scale_deg * 3600.0,
+        restoring.minor * scale_deg * 3600.0,
+        restoring.pa.to_degrees(),
+        restoring.pixels,
+        t_psf,
+        t_beam
+    );
+    let mut floor_json = "null".to_string();
+    let mut q_floor = None;
+    if args.floor_iterations > 0 {
+        let (dirty, _) = measurement.residual(&vec![0.0; n * n])?;
+        let (floor, _) = misfit_floor(&measurement, &dirty, args.floor_iterations, 1e-12)?;
+        println!(
+            "Q_inf <= {:.6e} after {} CG iterations ({:.1} s)",
+            floor.q_floor, floor.iterations, floor.seconds
+        );
+        q_floor = Some(floor.q_floor);
+        floor_json = obj(&[
+            ("q_floor", num(floor.q_floor)),
+            ("iterations", floor.iterations.to_string()),
+            ("relative_residual", num(floor.relative_residual)),
+            ("seconds", num(floor.seconds)),
+        ]);
+    }
+    let settings = Settings {
+        gain: args.gain,
+        major_fraction: args.mgain,
+        threshold: args.threshold,
+        auto_threshold: args.auto_threshold,
+        max_components: args.niter,
+        max_major: args.nmiter,
+        theta: args.theta,
+        drift: args.drift,
+        tau_min: args.tau_min,
+        resync_every: args.resync_every,
+        audit: args.audit,
+        level: args.simd.map(|l| l.min(kernels::level())),
+        tile: args.tile,
+        lazy_bounds: args.lazy_bounds,
+    };
+    let outcome = gmclean::run(&measurement, &beam, &settings, q_floor)?;
+    Ok(Cleaned {
+        psf2n,
+        beam,
+        restoring,
+        outcome,
+        floor_json,
+        q_floor,
+        t_psf,
+        t_beam,
+    })
 }
 
 fn run() -> Result<(), String> {
@@ -310,68 +425,22 @@ fn run() -> Result<(), String> {
         do_wgridding: args.wgridding,
         ..Options::default()
     };
-    let measurement = WgridMeasurement::new(
-        uvw,
-        freq.clone(),
-        vis,
-        wgt,
-        n,
-        args.scale,
-        args.epsilon,
-        opts,
-    )?;
-    let t = Instant::now();
-    let psf2n = measurement.psf_image(2 * n)?;
-    let t_psf = t.elapsed().as_secs_f64();
-    let t = Instant::now();
-    let beam = Beam::from_double(n, &psf2n, args.patch)?;
-    let t_beam = t.elapsed().as_secs_f64();
-    let restoring = gmclean::fit_restoring_beam(n, &psf2n);
-    let scale_deg = args.scale.to_degrees();
-    println!(
-        "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} main-lobe pixels); PSF {:.2} s, FFT {:.2} s",
-        beam.peak,
-        beam.patch,
-        beam.f,
-        restoring.major * scale_deg * 3600.0,
-        restoring.minor * scale_deg * 3600.0,
-        restoring.pa.to_degrees(),
-        restoring.pixels,
-        t_psf,
-        t_beam
-    );
-    let mut floor_json = "null".to_string();
-    let mut q_floor = None;
-    if args.floor_iterations > 0 {
-        let (dirty, _) = measurement.residual(&vec![0.0; n * n])?;
-        let (floor, _) = misfit_floor(&measurement, &dirty, args.floor_iterations, 1e-12)?;
-        println!(
-            "Q_inf <= {:.6e} after {} CG iterations ({:.1} s)",
-            floor.q_floor, floor.iterations, floor.seconds
-        );
-        q_floor = Some(floor.q_floor);
-        floor_json = obj(&[
-            ("q_floor", num(floor.q_floor)),
-            ("iterations", floor.iterations.to_string()),
-            ("relative_residual", num(floor.relative_residual)),
-            ("seconds", num(floor.seconds)),
-        ]);
-    }
-    let settings = Settings {
-        gain: args.gain,
-        major_fraction: args.mgain,
-        threshold: args.threshold,
-        auto_threshold: args.auto_threshold,
-        max_components: args.niter,
-        max_major: args.nmiter,
-        theta: args.theta,
-        drift: args.drift,
-        tau_min: args.tau_min,
-        resync_every: args.resync_every,
-        audit: args.audit,
-        level: args.simd.map(|l| l.min(kernels::level())),
+    let cleaned = if args.single {
+        deconvolve::<f32>(&args, uvw, &freq, vis, wgt, opts)?
+    } else {
+        deconvolve::<f64>(&args, uvw, &freq, vis, wgt, opts)?
     };
-    let outcome = gmclean::run(&measurement, &beam, &settings, q_floor)?;
+    let Cleaned {
+        psf2n,
+        beam,
+        restoring,
+        outcome,
+        floor_json,
+        q_floor,
+        t_psf,
+        t_beam,
+    } = cleaned;
+    let scale_deg = args.scale.to_degrees();
     let tq = outcome.tau_quantiles();
     println!(
         "{} components, {} major cycles, {} resyncs, stop {:?}; Q/Q0 {:.4e}; tau min {:.3} median {:.3}; minor {:.2} s (corrections {:.3} s), resync {:.2} s, major {:.2} s",
@@ -483,6 +552,7 @@ fn run() -> Result<(), String> {
         ("size", n.to_string()),
         ("scale_arcsec", num(args.scale.to_degrees() * 3600.0)),
         ("wgridding", args.wgridding.to_string()),
+        ("gridder_single", args.single.to_string()),
         ("wgridder_accuracy", num(args.epsilon)),
         ("phase_dir_rad", arr(&[num(phase_dir.0), num(phase_dir.1)])),
         (
