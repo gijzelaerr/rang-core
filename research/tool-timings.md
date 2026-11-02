@@ -1273,3 +1273,57 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan DF5-O: `compare_df5o.py floor` | 16 channels × 200 CG, sweep | 3,986 s | 740 MB | 175–185 s per channel |
 | 2026-11-02 | big plan DF5-O: `compare_df5o.py p2`; `measure` (12 runs) | FITS, field.npz | 20.1 s; 19–30 s each | 1,295 MB; 735 MB | 4 threads |
 | 2026-11-02 | big plan DF5-O: `bash tools/check-all.sh` | repo | see log | – | PASS: root 23, core 129 Rust tests; pytest 693 passed, 15 skipped (527 s); log `outputs/df5o-20261102-check-all.log` |
+| 2026-11-02 | big plan B1-3: uv venv + install | 78 s | 1.19 GB | builds the extension |
+| 2026-11-02 | big plan B1-3: ESO137 names probe (`-00-probe-names`) | 0.41 s | 43 MB | one GET each, opcode scan |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-06-sim-F3` smoke, F3 R smoke | 11 s, 45 s | 2.2, 1.25 GB | superseded by `-33` |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-01-rerun-S3` | 59 s | 3.18 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-02-rerun-S1` | 157 s | 1.90 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-03-rerun-S4` | 391 s | 2.23 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-04-rerun-S5` | 792 s | 3.26 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-05-rerun-S2` | 1180 s | 6.39 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-07-sim-F2` | 26 s | 4.31 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-08-fixture` | 285 s | 0.45 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-10-F3-G` | 48 s | 1.02 GB | solver 41 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-11-F3-ii` | 59 s | 1.18 GB | solver 52 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-12-F3-R` | 65 s | 1.19 GB | solver 57 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-13-F2-G` | 291 s | 1.11 GB | **failed** |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-14-F2-ii` | 409 s | 1.27 GB | **failed** |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-15-F2-R` | killed | – | stopped by hand |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-33-sim-F3` | 52 s | 2.55 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-34-sim-F2` | 135 s | 6.09 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-35-F3-G` | 213 s | 1.43 GB | solver 165 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-36-F3-ii` | 244 s | 1.60 GB | solver 195 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-37-F3-R` | 250 s | 1.61 GB | solver 202 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-38-F2-G` | 523 s | 2.92 GB | solver 312 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-39-F2-ii` | 808 s | 2.95 GB | solver 579 s, 4 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-40-F2-R` | 828 s | 2.99 GB | solver 585 s, 4 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-41-F2-ii-average` | 772 s | 1.48 GB | solver 567 s, 4 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-42-F2-R-average` | 821 s | 1.50 GB | solver 589 s, 4 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-43-F2-free-G` | 627 s | 2.89 GB | solver 398 s, 3 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-44-F2-free-ii` | 838 s | 2.93 GB | solver 610 s, 4 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-45-F2-free-R` | 979 s | 2.97 GB | solver 712 s, 4 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-46-S4-G` | killed | – | stopped by hand |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-58-S4-G` | 1547 s | 2.46 GB | solver 1488 s, 10 passes (4 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-59-S4-ii` | 210 s | 2.49 GB | **failed** |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-60-S4-R` | 285 s | 2.54 GB | **failed** |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-61-S5-G` | 3717 s | 3.89 GB | solver 3553 s, 10 passes (4 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-62-S5-ii` | 526 s | 3.89 GB | **failed** |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-63-S5-R` | 464 s | 3.89 GB | **failed** |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-64-S1-G` | 510 s | 1.78 GB | solver 461 s, 10 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-65-S1-ii` | 881 s | 1.78 GB | solver 834 s, 10 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-66-S1-R` | 940 s | 1.78 GB | solver 896 s, 10 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-67-S2-G` | 5665 s | 7.13 GB | solver 5320 s, 10 passes (4 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-68-S2-ii` | 5086 s | 7.34 GB | solver 4827 s, 10 passes (4 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-69-S2-R` | 5090 s | 7.32 GB | solver 4842 s, 10 passes (4 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-70-S4-ii` | 795 s | 2.59 GB | solver 714 s, 10 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-71-S4-R` | 1648 s | 2.70 GB | solver 1554 s, 10 passes (3 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-72-S5-ii` | 2296 s | 3.89 GB | solver 2153 s, 10 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-73-S5-R` | 2039 s | 3.89 GB | solver 1890 s, 10 passes (2 accepted) |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-74-posthoc-gains` | 536 s | 1.10 GB |  |
+| 2026-11-02 | big plan B1-3: `b1-3-20261030-75-compare` | 4 s | 0.37 GB |  |
+| 2026-11-02 | big plan B1-3: one S4 task, cProfile (3 attempts while optimising) | 29–31 s | – | 896 hand-bins |
+| 2026-11-02 | big plan B1-3: `tests/test_b1_pointing_selfcal.py` | about 10 s | – | 18 tests |
+| 2026-10-31 scratch diagnostics: `linesearch.py` (twice, F2), `stefcal_diag.py` (cap sweep, then with polishing), `conv.py` (toy), `halvings.py` (F3, F2, S4) | big plan B1-3: about 2–10 min each | – | not timed; scripts in `-74-posthoc-gains`, the F2 ones rerun there with a log |
+| 2026-11-02 | big plan B1-3: F2 G smoke fit (4 passes, scratch), F2 simulation smoke | 3 min, 25 s | – | not timed; the first showed the slow convergence |
+| 2026-11-02 | big plan B1-3: partial `compare` dry runs (twice) | seconds | – | not timed |
+| 2026-11-02 | big plan B1-3: `bash tools/check-all.sh` | 17:35.65 | 1.74 GB | **overall: PASS**; pytest 679 passed, 9 skipped in 153.2 s; wall includes waiting for the host lock behind other tasks; log `outputs/b1-3-20261030-check-all.log`; ran on the code of the final commit (afterwards only this table changed) |

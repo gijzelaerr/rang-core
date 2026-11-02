@@ -495,3 +495,9 @@ saopicc (DDFacet, killMS):
 4. pfb-imaging 0.0.11 ships `deconv/hogbom.py` but no command uses it
    (`kclean` is Clark); a Högbom minor cycle on the CLI would give a Högbom
    oracle. Feature request.
+
+## B1-3 observations (2026-11-02; data stores; candidates to file once the user says so)
+
+- The ESO137 subset's ANTENNA has 61 antennas without m014, m017, m032 (read by
+  opcode scan). LUNO's ANTENNA table has 56, without m006, m008, m015–m017, m028,
+  m034, m060. caracal-pipeline, saopicc: nothing.

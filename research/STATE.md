@@ -1,5 +1,27 @@
 # Rang research state
 
+B1-3 pointing self-calibration against both baselines (big plan wave 3),
+2026-11-02 (implemented; measured;
+[b1-3-pointing-selfcal.md](b1-3-pointing-selfcal.md)). Protocol frozen
+first, two labelled amendments (the gains must be solved exactly: Gauss–Newton
+polishing after StefCal; the beam frequency of the simulations). Survey rerun
+with a per-channel bandpass and per-antenna beams: the snapshot common
+pointing goes on S2, S3 and S4 (gate G3a: ρ ≤ 8e-9 for a diagonal beam on the
+1830 point); per-antenna pointing and squint survive (S4 60/60, S2 52/53 x,
+48/53 y); per-scan common pointing and ellipticity survive on the track; width
+fails where it would be fitted. Fits in one solver (profiled Levenberg–Marquardt,
+same nuisances): gains-only, physical pointing self-calibration (ii), and the
+rang method R (selected from its own first pass). **Overall negative under the
+frozen rule; B1 closes null.** On simulations pointing self-calibration works
+(F2: 0.62′ → 0.054′, held-out −3 %, faint outer-source errors down 2.6×), and R
+matches (ii) there (F3: better offsets, 0.110′ against 0.173′, held-out equal).
+On the fixture R beats the SARAO/SKA Gaussian fit (0.357′ against 0.634′) but is
+worse than (ii) (0.200′), because declining an axis holds a real offset at zero.
+On real ESO137 and 1934 data neither arm measures pointing with B1-2's model:
+offsets to 24′, squint at 10–140σ, sky-frame structure, all arms unconverged at
+10 passes; S4's negative label is a cost-clause ratio (2.18) from (ii)'s free
+rejected trials. Archive `results/b1-3-pointing-selfcal.json`.
+
 DF5-O, the deconvolution oracles (big plan;
 [df5o-deconv-oracles.md](df5o-deconv-oracles.md)), 2026-11-02
 (implemented; measured): a simulated MeerKAT L-band field (64 antennas,

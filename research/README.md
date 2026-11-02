@@ -14,6 +14,11 @@ for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
 
+New, 2026-11-02: B1-3, [pointing self-calibration](b1-3-pointing-selfcal.md):
+overall negative, B1 closes null. Works on simulations (0.62′ → 0.05′), selection
+adds nothing over fitting every antenna, and with the self-calibrated ESO137
+model neither arm measures pointing on real data.
+
 New, 2026-11-02: DF5-O, the [deconvolution oracles](df5o-deconv-oracles.md):
 a simulated MeerKAT field (core-made MS, truth on the grid, hashed),
 WSClean 3.7 Högbom/multiscale and pfb-imaging 0.0.11 kclean/sara frozen
