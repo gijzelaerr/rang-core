@@ -47,7 +47,8 @@ def main():
         if not pre["all_passed"]:
             sys.exit("the precondition failed; the campaign does not run")
         available = array.mem_available_gib()
-        print(f"MemAvailable {available:.1f} GiB", flush=True)
+        if available is not None:  # None outside Linux
+            print(f"MemAvailable {available:.1f} GiB", flush=True)
         if available is not None and available < array.MIN_AVAILABLE_GIB:
             sys.exit(f"less than {array.MIN_AVAILABLE_GIB} GiB available; not started")
     result = array.run(

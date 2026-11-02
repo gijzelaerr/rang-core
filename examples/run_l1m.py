@@ -60,7 +60,8 @@ def main():
         if args.precondition is None:
             sys.exit("the frozen run needs --precondition")
         available = array.mem_available_gib()
-        print(f"MemAvailable {available:.1f} GiB", flush=True)
+        if available is not None:  # None outside Linux
+            print(f"MemAvailable {available:.1f} GiB", flush=True)
         if available is not None and available < l1m.MIN_AVAILABLE_GIB:
             print(f"less than {l1m.MIN_AVAILABLE_GIB} GiB available; not started")
             sys.exit(3)

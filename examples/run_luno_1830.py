@@ -41,7 +41,8 @@ def main():
     if not run_dir.as_posix().startswith("outputs/") or run_dir.exists():
         sys.exit("the run directory must be a fresh path beneath outputs/")
     available = l2.mem_available_gib()
-    print(f"MemAvailable {available:.1f} GiB", flush=True)
+    if available is not None:  # None outside Linux
+        print(f"MemAvailable {available:.1f} GiB", flush=True)
     if not args.smoke:
         if args.stations is not None:
             sys.exit("the frozen run uses every station; --stations is for --smoke")
