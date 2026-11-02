@@ -6,6 +6,8 @@ The only measurements are the four sizing probes of section 10, labelled as prob
 appended under a "Measured result" heading. Nothing above that heading changes after this commit
 except through a dated, labelled amendment.
 
+**Amendment 1, 2026-11-02, before any Stage 1 run.** The owner answered decision 5 of section 11, verbatim: "go for it, do the jax flagger stuff, impress landman". JAX may be used on the training path and in the adjoint; inference stays in Rust. Stages 1a and 1b run now; Stage 1c and later do not. No threshold changes.
+
 **In one paragraph.** Train a 2,713-weight convolutional network that reads the raw visibility
 amplitudes of one baseline and outputs a per-cell flag. Its only training signal is the gain TV of a
 calibrator solve, differentiated through the solver's fixed point by an adjoint. At inference there
