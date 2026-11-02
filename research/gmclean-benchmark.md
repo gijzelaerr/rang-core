@@ -289,7 +289,7 @@ The `-j 1` scores are in the archive; the S1 `auto` default-grid job goes from Q
 2.2430e-3 at `-j 16` to 2.2457e-3 at `-j 1`, so the choice of `-j` moves WSClean's
 result at that level (the O-CASA note found 2e-6 pixel differences at `-j 4`). This
 is why every number names its `-j`. WSClean's plain loop was not compared across
-threads on the simulations (§10).
+threads on the simulations except S1 `abs` `nominres`: model L∞ 0 Jy, residual L∞ 0 Jy (§10).
 
 ## 6. Costs seen so far (PROVISIONAL, contended; not a comparison)
 
@@ -331,7 +331,8 @@ See [tool-timings.md](tool-timings.md). Simulation 36.5, 36.8 and 206.9 s; `-nit
 checks 300 s (8 jobs); prepare 37.6, 31.2, 32.3 and 2.0 s; scoring about 20 s per
 simulated model with 4 threads; `gmclean` release build 215 s; WSClean: 36 jobs at
 `-j 16` 4,036 s, 30 at `-j 1` 4,551 s; gmclean: 8 at `-j 16` 1,043 s, 8 at `-j 1`
-2,571 s, `-tau-min 0.9` on S1 601 s, `-mgain 0.1` on S1 479 s.
+2,571 s, `-tau-min 0.9` on S1 601 s, `-mgain 0.1` on S1 479 s; `check-all` on `62670bf`
+426 s (705 Python tests passed, 45 skipped).
 
 ## 9. Reproduction
 
@@ -353,12 +354,11 @@ The full WSClean matrix is 24 jobs per dataset; this run did not do all of it (�
 
 ## 10. Not done
 
-- WSClean's plain loop on the simulations ran at `-j 16` on `nominres` only (6 jobs);
-  the other grids and all of `-j 1` were dropped: 300 to 570 s per job at `-j 16`, and
-  S1 `abs` `nominres` at `-j 1` was started and logs about 5 iterations per second, some
-  5 h for its 85,000. That one job, `s1-abs-nominres-hogbom-j1`, was left running because
-  in-progress runs are not to be killed; it is not in any table. So the 24-job matrix per
-  dataset was run for the fast loop (18 sim jobs at each `-j`, 6 slice) and for the
-  slice's plain loop, not in full on the simulations.
+- WSClean's plain loop on the simulations ran at `-j 16` on `nominres` only (6 jobs)
+  and at `-j 1` on S1 `abs` `nominres` only (924 s, PROVISIONAL). The other 12 jobs at
+  `-j 16` and 17 at `-j 1` were not run: about 6 h of the host lock, which the gmclean
+  work also needs, for little: the fast-loop grids agree in Q to 0.01 %. The run script skips
+  finished jobs, so `bash examples/gmclean_bench_run.sh wsclean
+  outputs/gmclean-bench-20261102/wsclean s1 s2 s3` completes the 24 jobs per dataset.
 - The quiet-window timing (§7). No speed result exists.
 - gmclean tuning is running elsewhere; these results describe `d94850e` only.

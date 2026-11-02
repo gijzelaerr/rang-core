@@ -1,5 +1,5 @@
 {
- "code_commit": "34e156f84866075cf7d68a1aaa7dd6ea2daf2358",
+ "code_commit": "62670bf15092c4af7078bca7d685d92b8007405b",
  "datasets": {
   "s1": {
    "catalogue": {
@@ -12589,6 +12589,108 @@
       "total_flux_error": 0.0004113733480952675,
       "true_flux_total": 10.958689100629647
      },
+     "s1-abs-nominres-hogbom-j1": {
+      "between_1_and_2_beams_flux": 0.008486015653943468,
+      "busy_processes": [
+       "== before 2026-11-02T13:56:25+02:00 WSL",
+       " 226632 gijsm     20   0 4618192   3.0g   5592 R 353.0   9.6  24:02.56 /home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean_sim minor /home/gijsm/Build/tmp/20261102-gmclean-opt/crowded/sim.ms 2048+",
+       " 233490 gijsm     20   0 2288788 674716  36496 R 322.0   2.1   0:53.21 .venv/bin/python examples/gmclean_bench_compare.py score outputs/gmclean-bench-20261102/prep/s1 outputs/gmclean-bench-20261102/+",
+       " 232762 gijsm     20   0 9744952   1.3g 204084 R 101.0   4.1   1:04.48 /home/gijsm/Github/rang/.venv/bin/python -m pytest -q",
+       "== before Windows",
+       "725 vmmemWSL",
+       "== after 2026-11-02T14:11:51+02:00 WSL",
+       " 247937 gijsm     20   0 4193100   3.1g   6416 S  1363  10.2   0:40.18 /home/gijsm/Build/tmp/20261102-gmclean-opt/cur/gmclean -name /home/gijsm/Build/tmp/20261102-gmclean-opt/cmp4/disc-plan-reuse-j1+",
+       " 246785 gijsm     20   0   10.8g   2.1g 275224 R 101.0   6.7   4:53.31 /home/gijsm/Github/rang/.venv/bin/python -m pytest -q",
+       "== after Windows",
+       "624 vmmemWSL"
+      ],
+      "command": "wsclean -gridder wgridder -data-column DATA -field 0 -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -pol I -j 1 -no-update-model-required -temp-dir /run/tmp -niter 1000000 -nmiter 0 -gain 0.1 -mgain 0.8 -abs-threshold 0.0001 -no-min-grid-resolution -wgridder-accuracy 1e-6 -no-fast-subminor -name /run/s1-abs-nominres-hogbom-j1 /run/ms/s1.ms",
+      "dynamic_range": 38153.80168729681,
+      "exact_residual_inner_peak_abs": 0.0001124864076270617,
+      "exact_residual_inner_rms": 2.5547441121176832e-05,
+      "exact_vs_imager_residual_inner_linf": 7.869571410832037e-08,
+      "false_flux_abs": 0.0054148093122421415,
+      "false_flux_negative": -0.003218235406166059,
+      "false_flux_positive": 0.0021965739060760825,
+      "false_pixels": 243,
+      "loadavg1_samples_max": 26.41,
+      "loadavg_before_after": [
+       [
+        "9.91",
+        "11.30",
+        "11.26"
+       ],
+       [
+        "10.05",
+        "16.35",
+        "14.73"
+       ]
+      ],
+      "log": {
+       "auto_threshold_lines": [
+        "Estimated standard deviation of background noise: 71.46 \u00b5Jy",
+        "Estimated standard deviation of background noise: 39.76 \u00b5Jy",
+        "Estimated standard deviation of background noise: 28.04 \u00b5Jy"
+       ],
+       "components": null,
+       "deconvolution_s": 724.947134,
+       "diverged": false,
+       "inversion_s": 124.299382,
+       "last_logged_iteration": 85000,
+       "major_iterations": 6,
+       "prediction_s": 69.187944
+      },
+      "model_fits_sha256": "63aa0bd4b4e7a61952c92e197cbc2d09b371c3b1631e04fc82eb334ffea00b97",
+      "model_flux_negative": -1.4926107920864524,
+      "model_flux_total": 10.959316607376422,
+      "model_pixels": 2826,
+      "name": "s1-abs-nominres-hogbom-j1",
+      "q": 0.005882173034261327,
+      "q_over_q0": 0.002226759864868142,
+      "q_over_q_truth": 1.013613848425569,
+      "recovery_all": {
+       "flux_weighted": 0.9993761254339549,
+       "mean": 1.00030943467183,
+       "n": 50,
+       "std": 0.004890922028988632
+      },
+      "recovery_by_decade": {
+       "0.01-0.1 Jy": {
+        "mean": 1.001425276136568,
+        "min": 0.994620897230688,
+        "n": 23,
+        "std": 0.005768792988205854
+       },
+       "0.1-1 Jy": {
+        "mean": 0.9993589030537203,
+        "min": 0.9923278749403278,
+        "n": 27,
+        "std": 0.0037397138759286638
+       }
+      },
+      "residual_fits_sha256": "c6061d3684ac0ca1a15c9eb4f6bd8d0290315b8b943d81e155bbce10699f9888",
+      "residual_inner_peak_abs": 0.00011246521899010986,
+      "residual_inner_rms": 2.5547439024253046e-05,
+      "residual_inner_rms_over_noise": 1.1015378787515029,
+      "residual_rms": 2.480116178518553e-05,
+      "restored_peak": 0.9747319221496582,
+      "restoring_beam_arcsec": [
+       13.878466699189644,
+       8.344622157515929
+      ],
+      "score_seconds": 9.073214989999542,
+      "time": {
+       "cpu_percent": 99.0,
+       "cpu_s": 922.45,
+       "exit_status": 0.0,
+       "max_rss_kb": 791640.0,
+       "system_s": 7.61,
+       "user_s": 914.84,
+       "wall_s": 923.45
+      },
+      "total_flux_error": 0.0006275067467758078,
+      "true_flux_total": 10.958689100629647
+     },
      "s1-abs-nominres-hogbom-j16": {
       "between_1_and_2_beams_flux": 0.008486015653943468,
       "busy_processes": [
@@ -18831,6 +18933,12 @@
    "peak": 0.6545653343200684,
    "residual_linf": 5.421010862427522e-20,
    "residual_peak": 0.00023090066679287702
+  },
+  "wsclean/s1-abs-nominres-hogbom": {
+   "model_linf": 0.0,
+   "peak": 0.655182957649231,
+   "residual_linf": 0.0,
+   "residual_peak": 0.00011246521899010986
   },
   "wsclean/s1-abs-pad2-fast": {
    "model_linf": 0.0,

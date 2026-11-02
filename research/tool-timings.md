@@ -1195,6 +1195,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | gmclean-bench prepare S1 / S2 / S3 / slice | exact dirty and PSF, ε 1e-9, noise images | 37.6 / 31.2 / 32.3 / 2.0 s | 2.5 GB | PROVISIONAL |
 | 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 36 jobs -j 16 | simulations and slice, fast and plain loop | 4,036 s | 0.78 GB | PROVISIONAL; plain loop 284-571 s per job |
 | 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 30 jobs -j 1 | fast loop, slice plain loop | 4,551 s | 0.78 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench WSClean plain loop S1 abs nominres -j 1 | 85,000 iterations | 924 s | 0.77 GB | PROVISIONAL; deconvolution 725 s |
+| 2026-11-02 | gmclean-bench `tools/check-all.sh` | `62670bf` | 426 s | – | pass; shared host |
 | 2026-11-02 | gmclean-bench `cargo build --release --bin gmclean` | `d94850e` | 215.4 s | – | contended |
 | 2026-11-02 | gmclean-bench gmclean matrix, 8 jobs -j 16 / 8 jobs -j 1 | `d94850e` | 1,043 / 2,571 s | 2.48 GB | PROVISIONAL; not a speed comparison |
 | 2026-11-02 | gmclean-bench gmclean S1 abs `-tau-min 0.9` / `-mgain 0.1` | `d94850e`, -j 16 | 601 / 479 s | 2.5 GB | PROVISIONAL |
