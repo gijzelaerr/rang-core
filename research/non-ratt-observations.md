@@ -320,3 +320,8 @@ to an unrelated package (carta-python is not on PyPI).
 4. WSClean's fitted natural-weighting beam (52″ × 39″ at 924 MHz) is far
    wider than the half-maximum main lobe (about 32″ there; 23″ × 14″ MFS):
    MeerKAT's natural PSF plateau dominates the fit.
+
+## From B1-3 (2026-11-02; SARAO holography release; informational)
+
+- At full-band sensitivity the per-antenna beams are needed for pointing below
+  about 0.2′ (array average 0.18′ against 0.054′ RMS on a simulated track).

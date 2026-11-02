@@ -1,7 +1,7 @@
 # W4-8: the documentation pass
 
 Status: **implemented and checked; documentation only, no numerical code or
-result changed.** check-all: `overall: PASS` (858 passed, 13 skipped).
+result changed.** check-all: LAST_RESULT.
 
 The owner's instruction: the README "has become a bit of a mess"; clean it up
 and restructure it. The wave 4 pass and the "Documentation drift" table of
@@ -12,8 +12,8 @@ and restructure it. The wave 4 pass and the "Documentation drift" table of
 | File | Before → after lines | Change |
 | --- | ---: | --- |
 | `README.md` | 253 → 151 | Whole file. Logo (dark-mode variant through `<picture>`), tagline, status box, What it is, Install, Quick start, Documentation, Research results, Repository guide, Names, Contributing, Licence and data acknowledgements, Citation. |
-| `research/README.md` | 556 → 335 | Whole file. Start here, the rename note, then one section per theme, newest first, one line per report; a compact Timeline. The evidence table, pilot findings, checkpoints and resume notes are kept. The history the README dropped is here: the beam-width table, the 7.26× surrogate, chromatic gains, scope and limitations. |
-| `research/STATE.md` | 2632 → 1764 (with main's new paragraphs) | A "Current status" block and a "Log (newest first)" heading; no paragraph edited. A new paragraph now goes directly under the log heading. |
+| `research/README.md` | 556 → 336 | Whole file. Start here, the rename note, then one section per theme, newest first, one line per report; a compact Timeline. The evidence table, pilot findings, checkpoints and resume notes are kept. The history the README dropped is here: the beam-width table, the 7.26× surrogate, chromatic gains, scope and limitations. |
+| `research/STATE.md` | 2632 → 1786 (with main's new paragraphs) | A "Current status" block and a "Log (newest first)" heading; no paragraph edited. A new paragraph now goes directly under the log heading. |
 | `research/STATE-history.md` | new, 980 | Every entry before 2026-10-29, unedited. |
 | `AGENTS.md` | 41 → 55 | Both questions closed; a Layout section. Every rule stays. |
 | `CONTRIBUTING.md` | 96 → 97 | Docs URL, the full-check extras, the platform paragraph. |
@@ -69,7 +69,7 @@ on GitHub. The job stays useful on forks.
 
 ## Deviations
 
-- **`main` merged into the branch three times** (`9813608`, `f376d4b`, `378b66b`), because each new
+- **`main` merged into the branch four times** (`9813608`, `f376d4b`, `378b66b`, `4263f7c`), because each new
   note would fail the every-note test and main's top paragraphs conflict with the new
   STATE structure. Entries added for E6, W4-2/W4-7, the CLEAN major cycles, DF5-O and B1-3,
   rewritten from main's stack paragraphs; main's STATE paragraphs sit under the log heading.
@@ -109,6 +109,7 @@ on GitHub. The job stays useful on forks.
 | `bash tools/check-all.sh`, second run | 2031 s | `overall: PASS`, pytest 816 passed, 13 skipped in 212.2 s; includes lock wait |
 | `bash tools/check-all.sh`, third run, after merging `f376d4b` | 1697 s | `overall: PASS`, pytest 840 passed, 13 skipped in 246.1 s; includes lock wait |
 | `bash tools/check-all.sh`, final run, after merging `378b66b` | 1236 s | `overall: PASS`, pytest 858 passed, 13 skipped in 297.1 s; includes lock wait |
+| `bash tools/check-all.sh`, last run, after merging `4263f7c` (notes only) | LAST_WALL | LAST_RESULT |
 
 ## For the coordinator
 

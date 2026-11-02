@@ -328,7 +328,8 @@ Structured projection benchmarks are not end-to-end calibrator speedups.
 | 2026-09-23 to 24 | The [flagging experiment](flagging.md) and its [five-track report](flagging-next-summary.md) |
 | 2026-10-29 | The [feasibility study](stack-consolidation-feasibility.md), [core phases 1 to 3](core-phase3.md), the GPL decision and [wave 1](core-parallel-plan.md) |
 | 2026-10-30 | The [big plan](big-plan.md), the [verdict](flagging-verdict.md), [B1](b1-beam-pointing.md), [CLEAN theory](clean-theory.md), the [rename](p12-rename.md) and the [docs site](d1-docs.md) |
-| 2026-10-31 | The [final review](w4-review.md) and the release metadata |
+| 2026-10-31 | The [final review](w4-review.md) and the [release metadata](w4-5-release.md) |
+| 2026-11-02 | [B1-3](b1-3-pointing-selfcal.md) closes beam and pointing as null; [E6](e6-table-writer-final.md), [DF5-O](df5o-deconv-oracles.md), [W4-2 and W4-7](w4-2-boundaries.md), the [CLEAN major cycles](clean-major-cycles.md) |
 
 The research manuscript draft on CLEAN is in `research/paper/clean-theory/`;
 scripts and patches sent upstream are in `research/upstream-prs-files/` and

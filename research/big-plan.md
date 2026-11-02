@@ -372,6 +372,13 @@ CPU-heavy tasks at a time on 8 physical cores.
   distinguishability from the sky, without distorting faint emission? Starts
   once L4 is written, or earlier if L1 is null and cores are free.
 
+- B1-3 done 2026-11-02 (`b1-3-pointing-selfcal.md`):
+  overall negative under the frozen rule, B1 closes null. Rerun: snapshot common
+  pointing goes, per-antenna, squint and the track's directions survive. (ii) and R
+  work on simulations and match; R beats (i) and loses to (ii) on the fixture; the
+  real-data fits are limited by the field model. Reopening needs a deeper ESO137
+  model (user item) and regularised gains.
+
 ## Wave 4 (consolidation)
 
 - Documentation pass: README, `research/README.md`, STATE trimmed to current
@@ -401,9 +408,10 @@ CPU-heavy tasks at a time on 8 physical cores.
 - Enable GitHub Pages once (Settings → Pages → Source: GitHub Actions) so
   the `docs.yml` deploy job stops failing at `configure-pages`; the build job
   and its artifact already pass (D1, 2026-10-30).
-- B1-3: allow or refuse an external catalogue (SUMSS, RACS) for the ESO137
-  field model; B1-2's protocol allowed only MODEL_DATA or an image, and the
-  self-calibrated model is the central radio galaxy only.
+- B1 on real data: allow or refuse an external catalogue (SUMSS, RACS) for the
+  ESO137 field model. B1-3 closed B1 null with the self-calibrated model; this
+  is the first condition for reopening it. Whether the rule should stand as
+  frozen on the fixture clause is a question for a new protocol.
 - File or decline B1-2's data-store observations on the RATT trackers
   (`upstream-notes.md`, "B1-2 observations": ESO137 subset MODEL_DATA zero,
   DATA uncalibrated, pickled string columns, RECEPTOR_ANGLE; LUNO
