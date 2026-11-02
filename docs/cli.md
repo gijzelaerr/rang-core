@@ -513,7 +513,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_DF1_LIB` | no longer read | retired | was a prebuilt w-gridder library loaded through ctypes (DF1); W4-3 removed the fallback | `research/w4-3-kernels.md` | `-` |
 | `RANG_GMCLEAN_SIMD` | unset (the best the CPU has) | speed | `scalar`, `avx2` or `avx512` caps gmclean's kernels; the gather sum agrees to rounding only | `research/gmclean.md` | `core/src/gmclean/kernels.rs` |
 | `RANG_WGRIDDER_SIMD` | unset (AVX-512 where available) | speed | `avx2` or `baseline` caps the w-gridder's instruction set | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
-| `RANG_WGRIDDER_PLANE_GROUP` | 1 | speed | w-planes gridded together | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
+| `RANG_WGRIDDER_PLANE_GROUP` | 4, within 2 GiB of grids | speed | w-planes gridded together; 1 takes the least memory | `research/gmclean.md` | `core/src/wgridder.rs` |
 | `RANG_WGRIDDER_TIMING` | unset | output | phase timings of the w-gridder on stderr | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_C1_LIB` | no longer read | retired | was a prebuilt closure-score library loaded through ctypes (C1); W4-3 moved the kernel into the extension | `research/w4-3-kernels.md` | `-` |
 | `RANG_P6` | unset (the frozen calls) | result | `1` runs the signal track's ported guard and influence functions | `research/p6-python-hotspots.md` | `python/rang/core_signal.py` |

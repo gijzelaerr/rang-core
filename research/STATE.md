@@ -18,6 +18,15 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+gmclean second optimisation pass merged, 2026-11-02 (implemented; output comparison measured;
+**times provisional**; [gmclean.md](gmclean.md) section 5.7, merge `5972124`). The peer session reports
+model, residual and image FITS byte-identical to the `58e07e1` benchmark run on S1, S2, S3 and
+the slice, and `tests/test_core_wgridder.py` with ducc0 installed: 7 passed, 0 skipped. Check-all still
+skips that ducc0 comparison. **Open owner decision:** plane groups of 4 are now the library's default, which
+reverses the opt-in of [DF2a](df2-wgridder-speed.md). That note measured no gain at 16 threads and a memory-gate
+failure on the array case for its older form; the new default has been measured on gmclean's S1 only. Results do
+not change; peak memory does (2.84 to 3.38 GB on S1).
+
 F1 Stages 1a and 1b, 2026-11-02 (implemented; measured; [note](f1-tv-flagger.md)): **NO-GO, outcome D**, as frozen. The implicit gradient of gain TV through the solver's fixed point is right (finite differences within 3.5e-6 median, bound 1 %), but on LUNO 1934−638 at 53 stations it does not mark injected RFI: patch AUC 0.54–0.64 on four of five morphologies at 10σ (bar 0.80), against 0.97–1.00 for the residual z-score; gates B, C and E fail, A and D pass. Removing a whole contaminated mask does lower TV (45 of 45). LUNO only; no network was trained; F-SIM not built. Whether to test the non-TV arms is the owner's call.
 
 gmclean family merged, 2026-11-02 (merge record; the science is in the three paragraphs below).

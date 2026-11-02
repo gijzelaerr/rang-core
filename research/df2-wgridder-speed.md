@@ -437,7 +437,9 @@ on one thread, nothing at 16 threads, costs time on the FFT-dominated K
 arms, and each extra plane costs one grid per output (220 MB on the array
 case at G = 2, which then exceeds the memory gate at 16 threads). Recorded
 as a negative result: the default stays G = 1 (per plane, as ducc0);
-`RANG_WGRIDDER_PLANE_GROUP` remains for memory-rich runs. Storing the taps
+`RANG_WGRIDDER_PLANE_GROUP` remains for memory-rich runs. (Later, 2026-11-02: a rewritten
+form became the default, group 4, measured on gmclean's S1 only and not on these arms;
+see [gmclean.md](gmclean.md) section 5.7.) Storing the taps
 per visibility (the unbounded form) was not built: 128 B per visibility in
 f64 at W = 8 (3 GB on the array case).
 

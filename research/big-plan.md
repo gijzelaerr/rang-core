@@ -469,3 +469,6 @@ notes, DF5-O items 3 and 4.
 CLEAN programme: gmclean, its benchmark and the flagged Gram operator merged 2026-11-02 (`ce03bf2`). Still theirs:
 the idle-host timing pass, the benchmark rerun at the current commit, and the GeMClean rename. Not yet
 exercised in check-all: the ducc0 comparison in `tests/test_core_wgridder.py`.
+
+Owner decision open: plane groups of 4 as the library default (`gmclean-opt2`), or scoped to gmclean. Measured on
+gmclean's S1 only; DF2a's array-case negative was for the older form and is not repeated.
