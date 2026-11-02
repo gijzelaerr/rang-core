@@ -1848,6 +1848,29 @@ fn cell(setup: &Setup, bu: usize, bv: usize, i: usize, j: usize) -> usize {
     r * setup.nv + c
 }
 
+/// Zero a grid row that is mostly out of cache by non-temporal stores, which
+/// write without first fetching the lines.
+#[inline]
+fn zero_row<T: Real>(row: &mut [Complex<T>]) {
+    #[cfg(all(target_arch = "x86_64", target_feature = "avx2"))]
+    {
+        use std::arch::x86_64::{__m256i, _mm_sfence, _mm256_setzero_si256, _mm256_stream_si256};
+        // SAFETY: the middle of `row` as aligned 32-byte vectors of zero bits,
+        // which are zeros of `T`; AVX2 is in the build.
+        unsafe {
+            let (head, mid, tail) = row.align_to_mut::<__m256i>();
+            head.fill(czero());
+            for v in mid.iter_mut() {
+                _mm256_stream_si256(v, _mm256_setzero_si256());
+            }
+            tail.fill(czero());
+            _mm_sfence();
+        }
+    }
+    #[cfg(not(all(target_arch = "x86_64", target_feature = "avx2")))]
+    row.fill(czero());
+}
+
 /// Add a tile buffer into the grid and zero it for its next use.
 ///
 /// # Safety
@@ -2574,7 +2597,7 @@ fn grid_images<T: Real>(
                     .with_min_len(64)
                     .for_each(|(r, &t)| {
                         if t {
-                            r.fill(czero());
+                            zero_row(r);
                         }
                     });
             }
@@ -2822,7 +2845,7 @@ fn image_to_grid<T: Real>(
         .with_min_len(64)
         .for_each(|(row, &hit)| {
             if hit {
-                row[ny - ny / 2..nv - ny / 2].fill(czero());
+                zero_row(&mut row[ny - ny / 2..nv - ny / 2]);
             }
         });
     let g = SyncPtr(grid.as_mut_ptr());
@@ -3032,7 +3055,7 @@ fn degrid_images<T: Real>(
             .with_min_len(64)
             .for_each(|(r, &w)| {
                 if w {
-                    r.fill(czero());
+                    zero_row(r);
                 }
             });
     }
