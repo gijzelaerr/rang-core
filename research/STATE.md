@@ -5,10 +5,10 @@
 Update this block when a merge changes it. The log below is the record.
 
 - **What `main` is:** rang-core 0.1.0 before its first tag: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
-- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E5), the exact gridder (DF1, DF2a–c), the file formats (DF-IO), CLEAN theory, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1, W4-3 and W4-5; see the [research index](README.md).
+- **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the file formats (DF-IO), CLEAN theory, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1, W4-3, W4-4 and W4-5; see the [research index](README.md).
 - **Closed:** gain-TV-guided flagging, null ([verdict](flagging-verdict.md)).
 - **Open:** beam and pointing. [B1-2](b1-2-identifiability.md) found per-antenna pointing and squint constrainable on ESO137; B1-3 runs.
-- **Running:** the remaining wave 4 fixes W4-2, W4-4, W4-6, W4-7 and W4-8 ([big plan](big-plan.md)).
+- **Running:** the remaining wave 4 fixes ([big plan](big-plan.md)).
 - **Next:** finish wave 4, B1-3 against both baselines at matched cost, and the user's v0.1.0 tag.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): tag v0.1.0; allow or refuse an external catalogue for B1-3's ESO137 field model; file or decline the B1-2 and RV1 upstream observations; rebase Tricolour PR #114.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.

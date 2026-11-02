@@ -223,6 +223,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 
 ## Measurement Set reader and writer
 
+- [E6, the last of the core table writer](e6-table-writer-final.md): TiledDataStMan hypercubes, TiledCellStMan, IncrementalStMan string arrays and MultiFile block order written as casacore writes them; 20 of 21 cases byte-identical, IS-arrays differing only in alignment-gap bytes of its array file (criteria 1 and 3 fail as frozen on that case; a labelled post-hoc walk masks all 677 bytes); MultiHDF5 refused as not supported.
 - [E5, the rest of the core table writer](e5-table-writer-rest.md): IncrementalStMan, last-row removal, tiled hypercubes, TiledDataStMan and MemoryStMan creation, big-endian and MultiFile tables; 21 of 23 cases byte-identical to casacore 3.8.1, the rest casacore's uninitialised memory.
 - [E4, core table creation](e4-table-create.md): casacore tables, rows, string arrays, `default_ms` and CASA caltables created by the core writer, byte-identical to casacore 3.8.1 and CASA 6.7.6 (gaps masked), `applycal` bit-identical.
 - [E3, the core table writer](e3-table-writer.md): in-place casacore table writes byte-identical to casacore 3.8.1 (bar uninitialised padding), locks included; `rangtoy.core_ms_write`.
