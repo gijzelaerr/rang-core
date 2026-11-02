@@ -32,6 +32,12 @@ New, 2026-10-31: W4-3, [closure and flux-standard kernels in the extension](w4-3
 no kernel call runs Cargo; standalone builders and dead fallbacks deleted;
 byte-identical, a wheel without cargo runs both (W4R-06, W4R-16).
 
+New, 2026-11-02: [how many major cycles does CLEAN need?](clean-major-cycles.md)
+Theory in Lean (the Gram-gap identity, per-cycle descent, the outer rate). In
+simulations through the exact gridder, passes fall from 4-7 (WSClean's scheme) to
+2-3 with a double-size PSF run to the threshold, and to 1 without the w-term; the
+certified rules cost more passes, not fewer. Timings are provisional.
+
 New, 2026-10-31: W4, the [final review](w4-review.md): no archived result
 is affected, and the kernels are bit-identical across thread counts. There
 are 17 findings: 1 high, the solver options missing from receipts; 8

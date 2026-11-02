@@ -1229,3 +1229,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan E6: `check_ms_final.py serialisation`, `crossversion`, `summary`, `posthoc` |  | 0.3 s each | – |  |
 | 2026-10-31 | big plan E6: `bash tools/check-all.sh` | repo | 1111 s | – | FAIL: core `cargo fmt --check` only (formatting after the frozen run); log `outputs/e6-20261031-check-all.log` |
 | 2026-11-02 | big plan E6: `bash tools/check-all.sh` | repo | 754 s | – | PASS: root 23, core 131 Rust tests; pytest 756 passed, 17 skipped (295 s); log `outputs/e6-20261102-check-all.log` |
+| 2026-11-02 | clean-major-cycles: `cargo test --release` new tests, first build | Windows worktree | 4 min 24 s, then 4 min 47 s | – | 5 new tests; contended host |
+| 2026-11-02 | clean-major-cycles: `cargo build --release --example clean_major_cycles` | Windows worktree | 4 min 50 s; 1 min 29 s after the timing-mode edit | – | contended host |
+| 2026-11-02 | clean-major-cycles: `lake build`, first in the worktree, one error | Windows, competing with the smoke run | 14 min 6 s | – | rebuilds all RangFormal files |
+| 2026-11-02 | clean-major-cycles: `lake build` after the fix | Windows worktree | 1 min 47 s | – | 46 theorems on the standard axioms |
+| 2026-11-02 | clean-major-cycles: `cargo test --release` full | Windows worktree | 5 min 3 s | – | 134 passed |
+| 2026-11-02 | clean-major-cycles: smoke run of the example, 512² only, stopped by hand | Windows, competing with Lean | not timed; killed near the end | – | 112 table rows; earlier schemes, cap 60 |
+| 2026-11-02 | clean-major-cycles: `clean_major_cycles` final run | `de303bf`, 16 threads | 1,314.2 s, PROVISIONAL | – | 158 runs; contended host, CPU time not recorded; over the 15 min asked for |
+| 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 1 rayon thread | Windows | 95.8 s, PROVISIONAL | – | crossover and 4 schemes on one sky |
+| 2026-11-02 | clean-major-cycles: `CLEAN_MAJOR_TIMING=1`, 16 threads | Windows | 37.5 s, PROVISIONAL | – | the same |
+| 2026-11-02 | clean-major-cycles: pre-commit check (fmt, clippy, test, `lake build`) | Windows worktree, before `9f07507` | not timed separately | – | 134 passed; contended host |

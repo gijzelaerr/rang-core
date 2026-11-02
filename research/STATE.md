@@ -1,5 +1,32 @@
 # Rang research state
 
+How many major cycles CLEAN needs, 2026-11-02 (proposed; implemented; measured;
+timings provisional; [clean-major-cycles.md](clean-major-cycles.md), branch
+`clean-major-cycles`):
+
+- **Theory.** Theorems for the batch quadratic, the Gram-gap identity, per-cycle
+  descent, a running gap bound, the forcing term and the outer linear rate; 12 new
+  theorems in `formal/RangFormal/MajorCycle.lean`, 46 audited in all, standard axioms
+  only. The worst case is one Högbom step per cycle, so the theory does not promise
+  few cycles.
+- **Implemented.** `core/src/clean_major.rs`: a driver with provable and threshold
+  schedules, exact FFT batches on the `2n` grid, an optimisation phase and an analytic
+  w-term bound. Research code; no pipeline uses it.
+- **Measured.** MeerKAT 4 h tracks at two declinations through the exact gridder, 158
+  runs, seeds fixed, [archive](results/clean-major-cycles.json). Passes at 512²:
+  WSClean's scheme 4-7, double-size PSF with mgain 0.8 3-4, run to the threshold 2-3,
+  planar control 1. The remaining passes come from the w-term moving pixels across the
+  threshold (exact peak 15.6-24.2 mJy against 15), not from the misfit gap (at most
+  2e-2 of the believed decrease).
+- **Negative.** The certified rules with the analytic w bound take 7-30 passes (19 of
+  36 runs hit the cap of 30), because the bound is 6e3-4e6 times the gap. The
+  optimisation phase raises passes to 6-10. The image-size PSF does not diverge on 64
+  dishes. `Q_∞` from 20 CG iterations is too loose to use.
+- **Timing.** Provisional: contended host, CPU time and load during the runs not
+  recorded. A speed-up from FFT batches is not established.
+- **Next.** Timings on an idle host, real data with many visibilities, faceted PSFs,
+  an ℓ∞ stopping analysis.
+
 E6, the last of the core table writer (big plan;
 [e6-table-writer-final.md](e6-table-writer-final.md)), 2026-10-31
 (implemented; measured):
