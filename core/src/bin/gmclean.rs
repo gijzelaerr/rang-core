@@ -35,9 +35,11 @@ const USAGE: &str = "usage: gmclean [options] <ms>
   -weight <mode> [robust]   natural | uniform | briggs <robust> (default uniform)
   -niter <n>                maximum number of components (default 0: dirty image only)
   -gain <g>                 loop gain (default 0.1)
-  -mgain <g>                end a minor cycle at (1 - g) of its first peak, as WSClean's -mgain (default 0.8)
+  -mgain <g>                end every minor cycle at (1 - g) of its first peak, as WSClean's -mgain
+                            (default: the measured rule below, with g = 0.95 for the first cycle)
   -mgain-misfit <f>         end it instead when a fraction f of the misfit has gone (with the forcing rule)
-  -stale-rule <rho>         end it at rho times the measured stale error (the first cycle uses -mgain; give -mgain first)
+  -stale-rule <rho>         end it at rho times the pointwise error measured by the last major cycle,
+                            per unit of flux cleaned (default 1; the first cycle uses -mgain, given first)
   -minor-to-threshold       never hand back before the threshold
   -nmiter <n>               maximum number of major cycles (default 20)
   -threshold <Jy>           absolute stopping threshold (alias -abs-threshold)
@@ -136,9 +138,9 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         weight: WeightClass::Uniform,
         niter: 0,
         gain: 0.1,
-        mgain: 0.8,
+        mgain: 0.95,
         mgain_misfit: 0.8,
-        cycle_stop: CycleStop::PeakFraction(0.8),
+        cycle_stop: CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
         nmiter: 20,
         threshold: 0.0,
         auto_threshold: None,

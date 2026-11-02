@@ -38,7 +38,8 @@
 //!    w-term and the gridder's accuracy. [`CycleStop`] chooses when a minor
 //!    cycle hands back; a long cycle against the phase-centre beam fits the
 //!    beam's error at the source positions as false components (§5 of the
-//!    note), so the default stops on the exact peak, as WSClean's `-mgain`.
+//!    note), so the default stops on the exact peak when it reaches the
+//!    pointwise error the previous major cycle measured.
 //!
 //! "Exact" therefore means exact for the image-domain beam at the phase
 //! centre; the per-step certificate is not a statement about the
@@ -810,7 +811,7 @@ impl Default for Settings {
     fn default() -> Settings {
         Settings {
             gain: 0.1,
-            cycle_stop: CycleStop::PeakFraction(0.8),
+            cycle_stop: CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
             major_fraction: 1.0,
             threshold: 0.0,
             auto_threshold: None,
