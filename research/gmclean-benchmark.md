@@ -282,8 +282,8 @@ worst case for an image-size PSF and says nothing about MeerKAT at large.
 **did not reach the threshold**: it stopped on the 1,000,000-component limit after 2
 major cycles, with Q/Q_truth 1.2444 (1.0115 at `d94850e`), inner residual rms 93.6 µJy
 and peak 1.07 mJy, 191,870 false pixels holding 20.3 Jy of absolute flux, and flux
-recovery 0.9989. The first cycle has 137 components and a gap of
--5.2e-05 of Q; 0 major cycles ascend. The cause was not investigated, and this is
+recovery 0.9989. Its second minor cycle took 999,863 components from a 207 mJy peak in
+918 resyncs, with a gap of 1.1e-2 of Q; no major cycle ascends. The cause was not investigated, and this is
 one job at a moving branch tip. Everything else in this note is `d94850e`; none of its
 gmclean numbers should be taken to describe `0d804e4` or later. Scores:
 `gmclean_0d804e4_s1` in the archive.
