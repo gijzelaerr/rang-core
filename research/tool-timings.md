@@ -1368,3 +1368,16 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | big plan U4: casacure `cargo test --release --workspace` | fix branch | 52.5 s | 980 MB |  |
 | 2026-11-02 | big plan U4: casacure `pytest tests/` (shim) | fix branch | 55.8 s | 246 MB | 471 passed |
 | 2026-11-02 | big plan U4: `bash tools/check-all.sh` | this branch | 998.1 s (includes lock wait) | 2.11 GB | overall PASS; pytest 824 passed, 19 skipped. A first run (877.0 s) failed at collection: the briefed venv extras lack scipy; rerun with `.[pointing,beam,test,imaging,formats]` |
+| 2026-11-02 | uv pip install editable venv | worktree | 227.5 s | – |  |
+| 2026-11-02 | gmclean-bench simulate S1 / S2 / S3 (rang writer) | 1,814,400 rows × 8 × 4 | 36.5 / 36.8 / 206.9 s | 0.40 / 0.39 / 0.49 GB | PROVISIONAL (contended); DFT |
+| 2026-11-02 | gmclean-bench WSClean `-niter 0` checks | 8 jobs, -j 16 | 300.0 s | 0.64 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench prepare S1 / S2 / S3 / slice | exact dirty and PSF, ε 1e-9, noise images | 37.6 / 31.2 / 32.3 / 2.0 s | 2.5 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 36 jobs -j 16 | simulations and slice, fast and plain loop | 4,036 s | 0.78 GB | PROVISIONAL; plain loop 284-571 s per job |
+| 2026-11-02 | gmclean-bench WSClean 3.7 matrix, 30 jobs -j 1 | fast loop, slice plain loop | 4,551 s | 0.78 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench WSClean plain loop S1 abs nominres -j 1 | 85,000 iterations | 924 s | 0.77 GB | PROVISIONAL; deconvolution 725 s |
+| 2026-11-02 | gmclean-bench `tools/check-all.sh` | `62670bf` | 426 s | – | pass; shared host |
+| 2026-11-02 | gmclean-bench `cargo build --release --bin gmclean` | `d94850e` | 215.4 s | – | contended |
+| 2026-11-02 | gmclean-bench gmclean matrix, 8 jobs -j 16 / 8 jobs -j 1 | `d94850e` | 1,043 / 2,571 s | 2.48 GB | PROVISIONAL; not a speed comparison |
+| 2026-11-02 | gmclean-bench gmclean S1 abs `-tau-min 0.9` / `-mgain 0.1` | `d94850e`, -j 16 | 601 / 479 s | 2.5 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench scoring | per simulated model, 4 threads | about 20 s | 2.6 GB | PROVISIONAL |
+| 2026-11-02 | gmclean-bench gmclean rebuild and S1 abs -j 16 at `0d804e4` | 1,000,000 components (limit) | 177 / 111 s | 2.85 GB | PROVISIONAL |
