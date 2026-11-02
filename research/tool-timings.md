@@ -1189,3 +1189,18 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-10-31 | big plan W4: `cargo test --release --features gpu` | core | 327.3 s | – | 135 passed (6 more than the check runs) |
 | 2026-10-31 | big plan W4: `cargo install --locked cargo-audit` (0.22.2) | crates.io | 213.7 s | – | |
 | 2026-10-31 | big plan W4: `cargo audit` core / `core/py` / root lock | worktree | 7.2 s / 2.2 s / 0.9 s | – | no advisory among 1,395 |
+| 2026-11-02 | gmclean: `cargo build --release` core, first (Windows) | worktree | 300 s | – | shared host |
+| 2026-11-02 | gmclean: `cargo test --release` core, full (Windows) | 143 tests | 335 s | – | build included, load from other sessions |
+| 2026-11-02 | gmclean: `cargo build --release` example and bin (WSL, ext4 target) | worktree | 126-263 s | – | |
+| 2026-11-02 | gmclean_sim write, 1024² MS, NTFS | 241,920 rows × 8 | 78 s | – | 76 s in the table writer on NTFS |
+| 2026-11-02 | gmclean_sim write, 1024² MS, ext4 | 241,920 rows × 8 | 4.2 s | – | same writer, 3.4 s |
+| 2026-11-02 | gmclean_sim sim, 2048² sky, ext4 | 483,840 rows × 64 (1.5 GB) | 17-30 s | – | three skies |
+| 2026-11-02 | gmclean binary, first version, `perf record`, 3 skies, 2048² | 31 M vis | 92-100 s each | 3.7 GB | load 17-26 |
+| 2026-11-02 | gmclean_compare cmp1-cmp5 sweeps | 3 repeats, 2048² | 20-50 min each | – | interleaved, load 4-17 |
+| 2026-11-02 | gmclean_sim minor, 3 skies, 5 repeats | 12 variants | about 10 min | – | load 6-12 |
+| 2026-11-02 | WSClean 3.7 on 2048² skies, 3 repeats | `-j 8`, default accuracy | 22-39 s per job | – | load 4-16 |
+| 2026-11-02 | gmclean S1 bisection, 4 builds and runs | `s1-abs`, `-j 16` | 74-411 s per run | – | `961e162` first bad; flock |
+| 2026-11-02 | gmclean stop rules, S1, S2, S3 | 13 rules | 22-41 s per job | – | flock; load 4-10 |
+| 2026-11-02 | gmclean S1 `-j 1` | 14.5 M vis | 151 s | – | bit-identical to `-j 16` (34 s) |
+| 2026-11-02 | gmclean_sim bench, 1024², 5 repeats | 14 variants and kernels | about 6 min | – | machine load 7-12 recorded per repeat |
+| 2026-11-02 | `lake build` with Gmclean.lean | formal | 203-552 s | – | |

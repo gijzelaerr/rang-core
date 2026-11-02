@@ -812,7 +812,7 @@ impl Default for Settings {
         Settings {
             gain: 0.1,
             cycle_stop: CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
-            major_fraction: 1.0,
+            major_fraction: 0.8,
             threshold: 0.0,
             auto_threshold: None,
             max_components: 100_000,

@@ -29,3 +29,9 @@ gpu = ["dep:wgpu", "dep:pollster"]
 [profile.release]
 lto = "thin"
 codegen-units = 1
+
+# The gmclean binary for measurement: cargo build --profile gmclean --bin gmclean
+# (research/gmclean.md §5, 5.9 % fewer instructions than thin LTO).
+[profile.gmclean]
+inherits = "release"
+lto = "fat"

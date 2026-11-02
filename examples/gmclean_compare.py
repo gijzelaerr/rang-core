@@ -65,7 +65,10 @@ def main():
         last = reports[-1]["run"]
         walls = [r["seconds"]["wall"] for r in reports]
         cpu = [r["counters"].get("task-clock", float("nan")) / 1e9 for r in runs]
-        phase = lambda key: min(r["run"]["seconds"][key] for r in reports)
+
+        def phase(key, reports=reports):
+            return min(r["run"]["seconds"][key] for r in reports)
+
         rows.append({
             "sky": sky, "variant": name,
             "wall_min": min(walls), "wall_median": statistics.median(walls), "cpu_min": min(cpu),

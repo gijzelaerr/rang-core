@@ -13,6 +13,12 @@ written before the rename keep the old package name `rangtoy`
 for the current tree. CLI receipts are `rang.receipt` version 2 from then on
 (key `environment.rang_core`, was `environment.rangtoy`).
 
+New, 2026-11-02: [gmclean](gmclean.md), a reference CLEAN with an exact
+image-domain value per step, a binary and an optimisation log: minor cycles must stop
+at the measured pointwise error or they fit the beam's off-centre error (20 Jy of
+false flux on S1, found by the benchmark). Then 4-5 major cycles at WSClean's false
+flux; 1-3 is not reachable. All times provisional.
+
 New, 2026-10-31: W4, the [final review](w4-review.md): no archived result
 is affected, and the kernels are bit-identical across thread counts. There
 are 17 findings: 1 high, the solver options missing from receipts; 8
