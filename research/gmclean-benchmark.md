@@ -376,3 +376,28 @@ The full WSClean matrix is 24 jobs per dataset; this run did not do all of it (�
 - The quiet-window timing (§7). No speed result exists.
 - The gmclean matrix at the current tip of `gmclean`. gmclean work is continuing elsewhere;
   these results describe `d94850e` only, except §4.5.
+
+## 8. Rerun at gmclean 58e07e1 (the corrected default)
+
+gmclean d94850e's numbers above are superseded for the comparison. Commit
+`58e07e1` fixes the forcing-rule regression and changes the default minor-cycle
+stop to the pointwise error the last major cycle measured
+([gmclean.md](gmclean.md)). `examples/gmclean_bench_gmclean.sh` no longer forces
+`-mgain 0.8`, which now means WSClean's peak fraction. Run: `BENCH_THREADS=16`,
+`-abs-threshold 100 µJy` on S1-S3, under the host lock, scored by
+`gmclean_bench_compare.py score`; archive
+[results/gmclean-benchmark-58e07e1.json](results/gmclean-benchmark-58e07e1.json).
+Accuracy is measured; wall time is PROVISIONAL and is not quoted.
+
+| S1 / S2 / S3, abs | majors | comps | inner peak µJy | Q/Q_truth | false \|flux\| mJy |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| gmclean 58e07e1 | 5 / 5 / 4 | 85,337 / 90,905 / 45,803 | 100 / 100 / 100 | 1.0136 / 1.0151 / 1.0099 | 4.3 / 4.9 / 1.6 |
+
+Slice at `abs`: 3 majors, Q/Q0 4.76e-4, central flux −12.4 %, 0 ascending majors;
+at `auto`: 14 majors, central flux −0.9 %. WSClean's baselines above are unchanged.
+
+Limits: the rule's two constants were chosen on S1-S3, so this table is not a
+held-out test, and the rule has no theorem. At `auto`, gmclean has no auto-mask
+and leaves 39-54 mJy of false flux, so `auto` is not a matched comparison with
+WSClean's masked runs. S3's faintest decade recovers 0.66 ± 0.76 at `abs`, as
+expected below the threshold.

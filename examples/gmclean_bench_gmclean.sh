@@ -15,6 +15,6 @@ run=$2
 shift 2
 export BENCH_GRIDS=nominres BENCH_LOOPS=fast
 export BENCH_TEMPLATE="$binary -name {out} -size {size} {size} -scale {scale}asec -weight briggs 0.5 \
--niter {niter} -gain 0.1 -mgain 0.8 -nmiter 1000 {threshold_args} -data-column {datacol} -field {field} \
+-niter {niter} -gain 0.1 -nmiter 1000 {threshold_args} -data-column {datacol} -field {field} \
 -j {threads} ${GMCLEAN_ARGS:-} {ms}"
 exec bash "$root/examples/gmclean_bench_run.sh" gmclean "$run" "$@"
