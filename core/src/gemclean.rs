@@ -2214,8 +2214,9 @@ mod tests {
     /// The counterexample to the measured rule: a batch at the phase centre
     /// measures a stale error of about nothing, because the centre column of
     /// the error is zero, so the next cycle has no stop and runs to the
-    /// threshold, where the off-centre sources make the error real. The certified
-    /// rule does not depend on what the last batch happened to measure.
+    /// threshold, where the off-centre sources make the error real. The default's
+    /// floor stops it, and the certified rule does not depend on what the last
+    /// batch happened to measure.
     #[test]
     fn a_centre_batch_measures_nothing_about_the_next_cycle() {
         let sources = [
@@ -2232,7 +2233,15 @@ mod tests {
             max_major: 400,
             ..Settings::default()
         };
-        let out = run(&m, &beam, &settings, None).unwrap();
+        let no_floor = Settings {
+            cycle_stop: CycleStop::MeasuredStale {
+                rho: 1.0,
+                g: 0.95,
+                floor: 0.0,
+            },
+            ..settings
+        };
+        let out = run(&m, &beam, &no_floor, None).unwrap();
         let first = &out.cycles[0];
         let second = &out.cycles[1];
         let measured = first.stale_linf / first.abs_flux;
@@ -2240,6 +2249,9 @@ mod tests {
         let next = second.stale_linf / second.abs_flux;
         assert!(next > 100.0 * measured, "{next} against {measured}");
         assert_ne!(second.stop, MinorStop::PeakRule);
+        // The default's floor gives that cycle a stop.
+        let floored = run(&m, &beam, &settings, None).unwrap();
+        assert_eq!(floored.cycles[1].stop, MinorStop::PeakRule);
         // The rule that uses the bound stops long before the threshold.
         let bound = stale_bound::StopBound::new(&table, stale_bound::BoundKind::Envelope).unwrap();
         let certified = run_with_bound(
