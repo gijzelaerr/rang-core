@@ -2223,8 +2223,7 @@ pub const PLANE_GROUP: usize = 4;
 /// Planes taken together when `RANG_WGRIDDER_PLANE_GROUP` is unset. One in the
 /// library; the `gemclean` binary asks for [`PLANE_GROUP`], the only caller on
 /// which the larger group has been measured (`research/gemclean.md`).
-static DEFAULT_PLANE_GROUP: std::sync::atomic::AtomicUsize =
-    std::sync::atomic::AtomicUsize::new(1);
+static DEFAULT_PLANE_GROUP: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(1);
 
 /// Sets the plane group this process uses when `RANG_WGRIDDER_PLANE_GROUP` is
 /// unset. Results do not depend on it, only memory and speed.
