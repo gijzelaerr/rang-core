@@ -406,6 +406,107 @@ impl<T: Real + Send + Sync> GramOperator<T> {
         })
     }
 
+    /// The operator without the w-term: one node, `G̃ m = K ⊛ m`, `K(δ) =
+    /// Σ_p W_p cos 2π u_p·δ`. A translation-invariant PSF, as the Hessian
+    /// approximation of pfb-imaging (Bester et al. 2024): one gridding pass to
+    /// set up, one FFT pair per apply, and not the normal operator of the
+    /// measurement away from the phase centre.
+    pub fn no_w(
+        opts: &Options,
+        uvw: &[f64],
+        freq: &[f64],
+        wgt: &[f64],
+        epsilon: f64,
+    ) -> Result<GramOperator<T>, String> {
+        let n = opts.nx;
+        if opts.ny != n || !n.is_multiple_of(2) {
+            return Err("the Gram operator needs a square image of even side".into());
+        }
+        let big = 2 * n;
+        let mut planner = FftPlanner::<T>::new();
+        let forward = planner.plan_fft_forward(big);
+        let inverse = planner.plan_fft_inverse(big);
+        let gridder = Options {
+            nx: big,
+            ny: big,
+            do_wgridding: false,
+            epsilon,
+            ..*opts
+        };
+        let plane_wgt: Vec<T> = wgt.iter().map(|&w| T::of(w)).collect();
+        let mut psf = vec![T::of(0.0); big * big];
+        let t = std::time::Instant::now();
+        wgridder::vis2dirty_multi(
+            &gridder,
+            uvw,
+            freq,
+            VisData::Unit,
+            T::weights(&plane_wgt),
+            None,
+            None::<&mut [T]>,
+            Some(&mut psf),
+        )?;
+        let setup_grid_seconds = t.elapsed().as_secs_f64();
+        let t = std::time::Instant::now();
+        let mut k_grid = vec![Complex::new(T::of(0.0), T::of(0.0)); big * big];
+        let mut psf_no_w = vec![0.0; big * big];
+        for ki in 0..big {
+            let i = (ki + n) % big;
+            for kj in 0..big {
+                let j = (kj + n) % big;
+                if i != 0 && j != 0 {
+                    let v = psf[i * big + j];
+                    k_grid[ki * big + kj] = Complex::new(v, T::of(0.0));
+                    psf_no_w[i * big + j] = v.to();
+                }
+            }
+        }
+        let scale = 1.0 / (big * big) as f64;
+        let (spectrum, _, _) = real_spectrum::<T>(&mut k_grid, big, &forward, scale);
+        Ok(GramOperator {
+            n,
+            w0: 0.0,
+            dw: 0.0,
+            x: vec![0.0; n * n],
+            spectra: vec![spectrum],
+            psf_no_w,
+            forward,
+            inverse,
+            stats: Stats {
+                planes: 1,
+                cube_bytes: (big * big * std::mem::size_of::<T>()) as u64,
+                setup_grid_seconds,
+                setup_fft_seconds: t.elapsed().as_secs_f64(),
+                ..Stats::default()
+            },
+        })
+    }
+
+    /// The circulant preconditioner of a one-node operator: this operator's
+    /// spectrum `K̂` replaced by `1 / (max(K̂, 0) + rho)`.
+    pub fn inverse_filter(&self, rho: f64) -> Result<GramOperator<T>, String> {
+        if self.spectra.len() != 1 || rho <= 0.0 || rho.is_nan() {
+            return Err("the filter needs a one-node operator and a positive rho".into());
+        }
+        let big = 2 * self.n;
+        let norm = (big * big) as f64;
+        let spectrum = self.spectra[0]
+            .par_iter()
+            .map(|v| T::of(1.0 / norm / ((v.to() * norm).max(0.0) + rho)))
+            .collect();
+        Ok(GramOperator {
+            n: self.n,
+            w0: 0.0,
+            dw: 0.0,
+            x: self.x.clone(),
+            spectra: vec![spectrum],
+            psf_no_w: Vec::new(),
+            forward: self.forward.clone(),
+            inverse: self.inverse.clone(),
+            stats: self.stats,
+        })
+    }
+
     /// Transforms of length `2n` one apply runs: rows forward, columns both
     /// ways, rows inverse, per node, before skipping empty rows.
     pub fn ffts_per_apply(&self) -> u64 {
