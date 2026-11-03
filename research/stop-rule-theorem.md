@@ -192,6 +192,23 @@ The sweep, with WSClean's peak fraction, which reads no measurement, on the same
 | 30 | **2; 1,000,000 (budget); 50.6 Jy; 199,502** | 7; 86,003; 4.5 mJy; 173 |
 | 100 | **2; 1,000,000 (budget); 50.6 Jy; 199,584** | 7; 87,408; 5.9 mJy; 305 |
 
+**Independent reproduction, 2026-11-03.** The sweep above is the probe's, on prep arrays. The same failure
+comes through the `gemclean` command at `7982b73`, on a copy of S1's Measurement Set with the source added to
+`DATA` (`JY` on XX and YY, `casacure`), with the benchmark's command at `-j 8`; `-mgain 0.8` is WSClean's usual setting:
+
+| centre Jy | rule | cycles | components | stop | model pixels | Σ\|off-centre\|, Jy | inner residual peak, µJy |
+| ---: | --- | ---: | ---: | --- | ---: | ---: | ---: |
+| 0 | default | 5 | 85,337 | threshold | 2,772 | 13.95 | 100.0 |
+| 10 | default | 6 | 99,900 | threshold | 7,368 | 14.36 | 100.0 |
+| 10 | `-mgain 0.8` | 9 | 85,549 | threshold | 2,774 | 13.95 | 100.0 |
+| 30 | default | **2** | **1,000,000** | **budget** | **202,092** | **63.58** | **2,725** |
+| 30 | `-mgain 0.8` | 10 | 86,370 | threshold | 2,838 | 13.96 | 99.9 |
+| 100 | default | **2** | **1,000,000** | **budget** | **202,086** | **63.58** | **2,715** |
+| 100 | `-mgain 0.8` | 11 | 85,985 | threshold | 2,783 | 13.96 | 100.0 |
+
+The centre pixel recovers the source in every run (99.9977 of 100 Jy at worst). These are the image's own
+figures, not the scorer's false flux, and they agree with the sweep's picture. No guard has been tested.
+
 **The failure condition (paper).** Cycle 0 ends at `(1 − g)` of the first peak. If that is above every off-centre source, `S_c (1 − g) > S_b`, cycle 0 cleans only the central pixel and `δ_0` is rounding: with `g = 0.95` and `S_b = 0.99` Jy, `S_c > 20` Jy. The 30 and 100 Jy runs are in this case. At 10 Jy some off-centre flux enters cycle 0, `δ_0 = 8.1e-5`, and the harm is graded: 91 times S1's false flux. The 50.6 Jy is the figure of `-minor-to-threshold` in [gemclean.md](gemclean.md) §4.1: the default has become that mode.
 
 

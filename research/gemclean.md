@@ -526,3 +526,9 @@ Owner decision, 2026-11-03: plane groups of 4 are scoped to the `gemclean` binar
 measured only on these jobs and df2 measured its older form as a negative on the array
 case. `gridder_gram` and the wheels are therefore unchanged from before this pass in this
 respect, and the library-wide figures in this section do not apply to them.
+
+Known failure, 2026-11-03, not fixed: with a source of about 20 Jy or more at the phase centre of S1, the default
+stop rule runs to the component budget, because a first cycle that cleans only that source measures an error near
+zero ([stop-rule-theorem.md](stop-rule-theorem.md) §5, reproduced through the command). `-mgain 0.8` and
+`-stop-rule certified` do not fail on those data. The accuracy results of this note and of the benchmark hold for
+the skies they name and do not cover this case.

@@ -1451,3 +1451,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-03 | `cargo test --release --lib` core | 174 tests, this branch | 94 s | – | flock |
 | 2026-11-03 | heavy-lock queue for this work | other sessions' WSClean and checks | about 3 h of 10 h | – | stage-level lock after 10:00 |
 | 2026-11-03 | `gram_solver_bench` SARA-style, S2 | 700, 1,200 iterations, 2 dual a step | 1,179, 1,695 s | 3.1 GB | 32.9, 47.2 T; not converged; flock; load 4-8 |
+| 2026-11-03 | `gemclean`, S1 plus 100 Jy at the centre, default | 14.5 M visibilities, 2048², `-j 8` | 44 s | – | provisional; flock |
+| 2026-11-03 | `gemclean`, S1 plus 100 Jy at the centre, -mgain 0.8 | 14.5 M visibilities, 2048², `-j 8` | 22 s | – | provisional; flock |
+| 2026-11-03 | `gemclean`, S1 plus 30 Jy at the centre, default | 14.5 M visibilities, 2048², `-j 8` | 43 s | – | provisional; flock |
+| 2026-11-03 | `gemclean`, S1 plus 30 Jy at the centre, -mgain 0.8 | 14.5 M visibilities, 2048², `-j 8` | 21 s | – | provisional; flock |
+| 2026-11-03 | `gemclean`, S1 plus 10 Jy at the centre, default | 14.5 M visibilities, 2048², `-j 8` | 16 s | – | provisional; flock |
+| 2026-11-03 | `gemclean`, S1 plus 10 Jy at the centre, -mgain 0.8 | 14.5 M visibilities, 2048², `-j 8` | 19 s | – | provisional; flock |
+| 2026-11-03 | `gemclean`, S1, S2, S3 default stop rule (gram-solver baseline) | 2048², `-j 8`, from `/mnt/d` | 75, 111, 70 s | 3.2 GiB | load 3.7, 13.8, 12.6; provisional; flock |

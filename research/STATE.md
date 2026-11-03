@@ -19,12 +19,22 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Many-pass solver, 2026-11-03 (merged; [note](gram-solver.md)): **a speed gain only against FISTA run on the exact gridder**
+(22.7 G against 131 G instructions per iteration on S1), none against a PSF inner loop with exact passes (9.5-17.6 T against 64.6 T
+for the operator alone) and none against CLEAN, so the novelty rule is not met. Signed ℓ1 at λ = 100 µJy has false flux about ×3
+below GeMClean's default at 11-21 times the instructions; the S2 disc and the faintest S3 decade are slightly worse; non-negative
+ℓ1 fails; the SARA-style prior did not converge. Nothing was run against BASPLib, PURIFY, resolve or pfb-imaging. Merged with a
+corrected GeMClean baseline: the first version scored a run with `-mgain 0.8`. All wall times provisional.
+
+Open owner decision, 2026-11-03: the default stop rule fails on a bright phase-centre source; the guard is not chosen and the default
+is unchanged ([stop-rule-theorem.md](stop-rule-theorem.md) §9).
+
 GeMClean rename and paper merged, 2026-11-03 (merge record). `rename-gemclean` as `068efcd`: command, module,
 Cargo profile, `RANG_GEMCLEAN_SIMD`, Lean file, notes and scripts; archive JSON, timing history and old on-disk
 paths keep the old name. `paper-gemclean` updates the CLEAN theory draft, with wall-clock comparisons withheld until
 a quiet-host benchmark. Check-all and `lake build` (73 audited theorems) pass on the rename. The final timing pass is
 postponed at the owner's word; the plane-group default stays an open owner decision.
-Stop-rule theorem, 2026-11-03 (branch `stop-rule-theorem`, not merged; [note](stop-rule-theorem.md)): **proved in Lean** a minor-cycle rule
+Stop-rule theorem, 2026-11-03 (merged; [note](stop-rule-theorem.md)): **proved in Lean** a minor-cycle rule
 `e ≤ κ |r̃_p|` with the true sign and size at the pick, descent with a rate, no flux below `(1 − κ) T`, a flux bound per pixel; `formal/RangFormal/StopRule.lean`, 96 audited. **On paper:** the form of `E` and its
 supremum on Chebyshev nodes. **Measured:** 15, 17, 10 major cycles on S1-S3 against the default's 5, 5, 4 at the same false flux, plus about 100 gridder calls, and 96 against 11 on a 3.4° field with a sampled table, so the default is unchanged (images byte-identical on S1). **Found:** S1 plus 30 or 100 Jy at the phase centre sends the
 default to its budget with 50.6 Jy of false flux, because a batch at the centre measures `δ` near zero, and 10 Jy costs 395 mJy; the proved rule gives 4.15 mJy and the peak fraction 0.95 gives 4.5-9.5 mJy. **Open owner decision:** a guard for the default; none is tested.
