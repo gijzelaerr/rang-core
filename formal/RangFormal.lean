@@ -7,4 +7,5 @@ import RangFormal.Clark
 import RangFormal.MajorCycle
 import RangFormal.Gemclean
 import RangFormal.Gridder
+import RangFormal.StopRule
 import RangFormal.Audit
