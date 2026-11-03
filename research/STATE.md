@@ -26,6 +26,8 @@ below GeMClean's default at 11-21 times the instructions; the S2 disc and the fa
 ℓ1 fails; the SARA-style prior did not converge. Nothing was run against BASPLib, PURIFY, resolve or pfb-imaging. Merged with a
 corrected GeMClean baseline: the first version scored a run with `-mgain 0.8`. All wall times provisional.
 
+Overview and paper, 2026-11-03: [clean-overview.md](clean-overview.md) gathers the programme; the draft paper no longer states 4-5 cycles as general and carries the held-out test, the floor, the pilot and 96 audited theorems. Not submitted; the WSClean report is not posted. Owner decisions are in the overview.
+
 Stale floor, 2026-11-03 (measured; merged; [note](stale-floor.md)): **`-stale-floor 0.01` is now the default.** It leaves all images identical on
 S1-S3, H1-H4 and the pilot and ends the bright-source failure on eight cases, four of them not used to choose it. One measure of the bar written first
 missed, H3 plus 100 Jy at 1.12 × the model pixels against a limit of 1.1; the owner adopted it knowing that. Simulated sources only; no proof.
