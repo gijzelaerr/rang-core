@@ -76,7 +76,8 @@ mkdir -p "$run/ms" "$run/timing" "$run/load" "$run/tmp"
 settings() {  # settings <dataset>: sets size scale datacol field abs
   case $1 in
     slice) size=512; scale=8; datacol=CORRECTED_DATA; field=1; abs=0.05 ;;
-    s1|s2|s3) size=2048; scale=1.5; datacol=DATA; field=0; abs=${BENCH_ABS_SIM:-0.0001} ;;
+    h3) size=4096; scale=1.5; datacol=DATA; field=0; abs=${BENCH_ABS_SIM:-0.0001} ;;
+    s1|s2|s3|h1|h2|h4) size=2048; scale=1.5; datacol=DATA; field=0; abs=${BENCH_ABS_SIM:-0.0001} ;;
     *) echo "unknown dataset $1" >&2; exit 2 ;;
   esac
 }

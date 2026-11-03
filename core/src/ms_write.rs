@@ -568,6 +568,10 @@ pub struct TsmHeader {
     pub data_row_map: Vec<u64>,
 }
 
+/// casacore writes `TSMFile` and `TSMCube` as version 2 (a 64-bit length or
+/// offset) from 2 GiB, and as version 1 below it.
+const TSM_VERSION_2_FROM: u64 = 2 * 1024 * 1024 * 1024;
+
 impl TsmHeader {
     pub fn is_column(&self) -> bool {
         self.kind == "TiledColumnStMan"
@@ -629,14 +633,15 @@ impl TsmHeader {
         let mut files = Vec::with_capacity(nfile);
         for _ in 0..nfile {
             files.push(if h.bool()? {
-                if h.u32()? != 1 {
-                    return err("tile files of 2 GiB or more are not supported");
-                }
+                // casacore `TSMFile`: version 2 holds a 64-bit length, from 2 GiB.
+                let version = h.u32()?;
                 let seq = h.u32()?;
-                Some(TsmFileEntry {
-                    seq,
-                    length: u64::from(h.u32()?),
-                })
+                let length = match version {
+                    1 => u64::from(h.u32()?),
+                    2 => h.u64()?,
+                    v => return err(format!("TSMFile version {v} is not supported")),
+                };
+                Some(TsmFileEntry { seq, length })
             } else {
                 None
             });
@@ -644,8 +649,10 @@ impl TsmHeader {
         let ncube = h.u32()? as usize;
         let mut cubes = Vec::with_capacity(ncube);
         for _ in 0..ncube {
-            if h.i32()? != 1 {
-                return err("hypercubes at offsets of 2 GiB or more are not supported");
+            // casacore `TSMCube`: version 2 holds a 64-bit offset, from 2 GiB.
+            let version = h.i32()?;
+            if version != 1 && version != 2 {
+                return err(format!("TSMCube version {version} is not supported"));
             }
             let values = crate::aipsio::raw_object(&mut h)?;
             cubes.push(TsmCube {
@@ -655,7 +662,11 @@ impl TsmHeader {
                 shape: h.iposition()?,
                 tile: h.iposition()?,
                 file_seq: h.i32()?,
-                offset: u64::from(h.u32()?),
+                offset: if version == 1 {
+                    u64::from(h.u32()?)
+                } else {
+                    h.u64()?
+                },
             });
         }
         h.end(&inner);
@@ -730,21 +741,32 @@ impl TsmHeader {
         for f in &self.files {
             w.bool(f.is_some());
             if let Some(f) = f {
-                w.u32(1);
-                w.u32(f.seq);
-                w.u32(f.length as u32);
+                if f.length < TSM_VERSION_2_FROM {
+                    w.u32(1);
+                    w.u32(f.seq);
+                    w.u32(f.length as u32);
+                } else {
+                    w.u32(2);
+                    w.u32(f.seq);
+                    w.u64(f.length);
+                }
             }
         }
         w.u32(self.cubes.len() as u32);
         for c in &self.cubes {
-            w.i32(1);
+            let small = c.offset < TSM_VERSION_2_FROM;
+            w.i32(if small { 1 } else { 2 });
             w.bytes(&c.values);
             w.bool(c.extensible);
             w.u32(c.nrdim);
             w.iposition(&c.shape);
             w.iposition(&c.tile);
             w.i32(c.file_seq);
-            w.u32(c.offset as u32);
+            if small {
+                w.u32(c.offset as u32);
+            } else {
+                w.u64(c.offset);
+            }
         }
         w.putend();
         if self.is_shape() {
@@ -763,19 +785,11 @@ impl TsmHeader {
         w.buf
     }
 
-    /// Whether a header can be written by this writer: tile files and cube
-    /// offsets below 2 GiB, fewer than 2^31 rows (casacore's version-1
-    /// records; larger ones are written in versions this writer does not
-    /// make).
+    /// Whether a header can be written by this writer: fewer than 2^31 rows
+    /// (a larger table is written in a version this writer does not make).
     pub fn writable(&self) -> Result<()> {
         if self.nrows > 0x7fff_ffff {
             return err("tiled managers of 2^31 rows or more are not supported");
-        }
-        let big = |n: u64| n >= 2 * 1024 * 1024 * 1024;
-        if self.files.iter().flatten().any(|f| big(f.length))
-            || self.cubes.iter().any(|c| big(c.offset))
-        {
-            return err("tile files of 2 GiB or more are not supported");
         }
         Ok(())
     }
@@ -6100,6 +6114,25 @@ fn edit_nested(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn tsm_header_uses_version_2_records_from_two_gib() {
+        let mut h = TsmHeader::new("TiledColumnStMan", 3, "H", vec![6], 3, false);
+        h.column_tile = Some(vec![4, 512, 16]);
+        h.files = vec![Some(TsmFileEntry {
+            seq: 0,
+            length: (1 << 31) - 1,
+        })];
+        let small = h.serialise();
+        let parsed = TsmHeader::parse(&small).unwrap();
+        assert_eq!(parsed.files[0].as_ref().unwrap().length, (1 << 31) - 1);
+        h.files[0].as_mut().unwrap().length = 13 << 30;
+        h.writable().unwrap();
+        let big = h.serialise();
+        assert_eq!(big.len(), small.len() + 4);
+        let parsed = TsmHeader::parse(&big).unwrap();
+        assert_eq!(parsed.files[0].as_ref().unwrap().length, 13 << 30);
+    }
 
     #[test]
     fn real_tsm_headers_round_trip_when_given() {

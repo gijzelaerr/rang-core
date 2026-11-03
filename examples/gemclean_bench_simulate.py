@@ -18,6 +18,16 @@ Skies (all flat spectrum, positions continuous, not on pixel centres):
         positions inside the inner two-thirds, no separation constraint
     none  noise only
 
+Held-out skies for research/gemclean-heldout.md, drawn after the stop rule's
+constants were fixed, with their own sky and noise seeds:
+
+    H1  dec -75 (low elevation, south): 60 points, 5 mJy - 1 Jy, min-sep 10 px
+    H2  dec +10 (low declination, north): 300 points, 0.2 - 200 mJy, blended
+    H3  wider field, 4096 x 1.5 arcsec (1.7 deg), dec -30: 120 points, 5 mJy - 1 Jy
+    H4  extended emission, dec -45: 30 points, 5 - 300 mJy, 6 Gaussians of FWHM
+        20 - 200 arcsec and 0.1 - 2 Jy, and a curved tail of 25 overlapping
+        Gaussians of FWHM 30 - 60 arcsec holding 3 Jy
+
 Positions are drawn as pixel offsets (x, y) of WSClean's FITS grid (centre
 pixel N/2, 0-based; x grows to the west) and turned into direction cosines
 l = -(x - N/2) * scale, m = (y - N/2) * scale (SIN projection: the WSClean
@@ -52,8 +62,18 @@ ITRF = ROOT / "data" / "meerkat.itrf.txt"
 # runs from hour angle -hours/2 to +hours/2.
 T_REF_MJD = 61100.0
 DEC_DEG = -30.0
-SKY_SEEDS = {"S1": 20261102, "S2": 20261102, "S3": 20261103}
+SKY_SEEDS = {
+    "S1": 20261102,
+    "S2": 20261102,
+    "S3": 20261103,
+    "H1": 20261201,
+    "H2": 20261202,
+    "H3": 20261203,
+    "H4": 20261204,
+}
 NOISE_SEED = 20261104
+NOISE_SEEDS = {"H1": 20261211, "H2": 20261212, "H3": 20261213, "H4": 20261214}
+DEC_BY_SKY = {"H1": -75.0, "H2": 10.0, "H4": -45.0}
 
 
 def _sha(path):
@@ -86,7 +106,7 @@ def gmst_rad(mjd):
     return math.radians(deg % 360.0)
 
 
-def track(xyz, hours, dt):
+def track(xyz, hours, dt, dec_deg=DEC_DEG):
     """Times (MJD s), RA (rad) and per-antenna UVW (ntime, nant, 3)."""
     centre = xyz.mean(axis=0)
     lon = math.atan2(centre[1], centre[0])
@@ -95,7 +115,7 @@ def track(xyz, hours, dt):
     times = t0 + dt * (np.arange(ntime) + 0.5)
     mid = (times[0] + times[-1]) / 2.0 / 86400.0
     ra = (gmst_rad(mid) + lon) % (2 * math.pi)
-    dec = math.radians(DEC_DEG)
+    dec = math.radians(dec_deg)
     # Greenwich hour angle per time; mean solar to sidereal rate.
     gha = np.array([gmst_rad(t / 86400.0) for t in times]) - ra
     rel = xyz - centre
@@ -128,6 +148,14 @@ def sky(name, size, scale_arcsec, min_sep):
 
     if name in ("S1", "S2"):
         pos, flux = draw(50, 0.01, 1.0, min_sep)
+    elif name == "H1":
+        pos, flux = draw(60, 0.005, 1.0, min_sep)
+    elif name == "H2":
+        pos, flux = draw(300, 2e-4, 0.2, 0.0)
+    elif name == "H3":
+        pos, flux = draw(120, 0.005, 1.0, min_sep)
+    elif name == "H4":
+        pos, flux = draw(30, 0.005, 0.3, min_sep)
     else:
         pos, flux = draw(500, 1e-4, 0.1, 0.0)
     comps = [
@@ -156,6 +184,37 @@ def sky(name, size, scale_arcsec, min_sep):
                 "nearest_point_px": float(math.sqrt(d2[k])),
             }
         )
+    if name == "H4":
+        margin = half - 220.0 / scale_arcsec
+        for _ in range(6):
+            x, y = rng.uniform(-margin, margin, 2)
+            comps.append(
+                {
+                    "kind": "gaussian",
+                    "dx": float(x),
+                    "dy": float(y),
+                    "flux": float(np.exp(rng.uniform(math.log(0.1), math.log(2.0)))),
+                    "fwhm_arcsec": float(
+                        np.exp(rng.uniform(math.log(20.0), math.log(200.0)))
+                    ),
+                }
+            )
+        # The tail: a quarter circle of radius 500 arcsec, flux falling along it.
+        x0, y0 = rng.uniform(-margin / 2, margin / 2, 2)
+        radius = 500.0 / scale_arcsec
+        angles = np.linspace(0.0, math.pi / 2, 25) + rng.uniform(0, 2 * math.pi)
+        along = np.exp(-np.linspace(0.0, 2.0, 25))
+        along = 3.0 * along / along.sum()
+        for a, f in zip(angles, along, strict=True):
+            comps.append(
+                {
+                    "kind": "gaussian",
+                    "dx": float(x0 + radius * math.cos(a)),
+                    "dy": float(y0 + radius * math.sin(a)),
+                    "flux": float(f),
+                    "fwhm_arcsec": float(rng.uniform(30.0, 60.0)),
+                }
+            )
     scale = scale_arcsec * ARCSEC
     for c in comps:
         c["x"] = centre + c["dx"]
@@ -344,7 +403,11 @@ def fill_subtables(ms, names, xyz, diameter, freq, ra, dec, times, dt):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("ms")
-    p.add_argument("--sky", choices=["S1", "S2", "S3", "none"], required=True)
+    p.add_argument(
+        "--sky",
+        choices=["S1", "S2", "S3", "H1", "H2", "H3", "H4", "none"],
+        required=True,
+    )
     p.add_argument("--nant", type=int, default=64)
     p.add_argument("--hours", type=float, default=2.0)
     p.add_argument("--dt", type=float, default=8.0)
@@ -364,7 +427,8 @@ def main(argv=None):
     t_start = time.perf_counter()
     xyz, diameter, names = antennas(args.nant)
     nant = len(names)
-    times, ra, dec, ant_uvw, lon = track(xyz, args.hours, args.dt)
+    dec_deg = DEC_BY_SKY.get(args.sky, DEC_DEG)
+    times, ra, dec, ant_uvw, lon = track(xyz, args.hours, args.dt, dec_deg)
     a1, a2 = np.triu_indices(nant, 1)
     nbl, ntime = len(a1), len(times)
     nrow = nbl * ntime
@@ -408,7 +472,7 @@ def main(argv=None):
     t.close()
     fill_subtables(out, names, xyz, diameter, freq, ra, dec, times, args.dt)
     t = tables.table(str(out), readonly=False)
-    rng = np.random.default_rng(NOISE_SEED)
+    rng = np.random.default_rng(NOISE_SEEDS.get(args.sky, NOISE_SEED))
     noise_file = open(args.noise_out, "wb") if args.noise_out else None  # noqa: SIM115
     seconds = {"predict": 0.0, "noise": 0.0, "write": 0.0}
     w_corr = np.float32(1.0 / sigma_c**2)

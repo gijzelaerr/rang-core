@@ -532,3 +532,6 @@ stop rule runs to the component budget, because a first cycle that cleans only t
 zero ([stop-rule-theorem.md](stop-rule-theorem.md) §5, reproduced through the command). `-mgain 0.8` and
 `-stop-rule certified` do not fail on those data. The accuracy results of this note and of the benchmark hold for
 the skies they name and do not cover this case.
+
+Held-out result, 2026-11-03: the default took 6, 6, 8 and 5 major cycles on new simulated skies against a bar of 5
+written first, so "4-5" does not generalise; false flux held. See [gemclean-heldout.md](gemclean-heldout.md).

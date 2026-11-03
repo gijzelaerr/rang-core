@@ -26,8 +26,20 @@ below GeMClean's default at 11-21 times the instructions; the S2 disc and the fa
 ℓ1 fails; the SARA-style prior did not converge. Nothing was run against BASPLib, PURIFY, resolve or pfb-imaging. Merged with a
 corrected GeMClean baseline: the first version scored a run with `-mgain 0.8`. All wall times provisional.
 
-Open owner decision, 2026-11-03: the default stop rule fails on a bright phase-centre source; the guard is not chosen and the default
-is unchanged ([stop-rule-theorem.md](stop-rule-theorem.md) §9).
+Owner decision, 2026-11-03: the default stop rule fails on a bright phase-centre source. Test on a branch a floor that ends each later
+cycle at the larger of the measured level and a fixed fraction of that cycle's starting peak ([stop-rule-theorem.md](stop-rule-theorem.md) §9).
+Proposed, not tested; the default is unchanged.
+GeMClean held-out test, 2026-11-03 (measured; merged;
+[gemclean-heldout.md](gemclean-heldout.md)). **The claim "4-5 major cycles at WSClean-level
+false flux" did not survive as stated on new simulated skies:** 6, 6, 8, 5 major cycles
+against a bar of 5 written first; false flux held (at most 1.37 × the better WSClean loop)
+and cycles never exceeded WSClean fast's, but exceeded plain's on two skies. Real ESO 137-006
+pilot (1 h, 107 MHz, publisher's GKB-net gains, 4096 × 3″, 256 channels): at 3 mJy 3 cycles
+with extra baseline flags and 5 on received flags, off-source model flux 1.02-1.03 ×
+WSClean's, compact flux within 0.1 %, no divergence; at 1 mJy 8 against fast's 6. Floor about
+40-60 × thermal in all imagers. GeMClean needed 18 GB on 152 M visibilities and did not fit
+24 GB at the full 512 channels. Table writer: tile files of 2 GiB or more now written.
+Next if wanted: a stop that ends near the threshold rather than exactly, on its own held-out test.
 
 GeMClean rename and paper merged, 2026-11-03 (merge record). `rename-gemclean` as `068efcd`: command, module,
 Cargo profile, `RANG_GEMCLEAN_SIMD`, Lean file, notes and scripts; archive JSON, timing history and old on-disk

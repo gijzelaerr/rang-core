@@ -580,11 +580,15 @@ the walk with the first-put bodies consumed (`posthoc.json`).
 
 ## Open items
 
+Tile files and hypercube offsets of 2 GiB or more were on this list until
+2026-11-03: the ESO 137 pilot needed them ([gemclean-heldout.md](gemclean-heldout.md)).
+`TsmHeader` now writes casacore's version-2 `TSMFile` and `TSMCube` records from
+2 GiB. Checked there by casacore reading cells beyond 2 GiB and by WSClean.
+
 - What the writer still does not do, each refused with "not supported"
   and its reason: MultiHDF5 (libhdf5's layout and modification times);
   Adios2StMan and other data managers that are not MS or calibration-table
-  storage managers; tiled headers, tile files or hypercube offsets of
-  2 GiB or more and tiled managers of 2^31 rows or more (their version-2/3
+  storage managers; tiled managers of 2^31 rows or more (their version-3
   records); MultiFile containers with block CRCs (casacore's `useCRC`,
   off by default) and version-1 MultiFile headers.
 - Coordinate and id columns are written for TiledDataStMan only (a

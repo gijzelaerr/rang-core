@@ -1458,3 +1458,16 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-03 | `gemclean`, S1 plus 10 Jy at the centre, default | 14.5 M visibilities, 2048², `-j 8` | 16 s | – | provisional; flock |
 | 2026-11-03 | `gemclean`, S1 plus 10 Jy at the centre, -mgain 0.8 | 14.5 M visibilities, 2048², `-j 8` | 19 s | – | provisional; flock |
 | 2026-11-03 | `gemclean`, S1, S2, S3 default stop rule (gram-solver baseline) | 2048², `-j 8`, from `/mnt/d` | 75, 111, 70 s | 3.2 GiB | load 3.7, 13.8, 12.6; provisional; flock |
+| 2026-11-03 | `gemclean_bench_simulate.py`, H1-H4 | 1,814,400 rows × 8 | 17-60 s | 0.40 GB | contended; the driver's table also counts lock waits (157-1,616 s), not used |
+| 2026-11-03 | `gemclean_heldout_real.py convert`, then `verify` (`/mnt/d`) | 850,950 rows × 512 × 4, 20 GB | 412 s, 344 s | 1.8, 3.0 GB | single thread, no lock |
+| 2026-11-03 | `gemclean_heldout_real.py calibrate`, `average` (`/mnt/d`, WSL) | 823,500 rows × 512 × 2, then × 256 | 383 s, 199 s | 4.1, 2.9 GB | single thread, no lock |
+| 2026-11-03 | gains fetch, `ms1_gains.qc` | 545 MB, 78 objects | 407 s | – | from af-south-1 |
+| 2026-11-03 | WSClean 3.7 `-niter 0 -make-psf`, 4096 × 3″ | raw.ms from `/mnt/d`; averaged MS from WSL | 361 s; 47 s | – | PROVISIONAL |
+| 2026-11-03 | WSClean 3.7 fast, plain; `gemclean`, 3 mJy, set A | 152 M active visibilities, 4096² | 218, 1,114, 151 s | gemclean 18.0 GB | PROVISIONAL (contended): not a comparison |
+| 2026-11-03 | WSClean 3.7 fast, plain; `gemclean`, 3 mJy, set B | 142 M active | 243, 813, 132 s | gemclean 17.1 GB | PROVISIONAL (contended): not a comparison |
+| 2026-11-03 | `gemclean`, A at 1 mJy; WSClean fast, native channels, 1 mJy | 442,000 and 433,000 comps | 361 s; 3,435 s | 18.1 GB | PROVISIONAL (contended): not a comparison |
+| 2026-11-03 | sims, WSClean fast; plain; `gemclean` (H1, H2, H3, H4) | 14.5 M vis | 34, 28, 74, 46; 343, 216, 2,749, 256; 16, 18, 53, 13 s | – | PROVISIONAL (contended): not a comparison |
+| 2026-11-03 | `gemclean_heldout_real.py score`, `badbaselines` | 3 jobs at ε 1e-7; per-baseline statistic | 263 s; about 150 s | 6.1 GB | flock |
+| 2026-11-03 | `tools/check-all.sh`, `gemclean-heldout` | core, extension, ruff, pytest | 404-518 s | – | under the heavy lock; first run failed on one docs-index test, fixed |
+| 2026-11-03 | `tools/check-all.sh`, merge of the two studies | core, extension, ruff, pytest | about 11 min | – | under the heavy lock |
+| 2026-11-03 | `cargo build --release --bin gemclean`, same merge | WSL | 117 s | – | under the heavy lock |

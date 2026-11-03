@@ -442,7 +442,17 @@ def flux_metrics(model, cat, beam_px):
     out["between_1_and_2_beams_flux"] = float(
         vals[(d > beam_px) & (d <= 2 * beam_px) & ~in_disc].sum()
     )
-    for i in disc:
+    if len(disc) > 1:
+        # Several Gaussians: only the total inside their union is meaningful.
+        true_ext = float(sum(comps[i]["flux"] for i in disc))
+        out["extended"] = {
+            "true_flux": true_ext,
+            "flux": float(vals[in_disc].sum()),
+            "flux_error": float(vals[in_disc].sum()) - true_ext,
+            "negative_flux": float(vals[in_disc & (vals < 0)].sum()),
+            "pixels": int(in_disc.sum()),
+        }
+    for i in disc if len(disc) == 1 else []:
         c = comps[i]
         sel = in_disc
         w = vals[sel]
