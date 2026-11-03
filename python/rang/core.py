@@ -138,12 +138,12 @@ ENVIRONMENT = (
         "-",
     ),
     _v(
-        "RANG_GMCLEAN_SIMD",
+        "RANG_GEMCLEAN_SIMD",
         "unset (the best the CPU has)",
         "speed",
-        "`scalar`, `avx2` or `avx512` caps gmclean's kernels; the gather sum agrees to rounding only",
-        "gmclean",
-        "core/src/gmclean/kernels.rs",
+        "`scalar`, `avx2` or `avx512` caps gemclean's kernels; the gather sum agrees to rounding only",
+        "gemclean",
+        "core/src/gemclean/kernels.rs",
     ),
     _v(
         "RANG_WGRIDDER_SIMD",
@@ -158,7 +158,7 @@ ENVIRONMENT = (
         "4, within 2 GiB of grids",
         "speed",
         "w-planes gridded together; 1 takes the least memory",
-        "gmclean",
+        "gemclean",
         "core/src/wgridder.rs",
     ),
     _v(

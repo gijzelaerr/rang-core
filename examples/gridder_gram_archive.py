@@ -3,7 +3,7 @@
 Usage: python3 examples/gridder_gram_archive.py RUN_DIR OUT_JSON
 
 RUN_DIR holds the bench lines (*.jsonl with their *.perf), jobs/ from
-examples/gridder_gram_jobs.sh, and scores/*.json from gmclean_bench_compare.py.
+examples/gridder_gram_jobs.sh, and scores/*.json from gemclean_bench_compare.py.
 """
 
 import json

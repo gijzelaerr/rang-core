@@ -15,7 +15,7 @@
 //! the single-sum form of Fessler et al. (2005, IEEE TSP 53, 3393, eqs 24-26)
 //! with `w` for time and `x` for the off-resonance map. Each `K_k` is needed
 //! at `|δ| < n` only, so it lives on the `2n` grid; its transform is real.
-//! See `research/gridder-theory.md`. A prototype behind a flag of the gmclean
+//! See `research/gridder-theory.md`. A prototype behind a flag of the gemclean
 //! binary; the default path does not use it.
 //!
 //! `ψ` has compact support of `stencil` nodes, the regularised least-squares

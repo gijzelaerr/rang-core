@@ -1,11 +1,11 @@
-"""Interleaved engineering comparison of gmclean variants (research/gmclean.md).
+"""Interleaved engineering comparison of gemclean variants (research/gemclean.md).
 
 Runs each variant `repeats` times round by round under `perf stat` (Linux) and
 prints the minimum wall time, CPU time and instructions per variant, with the
 phase split and the science numbers of the report. Provisional by design: it
 guides engineering on a shared host and gives no result for a paper.
 
-    python3 examples/gmclean_compare.py SPEC.json OUT.json
+    python3 examples/gemclean_compare.py SPEC.json OUT.json
 
 SPEC: {"repeats": 3, "ms": {"point": "...", ...}, "base": ["-size", ...],
 "sky_args": {"point": ["-abs-threshold", "1e-4"], ...}, "skies": ["point"],

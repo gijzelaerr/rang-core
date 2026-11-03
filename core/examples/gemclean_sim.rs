@@ -1,16 +1,16 @@
-//! The measured half of `research/gmclean.md`: a simulated MeerKAT
-//! Measurement Set, and gmclean against the certified driver's provable rule
+//! The measured half of `research/gemclean.md`: a simulated MeerKAT
+//! Measurement Set, and gemclean against the certified driver's provable rule
 //! and a Clark-rule run on the same data.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
 //! ```text
-//! cargo run --release --manifest-path core/Cargo.toml --example gmclean_sim -- write OUTDIR
-//! core/target/release/gmclean -name OUTDIR/bin -size 1024 1024 -scale 2asec -weight briggs 0 \
+//! cargo run --release --manifest-path core/Cargo.toml --example gemclean_sim -- write OUTDIR
+//! core/target/release/gemclean -name OUTDIR/bin -size 1024 1024 -scale 2asec -weight briggs 0 \
 //!     -niter 100000 -abs-threshold 1e-3 -patch 64 OUTDIR/sim.ms
-//! cargo run --release --manifest-path core/Cargo.toml --example gmclean_sim -- bench OUTDIR
-//! cargo run --release --manifest-path core/Cargo.toml --example gmclean_sim -- compare OUTDIR
+//! cargo run --release --manifest-path core/Cargo.toml --example gemclean_sim -- bench OUTDIR
+//! cargo run --release --manifest-path core/Cargo.toml --example gemclean_sim -- compare OUTDIR
 //! ```
 //!
 //! `bench OUTDIR [repeats]` is the timing pass alone, one command (it writes
@@ -27,20 +27,20 @@
 //! brightest source per real and imaginary part of each correlation.
 //!
 //! `compare` reads the MS back through the imager's own input path and
-//! writes `OUTDIR/gmclean.json`; it embeds `OUTDIR/bin-report.json` when it
+//! writes `OUTDIR/gemclean.json`; it embeds `OUTDIR/bin-report.json` when it
 //! exists.
 
 use rang_core::clean::Psf;
 use rang_core::clean_certified::{
     self, Certified, DriverSettings, Measurement, MinorRule, WgridMeasurement, psf_from_double,
 };
-use rang_core::gmclean::host::{Measured, Probe, min_median};
-use rang_core::gmclean::input::{self, Selection};
-use rang_core::gmclean::json::{arr, num, obj, text};
-use rang_core::gmclean::kernels::{self, Level};
-use rang_core::gmclean::measure::GridMeasurement;
-use rang_core::gmclean::sim::{self, SimSpec, Sky};
-use rang_core::gmclean::{self, Beam, Outcome, Settings};
+use rang_core::gemclean::host::{Measured, Probe, min_median};
+use rang_core::gemclean::input::{self, Selection};
+use rang_core::gemclean::json::{arr, num, obj, text};
+use rang_core::gemclean::kernels::{self, Level};
+use rang_core::gemclean::measure::GridMeasurement;
+use rang_core::gemclean::sim::{self, SimSpec, Sky};
+use rang_core::gemclean::{self, Beam, Outcome, Settings};
 use rang_core::weights::WeightClass;
 use rang_core::wgridder::Options;
 use std::path::Path;
@@ -195,7 +195,7 @@ fn quality(model: &[f64], residual: &[f64]) -> Vec<(&'static str, String)> {
     ]
 }
 
-fn gmclean_entry(name: &str, out: &Outcome) -> String {
+fn gemclean_entry(name: &str, out: &Outcome) -> String {
     let t = out.tau_quantiles();
     println!(
         "{name:<28} {:>7} comps {:>3} major {:>5} resyncs ({} drift, {} tau, {} every, {} thr) stop {:?}; Q/Q0 {:.4e}, max|gap|/Q {:.2e}, tau min {:.3} med {:.3}; minor {:.3} s (corr {:.3}), resync {:.3} s, major {:.3} s, total {:.3} s",
@@ -362,18 +362,18 @@ fn compare(outdir: &Path) -> Result<(), String> {
         let t = Instant::now();
         let beam = Beam::from_double(SIDE, &psf2n, patch)?;
         let t_beam = t.elapsed().as_secs_f64();
-        let out = gmclean::run(&m, &beam, &base, None)?;
-        let name = format!("gmclean-patch{patch}");
+        let out = gemclean::run(&m, &beam, &base, None)?;
+        let name = format!("gemclean-patch{patch}");
         patch_runs.push(obj(&[
             ("beam_setup_seconds", num(t_beam)),
-            ("entry", gmclean_entry(&name, &out)),
+            ("entry", gemclean_entry(&name, &out)),
         ]));
     }
 
     let beam = Beam::from_double(SIDE, &psf2n, 64)?;
 
     // Audited, shallower: lazy against brute force at every step.
-    let audited = gmclean::run(
+    let audited = gemclean::run(
         &m,
         &beam,
         &Settings {
@@ -382,7 +382,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
         },
         None,
     )?;
-    let audit_entry = gmclean_entry("gmclean-patch64-audit", &audited);
+    let audit_entry = gemclean_entry("gemclean-patch64-audit", &audited);
 
     // The whole loop at each SIMD level.
     let mut level_runs = Vec::new();
@@ -391,7 +391,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
         if level > kernels::detected() {
             continue;
         }
-        let out = gmclean::run(
+        let out = gemclean::run(
             &m,
             &beam,
             &Settings {
@@ -408,30 +408,33 @@ fn compare(outdir: &Path) -> Result<(), String> {
             }
             Some(r) => r.len() == steps.len() && r.iter().zip(&steps).all(|(a, b)| a.0 == b.0),
         };
-        let name = format!("gmclean-patch64-{}", level.name());
+        let name = format!("gemclean-patch64-{}", level.name());
         level_runs.push(obj(&[
             ("level", text(level.name())),
             ("same_picks_as_scalar", same.to_string()),
-            ("entry", gmclean_entry(&name, &out)),
+            ("entry", gemclean_entry(&name, &out)),
         ]));
     }
 
     // The major-cycle fraction, and a deeper threshold.
     let mut fraction_runs = Vec::new();
     for fraction in [0.5, 0.9, 0.99, 1.0] {
-        let out = gmclean::run(
+        let out = gemclean::run(
             &m,
             &beam,
             &Settings {
-                cycle_stop: gmclean::CycleStop::MisfitFraction,
+                cycle_stop: gemclean::CycleStop::MisfitFraction,
                 major_fraction: fraction,
                 ..base
             },
             None,
         )?;
-        fraction_runs.push(gmclean_entry(&format!("gmclean-fraction{fraction}"), &out));
+        fraction_runs.push(gemclean_entry(
+            &format!("gemclean-fraction{fraction}"),
+            &out,
+        ));
     }
-    let deep = gmclean::run(
+    let deep = gemclean::run(
         &m,
         &beam,
         &Settings {
@@ -441,7 +444,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
         },
         None,
     )?;
-    let deep_entry = gmclean_entry("gmclean-deep-1e-4", &deep);
+    let deep_entry = gemclean_entry("gemclean-deep-1e-4", &deep);
 
     // A hard beam: the baselines of the first antennas of the same MS
     // (natural weights), where the sidelobes stay high to the image edge.
@@ -456,7 +459,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
             beam.f,
             full.coherence()
         );
-        let out = gmclean::run(
+        let out = gemclean::run(
             &sub,
             &beam,
             &Settings {
@@ -467,7 +470,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
             },
             None,
         )?;
-        let lazy = gmclean_entry(&format!("sparse{nant}-gmclean-patch64"), &out);
+        let lazy = gemclean_entry(&format!("sparse{nant}-gemclean-patch64"), &out);
         let driver = DriverSettings {
             gain: GAIN,
             threshold,
@@ -491,7 +494,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
             ("threshold_jy", num(threshold)),
             ("f_outside_64", num(beam.f)),
             ("coherence", num(full.coherence())),
-            ("gmclean", lazy),
+            ("gemclean", lazy),
             (
                 "provable",
                 driver_entry(&format!("sparse{nant}-provable"), &provable, &driver),
@@ -566,7 +569,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
     let json = obj(&[
         (
             "experiment",
-            text("gmclean on a simulated MeerKAT MS (research/gmclean.md)"),
+            text("gemclean on a simulated MeerKAT MS (research/gemclean.md)"),
         ),
         ("timing_status", text(TIMING_STATUS)),
         ("truth", read_json("truth.json")),
@@ -608,9 +611,9 @@ fn compare(outdir: &Path) -> Result<(), String> {
         ("sparse", arr(&sparse_runs)),
         ("certified_driver", arr(&driver_runs)),
         ("binary_report", read_json("bin-report.json")),
-        ("benchmark", read_json("gmclean-bench.json")),
+        ("benchmark", read_json("gemclean-bench.json")),
     ]);
-    std::fs::write(outdir.join("gmclean.json"), json + "\n").map_err(|e| e.to_string())?;
+    std::fs::write(outdir.join("gemclean.json"), json + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.1} s", wall.elapsed().as_secs_f64());
     Ok(())
 }
@@ -665,7 +668,7 @@ impl Timed {
 /// The timing benchmark, one command: every variant `repeats` times,
 /// interleaved round by round, with wall time, CPU time and machine load per
 /// repeat, and the minimum and median. Writes the simulated MS first when it
-/// is not there; writes `OUTDIR/gmclean-bench.json`.
+/// is not there; writes `OUTDIR/gemclean-bench.json`.
 fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     let wall = Instant::now();
     if !outdir.join("sim.ms").join("table.dat").exists() {
@@ -713,11 +716,11 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         audit: false,
         divergence_limit: 0.0,
     };
-    // gmclean runs on the operator with the kept plan, as the binary does.
+    // gemclean runs on the operator with the kept plan, as the binary does.
     let gm = grid_measurement(&m)?;
     let gm_sparse = grid_measurement(&sparse)?;
     let lazy = |measurement: &GridMeasurement<f64>, beam: &Beam, settings: Settings| {
-        gmclean::run(measurement, beam, &settings, None).map(|o| (o.steps.len(), o.cycles.len()))
+        gemclean::run(measurement, beam, &settings, None).map(|o| (o.steps.len(), o.cycles.len()))
     };
     let plain = |measurement: &WgridMeasurement, psf: &Psf, settings: DriverSettings| {
         clean_certified::run(measurement, psf, psf, &settings, None)
@@ -728,7 +731,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     for (patch, beam) in patches.iter().zip(&beams) {
         let (lazy, m) = (&lazy, &gm);
         variants.push((
-            format!("gmclean-patch{patch}"),
+            format!("gemclean-patch{patch}"),
             Box::new(move || lazy(m, beam, base)),
         ));
     }
@@ -736,7 +739,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         if level <= kernels::detected() {
             let (lazy, m) = (&lazy, &gm);
             variants.push((
-                format!("gmclean-patch64-{}", level.name()),
+                format!("gemclean-patch64-{}", level.name()),
                 Box::new(move || {
                     lazy(
                         m,
@@ -753,13 +756,13 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     {
         let (lazy, m) = (&lazy, &gm);
         variants.push((
-            "gmclean-fraction0.8".into(),
+            "gemclean-fraction0.8".into(),
             Box::new(move || {
                 lazy(
                     m,
                     beam64,
                     Settings {
-                        cycle_stop: gmclean::CycleStop::MisfitFraction,
+                        cycle_stop: gemclean::CycleStop::MisfitFraction,
                         major_fraction: 0.8,
                         ..base
                     },
@@ -796,7 +799,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     {
         let (lazy, sparse_gm, sparse, sparse_beam) = (&lazy, &gm_sparse, &sparse, &sparse_beam);
         variants.push((
-            "sparse16-gmclean-patch64".into(),
+            "sparse16-gemclean-patch64".into(),
             Box::new(move || {
                 lazy(
                     sparse_gm,
@@ -849,7 +852,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
             record.major_cycles = cycles;
         }
         let probe = Probe::start();
-        let result = gmclean::kernel_benchmark(1024, 64, 2000, 200, 1);
+        let result = gemclean::kernel_benchmark(1024, 64, 2000, 200, 1);
         kernel_load.extend(probe.stop().load);
         for (k, samples) in result.iter().zip(&mut kernel_samples) {
             samples.0.push(k.patch_ns_per_pixel);
@@ -899,7 +902,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
         ("kernels_machine_load_cores", sample_json(&kernel_load)),
         ("wall_seconds", num(wall.elapsed().as_secs_f64())),
     ]);
-    std::fs::write(outdir.join("gmclean-bench.json"), json + "\n").map_err(|e| e.to_string())?;
+    std::fs::write(outdir.join("gemclean-bench.json"), json + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.1} s", wall.elapsed().as_secs_f64());
     Ok(())
 }
@@ -969,7 +972,7 @@ fn minor(args: &[String]) -> Result<(), String> {
         gain: GAIN,
         threshold,
         max_components: 2_000_000,
-        cycle_stop: gmclean::CycleStop::Threshold,
+        cycle_stop: gemclean::CycleStop::Threshold,
         max_major: 1,
         ..Settings::default()
     };
@@ -1074,7 +1077,7 @@ fn minor(args: &[String]) -> Result<(), String> {
                 q0,
                 calls: std::sync::atomic::AtomicUsize::new(0),
             };
-            let out = gmclean::run(&frozen, &beams[beam_of(*patch)], settings, None)?;
+            let out = gemclean::run(&frozen, &beams[beam_of(*patch)], settings, None)?;
             samples[i].0.push(out.timings.minor);
             samples[i].1.push(out.timings.resync);
             samples[i].2.push(out.timings.correction);
@@ -1141,10 +1144,10 @@ fn main() {
             let repeats = args.get(3).and_then(|r| r.parse().ok()).unwrap_or(5);
             bench(Path::new(out), repeats)
         }
-        _ => Err("usage: gmclean_sim write|compare OUTDIR, or bench OUTDIR [repeats]".to_string()),
+        _ => Err("usage: gemclean_sim write|compare OUTDIR, or bench OUTDIR [repeats]".to_string()),
     };
     if let Err(e) = result {
-        eprintln!("gmclean_sim: {e}");
+        eprintln!("gemclean_sim: {e}");
         std::process::exit(2);
     }
 }

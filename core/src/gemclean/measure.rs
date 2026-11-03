@@ -1,5 +1,5 @@
 //! A measurement with reusable buffers, optionally gridding in single
-//! precision, for gmclean's major cycles.
+//! precision, for gemclean's major cycles.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
@@ -197,7 +197,7 @@ mod tests {
     /// The components and the misfit stay close to the f64 reference run.
     #[test]
     fn single_precision_keeps_the_amplitudes_exact() {
-        use crate::gmclean::{Beam, Settings, run};
+        use crate::gemclean::{Beam, Settings, run};
         let mut state = 321u64;
         let mut next = || {
             state ^= state << 13;
@@ -211,7 +211,7 @@ mod tests {
             .collect();
         let freq = vec![299_792_458.0];
         let (n, cell, eps) = (48usize, 1.5e-4, 1e-5);
-        let opts = crate::gmclean::sim::imaging_options();
+        let opts = crate::gemclean::sim::imaging_options();
         let wgt = vec![1.0; nrow];
         let mut truth = vec![0.0; n * n];
         truth[9 * n + 33] = 1.0;
@@ -266,7 +266,7 @@ mod tests {
         }
         // The science, within the stated tolerance.
         assert!((reduced.q_final - reference.q_final).abs() < 1e-5 * reference.q0);
-        let flux = |o: &crate::gmclean::Outcome| o.model.iter().sum::<f64>();
+        let flux = |o: &crate::gemclean::Outcome| o.model.iter().sum::<f64>();
         assert!((flux(&reduced) - flux(&reference)).abs() < 2e-2);
     }
 
@@ -285,7 +285,7 @@ mod tests {
         let vis: Vec<Complex<f64>> = (0..nrow).map(|_| Complex::new(next(), next())).collect();
         let wgt: Vec<f64> = (0..nrow).map(|_| 0.5 + next().abs()).collect();
         let (n, cell, eps) = (48usize, 1.5e-4, 1e-5);
-        let opts = crate::gmclean::sim::imaging_options();
+        let opts = crate::gemclean::sim::imaging_options();
         let reference = WgridMeasurement::new(
             uvw.clone(),
             freq.clone(),

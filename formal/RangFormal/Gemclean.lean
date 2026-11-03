@@ -5,13 +5,13 @@ License, version 3 or (at your option) any later version; see `LICENSE`.
 import RangFormal.Clean
 
 /-!
-# The arithmetic of a gmclean minor step
+# The arithmetic of a gemclean minor step
 
-The companion of `research/gmclean.md`. Three short facts:
+The companion of `research/gemclean.md`. Three short facts:
 
 * `exact_value_identity`: a working map that subtracts `Btrunc` differs from
   the exact residual by the ignored beam `B − Btrunc` over the components.
-  This is the per-step correction of gmclean.
+  This is the per-step correction of gemclean.
 * `exact_value_step`: a step taken with the exact value is a CLEAN step, so
   `misfit_step` applies whatever pixel the working map proposed.
 * `weak_greedy_of_certificate`: the recorded certificate. If the working map

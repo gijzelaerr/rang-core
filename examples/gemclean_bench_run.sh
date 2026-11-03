@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Run the gmclean benchmark matrix for one imager (research/gmclean-benchmark.md).
+# Run the gemclean benchmark matrix for one imager (research/gemclean-benchmark.md).
 #
 # Usage:
-#   bash examples/gmclean_bench_run.sh IMAGER RUN_DIR [DATASET ...]
+#   bash examples/gemclean_bench_run.sh IMAGER RUN_DIR [DATASET ...]
 #
 #   IMAGER   wsclean (WSClean 3.7 in rang-o-casa:6.7.6.14, built-in command)
 #            or any other name, with BENCH_TEMPLATE set to its command line
@@ -29,8 +29,8 @@
 #                   It must write {out}-model.fits and {out}-residual.fits
 #                   in WSClean's FITS orientation (and may write
 #                   {out}-image.fits and {out}-report.json). It runs on the
-#                   host under /usr/bin/time -v. gmclean, one command:
-#     bash examples/gmclean_bench_gmclean.sh BINARY RUN_DIR [DATASET ...]
+#                   host under /usr/bin/time -v. gemclean, one command:
+#     bash examples/gemclean_bench_gemclean.sh BINARY RUN_DIR [DATASET ...]
 #
 # Job name: <dataset>-<mode>-<grid>-<loop>-j<threads>. Per job the run
 # directory gets <name>-*.fits, <name>.log, timing/<name>.txt (GNU time -v),

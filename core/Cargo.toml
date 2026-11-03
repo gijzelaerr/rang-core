@@ -12,8 +12,8 @@ path = "src/lib.rs"
 crate-type = ["rlib", "cdylib"]
 
 [[bin]]
-name = "gmclean"
-path = "src/bin/gmclean.rs"
+name = "gemclean"
+path = "src/bin/gemclean.rs"
 
 [[bin]]
 name = "gridder_gram_bench"
@@ -34,8 +34,8 @@ gpu = ["dep:wgpu", "dep:pollster"]
 lto = "thin"
 codegen-units = 1
 
-# The gmclean binary for measurement: cargo build --profile gmclean --bin gmclean
-# (research/gmclean.md §5, 5.9 % fewer instructions than thin LTO).
-[profile.gmclean]
+# The gemclean binary for measurement: cargo build --profile gemclean --bin gemclean
+# (research/gemclean.md §5, 5.9 % fewer instructions than thin LTO).
+[profile.gemclean]
 inherits = "release"
 lto = "fat"

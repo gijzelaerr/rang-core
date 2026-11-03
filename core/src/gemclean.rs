@@ -1,6 +1,6 @@
-//! gmclean: a reference CLEAN whose every minor step is a certified descent
+//! gemclean: a reference CLEAN whose every minor step is a certified descent
 //! step on the image-domain Gram model, with lazy exact corrections.
-//! Research note: `research/gmclean.md`.
+//! Research note: `research/gemclean.md`.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
@@ -8,7 +8,7 @@
 //! The certified driver of [`crate::clean_certified`] bounds the error of a
 //! truncated minor-cycle beam by the worst case `f Σ|c_j|` (Theorem 6 of
 //! `research/clean-theory.md`) and therefore hands back to the major cycle
-//! after one to four components. gmclean computes the error exactly at the
+//! after one to four components. gemclean computes the error exactly at the
 //! one pixel it is about to clean instead:
 //!
 //! 1. **Exact beam.** The PSF on the `2n × 2n` grid holds `b(Δ)` for every
@@ -481,7 +481,7 @@ impl ReferenceConvolver {
 // ---------------------------------------------------------------------------
 // The beam.
 
-/// The exact image-domain beam of gmclean: the patch `±P` subtracted every
+/// The exact image-domain beam of gemclean: the patch `±P` subtracted every
 /// step, the exterior (the beam outside the patch) for the exact
 /// corrections, and the FFT of the whole beam for resyncs.
 pub struct Beam {
@@ -836,7 +836,7 @@ pub enum CycleStop {
     Threshold,
 }
 
-/// Settings of a gmclean run.
+/// Settings of a gemclean run.
 #[derive(Clone, Copy, Debug)]
 pub struct Settings {
     /// The loop gain `γ` (`0 < γ < 2`).
@@ -1250,7 +1250,7 @@ fn resync(
     since.clear();
 }
 
-/// gmclean on `measurement` with `beam` (from the measurement's `2n` PSF);
+/// gemclean on `measurement` with `beam` (from the measurement's `2n` PSF);
 /// `q_floor`, an estimate of `Q_∞`, makes `φ` a fraction of `Q − Q_∞`.
 pub fn run<M: Measurement>(
     measurement: &M,
@@ -1493,7 +1493,7 @@ pub fn run<M: Measurement>(
             // allowance `(1 − θ) |predicted|`, otherwise return towards the
             // initial value. The gap is a misfit: it does not see a small
             // pointwise error, so φ must not grow past its initial value
-            // (research/gmclean.md, §5).
+            // (research/gemclean.md, §5).
             if gap.abs() > (1.0 - s.theta) * predicted.abs() {
                 fraction *= 0.5;
             } else {

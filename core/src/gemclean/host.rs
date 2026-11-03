@@ -175,7 +175,7 @@ mod tests {
     }
 }
 
-/// The gmclean binary's allocator: large blocks are mapped directly, aligned
+/// The gemclean binary's allocator: large blocks are mapped directly, aligned
 /// to 2 MiB and marked for transparent huge pages (where the system offers
 /// them only on request), everything else is the system's. The gridder walks
 /// its grids, visibilities and tables with strides far beyond 4 KiB, where

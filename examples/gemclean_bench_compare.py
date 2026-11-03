@@ -1,6 +1,6 @@
-"""Score any imager's CLEAN output against a truth catalogue (gmclean benchmark).
+"""Score any imager's CLEAN output against a truth catalogue (gemclean benchmark).
 
-Research note: research/gmclean-benchmark.md. Three subcommands:
+Research note: research/gemclean-benchmark.md. Three subcommands:
 
 prepare MS CATALOGUE OUT_DIR
     Reads the Measurement Set through rang's own reader (`rang.core_ms`),
@@ -41,10 +41,10 @@ tables JSON [JSON ...]
     Markdown tables of scored runs (for the note and the paper).
 
 Usage:
-    .venv/bin/python examples/gmclean_bench_compare.py prepare MS CAT OUT --size 2048 \
+    .venv/bin/python examples/gemclean_bench_compare.py prepare MS CAT OUT --size 2048 \
         --scale 1.5 [--datacol DATA] [--field 0] [--noise NOISE.c64] [--wsclean-dirty P]
-    .venv/bin/python examples/gmclean_bench_compare.py score PREP CAT RUN OUT.json
-    .venv/bin/python examples/gmclean_bench_compare.py tables OUT.json ...
+    .venv/bin/python examples/gemclean_bench_compare.py score PREP CAT RUN OUT.json
+    .venv/bin/python examples/gemclean_bench_compare.py tables OUT.json ...
 """
 
 import argparse
@@ -712,7 +712,7 @@ def tables(args):
         }
         if reps:
             print(
-                "\n| job (gmclean report.json) | major | resyncs | max \\|gap\\|/Q "
+                "\n| job (gemclean report.json) | major | resyncs | max \\|gap\\|/Q "
                 "| ascending majors | τ min | τ median | minor s | resync s | major s | stop |"
             )
             print("| --- | " + "---: | " * 9 + "--- |")
