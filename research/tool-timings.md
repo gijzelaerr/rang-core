@@ -1429,3 +1429,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-03 | `stop_rule_probe`, S1 | 12 columns, 9 checkpoints per cycle, 16 uniform | 284 s | 6.1 GB | flock |
 | 2026-11-03 | `tools/check-all.sh`, scratch copy of the tree | new venv on Python 3.14 | 896 s | – | pass; 832 passed, 68 skipped |
 | 2026-11-03 | `lake build`, new worktree (Windows, junction to the packages) | 8718 jobs | 205 s first, 494 s with the axiom check | – | 96 audited |
+| 2026-11-03 | gemclean `w6`, default and sampled rule | 64 uniform samples, 91 calls | 46 s, 529 s (table 319 s) | 3.1, 4.2 GB | flock |
+| 2026-11-03 | `gemclean_bench_simulate.py` `w6` | 14.5 M vis | 106 s | – | flock |

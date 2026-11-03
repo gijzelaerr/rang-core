@@ -27,7 +27,7 @@ is worse on cycles.** The new finding is that the default has a real failure the
   the measured error, because a triangle inequality cannot see cancellation between components.
 - **Cycles (measured).** S1, S2, S3: default 5, 5, 4; proved rule at `κ = 0.9` 15, 17, 10; at `κ = 0.5` 24, 26, 15.
   Plus a table of 143-241 s against a 15 s run. **The rule costs about three times the cycles and is about eleven times
-  slower.** It matches the earlier certified rules' pass counts, not the default's.
+  slower.** On the 3.4° field `w6`, with a sampled table only: 96 cycles against 11. It matches the earlier certified rules' pass counts, not the default's.
 - **False flux (measured).** Level with the default: 4.28, 4.59, 1.53 mJy against 4.34, 4.88, 1.58 mJy, and `Q` equal to 1e-4.
 - **Counterexample (measured).** `δ` is not a bound, and this matters: S1 plus 100 Jy at the phase centre. The first batch
   measures `δ = 2.3e-10`, the next cycle has no stop, and the default places **1,000,000 components (the budget) and
@@ -184,6 +184,16 @@ is the test at 128². At 2048², S1 plus a source at the phase centre (`stop_rul
 
 (False flux here from the probe's own count, which matches the scorer to 0.1 % on S1, with the central source added to the catalogue. Prep arrays.) `δ_0 = 2.3e-10`; the measured `δ` of the budget-stopped cycle is `6.3e-5`, 280,000 times larger.
 
+The sweep, with WSClean's peak fraction, which reads no measurement, on the same data:
+
+| centre Jy | default: cycles, components, false flux, pixels | peak fraction 0.95: cycles, components, false flux, pixels |
+| ---: | --- | --- |
+| 10 | 6; 99,970; **395 mJy**; 4,663 | 6; 88,651; 9.5 mJy; 559 |
+| 30 | **2; 1,000,000 (budget); 50.6 Jy; 199,502** | 7; 86,003; 4.5 mJy; 173 |
+| 100 | **2; 1,000,000 (budget); 50.6 Jy; 199,584** | 7; 87,408; 5.9 mJy; 305 |
+
+**The failure condition (paper).** Cycle 0 ends at `(1 − g)` of the first peak. If that is above every off-centre source, `S_c (1 − g) > S_b`, cycle 0 cleans only the central pixel and `δ_0` is rounding: with `g = 0.95` and `S_b = 0.99` Jy, `S_c > 20` Jy. The 30 and 100 Jy runs are in this case. At 10 Jy some off-centre flux enters cycle 0, `δ_0 = 8.1e-5`, and the harm is graded: 91 times S1's false flux. The 50.6 Jy is the figure of `-minor-to-threshold` in [gemclean.md](gemclean.md) §4.1: the default has become that mode.
+
 
 
 The first cycle cleans only the central source, whose error column is zero, so `δ_0` is the gridder's rounding. The stop level of cycle 1 is then
@@ -198,7 +208,7 @@ scored by `gemclean_bench_compare.py score --beam-arcsec 10.76`. All times provi
 ### 6.1 Default images unchanged
 
 `cmp` of model, residual, image, dirty and PSF FITS on S1, base `d39ec9d` against this tree: identical. Components and
-per-cycle records equal.
+per-cycle records equal. The final code repeats it for model, residual and image.
 
 ### 6.2 Tightness (S1; the same uvw and weights as S2, S3)
 
@@ -226,14 +236,14 @@ Bound over the measured `‖E Δm‖_∞` at the end of each cycle of the defaul
 Exact columns for the 12 brightest pixels help only while few pixels hold the flux. The envelope is the
 useful form. In runs of the rule itself, the bound over the measured error is 9.7-110 (Chebyshev) and 4.8-48 (uniform).
 
-**Provenance.** The tables of this subsection come from the final code. The S1-S3 rule runs of §6.3 used a binary built before the margin `ζ` was corrected from `4 r_max²` to `5 r_max²` (relative change about 1e-4 in the range of `η`): MARGIN_CHECK
+**Provenance.** The Chebyshev tables of this subsection come from the final code, the uniform-sample columns from a binary before the margin correction and the `2ε_grid` term. The S1-S3 rule runs of §6.3 used a binary built before the margin `ζ` was corrected from `4 r_max²` to `5 r_max²` (relative change about 1e-4 in the range of `η`): rerun on S1 with the final code, every cycle has the same components and misfit, the bound moves by at most 3.8e-5 relative, and there are no violations. S2, S3 and `w6` were not rerun.
 
 **The bound held every time.** `bound_violations` compares `|r_exact − r̃|` with the bound at every pixel at the end of every
 cycle: zero across all certified runs on S1, S2, S3 and the counterexample, once `2ε_grid` was added; before that, one pixel, the diagonal under 100 Jy,
 at the gridder's accuracy. `stale_bound_holds_for_exact_columns` checks exact columns at 128². **With 64 uniform samples that test failed**
 at 128², and it passes on Chebyshev nodes, so the sampled form is not a bound in practice as well as in principle. I did not diagnose the failure further.
 
-**Wide field:** queued (S3 at 6″, 3.4°).
+**Wide field, measured only.** `w6`: S3's sky at 6″, 3.4° (`gemclean.md` §5.7). Chebyshev nodes would take 432 gridder calls (`a = 95` at the widest range, about 25 minutes), which I did not run. With 64 uniform samples (91 calls, 319 s; largest `|E|` 7.0e-3, `w` rms 1,083 λ): the bound over the measured `‖E c‖_∞` is 3.2-55. **Two pixels exceeded it, in the last cycle of the run, where four components sit near the threshold (bound 0.21 µJy): a sampled table is not a bound, as §3 says.** The default's `δ` ratios are 0.28, 0.46, 0.58, 0.69, then **2.04, 3.47, 2.34, 2.52, 1.30, 2.44** in its last cycles.
 
 ### 6.3 Cycles and false flux
 
@@ -263,6 +273,8 @@ not fitting beam error (S1-S3 only; §5 shows that this is not a property of the
 
 The first cycle is where the rule is strong: it ends at 14 mJy on S1 against the default's 48 mJy, with no tuned `g`. By the second the default has passed it (0.85 against 1.5 mJy). The late cycles are the expensive ones: from
 0.7 mJy down, each takes 0.1-0.3 Jy of flux, and a bound of about `1.8e-3` per Jy allows little of it.
+
+**Wide field `w6`, uniform samples, measured only:** default 11 cycles, 713,726 components, Q/Q0 3.0039e-2, 46 s; rule at `κ = 0.9` **96 cycles**, 695,033 components, Q/Q0 3.0138e-2, 529 s. The scorer's false flux is 11.9 and 11.7 Jy in 56,007 and 50,567 pixels. At 6″ two beams are 3.6 pixels, and I did not examine what those pixels are, so I take only the agreement from it. **On a wide field the rule is about nine times worse than the default, not three**, at an uncertified table that a rigorous one would make worse again.
 
 ### 6.4 Where false flux goes (`pixel_flux_le`, S1 and `κ = 0.9`)
 
@@ -298,6 +310,7 @@ The sum is the scored 4.29 mJy. No false pixel takes flux until the peak is belo
 
 ## 7. What remains unproved
 
+- **Why the default needs only 4-5 cycles.** Nothing here proves it, and the default's constants stay tuned on S1-S3.
 - Lean does not contain: `E = Φ` for the gridder's images, the range of `η`, Ehlich-Zeller, the Bessel tail, or the gridder's accuracy. These are on paper or measured (§3).
 - The greedy ratio `μ` in the contraction is a hypothesis.
 - That a run's rule uses the bound of §3 is code, tested per pixel per cycle (`bound_violations`), not proved.
@@ -316,6 +329,8 @@ stop_rule_probe counter PREP/s1 s1.json 100 0 0.9 OUT.json   # plus 100 Jy at th
 python examples/stop_rule_archive.py RUNS SCORES PROBES research/results/stop-rule-theorem.json
 # Lean: from formal/, lake build; the axioms print as info lines of Audit.lean
 ```
+
+`w6`: `python -c "import gemclean_bench_simulate as m; m.main(['w6.ms', '--sky', 'S3', '--scale', '6', '--catalogue', 'w6.json'])"`, then the job above with `-scale 6asec -niter 3000000 -stop-rule-samples 64`. No data are kept: everything is regenerated from these commands and the benchmark's datasets on `/mnt/d/rang/outputs/20261102-gemclean/bench/`.
 
 Seeds and data are the benchmark's (S1-S3). The prep arrays give S1 6 cycles where the MS path gives 5: the last has one component, from a
 weight sum that differs in the ninth digit. Probe figures on S1 come from the prep arrays, run figures from the MS.

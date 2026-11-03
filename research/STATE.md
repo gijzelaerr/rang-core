@@ -20,8 +20,8 @@ A new paragraph goes directly under this heading.
 
 Stop-rule theorem, 2026-11-03 (branch `stop-rule-theorem`, not merged; [note](stop-rule-theorem.md)): **proved in Lean** a minor-cycle rule
 `e ≤ κ |r̃_p|` with the true sign and size at the pick, descent with a rate, no flux below `(1 − κ) T`, a flux bound per pixel; `formal/RangFormal/StopRule.lean`, 96 audited. **On paper:** the form of `E` and its
-supremum on Chebyshev nodes. **Measured:** 15, 17, 10 major cycles on S1-S3 against the default's 5, 5, 4 at the same false flux, plus about 100 gridder calls, so the default is unchanged (images byte-identical on S1). **Found:** S1 plus 100 Jy at the phase centre sends the
-default to its budget with 50.6 Jy of false flux, because a batch at the centre measures `δ` near zero; the proved rule gives 4.15 mJy. **Open owner decision:** a guard for the default; none is tested.
+supremum on Chebyshev nodes. **Measured:** 15, 17, 10 major cycles on S1-S3 against the default's 5, 5, 4 at the same false flux, plus about 100 gridder calls, and 96 against 11 on a 3.4° field with a sampled table, so the default is unchanged (images byte-identical on S1). **Found:** S1 plus 30 or 100 Jy at the phase centre sends the
+default to its budget with 50.6 Jy of false flux, because a batch at the centre measures `δ` near zero, and 10 Jy costs 395 mJy; the proved rule gives 4.15 mJy and the peak fraction 0.95 gives 4.5-9.5 mJy. **Open owner decision:** a guard for the default; none is tested.
 
 gemclean second optimisation pass merged, 2026-11-02 (implemented; output comparison measured;
 **times provisional**; [gemclean.md](gemclean.md) section 5.7, merge `5972124`). The peer session reports
