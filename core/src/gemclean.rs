@@ -51,6 +51,7 @@ pub mod input;
 pub mod kernels;
 pub mod measure;
 pub mod sim;
+pub mod stale_bound;
 
 use crate::clean::{CleanStep, argmax_abs};
 use crate::clean_certified::Measurement;
@@ -784,6 +785,8 @@ struct Since {
     index: HashMap<usize, usize>,
     keys: Vec<i64>,
     flux: Vec<f64>,
+    /// `Σ |c|` per pixel, beside `flux` (an upper bound on its magnitude).
+    abs_flux: Vec<f64>,
     /// `Σ |c_j|` over the steps (an upper bound on the aggregated sum).
     abs_sum: f64,
     steps: usize,
@@ -792,11 +795,15 @@ struct Since {
 impl Since {
     fn add(&mut self, p: usize, key: i64, c: f64) {
         match self.index.get(&p) {
-            Some(&j) => self.flux[j] += c,
+            Some(&j) => {
+                self.flux[j] += c;
+                self.abs_flux[j] += c.abs();
+            }
             None => {
                 self.index.insert(p, self.keys.len());
                 self.keys.push(key);
                 self.flux.push(c);
+                self.abs_flux.push(c.abs());
             }
         }
         self.abs_sum += c.abs();
@@ -807,6 +814,7 @@ impl Since {
         self.index.clear();
         self.keys.clear();
         self.flux.clear();
+        self.abs_flux.clear();
         self.abs_sum = 0.0;
         self.steps = 0;
     }
@@ -832,6 +840,10 @@ pub enum CycleStop {
     /// from the peak. The first cycle, before any measurement, uses
     /// `PeakFraction(g)`.
     MeasuredStale { rho: f64, g: f64 },
+    /// The certified rule of `research/stop-rule-theorem.md`: end the cycle once
+    /// `κ |r_p|` falls to the bound on the beam error at the pick, from a
+    /// [`stale_bound::StopBound`]. Needs [`run_with_bound`].
+    Certified { kappa: f64 },
     /// No hand-back: the minor cycle runs to the threshold.
     Threshold,
 }
@@ -978,6 +990,12 @@ pub struct Cycle {
     pub stale_linf: f64,
     /// The level at which the cycle's stale rule would stop, when it has one.
     pub stale_per_flux_used: f64,
+    /// The certified rule's bound on `‖r_exact − r̃‖_∞` at the end of the cycle
+    /// (zero under the other rules).
+    pub bound_linf: f64,
+    /// Pixels where the measured `|r_exact − r̃|` exceeded the bound there
+    /// (certified rule only; a sampled bound is checked here at every pixel).
+    pub bound_violations: usize,
     pub tau_min: f64,
     pub timings: Timings,
 }
@@ -1115,6 +1133,8 @@ impl Outcome {
                     ("abs_flux", num(c.abs_flux)),
                     ("stale_linf", num(c.stale_linf)),
                     ("stale_per_flux_used", num(c.stale_per_flux_used)),
+                    ("bound_linf", num(c.bound_linf)),
+                    ("bound_violations", c.bound_violations.to_string()),
                     ("tau_min", num(c.tau_min)),
                     ("reducible_after", opt(reducible(c.q_after))),
                     ("seconds", timings_json(&c.timings)),
@@ -1258,6 +1278,17 @@ pub fn run<M: Measurement>(
     settings: &Settings,
     q_floor: Option<f64>,
 ) -> Result<Outcome, String> {
+    run_with_bound(measurement, beam, settings, q_floor, None)
+}
+
+/// [`run`] with the bound that [`CycleStop::Certified`] reads.
+pub fn run_with_bound<M: Measurement>(
+    measurement: &M,
+    beam: &Beam,
+    settings: &Settings,
+    q_floor: Option<f64>,
+    bound: Option<&stale_bound::StopBound>,
+) -> Result<Outcome, String> {
     let start = Instant::now();
     let s = settings;
     let n = measurement.side();
@@ -1266,6 +1297,9 @@ pub fn run<M: Measurement>(
     }
     if !(s.gain > 0.0 && s.gain < 2.0) {
         return Err("the gain must be in (0, 2)".into());
+    }
+    if matches!(s.cycle_stop, CycleStop::Certified { .. }) && bound.is_none() {
+        return Err("the certified rule needs a bound".into());
     }
     let level = s.level.unwrap_or_else(kernels::level);
     let mut timings = Timings::default();
@@ -1311,6 +1345,9 @@ pub fn run<M: Measurement>(
         let first_peak = peak.abs();
         let stale_used = stale_per_flux;
         let taken_before = steps.len();
+        // The bound's map as of the last resync, and the steps it holds.
+        let mut bound_map: Vec<f64> = Vec::new();
+        let mut bound_steps = 0_usize;
         let minor_start = Instant::now();
         let minor_stop = loop {
             let (p, rt) = work.argmax();
@@ -1388,6 +1425,14 @@ pub fn run<M: Measurement>(
                             r.abs() <= rho * stale_used * abs_flux
                         }
                     }
+                    CycleStop::Certified { kappa } => {
+                        let b = bound.expect("checked on entry");
+                        if since.steps == 0 && bound_steps != steps.len() - taken_before {
+                            bound_map = b.map_of(&model, &model_major);
+                            bound_steps = steps.len() - taken_before;
+                        }
+                        kappa * r.abs() <= b.at_pick(level, beam, p, &bound_map, &since)
+                    }
                     CycleStop::MisfitFraction | CycleStop::Threshold => false,
                 };
                 if stop_here {
@@ -1457,6 +1502,20 @@ pub fn run<M: Measurement>(
         if abs_flux > 0.0 {
             stale_per_flux = stale_linf / abs_flux;
         }
+        let (bound_linf, bound_violations) = match (s.cycle_stop, bound) {
+            (CycleStop::Certified { .. }, Some(b)) => {
+                let map = b.map_of(&model, &model_major);
+                let worst = map.par_iter().copied().reduce(|| 0.0, f64::max);
+                let over = next
+                    .par_iter()
+                    .zip(work.r.par_iter())
+                    .zip(map.par_iter())
+                    .filter(|&((a, w), e)| (a - w).abs() > *e)
+                    .count();
+                (worst, over)
+            }
+            _ => (0.0, 0),
+        };
         let dq_exact = q_next - q;
         let gap = dq_exact - predicted;
         cycles.push(Cycle {
@@ -1477,6 +1536,8 @@ pub fn run<M: Measurement>(
             abs_flux,
             stale_linf,
             stale_per_flux_used: stale_used,
+            bound_linf,
+            bound_violations,
             tau_min,
             timings: ct,
         });
@@ -1949,6 +2010,250 @@ mod tests {
                 assert!(out.f > 0.0 && out.correction_terms > 0);
             }
         }
+    }
+
+    /// The fixture of `long_minor_cycles_do_not_fit_the_beam_error`.
+    fn strong_w_field(
+        sources: &[(usize, usize, f64)],
+    ) -> (
+        crate::clean_certified::WgridMeasurement,
+        Vec<f64>,
+        Vec<f64>,
+        Vec<f64>,
+    ) {
+        use crate::clean_certified::WgridMeasurement;
+        use crate::wgridder::Options;
+        let mut rng = Rng(2026);
+        let (n, cell) = (128usize, 3.0e-4);
+        let nvis = 8000;
+        let mut uvw = Vec::with_capacity(3 * nvis);
+        for _ in 0..nvis {
+            uvw.push((rng.next() - 0.5) * 6000.0);
+            uvw.push((rng.next() - 0.5) * 6000.0);
+            uvw.push((rng.next() - 0.5) * 6000.0);
+        }
+        let opts = Options {
+            flip_v: true,
+            flip_w: true,
+            ..Options::default()
+        };
+        let freq = vec![299_792_458.0];
+        let wgt = vec![1.0; nvis];
+        let empty = vec![Complex::new(0.0, 0.0); nvis];
+        let mut truth = vec![0.0; n * n];
+        for &(i, j, f) in sources {
+            truth[i * n + j] = f;
+        }
+        let mut m = WgridMeasurement::new(
+            uvw.clone(),
+            freq.clone(),
+            empty,
+            wgt.clone(),
+            n,
+            cell,
+            1e-9,
+            opts,
+        )
+        .unwrap();
+        m.vis = m.predict(&truth).unwrap();
+        for v in &mut m.vis {
+            v.re += 0.02 * (rng.next() - 0.5);
+            v.im += 0.02 * (rng.next() - 0.5);
+        }
+        let normalised = vec![1.0 / nvis as f64; nvis];
+        (m, uvw, freq, normalised)
+    }
+
+    fn strong_w_bound(
+        m: &crate::clean_certified::WgridMeasurement,
+        uvw: &[f64],
+        freq: &[f64],
+        wgt: &[f64],
+    ) -> (Beam, Vec<f64>, stale_bound::StaleBound) {
+        use crate::wgridder::Options;
+        let (n, cell) = (128usize, 3.0e-4);
+        let psf2n = m.psf_image(2 * n).unwrap();
+        let beam = Beam::from_double(n, &psf2n, 16).unwrap();
+        let opts = Options {
+            flip_v: true,
+            flip_w: true,
+            do_wgridding: true,
+            ..Options::default()
+        };
+        let table =
+            stale_bound::StaleBound::compute(n, cell, &opts, uvw, freq, wgt, &psf2n, 1e-9, 0)
+                .unwrap();
+        (beam, psf2n, table)
+    }
+
+    /// The table is an upper bound on the true Gram matrix: exact columns from
+    /// the gridder, minus the shifted PSF, on a strong w-term. The centre
+    /// column vanishes, the diagonal vanishes.
+    #[test]
+    fn stale_bound_holds_for_exact_columns() {
+        let n = 128usize;
+        let (m, uvw, freq, wgt) = strong_w_field(&[(14, 20, 1.0)]);
+        let (beam, _, table) = strong_w_bound(&m, &uvw, &freq, &wgt);
+        assert!(table.delta() > 1e-3, "delta {}", table.delta());
+        let w = 2 * n;
+        for &(px, py) in &[
+            (64, 64),
+            (70, 64),
+            (10, 12),
+            (120, 8),
+            (3, 125),
+            (127, 127),
+            (30, 100),
+        ] {
+            let j = py * n + px;
+            let mut unit = vec![0.0; n * n];
+            unit[j] = 1.0;
+            let g = m.gram_apply(&unit).unwrap();
+            let mut worst = 0.0_f64;
+            for qy in 0..n {
+                for qx in 0..n {
+                    let (dx, dy) = (qx as isize - px as isize, qy as isize - py as isize);
+                    let e = (g[qy * n + qx] - beam.at(dx, dy)).abs();
+                    worst = worst.max(e);
+                    let env =
+                        table.envelope[(n as isize + dy) as usize * w + (n as isize + dx) as usize];
+                    if dx != 0 || dy != 0 {
+                        assert!(e <= env + 1e-7, "({px},{py}) -> ({qx},{qy}): {e} > {env}");
+                    } else {
+                        assert!(e < 1e-7, "diagonal {e}");
+                    }
+                }
+            }
+            if (px, py) == (64, 64) {
+                assert!(worst < 1e-7, "centre column {worst}");
+            }
+            assert!(
+                worst <= table.at_pixel(j) + 1e-7,
+                "({px},{py}): {worst} > {}",
+                table.at_pixel(j)
+            );
+        }
+    }
+
+    /// The certified rule on a strong w-term: the bound holds at every pixel at
+    /// the end of every cycle, each cycle descends, and the sky stays within
+    /// five thresholds of the default's false flux.
+    #[test]
+    fn certified_rule_holds_on_a_strong_w_term() {
+        let n = 128usize;
+        let sources = [
+            (14usize, 20usize, 1.0),
+            (110, 30, 0.7),
+            (25, 105, 0.5),
+            (100, 100, 0.3),
+            (64, 20, 0.2),
+        ];
+        let (m, uvw, freq, wgt) = strong_w_field(&sources);
+        let (beam, _, table) = strong_w_bound(&m, &uvw, &freq, &wgt);
+        let settings = Settings {
+            threshold: 2e-3,
+            max_components: 40_000,
+            max_major: 400,
+            ..Settings::default()
+        };
+        let false_flux = |o: &Outcome| {
+            let mut total = 0.0;
+            for (p, &c) in o.model.iter().enumerate() {
+                let (i, j) = ((p / n) as i64, (p % n) as i64);
+                let near = sources
+                    .iter()
+                    .any(|&(a, b, _)| (i - a as i64).abs() <= 2 && (j - b as i64).abs() <= 2);
+                if !near {
+                    total += c.abs();
+                }
+            }
+            total
+        };
+        let base = run(&m, &beam, &settings, None).unwrap();
+        for kind in [
+            stale_bound::BoundKind::Envelope,
+            stale_bound::BoundKind::Radial,
+        ] {
+            let bound = stale_bound::StopBound::new(&table, kind).unwrap();
+            let out = run_with_bound(
+                &m,
+                &beam,
+                &Settings {
+                    cycle_stop: CycleStop::Certified { kappa: 0.5 },
+                    ..settings
+                },
+                None,
+                Some(&bound),
+            )
+            .unwrap();
+            assert_eq!(out.stop, StopReason::Threshold, "{kind:?}");
+            for c in &out.cycles {
+                assert_eq!(c.bound_violations, 0, "{kind:?}, cycle {}", c.index);
+                assert!(
+                    c.stale_linf <= c.bound_linf + 1e-9,
+                    "{kind:?}, cycle {}",
+                    c.index
+                );
+                assert!(c.dq_exact < 0.0, "{kind:?}, cycle {}", c.index);
+            }
+            assert!(
+                false_flux(&out) <= false_flux(&base) + 5.0 * settings.threshold,
+                "{kind:?}: {} against {}",
+                false_flux(&out),
+                false_flux(&base)
+            );
+        }
+    }
+
+    /// The counterexample to the measured rule: a batch at the phase centre
+    /// measures a stale error of about nothing, because the centre column of
+    /// the error is zero, so the next cycle has no stop and runs to the
+    /// threshold, where the off-centre sources make the error real. The certified
+    /// rule does not depend on what the last batch happened to measure.
+    #[test]
+    fn a_centre_batch_measures_nothing_about_the_next_cycle() {
+        let sources = [
+            (64usize, 64usize, 100.0),
+            (14, 20, 1.0),
+            (110, 30, 0.7),
+            (25, 105, 0.5),
+        ];
+        let (m, uvw, freq, wgt) = strong_w_field(&sources);
+        let (beam, _, table) = strong_w_bound(&m, &uvw, &freq, &wgt);
+        let settings = Settings {
+            threshold: 2e-3,
+            max_components: 40_000,
+            max_major: 400,
+            ..Settings::default()
+        };
+        let out = run(&m, &beam, &settings, None).unwrap();
+        let first = &out.cycles[0];
+        let second = &out.cycles[1];
+        let measured = first.stale_linf / first.abs_flux;
+        assert!(measured < 1e-7, "first batch measures {measured}");
+        let next = second.stale_linf / second.abs_flux;
+        assert!(next > 100.0 * measured, "{next} against {measured}");
+        assert_ne!(second.stop, MinorStop::PeakRule);
+        // The rule that uses the bound stops long before the threshold.
+        let bound = stale_bound::StopBound::new(&table, stale_bound::BoundKind::Envelope).unwrap();
+        let certified = run_with_bound(
+            &m,
+            &beam,
+            &Settings {
+                cycle_stop: CycleStop::Certified { kappa: 0.5 },
+                ..settings
+            },
+            None,
+            Some(&bound),
+        )
+        .unwrap();
+        for c in &certified.cycles {
+            assert_eq!(c.bound_violations, 0, "cycle {}", c.index);
+        }
+        assert!(
+            certified.cycles[1].stop == MinorStop::PeakRule
+                || certified.cycles[0].stop == MinorStop::PeakRule
+        );
     }
 
     /// The regression test of the long minor cycle (found on the benchmark's
