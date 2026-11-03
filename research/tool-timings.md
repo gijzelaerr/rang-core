@@ -1424,3 +1424,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | `gmclean_bench_compare.py score` | six jobs, last-pass comparison | a few minutes in all | – | flock; not separately timed |
 | 2026-11-02 | `cargo test --release`, fat LTO gmclean build | core; one bin | 117-155 s; 130-150 s | – | flock; lock queueing excluded |
 | 2026-11-02 | `tools/check-all.sh`, then `pytest` alone, `gmclean-opt2` | core, extension, ruff; 705 passed, 45 skipped | 99, 97 s | fail: `ruff format` on one example not touched here | flock; the first pytest lacked dependencies |
+| 2026-11-03 | `gram_solver_bench`, S1 probes (non-converging recipes) | FISTA, continuation, active-set CG, ADMM | 5-15 min each | 3.2 GB | stopped by hand; load 4-12 |
+| 2026-11-03 | `gram_solver_bench` S1, PSF inner + exact outer, 6,000 iterations | signed ℓ1; non-negative 5,167 | 1,527 s; 1,196 s | 2.75 GB | 17.6 T, 14.3 T instructions; flock; load 4-13 |
+| 2026-11-03 | `gram_solver_bench` S2, S3, same | signed; S2 non-negative | 1,269, 1,263, 1,098 s | 2.75 GB | 17.6, 17.6, 13.8 T; flock; load 4-25 |
+| 2026-11-03 | `gram_solver_bench` S1 matched, 300 iterations | Gram, exact | 290, 945 s | 3.2, 2.7 GB | 7.13, 39.5 T; flock; load 5-11 |
+| 2026-11-03 | `gram_solver_bench` S1 whole solves | Gram only, 3,200 iterations; PSF + Gram outer, 6,000 | 2,160, 1,248 s | 3.2, 3.5 GB | 64.6, 16.2 T; flock; load 4-7 |
+| 2026-11-03 | `gram_solver_bench` counts and spectrum | S1 and two subsets; Lanczos 30-80 | 3 + 7 min | 3.2 GB | flock; load 0.1-10 |
+| 2026-11-03 | `gram_solver_bench` accuracy sweep | 4 settings + control, 600 iterations | 137-143 s each | 3.5 GB | flock; load 2-7 |
+| 2026-11-03 | `gemclean_bench_compare.py score` | about 30 models | 4 s each | – | flock |
+| 2026-11-03 | gemclean S1-S3, this branch | `-j 8`, MS on `/mnt/d` | 75-80 s each | 3.2 GB | 1.03-1.18 T; lock held |
+| 2026-11-03 | `cargo test --release --lib` core | 174 tests, this branch | 94 s | – | flock |
+| 2026-11-03 | heavy-lock queue for this work | other sessions' WSClean and checks | about 3 h of 10 h | – | stage-level lock after 10:00 |

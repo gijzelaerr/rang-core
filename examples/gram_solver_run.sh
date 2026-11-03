@@ -15,9 +15,17 @@ MODE="$3"
 shift 3
 RUN="$ROOT/runs/$DATASET"
 mkdir -p "$RUN/timing" "$RUN/load"
+# Done already: nothing to do. GRAM_HELD=1: the caller holds the heavy lock for a
+# whole stage, so that a stage is not interleaved job by job with other sessions.
+if [ -s "$RUN/timing/$NAME.perf" ]; then
+    echo "$NAME: done"
+    exit 0
+fi
+LOCK="flock /home/gijsm/.rang-heavy.lock"
+[ "${GRAM_HELD:-0}" = 1 ] && LOCK=""
 {
     cat /proc/loadavg
-    flock /home/gijsm/.rang-heavy.lock bash -c '
+    $LOCK bash -c '
         run="$0"; name="$1"; shift
         cat /proc/loadavg > "$run/load/$name.start"
         RAYON_NUM_THREADS="${GRAM_THREADS:-8}" perf stat -x, -e instructions,cycles \
