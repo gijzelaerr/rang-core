@@ -405,6 +405,39 @@ CPU-heavy tasks at a time on 8 physical cores.
    items" and carry on.
 4. Keep `tool-timings.md`, `upstream-notes.md` and memory current.
 
+## Todo at close (2026-11-03)
+
+Written when the coordinator session closed, at main `8b1d91a` with CI green. Nothing from that session is running.
+The CLEAN programme continues in its own session.
+
+**Owner decisions**
+
+- [ ] Test the flagger's non-TV arms (Z, R, F-RES)? Needs a new frozen protocol. Waits on Landman's reply to the message of
+  2026-11-02, which asks whether the network is pretrained or per observation, and whether learning from residuals or labels would suit.
+- [ ] Check that the name GeMClean clashes with nothing before publishing.
+
+**Next work, not started**
+
+- [ ] Final timing pass on an idle host (about 3.3 h, or 1.5 h on one dataset). The CLEAN session asks for a window;
+  every speed figure stays provisional until then.
+- [ ] DF5 with an RML arm (TV, sparsity) against the DF5-O oracles at matched cost.
+- [ ] B1 reopened with an external catalogue (SUMSS, RACS) for the ESO137 model.
+- [ ] Add ducc0 to the check-all environment, or accept that the comparison in `tests/test_core_wgridder.py` runs only by hand.
+
+**Waiting on others**
+
+- [ ] Replies on the filed upstream issues and PRs (`u4-upstream.md`); L3 native data; Tricolour 0.5.0 and QuartiCal 0.2.8 (RV2, RV3).
+
+**Housekeeping**
+
+- [ ] The Windows mirror `C:/Users/gijsm/Github/rang` holds 53 uncommitted changed files, written about 22:22 on 2026-11-02 by
+  no coordinator step, on a local `main` far behind origin. A sample diff is `ruff format` across the repo, archived scripts and code samples in notes included, and it mangles at least one sample.
+  Inspect, then discard or keep. Do not commit them there.
+- [ ] Move older `outputs/` to `D:/rang/outputs` and compact the WSL disk once nothing runs (approved). C: is at 93 %.
+- [ ] Remove `~/Build/tmp/20261030-rang-x2`, and the near-empty leftover folders in `C:/Users/gijsm/Worktrees/rang`
+  (`x2-wgpu`, `clean-major-cycles`, `clean-implicit-objective`, `gmclean`), which are no longer worktrees.
+- [ ] The CLEAN session removes its own worktrees when it finishes.
+
 ## Next, decided by the user 2026-11-02
 
 v0.1.0 released 2026-11-02 (tag on `09bb03f`, on PyPI). Then, in order:
@@ -470,7 +503,7 @@ CLEAN programme: gemclean, its benchmark and the flagged Gram operator merged 20
 the idle-host timing pass, the benchmark rerun at the current commit, and the GeMClean rename. Not yet
 exercised in check-all: the ducc0 comparison in `tests/test_core_wgridder.py`.
 
-Owner decision open: plane groups of 4 as the library default (`gmclean-opt2`), or scoped to gemclean. Measured on
+Decided by the owner 2026-11-03: plane groups of 4 only in the gemclean binary, the library stays at one plane (merge `ecdea61`). Before that: Measured on
 gemclean's S1 only; DF2a's array-case negative was for the older form and is not repeated.
 
 GeMClean rename and paper merged 2026-11-03. Final timing pass postponed; the session running it asks for a window.

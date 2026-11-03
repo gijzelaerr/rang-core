@@ -12,6 +12,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Running:** nothing from the big plan; the CLEAN programme continues in its own session.
 - **Next:** DF5 with an RML arm, then B1 with an external catalogue. The flagger's non-TV arms wait for an owner decision.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
+- **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
 
 ## Log (newest first)
