@@ -1439,3 +1439,15 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-03 | `lake build`, new worktree (Windows, junction to the packages) | 8718 jobs | 205 s first, 494 s with the axiom check | – | 96 audited |
 | 2026-11-03 | gemclean `w6`, default and sampled rule | 64 uniform samples, 91 calls | 46 s, 529 s (table 319 s) | 3.1, 4.2 GB | flock |
 | 2026-11-03 | `gemclean_bench_simulate.py` `w6` | 14.5 M vis | 106 s | – | flock |
+| 2026-11-03 | `gram_solver_bench`, S1 probes (non-converging recipes) | FISTA, continuation, active-set CG, ADMM | 5-15 min each | 3.2 GB | stopped by hand; load 4-12 |
+| 2026-11-03 | `gram_solver_bench` S1, PSF inner + exact outer, 6,000 iterations | signed ℓ1; non-negative 5,167 | 1,527 s; 1,196 s | 2.75 GB | 17.6 T, 14.3 T instructions; flock; load 4-13 |
+| 2026-11-03 | `gram_solver_bench` S2, S3, same | signed; S2 non-negative | 1,269, 1,263, 1,098 s | 2.75 GB | 17.6, 17.6, 13.8 T; flock; load 4-25 |
+| 2026-11-03 | `gram_solver_bench` S1 matched, 300 iterations | Gram, exact | 290, 945 s | 3.2, 2.7 GB | 7.13, 39.5 T; flock; load 5-11 |
+| 2026-11-03 | `gram_solver_bench` S1 whole solves | Gram only, 3,200 iterations; PSF + Gram outer, 6,000 | 2,160, 1,248 s | 3.2, 3.5 GB | 64.6, 16.2 T; flock; load 4-7 |
+| 2026-11-03 | `gram_solver_bench` counts and spectrum | S1 and two subsets; Lanczos 30-80 | 3 + 7 min | 3.2 GB | flock; load 0.1-10 |
+| 2026-11-03 | `gram_solver_bench` accuracy sweep | 4 settings + control, 600 iterations | 137-143 s each | 3.5 GB | flock; load 2-7 |
+| 2026-11-03 | `gemclean_bench_compare.py score` | about 30 models | 4 s each | – | flock |
+| 2026-11-03 | gemclean S1-S3, this branch | `-j 8`, MS on `/mnt/d` | 75-80 s each | 3.2 GB | 1.03-1.18 T; lock held |
+| 2026-11-03 | `cargo test --release --lib` core | 174 tests, this branch | 94 s | – | flock |
+| 2026-11-03 | heavy-lock queue for this work | other sessions' WSClean and checks | about 3 h of 10 h | – | stage-level lock after 10:00 |
+| 2026-11-03 | `gram_solver_bench` SARA-style, S2 | 700, 1,200 iterations, 2 dual a step | 1,179, 1,695 s | 3.1 GB | 32.9, 47.2 T; not converged; flock; load 4-8 |

@@ -19,6 +19,10 @@ path = "src/bin/gemclean.rs"
 name = "gridder_gram_bench"
 path = "src/bin/gridder_gram_bench.rs"
 
+[[bin]]
+name = "gram_solver_bench"
+path = "src/bin/gram_solver_bench.rs"
+
 [dependencies]
 rang-toy = { path = ".." }
 rayon = "1.12.0"
