@@ -13,16 +13,17 @@ Labels: **Lean** is machine-checked; **paper** is an argument here, not checked;
 
 ## 1. Summary
 
-**A useful rule is proved, and it is not better than the default on cycles.** The new finding is that
-the default has a real failure the theorem explains.
+**A rule's consequences are proved, for any valid bound on the beam error. The bound itself rests on paper plus a
+measured gridder term, and it held at every pixel of every cycle. The rule is useful as a guard, not as a default: it
+is worse on cycles.** The new finding is that the default has a real failure the theorem explains.
 
 - **Proved (Lean).** With `|E(q, j)|` bounded and the rule `e ≤ κ |r̃_p|`: the true residual at the pick has the
   working sign and at least `(1 − κ)` of its size; a step lowers the true misfit by at least
   `γ (1 − κ − γ/2) r̃_p²`; no component lands on a pixel whose true residual is below `(1 − κ) T`; the net flux at a
   pixel is at most its excess over that level plus one step. Standard axioms, no `sorry`.
 - **Bound (paper).** `E` depends on three variables, so its supremum takes about 100 PSF-sized gridder calls.
-  Per entry it is 3-7 times the exact column maximum, against 67-185 times for the analytic bound.
-  Largest entry on S1: 7.8e-3, where the analytic bound gives 1.2. Over a whole batch it is still 9-110 times
+  Per entry on S1 it is 3-7 times the exact column maximum, where the analytic bound is 550-1,500 times (67-185 on the
+  512² fields of the earlier note). Largest entry: 7.8e-3, against 1.2. Over a whole batch it is still 9-110 times
   the measured error, because a triangle inequality cannot see cancellation between components.
 - **Cycles (measured).** S1, S2, S3: default 5, 5, 4; proved rule at `κ = 0.9` 15, 17, 10; at `κ = 0.5` 24, 26, 15.
   Plus a table of 143-241 s against a 15 s run. **The rule costs about three times the cycles and is about eleven times
@@ -224,6 +225,8 @@ Bound over the measured `‖E Δm‖_∞` at the end of each cycle of the defaul
 
 Exact columns for the 12 brightest pixels help only while few pixels hold the flux. The envelope is the
 useful form. In runs of the rule itself, the bound over the measured error is 9.7-110 (Chebyshev) and 4.8-48 (uniform).
+
+**Provenance.** The tables of this subsection come from the final code. The S1-S3 rule runs of §6.3 used a binary built before the margin `ζ` was corrected from `4 r_max²` to `5 r_max²` (relative change about 1e-4 in the range of `η`): MARGIN_CHECK
 
 **The bound held every time.** `bound_violations` compares `|r_exact − r̃|` with the bound at every pixel at the end of every
 cycle: zero across all certified runs on S1, S2, S3 and the counterexample, once `2ε_grid` was added; before that, one pixel, the diagonal under 100 Jy,

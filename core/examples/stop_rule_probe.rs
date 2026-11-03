@@ -154,7 +154,8 @@ fn pixel_flux_check(
 }
 
 /// `counter PREP CATALOGUE CENTRE_JY SAMPLES KAPPA OUT.json`: the data plus a
-/// source of `CENTRE_JY` at the phase centre, imaged by both rules.
+/// source of `CENTRE_JY` at the phase centre, imaged by the default, by the peak
+/// fraction 0.95 and, for `KAPPA > 0`, by the certified rule.
 fn counter(args: &[String]) -> Result<(), String> {
     let prep = Path::new(&args[2]);
     let mut sources = catalogue_offsets(Path::new(&args[3]))?;
@@ -241,6 +242,26 @@ fn counter(args: &[String]) -> Result<(), String> {
     let default_run = gemclean::run(&measurement, &beam, &settings, None)?;
     let default_json = report("default", &default_run);
     drop(default_run);
+    // WSClean's rule on the same data, which reads no measurement.
+    let peak_run = gemclean::run(
+        &measurement,
+        &beam,
+        &Settings {
+            cycle_stop: CycleStop::PeakFraction(0.95),
+            ..settings
+        },
+        None,
+    )?;
+    let peak_json = report("peak fraction 0.95", &peak_run);
+    drop(peak_run);
+    if kappa <= 0.0 {
+        let out = obj(&[
+            ("centre_jy", num(centre)),
+            ("default", default_json),
+            ("peak_fraction_095", peak_json),
+        ]);
+        return std::fs::write(&args[7], out).map_err(|e| e.to_string());
+    }
     let opts_plain = Options {
         pixsize_x: scale,
         pixsize_y: scale,
@@ -280,6 +301,7 @@ fn counter(args: &[String]) -> Result<(), String> {
         ("centre_jy", num(centre)),
         ("kappa", num(kappa)),
         ("default", default_json),
+        ("peak_fraction_095", peak_json),
         ("certified", certified_json),
         ("pixel_flux", pixel_json),
     ]);

@@ -143,10 +143,12 @@ def main(argv):
                 "inner_rms": job.get("residual_inner_rms"),
                 "flux_total": job.get("model_flux_total"),
             }
-    for path in sorted(probe.glob("s*-u*.json")):
-        result["probe"][path.stem] = read(path)
-    for path in sorted(probe.glob("counter-*.json")):
-        result["counter"][path.stem] = read(path)
+    for pattern in ("s*-u*.json", "w*-u*.json"):
+        for path in sorted(probe.glob(pattern)):
+            result["probe"][path.stem] = read(path)
+    for pattern in ("counter-*.json", "guard-*.json"):
+        for path in sorted(probe.glob(pattern)):
+            result["counter"][path.stem] = read(path)
     out.write_text(json.dumps(result, indent=1, sort_keys=True) + "\n")
 
 
