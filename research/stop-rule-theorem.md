@@ -354,7 +354,7 @@ weight sum that differs in the ninth digit. Probe figures on S1 come from the pr
 
 ## 9. Next steps
 
-1. **Owner decision: the default's failure on a centre source (§5).** The peak fraction `-mgain` does not read `δ`. Possible guards, **proposed, none tested**: floor `δ` at a
+1. **Decided 2026-11-03: a floor of 0.01 is now the default ([stale-floor.md](stale-floor.md)).** As proposed here: the default's failure on a centre source (§5). The peak fraction `-mgain` does not read `δ`. Possible guards, **proposed, none tested**: floor `δ` at a
    fraction of one exact off-centre column (one gridder call); or end a cycle at the larger of the measured level and the bound over a measured looseness. Neither is a theorem.
 2. **Cancellation is what is missing.** `E` is known by offset and `η`, so a signed sum over components at the pick is computable from the `Φ` images. It would need a rigorous
    remainder between `η` samples, which at affordable sampling (§3) exceeds `E` itself. So it would be an approximation, not a certificate. Not attempted.

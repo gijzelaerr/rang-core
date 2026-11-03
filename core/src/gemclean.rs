@@ -895,7 +895,7 @@ impl Default for Settings {
             cycle_stop: CycleStop::MeasuredStale {
                 rho: 1.0,
                 g: 0.95,
-                floor: 0.0,
+                floor: 0.01,
             },
             major_fraction: 0.8,
             threshold: 0.0,

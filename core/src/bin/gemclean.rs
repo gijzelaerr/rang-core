@@ -49,7 +49,7 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             per unit of flux cleaned (default 1; the first cycle uses -mgain as g);
                             wins over -mgain as a rule, whatever the order
   -stale-floor <f>          also end a later cycle at f of its first peak, under the measured rule
-                            (default 0: no floor; research/stale-floor.md)
+                            (default 0.01; 0: no floor; research/stale-floor.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
@@ -167,7 +167,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         cycle_stop: CycleStop::MeasuredStale {
             rho: 1.0,
             g: 0.95,
-            floor: 0.0,
+            floor: 0.01,
         },
         stop_samples: 0,
         stop_bound: BoundKind::Envelope,
@@ -201,7 +201,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     let (mut mgain_given, mut misfit_given, mut to_threshold) = (false, false, false);
     let (mut certified, mut kappa) = (false, 0.5);
     let mut stale_rho: Option<f64> = None;
-    let mut floor = 0.0;
+    let mut floor = 0.01;
     let value = |i: &mut usize| -> Result<String, String> {
         *i += 1;
         raw.get(*i)
@@ -861,15 +861,15 @@ mod tests {
                 CycleStop::MeasuredStale {
                     rho: 1.0,
                     g: 0.95,
-                    floor: 0.0,
+                    floor: 0.01,
                 },
             ),
             (
-                "-size 64 64 -scale 2asec -stale-floor 0.01 x.ms",
+                "-size 64 64 -scale 2asec -stale-floor 0 x.ms",
                 CycleStop::MeasuredStale {
                     rho: 1.0,
                     g: 0.95,
-                    floor: 0.01,
+                    floor: 0.0,
                 },
             ),
             (
@@ -889,7 +889,7 @@ mod tests {
                 CycleStop::MeasuredStale {
                     rho: 2.0,
                     g: 0.8,
-                    floor: 0.0,
+                    floor: 0.01,
                 },
             ),
             (
@@ -897,7 +897,7 @@ mod tests {
                 CycleStop::MeasuredStale {
                     rho: 2.0,
                     g: 0.8,
-                    floor: 0.0,
+                    floor: 0.01,
                 },
             ),
             (

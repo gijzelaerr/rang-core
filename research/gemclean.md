@@ -64,7 +64,7 @@ the bound with the exact value at the one pixel about to be cleaned.
    of 1.1 % of its predicted decrease, far inside the forcing rule's 50 % allowance
    (agreeing with [clean-major-cycles.md](clean-major-cycles.md) on
    `origin/clean-major-cycles`).
-5. **When a cycle hands back** (`CycleStop`). Default `MeasuredStale { rho: 1,
+5. **When a cycle hands back** (`CycleStop`). Default, with a floor since 2026-11-03 ([stale-floor.md](stale-floor.md)), `MeasuredStale { rho: 1,
    g: 0.95 }`: the first cycle ends at `(1 − g)` of its first peak; later cycles
    end once `|r_p| ≤ ρ δ Σ|c|`, with `δ = ‖r_exact − r̃‖_∞ / Σ|c|` from the previous
    major cycle. `-mgain g` selects `PeakFraction(g)`, which is WSClean's `-mgain`
@@ -527,11 +527,12 @@ measured only on these jobs and df2 measured its older form as a negative on the
 case. `gridder_gram` and the wheels are therefore unchanged from before this pass in this
 respect, and the library-wide figures in this section do not apply to them.
 
-Known failure, 2026-11-03, not fixed: with a source of about 20 Jy or more at the phase centre of S1, the default
-stop rule runs to the component budget, because a first cycle that cleans only that source measures an error near
+Known failure of the rule without a floor, 2026-11-03, now guarded by `-stale-floor`, default 0.01
+([stale-floor.md](stale-floor.md)): with a source of about 20 Jy or more at the phase centre of S1, the rule runs to the
+component budget, because a first cycle that cleans only that source measures an error near
 zero ([stop-rule-theorem.md](stop-rule-theorem.md) §5, reproduced through the command). `-mgain 0.8` and
-`-stop-rule certified` do not fail on those data. The accuracy results of this note and of the benchmark hold for
-the skies they name and do not cover this case.
+`-stop-rule certified` do not fail on those data. The floor changes no image on S1-S3, H1-H4 or the pilot, so the accuracy
+results of this note and of the benchmark stand, for the skies they name. It is tested on simulated sources only.
 
 Held-out result, 2026-11-03: the default took 6, 6, 8 and 5 major cycles on new simulated skies against a bar of 5
 written first, so "4-5" does not generalise; false flux held. See [gemclean-heldout.md](gemclean-heldout.md).

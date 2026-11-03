@@ -26,9 +26,9 @@ below GeMClean's default at 11-21 times the instructions; the S2 disc and the fa
 ℓ1 fails; the SARA-style prior did not converge. Nothing was run against BASPLib, PURIFY, resolve or pfb-imaging. Merged with a
 corrected GeMClean baseline: the first version scored a run with `-mgain 0.8`. All wall times provisional.
 
-Stale floor, 2026-11-03 (measured; branch `stale-floor`; [note](stale-floor.md)): `-stale-floor 0.01` leaves all images identical on S1-S3,
-H1-H4 and the pilot and ends the bright-source failure on eight cases, four of them not used to choose it. One measure of the bar written first
-missed: H3 plus 100 Jy has 1.12 × the model pixels against a limit of 1.1. **Open owner decision:** the default is unchanged until then.
+Stale floor, 2026-11-03 (measured; merged; [note](stale-floor.md)): **`-stale-floor 0.01` is now the default.** It leaves all images identical on
+S1-S3, H1-H4 and the pilot and ends the bright-source failure on eight cases, four of them not used to choose it. One measure of the bar written first
+missed, H3 plus 100 Jy at 1.12 × the model pixels against a limit of 1.1; the owner adopted it knowing that. Simulated sources only; no proof.
 GeMClean held-out test, 2026-11-03 (measured; merged;
 [gemclean-heldout.md](gemclean-heldout.md)). **The claim "4-5 major cycles at WSClean-level
 false flux" did not survive as stated on new simulated skies:** 6, 6, 8, 5 major cycles

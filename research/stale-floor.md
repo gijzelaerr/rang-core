@@ -1,7 +1,7 @@
 # Rang: a floor on GeMClean's measured stop rule
 
-Status, 2026-11-03: **measured; one measure of the bar missed; the default is unchanged.** Branch `stale-floor`, flag
-default off. The bar below was committed before any run with the floor (`9c95d19`). Archive:
+Status, 2026-11-03: **measured; one measure of the bar missed; `f = 0.01` is the default, by the owner's decision against
+that miss.** `-stale-floor 0` gives the old rule. The bar below was committed before any run with the floor (`9c95d19`). Archive:
 [results/stale-floor.json](results/stale-floor.json). Raw products: `D:\rang\outputs\20261103-stale-floor`.
 Owner's decision: test this on a branch, after the held-out test.
 
@@ -11,12 +11,13 @@ Owner's decision: test this on a branch, after the held-out test.
   after the bar: also on the pilot's three runs (set A at 3 and 1 mJy, set B at 3 mJy).
 - **Bar 2 passed.** All four cases stop at the threshold, and every measure is inside its limit.
 - **Bar 3 missed on one measure.** H3 plus 100 Jy has 6,263 model pixels, 1.12 × the 5,592 of H3 alone, against a limit
-  of 1.1. By the bar's own wording the default therefore stays until the owner decides. Its other measures pass: off-source
-  Σ|flux| 1.0006 ×, 8 cycles as on H3. The default on that case gives 344,761 pixels.
+  of 1.1. The bar's own wording says the default stays on a miss, so adopting it overrides the bar: the owner chose that,
+  2026-11-03, with the miss in front of them. Its other measures pass: off-source Σ|flux| 1.0006 ×, 8 cycles as on H3. The
+  old rule on that case gives 344,761 pixels.
 - **The failure is wider than an exact centre source.** S2 plus 30 Jy only 20 pixels off centre does not reach the budget
   under the default, but takes 9 cycles, 268,263 components and 45,249 model pixels, against 5, 90,905 and 4,249 for S2 alone.
 
-| case | default: cycles, components, stop, model pixels, off-source Σ\|flux\| Jy | `f = 0.01`: same | pixels × own sky | Σ\|flux\| × own sky |
+| case | `f = 0`, the old rule: cycles, components, stop, model pixels, off-source Σ\|flux\| Jy | `f = 0.01`: same | pixels × own sky | Σ\|flux\| × own sky |
 | --- | --- | --- | ---: | ---: |
 | S1 + 10 Jy | 6, 99,900, threshold, 7,368, 14.36 | 6, 86,298, threshold, 2,830, 13.96 | 1.021 | 1.0005 |
 | S1 + 30 Jy | 2, 1,000,000, budget, 202,092, 63.58 | 6, 86,805, threshold, 2,896, 13.97 | 1.045 | 1.0010 |
@@ -27,7 +28,7 @@ Owner's decision: test this on a branch, after the held-out test.
 | S2 + 30 Jy off 20 px, not chosen on | 9, 268,263, threshold, 45,249, 20.52 | 6, 94,678, threshold, 4,558, 16.02 | 1.073 | 1.0024 |
 | H3 + 100 Jy, not chosen on | 2, 1,000,000, budget, 344,761, 225.71 | 8, 166,396, threshold, 6,263, 27.63 | **1.120** | 1.0006 |
 
-The S1 + 10, 30 and 100 Jy default rows are the `7982b73` runs of [stop-rule-theorem.md](stop-rule-theorem.md) §5. In
+The S1 + 10, 30 and 100 Jy old-rule rows are the `7982b73` runs of [stop-rule-theorem.md](stop-rule-theorem.md) §5. In
 every `f = 0.01` row the inner residual peak is within 0.18 % of 100 µJy and the source pixel within 0.0051 %. Cost: one
 or two more cycles than the sky alone, none on H3. These are the model's own figures, not the truth-based false flux.
 
