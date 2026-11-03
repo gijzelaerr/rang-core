@@ -9,7 +9,11 @@ import numpy as np
 from casacure import tables
 
 path, jy = sys.argv[1], float(sys.argv[2])
-offset = float(sys.argv[3]) * float(sys.argv[4]) * np.pi / (180 * 3600) if len(sys.argv) > 3 else 0.0
+offset = (
+    float(sys.argv[3]) * float(sys.argv[4]) * np.pi / (180 * 3600)
+    if len(sys.argv) > 3
+    else 0.0
+)
 freq = tables.table(path + "/SPECTRAL_WINDOW", ack=False).getcol("CHAN_FREQ")[0]
 t = tables.table(path, readonly=False, ack=False)
 step = 200000

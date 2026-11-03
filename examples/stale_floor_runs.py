@@ -12,27 +12,70 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 BIN = os.environ.get("B", str(HERE.parent / "core/target/release/gemclean"))
 PY = os.environ.get("PY", "/home/gijsm/Github/rang/.venv/bin/python")
-BENCH = Path(os.environ.get("BENCH", "/mnt/d/rang/outputs/20261102-gemclean/bench/data"))
-HELD = Path(os.environ.get("HELD", "/mnt/d/rang/outputs/20261103-gemclean-heldout/sim/data"))
+BENCH = Path(
+    os.environ.get("BENCH", "/mnt/d/rang/outputs/20261102-gemclean/bench/data")
+)
+HELD = Path(
+    os.environ.get("HELD", "/mnt/d/rang/outputs/20261103-gemclean-heldout/sim/data")
+)
 W = Path(os.environ.get("W", "/home/gijsm/Build/tmp/20261103-stale-floor"))
 O = Path(os.environ.get("O", "/mnt/d/rang/outputs/20261103-stale-floor"))
 LOCK = os.environ.get("LOCK", "/home/gijsm/.rang-heavy.lock")
 SCALE = 1.5
 
 
-def locked(*argv):
-    return subprocess.run(["flock", LOCK, *map(str, argv)], check=False).returncode
-
-
 def one(name, size, ms, added, floor):
     """A run and its row; the lock is held for the run and released for the score."""
-    argv = [BIN, "-name", O / name, "-size", size, size, "-scale", f"{SCALE}asec", "-weight", "briggs", "0.5"]
-    argv += ["-niter", "1000000", "-gain", "0.1", "-nmiter", "1000", "-abs-threshold", "100e-6"]
-    argv += ["-data-column", "DATA", "-field", "0", "-j", "8", "-stale-floor", floor, ms]
+    argv = [
+        BIN,
+        "-name",
+        O / name,
+        "-size",
+        size,
+        size,
+        "-scale",
+        f"{SCALE}asec",
+        "-weight",
+        "briggs",
+        "0.5",
+    ]
+    argv += [
+        "-niter",
+        "1000000",
+        "-gain",
+        "0.1",
+        "-nmiter",
+        "1000",
+        "-abs-threshold",
+        "100e-6",
+    ]
+    argv += [
+        "-data-column",
+        "DATA",
+        "-field",
+        "0",
+        "-j",
+        "8",
+        "-stale-floor",
+        floor,
+        ms,
+    ]
     with open(O / f"{name}.log", "w") as log:
-        code = subprocess.run(["flock", LOCK, *map(str, argv)], stdout=log, stderr=log, check=False).returncode
+        code = subprocess.run(
+            ["flock", LOCK, *map(str, argv)], stdout=log, stderr=log, check=False
+        ).returncode
     print(name, "exit", code, flush=True)
-    subprocess.run([PY, "-I", str(HERE / "stale_floor_score.py"), str(O / name), str(added), str(O / "rows.jsonl")], check=False)
+    subprocess.run(
+        [
+            PY,
+            "-I",
+            str(HERE / "stale_floor_score.py"),
+            str(O / name),
+            str(added),
+            str(O / "rows.jsonl"),
+        ],
+        check=False,
+    )
 
 
 def sky(name, size, source, jy, offset, floors):
@@ -40,7 +83,18 @@ def sky(name, size, source, jy, offset, floors):
     ms = W / f"{name}.ms"
     shutil.rmtree(ms, ignore_errors=True)
     shutil.copytree(source, ms)
-    add = subprocess.run([PY, "-I", str(HERE / "stale_floor_add.py"), str(ms), str(jy), str(offset), str(SCALE)], check=False)
+    add = subprocess.run(
+        [
+            PY,
+            "-I",
+            str(HERE / "stale_floor_add.py"),
+            str(ms),
+            str(jy),
+            str(offset),
+            str(SCALE),
+        ],
+        check=False,
+    )
     if add.returncode != 0:
         raise SystemExit(f"{name}: no source added")
     for f in floors:
