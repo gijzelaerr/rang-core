@@ -33,9 +33,9 @@ Against the best alternative measured, no, not at this data size. Against CLEAN,
   **Extrapolation, not measured** (§8).
 - **Quality against CLEAN: better on the misfit and false flux on all three skies, at
   much higher cost.** Signed ℓ1 at λ = 100 µJy against WSClean 3.7 and GeMClean at the
-  same 100 µJy threshold: false flux 1.44, 1.45, 0.58 mJy against 4.87, 5.66, 1.59 mJy
-  (GeMClean); the disc 2.7 mJy further from truth; the faintest decade of S3 less well
-  recovered. Cost: 17.6 T against 1.07 T instructions, 19.6 T against 0.52 T cycles.
+  same 100 µJy threshold: false flux 1.44, 1.45, 0.58 mJy against 4.34, 4.88, 1.57 mJy
+  (GeMClean); the disc 3.1 mJy further from truth; the faintest decade of S3 less well
+  recovered. Cost: 17.6 T against 0.84 T instructions, 19.6 T against 0.45 T cycles.
 - **Non-negativity fails on these skies.** Non-negative ℓ1 on S1 reaches Q/Q_truth 1.45,
   83,190 false pixels holding 4.3 Jy and a 19.7 mJy residual peak, a converged and
   certified solution (gap 2.5e-5). Off-pixel point sources need negative pixels; CLEAN
@@ -221,7 +221,10 @@ at one exact pass per cycle: the no-w PSF's error is 2.15 mJy sup, 4,400 times t
 ## 6. Against truth (measured; scorer as the benchmark)
 
 `gemclean_bench_compare.py score` at ε 1e-9. WSClean 3.7 `nominres`, from the benchmark's FITS.
-GeMClean at this commit, same command, `-j 8`. Solver: signed ℓ1, λ = 100 µJy, PSF inner, exact
+GeMClean with the benchmark's command at this commit, `-j 8`, default stop rule; its images are identical in
+data to the benchmark's `58e07e1` on all three skies, so these are those scores. Correction, 2026-11-03: the
+first version of this note scored a run with `-mgain 0.8` added, not the benchmark's command, and gave 4.87,
+5.66 and 1.59 mJy and 1.07 T instructions. The conclusions did not change; the figures here did. Solver: signed ℓ1, λ = 100 µJy, PSF inner, exact
 outer, 15 cycles × 400. Gaps left open: 1.36e-4 (S1), 1.58e-4 (S2), 1.46e-5 (S3).
 
 ### 6.1 Signed ℓ1
@@ -230,15 +233,15 @@ outer, 15 cycles × 400. Gaps left open: 1.36e-4 (S1), 1.58e-4 (S2), 1.46e-5 (S3
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | S1 WSClean fast | 1.01410 | 3.48 (171) | 2,781 | 25.67 | 230.9 | +0.4 | 1.001 ± .006, .999 ± .004 |
 | S1 WSClean Högbom | 1.01361 | 5.41 (243) | 2,826 | 25.55 | 112.5 | +0.6 | 1.001 ± .006, .999 ± .004 |
-| S1 GeMClean | 1.01343 | 4.87 (209) | 2,807 | 25.51 | 100.0 | +0.7 | 1.001 ± .006, .999 ± .004 |
+| S1 GeMClean | 1.01358 | 4.34 (165) | 2,772 | 25.56 | 100.0 | +0.7 | 1.001 ± .006, .999 ± .004 |
 | **S1 solver** | **1.01085** | **1.44 (118)** | 1,329 | 25.20 | 108.6 | +0.4 | 1.003 ± .005, .999 ± .002 |
 | S2 WSClean fast | 1.01577 | 3.17 (194) | 4,241 | 26.16 | 196.7 | −3.8 | 1.002 ± .006, .999 ± .004 |
 | S2 WSClean Högbom | 1.01536 | 6.72 (297) | 4,303 | 26.03 | 116.6 | −3.9 | 1.001 ± .006, .999 ± .004 |
-| S2 GeMClean | 1.01485 | 5.66 (233) | 4,267 | 25.96 | 100.0 | −4.0 | 1.001 ± .006, .999 ± .004 |
+| S2 GeMClean | 1.01507 | 4.88 (180) | 4,249 | 25.99 | 100.0 | −3.4 | 1.001 ± .006, .999 ± .004 |
 | **S2 solver** | **1.01082** | **1.45 (114)** | 4,155 | 25.86 | 108.8 | −6.8 | 1.003 ± .005, .999 ± .002 |
 | S3 WSClean fast | 1.01007 | 1.52 (119) | 4,804 | 26.77 | 245.0 | −13.8 | .658 ± .765, .985 ± .066, .999 ± .037 |
 | S3 WSClean Högbom | 1.00989 | 1.65 (127) | 4,805 | 26.67 | 102.4 | −13.8 | .659 ± .760, .985 ± .065, .999 ± .038 |
-| S3 GeMClean | 1.00987 | 1.59 (128) | 4,837 | 26.65 | 100.0 | −13.8 | .659 ± .759, .985 ± .065, .998 ± .040 |
+| S3 GeMClean | 1.00986 | 1.57 (126) | 4,857 | 26.64 | 100.0 | −13.2 | .661 ± .762, .985 ± .065, .999 ± .038 |
 | **S3 solver** | **1.00773** | **0.58 (98)** | 3,140 | 26.53 | 101.6 | −10.9 | .637 ± .753, .984 ± .052, 1.001 ± .016 |
 
 Decades ascending: S1, S2 10-100 mJy, 0.1-1 Jy; S3 0.1-1, 1-10, 10-100 mJy.
@@ -253,8 +256,8 @@ residual peak of 102-109 µJy where GeMClean stops at 100 (the gap is open; S3, 
 converged, is closest).
 
 **The disc (S2; truth 2 Jy, 40″).** The solver 1.9929 Jy, 39.8″ × 39.7″, 2,838 pixels. WSClean fast
-1.9957 Jy, 39.8″ × 39.8″; Högbom 1.9958; GeMClean 1.9956, 39.8″ × 39.8″. **Slightly worse**: 7.1 against
-4.4 mJy short. All centroids within 0.001 pixels. Pixel ℓ1 is a point-source prior.
+1.9957 Jy, 39.8″ × 39.8″; Högbom 1.9958; GeMClean 1.9960, 39.8″ × 39.8″. **Slightly worse**: 7.1 against
+4.0 mJy short. All centroids within 0.001 pixels. Pixel ℓ1 is a point-source prior.
 The SARA-style prior on S2 is in §6.3.
 
 ### 6.2 Non-negativity
@@ -293,7 +296,7 @@ wavelet prior is against non-negative ℓ1, not signed:
 | SARA-style, 1,200 iterations, F still falling 7 % a cycle | 5.23 | 27.8 mJy | 1.98 (563,741) | 1.9689 | 39.3″ × 39.2″ | 0.04 |
 | non-negative ℓ1, converged, gap 2.5e-5 | 1.451 | 19.6 mJy | 4,267 (82,378) | 2.0070 | 40.4″ × 40.3″ | 0.05 |
 | signed ℓ1 | 1.0108 | 108.8 µJy | 1.45 (114) | 1.9929 | 39.8″ × 39.7″ | 0.001 |
-| GeMClean | 1.0149 | 100.0 µJy | 5.66 (233) | 1.9956 | 39.8″ × 39.8″ | 0.001 |
+| GeMClean | 1.0151 | 100.0 µJy | 4.88 (180) | 1.9960 | 39.8″ × 39.8″ | 0.000 |
 
 **No quality statement about the prior follows.** At Q/Q_truth 5.2 the model is still far from the
 minimiser, and its false-pixel count (563,741 small pixels summing to 1.98 mJy in absolute flux, a
@@ -317,7 +320,7 @@ Whole jobs on S1:
 
 | job | iterations + exact passes | instr. | cycles | wall, load | loop / peak GB | exact F |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| GeMClean | | 1.07 T | 0.52 T | 75 s from `/mnt/d`, load not recorded | peak 3.2 | 7.277e-3 |
+| GeMClean | | 0.84 T | 0.45 T | 75 s from `/mnt/d`, load 3.7 | peak 3.2 | 7.277e-3 |
 | FISTA on exact gridder, same schedule, to 7.222e-3 | 3,200 + 0 | **about 420 T: extrapolated** | | **about 2.8 h** | 0.42 / 2.7 | not run |
 | **Gram only**, 8 cycles | 3,200 + 0 | **64.6 T** | **66.2 T** | 2,160 s, 7 | 1.81 / 3.2 | 7.22205e-3 |
 | PSF inner, exact outer, 15 cycles | 6,000 + 16 | 17.6 T | 19.6 T | 1,527 s, 4-13 | 0.71 / 2.75 | 7.21973e-3 |

@@ -10095,5 +10095,60 @@
     "exact_every_iteration_T": 247872.79422414288
    }
   }
+ },
+ "baseline_correction": {
+  "note": "runs.*.gem-* and scores.gem-* used -mgain 0.8, not the benchmark's command; kept as run. The default stop rule is below; its images are identical in data to the benchmark at 58e07e1, whose scores are research/results/gemclean-benchmark-58e07e1.json.",
+  "default_runs": {
+   "s1": {
+    "instructions": 844788233732,
+    "cycles": 445764632631,
+    "wall_s": 75.17,
+    "max_rss_kb": 3370692,
+    "load": 3.74,
+    "components": 85337,
+    "major_cycles": 5
+   },
+   "s2": {
+    "instructions": 850996469430,
+    "cycles": 468950095093,
+    "wall_s": 110.88,
+    "max_rss_kb": 3368692,
+    "load": 13.78,
+    "components": 90905,
+    "major_cycles": 5
+   },
+   "s3": {
+    "instructions": 700131533638,
+    "cycles": 341082946870,
+    "wall_s": 70.17,
+    "max_rss_kb": 3368868,
+    "load": 12.63,
+    "components": 45803,
+    "major_cycles": 4
+   }
+  },
+  "default_scores": {
+   "s1": {
+    "q_over_q_truth": 1.0135785104024984,
+    "false_flux_abs": 0.0043350155638108845,
+    "false_pixels": 165,
+    "model_pixels": 2772,
+    "total_flux_error": 0.0006824142907024822
+   },
+   "s2": {
+    "q_over_q_truth": 1.0150668595046901,
+    "false_flux_abs": 0.004878056330198888,
+    "false_pixels": 180,
+    "model_pixels": 4249,
+    "total_flux_error": -0.0034282514710977097
+   },
+   "s3": {
+    "q_over_q_truth": 1.0098642476677329,
+    "false_flux_abs": 0.0015748905243526679,
+    "false_pixels": 126,
+    "model_pixels": 4857,
+    "total_flux_error": -0.0132004614035246
+   }
+  }
  }
 }
