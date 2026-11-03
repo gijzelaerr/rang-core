@@ -2218,7 +2218,18 @@ macro_rules! with_supp {
 }
 
 /// Planes gridded or degridded together when the memory allows.
-const PLANE_GROUP: usize = 4;
+pub const PLANE_GROUP: usize = 4;
+
+/// Planes taken together when `RANG_WGRIDDER_PLANE_GROUP` is unset. One in the
+/// library; the `gemclean` binary asks for [`PLANE_GROUP`], the only caller on
+/// which the larger group has been measured (`research/gemclean.md`).
+static DEFAULT_PLANE_GROUP: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(1);
+
+/// Sets the plane group this process uses when `RANG_WGRIDDER_PLANE_GROUP` is
+/// unset. Results do not depend on it, only memory and speed.
+pub fn set_default_plane_group(group: usize) {
+    DEFAULT_PLANE_GROUP.store(group, std::sync::atomic::Ordering::Relaxed);
+}
 
 /// The grids of one plane group may take this much memory in all.
 const PLANE_GROUP_BYTES: usize = 1 << 31;
@@ -2226,7 +2237,7 @@ const PLANE_GROUP_BYTES: usize = 1 << 31;
 /// Planes taken together (the u and v taps evaluated once per visibility for
 /// the group, and the visibility's planes in order, so the results do not
 /// depend on the size of the group): `RANG_WGRIDDER_PLANE_GROUP` if set, else
-/// [`PLANE_GROUP`] within [`PLANE_GROUP_BYTES`], and at least one.
+/// the process default within [`PLANE_GROUP_BYTES`], and at least one.
 fn plane_group<T>(setup: &Setup, nout: usize) -> usize {
     if !setup.do_wgridding {
         return 1;
@@ -2242,7 +2253,11 @@ fn plane_group<T>(setup: &Setup, nout: usize) -> usize {
     std::env::var("RANG_WGRIDDER_PLANE_GROUP")
         .ok()
         .and_then(|v| v.parse::<usize>().ok())
-        .unwrap_or_else(|| PLANE_GROUP.min(PLANE_GROUP_BYTES / grid.max(1)))
+        .unwrap_or_else(|| {
+            DEFAULT_PLANE_GROUP
+                .load(std::sync::atomic::Ordering::Relaxed)
+                .min(PLANE_GROUP_BYTES / grid.max(1))
+        })
         .clamp(1, setup.supp)
 }
 

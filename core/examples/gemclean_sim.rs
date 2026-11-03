@@ -1134,6 +1134,7 @@ fn sim_args(args: &[String]) -> Result<SimSpec, String> {
 }
 
 fn main() {
+    rang_core::wgridder::set_default_plane_group(rang_core::wgridder::PLANE_GROUP);
     let args: Vec<String> = std::env::args().collect();
     let result = match (args.get(1).map(String::as_str), args.get(2)) {
         (Some("write"), Some(out)) => write(Path::new(out), &default_spec()),

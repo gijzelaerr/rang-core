@@ -519,3 +519,9 @@ and `results/gemclean.json`: code of `b39e241` (later commits change tests, reco
 the flag parser and a profile only). Run directories, deleted except for the MSs:
 `~/Build/tmp/20261102-gmclean-opt/` in WSL (`{point,disc,crowded}/sim.ms`,
 `archive/sim.ms`, `small/sim.ms` kept for the quiet-host pass).
+
+Owner decision, 2026-11-03: plane groups of 4 are scoped to the `gemclean` binary and
+`gemclean_sim`; the library default stays at one plane, because larger groups were
+measured only on these jobs and df2 measured its older form as a negative on the array
+case. `gridder_gram` and the wheels are therefore unchanged from before this pass in this
+respect, and the library-wide figures in this section do not apply to them.

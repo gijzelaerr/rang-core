@@ -155,7 +155,7 @@ ENVIRONMENT = (
     ),
     _v(
         "RANG_WGRIDDER_PLANE_GROUP",
-        "4, within 2 GiB of grids",
+        "1; 4 within 2 GiB of grids in gemclean",
         "speed",
         "w-planes gridded together; 1 takes the least memory",
         "gemclean",
