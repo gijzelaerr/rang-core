@@ -21,11 +21,13 @@ untouched here and no constant changed.
   misfit within 0.06 % of WSClean's plain loop, and the threshold reached exactly.
   Cycles are at most those of WSClean's fast loop on every sky, and more than its plain
   loop on two (H2 6 against 5, H3 8 against 6).
-- **Real data: it held at sensible depth.** With the same flags and threshold for all
-  three, GeMClean took 5 cycles (fast 5, plain 4) on the received flags at 3.1 σ, and 3
-  (fast 5, plain 4) with bad baselines flagged at 5 σ. Off-source model flux 1.03 and 1.02 ×
-  WSClean's. No divergence and no ascending cycle. At 1 mJy, about 1.3 σ, it took 8
-  cycles against the fast loop's 6, with 1.01 × its off-source flux.
+- **Real data: it held at 3 mJy, on settings that were not blind.** With the same flags and
+  threshold for all three, GeMClean took 5 cycles (fast 5, plain 4) on the received flags at
+  3.1 σ, and 3 (fast 5, plain 4) with bad baselines flagged at 5 σ. Off-source model flux 1.03
+  and 1.02 × WSClean's. No divergence and no ascending cycle. The threshold and the extra flags
+  were chosen after seeing WSClean's runs. At 1 mJy, about 1.3 σ, it took 8 cycles against
+  the fast loop's 6, with 1.01 × its off-source flux; that pair is unmatched, GeMClean on 256
+  channels and WSClean on the native 512.
 - **Measured limit:** GeMClean's peak memory (17-18 GB on about 150 M visibilities) forced
   channel averaging on the pilot: at the full 512 channels it passed 24.5 GB.
 
@@ -43,8 +45,15 @@ Briggs 0.5, gain 0.1, `-j 16`, `examples/gemclean_bench_compare.py score`, WSCle
 - **Survives on a sky** if GeMClean has at most 5 major cycles, at most as many as
   WSClean's fast loop, and false |flux| at most 1.6 × the lower of WSClean's two loops
   (1.53 was the worst ratio on S1-S3), with Q/Q_truth within 0.2 % of WSClean plain and
-  flux-weighted recovery no worse by more than 0.5 %.
-- **The claim survives on simulation** if it holds on every sky.
+  recovery no worse by more than 0.5 %.
+- **The claim survives on simulation** if it holds on every sky. Partial is reported
+  sky by sky. Extended flux on H4 is compared, not barred.
+- **Real data has no truth:** the same numbers in spirit (cycles, off-source flux in a
+  shared mask, misfit, residual peak), and anything unlike the simulations is reported.
+
+The wording above is the commit's, apart from layout. One reading was added afterwards:
+"recovery" is evaluated flux-weighted. The mean over sources also passes on all four skies
+(GeMClean − plain +0.0001, +0.0010, 0.0000, −0.0003), so the verdict is the same either way.
 
 ## 3. Simulations (measured)
 
@@ -101,7 +110,12 @@ relative gap, 7.3e-4, is on the widest field (H3).
 - **Source.** `ms1_target.zarr`, MAIN_0, scan 2: 850,950 rows, 61 antennas, 450 dumps of
   8 s, channels 640:1152 (989.75-1096.54 MHz, 208.98 kHz), XX, XY, YX, YY. Numeric chunks only;
   no pickle decoded; `python -I`, scripts outside the data directory. String subtable columns
-  are replaced by `ANT00`-style names. Provenance: `manifest.json` beside the data.
+  are replaced by `ANT00`-style names. Provenance: `manifest.json` beside the data, copied to
+  [results/gemclean-heldout-pilot-manifest.json](results/gemclean-heldout-pilot-manifest.json).
+- **What comes from the source:** main-table columns, antenna positions, dish diameters,
+  frequencies, channel widths, PHASE_DIR. **Made up, simulator defaults:** antenna names and
+  mounts, FEED (receptors, angles), field name, OBSERVATION text. POLARIZATION is XX, XY, YX,
+  YY, matching the store's CORR_TYPE. These subtables do not affect the Stokes I imaging here.
 - **Writer change.** Rang's writer refused tile files of 2 GiB or more. `TsmHeader` now
   writes casacore's version-2 `TSMFile` and `TSMCube` records from 2 GiB, with a unit test.
 - **Checks on `raw.ms` (20 GB).** All 850,950 rows identical to the Zarr in UVW, TIME,
@@ -117,8 +131,9 @@ relative gap, 7.3e-4, is on the widest field (H3).
 **State of DATA:** uncalibrated. **Route:** apply the publisher's own QuartiCal net gain,
 `ms1_gains.qc/GKB-net/GKB-net_0`, per 8 s, per channel, per antenna, per hand, matching the
 pilot's channels to 0 Hz and its times to 0 s. **Why:** 545 MB (within the 3 GB allowance,
-SHA-256 in `gains/manifest.json` on D:), it is the cheapest sound route, and no imager's
-model enters. So no self-calibration was run.
+SHA-256 per object in
+[results/gemclean-heldout-gains-manifest.json](results/gemclean-heldout-gains-manifest.json)),
+it is the cheapest sound route, and no imager's model enters. So no self-calibration was run.
 
 V_corrected = V / (g_p g_q*), weight × |g_p g_q|², XX and YY only:
 
@@ -163,10 +178,11 @@ for the primary runs; fast at 1 mJy had shown 430,000 components, −35 Jy of mo
 residual MAD of 0.75 mJy, so cleaning into the noise.
 
 **Averaging.** GeMClean on all 512 channels (303 M active visibilities, 4096²) passed 24.5 GB
-RSS while making its PSF and was stopped by my watchdog. So both imagers got 256 channels of
+RSS within about 50 s of its start and was stopped by my watchdog. So both imagers got 256 channels of
 0.418 MHz (152.2 M active on A; smearing β about 0.26 at 1.78°). Weighted mean, flagged only
 when both are. The scorer's dirty image equals WSClean's to 6.6e-8 of the peak, WSCNVIS equal,
 WSCIMGWG to 3e-13; `exact_vs_imager_residual` 5e-8 to 8e-8 Jy, so weights and flags agree.
+The exception is the WSClean fast job at 1 mJy, 1.25e-4 Jy, because it saw the native channels.
 
 Scored through one gridder (ε 1e-7): Q = ½ Σw|V − Am|²/Σw, Q0 12.1526 (A), 9.6555 (B) Jy².
 The source mask is the same for all: mean of the three common-beam (12.7″) images above 5 σ,
@@ -210,20 +226,24 @@ peaks at 3.95 mJy.
 - No divergence, no ascending major cycle (0 on all three runs), largest relative gap
   7.9e-4 (1 mJy). The gap and stale-error record behaves as in simulation.
 
-**Appearance.** Core with two jets feeding bent lobes in an arc about 15′ across, with thin
-filaments near and between the lobes: broadly what the publisher's documentation and
-Ramatsoku et al. 2020 describe, a radio galaxy with collimated threads linking its lobes. This
-is a visual reading against that description, not a measured match: 1 h, 107 MHz, this floor
-and 12.7″ will not separate the threads of a 14 h image. A second narrow bright tail lies
-about 25′ north. Elliptical rings about 5′ apart fill the field at a few tenths of a mJy on B
-in all three imagers. Images: `real/gem-zoom.png`, `real/gem-vs-plain.png`, `real/images3/`,
-`real/images/` under the output directory.
+**Appearance.** Against the abstract of Ramatsoku et al. 2020 (rms about 0.02 mJy/beam at about
+10″; collimated threads linking extended, bent lobes; the most prominent about 80 kpc long,
+about 4′ at the cluster's distance, and about 1 kpc wide, about 3″). Here: a core with two
+jets feeding bent lobes, 79.9 Jy above 6 mJy over 16′ on set B, with thin filaments near and
+between the lobes. The bent-lobe morphology agrees. **The threads are not established:** at
+12.7″ and a floor 30 × the paper's rms, a 3″ thread is unresolved and a filament here could
+be an artefact. Visual reading, not a measurement. A second structure lies 15.6′ north, 10′
+long, 5.1 Jy, peak 219 mJy (measured on the same image). Elliptical rings about 5′ apart fill
+the field at a few tenths of a mJy on B in all three imagers. Images: `real/gem-zoom.png`,
+`real/gem-vs-plain.png`, `real/images3/`, `real/images/` under the output directory.
 
 ## 7. What is not comparable
 
 - Restoring beams differ (GeMClean 15.4″ × 9.4″, WSClean 16.9″ × 9.6″); the comparison uses
   models, exact residuals and one common beam.
 - The threshold and set B were chosen after seeing WSClean's runs on these data: matched, not blind.
+- At 1 mJy, GeMClean had the 256-channel set and WSClean fast the native 512 channels, and
+  WSClean plain did not run. Cycles and off-source flux there are not a matched pair.
 - WSClean's `-mgain` is a peak fraction per cycle; GeMClean's first cycle is `g` 0.95 and
   later ones its stale rule. Cycles measure different hand-backs, by design.
 - A single 1 h scan at 107 MHz near the Galactic plane, one flat-spectrum term, no truth. No
