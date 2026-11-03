@@ -73,9 +73,65 @@ s3() { $R s3 c1 solve backend=psf prior=l1signed $MAJOR; }
 s2nn() { $R s2 d1 solve backend=psf prior=l1 $MAJOR; }
 
 sara() {
-    # SARA-style on S2: non-negative, 4 levels, db1-db8 and Dirac, warm dual.
-    # λ in coefficient units; see the note for the choice.
-    $R s2 sara1 solve backend=psf prior=sara lambda=${SARA_LAMBDA:-1e-4} levels=4         bases=8 dual=${SARA_DUAL:-2} cycles=7 iters=100 every=10 outer_kkt=0 gamma=0.2
+    # SARA-style on S2: non-negative, 4 levels, db1-db8 and Dirac, warm dual, 2 dual
+    # iterations a step. Each run's λ is in coefficient units of the scaled frame, so
+    # the effective threshold on a point is about 3 λ. sara1 reports a poor schedule.
+    local args="backend=psf prior=sara levels=4 bases=8 dual=2 every=10 outer_kkt=0"
+    $R s2 sara1 solve $args lambda=1e-4 cycles=7 iters=100 gamma=0.2
+    $R s2 sara2 solve $args lambda=3.3e-5 cycles=12 iters=100 gamma=0.07
+}
+
+base() {
+    # The CLEAN models as raw arrays for the exact certificate (evals).
+    local b=/mnt/d/rang/outputs/20261102-gemclean/bench
+    mkdir -p "$ROOT/base"
+    "${GRAM_PY:-python}" - "$ROOT/base" "$b" <<'PY'
+import sys
+
+import numpy as np
+from rang.core_imaging import read_fits
+
+out, bench = sys.argv[1:3]
+models = {
+    "gem": f"{bench}/gmclean-184c3bc/s1-abs-nominres-fast-j16-model.fits",
+    "wsc": f"{bench}/wsclean/s1-abs-nominres-hogbom-j16-model.fits",
+}
+for tag, path in models.items():
+    m = np.squeeze(read_fits(path)[0]).astype(np.float64)
+    np.ascontiguousarray(m.T).tofile(f"{out}/s1-{tag}.f64")
+    np.ascontiguousarray(np.maximum(m, 0).T).tofile(f"{out}/s1-{tag}-pos.f64")
+PY
+}
+
+control() {
+    # The reference of the accuracy table: exact outer cycles, same start and iterations.
+    $R s1 acc-exact solve backend=psf prior=l1signed x0="$ROOT/runs/s1/c1-x.f64" \
+        lmax=$LMAX cycles=4 gamma=0 iters=150 outer_kkt=2e-6 kkt=2e-6 lambda=$L
+}
+
+score() {
+    # Every model through the benchmark's scorer, and the remaining certificates.
+    local c="${GRAM_PY:-python} examples/gemclean_bench_compare.py score"
+    local p="$ROOT/prep" w=/mnt/d/rang/outputs/20261102-gemclean/bench/wsclean
+    local bin="${GRAM_BIN:-core/target/release/gram_solver_bench}" run="$ROOT/runs/s1"
+    mkdir -p "$ROOT/scores" "$ROOT/evals"
+    for d in s1 s2 s3; do
+        $c "$p/$d" "$p/$d.json" "$w" "$ROOT/scores/wsc-$d.json" \
+            --jobs "$d-abs-nominres-hogbom-j16" "$d-abs-nominres-fast-j16"
+        $c "$p/$d" "$p/$d.json" "$ROOT/runs/$d" "$ROOT/scores/gem-$d.json" --jobs "gem-$d"
+    done
+    $c "$p/s1" "$p/s1.json" "$run" "$ROOT/scores/sol-s1.json" --jobs c1 d1 r-gram r-psfgram \
+        acc-s8-t0.69 acc-s6-t1.18 acc-s4-t1.2 acc-s2-t1.0 acc-exact
+    $c "$p/s2" "$p/s2.json" "$ROOT/runs/s2" "$ROOT/scores/sol-s2.json" --jobs c1 d1 sara1 sara2
+    $c "$p/s3" "$p/s3.json" "$ROOT/runs/s3" "$ROOT/scores/sol-s3.json" --jobs c1
+    RAYON_NUM_THREADS=8 $bin "$p/s1" "$run" ev eval backend=exact eval_eps=1e-6 lambda=$L \
+        prior=l1signed s=8 theta=0.69 \
+        files="$run/acc-exact-x.f64,$run/r-gram-x.f64,$run/r-psfgram-x.f64" \
+        > "$ROOT/evals/s1-recipes.jsonl" 2>&1
+    for d in s2 s3; do
+        RAYON_NUM_THREADS=8 $bin "$p/$d" "$ROOT/runs/$d" ev eval backend=exact eval_eps=1e-6 \
+            lambda=$L prior=l1signed files="$ROOT/runs/$d/c1-x.f64" > "$ROOT/evals/$d-c1.jsonl" 2>&1
+    done
 }
 
 evals() {

@@ -40,6 +40,9 @@ Against the best alternative measured, no, not at this data size. Against CLEAN,
   83,190 false pixels holding 4.3 Jy and a 19.7 mJy residual peak, a converged and
   certified solution (gap 2.5e-5). Off-pixel point sources need negative pixels; CLEAN
   models carry −1.5 Jy, and clipping them raises Q about six-fold (§6.2).
+- **SARA-style prior: implemented, not converged on S2 within budget, no quality claim.** Its proximal
+  step costs more than a Gram apply (about 22 G per dual iteration), so with this prior the operator's
+  per-iteration gain over an exact pass falls from ×5.8 to about ×2.6.
 - **Prior art and novelty.** Not new in idea, and the novelty rule is **not met**: the
   quality lead does not come at comparable cost, and the speed lead is not against a
   state-of-the-art method. No comparison was run with BASPLib (uSARA, AIRI, the
@@ -165,8 +168,10 @@ Exact certificate at ε 1e-6, score at ε 1e-9.
 | 8:0.69 | 12 | 1.5 | 4.7e-7 | 3.4e-7 | 0.12 | +0.0004 | 4.89e-7 | 8.9e-6 (solver) | 1.01084 | 7.21969e-3 | 1.44 (119) | 108.8 |
 | control, exact | – | – | – | 0 | 0 | 0 | 0 | 8.5e-6 | 1.01084 | 7.21969e-3 | 1.44 (119) | 108.4 |
 
-Read across: **the image bias is about half of `η`, relative in L2, over five decades**
-(×0.45, 0.48, 0.47, 0.72). `S` 8 is indistinguishable from exact; `S` 6 saves a third of
+Read across: **where the expansion error dominates, the image bias is about half of `η`,
+relative in L2, over three decades** (×0.45, 0.48, 0.47 at `S` 2, 4, 6). `η` here is
+`sup_error`; at `S` 8 the gridded `K_k`'s own error `Λ ε` = 1.5e-6 (Λ = 1.51, ε 1e-6) exceeds it,
+and with `η` = 2.0e-6 the ratio is 0.17. `S` 8 is indistinguishable from exact; `S` 6 saves a third of
 the operator and is fine on every score except that its residual error, 200 µJy, is twice
 λ, so it cannot certify the threshold; `S` 4 is not usable without correction.
 
@@ -184,21 +189,23 @@ F(m̃) − F* ≤ δ ‖m̃ − m*‖₁ ≤ η ‖m̃‖₁ (‖m̃‖₁ + ‖
 and `gram_quadratic_bound` gives `|F − F̃| ≤ η‖m‖₁²/2`. Neither assumes `G̃` is PSD. The
 first says the operator acts like a change of threshold by `δ`. Against measurement:
 
-| `S` | `η‖m‖₁` | measured sup | margin | exact optimality = measured sup? |
-| ---: | ---: | ---: | ---: | --- |
-| 2 | 9.0e-1 | 2.85e-2 | 32 | yes, 2.84e-2 |
-| 4 | 9.8e-2 | 2.82e-3 | 35 | yes, 2.82e-3 |
-| 6 | 7.0e-3 | 2.00e-4 | 35 | yes, 2.04e-4 |
-| 8 | 6.4e-6 | 4.89e-7 | 13 | below the solver's floor, 8.9e-6 |
+| `S` | `η` = `sup_error` + Λ ε | `η‖m‖₁` | measured sup | margin | exact optimality = measured sup? |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 2 | 6.7e-2 | 9.0e-1 | 2.85e-2 | 32 | yes, 2.84e-2 |
+| 4 | 7.2e-3 | 9.8e-2 | 2.82e-3 | 35 | yes, 2.82e-3 |
+| 6 | 5.2e-4 | 7.0e-3 | 2.00e-4 | 35 | yes, 2.04e-4 |
+| 8 | 2.0e-6 | 2.7e-5 | 4.89e-7 | 55 | below the solver's floor, 8.9e-6 |
 
-The relation between operator error and exact optimality holds to 1-2 %; the Lean bound
-is true and loose by 13-35. The test `both_backends_reach_one_solution_within_the_operator_bound`
+The relation between operator error and exact optimality holds to 1-2 %. The measurements are
+consistent with the Lean bound, which is conditional on an entrywise `η`: `sup_error` is
+sampled on a dense grid and `Λ ε` assumes the gridder meets ε, so neither is proved here, and
+the margin of 32-55 is not a guarantee. The test `both_backends_reach_one_solution_within_the_operator_bound`
 checks both statements on a small case. **Not proved:** a bound on the image. That needs
 restricted strong convexity, whose constant here is small and not measured; the
 measured relation `‖Δm‖/‖m‖ ≈ η/2` is empirical. On the objective the bound exceeds `F` itself
-at `S` ≤ 6, and at `S` 8 it is 9e-5 against a measured difference below 1e-10 on the same iterations.
+at `S` ≤ 6, and at `S` 8 it is 3.7e-4 against a measured difference below 1e-10 on the same iterations.
 On `Q` as computed by the operator: `½⟨m,(G̃−G)m⟩` = −4.4e-7 at `S` 8 against the bound
-`η‖m‖₁²/2` = 4.3e-5, a margin of 100; this is the −4e-7 offset of the Gram objective in §4, so that
+`η‖m‖₁²/2` = 1.8e-4, a margin of 400; this is the −4e-7 offset of the Gram objective in §4, so that
 offset is the operator's error, not a difference between iterates.
 
 **Inexact gradients.** Accelerated methods accumulate a varying gradient error (Devolder,
@@ -261,7 +268,8 @@ The SARA-style prior on S2 is in §6.3.
 This is a result on these skies, with sources at continuous positions on a 1.5″ grid: a
 source between pixels is represented by a positive core and negative neighbours, as the
 1.3-1.5 Jy of negative flux in the signed models of S1 and S2 (0.38 Jy on S3) shows. A non-negative solution pays in
-misfit and fills the field with false flux. Not tested: finer pixels, or a model with
+misfit and fills the field with false flux; S2 repeats it (Q/Q_truth 1.451, 4.27 Jy false, +4.60 Jy
+in total, the disc 7 mJy high at 40.4″ × 40.3″; the same field fill also lifts the disc). Not tested: finer pixels, or a model with
 off-grid components. uSARA and AIRI enforce positivity and report good results on real
 extended sky with images oversampled 1.5-2.5 times beyond the resolution (Dabbech et al.
 2022); this note did not reproduce those conditions and makes no statement about them.
@@ -273,7 +281,24 @@ extended sky with images oversampled 1.5-2.5 times beyond the resolution (Dabbec
 max(λ, 0.2 × peak), 7 cycles × 100, 2 dual iterations: Q fell only from 2.759 to 2.297. The
 scaled frame sums over 9 bases, so the effective threshold on a point is about 3 λ_j; the peak
 then falls by 0.6 per cycle instead of 0.2, and 100 iterations a cycle was not enough. That is
-my schedule, not a statement about SARA. @@SARA2@@
+my schedule, not a statement about SARA.
+
+**Second run, not converged.** `lambda=3.3e-5`, chosen so that 3 λ matches the 100 µJy threshold on a
+point, λ_j = max(λ, 0.07 × peak), 12 cycles × 100, 2 dual iterations, 47.2 T instructions, 38.7 T
+cycles, 1,695 s. No tuning after this. `Sara` enforces `x ≥ 0`, so the comparison that isolates the
+wavelet prior is against non-negative ℓ1, not signed:
+
+| S2 | Q/Q_truth | inner peak | false flux, mJy (px) | disc, Jy | disc FWHM | centroid, px |
+| --- | ---: | ---: | ---: | ---: | --- | ---: |
+| SARA-style, 1,200 iterations, F still falling 7 % a cycle | 5.23 | 27.8 mJy | 1.98 (563,741) | 1.9689 | 39.3″ × 39.2″ | 0.04 |
+| non-negative ℓ1, converged, gap 2.5e-5 | 1.451 | 19.6 mJy | 4,267 (82,378) | 2.0070 | 40.4″ × 40.3″ | 0.05 |
+| signed ℓ1 | 1.0108 | 108.8 µJy | 1.45 (114) | 1.9929 | 39.8″ × 39.7″ | 0.001 |
+| GeMClean | 1.0149 | 100.0 µJy | 5.66 (233) | 1.9956 | 39.8″ × 39.8″ | 0.001 |
+
+**No quality statement about the prior follows.** At Q/Q_truth 5.2 the model is still far from the
+minimiser, and its false-pixel count (563,741 small pixels summing to 1.98 mJy in absolute flux, a
+metric meant for sparse models) is not comparable. The disc is not better than any converged run so
+far. Reaching convergence would need several times this budget, at 39 G per iteration.
 
 ## 7. Cost (measured unless marked)
 
@@ -304,7 +329,8 @@ would be worth reducing if this were kept. Gram memory: 1.81 GB in the loop agai
 for the exact backend's visibilities, weights and `uvw` at this size; that would level out
 near 60 M visibilities (**estimate**). Peak is set by the gridder in both, 2.7-3.5 GB.
 
-**The prior is not free.** A proximal step with `Sara`: 18 transforms of 2048² per dual iteration (Dirac and db1-db8, each way, 4 levels). Measured over the first SARA run (S2, PSF inner, 2 dual iterations per step, 700 iterations): 47 G instructions and 39 G cycles per iteration, so about 22 G per dual iteration, more than a Gram apply (19.2 G). Against an exact pass the Gram operator's gain per iteration falls from ×5.8 to about ×2.6 with this prior (175 G against 66 G, sum of measured parts); uSARA's sub-iteration is the same kind of cost, and Dabbech et al. 2022 report it dominating its CPU hours against AIRI's denoiser.
+**The prior is not free.** A proximal step with `Sara`: 18 transforms of 2048² per dual iteration (Dirac and db1-db8, each way, 4 levels). Measured over the first SARA run (S2, PSF inner, 2 dual iterations per step, 700 iterations): 47 G instructions and 39 G cycles per iteration, so about 22 G per dual iteration, more than a Gram apply (19.2 G); the second run
+averaged 39 G per iteration. Against an exact pass the Gram operator's gain per iteration falls from ×5.8 to about ×2.6 with this prior (175 G against 66 G, sum of measured parts); uSARA's sub-iteration is the same kind of cost, and Dabbech et al. 2022 report it dominating its CPU hours against AIRI's denoiser.
 
 ## 8. Where it wins, from counted operations
 
@@ -382,7 +408,7 @@ exact-optimality identity of §5. Both are small.
 | --- | --- |
 | Three simulated skies, one array, one track, no calibration errors, flat spectra, no beam | none of this is real data |
 | λ fixed at 100 µJy, chosen to match CLEAN's threshold | no sweep; the quality lead may depend on it |
-| Solves stopped with gaps open | 1.4e-4 on S1 and S2 against `Q` excess about 6e-5; F still falling at about 1e-7 a cycle; images will move slightly |
+| Solves stopped with gaps open | 1.4e-4 on S1 and S2 against a `Q` excess of about 6e-5, a loose certificate beside an optimality residual of 8.7 µJy, well below λ; F still falling at about 1e-7 a cycle; images will move slightly |
 | FISTA tried with restart and continuation only | a variable-metric step might change the iteration count; ADMM's ρ was not tuned |
 | One operator setting in whole jobs; f64 only | `f32` not run in the solver |
 | `W` small on these tracks | the case for the w-aware operator in the inner loop is untested |
@@ -401,16 +427,19 @@ exact-optimality identity of §5. Both are small.
 ```bash
 cargo +1.93 build --release --manifest-path core/Cargo.toml --bin gram_solver_bench --bin gemclean
 # prep/{s1,s2,s3} and prep/sN.json: gemclean_bench_compare.py prepare, the benchmark's catalogues
-export SOLVER_ROOT=$HOME/Build/tmp/20261103-gram-solver
+export SOLVER_ROOT=$HOME/Build/tmp/20261103-gram-solver GRAM_PY=.venv/bin/python
 examples/gram_solver_run.sh s1 c1 solve backend=psf prior=l1signed cycles=15 gamma=0.2 \
     iters=400 outer_kkt=2e-6 kkt=2e-6 lambda=1e-4
-bash examples/gram_solver_jobs.sh counts spectrum matched gemclean_base accuracy evals s2 s3 recipes s2nn sara
-# Each model: gemclean_bench_compare.py score prep/sN prep/sN.json runs/sN scores/NAME.json --jobs JOB
-python examples/gram_solver_derive.py "$SOLVER_ROOT"
+examples/gram_solver_run.sh s1 d1 solve backend=psf prior=l1 cycles=15 gamma=0.2 \
+    iters=800 outer_kkt=2e-6 kkt=2e-6 lambda=1e-4
+bash examples/gram_solver_jobs.sh base counts spectrum matched gemclean_base accuracy control \
+    evals s2 s3 recipes s2nn sara score
+"$GRAM_PY" examples/gram_solver_derive.py "$SOLVER_ROOT"
 python3 examples/gram_solver_archive.py "$SOLVER_ROOT" research/results/gram-solver.json
 ```
 
-`RAYON_NUM_THREADS=8`, each stage under `flock /home/gijsm/.rang-heavy.lock`. Noise seed 20261104 and
+The stopped probes of §3 and the first ADMM and CG variants are not in the job list: they are
+`solve` with `cont=1`, `cg=`, `admm=` as in the bench's header. `RAYON_NUM_THREADS=8`, each stage under `flock /home/gijsm/.rang-heavy.lock`. Noise seed 20261104 and
 sky seeds as in the benchmark; power iteration seed 20261103, Lanczos 20261104. Data: prepared
 arrays as in the benchmark (SHA-256 of the catalogues and noise in their `meta.json`). Run data was
 in `/home/gijsm/Build/tmp/20261103-gram-solver` and has been deleted; the compact copy is the archive.
