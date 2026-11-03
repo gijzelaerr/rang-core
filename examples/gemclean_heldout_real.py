@@ -22,7 +22,7 @@ import time
 from pathlib import Path
 
 import numpy as np
-from rang import core_ms, core_weights, core_wgridder, core_zarr
+from rang import core_grid, core_ms, core_weights, core_wgridder, core_zarr
 from rang import core_ms_write as tables
 from rang.core_imaging import read_fits
 from scipy import ndimage
@@ -524,6 +524,91 @@ def calibrate(args):
     print(stats)
 
 
+def average(args):
+    """Average channels by --factor per hand, weighted, in a new XX, YY MS.
+
+    An output cell is flagged only if every input cell is; flagged or
+    zero-weight input cells do not contribute. A partial group at the end of
+    the band is dropped, none here (512 channels by 2)."""
+    src, out = Path(args.ms_in), Path(args.ms_out)
+    k = args.factor
+    with core_ms.open_table(src / "SPECTRAL_WINDOW") as sw:
+        freq = np.asarray(sw.getcol("CHAN_FREQ", 0, 1)[0], np.float64)
+        width = np.asarray(sw.getcol("CHAN_WIDTH", 0, 1)[0], np.float64)
+    with core_ms.open_table(src / "ANTENNA") as an:
+        position = an.getcol("POSITION")
+        diameter = an.getcol("DISH_DIAMETER")
+    with core_ms.open_table(src / "FIELD") as fi:
+        phase_dir = fi.getcol("PHASE_DIR", 0, 1)
+    nchan = freq.size // k
+    fout = freq[: nchan * k].reshape(nchan, k).mean(axis=1)
+    wout = width[: nchan * k].reshape(nchan, k).sum(axis=1)
+    with core_ms.open_table(src) as t:
+        nrow = int(t.nrows)
+        times = t.getcol("TIME")
+    new_ms(
+        out, nrow, nchan, 2, fout, wout, position, diameter, phase_dir, np.unique(times)
+    )
+    stats = {"flag_cells": 0, "cells": 0, "factor": k}
+    bad = None
+    if args.flag_baselines:
+        listed = json.loads(Path(args.flag_baselines).read_text(encoding="utf-8"))[
+            "list"
+        ]
+        bad = np.array([b["a1"] * 1000 + b["a2"] for b in listed], np.int64)
+        stats["baselines_flagged"] = len(bad)
+    with core_ms.open_table(src) as t, tables.table(str(out), readonly=False) as o:
+        for r0 in range(0, nrow, ROW_CHUNK):
+            n = min(ROW_CHUNK, nrow - r0)
+            for name in (
+                "UVW",
+                "TIME",
+                "TIME_CENTROID",
+                "ANTENNA1",
+                "ANTENNA2",
+                "INTERVAL",
+                "EXPOSURE",
+                "FLAG_ROW",
+            ):
+                o.putcol(name, t.getcol(name, r0, n), r0, n)
+            for name, value in SCALARS:
+                o.putcol(name, np.full(n, value, np.int32), r0, n)
+            d = t.getcol("DATA", r0, n)[:, : nchan * k]
+            w = t.getcol("WEIGHT_SPECTRUM", r0, n)[:, : nchan * k].astype(np.float64)
+            f = t.getcol("FLAG", r0, n)[:, : nchan * k]
+            if bad is not None:
+                keys = t.getcol("ANTENNA1", r0, n).astype(np.int64) * 1000
+                keys = keys + t.getcol("ANTENNA2", r0, n)
+                f = f | np.isin(keys, bad)[:, None, None]
+            w = np.where(f | ~np.isfinite(d), 0.0, w)
+            shape = (n, nchan, k, 2)
+            d = np.nan_to_num(d).reshape(shape)
+            w = w.reshape(shape)
+            total = w.sum(axis=2)
+            flag = total <= 0
+            mean = (d * w).sum(axis=2) / np.where(flag, 1.0, total)
+            o.putcol("DATA", mean.astype(np.complex64), r0, n)
+            o.putcol("FLAG", flag, r0, n)
+            o.putcol("WEIGHT_SPECTRUM", total.astype(np.float32), r0, n)
+            med = np.median(np.where(flag, np.nan, total), axis=1)
+            med = np.nan_to_num(med, nan=0.0).astype(np.float32)
+            o.putcol("WEIGHT", med, r0, n)
+            o.putcol(
+                "SIGMA",
+                np.where(med > 0, 1 / np.sqrt(np.maximum(med, 1e-30)), 1.0),
+                r0,
+                n,
+            )
+            stats["flag_cells"] += int(flag.sum())
+            stats["cells"] += flag.size
+            print(f"rows {r0 + n}/{nrow}", flush=True)
+    stats["flag_fraction"] = stats["flag_cells"] / stats["cells"]
+    stats["channel_width_hz"] = float(wout[0])
+    stats["nchan"] = int(nchan)
+    _write_json(str(out).rstrip("/") + ".json", stats)
+    print(stats)
+
+
 # -- common-gridder scoring -----------------------------------------------------
 
 
@@ -713,6 +798,67 @@ def dirtycheck(args):
     print(rec)
 
 
+def badbaselines(args):
+    """Baselines whose weighted misfit is far above their peers of similar length.
+
+    The statistic is the weighted mean |V - M|^2 per baseline for one shared
+    model; a baseline is bad above --factor times the median of its length bin
+    (bins a factor 1.5 wide). Rows of the MS give antennas and order."""
+    exact = Exact(args.prep)
+    model, _ = read_fits(args.model)
+    m = np.ascontiguousarray(model.T, np.float64)
+    with core_ms.open_table(args.ms) as t:
+        a1 = t.getcol("ANTENNA1")
+        a2 = t.getcol("ANTENNA2")
+    key = a1.astype(np.int64) * 1000 + a2
+    ub, bi = np.unique(key, return_inverse=True)
+    num = np.zeros(ub.size)
+    den = np.zeros(ub.size)
+    kw = dict(exact.kw, epsilon=1e-5)
+    for r0 in range(0, exact.meta["nrow"], 120_000):
+        uvw = exact.uvw[r0 : r0 + 120_000]
+        w = exact.wgt[r0 : r0 + 120_000].astype(np.float64)
+        e = exact.vis[r0 : r0 + 120_000] - core_wgridder.dirty2vis(
+            uvw=uvw, freq=exact.freq, dirty=m, **kw
+        )
+        num += np.bincount(
+            bi[r0 : r0 + 120_000], (w * np.abs(e) ** 2).sum(axis=1), minlength=ub.size
+        )
+        den += np.bincount(bi[r0 : r0 + 120_000], w.sum(axis=1), minlength=ub.size)
+    length = np.bincount(bi, np.hypot(exact.uvw[:, 0], exact.uvw[:, 1])) / np.bincount(
+        bi
+    )
+    stat = num / np.maximum(den, 1e-30)
+    bins = np.floor(np.log(length) / math.log(1.5)).astype(int)
+    med = np.empty(ub.size)
+    for b in np.unique(bins):
+        sel = bins == b
+        med[sel] = np.median(stat[sel & (den > 0)]) if (sel & (den > 0)).any() else 0.0
+    bad = stat > args.factor * med
+    rec = {
+        "model": str(args.model),
+        "factor": args.factor,
+        "baselines": int(ub.size),
+        "bad": int(bad.sum()),
+        "misfit_share_of_bad": float(num[bad].sum() / num.sum()),
+        "weight_share_of_bad": float(den[bad].sum() / den.sum()),
+        "list": [
+            {
+                "a1": int(ub[i] // 1000),
+                "a2": int(ub[i] % 1000),
+                "length_m": float(length[i]),
+                "stat": float(stat[i]),
+                "bin_median": float(med[i]),
+            }
+            for i in np.argsort(-stat)
+            if bad[i]
+        ],
+    }
+    _write_json(args.out_json, rec)
+    print({k: v for k, v in rec.items() if k != "list"})
+    print([(b["a1"], b["a2"], round(b["length_m"])) for b in rec["list"]][:60])
+
+
 def gaussian_kernel(size, fwhm_px):
     sigma = fwhm_px / (2 * math.sqrt(2 * math.log(2)))
     y, x = np.ogrid[-size // 2 : size // 2, -size // 2 : size // 2]
@@ -829,9 +975,16 @@ def compare(args):
     _write_json(args.out_json, rec)
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
+    wcs = core_grid.wcs_header(
+        (float(np.radians(hdr["CRVAL1"])), float(np.radians(hdr["CRVAL2"]))),
+        size,
+        size,
+        scale,
+        np.fromfile(Path(args.prep) / "freq.f64"),
+    )
     for name in args.job:
-        np.save(out / f"{name}-common-beam.npy", images[name])
-    np.save(out / "source-mask.npy", mask)
+        core_grid.write_fits(out / f"{name}-common-beam.fits", images[name], wcs)
+    core_grid.write_fits(out / "source-mask.fits", mask.astype(np.float32), wcs)
     print(
         json.dumps({k: v for k, v in rec.items() if k != "brightest_compact"}, indent=1)
     )
@@ -862,6 +1015,11 @@ def main(argv=None):
     a.add_argument("ms")
     a.add_argument("--raw", action="store_true")
     a.add_argument("--extra-flags")
+    a = s.add_parser("average")
+    a.add_argument("ms_in")
+    a.add_argument("ms_out")
+    a.add_argument("--factor", type=int, default=2)
+    a.add_argument("--flag-baselines")
     a = s.add_parser("prep")
     a.add_argument("ms")
     a.add_argument("out_dir")
@@ -873,6 +1031,12 @@ def main(argv=None):
     a.add_argument("prep")
     a.add_argument("wsclean")
     a.add_argument("out_json")
+    a = s.add_parser("badbaselines")
+    a.add_argument("prep")
+    a.add_argument("ms")
+    a.add_argument("model")
+    a.add_argument("out_json")
+    a.add_argument("--factor", type=float, default=5.0)
     a = s.add_parser("score")
     a.add_argument("prep")
     a.add_argument("run")
@@ -895,8 +1059,10 @@ def main(argv=None):
         "gainload": gainload,
         "gaincheck": gaincheck,
         "calibrate": calibrate,
+        "average": average,
         "prep": prep,
         "dirtycheck": dirtycheck,
+        "badbaselines": badbaselines,
         "score": score,
         "compare": compare,
     }[args.cmd](args)
