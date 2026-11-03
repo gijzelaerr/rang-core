@@ -15,6 +15,9 @@ the release notes are the section of this file for that version.
   overrides either default.
 - New: the reference imager `gemclean` and its binary, and the flagged Gram operator. Their
   speed figures are provisional.
+- New: `gemclean -stop-rule certified`, a minor-cycle stop rule with Lean-proved consequences
+  (`research/stop-rule-theorem.md`). It costs about three times the default's major cycles and a
+  table of about 100 gridder calls, so it is not the default, and the default's images are unchanged.
 
 ## 0.1.0 (2026-11-02)
 

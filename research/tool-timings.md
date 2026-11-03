@@ -1432,3 +1432,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-03 | `python -m rang.check --rust` (Windows native) | `f0ca931`, clean tree | 686 s | – | pass; flock |
 | 2026-11-03 | `python -m rang.check --python` (Windows native) | `f0ca931`; 822 passed, 78 skipped | 157 s | – | pass; flock |
 | 2026-11-03 | S3 download, ESO 137-006 pilot, 8 threads | 3071 objects, 18.15 GB, af-south-1 | 53 min | – | about 5.7 MB/s; SHA-256 per file |
+| 2026-11-03 | `StaleBound::compute`, S1 | 37 calls (16 uniform), 99 calls (Chebyshev), 4096² | 53-113 s, 143-241 s | – | flock; load 2-12; `stop-rule-theorem` |
+| 2026-11-03 | gemclean S1-S3, default and `-stop-rule certified` | `-j 16` | 14-15 s, 157-188 s (Chebyshev), 71-87 s (uniform) | 3.4, 4.0 GB | flock; **queue waits of 20 min to over 1 h per job**, sharing the lock with four sessions |
+| 2026-11-03 | `stop_rule_probe`, S1 | 12 columns, 9 checkpoints per cycle, 16 uniform | 284 s | 6.1 GB | flock |
+| 2026-11-03 | `tools/check-all.sh`, scratch copy of the tree | new venv on Python 3.14 | 896 s | – | pass; 832 passed, 68 skipped |
+| 2026-11-03 | `lake build`, new worktree (Windows, junction to the packages) | 8718 jobs | 205 s first, 494 s with the axiom check | – | 96 audited |
+| 2026-11-03 | gemclean `w6`, default and sampled rule | 64 uniform samples, 91 calls | 46 s, 529 s (table 319 s) | 3.1, 4.2 GB | flock |
+| 2026-11-03 | `gemclean_bench_simulate.py` `w6` | 14.5 M vis | 106 s | – | flock |

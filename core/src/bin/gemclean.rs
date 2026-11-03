@@ -21,6 +21,7 @@ use rang_core::gemclean::input::{self, Selection};
 use rang_core::gemclean::json::{arr, num, obj, opt, text};
 use rang_core::gemclean::kernels::{self, Level};
 use rang_core::gemclean::measure::GridMeasurement;
+use rang_core::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
 use rang_core::gemclean::{self, Beam, CycleStop, Settings};
 use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
 use rang_core::weights::WeightClass;
@@ -47,6 +48,13 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -stale-rule <rho>         end it at rho times the pointwise error measured by the last major cycle,
                             per unit of flux cleaned (default 1; the first cycle uses -mgain as g);
                             wins over -mgain as a rule, whatever the order
+  -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
+                            the beam error at the pick (research/stop-rule-theorem.md); wins over
+                            the other rules. The default is the rules above
+  -stop-rule-kappa <k>      kappa of -stop-rule certified (default 0.5; descent needs k < 1 - gain/2)
+  -stop-rule-samples <n>    0: the bound on Chebyshev nodes, a supremum in eta on paper (default);
+                            n > 0: n uniform samples of eta, cheaper and only measured
+  -stop-rule-bound <kind>   envelope (default) or radial, the cheaper and looser form
   -minor-to-threshold       never hand back before the threshold
   -nmiter <n>               maximum number of major cycles (default 20)
   -threshold <Jy>           absolute stopping threshold (alias -abs-threshold)
@@ -87,6 +95,8 @@ struct Args {
     mgain: f64,
     mgain_misfit: f64,
     cycle_stop: CycleStop,
+    stop_samples: usize,
+    stop_bound: BoundKind,
     nmiter: usize,
     threshold: f64,
     auto_threshold: Option<f64>,
@@ -153,6 +163,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         mgain: 0.95,
         mgain_misfit: 0.8,
         cycle_stop: CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
+        stop_samples: 0,
+        stop_bound: BoundKind::Envelope,
         nmiter: 20,
         threshold: 0.0,
         auto_threshold: None,
@@ -181,6 +193,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     let mut i = 0;
     let mut positional = Vec::new();
     let (mut mgain_given, mut misfit_given, mut to_threshold) = (false, false, false);
+    let (mut certified, mut kappa) = (false, 0.5);
     let mut stale_rho: Option<f64> = None;
     let value = |i: &mut usize| -> Result<String, String> {
         *i += 1;
@@ -225,6 +238,19 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             }
             "-stale-rule" => stale_rho = Some(number(flag, value(&mut i)?)?),
             "-minor-to-threshold" => to_threshold = true,
+            "-stop-rule" => match value(&mut i)?.as_str() {
+                "certified" => certified = true,
+                other => return Err(format!("-stop-rule: unknown rule {other}")),
+            },
+            "-stop-rule-kappa" => kappa = number(flag, value(&mut i)?)?,
+            "-stop-rule-samples" => a.stop_samples = number(flag, value(&mut i)?)?,
+            "-stop-rule-bound" => {
+                a.stop_bound = match value(&mut i)?.as_str() {
+                    "envelope" => BoundKind::Envelope,
+                    "radial" => BoundKind::Radial,
+                    other => return Err(format!("-stop-rule-bound: unknown kind {other}")),
+                }
+            }
             "-nmiter" => a.nmiter = number(flag, value(&mut i)?)?,
             "-threshold" | "-abs-threshold" => a.threshold = number(flag, value(&mut i)?)?,
             "-auto-threshold" => a.auto_threshold = Some(number(flag, value(&mut i)?)?),
@@ -275,7 +301,9 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         i += 1;
     }
     // The rule does not depend on the order of the flags.
-    a.cycle_stop = if to_threshold {
+    a.cycle_stop = if certified {
+        CycleStop::Certified { kappa }
+    } else if to_threshold {
         CycleStop::Threshold
     } else if misfit_given {
         CycleStop::MisfitFraction
@@ -378,6 +406,12 @@ fn deconvolve<T: Real + Send + Sync>(
         }
         None => None,
     };
+    // The bound of the certified rule reads the same uvw and weights.
+    let certified = matches!(args.cycle_stop, CycleStop::Certified { .. });
+    if certified && (args.beam_no_w || gram_operator.is_some() || !args.wgridding) {
+        return Err("-stop-rule certified needs the default beam and gridder".into());
+    }
+    let keep = certified.then(|| (uvw.clone(), wgt.clone()));
     let measurement: GridMeasurement<T> = GridMeasurement::new(
         uvw,
         freq.to_vec(),
@@ -451,8 +485,39 @@ fn deconvolve<T: Real + Send + Sync>(
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
     };
+    let stop_bound = match keep {
+        Some((uvw, wgt)) => {
+            let sum: f64 = wgt.iter().sum();
+            let normalised: Vec<f64> = wgt.iter().map(|w| w / sum).collect();
+            let table = StaleBound::compute(
+                n,
+                args.scale,
+                &opts,
+                &uvw,
+                freq,
+                &normalised,
+                &psf2n,
+                args.epsilon,
+                args.stop_samples,
+            )?;
+            println!(
+                "stop bound: {} gridder calls, {:.1} s; largest |E| {:.3e}; first samples below {:.2e} from the moment bound; w mean {:.1} rms {:.1} max {:.1}",
+                table.sampling.calls(),
+                table.seconds,
+                table.delta(),
+                table.sampling.h0,
+                table.moments.m1,
+                table.moments.m2.sqrt(),
+                table.moments.max
+            );
+            Some(StopBound::new(&table, args.stop_bound)?)
+        }
+        None => None,
+    };
     let outcome = match gram_operator {
-        None => gemclean::run(&measurement, &beam, &settings, q_floor)?,
+        None => {
+            gemclean::run_with_bound(&measurement, &beam, &settings, q_floor, stop_bound.as_ref())?
+        }
         Some(op) => {
             let (dirty, q0) = measurement.residual(&vec![0.0; n * n])?;
             let gram = GramMeasurement::new(op, dirty, q0);
@@ -785,6 +850,14 @@ mod tests {
             (
                 "-size 64 64 -scale 2asec -mgain 0.8 x.ms",
                 CycleStop::PeakFraction(0.8),
+            ),
+            (
+                "-size 64 64 -scale 2asec -stop-rule certified -mgain 0.8 x.ms",
+                CycleStop::Certified { kappa: 0.5 },
+            ),
+            (
+                "-size 64 64 -scale 2asec -stop-rule-kappa 0.9 -stop-rule certified x.ms",
+                CycleStop::Certified { kappa: 0.9 },
             ),
             (
                 "-size 64 64 -scale 2asec -stale-rule 2 -mgain 0.8 x.ms",

@@ -11,6 +11,7 @@ import RangFormal.Clark
 import RangFormal.MajorCycle
 import RangFormal.Gemclean
 import RangFormal.Gridder
+import RangFormal.StopRule
 
 /-! Axiom audit: every theorem of `RangFormal` should rest on the three
 standard axioms only (`propext`, `Classical.choice`, `Quot.sound`); `lake build`
@@ -89,3 +90,26 @@ prints the list. -/
 #print axioms Clean.dft_circConv
 #print axioms Clean.invDFT_product
 #print axioms Clean.embedded_convolution
+#print axioms Clean.pick_same_sign
+#print axioms Clean.pick_lower
+#print axioms Clean.pick_fraction
+#print axioms Clean.pick_above_level
+#print axioms Clean.pick_level
+#print axioms Clean.certified_pick
+#print axioms Clean.stale_error_le_envelope
+#print axioms Clean.certified_step
+#print axioms Clean.certified_cycle_energy
+#print axioms Clean.sum_abs_le_energy
+#print axioms Clean.certified_cycle_flux
+#print axioms Clean.pixel_flux_le
+#print axioms Clean.no_flux_of_below
+#print axioms Clean.stop_peak_le
+#print axioms Clean.peak_contraction
+#print axioms Clean.peak_geometric
+#print axioms Clean.measured_le_column_sup
+#print axioms Clean.stale_of_columns_le
+#print axioms Clean.measured_not_a_bound
+#print axioms Clean.abs_cos_add_sub_le
+#print axioms Clean.phi_lipschitz
+#print axioms Clean.phi_moment_bound
+#print axioms Clean.certified_stop_rule
