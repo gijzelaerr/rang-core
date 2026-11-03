@@ -1424,3 +1424,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | `gmclean_bench_compare.py score` | six jobs, last-pass comparison | a few minutes in all | – | flock; not separately timed |
 | 2026-11-02 | `cargo test --release`, fat LTO gmclean build | core; one bin | 117-155 s; 130-150 s | – | flock; lock queueing excluded |
 | 2026-11-02 | `tools/check-all.sh`, then `pytest` alone, `gmclean-opt2` | core, extension, ruff; 705 passed, 45 skipped | 99, 97 s | fail: `ruff format` on one example not touched here | flock; the first pytest lacked dependencies |
+| 2026-11-03 | `StaleBound::compute`, S1 | 37 calls (16 uniform), 99 calls (Chebyshev), 4096² | 53-113 s, 143-241 s | – | flock; load 2-12; `stop-rule-theorem` |
+| 2026-11-03 | gemclean S1-S3, default and `-stop-rule certified` | `-j 16` | 14-15 s, 157-188 s (Chebyshev), 71-87 s (uniform) | 3.4, 4.0 GB | flock; **queue waits of 20 min to over 1 h per job**, sharing the lock with four sessions |
+| 2026-11-03 | `stop_rule_probe`, S1 | 12 columns, 9 checkpoints per cycle, 16 uniform | 284 s | 6.1 GB | flock |
+| 2026-11-03 | `tools/check-all.sh`, scratch copy of the tree | new venv on Python 3.14 | 896 s | – | pass; 832 passed, 68 skipped |
+| 2026-11-03 | `lake build`, new worktree (Windows, junction to the packages) | 8718 jobs | 205 s first, 494 s with the axiom check | – | 96 audited |

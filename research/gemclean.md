@@ -97,7 +97,8 @@ that beam is wrong. The per-step certificate held throughout the 20 Jy run.
 | Lazy value equals brute force | tested to 1e-12 Jy; f32 gridder to 1e-11 | same test; `single_precision_keeps_the_amplitudes_exact` |
 | Gap at rounding without a w-term | tested to 1e-11 `Q` | same test |
 | Tile bounds leave the picks bit-identical | tested | `lazy_bounds_keep_the_picks_bit_identical` |
-| The measured stale rule keeps false flux low | measured only, no theorem | §4 |
+| The measured stale rule keeps false flux low | measured only, no theorem; it fails with a bright source at the phase centre | §4, [stop-rule-theorem.md](stop-rule-theorem.md) §5 |
+| A rule with the same consequences, proved | Lean, with a bound on paper; about three times the cycles | [stop-rule-theorem.md](stop-rule-theorem.md), `-stop-rule certified` |
 
 ## 4. The long minor cycle (measured)
 
