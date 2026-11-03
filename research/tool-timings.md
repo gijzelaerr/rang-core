@@ -1424,3 +1424,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | `gmclean_bench_compare.py score` | six jobs, last-pass comparison | a few minutes in all | – | flock; not separately timed |
 | 2026-11-02 | `cargo test --release`, fat LTO gmclean build | core; one bin | 117-155 s; 130-150 s | – | flock; lock queueing excluded |
 | 2026-11-02 | `tools/check-all.sh`, then `pytest` alone, `gmclean-opt2` | core, extension, ruff; 705 passed, 45 skipped | 99, 97 s | fail: `ruff format` on one example not touched here | flock; the first pytest lacked dependencies |
+| 2026-11-03 | `tools/check-all.sh`, `rename-gemclean` merge | `068efcd` | 622 s | – | pass, extension build included |
+| 2026-11-03 | `lake build` of the merged formal tree (Windows) | `068efcd` | 369 s | – | 73 audited theorems; the wall includes waiting for the heavy lock |

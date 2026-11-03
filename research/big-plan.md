@@ -472,3 +472,5 @@ exercised in check-all: the ducc0 comparison in `tests/test_core_wgridder.py`.
 
 Owner decision open: plane groups of 4 as the library default (`gmclean-opt2`), or scoped to gemclean. Measured on
 gemclean's S1 only; DF2a's array-case negative was for the older form and is not repeated.
+
+GeMClean rename and paper merged 2026-11-03. Final timing pass postponed; the session running it asks for a window.

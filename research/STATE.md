@@ -18,6 +18,12 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+GeMClean rename and paper merged, 2026-11-03 (merge record). `rename-gemclean` as `068efcd`: command, module,
+Cargo profile, `RANG_GEMCLEAN_SIMD`, Lean file, notes and scripts; archive JSON, timing history and old on-disk
+paths keep the old name. `paper-gemclean` updates the CLEAN theory draft, with wall-clock comparisons withheld until
+a quiet-host benchmark. Check-all and `lake build` (73 audited theorems) pass on the rename. The final timing pass is
+postponed at the owner's word; the plane-group default stays an open owner decision.
+
 gemclean second optimisation pass merged, 2026-11-02 (implemented; output comparison measured;
 **times provisional**; [gemclean.md](gemclean.md) section 5.7, merge `5972124`). The peer session reports
 model, residual and image FITS byte-identical to the `58e07e1` benchmark run on S1, S2, S3 and
