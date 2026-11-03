@@ -751,6 +751,7 @@ fn data_rows_total(ms: &Path) -> Option<u64> {
 }
 
 fn main() {
+    rang_core::wgridder::set_default_plane_group(rang_core::wgridder::PLANE_GROUP);
     if let Err(e) = run() {
         eprintln!("gemclean: {e}");
         std::process::exit(2);

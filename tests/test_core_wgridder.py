@@ -250,7 +250,7 @@ def test_psf_mode_and_borrowed_inputs_match_separate_calls(monkeypatch):
         core_wgridder.dirty2vis(dirty=x, wgt=wgt32, **kw),
         core_wgridder.dirty2vis(dirty=x, wgt=wgt32.astype(np.float64), **kw),
     )
-    for group in ("1", "3"):
+    for group in ("1", "3", "4"):
         monkeypatch.setenv("RANG_WGRIDDER_PLANE_GROUP", group)
         grouped = core_wgridder.dirty_psf(vis=vis64, wgt=wgt32, **common)
         assert np.array_equal(grouped[0], dirty) and np.array_equal(grouped[1], psf)

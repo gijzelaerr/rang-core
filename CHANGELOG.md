@@ -9,9 +9,10 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
-- The exact gridder takes w-planes in groups of 4 by default, within 2 GiB of grids. Results
-  are unchanged; peak memory rises (2.84 to 3.38 GB on one simulated job). Set
-  `RANG_WGRIDDER_PLANE_GROUP=1` for the least memory. Under review: only measured on gemclean so far.
+- `gemclean` takes w-planes in groups of 4, within 2 GiB of grids. Results are unchanged; peak
+  memory rises (2.84 to 3.38 GB on one simulated job). Other callers of the exact gridder stay at
+  one plane, because larger groups were measured only on gemclean. `RANG_WGRIDDER_PLANE_GROUP`
+  overrides either default.
 - New: the reference imager `gemclean` and its binary, and the flagged Gram operator. Their
   speed figures are provisional.
 
