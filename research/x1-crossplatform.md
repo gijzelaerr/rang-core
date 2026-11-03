@@ -535,3 +535,43 @@ POSIX tool, that is listed below. `multiprocessing`, `signal`, `fcntl`,
 Paths: the frozen modules named here moved to [`history/`](../history/README.md)
 on 2026-10-30 (task P11); their live definitions are in the `core_*` extracts
 of [p11-extract.md](p11-extract.md).
+
+## Native check of gemclean, 2026-11-03
+
+Measured on Windows 11 with Rust 1.93 (MSVC), Python 3.13 and the default
+`core.autocrlf=true`, at `f0ca931`, in a fresh worktree. Input and output on
+`D:` (NVMe). Each stage took `~/.rang-heavy.lock` in turn, but wall times are
+provisional: the check was not run on a reserved idle host.
+
+The `gemclean` binary built with no source change and read the Measurement Set
+of simulated dataset S1 (`D:/rang/data/20261102-gemclean-bench-sims/s1.ms`) at
+2048², 1.5 arcsec, Briggs 0.5, `-abs-threshold 0.0001`. Both thread counts gave
+85337 components, 5 major cycles, Q/Q0 2.2267e-3.
+
+| S1, Windows `-j 16` against | dirty, PSF, model | residual | restored image |
+| --- | --- | --- | --- |
+| Windows `-j 1` | identical data | identical data | identical data |
+| Linux at `58e07e1` | identical data | 5 of 4194304 values differ | 18 of 4194304 values differ |
+
+The largest difference is 9.1e-13 Jy, against a residual peak of 1.0e-4 Jy. The
+cause is not established. The likely one is the platform, since the only change
+to `core/src` from `d39ec9d` to `f0ca931` is the plane-group scope, whose output
+is unchanged, and an earlier Linux rerun matched the pixels of `58e07e1`. It was
+not compared against a Linux build of `f0ca931`. `tests/test_toy.py` skips its
+archived digits for a similar reason (another libm changes printed digits).
+
+`python -m rang.check` passed: Rust 23, 161 and 167 tests (1 ignored), clippy and
+format, the GPU feature included; ruff and format; pytest 822 passed, 78 skipped,
+0 failed. So this establishes no failure in what ran, and it does not cover the
+skipped tests:
+
+- 58 need ignored inputs or archived runs that a fresh worktree does not have
+  (fixture archive 16, fixture MS 10, oracle dump 6, others 26), not a Windows
+  limit in themselves. The notebooks were therefore not executed here.
+- 20 for other reasons: archived on Linux libm 5, `[meerkat]` extra not installed
+  in this check 4, deploy job runs on Linux 3, extension built without `gpu` 2,
+  and one each for `mvftoms`, Docker image, symlink privilege, `ducc0`, `comrak`
+  and `RANG_NOTEBOOK_CARTA`.
+
+The 37 Python failures seen on an earlier Windows run did not recur. Whether any
+of those tests are now among the skips was not traced.

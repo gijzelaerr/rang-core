@@ -401,3 +401,7 @@ held-out test, and the rule has no theorem. At `auto`, gemclean has no auto-mask
 and leaves 39-54 mJy of false flux, so `auto` is not a matched comparison with
 WSClean's masked runs. S3's faintest decade recovers 0.66 ± 0.76 at `abs`, as
 expected below the threshold.
+
+Data moved, 2026-11-03: the datasets are in `D:\rang\data\20261102-gemclean-bench-sims`
+and the run outputs in `D:\rang\outputs\20261102-gemclean\bench`, not in the worktree and
+`/home/gijsm/Build/tmp` paths above. Set `BENCH_DATA` to the new path for a rerun.

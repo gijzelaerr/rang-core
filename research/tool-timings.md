@@ -1426,3 +1426,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-02 | `tools/check-all.sh`, then `pytest` alone, `gmclean-opt2` | core, extension, ruff; 705 passed, 45 skipped | 99, 97 s | fail: `ruff format` on one example not touched here | flock; the first pytest lacked dependencies |
 | 2026-11-03 | `tools/check-all.sh`, `rename-gemclean` merge | `068efcd` | 622 s | – | pass, extension build included |
 | 2026-11-03 | `lake build` of the merged formal tree (Windows) | `068efcd` | 369 s | – | 73 audited theorems; the wall includes waiting for the heavy lock |
+| 2026-11-03 | `cargo build --profile gemclean` (Windows native) | `f0ca931`, fat LTO, clean tree | 221 s | – | flock; lock queueing excluded |
+| 2026-11-03 | `gemclean` S1 (Windows native), `-j 16`; `-j 1` | 14.5 M visibilities, 2048², from `D:` | 13.7 s; 55.0 s | – | provisional: flock, host not reserved |
+| 2026-11-03 | `uv pip install -e` with extras (Windows native) | extension build included | 152 s | – | flock |
+| 2026-11-03 | `python -m rang.check --rust` (Windows native) | `f0ca931`, clean tree | 686 s | – | pass; flock |
+| 2026-11-03 | `python -m rang.check --python` (Windows native) | `f0ca931`; 822 passed, 78 skipped | 157 s | – | pass; flock |
+| 2026-11-03 | S3 download, ESO 137-006 pilot, 8 threads | 3071 objects, 18.15 GB, af-south-1 | 53 min | – | about 5.7 MB/s; SHA-256 per file |

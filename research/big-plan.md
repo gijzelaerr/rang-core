@@ -430,9 +430,8 @@ The CLEAN programme continues in its own session.
 
 **Housekeeping**
 
-- [ ] The Windows mirror `C:/Users/gijsm/Github/rang` holds 53 uncommitted changed files, written about 22:22 on 2026-11-02 by
-  no coordinator step, on a local `main` far behind origin. A sample diff is `ruff format` across the repo, archived scripts and code samples in notes included, and it mangles at least one sample.
-  Inspect, then discard or keep. Do not commit them there.
+- [x] The 53 uncommitted files in the Windows mirror `C:/Users/gijsm/Github/rang`: inspected 2026-11-03, formatting only, one code
+  sample in `df2c-campaign-gridder.md` corrupted, none in the project's format scope. Discarded by the owner's decision. The mirror's `main` is still behind origin.
 - [ ] Move older `outputs/` to `D:/rang/outputs` and compact the WSL disk once nothing runs (approved). C: is at 93 %.
 - [ ] Remove `~/Build/tmp/20261030-rang-x2`, and the near-empty leftover folders in `C:/Users/gijsm/Worktrees/rang`
   (`x2-wgpu`, `clean-major-cycles`, `clean-implicit-objective`, `gmclean`), which are no longer worktrees.
