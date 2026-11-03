@@ -1471,3 +1471,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-03 | `tools/check-all.sh`, `gemclean-heldout` | core, extension, ruff, pytest | 404-518 s | – | under the heavy lock; first run failed on one docs-index test, fixed |
 | 2026-11-03 | `tools/check-all.sh`, merge of the two studies | core, extension, ruff, pytest | about 11 min | – | under the heavy lock |
 | 2026-11-03 | `cargo build --release --bin gemclean`, same merge | WSL | 117 s | – | under the heavy lock |
+| 2026-11-03 | `gemclean` with `-stale-floor`, 25 runs on 8 skies | 2048² and 4096², `-j 8` | 1096 s in all; S1 60, H3 105 | – | provisional; flock |
+| 2026-11-03 | `gemclean -stale-floor 0.01`, pilot A 3 mJy, B 3 mJy, A 1 mJy | 4096 × 3″, `-j 16` | 193, 159, 344 s | 17.2, 16.3, 17.2 GiB | provisional; flock |
+| 2026-11-03 | `tools/check-all.sh`, held-out merge | core, extension, ruff, pytest | about 8 min | – | under the heavy lock |

@@ -1,0 +1,901 @@
+{
+ "commit": "9c95d19",
+ "floor": 0.01,
+ "note": "research/stale-floor.md; -j 8 except the pilot (-j 16); wall times provisional, under the heavy lock",
+ "identical_data_in_all_five_images": {
+  "s1 s2 s3": "58e07e1",
+  "h1 h2 h3 h4": "f0ca931",
+  "pilot": "held-out runs at f0ca931"
+ },
+ "bar_miss": {
+  "case": "h3-plus100-f0.01",
+  "measure": "model pixels",
+  "value": 6263,
+  "default_h3": 5592,
+  "ratio": 1.1199928469241773,
+  "limit": 1.1
+ },
+ "pilot": {
+  "cal2-003": {
+   "major_cycles": 5,
+   "components": 58314,
+   "stop": "Threshold",
+   "wall_s": 192.539085158,
+   "peak_memory_bytes": 18462158848,
+   "identical_to_heldout_run": true
+  },
+  "cal3-003": {
+   "major_cycles": 3,
+   "components": 38709,
+   "stop": "Threshold",
+   "wall_s": 159.247444025,
+   "peak_memory_bytes": 17550237696,
+   "identical_to_heldout_run": true
+  },
+  "cal2-001": {
+   "major_cycles": 8,
+   "components": 441893,
+   "stop": "Threshold",
+   "wall_s": 343.877297953,
+   "peak_memory_bytes": 18519863296,
+   "identical_to_heldout_run": true
+  }
+ },
+ "rows": [
+  {
+   "name": "s1-f0.01",
+   "added_jy": 0.0,
+   "major_cycles": 5,
+   "components": 85337,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.9578769063507647,
+    0.048248621265118696,
+    0.0008463264803780888,
+    0.00015024210712667797,
+    0.00010125376955319496
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2772,
+   "source": null,
+   "off_source_abs_jy": 13.953203201293945,
+   "off_source_flux_jy": 10.959372520446777,
+   "residual_inner_peak_ujy": 99.95795440673828,
+   "residual_inner_rms_ujy": 25.5255069732666,
+   "wall_s": 60.135303477,
+   "peak_memory_bytes": 3452772352
+  },
+  {
+   "name": "s2-f0.01",
+   "added_jy": 0.0,
+   "major_cycles": 5,
+   "components": 90905,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.9577248968247277,
+    0.04832732930986391,
+    0.0009583377433456288,
+    0.00013750890459991039,
+    0.00010083881869193178
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 4249,
+   "source": null,
+   "off_source_abs_jy": 15.978622436523438,
+   "off_source_flux_jy": 12.955262184143066,
+   "residual_inner_peak_ujy": 99.99076843261719,
+   "residual_inner_rms_ujy": 25.686525344848633,
+   "wall_s": 65.744194014,
+   "peak_memory_bytes": 3452305408
+  },
+  {
+   "name": "s3-f0.01",
+   "added_jy": 0.0,
+   "major_cycles": 4,
+   "components": 45803,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.10178973337004261,
+    0.0053216524415478726,
+    0.00017535009843589434,
+    0.00010133787315429565
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 4857,
+   "source": null,
+   "off_source_abs_jy": 8.63922119140625,
+   "off_source_flux_jy": 7.864249229431152,
+   "residual_inner_peak_ujy": 99.9868392944336,
+   "residual_inner_rms_ujy": 26.79976463317871,
+   "wall_s": 65.629682458,
+   "peak_memory_bytes": 3451858944
+  },
+  {
+   "name": "s1-f0.05",
+   "added_jy": 0.0,
+   "major_cycles": 5,
+   "components": 85784,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.9578769063507647,
+    0.048248621265118696,
+    0.002515234273649971,
+    0.00022774450068303154,
+    0.00010501379070556016
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2773,
+   "source": null,
+   "off_source_abs_jy": 13.95788860321045,
+   "off_source_flux_jy": 10.959348678588867,
+   "residual_inner_peak_ujy": 99.98697662353516,
+   "residual_inner_rms_ujy": 25.5128173828125,
+   "wall_s": 60.382052879,
+   "peak_memory_bytes": 3451191296
+  },
+  {
+   "name": "h1-f0.01",
+   "added_jy": 0.0,
+   "major_cycles": 6,
+   "components": 88533,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.8400893269046417,
+    0.0432139857700839,
+    0.001282896441897206,
+    0.00027458557862867664,
+    0.00011182776321336534,
+    0.00010014678671844947
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2569,
+   "source": null,
+   "off_source_abs_jy": 16.432628631591797,
+   "off_source_flux_jy": 13.263834953308105,
+   "residual_inner_peak_ujy": 99.8990249633789,
+   "residual_inner_rms_ujy": 25.193716049194336,
+   "wall_s": 62.404893776,
+   "peak_memory_bytes": 3455295488
+  },
+  {
+   "name": "h2-f0.01",
+   "added_jy": 0.0,
+   "major_cycles": 6,
+   "components": 54670,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.19527090842697656,
+    0.01091750831006397,
+    0.0009505053702023905,
+    0.00018681227035959432,
+    0.00010599760562350108,
+    0.00010016361106820649
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 4443,
+   "source": null,
+   "off_source_abs_jy": 10.998326301574707,
+   "off_source_flux_jy": 9.84447956085205,
+   "residual_inner_peak_ujy": 99.90122985839844,
+   "residual_inner_rms_ujy": 28.44818878173828,
+   "wall_s": 69.453907021,
+   "peak_memory_bytes": 3455762432
+  },
+  {
+   "name": "h3-f0.01",
+   "added_jy": 0.0,
+   "major_cycles": 8,
+   "components": 163497,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.9811201259473153,
+    0.05070637000653788,
+    0.002142980431447728,
+    0.0004461978253539859,
+    0.00013804089018291946,
+    0.00010259145568802859,
+    0.00010016299576789859,
+    0.00010001374908535488
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 5592,
+   "source": null,
+   "off_source_abs_jy": 27.616409301757812,
+   "off_source_flux_jy": 21.522354125976562,
+   "residual_inner_peak_ujy": 99.97447204589844,
+   "residual_inner_rms_ujy": 25.22374725341797,
+   "wall_s": 104.726856058,
+   "peak_memory_bytes": 6088491008
+  },
+  {
+   "name": "h4-f0.01",
+   "added_jy": 0.0,
+   "major_cycles": 5,
+   "components": 55685,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    0.26947557672181605,
+    0.01383133431152281,
+    0.0013065348435584304,
+    0.00011070740938354082,
+    0.00010007519928144815
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 30937,
+   "source": null,
+   "off_source_abs_jy": 7.847622871398926,
+   "off_source_flux_jy": 7.564927101135254,
+   "residual_inner_peak_ujy": 99.99310302734375,
+   "residual_inner_rms_ujy": 45.45005416870117,
+   "wall_s": 65.492227041,
+   "peak_memory_bytes": 3452682240
+  },
+  {
+   "name": "s1-plus10-f0.01",
+   "added_jy": 10.0,
+   "major_cycles": 6,
+   "components": 86298,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    9.998617864829953,
+    0.49967906363442616,
+    0.005402148735364149,
+    0.0003268875444595557,
+    0.00010881561342580029,
+    0.00010003041528444538
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2830,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 9.99962329864502
+   },
+   "off_source_abs_jy": 13.96023941040039,
+   "off_source_flux_jy": 10.959814071655273,
+   "residual_inner_peak_ujy": 99.97449493408203,
+   "residual_inner_rms_ujy": 25.48702621459961,
+   "wall_s": 16.280427401,
+   "peak_memory_bytes": 3449204736
+  },
+  {
+   "name": "s1-plus30-f0.01",
+   "added_jy": 30.0,
+   "major_cycles": 6,
+   "components": 86805,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    29.998621458716826,
+    1.4129612326836154,
+    0.014500040421718985,
+    0.00047074517883789616,
+    0.0001120494391129881,
+    0.00010017496803300761
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2896,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 29.999691009521484
+   },
+   "off_source_abs_jy": 13.966813087463379,
+   "off_source_flux_jy": 10.959585189819336,
+   "residual_inner_peak_ujy": 99.95457458496094,
+   "residual_inner_rms_ujy": 25.46769142150879,
+   "wall_s": 16.108800058,
+   "peak_memory_bytes": 3452252160
+  },
+  {
+   "name": "s1-plus30-f0.02",
+   "added_jy": 30.0,
+   "major_cycles": 6,
+   "components": 85715,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    29.998621458716826,
+    1.4129612326836154,
+    0.02866615278081222,
+    0.0006475053818646023,
+    0.00012747326589375479,
+    0.0001006743812534643
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2793,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 29.999670028686523
+   },
+   "off_source_abs_jy": 13.956878662109375,
+   "off_source_flux_jy": 10.959651947021484,
+   "residual_inner_peak_ujy": 99.87833404541016,
+   "residual_inner_rms_ujy": 25.523996353149414,
+   "wall_s": 15.144429438,
+   "peak_memory_bytes": 3451928576
+  },
+  {
+   "name": "s1-plus30-f0.05",
+   "added_jy": 30.0,
+   "major_cycles": 6,
+   "components": 86121,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    29.998621458716826,
+    1.4129612326836154,
+    0.07107713591240317,
+    0.003604317572251602,
+    0.0002428958774397069,
+    0.00010580459127123063
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2770,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 29.999631881713867
+   },
+   "off_source_abs_jy": 13.961953163146973,
+   "off_source_flux_jy": 10.959748268127441,
+   "residual_inner_peak_ujy": 99.97540283203125,
+   "residual_inner_rms_ujy": 25.508371353149414,
+   "wall_s": 15.777166364,
+   "peak_memory_bytes": 3452129280
+  },
+  {
+   "name": "s1-plus100-f0.01",
+   "added_jy": 100.0,
+   "major_cycles": 6,
+   "components": 85724,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    99.99863403580514,
+    4.71002287249605,
+    0.047893984901357815,
+    0.0006676594915223841,
+    0.0001242031007243733,
+    0.00010064041520873039
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2820,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 99.99967193603516
+   },
+   "off_source_abs_jy": 13.9564790725708,
+   "off_source_flux_jy": 10.959578514099121,
+   "residual_inner_peak_ujy": 99.98434448242188,
+   "residual_inner_rms_ujy": 25.53400230407715,
+   "wall_s": 15.790967991,
+   "peak_memory_bytes": 3452616704
+  },
+  {
+   "name": "s1-plus100-f0.02",
+   "added_jy": 100.0,
+   "major_cycles": 7,
+   "components": 86021,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    99.99863403580514,
+    4.71002287249605,
+    0.0940638274133133,
+    0.002056634346720318,
+    0.0002256866655119742,
+    0.00010470274285359166,
+    0.00010001507422636897
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2790,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 99.99958038330078
+   },
+   "off_source_abs_jy": 13.961328506469727,
+   "off_source_flux_jy": 10.959739685058594,
+   "residual_inner_peak_ujy": 99.98567962646484,
+   "residual_inner_rms_ujy": 25.50473976135254,
+   "wall_s": 17.043464307,
+   "peak_memory_bytes": 3453763584
+  },
+  {
+   "name": "s1-plus100-f0.05",
+   "added_jy": 100.0,
+   "major_cycles": 7,
+   "components": 85933,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    99.99863403580514,
+    4.71002287249605,
+    0.2406442695382494,
+    0.012258671165224977,
+    0.0006589372401330699,
+    0.0001239972767403845,
+    0.00010019817104337874
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2839,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 99.9996566772461
+   },
+   "off_source_abs_jy": 13.960439682006836,
+   "off_source_flux_jy": 10.95966911315918,
+   "residual_inner_peak_ujy": 99.97235870361328,
+   "residual_inner_rms_ujy": 25.492206573486328,
+   "wall_s": 16.921313573,
+   "peak_memory_bytes": 3452329984
+  },
+  {
+   "name": "s1-plus1000-f0",
+   "added_jy": 1000.0,
+   "major_cycles": 2,
+   "components": 1000000,
+   "stop": "Components",
+   "cycle_peaks_jy": [
+    999.9987957523182,
+    47.10081538489309
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "Budget"
+   ],
+   "model_pixels": 201977,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 999.9976196289062
+   },
+   "off_source_abs_jy": 63.57419204711914,
+   "off_source_flux_jy": 11.004491806030273,
+   "residual_inner_peak_ujy": 2741.500732421875,
+   "residual_inner_rms_ujy": 258.4394226074219,
+   "wall_s": 45.421437165,
+   "peak_memory_bytes": 3476791296
+  },
+  {
+   "name": "s1-plus1000-f0.01",
+   "added_jy": 1000.0,
+   "major_cycles": 7,
+   "components": 86327,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    999.9987957523182,
+    47.10081538489309,
+    0.470833455562676,
+    0.005114141429794748,
+    0.00030909944342027046,
+    0.00010837657937199848,
+    0.00010000913331894875
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2819,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 999.9995727539062
+   },
+   "off_source_abs_jy": 13.964120864868164,
+   "off_source_flux_jy": 10.959718704223633,
+   "residual_inner_peak_ujy": 99.82273864746094,
+   "residual_inner_rms_ujy": 25.49248504638672,
+   "wall_s": 17.634852717,
+   "peak_memory_bytes": 3451129856
+  },
+  {
+   "name": "h1-plus30-f0",
+   "added_jy": 30.0,
+   "major_cycles": 2,
+   "components": 1000000,
+   "stop": "Components",
+   "cycle_peaks_jy": [
+    29.999021681638382,
+    1.4129894203140045
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "Budget"
+   ],
+   "model_pixels": 230317,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 29.99489402770996
+   },
+   "off_source_abs_jy": 127.30638122558594,
+   "off_source_flux_jy": 13.184976577758789,
+   "residual_inner_peak_ujy": 20199.142578125,
+   "residual_inner_rms_ujy": 705.2907104492188,
+   "wall_s": 43.156631253,
+   "peak_memory_bytes": 3478892544
+  },
+  {
+   "name": "h1-plus30-f0.01",
+   "added_jy": 30.0,
+   "major_cycles": 7,
+   "components": 88682,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    29.999021681638382,
+    1.4129894203140045,
+    0.015977495968962474,
+    0.0007281359579202347,
+    0.0001954190503248,
+    0.0001070865613244999,
+    0.00010012887832472235
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 2522,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 29.998485565185547
+   },
+   "off_source_abs_jy": 16.44811248779297,
+   "off_source_flux_jy": 13.265331268310547,
+   "residual_inner_peak_ujy": 99.98231506347656,
+   "residual_inner_rms_ujy": 25.206342697143555,
+   "wall_s": 17.502419314,
+   "peak_memory_bytes": 3454009344
+  },
+  {
+   "name": "h4-plus30-f0",
+   "added_jy": 30.0,
+   "major_cycles": 2,
+   "components": 1000000,
+   "stop": "Components",
+   "cycle_peaks_jy": [
+    29.99984241867213,
+    1.4130239173108692
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "Budget"
+   ],
+   "model_pixels": 242203,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 29.998634338378906
+   },
+   "off_source_abs_jy": 28.726314544677734,
+   "off_source_flux_jy": 6.719825744628906,
+   "residual_inner_peak_ujy": 771.1088256835938,
+   "residual_inner_rms_ujy": 110.52666473388672,
+   "wall_s": 43.495598688,
+   "peak_memory_bytes": 3477749760
+  },
+  {
+   "name": "h4-plus30-f0.01",
+   "added_jy": 30.0,
+   "major_cycles": 6,
+   "components": 55509,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    29.99984241867213,
+    1.4130239173108692,
+    0.0144925803210852,
+    0.0009747775095626512,
+    0.00010881469470157002,
+    0.0001000563453681702
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 30688,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 29.9997615814209
+   },
+   "off_source_abs_jy": 7.845035076141357,
+   "off_source_flux_jy": 7.564535140991211,
+   "residual_inner_peak_ujy": 99.987060546875,
+   "residual_inner_rms_ujy": 45.58476257324219,
+   "wall_s": 15.405496295,
+   "peak_memory_bytes": 3452571648
+  },
+  {
+   "name": "s2-plus30-off20-f0",
+   "added_jy": 30.0,
+   "major_cycles": 9,
+   "components": 268263,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    29.999463772680723,
+    1.4130011171161634,
+    0.0021758918568246578,
+    0.0006099786587679207,
+    0.00031350017895854116,
+    0.00022451097804064647,
+    0.000161463718041257,
+    0.00010026506638039257,
+    0.00010000303380619315
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 45249,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     20
+    ],
+    "jy": 29.99742317199707
+   },
+   "off_source_abs_jy": 20.51926040649414,
+   "off_source_flux_jy": 12.94653606414795,
+   "residual_inner_peak_ujy": 99.97372436523438,
+   "residual_inner_rms_ujy": 35.94955062866211,
+   "wall_s": 27.234921926,
+   "peak_memory_bytes": 3463524352
+  },
+  {
+   "name": "s2-plus30-off20-f0.01",
+   "added_jy": 30.0,
+   "major_cycles": 6,
+   "components": 94678,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    29.999463772680723,
+    1.4130011171161634,
+    0.014429392374179372,
+    0.0004829372331873908,
+    0.00011332209051739893,
+    0.00010008317069173766
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 4558,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     20
+    ],
+    "jy": 29.998470306396484
+   },
+   "off_source_abs_jy": 16.016353607177734,
+   "off_source_flux_jy": 12.957276344299316,
+   "residual_inner_peak_ujy": 99.97917938232422,
+   "residual_inner_rms_ujy": 26.35489273071289,
+   "wall_s": 15.750225006,
+   "peak_memory_bytes": 3451334656
+  },
+  {
+   "name": "h3-plus100-f0",
+   "added_jy": 100.0,
+   "major_cycles": 2,
+   "components": 1000000,
+   "stop": "Components",
+   "cycle_peaks_jy": [
+    99.99976508170202,
+    4.710129808483032
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "Budget"
+   ],
+   "model_pixels": 344761,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 99.9941177368164
+   },
+   "off_source_abs_jy": 225.70779418945312,
+   "off_source_flux_jy": 21.35575294494629,
+   "residual_inner_peak_ujy": 10195.79296875,
+   "residual_inner_rms_ujy": 697.9547729492188,
+   "wall_s": 148.04870388,
+   "peak_memory_bytes": 6107889664
+  },
+  {
+   "name": "h3-plus100-f0.01",
+   "added_jy": 100.0,
+   "major_cycles": 8,
+   "components": 166396,
+   "stop": "Threshold",
+   "cycle_peaks_jy": [
+    99.99976508170202,
+    4.710129808483032,
+    0.04731415761584752,
+    0.001822522936389782,
+    0.00040424812546748944,
+    0.00012566484398084481,
+    0.00010082016948773804,
+    0.00010002575861817469
+   ],
+   "cycle_stops": [
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "PeakRule",
+    "Threshold",
+    "Threshold",
+    "Threshold"
+   ],
+   "model_pixels": 6263,
+   "source": {
+    "pixel_from_centre": [
+     0,
+     0
+    ],
+    "jy": 99.99988555908203
+   },
+   "off_source_abs_jy": 27.634212493896484,
+   "off_source_flux_jy": 21.522279739379883,
+   "residual_inner_peak_ujy": 99.9921875,
+   "residual_inner_rms_ujy": 25.138275146484375,
+   "wall_s": 55.162916209,
+   "peak_memory_bytes": 6088384512
+  }
+ ]
+}
