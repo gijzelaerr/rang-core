@@ -838,8 +838,10 @@ pub enum CycleStop {
     /// flux cleaned, `δ = ‖r − r̃‖_∞ / Σ|c|`. Later cycles end once the exact
     /// peak falls to `ρ δ Σ|c|`, where the prediction can no longer be told
     /// from the peak. The first cycle, before any measurement, uses
-    /// `PeakFraction(g)`.
-    MeasuredStale { rho: f64, g: f64 },
+    /// `PeakFraction(g)`. A later cycle also ends at `floor` times its first
+    /// peak: a batch that cleaned only the phase centre measures `δ` near
+    /// zero, and without a floor the next cycle has no stop.
+    MeasuredStale { rho: f64, g: f64, floor: f64 },
     /// The certified rule of `research/stop-rule-theorem.md`: end the cycle once
     /// `κ |r_p|` falls to the bound on the beam error at the pick, from a
     /// [`stale_bound::StopBound`]. Needs [`run_with_bound`].
@@ -890,7 +892,11 @@ impl Default for Settings {
     fn default() -> Settings {
         Settings {
             gain: 0.1,
-            cycle_stop: CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
+            cycle_stop: CycleStop::MeasuredStale {
+                rho: 1.0,
+                g: 0.95,
+                floor: 0.0,
+            },
             major_fraction: 0.8,
             threshold: 0.0,
             auto_threshold: None,
@@ -1418,11 +1424,11 @@ pub fn run_with_bound<M: Measurement>(
             if steps.len() > taken_before {
                 let stop_here = match s.cycle_stop {
                     CycleStop::PeakFraction(g) => r.abs() < (1.0 - g) * first_peak,
-                    CycleStop::MeasuredStale { rho, g } => {
+                    CycleStop::MeasuredStale { rho, g, floor } => {
                         if cycles.is_empty() {
                             r.abs() < (1.0 - g) * first_peak
                         } else {
-                            r.abs() <= rho * stale_used * abs_flux
+                            r.abs() <= (rho * stale_used * abs_flux).max(floor * first_peak)
                         }
                     }
                     CycleStop::Certified { kappa } => {
@@ -2352,6 +2358,14 @@ mod tests {
             "the long cycle {l} against the default {d}: not vacuous"
         );
         assert!(default.cycles.len() >= 3);
+        // A floor that binds ends later cycles early, so it takes more of them.
+        let floored = run_with(CycleStop::MeasuredStale {
+            rho: 1.0,
+            g: 0.95,
+            floor: 0.5,
+        });
+        assert_eq!(floored.stop, StopReason::Threshold);
+        assert!(floored.cycles.len() > default.cycles.len());
     }
 
     /// The bounds only postpone rescans: the picks and values of the lazy

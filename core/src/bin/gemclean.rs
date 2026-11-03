@@ -48,6 +48,8 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -stale-rule <rho>         end it at rho times the pointwise error measured by the last major cycle,
                             per unit of flux cleaned (default 1; the first cycle uses -mgain as g);
                             wins over -mgain as a rule, whatever the order
+  -stale-floor <f>          also end a later cycle at f of its first peak, under the measured rule
+                            (default 0: no floor; research/stale-floor.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
@@ -162,7 +164,11 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         gain: 0.1,
         mgain: 0.95,
         mgain_misfit: 0.8,
-        cycle_stop: CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
+        cycle_stop: CycleStop::MeasuredStale {
+            rho: 1.0,
+            g: 0.95,
+            floor: 0.0,
+        },
         stop_samples: 0,
         stop_bound: BoundKind::Envelope,
         nmiter: 20,
@@ -195,6 +201,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     let (mut mgain_given, mut misfit_given, mut to_threshold) = (false, false, false);
     let (mut certified, mut kappa) = (false, 0.5);
     let mut stale_rho: Option<f64> = None;
+    let mut floor = 0.0;
     let value = |i: &mut usize| -> Result<String, String> {
         *i += 1;
         raw.get(*i)
@@ -237,6 +244,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 misfit_given = true;
             }
             "-stale-rule" => stale_rho = Some(number(flag, value(&mut i)?)?),
+            "-stale-floor" => floor = number(flag, value(&mut i)?)?,
             "-minor-to-threshold" => to_threshold = true,
             "-stop-rule" => match value(&mut i)?.as_str() {
                 "certified" => certified = true,
@@ -308,13 +316,18 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     } else if misfit_given {
         CycleStop::MisfitFraction
     } else if let Some(rho) = stale_rho {
-        CycleStop::MeasuredStale { rho, g: a.mgain }
+        CycleStop::MeasuredStale {
+            rho,
+            g: a.mgain,
+            floor,
+        }
     } else if mgain_given {
         CycleStop::PeakFraction(a.mgain)
     } else {
         CycleStop::MeasuredStale {
             rho: 1.0,
             g: a.mgain,
+            floor,
         }
     };
     match positional.as_slice() {
@@ -845,7 +858,19 @@ mod tests {
         for (line, want) in [
             (
                 "-size 64 64 -scale 2asec x.ms",
-                CycleStop::MeasuredStale { rho: 1.0, g: 0.95 },
+                CycleStop::MeasuredStale {
+                    rho: 1.0,
+                    g: 0.95,
+                    floor: 0.0,
+                },
+            ),
+            (
+                "-size 64 64 -scale 2asec -stale-floor 0.01 x.ms",
+                CycleStop::MeasuredStale {
+                    rho: 1.0,
+                    g: 0.95,
+                    floor: 0.01,
+                },
             ),
             (
                 "-size 64 64 -scale 2asec -mgain 0.8 x.ms",
@@ -861,11 +886,19 @@ mod tests {
             ),
             (
                 "-size 64 64 -scale 2asec -stale-rule 2 -mgain 0.8 x.ms",
-                CycleStop::MeasuredStale { rho: 2.0, g: 0.8 },
+                CycleStop::MeasuredStale {
+                    rho: 2.0,
+                    g: 0.8,
+                    floor: 0.0,
+                },
             ),
             (
                 "-size 64 64 -scale 2asec -mgain 0.8 -stale-rule 2 x.ms",
-                CycleStop::MeasuredStale { rho: 2.0, g: 0.8 },
+                CycleStop::MeasuredStale {
+                    rho: 2.0,
+                    g: 0.8,
+                    floor: 0.0,
+                },
             ),
             (
                 "-size 64 64 -scale 2asec -mgain-misfit 0.5 -mgain 0.8 x.ms",
