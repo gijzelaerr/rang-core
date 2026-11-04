@@ -1,8 +1,7 @@
 # Rang: overview of the CLEAN programme
 
-Status, 2026-11-03, at main after the [floor](stale-floor.md). Read this first; the notes it links hold the numbers.
-Draft paper: [paper/clean-theory/main.tex](paper/clean-theory/main.tex). No speed figure here is final: the timing pass
-on an idle host has not run.
+Status, 2026-11-04, at main after the [timing pass](gemclean-speed.md). Read this first; the notes it links hold the numbers.
+Draft paper: [paper/clean-theory/main.tex](paper/clean-theory/main.tex).
 
 ## What holds
 
@@ -36,10 +35,13 @@ on an idle host has not run.
   instructions, faster only than FISTA on the exact gridder. Not compared with BASPLib, PURIFY, resolve or pfb-imaging.
   [gram-solver.md](gram-solver.md).
 - **A visibility-free major cycle does not pay at GeMClean's cycle count.** [gridder-theory.md](gridder-theory.md).
+- **Speed gives no novelty so far.** On S1-S3 GeMClean with AVX-512 is 1.3-1.5 times faster than the KERN WSClean at its defaults and
+  2.2-3.0 times at matched gridding accuracy, but that WSClean's gridder is SSE2 only. With GeMClean at baseline code WSClean is
+  faster on every job: GeMClean takes 1.1 to 4.5 times as long. GeMClean uses 4-6 times the memory. [gemclean-speed.md](gemclean-speed.md).
 
 ## Not established
 
-- Any speed claim against WSClean. Instruction counts exist; wall times are provisional.
+- Any speed claim against a WSClean built for the same CPU. None has been built. Held-out skies have not been timed.
 - Real-data accuracy: there is no truth on the pilot, whose floor is 40-60 × thermal in all three imagers, for a reason not
   found. One scan, one flat-spectrum term, no `-channels-out`, no multiscale.
 - The full 7 h track: about 126 GB to fetch and, roughly, 110 GB of memory at 2× averaging. GeMClean used 18 GB on 152 M
@@ -52,6 +54,6 @@ on an idle host has not run.
 1. **The WSClean report** ([draft](../outputs/clean-theory-20261030/wsclean-report-draft.md), not in the repository). Held until this overview.
    Nothing in the later work changes its three findings.
 2. **The paper.** Read the draft; say whether the early reader is named. The name GeMClean has not been checked for clashes.
-3. **The timing pass.** About 3.3 h on an idle host, or 1.5 h on one dataset. Every speed figure waits on it.
+3. **WSClean built from source for this CPU.** It needs a source download. It decides the speed question, with the held-out skies timed too.
 4. **Further tests, none started.** A close-to-threshold stop with its own held-out test; a comparison with pfb-imaging
    (`rang-pfb-imaging:0.0.11` is built locally).

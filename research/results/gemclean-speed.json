@@ -1,0 +1,526 @@
+{
+ "commit": "3945394",
+ "host": "16 threads, WSL 2, data and outputs on the WSL disk",
+ "repeats": 3,
+ "wsclean": "3.7-1kern1 in rang-o-casa:6.7.6.14; /usr/bin/wsclean holds the gridder, 0 ymm or zmm instructions",
+ "gemclean_main": "cargo +1.93, profile gemclean (fat LTO), target-cpu x86-64-v3, kernels at AVX-512",
+ "gemclean_baseline": "same commit, RUSTFLAGS -C target-cpu=x86-64, RANG_WGRIDDER_SIMD=baseline, RANG_GEMCLEAN_SIMD=baseline",
+ "main": {
+  "wsclean/s1-abs-minres-fast-j1": {
+   "wall_s": [
+    78.72,
+    79.55,
+    80.21
+   ],
+   "wall_median_s": 79.55,
+   "spread": 0.019,
+   "user_median_s": 75.4,
+   "sys_median_s": 4.0,
+   "rss_gb": 0.57,
+   "outside_minus_inside_s": 0.38,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s1-abs-minres-fast-j16": {
+   "wall_s": [
+    20.7,
+    20.84,
+    21.13
+   ],
+   "wall_median_s": 20.84,
+   "spread": 0.021,
+   "user_median_s": 127.4,
+   "sys_median_s": 7.1,
+   "rss_gb": 0.57,
+   "outside_minus_inside_s": 0.9,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s1-abs-nominres-fast-j1": {
+   "wall_s": [
+    165.45,
+    165.2,
+    166.26
+   ],
+   "wall_median_s": 165.45,
+   "spread": 0.006,
+   "user_median_s": 159.5,
+   "sys_median_s": 5.8,
+   "rss_gb": 0.79,
+   "outside_minus_inside_s": 0.3,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s1-abs-nominres-fast-j16": {
+   "wall_s": [
+    33.39,
+    33.59,
+    34.2
+   ],
+   "wall_median_s": 33.59,
+   "spread": 0.024,
+   "user_median_s": 306.0,
+   "sys_median_s": 11.3,
+   "rss_gb": 0.8,
+   "outside_minus_inside_s": 0.36,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s1-abs-nominres-hogbom-j16": {
+   "wall_s": [
+    321.32,
+    322.82,
+    321.72
+   ],
+   "wall_median_s": 321.72,
+   "spread": 0.005,
+   "user_median_s": 804.2,
+   "sys_median_s": 62.0,
+   "rss_gb": 0.8,
+   "outside_minus_inside_s": 0.3,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s2-abs-minres-fast-j1": {
+   "wall_s": [
+    81.28,
+    80.23,
+    80.53
+   ],
+   "wall_median_s": 80.53,
+   "spread": 0.013,
+   "user_median_s": 76.6,
+   "sys_median_s": 4.0,
+   "rss_gb": 0.57,
+   "outside_minus_inside_s": 0.37,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s2-abs-minres-fast-j16": {
+   "wall_s": [
+    20.11,
+    21.57,
+    21.35
+   ],
+   "wall_median_s": 21.35,
+   "spread": 0.068,
+   "user_median_s": 128.2,
+   "sys_median_s": 7.3,
+   "rss_gb": 0.57,
+   "outside_minus_inside_s": 0.85,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s2-abs-nominres-fast-j1": {
+   "wall_s": [
+    166.41,
+    188.01,
+    164.64
+   ],
+   "wall_median_s": 166.41,
+   "spread": 0.14,
+   "user_median_s": 160.3,
+   "sys_median_s": 6.0,
+   "rss_gb": 0.79,
+   "outside_minus_inside_s": 0.31,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s2-abs-nominres-fast-j16": {
+   "wall_s": [
+    34.79,
+    34.19,
+    34.63
+   ],
+   "wall_median_s": 34.63,
+   "spread": 0.017,
+   "user_median_s": 310.8,
+   "sys_median_s": 11.1,
+   "rss_gb": 0.8,
+   "outside_minus_inside_s": 0.32,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s3-abs-minres-fast-j1": {
+   "wall_s": [
+    60.09,
+    60.06,
+    58.86
+   ],
+   "wall_median_s": 60.06,
+   "spread": 0.02,
+   "user_median_s": 57.0,
+   "sys_median_s": 3.0,
+   "rss_gb": 0.57,
+   "outside_minus_inside_s": 0.39,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s3-abs-minres-fast-j16": {
+   "wall_s": [
+    18.15,
+    18.41,
+    18.58
+   ],
+   "wall_median_s": 18.41,
+   "spread": 0.023,
+   "user_median_s": 93.7,
+   "sys_median_s": 5.3,
+   "rss_gb": 0.57,
+   "outside_minus_inside_s": 0.78,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s3-abs-nominres-fast-j1": {
+   "wall_s": [
+    121.06,
+    121.95,
+    119.48
+   ],
+   "wall_median_s": 121.06,
+   "spread": 0.02,
+   "user_median_s": 116.5,
+   "sys_median_s": 4.5,
+   "rss_gb": 0.79,
+   "outside_minus_inside_s": 0.29,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s3-abs-nominres-fast-j16": {
+   "wall_s": [
+    27.09,
+    27.18,
+    28.38
+   ],
+   "wall_median_s": 27.18,
+   "spread": 0.047,
+   "user_median_s": 217.2,
+   "sys_median_s": 8.0,
+   "rss_gb": 0.8,
+   "outside_minus_inside_s": 0.34,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s1-abs-nominres-fast-j1": {
+   "wall_s": [
+    56.09,
+    57.58,
+    56.87
+   ],
+   "wall_median_s": 56.87,
+   "spread": 0.026,
+   "user_median_s": 53.7,
+   "sys_median_s": 2.7,
+   "rss_gb": 3.34,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s1-abs-nominres-fast-j16": {
+   "wall_s": [
+    14.59,
+    14.56,
+    15.19
+   ],
+   "wall_median_s": 14.59,
+   "spread": 0.043,
+   "user_median_s": 142.9,
+   "sys_median_s": 9.1,
+   "rss_gb": 3.38,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s2-abs-nominres-fast-j1": {
+   "wall_s": [
+    55.45,
+    55.55,
+    58.48
+   ],
+   "wall_median_s": 55.55,
+   "spread": 0.055,
+   "user_median_s": 53.4,
+   "sys_median_s": 2.1,
+   "rss_gb": 3.34,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s2-abs-nominres-fast-j16": {
+   "wall_s": [
+    14.94,
+    15.45,
+    14.32
+   ],
+   "wall_median_s": 14.94,
+   "spread": 0.076,
+   "user_median_s": 144.4,
+   "sys_median_s": 9.3,
+   "rss_gb": 3.38,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s3-abs-nominres-fast-j1": {
+   "wall_s": [
+    46.42,
+    47.24,
+    46.23
+   ],
+   "wall_median_s": 46.42,
+   "spread": 0.022,
+   "user_median_s": 44.0,
+   "sys_median_s": 2.4,
+   "rss_gb": 3.34,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s3-abs-nominres-fast-j16": {
+   "wall_s": [
+    12.54,
+    12.14,
+    13.11
+   ],
+   "wall_median_s": 12.54,
+   "spread": 0.077,
+   "user_median_s": 116.4,
+   "sys_median_s": 7.6,
+   "rss_gb": 3.38,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "baseline": {
+  "wsclean/s1-abs-nominres-fast-j1": {
+   "wall_s": [
+    163.3,
+    164.96,
+    163.96
+   ],
+   "wall_median_s": 163.96,
+   "spread": 0.01,
+   "user_median_s": 157.9,
+   "sys_median_s": 5.8,
+   "rss_gb": 0.79,
+   "outside_minus_inside_s": 0.31,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "wsclean/s1-abs-nominres-fast-j16": {
+   "wall_s": [
+    33.03,
+    33.23,
+    32.96
+   ],
+   "wall_median_s": 33.03,
+   "spread": 0.008,
+   "user_median_s": 299.6,
+   "sys_median_s": 11.0,
+   "rss_gb": 0.8,
+   "outside_minus_inside_s": 0.65,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s1-abs-nominres-fast-j1": {
+   "wall_s": [
+    331.4,
+    329.29,
+    328.58
+   ],
+   "wall_median_s": 329.29,
+   "spread": 0.009,
+   "user_median_s": 327.3,
+   "sys_median_s": 1.9,
+   "rss_gb": 3.34,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s1-abs-nominres-fast-j16": {
+   "wall_s": [
+    36.93,
+    36.41,
+    36.67
+   ],
+   "wall_median_s": 36.67,
+   "spread": 0.014,
+   "user_median_s": 487.0,
+   "sys_median_s": 8.1,
+   "rss_gb": 3.38,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s2-abs-nominres-fast-j1": {
+   "wall_s": [
+    329.29,
+    329.48,
+    329.9
+   ],
+   "wall_median_s": 329.48,
+   "spread": 0.002,
+   "user_median_s": 327.4,
+   "sys_median_s": 1.9,
+   "rss_gb": 3.34,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s2-abs-nominres-fast-j16": {
+   "wall_s": [
+    36.81,
+    36.96,
+    37.09
+   ],
+   "wall_median_s": 36.96,
+   "spread": 0.008,
+   "user_median_s": 490.9,
+   "sys_median_s": 8.4,
+   "rss_gb": 3.38,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s3-abs-nominres-fast-j1": {
+   "wall_s": [
+    276.3,
+    277.51,
+    276.16
+   ],
+   "wall_median_s": 276.3,
+   "spread": 0.005,
+   "user_median_s": 274.3,
+   "sys_median_s": 1.9,
+   "rss_gb": 3.34,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  },
+  "gemclean/s3-abs-nominres-fast-j16": {
+   "wall_s": [
+    31.0,
+    31.44,
+    31.28
+   ],
+   "wall_median_s": 31.28,
+   "spread": 0.014,
+   "user_median_s": 407.8,
+   "sys_median_s": 6.6,
+   "rss_gb": 3.38,
+   "outside_minus_inside_s": 0.01,
+   "exits": [
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "wsclean_over_gemclean_main": {
+  "s1-j16-nominres": 2.3,
+  "s1-j16-minres": 1.43,
+  "s1-j1-nominres": 2.91,
+  "s1-j1-minres": 1.4,
+  "s2-j16-nominres": 2.32,
+  "s2-j16-minres": 1.43,
+  "s2-j1-nominres": 3.0,
+  "s2-j1-minres": 1.45,
+  "s3-j16-nominres": 2.17,
+  "s3-j16-minres": 1.47,
+  "s3-j1-nominres": 2.61,
+  "s3-j1-minres": 1.29
+ },
+ "wsclean_over_gemclean_baseline": {
+  "s1-j16-nominres": 0.92,
+  "s1-j16-minres": 0.57,
+  "s1-j1-nominres": 0.5,
+  "s1-j1-minres": 0.24,
+  "s2-j16-nominres": 0.94,
+  "s2-j16-minres": 0.58,
+  "s2-j1-nominres": 0.51,
+  "s2-j1-minres": 0.24,
+  "s3-j16-nominres": 0.87,
+  "s3-j16-minres": 0.59,
+  "s3-j1-nominres": 0.44,
+  "s3-j1-minres": 0.22
+ }
+}

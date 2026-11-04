@@ -19,6 +19,8 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Timing pass, 2026-11-04 (measured at `3945394`; [gemclean-speed.md](gemclean-speed.md)): 57 jobs plus a baseline pass of 24. GeMClean with AVX-512 is 1.3-1.5 times faster than WSClean 3.7 at its defaults and 2.2-3.0 times at matched gridding accuracy on S1-S3, with 4-6 times the memory. The KERN WSClean's gridder is SSE2 only; with GeMClean at baseline code WSClean is faster (GeMClean takes 1.1 to 4.5 times as long). **No novelty claim follows.** Next, an owner decision: build WSClean from source for this CPU and time the held-out skies too. Outputs in `D:\rang\outputs\20261104-speed`.
+
 Many-pass solver, 2026-11-03 (merged; [note](gram-solver.md)): **a speed gain only against FISTA run on the exact gridder**
 (22.7 G against 131 G instructions per iteration on S1), none against a PSF inner loop with exact passes (9.5-17.6 T against 64.6 T
 for the operator alone) and none against CLEAN, so the novelty rule is not met. Signed ℓ1 at λ = 100 µJy has false flux about ×3

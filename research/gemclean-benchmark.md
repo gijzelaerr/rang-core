@@ -9,6 +9,8 @@ measured to a usable standard.** Archive:
 `outputs/gmclean-bench-20261102/` in the worktree; the datasets are also in
 `/home/gijsm/Build/tmp/20261102-gmclean-bench/`.
 
+> The quiet-host timing is in [gemclean-speed.md](gemclean-speed.md), 2026-11-04.
+>
 > **Every wall time, CPU time and speed comparison in this note is PROVISIONAL
 > (contended).** All runs shared the 16-core host with other sessions
 > (rustc builds, `b1_pointing_selfcal` fits, gemclean tuning, a check-all; load
@@ -318,7 +320,7 @@ fast jobs of WSClean have the first record only. The script now holds
 `/home/gijsm/.rang-heavy.lock` for each job (`BENCH_LOCK`), so heavy jobs take turns;
 of the runs here only the `-mgain 0.1` test and its scoring held it.
 
-## 7. Timing subset to rerun on a quiet host (proposed)
+## 7. Timing subset to rerun on a quiet host (run 2026-11-04; [gemclean-speed.md](gemclean-speed.md))
 
 ```bash
 bash examples/gemclean_bench_timing.sh GEMCLEAN_BINARY outputs/gemclean-bench-timing 3
@@ -373,7 +375,7 @@ The full WSClean matrix is 24 jobs per dataset; this run did not do all of it (�
   work also needs, for little: the fast-loop grids agree in Q to about 0.1 %. The run script skips
   finished jobs, so `bash examples/gemclean_bench_run.sh wsclean
   outputs/gmclean-bench-20261102/wsclean s1 s2 s3` completes the 24 jobs per dataset.
-- The quiet-window timing (§7). No speed result exists.
+- The quiet-window timing (§7) was done later and is not a matched comparison: [gemclean-speed.md](gemclean-speed.md).
 - The gemclean matrix at the current tip of `gemclean`. gemclean work is continuing elsewhere;
   these results describe `d94850e` only, except §4.5.
 
