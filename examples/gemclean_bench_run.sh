@@ -21,6 +21,9 @@
 #                   (default /home/gijsm/.rang-heavy.lock: heavy jobs on this
 #                   host take turns); wall times come from GNU time, not
 #                   from jobs.tsv alone, so the wait for the lock is not counted
+#   BENCH_WSCLEAN_IMAGE  image holding wsclean and /usr/bin/time (default
+#                   rang-o-casa:6.7.6.14; tools/oracles/wsclean-native builds
+#                   one for this CPU)
 #   BENCH_TEMPLATE  command line for a non-WSClean imager, with placeholders
 #                   {ms} {datacol} {field} {size} {scale} {threads} {mode}
 #                   {abs_threshold} {threshold_args} {grid} {loop} {out} {niter}
@@ -57,7 +60,7 @@ shift 2
 datasets=("$@")
 [ ${#datasets[@]} -eq 0 ] && datasets=(s1 s2 s3 slice)
 data=$(realpath -m "${BENCH_DATA:-$root/outputs/gmclean-bench-20261102/data}")
-image=rang-o-casa:6.7.6.14
+image=${BENCH_WSCLEAN_IMAGE:-rang-o-casa:6.7.6.14}
 threads_list=${BENCH_THREADS:-"16 1"}
 modes=${BENCH_MODES:-"auto abs"}
 grids=${BENCH_GRIDS:-"minres nominres pad2"}
