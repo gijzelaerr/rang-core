@@ -35,13 +35,13 @@ Draft paper: [paper/clean-theory/main.tex](paper/clean-theory/main.tex).
   instructions, faster only than FISTA on the exact gridder. Not compared with BASPLib, PURIFY, resolve or pfb-imaging.
   [gram-solver.md](gram-solver.md).
 - **A visibility-free major cycle does not pay at GeMClean's cycle count.** [gridder-theory.md](gridder-theory.md).
-- **Speed gives no novelty so far.** On S1-S3 GeMClean with AVX-512 is 1.3-1.5 times faster than the KERN WSClean at its defaults and
-  2.2-3.0 times at matched gridding accuracy, but that WSClean's gridder is SSE2 only. With GeMClean at baseline code WSClean is
-  faster on every job: GeMClean takes 1.1 to 4.5 times as long. GeMClean uses 4-6 times the memory. [gemclean-speed.md](gemclean-speed.md).
+- **Speed gives no novelty so far.** Against WSClean 3.7 built for this CPU, on S1-S3 and H1-H4: at matched gridding accuracy GeMClean is 1.21-2.35
+  times faster at `-j 16`, 0.93-2.09 at `-j 1`. With `-single -wgridder-accuracy 1e-4` against WSClean's default accuracy and its fastest `-mgain` on each sky,
+  1.05-2.91 at `-j 16` and 0.60-1.55 at `-j 1`, slower on H1-H3. GeMClean uses 3-5 times the memory. [gemclean-speed.md](gemclean-speed.md).
 
 ## Not established
 
-- Any speed claim against a WSClean built for the same CPU. None has been built. Held-out skies have not been timed.
+- Any speed claim that survives a single core, real data or another host. Only `-mgain` was tuned on WSClean's side.
 - Real-data accuracy: there is no truth on the pilot, whose floor is 40-60 × thermal in all three imagers, for a reason not
   found. One scan, one flat-spectrum term, no `-channels-out`, no multiscale.
 - The full 7 h track: about 126 GB to fetch and, roughly, 110 GB of memory at 2× averaging. GeMClean used 18 GB on 152 M
@@ -54,6 +54,6 @@ Draft paper: [paper/clean-theory/main.tex](paper/clean-theory/main.tex).
 1. **The WSClean report** ([draft](../outputs/clean-theory-20261030/wsclean-report-draft.md), not in the repository). Held until this overview.
    Nothing in the later work changes its three findings.
 2. **The paper.** Read the draft; say whether the early reader is named. The name GeMClean has not been checked for clashes.
-3. **WSClean built from source for this CPU.** It needs a source download. It decides the speed question, with the held-out skies timed too.
+3. **`-single -wgridder-accuracy 1e-4` as GeMClean's default?** It takes 24-38 % off the time and 0.9-1.2 GB off the memory at 2048², and leaves the exact inner peak up to 25 % above the threshold. Not changed.
 4. **Further tests, none started.** A close-to-threshold stop with its own held-out test; a comparison with pfb-imaging
    (`rang-pfb-imaging:0.0.11` is built locally).

@@ -1478,3 +1478,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-03 | `pdflatex`, draft paper, twice | 5 pages | under 1 min | – | Windows |
 | 2026-11-04 | timing pass, `gemclean_bench_timing.sh`, 57 jobs | S1-S3, 3 repeats, gemclean build 1 run | 1 h 22 min | see [gemclean-speed.md](gemclean-speed.md) | quiet host, flock per job |
 | 2026-11-04 | baseline pass, 18 gemclean jobs, 6 WSClean controls | S1-S3, 3 repeats, build 1 min 57 s | about 1 h | see [gemclean-speed.md](gemclean-speed.md) | quiet host, flock per job |
+| 2026-11-04 | `docker build`, WSClean v3.7 native | 16 threads | 3 min 46 s | – | quiet host |
+| 2026-11-04 | native pass, 129 runs | 7 skies, 3 repeats | see [gemclean-speed.md](gemclean-speed.md) | see there | quiet host, flock per job |
+| 2026-11-04 | GeMClean coarse, 56 runs and scoring | 7 skies | see [gemclean-speed.md](gemclean-speed.md) | see there | quiet host, flock per job |
+| 2026-11-04 | WSClean `-mgain` 0.9 and 0.95, 30 runs and scoring | 7 skies, 1 repeat | see [gemclean-speed.md](gemclean-speed.md) | see there | quiet host, flock per job |

@@ -19,6 +19,8 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Native timing, 2026-11-04 (measured at `3945394`; [gemclean-speed.md](gemclean-speed.md)): WSClean v3.7 built with `-DPORTABLE=OFF`, S1-S3 and H1-H4, `-j 16` and `-j 1`. At matched accuracy WSClean over GeMClean is 1.21-2.35 at `-j 16`, 0.93-2.09 at `-j 1`. GeMClean `-single -wgridder-accuracy 1e-4` (24-38 % faster, 2.2-2.45 GB) against WSClean's default accuracy and its fastest `-mgain` per sky: 1.05-2.91 and 0.60-1.55, with WSClean faster on H1-H3 on one core. **No novelty claim.** Coarse gridding is not the default; that is an owner decision. Next: optimising GeMClean's code.
+
 Timing pass, 2026-11-04 (measured at `3945394`; [gemclean-speed.md](gemclean-speed.md)): 57 jobs plus a baseline pass of 24. GeMClean with AVX-512 is 1.3-1.5 times faster than WSClean 3.7 at its defaults and 2.2-3.0 times at matched gridding accuracy on S1-S3, with 4-6 times the memory. The KERN WSClean's gridder is SSE2 only; with GeMClean at baseline code WSClean is faster (GeMClean takes 1.1 to 4.5 times as long). **No novelty claim follows.** Next, an owner decision: build WSClean from source for this CPU and time the held-out skies too. Outputs in `D:\rang\outputs\20261104-speed`.
 
 Many-pass solver, 2026-11-03 (merged; [note](gram-solver.md)): **a speed gain only against FISTA run on the exact gridder**

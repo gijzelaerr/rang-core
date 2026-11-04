@@ -24,7 +24,9 @@
 #   BENCH_WSCLEAN_IMAGE  image holding wsclean and /usr/bin/time (default
 #                   rang-o-casa:6.7.6.14; tools/oracles/wsclean-native builds
 #                   one for this CPU)
-#   BENCH_TEMPLATE  command line for a non-WSClean imager, with placeholders
+#   BENCH_WSCLEAN_ARGS  more WSClean options, after the matrix's own, for example
+#                   "-mgain 0.9"
+#   BENCH_TEMPLATE command line for a non-WSClean imager, with placeholders
 #                   {ms} {datacol} {field} {size} {scale} {threads} {mode}
 #                   {abs_threshold} {threshold_args} {grid} {loop} {out} {niter}
 #                   ({threshold_args}: BENCH_AUTO_ARGS, default
@@ -134,6 +136,8 @@ for ds in "${datasets[@]}"; do
               pad2) args+=(-no-min-grid-resolution -wgridder-accuracy 1e-6 -padding 2) ;;
             esac
             [ "$loop" = hogbom ] && args+=(-no-fast-subminor)
+            # shellcheck disable=SC2206
+            args+=(${BENCH_WSCLEAN_ARGS:-})
             s=$(date +%s.%N)
             set +e
             docker run --rm --user "$(id -u):$(id -g)" --network none -e HOME=/tmp \

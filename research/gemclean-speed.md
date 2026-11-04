@@ -1,11 +1,78 @@
 # Rang: GeMClean against WSClean 3.7, wall time on a quiet host
 
-Status, 2026-11-04: **measured, and not a matched comparison.** GeMClean is faster than the packaged WSClean, but that
-WSClean's gridder has no instruction wider than SSE2 and GeMClean's uses AVX-512. With GeMClean capped to its baseline
-code the lead is gone. No claim of novelty follows. Archive: [results/gemclean-speed.json](results/gemclean-speed.json).
-Outputs: `D:\rang\outputs\20261104-speed` (`out/` the main pass, `sse2/out/` the baseline pass, with both binaries).
+Status, 2026-11-04: **measured against WSClean built for this CPU; no claim of novelty.** At `-j 16` GeMClean is faster on all seven
+skies, narrowly on H2 and H3. At `-j 1` WSClean is faster on H1-H3 at its best setting tried. GeMClean uses 3-5 times the memory.
+Archives: [results/gemclean-speed-native.json](results/gemclean-speed-native.json) (this pass),
+[results/gemclean-speed.json](results/gemclean-speed.json) (the SSE2 package). Outputs: `D:\rang\outputs\20261104-speed`
+(`native/`, `opt/e1`, `opt/e2`; `out/` and `sse2/out/` for the package).
 
-## Result
+## Against WSClean built for this CPU (measured)
+
+WSClean v3.7 (`4f395b2`) from source, `-DPORTABLE=OFF`, in `rang-wsclean-native:3.7` ([Dockerfile](../tools/oracles/wsclean-native/Dockerfile)):
+about 79,800 ymm and zmm instructions, against none in the package. GeMClean as before, `3945394`. Threshold 100 µJy, Briggs 0.5, gain 0.1.
+Wall time in seconds. "GeMClean" and "`nominres`" have the same gridding accuracy (1e-6); "GeMClean coarse" is `-single -wgridder-accuracy 1e-4`,
+to set against WSClean's default accuracy, 1e-4 in `minres`. GeMClean, its coarse form and `-mgain 0.8` are medians of three repeats; `-mgain 0.9` and `0.95` are one run each.
+
+`-j 16`:
+
+| Sky | GeMClean | GeMClean coarse | WSClean `nominres` | `minres` | `minres -mgain 0.9` | `minres -mgain 0.95` |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | 14.5 | 9.7 | 27.2 | 17.6 | 13.2 | 20.4 |
+| S2 | 14.9 | 9.9 | 28.2 | 19.0 | 14.0 | 20.9 |
+| S3 | 12.2 | 8.5 | 22.3 | 16.2 | 20.2 | 14.8 |
+| H1 | 17.0 | 10.7 | 27.3 | 16.7 | 14.7 | 21.5 |
+| H2 | 19.5 | 14.8 | 24.0 | 16.4 | 15.6 | 21.5 |
+| H3 (4096²) | 54.9 | 35.5 | 66.1 | 41.0 | 41.0 | 107 |
+| H4 | 14.7 | 9.6 | 34.5 | 27.9 | 39.8 | 76.0 |
+
+`-j 1`:
+
+| Sky | GeMClean | GeMClean coarse | WSClean `nominres` | `minres` | `minres -mgain 0.9` | `minres -mgain 0.95` |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | 54.3 | 35.4 | 112 | 52.3 | 37.4 | 38.7 |
+| S2 | 55.0 | 36.4 | 115 | 58.1 | 36.9 | 39.2 |
+| S3 | 46.4 | 29.6 | 83.8 | 44.5 | 38.7 | 30.1 |
+| H1 | 64.0 | 44.5 | 113 | 52.7 | 37.9 | 40.7 |
+| H2 | 72.8 | 54.2 | 80.6 | 44.1 | 35.7 | 35.8 |
+| H3 (4096²) | 206 | 129 | 192 | 97.1 | 77.3 | 134 |
+| H4 | 56.0 | 35.1 | 91.4 | 54.3 | 59.3 | 93.4 |
+
+The fastest WSClean `minres` setting over GeMClean coarse, S1, S2, S3, H1, H2, H3, H4: 1.36, 1.41, 1.74, 1.37, 1.05, 1.15, 2.91 at `-j 16`, and
+1.06, 1.01, 1.02, 0.85, 0.66, 0.60, 1.55 at `-j 1`. WSClean's best time on each sky is picked after the fact among three `-mgain` values, so these ratios favour it.
+At matched accuracy, `nominres` over GeMClean: 1.21-2.35 at `-j 16`, 0.93-2.09 at `-j 1`.
+
+Accuracy at `-j 16`, scored through the exact gridder (`examples/gemclean_bench_compare.py score`), first repeat. Each cell is
+GeMClean coarse / `minres` / `minres -mgain 0.9`; the last column is GeMClean's default and WSClean's `nominres`.
+
+| Sky | Q/Q_truth | false flux, mJy | exact inner peak, µJy | major cycles | false flux, mJy, GeMClean / `nominres` |
+| --- | --- | --- | --- | --- | --- |
+| S1 | 1.01359 / 1.01372 / 1.01420 | 4.32 / 5.34 / 5.24 | 125 / 187 / 269 | 5 / 9 / 5 | 4.34 / 3.70 |
+| S2 | 1.01517 / 1.01514 / 1.01634 | 4.91 / 6.02 / 6.23 | 122 / 176 / 286 | 5 / 9 / 5 | 4.88 / 3.93 |
+| S3 | 1.00987 / 1.01002 / 1.00994 | 1.56 / 1.65 / 1.52 | 102 / 214 / 149 | 4 / 6 / 4 | 1.57 / 1.53 |
+| H1 | 1.01417 / 1.01469 / 1.01431 | 1.43 / 4.71 / 4.67 | 108 / 265 / 212 | 6 / 8 / 5 | 1.43 / 1.12 |
+| H2 | 1.00999 / 1.01059 / 1.01075 | 6.09 / 7.21 / 9.97 | 101 / 223 / 276 | 7 / 6 / 4 | 6.16 / 6.93 |
+| H3 | 1.02541 / 1.02584 / 1.02610 | 11.77 / 9.93 / 10.99 | 107 / 317 / 258 | 7 / 9 / 5 | 11.84 / 7.97 |
+| H4 | 1.00336 / 1.00304 / 1.00334 | 5.23 / 8.50 / 31.36 | 100 / 169 / 282 | 5 / 6 / 4 | 5.33 / 8.04 |
+
+Coarse gridding hardly moves GeMClean's own scores: Q/Q_truth by at most 1e-4, false flux by at most 0.1 mJy. The exact inner peak rises to as much as
+125 µJy for a 100 µJy threshold, and the cycle counts change on H2 and H3 (6 to 7, 8 to 7). Deeper `-mgain` costs WSClean false flux, most on the extended sky: 8.5, 31, 101 mJy on H4 at 0.8, 0.9, 0.95.
+At 0.95 false flux is above GeMClean coarse's on all seven skies, at 0.9 on all but S3 and H3 (full rows in the archive).
+
+Peak RSS, GB, 2048² / H3: GeMClean 3.4 / 6.0; coarse 2.2-2.45 / 5.3; WSClean `nominres` 0.80 / 1.84; `minres` 0.57 / 1.11.
+
+Reading this:
+
+- **The `-j 16` lead is in part thread scaling, not per-core speed.** WSClean `minres` gains 3.0 times from 16 threads on S1, GeMClean coarse 3.7 times, and deeper `-mgain` can make WSClean's `-j 16` run nearly as slow as `-j 1`
+  (H3 at 0.95: 107 s against 134 s, for 4 cycles; the cause was not looked at). WSClean runs in Docker with its data on a bind mount; beyond the 0.3-0.9 s of the container start that has not been costed.
+- **Against the novelty rule: still not met.** Coarse GeMClean at `-j 16` is the first form faster on every sky, at mostly equal or better scores. But false flux on H3 and misfit on S2 and H4 are worse than `minres`, the gain on H2 and H3 is 5-15 %, a single core reverses it
+  on the hard skies, memory is 3-5 times worse, the data are simulated on one host, and S1-S3 are the skies the stop rule was tuned on.
+- **WSClean `minres` at `-j 16` is not repeatable,** on all seven skies: 2,499 to 46,064 model pixels differ between repeats of one command, up to 2.6 mJy. Its scores are of one repeat and carry that scatter, not measured here. GeMClean's images are identical across all repeats, default and coarse, and between 1 and 16 threads at the default.
+- **`-mgain` was the only WSClean setting tuned here.** Others might help it. GeMClean's coarse form has not been run on the real pilot.
+
+Run details. 129 native runs 2026-11-04, interleaved, plus 42 GeMClean coarse and 14 at `1e-5` (not tabled; in the archive), and 30 at other `-mgain` with its control, not interleaved. The S1 `minres` control repeated at 17.3 s and 49.8 s against 17.6 s and 52.3 s. All exits 0. Spread of three repeats at most 14 %.
+The runs used working copies of the Measurement Sets, and their checksum files were deleted with them, so that check is not on record for this pass; the source sets on `D:` were not opened for writing, and `-j 1` and GeMClean images repeat exactly. The held-out `prepare` arrays had been removed and were rebuilt in `D:\rang\outputs\20261104-speed\prep-h`.
+
+## Against the SSE2 package (measured)
 
 Median wall time of three repeats, seconds, S1 / S2 / S3 at 100 µJy (`abs`). `nominres` is
 `-no-min-grid-resolution -wgridder-accuracy 1e-6`, GeMClean's own gridding accuracy; `minres` is WSClean's default
@@ -31,7 +98,7 @@ pessimistic for GeMClean: its major-cycle time at `-j 1` rises 7.5 times (33.8 t
 hand-written SSE2 path, while WSClean's gridder is built for that width. The cause of the 7.5 was not analysed. FFTW in the WSClean
 image holds AVX code in both rows, as GeMClean's FFT does.
 
-The number that needs a third run is WSClean built for this CPU. It has not been built, because that takes a source download.
+The third run, WSClean built for this CPU, is the section above.
 
 ## Where the time goes
 
@@ -41,7 +108,7 @@ that comes from the method is the cycle count, and that part has its own limits:
 
 - S1-S3 are the skies the stop rule was tuned on: 5, 5, 4 cycles against 9, 9, 6. On the held-out skies GeMClean used
   6, 6, 8, 5 against WSClean fast's 9, 6, 9, 6 ([gemclean-heldout.md](gemclean-heldout.md)), so the same ratio cannot be
-  expected there. Those skies have not been timed.
+  expected there. They were timed in the section above.
 - The two loops do not end at the same place. WSClean fast stops at inner peaks of 178-245 µJy, GeMClean at 100 µJy, and
   WSClean's plain loop at 102-117 µJy, for 22 times GeMClean's time on S1 at `-j 16`. The plain loop is almost all
   deconvolution, 298 of 322 s, and is not how WSClean is normally run.
@@ -86,5 +153,4 @@ Commit `3945394`. Host: 16 threads, WSL 2; data and outputs on the WSL disk. Hea
   rep 1 `-j 1` jobs, `llama-server` (about 100 %), an effect the spread does not show. `WmiPrvSE` is the load probe itself.
   Load before a job is mostly the decay of the job before it, and the 60 s load samples add little, since most jobs last about one sample.
 
-Not measured: WSClean built from source, held-out skies, real data, `-channels-out`, GeMClean at a coarser gridding accuracy,
-and any other host.
+Not measured: real data, `-channels-out`, WSClean settings other than `-mgain`, and any other host.
