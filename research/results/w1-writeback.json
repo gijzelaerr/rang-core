@@ -1,0 +1,731 @@
+{
+ "task": "W1 write-back (research/w1-writeback.md)",
+ "code_commit": "2b51f8192695409922685ae1b48a3a754cd92724",
+ "runs": {
+  "oracles": "/mnt/d/rang/w1/w1-20261106-01",
+  "m3": "/mnt/d/rang/w1/m3-20261106-01"
+ },
+ "oracles": {
+  "run": "/mnt/d/rang/w1/w1-20261106-01",
+  "ms": {
+   "m1": {
+    "added": {
+     "MODEL_DATA": true,
+     "CORRECTED_DATA": true,
+     "WEIGHT_SPECTRUM": false
+    },
+    "unwritten_unchanged_rang": true,
+    "casacore381_columns_compared": 25,
+    "casacore381_hash_mismatch": [],
+    "casacore381_checks": {
+     "MODEL_DATA == 2 DATA": true,
+     "CORRECTED_DATA == DATA": true,
+     "FLAG == written": true,
+     "FLAG_ROW == written": true,
+     "backup FLAG == pristine FLAG": true,
+     "backup FLAG_ROW == pristine FLAG_ROW": true
+    },
+    "casacore381_unreadable": [
+     "FLAG_CATEGORY"
+    ],
+    "casacore381_unwritten_equal_pristine": true,
+    "casacore381_columns": {
+     "MODEL_DATA": {
+      "valueType": "complex",
+      "dataManagerType": "TiledShapeStMan",
+      "dataManagerGroup": "TiledModel",
+      "ndim": 2,
+      "shape": "[4096    4]",
+      "option": 4,
+      "comment": "The data column",
+      "keywords": {},
+      "dminfo_type": "TiledShapeStMan",
+      "dminfo_name": "TiledModel"
+     },
+     "CORRECTED_DATA": {
+      "valueType": "complex",
+      "dataManagerType": "TiledShapeStMan",
+      "dataManagerGroup": "TiledCorrected",
+      "ndim": 2,
+      "shape": "[4096    4]",
+      "option": 4,
+      "comment": "The data column",
+      "keywords": {
+       "UNIT": "Jy"
+      },
+      "dminfo_type": "TiledShapeStMan",
+      "dminfo_name": "TiledCorrected"
+     },
+     "WEIGHT_SPECTRUM": {
+      "valueType": "float",
+      "dataManagerType": "TiledShapeStMan",
+      "dataManagerGroup": "TiledWgtSpectrum",
+      "ndim": 2,
+      "shape": null,
+      "option": 0,
+      "comment": "Weight for each data point",
+      "keywords": {},
+      "dminfo_type": "TiledShapeStMan",
+      "dminfo_name": "TiledWgtSpectrum"
+     },
+     "FLAG": {
+      "valueType": "boolean",
+      "dataManagerType": "TiledShapeStMan",
+      "dataManagerGroup": "TiledFlag",
+      "ndim": 2,
+      "shape": null,
+      "option": 0,
+      "comment": "The data flags, array of bools with same shape as data",
+      "keywords": {},
+      "dminfo_type": "TiledShapeStMan",
+      "dminfo_name": "TiledFlag"
+     },
+     "FLAG_ROW": {
+      "valueType": "boolean",
+      "dataManagerType": "StandardStMan",
+      "dataManagerGroup": "FLAG_ROW",
+      "ndim": null,
+      "shape": null,
+      "option": 0,
+      "comment": "Row flag - flag all data in this row if True",
+      "keywords": {},
+      "dminfo_type": "StandardStMan",
+      "dminfo_name": "FLAG_ROW"
+     }
+    },
+    "casacore371_columns_compared": 25,
+    "casacore371_hash_mismatch": [],
+    "casacore371_checks": {
+     "MODEL_DATA == 2 DATA": true,
+     "CORRECTED_DATA == DATA": true,
+     "FLAG == written": true,
+     "FLAG_ROW == written": true,
+     "backup FLAG == pristine FLAG": true,
+     "backup FLAG_ROW == pristine FLAG_ROW": true
+    },
+    "casacore371_unreadable": [
+     "FLAG_CATEGORY"
+    ],
+    "casacore371_unwritten_equal_pristine": true,
+    "daskms_columns_compared": 6,
+    "daskms_hash_mismatch": [],
+    "daskms_checks": {
+     "MODEL_DATA == 2 DATA": true,
+     "CORRECTED_DATA == DATA": true,
+     "FLAG == written": true,
+     "FLAG_ROW == written": true
+    },
+    "daskms_unreadable": [],
+    "casarestore_flags_equal_pristine": true,
+    "casasave_flags_equal_pristine": true,
+    "casa_lists_rang_original": true,
+    "casa_list": {
+     "0": {
+      "name": "rang_original",
+      "comment": "rang write-back: flags before w1-oracles"
+     },
+     "MS": "/run/m1.ms"
+    },
+    "split_corrected": {
+     "rows": [
+      140,
+      140
+     ],
+     "split DATA == CORRECTED_DATA": true,
+     "FLAG equal": true,
+     "FLAG_ROW equal": true
+    },
+    "split_model": {
+     "rows": [
+      140,
+      140
+     ],
+     "split DATA == MODEL_DATA": true,
+     "FLAG equal": true,
+     "FLAG_ROW equal": true
+    },
+    "applycal": {
+     "cells": 2293760,
+     "max_abs": 0.0,
+     "max_rel": 0.0,
+     "cells_failing_class_C": 0,
+     "cells_failing_unflagged": 0,
+     "exactly_equal": true
+    },
+    "wsclean": {
+     "peak_DATA": 3.1765031814575195,
+     "max_abs_CORRECTED_minus_DATA": 0.0,
+     "rel_CORRECTED": 0.0,
+     "max_abs_MODEL_minus_2DATA": 0.0,
+     "rel_MODEL": 0.0
+    },
+    "quartical_reported_not_gated": {
+     "median_abs_gain_parallel": 0.7071067811857501,
+     "expected": 0.7071067811865475,
+     "max_abs_deviation": 7.973621762857874e-13,
+     "n": 8,
+     "flagged_solutions": [
+      0,
+      4
+     ]
+    }
+   },
+   "m2": {
+    "added": {
+     "MODEL_DATA": false,
+     "CORRECTED_DATA": false,
+     "WEIGHT_SPECTRUM": false
+    },
+    "unwritten_unchanged_rang": true,
+    "casacore381_columns_compared": 26,
+    "casacore381_hash_mismatch": [],
+    "casacore381_checks": {
+     "MODEL_DATA == 2 DATA": true,
+     "CORRECTED_DATA == DATA": true,
+     "FLAG == written": true,
+     "FLAG_ROW == written": true,
+     "backup FLAG == pristine FLAG": true,
+     "backup FLAG_ROW == pristine FLAG_ROW": true
+    },
+    "casacore381_unreadable": [
+     "FLAG_CATEGORY"
+    ],
+    "casacore381_unwritten_equal_pristine": true,
+    "casacore381_columns": {
+     "MODEL_DATA": {
+      "valueType": "complex",
+      "dataManagerType": "StandardStMan",
+      "dataManagerGroup": "StandardStMan",
+      "ndim": 2,
+      "shape": "[2048    4]",
+      "option": 4,
+      "comment": "",
+      "keywords": {},
+      "dminfo_type": "StandardStMan",
+      "dminfo_name": "StandardStMan"
+     },
+     "CORRECTED_DATA": {
+      "valueType": "complex",
+      "dataManagerType": "StandardStMan",
+      "dataManagerGroup": "TiledCorrected",
+      "ndim": 2,
+      "shape": "[2048    4]",
+      "option": 4,
+      "comment": "",
+      "keywords": {},
+      "dminfo_type": "StandardStMan",
+      "dminfo_name": "TiledCorrected"
+     },
+     "WEIGHT_SPECTRUM": {
+      "valueType": "float",
+      "dataManagerType": "StandardStMan",
+      "dataManagerGroup": "StandardStMan",
+      "ndim": 2,
+      "shape": "[2048    4]",
+      "option": 4,
+      "comment": "",
+      "keywords": {},
+      "dminfo_type": "StandardStMan",
+      "dminfo_name": "StandardStMan"
+     },
+     "FLAG": {
+      "valueType": "boolean",
+      "dataManagerType": "StandardStMan",
+      "dataManagerGroup": "StandardStMan",
+      "ndim": 2,
+      "shape": null,
+      "option": 0,
+      "comment": "The data flags, array of bools with same shape as data",
+      "keywords": {},
+      "dminfo_type": "StandardStMan",
+      "dminfo_name": "StandardStMan"
+     },
+     "FLAG_ROW": {
+      "valueType": "boolean",
+      "dataManagerType": "StandardStMan",
+      "dataManagerGroup": "StandardStMan",
+      "ndim": null,
+      "shape": null,
+      "option": 0,
+      "comment": "Row flag - flag all data in this row if True",
+      "keywords": {},
+      "dminfo_type": "StandardStMan",
+      "dminfo_name": "StandardStMan"
+     }
+    },
+    "casacore371_columns_compared": 26,
+    "casacore371_hash_mismatch": [],
+    "casacore371_checks": {
+     "MODEL_DATA == 2 DATA": true,
+     "CORRECTED_DATA == DATA": true,
+     "FLAG == written": true,
+     "FLAG_ROW == written": true,
+     "backup FLAG == pristine FLAG": true,
+     "backup FLAG_ROW == pristine FLAG_ROW": true
+    },
+    "casacore371_unreadable": [
+     "FLAG_CATEGORY"
+    ],
+    "casacore371_unwritten_equal_pristine": true,
+    "daskms_columns_compared": 6,
+    "daskms_hash_mismatch": [],
+    "daskms_checks": {
+     "MODEL_DATA == 2 DATA": true,
+     "CORRECTED_DATA == DATA": true,
+     "FLAG == written": true,
+     "FLAG_ROW == written": true
+    },
+    "daskms_unreadable": [],
+    "casarestore_flags_equal_pristine": true,
+    "casasave_flags_equal_pristine": true,
+    "casa_lists_rang_original": true,
+    "casa_list": {
+     "0": {
+      "name": "rang_original",
+      "comment": "rang write-back: flags before w1-oracles"
+     },
+     "MS": "/run/m2.ms"
+    },
+    "split_corrected": {
+     "rows": [
+      192,
+      192
+     ],
+     "split DATA == CORRECTED_DATA": true,
+     "FLAG equal": true,
+     "FLAG_ROW equal": true
+    },
+    "split_model": {
+     "rows": [
+      192,
+      192
+     ],
+     "split DATA == MODEL_DATA": true,
+     "FLAG equal": true,
+     "FLAG_ROW equal": true
+    },
+    "applycal": {
+     "cells": 1572864,
+     "max_abs": 0.0,
+     "max_rel": 0.0,
+     "cells_failing_class_C": 0,
+     "cells_failing_unflagged": 0,
+     "exactly_equal": true
+    },
+    "wsclean": {
+     "peak_DATA": 9.294971466064453,
+     "max_abs_CORRECTED_minus_DATA": 0.0,
+     "rel_CORRECTED": 0.0,
+     "max_abs_MODEL_minus_2DATA": 0.0,
+     "rel_MODEL": 0.0
+    },
+    "quartical_reported_not_gated": {
+     "median_abs_gain_parallel": 0.7071067811857501,
+     "expected": 0.7071067811865475,
+     "max_abs_deviation": 7.973621762857874e-13,
+     "n": 8,
+     "flagged_solutions": [
+      0,
+      4
+     ]
+    }
+   }
+  },
+  "pass": {
+   "m1 casacore": true,
+   "m1 daskms": true,
+   "m1 flag round trip": true,
+   "m1 CASA split": true,
+   "m1 CASA applycal": true,
+   "m1 WSClean": true,
+   "m2 casacore": true,
+   "m2 daskms": true,
+   "m2 flag round trip": true,
+   "m2 CASA split": true,
+   "m2 CASA applycal": true,
+   "m2 WSClean": true,
+   "m1u WSClean point": false,
+   "all": false
+  },
+  "m1u": {
+   "peak": 1.002298355102539,
+   "peak_pixel": [
+    256,
+    262
+   ],
+   "centre_pixel": [
+    256,
+    256
+   ],
+   "centre_value": 1.000972867012024,
+   "posthoc_max_abs_MODEL_minus_PSF": 0.0009741783142089844,
+   "posthoc_psf_peak": 1.00132417678833,
+   "posthoc_psf_peak_pixel": [
+    256,
+    262
+   ],
+   "posthoc_psf_min_within_8_pixels": 0.9895784854888916
+  }
+ },
+ "m3_size_bytes": 274427065,
+ "memory": {
+  "nrows": 8192,
+  "cell": [
+   1024,
+   4
+  ],
+  "chunk_rows": 512,
+  "rss_before": 41963520,
+  "vmhwm_after": 95068160,
+  "growth": 53104640,
+  "chunk_bytes": 16777216,
+  "column_bytes": 268435456,
+  "bound_chunk": 134217728,
+  "bound_quarter_column": 67108864,
+  "pass": true,
+  "wall_s_reported_not_gated": 22.45
+ },
+ "kill": {
+  "uninterrupted_s": 0.501,
+  "chunk_rows": 256,
+  "cases": [
+   {
+    "at_s": 0.064,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   },
+   {
+    "at_s": 0.066,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   },
+   {
+    "at_s": 0.136,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   },
+   {
+    "at_s": 0.272,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   },
+   {
+    "at_s": 0.297,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   },
+   {
+    "at_s": 0.306,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   },
+   {
+    "at_s": 0.345,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   },
+   {
+    "at_s": 0.374,
+    "killed_running": true,
+    "opens": true,
+    "casacore_reads_flag": true,
+    "journal_state": "open",
+    "flag_differs": true,
+    "refused": true,
+    "restored_equal": true
+   }
+  ]
+ },
+ "timing": {
+  "w1-20261106-01/applycal-compare-m1": {
+   "wall_s": 0.35,
+   "max_rss_kb": 153256,
+   "exit": 0
+  },
+  "w1-20261106-01/applycal-compare-m2": {
+   "wall_s": 0.29,
+   "max_rss_kb": 121456,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-applycal-m1": {
+   "wall_s": 3.83,
+   "max_rss_kb": 296120,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-applycal-m2": {
+   "wall_s": 3.1,
+   "max_rss_kb": 282412,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-list-m1": {
+   "wall_s": 1.98,
+   "max_rss_kb": 275280,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-list-m2": {
+   "wall_s": 3.24,
+   "max_rss_kb": 274360,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-restore-m1": {
+   "wall_s": 1.65,
+   "max_rss_kb": 270588,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-restore-m2": {
+   "wall_s": 2.77,
+   "max_rss_kb": 269580,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-save-m1": {
+   "wall_s": 1.95,
+   "max_rss_kb": 276096,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-save-m2": {
+   "wall_s": 2.71,
+   "max_rss_kb": 273504,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-split-m1-corrected": {
+   "wall_s": 3.59,
+   "max_rss_kb": 304932,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-split-m1-model": {
+   "wall_s": 3.62,
+   "max_rss_kb": 307224,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-split-m2-corrected": {
+   "wall_s": 4.93,
+   "max_rss_kb": 287464,
+   "exit": 0
+  },
+  "w1-20261106-01/casa-split-m2-model": {
+   "wall_s": 4.36,
+   "max_rss_kb": 287300,
+   "exit": 0
+  },
+  "w1-20261106-01/casacore371-m1": {
+   "wall_s": 0.86,
+   "max_rss_kb": 135620,
+   "exit": 0
+  },
+  "w1-20261106-01/casacore371-m2": {
+   "wall_s": 1.42,
+   "max_rss_kb": 98944,
+   "exit": 0
+  },
+  "w1-20261106-01/casacore381-m1": {
+   "wall_s": 1.25,
+   "max_rss_kb": 33192,
+   "exit": 0
+  },
+  "w1-20261106-01/casacore381-m2": {
+   "wall_s": 1.84,
+   "max_rss_kb": 31856,
+   "exit": 0
+  },
+  "w1-20261106-01/columns-m1u": {
+   "wall_s": 0.99,
+   "max_rss_kb": 97612,
+   "exit": 0
+  },
+  "w1-20261106-01/compare": {
+   "wall_s": 0.34,
+   "max_rss_kb": 68024,
+   "exit": 0
+  },
+  "w1-20261106-01/daskms-m1": {
+   "wall_s": 2.8,
+   "max_rss_kb": 292836,
+   "exit": 0
+  },
+  "w1-20261106-01/daskms-m2": {
+   "wall_s": 5.74,
+   "max_rss_kb": 250948,
+   "exit": 0
+  },
+  "w1-20261106-01/hash-casarestore-m1": {
+   "wall_s": 1.92,
+   "max_rss_kb": 94728,
+   "exit": 0
+  },
+  "w1-20261106-01/hash-casarestore-m2": {
+   "wall_s": 1.68,
+   "max_rss_kb": 67296,
+   "exit": 0
+  },
+  "w1-20261106-01/hash-casasave-m1": {
+   "wall_s": 1.53,
+   "max_rss_kb": 79408,
+   "exit": 0
+  },
+  "w1-20261106-01/hash-casasave-m2": {
+   "wall_s": 1.75,
+   "max_rss_kb": 67268,
+   "exit": 0
+  },
+  "w1-20261106-01/qc-gains-m1": {
+   "wall_s": 3.02,
+   "max_rss_kb": 160748,
+   "exit": 0
+  },
+  "w1-20261106-01/qc-gains-m2": {
+   "wall_s": 2.43,
+   "max_rss_kb": 160844,
+   "exit": 0
+  },
+  "w1-20261106-01/quartical-m1": {
+   "wall_s": 40.01,
+   "max_rss_kb": 661548,
+   "exit": 0
+  },
+  "w1-20261106-01/quartical-m2": {
+   "wall_s": 31.24,
+   "max_rss_kb": 637796,
+   "exit": 0
+  },
+  "w1-20261106-01/rang-restore-casa-m1": {
+   "wall_s": 0.39,
+   "max_rss_kb": 51096,
+   "exit": 0
+  },
+  "w1-20261106-01/rang-restore-casa-m2": {
+   "wall_s": 0.5,
+   "max_rss_kb": 47616,
+   "exit": 0
+  },
+  "w1-20261106-01/scramble-m1": {
+   "wall_s": 1.15,
+   "max_rss_kb": 45264,
+   "exit": 0
+  },
+  "w1-20261106-01/scramble-m2": {
+   "wall_s": 1.12,
+   "max_rss_kb": 44136,
+   "exit": 0
+  },
+  "w1-20261106-01/split-compare-m1-corrected": {
+   "wall_s": 0.39,
+   "max_rss_kb": 116560,
+   "exit": 0
+  },
+  "w1-20261106-01/split-compare-m1-model": {
+   "wall_s": 0.39,
+   "max_rss_kb": 116968,
+   "exit": 0
+  },
+  "w1-20261106-01/split-compare-m2-corrected": {
+   "wall_s": 0.46,
+   "max_rss_kb": 99468,
+   "exit": 0
+  },
+  "w1-20261106-01/split-compare-m2-model": {
+   "wall_s": 0.43,
+   "max_rss_kb": 99924,
+   "exit": 0
+  },
+  "w1-20261106-01/write-m1": {
+   "wall_s": 5.16,
+   "max_rss_kb": 110304,
+   "exit": 0
+  },
+  "w1-20261106-01/write-m2": {
+   "wall_s": 4.31,
+   "max_rss_kb": 86140,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m1-CORRECTED_DATA": {
+   "wall_s": 1.6,
+   "max_rss_kb": 60052,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m1-DATA": {
+   "wall_s": 1.57,
+   "max_rss_kb": 60444,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m1-MODEL_DATA": {
+   "wall_s": 1.54,
+   "max_rss_kb": 59828,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m1u-DATA": {
+   "wall_s": 2.47,
+   "max_rss_kb": 78236,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m1u-MODEL_DATA": {
+   "wall_s": 1.27,
+   "max_rss_kb": 59340,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m2-CORRECTED_DATA": {
+   "wall_s": 1.42,
+   "max_rss_kb": 51560,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m2-DATA": {
+   "wall_s": 1.75,
+   "max_rss_kb": 52072,
+   "exit": 0
+  },
+  "w1-20261106-01/wsclean-m2-MODEL_DATA": {
+   "wall_s": 1.66,
+   "max_rss_kb": 52224,
+   "exit": 0
+  },
+  "m3-20261106-01/kill": {
+   "wall_s": 265.62,
+   "max_rss_kb": 74700,
+   "exit": 0
+  },
+  "m3-20261106-01/make": {
+   "wall_s": 3.61,
+   "max_rss_kb": 247776,
+   "exit": 0
+  },
+  "m3-20261106-01/memory": {
+   "wall_s": 22.59,
+   "max_rss_kb": 92840,
+   "exit": 0
+  }
+ }
+}

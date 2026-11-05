@@ -1490,3 +1490,20 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-05 | A0 `fp_a0_probe_state.py`, DATA state | 3 groups × 800 rows × 1 tile | 8.1 s | 77 MB | 31.2 MB read |
 | 2026-11-05 | A0 `fp_a0_probe_band.py` | sizes, tar head, 2 groups × 7 tiles × 800 rows | 32.8 s | 79 MB | 94.3 MB read |
 | 2026-11-05 | A0 astropy parallactic angles | scan tables | < 5 s | – | IERS auto-download off |
+| 2026-11-06 | W1 `maturin develop --release` after the tiled-header change | worktree `fp-w1-writeback` | 100.3 s | 1.2 GB | [w1-writeback.md](w1-writeback.md) |
+| 2026-11-06 | W1 `tools/check-all.sh`, full | worktree | 484 s | – | one failure: the research index line (coordinator's) |
+| 2026-11-06 | W1 `tools/oracles/w1/run.sh` (frozen, `w1-20261106-01`) | M1 140 × 4096 × 4, M2 192 × 2048 × 4 | 191.7 s | – | 50 timed steps; all exit 0 |
+| 2026-11-06 | W1 rang write-back (`w1_writeback.py write`) | M1 / M2, 48-row chunks | 5.16 s / 4.31 s | 110 / 86 MB | backup, 3 columns ensured, MODEL and FLAG written, hashes of every column |
+| 2026-11-06 | W1 python-casacore 3.8.1 read-back (`rang-ms-reader`, host-timed incl. start-up) | M1 / M2 | 1.25 s / 1.84 s | – | every column hashed |
+| 2026-11-06 | W1 python-casacore 3.7.1 read-back (`rang-o-casa`) | M1 / M2 | 0.86 s / 1.42 s | 136 / 99 MB | |
+| 2026-11-06 | W1 dask-ms 0.2.32 `xds_from_ms` (`rang-formats-oracle`) | M1 / M2 | 2.80 s / 5.74 s | 293 / 251 MB | |
+| 2026-11-06 | W1 CASA 6.7.6 `listobs` + `flagmanager(list)` | M1 / M2 | 1.98 s / 3.24 s | 275 MB | |
+| 2026-11-06 | W1 CASA `flagmanager` restore / save | M1 | 1.65 s / 1.95 s | 271 / 276 MB | M2 2.77 s / 2.71 s |
+| 2026-11-06 | W1 CASA `split` corrected / model | M1 | 3.59 s / 3.62 s | 305 MB | M2 4.93 s / 4.36 s |
+| 2026-11-06 | W1 CASA `gencal` + `applycal` | M1 / M2 | 3.83 s / 3.10 s | 296 / 282 MB | into rang's CORRECTED_DATA on M1 |
+| 2026-11-06 | W1 WSClean 3.7 `-niter 0 -j 1`, 512² | M1 / M2, per column | 1.5-2.5 s | 52-78 MB | 8 images; m1u with `-make-psf` 2.47 s |
+| 2026-11-06 | W1 QuartiCal 0.2.7 `goquartical`, G diag_complex, 50 iter | M1 / M2 | 40.0 s / 31.2 s | 662 / 638 MB | reported only; mostly JIT |
+| 2026-11-06 | W1 rang `restore_flags` of a CASA version | M1 / M2 | 0.39 s / 0.50 s | 51 / 48 MB | |
+| 2026-11-06 | W1 M3 build (`w1_writeback.py make`, under the heavy lock) | 8,192 × 1,024 × 4, 274 MB | 3.61 s | 248 MB | seed 20261106 |
+| 2026-11-06 | W1 M3 memory session | M3, 512-row chunks | 22.6 s | 93 MB | backup + CORRECTED_DATA added and initialised + FLAG rewritten; growth 53 MB |
+| 2026-11-06 | W1 M3 SIGKILL cases (8, each with an MS copy, a python-casacore container read and a restore) | M3 | 265.6 s | 75 MB | dominated by 9 copies of 274 MB on D: |

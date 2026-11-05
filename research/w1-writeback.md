@@ -8,10 +8,21 @@ original flags as a CASA flag version, so that a failed or interrupted run
 leaves the original flags recoverable. Branch `fp-w1-writeback` from
 `9423f13`. The general commands are W2, not this task.
 
-Status: **protocol frozen** (this section, committed before any comparison).
-Results follow in later sections.
+Status: **implemented and measured** (code `2b51f81`, frozen run
+`/mnt/d/rang/w1/w1-20261106-01` and `m3-20261106-01`). Oracle criteria 1 to
+3 and 5 to 7 pass exactly (every comparison bit-identical, every flag
+round trip equal by SHA-256, 4 + 8 SIGKILL cases recovered). Criterion 4
+passes in its two image comparisons (difference 0) and **fails as frozen**
+in its third part: the unit point model's image peaks 6 pixels from the
+centre (1.0023 against 1.0010 at the centre), because this sparse 4-antenna
+MS has a broad PSF; the PSF itself peaks at the same pixel, and the model
+image equals it to 9.7e-4 (post hoc, labelled). check-all at the head
+passes except `test_every_note_is_in_the_research_index`, which needs the
+index line in "For the coordinator". Archive:
+[results/w1-writeback.json](results/w1-writeback.json). The protocol below
+was committed (`cb346d1`) before any comparison.
 
-## Design (proposed; implemented in the commits after this one)
+## Design (proposed in `cb346d1`; implemented in `2b51f81`)
 
 - `python/rang/core_writeback.py`: `WriteBack(ms, flag_backup=..., stage=...)`,
   a context manager that holds the core writer's lock on the MS for the
@@ -108,3 +119,128 @@ Storage is an exact round trip; that is the only meaningful bound (A0 gate 2).
    work: the host is shared).
 
 A failure is reported as measured and not reworded.
+
+## Python API (implemented, `python/rang/core_writeback.py`)
+
+For C4b, G6 and W2. Values are given as python-casacore takes them: rows
+first, then (channel, correlation).
+
+| Call | What it does |
+| --- | --- |
+| `WriteBack(ms, flag_backup="rang_original", stage="", comment=None, on_interrupted="refuse", chunk_rows=None, on_chunk=None)` | A context manager (or `begin()` and `close(error=None)`). It holds the core writer's lock for the session. Before the writer opens, it saves FLAG and FLAG_ROW as flag version `flag_backup` unless one with that name exists, then writes the journal. |
+| `w.chunks(chunk_rows=None)` | `[(start, n)]` over all rows. The default is about 64 MiB of complex64 cells, a multiple of 64 rows (512 rows at 4096 × 4). |
+| `w.read(name, start, n)` | Reads rows through the session's writer. Opening the MS with another reader in the same process would drop the fcntl lock. |
+| `w.write(name, start, values)` | Writes any existing column and flushes. The cell shape is checked. FLAG and FLAG_ROW go to `write_flags`. |
+| `w.write_flags(start, flag, flag_row=None)` | Writes FLAG and/or FLAG_ROW exactly as given. The caller decides the OR with old flags and the FLAG_ROW policy (C1 3.2); `flag_row_all(flag)` is a helper for the second. |
+| `w.ensure_column(name, init="default")` | Adds `name` if it is missing, as a TiledShapeStMan column: complex64, or float32 for WEIGHT_SPECTRUM and SIGMA_SPECTRUM. It initialises the column with `"data"`, `"unity"`, `"zero"`, `"weight"`, `"sigma"`, a callable `(start, n)`, or None. The defaults by name: MODEL_DATA unity; CORRECTED_DATA and CORRECTED_1GC data; WEIGHT_SPECTRUM weight; SIGMA_SPECTRUM sigma. An existing column is checked for type and cell shape and kept, except one an interrupted session was still initialising, which is initialised again. Returns True when the column was added. |
+| `add_imaging_columns(ms)` | MODEL_DATA and CORRECTED_DATA in one session. |
+| `backup_flags(ms, name)`, `restore_flags(ms, name)` | Save if absent; write a version back in chunks, read back and compare each chunk, and mark an interrupted journal `restored`. |
+| `layout(ms)` | Rows, the one DATA cell shape, CORR_TYPE, columns and descriptions. Raises `UnsupportedLayout` (W4) when the data descriptions differ in shape or correlations. |
+| `read_journal(ms)` | `<ms>.flagversions/rang-writeback.json`: state (`open`, `closed`, `failed`, `restored`), backup name, stage, pid, host, times, columns written, and columns still being initialised. |
+
+`rang.formats.flagversions` gains `restore`, `exists`, `spans` and `root`. Its
+`save` now writes in chunks under `flags.<name>.rang-partial`, reads the
+version back and compares it, renames it, and only then lists it (fsync).
+`rang.formats._aipsio.column_descriptions` reads the column comments and
+keywords from `table.dat`, with typed scalars. It also fixes the decoding
+of version-3 `Array` keyword values (ndim and lengths, not an IPosition),
+which the table keywords of a real MS use. The core writer now writes a tiled
+manager's header `table.f<N>` through `table.f<N>_tmp` and a rename, so a
+kill during a flush cannot leave it truncated. The bytes written are unchanged.
+
+## Results (frozen run, code `2b51f81`)
+
+Run `tools/oracles/w1/run.sh /mnt/d/rang/w1/w1-20261106-01`, 192 s.
+Run `tools/oracles/w1/m3.sh /mnt/d/rang/w1/m3-20261106-01`, 296 s.
+Seeds: write flags 7, M3 20261106, the kill times 20261106, and the kill
+child 1. On M1 and M2, `run_writes` used chunks of 48 rows, which cross
+the 8-row data tiles and the 64-row flag tiles.
+
+| # | Criterion | M1 (columns added) | M2 (columns present) | Verdict |
+| --- | --- | --- | --- | --- |
+| 1 | python-casacore 3.8.1 and 3.7.1: SHA-256 of every readable column equals rang's | 25 of 25 columns, 0 mismatches | 26 of 26, 0 | pass |
+| 1 | value checks (MODEL = 2 DATA, CORRECTED = DATA, FLAG and FLAG_ROW as written, backup = pristine flags) | all true | all true | pass |
+| 1 | columns rang did not write unchanged (casacore's hash = rang's hash before the writes) | true | true | pass |
+| 1 | descriptions | MODEL_DATA and CORRECTED_DATA: complex, TiledShapeStMan `TiledModel` and `TiledCorrected`, ndim 2, shape [4096, 4], option 4, comment "The data column", keywords {} and {UNIT: Jy} | CASA's own StandardStMan columns kept | pass |
+| 2 | CASA `flagmanager(restore)` of rang's backup: FLAG and FLAG_ROW hashes equal the pristine ones | equal | equal | pass |
+| 2 | rang `restore_flags` of a version CASA `flagmanager(save)` wrote, after inverting all flags | equal | equal | pass |
+| 2 | CASA `flagmanager(list)` lists `rang_original` with its comment | yes | yes | pass |
+| 4 | WSClean, `-data-column CORRECTED_DATA` against `DATA` | max abs difference 0 (DATA peak 3.18) | 0 (peak 9.29) | pass |
+| 4 | WSClean, `MODEL_DATA` against 2 × `DATA` image | 0 | 0 | pass |
+| 4 | WSClean, the unit model as initialised: peak at the centre pixel and within 1e-3 of 1 | peak 1.00230 at (256, 262); centre (256, 256) 1.00097 | – | **fail as frozen** |
+| 5 | CASA `split` of `corrected` and `model`: DATA, FLAG and FLAG_ROW bit-identical to rang's columns (rows 140 and 192) | equal | equal | pass |
+| 5 | CASA `gencal` amp 2 then `applycal` into rang's CORRECTED_DATA, against DATA/4 | 2,293,760 cells, all exactly equal | 1,572,864 cells, exactly equal | pass |
+| 6 | dask-ms 0.2.32 (QuartiCal 0.2.7's venv), `xds_from_ms`: hashes of DATA and the 5 written columns, value checks | 0 mismatches, all true | 0, all true | pass |
+| 3 | SIGKILL, pytest (`tests/test_w1_writeback.py`, both FLAG layouts in the other tests): (a) after a flushed FLAG chunk, (b) before a flush, (c) during the backup, (d) during CORRECTED_DATA's initialisation | MS opens; FLAG differs in (a) and (b); refused while open; restore gives the input's hashes; (c) unchanged, no version listed, rerun saves one; (d) `continue` initialises the column again | – | pass |
+| 3 | (e) M3, 8 kills at 0.064 s to 0.374 s of a 0.50 s FLAG write (chunks of 256 rows) | all 8: core reader and python-casacore 3.8.1 open the MS and read FLAG; journal open; FLAG differs; refused; restored hashes equal | – | pass |
+| 7 | M3 memory: CORRECTED_DATA added (268 MB column) and FLAG rewritten in 512-row chunks | VmHWM growth 53.1 MB; bounds 134 MB (4 × 16.8 MB chunk + 64 MiB) and 67 MB (a quarter of the column) | – | pass |
+
+Reported, not gated: QuartiCal 0.2.7 `goquartical` solved a G
+`diag_complex` term on rang's CORRECTED_DATA (= DATA) against rang's
+MODEL_DATA (= 2 DATA). The median |g| on the parallel hands was
+0.70710678118575 on M1 and M2, against 1/√2 = 0.70710678118655 (largest
+deviation 8.0e-13, 8 solutions each). M3 measured 274 MB on disk, not the
+"about 0.5 GB" estimated in the data table. The memory session took 22.6 s.
+The trial run (`-00-trial`, the same code before the post-hoc PSF lines and
+the QuartiCal step) gave the same verdicts.
+
+**Criterion 4c, post hoc (labelled).** M1 is a snapshot from 4 antennas.
+WSClean's PSF from the same weights and flags (`-make-psf`) also peaks at
+(256, 262), with 1.00132, and it stays at or above 0.9896 within 8 pixels of
+the centre. The unit model's image equals that PSF to 9.7e-4. So the column
+is read as written. The frozen criterion assumed a PSF that peaks at one
+pixel, and it is recorded as failed. A useful version for later tasks: the
+image of the unit model against the PSF, ≤ 1e-3.
+
+## Deviations, limits and what was not checked
+
+- **Fixed shape.** Added columns have a fixed shape. CASA's are variable-shape
+  (TiledShapeStMan, option 0). An MS with spectral windows of different
+  widths is refused (W4).
+- **Rows written in place.** Rows are not reordered and the MS is not
+  copied. A kill can leave a partly written CORRECTED_DATA or MODEL_DATA
+  column. The journal names it, and `ensure_column` initialises it again in
+  a `continue` session. Only FLAG and FLAG_ROW are backed up. No other
+  column is backed up, because the input DATA is never written.
+- **Flush windows.**
+  - `table.dat` and the tiled headers are replaced by rename.
+  - StandardStMan and IncrementalStMan headers and indexes are rewritten in
+    place, as casacore does. A kill inside those writes was not targeted;
+    the timed kills (e) hit wherever they landed, in an SSM FLAG.
+  - No fsync is issued on the MS files themselves. A power loss, as opposed
+    to a killed process, is not covered.
+- **Not checked.**
+  - CASA `applycal` with rang's own calibration tables: that is C4b.
+  - Weights written with `calwt`: the C4 gate.
+  - Multi-field MSs beyond M2's single selected field.
+  - Big-endian and MultiFile MSs.
+  - Windows and macOS: no fcntl lock (e3-table-writer.md), and the SIGKILL
+    tests skip off POSIX.
+  - MSs above 274 MB.
+  - Concurrent writers: the fcntl lock refuses them, but this was not
+    re-tested here.
+- **Old flags.** `flagversions.save` and `load` keep their signatures. A
+  version that exists but is not listed is now refused, not overwritten.
+- **Not done.** No HISTORY rows are written. CASA writes them; rang's
+  receipts (W2) replace them.
+
+## Timings
+
+Rows added to [tool-timings.md](tool-timings.md); per-step wall and peak RSS are in the archive (`timing`).
+
+## For the coordinator
+
+- **research/README.md**, after the C1 line:
+  `- [W1, write-back](w1-writeback.md): MODEL_DATA, CORRECTED_DATA and FLAG written into an existing MS in chunks, with a CASA flag-version backup and recovery after an interrupted run; CASA, WSClean, python-casacore and dask-ms read them bit for bit.`
+  This line also makes `test_every_note_is_in_the_research_index` pass. It is
+  the only check-all failure at the branch head.
+- **research/STATE.md**, log, newest first:
+  `W1, 2026-11-06 (implemented and measured; [w1-writeback.md](w1-writeback.md)). rang.core_writeback writes into an existing MS. It adds MODEL_DATA and CORRECTED_DATA as CASA's clearcal does (TiledShapeStMan, initialised, but with a fixed shape) and writes any column, FLAG and FLAG_ROW in flushed row chunks. Before the first write it saves the flags as the CASA flag version rang_original. A journal refuses a new session after an interrupted one until the flags are restored. python-casacore 3.8.1 and 3.7.1, dask-ms, CASA (split, flagmanager, applycal into the new column) and WSClean read every written column bit for bit. Flags round-trip exactly through rang and CASA versions both ways. 12 SIGKILL cases all recovered. Peak memory grew 53 MB while a 268 MB column was written. One frozen criterion failed: the unit model's image peaks off-centre on the 4-antenna fixture's broad PSF, which peaks at the same pixel (post hoc). No novelty claim.`
+  In "Current status", Running: `Done: A0, C1, G1, W1.`
+- **research/finish-plan.md**, row W1: `**Done 2026-11-06** ([w1-writeback.md](w1-writeback.md)).` before the task text. C4b, G6 and W2 can call the API above.
+- **Owner decisions.**
+  - Whether added columns should be variable-shape like CASA's. That needs
+    a variable-shape `addcols` in the core writer. Today such an MS is
+    refused.
+  - The default backup name `rang_original`, and whether W2 takes one
+    version per stage (CASA style) or keeps one original.
