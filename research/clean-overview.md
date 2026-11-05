@@ -54,6 +54,6 @@ Draft paper: [paper/clean-theory/main.tex](paper/clean-theory/main.tex).
 1. **The WSClean report** ([draft](../outputs/clean-theory-20261030/wsclean-report-draft.md), not in the repository). Held until this overview.
    Nothing in the later work changes its three findings.
 2. **The paper.** Read the draft; say whether the early reader is named. The name GeMClean has not been checked for clashes.
-3. **`-single -wgridder-accuracy 1e-4` as GeMClean's default?** It takes 24-38 % off the time and 0.9-1.2 GB off the memory at 2048², and leaves the exact inner peak up to 25 % above the threshold. Not changed.
+3. **`-single -wgridder-accuracy 1e-4` as GeMClean's default?** It takes 24-38 % off the time and 0.9-1.2 GB off the memory at 2048², and leaves the exact inner peak up to 25 % above the threshold. `-tau-min 0.2` on top saves more on the hard skies (one run per setting). Neither has run on the real pilot. Not changed.
 4. **Further tests, none started.** A close-to-threshold stop with its own held-out test; a comparison with pfb-imaging
    (`rang-pfb-imaging:0.0.11` is built locally).

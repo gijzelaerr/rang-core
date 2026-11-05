@@ -106,7 +106,7 @@ fn transpose_into(
 /// The reusable work space of a [`Convolver`].
 #[derive(Default)]
 struct ConvolverBuffers {
-    /// `rows × (m/2 + 1)`: half spectra of the rows.
+    /// `rows × keep`: half spectra of the rows, as far as the kernel reaches.
     rows: Vec<C64>,
     /// Per row of the input: not all zero. A zero row's spectrum is not stored.
     nonzero: Vec<bool>,
@@ -131,11 +131,18 @@ type ConvolverWork = (Vec<C64>, Vec<C64>);
 /// Real input means half the spectrum: two real rows travel as one complex
 /// row (`z = a + i b`) and only `m/2 + 1` columns are transformed. Input rows
 /// `n..2n` are zero and output rows `n..2n` are dropped, and an all-zero pair
-/// of rows skips its transform. Work space is kept between calls.
+/// of rows skips its transform. Columns beyond the kernel's band need not be
+/// transformed or stored: a PSF is band-limited by the longest baseline, so an
+/// image with oversampled pixels can drop the outer columns
+/// ([`Convolver::with_band`]). Work space is kept between calls.
 pub struct Convolver {
     n: usize,
-    /// The kernel's half spectrum, `[kx][ky]`, `(m/2 + 1) × m`.
+    /// The kernel's half spectrum, `[kx][ky]`, `keep × m`.
     spectrum: Vec<C64>,
+    /// Half-spectrum columns kept, the lowest `kx`, at most `m/2 + 1`.
+    keep: usize,
+    /// The rms over the `2n` grid of the part of the kernel left out.
+    dropped_rms: f64,
     forward: Arc<dyn Fft<f64>>,
     inverse: Arc<dyn Fft<f64>>,
     scratch: usize,
@@ -146,6 +153,13 @@ pub struct Convolver {
 impl Convolver {
     /// `kernel` is `2n × 2n`, centred on `(n, n)`.
     pub fn new(n: usize, kernel: &[f64]) -> Result<Convolver, String> {
+        Convolver::with_band(n, kernel, n + 1)
+    }
+
+    /// [`Convolver::new`] with only the lowest `columns` of the `n + 1` columns
+    /// of the half spectrum. The result's error is the part of the kernel left
+    /// out, whose rms is [`Convolver::dropped_rms`], convolved with the input.
+    pub fn with_band(n: usize, kernel: &[f64], columns: usize) -> Result<Convolver, String> {
         let m = 2 * n;
         if n == 0 || kernel.len() != m * m {
             return Err("the kernel must be 2n × 2n".into());
@@ -160,6 +174,8 @@ impl Convolver {
         let mut c = Convolver {
             n,
             spectrum: Vec::new(),
+            keep: half,
+            dropped_rms: 0.0,
             forward,
             inverse,
             scratch,
@@ -183,12 +199,26 @@ impl Convolver {
             || vec![ZERO; scratch],
             |s, col| forward.process_with_scratch(col, s),
         );
+        c.keep = columns.clamp(1, half);
+        c.dropped_rms = dropped_rms(&spectrum, m, c.keep);
+        spectrum.truncate(c.keep * m);
+        spectrum.shrink_to_fit();
         c.spectrum = spectrum;
         Ok(c)
     }
 
+    /// Half-spectrum columns kept and their number without the band limit.
+    pub fn columns(&self) -> (usize, usize) {
+        (self.keep, self.n + 1)
+    }
+
+    /// The rms over the `2n` grid of the part of the kernel left out.
+    pub fn dropped_rms(&self) -> f64 {
+        self.dropped_rms
+    }
+
     /// Half spectra of `rows` real rows of width `width` (padded to `m`):
-    /// `out[y][kx]`, `kx ≤ m/2`. A pair of zero rows leaves `out` as it was and
+    /// `out[y][kx]`, `kx < keep`. A pair of zero rows leaves `out` as it was and
     /// is marked in `nonzero`.
     fn forward_rows<F>(
         &self,
@@ -201,9 +231,9 @@ impl Convolver {
         F: Fn(usize, usize) -> f64 + Sync,
     {
         let m = 2 * self.n;
-        let half = m / 2 + 1;
-        out[..rows * half]
-            .par_chunks_mut(2 * half)
+        let keep = self.keep;
+        out[..rows * keep]
+            .par_chunks_mut(2 * keep)
             .zip(nonzero[..rows].par_chunks_mut(2))
             .enumerate()
             .for_each_init(
@@ -212,7 +242,7 @@ impl Convolver {
                     let (z, s) = &mut **work;
                     let z = &mut z[..m];
                     let (ya, yb) = (2 * pair, 2 * pair + 1);
-                    let two = chunk.len() == 2 * half;
+                    let two = chunk.len() == 2 * keep;
                     let mut any = false;
                     for (x, cell) in z.iter_mut().enumerate().take(width) {
                         let a = value(ya, x);
@@ -226,8 +256,8 @@ impl Convolver {
                     }
                     z[width..].fill(ZERO);
                     self.forward.process_with_scratch(z, s);
-                    let (first, second) = chunk.split_at_mut(half);
-                    for k in 0..half {
+                    let (first, second) = chunk.split_at_mut(keep);
+                    for k in 0..keep {
                         let p = z[k];
                         let q = z[(m - k) % m].conj();
                         first[k] = (p + q) * 0.5;
@@ -268,11 +298,12 @@ impl Convolver {
         let n = self.n;
         let m = 2 * n;
         let half = m / 2 + 1;
+        let keep = self.keep;
         assert_eq!(input.len(), n * n, "input must be n × n");
         assert_eq!(out.len(), n * n, "output must be n × n");
         let mut guard = self.buffers.lock().expect("no panic while convolving");
         let ConvolverBuffers { rows, nonzero } = &mut *guard;
-        rows.resize(n * half, ZERO);
+        rows.resize(n * keep, ZERO);
         nonzero.resize(n, false);
         self.forward_rows(n, |y, x| input[y * n + x], n, rows, nonzero);
         let (forward, inverse) = (&self.forward, &self.inverse);
@@ -283,15 +314,15 @@ impl Convolver {
         let shared = SyncPtr(rows.as_mut_ptr());
         // Each task takes a block of columns out of the half spectra of the
         // rows, convolves them, and puts the first n rows of the result back.
-        (0..half.div_ceil(COLUMN_BLOCK))
+        (0..keep.div_ceil(COLUMN_BLOCK))
             .into_par_iter()
             .for_each_init(
                 || self.lease(),
                 |work, block| {
                     let (columns, s) = &mut **work;
                     let c0 = block * COLUMN_BLOCK;
-                    let h = COLUMN_BLOCK.min(half - c0);
-                    let at = |r: usize| shared.get().wrapping_add(r * half + c0);
+                    let h = COLUMN_BLOCK.min(keep - c0);
+                    let at = |r: usize| shared.get().wrapping_add(r * keep + c0);
                     for (r, &hit) in nonzero.iter().enumerate() {
                         if !hit {
                             for c in 0..h {
@@ -325,17 +356,21 @@ impl Convolver {
                     }
                 },
             );
-        rows.par_chunks(2 * half)
+        rows.par_chunks(2 * keep)
             .zip(out.par_chunks_mut(2 * n))
             .for_each_init(
                 || self.lease(),
                 |work, (chunk, o)| {
                     let (z, s) = &mut **work;
                     let z = &mut z[..m];
-                    let two = chunk.len() == 2 * half;
-                    let (a, b) = chunk.split_at(half);
+                    let two = chunk.len() == 2 * keep;
+                    let (a, b) = chunk.split_at(keep);
                     for (k, cell) in z.iter_mut().enumerate() {
                         let (ka, conj) = if k < half { (k, false) } else { (m - k, true) };
+                        if ka >= keep {
+                            *cell = ZERO;
+                            continue;
+                        }
                         let mut p = a[ka];
                         let mut q = if two { b[ka] } else { ZERO };
                         if conj {
@@ -356,6 +391,22 @@ impl Convolver {
                 },
             );
     }
+}
+
+/// The rms over the `m × m` grid of the columns from `keep` of a half spectrum
+/// `[kx][ky]` (Parseval; each column but the self-conjugate last one stands for
+/// its mirror too).
+fn dropped_rms(spectrum: &[C64], m: usize, keep: usize) -> f64 {
+    let power: f64 = spectrum
+        .par_chunks(m)
+        .enumerate()
+        .skip(keep)
+        .map(|(k, column)| {
+            let weight = if k == m / 2 { 1.0 } else { 2.0 };
+            weight * column.iter().map(|v| v.norm_sqr()).sum::<f64>()
+        })
+        .sum();
+    power.sqrt() / (m * m) as f64
 }
 
 /// The first implementation of [`Convolver`] on complex transforms of the
@@ -506,6 +557,17 @@ impl Beam {
     /// rows the slow offset `dy`; [`crate::clean_certified::WgridMeasurement::psf_image`]
     /// with side `2n`).
     pub fn from_double(n: usize, psf2n: &[f64], patch: usize) -> Result<Beam, String> {
+        Beam::from_double_band(n, psf2n, patch, n + 1)
+    }
+
+    /// [`Beam::from_double`] whose resyncs use only the lowest `columns` of
+    /// the spectrum ([`Convolver::with_band`]). The steps keep the whole beam.
+    pub fn from_double_band(
+        n: usize,
+        psf2n: &[f64],
+        patch: usize,
+        columns: usize,
+    ) -> Result<Beam, String> {
         let m = 2 * n;
         if n < 2 || psf2n.len() != m * m {
             return Err("the PSF must be 2n × 2n with n ≥ 2".into());
@@ -553,7 +615,7 @@ impl Beam {
             ring[d] = ring[d].max(ring[d + 1]);
         }
         let f = exterior.iter().fold(0.0_f64, |a, v| a.max(v.abs())) / peak;
-        let convolver = Convolver::new(n, psf2n)?;
+        let convolver = Convolver::with_band(n, psf2n, columns)?;
         Ok(Beam {
             n,
             peak,
@@ -564,6 +626,16 @@ impl Beam {
             f,
             convolver,
         })
+    }
+
+    /// Spectrum columns the resyncs transform, and their number without the band limit.
+    pub fn columns(&self) -> (usize, usize) {
+        self.convolver.columns()
+    }
+
+    /// The rms of the part of the beam the resyncs leave out.
+    pub fn dropped_rms(&self) -> f64 {
+        self.convolver.dropped_rms()
     }
 
     /// The whole beam `b(dx, dy)`, `|dx|, |dy| ≤ n − 1`.
@@ -1874,6 +1946,38 @@ mod tests {
         n: 16,
         cell: 1.0e-4,
     };
+
+    #[test]
+    fn a_band_limited_kernel_drops_its_empty_columns() {
+        // Harmonics of the 2n grid up to |kx| = 8: nothing beyond column 8.
+        let (n, m) = (32_usize, 64_usize);
+        let mut kernel = vec![0.0; m * m];
+        for (y, row) in kernel.chunks_mut(m).enumerate() {
+            for (x, v) in row.iter_mut().enumerate() {
+                let (dx, dy) = (x as f64 - n as f64, y as f64 - n as f64);
+                for (kx, ky, a) in [(0.0, 0.0, 0.5), (8.0, 3.0, 0.3), (5.0, -7.0, 0.2)] {
+                    *v += a * (2.0 * std::f64::consts::PI * (kx * dx + ky * dy) / m as f64).cos();
+                }
+            }
+        }
+        let mut rng = Rng(7);
+        let input: Vec<f64> = (0..n * n).map(|_| rng.next() - 0.5).collect();
+        let whole = Convolver::new(n, &kernel).unwrap();
+        let band = Convolver::with_band(n, &kernel, 9).unwrap();
+        assert_eq!(whole.columns(), (n + 1, n + 1));
+        assert_eq!(whole.dropped_rms(), 0.0);
+        assert_eq!(band.columns(), (9, n + 1));
+        assert!(band.dropped_rms() < 1e-12);
+        let (a, b) = (whole.apply(&input), band.apply(&input));
+        for (x, y) in a.iter().zip(&b) {
+            assert!((x - y).abs() < 1e-9, "{x} {y}");
+        }
+        // Too few columns drop a real part of the kernel, and it says so: the
+        // two harmonics of amplitude 0.3 and 0.2 have rms 0.3 / √2 and 0.2 / √2.
+        let cut = Convolver::with_band(n, &kernel, 5).unwrap();
+        let expected = (0.3_f64.powi(2) / 2.0 + 0.2_f64.powi(2) / 2.0).sqrt();
+        assert!((cut.dropped_rms() - expected).abs() < 1e-9, "{}", cut.dropped_rms());
+    }
 
     fn data(s: &Sampling, seed: u64) -> Vec<Vis> {
         let mut rng = Rng(seed ^ 0x9e37_79b9_7f4a_7c15);

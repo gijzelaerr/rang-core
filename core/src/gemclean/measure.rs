@@ -84,6 +84,31 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
         self
     }
 
+    /// Half-spectrum columns of a `side × side` image of this cell that the
+    /// measurement can reach: the longest baseline at the highest frequency,
+    /// plus the most the w-term moves it at the corner of the image, plus a
+    /// few columns for the window's edge.
+    pub fn band_columns(&self, side: usize) -> usize {
+        const MARGIN: usize = 8;
+        const SPEED_OF_LIGHT: f64 = 299_792_458.0;
+        let cell = self.opts.pixsize_x.max(self.opts.pixsize_y);
+        let fmax = self.freq.iter().fold(0.0_f64, |a, &f| a.max(f.abs()));
+        let (mut reach, mut wmax) = (0.0_f64, 0.0_f64);
+        for c in self.uvw.chunks_exact(3) {
+            reach = reach.max(c[0].abs()).max(c[1].abs());
+            wmax = wmax.max(c[2].abs());
+        }
+        if self.opts.do_wgridding {
+            let l = std::f64::consts::SQRT_2 * 0.5 * side as f64 * cell;
+            if l >= 1.0 {
+                return side / 2 + 1;
+            }
+            reach += wmax * l / (1.0 - l * l).sqrt();
+        }
+        let columns = (reach * fmax / SPEED_OF_LIGHT * cell * side as f64).ceil() as usize;
+        (columns + MARGIN).min(side / 2 + 1)
+    }
+
     /// The PSF on a `side × side` grid of the same cell, centred on
     /// `(side/2, side/2)`, widened to `f64`.
     pub fn psf_image(&self, side: usize) -> Result<Vec<f64>, String> {

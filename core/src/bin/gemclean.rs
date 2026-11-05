@@ -78,6 +78,8 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
+  -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
+                            the w-term reach; what is left out is logged
   -floor-iterations <n>     estimate Q_inf by n conjugate-gradient iterations (default 0: off)
   -audit                    recompute every exact peak by brute force and report the largest error
   -simd <level>             cap the kernels at scalar | avx2 | avx512
@@ -122,6 +124,7 @@ struct Args {
     gram_operator: Option<(usize, f64)>,
     plan_reuse: bool,
     beam_no_w: bool,
+    beam_band: bool,
     lazy_bounds: bool,
 }
 
@@ -194,6 +197,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         gram_operator: None,
         plan_reuse: true,
         beam_no_w: false,
+        beam_band: false,
         lazy_bounds: true,
     };
     let mut i = 0;
@@ -301,6 +305,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             }
             "-no-plan-reuse" => a.plan_reuse = false,
             "-beam-no-w" => a.beam_no_w = true,
+            "-beam-band" => a.beam_band = true,
             s if s.starts_with('-') && s.len() > 1 => {
                 return Err(format!("unknown option {s}\n\n{USAGE}"));
             }
@@ -448,15 +453,23 @@ fn deconvolve<T: Real + Send + Sync>(
     };
     let t_psf = t.elapsed().as_secs_f64();
     let t = Instant::now();
-    let beam = Beam::from_double(n, &psf2n, args.patch)?;
+    let columns = if args.beam_band {
+        measurement.band_columns(2 * n)
+    } else {
+        n + 1
+    };
+    let beam = Beam::from_double_band(n, &psf2n, args.patch, columns)?;
     let t_beam = t.elapsed().as_secs_f64();
     let restoring = gemclean::fit_restoring_beam(n, &psf2n);
     let scale_deg = args.scale.to_degrees();
     println!(
-        "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} main-lobe pixels); PSF {:.2} s, FFT {:.2} s",
+        "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; {} of {} spectrum columns, {:.2e} left out; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} main-lobe pixels); PSF {:.2} s, FFT {:.2} s",
         beam.peak,
         beam.patch,
         beam.f,
+        beam.columns().0,
+        beam.columns().1,
+        beam.dropped_rms(),
         restoring.major * scale_deg * 3600.0,
         restoring.minor * scale_deg * 3600.0,
         restoring.pa.to_degrees(),

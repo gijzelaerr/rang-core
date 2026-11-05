@@ -72,6 +72,32 @@ Reading this:
 Run details. 129 native runs 2026-11-04, interleaved, plus 42 GeMClean coarse and 14 at `1e-5` (not tabled; in the archive), and 30 at other `-mgain` with its control, not interleaved. The S1 `minres` control repeated at 17.3 s and 49.8 s against 17.6 s and 52.3 s. All exits 0. Spread of three repeats at most 14 %.
 The runs used working copies of the Measurement Sets, and their checksum files were deleted with them, so that check is not on record for this pass; the source sets on `D:` were not opened for writing, and `-j 1` and GeMClean images repeat exactly. The held-out `prepare` arrays had been removed and were rebuilt in `D:\rang\outputs\20261104-speed\prep-h`.
 
+## Tuning after the native pass (measured; provisional, not a result)
+
+One run per setting and sky, not interleaved, all with `-single -wgridder-accuracy 1e-4`. Archive: [results/gemclean-speed-tuning.json](results/gemclean-speed-tuning.json); drivers: [results/gemclean-speed-scripts/](results/gemclean-speed-scripts/). No default changed.
+
+**Where the time goes.** At `-j 1` resyncs take 19 % of the wall on S1 (6.98 of 36.9 s) and 43 % on H3 (57.4 of 132 s), more than H3's major cycles (46.2 s). At `-j 16` S1: resync 2.2 s, major 3.2 s. Nearly all are triggered by the tau certificate (164 of 170 on H3). This is why GeMClean loses on one core on the hard skies, and it was not known before this profile. The profile's binary has no symbols, so only the phase times count.
+
+**`-tau-min`.** Default 0.5. Wall time, `-j 16` / `-j 1`, seconds; the coarse row's are medians of three repeats:
+
+| Setting | S1 | S2 | S3 | H1 | H2 | H3 | H4 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| coarse, 0.5 | 9.7 / 35.4 | 9.9 / 36.4 | 8.5 / 29.6 | 10.7 / 44.5 | 14.8 / 54.2 | 35.5 / 129 | 9.6 / 35.1 |
+| 0.3 | 9.7 / 36.4 | 8.8 / 33.1 | 7.5 / 27.5 | 10.6 / 47.0 | 11.1 / 47.1 | 27.6 / 102 | 9.1 / 33.4 |
+| 0.2 | 9.4 / 36.2 | 8.7 / 32.9 | 7.4 / 27.6 | 9.6 / 37.8 | 10.0 / 40.7 | 27.5 / 103 | 8.9 / 34.0 |
+| 0.1 | 9.5 / 36.3 | 8.8 / 32.8 | 7.5 / 27.4 | 9.3 / 37.8 | 9.3 / 38.2 | 29.1 / 106 | 8.5 / 33.6 |
+
+At 0.2 Q/Q_truth moves by at most 2.4e-4 (S2, 1.01517 to 1.01541), false flux by at most 0.25 mJy (S2) and the exact inner peak by at most 2 µJy. Against the fastest WSClean `minres` setting on each sky, again favouring it: 1.40-3.13 at `-j 16`, 0.75-1.60 at `-j 1`, slower on H2 and H3 on one core, level on H1. The cycle count is unstable at the margin: S1 goes from 5 to 6 at 0.2, H1 from 6 to 5, and a run's time follows it. That is one reason not to read these rows closely. The picks change, so this is a numerical change for the owner to decide, with no bar written first.
+
+**Band-limited resync, `-beam-band`.** The 2n PSF has little power beyond the longest baseline, and 1.5″ oversamples the beam, so the outer half-spectrum columns of the resync's convolver need not be transformed. Off by default; with it off, the images on S1 at `-j 16` were byte-identical to `3945394`. A first rule, by the rms of what is dropped, cut real signal, and is not in the tree. On S1 at `-j 1` it kept 2005 of 2049 columns at 1e-6, 831 at 1e-5 (resync 6.5 to 3.8 s) and 532 at 1e-4, where the major cycles went from 18.8 to 86.9 s. The rule in the tree computes the columns from the longest baseline, the highest frequency and the w-term at the image corner, plus 8: 1092-1100 of 2049, 2185 of 4097, with 2.4e-6 to 8.8e-6 of the peak (rms) left out, logged per run. That is more than rounding: the window's edge and coarse gridding put power out there.
+
+| With `-beam-band` | S1 | S2 | S3 | H1 | H2 | H3 | H4 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `-tau-min` 0.5, `-j 16` / `-j 1` | 10.5 / 34.9 | 10.6 / 35.0 | 9.2 / 30.4 | 13.1 / 44.7 | 15.1 / 48.3 | 33.1 / 113 | 11.2 / 35.2 |
+| `-tau-min` 0.2, `-j 16` / `-j 1` | 8.9 / 31.8 | 10.2 / 35.8 | 8.2 / 27.5 | 9.8 / 41.3 | 10.4 / 38.3 | 27.5 / 99.0 | 9.4 / 32.6 |
+
+Scores at `-tau-min` 0.5 barely move: Q/Q_truth by at most 3e-5, false flux by at most 0.17 mJy. **Whether it saves time is not settled.** On H3 at `-j 1` the clean phase went from 105.6 to 90.2 s, but several `-j 16` rows are slower than without it, which less work should not cause. These ran on another day, one run each, so the host may be the cause. An interleaved on/off test of the same binary (`opt_e6.sh`) was stopped after its first pair, S1 `-j 16`: 10.14 s off, 9.98 s on, resync 2.29 and 2.15 s. It says nothing yet. Peak memory hardly moves, so the peak lies elsewhere. **Next: run that test to the end, then keep or remove the flag.** Band limiting saved under 0.3 GB on H3 and nothing at 2048².
+
 ## Against the SSE2 package (measured)
 
 Median wall time of three repeats, seconds, S1 / S2 / S3 at 100 µJy (`abs`). `nominres` is
