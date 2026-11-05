@@ -164,6 +164,65 @@ def test_noise_is_keyed_by_integration(case):
     assert abs(parts.std() - d.sigma) < 4 * se
 
 
+@pytest.fixture(scope="module")
+def small_ms(tmp_path_factory):
+    """The small version (41 MB, about 3 s), written by the generator."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    from rang import core_ms_write
+
+    if not core_ms_write.has_creator():
+        pytest.skip("needs the table writer")
+    out = tmp_path_factory.mktemp("a1small")
+    script = Path(__file__).resolve().parents[1] / "examples" / "a1_simtruth.py"
+    subprocess.run(
+        [sys.executable, str(script), "generate", "small", str(out), "--workers", "2"],
+        check=True,
+        capture_output=True,
+    )
+    return out
+
+
+def test_small_ms_is_written_and_reproducible(small_ms):
+    import json
+
+    from rang import core_ms
+
+    d = st.design("small")
+    ms = small_ms / "a1-small.ms"
+    nbl = 120
+    with core_ms.open_table(ms) as t:
+        assert t.getcol("ANTENNA1").shape == (12480,)
+        data = t.getcol("DATA", 50 * nbl, nbl)
+        assert data.shape == (nbl, 64, 4)
+    with core_ms.open_table(ms / "FIELD") as f:
+        assert len(f.getcol("NAME")) == 4
+    with core_ms.open_table(ms / "FEED") as f:
+        assert np.allclose(f.getcol("RECEPTOR_ANGLE"), -math.pi / 2)
+    # One integration of DATA recomputed from the truth and the seeds.
+    t = np.load(small_ms / "truth.npz")
+    meta = json.loads((small_ms / "truth.json").read_text(encoding="utf-8"))
+    truth = {k[4:]: t[k] for k in t.files if k.startswith("raw_")}
+    a1, a2 = np.triu_indices(16, 1)
+    rows = st.chunk_rows([50], a1, a2)
+    m, _ = st.sky_coherency(
+        d,
+        rows,
+        t["uvw_antenna"],
+        t["field"],
+        meta["target_components"],
+        t["calibrator_stokes"],
+    )
+    v = st.corrupt(m, truth, d, rows, t["parallactic_angle"])
+    rfi = st.rfi_chunk(st.rfi_events(d, len(t["time"])), d, rows, st.enu_baselines(d))
+    rec = (v + rfi + st.noise_integration(d, 50, nbl)).astype(np.complex64)
+    assert np.array_equal(rec, data)
+    mask = np.load(small_ms / "a1-small.rfi_mask.npz")
+    assert mask["any"].shape == (12480, 8)
+
+
 def test_rfi_mask_matches_events(case):
     d, rows = case["d"], case["rows"]
     events = st.rfi_events(d, len(case["times"]))

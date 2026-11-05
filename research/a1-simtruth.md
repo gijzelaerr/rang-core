@@ -299,8 +299,7 @@ listobs summaries). The run directory is
 
    C1 (T1, "`ν₀ = CHAN_FREQ[nchan//2]` of the table's window") is right
    only if "the table's window" means the one-channel K window. The truth's ν₀
-   is now the mean channel frequency (sections 2.1 and 3 above predate this
-   fix where they say `nchan // 2`). Kept in `attempt1-pivot/`.
+   is now the mean channel frequency (2.1). Kept in `attempt1-pivot/`.
 2. **Attempt 2, float64 delays.** 20,484 of 3,194,880 elements (0.64 %)
    exceeded class C, by at most 1.99 times the bound, worst at channel 0:
    - CASA stores τ as float32, and at 2π·10 ns·428 MHz = 27 rad, half a
@@ -319,7 +318,7 @@ listobs summaries). The run directory is
 | 3 `listobs` | exit 0; 23 scans, 4 fields, 64 channels, XX XY YX YY | exit 0; 23 scans, 4 fields, 256 channels, XX XY YX YY | **yes** |
 | 4 Noise | s/σ = 0.99970 over 5,619,592 values; z = −1.00, z_μ = −1.01 | s/σ = 1.000018 over 239,501,136 values; z = +0.40, z_μ = +0.35 | **yes** |
 | 5 Twin consistency | max \|DATA − c64(V + RFI + noise)\| = 0; twin = c64(V) exactly | both 0 on the 63 twin integrations | **yes** |
-| 6 Self-checks | `tests/test_a1_simtruth.py`, 8 passed | – | **yes** |
+| 6 Self-checks | `tests/test_a1_simtruth.py`, 9 passed. The ninth regenerates the small version in a pytest temporary directory through the writer and checks one integration's DATA exactly | – | **yes** |
 
 **Check 2, reading.** The frozen check fails, and the reason was found:
 - CASA's angle is not rang's frozen convention, which is geodetic latitude
@@ -331,6 +330,11 @@ listobs summaries). The run directory is
 - Against rang's convention the difference is +0.26° to −0.54° on the
   polarised calibrator, which passes 11 to 24° from the zenith. It is largest
   near the zenith; at Dec −64 (the flux calibrator) it is only 7e-6 of I.
+- The flux calibrator's excess over class C is the same frame difference,
+  not an apply error. Check 2's frozen text assumed that P cancels on an
+  unpolarised source. That holds only when both sides use the same
+  per-antenna angles: with angles a_p ≠ a′_p it leaves I·R((a_p − a′_p) −
+  (a_q − a′_q)), which is 7e-6 of I here.
 
 Added measure, labelled post hoc (written after check 2 failed):
 - CASA's `parang=True` output was compared with the truth de-rotated by
@@ -394,11 +398,21 @@ writer. A bounded queue would cap it, if a later run needs the memory.
   - gain calibrator: unpolarised, `smodel=[1,0,0,0]` and `fluxscale`.
 - **refant m000**: its `d_x` is 0, so strategy 1's Df gauge is exact (2.5).
 - **Frame:** RECEPTOR_ANGLE is −90° already, so CARACal's
-  `feed_angle_rotation: -90` is a no-op. For the parallactic angle, use
+  `feed_angle_rotation: -90` is a no-op. The `set_receptor_angle` step in
+  `polcal_worker.py` at `8f7bb363` (lines 1486–1505) assigns
+  `ang[:, 0] = ang[:, 1] = deg2rad(FAR)`; it does not add to the angle. For the parallactic angle, use
   rang's frame (7.2).
 - The input has no flags: FLAG is all false, and no band-edge or static
   mask is applied.
-- RFI recall for E1's flag gate is measured against `above_5sigma`.
+- RFI recall for E1's flag gate is measured against `above_5sigma`, defined
+  exactly as follows: a cell (row, channel) is set when |RFI| on at least one
+  correlation exceeds 5σ. |RFI| is the complex modulus of the injected RFI;
+  σ is the noise per real part. Both are in the uncorrected DATA frame.
+  After calibration RFI amplitudes scale by about 1/|g|², so a flagger
+  working on corrected data sees different ratios.
+- `casa-full/truth.G` covers only the twin's 63 integrations. To apply the
+  truth to the whole full MS, rerun `tables` on a full copy, or write G from
+  `truth.npz` (`raw_gain × raw_selfcal`) with `caltable.from_gains`.
 
 ### 7.6 Not checked
 

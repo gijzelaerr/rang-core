@@ -13,7 +13,7 @@ the release notes are the section of this file for that version.
   full polarisation with known truth. It has K, B, G, KCROSS, Xf, linear Df and parallactic
   rotation, a self-calibration residual, RFI with bit masks, and thermal noise of known σ, and is
   written as a Measurement Set through rang's table writer. There are two versions: small (16
-  antennas, 64 channels, 41 MB) and full (64 antennas, 256 channels, about 38 GB). CASA
+  antennas, 64 channels, 41 MB) and full (64 antennas, 256 channels, 35.8 GB). CASA
   `applycal` with tables made from the truth inverts it within class C
   (`research/a1-simtruth.md`).
 - New: `gemclean -beam-band`, off by default. Resyncs use the beam's spectrum only as far as the
