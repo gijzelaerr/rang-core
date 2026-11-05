@@ -15,9 +15,9 @@
 //! weights and Stokes I), `grid` (the w-stacking gridder), `sumthreshold`
 //! (Tricolour strategies) and `ms` (a read-only Measurement Set reader), each
 //! with its own `ffi_*` module and research report. Task P7
-//! (`research/p7-architecture.md`) re-exports the root crate as `toy`, so the
+//! (`research/p7-architecture.md`) re-exports the root crate as `sim`, so the
 //! extension links its kernels (gain TV, phase trend, anchored response with
-//! the P4 eigensolver, projector, the pointing toy) and nothing builds the
+//! the P4 eigensolver, projector, the pointing simulation) and nothing builds the
 //! root crate at run time.
 
 pub mod aipsio;
@@ -63,4 +63,4 @@ pub mod tiled;
 pub mod weights;
 pub mod wgridder;
 
-pub use rang_toy as toy;
+pub use rang_sim as sim;

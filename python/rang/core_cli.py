@@ -64,7 +64,9 @@ RECEIPT_SCHEMA = "rang.receipt"
 # (every recorded `core.ENVIRONMENT` variable, null when unset, read when the
 # command starts) and `source` (checkout, distribution, extension SHA256) were
 # added, and `commit` is null outside a checkout (`core.checkout_root`).
-RECEIPT_VERSION = 3
+# Version 4: the root crate became rang-sim, which renamed the receipt key for its
+# library (now environment.rang_sim_lib) and its two recorded variables.
+RECEIPT_VERSION = 4
 ARCHIVE_SCHEMA = "rang.archive"
 ARCHIVE_VERSION = 1
 # The cab `compare` (legacy form): stage -> comparator script in examples/.
@@ -388,7 +390,7 @@ def environment(run_dir):
         "rang_core_lib": os.environ.get("RANG_CORE_LIB"),
         "rang_core_backend": core.backend_name(),
         "rang_core_library": str(core.library_path()),
-        "rang_toy_lib": os.environ.get("RANG_TOY_LIB"),
+        "rang_sim_lib": os.environ.get("RANG_SIM_LIB"),
         "distributions": distributions,
         "quartical_distribution_installed": any(
             d.lower().startswith("quartical==") for d in distributions

@@ -165,7 +165,7 @@ jobs:
       # tools/wheel/test.py: a fresh venv, the wheel with its test, imaging
       # and casacure extras from public PyPI (no casacure sdist build), the
       # fixture, then import, tools/wheel/smoke.py and
-      # tests/test_core_backends.py (against its archive), test_toy.py,
+      # tests/test_core_backends.py (against its archive), test_pointing_sim.py,
       # test_p7_architecture.py, test_p12_rename.py and
       # test_t1_casacure_oracle.py (tools/wheel/pytest_wheel.py) with every
       # PATH directory that holds cargo removed (asserted) and no RANG_*

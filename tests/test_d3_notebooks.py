@@ -3,7 +3,7 @@
 
 The archive readers are checked against the committed JSON (no data needed);
 the quoted B1 rules against the frozen protocol text; the JAX reference path
-and one observability audit against the Rust toy and their archives; and both
+and one observability audit against the Rust pointing simulation and their archives; and both
 notebooks are executed through papermill on the public fixture with every
 switch off, as the documentation workflow runs them. The execution test skips
 without the fixture or papermill (the `docs` extra).
@@ -187,24 +187,24 @@ def test_switches_default_off(monkeypatch):
         assert science.switch(name)
 
 
-# --- the JAX reference path and an audit, live on the Rust toy ----------------
+# --- the JAX reference path and an audit, live on the Rust pointing simulation ----------------
 
 
 @pytest.fixture(scope="module")
-def toy():
+def sim():
     pytest.importorskip("jax")
     science.enable_x64()
-    return science.toy_fixture()
+    return science.sim_fixture()
 
 
-def test_jax_reference_path_agrees_with_rust(toy):
-    check = science.jax_against_rust(toy)
+def test_jax_reference_path_agrees_with_rust(sim):
+    check = science.jax_against_rust(sim)
     assert check["max |V_jax − V_rust| (Jy)"] < 1e-8
     assert check["max |J_jax − J_rust| (Jy/arcmin)"] < 1e-10
 
 
-def test_symmetry_audit_reproduces_the_archive(toy):
-    live = science.symmetry_audit(toy, cases=science.SYMMETRY_CASES[:3])
+def test_symmetry_audit_reproduces_the_archive(sim):
+    live = science.symmetry_audit(sim, cases=science.SYMMETRY_CASES[:3])
     assert list(live["observable common modes"]) == [0, 2, 0]
     archived = science.gain_audit_archive().loc["thinned, gains fixed"]
     row = live.loc["ellipse 1.1, rotating"]

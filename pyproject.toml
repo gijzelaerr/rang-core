@@ -82,7 +82,7 @@ module-name = "rang._core"
 # (research/w4-5-release.md): the three crates, python/, tests/ (the wheel
 # subset of tools/wheel/pytest_wheel.py runs from it; the full suite reads
 # research/ and needs a checkout), tools/wheel/, README, CHANGELOG and LICENSE.
-# The root crate rang-toy is a path dependency at the repository root, so
+# The root crate rang-sim is a path dependency at the repository root, so
 # without this list cargo's file list puts the whole tree in the sdist.
 # .cargo/config.toml (x86-64-v3 for local builds) stays out: an sdist build
 # targets the builder's baseline CPU.

@@ -199,7 +199,7 @@ fn gauge_basis(gains: &[f64], active: &[u8]) -> Result<Matrix, &'static str> {
 type Solver = fn(&Matrix) -> Option<(Vec<f64>, Matrix)>;
 
 /// Householder + implicit QL (task P4, research/p4-eigen.md); the classical
-/// Jacobi solver `linalg::eigen` is kept for the pointing toy and the A/B.
+/// Jacobi solver `linalg::eigen` is kept for the pointing simulation and the A/B.
 fn checked_eigen(h: &Matrix) -> Result<(Vec<f64>, Matrix), &'static str> {
     checked_eigen_with(h, eigen_ql)
 }

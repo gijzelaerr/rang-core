@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "rang-toy"
+name = "rang-sim"
 version = "0.1.0"

@@ -15,7 +15,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rang import toy_output
+from rang import sim_output
 from rang.pointing import Observation, component_list, predict, solve_pointing
 
 
@@ -80,7 +80,7 @@ def main():
     if not np.isfinite(args.noise) or args.noise <= 0 or args.knots < 2:
         parser.error("noise must be positive and finite; at least two knots required")
     jax.config.update("jax_enable_x64", True)
-    fixture_bytes = toy_output("--pointing-reference").encode()
+    fixture_bytes = sim_output("--pointing-reference").encode()
     fixture = json.loads(fixture_bytes)
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     components = component_list(

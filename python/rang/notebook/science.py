@@ -6,7 +6,7 @@ Notebook 06 asks whether gain total variation can guide flagging; its real
 results are read from `research/results/flagging-verdict.json` (task L4's
 table of the 90 pre-registered calls) and the campaign archives it cites.
 Notebook 07 asks whether small pointing and beam corrections can be
-constrained; it runs the Rust toy fixture, the JAX reference predictor and
+constrained; it runs the Rust pointing simulation fixture, the JAX reference predictor and
 solver and the observability audits live, and reads B1-0 and B1-1 from
 `research/results/b1-beam-product.json` and the B1 baseline archive.
 
@@ -475,7 +475,7 @@ def archived_hypotheses(filename):
     return pd.DataFrame([_flatten(h) for h in load_results(filename)["hypotheses"]])
 
 
-# --- notebook 07: the toy and the JAX reference path -------------------------
+# --- notebook 07: the simulation and the JAX reference path -------------------------
 
 
 def enable_x64():
@@ -486,19 +486,19 @@ def enable_x64():
     return jax.__version__
 
 
-def toy_fixture(full=False):
-    """The Rust toy fixture (`rang-toy --pointing-reference`, or the complete
+def sim_fixture(full=False):
+    """The Rust pointing simulation fixture (`rang-sim --pointing-reference`, or the complete
     `--pointing-full-reference`): eight approximate MeerKAT core antennas, 24
     times over six hours, four channels, four point sources. Returns a dict
     with the raw fixture, the `Components`, the `Observation` and the row
     count."""
     import jax.numpy as jnp
 
-    from .. import toy_output
+    from .. import sim_output
     from ..pointing import Observation, component_list
 
     flag = "--pointing-full-reference" if full else "--pointing-reference"
-    text = toy_output(flag)
+    text = sim_output(flag)
     fixture = json.loads(text)
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     sky = component_list(sources[:, 0], sources[:, 1], sources[:, 2], sources[:, 3])
@@ -523,21 +523,21 @@ def _sha256_text(text):
     return hashlib.sha256(text.encode()).hexdigest()
 
 
-def toy_summary(toy):
-    """What the toy fixture holds."""
-    fx, obs = toy["fixture"], toy["obs"]
+def sim_summary(sim):
+    """What the simulation fixture holds."""
+    fx, obs = sim["fixture"], sim["obs"]
     return {
-        "complex rows": toy["rows"],
+        "complex rows": sim["rows"],
         "antennas": fx["antenna_count"],
         "times": fx["time_count"],
         "channels (Hz)": sorted({float(f) for f in np.asarray(obs.frequency_hz)}),
         "sources (l, m, Jy, index)": np.asarray(fx["sources"]).round(5).tolist(),
         "max |w| (m)": float(np.max(np.abs(np.asarray(obs.uvw_m)[:, 2]))),
-        "fixture SHA256": toy["sha256"][:16] + "…",
+        "fixture SHA256": sim["sha256"][:16] + "…",
     }
 
 
-def jax_against_rust(toy):
+def jax_against_rust(sim):
     """The JAX DFT and its `jacfwd` Jacobian against the Rust predictor's
     visibilities and analytic Jacobian at the fixture's pointing."""
     import jax
@@ -545,7 +545,7 @@ def jax_against_rust(toy):
 
     from ..pointing import predict, real_stack
 
-    fx, sky, obs = toy["fixture"], toy["sky"], toy["obs"]
+    fx, sky, obs = sim["fixture"], sim["sky"], sim["obs"]
     nant, ntime = fx["antenna_count"], fx["time_count"]
     theta = jnp.asarray(fx["pointing_arcmin"])
 
@@ -620,7 +620,7 @@ def beam_width_campaign():
     return pd.DataFrame(out), truth
 
 
-def smooth_pointing_demo(toy, seed=7, noise=0.001, knots=6, smoothness=0.01):
+def smooth_pointing_demo(sim, seed=7, noise=0.001, knots=6, smoothness=0.01):
     """examples/pointing.py in a function: sinusoidal per-antenna truth plus
     a constant offset, every fourth interior time held out, the JAX spline
     solver on the rest. Returns the inputs, the fit and its scores."""
@@ -630,7 +630,7 @@ def smooth_pointing_demo(toy, seed=7, noise=0.001, knots=6, smoothness=0.01):
 
     from ..pointing import Observation, predict, solve_pointing
 
-    fx, sky, obs = toy["fixture"], toy["sky"], toy["obs"]
+    fx, sky, obs = sim["fixture"], sim["sky"], sim["obs"]
     times = np.linspace(0, 6 * 3600, fx["time_count"])
     knot_times = np.linspace(times[0], times[-1], knots)
     rng = np.random.default_rng(seed)
@@ -642,7 +642,7 @@ def smooth_pointing_demo(toy, seed=7, noise=0.001, knots=6, smoothness=0.01):
     )
     noiseless = np.asarray(predict(sky, obs, jnp.asarray(truth)))
     data = noiseless + noise * (
-        rng.normal(size=toy["rows"]) + 1j * rng.normal(size=toy["rows"])
+        rng.normal(size=sim["rows"]) + 1j * rng.normal(size=sim["rows"])
     )
     heldout = np.asarray(obs.time_index) % 4 == 2
     train = Observation(*(a[~heldout] for a in obs))
@@ -728,7 +728,7 @@ SYMMETRY_CASES = (
 )
 
 
-def symmetry_audit(toy, cases=SYMMETRY_CASES, noise=0.001):
+def symmetry_audit(sim, cases=SYMMETRY_CASES, noise=0.001):
     """Which array-common pointing modes the visibilities can see once the
     source/channel fluxes (and optionally the gains) are free
     (`observability.sky_locked_information`, research/beam-rotation.md)."""
@@ -737,7 +737,7 @@ def symmetry_audit(toy, cases=SYMMETRY_CASES, noise=0.001):
 
     from ..observability import sky_locked_information
 
-    obs, nants = toy["obs"], toy["fixture"]["antenna_count"]
+    obs, nants = sim["obs"], sim["fixture"]["antenna_count"]
     rows = {}
     for label, ratio, rotate, gains in cases:
         selected = (
@@ -746,7 +746,7 @@ def symmetry_audit(toy, cases=SYMMETRY_CASES, noise=0.001):
             else obs._replace(beam_angle_rad=jnp.zeros_like(obs.beam_angle_rad))
         )
         result = sky_locked_information(
-            toy["sky"],
+            sim["sky"],
             selected,
             nants,
             noise_jy=noise,
@@ -777,18 +777,18 @@ GAIN_AUDIT_CASES = (
 
 def gain_audit(thinned, complete, cases=GAIN_AUDIT_CASES, noise=0.001):
     """Frequency-dependent gains, with and without differential pointing, on
-    the thinned and the complete toy coverage (examples/gain_observability.py)."""
+    the thinned and the complete sim coverage (examples/gain_observability.py)."""
     import pandas as pd
 
     from ..observability import sky_locked_information
 
     rows = {}
-    for coverage, toy in (("thinned", thinned), ("complete", complete)):
+    for coverage, sim in (("thinned", thinned), ("complete", complete)):
         for gains, differential in cases:
             result = sky_locked_information(
-                toy["sky"],
-                toy["obs"],
-                toy["fixture"]["antenna_count"],
+                sim["sky"],
+                sim["obs"],
+                sim["fixture"]["antenna_count"],
                 noise_jy=noise,
                 beam_axis_ratio=1.1,
                 gain_model=gains,

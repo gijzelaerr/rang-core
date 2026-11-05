@@ -25,7 +25,7 @@ Each stage has `run` (the driver), `compare` (one comparator engine: the
 verdict and counts against an archive) and `archive` (a versioned
 `rang.archive` file); `rang-core check` runs the full local checks on any
 platform. Every call writes a receipt, `<output>.<verb>.rang-receipt.json`
-(schema `rang.receipt` version 3: the command, its inputs, the environment
+(schema `rang.receipt` version 4: the command, its inputs, the environment
 with every recorded `RANG_*` variable, and the commit, null outside a
 source checkout), unless `--no-receipt` is given. The OpenBLAS, OpenMP, MKL
 and XLA thread pools are capped at one thread where their variables are

@@ -6,7 +6,7 @@ Each stage has `run` (the driver), `compare` (one comparator engine: the
 verdict and counts against an archive) and `archive` (a versioned
 `rang.archive` file); `rang-core check` runs the full local checks on any
 platform. Every call writes a receipt, `<output>.<verb>.rang-receipt.json`
-(schema `rang.receipt` version 3: the command, its inputs, the environment
+(schema `rang.receipt` version 4: the command, its inputs, the environment
 with every recorded `RANG_*` variable, and the commit, null outside a
 source checkout), unless `--no-receipt` is given. The OpenBLAS, OpenMP, MKL
 and XLA thread pools are capped at one thread where their variables are
@@ -517,7 +517,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_WGRIDDER_TIMING` | unset | output | phase timings of the w-gridder on stderr | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_C1_LIB` | no longer read | retired | was a prebuilt closure-score library loaded through ctypes (C1); W4-3 moved the kernel into the extension | `research/w4-3-kernels.md` | `-` |
 | `RANG_P6` | unset (the frozen calls) | result | `1` runs the signal track's ported guard and influence functions | `research/p6-python-hotspots.md` | `python/rang/core_signal.py` |
-| `RANG_TOY_BIN` | unset (the extension) | result | a pointing-toy binary run instead of the extension | `research/p7-architecture.md` | `python/rang/__init__.py` |
+| `RANG_SIM_BIN` | unset (the extension) | result | a pointing-simulation binary run instead of the extension | `research/p7-architecture.md` | `python/rang/__init__.py` |
 | `RANG_FLAGGING_SUITE_IMAGE` | unset | result | the container image the trend run's configuration records | `research/flagging-parallel.md` | `python/rang/core_trend_run.py` |
 | `RANG_STRATEGY_DIR` | unset (the CARACAL strategy inputs under outputs/) | input | directory of the Tricolour strategies the notebook flags with | `research/d2-notebook.md` | `python/rang/notebook/flags.py` |
 | `RANG_FIXTURE` | unset (outputs/ska-pointing/outer_scans.zip) | input | the notebook's pointing fixture | `research/d2-notebook.md` | `python/rang/notebook/data.py` |
@@ -534,7 +534,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_CHECKALL_LOCKED` | unset | process | set by the check while it holds the lock | `research/p10-tests.md` | `python/rang/check.py` |
 | `RANG_CORE_BACKEND` | unset | refused | the removed ctypes backend; anything but `extension` is refused | `research/p7-architecture.md` | `python/rang/core.py` |
 | `RANG_CORE_LIB` | unset | refused | the removed ctypes library; setting it is refused | `research/p7-architecture.md` | `python/rang/core.py` |
-| `RANG_TOY_LIB` | unset | refused | the removed toy ctypes library; recorded by `rang-core environment` | `research/p7-architecture.md` | `python/rang/core_cli.py` |
+| `RANG_SIM_LIB` | unset | refused | the removed ctypes library; recorded by `rang-core environment` | `research/p7-architecture.md` | `python/rang/core_cli.py` |
 | `RANG_CARTA_URL` | unset | viewer | the CARTA backend's URL | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
 | `RANG_CARTA_WEBDRIVER` | unset | viewer | the CARTA backend's webdriver | `research/nb-carta.md` | `python/rang/notebook/carta.py` |
 | `RANG_CARTA_SESSION_ID` | unset | viewer | the CARTA session | `research/nb-carta.md` | `python/rang/notebook/carta.py` |

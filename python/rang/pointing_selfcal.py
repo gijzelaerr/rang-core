@@ -5,7 +5,7 @@ research/b1-3-pointing-selfcal.md freezes the protocol. This module holds:
 - per-antenna holography beams by the frozen rule (the native array average
   plus the antenna's difference from it, linear in frequency between the
   product channels), with analytic spline gradients (`AntennaBeams`), and
-  toy beams for tests (`ToyBeams`, `ScaledGaussianBeams`);
+  simple beams for tests (`SimpleBeams`, `ScaledGaussianBeams`);
 - the perturbed-beam terms and their Jacobian per antenna and hand
   (`beam_terms`), and per baseline (`pair_terms`): pointing, squint,
   ellipticity and width as B1-2 parametrised them, composed;
@@ -232,11 +232,11 @@ class AntennaBeams:
         return 0.5 * np.sum(np.abs(e) ** 2, axis=(-2, -1)) / norm2
 
 
-class ToyBeams:
-    """Per-antenna `GaussianToyBeam`s behind the `AntennaBeams` interface
+class SimpleBeams:
+    """Per-antenna `GaussianSimpleBeam`s behind the `AntennaBeams` interface
     (tests). `average` is the beam used for `average_power`."""
 
-    name = "toy"
+    name = "simple"
 
     def __init__(self, beams, average=None):
         self.beams = list(beams)
@@ -1735,7 +1735,7 @@ __all__ = [
     "Problem",
     "RasterBeam",
     "ScaledGaussianBeams",
-    "ToyBeams",
+    "SimpleBeams",
     "beam_terms",
     "fit_raster",
     "heldout",

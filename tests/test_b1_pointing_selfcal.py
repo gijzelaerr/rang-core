@@ -17,7 +17,9 @@ LIGHT = bi.LIGHTSPEED
 # A small synthetic array
 
 
-def _toy_scan(nant=6, ntime=8, nchan=32, seed=0, f0=1.30e9, df=1.0e6, q0=-0.6, dq=0.15):
+def _small_scan(
+    nant=6, ntime=8, nchan=32, seed=0, f0=1.30e9, df=1.0e6, q0=-0.6, dq=0.15
+):
     rng = np.random.default_rng(seed)
     pos = rng.uniform(-600, 600, (nant, 2))
     pairs = [(p, q) for p in range(nant) for q in range(p + 1, nant)]
@@ -63,10 +65,13 @@ def _sky(lm, flux, nchan, nu0):
     }
 
 
-def _toy_beams(nant, squints, ratio=1.05, fwhm=1.0):
-    return ps.ToyBeams(
-        [bi.GaussianToyBeam(fwhm, squint_deg=sq, ratio=ratio) for sq in squints[:nant]],
-        average=bi.GaussianToyBeam(fwhm, ratio=ratio),
+def _small_beams(nant, squints, ratio=1.05, fwhm=1.0):
+    return ps.SimpleBeams(
+        [
+            bi.GaussianSimpleBeam(fwhm, squint_deg=sq, ratio=ratio)
+            for sq in squints[:nant]
+        ],
+        average=bi.GaussianSimpleBeam(fwhm, ratio=ratio),
     )
 
 
@@ -279,7 +284,7 @@ def test_sample_stack_matches_map_coordinates():
 
 
 def test_pair_term_derivatives_match_finite_differences():
-    beams = _toy_beams(3, [(0.02, -0.01), (-0.01, 0.02), (0.0, 0.03)])
+    beams = _small_beams(3, [(0.02, -0.01), (-0.01, 0.02), (0.0, 0.03)])
     hd = beams.prepare(1.3e9)
     u = np.array([[0.2, -0.1], [-0.3, 0.25], [0.05, 0.4]])
     delta = np.array([[0.3, -0.2], [0.1, 0.4], [-0.5, 0.0]])
@@ -339,7 +344,7 @@ def test_jax_reference_path_gradient():
     import jax.numpy as jnp
     from rang import pointing
 
-    d = _toy_scan(nant=4, ntime=2, nchan=3, seed=5)
+    d = _small_scan(nant=4, ntime=2, nchan=3, seed=5)
     q = float(d["q_bins"][0])
     lm = np.array([[0.004, -0.003], [-0.006, 0.002]])
     flux = np.array([1.0, 0.5])
@@ -389,18 +394,18 @@ def test_jax_reference_path_gradient():
 
 
 # --------------------------------------------------------------------------
-# The solver on a toy array
+# The solver on a small array
 
 
-def _toy_problem(seed=0, noise=0.0, nant=6, nchan=32):
-    d = _toy_scan(nant=nant, ntime=8, nchan=nchan, seed=seed)
+def _small_problem(seed=0, noise=0.0, nant=6, nchan=32):
+    d = _small_scan(nant=nant, ntime=8, nchan=nchan, seed=seed)
     nu0 = float(d["freqs"].mean())
     lm = np.radians([[0.35, -0.2], [-0.3, 0.25], [0.1, 0.4], [0.0, 0.0]])
     flux = np.array([1.0, 0.8, 0.6, 2.0])
     sky = _sky(lm, flux, nchan, nu0)
     rng = np.random.default_rng(seed + 10)
     squints = [tuple(rng.normal(0, 0.01, 2)) for _ in range(nant)]
-    beams = _toy_beams(nant, squints)
+    beams = _small_beams(nant, squints)
     delta = rng.normal(0, 0.6, (nant, 2))
     gains = np.exp(
         rng.normal(0, 0.05, (nchan, 2, nant))
@@ -416,7 +421,7 @@ def _toy_problem(seed=0, noise=0.0, nant=6, nchan=32):
 
 
 def test_physical_pointing_recovers_offsets_noise_free():
-    d, sky, beams, delta, nu0 = _toy_problem()
+    d, sky, beams, delta, nu0 = _small_problem()
     sc = ps.prepare_scan(d, [1e-8, 1e-8])
     prob = ps.Problem([sc], sky, beams, nu0, nproc=1)
     res = ps.solve(prob, "ii", log=lambda *a: None, max_passes=12)
@@ -425,7 +430,7 @@ def test_physical_pointing_recovers_offsets_noise_free():
 
 
 def test_rang_recovers_contrasts_noise_free():
-    d, sky, beams, delta, nu0 = _toy_problem(seed=1)
+    d, sky, beams, delta, nu0 = _small_problem(seed=1)
     sc = ps.prepare_scan(d, [1e-6, 1e-6])  # tiny noise scale: every direction passes
     prob = ps.Problem([sc], sky, beams, nu0, nproc=1)
     res = ps.solve(
@@ -445,11 +450,11 @@ def test_selection_reproduces_identifiability_verdict():
     survey's measures when the two models coincide (identical beams, no
     squint, unit gains, apparent = intrinsic x beam)."""
     nant = 5
-    d = _toy_scan(nant=nant, ntime=4, nchan=32, seed=3, dq=0.0)
+    d = _small_scan(nant=nant, ntime=4, nchan=32, seed=3, dq=0.0)
     nu0 = float(d["freqs"].mean())
     lm = np.radians([[0.3, -0.2], [-0.25, 0.2], [0.0, 0.0]])
     flux = np.array([1.0, 0.7, 2.0])
-    beams = _toy_beams(nant, [(0.0, 0.0)] * nant, ratio=1.05)
+    beams = _small_beams(nant, [(0.0, 0.0)] * nant, ratio=1.05)
     sky = _sky(lm, flux, 32, nu0)
     gains = np.ones((32, 2, nant), complex)
     d = _simulate(d, sky, beams, np.zeros((nant, 2)), gains)
@@ -489,12 +494,12 @@ def test_selection_reproduces_identifiability_verdict():
 
 def test_g3a_single_component_is_absorbed_by_channel_gains():
     nant = 5
-    d = _toy_scan(nant=nant, ntime=4, nchan=32, seed=4)
+    d = _small_scan(nant=nant, ntime=4, nchan=32, seed=4)
     nu0 = float(d["freqs"].mean())
     lm = np.radians([[0.3, -0.2]])
     sky = _sky(lm, [1.0], 32, nu0)
     rng = np.random.default_rng(9)
-    beams = _toy_beams(
+    beams = _small_beams(
         nant, [tuple(rng.normal(0, 0.02, 2)) for _ in range(nant)], ratio=1.07
     )
     sc = ps.prepare_scan(d, [1.0, 1.0])
@@ -509,7 +514,7 @@ def test_g3a_single_component_is_absorbed_by_channel_gains():
 
 
 def test_split_reserves_training_cells_per_group():
-    d = _toy_scan(nant=5, ntime=8, nchan=64, seed=6)
+    d = _small_scan(nant=5, ntime=8, nchan=64, seed=6)
     e = ps.eligible_both(d)
     tb, blr = ps.scan_bins(d)
     ((train, val, test),) = ps.split_cells([(e, tb, blr)], 32)
@@ -521,7 +526,7 @@ def test_split_reserves_training_cells_per_group():
 
 
 def test_heldout_is_lower_with_the_right_pointing():
-    d, sky, beams, _delta, nu0 = _toy_problem(seed=2, noise=1e-3, nchan=64)
+    d, sky, beams, _delta, nu0 = _small_problem(seed=2, noise=1e-3, nchan=64)
     e = ps.eligible_both(d)
     tb, blr = ps.scan_bins(d)
     ((train, _val, test),) = ps.split_cells([(e, tb, blr)], 32)
@@ -537,7 +542,7 @@ def test_heldout_is_lower_with_the_right_pointing():
 
 
 def test_fit_raster_recovers_offset():
-    beam = bi.GaussianToyBeam(1.2, squint_deg=(0.0, 0.0))
+    beam = bi.GaussianSimpleBeam(1.2, squint_deg=(0.0, 0.0))
 
     def grad(x, y, freq):
         return beam(x, y, freq)

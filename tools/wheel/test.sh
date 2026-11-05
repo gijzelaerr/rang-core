@@ -11,7 +11,7 @@
 #   nocargo  with cargo absent from PATH (env -i, outside the checkout): the
 #            backend is the extension from site-packages and a fused pass runs
 #   pytest   tests/test_core_backends.py (extension against the archive of
-#            the retired ctypes oracle), tests/test_toy.py and
+#            the retired ctypes oracle), tests/test_pointing_sim.py and
 #            tests/test_p7_architecture.py from the source tree against the
 #            installed wheel (tools/wheel/pytest_wheel.py), cargo absent;
 #            any skip other than the fixture-MS one fails the step
@@ -79,7 +79,7 @@ for version in "${versions[@]}"; do
   run "$version" pytest "${clean[@]}" PYTHONPATH="$src/tools/wheel" \
     bash -c "set -o pipefail; cd '$src' && ! command -v cargo && \
     '$venv/bin/python' -m pytest -p pytest_wheel -p no:cacheprovider -o pythonpath= \
-    -rs -q tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py tests/test_p12_rename.py | tee '$dir/pytest.out' && \
+    -rs -q tests/test_core_backends.py tests/test_pointing_sim.py tests/test_p7_architecture.py tests/test_p12_rename.py | tee '$dir/pytest.out' && \
     ! grep -E '^SKIPPED' '$dir/pytest.out' | grep -v 'fixture MS not present'"
   if [ "${SUITE_ALL:-0}" = 1 ] || { [ "${SUITE:-1}" = 1 ] && { [ "$version" = 3.10 ] || [ "$version" = 3.14 ]; }; }; then
     suite=$rel/py$version/suite
@@ -91,7 +91,7 @@ for version in "${versions[@]}"; do
     shim=("${clean[@]}" RANG_WHEEL_CHECKOUT="$src" "$venv/bin/python" \
       "$src/tools/wheel/run_installed.py")
     # Since task P7 the wheel carries the root crate's kernels and the
-    # drivers need no C ABI library: no RANG_TOY_LIB or RANG_CORE_LIB.
+    # drivers need no C ABI library: no RANG_SIM_LIB or RANG_CORE_LIB.
     s6=("${py[@]}")
     run "$version" phase2 "${py[@]}" examples/validate_core_phase2.py "$suite/phase2"
     run "$version" section6 "${s6[@]}" examples/prototype_section6.py "$suite/section6"

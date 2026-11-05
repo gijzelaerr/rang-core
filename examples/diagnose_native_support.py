@@ -254,10 +254,10 @@ def rank_diagnostic():
 def gauge_diagnostic():
     from rang.core_policy import gain_tv, polar_gauge
 
-    library = os.environ.get("RANG_TOY_LIB")
+    library = os.environ.get("RANG_SIM_LIB")
     if not library or not Path(library).is_file():
         raise ValueError(
-            "Set RANG_TOY_LIB to the existing checked Rust library; no build"
+            "Set RANG_SIM_LIB to the existing checked Rust library; no build"
         )
     original = np.broadcast_to(np.eye(2), (4, 2, 4, 2, 2)).copy().astype(complex)
     changed, valid = original.copy(), np.ones((4, 2, 4), bool)

@@ -785,9 +785,9 @@ fn numbers(values: &[f64]) -> String {
     )
 }
 
-/// The `rang-toy` command line: the text it prints on stdout (without the
+/// The `rang-sim` command line: the text it prints on stdout (without the
 /// final newline) or the error it reports. `main.rs` and the extension
-/// (`rang._core.toy_cli`, task P7) both call this, so their output is the
+/// (`rang._core.sim_cli`, task P7) both call this, so their output is the
 /// same bytes.
 pub fn cli(args: &[String]) -> Result<String, String> {
     if args == ["--pointing-full-reference"] {
@@ -800,7 +800,7 @@ pub fn cli(args: &[String]) -> Result<String, String> {
     let mut args = args.iter();
     while let Some(key) = args.next() {
         if key == "--help" {
-            return Ok("rang-toy [--seed INTEGER] [--noise JY] [--pointing ARCMIN] [--beam-error FRACTION] [--budget FRACTION] [--target-flux JY]\nUse --pointing-reference alone for a deterministic cross-language fixture.\nPrint a JSON result to stdout. No files are written.".to_string());
+            return Ok("rang-sim [--seed INTEGER] [--noise JY] [--pointing ARCMIN] [--beam-error FRACTION] [--budget FRACTION] [--target-flux JY]\nUse --pointing-reference alone for a deterministic cross-language fixture.\nPrint a JSON result to stdout. No files are written.".to_string());
         }
         let value = args
             .next()

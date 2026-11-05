@@ -3,7 +3,7 @@
 
 Every case below ran at `5965d37` under both backends of that commit (the
 extension and the ctypes C ABI of `core/`; the root-crate kernels through
-ctypes on `librang_toy` in both runs) with byte-identical results, and those
+ctypes on `librang_sim` in both runs) with byte-identical results, and those
 results were archived in `tests/data/core-backends-golden.npz` (arrays) and
 `.json` (scalars, strings and the SHA-256 of every array). The ctypes path
 is gone; each case now runs on the extension and must reproduce the archive
@@ -465,7 +465,7 @@ def test_errors(golden):
     assert all(c is not None for c in caught[:3])
 
 
-# The root-crate kernels (ctypes on librang_toy at 5965d37, now the extension).
+# The root-crate kernels (ctypes on librang_sim at 5965d37, now the extension).
 
 
 def _gain_grid(seed, shape=(5, 4, 3)):

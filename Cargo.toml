@@ -1,17 +1,17 @@
 [package]
-name = "rang-toy"
+name = "rang-sim"
 version = "0.1.0"
 edition = "2024"
 license = "GPL-3.0-or-later"
 publish = false
 
 [lib]
-name = "rang_toy"
+name = "rang_sim"
 path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [[bin]]
-name = "rang-toy"
+name = "rang-sim"
 path = "src/main.rs"
 
 [profile.release]

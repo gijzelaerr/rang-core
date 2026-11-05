@@ -1,12 +1,12 @@
 """Run Rust calibration experiments from Python.
 
 Rust owns the numerical work; Python owns configuration, campaigns, tables and
-plotting. Every kernel, the pointing toy included, is in the compiled
+plotting. Every kernel, the pointing simulation included, is in the compiled
 extension `rang._core` (research/p7-architecture.md): importing this
 package or calling a kernel never runs Cargo. `run_experiment` and
-`toy_output` call the pointing toy's command line inside the extension; its
-output is byte-identical to the `rang-toy` binary's stdout, which remains for
-command-line use (pass `binary=` or set RANG_TOY_BIN to run a binary instead).
+`sim_output` call the pointing simulation's command line inside the extension; its
+output is byte-identical to the `rang-sim` binary's stdout, which remains for
+command-line use (pass `binary=` or set RANG_SIM_BIN to run a binary instead).
 """
 
 from __future__ import annotations
@@ -49,14 +49,14 @@ def _version() -> str:
 __version__ = _version()
 
 
-def toy_output(*args: str) -> str:
-    """What `rang-toy ARGS...` prints on stdout (with its final newline),
-    computed in the extension; e.g. `toy_output("--pointing-reference")`."""
+def sim_output(*args: str) -> str:
+    """What `rang-sim ARGS...` prints on stdout (with its final newline),
+    computed in the extension; e.g. `sim_output("--pointing-reference")`."""
     from .core import extension
 
-    ok, text = extension().toy_cli([str(a) for a in args])
+    ok, text = extension().sim_cli([str(a) for a in args])
     if not ok:
-        raise RuntimeError(f"rang-toy: {text}")
+        raise RuntimeError(f"rang-sim: {text}")
     return text + "\n"
 
 
@@ -76,7 +76,7 @@ def run_experiment(
     beam_error: fractional true beam width mismatch. budget: local operator-norm
     distortion bound, not an image accuracy guarantee. See examples/README.md.
     `command[0]` and `binary_sha256` name the binary that ran: the extension,
-    or the `rang-toy` executable when one is given.
+    or the `rang-sim` executable when one is given.
     """
     args = []
     for key, value in {
@@ -88,7 +88,7 @@ def run_experiment(
         "target-flux": target_flux,
     }.items():
         args.extend([f"--{key}", str(value)])
-    configured = binary or os.environ.get("RANG_TOY_BIN")
+    configured = binary or os.environ.get("RANG_SIM_BIN")
     started = time.perf_counter()
     if configured:
         executable = Path(configured).resolve()
@@ -102,7 +102,7 @@ def run_experiment(
         from .core import library_path
 
         executable = library_path()
-        stdout = toy_output(*args)
+        stdout = sim_output(*args)
     result = json.loads(stdout)
     result["execution_seconds"] = time.perf_counter() - started
     result["binary_sha256"] = hashlib.sha256(executable.read_bytes()).hexdigest()
@@ -110,4 +110,4 @@ def run_experiment(
     return result
 
 
-__all__ = ["__version__", "run_experiment", "toy_output"]
+__all__ = ["__version__", "run_experiment", "sim_output"]

@@ -13,7 +13,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rang import toy_output
+from rang import sim_output
 from rang.beams import beam_table, load_katbeam, make_beam_predictor
 from rang.pointing import Observation, component_list, solve_pointing, spline_design
 
@@ -157,7 +157,7 @@ def main():
             "--held-out requires --joint-gains for the gain/sky-only comparison"
         )
     jax.config.update("jax_enable_x64", True)
-    raw = toy_output("--pointing-full-reference").encode()
+    raw = sim_output("--pointing-full-reference").encode()
     fixture = json.loads(raw)
     r, s = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     obs = Observation(

@@ -52,7 +52,7 @@ Linux, macOS and Windows are native build and CI targets: `wheels.yml` builds
 and tests Linux x86_64 and aarch64, macOS arm64 and x86_64, and Windows x86_64
 (`research/x1-crossplatform.md`). Some tests skip on Windows: those of the
 frozen modules that need `st_blocks` or a POSIX container path, symlinks without
-Developer Mode, the toy's Linux-archived bytes and absent archives. The frozen
+Developer Mode, the simulation's Linux-archived bytes and absent archives. The frozen
 campaigns' fresh-namespace and disk-budget guards still rely on POSIX semantics.
 For campaign work on Windows, use a WSL2 Linux checkout on
 the Linux filesystem (not `/mnt/c`), with Docker inside WSL only to re-run the

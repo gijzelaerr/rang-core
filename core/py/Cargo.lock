@@ -682,7 +682,7 @@ name = "rang-core"
 version = "0.1.0"
 dependencies = [
  "pollster",
- "rang-toy",
+ "rang-sim",
  "rayon",
  "rustfft",
  "wgpu",
@@ -698,7 +698,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rang-toy"
+name = "rang-sim"
 version = "0.1.0"
 
 [[package]]

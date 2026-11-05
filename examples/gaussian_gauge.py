@@ -12,7 +12,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rang import core, toy_output
+from rang import core, sim_output
 from rang.gauge import gaussian_gauge, predict_channels
 from rang.observability import sky_locked_information
 from rang.pointing import Observation, component_list
@@ -23,11 +23,11 @@ def gauge_svg(orbit):
     parts = [
         '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620" viewBox="0 0 1000 620" role="img" aria-labelledby="title desc">',
         '<title id="title">Different pointing trajectories, identical Gaussian-beam visibilities</title>',
-        '<desc id="desc">Two smooth models for toy antenna m000 differ in both pointing coordinates. Across a continuous gauge sweep their maximum visibility difference remains at floating-point roundoff.</desc>',
+        '<desc id="desc">Two smooth models for simulated antenna m000 differ in both pointing coordinates. Across a continuous gauge sweep their maximum visibility difference remains at floating-point roundoff.</desc>',
         '<rect width="1000" height="620" fill="white"/>',
         '<g font-family="sans-serif" fill="#172b4d">',
         '<text x="50" y="32" font-size="22">Different pointing. Identical predicted data.</text>',
-        '<text x="50" y="55" font-size="13">Rotating elliptical Gaussian beam · eight-antenna toy · not two fitted estimates</text>',
+        '<text x="50" y="55" font-size="13">Rotating elliptical Gaussian beam · eight-antenna simulation · not two fitted estimates</text>',
     ]
 
     def panel(
@@ -105,7 +105,7 @@ def gauge_svg(orbit):
 def main():
     jax.config.update("jax_enable_x64", True)
     binary = core.library_path()
-    fixture_bytes = toy_output("--pointing-full-reference").encode()
+    fixture_bytes = sim_output("--pointing-full-reference").encode()
     fixture = json.loads(fixture_bytes)
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     sky = component_list(sources[:, 0], sources[:, 1], sources[:, 2], sources[:, 3])

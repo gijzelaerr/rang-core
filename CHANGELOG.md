@@ -9,6 +9,10 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- The root crate and binary are now `rang-sim`, `rang.toy_output` is now `rang.sim_output`,
+  `RANG_TOY_BIN` and `RANG_TOY_LIB` are now `RANG_SIM_BIN` and `RANG_SIM_LIB`, and
+  `examples/toy.py` is now `examples/pointing_sim.py`. No aliases are kept. Output bytes are
+  unchanged. Receipts are `rang.receipt` version 4.
 - `gemclean` takes w-planes in groups of 4, within 2 GiB of grids. Results are unchanged; peak
   memory rises (2.84 to 3.38 GB on one simulated job). Other callers of the exact gridder stay at
   one plane, because larger groups were measured only on gemclean. `RANG_WGRIDDER_PLANE_GROUP`

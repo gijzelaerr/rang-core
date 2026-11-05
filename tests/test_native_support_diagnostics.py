@@ -106,7 +106,7 @@ def test_analytic_and_central_jacobian_rank_gauge_dimensions():
 
 
 def test_gauge_diagnostic_requires_existing_checked_native_library(monkeypatch):
-    monkeypatch.delenv("RANG_TOY_LIB", raising=False)
+    monkeypatch.delenv("RANG_SIM_LIB", raising=False)
     with pytest.raises(ValueError, match="existing checked Rust"):
         diagnostics.gauge_diagnostic()
 

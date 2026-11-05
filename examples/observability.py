@@ -10,14 +10,14 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rang import toy_output
+from rang import sim_output
 from rang.observability import sky_locked_information
 from rang.pointing import Observation, component_list
 
 
 def main():
     jax.config.update("jax_enable_x64", True)
-    fixture = json.loads(toy_output("--pointing-reference").encode())
+    fixture = json.loads(sim_output("--pointing-reference").encode())
     rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     sky = component_list(sources[:, 0], sources[:, 1], sources[:, 2], sources[:, 3])
     obs = Observation(

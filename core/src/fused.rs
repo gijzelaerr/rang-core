@@ -1,7 +1,7 @@
 //! One sweep over the visibility cells: prediction, residual, split sums,
 //! whitened amplitudes and antenna-diagonal Gauss--Newton blocks.
 //!
-//! Real parameter order per antenna follows `rang_toy::response`: XX, XY, YX,
+//! Real parameter order per antenna follows `rang_sim::response`: XX, XY, YX,
 //! YY, each as adjacent real and imaginary parts (eight parameters). Residual
 //! rows use the same adjacent order, and the weight of row `k` is the weight
 //! of correlation `k / 2`.
@@ -477,11 +477,11 @@ mod tests {
     }
 
     #[test]
-    fn jacobian_matches_rang_toy() {
+    fn jacobian_matches_rang_sim() {
         let gp = [1.1, 0.2, 0.05, -0.01, 0.02, 0.03, 0.9, -0.1];
         let gq = [0.8, -0.3, 0.01, 0.02, -0.04, 0.01, 1.2, 0.2];
         let model = [2.0, 0.1, 0.3, -0.2, 0.25, 0.15, 1.5, -0.05];
-        let reference = rang_toy::response::jacobian(&gp, &gq, &model).unwrap();
+        let reference = rang_sim::response::jacobian(&gp, &gq, &model).unwrap();
         let (jp, jq, jm) = (
             jones::from_f64(&gp),
             jones::from_f64(&gq),
@@ -599,7 +599,7 @@ mod tests {
         let w: Vec<f64> = weights.iter().map(|x| f64::from(*x)).collect();
         let p: Vec<usize> = (0..samples).map(|s| a1[s / nchan] as usize).collect();
         let q: Vec<usize> = (0..samples).map(|s| a2[s / nchan] as usize).collect();
-        let (full_h, full_b, _) = rang_toy::response::normals(
+        let (full_h, full_b, _) = rang_sim::response::normals(
             1,
             &gains,
             &models,

@@ -1,7 +1,7 @@
 """Pytest plugin for testing the installed wheel from the source tree.
 
     PYTHONPATH=tools/wheel python -m pytest -p pytest_wheel -o pythonpath= \
-        tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py
+        tests/test_core_backends.py tests/test_pointing_sim.py tests/test_p7_architecture.py
 
 (tools/wheel/test.py and test.sh run this.) Fails the session unless rang
 and `rang._core` are imported from the venv's site-packages (not the

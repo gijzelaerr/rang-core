@@ -1,4 +1,4 @@
-//! Small dense symmetric linear algebra for the toy's 16 pointing parameters.
+//! Small dense symmetric linear algebra for the simulation's 16 pointing parameters.
 //! No external numerical dependency is needed to reproduce this experiment.
 
 pub type Matrix = Vec<Vec<f64>>;

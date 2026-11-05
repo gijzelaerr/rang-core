@@ -11,9 +11,9 @@
 //! C-contiguous and read-only outputs are refused, task W4-2), their pointers
 //! fill the `#[repr(C)]`
 //! structs, and the status code of the C function is returned for the Python
-//! wrapper to interpret. P7 adds the root crate's kernels (`rang_toy`, reached
-//! as `rang_core::toy`: gain TV, phase trend, anchored response, projector)
-//! and the pointing toy's command line, and releases the GIL around every
+//! wrapper to interpret. P7 adds the root crate's kernels (`rang_sim`, reached
+//! as `rang_core::sim`: gain TV, phase trend, anchored response, projector)
+//! and the pointing simulation's command line, and releases the GIL around every
 //! kernel call, so Python threads overlap decode, solves and images. The
 //! Measurement Set reader is a `MsTable` class over `rang_core::ms::Table`
 //! whose column bytes move into a NumPy array without a copy. No kernel code
@@ -48,7 +48,7 @@ use rang_core::ffi_weights::{
 use rang_core::ffi_wgridder::{self, WgridderOptions};
 use rang_core::ms::{DataType, Table};
 use rang_core::ms_write::TableWriter;
-use rang_core::toy;
+use rang_core::sim;
 use std::ffi::c_void;
 
 mod clean;
@@ -1535,7 +1535,7 @@ fn gain_tv(
     };
     // SAFETY: every buffer has the length the C function documents.
     Ok(detach(py, || unsafe {
-        toy::tv::rang_gain_tv(nt, nf, na, g, v, tw, fw, out)
+        sim::tv::rang_gain_tv(nt, nf, na, g, v, tw, fw, out)
     }))
 }
 
@@ -1570,7 +1570,7 @@ fn trend_slopes(
     };
     // SAFETY: every buffer has the length the C function documents.
     Ok(detach(py, || unsafe {
-        toy::trend::rang_trend_slopes(nt, nf, na, g, v, t, f, out, c)
+        sim::trend::rang_trend_slopes(nt, nf, na, g, v, t, f, out, c)
     }))
 }
 
@@ -1593,7 +1593,7 @@ fn response_jacobian(
     };
     // SAFETY: every buffer has the length the C function documents.
     Ok(detach(py, || unsafe {
-        toy::response::rang_response_jacobian(p, q, m, out)
+        sim::response::rang_response_jacobian(p, q, m, out)
     }))
 }
 
@@ -1642,7 +1642,7 @@ fn response_normals(
     };
     // SAFETY: every buffer has the length the C function documents.
     Ok(detach(py, || unsafe {
-        toy::response::rang_response_normals(samples, gain_bins, g, m, r, w, pp, qq, bb, hh, rhs, c)
+        sim::response::rang_response_normals(samples, gain_bins, g, m, r, w, pp, qq, bb, hh, rhs, c)
     }))
 }
 
@@ -1676,7 +1676,7 @@ fn response_step(
     };
     // SAFETY: every buffer has the length the C function documents.
     Ok(detach(py, || unsafe {
-        toy::response::rang_response_step(fh, fb, dh, db, g, a, d, info)
+        sim::response::rang_response_step(fh, fb, dh, db, g, a, d, info)
     }))
 }
 
@@ -1709,7 +1709,7 @@ fn project_out(
     let mut rank = 0usize;
     // SAFETY: every buffer has the length the C function documents.
     let status = detach(py, || unsafe {
-        toy::projector::rang_project_out(
+        sim::projector::rang_project_out(
             rows,
             nuisance_cols,
             target_cols,
@@ -1723,15 +1723,15 @@ fn project_out(
     Ok((status, rank))
 }
 
-/// The `rang-toy` command line (`rang_toy::cli`): (true, stdout text) or
+/// The `rang-sim` command line (`rang_sim::cli`): (true, stdout text) or
 /// (false, error message). The text lacks the final newline the binary adds.
 #[pyfunction]
-fn toy_cli(py: Python<'_>, args: Vec<String>) -> (bool, String) {
-    let result = py.detach(|| std::panic::catch_unwind(|| toy::cli(&args)));
+fn sim_cli(py: Python<'_>, args: Vec<String>) -> (bool, String) {
+    let result = py.detach(|| std::panic::catch_unwind(|| sim::cli(&args)));
     match result {
         Ok(Ok(text)) => (true, text),
         Ok(Err(error)) => (false, error),
-        Err(_) => (false, "panic in the pointing toy".to_string()),
+        Err(_) => (false, "panic in the pointing simulation".to_string()),
     }
 }
 
@@ -2532,7 +2532,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(response_normals, m)?)?;
     m.add_function(wrap_pyfunction!(response_step, m)?)?;
     m.add_function(wrap_pyfunction!(project_out, m)?)?;
-    m.add_function(wrap_pyfunction!(toy_cli, m)?)?;
+    m.add_function(wrap_pyfunction!(sim_cli, m)?)?;
     m.add_class::<MsTable>()?;
     m.add_class::<MsWriter>()?;
     m.add_function(wrap_pyfunction!(ms_serialisation_check, m)?)?;

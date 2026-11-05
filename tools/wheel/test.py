@@ -30,13 +30,13 @@ logs in OUT_DIR (which must not exist), wall times in OUT_DIR/timings.tsv:
            and of the flux-standard kernel (`rang.fluxstd.core_log10_poly`,
            within 1e-13 of the Python evaluator); both built a standalone
            library with cargo before task W4-3 (research/w4-3-kernels.md)
-  pytest   tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py
+  pytest   tests/test_core_backends.py tests/test_pointing_sim.py tests/test_p7_architecture.py
            tests/test_p12_rename.py tests/test_t1_casacure_oracle.py
            tests/test_w4_3_kernels.py
            from the source tree against the installed wheel through
            tools/wheel/pytest_wheel.py, the same environment: the extension
            against the archive of the retired ctypes oracle, the pointing
-           toy against the binary's archived output, and P7's no-cargo, GIL
+           simulation against the binary's archived output, and P7's no-cargo, GIL
            and panic checks (research/p7-architecture.md), and casacure as
            the second oracle of the core's table reader and writer (T1).
            With --fixture-cache the step gets RANG_FIXTURE=<the zip> (the one
@@ -60,7 +60,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TESTS = (
-    "tests/test_core_backends.py tests/test_toy.py tests/test_p7_architecture.py"
+    "tests/test_core_backends.py tests/test_pointing_sim.py tests/test_p7_architecture.py"
     " tests/test_p12_rename.py tests/test_t1_casacure_oracle.py"
     " tests/test_w4_3_kernels.py"
 )
@@ -85,7 +85,7 @@ assert np.max(np.abs(rs / fluxstd.log10_poly(coeffs, 1e9, nu) - 1)) < 1e-13
 print("closure", float(np.median(out["residual"])), "fluxstd", float(rs[0]))
 """
 EXTRAS = "test,imaging,casacure"
-# Always allowed: the toy bytes elsewhere (P7); the cells where casacure
+# Always allowed: the simulation bytes elsewhere (P7); the cells where casacure
 # 3.8.35 has no wheel (T1, decided in tests/test_t1_casacure_oracle.py).
 ALLOWED_SKIPS = re.compile(
     r"archived on Linux x86_64|casacure 3\.8\.35 has no wheel for this platform"

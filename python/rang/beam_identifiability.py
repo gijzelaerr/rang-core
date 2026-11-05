@@ -3,7 +3,7 @@
 research/b1-2-identifiability.md freezes the protocol. This module holds:
 
 - the analytic cubic-spline derivatives of the B1-0 holography beam
-  (`spline_sample`, `HolographyGradient`) and a Gaussian toy beam for tests;
+  (`spline_sample`, `HolographyGradient`) and a simple Gaussian beam for tests;
 - the beam log-derivative factors of every direction per component
   (`direction_factors`): per-antenna pointing, array-common pointing,
   log-width, ellipticity and squint;
@@ -127,12 +127,12 @@ class HolographyGradient:
         return e / norm, d_col / step / norm, beam.flip * d_row / step / norm
 
 
-class GaussianToyBeam:
+class GaussianSimpleBeam:
     """Diagonal Gaussian voltage beam for tests: E_hh = exp(-r_h^2 / (2 s^2))
     with r_h measured from a per-hand squint offset (degrees) and an
     optional x/y width ratio; s = fwhm_v / (2 sqrt(2 ln 2)) of the voltage."""
 
-    name = "gaussian-toy"
+    name = "gaussian-simple"
 
     def __init__(self, fwhm_deg=1.0, squint_deg=(0.0, 0.0), ratio=1.0):
         self.s = fwhm_deg / (2 * math.sqrt(2 * math.log(2)))
@@ -1142,7 +1142,7 @@ class ChannelSurvey:
 __all__ = [
     "COMMON",
     "ChannelSurvey",
-    "GaussianToyBeam",
+    "GaussianSimpleBeam",
     "HolographyGradient",
     "Survey",
     "block_normals",

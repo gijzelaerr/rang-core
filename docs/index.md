@@ -22,6 +22,8 @@ gain TV stopped at its go/no-go test on one observation, before any training
 ({gh}`research/f1-tv-flagger.md`). A deeper
 field model (an external
 catalogue) is the first condition for reopening beam and pointing on real data.
+The reference imager GeMClean beats WSClean's time on 16 threads, not always on one, at
+3–5 times the memory ({gh}`research/gemclean-speed.md`).
 ```
 
 What it is:
@@ -31,13 +33,17 @@ What it is:
   fetch, QuartiCal's full-Jones solver, Tricolour's SumThreshold strategies,
   WSClean's imaging weights and w-stacking gridder (CPU and GPU), ducc0's
   wgridder, CASA's flux standards and a component predictor.
+- **GeMClean, a reference imager.** `gemclean` takes a Measurement Set to FITS with
+  WSClean-style flags, using the exact image-domain value at each minor-cycle step
+  ({gh}`research/gemclean.md`). It is not in the wheels; build it with
+  `cargo build --manifest-path core/Cargo.toml --profile gemclean --bin gemclean`.
 - **A Python package and command line.** `rang-core STAGE VERB` ({doc}`cli`)
   replays, compares and archives each chain and writes a versioned receipt.
 - **The tools' file formats**: CASA calibration tables, QuartiCal stores, sky
   models, H5parm, killMS solutions, CASA flag versions and MVFv4 archives.
 - **Oracles.** Each port is gated on reproducing the upstream tool's output.
 - **Tutorials and research.** Five tutorial and two science notebooks
-  ({doc}`tutorials/index`) on a public 45 MB MeerKAT fixture and the Rust toy;
+  ({doc}`tutorials/index`) on a public 45 MB MeerKAT fixture and the Rust pointing simulation;
   [the research story](research/index.md) keeps the negative results.
 
 ```{toctree}

@@ -44,7 +44,7 @@ metadata and suitable observations. This is not a promise of discovery.
 The objective is a demonstrable quality or efficiency advance over a relevant
 state-of-the-art calibration/imaging method. Joint fitting, splines, automatic
 differentiation, zero-mean constraints and QR elimination are not individually
-novel. Our gain-only toy is a control, not a state-of-the-art comparison.
+novel. Our gain-only simulation is a control, not a state-of-the-art comparison.
 
 Use these gates to support the focused experiment, preserving negative results;
 they are not ten prerequisites to another novelty decision:
@@ -69,7 +69,7 @@ Potential research direction, not an established result: use information after
 accounting for uncertain sky and gains to decide which physical pointing/beam
 parameters to fit, with predictive checks detecting inadequate models. This
 must beat ordinary regularized joint fitting and relevant existing methods;
-previous toy mode-selection tests did not demonstrate an accuracy advantage.
+previous simulated mode-selection tests did not demonstrate an accuracy advantage.
 
 Historical data inspection (gate 8) already identified missing/repeated records;
 external clarification is needed before a physically grounded drift model.

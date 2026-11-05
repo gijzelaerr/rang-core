@@ -418,8 +418,8 @@ The CLEAN programme continues in its own session.
 
 **Next work, not started**
 
-- [ ] Final timing pass on an idle host (about 3.3 h, or 1.5 h on one dataset). The CLEAN session asks for a window;
-  every speed figure stays provisional until then.
+- [x] Timing pass on a quiet host: done 2026-11-04 ([gemclean-speed.md](gemclean-speed.md)). Left from it: finish the `-beam-band`
+  on/off test, then memory, then the tuned settings on the real pilot.
 - [ ] DF5 with an RML arm (TV, sparsity) against the DF5-O oracles at matched cost.
 - [ ] B1 reopened with an external catalogue (SUMSS, RACS) for the ESO137 model.
 - [ ] Add ducc0 to the check-all environment, or accept that the comparison in `tests/test_core_wgridder.py` runs only by hand.

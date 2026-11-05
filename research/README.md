@@ -18,7 +18,7 @@ rang`, extension `rang._core`, `python/rang/`); the command line stays
 `rangtoy.core_cli`, `import rangtoy`): read it as `rang` for the current tree.
 CLI receipts are `rang.receipt` version 2 from then on (key
 `environment.rang_core`, was `environment.rangtoy`), version 3 since
-[W4-1](w4-1-receipts.md).
+[W4-1](w4-1-receipts.md), version 4 since the root crate became `rang-sim` on 2026-11-05 (its old name stays in dated notes and archives).
 
 ## The core port and simplification
 
@@ -312,9 +312,9 @@ novelty ([experiment, controls](antenna-beam-widths.md) and
 - [Beam-model selection](beam-model-selection.md): an ordinary joint-fit baseline that needs a science-quality control.
 - [Sky uncertainty](sky-uncertainty.md): 2% off-axis flux errors raise pointing RMSE from 2.40 to 30.24 arcsec when calibration holds the sky fixed.
 - [Information budget](information-budget.md): separates unconstrained visibility information from what uncertain external flux constraints supply.
-- [katbeam pointing](katbeam-pointing.md): chromatic beam shape supplies pointing information in the toy; a measurement-informed scalar model, not complete measured antenna Jones beams.
+- [katbeam pointing](katbeam-pointing.md): chromatic beam shape supplies pointing information in the simulation; a measurement-informed scalar model, not complete measured antenna Jones beams.
 - [Uncertainty coverage](uncertainty-coverage.md): local Gauss–Newton marginal uncertainties and a beam-width recovery control.
-- [Robustness stress](robustness-stress.md): toy controls showing the matched-model result is not sufficient.
+- [Robustness stress](robustness-stress.md): simulated controls showing the matched-model result is not sufficient.
 - [Frequency blocking](frequency-blocking.md): standard structured least-squares elimination, a compute benchmark and not an end-to-end calibrator speedup.
 - [Public pointing history](pointing-history.md): an inspection of the SARAO release (CC BY-NC 4.0), kept in ignored outputs.
 - [Calibration research, 2026-09-11](calibration-research-2026-09-11.md): the first literature review and candidate method, superseded by the [MeerKAT scope](meerkat-scope.md).

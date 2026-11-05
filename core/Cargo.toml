@@ -24,7 +24,7 @@ name = "gram_solver_bench"
 path = "src/bin/gram_solver_bench.rs"
 
 [dependencies]
-rang-toy = { path = ".." }
+rang-sim = { path = ".." }
 rayon = "1.12.0"
 rustfft = "6.4.1"
 # The GPU gridder (task X2, research/x2-wgpu.md), behind the feature `gpu`.

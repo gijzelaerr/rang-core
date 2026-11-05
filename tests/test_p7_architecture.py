@@ -32,14 +32,14 @@ for info in pkgutil.iter_modules(rang.__path__, "rang."):
             skipped.append(info.name)
         else:
             raise
-from rang import core_influence as flagging_influence, core_policy as flagging, core_trend_run as flagging_trend, projector, toy_output
+from rang import core_influence as flagging_influence, core_policy as flagging, core_trend_run as flagging_trend, projector, sim_output
 g = np.tile(np.eye(2, dtype=complex), (3, 2, 2, 1, 1))
 v = np.ones((3, 2, 2), bool)
 flagging.gain_tv(g, v, np.arange(3.0), np.arange(2.0))
 flagging_trend.estimate_trend(g, v, np.arange(3.0), np.arange(2.0), v)
 flagging_influence.jones_jacobian(np.eye(2), np.eye(2), np.eye(2))
 projector.project_out(np.ones((4, 1)), np.arange(8.0).reshape(4, 2))
-toy_output("--pointing-reference")
+sim_output("--pointing-reference")
 print("ok", len(skipped))
 """
 

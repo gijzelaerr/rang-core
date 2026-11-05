@@ -134,7 +134,7 @@ def plot(experiments: list[dict], stats: dict, output: Path) -> None:
         ax.grid(axis="y", alpha=0.15)
         ax.set_axisbelow(True)
     fig.suptitle(
-        "Rang | MeerKAT core toy: Gaussian beam, scalar RIME, known source positions",
+        "Rang | MeerKAT core simulation: Gaussian beam, scalar RIME, known source positions",
         fontsize=14,
     )
     suffix = (
@@ -159,7 +159,9 @@ def main() -> None:
     parser.add_argument("--beam-error", type=float, default=0.0)
     parser.add_argument("--budget", type=float, default=0.01)
     parser.add_argument("--target-flux", type=float, default=0.02)
-    parser.add_argument("--output", type=Path, default=ROOT / "outputs" / "toy")
+    parser.add_argument(
+        "--output", type=Path, default=ROOT / "outputs" / "pointing-sim"
+    )
     parser.add_argument("--no-plot", action="store_true")
     args = parser.parse_args()
     experiments = []

@@ -55,7 +55,7 @@ line; a test fails when the page and the help texts differ.
 - Preserve failures and null results; do not select favourable seeds.
 - Novelty must mean demonstrably better calibration or imaging at comparable
   cost, or comparable quality at materially lower cost, against a relevant
-  state-of-the-art method. Toy-baseline wins and reimplementations do not
+  state-of-the-art method. Wins against weak baselines and reimplementations do not
   establish it.
 - Cite the closest primary literature and name the difference being tested.
 

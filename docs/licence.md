@@ -47,7 +47,7 @@ data stay in ignored `outputs/` or in a cache directory the user names.
   repository ska-sdp-wflow-pointing-offset (Git LFS), downloaded on demand
   and verified by SHA256, never bundled
   ({gh}`research/measurement-set-inspection.md`).
-- **Antenna positions.** The toy's eight core positions are transcribed from
+- **Antenna positions.** The simulation's eight core positions are transcribed from
   Jonas & the MeerKAT Team, PoS(MeerKAT2016)001 ({gh}`data/README.md`).
 
 ## Logo

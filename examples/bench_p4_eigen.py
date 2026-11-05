@@ -10,7 +10,7 @@ Usage:
 target runs (no module is edited), so every call made by the target, also
 through `from ... import anchored_response`, is saved with the exact arrays
 handed to `rang_response_step` and the native status it returned under the
-library in `RANG_TOY_LIB`. `replay` calls both libraries directly through
+library in `RANG_SIM_LIB`. `replay` calls both libraries directly through
 ctypes on every recorded call, compares statuses, ranks, diagnostics and
 deltas, and times the calls in alternating passes. `dump` writes the raw
 records that `src/response.rs`'s ignored `p4_dump_audit` test reads. `diff`

@@ -60,7 +60,7 @@ def test_versions_agree():
     version = pyproject_version()
     assert re.fullmatch(r"\d+\.\d+\.\d+([ab]\d+|rc\d+)?", version)
     crates = {
-        "Cargo.toml": "rang-toy",
+        "Cargo.toml": "rang-sim",
         "core/Cargo.toml": "rang-core",
         "core/py/Cargo.toml": "rang-core-py",
     }

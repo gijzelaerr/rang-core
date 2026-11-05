@@ -166,7 +166,7 @@ def test_fetch_slice_bytes_and_arrays_equal_the_store(server, tmp_path):
             expected = body[start:end]
         assert record["sha256"] == hashlib.sha256(expected).hexdigest()
     assert result["rows"] == [0, 1, 2, 3, 4, 5, 7, 9]  # no autos, row 8 flagged
-    # Run spans are exactly the planned byte ranges (the toy tiles are smaller
+    # Run spans are exactly the planned byte ranges (the test tiles are smaller
     # than the head prefix, so the head GETs alone cover them whole).
     spans = sum(r["bytes"] for r in receipt if r["range"] and r["range"][0] != 0)
     planned = sum(

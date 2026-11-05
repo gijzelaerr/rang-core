@@ -1,8 +1,8 @@
-# MeerKAT pointing-calibration toy
+# MeerKAT pointing-calibration simulation
 
-This section documents the original Rust toy, not the full current JAX solver.
+This section documents the original Rust pointing simulation, not the full current JAX solver.
 Start with the [project overview](../README.md) for current results. The original
-toy uses a JSON executable interface; newer information audits also use a Rust
+simulation uses a JSON executable interface; newer information audits also use a Rust
 C-ABI projection kernel. The Rust crate has no external dependencies.
 
 ## Run
@@ -10,7 +10,7 @@ C-ABI projection kernel. The Rust crate has no external dependencies.
 From the repository, with Rust/Cargo and Python 3.10 or newer:
 
 ```sh
-python3 examples/toy.py --seeds 7 11 19 --output outputs/demo
+python3 examples/pointing_sim.py --seeds 7 11 19 --output outputs/demo
 ```
 
 Matplotlib is required for plots. If needed, install the Python package and plotting/test dependencies in a virtual environment:
@@ -18,18 +18,18 @@ Matplotlib is required for plots. If needed, install the Python package and plot
 ```sh
 python3 -m venv .venv
 .venv/bin/python -m pip --isolated install --index-url https://pypi.org/simple -e '.[plot,test]'
-.venv/bin/python examples/toy.py --seeds 7 11 19
+.venv/bin/python examples/pointing_sim.py --seeds 7 11 19
 ```
 
-Use `--no-plot` for a Python-standard-library-only run. The script runs the toy inside the installed extension `rang._core` (no Cargo at run time), prints a comparison and writes `results.json`, `comparison.png`, and `comparison.pdf`. The JSON includes seeds, input settings, binary hash, runtime, metrics, true/fitted pointings and solver termination. Reusing an output directory replaces those generated files. Build dependencies for Python installation may require network access; running directly from the checkout does not require installation.
+Use `--no-plot` for a Python-standard-library-only run. The script runs the simulation inside the installed extension `rang._core` (no Cargo at run time), prints a comparison and writes `results.json`, `comparison.png`, and `comparison.pdf`. The JSON includes seeds, input settings, binary hash, runtime, metrics, true/fitted pointings and solver termination. Reusing an output directory replaces those generated files. Build dependencies for Python installation may require network access; running directly from the checkout does not require installation.
 
 Python scripting interface, after installation (or with `PYTHONPATH=python`):
 
 ```python
-from rang import run_experiment, toy_output
+from rang import run_experiment, sim_output
 
 result = run_experiment(seed=7, pointing=0.6, budget=0.01)  # in the extension
-reference = toy_output("--pointing-reference")  # the binary's stdout, same bytes
+reference = sim_output("--pointing-reference")  # the binary's stdout, same bytes
 for row in result["results"]:
     print(row["method"], row["flux_jy"])
 ```
@@ -40,7 +40,7 @@ The binary may also be run directly:
 cargo run --offline --release -- --seed 7
 ```
 
-## What the toy contains
+## What the simulation contains
 
 - Eight antennas from an approximate published MeerKAT core layout; see [geometry provenance](../data/README.md). This is not full MeerKAT or current survey geometry.
 - Scalar unpolarized direct-sum RIME, including `w(sqrt(1-l*l-m*m)-1)`; point components carry integrated flux, so there is no additional pixel-area factor.
@@ -61,7 +61,7 @@ cargo run --offline --release -- --seed 7
 | Protected modes | Joint fit restricted to information-supported modes satisfying a local response budget | Same final amplitude estimator |
 | Known pointing | True offsets supplied, nominal beam retained | Same final amplitude estimator |
 
-This first toy assumes direction-independent electronic gains and the bright-source flux scale are known. It does not implement general self-calibration, full Jones polarization, measured beam modes, an ionosphere, Measurement Set I/O, imaging/deconvolution or a production pipeline. It fits 16 pointing parameters and, in joint methods, one sky amplitude. Sky amplitudes are not positivity constrained, so noisy or mismatched models may return negative amplitudes.
+This first simulation assumes direction-independent electronic gains and the bright-source flux scale are known. It does not implement general self-calibration, full Jones polarization, measured beam modes, an ionosphere, Measurement Set I/O, imaging/deconvolution or a production pipeline. It fits 16 pointing parameters and, in joint methods, one sky amplitude. Sky amplitudes are not positivity constrained, so noisy or mismatched models may return negative amplitudes.
 
 All fitted pointing parameters have a fixed 1 arcmin Gaussian prior. The joint methods use a zero-mean 0.1 Jy prior for the uncertain component. These illustrative prior scales are not derived from an instrument observation. The optimizer profiles out its amplitude, uses the resulting Gauss–Newton Schur complement, and includes its prior gradient. This is joint MAP/variable projection, not a full marginalized Bayesian posterior.
 
@@ -83,13 +83,13 @@ Each method is rerun after adding a 2 mJy source to the *already corrupted visib
 
 ```sh
 # Exact zero-data-error control: no pointing, no noise, no faint source.
-python3 examples/toy.py --pointing 0 --noise 0 --target-flux 0 --no-plot --output outputs/control
+python3 examples/pointing_sim.py --pointing 0 --noise 0 --target-flux 0 --no-plot --output outputs/control
 
 # Model mismatch: true beam 2% wider than the fitting model.
-python3 examples/toy.py --seeds 7 11 19 --beam-error 0.02 --output outputs/beam-mismatch
+python3 examples/pointing_sim.py --seeds 7 11 19 --beam-error 0.02 --output outputs/beam-mismatch
 
 # Exercise the pruning branch; this can underfit real pointing errors.
-python3 examples/toy.py --budget 0.000001 --output outputs/strict-budget
+python3 examples/pointing_sim.py --budget 0.000001 --output outputs/strict-budget
 ```
 
 The zero-error control's base fit should be exact. Its subsequent injection into the pointing-only method can still suffer suppression: introducing that source makes the calibration sky incomplete even when the telescope has no pointing error.

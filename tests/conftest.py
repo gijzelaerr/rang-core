@@ -28,10 +28,10 @@ def _pointing_reference(flag):
     jax.config.update("jax_enable_x64", True)
     import jax.numpy as jnp
     import numpy as np
-    from rang import toy_output
+    from rang import sim_output
     from rang.pointing import Observation, component_list
 
-    reference = json.loads(toy_output(flag))
+    reference = json.loads(sim_output(flag))
     rows = np.asarray(reference["rows"])
     sky = np.asarray(reference["sources"])
     obs = Observation(

@@ -11,7 +11,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rang import toy_output
+from rang import sim_output
 from rang.beams import beam_table, load_katbeam, make_beam_predictor
 from rang.observability import sky_locked_information
 from rang.pointing import Observation, component_list
@@ -19,7 +19,7 @@ from rang.pointing import Observation, component_list
 
 def main():
     jax.config.update("jax_enable_x64", True)
-    fixture_bytes = toy_output("--pointing-full-reference").encode()
+    fixture_bytes = sim_output("--pointing-full-reference").encode()
     fixture = json.loads(fixture_bytes)
     r, s = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
     obs = Observation(

@@ -1,8 +1,8 @@
 """Integration tests of the scientific controls and Python/Rust boundary.
 
-The pointing toy runs inside the extension (task P7,
+The pointing simulation runs inside the extension (task P7,
 research/p7-architecture.md); its output must stay byte-identical to the
-`rang-toy` binary's stdout archived at 5965d37 (`tests/data/toy-golden.json`).
+`rang-sim` binary's stdout archived at 5965d37 (`tests/data/pointing-sim-golden.json`).
 """
 
 import hashlib
@@ -12,10 +12,10 @@ import sys
 from pathlib import Path
 
 import pytest
-from rang import run_experiment, toy_output
+from rang import run_experiment, sim_output
 
 GOLDEN = json.loads(
-    (Path(__file__).resolve().parent / "data" / "toy-golden.json").read_text()
+    (Path(__file__).resolve().parent / "data" / "pointing-sim-golden.json").read_text()
 )
 
 
@@ -29,7 +29,7 @@ def rows(experiment):
 )
 @pytest.mark.parametrize("args", sorted(GOLDEN))
 def test_output_identical_to_the_binary(args):
-    data = toy_output(*args.split()).encode()
+    data = sim_output(*args.split()).encode()
     assert len(data) == GOLDEN[args]["bytes"]
     assert hashlib.sha256(data).hexdigest() == GOLDEN[args]["sha256"]
 
@@ -84,5 +84,5 @@ def test_shared_beam_fit_resolves_width_mismatch():
     [("--noise", "nan"), ("--budget", "-1"), ("--seed", "-1"), ("--pointing", "inf")],
 )
 def test_invalid_options_are_rejected(option, value):
-    with pytest.raises(RuntimeError, match="rang-toy:"):
-        toy_output(option, value)
+    with pytest.raises(RuntimeError, match="rang-sim:"):
+        sim_output(option, value)

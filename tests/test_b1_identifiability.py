@@ -35,8 +35,8 @@ def test_spline_values_and_gradients_match_map_coordinates():
         assert np.max(np.abs(grad - fd)) < 1e-6 * max(1.0, np.max(np.abs(grad)))
 
 
-def test_toy_beam_gradient():
-    beam = bi.GaussianToyBeam(1.0, squint_deg=(0.02, -0.01), ratio=1.1)
+def test_pointing_sim_beam_gradient():
+    beam = bi.GaussianSimpleBeam(1.0, squint_deg=(0.02, -0.01), ratio=1.1)
     x, y = np.array([0.3, -0.2]), np.array([0.1, 0.4])
     _e, ex, ey = beam(x, y, 1e9)
     eps = 1e-6
@@ -196,7 +196,7 @@ def _dense_information(dense, nant, ncomp, nf, nu0):
 @pytest.mark.parametrize("slope", [False, True])
 def test_schur_survey_equals_dense_projection(slope):
     setup = _setup([[0.0, 0.0], [0.006, 0.002], [-0.004, 0.007]], seed=1)
-    beam = bi.GaussianToyBeam(1.2, squint_deg=(0.01, 0.005), ratio=1.05)
+    beam = bi.GaussianSimpleBeam(1.2, squint_deg=(0.01, 0.005), ratio=1.05)
     survey, dense = _survey(setup, beam, slope=slope)
     info = survey.information({(0, 0): 1.0, (0, 1): 1.0}, nu0=1.35e9)
     ref = _dense_information(dense, setup["nant"], 3, 2, 1.35e9)
@@ -208,7 +208,7 @@ def test_schur_survey_equals_dense_projection(slope):
 
 def test_single_component_is_degenerate():
     setup = _setup([[0.005, -0.003]], seed=2, fluxes=[2.0])
-    beam = bi.GaussianToyBeam(1.0, squint_deg=(0.01, 0.0))
+    beam = bi.GaussianSimpleBeam(1.0, squint_deg=(0.01, 0.0))
     survey, _ = _survey(setup, beam)
     info = survey.information({(0, 0): 1.0, (0, 1): 1.0}, nu0=1.35e9)
     raw = np.diag(info["raw"])
@@ -221,7 +221,7 @@ def test_single_component_is_degenerate():
 def test_two_components_identifiable_and_fisher_matches_finite_difference():
     lm = [[0.0, 0.0], [math.radians(0.5), 0.0]]
     setup = _setup(lm, seed=4, fluxes=[1.0, 0.5])
-    beam = bi.GaussianToyBeam(1.0, squint_deg=(0.003, 0.002), ratio=1.07)
+    beam = bi.GaussianSimpleBeam(1.0, squint_deg=(0.003, 0.002), ratio=1.07)
     survey, dense = _survey(setup, beam)
     info = survey.information({(0, 0): 1.0, (0, 1): 1.0}, nu0=1.35e9)
     nant = setup["nant"]
@@ -341,6 +341,6 @@ def test_sky_to_beam_rotation():
 
 @pytest.mark.parametrize("q", [0.0, 0.7])
 def test_pointing_factor_vanishes_at_centre_without_squint(q):
-    beam = bi.GaussianToyBeam(1.0)
+    beam = bi.GaussianSimpleBeam(1.0)
     fac = bi.factors_at(beam, np.zeros((1, 2)), q, 1e9)
     assert np.allclose(fac["gamma"], 0) and np.allclose(fac["beta"], 0)

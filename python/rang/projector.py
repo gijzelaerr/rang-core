@@ -2,7 +2,7 @@
 door through which the frozen research modules reach the root crate's kernels.
 
 Before task P7 (research/p7-architecture.md) `_native_library()` built the
-root crate with Cargo on first use and loaded `librang_toy` through ctypes.
+root crate with Cargo on first use and loaded `librang_sim` through ctypes.
 The kernels now live in the extension `rang._core`. The frozen modules
 (`flagging`, `flagging_trend`, `flagging_influence`, ...; since task P11 their
 verbatim extracts `core_policy`, `core_trend_run`, `core_influence`, ...,
@@ -36,7 +36,7 @@ class _Kernel:
 
 
 class _RootKernels:
-    """What `ctypes.CDLL(librang_toy)` offered the frozen modules."""
+    """What `ctypes.CDLL(librang_sim)` offered the frozen modules."""
 
     def __init__(self, ext):
         self._name = ext.__file__

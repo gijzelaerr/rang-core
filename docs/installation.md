@@ -14,7 +14,7 @@ pip install rang-core
 The wheel carries the compiled core, so no Rust compiler is needed for the
 flagging chain, imaging and the tutorials. Every kernel is inside the
 extension `rang._core`, including the root crate's (gain TV, phase trend,
-anchored response, projector, the pointing toy), the exact wgridder
+anchored response, projector, the pointing simulation), the exact wgridder
 (`rang.core_wgridder`), the closure statistic (`rang.core_closure`) and the
 Rust path of the flux standards (`rang.fluxstd`). Neither importing `rang`
 nor calling a kernel runs Cargo, and the extension releases the GIL around

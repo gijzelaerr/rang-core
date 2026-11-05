@@ -10,7 +10,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
-from rang import toy_output
+from rang import sim_output
 from rang.observability import sky_locked_information
 from rang.pointing import Observation, component_list
 
@@ -20,7 +20,7 @@ def main():
     results = []
     for complete in (False, True):
         flag = "--pointing-full-reference" if complete else "--pointing-reference"
-        fixture = json.loads(toy_output(flag).encode())
+        fixture = json.loads(sim_output(flag).encode())
         rows, sources = np.asarray(fixture["rows"]), np.asarray(fixture["sources"])
         sky = component_list(sources[:, 0], sources[:, 1], sources[:, 2], sources[:, 3])
         obs = Observation(

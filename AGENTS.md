@@ -34,7 +34,7 @@ their names say. Raw data and run outputs go in ignored `outputs/`.
 - Preserve reproducible experiment settings, seeds, data provenance and relevant negative results.
 - Inspect CARACAL's shipped MeerKAT strategies and flag-worker semantics when
   verifying flagging methods; a reduced kernel ablation is not a full CARACAL baseline.
-- Novelty must target demonstrably higher calibration/imaging quality at comparable cost, or comparable quality with materially lower runtime/resource use than a relevant state-of-the-art method. Toy-baseline wins and software reimplementations alone do not establish novelty. Record matched accuracy/cost comparisons and negative results.
+- Novelty must target demonstrably higher calibration/imaging quality at comparable cost, or comparable quality with materially lower runtime/resource use than a relevant state-of-the-art method. Wins against weak baselines and software reimplementations alone do not establish novelty. Record matched accuracy/cost comparisons and negative results.
 
 ## Implementation languages
 
