@@ -96,7 +96,29 @@ At 0.2 Q/Q_truth moves by at most 2.4e-4 (S2, 1.01517 to 1.01541), false flux by
 | `-tau-min` 0.5, `-j 16` / `-j 1` | 10.5 / 34.9 | 10.6 / 35.0 | 9.2 / 30.4 | 13.1 / 44.7 | 15.1 / 48.3 | 33.1 / 113 | 11.2 / 35.2 |
 | `-tau-min` 0.2, `-j 16` / `-j 1` | 8.9 / 31.8 | 10.2 / 35.8 | 8.2 / 27.5 | 9.8 / 41.3 | 10.4 / 38.3 | 27.5 / 99.0 | 9.4 / 32.6 |
 
-Scores at `-tau-min` 0.5 barely move: Q/Q_truth by at most 3e-5, false flux by at most 0.17 mJy. **Whether it saves time is not settled.** On H3 at `-j 1` the clean phase went from 105.6 to 90.2 s, but several `-j 16` rows are slower than without it, which less work should not cause. These ran on another day, one run each, so the host may be the cause. An interleaved on/off test of the same binary (`opt_e6.sh`) was stopped after its first pair, S1 `-j 16`: 10.14 s off, 9.98 s on, resync 2.29 and 2.15 s. It says nothing yet. Peak memory hardly moves, so the peak lies elsewhere. **Next: run that test to the end, then keep or remove the flag.** Band limiting saved under 0.3 GB on H3 and nothing at 2048².
+Scores at `-tau-min` 0.5 barely move: Q/Q_truth by at most 3e-5, false flux by at most 0.17 mJy. **Whether it saves time is not settled.** On H3 at `-j 1` the clean phase went from 105.6 to 90.2 s, but several `-j 16` rows are slower than without it, which less work should not cause. These ran on another day, one run each, so the host may be the cause. An interleaved on/off test of the same binary (`opt_e6.sh`) was stopped after S1: `-j 16` 10.14 s off, 9.98 s on, resync 2.29 and 2.15 s; `-j 1` 36.28 s off, 34.28 s on, resync 6.58 and 4.78 s; and one H2 run left unfinished. It says nothing yet. Peak memory hardly moves, so the peak lies elsewhere. **Next: run that test to the end, then keep or remove the flag.** Band limiting saved under 0.3 GB on H3 and nothing at 2048².
+
+## Rule for `-beam-band` (written 2026-11-05, committed before the run of task G1)
+
+**What the flag costs.** About 120 lines in the resync's convolver and the measurement, a second convolver form to test, one more option for astronomers to judge, and images that differ from a run without it (S1: 85,354 components against 85,253). The default stays off in every case; this rule only decides whether the code stays.
+
+**Saving.** Keep only if, at one thread count (`-j 1` or `-j 16`), the median paired wall saving, (off - on) / off, is **at least 10 %** on **at least two of S1, H2 and H3**, with at most one pair in each of those cells not saving. Wall time only: resync time alone does not count. In addition, no cell of the six may have a median saving below **-2 %**.
+
+Why 10 %: three repeats of one setting have spread up to 7.7 % on this host, and one changed cycle count moves a run by more, so a smaller saving is not visible to someone running it. It is also about half of what `-tau-min 0.2` gives on H3 with no added code. A flag that costs code and identical images has to do at least that much. Resyncs are 19-43 % of the wall at `-j 1` and about 22 % at `-j 16`, and the flag drops about half the columns of one FFT direction, so it cannot do much more than this. The bar can be met; it is not a formality. The settings favour the flag: coarse gridding shortens the major cycles, so resyncs are a larger share than at the default accuracy.
+
+**Images.** They may differ, since the components do. Against flag off from the same binary, at the same thread count, **on all seven skies at `-j 16`** and on S1, H2 and H3 at `-j 1`, all of these must hold, on the inner field (the central 2N/3):
+
+- restored image: rms of on - off at most 0.1 σ (σ is the sky's Briggs image noise, so it adds 0.5 % in quadrature), and largest difference at most 100 µJy, the stopping threshold;
+- exact Q/Q_truth changes by at most 1e-3;
+- false flux (absolute) changes by at most 1 mJy, ten components at the threshold;
+- flux-weighted source recovery changes by at most 1e-3;
+- peak of the exact inner residual changes by at most 10 µJy, a tenth of the threshold.
+
+**Otherwise the flag and its code are removed**, with the default left byte-identical on S1, and the result is stated as null.
+
+**Method.** One binary, built at the commit recorded in the run's `provenance.txt`, profile `gemclean`. First, flag off on S1 at `-j 16` must be byte-identical to `3945394` or the run stops. Eight repeats of S1, H2, H3 at `-j 16` and `-j 1`, flag order alternating by repeat. S2, S3, H1, H4: one pair at `-j 16`, for the images only. Heavy lock held per run. Load is recorded before and after each run, in WSL and Windows. A run is spoiled if any process other than the probe's own (`WmiPrvSE`, `top`) and the VM's host process is above half a core before or after it. A spoiled pair stays in the record and gets a replacement at the end, at most four per cell. The rule is applied to the clean pairs if a cell has at least six, otherwise to all of them, and both are reported. [`g1_beam_band_analyse.py`](results/gemclean-speed-scripts/g1_beam_band_analyse.py) applies it mechanically. Driver: [`g1_beam_band.sh`](results/gemclean-speed-scripts/g1_beam_band.sh). Outputs: `D:\rang\outputs\20261105-g1-beam-band`.
+
+**What was seen first.** The one-run rows and scores above and the stopped pair were all read before this was written, so the bar is not blind to them. It was set from the cost and the host's spread. Those runs are a different binary on another day and are not pooled with the new ones.
 
 ## Against the SSE2 package (measured)
 
