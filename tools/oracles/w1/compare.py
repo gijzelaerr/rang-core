@@ -153,6 +153,41 @@ def compare(run):
     out["pass"]["m1u WSClean point"] = (
         tuple(at) == centre and abs(float(u.max()) - 1) <= 1e-3
     )
+    m0 = run / "out" / "m0-writes.npz.json"
+    if m0.exists():
+        rec = load(m0)
+        r = {"added": rec["added"], "weights_written": rec.get("weights_written")}
+        for tool in ("casacore381", "casacore371", "daskms"):
+            got = load(run / "out" / f"m0-{tool}.json")
+            common = [
+                c
+                for c in got["hashes"]
+                if c in rec["after"]
+                and not got["hashes"][c].startswith("unreadable")
+                and not rec["after"][c].startswith("unreadable")
+            ]
+            r[f"{tool}_columns_compared"] = len(common)
+            r[f"{tool}_hash_mismatch"] = [
+                c for c in common if got["hashes"][c] != rec["after"][c]
+            ]
+            r[f"{tool}_checks"] = got["checks"]
+        if "columns" in load(run / "out" / "m0-casacore381.json"):
+            cols = load(run / "out" / "m0-casacore381.json")["columns"]
+            r["casacore381_WEIGHT_SPECTRUM"] = {
+                k: cols["WEIGHT_SPECTRUM"]["desc"].get(k)
+                for k in (
+                    "valueType",
+                    "dataManagerType",
+                    "dataManagerGroup",
+                    "shape",
+                    "comment",
+                )
+            }
+        out["m0"] = r
+        out["pass"]["m0 casacore and dask-ms"] = all(
+            not r[f"{t}_hash_mismatch"] and all(r[f"{t}_checks"].values())
+            for t in ("casacore381", "casacore371", "daskms")
+        )
     out["pass"]["all"] = all(out["pass"].values())
     (run / "summary.json").write_text(json.dumps(out, indent=1, default=str))
     print(json.dumps(out["pass"], indent=1))

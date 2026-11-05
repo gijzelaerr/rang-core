@@ -19,7 +19,14 @@ from pathlib import Path
 
 import numpy as np
 
-COLUMNS = ("MODEL_DATA", "CORRECTED_DATA", "WEIGHT_SPECTRUM", "FLAG", "FLAG_ROW")
+COLUMNS = (
+    "MODEL_DATA",
+    "CORRECTED_DATA",
+    "WEIGHT_SPECTRUM",
+    "WEIGHT",
+    "FLAG",
+    "FLAG_ROW",
+)
 EPS32 = float(np.finfo(np.float32).eps)
 
 
@@ -72,7 +79,14 @@ def casacore_check(ms, npz, pristine, out):
             np.array_equal(t.getcol("FLAG_ROW"), w["flag_row"])
         ),
     }
-    if bool(w["added_WEIGHT_SPECTRUM"]):
+    if "weight" in w.files:
+        checks["WEIGHT_SPECTRUM == written"] = bool(
+            np.array_equal(t.getcol("WEIGHT_SPECTRUM"), w["weight_spectrum"])
+        )
+        checks["WEIGHT == written"] = bool(
+            np.array_equal(t.getcol("WEIGHT"), w["weight"])
+        )
+    elif bool(w["added_WEIGHT_SPECTRUM"]):
         ws, wt = t.getcol("WEIGHT_SPECTRUM"), t.getcol("WEIGHT")
         checks["WEIGHT_SPECTRUM == WEIGHT over channels"] = bool(
             np.array_equal(ws, np.repeat(wt[:, None, :], ws.shape[1], axis=1))
@@ -209,6 +223,18 @@ def daskms_check(ms, npz, out):
         "FLAG == written": bool(np.array_equal(arrays["FLAG"], w["flag"])),
         "FLAG_ROW == written": bool(np.array_equal(arrays["FLAG_ROW"], w["flag_row"])),
     }
+    if "weight" in w.files:
+        checks["WEIGHT_SPECTRUM == written"] = bool(
+            np.array_equal(arrays["WEIGHT_SPECTRUM"], w["weight_spectrum"])
+        )
+        checks["WEIGHT == written"] = bool(
+            np.array_equal(arrays["WEIGHT"], w["weight"])
+        )
+    elif bool(w["added_WEIGHT_SPECTRUM"]):
+        ws, wt = arrays["WEIGHT_SPECTRUM"], arrays["WEIGHT"]
+        checks["WEIGHT_SPECTRUM == WEIGHT over channels"] = bool(
+            np.array_equal(ws, np.repeat(wt[:, None, :], ws.shape[1], axis=1))
+        )
     hashes = {c: sha_chunks(lambda s, n, a=arrays[c]: a[s : s + n], nrow) for c in cols}
     dump(
         out,

@@ -170,13 +170,15 @@ def copy_ms(src, dst):
     return dst
 
 
-def run_writes(ms, out, seed=7, chunk_rows=48):
+def run_writes(ms, out, seed=7, chunk_rows=48, weights=True):
     """The W1 writes on `ms` (in place), recorded in `out` (npz + json):
     MODEL_DATA, CORRECTED_DATA and WEIGHT_SPECTRUM ensured (added and
     initialised where missing), then per chunk of `chunk_rows` (48: across
     the 8-row data tiles and 64-row flag tiles) MODEL_DATA = 2 DATA,
-    CORRECTED_DATA = DATA where the column already existed, and seeded
-    FLAG (20 %) and FLAG_ROW (10 %)."""
+    CORRECTED_DATA = DATA where the column already existed, seeded FLAG
+    (20 %) and FLAG_ROW (10 %) and, with `weights`, a seeded
+    WEIGHT_SPECTRUM and WEIGHT as its channel median (as CASA's `calwt`
+    path writes them)."""
     ms = Path(ms)
     rng = np.random.default_rng(seed)
     before = hashes(ms)
@@ -187,7 +189,7 @@ def run_writes(ms, out, seed=7, chunk_rows=48):
             for c in ("MODEL_DATA", "CORRECTED_DATA", "WEIGHT_SPECTRUM")
         }
         nchan, ncorr = w.cell
-        flags, rows = [], []
+        flags, rows, spectra, row_weights = [], [], [], []
         for start, n in w.chunks():
             data = w.read("DATA", start, n)
             w.write("MODEL_DATA", start, 2 * data)
@@ -198,7 +200,15 @@ def run_writes(ms, out, seed=7, chunk_rows=48):
             w.write_flags(start, f, r)
             flags.append(f)
             rows.append(r)
+            if weights:
+                ws = rng.uniform(0.5, 2.0, (n, nchan, ncorr)).astype(np.float32)
+                wt = np.median(ws, axis=1).astype(np.float32)
+                w.write("WEIGHT_SPECTRUM", start, ws)
+                w.write("WEIGHT", start, wt)
+                spectra.append(ws)
+                row_weights.append(wt)
     record["added"] = added
+    record["weights_written"] = weights
     record["flag_versions"] = flagversions.versions(ms)
     record["journal"] = wb.read_journal(ms)
     record["after"] = hashes(ms)
@@ -207,6 +217,14 @@ def run_writes(ms, out, seed=7, chunk_rows=48):
         flag=np.concatenate(flags),
         flag_row=np.concatenate(rows),
         **{f"added_{c}": np.bool_(v) for c, v in added.items()},
+        **(
+            {
+                "weight_spectrum": np.concatenate(spectra),
+                "weight": np.concatenate(row_weights),
+            }
+            if weights
+            else {}
+        ),
     )
     Path(str(out) + ".json").write_text(json.dumps(record, indent=1, default=str))
     return record
@@ -379,6 +397,7 @@ def main(argv=None):
     w = sp.add_parser("write")
     w.add_argument("ms")
     w.add_argument("out")
+    w.add_argument("--no-weights", action="store_true")
     k = sp.add_parser("kill")
     k.add_argument("ms")
     k.add_argument("times", type=int)
@@ -401,7 +420,7 @@ def main(argv=None):
     if a.cmd == "make":
         make_ms(a.ms, a.nrow, a.nchan, flag=a.flag, seed=a.seed)
     elif a.cmd == "write":
-        run_writes(a.ms, a.out)
+        run_writes(a.ms, a.out, weights=not a.no_weights)
     elif a.cmd == "columns":
         print(wb.add_imaging_columns(a.ms, stage="columns"))
     elif a.cmd == "memory":

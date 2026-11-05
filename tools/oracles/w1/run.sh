@@ -99,5 +99,14 @@ host columns-m1u "$py" "$ex" columns "$run/m1u.ms"
 field[m1u]=0
 wsc m1u MODEL_DATA m1u.ms
 wsc m1u DATA m1u.ms -make-psf  # the PSF: a post-hoc check, not gated
+# M0 (from run -02): an MS written by the core writer without
+# WEIGHT_SPECTRUM, so the added-and-initialised path is read by the
+# oracles (casacore and dask-ms; CASA and WSClean need real subtables).
+host make-m0 "$py" "$ex" make "$run/m0.ms" 300 64 --flag tiled --seed 20261106
+cp -r "$run/m0.ms" "$run/m0-pristine.ms"
+host write-m0 "$py" "$ex" write "$run/m0.ms" "$run/out/m0-writes.npz" --no-weights
+cc38 casacore381-m0 casacore /run/m0.ms /run/out/m0-writes.npz /run/m0-pristine.ms /run/out/m0-casacore381.json
+cc37 casacore371-m0 casacore /run/m0.ms /run/out/m0-writes.npz /run/m0-pristine.ms /run/out/m0-casacore371.json
+dms daskms-m0 daskms /run/m0.ms /run/out/m0-writes.npz /run/out/m0-daskms.json
 host compare "$py" "$code/compare.py" "$run"
 date -u +%FT%TZ > "$run/finished.txt"
