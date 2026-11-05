@@ -178,3 +178,61 @@ before CASA runs. "New" counts are flags added over the input FLAG, per correlat
 Pass: class C against `applycal` and flags exact on every case, threads bit-identical on h-chain-caracal, and
 for the two B cases the frequency mode not chosen fails against CASA (so each case can tell the modes apart). The
 -03 result is the verdict reported for C4a.
+
+### 5.1 Run -03, the held-out verdict: FAIL on values in three cases; flags exact everywhere
+
+`c4a-20261106-03`, code at `95d85e5`; 9 `applycal`, run 34.5 s. **Flags exact on all nine cases**, every one
+equal to the predicted counts above, so CASA's Df flag rule (per antenna and time, a lone `d_x`, propagation from G
+and from input flags) holds on cases it was not fitted to. Values:
+
+| Case | Max relative | Max eps | Class C |
+| --- | ---: | ---: | --- |
+| h-Df-2slot-linear | 8.1e-4 | **41.9** | **fail** |
+| h-Df-2slot-nearest | 8.1e-4 | **34.1** | **fail** |
+| h-Df-dx | 1.4e-5 | 0.91 | pass |
+| h-G-receptor-Df | 4.1e-5 | 6.69 | pass |
+| h-inputflags-Df | 5.7e-5 | 0.56 | pass |
+| h-inputflags-G | 8.6e-7 | 6.69 | pass |
+| h-B-coarse-freqnearest | 3.6e-7 | 2.51 | pass |
+| h-B-coarse-freqlinear | 3.6e-7 | 2.90 | pass |
+| h-chain-caracal | 3.4e-3 | **34.0** | **fail** |
+
+Threads 1, 2, 4, 16 bit-identical on h-chain-caracal. Each B case failed with the other frequency mode, so both
+frequency modes are now tested against CASA and pass.
+
+The failures sat on XY of antenna 0's baselines at the times served by slot 1, whose `d_x,0` has a flagged range
+that must be bridged. Bridging unwraps the phase over 2048 random leakage phases, which walks to hundreds of
+radians, where float32 resolution is about 1.5e-5 rad. Read in the mirror [M]:
+
+- `CTPatchedInterp::resampleInFreq` unwraps in float: the difference of two floats compared with π, and each 2π
+  step rounded back to float (`mtresi(i) -= C::_2pi`). `caltable.py` unwraps in float64 and casts once.
+- `RIorAPArray::trackPhase` tracks phases in time the same way, with `while (ph(j) > ph(j-1) + π) ph(j) -= 2π`.
+  `caltable._track_phase` subtracts float32 whole turns, which can differ by an ulp.
+
+### 5.2 Post hoc after -03: both float steps ported
+
+The kernel now does both as CASA does (`core/src/cal/apply.rs`, `series` and `resample_freq`). Re-evaluated on the
+exports of -02 and -03 without a new CASA run, every case passes class C with flags exact. The largest is 7.00 eps
+(h-chain-caracal), and the frozen set's largest went from 9.48 to 5.97 eps (synth-chain); synth-G went from 8.15 to
+4.33. These rechecks fit the data that found the problem, so section 6 holds out a further run.
+
+## 6. Second held-out confirmation (frozen before run -04)
+
+`check_apply.py --heldout --seed 20261108`: the cases of section 5 with new values (same flag structure, so the same
+predicted counts), and four more that stress the two float steps of 5.1:
+
+| Case | Tables (`interp`) | Predicted new flags (XX, XY, YX, YY) |
+| --- | --- | --- |
+| h-G-many-linear | G at 9 slots across the scan and 5 s beyond it, phases uniform on the circle, antenna 1 bad at slot 4 (`linear`) | 14,555 each |
+| h-G-many-nearest | the same (`nearest`) | 7,315 each |
+| h-B-gaps-linear | B on every 4th channel (512 solution channels), phases uniform on the circle, gaps: antenna 0 X channels 40-46, antenna 2 both 200-259, antenna 3 Y 400-402 (`linear`) | 0 |
+| h-B-gaps-freqnearest | the same (`linear,nearest`) | 0 |
+| the nine cases of section 5 | as there, seed 20261108 | as there |
+
+Predictions from `--predict` (`c4a-20261106-04-predict/predict.json`). Pass as section 5, with the frequency-mode
+check also on the two h-B-gaps cases. **The -04 result is the verdict reported for C4a.**
+
+Changed against section 2, before -04: the kernel against `caltable.correct` is **reported, not gated**. After 5.2
+the kernel ports two float32 steps that `caltable.py` does not, so the two can differ beyond class C where CASA and
+the kernel agree. The pytest comparison with `caltable.correct` now allows 32 eps; it measured 12.4 eps on one
+seeded G case.

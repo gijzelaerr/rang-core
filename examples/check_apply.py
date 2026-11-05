@@ -94,9 +94,13 @@ def coarse_subtables(ms, step):
     return full
 
 
-def heldout_tables(ms, nant, times, fid):
-    """The held-out tables of section 5 (seed 20261107)."""
-    rng = np.random.default_rng(SEED_HELDOUT)
+def heldout_tables(ms, nant, times, fid, seed=SEED_HELDOUT):
+    """The held-out tables of section 5 (seed 20261107 for run -03); with
+    another seed (section 6, run -04) also `hGmany` (G at 9 slots with
+    phases over the whole circle, which stresses phase tracking in time) and
+    `hBgaps` (B on every 4th channel with random phases and three flagged
+    gaps, which stresses the frequency unwrap)."""
+    rng = np.random.default_rng(seed)
     full = caltable.subtables_from_ms(ms, single_channel=False)
     single = caltable.subtables_from_ms(ms, single_channel=True)
     nchan = len(full["SPECTRAL_WINDOW"]["CHAN_FREQ"][0])
@@ -132,7 +136,32 @@ def heldout_tables(ms, nant, times, fid):
     )
     bflag = np.zeros(b.shape, bool)
     bflag[0, 1, 50:60, :] = True
-    return {
+    extra = {}
+    if seed != SEED_HELDOUT:
+        tm = np.linspace(times.min() - 5.0, times.max() + 5.0, 9)
+        gm = (1 + 0.2 * rng.standard_normal((9, nant, 1, 2))) * np.exp(
+            1j * rng.uniform(-np.pi, np.pi, (9, nant, 1, 2))
+        )
+        gmflag = np.zeros(gm.shape, bool)
+        gmflag[4, 1, 0, :] = True
+        gaps = coarse_subtables(ms, 4)
+        ng = len(gaps["SPECTRAL_WINDOW"]["CHAN_FREQ"][0])
+        bg = (1 + 0.1 * rng.standard_normal((1, nant, ng, 2))) * np.exp(
+            1j * rng.uniform(-np.pi, np.pi, (1, nant, ng, 2))
+        )
+        bgflag = np.zeros(bg.shape, bool)
+        bgflag[0, 0, 40:47, 0] = True
+        bgflag[0, 2, 200:260, :] = True
+        bgflag[0, 3, 400:403, 1] = True
+        extra = {
+            "hGmany": caltable.from_gains(
+                "G", tm, ants, gm, gmflag, subtables=single, interval=30.0, **common
+            ),
+            "hBgaps": caltable.from_gains(
+                "B", mid, ants, bg, bgflag, subtables=gaps, **common
+            ),
+        }
+    return extra | {
         "hDf2slot": caltable.from_gains(
             "Df", t2, ants, d2, f2, subtables=full, interval=60.0, **common
         ),
@@ -176,9 +205,18 @@ def frozen_cases(e4, t_table):
     }
 
 
-def heldout_cases():
-    """Section 5's cases, and which take the edited input flags."""
-    cases = {
+def heldout_cases(seed=SEED_HELDOUT):
+    """Section 5's cases (and section 6's two more with another seed), and
+    which take the edited input flags."""
+    more = {}
+    if seed != SEED_HELDOUT:
+        more = {
+            "h-G-many-linear": [("synth/s.hGmany", L)],
+            "h-G-many-nearest": [("synth/s.hGmany", "nearest")],
+            "h-B-gaps-linear": [("synth/s.hBgaps", L)],
+            "h-B-gaps-freqnearest": [("synth/s.hBgaps", "linear,nearest")],
+        }
+    cases = more | {
         "h-Df-2slot-linear": [("synth/s.hDf2slot", L)],
         "h-Df-2slot-nearest": [("synth/s.hDf2slot", "nearest")],
         "h-Df-dx": [("synth/s.hDfdx", L)],
@@ -215,6 +253,9 @@ def main(argv):
     run = Path(args[0]).resolve()
     heldout = "--heldout" in args
     predict = "--predict" in args
+    seed = SEED_HELDOUT
+    if "--seed" in args:
+        seed = int(args[args.index("--seed") + 1])
     outputs = Path.home() / "Github/rang/outputs"
     if "--outputs" in args:
         outputs = Path(args[args.index("--outputs") + 1])
@@ -233,8 +274,8 @@ def main(argv):
     nant = int(max(cols["ANTENNA1"].max(), cols["ANTENNA2"].max())) + 1
     times = cols["TIME"][sel]
     if heldout:
-        synth = heldout_tables(ms, nant, times, fid)
-        plan, edited = heldout_cases()
+        synth = heldout_tables(ms, nant, times, fid, seed)
+        plan, edited = heldout_cases(seed)
     else:
         synth = cf.seeded_tables(ms, nant, times, freqs, fid)
         synth["Df"] = synth_df(ms, nant, times, fid)
@@ -425,12 +466,11 @@ def main(argv):
             other.append(f"{names[tm]},{names[1 - fm]}")
         alt, _ = cal_apply.apply(*args, field_id=fid, interp=other, nant=nant)
         result["other_freq_mode_vs_casa"] = cal_apply.class_c(alt, casa, ok)
-        result["pass"] = bool(
-            vs_casa["pass"]
-            and flags_exact
-            and result.get("rust_vs_caltable", {"pass": True})["pass"]
-        )
-        if name.startswith("h-B-coarse"):
+        # Against caltable.correct: reported, not gated, from run -04 (the
+        # kernel ports CASA's float32 phase tracking and unwrap, which
+        # caltable.py does not; research/c4a-apply.md section 6).
+        result["pass"] = bool(vs_casa["pass"] and flags_exact)
+        if name.startswith(("h-B-coarse", "h-B-gaps")):
             result["pass"] = (
                 result["pass"] and not result["other_freq_mode_vs_casa"]["pass"]
             )
@@ -486,7 +526,7 @@ def main(argv):
         "seeds": {
             "synthetic G, B, K, T (check_formats.seeded_tables)": cf.SEED,
             "synthetic Df": SEED_DF,
-            "held out": SEED_HELDOUT,
+            "held out": seed if heldout else None,
         },
         "input_flag_edits": EDITS if heldout else None,
         "field_id": fid,

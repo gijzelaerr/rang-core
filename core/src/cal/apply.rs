@@ -337,13 +337,25 @@ fn series(t: &Term, ant: usize) -> Vec<f32> {
             out[2 * (s * per + k) + 1] = im.atan2(re);
         }
     }
-    let two_pi = std::f64::consts::TAU as f32;
+    // `RIorAPArray::trackPhase` (`RIorAParray.cc`): float phases compared
+    // with the previous slot's plus or minus pi in double, each 2 pi step
+    // rounded back to float. `caltable._track_phase` rounds whole turns in
+    // float32, which can differ by an ulp (run -03 of research/c4a-apply.md).
+    use std::f64::consts::{PI, TAU};
     for k in 0..per {
         for s in 1..n {
-            let prev = out[2 * ((s - 1) * per + k) + 1];
+            let prev = f64::from(out[2 * ((s - 1) * per + k) + 1]);
             let cur = &mut out[2 * (s * per + k) + 1];
-            let d = *cur - prev;
-            *cur -= two_pi * (d / two_pi).round_ties_even();
+            if f64::from(*cur) > prev {
+                while f64::from(*cur) > prev + PI {
+                    *cur = (f64::from(*cur) - TAU) as f32;
+                }
+            }
+            if f64::from(*cur) < prev {
+                while f64::from(*cur) < prev - PI {
+                    *cur = (f64::from(*cur) + TAU) as f32;
+                }
+            }
         }
     }
     out
@@ -483,18 +495,20 @@ fn resample_freq(
                 continue;
             }
             if !t.kind.float_param() && q == 1 {
-                // Unwrap the phase in float64, then back to float32.
-                let mut prev = f64::from(y[0]);
-                for v in y.iter_mut().skip(1) {
-                    let mut cur = f64::from(*v);
-                    while cur - prev > std::f64::consts::PI {
-                        cur -= std::f64::consts::TAU;
+                // Unwrap the phase in float32 as `CTPatchedInterp::
+                // resampleInFreq` does: the difference of two floats compared
+                // with pi, each 2 pi step rounded back to float. Large
+                // unwrapped phases lose precision there, and the result must
+                // lose it the same way (run -03 of research/c4a-apply.md;
+                // `caltable.py` unwraps in float64 and casts once).
+                for i in 1..y.len() {
+                    let prev = y[i - 1];
+                    while f64::from(y[i] - prev) > std::f64::consts::PI {
+                        y[i] = (f64::from(y[i]) - std::f64::consts::TAU) as f32;
                     }
-                    while cur - prev < -std::f64::consts::PI {
-                        cur += std::f64::consts::TAU;
+                    while f64::from(y[i] - prev) < -std::f64::consts::PI {
+                        y[i] = (f64::from(y[i]) + std::f64::consts::TAU) as f32;
                     }
-                    *v = cur as f32;
-                    prev = cur;
                 }
             }
             let (lo_v, hi_v) = (y[0], y[m - 1]);
