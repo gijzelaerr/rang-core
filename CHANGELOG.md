@@ -11,8 +11,8 @@ the release notes are the section of this file for that version.
 
 - New: `gemclean -beam-band`, off by default. Resyncs use the beam's spectrum only as far as the
   longest baseline and the w-term reach. Images differ slightly from flag off. Over 12 interleaved
-  pairs it saved 11-16 % of the wall on two simulated skies and 4-5 % on a third
-  (`research/gemclean-speed.md`).
+  pairs with coarse gridding (`-single -wgridder-accuracy 1e-4`) it saved 11-16 % of the wall on
+  two simulated skies and 4-5 % on a third (`research/gemclean-speed.md`).
 - The root crate and binary are now `rang-sim`, `rang.toy_output` is now `rang.sim_output`,
   `RANG_TOY_BIN` and `RANG_TOY_LIB` are now `RANG_SIM_BIN` and `RANG_SIM_LIB`, and
   `examples/toy.py` is now `examples/pointing_sim.py`. No aliases are kept. Output bytes are

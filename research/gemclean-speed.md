@@ -2,7 +2,7 @@
 
 Status, 2026-11-04: **measured against WSClean built for this CPU; no claim of novelty.** At `-j 16` GeMClean is faster on all seven
 skies, narrowly on H2 and H3. At `-j 1` WSClean is faster on H1-H3 at its best setting tried. GeMClean uses 3-5 times the memory.
-2026-11-05, task G1: `-beam-band` is kept, off by default. Over 12 interleaved pairs it saves 11-16 % of the wall on H2 and H3 at both thread counts, but only 4-5 % on S1. The images agree with flag off well inside the bounds written first ([result](#-beam-band-on-and-off-interleaved-measured-task-g1)).
+2026-11-05, task G1: `-beam-band` is kept, off by default. Over 12 interleaved pairs with coarse gridding (`-single -wgridder-accuracy 1e-4`) it saves 11-16 % of the wall on H2 and H3 at both thread counts, but only 4-5 % on S1. On H2 about half of that is one major cycle fewer. The images agree with flag off well inside the bounds written first ([result](#-beam-band-on-and-off-interleaved-measured-task-g1)).
 Archives: [results/gemclean-speed-native.json](results/gemclean-speed-native.json) (this pass),
 [results/gemclean-speed.json](results/gemclean-speed.json) (the SSE2 package). Outputs: `D:\rang\outputs\20261104-speed`
 (`native/`, `opt/e1`, `opt/e2`; `out/` and `sse2/out/` for the package).
@@ -97,7 +97,7 @@ At 0.2 Q/Q_truth moves by at most 2.4e-4 (S2, 1.01517 to 1.01541), false flux by
 | `-tau-min` 0.5, `-j 16` / `-j 1` | 10.5 / 34.9 | 10.6 / 35.0 | 9.2 / 30.4 | 13.1 / 44.7 | 15.1 / 48.3 | 33.1 / 113 | 11.2 / 35.2 |
 | `-tau-min` 0.2, `-j 16` / `-j 1` | 8.9 / 31.8 | 10.2 / 35.8 | 8.2 / 27.5 | 9.8 / 41.3 | 10.4 / 38.3 | 27.5 / 99.0 | 9.4 / 32.6 |
 
-Scores at `-tau-min` 0.5 barely move: Q/Q_truth by at most 3e-5, false flux by at most 0.17 mJy. **Whether it saves time is not settled.** On H3 at `-j 1` the clean phase went from 105.6 to 90.2 s, but several `-j 16` rows are slower than without it, which less work should not cause. These ran on another day, one run each, so the host may be the cause. An interleaved on/off test of the same binary (`opt_e6.sh`) was stopped after S1: `-j 16` 10.14 s off, 9.98 s on, resync 2.29 and 2.15 s; `-j 1` 36.28 s off, 34.28 s on, resync 6.58 and 4.78 s; and one H2 run left unfinished. It says nothing yet. Peak memory hardly moves, so the peak lies elsewhere. That test has now been run to the end under a rule written first: see [the G1 result](#-beam-band-on-and-off-interleaved-measured-task-g1); the flag is kept, off by default. Band limiting saved under 0.3 GB on H3 and nothing at 2048².
+Scores at `-tau-min` 0.5 barely move: Q/Q_truth by at most 3e-5, false flux by at most 0.17 mJy. **Whether it saves time is not settled.** On H3 at `-j 1` the clean phase went from 105.6 to 90.2 s, but several `-j 16` rows are slower than without it, which less work should not cause. These ran on another day, one run each, so the host may be the cause. An interleaved on/off test of the same binary (`opt_e6.sh`) was stopped after S1: `-j 16` 10.14 s off, 9.98 s on, resync 2.29 and 2.15 s; `-j 1` 36.28 s off, 34.28 s on, resync 6.58 and 4.78 s; and one H2 run left unfinished. It says nothing yet. Peak memory hardly moves, so the peak lies elsewhere. That test has now been run to the end under a rule written first: see [the G1 result](#-beam-band-on-and-off-interleaved-measured-task-g1); the flag is kept, off by default. Band limiting saved under 0.3 GB on H3 and nothing at 2048² (superseded by G1 below: 0.37 GB on H3, up to 0.06 GB at 2048²).
 
 ## Rule for `-beam-band` (written 2026-11-05, committed before the run of task G1)
 
