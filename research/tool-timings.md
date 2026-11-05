@@ -1485,3 +1485,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-04 | GeMClean coarse `-tau-min` 0.3, 0.2, 0.1, 42 runs and scoring | 7 skies, 1 repeat | see [gemclean-speed.md](gemclean-speed.md) | see there | quiet host, flock per job |
 | 2026-11-05 | GeMClean `-beam-band`, with and without `-tau-min 0.2`, 28 runs and scoring | 7 skies, 1 repeat | see [gemclean-speed.md](gemclean-speed.md) | see there | flock per job; `-j 16` rows doubtful |
 | 2026-11-05 | GeMClean `-beam-band` on/off, interleaved, task G1: 153 runs (gate, 72 timed pairs, 4 image pairs), scoring | S1, H2, H3 at `-j 16` and `-j 1`, 12 pairs each; S2, S3, H1, H4 once | 20:47-23:21 (2 h 34 min, build and scoring included) | 5.26 GB (H3 off) | flock per run; a Windows process held one core throughout, all runs marked spoiled; see [gemclean-speed.md](gemclean-speed.md) |
+| 2026-11-05 | A0 bucket listing and store metadata probe | `ratt-public-data`, 10 stores | 1.2 s, 48.6 s | – | listings and `.zarray` only ([a0-acceptance.md](a0-acceptance.md)) |
+| 2026-11-05 | A0 `fp_a0_probe_state.py`, scan tables (+ failed decode) | row columns of 5 stores | 1 min 29 s | 86 MB | 12.1 MB read |
+| 2026-11-05 | A0 `fp_a0_probe_state.py`, DATA state | 3 groups × 800 rows × 1 tile | 8.1 s | 77 MB | 31.2 MB read |
+| 2026-11-05 | A0 `fp_a0_probe_band.py` | sizes, tar head, 2 groups × 7 tiles × 800 rows | 32.8 s | 79 MB | 94.3 MB read |
+| 2026-11-05 | A0 astropy parallactic angles | scan tables | < 5 s | – | IERS auto-download off |

@@ -52,10 +52,10 @@ its first comparison and records runs, seeds and timings as usual.
 
 | ID | Task | Done when | Heavy | After |
 | --- | --- | --- | --- | --- |
-| A0 | Choose the data and freeze the acceptance protocol | A frozen note names the development and acceptance data, tolerances and the CARACal settings | no | owner confirms section 1 |
+| A0 | **Done 2026-11-05** ([a0-acceptance.md](a0-acceptance.md)). Choose the data and freeze the acceptance protocol | A frozen note names the development and acceptance data, tolerances and the CARACal settings | no | owner confirms section 1 |
 | A1 | Simulated truth: known sky, gains and RFI through the rang writer | The chain's input exists, with its seed and provenance | yes | A0 |
 
-Candidates for A0, to be checked:
+Settled by A0 ([a0-acceptance.md](a0-acceptance.md)): E1 simulated truth; E2-A ESO137 ms1 (Stokes I, raw phases); E2-B LUNO scans 17-20 (full polarisation, processed); E2-N native, open. Ben Hugo's set is LUNO's own scheduling block and adds native flags, not independence. The candidates as first listed:
 
 - **Ben Hugo's native data (L3):** the right test, but it is not here and its date is outside our control.
 - **LUNO 1934−638 and 1830−211:** calibrate on one and check the transfer on the other. Available now, but processed data.
@@ -69,7 +69,7 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 
 | ID | Task | Oracle | Done when | Heavy | After |
 | --- | --- | --- | --- | --- | --- |
-| G1 | Finish the interleaved `-beam-band` test (`research/results/gemclean-speed-scripts/opt_e6.sh`) | Itself, flag off | The flag is kept or removed, on the measured saving | yes, idle host | none |
+| G1 | **Done 2026-11-05:** kept, off by default ([gemclean-speed.md](gemclean-speed.md), G1 section). Finish the interleaved `-beam-band` test | Itself, flag off | The flag is kept or removed, on the measured saving | yes, idle host | none |
 | G2 | Memory, currently 3-5 × WSClean's | Current images | The pilot fits 24 GB at 512 channels; images identical or within tolerance | yes | G1 |
 | G3 | `-channels-out`, `-join-channels`, spectral fit | WSClean on simulated spectral skies, then held-out skies | Flux and spectral index within tolerance on skies not used to build it | yes | G2 |
 | G4 | Masks (FITS, automatic), Gaussian taper, uv range | WSClean | Same selection and mask behaviour within tolerance | no | G3 |
@@ -83,13 +83,13 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 
 | ID | Task | Oracle | Done when | Heavy | After |
 | --- | --- | --- | --- | --- | --- |
-| C1 | Specify the chain from CARACal's `crosscal_worker.py` sequence ([o-casa.md](o-casa.md)) | none | A frozen list of terms and order, with reasons for anything left out | no | A0 |
-| C2 | Delay, bandpass, gain and phase-only terms, and chains of terms, in Rust | QuartiCal and CASA | Each term within tolerance on the slice and simulated truth | yes | C1 |
-| C3 | Calibrator models and flux scale, using `fluxstd` and the predictor | CASA `setjy` | Model visibilities within tolerance on 1934−638 | no | C1 |
+| C1 | **Done 2026-11-05** ([c1-calibration-chain.md](c1-calibration-chain.md)). Specify the chain from CARACal's `crosscal_worker.py` sequence ([o-casa.md](o-casa.md)) | none | A frozen list of terms and order, with reasons for anything left out | no | A0 |
+| C2 | Gain, delay and bandpass in CARACal's order K, G, B, phase-only terms, chains of terms, and F with `fluxscale` (C1 steps 3-6), in Rust | QuartiCal and CASA | Each term within tolerance on the slice and simulated truth | yes | C1 |
+| C3 | Calibrator models (`setjy`), using `fluxstd` and the predictor; the flux-scale transfer moved to C2 | CASA `setjy` | Model visibilities within tolerance on 1934−638 | no | C1 |
 | C4 | Interpolate and apply solutions, writing `CORRECTED_DATA` | CASA `applycal` | Corrected data within tolerance; flags propagated as CASA does | no | C2, W1 |
-| C6 | Polarisation terms: cross-hand delay, leakage, cross-hand phase, parallactic angle, as CARACal's sequence or the frozen C1 list | CASA `gaincal` and `polcal` | Each term within tolerance on simulated truth and a polarisation calibrator | yes | C2, C3 |
+| C6 | Polarisation terms in C1's order: Gpol, cross-hand delay (KCROSS), cross-hand phase (Xf), leakage (Df); parallactic angle throughout | CASA `gaincal` and `polcal` | Each term within tolerance on simulated truth and a polarisation calibrator | yes | C2, C3 |
 | C7 | Apply the polarisation solutions; polarised calibrator models | CASA `applycal`; published 3C286 or 3C138 values | Calibrated Q and U, fractional polarisation and angle within tolerance | no | C4, C6 |
-| C5 | Self-calibration from `MODEL_DATA` (phase, then amplitude) | QuartiCal; simulated truth | Gains recovered on simulated truth; solution intervals configurable | yes | C4, G6 |
+| C5 | Self-calibration from `MODEL_DATA`: phase, then amplitude by default, and CARACal's delay form (`Fslope`) as an option | QuartiCal (a substitute for CubiCal); simulated truth | Gains recovered on simulated truth; solution intervals configurable | yes | C4, G6 |
 
 ### W. Write-back and general commands
 
@@ -106,7 +106,7 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 | ID | Task | Done when | Heavy | After |
 | --- | --- | --- | --- | --- |
 | E1 | The whole chain on simulated truth | Gates of A0 pass, or the failure is recorded and fixed | yes | C5, W3, A1 |
-| E2 | The whole chain on the acceptance data, unseen | Gates of A0 reported as frozen | yes | E1, G8 |
+| E2 | The whole chain on the acceptance data, unseen | Gates of A0 reported as frozen, on E2-A and E2-B; E2-N open | yes | E1, G8 |
 | E3 | Against CARACal on the same data | Report with quality, flux, wall time and memory, any outcome | yes, idle host | E2 |
 | E4 | Tutorial, command reference and landing pages; a small end-to-end job in CI | A reader goes from MS to image following the docs alone | no | E2 |
 | E5 | Final review, as W4 did for 0.1.0, and fixes | No release-blocking finding | no | E3, E4 |
@@ -115,6 +115,8 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 ## 4. Order
 
 **The critical path:** A0 → C1 → C2 → C4 → C6 → C7 → C5 → E1 → E2 → E3 → E5 → E6. C4 also needs W1, and C5 needs G6.
+
+C1 splits C4: its Rust apply kernel (C4a, C1 step 2) comes before C2, because C2 pre-applies tables; the write-back part (C4b) stays after C2 and W1. C1's section 6 lists the thirteen steps in order.
 
 **Parallel where it is light:** W1, W2, W4, C1, C3 and G4 can run alongside others. Everything marked heavy takes turns, so the heavy tasks in
 practice form one queue: G1, G2, G3, C2, G6, G5, G9, C6, G7, C5, G8, then E1 to E3. Timing runs need the machine to themselves.
@@ -127,7 +129,7 @@ practice form one queue: G1, G2, G3, C2, G6, G5, G9, C6, G7, C5, G8, then E1 to 
 algorithms with new failure modes. Polarisation adds three tasks and one more data requirement. **Expect two to four weeks of agent time, plus API limits** (the weekly limit stopped work once, on 2026-10-31).
 The largest risks are outside that count:
 
-- **Native data.** Without it E2 and E3 can only finish on weaker data.
+- **Native data.** Without it E2 and E3 can only finish on weaker data. LUNO's DATA is pre-phased, so KCROSS and Xf are near zero there; A1 must carry them.
 - **E3 can come out badly.** A worse result than CARACal would be recorded, then fixed or stated in the release; it would not be reworded.
 - **The unexplained floor.** The pilot's floor is 40-60 × thermal in all imagers, for a reason not found. It may limit what E2 can show.
 
@@ -144,3 +146,5 @@ The largest risks are outside that count:
 2. **Multiscale (G5):** in.
 3. **Coarse gridding as GeMClean's default (G7):** decided after the measurements on the real pilot; until then the default stays at 1e-6.
 4. **The GeMClean name:** a proper clash check as part of G8, before the name reaches PyPI as a console script.
+5. **C1's three decisions** (owner, 2026-11-05: "Do what you think is best"): self-calibration defaults to phase then amplitude, with the delay form also built and E3 stating the difference; the Tricolour port replaces tfcrop inside crosscal, with E3 reporting flagged fractions per step; K is estimated by FFT then Gauss-Newton.
+6. **A0's four decisions, open:** accept the split legs with E2-N open; the native-data source (a different block from Ben Hugo, a SARAO archive token, or open); the fetches to `D:\rang`; and whether the polarisation claim may rest on processed LUNO data plus simulation.

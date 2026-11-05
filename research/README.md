@@ -8,6 +8,8 @@ Each entry is one report and its verdict, newest first within a section.
 - [STATE.md](STATE.md): the current status and the log of recent work; [STATE-history.md](STATE-history.md) holds the entries before 2026-10-29.
 - [big-plan.md](big-plan.md): the plan, the standing decisions and the user items.
 - [finish-plan.md](finish-plan.md): the plan to finish GeMClean and rang-core at v0.2.0, in full polarisation; confirmed 2026-11-05, in execution.
+- [A0, acceptance data and protocol](a0-acceptance.md): development and held-out data, the frozen gates for the finish line, E1-E3 and CARACal's settings; no public set meets the native gate, so E2-N is open.
+- [C1, the calibration chain](c1-calibration-chain.md): the frozen term list, order, equations, oracles, gauge handling, apply rules and implementation steps for C2 to C7.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 
