@@ -4180,7 +4180,10 @@ impl TsmW {
 
     /// `TiledStMan::flush`: the cubes' caches (new tiles, then the tiles
     /// written since the last flush), then, when anything changed, the
-    /// header file made anew.
+    /// header file made anew. The header goes through `table.f<N>_tmp` and
+    /// a rename (casacore truncates and rewrites it), so a process killed
+    /// during a flush leaves the old header or the new one, never a
+    /// truncated one (research/w1-writeback.md); the bytes are unchanged.
     fn flush(&mut self) -> Result<bool> {
         // The cubes' caches in order (`flushCaches`), then what is left.
         for c in 0..self.h.cubes.len() {
@@ -4193,7 +4196,10 @@ impl TsmW {
         if changed {
             self.h.writable()?;
             let bytes = self.h.serialise();
-            std::fs::write(self.dir.join(format!("table.f{}", self.h.seq)), &bytes)?;
+            let header = self.dir.join(format!("table.f{}", self.h.seq));
+            let tmp = self.dir.join(format!("table.f{}_tmp", self.h.seq));
+            std::fs::write(&tmp, &bytes)?;
+            std::fs::rename(&tmp, &header)?;
             let name = format!("table.f{}", self.h.seq);
             self.event(crate::multifile::Event::Create(name.clone()));
             self.event(crate::multifile::Event::Write(name, 0, bytes.len() as u64));

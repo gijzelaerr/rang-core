@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PKG = ROOT / "python" / "rang"
 
 # `.open` methods of these names are not text files.
-NOT_FILES = {"fits", "katdal"}
+NOT_FILES = {"fits", "katdal", "os"}  # os.open returns a descriptor, no text
 
 # Verbatim P11 extracts, file -> calls left as they are. tests/test_p11_extract.py
 # compares these segments, text for text, with history/python, and history/ is

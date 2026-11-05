@@ -31,6 +31,34 @@ SCALAR = {
     DOUBLE: (">d", 8),
     INT64: (">q", 8),
 }
+# The NumPy type of a scalar keyword (`column_descriptions`, typed).
+TYPED = {
+    BOOL: "bool",
+    CHAR: "int8",
+    UCHAR: "uint8",
+    SHORT: "int16",
+    USHORT: "uint16",
+    INT: "int32",
+    UINT: "uint32",
+    FLOAT: "float32",
+    DOUBLE: "float64",
+    INT64: "int64",
+}
+# Bytes of a scalar column's default value in its description.
+DEFAULT_SIZES = {
+    BOOL: 1,
+    CHAR: 1,
+    UCHAR: 1,
+    SHORT: 2,
+    USHORT: 2,
+    INT: 4,
+    UINT: 4,
+    FLOAT: 4,
+    DOUBLE: 8,
+    COMPLEX: 8,
+    DCOMPLEX: 16,
+    INT64: 8,
+}
 ARRAY_DTYPES = {
     13: ">u1",
     14: ">i1",
@@ -113,7 +141,11 @@ def _record_desc(c):
 
 def _array(c, dtype):
     obj = c.start()
-    shape = c.iposition()
+    if obj[3] == 3:
+        # casacore's `putArray` (version 3): ndim, then each length.
+        shape = [c.u32() for _ in range(c.u32())]
+    else:
+        shape = c.iposition()
     n = c.u32()
     if dtype == ARRAY_STRING:
         values = [c.string() for _ in range(n)]
@@ -129,24 +161,25 @@ def _array(c, dtype):
     return out.reshape(tuple(shape)[::-1]) if shape else out
 
 
-def _record_values(c, fields):
+def _record_values(c, fields, typed=False):
     out = {}
     for name, dtype, sub, _shape in fields:
         if dtype == RECORD:
-            out[name] = _record(c) if not sub else _record_values(c, sub)
+            out[name] = _record(c, typed) if not sub else _record_values(c, sub, typed)
         elif dtype == STRING:
             out[name] = c.string()
         elif dtype == TABLE:
             out[name] = "Table: " + c.string()
         elif dtype in SCALAR:
             fmt, size = SCALAR[dtype]
-            out[name] = struct.unpack(fmt, c.take(size))[0]
+            value = struct.unpack(fmt, c.take(size))[0]
+            out[name] = np.dtype(TYPED[dtype]).type(value) if typed else value
         elif dtype == COMPLEX:
             re, im = struct.unpack(">ff", c.take(8))
-            out[name] = complex(re, im)
+            out[name] = np.complex64(complex(re, im)) if typed else complex(re, im)
         elif dtype == DCOMPLEX:
             re, im = struct.unpack(">dd", c.take(16))
-            out[name] = complex(re, im)
+            out[name] = np.complex128(complex(re, im)) if typed else complex(re, im)
         elif 13 <= dtype <= 24 or dtype == ARRAY_INT64:
             out[name] = _array(c, dtype)
         else:
@@ -154,19 +187,20 @@ def _record_values(c, fields):
     return out
 
 
-def _record(c):
+def _record(c, typed=False):
     obj = c.start()
     if obj[2] not in ("TableRecord", "Record"):
         raise ValueError(f"keyword set {obj[2]} is not supported")
     fields = _record_desc(c)
     c.i32()  # record type
-    values = _record_values(c, fields)
+    values = _record_values(c, fields, typed)
     c.end(obj)
     return values
 
 
-def table_keywords(path):
-    """The table keywords of the casacore table at `path` (a directory)."""
+def _table_desc(path):
+    """A cursor at the table keywords of `table.dat` (after the TableDesc
+    name, version and comment)."""
     c = _Cursor((Path(path) / "table.dat").read_bytes())
     if c.u32() != MAGIC:
         raise ValueError("AipsIO magic value missing")
@@ -184,7 +218,56 @@ def table_keywords(path):
     if desc[3] != 2:
         raise ValueError(f"TableDesc version {desc[3]} is not supported")
     c.string(), c.string(), c.string()  # name, version, comment
-    return _record(c)
+    return c
+
+
+def table_keywords(path):
+    """The table keywords of the casacore table at `path` (a directory)."""
+    return _record(_table_desc(path))
+
+
+def column_descriptions(path):
+    """{column: {"comment", "dataManagerType", "dataManagerGroup",
+    "keywords"}} of the casacore table at `path`, read from `table.dat`
+    (the layout of `core/src/ms_desc.rs`, `read_coldesc`). Keyword scalars
+    are NumPy scalars of their stored type, so they can be written back
+    with the same type."""
+    c = _table_desc(path)
+    _record(c)  # table keywords
+    _record(c)  # private keywords
+    out = {}
+    for _ in range(c.u32()):
+        if c.u32() != 1:
+            raise ValueError("ColumnDesc version is not 1")
+        kind = c.string()
+        if c.u32() != 1:
+            raise ValueError("BaseColumnDesc version is not 1")
+        name, comment = c.string(), c.string()
+        dm_type, dm_group = c.string(), c.string()
+        dtype = c.i32()
+        c.i32(), c.i32()  # option, ndim
+        is_array = kind.startswith("ArrayColumnDesc")
+        if not is_array and not kind.startswith("ScalarColumnDesc"):
+            raise ValueError(f"column class {kind} of {name} is not supported")
+        if is_array:
+            c.iposition()
+        c.u32()  # max length
+        keywords = _record(c, typed=True)
+        if c.u32() != 1:
+            raise ValueError("column description version is not 1")
+        if is_array:
+            c.take(1)
+        elif dtype == STRING:
+            c.string()
+        else:
+            c.take(DEFAULT_SIZES[dtype])
+        out[name] = {
+            "comment": comment,
+            "dataManagerType": dm_type,
+            "dataManagerGroup": dm_group,
+            "keywords": keywords,
+        }
+    return out
 
 
 def table_info(path):

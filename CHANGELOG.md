@@ -9,6 +9,16 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang.core_writeback`, write-back to an existing Measurement Set. `WriteBack` adds
+  `MODEL_DATA`, `CORRECTED_DATA` (or any data column) and `WEIGHT_SPECTRUM` as CASA's `clearcal`
+  adds them, writes any column, `FLAG` and `FLAG_ROW` in row chunks, saves the original flags as a
+  CASA flag version (`rang_original`) before the first write, and refuses to start after an
+  interrupted session until the flags are restored (`restore_flags`). `rang.formats.flagversions`
+  now saves in chunks, atomically, and gains `restore`. CASA, WSClean, python-casacore and dask-ms
+  read the written columns (`research/w1-writeback.md`).
+- The core table writer now writes a tiled column's header through a temporary file and a rename,
+  so a process killed during a flush cannot leave it truncated. The bytes written are unchanged.
+
 - New: `gemclean -beam-band`, off by default. Resyncs use the beam's spectrum only as far as the
   longest baseline and the w-term reach. Images differ slightly from flag off. Over 12 interleaved
   pairs with coarse gridding (`-single -wgridder-accuracy 1e-4`) it saved 11-16 % of the wall on
