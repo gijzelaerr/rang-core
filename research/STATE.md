@@ -9,8 +9,8 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** nothing from the big plan; the CLEAN programme continues in its own session.
-- **Next:** the [plan to finish GeMClean and rang-core](finish-plan.md), proposed, once the owner confirms its finish line. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
+- **Running:** the [finish plan](finish-plan.md), from 2026-11-05.
+- **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -18,6 +18,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+Finish plan confirmed, 2026-11-05: the owner added polarisation (G9, C6, C7), confirmed multiscale, and left the coarse-gridding default until it is measured. 29 tasks; first A0, C1 and G1.
 
 Finish plan, 2026-11-05 (proposed; nothing started; [finish-plan.md](finish-plan.md)): 26 tasks to a v0.2.0 that flags, calibrates, images and self-calibrates a user's own MeerKAT L-band MS, compared once with CARACal. The largest gap is calibration: only the `complex` term is ported. Awaits the owner's confirmation of the finish line.
 

@@ -1,14 +1,14 @@
 # Rang: plan to finish GeMClean and rang-core
 
-Status, 2026-11-05: **proposed. Nothing here is implemented or measured, and no task has started.** The finish line in section 1 waits
-for the owner's confirmation. Written at main `94f95b2`. Open questions and earlier tasks stay in [big-plan.md](big-plan.md).
+Status, 2026-11-05: **confirmed by the owner, in execution; nothing here is measured yet.** Owner's answer, verbatim: "1 include polirasation. 2 yes. 3 after
+measuring. Execute plan, good luck". So polarisation is on the finish line, multiscale is in, and the coarse-gridding default is decided after measuring. Written at main `94f95b2`. Open questions and earlier tasks stay in [big-plan.md](big-plan.md).
 
-## 1. The finish line (proposed)
+## 1. The finish line
 
 rang-core is done at **v0.2.0**, when all of this holds:
 
 1. **One command.** After `pip install rang-core`, `rang-core run config.yaml my.ms` flags, calibrates, applies, images with GeMClean and
-   self-calibrates a MeerKAT L-band Measurement Set that was not used in development.
+   self-calibrates a MeerKAT L-band Measurement Set that was not used in development, in full polarisation.
 2. **Written back.** `FLAG` (with a backup of the original flags), `CORRECTED_DATA`, `MODEL_DATA`, calibration tables, FITS images and a receipt.
    CASA, WSClean and QuartiCal can read them.
 3. **Each stage against an oracle.** Flags against Tricolour, solutions against CASA and QuartiCal, images against WSClean, each within a
@@ -20,12 +20,11 @@ rang-core is done at **v0.2.0**, when all of this holds:
 
 These are parity gates, so meeting them makes rang-core a working toolchain. It claims no novelty, and the novelty rule in `AGENTS.md` is unchanged.
 
-**GeMClean is done** when it installs with the wheel, handles the 2:1 L-band frequency range and masks, writes `MODEL_DATA`, fits the pilot at
-512 channels in 24 GB, and has its defaults settled.
+**GeMClean is done** when it installs with the wheel, handles the 2:1 L-band frequency range, masks, multiscale and Stokes I, Q, U and V, writes `MODEL_DATA`,
+fits the pilot at 512 channels in 24 GB, and has its defaults settled.
 
 **Outside the finish line unless the owner adds them:**
 
-- Full polarisation imaging and calibration.
 - Direction-dependent calibration and facets (DF3 onwards).
 - UHF and S band.
 - The full 7 h ESO 137 track (about 126 GB to fetch and, roughly, 110 GB of memory).
@@ -62,6 +61,8 @@ Candidates for A0, to be checked:
 - **LUNO 1934−638 and 1830−211:** calibrate on one and check the transfer on the other. Available now, but processed data.
 - **A public archive observation through `rang-core meerkat fetch`:** real calibrator and target scans, if a suitable and permitted one exists.
 
+Polarisation needs more: a polarised calibrator (3C286 or 3C138) and an unpolarised one (1934−638) in the same observation. A0 must say whether any candidate has them.
+
 The fallback is simulated truth plus LUNO, labelled as weaker. The final gate then stays open for native data, and v0.2.0 says so.
 
 ### G. GeMClean
@@ -72,9 +73,10 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 | G2 | Memory, currently 3-5 × WSClean's | Current images | The pilot fits 24 GB at 512 channels; images identical or within tolerance | yes | G1 |
 | G3 | `-channels-out`, `-join-channels`, spectral fit | WSClean on simulated spectral skies, then held-out skies | Flux and spectral index within tolerance on skies not used to build it | yes | G2 |
 | G4 | Masks (FITS, automatic), Gaussian taper, uv range | WSClean | Same selection and mask behaviour within tolerance | no | G3 |
-| G5 | Multiscale (owner decision 2) | WSClean `-multiscale` on S2 and an extended real field | Extended flux within tolerance; false flux and cycles reported | yes | G3 |
+| G5 | Multiscale (owner: in) | WSClean `-multiscale` on S2 and an extended real field | Extended flux within tolerance; false flux and cycles reported | yes | G3 |
 | G6 | Write `MODEL_DATA`; a predict mode | WSClean `-predict`; casacore read-back | Agreement within tolerance on S1-S3 and the pilot | yes | G3, W1 |
-| G7 | Settle defaults, including coarse gridding, on the real pilot (owner decision 3) | WSClean at matched accuracy | Defaults chosen and recorded; figures single-core and threaded | yes, idle host | G2, G3, G5 |
+| G9 | Stokes I, Q, U, V and joined polarisations (`-pol`, `-join-polarizations`) | WSClean on simulated polarised skies | Each Stokes image within tolerance; no I-to-QUV leakage from the imager beyond WSClean's | yes | G3 |
+| G7 | Settle defaults, including coarse gridding, on the real pilot (owner: after measuring) | WSClean at matched accuracy | Defaults chosen and recorded; figures single-core and threaded | yes, idle host | G2, G3, G5, G9 |
 | G8 | In the wheel: extension binding and a `gemclean` console script, not a second binary | Source build | `pip install` runs it on all five platforms; FITS identical to the source build on S1; speed measured **on the wheel**, because current figures come from the fat-LTO `gemclean` profile | yes | G7 |
 
 ### C. Calibration
@@ -85,6 +87,8 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 | C2 | Delay, bandpass, gain and phase-only terms, and chains of terms, in Rust | QuartiCal and CASA | Each term within tolerance on the slice and simulated truth | yes | C1 |
 | C3 | Calibrator models and flux scale, using `fluxstd` and the predictor | CASA `setjy` | Model visibilities within tolerance on 1934−638 | no | C1 |
 | C4 | Interpolate and apply solutions, writing `CORRECTED_DATA` | CASA `applycal` | Corrected data within tolerance; flags propagated as CASA does | no | C2, W1 |
+| C6 | Polarisation terms: cross-hand delay, leakage, cross-hand phase, parallactic angle, as CARACal's sequence or the frozen C1 list | CASA `gaincal` and `polcal` | Each term within tolerance on simulated truth and a polarisation calibrator | yes | C2, C3 |
+| C7 | Apply the polarisation solutions; polarised calibrator models | CASA `applycal`; published 3C286 or 3C138 values | Calibrated Q and U, fractional polarisation and angle within tolerance | no | C4, C6 |
 | C5 | Self-calibration from `MODEL_DATA` (phase, then amplitude) | QuartiCal; simulated truth | Gains recovered on simulated truth; solution intervals configurable | yes | C4, G6 |
 
 ### W. Write-back and general commands
@@ -110,17 +114,17 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 
 ## 4. Order
 
-**The critical path:** A0 → C1 → C2 → C4 → C5 → E1 → E2 → E3 → E5 → E6. C4 also needs W1, and C5 needs G6.
+**The critical path:** A0 → C1 → C2 → C4 → C6 → C7 → C5 → E1 → E2 → E3 → E5 → E6. C4 also needs W1, and C5 needs G6.
 
 **Parallel where it is light:** W1, W2, W4, C1, C3 and G4 can run alongside others. Everything marked heavy takes turns, so the heavy tasks in
-practice form one queue: G1, G2, G3, C2, G6, G5, G7, C5, G8, then E1 to E3. Timing runs need the machine to themselves.
+practice form one queue: G1, G2, G3, C2, G6, G5, G9, C6, G7, C5, G8, then E1 to E3. Timing runs need the machine to themselves.
 
 **Gridding and calibration feed each other** only at G6 and C5, so the G and C streams can advance separately until then.
 
 ## 5. Size (an estimate, not a measurement)
 
-26 tasks. The big plan merged about 37 in several days, but many of those were ports with an oracle to match. C2, G3 and G5 are new
-algorithms with new failure modes. **Expect one to three weeks of agent time, plus API limits** (the weekly limit stopped work once, on 2026-10-31).
+29 tasks. The big plan merged about 37 in several days, but many of those were ports with an oracle to match. C2, G3 and G5 are new
+algorithms with new failure modes. Polarisation adds three tasks and one more data requirement. **Expect two to four weeks of agent time, plus API limits** (the weekly limit stopped work once, on 2026-10-31).
 The largest risks are outside that count:
 
 - **Native data.** Without it E2 and E3 can only finish on weaker data.
@@ -136,7 +140,7 @@ The largest risks are outside that count:
 
 ## 7. Owner decisions
 
-1. **Confirm or change the finish line** in section 1, above all the "outside" list. Nothing starts before this.
-2. **Multiscale (G5).** Proposed: in. Real MeerKAT fields hold extended emission, and a comparison with CARACal without it would not be matched.
-3. **Coarse gridding as GeMClean's default (G7).** Proposed: decide after the measurements on the real pilot; until then the default stays at 1e-6.
-4. **The GeMClean name.** Proposed: a proper clash check as part of G8, before the name reaches PyPI as a console script.
+1. **Finish line:** confirmed 2026-11-05, with polarisation added.
+2. **Multiscale (G5):** in.
+3. **Coarse gridding as GeMClean's default (G7):** decided after the measurements on the real pilot; until then the default stays at 1e-6.
+4. **The GeMClean name:** a proper clash check as part of G8, before the name reaches PyPI as a console script.
