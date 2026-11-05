@@ -214,6 +214,58 @@ mod tests {
     use super::*;
     use crate::clean_certified::WgridMeasurement;
 
+    /// `-beam-band`: on oversampled pixels the columns from the geometry hold
+    /// the PSF's spectrum. What the band drops is the slow tail that the edge
+    /// of the 2n box spreads over every column, which more columns barely
+    /// reduce, while ten fewer cut the beam itself. On coarse pixels the band
+    /// is the whole half spectrum.
+    #[test]
+    fn band_columns_hold_the_psf_spectrum() {
+        use crate::gemclean::Convolver;
+        let mut state = 99u64;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            (state >> 11) as f64 / (1u64 << 53) as f64 - 0.5
+        };
+        let nrow = 1200;
+        let uvw: Vec<f64> = (0..3 * nrow)
+            .map(|i| next() * if i % 3 == 2 { 50.0 } else { 3000.0 })
+            .collect();
+        let freq = vec![299_792_458.0];
+        let opts = crate::gemclean::sim::imaging_options();
+        let n = 48usize;
+        let vis = vec![Complex::new(0.0, 0.0); nrow];
+        let wgt = vec![1.0; nrow];
+        let fine: GridMeasurement<f64> = GridMeasurement::new(
+            uvw.clone(),
+            freq.clone(),
+            vis.clone(),
+            wgt.clone(),
+            n,
+            5e-5,
+            1e-7,
+            opts,
+        )
+        .unwrap();
+        let band = fine.band_columns(2 * n);
+        // Longest baseline 1500 wavelengths: ceil(1500 × 5e-5 × 96) = 8, plus the margin.
+        assert!((16..=17).contains(&band), "band {band}");
+        let psf = fine.psf_image(2 * n).unwrap();
+        let peak = psf.iter().fold(0.0_f64, |a, &v| a.max(v.abs()));
+        let kept = Convolver::with_band(n, &psf, band).unwrap();
+        assert_eq!(kept.columns(), (band, n + 1));
+        let dropped = |k| Convolver::with_band(n, &psf, k).unwrap().dropped_rms();
+        let (inside, wider) = (dropped(band - 10), dropped(band + 16));
+        assert!(kept.dropped_rms() < 5e-3 * peak, "{}", kept.dropped_rms());
+        assert!(inside > 10.0 * kept.dropped_rms(), "{inside}");
+        assert!(kept.dropped_rms() < 2.0 * wider, "{wider}");
+        let coarse: GridMeasurement<f64> =
+            GridMeasurement::new(uvw, freq, vis, wgt, n, 4e-4, 1e-7, opts).unwrap();
+        assert_eq!(coarse.band_columns(2 * n), n + 1);
+    }
+
     /// The regression test of the reduced-precision path: with the gridder in
     /// `f32` every component's amplitude still comes from the exact value on
     /// the image-domain beam (lazy against brute force to rounding, in f64),

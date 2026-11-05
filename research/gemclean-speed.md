@@ -2,6 +2,7 @@
 
 Status, 2026-11-04: **measured against WSClean built for this CPU; no claim of novelty.** At `-j 16` GeMClean is faster on all seven
 skies, narrowly on H2 and H3. At `-j 1` WSClean is faster on H1-H3 at its best setting tried. GeMClean uses 3-5 times the memory.
+2026-11-05, task G1: `-beam-band` is kept, off by default. Over 12 interleaved pairs it saves 11-16 % of the wall on H2 and H3 at both thread counts, but only 4-5 % on S1. The images agree with flag off well inside the bounds written first ([result](#-beam-band-on-and-off-interleaved-measured-task-g1)).
 Archives: [results/gemclean-speed-native.json](results/gemclean-speed-native.json) (this pass),
 [results/gemclean-speed.json](results/gemclean-speed.json) (the SSE2 package). Outputs: `D:\rang\outputs\20261104-speed`
 (`native/`, `opt/e1`, `opt/e2`; `out/` and `sse2/out/` for the package).
@@ -96,7 +97,7 @@ At 0.2 Q/Q_truth moves by at most 2.4e-4 (S2, 1.01517 to 1.01541), false flux by
 | `-tau-min` 0.5, `-j 16` / `-j 1` | 10.5 / 34.9 | 10.6 / 35.0 | 9.2 / 30.4 | 13.1 / 44.7 | 15.1 / 48.3 | 33.1 / 113 | 11.2 / 35.2 |
 | `-tau-min` 0.2, `-j 16` / `-j 1` | 8.9 / 31.8 | 10.2 / 35.8 | 8.2 / 27.5 | 9.8 / 41.3 | 10.4 / 38.3 | 27.5 / 99.0 | 9.4 / 32.6 |
 
-Scores at `-tau-min` 0.5 barely move: Q/Q_truth by at most 3e-5, false flux by at most 0.17 mJy. **Whether it saves time is not settled.** On H3 at `-j 1` the clean phase went from 105.6 to 90.2 s, but several `-j 16` rows are slower than without it, which less work should not cause. These ran on another day, one run each, so the host may be the cause. An interleaved on/off test of the same binary (`opt_e6.sh`) was stopped after S1: `-j 16` 10.14 s off, 9.98 s on, resync 2.29 and 2.15 s; `-j 1` 36.28 s off, 34.28 s on, resync 6.58 and 4.78 s; and one H2 run left unfinished. It says nothing yet. Peak memory hardly moves, so the peak lies elsewhere. **Next: run that test to the end, then keep or remove the flag.** Band limiting saved under 0.3 GB on H3 and nothing at 2048².
+Scores at `-tau-min` 0.5 barely move: Q/Q_truth by at most 3e-5, false flux by at most 0.17 mJy. **Whether it saves time is not settled.** On H3 at `-j 1` the clean phase went from 105.6 to 90.2 s, but several `-j 16` rows are slower than without it, which less work should not cause. These ran on another day, one run each, so the host may be the cause. An interleaved on/off test of the same binary (`opt_e6.sh`) was stopped after S1: `-j 16` 10.14 s off, 9.98 s on, resync 2.29 and 2.15 s; `-j 1` 36.28 s off, 34.28 s on, resync 6.58 and 4.78 s; and one H2 run left unfinished. It says nothing yet. Peak memory hardly moves, so the peak lies elsewhere. That test has now been run to the end under a rule written first: see [the G1 result](#-beam-band-on-and-off-interleaved-measured-task-g1); the flag is kept, off by default. Band limiting saved under 0.3 GB on H3 and nothing at 2048².
 
 ## Rule for `-beam-band` (written 2026-11-05, committed before the run of task G1)
 
@@ -119,6 +120,57 @@ Why 10 %: three repeats of one setting have spread up to 7.7 % on this host, and
 **Method.** One binary, built at the commit recorded in the run's `provenance.txt`, profile `gemclean`. First, flag off on S1 at `-j 16` must be byte-identical to `3945394` or the run stops. Eight repeats of S1, H2, H3 at `-j 16` and `-j 1`, flag order alternating by repeat. S2, S3, H1, H4: one pair at `-j 16`, for the images only. Heavy lock held per run. Load is recorded before and after each run, in WSL and Windows. A run is spoiled if any process other than the probe's own (`WmiPrvSE`, `top`) and the VM's host process is above half a core before or after it. A spoiled pair stays in the record and gets a replacement at the end, at most four per cell. The rule is applied to the clean pairs if a cell has at least six, otherwise to all of them, and both are reported. [`g1_beam_band_analyse.py`](results/gemclean-speed-scripts/g1_beam_band_analyse.py) applies it mechanically. Driver: [`g1_beam_band.sh`](results/gemclean-speed-scripts/g1_beam_band.sh). Outputs: `D:\rang\outputs\20261105-g1-beam-band`.
 
 **What was seen first.** The one-run rows and scores above and the stopped pair were all read before this was written, so the bar is not blind to them. It was set from the cost and the host's spread. Those runs are a different binary on another day and are not pooled with the new ones.
+
+## `-beam-band` on and off, interleaved (measured, task G1)
+
+**Decision: kept, off by default.** The rule above is met at both thread counts. H2 and H3 clear 10 %, S1 does not, no cell is slower and every image bound holds. This is a speed option, not a new method, and no novelty is claimed. No default changed.
+
+Run 2026-11-05 20:47-23:21 by [`g1_beam_band.sh`](results/gemclean-speed-scripts/g1_beam_band.sh) at commit `1d4047f` (`rustc 1.93.1`, profile `gemclean`, `x86-64-v3`, binary sha256 `e2a1b360…f9405f`, kept as `gemclean-1d4047f927bb`). Settings: `-scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 -nmiter 1000 -abs-threshold 0.0001 -data-column DATA -field 0 -single -wgridder-accuracy 1e-4`, sizes 2048² (4096² for H3), default `-tau-min 0.5`. The skies are the simulated S1-S3 and H1-H4 of the benchmark and held-out sets, so the data are fixed and there is no seed to set. The gate passed: with the flag off, S1's model and residual at `-j 16` are byte-identical to `3945394`. Archive: [results/gemclean-beam-band.json](results/gemclean-beam-band.json). Outputs: `D:\rang\outputs\20261105-g1-beam-band` (`logs/`, `load/`, `images/`, `scores/`, `runs.tsv`, `provenance.txt`).
+
+Wall in seconds, median and range over 12 pairs (8 repeats, then 4 replacements). The saving is per pair, (off - on) / off:
+
+| Sky | `-j` | off | on | saving, median (range) | pairs saving |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| S1 | 16 | 10.32 (10.02-11.08) | 9.93 (9.56-10.50) | 3.8 % (-4.4 to 9.7) | 10 of 12 |
+| S1 | 1 | 36.19 (35.88-37.65) | 34.37 (34.03-35.17) | 5.2 % (3.3 to 7.1) | 12 of 12 |
+| H2 | 16 | 14.84 (14.49-15.71) | 12.92 (12.60-13.82) | 12.7 % (8.9 to 17.3) | 12 of 12 |
+| H2 | 1 | 54.91 (54.09-55.57) | 46.20 (45.91-46.72) | 15.7 % (14.5 to 16.9) | 12 of 12 |
+| H3 | 16 | 36.37 (35.62-37.90) | 32.00 (31.38-34.58) | 11.0 % (7.7 to 17.2) | 12 of 12 |
+| H3 | 1 | 128.21 (126.50-133.60) | 111.13 (109.75-113.82) | 13.2 % (11.3 to 15.2) | 12 of 12 |
+
+Phase medians, seconds, off / on. Cycles and resyncs were the same in every repeat:
+
+| Sky | `-j` | resync | major cycles | cycles | resyncs |
+| --- | ---: | ---: | ---: | --- | --- |
+| S1 | 16 | 2.37 / 1.89 | 3.18 / 3.23 | 5, 5 | 85, 86 |
+| S1 | 1 | 6.59 / 4.71 | 19.17 / 19.21 | 5, 5 | 85, 86 |
+| H2 | 16 | 5.33 / 4.12 | 4.71 / 4.04 | 7, 6 | 190, 186 |
+| H2 | 1 | 15.22 / 10.62 | 27.73 / 23.73 | 7, 6 | 190, 186 |
+| H3 | 16 | 16.95 / 12.79 | 8.68 / 8.56 | 7, 7 | 170, 171 |
+| H3 | 1 | 55.56 / 38.21 | 45.87 / 45.77 | 7, 7 | 170, 171 |
+
+**Read with care.** On H2, about half the saving comes from one major cycle fewer with the flag on (7 to 6), not from cheaper resyncs. That is the cycle-count instability at the margin noted under `-tau-min`. From the resyncs alone, H2 would save about 8 % at `-j 1`, below the bar. If only resyncs are counted, H3 is the sole sky that clears 10 %. The rule counts wall time, as it was written to, so the flag passes. The margin is thin, and on another sky the cycle count could move the other way. On S1, where the resyncs are a small share, the saving is 4-5 %. Peak memory falls by 0.37 GB on H3 (5.26 to 4.89 GB) and by up to 0.06 GB at 2048².
+
+Images, flag on against flag off, the same binary, inner field. σ is the sky's Briggs image noise. The `-j 1` rows of S1, H2 and H3 are identical to `-j 16`, because every model and residual was byte-identical across repeats and between `-j 1` and `-j 16`, with the flag on and with it off:
+
+| Sky | restored rms / σ | restored largest, µJy | Δ Q/Q_truth | Δ false flux, mJy | Δ recovery | Δ exact inner peak, µJy |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | 0.0096 | 5.0 | 8.6e-6 | 0.013 | 1.1e-5 | 3.7 |
+| S2 | 0.027 | 30.7 | 1.8e-5 | 0.081 | 1.5e-6 | 1.6 |
+| S3 | 0.012 | 5.3 | 6.4e-6 | 0.030 | 4.1e-6 | 0.8 |
+| H1 | 0.0082 | 4.3 | 5.9e-6 | 0.033 | 9.6e-6 | 2.4 |
+| H2 | 0.019 | 5.8 | 8.7e-6 | 0.057 | 1.4e-5 | 0.5 |
+| H3 | 0.0084 | 7.1 | 2.1e-5 | 0.10 | 2.6e-6 | 0.4 |
+| H4 | 0.084 | 38.0 | 2.8e-5 | 0.16 | 9.1e-6 | 0.2 |
+| Bound | 0.1 | 100 | 1e-3 | 1 | 1e-3 | 10 |
+
+H4 comes closest, at 0.84 of the rms bound. The S2-S3 and H1, H4 pairs were run once, for the images.
+
+**Host.** Every run is marked spoiled under the rule. A Windows `python.exe -` (PID 630316, started 15:42, not part of this task) used a whole core throughout. `SearchIndexer`, `SpotifyLauncher`, `llama-server` and Memory Compression showed up at times too. With fewer than six clean pairs in any cell, the rule uses all pairs, and the four replacement pairs per cell were spoiled in the same way. The constant core falls on both arms of each pair, so the pairing cancels most of it. It still makes the `-j 16` walls a little longer and noisier than on an idle host. Load1 before a run had a median of 1.6 and a maximum of 7.8. That is mostly the decay of the run before.
+
+**Test.** `band_columns_hold_the_psf_spectrum` (`core/src/gemclean/measure.rs`): on oversampled pixels the geometry's band holds the beam. Ten fewer columns drop more than ten times as much, and sixteen more barely reduce what is dropped, the edge tail. On coarse pixels the band is the whole half spectrum. It adds to `a_band_limited_kernel_drops_its_empty_columns`.
+
+**Not checked:** `-tau-min 0.2` together with the flag in interleaved pairs (the one-run rows above only); the default accuracy (`-single` off, 1e-6), where resyncs are a smaller share; real data; and any other host. Whether the flag becomes a default is for task G7.
 
 ## Against the SSE2 package (measured)
 
