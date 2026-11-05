@@ -10,7 +10,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
 - **Running:** nothing from the big plan; the CLEAN programme continues in its own session.
-- **Next:** DF5 with an RML arm, then B1 with an external catalogue. The flagger's non-TV arms wait for an owner decision.
+- **Next:** the [plan to finish GeMClean and rang-core](finish-plan.md), proposed, once the owner confirms its finish line. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -18,6 +18,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+Finish plan, 2026-11-05 (proposed; nothing started; [finish-plan.md](finish-plan.md)): 26 tasks to a v0.2.0 that flags, calibrates, images and self-calibrates a user's own MeerKAT L-band MS, compared once with CARACal. The largest gap is calibration: only the `complex` term is ported. Awaits the owner's confirmation of the finish line.
 
 Names and landing page, 2026-11-05 (implemented; no science changed): the root crate and binary are now `rang-sim`, at the owner's request, with `rang.sim_output`, `RANG_SIM_BIN`, `RANG_SIM_LIB` and `examples/pointing_sim.py`; no aliases. Golden output is unchanged and receipts are version 4. Dated reports, `research/results/` and `history/` keep the old names as records. GeMClean is now on the README and the docs home page; it is still not in the wheels, and its name clash check is still open.
 

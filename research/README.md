@@ -7,6 +7,7 @@ Each entry is one report and its verdict, newest first within a section.
 
 - [STATE.md](STATE.md): the current status and the log of recent work; [STATE-history.md](STATE-history.md) holds the entries before 2026-10-29.
 - [big-plan.md](big-plan.md): the plan, the standing decisions and the user items.
+- [finish-plan.md](finish-plan.md): proposed plan to finish GeMClean and rang-core at v0.2.0; awaits the owner's confirmation.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 
