@@ -8,17 +8,20 @@ original flags as a CASA flag version, so that a failed or interrupted run
 leaves the original flags recoverable. Branch `fp-w1-writeback` from
 `9423f13`. The general commands are W2, not this task.
 
-Status: **implemented and measured** (code `2b51f81`, frozen run
-`/mnt/d/rang/w1/w1-20261106-01` and `m3-20261106-01`). Oracle criteria 1 to
-3 and 5 to 7 pass exactly (every comparison bit-identical, every flag
-round trip equal by SHA-256, 4 + 8 SIGKILL cases recovered). Criterion 4
-passes in its two image comparisons (difference 0) and **fails as frozen**
-in its third part: the unit point model's image peaks 6 pixels from the
-centre (1.0023 against 1.0010 at the centre), because this sparse 4-antenna
-MS has a broad PSF; the PSF itself peaks at the same pixel, and the model
-image equals it to 9.7e-4 (post hoc, labelled). check-all at the head
-passes except `test_every_note_is_in_the_research_index`, which needs the
-index line in "For the coordinator". Archive:
+Status: **implemented and measured** (code `2b51f81`, frozen runs
+`/mnt/d/rang/w1/w1-20261106-01` and `m3-20261106-01`; supplementary run
+`w1-20261106-02` at `9654678` for WEIGHT and WEIGHT_SPECTRUM, which `-01`
+did not write). Oracle criteria 1 to 3 and 5 to 7 pass exactly: every
+comparison is bit-identical, every flag round trip is equal by SHA-256, and
+4 + 8 SIGKILL cases were recovered. Criterion 1 holds for WEIGHT and
+WEIGHT_SPECTRUM only from run `-02`. Criterion 4 passes its two image
+comparisons (difference 0). It **fails as frozen** in its third part, on
+both conditions: the unit point model's image peaks 6 pixels from the
+centre, and its peak, 1.0023, is 2.3e-3 from 1 (1.0010 at the centre).
+This sparse 4-antenna MS has a broad PSF, and the PSF itself peaks at the
+same pixel. The model image equals the PSF to 9.7e-4 (post hoc, labelled).
+check-all at the head passes except `test_every_note_is_in_the_research_index`,
+which needs the index line in "For the coordinator". Archive:
 [results/w1-writeback.json](results/w1-writeback.json). The protocol below
 was committed (`cb346d1`) before any comparison.
 
@@ -160,6 +163,7 @@ the 8-row data tiles and the 64-row flag tiles.
 | --- | --- | --- | --- | --- |
 | 1 | python-casacore 3.8.1 and 3.7.1: SHA-256 of every readable column equals rang's | 25 of 25 columns, 0 mismatches | 26 of 26, 0 | pass |
 | 1 | value checks (MODEL = 2 DATA, CORRECTED = DATA, FLAG and FLAG_ROW as written, backup = pristine flags) | all true | all true | pass |
+| 1 | WEIGHT and WEIGHT_SPECTRUM written and read back | not exercised in `-01` (see run `-02` below) | not exercised | – |
 | 1 | columns rang did not write unchanged (casacore's hash = rang's hash before the writes) | true | true | pass |
 | 1 | descriptions | MODEL_DATA and CORRECTED_DATA: complex, TiledShapeStMan `TiledModel` and `TiledCorrected`, ndim 2, shape [4096, 4], option 4, comment "The data column", keywords {} and {UNIT: Jy} | CASA's own StandardStMan columns kept | pass |
 | 2 | CASA `flagmanager(restore)` of rang's backup: FLAG and FLAG_ROW hashes equal the pristine ones | equal | equal | pass |
@@ -167,7 +171,7 @@ the 8-row data tiles and the 64-row flag tiles.
 | 2 | CASA `flagmanager(list)` lists `rang_original` with its comment | yes | yes | pass |
 | 4 | WSClean, `-data-column CORRECTED_DATA` against `DATA` | max abs difference 0 (DATA peak 3.18) | 0 (peak 9.29) | pass |
 | 4 | WSClean, `MODEL_DATA` against 2 × `DATA` image | 0 | 0 | pass |
-| 4 | WSClean, the unit model as initialised: peak at the centre pixel and within 1e-3 of 1 | peak 1.00230 at (256, 262); centre (256, 256) 1.00097 | – | **fail as frozen** |
+| 4 | WSClean, the unit model as initialised: peak at the centre pixel and within 1e-3 of 1 | peak 1.00230 (2.3e-3 from 1) at (256, 262); centre (256, 256) 1.00097 | – | **fail as frozen**, both conditions |
 | 5 | CASA `split` of `corrected` and `model`: DATA, FLAG and FLAG_ROW bit-identical to rang's columns (rows 140 and 192) | equal | equal | pass |
 | 5 | CASA `gencal` amp 2 then `applycal` into rang's CORRECTED_DATA, against DATA/4 | 2,293,760 cells, all exactly equal | 1,572,864 cells, exactly equal | pass |
 | 6 | dask-ms 0.2.32 (QuartiCal 0.2.7's venv), `xds_from_ms`: hashes of DATA and the 5 written columns, value checks | 0 mismatches, all true | 0, all true | pass |
@@ -183,6 +187,32 @@ deviation 8.0e-13, 8 solutions each). M3 measured 274 MB on disk, not the
 "about 0.5 GB" estimated in the data table. The memory session took 22.6 s.
 The trial run (`-00-trial`, the same code before the post-hoc PSF lines and
 the QuartiCal step) gave the same verdicts.
+
+**Supplementary run `-02`** (`tools/oracles/w1/run.sh
+/mnt/d/rang/w1/w1-20261106-02`, code `9654678`, 182 s, the same committed
+tolerances). It exists because `-01` wrote neither WEIGHT nor
+WEIGHT_SPECTRUM: both MSs already had WEIGHT_SPECTRUM, and WEIGHT was never
+touched.
+- On M1 and M2, `run_writes` now also writes a seeded WEIGHT_SPECTRUM
+  (uniform 0.5 to 2, seed 7) and WEIGHT as its channel median. These go
+  into M1's variable-shape TiledShapeStMan `TiledWgt` and M2's
+  variable-shape StandardStMan WEIGHT.
+- M0, an MS written by `make_ms` (300 rows × 64 ch × 4, tiled FLAG, seed
+  20261106) without WEIGHT_SPECTRUM, exercises the add path: WEIGHT_SPECTRUM
+  is added (TiledShapeStMan `TiledWgtSpectrum`, float, [64, 4], comment
+  "Weight for each data point") and initialised from WEIGHT.
+- Results:
+  - python-casacore 3.8.1 and 3.7.1 and dask-ms: 0 hash mismatches on M1
+    (25 columns), M2 (26) and M0 (24, dask-ms 7).
+  - `WEIGHT_SPECTRUM == written` and `WEIGHT == written` are true on M1
+    and M2, and `WEIGHT_SPECTRUM == WEIGHT over channels` is true on M0.
+  - Every other verdict is as in `-01`: CASA split and applycal exact,
+    WSClean differences 0, and the same failure of 4c.
+- The first compare of `-02` reported "m1/m2 casacore: false". Its list of
+  written columns lacked WEIGHT, so WEIGHT counted as changed although
+  unwritten. That was a harness error, not a data difference.
+  `compare.py` was fixed and rerun on the same outputs; no tool was rerun.
+  CASA and WSClean were not run on M0, because its subtables are minimal.
 
 **Criterion 4c, post hoc (labelled).** M1 is a snapshot from 4 antennas.
 WSClean's PSF from the same weights and flags (`-make-psf`) also peaks at
@@ -219,6 +249,21 @@ image of the unit model against the PSF, ≤ 1e-3.
   - MSs above 274 MB.
   - Concurrent writers: the fcntl lock refuses them, but this was not
     re-tested here.
+- **The header change in the core writer.** After the change, every frozen
+  E3 case was written again with the current core and its files compared
+  with casacore's frozen tree (`outputs/e3-20261030-01`, post hoc). Every
+  tiled case is identical: F-flag, F-ws, F-data, F-sigma, F-uvw, F-multi,
+  F-add-tcs and F-add-tss. 19 of 24 cases are identical in all, as before.
+  The 4 that differ are the same StandardStMan padding-only cases E3
+  recorded; they are untouched by the change. F-antenna-strings was not run,
+  because the recheck harness opened MAIN instead of ANTENNA. The E5 and E6
+  cases, MultiFile among them, were not rerun.
+- **One untested window.** A kill between the rename of `flags.<name>` and
+  its line in `FLAG_VERSION_LIST` leaves a complete version that is not
+  listed. FLAG is untouched at that point. A rerun's `save` then refuses
+  with "remove it first", so this needs a hand step.
+- **Whole rows only.** Writes cover whole rows. A channel-selected
+  `applycal` (C4b) reads the row, changes it and writes it back.
 - **Old flags.** `flagversions.save` and `load` keep their signatures. A
   version that exists but is not listed is now refused, not overwritten.
 - **Not done.** No HISTORY rows are written. CASA writes them; rang's
@@ -235,8 +280,12 @@ Rows added to [tool-timings.md](tool-timings.md); per-step wall and peak RSS are
   This line also makes `test_every_note_is_in_the_research_index` pass. It is
   the only check-all failure at the branch head.
 - **research/STATE.md**, log, newest first:
-  `W1, 2026-11-06 (implemented and measured; [w1-writeback.md](w1-writeback.md)). rang.core_writeback writes into an existing MS. It adds MODEL_DATA and CORRECTED_DATA as CASA's clearcal does (TiledShapeStMan, initialised, but with a fixed shape) and writes any column, FLAG and FLAG_ROW in flushed row chunks. Before the first write it saves the flags as the CASA flag version rang_original. A journal refuses a new session after an interrupted one until the flags are restored. python-casacore 3.8.1 and 3.7.1, dask-ms, CASA (split, flagmanager, applycal into the new column) and WSClean read every written column bit for bit. Flags round-trip exactly through rang and CASA versions both ways. 12 SIGKILL cases all recovered. Peak memory grew 53 MB while a 268 MB column was written. One frozen criterion failed: the unit model's image peaks off-centre on the 4-antenna fixture's broad PSF, which peaks at the same pixel (post hoc). No novelty claim.`
+  `W1, 2026-11-06 (implemented and measured; [w1-writeback.md](w1-writeback.md)). rang.core_writeback writes into an existing MS. It adds MODEL_DATA and CORRECTED_DATA as CASA's clearcal does (TiledShapeStMan, initialised, but with a fixed shape) and writes any column, FLAG and FLAG_ROW in flushed row chunks. Before the first write it saves the flags as the CASA flag version rang_original. A journal refuses a new session after an interrupted one until the flags are restored. python-casacore 3.8.1 and 3.7.1, dask-ms, CASA (split, flagmanager, applycal into the new column) and WSClean read every written column bit for bit (WEIGHT and WEIGHT_SPECTRUM by casacore and dask-ms, run -02). Flags round-trip exactly through rang and CASA versions both ways. 12 SIGKILL cases all recovered. Peak memory grew 53 MB while a 268 MB column was written. One frozen criterion failed: the unit model's image peaks off-centre on the 4-antenna fixture's broad PSF, which peaks at the same pixel (post hoc). No novelty claim.`
   In "Current status", Running: `Done: A0, C1, G1, W1.`
+- **A shared check changed.** `tests/test_w4_6_portability.py`: `NOT_FILES`
+  now includes `"os"`, because `os.open` returns a descriptor and decodes no
+  text; it is used for the directory fsync. The method `WriteBack.begin` is
+  named so that the same check does not take `self.open()` for a text open.
 - **research/finish-plan.md**, row W1: `**Done 2026-11-06** ([w1-writeback.md](w1-writeback.md)).` before the task text. C4b, G6 and W2 can call the API above.
 - **Owner decisions.**
   - Whether added columns should be variable-shape like CASA's. That needs

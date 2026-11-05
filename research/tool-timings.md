@@ -1507,3 +1507,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W1 M3 build (`w1_writeback.py make`, under the heavy lock) | 8,192 × 1,024 × 4, 274 MB | 3.61 s | 248 MB | seed 20261106 |
 | 2026-11-06 | W1 M3 memory session | M3, 512-row chunks | 22.6 s | 93 MB | backup + CORRECTED_DATA added and initialised + FLAG rewritten; growth 53 MB |
 | 2026-11-06 | W1 M3 SIGKILL cases (8, each with an MS copy, a python-casacore container read and a restore) | M3 | 265.6 s | 75 MB | dominated by 9 copies of 274 MB on D: |
+| 2026-11-06 | W1 `tools/oracles/w1/run.sh` (supplementary, `w1-20261106-02`: weights written, M0 added) | M1, M2, M0 300 × 64 × 4 | 182 s | – | from started/finished stamps; per-step rows in the archive |
+| 2026-11-06 | W1 post-hoc recheck of the frozen E3 cases with the changed core | 24 cases, `outputs/e3-20261030-01` | not timed | – | tiled cases identical; 19 of 24 identical as E3 recorded |

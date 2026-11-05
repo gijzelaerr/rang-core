@@ -31,6 +31,8 @@ def compare(run):
         r = {}
         before, after = rec["before"], rec["after"]
         written = {c for c in WRITTEN if c in after}
+        if rec.get("weights_written"):
+            written.add("WEIGHT")
         r["added"] = rec["added"]
         r["unwritten_unchanged_rang"] = all(
             before[c] == after[c] for c in before if c not in written
