@@ -237,9 +237,10 @@ run.** Row columns, `.zarray`/`.zattrs`, listings and sizes are allowed.
   is 50,000 of 850,950 rows and 128 of 4,096 channels, used in a Fisher survey
   and never imaged. The E2-A target is therefore "unread except 0.18 % of its
   cells in one noise survey".
-- `flagging-public-data.md` read nine small numeric chunks of the ms1 primary
-  in September (listed in `results/meerkat-public-primary-metadata.json`;
-  not checked here against MAIN_4 and MAIN_5).
+- `flagging-public-data.md` and its ingestion read chunks of the ms1 primary
+  in September. `results/meerkat-public-ingestion.json` names MAIN_0 and
+  MAIN_1 objects only (tile 8 and row columns). No archive in `research/results/`
+  names an ms1 primary MAIN_4, MAIN_5 or MAIN_6 key (searched 2026-11-05).
 - No report reads LUNO MAIN_16–MAIN_19 (searched in `research/`).
 - **The E2-A sky is not unseen:** scan 2 of the same field was imaged in
   `gemclean-heldout.md`. The held-out unit is the visibilities and their
@@ -508,6 +509,54 @@ semantics were inspected as AGENTS.md requires: they are recorded in
   notes.
 - **E2-N (native):** the same gates when the data exist; v0.2.0 states it is
   open.
+
+### 6.6 Amendment 1 (2026-11-05, after review, before any run)
+
+Added after the first commit of this note (`8285010`) and before any E run.
+The text above is unchanged; where it conflicts, this section wins.
+
+1. **3C 286 transfer, gain mode.** In E2-B's "3C 286 transfer" row and its
+   parity row, the per-scan gain on scan 17 is **phase-only**
+   (`calmode='p'`, `parang=True`), as CARACal's own `Gpol1`. Amplitudes come
+   from the 1934−638 solve (scan 18; for the transfer, scan 2), interpolated
+   as CARACal's crosscal applies them to xcal.
+   - Reason: an amplitude-and-phase G solved against the polarised model forces
+     XX/YY to (I+Q′)/(I−Q′). That would impose the model's Q and make p and χ
+     partly circular.
+   - The CASA arm uses the same modes. If CARACal's shipped chain solves an
+     amplitude on 3C 286 anywhere (crosscal applies to xcal only), the E3-B
+     report states which step.
+2. **Calibrator models, frozen per leg.** MODEL_DATA is written once per leg by
+   the core (C3) and copied to the rang and oracle arms.
+   - **1934−638:** the SR2016 point model (`setjy`-equal, FS1) for E2-A and
+     E2-B and for the flux-scale check.
+   - **3C 286:** CARACal's NRAO `manual` model (`nrao_xcal.yml`: 14.7172 Jy at
+     1.47 GHz, spix [−0.4507, −0.1798, 0.0357], p 9.8 %, χ 0.575959 rad,
+     RM 0).
+   - **1830−211:** no model; it is solved as the secondary with
+     `smodel=[1,0,0,0]` and `fluxscale`, as CARACal does.
+   - CARACal's E3 arm keeps its own `set_model` (`meerkat_skymodel: true`, the
+     1934−638 lsm). That difference is reported, since O-CASA measured that the
+     model choice alone moves the parallel-hand MSE by about 12 %. A second
+     rang E3 arm using the same lsm through `predict_components` is run and
+     reported beside it, so that model and method can be separated.
+3. **Resources.**
+   - **Disk:** arms run one after another. Each arm's MS copy is deleted once
+     its numbers, tables and images are archived. At most one 480 GB E2-A copy
+     and the input exist at a time.
+   - **Memory:** E2-A runs after G2. If G2's measured GeMClean peak at 512
+     channels exceeds 24 GB, every arm of E2-A and E3-A images at 256
+     channels (×16), and the scorer radius shrinks to 0.5°. The choice is made
+     on G2's number, before E2-A's data are opened.
+4. **Rule 6 (thresholds) scope:** rule 6 binds rang and the oracle chain in E2.
+   In E3, CARACal runs its shipped imaging (`cleanmask_thr 10, 6`,
+   `clean_cutoff 0.5, 0.5`). Rang's E3 arm uses rule 6 (its default), and the
+   difference is reported.
+5. **Estimated sizes:** section 8 measured ms1 primary MAIN_4 and target
+   MAIN_4. MAIN_5 and MAIN_6 (primary) and MAIN_5 (target) are **estimated**
+   equal; the LUNO sizes are measured per group.
+6. **The ms1 primary held-out check** is done (section 4, prior touches): only
+   MAIN_0 and MAIN_1 were read before. E2-A keeps scans 9, 10 and 11.
 
 ## 7. Proposed, implemented, measured
 
