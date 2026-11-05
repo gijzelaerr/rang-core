@@ -61,7 +61,7 @@ A0 owns the choice. The term list below covers all three [C]:
 | secondary `order`, `apply` | `KGAF`, `B` | `KGAKF`, `B` | `GAF`, `KB` |
 | secondary `solint` | `120s, inf, –, 120s` | `inf, inf, –, inf, inf` | `inf, –, inf` |
 | `polcal` | not run unless configured | absent | on: `xcal` + `fcal`, `feed_angle_rotation: -90`, `extendflags: true`, `gain_solint: 60s`, `time_solint: inf`, `uvrange: >150`, `nrao_model: true` |
-| `selfcal` | `Fslope, Fslope`, `gsols_timeslots: 2`, `cal_niter: 2` | `gsols_timeslots: [120]`, `cal_timeslots_chunk: 240` | `Fslope, Fslope`, `gsols_timeslots: [4]`, `cal_timeslots_chunk: 4`, `cal_niter: 2` |
+| `selfcal` | `Fslope, Fslope`, `gsols_timeslots: 2`, `cal_niter: 2` | `gsols_timeslots: [120]`, `cal_timeslots_chunk: 240`; `gain_matrix_type` and `cal_niter` unset, so the schema's `Fslope, Fslope` and 2 | `Fslope, Fslope`, `gsols_timeslots: [4]`, `cal_timeslots_chunk: 4`, `cal_niter: 2` |
 | `prep.specweights` | `uniform` when enabled | `uniform` | `uniform` |
 
 The `calmode` entry for K is ignored: the worker passes `calmode` only for G and F (`do_KGBF`) [C]. `uvrange` reaches G, F, B and every polcal solve, but not K [C].
@@ -110,7 +110,7 @@ The `calmode` entry for K is ignored: the worker passes `calmode` only for G and
 | 15 | fcal | Df (T11); then clip the table to `[−0.6, 0.6]` | crosscal, KCROSS `nearest`, Xf `nearest`; `P`; **not Gpol** | T0 |
 | 16 | all | Apply with `parang=True` | section 3 | – |
 | 17 | target | Image with GeMClean, write `MODEL_DATA` (G6) | – | – |
-| 18 | target | Sd or Sp, then Sa, `cal_niter` rounds; each solves `CORRECTED_DATA` against `MODEL_DATA` | none (data already corrected) | `MODEL_DATA` |
+| 18 | target | Sd or Sp, then Sa, `cal_niter` rounds; each solves `CORRECTED_1GC` (section 3.2) against `MODEL_DATA` and writes `CORRECTED_DATA` | none (the column is already corrected) | `MODEL_DATA` |
 
 Steps 10 to 16 are CARACal's strategy 1, `xcal_model_fcal_leak`, which is the only one the full-Stokes sample config runs [C]. With `pol_calib: none`, steps 12 to 14 drop out and Df is solved alone (`calib_only_leakage`) [C]; this falls out of the same code.
 
@@ -191,6 +191,8 @@ polcal(vis, Df, field=F, poltype='Df', solint='inf', combine='scan', refant=R, u
 flagdata(vis=Df, mode='clip', clipminmax=[-0.6, 0.6], datacolumn='CPARAM', flagbackup=False)
 applycal(vis, field=FLD, gaintable=CC + PC, gainfield=..., interp=..., calwt=CW, parang=True)   # applymode '' = calflag
 ```
+
+The 3C286 values are there because LUNO has that source. CARACal's full-Stokes config targets `J0521+1638` (3C138: `polindex 0.078`, `polangle −0.16755` rad, `nrao_xcal.yml`). A0 picks the source, and C7's gate follows that choice.
 
 `CC` holds the crosscal tables from CARACal's callib for xcal, `CCL` the same for the leakage calibrator; `PC` is `[Gpol, Kc, Xf, Df]` with `Gpol` on xcal only and `calwt=[True, False, False, False]`.
 
@@ -308,7 +310,7 @@ Sp and Sa with frequency chunks have no CASA `G` form; they are written as `B Jo
 | O7 | `b_smoothwindow > 1`, `reuse_existing_gains`, `scanselection` | Smoothing refused (default 1). Reuse is W2's resume. Selection through config. | Not shipped except `reuse_existing_gains`. |
 | O8 | Splitting (`transform`, `mstransform`) and on-the-fly apply; `fixvis` | Left out: rang writes in place and does not rephase | Finish-line item 2. A0 sets the same averaging by input, if any. |
 | O9 | Crystalball UHF model; the `0408` local model (the schema says it is not well tested) | Left out | UHF is outside the finish line. The L-band `pks1934-638.lsm` is kept. |
-| O10 | `ragavi` plots, `flagstats`, HTML reports, `inspect` worker, `aimfast` | Left out | Diagnostics only; receipts replace them. `aimfast`, when on, can stop self-calibration early; whether a shipped config turns it on is for A0 to read. |
+| O10 | `ragavi` plots, `flagstats`, HTML reports, `inspect` worker, `aimfast` | Left out | Diagnostics only; receipts replace them. `aimfast`, when on, can stop self-calibration early; no sample config sets it and the schema example is `False`, so it is off in the shipped configs. |
 | O11 | Direction-dependent calibration (`ddcal`), `mosaic`, `line` | Left out | Outside the finish line. |
 | O12 | `set_model_leakage` when the leakage calibrator has a separate MS | Not needed | Rang works on one MS, so MODEL_DATA persists. |
 
@@ -323,7 +325,7 @@ Every step is separately mergeable, with its tolerance written into its own note
 **Tolerance classes (proposed):**
 
 - **A, same algorithm as QuartiCal:** flags exact; entries and products ≤ 1e-6; iterations equal; as core-phase2, which measured about 1e-15.
-- **B, CASA's estimator differs:** products median ≤ 5e-4, p95 ≤ 2e-3, relative; held-out parallel-hand MSE within 1e-4 relative, reported as both ratio and sign. Basis: CASA G against the core on matched intervals gave 4.9e-4 / 2.0e-3 on the fixture and 7.5e-5 / 2.1e-4 on the slice, with held-out differences of +1.23e-4 and +7.6e-5 [measured: l5c-casa-gaincal]. Both sides are diagonal here, so these should be easier than L5-C's; the outer limit stays at the worse measured set. A max is reported, not gated, since 1.6e-2 occurred on underconstrained intervals.
+- **B, CASA's estimator differs:** products median ≤ 7e-4, p95 ≤ 3e-3, relative; held-out parallel-hand MSE within 2e-4 relative, reported as both ratio and sign. Basis: CASA G against the core on matched intervals gave 4.9e-4 / 2.0e-3 on the fixture and 7.5e-5 / 2.1e-4 on the slice, with held-out differences of +1.23e-4 and +7.6e-5 [measured: l5c-casa-gaincal]. The limits sit above the worse measured set with headroom. L5-C's own margin of 1e-4 rejected the fixture's +1.23e-4, so it is not reused as the limit; a diagonal-against-diagonal comparison may do better, and the measured value is reported whatever it is. A max is reported, not gated, since 1.6e-2 occurred in L5-C's all-pairs comparison.
 - **C, apply:** per cell ≤ 1e-6 relative, or ≤ 11 float32 epsilons of the cell's largest correlation; flags exact [measured: dfio-formats, up to 10.3].
 - **T, simulated truth, A1's data:** noise-free, products within 1e-5. With noise, per-term median error at most 3 standard errors of the expected thermal error, so that no bias shows.
 
@@ -339,7 +341,7 @@ Every step is separately mergeable, with its tolerance written into its own note
 | 8 | C6a, C7a | P: `cal/parang.rs`, RECEPTOR_ANGLE handling. Polarised `manual` model: Q, U, V rows | Simulated polarised; 3C286 field in LUNO if A0 confirms | Angle against `applycal(parang=True)` with no tables, `DATA/CORRECTED`: ≤ 1e-3 rad, the frame fixed first (open check, section 8). Model: per-channel ≤ 1e-6 of `|I|` from `setjy`. | no |
 | 9 | C6b | Gpol, KCROSS, Xf; table types, `extendflags` with its flags gate | Simulated with known `τ_c`, `x(ν)`, then a polarised calibrator scan (about 1 to 5 GB) | Gpol: **B**, phase median ≤ 0.1°. KCROSS: `|Δτ_c|` ≤ 0.02 ns against CASA; **T**. Xf: composite phase median ≤ 0.5°, p95 ≤ 2° per channel against CASA, **A** on `crosshand_phase` per channel with `solve_per=array`. `extend` flags equal `flagdata`'s. O2's measurement. | yes |
 | 10 | C6c | Df, clip | Simulated; 1934−638 scan | Gauge-free combinations: median `|Δ|` ≤ 1e-3, p95 ≤ 5e-3 against CASA (leakage magnitudes about 0.006 [measured: o-casa]). **A** against `leakage`. **T**. | yes |
-| 11 | C7b | Full apply with `parang=True` | Polarised calibrator; held-out scan | **C** against `applycal`. Then calibrated 3C286: fractional polarisation and angle against `nrao_xcal.yml` (9.8 %, 33°) within limits **A0 sets**. Unpolarised 1934−638: residual cross-hand power reported. | no |
+| 11 | C7b | Full apply with `parang=True` | Polarised calibrator; held-out scan | **C** against `applycal`. Then calibrated 3C286: fractional polarisation and angle against `nrao_xcal.yml` (3C286: 9.8 %, 33°; 3C138 if A0 picks it) within limits **A0 sets**. Unpolarised 1934−638: residual cross-hand power reported. | no |
 | 12 | C5a | Sp, Sa, gain clip, in-place stage, solint config | Needs G6. Simulated truth with a gridded model | **A** against `phase`, `diag_complex`; **T**, gains recovered; a round on a perfect model leaves the data unchanged within **C**. | yes |
 | 13 | C5b | Sd, as owner decision 1 sets | Same | **A** against `delay_and_offset`; **T**. CubiCal not compared, stated in the report. | yes |
 
@@ -379,6 +381,7 @@ Plan reorder needed: C4's kernel (step 2) goes before C2, and C3 stays first. Se
 - **CubiCal's sources and `f-slope` form were not read.** T12a's equation is QuartiCal's `delay_and_offset`, and whether it equals `f-slope` is a working assumption.
 - CARACal's selfcal worker was read only at its calibration calls (2,574 lines; imaging, masks and PyBDSF were skimmed). `flag_worker` and `inspect` were not reread here.
 - Sizes and per-step data estimates are estimates. `a0-acceptance.md` did not exist yet, so nothing here is reconciled with A0.
+- `tools/check-all.sh` was not run: this commit adds only this report, and the brief forbids builds and heavy work while another agent is timing on this host.
 
 ## For the coordinator
 
@@ -397,12 +400,13 @@ Do not apply until merged. All text below is proposed.
 - C1 row: done, link this report.
 - Section 4: "C4's Rust apply kernel (C1 step 2) comes before C2, because C2 pre-applies tables; C4's write-back part stays after C2 and W1."
 - C2 row: add "F and `fluxscale`" and the order K, G, B.
+- C3 row: `setjy` models stay in C3; the flux-scale transfer (`fluxscale`) moves to C2 (C1 step 6).
 - C5 row: "phase, then amplitude" stays only if owner decision 1 is (a); name QuartiCal as a substitute oracle.
 - C6 row: "cross-hand delay, cross-hand phase, leakage; parallactic angle throughout".
 - Section 7: add C1's owner decisions 1 to 3.
 
 **For A0:** choose among the three CARACal configurations in section 1.2; decide `weights`; name the published 3C286 values and C7's limits; check LUNO's 3C 286 scan. C1's per-term tolerances do not replace A0's.
 
-**Not removed.** `outputs/c1-sources-20261105/` (sources, about 1 MB, ignored by git) should stay for C2 to C7, or be fetched again from the commits named in section 0. `outputs/status/fp-c1.md` can go after merge.
+**Not removed.** `outputs/c1-sources-20261105/` (sources, 5.9M, ignored by git) should stay for C2 to C7, or be fetched again from the commits named in section 0. `outputs/status/fp-c1.md` can go after merge.
 
 **Timing.** Three source fetches and two short `docker run --rm` version and file checks. No tool run worth a row in `tool-timings.md`.
