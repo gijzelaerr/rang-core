@@ -1490,3 +1490,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-05 | A0 `fp_a0_probe_state.py`, DATA state | 3 groups × 800 rows × 1 tile | 8.1 s | 77 MB | 31.2 MB read |
 | 2026-11-05 | A0 `fp_a0_probe_band.py` | sizes, tar head, 2 groups × 7 tiles × 800 rows | 32.8 s | 79 MB | 94.3 MB read |
 | 2026-11-05 | A0 astropy parallactic angles | scan tables | < 5 s | – | IERS auto-download off |
+| 2026-11-06 | A1 `a1_simtruth.py generate small` (MS, and again for the twin) | 12,480 rows × 64 ch | 2.8 s each | 201 MB | 4 workers ([a1-simtruth.md](a1-simtruth.md)) |
+| 2026-11-06 | A1 `a1_simtruth.py generate full` | 2,842,560 rows × 256 ch, 35.8 GB to `/mnt/d` | 10 min 48 s | 17.7 GB | 8 workers, heavy lock; `Pool.imap` runs ahead of the writer |
+| 2026-11-06 | A1 `a1_simtruth.py generate full --noiseless` (twin) | 127,008 rows × 256 ch | 32.6 s | 1.2 GB | |
+| 2026-11-06 | A1 CASA 6.7.6.14 `listobs` | small, full MS | 2.2 s, 187.6 s | 275 MB, 478 MB | container |
+| 2026-11-06 | A1 CASA template solves (K, G per integration, B, KCROSS, Xf, Df) + overwrite | small twin, full twin | 17.1 s, 161.8 s | 298 MB, 607 MB | container |
+| 2026-11-06 | A1 CASA `applycal`, 6 tables | small twin, full twin | 6.1 s, 79.7–93.0 s | 0.5 GB, 8.6 GB | once per `parang` value |
+| 2026-11-06 | A1 `tools/a1_checks.sh full`, end to end | full MS and twin | 917 s | 4.3 GB (host) | heavy lock |

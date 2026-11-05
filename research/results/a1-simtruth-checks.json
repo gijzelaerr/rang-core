@@ -1,0 +1,1168 @@
+{
+ "run_dir": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth",
+ "versions": {
+  "small": {
+   "a1-small": {
+    "task": "A1 simulated truth (research/a1-simtruth.md)",
+    "ms": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms",
+    "name": "a1-small",
+    "argv": [
+     "examples/a1_simtruth.py",
+     "generate",
+     "small",
+     "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small",
+     "--workers",
+     "4",
+     "--hash-ms"
+    ],
+    "noiseless": false,
+    "selection": {
+     "scans": [],
+     "max_per_scan": 0,
+     "integrations": "104 integrations"
+    },
+    "design": {
+     "name": "small",
+     "antennas": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      32,
+      36,
+      40,
+      44,
+      48,
+      52,
+      56,
+      60
+     ],
+     "nchan": 64,
+     "fmin_hz": 856000000.0,
+     "fmax_hz": 1712000000.0,
+     "chan_width_hz": 13375000.0,
+     "nu0_hz": 1284000000.0,
+     "dt_s": 8.0,
+     "scan_lengths": {
+      "F": 6,
+      "X": 4,
+      "G": 2,
+      "T": 8
+     },
+     "sequence": "FXGTGTGXGTGTGXGTGTGTGXF",
+     "slew_s": 24.0,
+     "start_utc": "2024-08-18T19:09:00",
+     "seeds": {
+      "jones": 20261116,
+      "sky": 20261117,
+      "rfi": 20261118,
+      "noise": 20261119
+     },
+     "refant": 0,
+     "sefd_jy": 420.0,
+     "sigma_jy": 0.028710608935035856,
+     "tau_c_ns": 3.0
+    },
+    "nrow": 12480,
+    "nintegration": 104,
+    "nbaseline": 120,
+    "ms_bytes": 41296997,
+    "rfi": {
+     "cells": 798720,
+     "any": 96271,
+     "above_5sigma": 42244,
+     "fraction_any": 0.12053160056089744,
+     "fraction_above_5sigma": 0.0528896233974359
+    },
+    "workers": 4,
+    "chunk_integrations": 4,
+    "git": {
+     "commit": "7f1abd8926b0caa452c4112f5a10ebeb5e38e4ac",
+     "dirty": true
+    },
+    "versions": {
+     "python": "3.14.8",
+     "numpy": "2.5.4",
+     "astropy": "8.0.2",
+     "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43"
+    },
+    "writer": "rang.core_ms_write (rang's casacore table writer)",
+    "seconds": {
+     "geometry": 0.6896355260396376,
+     "predict": 0.3644259738503024,
+     "compute": 0.5937449510092847,
+     "write": 0.6280548290233128,
+     "loop": 0.7874770570197143,
+     "total": 2.46847137901932
+    },
+    "parallactic_range_deg": {
+     "J1939-6342": [
+      -29.012553084759972,
+      43.214107464523074
+     ],
+     "3C286-SIM": [
+      -140.97812877827178,
+      168.42144342342786
+     ],
+     "SIM-GCAL": [
+      -87.38732903886928,
+      90.52806179125399
+     ],
+     "SIM-TARGET": [
+      -79.05395876605944,
+      75.16898325501074
+     ]
+    },
+    "elevation_range_deg": {
+     "J1939-6342": [
+      52.338668964691195,
+      54.942719347779274
+     ],
+     "3C286-SIM": [
+      66.1201746076424,
+      78.96335097685126
+     ],
+     "SIM-GCAL": [
+      69.44172669402518,
+      87.74114527265782
+     ],
+     "SIM-TARGET": [
+      71.93236466062605,
+      84.59727006958657
+     ]
+    },
+    "sha256": {
+     "truth.npz": "49580d7dd0a6c0180b31d742a2998c8eb8eef5ffc74db9315852fcdecb0256e4",
+     "truth.json": "043b4d4bed7fb33155cc15e0b9ea03d2d563ad9edff5ffe7ff5fa92d6c6b47c3",
+     "a1-small.rfi_mask.npz": "e000ab376ced9e6fdd55ae3a974be2ee79a0e8e17dd3863c7f9bfe7cb6686faf",
+     "a1-small.ms/ANTENNA/table.dat": "6a6b1f9a604f68e3191c0282e78e903a39885e8299f7f36a5518027dfd16db93",
+     "a1-small.ms/ANTENNA/table.f0": "b1485fe30576d4ebae217a261a1ba43dc563a441e5ccfb5b54dc44e7cc524757",
+     "a1-small.ms/ANTENNA/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/ANTENNA/table.lock": "829be319466f47040aed8e7468d5f5aa5ea2202b722e94da86fd7d11d577d449",
+     "a1-small.ms/DATA_DESCRIPTION/table.dat": "6f0ae3c8296e4379a2b53d13814207d1a88a901ac242124f30aa9ce18de55891",
+     "a1-small.ms/DATA_DESCRIPTION/table.f0": "0ca3b05656e0357a38cf1fefaadad6aa92b86feca4113296f885e39ee9a14ce1",
+     "a1-small.ms/DATA_DESCRIPTION/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/DATA_DESCRIPTION/table.lock": "8d2cc0e98f74ab06464482e90a9174141f033185630c866cf1d9eab24e98e076",
+     "a1-small.ms/FEED/table.dat": "9326c54063a14aa30c914b1d2144fec31280822d1dcd7db99ca73dd528d337a1",
+     "a1-small.ms/FEED/table.f0": "645f9308771e95601fe98a30c914960813ed3ecad8efb7c4807b5a50308e53fd",
+     "a1-small.ms/FEED/table.f0i": "554c79067a9efc955de63d0e9efcbb5bb99282784a03a5969b701fd1d07e00ef",
+     "a1-small.ms/FEED/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/FEED/table.lock": "39a134764c48c71151ec23c99d5f099d421286b8c8c0a7d4c332431b3653b98b",
+     "a1-small.ms/FIELD/table.dat": "12b3c277948bf9e920981f208ac9cf769473d74eefd403c4e81a2eeb786e04b2",
+     "a1-small.ms/FIELD/table.f0": "5589848df35eddbf5f119edf3297606b8333efb733665decf3043c4d8a6c7fb1",
+     "a1-small.ms/FIELD/table.f0i": "48a3aeccbf4fa9ccefa438091374e9873532e129a310395b4fa41dc43c75edcf",
+     "a1-small.ms/FIELD/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/FIELD/table.lock": "fab2d5ed85fafd5df15e8582601393f6dea1fc54117afca42a913ca0359c3bf6",
+     "a1-small.ms/FLAG_CMD/table.dat": "6bda6890204651f8705a8b385edf22870382622446d094d7aac88e931f26dda4",
+     "a1-small.ms/FLAG_CMD/table.f0": "4032ba2427f09a414258cc382ab23277ed72be91679882ea7a9217efd1f0c990",
+     "a1-small.ms/FLAG_CMD/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/FLAG_CMD/table.lock": "c3e12a988982337bb24f3294df38531380ab98d3fac3568d6768cade43f70fe3",
+     "a1-small.ms/HISTORY/table.dat": "e034bf7099dd2fc3d123a558d93533f1dd5e90a42a30825b0b53ab785e3643ff",
+     "a1-small.ms/HISTORY/table.f0": "2a2d01bfec5de3623c0eaf57635c219fe4fa93423eec2d2ec9d0ecd80856fd6a",
+     "a1-small.ms/HISTORY/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/HISTORY/table.lock": "77e684e6205bbe7056d80347417d71df498503bc1e7770f33aa1e63469e17cf4",
+     "a1-small.ms/OBSERVATION/table.dat": "25432b718e0f094a39a9ffcdbc4811c221380e7fb544d5a6765ec677f3486693",
+     "a1-small.ms/OBSERVATION/table.f0": "e1d0bbdd19b2220942c3c05b3891707efc5a7adc069eefebc6bfa6e61a3051f3",
+     "a1-small.ms/OBSERVATION/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/OBSERVATION/table.lock": "445ffd354621db6c3b67eb35fa74b728ee152e3594c01ffc604c283b23a77869",
+     "a1-small.ms/POINTING/table.dat": "14a8b3ad87d3b5e4553814c360b0abe895797565fe5aa03391187bfcf32b71ff",
+     "a1-small.ms/POINTING/table.f0": "422c1c02f114acfc58df3dc8e7c36f49eb4f6d4e2dd381c85f2f827fbd44b1dc",
+     "a1-small.ms/POINTING/table.f0i": "9e73a19e2dba94935096ffb602105e47bdeae4bd43323bd1cfb2cb9ed22fe100",
+     "a1-small.ms/POINTING/table.f1": "441943dffb6ca16bbfff42aeefe10710363ea99a296fb60cfbcef1be6d457758",
+     "a1-small.ms/POINTING/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/POINTING/table.lock": "c7866415966b91a5ce7170d91011b3b97dc987dfa0c18cc195a97e8b8e9565c0",
+     "a1-small.ms/POLARIZATION/table.dat": "0874c240e307481f9392deff027de88664e39ca258c1ef6a257f9a522e52c372",
+     "a1-small.ms/POLARIZATION/table.f0": "c024e70d2d743ea736d188c16d35158c30f2bb41e9da00f21034134daf8bd582",
+     "a1-small.ms/POLARIZATION/table.f0i": "a371ee9da6585310303f8b546747c0d45f938704ca2f66d0d0510b3fd72c5e47",
+     "a1-small.ms/POLARIZATION/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/POLARIZATION/table.lock": "3db80f372ca025f642e55509b60ad8039808c584f848146ba4a1eeb23f8eafe1",
+     "a1-small.ms/PROCESSOR/table.dat": "3edede27c6f4db48c0833467010a6414146f8e2cbd48bd6a3a494ab42bc2038b",
+     "a1-small.ms/PROCESSOR/table.f0": "1c555948f7252c699f544e381915290fc6c5829012c2c54c490a7bf70f87d07e",
+     "a1-small.ms/PROCESSOR/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/PROCESSOR/table.lock": "095d4aed38e915f4df1501c01463633e58d0fe890dc8d1431ec74c89c4a652c4",
+     "a1-small.ms/SPECTRAL_WINDOW/table.dat": "a50a0172208e2e3c71c4aaf9b473050566644f33596bf7bc3caf9ba442fc1aa3",
+     "a1-small.ms/SPECTRAL_WINDOW/table.f0": "a25828af2e56593d5f60ed9eb770efb4c9696b710a178fbee656b0a9b7f7d09f",
+     "a1-small.ms/SPECTRAL_WINDOW/table.f0i": "6602049ba5e7f52290220ec440d4a5090f7098f4d529faffa8e7aa1e2326d288",
+     "a1-small.ms/SPECTRAL_WINDOW/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/SPECTRAL_WINDOW/table.lock": "22a6ccf5a4809534f9572bb44b804eae355435a3a06d18bce5dfa6f30be8494f",
+     "a1-small.ms/STATE/table.dat": "cb411bc8bd317ee2ebe52c68540a67fa4895a45af28abc8d89ba9553206107b1",
+     "a1-small.ms/STATE/table.f0": "02fad60bff0fbfe96c74c526ac09d9e9ed7dc6d531703b694366d462da53c620",
+     "a1-small.ms/STATE/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small.ms/STATE/table.lock": "d62f7d450985a3d4adb3b1fad50d062f46cf2e8be99e40b0e55bf1e574a1687c",
+     "a1-small.ms/table.dat": "574faa3999a7cc38861dae8b981746fb7e2ed498260b77539ca0eefeb7643dd6",
+     "a1-small.ms/table.f0": "1798faaf751cd0d566002bd244fca4e91dd840a9795cc9b2acddae4dbb5d8556",
+     "a1-small.ms/table.f0_TSM0": "752a195af04ef389f52b8911818d7e9cf9d128392a9fdc43ae84f647daed0be4",
+     "a1-small.ms/table.f1": "de6b51220399bfc18903808b16473597112cc61dfe75fd3a60a4bd1024341358",
+     "a1-small.ms/table.f1_TSM0": "2654975fb6b04c83c0ca0f45f8edf206d818a034b5dd2acd9107c78796ed19bc",
+     "a1-small.ms/table.f2": "82830999e219ba932f7b176d1be52705c76a0a13c01ad8a7a3224308f2ae7e87",
+     "a1-small.ms/table.f2_TSM0": "20f78d682c9791d4d15174f11fbac2f654988abf0c314a52cc25603dc484321d",
+     "a1-small.ms/table.f3": "9dc35009692cb88845d1ba6fd34c713d6b47e5bcc0dfd568ca53e5c1b40ea730",
+     "a1-small.ms/table.f3i": "02e79282a586e467681721cfe79b5d681ad37c6ae39949f7ca3fde292e241491",
+     "a1-small.ms/table.info": "e8c27a5fbb307d21dc44e1e6de91d8e2beeee2009a46e69cf468057206405e81",
+     "a1-small.ms/table.lock": "7bd025a82c8eaed64638f2541a859a1527d4002a80f96496c32656b6d313d8ab"
+    }
+   },
+   "a1-small-twin": {
+    "task": "A1 simulated truth (research/a1-simtruth.md)",
+    "ms": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small-twin.ms",
+    "name": "a1-small-twin",
+    "argv": [
+     "examples/a1_simtruth.py",
+     "generate",
+     "small",
+     "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small",
+     "--workers",
+     "4",
+     "--noiseless",
+     "--hash-ms"
+    ],
+    "noiseless": true,
+    "selection": {
+     "scans": [],
+     "max_per_scan": 0,
+     "integrations": "104 integrations"
+    },
+    "design": {
+     "name": "small",
+     "antennas": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      32,
+      36,
+      40,
+      44,
+      48,
+      52,
+      56,
+      60
+     ],
+     "nchan": 64,
+     "fmin_hz": 856000000.0,
+     "fmax_hz": 1712000000.0,
+     "chan_width_hz": 13375000.0,
+     "nu0_hz": 1284000000.0,
+     "dt_s": 8.0,
+     "scan_lengths": {
+      "F": 6,
+      "X": 4,
+      "G": 2,
+      "T": 8
+     },
+     "sequence": "FXGTGTGXGTGTGXGTGTGTGXF",
+     "slew_s": 24.0,
+     "start_utc": "2024-08-18T19:09:00",
+     "seeds": {
+      "jones": 20261116,
+      "sky": 20261117,
+      "rfi": 20261118,
+      "noise": 20261119
+     },
+     "refant": 0,
+     "sefd_jy": 420.0,
+     "sigma_jy": 0.028710608935035856,
+     "tau_c_ns": 3.0
+    },
+    "nrow": 12480,
+    "nintegration": 104,
+    "nbaseline": 120,
+    "ms_bytes": 41296997,
+    "rfi": null,
+    "workers": 4,
+    "chunk_integrations": 4,
+    "git": {
+     "commit": "7f1abd8926b0caa452c4112f5a10ebeb5e38e4ac",
+     "dirty": true
+    },
+    "versions": {
+     "python": "3.14.8",
+     "numpy": "2.5.4",
+     "astropy": "8.0.2",
+     "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43"
+    },
+    "writer": "rang.core_ms_write (rang's casacore table writer)",
+    "seconds": {
+     "geometry": 0.6539376059663482,
+     "predict": 0.38280993711669,
+     "compute": 0.47301731805782765,
+     "write": 0.630641465075314,
+     "loop": 0.7934017200022936,
+     "total": 1.9950008270097896
+    },
+    "parallactic_range_deg": {
+     "J1939-6342": [
+      -29.012553084759972,
+      43.214107464523074
+     ],
+     "3C286-SIM": [
+      -140.97812877827178,
+      168.42144342342786
+     ],
+     "SIM-GCAL": [
+      -87.38732903886928,
+      90.52806179125399
+     ],
+     "SIM-TARGET": [
+      -79.05395876605944,
+      75.16898325501074
+     ]
+    },
+    "elevation_range_deg": {
+     "J1939-6342": [
+      52.338668964691195,
+      54.942719347779274
+     ],
+     "3C286-SIM": [
+      66.1201746076424,
+      78.96335097685126
+     ],
+     "SIM-GCAL": [
+      69.44172669402518,
+      87.74114527265782
+     ],
+     "SIM-TARGET": [
+      71.93236466062605,
+      84.59727006958657
+     ]
+    },
+    "sha256": {
+     "truth.npz": "49580d7dd0a6c0180b31d742a2998c8eb8eef5ffc74db9315852fcdecb0256e4",
+     "truth.json": "043b4d4bed7fb33155cc15e0b9ea03d2d563ad9edff5ffe7ff5fa92d6c6b47c3",
+     "a1-small-twin.ms/ANTENNA/table.dat": "6a6b1f9a604f68e3191c0282e78e903a39885e8299f7f36a5518027dfd16db93",
+     "a1-small-twin.ms/ANTENNA/table.f0": "b1485fe30576d4ebae217a261a1ba43dc563a441e5ccfb5b54dc44e7cc524757",
+     "a1-small-twin.ms/ANTENNA/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/ANTENNA/table.lock": "829be319466f47040aed8e7468d5f5aa5ea2202b722e94da86fd7d11d577d449",
+     "a1-small-twin.ms/DATA_DESCRIPTION/table.dat": "6f0ae3c8296e4379a2b53d13814207d1a88a901ac242124f30aa9ce18de55891",
+     "a1-small-twin.ms/DATA_DESCRIPTION/table.f0": "0ca3b05656e0357a38cf1fefaadad6aa92b86feca4113296f885e39ee9a14ce1",
+     "a1-small-twin.ms/DATA_DESCRIPTION/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/DATA_DESCRIPTION/table.lock": "8d2cc0e98f74ab06464482e90a9174141f033185630c866cf1d9eab24e98e076",
+     "a1-small-twin.ms/FEED/table.dat": "9326c54063a14aa30c914b1d2144fec31280822d1dcd7db99ca73dd528d337a1",
+     "a1-small-twin.ms/FEED/table.f0": "645f9308771e95601fe98a30c914960813ed3ecad8efb7c4807b5a50308e53fd",
+     "a1-small-twin.ms/FEED/table.f0i": "554c79067a9efc955de63d0e9efcbb5bb99282784a03a5969b701fd1d07e00ef",
+     "a1-small-twin.ms/FEED/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/FEED/table.lock": "39a134764c48c71151ec23c99d5f099d421286b8c8c0a7d4c332431b3653b98b",
+     "a1-small-twin.ms/FIELD/table.dat": "12b3c277948bf9e920981f208ac9cf769473d74eefd403c4e81a2eeb786e04b2",
+     "a1-small-twin.ms/FIELD/table.f0": "5589848df35eddbf5f119edf3297606b8333efb733665decf3043c4d8a6c7fb1",
+     "a1-small-twin.ms/FIELD/table.f0i": "48a3aeccbf4fa9ccefa438091374e9873532e129a310395b4fa41dc43c75edcf",
+     "a1-small-twin.ms/FIELD/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/FIELD/table.lock": "fab2d5ed85fafd5df15e8582601393f6dea1fc54117afca42a913ca0359c3bf6",
+     "a1-small-twin.ms/FLAG_CMD/table.dat": "6bda6890204651f8705a8b385edf22870382622446d094d7aac88e931f26dda4",
+     "a1-small-twin.ms/FLAG_CMD/table.f0": "4032ba2427f09a414258cc382ab23277ed72be91679882ea7a9217efd1f0c990",
+     "a1-small-twin.ms/FLAG_CMD/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/FLAG_CMD/table.lock": "c3e12a988982337bb24f3294df38531380ab98d3fac3568d6768cade43f70fe3",
+     "a1-small-twin.ms/HISTORY/table.dat": "e034bf7099dd2fc3d123a558d93533f1dd5e90a42a30825b0b53ab785e3643ff",
+     "a1-small-twin.ms/HISTORY/table.f0": "2a2d01bfec5de3623c0eaf57635c219fe4fa93423eec2d2ec9d0ecd80856fd6a",
+     "a1-small-twin.ms/HISTORY/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/HISTORY/table.lock": "77e684e6205bbe7056d80347417d71df498503bc1e7770f33aa1e63469e17cf4",
+     "a1-small-twin.ms/OBSERVATION/table.dat": "25432b718e0f094a39a9ffcdbc4811c221380e7fb544d5a6765ec677f3486693",
+     "a1-small-twin.ms/OBSERVATION/table.f0": "e1d0bbdd19b2220942c3c05b3891707efc5a7adc069eefebc6bfa6e61a3051f3",
+     "a1-small-twin.ms/OBSERVATION/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/OBSERVATION/table.lock": "445ffd354621db6c3b67eb35fa74b728ee152e3594c01ffc604c283b23a77869",
+     "a1-small-twin.ms/POINTING/table.dat": "14a8b3ad87d3b5e4553814c360b0abe895797565fe5aa03391187bfcf32b71ff",
+     "a1-small-twin.ms/POINTING/table.f0": "422c1c02f114acfc58df3dc8e7c36f49eb4f6d4e2dd381c85f2f827fbd44b1dc",
+     "a1-small-twin.ms/POINTING/table.f0i": "9e73a19e2dba94935096ffb602105e47bdeae4bd43323bd1cfb2cb9ed22fe100",
+     "a1-small-twin.ms/POINTING/table.f1": "441943dffb6ca16bbfff42aeefe10710363ea99a296fb60cfbcef1be6d457758",
+     "a1-small-twin.ms/POINTING/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/POINTING/table.lock": "c7866415966b91a5ce7170d91011b3b97dc987dfa0c18cc195a97e8b8e9565c0",
+     "a1-small-twin.ms/POLARIZATION/table.dat": "0874c240e307481f9392deff027de88664e39ca258c1ef6a257f9a522e52c372",
+     "a1-small-twin.ms/POLARIZATION/table.f0": "c024e70d2d743ea736d188c16d35158c30f2bb41e9da00f21034134daf8bd582",
+     "a1-small-twin.ms/POLARIZATION/table.f0i": "a371ee9da6585310303f8b546747c0d45f938704ca2f66d0d0510b3fd72c5e47",
+     "a1-small-twin.ms/POLARIZATION/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/POLARIZATION/table.lock": "3db80f372ca025f642e55509b60ad8039808c584f848146ba4a1eeb23f8eafe1",
+     "a1-small-twin.ms/PROCESSOR/table.dat": "3edede27c6f4db48c0833467010a6414146f8e2cbd48bd6a3a494ab42bc2038b",
+     "a1-small-twin.ms/PROCESSOR/table.f0": "1c555948f7252c699f544e381915290fc6c5829012c2c54c490a7bf70f87d07e",
+     "a1-small-twin.ms/PROCESSOR/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/PROCESSOR/table.lock": "095d4aed38e915f4df1501c01463633e58d0fe890dc8d1431ec74c89c4a652c4",
+     "a1-small-twin.ms/SPECTRAL_WINDOW/table.dat": "a50a0172208e2e3c71c4aaf9b473050566644f33596bf7bc3caf9ba442fc1aa3",
+     "a1-small-twin.ms/SPECTRAL_WINDOW/table.f0": "a25828af2e56593d5f60ed9eb770efb4c9696b710a178fbee656b0a9b7f7d09f",
+     "a1-small-twin.ms/SPECTRAL_WINDOW/table.f0i": "6602049ba5e7f52290220ec440d4a5090f7098f4d529faffa8e7aa1e2326d288",
+     "a1-small-twin.ms/SPECTRAL_WINDOW/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/SPECTRAL_WINDOW/table.lock": "22a6ccf5a4809534f9572bb44b804eae355435a3a06d18bce5dfa6f30be8494f",
+     "a1-small-twin.ms/STATE/table.dat": "cb411bc8bd317ee2ebe52c68540a67fa4895a45af28abc8d89ba9553206107b1",
+     "a1-small-twin.ms/STATE/table.f0": "02fad60bff0fbfe96c74c526ac09d9e9ed7dc6d531703b694366d462da53c620",
+     "a1-small-twin.ms/STATE/table.info": "2e6837789cd3ba36bb60a9871db174b4d14842bd7953249d117ccc2cc6f0a271",
+     "a1-small-twin.ms/STATE/table.lock": "d62f7d450985a3d4adb3b1fad50d062f46cf2e8be99e40b0e55bf1e574a1687c",
+     "a1-small-twin.ms/table.dat": "574faa3999a7cc38861dae8b981746fb7e2ed498260b77539ca0eefeb7643dd6",
+     "a1-small-twin.ms/table.f0": "1798faaf751cd0d566002bd244fca4e91dd840a9795cc9b2acddae4dbb5d8556",
+     "a1-small-twin.ms/table.f0_TSM0": "13f122694ece41ebcdc4b32aa643544abb5a148f0c2f63f79a47b48f326498c7",
+     "a1-small-twin.ms/table.f1": "de6b51220399bfc18903808b16473597112cc61dfe75fd3a60a4bd1024341358",
+     "a1-small-twin.ms/table.f1_TSM0": "2654975fb6b04c83c0ca0f45f8edf206d818a034b5dd2acd9107c78796ed19bc",
+     "a1-small-twin.ms/table.f2": "82830999e219ba932f7b176d1be52705c76a0a13c01ad8a7a3224308f2ae7e87",
+     "a1-small-twin.ms/table.f2_TSM0": "20f78d682c9791d4d15174f11fbac2f654988abf0c314a52cc25603dc484321d",
+     "a1-small-twin.ms/table.f3": "9dc35009692cb88845d1ba6fd34c713d6b47e5bcc0dfd568ca53e5c1b40ea730",
+     "a1-small-twin.ms/table.f3i": "02e79282a586e467681721cfe79b5d681ad37c6ae39949f7ca3fde292e241491",
+     "a1-small-twin.ms/table.info": "e8c27a5fbb307d21dc44e1e6de91d8e2beeee2009a46e69cf468057206405e81",
+     "a1-small-twin.ms/table.lock": "7bd025a82c8eaed64638f2541a859a1527d4002a80f96496c32656b6d313d8ab"
+    }
+   },
+   "check-roundtrip": {
+    "export": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/casa-small/export-parangFalse.npz",
+    "parang": false,
+    "nrow": 12480,
+    "nchan": 64,
+    "elements": 3194880,
+    "fail": 0,
+    "worst_ratio": 0.6324054861685411,
+    "worst_at": {
+     "row": 5244,
+     "chan": 29,
+     "corr": "XX",
+     "field": "SIM-TARGET",
+     "got": "(-0.1506742686033249-0.13178381323814392j)",
+     "ref": "(-0.15067414547193686-0.13178370190793764j)"
+    },
+    "flags_equal_input": true,
+    "data_unchanged": true,
+    "per_field": {
+     "J1939-6342": {
+      "elements": 368640,
+      "fail": 0,
+      "worst_ratio": 0.48463305363295034,
+      "max_rel_to_cell_max": 6.355003821805064e-07
+     },
+     "3C286-SIM": {
+      "elements": 491520,
+      "fail": 0,
+      "worst_ratio": 0.5253583353608531,
+      "max_rel_to_cell_max": 6.889035330974321e-07
+     },
+     "SIM-GCAL": {
+      "elements": 614400,
+      "fail": 0,
+      "worst_ratio": 0.5712045268680646,
+      "max_rel_to_cell_max": 7.490217441974533e-07
+     },
+     "SIM-TARGET": {
+      "elements": 1720320,
+      "fail": 0,
+      "worst_ratio": 0.6324054861685411,
+      "max_rel_to_cell_max": 8.292746958558502e-07
+     }
+    },
+    "pass": true,
+    "seconds": 1.1575836679548956
+   },
+   "check-parang": {
+    "export": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/casa-small/export-parangTrue.npz",
+    "parang": true,
+    "nrow": 12480,
+    "nchan": 64,
+    "elements": 3194880,
+    "fail": 2510284,
+    "worst_ratio": 27845.806367883717,
+    "worst_at": {
+     "row": 8592,
+     "chan": 4,
+     "corr": "YY",
+     "field": "SIM-TARGET",
+     "got": "(-0.02091415412724018+0.0539340116083622j)",
+     "ref": "(-0.02276551538961494+0.055086276898209j)"
+    },
+    "flags_equal_input": true,
+    "data_unchanged": true,
+    "per_field": {
+     "J1939-6342": {
+      "elements": 368640,
+      "fail": 33692,
+      "worst_ratio": 4.957579769272119,
+      "max_rel_to_cell_max": 6.500885184048809e-06
+     },
+     "3C286-SIM": {
+      "elements": 491520,
+      "fail": 491520,
+      "worst_ratio": 1193.7665132246739,
+      "max_rel_to_cell_max": 0.0015653886372412936
+     },
+     "SIM-GCAL": {
+      "elements": 614400,
+      "fail": 264752,
+      "worst_ratio": 892.0054806567855,
+      "max_rel_to_cell_max": 0.001169688735869484
+     },
+     "SIM-TARGET": {
+      "elements": 1720320,
+      "fail": 1720320,
+      "worst_ratio": 27845.806367883717,
+      "max_rel_to_cell_max": 0.036514266734924423
+     }
+    },
+    "xcal_implied_angle_deg": {
+     "median": 0.341556718125443,
+     "p95": 0.5385174691819689,
+     "max": 0.5388746352638634
+    },
+    "added_casa_frame_class_c": {
+     "elements": 3194880,
+     "fail": 753777,
+     "worst_ratio": 28.255031349052313,
+     "pass_class_c": false
+    },
+    "pass": false,
+    "seconds": 1.3308718619518913
+   },
+   "check-noise": {
+    "ms": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms",
+    "twin": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small-twin.ms",
+    "integrations": 104,
+    "values": 5619592,
+    "rfi_cells_excluded": 96271,
+    "sigma_expected": 0.028710608935035856,
+    "sigma_measured": 0.02870200383275343,
+    "ratio": 0.9997002814429363,
+    "z_std": -1.0048031435193696,
+    "mean": -1.2247582372115855e-05,
+    "z_mean": -1.0112542459246652,
+    "reconstruct_max_abs_diff_full": 0.0,
+    "reconstruct_max_abs_diff_twin": 0.0,
+    "pass_noise": true,
+    "pass_twin": true,
+    "seconds": 3.1586130170035176
+   },
+   "listobs": {
+    "scans": 23,
+    "fields_line": [
+     "Fields: 4"
+    ],
+    "spw": [
+     "  0      L-band     64   TOPO     862.688     13375.000    856000.0   1284.0000   XX  XY  YX  YY"
+    ]
+   },
+   "casa_tables": {
+    "tables": {
+     "K": "/run/casa-small/truth.K",
+     "B": "/run/casa-small/truth.B",
+     "G": "/run/casa-small/truth.G",
+     "Kcross": "/run/casa-small/truth.Kcross",
+     "Xf": "/run/casa-small/truth.Xf",
+     "Df": "/run/casa-small/truth.Df"
+    },
+    "shapes": {
+     "K": [
+      2,
+      1,
+      16
+     ],
+     "B": [
+      2,
+      64,
+      16
+     ],
+     "G": [
+      2,
+      1,
+      1664
+     ],
+     "Kcross": [
+      2,
+      1,
+      16
+     ],
+     "Xf": [
+      1,
+      64,
+      16
+     ],
+     "Df": [
+      2,
+      64,
+      16
+     ]
+    },
+    "rows": {
+     "K": 16,
+     "B": 16,
+     "G": 1664,
+     "Kcross": 16,
+     "Xf": 16,
+     "Df": 16
+    },
+    "viscal": {
+     "K": "K Jones",
+     "B": "B Jones",
+     "G": "G Jones",
+     "Kcross": "Kcross Jones",
+     "Xf": "Xf Jones",
+     "Df": "Df Jones"
+    },
+    "g_time_max_offset_s": 1.621246337890625e-05
+   }
+  },
+  "full": {
+   "a1-full": {
+    "task": "A1 simulated truth (research/a1-simtruth.md)",
+    "ms": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/full/a1-full.ms",
+    "name": "a1-full",
+    "argv": [
+     "examples/a1_simtruth.py",
+     "generate",
+     "full",
+     "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/full",
+     "--workers",
+     "8"
+    ],
+    "noiseless": false,
+    "selection": {
+     "scans": [],
+     "max_per_scan": 0,
+     "integrations": "1410 integrations"
+    },
+    "design": {
+     "name": "full",
+     "antennas": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+     ],
+     "nchan": 256,
+     "fmin_hz": 856000000.0,
+     "fmax_hz": 1712000000.0,
+     "chan_width_hz": 3343750.0,
+     "nu0_hz": 1284000000.0,
+     "dt_s": 8.0,
+     "scan_lengths": {
+      "F": 45,
+      "X": 30,
+      "G": 15,
+      "T": 150
+     },
+     "sequence": "FXGTGTGXGTGTGXGTGTGTGXF",
+     "slew_s": 24.0,
+     "start_utc": "2024-08-18T19:09:00",
+     "seeds": {
+      "jones": 20261106,
+      "sky": 20261107,
+      "rfi": 20261108,
+      "noise": 20261109
+     },
+     "refant": 0,
+     "sefd_jy": 420.0,
+     "sigma_jy": 0.05742121787007171,
+     "tau_c_ns": 3.0
+    },
+    "nrow": 2842560,
+    "nintegration": 1410,
+    "nbaseline": 2016,
+    "ms_bytes": 35784136809,
+    "rfi": {
+     "cells": 727695360,
+     "any": 59980636,
+     "above_5sigma": 26839063,
+     "fraction_any": 0.08242547540773106,
+     "fraction_above_5sigma": 0.03688227859526272
+    },
+    "workers": 8,
+    "chunk_integrations": 4,
+    "git": {
+     "commit": "7f1abd8926b0caa452c4112f5a10ebeb5e38e4ac",
+     "dirty": true
+    },
+    "versions": {
+     "python": "3.14.8",
+     "numpy": "2.5.4",
+     "astropy": "8.0.2",
+     "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43"
+    },
+    "writer": "rang.core_ms_write (rang's casacore table writer)",
+    "seconds": {
+     "geometry": 8.641894149011932,
+     "predict": 935.1087026639143,
+     "compute": 2006.8377454509027,
+     "write": 566.7572696693824,
+     "loop": 595.9265351060312,
+     "total": 647.3042826110031
+    },
+    "parallactic_range_deg": {
+     "J1939-6342": [
+      -29.039779706253203,
+      44.91961553147847
+     ],
+     "3C286-SIM": [
+      -143.26482169176094,
+      168.49681001398486
+     ],
+     "SIM-GCAL": [
+      -87.43500459544715,
+      90.75604010870461
+     ],
+     "SIM-TARGET": [
+      -79.10353805114445,
+      80.60150790731798
+     ]
+    },
+    "elevation_range_deg": {
+     "J1939-6342": [
+      51.938899592052415,
+      55.2149972901213
+     ],
+     "3C286-SIM": [
+      66.1201746076424,
+      78.96335097685126
+     ],
+     "SIM-GCAL": [
+      69.07705921004485,
+      87.77511310758452
+     ],
+     "SIM-TARGET": [
+      70.99175313612945,
+      84.77938429899788
+     ]
+    },
+    "sha256": {
+     "truth.npz": "d58b647ebba8816e2da9601d607ca71db8d1e0d1b4ec32c8ef80e14f2b8b7766",
+     "truth.json": "18c7bc9a973ccc3cb4b4d1c1161e2ae0a0f825a76f6d7c84dc44736234ed5cb7",
+     "a1-full.rfi_mask.npz": "20e92f8f02db7142d004c4c2dea87294d7c0c52e2dceca706c18121bd9532abc"
+    }
+   },
+   "a1-full-twin": {
+    "task": "A1 simulated truth (research/a1-simtruth.md)",
+    "ms": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/full/a1-full-twin.ms",
+    "name": "a1-full-twin",
+    "argv": [
+     "examples/a1_simtruth.py",
+     "generate",
+     "full",
+     "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/full",
+     "--workers",
+     "8",
+     "--noiseless",
+     "--scans",
+     "1,2,3,4",
+     "--max-per-scan",
+     "16"
+    ],
+    "noiseless": true,
+    "selection": {
+     "scans": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "max_per_scan": 16,
+     "integrations": "63 integrations"
+    },
+    "design": {
+     "name": "full",
+     "antennas": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+     ],
+     "nchan": 256,
+     "fmin_hz": 856000000.0,
+     "fmax_hz": 1712000000.0,
+     "chan_width_hz": 3343750.0,
+     "nu0_hz": 1284000000.0,
+     "dt_s": 8.0,
+     "scan_lengths": {
+      "F": 45,
+      "X": 30,
+      "G": 15,
+      "T": 150
+     },
+     "sequence": "FXGTGTGXGTGTGXGTGTGTGXF",
+     "slew_s": 24.0,
+     "start_utc": "2024-08-18T19:09:00",
+     "seeds": {
+      "jones": 20261106,
+      "sky": 20261107,
+      "rfi": 20261108,
+      "noise": 20261109
+     },
+     "refant": 0,
+     "sefd_jy": 420.0,
+     "sigma_jy": 0.05742121787007171,
+     "tau_c_ns": 3.0
+    },
+    "nrow": 127008,
+    "nintegration": 63,
+    "nbaseline": 2016,
+    "ms_bytes": 1599090837,
+    "rfi": null,
+    "workers": 8,
+    "chunk_integrations": 4,
+    "git": {
+     "commit": "7f1abd8926b0caa452c4112f5a10ebeb5e38e4ac",
+     "dirty": true
+    },
+    "versions": {
+     "python": "3.14.8",
+     "numpy": "2.5.4",
+     "astropy": "8.0.2",
+     "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43"
+    },
+    "writer": "rang.core_ms_write (rang's casacore table writer)",
+    "seconds": {
+     "geometry": 7.9128775270073675,
+     "predict": 10.023672026989516,
+     "compute": 44.305088796128985,
+     "write": 16.298268674931023,
+     "loop": 22.379192246007733,
+     "total": 31.898362951003946
+    },
+    "parallactic_range_deg": {
+     "J1939-6342": [
+      -29.039779706253203,
+      44.91961553147847
+     ],
+     "3C286-SIM": [
+      -143.26482169176094,
+      168.49681001398486
+     ],
+     "SIM-GCAL": [
+      -87.43500459544715,
+      90.75604010870461
+     ],
+     "SIM-TARGET": [
+      -79.10353805114445,
+      80.60150790731798
+     ]
+    },
+    "elevation_range_deg": {
+     "J1939-6342": [
+      51.938899592052415,
+      55.2149972901213
+     ],
+     "3C286-SIM": [
+      66.1201746076424,
+      78.96335097685126
+     ],
+     "SIM-GCAL": [
+      69.07705921004485,
+      87.77511310758452
+     ],
+     "SIM-TARGET": [
+      70.99175313612945,
+      84.77938429899788
+     ]
+    },
+    "sha256": {
+     "truth.npz": "d58b647ebba8816e2da9601d607ca71db8d1e0d1b4ec32c8ef80e14f2b8b7766",
+     "truth.json": "18c7bc9a973ccc3cb4b4d1c1161e2ae0a0f825a76f6d7c84dc44736234ed5cb7"
+    }
+   },
+   "check-roundtrip": {
+    "export": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/casa-full/export-parangFalse.npz",
+    "parang": false,
+    "nrow": 127008,
+    "nchan": 256,
+    "elements": 130056192,
+    "fail": 0,
+    "worst_ratio": 0.6457576064234994,
+    "worst_at": {
+     "row": 100583,
+     "chan": 96,
+     "corr": "XX",
+     "field": "SIM-TARGET",
+     "got": "(0.3930341899394989-0.5115312337875366j)",
+     "ref": "(0.39303381087367195-0.5115308404701904j)"
+    },
+    "flags_equal_input": true,
+    "data_unchanged": true,
+    "per_field": {
+     "J1939-6342": {
+      "elements": 33030144,
+      "fail": 0,
+      "worst_ratio": 0.6188524508252838,
+      "max_rel_to_cell_max": 8.115025709960607e-07
+     },
+     "3C286-SIM": {
+      "elements": 33030144,
+      "fail": 0,
+      "worst_ratio": 0.6284044587808592,
+      "max_rel_to_cell_max": 8.240281398999037e-07
+     },
+     "SIM-GCAL": {
+      "elements": 30965760,
+      "fail": 0,
+      "worst_ratio": 0.5857382949442481,
+      "max_rel_to_cell_max": 7.680799060328876e-07
+     },
+     "SIM-TARGET": {
+      "elements": 33030144,
+      "fail": 0,
+      "worst_ratio": 0.6457576064234994,
+      "max_rel_to_cell_max": 8.467833603213423e-07
+     }
+    },
+    "pass": true,
+    "seconds": 182.04618232301436
+   },
+   "check-parang": {
+    "export": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/casa-full/export-parangTrue.npz",
+    "parang": true,
+    "nrow": 127008,
+    "nchan": 256,
+    "elements": 130056192,
+    "fail": 81803162,
+    "worst_ratio": 9662.464310180896,
+    "worst_at": {
+     "row": 125653,
+     "chan": 93,
+     "corr": "XX",
+     "field": "SIM-TARGET",
+     "got": "(-0.009942516684532166-0.027527816593647003j)",
+     "ref": "(-0.010050929428325544-0.027913840775440863j)"
+    },
+    "flags_equal_input": true,
+    "data_unchanged": true,
+    "per_field": {
+     "J1939-6342": {
+      "elements": 33030144,
+      "fail": 4129006,
+      "worst_ratio": 5.479891678995191,
+      "max_rel_to_cell_max": 7.1857939325508004e-06
+     },
+     "3C286-SIM": {
+      "elements": 33030144,
+      "fail": 33030144,
+      "worst_ratio": 594.3918008798574,
+      "max_rel_to_cell_max": 0.0007794272672746695
+     },
+     "SIM-GCAL": {
+      "elements": 30965760,
+      "fail": 11614922,
+      "worst_ratio": 40.34082110584287,
+      "max_rel_to_cell_max": 5.28990068631496e-05
+     },
+     "SIM-TARGET": {
+      "elements": 33030144,
+      "fail": 33029090,
+      "worst_ratio": 9662.464310180896,
+      "max_rel_to_cell_max": 0.012670410562990888
+     }
+    },
+    "xcal_implied_angle_deg": {
+     "median": 0.2638431150171475,
+     "p95": 0.2661028612873306,
+     "max": 0.2666521248584425
+    },
+    "added_casa_frame_class_c": {
+     "elements": 130056192,
+     "fail": 2953778,
+     "worst_ratio": 15.004108932198335,
+     "pass_class_c": false
+    },
+    "pass": false,
+    "seconds": 168.51566590199945
+   },
+   "check-noise": {
+    "ms": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/full/a1-full.ms",
+    "twin": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/full/a1-full-twin.ms",
+    "integrations": 63,
+    "values": 239501136,
+    "rfi_cells_excluded": 2576406,
+    "sigma_expected": 0.05742121787007171,
+    "sigma_measured": 0.057422256732881004,
+    "ratio": 1.000018091967531,
+    "z_std": 0.39596298124035145,
+    "mean": 1.2884601707529409e-06,
+    "z_mean": 0.34725810225390036,
+    "reconstruct_max_abs_diff_full": 0.0,
+    "reconstruct_max_abs_diff_twin": 0.0,
+    "pass_noise": true,
+    "pass_twin": true,
+    "seconds": 43.0526773550082
+   },
+   "listobs": {
+    "scans": 23,
+    "fields_line": [
+     "Fields: 4"
+    ],
+    "spw": [
+     "  0      L-band    256   TOPO     857.672      3343.750    856000.0   1284.0000   XX  XY  YX  YY"
+    ]
+   },
+   "casa_tables": {
+    "tables": {
+     "K": "/run/casa-full/truth.K",
+     "B": "/run/casa-full/truth.B",
+     "G": "/run/casa-full/truth.G",
+     "Kcross": "/run/casa-full/truth.Kcross",
+     "Xf": "/run/casa-full/truth.Xf",
+     "Df": "/run/casa-full/truth.Df"
+    },
+    "shapes": {
+     "K": [
+      2,
+      1,
+      64
+     ],
+     "B": [
+      2,
+      256,
+      64
+     ],
+     "G": [
+      2,
+      1,
+      4032
+     ],
+     "Kcross": [
+      2,
+      1,
+      64
+     ],
+     "Xf": [
+      1,
+      256,
+      64
+     ],
+     "Df": [
+      2,
+      256,
+      64
+     ]
+    },
+    "rows": {
+     "K": 64,
+     "B": 64,
+     "G": 4032,
+     "Kcross": 64,
+     "Xf": 64,
+     "Df": 64
+    },
+    "viscal": {
+     "K": "K Jones",
+     "B": "B Jones",
+     "G": "G Jones",
+     "Kcross": "Kcross Jones",
+     "Xf": "Xf Jones",
+     "Df": "Df Jones"
+    },
+    "g_time_max_offset_s": 0.00026702880859375
+   }
+  }
+ }
+}
