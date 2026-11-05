@@ -1976,7 +1976,11 @@ mod tests {
         // two harmonics of amplitude 0.3 and 0.2 have rms 0.3 / √2 and 0.2 / √2.
         let cut = Convolver::with_band(n, &kernel, 5).unwrap();
         let expected = (0.3_f64.powi(2) / 2.0 + 0.2_f64.powi(2) / 2.0).sqrt();
-        assert!((cut.dropped_rms() - expected).abs() < 1e-9, "{}", cut.dropped_rms());
+        assert!(
+            (cut.dropped_rms() - expected).abs() < 1e-9,
+            "{}",
+            cut.dropped_rms()
+        );
     }
 
     fn data(s: &Sampling, seed: u64) -> Vec<Vis> {
