@@ -2359,6 +2359,138 @@ fn exact_output<T: Element>(a: &mut Rw<'_, T>, name: &str, shape: &[usize]) -> P
     ptr_mut(a)
 }
 
+/// The apply kernel's last error message on this thread.
+fn cal_apply_last_error() -> String {
+    // SAFETY: a null buffer asks for the length only; `buf` then holds it.
+    let n = unsafe {
+        rang_core::cal::ffi_apply::rang_core_cal_apply_last_error(std::ptr::null_mut(), 0)
+    };
+    let mut buf = vec![0_u8; n];
+    // SAFETY: `buf` holds `n` bytes.
+    unsafe { rang_core::cal::ffi_apply::rang_core_cal_apply_last_error(buf.as_mut_ptr(), n) };
+    String::from_utf8_lossy(&buf).into_owned()
+}
+
+/// Length of a 1-D input.
+fn len1<T: Element>(a: &Ro<'_, T>) -> usize {
+    a.as_array().len()
+}
+
+/// `rang_core_cal_apply` (task C4a, research/c4a-apply.md): correct
+/// (`direction` 0) or corrupt (1) `data` (complex64 `(nrow, nchan, 4)`)
+/// with `flags` (uint8, same shape) by the packed terms (see
+/// `rang.cal_apply.pack`) into `out_data` and `out_flags`. Raises
+/// ValueError on invalid input (the core's message) and RuntimeError on a
+/// panic in the core.
+#[pyfunction]
+#[pyo3(signature = (
+    data, flags, time, antenna1, antenna2, freq, nant,
+    kind, time_interp, freq_interp, npar, k_ref_freq, slot_start, slot_offset, slot_time,
+    param_offset, params, flag_offset, term_flags, freq_offset, sol_freq,
+    direction, threads, out_data, out_flags
+))]
+#[allow(clippy::too_many_arguments)]
+fn cal_apply(
+    py: Python<'_>,
+    data: Ro<'_, Complex32>,
+    flags: Ro<'_, u8>,
+    time: Ro<'_, f64>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    freq: Ro<'_, f64>,
+    nant: usize,
+    kind: Ro<'_, u32>,
+    time_interp: Ro<'_, u32>,
+    freq_interp: Ro<'_, u32>,
+    npar: Ro<'_, u32>,
+    k_ref_freq: Ro<'_, f64>,
+    slot_start: Ro<'_, u64>,
+    slot_offset: Ro<'_, u64>,
+    slot_time: Ro<'_, f64>,
+    param_offset: Ro<'_, u64>,
+    params: Ro<'_, f32>,
+    flag_offset: Ro<'_, u64>,
+    term_flags: Ro<'_, u8>,
+    freq_offset: Ro<'_, u64>,
+    sol_freq: Ro<'_, f64>,
+    direction: u32,
+    threads: usize,
+    mut out_data: Rw<'_, Complex32>,
+    mut out_flags: Rw<'_, u8>,
+) -> PyResult<()> {
+    let shape = data.as_array().shape().to_vec();
+    if shape.len() != 3 || shape[2] != 4 {
+        return Err(PyValueError::new_err(format!(
+            "data must be (row, chan, 4), not {shape:?}"
+        )));
+    }
+    let (nrow, nchan) = (shape[0], shape[1]);
+    let nterm = len1(&kind);
+    let chunk = rang_core::cal::ffi_apply::ApplyChunkC {
+        nrow,
+        nchan,
+        nant,
+        data: exact_input(&data, "data", &[nrow, nchan, 4])? as *const f32,
+        flags: exact_input(&flags, "flags", &[nrow, nchan, 4])?,
+        time: exact_input(&time, "time", &[nrow])?,
+        antenna1: exact_input(&antenna1, "antenna1", &[nrow])?,
+        antenna2: exact_input(&antenna2, "antenna2", &[nrow])?,
+        freq: exact_input(&freq, "freq", &[nchan])?,
+    };
+    let terms = rang_core::cal::ffi_apply::ApplyTermsC {
+        nterm,
+        kind: exact_input(&kind, "kind", &[nterm])?,
+        time_interp: exact_input(&time_interp, "time_interp", &[nterm])?,
+        freq_interp: exact_input(&freq_interp, "freq_interp", &[nterm])?,
+        npar: exact_input(&npar, "npar", &[nterm])?,
+        k_ref_freq: exact_input(&k_ref_freq, "k_ref_freq", &[nterm])?,
+        slot_start: exact_input(&slot_start, "slot_start", &[nterm * (nant + 1)])?,
+        slot_offset: exact_input(&slot_offset, "slot_offset", &[nterm + 1])?,
+        slot_time: exact_input(&slot_time, "slot_time", &[len1(&slot_time)])?,
+        param_offset: exact_input(&param_offset, "param_offset", &[nterm + 1])?,
+        params: exact_input(&params, "params", &[len1(&params)])?,
+        flag_offset: exact_input(&flag_offset, "flag_offset", &[nterm + 1])?,
+        flags: exact_input(&term_flags, "term_flags", &[len1(&term_flags)])?,
+        freq_offset: exact_input(&freq_offset, "freq_offset", &[nterm + 1])?,
+        sol_freq: exact_input(&sol_freq, "sol_freq", &[len1(&sol_freq)])?,
+    };
+    // The packed lengths must cover what the offsets name.
+    let last = |a: &Ro<'_, u64>| a.as_array().iter().last().copied().unwrap_or(0) as usize;
+    for (name, end, have) in [
+        ("slot_time", last(&slot_offset), len1(&slot_time)),
+        ("params", last(&param_offset), len1(&params)),
+        ("term_flags", last(&flag_offset), len1(&term_flags)),
+        ("sol_freq", last(&freq_offset), len1(&sol_freq)),
+    ] {
+        if end > have {
+            return Err(PyValueError::new_err(format!(
+                "{name} holds {have} values, the offsets name {end}"
+            )));
+        }
+    }
+    let od = exact_output(&mut out_data, "out_data", &[nrow, nchan, 4])? as *mut f32;
+    let of = exact_output(&mut out_flags, "out_flags", &[nrow, nchan, 4])?;
+    // SAFETY: every pointer borrows a live NumPy buffer of the checked shape
+    // for the duration of the call; the outputs are distinct writable arrays.
+    let status = detach(py, || {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+            rang_core::cal::ffi_apply::rang_core_cal_apply(
+                &chunk, &terms, direction, threads, od, of,
+            )
+        }))
+        .unwrap_or(2)
+    });
+    match status {
+        0 => Ok(()),
+        1 => Err(PyValueError::new_err(format!(
+            "apply kernel failed (1): {}",
+            cal_apply_last_error()
+        ))),
+        s => Err(pyo3::exceptions::PyRuntimeError::new_err(format!(
+            "apply kernel failed ({s}): a panic in the core"
+        ))),
+    }
+}
 /// The closure kernel's last error message on this thread.
 fn closure_last_error() -> String {
     // SAFETY: a null buffer asks for the length only; `buf` then holds it.
@@ -2548,5 +2680,6 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ms_array_records, m)?)?;
     m.add_function(wrap_pyfunction!(closure_scores, m)?)?;
     m.add_function(wrap_pyfunction!(fluxstd_eval, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_apply, m)?)?;
     Ok(())
 }
