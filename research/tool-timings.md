@@ -1516,3 +1516,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | A1 CASA template solves (K, G per integration, B, KCROSS, Xf, Df) + overwrite | small twin, full twin | 17.1 s, 161.8 s | 298 MB, 607 MB | container |
 | 2026-11-06 | A1 CASA `applycal`, 6 tables | small twin, full twin | 6.1 s, 79.7–93.0 s | 0.5 GB, 8.6 GB | once per `parang` value |
 | 2026-11-06 | A1 `tools/a1_checks.sh full`, end to end | full MS and twin | 917 s | 4.3 GB (host) | heavy lock |
+| 2026-11-06 | C3a CASA 6.7.6.14 `setjy`, 5 calls (SR2016, CARACal manual on the slice; SR2016 and 2 manual on A1 small) | O-CASA work.ms 192 × 2048; A1 small 12,480 × 64 | 12.2 s (calls 1.3–3.3 s) | – | one container ([c3a-models.md](c3a-models.md)) |
+| 2026-11-06 | C3a Crystalball 0.4.3 `-j 1`, pks1934-638.lsm as a WSClean list (196 components) | slice / A1 small | 15.7 s / 9.0 s | – | container |
+| 2026-11-06 | C3a rang `calmodels.set_model` point, manual, lsm | slice / A1 small | 0.6–1.5 s; 9.5–10.1 s when the column is added on `/mnt/d` | 293 MB (driver) | whole `c3a_models.py run` 109.7 s |

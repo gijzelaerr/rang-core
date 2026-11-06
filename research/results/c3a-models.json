@@ -1,0 +1,617 @@
+{
+ "task": "C3a",
+ "note": "research/c3a-models.md",
+ "run": "/mnt/d/rang/c3a/c3a-20261106-02",
+ "protocol_commit": "601f893",
+ "code_sha256": {
+  "python/rang/calmodels.py": "a8b497081ce5da006d8221ff6bb7c41f3f60a8e21498c562d92e9b048928ff7f",
+  "examples/c3a_models.py": "745c6fbbbc17701448ea66c6af55e4a50503f309e28911efefc974544ee97f7f"
+ },
+ "images": {
+  "casa": "rang-o-casa:6.7.6.14 sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8",
+  "formats": "rang-formats-oracle:20261030 sha256:6ddf03590ed39669ee0fb2a2128da831f173a07de4fe873f1768a3ab6388b89b"
+ },
+ "criteria": {
+  "tol_rel_casa_imag_cross": 1e-09,
+  "tol_lsm_peak": 1e-06
+ },
+ "inputs": {
+  "slice": "/home/gijsm/Github/rang/outputs/o-casa-20261030-01/work.ms",
+  "a1": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms",
+  "truth": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/truth.npz",
+  "truth_sha256": "49580d7dd0a6c0180b31d742a2998c8eb8eef5ffc74db9315852fcdecb0256e4",
+  "lsm": "/home/gijsm/Github/rang/outputs/c1-sources-20261105/caracal-8f7bb363/pks1934-638.lsm",
+  "lsm_sha256": "0964b9f4c547bb802bfb16a2e8fdccddff84beeec05b6f3492521a46fa77d101",
+  "tree_sha256_before": {
+   "slice": "74f4c010b116fc0deb601ad66f759535f4d13e986a4e17728c4e305c3c09d1e5",
+   "a1": "141f7ed61b3ea79353ec70f1ac540e7dd8f5d9b6c5512682a9488a68f9d3675f"
+  },
+  "tree_sha256_after": {
+   "slice": "74f4c010b116fc0deb601ad66f759535f4d13e986a4e17728c4e305c3c09d1e5",
+   "a1": "141f7ed61b3ea79353ec70f1ac540e7dd8f5d9b6c5512682a9488a68f9d3675f"
+  },
+  "unchanged": true
+ },
+ "lsm": {
+  "components": 196,
+  "gaussians": 15,
+  "polarised": 0,
+  "reference_frequencies_hz": [
+   1300000000.0
+  ],
+  "max_spectral_terms": 4,
+  "total_flux_jy_at_freq0": 15.432475926300807,
+  "brightest": "A0"
+ },
+ "verdict": {
+  "O1a": true,
+  "O1b": true,
+  "O2": true,
+  "O3a": true,
+  "O3b": true,
+  "O4": true,
+  "O4p": true
+ },
+ "comparisons": {
+  "O1a": {
+   "rows": 192,
+   "cells": 393216,
+   "real_parallel_max_ulps": 0,
+   "rang_xx_equals_yy": true,
+   "rang_imag_and_cross_zero": true,
+   "casa_imag_parallel_max_rel": 1.1963032231924956e-13,
+   "casa_imag_parallel_max_jy": 1.7553602885481134e-12,
+   "casa_cross_max_rel": 0.0,
+   "complex_bit_identical_fraction": 0.0,
+   "stokes_i_range_jy": [
+    14.673205375671387,
+    15.137761116027832
+   ],
+   "pass": true,
+   "other_columns_unchanged": true
+  },
+  "O1b": {
+   "rows": 192,
+   "cells": 393216,
+   "real_parallel_max_ulps": 0,
+   "rang_xx_equals_yy": true,
+   "rang_imag_and_cross_zero": true,
+   "casa_imag_parallel_max_rel": 1.1963032270554204e-13,
+   "casa_imag_parallel_max_jy": 1.7553601801278962e-12,
+   "casa_cross_max_rel": 0.0,
+   "complex_bit_identical_fraction": 0.0,
+   "stokes_i_range_jy": [
+    14.67320442199707,
+    15.137760162353516
+   ],
+   "pass": true,
+   "other_columns_unchanged": true
+  },
+  "O2": {
+   "J1939-6342": {
+    "rows": 1440,
+    "cells": 92160,
+    "real_parallel_max_ulps": 0,
+    "rang_xx_equals_yy": true,
+    "rang_imag_and_cross_zero": true,
+    "casa_imag_parallel_max_rel": 0.0,
+    "casa_imag_parallel_max_jy": 0.0,
+    "casa_cross_max_rel": 0.0,
+    "complex_bit_identical_fraction": 1.0,
+    "stokes_i_range_jy": [
+     14.02637004852295,
+     15.137738227844238
+    ],
+    "pass": true
+   },
+   "SIM-GCAL": {
+    "rows": 2400,
+    "cells": 153600,
+    "real_parallel_max_ulps": 0,
+    "rang_xx_equals_yy": true,
+    "rang_imag_and_cross_zero": true,
+    "casa_imag_parallel_max_rel": 0.0,
+    "casa_imag_parallel_max_jy": 0.0,
+    "casa_cross_max_rel": 0.0,
+    "complex_bit_identical_fraction": 1.0,
+    "stokes_i_range_jy": [
+     3.5534844398498535,
+     5.348410129547119
+    ],
+    "pass": true
+   },
+   "3C286-SIM": {
+    "rows": 1920,
+    "cells": 122880,
+    "real_parallel_max_ulps": 0,
+    "rang_xx_equals_yy": true,
+    "rang_imag_and_cross_zero": true,
+    "casa_imag_parallel_max_rel": 0.0,
+    "casa_imag_parallel_max_jy": 0.0,
+    "casa_cross_max_rel": 0.0,
+    "complex_bit_identical_fraction": 1.0,
+    "stokes_i_range_jy": [
+     13.741145133972168,
+     18.283964157104492
+    ],
+    "pass": true
+   },
+   "SIM-TARGET": {
+    "rows": 6720,
+    "bit_identical_to_casa": true,
+    "casa_values": [
+     "(1+0j)",
+     "0j"
+    ]
+   },
+   "other_columns_unchanged": true,
+   "pass": true
+  },
+  "O3a": {
+   "rows": 192,
+   "peak_jy": 15.21291446685791,
+   "max_abs_diff_jy": 0.0,
+   "max_diff_over_peak": 0.0,
+   "dfio_bound_ratio_max": 0.0,
+   "bit_identical_cell_fraction": 1.0,
+   "cross_zero_rang": true,
+   "cross_zero_cb": true,
+   "pass": true
+  },
+  "O3b": {
+   "rows": 1440,
+   "peak_jy": 15.280901908874512,
+   "max_abs_diff_jy": 0.0,
+   "max_diff_over_peak": 0.0,
+   "dfio_bound_ratio_max": 0.0,
+   "bit_identical_cell_fraction": 1.0,
+   "cross_zero_rang": true,
+   "cross_zero_cb": true,
+   "pass": true,
+   "crystalball_other_rows": {
+    "rows": 11040,
+    "distinct_values": [
+     "0j"
+    ]
+   }
+  },
+  "O3c": {
+   "max_abs_diff_jy": 2.9802322387695312e-08,
+   "max_diff_over_peak": 1.9590146170510003e-09,
+   "bit_identical_cell_fraction": 0.9998703002929688
+  },
+  "O4": {
+   "J1939-6342": {
+    "rows": 1440,
+    "equal": true,
+    "bit_identical": true
+   },
+   "SIM-GCAL": {
+    "rows": 2400,
+    "equal": true,
+    "bit_identical": true
+   },
+   "3C286-SIM": {
+    "rows": 1920,
+    "stokes_i_equal": true,
+    "imag_and_cross_zero": true,
+    "truth_q_over_i_max": 0.03863998109220103
+   },
+   "SIM-TARGET": {
+    "as_initialised": true
+   },
+   "pass": true
+  },
+  "O4p": {
+   "rows": 1920,
+   "equal": true,
+   "bit_identical": true,
+   "other_rows_unity": true,
+   "pass": true
+  }
+ },
+ "setjy": [
+  {
+   "vis": "/run/S-casa-sr.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "wall_s": 1.295,
+   "fluxd": {
+    "1/0": [
+     15.007707661437205,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "severe_or_warn_lines": 0
+  },
+  {
+   "vis": "/run/S-casa-man.ms",
+   "field": "J1939-6342",
+   "standard": "manual",
+   "wall_s": 1.489,
+   "fluxd": {
+    "1/0": [
+     15.007706829065,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "severe_or_warn_lines": 0
+  },
+  {
+   "vis": "/run/A-casa.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "wall_s": 3.304,
+   "fluxd": {
+    "0/0": [
+     14.045013395584787,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "severe_or_warn_lines": 0
+  },
+  {
+   "vis": "/run/A-casa.ms",
+   "field": "SIM-GCAL",
+   "standard": "manual",
+   "wall_s": 2.272,
+   "fluxd": {
+    "2/0": [
+     5.348324889640508,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "severe_or_warn_lines": 3
+  },
+  {
+   "vis": "/run/A-casa.ms",
+   "field": "3C286-SIM",
+   "standard": "manual",
+   "wall_s": 2.133,
+   "fluxd": {
+    "1/0": [
+     18.283963926292742,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "severe_or_warn_lines": 0
+  }
+ ],
+ "receipts": {
+  "S-rang-sr": {
+   "ms": "/mnt/d/rang/c3a/c3a-20261106-02/S-rang-sr.ms",
+   "column": "MODEL_DATA",
+   "spec": {
+    "kind": "standard",
+    "standard": "Stevens-Reynolds 2016",
+    "source": "1934-638",
+    "provenance": "Reynolds 1994 in GHz below 11.1496 GHz, a power law above; CASA 6.7.6 compiled value (float32), identified from setjy doubles",
+    "extrapolate": false
+   },
+   "fields": {
+    "J1939-6342": {
+     "field_id": 1,
+     "rows": 192,
+     "spectral_windows": {
+      "0": {
+       "freq_hz": [
+        1070000000.0,
+        1284000000.0,
+        1497791015.625
+       ],
+       "stokes_i_jy": [
+        15.007707661437205,
+        15.091761285711023,
+        14.673204919059652
+       ]
+      }
+     }
+    }
+   },
+   "column_added": false
+  },
+  "S-rang-man": {
+   "ms": "/mnt/d/rang/c3a/c3a-20261106-02/S-rang-man.ms",
+   "column": "MODEL_DATA",
+   "spec": {
+    "kind": "manual",
+    "fluxdensity": 14.907688923,
+    "reffreq_hz": 1400000000.0,
+    "spix": [
+     -0.19473727,
+     -1.3843252,
+     0.60533435,
+     1.43e-06
+    ]
+   },
+   "fields": {
+    "J1939-6342": {
+     "field_id": 1,
+     "rows": 192,
+     "spectral_windows": {
+      "0": {
+       "freq_hz": [
+        1070000000.0,
+        1284000000.0,
+        1497791015.625
+       ],
+       "stokes_i_jy": [
+        15.007706829064995,
+        15.091760416411939,
+        14.673204029117974
+       ]
+      }
+     }
+    }
+   },
+   "column_added": false
+  },
+  "A-rang": [
+   {
+    "ms": "/mnt/d/rang/c3a/c3a-20261106-02/A-rang.ms",
+    "column": "MODEL_DATA",
+    "spec": {
+     "kind": "standard",
+     "standard": "Stevens-Reynolds 2016",
+     "source": "1934-638",
+     "provenance": "Reynolds 1994 in GHz below 11.1496 GHz, a power law above; CASA 6.7.6 compiled value (float32), identified from setjy doubles",
+     "extrapolate": false
+    },
+    "fields": {
+     "J1939-6342": {
+      "field_id": 0,
+      "rows": 1440,
+      "spectral_windows": {
+       "0": {
+        "freq_hz": [
+         862687500.0,
+         1290687500.0,
+         1705312500.0
+        ],
+        "stokes_i_jy": [
+         14.045013395584787,
+         15.08459340363877,
+         14.026369858829321
+        ]
+       }
+      }
+     }
+    },
+    "column_added": true
+   },
+   {
+    "ms": "/mnt/d/rang/c3a/c3a-20261106-02/A-rang.ms",
+    "column": "MODEL_DATA",
+    "spec": {
+     "kind": "manual",
+     "fluxdensity": 4.0,
+     "reffreq_hz": 1400000000.0,
+     "spix": [
+      -0.6
+     ]
+    },
+    "fields": {
+     "SIM-GCAL": {
+      "field_id": 2,
+      "rows": 2400,
+      "spectral_windows": {
+       "0": {
+        "freq_hz": [
+         862687500.0,
+         1290687500.0,
+         1705312500.0
+        ],
+        "stokes_i_jy": [
+         5.348410214240998,
+         4.199950291262925,
+         3.553484516612511
+        ]
+       }
+      }
+     }
+    },
+    "column_added": false
+   },
+   {
+    "ms": "/mnt/d/rang/c3a/c3a-20261106-02/A-rang.ms",
+    "column": "MODEL_DATA",
+    "spec": {
+     "kind": "manual",
+     "fluxdensity": 14.7172,
+     "reffreq_hz": 1470000000.0,
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ]
+    },
+    "fields": {
+     "3C286-SIM": {
+      "field_id": 1,
+      "rows": 1920,
+      "spectral_windows": {
+       "0": {
+        "freq_hz": [
+         862687500.0,
+         1290687500.0,
+         1705312500.0
+        ],
+        "stokes_i_jy": [
+         18.28396392629275,
+         15.585032610852888,
+         13.7411453452477
+        ]
+       }
+      }
+     }
+    },
+    "column_added": false
+   }
+  ],
+  "S-rang-list": {
+   "ms": "/mnt/d/rang/c3a/c3a-20261106-02/S-rang-list.ms",
+   "column": "MODEL_DATA",
+   "spec": {
+    "kind": "skymodel",
+    "path": "/mnt/d/rang/c3a/c3a-20261106-02/sky/pks1934-638.wsclean.txt",
+    "sha256": "f78649640053995ce87ff1e191172a204d44ab7cf46c2873c560d6c85a9f7591"
+   },
+   "fields": {
+    "J1939-6342": {
+     "field_id": 1,
+     "rows": 192,
+     "components": 196,
+     "phase_centre_rad": [
+      5.146179657660055,
+      -1.1119861122853516
+     ]
+    }
+   },
+   "column_added": false
+  },
+  "A-rang-list": {
+   "ms": "/mnt/d/rang/c3a/c3a-20261106-02/A-rang-list.ms",
+   "column": "MODEL_DATA",
+   "spec": {
+    "kind": "skymodel",
+    "path": "/mnt/d/rang/c3a/c3a-20261106-02/sky/pks1934-638.wsclean.txt",
+    "sha256": "f78649640053995ce87ff1e191172a204d44ab7cf46c2873c560d6c85a9f7591"
+   },
+   "fields": {
+    "J1939-6342": {
+     "field_id": 0,
+     "rows": 1440,
+     "components": 196,
+     "phase_centre_rad": [
+      5.146177912330803,
+      -1.1119959540030782
+     ]
+    }
+   },
+   "column_added": true
+  },
+  "S-rang-lsm": {
+   "ms": "/mnt/d/rang/c3a/c3a-20261106-02/S-rang-lsm.ms",
+   "column": "MODEL_DATA",
+   "spec": {
+    "kind": "skymodel",
+    "path": "/home/gijsm/Github/rang/outputs/c1-sources-20261105/caracal-8f7bb363/pks1934-638.lsm",
+    "sha256": "0964b9f4c547bb802bfb16a2e8fdccddff84beeec05b6f3492521a46fa77d101"
+   },
+   "fields": {
+    "J1939-6342": {
+     "field_id": 1,
+     "rows": 192,
+     "components": 196,
+     "phase_centre_rad": [
+      5.146179657660055,
+      -1.1119861122853516
+     ]
+    }
+   },
+   "column_added": false
+  },
+  "A-stokes": {
+   "ms": "/mnt/d/rang/c3a/c3a-20261106-02/A-stokes.ms",
+   "column": "MODEL_DATA",
+   "spec": {
+    "kind": "point-stokes",
+    "name": "A1 truth 3C286-SIM"
+   },
+   "fields": {
+    "3C286-SIM": {
+     "field_id": 1,
+     "rows": 1920,
+     "spectral_windows": {
+      "0": {
+       "freq_hz": [
+        862687500.0,
+        1290687500.0,
+        1705312500.0
+       ],
+       "stokes_i_jy": [
+        18.28396392629275,
+        15.585032610852888,
+        13.7411453452477
+       ]
+      }
+     }
+    }
+   },
+   "column_added": true
+  }
+ },
+ "timings": [
+  {
+   "label": "hash slice",
+   "wall_s": 0.038
+  },
+  {
+   "label": "hash a1",
+   "wall_s": 0.422
+  },
+  {
+   "label": "CASA setjy (5 calls)",
+   "image": "rang-o-casa:6.7.6.14",
+   "wall_s": 12.17
+  },
+  {
+   "label": "Crystalball 0.4.3 S-cb",
+   "image": "rang-formats-oracle:20261030",
+   "wall_s": 15.73
+  },
+  {
+   "label": "Crystalball 0.4.3 A-cb",
+   "image": "rang-formats-oracle:20261030",
+   "wall_s": 8.97
+  },
+  {
+   "label": "rang SR2016 slice",
+   "wall_s": 0.796
+  },
+  {
+   "label": "rang manual slice",
+   "wall_s": 0.793
+  },
+  {
+   "label": "rang J1939-6342 A1",
+   "wall_s": 10.102
+  },
+  {
+   "label": "rang SIM-GCAL A1",
+   "wall_s": 0.615
+  },
+  {
+   "label": "rang 3C286-SIM A1",
+   "wall_s": 0.646
+  },
+  {
+   "label": "rang lsm list S-rang-list",
+   "wall_s": 1.546
+  },
+  {
+   "label": "rang lsm list A-rang-list",
+   "wall_s": 9.897
+  },
+  {
+   "label": "rang lsm slice",
+   "wall_s": 1.513
+  },
+  {
+   "label": "rang PointStokes 3C286-SIM",
+   "wall_s": 9.534
+  }
+ ],
+ "wall_s": 109.59,
+ "host_peak_rss_kb": 293236
+}

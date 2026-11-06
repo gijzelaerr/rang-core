@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang.calmodels`, calibrator models written to `MODEL_DATA` as CASA's `setjy` writes them
+  (C1 term T0). `set_model(ms, field, spec)` takes a flux-density standard of `rang.fluxstd`, a
+  `manual` model (flux density, reference frequency, log10 spectral terms), per-channel Stokes rows
+  (`PointStokes`), or a component list such as CARACal's `pks1934-638.lsm`, predicted through
+  `core.predict_components`. It writes through `rang.core_writeback` and leaves other fields'
+  rows as they are. Polarised `manual` models are refused until C7a (`research/c3a-models.md`).
 - New: `rang.core_writeback`, write-back to an existing Measurement Set. `WriteBack` adds
   `MODEL_DATA`, `CORRECTED_DATA` (or any data column) and `WEIGHT_SPECTRUM` as CASA's `clearcal`
   adds them, writes any column, `FLAG` and `FLAG_ROW` in row chunks, saves the original flags as a

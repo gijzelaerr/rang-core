@@ -4,9 +4,13 @@ Task C3a of [finish-plan.md](finish-plan.md) (C3), which is step 1 of
 [c1-calibration-chain.md](c1-calibration-chain.md), section 6. Branch
 `fp-c3a-models` from main `d099bb3`.
 
-**Status: protocol frozen (this commit); nothing implemented or compared yet.**
-The design and the tolerances below are written and committed before the
-first comparison. Results are added under "Measured" in later commits.
+**Status: implemented and measured. Every frozen comparison passes as
+written** (run `/mnt/d/rang/c3a/c3a-20261106-02`). Point and `manual` models
+equal CASA `setjy` at 0 float32 ulps on the real parts. The `.lsm` prediction
+equals Crystalball 0.4.3 bit for bit on both MSs. A1's calibrator sky is
+reproduced bit for bit. The design and tolerances were committed in `601f893`
+before any comparison. Archive: [results/c3a-models.json](results/c3a-models.json).
+No novelty is claimed: this reproduces `setjy` and Crystalball.
 
 ## Scope (from C1)
 
@@ -23,7 +27,7 @@ first comparison. Results are added under "Measured" in later commits.
   to correlations with C1's convention. `polindex`, `polangle` and `rotmeas`
   are refused with a message naming C7a.
 
-## Design (proposed)
+## Design (proposed in 601f893; implemented as written)
 
 New module `python/rang/calmodels.py`, Python only. No new Rust kernel: the
 spectra are evaluated by `rang.fluxstd` (the canonical port FS1 measured at
@@ -133,7 +137,7 @@ of the writer against A1's file, not the flux standards (O1 and O2 do that).
 Also recorded, not gated: what Crystalball writes into rows of other fields
 when it creates MODEL_DATA (O3b), and wall times of each call.
 
-## Tests (proposed)
+## Tests
 
 `tests/test_calmodels.py`, on MSs written by `core_ms_write.default_ms` in a
 pytest temporary directory and synthetic models: point and manual values equal
@@ -142,6 +146,122 @@ as `ensure_column`; a polarised `Manual` and a polarised `SkyModel` refused;
 `PointStokes` mapping for linear and circular feeds; the `.lsm` route equals a
 direct `predict_components` call; `spec_from_config` forms and refusals.
 
-## Measured
+The tests are as proposed, seven of them; they pass.
 
-Not yet run.
+## Measured (2026-11-06, after the freeze)
+
+Run `/mnt/d/rang/c3a/c3a-20261106-02` (580 MB, ignored), made by
+`examples/c3a_models.py run <run>` at code SHA-256 `a8b49708…` (`calmodels.py`)
+and `745c6fbb…` (`c3a_models.py`), the files of this commit. Inputs were hashed
+before and after; they were unchanged. `truth.npz` SHA-256 `49580d7d…`. No seeds
+are involved: every model is deterministic, and A1's seeds are in its own note.
+
+| # | Result | Numbers | Pass |
+| --- | --- | --- | --- |
+| O1a SR2016, slice | real XX, YY 0 ulps on 192 rows × 2048 ch; rang XX = YY, imaginary and cross hands 0; CASA imaginary max 1.76e-12 Jy (1.2e-13 of I), CASA cross hands 0; other MS columns unchanged | I 14.673–15.138 Jy; `setjy` fluxd 15.0077077 Jy | **yes** |
+| O1b CARACal manual, slice | as O1a | CASA imaginary 1.76e-12 Jy; fluxd 15.0077068 Jy | **yes** |
+| O2 A1 small, three `setjy` calls | real 0 ulps on J1939−6342 (1,440 rows), SIM-GCAL (2,400), 3C286-SIM Stokes I (1,920); CASA's cells are bit-identical to rang's here (imaginary 0 on this geometry); SIM-TARGET's 6,720 rows bit-identical to CASA's, which initialises them as `clearcal` does (1 on XX and YY, 0 on XY and YX), the same as `ensure_column` | 64 ch × 4 corr per row | **yes** |
+| O3a lsm list, slice | rang against Crystalball 0.4.3: max \|Δ\| **0** over 192 rows × 2048 ch × 4 corr; all cells bit-identical; cross hands 0 in both | peak 15.213 Jy | **yes** |
+| O3b lsm list, A1 small | as O3a, 1,440 rows × 64 ch: max \|Δ\| 0, all bit-identical | peak 15.281 Jy. Crystalball created MODEL_DATA with **0** in the other 11,040 rows, where CASA and rang put 1 on the parallel hands (reported, not gated) | **yes** |
+| O3c lsm read against list read | reported only | max \|Δ\| 2.98e-8 Jy, 1.96e-9 of the peak; 99.987 % of cells bit-identical (the list carries positions to 1e-12 rad) | – |
+| O4 A1 truth | J1939−6342 and SIM-GCAL bit-identical to `stokes_coherency(calibrator_stokes)` in complex64; 3C286-SIM Stokes I equal and Q, U absent as planned (the truth's \|Q\|/I reaches 0.039); SIM-TARGET as initialised | – | **yes** |
+| O4p Stokes rows (T7 groundwork) | 3C286-SIM's full (I, Q, U, V) truth through `PointStokes`: bit-identical to A1's `stokes_coherency` in complex64; other rows unity | 1,920 rows | **yes** |
+
+**Reading.**
+
+- The FS1 bound holds on the real parts. On the slice's geometry CASA writes
+  imaginary parts of about 1.8e-12 Jy, as FS1 run `-05` found, and rang writes 0.
+  On A1's geometry CASA writes 0 too. The difference is 1.2e-13 of I, far below
+  any calibration effect. It comes from CASA's own phase evaluation, not from the
+  model.
+- rang's `.lsm` route is bit-identical to Crystalball on these two MSs. DF-IO
+  measured 99.95 % bit-identical cells on `c.ms`. The difference may lie in the
+  MS (`work.ms` against O-CASA's arm-C copy); I did not investigate it, because
+  both meet the bound.
+- One behaviour differs between the oracles and is not a C3a criterion: when
+  Crystalball creates MODEL_DATA, other fields' rows are 0, while `setjy` and rang
+  put 1 on the parallel hands. Rang follows CASA.
+
+**Deviations.**
+
+- Run `-01` (`/mnt/d/rang/c3a/c3a-20261106-01`, kept) stopped after its writes
+  and before any comparison. The receipt called the `PointStokes` function again
+  on three channels, and the checker's function accepted only the full band. The
+  receipt now reuses the spectra computed for the write, and `-02` reran
+  everything from fresh copies. No verdict came from `-01`.
+- `ruff` 0.17.4, which uv installed, flags `tests/test_p11_extract.py` (SIM102).
+  The worktree venv was pinned to main's 0.17.3. This is unrelated to C3a.
+
+## Timings
+
+Wall times inside the run (host RSS of the driver 293 MB; `/usr/bin/time` of the whole run 109.7 s):
+
+| Step | Wall |
+| --- | --- |
+| CASA `setjy`, 5 calls in one container (each call 1.3–3.3 s) | 12.2 s |
+| Crystalball 0.4.3, slice / A1 small (`-j 1`) | 15.7 s / 9.0 s |
+| rang point and manual, slice (192 × 2048) | 0.80 s each |
+| rang SR2016, A1 small, first call (adds MODEL_DATA, flag backup, 12,480 × 64 on `/mnt/d`) | 10.1 s |
+| rang manual, A1 small, later calls | 0.6 s each |
+| rang lsm, slice (196 components) / A1 small (with column creation) | 1.5 s / 9.9 s |
+
+The A1 calls that add the column are dominated by initialising and backing up
+over `/mnt/d` (a 9P mount), not by the model.
+
+## API for W2
+
+`calmodels.set_model(ms, field, spec, *, spw=None, column="MODEL_DATA",
+session=None, chunk_rows=None) -> receipt`. `spec` is a `Standard`, a
+`Manual`, a `PointStokes`, a `SkyModel`, or a config mapping as described in
+`spec_from_config`. W2's `calibrate` can open one `core_writeback.WriteBack`
+(stage `calibrate`) and pass it as `session` for every model call, so there is
+one flag backup and one journal. The receipt is JSON-ready, for W2's run receipt.
+
+## What was not checked
+
+- **CARACal's own lsm route (MeqTrees `cab/simulator`)**: no image exists. Agreement
+  with Crystalball does not show that MeqTrees reads Tigger's `spi2`–`spi4`, its
+  Gaussian extents or the position angle the same way. E3's two-arm comparison
+  (A0) depends on this.
+- `setjy` with `scalebychan=False`, other fields' `REFERENCE_DIR` or `DELAY_DIR`
+  differing from `PHASE_DIR`, several spectral windows in one MS (W1 refuses
+  differing cell shapes), circular feeds against CASA (unit-tested only), and
+  PB2017 sources other than FS2's four.
+- The full A1 MS and LUNO's 56-antenna data: the cost per row of the lsm route at
+  scale was not measured. `predict_components` on 2.8 M rows × 256 ch × 196
+  components needs heavy-lock time. No timing work was done, as the brief says.
+- Polarised models (T7 proper): C1 step 8.
+
+## For the coordinator
+
+**`research/STATE.md`, new top entry:**
+
+> C3a, 2026-11-06 (implemented and measured). [c3a-models.md](c3a-models.md):
+> `rang.calmodels.set_model` writes calibrator models to MODEL_DATA through W1's
+> write-back. It takes flux standards, `manual`, per-channel Stokes rows and
+> component lists such as CARACal's `pks1934-638.lsm`. Against CASA `setjy` on
+> O-CASA's slice and on A1 small, the real parts differ by 0 float32 ulps.
+> CASA's imaginary parts are at most 1.8e-12 Jy, and other fields' rows are
+> bit-identical to CASA's. The lsm route through `predict_components` is
+> bit-identical to Crystalball 0.4.3. A1's calibrator sky is reproduced bit for
+> bit. CARACal's own lsm route is MeqTrees, which has no oracle here. Polarised
+> `manual` is refused until C7a.
+
+**`research/README.md`, index line:**
+
+> [C3a, calibrator models](c3a-models.md): `setjy`-equivalent point, manual and
+> `.lsm` models into MODEL_DATA; 0 ulps against `setjy`, bit-identical to
+> Crystalball.
+
+**`research/finish-plan.md`:** C3 row, C3a done (step 1 of C1); T7's polarised
+model stays with C7a (C1 step 8).
+
+**For A0 / E3:** CARACal's `meerkat_skymodel: true` predicts the lsm with MeqTrees
+(`cab/simulator`), not Crystalball. Rang's second E3 arm ("the same lsm through
+`predict_components`") matches Crystalball exactly. Whether MeqTrees agrees is
+open. A MeqTrees image would be needed to separate "model" from "predictor" in
+that arm.
+
+**Not removed:** `/mnt/d/rang/c3a/` (run `-01`, run `-02`, check-all logs, about
+1.2 GB) can be deleted after merge. `~/Github/rang/outputs/status/fp-c3a.md`
+can go after merge.
