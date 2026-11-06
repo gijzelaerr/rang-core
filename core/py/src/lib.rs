@@ -52,6 +52,7 @@ use rang_core::sim;
 use std::ffi::c_void;
 
 mod cal_delay;
+mod cal_delay_offset;
 mod cal_gain;
 mod clean;
 
@@ -2810,5 +2811,14 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_minblperant, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_apply_refant, m)?)?;
     m.add_function(wrap_pyfunction!(cal_apply_jones, m)?)?;
+    // Task C2c: K as delay_and_offset, fillgaps for B (research/c2c-bandpass.md).
+    m.add_function(wrap_pyfunction!(
+        cal_delay_offset::cal_delay_offset_solve,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        cal_delay_offset::cal_bandpass_fill_gaps,
+        m
+    )?)?;
     Ok(())
 }

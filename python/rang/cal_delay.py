@@ -1,11 +1,20 @@
-"""The delay term K in the Rust core: QuartiCal 0.2.7's `delay` with its FFT
-initial estimate (the owner's estimator: FFT, then Gauss-Newton), with
-CASA's `gaincal(gaintype='K')` conventions (task C2b, research/c2b-delay.md;
-C1 step 4, research/c1-calibration-chain.md).
+"""The delay term K in the Rust core, with its FFT initial estimate (the
+owner's estimator: FFT, then Gauss-Newton) and CASA's
+`gaincal(gaintype='K')` conventions (task C2b, research/c2b-delay.md; C1
+step 4, research/c1-calibration-chain.md).
+
+The term's form, `kind` (task C2c, research/c2c-bandpass.md part 1): by
+default QuartiCal 0.2.7's `delay_and_offset` (a delay and a free phase per
+antenna and hand, `core/src/cal/delay_offset.rs`), the coordinator's
+provisional K model since CARACal solves K before any G; `kind="delay"` is C2b's
+QuartiCal `delay` (`core/src/cal/delay.rs`), which matches CASA only with a
+G pre-applied (C2b section 6). The K table holds the delays only; the
+offsets are returned in `DelaySolution.offsets` and G, solved next, absorbs
+them.
 
 Layers, each usable alone:
 
-- `solve(...)`: one term on arrays. The kernel is `core/src/cal/delay.rs`.
+- `solve(...)`: one term on arrays.
   With `casa_rules=True` (the default) the delays are referenced as CASA's
   `KJones` does: per interval and hand to the first refant (`tau_p -
   tau_r`), an antenna without an unflagged cell on a baseline to the refant
@@ -32,11 +41,14 @@ import numpy as np
 from . import cal_gain, core_ms
 from .formats import caltable
 
+KINDS = ("delay_and_offset", "delay")
+
 
 @dataclass
 class DelaySolution:
     """One solved delay term over (interval, frequency bin, antenna, hand);
-    delays and errors in ns."""
+    delays and errors in ns, offsets (`delay_and_offset`; zeros for
+    `delay`) in radians."""
 
     delays: np.ndarray
     flags: np.ndarray
@@ -48,6 +60,7 @@ class DelaySolution:
     gain_flags: np.ndarray
     gains: np.ndarray | None = None
     settings: dict = field(default_factory=dict)
+    offsets: np.ndarray | None = None
 
 
 def _cell_flags(data, weights, flag, flag_row):
@@ -78,13 +91,23 @@ def solve(
     max_iterations=50,
     stop_criterion=1e-7,
     stop_fraction=0.99,
+    kind="delay_and_offset",
+    offset_start=True,
 ):
     """Solve one delay term on arrays (rows, chans, 4 correlations).
 
     `chan_freq` holds the channel frequencies (Hz), `time_bin` maps rows to
     intervals (`cal_gain.solint_bins`), `freq_bin` channels to delay bins
     (default one per window). `refant` is an index or a list; K uses the
-    first. Autocorrelations are not used."""
+    first. `kind` is `delay_and_offset` (default) or `delay`.
+    `offset_start` (`delay_and_offset` with the initial estimate only;
+    post hoc, research/c2c-bandpass.md section 6): start the offsets at the
+    phase of the FFT peak derotated by the estimated delay, not at 0
+    (QuartiCal's start, which on large antenna phases can walk to the delay
+    response's first sidelobe, 1.43 / bandwidth away); `False` is
+    QuartiCal's estimator exactly. Autocorrelations are not used."""
+    if kind not in KINDS:
+        raise ValueError(f"kind must be one of {KINDS}")
     refants = [int(r) for r in np.atleast_1d(refant)]
     if not refants or any(r < 0 or r >= nant for r in refants):
         raise ValueError("refant out of range")
@@ -122,37 +145,27 @@ def solve(
     err = np.zeros(2 * nparam, np.float64)
     gflags = np.zeros(ngain, np.int8)
     gains = np.zeros(4 * ngain if return_gains else 0, np.float64)
+    offsets = np.zeros(2 * nparam, np.float64)
     from rang import core
 
-    iterations, fraction = core.extension().cal_delay_solve(
-        nrow,
-        nchan,
-        ntime,
-        nfreq,
-        int(nant),
-        cal_gain._floats(data),
-        weights,
-        cal_gain._floats(model),
-        flag,
-        flag_row.astype(np.uint8),
-        a1,
-        a2,
-        tb.astype(np.uint32),
-        fb,
-        freq,
-        int(max_iterations),
-        float(stop_criterion),
-        float(stop_fraction),
-        -1 if casa_rules else r0,
-        r0 if initial_estimate else -1,
-        delays,
-        pflags,
-        err,
-        gflags,
-        gains,
-    )
+    ext = core.extension()
+    common = (
+        nrow, nchan, ntime, nfreq, int(nant), cal_gain._floats(data), weights,
+        cal_gain._floats(model), flag, flag_row.astype(np.uint8), a1, a2,
+        tb.astype(np.uint32), fb, freq, int(max_iterations), float(stop_criterion),
+        float(stop_fraction), -1 if casa_rules else r0, r0 if initial_estimate else -1,
+    )  # fmt: skip
+    if kind == "delay":
+        iterations, fraction = ext.cal_delay_solve(
+            *common, delays, pflags, err, gflags, gains
+        )
+    else:
+        iterations, fraction = ext.cal_delay_offset_solve(
+            *common, bool(offset_start), delays, offsets, pflags, err, gflags, gains
+        )
     shape = (ntime, nfreq, nant)
     tau = delays.reshape(*shape, 2) * 1e9
+    phi = offsets.reshape(*shape, 2)
     kernel_flags = pflags.reshape(shape) != 0
     flags = np.repeat(kernel_flags[..., None], 2, axis=-1)
     err = err.reshape(*shape, 2) * 1e9
@@ -169,10 +182,13 @@ def solve(
         ref_ok = ~flags[:, :, r0, :]
         flags |= ~linked[..., None]
         tau = np.where(ref_ok[:, :, None, :], tau - tau[:, :, r0 : r0 + 1, :], tau)
+        phi = np.where(ref_ok[:, :, None, :], phi - phi[:, :, r0 : r0 + 1, :], phi)
         flags |= ~ref_ok[:, :, None, :]
         flags[:, :, r0, :] = False
         tau[:, :, r0, :] = 0.0
+        phi[:, :, r0, :] = 0.0
         tau[flags] = 0.0
+        phi[flags] = 0.0
         err[flags] = 0.0
     out_gains = None
     if return_gains:
@@ -187,7 +203,10 @@ def solve(
         kernel_flags=kernel_flags,
         gain_flags=gflags.reshape(ntime, nchan, nant) != 0,
         gains=out_gains,
+        offsets=phi,
         settings={
+            "kind": kind,
+            "offset_start": bool(offset_start) and kind == "delay_and_offset",
             "refant": refants,
             "casa_rules": bool(casa_rules),
             "initial_estimate": bool(initial_estimate),
@@ -220,9 +239,13 @@ def gaincal(
     max_iterations=50,
     stop_criterion=1e-7,
     stop_fraction=0.99,
+    kind="delay_and_offset",
+    offset_start=True,
 ):
     """`gaincal(gaintype='K')` on one field of a single-window MS: returns
-    `(CalTable, DelaySolution, info)`. `refant` is an antenna index or name
+    `(CalTable, DelaySolution, info)`; `kind` and `offset_start` as `solve`, recorded in
+    `sol.settings`, with the offsets left out of the table (G absorbs them).
+    `refant` is an antenna index or name
     (or a list, of which K uses the first); `refantmode`, `minsnr` and
     `minblperant` are accepted and not applied, as CASA's K does not apply
     them. `gaintable` CalTables or paths; `model` an array `(row, chan, 4)`
@@ -283,7 +306,8 @@ def gaincal(
         data, mdl, weights, flag, flag_row, c["ANTENNA1"], c["ANTENNA2"], tb,
         nant=nant, chan_freq=freq, refant=refants, casa_rules=casa_rules,
         initial_estimate=initial_estimate, max_iterations=max_iterations,
-        stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+        stop_criterion=stop_criterion, stop_fraction=stop_fraction, kind=kind,
+        offset_start=offset_start,
     )  # fmt: skip
     sol.settings.update(
         {

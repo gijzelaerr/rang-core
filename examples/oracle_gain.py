@@ -19,6 +19,11 @@ CASA 6.7.6.14 (`rang-o-casa:6.7.6.14`, run with `/opt/casa/bin/python -I`):
 
     oracle_gain.py casa-edit <ms> <edit.json>
     oracle_gain.py casa-gaincal <spec.json> <result.json>
+    oracle_gain.py casa-tasks <spec.json> <result.json>
+
+`casa-tasks` (C2c) runs a list of `{"task": "gaincal" | "bandpass",
+"args": {...}}` in order (a chain: each call may name tables earlier calls
+wrote) and records each as `casa-gaincal` does.
 
 `casa-edit` writes MODEL_DATA (adding it with `clearcal(addmodel=True)` if
 absent) from an `.npz` (`rows`, `values`), ORs FLAG with an `.npz`
@@ -215,6 +220,35 @@ def casa_gaincal(spec_path, result_path):
     Path(result_path).write_text(json.dumps(results, indent=1) + "\n")
 
 
+def casa_tasks(spec_path, result_path):
+    import casatasks
+
+    calls = json.loads(Path(spec_path).read_text())
+    results = []
+    for entry in calls:
+        task = {"gaincal": casatasks.gaincal, "bandpass": casatasks.bandpass}[
+            entry["task"]
+        ]
+        call = entry["args"]
+        started = time.perf_counter()
+        try:
+            out = task(**call)
+            error = None
+        except Exception as exc:  # noqa: BLE001 (recorded, not hidden)
+            out, error = None, repr(exc)
+        results.append(
+            {
+                "task": entry["task"],
+                "call": call,
+                "seconds": time.perf_counter() - started,
+                "error": error,
+                "written": os.path.isdir(call["caltable"]),
+                "return": json.loads(json.dumps(out, default=str)) if out else None,
+            }
+        )
+    Path(result_path).write_text(json.dumps(results, indent=1) + "\n")
+
+
 def main(argv):
     cmd = argv[1] if len(argv) > 1 else ""
     if cmd == "qc-copy" and len(argv) >= 4 and len(argv) % 2 == 0:
@@ -225,6 +259,8 @@ def main(argv):
         casa_edit(argv[2], argv[3])
     elif cmd == "casa-gaincal" and len(argv) == 4:
         casa_gaincal(argv[2], argv[3])
+    elif cmd == "casa-tasks" and len(argv) == 4:
+        casa_tasks(argv[2], argv[3])
     else:
         print(__doc__)
         return 2

@@ -1574,3 +1574,20 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C2b `check_delay.py readback` run -07 | slice, delay50 field 0 | 15.6 s (`applycal` container 8.4 s) | 416 MB | class C, flags exact |
 | 2026-11-06 | C2b `tools/check-all.sh`, tree before the lint fixes | worktree | 2100.5 s (with lock waits; pytest 256.3 s) | 1.88 GB | FAIL: clippy, rustfmt, ruff on the new files, and the research-index test; 914 passed, 68 skipped; gain-hashes pass |
 | 2026-11-06 | C2b `tools/check-all.sh`, the tree of the code commit | worktree | 2514.0 s (mostly waiting on the shared check-all lock; pytest 122.9 s) | 1.86 GB | FAIL only on the research-index test; 914 passed, 68 skipped; gain-hashes pass |
+| 2026-11-06 | C2c holdout256 generation (`a1_simtruth.py generate holdout256`, noisy and twin) | 16 ant, 256 ch, 104 int | 13.1 s and 10.1 s | 247 MB, 258 MB | A1's generator, 4 workers |
+| 2026-11-06 | C2c `tools/a1_checks.sh` on holdout256 | holdout256 and twin | 73.2 s | 1.26 GB | round trip and noise pass; parallactic check fails as on A1 small |
+| 2026-11-06 | C2c `check_bandpass.py kquartical` run -01 (K class A) | slice, A1 small, delay50, 10 cases | 431.0 s (container 295.9 s; `goquartical` 8.6-81.9 s, 404-791 MB; rang 0.06-1.47 s per case) | 1.27 GB | all ten pass |
+| 2026-11-06 | C2c `check_bandpass.py kcasa` runs -02, -09, -14 (C2b's CASA K cases, rang only) | 14 cases | 209.6 s, 219.7 s, 227.2 s | 403-423 MB | -02 and -14 pass; -09 (change 1 alone) fails two |
+| 2026-11-06 | C2c `check_bandpass.py ktruth` runs -03, -08, -13 | A1 small, delay50, twins, 16 cases | 151.8 s, 147.8 s, 170.0 s | 399-402 MB | -03 fails two; -08 and -13 pass |
+| 2026-11-06 | C2c `probe_offset_start.py` run -06 | delay50 twin field 2 | 5.2 s | – | FFT estimate on the main lobe |
+| 2026-11-06 | C2c `check_bandpass.py bquartical` run -04 (B class A) | slice, A1 small, delay50 | 189.2 s (container 103.4 s) | 762 MB | three pass |
+| 2026-11-06 | C2c `check_bandpass.py bcasa` run -05 and `bextras` run -07 | 8 cases, `bandpass` | 305.4 s; 3.7 s | 368 MB; 51 MB | eight pass; the script stopped after them on a layout-check bug, rerun as -07 |
+| 2026-11-06 | C2c `check_bandpass.py btruth` run -10 | A1 small, delay50, twins, 8 cases | 330.8 s (rang 37-57 s per case) | 402 MB | eight pass |
+| 2026-11-06 | C2c `check_bandpass.py breadback` run -11 | delay50 field 0 | 9.0 s | 420 MB | class C, flags exact |
+| 2026-11-06 | C2c `check_bandpass.py bheld` run -15 | holdout256, 2 cases | 110.4 s (container 16.7 s) | 382 MB | both pass |
+| 2026-11-06 | C2c `check_bandpass.py kheld` run -17 | delay50, A1 small, holdout256, 6 cases | 84.8 s (container 36.7 s) | 390 MB | six pass |
+| 2026-11-06 | C2c `check_bandpass.py chain` run -18 | slice, A1 small, delay50, twins; 4 CASA chains, 4 truth cases | 294.7 s (CASA tasks 1.1-1.8 s each; rang chain 4.5-17.5 s) | 385 MB | composite passes; G and B alone and the twin gate fail as frozen |
+| 2026-11-06 | C2c `check_bandpass.py chainheld` run -19 | holdout256 field 2 | 52.3 s | 381 MB | composite passes; G and B alone fail |
+| 2026-11-06 | C2c `probe_chain_terms.py` run -20 | run -18's tables, twins | 149.7 s | 312 MB | partial composites; twins 1.1e-5 with `nearest` |
+| 2026-11-06 | C2c `check_bandpass.py kquartical` run -21 (K class A, final code) | as -01 | 443.3 s | 1.27 GB | all ten pass |
+| 2026-11-06 | C2c `tools/check-all.sh`, the tree of the code commit | worktree | 725.8 s (pytest 147.1 s) | 2.0 GB | FAIL only on the research-index test; 935 passed, 68 skipped; gain-hashes pass |
