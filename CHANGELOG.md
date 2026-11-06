@@ -16,8 +16,9 @@ the release notes are the section of this file for that version.
   `rang.cal_gain`) and CASA's K referencing (to the first refant, no flex or strict, no `minsnr`
   or `minblperant`, which CASA's K does not apply); `to_caltable` writes a CASA `K Jones` table
   (float32 delays in ns, the one-channel window at the band centre), which `rang.cal_apply`
-  applies. `rang.simtruth` has a `delay50` version (delays of 1-50 ns, 256 channels)
-  (`research/c2b-delay.md`).
+  applies. It matches CASA only with a G pre-applied; without one, antenna phases bias it
+  (`research/c2b-delay.md` section 6; the K model is an owner decision). `rang.simtruth` has a
+  `delay50` version (delays of 1-50 ns, 256 channels) (`research/c2b-delay.md`).
 - New: `rang.calmodels`, calibrator models written to `MODEL_DATA` as CASA's `setjy` writes them
   (C1 term T0). `set_model(ms, field, spec)` takes a flux-density standard of `rang.fluxstd`, a
   `manual` model (flux density, reference frequency, log10 spectral terms), per-channel Stokes rows

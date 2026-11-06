@@ -231,7 +231,8 @@ K was not found; it moves where a linear interpolation in time pivots.
 **Iterations.** Two cases ran to 50 iterations without converging: B-a1-noapply (fraction 0.0; section 6) and
 B-a1-refant-flag (0.76): in the three intervals where m000 has no data the FFT estimate has no reference baselines,
 Gauss-Newton starts from zero against delays of up to 25 ns and does not converge. CASA's rule flags those delays,
-so nothing unconverged is written; QuartiCal does the same with its reference antenna missing.
+so nothing unconverged is written. QuartiCal would be expected to behave the same with its reference antenna's
+data missing (the same estimate code); not run.
 
 ## 6. Post hoc: why the slice and the no-apply case fail
 
@@ -400,4 +401,8 @@ and `examples/a1_simtruth.py` (the `delay50` version; small and full unchanged),
 **Not removed:** `/mnt/d/rang/outputs/c2b-20261106-*` (5.7 GB: the delay50 set 1.5 GB and each run's MS copies and arrays; run -05's 1 GB repeats -06's and can
 go first), kept for C2c
 to C2d (delay50 has 256 channels and delays to 50 ns). `~/Github/rang/outputs/status/fp-c2b.md` can go after merge.
-`~/Build/tmp/20261106-c2b` (scratch scripts and logs) is removed at the end of this task.
+The two check-all logs are in `/mnt/d/rang/outputs/c2b/`, delay50's generation log in
+`c2b-20261106-d50/make_d50.log`; `~/Build/tmp/20261106-c2b` (scratch scripts) is removed at the end of this task.
+
+**Follow-up (code, not done here to keep the checked tree):** `rang.cal_delay`'s module docstring should carry the
+same caveat as the CHANGELOG (CASA matched only with a G pre-applied).
