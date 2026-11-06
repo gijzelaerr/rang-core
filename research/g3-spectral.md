@@ -234,3 +234,19 @@ not have); timing (the host is shared); `-fit-spectral-log-pol` (see the owner d
 The scorer's common restoring beam for criterion D is its own Gaussian (FWHM and PA from WSClean's
 MFS header), applied identically to both imagers' models, not GeMClean's restore code; the rule
 asked only that one beam be used for both.
+
+## Freeze (recorded before the held-out skies were drawn)
+
+Frozen 2026-11-06 at commit `92f0196d203f84b780162ca7379a9ea979b5336e` of `fp-g3-spectral`; `gemclean`
+built from it (profile `gemclean`, rustc 1.93, `x86-64-v3`) has sha256
+`f153db8d31779bd782af018ef592db3782f2c67a4cb3c2c1bc734c8a6c644ae2`, byte-identical to the development
+binary `gemclean-dev1` used on D1 and D2, so the development runs are runs of the frozen binary.
+Held-out seeds by the rule, `sha256("<commit> <binary sha256> <sky>")`:
+
+| sky | sky seed | noise seed |
+| --- | --- | --- |
+| H1s | `0x1f3ee7f2` | `0x77d06fe6` |
+| H2s | `0x588f203c` | `0xdab58ae3` |
+
+A host reboot at 11:15 stopped the first development batch; its one partial run (D1-C0) and the
+WSClean D1-C4 run made without `-make-psf` were deleted and rerun from scratch.
