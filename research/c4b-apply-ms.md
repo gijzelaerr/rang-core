@@ -168,13 +168,18 @@ time slots of synthetic tables inside the data's time range unless stated):
 | s-K-calwt | S, weights edited | E4 K (`linear`) | True | K forces `calwt` off: no weight written |
 | s-Gnearest-mix | S, weights edited | synthetic G (`nearest`), E4 Df (`nearest`) | [True, False] | one term with weights, one without |
 | a-pooled | A | synthetic G with slots on J1939-6342 and on SIM-GCAL, different values (`linear`, `''`), applied to SIM-TARGET | False | the pooled field map |
-| a-named | A | the same (`linear`, `SIM-GCAL`) | False | a named gainfield |
+| a-named | A | the same (`linear`, `J1939-6342`) | False | a named gainfield (amended, see below) |
 | a-nearest | A | the same (`linear`, `nearest`), applied to every field | False | the sky-nearest map per MS field |
 | a-chain-calwt | A, weights edited | synthetic B (one slot on J1939-6342), the two-field G (`linear`, gainfield [J1939-6342, nearest]) applied to SIM-GCAL and SIM-TARGET | True | the reset from SIGMA without SIGMA_SPECTRUM; CORRECTED_DATA added |
 
 Pass: every criterion on every case. A case fails as measured and is not
 reworded. The three `a-*` field-map cases must also give different
 CORRECTED_DATA from each other on SIM-TARGET (so each tells the maps apart).
+
+Amended before the first comparison (a smoke run of rang alone, no CASA
+output read): `a-named` first named `SIM-GCAL`, which is also SIM-TARGET's
+nearest table field, so it could not differ from `a-nearest` on SIM-TARGET.
+It now names `J1939-6342`, the other table field.
 
 ### 3.2 C4b's own properties (no external oracle)
 
