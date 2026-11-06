@@ -371,7 +371,7 @@ without the 64-antenna one, `compare-recheck-run02.json`, `compare-after-recheck
    close it at 2.5 Jy. Proposed: gate `|fd − E_med|` at 3 × the median's standard error estimated from the
    per-antenna ratio scatter (rang's `mgrms`), and record the cases here as failed under the frozen gate.
 3. **Spectral index on one MeerKAT window.** CASA (and so rang) gives none: `fitFluxd` is that window's `fd`.
-   E2.s secondaries are probably one-window data (not checked). Options: accept (the target's spectral fit comes from imaging), or add
+   E2's secondaries are probably one-window data (not checked). Options: accept (the target's spectral fit comes from imaging), or add
    rang's own per-chunk G and fit (chunked solves exist in the kernel; no CASA oracle except split windows,
    which this note's four-window copies show to be equivalent).
 4. **What runs in the commands.** `rang-core calibrate` still refuses the F term and secondary models (W2b);
