@@ -1623,6 +1623,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C2c `probe_chain_terms.py` run -20 | run -18's tables, twins | 149.7 s | 312 MB | partial composites; twins 1.1e-5 with `nearest` |
 | 2026-11-06 | C2c `check_bandpass.py kquartical` run -21 (K class A, final code) | as -01 | 443.3 s | 1.27 GB | all ten pass |
 | 2026-11-06 | C2c `tools/check-all.sh`, the tree of the code commit | worktree | 725.8 s (pytest 147.1 s) | 2.0 GB | FAIL only on the research-index test; 935 passed, 68 skipped; gain-hashes pass |
+| 2026-11-06 | C2e worktree venv (`uv venv`, `uv pip install -e`, `maturin develop --release`) | worktree | 184 s (after waiting for the heavy lock) | – | built |
+| 2026-11-06 | C2e `probe_c2e_defaults.py` run -00 (main's code, then the branch) | slice, A1 small | 20.3 s, 19.0 s | – | all seven hashes equal |
+| 2026-11-06 | C2e `check_c2e.py identity` run -03 (I-slice, KGBAKGB) | slice | 93.8 s | – | bit-identical |
+| 2026-11-06 | C2e `check_c2e.py identity` run -04 (I-a1, primary and secondary, two A steps) | A1 small | 230.1 s | – | bit-identical |
+| 2026-11-06 | C2e `check_c2e.py casa` runs -13 (C-slice), -11 (C-a1), -14 (H-h128) | slice, A1 small, holdout128 | 28.3 s, 94.4 s, 108.4 s (CASA tasks 0.3-2.0 s each) | – | all pass |
+| 2026-11-06 | C2e `a1_simtruth.py generate holdout128` | 16 antennas, 128 channels | 3.2 s | – | written |
+| 2026-11-06 | C2e `tools/check-all.sh` run 1 (working tree before formatting) | worktree | about 12 min including the lock wait | – | FAIL on ruff formatting (fixed) and the research-index test; 969 passed, 68 skipped; gain-hashes pass |
 | 2026-11-06 | C7a venv (uv, Python 3.13, editable install builds the extension) | worktree | 242 s | – | the queued `maturin develop` was killed by the reboot |
 | 2026-11-06 | C7a CASA 6.7.6.14 `setjy` manual polarised, 9 calls (M1–M8, P1) | slice 192 × 2048; A1 small 12,480 × 64 | 21.2 s (1.4 s per call on the slice, 2.6 s on A1 small) | – | one container ([c7a-polmodels.md](c7a-polmodels.md)); casatools FEED read 0.6 s |
 | 2026-11-06 | C7a rang `calmodels.set_model` polarised manual | slice / A1 small | 0.8 s / 10.6 s (the column added on `/mnt/d`) | 158 MB (driver) | whole `c7a_polmodels.py run` -03 103.9 s; lock wait 57 min |
@@ -1631,3 +1638,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C7a `c7a_polmodels.py run --held-out` -05 (H1, 2 `setjy` calls on one copy) | A1 small | 20.2 s (CASA 5.5 s) | 272 MB | right after -04, no code change |
 | 2026-11-06 | check-all, C7a branch before the post-hoc commit | repo | 510.7 s | 1.80 GB | only the index test fails; pytest 963 passed, 68 skipped |
 | 2026-11-06 | check-all, C7a branch before the astropy-refusal commit | repo | 541.78 s | – | only the index test fails; 1 failed, 963 passed, 68 skipped in 125.55s (0:02:05) |
+| 2026-11-06 | C2e `tools/check-all.sh` run 2, merge commit `1e47e68` | worktree | 1051 s including the lock wait (pytest 117.8 s) | – | FAIL only on the research-index test; 980 passed, 68 skipped; gain-hashes pass |

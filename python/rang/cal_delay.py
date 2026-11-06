@@ -241,6 +241,7 @@ def gaincal(
     stop_fraction=0.99,
     kind="delay_and_offset",
     offset_start=True,
+    scan=None,
 ):
     """`gaincal(gaintype='K')` on one field of a single-window MS: returns
     `(CalTable, DelaySolution, info)`; `kind` and `offset_start` as `solve`, recorded in
@@ -251,14 +252,17 @@ def gaincal(
     them. `gaintable` CalTables or paths; `model` an array `(row, chan, 4)`
     for the field's rows instead of `model_column`. With tables to
     pre-apply the solve uses SIGMA weights (as `rang.cal_gain.gaincal`),
-    otherwise `weight_column`. Raises when no solution is written."""
+    otherwise `weight_column`. Raises when no solution is written.
+    `weight_column=None` and `scan` as `rang.cal_gain.gaincal` (task C2e)."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
     with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
         chan_freq = t.getcol("CHAN_FREQ")
     if len(chan_freq) != 1:
-        raise ValueError("one spectral window only (C2b)")
+        raise ValueError(
+            "one spectral window only (several are refused by rang-core, task W4)"
+        )
     freq = np.asarray(chan_freq[0], float)
     nant = len(names)
     refants = [
@@ -267,11 +271,11 @@ def gaincal(
     with core_ms.open_table(ms) as t:
         fields = t.getcol("FIELD_ID")
         colnames = t.colnames()
-    rows = np.flatnonzero(fields == field_id)
+    rows = np.flatnonzero(cal_gain._scan_keep(ms, scan, fields == field_id))
     if not len(rows):
         raise ValueError(f"no rows of field {field_id}")
     cols = ["TIME", "SCAN_NUMBER", "FIELD_ID", "ANTENNA1", "ANTENNA2", "UVW", "FLAG",
-            "FLAG_ROW", data_column, weight_column]  # fmt: skip
+            "FLAG_ROW", data_column, *cal_gain._weight_columns(weight_column)]  # fmt: skip
     if model is None:
         cols.append(model_column)
     sigma_column = "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in colnames else "SIGMA"
@@ -295,7 +299,7 @@ def gaincal(
     tb, keys = cal_gain.solint_bins(
         c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine
     )
-    weights = c[weight_column]
+    weights = cal_gain._weights(c, weight_column, data.shape)
     if tables:
         sigma = np.asarray(c[sigma_column], np.float64)
         if sigma.ndim == 2:

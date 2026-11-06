@@ -363,6 +363,34 @@ def _ms_columns(ms, names, rows=None):
     return out
 
 
+def _scan_keep(ms, scan, keep):
+    """`keep` AND the rows whose SCAN_NUMBER is in `scan` (CASA's `scan`
+    selection as a list of numbers; None keeps `keep`; task C2e)."""
+    if scan is None:
+        return keep
+    with core_ms.open_table(ms) as t:
+        numbers = np.asarray(t.getcol("SCAN_NUMBER"))
+    return keep & np.isin(numbers, [int(s) for s in np.atleast_1d(scan)])
+
+
+def _weight_columns(weight_column):
+    """The weight column to read: none for unit weights (task C2e)."""
+    return [] if weight_column is None else [weight_column]
+
+
+def _weights(c, weight_column, shape):
+    """The solve weights read from `weight_column` (task C2e): None gives 1
+    everywhere (rang-core's `data.weights: uniform`), a (row, corr) column
+    such as WEIGHT is repeated over the channels, and a (row, chan, corr)
+    column is returned as read."""
+    if weight_column is None:
+        return np.ones(shape, np.float32)
+    w = c[weight_column]
+    if np.ndim(w) == 2:
+        w = np.ascontiguousarray(np.broadcast_to(w[:, None, :], shape), np.float32)
+    return w
+
+
 def _pre_apply(
     data, model, flag, time, a1, a2, freq, tables, interp, nant, field_id=0, solved="G"
 ):
@@ -431,6 +459,7 @@ def gaincal(
     stop_criterion=1e-7,
     stop_fraction=0.99,
     spw=None,
+    scan=None,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -444,7 +473,10 @@ def gaincal(
     tables to pre-apply, CASA was measured to solve with weights from SIGMA
     (where it resets them was not found), so the solve uses
     `1/SIGMA_SPECTRUM^2` (or `1/SIGMA^2` per channel; 0 where sigma is 0);
-    without, `weight_column` (not compared with CASA)."""
+    without, `weight_column` (not compared with CASA). Task C2e:
+    `weight_column=None` solves with unit weights where `weight_column`
+    would be read, and WEIGHT is repeated over channels; `scan` (a list of
+    SCAN_NUMBERs, CASA's `scan`) restricts the rows."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -453,13 +485,15 @@ def gaincal(
         chan_freq = t.getcol("CHAN_FREQ")
     if spw is None:
         if len(chan_freq) != 1:
-            raise ValueError("several spectral windows: give spw (C2d)")
+            raise ValueError("several spectral windows: give spw")
         spw = 0
     spw = int(spw)
     if not 0 <= spw < len(chan_freq):
         raise ValueError(f"no spectral window {spw}")
     if len(chan_freq) != 1 and gaintable:
-        raise ValueError("tables are pre-applied on a single-window MS only (C2d)")
+        raise ValueError(
+            "tables are pre-applied on a single-window MS only (research/c2d-fluxscale.md)"
+        )
     freq = np.asarray(chan_freq[spw], float)
     nant = len(names)
     refants = [
@@ -470,7 +504,9 @@ def gaincal(
     with core_ms.open_table(ms) as t:
         fields = t.getcol("FIELD_ID")
         ddid = t.getcol("DATA_DESC_ID")
-    rows = np.flatnonzero((fields == field_id) & (dd_spw[ddid] == spw))
+    rows = np.flatnonzero(
+        _scan_keep(ms, scan, (fields == field_id) & (dd_spw[ddid] == spw))
+    )
     if not len(rows):
         raise ValueError(f"no rows of field {field_id} in spectral window {spw}")
     cols = [
@@ -483,7 +519,7 @@ def gaincal(
         "FLAG",
         "FLAG_ROW",
         data_column,
-        weight_column,
+        *_weight_columns(weight_column),
     ]
     if model is None:
         cols.append(model_column)
@@ -514,7 +550,7 @@ def gaincal(
             field_id,
         )
     tb, keys = solint_bins(c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine)
-    weights = c[weight_column]
+    weights = _weights(c, weight_column, data.shape)
     if tables:
         sigma = np.asarray(c[sigma_column], np.float64)
         if sigma.ndim == 2:

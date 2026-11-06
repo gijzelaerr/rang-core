@@ -143,11 +143,17 @@ def fluxscale(
         ("listfile", listfile),
     ):
         if value:
-            raise ValueError(f"fluxscale: {name} selection is not ported (C2d)")
+            raise ValueError(
+                f"fluxscale: {name} selection is not ported (research/c2d-fluxscale.md, 1)"
+            )
     if incremental:
-        raise ValueError("fluxscale: incremental=True is not ported (C2d)")
+        raise ValueError(
+            "fluxscale: incremental=True is not ported (research/c2d-fluxscale.md, 1)"
+        )
     if display:
-        raise ValueError("fluxscale: display is not ported (C2d)")
+        raise ValueError(
+            "fluxscale: display is not ported (research/c2d-fluxscale.md, 1)"
+        )
     if int(fitorder) < 0:
         raise ValueError("fluxscale: fitorder must be >= 0")
     table = (
@@ -324,7 +330,7 @@ def fluxscale(
     return ftable, record
 
 
-def _field_rows(ms, field_id, spw):
+def _field_rows(ms, field_id, spw, scan=None):
     ms = Path(ms)
     with core_ms.open_table(ms / "DATA_DESCRIPTION") as t:
         dd_spw = np.asarray(t.getcol("SPECTRAL_WINDOW_ID"))
@@ -333,7 +339,8 @@ def _field_rows(ms, field_id, spw):
     with core_ms.open_table(ms) as t:
         fields = t.getcol("FIELD_ID")
         ddid = t.getcol("DATA_DESC_ID")
-    return int(((fields == field_id) & (dd_spw[ddid] == spw)).sum()), nchan
+    keep = cal_gain._scan_keep(ms, scan, (fields == field_id) & (dd_spw[ddid] == spw))
+    return int(keep.sum()), nchan
 
 
 def _windows(ms):
@@ -365,7 +372,7 @@ def bootstrap(
     new = []
     for f in np.atleast_1d(secondary):
         for w in range(nspw):
-            nrow, nchan = _field_rows(ms, int(f), w)
+            nrow, nchan = _field_rows(ms, int(f), w, gaincal_kwargs.get("scan"))
             if not nrow:
                 continue
             table, _, _ = cal_gain.gaincal(

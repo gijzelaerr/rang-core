@@ -16,7 +16,7 @@ CORRECTED_DATA into DATA and checks per window that DATA, MODEL_DATA, FLAG
 and WEIGHT_SPECTRUM equal the source's corrected data, model, flags and
 weights. `steps` runs a list of CASA calls and table edits in order and
 records each one's parameters, return value (made JSON-safe) and wall time:
-`gaincal`, `fluxscale`, `applycal`, `copytree`, `rmtree` and `edit_caltable`
+`gaincal`, `bandpass` (C2e), `fluxscale`, `applycal`, `copytree`, `rmtree` and `edit_caltable`
 (flag or scale rows of a calibration table copy: see `edit_caltable`).
 """
 
@@ -217,9 +217,11 @@ def edit_caltable(src, dst, ops):
 
 
 def steps(spec_path, result_path):
-    from casatasks import applycal, fluxscale, gaincal
+    from casatasks import applycal, bandpass, fluxscale, gaincal
 
-    tasks = {"gaincal": gaincal, "fluxscale": fluxscale, "applycal": applycal}
+    # bandpass: task C2e (research/c2e-calibrate.md), the whole chain.
+    tasks = {"gaincal": gaincal, "bandpass": bandpass, "fluxscale": fluxscale,
+             "applycal": applycal}  # fmt: skip
     results = []
     for step in json.loads(Path(spec_path).read_text()):
         name, args = step["task"], step.get("args", {})

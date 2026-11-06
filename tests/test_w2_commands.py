@@ -178,7 +178,7 @@ def test_defaults_are_written_down_and_round_trip():
 
     walk(core_config.SCHEMA)
     assert all(k.doc for k in core_config.TERM_KEYS.values())
-    assert "complex" in text and "C2a" in text
+    assert "complex" in text and "C2e" in text and "C2a" not in text
 
 
 def test_schema_errors_are_all_reported_with_their_paths():
@@ -227,11 +227,8 @@ def _tasks(path, stages=None):
 
 
 def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
+    # Since task C2e (research/c2e-calibrate.md) K, G, B, A and F run.
     assert _tasks(DATA / "e2a.yaml") == {
-        "C2a",
-        "C2b",
-        "C2c",
-        "C2d",
         "C5a",
         "G3",
         "G4",
@@ -239,10 +236,6 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
         "W4",  # data.weights: uniform for imaging (research/w4-unsupported.md)
     }
     assert _tasks(DATA / "e2b.yaml") == {
-        "C2a",
-        "C2b",
-        "C2c",
-        "C2d",
         "C6a",
         "C6b",
         "C6c",
@@ -268,12 +261,15 @@ def test_the_complex_term_refuses_what_its_kernel_cannot_take():
     config, errors = core_config.resolve(raw)
     assert errors == []
     refused = core_config.refusals(config, ["calibrate"])
+    # What the complex kernel never takes is a configuration error pointing
+    # to the CASA terms (task C2e), not a refusal naming a task.
     assert {(r.path.rsplit(".", 1)[-1], r.task) for r in refused} == {
-        ("solint", "C2a"),
-        ("combine", "C2a"),
-        ("refant", "C2a"),
-        ("preapply", "C4a"),
+        ("solint", ""),
+        ("combine", ""),
+        ("refant", ""),
+        ("preapply", ""),
     }
+    assert all("K, G and B terms" in r.text for r in refused)
 
 
 # -- the commands ----------------------------------------------------------------
@@ -464,7 +460,7 @@ def test_selfcal_and_unsolved_apply_targets_are_refused(tmp_path, capsys):
     with pytest.raises(SystemExit) as exc:
         cli("apply", transfer, ms)
     assert exc.value.code == 2
-    assert "task C2a" in capsys.readouterr().err
+    assert "solve G and F terms" in capsys.readouterr().err
     assert not flagversions.versions(ms)
     with pytest.raises(SystemExit) as exc:
         cli("run", write_config(tmp_path, "run: {stages: [flag, selfcal]}\n"), ms)
@@ -633,10 +629,10 @@ def test_model_and_apply_refusals_name_their_tasks(monkeypatch):
             "secondary": {"terms": [{"type": "complex", "name": "c2"}]},
         }
     }
-    assert ("calibrate.secondary", "C2d") in tasks(secondary, ["calibrate"])
+    assert ("calibrate.secondary", "") in tasks(secondary, ["calibrate"])
     target = {"field": ["fcal"], "tables": ["complex"], "interp": ["linear"]}
     assert tasks({"apply": {"targets": [target]}}, ["apply"]) == {
-        ("apply.targets[0].interp[0]", "C2a")
+        ("apply.targets[0].interp[0]", "")
     }
     lsm = {"calibrate": {"model": {"source": "lsm"}}}
     assert ("calibrate.model.lsm", "") in tasks(lsm, ["calibrate"])
@@ -722,7 +718,8 @@ def test_config_check_and_defaults(tmp_path, capsys):
     assert "valid for flag, calibrate, image" in capsys.readouterr().out
     with pytest.raises(SystemExit):
         cli("config", "check", DATA / "e2a.yaml")
-    assert "task C2b" in capsys.readouterr().err
+    err = capsys.readouterr().err
+    assert "task C5a" in err and "task C2" not in err  # K, G, B, A run (C2e)
     cli("config", "defaults")
     assert capsys.readouterr().out == core_config.defaults_yaml()
 
