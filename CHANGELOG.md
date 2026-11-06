@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Added: polarised calibrator models (task C7a, `research/c7a-polmodels.md`).
+  `rang.calmodels.Manual` takes CASA `setjy(standard='manual')`'s full form, `fluxdensity=[I, Q,
+  U, V]`, `polindex`, `polangle` and `rotmeas` (referenced to `reffreq`, as CASA), following
+  CASA's tabular and spectral-index paths, and writes all four correlations in the sky frame
+  (`XX = I+Q`, `XY = U+iV`, `YX = U-iV`, `YY = I-Q`; no parallactic angle, as `setjy`).
+  `calmodels.NRAO_XCAL` and `caracal_xcal()` hold CARACal's 3C286 and 3C138 models.
+  `rang-core calibrate` accepts `calibrate.model.flux_jy` with Q, U, V and the polarisation
+  keys for `source: manual`; `polindex` without `polangle` (or the reverse) and the polarisation
+  keys with another source are refused. Polarised sky-model components stay refused.
 - Changed: `rang-core flag`, `calibrate`, `apply`, `image` and `config check CONFIG MS` check the
   Measurement Set per stage before anything is written and report every problem at once, each
   naming its reason (`research/w4-unsupported.md`). Refused: several data descriptions in use

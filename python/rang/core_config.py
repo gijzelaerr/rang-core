@@ -840,25 +840,36 @@ MODEL_SOURCES = ("setjy", "manual", "lsm")  # written by rang.calmodels (C3a)
 
 def _model_refusals(model, cal, no, out):
     """What calibrate cannot do yet with `calibrate.model` (task W2b): a
-    polarised manual model (C7a) and a written model on the fields of the
-    secondary or polcal terms (their models come from fluxscale, C2d)."""
+    written model on the fields of the secondary or polcal terms (their
+    models come from fluxscale, C2d). A polarised manual model (I, Q, U, V,
+    polindex, polangle, rotmeas) is written as CASA's setjy does (C7a)."""
     source = model["source"]
+    pol_keys = [k for k in ("polindex", "polangle", "rotmeas") if model[k] is not None]
+    if source != "manual":
+        for key in pol_keys:
+            out.append(
+                Refusal(f"calibrate.model.{key}", "", "only with source: manual")
+            )
     if source not in MODEL_SOURCES:
         return
     if source == "manual":
         flux = model["flux_jy"]
         if not flux:
             out.append(Refusal("calibrate.model.flux_jy", "", "required for manual"))
-        elif any(float(v) != 0 for v in flux[1:]):
-            no("calibrate.model.flux_jy", "C7a", "a polarised manual model (Q, U, V)")
+        elif len(flux) > 4:
+            out.append(Refusal("calibrate.model.flux_jy", "", "I or I, Q, U, V"))
         if model["reffreq_hz"] is None:
             out.append(Refusal("calibrate.model.reffreq_hz", "", "required for manual"))
-        for key in ("polindex", "polangle", "rotmeas"):
-            value = model[key]
-            if value is not None and any(
-                float(v) != 0 for v in (value if isinstance(value, list) else [value])
-            ):
-                no(f"calibrate.model.{key}", "C7a", f"{key} (a polarised model)")
+        linear = bool(flux) and any(float(v) != 0 for v in flux[1:3])
+        if not linear and (model["polindex"] is None) != (model["polangle"] is None):
+            out.append(
+                Refusal(
+                    "calibrate.model.polindex",
+                    "",
+                    "polindex and polangle go together (CASA's setjy writes no "
+                    "linear polarisation with only one)",
+                )
+            )
     if source == "lsm" and model["lsm"] is None:
         out.append(Refusal("calibrate.model.lsm", "", "required for lsm"))
     for section in ("secondary", "polcal"):

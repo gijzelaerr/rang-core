@@ -1606,3 +1606,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C2d held-out A1 version: generate (MS and twin), CASA truth tables and round trip | small, new seeds | 10.8 s, 33.2 s | – | heavy lock |
 | 2026-11-06 | C2d `check_fluxscale.py heldout` run -03 | 4 datasets, 4 P cases | 750.6 s | 203 MB | containers 37.8 s and 26.7 s; rang 191.9 s; comparisons 307.2 s |
 | 2026-11-06 | check-all, C2d branch before the code commit (twice) | repo | 827.5 s, 995.5 s | 1.92 GB | first: ruff 0.17.4 in the fresh venv (SIM102 elsewhere) and a format; second: only the index test fails; pytest 923 passed, 68 skipped |
+| 2026-11-06 | C7a venv (uv, Python 3.13, editable install builds the extension) | worktree | 242 s | – | the queued `maturin develop` was killed by the reboot |
+| 2026-11-06 | C7a CASA 6.7.6.14 `setjy` manual polarised, 9 calls (M1–M8, P1) | slice 192 × 2048; A1 small 12,480 × 64 | 21.2 s (1.4 s per call on the slice, 2.6 s on A1 small) | – | one container ([c7a-polmodels.md](c7a-polmodels.md)); casatools FEED read 0.6 s |
+| 2026-11-06 | C7a rang `calmodels.set_model` polarised manual | slice / A1 small | 0.8 s / 10.6 s (the column added on `/mnt/d`) | 158 MB (driver) | whole `c7a_polmodels.py run` -03 103.9 s; lock wait 57 min |
+| 2026-11-06 | check-all, C7a branch before the first code commit (twice) | repo | 574.5 s, 1,222.2 s (with lock waits) | 1.94 GB | first: `maturin develop` failed (the uv venv had no pip); second: only the index test fails; pytest 962 passed, 68 skipped |

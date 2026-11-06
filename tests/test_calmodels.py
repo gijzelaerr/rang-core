@@ -141,7 +141,8 @@ def test_skymodel_equals_direct_prediction(ms, tmp_path):
 
 
 def test_refusals(ms, tmp_path):
-    with pytest.raises(NotImplementedError, match="C7a"):
+    # C7a: polindex without polangle is refused (CASA would drop it silently).
+    with pytest.raises(ValueError, match="together"):
         calmodels.spec_from_config(
             {
                 "standard": "manual",
@@ -150,10 +151,8 @@ def test_refusals(ms, tmp_path):
                 "polindex": [0.098],
             }
         )
-    with pytest.raises(NotImplementedError, match="C7a"):
-        calmodels.spec_from_config(
-            {"standard": "manual", "fluxdensity": [1, 0.1, 0, 0], "reffreq": 1e9}
-        )
+    with pytest.raises(ValueError, match="not both"):
+        calmodels.Manual([1, 0.1, 0, 0], 1e9, q=0.2)
     with pytest.raises(NotImplementedError):
         calmodels.spec_from_config({"standard": "SR2016", "scalebychan": False})
     with pytest.raises(ValueError, match="unknown model keys"):
@@ -184,3 +183,116 @@ def test_session_passed_by_the_caller(ms):
     freq = read(ms / "SPECTRAL_WINDOW", "CHAN_FREQ")[0]
     i = fluxstd.flux("3C286", freq, "Perley-Butler 2010")[:, 0].astype(np.float32)
     assert np.all(model[fid == 1][..., 0].real == i)
+
+
+# -- C7a: polarised manual models (research/c7a-polmodels.md) --------------------------
+
+C = 299792458.0
+NU = np.linspace(856e6, 1712e6, 37)
+
+
+def reference_stokes(nu, s0, f0, spix, pi, pa, rm, q=0.0, u=0.0, v=0.0):
+    """Section 2 of the note, written independently in vectorised float64."""
+    i = fluxstd.manual(nu, s0, f0, spix)
+    pi, pa = list(pi), list(pa)
+    if q or u:
+        if not pi or not pa:
+            pi, pa = [0.0], [0.0]
+        pi[0], pa[0] = np.hypot(q, u) / s0, 0.5 * np.arctan2(u, q)
+    x = (nu - f0) / f0
+    p = np.polynomial.polynomial.polyval(x, pi) if pi else 0 * x
+    chi = np.polynomial.polynomial.polyval(x, pa) if pa else 0 * x
+    chi = chi + rm * ((C / nu) ** 2 - (C / f0) ** 2)
+    out = np.zeros(nu.shape + (4,))
+    out[:, 0], out[:, 1], out[:, 2] = (
+        i,
+        p * i * np.cos(2 * chi),
+        p * i * np.sin(2 * chi),
+    )
+    out[:, 3] = i * v / s0
+    return out
+
+
+@pytest.mark.parametrize(
+    "kw",
+    [
+        {"polindex": [0.098], "polangle": [0.575959], "spix": [-0.4507, -0.1798, 0.0357]},
+        {"polindex": [0.098, 0.02, -0.01], "polangle": [0.575959, 0.05], "rotmeas": 50.0,
+             "spix": [-0.4507, -0.1798]},
+        {"q": 0.6, "u": 1.2, "v": 0.05, "polindex": [0.098, 0.03], "polangle": [0.5, -0.04],
+             "rotmeas": 10.0, "spix": [-0.45, -0.18]},
+        {"q": 0.4, "u": 1.3, "rotmeas": -30.0, "spix": [-0.45, -0.18]},
+        {"polindex": [0.099], "polangle": [0.5096], "rotmeas": -0.3, "spix": [-0.63]},
+        {"v": 0.04, "spix": [-0.6]},
+        {"q": 0.1, "u": -0.05, "rotmeas": 15.0, "spix": [-0.6]},
+    ],
+)  # fmt: skip
+def test_polarised_manual_matches_an_independent_evaluation(kw):
+    kw = dict(kw)
+    spix = kw.pop("spix")
+    q, u, v = kw.pop("q", 0.0), kw.pop("u", 0.0), kw.pop("v", 0.0)
+    m = calmodels.Manual([14.7172, q, u, v], "1.47GHz", spix, **kw)
+    ref = reference_stokes(
+        NU, 14.7172, 1.47e9, spix, kw.get("polindex", ()), kw.get("polangle", ()),
+        kw.get("rotmeas", 0.0), q, u, v,
+    )  # fmt: skip
+    got = m.stokes(NU)
+    assert m.polarised
+    assert m.casa_path == (
+        "tabular"
+        if len(spix) > 1
+        or max(len(kw.get("polindex", ())), len(kw.get("polangle", ()))) > 1
+        else "spectral-index-channel0"
+    )
+    assert np.allclose(got, ref, rtol=1e-12, atol=1e-12 * 14.7172)
+    if m.casa_path == "tabular":
+        assert np.array_equal(got[:, 0], ref[:, 0])
+
+
+def test_unpolarised_manual_is_c3a_unchanged():
+    m = calmodels.Manual(4.0, 1.4e9, [-0.6])
+    assert not m.polarised and m.casa_path == "spectral-index"
+    got = m.stokes(NU)
+    assert np.array_equal(got[:, 0], fluxstd.manual(NU, 4.0, 1.4e9, [-0.6]))
+    assert np.all(got[:, 1:] == 0)
+
+
+def test_caracal_xcal_models_and_published_angles():
+    for name, alias, p, chi_deg in (
+        ("3C286", "J1331+3030", 0.098, 33.0),
+        ("3C138", "J0521+1638", 0.078, -9.6),
+    ):
+        m = calmodels.caracal_xcal(alias)
+        assert m == calmodels.caracal_xcal(name) and m.casa_path == "tabular"
+        s = m.stokes(NU)
+        assert np.allclose(np.hypot(s[:, 1], s[:, 2]) / s[:, 0], p, rtol=1e-12)
+        chi = np.degrees(0.5 * np.arctan2(s[:, 2], s[:, 1]))
+        assert np.all(np.abs(chi - chi_deg) < 0.01)
+    with pytest.raises(ValueError, match="no CARACal"):
+        calmodels.caracal_xcal("3C48")
+
+
+def test_polarised_manual_writes_four_correlations(ms):
+    spec = {
+        "standard": "manual",
+        "fluxdensity": [14.7172, 0, 0, 0.1],
+        "reffreq": "1.47GHz",
+        "spix": [-0.4507, -0.1798, 0.0357],
+        "polindex": [0.098],
+        "polangle": [0.575959],
+        "rotmeas": 20.0,
+    }
+    receipt = calmodels.set_model(ms, "3C286", spec, chunk_rows=11)
+    model, fid = read(ms, "MODEL_DATA"), read(ms, "FIELD_ID")
+    freq = read(ms / "SPECTRAL_WINDOW", "CHAN_FREQ")[0]
+    stokes = calmodels.spec_from_config(spec).stokes(freq)
+    want = calmodels.correlations(stokes, (9, 10, 11, 12)).astype(np.complex64)
+    sel = model[fid == 1]
+    assert np.array_equal(sel, np.broadcast_to(want, sel.shape))
+    assert np.all(sel[..., 1].imag == np.float32(stokes[:, 3]))
+    assert np.array_equal(sel[..., 2], np.conj(sel[..., 1]))
+    entry = receipt["fields"]["3C286"]["spectral_windows"]["0"]
+    assert (
+        len(entry["stokes_iquv_jy"]) == 3 and receipt["spec"]["casa_path"] == "tabular"
+    )
+    assert np.all(model[fid == 2][..., [0, 3]] == 1)

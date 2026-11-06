@@ -16,9 +16,12 @@ Model specifications:
 - `Standard`: a flux-density standard of `rang.fluxstd` (Stokes I with the
   standard's spectrum; Q = U = V = 0), a point at the field's phase centre,
   as `setjy(standard=..., scalebychan=True)`;
-- `Manual`: `setjy(standard='manual', scalebychan=True)` Stokes I,
-  `S0 (nu/nu0)^(sum_k spix_k log10(nu/nu0)^k)`; the polarised parameters
-  (`polindex`, `polangle`, `rotmeas`) are C1 step 8 (task C7a) and refused;
+- `Manual`: `setjy(standard='manual', scalebychan=True)`: Stokes I
+  `S0 (nu/nu0)^(sum_k spix_k log10(nu/nu0)^k)`, and (task C7a,
+  research/c7a-polmodels.md) Q, U from `polindex`, `polangle` and `rotmeas`
+  or from `fluxdensity=[I, Q, U, V]`, V as a constant fraction of I, in
+  CASA's operation order; `NRAO_XCAL` and `caracal_xcal` hold CARACal's
+  3C286 and 3C138 models;
 - `PointStokes`: any per-channel (I, Q, U, V) of a point at the phase centre,
   mapped to the correlations (the groundwork of C1's T7);
 - `SkyModel`: a component list (Tigger `.lsm`, `.lsm.html`, a WSClean source
@@ -46,8 +49,8 @@ from . import core_ms, fluxstd
 from . import core_writeback as wb
 
 C7A = (
-    "polarised calibrator models (polindex, polangle, rotmeas, or nonzero Q, U, "
-    "V) are C1 step 8 (task C7a) and not implemented in C3a"
+    "polarised sky-model components are not implemented (task C7a implements "
+    "polarised point models, Manual; core.predict_components is Stokes I only)"
 )
 # CORR_TYPE codes (casacore Stokes enum) this writer forms.
 CORR_NAMES = {
@@ -152,35 +155,227 @@ class Standard:
         }
 
 
+C_LIGHT = 299792458.0  # casacore C::c
+
+
+def _floats(value):
+    if value is None:
+        return ()
+    return tuple(float(a) for a in np.atleast_1d(np.asarray(value, float)))
+
+
+def _horner(coeffs, x):
+    """casacore `Polynomial<Double>::eval`: Horner from the highest term."""
+    accum = coeffs[-1]
+    for c in reversed(coeffs[:-1]):
+        accum *= x
+        accum += c
+    return accum
+
+
 @dataclass(frozen=True)
 class Manual:
-    """CASA's `standard='manual'` Stokes I (spix in log10, CASA's convention)."""
+    """CASA's `setjy(standard='manual', scalebychan=True)` (task C7a,
+    research/c7a-polmodels.md section 2): Stokes I from `fluxdensity`,
+    `reffreq` and `spix` (log10, CASA's convention); linear polarisation from
+    `polindex` and `polangle` (ordinary polynomials in (f - f0)/f0, angle in
+    rad) or from Q and U, rotated by `rotmeas` relative to `reffreq`;
+    V = I(f) * V/I. `fluxdensity` may be I or [I, Q, U, V]."""
 
     fluxdensity: float
     reffreq_hz: float
     spix: tuple = ()
+    q: float = 0.0
+    u: float = 0.0
+    v: float = 0.0
+    polindex: tuple = ()
+    polangle: tuple = ()
+    rotmeas: float = 0.0
 
     def __post_init__(self):
-        object.__setattr__(self, "fluxdensity", float(self.fluxdensity))
-        object.__setattr__(self, "reffreq_hz", parse_frequency(self.reffreq_hz))
-        spix = np.atleast_1d(np.asarray(self.spix, float))
-        object.__setattr__(self, "spix", tuple(float(a) for a in spix))
+        flux = _floats(self.fluxdensity)
+        if not 1 <= len(flux) <= 4:
+            raise ValueError("manual fluxdensity is I or [I, Q, U, V]")
+        quv = [self.q, self.u, self.v]
+        if len(flux) > 1:
+            if any(float(x) != 0 for x in quv):
+                raise ValueError("give Q, U, V in fluxdensity or as q, u, v, not both")
+            quv = list(flux[1:]) + [0.0] * (4 - len(flux))
+        set_ = object.__setattr__
+        set_(self, "fluxdensity", flux[0])
+        set_(self, "q", float(quv[0]))
+        set_(self, "u", float(quv[1]))
+        set_(self, "v", float(quv[2]))
+        set_(self, "reffreq_hz", parse_frequency(self.reffreq_hz))
+        set_(self, "spix", _floats(self.spix))
+        set_(self, "polindex", _floats(self.polindex))
+        set_(self, "polangle", _floats(self.polangle))
+        set_(self, "rotmeas", float(self.rotmeas or 0.0))
+        values = (self.q, self.u, self.v, self.rotmeas)
+        values += self.spix + self.polindex + self.polangle
+        if not all(math.isfinite(x) for x in values):
+            raise ValueError("manual model parameters must be finite")
         if not (math.isfinite(self.fluxdensity) and self.fluxdensity > 0):
             raise ValueError("manual fluxdensity must be a positive Stokes I in Jy")
+        if self.q == 0 and self.u == 0 and bool(self.polindex) != bool(self.polangle):
+            raise ValueError(
+                "polindex and polangle must be given together (with only one, "
+                "CASA's setjy silently writes no linear polarisation)"
+            )
+
+    @property
+    def polarised(self):
+        return bool(self.q or self.u or self.v or (self.polindex and self.polangle))
+
+    @property
+    def casa_path(self):
+        """Which `setjy` model CASA builds (section 2, items 1 and 7)."""
+        tab = len(self.spix) > 1 or len(self.polindex) > 1 or len(self.polangle) > 1
+        if tab:
+            return "tabular"
+        return "spectral-index-channel0" if self.polarised else "spectral-index"
+
+    def _linear(self):
+        """Polynomial coefficients of p and chi after CASA's Q, U override
+        (`sjy_setmanualflux`, item 4); () when there is no linear part."""
+        pi, pa = list(self.polindex), list(self.polangle)
+        if self.q != 0 or self.u != 0:
+            pi0 = math.sqrt(self.q * self.q + self.u * self.u) / self.fluxdensity
+            pa0 = 0.5 * math.atan2(self.u, self.q)
+            if not pi or not pa:
+                pi, pa = [0.0], [0.0]
+            pi[0], pa[0] = pi0, pa0
+        return (tuple(pi), tuple(pa)) if pi and pa else ((), ())
+
+    def _tabular(self, nu, i_flux):
+        """(nchan, 4) as `sjy_setmanualflux` fills its per-channel fluxes."""
+        out = np.zeros(nu.shape + (4,))
+        out[:, 0] = i_flux
+        pi, pa = self._linear()
+        f0, rm = self.reffreq_hz, self.rotmeas
+        i_list = np.asarray(i_flux, float).tolist()
+        for k, f in enumerate(nu.tolist()):
+            if pi:
+                x = (f - f0) / f0
+                ipi, ipa = _horner(pi, x), _horner(pa, x)
+                qv = ipi * i_list[k] * math.cos(2.0 * ipa)
+                uv = ipi * i_list[k] * math.sin(2.0 * ipa)
+                if rm != 0.0:
+                    rot = (
+                        2
+                        * rm
+                        * C_LIGHT
+                        * C_LIGHT
+                        * (f0 * f0 - f * f)
+                        / (f * f * f0 * f0)
+                    )
+                    out[k, 1] = qv * math.cos(rot) - uv * math.sin(rot)
+                    out[k, 2] = qv * math.sin(rot) + uv * math.cos(rot)
+                else:
+                    out[k, 1], out[k, 2] = qv, uv
+            if self.v != 0.0:
+                out[k, 3] = i_list[k] * (self.v / self.fluxdensity)
+        return out
 
     def stokes(self, freq_hz, field_name=None):
         nu = np.asarray(freq_hz, float)
+        i_flux = fluxstd.manual(nu, self.fluxdensity, self.reffreq_hz, self.spix)
+        if not self.polarised:
+            out = np.zeros(nu.shape + (4,))
+            out[..., 0] = i_flux
+            return out
+        if nu.ndim != 1:
+            raise ValueError("a polarised manual model needs a 1-d channel axis")
+        path = self.casa_path
+        if path == "tabular":
+            return self._tabular(nu, i_flux)
+        # SpectralIndex: channel 0's (I, Q, U, V) become the component's flux
+        # at reference channel 0; `SpectralIndex::sampleStokes` scales and
+        # rotates from there (stokes index [spix, 0, RM, 0]).
+        i0, q0, u0, v0 = self._tabular(nu[:1], i_flux[:1])[0].tolist()
+        # The component's flux goes Stokes -> linear (`predictVis`) -> Stokes
+        # (`SkyCompRep::visibility`, `Flux::value`) before it is scaled; U and
+        # V survive exactly, I and Q as (XX + YY)/2 and (XX - YY)/2.
+        xx, yy = i0 + q0, i0 - q0
+        ref = ((xx + yy) / 2, (xx - yy) / 2, u0, v0)
+        alpha = self.spix[0] if self.spix else 0.0
+        nu0, rm = float(nu[0]), self.rotmeas
         out = np.zeros(nu.shape + (4,))
-        out[..., 0] = fluxstd.manual(nu, self.fluxdensity, self.reffreq_hz, self.spix)
+        for k, f in enumerate(nu.tolist()):
+            r = f / nu0
+            out[k, 0] = ref[0] * math.pow(r, alpha)
+            out[k, 3] = ref[3] * math.pow(r, alpha + 0.0)
+            out[k, 1] = ref[1] * math.pow(r, alpha + 0.0)
+            out[k, 2] = ref[2] * math.pow(r, alpha + 0.0)
+            if rm != 0.0:
+                two = (
+                    2
+                    * rm
+                    * C_LIGHT
+                    * C_LIGHT
+                    * (nu0 * nu0 - f * f)
+                    / (f * f * nu0 * nu0)
+                )
+                c2, s2 = math.cos(two), math.sin(two)
+                qv = c2 * out[k, 1] - s2 * out[k, 2]
+                out[k, 2] = s2 * out[k, 1] + c2 * out[k, 2]
+                out[k, 1] = qv
         return out
 
     def describe(self, field_name=None):
-        return {
+        out = {
             "kind": "manual",
             "fluxdensity": self.fluxdensity,
             "reffreq_hz": self.reffreq_hz,
             "spix": list(self.spix),
         }
+        if self.polarised:
+            out.update(
+                q=self.q,
+                u=self.u,
+                v=self.v,
+                polindex=list(self.polindex),
+                polangle=list(self.polangle),
+                rotmeas=self.rotmeas,
+                casa_path=self.casa_path,
+            )
+        return out
+
+
+# CARACal's shipped polarisation-calibrator models (`caracal/data/nrao_xcal.yml`
+# at 8f7bb363; NRAO's 2019 values at 1.47 GHz), with the aliases its polcal
+# worker adds (`polcal_worker.py` lines 1424-1427).
+NRAO_XCAL = {
+    "3C138": {
+        "fluxdensity": 8.33843,
+        "spix": (-0.4981, -0.1552, -0.0102, 0.0223),
+        "reffreq_hz": 1.47e9,
+        "polindex": (0.078,),
+        "polangle": (-0.16755,),
+        "rotmeas": 0.0,
+    },
+    "3C286": {
+        "fluxdensity": 14.7172,
+        "spix": (-0.4507, -0.1798, 0.0357),
+        "reffreq_hz": 1.47e9,
+        "polindex": (0.098,),
+        "polangle": (0.575959,),
+        "rotmeas": 0.0,
+    },
+}
+NRAO_XCAL_ALIASES = {"J1331+3030": "3C286", "J0521+1638": "3C138"}
+
+
+def caracal_xcal(name):
+    """CARACal's `nrao_xcal.yml` model of 3C286 or 3C138 (or an alias) as a
+    `Manual`."""
+    key = NRAO_XCAL_ALIASES.get(str(name), str(name))
+    if key not in NRAO_XCAL:
+        raise ValueError(
+            f"no CARACal polarisation model for {name!r}; have "
+            f"{sorted(NRAO_XCAL) + sorted(NRAO_XCAL_ALIASES)}"
+        )
+    return Manual(**NRAO_XCAL[key])
 
 
 @dataclass(frozen=True)
@@ -217,8 +412,7 @@ class SkyModel:
         polarised = [s.name for s in sources if s.q or s.u or s.v]
         if polarised:
             raise NotImplementedError(
-                f"{self.path}: components {polarised[:5]} carry Q, U or V; "
-                "core.predict_components predicts Stokes I only, and " + C7A
+                f"{self.path}: components {polarised[:5]} carry Q, U or V; " + C7A
             )
         return sources
 
@@ -231,22 +425,15 @@ class SkyModel:
         }
 
 
-def _scalar_flux(value):
-    """I from CASA's fluxdensity (a number or [I, Q, U, V])."""
-    values = np.atleast_1d(np.asarray(value, float))
-    if values.size > 4 or np.any(values[1:] != 0):
-        raise NotImplementedError(C7A)
-    return float(values[0])
-
-
 def spec_from_config(config):
     """A model spec from a config mapping (W2's `calibrate`):
 
     - `{"standard": "Stevens-Reynolds 2016", "source": "J1939-6342"}`
       (`source` optional: the field name); aliases as `fluxstd` (SR2016,
       PB2010, Baars, PB2017);
-    - `{"standard": "manual", "fluxdensity": S, "reffreq": "1.4GHz",
-      "spix": [...]}`;
+    - `{"standard": "manual", "fluxdensity": S or [I, Q, U, V],
+      "reffreq": "1.4GHz", "spix": [...], "polindex": [...],
+      "polangle": [...], "rotmeas": RM}` (the last three optional);
     - `{"skymodel": "path"}`.
 
     `scalebychan` may be given only as True and `usescratch` is ignored
@@ -264,16 +451,15 @@ def spec_from_config(config):
             raise ValueError("a model needs 'standard' or 'skymodel'")
         standard = str(cfg.pop("standard"))
         if standard.lower() == "manual":
-            for key in ("polindex", "polangle", "rotmeas"):
-                value = cfg.pop(key, None)
-                if value is not None and np.any(np.asarray(value, float) != 0):
-                    raise NotImplementedError(C7A)
             if "fluxdensity" not in cfg or "reffreq" not in cfg:
                 raise ValueError("a manual model needs fluxdensity and reffreq")
             spec = Manual(
-                _scalar_flux(cfg.pop("fluxdensity")),
+                cfg.pop("fluxdensity"),
                 cfg.pop("reffreq"),
                 cfg.pop("spix", ()),
+                polindex=cfg.pop("polindex", ()),
+                polangle=cfg.pop("polangle", ()),
+                rotmeas=cfg.pop("rotmeas", 0.0),
             )
         else:
             spec = Standard(
@@ -391,7 +577,7 @@ def set_model(
             for d in ddids:
                 dd = meta["ddid"][d]
                 stokes = spec.stokes(dd["freq_hz"], meta["field_names"][f])
-                spectra[f, d] = stokes[:, 0]
+                spectra[f, d] = stokes
                 point[f, d] = correlations(stokes, dd["corr_type"]).astype(np.complex64)
     receipt = {
         "ms": str(ms),
@@ -454,8 +640,10 @@ def set_model(
                 pick = [0, len(nu) // 2, len(nu) - 1]
                 per[str(dd["spw"])] = {
                     "freq_hz": nu[pick].tolist(),
-                    "stokes_i_jy": spectra[f, d][pick].tolist(),
+                    "stokes_i_jy": spectra[f, d][pick, 0].tolist(),
                 }
+                if np.any(spectra[f, d][:, 1:] != 0):
+                    per[str(dd["spw"])]["stokes_iquv_jy"] = spectra[f, d][pick].tolist()
             entry["spectral_windows"] = per
         else:
             entry["components"] = len(sky_args[f]["flux"])
@@ -465,10 +653,13 @@ def set_model(
 
 
 __all__ = [
+    "NRAO_XCAL",
+    "NRAO_XCAL_ALIASES",
     "Manual",
     "PointStokes",
     "SkyModel",
     "Standard",
+    "caracal_xcal",
     "correlations",
     "metadata",
     "parse_frequency",

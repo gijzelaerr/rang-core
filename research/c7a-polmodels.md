@@ -6,8 +6,18 @@ models"), the model half of step 8 of
 `fp-c7a-polmodels` from main `a05119a`. It extends C3a's
 `rang.calmodels.set_model` ([c3a-models.md](c3a-models.md)).
 
-**Status: proposed (design, cases and tolerances frozen in this commit,
-before any comparison).** Nothing is implemented or measured in this commit.
+**Status: implemented and measured (run `-03`); M7 and M8 fail as written.**
+The design, cases and tolerances were frozen in `9893fbe` before any
+comparison. On CASA's tabular path (CARACal's 3C286 and 3C138, polynomial
+`polindex`/`polangle`, RM, `fluxdensity` Q, U, V) rang equals CASA 6.7.6.14
+`setjy` at **0 float32 ulps** on the real parts of all four correlations, on
+both MSs. MODEL_DATA is the sky-frame coherency, independent of the
+parallactic angle and of RECEPTOR_ANGLE (P1, P2 pass). On CASA's
+`SpectralIndex` path (one `spix` term; M7, CARACal's Taylor & Legodi form,
+and M8) CASA's model is rang's times a constant 1 − 5.7e-6 and 1 − 1.6e-5:
+G1 and G2 fail. Section 8 has the diagnosis. Archive:
+[results/c7a-polmodels.json](results/c7a-polmodels.json). No novelty is
+claimed: this reproduces `setjy`.
 
 ## 1. Scope
 
@@ -247,3 +257,78 @@ the polarisation keys; a polarised `set_model` writing all four
 correlations. `tests/test_core_config.py` (or the existing calibrate tests):
 `source: manual` with Q, U, V and polarisation keys validates; polarisation
 keys with another source are refused.
+
+As implemented: the tests are in `tests/test_calmodels.py` (seven parametrised
+models against the independent evaluation, the unpolarised path unchanged,
+`NRAO_XCAL`, a four-correlation write) and `tests/test_w2_commands.py` (the
+calibrate refusals); they pass.
+
+## 8. Measured (2026-11-06, after the freeze)
+
+Run `/mnt/d/rang/outputs/c7a-20261106-03` (928 MB, ignored), made by
+`examples/c7a_polmodels.py run <run>` under `flock ~/.rang-heavy.lock`, code
+SHA-256 `d6ca3b79…` (`calmodels.py`), `1d992220…` (`c7a_polmodels.py`),
+`745c6fbb…` (`c3a_models.py`). Inputs hashed before and after, unchanged
+(S `74f4c010…`, A `141f7ed6…`). No seeds: every model is deterministic.
+
+| # | Path | G1 max \|Δ\|/I | G2 real ulps | G2 imag /I | G3 | Pass |
+| --- | --- | --- | --- | --- | --- | --- |
+| M1 3C286, S | tabular | 1.2e-13 | 0 | 1.2e-13 (CASA 1.8e-12 Jy) | yes | **yes** |
+| M2 3C138, S | tabular | 1.3e-13 | 0 | 1.3e-13 | yes | **yes** |
+| M3 3C286, A | tabular | 0 (all cells bit-identical) | 0 | 0 | yes | **yes** |
+| M4 polynomials, RM 50, A | tabular | 0 (bit-identical) | 0 | 0 | yes | **yes** |
+| M5 I, Q, U, V + override, RM 10, S | tabular | 1.2e-13 | 0 | 1.2e-13 | yes | **yes** |
+| M6 I, Q, U, RM −30, A | tabular | 0 (bit-identical) | 0 | 0 | yes | **yes** |
+| M7 Taylor & Legodi J1331+3030, A | SpectralIndex | **6.1e-6** | **96** | 0 | yes | **no** |
+| M8 V only, SIM-GCAL, A | SpectralIndex | **1.6e-5** | **266** | 1.6e-7 | yes | **no** |
+
+Frame checks: **P1 passes** (RECEPTOR_ANGLE 0 and −π/2 give bit-identical
+MODEL_DATA in every cell); **P2 passes** (M3 and M4: every `3C286-SIM` row
+bit-identical per channel over 115° of parallactic angle). FEED
+`POLARIZATION_TYPE` is `X, Y` on both MSs; RECEPTOR_ANGLE is −π/2 on A1 small
+and **0 on the slice** (read by casatools: rang's table reader cannot read
+that string-array column, see 10).
+
+Class T: **T1 passes.** At 1.47 GHz rang's models give 9.800 % and
+33.00002° (3C286) and 7.800 % and −9.59991° (3C138); CASA's MODEL_DATA over
+all 2048 channels of S gives p 9.799998–9.800002 % and χ 33.000006–33.000031°,
+and 7.799995–7.800005 % and −9.599914 to −9.599901°: the published 2019 values
+within the tables' rounding, with χ's sign as published (Re XY > 0 for 3C286).
+**T2 as predicted**, to the digit: Δp +1.2, +0.3, −0.1, +1.2 points for 3C286
+at 1.05, 1.45, 1.64, 1.02 GHz and Δχ 0; 3C138 Δp +2.2, +0.3, −0.6, +2.3 and
+Δχ +4.4°, +1.4°, +0.4°, +3.4°. CARACal's constant-p models are 1.2 (3C286)
+and 2.3 (3C138) points high at the bottom of the published L band; this is
+the model's accuracy, not rang's. **T3:** Taylor & Legodi's MeerKAT 3C286
+angle is 29.2°, 3.8° from the NRAO 33°; 3C138 −15.1° against −9.6°.
+
+Wall time: CASA `setjy` 1.4 s (S) and 2.6 s (A) per call, 21.2 s for nine
+calls in one container; rang `set_model` 0.8 s (S) and 10.6 s (A, the column
+added on `/mnt/d`); whole run 103.9 s.
+
+**Diagnosis of M7 and M8 (post hoc, from run `-03`'s copies).** CASA's cells
+are rang's times a constant: I, Q, U and V ratios 0.99999429 (M7) and
+0.99998405 (M8), the same in every channel and Stokes to float32 noise, and
+χ equal to 1e-5°. The rotation and spectral shapes agree; only the scale
+differs. The cause is `Imager::sjy_setmanualflux` lines 5466–5495: channel 0's
+I is evaluated at `cvt(ch0)`, the channel-0 frequency converted from the MS
+frame (TOPO here) to `reffreq`'s frame (LSRK, casacore's default for a
+quantity string), at the epoch of main-table row 0 (`Imager.cc` 4705) and the
+field's direction; then the `SpectralIndex` component is referenced to the
+unconverted channel 0. So CASA = rang × K, K = (f_LSRK(ch0)/f_TOPO(ch0))^α.
+A prediction with nothing fitted (astropy barycentric correction plus the
+Sun's LSRK motion, the ANTENNA centroid, row 0's TIME): v/c = 9.197e-6
+(3C286-SIM) and 2.673e-5 (SIM-GCAL); implied from CASA's cells (mean over
+channels): 9.066e-6 and 2.658e-5. Sign and size agree for both directions at
+one epoch, within 1.4 % and 0.55 % (an offset of about 40 m/s for both, which
+I did not trace; it is 1e-7 in K). The tabular path takes Q, U and I at the
+unconverted frequencies, which is why M1–M6 agree to the bit.
+
+**Deviations.**
+
+- Run `-01` (`/mnt/d/rang/outputs/c7a-20261106-01`, kept, 37 MB) was killed
+  by a host reboot after copying two MSs; nothing was compared.
+- Run `-02` (kept, 928 MB) wrote every copy and then stopped in the frame
+  checks: rang's table reader cannot read FEED's `POLARIZATION_TYPE`. Its
+  comparison results were never written or read. The harness now reads FEED
+  with casatools inside the CASA image (`casa-feed`) and writes the case
+  results before the frame checks; `-03` reran everything from fresh copies.

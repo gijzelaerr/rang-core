@@ -599,15 +599,21 @@ def test_model_and_apply_refusals_name_their_tasks():
         assert errors == [], errors
         return {(r.path, r.task) for r in core_config.refusals(config, stages)}
 
+    # A polarised manual model is written since C7a (research/c7a-polmodels.md).
     model = {
         "source": "manual",
         "flux_jy": [1, 0.1, 0, 0],
         "reffreq_hz": 1e9,
         "rotmeas": 3.0,
     }
-    assert tasks({"calibrate": {"model": model}}, ["calibrate"]) == {
-        ("calibrate.model.flux_jy", "C7a"),
-        ("calibrate.model.rotmeas", "C7a"),
+    assert tasks({"calibrate": {"model": model}}, ["calibrate"]) == set()
+    one_sided = {**model, "flux_jy": [1], "polindex": [0.1]}
+    assert tasks({"calibrate": {"model": one_sided}}, ["calibrate"]) == {
+        ("calibrate.model.polindex", "")
+    }
+    elsewhere = {"source": "setjy", "polangle": [0.5]}
+    assert tasks({"calibrate": {"model": elsewhere}}, ["calibrate"]) == {
+        ("calibrate.model.polangle", "")
     }
     secondary = {
         "calibrate": {
