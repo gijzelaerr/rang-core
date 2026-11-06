@@ -222,15 +222,15 @@ def test_frequency_nearest_differs_from_linear_only_off_grid(case):
     assert not np.allclose(lin[:, ~on_grid], near[:, ~on_grid], rtol=1e-3, atol=0)
 
 
-@pytest.mark.parametrize(
-    "vis_cal,step", [("Kcross Jones", "step 9"), ("Xf Jones", "step 9")]
-)
-def test_later_terms_refused(case, vis_cal, step):
+@pytest.mark.parametrize("vis_cal", ["Kcross Jones", "Xf Jones"])
+def test_malformed_cross_hand_tables_refused(case, vis_cal):
+    # KCROSS and Xf are applied since task C6 (tests/test_cal_pol.py); a G
+    # table relabelled as one has the wrong parameter layout and is refused.
     data, flag, time, a1, a2, tabs = case
     table = caltable.CalTable(
         vis_cal, tabs["G"].main, tabs["G"].subtables, dict(tabs["G"].keywords)
     )
-    with pytest.raises(ValueError, match=step):
+    with pytest.raises(ValueError, match="params must hold|parameters per channel"):
         cal_apply.apply(data, flag, time, a1, a2, freqs(NCHAN), [table])
 
 

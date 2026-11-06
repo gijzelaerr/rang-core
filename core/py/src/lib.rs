@@ -55,6 +55,7 @@ mod cal_delay;
 mod cal_delay_offset;
 mod cal_fluxscale;
 mod cal_gain;
+mod cal_pol;
 mod clean;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
@@ -2824,5 +2825,10 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
         cal_delay_offset::cal_bandpass_fill_gaps,
         m
     )?)?;
+    // Task C6: the polarisation terms (research/c6-polterms.md).
+    m.add_function(wrap_pyfunction!(cal_pol::cal_parang_rotate, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_pol::cal_kcross_solve, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_pol::cal_xf_solve, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_pol::cal_df_solve, m)?)?;
     Ok(())
 }

@@ -37,8 +37,13 @@
 //!   CASA writes it. `caltable.correct` flags all four correlations instead.
 //!   Flags are computed in correct order for both directions.
 //!
-//! KCROSS, Xf and P have their place in the order and the interface but are
-//! refused with an error naming the C1 step that adds them.
+//! KCROSS and Xf (task C6, `research/c6-polterms.md`): KCROSS is K's form
+//! with the table's pivot (`KcrossJones : KJones`; CASA writes the delay in
+//! the first parameter and 0 in the second, so Y is 1), flagged per
+//! receptor; Xf is `diag(x, 1)` with one parameter per channel, and a flagged
+//! parameter flags both receptors (`XJones::calcAllJones` sets both diagonal
+//! elements' OK from the one parameter). P has its place in the order but is
+//! not a table: it is refused here and applied by `cal::parang`.
 //!
 //! `apply_jones` (task C4b) applies a general 2x2 term on its own solution
 //! bins, as QuartiCal's `complex` gains are solved: per row a time bin, per
@@ -111,12 +116,9 @@ impl Kind {
 
     fn not_yet(self) -> Option<&'static str> {
         match self {
-            Kind::KCross => {
-                Some("KCROSS apply is not implemented yet: C1 step 9 (task C6b) adds it")
-            }
-            Kind::Xf => Some("Xf apply is not implemented yet: C1 step 9 (task C6b) adds it"),
             Kind::P => Some(
-                "P (parallactic angle) apply is not implemented yet: C1 step 8 (task C6a) adds it",
+                "P (parallactic angle) is not a table: rotate with cal::parang \
+                 (rang.cal_pol, task C6) after the tables",
             ),
             _ => None,
         }
@@ -605,7 +607,7 @@ fn fill(
         };
         let flag = |p: usize| ff[c * npar + p];
         *r = match t.kind {
-            Kind::K => {
+            Kind::K | Kind::KCross => {
                 let dnu = fout_ghz[c] - k_ref_ghz;
                 let v: [C; 2] = std::array::from_fn(|p| {
                     let phase = std::f64::consts::TAU * par(p).re * dnu;
@@ -618,6 +620,10 @@ fn fill(
             }
             Kind::T => Rec {
                 v: [par(0), par(0)],
+                f: [flag(0), flag(0)],
+            },
+            Kind::Xf => Rec {
+                v: [par(0), C::ONE],
                 f: [flag(0), flag(0)],
             },
             _ => Rec {
@@ -1246,21 +1252,130 @@ mod tests {
     }
 
     #[test]
-    fn later_terms_refused_with_their_step() {
+    fn p_is_refused_as_a_table() {
         let mut rng = Rng(1);
         let v = vis(&mut rng);
-        for (kind, step) in [
-            (Kind::KCross, "step 9"),
-            (Kind::Xf, "step 9"),
-            (Kind::P, "step 8"),
-        ] {
-            let mut t = make_term(&mut rng, Kind::G, 1, 1);
-            t.kind = kind;
-            let terms = [t.term()];
+        let mut t = make_term(&mut rng, Kind::G, 1, 1);
+        t.kind = Kind::P;
+        let terms = [t.term()];
+        let mut od = vec![0f32; v.data.len()];
+        let mut of = vec![0u8; v.flags.len()];
+        let e = apply(&v.chunk(), &terms, Direction::Correct, 0, &mut od, &mut of).unwrap_err();
+        assert!(e.contains("parang"), "{e}");
+    }
+
+    /// One-row, one-time term of `kind` over `NANT` antennas (task C6).
+    fn one_slot(kind: Kind, params: Vec<f32>, flags: Vec<u8>, sol_freq: Vec<f64>) -> Owned {
+        Owned {
+            kind,
+            time_interp: Interp::Nearest,
+            freq_interp: Interp::Linear,
+            slot_start: (0..=NANT).collect(),
+            slot_time: vec![150.0; NANT],
+            nchan_sol: sol_freq.len(),
+            params,
+            flags,
+            sol_freq,
+        }
+    }
+
+    #[test]
+    fn kcross_is_a_delay_on_x_only() {
+        // CASA's Kcross table: the delay in the first parameter, 0 in the
+        // second; every antenna holds the array value.
+        let mut rng = Rng(5);
+        let v = vis(&mut rng);
+        let tau = 3.25f32;
+        let mid = [1.5e9];
+        let params = (0..NANT).flat_map(|_| [tau, 0.0]).collect();
+        let t = one_slot(Kind::KCross, params, vec![0; 2 * NANT], mid.to_vec());
+        let mut od = vec![0f32; v.data.len()];
+        let mut of = vec![0u8; v.flags.len()];
+        apply(
+            &v.chunk(),
+            &[t.term()],
+            Direction::Correct,
+            0,
+            &mut od,
+            &mut of,
+        )
+        .unwrap();
+        for cell in 0..v.time.len() * NCHAN {
+            let c = cell % NCHAN;
+            let ph = std::f64::consts::TAU * f64::from(tau) * (v.freq[c] - mid[0]) / 1e9;
+            let kx = C::new(ph.cos(), ph.sin());
+            // XX: k conj(k) = 1; XY: k_x; YX: conj(k_x); YY: 1.
+            let g = [C::ONE, kx, kx.conj(), C::ONE];
+            for (k, gk) in g.iter().enumerate() {
+                let d = C::new(
+                    f64::from(v.data[8 * cell + 2 * k]),
+                    f64::from(v.data[8 * cell + 2 * k + 1]),
+                );
+                let want = d.div(*gk);
+                let got = C::new(
+                    f64::from(od[8 * cell + 2 * k]),
+                    f64::from(od[8 * cell + 2 * k + 1]),
+                );
+                assert!((got.re - want.re).abs() < 1e-4 && (got.im - want.im).abs() < 1e-4);
+            }
+            for k in 0..4 {
+                assert_eq!(of[4 * cell + k], v.flags[4 * cell + k]);
+            }
+        }
+    }
+
+    #[test]
+    fn xf_is_diag_x_one_and_its_flag_flags_both_receptors() {
+        let mut rng = Rng(6);
+        let v = vis(&mut rng);
+        let x: Vec<C> = (0..NCHAN)
+            .map(|c| {
+                let a = 0.5 + 0.01 * c as f64;
+                C::new(a.cos(), a.sin())
+            })
+            .collect();
+        let mut params = Vec::new();
+        let mut flags = Vec::new();
+        // Channel 9 flagged everywhere (bridged in frequency, as CASA does);
+        // antenna 2 flagged in every channel (both receptors flagged).
+        for a in 0..NANT {
+            for (c, xc) in x.iter().enumerate() {
+                params.push(xc.re as f32);
+                params.push(xc.im as f32);
+                flags.push(u8::from(c == 9 || a == 2));
+            }
+        }
+        let t = one_slot(Kind::Xf, params, flags, v.freq.clone());
+        for dir in [Direction::Correct, Direction::Corrupt] {
             let mut od = vec![0f32; v.data.len()];
             let mut of = vec![0u8; v.flags.len()];
-            let e = apply(&v.chunk(), &terms, Direction::Correct, 0, &mut od, &mut of).unwrap_err();
-            assert!(e.contains(step), "{e}");
+            apply(&v.chunk(), &[t.term()], dir, 0, &mut od, &mut of).unwrap();
+            for cell in 0..v.time.len() * NCHAN {
+                let (row, c) = (cell / NCHAN, cell % NCHAN);
+                let bad = v.a1[row] == 2 || v.a2[row] == 2;
+                let xc = C::new(f64::from(x[c].re as f32), f64::from(x[c].im as f32));
+                let g = [C::ONE, xc, xc.conj(), C::ONE];
+                for (k, gk) in g.iter().enumerate() {
+                    let fl = v.flags[4 * cell + k] != 0 || bad;
+                    assert_eq!(of[4 * cell + k] != 0, fl, "cell {cell} corr {k}");
+                    if bad {
+                        continue;
+                    }
+                    let d = C::new(
+                        f64::from(v.data[8 * cell + 2 * k]),
+                        f64::from(v.data[8 * cell + 2 * k + 1]),
+                    );
+                    let want = match dir {
+                        Direction::Correct => d.div(*gk),
+                        Direction::Corrupt => d.mul(*gk),
+                    };
+                    let got = C::new(
+                        f64::from(od[8 * cell + 2 * k]),
+                        f64::from(od[8 * cell + 2 * k + 1]),
+                    );
+                    assert!((got.re - want.re).abs() < 1e-4 && (got.im - want.im).abs() < 1e-4);
+                }
+            }
         }
     }
 

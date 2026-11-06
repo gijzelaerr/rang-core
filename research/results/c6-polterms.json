@@ -1,0 +1,2512 @@
+{
+ "c6-20261106-02/parang.json": {
+  "version": "poldx",
+  "results": {
+   "casa": {
+    "delta_rad": {
+     "n": 491520,
+     "median": 4.984733306473236e-06,
+     "p95": 7.997001780015981e-06,
+     "max": 1.2063085313156324e-05
+    },
+    "flags_casa": 0,
+    "pass": true
+   },
+   "rang": {
+    "delta_rad": {
+     "n": 491520,
+     "median": 0.005961100806427126,
+     "p95": 0.009399006233486546,
+     "max": 0.009405462099391351
+    },
+    "flags_casa": 0,
+    "pass": false
+   }
+  },
+  "pass": true
+ },
+ "c6-20261106-03/compare.json": {
+  "version": "poldx",
+  "casa_run": "/mnt/d/rang/outputs/c6-20261106-01",
+  "results": {
+   "B-poldx": {
+    "B-poldx": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        4,
+        4
+       ],
+       "products": {
+        "products": 960,
+        "median_rel": 2.911589399445802e-05,
+        "p95_rel": 8.857924694893882e-05,
+        "max_rel": 0.00016533135203644633
+       },
+       "phase_deg": {
+        "n": 960,
+        "median": 0.0016678788815625012,
+        "p95": 0.005075045255944131,
+        "max": 0.009473160840570927
+       },
+       "flags_differ": 0,
+       "refant_equal": true,
+       "max_time_diff_s": 0.0016660690307617188,
+       "pass": true
+      },
+      "Kcross": {
+       "intervals": [
+        4,
+        4
+       ],
+       "rang_ns": [
+        2.2868452072143555,
+        2.2386789321899414,
+        2.3527097702026367,
+        2.343461036682129
+       ],
+       "casa_ns": [
+        2.2861979007720947,
+        2.2368030548095703,
+        2.3532583713531494,
+        2.321082830429077
+       ],
+       "abs_diff_ns": [
+        0.0006473064422607422,
+        0.0018758773803710938,
+        0.0005486011505126953,
+        0.022378206253051758
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 0.03028583526611328,
+       "pass": false
+      },
+      "Xf": {
+       "intervals": [
+        1,
+        1
+       ],
+       "phase_deg": {
+        "n": 256,
+        "median": 0.013237467035651207,
+        "p95": 0.10617796704173088,
+        "max": 0.251774400472641
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": true
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 112120,
+        "median": 0.00017830725846579298,
+        "p95": 0.0005309206520905707,
+        "max": 0.005386754404753447
+       },
+       "referenced": {
+        "n": 7526,
+        "median": 0.00016761373990448192,
+        "p95": 0.0005581337172770873,
+        "max": 1.0141124725341797
+       },
+       "flags_differ": 658,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 7526,
+        "median": 0.023450428619980812,
+        "p95": 0.04302686173468828,
+        "max": 1.0213600397109985
+       },
+       "clip_flags_differ": 728,
+       "clip_flags": [
+        8,
+        736
+       ],
+       "pass": false
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 10.031378998000946,
+      "Kcross": 8.827938636999534,
+      "Xf": 8.891278578999845,
+      "Df": 8.783512802001496
+     },
+     "kcross_err_ns": [
+      5.809395182779092e-05,
+      0.0001574237693273564,
+      5.4899792482063334e-05,
+      0.0008704976543743789
+     ],
+     "df_gauge_fixed": true,
+     "pass": false
+    },
+    "C-poldx": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        4,
+        4
+       ],
+       "products": {
+        "products": 960,
+        "median_rel": 2.911589399445802e-05,
+        "p95_rel": 8.857924694893882e-05,
+        "max_rel": 0.00016533135203644633
+       },
+       "phase_deg": {
+        "n": 960,
+        "median": 0.0016678788815625012,
+        "p95": 0.005075045255944131,
+        "max": 0.009473160840570927
+       },
+       "flags_differ": 0,
+       "refant_equal": true,
+       "max_time_diff_s": 0.0016660690307617188,
+       "pass": true
+      },
+      "Kcross": {
+       "intervals": [
+        4,
+        4
+       ],
+       "rang_ns": [
+        2.286844253540039,
+        2.2386796474456787,
+        2.3527088165283203,
+        2.343475103378296
+       ],
+       "casa_ns": [
+        2.2861979007720947,
+        2.2368030548095703,
+        2.3532583713531494,
+        2.321082830429077
+       ],
+       "abs_diff_ns": [
+        0.0006463527679443359,
+        0.0018765926361083984,
+        0.0005495548248291016,
+        0.02239227294921875
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 0.03028583526611328,
+       "pass": false
+      },
+      "Xf": {
+       "intervals": [
+        1,
+        1
+       ],
+       "phase_deg": {
+        "n": 256,
+        "median": 0.014239209704101086,
+        "p95": 0.11275467835366726,
+        "max": 0.23597848415374756
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": true
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 112120,
+        "median": 0.0004235464002704248,
+        "p95": 0.0012772040965501202,
+        "max": 0.005943333730101585
+       },
+       "referenced": {
+        "n": 7526,
+        "median": 0.00033915099629666656,
+        "p95": 0.001265714701730758,
+        "max": 1.014150857925415
+       },
+       "flags_differ": 658,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 7526,
+        "median": 0.023450428619980812,
+        "p95": 0.04302686173468828,
+        "max": 1.0213600397109985
+       },
+       "clip_flags_differ": 728,
+       "clip_flags": [
+        8,
+        736
+       ],
+       "pass": false
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 9.762526657001217,
+      "Kcross": 9.682630448000054,
+      "Xf": 8.775367901000209,
+      "Df": 9.331589280000117
+     },
+     "kcross_err_ns": [
+      5.809389812071333e-05,
+      0.0001574233002911058,
+      5.4899820587463516e-05,
+      0.0008705094078067651
+     ],
+     "df_gauge_fixed": true,
+     "composite": {
+      "relative_to_cell_max": {
+       "n": 6881280,
+       "median": 8.293302262481427e-05,
+       "p95": 0.002804703233221381,
+       "max": 1.0152675994141662
+      },
+      "flags_exact": true,
+      "pass": true
+     },
+     "pass": false
+    }
+   },
+   "B-poldx-uv": {
+    "B-poldx-uv": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        16,
+        16
+       ],
+       "products": {
+        "products": 3840,
+        "median_rel": 5.3201158152660355e-05,
+        "p95_rel": 0.00016590171435382217,
+        "max_rel": 0.00037591232103295624
+       },
+       "phase_deg": {
+        "n": 3840,
+        "median": 0.0030484067974612117,
+        "p95": 0.009505233215168114,
+        "max": 0.021537842229008675
+       },
+       "flags_differ": 0,
+       "refant_equal": true,
+       "max_time_diff_s": 3.814697265625e-06,
+       "pass": true
+      },
+      "Kcross": {
+       "intervals": [
+        1,
+        1
+       ],
+       "rang_ns": [
+        2.3197741508483887
+       ],
+       "casa_ns": [
+        2.3197102546691895
+       ],
+       "abs_diff_ns": [
+        6.389617919921875e-05
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 27.89260196685791,
+       "pass": true
+      },
+      "Xf": {
+       "intervals": [
+        4,
+        4
+       ],
+       "phase_deg": {
+        "n": 1024,
+        "median": 0.47656771540641785,
+        "p95": 22.5785019874572,
+        "max": 146.27162170410156
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": false
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 112120,
+        "median": 0.00018240326608065516,
+        "p95": 0.0005446378549095241,
+        "max": 0.00611798046156764
+       },
+       "referenced": {
+        "n": 7526,
+        "median": 0.00017392921290593222,
+        "p95": 0.0005727075331378728,
+        "max": 1.0138694047927856
+       },
+       "flags_differ": 658,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 7526,
+        "median": 0.023466026410460472,
+        "p95": 0.04318311624228954,
+        "max": 1.0209214687347412
+       },
+       "clip_flags_differ": 728,
+       "clip_flags": [
+        8,
+        736
+       ],
+       "pass": false
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 9.380849418999787,
+      "Kcross": 9.297822434999034,
+      "Xf": 8.830901911000183,
+      "Df": 8.657237080000414
+     },
+     "kcross_err_ns": [
+      4.000530630530189e-05
+     ],
+     "df_gauge_fixed": true,
+     "pass": false
+    },
+    "C-poldx-uv": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        16,
+        16
+       ],
+       "products": {
+        "products": 3840,
+        "median_rel": 5.3201158152660355e-05,
+        "p95_rel": 0.00016590171435382217,
+        "max_rel": 0.00037591232103295624
+       },
+       "phase_deg": {
+        "n": 3840,
+        "median": 0.0030484067974612117,
+        "p95": 0.009505233215168114,
+        "max": 0.021537842229008675
+       },
+       "flags_differ": 0,
+       "refant_equal": true,
+       "max_time_diff_s": 3.814697265625e-06,
+       "pass": true
+      },
+      "Kcross": {
+       "intervals": [
+        1,
+        1
+       ],
+       "rang_ns": [
+        2.3197736740112305
+       ],
+       "casa_ns": [
+        2.3197102546691895
+       ],
+       "abs_diff_ns": [
+        6.341934204101562e-05
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 27.89260196685791,
+       "pass": true
+      },
+      "Xf": {
+       "intervals": [
+        4,
+        4
+       ],
+       "phase_deg": {
+        "n": 1024,
+        "median": 0.473589763045311,
+        "p95": 22.572933959960864,
+        "max": 146.2592010498047
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": false
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 112120,
+        "median": 0.000191098362847697,
+        "p95": 0.0005861662590177722,
+        "max": 0.006174622103571892
+       },
+       "referenced": {
+        "n": 7526,
+        "median": 0.0001790222740964964,
+        "p95": 0.0005871607718290761,
+        "max": 1.0138659477233887
+       },
+       "flags_differ": 658,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 7526,
+        "median": 0.023466026410460472,
+        "p95": 0.04318311624228954,
+        "max": 1.0209214687347412
+       },
+       "clip_flags_differ": 728,
+       "clip_flags": [
+        8,
+        736
+       ],
+       "pass": false
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 9.70292206099839,
+      "Kcross": 9.359708260000843,
+      "Xf": 9.316883626001072,
+      "Df": 9.059418016000564
+     },
+     "kcross_err_ns": [
+      4.0005198700728526e-05
+     ],
+     "df_gauge_fixed": true,
+     "composite": {
+      "relative_to_cell_max": {
+       "n": 6881280,
+       "median": 0.00010220987167055148,
+       "p95": 0.013985765097529704,
+       "max": 1.0175703661984818
+      },
+      "flags_exact": true,
+      "pass": false
+     },
+     "pass": false
+    }
+   },
+   "B-twin": {
+    "B-twin": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        4,
+        3
+       ],
+       "pass": false
+      },
+      "Kcross": {
+       "intervals": [
+        4,
+        4
+       ],
+       "rang_ns": [
+        2.2876319885253906,
+        2.252018928527832,
+        2.3517489433288574,
+        2.3272616863250732
+       ],
+       "casa_ns": [
+        2.2872674465179443,
+        2.2504754066467285,
+        2.3518500328063965,
+        2.3124730587005615
+       ],
+       "abs_diff_ns": [
+        0.00036454200744628906,
+        0.0015435218811035156,
+        0.0001010894775390625,
+        0.014788627624511719
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 0.00019359588623046875,
+       "pass": true
+      },
+      "Xf": {
+       "intervals": [
+        1,
+        1
+       ],
+       "phase_deg": {
+        "n": 256,
+        "median": 0.009393691550940275,
+        "p95": 0.04033634718507528,
+        "max": 0.04105876386165619
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": true
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 122880,
+        "median": 7.746020358467831e-08,
+        "p95": 2.4863834227062375e-07,
+        "max": 6.832328836026136e-07
+       },
+       "referenced": {
+        "n": 8192,
+        "median": 5.194530494634364e-08,
+        "p95": 2.026581825020912e-07,
+        "max": 5.297907819112879e-07
+       },
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 8192,
+        "median": 0.02331259660422802,
+        "p95": 0.042714867368340494,
+        "max": 0.04712279513478279
+       },
+       "clip_flags_differ": 0,
+       "clip_flags": [
+        0,
+        0
+       ],
+       "pass": true
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 9.632439345999956,
+      "Kcross": 9.066019653000694,
+      "Xf": 8.994139209000423,
+      "Df": 9.209539785000743
+     },
+     "kcross_err_ns": [
+      5.574015885383549e-05,
+      0.0003209511712391554,
+      5.268745484967244e-05,
+      0.0008696793092349713
+     ],
+     "df_gauge_fixed": true,
+     "pass": false
+    },
+    "C-twin": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        4,
+        3
+       ],
+       "pass": false
+      },
+      "Kcross": {
+       "intervals": [
+        4,
+        4
+       ],
+       "rang_ns": [
+        2.287626028060913,
+        2.2415010929107666,
+        2.351747751235962,
+        2.3272616863250732
+       ],
+       "casa_ns": [
+        2.2872674465179443,
+        2.2504754066467285,
+        2.3518500328063965,
+        2.3124730587005615
+       ],
+       "abs_diff_ns": [
+        0.00035858154296875,
+        0.008974313735961914,
+        0.00010228157043457031,
+        0.014788627624511719
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 0.00019359588623046875,
+       "pass": true
+      },
+      "Xf": {
+       "intervals": [
+        1,
+        1
+       ],
+       "phase_deg": {
+        "n": 256,
+        "median": 0.4535919278860092,
+        "p95": 0.6468866467475891,
+        "max": 0.6498907804489136
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": true
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 122880,
+        "median": 0.0002414377377135679,
+        "p95": 0.0007252396346302703,
+        "max": 0.0011543993605300784
+       },
+       "referenced": {
+        "n": 8192,
+        "median": 0.00017230248340638354,
+        "p95": 0.0006775900663342326,
+        "max": 0.0009156506275758147
+       },
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 8192,
+        "median": 0.02331259660422802,
+        "p95": 0.042714867368340494,
+        "max": 0.04712279513478279
+       },
+       "clip_flags_differ": 0,
+       "clip_flags": [
+        0,
+        0
+       ],
+       "pass": true
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 9.595686278998983,
+      "Kcross": 8.787646787000995,
+      "Xf": 9.027583470999161,
+      "Df": 8.712865253999553
+     },
+     "kcross_err_ns": [
+      5.5740192444970216e-05,
+      0.0001529921103568914,
+      5.268428557407594e-05,
+      0.0008696793117244442
+     ],
+     "df_gauge_fixed": true,
+     "composite": {
+      "relative_to_cell_max": {
+       "n": 6881280,
+       "median": 0.00026899855879748544,
+       "p95": 0.3719321089869877,
+       "max": 1.999518001981117
+      },
+      "flags_exact": true,
+      "pass": false
+     },
+     "pass": false
+    }
+   }
+  },
+  "O2": {
+   "cells_both_unflagged": 448544,
+   "flags_added_by_tfcrop": 0,
+   "chi_change_deg": {
+    "n": 448544,
+    "median": 0.0,
+    "p95": 0.0006892172563663281,
+    "max": 5.535320022027495
+   },
+   "relative_qu_change": {
+    "n": 448544,
+    "median": 0.0,
+    "p95": 6.604918276676016e-05,
+    "max": 0.27725074109235526
+   }
+  },
+  "layouts": {
+   "B-poldx.Gpol": {
+    "vis_cal": [
+     "G Jones",
+     "G Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.0016660690307617188,
+    "interval": [
+     24.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx.Kcross": {
+    "vis_cal": [
+     "Kcross Jones",
+     "Kcross Jones"
+    ],
+    "par_type": [
+     "Float",
+     "Float"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.03028583526611328,
+    "interval": [
+     24.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx.Xf": {
+    "vis_cal": [
+     "Xf Jones",
+     "Xf Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      1
+     ],
+     [
+      256,
+      1
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 5.3669281005859375,
+    "interval": [
+     10824.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx.Df": {
+    "vis_cal": [
+     "Df Jones",
+     "Df Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      2
+     ],
+     [
+      256,
+      2
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.00039005279541015625,
+    "interval": [
+     11488.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx-uv.Gpol": {
+    "vis_cal": [
+     "G Jones",
+     "G Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": 3.814697265625e-06,
+    "interval": [
+     0.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx-uv.Kcross": {
+    "vis_cal": [
+     "Kcross Jones",
+     "Kcross Jones"
+    ],
+    "par_type": [
+     "Float",
+     "Float"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 27.89260196685791,
+    "interval": [
+     10824.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx-uv.Xf": {
+    "vis_cal": [
+     "Xf Jones",
+     "Xf Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      1
+     ],
+     [
+      256,
+      1
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.028311729431152344,
+    "interval": [
+     24.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx-uv.Df": {
+    "vis_cal": [
+     "Df Jones",
+     "Df Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      2
+     ],
+     [
+      256,
+      2
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": 12.827712059020996,
+    "interval": [
+     11488.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-twin.Gpol": {
+    "vis_cal": [
+     "G Jones",
+     "G Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": null,
+    "interval": [
+     24.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-twin.Kcross": {
+    "vis_cal": [
+     "Kcross Jones",
+     "Kcross Jones"
+    ],
+    "par_type": [
+     "Float",
+     "Float"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.00019359588623046875,
+    "interval": [
+     24.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-twin.Xf": {
+    "vis_cal": [
+     "Xf Jones",
+     "Xf Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      1
+     ],
+     [
+      256,
+      1
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 10.112821578979492,
+    "interval": [
+     10824.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-twin.Df": {
+    "vis_cal": [
+     "Df Jones",
+     "Df Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      2
+     ],
+     [
+      256,
+      2
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.00035572052001953125,
+    "interval": [
+     11488.0,
+     0.0
+    ],
+    "equal": true
+   }
+  },
+  "seconds": 387.91697335999925,
+  "pass": false
+ },
+ "c6-20261106-04/truth.json": {
+  "version": "poldx",
+  "set": "twin",
+  "results": {
+   "P": {
+    "max_abs_rad": 0.0,
+    "pass": true
+   },
+   "Gpol": {
+    "max_abs": 9.738029888978371e-09,
+    "pass": true
+   },
+   "Kcross": {
+    "delays": [
+     2.1999273742233574,
+     2.1999273760887315,
+     2.199927372998601,
+     2.1999273654219245
+    ],
+    "max_abs_ns": 7.263457807571427e-05,
+    "pass": true
+   },
+   "Xf": {
+    "max_abs_rad": 1.6447622426443502e-07,
+    "pass": true
+   },
+   "Df": {
+    "max_abs": 1.2717399672269022e-08,
+    "pass": true
+   }
+  },
+  "seconds": 88.66227120099938,
+  "pass": true
+ },
+ "c6-20261106-05/truth.json": {
+  "version": "poldx",
+  "set": "noisy",
+  "results": {
+   "P": {
+    "max_abs_rad": 0.0,
+    "pass": true
+   },
+   "Gpol": {
+    "re": {
+     "n": 960,
+     "median": 0.0007882903137228974,
+     "limit": 0.12135025069504389,
+     "std": 0.03466844717861853,
+     "pass": true
+    },
+    "im": {
+     "n": 960,
+     "median": -4.868218134234863e-05,
+     "limit": 0.12135025069504389,
+     "std": 0.03521011693175666,
+     "pass": true
+    },
+    "pass": true
+   },
+   "Kcross": {
+    "delays": [
+     2.1998658013549504,
+     2.2000036071009963,
+     2.1998886746782067,
+     2.2000374515577703
+    ],
+    "err": [
+     5.424095197896569e-05,
+     0.0001119474068812399,
+     5.0977419258787345e-05,
+     0.00014830492326690093
+    ],
+    "n": 4,
+    "median": -1.0757974815975484,
+    "limit": 1.87995,
+    "std": 1.2423716973120793,
+    "pass": true
+   },
+   "Xf": {
+    "n": 256,
+    "median": -0.004751617152846712,
+    "limit": 0.23499375,
+    "std": 2.6994743554549743,
+    "pass": true
+   },
+   "Df": {
+    "re": {
+     "n": 7928,
+     "median": 0.00366909773590696,
+     "limit": 0.04222741278798527,
+     "std": 2.0211565681594643,
+     "pass": true
+    },
+    "im": {
+     "n": 7928,
+     "median": 0.012519862461013123,
+     "limit": 0.04222741278798527,
+     "std": 1.6341600251366737,
+     "pass": true
+    },
+    "pass": true,
+    "chi2_reduced_median": 1.1652560901717925
+   }
+  },
+  "seconds": 79.38192689199968,
+  "pass": true
+ },
+ "c6-20261106-06/chain-truth.json": {
+  "version": "poldx",
+  "results": {
+   "kcross_ns": [
+    2.2899913787841797,
+    2.2
+   ],
+   "fcal": {
+    "cross_over_i": {
+     "n": 737280,
+     "median": 0.0005496505473274738,
+     "p95": 0.0016943619528319686,
+     "max": 0.003280127188190818
+    }
+   },
+   "xcal": {
+    "relative_qu_error": {
+     "n": 491520,
+     "median": 0.025389055551906785,
+     "p95": 0.044405767761988915,
+     "max": 0.09247019561544631
+    },
+    "chi_error_deg": {
+     "n": 491520,
+     "median": 0.5771978838584602,
+     "p95": 1.114318521284231,
+     "max": 1.783738478974784
+    },
+    "p_fraction": {
+     "n": 491520,
+     "median": 0.09466953203082085,
+     "p95": 0.096375273168087,
+     "max": 0.10200317949056625
+    },
+    "p_true": 0.09499999999999999
+   },
+   "refant_dx_median": 0.0174976386703
+  }
+ },
+ "c6-20261106-09/compare.json": {
+  "version": "polholdout",
+  "casa_run": "/mnt/d/rang/outputs/c6-20261106-08",
+  "results": {
+   "B-poldx": {
+    "B-poldx": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        4,
+        4
+       ],
+       "products": {
+        "products": 960,
+        "median_rel": 2.0631650841096416e-05,
+        "p95_rel": 6.306794239208102e-05,
+        "max_rel": 0.00012717279605567455
+       },
+       "phase_deg": {
+        "n": 960,
+        "median": 0.0011821929947473109,
+        "p95": 0.0036135938484221693,
+        "max": 0.007287436164915562
+       },
+       "flags_differ": 0,
+       "refant_equal": true,
+       "max_time_diff_s": 0.018392562866210938,
+       "pass": true
+      },
+      "Kcross": {
+       "intervals": [
+        4,
+        4
+       ],
+       "rang_ns": [
+        -3.5884134769439697,
+        -3.6085431575775146,
+        -3.577019214630127,
+        -3.626979351043701
+       ],
+       "casa_ns": [
+        -3.591858386993408,
+        -3.623650550842285,
+        -3.574941635131836,
+        -3.622687816619873
+       ],
+       "abs_diff_ns": [
+        0.0034449100494384766,
+        0.015107393264770508,
+        0.0020775794982910156,
+        0.004291534423828125
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 0.23742389678955078,
+       "pass": true
+      },
+      "Xf": {
+       "intervals": [
+        1,
+        1
+       ],
+       "phase_deg": {
+        "n": 256,
+        "median": 0.014147020876407623,
+        "p95": 0.09402545727789402,
+        "max": 0.3018275499343872
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": true
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 107520,
+        "median": 0.00015245706163113937,
+        "p95": 0.0004588175797834966,
+        "max": 0.004967034794390202
+       },
+       "referenced": {
+        "n": 7168,
+        "median": 0.00013210241013439372,
+        "p95": 0.00037582356453640244,
+        "max": 0.0037306277081370354
+       },
+       "flags_differ": 1024,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 7168,
+        "median": 0.028182522393763065,
+        "p95": 0.045707242377102365,
+        "max": 0.057520151138305664
+       },
+       "clip_flags_differ": 1024,
+       "clip_flags": [
+        0,
+        1024
+       ],
+       "pass": false
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 8.352900612000667,
+      "Kcross": 7.098549768998055,
+      "Xf": 7.097686427998269,
+      "Df": 7.526331479999499
+     },
+     "kcross_err_ns": [
+      6.510637602252278e-05,
+      0.00023348647372007525,
+      4.902315065250765e-05,
+      0.0006528414633122182
+     ],
+     "df_gauge_fixed": true,
+     "pass": false
+    },
+    "C-poldx": {
+     "terms": {
+      "Gpol": {
+       "intervals": [
+        4,
+        4
+       ],
+       "products": {
+        "products": 960,
+        "median_rel": 2.0631650841096416e-05,
+        "p95_rel": 6.306794239208102e-05,
+        "max_rel": 0.00012717279605567455
+       },
+       "phase_deg": {
+        "n": 960,
+        "median": 0.0011821929947473109,
+        "p95": 0.0036135938484221693,
+        "max": 0.007287436164915562
+       },
+       "flags_differ": 0,
+       "refant_equal": true,
+       "max_time_diff_s": 0.018392562866210938,
+       "pass": true
+      },
+      "Kcross": {
+       "intervals": [
+        4,
+        4
+       ],
+       "rang_ns": [
+        -3.588413715362549,
+        -3.6085429191589355,
+        -3.577019691467285,
+        -3.6269803047180176
+       ],
+       "casa_ns": [
+        -3.591858386993408,
+        -3.623650550842285,
+        -3.574941635131836,
+        -3.622687816619873
+       ],
+       "abs_diff_ns": [
+        0.003444671630859375,
+        0.01510763168334961,
+        0.0020780563354492188,
+        0.004292488098144531
+       ],
+       "second_param_casa": 0.0,
+       "flags_differ": 0,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "max_time_diff_s": 0.23742389678955078,
+       "pass": true
+      },
+      "Xf": {
+       "intervals": [
+        1,
+        1
+       ],
+       "phase_deg": {
+        "n": 256,
+        "median": 0.030798505060374737,
+        "p95": 0.11357162706553936,
+        "max": 0.22933247685432434
+       },
+       "flags_differ": 0,
+       "all_antennas_equal_rang": true,
+       "all_antennas_equal_casa": true,
+       "antenna2": [
+        [
+         -1
+        ],
+        [
+         -1
+        ]
+       ],
+       "pass": true
+      },
+      "Df": {
+       "gauge_free": {
+        "n": 107520,
+        "median": 0.00015337329386966303,
+        "p95": 0.0004628477356163768,
+        "max": 0.004971025977283716
+       },
+       "referenced": {
+        "n": 7168,
+        "median": 0.00013369011139729992,
+        "p95": 0.0003822773433057591,
+        "max": 0.0037749630864709616
+       },
+       "flags_differ": 1024,
+       "antenna2": [
+        [
+         0
+        ],
+        [
+         0
+        ]
+       ],
+       "leakage_amplitude_casa": {
+        "n": 7168,
+        "median": 0.028182522393763065,
+        "p95": 0.045707242377102365,
+        "max": 0.057520151138305664
+       },
+       "clip_flags_differ": 1024,
+       "clip_flags": [
+        0,
+        1024
+       ],
+       "pass": false
+      }
+     },
+     "rang_seconds": {
+      "Gpol": 8.482610066002962,
+      "Kcross": 7.513804661000904,
+      "Xf": 7.323331800998858,
+      "Df": 7.299825658999907
+     },
+     "kcross_err_ns": [
+      6.510642644317222e-05,
+      0.0002334867569493876,
+      4.902310370420431e-05,
+      0.0006528444881373232
+     ],
+     "df_gauge_fixed": true,
+     "composite": {
+      "relative_to_cell_max": {
+       "n": 6881280,
+       "median": 5.773797197876624e-05,
+       "p95": 0.0015822767568876366,
+       "max": 0.009076352256290195
+      },
+      "flags_exact": true,
+      "pass": true
+     },
+     "pass": true
+    }
+   }
+  },
+  "O2": {
+   "cells_both_unflagged": 440412,
+   "flags_added_by_tfcrop": 0,
+   "chi_change_deg": {
+    "n": 440412,
+    "median": 0.0,
+    "p95": 0.00195108643860434,
+    "max": 4.451619169421636
+   },
+   "relative_qu_change": {
+    "n": 440412,
+    "median": 0.0,
+    "p95": 0.00013638818671772075,
+    "max": 0.1552862749575767
+   }
+  },
+  "layouts": {
+   "B-poldx.Gpol": {
+    "vis_cal": [
+     "G Jones",
+     "G Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.018392562866210938,
+    "interval": [
+     24.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx.Kcross": {
+    "vis_cal": [
+     "Kcross Jones",
+     "Kcross Jones"
+    ],
+    "par_type": [
+     "Float",
+     "Float"
+    ],
+    "param_shape": [
+     [
+      1,
+      2
+     ],
+     [
+      1,
+      2
+     ]
+    ],
+    "window_channels": [
+     1,
+     1
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.23742389678955078,
+    "interval": [
+     24.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx.Xf": {
+    "vis_cal": [
+     "Xf Jones",
+     "Xf Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      1
+     ],
+     [
+      256,
+      1
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      -1
+     ],
+     [
+      -1
+     ]
+    ],
+    "time_casa_minus_rang_s": 14.3239107131958,
+    "interval": [
+     10824.0,
+     0.0
+    ],
+    "equal": true
+   },
+   "B-poldx.Df": {
+    "vis_cal": [
+     "Df Jones",
+     "Df Jones"
+    ],
+    "par_type": [
+     "Complex",
+     "Complex"
+    ],
+    "param_shape": [
+     [
+      256,
+      2
+     ],
+     [
+      256,
+      2
+     ]
+    ],
+    "window_channels": [
+     256,
+     256
+    ],
+    "antenna2": [
+     [
+      0
+     ],
+     [
+      0
+     ]
+    ],
+    "time_casa_minus_rang_s": 0.00011444091796875,
+    "interval": [
+     11488.0,
+     0.0
+    ],
+    "equal": true
+   }
+  },
+  "seconds": 129.30986042699806,
+  "pass": false
+ },
+ "c6-20261106-10/truth.json": {
+  "version": "polholdout",
+  "set": "noisy",
+  "results": {
+   "P": {
+    "max_abs_rad": 0.0,
+    "pass": true
+   },
+   "Gpol": {
+    "re": {
+     "n": 960,
+     "median": 8.563375251210876e-05,
+     "limit": 0.12135025069504389,
+     "std": 0.023731673926880557,
+     "pass": true
+    },
+    "im": {
+     "n": 960,
+     "median": -0.00015749987156190635,
+     "limit": 0.12135025069504389,
+     "std": 0.022834952919888477,
+     "pass": true
+    },
+    "pass": true
+   },
+   "Kcross": {
+    "delays": [
+     -3.699725614782077,
+     -3.699819667111151,
+     -3.6995760928113146,
+     -3.6992220469241106
+    ],
+    "err": [
+     5.835982454929206e-05,
+     0.0001245975275316103,
+     4.657257904305942e-05,
+     0.00015739440778221088
+    ],
+    "n": 4,
+    "median": 4.822154876095116,
+    "limit": 1.87995,
+    "std": 2.717143933869044,
+    "pass": false
+   },
+   "Xf": {
+    "n": 256,
+    "median": -0.1317680929411083,
+    "limit": 0.23499375,
+    "std": 1.1886467848989508,
+    "pass": true
+   },
+   "Df": {
+    "re": {
+     "n": 7936,
+     "median": 0.013517391121853451,
+     "limit": 0.042206123443154435,
+     "std": 1.5560961898369157,
+     "pass": true
+    },
+    "im": {
+     "n": 7936,
+     "median": 0.030417762839877967,
+     "limit": 0.042206123443154435,
+     "std": 1.9381002493739725,
+     "pass": true
+    },
+    "pass": true,
+    "chi2_reduced_median": 1.0129694137128022
+   }
+  },
+  "seconds": 71.31755342700126,
+  "pass": false
+ },
+ "c6-20261106-11/truth.json": {
+  "version": "polholdout",
+  "set": "twin",
+  "results": {
+   "P": {
+    "max_abs_rad": 0.0,
+    "pass": true
+   },
+   "Gpol": {
+    "max_abs": 9.658110213719187e-09,
+    "pass": true
+   },
+   "Kcross": {
+    "delays": [
+     -3.6997922699200267,
+     -3.699792266833067,
+     -3.6997922704799278,
+     -3.699792273496149
+    ],
+    "max_abs_ns": 0.0002077331669330107,
+    "pass": true
+   },
+   "Xf": {
+    "max_abs_rad": 1.4130743092055674e-07,
+    "pass": true
+   },
+   "Df": {
+    "max_abs": 1.3531580145394001e-08,
+    "pass": true
+   }
+  },
+  "seconds": 78.81254313300087,
+  "pass": true
+ },
+ "c6-20261106-12/readback.json": {
+  "case": "B-poldx",
+  "results": {
+   "field1": {
+    "cells": 1794176,
+    "max_relative": 0.00021192051285381713,
+    "max_float32_eps_of_cell": 5.887108084749835,
+    "above_1e-6": 77279,
+    "failing": 0,
+    "pass": true,
+    "flags_exact": true
+   },
+   "field0": {
+    "cells": 1360416,
+    "max_relative": 0.00635576458116254,
+    "max_float32_eps_of_cell": 5.9225856115161974,
+    "above_1e-6": 332480,
+    "failing": 0,
+    "pass": true,
+    "flags_exact": true
+   }
+  },
+  "seconds": 63.248228533000656,
+  "pass": true
+ },
+ "sets/casa-poldx": {
+  "check-noise.json": {
+   "ms": "/mnt/d/rang/outputs/c6-20261106-sets/poldx/a1-poldx.ms",
+   "twin": "/mnt/d/rang/outputs/c6-20261106-sets/poldx/a1-poldx-twin.ms",
+   "integrations": 104,
+   "values": 23327280,
+   "rfi_cells_excluded": 278970,
+   "sigma_expected": 0.05742121787007171,
+   "sigma_measured": 0.057417298112819586,
+   "ratio": 0.9999317367795821,
+   "z_std": -0.46626606936255677,
+   "mean": 6.454127601674858e-06,
+   "z_mean": 0.5428716959401273,
+   "reconstruct_max_abs_diff_full": 0.0,
+   "reconstruct_max_abs_diff_twin": 0.0,
+   "pass_noise": true,
+   "pass_twin": true,
+   "seconds": 4.83228616300039
+  },
+  "check-parang.json": {
+   "export": "/mnt/d/rang/outputs/c6-20261106-sets/casa-poldx/export-parangTrue.npz",
+   "parang": true,
+   "nrow": 12480,
+   "nchan": 256,
+   "elements": 12779520,
+   "fail": 3678075,
+   "worst_ratio": 28.358223643487616,
+   "worst_at": {
+    "row": 5448,
+    "chan": 30,
+    "corr": "XX",
+    "field": "SIM-TARGET",
+    "got": "(0.050585731863975525-0.058035656809806824j)",
+    "ref": "(0.05058565187603762-0.05803265900640396j)"
+   },
+   "flags_equal_input": true,
+   "data_unchanged": true,
+   "per_field": {
+    "J1939-6342": {
+     "elements": 1474560,
+     "fail": 0,
+     "worst_ratio": 0.49639424034947216,
+     "max_rel_to_cell_max": 6.509228520207636e-07
+    },
+    "3C286-SIM": {
+     "elements": 1966080,
+     "fail": 130044,
+     "worst_ratio": 1.5751738666962667,
+     "max_rel_to_cell_max": 2.0655289332460086e-06
+    },
+    "SIM-GCAL": {
+     "elements": 2457600,
+     "fail": 0,
+     "worst_ratio": 0.6224124724882804,
+     "max_rel_to_cell_max": 8.161708351816039e-07
+    },
+    "SIM-TARGET": {
+     "elements": 6881280,
+     "fail": 3548031,
+     "worst_ratio": 28.358223643487616,
+     "max_rel_to_cell_max": 3.718620062808559e-05
+    }
+   },
+   "xcal_implied_angle_deg": {
+    "median": 0.00028944616024629074,
+    "p95": 0.0004765914690653918,
+    "max": 0.0006027117960720825
+   },
+   "added_casa_frame_class_c": {
+    "elements": 12779520,
+    "fail": 3678075,
+    "worst_ratio": 28.358223643289083,
+    "pass_class_c": false
+   },
+   "pass": true,
+   "seconds": 5.07140083899867
+  },
+  "check-roundtrip.json": {
+   "export": "/mnt/d/rang/outputs/c6-20261106-sets/casa-poldx/export-parangFalse.npz",
+   "parang": false,
+   "nrow": 12480,
+   "nchan": 256,
+   "elements": 12779520,
+   "fail": 0,
+   "worst_ratio": 0.6209606322796247,
+   "worst_at": {
+    "row": 3387,
+    "chan": 15,
+    "corr": "XX",
+    "field": "SIM-TARGET",
+    "got": "(-0.7708721160888672-0.7451887130737305j)",
+    "ref": "(-0.7708728063370982-0.7451892476255964j)"
+   },
+   "flags_equal_input": true,
+   "data_unchanged": true,
+   "per_field": {
+    "J1939-6342": {
+     "elements": 1474560,
+     "fail": 0,
+     "worst_ratio": 0.5397664188608018,
+     "max_rel_to_cell_max": 7.077968844734217e-07
+    },
+    "3C286-SIM": {
+     "elements": 1966080,
+     "fail": 0,
+     "worst_ratio": 0.6020709138473002,
+     "max_rel_to_cell_max": 7.894969048881891e-07
+    },
+    "SIM-GCAL": {
+     "elements": 2457600,
+     "fail": 0,
+     "worst_ratio": 0.5928955305242533,
+     "max_rel_to_cell_max": 7.774652046879276e-07
+    },
+    "SIM-TARGET": {
+     "elements": 6881280,
+     "fail": 0,
+     "worst_ratio": 0.6209606322796247,
+     "max_rel_to_cell_max": 8.142670339436378e-07
+    }
+   },
+   "pass": true,
+   "seconds": 4.602201046000118
+  }
+ },
+ "sets/casa-polholdout": {
+  "check-noise.json": {
+   "ms": "/mnt/d/rang/outputs/c6-20261106-sets/polholdout/a1-polholdout.ms",
+   "twin": "/mnt/d/rang/outputs/c6-20261106-sets/polholdout/a1-polholdout-twin.ms",
+   "integrations": 104,
+   "values": 22944520,
+   "rfi_cells_excluded": 326815,
+   "sigma_expected": 0.05742121787007171,
+   "sigma_measured": 0.05742328170542264,
+   "ratio": 1.0000359420337548,
+   "z_std": 0.24347654166757615,
+   "mean": -1.913054563839215e-06,
+   "z_mean": -0.1595858738490863,
+   "reconstruct_max_abs_diff_full": 0.0,
+   "reconstruct_max_abs_diff_twin": 0.0,
+   "pass_noise": true,
+   "pass_twin": true,
+   "seconds": 4.802647752001576
+  },
+  "check-parang.json": {
+   "export": "/mnt/d/rang/outputs/c6-20261106-sets/casa-polholdout/export-parangTrue.npz",
+   "parang": true,
+   "nrow": 12480,
+   "nchan": 256,
+   "elements": 12779520,
+   "fail": 3240371,
+   "worst_ratio": 28.38240977508433,
+   "worst_at": {
+    "row": 5507,
+    "chan": 110,
+    "corr": "XX",
+    "field": "SIM-TARGET",
+    "got": "(0.020596351474523544+0.006095064803957939j)",
+    "ref": "(0.020598155278412567+0.006096507598961753j)"
+   },
+   "flags_equal_input": true,
+   "data_unchanged": true,
+   "per_field": {
+    "J1939-6342": {
+     "elements": 1474560,
+     "fail": 0,
+     "worst_ratio": 0.4569772155854808,
+     "max_rel_to_cell_max": 5.99235221319233e-07
+    },
+    "3C286-SIM": {
+     "elements": 1966080,
+     "fail": 137202,
+     "worst_ratio": 1.550134665551199,
+     "max_rel_to_cell_max": 2.0326949740723597e-06
+    },
+    "SIM-GCAL": {
+     "elements": 2457600,
+     "fail": 0,
+     "worst_ratio": 0.6023003238967596,
+     "max_rel_to_cell_max": 7.897977307873195e-07
+    },
+    "SIM-TARGET": {
+     "elements": 6881280,
+     "fail": 3103169,
+     "worst_ratio": 28.38240977508433,
+     "max_rel_to_cell_max": 3.721791595529647e-05
+    }
+   },
+   "xcal_implied_angle_deg": {
+    "median": 0.00028759183742276716,
+    "p95": 0.00048213472216946735,
+    "max": 0.0005915780347527537
+   },
+   "added_casa_frame_class_c": {
+    "elements": 12779520,
+    "fail": 3240371,
+    "worst_ratio": 28.382409775097653,
+    "pass_class_c": false
+   },
+   "pass": true,
+   "seconds": 5.022112037000625
+  },
+  "check-roundtrip.json": {
+   "export": "/mnt/d/rang/outputs/c6-20261106-sets/casa-polholdout/export-parangFalse.npz",
+   "parang": false,
+   "nrow": 12480,
+   "nchan": 256,
+   "elements": 12779520,
+   "fail": 0,
+   "worst_ratio": 0.6229410786106534,
+   "worst_at": {
+    "row": 6493,
+    "chan": 131,
+    "corr": "XX",
+    "field": "SIM-TARGET",
+    "got": "(-0.8361181616783142-0.28314831852912903j)",
+    "ref": "(-0.8361174702724795-0.28314809767306554j)"
+   },
+   "flags_equal_input": true,
+   "data_unchanged": true,
+   "per_field": {
+    "J1939-6342": {
+     "elements": 1474560,
+     "fail": 0,
+     "worst_ratio": 0.5200105972604242,
+     "max_rel_to_cell_max": 6.818910324412186e-07
+    },
+    "3C286-SIM": {
+     "elements": 1966080,
+     "fail": 0,
+     "worst_ratio": 0.6064644253254666,
+     "max_rel_to_cell_max": 7.952581260895888e-07
+    },
+    "SIM-GCAL": {
+     "elements": 2457600,
+     "fail": 0,
+     "worst_ratio": 0.5964679362856417,
+     "max_rel_to_cell_max": 7.82149708168752e-07
+    },
+    "SIM-TARGET": {
+     "elements": 6881280,
+     "fail": 0,
+     "worst_ratio": 0.6229410786106534,
+     "max_rel_to_cell_max": 8.16863997544907e-07
+    }
+   },
+   "pass": true,
+   "seconds": 4.510738723000031
+  }
+ },
+ "c6-20261106-01/casa.json": {
+  "version": "poldx",
+  "cases": [
+   "B-poldx",
+   "B-poldx-uv",
+   "B-twin"
+  ],
+  "errors": [],
+  "seconds": 68.88365533199976,
+  "task_seconds": [
+   [
+    "gaincal",
+    "/run/casa/B-poldx.Gpol",
+    1.7178924350009765
+   ],
+   [
+    "gaincal",
+    "/run/casa/B-poldx.Kcross",
+    1.838149343000623
+   ],
+   [
+    "polcal",
+    "/run/casa/B-poldx.Xf",
+    1.801782226000796
+   ],
+   [
+    "polcal",
+    "/run/casa/B-poldx.Df",
+    2.112888177000059
+   ],
+   [
+    "copytree",
+    null,
+    0.3361762839995208
+   ],
+   [
+    "flagdata",
+    null,
+    0.20749528700071096
+   ],
+   [
+    "gaincal",
+    "/run/casa/B-poldx-uv.Gpol",
+    1.6514483139999356
+   ],
+   [
+    "gaincal",
+    "/run/casa/B-poldx-uv.Kcross",
+    1.6903450950012484
+   ],
+   [
+    "polcal",
+    "/run/casa/B-poldx-uv.Xf",
+    1.8289149419997557
+   ],
+   [
+    "polcal",
+    "/run/casa/B-poldx-uv.Df",
+    2.0904844390006474
+   ],
+   [
+    "copytree",
+    null,
+    0.33358986399980495
+   ],
+   [
+    "flagdata",
+    null,
+    0.17747603399948275
+   ],
+   [
+    "gaincal",
+    "/run/casa/B-twin.Gpol",
+    1.6391227010008151
+   ],
+   [
+    "gaincal",
+    "/run/casa/B-twin.Kcross",
+    1.7983938720008155
+   ],
+   [
+    "polcal",
+    "/run/casa/B-twin.Xf",
+    1.8265502390004258
+   ],
+   [
+    "polcal",
+    "/run/casa/B-twin.Df",
+    2.179060495998783
+   ],
+   [
+    "copytree",
+    null,
+    0.331793399000162
+   ],
+   [
+    "flagdata",
+    null,
+    0.1726580609993107
+   ],
+   [
+    "copytree",
+    null,
+    0.3392188950001582
+   ],
+   [
+    "flagdata",
+    null,
+    0.1828869279997889
+   ],
+   [
+    "copytree",
+    null,
+    4.913076363998698
+   ],
+   [
+    "applycal",
+    null,
+    1.7033492980008305
+   ],
+   [
+    "copytree",
+    null,
+    4.888733773999775
+   ],
+   [
+    "applycal",
+    null,
+    1.6783701829990605
+   ],
+   [
+    "copytree",
+    null,
+    4.950698108999859
+   ],
+   [
+    "applycal",
+    null,
+    0.9422606110001652
+   ]
+  ]
+ },
+ "c6-20261106-08/casa.json": {
+  "version": "polholdout",
+  "cases": [
+   "B-poldx"
+  ],
+  "errors": [],
+  "seconds": 52.568968171999586,
+  "task_seconds": [
+   [
+    "gaincal",
+    "/run/casa/B-poldx.Gpol",
+    1.6977083909987414
+   ],
+   [
+    "gaincal",
+    "/run/casa/B-poldx.Kcross",
+    1.7645317850001447
+   ],
+   [
+    "polcal",
+    "/run/casa/B-poldx.Xf",
+    1.8146090949994687
+   ],
+   [
+    "polcal",
+    "/run/casa/B-poldx.Df",
+    2.0909316960023716
+   ],
+   [
+    "copytree",
+    null,
+    0.3351861800001643
+   ],
+   [
+    "flagdata",
+    null,
+    0.18681906400161097
+   ],
+   [
+    "copytree",
+    null,
+    0.33582047700110707
+   ],
+   [
+    "flagdata",
+    null,
+    0.18275915699996403
+   ],
+   [
+    "copytree",
+    null,
+    4.942766080002912
+   ],
+   [
+    "applycal",
+    null,
+    1.6693497589985782
+   ],
+   [
+    "copytree",
+    null,
+    4.917204329001834
+   ],
+   [
+    "applycal",
+    null,
+    1.6216125110004214
+   ],
+   [
+    "copytree",
+    null,
+    4.913661613998556
+   ],
+   [
+    "applycal",
+    null,
+    0.9090297149996331
+   ]
+  ]
+ }
+}
