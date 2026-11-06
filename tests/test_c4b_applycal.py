@@ -154,6 +154,24 @@ def test_chunks_give_the_same_bytes(tmp_path):
     )
 
 
+def test_a_buffer_a_table_does_not_cover_is_left_alone(tmp_path):
+    """`VBOKforCalApply`: when any table has no solutions for a field's
+    window, CASA neither corrects nor resets weights there; `calflagstrict`
+    flags it (an unexercised path against CASA, research/c4b-apply-ms.md)."""
+    ms = make_ms(tmp_path / "x.ms")
+    applycal.applycal(ms, [g_table(ms)], calwt=[True])
+    before = {n: column(ms, n) for n in ("CORRECTED_DATA", "FLAG", "WEIGHT")}
+    other = g_table(ms, field_id=1)
+    other.main["SPECTRAL_WINDOW_ID"] = [1] * len(other.main["SPECTRAL_WINDOW_ID"])
+    summary = applycal.applycal(ms, [g_table(ms), other], calwt=[True])
+    assert summary["uncovered"]
+    for name, values in before.items():
+        assert column(ms, name).tobytes() == values.tobytes()
+    applycal.applycal(ms, [g_table(ms), other], applymode="calflagstrict")
+    assert column(ms, "FLAG").all()
+    assert column(ms, "CORRECTED_DATA").tobytes() == before["CORRECTED_DATA"].tobytes()
+
+
 def test_weight_is_the_lower_middle_channel_value():
     ws = np.array([[[4.0], [1.0], [3.0], [2.0]]], np.float32)  # (row, chan, corr)
     assert applycal._median_over_channels(ws)[0, 0] == 2.0

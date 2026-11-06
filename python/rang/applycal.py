@@ -350,7 +350,7 @@ def applycal(
                 continue
             data = w.read("DATA", start, nrow)
             flag = w.read("FLAG", start, nrow)
-            out = data.copy() if sel.all() else w.read(column, start, nrow)
+            out = w.read(column, start, nrow)
             new_flag = flag.copy()
             if write_weights:
                 sigma = w.read("SIGMA", start, nrow)
@@ -379,25 +379,28 @@ def applycal(
                         uncovered.add((i, int(fid), spw))
                         strict_flag |= applymode == "calflagstrict"
                 group = {k: v[idx] for k, v in c.items()}
-                if use:
-                    got, gflag = cal_apply.apply(
-                        data[idx],
-                        flag[idx],
-                        group["TIME"],
-                        group["ANTENNA1"],
-                        group["ANTENNA2"],
-                        freqs,
-                        [tables[i] for i in use],
-                        spw=spw,
-                        interp=[interp[i] for i in use],
-                        threads=threads,
-                        nant=info["nant"],
-                        table_fields=[maps[i][int(fid)] for i in use],
-                    )
-                else:
-                    got, gflag = data[idx], flag[idx]
-                if strict_flag:
-                    gflag = np.ones_like(gflag)
+                if len(use) < len(tables):
+                    # `VisEquation::VBOKforCalApply` fails when any term has
+                    # no calibration for the buffer: `Calibrater::correct2`
+                    # then neither initialises CORRECTED_DATA nor resets the
+                    # weights there; `calflagstrict` flags every cell.
+                    if strict_flag:
+                        new_flag[idx] = True
+                    continue
+                got, gflag = cal_apply.apply(
+                    data[idx],
+                    flag[idx],
+                    group["TIME"],
+                    group["ANTENNA1"],
+                    group["ANTENNA2"],
+                    freqs,
+                    tables,
+                    spw=spw,
+                    interp=interp,
+                    threads=threads,
+                    nant=info["nant"],
+                    table_fields=[maps[i][int(fid)] for i in use],
+                )
                 out[idx] = got
                 new_flag[idx] = gflag
                 if write_weights:

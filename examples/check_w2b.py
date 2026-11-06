@@ -203,7 +203,7 @@ def main(argv):
     info = core_pipeline.inspect_ms(run / "model.ms")
     fid = info["fields"].index(FCAL)
     store = run / "model.ms.rang-run" / "calibrate" / "complex.qc"
-    same = []
+    same, oracle_parts = [], []
     for p in quartical_store.read(store)["complex"]:
         rows = np.flatnonzero(
             (c["FIELD_ID"] == fid) & (c["SCAN_NUMBER"] == p.attrs["SCAN_NUMBER"])
@@ -232,7 +232,31 @@ def main(argv):
                 and np.array_equal(p["gain_flags"][..., 0], sol.flags)
             )
         )
+        oracle_parts.append(
+            quartical_store.complex_partition(
+                sol.gains[:, :, :, None],
+                sol.flags[:, :, :, None],
+                gt,
+                gf,
+                info["antennas"],
+                name="complex",
+                field_id=fid,
+                field_name=FCAL,
+                scan=int(p.attrs["SCAN_NUMBER"]),
+                ddid=int(p.attrs["DATA_DESC_ID"]),
+            )
+        )
     out["12_gains_identical"] = same
+    # The W2 criterion 3 oracle: every file of the store byte-identical.
+    oracle = run / "oracle-complex.qc"
+    quartical_store.write({"complex": oracle_parts}, oracle)
+    files = sorted(q.relative_to(store) for q in store.rglob("*") if q.is_file())
+    theirs = sorted(q.relative_to(oracle) for q in oracle.rglob("*") if q.is_file())
+    out["12_store_files"] = len(files)
+    out["12_store_identical"] = bool(
+        files == theirs
+        and all((store / f).read_bytes() == (oracle / f).read_bytes() for f in files)
+    )
 
     # Criteria 11 and 14: run through flag, calibrate, apply, image.
     stages = ["flag", "calibrate", "apply", "image"]
@@ -333,7 +357,8 @@ def main(argv):
         and all(others.values()),
         "12": out["12_calibrate"]["exit"] == 0
         and out["12_model_identical"]
-        and all(same),
+        and all(same)
+        and out["12_store_identical"],
         "14": out["14_run"]["exit"] == 0
         and set(out["14_status"].values()) == {"done"}
         and out["14_image_column"] == "CORRECTED_DATA",

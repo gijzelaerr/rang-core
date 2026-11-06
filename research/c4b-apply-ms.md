@@ -9,7 +9,11 @@ from main `66c2967`. The kernel underneath is C4a's `rang.cal_apply`
 ([w2-commands.md](w2-commands.md)); the models are C3a's `rang.calmodels`
 ([c3a-models.md](c3a-models.md)).
 
-**Status: implemented; frozen run -02 failed (section 5); post-hoc fixes (6); held-out run -04 pending (7).** Sections 1 to 4 are the design and the criteria, written
+**Status: implemented and measured. The frozen run -02 failed (section 5); after three
+post-hoc ports from CASA's and casacore's sources (section 6) the held-out run -04 passed
+every criterion on all ten cases (section 8). W2b is wired and measured (section 9); its
+criterion 13 fails as frozen, because E2 still names C4 through the uniform-weights
+refusal (section 10).** Sections 1 to 4 are the design and the criteria, written
 and committed before the first comparison. No novelty is claimed: this
 reproduces CASA `applycal`.
 
@@ -323,3 +327,206 @@ so on SIM-TARGET the pooled map brackets with J1939-6342 slots and the nearest m
 SIM-GCAL slots. Pass: criteria 1 to 10 of section 3 on every case, unchanged, and the three
 field-map cases pairwise different on SIM-TARGET in CASA's output. **The -04 result is the
 verdict reported for C4b.** CASA's tables and E4's are the same as in -02.
+
+## 8. Run -04, the held-out verdict: PASS
+
+`python examples/check_apply_ms.py /mnt/d/rang/outputs/c4b-20261106-04 --heldout --seed 20261110`
+at commit `ff891a8`, working tree clean during the run, heavy lock held; 277 s (CASA: prepare
+5.2 s, 10 `applycal` 24.9 s, export 55.5 s). **Every criterion of 3.1 and 3.2 passes on every
+case**, and the three field maps differ pairwise on SIM-TARGET in CASA's output.
+
+| Case | Cells | Max eps of cell | Max relative | Under solution flags (cells, eps) | WEIGHT / WEIGHT_SPECTRUM max relative (bit-identical) |
+| --- | ---: | ---: | ---: | --- | --- |
+| s-chain | 1,572,864 | 4.41 | 1.6e-4 | – | unchanged, bit-identical to the input |
+| s-G-flags | 1,572,864 | 3.43 | 4.2e-7 | 341,190, 3.15 | unchanged |
+| s-G-calwt | 1,572,864 | 3.43 | 4.2e-7 | 341,190, 3.15 | 3.1e-7 / 3.6e-7 (73 %) |
+| s-BT-calwt | 1,572,864 | 3.30 | 4.0e-7 | – | 3.0e-7 / 3.6e-7 (43 %) |
+| s-K-calwt | 1,572,864 | 2.91 | 3.5e-7 | – | not written by either: 0 / 0 |
+| s-Gnearest-mix | 1,572,864 | 3.66 | 1.7e-4 | 326,517, 3.34 | 2.2e-7 / 2.8e-7 (61 %) |
+| a-pooled | 1,720,320 | 5.85 | 7.0e-7 | 30,720, 4.01 | unchanged |
+| a-named | 1,720,320 | 8.64 | 1.3e-6 | 7,680, 6.90 | unchanged |
+| a-nearest | 3,194,880 | 8.90 | 1.1e-6 | 88,320, 3.18 | unchanged |
+| a-chain-calwt | 2,334,720 | 9.17 | 1.2e-6 | 76,800, 3.83 | 6.9e-7 / 6.9e-7 (46 %) |
+
+In every case: FLAG exact on every cell of the MS; FLAG_ROW equal to CASA's, which **CASA never
+changed** (0 rows in every case, including the 5 % set beforehand and rows every cell of which
+became flagged); unselected rows' CORRECTED_DATA bit-identical to CASA's (the A cases, where the
+column is added); SIGMA and SIGMA_SPECTRUM bit-identical to CASA's; every other column
+bit-identical to the input; the flag version equal to the input flags. Chunks of 50 (slice) and
+1000 (A) rows and a second run gave the same bytes. The larger relative errors (1.7e-4) are cross
+hands under Df that cancel, inside the eps branch, as in C4a.
+
+C4b's verdict: **met on the held-out run**, after a frozen run that failed (section 5) and three
+post-hoc ports (section 6). The CASA rules now reproduced by `rang.applycal`, each measured:
+values under a one-sided diagonal flag, WEIGHT_SPECTRUM reset from SIGMA_SPECTRUM (or SIGMA) and
+scaled by `|g|^2` per side (G, T) or B's mean `|B|^2` over unflagged solution channels, WEIGHT as
+the lower middle channel value, no weights written when only K, Df or general terms have
+`calwt`, FLAG_ROW never written, the three field maps.
+
+**After -04** (not exercised by any case, so not part of the verdict): a group of rows for which
+some table has no solutions is now left as CASA leaves it (`VisEquation::VBOKforCalApply` fails,
+so `Calibrater::correct2` neither initialises CORRECTED_DATA nor resets the weights there;
+`calflagstrict` flags it). As run in -04, rang applied the covering tables and dropped the others.
+A pytest covers the new rule; there is no CASA comparison of it.
+
+## 9. W2b: the commands (sections 3.3 and 3.4)
+
+Run `python examples/check_w2b.py /mnt/d/rang/outputs/c4b-20261106-w2b-03` (90 s; no CASA) on
+copies of A1 small, strategy CARACal's `mk_rfi_flagging_calibrator_fields_firstpass.yaml`
+(`8f7bb363`), gemclean `~/Github/rang/core/target/release/gemclean` (main's build; this branch
+changes no gemclean code), configuration as W2's run with `model: {source: setjy, standard:
+Stevens-Reynolds 2016}`, `solint: int`, `freqint: 16`, image of J1939-6342.
+
+| # | Criterion | Measured | Verdict |
+| --- | --- | --- | --- |
+| 11 | complex apply against the float64 reference | both partitions (scans 1 and 23), 184,320 cells each: 0.0 eps, flags exact; the other fields' CORRECTED_DATA equal to DATA, their FLAG unchanged; with 9.1 % and 10.4 % of the gains made invalid: 0.0 eps, flags exact | pass |
+| 12 | MODEL_DATA and gains | MODEL_DATA bit-identical to `calmodels.set_model` on another copy; both partitions' gains and flags bit-identical to `core.solve_complex(model=MODEL_DATA)`, and all 80 files of the store byte-identical to the store `quartical_store` writes from that solve | pass |
+| 13 | refusals (pytest) | E2-A and E2-B no longer name C3a; **both still name C4**, through `data.weights: uniform` for imaging, which this task does not make obsolete (section 10); no C7a (neither has a polarised model); `apply` to SIM-TARGET of a term solved on the calibrator refused naming C2a | **fail as frozen** (C4 remains) |
+| 14 | end to end | `rang-core run` flag, calibrate, apply, image: exit 0, all four stages done, one receipt, `image.column: auto` resolved to CORRECTED_DATA | pass |
+
+Reported, not gated (14): **the freqint-16 solve did not converge** (50 iterations, converged
+fraction 0.0 on both partitions, as W2 found with the unity model), its gains have diagonal
+amplitudes of median 0.32 and determinants down to 3e-4, and the image of the corrected
+calibrator is nonsense (peak 23,533 Jy against the model's 15.09 Jy at the band centre; the image
+of DATA peaks at 0.57 Jy, A1's corrupting gains being uncorrected). Run `-w2b-01`, the same
+configuration before the store comparison was added and before the change after -04 of section 8,
+gave the same verdicts and the same numbers. A second run with
+`freqint: 1` (`c4b-20261106-w2b-02-freqint1`, labelled, 93 s) converged on 83 % and 87 % of
+the solutions and its corrected image peaks at **14.71 Jy** (2.6 % below the model), every gate
+passing again. A1's delays decorrelate a 16-channel bin; calibration quality is C2's and E1's.
+
+## 10. Refusals after W2b
+
+Removed: the C3a model refusal (`setjy`, `manual`, `lsm` now run) and the C4 refusal of the
+`apply` stage. Added: a polarised `manual` model (Q, U or V not 0; `polindex`, `polangle`,
+`rotmeas`) names **C7a** (a new key of `core_config.TASKS`); a written model while `secondary`
+or `polcal` have terms names C2d; an apply target naming a K, G, B, F, Gpol, KCROSS, Xf or Df
+term names that term's task; `interp` on a complex table names C2a; a complex term applied to a
+field it was not solved on is refused before anything is written, naming C2a. Kept, because this
+task does not make them obsolete: `data.weights: uniform` for imaging (still names C4: nothing
+writes CARACal's uniform WEIGHT_SPECTRUM; C4b writes weights only as `calwt` does), `preapply`
+on a complex term (names C4a: the solver does not pre-apply), `apply.parang` (C6a). E2-A now
+waits for C2a, C2b, C2c, C2d, C4, C5a, G3, G4 and G6; E2-B for C2a, C2b, C2c, C2d, C4, C6a,
+C6b, C6c, G3 and G9.
+
+`rang-core calibrate` with a model source writes MODEL_DATA, so it is now a writing stage: it
+saves `rang_original` (if absent) and `rang_calibrate_<time>` before the write, as W2's other
+writing stages do. W2's frozen harness `tools/oracles/w2/run.sh` still expects `apply` to be
+refused (steps `apply` and `run-apply-refused`); it was not changed and now contradicts the code.
+
+## 11. What only the owner can decide
+
+1. **C4a's two decisions stand** (copy CASA's Df substitution; accept the 1-2 ulp residual on
+   random-phase per-channel B). C4b's cases have no such B table; on C4a's h-B-gaps exports
+   the residual is unchanged (33.1 and 32.3 eps). One more case of the same size: 3 cells under
+   input flags in C4a's h-Df-2slot-linear at 14.0 eps (5.9e-5 relative), unflagged cells 6.7.
+2. **The complex term's flag rule.** rang follows CASA's general-Jones rule: any flagged
+   correlation of a cell, or a bad gain of either antenna, flags all four; a bad side is the
+   identity. It was not compared with QuartiCal's own apply.
+3. **Transfer of complex gains to a target** (interpolating QuartiCal-style gains onto another
+   field) is refused. CARACal's 1GC transfers CASA G tables (C2a). Whether rang should also
+   interpolate complex gains is open.
+4. **The `data.weights: uniform` refusal** names C4, which this task completes for the apply.
+   It needs a step that writes CARACal's `prep.specweights: uniform` into the MS (a W-task, the
+   coordinator's call), or the refusal stays as it is.
+5. **Which fields get a written model**: the primary section's fields only (CARACal sets the
+   model on fcal and bpcal); secondary models from `fluxscale` are C2d.
+6. **The end-to-end configuration**: with W2's `freqint: 16` the complex solve does not converge
+   on A1 small and the corrected image is nonsense (section 9); `freqint: 1` gives 14.71 Jy
+   against 15.09 Jy. Which settings E2's matched arm uses is A0's and the owner's.
+
+## 12. What was not checked
+
+- **CASA tables through `rang-core apply`**: rang solves only the complex term, so the apply
+  stage applies only complex terms. `rang.applycal.applycal` (CASA tables) is measured against
+  CASA but no command calls it until C2 adds CASA tables.
+- **Groups no table covers**: the rule of section 8 (after -04) and `calflagstrict` have no CASA
+  comparison; every case had covering tables.
+- `calwt=True` on an MS without WEIGHT_SPECTRUM (only a pytest by hand); `calwt` on T alone; B's
+  weight scale with several time slots (it time-interpolates through `caltable._interpolate`,
+  whose linear formula is the old one, not casacore's); SIGMA of 0; a zero unflagged gain (CASA
+  flags it when inverting; the diagonal kernel would divide by it).
+- CASA's float32 time reference per table slice against rang's per antenna series: A1's times are
+  whole seconds, exact in float32, so a different reference could not show there; the slice's
+  are not, but it has one field.
+- Several spectral windows, `spwmap`, HISTORY rows (CASA writes one per `applycal`; rang none).
+- QuartiCal's own application of a gain store: the complex apply is gated only against a float64
+  NumPy reimplementation (0.0 eps there).
+- Throughput and memory: no timing work. rang's `applycal` took 1.0-2.2 s per slice case and
+  10-20 s per A1 case against CASA's 0.9-3.4 s; most of rang's A1 time is the flag version
+  written on `/mnt/d` (W2 measured 9.2 s per version there), not measured further.
+- The gain-hash replay (C1 section 4 rule 2) is not in check-all; this branch does not touch
+  `solve.rs`, `jones.rs`, `correct.rs` or `core.solve_complex`.
+
+## 13. Files, runs and timings
+
+Code: `python/rang/applycal.py` (new), `python/rang/cal_apply.py` (table fields,
+`apply_jones`), `core/src/cal/apply.rs` (one-sided substitution, pairwise tracking, casacore's
+linear formula, `apply_jones`), the binding `cal_apply_jones` in `core/py/src/lib.rs`,
+`python/rang/core_config.py`, `core_pipeline.py`, `core_cli.py`; tests
+`tests/test_c4b_applycal.py`, `tests/test_w2_commands.py`; checkers `examples/check_apply_ms.py`
+(host) with `examples/oracle_apply_ms.py` (CASA side), `examples/check_w2b.py`,
+`examples/recheck_apply_ms.py`, `examples/recheck_c4a_under_flags.py`. Archive:
+[results/c4b-apply-ms.json](results/c4b-apply-ms.json) (numbers only). Runs, ignored, under
+`/mnt/d/rang/outputs/`: `c4b-20261106-00-probe` (the J Jones probe and scratch), `-01-dev` (C4a's
+exports re-evaluated), `-02` (frozen), `-03` (post hoc), `-04` (held out, the verdict), `-w2b-01`,
+`-w2b-02-freqint1`, `-w2b-03`; each CASA run keeps `c4b.json`, `synth/` and `export/` (the
+compared columns of every output, about 0.5 GB per run); check-all logs in `c4b/`. Seeds:
+20261109 (frozen set, weight edits, seeded gain flags), 20261110 (held out). Inputs read in
+place: O-CASA's `c.ms`, E4's `x.{K,G,B,Df}`, A1 small. Image `rang-o-casa:6.7.6.14`. Timings are in
+[tool-timings.md](tool-timings.md).
+
+## For the coordinator
+
+Do not apply until merged; all text proposed.
+
+**`research/STATE.md`, new top entry:**
+
+> C4b and W2b, 2026-11-06 (implemented; measured; frozen run failed, held-out run passed).
+> [c4b-apply-ms.md](c4b-apply-ms.md): `rang.applycal.applycal` applies CASA tables to a
+> Measurement Set as CASA `applycal`: row chunks through W1's write-back, CORRECTED_DATA, FLAG
+> OR'd, `calwt` weights, CASA's three field maps. Against `applycal` 6.7.6 on O-CASA's slice
+> and A1 small, the frozen run failed (WEIGHT's channel median, 12.7 eps on 86 cells, a
+> field-map case that could not tell two maps apart); after three ports from CASA's and
+> casacore's sources (the lower middle channel for WEIGHT, phase tracking per interpolated
+> pair, casacore's linear formula), a held-out run passed every criterion on ten cases:
+> CORRECTED_DATA class C on every cell including flagged ones (largest 9.17 eps), FLAG exact,
+> FLAG_ROW untouched as CASA, WEIGHT and WEIGHT_SPECTRUM within 6.9e-7, K's `calwt` writing
+> nothing. C4a's "values under solution flags differ" is resolved: CASA still applies the good
+> side of a one-sided diagonal flag. W2b: `rang-core calibrate` writes setjy, manual and lsm
+> models (bit-identical to `calmodels.set_model`) and solves against them; `rang-core apply`
+> applies the complex term on its own bins (0 eps against a float64 reference); `rang-core run`
+> flag, calibrate, apply, image runs end to end on A1 small. No novelty claim.
+
+**`research/README.md`, index line (makes `test_every_note_is_in_the_research_index` pass):**
+
+> [C4b, applying calibration to an MS](c4b-apply-ms.md): `rang.applycal` (CASA `applycal` on a
+> Measurement Set: CORRECTED_DATA, FLAG, `calwt` weights, field maps) measured against CASA,
+> and W2b: models in `rang-core calibrate`, the complex term in `rang-core apply`.
+
+**`research/finish-plan.md`:** C4 row: C4b done (held-out run passed; the frozen run's
+failure and the post-hoc ports recorded), C4 done apart from the owner decisions of C4a and
+section 11 here. W2 row: W2b (apply and models in the commands) done. Section 7: add decisions 2
+to 6 of section 11.
+
+**The kernel changed numerically.** One-sided substitution under diagonal flags, phase tracking
+per interpolated pair and casacore's linear formula change `rang.cal_apply`'s output at the ulp
+level everywhere and by much more under one-sided flags. C2a pre-applies through this kernel, so
+archives or hashes it made with C4a's kernel can shift after this merges. `caltable.correct` is
+unchanged and differs further from the kernel (C4a's pytest bound of 32 eps still holds). C1
+section 3.1's time-interpolation row ("tracked phase") should read "phase tracked over the two
+bracketing slots" if C1 takes errata.
+
+**Refusals:** `data.weights: uniform` for imaging still names C4 (section 10), so E2-A and E2-B
+still wait for C4; criterion 13 fails as frozen on that point. Rename the task in that refusal
+when it has an owner. `C7a` is new in `core_config.TASKS`. W2's `tools/oracles/w2/run.sh` still
+expects `apply` to be refused.
+
+**check-all and the index test.** At the head, `tools/check-all.sh` fails only on
+`test_every_note_is_in_the_research_index`; with the index line above applied in the working
+tree (not committed) it gave `overall: PASS` (log `/mnt/d/rang/outputs/c4b/check-all-4-index-applied.log`).
+
+**Not removed:** `/mnt/d/rang/outputs/c4b-20261106-0{2,3,4}` (about 2.5 GB each, mostly the
+uncompressed exports) and `c4b-20261106-w2b-*` (45 MB); `-02` and `-03` can go after merge,
+`-04` once the archive is accepted. C4a's `c4a-20261106-*` exports were used here (section 6)
+and can now go. `~/Github/rang/outputs/status/fp-c4b.md` can go after merge.
