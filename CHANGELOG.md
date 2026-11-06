@@ -9,6 +9,19 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang-core flag`, `calibrate` and `apply` run within `data.memory_limit_gb` (default 8 GiB of
+  resident memory) by chunking by time and row (`rang.core_chunks`, `research/w3-chunking.md`):
+  the flagger takes blocks of baselines of a field and scan on the group's whole time grid
+  (`core_flag.flag_rows(time_grid=...)`), the `complex` solve takes chunks of whole solution
+  intervals (time bins, or frequency bins of one time bin) and replays the solver's global stop
+  test over them, so gains equal the one-call solve bit for bit, and apply and the models use row
+  chunks of the limit. Results do not depend on the limit or on `data.chunk_rows` (now a cap on
+  the rows of every chunk), so neither enters a stage's configuration hash. A limit too small for
+  the process, one baseline of a scan or one solution interval is refused before anything is
+  written, naming the GiB needed. No visibility column is read whole by the three stages;
+  `cal_gain` and `cal_delay` read only the rows of the field they solve.
+- New: A1's generator has a `w3` version (64 antennas, 4096 channels) and `--chunk-ints`.
+
 - Changed: `rang-core flag`, `calibrate`, `apply`, `image` and `config check CONFIG MS` check the
   Measurement Set per stage before anything is written and report every problem at once, each
   naming its reason (`research/w4-unsupported.md`). Refused: several data descriptions in use

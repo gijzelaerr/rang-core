@@ -356,11 +356,14 @@ def solution_times(time, time_bin, weights, flag, ntime):
 
 
 def _ms_columns(ms, names, rows=None):
+    """Columns `names` of `rows` (default all), reading only those rows
+    (task W3, research/w3-chunking.md: equal to indexing whole columns)."""
+    from . import core_chunks
+
     with core_ms.open_table(ms) as t:
-        out = {n: t.getcol(n) for n in names}
-    if rows is not None:
-        out = {k: v[rows] for k, v in out.items()}
-    return out
+        if rows is None:
+            return {n: t.getcol(n) for n in names}
+        return {n: core_chunks.read_rows(t, n, rows) for n in names}
 
 
 def _pre_apply(

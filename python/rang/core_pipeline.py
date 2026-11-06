@@ -39,6 +39,14 @@ weights, FIELD_IDs without a FIELD row, empty selections, ambiguous image
 fields, and image when `data.scans` leaves out a scan of an imaged field or
 on a data description other than 0.
 Autocorrelations are flagged and corrected but left out of the solve.
+
+Memory (task W3, research/w3-chunking.md): `flag`, `calibrate` and `apply`
+read no visibility column whole. Chunk sizes follow from
+`data.memory_limit_gb` (`rang.core_chunks`): `flag` takes blocks of
+baselines of a group on the group's time grid, the `complex` solve chunks of
+whole solution intervals with the stop test replayed (bit-identical to one
+call), `apply` and the models row chunks. A limit below the smallest chunk is
+refused by `preflight` (`memory_problems`) before anything is written.
 """
 
 import datetime as _dt
@@ -54,7 +62,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import core, core_config, core_flag, core_ms, core_writeback
+from . import core, core_chunks, core_config, core_flag, core_ms, core_writeback
 from .formats import flagversions, quartical_store
 
 STATE_SCHEMA = "rang.run-state"
@@ -122,7 +130,16 @@ CORR_NAMES = {
     12: "YY",
 }
 ALL_STAGES = frozenset(core_config.STAGES)
-ROW_COLUMNS = ("FIELD_ID", "DATA_DESC_ID", "SCAN_NUMBER", "ANTENNA1", "ANTENNA2")
+# Read whole by `inspect_ms` and kept for the stages (TIME for the solve
+# grids and the flagger's time axis, task W3): counted in core_chunks.ROW_BYTES.
+ROW_COLUMNS = (
+    "FIELD_ID",
+    "DATA_DESC_ID",
+    "SCAN_NUMBER",
+    "ANTENNA1",
+    "ANTENNA2",
+    "TIME",
+)
 
 
 def _cell_defined(table, name, cell):
@@ -452,8 +469,70 @@ def preflight(config, info, stages):
                 f"calibrate.model.column: {info['ms']} has no {model['column']} "
                 "(calibrator models are task C3a, MODEL_DATA from the imager G6)"
             )
+    if not problems:
+        problems += memory_problems(config, info, stages)
     if problems:
         raise Refused("\n".join(problems))
+
+
+def memory_problems(config, info, stages):
+    """[message] for each stage whose smallest chunk does not fit
+    `data.memory_limit_gb` (task W3, research/w3-chunking.md): the process
+    and its row metadata, one baseline of a flag group, one row of apply and
+    of the models, one solution interval of a solve."""
+    plan = core_chunks.budget(config, info)
+    where = "data.memory_limit_gb"
+    try:
+        _ = plan.chunk_bytes
+    except core_chunks.MemoryLimitError as exc:
+        return [f"{', '.join(stages)}: {exc}"]
+    out = []
+    checks = {"flag": "flag", "apply": "apply", "calibrate": "model"}
+    for stage, kind in checks.items():
+        if stage in stages:
+            try:
+                plan.rows(kind)
+            except core_chunks.MemoryLimitError as exc:
+                out.append(f"{stage}: {exc}")
+    if out:
+        return out
+    rows = info["rows"]
+    if "flag" in stages:
+        fields = resolve_fields(config["flag"]["fields"], config, info, "flag.fields")
+        selected = _selected_rows(rows, fields, config["data"]["scans"])
+        max_rows = plan.rows("flag", capped=False)
+        for (field, _, scan), idx in _groups(rows, selected).items():
+            # The smallest flag block is one baseline on the group's times.
+            ntime = len(np.unique(rows["TIME"][idx]))
+            if ntime > max_rows:
+                out.append(
+                    f"flag: field {info['fields'][field]!r} scan {scan} has {ntime} "
+                    f"times, and one baseline of it needs "
+                    f"{plan.need_gb('flag', ntime * np.prod(info['cell'])):.2f} GiB; "
+                    f"raise {where}"
+                )
+    if "calibrate" in stages:
+        max_cells = plan.cells("calibrate", capped=False)
+        ncorr = info["cell"][1]
+        for section in core_config.CALIBRATE_SECTIONS:
+            for i, term in enumerate(config["calibrate"][section]["terms"]):
+                if term["type"] != "complex":
+                    continue
+                _, selected = solve_rows(config, info, section, term)
+                for (field, _, scan), idx in _groups(rows, selected).items():
+                    _, tb, fb, _, _ = partition_grid(info, idx, term)
+                    chunks, largest = core_chunks.solve_chunks(tb, fb, max_cells, ncorr)
+                    if chunks is None:
+                        out.append(
+                            f"calibrate.{section}.terms[{i}] ({term['name']}): one "
+                            f"solution interval of field {info['fields'][field]!r} "
+                            f"scan {scan} holds {largest} visibility cells and needs "
+                            f"{plan.need_gb('calibrate', largest):.3f} GiB, above "
+                            f"{where} {plan.limit_gb:g}; raise the limit, or use a "
+                            "shorter solint or a smaller freqint (a solution interval "
+                            "is solved whole)"
+                        )
+    return out
 
 
 def complex_fields(config, info):
@@ -471,23 +550,6 @@ def complex_fields(config, info):
                         f"calibrate.{section}",
                     )
                 )
-    return out
-
-
-def _read_columns(ms, names, nrows, chunk_rows=None):
-    """Whole columns read in row chunks into one array each (W3 chunks the
-    stages themselves)."""
-    out = {}
-    with core_ms.open_table(ms) as t:
-        for name in names:
-            first = t.getcol(name, 0, 1)
-            array = np.empty((nrows, *first.shape[1:]), first.dtype)
-            rows = chunk_rows or max(
-                1, core_writeback.chunk_rows_for(first.shape[1:] or (1,))
-            )
-            for start, n in flagversions.spans(nrows, rows):
-                array[start : start + n] = t.getcol(name, start, n)
-            out[name] = array
     return out
 
 
@@ -687,46 +749,97 @@ def stage_flag(ctx):
         mask_files, masks = [], []
     restored = restore_before(ms, ctx["entry"])
     fields = resolve_fields(cfg["fields"], config, info, "flag.fields")
-    names = ["FIELD_ID", "DATA_DESC_ID", "SCAN_NUMBER", "ANTENNA1", "ANTENNA2", "TIME"]
-    columns = _read_columns(ms, [*names, cfg["column"], "FLAG"], info["nrows"])
-    data, flag = columns[cfg["column"]], columns["FLAG"]
+    columns = info["rows"]
     rows = _selected_rows(columns, fields, config["data"]["scans"])
-    new = flag.copy()
-    groups = []
-    for (field, ddid, scan), idx in _groups(columns, rows).items():
-        result = core_flag.flag_rows(
-            data[idx],
-            flag[idx],
-            columns["ANTENNA1"][idx],
-            columns["ANTENNA2"][idx],
-            columns["TIME"][idx],
-            info["antenna_position"],
-            info["chan_freq"],
-            info["chan_width"],
-            info["corr_type"],
-            strategies,
-            masks=masks,
-            want_intensity=False,
-            want_stages=False,
-        )
-        out = result["flags"]
-        new[idx] = out if cfg["write"] == "replace" else (flag[idx] | out)
-        groups.append(
-            {
-                "field_id": field,
-                "field": info["fields"][field],
-                "ddid": ddid,
-                "scan": scan,
-                "rows": len(idx),
-                "flagged_before": float(flag[idx].mean()),
-                "flagged_after": float(new[idx].mean()),
-                "core_seconds": result["seconds"],
-            }
-        )
-    del data, columns
-    written = write_flags(
-        ctx["run"], ms, "flag", new, chunk_rows=config["data"]["chunk_rows"]
-    )
+    plan = core_chunks.budget(config, info)
+    max_rows = plan.rows("flag")
+    cells = int(np.prod(info["cell"]))
+    groups, blocks, flagged_before = [], [], 0
+    with writeback_session(ctx["run"], ms, "flag", info["cell"], plan.rows("rows")) as (
+        w,
+        written,
+    ):
+        for (field, ddid, scan), idx in _groups(columns, rows).items():
+            # One group is one Tricolour window; when it does not fit, blocks
+            # of its baselines on the group's time grid (research/w3-chunking.md).
+            time_grid = np.unique(columns["TIME"][idx])
+            ubl = core_flag.unique_baselines(
+                columns["ANTENNA1"][idx], columns["ANTENNA2"][idx]
+            )
+            if len(idx) <= max_rows:
+                parts = [idx]
+            else:
+                lookup = {(int(a), int(b)): k for k, (a, b) in enumerate(ubl)}
+                bl = np.array(
+                    [
+                        lookup[(int(a), int(b))]
+                        for a, b in zip(
+                            columns["ANTENNA1"][idx], columns["ANTENNA2"][idx]
+                        )
+                    ],
+                    np.int64,
+                )
+                parts = [
+                    idx[np.isin(bl, chosen)]
+                    for chosen in core_chunks.baseline_blocks(bl, len(ubl), max_rows)
+                ]
+            before = after = 0
+            seconds = 0.0
+            for block in parts:
+                data = core_chunks.read_rows(w, cfg["column"], block)
+                flag = core_chunks.read_rows(w, "FLAG", block)
+                result = core_flag.flag_rows(
+                    data,
+                    flag,
+                    columns["ANTENNA1"][block],
+                    columns["ANTENNA2"][block],
+                    columns["TIME"][block],
+                    info["antenna_position"],
+                    info["chan_freq"],
+                    info["chan_width"],
+                    info["corr_type"],
+                    strategies,
+                    masks=masks,
+                    want_intensity=False,
+                    want_stages=False,
+                    time_grid=time_grid,
+                )
+                del data
+                out = result["flags"]
+                new = out if cfg["write"] == "replace" else (flag | out)
+                before += int(flag.sum())
+                after += int(new.sum())
+                seconds += result["seconds"]
+                core_chunks.write_rows(w, "FLAG", block, new)
+                del flag, new, out, result
+            blocks.append(len(parts))
+            flagged_before += before
+            groups.append(
+                {
+                    "field_id": field,
+                    "field": info["fields"][field],
+                    "ddid": ddid,
+                    "scan": scan,
+                    "rows": len(idx),
+                    "flagged_before": before / (len(idx) * cells),
+                    "flagged_after": after / (len(idx) * cells),
+                    "core_seconds": seconds,
+                }
+            )
+    # The whole FLAG in row order, read back: its hash and the fractions.
+    selected = np.zeros(info["nrows"], bool)
+    selected[rows] = True
+    digest = hashlib.sha256()
+    total_after = unselected = 0
+    with core_ms.open_table(ms) as t:
+        for start, n in flagversions.spans(info["nrows"], plan.rows("rows")):
+            part = np.ascontiguousarray(t.getcol("FLAG", start, n))
+            digest.update(part.tobytes())
+            total_after += int(part.sum())
+            unselected += int(part[~selected[start : start + n]].sum())
+            del part
+    total_before = unselected + flagged_before
+    total_cells = info["nrows"] * cells
     summary = {
         "strategy": str(strategy_path),
         "strategy_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
@@ -737,10 +850,11 @@ def stage_flag(ctx):
         "restored_before": restored,
         "groups": groups,
         "rows_flagged": len(rows),
-        "flagged_before": float(flag.mean()),
-        "flagged_after": float(new.mean()),
-        "flag_sha256": hashlib.sha256(np.ascontiguousarray(new).tobytes()).hexdigest(),
+        "flagged_before": total_before / total_cells,
+        "flagged_after": total_after / total_cells,
+        "flag_sha256": digest.hexdigest(),
         **written,
+        "chunking": {**plan.describe(), "blocks": blocks},
     }
     _write_json(ctx["run"].stage_dir("flag") / "summary.json", summary)
     return summary
@@ -767,64 +881,187 @@ def solution_grid(times, nchan, chan_freq, solint, freqint):
     return time_bin, freq_bin, gain_time, gain_freq
 
 
-def solve_partition(columns, idx, info, term, weights_mode, model_source, model_column):
-    """One `complex` solve on rows `idx` of one field and scan. Rows are
-    sorted stably by TIME first. Returns (solution, time_bin, freq_bin,
-    gain_time, gain_freq)."""
-    order = idx[np.argsort(columns["TIME"][idx], kind="stable")]
-    nchan = info["cell"][0]
-    time_bin, freq_bin, gain_time, gain_freq = solution_grid(
-        columns["TIME"][order],
-        nchan,
+def partition_grid(info, idx, term):
+    """Rows `idx` of one partition sorted stably by TIME, and their
+    `solution_grid`: (order, time_bin, freq_bin, gain_time, gain_freq)."""
+    times = info["rows"]["TIME"]
+    order = idx[np.argsort(times[idx], kind="stable")]
+    grid = solution_grid(
+        times[order],
+        info["cell"][0],
         info["chan_freq"],
         term["solint"],
         term["freqint"],
     )
-    data = columns["DATA"][order]
+    return (order, *grid)
+
+
+def weight_column(info, weights_mode):
+    """The weight column `calibrate` reads, or None for `uniform`:
+    WEIGHT_SPECTRUM when row 0 has a cell of the DATA shape, else WEIGHT
+    (gemclean tests only that row 0 reads; check_data refuses image then)."""
     if weights_mode == "uniform":
+        return None
+    return "WEIGHT_SPECTRUM" if info["weight_spectrum"] else "WEIGHT"
+
+
+def _solve_inputs(source, rows, chans, info, weights_mode, model_source, model_column):
+    """DATA, weights, FLAG, FLAG_ROW and the model of `rows` (in that order)
+    and channels `chans` (a slice), read from `source` (a reader)."""
+    nchan_all = info["cell"][0]
+    whole = chans.start == 0 and chans.stop == nchan_all
+    cut = None if whole else chans
+    # Read in blocks so only the kept channels are held (core_chunks).
+    block = (
+        None if whole else max(1, len(rows) * (chans.stop - chans.start) // nchan_all)
+    )
+    data = core_chunks.read_rows(source, "DATA", rows, cut, block)
+    column = weight_column(info, weights_mode)
+    if column is None:
         weights = np.ones(data.shape, np.float32)
-    elif "WEIGHT_SPECTRUM" in columns:
-        weights = columns["WEIGHT_SPECTRUM"][order]
+    elif column == "WEIGHT_SPECTRUM":
+        weights = core_chunks.read_rows(source, column, rows, cut, block)
     else:
-        weights = np.repeat(columns["WEIGHT"][order][:, None, :], nchan, axis=1)
-    kwargs = {}
+        per_row = core_chunks.read_rows(source, "WEIGHT", rows)
+        weights = np.repeat(per_row[:, None, :], data.shape[1], axis=1)
+        del per_row
+    out = {
+        "data": data,
+        "weights": weights,
+        "flag": core_chunks.read_rows(source, "FLAG", rows, cut, block),
+        "flag_row": core_chunks.read_rows(source, "FLAG_ROW", rows),
+    }
     if model_source == "column":
-        kwargs["model"] = columns[model_column][order]
+        out["model"] = core_chunks.read_rows(source, model_column, rows, cut, block)
     else:
-        kwargs["scalar_model"] = np.ones(nchan, np.float64)
-    solution = core.solve_complex(
-        data,
-        weights,
-        columns["FLAG"][order],
-        columns["FLAG_ROW"][order],
-        columns["ANTENNA1"][order],
-        columns["ANTENNA2"][order],
+        out["scalar_model"] = np.ones(data.shape[1], np.float64)
+    return out
+
+
+def _complex(inputs, info, rows, time_bin, freq_bin, ntime, nfreq, term, **settings):
+    model = (
+        {"model": inputs["model"]}
+        if "model" in inputs
+        else {"scalar_model": inputs["scalar_model"]}
+    )
+    a = info["rows"]
+    return core.solve_complex(
+        inputs["data"],
+        inputs["weights"],
+        inputs["flag"],
+        inputs["flag_row"],
+        a["ANTENNA1"][rows],
+        a["ANTENNA2"][rows],
         time_bin,
         freq_bin,
-        ntime_bins=len(gain_time),
-        nfreq_bins=len(gain_freq),
+        ntime_bins=ntime,
+        nfreq_bins=nfreq,
         nant=len(info["antennas"]),
-        max_iterations=term["max_iterations"],
         stop_criterion=term["stop_criterion"],
-        stop_fraction=term["stop_fraction"],
-        **kwargs,
+        **{
+            "max_iterations": term["max_iterations"],
+            "stop_fraction": term["stop_fraction"],
+            **settings,
+        },
+        **model,
     )
-    return solution, time_bin, freq_bin, gain_time, gain_freq
 
 
-def calibration_columns(info, config):
-    names = ["FIELD_ID", "DATA_DESC_ID", "SCAN_NUMBER", "ANTENNA1", "ANTENNA2", "TIME"]
-    names += ["DATA", "FLAG", "FLAG_ROW"]
-    if config["data"]["weights"] == "as_is":
-        # WEIGHT_SPECTRUM when row 0 has a cell of the DATA shape, else WEIGHT
-        # (gemclean tests only that row 0 reads; check_data refuses image then).
-        names.append("WEIGHT_SPECTRUM" if info["weight_spectrum"] else "WEIGHT")
-    model = config["calibrate"]["model"]
-    if model["source"] == "column":
-        names.append(model["column"])
-    elif model["source"] in core_config.MODEL_SOURCES:
-        names.append("MODEL_DATA")
-    return names
+# A stop fraction no converged fraction reaches: the loop runs to its
+# maximum (pass 1 and 2 of a chunked solve, research/w3-chunking.md 1.3).
+NO_STOP = 2.0
+
+
+def solve_partition(
+    source,
+    idx,
+    info,
+    term,
+    weights_mode,
+    model_source,
+    model_column,
+    max_cells=None,
+    hard_cells=None,
+):
+    """One `complex` solve on rows `idx` of one field and scan, read from
+    `source` (a reader). Rows are sorted stably by TIME first. Within
+    `max_cells` cells (None: no limit; `hard_cells` the memory limit when
+    `max_cells` is a `chunk_rows` cap) the partition is one solve; otherwise
+    chunks of whole solution intervals (`core_chunks.solve_chunks`) are solved
+    twice to replay the global stop test (pass 1 with the trace, pass 2 to the
+    stop iteration), which gives the one-call result bit for bit. Returns
+    (solution, time_bin, freq_bin, gain_time, gain_freq, chunking record)."""
+    order, time_bin, freq_bin, gain_time, gain_freq = partition_grid(info, idx, term)
+    ntime, nfreq = len(gain_time), len(gain_freq)
+    nchan, ncorr = info["cell"]
+    nant = len(info["antennas"])
+    read = (info, weights_mode, model_source, model_column)
+    if max_cells is None or len(order) * nchan * ncorr <= max_cells:
+        inputs = _solve_inputs(source, order, slice(0, nchan), *read)
+        solution = _complex(inputs, info, order, time_bin, freq_bin, ntime, nfreq, term)
+        record = {"chunks": 1, "passes": 1}
+        return solution, time_bin, freq_bin, gain_time, gain_freq, record
+    chunks, largest = core_chunks.solve_chunks(
+        time_bin, freq_bin, max_cells, ncorr, hard_cells
+    )
+    if chunks is None:
+        raise core_chunks.MemoryLimitError(
+            f"one solution interval holds {largest} cells, more than a chunk of "
+            f"{max_cells}"
+        )
+    options = core.solve_options(None)
+    if options.stop != "gain":
+        raise StageFailed(
+            f"a chunked solve replays the stop test 'gain' only; RANG_SOLVE_OPTIONS "
+            f"sets stop={options.stop} (research/w3-chunking.md 1.3)"
+        )
+
+    def run(chunk, **settings):
+        rows = order[chunk.rows]
+        inputs = _solve_inputs(source, rows, chunk.chans, *read)
+        sol = _complex(
+            inputs,
+            info,
+            rows,
+            time_bin[chunk.rows] - chunk.t0,
+            freq_bin[chunk.chans] - chunk.f0,
+            chunk.t1 - chunk.t0,
+            chunk.f1 - chunk.f0,
+            term,
+            **settings,
+        )
+        del inputs
+        return sol
+
+    import tempfile
+
+    totals = None
+    with tempfile.TemporaryDirectory(prefix="rang-w3-trace-") as tmp:
+        trace = Path(tmp) / "trace.json"
+        for chunk in chunks:
+            run(chunk, stop_fraction=NO_STOP, trace=str(trace))
+            counts = np.array(core_chunks.trace_counts(trace), np.int64)
+            trace.unlink()
+            if counts.shape != (term["max_iterations"], 2):
+                raise StageFailed(
+                    f"chunked solve: the trace has {len(counts)} iterations, not "
+                    f"{term['max_iterations']}"
+                )
+            totals = counts if totals is None else totals + counts
+    stop, fraction = core_chunks.replay_stop(
+        [tuple(int(v) for v in t) for t in totals],
+        ntime * nfreq * nant,
+        term["stop_fraction"],
+    )
+    gains = np.empty((ntime, nfreq, nant, 2, 2), np.complex128)
+    flags = np.empty((ntime, nfreq, nant), np.int8)
+    for chunk in chunks:
+        sol = run(chunk, stop_fraction=NO_STOP, max_iterations=stop + 1, trace="")
+        gains[chunk.t0 : chunk.t1, chunk.f0 : chunk.f1] = sol.gains
+        flags[chunk.t0 : chunk.t1, chunk.f0 : chunk.f1] = sol.flags
+    solution = core.ComplexSolution(gains, flags, stop + 1, fraction, options, None)
+    record = {"chunks": len(chunks), "passes": 2, "largest_interval_cells": largest}
+    return solution, time_bin, freq_bin, gain_time, gain_freq, record
 
 
 def model_spec(model, config_path):
@@ -859,97 +1096,59 @@ def write_models(ctx):
             )
         )
     spec = model_spec(model, ctx["config_path"])
-    with writeback_session(
-        run, ms, "calibrate", info["cell"], config["data"]["chunk_rows"]
-    ) as (w, written):
+    plan = core_chunks.budget(config, info)
+    with writeback_session(run, ms, "calibrate", info["cell"], plan.rows("rows")) as (
+        w,
+        written,
+    ):
         receipt = calmodels.set_model(
-            ms, sorted(fields), spec, session=w, chunk_rows=config["data"]["chunk_rows"]
+            ms, sorted(fields), spec, session=w, chunk_rows=plan.rows("model")
         )
     return {"spec": repr(spec), "fields": sorted(fields), "receipt": receipt, **written}
+
+
+def solve_rows(config, info, section, term):
+    """The rows a term solves on: its fields, `data.scans`, cross-correlations
+    only (autocorrelations are left out of the solve, task W4, as C2a's)."""
+    block = config["calibrate"][section]
+    fields = resolve_fields(
+        term["field"] or block["field"], config, info, f"calibrate.{section}"
+    )
+    columns = info["rows"]
+    rows = _selected_rows(columns, fields, config["data"]["scans"])
+    return fields, rows[columns["ANTENNA1"][rows] != columns["ANTENNA2"][rows]]
 
 
 def stage_calibrate(ctx):
     config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
     cal = config["calibrate"]
+    plan = core_chunks.budget(config, info)
+    max_cells = (plan.cells("calibrate"), plan.cells("calibrate", capped=False))
     out_dir = run.stage_dir("calibrate", fresh=True)
     models = write_models(ctx)
     source, model_column = cal["model"]["source"], cal["model"]["column"]
     if models is not None:
         source, model_column = "column", "MODEL_DATA"
-    columns = _read_columns(ms, calibration_columns(info, config), info["nrows"])
-    tables = []
-    for section in core_config.CALIBRATE_SECTIONS:
-        block = cal[section]
-        for term in block["terms"]:
-            fields = resolve_fields(
-                term["field"] or block["field"], config, info, f"calibrate.{section}"
-            )
-            rows = _selected_rows(columns, fields, config["data"]["scans"])
-            # Autocorrelations are left out of the solve (task W4), as C2a's.
-            rows = rows[columns["ANTENNA1"][rows] != columns["ANTENNA2"][rows]]
-            if not len(rows):
-                raise StageFailed(f"calibrate.{section}: no rows in fields {fields}")
-            parts, records = [], []
-            for (field, ddid, scan), idx in _groups(columns, rows).items():
-                solution, _, _, gain_time, gain_freq = solve_partition(
-                    columns,
-                    idx,
-                    info,
-                    term,
-                    config["data"]["weights"],
-                    source,
-                    model_column,
-                )
-                valid = (solution.flags == 0) & np.isfinite(solution.gains).all(
-                    axis=(-1, -2)
-                )
-                where = f"{term['name']} on field {info['fields'][field]} scan {scan}"
-                if not valid.any():
-                    raise StageFailed(f"calibrate: {where} gave no valid solution")
-                parts.append(
-                    quartical_store.complex_partition(
-                        solution.gains[:, :, :, None],
-                        solution.flags[:, :, :, None],
-                        gain_time,
-                        gain_freq,
-                        info["antennas"],
-                        name=term["name"],
-                        field_id=field,
-                        field_name=info["fields"][field],
-                        scan=scan,
-                        ddid=ddid,
+    tables, chunking = [], []
+    reader = core_ms.open_table(ms)
+    try:
+        for section in core_config.CALIBRATE_SECTIONS:
+            for term in cal[section]["terms"]:
+                tables.append(
+                    _solve_term(
+                        ctx,
+                        reader,
+                        section,
+                        term,
+                        source,
+                        model_column,
+                        max_cells,
+                        out_dir,
+                        chunking,
                     )
                 )
-                records.append(
-                    {
-                        "field_id": field,
-                        "field": info["fields"][field],
-                        "scan": scan,
-                        "ddid": ddid,
-                        "rows": len(idx),
-                        "time_bins": len(gain_time),
-                        "freq_bins": len(gain_freq),
-                        "iterations": solution.iterations,
-                        "converged_fraction": solution.converged_fraction,
-                        "valid_fraction": float(valid.mean()),
-                        "gains_sha256": hashlib.sha256(
-                            np.ascontiguousarray(solution.gains).tobytes()
-                        ).hexdigest(),
-                    }
-                )
-            store = out_dir / f"{term['name']}.qc"
-            quartical_store.write({term["name"]: parts}, store)
-            tables.append(
-                {
-                    "section": section,
-                    "name": term["name"],
-                    "type": term["type"],
-                    "store": str(store),
-                    "solint": term["solint"],
-                    "freqint": term["freqint"],
-                    "partitions": records,
-                }
-            )
+    finally:
+        reader.close()
     summary = {
         "weights": config["data"]["weights"],
         "model": cal["model"]["source"],
@@ -958,8 +1157,80 @@ def stage_calibrate(ctx):
     }
     if models is not None:
         summary["flag_version"] = models["flag_version"]
+    summary["chunking"] = {**plan.describe(), "partitions": chunking}
     _write_json(out_dir / "summary.json", summary)
     return summary
+
+
+def _solve_term(
+    ctx, reader, section, term, source, model_column, max_cells, out_dir, chunking
+):
+    """Solve one term on each of its partitions and write its gain store."""
+    config, info = ctx["config"], ctx["info"]
+    fields, rows = solve_rows(config, info, section, term)
+    if not len(rows):
+        raise StageFailed(f"calibrate.{section}: no rows in fields {fields}")
+    parts, records = [], []
+    for (field, ddid, scan), idx in _groups(info["rows"], rows).items():
+        solution, _, _, gain_time, gain_freq, chunked = solve_partition(
+            reader,
+            idx,
+            info,
+            term,
+            config["data"]["weights"],
+            source,
+            model_column,
+            *max_cells,
+        )
+        chunking.append(
+            {"term": term["name"], "field_id": field, "scan": scan, **chunked}
+        )
+        valid = (solution.flags == 0) & np.isfinite(solution.gains).all(axis=(-1, -2))
+        where = f"{term['name']} on field {info['fields'][field]} scan {scan}"
+        if not valid.any():
+            raise StageFailed(f"calibrate: {where} gave no valid solution")
+        parts.append(
+            quartical_store.complex_partition(
+                solution.gains[:, :, :, None],
+                solution.flags[:, :, :, None],
+                gain_time,
+                gain_freq,
+                info["antennas"],
+                name=term["name"],
+                field_id=field,
+                field_name=info["fields"][field],
+                scan=scan,
+                ddid=ddid,
+            )
+        )
+        records.append(
+            {
+                "field_id": field,
+                "field": info["fields"][field],
+                "scan": scan,
+                "ddid": ddid,
+                "rows": len(idx),
+                "time_bins": len(gain_time),
+                "freq_bins": len(gain_freq),
+                "iterations": solution.iterations,
+                "converged_fraction": solution.converged_fraction,
+                "valid_fraction": float(valid.mean()),
+                "gains_sha256": hashlib.sha256(
+                    np.ascontiguousarray(solution.gains).tobytes()
+                ).hexdigest(),
+            }
+        )
+    store = out_dir / f"{term['name']}.qc"
+    quartical_store.write({term["name"]: parts}, store)
+    return {
+        "section": section,
+        "name": term["name"],
+        "type": term["type"],
+        "store": str(store),
+        "solint": term["solint"],
+        "freqint": term["freqint"],
+        "partitions": records,
+    }
 
 
 def apply_targets(config, info, solved):
@@ -1001,9 +1272,11 @@ def stage_apply(ctx):
                 raise StageFailed(f"apply: calibrate wrote no table {name!r}")
     restored = restore_before(ms, ctx["entry"])
     applied = []
-    with writeback_session(
-        run, ms, "apply", info["cell"], config["data"]["chunk_rows"]
-    ) as (w, written):
+    plan = core_chunks.budget(config, info)
+    with writeback_session(run, ms, "apply", info["cell"], plan.rows("rows")) as (
+        w,
+        written,
+    ):
         for fields, names in targets:
             for k, name in enumerate(names):
                 table = made[name]
@@ -1015,11 +1288,12 @@ def stage_apply(ctx):
                     fields=fields,
                     column=cfg["column"],
                     session=w,
-                    chunk_rows=config["data"]["chunk_rows"],
+                    chunk_rows=plan.rows("apply"),
                     input_column="DATA" if k == 0 else cfg["column"],
                 )
                 applied.append(result)
     summary = {
+        "chunking": plan.describe(),
         "column": cfg["column"],
         "applymode": cfg["applymode"],
         "calwt": cfg["calwt"],

@@ -161,8 +161,17 @@ SCHEMA = {
             ("as_is", "uniform"),
         ),
         "scans": _k([], "ints", "SCAN_NUMBERs to use (empty: every scan)"),
+        "memory_limit_gb": _k(
+            8.0,
+            "float",
+            "peak resident memory a stage may use, GiB; flag, calibrate and apply "
+            "chunk by time and row to stay within it (research/w3-chunking.md)",
+        ),
         "chunk_rows": _k(
-            None, "int?", "rows per write chunk (null: about 64 MiB of DATA cells)"
+            None,
+            "int?",
+            "a cap on the rows of every chunk (null: what memory_limit_gb allows); "
+            "a solve chunk still holds one solution interval",
         ),
     },
     "flag": {
@@ -698,6 +707,11 @@ def resolve(raw):
     """(config with every default filled in, [schema errors])."""
     errors = []
     config = _section("", SCHEMA, raw, errors)
+    data = config["data"]
+    if _is_num(data["memory_limit_gb"]) and not data["memory_limit_gb"] > 0:
+        errors.append(("data.memory_limit_gb", "must be above 0"))
+    if _is_int(data["chunk_rows"]) and data["chunk_rows"] < 1:
+        errors.append(("data.chunk_rows", "must be at least 1"))
     names = {}
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
@@ -915,9 +929,20 @@ def validate_file(path, stages):
     return validate(load(path), stages, source=Path(path))
 
 
+# Keys that set chunk sizes only: results do not depend on them (task W3,
+# research/w3-chunking.md), so changing them does not make a stage "changed".
+RESOURCE_KEYS = {"data": ("memory_limit_gb", "chunk_rows")}
+
+
 def stage_hash(config, stage):
-    """SHA-256 of the sections `stage` depends on (STAGE_SECTIONS)."""
-    part = {name: config[name] for name in STAGE_SECTIONS[stage]}
+    """SHA-256 of the sections `stage` depends on (STAGE_SECTIONS), without
+    the RESOURCE_KEYS."""
+    part = {}
+    for name in STAGE_SECTIONS[stage]:
+        section = config[name]
+        if name in RESOURCE_KEYS:
+            section = {k: v for k, v in section.items() if k not in RESOURCE_KEYS[name]}
+        part[name] = section
     text = json.dumps(part, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 

@@ -71,6 +71,8 @@ FIELDS = (
 SEQUENCE = "FXGTGTGXGTGTGXGTGTGTGXF"
 FULL_LENGTH = {"F": 45, "X": 30, "G": 15, "T": 150}
 SMALL_LENGTH = {"F": 6, "X": 4, "G": 2, "T": 8}
+# Task W3 (research/w3-chunking.md): the whole array at 4096 channels, short scans.
+W3_LENGTH = {"F": 6, "X": 1, "G": 2, "T": 4}
 FIELD_OF = {"F": 0, "X": 1, "G": 2, "T": 3}
 SLEW_S = 24.0
 START_UTC = "2024-08-18T19:09:00"
@@ -92,6 +94,8 @@ SEEDS = {
     "small": {"jones": 20261116, "sky": 20261117, "rfi": 20261118, "noise": 20261119},
     # Task C2b (research/c2b-delay.md): delays up to 50 ns.
     "delay50": {"jones": 20261126, "sky": 20261127, "rfi": 20261128, "noise": 20261129},
+    # Task W3 (research/w3-chunking.md): 64 antennas at 4096 channels.
+    "w3": {"jones": 20261136, "sky": 20261137, "rfi": 20261138, "noise": 20261139},
 }
 
 
@@ -159,7 +163,8 @@ class Design:
 def design(name):
     """The `full` (64 antennas, 256 channels) or `small` (16, 64) version, or
     `delay50` (C2b: small's antennas and schedule, 256 channels, delays of
-    1-50 ns, `extra["tau_range_ns"]`)."""
+    1-50 ns, `extra["tau_range_ns"]`), or `w3` (W3: all 64 antennas, 4096
+    channels, scans of `W3_LENGTH` integrations)."""
     if name == "full":
         return Design("full", list(range(64)), 256, FULL_LENGTH, SEEDS["full"])
     if name == "small":
@@ -173,7 +178,9 @@ def design(name):
             SEEDS["delay50"],
             extra={"tau_range_ns": (1.0, 50.0)},
         )
-    raise ValueError(f"unknown version {name!r}: full, small or delay50")
+    if name == "w3":
+        return Design("w3", list(range(64)), 4096, W3_LENGTH, SEEDS["w3"])
+    raise ValueError(f"unknown version {name!r}: full, small, delay50 or w3")
 
 
 # -- geometry ---------------------------------------------------------------------
