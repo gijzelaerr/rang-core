@@ -503,10 +503,11 @@ EXPECTED_STEPS = [
     "ruff-format",
     "diff-check",
     "pytest",
+    "gain-hashes",  # task C2a: the C-stream gate (research/c2a-gain.md)
 ]
 
 
-def test_check_has_the_seventeen_steps_of_check_all_in_order():
+def test_check_has_the_eighteen_steps_of_check_all_in_order():
     from rang import check
 
     table = check.steps()

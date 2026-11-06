@@ -1539,3 +1539,15 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W2 `rang-core run`, image failing, then resumed | same | 24.2 s, then 5.9 s | 133 MB, 260 MB | the resumed run skips flag and calibrate |
 | 2026-11-06 | W2 `tools/oracles/w2/run.sh`, frozen run -01 | A1 small MS copies | 114 s | – | shared host; not a timing run |
 | 2026-11-06 | check-all, W2 branch at the code commit | repo | – | – | pytest 868 passed, 68 skipped, 1 expected failure (index) in 116 s |
+| 2026-11-06 | C2a `tools/gain_hash_gate.py` (new `gain-hashes` check step) | archived fixture, slice, LUNO arrays | 2.0 s | 113 MB | `4ed2aa89…`, `7b370c13…` and LUNO phase 2 reproduced; 1.3 s inside check-all |
+| 2026-11-06 | C2a `check_gain.py quartical` run -01 | slice, fixture | 2.9 s | 89 MB | failed in the container's column copy; nothing compared |
+| 2026-11-06 | C2a `check_gain.py quartical` run -02 (class A) | slice, fixture, 7 cases | 139.8 s (`goquartical` ×7 136.4 s, 8-38 s and 388-643 MB each; rang 0.02-0.08 s per solve) | 239 MB | all seven pass |
+| 2026-11-06 | C2a `check_gain.py casa` run -03 (class B, frozen set) | slice, A1 small, 17 cases | 159.8 s (edits and `gaincal` ×17 50.7 s, 1.1-1.7 s per call) | 203 MB | slice pass; A1 TIME, `int` matching, combine, minsnr fail |
+| 2026-11-06 | C2a `probe_gain_weights.py` run -04 | A1 small, 3 copies | 25.8 s (one container 19.9 s) | – | post hoc: CASA's solve weights with a pre-apply |
+| 2026-11-06 | C2a `check_gain.py casa` run -05 (frozen set again, post-hoc code) | as -03 | 211.3 s (container 52.2 s; host load from sibling sessions) | 214 MB | 13 pass, 4 fail (TIME on field 2, combine) |
+| 2026-11-06 | C2a `check_gain.py casa --heldout` run -06 | slice, A1 small, 8 cases | 141.5 s (container 48.8 s) | 200 MB | 5 pass; 3 field-2 `inf` cases fail on TIME alone |
+| 2026-11-06 | C2a `check_gain.py truth` run -07 (class T) | A1 small and twin | 53.7 s (container 10.0 s) | 216 MB | 5 of 6 pass; twin field 2 fails (the model, section 8) |
+| 2026-11-06 | C2a `check_gain.py truth --parang-model` run -09 (post hoc) | A1 small and twin | 51.9 s (container 10 s) | 212 MB | all six pass with A1's `P_p M P_q^T` model |
+| 2026-11-06 | C2a `probe_gain_readback.py` run -08 | slice, `c.K0` and a rang G table | 5.2 s (`applycal` container 3.3 s) | – | CASA applies rang's table; class C, flags exact |
+| 2026-11-06 | C2a `tools/check-all.sh`, uncommitted tree mid-edit | worktree | 1179.1 s (waited on the shared check-all lock) | 1.89 GB | FAIL: ruff format on files being edited, and the research-index test |
+| 2026-11-06 | C2a `tools/check-all.sh`, the tree of the code commit | worktree | 788.2 s (with lock wait; pytest 125.6 s, gain-hashes 1.3 s) | 1.84 GB | FAIL only on the research-index test; 884 passed, 68 skipped |

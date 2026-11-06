@@ -27,6 +27,16 @@ the release notes are the section of this file for that version.
   first write, and as `rang_<stage>_<time>` before each stage writes (`research/w2-commands.md`).
 - Changed: the research stages moved under `rang-core research` (for example `rang-core research
   flags compare`); the old top-level forms now say where they went. PyYAML is a dependency.
+- New: `rang.cal_gain`, the gain term G in Rust (`core/src/cal/diag.rs`, `reference.rs`):
+  diagonal complex (`calmode='ap'`) and phase-only (`'p'`) solves ported from QuartiCal 0.2.7's
+  `diag_complex` and `phase` kernels, with CASA's solution intervals (`solint`, `combine`),
+  `uvrange` (metres), `minblperant`, `minsnr` and reference antenna (`flex`, `strict`); earlier
+  tables are pre-applied through `rang.cal_apply`, and the result is a CASA `G Jones` table
+  (`research/c2a-gain.md`).
+- `tools/check-all.sh` has a new last step, `gain-hashes` (`tools/gain_hash_gate.py`): it recomputes
+  the archived `complex` gains (`4ed2aa89…`, `7b370c13…`) and core phase 2's LUNO convergence, and
+  fails on any change. The archived inputs are found in `$RANG_ARCHIVE_OUTPUTS`, `outputs/` or
+  `~/Github/rang/outputs`; `RANG_GAIN_HASHES=optional` skips the step on a host without them.
 
 - New: `rang.core_writeback`, write-back to an existing Measurement Set. `WriteBack` adds
   `MODEL_DATA`, `CORRECTED_DATA` (or any data column) and `WEIGHT_SPECTRUM` as CASA's `clearcal`
