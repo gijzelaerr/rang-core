@@ -110,6 +110,16 @@ the release notes are the section of this file for that version.
 - Changed: `examples/a1_simtruth.py generate` takes `--seeds` and `--gcal-flux`, `--gcal-spix`,
   `--gcal-reffreq` (the default versions are unchanged).
 
+- New: `gemclean -channels-out N`, `-join-channels`, `-fit-spectral-pol N`, `-channel-range S E`,
+  `-mf-weighting`/`-no-mf-weighting` and rang's own `-average-channels N`, as WSClean 3.7 has
+  them: output channels grouped as WSClean groups them, MF weighting by default with joined
+  channels, a joined minor loop that picks on the weighted sum of the channel residuals and puts a
+  component in every channel (GeMClean's exact value per channel, then WSClean's ordinary polynomial
+  fit in `nu/nu_ref - 1`), and per-channel `<name>-0000-<kind>.fits` and weighted
+  `<name>-MFS-<kind>.fits` images. `-fit-spectral-log-pol`, `-deconvolution-channels` and squared
+  joining are refused. One output channel is byte-identical to before. `rang-core image` passes
+  `channels_out`, `join_channels`, `fit_spectral_pol` and `average_channels` to gemclean instead
+  of refusing them (`research/g3-spectral.md`).
 - New: `rang.applycal.applycal(ms, gaintable, interp, gainfield, calwt, field)`, CASA's
   `applycal` on a Measurement Set: row chunks through `rang.core_writeback` (a flag version first),
   the Rust kernel per field and data description, CORRECTED_DATA (added as `clearcal` does when

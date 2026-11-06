@@ -1822,6 +1822,14 @@ def gemclean_arguments(img, column, field_id, prefix, ms):
         if img[key] is not None:
             args += [flag, str(img[key])]
     args += ["-wgridder-accuracy", repr(float(img["wgridder_accuracy"]))]
+    if img["average_channels"] > 1:
+        args += ["-average-channels", str(img["average_channels"])]
+    if img["channels_out"] > 1:
+        args += ["-channels-out", str(img["channels_out"])]
+    if img["join_channels"]:
+        args.append("-join-channels")
+    if img["fit_spectral_pol"] is not None:
+        args += ["-fit-spectral-pol", str(img["fit_spectral_pol"])]
     args += ["-data-column", column, "-field", str(field_id)]
     args += list(img["extra_args"])
     return [*args, str(ms)]

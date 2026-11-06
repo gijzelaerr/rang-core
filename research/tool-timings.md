@@ -1676,3 +1676,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C6w `check_c6w.py run` -01: CASA prepare, 18 calls, export; `rang-core calibrate`, `apply`; reference | poldx noisy | 357 s total; CASA container 51.0 s (tasks 0.2-4.3 s); calibrate 56.3 s; apply 62.0 s (`chunk_rows` 700, on /mnt/d); reference 34.7 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w `check_c6w.py run` -02 (held out) | polholdout noisy | 858 s total including about 10 min lock wait; CASA container 45.9 s; calibrate 42.7 s; apply 58.3 s; reference 33.1 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w gate 3 (`validate` on e2a, e2b) | configurations | under 1 s | – | – |
+| 2026-11-06 | G3 `cargo build --profile gemclean --bin gemclean`, 3 builds (dev, main `0cb508b`, freeze) | core crate | 2 min 36 s-2 min 54 s (44 min with the lock wait once) | – | heavy lock |
+| 2026-11-06 | G3 `examples/g3_spectral_simulate.py`, 4 skies | 907,200 rows × 16 channels | 35-40 s | 0.46 GB | heavy lock; written to `/mnt/d` |
+| 2026-11-06 | G3 GeMClean, 4 skies × C0-C4 | 2048², 16 channels | C0 53-59 s, C1/C2 1 min 24 s-1 min 45 s, C3 59-63 s, C4 46-49 s | 2.9 / 7.0 / 7.0 / 4.0 / 3.3-3.6 GB | busy host; see [g3-spectral.md](g3-spectral.md) |
+| 2026-11-06 | G3 WSClean 3.7 native, 4 skies × C0-C4 | same | C0 1 min 13 s-3 min, C1/C2 5 min 45 s-7 min 9 s, C3 3-3 min 24 s, C4 44-46 s | 0.49-0.77 GB | in container (reordering on `/mnt/d`); busy host |
+| 2026-11-06 | G3 CASA 6.7.6 `mstransform` chanbin 2 | D1 | 126 s | 0.33 GB | `rang-o-casa:6.7.6.14` |
+| 2026-11-06 | G3 GeMClean identity set (7 skies × 2 forms + pilot-256) | binary `f153db8d` | as G2's | 1.9-12.0 GB | all byte-identical |
+| 2026-11-06 | G3 `tools/check-all.sh` | worktree | about 28 min | – | FAIL only on the research-index test (new note) |

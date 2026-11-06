@@ -3334,6 +3334,12 @@ impl<T: Real> Prepared<T> {
         out
     }
 
+    /// Free the work grids. They are zero between passes, and the next pass
+    /// allocates zeroed ones, so its values are the same.
+    pub fn release_grids(&self) {
+        self.grids.lock().expect("no panic while gridding").grids = Vec::new();
+    }
+
     /// `vis2dirty` of `data` with the prepared plan, with weights `wgt`.
     pub fn vis2dirty(&self, data: VisData, wgt: Weights, dirty: &mut [T]) -> Result<Plan, String> {
         if data.len().is_some_and(|l| l != self.n)

@@ -297,8 +297,8 @@ image:
   extra_args: []  # more gemclean options, passed as given
   channels_out: 1  # output channels
   join_channels: false  # join the output channels
-  fit_spectral_pol: null  # terms of the spectral fit
-  average_channels: 1  # channels averaged before imaging
+  fit_spectral_pol: null  # terms of the polynomial fit across joined channels
+  average_channels: 1  # adjacent channels averaged before imaging (rang's own)
   auto_mask: null  # automatic mask at this many sigma
   fits_mask: null  # a FITS mask
   taper_gaussian: null  # a Gaussian taper, such as 10asec

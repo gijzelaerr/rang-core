@@ -41,7 +41,6 @@ TASKS = {
     "C5a": "phase and amplitude self-calibration (Sp, Sa)",
     "C5b": "delay self-calibration (Sd, CARACal's Fslope)",
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
-    "G3": "channels out, joined channels, spectral fits and channel averaging",
     "G4": "masks, tapers and an imaging uv range",
     "G5": "multiscale CLEAN",
     "G6": "MODEL_DATA from the imager",
@@ -346,8 +345,12 @@ SCHEMA = {
         "extra_args": _k([], "strs", "more gemclean options, passed as given"),
         "channels_out": _k(1, "int", "output channels"),
         "join_channels": _k(False, "bool", "join the output channels"),
-        "fit_spectral_pol": _k(None, "int?", "terms of the spectral fit"),
-        "average_channels": _k(1, "int", "channels averaged before imaging"),
+        "fit_spectral_pol": _k(
+            None, "int?", "terms of the polynomial fit across joined channels"
+        ),
+        "average_channels": _k(
+            1, "int", "adjacent channels averaged before imaging (rang's own)"
+        ),
         "auto_mask": _k(None, "float?", "automatic mask at this many sigma"),
         "fits_mask": _k(None, "path?", "a FITS mask"),
         "taper_gaussian": _k(None, "str?", "a Gaussian taper, such as 10asec"),
@@ -940,11 +943,22 @@ def refusals(config, stages):
                 "uniform weights for imaging: gemclean reads the MS weights, so "
                 "WEIGHT_SPECTRUM = 1 would have to be written into the MS",
             )
+        for key in ("channels_out", "average_channels"):
+            if img[key] < 1:
+                out.append(Refusal(f"image.{key}", "", "must be at least 1"))
+        if img["fit_spectral_pol"] is not None and (
+            img["fit_spectral_pol"] < 1
+            or not img["join_channels"]
+            or img["channels_out"] < 2
+        ):
+            out.append(
+                Refusal(
+                    "image.fit_spectral_pol",
+                    "",
+                    "needs at least one term, join_channels and channels_out of 2 or more",
+                )
+            )
         for key, default, task in (
-            ("channels_out", 1, "G3"),
-            ("join_channels", False, "G3"),
-            ("fit_spectral_pol", None, "G3"),
-            ("average_channels", 1, "G3"),
             ("auto_mask", None, "G4"),
             ("fits_mask", None, "G4"),
             ("taper_gaussian", None, "G4"),
