@@ -331,7 +331,7 @@ Only the gate scripts changed after a result, all at setup, before any compariso
 - CASA `bandpass` without `refantmode`;
 - the edit step always run.
 
-No tolerance moved. No code that `rang-core` runs changed after the protocol commit apart from formatting
+No tolerance moved. check-all run 2 on the merge commit `1e47e68`: only the research-index test fails (980 passed, 68 skipped; the gain-hash gate passes). No code that `rang-core` runs changed after the protocol commit apart from formatting
 (`ruff format`, after check-all run 1).
 
 ## 9. What only the owner can decide
@@ -440,8 +440,9 @@ Do not apply until merged; all text proposed.
 
 **Merge notes.** This branch edits:
 
-- `core_config.py`, `core_pipeline.py` and `tests/test_w2_commands.py`, which C7a also touched; main `4daf85a` is
-  merged in (section 12);
+- `core_config.py`, `core_pipeline.py` and `tests/test_w2_commands.py`, which C7a also touched. Main `4daf85a` (C7a) is
+  merged in (`1e47e68`): C7a's model refusals are kept, and only `_model_refusals`' docstring needed resolving. The
+  secondary and polcal C2d refusal stays lifted (section 9, decision 5);
 - `cal_gain.py`, `cal_delay.py`, `cal_bandpass.py`, `cal_fluxscale.py` and `applycal.py` (additive arguments);
 - `simtruth.py` (one more version), `examples/oracle_fluxscale.py` (`bandpass`), `docs/cli.md` and `CHANGELOG.md`.
 
