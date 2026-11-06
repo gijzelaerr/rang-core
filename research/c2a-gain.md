@@ -2,8 +2,24 @@
 
 Task C2a of [finish-plan.md](finish-plan.md) (C2), step 3 of
 [c1-calibration-chain.md](c1-calibration-chain.md) section 6. Branch `fp-c2a-gain`, from main `c2aba02`.
-**Status: protocol frozen (sections 1 to 4) before any comparison; implemented; not yet measured.**
-Results are added below the protocol, never edited into it.
+**Status: implemented and measured; class A met, class B and T not met as frozen.** The protocol (sections 1
+to 4) was committed (`f215a5e`) before the first comparison; results are added below it, never edited into it, and
+this status line is the only edit above section 5.
+
+- **Class A, QuartiCal 0.2.7:** `diag_complex` and `phase` on the slice (four grids, one with K pre-applied) and the
+  fixture: gain flags exact, entries and products within 1.4e-15, iteration counts and converged fractions equal, on
+  all seven cases at the first run.
+- **Class B, CASA `gaincal`:** the slice passes everything at the first run (products 4e-6 median, held-out MSE
+  within 1.3e-6). On A1 the frozen run failed four ways; two were causes found and fixed post hoc (a checker margin
+  for `int`; CASA solves with SIGMA weights when it pre-applies tables, which rang now copies). In the held-out run
+  bins, refant choice and continuity (flex, strict), `minblperant` and `minsnr` equal CASA's on every case, products
+  within 1e-4 median; **the solution `TIME` misses its 0.01 s gate by up to 0.054 s on RFI-flagged field-2 scans**
+  (CASA's centroid weighting not reproduced), and `combine='scan'` over phase-changing scans differs by about 1 %
+  (CASA averages before it solves).
+- **Class T, A1:** noise-free field 0 within 1.2e-6; with noise no bias on either field; **the twin's field 2 fails
+  (1.5e-4), because its data differ from A1's documented point model by up to 2.3e-4**, as A1's own tables show.
+- The gain hashes `4ed2aa89…` and `7b370c13…` and core phase 2's LUNO convergence replay unchanged, now as the
+  `gain-hashes` step of `tools/check-all.sh`. No novelty claim: this is a port with oracles.
 
 ## 1. Scope
 
@@ -256,8 +272,152 @@ Predicted from section 6 before the run: field 2's `TIME` fails the 0.01 s gate 
 (item 2), so H-a1-p-int-f2 is expected to pass (one integration per interval) and the field-2 `inf` cases to fail on
 `TIME` alone; H-a1-snr-sigma-f0 flags m009 on both sides (an SNR near 1.3, outside the reported band 1.5-6).
 
+### 7.1 Run -06, the held-out verdict: five pass; the three field-2 `inf` cases fail on `TIME` alone, as predicted
+
+`c2a-20261106-06` (141.5 s). Before it, run -05 repeated the whole frozen set end to end with the post-hoc code
+(211.3 s): the same 13 passes and 4 failures as the recheck in section 6, value for value.
+
+| Case | Intervals | Max `|ΔTIME|` (s) | Products median, p95 | Flags (rang, CASA; differing) | Refant per interval | Verdict |
+| --- | --- | ---: | --- | --- | --- | --- |
+| H-slice-p-60s | 5 = 5 | 0.0039 | 2.6e-5, 6.8e-5 (phase median 0.00098°); held-out MSE +1.1e-7 | 0, 0; 0 | equal | pass |
+| H-a1-20s-f0 | 6 = 6 | 0.0083 | 2.4e-5, 5.6e-5 | 0, 0; 0 | equal | pass |
+| H-a1-16s-f0 | 6 = 6 | 0.0063 | 2.3e-5, 5.2e-5 | 0, 0; 0 | equal | pass |
+| H-a1-p-int-f2 | 20 = 20 | 0.000004 | 2.4e-4, 7.2e-4 (phase median 0.013°) | 0, 0; 0 | equal | pass |
+| H-a1-refant-flex-f2 | 10 = 10 | **0.0544** | 7.9e-5, 1.7e-4 | 4, 4; 0 | equal: m000, m001 ×3, m000 ×6 | **fail: TIME** |
+| H-a1-refant-strict-f2 | 10 = 10 | **0.0544** | 7.8e-5, 1.7e-4 | 64, 64; 0 | equal: m000, none ×2, m000 ×7 | **fail: TIME** |
+| H-a1-minbl-f2 | 10 = 10 | **0.0544** | 7.9e-5, 1.7e-4 | 2, 2; 0 | equal | **fail: TIME** |
+| H-a1-snr-sigma-f0 | 2 = 2 | 0.0020 | 1.4e-5, 3.2e-5 | 4, 4; 0 (m009 flagged on both) | equal | pass |
+
+So on cases not used to find them: bins, refant choice and continuity (flex keeps m001 for scan 9, where m000 is back
+but was flagged in the previous interval), strict flagging, `minblperant` elimination and the `minsnr` flag through
+SIGMA weights all equal CASA's, with products 5-100 times inside class B. **The class B verdict for C2a is not met
+as frozen**: the solution `TIME` misses the 0.01 s gate by up to 0.054 s on the RFI-flagged field-2 scans (section
+5.2, item 2), and `combine='scan'` across scans with changing phases differs by the estimators (item 3).
+
+## 8. Class T on A1's simulated truth, run -07: five of six pass
+
+`c2a-20261106-07` (53.7 s). `gaincal` route, `refant` m000, CASA rules on, truth K and B pre-applied (so SIGMA
+weights, section 6), products against `truth.npz` `raw_gain` (the truth is constant inside every interval: spread 0).
+
+| Case | Intervals | Result | Verdict |
+| --- | ---: | --- | --- |
+| T-twin-ap-int-f0 | 12 | max product error 1.2e-6 | pass (≤ 1e-5) |
+| T-twin-ap-int-f2 | 20 | max product error **1.5e-4** | **fail** |
+| T-noisy-ap-int-f0 | 12 | median Re z 0.020, Im z −0.008 (limit 0.070, N 2,880); std 0.68, 0.68 | pass |
+| T-noisy-ap-int-f2 | 20 | 0.012, −0.003 (limit 0.054, N 4,800); std 0.65, 0.65 | pass |
+| T-noisy-ap-inf-f0 | 2 | −0.011, 0.014 (limit 0.172, N 480); std 0.72, 0.71 | pass |
+| T-noisy-ap-inf-f2 | 10 | 0.020, −0.013 (limit 0.077, N 2,400); std 0.64, 0.65 | pass |
+
+The `std(z)` values near 0.71 are what a correct `err` gives (z is complex, so each part has variance 1/2); the
+frozen limit uses a standard normal per part, so it is lenient by about √2, as written.
+
+**The twin failure is in the model, not the solve.** Post hoc, the twin's DATA corrected by A1's own six truth
+tables gives the documented point model of SIM-GCAL (`calibrator_stokes`, 4 Jy at 1.4 GHz, α −0.6) on field 0 to
+2.1e-6, but on field 2 it misses by up to **2.3e-4** (real, amplitude below 1, the same in every channel) on 182 of
+2,400 rows: integrations at 4512-7664 s after the start (the middle gain-calibrator scans), mostly on baselines of
+m012, m014 and m015. Rang's `cal_apply` with A1's tables and CASA's own `applycal` export from A1
+(`casa-small/export-parangFalse.npz`) agree on this to 1e-7, so what field 2 of the twin holds is not the point model
+A1 documents there. A1's own round trip compared against its simulator's sky, not against this model, so it did
+not show. The mechanism is in A1's simulator and was not looked for; rang's G recovers the products to 1.5e-4,
+the size of the model error.
+
+## 9. Files, runs, provenance
+
+Code: `core/src/cal/{diag,reference}.rs`, `core/src/cal/mod.rs`, `core/py/src/cal_gain.rs` (and three lines
+registering it in `core/py/src/lib.rs`), `python/rang/cal_gain.py`, `tests/test_cal_gain.py` (9 tests; the Rust
+modules have 8 more), `tools/gain_hash_gate.py` and the `gain-hashes` step in `python/rang/check.py` (with
+`tests/test_core_cli.py`'s step list), `examples/check_gain.py` (host side), `examples/oracle_gain.py` (container
+side), `examples/probe_gain_weights.py`, `examples/probe_gain_readback.py`. The runs used the working tree on top
+of the note commits (`f215a5e`, then `9cb9787`), snapshot in each `/mnt/d/rang/outputs/c2a-20261106-NN.code/`; the
+code commit is the next one on the branch. Against run -07's snapshot it adds only the docstring of
+`oracle_gain.py`'s `casa-edit` and `probe_gain_readback.py`; runs -02 and -03 ran before the post-hoc changes of
+section 6, as stated there.
+
+Runs, ignored, under `/mnt/d/rang/outputs/`: `c2a-20261106-01` (failed, no comparison), `-02` (class A,
+`quartical.json`), `-03` (class B frozen, `casa.json`, `casa-recheck.json`), `-04-probe`, `-05` (frozen set again),
+`-06` (held out), `-07` (class T, `truth.json`), each with its `.log`, the edited MS copies, CASA's and rang's
+tables (`*.G`, `*.rang.G`) and `gaincal.json`; check-all logs in `c2a/`. Inputs read in place: O-CASA's
+`work.ms`, `c.K0`, `split.npz` and the fixture `work.ms` (under `~/Github/rang/outputs`), A1's small version and
+casa-small truth tables. Seeds: none new (A1's 20261116-20261119; the seed-7 split; the pytest simulation 20261106).
+Images: `rang-formats-oracle:20261030` (QuartiCal 0.2.7), `rang-o-casa:6.7.6.14`. Timings are in
+[tool-timings.md](tool-timings.md). Nothing was downloaded.
+
+## 10. What only the owner can decide
+
+1. **The solution `TIME` gate.** CASA's centroid weighting (`aggregateTimeCentroid` over its solve-time weights) is
+   not reproduced; the miss is up to 0.054 s on RFI-flagged scans (0.7 % of an integration) and 0.41 s with
+   `combine='scan'`. Accept and widen the gate (to, say, 0.1 s outside `combine`), or fund porting CASA's weighting
+   chain (model division, the SIGMA reset, `calwt`, averaging) for an exact match.
+2. **`combine='scan'` over scans whose phases change.** CASA averages before solving, rang (QuartiCal's estimator)
+   does not; they differ by about 1 % when the model cannot fit. Keep rang's estimator (proposed: it is the
+   least-squares answer, and C2's other terms follow QuartiCal), or add CASA's pre-averaging as an option.
+3. **Weights with a pre-apply.** Rang now copies CASA: with tables to pre-apply the solve uses `1/SIGMA^2`, not
+   WEIGHT_SPECTRUM. That matters wherever the two differ (for example after `prep.specweights: uniform`, C1 section
+   3.2). Proposed: keep it for parity, and record the weight source in the receipt.
+
+## 11. What was not checked
+
+- CASA's `TIME` rule, beyond the hypotheses in section 5.2; the s-noapply case of the probe (SNR 0 without a
+  pre-apply).
+- `uvrange` against CASA (every CASA call used `''`; the selection is unit-tested only), `refant` lists with more
+  than one entry, `minsnr` differences near the threshold (none occurred), several windows or fields per call,
+  frequency chunks, `solnorm`, `smodel`, `preavg`, and the fixture against CASA.
+- C1's simulated 16 × 256 × 60 set (A1's small version stands in), the whole array, and throughput or timing (the
+  brief forbids timing work).
+- CASA reading rang's tables was run once only (below), on one table of one case.
+- The rank survey of core phase 2 in the gain-hash gate.
+
+**CASA reads rang's table** (`examples/probe_gain_readback.py`, `c2a-20261106-08-readback`, 5.2 s): `applycal`
+with `c.K0` and run -05's `B-slice-60s.rang.G` on a fresh copy of the slice against `rang.cal_apply` with the same
+two tables: class C on all 470,224 cells (largest 3.2 float32 epsilons of the cell, 3.9e-7 relative), flags exact.
+
 ## Gain-hash gate (measured 2026-11-06, before any other change was compiled into the gate)
 
 `tools/gain_hash_gate.py --json` on this branch with `.venv` (archive `~/Github/rang/outputs`): `4ed2aa89…` and
 `7b370c13…` reproduced exactly; LUNO phase 2: 50 iterations, converged fraction `0.9833234067897558`, gain flags
 equal to QuartiCal's. 2.0 s wall, 113 MB peak.
+
+## For the coordinator
+
+Do not apply until merged; all text proposed.
+
+**`research/STATE.md`, new top entry:**
+
+> C2a, 2026-11-06 (implemented; measured; class A met, B and T not met as frozen). [c2a-gain.md](c2a-gain.md): the
+> gain term G in Rust (`core/src/cal/diag.rs`, `reference.rs`; `rang.cal_gain`): QuartiCal 0.2.7's `diag_complex`
+> and `phase` kernels with CASA's solution intervals, `uvrange`, `minblperant`, `minsnr` and reference antenna
+> (flex, strict), pre-apply through `rang.cal_apply`, CASA `G Jones` tables. Against QuartiCal all seven cases
+> agree to 1.4e-15 with equal flags and iterations. Against `gaincal` the slice passes at 4e-6; on A1, after two
+> post-hoc fixes (CASA solves with SIGMA weights when it pre-applies; a checker margin), a held-out set equals CASA
+> in bins, refant choice and continuity, `minblperant` and `minsnr`, with products within 1e-4, but the solution
+> TIME misses its 0.01 s gate by up to 0.054 s on RFI-flagged scans, and `combine='scan'` differs by about 1 %
+> (CASA averages before solving). Class T: no bias with noise; the twin's field 2 differs from A1's documented
+> point model by 2.3e-4, so its 1e-5 gate fails on the model. `tools/check-all.sh` now replays the gain hashes
+> (`gain-hashes` step). Owner decisions: the TIME gate, `combine` estimator, SIGMA weights.
+
+**`research/README.md`, index line:**
+
+> [C2a, the gain term G](c2a-gain.md): diagonal complex and phase-only gain solves in Rust (QuartiCal 0.2.7's
+> kernels) with CASA's intervals, refant, `minblperant` and `minsnr`, measured against QuartiCal, CASA `gaincal`
+> and A1's simulated truth; the gain-hash gate in check-all.
+
+**`research/finish-plan.md`:**
+
+- C2 row: C2a done (this note), with the three owner decisions of section 10 open; C2b (K), C2c (B, chain), C2d (F,
+  `fluxscale`) unchanged.
+- Section 7: add section 10's three decisions.
+- Note for C2b to C2d: `rang.cal_gain.gaincal` pre-applies with SIGMA weights as CASA does; the `gain-hashes` step
+  gates every later C-stream merge, and fails (by design) on a host without the archived inputs unless
+  `RANG_GAIN_HASHES=optional`.
+
+**For A1 (not the owner):** field 2 (SIM-GCAL) of the small twin holds data that differ from the documented point
+model by up to 2.3e-4 in amplitude on 182 rows (section 8); A1's tables and CASA's `applycal` reproduce the
+difference, so it is in the simulated sky or its documentation. Worth one look before E1 relies on field 2.
+
+**check-all and the index test.** As for C4a, `test_every_note_is_in_the_research_index` fails on this branch until
+the README line above is applied; any other failure would be real.
+
+**Not removed:** `/mnt/d/rang/outputs/c2a-20261106-*` (1.9 GB of MS copies and tables), kept for C2b to C2d,
+which can reuse the edited A1 copies and the CASA tables; they can go after C2d. `~/Github/rang/outputs/status/fp-c2a.md`
+can go after merge. `~/Build/tmp/20261106-c2a` (scratch probes and the run wrapper) is removed at the end of this
+task.

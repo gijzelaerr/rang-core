@@ -485,6 +485,7 @@ EXPECTED_STEPS = [
     "ruff-format",
     "diff-check",
     "pytest",
+    "gain-hashes",  # task C2a: the C-stream gate (research/c2a-gain.md)
 ]
 
 

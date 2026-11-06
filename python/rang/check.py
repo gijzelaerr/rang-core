@@ -158,6 +158,16 @@ def steps(python=None):
             "git diff --check",
         ),
         ("pytest", "python", "tail2", [py, "-m", "pytest", "-q"], {}, PYTEST_LABEL),
+        # Task C2a: the archived `complex` solves gate every C-stream merge
+        # (research/c2a-gain.md; C1 section 4, rule 2).
+        (
+            "gain-hashes",
+            "python",
+            "plain",
+            [py, "tools/gain_hash_gate.py"],
+            {},
+            ".venv/bin/python tools/gain_hash_gate.py",
+        ),
     ]
 
 
