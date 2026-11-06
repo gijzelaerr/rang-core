@@ -119,6 +119,16 @@ models: the gap between the imagers), wall times (shared host; no timing claim).
 
 A failure is reported as measured and not reworded.
 
+## Freeze (recorded before any held-out case ran)
+
+Frozen 2026-11-06 at commit `1f4aa76` of `fp-g6-predict`. `gemclean` built from it (profile `gemclean`, rustc
+1.93, `nice`, without the heavy lock) has sha256
+`b9a7dd9d875fcbc03410a79d8cb3cc4e2e7de9e6955cbf93cdfaabdc3a4417d7` (copy
+`/mnt/d/rang/outputs/g6-20261106-02-held/bin/gemclean-freeze`). At the freeze only cases A and the
+criterion-5 case had run (development, binary `gemclean-dev1`, release profile, one line of `read_model`
+before a clippy fix that changes no value). S1, S1w, D1, D1r, S1c and D1c were still queued behind the
+heavy lock with `gemclean-dev1`; they stay development runs.
+
 ## 5. Owner decisions (provisional, recorded here)
 
 1. **Default on.** gemclean writes the model column by default, as WSClean. Every script that images a
