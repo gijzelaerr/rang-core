@@ -37,6 +37,11 @@ result was seen: section 7's one change of hyperparameters, used on the flag thr
 - τ is fixed with the weights file (recorded beside its sha256); in P it counts under T2, not T1. Parity
   (flag disagreement) and every Stage 5 measure, guards included, use τ.
 - If an arm still fails on test, its outcome is F. No second change.
+- *Picks* (`f2-20261107-02-amend3`, f2sim-v; every arm failed Q at τ = 0). Calibrators: F-SIM τ = −3.0
+  (validation Q1 0.844, Q2 0.0133; T 0.829, 0.320), F-RES −6.0 (floor binds; Q1 0.154), F-IMI 0 (Q1 0.879,
+  Q2 0.173; it fails on Q3, which τ cannot fix). Targets: F-SIM −6.0 (floor binds; Q1 0.914, Q2 0.0355; T
+  0.990, 0.140), F-RES −6.0 (floor binds; 0.589), F-IMI −0.5 (fallback; 0.814, 0.148). So target F-SIM is
+  expected to fail Q1 on test.
 
 Supersedes the route of [F1](f1-tv-flagger.md) (NO-GO, outcome D). Landman, 2026-11-06, verbatim: "The
 TV norm was just a suggestion to get around expertly labeled data." One weights file per observatory and
