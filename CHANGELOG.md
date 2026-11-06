@@ -19,6 +19,13 @@ the release notes are the section of this file for that version.
 - The core table writer now writes a tiled column's header through a temporary file and a rename,
   so a process killed during a flush cannot leave it truncated. The bytes written are unchanged.
 
+- New: `rang.simtruth` and `examples/a1_simtruth.py`, a simulated MeerKAT L-band observation in
+  full polarisation with known truth. It has K, B, G, KCROSS, Xf, linear Df and parallactic
+  rotation, a self-calibration residual, RFI with bit masks, and thermal noise of known σ, and is
+  written as a Measurement Set through rang's table writer. There are two versions: small (16
+  antennas, 64 channels, 41 MB) and full (64 antennas, 256 channels, 35.8 GB). CASA
+  `applycal` with tables made from the truth inverts it within class C
+  (`research/a1-simtruth.md`).
 - New: `gemclean -beam-band`, off by default. Resyncs use the beam's spectrum only as far as the
   longest baseline and the w-term reach. Images differ slightly from flag off. Over 12 interleaved
   pairs with coarse gridding (`-single -wgridder-accuracy 1e-4`) it saved 11-16 % of the wall on

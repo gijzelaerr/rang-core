@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, C1, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
+- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
 - **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
@@ -18,6 +18,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+A1, 2026-11-06 (implemented, measured; [a1-simtruth.md](a1-simtruth.md)). Simulated truth for E1 and C2-C7: MeerKAT 64 antennas, 856-1712 MHz, 256 channels, full polarisation, with K (1-10 ns), structured B, G, KCROSS (3 ns), Xf (30-62°), linear Df (1-3 %), 115° of parallactic rotation on the polarised calibrator over 4 scans, a self-calibration residual, RFI with masks and exact σ, written through rang's table writer. Full version 35.8 GB and small version 41 MB under `/mnt/d/rang/outputs/fp-a1-20261106-simtruth/`. CASA `applycal` with the truth as CASA tables inverts it within class C: 0 of 130 M elements (full twin) and 0 of 3.2 M (small) fail. Noise z = 0.40 (full), −1.00 (small). CASA's K window pivot is the band centre. One frozen check failed: CASA's `parang=True` angle is geocentric and from apparent north, up to 0.54° from rang's frame near the zenith, against a 0.3° bound. No novelty claim.
 
 W1, 2026-11-06 (implemented and measured; [w1-writeback.md](w1-writeback.md)). `rang.core_writeback` writes into an existing MS. It adds MODEL_DATA and CORRECTED_DATA as CASA's `clearcal` does (TiledShapeStMan, initialised, but with a fixed shape) and writes any column, FLAG and FLAG_ROW in flushed row chunks. Before the first write it saves the flags as the CASA flag version `rang_original`; a journal refuses a new session after an interrupted one until the flags are restored. python-casacore 3.8.1 and 3.7.1, dask-ms, CASA (`split`, `flagmanager`, `applycal` into the new column) and WSClean read every written column bit for bit. Flags round-trip exactly through rang and CASA versions both ways; 12 SIGKILL cases all recovered; peak memory grew 53 MB while a 268 MB column was written. One frozen criterion failed: the unit model's image peaks off-centre on the 4-antenna fixture's broad PSF, which peaks at the same pixel (post hoc). Open for W2: variable-shape columns, and the flag-backup naming. No novelty claim.
 

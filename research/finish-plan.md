@@ -53,7 +53,7 @@ its first comparison and records runs, seeds and timings as usual.
 | ID | Task | Done when | Heavy | After |
 | --- | --- | --- | --- | --- |
 | A0 | **Done 2026-11-05** ([a0-acceptance.md](a0-acceptance.md)). Choose the data and freeze the acceptance protocol | A frozen note names the development and acceptance data, tolerances and the CARACal settings | no | owner confirms section 1 |
-| A1 | Simulated truth: known sky, gains and RFI through the rang writer | The chain's input exists, with its seed and provenance | yes | A0 |
+| A1 | **Done 2026-11-06** ([a1-simtruth.md](a1-simtruth.md)). Simulated truth: known sky, gains and RFI through the rang writer | The chain's input exists, with its seed and provenance | yes | A0 |
 
 Settled by A0 ([a0-acceptance.md](a0-acceptance.md)): E1 simulated truth; E2-A ESO137 ms1 (Stokes I, raw phases); E2-B LUNO scans 17-20 (full polarisation, processed); E2-N native, open. Ben Hugo's set is LUNO's own scheduling block and adds native flags, not independence. The candidates as first listed:
 
@@ -129,6 +129,7 @@ practice form one queue: G1, G2, G3, C2, G6, G5, G9, C6, G7, C5, G8, then E1 to 
 algorithms with new failure modes. Polarisation adds three tasks and one more data requirement. **Expect two to four weeks of agent time, plus API limits** (the weekly limit stopped work once, on 2026-10-31).
 The largest risks are outside that count:
 
+- **Parallactic angle.** CASA's `parang=True` angle differs from rang's frame by up to 0.5° near the zenith (A1, section 7.2); C6 must choose a convention, and either uses half of E1's 1° budget on χ. CASA's K pivot is the band centre (A1, 7.1), which C2 must follow.
 - **Native data.** Without it E2 and E3 can only finish on weaker data. LUNO's DATA is pre-phased, so KCROSS and Xf are near zero there; A1 must carry them.
 - **E3 can come out badly.** A worse result than CARACal would be recorded, then fixed or stated in the release; it would not be reworded.
 - **The unexplained floor.** The pilot's floor is 40-60 × thermal in all imagers, for a reason not found. It may limit what E2 can show.

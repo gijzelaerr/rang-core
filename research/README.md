@@ -11,6 +11,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [A0, acceptance data and protocol](a0-acceptance.md): development and held-out data, the frozen gates for the finish line, E1-E3 and CARACal's settings; no public set meets the native gate, so E2-N is open.
 - [C1, the calibration chain](c1-calibration-chain.md): the frozen term list, order, equations, oracles, gauge handling, apply rules and implementation steps for C2 to C7.
 - [W1, write-back](w1-writeback.md): MODEL_DATA, CORRECTED_DATA and FLAG written into an existing MS in chunks, with a CASA flag-version backup and recovery after an interrupted run; CASA, WSClean, python-casacore and dask-ms read them bit for bit.
+- [A1, simulated truth](a1-simtruth.md): the full-polarisation MeerKAT Measurement Sets with known K, B, G, KCROSS, Xf and Df, the truth format and gauge, regeneration from seeds, and the CASA round trip.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 
