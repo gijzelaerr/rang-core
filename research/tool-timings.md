@@ -1490,7 +1490,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-05 | A0 `fp_a0_probe_state.py`, DATA state | 3 groups × 800 rows × 1 tile | 8.1 s | 77 MB | 31.2 MB read |
 | 2026-11-05 | A0 `fp_a0_probe_band.py` | sizes, tar head, 2 groups × 7 tiles × 800 rows | 32.8 s | 79 MB | 94.3 MB read |
 | 2026-11-05 | A0 astropy parallactic angles | scan tables | < 5 s | – | IERS auto-download off |
-| 2026-11-06 | C4a uv venv for the worktree (mirror of the main venv's 153 packages) | public PyPI, uv cache | about 1 min | – | `~/Build/tmp/20261106-c4a-venv.sh` |
+| 2026-11-06 | C4a uv venv for the worktree (mirror of the main venv's 153 packages) | public PyPI, uv cache | about 1 min | – | `uv pip freeze` of the main venv, then `uv pip install -r` |
 | 2026-11-06 | C4a `maturin develop --release` (first build in the worktree) | extension | 87.4 s | – | later rebuilds about 30-60 s |
 | 2026-11-06 | C4a `tools/check-all.sh` (protocol commit) | worktree | 582.6 s | 2.03 GB | FAIL only on `test_every_note_is_in_the_research_index` (the note is not in `research/README.md`, which this task may not edit) |
 | 2026-11-06 | C4a `check_apply.py` run -01 (frozen) | `c.ms` 192 × 2048 × 4, 16 cases | 62.9 s (`applycal` ×16 in one container 40.5 s) | 496 MB | kernel per case 4-17 ms; `caltable.correct` 26-263 ms ([c4a-apply.md](c4a-apply.md)) |
@@ -1500,3 +1500,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C4a `tools/check-all.sh` (commit `5406ff4`) | worktree | 796.0 s | 1.89 GB | FAIL only on the research-index test |
 | 2026-11-06 | C4a `check_apply.py --heldout --seed 20261108` run -04 | `c.ms`, 13 cases | 48.9 s (`applycal` ×13 34.7 s) | 385 MB | |
 | 2026-11-06 | C4a `probe_apply_unwrap.py` | `c.ms`, one B table | about 10 s (one `applycal`) | – | post-hoc probe of CASA's unwrapped phases |
+| 2026-11-06 | C4a `tools/check-all.sh` (commit `86b41a1`) | worktree | 1254.7 s (waited on the shared check-all lock) | 1.87 GB | FAIL only on the research-index test |
+| 2026-11-06 | C4a `tools/check-all.sh`, `86b41a1` with the README index line applied, not committed | worktree | 931.9 s | 1.85 GB | `overall: PASS` |

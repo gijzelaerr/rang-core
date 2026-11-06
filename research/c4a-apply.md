@@ -104,9 +104,13 @@ random model, random input flags; K up to ±5 ns, G at 5 slots with two flagged,
 
 ### 4.1 Run -01, the frozen verdict: FAIL on Df flags
 
-`/mnt/d/rang/outputs/c4a-20261106-01`, kernel as committed for the run (not yet in git; its Df flag rule was
-`caltable.correct`'s, all four correlations), `examples/check_apply.py` run with the worktree venv, image
-`rang-o-casa:6.7.6.14`. 16 `applycal` calls in one container, 40.5 s; the whole run 62.9 s.
+`/mnt/d/rang/outputs/c4a-20261106-01`, image `rang-o-casa:6.7.6.14`, `examples/check_apply.py` with the worktree
+venv. **The kernel was uncommitted when -01 and -02 ran**; the first commit with code is `95d85e5`, which already
+holds the -02 fixes. The -01 kernel differed from `95d85e5` in two ways: Df flagged all four correlations for a bad
+leakage (`caltable.correct`'s rule) and phases were tracked in time by float32 whole turns (`caltable.py`'s). The
+-02 kernel had the one-cross-hand rule without propagation or substitution. Both runs' exports were re-evaluated
+with the head kernel (`recheck-current-kernel.json`, section 6.2). 16 `applycal` calls in one container, 40.5 s;
+the whole run 62.9 s.
 
 | Case | Cells | Max relative | Max eps of cell | Flags exact |
 | --- | ---: | ---: | ---: | --- |
@@ -161,7 +165,9 @@ for both of antenna 1's leakages, the unflagged `d_x,1` included.
   never flags XX or YY.
 
 The kernel now does both (`core/src/cal/apply.rs`). Flags are computed in correct order for both directions, so
-corrupt and correct flag the same cells; values are applied in each direction's order. Re-evaluated on -02's CASA
+corrupt and correct flag the same cells; values are applied in each direction's order. This changes the round-trip
+clause of section 2, post hoc after -02: its flags are now the input OR the term flags OR the flags Df propagates
+from the parallel hands, and the Rust and pytest round trips check exactly that. Re-evaluated on -02's CASA
 exports without a new CASA run, every case of -01 and -02 passes class C with flags exact (largest 9.48 eps,
 synth-chain; synth-Df 9.54; Df2-chain 9.41; `recheck-current-kernel.json` in the -02 directory). That is a fit to
 the data it explains, so it is not the verdict; section 5 is.
@@ -385,6 +391,12 @@ must agree with `caltable.correct` on F1's CT-synthetic cases before it replaces
 
 **Gain-hash gate (C1 section 4 rule 2):** no replay of `4ed2aa89…` and `7b370c13…` runs in `tools/check-all.sh`;
 this branch touches none of the files that produce them. Adding the replay is still open.
+
+**check-all and the index test.** At every commit of this branch `tools/check-all.sh` failed only on
+`test_every_note_is_in_the_research_index`, because this note is not in `research/README.md`, which the brief
+forbids editing. With the index line above applied in the working tree (not committed) it gave `overall: PASS`
+(log `/mnt/d/rang/outputs/c4a/check-all-5-index-applied.log` and `-6-`). Any branch that adds a note has this
+conflict, so a brief's "check for overall: PASS" cannot be met on it without the README line.
 
 **Not removed:** `/mnt/d/rang/outputs/c4a-20261106-*` (about 0.64 GB of exports and tables) for C4b; they can go
 once C4b has its own oracle run. `~/Github/rang/outputs/status/fp-c4a.md` can go after merge.
