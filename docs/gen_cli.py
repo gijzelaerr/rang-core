@@ -27,8 +27,10 @@ YAML configuration (schema `rang-config`, version 1; every key and default
 is listed under `config` below) drives every stage. The commands validate
 the whole configuration first and refuse what is not implemented yet,
 naming the task that adds it. Today `flag` runs the Tricolour port and
-writes FLAG, `calibrate` solves the `complex` term and writes a QuartiCal
-gain store, `image` runs `gemclean`, and `apply` and `selfcal` are refused.
+writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
+MODEL_DATA, solves the `complex` term and writes a QuartiCal gain store,
+`apply` applies that term on its own solution bins to CORRECTED_DATA, and
+`image` runs `gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version

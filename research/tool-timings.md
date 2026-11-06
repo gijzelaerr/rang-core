@@ -1551,3 +1551,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C2a `probe_gain_readback.py` run -08 | slice, `c.K0` and a rang G table | 5.2 s (`applycal` container 3.3 s) | – | CASA applies rang's table; class C, flags exact |
 | 2026-11-06 | C2a `tools/check-all.sh`, uncommitted tree mid-edit | worktree | 1179.1 s (waited on the shared check-all lock) | 1.89 GB | FAIL: ruff format on files being edited, and the research-index test |
 | 2026-11-06 | C2a `tools/check-all.sh`, the tree of the code commit | worktree | 788.2 s (with lock wait; pytest 125.6 s, gain-hashes 1.3 s) | 1.84 GB | FAIL only on the research-index test; 884 passed, 68 skipped |
+| 2026-11-06 | C4b `examples/recheck_c4a_under_flags.py` (C4a's 56 exports, every cell) | O-CASA slice, 192 × 2048 × 4 per case | 136.5 s | 256 MB | shared host; three passes as the kernel changed (similar walls) |
+| 2026-11-06 | C4b `examples/check_apply_ms.py`, frozen run -02 | slice and A1 small copies, 10 cases | 288.7 s | 992 MB | CASA prepare 6.3 s, 10 `applycal` 26.4 s (0.9-3.1 s each), export 59.2 s; rang `applycal` 1.0-1.5 s (slice), 9.9-19.8 s (A1, mostly the flag version on `/mnt/d`) |
+| 2026-11-06 | C4b `examples/check_apply_ms.py`, post-hoc run -03 | same | 323.0 s | 969 MB | CASA 6.6 s, 31.4 s, 77.6 s |
+| 2026-11-06 | C4b `examples/check_apply_ms.py --heldout`, run -04 | same, seed 20261110 | 277.0 s | 992 MB | CASA 5.2 s, 24.9 s (0.9-2.8 s each), 55.5 s; rang 1.0-1.4 s (slice), 9.8-19.1 s (A1) |
+| 2026-11-06 | C4b `examples/recheck_apply_ms.py` (five unedited cases of -03) | slice and A1 small | – | – | not timed |
+| 2026-11-06 | W2b `examples/check_w2b.py`, run w2b-01 | A1 small copies | 86.3 s | 287 MB | `rang-core calibrate` with setjy 21.8 s, `rang-core run` flag-calibrate-apply-image 43.8 s, image of DATA 2.8 s |
+| 2026-11-06 | W2b `examples/check_w2b.py --freqint 1`, run w2b-02 | same | 93.1 s | – | reported run; the solve converges on 83-87 % |
+| 2026-11-06 | W2b `examples/check_w2b.py`, run w2b-03 (with the store comparison) | same | 89.7 s | – | calibrate 24.3 s, run 43.9 s |
+| 2026-11-06 | check-all, C4b branch at `ff891a8` | repo | – | – | pytest 908 passed, 68 skipped, 1 expected failure (index) in 129 s |
+| 2026-11-06 | check-all, C4b branch at the final head, the index line applied in the working tree (not committed) | repo | – | – | overall PASS; pytest 910 passed, 68 skipped in 135 s |

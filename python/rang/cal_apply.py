@@ -8,7 +8,7 @@ frequency bridging, K pivot, Df's linear approximation, `calflag` flags),
 with `direction='corrupt'` as its exact inverse and an `interp` per table.
 Python only selects each table's rows per antenna for the field and window
 (`caltable._series`) and packs them; interpolation and the apply run in
-Rust. Weights are not touched (`calwt` is task C4b).
+Rust. Weights are not touched here (`calwt` is `rang.applycal`, task C4b).
 
 `interp` is CASA's string per table: `'linear'` or `'nearest'` (time; the
 frequency part is then `linear`, as `applycal`), or `'<time>,<freq>'` with
@@ -62,14 +62,36 @@ def _interps(tables, interp):
     return interp
 
 
-def pack(tables, nant, spw=0, field_id=0, interp="linear"):
+POOLED = "pooled"
+
+
+def _rows(table, antenna, spw, table_field):
+    """Rows of one antenna and window sorted by time: of one table field
+    (an int), or of every field pooled (`POOLED`, CASA's `gainfield=''`;
+    task C4b)."""
+    pick = (table.column("ANTENNA1") == antenna) & (
+        table.column("SPECTRAL_WINDOW_ID") == spw
+    )
+    if table_field is not POOLED:
+        pick &= table.column("FIELD_ID") == int(table_field)
+    rows = np.flatnonzero(pick)
+    t = table.column("TIME")[rows]
+    order = np.argsort(t, kind="stable")
+    return rows[order], t[order]
+
+
+def pack(tables, nant, spw=0, field_id=0, interp="linear", table_fields=None):
     """The kernel's packed term arrays (`ffi_apply.rs`) for `tables`, the
-    rows of each antenna `a < nant` selected as `caltable._series`."""
+    rows of each antenna `a < nant` selected as `caltable._series`, or, when
+    `table_fields` is given (one per table), of that table field or of
+    every field pooled (`POOLED`), as CASA's field maps (task C4b)."""
     interp = _interps(tables, interp)
+    if table_fields is not None and len(table_fields) != len(tables):
+        raise ValueError("give one table field per table")
     kind, ti, fi, npar, kref = [], [], [], [], []
     starts, slot_time, params, flags, sol_freq = [], [], [], [], []
     so, po, fo, qo = [0], [0], [0], [0]
-    for table, mode in zip(tables, interp):
+    for i, (table, mode) in enumerate(zip(tables, interp)):
         if table.kind not in KINDS:
             raise ValueError(f"unsupported calibration type {table.kind!r}")
         t_mode, f_mode = parse_interp(mode)
@@ -84,7 +106,10 @@ def pack(tables, nant, spw=0, field_id=0, interp="linear"):
         start = [0]
         nparams = nflags = 0
         for a in range(nant):
-            rows, t = caltable._series(table, a, spw, field_id)
+            if table_fields is None:
+                rows, t = caltable._series(table, a, spw, field_id)
+            else:
+                rows, t = _rows(table, a, spw, table_fields[i])
             slot_time.append(np.asarray(t, np.float64))
             p = all_params[rows]
             if table.float_param:
@@ -148,11 +173,13 @@ def apply(
     direction="correct",
     threads=0,
     nant=None,
+    table_fields=None,
 ):
     """Correct (or corrupt) `data` (row, chan, 4) by `tables` (CalTable
     list) in the Rust kernel; returns (complex64 visibilities, bool flags).
     The flags are `flag` OR the tables' flags. `threads` 0 uses the global
-    rayon pool."""
+    rayon pool. `table_fields` (one per table: a table FIELD_ID or
+    `POOLED`) overrides `field_id`'s row choice (task C4b)."""
     if direction not in DIRECTIONS:
         raise ValueError(f"direction must be one of {sorted(DIRECTIONS)}")
     data = np.ascontiguousarray(data, np.complex64)
@@ -165,7 +192,14 @@ def apply(
     a2 = np.ascontiguousarray(antenna2, np.uint32)
     if nant is None:
         nant = int(max(a1.max(initial=0), a2.max(initial=0))) + 1
-    packed = pack(list(tables), nant, spw=spw, field_id=field_id, interp=interp)
+    packed = pack(
+        list(tables),
+        nant,
+        spw=spw,
+        field_id=field_id,
+        interp=interp,
+        table_fields=table_fields,
+    )
     out = np.empty_like(data)
     out_flag = np.empty(data.shape, np.uint8)
     extension().cal_apply(
@@ -190,6 +224,60 @@ def apply(
         packed["term_flags"],
         packed["freq_offset"],
         packed["sol_freq"],
+        DIRECTIONS[direction],
+        int(threads),
+        out,
+        out_flag,
+    )
+    return out, out_flag.astype(bool)
+
+
+def apply_jones(
+    data,
+    flag,
+    antenna1,
+    antenna2,
+    gains,
+    valid,
+    time_bin,
+    freq_bin,
+    direction="correct",
+    threads=0,
+):
+    """Correct (or corrupt) `data` (row, chan, 4) by binned general 2x2
+    gains `(time_bin, freq_bin, antenna, 2, 2)` (the `complex` term of
+    `rang.core.solve_complex`) on their own bins, in the Rust kernel
+    (`apply.rs` `apply_jones`, task C4b). `valid` `(time_bin, freq_bin,
+    antenna)`; `time_bin` per row, `freq_bin` per channel. Returns (complex64
+    visibilities, bool flags): a cell is flagged in all four correlations when
+    any of its input flags is set or either antenna's gain is invalid or
+    singular (CASA's general-Jones rule); a bad side is the identity."""
+    if direction not in DIRECTIONS:
+        raise ValueError(f"direction must be one of {sorted(DIRECTIONS)}")
+    data = np.ascontiguousarray(data, np.complex64)
+    if data.ndim != 3 or data.shape[2] != 4:
+        raise ValueError("data must be (row, chan, 4)")
+    flag = np.ascontiguousarray(
+        np.broadcast_to(np.asarray(flag, bool), data.shape), np.uint8
+    )
+    gains = np.ascontiguousarray(gains, np.complex128)
+    if gains.ndim != 5 or gains.shape[3:] != (2, 2):
+        raise ValueError("gains must be (time_bin, freq_bin, antenna, 2, 2)")
+    valid = np.ascontiguousarray(
+        np.broadcast_to(np.asarray(valid, bool), gains.shape[:3]), np.uint8
+    )
+    out = np.empty_like(data)
+    out_flag = np.empty(data.shape, np.uint8)
+    extension().cal_apply_jones(
+        data,
+        flag,
+        np.ascontiguousarray(antenna1, np.uint32),
+        np.ascontiguousarray(antenna2, np.uint32),
+        int(gains.shape[2]),
+        gains,
+        valid,
+        np.ascontiguousarray(time_bin, np.uint32),
+        np.ascontiguousarray(freq_bin, np.uint32),
         DIRECTIONS[direction],
         int(threads),
         out,
@@ -227,7 +315,9 @@ def class_c(got, expected, ok):
 
 __all__ = [
     "CARACAL_INTERP",
+    "POOLED",
     "apply",
+    "apply_jones",
     "class_c",
     "pack",
     "parse_interp",

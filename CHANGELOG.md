@@ -9,6 +9,22 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang.applycal.applycal(ms, gaintable, interp, gainfield, calwt, field)`, CASA's
+  `applycal` on a Measurement Set: row chunks through `rang.core_writeback` (a flag version first),
+  the Rust kernel per field and data description, CORRECTED_DATA (added as `clearcal` does when
+  absent), FLAG OR'd, and with `calwt` on a G, T or B table WEIGHT and WEIGHT_SPECTRUM reset from
+  SIGMA and scaled as CASA does (K, Df and general Jones terms leave weights alone). Field maps
+  `''`, a field name and `nearest` as CASA's. Measured against CASA 6.7.6 `applycal`
+  (`research/c4b-apply-ms.md`).
+- Changed: the apply kernel (`rang.cal_apply`) writes cells under a one-sided diagonal solution flag
+  as CASA does (the good side still applied), tracks phases over the two slots it interpolates
+  between, and uses casacore's linear-interpolation formula; new `cal_apply.apply_jones` applies
+  a general 2×2 term on its own solution bins.
+- New: `rang-core apply` applies the `complex` terms of `rang-core calibrate` to the fields they were
+  solved on, into CORRECTED_DATA; `rang-core calibrate` writes `setjy`, `manual` and `lsm` models to
+  MODEL_DATA through `rang.calmodels` and solves against them. Applying a complex term to another
+  field and polarised models are refused, naming C2a and C7a.
+
 - New: `rang.calmodels`, calibrator models written to `MODEL_DATA` as CASA's `setjy` writes them
   (C1 term T0). `set_model(ms, field, spec)` takes a flux-density standard of `rang.fluxstd`, a
   `manual` model (flux density, reference frequency, log10 spectral terms), per-channel Stokes rows

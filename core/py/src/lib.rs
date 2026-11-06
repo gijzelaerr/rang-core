@@ -2492,6 +2492,127 @@ fn cal_apply(
         ))),
     }
 }
+
+/// `rang_core::cal::apply::apply_jones` (task C4b, research/c4b-apply-ms.md):
+/// correct (`direction` 0) or corrupt (1) `data` (complex64 `(nrow, nchan,
+/// 4)`) with `flags` (uint8, same shape) by binned general 2x2 gains
+/// (complex128 `(ntime_bins, nfreq_bins, nant, 2, 2)`, `valid` uint8
+/// `(ntime_bins, nfreq_bins, nant)`), a time bin per row and a frequency bin
+/// per channel, into `out_data` and `out_flags`. Raises ValueError on invalid
+/// input and RuntimeError on a panic in the core.
+#[pyfunction]
+#[pyo3(signature = (
+    data, flags, antenna1, antenna2, nant, gains, valid, time_bin, freq_bin,
+    direction, threads, out_data, out_flags
+))]
+#[allow(clippy::too_many_arguments)]
+fn cal_apply_jones(
+    py: Python<'_>,
+    data: Ro<'_, Complex32>,
+    flags: Ro<'_, u8>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    nant: usize,
+    gains: Ro<'_, Complex64>,
+    valid: Ro<'_, u8>,
+    time_bin: Ro<'_, u32>,
+    freq_bin: Ro<'_, u32>,
+    direction: u32,
+    threads: usize,
+    mut out_data: Rw<'_, Complex32>,
+    mut out_flags: Rw<'_, u8>,
+) -> PyResult<()> {
+    use rang_core::cal::apply::{self, BinnedJones, Chunk, Direction};
+    let shape = data.as_array().shape().to_vec();
+    if shape.len() != 3 || shape[2] != 4 {
+        return Err(PyValueError::new_err(format!(
+            "data must be (row, chan, 4), not {shape:?}"
+        )));
+    }
+    let (nrow, nchan) = (shape[0], shape[1]);
+    let gshape = gains.as_array().shape().to_vec();
+    if gshape.len() != 5 || gshape[2] != nant || gshape[3] != 2 || gshape[4] != 2 {
+        return Err(PyValueError::new_err(format!(
+            "gains must be (time_bin, freq_bin, {nant}, 2, 2), not {gshape:?}"
+        )));
+    }
+    let (nt, nf) = (gshape[0], gshape[1]);
+    let direction = match direction {
+        0 => Direction::Correct,
+        1 => Direction::Corrupt,
+        d => return Err(PyValueError::new_err(format!("unknown direction {d}"))),
+    };
+    let cells = nrow * nchan;
+    let nsol = nt * nf * nant;
+    // Addresses, so they can cross `detach`; each borrows a live NumPy
+    // buffer of the checked shape for the whole call.
+    let d = exact_input(&data, "data", &[nrow, nchan, 4])? as usize;
+    let f = exact_input(&flags, "flags", &[nrow, nchan, 4])? as usize;
+    let a1 = exact_input(&antenna1, "antenna1", &[nrow])? as usize;
+    let a2 = exact_input(&antenna2, "antenna2", &[nrow])? as usize;
+    let g = exact_input(&gains, "gains", &[nt, nf, nant, 2, 2])? as usize;
+    let v = exact_input(&valid, "valid", &[nt, nf, nant])? as usize;
+    let tb = exact_input(&time_bin, "time_bin", &[nrow])? as usize;
+    let fb = exact_input(&freq_bin, "freq_bin", &[nchan])? as usize;
+    let od = exact_output(&mut out_data, "out_data", &[nrow, nchan, 4])? as usize;
+    let of = exact_output(&mut out_flags, "out_flags", &[nrow, nchan, 4])? as usize;
+    let result = detach(py, move || {
+        std::panic::catch_unwind(|| {
+            // SAFETY: as above; a zero length gives an empty slice, so a
+            // dangling pointer of an empty array is never read.
+            unsafe fn view<'a, T>(p: usize, n: usize) -> &'a [T] {
+                if n == 0 {
+                    &[]
+                } else {
+                    unsafe { std::slice::from_raw_parts(p as *const T, n) }
+                }
+            }
+            unsafe fn view_mut<'a, T>(p: usize, n: usize) -> &'a mut [T] {
+                if n == 0 {
+                    &mut []
+                } else {
+                    unsafe { std::slice::from_raw_parts_mut(p as *mut T, n) }
+                }
+            }
+            let (chunk, term, out_d, out_f) = unsafe {
+                (
+                    Chunk {
+                        nrow,
+                        nchan,
+                        nant,
+                        data: view::<f32>(d, 8 * cells),
+                        flags: view::<u8>(f, 4 * cells),
+                        time: &[],
+                        antenna1: view::<u32>(a1, nrow),
+                        antenna2: view::<u32>(a2, nrow),
+                        freq: &[],
+                    },
+                    BinnedJones {
+                        ntime_bins: nt,
+                        nfreq_bins: nf,
+                        gains: view::<f64>(g, 8 * nsol),
+                        valid: view::<u8>(v, nsol),
+                        time_bin: view::<u32>(tb, nrow),
+                        freq_bin: view::<u32>(fb, nchan),
+                    },
+                    view_mut::<f32>(od, 8 * cells),
+                    view_mut::<u8>(of, 4 * cells),
+                )
+            };
+            apply::apply_jones(&chunk, &term, direction, threads, out_d, out_f)
+        })
+    });
+    match result {
+        Ok(Ok(())) => Ok(()),
+        Ok(Err(message)) => Err(PyValueError::new_err(format!(
+            "apply kernel failed (1): {message}"
+        ))),
+        Err(_) => Err(pyo3::exceptions::PyRuntimeError::new_err(
+            "apply kernel failed (2): a panic in the core",
+        )),
+    }
+}
+
 /// The closure kernel's last error message on this thread.
 fn closure_last_error() -> String {
     // SAFETY: a null buffer asks for the length only; `buf` then holds it.
@@ -2686,5 +2807,6 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_solve, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_minblperant, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_apply_refant, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_apply_jones, m)?)?;
     Ok(())
 }
