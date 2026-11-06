@@ -26,6 +26,11 @@ the release notes are the section of this file for that version.
   antennas, 64 channels, 41 MB) and full (64 antennas, 256 channels, 35.8 GB). CASA
   `applycal` with tables made from the truth inverts it within class C
   (`research/a1-simtruth.md`).
+- New: `rang.cal_apply.apply`, a Rust kernel (`rang._core.cal_apply`) that corrects or corrupts
+  visibilities in memory by CASA K, G, T, B and Df tables, with `applycal`'s `linear` and `nearest`
+  interpolation in time and frequency and its `calflag` flags, including how Df flags and
+  substitutes bad leakages (`research/c4a-apply.md`). KCROSS, Xf and the parallactic angle are
+  refused until their steps. Weights are not changed and nothing is written to a Measurement Set yet.
 - New: `gemclean -beam-band`, off by default. Resyncs use the beam's spectrum only as far as the
   longest baseline and the w-term reach. Images differ slightly from flag off. Over 12 interleaved
   pairs with coarse gridding (`-single -wgridder-accuracy 1e-4`) it saved 11-16 % of the wall on

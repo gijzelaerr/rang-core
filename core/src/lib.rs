@@ -22,6 +22,7 @@
 
 pub mod aipsio;
 pub mod blosc;
+pub mod cal;
 pub mod caltable;
 pub mod clean;
 pub mod clean_certified;

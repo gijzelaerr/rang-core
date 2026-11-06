@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
+- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C4a, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
 - **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
@@ -18,6 +18,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+C4a, 2026-11-06 (implemented; measured; class C not met on two stress cases; [c4a-apply.md](c4a-apply.md)). A Rust apply kernel (`core/src/cal/apply.rs`, `rang.cal_apply`) corrects and corrupts chunks by K, G, T, B and Df with CASA's interpolation and flags. Against `applycal` on O-CASA's slice the frozen run failed on Df flags; CASA's rules were read in its source (`Jones.cc`) and ported (cross hands flagged by bad leakages and by flagged parallel hands; both leakages −1 when one is bad), then CASA's float32 phase tracking and unwrap. In the second held-out run flags were exact on all 13 cases and class C held on 11; two random-phase B stress tables miss by 1-2 ulp of CASA's unwrapped phase (33 eps, 4e-6 relative), mechanism not found. On CASA's own tables every case passed (max 4.38 eps). Threads bit-identical. Coordinator's provisional choices, open to the owner: accept that residual and state it in C4's acceptance; copy CASA's Df substitution for parity with the oracle. C1 §3.1's Df flag rule is wrong for CASA 6.7.6 (erratum in c4a-apply.md §4.3). Throughput not yet recorded (no timing work).
 
 A1, 2026-11-06 (implemented, measured; [a1-simtruth.md](a1-simtruth.md)). Simulated truth for E1 and C2-C7: MeerKAT 64 antennas, 856-1712 MHz, 256 channels, full polarisation, with K (1-10 ns), structured B, G, KCROSS (3 ns), Xf (30-62°), linear Df (1-3 %), 115° of parallactic rotation on the polarised calibrator over 4 scans, a self-calibration residual, RFI with masks and exact σ, written through rang's table writer. Full version 35.8 GB and small version 41 MB under `/mnt/d/rang/outputs/fp-a1-20261106-simtruth/`. CASA `applycal` with the truth as CASA tables inverts it within class C: 0 of 130 M elements (full twin) and 0 of 3.2 M (small) fail. Noise z = 0.40 (full), −1.00 (small). CASA's K window pivot is the band centre. One frozen check failed: CASA's `parang=True` angle is geocentric and from apparent north, up to 0.54° from rang's frame near the zenith, against a 0.3° bound. No novelty claim.
 
