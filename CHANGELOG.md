@@ -9,6 +9,14 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed: `gemclean` needs far less memory, with byte-identical images (task G2,
+  `research/g2-memory.md`). It reads the Measurement Set at the exact size with Stokes I in single
+  precision, compacts in place, keeps no copy of the gridding weights, holds single-precision
+  visibilities as read, forms each residual in the gridder's sorted values instead of a
+  visibility-sized buffer, forms the 2n PSF before the plan of the image grid and frees it after
+  the beam is built. Peak RSS on the ESO 137-006 pilot at 512 channels went from more than 24 GB
+  (about 32 GB estimated) to 19.7 GB; at 256 channels from 18.4 to 12.2 GB; on 2048² simulated
+  skies from 3.46 to 2.99 GB.
 - New: `gemclean -memory-report` prints the heap held per phase of a run (read, weights, PSF,
   beam, each major cycle) and the main buffers' sizes; `-report.json` carries the same under
   `memory` (`research/g2-memory.md`). Images are unchanged.

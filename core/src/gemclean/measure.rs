@@ -42,6 +42,8 @@ pub struct GridMeasurement<T: Real> {
     opts: Options,
     /// The plan and layout of the image grid, reused by every major cycle.
     prepared: Option<Prepared<T>>,
+    /// The plan is still to be made ([`GridMeasurement::prepare`]).
+    pending: bool,
     buffer: Mutex<Vec<Complex<T>>>,
     /// Form residuals in the gridder's sorted values ([`Prepared::residual`]),
     /// with no visibility-sized buffer: set where that gives the same bits.
@@ -72,7 +74,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 .collect(),
         );
         m.sorted_residual = m.inactive_add_zero();
-        Ok(m)
+        m.prepare()
     }
 
     /// [`GridMeasurement::new`] with single-precision visibilities, held as
@@ -92,10 +94,55 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
         if vis.len() != wgt.len() {
             return Err("vis and wgt must be nrow * nchan".into());
         }
+        GridMeasurement::from_single_unprepared(uvw, freq, vis, wgt, side, cell, epsilon, opts)?
+            .prepare()
+    }
+
+    /// [`GridMeasurement::from_single`] without the plan of the image grid:
+    /// the PSF can be formed first ([`GridMeasurement::psf_image_with`] does
+    /// not use the plan), so that its pass does not hold the plan's sorted
+    /// index beside its own. [`GridMeasurement::prepare`] (or
+    /// [`GridMeasurement::without_plan_reuse`]) must follow before any
+    /// residual; until then those calls fail.
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_single_unprepared(
+        uvw: Vec<f64>,
+        freq: Vec<f64>,
+        vis: Vec<Complex<f32>>,
+        wgt: Vec<f64>,
+        side: usize,
+        cell: f64,
+        epsilon: f64,
+        opts: Options,
+    ) -> Result<GridMeasurement<T>, String> {
+        if vis.len() != wgt.len() {
+            return Err("vis and wgt must be nrow * nchan".into());
+        }
         let mut m = GridMeasurement::build(uvw, freq, wgt, side, cell, epsilon, opts)?;
         m.vis = Data::Single(vis);
         m.sorted_residual = m.inactive_add_zero();
         Ok(m)
+    }
+
+    /// Make the plan of the image grid, if it is still to be made.
+    pub fn prepare(mut self) -> Result<GridMeasurement<T>, String> {
+        if self.pending {
+            self.prepared = Some(Prepared::new(
+                &self.opts,
+                &self.uvw,
+                &self.freq,
+                T::weights(&self.wgt),
+            )?);
+            self.pending = false;
+        }
+        Ok(self)
+    }
+
+    fn ready(&self) -> Result<(), String> {
+        if self.pending {
+            return Err("the measurement must be prepared before use".into());
+        }
+        Ok(())
     }
 
     /// Whether every visibility of zero weight adds exactly zero to the
@@ -150,14 +197,14 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
             epsilon,
             ..opts
         };
-        let prepared = Some(Prepared::new(&opts, &uvw, &freq, T::weights(&wgt))?);
         Ok(GridMeasurement {
             uvw,
             freq,
             vis: Data::Native(Vec::new()),
             wgt,
             opts,
-            prepared,
+            prepared: None,
+            pending: true,
             buffer: Mutex::new(Vec::new()),
             sorted_residual: false,
         })
@@ -167,6 +214,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     /// the rounding of the tile order at most).
     pub fn without_plan_reuse(mut self) -> Self {
         self.prepared = None;
+        self.pending = false;
         self
     }
 
@@ -247,6 +295,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     }
 
     fn image(&self, vis: &[Complex<T>]) -> Result<Vec<f64>, String> {
+        self.ready()?;
         let mut out = vec![T::of(0.0); self.opts.nx * self.opts.ny];
         match &self.prepared {
             Some(p) => {
@@ -268,6 +317,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     }
 
     fn predict_into(&self, model: &[f64], out: &mut [Complex<T>]) -> Result<(), String> {
+        self.ready()?;
         let m: Vec<T> = model.par_iter().map(|&c| T::of(c)).collect();
         match &self.prepared {
             // Visibilities of zero weight are not predicted: nothing reads them.
@@ -288,6 +338,7 @@ impl<T: Real + Send + Sync> Measurement for GridMeasurement<T> {
     }
 
     fn residual(&self, model: &[f64]) -> Result<(Vec<f64>, f64), String> {
+        self.ready()?;
         if let (Some(p), true) = (&self.prepared, self.sorted_residual) {
             let m: Option<Vec<T>> = model
                 .par_iter()

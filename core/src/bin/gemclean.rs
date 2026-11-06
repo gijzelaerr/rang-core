@@ -369,7 +369,8 @@ fn write_image(
 
 /// The beam, the fitted restoring beam and the CLEAN run.
 struct Cleaned {
-    psf2n: Vec<f64>,
+    /// The PSF on the `n × n` image, cropped from the `2n` PSF.
+    psf: Vec<f64>,
     beam: Beam,
     restoring: gemclean::RestoringBeam,
     outcome: gemclean::Outcome,
@@ -436,7 +437,8 @@ fn deconvolve<T: Real + Send + Sync>(
         return Err("-stop-rule certified needs the default beam and gridder".into());
     }
     let keep = certified.then(|| (uvw.clone(), wgt.clone()));
-    let measurement: GridMeasurement<T> = GridMeasurement::from_single(
+    // The plan of the image grid is made after the 2n PSF, which does not use it.
+    let measurement: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
         uvw,
         freq.to_vec(),
         vis,
@@ -446,11 +448,6 @@ fn deconvolve<T: Real + Send + Sync>(
         args.epsilon,
         opts,
     )?;
-    let measurement = if args.plan_reuse {
-        measurement
-    } else {
-        measurement.without_plan_reuse()
-    };
     memory::mark("measurement");
     let t = Instant::now();
     // With the operator and -beam-no-w the PSF needs no gridding pass of its own.
@@ -460,6 +457,12 @@ fn deconvolve<T: Real + Send + Sync>(
     };
     let t_psf = t.elapsed().as_secs_f64();
     memory::mark("psf 2n");
+    let measurement = if args.plan_reuse {
+        measurement.prepare()?
+    } else {
+        measurement.without_plan_reuse()
+    };
+    memory::mark("plan");
     let t = Instant::now();
     let columns = if args.beam_band {
         measurement.band_columns(2 * n)
@@ -549,6 +552,15 @@ fn deconvolve<T: Real + Send + Sync>(
         }
         None => None,
     };
+    // Nothing reads the 2n PSF from here on but the PSF image written at the end.
+    let mut psf = vec![0.0; n * n];
+    for i in 0..n {
+        for j in 0..n {
+            psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
+        }
+    }
+    let psf2n_bytes = bytes_of(&psf2n);
+    drop(psf2n);
     let outcome = match gram_operator {
         None => {
             gemclean::run_with_bound(&measurement, &beam, &settings, q_floor, stop_bound.as_ref())?
@@ -579,14 +591,15 @@ fn deconvolve<T: Real + Send + Sync>(
         }
     };
     memory::mark("clean: end");
-    memory::note("psf 2n image", bytes_of(&psf2n));
+    memory::note("psf 2n image (freed before the run)", psf2n_bytes);
+    memory::note("psf n x n crop", bytes_of(&psf));
     for (label, bytes) in measurement.memory().into_iter().chain(beam.memory()) {
         memory::note(label, bytes);
     }
     let image = n * n * std::mem::size_of::<f64>();
     memory::note("one n x n f64 image", image);
     Ok(Cleaned {
-        psf2n,
+        psf,
         beam,
         restoring,
         outcome,
@@ -703,7 +716,7 @@ fn run() -> Result<(), String> {
         deconvolve::<f64>(&args, uvw, &freq, vis, wgt, opts)?
     };
     let Cleaned {
-        psf2n,
+        psf,
         beam,
         restoring,
         outcome,
@@ -766,12 +779,6 @@ fn run() -> Result<(), String> {
     let prefix = &args.name;
     let path = |kind: &str| PathBuf::from(format!("{prefix}-{kind}.fits"));
     write_image(&path("dirty"), n, &outcome.dirty, args.bitpix, &base, &[])?;
-    let mut psf = vec![0.0; n * n];
-    for i in 0..n {
-        for j in 0..n {
-            psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
-        }
-    }
     write_image(&path("psf"), n, &psf, args.bitpix, &base, &[])?;
     let mut model_cards: Vec<Card> = base
         .iter()
