@@ -126,7 +126,7 @@ the latest progress is in [STATE](https://github.com/gijzelaerr/rang-core/blob/m
 | [`python/rang/`](https://github.com/gijzelaerr/rang-core/tree/main/python/rang) | the Python package, the command line and the JAX reference path |
 | [`notebooks/`](https://github.com/gijzelaerr/rang-core/tree/main/notebooks), [`docs/`](https://github.com/gijzelaerr/rang-core/tree/main/docs) | the tutorials and science notebooks; the documentation site |
 | [`examples/`](https://github.com/gijzelaerr/rang-core/tree/main/examples), [`tests/`](https://github.com/gijzelaerr/rang-core/tree/main/tests) | reproducible experiments and comparators; the test suite |
-| [`recipes/`](https://github.com/gijzelaerr/rang-core/tree/main/recipes) | core-native Stimela2 recipes |
+| [`recipes/`](https://github.com/gijzelaerr/rang-core/tree/main/recipes) | Stimela2 recipes: `rang-chain.yaml` runs the commands on your MS; `core-*.yaml` are research recipes |
 | [`research/`](https://github.com/gijzelaerr/rang-core/tree/main/research), [`formal/`](https://github.com/gijzelaerr/rang-core/tree/main/formal) | reports and compact result archives; Lean proofs |
 | [`history/`](https://github.com/gijzelaerr/rang-core/tree/main/history), [`data/`](https://github.com/gijzelaerr/rang-core/tree/main/data) | the frozen campaigns; fixture provenance |
 

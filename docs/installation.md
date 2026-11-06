@@ -65,14 +65,22 @@ suite, the examples, the notebooks, the recipes and `research/` are in the
 | `plot` | matplotlib | plots in the examples |
 | `test` | pytest | the test suite |
 | `docs` | Sphinx, furo, myst-nb, papermill | this site |
-| `recipes` | Stimela 2.1.4 | the core-native Stimela2 recipes in `recipes/` (Python 3.13) |
+| `recipes` | Stimela 2.1.4 | the Stimela2 recipes in `recipes/` (Python 3.13): `rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply` and `image` on your MS ({doc}`cli`); `core-*.yaml` are research recipes |
 
 ```sh
 pip install 'rang-core[notebook,imaging]'
 ```
 
 Install from public PyPI (`--index-url https://pypi.org/simple`). Stimela
-2.1.4 needs Python 3.13; its native backend fails on 3.14. The frozen
+2.1.4 needs Python 3.13; its native backend fails on 3.14. The chain
+recipe calls the `rang-core` console script, so run it from the environment
+that has rang installed:
+
+```sh
+stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms
+```
+
+The frozen
 campaigns in `history/` ran on QuartiCal 0.2.7, Stimela 2.1.4 and
 python-casacore 3.8.1; there is no extra for that stack since 0.1.0, and
 {gh}`history/tools/flagging/requirements.lock` keeps its pins.

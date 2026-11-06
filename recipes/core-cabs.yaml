@@ -1,3 +1,6 @@
+# rang-recipe: research
+# Research cabs: the archive comparator and the environment record of the
+# research recipes core-*.yaml; the user cabs are in rang-cabs.yaml.
 # Cabs shared by the core-native recipes (research/core-h-recipes.md).
 # Python-flavour cabs on the native backend; the interpreter is the `python`
 # on PATH, which must be the venv with rang and stimela and no solver subprocess.

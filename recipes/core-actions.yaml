@@ -1,3 +1,6 @@
+# rang-recipe: research
+# A research recipe: it replays a frozen campaign and compares it with its
+# archive; it is not a recipe for your own Measurement Set (rang-chain.yaml).
 # Core-native actions stage: Rust core, no Measurement Set, no solver subprocess.
 # Sits beside the frozen recipes/tv-flagging-actions.yaml and never replaces
 # it (research/core-h-recipes.md, research/core-phase3-actions.md).
@@ -18,7 +21,7 @@ cabs:
       iterations: {dtype: int, default: 50}
 
 core-actions:
-  info: Patch-removal actions stage on the Rust core from a prepared state; 17 solves, compared with the archive by the phase 3 comparator.
+  info: "Research recipe: Patch-removal actions stage on the Rust core from a prepared state; 17 solves, compared with the archive by the phase 3 comparator."
   inputs:
     run-dir: {dtype: str, required: true}
     prepared-dir: {dtype: Directory, required: true, info: Prepared state and manifest; read only.}
