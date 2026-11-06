@@ -231,7 +231,7 @@ the window, `ANTENNA2` 0, −1, −1, 0); CASA writes `INTERVAL` 0 where rang wr
 differ by up to 13 s (rang's weighted centroid; reported, as C2a-C2c). Df's clip: rang 8 parameters, CASA 736.
 KCROSS's second parameter is 0 in CASA's tables, as rang writes it.
 
-**What the failures are (post hoc, probes `probe1.py`, `probe2.py`, `probe3.py` in `~/Build/tmp/20261106-c6`, run
+**What the failures are (post hoc, probes `probe1.py`, `probe2.py`, `probe3.py` in `/mnt/d/rang/outputs/c6-20261106-probes/` (with `kbias.py`, the KCROSS bias analysis), run
 after -03; their numbers are recorded here, they are not gates):**
 
 1. **KCROSS and Xf on scan 4** (`B-poldx` 0.022 ns, `B-poldx-uv` Xf p95 22.6°, the twin's 0.015 ns). On the fourth
