@@ -141,6 +141,121 @@ verdict on intervals either way.
 `mean(w |V_corr - M|^2)` over the held-out cells' unflagged parallel hands; the relative difference
 `(MSE_rang - MSE_casa) / MSE_casa`.
 
+## 5. Results of the frozen set (measured 2026-11-06)
+
+Code: the working tree on top of `f215a5e` (this note's protocol commit); each run directory has a `.code/` snapshot
+(`head.txt`, `diff.patch`, `untracked.tgz`, SHA-256 list) because the code was committed only after the runs
+(section 9). Runs under `/mnt/d/rang/outputs/`, heavy lock held.
+
+**Run -01: no comparison.** The container step that adds the `KDATA` column failed (`makecoldesc` from DATA's
+description); fixed in `examples/oracle_gain.py`, nothing compared.
+
+### 5.1 Class A against QuartiCal 0.2.7, run -02: pass on all seven cases
+
+`c2a-20261106-02`, 139.8 s (seven `goquartical` processes of 8-38 s and 388-643 MB each; rang 0.02-0.08 s per solve).
+
+| Case | Gains (flagged) | Max entry | Max product | Iterations (rang, QuartiCal) | Converged fraction |
+| --- | ---: | ---: | ---: | --- | --- |
+| A-slice-ap-t2 | 64 (0) | 2.2e-16 | 3.3e-16 | 15, 15 | 1.0, 1.0 |
+| A-slice-ap-t1f32 | 8,192 (4,840) | 4.4e-16 | 5.6e-16 | 50, 50 | 0.98747…, equal |
+| A-slice-p-t2 | 64 (0) | 1.4e-17 | 2.8e-17 | 15, 15 | 1.0, 1.0 |
+| A-slice-p-t1f32 | 8,192 (4,841) | 6.5e-16 | 6.5e-16 | 50, 50 | 0.90871…, equal |
+| A-slice-ap-K | 64 (0) | 2.2e-16 | 3.3e-16 | 15, 15 | 1.0, 1.0 |
+| A-fixture-ap | 3,584 (1,398) | 3.6e-16 | 5.6e-16 | 50, 50 | 0.95334…, equal |
+| A-fixture-p | 3,584 (1,398) | 1.4e-15 | 1.4e-15 | 50, 50 | 0.98170…, equal |
+
+Gain flags equal on every case, converged fractions equal to the last digit, no entry differs by more than 1e-10.
+As for `complex` (core-phase2), agreement is at rounding level, since QuartiCal compiles with `fastmath`.
+
+### 5.2 Class B against CASA `gaincal`, run -03: the slice passes; A1 fails on four counts
+
+`c2a-20261106-03`, 159.8 s (20 `gaincal` calls of 1.1-1.7 s). Two deviations from section 4 in what was run, found
+when writing this section: B-a1-minsnr scaled m007's weights by **1e-10, not the 1e-4** of the table (1e-4 would
+have left an SNR near 100 and tested nothing); B-a1-refant flagged m000 in integrations 3-5 of the six of scan 23
+(field 0), not in the whole scan, so that flex has to hold an alternate after the primary returns.
+
+| Case | Intervals | Max `|ΔTIME|` (s) | Products median, p95 (relative) | Flags differing | Refant | Held-out MSE | Verdict |
+| --- | --- | ---: | --- | --- | --- | ---: | --- |
+| B-slice-inf | 1 = 1 | 0.0007 | 4.5e-6, 1.1e-5 | 0 | equal | 0.0 | pass |
+| B-slice-60s | 5 = 5 | 0.0036 | 4.0e-6, 1.3e-5 | 0 | equal | −1.3e-6 | pass |
+| B-slice-120s | 3 = 3 | 0.0022 | 4.0e-6, 1.3e-5 | 0 | equal | −9.0e-7 | pass |
+| B-slice-p | 1 = 1 | 0.0010 | 2.1e-5, 4.9e-5 (phase median 0.00095°) | 0 | equal | 0.0 | pass |
+| B-a1-inf, -60s, -30s on field 0 | 2, 2, 4 | ≤ 0.0031 | ≤ 1.9e-5, ≤ 4.6e-5 | 0 | equal | – | pass |
+| B-a1-int-f0, -int-f2, refant flex, strict | 12, 20, 12, 12 | – | – | – | – | – | **fail: not matched** |
+| B-a1-inf, -60s, -30s on field 2 | 10 each | **0.0544** | 7.9e-5, 1.7e-4 | 0 | equal | – | **fail: TIME** |
+| B-a1-combine-f2 | 1 = 1 | **0.411** | **9.3e-3, 2.4e-2** | 0 | equal | – | **fail: TIME, products** |
+| B-a1-minblperant | 2 = 2 | 0.0020 | 1.4e-5, 3.1e-5 | 0 (m005 flagged on both) | equal | – | pass |
+| B-a1-minsnr | 2 = 2 | 0.0008 | 2.8e-5, 6.2e-5 | **4 gated** (rang flagged m007, CASA did not) | equal | – | **fail: flags** |
+
+**CASA's bins equal `solint_bins`' on every case**: the MSInterval reading was right at the first comparison (the
+slice's `60s` and `120s`: 5 and 3 bins) and on A1's `30s` and `60s` across scans and fields. The failures:
+
+1. **`int` (four cases): the checker, not the bins.** A one-integration interval is a point, and CASA's `TIME` for it
+   differs from the integration's by up to about 1e-6 s, so containment with a 1e-6 s margin missed.
+2. **`TIME` on field 2 (0.054 s) and the slice (up to 0.0036 s).** CASA's solution time is
+   `SDBList::aggregateTimeCentroid` (read in `SolveDataBuffer.cc`): `TIME_CENTROID` weighted by each buffer's summed
+   `weightSpectrum` at that point of its solve. Rang weights by the unflagged parallel-hand weight. Where RFI flags
+   channels unevenly between integrations the two differ. Tried post hoc on run -03's tables (no new run): weights
+   times `|M|^2` (CASA's division by the model) reduce it to ≤ 0.0067 s on A1 but not to zero and are worse on the
+   slice's `inf`; SIGMA weights and B's `calwt` scaling do not close it. **Not resolved.** On an interpolated apply
+   this is a shift under 0.7 % of an integration.
+3. **`combine='scan'`:** one solution over ten scans spread over 3 h, whose true phases walk by tens of degrees between
+   scans. CASA averages the visibilities over the interval before it solves; QuartiCal's estimator, which rang ports,
+   does not. With a model that cannot fit, the two differ by about 1 %. This is the estimators' difference, not a bug;
+   the bins (one interval) agree. The 0.41 s `TIME` is item 2 again.
+4. **`minsnr`: CASA did not solve with the scaled weights.** Its SNR for m007 stayed near 12,800 (rang's: 0.14).
+   Section 6 finds why.
+
+## 6. Post hoc after run -03
+
+**Probe `c2a-20261106-04-probe`** (`examples/probe_gain_weights.py`, 25.8 s), three copies of A1 small, field 0:
+
+| Copy | Edit | Pre-apply | CASA's m007 SNR (X, Y; first scan) | m007 flagged |
+| --- | --- | --- | --- | --- |
+| w-noapply | WEIGHT_SPECTRUM and WEIGHT of m007 × 1e-10 | none | 1.6, 0.34 | yes |
+| s-apply | SIGMA of m007 × 1e5 | truth K, B | 0.14, 0.16 | yes |
+| s-noapply | SIGMA of m007 × 1e5 | none | 0.0, 0.0 | yes |
+
+With tables to pre-apply, CASA solves with weights from SIGMA, not WEIGHT_SPECTRUM: the apply resets them first
+(`resetWeightsUsingSigma`, C1 section 3.2). Rang's SNR at those weights (0.14, 0.15 in run -03) is CASA's
+(0.14, 0.16). Without a pre-apply CASA reads WEIGHT_SPECTRUM. That s-noapply also flags m007, with an SNR of exactly
+0, is **not explained** (the probe predicted it unflagged); recorded, not chased.
+
+Changes, post hoc and labelled so:
+
+- `rang.cal_gain.gaincal` solves with `1/SIGMA_SPECTRUM^2` (or `1/SIGMA^2` per channel; 0 where sigma is 0)
+  whenever tables are pre-applied, as CASA does, and with `weight_column` otherwise.
+- The checker matches an interval when CASA's `TIME` lies within the gated 0.01 s of the interval's row times (it
+  used 1e-6 s).
+
+**Re-evaluated on run -03's CASA tables with the changed code** (`check_gain.py recheck`, `casa-recheck.json`):
+every case passes except **B-a1-inf, -60s and -30s on field 2** (`TIME` 0.0544 s, item 2) and **B-a1-combine-f2**
+(`TIME` 0.411 s; products 9.3e-3 median, 2.4e-2 p95; item 3). The `int` cases now match (12 and 20 intervals,
+products ≤ 1.1e-4 median and ≤ 2.5e-4 p95). **Refant flex and strict equal CASA's per interval**: flex uses m000 for
+eight integrations, then the alternate m001, and keeps m001 after m000 returns; strict flags all antennas in the
+three intervals without m000, 96 flags on both sides. Minblperant (m005 flagged in scan 1 on both) and minsnr (no
+flag on either) agree. This is a fit to the run that found the problems, so section 7 holds out a further set.
+
+## 7. Held-out class B set (frozen before run -05)
+
+`check_gain.py casa <run> --heldout`, the same criteria as section 2, on new edits and settings not used above
+(code as after section 6):
+
+| Case | Data | Settings | What it tests |
+| --- | --- | --- | --- |
+| H-slice-p-60s | slice, held-out split flagged | `p`, `60s`, `minblperant=3` | phase-only on several intervals; held-out MSE |
+| H-a1-20s-f0 | A1 small, field 0 | `ap`, `20s` | MSInterval bins inside 6-integration scans (3 per scan) |
+| H-a1-16s-f0 | as above | `ap`, `16s` | the same at a width of exactly two integrations |
+| H-a1-p-int-f2 | A1 small, field 2 | `p`, `int` | phase-only per integration |
+| H-a1-refant-flex-f2 | A1 small; m000's rows flagged in scans 5 and 7 (field 2) | `ap`, `inf`, flex | an alternate over two whole scans, then continuity |
+| H-a1-refant-strict-f2 | as above | strict | the two scans flagged |
+| H-a1-minbl-f2 | A1 small; m011 left with its baselines to m001-m003 in scan 9 | `ap`, `inf`, `minblperant=4` | elimination in one interval of field 2 |
+| H-a1-snr-sigma-f0 | A1 small; SIGMA of m009's field-0 rows × 1e4 (weights unchanged) | `ap`, `inf`, pre-apply | `minsnr` through SIGMA weights |
+
+Predicted from section 6 before the run: field 2's `TIME` fails the 0.01 s gate wherever its RFI flags are uneven
+(item 2), so H-a1-p-int-f2 is expected to pass (one integration per interval) and the field-2 `inf` cases to fail on
+`TIME` alone; H-a1-snr-sigma-f0 flags m009 on both sides (an SNR near 1.3, outside the reported band 1.5-6).
+
 ## Gain-hash gate (measured 2026-11-06, before any other change was compiled into the gate)
 
 `tools/gain_hash_gate.py --json` on this branch with `.venv` (archive `~/Github/rang/outputs`): `4ed2aa89…` and
