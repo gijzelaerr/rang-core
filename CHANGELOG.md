@@ -9,6 +9,18 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang-core calibrate` runs the polcal section's Gpol, KCROSS, Xf and Df (CARACal's strategy 1,
+  `rang.cal_pol`; `research/c6w-polwire.md`) after the primary and secondary terms, and `rang-core
+  apply` corrects by the parallactic angle with `apply.parang: true` (after the tables, as CASA's
+  `parang=True`; `rang.applycal.applycal(parang=True)`, angles per field independent of the
+  chunking). New keys: `calibrate.polcal.model` (`nrao`: CARACal's `nrao_xcal.yml` 3C286 or 3C138
+  written to MODEL_DATA on the polcal fields; `column`), `calibrate.polcal.frame` (`casa` default),
+  KCROSS `estimator` (`casa` default, `refined`), Df `min_data_fraction` (off by default; CASA has
+  no such rule). Df's table is clipped at CARACal's 0.6 by default. `feed_angle_rotation` now sets
+  the receptor angle used for P, in memory (CARACal sets it in FEED); FEED is not rewritten. Applying
+  polarisation tables without `apply.parang`, `preavg`, Gpol `calmode: ap` and `extendflags: true`
+  (not ported, no owner) are configuration errors; nothing is refused for C6a, C6b or C6c any more.
+  The defaults of C6's open decisions are provisional.
 - New: `rang.cal_pol`, the polarisation terms in CARACal's order (`research/c6-polterms.md`): `gpol`
   (phase-only G with the parallactic angle), `kcross` (CASA's cross-hand delay FFT), `xf` (CASA's
   cross-hand phase), `df` (the linearised leakage by least squares with CASA's subtractive reference),

@@ -253,6 +253,32 @@ def _weight_scale(kind, table, interp, spw, table_field, chunk, freqs, nant):
 # -- applycal ------------------------------------------------------------------
 
 
+def _field_angles(w, chunk_rows, fields, frame, receptor_angle):
+    """P's angles `(a_p, a_q)` for every MS row of `fields` (0 elsewhere),
+    each field's from `rang.cal_pol.row_angles` over all of its rows."""
+    from . import cal_pol
+
+    spans = list(w.chunks(chunk_rows))
+    names = ("FIELD_ID", "TIME", "ANTENNA1", "ANTENNA2")
+    meta = {k: np.concatenate([w.read(k, s, n) for s, n in spans]) for k in names}
+    ap = np.zeros(len(meta["TIME"]))
+    aq = np.zeros(len(meta["TIME"]))
+    for f in fields:
+        rows = np.flatnonzero(meta["FIELD_ID"] == f)
+        if not len(rows):
+            continue
+        ap[rows], aq[rows] = cal_pol.row_angles(
+            w.ms,
+            meta["TIME"][rows],
+            meta["ANTENNA1"][rows],
+            meta["ANTENNA2"][rows],
+            f,
+            frame,
+            receptor_angle,
+        )
+    return ap, aq
+
+
 def _load(t):
     return t if isinstance(t, caltable.CalTable) else caltable.read(t)
 
@@ -272,18 +298,26 @@ def applycal(
     stage="apply",
     threads=0,
     scan=None,
+    parang=False,
+    frame="casa",
+    receptor_angle=None,
 ):
     """Apply CASA calibration tables (paths or `CalTable`s) to `ms` as CASA
     `applycal` (module docstring). `session` lets a caller pass an open
     `WriteBack`. `scan` (a list of SCAN_NUMBERs, CASA's `scan`; task C2e)
-    restricts the rows corrected. Returns a summary."""
+    restricts the rows corrected. `parang` (task C6w) corrects by the
+    parallactic angle P after the tables, as CASA's `parang=True` and
+    `rang.cal_pol.apply`, in `frame` (`rang.cal_pol.row_angles`, with
+    `receptor_angle` replacing FEED's); the angles of each field are
+    computed once over all of the field's rows, so they do not depend on
+    the chunking. Returns a summary."""
     from pathlib import Path
 
     ms = Path(ms)
     if applymode not in MODES:
         raise ApplyError(f"applymode {applymode!r}: rang applies {list(MODES)}")
     tables = [_load(t) for t in gaintable]
-    if not tables:
+    if not tables and not parang:
         raise ApplyError("no gaintable given")
     n = len(tables)
     interp = [m or "linear" for m in _broadcast(interp, n, "linear", "interp")]
@@ -328,6 +362,7 @@ def applycal(
         "applymode": applymode,
         "column": column,
         "weights_written": write_weights,
+        "parang": bool(parang),
         "rows": 0,
         "cells_flagged_before": 0,
         "cells_flagged_after": 0,
@@ -342,6 +377,13 @@ def applycal(
     try:
         added = w.ensure_column(column, init="data")
         summary["column_added"] = bool(added)
+        if parang:
+            angle_p, angle_q = _field_angles(
+                w, chunk_rows, fields, frame, receptor_angle
+            )
+            summary["frame"] = frame
+            if receptor_angle is not None:
+                summary["receptor_angle"] = float(receptor_angle)
         uncovered = set()
         for start, nrow in w.chunks(chunk_rows):
             c = {
@@ -395,20 +437,29 @@ def applycal(
                     if strict_flag:
                         new_flag[idx] = True
                     continue
-                got, gflag = cal_apply.apply(
-                    data[idx],
-                    flag[idx],
-                    group["TIME"],
-                    group["ANTENNA1"],
-                    group["ANTENNA2"],
-                    freqs,
-                    tables,
-                    spw=spw,
-                    interp=interp,
-                    threads=threads,
-                    nant=info["nant"],
-                    table_fields=[maps[i][int(fid)] for i in use],
-                )
+                if tables:
+                    got, gflag = cal_apply.apply(
+                        data[idx],
+                        flag[idx],
+                        group["TIME"],
+                        group["ANTENNA1"],
+                        group["ANTENNA2"],
+                        freqs,
+                        tables,
+                        spw=spw,
+                        interp=interp,
+                        threads=threads,
+                        nant=info["nant"],
+                        table_fields=[maps[i][int(fid)] for i in use],
+                    )
+                else:
+                    got, gflag = data[idx], flag[idx]
+                if parang:
+                    from . import cal_pol
+
+                    got = cal_pol.rotate(
+                        got, angle_p[start + idx], angle_q[start + idx], inverse=True
+                    )
                 out[idx] = got
                 new_flag[idx] = gflag
                 if write_weights:

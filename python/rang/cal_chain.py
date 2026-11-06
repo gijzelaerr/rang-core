@@ -28,6 +28,10 @@ port on CORRECTED_DATA of those fields, its flags OR'd into FLAG.
 `a_tables(...)` is CARACal's choice of tables for an A step
 (`get_caltab_final` and `get_last_gain`).
 
+Task C6w (research/c6w-polwire.md): `run` also solves CARACal's strategy-1
+polarisation terms Gpol, KCROSS, Xf and Df (`rang.cal_pol`), Df's table
+clipped as CARACal's `flagdata(mode='clip')`.
+
 K tables hold delays only (C2c decision 2): a K table applied without a G
 or F after it leaves K's phase offsets in the data, and `run` records a
 warning wherever that happens.
@@ -45,6 +49,7 @@ from . import (
     cal_delay,
     cal_fluxscale,
     cal_gain,
+    cal_pol,
     core_flag,
     core_ms,
     core_writeback,
@@ -52,6 +57,7 @@ from . import (
 from .formats import caltable
 
 SOLVED = ("K", "G", "B", "F")
+POLARISATION = ("Gpol", "KCROSS", "Xf", "Df")  # task C6w, `rang.cal_pol`
 K_ALONE = (
     "K applied without a later G or F: rang's K table holds the delays only and "
     "its phase offsets are left for G (research/c2c-bandpass.md, decision 2)"
@@ -180,6 +186,87 @@ def _solve_one(ms, term, field_id, tables, common):
     if kind == "B":
         return cal_bandpass.bandpass(ms, fillgaps=term["fillgaps"], **kwargs)
     raise ValueError(f"not a solved term: {kind}")
+
+
+def _solve_pol(ms, term, field_id, tables, common):
+    """One Gpol, KCROSS, Xf or Df solve on one field (task C6w,
+    `rang.cal_pol`): `(CalTable, record)`."""
+    kind = term["type"]
+    gaintable = [tables[n]["table"] for n in term["preapply"]]
+    kwargs = {
+        "field_id": field_id,
+        "solint": term["solint"],
+        "combine": term["combine"],
+        "uvrange": term["uvrange"],
+        "gaintable": gaintable or (),
+        "interp": (list(term["interp"]) or "linear") if gaintable else "linear",
+        "frame": term.get("frame", "casa"),
+        "receptor_angle": term.get("receptor_angle"),
+        "model_column": term.get("model_column", common["model_column"]),
+        "weight_column": common["weight_column"],
+    }
+    if "scan" in common:
+        kwargs["scan"] = common["scan"]
+    if term["model"] == "unit":
+        nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
+        kwargs["model"] = cal_fluxscale.smodel_array(nrow, nchan)
+    record = {"field_id": int(field_id)}
+    if kind == "Gpol":
+        table, sol, info = cal_pol.gpol(
+            ms,
+            refant=term["refant"],
+            refantmode=term["refantmode"],
+            minsnr=term["minsnr"],
+            minblperant=term["minblperant"],
+            parang=term.get("parang", True),
+            **kwargs,
+        )
+        record.update(_solution_record(sol, info, field_id))
+        return table, record
+    kwargs["parang"] = term.get("parang", True)
+    if kind == "KCROSS":
+        table, sol, ld = cal_pol.kcross(
+            ms,
+            refant=term["refant"],
+            estimator=term.get("estimator", "casa"),
+            **kwargs,
+        )
+        record.update(
+            rows=len(ld.rows),
+            intervals=len(ld.keys),
+            delay_ns=[float(v) for v in sol.delay_ns],
+            err_ns=[float(v) for v in sol.err_ns],
+            estimator=sol.settings["estimator"],
+        )
+        return table, record
+    if kind == "Xf":
+        table, sol, ld = cal_pol.xf(ms, **kwargs)
+        record.update(
+            rows=len(ld.rows),
+            intervals=len(ld.keys),
+            flagged_fraction=float((~sol.ok).mean()),
+        )
+        return table, record
+    if kind == "Df":
+        table, sol, ld = cal_pol.df(
+            ms,
+            refant=term["refant"],
+            minsnr=term["minsnr"],
+            minblperant=term["minblperant"],
+            min_data_fraction=term.get("min_data_fraction"),
+            **kwargs,
+        )
+        record.update(
+            rows=len(ld.rows),
+            intervals=len(ld.keys),
+            flagged_fraction=float(sol.flags.mean()),
+            gauge_fixed=sol.gauge_fixed,
+            data_fraction_flagged_channels=sol.settings.get(
+                "data_fraction_flagged_channels", 0
+            ),
+        )
+        return table, record
+    raise ValueError(f"not a polarisation term: {kind}")
 
 
 def _solution_record(sol, info, field_id):
@@ -326,7 +413,12 @@ def run(
     G and F `calmode`; B `fillgaps`; K optionally `kind`; F `base` (the G
     table copied, CARACal's primary G) and `smodel`. A has `tables` (names,
     see `a_tables`), `gainfield` (one per table) and `strategies` (parsed
-    Tricolour steps). `weight_column` (None for unit weights) and `scan`
+    Tricolour steps). Gpol, KCROSS, Xf and Df (task C6w, `rang.cal_pol`,
+    research/c6w-polwire.md) have the K, G, B keys (KCROSS and Xf ignore
+    `refant`, Xf `minsnr` and `minblperant`) and `parang`, `frame`,
+    `receptor_angle` and optionally `model_column` (overrides
+    `model_column`); KCROSS `estimator`; Df `clip` (an amplitude, or None)
+    and `min_data_fraction`. `weight_column` (None for unit weights) and `scan`
     reach every solve and A step. Every MS write goes through
     `core_writeback.WriteBack` with `flag_backup` (saved once, before the
     first write). Returns `{"tables": {name: {...}}, "steps": [...]}`."""
@@ -420,6 +512,21 @@ def run(
                 step["warning"] = K_ALONE
             steps.append(step)
             continue
+        elif kind in POLARISATION:
+            made, records = [], []
+            for f in term["fields"]:
+                table, record = _solve_pol(ms, term, f, tables, common)
+                made.append(table)
+                records.append(record)
+            table = (
+                cal_fluxscale.append(made[0], *made[1:]) if len(made) > 1 else made[0]
+            )
+            step["solutions"] = records
+            step["frame"] = term.get("frame", "casa")
+            if kind == "Df" and term.get("clip") is not None:
+                table, clipped = cal_pol.clip_df(table, term["clip"])
+                step["clip"] = term["clip"]
+                step["clipped"] = clipped
         else:
             raise ValueError(f"term {name}: type {kind} is not run by cal_chain.run")
         path = out_dir / name
@@ -439,6 +546,7 @@ def run(
 
 __all__ = [
     "K_ALONE",
+    "POLARISATION",
     "SOLVED",
     "a_tables",
     "flag_corrected",

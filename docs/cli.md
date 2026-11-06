@@ -256,13 +256,18 @@ calibrate:
   polcal:
     field: ["xcal"]  # fields of the polarisation solves
     terms: []  # Gpol, KCROSS, Xf on xcal; Df with field: fcal
-    feed_angle_rotation: null  # degrees added to RECEPTOR_ANGLE
+    model:
+      source: nrao  # the model Gpol, KCROSS and Xf solve against: nrao, CARACal's nrao_xcal.yml (3C286, 3C138; rang.calmodels.NRAO_XCAL) written to MODEL_DATA on their fields; column: an existing column
+      name: null  # nrao: 3C286, 3C138 or an alias such as J1331+3030 (null: the field's name)
+      column: MODEL_DATA  # the model column for column
+    frame: casa  # the parallactic-angle frame (rang.cal_pol; C6's provisional owner decision 1): casa, CASA's parang=True; rang, geodetic and ICRS north
+    feed_angle_rotation: null  # degrees: the RECEPTOR_ANGLE of both receptors of every antenna used for P, in memory (CARACal writes it into FEED; MeerKAT: -90); null: FEED's
     extendflags: false  # flagdata mode=extend on xcal and fcal first
 apply:
   column: CORRECTED_DATA  # the column written
   applymode: calflag  # as CASA applycal
   calwt: false  # scale the weights by the gains (CASA: G, T and B only; no effect on complex)
-  parang: false  # apply the parallactic angle
+  parang: false  # correct by the parallactic angle after the tables, in calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
 image:
   imager: gemclean  # the imager
@@ -324,15 +329,17 @@ run:
 #   fillgaps: null  # B: channels bridged (CARACal: 70)
 #   solnorm: null  # B: normalise
 #   smodel: null  # F: a point model, such as [1, 0, 0, 0]
-#   parang: null  # apply the parallactic angle while solving
-#   preavg: null  # Xf, Df: pre-averaging in seconds
-#   clip: null  # Df: amplitude range kept, such as [-0.6, 0.6]
+#   parang: null  # apply the parallactic angle while solving (default true)
+#   preavg: null  # Xf, Df: pre-averaging in seconds (not ported)
+#   clip: null  # Df: amplitude range kept, [-a, a] (default CARACal's [-0.6, 0.6]; [] for none)
+#   estimator: null  # KCROSS: casa (CASA's FFT and parabola, the default) or refined (then Newton steps, which remove the parabola's bias)
+#   min_data_fraction: null  # Df: flag channels whose unflagged cross-hand fraction is below this (rang's rule, CASA has none; default off)
 #   strategy: null  # A: a Tricolour strategy for the corrected data
 #   max_iterations: 50  # complex, Sp, Sa: solver iterations
 #   stop_criterion: 1.0e-07  # complex, Sp, Sa: convergence criterion
 #   stop_fraction: 0.99  # complex, Sp, Sa: fraction converged to stop
 # Term types: complex, K, G, B, A, F, Gpol, KCROSS, Xf, Df, Sd, Sp, Sa.
-# Implemented: complex, K, G, B, A, F (C2e). Not yet: Gpol (C6b), KCROSS (C6b), Xf (C6b), Df (C6c), Sd (C5b), Sp (C5a), Sa (C5a).
+# Implemented: complex, K, G, B, A, F (C2e), Gpol, KCROSS, Xf, Df (C6w). Not yet: Sd (C5b), Sp (C5a), Sa (C5a).
 ```
 
 ## `research`

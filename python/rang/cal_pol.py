@@ -106,10 +106,14 @@ def receptor_angles(ms):
     return out
 
 
-def row_angles(ms, time, antenna1, antenna2, field_id, frame="casa"):
+def row_angles(
+    ms, time, antenna1, antenna2, field_id, frame="casa", receptor_angle=None
+):
     """Per row the angles `a_p`, `a_q` (rad) of P for ANTENNA1 and ANTENNA2:
     the parallactic angle of field `field_id`'s PHASE_DIR at each antenna and
-    time, plus the antenna's receptor angle."""
+    time, plus the antenna's receptor angle. `receptor_angle` (rad; task
+    C6w) replaces FEED's RECEPTOR_ANGLE for every antenna, in memory, as
+    CARACal's `feed_angle_rotation` sets it on both receptors of a copy."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         xyz = np.asarray(t.getcol("POSITION"), float)
@@ -118,6 +122,8 @@ def row_angles(ms, time, antenna1, antenna2, field_id, frame="casa"):
             :2
         ]
     recept = receptor_angles(ms)
+    if receptor_angle is not None:
+        recept = np.full(len(recept), float(receptor_angle))
     time = np.asarray(time, float)
     a1 = np.asarray(antenna1, np.int64)
     a2 = np.asarray(antenna2, np.int64)
@@ -241,6 +247,8 @@ def load(
     model_column="MODEL_DATA",
     model=None,
     weight_column="WEIGHT_SPECTRUM",
+    scan=None,
+    receptor_angle=None,
 ):
     """Read one field of a one-window MS for a solve of VisCal type
     `solved` (`'G'`, `'Kcross'`, `'Xf'`, `'Df'`): the model rotated by P
@@ -248,7 +256,10 @@ def load(
     corrected by the lower ones (`rang.cal_gain._pre_apply`), the weights
     from SIGMA when tables are pre-applied (as C2a measured for `gaincal`),
     rows outside `uvrange` and autocorrelations flagged by row, and CASA's
-    solution intervals."""
+    solution intervals. Task C6w: `scan` (SCAN_NUMBERs) restricts the rows,
+    `weight_column=None` gives unit weights where `weight_column` would be
+    read (WEIGHT is repeated over channels), and `receptor_angle` is
+    `row_angles`'."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -261,7 +272,7 @@ def load(
     with core_ms.open_table(ms) as t:
         fields = t.getcol("FIELD_ID")
         sigma_column = "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in t.colnames() else "SIGMA"
-    rows = np.flatnonzero(fields == field_id)
+    rows = np.flatnonzero(cal_gain._scan_keep(ms, scan, fields == field_id))
     if not len(rows):
         raise ValueError(f"no rows of field {field_id}")
     names_cols = [
@@ -274,7 +285,7 @@ def load(
         "FLAG",
         "FLAG_ROW",
         data_column,
-        weight_column,
+        *cal_gain._weight_columns(weight_column),
         sigma_column,
     ]
     if model is None:
@@ -293,7 +304,7 @@ def load(
     )
     angles = None
     if parang:
-        angles = row_angles(ms, c["TIME"], a1, a2, field_id, frame)
+        angles = row_angles(ms, c["TIME"], a1, a2, field_id, frame, receptor_angle)
         mdl = rotate(mdl, *angles)
     tables = [
         t if isinstance(t, caltable.CalTable) else caltable.read(t) for t in gaintable
@@ -318,8 +329,12 @@ def load(
             sigma = np.broadcast_to(sigma[:, None, :], data.shape)
         with np.errstate(divide="ignore"):
             weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
+    elif weight_column is None:
+        weights = np.ones(data.shape, np.float32)
     else:
         weights = np.asarray(c[weight_column], np.float32)
+        if weights.ndim == 2:  # WEIGHT, repeated over channels (C2e's rule)
+            weights = np.broadcast_to(weights[:, None, :], data.shape)
     tb, keys = cal_gain.solint_bins(
         c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine
     )
@@ -348,6 +363,8 @@ def load(
             "frame": frame,
             "gaintable": [t.vis_cal for t in tables],
             "interp": interp,
+            **({} if scan is None else {"scan": [int(s) for s in np.atleast_1d(scan)]}),
+            **({} if receptor_angle is None else {"receptor_angle": receptor_angle}),
         },
     )
 
@@ -447,17 +464,22 @@ def gpol(
     frame="casa",
     model_column="MODEL_DATA",
     model=None,
+    receptor_angle=None,
     **solve_options,
 ):
     """CARACal's Gpol: `gaincal(gaintype='G', calmode='p', parang=True)` on
     the polarised calibrator. The model is rotated by P here and passed to
     `rang.cal_gain.gaincal`, which pre-applies `gaintable` (G is solved
     with B, K and KCROSS correcting the data and G, Df, Xf corrupting the
-    model). Returns `(CalTable, GainSolution, info)`."""
+    model). Returns `(CalTable, GainSolution, info)`. `solve_options`
+    reach `gaincal`; `scan` (task C6w) also selects the model's rows, and
+    `receptor_angle` is `row_angles`'."""
     ms = Path(ms)
     with core_ms.open_table(ms) as t:
         fields = t.getcol("FIELD_ID")
-    rows = np.flatnonzero(fields == field_id)
+    rows = np.flatnonzero(
+        cal_gain._scan_keep(ms, solve_options.get("scan"), fields == field_id)
+    )
     if model is None:
         model = cal_gain._ms_columns(ms, [model_column], rows)[model_column]
     model = np.asarray(model, np.complex64)
@@ -465,7 +487,15 @@ def gpol(
         c = cal_gain._ms_columns(ms, ["TIME", "ANTENNA1", "ANTENNA2"], rows)
         model = rotate(
             model,
-            *row_angles(ms, c["TIME"], c["ANTENNA1"], c["ANTENNA2"], field_id, frame),
+            *row_angles(
+                ms,
+                c["TIME"],
+                c["ANTENNA1"],
+                c["ANTENNA2"],
+                field_id,
+                frame,
+                receptor_angle,
+            ),
         )
     table, sol, info = cal_gain.gaincal(
         ms,
@@ -528,17 +558,72 @@ def kcross_solve(ld):
     )
 
 
-def kcross(ms, *, field_id, solint="inf", combine="", refant=None, **load_options):
+KCROSS_ESTIMATORS = ("casa", "refined")
+
+
+def kcross_refine(spectrum, freq, tau_ns, iterations=20, tol_ns=1e-9):
+    """The delay (ns) that maximises `|sum_c S_c exp(-2 pi i nu_c tau)|`
+    over the channels with data (equal weights, as CASA's FFT of the
+    normalised spectrum), by Newton steps from `tau_ns` (CASA's FFT and
+    parabola). Removes the parabola's bias (up to 2.2e-4 ns, C6 section 9);
+    task C6w, `estimator: refined`, owner decision 5 of C6."""
+    s = np.asarray(spectrum, np.complex128)
+    nu = np.asarray(freq, float)
+    use = np.abs(s) > 0
+    if use.sum() < 2:
+        return float(tau_ns)
+    s, nu = s[use], nu[use] - nu[use].mean()
+    w = 2 * np.pi * nu
+    tau = float(tau_ns) * 1e-9
+    for _ in range(iterations):
+        e = s * np.exp(-1j * w * tau)
+        f0, f1, f2 = e.sum(), (-1j * w * e).sum(), (-(w**2) * e).sum()
+        d1 = 2 * (np.conj(f0) * f1).real
+        d2 = 2 * (abs(f1) ** 2 + (np.conj(f0) * f2).real)
+        if not d2 < 0:
+            break
+        step = -d1 / d2
+        tau += step
+        if abs(step) * 1e9 < tol_ns:
+            break
+    return tau * 1e9
+
+
+def kcross(
+    ms,
+    *,
+    field_id,
+    solint="inf",
+    combine="",
+    refant=None,
+    estimator="casa",
+    **load_options,
+):
     """CARACal's KCROSS: `gaincal(gaintype='KCROSS', parang=True)`. Returns
     `(CalTable, KcrossSolution, Loaded)`; the table is CASA's `Kcross Jones`
     (`FPARAM (1, 2)`, the delay in ns on X and 0 on Y for every antenna,
     `ANTENNA2 = -1`). `refant` is recorded only: KCROSS has no antenna
-    reference, it depends on the refant of the earlier terms."""
+    reference, it depends on the refant of the earlier terms. `estimator`
+    (task C6w): `casa`, CASA's FFT and parabola; `refined`, then
+    `kcross_refine`."""
+    if estimator not in KCROSS_ESTIMATORS:
+        raise ValueError(f"estimator must be one of {KCROSS_ESTIMATORS}")
     ld = load(
         ms, field_id=field_id, solved="Kcross", solint=solint, combine=combine,
         **load_options,
     )  # fmt: skip
     sol = kcross_solve(ld)
+    if estimator == "refined":
+        sol.settings["fft_delay_ns"] = sol.delay_ns.tolist()
+        sol.delay_ns = np.array(
+            [
+                kcross_refine(sol.spectrum[t], ld.freq, sol.delay_ns[t])
+                if sol.ok[t]
+                else sol.delay_ns[t]
+                for t in range(len(sol.delay_ns))
+            ]
+        )
+    sol.settings["estimator"] = estimator
     if not sol.ok.any():
         raise RuntimeError(f"KCROSS wrote no solutions for field {field_id}")
     ntime, nant = len(ld.keys), ld.nant
@@ -766,17 +851,29 @@ def df(
     refant=0,
     minsnr=3.0,
     minblperant=4,
+    min_data_fraction=None,
     **load_options,
 ):
     """CARACal's Df: `polcal(poltype='Df')` on the (unpolarised) leakage
     calibrator (`parang=True` always). Returns `(CalTable, DfSolution,
     Loaded)`; the table is CASA's `Df Jones` (`CPARAM (nchan, 2)`,
-    `ANTENNA2` the refant used)."""
+    `ANTENNA2` the refant used). `min_data_fraction` (task C6w, C6's owner
+    decision 3; None: off, the default) flags every leakage of a channel
+    and interval whose unflagged cross-hand cells are below that fraction
+    of the interval's cross-hand cells (rows not flagged as a whole). This
+    is rang's rule: CASA has none (its flags in such channels come from its
+    iterative solver, research/c6w-polwire.md)."""
     ld = load(
         ms, field_id=field_id, solved="Df", solint=solint, combine=combine,
         **load_options,
     )  # fmt: skip
     sol = df_solve(ld, refant=refant, minsnr=minsnr, minblperant=minblperant)
+    if min_data_fraction is not None:
+        frac = data_fraction(ld)
+        low = frac < float(min_data_fraction)
+        sol.flags = sol.flags | low[:, :, None, None]
+        sol.settings["min_data_fraction"] = float(min_data_fraction)
+        sol.settings["data_fraction_flagged_channels"] = int(low.sum())
     if sol.flags.all():
         raise RuntimeError(f"Df wrote no solutions for field {field_id}")
     values = sol.d.transpose(0, 2, 1, 3)
@@ -787,6 +884,20 @@ def df(
     ref = np.array([int(u[u >= 0][0]) if (u >= 0).any() else -1 for u in used])
     table = _table("Df", ld, values, flags, snr, err, ref, len(ld.keys), False)
     return table, sol, ld
+
+
+def data_fraction(ld):
+    """`(interval, chan)`: unflagged cross-hand cells over the cross-hand
+    cells of the rows not flagged as a whole (Df's `min_data_fraction`)."""
+    ntime = len(ld.keys)
+    live = ~ld.flag_row
+    cross = ~ld.flag[:, :, 1:3]  # (row, chan, 2)
+    good = np.zeros((ntime, ld.flag.shape[1]))
+    total = np.zeros(ntime)
+    np.add.at(good, ld.time_bin[live], cross[live].sum(axis=-1))
+    np.add.at(total, ld.time_bin[live], 2.0)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return np.where(total[:, None] > 0, good / total[:, None], 0.0)
 
 
 def clip_df(table, limit=0.6):
@@ -806,16 +917,19 @@ def clip_df(table, limit=0.6):
 
 __all__ = [
     "FRAMES",
+    "KCROSS_ESTIMATORS",
     "DfSolution",
     "KcrossSolution",
     "Loaded",
     "XfSolution",
     "apply",
     "clip_df",
+    "data_fraction",
     "df",
     "df_solve",
     "gpol",
     "kcross",
+    "kcross_refine",
     "kcross_solve",
     "load",
     "parallactic_angle",
