@@ -49,6 +49,9 @@ TASKS = {
     "G5": "multiscale CLEAN",
     "G6": "MODEL_DATA from the imager",
     "G9": "Stokes Q, U and V and joined polarisations",
+    "W4": "uniform imaging weights: WEIGHT_SPECTRUM = 1 written into the MS, or a "
+    "gemclean option that ignores the MS weights (an owner decision, "
+    "research/w4-unsupported.md)",
 }
 
 TERM_TYPES = (
@@ -799,8 +802,9 @@ def refusals(config, stages):
         if config["data"]["weights"] == "uniform":
             no(
                 "data.weights",
-                "C4",
-                "uniform weights for imaging need WEIGHT_SPECTRUM written",
+                "W4",
+                "uniform weights for imaging: gemclean reads the MS weights, so "
+                "WEIGHT_SPECTRUM = 1 would have to be written into the MS",
             )
         for key, default, task in (
             ("channels_out", 1, "G3"),

@@ -30,6 +30,14 @@ written as a QuartiCal gain store), `apply` (the complex terms on their own
 solution bins, `rang.applycal.apply_complex`, into CORRECTED_DATA with FLAG
 OR'd; task W2b, research/c4b-apply-ms.md) and `image` (`gemclean` on a data
 column). `selfcal` is refused by `core_config.refusals` (C5 and G6).
+
+Data a stage cannot run on (task W4, research/w4-unsupported.md) is refused
+by `check_data` and `preflight` before anything is written, every problem at
+once: several data descriptions in use, circular or single correlations, two
+correlations for calibrate and apply, missing FLAG or FLAG_ROW, missing
+weights, FIELD_IDs without a FIELD row, empty selections, ambiguous image
+fields, and image with `data.scans` or on a data description other than 0.
+Autocorrelations are flagged and corrected but left out of the solve.
 """
 
 import datetime as _dt
@@ -97,33 +105,62 @@ def default_run_dir(ms):
 # -- the Measurement Set ---------------------------------------------------------
 
 
+UNSUPPORTED = "(unsupported data, task W4: research/w4-unsupported.md)"
+CORR_NAMES = {
+    1: "I",
+    2: "Q",
+    3: "U",
+    4: "V",
+    5: "RR",
+    6: "RL",
+    7: "LR",
+    8: "LL",
+    9: "XX",
+    10: "XY",
+    11: "YX",
+    12: "YY",
+}
+ALL_STAGES = frozenset(core_config.STAGES)
+ROW_COLUMNS = ("FIELD_ID", "DATA_DESC_ID", "SCAN_NUMBER", "ANTENNA1", "ANTENNA2")
+
+
+def _cell_defined(table, name, cell):
+    """Whether row 0 of column `name` holds a `cell`-shaped array. A declared
+    column whose cells were never written reads as no array or a
+    one-element one, and is taken as absent."""
+    try:
+        value = np.asarray(table.getcol(name, 0, 1))
+    except (OSError, ValueError):  # undefined cells
+        return False
+    return tuple(value.shape[1:]) == tuple(cell)
+
+
+def corr_names(corr):
+    return ", ".join(CORR_NAMES.get(int(c), str(int(c))) for c in corr)
+
+
 def inspect_ms(ms):
-    """What the stages need to know of `ms`, or Refused naming W4 for a
-    layout W2 does not handle."""
+    """What the stages need to know of `ms`. Refused only for what no stage
+    can read (not an MS, no rows, no DATA, DATA cells of different shapes);
+    what some stages cannot run is reported by `check_data`."""
     ms = Path(ms)
     if not (ms / "table.dat").is_file():
         raise Refused(f"{ms} is not a Measurement Set (no table.dat)")
     try:
         layout = core_writeback.layout(ms)
     except core_writeback.UnsupportedLayout as exc:
-        raise Refused(f"{exc} (unsupported layouts are task W4)") from exc
+        raise Refused(f"{exc} {UNSUPPORTED}") from exc
+    present = set(layout["columns"])
     with core_ms.open_table(ms) as t:
-        ddids = np.unique(t.getcol("DATA_DESC_ID"))
-        field_ids = np.unique(t.getcol("FIELD_ID"))
-        scans = np.unique(t.getcol("SCAN_NUMBER"))
-    if len(ddids) != 1:
-        raise Refused(
-            f"{ms} uses {len(ddids)} data descriptions {ddids.tolist()}; W2 reads "
-            "one spectral window and polarisation setup (task W4)"
+        rows = {name: np.asarray(t.getcol(name)) for name in ROW_COLUMNS}
+        weight_spectrum = "WEIGHT_SPECTRUM" in present and _cell_defined(
+            t, "WEIGHT_SPECTRUM", layout["cell"]
         )
-    corr = tuple(int(c) for c in layout["corr_type"])
-    if corr != LINEAR:
-        raise Refused(
-            f"{ms} has correlations {list(corr)}; W2 needs XX, XY, YX, YY (task W4)"
-        )
-    ddid = int(ddids[0])
+    ddids = np.unique(rows["DATA_DESC_ID"])
     with core_ms.open_table(ms / "DATA_DESCRIPTION") as dd:
-        spw = int(dd.getcol("SPECTRAL_WINDOW_ID")[ddid])
+        spw_of = [int(s) for s in dd.getcol("SPECTRAL_WINDOW_ID")]
+    ddid = int(ddids[0])
+    spw = spw_of[ddid]
     with core_ms.open_table(ms / "SPECTRAL_WINDOW") as sw:
         chan_freq = np.asarray(sw.getcol("CHAN_FREQ", spw, 1)[0], np.float64)
         chan_width = np.asarray(sw.getcol("CHAN_WIDTH", spw, 1)[0], np.float64)
@@ -132,12 +169,16 @@ def inspect_ms(ms):
         antennas = [str(n) for n in an.getcol("NAME")]
     with core_ms.open_table(ms / "FIELD") as fd:
         names = [str(n) for n in fd.getcol("NAME")]
+    corr = tuple(int(c) for c in layout["corr_type"])
+    auto = rows["ANTENNA1"] == rows["ANTENNA2"]
     return {
         "ms": ms,
         "nrows": layout["nrows"],
         "cell": layout["cell"],
-        "columns": sorted(layout["columns"]),
+        "columns": sorted(present),
         "ddid": ddid,
+        "ddids": ddids.tolist(),
+        "spws": sorted({spw_of[int(d)] for d in ddids}),
         "spw": spw,
         "chan_freq": chan_freq,
         "chan_width": chan_width,
@@ -145,9 +186,116 @@ def inspect_ms(ms):
         "antenna_position": positions,
         "antennas": antennas,
         "fields": names,
-        "field_ids_in_use": field_ids.tolist(),
-        "scans": scans.tolist(),
+        "field_ids_in_use": np.unique(rows["FIELD_ID"]).tolist(),
+        "scans": np.unique(rows["SCAN_NUMBER"]).tolist(),
+        "weight_spectrum": weight_spectrum,
+        "autocorrelations": int(auto.sum()),
+        "rows": rows,
     }
+
+
+def check_data(config, info, stages):
+    """[message] for every property of the MS that one of `stages` cannot
+    run on (task W4, research/w4-unsupported.md), all at once."""
+    stages = [s for s in core_config.STAGES if s in stages]
+    ms, out = info["ms"], []
+
+    def no(which, text):
+        hit = [s for s in stages if s in which]
+        if hit:
+            out.append(f"{', '.join(hit)}: {text} {UNSUPPORTED}")
+
+    columns = set(info["columns"])
+    for name in ("FLAG", "FLAG_ROW"):
+        if name not in columns:
+            no(
+                ALL_STAGES,
+                f"{ms} has no {name} column; it is required by the Measurement Set "
+                "definition, every stage reads it and every flag version saves it",
+            )
+    nfield = len(info["fields"])
+    stray = [f for f in info["field_ids_in_use"] if not 0 <= f < nfield]
+    if stray:
+        counts = [int((info["rows"]["FIELD_ID"] == f).sum()) for f in stray]
+        no(
+            ALL_STAGES,
+            f"FIELD_ID {', '.join(map(str, stray))} ({sum(counts)} rows) has no FIELD "
+            f"row (the FIELD table has {nfield} rows)",
+        )
+    if len(info["ddids"]) > 1:
+        no(
+            ALL_STAGES,
+            f"{ms} uses {len(info['ddids'])} data descriptions {info['ddids']} "
+            f"(spectral windows {info['spws']}); rang-core reads one: write-back, the "
+            "solves and gemclean take one window and one correlation setup. Split one "
+            "window out first, for example with CASA split or mstransform (spw=...)",
+        )
+    corr = tuple(int(c) for c in info["corr_type"])
+    names = corr_names(corr)
+    if any(c in (5, 6, 7, 8) for c in corr):
+        no(
+            ALL_STAGES,
+            f"correlations {names}: circular feeds; rang-core handles MeerKAT's "
+            "linear feeds only (research/meerkat-scope.md)",
+        )
+    elif len(corr) == 1:
+        no(
+            ALL_STAGES,
+            f"one correlation ({names}): the flagger needs polarised intensity and "
+            "Stokes I needs XX and YY",
+        )
+    elif sorted(corr) == list(LINEAR) and corr != LINEAR:
+        no(
+            ALL_STAGES,
+            f"correlations in the order {names}; rang-core needs the order "
+            "XX, XY, YX, YY",
+        )
+    elif corr == (9, 12):
+        no(
+            ("calibrate", "apply"),
+            f"correlations {names}: the complex term solves and applies a full 2x2 "
+            "Jones matrix and needs four correlations (XX, XY, YX, YY); diagonal "
+            "terms on two correlations are C2a's G term",
+        )
+    elif corr != LINEAR:
+        no(
+            ALL_STAGES,
+            f"correlations {names}: rang-core needs XX, XY, YX, YY (flag and image "
+            "also take XX, YY)",
+        )
+    weights = info["weight_spectrum"] or "WEIGHT" in columns
+    if not weights and config["data"]["weights"] == "as_is":
+        no(
+            ("calibrate",),
+            f"{ms} has no WEIGHT_SPECTRUM or WEIGHT (data.weights: as_is reads them); "
+            "set data.weights: uniform to solve with unit weights",
+        )
+    if not weights:
+        no(
+            ("image",),
+            f"{ms} has no WEIGHT_SPECTRUM or WEIGHT, and gemclean reads them",
+        )
+    elif "WEIGHT_SPECTRUM" in columns and not info["weight_spectrum"]:
+        no(
+            ("image",),
+            f"{ms} declares WEIGHT_SPECTRUM but row 0 has no cells of {info['cell']} "
+            "written; gemclean would read the column anyway (it tests only that row 0 "
+            "can be read). Write it, or remove the column so WEIGHT is used",
+        )
+    if len(info["ddids"]) == 1 and info["ddid"] != 0:
+        no(
+            ("image",),
+            f"every row is on DATA_DESC_ID {info['ddid']}; gemclean images data "
+            "description 0 only",
+        )
+    if config["data"]["scans"]:
+        no(
+            ("image",),
+            f"data.scans {config['data']['scans']} is set, but gemclean has no scan "
+            "selection and would image every scan of the field; leave data.scans out "
+            "for image, or split the scans out first",
+        )
+    return out
 
 
 def resolve_fields(tokens, config, info, where):
@@ -180,12 +328,67 @@ def resolve_fields(tokens, config, info, where):
     return sorted(out)
 
 
-def preflight(config, info, stages):
-    """Resolve every field list the stages use before anything is written."""
+def _leaves(tokens, config):
+    """Each FIELD name or id a field list names, roles expanded (not `all`)."""
+    for token in tokens or []:
+        if token == "all":
+            continue
+        if isinstance(token, str) and token in core_config.ROLES:
+            members = config["fields"][token]
+            if token == "bpcal" and not members:
+                members = config["fields"]["fcal"]
+            yield from _leaves(members, config)
+        else:
+            yield token
+
+
+def count_rows(info, field_ids, scans=(), cross=False):
+    """Rows of `field_ids` (in `scans`, when given; cross-correlations only
+    with `cross`)."""
+    rows = info["rows"]
+    keep = np.isin(rows["FIELD_ID"], list(field_ids))
+    if scans:
+        keep &= np.isin(rows["SCAN_NUMBER"], list(scans))
+    if cross:
+        keep &= rows["ANTENNA1"] != rows["ANTENNA2"]
+    return int(keep.sum())
+
+
+def _selection_problems(config, info, lists):
+    """Empty selections and ambiguous image fields (task W4): a named field
+    with no rows, a stage or term whose fields have no rows in `data.scans`,
+    and a FIELD name of several fields in image.fields."""
     problems = []
+    scans = config["data"]["scans"]
+    for where, tokens, stage in lists:
+        for leaf in _leaves(tokens, config):
+            ids = resolve_fields([leaf], config, info, where)
+            if not count_rows(info, ids):
+                problems.append(f"{where}: field {leaf!r} has no rows")
+            elif stage == "image" and isinstance(leaf, str) and len(ids) > 1:
+                problems.append(
+                    f"{where}: the name {leaf!r} is used by field ids {ids}; give the "
+                    "field id (one image per field)"
+                )
+        ids = resolve_fields(tokens, config, info, where)
+        if stage in ("flag", "calibrate") and ids and scans:
+            cross = stage == "calibrate"
+            if not count_rows(info, ids, scans, cross=cross):
+                names = [info["fields"][f] for f in ids]
+                problems.append(
+                    f"{where}, data.scans: no rows of fields {names} in scans {scans} "
+                    f"(the MS has scans {info['scans']})"
+                )
+    return problems
+
+
+def preflight(config, info, stages):
+    """Check the data for the stages (`check_data`) and resolve every field
+    list they use, before anything is written."""
+    problems = check_data(config, info, stages)
     lists = []
     if "flag" in stages:
-        lists.append(("flag.fields", config["flag"]["fields"]))
+        lists.append(("flag.fields", config["flag"]["fields"], "flag"))
     if "calibrate" in stages:
         for section in core_config.CALIBRATE_SECTIONS:
             block = config["calibrate"][section]
@@ -194,18 +397,23 @@ def preflight(config, info, stages):
                     (
                         f"calibrate.{section}.terms[{i}].field",
                         term["field"] or block["field"],
+                        "calibrate",
                     )
                 )
     if "image" in stages:
-        lists.append(("image.fields", config["image"]["fields"]))
+        lists.append(("image.fields", config["image"]["fields"], "image"))
     if "apply" in stages:
         for i, target in enumerate(config["apply"]["targets"]):
-            lists.append((f"apply.targets[{i}].field", target["field"]))
-    for where, tokens in lists:
+            lists.append((f"apply.targets[{i}].field", target["field"], "apply"))
+    resolved = []
+    for item in lists:
         try:
-            resolve_fields(tokens, config, info, where)
+            resolve_fields(item[1], config, info, item[0])
         except Refused as exc:
             problems.append(str(exc))
+        else:
+            resolved.append(item)
+    problems += _selection_problems(config, info, resolved)
     if "apply" in stages and not problems:
         solved = complex_fields(config, info)
         for i, target in enumerate(config["apply"]["targets"]):
@@ -594,9 +802,8 @@ def calibration_columns(info, config):
     names = ["FIELD_ID", "DATA_DESC_ID", "SCAN_NUMBER", "ANTENNA1", "ANTENNA2", "TIME"]
     names += ["DATA", "FLAG", "FLAG_ROW"]
     if config["data"]["weights"] == "as_is":
-        names.append(
-            "WEIGHT_SPECTRUM" if "WEIGHT_SPECTRUM" in info["columns"] else "WEIGHT"
-        )
+        # WEIGHT_SPECTRUM when its cells are defined, else WEIGHT, as gemclean.
+        names.append("WEIGHT_SPECTRUM" if info["weight_spectrum"] else "WEIGHT")
     model = config["calibrate"]["model"]
     if model["source"] == "column":
         names.append(model["column"])
@@ -663,6 +870,8 @@ def stage_calibrate(ctx):
                 term["field"] or block["field"], config, info, f"calibrate.{section}"
             )
             rows = _selected_rows(columns, fields, config["data"]["scans"])
+            # Autocorrelations are left out of the solve (task W4), as C2a's.
+            rows = rows[columns["ANTENNA1"][rows] != columns["ANTENNA2"][rows]]
             if not len(rows):
                 raise StageFailed(f"calibrate.{section}: no rows in fields {fields}")
             parts, records = [], []
@@ -1067,6 +1276,8 @@ __all__ = [
     "Refused",
     "RunDir",
     "StageFailed",
+    "check_data",
+    "count_rows",
     "default_run_dir",
     "execute",
     "find_gemclean",

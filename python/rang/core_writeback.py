@@ -153,7 +153,8 @@ def layout(ms):
         raise UnsupportedLayout(
             f"{ms}: DATA cells differ in shape or correlations between data "
             f"descriptions ({sorted(shapes)}, {sorted(corrs)}); write-back needs "
-            "one cell shape (several spectral windows are task W4)"
+            "one cell shape. Split one spectral window out first, for example with "
+            "CASA split or mstransform (spw=...)"
         )
     if shapes != {cell}:
         raise UnsupportedLayout(
