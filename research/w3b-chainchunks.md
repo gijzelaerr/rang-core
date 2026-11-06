@@ -232,7 +232,7 @@ The per-row arrays (two float64 per MS row, plus FIELD_ID, TIME and the antennas
 held is a table per field of unique times x antennas (8 bytes each) and the chunk being read, both inside the
 budget (row metadata and chunk). `cal_pol.load` and `gpol` use the same tables for their field.
 
-The library check on poldx (read only, `w3b_dev.py`, log in the same directory) found K, G (ap, p), B, Gpol,
+The library check on poldx (read only, `tools/oracles/w3b/library_check.py`, log `library-dev-check-poldx.log` in the same directory) found K, G (ap, p), B, Gpol,
 KCROSS, Xf and Df chunked (a small budget, and a 7-row cap) equal to one call, table cell for table cell.
 
 ## For the coordinator
