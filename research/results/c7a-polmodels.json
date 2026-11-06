@@ -1,0 +1,2070 @@
+{
+ "-03": {
+  "criteria": {
+   "tol_g1": 1e-06,
+   "tol_imag": 1e-09
+  },
+  "code_sha256": {
+   "python/rang/calmodels.py": "d6ca3b79aba272b2547c32cffea94e1f79c33134316bbea05112db3a3b989cbe",
+   "examples/c7a_polmodels.py": "1d992220c127a6bd33e98d73e4dfadd58a36748378e30434ef087df0f52a280c",
+   "examples/c3a_models.py": "745c6fbbbc17701448ea66c6af55e4a50503f309e28911efefc974544ee97f7f"
+  },
+  "inputs": {
+   "S": "/home/gijsm/Github/rang/outputs/o-casa-20261030-01/work.ms",
+   "A": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms"
+  },
+  "tree_sha256_before": {
+   "S": "74f4c010b116fc0deb601ad66f759535f4d13e986a4e17728c4e305c3c09d1e5",
+   "A": "141f7ed61b3ea79353ec70f1ac540e7dd8f5d9b6c5512682a9488a68f9d3675f"
+  },
+  "held_out": false,
+  "setjy": [
+   {
+    "call": {
+     "vis": "/run/M1-casa.ms",
+     "field": "J1939-6342",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098
+     ],
+     "polangle": [
+      0.575959
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 1.412,
+    "fluxd": {
+     "1/0": [
+      16.845245490322288,
+      0.6714536568941956,
+      1.508112420831575,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M2-casa.ms",
+     "field": "J1939-6342",
+     "standard": "manual",
+     "fluxdensity": [
+      8.33843
+     ],
+     "spix": [
+      -0.4981,
+      -0.1552,
+      -0.0102,
+      0.0223
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.078
+     ],
+     "polangle": [
+      -0.16755
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 1.397,
+    "fluxd": {
+     "1/0": [
+      9.70221844114936,
+      0.7146793755882518,
+      -0.24887511280270733,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M3-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098
+     ],
+     "polangle": [
+      0.575959
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.604,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      0.7288011592282192,
+      1.6369172604293687,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M4-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098,
+      0.02,
+      -0.01
+     ],
+     "polangle": [
+      0.575959,
+      0.05
+     ],
+     "rotmeas": 50.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.578,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      -1.4843438540362655,
+      0.622381170144688,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M5-casa.ms",
+     "field": "J1939-6342",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172,
+      0.6,
+      1.2,
+      0.05
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098,
+      0.03
+     ],
+     "polangle": [
+      0.575959,
+      -0.04
+     ],
+     "rotmeas": 10.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 1.399,
+    "fluxd": {
+     "1/0": [
+      16.845245490322288,
+      -0.4082319841269255,
+      1.337197807282008,
+      0.05722979062023445
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M6-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172,
+      0.4,
+      1.3,
+      0.0
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "rotmeas": -30.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.582,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      -1.5950717470758566,
+      0.5577758628736117,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M7-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.673
+     ],
+     "spix": [
+      -0.63
+     ],
+     "reffreq": "1.4GHz",
+     "polindex": [
+      0.099
+     ],
+     "polangle": [
+      0.5096361415823442
+     ],
+     "rotmeas": -0.3,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.625,
+    "fluxd": {
+     "1/0": [
+      19.90624714933916,
+      1.1070012613772469,
+      1.6304231004792513,
+      0.0
+     ]
+    },
+    "warn": [
+     "2026-11-06 10:21:45\tSEVERE\tMeasTable::dUTC(Double) (file /source/casa6/casatools/casacore/measures/Measures/MeasTable.cc, line 4290)+\tUntil the table is updated (see the CASA documentation or your system admin),"
+    ]
+   },
+   {
+    "call": {
+     "vis": "/run/M8-casa.ms",
+     "field": "SIM-GCAL",
+     "standard": "manual",
+     "fluxdensity": [
+      4.0,
+      0.0,
+      0.0,
+      0.04
+     ],
+     "spix": [
+      -0.6
+     ],
+     "reffreq": "1.4GHz",
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.598,
+    "fluxd": {
+     "2/0": [
+      5.348324889640508,
+      0.0,
+      0.0,
+      0.05348324889640508
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/P1-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098
+     ],
+     "polangle": [
+      0.575959
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.582,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      0.7288011592282192,
+      1.6369172604293687,
+      0.0
+     ]
+    },
+    "warn": []
+   }
+  ],
+  "cases": {
+   "M1": {
+    "fields": {
+     "J1939-6342": {
+      "rows": 192,
+      "g1_max_rel": 1.2439880313996005e-13,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 1.2439880313996005e-13,
+      "casa_imag_max_jy": 1.815363397800196e-12,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.6714534759521484,
+       1.5081124305725098,
+       1.562949802132868e-13
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.098
+      ],
+      "polangle": [
+       0.575959
+      ],
+      "rotmeas": 0.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M2": {
+    "fields": {
+     "J1939-6342": {
+      "rows": 192,
+      "g1_max_rel": 1.2844247618323314e-13,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 1.2844247618323314e-13,
+      "casa_imag_max_jy": 1.0610386267512206e-12,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.7146792411804199,
+       0.24887511134147644,
+       2.5349781816860414e-14
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 8.33843,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4981,
+       -0.1552,
+       -0.0102,
+       0.0223
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.078
+      ],
+      "polangle": [
+       -0.16755
+      ],
+      "rotmeas": 0.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M3": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 0.0,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 1.0,
+      "casa_q_u_v_max_jy": [
+       0.7288017272949219,
+       1.636917233467102,
+       0.0
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.098
+      ],
+      "polangle": [
+       0.575959
+      ],
+      "rotmeas": 0.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M4": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 0.0,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 1.0,
+      "casa_q_u_v_max_jy": [
+       1.5716567039489746,
+       1.58390212059021,
+       0.0
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.098,
+       0.02,
+       -0.01
+      ],
+      "polangle": [
+       0.575959,
+       0.05
+      ],
+      "rotmeas": 50.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M5": {
+    "fields": {
+     "J1939-6342": {
+      "rows": 192,
+      "g1_max_rel": 1.2485025272216868e-13,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 1.2485025272216868e-13,
+      "casa_imag_max_jy": 0.05722979083657265,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.6367535591125488,
+       1.380767822265625,
+       0.05722979083657265
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.6,
+      "u": 1.2,
+      "v": 0.05,
+      "polindex": [
+       0.098,
+       0.03
+      ],
+      "polangle": [
+       0.575959,
+       -0.04
+      ],
+      "rotmeas": 10.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M6": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 0.0,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 1.0,
+      "casa_q_u_v_max_jy": [
+       1.6689128875732422,
+       1.594160556793213,
+       0.0
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.4,
+      "u": 1.3,
+      "v": 0.0,
+      "polindex": [],
+      "polangle": [],
+      "rotmeas": -30.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M7": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 6.087960554741488e-06,
+      "g2_real_max_ulps": 96,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       1.1070013046264648,
+       1.6304230690002441,
+       0.0
+      ],
+      "casa_path": "spectral-index-channel0",
+      "pass_g1": false,
+      "pass_g2": false
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": false,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.673,
+      "reffreq_hz": 1400000000.0,
+      "spix": [
+       -0.63
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.099
+      ],
+      "polangle": [
+       0.5096361415823442
+      ],
+      "rotmeas": -0.3,
+      "casa_path": "spectral-index-channel0"
+     }
+    ]
+   },
+   "M8": {
+    "fields": {
+     "SIM-GCAL": {
+      "rows": 2400,
+      "g1_max_rel": 1.6042018445115308e-05,
+      "g2_real_max_ulps": 266,
+      "g2_imag_max_rel": 1.6029122868506055e-07,
+      "casa_imag_max_jy": 0.05348324775695801,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.0,
+       0.0,
+       0.05348324775695801
+      ],
+      "casa_path": "spectral-index-channel0",
+      "pass_g1": false,
+      "pass_g2": false
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": false,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 4.0,
+      "reffreq_hz": 1400000000.0,
+      "spix": [
+       -0.6
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.04,
+      "polindex": [],
+      "polangle": [],
+      "rotmeas": 0.0,
+      "casa_path": "spectral-index-channel0"
+     }
+    ]
+   }
+  },
+  "frame": {
+   "p1_receptor_angle_0_equals_minus_90": true,
+   "p2_constant_over_parallactic_angle": {
+    "M3": true,
+    "M4": true
+   },
+   "feed": {
+    "S": {
+     "polarization_type": [
+      "XY"
+     ],
+     "receptor_angle_rad": [
+      [
+       0.0,
+       0.0
+      ]
+     ]
+    },
+    "A": {
+     "polarization_type": [
+      "XY"
+     ],
+     "receptor_angle_rad": [
+      [
+       -1.5707963267948966,
+       -1.5707963267948966
+      ]
+     ]
+    },
+    "A-P1": {
+     "polarization_type": [
+      "XY"
+     ],
+     "receptor_angle_rad": [
+      [
+       0.0,
+       0.0
+      ]
+     ]
+    }
+   }
+  },
+  "class_t": {
+   "3C286": {
+    "rows": [
+     {
+      "ghz": 1.05,
+      "table": "PB2013",
+      "p_pub": 8.6,
+      "chi_pub": 33,
+      "p_model": 9.8,
+      "chi_model": 33.00001987257538,
+      "dp": 1.200000000000001,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.45,
+      "table": "PB2013",
+      "p_pub": 9.5,
+      "chi_pub": 33,
+      "p_model": 9.799999999999999,
+      "chi_model": 33.00001987257538,
+      "dp": 0.29999999999999893,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.64,
+      "table": "PB2013",
+      "p_pub": 9.9,
+      "chi_pub": 33,
+      "p_model": 9.800000000000002,
+      "chi_model": 33.00001987257538,
+      "dp": -0.09999999999999787,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.02,
+      "table": "NRAO2019",
+      "p_pub": 8.6,
+      "chi_pub": 33,
+      "p_model": 9.8,
+      "chi_model": 33.00001987257538,
+      "dp": 1.200000000000001,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.47,
+      "table": "NRAO2019",
+      "p_pub": 9.8,
+      "chi_pub": 33,
+      "p_model": 9.8,
+      "chi_model": 33.00001987257538,
+      "dp": 0.0,
+      "dchi": 1.987257537905407e-05
+     }
+    ],
+    "t1_model": true,
+    "casa_model_data_p_range": [
+     9.799997945534683,
+     9.80000213944432
+    ],
+    "casa_model_data_chi_range": [
+     33.00000553616044,
+     33.00003148376183
+    ],
+    "t1_casa": true
+   },
+   "3C138": {
+    "rows": [
+     {
+      "ghz": 1.05,
+      "table": "PB2013",
+      "p_pub": 5.6,
+      "chi_pub": -14,
+      "p_model": 7.8,
+      "chi_model": -9.599907857416943,
+      "dp": 2.2,
+      "dchi": 4.400092142583057
+     },
+     {
+      "ghz": 1.45,
+      "table": "PB2013",
+      "p_pub": 7.5,
+      "chi_pub": -11,
+      "p_model": 7.799999999999999,
+      "chi_model": -9.599907857416943,
+      "dp": 0.29999999999999893,
+      "dchi": 1.4000921425830573
+     },
+     {
+      "ghz": 1.64,
+      "table": "PB2013",
+      "p_pub": 8.4,
+      "chi_pub": -10,
+      "p_model": 7.8,
+      "chi_model": -9.599907857416943,
+      "dp": -0.6000000000000005,
+      "dchi": 0.40009214258305725
+     },
+     {
+      "ghz": 1.02,
+      "table": "NRAO2019",
+      "p_pub": 5.5,
+      "chi_pub": -13,
+      "p_model": 7.799999999999999,
+      "chi_model": -9.599907857416945,
+      "dp": 2.299999999999999,
+      "dchi": 3.4000921425830555
+     },
+     {
+      "ghz": 1.47,
+      "table": "NRAO2019",
+      "p_pub": 7.8,
+      "chi_pub": -9.6,
+      "p_model": 7.8,
+      "chi_model": -9.599907857416943,
+      "dp": 0.0,
+      "dchi": 9.214258305689782e-05
+     }
+    ],
+    "t1_model": true,
+    "casa_model_data_p_range": [
+     7.799995109976545,
+     7.8000049946231185
+    ],
+    "casa_model_data_chi_range": [
+     -9.599914225479962,
+     -9.599901211623536
+    ],
+    "t1_casa": true
+   },
+   "taylor_legodi": {
+    "J1331+3030": [
+     9.9,
+     29.2,
+     -0.3
+    ],
+    "J0521+1638": [
+     7.71,
+     -15.1,
+     -2.4
+    ]
+   }
+  },
+  "inputs_unchanged": true,
+  "timings": [
+   {
+    "label": "hash S",
+    "wall_s": 0.038
+   },
+   {
+    "label": "hash A",
+    "wall_s": 0.466
+   },
+   {
+    "label": "CASA read FEED",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 0.63
+   },
+   {
+    "label": "CASA setjy (9 calls)",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 21.23
+   },
+   {
+    "label": "rang set_model M1 J1939-6342",
+    "wall_s": 0.81
+   },
+   {
+    "label": "rang set_model M2 J1939-6342",
+    "wall_s": 0.813
+   },
+   {
+    "label": "rang set_model M3 3C286-SIM",
+    "wall_s": 10.584
+   },
+   {
+    "label": "rang set_model M4 3C286-SIM",
+    "wall_s": 10.606
+   },
+   {
+    "label": "rang set_model M5 J1939-6342",
+    "wall_s": 0.825
+   },
+   {
+    "label": "rang set_model M6 3C286-SIM",
+    "wall_s": 10.598
+   },
+   {
+    "label": "rang set_model M7 3C286-SIM",
+    "wall_s": 10.532
+   },
+   {
+    "label": "rang set_model M8 SIM-GCAL",
+    "wall_s": 10.647
+   }
+  ],
+  "wall_s": 103.84,
+  "run": "/mnt/d/rang/outputs/c7a-20261106-03"
+ },
+ "-04": {
+  "criteria": {
+   "tol_g1": 1e-06,
+   "tol_imag": 1e-09
+  },
+  "code_sha256": {
+   "python/rang/calmodels.py": "f0a42678da413ec2551394fc858496d9c6202bf442920e959b3d8dce59d10691",
+   "examples/c7a_polmodels.py": "1d992220c127a6bd33e98d73e4dfadd58a36748378e30434ef087df0f52a280c",
+   "examples/c3a_models.py": "745c6fbbbc17701448ea66c6af55e4a50503f309e28911efefc974544ee97f7f"
+  },
+  "inputs": {
+   "S": "/home/gijsm/Github/rang/outputs/o-casa-20261030-01/work.ms",
+   "A": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms"
+  },
+  "tree_sha256_before": {
+   "S": "74f4c010b116fc0deb601ad66f759535f4d13e986a4e17728c4e305c3c09d1e5",
+   "A": "141f7ed61b3ea79353ec70f1ac540e7dd8f5d9b6c5512682a9488a68f9d3675f"
+  },
+  "held_out": false,
+  "setjy": [
+   {
+    "call": {
+     "vis": "/run/M1-casa.ms",
+     "field": "J1939-6342",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098
+     ],
+     "polangle": [
+      0.575959
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 1.348,
+    "fluxd": {
+     "1/0": [
+      16.845245490322288,
+      0.6714536568941956,
+      1.508112420831575,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M2-casa.ms",
+     "field": "J1939-6342",
+     "standard": "manual",
+     "fluxdensity": [
+      8.33843
+     ],
+     "spix": [
+      -0.4981,
+      -0.1552,
+      -0.0102,
+      0.0223
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.078
+     ],
+     "polangle": [
+      -0.16755
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 1.334,
+    "fluxd": {
+     "1/0": [
+      9.70221844114936,
+      0.7146793755882518,
+      -0.24887511280270733,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M3-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098
+     ],
+     "polangle": [
+      0.575959
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.782,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      0.7288011592282192,
+      1.6369172604293687,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M4-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098,
+      0.02,
+      -0.01
+     ],
+     "polangle": [
+      0.575959,
+      0.05
+     ],
+     "rotmeas": 50.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.6,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      -1.4843438540362655,
+      0.622381170144688,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M5-casa.ms",
+     "field": "J1939-6342",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172,
+      0.6,
+      1.2,
+      0.05
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098,
+      0.03
+     ],
+     "polangle": [
+      0.575959,
+      -0.04
+     ],
+     "rotmeas": 10.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 1.37,
+    "fluxd": {
+     "1/0": [
+      16.845245490322288,
+      -0.4082319841269255,
+      1.337197807282008,
+      0.05722979062023445
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M6-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172,
+      0.4,
+      1.3,
+      0.0
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "rotmeas": -30.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.57,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      -1.5950717470758566,
+      0.5577758628736117,
+      0.0
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/M7-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.673
+     ],
+     "spix": [
+      -0.63
+     ],
+     "reffreq": "1.4GHz",
+     "polindex": [
+      0.099
+     ],
+     "polangle": [
+      0.5096361415823442
+     ],
+     "rotmeas": -0.3,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.551,
+    "fluxd": {
+     "1/0": [
+      19.90624714933916,
+      1.1070012613772469,
+      1.6304231004792513,
+      0.0
+     ]
+    },
+    "warn": [
+     "2026-11-06 11:20:01\tSEVERE\tMeasTable::dUTC(Double) (file /source/casa6/casatools/casacore/measures/Measures/MeasTable.cc, line 4290)+\tUntil the table is updated (see the CASA documentation or your system admin),"
+    ]
+   },
+   {
+    "call": {
+     "vis": "/run/M8-casa.ms",
+     "field": "SIM-GCAL",
+     "standard": "manual",
+     "fluxdensity": [
+      4.0,
+      0.0,
+      0.0,
+      0.04
+     ],
+     "spix": [
+      -0.6
+     ],
+     "reffreq": "1.4GHz",
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.53,
+    "fluxd": {
+     "2/0": [
+      5.348324889640508,
+      0.0,
+      0.0,
+      0.05348324889640508
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/P1-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      14.7172
+     ],
+     "spix": [
+      -0.4507,
+      -0.1798,
+      0.0357
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.098
+     ],
+     "polangle": [
+      0.575959
+     ],
+     "rotmeas": 0.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.521,
+    "fluxd": {
+     "1/0": [
+      18.283963926292742,
+      0.7288011592282192,
+      1.6369172604293687,
+      0.0
+     ]
+    },
+    "warn": []
+   }
+  ],
+  "cases": {
+   "M1": {
+    "fields": {
+     "J1939-6342": {
+      "rows": 192,
+      "g1_max_rel": 1.2439880313996005e-13,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 1.2439880313996005e-13,
+      "casa_imag_max_jy": 1.815363397800196e-12,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.6714534759521484,
+       1.5081124305725098,
+       1.562949802132868e-13
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.098
+      ],
+      "polangle": [
+       0.575959
+      ],
+      "rotmeas": 0.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M2": {
+    "fields": {
+     "J1939-6342": {
+      "rows": 192,
+      "g1_max_rel": 1.2844247618323314e-13,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 1.2844247618323314e-13,
+      "casa_imag_max_jy": 1.0610386267512206e-12,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.7146792411804199,
+       0.24887511134147644,
+       2.5349781816860414e-14
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 8.33843,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4981,
+       -0.1552,
+       -0.0102,
+       0.0223
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.078
+      ],
+      "polangle": [
+       -0.16755
+      ],
+      "rotmeas": 0.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M3": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 0.0,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 1.0,
+      "casa_q_u_v_max_jy": [
+       0.7288017272949219,
+       1.636917233467102,
+       0.0
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.098
+      ],
+      "polangle": [
+       0.575959
+      ],
+      "rotmeas": 0.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M4": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 0.0,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 1.0,
+      "casa_q_u_v_max_jy": [
+       1.5716567039489746,
+       1.58390212059021,
+       0.0
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.098,
+       0.02,
+       -0.01
+      ],
+      "polangle": [
+       0.575959,
+       0.05
+      ],
+      "rotmeas": 50.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M5": {
+    "fields": {
+     "J1939-6342": {
+      "rows": 192,
+      "g1_max_rel": 1.2485025272216868e-13,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 1.2485025272216868e-13,
+      "casa_imag_max_jy": 0.05722979083657265,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.6367535591125488,
+       1.380767822265625,
+       0.05722979083657265
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.6,
+      "u": 1.2,
+      "v": 0.05,
+      "polindex": [
+       0.098,
+       0.03
+      ],
+      "polangle": [
+       0.575959,
+       -0.04
+      ],
+      "rotmeas": 10.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M6": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 0.0,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 1.0,
+      "casa_q_u_v_max_jy": [
+       1.6689128875732422,
+       1.594160556793213,
+       0.0
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": true,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.7172,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "q": 0.4,
+      "u": 1.3,
+      "v": 0.0,
+      "polindex": [],
+      "polangle": [],
+      "rotmeas": -30.0,
+      "casa_path": "tabular"
+     }
+    ]
+   },
+   "M7": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 1.4719294915741984e-07,
+      "g2_real_max_ulps": 2,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       1.1070013046264648,
+       1.6304230690002441,
+       0.0
+      ],
+      "casa_path": "spectral-index-channel0",
+      "pass_g1": true,
+      "pass_g2": false
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": false,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 14.673,
+      "reffreq_hz": 1400000000.0,
+      "spix": [
+       -0.63
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.0,
+      "polindex": [
+       0.099
+      ],
+      "polangle": [
+       0.5096361415823442
+      ],
+      "rotmeas": -0.3,
+      "casa_path": "spectral-index-channel0"
+     }
+    ]
+   },
+   "M8": {
+    "fields": {
+     "SIM-GCAL": {
+      "rows": 2400,
+      "g1_max_rel": 1.3418861288797384e-07,
+      "g2_real_max_ulps": 2,
+      "g2_imag_max_rel": 1.6264527983505404e-09,
+      "casa_imag_max_jy": 0.05348324775695801,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.0,
+       0.0,
+       0.05348324775695801
+      ],
+      "casa_path": "spectral-index-channel0",
+      "pass_g1": true,
+      "pass_g2": false
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": false,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 4.0,
+      "reffreq_hz": 1400000000.0,
+      "spix": [
+       -0.6
+      ],
+      "q": 0.0,
+      "u": 0.0,
+      "v": 0.04,
+      "polindex": [],
+      "polangle": [],
+      "rotmeas": 0.0,
+      "casa_path": "spectral-index-channel0"
+     }
+    ]
+   }
+  },
+  "frame": {
+   "p1_receptor_angle_0_equals_minus_90": true,
+   "p2_constant_over_parallactic_angle": {
+    "M3": true,
+    "M4": true
+   },
+   "feed": {
+    "S": {
+     "polarization_type": [
+      "XY"
+     ],
+     "receptor_angle_rad": [
+      [
+       0.0,
+       0.0
+      ]
+     ]
+    },
+    "A": {
+     "polarization_type": [
+      "XY"
+     ],
+     "receptor_angle_rad": [
+      [
+       -1.5707963267948966,
+       -1.5707963267948966
+      ]
+     ]
+    },
+    "A-P1": {
+     "polarization_type": [
+      "XY"
+     ],
+     "receptor_angle_rad": [
+      [
+       0.0,
+       0.0
+      ]
+     ]
+    }
+   }
+  },
+  "class_t": {
+   "3C286": {
+    "rows": [
+     {
+      "ghz": 1.05,
+      "table": "PB2013",
+      "p_pub": 8.6,
+      "chi_pub": 33,
+      "p_model": 9.8,
+      "chi_model": 33.00001987257538,
+      "dp": 1.200000000000001,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.45,
+      "table": "PB2013",
+      "p_pub": 9.5,
+      "chi_pub": 33,
+      "p_model": 9.799999999999999,
+      "chi_model": 33.00001987257538,
+      "dp": 0.29999999999999893,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.64,
+      "table": "PB2013",
+      "p_pub": 9.9,
+      "chi_pub": 33,
+      "p_model": 9.800000000000002,
+      "chi_model": 33.00001987257538,
+      "dp": -0.09999999999999787,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.02,
+      "table": "NRAO2019",
+      "p_pub": 8.6,
+      "chi_pub": 33,
+      "p_model": 9.8,
+      "chi_model": 33.00001987257538,
+      "dp": 1.200000000000001,
+      "dchi": 1.987257537905407e-05
+     },
+     {
+      "ghz": 1.47,
+      "table": "NRAO2019",
+      "p_pub": 9.8,
+      "chi_pub": 33,
+      "p_model": 9.8,
+      "chi_model": 33.00001987257538,
+      "dp": 0.0,
+      "dchi": 1.987257537905407e-05
+     }
+    ],
+    "t1_model": true,
+    "casa_model_data_p_range": [
+     9.799997945534683,
+     9.80000213944432
+    ],
+    "casa_model_data_chi_range": [
+     33.00000553616044,
+     33.00003148376183
+    ],
+    "t1_casa": true
+   },
+   "3C138": {
+    "rows": [
+     {
+      "ghz": 1.05,
+      "table": "PB2013",
+      "p_pub": 5.6,
+      "chi_pub": -14,
+      "p_model": 7.8,
+      "chi_model": -9.599907857416943,
+      "dp": 2.2,
+      "dchi": 4.400092142583057
+     },
+     {
+      "ghz": 1.45,
+      "table": "PB2013",
+      "p_pub": 7.5,
+      "chi_pub": -11,
+      "p_model": 7.799999999999999,
+      "chi_model": -9.599907857416943,
+      "dp": 0.29999999999999893,
+      "dchi": 1.4000921425830573
+     },
+     {
+      "ghz": 1.64,
+      "table": "PB2013",
+      "p_pub": 8.4,
+      "chi_pub": -10,
+      "p_model": 7.8,
+      "chi_model": -9.599907857416943,
+      "dp": -0.6000000000000005,
+      "dchi": 0.40009214258305725
+     },
+     {
+      "ghz": 1.02,
+      "table": "NRAO2019",
+      "p_pub": 5.5,
+      "chi_pub": -13,
+      "p_model": 7.799999999999999,
+      "chi_model": -9.599907857416945,
+      "dp": 2.299999999999999,
+      "dchi": 3.4000921425830555
+     },
+     {
+      "ghz": 1.47,
+      "table": "NRAO2019",
+      "p_pub": 7.8,
+      "chi_pub": -9.6,
+      "p_model": 7.8,
+      "chi_model": -9.599907857416943,
+      "dp": 0.0,
+      "dchi": 9.214258305689782e-05
+     }
+    ],
+    "t1_model": true,
+    "casa_model_data_p_range": [
+     7.799995109976545,
+     7.8000049946231185
+    ],
+    "casa_model_data_chi_range": [
+     -9.599914225479962,
+     -9.599901211623536
+    ],
+    "t1_casa": true
+   },
+   "taylor_legodi": {
+    "J1331+3030": [
+     9.9,
+     29.2,
+     -0.3
+    ],
+    "J0521+1638": [
+     7.71,
+     -15.1,
+     -2.4
+    ]
+   }
+  },
+  "inputs_unchanged": true,
+  "timings": [
+   {
+    "label": "hash S",
+    "wall_s": 0.044
+   },
+   {
+    "label": "hash A",
+    "wall_s": 0.485
+   },
+   {
+    "label": "CASA read FEED",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 0.57
+   },
+   {
+    "label": "CASA setjy (9 calls)",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 21.21
+   },
+   {
+    "label": "rang set_model M1 J1939-6342",
+    "wall_s": 0.809
+   },
+   {
+    "label": "rang set_model M2 J1939-6342",
+    "wall_s": 0.794
+   },
+   {
+    "label": "rang set_model M3 3C286-SIM",
+    "wall_s": 9.926
+   },
+   {
+    "label": "rang set_model M4 3C286-SIM",
+    "wall_s": 9.838
+   },
+   {
+    "label": "rang set_model M5 J1939-6342",
+    "wall_s": 0.816
+   },
+   {
+    "label": "rang set_model M6 3C286-SIM",
+    "wall_s": 9.541
+   },
+   {
+    "label": "rang set_model M7 3C286-SIM",
+    "wall_s": 9.894
+   },
+   {
+    "label": "rang set_model M8 SIM-GCAL",
+    "wall_s": 9.376
+   }
+  ],
+  "wall_s": 98.07,
+  "run": "/mnt/d/rang/outputs/c7a-20261106-04"
+ },
+ "-05": {
+  "criteria": {
+   "tol_g1": 1e-06,
+   "tol_imag": 1e-09
+  },
+  "code_sha256": {
+   "python/rang/calmodels.py": "f0a42678da413ec2551394fc858496d9c6202bf442920e959b3d8dce59d10691",
+   "examples/c7a_polmodels.py": "1d992220c127a6bd33e98d73e4dfadd58a36748378e30434ef087df0f52a280c",
+   "examples/c3a_models.py": "745c6fbbbc17701448ea66c6af55e4a50503f309e28911efefc974544ee97f7f"
+  },
+  "inputs": {
+   "S": "/home/gijsm/Github/rang/outputs/o-casa-20261030-01/work.ms",
+   "A": "/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms"
+  },
+  "tree_sha256_before": {
+   "S": "74f4c010b116fc0deb601ad66f759535f4d13e986a4e17728c4e305c3c09d1e5",
+   "A": "141f7ed61b3ea79353ec70f1ac540e7dd8f5d9b6c5512682a9488a68f9d3675f"
+  },
+  "held_out": true,
+  "setjy": [
+   {
+    "call": {
+     "vis": "/run/H1-casa.ms",
+     "field": "3C286-SIM",
+     "standard": "manual",
+     "fluxdensity": [
+      8.33843,
+      -0.3,
+      0.5,
+      -0.02
+     ],
+     "spix": [
+      -0.4981,
+      -0.1552,
+      -0.0102,
+      0.0223
+     ],
+     "reffreq": "1.47GHz",
+     "polindex": [
+      0.078,
+      0.03
+     ],
+     "polangle": [
+      -0.16755,
+      -0.02,
+      0.01
+     ],
+     "rotmeas": -20.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 2.417,
+    "fluxd": {
+     "1/0": [
+      10.67215192212441,
+      0.31310078821216664,
+      -0.528190273457432,
+      -0.025597509176486243
+     ]
+    },
+    "warn": []
+   },
+   {
+    "call": {
+     "vis": "/run/H1-casa.ms",
+     "field": "SIM-GCAL",
+     "standard": "manual",
+     "fluxdensity": [
+      4.0,
+      0.1,
+      -0.05,
+      0.0
+     ],
+     "spix": [
+      -0.6
+     ],
+     "reffreq": "1.4GHz",
+     "rotmeas": 15.0,
+     "scalebychan": true,
+     "usescratch": true
+    },
+    "wall_s": 1.654,
+    "fluxd": {
+     "2/0": [
+      5.348324889640508,
+      -0.031572639383370224,
+      0.14611808883190902,
+      0.0
+     ]
+    },
+    "warn": [
+     "2026-11-06 11:21:10\tSEVERE\tMeasTable::dUTC(Double) (file /source/casa6/casatools/casacore/measures/Measures/MeasTable.cc, line 4290)+\tUntil the table is updated (see the CASA documentation or your system admin),"
+    ]
+   }
+  ],
+  "cases": {
+   "H1": {
+    "fields": {
+     "3C286-SIM": {
+      "rows": 1920,
+      "g1_max_rel": 0.0,
+      "g2_real_max_ulps": 0,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.025597508996725082,
+      "bit_identical_cell_fraction": 1.0,
+      "casa_q_u_v_max_jy": [
+       0.6053109169006348,
+       0.5894654393196106,
+       0.025597508996725082
+      ],
+      "casa_path": "tabular",
+      "pass_g1": true,
+      "pass_g2": true
+     },
+     "SIM-GCAL": {
+      "rows": 2400,
+      "g1_max_rel": 1.2842233525598737e-07,
+      "g2_real_max_ulps": 2,
+      "g2_imag_max_rel": 0.0,
+      "casa_imag_max_jy": 0.0,
+      "bit_identical_cell_fraction": 0.0,
+      "casa_q_u_v_max_jy": [
+       0.12345314025878906,
+       0.14733125269412994,
+       0.0
+      ],
+      "casa_path": "spectral-index-channel0",
+      "pass_g1": true,
+      "pass_g2": false
+     }
+    },
+    "g3_other_rows_identical": true,
+    "pass": false,
+    "receipt_spec": [
+     {
+      "kind": "manual",
+      "fluxdensity": 8.33843,
+      "reffreq_hz": 1470000000.0,
+      "spix": [
+       -0.4981,
+       -0.1552,
+       -0.0102,
+       0.0223
+      ],
+      "q": -0.3,
+      "u": 0.5,
+      "v": -0.02,
+      "polindex": [
+       0.078,
+       0.03
+      ],
+      "polangle": [
+       -0.16755,
+       -0.02,
+       0.01
+      ],
+      "rotmeas": -20.0,
+      "casa_path": "tabular"
+     },
+     {
+      "kind": "manual",
+      "fluxdensity": 4.0,
+      "reffreq_hz": 1400000000.0,
+      "spix": [
+       -0.6
+      ],
+      "q": 0.1,
+      "u": -0.05,
+      "v": 0.0,
+      "polindex": [],
+      "polangle": [],
+      "rotmeas": 15.0,
+      "casa_path": "spectral-index-channel0"
+     }
+    ]
+   }
+  },
+  "inputs_unchanged": true,
+  "timings": [
+   {
+    "label": "hash S",
+    "wall_s": 0.037
+   },
+   {
+    "label": "hash A",
+    "wall_s": 0.414
+   },
+   {
+    "label": "CASA setjy (2 calls)",
+    "image": "rang-o-casa:6.7.6.14",
+    "wall_s": 5.46
+   },
+   {
+    "label": "rang set_model H1 3C286-SIM",
+    "wall_s": 9.354
+   },
+   {
+    "label": "rang set_model H1 SIM-GCAL",
+    "wall_s": 1.063
+   }
+  ],
+  "wall_s": 20.03,
+  "run": "/mnt/d/rang/outputs/c7a-20261106-05"
+ }
+}
