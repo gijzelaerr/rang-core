@@ -51,6 +51,7 @@ use rang_core::ms_write::TableWriter;
 use rang_core::sim;
 use std::ffi::c_void;
 
+mod cal_fluxscale;
 mod cal_gain;
 mod clean;
 
@@ -2808,5 +2809,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_minblperant, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_apply_refant, m)?)?;
     m.add_function(wrap_pyfunction!(cal_apply_jones, m)?)?;
+    // Task C2d: fluxscale (research/c2d-fluxscale.md).
+    m.add_function(wrap_pyfunction!(cal_fluxscale::cal_fluxscale_scale, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_fluxscale::cal_fluxscale_fit, m)?)?;
     Ok(())
 }

@@ -9,6 +9,20 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang.cal_fluxscale`, the flux-scale term F (`research/c2d-fluxscale.md`). `fluxscale(caltable,
+  reference=..., transfer=...)` is CASA's `fluxscale` on a G table, with its statistics in the Rust
+  core (`core/src/cal/fluxscale.rs`): per-antenna mean amplitudes, the median ratio to the reference
+  (casacore's median rule), `fd = ratio²` and CASA's error, `gainthreshold`, several reference
+  fields, `refspwmap`, and the weighted spectral fit across windows (`fitorder`); it returns the
+  flux-scaled table and a record shaped as CASA's. `bootstrap(ms, primary, secondary)` runs
+  CARACal's F step: G on the secondaries against a unit point model (`smodel_array`), appended to a
+  copy of the primary's table (`append`), then `fluxscale`. Selections by antenna, time or scan and
+  `incremental=True` are refused.
+- Changed: `rang.cal_gain.gaincal` takes `spw` to solve one window of a multi-window MS (tables are
+  pre-applied on single-window data only).
+- Changed: `examples/a1_simtruth.py generate` takes `--seeds` and `--gcal-flux`, `--gcal-spix`,
+  `--gcal-reffreq` (the default versions are unchanged).
+
 - New: `rang.applycal.applycal(ms, gaintable, interp, gainfield, calwt, field)`, CASA's
   `applycal` on a Measurement Set: row chunks through `rang.core_writeback` (a flag version first),
   the Rust kernel per field and data description, CORRECTED_DATA (added as `clearcal` does when

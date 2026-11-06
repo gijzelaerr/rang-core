@@ -283,9 +283,36 @@ def truth_arrays(d, truth, gauge, q, elev, uvw, times, scans, fields, within):
     return out
 
 
+def with_overrides(d, args):
+    """Task C2d's held-out version (research/c2d-fluxscale.md, section 5):
+    `--seeds jones,sky,rfi,noise` and `--gcal-flux`, `--gcal-spix`
+    (comma-separated) and `--gcal-reffreq` replace the version's seeds and
+    the gain calibrator's model; without them the version is unchanged."""
+    import dataclasses
+
+    seeds = getattr(args, "seeds", "")
+    flux = getattr(args, "gcal_flux", None)
+    if not seeds and flux is None:
+        return d
+    changes = {"name": f"{d.name}-override"}
+    if seeds:
+        values = [int(s) for s in seeds.split(",")]
+        if len(values) != 4:
+            raise SystemExit("--seeds takes jones,sky,rfi,noise")
+        changes["seeds"] = dict(zip(("jones", "sky", "rfi", "noise"), values))
+    if flux is not None:
+        spix = (
+            tuple(float(s) for s in args.gcal_spix.split(",")) if args.gcal_spix else ()
+        )
+        gcal = {"fluxdensity": float(flux), "reffreq_hz": float(args.gcal_reffreq),
+                "spix": spix}  # fmt: skip
+        changes["extra"] = {**d.extra, "gcal": gcal}
+    return dataclasses.replace(d, **changes)
+
+
 def generate(args):
     started = time.perf_counter()
-    d = st.design(args.version)
+    d = with_overrides(st.design(args.version), args)
     out = Path(args.outdir)
     out.mkdir(parents=True, exist_ok=True)
     name = args.name or (f"a1-{d.name}" + ("-twin" if args.noiseless else ""))
@@ -357,7 +384,7 @@ def generate(args):
                 "calibrators": {
                     "fcal": "1934-638, Stevens-Reynolds 2016 (rang.fluxstd, setjy-equal), point at the phase centre",
                     "xcal": st.XCAL,
-                    "gcal": st.GCAL,
+                    "gcal": d.extra.get("gcal", st.GCAL),
                 },
                 "target_components": sky,
                 "rfi_events": events,
@@ -514,6 +541,10 @@ def main(argv=None):
     g.add_argument("--max-per-scan", type=int, default=0)
     g.add_argument("--name", default="")
     g.add_argument("--hash-ms", action="store_true")
+    g.add_argument("--seeds", default="")
+    g.add_argument("--gcal-flux", type=float, default=None)
+    g.add_argument("--gcal-spix", default="")
+    g.add_argument("--gcal-reffreq", type=float, default=1.4e9)
     s = sub.add_parser("size")
     s.add_argument("version", choices=["small", "full"])
     args = p.parse_args(argv)

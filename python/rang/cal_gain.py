@@ -427,12 +427,15 @@ def gaincal(
     max_iterations=50,
     stop_criterion=1e-7,
     stop_fraction=0.99,
+    spw=None,
 ):
-    """`gaincal(gaintype='G')` on one field of a single-window MS: returns
+    """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
     (or a list); `gaintable` CalTables or paths; `model` an array
-    `(row, chan, 4)` for the field's rows instead of `model_column`. Raises
-    when no solution is written.
+    `(row, chan, 4)` for the field's rows (of that window) instead of
+    `model_column`. Raises when no solution is written. `spw` (task C2d)
+    selects one window of a multi-window MS, as CASA solves each window
+    apart; tables are pre-applied only on a single-window MS.
 
     Weights (post hoc after run -03, research/c2a-gain.md section 6): with
     tables to pre-apply, CASA was measured to solve with weights from SIGMA
@@ -445,18 +448,28 @@ def gaincal(
         positions = t.getcol("POSITION")
     with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
         chan_freq = t.getcol("CHAN_FREQ")
-    if len(chan_freq) != 1:
-        raise ValueError("one spectral window only (C2a)")
-    freq = np.asarray(chan_freq[0], float)
+    if spw is None:
+        if len(chan_freq) != 1:
+            raise ValueError("several spectral windows: give spw (C2d)")
+        spw = 0
+    spw = int(spw)
+    if not 0 <= spw < len(chan_freq):
+        raise ValueError(f"no spectral window {spw}")
+    if len(chan_freq) != 1 and gaintable:
+        raise ValueError("tables are pre-applied on a single-window MS only (C2d)")
+    freq = np.asarray(chan_freq[spw], float)
     nant = len(names)
     refants = [
         names.index(r) if isinstance(r, str) else int(r) for r in np.atleast_1d(refant)
     ]
+    with core_ms.open_table(ms / "DATA_DESCRIPTION") as t:
+        dd_spw = np.asarray(t.getcol("SPECTRAL_WINDOW_ID"))
     with core_ms.open_table(ms) as t:
         fields = t.getcol("FIELD_ID")
-    rows = np.flatnonzero(fields == field_id)
+        ddid = t.getcol("DATA_DESC_ID")
+    rows = np.flatnonzero((fields == field_id) & (dd_spw[ddid] == spw))
     if not len(rows):
-        raise ValueError(f"no rows of field {field_id}")
+        raise ValueError(f"no rows of field {field_id} in spectral window {spw}")
     cols = [
         "TIME",
         "SCAN_NUMBER",
@@ -536,9 +549,16 @@ def gaincal(
     times, span = solution_times(c["TIME"], tb, weights, used_flags, len(keys))
     scans = np.array([c["SCAN_NUMBER"][tb == t].min() for t in range(len(keys))])
     table = to_caltable(
-        sol, times, span, scans, field_id=field_id, ms=ms, chan_freq=freq
+        sol, times, span, scans, field_id=field_id, ms=ms, chan_freq=freq, spw=spw
     )
-    info = {"rows": len(rows), "intervals": keys, "time_bin": tb, "frequency": freq}
+    info = {
+        "rows": len(rows),
+        "row_index": rows,
+        "intervals": keys,
+        "time_bin": tb,
+        "frequency": freq,
+        "spw": spw,
+    }
     return table, sol, info
 
 
