@@ -2,15 +2,18 @@
 
 QuartiCal 0.2.7 (`rang-formats-oracle:20261030`, run with `/opt/qc/bin/python -I`):
 
-    oracle_gain.py qc-copy <src.ms> <dst.ms> [<column.npz> <NAME>]
+    oracle_gain.py qc-copy <src.ms> <dst.ms> [<column.npz> <NAME>] ...
     oracle_gain.py qc-solve <ms> <out> <key=value> ...
 
-`qc-copy` copies an MS (dropping `table.lock`) and optionally adds a column
-`NAME` shaped like DATA holding `column.npz`'s `values` (row, chan, corr).
+`qc-copy` copies an MS (dropping `table.lock`) and optionally adds columns
+`NAME` shaped like DATA holding `column.npz`'s `values` (row, chan, corr);
+NAME `FLAG` ORs boolean `values` into FLAG instead (C2b).
 `qc-solve` runs `goquartical` with the given options under `/usr/bin/time`,
 checks FLAG and FLAG_ROW are unchanged, and saves `gains.npy`
-(time, freq, ant, 4), `gain_flags.npy` and `summary.json` (`conv_iter`,
-`conv_perc`, wall, peak RSS) in `<out>`.
+(time, freq, ant, 4), `gain_flags.npy`, for parameterised terms (C2b's
+`delay`) `params.npy` and `param_flags.npy`, and `summary.json`
+(`conv_iter`, `conv_perc` per chunk, wall, peak RSS) in `<out>`; chunks
+(scans) are stacked in time.
 
 CASA 6.7.6.14 (`rang-o-casa:6.7.6.14`, run with `/opt/casa/bin/python -I`):
 
@@ -34,28 +37,37 @@ import time
 from pathlib import Path
 
 
-def qc_copy(src, dst, column=None, name=None):
+def qc_copy(src, dst, *pairs):
+    """Copy `src` to `dst`, then per (`column.npz`, NAME) pair add a column
+    NAME, or with NAME `FLAG` OR the pair's boolean `values` into FLAG
+    (C2b's RFI flags)."""
     shutil.copytree(src, dst)
     lock = Path(dst) / "table.lock"
     if lock.exists():
         lock.unlink()
-    if column is None:
+    if not pairs:
         return
     import numpy as np
     from casacore.tables import makearrcoldesc, maketabdesc, table
 
-    values = np.load(column)["values"]
-    with table(dst, readonly=False, ack=False) as t:
-        desc = makearrcoldesc(
-            name,
-            0j,
-            ndim=2,
-            valuetype="complex",
-            comment="C2a: DATA corrected by rang.cal_apply",
-        )
-        t.addcols(maketabdesc(desc))
-        t.putcol(name, values.astype(np.complex64))
-        assert np.array_equal(t.getcol(name), values.astype(np.complex64))
+    for column, name in zip(pairs[::2], pairs[1::2]):
+        values = np.load(column)["values"]
+        with table(dst, readonly=False, ack=False) as t:
+            if name == "FLAG":
+                flag = t.getcol("FLAG") | values.astype(bool)
+                t.putcol("FLAG", flag)
+                assert np.array_equal(t.getcol("FLAG"), flag)
+                continue
+            desc = makearrcoldesc(
+                name,
+                0j,
+                ndim=2,
+                valuetype="complex",
+                comment="C2a/C2b: an array written by rang",
+            )
+            t.addcols(maketabdesc(desc))
+            t.putcol(name, values.astype(np.complex64))
+            assert np.array_equal(t.getcol(name), values.astype(np.complex64))
 
 
 def qc_solve(ms, out, options):
@@ -94,22 +106,47 @@ def qc_solve(ms, out, options):
             and np.array_equal(t.getcol("FLAG_ROW"), rows)
         )
     if proc.returncode == 0:
-        (ds,) = xds_from_zarr(f"{out / 'gains.qc'}::G")
-        ds = ds.compute()
-        gains = ds.gains.transpose(
+        term = "G"
+        for opt in options:
+            if opt.startswith("solver.terms="):
+                term = opt.split("=", 1)[1].strip("[]").split(",")[0]
+        # One dataset per chunk (scan); C2a's cases had one, C2b's may have
+        # several, stacked here along time in the order of their first time.
+        dss = [d.compute() for d in xds_from_zarr(f"{out / 'gains.qc'}::{term}")]
+        dss.sort(key=lambda d: float(d.gain_time.values[0]))
+        gains = np.concatenate([d.gains.transpose(
             "gain_time", "gain_freq", "antenna", "direction", "correlation"
-        ).values[..., 0, :]
-        gflags = ds.gain_flags.transpose(
+        ).values[..., 0, :] for d in dss])  # fmt: skip
+        gflags = np.concatenate([d.gain_flags.transpose(
             "gain_time", "gain_freq", "antenna", "direction"
-        ).values[..., 0]
+        ).values[..., 0] for d in dss])  # fmt: skip
         np.save(out / "gains.npy", gains)
         np.save(out / "gain_flags.npy", gflags)
+        if "params" in dss[0]:
+            axes = ("param_time", "param_freq", "antenna", "direction", "param_name")
+            params = np.concatenate(
+                [d.params.transpose(*axes).values[..., 0, :] for d in dss]
+            )
+            pflags = np.concatenate(
+                [d.param_flags.transpose(*axes[:-1]).values[..., 0] for d in dss]
+            )
+            np.save(out / "params.npy", params)
+            np.save(out / "param_flags.npy", pflags)
+            summary["param_names"] = [str(x) for x in dss[0].param_name.values]
+            summary["chunk_param_times"] = [len(d.param_time) for d in dss]
         summary["shape"] = list(gains.shape)
-        summary["gain_times"] = ds.gain_time.values.tolist()
+        summary["chunks"] = len(dss)
+        summary["chunk_gain_times"] = [len(d.gain_time) for d in dss]
+        summary["gain_times"] = np.concatenate(
+            [d.gain_time.values for d in dss]
+        ).tolist()
         for key in ("conv_iter", "conv_perc"):
-            value = ds.attrs.get(key, ds.get(key, None))
-            summary[key] = None if value is None else np.asarray(value).tolist()
-        summary["type"] = ds.attrs.get("TYPE")
+            values = []
+            for d in dss:
+                value = d.attrs.get(key, d.get(key, None))
+                values.append(None if value is None else np.asarray(value).tolist())
+            summary[key] = values[0] if len(dss) == 1 else values
+        summary["type"] = dss[0].attrs.get("TYPE")
     (out / "summary.json").write_text(json.dumps(summary, indent=1, default=str) + "\n")
     if proc.returncode != 0 or not summary["flags_unchanged"]:
         raise SystemExit(f"QuartiCal failed or altered flags: {out}")
@@ -180,7 +217,7 @@ def casa_gaincal(spec_path, result_path):
 
 def main(argv):
     cmd = argv[1] if len(argv) > 1 else ""
-    if cmd == "qc-copy" and len(argv) in (4, 6):
+    if cmd == "qc-copy" and len(argv) >= 4 and len(argv) % 2 == 0:
         qc_copy(*argv[2:])
     elif cmd == "qc-solve" and len(argv) >= 4:
         qc_solve(argv[2], argv[3], argv[4:])

@@ -4,9 +4,11 @@
 //! its C ABI. `diag` solves the diagonal gain terms (`diag_complex`,
 //! `phase`) and `reference` holds CASA's rules around a solve
 //! (`minblperant`, `minsnr`, the reference antenna) (task C2a,
-//! `research/c2a-gain.md`).
+//! `research/c2a-gain.md`). `delay` solves the delay term K (QuartiCal's
+//! `delay` with its FFT initial estimate; task C2b, `research/c2b-delay.md`).
 
 pub mod apply;
+pub mod delay;
 pub mod diag;
 pub mod ffi_apply;
 pub mod reference;

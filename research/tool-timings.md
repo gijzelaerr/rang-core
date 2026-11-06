@@ -1561,3 +1561,16 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W2b `examples/check_w2b.py`, run w2b-03 (with the store comparison) | same | 89.7 s | – | calibrate 24.3 s, run 43.9 s |
 | 2026-11-06 | check-all, C4b branch at `ff891a8` | repo | – | – | pytest 908 passed, 68 skipped, 1 expected failure (index) in 129 s |
 | 2026-11-06 | check-all, C4b branch at the final head, the index line applied in the working tree (not committed) | repo | – | – | overall PASS; pytest 910 passed, 68 skipped in 135 s |
+| 2026-11-06 | C2b worktree venv (`uv venv`, `uv pip install -e .[...]`, `maturin develop --release`) | worktree | 1444 s (mostly waiting on the heavy lock; the build 87 s) | – | as the WSL venv memory says |
+| 2026-11-06 | C2b `cargo test --release --lib cal::delay` | core crate | 108 s build (after a long heavy-lock wait), tests 0.13 s | – | 5 pass |
+| 2026-11-06 | C2b delay50 generation (`a1_simtruth.py generate delay50`, noisy and twin) | 16 ant, 256 ch, 104 int | 5.1 s and 5.2 s | 249 MB, 252 MB | A1's generator, 4 workers |
+| 2026-11-06 | C2b `tools/a1_checks.sh` on delay50 | delay50 and twin | 57.5 s | 1.26 GB | round trip and noise pass; parallactic check fails as on A1 small |
+| 2026-11-06 | C2b `check_delay.py quartical` run -01 (class A) | slice, A1 small, delay50, 8 cases | 284.4 s (container 182.2 s; `goquartical` 7.8-48.8 s and 404-778 MB each; rang 0.06-0.51 s per case) | 1.0 GB | all eight pass |
+| 2026-11-06 | C2b `check_delay.py casa` run -02 | slice, A1 small, delay50, 13 `gaincal` K calls | 250.3 s (container 47.5 s; `gaincal` K 1.0-3.0 s per call; rang 1.5-9.0 s per case with reads and pre-apply) | 415 MB | 9 of 14 pass; slice and no-apply fail |
+| 2026-11-06 | C2b `probe_delay_phase.py` run -03 (post hoc) | slice, A1 small, run -02's tables | 67.1 s | 203 MB | antenna phases explain the failures |
+| 2026-11-06 | C2b `probe_delay_offset.py` run -04 (post hoc) | slice, A1 small; QuartiCal `delay_and_offset` ×3 | 87.7 s (container 81.1 s) | – | within CASA's tolerance on all three |
+| 2026-11-06 | C2b `check_delay.py truth` run -05 (class T) | A1 small, delay50, twins, 16 cases | 264.8 s (container 27.3 s; rang 6.4-7.5 s per case) | 515 MB | twins pass; bias test fails on A1 field 0 |
+| 2026-11-06 | C2b `check_delay.py truth --centred` run -06 (post hoc) | as -05 | 311.5 s (container 31.8 s) | 512 MB | centred bias test passes on all eight |
+| 2026-11-06 | C2b `check_delay.py readback` run -07 | slice, delay50 field 0 | 15.6 s (`applycal` container 8.4 s) | 416 MB | class C, flags exact |
+| 2026-11-06 | C2b `tools/check-all.sh`, tree before the lint fixes | worktree | 2100.5 s (with lock waits; pytest 256.3 s) | 1.88 GB | FAIL: clippy, rustfmt, ruff on the new files, and the research-index test; 914 passed, 68 skipped; gain-hashes pass |
+| 2026-11-06 | C2b `tools/check-all.sh`, the tree of the code commit | worktree | 2514.0 s (mostly waiting on the shared check-all lock; pytest 122.9 s) | 1.86 GB | FAIL only on the research-index test; 914 passed, 68 skipped; gain-hashes pass |
