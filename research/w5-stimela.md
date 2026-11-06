@@ -146,7 +146,7 @@ no refusal (exit 0) before anything ran. Comparator output:
 | --- | --- | --- | --- |
 | 1: Stimela runs the chain | `stimela run` exit 0; flag, calibrate, apply, image `done` in `state.json`; one receipt per stage, exit 0 | the same | met |
 | 1: each step's argv = arm H's | Stimela logged and ran `rang-core flag <run>/A.yaml a1-small.ms` (and the same for the other three verbs); arm H ran `... <run>/A/H/a1-small.ms` | the same, `work.ms` | **not met as written**: the MS path is relative to Stimela's working directory (the step's cwd, `<run>/A/S`), the same file; the verb, the configuration path and the argument order are equal |
-| 2a: every MS column | all 25 columns' SHA-256 equal (FLAG, FLAG_ROW, DATA, MODEL_DATA, CORRECTED_DATA, WEIGHT, WEIGHT_SPECTRUM, SIGMA and the rest) | all 26 columns, SIGMA_SPECTRUM included | met |
+| 2a: every MS column | all 25 columns' SHA-256 equal, every one read (none unreadable, FLAG_CATEGORY included) (FLAG, FLAG_ROW, DATA, MODEL_DATA, CORRECTED_DATA, WEIGHT, WEIGHT_SPECTRUM, SIGMA and the rest) | all 26 columns, SIGMA_SPECTRUM included | met |
 | 2b: calibration tables | K, G, B, Gsec, F (and `F.append`): every cell, keyword and subtable cell equal; every file byte-identical | K0, G0, B0, K1, G1, B1: the same | met |
 | 2c: image pixels | 5 FITS files, data arrays bitwise equal, no header difference | 5 FITS files, the same | met |
 | 2d: flag versions | `rang_original`, `rang_flag_…`, `rang_calibrate_…`, `rang_apply_…`: FLAG and FLAG_ROW equal in order | the same | met |
@@ -159,9 +159,11 @@ Reported, not gated:
   `image/summary.json`'s hash of gemclean's `image-report.json`. That report
   holds gemclean's argv, with the arm's MS and output prefix (2 leaves), and
   per-phase RSS and timings, which differ between any two runs.
-- **Why gate 1's argv differs.** Stimela 2.1.4 gives a path input that lies
-  under the step's working directory to the command relative to it. The
-  configuration file, outside that directory, stayed absolute. The command
+- **Why gate 1's argv differs.** Stimela 2.1.4's path type
+  (`scabha/basetypes.py`, `URI.__init__`, scabha as installed with it)
+  rewrites a `file` path that lies under the current directory as relative to
+  it and keeps any other path absolute. The configuration file, outside the
+  step's directory, stayed absolute. The command
   resolves the MS against its own working directory, the one Stimela ran it
   in, so the run directory (`a1-small.ms.rang-run`) and every output are where
   arm H put them. The gate was written for an absolute path in both arms; it
@@ -194,8 +196,8 @@ Rows added to [tool-timings.md](tool-timings.md).
   campaigns against archives (section 0). The owner may want different names
   (for example moving them to `recipes/research/`), which would change the
   tests and docs that glob `recipes/core-*.yaml`.
-- **Gate 1's relative MS path** (section 5): accept it as Stimela's documented
-  behaviour, or have the cabs resolve paths absolute (a Stimela path policy),
+- **Gate 1's relative MS path** (section 5): accept it as Stimela's behaviour
+  (traced to scabha's `URI`, section 5), or have the cabs resolve paths absolute (a Stimela path policy),
   which was not tried.
 
 ## For the coordinator
