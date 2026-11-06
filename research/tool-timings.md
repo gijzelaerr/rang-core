@@ -1663,3 +1663,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W3 merge check run-02 S flag, calibrate, apply U / D / T | A1 small copies | 21 / 27 / 455 s; 18 / 22 / 368 s; 24 / 22 / 342 s | at most 0.17 GiB | U is main `0de5690` |
 | 2026-11-06 | W3 merge check run-02 O flag, calibrate, apply U / D / T | O-CASA slice copies | 2 / 2 / 6 s; 5 / 6 / 51 s; 7 / 7 / 17 s | at most 0.13 GiB | |
 | 2026-11-06 | W3 merge check run-02 C (C2e chain) flag, calibrate, apply U / D / T | A1 small copies | 21 / 26 / 410 s; 40 / 33 / 367 s; 26 / 30 / 286 s | at most 0.15 GiB | |
+| 2026-11-06 | W5 setup: `uv venv -p 3.13 .venv313` + `-e .[recipes,casacure,test]` (Stimela 2.1.4) | worktree | 32 s | – | public PyPI; rebuilds the abi3 extension |
+| 2026-11-06 | W5 setup: `cargo build --release` gemclean | worktree | 113 s | – | |
+| 2026-11-06 | W5: check-all before the protocol commit | worktree | not recorded | – | FAIL only on the research-index test; pytest 1005 passed, 68 skipped; gain hashes pass |
+| 2026-11-06 | W5 run -01: `stimela doc` per recipe file | 9 files | 0.4-0.6 s each | 74 MB | |
+| 2026-11-06 | W5 run -01 case A: `stimela run recipes/rang-chain.yaml` (flag, calibrate, apply, image) | A1 small copy | 80 s | 245 MB | by hand: flag 19.5, calibrate 27.4, apply 25.5, image 6.3 s |
+| 2026-11-06 | W5 run -01 case O: `stimela run recipes/rang-chain.yaml` | O-CASA slice copy | 33 s | 231 MB | by hand: flag 2.3, calibrate 13.4, apply 11.3, image 5.2 s |
+| 2026-11-06 | W5 run -01: compare S against H (columns, tables, FITS, flag versions) | A / O | 49 / 31 s | 148 MB | |
