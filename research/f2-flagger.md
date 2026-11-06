@@ -4,6 +4,40 @@ Task F2, branch `fp-f2-flagger` from main `ba65792`. Protocol frozen 2026-11-06 
 training or comparison. **Status at freeze: proposed; nothing implemented, run or trained.** Results go
 under "Measured result"; nothing above it changes except by dated, labelled amendment.
 
+**Amendment 1, 2026-11-06, after f2sim-v and the training observations were built, before the test
+observations are built or any arm is scored on them.** The test observations are built by
+`python/rang/f2flag_sim.py` sha256 `577deca402fb598c38542a7b44a3199b9ad321fa55aa0998cf08ab7452ec1300`,
+`examples/f2_simulate.py` `dc0a0123c54f43e6acf34a7fce325f91b7e399d7646be7337476e40ba3b4833e` and
+`python/rang/simtruth.py` `6da60bd467fae4441c07cf8b84ce6c37ec2ecc0266e387ad0b6f28a1cca6a475`, the files
+that built f2sim-v and f2sim-1 to -3. The G5 and G6 variants are built by the same files
+(`--variant line`, `--variant step`) from f2sim-t1's seeds. No threshold changes.
+
+**Amendment 2, 2026-11-06, post hoc: after Stage 2 on f2sim-v (T, T-mild, N, Z, R, O), before any
+training and before the test observations are read.** On validation calibrators N's Q3 (0.0232) is
+below T's (0.0318): T's over-flagging costs more than the RFI it removes, so the frozen power rule
+(N ≥ 1.01 × T) makes calibrator Q3 undecidable and no arm can "meet Q". Added, labelled post hoc
+wherever used: Q3 has power if O ≤ 0.99 × N (removing the true RFI changes the gains); the call against
+T is unchanged. Both readings are reported; the frozen one decides the frozen outcome. Nothing else
+changes.
+
+**Amendment 3, 2026-11-07, after the calibrator validation of the trained arms, before any test
+result was seen: section 7's one change of hyperparameters, used on the flag threshold.**
+
+- *What was seen.* Calibrators, f2sim-v, τ = 0: F-SIM Q1 0.717 against T 0.829 (worse), Q2 0.0048
+  against 0.320, Q3 0.0043 against 0.0308. Target validation of the trained arms had not finished.
+- *A stopped launch.* The first Stage 5 launch (`f2-20261107-01-stage5-quality`) went on from validation
+  to the test observations at 01:39:47 and was stopped at about 01:41 while reading f2sim-t1's
+  calibrator scans. Its output went to `/dev/null` and `test1-calibrator.json` was never written: no
+  test number was produced or seen.
+- *The change.* Per class and per trained arm (F-SIM, F-RES, F-IMI), the flag rule becomes logit > τ.
+  τ = 0 unless the arm fails "meets Q" on f2sim-v at τ = 0 (calibrator Q3 read as in Amendment 2). Then τ
+  is chosen on f2sim-v only, on the grid 0, −0.5, …, −6: the largest τ with Q1 ≥ T's validation Q1 and
+  Q2 ≤ T's validation Q2 + 0.01; if none, the τ with the largest Q1 among those with Q2 ≤ T's Q2 + 0.01
+  (if that is −6, the grid floor binds and is reported). U stays at 0, Z at 10.
+- τ is fixed with the weights file (recorded beside its sha256); in P it counts under T2, not T1. Parity
+  (flag disagreement) and every Stage 5 measure, guards included, use τ.
+- If an arm still fails on test, its outcome is F. No second change.
+
 Supersedes the route of [F1](f1-tv-flagger.md) (NO-GO, outcome D). Landman, 2026-11-06, verbatim: "The
 TV norm was just a suggestion to get around expertly labeled data." One weights file per observatory and
 band is acceptable; calibrator and target fields need separate strategies. The goal is F1's: faster than
@@ -231,3 +265,43 @@ the run paths in the archive. Wiring into `rang-core flag` is proposed only, if 
 
 No better calibration or imaging. Simulated RFI is not shown to be realistic; LUNO is processed;
 ESO137 is exploratory. Nothing about other bands or telescopes.
+
+## 9. Measured result
+
+Runs under `/mnt/d/rang/outputs/f2-20261106-NN-*` (each with `.code/`, `.log`, `.time`). Archive:
+[results/f2-flagger.json](results/f2-flagger.json).
+
+### Stage 1: F-SIM
+
+f2sim-v (`-01`), f2sim-1 to -3 (`-02`), f2sim-t1, -t2 and t1's line and step variants (`-04`, built after
+Amendment 1, unread until Stage 5). 6.0-6.5 min and 4.3 GB peak RSS per observation, 2 threads. Truth
+(`A > 0`) 3.6-6.0 % of cells per scan, `A ≥ 10` 0.8-1.9 %. RFI check: max |DATA − RFI − RFI-free| 1e-5 at
+|V| ≤ 15 Jy (float32 rounding). The shared wrapper flags 47 % of cells (static masks; the `0~550 m`
+static mask on short baselines).
+
+### Stage 2: comparators on validation (f2sim-v, `-03`)
+
+| Arm | Cal Q1 | Cal Q2 | Cal Q3 | Tgt Q1 | Tgt Q2 | Tgt Q3 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| T | 0.829 | 0.320 | 0.0318 | 0.990 | 0.140 | 0.0420 |
+| T-mild | 0.681 | 0.202 | 0.0374 | – | – | – |
+| N | 0 | 0 | 0.0232 | 0 | 0 | 0.412 |
+| Z | 0.438 | 0.0066 | 0.0243 | 0.036 | 0 | 0.401 |
+| R | 0.073 | 0 | 0.0163 | 0.448 | 0.0002 | 0.197 |
+| O | 1 | 0 | 0.0038 | 1 | 0 | 0.0042 |
+
+- **Stop rule not triggered:** Z and R are worse than T on Q1 in both classes.
+- T flags 32 % (calibrators) and 14 % (targets) of clean cells outside the shared wrapper. Q2's bar is
+  therefore loose. Cause not traced; the same direction as C2e's 63 % on A1's calibrators.
+- Calibrator Q3: N < T, so undecidable as frozen (Amendment 2). Target Q3 decidable (N = 9.8 × T).
+- Z misses carriers that are on for the whole scan (recall 0.01; the per-channel median removes them) and
+  RFI ≥ 100 σ (0.03): planes 1-4 alone cannot see them.
+- P (`-03/params.json`): T1 for the calibrator first pass and the target first pass, 21 kinds each (12
+  steps); calibrator mild 19. Network wrapper: 2 kinds (`apply_static_mask` `accumulation_mode`,
+  `uvrange`) plus the weights file, 3.
+
+### Stage 3: kernel (`-05`)
+
+Parity, U weights, f2sim-v: |Δlogit| p99.9 4.8e-7 (cal) and 3.8e-7 (tgt), max 1.6e-6, flag disagreement
+8.7e-8 (3 of 34.4 M cells): pass. C1(U) on LUNO 1934−638 whole array, 4 threads, 3 repeats: 10.6 s
+against T 44.1 s, **0.24** (1-min load 9.4-11.2, so provisional): stop rule (0.75) not triggered.
