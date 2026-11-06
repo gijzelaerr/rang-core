@@ -102,3 +102,11 @@ relative.
    changes too.
 
 A failure is reported as measured and not reworded.
+
+## Freeze (recorded before any held-out case ran)
+
+Frozen 2026-11-07 at commit  of .  built from it (profile ,
+rustc 1.93) has sha256  (copy
+). Only the development cases had run, with
+the release build of the same source (). Criterion 5 runs with
+this binary.
