@@ -229,3 +229,26 @@ measured.
   refused.
 - Windows and macOS.
 - Speed.
+
+## 5. Runs
+
+### 5.1 Probe (not a comparison)
+
+`/mnt/d/rang/outputs/w3/probe-02`: `tools/oracles/w3/run.sh` case W, arm M
+(2 GiB) with amendment 1's configuration, code `39fbc2e`, under the heavy
+lock. No U arm was read. (`probe-01`, with the configuration before amendment
+1, was refused at calibrate and then lost its log in a host reboot; it is
+discarded.) The process before any visibility is read is about 40 MB; the
+code reserves `BASE_BYTES` 640 MiB and `ROW_BYTES` 160 per row, so on W
+(40,320 rows) 1.37 GiB of the 2 GiB is left for chunks.
+
+| Stage | Chunks at 2 GiB | Peak RSS | Wall | Bytes per cell, measured (peak − 40 MB over the chunk's cells) | Factor in the code |
+| --- | --- | --- | --- | ---: | ---: |
+| flag | 2,803 rows; 5, 5, 2, 2, 3 baseline blocks for the 5 scans | 0.83 GB | 4 min 28 s | about 18 | 32 |
+| calibrate | 1,401 rows' worth of cells; 12 chunks for Gint and G2, 9 frequency-bin chunks for Gchan, per fcal scan; two passes | 1.02 GB | 21 min 22 s | about 42 | 64 |
+| apply | 1,869 rows | 1.60 GB | 5 min 21 s | about 51 | 48, raised to **64** |
+
+The apply factor was below what apply holds (DATA, FLAG, the output column,
+the new flags and the kernel's outputs), so it was raised to 64 before any
+comparison; the others keep their margin. Peaks are `/usr/bin/time -v`
+maximum resident set (KB, as GB of 10⁹ bytes here and below).

@@ -39,7 +39,7 @@ ROW_BYTES = 160
 CELL_BYTES = {
     "flag": 32,
     "calibrate": 64,
-    "apply": 48,
+    "apply": 64,
     "model": 64,
     "rows": 24,
 }

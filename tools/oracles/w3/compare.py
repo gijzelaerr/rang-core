@@ -61,7 +61,9 @@ def hashes(ms, out):
                 {
                     "name": name,
                     "key": re.sub(r"_\d{8}T\d{6}Z(_\d+)?$", "", name),
-                    "columns": table_hashes(root / f"flags.{name}", ["FLAG", "FLAG_ROW"]),
+                    "columns": table_hashes(
+                        root / f"flags.{name}", ["FLAG", "FLAG_ROW"]
+                    ),
                 }
             )
     Path(out).write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
@@ -169,10 +171,15 @@ def verdict(run, out):
             continue
         rows = {}
         for arm, d in arms.items():
-            stages = [s for s in ("flag", "calibrate", "apply") if (d / "hashes" / f"{s}.json").is_file()]
+            stages = [
+                s
+                for s in ("flag", "calibrate", "apply")
+                if (d / "hashes" / f"{s}.json").is_file()
+            ]
             rows[arm] = {
                 "hashes": {
-                    s: json.loads((d / "hashes" / f"{s}.json").read_text()) for s in stages
+                    s: json.loads((d / "hashes" / f"{s}.json").read_text())
+                    for s in stages
                 },
                 "summaries": {
                     s: _clean(json.loads((d / "run" / s / "summary.json").read_text()))
@@ -201,7 +208,8 @@ def verdict(run, out):
                 if base is None:
                     continue
                 diff = sorted(
-                    k for k in set(h["columns"]) | set(base["columns"])
+                    k
+                    for k in set(h["columns"]) | set(base["columns"])
                     if h["columns"].get(k) != base["columns"].get(k)
                 )
                 c[f"{stage}: columns differing"] = diff
@@ -210,7 +218,8 @@ def verdict(run, out):
                 c[f"{stage}: flag versions equal"] = fv == fb
             c["gain store files equal"] = r["stores"] == ref["stores"]
             c["summaries equal"] = {
-                s: r["summaries"].get(s) == ref["summaries"].get(s) for s in r["summaries"]
+                s: r["summaries"].get(s) == ref["summaries"].get(s)
+                for s in r["summaries"]
             }
             checks[f"{arm} vs {ref_arm}"] = c
         memory = {
@@ -221,7 +230,11 @@ def verdict(run, out):
             }
             for arm, r in rows.items()
         }
-        report["cases"][case] = {"reference": ref_arm, "checks": checks, "memory": memory}
+        report["cases"][case] = {
+            "reference": ref_arm,
+            "checks": checks,
+            "memory": memory,
+        }
     Path(out).write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=1))
     return report
