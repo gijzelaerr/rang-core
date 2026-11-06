@@ -130,15 +130,26 @@ def crit_c(tag, sky, cat):
     cfg, n = "C1", 8
     size = cat["image"]["size"]
     groups = groups_of(cat["nchan"], n)
-    nu = np.array([img(wname(sky, cfg, f"{k:04d}-", "psf"))[1]["CRVAL3"] for k in range(n)])
-    wk = np.array([img(wname(sky, cfg, f"{k:04d}-", "dirty"))[1]["WSCIMGWG"] for k in range(n)])
+    nu = np.array(
+        [img(wname(sky, cfg, f"{k:04d}-", "psf"))[1]["CRVAL3"] for k in range(n)]
+    )
+    wk = np.array(
+        [img(wname(sky, cfg, f"{k:04d}-", "dirty"))[1]["WSCIMGWG"] for k in range(n)]
+    )
     sigma_mfs = mad_sigma(inner(img(wname(sky, cfg, "MFS-", "residual"))[0]))
     sigma_k = sigma_mfs * np.sqrt(wk.sum() / wk)
     models = {
-        "gemclean": [img(gname(tag, sky, cfg, f"{k:04d}-", "model"))[0] for k in range(n)],
+        "gemclean": [
+            img(gname(tag, sky, cfg, f"{k:04d}-", "model"))[0] for k in range(n)
+        ],
         "wsclean": [img(wname(sky, cfg, f"{k:04d}-", "model"))[0] for k in range(n)],
     }
-    out = {"sigma_mfs": sigma_mfs, "nu_hz": nu.tolist(), "weights": wk.tolist(), "sources": []}
+    out = {
+        "sigma_mfs": sigma_mfs,
+        "nu_hz": nu.tolist(),
+        "weights": wk.tolist(),
+        "sources": [],
+    }
     for i, comp in enumerate(cat["components"]):
         mask = aperture(comp, size)
         t = fit_spectrum(channel_truth(comp, groups, nu), nu, sigma_k)
@@ -155,7 +166,10 @@ def crit_c(tag, sky, cat):
             db = e["beta"] - t["beta"]
             rec[who].update({"dS": ds, "dalpha": da, "dbeta": db})
             if comp["kind"] == "point":
-                ok = abs(ds) <= 0.02 + 3 / rec["snr"] and abs(da) <= 0.03 + 3 * e["se_alpha"]
+                ok = (
+                    abs(ds) <= 0.02 + 3 / rec["snr"]
+                    and abs(da) <= 0.03 + 3 * e["se_alpha"]
+                )
                 if comp["beta"] != 0:
                     ok &= abs(db) <= 0.1 + 3 * e["se_beta"]
             else:
@@ -190,7 +204,10 @@ def crit_c(tag, sky, cat):
         gr, wr = r["gemclean"], r["wsclean"]
         ok = gr["pass"]
         if not ok and gr["fit"] and not wr["pass"] and wr["fit"]:
-            ok = abs(gr["dS"]) <= abs(wr["dS"]) + 0.03 and abs(gr["dalpha"]) <= abs(wr["dalpha"]) + 0.05
+            ok = (
+                abs(gr["dS"]) <= abs(wr["dS"]) + 0.03
+                and abs(gr["dalpha"]) <= abs(wr["dalpha"]) + 0.05
+            )
         r["gaussian_pass"] = bool(ok)
         gauss_ok &= ok
     out["verdict"] = verdict
@@ -236,17 +253,18 @@ def false_flux(model, cat):
     return float(model[~keep].sum())
 
 
-def mfs_gap(tag, sky, cfg, cat):
+def mfs_gap(tag, sky, cfg, cat, sigma):
     part = "MFS-" if nout(cfg) > 1 else ""
     wres, wh = img(wname(sky, cfg, part, "residual"))
     gres, _ = img(gname(tag, sky, cfg, part, "residual"))
     wmod, _ = img(wname(sky, cfg, part, "model"))
     gmod, _ = img(gname(tag, sky, cfg, part, "model"))
     scale = abs(float(wh["CDELT2"]))
-    kern = gaussian_kernel(wres.shape[0], float(wh["BMAJ"]), float(wh["BMIN"]), float(wh["BPA"]), scale)
+    kern = gaussian_kernel(
+        wres.shape[0], float(wh["BMAJ"]), float(wh["BMIN"]), float(wh["BPA"]), scale
+    )
     rg = restore(gmod, kern) + gres
     rw = restore(wmod, kern) + wres
-    sigma = mad_sigma(inner(wres))
     d = inner(rg - rw)
     return {
         "d_rms": float(np.sqrt(np.mean(d * d)) / sigma),
@@ -258,18 +276,22 @@ def mfs_gap(tag, sky, cfg, cat):
 
 
 def crit_d(tag, sky, cat):
-    base = mfs_gap(tag, sky, "C0", cat)
+    # sigma_MFS of the rule: WSClean's C1 MFS residual, for every configuration.
+    sigma = mad_sigma(inner(img(wname(sky, "C1", "MFS-", "residual"))[0]))
+    base = mfs_gap(tag, sky, "C0", cat, sigma)
     base["dff"] = abs(base["ff_g"] - base["ff_w"])
     out = {"C0": base}
     ok = True
     for cfg in ("C1", "C2", "C3"):
-        m = mfs_gap(tag, sky, cfg, cat)
+        m = mfs_gap(tag, sky, cfg, cat, sigma)
         m["dff"] = abs(m["ff_g"] - m["ff_w"])
         m["bound_rms"] = max(1.5 * base["d_rms"], base["d_rms"] + 0.1)
         m["bound_max"] = max(1.5 * base["d_max"], base["d_max"] + 1e-4)
         m["bound_dff"] = base["dff"] + 1e-3
         m["pass"] = bool(
-            m["d_rms"] <= m["bound_rms"] and m["d_max"] <= m["bound_max"] and m["dff"] <= m["bound_dff"]
+            m["d_rms"] <= m["bound_rms"]
+            and m["d_max"] <= m["bound_max"]
+            and m["dff"] <= m["bound_dff"]
         )
         ok &= m["pass"]
         out[cfg] = m
@@ -292,8 +314,13 @@ def crit_f(tag, sky):
     for cfg in ("C0", "C1", "C2", "C3", "C4"):
         g = O / "runs" / tag / f"{sky}-{cfg}" / "time.txt"
         w = O / "runs" / "wsclean" / f"{sky}-{cfg}" / "time.txt"
-        out[cfg] = {"gemclean": rss(g) if g.exists() else None, "wsclean": rss(w) if w.exists() else None}
-    out["pass"] = all(v["gemclean"] is None or v["gemclean"] <= 24e9 for v in out.values())
+        out[cfg] = {
+            "gemclean": rss(g) if g.exists() else None,
+            "wsclean": rss(w) if w.exists() else None,
+        }
+    out["pass"] = all(
+        v["gemclean"] is None or v["gemclean"] <= 24e9 for v in out.values()
+    )
     return out
 
 
@@ -305,7 +332,9 @@ def score(tag, sky):
     res["C"] = crit_c(tag, sky, cat)
     res["D"] = crit_d(tag, sky, cat)
     res["F"] = crit_f(tag, sky)
-    (O / "runs" / tag / f"score-{sky}.json").write_text(json.dumps(res, indent=1) + "\n")
+    (O / "runs" / tag / f"score-{sky}.json").write_text(
+        json.dumps(res, indent=1) + "\n"
+    )
     return res
 
 
@@ -314,24 +343,54 @@ def show(res):
     print(f"== {s}")
     for cfg in ("C1", "C3", "C4"):
         b = res["B"][cfg]
-        worst = {k: max(r.get(k, 0) for r in b["rows"]) for k in ("psf_max_rel", "dirty_max_rel", "WSCIMGWG_rel", "CRVAL3_rel", "CDELT3_rel")}
-        print(f"B {cfg}: {'pass' if b['pass'] else 'FAIL'} " + " ".join(f"{k} {v:.2e}" for k, v in worst.items()) + (f" missing {b['missing']}" if b["missing"] else ""))
+        worst = {
+            k: max(r.get(k, 0) for r in b["rows"])
+            for k in (
+                "psf_max_rel",
+                "dirty_max_rel",
+                "WSCIMGWG_rel",
+                "CRVAL3_rel",
+                "CDELT3_rel",
+            )
+        }
+        print(
+            f"B {cfg}: {'pass' if b['pass'] else 'FAIL'} "
+            + " ".join(f"{k} {v:.2e}" for k, v in worst.items())
+            + (f" missing {b['missing']}" if b["missing"] else "")
+        )
     c = res["C"]
     for who, v in c["verdict"].items():
-        print(f"C {who}: {v['passed']}/{v['scored_points']} points pass, median |dalpha| {v['median_abs_dalpha']:.4f}, median |dS| {v['median_abs_dS']:.4f}")
+        print(
+            f"C {who}: {v['passed']}/{v['scored_points']} points pass, median |dalpha| {v['median_abs_dalpha']:.4f}, median |dS| {v['median_abs_dS']:.4f}"
+        )
     for r in c["sources"]:
         if r["kind"] == "gaussian":
             gr, wr = r["gemclean"], r["wsclean"]
-            print(f"  gaussian {r['index']}: G dS {gr.get('dS', float('nan')):+.4f} dalpha {gr.get('dalpha', float('nan')):+.4f}; W dS {wr.get('dS', float('nan')):+.4f} dalpha {wr.get('dalpha', float('nan')):+.4f}; pass {r['gaussian_pass']}")
-    print(f"C: {'pass' if c['pass'] else 'FAIL'} (points {c['points_pass']}, gaussians {c['gaussians_pass']})")
+            print(
+                f"  gaussian {r['index']}: G dS {gr.get('dS', float('nan')):+.4f} dalpha {gr.get('dalpha', float('nan')):+.4f}; W dS {wr.get('dS', float('nan')):+.4f} dalpha {wr.get('dalpha', float('nan')):+.4f}; pass {r['gaussian_pass']}"
+            )
+    print(
+        f"C: {'pass' if c['pass'] else 'FAIL'} (points {c['points_pass']}, gaussians {c['gaussians_pass']})"
+    )
     d = res["D"]
     b = d["C0"]
-    print(f"D C0: d_rms {b['d_rms']:.3f} sigma, d_max {b['d_max'] * 1e6:.1f} uJy, |dFF| {b['dff'] * 1e3:.3f} mJy (sigma {b['sigma'] * 1e6:.2f} uJy)")
+    print(
+        f"D C0: d_rms {b['d_rms']:.3f} sigma, d_max {b['d_max'] * 1e6:.1f} uJy, |dFF| {b['dff'] * 1e3:.3f} mJy (sigma {b['sigma'] * 1e6:.2f} uJy)"
+    )
     for cfg in ("C1", "C2", "C3"):
         m = d[cfg]
-        print(f"D {cfg}: d_rms {m['d_rms']:.3f} (<= {m['bound_rms']:.3f}), d_max {m['d_max'] * 1e6:.1f} (<= {m['bound_max'] * 1e6:.1f}) uJy, |dFF| {m['dff'] * 1e3:.3f} (<= {m['bound_dff'] * 1e3:.3f}) mJy: {'pass' if m['pass'] else 'FAIL'}")
+        print(
+            f"D {cfg}: d_rms {m['d_rms']:.3f} (<= {m['bound_rms']:.3f}), d_max {m['d_max'] * 1e6:.1f} (<= {m['bound_max'] * 1e6:.1f}) uJy, |dFF| {m['dff'] * 1e3:.3f} (<= {m['bound_dff'] * 1e3:.3f}) mJy: {'pass' if m['pass'] else 'FAIL'}"
+        )
     f = res["F"]
-    print("F peak RSS GB (G / W): " + ", ".join(f"{k} {v['gemclean'] / 1e9 if v['gemclean'] else float('nan'):.2f}/{v['wsclean'] / 1e9 if v['wsclean'] else float('nan'):.2f}" for k, v in f.items() if isinstance(v, dict)))
+    print(
+        "F peak RSS GB (G / W): "
+        + ", ".join(
+            f"{k} {v['gemclean'] / 1e9 if v['gemclean'] else float('nan'):.2f}/{v['wsclean'] / 1e9 if v['wsclean'] else float('nan'):.2f}"
+            for k, v in f.items()
+            if isinstance(v, dict)
+        )
+    )
 
 
 def avg(tag):

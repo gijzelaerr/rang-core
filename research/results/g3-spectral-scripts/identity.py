@@ -19,7 +19,9 @@ def sums(f):
 
 
 tag = sys.argv[1]
-names = sys.argv[2:] or sorted(p.stem for p in REF.glob("*.sha256") if not p.stem.startswith("p512"))
+names = sys.argv[2:] or sorted(
+    p.stem for p in REF.glob("*.sha256") if not p.stem.startswith("p512")
+)
 ok, checked = True, 0
 for name in names:
     a = sums(REF / f"{name}.sha256")
@@ -32,5 +34,9 @@ for name in names:
     same = a == b and len(a) == 5
     ok &= same
     checked += 1
-    print(f"{name}: {'identical' if same else 'DIFFERENT ' + ','.join(k for k in a if a[k] != b.get(k))}")
-print(f"{checked} runs compared: {'all five files byte-identical' if ok and checked else 'RULE FAILS'}")
+    print(
+        f"{name}: {'identical' if same else 'DIFFERENT ' + ','.join(k for k in a if a[k] != b.get(k))}"
+    )
+print(
+    f"{checked} runs compared: {'all five files byte-identical' if ok and checked else 'RULE FAILS'}"
+)

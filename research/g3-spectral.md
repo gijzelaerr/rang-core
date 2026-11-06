@@ -1,8 +1,15 @@
 # Rang: GeMClean's output channels, joined channels and spectral fitting (task G3)
 
-Status, 2026-11-06: **rule written; nothing compared yet.** The rule below is committed before the
-first comparison of any multi-channel image with WSClean or with the truth. Later sections are added
-as the work is done; a fix made after a comparison is labelled post hoc.
+Status, 2026-11-06: **implemented and measured; one held-out criterion failed as frozen.** GeMClean
+has `-channels-out`, `-join-channels`, `-fit-spectral-pol`, `-channel-range` and rang's
+`-average-channels`, and `rang-core image` passes them. Under the rule below (committed before any
+comparison, `601ecc8`): single channel byte-identical on all 15 runs of G2's set (A); dirty images
+and PSFs within 3e-7 of WSClean per channel and MFS, weights within 1e-8 (B); flux and spectral
+index of the truth on all four skies, as well as WSClean or better (C); MFS images within the bound
+relative to the single-channel gap on D1, D2 and H2s, **but not on held-out H1s**, where the largest
+difference (194 and 248 µJy against 163) sits on a bright source that WSClean leaves less clean than
+GeMClean (D); averaging equal to CASA `mstransform`'s (E); 7.0 GB peak at eight joined channels
+(F). No novelty claim; no default changed.
 
 Goal (finish plan, G3): GeMClean gains WSClean's `-channels-out`, `-join-channels` and
 `-fit-spectral-pol`, with `-channel-range` and channel averaging for the `rang-core image` options
@@ -250,3 +257,122 @@ Held-out seeds by the rule, `sha256("<commit> <binary sha256> <sky>")`:
 
 A host reboot at 11:15 stopped the first development batch; its one partial run (D1-C0) and the
 WSClean D1-C4 run made without `-make-psf` were deleted and rerun from scratch.
+
+## Results (measured)
+
+Binary `f153db8d…` (commit `92f0196`) for every GeMClean run; WSClean 3.7 `rang-wsclean-native:3.7`.
+Runs 2026-11-06 on a shared host (the heavy lock was held by other agents most of the day).
+Outputs `D:\rang\outputs\20261106-g3-spectral` (`runs/dev1` development, `runs/freeze` held out,
+`runs/wsclean`, `identity/`, `runs.tsv`, per-sky `score-<sky>.json`); scorer
+[score.py](results/g3-spectral-scripts/score.py).
+
+**Scorer correction (labelled; before any held-out score).** The first scorer version normalised
+criterion D's `d_rms` by each configuration's own WSClean MFS σ; the rule's `σ_MFS` is WSClean's C1
+MFS residual (criterion C's definition), now used for every configuration. On D1 this moved C0's
+`d_rms` from 0.037 to 0.112 (the C0 residual holds the unmodelled spectral structure, σ 85 µJy
+against 28 µJy for C1); every D1 verdict was "pass" either way. `d_max` and `|ΔFF|` do not use σ.
+
+### Criterion A: single channel byte-identical (pass)
+
+Main `0cb508b`, built here (sha256 `3d9bc7d4…`), reproduces G2's `c34` files on S1 in the default
+form, so G2's stored runs are the reference. The G3 binary gives all five FITS files byte-identical
+on all 15 runs: S1-S3 and H1-H4 in both forms and the 256-channel pilot
+([identity.py](results/g3-spectral-scripts/identity.py); peak RSS S1 2.91 GB, H3 5.31 GB, pilot-256
+11.96 GB, as G2's).
+
+### Criterion B: dirty images and PSFs against WSClean (all pass)
+
+| sky | largest |ΔPSF| / peak | largest |Δdirty| / peak | `WSCIMGWG` relative | `CRVAL3`, `CDELT3` |
+| --- | ---: | ---: | ---: | --- |
+| D1 | 1.8e-7 | 2.3e-7 | 5.9e-9 | equal |
+| D2 | 1.8e-7 | 1.6e-7 | 5.9e-9 | equal |
+| H1s (held out) | 1.5e-7 | 2.1e-7 | 9.6e-9 | equal |
+| H2s (held out) | 1.8e-7 | 2.7e-7 | 6.1e-9 | equal |
+
+Worst over C1 (8 channels, MF weights), C3 (4 channels, per-channel weights) and C4 (`-channel-range
+2 14`, 3 channels), per channel and MFS; bound 1e-5 and 1e-6. Every file WSClean wrote exists under
+GeMClean's name. This is float32 FITS rounding.
+
+### Criterion C: flux and spectral index against the truth (C1; all pass)
+
+| sky | scored points (SNR ≥ 200) | GeMClean pass | WSClean pass | median |Δα| G / W | median |ΔS/S| G / W | Gaussians |
+| --- | ---: | ---: | ---: | --- | --- | --- |
+| D1 | 33 | 33 | 33 | 0.014 / 0.013 | 0.0020 / 0.0018 | – |
+| D2 | 17 | 17 | 15 | 0.012 / 0.008 | 0.0038 / 0.0036 | 5 of 5 |
+| H1s | 35 | 33 | 32 | 0.017 / 0.017 | 0.0025 / 0.0021 | – |
+| H2s | 16 | 16 | 16 | 0.011 / 0.014 | 0.0033 / 0.0034 | 5 of 5 |
+
+On H1s both imagers miss the same two bright points (SNR 15,000-15,600) by Δα −0.033 and −0.036
+with σ_α under 0.001: a shared bias of the aperture estimator at dec −60, not GeMClean's. On H2s one
+Gaussian (FWHM about 55″) has Δα −0.171 and ΔS/S −0.051 in both imagers, and passes only through
+the rule's WSClean-relative clause (GeMClean's errors within 0.001 of WSClean's). Högbom on both
+sides loses flux on that extended source; multiscale is G5.
+
+### Criterion D: MFS images against WSClean, relative to C0
+
+| sky | C0 `d_rms` σ, `d_max` µJy, |ΔFF| mJy | C1 | C2 | C3 | verdict |
+| --- | --- | --- | --- | --- | --- |
+| D1 | 0.112, 131, 3.20 | 0.094, 147, 1.03 | 0.086, 135, 0.89 | 0.057, 48, 0.01 | pass |
+| D2 | 0.128, 171, 0.57 | 0.098, 168, 0.46 | 0.100, 116, 0.49 | 0.136, 211, 0.03 | pass |
+| H1s | 0.069, 63, 3.14 | 0.101, **194**, 2.49 | 0.110, **248**, 1.77 | 0.051, 67, 0.99 | **fail** (C1, C2 `d_max`; bound 163) |
+| H2s | 0.110, 87, 1.16 | 0.092, 92, 0.11 | 0.094, 90, 0.07 | 0.116, 107, 0.09 | pass |
+
+**H1s fails D as frozen**, on the largest difference only (rms and false flux pass). Its largest
+difference sits on the 358 mJy point at pixel (421, 1317). There WSClean's MFS residual is 249 µJy
+(C1) and 300 µJy (C2), GeMClean's 150 µJy: GeMClean leaves less, and the gap is WSClean's. C0's
+`d_max` on this sky is small (63 µJy), which made the bound tight. No fix was made; the held-out
+skies are not redrawn.
+
+### Criterion E: channel averaging against CASA `mstransform` (pass)
+
+`-average-channels 2` on D1 against D1 averaged by CASA 6.7.6 `mstransform` (`chanbin=2`): GeMClean
+on both agrees within 3.7e-9 (PSF) and 5.9e-8 (dirty) of the peak, and with WSClean on the averaged
+MS within 2.4e-7, at one output channel and at `-channels-out 4` (bounds 1e-6, 1e-5). D1 has
+uniform weights and no flags, so this does not test the weighting of the mean.
+
+### Criterion F: memory (reported; all under 24 GB)
+
+Peak RSS, GB, GeMClean / WSClean, on the four skies: C0 2.95 / 0.75-0.77, C1 7.02-7.03 / 0.61-0.64,
+C2 7.02-7.03 / 0.62-0.64, C3 3.94-4.05 / 0.55-0.56, C4 3.27-3.58 / 0.49-0.51. Eight joined channels
+at 2048² cost about 4.1 GB above one channel (eight beams of about 0.34 GB, eight PSF crops and
+per-channel images); the grids are held for one channel at a time. GeMClean holds 9-11× WSClean in
+joined mode. The pilot was not imaged with channels out. No tuning.
+
+## What was not checked
+
+- Q/Q_truth through the exact gridder (no per-channel predict in the scorer); false flux and the
+  restored MFS image stand for it.
+- `-fit-spectral-log-pol` (refused), `-deconvolution-channels`, squared joining, channel division
+  by frequencies or gaps (refused).
+- Joined channels with `-single`, `-beam-band`, `-no-plan-reuse`, `-beam-no-w`, `-mgain`, the
+  misfit-fraction rule or `-auto-threshold` (the code paths exist; only the defaults were run).
+  `-mf-weighting` on unjoined channels and `-no-mf-weighting` on joined ones were not run.
+- The pilot (real data) with output channels; the memory at 512 channels × several output channels
+  (eight beams of 1.34 GB at 4096² would add about 10 GB to G2's 19.7 GB).
+- Averaging with non-uniform weights or flags (D1 has neither), and a last short group.
+- Timing: the host was shared all day; walls are in `runs.tsv` and are not compared.
+
+## For the coordinator
+
+- `research/README.md` index line: `[g3-spectral.md](g3-spectral.md) — G3: GeMClean's
+  -channels-out, -join-channels and -fit-spectral-pol against WSClean 3.7 on simulated spectral
+  skies; held-out D failed on one sky.`
+- `research/STATE.md` log paragraph: "G3, GeMClean output channels, 2026-11-06 (implemented;
+  measured; one held-out criterion failed as frozen; [g3-spectral.md](g3-spectral.md)). `gemclean`
+  gains WSClean's `-channels-out`, `-join-channels`, `-fit-spectral-pol` (ordinary polynomial in
+  ν/ν_ref − 1, as schaapcommon's `SpectralFitter`), `-channel-range`, `-mf-weighting`, and rang's
+  `-average-channels`; per-channel and MFS files with WSClean's names; `rang-core image` passes
+  `channels_out`, `join_channels`, `fit_spectral_pol` and `average_channels`. The joined loop
+  picks on the weighted sum of the channel residuals with GeMClean's exact value per channel.
+  Under a rule written first, on two development and two held-out simulated skies (16 channels,
+  900-1670 MHz, curved spectra, Gaussians): single channel byte-identical on G2's 15 runs; dirty
+  images and PSFs within 3e-7 of WSClean; flux and spectral index of the truth as well as WSClean
+  (median |Δα| 0.011-0.017, |ΔS/S| 0.2-0.4 %); MFS images within the bound on three skies, but on
+  held-out H1s the largest difference (194 and 248 µJy against 163) sits on a 358 mJy source that
+  WSClean leaves less clean; averaging equal to CASA `mstransform`'s. Eight joined channels: 7.0 GB
+  peak at 2048² (WSClean 0.6). `-fit-spectral-log-pol` refused (owner decision recorded). No
+  novelty claim."
+- `research/finish-plan.md`: G3 done (one held-out D failure, recorded); unblocks G4, G5, G6, G9.
+  For G7: joined-channel memory (one beam per channel) on the pilot is not measured.
+- Branch `fp-g3-spectral`; outputs `D:\rang\outputs\20261106-g3-spectral` (simulated MS about
+  0.8 GB each, D1avg, runs, identity hashes; FITS of the identity set deleted after hashing).
