@@ -84,6 +84,24 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
         self
     }
 
+    /// Bytes held, by buffer (for the memory report).
+    pub fn memory(&self) -> Vec<(&'static str, usize)> {
+        use crate::gemclean::memory::bytes_of;
+        let mut out = vec![
+            ("measurement: visibilities", bytes_of(&self.vis)),
+            ("measurement: weights", bytes_of(&self.wgt)),
+            ("measurement: uvw", bytes_of(&self.uvw)),
+            (
+                "measurement: residual visibilities",
+                bytes_of(&self.buffer.lock().expect("no panic while predicting")),
+            ),
+        ];
+        if let Some(p) = &self.prepared {
+            out.extend(p.memory());
+        }
+        out
+    }
+
     /// Half-spectrum columns of a `side × side` image of this cell that the
     /// measurement can reach: the longest baseline at the highest frequency,
     /// plus the most the w-term moves it at the corner of the image, plus a
@@ -198,7 +216,10 @@ impl<T: Real + Send + Sync> Measurement for GridMeasurement<T> {
             let (re, im) = (d.re.to(), d.im.to());
             q += w.to() * (re * re + im * im);
         }
-        Ok((self.image(e)?, 0.5 * q))
+        crate::gemclean::memory::mark("residual: predict");
+        let image = self.image(e)?;
+        crate::gemclean::memory::mark("residual: grid");
+        Ok((image, 0.5 * q))
     }
 
     fn gram_apply(&self, x: &[f64]) -> Result<Vec<f64>, String> {

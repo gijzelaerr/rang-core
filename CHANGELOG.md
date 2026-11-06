@@ -9,6 +9,9 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `gemclean -memory-report` prints the heap held per phase of a run (read, weights, PSF,
+  beam, each major cycle) and the main buffers' sizes; `-report.json` carries the same under
+  `memory` (`research/g2-memory.md`). Images are unchanged.
 - New: `rang.calmodels`, calibrator models written to `MODEL_DATA` as CASA's `setjy` writes them
   (C1 term T0). `set_model(ms, field, spec)` takes a flux-density standard of `rang.fluxstd`, a
   `manual` model (flux density, reference frequency, log10 spectral terms), per-channel Stokes rows

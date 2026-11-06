@@ -21,6 +21,7 @@ use rang_core::gemclean::input::{self, Selection};
 use rang_core::gemclean::json::{arr, num, obj, opt, text};
 use rang_core::gemclean::kernels::{self, Level};
 use rang_core::gemclean::measure::GridMeasurement;
+use rang_core::gemclean::memory::{self, bytes_of};
 use rang_core::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
 use rang_core::gemclean::{self, Beam, CycleStop, Settings};
 use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
@@ -86,7 +87,9 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -bitpix <32|64>           FITS sample format (default 32)
   -tile <pixels>            tile side of the argmax (default 64)
   -eager-tiles              rescan every tile a patch touches (same picks, for comparison)
-  -no-restore               do not write the restored image";
+  -no-restore               do not write the restored image
+  -memory-report            print the heap held per phase and the main buffers' sizes
+                            (always in -report.json)";
 
 struct Args {
     ms: PathBuf,
@@ -126,6 +129,7 @@ struct Args {
     beam_no_w: bool,
     beam_band: bool,
     lazy_bounds: bool,
+    memory_report: bool,
 }
 
 /// An angle with WSClean's units, in radians (plain numbers are degrees).
@@ -199,6 +203,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         beam_no_w: false,
         beam_band: false,
         lazy_bounds: true,
+        memory_report: false,
     };
     let mut i = 0;
     let mut positional = Vec::new();
@@ -294,6 +299,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 }
             }
             "-no-restore" => a.restore = false,
+            "-memory-report" => a.memory_report = true,
             "-tile" => a.tile = number(flag, value(&mut i)?)?,
             "-eager-tiles" => a.lazy_bounds = false,
             "-single" => a.single = true,
@@ -445,6 +451,7 @@ fn deconvolve<T: Real + Send + Sync>(
     } else {
         measurement.without_plan_reuse()
     };
+    memory::mark("measurement");
     let t = Instant::now();
     // With the operator and -beam-no-w the PSF needs no gridding pass of its own.
     let psf2n = match (&gram_operator, args.beam_no_w) {
@@ -452,6 +459,7 @@ fn deconvolve<T: Real + Send + Sync>(
         _ => measurement.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?,
     };
     let t_psf = t.elapsed().as_secs_f64();
+    memory::mark("psf 2n");
     let t = Instant::now();
     let columns = if args.beam_band {
         measurement.band_columns(2 * n)
@@ -461,6 +469,7 @@ fn deconvolve<T: Real + Send + Sync>(
     let beam = Beam::from_double_band(n, &psf2n, args.patch, columns)?;
     let t_beam = t.elapsed().as_secs_f64();
     let restoring = gemclean::fit_restoring_beam(n, &psf2n);
+    memory::mark("beam");
     let scale_deg = args.scale.to_degrees();
     println!(
         "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; {} of {} spectrum columns, {:.2e} left out; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} main-lobe pixels); PSF {:.2} s, FFT {:.2} s",
@@ -569,6 +578,13 @@ fn deconvolve<T: Real + Send + Sync>(
             outcome
         }
     };
+    memory::mark("clean: end");
+    memory::note("psf 2n image", bytes_of(&psf2n));
+    for (label, bytes) in measurement.memory().into_iter().chain(beam.memory()) {
+        memory::note(label, bytes);
+    }
+    let image = n * n * std::mem::size_of::<f64>();
+    memory::note("one n x n f64 image", image);
     Ok(Cleaned {
         psf2n,
         beam,
@@ -611,9 +627,18 @@ fn run() -> Result<(), String> {
     };
     let data = input::read_ms(&args.ms, &selection)?;
     let t_read = t.elapsed().as_secs_f64();
+    memory::mark("read");
+    memory::note("read: Stokes I visibilities", bytes_of(&data.vis));
+    memory::note("read: Stokes I weights", bytes_of(&data.weight));
+    memory::note(
+        "read: uvw and row flags",
+        bytes_of(&data.uvw) + bytes_of(&data.flag_row),
+    );
     let t = Instant::now();
     let weights = input::gridding_weights(&data, args.weight, n, args.scale)?;
     let t_weights = t.elapsed().as_secs_f64();
+    memory::mark("weights");
+    memory::note("weights: gridding weights", bytes_of(&weights.weights));
     println!(
         "{}: {} of {} rows selected (field {}, {column}), {} channels {:.4}-{:.4} MHz, {} visibilities weighted, weight sum {:.6} ({:.2} s read, {:.2} s weights)",
         args.ms.display(),
@@ -645,6 +670,10 @@ fn run() -> Result<(), String> {
     let freq = data.freq.clone();
     let phase_dir = data.phase_dir;
     drop(data);
+    memory::mark("compact");
+    memory::note("compact: visibilities", bytes_of(&vis));
+    memory::note("compact: weights", bytes_of(&wgt));
+    memory::note("compact: uvw", bytes_of(&uvw));
     let opts = Options {
         flip_v: true,
         flip_w: true,
@@ -756,6 +785,65 @@ fn run() -> Result<(), String> {
     }
     let t_restore = t_restore.elapsed().as_secs_f64();
     let t_write = t.elapsed().as_secs_f64() - t_restore;
+    memory::mark("write");
+    let phases = memory::phases();
+    let buffers = memory::buffers();
+    let gb = |b: usize| b as f64 / 1e9;
+    if args.memory_report && memory::counting() {
+        println!(
+            "memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):"
+        );
+        for p in &phases {
+            println!(
+                "  {:<26} held {:>7.3}  most {:>7.3}  rss {:>7.3}  peak rss {:>7.3}  swap {:>6.3}",
+                p.label,
+                gb(p.live),
+                gb(p.peak),
+                p.rss.map_or(f64::NAN, |b| b as f64 / 1e9),
+                p.hwm.map_or(f64::NAN, |b| b as f64 / 1e9),
+                p.swap.map_or(f64::NAN, |b| b as f64 / 1e9)
+            );
+        }
+        println!("memory by buffer (GB):");
+        for (label, bytes) in &buffers {
+            println!("  {label:<44} {:>8.3}", gb(*bytes));
+        }
+    }
+    let memory_json = if memory::counting() {
+        obj(&[
+            (
+                "phases",
+                arr(&phases
+                    .iter()
+                    .map(|p| {
+                        obj(&[
+                            ("label", text(&p.label)),
+                            ("heap_end_bytes", p.live.to_string()),
+                            ("heap_peak_bytes", p.peak.to_string()),
+                            ("rss_bytes", p.rss.map_or("null".into(), |b| b.to_string())),
+                            (
+                                "swap_bytes",
+                                p.swap.map_or("null".into(), |b| b.to_string()),
+                            ),
+                            (
+                                "rss_peak_bytes",
+                                p.hwm.map_or("null".into(), |b| b.to_string()),
+                            ),
+                        ])
+                    })
+                    .collect::<Vec<_>>()),
+            ),
+            (
+                "buffers",
+                arr(&buffers
+                    .iter()
+                    .map(|(l, b)| obj(&[("label", text(l)), ("bytes", b.to_string())]))
+                    .collect::<Vec<_>>()),
+            ),
+        ])
+    } else {
+        "null".into()
+    };
 
     let threads = rayon::current_num_threads();
     let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
@@ -831,6 +919,7 @@ fn run() -> Result<(), String> {
             "peak_memory_bytes",
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
+        ("memory", memory_json),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());

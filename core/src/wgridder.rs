@@ -3150,6 +3150,37 @@ impl<T: Real> Prepared<T> {
         })
     }
 
+    /// Bytes held, by buffer: the baselines, the sorted layout, the tables and
+    /// the work space kept between passes (for the memory report).
+    pub fn memory(&self) -> Vec<(&'static str, usize)> {
+        fn b<V>(v: &Vec<V>) -> usize {
+            v.capacity() * std::mem::size_of::<V>()
+        }
+        let mut out = vec![(
+            "gridder: baselines (uvw per row)",
+            b(&self.bl.coord) + b(&self.bl.f_over_c),
+        )];
+        if let Some((_, lay, tables)) = &self.prepared {
+            out.push(("gridder: sorted visibility index", b(&lay.refs)));
+            out.push(("gridder: blocks and tiles", b(&lay.blocks) + b(&lay.tiles)));
+            out.push((
+                "gridder: tables",
+                b(&tables.coeff)
+                    + b(&tables.table)
+                    + b(&tables.rows)
+                    + b(&tables.cols)
+                    + b(&tables.inv_rows)
+                    + b(&tables.corr)
+                    + b(&tables.cfuv.0)
+                    + b(&tables.cfuv.1),
+            ));
+        }
+        let work = self.grids.lock().expect("no panic while gridding");
+        out.push(("gridder: grids", work.grids.iter().map(b).sum()));
+        out.push(("gridder: stored sorted values", b(&work.stored)));
+        out
+    }
+
     /// `vis2dirty` of `data` with the prepared plan, with weights `wgt`.
     pub fn vis2dirty(&self, data: VisData, wgt: Weights, dirty: &mut [T]) -> Result<Plan, String> {
         if data.len().is_some_and(|l| l != self.n)

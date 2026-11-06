@@ -50,6 +50,7 @@ pub mod host;
 pub mod input;
 pub mod kernels;
 pub mod measure;
+pub mod memory;
 pub mod sim;
 pub mod stale_bound;
 
@@ -631,6 +632,24 @@ impl Beam {
     /// Spectrum columns the resyncs transform, and their number without the band limit.
     pub fn columns(&self) -> (usize, usize) {
         self.convolver.columns()
+    }
+
+    /// Bytes held, by buffer (for the memory report).
+    pub fn memory(&self) -> Vec<(&'static str, usize)> {
+        use memory::bytes_of;
+        let buffers = self.convolver.buffers.lock().expect("no panic in a resync");
+        vec![
+            ("beam: exterior", bytes_of(&self.exterior)),
+            (
+                "beam: patch and rings",
+                bytes_of(&self.patch_values) + bytes_of(&self.ring),
+            ),
+            ("beam: spectrum", bytes_of(&self.convolver.spectrum)),
+            (
+                "beam: row spectra (resync work space)",
+                bytes_of(&buffers.rows) + bytes_of(&buffers.nonzero),
+            ),
+        ]
     }
 
     /// The rms of the part of the beam the resyncs leave out.
@@ -1569,6 +1588,7 @@ pub fn run_with_bound<M: Measurement>(
         }
         ct.minor = minor_start.elapsed().as_secs_f64() - ct.resync;
         work_all.add(&work.work);
+        memory::mark(&format!("cycle {}: minor", cycles.len() + 1));
         let tm = Instant::now();
         let (next, q_next) = measurement.residual(&model)?;
         ct.major = tm.elapsed().as_secs_f64();
