@@ -834,8 +834,14 @@ def model_spec(model, config_path):
     if model["source"] == "setjy":
         return calmodels.Standard(standard=model["standard"] or "Stevens-Reynolds 2016")
     if model["source"] == "manual":
+        # I, Q, U, V and the polarisation keys as CASA's setjy (task C7a).
         return calmodels.Manual(
-            model["flux_jy"][0], float(model["reffreq_hz"]), tuple(model["spix"] or ())
+            list(model["flux_jy"]),
+            float(model["reffreq_hz"]),
+            tuple(model["spix"] or ()),
+            polindex=model["polindex"] or (),
+            polangle=model["polangle"] or (),
+            rotmeas=model["rotmeas"] or 0.0,
         )
     return calmodels.SkyModel(str(_resolve_path(model["lsm"], config_path)))
 
