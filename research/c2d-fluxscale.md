@@ -202,3 +202,91 @@ Following C2a and C4b: a failed frozen case stays failed in the results table. A
 described, and a fix is labelled **post hoc**; any change to the code after the first comparison is followed by
 the held-out set of section 5, whose verdict stands as it comes out. Where CASA's behaviour is unclear the
 port follows its sources (file and function cited); anything fitted to data seen here is labelled post hoc.
+
+## 7. Results of the frozen set (measured 2026-11-06)
+
+Code: the working tree on top of `6ab6924` (this protocol), snapshot in each `/mnt/d/rang/outputs/c2d-20261106-NN.code/`
+(`head.txt`, `diff.patch`, `untracked.tgz`). Heavy lock held for every run.
+
+**Run -01: no comparison.** CASA's first `gaincal` selected no rows: O-CASA's slice holds its one field at id 1
+(J1939−6342 of three FIELD rows), not 0 as section 3 assumed, so the harness's relabelled field was the
+primary itself. Fixed in the harness only (`slice2` copies the slice's own FIELD row to a new id 3; primary
+id 1); no rang code changed, nothing compared. Before run -02, rang's side alone was run on -01's other copies
+as a smoke test (no CASA output was read).
+
+**Run -02, the frozen verdict** (`c2d-20261106-02`, 1,220 s wall including waits for the heavy lock; 18 CASA
+`fluxscale` calls 35.7 s, 11 `gaincal` 44.1 s). The data preparation passed its own checks: the four-window
+copies equal their sources' corrected data, model, flags and weights exactly in every window; `slice2` moved
+96 rows (integrations 16-31) to field 3. The class C step crashed in the harness (it deleted the copy's
+`table.lock`, which the writer opens), so `compare` was rerun on -02's outputs with the same code and class C run afterwards
+(`readback.json`, section 8). The numbers below were read from that comparison; its file was later
+overwritten by a comparison of the recheck's outputs (now `compare-after-recheck.json`, which adds the
+`E_med` rows of section 8). rang's frozen outputs are kept in `rang-run02/`.
+
+| Class | Cases | Verdict | Largest differences |
+| --- | --- | --- | --- |
+| P | 12 | **fail, all 12** | `fluxd` 1.2e-7 relative (gate 1e-9); `fluxdErr` up to 1.5e-2 (P-full64); fit 3.5e-3 (fitorder 2), covariance on the four-window cases; output rows on P-a1-transfer and P-a1-reftran (192 against CASA's 256). numSol, frequencies and the valid (field, spw) sets equal everywhere; CPARAM within 1.9 ε32 where the rows matched |
+| B | 4 | **pass, all 4** | `fluxd` 1.6e-5 (slice2), 1.7e-4 (a1, on 3C286-SIM; 1.1e-5 on SIM-GCAL), 1.5e-6 (a1x4), 2.5e-8 (full64); scale at half those; fitted flux ≤ 1.7e-4; spectral index 9.4e-7 and 2.6e-6 (a1x4); F-table products median 6e-7 to 1.6e-4, p95 3e-6 to 4.9e-4; reference rows unchanged |
+| T, noise-free | 2 | **pass** | `fd` 3.2e-6 of `E_k` per window (T-a1x4-twin) and 3.2e-6 (T-a1-twin); fitted flux 3.2e-6; α 1.6e-10 |
+| T, noise | 2 | **fail, both** | T-a1 `fd` 1.18e-3 of `E_k` (gate 1e-3); T-a1x4 window 3 1.95e-3 (others 7.6e-4, 5.9e-4, 1.2e-4); fitted flux 3.2e-5 and α 1.4e-3 pass |
+
+Reported: the slice's pseudo-secondary has `fd` 9.0291 Jy against `0.36 × S̄_model` (not gated); the fitted α of
+SIM-GCAL on the twin is −0.6025 against the nominal −0.6 (the windows are 214 MHz wide; `E_k` gives the same
+−0.6025, so this is the averaging over a window, as section 2 expected); per-window `fd` on the noisy 1-spw
+copy is 2.1 % above the nominal `S(ν)` at the window frequency (one window, a 40 % slope across it).
+
+## 8. Post hoc after run -02
+
+**P: CASA's amplitude.** `probe_fluxscale_median.py` (on -02's CASA tables) recomputed the ratios with six
+amplitude rules and three median choices. Only one rule reproduces CASA's `fluxd` exactly on all twelve
+(field, window) values: the amplitude is `float32(sqrt(re² + im²))` **evaluated in float64**, not the float32
+`hypot` rang used (`|z|` of complex64 in NumPy); the frozen median rule (the mean of the two middle values at
+32 elements, the lower one at 128) is confirmed, the alternatives miss by 1e-8 to 1e-2. The 1e-8 differences
+in `fluxd` were this; the larger `fluxdErr` and fit differences were the same, amplified by `ratio / stddev`
+(1e6 on the noise-free 64-antenna twin). Ported, post hoc (`rang.cal_fluxscale`).
+
+**P: the output rows.** CASA writes **every** row of the input table; with `transfer` given, the other
+fields' rows are written unscaled, so section 0.1 item 1's "not written" was wrong (the `select` of
+`Calibrater::fluxscale` limits what is read into the calculation, not `storeNCT`'s output). Ported, post hoc.
+
+**Recheck** (`compare-recheck-run02.json`: rang's side rerun on -02's CASA tables and copies with the changed
+code, 1,158 s with lock waits): **P passes on 10 of 12** with `fluxd`, `fluxdErr`, numSol, frequencies, tables
+(bit-identical CPARAM on every row of every case) and covariances exact or within 2e-10. **P-a1x4-fit2 and
+P-a1x4-2valid still fail**, on `spidxerr` and `fitFluxdErr` of 3C286-SIM at fitorder 2: 8.7e-6 against the
+1e-6 gate (coefficients and fitted flux within 6e-16). With four windows and three coefficients `n − m = 1`,
+and CASA's `χ²` is `SUMLL − sol·known` with weights near 1e10 (3C286-SIM's `fderr/fd` about 1e-5), so `χ²` of
+order 1 is the difference of numbers near 1e10: about 1e-5 of it is rounding in either implementation's
+accumulation order. Not a port error and not chased (an exact match would need casacore's normal-matrix order
+and its triangular inversion). B unchanged (all pass); T unchanged.
+
+**T with noise: the expected value was wrong, and the noise estimate was low.** CASA and rang agree on these
+values to 1e-5, so the miss is in section 2's expectation, not in rang. `probe_fluxscale_truth.py`: under the
+RFI mask each antenna's baselines lose different channels, so each antenna's gain carries its own effective
+spectrum; on SIM-GCAL these per-antenna expectations `E_a,h` span 4.282 to 4.304 Jy (0.5 %) on the one-window
+copy and up to 0.5 % per window on the four-window copy (the twin: 1e-5). `fluxscale` takes the **median** of
+per-antenna ratios, so the expectation is `E_med`, the square of casacore's median of `√E_a,h`, not one
+weighted mean over all cells. Against `E_med`: T-a1 5.8e-4; T-a1x4 3.9e-4, 2.8e-4, 6.3e-5, 9.9e-4 per window,
+fitted flux 1.7e-5, α 7.3e-4 (twins 1.7e-6). The rest is noise, larger than section 2 estimated: the
+per-antenna ratios scatter by 1.4e-3 (`fderr` 1.0e-3 Jy at 4.3 Jy), so the median of 32 has a standard error
+near 3e-4 in the ratio, 6e-4 in `fd`; the protocol's "about 1e-4" left out that scatter, so its noisy bound is
+about 1.7 standard errors, not 10.
+
+**Class C, CASA reads rang's F table** (`readback.json`, 37.9 s; rang's `applycal` 21.2 s, most of it the flag
+version on `/mnt/d`): CASA `applycal` with truth K, B and rang's F table from the recheck (`nearest` field map)
+on SIM-GCAL and SIM-TARGET of a fresh copy, against `rang.applycal` with the same tables: **0 of 2,334,720
+cells over class C** (worst 6.5 ε32 of the cell), FLAG exact. **Pass.** (Run after the post-hoc change; the F
+table's amplitudes differ from run -02's by at most a float32 rounding of `mgratio`.)
+
+## 9. Held-out set: amendments frozen before it is generated
+
+Written after section 8 and before the held-out version exists. Section 5's cases and the section 2 criteria
+are run **as frozen**, with the code as after section 8, and their verdicts are reported as frozen. Added, and
+labelled post hoc:
+
+- **T, `E_med`** (section 8) as the expectation, with section 2's bounds unchanged, reported beside the frozen
+  `E_k` verdict. **Prediction:** the noisy held-out cases fail against `E_k`; against `E_med` they are
+  marginal, since SIM-GCAL is 2.5 Jy at 1.4 GHz there (about 1.7 times the relative noise of A1 small at
+  4 Jy), so 1e-3 is close to one standard error and a pass is not expected on every window.
+- **P at fitorder 2** is predicted to fail its frozen 1e-6 on the fit errors wherever `n − m = 1` and the SNR
+  is high (section 8); its coefficients and fitted flux are predicted within 1e-12.
+- **P at fitorder 1, B, T on the twin**: predicted to pass.
