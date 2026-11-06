@@ -1587,3 +1587,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W4 gemclean (main's release build) directly on the ws-undefined MS | A1 small copy | – | – | exit 2: "WEIGHT_SPECTRUM: read of 8 bytes ... failed to fill whole buffer" |
 | 2026-11-06 | W4 `examples/check_w4_unsupported.py`, post hoc run-02-posthoc-scans (scans-none, scans-other) | A1 small copies | 177.2 s | 96 MB | uncommitted narrowed `data.scans` rule; same verdicts as run-01 |
 | 2026-11-06 | W4 check-all on the final tree (results commit) | worktree | 490.3 s | 1.81 GB | FAIL only on the research-index test; pytest 941 passed, 68 skipped in 128 s |
+| 2026-11-06 | W3 `uv venv` + `uv pip install -e` (all extras, ruff 0.17.3, maturin; builds the extension) | worktree | 138.4 s | 1.18 GB | public PyPI |
+| 2026-11-06 | W3 `a1_simtruth.py generate w3 --scans 1,3,4,5,23 --workers 3 --chunk-ints 1` | 40,320 rows × 4096 ch, 8.0 GB to `/mnt/d` | 1 min 56 s | 4.07 GB | heavy lock |
+| 2026-11-06 | W3 check-all, implementation commit | worktree | 1116 s | 1.99 GB | FAIL only on the research-index test; pytest 960 passed, 68 skipped |
+| 2026-11-06 | W3 probe-02: `tools/oracles/w3/run.sh` W at 2 GiB, flag / calibrate / apply | W copy | 4:28 / 21:22 / 5:21 | 0.77 / 0.95 / 1.49 GiB | heavy lock ([w3-chunking.md](w3-chunking.md) 5.1) |
+| 2026-11-06 | W3 run-01 `tools/oracles/w3/all.sh` (S, O, W, L arms, refusal, verdict) | A1 small, O-CASA slice, W, A1 full | 14,669 s | 17.6 GiB (W unchunked calibrate) | per stage in w3-chunking.md 5.2; shared host |
+| 2026-11-06 | W3 run-01 W flag U / D / T / M | W copy | 3:29 / 3:56 / 3:43 / 4:16 | 8.72 / 3.02 / 1.11 / 0.77 GiB | heavy lock |
+| 2026-11-06 | W3 run-01 W calibrate U / D / T / M | W copy | 5:31 / 10:04 / 9:55 / 21:45 | 17.59 / 3.51 / 2.29 / 0.98 GiB | chunked: two passes |
+| 2026-11-06 | W3 run-01 W apply U / D / T / M | W copy | 7:58 / 6:12 / 5:39 / 5:26 | 16.41 / 4.99 / 3.04 / 1.17 GiB | |
+| 2026-11-06 | W3 run-01 L calibrate D / M (read only) | A1 full, 35.8 GB | 1:44 / 2:01 | 1.90 / 0.46 GiB | fcal scans only |
+| 2026-11-06 | W3 run-01 S flag, calibrate, apply U / D / T | A1 small copies | 22 / 24 / 397 s; 18 / 19 / 339 s; 23 / 23 / 378 s | at most 0.16 GiB | T: 7-row chunks, a flush per put |
+| 2026-11-06 | W3 run-01 O flag, calibrate, apply U / D / T | O-CASA slice copies | 3 / 3 / 8 s; 6 / 7 / 63 s; 9 / 10 / 15 s | at most 0.13 GiB | |

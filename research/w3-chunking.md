@@ -8,8 +8,20 @@ same result as the unchunked run. `image` is gemclean's own reading (G2,
 [g2-memory.md](g2-memory.md)) and is not changed here. Branch `fp-w3-chunking`
 from main `5ec40e3`. Interface and resource work: no novelty is claimed.
 
-**Status: proposed.** Sections 0 to 4 are written and committed before any
-comparison is run.
+**Status: implemented and measured; every criterion passes as frozen**
+(code `56d64d4`, harness `e5f0862`; frozen run
+`/mnt/d/rang/outputs/w3/run-01`, archive
+[results/w3-chunking.json](results/w3-chunking.json)). Sections 0 to 4 were
+committed (`8ce3c8f`) before any comparison; amendments 1 and 2 (`d0ab11f`,
+`e5f0862`) changed the configuration and one arm's chunk cap after a probe and
+before any comparison (section 2 and 5.1). On A1 small, O-CASA's slice and a
+whole-array set at 4096 channels, FLAG, the flag versions, MODEL_DATA,
+CORRECTED_DATA, every gain-store file and every stage summary are
+bit-identical between main `5ec40e3` unchunked and this branch at the default
+limit, at tiny chunks and at 2 GiB. At the default limit of 8 GiB the stages
+peak at 3.0-5.0 GiB on the whole-array set (main: 8.7-17.6 GiB), at 2 GiB at
+0.77-1.17 GiB, and calibrate on A1 full (35.8 GB) at 1.9 and 0.46 GiB. No
+speed claim (shared host).
 
 ## 0. What the code does at `5ec40e3`
 
@@ -244,14 +256,15 @@ code reserves `BASE_BYTES` 640 MiB and `ROW_BYTES` 160 per row, so on W
 
 | Stage | Chunks at 2 GiB | Peak RSS | Wall | Bytes per cell, measured (peak − 40 MB over the chunk's cells) | Factor in the code |
 | --- | --- | --- | --- | ---: | ---: |
-| flag | 2,803 rows; 5, 5, 2, 2, 3 baseline blocks for the 5 scans | 0.83 GB | 4 min 28 s | about 18 | 32 |
-| calibrate | 1,401 rows' worth of cells; 12 chunks for Gint and G2, 9 frequency-bin chunks for Gchan, per fcal scan; two passes | 1.02 GB | 21 min 22 s | about 42 | 64 |
-| apply | 1,869 rows | 1.60 GB | 5 min 21 s | about 51 | 48, raised to **64** |
+| flag | 2,803 rows; 5, 5, 2, 2, 3 baseline blocks for the 5 scans | 0.77 GiB | 4 min 28 s | about 18 | 32 |
+| calibrate | 1,401 rows' worth of cells; 12 chunks for Gint and G2, 9 frequency-bin chunks for Gchan, per fcal scan; two passes | 0.95 GiB | 21 min 22 s | about 42 | 64 |
+| apply | 1,869 rows | 1.49 GiB | 5 min 21 s | about 51 | 48, raised to **64** |
 
 The apply factor was below what apply holds (DATA, FLAG, the output column,
 the new flags and the kernel's outputs), so it was raised to 64 before any
 comparison; the others keep their margin. Peaks are `/usr/bin/time -v`
-maximum resident set (KB, as GB of 10⁹ bytes here and below).
+maximum resident set, in GiB (2³⁰ bytes, the unit of the limit) here and
+below.
 
 **Amendment 2** (before any comparison): arm T on W uses `data.chunk_rows:
 4096`, not 512. At 512 rows every Gint interval (2016 rows × 16 channels)
@@ -262,3 +275,148 @@ and M: flag blocks of about 680 baselines, Gint chunks of two dumps, G2 one
 bin per chunk, Gchan three frequency chunks per scan, apply row chunks of
 4096. Reading only a channel range per chunk would need a sliced read in the
 reader (not in W3).
+
+### 5.2 Frozen run -01
+
+`W3_ORACLE=~/Worktrees/rang/w3-oracle-5ec40e3 bash tools/oracles/w3/all.sh
+/mnt/d/rang/outputs/w3/run-01`, at `e5f0862` (code `56d64d4` plus the
+harness), 4 h 4 min in all; W and L arms one at a time under the heavy lock.
+The U arm ran main `5ec40e3`'s Python (a detached checkout) with this
+branch's extension, as section 2 states. Verdict: `run-01/verdict.json`
+(`tools/oracles/w3/compare.py verdict`), copied into the archive.
+
+| # | Criterion | Measured | Verdict |
+| --- | --- | --- | --- |
+| 1 | FLAG after flag and after apply; other columns; flag versions | S, O, W: D, T (and M on W) against U, casacure SHA-256 of every column after each stage: no column differs; the four flag versions (`rang_original`, flag, calibrate, apply) equal cell by cell | pass |
+| 2 | MODEL_DATA | equal in every arm (hashed after calibrate and apply) | pass |
+| 3 | Gain stores; iterations and converged fraction | every file of the three stores byte-identical in every arm; per-partition iterations and converged fraction equal (in the summaries) | pass |
+| 4 | CORRECTED_DATA | equal in every arm | pass |
+| 5 | summary.json without times, paths, version names, chunking | equal for flag, calibrate and apply in every arm | pass |
+| 6 | L: D against M | stores byte-identical; D solved each fcal scan in one call, M in 7 chunks with the replayed stop; both stopped at 25 and 27 iterations (converged fractions 1.0 and 0.996) | pass |
+| 7 | Peak RSS ≤ the limit for D and M on W and L | table below; every D and M stage within | pass |
+| 8 | Refusal on W (one interval of 198 M cells at 2 GiB) | exit 2: "one solution interval of field 'J1939-6342' scan 1 holds 198180864 visibility cells and needs 12.444 GiB, above data.memory_limit_gb 2; ...", for scans 1 and 23; every column hash unchanged, no flag version, no run directory | pass |
+| 9 | Unit tests (`tests/test_w3_chunking.py`, 13 tests) | pass in check-all | pass |
+
+Peak RSS (GiB), `/usr/bin/time -v`:
+
+| Case | Arm | Limit | flag | calibrate | apply |
+| --- | --- | ---: | ---: | ---: | ---: |
+| W (8.0 GB MS, 40,320 rows × 4096 ch) | U, main unchunked | none | 8.72 | 17.59 | 16.41 |
+| | D | 8 | 3.02 | 3.51 | 4.99 |
+| | T (4096 rows) | 8 | 1.11 | 2.29 | 3.04 |
+| | M | 2 | 0.77 | 0.98 | 1.17 |
+| L (35.8 GB MS, 2,842,560 rows × 256 ch) | D | 8 | | 1.90 | |
+| | M | 2 | | 0.46 | |
+| S (41 MB) | U / D / T | 8 | 0.09 / 0.06 / 0.05 | 0.16 / 0.10 / 0.05 | 0.12 / 0.12 / 0.05 |
+| O (37 MB) | U / D / T | 8 | 0.11 / 0.09 / 0.05 | 0.13 / 0.11 / 0.06 | 0.11 / 0.11 / 0.05 |
+
+The chunks behind those peaks (from each summary's `chunking` record):
+
+- W, D: flag one block per scan (each fits), calibrate 2, 3 and 2 chunks per
+  fcal scan for Gint, G2 and Gchan, apply 7,545 rows per chunk.
+- W, T: flag 3, 3, 1, 1, 2 blocks; calibrate 3 chunks per scan and term;
+  apply 4,096 rows.
+- W, M: flag 5, 5, 2, 2, 3 blocks; calibrate 12, 12 and 9 chunks; apply
+  1,401 rows.
+- S, T: 1,960 flag blocks over 23 groups (single baselines), 182 solve chunks
+  over 6 partitions (up to 64 in one), apply 7 rows. O, T: 6 flag blocks, 92
+  solve chunks, apply 7 rows.
+
+Reported, not gated:
+
+- **The stop test on W.** Every partition of W's U arm ran its 50 iterations
+  (converged fractions 0.97, 0.02 and 0.97 for Gint, G2 and Gchan), so on W
+  the replay reproduced "run to the maximum". The early stop is exercised by
+  L (25 and 27 iterations, one call against 7 chunks, byte-identical) and by
+  the unit tests (`stops early`, `runs to its maximum`, a flagged interval).
+- **Peak against MS size.** At 8 GiB, calibrate peaks at 3.5 GiB on W and
+  1.9 GiB on L, whose MS is 4.5 times larger: the peak follows the chunk, not
+  the MS. Both stay well below the limit because each partition (one fcal scan)
+  fits fewer chunks than the limit allows; the factors are conservative
+  (section 5.1).
+- **Costs of chunking** (one run each, shared host, not timing measurements):
+  calibrate on W 5 min 31 s unchunked, 10 min 4 s at 8 GiB and 21 min 45 s
+  at 2 GiB, from the two passes and the re-reads of whole rows for frequency
+  chunks; flag (3.5-4.3 min) and apply (5.4-8.0 min) took about as long in
+  every arm on W, the unchunked arm included. On S and
+  O, `chunk_rows: 7` makes every FLAG and CORRECTED_DATA write a few rows with
+  a flush (W1's `WriteBack` flushes every put): 6 to 7 minutes per stage on S.
+- **Receipts.** A1 full was not modified by calibrate (the receipt lists only
+  the run directory as an output), so its 35.8 GB were not content-hashed.
+  The W arms' receipts hashed their modified 18.6 GB copies; that time is
+  inside the stage walls above.
+
+## 6. Limits and what was not checked
+
+- As section 4: no 4096-channel MS of hours (disk), no flag or apply on L, no
+  Windows or macOS, no speed.
+- One solution interval is the smallest solve chunk. `solint: inf` with
+  `freqint: inf` on a whole-array scan is refused below about 12 GiB per
+  6 dumps at 4096 channels (criterion 8). Splitting an interval would change
+  the solver.
+- A chunked partition replays the `gain` stop test only; other
+  `RANG_SOLVE_OPTIONS` stop tests are refused for partitions that do not fit
+  one chunk (not exercised in a run). A solver error in pass 1 fails the stage,
+  also where the one-call loop would have stopped before the error (not seen).
+- Frequency chunks re-read whole rows; a channel-sliced read in the reader
+  would remove that cost.
+- `cal_gain` and `cal_delay` now read only the rows of their field, but are not
+  chunked (section 1.5); when C2c and C2d wire G, K and B into `rang-core
+  calibrate`, their memory needs the same treatment (the CASA reference-antenna
+  pass runs over all intervals at once).
+- The factors were fitted on W (section 5.1) and then checked on W; L at
+  256 channels is the held-out set for calibrate only.
+- `flag` writes the selected rows only; the `5ec40e3` stage rewrote every row
+  unchanged. FLAG is equal either way (criterion 1).
+
+## 7. Timings
+
+Rows added to [tool-timings.md](tool-timings.md); every stage's
+`/usr/bin/time -v` is in `run-01/<case>-<arm>/timing/`.
+
+## 8. Owner decisions
+
+- **The default limit** `data.memory_limit_gb: 8` (GiB). Chosen so a 16 GB
+  machine can run every stage; E2's processing host may set more. On W the
+  stages peak at 3.0-5.0 GiB under it.
+- **`data.chunk_rows`** stays as a cap on every chunk (it was "rows per write
+  chunk"); its default (null) now follows the limit instead of 64 MiB of DATA.
+- **Neither key enters the stage hash.** A run directory written before W3
+  will see every finished stage as "changed" once, because the hash no longer
+  includes `data.chunk_rows`; `--force` reruns it (or the coordinator may
+  accept that).
+- **The two-pass replay** costs up to 2 x the reads and `max_iterations` per
+  chunk in pass 1; the alternative, QuartiCal-style independent chunks (each
+  with its own stop test, as QuartiCal's `time_chunk` does), would be faster
+  but not equal to the one-call solve. The coordinator's provisional choice:
+  keep the exact replay.
+
+## For the coordinator
+
+- **research/README.md**, after the W2 line (this also makes
+  `test_every_note_is_in_the_research_index` pass, the only check-all failure
+  at the branch head):
+  `- [W3, chunking](w3-chunking.md): flag, calibrate and apply run within data.memory_limit_gb (default 8 GiB) by chunking by time and row, bit-identical to the unchunked commands on A1 small, O-CASA's slice and a whole-array 4096-channel set; the complex solve replays its global stop test over chunks of solution intervals.`
+- **research/STATE.md**, log, newest first:
+  `W3, 2026-11-06 (implemented and measured; [w3-chunking.md](w3-chunking.md)). rang-core flag, calibrate and apply now run within data.memory_limit_gb (default 8 GiB) and read no visibility column whole (rang.core_chunks): the flagger takes blocks of baselines of a field and scan on the group's time grid, the complex solve takes chunks of whole solution intervals (time bins, or frequency bins of one time bin) and replays the solver's global stop test in two passes, apply and the models use row chunks. Every criterion passes as frozen: on A1 small, O-CASA's slice and a new whole-array set (64 antennas, 4096 channels, 20 dumps, 8.0 GB), FLAG, flag versions, MODEL_DATA, CORRECTED_DATA, gain stores (byte-identical) and stage summaries equal main 5ec40e3 unchunked at the default limit, at tiny chunks and at 2 GiB. Peaks on the whole-array set: 3.0-5.0 GiB at 8 GiB, 0.77-1.17 GiB at 2 GiB, against 8.7-17.6 GiB unchunked; calibrate on A1 full (35.8 GB) 1.9 and 0.46 GiB, chunked and one-call gains byte-identical. A solution interval larger than the limit is refused before anything is written, naming the GiB needed. Chunked solves cost up to two passes (calibrate 10 min at 8 GiB against 5.5 unchunked on the whole-array set; not a timing measurement). No novelty claim.`
+  In "Current status", add W3 to the Done list.
+- **research/finish-plan.md**, row W3: `**Done 2026-11-06** ([w3-chunking.md](w3-chunking.md)): bit-identical chunked and unchunked; 8 GiB default limit, whole-array 4096-channel set at 3.0-5.0 GiB.` before the task text. Section 2, row "Reading": the missing part (whole-array chunking in a general command) is done for flag, calibrate and apply. Section 7: add W3's decisions (section 8 here).
+- **Shared files changed:** `python/rang/core_pipeline.py` (flag and
+  calibrate rewritten around `core_chunks`; `inspect_ms` keeps TIME;
+  `preflight` calls `memory_problems`; `solve_partition` takes a reader and
+  returns a sixth item, the chunking record), `python/rang/core_config.py`
+  (`data.memory_limit_gb`, `RESOURCE_KEYS` out of `stage_hash`),
+  `python/rang/core_flag.py` (`flag_rows(time_grid=...)`),
+  `python/rang/cal_gain.py` (`_ms_columns` reads only the selected rows; the
+  only edit there), `python/rang/simtruth.py` and `examples/a1_simtruth.py`
+  (design `w3`, `--chunk-ints`), `docs/cli.md` (regenerated), `CHANGELOG.md`.
+  A branch that calls `solve_partition` or reads `info["rows"]` must follow.
+  C2c and C2d, when they wire G, K and B into `stage_calibrate`, should take
+  rows through `core_chunks.read_rows` and the budget of `core_chunks.budget`.
+- **On disk:** `/mnt/d/rang/outputs/w3/data/w3.ms` (8.0 GB, the whole-array
+  set; regenerate with `examples/a1_simtruth.py generate w3 DIR --scans
+  1,3,4,5,23 --workers 3 --chunk-ints 1 --name w3`, 1 min 56 s) and
+  `/mnt/d/rang/outputs/w3/run-01` (0.8 GB: hashes, run directories with the
+  gain stores, timings; the MS copies were removed after each arm) and
+  `probe-02` (90 MB). All can go after merge; keep `w3.ms` if E1 or E2 want a
+  whole-array test set.
