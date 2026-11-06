@@ -864,28 +864,61 @@ MODEL_SOURCES = ("setjy", "manual", "lsm")  # written by rang.calmodels (C3a)
 
 def _model_refusals(model, cal, no, out):
     """What calibrate cannot do yet with `calibrate.model` (task W2b): a
-    polarised manual model (C7a). The model is written on the primary
+    polarised manual model (I, Q, U, V, polindex, polangle, rotmeas) is
+    written as CASA's setjy does (C7a). The model is written on the primary
     fields only; the secondary's K, G and F solve against CASA's unit point
     model (`smodel`) and its flux density comes from fluxscale (task C2e),
     so a complex term on secondary fields with a written model is an
     error."""
     source = model["source"]
+    pol_keys = [k for k in ("polindex", "polangle", "rotmeas") if model[k] is not None]
+    if source != "manual":
+        for key in pol_keys:
+            out.append(
+                Refusal(f"calibrate.model.{key}", "", "only with source: manual")
+            )
     if source not in MODEL_SOURCES:
         return
     if source == "manual":
         flux = model["flux_jy"]
         if not flux:
             out.append(Refusal("calibrate.model.flux_jy", "", "required for manual"))
-        elif any(float(v) != 0 for v in flux[1:]):
-            no("calibrate.model.flux_jy", "C7a", "a polarised manual model (Q, U, V)")
+        elif len(flux) > 4:
+            out.append(Refusal("calibrate.model.flux_jy", "", "I or I, Q, U, V"))
         if model["reffreq_hz"] is None:
             out.append(Refusal("calibrate.model.reffreq_hz", "", "required for manual"))
-        for key in ("polindex", "polangle", "rotmeas"):
-            value = model[key]
-            if value is not None and any(
-                float(v) != 0 for v in (value if isinstance(value, list) else [value])
-            ):
-                no(f"calibrate.model.{key}", "C7a", f"{key} (a polarised model)")
+        linear = bool(flux) and any(float(v) != 0 for v in flux[1:3])
+        if not linear and (model["polindex"] is None) != (model["polangle"] is None):
+            out.append(
+                Refusal(
+                    "calibrate.model.polindex",
+                    "",
+                    "polindex and polangle go together (CASA's setjy writes no "
+                    "linear polarisation with only one)",
+                )
+            )
+        # CASA's one-term-spix polarised path converts channel 0 to LSRK
+        # (c7a-polmodels.md section 9), which needs astropy.
+        polarised = (bool(flux) and any(float(v) != 0 for v in flux[1:4])) or (
+            model["polindex"] is not None and model["polangle"] is not None
+        )
+        lengths = [
+            len(v) if isinstance(v, (list, tuple)) else int(v is not None)
+            for v in (model[k] for k in ("spix", "polindex", "polangle"))
+        ]
+        if polarised and max(lengths) <= 1:
+            import importlib.util
+
+            if importlib.util.find_spec("astropy") is None:
+                out.append(
+                    Refusal(
+                        "calibrate.model.spix",
+                        "",
+                        "a polarised manual model with one spix term needs astropy "
+                        "(pip install 'rang-core[imaging]') for CASA's channel-0 "
+                        "LSRK conversion",
+                    )
+                )
     if source == "lsm" and model["lsm"] is None:
         out.append(Refusal("calibrate.model.lsm", "", "required for lsm"))
     for section in ("secondary", "polcal"):

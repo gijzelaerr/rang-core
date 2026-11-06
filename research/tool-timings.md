@@ -1630,3 +1630,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C2e `check_c2e.py casa` runs -13 (C-slice), -11 (C-a1), -14 (H-h128) | slice, A1 small, holdout128 | 28.3 s, 94.4 s, 108.4 s (CASA tasks 0.3-2.0 s each) | – | all pass |
 | 2026-11-06 | C2e `a1_simtruth.py generate holdout128` | 16 antennas, 128 channels | 3.2 s | – | written |
 | 2026-11-06 | C2e `tools/check-all.sh` run 1 (working tree before formatting) | worktree | about 12 min including the lock wait | – | FAIL on ruff formatting (fixed) and the research-index test; 969 passed, 68 skipped; gain-hashes pass |
+| 2026-11-06 | C7a venv (uv, Python 3.13, editable install builds the extension) | worktree | 242 s | – | the queued `maturin develop` was killed by the reboot |
+| 2026-11-06 | C7a CASA 6.7.6.14 `setjy` manual polarised, 9 calls (M1–M8, P1) | slice 192 × 2048; A1 small 12,480 × 64 | 21.2 s (1.4 s per call on the slice, 2.6 s on A1 small) | – | one container ([c7a-polmodels.md](c7a-polmodels.md)); casatools FEED read 0.6 s |
+| 2026-11-06 | C7a rang `calmodels.set_model` polarised manual | slice / A1 small | 0.8 s / 10.6 s (the column added on `/mnt/d`) | 158 MB (driver) | whole `c7a_polmodels.py run` -03 103.9 s; lock wait 57 min |
+| 2026-11-06 | check-all, C7a branch before the first code commit (twice) | repo | 574.5 s, 1,222.2 s (with lock waits) | 1.94 GB | first: `maturin develop` failed (the uv venv had no pip); second: only the index test fails; pytest 962 passed, 68 skipped |
+| 2026-11-06 | C7a `c7a_polmodels.py run` -04 (post hoc, M1–M8, P1, T) | slice / A1 small | 98.3 s (CASA 9 calls 21.2 s) | 308 MB | lock wait 18 min |
+| 2026-11-06 | C7a `c7a_polmodels.py run --held-out` -05 (H1, 2 `setjy` calls on one copy) | A1 small | 20.2 s (CASA 5.5 s) | 272 MB | right after -04, no code change |
+| 2026-11-06 | check-all, C7a branch before the post-hoc commit | repo | 510.7 s | 1.80 GB | only the index test fails; pytest 963 passed, 68 skipped |
+| 2026-11-06 | check-all, C7a branch before the astropy-refusal commit | repo | 541.78 s | – | only the index test fails; 1 failed, 963 passed, 68 skipped in 125.55s (0:02:05) |
