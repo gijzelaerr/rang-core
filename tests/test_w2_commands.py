@@ -593,7 +593,7 @@ def test_calibrate_writes_a_manual_model_and_solves_against_it(tmp_path):
     assert stored.tobytes() == solution.gains.tobytes()
 
 
-def test_model_and_apply_refusals_name_their_tasks():
+def test_model_and_apply_refusals_name_their_tasks(monkeypatch):
     def tasks(raw, stages):
         config, errors = core_config.resolve({"version": 1, **raw})
         assert errors == [], errors
@@ -611,6 +611,18 @@ def test_model_and_apply_refusals_name_their_tasks():
     assert tasks({"calibrate": {"model": one_sided}}, ["calibrate"]) == {
         ("calibrate.model.polindex", "")
     }
+    import importlib.util
+
+    real = importlib.util.find_spec
+    monkeypatch.setattr(
+        importlib.util,
+        "find_spec",
+        lambda name, *a: None if name == "astropy" else real(name, *a),
+    )
+    assert tasks({"calibrate": {"model": model}}, ["calibrate"]) == {
+        ("calibrate.model.spix", "")
+    }
+    monkeypatch.undo()
     elsewhere = {"source": "setjy", "polangle": [0.5]}
     assert tasks({"calibrate": {"model": elsewhere}}, ["calibrate"]) == {
         ("calibrate.model.polangle", "")

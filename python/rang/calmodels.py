@@ -604,6 +604,15 @@ def _channel0_frames(ms, spec, meta, fields, ddids, session):
         )
     if MEAS_FREQ_TOPO in frames and meta["array_centroid_itrf_m"] is None:
         raise ValueError("no ANTENNA positions for the TOPO-to-LSRK conversion")
+    if MEAS_FREQ_TOPO in frames:
+        import importlib.util
+
+        if importlib.util.find_spec("astropy") is None:
+            raise NotImplementedError(
+                "a polarised manual model with one spix term needs astropy "
+                "(pip install 'rang-core[imaging]') for CASA's channel-0 LSRK "
+                "conversion"
+            )
     if session is not None:
         time0 = float(np.asarray(session.read("TIME", 0, 1))[0])
     else:

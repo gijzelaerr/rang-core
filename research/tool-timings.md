@@ -1613,3 +1613,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C7a `c7a_polmodels.py run` -04 (post hoc, M1–M8, P1, T) | slice / A1 small | 98.3 s (CASA 9 calls 21.2 s) | 308 MB | lock wait 18 min |
 | 2026-11-06 | C7a `c7a_polmodels.py run --held-out` -05 (H1, 2 `setjy` calls on one copy) | A1 small | 20.2 s (CASA 5.5 s) | 272 MB | right after -04, no code change |
 | 2026-11-06 | check-all, C7a branch before the post-hoc commit | repo | 510.7 s | 1.80 GB | only the index test fails; pytest 963 passed, 68 skipped |
+| 2026-11-06 | check-all, C7a branch before the astropy-refusal commit | repo | 541.78 s | – | only the index test fails; 1 failed, 963 passed, 68 skipped in 125.55s (0:02:05) |

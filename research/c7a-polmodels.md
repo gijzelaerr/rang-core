@@ -303,7 +303,8 @@ within the tables' rounding, with χ's sign as published (Re XY > 0 for 3C286).
 **T2 as predicted**, to the digit: Δp +1.2, +0.3, −0.1, +1.2 points for 3C286
 at 1.05, 1.45, 1.64, 1.02 GHz and Δχ 0; 3C138 Δp +2.2, +0.3, −0.6, +2.3 and
 Δχ +4.4°, +1.4°, +0.4°, +3.4°. CARACal's constant-p models are 1.2 (3C286)
-and 2.3 (3C138) points high at the bottom of the published L band; this is
+and 2.2 (3C138) points above PB2013 at 1.05 GHz (1.2 and 2.3 above NRAO 2019
+at 1.02 GHz), and 3C138's angle 4.4° off at 1.05 GHz; this is
 the model's accuracy, not rang's. **T3:** Taylor & Legodi's MeerKAT 3C286
 angle is 29.2°, 3.8° from the NRAO 33°; 3C138 −15.1° against −9.6°.
 
@@ -355,6 +356,13 @@ window. Every other path is unchanged (the code of the tabular and
 unpolarised paths is not touched). CASA takes the observatory from
 `MeasTable::Observatory(TELESCOPE_NAME)`; rang uses the ANTENNA centroid, a
 difference of km at most, about 1e-4 km/s in the correction.
+
+After the runs (outside the measured path; the archive's `calmodels.py`
+SHA-256 `f0a42678…` predates it): astropy is an optional dependency
+(`imaging` extra), so `rang-core calibrate` refuses a polarised one-term
+`spix` model when astropy is missing, and `set_model` raises a clear error;
+`lsrk_over_topo` itself is unchanged. At today's epoch it runs without IERS
+warnings (bundled tables, download off).
 
 | Run | Case | Path | G1 | G2 real ulps | G2 imag /I | G3 | Pass |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -419,11 +427,12 @@ Proposed STATE line: "C7a, 2026-11-06: polarised calibrator models
 ([c7a-polmodels.md](c7a-polmodels.md)). `calmodels.Manual` takes `setjy`
 manual's I, Q, U, V, `polindex`, `polangle`, `rotmeas`; CARACal's 3C286 and
 3C138 are `calmodels.NRAO_XCAL`. Against CASA 6.7.6.14: 0 float32 ulps on
-all four correlations on the tabular path (8 cases incl. held out); the
+all four correlations on the tabular path (7 cases: M1–M6 and the held-out
+H1's tabular half); the
 one-term `spix` path within 1.5e-7 of I, 2 ulps (G2 fails as written; CASA
 converts channel 0 to LSRK there, which rang copies post hoc). MODEL_DATA is
 sky-frame, independent of parallactic angle and RECEPTOR_ANGLE (P1, P2).
-CARACal's constant-p models are 1.2 (3C286) and 2.3 (3C138) points above
+CARACal's constant-p models are 1.2 (3C286) and 2.2 (3C138) points above
 Perley & Butler 2013 at 1.05 GHz."
 
 Proposed finish-plan C7 row note: "C7a done 2026-11-06; the polcal-field

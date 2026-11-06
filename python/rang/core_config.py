@@ -870,6 +870,28 @@ def _model_refusals(model, cal, no, out):
                     "linear polarisation with only one)",
                 )
             )
+        # CASA's one-term-spix polarised path converts channel 0 to LSRK
+        # (c7a-polmodels.md section 9), which needs astropy.
+        polarised = (bool(flux) and any(float(v) != 0 for v in flux[1:4])) or (
+            model["polindex"] is not None and model["polangle"] is not None
+        )
+        lengths = [
+            len(v) if isinstance(v, (list, tuple)) else int(v is not None)
+            for v in (model[k] for k in ("spix", "polindex", "polangle"))
+        ]
+        if polarised and max(lengths) <= 1:
+            import importlib.util
+
+            if importlib.util.find_spec("astropy") is None:
+                out.append(
+                    Refusal(
+                        "calibrate.model.spix",
+                        "",
+                        "a polarised manual model with one spix term needs astropy "
+                        "(pip install 'rang-core[imaging]') for CASA's channel-0 "
+                        "LSRK conversion",
+                    )
+                )
     if source == "lsm" and model["lsm"] is None:
         out.append(Refusal("calibrate.model.lsm", "", "required for lsm"))
     for section in ("secondary", "polcal"):
