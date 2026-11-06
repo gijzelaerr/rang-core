@@ -105,8 +105,8 @@ A failure is reported as measured and not reworded.
 
 ## Freeze (recorded before any held-out case ran)
 
-Frozen 2026-11-07 at commit  of .  built from it (profile ,
-rustc 1.93) has sha256  (copy
-). Only the development cases had run, with
-the release build of the same source (). Criterion 5 runs with
+Frozen 2026-11-07 at commit `0d5c890` of `fp-g6-predict`. `gemclean` built from it (profile `gemclean`,
+rustc 1.93) has sha256 `5fb696825d9e53032ef7c8ed5c578248f5143f56a86eb4b12ae99057beead287` (copy
+`/mnt/d/rang/outputs/w6-20261107-02-held/bin/gemclean-freeze`). Only the development cases had run, with
+the release build of the same source (`/mnt/d/rang/outputs/w6-20261106-01-dev`). Criterion 5 runs with
 this binary.
