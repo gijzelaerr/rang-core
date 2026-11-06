@@ -1,11 +1,20 @@
-"""`rang-core`: one command line for every core stage, comparator and check
-(research/p9-cli.md; before task P9, research/core-h-recipes.md).
+"""`rang-core`: the command line (research/w2-commands.md, research/p9-cli.md;
+before task P9, research/core-h-recipes.md).
 
-    rang-core [--receipt PATH | --no-receipt] [--no-pin-threads] STAGE VERB ARGS...
-    rang-core STAGE -h          # the verbs of a stage
+    rang-core [--receipt PATH | --no-receipt] [--no-pin-threads] COMMAND ...
+    rang-core flag | calibrate | apply | image | selfcal | run CONFIG MS
+    rang-core config defaults | check CONFIG [MS]
+    rang-core research STAGE VERB ARGS...   # the research chains
+    rang-core research STAGE -h             # the verbs of a stage
     rang-core check [--rust | --python | --all]
 
-Stages and verbs (`STAGES`): every stage has `compare` (its comparator) and
+Task W2 added the commands for a user's own Measurement Set
+(`rang.core_config`, `rang.core_pipeline`) and moved the research stages
+under `rang-core research`; the stage functions below keep their names and
+signatures. Each of the new commands writes a receipt into
+`<run>/receipts/` unless `--receipt PATH` or `--no-receipt` is given.
+
+Research stages and verbs (`STAGES`): every stage has `compare` (its comparator) and
 most have `run` and `archive`. `compare` of injections, actions, prospective,
 signal, trend, imaging, flags, weights, gridder and backends runs the
 comparator engine `rang.core_compare` in this process with the arguments
@@ -32,9 +41,10 @@ pools as `tests/conftest.py` does (an explicit environment setting wins;
 `--no-pin-threads` or `RANG_PIN_THREADS=0` turns the caps off). The Rust
 core's `RAYON_NUM_THREADS` is left alone and recorded.
 
-The legacy forms still work: `rang-core injections RUN PREPARED ...` (the
-verb `run` is implied), `rang-core trend-mirror MIRROR SOURCE` and
-`rang-core compare STAGE RESULT ORACLE RECEIPT [--posthoc-slope-scale]`,
+The legacy forms still work under `research`: `rang-core research injections
+RUN PREPARED ...` (the verb `run` is implied), `rang-core research
+trend-mirror MIRROR SOURCE` and `rang-core research compare STAGE RESULT
+ORACLE RECEIPT [--posthoc-slope-scale]`,
 which adds the `comparator` record to the receipt as before. The stage
 functions below are also the commands of the python-flavour cabs in
 `recipes/core-*.yaml` (signatures unchanged); `environment` records whether
@@ -979,12 +989,26 @@ STAGES = {
         "p6": _script("bench_p6_hotspots.py"),
     },
 }
-# Commands without verbs.
-TOP_LEVEL = {
+# Research commands without verbs (`rang-core research NAME`).
+RESEARCH_TOP_LEVEL = {
     "environment": "RUN_DIR: record the interpreter and the frozen solver's absence",
-    "check": "[--rust | --python | --all]: the full local checks, portable",
     "compare": "STAGE RESULT ORACLE RECEIPT: legacy form (adds `comparator`)",
     "trend-mirror": "MIRROR SOURCE: legacy form of `trend mirror`",
+}
+# The commands for a user's own Measurement Set (task W2).
+USER_COMMANDS = {
+    "flag": "CONFIG MS: flag with the Tricolour port, writing FLAG",
+    "calibrate": "CONFIG MS: solve the calibration terms, writing tables",
+    "apply": "CONFIG MS: apply the solutions (not yet: task C4)",
+    "image": "CONFIG MS: image with gemclean",
+    "selfcal": "CONFIG MS: self-calibrate (not yet: tasks C5, G6)",
+    "run": "CONFIG MS: the stages of run.stages in order, resuming",
+}
+# Other top-level commands.
+TOP_LEVEL = {
+    "config": "defaults | check CONFIG [MS]: the configuration schema",
+    "research": "STAGE VERB ARGS...: the research chains (rang-core research -h)",
+    "check": "[--rust | --python | --all]: the full local checks, portable",
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
 }
 # The stage functions that `run` (and `trend mirror`) call, looked up at call
@@ -1005,26 +1029,44 @@ COMMANDS = {
 def usage():
     lines = [
         "usage: rang-core [--receipt PATH | --no-receipt] [--no-pin-threads]"
-        + " STAGE VERB ARGS...",
+        + " COMMAND ...",
+        "",
+        "commands for a Measurement Set (each takes a config.yaml and an MS):",
+    ]
+    lines += [f"  {name:15s} {text}" for name, text in USER_COMMANDS.items()]
+    lines += ["", "other commands:"]
+    lines += [f"  {name:15s} {text}" for name, text in TOP_LEVEL.items()]
+    lines += [
+        "",
+        "`rang-core COMMAND -h` describes a command. `rang-core config defaults`",
+        "prints every configuration key with its default.",
+    ]
+    return "\n".join(lines)
+
+
+def research_usage():
+    lines = [
+        "usage: rang-core [--receipt PATH | --no-receipt] [--no-pin-threads]"
+        + " research STAGE VERB ARGS...",
         "",
         "stages and verbs:",
     ]
     for stage, entry in STAGES.items():
         verbs = " | ".join(v for v in entry if v != "help")
         lines += [f"  {stage:15s} {verbs}", f"  {'':15s} {entry['help']}"]
-    lines += ["", "other commands:"]
-    lines += [f"  {name:15s} {text}" for name, text in TOP_LEVEL.items()]
+    lines += ["", "other research commands:"]
+    lines += [f"  {name:15s} {text}" for name, text in RESEARCH_TOP_LEVEL.items()]
     lines += [
         "",
-        "`rang-core STAGE -h` describes a stage's verbs. `compare` takes the",
-        "arguments of examples/compare_core_<stage>.py or of the stage's checker.",
+        "`rang-core research STAGE -h` describes a stage's verbs. `compare` takes",
+        "the arguments of examples/compare_core_<stage>.py or of the stage's checker.",
     ]
     return "\n".join(lines)
 
 
 def stage_usage(stage):
     entry = STAGES[stage]
-    lines = [f"usage: rang-core {stage} VERB ARGS...", "", entry["help"], ""]
+    lines = [f"usage: rang-core research {stage} VERB ARGS...", "", entry["help"], ""]
     for verb, spec in entry.items():
         if verb == "help":
             continue
@@ -1109,7 +1151,7 @@ def _call(options, receipt, primary, verb, function, kwargs):
 
 
 def _legacy_compare(argv, options, pinned):
-    parser = argparse.ArgumentParser(prog="rang-core compare")
+    parser = argparse.ArgumentParser(prog="rang-core research compare")
     parser.add_argument("compare_stage", choices=sorted(COMPARATORS))
     parser.add_argument("result")
     parser.add_argument("oracle")
@@ -1117,7 +1159,7 @@ def _legacy_compare(argv, options, pinned):
     parser.add_argument("--posthoc-slope-scale", action="store_true")
     args = parser.parse_args(argv)
     receipt = Receipt(
-        ["rang-core", "compare", *argv],
+        ["rang-core", "research", "compare", *argv],
         args.compare_stage,
         "compare",
         [args.result, args.oracle, args.receipt],
@@ -1194,9 +1236,150 @@ def main(argv=None):
     return 0
 
 
+def _configure_pipeline(name):
+    def configure(p):
+        p.add_argument("config", help="the configuration (rang-core config defaults)")
+        p.add_argument("ms", help="the Measurement Set, written in place")
+        p.add_argument(
+            "--run-dir",
+            help="the run directory with state.json (default: <ms>.rang-run beside the MS)",
+        )
+        if name == "run":
+            p.add_argument(
+                "--force",
+                action="append",
+                default=[],
+                metavar="STAGE",
+                choices=[*CONFIG_STAGES, "all"],
+                help="run a finished stage again (repeatable; all: every stage)",
+            )
+        else:
+            p.add_argument(
+                "--force",
+                action="store_true",
+                help="run the stage again if it finished",
+            )
+
+    return configure
+
+
+CONFIG_STAGES = ("flag", "calibrate", "apply", "image", "selfcal")
+
+
+def _pipeline(argv, options, pinned):
+    """`rang-core flag | calibrate | apply | image | selfcal | run`."""
+    name = argv[0]
+    prog = f"rang-core {name}"
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description=USER_COMMANDS[name].split(": ", 1)[1]
+        + ". Validates the configuration for every stage first; a finished stage "
+        "is skipped unless forced, a failed one runs again.",
+    )
+    _configure_pipeline(name)(parser)
+    args = parser.parse_args(argv[1:])
+    from . import core_config, core_pipeline
+
+    ms = Path(args.ms)
+    run_dir = Path(args.run_dir) if args.run_dir else core_pipeline.default_run_dir(ms)
+    paths = [args.config, str(ms), str(ms) + ".flagversions", str(run_dir)]
+    receipt = Receipt(["rang-core", *argv], name, None, paths, pinned)
+    when = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+    def finish(code):
+        if options["no_receipt"]:
+            return
+        if options["receipt"]:
+            receipt.write(options["receipt"], code)
+        elif run_dir.is_dir():
+            receipt.write(
+                run_dir / "receipts" / f"{name}-{when}.rang-receipt.json", code
+            )
+
+    def log(text):
+        print(text, file=sys.stderr, flush=True)
+
+    try:
+        raw = core_config.load(args.config)
+        config, errors = core_config.resolve(raw)
+        if name == "run":
+            stages = list(config["run"]["stages"]) if not errors else []
+            force = args.force
+        else:
+            stages, force = [name], ([name] if args.force else [])
+        config = core_config.validate(raw, stages, source=Path(args.config))
+        state = core_pipeline.execute(
+            config, args.config, ms, stages, run_dir=run_dir, force=force, log=log
+        )
+    except (core_config.ConfigError, core_pipeline.Refused) as exc:
+        finish(2)
+        print(f"rang-core {name}: refused\n{exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    except core_pipeline.StageFailed as exc:
+        finish(1)
+        print(f"rang-core {name}: failed: {exc}", file=sys.stderr)
+        raise SystemExit(1) from None
+    except BaseException as exc:
+        finish(f"exception: {type(exc).__name__}")
+        raise
+    finish(0)
+    return state
+
+
+def _configure_config(p):
+    sub = p.add_subparsers(dest="action", required=True)
+    sub.add_parser("defaults", help="print every key with its default and comment")
+    check = sub.add_parser("check", help="validate a configuration")
+    check.add_argument("config")
+    check.add_argument("ms", nargs="?", help="also resolve its fields against this MS")
+    check.add_argument(
+        "--stage",
+        action="append",
+        default=[],
+        choices=CONFIG_STAGES,
+        help="check for these stages (default: run.stages; repeatable)",
+    )
+    check.add_argument(
+        "--all", action="store_true", help="list what every stage cannot run yet"
+    )
+
+
+def _config_command(argv):
+    """`rang-core config defaults | check`: no receipt (nothing is written)."""
+    args = argparse.ArgumentParser(prog="rang-core config")
+    _configure_config(args)
+    args = args.parse_args(argv)
+    from . import core_config
+
+    if args.action == "defaults":
+        sys.stdout.write(core_config.defaults_yaml())
+        return None
+    from . import core_pipeline
+
+    try:
+        raw = core_config.load(args.config)
+        config, errors = core_config.resolve(raw)
+        if errors:
+            raise core_config.ConfigError(errors, source=Path(args.config))
+        stages = (
+            list(CONFIG_STAGES)
+            if args.all
+            else (args.stage or list(config["run"]["stages"]))
+        )
+        config = core_config.validate(raw, stages, source=Path(args.config))
+        if args.ms:
+            info = core_pipeline.inspect_ms(args.ms)
+            core_pipeline.preflight(config, info, stages)
+    except (core_config.ConfigError, core_pipeline.Refused, OSError) as exc:
+        print(f"rang-core config check: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    print(f"{args.config}: valid for {', '.join(stages)}")
+    return config
+
+
 def dispatch(argv=None):
     """Run one command line; return what the command returned (a stage
-    function's summary or record, a comparator's verdict)."""
+    function's summary or record, a comparator's verdict, a run's state)."""
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv[:1] in (["--version"], ["-V"]):
         from . import __version__
@@ -1211,15 +1394,37 @@ def dispatch(argv=None):
         return None
     if argv[0] == "check":
         return _check(argv[1:], options, pinned)
-    if argv[0] == "compare":
-        return _legacy_compare(argv[1:], options, pinned)
     if argv[0] == "formats":
         from .formats import cli as formats_cli
 
         return formats_cli.main(argv[1:])
-    command = ["rang-core", *argv]
+    if argv[0] in USER_COMMANDS:
+        return _pipeline(argv, options, pinned)
+    if argv[0] == "config":
+        return _config_command(argv[1:])
+    if argv[0] == "research":
+        return _research(argv[1:], options, pinned)
+    if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:
+        raise SystemExit(
+            f"rang-core: {argv[0]} is a research stage now: "
+            f"rang-core research {' '.join(argv)}"
+        )
+    raise SystemExit(f"rang-core: unknown command {argv[0]!r}\n\n{usage()}")
+
+
+def _research(argv, options, pinned):
+    """`rang-core research ...`: the stage table, as `rang-core ...` was
+    before task W2."""
+    if not argv or argv[0] in ("-h", "--help"):
+        print(research_usage())
+        return None
+    if argv[0] == "compare":
+        return _legacy_compare(argv[1:], options, pinned)
+    command = ["rang-core", "research", *argv]
     if argv[0] == "environment":
-        args = _parse("rang-core environment", _configure_environment, argv[1:])
+        args = _parse(
+            "rang-core research environment", _configure_environment, argv[1:]
+        )
         receipt = Receipt(command, "environment", None, [args["run_dir"]], pinned)
         return _call(
             options,
@@ -1232,7 +1437,7 @@ def dispatch(argv=None):
     argv = _legacy(argv)
     stage = argv[0]
     if stage not in STAGES:
-        raise SystemExit(f"rang-core: unknown stage {stage!r}\n\n{usage()}")
+        raise SystemExit(f"rang-core: unknown stage {stage!r}\n\n{research_usage()}")
     if len(argv) == 1 or argv[1] in ("-h", "--help"):
         print(stage_usage(stage))
         if len(argv) == 1:
@@ -1244,7 +1449,7 @@ def dispatch(argv=None):
             f"rang-core: {stage} has no verb {verb!r}\n\n{stage_usage(stage)}"
         )
     spec = STAGES[stage][verb]
-    prog = f"rang-core {stage} {verb}"
+    prog = f"rang-core research {stage} {verb}"
     if spec["kind"] == "function":
         args = _parse(prog, spec["configure"], rest)
         key = "trend-mirror" if verb == "mirror" else stage

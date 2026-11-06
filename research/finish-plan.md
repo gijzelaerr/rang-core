@@ -96,7 +96,7 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 | ID | Task | Oracle | Done when | Heavy | After |
 | --- | --- | --- | --- | --- | --- |
 | W1 | **Done 2026-11-06** ([w1-writeback.md](w1-writeback.md)). Write-back to an existing MS: add columns, write `FLAG`, back up flags | casacore, CASA, WSClean read-back | The tools read every column; a failed run leaves the original flags recoverable | no | none |
-| W2 | One config schema; `rang-core flag`, `calibrate`, `image`, `selfcal` and `run`; resume; receipts | none | Each runs on an MS outside the repository; research stages move under `rang-core research` | no | W1 |
+| W2 | **Done 2026-11-06** ([w2-commands.md](w2-commands.md)). One config schema; `rang-core flag`, `calibrate`, `image`, `selfcal` and `run`; resume; receipts | none | Each runs on an MS outside the repository; research stages move under `rang-core research` | no | W1 |
 | W3 | Chunking by time and row for whole-array data | Unchunked output | Same result chunked and unchunked within tolerance, with a stated memory limit | yes | W2 |
 | W4 | Unsupported data: multiple spectral windows and fields, autocorrelations, missing weights, other correlations | Written cases | Each case works or is refused with a clear message | no | W2 |
 | W5 | The Stimela recipes call the new commands | Recipes run | One recipe runs the chain; research recipes are marked as such | no | W2 |

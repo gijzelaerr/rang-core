@@ -66,8 +66,18 @@ def test_main_dispatches_stage_arguments(monkeypatch):
     )
     # The legacy form (the verb `run` implied) and the P9 form are the same call.
     for argv in (
-        ["injections", "out", "prep", "--strengths", "3", "--seed", "5"],
-        ["injections", "run", "out", "prep", "--strengths", "3", "--seed", "5"],
+        ["research", "injections", "out", "prep", "--strengths", "3", "--seed", "5"],
+        [
+            "research",
+            "injections",
+            "run",
+            "out",
+            "prep",
+            "--strengths",
+            "3",
+            "--seed",
+            "5",
+        ],
     ):
         calls.clear()
         core_cli.main(["--no-receipt", *argv])
@@ -79,7 +89,7 @@ def test_main_dispatches_stage_arguments(monkeypatch):
             "patterns": list(core_cli.PATTERNS),
             "iterations": 50,
         }
-    core_cli.main(["--no-receipt", "signal", "out", "inputs", "uvw"])
+    core_cli.main(["--no-receipt", "research", "signal", "out", "inputs", "uvw"])
     assert calls["sig"] == {
         "run_dir": "out",
         "inputs_dir": "inputs",
@@ -89,7 +99,7 @@ def test_main_dispatches_stage_arguments(monkeypatch):
     with pytest.raises(SystemExit):
         core_cli.main(["--no-receipt", "unknown"])
     with pytest.raises(SystemExit):
-        core_cli.main(["--no-receipt", "injections", "nonsense-verb-free"])
+        core_cli.main(["--no-receipt", "research", "injections", "nonsense-verb-free"])
 
 
 def test_environment_records_quartical_absence_or_presence(tmp_path):
@@ -229,7 +239,7 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
     result, oracle = _trend_pair(tmp_path)
     out = tmp_path / "compare.json"
     verdict = core_cli.dispatch(
-        ["trend", "compare", str(result), str(oracle), str(out)]
+        ["research", "trend", "compare", str(result), str(oracle), str(out)]
     )
     printed = json.loads(capsys.readouterr().out)
     assert printed["passed"] is True and printed["classes"]["float"]["compared"] == 1
@@ -308,6 +318,7 @@ def test_failing_compare_exits_like_the_script_and_records_the_verdict(tmp_path)
             [
                 "--receipt",
                 str(receipt),
+                "research",
                 "trend",
                 "compare",
                 str(result),
@@ -342,6 +353,7 @@ def test_wrapper_script_and_cli_write_identical_receipts(tmp_path):
             "-m",
             "rang.core_cli",
             "--no-receipt",
+            "research",
             "trend",
             "compare",
             str(result),
@@ -364,7 +376,9 @@ def test_archive_is_an_oracle_for_the_comparators(tmp_path):
     )
     (run_dir / "side-effects.json").write_text('{"inputs_unchanged": true}')
     archive = tmp_path / "archive.json"
-    core_cli.main(["--no-receipt", "trend", "archive", str(run_dir), str(archive)])
+    core_cli.main(
+        ["--no-receipt", "research", "trend", "archive", str(run_dir), str(archive)]
+    )
     payload = json.loads(archive.read_text())
     assert payload["schema"] == "rang.archive" and payload["version"] == 1
     assert payload["stage"] == "trend"
@@ -374,10 +388,13 @@ def test_archive_is_an_oracle_for_the_comparators(tmp_path):
         == sha256((run_dir / "result.json").read_bytes()).hexdigest()
     )
     with pytest.raises(SystemExit):  # never overwritten
-        core_cli.main(["--no-receipt", "trend", "archive", str(run_dir), str(archive)])
+        core_cli.main(
+            ["--no-receipt", "research", "trend", "archive", str(run_dir), str(archive)]
+        )
     verdict = core_cli.dispatch(
         [
             "--no-receipt",
+            "research",
             "trend",
             "compare",
             str(run_dir / "result.json"),
@@ -457,7 +474,8 @@ def test_stage_table_names_existing_drivers_and_engine_comparators():
     for wrapper in sorted(set(wrappers) - pending):
         text = (ROOT / "examples" / f"{wrapper}.py").read_text()
         assert f'sys.exit(main("{wrapper.removeprefix("compare_core_")}"))' in text
-    assert "check" in core_cli.TOP_LEVEL and "environment" in core_cli.TOP_LEVEL
+    assert "check" in core_cli.TOP_LEVEL
+    assert "environment" in core_cli.RESEARCH_TOP_LEVEL
 
 
 def test_legacy_forms_map_onto_stage_verb():

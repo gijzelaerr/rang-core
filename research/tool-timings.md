@@ -1531,3 +1531,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C3a CASA 6.7.6.14 `setjy`, 5 calls (SR2016, CARACal manual on the slice; SR2016 and 2 manual on A1 small) | O-CASA work.ms 192 × 2048; A1 small 12,480 × 64 | 12.2 s (calls 1.3–3.3 s) | – | one container ([c3a-models.md](c3a-models.md)) |
 | 2026-11-06 | C3a Crystalball 0.4.3 `-j 1`, pks1934-638.lsm as a WSClean list (196 components) | slice / A1 small | 15.7 s / 9.0 s | – | container |
 | 2026-11-06 | C3a rang `calmodels.set_model` point, manual, lsm | slice / A1 small | 0.6–1.5 s; 9.5–10.1 s when the column is added on `/mnt/d` | 293 MB (driver) | whole `c3a_models.py run` 109.7 s |
+| 2026-11-06 | W2 `uv venv` + `uv pip install -e .[...]` (worktree .venv, extension build) | repo | 141 s | – | heavy lock |
+| 2026-11-06 | W2 `cargo build --release --bin gemclean` | core crate | 118 s | – | heavy lock |
+| 2026-11-06 | W2 `rang-core flag` (Tricolour port, 23 groups, 12 steps) | A1 small MS, 12,480 rows × 64 ch | 20.0 s | 94 MB | 18.5 s in creating two flag versions on /mnt/d (cProfile); 0.9 s in the port |
+| 2026-11-06 | W2 `rang-core calibrate` (complex, 2 partitions, 50 iterations) | same | 3.3 s | 101 MB | |
+| 2026-11-06 | W2 `rang-core image` (gemclean, 512², 654 components) | same, field SIM-TARGET | 4.7 s | 261 MB | gemclean itself 1.34 s, -j 2 |
+| 2026-11-06 | W2 `rang-core run`, image failing, then resumed | same | 24.2 s, then 5.9 s | 133 MB, 260 MB | the resumed run skips flag and calibrate |
+| 2026-11-06 | W2 `tools/oracles/w2/run.sh`, frozen run -01 | A1 small MS copies | 114 s | – | shared host; not a timing run |
+| 2026-11-06 | check-all, W2 branch at the code commit | repo | – | – | pytest 868 passed, 68 skipped, 1 expected failure (index) in 116 s |

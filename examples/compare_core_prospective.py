@@ -10,7 +10,7 @@ criteria 1-5; the receipt also carries the reported margins (criterion 6).
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
 # and exit status live in rang.core_compare ("prospective"); also
-# `rang-core prospective compare ...`.
+# `rang-core research prospective compare ...`.
 
 import sys
 

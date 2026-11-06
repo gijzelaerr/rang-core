@@ -13,7 +13,7 @@ exits nonzero on any failure.
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
 # and exit status live in rang.core_compare ("injections"); also
-# `rang-core injections compare ...`.
+# `rang-core research injections compare ...`.
 
 import sys
 

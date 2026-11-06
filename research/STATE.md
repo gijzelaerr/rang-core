@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C3a, C4a, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
+- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C3a, C4a, G1, W1, W2. Waiting on the owner: A0's data fetches and native-data source.
 - **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
@@ -18,6 +18,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+W2, 2026-11-06 (implemented and measured; [w2-commands.md](w2-commands.md)). `rang-core flag`, `calibrate`, `apply`, `image`, `selfcal` and `run` take a `config.yaml` (schema `rang-config` version 1; every default printed by `rang-core config defaults`) and an MS. `flag` runs the Tricolour port per field and scan and writes FLAG, `calibrate` solves the `complex` term and writes a QuartiCal gain store, and `image` runs `gemclean`. C1's whole chain and A0's E2-A and E2-B settings can be written in the schema and are refused term by term, naming the plan task that adds each. A run directory holds the state: `run` skips finished stages, resumes at a failed one and refuses a changed configuration unless forced. Flags are saved as `rang_original` before the first write and as `rang_<stage>_<time>` before each writing stage. On A1's small MS: FLAG equals the port's call in every cell, the gain store is byte-identical to `core.solve_complex`, and a resumed run reran only the failed stage. The research stages moved under `rang-core research`. W2 branched before C3a and C4a merged, so wiring models and apply into the commands is a follow-up (W2b). No novelty claim.
 
 C3a, 2026-11-06 (implemented and measured; [c3a-models.md](c3a-models.md)). `rang.calmodels.set_model` writes calibrator models to MODEL_DATA through W1's write-back: flux standards, `manual`, per-channel Stokes rows and component lists such as CARACal's `pks1934-638.lsm`. Against CASA `setjy` on O-CASA's slice and on A1 small, the real parts differ by 0 float32 ulps; CASA's imaginary parts are at most 1.8e-12 Jy, and other fields' rows are bit-identical to CASA's. The lsm route through `predict_components` is bit-identical to Crystalball 0.4.3, and A1's calibrator sky is reproduced bit for bit. CARACal's own lsm route is MeqTrees, which has no oracle here (open for E3). Polarised `manual` is refused until C7a. No novelty claim.
 

@@ -42,11 +42,15 @@ def test_every_driver_defaults_to_wstack():
 def test_cli_campaign_run_passes_the_gridder(monkeypatch):
     seen = []
     monkeypatch.setitem(core_cli.COMMANDS, "campaign", lambda **kw: seen.append(kw))
-    core_cli.main(["--no-receipt", "campaign", "run", "out", "--gridder", "wgrid"])
-    core_cli.main(["--no-receipt", "campaign", "run", "out"])
+    core_cli.main(
+        ["--no-receipt", "research", "campaign", "run", "out", "--gridder", "wgrid"]
+    )
+    core_cli.main(["--no-receipt", "research", "campaign", "run", "out"])
     assert [kw["gridder"] for kw in seen] == ["wgrid", "wstack"]
     with pytest.raises(SystemExit):
-        core_cli.main(["--no-receipt", "campaign", "run", "out", "--gridder", "x"])
+        core_cli.main(
+            ["--no-receipt", "research", "campaign", "run", "out", "--gridder", "x"]
+        )
     # The stage function hands it to K's driver.
     calls = []
     monkeypatch.setattr(core_campaign, "run", _stub(calls))

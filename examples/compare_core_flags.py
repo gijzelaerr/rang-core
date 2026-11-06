@@ -13,7 +13,7 @@ as the oracle. `run` applies the frozen criteria 1-5 to a core run. Both write
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
 # and exit status live in rang.core_compare ("flags"); also
-# `rang-core flags compare ...`.
+# `rang-core research flags compare ...`.
 
 import sys
 
