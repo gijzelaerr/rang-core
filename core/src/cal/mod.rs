@@ -11,4 +11,5 @@ pub mod apply;
 pub mod delay;
 pub mod diag;
 pub mod ffi_apply;
+pub mod fluxscale;
 pub mod reference;

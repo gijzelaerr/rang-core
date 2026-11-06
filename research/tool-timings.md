@@ -1587,3 +1587,22 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W4 gemclean (main's release build) directly on the ws-undefined MS | A1 small copy | – | – | exit 2: "WEIGHT_SPECTRUM: read of 8 bytes ... failed to fill whole buffer" |
 | 2026-11-06 | W4 `examples/check_w4_unsupported.py`, post hoc run-02-posthoc-scans (scans-none, scans-other) | A1 small copies | 177.2 s | 96 MB | uncommitted narrowed `data.scans` rule; same verdicts as run-01 |
 | 2026-11-06 | W4 check-all on the final tree (results commit) | worktree | 490.3 s | 1.81 GB | FAIL only on the research-index test; pytest 941 passed, 68 skipped in 128 s |
+| 2026-11-06 | C2d `uv venv` + `uv pip install -e .[...]` + `maturin develop` (worktree .venv) | repo | 220 s + 2 s | – | |
+| 2026-11-06 | C2d `mstransform` probe -00 (applycal + 4 windows, data preparation only) | A1 small | not timed separately | – | heavy lock |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -01 | A1 small, full twin, slice copies | 282.6 s | 1.23 GB | failed at CASA's first `gaincal` (the slice's field id); nothing compared |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -02 | 6 datasets, 12 P cases | 1,220.5 s (with heavy-lock waits) | 3.43 GB | 18 CASA `fluxscale` 35.7 s, 11 `gaincal` 44.1 s; rang chains 3.5-161.7 s (full64 161.7 s); crashed in class C (harness) |
+| 2026-11-06 | C2d `check_fluxscale.py compare` on -02 (twice) | -02's outputs | 514.8 s, 467.5 s (mostly lock waits) | 94 MB | |
+| 2026-11-06 | C2d `check_fluxscale.py recheck` on -02 (post hoc) | -02's CASA tables and copies | 1,158.1 s (with lock waits) | 3.43 GB | |
+| 2026-11-06 | C2d `check_fluxscale.py readback` on -02 | A1 small copy | 37.9 s | 191 MB | rang `applycal` 21.2 s |
+| 2026-11-06 | C2d held-out A1 version: generate (MS and twin) and CASA truth tables + round trip | small, new seeds | 10.8 s, 33.2 s | – | heavy lock |
+| 2026-11-06 | C2d `check_fluxscale.py heldout` run -03 | 4 datasets, 4 P cases | 750.6 s | 203 MB | containers 37.8 s and 26.7 s; rang 191.9 s; comparisons 307.2 s |
+| 2026-11-06 | check-all, C2d branch before the code commit (twice) | repo | 827.5 s, 995.5 s | 1.92 GB | first: ruff 0.17.4 in the fresh venv (SIM102 elsewhere) and a format; second: only the index test fails; pytest 923 passed, 68 skipped |
+| 2026-11-06 | C2d `uv venv` + `uv pip install -e .[...]` + `maturin develop` (worktree .venv) | repo | 220 s + 2 s | – | |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -01 | A1 small, full twin, slice copies | 282.6 s | 1.23 GB | failed at CASA's first `gaincal` (the slice's field id); nothing compared |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -02 | 6 datasets, 12 P cases | 1,220.5 s (with heavy-lock waits) | 3.43 GB | 18 CASA `fluxscale` 35.7 s, 11 `gaincal` 44.1 s; rang chains 3.5-161.7 s (full64 161.7 s); crashed in class C (harness) |
+| 2026-11-06 | C2d `check_fluxscale.py compare` on -02 (twice) | -02's outputs | 514.8 s, 467.5 s (mostly lock waits) | 94 MB | |
+| 2026-11-06 | C2d `check_fluxscale.py recheck` on -02 (post hoc) | -02's CASA tables and copies | 1,158.1 s (with lock waits) | 3.43 GB | |
+| 2026-11-06 | C2d `check_fluxscale.py readback` on -02 | A1 small copy | 37.9 s | 191 MB | rang `applycal` 21.2 s |
+| 2026-11-06 | C2d held-out A1 version: generate (MS and twin), CASA truth tables and round trip | small, new seeds | 10.8 s, 33.2 s | – | heavy lock |
+| 2026-11-06 | C2d `check_fluxscale.py heldout` run -03 | 4 datasets, 4 P cases | 750.6 s | 203 MB | containers 37.8 s and 26.7 s; rang 191.9 s; comparisons 307.2 s |
+| 2026-11-06 | check-all, C2d branch before the code commit (twice) | repo | 827.5 s, 995.5 s | 1.92 GB | first: ruff 0.17.4 in the fresh venv (SIM102 elsewhere) and a format; second: only the index test fails; pytest 923 passed, 68 skipped |

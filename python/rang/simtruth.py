@@ -604,8 +604,11 @@ def calibrator_stokes(d):
     out[1, :, 0] = i_x
     out[1, :, 1] = XCAL["p"] * i_x * np.cos(2 * chi)
     out[1, :, 2] = XCAL["p"] * i_x * np.sin(2 * chi)
+    # `extra["gcal"]` replaces the gain calibrator's model (task C2d's
+    # held-out version); the default versions use GCAL.
+    gcal = d.extra.get("gcal", GCAL)
     out[2, :, 0] = fluxstd.manual(
-        nu, GCAL["fluxdensity"], GCAL["reffreq_hz"], GCAL["spix"]
+        nu, gcal["fluxdensity"], gcal["reffreq_hz"], gcal["spix"]
     )
     return out
 
