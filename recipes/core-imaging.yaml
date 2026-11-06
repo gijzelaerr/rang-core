@@ -1,3 +1,6 @@
+# rang-recipe: research
+# A research recipe: it replays a frozen campaign and compares it with its
+# archive; it is not a recipe for your own Measurement Set (rang-chain.yaml).
 # Core-native imaging track: the fifteen archived dirty inversions on the
 # Rust core (imaging weights, w-stacking gridder, Measurement Set reader),
 # no WSClean, no container, no MS copy. Sits beside the frozen
@@ -29,7 +32,7 @@ cabs:
       reference_images: {dtype: Directory, required: false}
 
 core-imaging:
-  info: The archived fifteen-job dirty-image family on the Rust core from the archived checkpoints and backup Measurement Sets, compared with the archive by the task I comparator.
+  info: "Research recipe: The archived fifteen-job dirty-image family on the Rust core from the archived checkpoints and backup Measurement Sets, compared with the archive by the task I comparator."
   inputs:
     run-dir: {dtype: str, required: true}
     archive-dir: {dtype: Directory, required: true, info: "The archived imaging run with backups/, checkpoints/ and images/; read only."}

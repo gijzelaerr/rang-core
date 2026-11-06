@@ -1,0 +1,45 @@
+# rang-recipe: user
+# Cabs for the commands on your own Measurement Set (docs/cli.md,
+# research/w2-commands.md, research/w5-stimela.md). Each runs the console
+# script `rang-core`, which must be on PATH: the command a user types, with its
+# receipt in <run>/receipts/, its thread caps and its exit status (0 ran or
+# skipped, 1 a stage failed, 2 refused before anything was written).
+cabs:
+  rang-flag:
+    info: "rang-core flag CONFIG MS: flag with the Tricolour port, writing FLAG."
+    command: rang-core flag
+    policies: {prefix: "--"}
+    inputs: &rang-command-inputs
+      config:
+        dtype: File
+        required: true
+        info: The configuration (rang-core config defaults), validated for every stage first.
+        policies: {positional: true}
+      ms:
+        dtype: MS
+        required: true
+        writable: true
+        info: The Measurement Set, written in place.
+        policies: {positional: true}
+      run-dir:
+        dtype: str
+        info: The run directory with state.json (default <ms>.rang-run beside the MS).
+      force:
+        dtype: bool
+        default: false
+        info: Run the stage again if it finished.
+  rang-calibrate:
+    info: "rang-core calibrate CONFIG MS: solve the calibration terms, writing tables."
+    command: rang-core calibrate
+    policies: {prefix: "--"}
+    inputs: *rang-command-inputs
+  rang-apply:
+    info: "rang-core apply CONFIG MS: apply the solutions, writing CORRECTED_DATA."
+    command: rang-core apply
+    policies: {prefix: "--"}
+    inputs: *rang-command-inputs
+  rang-image:
+    info: "rang-core image CONFIG MS: image with gemclean into <run>/image/."
+    command: rang-core image
+    policies: {prefix: "--"}
+    inputs: *rang-command-inputs

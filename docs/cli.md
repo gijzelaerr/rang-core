@@ -18,14 +18,19 @@ State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
 `rang_original`, and before each stage writes as `rang_<stage>_<UTC time>`.
+The Stimela2 recipe `recipes/rang-chain.yaml` runs `flag`, `calibrate`,
+`apply` and `image` in order, each as the command above
+(`stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms`; the cabs
+are in `recipes/rang-cabs.yaml`, {gh}`research/w5-stimela.md`).
 
 **The research chains:** `rang-core research STAGE VERB ARGS...`
 ({gh}`research/p9-cli.md`). Each stage has `run` (the driver), `compare`
 (one comparator engine: the verdict and counts against an archive) and
 `archive` (a versioned `rang.archive` file). Most stages replay a frozen
 campaign and need its archived inputs under `outputs/`; the stage help and
-the linked reports say which. The core-native Stimela2 recipes
-`recipes/core-*.yaml` call the same functions.
+the linked reports say which. The research recipes `recipes/core-*.yaml`
+(Stimela2, each marked `# rang-recipe: research`) call the same functions;
+they replay frozen campaigns and are not recipes for your own MS.
 
 `rang-core check` runs the full local checks on any platform. Every call
 writes a receipt (schema `rang.receipt` version 4: the command, its inputs,

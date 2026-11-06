@@ -1,3 +1,6 @@
+# rang-recipe: research
+# A research recipe: it replays a frozen campaign and compares it with its
+# archive; it is not a recipe for your own Measurement Set (rang-chain.yaml).
 # Core-native trend track: seven core baseline solves written as a mirror of
 # the concurrent suite, then the frozen rang.flagging_trend.run, unedited.
 # Sits beside the frozen recipes/tv-flagging-trend.yaml and never replaces it
@@ -22,7 +25,7 @@ cabs:
       mirror_dir: {dtype: Directory, required: true}
 
 core-trend:
-  info: Trend guidance ablation on core-solved baselines; the frozen trend module is the consumer, compared with the archive under the adopted slope-scaling rule.
+  info: "Research recipe: Trend guidance ablation on core-solved baselines; the frozen trend module is the consumer, compared with the archive under the adopted slope-scaling rule."
   inputs:
     run-dir: {dtype: str, required: true}
     mirror-dir: {dtype: str, required: true, info: Fresh directory for the core-solved mirror.}

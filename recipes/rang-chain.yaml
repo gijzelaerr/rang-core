@@ -1,0 +1,33 @@
+# rang-recipe: user
+# The chain on your own Measurement Set: rang-core flag, calibrate, apply and
+# image, in that order, on one configuration file (research/w5-stimela.md).
+# Each step is the command a user types; the stages share the run directory,
+# so a finished stage is skipped when the recipe runs again. Every step runs
+# its own stage whatever run.stages says; run.stages is read by `rang-core
+# run` only. Usage:
+#   stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms
+_include: rang-cabs.yaml
+opts:
+  backend: {select: native}
+  log: {nest: 1}
+
+rang-chain:
+  info: Flag, calibrate, apply and image a Measurement Set with the rang-core commands, from one configuration.
+  inputs:
+    config: {dtype: File, required: true, info: "The configuration (rang-core config defaults)."}
+    ms: {dtype: MS, required: true, writable: true, info: "The Measurement Set, written in place."}
+    run-dir: {dtype: str, info: "The run directory (default <ms>.rang-run beside the MS)."}
+  steps:
+    flag:
+      cab: rang-flag
+      params: {config: =recipe.config, ms: =recipe.ms, run-dir: =IFSET(recipe.run-dir)}
+    calibrate:
+      cab: rang-calibrate
+      params: {config: =recipe.config, ms: =recipe.ms, run-dir: =IFSET(recipe.run-dir)}
+    apply:
+      cab: rang-apply
+      params: {config: =recipe.config, ms: =recipe.ms, run-dir: =IFSET(recipe.run-dir)}
+    image:
+      cab: rang-image
+      params: {config: =recipe.config, ms: =recipe.ms, run-dir: =IFSET(recipe.run-dir)}
+DEFAULT: rang-chain

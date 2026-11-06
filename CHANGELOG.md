@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: the Stimela2 recipe `recipes/rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply`
+  and `image` in order on one configuration and MS, with the cabs `rang-flag`, `rang-calibrate`,
+  `rang-apply` and `rang-image` in `recipes/rang-cabs.yaml`; each cab runs the console script
+  (`research/w5-stimela.md`). The recipes `recipes/core-*.yaml` are unchanged in their steps and
+  now start with `# rang-recipe: research`: they replay frozen campaigns. `tests/test_w5_recipes.py`
+  checks the marker on every recipe and the cabs' arguments against the commands.
 - New: `rang.cal_pol`, the polarisation terms in CARACal's order (`research/c6-polterms.md`): `gpol`
   (phase-only G with the parallactic angle), `kcross` (CASA's cross-hand delay FFT), `xf` (CASA's
   cross-hand phase), `df` (the linearised leakage by least squares with CASA's subtractive reference),
