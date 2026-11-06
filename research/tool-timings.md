@@ -1536,6 +1536,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C2a `check_gain.py casa` run -05 (frozen set again, post-hoc code) | as -03 | 211.3 s (container 52.2 s; host load from sibling sessions) | 214 MB | 13 pass, 4 fail (TIME on field 2, combine) |
 | 2026-11-06 | C2a `check_gain.py casa --heldout` run -06 | slice, A1 small, 8 cases | 141.5 s (container 48.8 s) | 200 MB | 5 pass; 3 field-2 `inf` cases fail on TIME alone |
 | 2026-11-06 | C2a `check_gain.py truth` run -07 (class T) | A1 small and twin | 53.7 s (container 10.0 s) | 216 MB | 5 of 6 pass; twin field 2 fails (the model, section 8) |
+| 2026-11-06 | C2a `check_gain.py truth --parang-model` run -09 (post hoc) | A1 small and twin | 51.9 s (container 10 s) | 212 MB | all six pass with A1's `P_p M P_q^T` model |
 | 2026-11-06 | C2a `probe_gain_readback.py` run -08 | slice, `c.K0` and a rang G table | 5.2 s (`applycal` container 3.3 s) | – | CASA applies rang's table; class C, flags exact |
 | 2026-11-06 | C2a `tools/check-all.sh`, uncommitted tree mid-edit | worktree | 1179.1 s (waited on the shared check-all lock) | 1.89 GB | FAIL: ruff format on files being edited, and the research-index test |
 | 2026-11-06 | C2a `tools/check-all.sh`, the tree of the code commit | worktree | 788.2 s (with lock wait; pytest 125.6 s, gain-hashes 1.3 s) | 1.84 GB | FAIL only on the research-index test; 884 passed, 68 skipped |

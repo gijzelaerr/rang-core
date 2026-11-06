@@ -434,11 +434,11 @@ def gaincal(
     `(row, chan, 4)` for the field's rows instead of `model_column`. Raises
     when no solution is written.
 
-    Weights, as CASA's (post hoc after run -03, research/c2a-gain.md
-    section 6): with tables to pre-apply, CASA resets the weights from
-    SIGMA before the apply (`resetWeightsUsingSigma`), so the solve uses
+    Weights (post hoc after run -03, research/c2a-gain.md section 6): with
+    tables to pre-apply, CASA was measured to solve with weights from SIGMA
+    (where it resets them was not found), so the solve uses
     `1/SIGMA_SPECTRUM^2` (or `1/SIGMA^2` per channel; 0 where sigma is 0);
-    without, `weight_column`."""
+    without, `weight_column` (not compared with CASA)."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]

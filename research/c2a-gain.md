@@ -16,8 +16,10 @@ this status line is the only edit above section 5.
   within 1e-4 median; **the solution `TIME` misses its 0.01 s gate by up to 0.054 s on RFI-flagged field-2 scans**
   (CASA's centroid weighting not reproduced), and `combine='scan'` over phase-changing scans differs by about 1 %
   (CASA averages before it solves).
-- **Class T, A1:** noise-free field 0 within 1.2e-6; with noise no bias on either field; **the twin's field 2 fails
-  (1.5e-4), because its data differ from A1's documented point model by up to 2.3e-4**, as A1's own tables show.
+- **Class T, A1:** the frozen run failed on the twin's field 2 (1.5e-4 against 1e-5). The cause was C2a's model:
+  it left out the per-antenna parallactic rotation, which does not cancel even for an unpolarised source
+  (`XX = I cos(q_p − q_q)`, up to 2.3e-4 here). Rerun post hoc with A1's own reference `P_p M P_q^T`, every case
+  passes: noise-free products within 3.0e-8, and no bias with noise.
 - The gain hashes `4ed2aa89…` and `7b370c13…` and core phase 2's LUNO convergence replay unchanged, now as the
   `gain-hashes` step of `tools/check-all.sh`. No novelty claim: this is a port with oracles.
 
@@ -232,15 +234,19 @@ slice's `60s` and `120s`: 5 and 3 bins) and on A1's `30s` and `60s` across scans
 | s-apply | SIGMA of m007 × 1e5 | truth K, B | 0.14, 0.16 | yes |
 | s-noapply | SIGMA of m007 × 1e5 | none | 0.0, 0.0 | yes |
 
-With tables to pre-apply, CASA solves with weights from SIGMA, not WEIGHT_SPECTRUM: the apply resets them first
-(`resetWeightsUsingSigma`, C1 section 3.2). Rang's SNR at those weights (0.14, 0.15 in run -03) is CASA's
-(0.14, 0.16). Without a pre-apply CASA reads WEIGHT_SPECTRUM. That s-noapply also flags m007, with an SNR of exactly
-0, is **not explained** (the probe predicted it unflagged); recorded, not chased.
+**Measured:** with tables to pre-apply, CASA's solve weights follow SIGMA, not WEIGHT_SPECTRUM (s-apply against
+run -03's minsnr case); rang's SNR at SIGMA weights (0.14, 0.15 in run -03) is CASA's (0.14, 0.16). **Not
+established:** the mechanism. The `resetWeightsUsingSigma` call read in the mirror is in the `applycal` loop
+(`Calibrater.cc:1544`); the solve-path calls there are commented out, so where the solve resets them was not found.
+**Not compared:** the path without a pre-apply. Every class B case has a gaintable, and the one probe point without
+one disagrees with rang's rule: s-noapply scales only SIGMA, rang would then solve with the unchanged
+WEIGHT_SPECTRUM and not flag m007, but CASA flags it with an SNR of exactly 0. w-noapply fits either reading.
+Recorded, not chased.
 
 Changes, post hoc and labelled so:
 
 - `rang.cal_gain.gaincal` solves with `1/SIGMA_SPECTRUM^2` (or `1/SIGMA^2` per channel; 0 where sigma is 0)
-  whenever tables are pre-applied, as CASA does, and with `weight_column` otherwise.
+  whenever tables are pre-applied, as CASA was measured to, and with `weight_column` otherwise (uncompared).
 - The checker matches an interval when CASA's `TIME` lies within the gated 0.01 s of the interval's row times (it
   used 1e-6 s).
 
@@ -294,7 +300,14 @@ SIGMA weights all equal CASA's, with products 5-100 times inside class B. **The 
 as frozen**: the solution `TIME` misses the 0.01 s gate by up to 0.054 s on the RFI-flagged field-2 scans (section
 5.2, item 2), and `combine='scan'` across scans with changing phases differs by the estimators (item 3).
 
-## 8. Class T on A1's simulated truth, run -07: five of six pass
+### 7.2 The held-out MSE, checked post hoc
+
+The gated held-out MSE was equal on both sides to every printed digit on B-slice-inf and -p, which could have meant
+the gate saw one table twice. It did not: the corrected cubes differ (max 2.0e-4, 2.2e-4 and 5.0e-4 on B-slice-inf,
+-60s and -p, run -05's tables), and the float32 mean rounded the difference away. In float64 the relative
+differences are +1.4e-7, −1.3e-6 and −7.8e-8, all far inside 2e-4. `check_gain.py` now takes the mean in float64.
+
+## 8. Class T on A1's simulated truth, run -07: five of six pass (all six post hoc, run -09)
 
 `c2a-20261106-07` (53.7 s). `gaincal` route, `refant` m000, CASA rules on, truth K and B pre-applied (so SIGMA
 weights, section 6), products against `truth.npz` `raw_gain` (the truth is constant inside every interval: spread 0).
@@ -311,15 +324,21 @@ weights, section 6), products against `truth.npz` `raw_gain` (the truth is const
 The `std(z)` values near 0.71 are what a correct `err` gives (z is complex, so each part has variance 1/2); the
 frozen limit uses a standard normal per part, so it is lenient by about √2, as written.
 
-**The twin failure is in the model, not the solve.** Post hoc, the twin's DATA corrected by A1's own six truth
-tables gives the documented point model of SIM-GCAL (`calibrator_stokes`, 4 Jy at 1.4 GHz, α −0.6) on field 0 to
-2.1e-6, but on field 2 it misses by up to **2.3e-4** (real, amplitude below 1, the same in every channel) on 182 of
-2,400 rows: integrations at 4512-7664 s after the start (the middle gain-calibrator scans), mostly on baselines of
-m012, m014 and m015. Rang's `cal_apply` with A1's tables and CASA's own `applycal` export from A1
-(`casa-small/export-parangFalse.npz`) agree on this to 1e-7, so what field 2 of the twin holds is not the point model
-A1 documents there. A1's own round trip compared against its simulator's sky, not against this model, so it did
-not show. The mechanism is in A1's simulator and was not looked for; rang's G recovers the products to 1.5e-4,
-the size of the model error.
+**The twin failure is in C2a's model, not the solve, and not in A1.** Post hoc: the twin's DATA corrected by A1's
+six truth tables (rang's `cal_apply`, and CASA's own `applycal` export in `casa-small/export-parangFalse.npz`, which
+agree to 1e-7) matches the model of section 3 on field 0 to 2.1e-6 but misses it on field 2 by up to 2.3e-4 (real,
+below 1, the same in every channel) on 182 of 2,400 rows, in the middle gain-calibrator scans and mostly on
+baselines of m012, m014 and m015. The ratio is `cos(q_p − q_q)` from `truth.npz`'s per-antenna parallactic angles
+to 2.1e-7 (`|q_p − q_q|` up to 1.22° for SIM-GCAL at Dec −33°, near the zenith; `1 − cos` at most 1.8e-6 for
+J1939−6342). A1 rotates each antenna by its own angle (`P_p M P_q^T`, its section 2.1), so P does not cancel for an
+unpolarised source when the angles differ, and section 3's statement that it does was wrong. A1's round trip used
+that reference and passed.
+
+**Run -09, post hoc with A1's reference as the model** (`check_gain.py truth --parang-model`, 51.9 s): every case
+passes. Twin: max product error **2.6e-8** (field 0) and **3.0e-8** (field 2). Noisy: median Re z, Im z 0.020,
+−0.009 (int, f0); 0.012, −0.002 (int, f2); −0.009, 0.014 (inf, f0); 0.018, −0.013 (inf, f2), all inside their
+limits, `std(z)` 0.64-0.72 as before. The class B cases on A1 used the section-3 model on both sides, so their
+comparison is unaffected.
 
 ## 9. Files, runs, provenance
 
@@ -329,13 +348,14 @@ modules have 8 more), `tools/gain_hash_gate.py` and the `gain-hashes` step in `p
 `tests/test_core_cli.py`'s step list), `examples/check_gain.py` (host side), `examples/oracle_gain.py` (container
 side), `examples/probe_gain_weights.py`, `examples/probe_gain_readback.py`. The runs used the working tree on top
 of the note commits (`f215a5e`, then `9cb9787`), snapshot in each `/mnt/d/rang/outputs/c2a-20261106-NN.code/`; the
-code commit is the next one on the branch. Against run -07's snapshot it adds only the docstring of
-`oracle_gain.py`'s `casa-edit` and `probe_gain_readback.py`; runs -02 and -03 ran before the post-hoc changes of
-section 6, as stated there.
+code commit is `6991aea`. Against run -07's snapshot it adds only the docstring of `oracle_gain.py`'s
+`casa-edit` and `probe_gain_readback.py`; runs -02 and -03 ran before the post-hoc changes of section 6, as stated
+there. Run -09 and the float64 MSE (section 7.2) used the commit after it, which adds `--parang-model` and the
+float64 mean to `check_gain.py`.
 
 Runs, ignored, under `/mnt/d/rang/outputs/`: `c2a-20261106-01` (failed, no comparison), `-02` (class A,
 `quartical.json`), `-03` (class B frozen, `casa.json`, `casa-recheck.json`), `-04-probe`, `-05` (frozen set again),
-`-06` (held out), `-07` (class T, `truth.json`), each with its `.log`, the edited MS copies, CASA's and rang's
+`-06` (held out), `-07` (class T, `truth.json`), `-08-readback`, `-09` (class T, A1's reference model), each with its `.log`, the edited MS copies, CASA's and rang's
 tables (`*.G`, `*.rang.G`) and `gaincal.json`; check-all logs in `c2a/`. Inputs read in place: O-CASA's
 `work.ms`, `c.K0`, `split.npz` and the fixture `work.ms` (under `~/Github/rang/outputs`), A1's small version and
 casa-small truth tables. Seeds: none new (A1's 20261116-20261119; the seed-7 split; the pytest simulation 20261106).
@@ -351,14 +371,16 @@ Images: `rang-formats-oracle:20261030` (QuartiCal 0.2.7), `rang-o-casa:6.7.6.14`
 2. **`combine='scan'` over scans whose phases change.** CASA averages before solving, rang (QuartiCal's estimator)
    does not; they differ by about 1 % when the model cannot fit. Keep rang's estimator (proposed: it is the
    least-squares answer, and C2's other terms follow QuartiCal), or add CASA's pre-averaging as an option.
-3. **Weights with a pre-apply.** Rang now copies CASA: with tables to pre-apply the solve uses `1/SIGMA^2`, not
-   WEIGHT_SPECTRUM. That matters wherever the two differ (for example after `prep.specweights: uniform`, C1 section
-   3.2). Proposed: keep it for parity, and record the weight source in the receipt.
+3. **Weights with a pre-apply.** Rang now copies what CASA was measured to do: with tables to pre-apply the solve
+   uses `1/SIGMA^2`, not WEIGHT_SPECTRUM. The mechanism in CASA was not found, and the path without a pre-apply is
+   uncompared, with one probe point (s-noapply) that disagrees with rang's rule (section 6). It matters wherever the
+   two weight columns differ (for example after `prep.specweights: uniform`, C1 section 3.2). Proposed: keep it for
+   parity, record the weight source in the receipt, and have C2b compare a solve without a pre-apply.
 
 ## 11. What was not checked
 
-- CASA's `TIME` rule, beyond the hypotheses in section 5.2; the s-noapply case of the probe (SNR 0 without a
-  pre-apply).
+- CASA's `TIME` rule, beyond the hypotheses in section 5.2; the weights CASA uses without a pre-apply (no class B
+  case lacks one) and the s-noapply probe point (SNR 0); where in CASA the solve weights are reset from SIGMA.
 - `uvrange` against CASA (every CASA call used `''`; the selection is unit-tested only), `refant` lists with more
   than one entry, `minsnr` differences near the threshold (none occurred), several windows or fields per call,
   frequency chunks, `solnorm`, `smodel`, `preavg`, and the fixture against CASA.
@@ -391,9 +413,10 @@ Do not apply until merged; all text proposed.
 > post-hoc fixes (CASA solves with SIGMA weights when it pre-applies; a checker margin), a held-out set equals CASA
 > in bins, refant choice and continuity, `minblperant` and `minsnr`, with products within 1e-4, but the solution
 > TIME misses its 0.01 s gate by up to 0.054 s on RFI-flagged scans, and `combine='scan'` differs by about 1 %
-> (CASA averages before solving). Class T: no bias with noise; the twin's field 2 differs from A1's documented
-> point model by 2.3e-4, so its 1e-5 gate fails on the model. `tools/check-all.sh` now replays the gain hashes
-> (`gain-hashes` step). Owner decisions: the TIME gate, `combine` estimator, SIGMA weights.
+> (CASA averages before solving). Class T failed on one twin case because C2a's model left out A1's per-antenna
+> parallactic rotation; with A1's reference model every case passes (3e-8 noise-free, no bias with noise).
+> `tools/check-all.sh` now replays the gain hashes (`gain-hashes` step). Owner decisions: the TIME gate, the
+> `combine` estimator, SIGMA weights with a pre-apply.
 
 **`research/README.md`, index line:**
 
@@ -410,9 +433,13 @@ Do not apply until merged; all text proposed.
   gates every later C-stream merge, and fails (by design) on a host without the archived inputs unless
   `RANG_GAIN_HASHES=optional`.
 
-**For A1 (not the owner):** field 2 (SIM-GCAL) of the small twin holds data that differ from the documented point
-model by up to 2.3e-4 in amplitude on 182 rows (section 8); A1's tables and CASA's `applycal` reproduce the
-difference, so it is in the simulated sky or its documentation. Worth one look before E1 relies on field 2.
+**For C2b to C7 using A1:** an unpolarised calibrator's model is not `I` when antennas have their own parallactic
+angles: use A1's `P_p M P_q^T` (`check_gain.a1_model(..., parang=True)`); the difference reached 2.3e-4 on SIM-GCAL
+(section 8). Nothing is wrong in A1.
+
+**Merge note.** This branch edits `python/rang/check.py` (a `gain-hashes` step after `pytest`) and the expected step
+list in `tests/test_core_cli.py` (one line), next to W2's `core_cli.py`; the test's name still says "seventeen
+steps" though there are now eighteen. Both are likely conflict points with W2.
 
 **check-all and the index test.** As for C4a, `test_every_note_is_in_the_research_index` fails on this branch until
 the README line above is applied; any other failure would be real.

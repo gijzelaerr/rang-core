@@ -7,7 +7,7 @@ network-less run (`check_formats.docker`), timed.
     python examples/check_gain.py casa <run>        # class B
     python examples/check_gain.py casa <run> --heldout   # class B, section 7
     python examples/check_gain.py recheck <run>     # class B again, current code
-    python examples/check_gain.py truth <run>       # class T
+    python examples/check_gain.py truth <run> [--parang-model]   # class T
 
 `<run>` is a fresh `/mnt/d/rang/outputs/c2a-<date>-NN`. Inputs are read in
 place, read-only: O-CASA's slice and `c.K0`, the fixture (both under
@@ -244,14 +244,33 @@ def quartical(run, argv):
 # --- shared for B and T --------------------------------------------------------
 
 
-def a1_model(ms, truth, fields):
-    """MODEL_DATA rows of `fields` from A1's calibrator Stokes per channel."""
-    c = columns(ms, ["FIELD_ID"])
+def a1_model(ms, truth, fields, parang=False):
+    """MODEL_DATA rows of `fields` from A1's calibrator Stokes per channel.
+    With `parang` (post hoc, section 8), A1's own reference `P_p M P_q^T`,
+    `P = [[cos a, sin a], [-sin a, cos a]]`, `a = q_p + RECEPTOR_ANGLE`, from
+    `truth.npz`'s per-antenna parallactic angles: per-antenna angles do not
+    cancel even for an unpolarised source (`XX = I cos(a_p - a_q)`)."""
+    c = columns(ms, ["FIELD_ID", "TIME", "ANTENNA1", "ANTENNA2"])
     rows = np.flatnonzero(np.isin(c["FIELD_ID"], fields))
     s = truth["calibrator_stokes"][c["FIELD_ID"][rows]]  # (row, chan, IQUV)
     i, q, u, v = (s[..., k] for k in range(4))
-    values = np.stack([i + q, u + 1j * v, u - 1j * v, i - q], -1).astype(np.complex64)
-    return rows, values
+    values = np.stack([i + q, u + 1j * v, u - 1j * v, i - q], -1)
+    if parang:
+        ti = np.searchsorted(truth["time"], c["TIME"][rows])
+        if not np.array_equal(truth["time"][ti], c["TIME"][rows]):
+            raise SystemExit("truth times do not match the MS")
+        a = truth["parallactic_angle"] + truth["receptor_angle"][0]
+        ap, aq = a[ti, c["ANTENNA1"][rows]], a[ti, c["ANTENNA2"][rows]]
+
+        def rot(x):
+            return np.stack([np.cos(x), np.sin(x), -np.sin(x), np.cos(x)], -1).reshape(
+                -1, 2, 2
+            )
+
+        m = values.reshape(*values.shape[:2], 2, 2)
+        m = np.einsum("rij,rcjk,rlk->rcil", rot(ap), m, rot(aq))
+        values = m.reshape(*values.shape)
+    return rows, values.astype(np.complex64)
 
 
 def rfi_flags(ms, rfi_path, nchan):
@@ -699,8 +718,9 @@ def heldout_mse(msp, rtab, ctab, pre, sc, held):
             [*pre, tab], interp="linear", field_id=1,
         )  # fmt: skip
         m = cells & ~fl.any(-1)
-        r = corr[..., (0, 3)] - c["MODEL_DATA"][..., (0, 3)]
-        w = c["WEIGHT_SPECTRUM"][..., (0, 3)]
+        # float64 (post hoc after run -05: float32 rounded the mean to equality)
+        r = corr[..., (0, 3)].astype(np.complex128) - c["MODEL_DATA"][..., (0, 3)]
+        w = c["WEIGHT_SPECTRUM"][..., (0, 3)].astype(np.float64)
         out[label] = float(np.mean((w * np.abs(r) ** 2)[m]))
         out[f"{label}_cells"] = int(m.sum())
     out["relative"] = (out["rang"] - out["casa"]) / out["casa"]
@@ -718,7 +738,7 @@ def truth(run, argv):
     tr = dict(np.load(p["truth"]))
     edits = run / "edits"
     edits.mkdir()
-    rows, values = a1_model(p["a1"], tr, [0, 2])
+    rows, values = a1_model(p["a1"], tr, [0, 2], parang="--parang-model" in argv)
     np.savez(edits / "a1-model.npz", rows=rows, values=values)
     nchan = values.shape[1]
     np.savez(edits / "a1-rfi.npz", rows=np.arange(len(rfi_flags(p["a1"], p["rfi"], nchan))),
