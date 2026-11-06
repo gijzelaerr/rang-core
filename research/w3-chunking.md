@@ -292,7 +292,7 @@ branch's extension, as section 2 states. Verdict: `run-01/verdict.json`
 | 3 | Gain stores; iterations and converged fraction | every file of the three stores byte-identical in every arm; per-partition iterations and converged fraction equal (in the summaries) | pass |
 | 4 | CORRECTED_DATA | equal in every arm | pass |
 | 5 | summary.json without times, paths, version names, chunking | equal for flag, calibrate and apply in every arm | pass |
-| 6 | L: D against M | stores byte-identical; D solved each fcal scan in one call, M in 7 chunks with the replayed stop; both stopped at 25 and 27 iterations (converged fractions 1.0 and 0.996) | pass |
+| 6 | L: D against M | stores byte-identical (harness); summaries compared by hand, since the harness compares no L summaries (L has no column hashes: `"summaries equal": {}` in verdict.json): per-partition `gains_sha256` equal; D solved each fcal scan in one call, M in 7 chunks with the replayed stop; both stopped at 25 and 27 iterations (converged fractions 1.0 and 0.996) | pass |
 | 7 | Peak RSS ≤ the limit for D and M on W and L | table below; every D and M stage within | pass |
 | 8 | Refusal on W (one interval of 198 M cells at 2 GiB) | exit 2: "one solution interval of field 'J1939-6342' scan 1 holds 198180864 visibility cells and needs 12.444 GiB, above data.memory_limit_gb 2; ...", for scans 1 and 23; every column hash unchanged, no flag version, no run directory | pass |
 | 9 | Unit tests (`tests/test_w3_chunking.py`, 13 tests) | pass in check-all | pass |
@@ -411,6 +411,15 @@ Rows added to [tool-timings.md](tool-timings.md); every stage's
   only edit there), `python/rang/simtruth.py` and `examples/a1_simtruth.py`
   (design `w3`, `--chunk-ints`), `docs/cli.md` (regenerated), `CHANGELOG.md`.
   A branch that calls `solve_partition` or reads `info["rows"]` must follow.
+  **Merge with `fp-c2e-wiring`** (read-only grep at its `1e47e68`): its
+  `stage_calibrate` still calls `_read_columns(ms, calibration_columns(info,
+  config), ...)` and the old `solve_partition(columns, idx, ...)`. W3 removed
+  `_read_columns` and `calibration_columns`; `solve_partition` now takes a
+  reader first, has `max_cells, hard_cells` and returns six items;
+  `info["rows"]` includes TIME; `stage_flag` no longer calls `write_flags`
+  (kept, unused). The terms C2e adds must read their rows through
+  `core_chunks.read_rows` within `core_chunks.budget`, or W3's memory claim
+  does not cover them.
   C2c and C2d, when they wire G, K and B into `stage_calibrate`, should take
   rows through `core_chunks.read_rows` and the budget of `core_chunks.budget`.
 - **On disk:** `/mnt/d/rang/outputs/w3/data/w3.ms` (8.0 GB, the whole-array
