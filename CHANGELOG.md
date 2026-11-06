@@ -16,10 +16,12 @@ the release notes are the section of this file for that version.
   correlations for `calibrate` and `apply` (the complex term needs four), no FLAG or FLAG_ROW,
   no weights for `calibrate` (unless `data.weights: uniform`) or `image`, a FIELD_ID without a
   FIELD row, a named field or a `data.scans` selection with no rows, a FIELD name of several
-  fields in `image.fields`, and `image` with `data.scans`, on a data description other than 0 or
-  with a WEIGHT_SPECTRUM column whose cells were never written. Two linear correlations (XX, YY)
+  fields in `image.fields`, and `image` when `data.scans` leaves out a scan of an imaged field
+  (gemclean has no scan selection), on a data description other than 0 or with a
+  WEIGHT_SPECTRUM column whose cells were never written. Two linear correlations (XX, YY)
   are now flagged and imaged. Autocorrelations are flagged and corrected but left out of the
-  `complex` solve; `calibrate` reads WEIGHT when WEIGHT_SPECTRUM has no cells, as gemclean does.
+  `complex` solve; `calibrate` reads WEIGHT when row 0 of WEIGHT_SPECTRUM has no cell of the
+  DATA shape, and `image` refuses such an MS because gemclean would stop on it.
   `data.weights: uniform` for imaging is still refused, now naming W4 (an owner decision).
 - New: `rang.applycal.applycal(ms, gaintable, interp, gainfield, calwt, field)`, CASA's
   `applycal` on a Measurement Set: row chunks through `rang.core_writeback` (a flag version first),

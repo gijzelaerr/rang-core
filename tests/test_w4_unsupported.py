@@ -149,6 +149,30 @@ def test_one_data_description_other_than_zero(tmp_path, capsys):
     refused(capsys, "image", config, one, "DATA_DESC_ID 1", "data description 0")
 
 
+@pytest.mark.parametrize(
+    ("edit", "extra", "words"),
+    [
+        (
+            lambda ms: w4.add_window(ms, 16, "all", same_spw=True),
+            {},
+            ["image:", "DATA_DESC_ID 1"],
+        ),
+        (None, {"data": {"scans": [1]}}, ["image:", "scans [2]", "no scan selection"]),
+    ],
+)
+def test_run_is_refused_before_flag_writes_when_a_later_stage_cannot_run(
+    tmp_path, capsys, edit, extra, words
+):
+    # `rang-core run` checks every stage's data first (W2's rule): a refusal
+    # for image stops it before flag saves a version or writes FLAG.
+    ms = twin(tmp_path, "x", edit)
+    flag = column(ms, "FLAG")
+    config = write(tmp_path, run={"stages": ["flag", "calibrate", "image"]}, **extra)
+    refused(capsys, "run", config, ms, *words)
+    assert not flagversions.versions(ms)
+    assert np.array_equal(column(ms, "FLAG"), flag)
+
+
 # -- fields and selections -------------------------------------------------------
 
 
@@ -192,6 +216,9 @@ def test_empty_selections_are_refused_before_anything_is_written(tmp_path, capsy
     other = write(tmp_path, "o.yaml", data={"scans": [2]})
     refused(capsys, "calibrate", other, ms, "'CAL'", "scans [2]", "no rows")
     works(capsys, "flag", other, ms)
+    # data.scans that hold every scan of the imaged field: gemclean images the
+    # same rows either way, so image runs.
+    works(capsys, "image", other, ms)
 
 
 def test_unknown_fields_name_themselves(tmp_path, capsys):

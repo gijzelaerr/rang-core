@@ -36,7 +36,8 @@ by `check_data` and `preflight` before anything is written, every problem at
 once: several data descriptions in use, circular or single correlations, two
 correlations for calibrate and apply, missing FLAG or FLAG_ROW, missing
 weights, FIELD_IDs without a FIELD row, empty selections, ambiguous image
-fields, and image with `data.scans` or on a data description other than 0.
+fields, and image when `data.scans` leaves out a scan of an imaged field or
+on a data description other than 0.
 Autocorrelations are flagged and corrected but left out of the solve.
 """
 
@@ -288,13 +289,26 @@ def check_data(config, info, stages):
             f"every row is on DATA_DESC_ID {info['ddid']}; gemclean images data "
             "description 0 only",
         )
-    if config["data"]["scans"]:
-        no(
-            ("image",),
-            f"data.scans {config['data']['scans']} is set, but gemclean has no scan "
-            "selection and would image every scan of the field; leave data.scans out "
-            "for image, or split the scans out first",
-        )
+    scans = config["data"]["scans"]
+    if scans and "image" in stages:
+        try:
+            ids = resolve_fields(config["image"]["fields"], config, info, "image")
+        except Refused:  # reported by preflight
+            ids = []
+        rows = info["rows"]
+        for f in ids:
+            mine = rows["FIELD_ID"] == f
+            left = sorted(
+                set(np.unique(rows["SCAN_NUMBER"][mine]).tolist()) - set(scans)
+            )
+            if left:
+                no(
+                    ("image",),
+                    f"data.scans {scans} leaves out scans {left} of field "
+                    f"{info['fields'][f]!r}, but gemclean has no scan selection and "
+                    "would image them too; leave data.scans out for image, or split "
+                    "the scans out first",
+                )
     return out
 
 
@@ -802,7 +816,8 @@ def calibration_columns(info, config):
     names = ["FIELD_ID", "DATA_DESC_ID", "SCAN_NUMBER", "ANTENNA1", "ANTENNA2", "TIME"]
     names += ["DATA", "FLAG", "FLAG_ROW"]
     if config["data"]["weights"] == "as_is":
-        # WEIGHT_SPECTRUM when its cells are defined, else WEIGHT, as gemclean.
+        # WEIGHT_SPECTRUM when row 0 has a cell of the DATA shape, else WEIGHT
+        # (gemclean tests only that row 0 reads; check_data refuses image then).
         names.append("WEIGHT_SPECTRUM" if info["weight_spectrum"] else "WEIGHT")
     model = config["calibrate"]["model"]
     if model["source"] == "column":

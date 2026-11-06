@@ -1,0 +1,1594 @@
+{
+ "gemclean_sha256": "9e193e53ac7f46d2ad8efdc7ea9ed30a9dc528241186f5214720e8b88a2e2731",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "commit": "1a3fd2ef00c7cca2856972298c6f0a227d5a0985",
+ "dirty": false,
+ "seconds": 3737.7,
+ "cases": {
+  "base": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.53,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "pristine",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 3.63,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 22.81,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 4.63,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 17.38,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 7.11,
+     "missing_words": []
+    }
+   ]
+  },
+  "spw-unused": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.57,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 26.33,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 4.89,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 26.78,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 9.45,
+     "missing_words": []
+    }
+   ]
+  },
+  "spw-two": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.57,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.92,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.92,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.3,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.94,
+     "missing_words": []
+    }
+   ]
+  },
+  "spw-widths": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.21,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.61,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.62,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 3.39,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 2.08,
+     "missing_words": []
+    }
+   ]
+  },
+  "dd-same-spw": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.72,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.93,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.93,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.92,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.91,
+     "missing_words": []
+    }
+   ]
+  },
+  "dd-one": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.53,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 23.67,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 4.45,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 17.06,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 4.49,
+     "missing_words": []
+    }
+   ]
+  },
+  "field-dup": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.54,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 24.97,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 4.69,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 17.43,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 3.71,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "by-id",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 3.76,
+     "missing_words": []
+    }
+   ]
+  },
+  "field-norow": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.58,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.9,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.91,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.01,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.01,
+     "missing_words": []
+    }
+   ]
+  },
+  "field-empty": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.56,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 24.8,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 4.94,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 18.43,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 7.43,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "v-image",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.99,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "v-cal",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.33,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "v-flag",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 5.59,
+     "missing_words": []
+    }
+   ]
+  },
+  "field-unknown": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "image",
+     "tag": "v-name",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 2.73,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "v-id",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 2.55,
+     "missing_words": []
+    }
+   ]
+  },
+  "scans-none": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.97,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 2.54,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "setjy",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.07,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 1,
+     "expected": "fails",
+     "passed": true,
+     "seconds": 1.5,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.59,
+     "missing_words": []
+    }
+   ]
+  },
+  "scans-other": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 22.38,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.59,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 1,
+     "expected": "fails",
+     "passed": true,
+     "seconds": 1.67,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.62,
+     "missing_words": []
+    }
+   ]
+  },
+  "rows-zero": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.11,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.48,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.49,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.49,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.49,
+     "missing_words": []
+    }
+   ]
+  },
+  "field-flagged": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.54,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 22.51,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 1,
+     "expected": "fails",
+     "passed": true,
+     "seconds": 2.25,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 1,
+     "expected": "fails",
+     "passed": true,
+     "seconds": 1.66,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 3.87,
+     "missing_words": []
+    }
+   ]
+  },
+  "autos": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.56,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 25.2,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 4.82,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 19.14,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 7.23,
+     "missing_words": []
+    }
+   ]
+  },
+  "no-ws": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.47,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 51.36,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 17.93,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 40.05,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 15.29,
+     "missing_words": []
+    }
+   ]
+  },
+  "ws-undefined": {
+   "passed": false,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "works",
+     "passed": false,
+     "seconds": 0.47,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 51.45,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 17.75,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 39.6,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "works",
+     "passed": false,
+     "seconds": 2.63,
+     "missing_words": []
+    }
+   ]
+  },
+  "no-weight": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.47,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 51.57,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 18.03,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 39.86,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 15.31,
+     "missing_words": []
+    }
+   ]
+  },
+  "no-weights": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.47,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 89.75,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 3.54,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "uniform",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 36.32,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "uniform",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 50.79,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.18,
+     "missing_words": []
+    }
+   ]
+  },
+  "no-sigma": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 0.49,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 70.14,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 17.33,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 39.83,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 18.27,
+     "missing_words": []
+    }
+   ]
+  },
+  "uniform-image": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.7,
+     "missing_words": []
+    }
+   ]
+  },
+  "no-flag-row": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.47,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.61,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 3.17,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.63,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.63,
+     "missing_words": []
+    }
+   ]
+  },
+  "no-flag": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.48,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.61,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.62,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.63,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.63,
+     "missing_words": []
+    }
+   ]
+  },
+  "corr-2": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.7,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "pristine",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 15.2,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 0,
+     "expected": "works",
+     "passed": true,
+     "seconds": 45.44,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.33,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 5.26,
+     "missing_words": []
+    }
+   ]
+  },
+  "corr-circ": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.79,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.87,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.9,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.82,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.84,
+     "missing_words": []
+    }
+   ]
+  },
+  "corr-circ-2": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.53,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.8,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.82,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 3.63,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.87,
+     "missing_words": []
+    }
+   ]
+  },
+  "corr-1": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.51,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 4.65,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 1.05,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.82,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.81,
+     "missing_words": []
+    }
+   ]
+  },
+  "corr-order": {
+   "passed": true,
+   "steps": [
+    {
+     "command": "check",
+     "tag": "check",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.53,
+     "missing_words": []
+    },
+    {
+     "command": "flag",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.86,
+     "missing_words": []
+    },
+    {
+     "command": "calibrate",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.88,
+     "missing_words": []
+    },
+    {
+     "command": "apply",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.83,
+     "missing_words": []
+    },
+    {
+     "command": "image",
+     "tag": "run",
+     "exit": 2,
+     "expected": "refused",
+     "passed": true,
+     "seconds": 0.86,
+     "missing_words": []
+    }
+   ]
+  }
+ },
+ "comparisons": {
+  "spw-unused": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true,
+   "image": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   }
+  },
+  "dd-one": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true
+   },
+   "corrected_equal_on_shared_rows": true
+  },
+  "field-dup": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true,
+   "image": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   }
+  },
+  "field-empty": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true,
+   "image": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   }
+  },
+  "autos": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true,
+   "auto_rows": 1664,
+   "auto_corrected_finite": true,
+   "auto_cal_rows_changed_fraction": 1.0,
+   "auto_other_rows_equal_data": true,
+   "image": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   }
+  },
+  "no-ws": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true,
+   "image": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   }
+  },
+  "ws-undefined": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true
+  },
+  "no-weight": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true,
+   "image": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   }
+  },
+  "no-weights": {
+   "flag_equal_on_shared_rows": true
+  },
+  "no-sigma": {
+   "flag_equal_on_shared_rows": true,
+   "store": {
+    "partitions": [
+     2,
+     2
+    ],
+    "gains_and_flags_identical": true,
+    "files": [
+     80,
+     80
+    ],
+    "files_identical": true
+   },
+   "corrected_equal_on_shared_rows": true,
+   "image": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   }
+  },
+  "corr-2": {
+   "image_pristine": {
+    "image-image": true,
+    "image-model": true,
+    "image-residual": true,
+    "image-dirty": true
+   },
+   "flag_equals_port": true
+  },
+  "scans-none": {
+   "model_data_absent": true,
+   "flag_versions": []
+  }
+ }
+}

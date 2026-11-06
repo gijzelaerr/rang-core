@@ -1561,3 +1561,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W2b `examples/check_w2b.py`, run w2b-03 (with the store comparison) | same | 89.7 s | – | calibrate 24.3 s, run 43.9 s |
 | 2026-11-06 | check-all, C4b branch at `ff891a8` | repo | – | – | pytest 908 passed, 68 skipped, 1 expected failure (index) in 129 s |
 | 2026-11-06 | check-all, C4b branch at the final head, the index line applied in the working tree (not committed) | repo | – | – | overall PASS; pytest 910 passed, 68 skipped in 135 s |
+| 2026-11-06 | W4 worktree `.venv`: `uv venv` + `uv pip install` of C2b's frozen requirements + `-e .` (maturin, `nice`) | worktree | 199 s | – | shared host |
+| 2026-11-06 | W4 check-all on the note commit `a6fcc80` | worktree | 2066 s (with lock wait behind C2b's) | – | FAIL only on the research-index test; pytest 918 passed, 68 skipped in 236 s |
+| 2026-11-06 | W4 check-all on the code commit `1a3fd2e` | worktree | 1514 s (with lock wait) | 2.00 GB | FAIL only on the research-index test; pytest 939 passed, 68 skipped in 235 s |
+| 2026-11-06 | W4 `examples/check_w4_unsupported.py`, smoke run-00-smoke (5 cases, harness debugging) | A1 small copies | 1315 s | 264 MB | load 14-17 (G2 and C2b running); every step fingerprinted then |
+| 2026-11-06 | W4 `examples/check_w4_unsupported.py`, frozen run-01 (28 cases, 138 commands) | A1 small copies | 3740 s | 264 MB | shared host (load about 14); refusals 0.5-5.6 s each; flag 22-90 s, apply 17-51 s, calibrate 4.5-36 s, image 3.6-18 s per command, mostly flag versions and receipts on `/mnt/d` |
+| 2026-11-06 | W4 gemclean (main's release build) directly on the ws-undefined MS | A1 small copy | – | – | exit 2: "WEIGHT_SPECTRUM: read of 8 bytes ... failed to fill whole buffer" |
+| 2026-11-06 | W4 `examples/check_w4_unsupported.py`, post hoc run-02-posthoc-scans (scans-none, scans-other) | A1 small copies | 177.2 s | 96 MB | uncommitted narrowed `data.scans` rule; same verdicts as run-01 |
+| 2026-11-06 | W4 check-all on the final tree (results commit) | worktree | 490.3 s | 1.81 GB | FAIL only on the research-index test; pytest 941 passed, 68 skipped in 128 s |
