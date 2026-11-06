@@ -28,9 +28,11 @@ is listed under `config` below) drives every stage. The commands validate
 the whole configuration first and refuse what is not implemented yet,
 naming the task that adds it. Today `flag` runs the Tricolour port and
 writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
-MODEL_DATA, solves the `complex` term and writes a QuartiCal gain store,
-`apply` applies that term on its own solution bins to CORRECTED_DATA, and
-`image` runs `gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
+MODEL_DATA and either solves the `complex` term into a QuartiCal gain store
+or runs CARACal's K, G, B, A and F terms in order into CASA tables, its A
+steps flagging the corrected calibrators ({gh}`research/c2e-calibrate.md`),
+`apply` applies those solutions to CORRECTED_DATA, and `image` runs
+`gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version

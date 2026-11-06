@@ -18,6 +18,23 @@ the release notes are the section of this file for that version.
   now apply `Kcross Jones` and `Xf Jones` tables. Not wired into `rang-core calibrate` yet (task C2e).
   `rang.simtruth` gains the versions `poldx` and `polholdout` (CASA's parallactic frame, a leaking
   reference antenna); the other versions are unchanged.
+- New: `rang-core calibrate` runs CARACal's cross-calibration terms K, G, B, A and F in C1's order
+  (`research/c2e-calibrate.md`). The config's `calibrate.primary` and `calibrate.secondary` terms
+  go to `rang.cal_chain.run`: K (`delay_and_offset`), G and B with their listed tables pre-applied,
+  written as CASA tables in the run directory; F appends a G solved on the secondary against a
+  unit point model to a copy of the primary's last G, then `fluxscale`, and the fitted flux densities
+  go into the summary; A applies the section's last table of each type to its fields
+  (CORRECTED_DATA, `calflag`) and runs the Tricolour port on the corrected data, OR-ing its flags
+  into FLAG (CARACal runs tfcrop there). `rang-core apply` applies these tables through
+  `rang.applycal` with each target's `interp` and `gainfield`. calibrate now saves and restores a
+  flag version like the other writing stages. A K table applied without a G or F is reported:
+  its phase offsets are left for G. Refusals no longer name C2a to C2d; what the `complex` term
+  never takes is a configuration error pointing to the K, G and B terms. `refant: auto`,
+  `solnorm: true` and `calmode: a` are refused as not ported.
+- Changed: `rang.cal_gain.gaincal`, `rang.cal_delay.gaincal`, `rang.cal_bandpass.bandpass` and
+  `rang.applycal.applycal` take `scan` (a list of SCAN_NUMBERs); the solves take
+  `weight_column=None` for unit weights and read a WEIGHT column per channel. Defaults are
+  unchanged. `rang.simtruth` has a held-out version `holdout128` (new seeds).
 - Added: polarised calibrator models (task C7a, `research/c7a-polmodels.md`).
   `rang.calmodels.Manual` takes CASA `setjy(standard='manual')`'s full form, `fluxdensity=[I, Q,
   U, V]`, `polindex`, `polangle` and `rotmeas` (referenced to `reffreq`, as CASA), following

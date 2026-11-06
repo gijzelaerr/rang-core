@@ -108,6 +108,13 @@ SEEDS = {
         "rfi": 20261158,
         "noise": 20261159,
     },
+    # Task C2e (research/c2e-calibrate.md): its held-out set, new seeds.
+    "holdout128": {
+        "jones": 20261146,
+        "sky": 20261147,
+        "rfi": 20261148,
+        "noise": 20261149,
+    },
 }
 
 # Task C6: the versions whose parallactic angle is CASA's frame and whose
@@ -180,7 +187,8 @@ def design(name):
     """The `full` (64 antennas, 256 channels) or `small` (16, 64) version, or
     `delay50` (C2b: small's antennas and schedule, 256 channels, delays of
     1-50 ns, `extra["tau_range_ns"]`), or `holdout256` (C2c's held-out set:
-    as delay50 with new seeds and delays of 1-30 ns)."""
+    as delay50 with new seeds and delays of 1-30 ns), or `holdout128` (C2e's
+    held-out set: as holdout256 with 128 channels and its own seeds)."""
     if name == "full":
         return Design("full", list(range(64)), 256, FULL_LENGTH, SEEDS["full"])
     if name == "small":
@@ -203,6 +211,15 @@ def design(name):
             SEEDS["holdout256"],
             extra={"tau_range_ns": (1.0, 30.0)},
         )
+    if name == "holdout128":
+        return Design(
+            "holdout128",
+            list(range(0, 64, 4)),
+            128,
+            SMALL_LENGTH,
+            SEEDS["holdout128"],
+            extra={"tau_range_ns": (1.0, 30.0)},
+        )
     if name in ("poldx", "polholdout"):
         # Task C6 (research/c6-polterms.md): small's antennas and schedule, 256
         # channels, P in CASA's frame (`parallactic_angle_casa`) and d_x of the
@@ -217,8 +234,8 @@ def design(name):
             extra={"tau_range_ns": (1.0, 10.0), **POL_EXTRA},
         )
     raise ValueError(
-        f"unknown version {name!r}: full, small, delay50, holdout256, poldx or "
-        "polholdout"
+        f"unknown version {name!r}: full, small, delay50, holdout256, holdout128, "
+        "poldx or polholdout"
     )
 
 

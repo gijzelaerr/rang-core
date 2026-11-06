@@ -535,7 +535,15 @@ def main(argv=None):
     g = sub.add_parser("generate")
     g.add_argument(
         "version",
-        choices=["small", "full", "delay50", "holdout256", "poldx", "polholdout"],
+        choices=[
+            "small",
+            "full",
+            "delay50",
+            "holdout256",
+            "holdout128",
+            "poldx",
+            "polholdout",
+        ],
     )
     g.add_argument("outdir")
     g.add_argument("--workers", type=int, default=4)
@@ -551,7 +559,15 @@ def main(argv=None):
     s = sub.add_parser("size")
     s.add_argument(
         "version",
-        choices=["small", "full", "delay50", "holdout256", "poldx", "polholdout"],
+        choices=[
+            "small",
+            "full",
+            "delay50",
+            "holdout256",
+            "holdout128",
+            "poldx",
+            "polholdout",
+        ],
     )
     args = p.parse_args(argv)
     if args.cmd == "size":

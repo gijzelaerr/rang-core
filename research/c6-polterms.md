@@ -359,18 +359,43 @@ Do not apply until merged; all text proposed.
 answer A1's open decisions provisionally). C7: substitute C7a's `calmodels` for A1's explicit model; apply with
 `rang.cal_pol.apply` (tables, then P). E1: strategy 1 alone uses about half of the 1° χ budget on a leaking refant.
 
-**Proposed wiring for task C2e (not done here):** a `calibrate.polcal` block mirroring CARACal's (`xcal`, `fcal`,
-`gain_solint: 60s`, `time_solint: inf`, `uvrange`, `refant`, `frame: casa`) that, after the crosscal steps, runs
-`cal_pol.gpol` (xcal, crosscal tables), `cal_pol.kcross` (+ Gpol), `cal_pol.xf` (+ Gpol, KCROSS;
-`combine='scan'`), `cal_pol.df` (fcal, crosscal + KCROSS, Xf) and `cal_pol.clip_df`, writes the four tables as CASA
-tables, and applies with `cal_pol.apply(..., angles=cal_pol.row_angles(...))` (Gpol on xcal only; Gpol `linear`,
-the others `nearest`). The receipt records the frame.
+**Proposed wiring (not implemented here; main `0de5690` with C2e is merged into this branch).** C2e's
+`calibrate.polcal` section already parses terms of types `Gpol`, `KCROSS`, `Xf`, `Df` and refuses them through
+`core_config.TERM_TASKS` (C6b, C6c), `feed_angle_rotation` (C6a), `extendflags` (C6b) and `apply.parang` (C6a).
+The wiring, kept to the chain terms as the coordinator asked (W3 lands in `core_pipeline` too):
+
+1. `core_config`: move `Gpol`, `KCROSS`, `Xf`, `Df` from `TERM_TASKS` into the run terms (`CASA_TERMS`); keep
+   refusing `feed_angle_rotation` other than CARACal's −90 (A1: a no-op where FEED already holds −π/2; rang does
+   not rewrite FEED) and `extendflags` (not ported); accept `apply.parang: true` and add `calibrate.polcal.frame`
+   (`casa` default, `rang`).
+2. `core_pipeline.chain_terms`: for the `polcal` section, emit specs in C1's order with each term's `preapply`
+   resolved as for G and B (the crosscal tables of the field; KCROSS + Gpol; Xf + Gpol, KCROSS; Df + KCROSS, Xf
+   and not Gpol), interps CARACal's (`cal_apply.CARACAL_INTERP`: Gpol `linear`, the others `nearest`), `uvrange`
+   to all four, and Df's clip (`clip: 0.6`).
+3. `cal_chain.run`: four branches calling `cal_pol.gpol`, `kcross`, `xf`, `df` (+ `clip_df`) and writing CASA
+   tables through `caltable.write`, as the K/G/B branches do; the receipt records the frame and the clip count.
+4. The apply stage: when `apply.parang` is true (or any polarisation table is applied), correct with
+   `cal_pol.apply(..., angles=cal_pol.row_angles(ms, time, a1, a2, field, frame))` per field, Gpol on the xcal
+   field only, after the existing tables (P last).
+5. Gate (C2e's style): `rang-core calibrate` equals the library chain of this note's C-poldx bit for bit on
+   `poldx`, and the apply stage equals run -12's `cal_pol.apply` output.
+
+Section 10's decisions 3-5 (Df on RFI-heavy channels; KCROSS `combine`; the estimator bias) should be settled
+before the defaults are frozen in the configuration.
+
+**Seed collision (found at the merge of `0de5690`):** C2e's `holdout128` uses the seeds 20261146-20261149 that
+`poldx` uses (both chosen in parallel as "new"). The designs differ (128 channels, delays 1-30 ns, rang's frame,
+refant `d_x = 0` against 256 channels, 1-10 ns, CASA's frame, a leaking refant), so the truths differ, and both
+are kept unchanged; neither is a held-out set for the other's task. `polholdout`'s seeds 20261156-20261159 are
+unique.
 
 **Merge notes.** Edits `core/src/cal/apply.rs` (KCROSS and Xf apply; the old refusal test replaced),
 `core/src/cal/mod.rs`, `core/py/src/lib.rs` (one `mod` line, four registration lines at the end),
 `python/rang/formats/caltable.py` (Kcross, Xf types), `python/rang/simtruth.py` and `examples/a1_simtruth.py`
-(two versions; the others unchanged), `CHANGELOG.md`, `research/tool-timings.md`. Does not edit `core_config.py`,
-`cal_chain.py`, `cal_gain.py`, `solve.rs`, `jones.rs`, `correct.rs`. `test_every_note_is_in_the_research_index`
+(two versions next to C2e's `holdout128`; the others unchanged), `CHANGELOG.md`, `research/tool-timings.md`,
+`tests/test_cal_apply.py` (C4a's refusal test). Does not edit `core_config.py`, `core_pipeline.py`,
+`cal_chain.py`, `cal_gain.py`, `solve.rs`, `jones.rs`, `correct.rs`. Main `0de5690` is merged (conflicts only in
+`simtruth.py`, `a1_simtruth.py`, `CHANGELOG.md`, `tool-timings.md`, resolved by keeping both sides). `test_every_note_is_in_the_research_index`
 fails until the README line is applied.
 
 **Left on disk:** `/mnt/d/rang/outputs/c6-20261106-sets` (2.9 GB; keep for C7 and E1: the truths and their CASA
