@@ -7,7 +7,6 @@ import sys
 import time
 
 import numpy as np
-
 from rang import cal_bandpass, cal_chain, cal_delay, cal_gain, cal_pol, core_chunks
 
 ms = sys.argv[1]
@@ -57,7 +56,7 @@ def model(field, stokes=(1, 0, 0, 0)):
     return cal_fluxscale.smodel_view(nrow, nchan, stokes)
 
 
-common = dict(field_id=0, refant=0, weight_column=None, model=model(0))
+common = {"field_id": 0, "refant": 0, "weight_column": None, "model": model(0)}
 k = run(cal_delay.gaincal, "K inf", solint="inf", **common)
 run(cal_delay.gaincal, "K int", solint="int", **common)
 g = run(cal_gain.gaincal, "G inf", solint="inf", gaintable=[k[0]], **common)
@@ -71,12 +70,12 @@ run(
     **common,
 )
 if len(sys.argv) > 3:
-    pol = dict(
-        field_id=1,
-        weight_column=None,
-        receptor_angle=-np.pi / 2,
-        model=model(1, (1, 0.05, 0.08, 0.0)),
-    )
+    pol = {
+        "field_id": 1,
+        "weight_column": None,
+        "receptor_angle": -np.pi / 2,
+        "model": model(1, (1, 0.05, 0.08, 0.0)),
+    }
     run(cal_pol.gpol, "Gpol", solint="60s", refant=0, gaintable=[k[0], g[0]], **pol)
     run(cal_pol.kcross, "KCROSS", gaintable=[k[0], g[0]], **pol)
     run(cal_pol.xf, "Xf", combine="scan", gaintable=[k[0], g[0]], **pol)
