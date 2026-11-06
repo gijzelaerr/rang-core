@@ -475,6 +475,25 @@ def test_unsupported_data_is_refused_naming_w4(tmp_path):
         t.putcol("DATA_DESC_ID", (np.arange(NROW) % 2).astype(np.int32))
     with pytest.raises(pipe.Refused, match="W4"):
         pipe.inspect_ms(ms)
+    # Two spectral windows of different widths (criterion 6 as frozen).
+    widths = make_ms(tmp_path / "w.ms")
+    with core_ms_write.open_table(widths / "SPECTRAL_WINDOW", readonly=False) as t:
+        t.addrows(1)
+        t.putcell("CHAN_FREQ", 1, 1.6e9 + 1e6 * np.arange(8))
+        for col in ("CHAN_WIDTH", "EFFECTIVE_BW", "RESOLUTION"):
+            t.putcell(col, 1, np.full(8, 1e6))
+        t.putcol("NUM_CHAN", np.array([NCHAN, 8], np.int32))
+    with core_ms_write.open_table(widths / "DATA_DESCRIPTION", readonly=False) as t:
+        t.addrows(1)
+        t.putcol("SPECTRAL_WINDOW_ID", np.array([0, 1], np.int32))
+        t.putcol("POLARIZATION_ID", np.array([0, 0], np.int32))
+    with core_ms_write.open_table(widths, readonly=False) as t:
+        t.putcol("DATA_DESC_ID", (np.arange(NROW) % 2).astype(np.int32))
+    with pytest.raises(pipe.Refused, match="differ in shape.*W4"):
+        pipe.inspect_ms(widths)
+    with pytest.raises(SystemExit) as exc:
+        cli("flag", write_config(tmp_path), widths)
+    assert exc.value.code == 2 and not flagversions.versions(widths)
 
 
 def test_unknown_fields_are_refused_before_anything_is_written(tmp_path):

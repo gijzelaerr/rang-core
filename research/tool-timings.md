@@ -1516,3 +1516,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | A1 CASA template solves (K, G per integration, B, KCROSS, Xf, Df) + overwrite | small twin, full twin | 17.1 s, 161.8 s | 298 MB, 607 MB | container |
 | 2026-11-06 | A1 CASA `applycal`, 6 tables | small twin, full twin | 6.1 s, 79.7–93.0 s | 0.5 GB, 8.6 GB | once per `parang` value |
 | 2026-11-06 | A1 `tools/a1_checks.sh full`, end to end | full MS and twin | 917 s | 4.3 GB (host) | heavy lock |
+| 2026-11-06 | W2 `uv venv` + `uv pip install -e .[...]` (worktree .venv, extension build) | repo | 141 s | – | heavy lock |
+| 2026-11-06 | W2 `cargo build --release --bin gemclean` | core crate | 118 s | – | heavy lock |
+| 2026-11-06 | W2 `rang-core flag` (Tricolour port, 23 groups, 12 steps) | A1 small MS, 12,480 rows × 64 ch | 20.0 s | 94 MB | 18.5 s in creating two flag versions on /mnt/d (cProfile); 0.9 s in the port |
+| 2026-11-06 | W2 `rang-core calibrate` (complex, 2 partitions, 50 iterations) | same | 3.3 s | 101 MB | |
+| 2026-11-06 | W2 `rang-core image` (gemclean, 512², 654 components) | same, field SIM-TARGET | 4.7 s | 261 MB | gemclean itself 1.34 s, -j 2 |
+| 2026-11-06 | W2 `rang-core run`, image failing, then resumed | same | 24.2 s, then 5.9 s | 133 MB, 260 MB | the resumed run skips flag and calibrate |
+| 2026-11-06 | W2 `tools/oracles/w2/run.sh`, frozen run -01 | A1 small MS copies | 114 s | – | shared host; not a timing run |
+| 2026-11-06 | check-all, W2 branch at the code commit | repo | – | – | pytest 868 passed, 68 skipped, 1 expected failure (index) in 116 s |
