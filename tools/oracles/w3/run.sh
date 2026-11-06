@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # W3 arms (research/w3-chunking.md, sections 2 and 3).
 # Usage: bash tools/oracles/w3/run.sh RUN CASE ARM
-#   CASE: S (A1 small), O (O-CASA slice), W (the whole-array set), L (A1 full, read only)
+#   CASE: S (A1 small), C (A1 small with C2e's chain), O (O-CASA slice), W (the whole-array set), L (A1 full, read only)
 #   ARM:  U (main 5ec40e3, unchunked; needs $W3_ORACLE, a checkout of 5ec40e3 with
 #         this branch's extension copied in), D (default limit), T (tiny chunks),
 #         M (memory_limit_gb 2)
@@ -15,7 +15,7 @@ py="$root/.venv/bin/python"
 run=$(realpath -m "$1"); case=$2; arm=$3
 strategy=$HOME/Github/rang/outputs/caracal-strategy-inputs-8f7bb363/mk_rfi_flagging_calibrator_fields_firstpass.yaml
 case $case in
-  S) src=/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms ;;
+  S|C) src=/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms ;;
   O) src=$HOME/Github/rang/outputs/o-casa-20261030-01/work.ms ;;
   W) src=/mnt/d/rang/outputs/w3/data/w3.ms ;;
   L) src=/mnt/d/rang/outputs/fp-a1-20261106-simtruth/full/a1-full.ms ;;

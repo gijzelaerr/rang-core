@@ -42,6 +42,10 @@ CELL_BYTES = {
     "apply": 64,
     "model": 64,
     "rows": 24,
+    # The K, G, B, A and F terms (task C2e) read a whole field at once, with
+    # copies for pre-applied tables: an estimate, not fitted (research/
+    # w3-chunking.md 5.3); used only to refuse what cannot fit.
+    "chain": 96,
 }
 
 

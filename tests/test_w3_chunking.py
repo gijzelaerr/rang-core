@@ -369,3 +369,41 @@ def test_a_solution_interval_above_the_limit_is_refused_before_writing(tmp_path)
     )
     assert len(problems) == 1 and "solution interval" in problems[0]
     assert "GiB" in problems[0]
+
+
+@needs_writer
+def test_chain_terms_above_the_limit_are_refused_not_chunked(tmp_path):
+    """K, G, B, A and F (task C2e) read whole fields: above the limit they
+    are refused before anything is written (research/w3-chunking.md 5.3)."""
+    ms = w2.make_ms(tmp_path / "x.ms")
+    fixed = core_chunks.BASE_BYTES + core_chunks.ROW_BYTES * w2.NROW
+    chain = (
+        "calibrate:\n"
+        "  refant: m000\n"
+        "  minblperant: 3\n"
+        "  primary:\n"
+        "    terms:\n"
+        "      - {type: K, name: K}\n"
+        "      - {type: G, name: G, preapply: [K], interp: [linear]}\n"
+        "      - {type: A, name: A}\n"
+    )
+    small = _config(
+        tmp_path,
+        chain,
+        f"data: {{memory_limit_gb: {(fixed + 100_000) / core_chunks.GIB!r}}}\n",
+    )
+    with pytest.raises(SystemExit) as exit_:
+        w2.cli("calibrate", str(small), str(ms))
+    assert exit_.value.code == 2
+    assert not ms.with_name("x.ms.flagversions").exists()
+    info = pipe.inspect_ms(ms)
+    problems = pipe.memory_problems(
+        core_config.validate_file(small, ["calibrate"]), info, ["calibrate"]
+    )
+    assert len(problems) == 3
+    assert all("not yet implemented" in p and "GiB" in p for p in problems)
+    work = tmp_path / "default"
+    work.mkdir()
+    default = _config(work, chain, "")
+    config = core_config.validate_file(default, ["calibrate"])
+    assert pipe.memory_problems(config, info, ["calibrate"]) == []

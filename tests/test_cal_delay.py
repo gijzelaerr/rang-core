@@ -46,6 +46,9 @@ def simulate(nant=6, ntime=3, nchan=64, noise=0.0, seed=20261106, scale=8.0):
 
 
 def run(s, **kw):
+    # C2b's tests are pinned to `delay`; C2c's `delay_and_offset` (the
+    # default) is tested below.
+    kw.setdefault("kind", "delay")
     return cal_delay.solve(
         s["data"], s["model"], s["weights"], s["flag"], s["flag_row"], s["a1"],
         s["a2"], s["tb"], nant=s["nant"], chan_freq=s["freq"], **kw,
@@ -121,3 +124,74 @@ def test_refant_out_of_range():
     s = simulate(nant=3, ntime=1, nchan=8)
     with pytest.raises(ValueError):
         run(s, refant=3)
+
+
+# --- task C2c (research/c2c-bandpass.md): delay_and_offset, the default ---
+
+
+def with_offsets(s, seed=7):
+    """Multiply each antenna and hand by a constant phase (G with no
+    amplitude): `delay` is biased by it where weights are uneven,
+    `delay_and_offset` absorbs it."""
+    rng = np.random.default_rng(seed)
+    ntime = int(s["tb"].max()) + 1
+    phi = rng.uniform(-2.5, 2.5, (ntime, s["nant"], 2))
+    gp, gq = np.exp(1j * phi[s["tb"], s["a1"]]), np.exp(1j * phi[s["tb"], s["a2"]])
+    data = s["data"].astype(complex)
+    data[..., 0] *= (gp[:, 0] * np.conj(gq[:, 0]))[:, None]
+    data[..., 3] *= (gp[:, 1] * np.conj(gq[:, 1]))[:, None]
+    data[..., 1] *= (gp[:, 0] * np.conj(gq[:, 1]))[:, None]
+    data[..., 2] *= (gp[:, 1] * np.conj(gq[:, 0]))[:, None]
+    out = dict(s)
+    out["data"] = data.astype(np.complex64)
+    out["phi"] = phi
+    return out
+
+
+@pytest.mark.parametrize("casa_rules", [True, False])
+def test_delay_and_offset_recovers_delays_and_offsets(casa_rules):
+    s = with_offsets(simulate())
+    sol = run(s, refant=2, casa_rules=casa_rules, kind="delay_and_offset", **TIGHT)
+    assert sol.settings["kind"] == "delay_and_offset"
+    assert not sol.flags.any()
+    want = s["tau"] - s["tau"][:, 2:3]
+    assert np.abs(sol.delays[:, 0] - want).max() < 1e-6
+    dphi = sol.offsets[:, 0] - (s["phi"] - s["phi"][:, 2:3])
+    assert np.abs(np.angle(np.exp(1j * dphi))).max() < 1e-5
+    assert np.all(sol.offsets[:, 0, 2] == 0)
+
+
+def test_offsets_bias_delay_but_not_delay_and_offset():
+    s = with_offsets(simulate(nchan=64))
+    # Uneven weights about mid-band (as RFI flags make them).
+    s["weights"][:, :20] = 0.05
+    plain = run(s, refant=0, kind="delay", **TIGHT)
+    free = run(s, refant=0, kind="delay_and_offset", **TIGHT)
+    want = s["tau"] - s["tau"][:, :1]
+    assert np.abs(free.delays[:, 0] - want).max() < 1e-6
+    assert np.abs(plain.delays[:, 0] - want).max() > 1e-3
+
+
+def test_delay_and_offset_errors_follow_the_noise():
+    kw = {"refant": 0, "kind": "delay_and_offset"}
+    quiet = run(simulate(noise=0.05, seed=1), **kw)
+    loud = run(simulate(noise=0.5, seed=1), **kw)
+    ratio = np.median(loud.err[:, 0, 1:]) / np.median(quiet.err[:, 0, 1:])
+    assert 7 < ratio < 13
+    # The offset-marginalised error is about the fixed-offset one on this
+    # symmetric band (the marginalisation adds little) and unaffected by an
+    # amplitude the term does not carry.
+    fixed = run(simulate(noise=0.5, seed=1), refant=0)
+    ratio = np.median(loud.err[:, 0, 1:] / fixed.err[:, 0, 1:])
+    assert 0.8 < ratio < 1.25
+    s = simulate(noise=0.5, seed=1)
+    s["data"] = s["data"] * np.float32(1.3)
+    scaled = run(s, **kw)
+    ratio = np.median(scaled.err[:, 0, 1:] / loud.err[:, 0, 1:])
+    assert 0.8 < ratio < 1.25
+
+
+def test_unknown_kind_is_refused():
+    s = simulate(nant=3, ntime=1, nchan=8)
+    with pytest.raises(ValueError):
+        run(s, kind="delay_tec")

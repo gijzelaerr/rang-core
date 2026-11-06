@@ -1587,6 +1587,58 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W4 gemclean (main's release build) directly on the ws-undefined MS | A1 small copy | – | – | exit 2: "WEIGHT_SPECTRUM: read of 8 bytes ... failed to fill whole buffer" |
 | 2026-11-06 | W4 `examples/check_w4_unsupported.py`, post hoc run-02-posthoc-scans (scans-none, scans-other) | A1 small copies | 177.2 s | 96 MB | uncommitted narrowed `data.scans` rule; same verdicts as run-01 |
 | 2026-11-06 | W4 check-all on the final tree (results commit) | worktree | 490.3 s | 1.81 GB | FAIL only on the research-index test; pytest 941 passed, 68 skipped in 128 s |
+| 2026-11-06 | C2d `uv venv` + `uv pip install -e .[...]` + `maturin develop` (worktree .venv) | repo | 220 s + 2 s | – | |
+| 2026-11-06 | C2d `mstransform` probe -00 (applycal + 4 windows, data preparation only) | A1 small | not timed separately | – | heavy lock |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -01 | A1 small, full twin, slice copies | 282.6 s | 1.23 GB | failed at CASA's first `gaincal` (the slice's field id); nothing compared |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -02 | 6 datasets, 12 P cases | 1,220.5 s (with heavy-lock waits) | 3.43 GB | 18 CASA `fluxscale` 35.7 s, 11 `gaincal` 44.1 s; rang chains 3.5-161.7 s (full64 161.7 s); crashed in class C (harness) |
+| 2026-11-06 | C2d `check_fluxscale.py compare` on -02 (twice) | -02's outputs | 514.8 s, 467.5 s (mostly lock waits) | 94 MB | |
+| 2026-11-06 | C2d `check_fluxscale.py recheck` on -02 (post hoc) | -02's CASA tables and copies | 1,158.1 s (with lock waits) | 3.43 GB | |
+| 2026-11-06 | C2d `check_fluxscale.py readback` on -02 | A1 small copy | 37.9 s | 191 MB | rang `applycal` 21.2 s |
+| 2026-11-06 | C2d held-out A1 version: generate (MS and twin) and CASA truth tables + round trip | small, new seeds | 10.8 s, 33.2 s | – | heavy lock |
+| 2026-11-06 | C2d `check_fluxscale.py heldout` run -03 | 4 datasets, 4 P cases | 750.6 s | 203 MB | containers 37.8 s and 26.7 s; rang 191.9 s; comparisons 307.2 s |
+| 2026-11-06 | check-all, C2d branch before the code commit (twice) | repo | 827.5 s, 995.5 s | 1.92 GB | first: ruff 0.17.4 in the fresh venv (SIM102 elsewhere) and a format; second: only the index test fails; pytest 923 passed, 68 skipped |
+| 2026-11-06 | C2d `uv venv` + `uv pip install -e .[...]` + `maturin develop` (worktree .venv) | repo | 220 s + 2 s | – | |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -01 | A1 small, full twin, slice copies | 282.6 s | 1.23 GB | failed at CASA's first `gaincal` (the slice's field id); nothing compared |
+| 2026-11-06 | C2d `check_fluxscale.py frozen` run -02 | 6 datasets, 12 P cases | 1,220.5 s (with heavy-lock waits) | 3.43 GB | 18 CASA `fluxscale` 35.7 s, 11 `gaincal` 44.1 s; rang chains 3.5-161.7 s (full64 161.7 s); crashed in class C (harness) |
+| 2026-11-06 | C2d `check_fluxscale.py compare` on -02 (twice) | -02's outputs | 514.8 s, 467.5 s (mostly lock waits) | 94 MB | |
+| 2026-11-06 | C2d `check_fluxscale.py recheck` on -02 (post hoc) | -02's CASA tables and copies | 1,158.1 s (with lock waits) | 3.43 GB | |
+| 2026-11-06 | C2d `check_fluxscale.py readback` on -02 | A1 small copy | 37.9 s | 191 MB | rang `applycal` 21.2 s |
+| 2026-11-06 | C2d held-out A1 version: generate (MS and twin), CASA truth tables and round trip | small, new seeds | 10.8 s, 33.2 s | – | heavy lock |
+| 2026-11-06 | C2d `check_fluxscale.py heldout` run -03 | 4 datasets, 4 P cases | 750.6 s | 203 MB | containers 37.8 s and 26.7 s; rang 191.9 s; comparisons 307.2 s |
+| 2026-11-06 | check-all, C2d branch before the code commit (twice) | repo | 827.5 s, 995.5 s | 1.92 GB | first: ruff 0.17.4 in the fresh venv (SIM102 elsewhere) and a format; second: only the index test fails; pytest 923 passed, 68 skipped |
+| 2026-11-06 | C2c holdout256 generation (`a1_simtruth.py generate holdout256`, noisy and twin) | 16 ant, 256 ch, 104 int | 13.1 s and 10.1 s | 247 MB, 258 MB | A1's generator, 4 workers |
+| 2026-11-06 | C2c `tools/a1_checks.sh` on holdout256 | holdout256 and twin | 73.2 s | 1.26 GB | round trip and noise pass; parallactic check fails as on A1 small |
+| 2026-11-06 | C2c `check_bandpass.py kquartical` run -01 (K class A) | slice, A1 small, delay50, 10 cases | 431.0 s (container 295.9 s; `goquartical` 8.6-81.9 s, 404-791 MB; rang 0.06-1.47 s per case) | 1.27 GB | all ten pass |
+| 2026-11-06 | C2c `check_bandpass.py kcasa` runs -02, -09, -14 (C2b's CASA K cases, rang only) | 14 cases | 209.6 s, 219.7 s, 227.2 s | 403-423 MB | -02 and -14 pass; -09 (change 1 alone) fails two |
+| 2026-11-06 | C2c `check_bandpass.py ktruth` runs -03, -08, -13 | A1 small, delay50, twins, 16 cases | 151.8 s, 147.8 s, 170.0 s | 399-402 MB | -03 fails two; -08 and -13 pass |
+| 2026-11-06 | C2c `probe_offset_start.py` run -06 | delay50 twin field 2 | 5.2 s | – | FFT estimate on the main lobe |
+| 2026-11-06 | C2c `check_bandpass.py bquartical` run -04 (B class A) | slice, A1 small, delay50 | 189.2 s (container 103.4 s) | 762 MB | three pass |
+| 2026-11-06 | C2c `check_bandpass.py bcasa` run -05 and `bextras` run -07 | 8 cases, `bandpass` | 305.4 s; 3.7 s | 368 MB; 51 MB | eight pass; the script stopped after them on a layout-check bug, rerun as -07 |
+| 2026-11-06 | C2c `check_bandpass.py btruth` run -10 | A1 small, delay50, twins, 8 cases | 330.8 s (rang 37-57 s per case) | 402 MB | eight pass |
+| 2026-11-06 | C2c `check_bandpass.py breadback` run -11 | delay50 field 0 | 9.0 s | 420 MB | class C, flags exact |
+| 2026-11-06 | C2c `check_bandpass.py bheld` run -15 | holdout256, 2 cases | 110.4 s (container 16.7 s) | 382 MB | both pass |
+| 2026-11-06 | C2c `check_bandpass.py kheld` run -17 | delay50, A1 small, holdout256, 6 cases | 84.8 s (container 36.7 s) | 390 MB | six pass |
+| 2026-11-06 | C2c `check_bandpass.py chain` run -18 | slice, A1 small, delay50, twins; 4 CASA chains, 4 truth cases | 294.7 s (CASA tasks 1.1-1.8 s each; rang chain 4.5-17.5 s) | 385 MB | composite passes; G and B alone and the twin gate fail as frozen |
+| 2026-11-06 | C2c `check_bandpass.py chainheld` run -19 | holdout256 field 2 | 52.3 s | 381 MB | composite passes; G and B alone fail |
+| 2026-11-06 | C2c `probe_chain_terms.py` run -20 | run -18's tables, twins | 149.7 s | 312 MB | partial composites; twins 1.1e-5 with `nearest` |
+| 2026-11-06 | C2c `check_bandpass.py kquartical` run -21 (K class A, final code) | as -01 | 443.3 s | 1.27 GB | all ten pass |
+| 2026-11-06 | C2c `tools/check-all.sh`, the tree of the code commit | worktree | 725.8 s (pytest 147.1 s) | 2.0 GB | FAIL only on the research-index test; 935 passed, 68 skipped; gain-hashes pass |
+| 2026-11-06 | C2e worktree venv (`uv venv`, `uv pip install -e`, `maturin develop --release`) | worktree | 184 s (after waiting for the heavy lock) | – | built |
+| 2026-11-06 | C2e `probe_c2e_defaults.py` run -00 (main's code, then the branch) | slice, A1 small | 20.3 s, 19.0 s | – | all seven hashes equal |
+| 2026-11-06 | C2e `check_c2e.py identity` run -03 (I-slice, KGBAKGB) | slice | 93.8 s | – | bit-identical |
+| 2026-11-06 | C2e `check_c2e.py identity` run -04 (I-a1, primary and secondary, two A steps) | A1 small | 230.1 s | – | bit-identical |
+| 2026-11-06 | C2e `check_c2e.py casa` runs -13 (C-slice), -11 (C-a1), -14 (H-h128) | slice, A1 small, holdout128 | 28.3 s, 94.4 s, 108.4 s (CASA tasks 0.3-2.0 s each) | – | all pass |
+| 2026-11-06 | C2e `a1_simtruth.py generate holdout128` | 16 antennas, 128 channels | 3.2 s | – | written |
+| 2026-11-06 | C2e `tools/check-all.sh` run 1 (working tree before formatting) | worktree | about 12 min including the lock wait | – | FAIL on ruff formatting (fixed) and the research-index test; 969 passed, 68 skipped; gain-hashes pass |
+| 2026-11-06 | C7a venv (uv, Python 3.13, editable install builds the extension) | worktree | 242 s | – | the queued `maturin develop` was killed by the reboot |
+| 2026-11-06 | C7a CASA 6.7.6.14 `setjy` manual polarised, 9 calls (M1–M8, P1) | slice 192 × 2048; A1 small 12,480 × 64 | 21.2 s (1.4 s per call on the slice, 2.6 s on A1 small) | – | one container ([c7a-polmodels.md](c7a-polmodels.md)); casatools FEED read 0.6 s |
+| 2026-11-06 | C7a rang `calmodels.set_model` polarised manual | slice / A1 small | 0.8 s / 10.6 s (the column added on `/mnt/d`) | 158 MB (driver) | whole `c7a_polmodels.py run` -03 103.9 s; lock wait 57 min |
+| 2026-11-06 | check-all, C7a branch before the first code commit (twice) | repo | 574.5 s, 1,222.2 s (with lock waits) | 1.94 GB | first: `maturin develop` failed (the uv venv had no pip); second: only the index test fails; pytest 962 passed, 68 skipped |
+| 2026-11-06 | C7a `c7a_polmodels.py run` -04 (post hoc, M1–M8, P1, T) | slice / A1 small | 98.3 s (CASA 9 calls 21.2 s) | 308 MB | lock wait 18 min |
+| 2026-11-06 | C7a `c7a_polmodels.py run --held-out` -05 (H1, 2 `setjy` calls on one copy) | A1 small | 20.2 s (CASA 5.5 s) | 272 MB | right after -04, no code change |
+| 2026-11-06 | check-all, C7a branch before the post-hoc commit | repo | 510.7 s | 1.80 GB | only the index test fails; pytest 963 passed, 68 skipped |
+| 2026-11-06 | check-all, C7a branch before the astropy-refusal commit | repo | 541.78 s | – | only the index test fails; 1 failed, 963 passed, 68 skipped in 125.55s (0:02:05) |
+| 2026-11-06 | C2e `tools/check-all.sh` run 2, merge commit `1e47e68` | worktree | 1051 s including the lock wait (pytest 117.8 s) | – | FAIL only on the research-index test; 980 passed, 68 skipped; gain-hashes pass |
 | 2026-11-06 | W3 `uv venv` + `uv pip install -e` (all extras, ruff 0.17.3, maturin; builds the extension) | worktree | 138.4 s | 1.18 GB | public PyPI |
 | 2026-11-06 | W3 `a1_simtruth.py generate w3 --scans 1,3,4,5,23 --workers 3 --chunk-ints 1` | 40,320 rows × 4096 ch, 8.0 GB to `/mnt/d` | 1 min 56 s | 4.07 GB | heavy lock |
 | 2026-11-06 | W3 check-all, implementation commit | worktree | 1116 s | 1.99 GB | FAIL only on the research-index test; pytest 960 passed, 68 skipped |
@@ -1598,3 +1650,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W3 run-01 L calibrate D / M (read only) | A1 full, 35.8 GB | 1:44 / 2:01 | 1.90 / 0.46 GiB | fcal scans only |
 | 2026-11-06 | W3 run-01 S flag, calibrate, apply U / D / T | A1 small copies | 22 / 24 / 397 s; 18 / 19 / 339 s; 23 / 23 / 378 s | at most 0.16 GiB | T: 7-row chunks, a flush per put |
 | 2026-11-06 | W3 run-01 O flag, calibrate, apply U / D / T | O-CASA slice copies | 3 / 3 / 8 s; 6 / 7 / 63 s; 9 / 10 / 15 s | at most 0.13 GiB | |
+| 2026-11-06 | W3 merge: `maturin develop --release --offline` after merging main `0de5690` | worktree | 100.6 s | 1.32 GB | new K offset, bandpass, fluxscale kernels |
+| 2026-11-06 | W3 merge: check-all on the merged tree | worktree | about 20 min | – | FAIL only on the research-index test; pytest 994 passed, 68 skipped; gain hashes pass |
+| 2026-11-06 | W3 merge check run-02 S flag, calibrate, apply U / D / T | A1 small copies | 21 / 27 / 455 s; 18 / 22 / 368 s; 24 / 22 / 342 s | at most 0.17 GiB | U is main `0de5690` |
+| 2026-11-06 | W3 merge check run-02 O flag, calibrate, apply U / D / T | O-CASA slice copies | 2 / 2 / 6 s; 5 / 6 / 51 s; 7 / 7 / 17 s | at most 0.13 GiB | |
+| 2026-11-06 | W3 merge check run-02 C (C2e chain) flag, calibrate, apply U / D / T | A1 small copies | 21 / 26 / 410 s; 40 / 33 / 367 s; 26 / 30 / 286 s | at most 0.15 GiB | |

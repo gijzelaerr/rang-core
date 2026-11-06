@@ -25,11 +25,15 @@ its last attempt saved, so its input is the same each time.
 What runs: `flag` (the Tricolour port, per field, data description and scan,
 as Tricolour groups rows), `calibrate` (calibrator models into MODEL_DATA
 through `rang.calmodels` when `model.source` is setjy, manual or lsm; then
-the `complex` term, `core.solve_complex`, one solve per field and scan,
-written as a QuartiCal gain store), `apply` (the complex terms on their own
-solution bins, `rang.applycal.apply_complex`, into CORRECTED_DATA with FLAG
-OR'd; task W2b, research/c4b-apply-ms.md) and `image` (`gemclean` on a data
-column). `selfcal` is refused by `core_config.refusals` (C5 and G6).
+either the `complex` term, `core.solve_complex`, one solve per field and
+scan, written as a QuartiCal gain store, or CARACal's K, G, B, A and F terms
+in C1's order through `rang.cal_chain.run`, written as CASA tables, with
+the A steps writing CORRECTED_DATA and FLAG of the calibrators; task C2e,
+research/c2e-calibrate.md), `apply` (the complex terms on their own
+solution bins, `rang.applycal.apply_complex`, or the CASA tables through
+`rang.applycal.applycal`, into CORRECTED_DATA with FLAG OR'd; tasks W2b and
+C2e) and `image` (`gemclean` on a data column). `selfcal` is refused by
+`core_config.refusals` (C5 and G6).
 
 Data a stage cannot run on (task W4, research/w4-unsupported.md) is refused
 by `check_data` and `preflight` before anything is written, every problem at
@@ -62,7 +66,15 @@ from pathlib import Path
 
 import numpy as np
 
-from . import core, core_chunks, core_config, core_flag, core_ms, core_writeback
+from . import (
+    cal_chain,
+    core,
+    core_chunks,
+    core_config,
+    core_flag,
+    core_ms,
+    core_writeback,
+)
 from .formats import flagversions, quartical_store
 
 STATE_SCHEMA = "rang.run-state"
@@ -271,9 +283,9 @@ def check_data(config, info, stages):
     elif corr == (9, 12):
         no(
             ("calibrate", "apply"),
-            f"correlations {names}: the complex term solves and applies a full 2x2 "
-            "Jones matrix and needs four correlations (XX, XY, YX, YY); diagonal "
-            "terms on two correlations are C2a's G term",
+            f"correlations {names}: the solves and the apply kernel take four "
+            "correlations (XX, XY, YX, YY), including the diagonal K, G and B "
+            "terms",
         )
     elif corr != LINEAR:
         no(
@@ -458,16 +470,17 @@ def preflight(config, info, stages):
                 if other:
                     problems.append(
                         f"apply.targets[{i}]: the complex term {name!r} is not solved "
-                        f"on {other}; applying it to another field (transfer by "
-                        "interpolation) is not implemented: CASA G tables do that "
-                        "(task C2a)"
+                        f"on {other}; a complex term is applied only where it was "
+                        "solved (research/c4b-apply-ms.md, owner decision 2): solve "
+                        "G and F terms to transfer gains"
                     )
     if "calibrate" in stages:
         model = config["calibrate"]["model"]
         if model["source"] == "column" and model["column"] not in info["columns"]:
             problems.append(
                 f"calibrate.model.column: {info['ms']} has no {model['column']} "
-                "(calibrator models are task C3a, MODEL_DATA from the imager G6)"
+                "(write a calibrator model with model.source setjy, manual or lsm; "
+                "MODEL_DATA from the imager is task G6)"
             )
     if not problems:
         problems += memory_problems(config, info, stages)
@@ -532,6 +545,41 @@ def memory_problems(config, info, stages):
                             "shorter solint or a smaller freqint (a solution interval "
                             "is solved whole)"
                         )
+        out += chain_memory_problems(config, info, plan)
+    return out
+
+
+def chain_memory_problems(config, info, plan):
+    """[message] for each K, G, B, F or A term (task C2e) whose data does not
+    fit `data.memory_limit_gb`: these terms read every row of a field (A:
+    of all its fields) at once, unchunked (W3 merge, research/w3-chunking.md
+    5.3)."""
+    out, rows = [], info["rows"]
+    cells = int(np.prod(info["cell"]))
+    limit = plan.limit_bytes
+    for section in core_config.CALIBRATE_SECTIONS:
+        block = config["calibrate"][section]
+        for i, term in enumerate(block["terms"]):
+            if term["type"] not in core_config.CASA_TERMS:
+                continue
+            fields = resolve_fields(
+                term["field"] or block["field"], config, info, f"calibrate.{section}"
+            )
+            units = [fields] if term["type"] == "A" else [[f] for f in fields]
+            for unit in units:
+                n = len(_selected_rows(rows, unit, config["data"]["scans"]))
+                need = plan.fixed_bytes + core_chunks.CELL_BYTES["chain"] * n * cells
+                if need > limit:
+                    names = [info["fields"][f] for f in unit]
+                    out.append(
+                        f"calibrate.{section}.terms[{i}] ({term['name']}, "
+                        f"{term['type']}): fields {names} hold {n} rows read at once "
+                        f"and need about {need / core_chunks.GIB:.2f} GiB, above "
+                        f"data.memory_limit_gb {plan.limit_gb:g}; chunking of the K, "
+                        "G, B, A and F terms is not yet implemented (research/"
+                        "w3-chunking.md 5.3): raise the limit or select fewer scans "
+                        "with data.scans"
+                    )
     return out
 
 
@@ -673,21 +721,40 @@ def restore_before(ms, entry):
     return None
 
 
+def stage_version(ctx, stage):
+    """The flag version every write of this attempt of `stage` saves before
+    its first write (`rang_<stage>_<time>`, recorded in the state entry so a
+    rerun restores it), with `rang_original` saved first if absent. One per
+    attempt, so a stage with several write sessions (calibrate's model, A
+    steps) is restored to its input, not to a state between them."""
+    if ctx.get("flag_version") is None:
+        ms, run = ctx["ms"], ctx["run"]
+        journal = core_writeback.read_journal(ms)
+        if journal and journal.get("state") in ("open", "failed"):
+            raise Refused(f"{ms}: an unfinished write-back must be restored first")
+        rows = core_chunks.budget(ctx["config"], ctx["info"]).rows("rows")
+        ctx["original_saved_now"] = core_writeback.backup_flags(
+            ms, ORIGINAL, comment="rang: flags before the first write", chunk_rows=rows
+        )
+        version = _version_name(ms, stage)
+        run.state["stages"][stage]["flag_version"] = version
+        run.save()
+        ctx["flag_version"] = version
+    return ctx["flag_version"]
+
+
 @contextmanager
-def writeback_session(run, ms, stage, cell, chunk_rows=None):
+def writeback_session(ctx, stage):
     """A `WriteBack` session for a writing stage: `rang_original` saved if
-    absent, then `rang_<stage>_<time>` saved by the session before its first
-    write and recorded in the stage's state entry (as `write_flags`)."""
+    absent, then the attempt's `rang_<stage>_<time>` (`stage_version`) saved
+    by the session before its first write."""
+    ms = ctx["ms"]
     journal = core_writeback.read_journal(ms)
     if journal and journal.get("state") in ("open", "failed"):
         raise Refused(f"{ms}: an unfinished write-back must be restored first")
-    rows = chunk_rows or core_writeback.chunk_rows_for(cell)
-    saved = core_writeback.backup_flags(
-        ms, ORIGINAL, comment="rang: flags before the first write", chunk_rows=rows
-    )
-    version = _version_name(ms, stage)
-    run.state["stages"][stage]["flag_version"] = version
-    run.save()
+    rows = core_chunks.budget(ctx["config"], ctx["info"]).rows("rows")
+    version = stage_version(ctx, stage)
+    saved = ctx["original_saved_now"]
     with core_writeback.WriteBack(
         ms,
         flag_backup=version,
@@ -755,10 +822,7 @@ def stage_flag(ctx):
     max_rows = plan.rows("flag")
     cells = int(np.prod(info["cell"]))
     groups, blocks, flagged_before = [], [], 0
-    with writeback_session(ctx["run"], ms, "flag", info["cell"], plan.rows("rows")) as (
-        w,
-        written,
-    ):
+    with writeback_session(ctx, "flag") as (w, written):
         for (field, ddid, scan), idx in _groups(columns, rows).items():
             # One group is one Tricolour window; when it does not fit, blocks
             # of its baselines on the group's time grid (research/w3-chunking.md).
@@ -1071,8 +1135,14 @@ def model_spec(model, config_path):
     if model["source"] == "setjy":
         return calmodels.Standard(standard=model["standard"] or "Stevens-Reynolds 2016")
     if model["source"] == "manual":
+        # I, Q, U, V and the polarisation keys as CASA's setjy (task C7a).
         return calmodels.Manual(
-            model["flux_jy"][0], float(model["reffreq_hz"]), tuple(model["spix"] or ())
+            list(model["flux_jy"]),
+            float(model["reffreq_hz"]),
+            tuple(model["spix"] or ()),
+            polindex=model["polindex"] or (),
+            polangle=model["polangle"] or (),
+            rotmeas=model["rotmeas"] or 0.0,
         )
     return calmodels.SkyModel(str(_resolve_path(model["lsm"], config_path)))
 
@@ -1083,7 +1153,7 @@ def write_models(ctx):
     receipts, or None for unity and column models."""
     from . import calmodels
 
-    config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
+    config, info, ms = ctx["config"], ctx["info"], ctx["ms"]
     model = config["calibrate"]["model"]
     if model["source"] not in core_config.MODEL_SOURCES:
         return None
@@ -1097,10 +1167,7 @@ def write_models(ctx):
         )
     spec = model_spec(model, ctx["config_path"])
     plan = core_chunks.budget(config, info)
-    with writeback_session(run, ms, "calibrate", info["cell"], plan.rows("rows")) as (
-        w,
-        written,
-    ):
+    with writeback_session(ctx, "calibrate") as (w, written):
         receipt = calmodels.set_model(
             ms, sorted(fields), spec, session=w, chunk_rows=plan.rows("model")
         )
@@ -1119,11 +1186,193 @@ def solve_rows(config, info, section, term):
     return fields, rows[columns["ANTENNA1"][rows] != columns["ANTENNA2"][rows]]
 
 
+def uses_chain(config):
+    """Whether calibrate runs CASA-style terms (K, G, B, A, F; task C2e)."""
+    return any(
+        term["type"] in core_config.CASA_TERMS
+        for section in core_config.CALIBRATE_SECTIONS
+        for term in config["calibrate"][section]["terms"]
+    )
+
+
+def _table_gainfield(fields):
+    """The field map an A step gives a table solved on `fields`: that field,
+    or the nearest on the sky when it has several (an F table holds the
+    primary's and the secondary's rows)."""
+    return str(fields[0]) if len(fields) == 1 else "nearest"
+
+
+def chain_weight_column(config, info):
+    """The weights the K, G, B and F solves read where no table is pre-applied
+    (with one they use SIGMA, as CASA was measured to; research/c2a-gain.md
+    section 6): None (unit weights) for `data.weights: uniform`, else
+    WEIGHT_SPECTRUM, or WEIGHT per channel when it is absent."""
+    if config["data"]["weights"] == "uniform":
+        return None
+    return "WEIGHT_SPECTRUM" if info["weight_spectrum"] else "WEIGHT"
+
+
+def chain_terms(config, info, config_path):
+    """`rang.cal_chain.run`'s terms for the K, G, B, A, F sequence of
+    `calibrate.primary` and `calibrate.secondary` (task C2e). Defaults are
+    CASA 6.7.6.14's where the configuration is silent (`minsnr` 3,
+    `minblperant` 4, `calmode` ap, `fillgaps` 0); `uvrange` reaches G, B and
+    F but not K, as CARACal passes it; primary terms solve against the model
+    column (or a unit point for model source unity), secondary terms
+    against CASA's unit point model (`smodel=[1,0,0,0]`), as CARACal."""
+    cal = config["calibrate"]
+    model = cal["model"]
+    primary_model = "unit" if model["source"] == "unity" else "column"
+    types, fields_of, terms = {}, {}, []
+    primary_g = [t["name"] for t in cal["primary"]["terms"] if t["type"] == "G"]
+    for section in ("primary", "secondary"):
+        block = cal[section]
+        history = []
+        for term in block["terms"]:
+            fields = resolve_fields(
+                term["field"] or block["field"], config, info, f"calibrate.{section}"
+            )
+            kind, name = term["type"], term["name"]
+            if kind == "A":
+                names = cal_chain.a_tables(history)
+                strategy = _resolve_path(
+                    term["strategy"] or config["flag"]["strategy"], config_path
+                )
+                if not strategy.is_file():
+                    raise StageFailed(
+                        f"calibrate {name}: strategy {strategy} not found"
+                    )
+                text = strategy.read_text(encoding="utf-8")
+                terms.append(
+                    {
+                        "type": "A",
+                        "name": name,
+                        "fields": fields,
+                        "tables": names,
+                        "gainfield": [_table_gainfield(fields_of[n]) for n in names],
+                        "strategies": core_flag.parse_strategy(text),
+                        "strategy": str(strategy),
+                        "strategy_sha256": hashlib.sha256(
+                            text.encode("utf-8")
+                        ).hexdigest(),
+                    }
+                )
+                continue
+            for pre in term["preapply"]:
+                if (pre, types[pre]) not in history:
+                    history.append((pre, types[pre]))
+
+            def pick(key, default, term=term):
+                value = term.get(key)
+                if value is None:
+                    value = cal.get(key)
+                return default if value is None else value
+
+            spec = {
+                "type": kind,
+                "name": name,
+                "fields": fields,
+                "solint": term["solint"],
+                "combine": term["combine"],
+                "refant": pick("refant", None),
+                "refantmode": pick("refantmode", "flex"),
+                "minsnr": float(pick("minsnr", 3.0)),
+                "minblperant": int(pick("minblperant", 4)),
+                "uvrange": (term["uvrange"] or "")
+                if kind == "K"
+                else pick("uvrange", ""),
+                "preapply": list(term["preapply"]),
+                "interp": list(term["interp"]),
+                "max_iterations": 50,
+                "stop_criterion": 1e-7,
+                "stop_fraction": 0.99,
+                "model": primary_model if section == "primary" else "unit",
+            }
+            if kind in ("G", "F"):
+                spec["calmode"] = term["calmode"] or "ap"
+            if kind == "B":
+                spec["fillgaps"] = int(term["fillgaps"] or 0)
+            if kind == "F":
+                spec["base"] = primary_g[-1]
+                spec["smodel"] = list(term["smodel"] or [1.0, 0.0, 0.0, 0.0])
+            terms.append(spec)
+            types[name] = kind
+            fields_of[name] = fields
+            history.append((name, kind))
+            if kind == "F":
+                fields_of[name] = sorted(set(fields) | set(fields_of[spec["base"]]))
+    return terms
+
+
+def stage_calibrate_chain(ctx):
+    """calibrate with K, G, B, A and F terms (task C2e): models into
+    MODEL_DATA on the primary fields, then `rang.cal_chain.run`, every write
+    through the attempt's flag version."""
+    config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
+    cal = config["calibrate"]
+    restored = restore_before(ms, ctx["entry"])
+    out_dir = run.stage_dir("calibrate", fresh=True)
+    models = write_models(ctx)
+    model_column = "MODEL_DATA" if models is not None else cal["model"]["column"]
+    terms = chain_terms(config, info, ctx["config_path"])
+    if config["flag"]["static_masks"] == "tricolour":
+        masks = [core_flag.load_static_mask(p) for p in core_flag.static_mask_files()]
+    else:
+        masks = []
+    scans = config["data"]["scans"] or None
+    version = stage_version(ctx, "calibrate")
+    result = cal_chain.run(
+        ms,
+        terms,
+        out_dir=out_dir,
+        model_column=model_column,
+        weight_column=chain_weight_column(config, info),
+        scan=scans,
+        masks=masks,
+        chunk_rows=core_chunks.budget(config, info).rows("apply"),
+        flag_backup=version,
+        stage="calibrate",
+    )
+    steps = result["steps"]
+    for step, term in zip(steps, terms):
+        if term["type"] == "A":
+            step["strategy"] = term["strategy"]
+            step["strategy_sha256"] = term["strategy_sha256"]
+    tables = [
+        {
+            "section": "chain",
+            "name": name,
+            "type": entry["type"],
+            "format": "casa",
+            "path": entry["path"],
+            "fields": entry["fields"],
+        }
+        for name, entry in result["tables"].items()
+    ]
+    summary = {
+        "weights": config["data"]["weights"],
+        "weight_column": chain_weight_column(config, info) or "unit",
+        "scans": scans,
+        "model": cal["model"]["source"],
+        "models_written": models,
+        "restored_before": restored,
+        "tables": tables,
+        "steps": steps,
+        "flag_version": version,
+        "k_offsets": cal_chain.K_ALONE.split(":")[1].strip(),
+    }
+    _write_json(out_dir / "summary.json", summary)
+    return summary
+
+
 def stage_calibrate(ctx):
     config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
+    if uses_chain(config):
+        return stage_calibrate_chain(ctx)
     cal = config["calibrate"]
     plan = core_chunks.budget(config, info)
     max_cells = (plan.cells("calibrate"), plan.cells("calibrate", capped=False))
+    restored = restore_before(ms, ctx["entry"])
     out_dir = run.stage_dir("calibrate", fresh=True)
     models = write_models(ctx)
     source, model_column = cal["model"]["source"], cal["model"]["column"]
@@ -1153,6 +1402,7 @@ def stage_calibrate(ctx):
         "weights": config["data"]["weights"],
         "model": cal["model"]["source"],
         "models_written": models,
+        "restored_before": restored,
         "tables": tables,
     }
     if models is not None:
@@ -1234,18 +1484,19 @@ def _solve_term(
 
 
 def apply_targets(config, info, solved):
-    """[(field ids, [table names])]: `apply.targets`, or every complex term
-    applied to the fields it is solved on."""
+    """[(field ids, [table names], target)]: `apply.targets`, or every
+    complex term applied to the fields it is solved on."""
     targets = config["apply"]["targets"]
     if targets:
         return [
             (
                 resolve_fields(t["field"], config, info, f"apply.targets[{i}].field"),
                 list(t["tables"]),
+                t,
             )
             for i, t in enumerate(targets)
         ]
-    return [(sorted(fields), [name]) for name, fields in solved.items()]
+    return [(sorted(fields), [name], None) for name, fields in solved.items()]
 
 
 def stage_apply(ctx):
@@ -1266,18 +1517,37 @@ def stage_apply(ctx):
     }
     solved = complex_fields(config, info)
     targets = apply_targets(config, info, solved)
-    for fields, names in targets:
+    for fields, names, _ in targets:
         for name in names:
             if name not in made:
                 raise StageFailed(f"apply: calibrate wrote no table {name!r}")
     restored = restore_before(ms, ctx["entry"])
-    applied = []
+    applied, warnings = [], []
+    scans = config["data"]["scans"] or None
     plan = core_chunks.budget(config, info)
-    with writeback_session(run, ms, "apply", info["cell"], plan.rows("rows")) as (
-        w,
-        written,
-    ):
-        for fields, names in targets:
+    with writeback_session(ctx, "apply") as (w, written):
+        for i, (fields, names, target) in enumerate(targets):
+            if all(made[n].get("format") == "casa" for n in names):
+                kinds = [made[n]["type"] for n in names]
+                result = applycal.applycal(
+                    ms,
+                    [made[n]["path"] for n in names],
+                    interp=list(target["interp"]) or ["linear"],
+                    gainfield=list(target["gainfield"]) or [""],
+                    calwt=[cfg["calwt"]],
+                    field=fields,
+                    applymode=cfg["applymode"],
+                    column=cfg["column"],
+                    session=w,
+                    chunk_rows=plan.rows("apply"),
+                    scan=scans,
+                )
+                result["tables_applied"] = names
+                if cal_chain.k_alone(kinds):
+                    result["warning"] = cal_chain.K_ALONE
+                    warnings.append(f"apply.targets[{i}]: {cal_chain.K_ALONE}")
+                applied.append(result)
+                continue
             for k, name in enumerate(names):
                 table = made[name]
                 result = applycal.apply_complex(
@@ -1297,9 +1567,11 @@ def stage_apply(ctx):
         "column": cfg["column"],
         "applymode": cfg["applymode"],
         "calwt": cfg["calwt"],
-        "calwt_note": "a complex (general Jones) term does not scale weights, as CASA",
+        "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; "
+        "of the CASA tables only G, B and T do (rang.applycal)",
         "restored_before": restored,
         "applied": applied,
+        "warnings": warnings,
         **written,
     }
     _write_json(run.stage_dir("apply", fresh=True) / "summary.json", summary)
@@ -1425,7 +1697,7 @@ STAGE_FUNCTIONS = {
     "image": stage_image,
     "selfcal": _refused_stage("C5a"),
 }
-WRITES_FLAGS = frozenset({"flag", "apply", "selfcal"})
+WRITES_FLAGS = frozenset({"flag", "calibrate", "apply", "selfcal"})
 
 
 # -- running ---------------------------------------------------------------------

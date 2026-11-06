@@ -77,8 +77,28 @@ CASES = {
     "O": {"fcal": "J1939-6342", "gcal": None, "target": None},
     "W": {"fcal": "J1939-6342", "gcal": "SIM-GCAL", "target": "SIM-TARGET"},
     "L": {"fcal": "J1939-6342", "gcal": None, "target": None},
+    # The merge check (research/w3-chunking.md 5.3): A1 small with C2e's chain.
+    "C": {"fcal": "J1939-6342", "gcal": "SIM-GCAL", "target": None},
 }
-TINY = {"S": 7, "O": 7, "W": 4096}
+TINY = {"S": 7, "O": 7, "W": 4096, "C": 7}
+CHAIN = [
+    "calibrate:",
+    "  model: {source: setjy}",
+    "  refant: m000",
+    "  primary:",
+    "    terms:",
+    "      - {type: K, name: K}",
+    "      - {type: G, name: G, preapply: [K], interp: [linear]}",
+    "      - {type: B, name: B, combine: scan, fillgaps: 2, preapply: [K, G]}",
+    "      - {type: A, name: A}",
+    "  secondary:",
+    "    terms:",
+    "      - {type: F, name: F, preapply: [K, B], interp: [linear, linear]}",
+    "apply:",
+    "  targets:",
+    "    - {field: [J1939-6342], tables: [K, G, B]}",
+    "    - {field: [SIM-GCAL], tables: [K, F, B], gainfield: [J1939-6342, nearest, J1939-6342]}",
+]
 
 
 def config(case, arm, nrows, out, strategy):
@@ -99,7 +119,9 @@ def config(case, arm, nrows, out, strategy):
     if data:
         lines += ["data:", *[f"  {d}" for d in data]]
     lines += ["flag:", f"  strategy: {strategy}"]
-    if case == "L":
+    if case == "C":
+        lines += CHAIN
+    elif case == "L":
         lines += [
             "calibrate:",
             "  model: {source: unity}",
@@ -126,7 +148,10 @@ def config(case, arm, nrows, out, strategy):
 
 VOLATILE = re.compile(
     r"(seconds|started|finished|updated|created|flag_version|store|strategy$|"
-    r"receipt|ms$|path|chunking|rang_original_saved_now|restored_before)"
+    r"receipt|ms$|path|chunking|rang_original_saved_now|restored_before|"
+    # The merge check (research/w3-chunking.md 5.3): C2e's F step records the
+    # path of its appended table.
+    r"append_table)"
 )
 
 

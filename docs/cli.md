@@ -9,9 +9,11 @@ is listed under `config` below) drives every stage. The commands validate
 the whole configuration first and refuse what is not implemented yet,
 naming the task that adds it. Today `flag` runs the Tricolour port and
 writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
-MODEL_DATA, solves the `complex` term and writes a QuartiCal gain store,
-`apply` applies that term on its own solution bins to CORRECTED_DATA, and
-`image` runs `gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
+MODEL_DATA and either solves the `complex` term into a QuartiCal gain store
+or runs CARACal's K, G, B, A and F terms in order into CASA tables, its A
+steps flagging the corrected calibrators ({gh}`research/c2e-calibrate.md`),
+`apply` applies those solutions to CORRECTED_DATA, and `image` runs
+`gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
@@ -330,7 +332,7 @@ run:
 #   stop_criterion: 1.0e-07  # complex, Sp, Sa: convergence criterion
 #   stop_fraction: 0.99  # complex, Sp, Sa: fraction converged to stop
 # Term types: complex, K, G, B, A, F, Gpol, KCROSS, Xf, Df, Sd, Sp, Sa.
-# Implemented: complex. Not yet: K (C2b), G (C2a), B (C2c), A (C2d), F (C2d), Gpol (C6b), KCROSS (C6b), Xf (C6b), Df (C6c), Sd (C5b), Sp (C5a), Sa (C5a).
+# Implemented: complex, K, G, B, A, F (C2e). Not yet: Gpol (C6b), KCROSS (C6b), Xf (C6b), Df (C6c), Sd (C5b), Sp (C5a), Sa (C5a).
 ```
 
 ## `research`

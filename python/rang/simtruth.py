@@ -94,7 +94,22 @@ SEEDS = {
     "small": {"jones": 20261116, "sky": 20261117, "rfi": 20261118, "noise": 20261119},
     # Task C2b (research/c2b-delay.md): delays up to 50 ns.
     "delay50": {"jones": 20261126, "sky": 20261127, "rfi": 20261128, "noise": 20261129},
-    # Task W3 (research/w3-chunking.md): 64 antennas at 4096 channels.
+    # Task C2c (research/c2c-bandpass.md): the held-out set, new seeds.
+    "holdout256": {
+        "jones": 20261136,
+        "sky": 20261137,
+        "rfi": 20261138,
+        "noise": 20261139,
+    },
+    # Task C2e (research/c2e-calibrate.md): its held-out set, new seeds.
+    "holdout128": {
+        "jones": 20261146,
+        "sky": 20261147,
+        "rfi": 20261148,
+        "noise": 20261149,
+    },
+    # Task W3 (research/w3-chunking.md): 64 antennas at 4096 channels. Its
+    # seeds equal holdout256's (both chosen the same day); the designs differ.
     "w3": {"jones": 20261136, "sky": 20261137, "rfi": 20261138, "noise": 20261139},
 }
 
@@ -163,8 +178,11 @@ class Design:
 def design(name):
     """The `full` (64 antennas, 256 channels) or `small` (16, 64) version, or
     `delay50` (C2b: small's antennas and schedule, 256 channels, delays of
-    1-50 ns, `extra["tau_range_ns"]`), or `w3` (W3: all 64 antennas, 4096
-    channels, scans of `W3_LENGTH` integrations)."""
+    1-50 ns, `extra["tau_range_ns"]`), or `holdout256` (C2c's held-out set:
+    as delay50 with new seeds and delays of 1-30 ns), or `holdout128` (C2e's
+    held-out set: as holdout256 with 128 channels and its own seeds), or
+    `w3` (W3: all 64 antennas, 4096 channels, scans of `W3_LENGTH`
+    integrations)."""
     if name == "full":
         return Design("full", list(range(64)), 256, FULL_LENGTH, SEEDS["full"])
     if name == "small":
@@ -178,9 +196,29 @@ def design(name):
             SEEDS["delay50"],
             extra={"tau_range_ns": (1.0, 50.0)},
         )
+    if name == "holdout256":
+        return Design(
+            "holdout256",
+            list(range(0, 64, 4)),
+            256,
+            SMALL_LENGTH,
+            SEEDS["holdout256"],
+            extra={"tau_range_ns": (1.0, 30.0)},
+        )
+    if name == "holdout128":
+        return Design(
+            "holdout128",
+            list(range(0, 64, 4)),
+            128,
+            SMALL_LENGTH,
+            SEEDS["holdout128"],
+            extra={"tau_range_ns": (1.0, 30.0)},
+        )
     if name == "w3":
         return Design("w3", list(range(64)), 4096, W3_LENGTH, SEEDS["w3"])
-    raise ValueError(f"unknown version {name!r}: full, small, delay50 or w3")
+    raise ValueError(
+        f"unknown version {name!r}: full, small, delay50, holdout256, holdout128 or w3"
+    )
 
 
 # -- geometry ---------------------------------------------------------------------
@@ -611,8 +649,11 @@ def calibrator_stokes(d):
     out[1, :, 0] = i_x
     out[1, :, 1] = XCAL["p"] * i_x * np.cos(2 * chi)
     out[1, :, 2] = XCAL["p"] * i_x * np.sin(2 * chi)
+    # `extra["gcal"]` replaces the gain calibrator's model (task C2d's
+    # held-out version); the default versions use GCAL.
+    gcal = d.extra.get("gcal", GCAL)
     out[2, :, 0] = fluxstd.manual(
-        nu, GCAL["fluxdensity"], GCAL["reffreq_hz"], GCAL["spix"]
+        nu, gcal["fluxdensity"], gcal["reffreq_hz"], gcal["spix"]
     )
     return out
 

@@ -1,0 +1,413 @@
+{
+ "task": "W3 merge with main 0de5690 (research/w3-chunking.md 5.3)",
+ "run": "/mnt/d/rang/outputs/w3/run-02-merge",
+ "code": "0ee8d2c W3 note: criterion 6 summaries checked by hand; merge notes for fp-c2e-wiring\nUU CHANGELOG.md\nA  core/py/src/cal_delay_offset.rs\nA  core/py/src/cal_fluxscale.rs\nM  core/py/src/lib.rs\nA  core/src/cal/bandpass.rs\nA  core/src/cal/delay_offset.rs\nA  core/src/cal/fluxscale.rs\nM  core/src/cal/mod.rs\nM  docs/cli.md\nM  docs/gen_cli.py\nUU examples/a1_simtruth.py\nA  examples/c7a_polmodels.py\nA  examples/check_bandpass.py\nA  examples/check_c2e.py\nA  examples/check_fluxscale.py\nA  examples/oracle_fluxscale.py\nM  examples/oracle_gain.py\nA  examples/probe_c2e_defaults.py\nA  examples/probe_chain_terms.py\nA  examples/probe_fluxscale_median.py\nA  examples/probe_fluxscale_truth.py\nA  examples/probe_offset_start.py\nM  python/rang/applycal.py\nA  python/rang/cal_bandpass.py\nA  python/rang/cal_chain.py\nM  python/rang/cal_delay.py\nA  python/rang/cal_fluxscale.py\nM  python/rang/cal_gain.py\nM  python/rang/calmodels.py\n M python/rang/core_chunks.py\nM  python/rang/core_config.py\nUU python/rang/core_pipeline.py\nUU python/rang/simtruth.py\nM  research/README.md\nM  research/STATE.md\nA  research/c2c-bandpass.md\nA  research/c2d-fluxscale.md\nA  research/c2e-calibrate.md\nA  research/c7a-polmodels.md\nM  research/finish-plan.md\nA  research/results/c7a-polmodels.json\nUU research/tool-timings.md\nA  tests/test_c2e_calibrate.py\nA  tests/test_cal_bandpass.py\nM  tests/test_cal_delay.py\nA  tests/test_cal_fluxscale.py\nM  tests/test_calmodels.py\nM  tests/test_w2_commands.py\n M tests/test_w3_chunking.py\n M tools/oracles/w3/compare.py\n M tools/oracles/w3/run.sh",
+ "verdict": {
+  "cases": {
+   "S": {
+    "reference": "U",
+    "checks": {
+     "D vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     },
+     "T vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     }
+    },
+    "memory": {
+     "U": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.09392929077148438,
+       "calibrate": 0.16710281372070312,
+       "apply": 0.12337493896484375
+      },
+      "within": true
+     },
+     "D": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.057582855224609375,
+       "calibrate": 0.10372161865234375,
+       "apply": 0.12369155883789062
+      },
+      "within": true
+     },
+     "T": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.04974365234375,
+       "calibrate": 0.04998016357421875,
+       "apply": 0.049175262451171875
+      },
+      "within": true
+     }
+    }
+   },
+   "O": {
+    "reference": "U",
+    "checks": {
+     "D vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     },
+     "T vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     }
+    },
+    "memory": {
+     "U": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.10720062255859375,
+       "calibrate": 0.13300323486328125,
+       "apply": 0.1049652099609375
+      },
+      "within": true
+     },
+     "D": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.09353256225585938,
+       "calibrate": 0.11091232299804688,
+       "apply": 0.10484695434570312
+      },
+      "within": true
+     },
+     "T": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.05187225341796875,
+       "calibrate": 0.05490875244140625,
+       "apply": 0.05292510986328125
+      },
+      "within": true
+     }
+    }
+   },
+   "C": {
+    "reference": "U",
+    "checks": {
+     "D vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     },
+     "T vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     }
+    },
+    "memory": {
+     "U": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.09180831909179688,
+       "calibrate": 0.15270614624023438,
+       "apply": 0.12354660034179688
+      },
+      "within": true
+     },
+     "D": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.0568084716796875,
+       "calibrate": 0.13701629638671875,
+       "apply": 0.12293243408203125
+      },
+      "within": true
+     },
+     "T": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.049221038818359375,
+       "calibrate": 0.087432861328125,
+       "apply": 0.049098968505859375
+      },
+      "within": true
+     }
+    }
+   }
+  }
+ },
+ "stages": [
+  {
+   "case": "S",
+   "arm": "U",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "98492",
+   "wall": "0:21.00"
+  },
+  {
+   "case": "S",
+   "arm": "U",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "175220",
+   "wall": "0:17.92"
+  },
+  {
+   "case": "S",
+   "arm": "U",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "129368",
+   "wall": "0:23.51"
+  },
+  {
+   "case": "S",
+   "arm": "D",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "60380",
+   "wall": "0:27.21"
+  },
+  {
+   "case": "S",
+   "arm": "D",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "108760",
+   "wall": "0:21.86"
+  },
+  {
+   "case": "S",
+   "arm": "D",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "129700",
+   "wall": "0:21.80"
+  },
+  {
+   "case": "S",
+   "arm": "T",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "52160",
+   "wall": "7:34.93"
+  },
+  {
+   "case": "S",
+   "arm": "T",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "52408",
+   "wall": "6:07.73"
+  },
+  {
+   "case": "S",
+   "arm": "T",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "51564",
+   "wall": "5:41.67"
+  },
+  {
+   "case": "O",
+   "arm": "U",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "112408",
+   "wall": "0:02.26"
+  },
+  {
+   "case": "O",
+   "arm": "U",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "139464",
+   "wall": "0:05.20"
+  },
+  {
+   "case": "O",
+   "arm": "U",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "110064",
+   "wall": "0:07.15"
+  },
+  {
+   "case": "O",
+   "arm": "D",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "98076",
+   "wall": "0:02.34"
+  },
+  {
+   "case": "O",
+   "arm": "D",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "116300",
+   "wall": "0:06.06"
+  },
+  {
+   "case": "O",
+   "arm": "D",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "109940",
+   "wall": "0:07.19"
+  },
+  {
+   "case": "O",
+   "arm": "T",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "54392",
+   "wall": "0:05.81"
+  },
+  {
+   "case": "O",
+   "arm": "T",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "57576",
+   "wall": "0:51.13"
+  },
+  {
+   "case": "O",
+   "arm": "T",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "55496",
+   "wall": "0:16.88"
+  },
+  {
+   "case": "C",
+   "arm": "U",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "96268",
+   "wall": "0:21.14"
+  },
+  {
+   "case": "C",
+   "arm": "U",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "160124",
+   "wall": "0:40.42"
+  },
+  {
+   "case": "C",
+   "arm": "U",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "129548",
+   "wall": "0:25.65"
+  },
+  {
+   "case": "C",
+   "arm": "D",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "59568",
+   "wall": "0:26.03"
+  },
+  {
+   "case": "C",
+   "arm": "D",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "143672",
+   "wall": "0:32.73"
+  },
+  {
+   "case": "C",
+   "arm": "D",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "128904",
+   "wall": "0:30.01"
+  },
+  {
+   "case": "C",
+   "arm": "T",
+   "stage": "flag",
+   "exit": "0",
+   "kb": "51612",
+   "wall": "6:49.55"
+  },
+  {
+   "case": "C",
+   "arm": "T",
+   "stage": "calibrate",
+   "exit": "0",
+   "kb": "91680",
+   "wall": "6:06.51"
+  },
+  {
+   "case": "C",
+   "arm": "T",
+   "stage": "apply",
+   "exit": "0",
+   "kb": "51484",
+   "wall": "4:46.43"
+  }
+ ]
+}

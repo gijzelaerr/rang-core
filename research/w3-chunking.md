@@ -346,6 +346,72 @@ Reported, not gated:
   The W arms' receipts hashed their modified 18.6 GB copies; that time is
   inside the stage walls above.
 
+### 5.3 Merge with main `0de5690` (C2c, C7a, C2e)
+
+The frozen results of 5.2 stand; this section records the merge resolution
+and its reduced check, at the coordinator's request.
+
+**Resolution.**
+
+- The chunked `complex` path and the reader-based `solve_partition` are kept as
+  frozen. `stage_calibrate` dispatches to C2e's `stage_calibrate_chain` when a
+  K, G, B, A or F term is configured (main's `uses_chain`), else runs W3's
+  chunked complex solve, now with main's `restore_before` and
+  `restored_before` (calibrate writes flags since C2e).
+- C2e's chain runs **unchunked** (`rang.cal_chain.run`, whole fields as C2e
+  wrote it). `preflight` refuses, before anything is written, each K, G, B or
+  F term whose field (A: all its fields) would exceed `data.memory_limit_gb`,
+  naming the GiB needed and saying that chunking of these terms is not yet
+  implemented (`chain_memory_problems`). The estimate uses `CELL_BYTES["chain"]`
+  = 96 bytes per cell, not fitted (no probe of the chain was run); it only
+  decides refusals.
+- Every write still goes through W1's `WriteBack` with the attempt's flag
+  version: main's `writeback_session(ctx, stage)` and `stage_version` are kept,
+  with their row chunk taken from `core_chunks.budget` (the `chunk_rows` cap
+  included); W3's flag stage uses that session; the chain's A steps
+  (`cal_chain.flag_corrected`) and its applies open their `WriteBack` with
+  `flag_backup` = the attempt's version, as C2e wrote them, and take the
+  budget's apply row chunk. Main's apply of CASA tables
+  (`applycal.applycal`) also takes the budget's row chunk.
+- Text conflicts: CHANGELOG, tool timings (both kept); `simtruth` and
+  `a1_simtruth.py`: C2c's `holdout256` and C2e's `holdout128` kept beside
+  `w3`. **`w3`'s seeds (20261136-9) equal `holdout256`'s**, both chosen the
+  same day; the designs differ (64 antennas, 4096 channels against 16 and
+  256), so the data differ, and W was generated with them, so they are kept.
+
+**Check, run -02** (`/mnt/d/rang/outputs/w3/run-02-merge`): U is main
+`0de5690` unchunked (`chunk_rows` ≥ the rows; detached checkout with the merged
+extension; `git diff 0de5690` touches no Rust), D and T the merged branch.
+Cases S and O as in section 2, and **C**, A1 small with C2e's chain (K, G, B
+with `combine: scan`, A on the fcal; F on the gcal; apply K, G, B to the fcal
+and K, F, B to the gcal), T at 7 rows.
+
+Result: **bit-identical in every arm** (verdict
+`run-02-merge/verdict.json`, archive
+[results/w3-merge-check.json](results/w3-merge-check.json); the run used the
+merge's working tree on top of `0ee8d2c`, as recorded in `run-02-merge.code`).
+For S, O and C, D and T against U: no column differs after flag, calibrate or
+apply (FLAG, MODEL_DATA, CORRECTED_DATA among them); the flag versions are
+equal, the calibrate stage's own version included; every file of the gain
+stores and of C2e's CASA tables (K, G, B, F and F's appended G) is
+byte-identical; and the summaries of the three stages are equal. One
+comparator fix was needed after the first verdict: C2e's F step records the
+path of its appended table (`append_table`), which differs between run
+directories, and the cleaner did not strip it. It now does; no value other
+than that path differed. Peaks stay at or below 0.17 GiB (S, O, C; T
+0.05-0.09). 27 stage commands, each exit 0; T on S and C takes 5-8 min per
+stage (7-row flushes), as in 5.2.
+
+Tests after the merge: `tests/test_w3_chunking.py` (14, with a new test that
+K, G and A terms above the limit are refused, not chunked, with no flag
+version written) and `tests/test_c2e_calibrate.py` pass; check-all on the
+merged tree fails only `test_every_note_is_in_the_research_index` (994
+passed, 68 skipped; gain hashes pass). W and L were not rerun: `git diff
+5ec40e3 0de5690 -- core/` only adds files and functions (the K offset,
+bandpass and fluxscale kernels) and leaves `solve.rs`, `sumthreshold.rs` and
+the apply kernel unchanged, and the complex, flag and apply paths of
+`core_pipeline` are W3's as frozen.
+
 ## 6. Limits and what was not checked
 
 - As section 4: no 4096-channel MS of hours (disk), no flag or apply on L, no
@@ -411,17 +477,15 @@ Rows added to [tool-timings.md](tool-timings.md); every stage's
   only edit there), `python/rang/simtruth.py` and `examples/a1_simtruth.py`
   (design `w3`, `--chunk-ints`), `docs/cli.md` (regenerated), `CHANGELOG.md`.
   A branch that calls `solve_partition` or reads `info["rows"]` must follow.
-  **Merge with `fp-c2e-wiring`** (read-only grep at its `1e47e68`): its
-  `stage_calibrate` still calls `_read_columns(ms, calibration_columns(info,
-  config), ...)` and the old `solve_partition(columns, idx, ...)`. W3 removed
-  `_read_columns` and `calibration_columns`; `solve_partition` now takes a
-  reader first, has `max_cells, hard_cells` and returns six items;
-  `info["rows"]` includes TIME; `stage_flag` no longer calls `write_flags`
-  (kept, unused). The terms C2e adds must read their rows through
-  `core_chunks.read_rows` within `core_chunks.budget`, or W3's memory claim
-  does not cover them.
-  C2c and C2d, when they wire G, K and B into `stage_calibrate`, should take
-  rows through `core_chunks.read_rows` and the budget of `core_chunks.budget`.
+  **Merged with main `0de5690`** (C2c, C7a, C2e; section 5.3): the
+  conflict in `stage_calibrate` is resolved; C2e's chain runs unchunked
+  beside W3's chunked complex path and is refused in preflight above the
+  limit. Chunking K, G, B, A and F (reading their rows through
+  `core_chunks.read_rows` within `core_chunks.budget`) is a follow-up task,
+  proposed for the finish plan. C6 (about to land) touches none of
+  `core_pipeline`, `core_config` or `cal_chain`; its `simtruth.py`,
+  `a1_simtruth.py`, CHANGELOG and timings will need the same both-sides
+  resolution as here.
 - **On disk:** `/mnt/d/rang/outputs/w3/data/w3.ms` (8.0 GB, the whole-array
   set; regenerate with `examples/a1_simtruth.py generate w3 DIR --scans
   1,3,4,5,23 --workers 3 --chunk-ints 1 --name w3`, 1 min 56 s) and
