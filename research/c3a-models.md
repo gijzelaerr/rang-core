@@ -178,6 +178,11 @@ are involved: every model is deterministic, and A1's seeds are in its own note.
   measured 99.95 % bit-identical cells on `c.ms`. The difference may lie in the
   MS (`work.ms` against O-CASA's arm-C copy); I did not investigate it, because
   both meet the bound.
+- Crystalball did write the slice's column. Its copy started with O-CASA's
+  stored MODEL_DATA, and that model differs from the lsm prediction by up to
+  0.44 Jy (checked after the run on `work.ms` against `S-cb.ms` and
+  `S-rang-list.ms`). So O3a is informative and is not an untouched column. The
+  stored model is also **not** this lsm prediction; its origin is still unlogged.
 - One behaviour differs between the oracles and is not a C3a criterion: when
   Crystalball creates MODEL_DATA, other fields' rows are 0, while `setjy` and rang
   put 1 on the parallel hands. Rang follows CASA.
@@ -261,6 +266,13 @@ model stays with C7a (C1 step 8).
 `predict_components`") matches Crystalball exactly. Whether MeqTrees agrees is
 open. A MeqTrees image would be needed to separate "model" from "predictor" in
 that arm.
+
+**Gain hashes (C1 section 4, rule 2):** this branch changes no file under
+`core/` and does not touch `solve.rs`, `jones.rs`, `correct.rs` or
+`core.solve_complex` (`git diff --stat d099bb3..HEAD`: 7 files, all new
+Python, notes and the CHANGELOG). `4ed2aa89…` and `7b370c13…` appear only in
+`tools/oracles/casa/compare.py` and `examples/run_l5_solver_study.py`. Nothing
+in `check-all` replays them, so C1's request to add that replay is still open.
 
 **Not removed:** `/mnt/d/rang/c3a/` (run `-01`, run `-02`, check-all logs, about
 1.2 GB) can be deleted after merge. `~/Github/rang/outputs/status/fp-c3a.md`
