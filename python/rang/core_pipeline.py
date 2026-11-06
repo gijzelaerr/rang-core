@@ -748,13 +748,22 @@ WRITES_FLAGS = frozenset({"flag", "apply", "selfcal"})
 
 
 def _alive(entry):
-    if entry.get("host") != socket.gethostname() or not entry.get("pid"):
+    """Whether the process that marked a stage `running` still runs. POSIX
+    only: on Windows `os.kill(pid, 0)` would terminate the process, so a
+    stage left `running` there is taken as interrupted."""
+    if os.name != "posix" or entry.get("host") != socket.gethostname():
         return False
     try:
-        os.kill(int(entry["pid"]), 0)
-    except (OSError, ValueError):
+        pid = int(entry.get("pid") or 0)
+    except (TypeError, ValueError):
         return False
-    return int(entry["pid"]) != os.getpid()
+    if pid <= 0 or pid == os.getpid():
+        return False
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
 
 
 def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):

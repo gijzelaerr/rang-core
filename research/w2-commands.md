@@ -7,7 +7,8 @@ research stages move under `rang-core research`. Branch `fp-w2-commands` from
 main `d099bb3`. The write-back underneath is W1's `rang.core_writeback`
 ([w1-writeback.md](w1-writeback.md)).
 
-Status: **implemented and measured** (code `36af4ab`, frozen run
+Status: **implemented and measured** (code `36af4ab`, plus a Windows-safe
+process probe after the run, section 4; frozen run
 `/mnt/d/rang/outputs/fp-w2-20261106/run-01`). All six criteria of section 2
 pass as frozen: `flag` gives the port's FLAG in every cell (0 of 3,194,880
 cells differ, with and without seeded input flags), `calibrate`'s gain store is
@@ -191,6 +192,15 @@ Reported, not gated:
   the pytest at `36af4ab` refused two data descriptions on the same window and
   a two-correlation MS, but not two windows of different widths as frozen.
   The case was added in the commit after `36af4ab`, and it passes.
+- **A fix after the run.** The probe of a stage left `running` called
+  `os.kill(pid, 0)`, which on Windows terminates the process. It now answers
+  "not running" off POSIX and for its own pid without signalling, with a test.
+  Run `-01` ran on Linux, where the probe only tests, so its results stand.
+- **The solver's archived gain hashes** (`4ed2aa89…`, `7b370c13…`) were not
+  replayed: no test asserts them, and only `tools/oracles/casa/compare.py` and
+  `examples/run_l5_solver_study.py` reproduce them. `git diff d099bb3 --stat
+  -- core/ python/rang/core.py` is empty on this branch, so neither the
+  solver nor `core.solve_complex` changed.
 - **Where the flag stage's 20 s go** (one cProfile run, not a timing
   measurement): 18.5 s in the core writer's `ms_create_table` for the two flag
   versions (`flagversions._create`, 9.2 s each) on `/mnt/d`, and 0.9 s in the
@@ -249,8 +259,7 @@ are not timing measurements.
   the only check-all failure at the branch head.
 - **research/STATE.md**, log, newest first:
   `W2, 2026-11-06 (implemented and measured; [w2-commands.md](w2-commands.md)). rang-core flag, calibrate, apply, image, selfcal and run take a config.yaml (schema rang-config, version 1, every default printed by rang-core config defaults) and an MS. flag runs the Tricolour port per field and scan and writes FLAG, calibrate solves the complex term and writes a QuartiCal gain store, and image runs gemclean. apply and selfcal are refused (C4, C5a, G6). The whole of C1's chain and A0's E2-A and E2-B settings can be written in the schema and are refused term by term, naming C2a to C6c, G3, G4 and G9. A run directory holds the state: run skips finished stages, resumes at a failed one and refuses a changed configuration unless forced. Before the first write the flags are saved as rang_original, and before each writing stage as rang_<stage>_<time>. On A1's small MS: FLAG equals the port's call in every cell (with and without seeded input flags), the gain store is byte-identical to core.solve_complex, and a resumed run reran only the failed image stage. The research stages moved under rang-core research. No novelty claim.`
-  In "Current status", Running: `Done: A0, A1, C1, G1, W1, W2.` (as it stands
-  after C4a and C3a merge).
+  In "Current status", add W2 to the Done list.
 - **research/finish-plan.md**, row W2: `**Done 2026-11-06** ([w2-commands.md](w2-commands.md)).` before the task text. Section 2, row "Command line": the missing part is now chunking (W3) and the stages C2 to C7 and G3 to G9 add.
 - **After merging C3a or C4a:** regenerate `docs/cli.md`
   (`python docs/gen_cli.py`), because it carries the environment-variable

@@ -506,6 +506,20 @@ def test_unknown_fields_are_refused_before_anything_is_written(tmp_path):
     assert exc.value.code == 2 and not flagversions.versions(ms)
 
 
+def test_the_running_probe_never_signals_off_posix_or_itself(monkeypatch):
+    import socket
+
+    def kill(pid, sig):
+        raise AssertionError("os.kill must not be called")
+
+    entry = {"host": socket.gethostname(), "pid": os.getpid()}
+    monkeypatch.setattr(pipe.os, "kill", kill)
+    assert pipe._alive(entry) is False  # its own pid
+    monkeypatch.setattr(pipe.os, "name", "nt")
+    assert pipe._alive({**entry, "pid": 1}) is False
+    assert pipe._alive({"host": "elsewhere", "pid": 1}) is False
+
+
 def test_research_stages_moved(capsys):
     with pytest.raises(SystemExit) as exc:
         core_cli.main(["flags", "-h"])
