@@ -232,23 +232,23 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
         "C2b",
         "C2c",
         "C2d",
-        "C4",
         "C5a",
         "G3",
         "G4",
         "G6",
+        "W4",  # data.weights: uniform for imaging (research/w4-unsupported.md)
     }
     assert _tasks(DATA / "e2b.yaml") == {
         "C2a",
         "C2b",
         "C2c",
         "C2d",
-        "C4",
         "C6a",
         "C6b",
         "C6c",
         "G3",
         "G9",
+        "W4",
     }
 
 
@@ -625,9 +625,16 @@ def test_model_and_apply_refusals_name_their_tasks():
 
 
 def test_unsupported_data_is_refused_naming_w4(tmp_path):
+    # Since W4 (research/w4-unsupported.md) the refusals depend on the stage:
+    # two correlations are refused by calibrate and apply, not by flag.
+    config, _ = core_config.resolve(
+        {"version": 1, "fields": {"fcal": ["CAL"], "target": ["TGT"]}}
+    )
     two = make_ms(tmp_path / "two.ms", ncorr=2)
-    with pytest.raises(pipe.Refused, match="W4"):
-        pipe.inspect_ms(two)
+    info = pipe.inspect_ms(two)
+    pipe.preflight(config, info, ["flag"])
+    with pytest.raises(pipe.Refused, match="four correlations.*W4"):
+        pipe.preflight(config, info, ["calibrate"])
     ms = make_ms(tmp_path / "x.ms")
     with core_ms_write.open_table(ms / "DATA_DESCRIPTION", readonly=False) as t:
         t.addrows(1)
@@ -635,8 +642,8 @@ def test_unsupported_data_is_refused_naming_w4(tmp_path):
         t.putcol("POLARIZATION_ID", np.array([0, 0], np.int32))
     with core_ms_write.open_table(ms, readonly=False) as t:
         t.putcol("DATA_DESC_ID", (np.arange(NROW) % 2).astype(np.int32))
-    with pytest.raises(pipe.Refused, match="W4"):
-        pipe.inspect_ms(ms)
+    with pytest.raises(pipe.Refused, match="2 data descriptions.*W4"):
+        pipe.preflight(config, pipe.inspect_ms(ms), ["flag"])
     # Two spectral windows of different widths (criterion 6 as frozen).
     widths = make_ms(tmp_path / "w.ms")
     with core_ms_write.open_table(widths / "SPECTRAL_WINDOW", readonly=False) as t:

@@ -116,7 +116,7 @@ def test_two_spectral_windows_of_different_widths_are_refused(tmp_path):
         d.putcol("POLARIZATION_ID", np.array([0], np.int32), 1)
     with core_ms_write.open_table(ms, readonly=False) as t:
         t.putcol("DATA_DESC_ID", np.array([1], np.int32), 5)
-    with pytest.raises(wb.UnsupportedLayout, match="W4"):
+    with pytest.raises(wb.UnsupportedLayout, match="one cell shape.*split"):
         wb.WriteBack(ms).begin()
     assert not flagversions.root(ms).exists()
 

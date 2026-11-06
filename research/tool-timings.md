@@ -1579,3 +1579,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | G2 GeMClean pilot-512 (`cal.ms`, 405.8 M cells), default and coarse | `83baf9f` | 3 min 43 s-4 min 54 s default, 3 min 25 s coarse | 19.69 / 15.66 GB | earlier binaries stopped at 20 and 23.5 GB |
 | 2026-11-06 | G2 WSClean 3.7 native, `nominres` / `minres` | S1, H3, pilot-256, pilot-512 | S1 2 min, H3 2.5-3 min, pilot-256 11 min, pilot-512 19 min | 0.58-8.35 GB | in container, `time -v` inside; busy host |
 | 2026-11-06 | G2 `tools/check-all.sh`, 5 runs | worktree | 667-1337 s (2529 s with lock wait) | – | FAIL only on the research-index test (new note); one run also on ruff 0.17.4, pinned back to 0.17.3 |
+| 2026-11-06 | W4 worktree `.venv`: `uv venv` + `uv pip install` of C2b's frozen requirements + `-e .` (maturin, `nice`) | worktree | 199 s | – | shared host |
+| 2026-11-06 | W4 check-all on the note commit `a6fcc80` | worktree | 2066 s (with lock wait behind C2b's) | – | FAIL only on the research-index test; pytest 918 passed, 68 skipped in 236 s |
+| 2026-11-06 | W4 check-all on the code commit `1a3fd2e` | worktree | 1514 s (with lock wait) | 2.00 GB | FAIL only on the research-index test; pytest 939 passed, 68 skipped in 235 s |
+| 2026-11-06 | W4 `examples/check_w4_unsupported.py`, smoke run-00-smoke (5 cases, harness debugging) | A1 small copies | 1315 s | 264 MB | load 14-17 (G2 and C2b running); every step fingerprinted then |
+| 2026-11-06 | W4 `examples/check_w4_unsupported.py`, frozen run-01 (28 cases, 138 commands) | A1 small copies | 3740 s | 264 MB | shared host (load about 14); refusals 0.5-5.6 s each; flag 22-90 s, apply 17-51 s, calibrate 4.5-36 s, image 3.6-18 s per command, mostly flag versions and receipts on `/mnt/d` |
+| 2026-11-06 | W4 gemclean (main's release build) directly on the ws-undefined MS | A1 small copy | – | – | exit 2: "WEIGHT_SPECTRUM: read of 8 bytes ... failed to fill whole buffer" |
+| 2026-11-06 | W4 `examples/check_w4_unsupported.py`, post hoc run-02-posthoc-scans (scans-none, scans-other) | A1 small copies | 177.2 s | 96 MB | uncommitted narrowed `data.scans` rule; same verdicts as run-01 |
+| 2026-11-06 | W4 check-all on the final tree (results commit) | worktree | 490.3 s | 1.81 GB | FAIL only on the research-index test; pytest 941 passed, 68 skipped in 128 s |
