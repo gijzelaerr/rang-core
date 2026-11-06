@@ -242,6 +242,10 @@ fields (1,920, 1,440, 2,400, 6,720 rows), applied in chunks of 700 rows.
 | CORRECTED_DATA class B, J1939-6342 and SIM-GCAL (reported) | 1.5e-4 / 6.4e-4; 1.7e-4 / 1.3e-3 | – | – |
 | Target component 0 (0.5 Jy point, p 0.127, RM −30.3): Δχ, p/p_t (σ_χ 0.050°) | +0.513°, 0.9987 | +0.514°, 0.9988 | ≤ 1.26°, ≤ 0.055: pass; against CASA −0.0018°, 0.99995: pass |
 
+**Q and U** (computed after both frozen runs from the same arrays, `c6w-20261106-04-qu.json` with its script in
+`.code/`; reported, not gated): the median over channels of Q/I and U/I on 3C286-SIM is 0.03677 and 0.08705 for
+rang and 0.03677 and 0.08704 for CASA. The truth is 0.03864 and 0.08679: the 0.55° χ error shows as a Q deficit.
+
 Flags after apply are **exact** on all four fields, although the Df tables' flags differ (rang 8 parameters, CASA
 736; C6 decision 3). rang's `apply.rs` copies CASA's Df rule, under which a flagged leakage does not flag the data
 (C4a decision 7). So the two sides differ only in the corrected values of those channels, and that difference is
@@ -294,6 +298,8 @@ tolerance changed between -01 and -02.
 | 4, target component 0 (0.5 Jy, p 0.117, RM +54.6) | Δχ −0.198°, p/p_t 1.0046 (CASA −0.198°, 1.0046): pass, and against CASA 0.0004°, 1.0000: pass |
 
 Also measured:
+- Q/I and U/I on 3C286-SIM (median over channels; after the run, reported): rang 0.03996 and 0.08664, CASA 0.03997
+  and 0.08664, truth 0.03864 and 0.08679.
 - KCROSS per scan: −3.356, −3.391, −3.338, −3.378 ns, with CASA within 1.7e-4 ns (truth effective −3.46 ns).
 - Df flags: rang 0, CASA 1,024 (C6's 32 RFI channels). Flags after apply are exact.
 - `fluxscale`: 4.29030 Jy on both sides.
@@ -330,8 +336,13 @@ no timing.
   `frame: rang`, `polcal.model.source: column`): unit-tested or exercised by construction. They were not compared
   with CASA, which has no equivalent for the first two.
 - `data.scans` and `data.weights: uniform` with polarisation terms: passed through to the solves, not run here.
-- Several polcal fields, the Df field outside the primary fields with a column model, `combine='obs'`, and the
-  memory refusal of a polarisation term above the limit (by construction through `chain_memory_problems`, not run).
+- Several polcal fields, the Df field outside the primary fields with a column model, and `combine='obs'`.
+- The memory refusal of a polarisation term above the limit: by construction through `chain_memory_problems`, not
+  exercised by a test or a run.
+- `applycal`'s P angles: two float64 arrays per MS row (16 bytes a row, plus the TIME and antenna columns read once),
+  outside W3's apply budget; not measured.
+- E2-B still does not validate for one reason beyond `refant: auto`: `extendflags: true`, which was refused as C6b
+  and is now a configuration error without an owner (section 7, decision 4).
 - The faint target components that miss the truth (sections 8 and 9): not traced.
 - Timing: no claims; wall times are in `tool-timings.md`.
 
@@ -356,6 +367,7 @@ no timing.
 | `c6w-20261106-01` | poldx: gates 1, 2, 4 (MS copies, 1.2 GB) |
 | `c6w-20261106-02` | polholdout, held out: gates 1, 2, 4 |
 | `c6w-20261106-03-gate3` | gate 3 |
+| `c6w-20261106-04-qu.json` | Q/I and U/I of 3C286-SIM from runs -01 and -02, after the runs (script in `-04-qu.code/`) |
 | `c6w-20261106-checkall-*.log` | check-all logs |
 
 Inputs and provenance:

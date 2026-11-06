@@ -27,7 +27,8 @@ the release notes are the section of this file for that version.
   `clip_df`, `parallactic_angles`/`row_angles` (CASA's frame by default, provisionally; `frame='rang'`
   keeps the geodetic one), `rotate` and `apply` (tables, then P). Rust kernels
   `core/src/cal/parang.rs`, `crosshand.rs`, `leakage.rs`; `cal/apply.rs` and `formats/caltable.py`
-  now apply `Kcross Jones` and `Xf Jones` tables. Not wired into `rang-core calibrate` yet (task C2e).
+  now apply `Kcross Jones` and `Xf Jones` tables. Wired into `rang-core calibrate` and `apply` by
+  task C6w (the entry above).
   `rang.simtruth` gains the versions `poldx` and `polholdout` (CASA's parallactic frame, a leaking
   reference antenna); the other versions are unchanged.
 - New: `rang-core calibrate` runs CARACal's cross-calibration terms K, G, B, A and F in C1's order

@@ -12,7 +12,9 @@ writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
 MODEL_DATA and either solves the `complex` term into a QuartiCal gain store
 or runs CARACal's K, G, B, A and F terms in order into CASA tables, its A
 steps flagging the corrected calibrators ({gh}`research/c2e-calibrate.md`),
-`apply` applies those solutions to CORRECTED_DATA, and `image` runs
+then the polcal section's Gpol, KCROSS, Xf and Df
+({gh}`research/c6w-polwire.md`), `apply` applies those solutions to
+CORRECTED_DATA, with the parallactic angle when `apply.parang` is set, and `image` runs
 `gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before

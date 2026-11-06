@@ -33,9 +33,12 @@ latitude, from apparent north, which A1 measured to reproduce CASA
 convention before this task. They differ by up to about 0.5 degrees near
 the zenith.
 
-Not here: the wiring into `rang-core calibrate` (task C2e owns the command;
-proposed in the note), the polarised calibrator models (task C7a),
-strategies 2 and 3 (`Dflls`, `Xfparang+QU`; C1 O3), several windows, and
+`rang-core calibrate` runs these terms from its polcal section through
+`rang.cal_chain.run`, and `rang-core apply` applies P with
+`rang.applycal.applycal(parang=True)` (task C6w, research/c6w-polwire.md);
+the polarised calibrator models are C7a's `rang.calmodels.NRAO_XCAL`.
+
+Not here: strategies 2 and 3 (`Dflls`, `Xfparang+QU`; C1 O3), several windows, and
 `preavg` (rang solves the cells; for a model constant over the interval
 the least-squares answer is the same, see the note).
 """
