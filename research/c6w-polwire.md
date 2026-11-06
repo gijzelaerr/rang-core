@@ -5,7 +5,10 @@ library ([c6-polterms.md](c6-polterms.md), `rang.cal_pol`) into the commands as 
 (steps 1 to 5) describes. C7b applies the polarisation solutions end to end on C6's `poldx` truth, with C7a's
 3C286 model ([c7a-polmodels.md](c7a-polmodels.md)) on the polcal field, against the truth and against CASA
 6.7.6.14's `applycal` of CASA's own chain. Branch `fp-c6w-polwire`, from main `02024bd` (W3 merged).
-**Status: protocol frozen (sections 1 to 6); nothing measured yet.**
+**Status: implemented and measured; every frozen gate met on `poldx` (run -01) and on the held-out `polholdout`
+(run -02); gate 3 met (E2-B's remaining items are `refant: auto` and `extendflags`, both without an owner task).**
+The protocol (sections 1 to 7) was committed (`fb03e2e`) before the first comparison; results are in sections 8 to
+10, and this status line is the only edit above them.
 
 ## 1. What was read before this protocol
 
@@ -208,3 +211,206 @@ fixed and rerun, and recorded.
    from E2-B.
 5. **`feed_angle_rotation` in memory**: rang uses the angle for P but does not write FEED, so CASA reading a
    rang-calibrated MS whose FEED holds 0 would apply a different P (`parang=True`) than rang did.
+
+## 8. Results on `poldx`, run -01 (measured 2026-11-06, the protocol commit's code)
+
+Archive: [results/c6w-polwire.json](results/c6w-polwire.json) (both runs' `result.json` and gate 3).
+
+`/mnt/d/rang/outputs/c6w-20261106-01` (`.code/` snapshot of `fb03e2e`, clean tree; `.log`; `result.json`), under
+`flock ~/.rang-heavy.lock`, 357 s wall including the lock wait. CASA's container step (prepare, the 18 CASA calls,
+the export) 51.0 s, CASA's tasks 0.2-4.3 s each; `rang-core calibrate` 56.3 s, `apply` 62.0 s (with
+`data.chunk_rows: 700`, on `/mnt/d`), the reference 34.7 s. No CASA task raised.
+
+**Gate 1, met.** All nine tables (K, G, B, F, F.append, Gpol, Kcross, Xf, Df) equal cell for cell, keywords and
+subtables, and their files are byte-identical; DATA, MODEL_DATA, FLAG, FLAG_ROW, WEIGHT, WEIGHT_SPECTRUM and SIGMA
+after calibrate have equal SHA-256; `rang_original` holds the input FLAG. KCROSS per scan: 3.178, 3.134, 3.241,
+3.218 ns on both; Df's clip at 0.6 flagged no parameter (Df's own flags: 8).
+
+**Gate 2, met.** CORRECTED_DATA bit-identical and FLAG identical against `cal_pol.apply` on every row of the four
+fields (1,920, 1,440, 2,400, 6,720 rows), applied in chunks of 700 rows.
+
+**Gate 4 (C7b), met.**
+
+| Item | rang | CASA | Gate |
+| --- | --- | --- | --- |
+| 3C286-SIM `|χ_c − 33°|` median / p95 / max | 0.550° / 0.620° / 0.80° | 0.553° / 0.618° / 0.82° | ≤ 1.11° / ≤ 2.22°: pass |
+| 3C286-SIM median p (truth 0.095, model 0.098) | 0.09446 | 0.09446 | `|Δ|` 0.00054 ≤ 0.0015: pass |
+| 3C286-SIM `|χ_rang − χ_casa|` median / p95 | 0.0027° / 0.028° | – | ≤ 0.21° / ≤ 0.90°: pass |
+| 3C286-SIM `|p_rang/p_casa − 1|` median / p95 | 2.4e-5 / 3.9e-4 | – | ≤ 7.4e-3 / ≤ 3.2e-2: pass |
+| CORRECTED_DATA class B, 3C286-SIM median / p95 / max | 2.2e-4 / 1.1e-3 / 6.1e-2 | – | pass |
+| CORRECTED_DATA class B, SIM-TARGET | 2.1e-4 / 1.3e-3 / 7.2e-2 | – | pass |
+| CORRECTED_DATA class B, J1939-6342 and SIM-GCAL (reported) | 1.5e-4 / 6.4e-4; 1.7e-4 / 1.3e-3 | – | – |
+| Target component 0 (0.5 Jy point, p 0.127, RM −30.3): Δχ, p/p_t (σ_χ 0.050°) | +0.513°, 0.9987 | +0.514°, 0.9988 | ≤ 1.26°, ≤ 0.055: pass; against CASA −0.0018°, 0.99995: pass |
+
+Flags after apply are **exact** on all four fields, although the Df tables' flags differ (rang 8 parameters, CASA
+736; C6 decision 3). rang's `apply.rs` copies CASA's Df rule, under which a flagged leakage does not flag the data
+(C4a decision 7). So the two sides differ only in the corrected values of those channels, and that difference is
+inside class B.
+
+Per scan (reported):
+- χ error median 0.38°, 0.86°, 0.03°, 0.96° on scans 2, 8, 14, 22 (CASA 0.39°, 0.85°, 0.03°, 0.96°); p 0.0934-0.0951.
+  The spread between scans is strategy 1's, the same in rang and CASA. C6 run -06 traced it: the unobservable
+  `d_x,r` gives an error of about `2 d_x,r Q`, which rotates with the parallactic angle.
+- Scan 22, where C6 found the per-scan KCROSS ill-conditioned: χ within 0.005° of CASA's (median).
+- The KCROSS delays (3.13-3.24 ns) sit above the truth's effective cross-hand delay (`τ_c + τ_x,r − τ_y,r` = 3.09 ns).
+  KCROSS takes up the linear part of Xf, as C6 found.
+- `fluxscale`: SIM-GCAL 4.30025 Jy (rang), 4.30038 Jy (CASA), 2.9e-5 relative.
+
+The other five polarised target components are ungated: their `σ_χ` (1.6-11.8°) is above the 0.2° the gate needs.
+- Against CASA, all five agree within their class-B tolerances.
+- Against the truth, four pass the (ungated) tolerance. Component 37 does not (1.7 mJy, p 0.073, polarised flux
+  0.13 mJy): p/p_t 3.96, with CASA's chain at 3.97.
+- The cause is not established. Because CASA's chain gives the same value, it lies in the estimator on such a faint
+  component, not in either calibration. A likely candidate: the truth's other components are subtracted without the
+  uncalibrated direction-independent self-cal term that the target carries.
+
+**The model against the published 3C286 values (reported; C7a's T2).** rang's MODEL_DATA on 3C286-SIM is C7a's
+`NRAO_XCAL`, with constant p 9.8 % and χ 33.00002°.
+- Δp against Perley & Butler 2013: +1.20, +0.30, −0.10 points at 1.05, 1.45, 1.64 GHz.
+- Δp against NRAO 2019: +1.20, 0.00 points at 1.02, 1.47 GHz.
+- Δχ: +0.00002°.
+
+This repeats C7a's T2 to the digit. It measures CARACal's model, not the calibration: with strategy 1 the calibrated
+p comes from the data (0.0945, truth 0.095), not from the model.
+
+**MODEL_DATA, rang against CASA's `setjy` (reported).** `result.json` gives `max_rel 0` and `bit_identical: false`
+for both calibrators. The second is a reporting artefact: casatools exports MODEL_DATA as complex128, and the script
+compared `uint32` views of different widths. Cast to complex64, CASA's MODEL_DATA is bit-identical to rang's on both
+fields. This was checked after the run on the same arrays, with no code change.
+
+## 9. Held-out results, `polholdout`, run -02 (run once, unchanged code)
+
+`/mnt/d/rang/outputs/c6w-20261106-02` (`.code/` of `fb03e2e`, clean): 858 s wall including about 10 min of lock
+wait. CASA's container step took 45.9 s, `calibrate` 42.7 s, `apply` 58.3 s and the reference 33.1 s. No code or
+tolerance changed between -01 and -02.
+
+| Gate | Result |
+| --- | --- |
+| 1 | met: nine tables equal, files byte-identical; seven columns equal; `rang_original` = input |
+| 2 | met: CORRECTED_DATA bit-identical and FLAG identical on all four fields |
+| 4, 3C286-SIM against the truth | `|χ_c − 33°|` median 0.383°, p95 0.554° (rang); p 0.0954 (`|Δ|` 0.0004): pass |
+| 4, 3C286-SIM against CASA | χ median 0.0023°, p95 0.021°; p median 2.2e-5, p95 2.2e-4: pass |
+| 4, CORRECTED_DATA class B | 3C286-SIM 1.4e-4 / 6.5e-4; SIM-TARGET 1.5e-4 / 9.3e-4: pass (J1939 1.3e-4 / 6.7e-4, SIM-GCAL 1.1e-4 / 4.8e-4); flags exact on all four |
+| 4, target component 0 (0.5 Jy, p 0.117, RM +54.6) | Δχ −0.198°, p/p_t 1.0046 (CASA −0.198°, 1.0046): pass, and against CASA 0.0004°, 1.0000: pass |
+
+Also measured:
+- KCROSS per scan: −3.356, −3.391, −3.338, −3.378 ns, with CASA within 1.7e-4 ns (truth effective −3.46 ns).
+- Df flags: rang 0, CASA 1,024 (C6's 32 RFI channels). Flags after apply are exact.
+- `fluxscale`: 4.29030 Jy on both sides.
+- Ungated components: five. Component 7 (21 mJy, p 0.114) has p/p_t 1.20 against an ungated tolerance of 0.17,
+  with CASA's chain at 1.2043. The others pass. As in run -01, CASA's chain gives the same value.
+
+## 10. Verdict against the frozen gates
+
+| Gate | Verdict |
+| --- | --- |
+| 1. `rang-core calibrate` = C6's library chain, bit for bit | **met** on `poldx` (-01) and `polholdout` (-02) |
+| 2. `rang-core apply` = `cal_pol.apply`, bit for bit | **met** (-01, -02), applied in chunks |
+| 3. E2's calibrate stage | **met** (`c6w-20261106-03-gate3`): E2-A validates; E2-B has no refusal naming a task. Its configuration errors: `refant: auto` on all nine terms (C2e's owner decision) and `extendflags: true` (section 7, decision 4) |
+| 4. C7b: χ and p against the truth, and against CASA's chain within class B | **met** (-01) |
+| 5. Held-out | **met** (-02) |
+
+**What this establishes.** `rang-core calibrate` and `apply` run CARACal's strategy 1 (Gpol, KCROSS, Xf, Df, with
+P) exactly as `rang.cal_pol` does. End to end on two simulated truths with a leaking reference antenna, with
+CARACal's 3C286 model, rang's chain and CASA 6.7.6.14's chain give the same calibrated polarisation:
+- χ within 0.003° median;
+- p within 3e-5;
+- CORRECTED_DATA within class B, with exact flags.
+
+Both are 0.4-0.6° (median) from the truth's χ, which is strategy 1's limit on such a truth (C6), and recover the
+truth's p (9.45-9.54 % for 9.5 %), not the model's 9.8 %. This is a port with oracles. No novelty is claimed, and
+no timing.
+
+## 11. What was not checked
+
+- Real data: no LUNO or native 3C286 scan was run (E2's job). E2-B was only validated.
+- `feed_angle_rotation` on an MS whose FEED holds 0 (the slice): unit-tested only (`applycal` with the angle in memory
+  equals FEED holding it), not run against CASA with a rewritten FEED.
+- The options away from the defaults (`estimator: refined`, `min_data_fraction`, KCROSS `combine: scan`,
+  `frame: rang`, `polcal.model.source: column`): unit-tested or exercised by construction. They were not compared
+  with CASA, which has no equivalent for the first two.
+- `data.scans` and `data.weights: uniform` with polarisation terms: passed through to the solves, not run here.
+- Several polcal fields, the Df field outside the primary fields with a column model, `combine='obs'`, and the
+  memory refusal of a polarisation term above the limit (by construction through `chain_memory_problems`, not run).
+- The faint target components that miss the truth (sections 8 and 9): not traced.
+- Timing: no claims; wall times are in `tool-timings.md`.
+
+## 12. Files and runs
+
+**Code.**
+- `python/rang/core_config.py`: `POL_TERMS`, `CHAIN_TERMS`, polcal `model` and `frame`, `estimator`,
+  `min_data_fraction`, `_pol_term_errors`, the re-pointed refusals.
+- `python/rang/core_pipeline.py`: `polcal_terms`, `polcal_fields`, `polcal_models`, `_polcal_problems`, the polcal
+  model in `write_models`, P in `stage_apply`, `chain_memory_problems` on `CHAIN_TERMS`.
+- `python/rang/cal_chain.py`: `_solve_pol` and the polarisation branch of `run`.
+- `python/rang/cal_pol.py`: the additive arguments, `kcross_refine`, `data_fraction`.
+- `python/rang/applycal.py`: `parang`, `frame`, `receptor_angle`, `_field_angles`.
+- `examples/check_c6w.py`; `tests/test_c6w_polwire.py` (5 tests); `tests/test_c2e_calibrate.py` and
+  `tests/test_w2_commands.py` (expectations); `docs/cli.md` (regenerated); `CHANGELOG.md`.
+- Not touched: `solve.rs`, `jones.rs`, `correct.rs`, `core.solve_complex`, any Rust file.
+
+**Runs** under `/mnt/d/rang/outputs/`, each with `.code/` and `.log`:
+
+| Run | What |
+| --- | --- |
+| `c6w-20261106-01` | poldx: gates 1, 2, 4 (MS copies, 1.2 GB) |
+| `c6w-20261106-02` | polholdout, held out: gates 1, 2, 4 |
+| `c6w-20261106-03-gate3` | gate 3 |
+| `c6w-20261106-checkall-*.log` | check-all logs |
+
+Inputs and provenance:
+- Inputs read in place: C6's `c6-20261106-sets/{poldx,polholdout}` (noisy MS, RFI mask, truth).
+- Seeds: those of C6's two truths (poldx 20261146-49, polholdout 20261156-59); no new seed.
+- Image: `rang-o-casa:6.7.6.14`. Nothing was downloaded.
+- Before the protocol commit, the command and the reference were run once on a scratch copy of the `poldx` twin (not
+  a gated case), to check that they run. Nothing was compared (`~/Build/tmp/20261106-c6w-smoke`, deleted).
+
+## For the coordinator
+
+Do not apply until merged; all text proposed.
+
+**`research/STATE.md`, new top entry:**
+
+> C6w and C7b, 2026-11-06 (implemented; measured; every frozen gate met, held-out `polholdout` included).
+> [c6w-polwire.md](c6w-polwire.md): `rang-core calibrate` runs the polcal section's Gpol, KCROSS, Xf and Df
+> (CARACal's strategy 1, `rang.cal_pol`), and `rang-core apply` corrects by the parallactic angle
+> (`apply.parang`).
+> - **Identity:** bit for bit against C6's library chain, on all tables, columns and CORRECTED_DATA, with apply in chunks.
+> - **Against CASA:** with CARACal's 3C286 model, the calibrated polcal source matches CASA 6.7.6.14's own chain
+>   (`applycal(parang=True)`) to χ 0.003° and p 3e-5 (median). CORRECTED_DATA is within class B on the polcal field
+>   and the target, flags exact.
+> - **Against the truth:** χ is 0.4-0.6° from the truth (strategy 1's limit with a leaking refant), and p is the
+>   truth's 9.5 %, not the model's 9.8 %.
+> - **Defaults:** C6's decisions 3-5 are provisional: rang's Df solutions, KCROSS per scan, CASA's estimator. CASA has
+>   no data-fraction rule to copy.
+> - **Still open:** E2-B fails only on `refant: auto` and `extendflags` (no owner).
+
+**`research/README.md`, index line:**
+
+> [C6w and C7b, polarisation in the commands](c6w-polwire.md): Gpol, KCROSS, Xf, Df and P in `rang-core
+> calibrate` and `apply`, bit-identical to `rang.cal_pol`, and the applied calibration against the truth and
+> CASA's chain on `poldx` and held-out `polholdout`.
+
+**`research/finish-plan.md`:**
+- C6w row: done (this note).
+- C7 row: C7b done (this note). The model-to-published comparison repeats C7a's T2: CARACal's constant 9.8 % is 1.2
+  points above PB2013 at 1.05 GHz.
+- Section 7: add section 7's decisions 1-5 as a new item. They answer C6's decisions 3-5 provisionally and add
+  `extendflags` and the in-memory feed angle.
+- W3b's row already includes the polarisation terms.
+
+**Merge notes.** This branch edits:
+- `core_config.py`, `core_pipeline.py`, `cal_chain.py`, `cal_pol.py` and `applycal.py`. All additive, except:
+  - the refusals: C6a-c are gone;
+  - the calibrate stage resolves `chain_terms` before restoring flags and writing models;
+  - the apply summary has a `parang` key.
+- `tests/test_c2e_calibrate.py` and `tests/test_w2_commands.py` (expectations), `docs/cli.md` and `CHANGELOG.md`.
+
+`test_every_note_is_in_the_research_index` fails until the README line is applied.
+
+**Left on disk:**
+- `/mnt/d/rang/outputs/c6w-20261106-01` and `-02`: about 1.2 GB each (the prepared MS and its copies). They can go
+  after review; `result.json` and the logs are small.
+- `-03-gate3` and the check-all logs: small.
+- `~/Github/rang/outputs/status/fp-c6w.md`: can go after merge.
+- The worktree venv.

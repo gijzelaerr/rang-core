@@ -1663,3 +1663,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W3 merge check run-02 S flag, calibrate, apply U / D / T | A1 small copies | 21 / 27 / 455 s; 18 / 22 / 368 s; 24 / 22 / 342 s | at most 0.17 GiB | U is main `0de5690` |
 | 2026-11-06 | W3 merge check run-02 O flag, calibrate, apply U / D / T | O-CASA slice copies | 2 / 2 / 6 s; 5 / 6 / 51 s; 7 / 7 / 17 s | at most 0.13 GiB | |
 | 2026-11-06 | W3 merge check run-02 C (C2e chain) flag, calibrate, apply U / D / T | A1 small copies | 21 / 26 / 410 s; 40 / 33 / 367 s; 26 / 30 / 286 s | at most 0.15 GiB | |
+| 2026-11-06 | C6w worktree venv (`uv venv`, `uv pip install -e` with the extension build) | worktree | 169 s including the lock wait | – | heavy lock |
+| 2026-11-06 | C6w crash-only smoke: `rang-core calibrate` + `apply` with the polcal section | scratch copy of the poldx twin | 7 s | – | not a gated case; nothing compared |
+| 2026-11-06 | C6w check-all run 1 (before the protocol commit) | worktree | 1,026 s including the lock wait | – | only `test_every_note_is_in_the_research_index` fails; pytest 988 passed, 58 skipped |
+| 2026-11-06 | C6w `check_c6w.py run` -01: CASA prepare, 18 calls, export; `rang-core calibrate`, `apply`; reference | poldx noisy | 357 s total; CASA container 51.0 s (tasks 0.2-4.3 s); calibrate 56.3 s; apply 62.0 s (`chunk_rows` 700, on /mnt/d); reference 34.7 s | – | heavy lock; all gates met |
+| 2026-11-06 | C6w `check_c6w.py run` -02 (held out) | polholdout noisy | 858 s total including about 10 min lock wait; CASA container 45.9 s; calibrate 42.7 s; apply 58.3 s; reference 33.1 s | – | heavy lock; all gates met |
+| 2026-11-06 | C6w gate 3 (`validate` on e2a, e2b) | configurations | under 1 s | – | – |
