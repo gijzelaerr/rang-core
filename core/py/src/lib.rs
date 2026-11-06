@@ -52,6 +52,7 @@ use rang_core::sim;
 use std::ffi::c_void;
 
 mod cal_delay;
+mod cal_delay_offset;
 mod cal_fluxscale;
 mod cal_gain;
 mod clean;
@@ -2814,5 +2815,14 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Task C2d: fluxscale (research/c2d-fluxscale.md).
     m.add_function(wrap_pyfunction!(cal_fluxscale::cal_fluxscale_scale, m)?)?;
     m.add_function(wrap_pyfunction!(cal_fluxscale::cal_fluxscale_fit, m)?)?;
+    // Task C2c: K as delay_and_offset, fillgaps for B (research/c2c-bandpass.md).
+    m.add_function(wrap_pyfunction!(
+        cal_delay_offset::cal_delay_offset_solve,
+        m
+    )?)?;
+    m.add_function(wrap_pyfunction!(
+        cal_delay_offset::cal_bandpass_fill_gaps,
+        m
+    )?)?;
     Ok(())
 }

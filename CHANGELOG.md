@@ -55,6 +55,19 @@ the release notes are the section of this file for that version.
   MODEL_DATA through `rang.calmodels` and solves against them. Applying a complex term to another
   field and polarised models are refused, naming C2a and C7a.
 
+- Changed: `rang.cal_delay` solves K as QuartiCal 0.2.7's `delay_and_offset` by default (a delay
+  and a free phase per antenna and hand, `core/src/cal/delay_offset.rs`), with rang's offset start
+  (the FFT peak's phase, `offset_start=True`; `False` is QuartiCal's estimator exactly) and a delay
+  error with the offset marginalised; `kind="delay"` keeps C2b's term. It meets CASA's
+  `gaincal(gaintype='K')` with nothing pre-applied, as CARACal solves K. The `K Jones` table holds
+  the delays only; the offsets are in `DelaySolution.offsets` and G absorbs them
+  (`research/c2c-bandpass.md`).
+- New: `rang.cal_bandpass`, the bandpass B: `diag_complex` per channel in Rust with CASA's rules per
+  channel (`minblperant`, `minsnr`, the reference antenna) and CASA's `fillgaps`
+  (`core/src/cal/bandpass.rs`), `bandpass(ms, ...)` as CASA's `bandpass(bandtype='B')` (defaults
+  `combine='scan'`, `fillgaps=0`), writing CASA `B Jones` tables. `rang.cal_chain.primary` solves
+  the primary calibrator's K, G, B in CARACal's order, each with the earlier tables applied.
+  `rang.simtruth` has a `holdout256` version (new seeds, 256 channels) (`research/c2c-bandpass.md`).
 - New: `rang.cal_delay`, the delay term K in Rust (`core/src/cal/delay.rs`): QuartiCal 0.2.7's
   `delay` kernel with its FFT initial estimate (FFT, then Gauss-Newton over all baselines).
   `solve(...)` on arrays; `gaincal(ms, ...)` as CASA's `gaincal(gaintype='K')`, with CASA's

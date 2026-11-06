@@ -92,6 +92,13 @@ SEEDS = {
     "small": {"jones": 20261116, "sky": 20261117, "rfi": 20261118, "noise": 20261119},
     # Task C2b (research/c2b-delay.md): delays up to 50 ns.
     "delay50": {"jones": 20261126, "sky": 20261127, "rfi": 20261128, "noise": 20261129},
+    # Task C2c (research/c2c-bandpass.md): the held-out set, new seeds.
+    "holdout256": {
+        "jones": 20261136,
+        "sky": 20261137,
+        "rfi": 20261138,
+        "noise": 20261139,
+    },
 }
 
 
@@ -159,7 +166,8 @@ class Design:
 def design(name):
     """The `full` (64 antennas, 256 channels) or `small` (16, 64) version, or
     `delay50` (C2b: small's antennas and schedule, 256 channels, delays of
-    1-50 ns, `extra["tau_range_ns"]`)."""
+    1-50 ns, `extra["tau_range_ns"]`), or `holdout256` (C2c's held-out set:
+    as delay50 with new seeds and delays of 1-30 ns)."""
     if name == "full":
         return Design("full", list(range(64)), 256, FULL_LENGTH, SEEDS["full"])
     if name == "small":
@@ -173,7 +181,16 @@ def design(name):
             SEEDS["delay50"],
             extra={"tau_range_ns": (1.0, 50.0)},
         )
-    raise ValueError(f"unknown version {name!r}: full, small or delay50")
+    if name == "holdout256":
+        return Design(
+            "holdout256",
+            list(range(0, 64, 4)),
+            256,
+            SMALL_LENGTH,
+            SEEDS["holdout256"],
+            extra={"tau_range_ns": (1.0, 30.0)},
+        )
+    raise ValueError(f"unknown version {name!r}: full, small, delay50 or holdout256")
 
 
 # -- geometry ---------------------------------------------------------------------
