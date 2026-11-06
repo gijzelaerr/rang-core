@@ -271,10 +271,12 @@ def applycal(
     flag_backup=core_writeback.DEFAULT_BACKUP,
     stage="apply",
     threads=0,
+    scan=None,
 ):
     """Apply CASA calibration tables (paths or `CalTable`s) to `ms` as CASA
     `applycal` (module docstring). `session` lets a caller pass an open
-    `WriteBack`. Returns a summary."""
+    `WriteBack`. `scan` (a list of SCAN_NUMBERs, CASA's `scan`; task C2e)
+    restricts the rows corrected. Returns a summary."""
     from pathlib import Path
 
     ms = Path(ms)
@@ -322,6 +324,7 @@ def applycal(
             )
         ],
         "fields": [info["fields"][f] for f in fields],
+        "scans": None if scan is None else [int(s) for s in np.atleast_1d(scan)],
         "applymode": applymode,
         "column": column,
         "weights_written": write_weights,
@@ -346,6 +349,11 @@ def applycal(
                 for k in ("FIELD_ID", "DATA_DESC_ID", "TIME", "ANTENNA1", "ANTENNA2")
             }
             sel = np.isin(c["FIELD_ID"], fields)
+            if scan is not None:
+                sel &= np.isin(
+                    w.read("SCAN_NUMBER", start, nrow),
+                    [int(s) for s in np.atleast_1d(scan)],
+                )
             if not sel.any():
                 continue
             data = w.read("DATA", start, nrow)
@@ -504,9 +512,9 @@ def apply_complex(
     missing = [info["fields"][f] for f in fields if f not in solved]
     if missing:
         raise ApplyError(
-            f"term {term!r} was not solved on {missing}; applying a complex term to "
-            "another field (transfer by interpolation) is not implemented: CASA G "
-            "tables do that (task C2a)"
+            f"term {term!r} was not solved on {missing}; a complex term is applied "
+            "only where it was solved (research/c4b-apply-ms.md, owner decision 2): "
+            "solve G and F terms to transfer gains"
         )
     lay = core_writeback.layout(ms)
     nchan = lay["cell"][0]

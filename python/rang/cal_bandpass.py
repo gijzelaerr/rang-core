@@ -150,6 +150,7 @@ def bandpass(
     max_iterations=50,
     stop_criterion=1e-7,
     stop_fraction=0.99,
+    scan=None,
 ):
     """`bandpass(bandtype='B')` on one field of a single-window MS: returns
     `(CalTable, BandpassSolution, info)`. Defaults are CASA 6.7.6.14's
@@ -158,7 +159,8 @@ def bandpass(
     `model` an array `(row, chan, 4)` for the field's rows instead of
     `model_column`. Weights: `1/SIGMA^2` when tables are pre-applied (as
     `rang.cal_gain.gaincal`), `weight_column` otherwise. Raises when no
-    solution is written."""
+    solution is written. `weight_column=None` and `scan` as
+    `rang.cal_gain.gaincal` (task C2e)."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -166,7 +168,9 @@ def bandpass(
     with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
         chan_freq = t.getcol("CHAN_FREQ")
     if len(chan_freq) != 1:
-        raise ValueError("one spectral window only (C2c)")
+        raise ValueError(
+            "one spectral window only (several are refused by rang-core, task W4)"
+        )
     freq = np.asarray(chan_freq[0], float)
     nant = len(names)
     refants = [
@@ -175,11 +179,11 @@ def bandpass(
     with core_ms.open_table(ms) as t:
         fields = t.getcol("FIELD_ID")
         colnames = t.colnames()
-    rows = np.flatnonzero(fields == field_id)
+    rows = np.flatnonzero(cal_gain._scan_keep(ms, scan, fields == field_id))
     if not len(rows):
         raise ValueError(f"no rows of field {field_id}")
     cols = ["TIME", "SCAN_NUMBER", "FIELD_ID", "ANTENNA1", "ANTENNA2", "UVW", "FLAG",
-            "FLAG_ROW", data_column, weight_column]  # fmt: skip
+            "FLAG_ROW", data_column, *cal_gain._weight_columns(weight_column)]  # fmt: skip
     if model is None:
         cols.append(model_column)
     sigma_column = "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in colnames else "SIGMA"
@@ -203,7 +207,7 @@ def bandpass(
     tb, keys = cal_gain.solint_bins(
         c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine
     )
-    weights = c[weight_column]
+    weights = cal_gain._weights(c, weight_column, data.shape)
     if tables:
         sigma = np.asarray(c[sigma_column], np.float64)
         if sigma.ndim == 2:

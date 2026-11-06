@@ -8,9 +8,13 @@ two classes:
 
 - **schema errors**: an unknown key, a wrong type, a value outside its
   choices, a missing required key or a wrong version;
-- **not yet implemented**: a value the schema can express, such as CARACal's
-  K, G, B chain of research/c1-calibration-chain.md, that rang cannot run yet.
-  Each refusal names the finish-plan task that will add it.
+- **not yet implemented**: a value the schema can express, such as the
+  polarisation terms of research/c1-calibration-chain.md, that rang cannot
+  run yet. Each refusal names the finish-plan task that will add it.
+
+Since task C2e (research/c2e-calibrate.md) calibrate runs CARACal's K, G,
+B, A and F terms in C1's order through `rang.cal_chain.run`, and apply
+applies their CASA tables through `rang.applycal`.
 
 Refusals are computed only for the stages that will run, so a configuration
 of the whole C1 chain parses today and states what is missing.
@@ -31,13 +35,6 @@ ROLES = ("fcal", "bpcal", "gcal", "xcal", "target")
 # The finish-plan task that adds each not-yet-implemented feature
 # (research/finish-plan.md; C1's steps in research/c1-calibration-chain.md, 6).
 TASKS = {
-    "C2a": "the G term, CASA solution intervals, uvrange, refant, minsnr and minblperant",
-    "C2b": "the K (delay) term",
-    "C2c": "the B (bandpass) term and fillgaps",
-    "C2d": "the F term with fluxscale and the A step (flagging the corrected calibrator)",
-    "C3a": "calibrator models (setjy, manual and the .lsm sky model)",
-    "C4": "interpolating and applying solutions, CORRECTED_DATA and written weights",
-    "C4a": "the apply kernel that pre-applies tables while solving",
     "C5a": "phase and amplitude self-calibration (Sp, Sa)",
     "C5b": "delay self-calibration (Sd, CARACal's Fslope)",
     "C6a": "the parallactic angle and the feed angle",
@@ -69,12 +66,9 @@ TERM_TYPES = (
     "Sp",
     "Sa",
 )
+# CASA-style terms run by calibrate since task C2e (`rang.cal_chain.run`).
+CASA_TERMS = ("K", "G", "B", "A", "F")
 TERM_TASKS = {
-    "K": "C2b",
-    "G": "C2a",
-    "B": "C2c",
-    "A": "C2d",
-    "F": "C2d",
     "Gpol": "C6b",
     "KCROSS": "C6b",
     "Xf": "C6b",
@@ -752,6 +746,7 @@ def refusals(config, stages):
         cal = config["calibrate"]
         model = cal["model"]
         _model_refusals(model, cal, no, out)
+        _chain_refusals(config, out)
         any_term = False
         for section in CALIBRATE_SECTIONS:
             block = cal[section]
@@ -777,25 +772,54 @@ def refusals(config, stages):
             for section in CALIBRATE_SECTIONS
             for term in config["calibrate"][section]["terms"]
         }
+        casa = [k for k in types.values() if k in CASA_TERMS and k != "A"]
+        if casa and not config["apply"]["targets"]:
+            out.append(
+                Refusal(
+                    "apply.targets",
+                    "",
+                    "required when calibrate solves K, G, B or F terms (which "
+                    "tables go to which fields, as CARACal's callib)",
+                )
+            )
         for i, target in enumerate(config["apply"]["targets"]):
             where = f"apply.targets[{i}]"
+            kinds = [types.get(name) for name in target["tables"] or []]
+            if "complex" in kinds and any(k in CASA_TERMS for k in kinds):
+                out.append(
+                    Refusal(
+                        f"{where}.tables",
+                        "",
+                        "complex and CASA tables (K, G, B, F) cannot be applied "
+                        "together",
+                    )
+                )
             for j, name in enumerate(target["tables"] or []):
                 kind = types.get(name)
                 if kind is None:
                     continue  # a schema error, reported by resolve
-                if kind != "complex":
+                if kind == "A":
+                    out.append(
+                        Refusal(f"{where}.tables[{j}]", "", "an A step writes no table")
+                    )
+                    continue
+                if kind in TERM_TASKS:
                     no(
                         f"{where}.tables[{j}]",
                         TERM_TASKS[kind],
                         f"applying term {kind}",
                     )
                     continue
+                if kind != "complex":
+                    continue  # K, G, B, F: rang.applycal (C4b), wired by C2e
                 if j < len(target["interp"]) and target["interp"][j]:
-                    no(
-                        f"{where}.interp[{j}]",
-                        "C2a",
-                        "interp on a complex table (it applies on its own solution "
-                        "bins; transfer by interpolation is C2a's G tables)",
+                    out.append(
+                        Refusal(
+                            f"{where}.interp[{j}]",
+                            "",
+                            "interp on a complex table: it applies on its own "
+                            "solution bins; use a G term to interpolate",
+                        )
                     )
     if "image" in stages:
         img = config["image"]
@@ -840,8 +864,11 @@ MODEL_SOURCES = ("setjy", "manual", "lsm")  # written by rang.calmodels (C3a)
 
 def _model_refusals(model, cal, no, out):
     """What calibrate cannot do yet with `calibrate.model` (task W2b): a
-    polarised manual model (C7a) and a written model on the fields of the
-    secondary or polcal terms (their models come from fluxscale, C2d)."""
+    polarised manual model (C7a). The model is written on the primary
+    fields only; the secondary's K, G and F solve against CASA's unit point
+    model (`smodel`) and its flux density comes from fluxscale (task C2e),
+    so a complex term on secondary fields with a written model is an
+    error."""
     source = model["source"]
     if source not in MODEL_SOURCES:
         return
@@ -862,24 +889,36 @@ def _model_refusals(model, cal, no, out):
     if source == "lsm" and model["lsm"] is None:
         out.append(Refusal("calibrate.model.lsm", "", "required for lsm"))
     for section in ("secondary", "polcal"):
-        if cal[section]["terms"]:
-            no(
-                f"calibrate.{section}",
-                "C2d",
-                f"model source {source} on the {section} fields (written on the "
-                "primary fields only; secondary models come from fluxscale)",
+        if any(t["type"] == "complex" for t in cal[section]["terms"]):
+            out.append(
+                Refusal(
+                    f"calibrate.{section}",
+                    "",
+                    f"a complex term with model source {source}: the model is "
+                    "written on the primary fields only; solve the secondary with "
+                    "G and F terms (CASA's unit point model, then fluxscale)",
+                )
             )
+
+
+COMPLEX_HAS_NO = (
+    "the complex term solves QuartiCal bins (solint inf, int or N integrations; "
+    "freqint) with no CASA rules; use K, G and B terms for {what}"
+)
 
 
 def _term_refusals(where, term, cal, no):
     kind = term["type"]
-    if kind != "complex":
+    if kind in TERM_TASKS:
         no(f"{where}.type", TERM_TASKS[kind], f"term {kind}")
         return
+    if kind != "complex":
+        return  # K, G, B, A, F: `_chain_refusals`
+    errors = []
     if isinstance(term["solint"], str) and term["solint"].endswith("s"):
-        no(f"{where}.solint", "C2a", f"solint {term['solint']} (CASA's seconds bins)")
+        errors.append(("solint", f"solint {term['solint']} (CASA's seconds bins)"))
     if term["combine"]:
-        no(f"{where}.combine", "C2a", f"combine {term['combine']!r}")
+        errors.append(("combine", f"combine {term['combine']!r}"))
     for name, default in (
         ("refant", None),
         ("uvrange", ""),
@@ -888,15 +927,127 @@ def _term_refusals(where, term, cal, no):
     ):
         value = term[name] if term[name] is not None else cal[name]
         if value != default and value is not None:
-            no(
-                f"{where}.{name}",
-                "C2a",
-                f"{name} {value!r} (the complex term has none)",
-            )
+            errors.append((name, f"{name} {value!r}"))
     if term["refantmode"] is not None:
-        no(f"{where}.refantmode", "C2a", "refantmode on the complex term")
+        errors.append(("refantmode", "refantmode"))
     if term["preapply"]:
-        no(f"{where}.preapply", "C4a", "tables pre-applied while solving")
+        errors.append(("preapply", "tables pre-applied while solving"))
+    for name, what in errors:
+        no(f"{where}.{name}", "", COMPLEX_HAS_NO.format(what=what))
+
+
+SOLVED_TERMS = ("K", "G", "B", "F")
+# CASA's combine axes the solves take (`rang.cal_gain.solint_bins`).
+COMBINE_OK = {"scan", "obs"}
+
+
+def _chain_refusals(config, out):
+    """Errors in a K, G, B, A, F sequence (task C2e, research/c2e-calibrate.md):
+    what `rang.cal_chain.run` cannot run as written. None names a task: each
+    is a configuration mistake or a choice recorded as an owner decision in
+    that note."""
+    cal = config["calibrate"]
+
+    def bad(path, text):
+        out.append(Refusal(path, "", text))
+
+    seen = {}  # name -> (section, type), in solve order
+    kinds_used = set()
+    primary_g = [t["name"] for t in cal["primary"]["terms"] if t["type"] == "G"]
+    for section in CALIBRATE_SECTIONS:
+        solved_here = False
+        for i, term in enumerate(cal[section]["terms"]):
+            where = f"calibrate.{section}.terms[{i}]"
+            kind = term["type"]
+            kinds_used.add(kind)
+            if kind not in CASA_TERMS:
+                seen[term["name"]] = (section, kind)
+                continue
+            if section == "polcal":
+                bad(f"{where}.type", f"a {kind} term belongs in primary or secondary")
+            if kind == "F" and section != "secondary":
+                bad(f"{where}.type", "F is solved on the secondary (CARACal's order)")
+            if kind == "F" and not primary_g:
+                bad(
+                    f"{where}.type",
+                    "F appends to a copy of the primary's last G: the primary has no "
+                    "G term",
+                )
+            if kind == "A":
+                preapplied = any(
+                    seen.get(n, ("", ""))[1] in SOLVED_TERMS
+                    for t in cal[section]["terms"][:i]
+                    for n in t.get("preapply", [])
+                )
+                if not (solved_here or preapplied):
+                    bad(
+                        f"{where}.type",
+                        "an A step needs a solved or pre-applied table before it "
+                        "(CARACal refuses this order)",
+                    )
+                if term["strategy"] is None and config["flag"]["strategy"] is None:
+                    bad(
+                        f"{where}.strategy",
+                        "required (a Tricolour strategy; flag.strategy is used "
+                        "when set)",
+                    )
+                seen[term["name"]] = (section, kind)
+                continue
+            solved_here = True
+            refant = term["refant"] if term["refant"] is not None else cal["refant"]
+            if refant is None:
+                bad(f"{where}.refant", "required for K, G, B and F (calibrate.refant)")
+            elif any(str(r).lower() == "auto" for r in refant):
+                bad(
+                    f"{where}.refant",
+                    "refant auto (CARACal's manage_antennas rule) is not ported; "
+                    "give antenna names or ids (an owner decision, "
+                    "research/c2e-calibrate.md)",
+                )
+            if _is_int(term["solint"]):
+                bad(
+                    f"{where}.solint",
+                    "an integer is N integrations, a complex-term interval; CASA "
+                    "terms take inf, int or seconds such as 60s",
+                )
+            combine = {c.strip() for c in str(term["combine"]).split(",") if c.strip()}
+            if combine - COMBINE_OK:
+                bad(
+                    f"{where}.combine",
+                    f"combine {sorted(combine - COMBINE_OK)}: one field and one "
+                    "window per solve (scan and obs are taken)",
+                )
+            if term.get("calmode") == "a":
+                bad(f"{where}.calmode", "calmode a (amplitude only) is not ported")
+            if term.get("solnorm"):
+                bad(f"{where}.solnorm", "solnorm true is not ported (CARACal: false)")
+            if term["gainfield"] and any(term["gainfield"]):
+                bad(
+                    f"{where}.gainfield",
+                    "pre-applied tables use the rows of the solved field, or of "
+                    "every field when the table has none of it; other field maps "
+                    "are applied by apply.targets only",
+                )
+            for j, name in enumerate(term["preapply"]):
+                if name not in seen:
+                    bad(
+                        f"{where}.preapply[{j}]",
+                        f"{name!r} is not an earlier term (terms solve in order: "
+                        "primary, secondary, polcal)",
+                    )
+                elif seen[name][1] not in SOLVED_TERMS:
+                    bad(
+                        f"{where}.preapply[{j}]",
+                        f"{name!r} is a {seen[name][1]} term; K, G, B, F tables "
+                        "are pre-applied",
+                    )
+            seen[term["name"]] = (section, kind)
+    if "complex" in kinds_used and kinds_used & set(CASA_TERMS):
+        bad(
+            "calibrate",
+            "complex terms and CASA terms (K, G, B, A, F) cannot be mixed in one "
+            "calibrate",
+        )
 
 
 def validate(raw, stages, source=None):
@@ -971,7 +1122,9 @@ def defaults_yaml():
         lines.append(f"#   {name}: {_flow(item.default)}  # {item.doc}")
     lines.append("# Term types: " + ", ".join(TERM_TYPES) + ".")
     lines.append(
-        "# Implemented: complex. Not yet: "
+        "# Implemented: complex, "
+        + ", ".join(CASA_TERMS)
+        + " (C2e). Not yet: "
         + ", ".join(f"{t} ({TERM_TASKS[t]})" for t in TERM_TYPES if t in TERM_TASKS)
         + "."
     )
@@ -979,6 +1132,7 @@ def defaults_yaml():
 
 
 __all__ = [
+    "CASA_TERMS",
     "SCHEMA",
     "STAGES",
     "TASKS",
