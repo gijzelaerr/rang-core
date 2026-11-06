@@ -186,6 +186,7 @@ pub struct HugePageAlloc;
 #[cfg(all(target_os = "linux", target_pointer_width = "64"))]
 mod huge {
     use super::HugePageAlloc;
+    use crate::gemclean::memory;
     use std::alloc::{GlobalAlloc, Layout, System};
     use std::ffi::c_void;
 
@@ -247,22 +248,31 @@ mod huge {
     }
 
     // SAFETY: large blocks come from `map` and return by `munmap` with the same
-    // rounded length, chosen by the layout alone; the rest is `System`'s.
+    // rounded length, chosen by the layout alone; the rest is `System`'s. The
+    // byte counts of `crate::gemclean::memory` follow every block's layout.
     unsafe impl GlobalAlloc for HugePageAlloc {
         unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-            if is_large(&layout) {
+            let p = if is_large(&layout) {
                 unsafe { map(layout.size()) }
             } else {
                 unsafe { System.alloc(layout) }
+            };
+            if !p.is_null() {
+                memory::grow(layout.size());
             }
+            p
         }
 
         unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
-            if is_large(&layout) {
+            let p = if is_large(&layout) {
                 unsafe { map(layout.size()) }
             } else {
                 unsafe { System.alloc_zeroed(layout) }
+            };
+            if !p.is_null() {
+                memory::grow(layout.size());
             }
+            p
         }
 
         unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
@@ -271,6 +281,7 @@ mod huge {
             } else {
                 unsafe { System.dealloc(ptr, layout) }
             }
+            memory::shrink(layout.size());
         }
 
         unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
@@ -278,7 +289,24 @@ mod huge {
             unsafe {
                 let new = Layout::from_size_align_unchecked(new_size, layout.align());
                 if !is_large(&layout) && !is_large(&new) {
-                    return System.realloc(ptr, layout, new_size);
+                    let out = System.realloc(ptr, layout, new_size);
+                    if !out.is_null() {
+                        memory::resize(layout.size(), new_size);
+                    }
+                    return out;
+                }
+                if is_large(&layout)
+                    && is_large(&new)
+                    && rounded(new_size) <= rounded(layout.size())
+                {
+                    // Shrink in place: unmap the whole pages past the new end,
+                    // so a shrinking block is never held twice.
+                    let (old, kept) = (rounded(layout.size()), rounded(new_size));
+                    if kept < old {
+                        munmap(ptr.add(kept).cast(), old - kept);
+                    }
+                    memory::resize(layout.size(), new_size);
+                    return ptr;
                 }
                 if is_large(&layout)
                     && is_large(&new)

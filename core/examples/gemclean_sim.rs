@@ -298,7 +298,9 @@ fn sparse_subset(
             for q in p + 1..total {
                 if q < nant {
                     uvw.extend_from_slice(&data.uvw[3 * row..3 * row + 3]);
-                    vis.extend_from_slice(&data.vis[row * nchan..(row + 1) * nchan]);
+                    vis.extend(data.vis[row * nchan..(row + 1) * nchan].iter().map(|v| {
+                        rang_core::clean_certified::Complex::new(f64::from(v.re), f64::from(v.im))
+                    }));
                     for &w in &data.weight[row * nchan..(row + 1) * nchan] {
                         wgt.push(f64::from(w));
                     }
@@ -328,7 +330,7 @@ fn compare(outdir: &Path) -> Result<(), String> {
     let m = WgridMeasurement::new(
         data.uvw.clone(),
         data.freq.clone(),
-        data.vis.clone(),
+        data.vis_f64(),
         weights.weights.clone(),
         SIDE,
         cell(),
@@ -679,7 +681,7 @@ fn bench(outdir: &Path, repeats: usize) -> Result<(), String> {
     let m = WgridMeasurement::new(
         data.uvw.clone(),
         data.freq.clone(),
-        data.vis.clone(),
+        data.vis_f64(),
         weights.weights.clone(),
         SIDE,
         cell(),
@@ -952,7 +954,7 @@ fn minor(args: &[String]) -> Result<(), String> {
     let m = WgridMeasurement::new(
         data.uvw.clone(),
         data.freq.clone(),
-        data.vis.clone(),
+        data.vis_f64(),
         weights.weights.clone(),
         side,
         cell,

@@ -18,6 +18,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [C4b, applying calibration to an MS](c4b-apply-ms.md): `rang.applycal` (CASA `applycal` on a Measurement Set: CORRECTED_DATA, FLAG, `calwt` weights, field maps) measured against CASA, and W2b: models in `rang-core calibrate`, the complex term in `rang-core apply`.
 - [C4a, the apply kernel](c4a-apply.md): the Rust kernel that applies and corrupts K, G, T, B and Df tables as CASA `applycal`; CASA's Df flag and substitution rules and float32 phase steps, measured against `applycal`.
 - [C3a, calibrator models](c3a-models.md): `setjy`-equivalent point, manual and `.lsm` models into MODEL_DATA; 0 ulps against `setjy`, bit-identical to Crystalball.
+- [G2, GeMClean's memory](g2-memory.md): peak memory cut by four byte-identical changes; the pilot fits 24 GB at 512 channels (19.7 GB default, 15.7 GB coarse), still 2.0-3.6x WSClean's peak.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 

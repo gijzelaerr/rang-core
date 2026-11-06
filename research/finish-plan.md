@@ -70,13 +70,13 @@ The fallback is simulated truth plus LUNO, labelled as weaker. The final gate th
 | ID | Task | Oracle | Done when | Heavy | After |
 | --- | --- | --- | --- | --- | --- |
 | G1 | **Done 2026-11-05:** kept, off by default ([gemclean-speed.md](gemclean-speed.md), G1 section). Finish the interleaved `-beam-band` test | Itself, flag off | The flag is kept or removed, on the measured saving | yes, idle host | none |
-| G2 | Memory, currently 3-5 × WSClean's | Current images | The pilot fits 24 GB at 512 channels; images identical or within tolerance | yes | G1 |
+| G2 | **Done 2026-11-06** ([g2-memory.md](g2-memory.md)): pilot-512 19.7 GB (coarse 15.7), so E2-A and E3-A image at 512 channels; 2.0-3.6x WSClean. Memory, currently 3-5 × WSClean's | Current images | The pilot fits 24 GB at 512 channels; images identical or within tolerance | yes | G1 |
 | G3 | `-channels-out`, `-join-channels`, spectral fit | WSClean on simulated spectral skies, then held-out skies | Flux and spectral index within tolerance on skies not used to build it | yes | G2 |
 | G4 | Masks (FITS, automatic), Gaussian taper, uv range | WSClean | Same selection and mask behaviour within tolerance | no | G3 |
 | G5 | Multiscale (owner: in) | WSClean `-multiscale` on S2 and an extended real field | Extended flux within tolerance; false flux and cycles reported | yes | G3 |
 | G6 | Write `MODEL_DATA`; a predict mode | WSClean `-predict`; casacore read-back | Agreement within tolerance on S1-S3 and the pilot | yes | G3, W1 |
 | G9 | Stokes I, Q, U, V and joined polarisations (`-pol`, `-join-polarizations`) | WSClean on simulated polarised skies | Each Stokes image within tolerance; no I-to-QUV leakage from the imager beyond WSClean's | yes | G3 |
-| G7 | Settle defaults, including coarse gridding, on the real pilot (owner: after measuring) | WSClean at matched accuracy | Defaults chosen and recorded; figures single-core and threaded | yes, idle host | G2, G3, G5, G9 |
+| G7 | Settle defaults, including coarse gridding, on the real pilot (owner: after measuring); the gridder plane group (about 1.1 GB on S1) is not bit-neutral and needs a class B rule of its own (G2) | WSClean at matched accuracy | Defaults chosen and recorded; figures single-core and threaded | yes, idle host | G2, G3, G5, G9 |
 | G8 | In the wheel: extension binding and a `gemclean` console script, not a second binary | Source build | `pip install` runs it on all five platforms; FITS identical to the source build on S1; speed measured **on the wheel**, because current figures come from the fat-LTO `gemclean` profile | yes | G7 |
 
 ### C. Calibration

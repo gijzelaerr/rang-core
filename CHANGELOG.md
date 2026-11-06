@@ -35,6 +35,17 @@ the release notes are the section of this file for that version.
   applies. It matches CASA only with a G pre-applied; without one, antenna phases bias it
   (`research/c2b-delay.md` section 6; the K model is an owner decision). `rang.simtruth` has a
   `delay50` version (delays of 1-50 ns, 256 channels) (`research/c2b-delay.md`).
+- Changed: `gemclean` needs far less memory, with byte-identical images (task G2,
+  `research/g2-memory.md`). It reads the Measurement Set at the exact size with Stokes I in single
+  precision, compacts in place, keeps no copy of the gridding weights, holds single-precision
+  visibilities as read, forms each residual in the gridder's sorted values instead of a
+  visibility-sized buffer, forms the 2n PSF before the plan of the image grid and frees it after
+  the beam is built. Peak RSS on the ESO 137-006 pilot at 512 channels went from more than 24 GB
+  (about 32 GB estimated) to 19.7 GB; at 256 channels from 18.4 to 12.2 GB; on 2048² simulated
+  skies from 3.46 to 2.99 GB.
+- New: `gemclean -memory-report` prints the heap held per phase of a run (read, weights, PSF,
+  beam, each major cycle) and the main buffers' sizes; `-report.json` carries the same under
+  `memory` (`research/g2-memory.md`). Images are unchanged.
 - New: `rang.calmodels`, calibrator models written to `MODEL_DATA` as CASA's `setjy` writes them
   (C1 term T0). `set_model(ms, field, spec)` takes a flux-density standard of `rang.fluxstd`, a
   `manual` model (flux density, reference frequency, log10 spectral terms), per-channel Stokes rows

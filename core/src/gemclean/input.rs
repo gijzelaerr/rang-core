@@ -47,12 +47,14 @@ impl Default for Selection {
     }
 }
 
-/// The selected rows as Stokes I, `rows × nchan` in row order.
+/// The selected rows as Stokes I, `rows × nchan` in row order. The
+/// visibilities are single precision, as formed from the column (which is read
+/// in single precision); a user widens them exactly to `f64`.
 #[derive(Clone, Debug)]
 pub struct StokesI {
     pub uvw: Vec<f64>,
     pub freq: Vec<f64>,
-    pub vis: Vec<Complex<f64>>,
+    pub vis: Vec<Complex<f32>>,
     pub weight: Vec<f32>,
     pub flag_row: Vec<bool>,
     /// Phase centre (RA, Dec) in radians.
@@ -66,6 +68,14 @@ pub struct StokesI {
 impl StokesI {
     pub fn rows(&self) -> usize {
         self.flag_row.len()
+    }
+
+    /// The visibilities widened to `f64` (exact), as a new vector.
+    pub fn vis_f64(&self) -> Vec<Complex<f64>> {
+        self.vis
+            .iter()
+            .map(|v| Complex::new(f64::from(v.re), f64::from(v.im)))
+            .collect()
     }
 }
 
@@ -234,16 +244,33 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
         correlations,
         weight_spectrum,
     };
-    let mut start = 0;
-    while start < main.nrows {
-        let count = sel.chunk_rows.max(1).min(main.nrows - start);
+    let selected = |start: u64, count: u64| -> Result<Vec<bool>, String> {
         let field = ints(&read(&main, "FIELD_ID", start, count)?, "FIELD_ID")?;
         let ant1 = ints(&read(&main, "ANTENNA1", start, count)?, "ANTENNA1")?;
         let ant2 = ints(&read(&main, "ANTENNA2", start, count)?, "ANTENNA2")?;
         let ddid = ints(&read(&main, "DATA_DESC_ID", start, count)?, "DATA_DESC_ID")?;
-        let keep: Vec<bool> = (0..count as usize)
+        Ok((0..count as usize)
             .map(|i| field[i] == sel.field && ant1[i] != ant2[i] && ddid[i] == sel.data_desc)
-            .collect();
+            .collect())
+    };
+    // Count the selected rows first, so that each array is allocated once at
+    // its size: grown by doubling, the visibilities would pass through up to
+    // three times their size.
+    let mut rows = 0usize;
+    let mut start = 0;
+    while start < main.nrows {
+        let count = sel.chunk_rows.max(1).min(main.nrows - start);
+        rows += selected(start, count)?.iter().filter(|&&k| k).count();
+        start += count;
+    }
+    out.uvw.reserve_exact(3 * rows);
+    out.flag_row.reserve_exact(rows);
+    out.vis.reserve_exact(rows * nchan);
+    out.weight.reserve_exact(rows * nchan);
+    let mut start = 0;
+    while start < main.nrows {
+        let count = sel.chunk_rows.max(1).min(main.nrows - start);
+        let keep = selected(start, count)?;
         if keep.iter().any(|&k| k) {
             let flag_row = bools(&read(&main, "FLAG_ROW", start, count)?, "FLAG_ROW")?;
             let uvw = doubles(&read(&main, "UVW", start, count)?, "UVW")?;
@@ -301,7 +328,7 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
                             a,
                             b,
                         );
-                        vis[ch] = Complex::new(f64::from(v.0), f64::from(v.1));
+                        vis[ch] = Complex::new(v.0, v.1);
                         wgt[ch] = w;
                     }
                 });
@@ -692,7 +719,7 @@ mod tests {
         assert_eq!(&back.uvw[..12], &uvw[..12]);
         for row in 0..4 {
             for ch in 0..nchan {
-                let v = (row * 10 + ch) as f64;
+                let v = (row * 10 + ch) as f32;
                 let got = back.vis[row * nchan + ch];
                 assert_eq!((got.re, got.im), (v + 1.0, -v));
                 assert_eq!(back.weight[row * nchan + ch], 8.0);
