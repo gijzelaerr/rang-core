@@ -77,6 +77,9 @@ option, and frequency parts of `solint` (CASA ignores them for K).
   `|delta tau|` reported. With noise, the test is for bias: per case `z = (dtau_rang - dtau_truth) / s` per
   (interval, antenna other than the refant, hand), `s^2 = err_p^2 + err_r^2` from rang's `err`; pass when
   `|median z| <= 3 x 1.2533 / sqrt(N)`. `std(z)` reported, not gated; `s` ignores covariances, stated.
+  (Added after the protocol commit, before any comparison:) class T compares the solution's float64 delays; a
+  float32 table delay of 50 ns is rounded by up to 3e-6 ns, a phase of up to 8e-6 rad at the band edge, which is
+  reported for the table separately and not gated.
 - **CASA reads rang's tables:** `applycal` with a rang K table against `rang.cal_apply` with the same table: class C
   (per cell within `1e-6` relative or 11 float32 epsilons of the cell's largest correlation), flags exact.
 - **Gain hashes:** the `gain-hashes` step of `tools/check-all.sh` passes at the head (`4ed2aa89…`, `7b370c13…`,
@@ -129,7 +132,7 @@ Run directories `/mnt/d/rang/outputs/c2b-20261106-NN`, one per run, heavy steps 
 | B-a1-inf-f0, -inf-f2, -int-f0, -60s-f2 | A1 small, RFI flagged | `gaincal` K | as named; `gaintable=[truth.B, truth.G]` | B |
 | B-a1-noapply-inf-f0 | as above | `gaincal` K | `inf`, field 0, no gaintable (rang: `WEIGHT_SPECTRUM`) | B |
 | B-a1-refant-flag | A1 small; m000's rows flagged in integrations 3-5 of scan 23 | `gaincal` K | `int`, field 0, `refantmode='flex'` | B (refant, flags) |
-| B-a1-refant5-inf-f2 | A1 small | `gaincal` K | `inf`, field 2, `refant='m005'` | B (refant) |
+| B-a1-refant5-inf-f2 | A1 small | `gaincal` K | `inf`, field 2, refant antenna 5 (`'m020'`; corrected before any comparison from `'m005'`, which A1 has no antenna of) | B (refant) |
 | B-d50-inf-f0, -inf-f2, -int-f2 | delay50, RFI flagged | `gaincal` K | as named; delay50's `truth.B`, `truth.G` | B |
 | T-a1-twin | A1 twin, fields 0 and 2 | truth | `int` and `inf`, pre-apply as above | T (noise-free) |
 | T-a1-noisy | A1 small, fields 0 and 2 | truth | `int` and `inf` | T (bias) |
