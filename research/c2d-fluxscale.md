@@ -13,7 +13,9 @@ line is the only edit above section 7.
   numSol, frequencies, covariances and the F tables (bit-identical CPARAM) equal CASA's on 10 of 12 frozen and
   3 of 4 held-out cases. The rest fail on the fit errors at `fitorder=2` (up to 2.6e-5 against 1e-6): with
   four windows and three coefficients CASA's `χ²` is a difference of numbers near 1e10. The coefficients and
-  fitted fluxes agree within 5e-13.
+  fitted fluxes agree within 5e-13. The held-out cases tested the amplitude rule; the every-row rule was
+  checked on the frozen recheck, a unit test and one post-hoc call on held-out data after the verdict
+  (section 10), not by a frozen held-out case.
 - **Class B (rang's G and `fluxscale` against CASA's):** every frozen and held-out case passes: `fluxd` within
   3.9e-4 (one window, noisy) to 2.5e-8, spectral index within 2.6e-6, F-table products within C2a's class B.
 - **Class T (A1's truth):** passes on the noise-free twins (3e-6). With noise it fails as frozen on all four
@@ -21,8 +23,8 @@ line is the only edit above section 7.
   estimate were both wrong (section 8), not rang, which agrees with CASA to 1e-5. Against the post-hoc
   per-antenna expectation the frozen cases pass and the held-out ones still miss (up to 1.3e-3 at 2.5 Jy).
 - **Class C:** CASA `applycal` reads rang's F table: 0 of 2.3 million cells outside class C, flags exact.
-- **CASA cannot fit a spectral index on one MeerKAT window:** it fits only across spectral windows. A0's data
-  and A1 have one window, so `fitFluxd` there is the one window's `fd`. No novelty is claimed: this is a port
+- **CASA cannot fit a spectral index on one MeerKAT window:** it fits only across spectral windows. A1 has
+  one window, as MeerKAT L-band data usually do, so `fitFluxd` there is the one window's `fd`. No novelty is claimed: this is a port
   with oracles.
 
 ## 0. What was read before this protocol
@@ -321,15 +323,18 @@ container steps 38 s and 27 s, rang 192 s, comparisons 307 s), code `fb878d1` pl
 
 | Case | Verdict | Numbers |
 | --- | --- | --- |
-| HP-1, HP-4, HP-threshold | **pass** | everything exact or within 6.5e-11; CPARAM bit-identical on all rows; the threshold case removes m009's two scans as CASA does |
+| HP-1, HP-4, HP-threshold | **pass** | everything exact or within 6.5e-11; CPARAM bit-identical on all rows; in the threshold case rang's selection equals CASA's; it keeps 8 of m009's 20 SIM-GCAL amplitudes and cuts amplitudes of 10 other antennas too, since A1's antenna amplitudes spread wider than ±10 % around the median |
 | HP-4-fit2 | **fail** (predicted) | fit errors of SIM-GCAL 2.6e-5, of 3C286-SIM 3.1e-7 (gate 1e-6); coefficients 4.5e-13, fitted flux 6e-15 |
 | HB-1, HB-4 | **pass** | `fluxd` 3.9e-4 and 4.8e-7; spectral index 3.6e-7; products median 3.1e-4 and 5.7e-7, p95 9.2e-4 and 2.9e-6 |
 | HT-twin-4, -fit2 | **pass** | `fd` 3.2e-6 of `E_k` per window; α 7.7e-9 and 5.9e-9; fitted flux 3.2e-6. Fitted α −1.0568 and, at `fitorder=2`, (−1.0669, −0.3954) against the truth's (−1.1, −0.4) at 1.4 GHz: the windows' averaging and the shifted reference frequency (1.26 GHz) |
 | HT-1, HT-4, HT-4-fit2 | **fail** (predicted) | against `E_k`: 2.2e-3 (HT-1); 6.5e-4, 2.2e-3, 9.5e-5, 2.5e-3 per window (HT-4), fitted flux 4.3e-5, α 1.4e-3 (pass); at `fitorder=2` α 6.7e-3 and fitted flux 1.2e-3 fail |
 | post hoc, `E_med` | HT-twin pass; **HT-1 fail** 1.3e-3, **HT-4 fail** on window 1 (1.06e-3; others 2.0e-4, 9.3e-5, 9.8e-4), α 5.2e-4; **HT-4-fit2 fail** (α 3.0e-3) | |
 
-So on data not used to find them, the two post-hoc ports reproduce CASA exactly wherever CASA's arithmetic is
-well conditioned, rang's chain matches CASA's end to end, and the noise-free truth is recovered to 3e-6; the
+So on data not used to find it, the post-hoc amplitude rule reproduces CASA exactly wherever CASA's arithmetic
+is well conditioned. No frozen held-out case passes `transfer`, so the every-row rule was not tested there;
+**post hoc, after this verdict**, one CASA `fluxscale(transfer='SIM-GCAL')` on run -03's `h1.Gapp` against
+rang (`rows-posthoc/`, script copied there) agreed to the bit on all 256 rows, with `fluxd` and the fit exact.
+rang's chain matches CASA's end to end, and the noise-free truth is recovered to 3e-6; the
 noisy class T gate, as written, is not met, and section 8's account (per-antenna effective spectra under RFI
 flags, plus a noise estimate five times too low) is consistent with what the held-out cases show but is not a
 pass. A fair noisy gate would be set from the scatter of the per-antenna ratios, which `fluxdErr` reports.
@@ -366,7 +371,7 @@ without the 64-antenna one, `compare-recheck-run02.json`, `compare-after-recheck
    close it at 2.5 Jy. Proposed: gate `|fd − E_med|` at 3 × the median's standard error estimated from the
    per-antenna ratio scatter (rang's `mgrms`), and record the cases here as failed under the frozen gate.
 3. **Spectral index on one MeerKAT window.** CASA (and so rang) gives none: `fitFluxd` is that window's `fd`.
-   E2's secondaries are one-window data. Options: accept (the target's spectral fit comes from imaging), or add
+   E2.s secondaries are probably one-window data (not checked). Options: accept (the target's spectral fit comes from imaging), or add
    rang's own per-chunk G and fit (chunked solves exist in the kernel; no CASA oracle except split windows,
    which this note's four-window copies show to be equivalent).
 4. **What runs in the commands.** `rang-core calibrate` still refuses the F term and secondary models (W2b);
@@ -382,8 +387,8 @@ without the 64-antenna one, `compare-recheck-run02.json`, `compare-after-recheck
   are A0's held-out E2-B, not read).
 - The weight path without a pre-apply is used on the four-window copies but not tested, since there
   `WEIGHT_SPECTRUM = 1/SIGMA²`.
-- Timing or throughput (the brief forbids it); rang's P-case times (2-37 s) are mostly reading and writing
-  small tables through the table writer, not the statistics.
+- Timing or throughput (the brief forbids it); rang's P-case times (2-37 s) were not profiled (most likely reading and writing
+  small tables through the table writer).
 
 ## For the coordinator
 
