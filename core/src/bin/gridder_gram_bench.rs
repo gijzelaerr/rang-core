@@ -83,7 +83,11 @@ fn read_input(ms: &str, n: usize, cell: f64, robust: &str) -> Result<Input, Stri
         let w = &weights.weights[row * nchan..(row + 1) * nchan];
         if w.iter().any(|&x| x != 0.0) {
             uvw.extend_from_slice(&data.uvw[3 * row..3 * row + 3]);
-            vis.extend_from_slice(&data.vis[row * nchan..(row + 1) * nchan]);
+            vis.extend(
+                data.vis[row * nchan..(row + 1) * nchan]
+                    .iter()
+                    .map(|v| Complex::new(f64::from(v.re), f64::from(v.im))),
+            );
             wgt.extend_from_slice(w);
         }
     }

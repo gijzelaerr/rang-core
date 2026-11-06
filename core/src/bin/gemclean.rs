@@ -384,7 +384,7 @@ fn deconvolve<T: Real + Send + Sync>(
     args: &Args,
     uvw: Vec<f64>,
     freq: &[f64],
-    vis: Vec<Complex<f64>>,
+    vis: Vec<Complex<f32>>,
     wgt: Vec<f64>,
     opts: Options,
 ) -> Result<Cleaned, String> {
@@ -436,7 +436,7 @@ fn deconvolve<T: Real + Send + Sync>(
         return Err("-stop-rule certified needs the default beam and gridder".into());
     }
     let keep = certified.then(|| (uvw.clone(), wgt.clone()));
-    let measurement: GridMeasurement<T> = GridMeasurement::new(
+    let measurement: GridMeasurement<T> = GridMeasurement::from_single(
         uvw,
         freq.to_vec(),
         vis,
@@ -635,7 +635,7 @@ fn run() -> Result<(), String> {
         bytes_of(&data.uvw) + bytes_of(&data.flag_row),
     );
     let t = Instant::now();
-    let weights = input::gridding_weights(&data, args.weight, n, args.scale)?;
+    let mut weights = input::gridding_weights(&data, args.weight, n, args.scale)?;
     let t_weights = t.elapsed().as_secs_f64();
     memory::mark("weights");
     memory::note("weights: gridding weights", bytes_of(&weights.weights));
@@ -653,23 +653,40 @@ fn run() -> Result<(), String> {
         t_read,
         t_weights
     );
-    // Keep the rows that carry weight.
+    // Keep the rows that carry weight, in place: the rows kept move down over
+    // the rows dropped, so no second copy of the visibilities is held, and the
+    // gridding weights are not kept beside the copy the measurement takes.
     let nchan = data.freq.len();
-    let mut uvw = Vec::new();
-    let mut vis = Vec::new();
-    let mut wgt = Vec::new();
-    for row in 0..data.rows() {
-        let w = &weights.weights[row * nchan..(row + 1) * nchan];
-        if w.iter().any(|&x| x != 0.0) {
-            uvw.extend_from_slice(&data.uvw[3 * row..3 * row + 3]);
-            vis.extend_from_slice(&data.vis[row * nchan..(row + 1) * nchan]);
-            wgt.extend_from_slice(w);
+    let rows = data.rows();
+    let phase_dir = data.phase_dir;
+    let input::StokesI {
+        mut uvw,
+        freq,
+        mut vis,
+        weight,
+        flag_row,
+        ..
+    } = data;
+    drop((weight, flag_row));
+    let mut wgt = std::mem::take(&mut weights.weights);
+    let mut kept_rows = 0;
+    for row in 0..rows {
+        let (a, b) = (row * nchan, (row + 1) * nchan);
+        if wgt[a..b].iter().any(|&x| x != 0.0) {
+            if kept_rows != row {
+                uvw.copy_within(3 * row..3 * row + 3, 3 * kept_rows);
+                vis.copy_within(a..b, kept_rows * nchan);
+                wgt.copy_within(a..b, kept_rows * nchan);
+            }
+            kept_rows += 1;
         }
     }
-    let kept_rows = uvw.len() / 3;
-    let freq = data.freq.clone();
-    let phase_dir = data.phase_dir;
-    drop(data);
+    uvw.truncate(3 * kept_rows);
+    vis.truncate(kept_rows * nchan);
+    wgt.truncate(kept_rows * nchan);
+    uvw.shrink_to_fit();
+    vis.shrink_to_fit();
+    wgt.shrink_to_fit();
     memory::mark("compact");
     memory::note("compact: visibilities", bytes_of(&vis));
     memory::note("compact: weights", bytes_of(&wgt));

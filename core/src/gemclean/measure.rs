@@ -19,11 +19,24 @@ use crate::wgridder::{self, Options, Prepared, Real, VisData, Weights};
 use rayon::prelude::*;
 use std::sync::Mutex;
 
+/// The visibilities, in precision `T` or, when they came in single precision
+/// (as read from a Measurement Set), as they came: widening an `f32` to `f64`
+/// is exact, so the `f64` arithmetic sees the same values at half the memory.
+enum Data<T> {
+    Single(Vec<Complex<f32>>),
+    Native(Vec<Complex<T>>),
+}
+
+#[inline(always)]
+fn widen_vis<T: Real>(v: Complex<f32>) -> Complex<T> {
+    Complex::new(T::of(f64::from(v.re)), T::of(f64::from(v.im)))
+}
+
 /// The measurement operator in precision `T`.
 pub struct GridMeasurement<T: Real> {
     uvw: Vec<f64>,
     freq: Vec<f64>,
-    vis: Vec<Complex<T>>,
+    vis: Data<T>,
     /// Weights normalised to sum to one.
     wgt: Vec<T>,
     opts: Options,
@@ -45,15 +58,61 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
         epsilon: f64,
         opts: Options,
     ) -> Result<GridMeasurement<T>, String> {
+        if vis.len() != wgt.len() {
+            return Err("vis and wgt must be nrow * nchan".into());
+        }
+        let mut m = GridMeasurement::build(uvw, freq, wgt, side, cell, epsilon, opts)?;
+        // In place where `T` is `f64`: the same layout, so no second copy.
+        m.vis = Data::Native(
+            vis.into_iter()
+                .map(|v| Complex::new(T::of(v.re), T::of(v.im)))
+                .collect(),
+        );
+        Ok(m)
+    }
+
+    /// [`GridMeasurement::new`] with single-precision visibilities, held as
+    /// they are and widened where they are used: the same results as `new` of
+    /// the widened values, with half the memory for them when `T` is `f64`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_single(
+        uvw: Vec<f64>,
+        freq: Vec<f64>,
+        vis: Vec<Complex<f32>>,
+        wgt: Vec<f64>,
+        side: usize,
+        cell: f64,
+        epsilon: f64,
+        opts: Options,
+    ) -> Result<GridMeasurement<T>, String> {
+        if vis.len() != wgt.len() {
+            return Err("vis and wgt must be nrow * nchan".into());
+        }
+        let mut m = GridMeasurement::build(uvw, freq, wgt, side, cell, epsilon, opts)?;
+        m.vis = Data::Single(vis);
+        Ok(m)
+    }
+
+    /// Everything but the visibilities.
+    fn build(
+        uvw: Vec<f64>,
+        freq: Vec<f64>,
+        wgt: Vec<f64>,
+        side: usize,
+        cell: f64,
+        epsilon: f64,
+        opts: Options,
+    ) -> Result<GridMeasurement<T>, String> {
         let nrow = uvw.len() / 3;
-        if vis.len() != nrow * freq.len() || wgt.len() != vis.len() {
+        if wgt.len() != nrow * freq.len() {
             return Err("vis and wgt must be nrow * nchan".into());
         }
         let sum: f64 = wgt.iter().sum();
         if sum <= 0.0 || sum.is_nan() {
             return Err("weights must have a positive sum".into());
         }
-        let wgt: Vec<T> = wgt.iter().map(|w| T::of(w / sum)).collect();
+        // In place where `T` is `f64`.
+        let wgt: Vec<T> = wgt.into_iter().map(|w| T::of(w / sum)).collect();
         let opts = Options {
             nx: side,
             ny: side,
@@ -66,10 +125,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
         Ok(GridMeasurement {
             uvw,
             freq,
-            vis: vis
-                .iter()
-                .map(|v| Complex::new(T::of(v.re), T::of(v.im)))
-                .collect(),
+            vis: Data::Native(Vec::new()),
             wgt,
             opts,
             prepared,
@@ -88,7 +144,13 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     pub fn memory(&self) -> Vec<(&'static str, usize)> {
         use crate::gemclean::memory::bytes_of;
         let mut out = vec![
-            ("measurement: visibilities", bytes_of(&self.vis)),
+            (
+                "measurement: visibilities",
+                match &self.vis {
+                    Data::Single(v) => bytes_of(v),
+                    Data::Native(v) => bytes_of(v),
+                },
+            ),
             ("measurement: weights", bytes_of(&self.wgt)),
             ("measurement: uvw", bytes_of(&self.uvw)),
             (
@@ -197,17 +259,29 @@ impl<T: Real + Send + Sync> Measurement for GridMeasurement<T> {
 
     fn residual(&self, model: &[f64]) -> Result<(Vec<f64>, f64), String> {
         let mut guard = self.buffer.lock().expect("no panic while predicting");
-        guard.resize(self.vis.len(), Complex::new(T::of(0.0), T::of(0.0)));
+        guard.resize(self.wgt.len(), Complex::new(T::of(0.0), T::of(0.0)));
         let e = guard.as_mut_slice();
-        if model.par_iter().any(|&c| c != 0.0) {
+        let predicted = model.par_iter().any(|&c| c != 0.0);
+        if predicted {
             self.predict_into(model, e)?;
-            e.par_iter_mut()
-                .zip(self.vis.par_iter())
-                .for_each(|(p, v)| *p = *v - *p);
-        } else {
-            e.par_iter_mut()
-                .zip(self.vis.par_iter())
-                .for_each(|(p, v)| *p = *v);
+        }
+        match (&self.vis, predicted) {
+            (Data::Native(vis), true) => e
+                .par_iter_mut()
+                .zip(vis.par_iter())
+                .for_each(|(p, v)| *p = *v - *p),
+            (Data::Native(vis), false) => e
+                .par_iter_mut()
+                .zip(vis.par_iter())
+                .for_each(|(p, v)| *p = *v),
+            (Data::Single(vis), true) => e
+                .par_iter_mut()
+                .zip(vis.par_iter())
+                .for_each(|(p, v)| *p = widen_vis::<T>(*v) - *p),
+            (Data::Single(vis), false) => e
+                .par_iter_mut()
+                .zip(vis.par_iter())
+                .for_each(|(p, v)| *p = widen_vis::<T>(*v)),
         }
         // In f64, so the misfit keeps its digits in either precision; serial,
         // so it does not depend on the thread count.
@@ -224,7 +298,7 @@ impl<T: Real + Send + Sync> Measurement for GridMeasurement<T> {
 
     fn gram_apply(&self, x: &[f64]) -> Result<Vec<f64>, String> {
         let mut guard = self.buffer.lock().expect("no panic while predicting");
-        guard.resize(self.vis.len(), Complex::new(T::of(0.0), T::of(0.0)));
+        guard.resize(self.wgt.len(), Complex::new(T::of(0.0), T::of(0.0)));
         self.predict_into(x, guard.as_mut_slice())?;
         self.image(guard.as_slice())
     }

@@ -297,8 +297,14 @@ mod huge {
                 }
                 if is_large(&layout)
                     && is_large(&new)
-                    && rounded(new_size) == rounded(layout.size())
+                    && rounded(new_size) <= rounded(layout.size())
                 {
+                    // Shrink in place: unmap the whole pages past the new end,
+                    // so a shrinking block is never held twice.
+                    let (old, kept) = (rounded(layout.size()), rounded(new_size));
+                    if kept < old {
+                        munmap(ptr.add(kept).cast(), old - kept);
+                    }
                     memory::resize(layout.size(), new_size);
                     return ptr;
                 }
