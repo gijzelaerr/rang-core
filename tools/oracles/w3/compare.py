@@ -111,14 +111,12 @@ def config(case, arm, nrows, out, strategy):
             "  primary:",
             "    terms:",
             "      - {type: complex, name: Gint, solint: int, freqint: 16}",
-            "      - {type: complex, name: G2, solint: 2, freqint: inf}",
+            "      - {type: complex, name: G2, solint: 2, freqint: 512}",
+            # Amendment 1 (research/w3-chunking.md 2): the secondary term with a
+            # setjy model is refused (C2d), so a third primary term takes its
+            # settings: one time bin per scan, a bin per channel.
+            "      - {type: complex, name: Gchan, solint: inf, freqint: 1}",
         ]
-        if c["gcal"]:
-            lines += [
-                "  secondary:",
-                "    terms:",
-                "      - {type: complex, name: Gsec, solint: inf, freqint: 1}",
-            ]
     Path(out).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

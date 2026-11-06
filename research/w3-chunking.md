@@ -151,6 +151,19 @@ target on S and W):
 - `apply`: the default targets (each term on the fields it was solved on) into
   CORRECTED_DATA.
 
+**Amendment 1** (2026-11-06, after the probe of section 5.1 and before any
+comparison): `calibrate` with a setjy model and a secondary term is refused by
+the configuration (models are written on the primary fields only; secondary
+models are C2d's `fluxscale`), so the secondary term is replaced by a third
+primary term `{type: complex, name: Gchan, solint: inf, freqint: 1}` on the
+fcal field: one time bin per scan with a bin per channel, which on W does not
+fit one chunk at either limit and so exercises the frequency-bin chunks. The
+second primary term becomes `{solint: 2, freqint: 512}`: with `freqint: inf`
+one of its intervals on W (2 dumps × 2016 baselines × 4096 channels) needs
+4.6 GiB and the M arm (2 GiB) is refused by `config check`, as criterion 8
+intends (on S and O, 512 channels or more is one bin, as `inf`). The primary
+terms are named Gint, G2 and Gchan.
+
 On L: `calibrate` only, `model: {source: unity}` (the solver's 1 Jy point; no
 MODEL_DATA, so nothing is written into the MS), primary term `{type:
 complex, solint: int, freqint: 16}` on the fcal field, run directory under
