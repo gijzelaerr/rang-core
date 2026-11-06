@@ -156,6 +156,36 @@ class Standard:
 
 
 C_LIGHT = 299792458.0  # casacore C::c
+MEAS_FREQ_LSRK, MEAS_FREQ_TOPO = 1, 5
+
+
+def lsrk_over_topo(time_utc_s, ra_rad, dec_rad, itrf_xyz_m):
+    """f_LSRK / f_TOPO for a source at (ra, dec) seen from `itrf_xyz_m` at MS
+    TIME `time_utc_s`: 1 - v/c, v the topocentric-to-LSRK radial-velocity
+    correction (astropy's barycentric correction plus the Sun's LSRK
+    velocity projected on the source; IERS download off, as rang.measures).
+    Task C7a, post hoc (research/c7a-polmodels.md section 9)."""
+    from astropy.coordinates import ICRS, LSRK
+
+    from . import measures
+
+    units, _, _, SkyCoord, Time = measures._astropy()
+    when = Time(time_utc_s / measures.MJD_SECONDS, format="mjd", scale="utc")
+    source = SkyCoord(ra_rad * units.rad, dec_rad * units.rad, frame="icrs")
+    v_bary = source.radial_velocity_correction(
+        "barycentric", obstime=when, location=measures.location(itrf_xyz_m)
+    ).to_value(units.m / units.s)
+    kms, masyr = units.km / units.s, units.mas / units.yr
+    at_rest = ICRS(
+        ra=0 * units.deg, dec=0 * units.deg, distance=1 * units.pc,
+        pm_ra_cosdec=0 * masyr, pm_dec=0 * masyr, radial_velocity=0 * kms,
+    )  # fmt: skip
+    vel = at_rest.transform_to(LSRK()).velocity.d_xyz.to_value(units.m / units.s)
+    n = np.array(
+        [math.cos(dec_rad) * math.cos(ra_rad), math.cos(dec_rad) * math.sin(ra_rad),
+         math.sin(dec_rad)]
+    )  # fmt: skip
+    return 1.0 - (float(v_bary) + float(np.asarray(vel) @ n)) / C_LIGHT
 
 
 def _floats(value):
@@ -277,7 +307,11 @@ class Manual:
                 out[k, 3] = i_list[k] * (self.v / self.fluxdensity)
         return out
 
-    def stokes(self, freq_hz, field_name=None):
+    def stokes(self, freq_hz, field_name=None, ch0_frame_ratio=1.0):
+        """(nchan, 4) I, Q, U, V. `ch0_frame_ratio` is f(ch0) in `reffreq`'s
+        frame (LSRK) over f(ch0) as stored; it matters only on CASA's
+        polarised SpectralIndex path (post hoc, research/c7a-polmodels.md
+        section 9), where `set_model` supplies it."""
         nu = np.asarray(freq_hz, float)
         i_flux = fluxstd.manual(nu, self.fluxdensity, self.reffreq_hz, self.spix)
         if not self.polarised:
@@ -292,7 +326,15 @@ class Manual:
         # SpectralIndex: channel 0's (I, Q, U, V) become the component's flux
         # at reference channel 0; `SpectralIndex::sampleStokes` scales and
         # rotates from there (stokes index [spix, 0, RM, 0]).
-        i0, q0, u0, v0 = self._tabular(nu[:1], i_flux[:1])[0].tolist()
+        # `sjy_setmanualflux` evaluates channel 0's I at the channel-0
+        # frequency converted to reffreq's frame (`cvt`, Imager.cc 5468-5494),
+        # Q and U at the stored one.
+        i_ch0 = i_flux[:1]
+        if ch0_frame_ratio != 1.0:
+            i_ch0 = fluxstd.manual(
+                nu[:1] * ch0_frame_ratio, self.fluxdensity, self.reffreq_hz, self.spix
+            )
+        i0, q0, u0, v0 = self._tabular(nu[:1], i_ch0)[0].tolist()
         # The component's flux goes Stokes -> linear (`predictVis`) -> Stokes
         # (`SkyCompRep::visibility`, `Flux::value`) before it is scaled; U and
         # V survive exactly, I and Q as (XX + YY)/2 and (XX - YY)/2.
@@ -488,6 +530,16 @@ def metadata(ms):
         freqs = [
             np.asarray(t.getcol("CHAN_FREQ", i, 1)[0], float) for i in range(t.nrows)
         ]
+        frames = (
+            [int(x) for x in t.getcol("MEAS_FREQ_REF")]
+            if "MEAS_FREQ_REF" in t.colnames()
+            else [None] * t.nrows
+        )
+    centroid = None
+    if (ms / "ANTENNA").exists():
+        with core_ms.open_table(ms / "ANTENNA") as t:
+            if t.nrows and "POSITION" in t.colnames():
+                centroid = np.asarray(t.getcol("POSITION"), float).mean(axis=0)
     with core_ms.open_table(ms / "POLARIZATION") as t:
         corr = [
             tuple(int(c) for c in t.getcol("CORR_TYPE", i, 1)[0])
@@ -500,9 +552,15 @@ def metadata(ms):
         "field_names": names,
         "phase_centres": phase.reshape(len(names), -1, 2)[:, 0, :],
         "ddid": [
-            {"spw": s, "freq_hz": freqs[s], "corr_type": corr[p]}
+            {
+                "spw": s,
+                "freq_hz": freqs[s],
+                "corr_type": corr[p],
+                "meas_freq_ref": frames[s],
+            }
             for s, p in zip(spw, pol)
         ],
+        "array_centroid_itrf_m": centroid,
     }
 
 
@@ -526,6 +584,42 @@ def _ids(selection, names, what):
                 raise ValueError(f"no {what} named {item!r}; have {names}")
             out.extend(found)
     return sorted(set(out))
+
+
+def _channel0_frames(ms, spec, meta, fields, ddids, session):
+    """(TIME of main-table row 0, {(field, ddid): f_LSRK/f_stored of channel
+    0}) for a `Manual` on CASA's polarised SpectralIndex path, which
+    evaluates channel 0's I at that converted frequency (`Imager.cc` 4705,
+    5466-5494; post hoc, research/c7a-polmodels.md section 9). Empty for
+    every other model. TOPO is converted, LSRK is the identity, other frames
+    are refused on this path."""
+    if not (isinstance(spec, Manual) and spec.casa_path == "spectral-index-channel0"):
+        return None, {}
+    frames = {meta["ddid"][d]["meas_freq_ref"] for d in ddids}
+    if not frames <= {MEAS_FREQ_TOPO, MEAS_FREQ_LSRK}:
+        raise NotImplementedError(
+            f"MEAS_FREQ_REF {sorted(frames, key=str)}: a polarised manual model with "
+            "one spix term follows CASA's channel-0 frame conversion, implemented "
+            "for TOPO and LSRK windows only"
+        )
+    if MEAS_FREQ_TOPO in frames and meta["array_centroid_itrf_m"] is None:
+        raise ValueError("no ANTENNA positions for the TOPO-to-LSRK conversion")
+    if session is not None:
+        time0 = float(np.asarray(session.read("TIME", 0, 1))[0])
+    else:
+        with core_ms.open_table(ms) as t:
+            time0 = float(np.asarray(t.getcol("TIME", 0, 1))[0])
+    out = {}
+    for f in fields:
+        ra, dec = (float(x) for x in meta["phase_centres"][f])
+        for d in ddids:
+            if meta["ddid"][d]["meas_freq_ref"] == MEAS_FREQ_LSRK:
+                out[f, d] = 1.0
+            else:
+                out[f, d] = lsrk_over_topo(
+                    time0, ra, dec, meta["array_centroid_itrf_m"]
+                )
+    return time0, out
 
 
 def set_model(
@@ -563,7 +657,7 @@ def set_model(
     ddids = [k for k, d in enumerate(meta["ddid"]) if spws is None or d["spw"] in spws]
     if not ddids:
         raise ValueError(f"no data description has spectral window {sorted(spws)}")
-    sky_args = None
+    sky_args, time0, frame = None, None, {}
     point, spectra = {}, {}
     if isinstance(spec, SkyModel):
         from .formats import sky
@@ -573,10 +667,12 @@ def set_model(
             f: sky.components(sources, tuple(meta["phase_centres"][f])) for f in fields
         }
     else:
+        time0, frame = _channel0_frames(ms, spec, meta, fields, ddids, session)
         for f in fields:
             for d in ddids:
                 dd = meta["ddid"][d]
-                stokes = spec.stokes(dd["freq_hz"], meta["field_names"][f])
+                kw = {"ch0_frame_ratio": frame[f, d]} if (f, d) in frame else {}
+                stokes = spec.stokes(dd["freq_hz"], meta["field_names"][f], **kw)
                 spectra[f, d] = stokes
                 point[f, d] = correlations(stokes, dd["corr_type"]).astype(np.complex64)
     receipt = {
@@ -585,6 +681,16 @@ def set_model(
         "spec": spec.describe(meta["field_names"][fields[0]]),
         "fields": {},
     }
+    if sky_args is None and frame:
+        centroid = meta["array_centroid_itrf_m"]
+        receipt["channel0_frame"] = {
+            "epoch_time_utc_s": time0,
+            "array_centroid_itrf_m": None if centroid is None else centroid.tolist(),
+            "lsrk_over_topo": {
+                f"{meta['field_names'][f]}/spw{meta['ddid'][d]['spw']}": v
+                for (f, d), v in frame.items()
+            },
+        }
     own = session is None
     w = wb.WriteBack(ms, stage="setjy") if own else session
     error = None

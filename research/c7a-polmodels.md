@@ -6,7 +6,11 @@ models"), the model half of step 8 of
 `fp-c7a-polmodels` from main `a05119a`. It extends C3a's
 `rang.calmodels.set_model` ([c3a-models.md](c3a-models.md)).
 
-**Status: implemented and measured (run `-03`); M7 and M8 fail as written.**
+**Status: implemented and measured. Frozen run `-03`: M1–M6, P1, P2 and T1
+pass; M7 and M8 fail as written. Post-hoc fix (run `-04`): M7 and M8 pass G1
+(1.5e-7 and 1.3e-7 of I) and still fail G2 (2 ulps). Held-out H1 (`-05`):
+its tabular half is bit-identical to CASA's; its SpectralIndex half passes G1
+(1.3e-7) and fails G2 (2 ulps), so H1 fails as written.**
 The design, cases and tolerances were frozen in `9893fbe` before any
 comparison. On CASA's tabular path (CARACal's 3C286 and 3C138, polynomial
 `polindex`/`polangle`, RM, `fluxdensity` Q, U, V) rang equals CASA 6.7.6.14
@@ -15,7 +19,8 @@ both MSs. MODEL_DATA is the sky-frame coherency, independent of the
 parallactic angle and of RECEPTOR_ANGLE (P1, P2 pass). On CASA's
 `SpectralIndex` path (one `spix` term; M7, CARACal's Taylor & Legodi form,
 and M8) CASA's model is rang's times a constant 1 − 5.7e-6 and 1 − 1.6e-5:
-G1 and G2 fail. Section 8 has the diagnosis. Archive:
+G1 and G2 fail in `-03`. Section 8 has the diagnosis, section 9 the
+post-hoc fix and the held-out case. Archive:
 [results/c7a-polmodels.json](results/c7a-polmodels.json). No novelty is
 claimed: this reproduces `setjy`.
 
@@ -260,8 +265,9 @@ keys with another source are refused.
 
 As implemented: the tests are in `tests/test_calmodels.py` (seven parametrised
 models against the independent evaluation, the unpolarised path unchanged,
-`NRAO_XCAL`, a four-correlation write) and `tests/test_w2_commands.py` (the
-calibrate refusals); they pass.
+`NRAO_XCAL`, a four-correlation write; after the post-hoc fix, the channel-0
+frame ratio, its receipt and the refusal of other frames) and
+`tests/test_w2_commands.py` (the calibrate refusals); they pass.
 
 ## 8. Measured (2026-11-06, after the freeze)
 
@@ -287,7 +293,7 @@ MODEL_DATA in every cell); **P2 passes** (M3 and M4: every `3C286-SIM` row
 bit-identical per channel over 115° of parallactic angle). FEED
 `POLARIZATION_TYPE` is `X, Y` on both MSs; RECEPTOR_ANGLE is −π/2 on A1 small
 and **0 on the slice** (read by casatools: rang's table reader cannot read
-that string-array column, see 10).
+that string-array column, see 11).
 
 Class T: **T1 passes.** At 1.47 GHz rang's models give 9.800 % and
 33.00002° (3C286) and 7.800 % and −9.59991° (3C138); CASA's MODEL_DATA over
@@ -332,3 +338,108 @@ unconverted frequencies, which is why M1–M6 agree to the bit.
   comparison results were never written or read. The harness now reads FEED
   with casatools inside the CASA image (`casa-feed`) and writes the case
   results before the frame checks; `-03` reran everything from fresh copies.
+
+## 9. Post-hoc fix and the held-out case
+
+**Post hoc (labelled; after `-03`, committed in `52984c1` before the fix).**
+`calmodels.lsrk_over_topo(time, ra, dec, itrf)` computes f_LSRK/f_TOPO with
+astropy as in the prediction above (IERS download off, as `rang.measures`).
+On CASA's polarised SpectralIndex path only, `set_model` reads TIME of
+main-table row 0 (before its own session, or through the caller's session,
+outside the chunk loop), each field's PHASE_DIR and the ANTENNA centroid, and
+`Manual.stokes(..., ch0_frame_ratio=K)` evaluates channel 0's I at the
+converted frequency, Q and U at the stored one, as `sjy_setmanualflux`
+does. LSRK windows take K = 1; other `MEAS_FREQ_REF` values are refused on
+this path. The receipt records the epoch, the centroid and K per field and
+window. Every other path is unchanged (the code of the tabular and
+unpolarised paths is not touched). CASA takes the observatory from
+`MeasTable::Observatory(TELESCOPE_NAME)`; rang uses the ANTENNA centroid, a
+difference of km at most, about 1e-4 km/s in the correction.
+
+| Run | Case | Path | G1 | G2 real ulps | G2 imag /I | G3 | Pass |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `-04` (post hoc, fresh copies, `calmodels.py` `f0a42678…`) | M1–M6 | tabular | as `-03` (0 ulps; M3, M4, M6 bit-identical) | 0 | ≤ 1.3e-13 | yes | **yes** |
+| `-04` | M7 | SpectralIndex | **1.5e-7** | **2** | 0 | yes | no (G2) |
+| `-04` | M8 | SpectralIndex | **1.3e-7** | **2** | 1.6e-9 | yes | no (G2) |
+| `-05` (**held out**, frozen in `9893fbe`, no code change after `-04`) | H1 `3C286-SIM` (3C138 Q, U, V override, 2- and 3-term polynomials, RM −20) | tabular | 0 (bit-identical) | 0 | 0 | yes | yes |
+| `-05` | H1 `SIM-GCAL` (Q, U from `fluxdensity`, RM 15) | SpectralIndex | **1.3e-7** | **2** | 0 | yes | no (G2) |
+
+`-04` also repeats P1, P2 and T1, all pass. **H1 fails as written**: its
+SpectralIndex half misses the 0-ulp bound by 2 ulps, while it is 8× inside
+C1's 1e-6 bound. The residual is the 40 m/s (1.4e-7 in v/c) between
+astropy's and casacore's TOPO-to-LSRK correction found in section 8; no
+parameter was tuned on it. Bit parity on this path would need casacore's own
+frame conversion (IERS tables, its LSRK apex and Earth-velocity model),
+which rang does not have.
+
+**Reading.** CARACal's shipped 3C286 and 3C138 models, and any model with a
+multi-term `spix` or polynomial `polindex`/`polangle`, reproduce `setjy` to
+the bit. The one-term `spix` path (CARACal's Taylor & Legodi option) follows
+CASA's model to 1.5e-7 of I. CASA's own behaviour there is an inconsistency:
+its model is scaled by (1 − v_LSRK/c)^α, 1e-5 for MeerKAT's L band, depending
+on the epoch of row 0 and on the field. Rang copies it, for parity (owner
+decision 1).
+
+## 10. Owner decisions, not checked, on disk
+
+**Owner decisions (provisional, the agent's choice):**
+
+1. Copy CASA's channel-0 frame behaviour on the polarised SpectralIndex path
+   (a scale of about 1e-5, dependent on the epoch and direction) rather than
+   write the frame-consistent model. Parity with the oracle; CARACal's Taylor
+   & Legodi option takes this path.
+2. Refuse `polindex` without `polangle` (or the reverse) when Q = U = 0;
+   CASA silently writes no linear polarisation.
+3. Accept a 2-ulp, 1.5e-7 residual on that path (H1 and `-04` fail G2, pass
+   G1), or ask for casacore's frame conversion to be ported.
+4. Ship `taylor_legodi_2024.txt` (12 kB, CARACal's) as a rang constant table:
+   not done here.
+5. Polarised models stay on the primary fields: the polcal field refusal
+   names C2d (C4b decision 4). A 3C286 polcal model needs that lifted.
+
+**Not checked.** Circular feeds (the mapping is C3a's, untested against
+CASA here); several spectral windows; an MS whose SPW frame is not TOPO; a
+`reffreq` with an explicit frame; CASA 6.7.6.14's C++ source (the mirror is
+from 2023; the oracle runs confirm the behaviour of the cases above only);
+the 40 m/s astropy–casacore offset; whether the polarised path writes the
+same through `rang-core calibrate` end to end (unit-tested through
+`model_spec`, not run on A1); the NRAO 2019 table against a second source.
+
+**On disk** (all ignored): runs `/mnt/d/rang/outputs/c7a-20261106-01` (37 MB,
+killed), `-02` (928 MB, harness crash), `-03` (928 MB, frozen), `-04`
+(928 MB, post hoc), `-05` (129 MB, held out) and their logs; sources
+`~/Github/rang/outputs/c7a-sources-20261106/` (CASA mirror files, casacore
+`Polynomial`, CARACal files, the oracle image's `task_setjy.py`); the
+worktree venv. The run directories can be deleted once the coordinator has
+read this note.
+
+## 11. For the coordinator
+
+Proposed STATE line: "C7a, 2026-11-06: polarised calibrator models
+([c7a-polmodels.md](c7a-polmodels.md)). `calmodels.Manual` takes `setjy`
+manual's I, Q, U, V, `polindex`, `polangle`, `rotmeas`; CARACal's 3C286 and
+3C138 are `calmodels.NRAO_XCAL`. Against CASA 6.7.6.14: 0 float32 ulps on
+all four correlations on the tabular path (8 cases incl. held out); the
+one-term `spix` path within 1.5e-7 of I, 2 ulps (G2 fails as written; CASA
+converts channel 0 to LSRK there, which rang copies post hoc). MODEL_DATA is
+sky-frame, independent of parallactic angle and RECEPTOR_ANGLE (P1, P2).
+CARACal's constant-p models are 1.2 (3C286) and 2.3 (3C138) points above
+Perley & Butler 2013 at 1.05 GHz."
+
+Proposed finish-plan C7 row note: "C7a done 2026-11-06; the polcal-field
+model (C2d refusal) and C7b remain."
+
+Items for others:
+
+- **`core_ms` reader bug:** reading FEED's string-array
+  `POLARIZATION_TYPE` fails with a read at a garbage offset ("read of 8 bytes
+  at 206158430210"), not a clean refusal, on both MSs.
+- **The slice's RECEPTOR_ANGLE is 0**, A1 small's −π/2; C6 on the slice must
+  set it as CARACal does.
+- **Parallactic angle (finish-plan 7.8):** C7a needs none; C6 and C7b do.
+- **`rang.simtruth` RM** is referenced to λ = 0, CASA's to `reffreq`
+  (section 3); matters for any truth with RM ≠ 0.
+- **The uv venv has no pip**, so `maturin develop` in check-all fails until
+  `uv pip install pip`; the editable install already builds the extension.
+- **C1's T7 open question** "the model per channel ≤ 1e-6 of |I|": met on
+  every path.

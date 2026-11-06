@@ -14,6 +14,8 @@ the release notes are the section of this file for that version.
   U, V]`, `polindex`, `polangle` and `rotmeas` (referenced to `reffreq`, as CASA), following
   CASA's tabular and spectral-index paths, and writes all four correlations in the sky frame
   (`XX = I+Q`, `XY = U+iV`, `YX = U-iV`, `YY = I-Q`; no parallactic angle, as `setjy`).
+  With one `spix` term it copies CASA's TOPO-to-LSRK conversion of channel 0
+  (`calmodels.lsrk_over_topo`, astropy; recorded in the receipt), within 1.5e-7 of CASA.
   `calmodels.NRAO_XCAL` and `caracal_xcal()` hold CARACal's 3C286 and 3C138 models.
   `rang-core calibrate` accepts `calibrate.model.flux_jy` with Q, U, V and the polarisation
   keys for `source: manual`; `polindex` without `polangle` (or the reverse) and the polarisation

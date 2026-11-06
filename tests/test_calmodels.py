@@ -249,6 +249,42 @@ def test_polarised_manual_matches_an_independent_evaluation(kw):
         assert np.array_equal(got[:, 0], ref[:, 0])
 
 
+def test_spectral_index_path_channel0_frame(ms):
+    # Post hoc (note section 9): channel 0's I at the LSRK-converted frequency.
+    pytest.importorskip("astropy")
+    m = calmodels.Manual([4.0, 0, 0, 0.04], 1.4e9, [-0.6])
+    assert m.casa_path == "spectral-index-channel0"
+    freq = read(ms / "SPECTRAL_WINDOW", "CHAN_FREQ")[0]
+    k = 1.0 + 2.0e-5
+    s = m.stokes(freq, ch0_frame_ratio=k)
+    s1 = m.stokes(freq)
+    i0 = fluxstd.manual(freq[:1] * k, 4.0, 1.4e9, [-0.6])[0]
+    assert s[0, 0] == i0 and np.allclose(s[:, 0] / s1[:, 0], k**-0.6, rtol=1e-12)
+    assert np.allclose(s[:, 3] / s[:, 0], 0.01, rtol=1e-12)
+    centroid = np.array([5109224.0, 2006790.0, -3239100.0])  # near MeerKAT
+    with core_ms_write.open_table(ms / "ANTENNA", readonly=False) as t:
+        t.addrows(2)
+        t.putcol("POSITION", centroid + np.array([[10.0, 0, 0], [-10.0, 0, 0]]))
+    ratios = [
+        calmodels.lsrk_over_topo(5.23e9, ra, dec, centroid) for _, ra, dec in FIELDS
+    ]
+    assert all(abs(r - 1) < 1.5e-4 for r in ratios) and len(set(ratios)) == 3
+    with core_ms_write.open_table(ms / "SPECTRAL_WINDOW", readonly=False) as t:
+        t.putcol("MEAS_FREQ_REF", np.array([5], np.int32))
+    receipt = calmodels.set_model(ms, "3C286", m)
+    frame = receipt["channel0_frame"]
+    with core_ms.open_table(ms) as t:
+        assert frame["epoch_time_utc_s"] == float(t.getcol("TIME", 0, 1)[0])
+    ratio = frame["lsrk_over_topo"]["3C286/spw0"]
+    model = read(ms, "MODEL_DATA")[read(ms, "FIELD_ID") == 1]
+    want = m.stokes(freq, ch0_frame_ratio=ratio)
+    assert np.array_equal(model[0, :, 0].real, (want[:, 0]).astype(np.float32))
+    with core_ms_write.open_table(ms / "SPECTRAL_WINDOW", readonly=False) as t:
+        t.putcol("MEAS_FREQ_REF", np.array([3], np.int32))
+    with pytest.raises(NotImplementedError, match="MEAS_FREQ_REF"):
+        calmodels.set_model(ms, "3C286", m)
+
+
 def test_unpolarised_manual_is_c3a_unchanged():
     m = calmodels.Manual(4.0, 1.4e9, [-0.6])
     assert not m.polarised and m.casa_path == "spectral-index"
