@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, C1, G1. Waiting on the owner: A0's data fetches and native-data source.
+- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, C1, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
 - **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
@@ -18,6 +18,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+W1, 2026-11-06 (implemented and measured; [w1-writeback.md](w1-writeback.md)). `rang.core_writeback` writes into an existing MS. It adds MODEL_DATA and CORRECTED_DATA as CASA's `clearcal` does (TiledShapeStMan, initialised, but with a fixed shape) and writes any column, FLAG and FLAG_ROW in flushed row chunks. Before the first write it saves the flags as the CASA flag version `rang_original`; a journal refuses a new session after an interrupted one until the flags are restored. python-casacore 3.8.1 and 3.7.1, dask-ms, CASA (`split`, `flagmanager`, `applycal` into the new column) and WSClean read every written column bit for bit. Flags round-trip exactly through rang and CASA versions both ways; 12 SIGKILL cases all recovered; peak memory grew 53 MB while a 268 MB column was written. One frozen criterion failed: the unit model's image peaks off-centre on the 4-antenna fixture's broad PSF, which peaks at the same pixel (post hoc). Open for W2: variable-shape columns, and the flag-backup naming. No novelty claim.
 
 A0, 2026-11-05 (frozen; probes measured; [a0-acceptance.md](a0-acceptance.md)). No public observation meets gate 1 as written (unseen, native, calibrated through self-calibration, full polarisation). Polarisation is testable on real data only in LUNO (SB 20210818-0008: 3C 286, 1934−638 and 1830−211 together); its DATA keeps 1.5 % leakage but is pre-phased (XX−YY 0.016 rad), with processed flags and weights. ESO137 ms1 is the only raw-phase real set (XX−YY 1.49 rad), with no polarised calibrator. Acceptance legs: E1 (A1's simulated truth, full polarisation); E2-A (ESO137 ms1 primary scans 9, 11 and target scan 10, Stokes I, held out); E2-B (LUNO scans 17-20, held out); E2-N (native) open. Gates, tolerances and the CARACal settings are frozen: `meerkat-defaults` for E3-A, full-Stokes for E3-B, seven labelled deviations. Fetches await the owner's approval (E2-A about 180 GB, E2-B 36 GB).
 
