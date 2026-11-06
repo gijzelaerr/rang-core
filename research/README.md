@@ -13,6 +13,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [W1, write-back](w1-writeback.md): MODEL_DATA, CORRECTED_DATA and FLAG written into an existing MS in chunks, with a CASA flag-version backup and recovery after an interrupted run; CASA, WSClean, python-casacore and dask-ms read them bit for bit.
 - [A1, simulated truth](a1-simtruth.md): the full-polarisation MeerKAT Measurement Sets with known K, B, G, KCROSS, Xf and Df, the truth format and gauge, regeneration from seeds, and the CASA round trip.
 - [C4a, the apply kernel](c4a-apply.md): the Rust kernel that applies and corrupts K, G, T, B and Df tables as CASA `applycal`; CASA's Df flag and substitution rules and float32 phase steps, measured against `applycal`.
+- [C3a, calibrator models](c3a-models.md): `setjy`-equivalent point, manual and `.lsm` models into MODEL_DATA; 0 ulps against `setjy`, bit-identical to Crystalball.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 

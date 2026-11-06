@@ -1528,3 +1528,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C4a `probe_apply_unwrap.py` | `c.ms`, one B table | about 10 s (one `applycal`) | – | post-hoc probe of CASA's unwrapped phases |
 | 2026-11-06 | C4a `tools/check-all.sh` (commit `86b41a1`) | worktree | 1254.7 s (waited on the shared check-all lock) | 1.87 GB | FAIL only on the research-index test |
 | 2026-11-06 | C4a `tools/check-all.sh`, `86b41a1` with the README index line applied, not committed | worktree | 931.9 s | 1.85 GB | `overall: PASS` |
+| 2026-11-06 | C3a CASA 6.7.6.14 `setjy`, 5 calls (SR2016, CARACal manual on the slice; SR2016 and 2 manual on A1 small) | O-CASA work.ms 192 × 2048; A1 small 12,480 × 64 | 12.2 s (calls 1.3–3.3 s) | – | one container ([c3a-models.md](c3a-models.md)) |
+| 2026-11-06 | C3a Crystalball 0.4.3 `-j 1`, pks1934-638.lsm as a WSClean list (196 components) | slice / A1 small | 15.7 s / 9.0 s | – | container |
+| 2026-11-06 | C3a rang `calmodels.set_model` point, manual, lsm | slice / A1 small | 0.6–1.5 s; 9.5–10.1 s when the column is added on `/mnt/d` | 293 MB (driver) | whole `c3a_models.py run` 109.7 s |

@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Stopped before training:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; no network was trained.
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C4a, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
+- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C3a, C4a, G1, W1. Waiting on the owner: A0's data fetches and native-data source.
 - **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
@@ -18,6 +18,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+C3a, 2026-11-06 (implemented and measured; [c3a-models.md](c3a-models.md)). `rang.calmodels.set_model` writes calibrator models to MODEL_DATA through W1's write-back: flux standards, `manual`, per-channel Stokes rows and component lists such as CARACal's `pks1934-638.lsm`. Against CASA `setjy` on O-CASA's slice and on A1 small, the real parts differ by 0 float32 ulps; CASA's imaginary parts are at most 1.8e-12 Jy, and other fields' rows are bit-identical to CASA's. The lsm route through `predict_components` is bit-identical to Crystalball 0.4.3, and A1's calibrator sky is reproduced bit for bit. CARACal's own lsm route is MeqTrees, which has no oracle here (open for E3). Polarised `manual` is refused until C7a. No novelty claim.
 
 C4a, 2026-11-06 (implemented; measured; class C not met on two stress cases; [c4a-apply.md](c4a-apply.md)). A Rust apply kernel (`core/src/cal/apply.rs`, `rang.cal_apply`) corrects and corrupts chunks by K, G, T, B and Df with CASA's interpolation and flags. Against `applycal` on O-CASA's slice the frozen run failed on Df flags; CASA's rules were read in its source (`Jones.cc`) and ported (cross hands flagged by bad leakages and by flagged parallel hands; both leakages −1 when one is bad), then CASA's float32 phase tracking and unwrap. In the second held-out run flags were exact on all 13 cases and class C held on 11; two random-phase B stress tables miss by 1-2 ulp of CASA's unwrapped phase (33 eps, 4e-6 relative), mechanism not found. On CASA's own tables every case passed (max 4.38 eps). Threads bit-identical. Coordinator's provisional choices, open to the owner: accept that residual and state it in C4's acceptance; copy CASA's Df substitution for parity with the oracle. C1 §3.1's Df flag rule is wrong for CASA 6.7.6 (erratum in c4a-apply.md §4.3). Throughput not yet recorded (no timing work).
 
