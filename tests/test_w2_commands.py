@@ -5,6 +5,7 @@ receipts and refusals. The end-to-end run on A1's MS is
 `tools/oracles/w2/run.sh`."""
 
 import importlib.util
+import itertools
 import json
 import os
 import signal
@@ -234,7 +235,6 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
         "C2d",
         "C4",
         "C5a",
-        "G3",
         "G4",
         "G6",
     }
@@ -247,7 +247,6 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
         "C6a",
         "C6b",
         "C6c",
-        "G3",
         "G9",
     }
 
@@ -713,3 +712,50 @@ def test_cli_imports_no_numpy_for_the_new_commands():
         [sys.executable, "-c", probe], capture_output=True, text=True, check=True
     )
     assert out.stdout.strip() == "ok"
+
+
+def test_the_spectral_image_options_reach_gemclean():
+    """G3 (research/g3-spectral.md): channels out, joined channels, the
+    polynomial fit and channel averaging are passed to gemclean; a fit
+    without joined channels is refused as a configuration error."""
+    image = {
+        "size": [64, 64],
+        "scale": "2asec",
+        "channels_out": 4,
+        "join_channels": True,
+        "fit_spectral_pol": 2,
+        "average_channels": 2,
+    }
+    config, errors = core_config.resolve({"version": 1, "image": image})
+    assert errors == []
+    assert [
+        r for r in core_config.refusals(config, ["image"]) if r.path.startswith("image")
+    ] == []
+    args = pipe.gemclean_arguments(config["image"], "DATA", 0, "out/img", "x.ms")
+    pairs = list(itertools.pairwise(args))
+    assert ("-average-channels", "2") in pairs
+    assert ("-channels-out", "4") in pairs
+    assert ("-fit-spectral-pol", "2") in pairs
+    assert "-join-channels" in args
+    assert args[-1] == "x.ms"
+    plain, _ = core_config.resolve(
+        {"version": 1, "image": {"size": [64, 64], "scale": "2asec"}}
+    )
+    flags = pipe.gemclean_arguments(plain["image"], "DATA", 0, "out/img", "x.ms")
+    assert not {"-channels-out", "-join-channels", "-fit-spectral-pol"} & set(flags)
+    assert "-average-channels" not in flags
+    for change in (
+        {"join_channels": False},
+        {"channels_out": 1},
+        {"fit_spectral_pol": 0},
+    ):
+        config, errors = core_config.resolve(
+            {"version": 1, "image": {**image, **change}}
+        )
+        assert errors == []
+        refused = core_config.refusals(config, ["image"])
+        assert ("image.fit_spectral_pol", "") in {(r.path, r.task) for r in refused}
+        with pytest.raises(core_config.ConfigError):
+            core_config.validate(
+                {"version": 1, "image": {**image, **change}}, ["image"]
+            )

@@ -194,10 +194,6 @@ pub fn gridder_to_fits(n: usize, grid: &[f64]) -> Vec<f64> {
 /// pixels of `scale` radians at the phase centre `(ra, dec)` (radians), the
 /// frequency axis spanning the channel edges.
 pub fn wcs_cards(ra: f64, dec: f64, n: usize, scale: f64, freq: &[f64]) -> Vec<Card> {
-    let mut ra_deg = ra.to_degrees();
-    if ra_deg > 180.0 {
-        ra_deg -= 360.0;
-    }
     let step = if freq.len() > 1 {
         freq[1] - freq[0]
     } else {
@@ -205,6 +201,16 @@ pub fn wcs_cards(ra: f64, dec: f64, n: usize, scale: f64, freq: &[f64]) -> Vec<C
     };
     let low = freq.first().copied().unwrap_or(0.0) - step / 2.0;
     let high = freq.last().copied().unwrap_or(0.0) + step / 2.0;
+    wcs_cards_band(ra, dec, n, scale, low, high)
+}
+
+/// [`wcs_cards`] of the band from `low` to `high` Hz: `CRVAL3` its middle,
+/// `CDELT3` its width, as WSClean writes an output channel and the MFS image.
+pub fn wcs_cards_band(ra: f64, dec: f64, n: usize, scale: f64, low: f64, high: f64) -> Vec<Card> {
+    let mut ra_deg = ra.to_degrees();
+    if ra_deg > 180.0 {
+        ra_deg -= 360.0;
+    }
     let deg = scale.to_degrees();
     let crpix = (n / 2 + 1) as f64;
     vec![

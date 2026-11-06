@@ -184,3 +184,53 @@ not have); timing (the host is shared); `-fit-spectral-log-pol` (see the owner d
    `-no-mf-weighting`.
 6. With more than one output channel each channel's gridder frees its work grids after each pass,
    so the grids are held for one channel at a time (the same values; it is not done with one channel).
+
+## Implementation (implemented)
+
+- `core/src/gemclean/spectral.rs`: WSClean's channel grouping (`channel_groups`, with
+  `-channel-range` on the channels in ascending frequency), channel selection, rang's channel
+  averaging (`average_channels`) and schaapcommon's polynomial fit (`PolynomialFit`: weighted least
+  squares in `x = ν/ν_ref − 1` by Householder QR over the channels of positive weight, terms cut to
+  the number of points, `ν_ref` the weighted mean frequency, 150 MHz without weight). Unit tests:
+  the grouping against WSClean's formula (ascending and descending bands, refusals), the fit against
+  an exact polynomial with a zero-weight outlier and against the normal equations of a weighted
+  line, and the averaging.
+- `core/src/gemclean/joined.rs`, `run_joined`: GeMClean's loop (`run_with_bound`) on the integrated
+  map `Σ a_k r̃_k` (`a_k = w_k / Σw`), with a working map and the components since the last resync
+  per channel. At a pick each channel's exact value is its own gather on its own beam's exterior;
+  the integrated value, `τ` (with `e = Σ a_k f_k b_k(0) Σ|c|_k`), the drift, the threshold, the
+  peak-fraction and measured stale rules read the integrated values; the channel values are
+  `γ r_k / b_k(0)`, then fitted and evaluated; each channel subtracts its own patch, and the
+  integrated map the weighted patches. A resync makes every channel's map exact and rebuilds the
+  integrated map from them. The predicted misfit change uses the general form `−c r + c² b(0)/2`.
+  Unit tests: one channel of weight one gives [`run`]'s picks, components, residual, cycles and
+  stop bit for bit; two channels of a sky with spectral slopes recover both sources' fluxes in both
+  channels with a two-term fit.
+- `core/src/bin/gemclean.rs`: `-channels-out`, `-join-channels`, `-fit-spectral-pol`,
+  `-channel-range`, `-average-channels`, `-mf-weighting`, `-no-mf-weighting`; refusals of
+  `-fit-spectral-log-pol`, `-deconvolution-channels`, `-squared-channel-joining`,
+  `-channel-division-frequencies`, `-divide-channels-by-gaps`, of a fit without joined channels, and
+  of the certified rule, the Gram operator, `-floor-iterations` and `-audit` with more than one output
+  channel. With one output channel and no range or averaging the code path is main's, line for line.
+  With more: the data are split per output channel (MF weights cut from one weight grid, or each
+  channel's own), rows without weight in a channel dropped from it, one measurement, `2n` PSF, beam
+  and fitted restoring beam per channel, then `run_joined` or `run` per channel. Files
+  `<name>-0000-<kind>.fits` with the channel's band (`CHAN_WIDTH` edges), counters and beam, and
+  `<name>-MFS-<kind>.fits`, the weighted means, the beam fitted on the MFS PSF, the MFS image
+  restored from the MFS model and residual. One `-report.json` with every channel.
+- `core/src/gemclean/measure.rs` and `wgridder.rs`: `GridMeasurement::releasing_grids` frees the
+  gridder's work grids after each residual (`Prepared::release_grids`), used only with more than one
+  output channel (owner decision 6). `fits::wcs_cards_band` is `wcs_cards` for a given band;
+  `input::channel_widths` reads `CHAN_WIDTH`.
+- `python/rang/core_config.py`, `core_pipeline.py`: the four G3 refusals are gone; a fit without
+  `join_channels` and `channels_out ≥ 2` is a configuration error; `rang-core image` passes
+  `-average-channels`, `-channels-out`, `-join-channels` and `-fit-spectral-pol`. Test:
+  `test_the_spectral_image_options_reach_gemclean`.
+- Simulator `examples/g3_spectral_simulate.py`; scripts in
+  [results/g3-spectral-scripts](results/g3-spectral-scripts/) (`batch.sh`, `run_g.sh`, `run_w.sh`,
+  `cfg.sh`, `score.py`, `identity.py`, `id_run.sh`, `avg_batch.sh`, `casa_avg.*`, `sim.sh`,
+  `build.sh`, `main_ref.sh`).
+
+The scorer's common restoring beam for criterion D is its own Gaussian (FWHM and PA from WSClean's
+MFS header), applied identically to both imagers' models, not GeMClean's restore code; the rule
+asked only that one beam be used for both.

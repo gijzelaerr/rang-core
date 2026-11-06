@@ -48,10 +48,12 @@
 pub mod fits;
 pub mod host;
 pub mod input;
+pub mod joined;
 pub mod kernels;
 pub mod measure;
 pub mod memory;
 pub mod sim;
+pub mod spectral;
 pub mod stale_bound;
 
 use crate::clean::{CleanStep, argmax_abs};
