@@ -221,7 +221,8 @@ fields:
 data:
   weights: as_is  # as_is: WEIGHT_SPECTRUM, else WEIGHT per channel; uniform: 1 (CARACal's prep.specweights), used in memory by calibrate
   scans: []  # SCAN_NUMBERs to use (empty: every scan)
-  chunk_rows: null  # rows per write chunk (null: about 64 MiB of DATA cells)
+  memory_limit_gb: 8.0  # peak resident memory a stage may use, GiB; flag, calibrate and apply chunk by time and row to stay within it (research/w3-chunking.md)
+  chunk_rows: null  # a cap on the rows of every chunk (null: what memory_limit_gb allows); a solve chunk still holds one solution interval
 flag:
   flagger: tricolour  # the Tricolour 0.2.1 port (research/core-d-tricolour.md)
   strategy: null  # required: a Tricolour strategy YAML, such as CARACal's mk_rfi_flagging_calibrator_fields_firstpass.yaml (relative to this file)

@@ -71,6 +71,8 @@ FIELDS = (
 SEQUENCE = "FXGTGTGXGTGTGXGTGTGTGXF"
 FULL_LENGTH = {"F": 45, "X": 30, "G": 15, "T": 150}
 SMALL_LENGTH = {"F": 6, "X": 4, "G": 2, "T": 8}
+# Task W3 (research/w3-chunking.md): the whole array at 4096 channels, short scans.
+W3_LENGTH = {"F": 6, "X": 1, "G": 2, "T": 4}
 FIELD_OF = {"F": 0, "X": 1, "G": 2, "T": 3}
 SLEW_S = 24.0
 START_UTC = "2024-08-18T19:09:00"
@@ -115,6 +117,9 @@ SEEDS = {
         "rfi": 20261148,
         "noise": 20261149,
     },
+    # Task W3 (research/w3-chunking.md): 64 antennas at 4096 channels. Its
+    # seeds equal holdout256's (both chosen the same day); the designs differ.
+    "w3": {"jones": 20261136, "sky": 20261137, "rfi": 20261138, "noise": 20261139},
 }
 
 # Task C6: the versions whose parallactic angle is CASA's frame and whose
@@ -188,7 +193,9 @@ def design(name):
     `delay50` (C2b: small's antennas and schedule, 256 channels, delays of
     1-50 ns, `extra["tau_range_ns"]`), or `holdout256` (C2c's held-out set:
     as delay50 with new seeds and delays of 1-30 ns), or `holdout128` (C2e's
-    held-out set: as holdout256 with 128 channels and its own seeds)."""
+    held-out set: as holdout256 with 128 channels and its own seeds), or
+    `w3` (W3: all 64 antennas, 4096 channels, scans of `W3_LENGTH`
+    integrations)."""
     if name == "full":
         return Design("full", list(range(64)), 256, FULL_LENGTH, SEEDS["full"])
     if name == "small":
@@ -233,9 +240,11 @@ def design(name):
             tau_c_ns=2.2 if name == "poldx" else -3.7,
             extra={"tau_range_ns": (1.0, 10.0), **POL_EXTRA},
         )
+    if name == "w3":
+        return Design("w3", list(range(64)), 4096, W3_LENGTH, SEEDS["w3"])
     raise ValueError(
         f"unknown version {name!r}: full, small, delay50, holdout256, holdout128, "
-        "poldx or polholdout"
+        "poldx, polholdout or w3"
     )
 
 

@@ -402,7 +402,8 @@ def generate(args):
     tab.close()
     fill_subtables(ms, d, names, xyz, diameter, times, fields)
     tab = tables.table(str(ms), readonly=False)
-    jobs = [keep[i : i + CHUNK_INTS] for i in range(0, len(keep), CHUNK_INTS)]
+    step = args.chunk_ints
+    jobs = [keep[i : i + step] for i in range(0, len(keep), step)]
     w = np.float32(1.0 / d.sigma**2)
     masks_any, masks_5s = [], []
     seconds.update(predict=0.0, compute=0.0, write=0.0)
@@ -494,7 +495,7 @@ def generate(args):
         "ms_bytes": ms_bytes,
         "rfi": rfi_stats,
         "workers": args.workers,
-        "chunk_integrations": CHUNK_INTS,
+        "chunk_integrations": step,
         "git": git_facts(),
         "versions": versions(),
         "writer": "rang.core_ms_write (rang's casacore table writer)",
@@ -533,18 +534,17 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = p.add_subparsers(dest="cmd", required=True)
     g = sub.add_parser("generate")
-    g.add_argument(
-        "version",
-        choices=[
-            "small",
-            "full",
-            "delay50",
-            "holdout256",
-            "holdout128",
-            "poldx",
-            "polholdout",
-        ],
-    )
+    versions = [
+        "small",
+        "full",
+        "delay50",
+        "holdout256",
+        "holdout128",
+        "poldx",
+        "polholdout",
+        "w3",
+    ]
+    g.add_argument("version", choices=versions)
     g.add_argument("outdir")
     g.add_argument("--workers", type=int, default=4)
     g.add_argument("--noiseless", action="store_true")
@@ -556,19 +556,14 @@ def main(argv=None):
     g.add_argument("--gcal-flux", type=float, default=None)
     g.add_argument("--gcal-spix", default="")
     g.add_argument("--gcal-reffreq", type=float, default=1.4e9)
-    s = sub.add_parser("size")
-    s.add_argument(
-        "version",
-        choices=[
-            "small",
-            "full",
-            "delay50",
-            "holdout256",
-            "holdout128",
-            "poldx",
-            "polholdout",
-        ],
+    g.add_argument(
+        "--chunk-ints",
+        type=int,
+        default=CHUNK_INTS,
+        help="integrations per worker job (1 suits 4096 channels)",
     )
+    s = sub.add_parser("size")
+    s.add_argument("version", choices=versions)
     args = p.parse_args(argv)
     if args.cmd == "size":
         print(json.dumps(size(args.version), indent=1))

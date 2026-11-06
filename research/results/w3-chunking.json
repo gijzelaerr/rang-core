@@ -1,0 +1,1242 @@
+{
+ "task": "W3 (research/w3-chunking.md)",
+ "run": "/mnt/d/rang/outputs/w3/run-01",
+ "code": "e5f0862 W3 note: amendment 2 (arm T on W at 4096 rows) before any comparison",
+ "verdict": {
+  "cases": {
+   "S": {
+    "reference": "U",
+    "checks": {
+     "D vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     },
+     "T vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     }
+    },
+    "memory": {
+     "U": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.09003448486328125,
+       "calibrate": 0.16466522216796875,
+       "apply": 0.1223907470703125
+      },
+      "within": true
+     },
+     "D": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.055934906005859375,
+       "calibrate": 0.1027374267578125,
+       "apply": 0.1224517822265625
+      },
+      "within": true
+     },
+     "T": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.048221588134765625,
+       "calibrate": 0.049053192138671875,
+       "apply": 0.048168182373046875
+      },
+      "within": true
+     }
+    }
+   },
+   "O": {
+    "reference": "U",
+    "checks": {
+     "D vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     },
+     "T vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     }
+    },
+    "memory": {
+     "U": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.10569381713867188,
+       "calibrate": 0.13230133056640625,
+       "apply": 0.10870742797851562
+      },
+      "within": true
+     },
+     "D": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.09048080444335938,
+       "calibrate": 0.110382080078125,
+       "apply": 0.107666015625
+      },
+      "within": true
+     },
+     "T": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 0.05127716064453125,
+       "calibrate": 0.05513763427734375,
+       "apply": 0.052249908447265625
+      },
+      "within": true
+     }
+    }
+   },
+   "W": {
+    "reference": "U",
+    "checks": {
+     "D vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     },
+     "T vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     },
+     "M vs U": {
+      "flag: columns differing": [],
+      "flag: flag versions equal": true,
+      "calibrate: columns differing": [],
+      "calibrate: flag versions equal": true,
+      "apply: columns differing": [],
+      "apply: flag versions equal": true,
+      "gain store files equal": true,
+      "summaries equal": {
+       "flag": true,
+       "calibrate": true,
+       "apply": true
+      }
+     }
+    },
+    "memory": {
+     "U": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 8.722801208496094,
+       "calibrate": 17.594512939453125,
+       "apply": 16.414161682128906
+      },
+      "within": false
+     },
+     "D": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 3.0246543884277344,
+       "calibrate": 3.5054664611816406,
+       "apply": 4.993133544921875
+      },
+      "within": true
+     },
+     "T": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "flag": 1.10882568359375,
+       "calibrate": 2.285686492919922,
+       "apply": 3.0431175231933594
+      },
+      "within": true
+     },
+     "M": {
+      "limit_gb": 2.0,
+      "peak_gb": {
+       "flag": 0.7716102600097656,
+       "calibrate": 0.9768333435058594,
+       "apply": 1.1674461364746094
+      },
+      "within": true
+     }
+    }
+   },
+   "L": {
+    "reference": "D",
+    "checks": {
+     "M vs D": {
+      "gain store files equal": true,
+      "summaries equal": {}
+     }
+    },
+    "memory": {
+     "D": {
+      "limit_gb": 8.0,
+      "peak_gb": {
+       "calibrate": 1.8964920043945312
+      },
+      "within": true
+     },
+     "M": {
+      "limit_gb": 2.0,
+      "peak_gb": {
+       "calibrate": 0.46254730224609375
+      },
+      "within": true
+     }
+    }
+   }
+  }
+ },
+ "stages": [
+  {
+   "case": "S",
+   "arm": "U",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 0.09,
+   "wall": "0:21.60"
+  },
+  {
+   "case": "S",
+   "arm": "U",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.165,
+   "wall": "0:17.85"
+  },
+  {
+   "case": "S",
+   "arm": "U",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 0.122,
+   "wall": "0:22.77"
+  },
+  {
+   "case": "S",
+   "arm": "D",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 0.056,
+   "wall": "0:23.69"
+  },
+  {
+   "case": "S",
+   "arm": "D",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.103,
+   "wall": "0:18.63"
+  },
+  {
+   "case": "S",
+   "arm": "D",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 0.122,
+   "wall": "0:22.66"
+  },
+  {
+   "case": "S",
+   "arm": "T",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 0.048,
+   "wall": "6:37.44"
+  },
+  {
+   "case": "S",
+   "arm": "T",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.049,
+   "wall": "5:38.56"
+  },
+  {
+   "case": "S",
+   "arm": "T",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 0.048,
+   "wall": "6:17.99"
+  },
+  {
+   "case": "O",
+   "arm": "U",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 0.106,
+   "wall": "0:02.88"
+  },
+  {
+   "case": "O",
+   "arm": "U",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.132,
+   "wall": "0:06.11"
+  },
+  {
+   "case": "O",
+   "arm": "U",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 0.109,
+   "wall": "0:09.39"
+  },
+  {
+   "case": "O",
+   "arm": "D",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 0.09,
+   "wall": "0:02.56"
+  },
+  {
+   "case": "O",
+   "arm": "D",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.11,
+   "wall": "0:06.99"
+  },
+  {
+   "case": "O",
+   "arm": "D",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 0.108,
+   "wall": "0:09.57"
+  },
+  {
+   "case": "O",
+   "arm": "T",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 0.051,
+   "wall": "0:07.56"
+  },
+  {
+   "case": "O",
+   "arm": "T",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.055,
+   "wall": "1:03.41"
+  },
+  {
+   "case": "O",
+   "arm": "T",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 0.052,
+   "wall": "0:14.99"
+  },
+  {
+   "case": "W",
+   "arm": "U",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 8.723,
+   "wall": "3:29.49"
+  },
+  {
+   "case": "W",
+   "arm": "U",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 17.595,
+   "wall": "5:30.82"
+  },
+  {
+   "case": "W",
+   "arm": "U",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 16.414,
+   "wall": "7:58.42"
+  },
+  {
+   "case": "W",
+   "arm": "D",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 3.025,
+   "wall": "3:55.80"
+  },
+  {
+   "case": "W",
+   "arm": "D",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 3.505,
+   "wall": "10:04.26"
+  },
+  {
+   "case": "W",
+   "arm": "D",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 4.993,
+   "wall": "6:11.59"
+  },
+  {
+   "case": "W",
+   "arm": "T",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 1.109,
+   "wall": "3:42.73"
+  },
+  {
+   "case": "W",
+   "arm": "T",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 2.286,
+   "wall": "9:55.19"
+  },
+  {
+   "case": "W",
+   "arm": "T",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 3.043,
+   "wall": "5:39.34"
+  },
+  {
+   "case": "W",
+   "arm": "M",
+   "stage": "flag",
+   "exit": 0,
+   "peak_rss_gib": 0.772,
+   "wall": "4:16.02"
+  },
+  {
+   "case": "W",
+   "arm": "M",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.977,
+   "wall": "21:45.22"
+  },
+  {
+   "case": "W",
+   "arm": "M",
+   "stage": "apply",
+   "exit": 0,
+   "peak_rss_gib": 1.167,
+   "wall": "5:26.19"
+  },
+  {
+   "case": "L",
+   "arm": "D",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 1.896,
+   "wall": "1:44.14"
+  },
+  {
+   "case": "L",
+   "arm": "M",
+   "stage": "calibrate",
+   "exit": 0,
+   "peak_rss_gib": 0.463,
+   "wall": "2:00.55"
+  }
+ ],
+ "chunking": {
+  "L-D": {
+   "calibrate": {
+    "chunk_gb": 6.951425552368164,
+    "chunk_rows": null,
+    "fixed_gb": 1.048574447631836,
+    "memory_limit_gb": 8.0,
+    "partitions": [
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 1,
+      "term": "complex"
+     },
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 23,
+      "term": "complex"
+     }
+    ],
+    "rows": {
+     "apply": 113892,
+     "calibrate": 113892,
+     "flag": 227784,
+     "model": 113892,
+     "rows": 303712
+    }
+   }
+  },
+  "L-M": {
+   "calibrate": {
+    "chunk_gb": 0.9514255523681641,
+    "chunk_rows": null,
+    "fixed_gb": 1.048574447631836,
+    "memory_limit_gb": 2.0,
+    "partitions": [
+     {
+      "chunks": 7,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 1,
+      "term": "complex"
+     },
+     {
+      "chunks": 7,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 23,
+      "term": "complex"
+     }
+    ],
+    "rows": {
+     "apply": 15588,
+     "calibrate": 15588,
+     "flag": 31176,
+     "model": 15588,
+     "rows": 41568
+    }
+   }
+  },
+  "O-D": {
+   "flag": {
+    "blocks": [
+     1
+    ],
+    "chunk_gb": 7.374971389770508,
+    "chunk_rows": null,
+    "fixed_gb": 0.6250286102294922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 15103,
+     "calibrate": 15103,
+     "flag": 30207,
+     "model": 15103,
+     "rows": 40277
+    }
+   },
+   "calibrate": {
+    "chunk_gb": 7.374971389770508,
+    "chunk_rows": null,
+    "fixed_gb": 0.6250286102294922,
+    "memory_limit_gb": 8.0,
+    "partitions": [
+     {
+      "chunks": 1,
+      "field_id": 1,
+      "passes": 1,
+      "scan": 2,
+      "term": "Gint"
+     },
+     {
+      "chunks": 1,
+      "field_id": 1,
+      "passes": 1,
+      "scan": 2,
+      "term": "G2"
+     },
+     {
+      "chunks": 1,
+      "field_id": 1,
+      "passes": 1,
+      "scan": 2,
+      "term": "Gchan"
+     }
+    ],
+    "rows": {
+     "apply": 15103,
+     "calibrate": 15103,
+     "flag": 30207,
+     "model": 15103,
+     "rows": 40277
+    }
+   },
+   "apply": {
+    "chunk_gb": 7.374971389770508,
+    "chunk_rows": null,
+    "fixed_gb": 0.6250286102294922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 15103,
+     "calibrate": 15103,
+     "flag": 30207,
+     "model": 15103,
+     "rows": 40277
+    }
+   }
+  },
+  "O-T": {
+   "flag": {
+    "blocks": [
+     6
+    ],
+    "chunk_gb": 7.374971389770508,
+    "chunk_rows": 7,
+    "fixed_gb": 0.6250286102294922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 7,
+     "calibrate": 7,
+     "flag": 7,
+     "model": 7,
+     "rows": 7
+    }
+   },
+   "calibrate": {
+    "chunk_gb": 7.374971389770508,
+    "chunk_rows": 7,
+    "fixed_gb": 0.6250286102294922,
+    "memory_limit_gb": 8.0,
+    "partitions": [
+     {
+      "chunks": 32,
+      "field_id": 1,
+      "largest_interval_cells": 384,
+      "passes": 2,
+      "scan": 2,
+      "term": "Gint"
+     },
+     {
+      "chunks": 32,
+      "field_id": 1,
+      "largest_interval_cells": 24576,
+      "passes": 2,
+      "scan": 2,
+      "term": "G2"
+     },
+     {
+      "chunks": 28,
+      "field_id": 1,
+      "largest_interval_cells": 768,
+      "passes": 2,
+      "scan": 2,
+      "term": "Gchan"
+     }
+    ],
+    "rows": {
+     "apply": 7,
+     "calibrate": 7,
+     "flag": 7,
+     "model": 7,
+     "rows": 7
+    }
+   },
+   "apply": {
+    "chunk_gb": 7.374971389770508,
+    "chunk_rows": 7,
+    "fixed_gb": 0.6250286102294922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 7,
+     "calibrate": 7,
+     "flag": 7,
+     "model": 7,
+     "rows": 7
+    }
+   }
+  },
+  "O-U": {},
+  "S-D": {
+   "flag": {
+    "blocks": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "chunk_gb": 7.373140335083008,
+    "chunk_rows": null,
+    "fixed_gb": 0.6268596649169922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 483206,
+     "calibrate": 483206,
+     "flag": 966412,
+     "model": 483206,
+     "rows": 1288549
+    }
+   },
+   "calibrate": {
+    "chunk_gb": 7.373140335083008,
+    "chunk_rows": null,
+    "fixed_gb": 0.6268596649169922,
+    "memory_limit_gb": 8.0,
+    "partitions": [
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 1,
+      "term": "Gint"
+     },
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 23,
+      "term": "Gint"
+     },
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 1,
+      "term": "G2"
+     },
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 23,
+      "term": "G2"
+     },
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 1,
+      "term": "Gchan"
+     },
+     {
+      "chunks": 1,
+      "field_id": 0,
+      "passes": 1,
+      "scan": 23,
+      "term": "Gchan"
+     }
+    ],
+    "rows": {
+     "apply": 483206,
+     "calibrate": 483206,
+     "flag": 966412,
+     "model": 483206,
+     "rows": 1288549
+    }
+   },
+   "apply": {
+    "chunk_gb": 7.373140335083008,
+    "chunk_rows": null,
+    "fixed_gb": 0.6268596649169922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 483206,
+     "calibrate": 483206,
+     "flag": 966412,
+     "model": 483206,
+     "rows": 1288549
+    }
+   }
+  },
+  "S-T": {
+   "flag": {
+    "blocks": [
+     120,
+     120,
+     120,
+     120,
+     120,
+     120,
+     40,
+     40,
+     40,
+     40,
+     40,
+     40,
+     40,
+     40,
+     40,
+     40,
+     120,
+     120,
+     120,
+     120,
+     120,
+     120,
+     120
+    ],
+    "chunk_gb": 7.373140335083008,
+    "chunk_rows": 7,
+    "fixed_gb": 0.6268596649169922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 7,
+     "calibrate": 7,
+     "flag": 7,
+     "model": 7,
+     "rows": 7
+    }
+   },
+   "calibrate": {
+    "chunk_gb": 7.373140335083008,
+    "chunk_rows": 7,
+    "fixed_gb": 0.6268596649169922,
+    "memory_limit_gb": 8.0,
+    "partitions": [
+     {
+      "chunks": 24,
+      "field_id": 0,
+      "largest_interval_cells": 7680,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gint"
+     },
+     {
+      "chunks": 24,
+      "field_id": 0,
+      "largest_interval_cells": 7680,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gint"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 61440,
+      "passes": 2,
+      "scan": 1,
+      "term": "G2"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 61440,
+      "passes": 2,
+      "scan": 23,
+      "term": "G2"
+     },
+     {
+      "chunks": 64,
+      "field_id": 0,
+      "largest_interval_cells": 2880,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gchan"
+     },
+     {
+      "chunks": 64,
+      "field_id": 0,
+      "largest_interval_cells": 2880,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gchan"
+     }
+    ],
+    "rows": {
+     "apply": 7,
+     "calibrate": 7,
+     "flag": 7,
+     "model": 7,
+     "rows": 7
+    }
+   },
+   "apply": {
+    "chunk_gb": 7.373140335083008,
+    "chunk_rows": 7,
+    "fixed_gb": 0.6268596649169922,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 7,
+     "calibrate": 7,
+     "flag": 7,
+     "model": 7,
+     "rows": 7
+    }
+   }
+  },
+  "S-U": {},
+  "W-D": {
+   "flag": {
+    "blocks": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "chunk_gb": 7.368991851806641,
+    "chunk_rows": null,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 7545,
+     "calibrate": 7545,
+     "flag": 15091,
+     "model": 7545,
+     "rows": 20122
+    }
+   },
+   "calibrate": {
+    "chunk_gb": 7.368991851806641,
+    "chunk_rows": null,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 8.0,
+    "partitions": [
+     {
+      "chunks": 2,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gint"
+     },
+     {
+      "chunks": 2,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gint"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 8257536,
+      "passes": 2,
+      "scan": 1,
+      "term": "G2"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 8257536,
+      "passes": 2,
+      "scan": 23,
+      "term": "G2"
+     },
+     {
+      "chunks": 2,
+      "field_id": 0,
+      "largest_interval_cells": 48384,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gchan"
+     },
+     {
+      "chunks": 2,
+      "field_id": 0,
+      "largest_interval_cells": 48384,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gchan"
+     }
+    ],
+    "rows": {
+     "apply": 7545,
+     "calibrate": 7545,
+     "flag": 15091,
+     "model": 7545,
+     "rows": 20122
+    }
+   },
+   "apply": {
+    "chunk_gb": 7.368991851806641,
+    "chunk_rows": null,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 7545,
+     "calibrate": 7545,
+     "flag": 15091,
+     "model": 7545,
+     "rows": 20122
+    }
+   }
+  },
+  "W-M": {
+   "flag": {
+    "blocks": [
+     5,
+     5,
+     2,
+     2,
+     3
+    ],
+    "chunk_gb": 1.3689918518066406,
+    "chunk_rows": null,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 2.0,
+    "rows": {
+     "apply": 1401,
+     "calibrate": 1401,
+     "flag": 2803,
+     "model": 1401,
+     "rows": 3738
+    }
+   },
+   "calibrate": {
+    "chunk_gb": 1.3689918518066406,
+    "chunk_rows": null,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 2.0,
+    "partitions": [
+     {
+      "chunks": 12,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gint"
+     },
+     {
+      "chunks": 12,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gint"
+     },
+     {
+      "chunks": 12,
+      "field_id": 0,
+      "largest_interval_cells": 8257536,
+      "passes": 2,
+      "scan": 1,
+      "term": "G2"
+     },
+     {
+      "chunks": 12,
+      "field_id": 0,
+      "largest_interval_cells": 8257536,
+      "passes": 2,
+      "scan": 23,
+      "term": "G2"
+     },
+     {
+      "chunks": 9,
+      "field_id": 0,
+      "largest_interval_cells": 48384,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gchan"
+     },
+     {
+      "chunks": 9,
+      "field_id": 0,
+      "largest_interval_cells": 48384,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gchan"
+     }
+    ],
+    "rows": {
+     "apply": 1401,
+     "calibrate": 1401,
+     "flag": 2803,
+     "model": 1401,
+     "rows": 3738
+    }
+   },
+   "apply": {
+    "chunk_gb": 1.3689918518066406,
+    "chunk_rows": null,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 2.0,
+    "rows": {
+     "apply": 1401,
+     "calibrate": 1401,
+     "flag": 2803,
+     "model": 1401,
+     "rows": 3738
+    }
+   }
+  },
+  "W-T": {
+   "flag": {
+    "blocks": [
+     3,
+     3,
+     1,
+     1,
+     2
+    ],
+    "chunk_gb": 7.368991851806641,
+    "chunk_rows": 4096,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 4096,
+     "calibrate": 4096,
+     "flag": 4096,
+     "model": 4096,
+     "rows": 4096
+    }
+   },
+   "calibrate": {
+    "chunk_gb": 7.368991851806641,
+    "chunk_rows": 4096,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 8.0,
+    "partitions": [
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gint"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 129024,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gint"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 8257536,
+      "passes": 2,
+      "scan": 1,
+      "term": "G2"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 8257536,
+      "passes": 2,
+      "scan": 23,
+      "term": "G2"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 48384,
+      "passes": 2,
+      "scan": 1,
+      "term": "Gchan"
+     },
+     {
+      "chunks": 3,
+      "field_id": 0,
+      "largest_interval_cells": 48384,
+      "passes": 2,
+      "scan": 23,
+      "term": "Gchan"
+     }
+    ],
+    "rows": {
+     "apply": 4096,
+     "calibrate": 4096,
+     "flag": 4096,
+     "model": 4096,
+     "rows": 4096
+    }
+   },
+   "apply": {
+    "chunk_gb": 7.368991851806641,
+    "chunk_rows": 4096,
+    "fixed_gb": 0.6310081481933594,
+    "memory_limit_gb": 8.0,
+    "rows": {
+     "apply": 4096,
+     "calibrate": 4096,
+     "flag": 4096,
+     "model": 4096,
+     "rows": 4096
+    }
+   }
+  },
+  "W-U": {},
+  "W-refusal": {}
+ },
+ "refusal": {
+  "exit": "exit 2",
+  "message": "rang-core calibrate: refused\ncalibrate.primary.terms[0] (complex): one solution interval of field 'J1939-6342' scan 1 holds 198180864 visibility cells and needs 12.444 GiB, above data.memory_limit_gb 2; raise the limit, or use a shorter solint or a smaller freqint (a solution interval is solved whole)\ncalibrate.primary.terms[0] (complex): one solution interval of field 'J1939-6342' scan 23 holds 198180864 visibility cells and needs 12.444 GiB, above data.memory_limit_gb 2; raise the limit, or use a shorter solint or a smaller freqint (a solution interval is solved whole)",
+  "columns_unchanged": true,
+  "flag_versions_after": 0,
+  "listing": [
+   ".",
+   "..",
+   "config.yaml",
+   "hashes",
+   "logs",
+   "work.ms"
+  ]
+ }
+}

@@ -231,12 +231,16 @@ def flag_rows(
     masks=None,
     want_intensity=True,
     want_stages=True,
+    time_grid=None,
 ):
     """Flag one field/scan group as `tricolour --flagging-strategy polarisation`.
 
     `data` is `(row, chan, corr)` complex64, `flags` the same shape bool;
     `strategies` is the list from `parse_strategy`; `masks` defaults to the
-    two shipped static masks. Returns a dict with `flags` (every correlation
+    two shipped static masks. `time_grid` (sorted unique times) is the
+    window's time axis; it defaults to the unique `times`. A block of the
+    group's baselines (task W3, research/w3-chunking.md) passes the whole
+    group's times, so its window is the group's for those baselines. Returns a dict with `flags` (every correlation
     carries the window flag), `intensity` (complex64 window
     `(bl, 1, time, chan)`, only with `want_intensity`), `stages` (window
     flags after each step, keyed `NN-task`), `ubl`, `time_inv` and `seconds`
@@ -263,9 +267,18 @@ def flag_rows(
         [lookup[(int(a1), int(a2))] for a1, a2 in zip(antenna1, antenna2)],
         dtype=np.uint32,
     )
-    _, time_inv = np.unique(np.asarray(times, dtype=np.float64), return_inverse=True)
+    times = np.asarray(times, dtype=np.float64)
+    if time_grid is None:
+        _, time_inv = np.unique(times, return_inverse=True)
+        ntime = int(time_inv.max()) + 1
+    else:
+        time_grid = np.asarray(time_grid, dtype=np.float64)
+        time_inv = np.searchsorted(time_grid, times)
+        if np.any(time_inv >= len(time_grid)) or np.any(time_grid[time_inv] != times):
+            raise ValueError("times must be values of time_grid")
+        ntime = len(time_grid)
     time_inv = np.ascontiguousarray(time_inv.reshape(-1), dtype=np.uint32)
-    ntime, nbl = int(time_inv.max()) + 1, ubl.shape[0]
+    nbl = ubl.shape[0]
     antenna_position = np.require(antenna_position, np.float64, ["C", "A"])
     nant = antenna_position.shape[0]
     if antenna_position.shape != (nant, 3):
