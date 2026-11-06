@@ -1637,3 +1637,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C6 `check_pol.py parang` -02, `compare` -03, `truth` -04/-05, `chain-truth` -06 | poldx | 3.6 s, 388.1 s, 88.9 s, 79.6 s, 69.7 s | 597-615 MB | rang only, no lock |
 | 2026-11-06 | C6 `check_pol.py readback` -07 (failed: path mapping), -12 | poldx | 12.4 s, 63.4 s | 158 MB, 456 MB | CASA `applycal` twice; lock waits 11 and 17 min |
 | 2026-11-06 | C6 held out: `casa` -08, `compare` -09, `truth` -10/-11 | polholdout | 52.7 s, 129.5 s, 71.5 s, 79.1 s | 174-600 MB | one case |
+| 2026-11-06 | check-all, C6 branch before the code commit (twice) | repo | 2,089 s, 573.3 s (the first with lock waits) | 1.86 GB | first: clippy (`needless_range_loop`), ruff format and C4a's KCROSS/Xf refusal test failed, fixed; second: only the index test fails, 981 passed, 68 skipped |
