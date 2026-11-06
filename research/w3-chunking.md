@@ -252,3 +252,13 @@ The apply factor was below what apply holds (DATA, FLAG, the output column,
 the new flags and the kernel's outputs), so it was raised to 64 before any
 comparison; the others keep their margin. Peaks are `/usr/bin/time -v`
 maximum resident set (KB, as GB of 10⁹ bytes here and below).
+
+**Amendment 2** (before any comparison): arm T on W uses `data.chunk_rows:
+4096`, not 512. At 512 rows every Gint interval (2016 rows × 16 channels)
+would be a chunk of its own, cut by frequency, and each such chunk reads its
+2016 whole rows again (the reader returns whole cells): about 1,500 chunks per
+scan and pass, terabytes of reads. At 4096 rows T on W still differs from D
+and M: flag blocks of about 680 baselines, Gint chunks of two dumps, G2 one
+bin per chunk, Gchan three frequency chunks per scan, apply row chunks of
+4096. Reading only a channel range per chunk would need a sliced read in the
+reader (not in W3).

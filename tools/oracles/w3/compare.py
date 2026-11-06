@@ -78,7 +78,7 @@ CASES = {
     "W": {"fcal": "J1939-6342", "gcal": "SIM-GCAL", "target": "SIM-TARGET"},
     "L": {"fcal": "J1939-6342", "gcal": None, "target": None},
 }
-TINY = {"S": 7, "O": 7, "W": 512}
+TINY = {"S": 7, "O": 7, "W": 4096}
 
 
 def config(case, arm, nrows, out, strategy):
