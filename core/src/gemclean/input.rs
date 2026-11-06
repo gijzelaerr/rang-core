@@ -192,6 +192,96 @@ fn stokes_cell(d: &[f32], w: &[f32], f: &[u8], a: usize, b: usize) -> ((f32, f32
     (v, weight)
 }
 
+/// Which of the rows `start..start + count` of `main` the selection takes:
+/// the field and data description, cross-correlations only (WSClean's
+/// `MSSelection::IsSelected` without its interval and uv limits).
+pub fn row_mask(
+    main: &Table,
+    sel: &Selection,
+    start: u64,
+    count: u64,
+) -> Result<Vec<bool>, String> {
+    let field = ints(&read(main, "FIELD_ID", start, count)?, "FIELD_ID")?;
+    let ant1 = ints(&read(main, "ANTENNA1", start, count)?, "ANTENNA1")?;
+    let ant2 = ints(&read(main, "ANTENNA2", start, count)?, "ANTENNA2")?;
+    let ddid = ints(&read(main, "DATA_DESC_ID", start, count)?, "DATA_DESC_ID")?;
+    Ok((0..count as usize)
+        .map(|i| field[i] == sel.field && ant1[i] != ant2[i] && ddid[i] == sel.data_desc)
+        .collect())
+}
+
+/// The band and field of a selection: `CHAN_FREQ` of its spectral window
+/// (in the MS's order), its `CORR_TYPE`, the field's `PHASE_DIR` (radians)
+/// and the rows of the MS.
+#[derive(Clone, Debug)]
+pub struct Band {
+    pub freq: Vec<f64>,
+    pub correlations: Vec<i32>,
+    pub phase_dir: (f64, f64),
+    pub rows_total: u64,
+}
+
+pub fn band(path: &Path, sel: &Selection) -> Result<Band, String> {
+    let main = Table::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let (spw, pol) = match Table::open(path.join("DATA_DESCRIPTION")) {
+        Ok(dd) if dd.nrows > sel.data_desc as u64 => {
+            let row = sel.data_desc as u64;
+            (
+                ints(
+                    &read(&dd, "SPECTRAL_WINDOW_ID", row, 1)?,
+                    "SPECTRAL_WINDOW_ID",
+                )?[0],
+                ints(&read(&dd, "POLARIZATION_ID", row, 1)?, "POLARIZATION_ID")?[0],
+            )
+        }
+        _ => (sel.data_desc, 0),
+    };
+    let spw_table = Table::open(path.join("SPECTRAL_WINDOW")).map_err(|e| e.to_string())?;
+    let freq = doubles(&read(&spw_table, "CHAN_FREQ", spw as u64, 1)?, "CHAN_FREQ")?;
+    let pol_table = Table::open(path.join("POLARIZATION")).map_err(|e| e.to_string())?;
+    let correlations = ints(&read(&pol_table, "CORR_TYPE", pol as u64, 1)?, "CORR_TYPE")?;
+    let field_table = Table::open(path.join("FIELD")).map_err(|e| e.to_string())?;
+    if sel.field < 0 || sel.field as u64 >= field_table.nrows {
+        return err(format!(
+            "field {} does not exist ({} fields)",
+            sel.field, field_table.nrows
+        ));
+    }
+    let dir = doubles(
+        &read(&field_table, "PHASE_DIR", sel.field as u64, 1)?,
+        "PHASE_DIR",
+    )?;
+    if dir.len() < 2 {
+        return err("PHASE_DIR has fewer than two values");
+    }
+    Ok(Band {
+        freq,
+        correlations,
+        phase_dir: (dir[0], dir[1]),
+        rows_total: main.nrows,
+    })
+}
+
+/// The rows of `path` the selection takes, in row order.
+pub fn selected_rows(path: &Path, sel: &Selection) -> Result<Vec<u64>, String> {
+    let main = Table::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let mut rows = Vec::new();
+    let mut start = 0;
+    while start < main.nrows {
+        let count = sel.chunk_rows.max(1).min(main.nrows - start);
+        let keep = row_mask(&main, sel, start, count)?;
+        rows.extend((0..count).filter(|&i| keep[i as usize]).map(|i| start + i));
+        start += count;
+    }
+    Ok(rows)
+}
+
+/// Indices of the two parallel hands (or one Stokes I correlation), public
+/// for the model writer.
+pub fn parallel_hand_indices(corr: &[i32]) -> Result<(usize, usize), String> {
+    parallel_hands(corr)
+}
+
 /// Read the selected rows of a Measurement Set as Stokes I.
 pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
     let main = Table::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
@@ -244,15 +334,7 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
         correlations,
         weight_spectrum,
     };
-    let selected = |start: u64, count: u64| -> Result<Vec<bool>, String> {
-        let field = ints(&read(&main, "FIELD_ID", start, count)?, "FIELD_ID")?;
-        let ant1 = ints(&read(&main, "ANTENNA1", start, count)?, "ANTENNA1")?;
-        let ant2 = ints(&read(&main, "ANTENNA2", start, count)?, "ANTENNA2")?;
-        let ddid = ints(&read(&main, "DATA_DESC_ID", start, count)?, "DATA_DESC_ID")?;
-        Ok((0..count as usize)
-            .map(|i| field[i] == sel.field && ant1[i] != ant2[i] && ddid[i] == sel.data_desc)
-            .collect())
-    };
+    let selected = |start: u64, count: u64| row_mask(&main, sel, start, count);
     // Count the selected rows first, so that each array is allocated once at
     // its size: grown by doubling, the visibilities would pass through up to
     // three times their size.

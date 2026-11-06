@@ -58,7 +58,7 @@ commands for a Measurement Set (each takes a config.yaml and an MS):
   calibrate       CONFIG MS: solve the calibration terms, writing tables
   apply           CONFIG MS: apply the complex solutions, writing CORRECTED_DATA
   image           CONFIG MS: image with gemclean
-  selfcal         CONFIG MS: self-calibrate (not yet: tasks C5, G6)
+  selfcal         CONFIG MS: self-calibrate (not yet: task C5)
   run             CONFIG MS: the stages of run.stages in order, resuming
 
 other commands:
@@ -160,9 +160,8 @@ options:
 $ rang-core selfcal -h
 usage: rang-core selfcal [-h] [--run-dir RUN_DIR] [--force] config ms
 
-self-calibrate (not yet: tasks C5, G6). Validates the configuration for every
-stage first; a finished stage is skipped unless forced, a failed one runs
-again.
+self-calibrate (not yet: task C5). Validates the configuration for every stage
+first; a finished stage is skipped unless forced, a failed one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -306,7 +305,7 @@ image:
   multiscale: false  # multiscale CLEAN
   pol: I  # polarisations, such as I or IQUV
   join_polarizations: false  # join the polarisations
-  write_model: false  # predict the model into MODEL_DATA
+  write_model: false  # predict the model images into MODEL_DATA after imaging, as WSClean does (through write-back; task G6)
 selfcal:
   rounds: 2  # calibration rounds (CARACal's cal_niter)
   terms: [{type: Sp}, {type: Sa}]  # phase then amplitude (owner decision 1 of C1); Sd is CARACal's Fslope

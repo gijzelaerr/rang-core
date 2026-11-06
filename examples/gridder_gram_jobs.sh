@@ -28,7 +28,7 @@ for sky in "${skies[@]}"; do
   esac
   while read -r mode flags; do
     name=$sky-$mode
-    cmd="$bin -name $out/$name -size 2048 2048 -scale 1.5asec $common -j 8 $flags $ms"
+    cmd="$bin -name $out/$name -size 2048 2048 -scale 1.5asec $common -j 8 -no-update-model-required $flags $ms"
     echo "$cmd" > "$out/$name.cmd"
     flock /home/gijsm/.rang-heavy.lock bash -c "
       read -r load1 _ < /proc/loadavg

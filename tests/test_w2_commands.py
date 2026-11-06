@@ -232,7 +232,6 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
     assert _tasks(DATA / "e2a.yaml") == {
         "C5a",
         "G4",
-        "G6",
         "W4",  # data.weights: uniform for imaging (research/w4-unsupported.md)
     }
     # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run;

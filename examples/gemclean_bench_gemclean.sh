@@ -16,5 +16,5 @@ shift 2
 export BENCH_GRIDS=nominres BENCH_LOOPS=fast
 export BENCH_TEMPLATE="$binary -name {out} -size {size} {size} -scale {scale}asec -weight briggs 0.5 \
 -niter {niter} -gain 0.1 -nmiter 1000 {threshold_args} -data-column {datacol} -field {field} \
--j {threads} ${GEMCLEAN_ARGS:-} {ms}"
+-j {threads} -no-update-model-required ${GEMCLEAN_ARGS:-} {ms}"
 exec bash "$root/examples/gemclean_bench_run.sh" gemclean "$run" "$@"

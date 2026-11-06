@@ -57,6 +57,7 @@ mod cal_fluxscale;
 mod cal_gain;
 mod cal_pol;
 mod clean;
+mod gemclean_predict;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
@@ -2830,5 +2831,9 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cal_pol::cal_kcross_solve, m)?)?;
     m.add_function(wrap_pyfunction!(cal_pol::cal_xf_solve, m)?)?;
     m.add_function(wrap_pyfunction!(cal_pol::cal_df_solve, m)?)?;
+    // Task G6: gemclean's model prediction (research/g6-predict.md).
+    m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_block_rows, m)?)?;
+    m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_channel_map, m)?)?;
+    m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_predict, m)?)?;
     Ok(())
 }

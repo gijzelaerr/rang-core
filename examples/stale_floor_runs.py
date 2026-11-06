@@ -28,6 +28,7 @@ def one(name, size, ms, added, floor):
     """A run and its row; the lock is held for the run and released for the score."""
     argv = [
         BIN,
+        "-no-update-model-required",
         "-name",
         O / name,
         "-size",
