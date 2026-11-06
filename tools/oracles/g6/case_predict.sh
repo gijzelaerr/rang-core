@@ -11,6 +11,9 @@ EXTRA=("$@")
 source "$(dirname "$(readlink -f "$0")")/lib.sh"
 mkdir -p "$O"; snapshot
 rm -rf "$O/$L.ms"; cp -r "$MS" "$O/$L.ms"
+# WSClean -predict with -channels-out writes temporary files beside the
+# model images: both imagers read a copy of them in $O.
+mkdir -p "$O/$L-models"; cp "$M"-*model.fits "$O/$L-models/"; M=$O/$L-models/$(basename "$M")
 casa_py /g6/compare.py "$O/$L.ms" --hashes "$O/$L-before.json"
 exec 9>"$HOME/.rang-heavy.lock"; flock 9
 { date -Iseconds; cat /proc/loadavg; } > "$O/$L-load.txt"

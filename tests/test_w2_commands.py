@@ -232,13 +232,13 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
     assert _tasks(DATA / "e2a.yaml") == {
         "C5a",
         "G4",
-        "W4",  # data.weights: uniform for imaging (research/w4-unsupported.md)
     }
     # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run;
     # E2-B's refant auto and extendflags are errors without an owner task.
+    # Since task W6 (research/w6-imaging-inputs.md) data.scans and
+    # data.weights: uniform reach gemclean (-scans, -unit-weights).
     assert _tasks(DATA / "e2b.yaml") == {
         "G9",
-        "W4",
     }
 
 
@@ -763,6 +763,11 @@ def test_the_spectral_image_options_reach_gemclean():
     )
     flags = pipe.gemclean_arguments(plain["image"], "DATA", 0, "out/img", "x.ms")
     assert not {"-channels-out", "-join-channels", "-fit-spectral-pol"} & set(flags)
+    assert "-no-update-model-required" in flags  # G6: written through WriteBack
+    assert not {"-scans", "-unit-weights"} & set(flags)
+    w6 = pipe.gemclean_arguments(plain["image"], "DATA", 0, "o", "x.ms", [4, 6], True)
+    assert ("-scans", "4,6") in list(itertools.pairwise(w6))
+    assert "-unit-weights" in w6 and w6[-1] == "x.ms"
     assert "-average-channels" not in flags
     for change in (
         {"join_channels": False},

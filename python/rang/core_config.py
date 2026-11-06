@@ -44,9 +44,6 @@ TASKS = {
     "G4": "masks, tapers and an imaging uv range",
     "G5": "multiscale CLEAN",
     "G9": "Stokes Q, U and V and joined polarisations",
-    "W4": "uniform imaging weights: WEIGHT_SPECTRUM = 1 written into the MS, or a "
-    "gemclean option that ignores the MS weights (an owner decision, "
-    "research/w4-unsupported.md)",
 }
 
 TERM_TYPES = (
@@ -940,13 +937,6 @@ def refusals(config, stages):
                     )
     if "image" in stages:
         img = config["image"]
-        if config["data"]["weights"] == "uniform":
-            no(
-                "data.weights",
-                "W4",
-                "uniform weights for imaging: gemclean reads the MS weights, so "
-                "WEIGHT_SPECTRUM = 1 would have to be written into the MS",
-            )
         for key in ("channels_out", "average_channels"):
             if img[key] < 1:
                 out.append(Refusal(f"image.{key}", "", "must be at least 1"))

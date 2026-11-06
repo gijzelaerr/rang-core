@@ -157,7 +157,8 @@ def test_one_data_description_other_than_zero(tmp_path, capsys):
             {},
             ["image:", "DATA_DESC_ID 1"],
         ),
-        (None, {"data": {"scans": [1]}}, ["image:", "scans [2]", "no scan selection"]),
+        # gemclean selects scans since W6; TGT has no rows in scan 1.
+        (None, {"data": {"scans": [1]}}, ["image", "'TGT'", "scans [1]", "no rows"]),
     ],
 )
 def test_run_is_refused_before_flag_writes_when_a_later_stage_cannot_run(
@@ -212,7 +213,7 @@ def test_empty_selections_are_refused_before_anything_is_written(tmp_path, capsy
     )
     refused(capsys, "calibrate", setjy, ms, "scans [99]")
     assert "MODEL_DATA" not in w4._columns(ms) and not flagversions.versions(ms)
-    refused(capsys, "image", none, ms, "data.scans", "no scan selection")
+    refused(capsys, "image", none, ms, "data.scans", "'TGT'", "scans [99]", "no rows")
     other = write(tmp_path, "o.yaml", data={"scans": [2]})
     refused(capsys, "calibrate", other, ms, "'CAL'", "scans [2]", "no rows")
     works(capsys, "flag", other, ms)
@@ -281,24 +282,35 @@ def test_missing_weights(tmp_path, capsys):
     assert not pipe.inspect_ms(undefined)["weight_spectrum"]
     works(capsys, "calibrate", config, undefined)
     assert same_store(undefined, base)
-    refused(capsys, "image", config, undefined, "WEIGHT_SPECTRUM", "no cells")
+    # gemclean falls back to WEIGHT there, as WSClean (task W6).
+    works(capsys, "image", config, undefined)
     sigma = twin(tmp_path, "sigma", lambda ms: w4.remove_columns(ms, ["SIGMA"]))
     for command in ("flag", "calibrate", "apply", "image"):
         works(capsys, command, config, sigma)
     none = twin(tmp_path, "none", lambda ms: w4.remove_columns(ms, ["WEIGHT"]))
     works(capsys, "flag", config, none)
     refused(capsys, "calibrate", config, none, "WEIGHT_SPECTRUM or WEIGHT", "uniform")
-    refused(capsys, "image", config, none, "WEIGHT_SPECTRUM or WEIGHT", "gemclean")
+    refused(capsys, "image", config, none, "WEIGHT_SPECTRUM or WEIGHT", "uniform")
     uniform = write(tmp_path, "u.yaml", data={"weights": "uniform"})
     works(capsys, "calibrate", uniform, none)
     works(capsys, "apply", uniform, none)
+    works(capsys, "image", uniform, none)  # -unit-weights reads no weights (W6)
 
 
-def test_uniform_imaging_weights_are_refused_naming_w4(tmp_path, capsys):
+def test_uniform_imaging_weights_reach_gemclean_without_a_write(tmp_path, capsys):
+    # Task W6: data.weights: uniform images with gemclean's -unit-weights, and
+    # the MS is not written (research/w6-imaging-inputs.md).
     ms = twin(tmp_path, "x")
-    config = write(tmp_path, data={"weights": "uniform"})
-    refused(capsys, "image", config, ms, "data.weights", "task W4", "WEIGHT_SPECTRUM")
-    works(capsys, "calibrate", config, ms)
+    before = w4.fingerprint(ms)
+    config = write(tmp_path, data={"weights": "uniform", "scans": [2]})
+    works(capsys, "image", config, ms, run_dir=tmp_path / "run")
+    summary = yaml.safe_load((tmp_path / "run/image/summary.json").read_text())
+    argv = summary["images"][0]["argv"]
+    assert "-unit-weights" in argv and argv[argv.index("-scans") + 1] == "2"
+    assert w4.fingerprint(ms) == before
+    works(
+        capsys, "calibrate", write(tmp_path, "c.yaml", data={"weights": "uniform"}), ms
+    )
 
 
 @pytest.mark.parametrize("name", ["FLAG_ROW", "FLAG"])

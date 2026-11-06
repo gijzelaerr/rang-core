@@ -72,6 +72,10 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -resync-every <k>         resync after k components (default 2000)
   -data-column <name>       default CORRECTED_DATA if present, else DATA
   -field <id>               field id (default 0)
+  -scans <list>             only the rows of these scans, comma-separated (rang's own;
+                            also the rows the model column gets; research/w6-imaging-inputs.md)
+  -unit-weights             every correlation weighs 1 in place of WEIGHT_SPECTRUM or WEIGHT,
+                            flags still applied (rang's own; not -weight uniform)
   -j <threads>              worker threads (default: all cores)
   -wgridder-accuracy <eps>  gridder accuracy (default 1e-6, double precision)
   -no-wgridding             disable the w-term
@@ -164,6 +168,8 @@ struct Args {
     predict: bool,
     update_model: bool,
     model_column: String,
+    scans: Vec<i32>,
+    unit_weights: bool,
 }
 
 /// An angle with WSClean's units, in radians (plain numbers are degrees).
@@ -247,6 +253,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         predict: false,
         update_model: true,
         model_column: "MODEL_DATA".into(),
+        scans: Vec::new(),
+        unit_weights: false,
     };
     let mut i = 0;
     let mut positional = Vec::new();
@@ -366,6 +374,17 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-average-channels" => a.average_channels = number(flag, value(&mut i)?)?,
             "-mf-weighting" => a.mf_weighting = Some(true),
             "-no-mf-weighting" => a.mf_weighting = Some(false),
+            "-scans" => {
+                let v = value(&mut i)?;
+                a.scans = v
+                    .split(',')
+                    .map(|x| number::<i32>(flag, x.trim().to_string()))
+                    .collect::<Result<_, _>>()?;
+                if a.scans.is_empty() {
+                    return Err("-scans needs at least one scan number".into());
+                }
+            }
+            "-unit-weights" => a.unit_weights = true,
             "-predict" => a.predict = true,
             "-update-model-required" => a.update_model = true,
             "-no-update-model-required" => a.update_model = false,
@@ -737,6 +756,8 @@ fn run() -> Result<(), String> {
     let selection = Selection {
         data_column: column.clone(),
         field: args.field,
+        scans: args.scans.clone(),
+        unit_weights: args.unit_weights,
         ..Selection::default()
     };
     let mut data = input::read_ms(&args.ms, &selection)?;
@@ -1000,6 +1021,15 @@ fn run() -> Result<(), String> {
         ("ms", text(&args.ms.display().to_string())),
         ("data_column", text(&column)),
         ("field", args.field.to_string()),
+        (
+            "scans",
+            if args.scans.is_empty() {
+                "null".into()
+            } else {
+                arr(&args.scans.iter().map(|x| x.to_string()).collect::<Vec<_>>())
+            },
+        ),
+        ("unit_weights", args.unit_weights.to_string()),
         (
             "rows_total",
             data_rows_total(&args.ms).map_or("null".into(), |r| r.to_string()),
@@ -1637,6 +1667,15 @@ fn run_channels(
         ("data_column", text(column)),
         ("model_update", model_json),
         ("field", args.field.to_string()),
+        (
+            "scans",
+            if args.scans.is_empty() {
+                "null".into()
+            } else {
+                arr(&args.scans.iter().map(|x| x.to_string()).collect::<Vec<_>>())
+            },
+        ),
+        ("unit_weights", args.unit_weights.to_string()),
         ("channels_read", nchan_read.to_string()),
         ("channels_out", meta.len().to_string()),
         ("join_channels", args.join_channels.to_string()),
@@ -1692,6 +1731,7 @@ fn write_model(args: &Args) -> Result<(predict::Written, f64), String> {
     let t = Instant::now();
     let sel = Selection {
         field: args.field,
+        scans: args.scans.clone(),
         ..Selection::default()
     };
     let band = input::band(&args.ms, &sel)?;
@@ -1770,6 +1810,15 @@ fn predict_only(args: &Args, raw: &[String], wall: Instant) -> Result<(), String
         ("argv", arr(&argv)),
         ("ms", text(&args.ms.display().to_string())),
         ("field", args.field.to_string()),
+        (
+            "scans",
+            if args.scans.is_empty() {
+                "null".into()
+            } else {
+                arr(&args.scans.iter().map(|x| x.to_string()).collect::<Vec<_>>())
+            },
+        ),
+        ("unit_weights", args.unit_weights.to_string()),
         ("predict", written_json(&w, seconds)),
         ("wgridder_accuracy", num(args.epsilon)),
         ("gridder_single", args.single.to_string()),

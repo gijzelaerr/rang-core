@@ -34,6 +34,11 @@ pub struct Selection {
     pub data_desc: i32,
     /// Rows read per chunk.
     pub chunk_rows: u64,
+    /// Only rows of these scans (empty: every scan; task W6).
+    pub scans: Vec<i32>,
+    /// Every correlation weighs 1, in place of WEIGHT_SPECTRUM or WEIGHT;
+    /// flags still apply (task W6, `data.weights: uniform`).
+    pub unit_weights: bool,
 }
 
 impl Default for Selection {
@@ -43,6 +48,8 @@ impl Default for Selection {
             field: 0,
             data_desc: 0,
             chunk_rows: 20_000,
+            scans: Vec::new(),
+            unit_weights: false,
         }
     }
 }
@@ -194,7 +201,8 @@ fn stokes_cell(d: &[f32], w: &[f32], f: &[u8], a: usize, b: usize) -> ((f32, f32
 
 /// Which of the rows `start..start + count` of `main` the selection takes:
 /// the field and data description, cross-correlations only (WSClean's
-/// `MSSelection::IsSelected` without its interval and uv limits).
+/// `MSSelection::IsSelected` without its interval and uv limits), and the
+/// scans of `sel.scans` when given (rang's own, task W6).
 pub fn row_mask(
     main: &Table,
     sel: &Selection,
@@ -205,8 +213,18 @@ pub fn row_mask(
     let ant1 = ints(&read(main, "ANTENNA1", start, count)?, "ANTENNA1")?;
     let ant2 = ints(&read(main, "ANTENNA2", start, count)?, "ANTENNA2")?;
     let ddid = ints(&read(main, "DATA_DESC_ID", start, count)?, "DATA_DESC_ID")?;
+    let scan = if sel.scans.is_empty() {
+        Vec::new()
+    } else {
+        ints(&read(main, "SCAN_NUMBER", start, count)?, "SCAN_NUMBER")?
+    };
     Ok((0..count as usize)
-        .map(|i| field[i] == sel.field && ant1[i] != ant2[i] && ddid[i] == sel.data_desc)
+        .map(|i| {
+            field[i] == sel.field
+                && ant1[i] != ant2[i]
+                && ddid[i] == sel.data_desc
+                && (sel.scans.is_empty() || sel.scans.contains(&scan[i]))
+        })
         .collect())
 }
 
@@ -320,9 +338,13 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
     let (a, b) = parallel_hands(&correlations)?;
     let nchan = freq.len();
     let ncorr = correlations.len();
+    // WSClean's rule (`OpenWeightSpectrumColumn`: `isDefined(0)`): the
+    // column is used when row 0 holds a cell of the data's shape; a declared
+    // column whose cells were never written falls back to WEIGHT (task W6).
     let weight_spectrum = main.column("WEIGHT_SPECTRUM").is_ok()
         && main.nrows > 0
-        && read(&main, "WEIGHT_SPECTRUM", 0, 1).is_ok();
+        && read(&main, "WEIGHT_SPECTRUM", 0, 1)
+            .is_ok_and(|d| d.dtype == Some(DataType::Float) && d.bytes.len() == nchan * ncorr * 4);
     let mut out = StokesI {
         uvw: Vec::new(),
         freq,
@@ -361,7 +383,9 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
                 &sel.data_column,
             )?;
             let flag = bools(&read(&main, "FLAG", start, count)?, "FLAG")?;
-            let weights = if weight_spectrum {
+            let weights = if sel.unit_weights {
+                vec![1.0f32; count as usize * nchan * ncorr]
+            } else if weight_spectrum {
                 floats(
                     &read(&main, "WEIGHT_SPECTRUM", start, count)?,
                     "WEIGHT_SPECTRUM",
