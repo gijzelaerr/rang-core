@@ -79,3 +79,79 @@ written to `-report.json` as `memory`. The counts come from the binary's allocat
 ([`gemclean/memory.rs`](../core/src/gemclean/memory.rs)); the Python extension does not count.
 Phases: `read`, `weights`, `compact`, `measurement`, `psf 2n`, `beam`, then per major cycle
 `residual: predict`, `residual: grid` and `cycle k: minor`, `clean: end`, `write`.
+
+## Where the peak comes from (measured, before any change)
+
+Runs of 2026-11-06, `D:\rang\outputs\20261106-g2-memory\runs\{base,instr}`: `base` is the reference binary
+`66c2967`, `instr` the same code with the accounting (`1a97192`, sha256 `ca364c1a…557ead4`). **The accounting
+changes no image:** all five FITS files are byte-identical to the reference's on the seven skies in both
+forms and on the 256-channel pilot (15 runs, [identity.py](results/g2-memory-scripts/identity.py)), and
+peak RSS agrees within 0.13 GB (H3: 6.11 against 5.98 GB; the rest within 0.02 GB). That spread on H3 is
+the run-to-run noise of RSS there.
+
+Heap in GB (10⁹ bytes), the most held during each phase; the per-cycle phases give their largest value.
+Pilot-256: 792,626 rows × 256 channels = 202.9 M cells, 152.2 M of them active (nonzero weight).
+
+| phase | S1 (2048²) | H3 (4096²) | pilot, 256 channels (4096²) |
+| --- | ---: | ---: | ---: |
+| read | 0.58 | 0.58 | 8.67 |
+| weights | 0.66 | 0.67 | 9.12 |
+| compact | 1.10 | 1.10 | 15.81 |
+| measurement | 1.11 | 1.17 | 14.34 |
+| psf 2n | 3.06 | 4.10 | 14.52 |
+| beam | 1.26 | 2.93 | 10.06 |
+| major cycles (predict, grid) | **3.44** | **6.09** | **18.44** |
+| peak RSS, `time -v` | 3.46 | 5.98 | 18.19 (swap 0.34 at the end: the heap is the better figure here) |
+| WSClean `nominres` peak RSS | 0.82 | 1.89 | 4.95 |
+| WSClean `minres` peak RSS | 0.58 | 1.13 | – |
+
+Buffers held through the major cycles, GB (the pilot's per-cell share in bytes):
+
+| buffer | S1 | H3 | pilot-256 | bytes per cell (c) or active (a) |
+| --- | ---: | ---: | ---: | --- |
+| measurement visibilities, `Complex<f64>` | 0.23 | 0.23 | 3.25 | 16 c |
+| measurement weights, normalised | 0.12 | 0.12 | 1.62 | 8 c |
+| residual visibility buffer | 0.23 | 0.23 | 3.25 | 16 c |
+| gridding weights, kept by the binary after the copy | 0.12 | 0.12 | 1.69 | 8 c (a duplicate) |
+| gridder sorted index | 0.12 | 0.12 | 1.22 | 8 a |
+| gridder stored values | 0.23 | 0.23 | 2.44 | 16 a |
+| gridder grids (plane group 4) | 1.45 | 1.66 | 1.66 | fixed |
+| beam: exterior, spectrum, resync rows | 0.34 | 1.34 | 1.34 | fixed |
+| the 2n PSF, kept to the end for a crop | 0.13 | 0.54 | 0.54 | fixed (a duplicate) |
+| n × n images in the loop, about 8 | 0.27 | 1.07 | 1.07 | fixed |
+
+What this says:
+
+- **On the simulated skies the fixed buffers dominate**: the gridder's grids (four planes at once,
+  `PLANE_GROUP` 4 within 2 GiB), the beam's three `(2n)²` tables and the images. The visibilities are
+  14.5 M cells. GeMClean holds 4.2× WSClean's `nominres` peak on S1 and 3.2× on H3.
+- **On the pilot the per-visibility buffers dominate**: 48 bytes per cell (16 + 8 + 16 + 8) and 24 per
+  active visibility in the major cycles. 3.7× WSClean's peak.
+- **The early phases waste**: `read_ms` grows its arrays by doubling, so the Stokes I visibilities
+  hold 5.24 GB of capacity for 3.25 GB of values (and pass through up to three times their size while
+  growing); the compaction copies the visibilities and weights into new vectors, again grown by
+  doubling, while the originals and the gridding weights are still held (15.8 GB);
+  `GridMeasurement::new` copies them once more, even where the conversion is to the same type.
+- **The 2n PSF** pass builds its own sorted index and stored values (24 bytes per active visibility)
+  and a grid on the 2n side: 6.1 GB above what is held, on the pilot-256.
+- **Pilot at 512 channels, the reference binary** (`base/p512-def`, stopped at 20 × 10⁹ bytes so the
+  shared host would not swap): read finished at 24 s at about 12.8 GB RSS, the weights at 30 s, and
+  the compaction passed 19.7 GB at 40 s, when the watchdog stopped it. Scaling the pilot-256 buffers
+  to 405.8 M cells and 303 M active visibilities: about 31.6 GB in the major cycles (48 × 405.8 M +
+  24 × 303 M + 4.8 GB fixed), and the compaction about as much. The held-out note's "about 33 GB" is
+  this.
+- **WSClean at 512 channels** (default memory budget): 8.35 GB `nominres`, 7.77 GB `minres`.
+
+So 512 channels cannot fit by trimming the fixed buffers; it needs the per-cell bytes down. Planned
+class-A changes, each byte-identical by construction (the rule above decides):
+
+1. read at the exact size (count the rows first), Stokes I held in `f32` as formed (exact to widen);
+2. compact in place, drop the gridding weights after the copy, shrink large blocks in place;
+3. hold the measurement's visibilities in `f32` where they came in `f32` (widened where used);
+4. form the residual in the gridder's sorted stored values instead of a visibility-sized buffer,
+   with the misfit still summed serially in visibility order through a permutation (4 bytes per active
+   visibility), where the zero-weight visibilities add exactly zero to it;
+5. drop the 2n PSF after the beam is built, keeping its n × n crop.
+
+Expected at 512 channels, default form: 16 bytes per cell + 28 per active visibility + about 4.3 GB,
+about 19.3 GB in the major cycles. An estimate, to be measured.
