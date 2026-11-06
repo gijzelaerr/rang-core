@@ -475,32 +475,14 @@ fn resample_freq(
                 }
                 continue;
             }
-            if t.freq_interp == Interp::Nearest {
-                for (c, &x) in fout.iter().enumerate() {
-                    let k = if x <= lo {
-                        0
-                    } else if x >= hi {
-                        m - 1
-                    } else {
-                        let i = good.partition_point(|&g| fin[g] <= x) - 1;
-                        let i = i.min(m - 2);
-                        if x - fin[good[i]] <= fin[good[i + 1]] - x {
-                            i
-                        } else {
-                            i + 1
-                        }
-                    };
-                    out[(c * npar + p) * nf + q] = y[k];
-                }
-                continue;
-            }
             if !t.kind.float_param() && q == 1 {
                 // Unwrap the phase in float32 as `CTPatchedInterp::
-                // resampleInFreq` does: the difference of two floats compared
-                // with pi, each 2 pi step rounded back to float. Large
-                // unwrapped phases lose precision there, and the result must
-                // lose it the same way (run -03 of research/c4a-apply.md;
-                // `caltable.py` unwraps in float64 and casts once).
+                // resampleInFreq` does, for both modes: the difference of two
+                // floats compared with pi, each 2 pi step rounded back to
+                // float. Large unwrapped phases lose precision there, and the
+                // result must lose it the same way (runs -03 and -04 of
+                // research/c4a-apply.md; `caltable.py` unwraps in float64 and
+                // casts once, and only for `linear`).
                 for i in 1..y.len() {
                     let prev = y[i - 1];
                     while f64::from(y[i] - prev) > std::f64::consts::PI {
@@ -511,6 +493,10 @@ fn resample_freq(
                     }
                 }
             }
+            // Nearest beyond the end channels, then casacore's
+            // `InterpolateArray1D<Double, Float>` inside (`InterpolateArray1D.tcc`
+            // of casacore 3.7.1): `frac = (x - x1) / (x2 - x1)` in double,
+            // `y1 + frac * (y2 - y1)` with the difference in float.
             let (lo_v, hi_v) = (y[0], y[m - 1]);
             for (c, &x) in fout.iter().enumerate() {
                 let r = if x >= hi {
@@ -521,8 +507,17 @@ fn resample_freq(
                     let i = good.partition_point(|&g| fin[g] <= x) - 1;
                     let i = i.min(m - 2);
                     let (x0, x1) = (fin[good[i]], fin[good[i + 1]]);
-                    let (y0, y1) = (f64::from(y[i]), f64::from(y[i + 1]));
-                    (y0 + (x - x0) * (y1 - y0) / (x1 - x0)) as f32
+                    if t.freq_interp == Interp::Nearest {
+                        // Ties to the lower channel, as casacore.
+                        if (x1 - x).abs() < (x0 - x).abs() {
+                            y[i + 1]
+                        } else {
+                            y[i]
+                        }
+                    } else {
+                        let frac = (x - x0) / (x1 - x0);
+                        (f64::from(y[i]) + frac * f64::from(y[i + 1] - y[i])) as f32
+                    }
                 };
                 out[(c * npar + p) * nf + q] = r;
             }
