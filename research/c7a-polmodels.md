@@ -1,0 +1,249 @@
+# C7a: polarised calibrator models (CASA `setjy` manual with polindex, polangle, rotmeas)
+
+Task C7a of [finish-plan.md](finish-plan.md) (row C7, "polarised calibrator
+models"), the model half of step 8 of
+[c1-calibration-chain.md](c1-calibration-chain.md) (term T7). Branch
+`fp-c7a-polmodels` from main `a05119a`. It extends C3a's
+`rang.calmodels.set_model` ([c3a-models.md](c3a-models.md)).
+
+**Status: proposed (design, cases and tolerances frozen in this commit,
+before any comparison).** Nothing is implemented or measured in this commit.
+
+## 1. Scope
+
+- `calmodels.Manual` takes CASA's full `setjy(standard='manual')` polarised
+  form: `fluxdensity=[I, Q, U, V]`, `spix`, `reffreq`, `polindex`,
+  `polangle`, `rotmeas`, and writes MODEL_DATA in all four linear
+  correlations (circular feeds keep C3a's mapping; they are not tested here).
+- CARACal's two shipped polarisation-calibrator models (`nrao_xcal.yml`, 3C286
+  and 3C138, with CARACal's aliases J1331+3030 and J0521+1638) as constants,
+  like `fluxstd.CARACAL_1934`.
+- `rang-core calibrate`: `calibrate.model.source: manual` accepts Q, U, V,
+  `polindex`, `polangle` and `rotmeas`; the C7a refusals go for what is
+  implemented here.
+- Not in scope: polarised components in `.lsm` sky models (stays refused,
+  naming C7a); the parallactic-angle term P (C6a); applying anything.
+
+## 2. What CASA does (read from source)
+
+Sources, all copied under `~/Github/rang/outputs/c7a-sources-20261106/`
+(ignored; `SHA256SUMS` in each folder):
+
+- `casa6-9269a52/`: the GitHub mirror `dic-case-studies/casa6` at
+  `9269a52` (2023-01-18), the same mirror C1 read. This is **not** the
+  6.7.6.14 source. The Python task `task_setjy.py` of the oracle image
+  (`casa-6.7.6.14/task_setjy.py`, SHA-256 `78bad2d1…`) differs from the
+  mirror's only in Python 2 shims and two new spectral-index range checks
+  (`|spix[0]| > 10` refused); the `polindex`, `polangle`, `rotmeas` arguments
+  are passed to `imager.setjy` unchanged. The C++ below is the mirror's; the
+  oracle run decides whether 6.7.6.14 behaves the same.
+- `casacore-v3.7.1/`: `Polynomial.tcc` (`eval` is Horner from the highest
+  coefficient), `PolynomialParam.tcc`.
+- `caracal-8f7bb363/`: `taylor_legodi_2024.txt`, `dispatch_crew/utils.py`,
+  `meerkat-polcal-strategies.yml`; the polcal worker and `nrao_xcal.yml` are
+  in C1's copy (`c1-sources-20261105/caracal-8f7bb363/`).
+
+`Imager::sjy_setmanualflux` (`Imager.cc` lines 5405–5605) and
+`Imager::sjy_calcquflux` (lines 6024–6071):
+
+1. **I.** If `spix` has more than one term, or `polindex` or `polangle` has
+   more than one, the model is a `TabularSpectrum` of per-channel values
+   ("tabular"). I is `sjy_calciflux`, which FS1 and C3a matched at 0 ulps
+   with `fluxstd.manual`. Otherwise it is a `SpectralIndex` model.
+2. **Linear polarisation.** `x = (f − f0)/f0` with `f0` = `reffreq`;
+   `p = polindex(x)`, `χ = polangle(x)`, ordinary polynomials (casacore
+   `Polynomial`, Horner), not log10 as `spix`. `Q = (p·I)·cos(2χ)`,
+   `U = (p·I)·sin(2χ)`.
+3. **Rotation measure**, referenced to `reffreq`, not to λ = 0:
+   `rot = 2·RM·c·c·(f0² − f²)/(f²·f0²)` (= 2·RM·(λ² − λ0²)), then
+   `Q' = Q cos rot − U sin rot`, `U' = Q sin rot + U cos rot`; skipped when
+   RM = 0.
+4. **`fluxdensity` Q, U.** If Q or U is nonzero, `p0 = sqrt(Q² + U²)/I` and
+   `χ0 = atan2(U, Q)/2` replace the zeroth coefficients of `polindex` and
+   `polangle` (or become them when either is empty; then the other terms are
+   dropped).
+5. **V.** `V = I(f) · V/I` with V and I from `fluxdensity` (a constant
+   circular fraction).
+6. **`polindex` without `polangle`** (or the reverse), with Q = U = 0:
+   CASA writes no linear polarisation and says nothing.
+7. **The `SpectralIndex` path when polarised** (one `spix` term, at most one
+   `polindex` and `polangle` term, and any of Q, U, V nonzero): the component
+   takes the (I, Q, U, V) of **channel 0** of the window, the reference
+   frequency becomes channel 0's, and `SpectralIndex::sampleStokes`
+   (`SpectralIndex.cc` 213–258, stokes index `[spix, 0, RM, 0]`) scales I, Q,
+   U, V by `(ν/ν0)^spix` and rotates Q, U by RM relative to channel 0. This is
+   the same model as items 2–5 in exact arithmetic; the bits differ. CARACal's
+   Taylor & Legodi option takes this path (one `spix`, one `polindex`).
+8. **Correlations.** `SimpleComponentFTMachine::get` (`TransformMachines2`,
+   lines 255–274, 352–393) converts the component's Stokes to linear with
+   `Flux::stokesToLinear` (`Flux.tcc` 984–1008): `XX = I+Q`, `XY = U+iV`,
+   `YX = U−iV`, `YY = I−Q`, in double, cast to `Complex`, then multiplied in
+   float by the conjugate phasor of the phase-centre shift. Linear or circular
+   is `vb.polarizationFrame()` (the FEED table's `POLARIZATION_TYPE`).
+
+**No parallactic angle in `setjy`.** Nothing on that path reads a feed angle.
+P enters only as a calibration term: `PJones::syncMeta2` takes
+`vb.feedPa(time)` and `calcOneJones` forms
+`[[cos a, sin a], [−sin a, cos a]]` (`StandardVisCal.cc` 126–201), applied
+by `gaincal`/`polcal`/`applycal` with `parang=True`. So MODEL_DATA holds the
+**sky-frame** coherency, the same at every parallactic angle, and so does
+rang's. Measured below (P1, P2).
+
+## 3. Conventions rang states
+
+- **MODEL_DATA convention** (C1 1.1, unchanged from C3a): sky frame,
+  `XX = I+Q`, `XY = U+iV`, `YX = U−iV`, `YY = I−Q`, CASA's
+  `Flux::stokesToLinear`; χ = atan2(U, Q)/2 counted as in the IAU and NRAO
+  tables (3C286 χ = 33° gives U > 0, Re XY > 0).
+- **MeerKAT's feeds.** The difference between MeerKAT's receptors and CASA's
+  X, Y is carried by P through RECEPTOR_ANGLE, not by the model: CARACal's
+  polcal worker overwrites RECEPTOR_ANGLE with −90° on both receptors
+  (`feed_angle_rotation: -90`, `polcal_worker.py` 1487–1505; schema text:
+  "to agree with the convention assumed in the CASA software"). A1's MS
+  already holds −π/2 on both (a1-simtruth.md). So rang's MODEL_DATA is
+  feed-independent, as CASA's. Whether −90° is the right sign for MeerKAT is
+  decided by the calibrated 3C286 angle in C7b (C1 step 11), not here.
+- **Parallactic-angle convention.** C7a writes sky-frame models and needs no
+  parallactic angle, so finish-plan 7.8 (rang's geodetic/ICRS angle against
+  CASA's geocentric/apparent one, up to 0.54°, A1) does not affect it.
+  C6 (P with `parang=True`) and C7b (apply) do. `rang.simtruth` is not
+  changed.
+- **`rang.simtruth`'s RM** is `χ0 + RM·λ²` (λ = 0 reference), CASA's is
+  `χ0 + RM·(λ² − λ0²)` (reference `reffreq`). Harmless at A1's RM = 0; a
+  future truth with RM ≠ 0 must use CASA's reference or say which it uses.
+  Recorded, not changed.
+
+## 4. Design
+
+`calmodels.Manual(fluxdensity, reffreq_hz, spix=(), q=0, u=0, v=0,
+polindex=(), polangle=(), rotmeas=0)`; `fluxdensity` may also be
+`[I, Q, U, V]` through `spec_from_config`. `Manual.stokes(freq_hz)` follows
+section 2 item by item:
+
+- unpolarised: exactly C3a's path (`fluxstd.manual`), so C3a's results hold;
+- tabular: I from `fluxstd.manual`, Q and U per channel in CASA's operation
+  order (Horner, `(p·I)·cos(2χ)`, the RM expression left to right) with
+  `math` (libm) scalars, not vectorised numpy, so a 1-ulp double difference
+  cannot flip a float32 rounding;
+- `SpectralIndex` path: the channel-0 values from the tabular formulas, then
+  `SpectralIndex::sampleStokes`'s per-channel scaling and rotation, also in
+  libm scalars.
+- **Refused** (owner decision, provisional): `polindex` without `polangle` or
+  the reverse when Q = U = 0 (CASA silently writes none; rang refuses rather
+  than drop what the user asked for). A negative or zero I is refused as in
+  C3a.
+- Constants `calmodels.NRAO_XCAL` (3C286, 3C138 of CARACal's `nrao_xcal.yml`,
+  aliases J1331+3030, J0521+1638 as `polcal_worker.py` 1424–1427) and
+  `calmodels.caracal_xcal(name)` returning the `Manual`.
+- `set_model`'s chunk loop is unchanged (it already writes four
+  correlations); the receipt records I, Q, U, V at the first, middle and last
+  channel and which CASA path the model follows.
+- `rang-core calibrate`: `core_pipeline.model_spec` passes `flux_jy` (I, Q,
+  U, V), `polindex`, `polangle`, `rotmeas`; `core_config._model_refusals`
+  keeps the refusal for a polarised model where it is not implemented and
+  adds "only with source: manual" for the polarisation keys. Models stay on
+  the primary fields; the secondary and polcal refusal (C2d) stays.
+
+Taylor & Legodi (CARACal `taylor_legodi_model`,
+`dispatch_crew/utils.py::read_taylor_legodi_row`): one `spix` (α only, the
+table's curvature C dropped), `reffreq 1.4GHz`, `polindex = p1400/100`,
+`polangle = PA1400` in rad, `rotmeas = RM`. That is a `Manual` too; case M7
+below is built the same way. No rang constant (it is a 12 kB table; owner
+decision whether to ship it).
+
+## 5. Data
+
+Every MS is a copy under `/mnt/d/rang/outputs/c7a-<run>/`; inputs are hashed
+before and after and never opened for writing.
+
+| Name | Source | Use |
+| --- | --- | --- |
+| S, the slice | `~/Github/rang/outputs/o-casa-20261030-01/work.ms` (C3a's S) | 192 rows × 2048 ch, field `J1939-6342`. `manual` ignores the field's name, so no relabel. The geometry where CASA writes imaginary parts near 1e-12 Jy (C3a) |
+| A, A1 small | `/mnt/d/rang/outputs/fp-a1-20261106-simtruth/small/a1-small.ms` (C3a's A) | 64 ch over 856–1712 MHz; field `3C286-SIM` (1,920 rows, four scans over 115° of parallactic angle); `SIM-GCAL` |
+
+## 6. Cases and tolerances (frozen before the first comparison)
+
+Each case is one `setjy(..., standard='manual', scalebychan=True,
+usescratch=True)` on a CASA copy and the same model through
+`calmodels.set_model` on a rang copy.
+
+| # | Data, field | Model | CASA path |
+| --- | --- | --- | --- |
+| M1 | S, `J1939-6342` | CARACal 3C286: `fluxdensity=[14.7172]`, `spix=[-0.4507, -0.1798, 0.0357]`, `reffreq='1.47GHz'`, `polindex=[0.098]`, `polangle=[0.575959]`, `rotmeas=0.0` (`polcal_worker.py` 150–167) | tabular |
+| M2 | S, `J1939-6342` | CARACal 3C138: `[8.33843]`, `[-0.4981, -0.1552, -0.0102, 0.0223]`, `1.47GHz`, `[0.078]`, `[-0.16755]`, `0.0` | tabular |
+| M3 | A, `3C286-SIM` | M1 | tabular |
+| M4 | A, `3C286-SIM` | M1 with `polindex=[0.098, 0.02, -0.01]`, `polangle=[0.575959, 0.05]`, `rotmeas=50.0` | tabular |
+| M5 | S, `J1939-6342` | `fluxdensity=[14.7172, 0.6, 1.2, 0.05]`, 3C286 `spix`, `1.47GHz`, `polindex=[0.098, 0.03]`, `polangle=[0.575959, -0.04]`, `rotmeas=10.0` (Q, U override the zeroth terms; V fraction) | tabular |
+| M6 | A, `3C286-SIM` | `fluxdensity=[14.7172, 0.4, 1.3, 0.0]`, 3C286 `spix`, `1.47GHz`, no `polindex`/`polangle`, `rotmeas=-30.0` | tabular |
+| M7 | A, `3C286-SIM` | Taylor & Legodi J1331+3030 as CARACal reads it: `fluxdensity=14.673`, `spix=-0.630`, `reffreq='1.4GHz'`, `polindex=0.099`, `polangle=29.2°` in rad, `rotmeas=-0.3` | SpectralIndex |
+| M8 | A, `SIM-GCAL` | `fluxdensity=[4.0, 0, 0, 0.04]`, `spix=[-0.6]`, `1.4GHz` (V only) | SpectralIndex |
+| H1 | A, `3C286-SIM` | **held out**, run only after M1–M8: 3C138 `fluxdensity=[8.33843, -0.3, 0.5, -0.02]`, 3C138 `spix`, `1.47GHz`, `polindex=[0.078, 0.03]`, `polangle=[-0.16755, -0.02, 0.01]`, `rotmeas=-20.0`; and on `SIM-GCAL` of the same copy `fluxdensity=[4.0, 0.1, -0.05, 0]`, `spix=[-0.6]`, `1.4GHz`, `rotmeas=15.0` (SpectralIndex with Q, U from `fluxdensity`) | both |
+
+**Gates per case** (all cells of the selected rows, all four correlations):
+
+- **G1, C1's step-8 bound:** `|V_rang − V_casa| ≤ 1e-6 · I` per cell
+  (complex difference; I the model's Stokes I of that channel).
+- **G2, class C as C3a** (bit level): the real parts of XX, XY, YX, YY at
+  **0 float32 ulps**; the imaginary parts within `1e-9 · I` (CASA's
+  phase-centre phasor, C3a: 1.8e-12 Jy on S; 0 on A).
+- **G3, the other rows**: every MODEL_DATA cell outside the selected field
+  bit-identical to CASA's copy (C3a: both initialise as `clearcal`).
+- A case passes when G1, G2 and G3 pass. If G2 fails and G1 passes, the case
+  fails as written and the size of the miss is reported.
+
+**Frame checks** (A):
+
+- **P1:** `setjy` M1 on a copy whose FEED `RECEPTOR_ANGLE` is set to 0 on
+  both receptors (written by rang's harness on the copy) equals `setjy` M1 on
+  the copy with −π/2 (M3's CASA copy), every MODEL_DATA cell bit-identical.
+- **P2:** in M3's and M4's CASA copies, for each channel every `3C286-SIM`
+  row is bit-identical (the model does not rotate with parallactic angle).
+- FEED `POLARIZATION_TYPE` is `X, Y` on both MSs (reported).
+
+**Class T, published values.** From each model's Stokes, at the published
+frequencies inside MeerKAT's L band (856–1712 MHz):
+`p = sqrt(Q² + U²)/I`, `χ = atan2(U, Q)/2`.
+
+Published, read twice: Perley & Butler 2013 (ApJS 206, 16; arXiv:1302.6662),
+Table 3, December 2010, read from the ar5iv rendering and from NRAO's VLA
+polarimetry page (Table 8.2.6), identical; NRAO's 2019 values (Table 8.2.7 of
+the same page, one source only), from which `nrao_xcal.yml`'s 1.47 GHz values
+come.
+
+| Source | GHz | p % | χ ° | table |
+| --- | --- | --- | --- | --- |
+| 3C286 | 1.05, 1.45, 1.64 | 8.6, 9.5, 9.9 | 33, 33, 33 | PB2013 |
+| 3C286 | 1.02, 1.47 | 8.6, 9.8 | 33, 33 | NRAO 2019 |
+| 3C138 | 1.05, 1.45, 1.64 | 5.6, 7.5, 8.4 | −14, −11, −10 | PB2013 |
+| 3C138 | 1.02, 1.47 | 5.5, 7.8 | −13, −9.6 | NRAO 2019 |
+
+- **T1 (gated):** at 1.47 GHz, rang's M1 and M2 models give the 2019 values
+  within the tables' rounding (|Δp| ≤ 0.05 percentage points, |Δχ| ≤ 0.05°);
+  and the same from **CASA's MODEL_DATA** of M1 and M2 (Q = Re(XX − YY)/2,
+  U = Re XY, I = Re(XX + YY)/2) at every channel, since these models hold p
+  and χ constant over the band. This checks the transcription and the sign
+  of χ in both.
+- **T2 (reported, prediction frozen):** CARACal's models hold p and χ
+  constant over the band, so against PB2013 they are off by what the
+  published spectrum changes. Predicted Δ = model − published: 3C286
+  Δp +1.2 (1.05 GHz), +0.3 (1.45), −0.1 (1.64), +1.2 (1.02), Δχ 0;
+  3C138 Δp +2.2, +0.3, −0.6, +2.3 and Δχ +4.4°, +1.4°, +0.4°, +3.4°. A
+  different measured Δ means the model is not constant and is a finding.
+  This is the accuracy of CARACal's model, not of rang.
+- **T3 (reported):** Taylor & Legodi 2024's MeerKAT values for J1331+3030
+  (p 9.90 % and PA 29.2° at 1.4 GHz, RM −0.3) and J0521+1638 (7.71 %,
+  −15.1°, RM −2.4) against `nrao_xcal.yml`.
+
+Also reported, not gated: wall time of each call; CASA's maximum imaginary
+part per case.
+
+## 7. Tests
+
+`tests/test_calmodels.py` gains: polarised `Manual` against an independent
+float64 evaluation of section 2 (tabular and SpectralIndex paths, RM, Q/U
+override, V fraction); the refusal of `polindex` without `polangle`;
+`NRAO_XCAL` values and aliases; `spec_from_config` with `[I, Q, U, V]` and
+the polarisation keys; a polarised `set_model` writing all four
+correlations. `tests/test_core_config.py` (or the existing calibrate tests):
+`source: manual` with Q, U, V and polarisation keys validates; polarisation
+keys with another source are refused.
