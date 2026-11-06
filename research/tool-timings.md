@@ -1676,3 +1676,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C6w `check_c6w.py run` -01: CASA prepare, 18 calls, export; `rang-core calibrate`, `apply`; reference | poldx noisy | 357 s total; CASA container 51.0 s (tasks 0.2-4.3 s); calibrate 56.3 s; apply 62.0 s (`chunk_rows` 700, on /mnt/d); reference 34.7 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w `check_c6w.py run` -02 (held out) | polholdout noisy | 858 s total including about 10 min lock wait; CASA container 45.9 s; calibrate 42.7 s; apply 58.3 s; reference 33.1 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w gate 3 (`validate` on e2a, e2b) | configurations | under 1 s | – | – |
+| 2026-11-06 | W3b `uv venv` + `uv pip install -e` (all extras, ruff 0.17.3, maturin) + `maturin develop` | worktree | not timed (background) | – | public PyPI |
+| 2026-11-06 | W3b oracle extension, `maturin build --release` of main ba65792 | detached checkout | 1 min 41 s (cargo) | – | heavy lock |
+| 2026-11-06 | W3b `cargo test` counted-kernel tests + `maturin develop` | worktree | about 2 min (cargo 1 min 49 s) | – | heavy lock |
+| 2026-11-06 | W3b library dev check (`w3b_dev.py`): K, G, B, Gpol, KCROSS, Xf, Df one call / chunked / 7-row cap | poldx prepared, read only | B 2.0 / 5.5 / 378 s; Xf 2.3 / 5.4 / 279 s; Df 2.2 / 11.5 / 782 s; others under 6 s | – | 7-row cap: one channel per chunk, the field re-read per chunk |
+| 2026-11-06 | W3b check-all, implementation commit 295e65c | worktree | 16 min 34 s | 1.78 GiB | FAIL only on the research-index test; pytest 1027 passed, 68 skipped |
+| 2026-11-06 | W3b `angles_memory.py` (P angles, ba65792 against angle tables) | poldx (12,480 rows); A1 full (2,842,560 rows), read only | poldx 3.7 / 1.2 s (first run, cold caches); A1 full 67.3 / 66.7 s | tracemalloc peak 1.16 MB / 0.55 MB; 255 MB / 3.8 MB | heavy lock for A1 full |

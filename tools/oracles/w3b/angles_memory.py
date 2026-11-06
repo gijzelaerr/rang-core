@@ -84,7 +84,9 @@ def main(ms, chunk_rows, out):
     )
     equal = True
     for s, n in w.chunks(chunk_rows):
-        fid, t, a1, a2 = (w.read(k, s, n) for k in ("FIELD_ID", "TIME", "ANTENNA1", "ANTENNA2"))
+        fid, t, a1, a2 = (
+            w.read(k, s, n) for k in ("FIELD_ID", "TIME", "ANTENNA1", "ANTENNA2")
+        )
         for f, table in tables.items():
             sel = fid == f
             if sel.any():

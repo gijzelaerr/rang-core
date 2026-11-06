@@ -200,6 +200,41 @@ after; stage wall times (one run each, shared host; no speed claim).
 - Non-default solver options for these terms (they have none in the commands).
 - Windows and macOS. Speed.
 
+## 5. Runs
+
+### 5.1 Probe (not a comparison)
+
+`/mnt/d/rang/outputs/w3b-20261106-02-probe`: `tools/oracles/w3b/run.sh` case W, arm M (4.327 GiB), calibrate
+only, code `295e65c`, heavy lock; no U arm exists on W, so nothing was compared. Exit 0, 55 min 24 s.
+
+| Term | Chunks | Largest chunk | Iterations, converged fraction |
+| --- | --- | --- | --- |
+| K (`int`) | 12 (one dump each) | 2016 rows x 4096 x 4 = 33.0 M cells | 21, 0.9972 |
+| G (`int`) | 12 | 33.0 M cells | 16, 1.0 |
+| B (`combine: scan`) | 20 channel chunks of about 213 channels, blocks of about 1,260 whole rows | about 20.6 M cells plus a block of about as many | 14, 0.9909 |
+
+Peak RSS 1.66 GiB against the limit of 4.33 GiB. Over the largest chunk that is about 51 bytes per cell (K and G)
+or 43 per cell of chunk plus block (B), against `CELL_BYTES["chain"]` = 96: the factor keeps its margin of about
+two and is **not changed**, so `CHAIN_ROW_BYTES` (128) stays too. The probe also shows the replayed stop test
+stopping early on whole-array data (K at 21, G at 16, B at 14 of 50 iterations).
+
+### 5.2 P's angles (measured, `tools/oracles/w3b/angles_memory.py`)
+
+`/mnt/d/rang/outputs/w3b-20261106-01-angles`: tracemalloc peak of `applycal`'s angle step, read only, with the
+angles of every row checked equal between the two.
+
+| MS | Rows | `ba65792` (`_field_angles`, per-row arrays) | W3b (angle tables) | Table bytes | Angles equal |
+| --- | ---: | ---: | ---: | ---: | --- |
+| poldx | 12,480 | 1.16 MB | 0.55 MB | 14 kB | yes |
+| A1 full | 2,842,560 | 255 MB (90 bytes a row) | 3.8 MB | 0.73 MB | yes |
+
+The per-row arrays (two float64 per MS row, plus FIELD_ID, TIME and the antennas read whole) are gone; what is
+held is a table per field of unique times x antennas (8 bytes each) and the chunk being read, both inside the
+budget (row metadata and chunk). `cal_pol.load` and `gpol` use the same tables for their field.
+
+The library check on poldx (read only, `w3b_dev.py`, log in the same directory) found K, G (ap, p), B, Gpol,
+KCROSS, Xf and Df chunked (a small budget, and a 7-row cap) equal to one call, table cell for table cell.
+
 ## For the coordinator
 
 (written at the end)
