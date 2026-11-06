@@ -294,7 +294,7 @@ def with_overrides(d, args):
     flux = getattr(args, "gcal_flux", None)
     if not seeds and flux is None:
         return d
-    changes = {"name": f"{d.name}-override"}
+    changes = {}  # the name stays: the A1 checks rebuild the design from it
     if seeds:
         values = [int(s) for s in seeds.split(",")]
         if len(values) != 4:

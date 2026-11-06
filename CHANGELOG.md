@@ -17,7 +17,9 @@ the release notes are the section of this file for that version.
   flux-scaled table and a record shaped as CASA's. `bootstrap(ms, primary, secondary)` runs
   CARACal's F step: G on the secondaries against a unit point model (`smodel_array`), appended to a
   copy of the primary's table (`append`), then `fluxscale`. Selections by antenna, time or scan and
-  `incremental=True` are refused.
+  `incremental=True` are refused. Measured against CASA 6.7.6 `fluxscale`: the same flux densities,
+  errors and F tables as CASA on CASA's own G tables (fit errors at `fitorder=2` within 2.6e-5), and
+  within 4e-4 end to end.
 - Changed: `rang.cal_gain.gaincal` takes `spw` to solve one window of a multi-window MS (tables are
   pre-applied on single-window data only).
 - Changed: `examples/a1_simtruth.py generate` takes `--seeds` and `--gcal-flux`, `--gcal-spix`,

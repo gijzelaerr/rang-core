@@ -3,8 +3,27 @@
 Task C2d of [finish-plan.md](finish-plan.md) (C2, "C2d (F, `fluxscale`)"), step 6 of
 [c1-calibration-chain.md](c1-calibration-chain.md) section 6 (T5 in its term list, row 8 of its solve
 sequence). Branch `fp-c2d-fluxscale`, from main `f6c53a6`.
-**Status: protocol only (sections 0 to 6), committed before any comparison. Nothing is measured yet.**
-Results will be added below section 6, never edited into it; this status line is the only edit allowed above it.
+**Status: implemented and measured; class B and C met, class P and T not met as frozen.** The protocol
+(sections 0 to 6) was committed (`6ab6924`) before the first comparison; results are below it, and this status
+line is the only edit above section 7.
+
+- **Class P (the port, CASA's own G tables in):** the frozen run failed every case at 1e-8 to 1e-7 in `fluxd`,
+  because CASA's amplitude is `float32(sqrt(re² + im²))` computed in float64 (found post hoc), and on two
+  cases because CASA writes every row of the input table. After those two post-hoc ports, `fluxd`, `fluxdErr`,
+  numSol, frequencies, covariances and the F tables (bit-identical CPARAM) equal CASA's on 10 of 12 frozen and
+  3 of 4 held-out cases. The rest fail on the fit errors at `fitorder=2` (up to 2.6e-5 against 1e-6): with
+  four windows and three coefficients CASA's `χ²` is a difference of numbers near 1e10. The coefficients and
+  fitted fluxes agree within 5e-13.
+- **Class B (rang's G and `fluxscale` against CASA's):** every frozen and held-out case passes: `fluxd` within
+  3.9e-4 (one window, noisy) to 2.5e-8, spectral index within 2.6e-6, F-table products within C2a's class B.
+- **Class T (A1's truth):** passes on the noise-free twins (3e-6). With noise it fails as frozen on all four
+  cases, frozen and held out (1.2e-3 to 2.5e-3 against 1e-3). The protocol's expectation and its noise
+  estimate were both wrong (section 8), not rang, which agrees with CASA to 1e-5. Against the post-hoc
+  per-antenna expectation the frozen cases pass and the held-out ones still miss (up to 1.3e-3 at 2.5 Jy).
+- **Class C:** CASA `applycal` reads rang's F table: 0 of 2.3 million cells outside class C, flags exact.
+- **CASA cannot fit a spectral index on one MeerKAT window:** it fits only across spectral windows. A0's data
+  and A1 have one window, so `fitFluxd` there is the one window's `fd`. No novelty is claimed: this is a port
+  with oracles.
 
 ## 0. What was read before this protocol
 
@@ -290,3 +309,127 @@ labelled post hoc:
 - **P at fitorder 2** is predicted to fail its frozen 1e-6 on the fit errors wherever `n − m = 1` and the SNR
   is high (section 8); its coefficients and fitted flux are predicted within 1e-12.
 - **P at fitorder 1, B, T on the twin**: predicted to pass.
+
+## 10. Held-out results, run -03 (the verdict on the post-hoc code)
+
+Held-out truth `/mnt/d/rang/outputs/c2d-20261106-heldout-truth/` (`examples/a1_simtruth.py generate small` with
+the seeds and SIM-GCAL model of section 5; generation 10.8 s; its CASA truth tables by `tools/a1_casa.sh
+tables` and A1's round trip, check 1, **pass**, 33.2 s). One change to the generator was found while making it:
+the override first renamed the design (`small-override`), which A1's own check rebuilds from the name, so the
+rename was dropped and the data regenerated before anything was compared. Run `c2d-20261106-03` (751 s wall:
+container steps 38 s and 27 s, rang 192 s, comparisons 307 s), code `fb878d1` plus that one-line change.
+
+| Case | Verdict | Numbers |
+| --- | --- | --- |
+| HP-1, HP-4, HP-threshold | **pass** | everything exact or within 6.5e-11; CPARAM bit-identical on all rows; the threshold case removes m009's two scans as CASA does |
+| HP-4-fit2 | **fail** (predicted) | fit errors of SIM-GCAL 2.6e-5, of 3C286-SIM 3.1e-7 (gate 1e-6); coefficients 4.5e-13, fitted flux 6e-15 |
+| HB-1, HB-4 | **pass** | `fluxd` 3.9e-4 and 4.8e-7; spectral index 3.6e-7; products median 3.1e-4 and 5.7e-7, p95 9.2e-4 and 2.9e-6 |
+| HT-twin-4, -fit2 | **pass** | `fd` 3.2e-6 of `E_k` per window; α 7.7e-9 and 5.9e-9; fitted flux 3.2e-6. Fitted α −1.0568 and, at `fitorder=2`, (−1.0669, −0.3954) against the truth's (−1.1, −0.4) at 1.4 GHz: the windows' averaging and the shifted reference frequency (1.26 GHz) |
+| HT-1, HT-4, HT-4-fit2 | **fail** (predicted) | against `E_k`: 2.2e-3 (HT-1); 6.5e-4, 2.2e-3, 9.5e-5, 2.5e-3 per window (HT-4), fitted flux 4.3e-5, α 1.4e-3 (pass); at `fitorder=2` α 6.7e-3 and fitted flux 1.2e-3 fail |
+| post hoc, `E_med` | HT-twin pass; **HT-1 fail** 1.3e-3, **HT-4 fail** on window 1 (1.06e-3; others 2.0e-4, 9.3e-5, 9.8e-4), α 5.2e-4; **HT-4-fit2 fail** (α 3.0e-3) | |
+
+So on data not used to find them, the two post-hoc ports reproduce CASA exactly wherever CASA's arithmetic is
+well conditioned, rang's chain matches CASA's end to end, and the noise-free truth is recovered to 3e-6; the
+noisy class T gate, as written, is not met, and section 8's account (per-antenna effective spectra under RFI
+flags, plus a noise estimate five times too low) is consistent with what the held-out cases show but is not a
+pass. A fair noisy gate would be set from the scatter of the per-antenna ratios, which `fluxdErr` reports.
+
+## 11. Files, runs, provenance
+
+Code (commit `fb878d1` and the final commit of this task): `core/src/cal/fluxscale.rs` (new; 4 Rust tests),
+`core/py/src/cal_fluxscale.rs` (new; `cal_fluxscale_scale`, `cal_fluxscale_fit`), one `pub mod fluxscale;` line
+in `core/src/cal/mod.rs`, a `mod` line and three registration lines at the end of `core/py/src/lib.rs`'s module
+init, `python/rang/cal_fluxscale.py` (new), `python/rang/cal_gain.py` (`gaincal(spw=...)`, `info["row_index"]`
+and `info["spw"]`), `python/rang/simtruth.py` (`extra["gcal"]`), `examples/a1_simtruth.py` (`--seeds`,
+`--gcal-*`), `tests/test_cal_fluxscale.py` (5 tests, including the rules written out again in NumPy),
+`examples/check_fluxscale.py` (host), `examples/oracle_fluxscale.py` (container), `examples/probe_fluxscale_median.py`,
+`examples/probe_fluxscale_truth.py`. Unchanged: `solve.rs`, `jones.rs`, `correct.rs`, `core.solve_complex`,
+`diag.rs`, `reference.rs`.
+
+Runs under `/mnt/d/rang/outputs/`: `c2d-20261106-00-probe` (the `mstransform` feasibility probe before the
+protocol; its MS copies removed), `-01` (no comparison; its MS copies removed), `-02` (frozen; `casa/` with
+CASA's tables and `result.json`, `rang-run02/` rang's frozen outputs, `rang/` the recheck's, `ms/` the copies
+without the 64-antenna one, `compare-recheck-run02.json`, `compare-after-recheck.json`, `readback.json`,
+`probe-median.json`, `probe-truth.json`), `-03` (held out; `compare.json`), each with `.code/` and `.log`;
+`c2d-20261106-heldout-truth/` (the held-out A1 version and its CASA truth tables, 270 MB); check-all logs
+`c2d-20261106-checkall-*.log`. Sources read: `~/Github/rang/outputs/c2d-sources-20261106/` (casa6 6.7.6.14
+`SolvableVisCal.cc`, `Calibrater.cc`; casacore 3.7.1 headers; SHA-256 lists), ignored. Seeds: A1's
+20261116-19 and 20261106-09 (full twin); held out 20261136-39; pytest 1-4 and 20261106. Images:
+`rang-o-casa:6.7.6.14`. Timings in [tool-timings.md](tool-timings.md).
+
+## 12. What only the owner can decide
+
+1. **The fit-error gate at `fitorder=2`.** rang reproduces CASA's coefficients and fitted flux to 5e-13, but
+   CASA's errors come from `χ²` by subtraction and differ by up to 2.6e-5 when `n − m = 1`. Proposed: gate
+   coefficients and fluxes at 1e-9 and the errors at 1e-4, or port casacore's normal-matrix accumulation.
+2. **The noisy class T gate.** As frozen it fails everywhere; the per-antenna expectation helps but does not
+   close it at 2.5 Jy. Proposed: gate `|fd − E_med|` at 3 × the median's standard error estimated from the
+   per-antenna ratio scatter (rang's `mgrms`), and record the cases here as failed under the frozen gate.
+3. **Spectral index on one MeerKAT window.** CASA (and so rang) gives none: `fitFluxd` is that window's `fd`.
+   E2's secondaries are one-window data. Options: accept (the target's spectral fit comes from imaging), or add
+   rang's own per-chunk G and fit (chunked solves exist in the kernel; no CASA oracle except split windows,
+   which this note's four-window copies show to be equivalent).
+4. **What runs in the commands.** `rang-core calibrate` still refuses the F term and secondary models (W2b);
+   wiring `rang.cal_fluxscale.bootstrap` into the config, and which `fitorder`, is a coordinator or owner call.
+
+## 13. What was not checked
+
+- `antenna`, `timerange`, `scan`, `incremental=True`, `listfile`, `display` (refused); `fitorder < 0` (refused
+  rather than ported: CASA writes past its matrix); `T Jones` tables (accepted, not compared); several
+  observations; a window with no reference solution and no `refspwmap` beyond P-a1x4-refspw's flags.
+- CARACal's A step (flagging the corrected calibrator) and C1 step 6's Tricolour item: not this task (section 1).
+- Real secondary data: the slice's pseudo-secondary is a relabelled half of 1934−638 (LUNO's 1830−211 scans
+  are A0's held-out E2-B, not read).
+- The weight path without a pre-apply is used on the four-window copies but not tested, since there
+  `WEIGHT_SPECTRUM = 1/SIGMA²`.
+- Timing or throughput (the brief forbids it); rang's P-case times (2-37 s) are mostly reading and writing
+  small tables through the table writer, not the statistics.
+
+## For the coordinator
+
+Do not apply until merged; all text proposed.
+
+**`research/STATE.md`, new top entry:**
+
+> C2d, 2026-11-06 (implemented; measured; class B and C met, P and T not met as frozen).
+> [c2d-fluxscale.md](c2d-fluxscale.md): CASA's `fluxscale` in Rust (`core/src/cal/fluxscale.rs`,
+> `rang.cal_fluxscale`), read from casa6 6.7.6.14's own source: per-antenna mean amplitudes, the median ratio
+> to the reference (casacore's even-count rule changes above 100 elements, so at 64 antennas), `fd = ratio²`,
+> CASA's error, `gainthreshold`, several references, `refspwmap`, the spectral fit across windows; plus
+> CARACal's F step (`bootstrap`: G on the secondary against a unit point model, appended to the primary's
+> table). Two post-hoc ports from the frozen run: CASA's amplitude is `float32(sqrt)` in float64, and every
+> input row is written. After them rang equals CASA exactly on CASA's own tables (bit-identical F tables) except
+> the fit errors at `fitorder=2` (2.6e-5, CASA's `χ²` by subtraction). End to end against CASA: within 3.9e-4.
+> A1 twins recovered to 3e-6; with noise the frozen truth gate fails (expectation and noise estimate wrong).
+> CASA reads rang's F table (class C). CASA fits no spectral index on one window.
+
+**`research/README.md`, index line:**
+
+> [C2d, the flux-scale term F](c2d-fluxscale.md): CASA `fluxscale` and CARACal's secondary-calibrator step in
+> Rust and Python, measured against CASA 6.7.6 on its own tables, end to end, on A1's simulated truth and by
+> CASA reading the F table.
+
+**`research/finish-plan.md`:**
+
+- C2 row: C2d done (this note), with section 12's four decisions; C2b, C2c unchanged.
+- Section 7: add section 12's decisions as item 11.
+- `python/rang/core_config.py` `TASKS["C2d"]` names "the A step"; C2d did not do it. Re-point the A step (and
+  C1 step 6's Tricolour item) to C2c or a new task, and the W2b refusal of secondary models from C2d to the
+  task that wires `bootstrap` into the commands.
+
+**Merge notes.** `core/src/cal/mod.rs` (one line, next to C2b's `pub mod delay;`), `core/py/src/lib.rs` (a
+`mod` line beside C2b's and three lines at the end of the module init), `python/rang/cal_gain.py` (the
+`gaincal` hunk; C2b edits `_pre_apply` nearby), `python/rang/simtruth.py` and `examples/a1_simtruth.py` (C2b
+adds a `delay50` version and an `extra` entry in `as_json`; this branch reads `extra["gcal"]` in
+`calibrator_stokes` and adds CLI options). All are textual conflicts with simple resolutions; C2b's held-out
+seeds 20261126-29 and this task's 20261136-39 do not collide.
+
+**check-all and the index test.** As for C2a, `test_every_note_is_in_the_research_index` fails on this branch
+until the README line is applied; the gain-hashes step passes. The worktree venv pins ruff 0.17.3 (the main
+checkout's version); a fresh install gets 0.17.4, which flags `tests/test_p11_extract.py:128` (SIM102), not this
+branch's code.
+
+**Not removed:** `/mnt/d/rang/outputs/c2d-20261106-*` (about 1.8 GB: CASA's and rang's tables, the copies of
+-02 and -03, the held-out truth), kept for review and for C2c, which can reuse the four-window copies; they can
+go after merge. `~/Github/rang/outputs/c2d-sources-20261106/` (sources, 820 KB). `outputs/status/fp-c2d.md` can
+go after merge. `~/Build/tmp/20261106-c2d` (scripts) is removed at the end of this task.
