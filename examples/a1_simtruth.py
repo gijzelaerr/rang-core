@@ -506,7 +506,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = p.add_subparsers(dest="cmd", required=True)
     g = sub.add_parser("generate")
-    g.add_argument("version", choices=["small", "full"])
+    g.add_argument("version", choices=["small", "full", "delay50"])
     g.add_argument("outdir")
     g.add_argument("--workers", type=int, default=4)
     g.add_argument("--noiseless", action="store_true")
@@ -515,7 +515,7 @@ def main(argv=None):
     g.add_argument("--name", default="")
     g.add_argument("--hash-ms", action="store_true")
     s = sub.add_parser("size")
-    s.add_argument("version", choices=["small", "full"])
+    s.add_argument("version", choices=["small", "full", "delay50"])
     args = p.parse_args(argv)
     if args.cmd == "size":
         print(json.dumps(size(args.version), indent=1))

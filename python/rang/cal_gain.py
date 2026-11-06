@@ -363,13 +363,16 @@ def _ms_columns(ms, names, rows=None):
     return out
 
 
-def _pre_apply(data, model, flag, time, a1, a2, freq, tables, interp, nant, field_id=0):
-    """Pre-apply `tables` as CASA does for a G solve: types lower than G
-    correct the data, the others corrupt the model."""
+def _pre_apply(
+    data, model, flag, time, a1, a2, freq, tables, interp, nant, field_id=0, solved="G"
+):
+    """Pre-apply `tables` as CASA does for a solve of type `solved` (G, or K
+    for `rang.cal_delay`): lower types correct the data, the others corrupt
+    the model."""
     lower = [
         i
         for i, t in enumerate(tables)
-        if TYPE_ORDER.index(t.kind) < TYPE_ORDER.index("G")
+        if TYPE_ORDER.index(t.kind) < TYPE_ORDER.index(solved)
     ]
     upper = [i for i in range(len(tables)) if i not in lower]
     interp = cal_apply._interps(tables, interp)

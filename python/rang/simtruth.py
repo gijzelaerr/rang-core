@@ -90,6 +90,8 @@ GCAL = {"fluxdensity": 4.0, "reffreq_hz": 1.4e9, "spix": (-0.6,)}
 SEEDS = {
     "full": {"jones": 20261106, "sky": 20261107, "rfi": 20261108, "noise": 20261109},
     "small": {"jones": 20261116, "sky": 20261117, "rfi": 20261118, "noise": 20261119},
+    # Task C2b (research/c2b-delay.md): delays up to 50 ns.
+    "delay50": {"jones": 20261126, "sky": 20261127, "rfi": 20261128, "noise": 20261129},
 }
 
 
@@ -150,16 +152,28 @@ class Design:
             "sefd_jy": self.sefd,
             "sigma_jy": self.sigma,
             "tau_c_ns": self.tau_c_ns,
+            **({"extra": dict(self.extra)} if self.extra else {}),
         }
 
 
 def design(name):
-    """The `full` (64 antennas, 256 channels) or `small` (16, 64) version."""
+    """The `full` (64 antennas, 256 channels) or `small` (16, 64) version, or
+    `delay50` (C2b: small's antennas and schedule, 256 channels, delays of
+    1-50 ns, `extra["tau_range_ns"]`)."""
     if name == "full":
         return Design("full", list(range(64)), 256, FULL_LENGTH, SEEDS["full"])
     if name == "small":
         return Design("small", list(range(0, 64, 4)), 64, SMALL_LENGTH, SEEDS["small"])
-    raise ValueError(f"unknown version {name!r}: full or small")
+    if name == "delay50":
+        return Design(
+            "delay50",
+            list(range(0, 64, 4)),
+            256,
+            SMALL_LENGTH,
+            SEEDS["delay50"],
+            extra={"tau_range_ns": (1.0, 50.0)},
+        )
+    raise ValueError(f"unknown version {name!r}: full, small or delay50")
 
 
 # -- geometry ---------------------------------------------------------------------
@@ -308,14 +322,16 @@ def jones(d, times, scans, fields, within):
     x = (nu - 0.5 * (d.fmin + d.fmax)) / (0.5 * (d.fmax - d.fmin))
     r = d.refant
 
-    # K: |tau| uniform 1-10 ns, random sign, per antenna and hand.
-    tau = rng.uniform(1.0, 10.0, (nant, 2)) * rng.choice([-1.0, 1.0], (nant, 2))
+    # K: |tau| uniform 1-10 ns (delay50: 1-50 ns), random sign, per antenna
+    # and hand.
+    lo, hi = d.extra.get("tau_range_ns", (1.0, 10.0))
+    tau = rng.uniform(lo, hi, (nant, 2)) * rng.choice([-1.0, 1.0], (nant, 2))
     # The refant's X-Y delay is moved into KCROSS by referencing: keep the
     # effective KCROSS (tau_c + tau_x,r - tau_y,r) at a few ns.
     delta = rng.uniform(-1.5, 1.5)
     tau[r, 1] = tau[r, 0] - delta
-    if not 1.0 <= abs(tau[r, 1]) <= 10.0:
-        tau[r, 1] = math.copysign(min(max(abs(tau[r, 1]), 1.0), 10.0), tau[r, 1])
+    if not lo <= abs(tau[r, 1]) <= hi:
+        tau[r, 1] = math.copysign(min(max(abs(tau[r, 1]), lo), hi), tau[r, 1])
     # CASA stores delays as float32 (FPARAM) and turns them into phases of up
     # to 2 pi 10 ns 428 MHz = 27 rad: a float64 delay would differ from its
     # table by up to 11 float32 epsilons of phase per antenna. So the truth's

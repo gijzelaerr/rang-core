@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang.cal_delay`, the delay term K in Rust (`core/src/cal/delay.rs`): QuartiCal 0.2.7's
+  `delay` kernel with its FFT initial estimate (FFT, then Gauss-Newton over all baselines).
+  `solve(...)` on arrays; `gaincal(ms, ...)` as CASA's `gaincal(gaintype='K')`, with CASA's
+  solution intervals, pre-applied tables through `rang.cal_apply` (SIGMA weights then, as
+  `rang.cal_gain`) and CASA's K referencing (to the first refant, no flex or strict, no `minsnr`
+  or `minblperant`, which CASA's K does not apply); `to_caltable` writes a CASA `K Jones` table
+  (float32 delays in ns, the one-channel window at the band centre), which `rang.cal_apply`
+  applies. `rang.simtruth` has a `delay50` version (delays of 1-50 ns, 256 channels)
+  (`research/c2b-delay.md`).
 - New: `rang.calmodels`, calibrator models written to `MODEL_DATA` as CASA's `setjy` writes them
   (C1 term T0). `set_model(ms, field, spec)` takes a flux-density standard of `rang.fluxstd`, a
   `manual` model (flux density, reference frequency, log10 spectral terms), per-channel Stokes rows
