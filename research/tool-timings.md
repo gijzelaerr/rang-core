@@ -1631,3 +1631,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C7a `c7a_polmodels.py run --held-out` -05 (H1, 2 `setjy` calls on one copy) | A1 small | 20.2 s (CASA 5.5 s) | 272 MB | right after -04, no code change |
 | 2026-11-06 | check-all, C7a branch before the post-hoc commit | repo | 510.7 s | 1.80 GB | only the index test fails; pytest 963 passed, 68 skipped |
 | 2026-11-06 | check-all, C7a branch before the astropy-refusal commit | repo | 541.78 s | – | only the index test fails; 1 failed, 963 passed, 68 skipped in 125.55s (0:02:05) |
+| 2026-11-06 | C6 truth sets (`a1_simtruth.py generate poldx`, `polholdout`, noisy and twin) | 16 ant, 256 ch, 104 int | 4.5-5.0 s each | 240-257 MB | 4 workers; lock wait about 26 min |
+| 2026-11-06 | C6 `tools/a1_checks.sh` on poldx, polholdout | each version and twin | 56.6 s, 56.0 s | 1.29 GB | round trip and noise pass; parang check vs the CASA-frame truth 0.00029° median |
+| 2026-11-06 | C6 `check_pol.py casa` run -01 (CASA chains of three cases, O2, P) | poldx | 69.0 s (CASA tasks 0.2-4.9 s) | 175 MB (host) | lock wait about 49 min |
+| 2026-11-06 | C6 `check_pol.py parang` -02, `compare` -03, `truth` -04/-05, `chain-truth` -06 | poldx | 3.6 s, 388.1 s, 88.9 s, 79.6 s, 69.7 s | 597-615 MB | rang only, no lock |
+| 2026-11-06 | C6 `check_pol.py readback` -07 (failed: path mapping), -12 | poldx | 12.4 s, 63.4 s | 158 MB, 456 MB | CASA `applycal` twice; lock waits 11 and 17 min |
+| 2026-11-06 | C6 held out: `casa` -08, `compare` -09, `truth` -10/-11 | polholdout | 52.7 s, 129.5 s, 71.5 s, 79.1 s | 174-600 MB | one case |

@@ -17,6 +17,10 @@ model frozen in the protocol from CASA's sources:
 - K: phase 2 pi tau[ns] (nu - nu_ref)[GHz], nu_ref = CHAN_FREQ[nchan // 2]
   of the caltable window (`KJones::setApply`, CASA >= 5.3);
 - Df: [[1, d0], [d1, 1]] (`DJones::calcOneJones`);
+- Kcross (task C6): K's form, the delay in the first parameter and 0 in
+  the second (`KcrossJones : KJones`), ordered as K; Xf (task C6):
+  diag(x, 1), one parameter per channel, whose flag flags both receptors
+  (`XJones::calcAllJones`), ordered after D;
 - time interpolation `linear` per (antenna, window): amplitude and tracked
   phase (`RIorAPArray::f(true)`) or the float parameters, in float32 with
   times relative to floor(t0 - 1) (`CTTimeInterp1`), the nearest slot
@@ -35,8 +39,9 @@ from .. import core_ms, core_ms_write
 from ._aipsio import table_info, table_keywords
 
 SUBTABLES = core_ms_write.CAL_SUBTABLES
-TYPES = ("B", "K", "G", "D", "T")  # VisCal::Type order of the supported terms
-NPAR = {"G": 2, "B": 2, "K": 2, "T": 1, "Df": 2}
+TYPES = ("B", "K", "G", "D", "X", "T")  # VisCal::Type order of the supported terms
+NPAR = {"G": 2, "B": 2, "K": 2, "T": 1, "Df": 2, "Kcross": 2, "Xf": 1}
+FLOAT_KINDS = ("K", "Kcross")
 
 
 def _cells(path):
@@ -67,8 +72,11 @@ class CalTable:
 
     @property
     def term(self):
-        """The VisCal type letter used for ordering (`Df` is a D term)."""
-        return "D" if self.kind.startswith("D") else self.kind
+        """The VisCal type letter used for ordering (`Df` is a D term,
+        `Kcross` a K term and `Xf` an X term; task C6)."""
+        if self.kind.startswith("D"):
+            return "D"
+        return {"Kcross": "K", "Xf": "X"}.get(self.kind, self.kind)
 
     @property
     def float_param(self):
@@ -211,7 +219,7 @@ def from_gains(
         raise ValueError("values must be (time, antenna, chan, par)")
     if values.shape[3] != NPAR[kind]:
         raise ValueError(f"{kind} has {NPAR[kind]} parameters per channel")
-    is_float = kind == "K"
+    is_float = kind in FLOAT_KINDS
     values = values.astype(np.float32 if is_float else np.complex64)
     flags = np.zeros(values.shape, bool) if flags is None else np.asarray(flags, bool)
     rows = [(t, a) for t in range(len(times)) for a in range(len(antennas))]
@@ -398,13 +406,16 @@ def jones_terms(
             p[k] = r[..., 0]
         pf[k] = rf
     kind = table.kind
-    if kind == "K":
+    if kind in FLOAT_KINDS:
         nu = np.asarray(frequencies, float) / 1e9
         ref = table.k_reference_frequency(spw) / 1e9
         values = np.exp(1j * 2 * np.pi * p.real * (nu[None, :, None] - ref))
         return values, pf
     if kind == "T":
         return np.repeat(p[..., :1], 2, -1), np.repeat(pf[..., :1], 2, -1)
+    if kind == "Xf":
+        values = np.concatenate([p[..., :1], np.ones_like(p[..., :1])], -1)
+        return values, np.repeat(pf[..., :1], 2, -1)
     if kind.startswith("D"):
         bad = pf[..., 0] | pf[..., 1]
         return p, np.stack([bad, bad], -1)

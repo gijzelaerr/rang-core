@@ -99,7 +99,20 @@ SEEDS = {
         "rfi": 20261138,
         "noise": 20261139,
     },
+    # Task C6 (research/c6-polterms.md): the polarisation truth (CASA's
+    # parallactic frame, a leaking refant) and its held-out twin, new seeds.
+    "poldx": {"jones": 20261146, "sky": 20261147, "rfi": 20261148, "noise": 20261149},
+    "polholdout": {
+        "jones": 20261156,
+        "sky": 20261157,
+        "rfi": 20261158,
+        "noise": 20261159,
+    },
 }
+
+# Task C6: the versions whose parallactic angle is CASA's frame and whose
+# refant leaks (`extra["parang_frame"] == "casa"`, `extra["refant_leakage"]`).
+POL_EXTRA = {"parang_frame": "casa", "refant_leakage": True}
 
 
 @dataclass
@@ -190,7 +203,23 @@ def design(name):
             SEEDS["holdout256"],
             extra={"tau_range_ns": (1.0, 30.0)},
         )
-    raise ValueError(f"unknown version {name!r}: full, small, delay50 or holdout256")
+    if name in ("poldx", "polholdout"):
+        # Task C6 (research/c6-polterms.md): small's antennas and schedule, 256
+        # channels, P in CASA's frame (`parallactic_angle_casa`) and d_x of the
+        # refant not zero (A1's two open owner decisions, chosen provisionally).
+        return Design(
+            name,
+            list(range(0, 64, 4)),
+            256,
+            SMALL_LENGTH,
+            SEEDS[name],
+            tau_c_ns=2.2 if name == "poldx" else -3.7,
+            extra={"tau_range_ns": (1.0, 10.0), **POL_EXTRA},
+        )
+    raise ValueError(
+        f"unknown version {name!r}: full, small, delay50, holdout256, poldx or "
+        "polholdout"
+    )
 
 
 # -- geometry ---------------------------------------------------------------------
@@ -275,6 +304,9 @@ def geometry(d, times, fields):
             )
         src = SkyCoord(ra * units.deg, dec * units.deg, frame="icrs")
         elev[sel] = src.transform_to(AltAz(obstime=when[sel], location=site)).alt.deg
+    if d.extra.get("parang_frame") == "casa":
+        # Task C6: the truth's P in CASA's frame (provisional owner decision).
+        q = parallactic_angle_casa(d, times, fields)
     return uvw, q, elev
 
 
@@ -455,7 +487,9 @@ def jones(d, times, scans, fields, within):
             amp = amp0 * (1 + 0.15 * _smooth(rng, x, 2))
             ph = rng.uniform(-math.pi, math.pi) + DEG * 40.0 * _smooth(rng, x, 2)
             leak[a, :, h] = np.clip(amp, 0.01, 0.03) * np.exp(1j * ph)
-    leak[r, :, 0] = 0.0
+    if not d.extra.get("refant_leakage"):
+        # Task C6's versions keep the refant's d_x (A1 owner decision 2).
+        leak[r, :, 0] = 0.0
 
     return {
         "tau_ns": tau,

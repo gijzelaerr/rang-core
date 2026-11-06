@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang.cal_pol`, the polarisation terms in CARACal's order (`research/c6-polterms.md`): `gpol`
+  (phase-only G with the parallactic angle), `kcross` (CASA's cross-hand delay FFT), `xf` (CASA's
+  cross-hand phase), `df` (the linearised leakage by least squares with CASA's subtractive reference),
+  `clip_df`, `parallactic_angles`/`row_angles` (CASA's frame by default, provisionally; `frame='rang'`
+  keeps the geodetic one), `rotate` and `apply` (tables, then P). Rust kernels
+  `core/src/cal/parang.rs`, `crosshand.rs`, `leakage.rs`; `cal/apply.rs` and `formats/caltable.py`
+  now apply `Kcross Jones` and `Xf Jones` tables. Not wired into `rang-core calibrate` yet (task C2e).
+  `rang.simtruth` gains the versions `poldx` and `polholdout` (CASA's parallactic frame, a leaking
+  reference antenna); the other versions are unchanged.
 - Added: polarised calibrator models (task C7a, `research/c7a-polmodels.md`).
   `rang.calmodels.Manual` takes CASA `setjy(standard='manual')`'s full form, `fluxdensity=[I, Q,
   U, V]`, `polindex`, `polangle` and `rotmeas` (referenced to `reffreq`, as CASA), following
