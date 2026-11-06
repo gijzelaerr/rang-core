@@ -1539,3 +1539,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W2 `rang-core run`, image failing, then resumed | same | 24.2 s, then 5.9 s | 133 MB, 260 MB | the resumed run skips flag and calibrate |
 | 2026-11-06 | W2 `tools/oracles/w2/run.sh`, frozen run -01 | A1 small MS copies | 114 s | – | shared host; not a timing run |
 | 2026-11-06 | check-all, W2 branch at the code commit | repo | – | – | pytest 868 passed, 68 skipped, 1 expected failure (index) in 116 s |
+| 2026-11-06 | G2 `cargo build --profile gemclean --bin gemclean`, 6 builds | core crate | about 2 min 13 s each (waits for the heavy lock not counted) | – | heavy lock |
+| 2026-11-06 | G2 GeMClean identity set (7 skies × 2 forms + pilot-256), 5 binaries, 75 runs | `66c2967` to `83baf9f` | S1 10-34 s, H3 37-99 s, pilot-256 2 min 38 s-3 min 46 s | 2.0-18.4 GB | busy host (other agents, a Windows core); see [g2-memory.md](g2-memory.md) |
+| 2026-11-06 | G2 GeMClean pilot-512 (`cal.ms`, 405.8 M cells), default and coarse | `83baf9f` | 3 min 43 s-4 min 54 s default, 3 min 25 s coarse | 19.69 / 15.66 GB | earlier binaries stopped at 20 and 23.5 GB |
+| 2026-11-06 | G2 WSClean 3.7 native, `nominres` / `minres` | S1, H3, pilot-256, pilot-512 | S1 2 min, H3 2.5-3 min, pilot-256 11 min, pilot-512 19 min | 0.58-8.35 GB | in container, `time -v` inside; busy host |
+| 2026-11-06 | G2 `tools/check-all.sh`, 5 runs | worktree | 667-1337 s (2529 s with lock wait) | – | FAIL only on the research-index test (new note); one run also on ruff 0.17.4, pinned back to 0.17.3 |

@@ -1,7 +1,10 @@
 # Rang: GeMClean's peak memory (task G2)
 
-Status, 2026-11-06: **in progress.** The rule below was written and committed before the first
-comparison. Breakdown, changes and results follow as they are measured.
+Status, 2026-11-06: **measured; the pilot fits 24 GB at 512 channels** (19.7 GB peak RSS in the
+default form, 15.7 GB coarse; WSClean 8.35 and 7.77 GB), with images byte-identical to the reference
+on all seven skies in both forms and on the pilot-256. Four class-A changes; no default changed; no
+novelty claim. GeMClean still holds 2.0-3.6× WSClean's peak. The rule below was written and committed
+before the first comparison (`1a97192`).
 
 Goal (finish plan, G2): the pilot fits 24 GB at 512 channels, with images identical, or within a
 tolerance written first. If it cannot, say what it needs and whether 256 channels fits (A0's
@@ -155,3 +158,138 @@ class-A changes, each byte-identical by construction (the rule above decides):
 
 Expected at 512 channels, default form: 16 bytes per cell + 28 per active visibility + about 4.3 GB,
 about 19.3 GB in the major cycles. An estimate, to be measured.
+
+## Changes and what each saved (measured)
+
+Each change is class A. Each was built from its commit on `fp-g2-memory` (or from a tree checked to be
+identical to it), run on the full identity set (seven skies in both forms and the 256-channel pilot,
+15 runs), and compared file by file with the reference. **All five FITS files were byte-identical in
+all 15 runs after every change**, and the pilot-512 images after changes 2 and 3-4 were byte-identical
+to each other. Binaries under `D:\rang\outputs\20261106-g2-memory\bin`; runs under `runs/<tag>`.
+
+| change | commit, binary sha256 | what |
+| --- | --- | --- |
+| 0 | `1a97192`, `ca364c1a…557ead4` | the accounting only |
+| 1 | `ae1f64f`, `0fc6f91d…7c63fa` | read at the exact size (rows counted first), Stokes I held in `f32` as formed; compact in place; do not keep the gridding weights beside the copy; the measurement holds `f32` visibilities as read and widens them where used; large blocks shrink in place (the allocator unmaps the tail) |
+| 2 | `cf549d6`, `db646826…acbf407` | the residual is formed in the gridder's sorted stored values (`Prepared::residual`): prediction written in sorted order, subtracted there, turned into the data values there and gridded; the misfit is still summed serially in visibility order, through a permutation (4 bytes per active visibility), and only where every zero-weight visibility adds exactly zero to it (checked once; otherwise the old path) |
+| 3, 4 | `83baf9f`, `647bc32a…620a0bfe` | 3: the 2n PSF is cropped to the n × n image written at the end and freed before the run; 4: the 2n PSF is formed before the plan of the image grid (`from_single_unprepared`, then `prepare`) |
+
+A unit test checks change 2 bit for bit against the dense path in both precisions, with single- and
+double-precision data, zero weights, the w-term and a shifted centre, over repeated calls
+(`sorted_residual_has_the_bits_of_the_dense_one`).
+
+Peak RSS, GB (`time -v`), default form, with the largest heap and its phase:
+
+| run | reference `66c2967` | 0 | 1 | 2 | 3, 4 | WSClean `nominres` |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | 3.46 | 3.46 | 3.23 | 3.09 | **2.99** (cycles) | 0.82 |
+| H3 | 6.11 | 5.98 | 5.81 | 5.84 | **5.43** (cycles) | 1.89 |
+| pilot, 256 channels | 18.44 | 18.19 (heap 18.44) | 15.13 | 12.57 | **12.23** (cycles) | 4.95 |
+| pilot, 512 channels | stopped at 20.2 | – | stopped at 23.9 | 20.82 (PSF phase) | **19.72** (cycles) | 8.35 |
+
+Coarse form (`-single -wgridder-accuracy 1e-4`):
+
+| run | reference | 0 | 1 | 2 | 3, 4 | WSClean `minres` |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | 2.50 | 2.50 | 2.38 | 2.38 | **2.20** (PSF phase) | 0.58 |
+| H3 | 5.39 | 5.38 | 5.26 | 5.25 | **4.84** (cycles) | 1.13 |
+| pilot, 512 channels | – | – | – | – | **15.66** (cycles) | 7.77 |
+
+Per change (default form; the pilot from the heap, which the swap rule prefers there):
+
+- **Change 1** saves 8 + 8 bytes per cell in the major cycles (the kept gridding weights, and half of
+  the visibilities), and removes the growth slack and the copies of the early phases: pilot-256
+  18.44 → 15.12 GB, S1 −0.23 GB, H3 −0.29 GB. The early phases on the pilot-512 now peak at 10.1 GB
+  (the weights), from about 32 GB. Not yet enough at 512 channels: stopped at 23.9 GB in the first
+  residual.
+- **Change 2** removes the 16-byte-per-cell residual buffer for 4 bytes per active visibility:
+  pilot-256 15.12 → 12.61 GB of heap, S1 −0.14 GB; H3 unchanged within noise (+0.02 GB RSS, −0.04 GB
+  heap). With it the pilot-512 runs to the end: 20.78 GB of heap at its peak, now in the 2n PSF phase.
+- **Change 3** frees the 2n PSF (0.54 GB at 4096², 0.13 GB at 2048²) for its crop: −0.40 GB in the
+  major cycles at 4096².
+- **Change 4** takes the plan's sorted index (2.4 GB at 512 channels) out of the PSF phase: on the
+  pilot-512 the PSF phase falls from 20.78 to 18.27 GB of heap, below the major cycles (19.69 GB).
+
+## The pilot at 512 channels (measured)
+
+**It fits 24 GB in both forms**: 19.72 GB peak RSS in the default form (19.69 GB of heap), 15.66 GB
+in the coarse form, with binary `83baf9f`, against 8.35 and 7.77 GB for WSClean (2.4× and 2.0×). The
+256-channel fallback of A0 is not needed on GeMClean's account.
+
+- Default form: 58,356 components, 4 major cycles, Q/Q0 2.6500e-2, 4 min 23 s on a busy host
+  (`runs/c34/log/p512-def.log`); change 2's run gave the same images and the same line.
+- Swap: in the default run another agent's work pushed 1.28 GB of the process to swap during the PSF
+  phase (no swap at the peak, 0.002 GB). Under the rule the run was repeated (`runs/c34r`):
+  19.69 GB peak RSS, no swap at any phase, the same five files. The heap
+  peak, which swap does not touch, is 19.69 GB, so the decision does not rest on RSS.
+- No reference image exists at 512 channels (the reference binary does not fit), so identity there
+  rests on the 15-run set and the pilot-256, plus the agreement of changes 2 and 3-4 with each other.
+- Headroom: 24 − 19.7 = 4.3 GB. The heap in the major cycles is about 16 bytes per cell (6.5 GB),
+  28 per active visibility (8.5 GB) and 4.7 GB fixed (grids 1.66, beam 1.34, images and crop about
+  1.2, tables and baselines). A 7-hour track at 512 channels would need about 7 × 15 GB + 4.7 GB,
+  some 110 GB; this task does not change that conclusion of `gemclean-heldout.md`.
+
+## Not changed: the plane group (measured, an option for G7)
+
+The gridder holds `PLANE_GROUP` = 4 w-planes at once in the binary (within 2 GiB), 1.45-1.66 GB of
+grids, the largest fixed buffer on the simulated skies. `RANG_WGRIDDER_PLANE_GROUP=1` with `83baf9f`:
+
+| run | group 4 (default) | group 1 | group 2 (env, which also lifts the 2 GiB cap) |
+| --- | ---: | ---: | ---: |
+| S1, peak RSS GB | 2.99 | 1.89 | 2.65 |
+| H3, peak RSS GB | 5.43 | 4.59 | 5.46 (the 2n PSF pass then takes two 2n planes) |
+| pilot-512, peak RSS GB | 19.69 (repeat, no swap) | 18.89 | 21.62 |
+| S1 / H3 / pilot-512 major-cycle seconds, busy host | 6.4 / 22.7 / 107 | 8.1 / 27.4 / 118 | – |
+
+**The plane group is not bit-neutral, against what the code's comment and its test say.** Group 1 gave
+byte-identical files on S1 and H3, but on the pilot-512 its `residual` and `image` differ from group 4's
+(`dirty`, `psf` and `model` identical). Group 2 changes H3's `residual` and `image` in the same way, and
+does so with the reference binary `66c2967` too (bisected: `66c2967`, `ae1f64f`, `cf549d6` and `83baf9f`
+give the same residual hash under group 2, `5e1c8dfa…`, against the reference's `1ea26cf7…`). So the
+prediction of a nonzero model depends on the grouping in some layouts, which this task did not cause and
+did not chase; the models agree, so the loop's decisions did not change in these runs. Under the rule a
+group change is therefore class B, and it is left alone: 1.1 GB on S1 and 0.8 GB on the pilot for, as
+far as a busy host shows, about 10-25 % more major-cycle time. For G7 and for whoever owns the gridder.
+
+## Timings (busy host; no speed claim)
+
+A Windows process held one core and other agents' check-all and imaging ran at times, so wall times
+moved by up to 3× between identical runs (H2: 22 s and 78 s, same binary class, same images). None
+are read as speed changes. The sorted residual adds a serial pass through a permutation per major
+cycle; on the pilot-512 the major cycles took 101-107 s against no reference (the reference does not
+fit), and on S1 and H3 they were within the spread of the reference's.
+
+## What was not checked
+
+- Pilot-512 images have no reference to compare with (the reference binary does not fit); the class-A
+  claim there rests on the 15-run set, the pilot-256 and changes 2 and 3-4 agreeing with each other.
+- Only the default stop rule and options of the identity set were run: not `-stop-rule certified`,
+  `-gram-operator`, `-no-plan-reuse`, `-floor-iterations`, `-beam-band` or `-beam-no-w` (the code paths
+  for them still take the old route where they differ, and the unit tests pass).
+- Pilot set B (extra flags) and the coarse form on the pilot-256 were not run; the coarse pilot-512
+  has no reference.
+- The Python extension and `rang-core image` use the library, not the binary: changes 2 and 4 apply
+  to any `GridMeasurement`, changes 1 and 3 only to the `gemclean` binary.
+- Not on an idle host; no timing claim.
+
+## For the coordinator
+
+- `research/README.md` index line: `[g2-memory.md](g2-memory.md) — G2: GeMClean's peak memory; the pilot
+  fits 24 GB at 512 channels (19.7 GB default, 15.7 GB coarse), images byte-identical.`
+- `research/STATE.md`: "GeMClean memory, 2026-11-06 (task G2; measured; [g2-memory.md](g2-memory.md)).
+  Four class-A changes, byte-identical on S1-S3, H1-H4 in both forms and the pilot-256 under a rule
+  written first: exact-size read with Stokes I in f32, in-place compaction, no kept weights, f32
+  visibilities held as read; the residual formed in the gridder's sorted values (no visibility-sized
+  buffer); the 2n PSF before the plan and freed after the beam. Peak RSS: pilot-512 from over 24 GB
+  (about 32 estimated) to 19.7 GB (WSClean 8.35), coarse 15.7 (WSClean 7.77); pilot-256 18.4 to 12.2;
+  S1 3.46 to 2.99 (WSClean 0.82); H3 6.11 to 5.43 (1.89). Still 2.4-3.6× WSClean. The pilot fits
+  24 GB at 512 channels in both forms, so A0's 256-channel fallback is not triggered. Finding: the
+  gridder's plane group changes predicted residual bits (group 2 on H3, group 1 on the pilot-512),
+  in the reference binary too. No default changed; no novelty claim."
+- `research/finish-plan.md`: G2 done; A0 E2 resources: "G2 measured 19.7 GB at 512 channels: E2-A and
+  E3-A image at 512 channels." G3 unblocked. G7: the plane-group trade (1.1 GB on S1) needs a rule of
+  its own, since it is not bit-neutral.
+- New `CHANGELOG.md` lines under Unreleased (the memory change and `-memory-report`).
+- Branch `fp-g2-memory`; data copies in `~/Build/tmp/20261106-g2-memory` were removed; outputs in
+  `D:\rang\outputs\20261106-g2-memory`. The side worktree `~/Worktrees/rang/g2-base` (detached, scratch)
+  was removed.
