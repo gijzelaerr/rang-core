@@ -1,0 +1,922 @@
+"""The configuration of `rang-core flag | calibrate | apply | image | selfcal |
+run` (task W2, research/w2-commands.md).
+
+One YAML file, schema `rang-config`, version 1. Every key has a default,
+written here once (`SCHEMA`) and printed, with its comment, by
+`rang-core config defaults`. `validate` reports every problem at once, in
+two classes:
+
+- **schema errors**: an unknown key, a wrong type, a value outside its
+  choices, a missing required key or a wrong version;
+- **not yet implemented**: a value the schema can express, such as CARACal's
+  K, G, B chain of research/c1-calibration-chain.md, that rang cannot run yet.
+  Each refusal names the finish-plan task that will add it.
+
+Refusals are computed only for the stages that will run, so a configuration
+of the whole C1 chain parses today and states what is missing.
+"""
+
+import copy
+import hashlib
+import json
+import re
+from dataclasses import dataclass
+from pathlib import Path
+
+SCHEMA_NAME = "rang-config"
+VERSION = 1
+STAGES = ("flag", "calibrate", "apply", "image", "selfcal")
+ROLES = ("fcal", "bpcal", "gcal", "xcal", "target")
+
+# The finish-plan task that adds each not-yet-implemented feature
+# (research/finish-plan.md; C1's steps in research/c1-calibration-chain.md, 6).
+TASKS = {
+    "C2a": "the G term, CASA solution intervals, uvrange, refant, minsnr and minblperant",
+    "C2b": "the K (delay) term",
+    "C2c": "the B (bandpass) term and fillgaps",
+    "C2d": "the F term with fluxscale and the A step (flagging the corrected calibrator)",
+    "C3a": "calibrator models (setjy, manual and the .lsm sky model)",
+    "C4": "interpolating and applying solutions, CORRECTED_DATA and written weights",
+    "C4a": "the apply kernel that pre-applies tables while solving",
+    "C5a": "phase and amplitude self-calibration (Sp, Sa)",
+    "C5b": "delay self-calibration (Sd, CARACal's Fslope)",
+    "C6a": "the parallactic angle and the feed angle",
+    "C6b": "Gpol, KCROSS and Xf",
+    "C6c": "the Df leakage term",
+    "G3": "channels out, joined channels, spectral fits and channel averaging",
+    "G4": "masks, tapers and an imaging uv range",
+    "G5": "multiscale CLEAN",
+    "G6": "MODEL_DATA from the imager",
+    "G9": "Stokes Q, U and V and joined polarisations",
+}
+
+TERM_TYPES = (
+    "complex",
+    "K",
+    "G",
+    "B",
+    "A",
+    "F",
+    "Gpol",
+    "KCROSS",
+    "Xf",
+    "Df",
+    "Sd",
+    "Sp",
+    "Sa",
+)
+TERM_TASKS = {
+    "K": "C2b",
+    "G": "C2a",
+    "B": "C2c",
+    "A": "C2d",
+    "F": "C2d",
+    "Gpol": "C6b",
+    "KCROSS": "C6b",
+    "Xf": "C6b",
+    "Df": "C6c",
+    "Sd": "C5b",
+    "Sp": "C5a",
+    "Sa": "C5a",
+}
+SELFCAL_TYPES = ("Sd", "Sp", "Sa", "complex")
+CALIBRATE_SECTIONS = ("primary", "secondary", "polcal")
+
+
+class ConfigError(ValueError):
+    """A configuration that cannot run: every schema error and refusal."""
+
+    def __init__(self, errors, refusals=(), source=None):
+        self.errors = list(errors)
+        self.refusals = list(refusals)
+        self.source = source
+        super().__init__(self.report())
+
+    def report(self):
+        where = f"{self.source}: " if self.source else ""
+        lines = []
+        if self.errors:
+            lines.append(f"{where}{len(self.errors)} configuration error(s):")
+            lines += [f"  {path}: {text}" for path, text in self.errors]
+        if self.refusals:
+            lines.append(f"{where}not implemented yet ({len(self.refusals)}):")
+            lines += [
+                f"  {r.path}: {r.text} (task {r.task}: {TASKS[r.task]})"
+                for r in self.refusals
+            ]
+        return "\n".join(lines)
+
+
+@dataclass(frozen=True)
+class Refusal:
+    path: str
+    task: str
+    text: str
+
+
+@dataclass(frozen=True)
+class Key:
+    """One configuration key: its default, kind and comment."""
+
+    default: object
+    kind: str
+    doc: str
+    choices: tuple = ()
+    required: bool = False
+
+
+def _k(default, kind, doc, choices=(), required=False):
+    return Key(default, kind, doc, tuple(choices), required)
+
+
+FIELD_DOC = "FIELD names or ids"
+# The schema, section by section, in the order `defaults` prints it.
+SCHEMA = {
+    "schema": _k(SCHEMA_NAME, "const", "always rang-config"),
+    "version": _k(
+        VERSION,
+        "version",
+        "required: the schema version; this rang-core reads 1",
+        required=True,
+    ),
+    "fields": {
+        "fcal": _k([], "fields", f"flux calibrators: {FIELD_DOC}"),
+        "bpcal": _k(
+            [], "fields", f"bandpass calibrators (empty: the fcal fields): {FIELD_DOC}"
+        ),
+        "gcal": _k([], "fields", f"gain (secondary) calibrators: {FIELD_DOC}"),
+        "xcal": _k([], "fields", f"polarisation-angle calibrators: {FIELD_DOC}"),
+        "target": _k([], "fields", f"targets: {FIELD_DOC}"),
+    },
+    "data": {
+        "weights": _k(
+            "as_is",
+            "choice",
+            "as_is: WEIGHT_SPECTRUM, else WEIGHT per channel; uniform: 1 (CARACal's "
+            "prep.specweights), used in memory by calibrate",
+            ("as_is", "uniform"),
+        ),
+        "scans": _k([], "ints", "SCAN_NUMBERs to use (empty: every scan)"),
+        "chunk_rows": _k(
+            None, "int?", "rows per write chunk (null: about 64 MiB of DATA cells)"
+        ),
+    },
+    "flag": {
+        "flagger": _k(
+            "tricolour",
+            "choice",
+            "the Tricolour 0.2.1 port (research/core-d-tricolour.md)",
+            ("tricolour",),
+        ),
+        "strategy": _k(
+            None,
+            "path",
+            "required: a Tricolour strategy YAML, such as CARACal's "
+            "mk_rfi_flagging_calibrator_fields_firstpass.yaml (relative to this file)",
+        ),
+        "fields": _k(["all"], "fields", f"fields to flag: all, roles or {FIELD_DOC}"),
+        "column": _k("DATA", "column", "the visibilities flagged"),
+        "static_masks": _k(
+            "tricolour",
+            "choice",
+            "tricolour: the two masks shipped with Tricolour 0.2.1; none",
+            ("tricolour", "none"),
+        ),
+        "write": _k(
+            "replace",
+            "choice",
+            "replace: FLAG becomes the strategy's flags, as Tricolour writes them; "
+            "or: OR with the flags already there",
+            ("replace", "or"),
+        ),
+    },
+    "calibrate": {
+        "model": {
+            "source": _k(
+                "unity",
+                "choice",
+                "unity: a 1 Jy point at the phase centre; column: an existing column; "
+                "setjy, manual, lsm: C3a",
+                ("unity", "column", "setjy", "manual", "lsm"),
+            ),
+            "column": _k("MODEL_DATA", "column", "the model column for source: column"),
+            "standard": _k(
+                None, "str?", "setjy flux standard, such as Stevens-Reynolds 2016"
+            ),
+            "flux_jy": _k(
+                None, "floats?", "manual: Stokes I, Q, U, V in Jy at reffreq_hz"
+            ),
+            "spix": _k(None, "floats?", "manual: spectral index coefficients (log10)"),
+            "reffreq_hz": _k(None, "float?", "manual: the reference frequency"),
+            "polindex": _k(None, "floats?", "manual: fractional polarisation"),
+            "polangle": _k(None, "floats?", "manual: polarisation angle, radians"),
+            "rotmeas": _k(None, "float?", "manual: rotation measure, rad m^-2"),
+            "lsm": _k(
+                None, "path?", "a Tigger .lsm sky model, such as pks1934-638.lsm"
+            ),
+        },
+        "refant": _k(
+            None, "refant", "reference antenna: a name, an id, a list or auto"
+        ),
+        "refantmode": _k(
+            "flex", "choice", "flex or strict, as CASA", ("flex", "strict")
+        ),
+        "uvrange": _k(
+            "", "str", "baselines used by G, B, F and polcal solves, such as >150"
+        ),
+        "minsnr": _k(None, "float?", "solutions below this SNR are flagged (CASA: 3)"),
+        "minblperant": _k(None, "int?", "baselines per antenna needed (CASA: 4)"),
+        "primary": {
+            "field": _k(["fcal"], "fields", "fields of the primary solves"),
+            "terms": _k([{"type": "complex"}], "terms", "terms solved in order"),
+        },
+        "secondary": {
+            "field": _k(["gcal"], "fields", "fields of the secondary solves"),
+            "terms": _k([], "terms", "terms solved in order, such as G, A, F"),
+        },
+        "polcal": {
+            "field": _k(["xcal"], "fields", "fields of the polarisation solves"),
+            "terms": _k([], "terms", "Gpol, KCROSS, Xf on xcal; Df with field: fcal"),
+            "feed_angle_rotation": _k(
+                None, "float?", "degrees added to RECEPTOR_ANGLE"
+            ),
+            "extendflags": _k(
+                False, "bool", "flagdata mode=extend on xcal and fcal first"
+            ),
+        },
+    },
+    "apply": {
+        "column": _k("CORRECTED_DATA", "column", "the column written"),
+        "applymode": _k(
+            "calflag", "choice", "as CASA applycal", ("calflag", "calflagstrict")
+        ),
+        "calwt": _k(False, "bool", "scale the weights by the gains"),
+        "parang": _k(False, "bool", "apply the parallactic angle"),
+        "targets": _k([], "targets", "what is applied to which fields"),
+    },
+    "image": {
+        "imager": _k("gemclean", "choice", "the imager", ("gemclean",)),
+        "gemclean": _k(
+            "auto",
+            "str",
+            "the gemclean binary; auto: gemclean on PATH, then core/target/"
+            "{release,gemclean}/gemclean of the checkout",
+        ),
+        "fields": _k(["target"], "fields", "one image per field"),
+        "column": _k(
+            "auto",
+            "column",
+            "auto: CORRECTED_DATA once this run's apply has finished, else DATA",
+        ),
+        "name": _k("image", "str", "the file prefix in <run>/image/<field>/"),
+        "size": _k(None, "size", "required: width and height in pixels, even"),
+        "scale": _k(None, "str", "required: pixel size, such as 2asec"),
+        "weight": _k(
+            "briggs",
+            "choice",
+            "natural, uniform or briggs",
+            ("natural", "uniform", "briggs"),
+        ),
+        "robust": _k(0.0, "float", "Briggs robustness"),
+        "niter": _k(100000, "int", "maximum number of components"),
+        "auto_threshold": _k(
+            3.0, "float?", "stop at this many robust sigma of the residual"
+        ),
+        "threshold": _k(None, "float?", "stop at this many Jy"),
+        "gain": _k(None, "float?", "loop gain (null: gemclean's 0.1)"),
+        "mgain": _k(
+            None, "float?", "major-cycle gain (null: gemclean's measured rule)"
+        ),
+        "nmiter": _k(None, "int?", "maximum major cycles (null: gemclean's 20)"),
+        "threads": _k(
+            None, "int?", "worker threads (null: gemclean's default, all cores)"
+        ),
+        "wgridder_accuracy": _k(1e-6, "float", "gridder accuracy"),
+        "extra_args": _k([], "strs", "more gemclean options, passed as given"),
+        "channels_out": _k(1, "int", "output channels"),
+        "join_channels": _k(False, "bool", "join the output channels"),
+        "fit_spectral_pol": _k(None, "int?", "terms of the spectral fit"),
+        "average_channels": _k(1, "int", "channels averaged before imaging"),
+        "auto_mask": _k(None, "float?", "automatic mask at this many sigma"),
+        "fits_mask": _k(None, "path?", "a FITS mask"),
+        "taper_gaussian": _k(None, "str?", "a Gaussian taper, such as 10asec"),
+        "uvrange": _k("", "str", "baselines imaged"),
+        "multiscale": _k(False, "bool", "multiscale CLEAN"),
+        "pol": _k("I", "str", "polarisations, such as I or IQUV"),
+        "join_polarizations": _k(False, "bool", "join the polarisations"),
+        "write_model": _k(False, "bool", "predict the model into MODEL_DATA"),
+    },
+    "selfcal": {
+        "rounds": _k(2, "int", "calibration rounds (CARACal's cal_niter)"),
+        "terms": _k(
+            [{"type": "Sp"}, {"type": "Sa"}],
+            "terms",
+            "phase then amplitude (owner decision 1 of C1); Sd is CARACal's Fslope",
+        ),
+        "input_column": _k("CORRECTED_1GC", "column", "the 1GC-corrected data solved"),
+        "model_column": _k("MODEL_DATA", "column", "the model solved against"),
+        "output_column": _k("CORRECTED_DATA", "column", "the column written"),
+        "gain_clip": _k([0.5, 2.0], "floats", "gain amplitudes kept"),
+        "minuvw_m": _k(0.0, "float", "baselines shorter than this are not used"),
+    },
+    "run": {
+        "stages": _k(
+            ["flag", "calibrate", "image"],
+            "stages",
+            "stages of rang-core run, executed in the order flag, calibrate, apply, "
+            "image, selfcal",
+        ),
+    },
+}
+
+# Keys of a calibration term (each refers to research/c1-calibration-chain.md,
+# 1.3). `None` means the term type's own default.
+TERM_KEYS = {
+    "type": _k(None, "choice", "the term", TERM_TYPES, required=True),
+    "name": _k(None, "str?", "the table name (default: the type)"),
+    "field": _k(None, "fields?", "fields solved (default: the section's)"),
+    "solint": _k("inf", "solint", "inf, int, N integrations, or Ns (CASA seconds)"),
+    "freqint": _k("inf", "solint", "complex, Sp, Sa: inf or N channels per solution"),
+    "combine": _k("", "str", "CASA combine, such as scan"),
+    "calmode": _k(None, "choice?", "ap, p or a", ("ap", "p", "a")),
+    "refant": _k(None, "refant", "overrides calibrate.refant"),
+    "refantmode": _k(None, "choice?", "flex or strict", ("flex", "strict")),
+    "uvrange": _k(None, "str?", "overrides calibrate.uvrange"),
+    "minsnr": _k(None, "float?", "overrides calibrate.minsnr"),
+    "minblperant": _k(None, "int?", "overrides calibrate.minblperant"),
+    "preapply": _k([], "strs", "terms applied while solving, by name"),
+    "interp": _k([], "strs", "per pre-applied term: linear or nearest"),
+    "gainfield": _k([], "strs", "per pre-applied term: a field, nearest or empty"),
+    "fillgaps": _k(None, "int?", "B: channels bridged (CARACal: 70)"),
+    "solnorm": _k(None, "bool?", "B: normalise"),
+    "smodel": _k(None, "floats?", "F: a point model, such as [1, 0, 0, 0]"),
+    "parang": _k(None, "bool?", "apply the parallactic angle while solving"),
+    "preavg": _k(None, "float?", "Xf, Df: pre-averaging in seconds"),
+    "clip": _k(None, "floats?", "Df: amplitude range kept, such as [-0.6, 0.6]"),
+    "strategy": _k(None, "path?", "A: a Tricolour strategy for the corrected data"),
+    "max_iterations": _k(50, "int", "complex, Sp, Sa: solver iterations"),
+    "stop_criterion": _k(1e-7, "float", "complex, Sp, Sa: convergence criterion"),
+    "stop_fraction": _k(0.99, "float", "complex, Sp, Sa: fraction converged to stop"),
+}
+_CASA = {
+    "type",
+    "name",
+    "field",
+    "solint",
+    "combine",
+    "refant",
+    "refantmode",
+    "uvrange",
+    "minsnr",
+    "minblperant",
+    "preapply",
+    "interp",
+    "gainfield",
+}
+_SOLVER = {"freqint", "max_iterations", "stop_criterion", "stop_fraction"}
+ALLOWED_TERM_KEYS = {
+    "complex": _CASA | _SOLVER,
+    "K": _CASA,
+    "G": _CASA | {"calmode"},
+    "B": _CASA | {"fillgaps", "solnorm"},
+    "A": {"type", "name", "field", "strategy"},
+    "F": _CASA | {"calmode", "smodel"},
+    "Gpol": _CASA | {"calmode", "parang"},
+    "KCROSS": _CASA | {"parang"},
+    "Xf": _CASA | {"parang", "preavg"},
+    "Df": _CASA | {"parang", "preavg", "clip"},
+    "Sd": {
+        "type",
+        "name",
+        "solint",
+        "max_iterations",
+        "stop_criterion",
+        "stop_fraction",
+    },
+    "Sp": {"type", "name", "solint"} | _SOLVER,
+    "Sa": {"type", "name", "solint"} | _SOLVER,
+}
+TARGET_KEYS = {
+    "field": _k(None, "fields", "fields corrected", required=True),
+    "tables": _k(None, "strs", "terms applied, by name, in order", required=True),
+    "gainfield": _k([], "strs", "per table: a field, nearest or empty"),
+    "interp": _k([], "strs", "per table: linear or nearest"),
+}
+
+# The configuration sections each stage depends on: a finished stage is
+# skipped only while the hash of these is unchanged.
+STAGE_SECTIONS = {
+    "flag": ("fields", "data", "flag"),
+    "calibrate": ("fields", "data", "calibrate"),
+    "apply": ("fields", "data", "calibrate", "apply"),
+    "image": ("fields", "data", "image"),
+    "selfcal": ("fields", "data", "image", "selfcal"),
+}
+
+
+# -- reading -------------------------------------------------------------------
+
+
+def _yaml():
+    try:
+        import yaml
+    except ImportError as exc:  # pragma: no cover - a dependency of rang-core
+        raise ConfigError([("", "PyYAML is needed to read a configuration")]) from exc
+    return yaml
+
+
+def load(path):
+    """The YAML of `path` as a mapping (schema errors raise ConfigError)."""
+    path = Path(path)
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ConfigError([("", f"cannot read {path}: {exc}")], source=path) from exc
+    return loads(text, source=path)
+
+
+def loads(text, source=None):
+    yaml = _yaml()
+    try:
+        raw = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise ConfigError([("", f"not valid YAML: {exc}")], source=source) from exc
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        raise ConfigError([("", "the configuration must be a mapping")], source=source)
+    return raw
+
+
+# -- schema --------------------------------------------------------------------
+
+_SECONDS = re.compile(r"^\d+(\.\d*)?s$")
+
+
+def _is_int(v):
+    return isinstance(v, int) and not isinstance(v, bool)
+
+
+def _is_num(v):
+    return (isinstance(v, (int, float))) and not isinstance(v, bool)
+
+
+# PyYAML reads 1e-7 (no dot) as a string; such a string is taken as the number.
+_FLOAT_TEXT = re.compile(r"^[-+]?(\d+\.?\d*|\.\d+)[eE][-+]?\d+$")
+
+
+def _number(v):
+    if isinstance(v, str) and _FLOAT_TEXT.match(v.strip()):
+        return float(v)
+    return v
+
+
+def _check(path, key, value, errors):
+    """Check one value against its Key; returns the value to keep."""
+    kind = key.kind
+    optional = kind.endswith("?")
+    base = kind.rstrip("?")
+    if base in ("float", "floats"):
+        value = (
+            [_number(v) for v in value] if isinstance(value, list) else _number(value)
+        )
+    if value is None:
+        if optional or key.default is None:
+            return None
+        errors.append((path, "must not be null"))
+        return value
+
+    def bad(what):
+        errors.append((path, f"must be {what}, not {value!r}"))
+        return value
+
+    if base == "const":
+        return value if value == key.default else bad(repr(key.default))
+    if base == "version":
+        if value != VERSION:
+            errors.append(
+                (path, f"version {value!r}: this rang-core reads version {VERSION}")
+            )
+        return value
+    if base in ("str", "column", "path"):
+        if not isinstance(value, str):
+            return bad("a string")
+        auto = key.default == "auto" and value == "auto"
+        if (
+            base == "column"
+            and not auto
+            and not re.fullmatch(r"[A-Z][A-Z0-9_]*", value)
+        ):
+            return bad("a column name in capitals, such as DATA")
+        return value
+    if base == "int":
+        return value if _is_int(value) else bad("an integer")
+    if base == "float":
+        return float(value) if _is_num(value) else bad("a number")
+    if base == "bool":
+        return value if isinstance(value, bool) else bad("true or false")
+    if base == "choice":
+        return value if value in key.choices else bad(f"one of {list(key.choices)}")
+    if base in ("ints", "strs", "floats"):
+        test = {
+            "ints": _is_int,
+            "strs": lambda v: isinstance(v, str),
+            "floats": _is_num,
+        }
+        if isinstance(value, list) and all(test[base](v) for v in value):
+            return [float(v) for v in value] if base == "floats" else list(value)
+        return bad(
+            {
+                "ints": "a list of integers",
+                "strs": "a list of strings",
+                "floats": "a list of numbers",
+            }[base]
+        )
+    if base == "fields":
+        if isinstance(value, (str, int)) and not isinstance(value, bool):
+            value = [value]
+        if isinstance(value, list) and all(
+            isinstance(v, str) or _is_int(v) for v in value
+        ):
+            return list(value)
+        return bad("a field name or id, or a list of them")
+    if base == "refant":
+        if isinstance(value, (str, int)) and not isinstance(value, bool):
+            return [value]
+        if (
+            isinstance(value, list)
+            and value
+            and all(isinstance(v, str) or _is_int(v) for v in value)
+        ):
+            return list(value)
+        return bad("an antenna name or id, a list of them, or auto")
+    if base == "size":
+        if (
+            isinstance(value, list)
+            and len(value) == 2
+            and all(_is_int(v) and v > 0 and v % 2 == 0 for v in value)
+        ):
+            return list(value)
+        if _is_int(value) and value > 0 and value % 2 == 0:
+            return [value, value]
+        return bad("an even pixel count or [width, height]")
+    if base == "solint":
+        if value in ("inf", "int") or (
+            isinstance(value, str) and _SECONDS.match(value)
+        ):
+            return value
+        if _is_int(value) and value > 0:
+            return value
+        return bad("inf, int, a positive integer or seconds such as 60s")
+    if base == "stages":
+        if isinstance(value, list) and all(v in STAGES for v in value):
+            if len(set(value)) != len(value):
+                errors.append((path, "a stage is listed twice"))
+            return list(value)
+        return bad(f"a list of stages from {list(STAGES)}")
+    if base == "terms":
+        return _terms(path, value, errors)
+    if base == "targets":
+        return _targets(path, value, errors)
+    raise AssertionError(f"unknown kind {kind}")
+
+
+def _section(path, spec, raw, errors):
+    """Merge `raw` over the defaults of `spec`, checking every key."""
+    out = {}
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        errors.append((path or "(top)", "must be a mapping"))
+        raw = {}
+    for name in raw:
+        if name not in spec:
+            known = ", ".join(spec)
+            errors.append((_join(path, name), f"unknown key (known: {known})"))
+    for name, item in spec.items():
+        where = _join(path, name)
+        if isinstance(item, dict):
+            out[name] = _section(where, item, raw.get(name), errors)
+            continue
+        if name in raw:
+            out[name] = _check(where, item, raw[name], errors)
+        else:
+            if item.required:
+                errors.append((where, f"required (default {item.default!r})"))
+            out[name] = copy.deepcopy(item.default)
+            if item.kind in ("terms", "targets"):
+                out[name] = _check(where, item, out[name], errors)
+    return out
+
+
+def _join(path, name):
+    return f"{path}.{name}" if path else str(name)
+
+
+def _terms(path, value, errors):
+    if not isinstance(value, list):
+        errors.append((path, "must be a list of terms, such as [{type: complex}]"))
+        return []
+    out = []
+    for i, raw in enumerate(value):
+        where = f"{path}[{i}]"
+        if isinstance(raw, str):
+            raw = {"type": raw}
+        if not isinstance(raw, dict):
+            errors.append((where, "a term is a mapping with a type"))
+            continue
+        kind = raw.get("type")
+        if kind not in TERM_TYPES:
+            errors.append(
+                (f"{where}.type", f"must be one of {list(TERM_TYPES)}, not {kind!r}")
+            )
+            continue
+        allowed = ALLOWED_TERM_KEYS[kind]
+        term = {}
+        for name in raw:
+            if name not in TERM_KEYS:
+                errors.append((f"{where}.{name}", "unknown term key"))
+            elif name not in allowed:
+                errors.append((f"{where}.{name}", f"not a key of a {kind} term"))
+        for name in sorted(allowed, key=list(TERM_KEYS).index):
+            key = TERM_KEYS[name]
+            if name in raw:
+                term[name] = _check(f"{where}.{name}", key, raw[name], errors)
+            else:
+                term[name] = copy.deepcopy(key.default)
+        if term.get("name") is None:
+            term["name"] = kind
+        for name in ("interp", "gainfield"):
+            if name in term and term[name] and len(term[name]) != len(term["preapply"]):
+                errors.append((f"{where}.{name}", "needs one entry per preapply entry"))
+        out.append(term)
+    return out
+
+
+def _targets(path, value, errors):
+    if not isinstance(value, list):
+        errors.append((path, "must be a list of {field, tables} mappings"))
+        return []
+    out = []
+    for i, raw in enumerate(value):
+        where = f"{path}[{i}]"
+        if not isinstance(raw, dict):
+            errors.append((where, "an apply target is a mapping"))
+            continue
+        for name in raw:
+            if name not in TARGET_KEYS:
+                errors.append((f"{where}.{name}", "unknown key"))
+        target = {}
+        for name, key in TARGET_KEYS.items():
+            if name in raw:
+                target[name] = _check(f"{where}.{name}", key, raw[name], errors)
+            elif key.required:
+                errors.append((f"{where}.{name}", "required"))
+                target[name] = []
+            else:
+                target[name] = copy.deepcopy(key.default)
+        out.append(target)
+    return out
+
+
+def resolve(raw):
+    """(config with every default filled in, [schema errors])."""
+    errors = []
+    config = _section("", SCHEMA, raw, errors)
+    names = {}
+    for section in CALIBRATE_SECTIONS:
+        for i, term in enumerate(config["calibrate"][section]["terms"]):
+            where = f"calibrate.{section}.terms[{i}]"
+            if term["type"] in ("Sd", "Sp", "Sa"):
+                errors.append(
+                    (f"{where}.type", "self-calibration terms belong in selfcal")
+                )
+            if term["name"] in names:
+                errors.append(
+                    (f"{where}.name", f"{term['name']!r} is also {names[term['name']]}")
+                )
+            names[term["name"]] = where
+    for i, term in enumerate(config["selfcal"]["terms"]):
+        if term["type"] not in SELFCAL_TYPES:
+            errors.append(
+                (f"selfcal.terms[{i}].type", f"must be one of {list(SELFCAL_TYPES)}")
+            )
+    for section in CALIBRATE_SECTIONS:
+        for i, term in enumerate(config["calibrate"][section]["terms"]):
+            for j, name in enumerate(term.get("preapply", [])):
+                if name not in names:
+                    errors.append(
+                        (
+                            f"calibrate.{section}.terms[{i}].preapply[{j}]",
+                            f"no term named {name!r}",
+                        )
+                    )
+    for i, target in enumerate(config["apply"]["targets"]):
+        for j, name in enumerate(target.get("tables") or []):
+            if name not in names:
+                errors.append(
+                    (f"apply.targets[{i}].tables[{j}]", f"no term named {name!r}")
+                )
+    return config, errors
+
+
+# -- what is not implemented yet --------------------------------------------------
+
+
+def refusals(config, stages):
+    """[Refusal] for every value the given stages cannot run yet."""
+    out = []
+
+    def no(path, task, text):
+        out.append(Refusal(path, task, text))
+
+    stages = set(stages)
+    if "flag" in stages and config["flag"]["strategy"] is None:
+        out.append(Refusal("flag.strategy", "", "required"))
+    if "calibrate" in stages:
+        cal = config["calibrate"]
+        model = cal["model"]
+        if model["source"] in ("setjy", "manual", "lsm"):
+            no("calibrate.model.source", "C3a", f"model source {model['source']}")
+        any_term = False
+        for section in CALIBRATE_SECTIONS:
+            block = cal[section]
+            if section == "polcal":
+                if block["feed_angle_rotation"] is not None:
+                    no(
+                        "calibrate.polcal.feed_angle_rotation",
+                        "C6a",
+                        "feed angle rotation",
+                    )
+                if block["extendflags"]:
+                    no("calibrate.polcal.extendflags", "C6b", "extendflags")
+            for i, term in enumerate(block["terms"]):
+                any_term = True
+                _term_refusals(f"calibrate.{section}.terms[{i}]", term, cal, no)
+        if not any_term:
+            out.append(Refusal("calibrate", "", "no term to solve"))
+    if "apply" in stages:
+        no("apply", "C4", "the apply stage (C4a's kernel is not merged; C4b writes)")
+        if config["apply"]["parang"]:
+            no("apply.parang", "C6a", "the parallactic angle")
+    if "image" in stages:
+        img = config["image"]
+        if config["data"]["weights"] == "uniform":
+            no(
+                "data.weights",
+                "C4",
+                "uniform weights for imaging need WEIGHT_SPECTRUM written",
+            )
+        for key, default, task in (
+            ("channels_out", 1, "G3"),
+            ("join_channels", False, "G3"),
+            ("fit_spectral_pol", None, "G3"),
+            ("average_channels", 1, "G3"),
+            ("auto_mask", None, "G4"),
+            ("fits_mask", None, "G4"),
+            ("taper_gaussian", None, "G4"),
+            ("uvrange", "", "G4"),
+            ("multiscale", False, "G5"),
+            ("join_polarizations", False, "G9"),
+            ("write_model", False, "G6"),
+        ):
+            if img[key] != default:
+                no(f"image.{key}", task, f"{key}: {img[key]!r}")
+        if img["pol"] != "I":
+            no("image.pol", "G9", f"pol: {img['pol']!r}")
+        for key in ("size", "scale"):
+            if img[key] is None:
+                out.append(Refusal(f"image.{key}", "", "required"))
+    if "selfcal" in stages:
+        no("selfcal", "C5a", "self-calibration (it also needs G6's MODEL_DATA)")
+        no("selfcal", "G6", "MODEL_DATA written by the imager")
+        for i, term in enumerate(config["selfcal"]["terms"]):
+            task = TERM_TASKS.get(term["type"], "C5a")
+            no(f"selfcal.terms[{i}]", task, f"term {term['type']}")
+    return out
+
+
+def _term_refusals(where, term, cal, no):
+    kind = term["type"]
+    if kind != "complex":
+        no(f"{where}.type", TERM_TASKS[kind], f"term {kind}")
+        return
+    if isinstance(term["solint"], str) and term["solint"].endswith("s"):
+        no(f"{where}.solint", "C2a", f"solint {term['solint']} (CASA's seconds bins)")
+    if term["combine"]:
+        no(f"{where}.combine", "C2a", f"combine {term['combine']!r}")
+    for name, default in (
+        ("refant", None),
+        ("uvrange", ""),
+        ("minsnr", None),
+        ("minblperant", None),
+    ):
+        value = term[name] if term[name] is not None else cal[name]
+        if value != default and value is not None:
+            no(
+                f"{where}.{name}",
+                "C2a",
+                f"{name} {value!r} (the complex term has none)",
+            )
+    if term["refantmode"] is not None:
+        no(f"{where}.refantmode", "C2a", "refantmode on the complex term")
+    if term["preapply"]:
+        no(f"{where}.preapply", "C4a", "tables pre-applied while solving")
+
+
+def validate(raw, stages, source=None):
+    """The resolved configuration, or ConfigError with every schema error
+    and every refusal for `stages`."""
+    config, errors = resolve(raw)
+    refused = [] if errors else refusals(config, stages)
+    required = [(r.path, r.text) for r in refused if not r.task]
+    refused = [r for r in refused if r.task]
+    if errors or required or refused:
+        raise ConfigError(errors + required, refused, source=source)
+    return config
+
+
+def validate_file(path, stages):
+    return validate(load(path), stages, source=Path(path))
+
+
+def stage_hash(config, stage):
+    """SHA-256 of the sections `stage` depends on (STAGE_SECTIONS)."""
+    part = {name: config[name] for name in STAGE_SECTIONS[stage]}
+    text = json.dumps(part, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+# -- the defaults, written down ----------------------------------------------------
+
+
+def _flow(value):
+    text = json.dumps(value)
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, float):
+        mantissa, e, exponent = repr(value).partition("e")
+        return f"{mantissa}.0e{exponent}" if e and "." not in mantissa else repr(value)
+    if isinstance(value, list) and value and isinstance(value[0], dict):
+        return (
+            "["
+            + ", ".join(
+                "{" + ", ".join(f"{k}: {v}" for k, v in item.items()) + "}"
+                for item in value
+            )
+            + "]"
+        )
+    if isinstance(value, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.\-/]*", value):
+        return value if value not in ("null", "true", "false", "inf", "int") else text
+    return text
+
+
+def defaults_yaml():
+    """Every key with its default and comment, as YAML (`rang-core config
+    defaults`)."""
+    lines = [
+        "# rang-core configuration, every key at its default.",
+        "# Required: flag.strategy (for flag), image.size and image.scale (for image).",
+    ]
+
+    def emit(spec, indent):
+        for name, item in spec.items():
+            pad = "  " * indent
+            if isinstance(item, dict):
+                lines.append(f"{pad}{name}:")
+                emit(item, indent + 1)
+                continue
+            lines.append(f"{pad}{name}: {_flow(item.default)}  # {item.doc}")
+
+    emit(SCHEMA, 0)
+    lines.append("# A calibration term (calibrate.*.terms, selfcal.terms):")
+    for name, item in TERM_KEYS.items():
+        lines.append(f"#   {name}: {_flow(item.default)}  # {item.doc}")
+    lines.append("# Term types: " + ", ".join(TERM_TYPES) + ".")
+    lines.append(
+        "# Implemented: complex. Not yet: "
+        + ", ".join(f"{t} ({TERM_TASKS[t]})" for t in TERM_TYPES if t in TERM_TASKS)
+        + "."
+    )
+    return "\n".join(lines) + "\n"
+
+
+__all__ = [
+    "SCHEMA",
+    "STAGES",
+    "TASKS",
+    "TERM_TYPES",
+    "VERSION",
+    "ConfigError",
+    "Refusal",
+    "defaults_yaml",
+    "load",
+    "loads",
+    "refusals",
+    "resolve",
+    "stage_hash",
+    "validate",
+    "validate_file",
+]

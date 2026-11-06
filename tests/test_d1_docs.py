@@ -38,7 +38,7 @@ def test_cli_page_covers_every_stage():
 
     page = (DOCS / "cli.md").read_text(encoding="utf-8")
     for stage in STAGES:
-        assert f"$ rang-core {stage} -h\n" in page
+        assert f"$ rang-core research {stage} -h\n" in page
 
 
 def test_repository_links_exist():

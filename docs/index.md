@@ -37,8 +37,10 @@ What it is:
   WSClean-style flags, using the exact image-domain value at each minor-cycle step
   ({gh}`research/gemclean.md`). It is not in the wheels; build it with
   `cargo build --manifest-path core/Cargo.toml --profile gemclean --bin gemclean`.
-- **A Python package and command line.** `rang-core STAGE VERB` ({doc}`cli`)
-  replays, compares and archives each chain and writes a versioned receipt.
+- **A Python package and command line** ({doc}`cli`). `rang-core flag`, `calibrate`,
+  `image` and `run` take a `config.yaml` and your Measurement Set, write back into it
+  and resume where a run stopped; `rang-core research STAGE VERB` replays, compares
+  and archives each research chain. Every call writes a versioned receipt.
 - **The tools' file formats**: CASA calibration tables, QuartiCal stores, sky
   models, H5parm, killMS solutions, CASA flag versions and MVFv4 archives.
 - **Oracles.** Each port is gated on reproducing the upstream tool's output.

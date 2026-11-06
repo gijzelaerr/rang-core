@@ -26,7 +26,7 @@
   WSClean-style flags, using the exact image-domain value at each minor-cycle step. It is not in
   the wheels: `cargo build --manifest-path core/Cargo.toml --profile gemclean --bin gemclean`.
 - **A Python package and command line.** `import rang` reaches every kernel
-  through the extension `rang._core`, which releases the GIL. `rang-core STAGE VERB`
+  through the extension `rang._core`, which releases the GIL. `rang-core research STAGE VERB`
   replays, compares and archives each chain and writes a versioned receipt.
 - **The tools' file formats.** CASA calibration tables, QuartiCal stores, Tigger,
   WSClean and BBS sky models, H5parm, killMS solutions, CASA flag versions and
@@ -84,16 +84,15 @@ fixture scan 9 (J1939-6342) | m000, m001, m002, m003 | 4096 channels
 gain TV 0.1474  test MSE 24.920
 ```
 
-The command line's main stages (`rang-core -h` lists them all):
+The command line (`rang-core -h`; `rang-core config defaults` lists every configuration key):
 
-| Stage | Chain |
+| Command | What it does |
 | --- | --- |
-| `flags` | Tricolour's SumThreshold strategies |
-| `gridder`, `wgridder`, `weights`, `imaging` | gridders, imaging weights, the imaging replay |
-| `campaign`, `campaign-array`, `campaign-1830`, `campaign-fieldmodel` | the LUNO real-data campaigns |
-| `injections`, `actions`, `prospective`, `signal`, `trend` | the flagging experiment's tracks |
-| `ms`, `meerkat`, `formats` | the readers and file formats |
-| `check` | the full local checks, on any platform |
+| `flag`, `calibrate`, `image`, `run` `config.yaml my.ms` | flag (Tricolour port), solve (`complex` only so far), image with `gemclean`, resume |
+| `research flags`, `gridder`, `wgridder`, `weights`, `imaging` | Tricolour's strategies, gridders, imaging weights, the imaging replay |
+| `research campaign`, `campaign-array`, `campaign-1830`, `campaign-fieldmodel` | the LUNO real-data campaigns |
+| `research injections`, `actions`, `prospective`, `signal`, `trend` | the flagging experiment's tracks |
+| `research ms`, `meerkat`; `formats`; `check` | the readers, the file formats; the full local checks |
 
 ## Documentation
 

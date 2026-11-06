@@ -31,7 +31,9 @@ classifiers = [
 ]
 # rang.core and every wrapper import NumPy; the extension itself does not
 # need it at import time, so a bare wheel install would otherwise half work.
-dependencies = ["numpy>=1.26"]
+# PyYAML reads the configuration of rang-core flag, calibrate, image and run
+# (task W2, research/w2-commands.md).
+dependencies = ["numpy>=1.26", "pyyaml>=6"]
 
 [project.urls]
 Documentation = "https://pythonic.nl/rang-core/"

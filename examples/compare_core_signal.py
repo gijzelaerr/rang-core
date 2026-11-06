@@ -9,7 +9,7 @@ result.json. Field classes follow the frozen criteria 1-5.
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
 # and exit status live in rang.core_compare ("signal"); also
-# `rang-core signal compare ...`.
+# `rang-core research signal compare ...`.
 
 import sys
 

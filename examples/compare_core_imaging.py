@@ -15,7 +15,7 @@ pixel with REFERENCE_DIR. Exit status 1 when anything fails.
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
 # and exit status live in rang.core_compare ("imaging"); also
-# `rang-core imaging compare ...`.
+# `rang-core research imaging compare ...`.
 
 import sys
 from pathlib import Path

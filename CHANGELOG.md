@@ -9,6 +9,19 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: commands for your own Measurement Set, `rang-core flag`, `calibrate`, `apply`, `image`,
+  `selfcal` and `run CONFIG MS`, driven by one YAML configuration (schema `rang-config`, version
+  1; `rang-core config defaults` prints every key with its default, `rang-core config check`
+  validates). `flag` runs the Tricolour port per field and scan and writes FLAG; `calibrate`
+  solves the `complex` term and writes a QuartiCal gain store; `image` runs `gemclean`. The rest
+  of CARACal's chain (K, G, B, F, polarisation terms, apply, self-calibration, multi-channel and
+  polarised imaging) can be written in the configuration and is refused with the task that adds
+  it. A run directory (`<ms>.rang-run`) keeps the state, so `run` skips finished stages and
+  resumes at a failed one. Flags are saved as the CASA flag version `rang_original` before the
+  first write, and as `rang_<stage>_<time>` before each stage writes (`research/w2-commands.md`).
+- Changed: the research stages moved under `rang-core research` (for example `rang-core research
+  flags compare`); the old top-level forms now say where they went. PyYAML is a dependency.
+
 - New: `rang.core_writeback`, write-back to an existing Measurement Set. `WriteBack` adds
   `MODEL_DATA`, `CORRECTED_DATA` (or any data column) and `WEIGHT_SPECTRUM` as CASA's `clearcal`
   adds them, writes any column, `FLAG` and `FLAG_ROW` in row chunks, saves the original flags as a

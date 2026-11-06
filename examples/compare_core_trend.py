@@ -6,7 +6,7 @@ Usage:
 
 # Thin wrapper (task P9, research/p9-cli.md): the rules, output, receipt
 # and exit status live in rang.core_compare ("trend"); also
-# `rang-core trend compare ...`.
+# `rang-core research trend compare ...`.
 
 import sys
 

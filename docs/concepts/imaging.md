@@ -45,7 +45,7 @@ imaging track with the core's weights, w-stacking gridder and Measurement Set
 reader instead of WSClean, and recomputes the archived template fits,
 response fractions and closures with the unedited audit algebra. Pixels
 agree within 6.1e-7 of the peak and template fluxes within 1.4e-7
-({gh}`research/core-i-imaging-replay.md`). `rang-core imaging replay` runs it.
+({gh}`research/core-i-imaging-replay.md`). `rang-core research imaging replay` runs it.
 
 ## Deconvolution
 
