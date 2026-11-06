@@ -292,8 +292,8 @@ delay50 (CASA's frame, A1 section 7.2).
 Parameter and gain flags exact everywhere, converged fractions equal to the last digit. QuartiCal's written offsets
 were not wrapped (raw and mod-2-pi differences equal). One chunk of A-K-d50-raw-f2-t0 runs 50 iterations with a
 converged fraction of 0.0 on both sides: QuartiCal's own behaviour, reproduced. The class A route uses
-`offset_start=False` (section 6); with it the kernel is QuartiCal's, the change of section 6 leaves that path as it
-was, and the class A comparison was not repeated after it.
+`offset_start=False` (section 6); with it the kernel is QuartiCal's. The class A set was repeated on the final code
+of section 6 as run -21 (443.3 s): ten of ten pass again.
 
 ### 5.2 Against CASA `gaincal(gaintype='K')`, C2b's cases, run -02 (frozen code): fourteen of fourteen pass
 
@@ -460,7 +460,10 @@ hypotheses written into it before it ran.
    | C-d50-f0 | 2.7e-3 / 1.2e-2 | 3.8e-4 / 1.4e-3 | 2.1e-4 / 8.5e-4 | 2.7e-3 / 1.2e-2 | 2.3e-4 / 1.2e-3 |
    | C-slice | 9.7e-4 / 4.0e-3 | 9.4e-4 / 2.0e-3 | 8.0e-4 / 2.0e-3 | 9.9e-4 / 4.0e-3 | 1.9e-5 / 2.4e-4 |
 
-   On A1 and delay50, B absorbs the residual phase slope of the two sides' K (0.002-0.013 ns of delay difference is
+   These are applied cells through `rang.cal_apply`, which bridges flagged solution channels by frequency
+   interpolation, so on the slice (12,416 flagged B solutions) they include bridged channels that section 8.1's
+   per-term table comparison leaves out (B alone there: 3.2e-4 against 9.7e-4 here); the composite's equal flags
+   likewise count applied cells, not solutions. On A1 and delay50, B absorbs the residual phase slope of the two sides' K (0.002-0.013 ns of delay difference is
    0.5-3.5° at the band edges): `K B` is 8-10 times closer to CASA's than B alone. G absorbs the rest (the phase at
    the pivot, including the offsets rang's K table drops), so only the full composite is a like-for-like quantity.
    On the slice the four antennas' differences are small everywhere and the composite agrees to 2e-5. **The
