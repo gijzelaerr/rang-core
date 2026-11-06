@@ -9,12 +9,15 @@ two classes:
 - **schema errors**: an unknown key, a wrong type, a value outside its
   choices, a missing required key or a wrong version;
 - **not yet implemented**: a value the schema can express, such as the
-  polarisation terms of research/c1-calibration-chain.md, that rang cannot
-  run yet. Each refusal names the finish-plan task that will add it.
+  self-calibration terms of research/c1-calibration-chain.md, that rang
+  cannot run yet. Each refusal names the finish-plan task that will add it.
 
 Since task C2e (research/c2e-calibrate.md) calibrate runs CARACal's K, G,
 B, A and F terms in C1's order through `rang.cal_chain.run`, and apply
-applies their CASA tables through `rang.applycal`.
+applies their CASA tables through `rang.applycal`. Since task C6w
+(research/c6w-polwire.md) the polcal section's Gpol, KCROSS, Xf and Df
+(CARACal's strategy 1, `rang.cal_pol`) run there too, and apply corrects
+by the parallactic angle (`apply.parang`).
 
 Refusals are computed only for the stages that will run, so a configuration
 of the whole C1 chain parses today and states what is missing.
@@ -37,9 +40,6 @@ ROLES = ("fcal", "bpcal", "gcal", "xcal", "target")
 TASKS = {
     "C5a": "phase and amplitude self-calibration (Sp, Sa)",
     "C5b": "delay self-calibration (Sd, CARACal's Fslope)",
-    "C6a": "the parallactic angle and the feed angle",
-    "C6b": "Gpol, KCROSS and Xf",
-    "C6c": "the Df leakage term",
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
     "G3": "channels out, joined channels, spectral fits and channel averaging",
     "G4": "masks, tapers and an imaging uv range",
@@ -68,11 +68,11 @@ TERM_TYPES = (
 )
 # CASA-style terms run by calibrate since task C2e (`rang.cal_chain.run`).
 CASA_TERMS = ("K", "G", "B", "A", "F")
+# The polarisation terms of the polcal section, since task C6w (`rang.cal_pol`
+# through `rang.cal_chain.run`; CARACal's strategy 1).
+POL_TERMS = ("Gpol", "KCROSS", "Xf", "Df")
+CHAIN_TERMS = CASA_TERMS + POL_TERMS
 TERM_TASKS = {
-    "Gpol": "C6b",
-    "KCROSS": "C6b",
-    "Xf": "C6b",
-    "Df": "C6c",
     "Sd": "C5b",
     "Sp": "C5a",
     "Sa": "C5a",
@@ -245,8 +245,36 @@ SCHEMA = {
         "polcal": {
             "field": _k(["xcal"], "fields", "fields of the polarisation solves"),
             "terms": _k([], "terms", "Gpol, KCROSS, Xf on xcal; Df with field: fcal"),
+            "model": {
+                "source": _k(
+                    "nrao",
+                    "choice",
+                    "the model Gpol, KCROSS and Xf solve against: nrao, CARACal's "
+                    "nrao_xcal.yml (3C286, 3C138; rang.calmodels.NRAO_XCAL) written "
+                    "to MODEL_DATA on their fields; column: an existing column",
+                    ("nrao", "column"),
+                ),
+                "name": _k(
+                    None,
+                    "str?",
+                    "nrao: 3C286, 3C138 or an alias such as J1331+3030 (null: the "
+                    "field's name)",
+                ),
+                "column": _k("MODEL_DATA", "column", "the model column for column"),
+            },
+            "frame": _k(
+                "casa",
+                "choice",
+                "the parallactic-angle frame (rang.cal_pol; C6's provisional owner "
+                "decision 1): casa, CASA's parang=True; rang, geodetic and ICRS north",
+                ("casa", "rang"),
+            ),
             "feed_angle_rotation": _k(
-                None, "float?", "degrees added to RECEPTOR_ANGLE"
+                None,
+                "float?",
+                "degrees: the RECEPTOR_ANGLE of both receptors of every antenna used "
+                "for P, in memory (CARACal writes it into FEED; MeerKAT: -90); null: "
+                "FEED's",
             ),
             "extendflags": _k(
                 False, "bool", "flagdata mode=extend on xcal and fcal first"
@@ -264,7 +292,12 @@ SCHEMA = {
             "scale the weights by the gains (CASA: G, T and B only; no effect on "
             "complex)",
         ),
-        "parang": _k(False, "bool", "apply the parallactic angle"),
+        "parang": _k(
+            False,
+            "bool",
+            "correct by the parallactic angle after the tables, in "
+            "calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)",
+        ),
         "targets": _k(
             [],
             "targets",
@@ -368,9 +401,29 @@ TERM_KEYS = {
     "fillgaps": _k(None, "int?", "B: channels bridged (CARACal: 70)"),
     "solnorm": _k(None, "bool?", "B: normalise"),
     "smodel": _k(None, "floats?", "F: a point model, such as [1, 0, 0, 0]"),
-    "parang": _k(None, "bool?", "apply the parallactic angle while solving"),
-    "preavg": _k(None, "float?", "Xf, Df: pre-averaging in seconds"),
-    "clip": _k(None, "floats?", "Df: amplitude range kept, such as [-0.6, 0.6]"),
+    "parang": _k(
+        None, "bool?", "apply the parallactic angle while solving (default true)"
+    ),
+    "preavg": _k(None, "float?", "Xf, Df: pre-averaging in seconds (not ported)"),
+    "clip": _k(
+        None,
+        "floats?",
+        "Df: amplitude range kept, [-a, a] (default CARACal's [-0.6, 0.6]; [] for "
+        "none)",
+    ),
+    "estimator": _k(
+        None,
+        "choice?",
+        "KCROSS: casa (CASA's FFT and parabola, the default) or refined (then "
+        "Newton steps, which remove the parabola's bias)",
+        ("casa", "refined"),
+    ),
+    "min_data_fraction": _k(
+        None,
+        "float?",
+        "Df: flag channels whose unflagged cross-hand fraction is below this "
+        "(rang's rule, CASA has none; default off)",
+    ),
     "strategy": _k(None, "path?", "A: a Tricolour strategy for the corrected data"),
     "max_iterations": _k(50, "int", "complex, Sp, Sa: solver iterations"),
     "stop_criterion": _k(1e-7, "float", "complex, Sp, Sa: convergence criterion"),
@@ -400,9 +453,9 @@ ALLOWED_TERM_KEYS = {
     "A": {"type", "name", "field", "strategy"},
     "F": _CASA | {"calmode", "smodel"},
     "Gpol": _CASA | {"calmode", "parang"},
-    "KCROSS": _CASA | {"parang"},
+    "KCROSS": _CASA | {"parang", "estimator"},
     "Xf": _CASA | {"parang", "preavg"},
-    "Df": _CASA | {"parang", "preavg", "clip"},
+    "Df": _CASA | {"parang", "preavg", "clip", "min_data_fraction"},
     "Sd": {
         "type",
         "name",
@@ -761,51 +814,94 @@ def refusals(config, stages):
         model = cal["model"]
         _model_refusals(model, cal, no, out)
         _chain_refusals(config, out)
+        name = cal["polcal"]["model"]["name"]
+        if cal["polcal"]["model"]["source"] == "nrao" and name is not None:
+            from . import calmodels
+
+            if name not in calmodels.NRAO_XCAL and name not in (
+                calmodels.NRAO_XCAL_ALIASES
+            ):
+                out.append(
+                    Refusal(
+                        "calibrate.polcal.model.name",
+                        "",
+                        f"no NRAO model for {name!r}; have "
+                        f"{sorted(calmodels.NRAO_XCAL)} and "
+                        f"{sorted(calmodels.NRAO_XCAL_ALIASES)}",
+                    )
+                )
         any_term = False
         for section in CALIBRATE_SECTIONS:
             block = cal[section]
-            if section == "polcal":
-                if block["feed_angle_rotation"] is not None:
-                    no(
-                        "calibrate.polcal.feed_angle_rotation",
-                        "C6a",
-                        "feed angle rotation",
+            if section == "polcal" and block["extendflags"]:
+                out.append(
+                    Refusal(
+                        "calibrate.polcal.extendflags",
+                        "",
+                        "CASA's flagdata mode=extend (CARACal's growtime and growfreq "
+                        "80) is not ported and no task owns it (an owner decision, "
+                        "research/c6w-polwire.md); set false",
                     )
-                if block["extendflags"]:
-                    no("calibrate.polcal.extendflags", "C6b", "extendflags")
+                )
             for i, term in enumerate(block["terms"]):
                 any_term = True
                 _term_refusals(f"calibrate.{section}.terms[{i}]", term, cal, no)
         if not any_term:
             out.append(Refusal("calibrate", "", "no term to solve"))
     if "apply" in stages:
-        if config["apply"]["parang"]:
-            no("apply.parang", "C6a", "the parallactic angle")
         types = {
             term["name"]: term["type"]
             for section in CALIBRATE_SECTIONS
             for term in config["calibrate"][section]["terms"]
         }
-        casa = [k for k in types.values() if k in CASA_TERMS and k != "A"]
+        casa = [k for k in types.values() if k in CHAIN_TERMS and k != "A"]
         if casa and not config["apply"]["targets"]:
             out.append(
                 Refusal(
                     "apply.targets",
                     "",
-                    "required when calibrate solves K, G, B or F terms (which "
-                    "tables go to which fields, as CARACal's callib)",
+                    "required when calibrate solves K, G, B, F or polarisation terms "
+                    "(which tables go to which fields, as CARACal's callib)",
+                )
+            )
+        if config["apply"]["parang"] and not config["apply"]["targets"]:
+            out.append(
+                Refusal(
+                    "apply.parang",
+                    "",
+                    "needs apply.targets: P is applied with the CASA tables of each "
+                    "target (rang.applycal)",
                 )
             )
         for i, target in enumerate(config["apply"]["targets"]):
             where = f"apply.targets[{i}]"
             kinds = [types.get(name) for name in target["tables"] or []]
-            if "complex" in kinds and any(k in CASA_TERMS for k in kinds):
+            if "complex" in kinds and any(k in CHAIN_TERMS for k in kinds):
                 out.append(
                     Refusal(
                         f"{where}.tables",
                         "",
-                        "complex and CASA tables (K, G, B, F) cannot be applied "
-                        "together",
+                        "complex and CASA tables (K, G, B, F, Gpol, KCROSS, Xf, Df) "
+                        "cannot be applied together",
+                    )
+                )
+            if "complex" in kinds and config["apply"]["parang"]:
+                out.append(
+                    Refusal(
+                        f"{where}.tables",
+                        "",
+                        "apply.parang with a complex table: P is applied with CASA "
+                        "tables only (rang.applycal)",
+                    )
+                )
+            if any(k in POL_TERMS for k in kinds) and not config["apply"]["parang"]:
+                out.append(
+                    Refusal(
+                        f"{where}.tables",
+                        "",
+                        "polarisation tables are solved with the parallactic angle "
+                        "and need apply.parang: true (CARACal's applycal "
+                        "parang=True)",
                     )
                 )
             for j, name in enumerate(target["tables"] or []):
@@ -825,7 +921,7 @@ def refusals(config, stages):
                     )
                     continue
                 if kind != "complex":
-                    continue  # K, G, B, F: rang.applycal (C4b), wired by C2e
+                    continue  # K, G, B, F (C2e) and the pol terms (C6w): applycal
                 if j < len(target["interp"]) and target["interp"][j]:
                     out.append(
                         Refusal(
@@ -960,7 +1056,7 @@ def _term_refusals(where, term, cal, no):
         no(f"{where}.type", TERM_TASKS[kind], f"term {kind}")
         return
     if kind != "complex":
-        return  # K, G, B, A, F: `_chain_refusals`
+        return  # K, G, B, A, F and the pol terms: `_chain_refusals`
     errors = []
     if isinstance(term["solint"], str) and term["solint"].endswith("s"):
         errors.append(("solint", f"solint {term['solint']} (CASA's seconds bins)"))
@@ -1007,10 +1103,14 @@ def _chain_refusals(config, out):
             where = f"calibrate.{section}.terms[{i}]"
             kind = term["type"]
             kinds_used.add(kind)
-            if kind not in CASA_TERMS:
+            if kind not in CHAIN_TERMS:
                 seen[term["name"]] = (section, kind)
                 continue
-            if section == "polcal":
+            if kind in POL_TERMS:
+                if section != "polcal":
+                    bad(f"{where}.type", f"a {kind} term belongs in polcal")
+                _pol_term_errors(where, term, bad)
+            elif section == "polcal":
                 bad(f"{where}.type", f"a {kind} term belongs in primary or secondary")
             if kind == "F" and section != "secondary":
                 bad(f"{where}.type", "F is solved on the secondary (CARACal's order)")
@@ -1042,9 +1142,12 @@ def _chain_refusals(config, out):
                 continue
             solved_here = True
             refant = term["refant"] if term["refant"] is not None else cal["refant"]
-            if refant is None:
-                bad(f"{where}.refant", "required for K, G, B and F (calibrate.refant)")
-            elif any(str(r).lower() == "auto" for r in refant):
+            if refant is None and kind not in ("KCROSS", "Xf"):
+                bad(
+                    f"{where}.refant",
+                    "required for K, G, B, F, Gpol and Df (calibrate.refant)",
+                )
+            elif refant is not None and any(str(r).lower() == "auto" for r in refant):
                 bad(
                     f"{where}.refant",
                     "refant auto (CARACal's manage_antennas rule) is not ported; "
@@ -1082,19 +1185,54 @@ def _chain_refusals(config, out):
                         f"{name!r} is not an earlier term (terms solve in order: "
                         "primary, secondary, polcal)",
                     )
-                elif seen[name][1] not in SOLVED_TERMS:
+                elif seen[name][1] not in SOLVED_TERMS + POL_TERMS:
                     bad(
                         f"{where}.preapply[{j}]",
-                        f"{name!r} is a {seen[name][1]} term; K, G, B, F tables "
-                        "are pre-applied",
+                        f"{name!r} is a {seen[name][1]} term; K, G, B, F and "
+                        "polarisation tables are pre-applied",
                     )
             seen[term["name"]] = (section, kind)
-    if "complex" in kinds_used and kinds_used & set(CASA_TERMS):
+    if "complex" in kinds_used and kinds_used & set(CHAIN_TERMS):
         bad(
             "calibrate",
-            "complex terms and CASA terms (K, G, B, A, F) cannot be mixed in one "
-            "calibrate",
+            "complex terms and CASA terms (K, G, B, A, F and the polarisation "
+            "terms) cannot be mixed in one calibrate",
         )
+
+
+def _pol_term_errors(where, term, bad):
+    """What `rang.cal_pol` cannot run as written in a Gpol, KCROSS, Xf or
+    Df term (task C6w, research/c6w-polwire.md)."""
+    kind = term["type"]
+    if kind == "Gpol" and term.get("calmode") not in (None, "p"):
+        bad(
+            f"{where}.calmode",
+            "Gpol is phase-only (CARACal's gaincal calmode p); use a G term for "
+            "amplitudes",
+        )
+    if kind in ("Xf", "Df") and term.get("parang") is False:
+        bad(
+            f"{where}.parang",
+            "polcal always applies the parallactic angle (CASA's polcal has no "
+            "parang argument)",
+        )
+    if term.get("preavg") is not None:
+        bad(
+            f"{where}.preavg",
+            "pre-averaging is not ported: rang solves the cells, which gives "
+            "polcal's answer for a model constant over the interval "
+            "(research/c6-polterms.md section 1); leave it out",
+        )
+    clip = term.get("clip")
+    if clip and (len(clip) != 2 or not clip[0] <= 0 < clip[1]):
+        bad(
+            f"{where}.clip",
+            "[low, high] with low <= 0 < high: the leakage amplitude is clipped "
+            "at high (CARACal's flagdata clipminmax [-0.6, 0.6])",
+        )
+    frac = term.get("min_data_fraction")
+    if frac is not None and not 0 <= frac <= 1:
+        bad(f"{where}.min_data_fraction", "must be between 0 and 1")
 
 
 def validate(raw, stages, source=None):
@@ -1182,7 +1320,9 @@ def defaults_yaml():
     lines.append(
         "# Implemented: complex, "
         + ", ".join(CASA_TERMS)
-        + " (C2e). Not yet: "
+        + " (C2e), "
+        + ", ".join(POL_TERMS)
+        + " (C6w). Not yet: "
         + ", ".join(f"{t} ({TERM_TASKS[t]})" for t in TERM_TYPES if t in TERM_TASKS)
         + "."
     )
@@ -1191,6 +1331,8 @@ def defaults_yaml():
 
 __all__ = [
     "CASA_TERMS",
+    "CHAIN_TERMS",
+    "POL_TERMS",
     "SCHEMA",
     "STAGES",
     "TASKS",

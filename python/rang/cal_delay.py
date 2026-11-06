@@ -29,7 +29,7 @@ Layers, each usable alone:
   `formats.caltable.CalTable` (`K Jones`, delays in ns) that
   `caltable.write` writes and `rang.cal_apply` applies.
 
-Not here: KCROSS (C6b), several windows or fields in one call,
+Not here: KCROSS (`rang.cal_pol.kcross`, task C6), several windows or fields in one call,
 `combine='spw'`, and CASA's FFT-only estimator.
 """
 

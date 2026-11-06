@@ -25,6 +25,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [C4a, the apply kernel](c4a-apply.md): the Rust kernel that applies and corrupts K, G, T, B and Df tables as CASA `applycal`; CASA's Df flag and substitution rules and float32 phase steps, measured against `applycal`.
 - [C3a, calibrator models](c3a-models.md): `setjy`-equivalent point, manual and `.lsm` models into MODEL_DATA; 0 ulps against `setjy`, bit-identical to Crystalball.
 - [C6, the polarisation terms](c6-polterms.md): Gpol, KCROSS, Xf, Df and the parallactic angle against CASA and a truth with a leaking reference antenna (`poldx`, held-out `polholdout`).
+- [C6w and C7b, polarisation in the commands](c6w-polwire.md): Gpol, KCROSS, Xf, Df and P in `rang-core calibrate` and `apply`, bit-identical to `rang.cal_pol`, and the applied calibration against the truth and CASA's chain on `poldx` and held-out `polholdout`.
 - [C7a, polarised calibrator models](c7a-polmodels.md): `setjy` manual's I, Q, U, V, `polindex`, `polangle` and `rotmeas`, and CARACal's 3C286 and 3C138, measured against CASA `setjy` (0 ulps on the tabular path, 2 ulps on the one-term `spix` path) and against published polarisation fractions and angles.
 - [G2, GeMClean's memory](g2-memory.md): peak memory cut by four byte-identical changes; the pilot fits 24 GB at 512 channels (19.7 GB default, 15.7 GB coarse), still 2.0-3.6x WSClean's peak.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.

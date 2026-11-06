@@ -1670,3 +1670,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | W5 run -01 case A: `stimela run recipes/rang-chain.yaml` (flag, calibrate, apply, image) | A1 small copy | 80 s | 245 MB | by hand: flag 19.5, calibrate 27.4, apply 25.5, image 6.3 s |
 | 2026-11-06 | W5 run -01 case O: `stimela run recipes/rang-chain.yaml` | O-CASA slice copy | 33 s | 231 MB | by hand: flag 2.3, calibrate 13.4, apply 11.3, image 5.2 s |
 | 2026-11-06 | W5 run -01: compare S against H (columns, tables, FITS, flag versions) | A / O | 49 / 31 s | 148 MB | |
+| 2026-11-06 | C6w worktree venv (`uv venv`, `uv pip install -e` with the extension build) | worktree | 169 s including the lock wait | – | heavy lock |
+| 2026-11-06 | C6w crash-only smoke: `rang-core calibrate` + `apply` with the polcal section | scratch copy of the poldx twin | 7 s | – | not a gated case; nothing compared |
+| 2026-11-06 | C6w check-all run 1 (before the protocol commit) | worktree | 1,026 s including the lock wait | – | only `test_every_note_is_in_the_research_index` fails; pytest 988 passed, 58 skipped |
+| 2026-11-06 | C6w `check_c6w.py run` -01: CASA prepare, 18 calls, export; `rang-core calibrate`, `apply`; reference | poldx noisy | 357 s total; CASA container 51.0 s (tasks 0.2-4.3 s); calibrate 56.3 s; apply 62.0 s (`chunk_rows` 700, on /mnt/d); reference 34.7 s | – | heavy lock; all gates met |
+| 2026-11-06 | C6w `check_c6w.py run` -02 (held out) | polholdout noisy | 858 s total including about 10 min lock wait; CASA container 45.9 s; calibrate 42.7 s; apply 58.3 s; reference 33.1 s | – | heavy lock; all gates met |
+| 2026-11-06 | C6w gate 3 (`validate` on e2a, e2b) | configurations | under 1 s | – | – |

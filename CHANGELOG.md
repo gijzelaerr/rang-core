@@ -15,13 +15,26 @@ the release notes are the section of this file for that version.
   (`research/w5-stimela.md`). The recipes `recipes/core-*.yaml` are unchanged in their steps and
   now start with `# rang-recipe: research`: they replay frozen campaigns. `tests/test_w5_recipes.py`
   checks the marker on every recipe and the cabs' arguments against the commands.
+- New: `rang-core calibrate` runs the polcal section's Gpol, KCROSS, Xf and Df (CARACal's strategy 1,
+  `rang.cal_pol`; `research/c6w-polwire.md`) after the primary and secondary terms, and `rang-core
+  apply` corrects by the parallactic angle with `apply.parang: true` (after the tables, as CASA's
+  `parang=True`; `rang.applycal.applycal(parang=True)`, angles per field independent of the
+  chunking). New keys: `calibrate.polcal.model` (`nrao`: CARACal's `nrao_xcal.yml` 3C286 or 3C138
+  written to MODEL_DATA on the polcal fields; `column`), `calibrate.polcal.frame` (`casa` default),
+  KCROSS `estimator` (`casa` default, `refined`), Df `min_data_fraction` (off by default; CASA has
+  no such rule). Df's table is clipped at CARACal's 0.6 by default. `feed_angle_rotation` now sets
+  the receptor angle used for P, in memory (CARACal sets it in FEED); FEED is not rewritten. Applying
+  polarisation tables without `apply.parang`, `preavg`, Gpol `calmode: ap` and `extendflags: true`
+  (not ported, no owner) are configuration errors; nothing is refused for C6a, C6b or C6c any more.
+  The defaults of C6's open decisions are provisional.
 - New: `rang.cal_pol`, the polarisation terms in CARACal's order (`research/c6-polterms.md`): `gpol`
   (phase-only G with the parallactic angle), `kcross` (CASA's cross-hand delay FFT), `xf` (CASA's
   cross-hand phase), `df` (the linearised leakage by least squares with CASA's subtractive reference),
   `clip_df`, `parallactic_angles`/`row_angles` (CASA's frame by default, provisionally; `frame='rang'`
   keeps the geodetic one), `rotate` and `apply` (tables, then P). Rust kernels
   `core/src/cal/parang.rs`, `crosshand.rs`, `leakage.rs`; `cal/apply.rs` and `formats/caltable.py`
-  now apply `Kcross Jones` and `Xf Jones` tables. Not wired into `rang-core calibrate` yet (task C2e).
+  now apply `Kcross Jones` and `Xf Jones` tables. Wired into `rang-core calibrate` and `apply` by
+  task C6w (the entry above).
   `rang.simtruth` gains the versions `poldx` and `polholdout` (CASA's parallactic frame, a leaking
   reference antenna); the other versions are unchanged.
 - New: `rang-core calibrate` runs CARACal's cross-calibration terms K, G, B, A and F in C1's order

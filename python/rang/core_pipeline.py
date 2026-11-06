@@ -482,10 +482,36 @@ def preflight(config, info, stages):
                 "(write a calibrator model with model.source setjy, manual or lsm; "
                 "MODEL_DATA from the imager is task G6)"
             )
+        if not problems:
+            problems += _polcal_problems(config, info)
     if not problems:
         problems += memory_problems(config, info, stages)
     if problems:
         raise Refused("\n".join(problems))
+
+
+def _polcal_problems(config, info):
+    """The polcal model's names and column, before anything is written
+    (task C6w)."""
+    from . import calmodels
+
+    pm = config["calibrate"]["polcal"]["model"]
+    out = []
+    fields = polcal_fields(config, info)
+    if not fields:
+        return out
+    if pm["source"] == "column" and pm["column"] not in info["columns"]:
+        out.append(f"calibrate.polcal.model.column: {info['ms']} has no {pm['column']}")
+    for field, name in polcal_models(config, info):
+        key = calmodels.NRAO_XCAL_ALIASES.get(name, name)
+        if key not in calmodels.NRAO_XCAL:
+            out.append(
+                f"calibrate.polcal.model: field {info['fields'][field]!r} has no NRAO "
+                f"model under the name {name!r}; set calibrate.polcal.model.name to "
+                f"one of {sorted(calmodels.NRAO_XCAL)} (or an alias "
+                f"{sorted(calmodels.NRAO_XCAL_ALIASES)}), or use source: column"
+            )
+    return out
 
 
 def memory_problems(config, info, stages):
@@ -550,17 +576,18 @@ def memory_problems(config, info, stages):
 
 
 def chain_memory_problems(config, info, plan):
-    """[message] for each K, G, B, F or A term (task C2e) whose data does not
-    fit `data.memory_limit_gb`: these terms read every row of a field (A:
-    of all its fields) at once, unchunked (W3 merge, research/w3-chunking.md
-    5.3)."""
+    """[message] for each K, G, B, F or A term (task C2e), or Gpol, KCROSS,
+    Xf or Df term (task C6w), whose data does not fit
+    `data.memory_limit_gb`: these terms read every row of a field (A: of
+    all its fields) at once, unchunked (W3 merge, research/w3-chunking.md
+    5.3; chunking them is task W3b)."""
     out, rows = [], info["rows"]
     cells = int(np.prod(info["cell"]))
     limit = plan.limit_bytes
     for section in core_config.CALIBRATE_SECTIONS:
         block = config["calibrate"][section]
         for i, term in enumerate(block["terms"]):
-            if term["type"] not in core_config.CASA_TERMS:
+            if term["type"] not in core_config.CHAIN_TERMS:
                 continue
             fields = resolve_fields(
                 term["field"] or block["field"], config, info, f"calibrate.{section}"
@@ -576,9 +603,9 @@ def chain_memory_problems(config, info, plan):
                         f"{term['type']}): fields {names} hold {n} rows read at once "
                         f"and need about {need / core_chunks.GIB:.2f} GiB, above "
                         f"data.memory_limit_gb {plan.limit_gb:g}; chunking of the K, "
-                        "G, B, A and F terms is not yet implemented (research/"
-                        "w3-chunking.md 5.3): raise the limit or select fewer scans "
-                        "with data.scans"
+                        "G, B, A, F and polarisation terms is not yet implemented "
+                        "(task W3b, research/w3-chunking.md 5.3): raise the limit or "
+                        "select fewer scans with data.scans"
                     )
     return out
 
@@ -1155,23 +1182,73 @@ def write_models(ctx):
 
     config, info, ms = ctx["config"], ctx["info"], ctx["ms"]
     model = config["calibrate"]["model"]
-    if model["source"] not in core_config.MODEL_SOURCES:
+    polcal = polcal_models(config, info)
+    if model["source"] not in core_config.MODEL_SOURCES and not polcal:
         return None
-    block = config["calibrate"]["primary"]
+    plan = core_chunks.budget(config, info)
+    out = None
+    with writeback_session(ctx, "calibrate") as (w, written):
+        if model["source"] in core_config.MODEL_SOURCES:
+            block = config["calibrate"]["primary"]
+            fields = set()
+            for term in block["terms"]:
+                fields.update(
+                    resolve_fields(
+                        term["field"] or block["field"],
+                        config,
+                        info,
+                        "calibrate.primary",
+                    )
+                )
+            spec = model_spec(model, ctx["config_path"])
+            receipt = calmodels.set_model(
+                ms, sorted(fields), spec, session=w, chunk_rows=plan.rows("model")
+            )
+            out = {"spec": repr(spec), "fields": sorted(fields), "receipt": receipt}
+        if polcal:
+            # Task C6w: CARACal's nrao_xcal.yml model on the polcal fields
+            # (Gpol, KCROSS, Xf), one field at a time.
+            records = []
+            for field, name in polcal:
+                spec = calmodels.caracal_xcal(name)
+                receipt = calmodels.set_model(
+                    ms, [field], spec, session=w, chunk_rows=plan.rows("model")
+                )
+                records.append(
+                    {
+                        "field": field,
+                        "name": name,
+                        "spec": repr(spec),
+                        "receipt": receipt,
+                    }
+                )
+            out = dict(out or {}, polcal=records)
+        out.update(written)
+    return out
+
+
+def polcal_fields(config, info):
+    """FIELD ids of the polcal section's Gpol, KCROSS and Xf terms (the
+    polarised calibrator; Df solves on the leakage calibrator)."""
+    block = config["calibrate"]["polcal"]
     fields = set()
     for term in block["terms"]:
-        fields.update(
-            resolve_fields(
-                term["field"] or block["field"], config, info, "calibrate.primary"
+        if term["type"] in ("Gpol", "KCROSS", "Xf"):
+            fields.update(
+                resolve_fields(
+                    term["field"] or block["field"], config, info, "calibrate.polcal"
+                )
             )
-        )
-    spec = model_spec(model, ctx["config_path"])
-    plan = core_chunks.budget(config, info)
-    with writeback_session(ctx, "calibrate") as (w, written):
-        receipt = calmodels.set_model(
-            ms, sorted(fields), spec, session=w, chunk_rows=plan.rows("model")
-        )
-    return {"spec": repr(spec), "fields": sorted(fields), "receipt": receipt, **written}
+    return sorted(fields)
+
+
+def polcal_models(config, info):
+    """[(field id, NRAO_XCAL name)] written by calibrate for
+    `calibrate.polcal.model.source: nrao` (task C6w), else []."""
+    pm = config["calibrate"]["polcal"]["model"]
+    if pm["source"] != "nrao":
+        return []
+    return [(f, pm["name"] or info["fields"][f]) for f in polcal_fields(config, info)]
 
 
 def solve_rows(config, info, section, term):
@@ -1189,7 +1266,7 @@ def solve_rows(config, info, section, term):
 def uses_chain(config):
     """Whether calibrate runs CASA-style terms (K, G, B, A, F; task C2e)."""
     return any(
-        term["type"] in core_config.CASA_TERMS
+        term["type"] in core_config.CHAIN_TERMS
         for section in core_config.CALIBRATE_SECTIONS
         for term in config["calibrate"][section]["terms"]
     )
@@ -1301,7 +1378,106 @@ def chain_terms(config, info, config_path):
             history.append((name, kind))
             if kind == "F":
                 fields_of[name] = sorted(set(fields) | set(fields_of[spec["base"]]))
+    terms += polcal_terms(config, info, types, primary_model)
     return terms
+
+
+# The table kind each term writes (`caltable.CalTable.kind`), for the
+# interpolation defaults of a polarisation term's pre-applied tables.
+TABLE_KIND = {
+    "K": "K",
+    "G": "G",
+    "B": "B",
+    "F": "G",
+    "Gpol": "G",
+    "KCROSS": "Kcross",
+    "Xf": "Xf",
+    "Df": "Df",
+}
+
+
+def polcal_terms(config, info, types, primary_model):
+    """`rang.cal_chain.run`'s terms for `calibrate.polcal` (task C6w,
+    research/c6w-polwire.md): Gpol, KCROSS, Xf and Df in the order given,
+    with CASA's defaults where the configuration is silent (`minsnr` 3,
+    `minblperant` 4, `refantmode` flex), `uvrange` to all four (CARACal),
+    `parang` true, Df's clip CARACal's 0.6 and KCROSS CASA's estimator. A
+    pre-applied table without an `interp` gets CARACal's
+    (`cal_apply.CARACAL_INTERP`: K, G, B, F, Gpol linear; KCROSS, Xf, Df
+    nearest). Gpol, KCROSS and Xf solve against the polcal model
+    (`calibrate.polcal.model`), Df against the primary's (the leakage
+    calibrator is a primary field)."""
+    from . import cal_apply
+
+    cal = config["calibrate"]
+    block = cal["polcal"]
+    pm = block["model"]
+    pol_column = "MODEL_DATA" if pm["source"] == "nrao" else pm["column"]
+    angle = block["feed_angle_rotation"]
+    receptor = None if angle is None else float(np.deg2rad(angle))
+    primary_fields = set()
+    for term in cal["primary"]["terms"]:
+        primary_fields.update(
+            resolve_fields(
+                term["field"] or cal["primary"]["field"],
+                config,
+                info,
+                "calibrate.primary",
+            )
+        )
+    out = []
+    for i, term in enumerate(block["terms"]):
+        kind, name = term["type"], term["name"]
+        fields = resolve_fields(
+            term["field"] or block["field"], config, info, "calibrate.polcal"
+        )
+
+        def pick(key, default, term=term):
+            value = term.get(key)
+            if value is None:
+                value = cal.get(key)
+            return default if value is None else value
+
+        interp = list(term["interp"]) or [
+            cal_apply.CARACAL_INTERP[TABLE_KIND[types[n]]] for n in term["preapply"]
+        ]
+        spec = {
+            "type": kind,
+            "name": name,
+            "fields": fields,
+            "solint": term["solint"],
+            "combine": term["combine"],
+            "refant": pick("refant", None),
+            "refantmode": pick("refantmode", "flex"),
+            "minsnr": float(pick("minsnr", 3.0)),
+            "minblperant": int(pick("minblperant", 4)),
+            "uvrange": pick("uvrange", ""),
+            "preapply": list(term["preapply"]),
+            "interp": interp,
+            "parang": True if term.get("parang") is None else bool(term["parang"]),
+            "frame": block["frame"],
+            "receptor_angle": receptor,
+        }
+        if kind == "Df":
+            written = cal["model"]["source"] in core_config.MODEL_SOURCES
+            if written and not set(fields) <= primary_fields:
+                raise Refused(
+                    f"calibrate.polcal.terms[{i}] ({name}): Df solves on the leakage "
+                    "calibrator against the primary's model, which is on the "
+                    f"primary fields {sorted(primary_fields)}; give field: fcal"
+                )
+            spec["model"] = primary_model
+            clip = term["clip"]
+            spec["clip"] = 0.6 if clip is None else (float(clip[1]) if clip else None)
+            spec["min_data_fraction"] = term["min_data_fraction"]
+        else:
+            spec["model"] = "column"
+            spec["model_column"] = pol_column
+        if kind == "KCROSS":
+            spec["estimator"] = term["estimator"] or "casa"
+        out.append(spec)
+        types[name] = kind
+    return out
 
 
 def stage_calibrate_chain(ctx):
@@ -1310,11 +1486,12 @@ def stage_calibrate_chain(ctx):
     through the attempt's flag version."""
     config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
     cal = config["calibrate"]
+    terms = chain_terms(config, info, ctx["config_path"])
     restored = restore_before(ms, ctx["entry"])
     out_dir = run.stage_dir("calibrate", fresh=True)
     models = write_models(ctx)
-    model_column = "MODEL_DATA" if models is not None else cal["model"]["column"]
-    terms = chain_terms(config, info, ctx["config_path"])
+    written = cal["model"]["source"] in core_config.MODEL_SOURCES
+    model_column = "MODEL_DATA" if written else cal["model"]["column"]
     if config["flag"]["static_masks"] == "tricolour":
         masks = [core_flag.load_static_mask(p) for p in core_flag.static_mask_files()]
     else:
@@ -1361,6 +1538,14 @@ def stage_calibrate_chain(ctx):
         "flag_version": version,
         "k_offsets": cal_chain.K_ALONE.split(":")[1].strip(),
     }
+    if cal["polcal"]["terms"]:
+        summary["polcal"] = {
+            "frame": cal["polcal"]["frame"],
+            "feed_angle_rotation": cal["polcal"]["feed_angle_rotation"],
+            "model": cal["polcal"]["model"],
+            "defaults": "provisional (research/c6w-polwire.md): KCROSS per scan and "
+            "CASA's estimator; Df's clip 0.6, no data-fraction rule",
+        }
     _write_json(out_dir / "summary.json", summary)
     return summary
 
@@ -1525,6 +1710,16 @@ def stage_apply(ctx):
     applied, warnings = [], []
     scans = config["data"]["scans"] or None
     plan = core_chunks.budget(config, info)
+    # Task C6w: P after the tables (CASA's applycal parang=True), in the frame
+    # and with the receptor angle the polarisation terms were solved with.
+    parang = {}
+    if cfg["parang"]:
+        angle = config["calibrate"]["polcal"]["feed_angle_rotation"]
+        parang = {
+            "parang": True,
+            "frame": config["calibrate"]["polcal"]["frame"],
+            "receptor_angle": None if angle is None else float(np.deg2rad(angle)),
+        }
     with writeback_session(ctx, "apply") as (w, written):
         for i, (fields, names, target) in enumerate(targets):
             if all(made[n].get("format") == "casa" for n in names):
@@ -1541,6 +1736,7 @@ def stage_apply(ctx):
                     session=w,
                     chunk_rows=plan.rows("apply"),
                     scan=scans,
+                    **parang,
                 )
                 result["tables_applied"] = names
                 if cal_chain.k_alone(kinds):
@@ -1569,6 +1765,7 @@ def stage_apply(ctx):
         "calwt": cfg["calwt"],
         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; "
         "of the CASA tables only G, B and T do (rang.applycal)",
+        "parang": bool(cfg["parang"]),
         "restored_before": restored,
         "applied": applied,
         "warnings": warnings,

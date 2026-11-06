@@ -235,10 +235,9 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
         "G6",
         "W4",  # data.weights: uniform for imaging (research/w4-unsupported.md)
     }
+    # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run;
+    # E2-B's refant auto and extendflags are errors without an owner task.
     assert _tasks(DATA / "e2b.yaml") == {
-        "C6a",
-        "C6b",
-        "C6c",
         "G3",
         "G9",
         "W4",
