@@ -154,6 +154,73 @@ pub fn cal_delay_offset_solve(
     Ok((solution.iterations, solution.converged_fraction))
 }
 
+/// The counts of `cal_delay_offset_solve`'s global stop test (task W3b,
+/// `research/w3b-chainchunks.md`): arguments as `cal_delay_offset_solve`
+/// without the outputs; writes per iteration the converged and flagged
+/// gains summed over every interval into `counts` (uint64, `2 *
+/// max(max_iterations, 1)`). Returns (iterations recorded, the iteration
+/// and message of a solver error or None); nothing else is written.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn cal_delay_offset_trace(
+    py: Python<'_>,
+    nrow: usize,
+    nchan: usize,
+    ntime: usize,
+    nfreq: usize,
+    nant: usize,
+    data: Ro<'_, f32>,
+    weights: Ro<'_, f32>,
+    model: Ro<'_, f32>,
+    flag: Ro<'_, u8>,
+    flag_row: Ro<'_, u8>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    time_bin: Ro<'_, u32>,
+    freq_bin: Ro<'_, u32>,
+    chan_freq: Ro<'_, f64>,
+    max_iterations: usize,
+    stop_criterion: f64,
+    stop_fraction: f64,
+    refant: i64,
+    estimate_antenna: i64,
+    start_offsets: bool,
+    mut counts: Rw<'_, u64>,
+) -> PyResult<(usize, Option<(usize, String)>)> {
+    let cells = nrow
+        .checked_mul(nchan)
+        .ok_or_else(|| PyValueError::new_err("nrow * nchan overflows"))?;
+    let p = Problem {
+        nrow,
+        nchan,
+        ntime_bins: ntime,
+        nfreq_bins: nfreq,
+        nant,
+        data: exact(&data, "data", 8 * cells)?,
+        weights: exact(&weights, "weights", 4 * cells)?,
+        model: Model::Stored(exact(&model, "model", 8 * cells)?),
+        flag: exact(&flag, "flag", 4 * cells)?,
+        flag_row: exact(&flag_row, "flag_row", nrow)?,
+        antenna1: exact(&antenna1, "antenna1", nrow)?,
+        antenna2: exact(&antenna2, "antenna2", nrow)?,
+        time_bin: exact(&time_bin, "time_bin", nrow)?,
+        freq_bin: exact(&freq_bin, "freq_bin", nchan)?,
+    };
+    let freq = exact(&chan_freq, "chan_freq", nchan)?;
+    let counts = exact_mut(&mut counts, "counts", 2 * max_iterations.max(1))?;
+    let settings = Settings {
+        max_iterations,
+        stop_criterion,
+        stop_fraction,
+        reference_antenna: usize::try_from(refant).ok(),
+        estimate_antenna: usize::try_from(estimate_antenna).ok(),
+    };
+    let (result, trace) = detach(py, || {
+        delay_offset::solve_counted(&p, freq, &settings, start_offsets)
+    });
+    crate::cal_gain::write_trace(result.map(|_| ()), &trace, counts)
+}
+
 /// CASA's `fillgaps` in place on a B table's solutions: `sol` complex64 as
 /// float32 pairs and `flag` (uint8, 1 flagged), both `(nrow, nchan, npar)`.
 #[pyfunction]

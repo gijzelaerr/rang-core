@@ -200,6 +200,23 @@ def solve(
     reference antenna (`positions`, `(nant, 3)`, needed for `flex`
     alternates) are applied; otherwise QuartiCal's referencing to the
     primary refant. Autocorrelations are not used."""
+    refants = _check(calmode, refantmode, refant, nant)
+    raw = _kernel(
+        data, model, weights, flag, flag_row, antenna1, antenna2, time_bin,
+        nant=nant, freq_bin=freq_bin, calmode=calmode, refants=refants,
+        minblperant=minblperant, casa_rules=casa_rules,
+        max_iterations=max_iterations, stop_criterion=stop_criterion,
+        stop_fraction=stop_fraction,
+    )  # fmt: skip
+    return _finish(
+        raw, nant=nant, calmode=calmode, refants=refants, refantmode=refantmode,
+        minsnr=minsnr, minblperant=minblperant, positions=positions,
+        casa_rules=casa_rules, max_iterations=max_iterations,
+        stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+    )  # fmt: skip
+
+
+def _check(calmode, refantmode, refant, nant):
     if calmode not in KINDS:
         raise ValueError(f"calmode must be one of {sorted(KINDS)}")
     if refantmode not in ("flex", "strict"):
@@ -207,6 +224,35 @@ def solve(
     refants = [int(r) for r in np.atleast_1d(refant)]
     if not refants or any(r < 0 or r >= nant for r in refants):
         raise ValueError("refant out of range")
+    return refants
+
+
+def _kernel(
+    data,
+    model,
+    weights,
+    flag,
+    flag_row,
+    antenna1,
+    antenna2,
+    time_bin,
+    *,
+    nant,
+    freq_bin,
+    calmode,
+    refants,
+    minblperant,
+    casa_rules,
+    max_iterations,
+    stop_criterion,
+    stop_fraction,
+    trace=False,
+):
+    """`solve`'s kernel part, per interval: CASA's `minblperant`, then the
+    solve with CASA's statistics. Returns a dict of the per-interval arrays
+    (`gains`, `kernel_flags`, `snr`, `err`, `ok`) and `iterations`,
+    `fraction`; with `trace` (task W3b) instead `(counts, error, ngains)`
+    of the counted kernel (`rang.cal_chunks.replayed`)."""
     data = np.ascontiguousarray(data, np.complex64)
     nrow, nchan = data.shape[:2]
     model = np.ascontiguousarray(np.broadcast_to(model, data.shape), np.complex64)
@@ -259,6 +305,18 @@ def solve(
         flag = np.ascontiguousarray(flag | bad[..., None].astype(np.uint8))
         common = common[:8] + (flag,) + common[9:]
     ngain = ntime * nfreq * nant
+    if trace:
+        counts = np.zeros(2 * max(int(max_iterations), 1), np.uint64)
+        n, error = ext.cal_gain_trace(
+            *common,
+            KINDS[calmode],
+            int(max_iterations),
+            float(stop_criterion),
+            float(stop_fraction),
+            -1 if casa_rules else refants[0],
+            counts,
+        )
+        return counts[: 2 * n].reshape(-1, 2), error, ngain
     g = np.zeros(4 * ngain, np.float64)
     gf = np.zeros(ngain, np.int8)
     snr = np.zeros(2 * ngain, np.float32)
@@ -275,10 +333,52 @@ def solve(
         snr,
         err,
     )
-    gains = g.view(np.complex128).reshape(ntime, nfreq, nant, 2)
-    kernel_flags = gf.reshape(ntime, nfreq, nant) != 0
-    snr = snr.reshape(ntime, nfreq, nant, 2)
-    err = err.reshape(ntime, nfreq, nant, 2)
+    return {
+        "gains": g.view(np.complex128).reshape(ntime, nfreq, nant, 2),
+        "kernel_flags": gf.reshape(ntime, nfreq, nant) != 0,
+        "snr": snr.reshape(ntime, nfreq, nant, 2),
+        "err": err.reshape(ntime, nfreq, nant, 2),
+        "ok": ok,
+        "iterations": int(iterations),
+        "fraction": float(fraction),
+    }
+
+
+def _assemble(parts, ntime, nfreq):
+    """One `_kernel` dict over every interval from the dicts of chunks
+    `(chunk, dict)` (task W3b); `iterations` and `fraction` left to the
+    caller."""
+    first = parts[0][1]
+    out = {}
+    for key in ("gains", "kernel_flags", "snr", "err", "ok"):
+        shape = (ntime, nfreq, *first[key].shape[2:])
+        out[key] = np.empty(shape, first[key].dtype)
+        for c, d in parts:
+            out[key][c.t0 : c.t1, c.f0 : c.f1] = d[key]
+    return out
+
+
+def _finish(
+    raw,
+    *,
+    nant,
+    calmode,
+    refants,
+    refantmode,
+    minsnr,
+    minblperant,
+    positions,
+    casa_rules,
+    max_iterations,
+    stop_criterion,
+    stop_fraction,
+):
+    """`solve`'s steps over all intervals at once: `minsnr` and CASA's
+    reference antenna; returns the `GainSolution`."""
+    gains, kernel_flags = raw["gains"], raw["kernel_flags"]
+    snr, err, ok = raw["snr"], raw["err"], raw["ok"]
+    iterations, fraction = raw["iterations"], raw["fraction"]
+    ntime, nfreq = gains.shape[:2]
     flags = np.repeat(kernel_flags[..., None], 2, axis=-1)
     used = np.full(ntime, refants[0], np.int32)
     alternate = False
@@ -295,7 +395,7 @@ def solve(
         sol = np.ascontiguousarray(gains.transpose(0, 2, 3, 1))
         fl = np.ascontiguousarray(flags.transpose(0, 2, 3, 1).astype(np.uint8))
         used = np.zeros(ntime, np.int32)
-        alternate = ext.cal_gain_apply_refant(
+        alternate = _extension().cal_gain_apply_refant(
             ntime,
             int(nant),
             2,
@@ -338,9 +438,19 @@ def solution_times(time, time_bin, weights, flag, ntime):
     """CASA-style solution times: per interval the mean of its rows' TIME
     weighted by their unflagged parallel-hand weight (the plain mean of the
     rows where nothing is unflagged), and the interval's time span."""
-    time = np.asarray(time, float)
+    return times_from_row_weights(time, time_bin, row_weights(weights, flag), ntime)
+
+
+def row_weights(weights, flag):
+    """Per row the unflagged parallel-hand weight summed over its channels
+    (`solution_times`; task W3b computes it per chunk of whole rows)."""
     w = np.where(np.asarray(flag, bool), 0.0, np.asarray(weights, float))
-    row_w = w[..., 0].sum(1) + w[..., 3].sum(1)
+    return w[..., 0].sum(1) + w[..., 3].sum(1)
+
+
+def times_from_row_weights(time, time_bin, row_w, ntime):
+    """`solution_times` from the rows' weights (`row_weights`)."""
+    time = np.asarray(time, float)
     centre = np.zeros(ntime)
     span = np.zeros(ntime)
     for t in range(ntime):
@@ -439,6 +549,159 @@ def _pre_apply(
     return data, model, flag
 
 
+META_COLUMNS = (
+    "TIME",
+    "SCAN_NUMBER",
+    "FIELD_ID",
+    "ANTENNA1",
+    "ANTENNA2",
+    "UVW",
+    "FLAG_ROW",
+)
+
+
+def _model_rows(model, pos, n):
+    """The model of field rows `pos`: `model` an array over the field's `n`
+    rows (or a broadcast view), or a callable of the positions (task W3b)."""
+    if callable(model):
+        return model(pos)
+    model = np.asarray(model)
+    if len(pos) == n and (n == 0 or (pos[0] == 0 and pos[-1] == n - 1)):
+        return model
+    return model[pos]
+
+
+class _Field:
+    """The rows of one solve on one field (task W3b,
+    research/w3b-chainchunks.md): the row metadata read whole, the cell
+    columns (data, flags, weights or SIGMA, model) read and pre-applied per
+    chunk by `prepare`, which also gives each row's weight sum for the
+    solution times (`row_weights`). `rang.cal_gain`, `rang.cal_delay` and
+    `rang.cal_bandpass` read through it."""
+
+    def __init__(
+        self, ms, rows, *, data_column, model, model_column, weight_column,
+        sigma_column, tables, interp, nant, field_id, solved, freq, uvrange,
+    ):  # fmt: skip
+        self.ms, self.rows = ms, rows
+        self.meta = _ms_columns(ms, META_COLUMNS, rows)
+        self.flag_row = np.asarray(self.meta["FLAG_ROW"], bool) | ~uvrange_keep(
+            self.meta["UVW"], uvrange
+        )
+        self.auto = self.meta["ANTENNA1"] == self.meta["ANTENNA2"]
+        self.cells = ["FLAG", data_column, *_weight_columns(weight_column)]
+        if model is None:
+            self.cells.append(model_column)
+        if tables:
+            self.cells.append(sigma_column)
+        self.data_column, self.model, self.model_column = (
+            data_column,
+            model,
+            model_column,
+        )
+        self.weight_column, self.sigma_column = weight_column, sigma_column
+        self.tables, self.interp, self.nant = tables, interp, nant
+        self.field_id, self.solved, self.freq = field_id, solved, freq
+
+    def prepare(self, pos, c):
+        """The arrays of field rows `pos` from their cell columns `c`, as
+        the one-call solve computes them."""
+        m = self.meta
+        data = c[self.data_column]
+        mdl = (
+            c[self.model_column]
+            if self.model is None
+            else _model_rows(self.model, pos, len(self.rows))
+        )
+        flag = np.asarray(c["FLAG"], bool)
+        if self.tables:
+            data, mdl, flag = _pre_apply(
+                data, mdl, flag, m["TIME"][pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos],
+                self.freq, self.tables, self.interp, self.nant, self.field_id,
+                solved=self.solved,
+            )  # fmt: skip
+        weights = _weights(c, self.weight_column, data.shape)
+        if self.tables:
+            sigma = np.asarray(c[self.sigma_column], np.float64)
+            if sigma.ndim == 2:
+                sigma = np.broadcast_to(sigma[:, None, :], weights.shape)
+            with np.errstate(divide="ignore"):
+                weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
+        used = flag | self.flag_row[pos][:, None, None] | self.auto[pos][:, None, None]
+        return {
+            "data": data,
+            "model": mdl,
+            "weights": weights,
+            "flag": flag,
+            "row_w": row_weights(weights, used),
+        }
+
+    def solution_times(self, time_bin, row_w, ntime):
+        return times_from_row_weights(self.meta["TIME"], time_bin, row_w, ntime)
+
+    def scans(self, time_bin, ntime):
+        return np.array(
+            [self.meta["SCAN_NUMBER"][time_bin == t].min() for t in range(ntime)]
+        )
+
+
+def _solve_gain_field(fld, tb, *, nchan, per_channel, budget, what, **opts):
+    """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
+    chunks of whole intervals under `budget` (task W3b; None: one call),
+    the stop test replayed (`rang.cal_chunks.replayed`). `per_channel`: one
+    frequency bin per channel (B). Returns `(GainSolution, row weights)`."""
+    from . import cal_chunks
+
+    nant = opts["nant"]
+    refants = _check(opts["calmode"], opts["refantmode"], opts["refant"], nant)
+    freq_bin = np.arange(nchan) if per_channel else None
+    chunks, block = cal_chunks.plan(
+        tb, nchan, 4, budget, per_channel=per_channel, what=what
+    )
+    row_w = np.zeros(len(tb))
+    m = fld.meta
+    with core_ms.open_table(fld.ms) as reader:
+
+        def run(chunk, max_iterations, stop_fraction, trace):
+            arr = cal_chunks.load(
+                reader, fld.rows, chunk, fld.cells, fld.prepare, block
+            )
+            pos = chunk.pos
+            if not trace:
+                row_w[pos] = arr.pop("row_w")
+            fb = None if freq_bin is None else freq_bin[chunk.chans] - chunk.f0
+            return _kernel(
+                arr["data"], arr["model"], arr["weights"], arr["flag"],
+                fld.flag_row[pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos],
+                tb[pos] - chunk.t0, nant=nant, freq_bin=fb, calmode=opts["calmode"],
+                refants=refants, minblperant=opts["minblperant"],
+                casa_rules=opts["casa_rules"], max_iterations=max_iterations,
+                stop_criterion=opts["stop_criterion"], stop_fraction=stop_fraction,
+                trace=trace,
+            )  # fmt: skip
+
+        results, replay = cal_chunks.replayed(
+            chunks,
+            run,
+            max_iterations=opts["max_iterations"],
+            stop_fraction=opts["stop_fraction"],
+        )
+    if replay is None:
+        raw = results[0]
+    else:
+        ntime = int(np.max(tb)) + 1
+        raw = _assemble(list(zip(chunks, results)), ntime, nchan if per_channel else 1)
+        raw["iterations"], raw["fraction"] = replay
+    sol = _finish(
+        raw, nant=nant, calmode=opts["calmode"], refants=refants,
+        refantmode=opts["refantmode"], minsnr=opts["minsnr"],
+        minblperant=opts["minblperant"], positions=opts["positions"],
+        casa_rules=opts["casa_rules"], max_iterations=opts["max_iterations"],
+        stop_criterion=opts["stop_criterion"], stop_fraction=opts["stop_fraction"],
+    )  # fmt: skip
+    return sol, row_w
+
+
 def gaincal(
     ms,
     *,
@@ -463,6 +726,7 @@ def gaincal(
     stop_fraction=0.99,
     spw=None,
     scan=None,
+    budget=None,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -479,7 +743,10 @@ def gaincal(
     without, `weight_column` (not compared with CASA). Task C2e:
     `weight_column=None` solves with unit weights where `weight_column`
     would be read, and WEIGHT is repeated over channels; `scan` (a list of
-    SCAN_NUMBERs, CASA's `scan`) restricts the rows."""
+    SCAN_NUMBERs, CASA's `scan`) restricts the rows. Task W3b: `budget` (a
+    `core_chunks.ChainBudget`) reads and solves the field in chunks of whole
+    solution intervals within it, with the same result; `model` may also be
+    a callable of the field-row positions."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -512,84 +779,32 @@ def gaincal(
     )
     if not len(rows):
         raise ValueError(f"no rows of field {field_id} in spectral window {spw}")
-    cols = [
-        "TIME",
-        "SCAN_NUMBER",
-        "FIELD_ID",
-        "ANTENNA1",
-        "ANTENNA2",
-        "UVW",
-        "FLAG",
-        "FLAG_ROW",
-        data_column,
-        *_weight_columns(weight_column),
-    ]
-    if model is None:
-        cols.append(model_column)
     with core_ms.open_table(ms) as t:
         sigma_column = "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in t.colnames() else "SIGMA"
-    if gaintable:
-        cols.append(sigma_column)
-    c = _ms_columns(ms, cols, rows)
-    data = c[data_column]
-    mdl = c[model_column] if model is None else np.asarray(model)
-    flag = np.asarray(c["FLAG"], bool)
-    flag_row = np.asarray(c["FLAG_ROW"], bool) | ~uvrange_keep(c["UVW"], uvrange)
     tables = [
         t if isinstance(t, caltable.CalTable) else caltable.read(t) for t in gaintable
     ]
-    if tables:
-        data, mdl, flag = _pre_apply(
-            data,
-            mdl,
-            flag,
-            c["TIME"],
-            c["ANTENNA1"],
-            c["ANTENNA2"],
-            freq,
-            tables,
-            interp,
-            nant,
-            field_id,
-        )
-    tb, keys = solint_bins(c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine)
-    weights = _weights(c, weight_column, data.shape)
-    if tables:
-        sigma = np.asarray(c[sigma_column], np.float64)
-        if sigma.ndim == 2:
-            sigma = np.broadcast_to(sigma[:, None, :], weights.shape)
-        with np.errstate(divide="ignore"):
-            weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
-    sol = solve(
-        data,
-        mdl,
-        weights,
-        flag,
-        flag_row,
-        c["ANTENNA1"],
-        c["ANTENNA2"],
-        tb,
-        nant=nant,
-        calmode=calmode,
-        refant=refants,
-        refantmode=refantmode,
-        minsnr=minsnr,
-        minblperant=minblperant,
-        positions=positions,
-        casa_rules=casa_rules,
-        max_iterations=max_iterations,
-        stop_criterion=stop_criterion,
-        stop_fraction=stop_fraction,
-    )
+    fld = _Field(
+        ms, rows, data_column=data_column, model=model, model_column=model_column,
+        weight_column=weight_column, sigma_column=sigma_column, tables=tables,
+        interp=interp, nant=nant, field_id=field_id, solved="G", freq=freq,
+        uvrange=uvrange,
+    )  # fmt: skip
+    m = fld.meta
+    tb, keys = solint_bins(m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine)
+    sol, row_w = _solve_gain_field(
+        fld, tb, nchan=len(freq), per_channel=False, budget=budget,
+        what=f"gaincal field {field_id}", nant=nant, calmode=calmode, refant=refants,
+        refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
+        positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
+        stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+    )  # fmt: skip
     if sol.flags.all():
         raise RuntimeError(
             f"gaincal wrote no solutions for field {field_id} (every solution flagged)"
         )
-    used_flags = (
-        flag | flag_row[:, None, None] | (c["ANTENNA1"] == c["ANTENNA2"])[:, None, None]
-    )
-    times, span = solution_times(c["TIME"], tb, weights, used_flags, len(keys))
-    scans = np.array([c["SCAN_NUMBER"][tb == t].min() for t in range(len(keys))])
+    times, span = fld.solution_times(tb, row_w, len(keys))
+    scans = fld.scans(tb, len(keys))
     table = to_caltable(
         sol, times, span, scans, field_id=field_id, ms=ms, chan_freq=freq, spw=spw
     )

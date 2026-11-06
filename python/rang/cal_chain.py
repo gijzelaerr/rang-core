@@ -173,7 +173,7 @@ def _solve_one(ms, term, field_id, tables, common):
     )
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
-        kwargs["model"] = cal_fluxscale.smodel_array(nrow, nchan)
+        kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
     if not kwargs["gaintable"]:
         kwargs["gaintable"] = ()
         kwargs["interp"] = "linear"
@@ -207,9 +207,11 @@ def _solve_pol(ms, term, field_id, tables, common):
     }
     if "scan" in common:
         kwargs["scan"] = common["scan"]
+    if common.get("budget") is not None:
+        kwargs["budget"] = common["budget"]
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
-        kwargs["model"] = cal_fluxscale.smodel_array(nrow, nchan)
+        kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
     record = {"field_id": int(field_id)}
     if kind == "Gpol":
         table, sol, info = cal_pol.gpol(
@@ -295,10 +297,16 @@ def flag_corrected(
     chunk_rows=None,
     flag_backup=core_writeback.DEFAULT_BACKUP,
     stage="calibrate",
+    max_rows=None,
 ):
     """C1's O1: the Tricolour port (`core_flag.flag_rows`) on `column` of the
     rows of `fields` (and `scan`), per field, data description and scan as
-    Tricolour groups them; the result OR'd into FLAG. Returns a summary."""
+    Tricolour groups them; the result OR'd into FLAG. Returns a summary.
+    `max_rows` (task W3b, research/w3b-chainchunks.md): a group with more
+    rows is flagged in blocks of consecutive baselines on the group's time
+    grid, as `rang-core flag` (task W3), with the same flags."""
+    from . import core_chunks
+
     ms = Path(ms)
     lay = core_writeback.layout(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
@@ -307,7 +315,10 @@ def flag_corrected(
         chan_freq = np.asarray(t.getcol("CHAN_FREQ", 0, 1)[0], np.float64)
         chan_width = np.asarray(t.getcol("CHAN_WIDTH", 0, 1)[0], np.float64)
     corr = np.asarray(lay["corr_type"], np.int32)
+    cells = int(np.prod(lay["cell"]))
     names = ("FIELD_ID", "DATA_DESC_ID", "SCAN_NUMBER", "ANTENNA1", "ANTENNA2", "TIME")
+    groups, blocks = [], []
+    total_before = total_after = 0
     with core_writeback.WriteBack(
         ms, flag_backup=flag_backup, stage=stage, chunk_rows=chunk_rows
     ) as w:
@@ -317,16 +328,6 @@ def flag_corrected(
         if scan is not None:
             keep &= np.isin(meta["SCAN_NUMBER"], [int(s) for s in np.atleast_1d(scan)])
         rows = np.flatnonzero(keep)
-        data = np.empty((len(rows), *lay["cell"]), np.complex64)
-        flag = np.empty((len(rows), *lay["cell"]), bool)
-        for s, n in spans:
-            pick = (rows >= s) & (rows < s + n)
-            if pick.any():
-                local = rows[pick] - s
-                data[pick] = w.read(column, s, n)[local]
-                flag[pick] = w.read("FLAG", s, n)[local]
-        new = flag.copy()
-        groups = []
         key = np.stack(
             [
                 meta["FIELD_ID"][rows],
@@ -342,50 +343,89 @@ def flag_corrected(
         )
         inverse = np.asarray(inverse).reshape(-1)
         for i, (fid, ddid, sc) in enumerate(uniq):
-            idx = np.flatnonzero(inverse == i)
-            r = rows[idx]
-            result = core_flag.flag_rows(
-                data[idx],
-                flag[idx],
-                meta["ANTENNA1"][r],
-                meta["ANTENNA2"][r],
-                meta["TIME"][r],
-                positions,
-                chan_freq,
-                chan_width,
-                corr,
-                strategies,
-                masks=masks,
-                want_intensity=False,
-                want_stages=False,
-            )
-            new[idx] = flag[idx] | result["flags"]
+            idx = rows[inverse == i]
+            time_grid = None
+            if max_rows is None or len(idx) <= max_rows:
+                parts = [idx]
+            else:
+                time_grid = np.unique(meta["TIME"][idx])
+                ubl = core_flag.unique_baselines(
+                    meta["ANTENNA1"][idx], meta["ANTENNA2"][idx]
+                )
+                lookup = {(int(a), int(b)): k for k, (a, b) in enumerate(ubl)}
+                bl = np.array(
+                    [
+                        lookup[(int(a), int(b))]
+                        for a, b in zip(meta["ANTENNA1"][idx], meta["ANTENNA2"][idx])
+                    ],
+                    np.int64,
+                )
+                parts = [
+                    idx[np.isin(bl, chosen)]
+                    for chosen in core_chunks.baseline_blocks(bl, len(ubl), max_rows)
+                ]
+            before = after = 0
+            for block in parts:
+                data = core_chunks.read_rows(w, column, block)
+                flag = np.asarray(core_chunks.read_rows(w, "FLAG", block), bool)
+                result = core_flag.flag_rows(
+                    data,
+                    flag,
+                    meta["ANTENNA1"][block],
+                    meta["ANTENNA2"][block],
+                    meta["TIME"][block],
+                    positions,
+                    chan_freq,
+                    chan_width,
+                    corr,
+                    strategies,
+                    masks=masks,
+                    want_intensity=False,
+                    want_stages=False,
+                    time_grid=time_grid,
+                )
+                del data
+                new = flag | result["flags"]
+                before += int(flag.sum())
+                after += int(new.sum())
+                core_chunks.write_rows(w, "FLAG", block, new)
+                del flag, new, result
+            blocks.append(len(parts))
+            total_before += before
+            total_after += after
             groups.append(
                 {
                     "field_id": int(fid),
                     "ddid": int(ddid),
                     "scan": int(sc),
                     "rows": len(idx),
-                    "flagged_before": float(flag[idx].mean()),
-                    "flagged_after": float(new[idx].mean()),
+                    "flagged_before": before / (len(idx) * cells),
+                    "flagged_after": after / (len(idx) * cells),
                 }
             )
-        for s, n in spans:
-            pick = (rows >= s) & (rows < s + n)
-            if not pick.any():
-                continue
-            out = w.read("FLAG", s, n)
-            out[rows[pick] - s] = new[pick]
-            w.write_flags(s, out)
-    return {
+    # FLAG of the selected rows in row order, read back after the write: the
+    # hash of the flags written (task W3b; before, of the array in memory).
+    digest = hashlib.sha256()
+    step = max(1, int(chunk_rows or len(rows) or 1))
+    with core_ms.open_table(ms) as t:
+        for b in range(0, len(rows), step):
+            for start, n in core_chunks.runs(rows[b : b + step]):
+                digest.update(
+                    np.ascontiguousarray(t.getcol("FLAG", start, n)).tobytes()
+                )
+    n_cells = len(rows) * cells
+    out = {
         "column": column,
         "fields": sorted(int(f) for f in fields),
         "rows": len(rows),
-        "flagged_before": float(flag.mean()) if len(rows) else 0.0,
-        "flagged_after": float(new.mean()) if len(rows) else 0.0,
+        "flagged_before": total_before / n_cells if len(rows) else 0.0,
+        "flagged_after": total_after / n_cells if len(rows) else 0.0,
         "groups": groups,
-        "flag_sha256": hashlib.sha256(np.ascontiguousarray(new).tobytes()).hexdigest(),
+        "flag_sha256": digest.hexdigest(),
     }
+    if max_rows is not None:
+        out["chunking"] = {"max_rows": int(max_rows), "blocks": blocks}
+    return out
 
 
 def run(
@@ -401,6 +441,7 @@ def run(
     flag_backup=core_writeback.DEFAULT_BACKUP,
     stage="calibrate",
     log=None,
+    budget=None,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -421,7 +462,11 @@ def run(
     and `min_data_fraction`. `weight_column` (None for unit weights) and `scan`
     reach every solve and A step. Every MS write goes through
     `core_writeback.WriteBack` with `flag_backup` (saved once, before the
-    first write). Returns `{"tables": {name: {...}}, "steps": [...]}`."""
+    first write). `budget` (task W3b, research/w3b-chainchunks.md): a
+    `core_chunks.Budget`; every solve then reads its field in chunks of
+    whole solution intervals and every A step flags in blocks of baselines
+    within it, with the result of the one-call run. Returns `{"tables":
+    {name: {...}}, "steps": [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -430,6 +475,8 @@ def run(
     common = {"model_column": model_column, "weight_column": weight_column}
     if scan is not None:
         common["scan"] = [int(s) for s in np.atleast_1d(scan)]
+    if budget is not None:
+        common["budget"] = budget.chain()
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
@@ -501,6 +548,7 @@ def run(
                 chunk_rows=chunk_rows,
                 flag_backup=flag_backup,
                 stage=stage,
+                max_rows=None if budget is None else budget.rows("flag"),
             )
             step.update(
                 tables=names,

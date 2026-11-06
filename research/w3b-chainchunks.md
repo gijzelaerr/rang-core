@@ -112,8 +112,12 @@ complex solve, `apply` and the models run within `data.memory_limit_gb`. C2e's c
 
 - `core_chunks.Budget.chain()` gives a chain solve the bytes `chunk_bytes − CHAIN_ROW_BYTES · n` for its cell
   arrays (`n` the rows of the field), at `CELL_BYTES["chain"]` bytes per cell; per-channel terms (B, Xf, Df)
-  split it in halves, one for the chunk and one for a block of whole rows. `data.chunk_rows` caps every chunk
-  and block, never below one solution interval (one channel of one interval for B, Xf, Df) and one row.
+  split it in halves, one for the chunk and one for a block of whole rows. `data.chunk_rows` caps every chunk,
+  never below one solution interval (one channel of one interval for B, Xf, Df).
+- **Amendment 1** (during implementation, before any comparison): `data.chunk_rows` caps every chunk but not
+  the read blocks of whole rows (a read buffer, as W3 read a frequency chunk's rows whole); a block is bounded
+  by the memory only. With blocks of 7 rows, arm T's B, Xf and Df (one channel per chunk) would read each field
+  in hundreds of thousands of blocks.
 - `CELL_BYTES["chain"]` (now an unfitted 96) and `CHAIN_ROW_BYTES` are fitted from a probe (peak RSS against
   chunk size) on the whole-array set before any comparison, with a margin, as W3's section 5.1.
 - `preflight`'s `chain_memory_problems` is replaced: a term is refused, before anything is written, only when its
@@ -148,13 +152,18 @@ Arms:
   refuses them at any limit the host has.
 - **D, default:** this branch, `data.memory_limit_gb` at its default (8).
 - **T, tiny chunks:** this branch, `data.chunk_rows: 7` (O, C, P, H). Every solve chunk one interval (or
-  one channel for B, Xf and Df where an interval has more than 7 rows), blocks of 7 rows, A blocks of single
-  baselines.
+  one channel for B, Xf and Df where an interval has more than 7 rows), A blocks of single baselines.
 - **M, a low limit:** this branch with `data.memory_limit_gb` set by a rule frozen here: `1.25 x` the largest
   GiB any one chain term of the case needs for its smallest unit (section 1.6, the number preflight reports),
   rounded up to 0.05 GiB. On O, K0 and G0 are one interval of every row of the field (`solint: inf`, one
   scan), so M cannot split them; B0, B1, K1 and G1 may split. On W this splits K and G into chunks of one dump
   and B into channel chunks.
+  **Amendment 2** (before any comparison, after computing the limits): the GiB preflight reports include the
+  process's fixed 0.63 GiB, so 1.25 times them left room for whole fields on O, C and P (0.85-1.00 GiB) and M
+  would have split nothing there. The rule is now: the fixed bytes plus 1.25 times the largest smallest unit's
+  part above them, rounded up to 0.001 GiB (`tools/oracles/w3b/compare.py m_limit`). At the code of this
+  amendment that gives O 0.801, C 0.648, P and H 0.710, W 4.327 GiB (recomputed by the harness for each arm,
+  so a refitted `CELL_BYTES` moves them).
 
 ## 3. Criteria (frozen before the first comparison)
 

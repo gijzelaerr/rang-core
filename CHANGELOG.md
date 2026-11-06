@@ -9,6 +9,19 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang-core calibrate` runs the K, G, B, A and F terms and the polarisation terms Gpol,
+  KCROSS, Xf and Df within `data.memory_limit_gb` (`research/w3b-chainchunks.md`): each solve reads
+  its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval),
+  pre-applied on whole rows, with the result of the one-call solve bit for bit. The stop test of the
+  G, B and K kernels is replayed over the chunks from new counted kernels (`rang._core.cal_gain_trace`,
+  `cal_delay_trace`, `cal_delay_offset_trace`; Rust `diag::solve_counted`, `delay::solve_counted`,
+  `delay_offset::solve_counted`), Df's gauge test is found exactly over the chunks, and the A step's
+  Tricolour pass flags in blocks of baselines on each group's time grid. `preflight` no longer refuses
+  these terms above the limit; it refuses only a solution interval (B, Xf, Df: one channel of one)
+  that does not fit, naming the GiB. The library functions take a `budget` (default: one chunk, as
+  before). P's angles come from a table per unique time and antenna (`rang.cal_pol.angle_table`,
+  `table_angles`), so `applycal(parang=True)` and the polarisation solves hold no per-row angle array.
+  New module `rang.cal_chunks`.
 - New: the Stimela2 recipe `recipes/rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply`
   and `image` in order on one configuration and MS, with the cabs `rang-flag`, `rang-calibrate`,
   `rang-apply` and `rang-image` in `recipes/rang-cabs.yaml`; each cab runs the console script

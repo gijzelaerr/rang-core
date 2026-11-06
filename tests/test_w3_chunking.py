@@ -372,9 +372,11 @@ def test_a_solution_interval_above_the_limit_is_refused_before_writing(tmp_path)
 
 
 @needs_writer
-def test_chain_terms_above_the_limit_are_refused_not_chunked(tmp_path):
-    """K, G, B, A and F (task C2e) read whole fields: above the limit they
-    are refused before anything is written (research/w3-chunking.md 5.3)."""
+def test_chain_terms_below_one_interval_are_refused_before_writing(tmp_path):
+    """K, G, B, A and F (task C2e) are chunked since task W3b
+    (research/w3b-chainchunks.md); a limit below one solution interval of K
+    and G (`solint: inf`, a whole scan) is refused before anything is
+    written, and the A step's smallest block (one baseline) still fits."""
     ms = w2.make_ms(tmp_path / "x.ms")
     fixed = core_chunks.BASE_BYTES + core_chunks.ROW_BYTES * w2.NROW
     chain = (
@@ -400,8 +402,8 @@ def test_chain_terms_above_the_limit_are_refused_not_chunked(tmp_path):
     problems = pipe.memory_problems(
         core_config.validate_file(small, ["calibrate"]), info, ["calibrate"]
     )
-    assert len(problems) == 3
-    assert all("not yet implemented" in p and "GiB" in p for p in problems)
+    assert len(problems) == 2
+    assert all("solution interval" in p and "GiB" in p for p in problems)
     work = tmp_path / "default"
     work.mkdir()
     default = _config(work, chain, "")

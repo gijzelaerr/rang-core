@@ -117,6 +117,25 @@ def row_angles(
     time, plus the antenna's receptor angle. `receptor_angle` (rad; task
     C6w) replaces FEED's RECEPTOR_ANGLE for every antenna, in memory, as
     CARACal's `feed_angle_rotation` sets it on both receptors of a copy."""
+    table = angle_table(ms, time, antenna1, antenna2, field_id, frame, receptor_angle)
+    return table_angles(table, time, antenna1, antenna2)
+
+
+def angle_table(
+    ms, time, antenna1, antenna2, field_id, frame="casa", receptor_angle=None
+):
+    """`row_angles`' angles per unique time and antenna (task W3b): `(times,
+    q)` with `q[t, a]` the angle of antenna `a` (0 for antennas in neither
+    column) at `times[t]`, the unique values of `time`. `table_angles`
+    looks rows up in it, so no per-row array of a field is needed."""
+    time = np.asarray(time, float)
+    used = np.union1d(np.asarray(antenna1, np.int64), np.asarray(antenna2, np.int64))
+    return angle_table_at(ms, np.unique(time), used, field_id, frame, receptor_angle)
+
+
+def angle_table_at(ms, times, used, field_id, frame="casa", receptor_angle=None):
+    """`angle_table` from the sorted unique `times` and the antennas `used`
+    (task W3b: `rang.applycal` collects them chunk by chunk)."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         xyz = np.asarray(t.getcol("POSITION"), float)
@@ -127,14 +146,19 @@ def row_angles(
     recept = receptor_angles(ms)
     if receptor_angle is not None:
         recept = np.full(len(recept), float(receptor_angle))
-    time = np.asarray(time, float)
+    times = np.asarray(times, float)
+    q = np.zeros((len(times), len(xyz)))
+    for a in np.asarray(used, np.int64):
+        q[:, a] = parallactic_angle(times, ra, dec, xyz[a], frame) + recept[a]
+    return times, q
+
+
+def table_angles(table, time, antenna1, antenna2):
+    """The angles `(a_p, a_q)` of rows from an `angle_table`."""
+    times, q = table
+    tindex = np.searchsorted(times, np.asarray(time, float))
     a1 = np.asarray(antenna1, np.int64)
     a2 = np.asarray(antenna2, np.int64)
-    times, tindex = np.unique(time, return_inverse=True)
-    used = np.union1d(a1, a2)
-    q = np.zeros((len(times), len(xyz)))
-    for a in used:
-        q[:, a] = parallactic_angle(times, ra, dec, xyz[a], frame) + recept[a]
     return q[tindex, a1], q[tindex, a2]
 
 
@@ -232,6 +256,10 @@ class Loaded:
     keys: list
     angles: tuple | None
     settings: dict = field(default_factory=dict)
+    # Task W3b: a chunked solve keeps no cell arrays here (data, model,
+    # weights and flag None) but each row's weight sum for the solution
+    # times (`rang.cal_gain.row_weights`).
+    row_weights: np.ndarray | None = None
 
 
 def load(
@@ -263,113 +291,214 @@ def load(
     `weight_column=None` gives unit weights where `weight_column` would be
     read (WEIGHT is repeated over channels), and `receptor_angle` is
     `row_angles`'."""
-    ms = Path(ms)
-    with core_ms.open_table(ms / "ANTENNA") as t:
-        names = [str(n) for n in t.getcol("NAME")]
-        positions = np.asarray(t.getcol("POSITION"), float)
-    with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
-        chan_freq = t.getcol("CHAN_FREQ")
-    if len(chan_freq) != 1:
-        raise ValueError("one spectral window only (task C6)")
-    freq = np.asarray(chan_freq[0], float)
-    with core_ms.open_table(ms) as t:
-        fields = t.getcol("FIELD_ID")
-        sigma_column = "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in t.colnames() else "SIGMA"
-    rows = np.flatnonzero(cal_gain._scan_keep(ms, scan, fields == field_id))
-    if not len(rows):
-        raise ValueError(f"no rows of field {field_id}")
-    names_cols = [
-        "TIME",
-        "SCAN_NUMBER",
-        "FIELD_ID",
-        "ANTENNA1",
-        "ANTENNA2",
-        "UVW",
-        "FLAG",
-        "FLAG_ROW",
-        data_column,
-        *cal_gain._weight_columns(weight_column),
-        sigma_column,
-    ]
-    if model is None:
-        names_cols.append(model_column)
-    c = cal_gain._ms_columns(ms, names_cols, rows)
-    data = np.asarray(c[data_column], np.complex64)
-    mdl = np.asarray(c[model_column] if model is None else model, np.complex64)
-    if mdl.shape != data.shape:
-        raise ValueError("model must be (row, chan, 4) for the field's rows")
-    flag = np.asarray(c["FLAG"], bool)
-    a1, a2 = c["ANTENNA1"], c["ANTENNA2"]
-    flag_row = (
-        np.asarray(c["FLAG_ROW"], bool)
-        | ~cal_gain.uvrange_keep(c["UVW"], uvrange)
-        | (a1 == a2)
-    )
-    angles = None
-    if parang:
-        angles = row_angles(ms, c["TIME"], a1, a2, field_id, frame, receptor_angle)
-        mdl = rotate(mdl, *angles)
-    tables = [
-        t if isinstance(t, caltable.CalTable) else caltable.read(t) for t in gaintable
-    ]
-    if tables:
-        data, mdl, flag = cal_gain._pre_apply(
-            data,
-            mdl,
-            flag,
-            c["TIME"],
-            a1,
-            a2,
-            freq,
-            tables,
-            interp,
-            len(names),
-            field_id,
-            solved=solved,
+    fld = _PolField(
+        ms, field_id=field_id, solved=solved, solint=solint, combine=combine,
+        uvrange=uvrange, gaintable=gaintable, interp=interp, parang=parang,
+        frame=frame, data_column=data_column, model_column=model_column,
+        model=model, weight_column=weight_column, scan=scan,
+        receptor_angle=receptor_angle,
+    )  # fmt: skip
+    return _load_whole(fld)
+
+
+class _PolField:
+    """`load`'s field (task W3b, research/w3b-chainchunks.md): the row
+    metadata, intervals and P's angle table, read whole; the cell arrays
+    prepared per chunk of rows by `prepare`, as `load` prepares them."""
+
+    def __init__(
+        self, ms, *, field_id, solved, solint, combine, uvrange, gaintable, interp,
+        parang, frame, data_column, model_column, model, weight_column, scan,
+        receptor_angle,
+    ):  # fmt: skip
+        ms = Path(ms)
+        with core_ms.open_table(ms / "ANTENNA") as t:
+            self.names = [str(n) for n in t.getcol("NAME")]
+            self.positions = np.asarray(t.getcol("POSITION"), float)
+        with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
+            chan_freq = t.getcol("CHAN_FREQ")
+        if len(chan_freq) != 1:
+            raise ValueError("one spectral window only (task C6)")
+        self.freq = np.asarray(chan_freq[0], float)
+        with core_ms.open_table(ms) as t:
+            fields = t.getcol("FIELD_ID")
+            sigma_column = (
+                "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in t.colnames() else "SIGMA"
+            )
+        rows = np.flatnonzero(cal_gain._scan_keep(ms, scan, fields == field_id))
+        if not len(rows):
+            raise ValueError(f"no rows of field {field_id}")
+        self.ms, self.rows, self.field_id = ms, rows, int(field_id)
+        self.meta = cal_gain._ms_columns(ms, cal_gain.META_COLUMNS, rows)
+        m = self.meta
+        a1, a2 = m["ANTENNA1"], m["ANTENNA2"]
+        self.flag_row = (
+            np.asarray(m["FLAG_ROW"], bool)
+            | ~cal_gain.uvrange_keep(m["UVW"], uvrange)
+            | (a1 == a2)
         )
-        sigma = np.asarray(c[sigma_column], np.float64)
-        if sigma.ndim == 2:
-            sigma = np.broadcast_to(sigma[:, None, :], data.shape)
-        with np.errstate(divide="ignore"):
-            weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
-    elif weight_column is None:
-        weights = np.ones(data.shape, np.float32)
-    else:
-        weights = np.asarray(c[weight_column], np.float32)
-        if weights.ndim == 2:  # WEIGHT, repeated over channels (C2e's rule)
-            weights = np.broadcast_to(weights[:, None, :], data.shape)
-    tb, keys = cal_gain.solint_bins(
-        c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine
-    )
-    return Loaded(
-        ms=ms,
-        field_id=int(field_id),
-        rows=rows,
-        cols=c,
-        data=np.ascontiguousarray(data, np.complex64),
-        model=np.ascontiguousarray(mdl, np.complex64),
-        weights=np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32),
-        flag=np.ascontiguousarray(flag, bool),
-        flag_row=np.ascontiguousarray(flag_row, bool),
-        freq=freq,
-        nant=len(names),
-        names=names,
-        positions=positions,
-        time_bin=np.asarray(tb, np.int64),
-        keys=keys,
-        angles=angles,
-        settings={
+        self.table = (
+            angle_table(ms, m["TIME"], a1, a2, field_id, frame, receptor_angle)
+            if parang
+            else None
+        )
+        self.tables = [
+            t if isinstance(t, caltable.CalTable) else caltable.read(t)
+            for t in gaintable
+        ]
+        self.cells = ["FLAG", data_column, *cal_gain._weight_columns(weight_column)]
+        self.cells.append(sigma_column)
+        if model is None:
+            self.cells.append(model_column)
+        self.data_column, self.model_column, self.model = (
+            data_column,
+            model_column,
+            model,
+        )
+        self.weight_column, self.sigma_column = weight_column, sigma_column
+        self.solved, self.interp = solved, interp
+        tb, keys = cal_gain.solint_bins(
+            m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine
+        )
+        self.time_bin, self.keys = np.asarray(tb, np.int64), keys
+        self.settings = {
             "solint": solint,
             "combine": combine,
             "uvrange": uvrange,
             "parang": bool(parang),
             "frame": frame,
-            "gaintable": [t.vis_cal for t in tables],
+            "gaintable": [t.vis_cal for t in self.tables],
             "interp": interp,
             **({} if scan is None else {"scan": [int(s) for s in np.atleast_1d(scan)]}),
             **({} if receptor_angle is None else {"receptor_angle": receptor_angle}),
-        },
-    )
+        }
+
+    def prepare(self, pos, c):
+        """The arrays of field rows `pos` from their cell columns `c`."""
+        m = self.meta
+        data = np.asarray(c[self.data_column], np.complex64)
+        mdl = (
+            c[self.model_column]
+            if self.model is None
+            else cal_gain._model_rows(self.model, pos, len(self.rows))
+        )
+        mdl = np.asarray(mdl, np.complex64)
+        if mdl.shape != data.shape:
+            raise ValueError("model must be (row, chan, 4) for the field's rows")
+        flag = np.asarray(c["FLAG"], bool)
+        a1, a2 = m["ANTENNA1"][pos], m["ANTENNA2"][pos]
+        angles = None
+        if self.table is not None:
+            angles = table_angles(self.table, m["TIME"][pos], a1, a2)
+            mdl = rotate(mdl, *angles)
+        if self.tables:
+            data, mdl, flag = cal_gain._pre_apply(
+                data,
+                mdl,
+                flag,
+                m["TIME"][pos],
+                a1,
+                a2,
+                self.freq,
+                self.tables,
+                self.interp,
+                len(self.names),
+                self.field_id,
+                solved=self.solved,
+            )
+            sigma = np.asarray(c[self.sigma_column], np.float64)
+            if sigma.ndim == 2:
+                sigma = np.broadcast_to(sigma[:, None, :], data.shape)
+            with np.errstate(divide="ignore"):
+                weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
+        elif self.weight_column is None:
+            weights = np.ones(data.shape, np.float32)
+        else:
+            weights = np.asarray(c[self.weight_column], np.float32)
+            if weights.ndim == 2:  # WEIGHT, repeated over channels (C2e's rule)
+                weights = np.broadcast_to(weights[:, None, :], data.shape)
+        weights = np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32)
+        flag = np.ascontiguousarray(flag, bool)
+        used = flag | self.flag_row[pos][:, None, None]
+        return {
+            "data": np.ascontiguousarray(data, np.complex64),
+            "model": np.ascontiguousarray(mdl, np.complex64),
+            "weights": weights,
+            "flag": flag,
+            "row_w": cal_gain.row_weights(weights, used),
+            "angles": angles,
+        }
+
+    def loaded(self, arr, *, cols=None, angles=None):
+        """The `Loaded` of the whole field from `prepare`'s arrays, or a
+        metadata-only one (`arr` None) carrying the rows' weight sums."""
+        whole = arr is not None and "data" in arr
+        return Loaded(
+            ms=self.ms,
+            field_id=self.field_id,
+            rows=self.rows,
+            cols=self.meta if cols is None else cols,
+            data=arr["data"] if whole else None,
+            model=arr["model"] if whole else None,
+            weights=arr["weights"] if whole else None,
+            flag=arr["flag"] if whole else None,
+            flag_row=np.ascontiguousarray(self.flag_row, bool),
+            freq=self.freq,
+            nant=len(self.names),
+            names=self.names,
+            positions=self.positions,
+            time_bin=self.time_bin,
+            keys=self.keys,
+            angles=angles,
+            settings=dict(self.settings),
+            row_weights=None if whole else arr["row_w"],
+        )
+
+    def chunk_loaded(self, chunk, arr):
+        """A `Loaded` of one chunk (`rang.cal_chunks.Chunk`) for the
+        kernels: its rows, intervals and channels."""
+        pos = chunk.pos
+        m = self.meta
+        return Loaded(
+            ms=self.ms,
+            field_id=self.field_id,
+            rows=self.rows[pos],
+            cols={"ANTENNA1": m["ANTENNA1"][pos], "ANTENNA2": m["ANTENNA2"][pos]},
+            data=arr["data"],
+            model=arr["model"],
+            weights=arr["weights"],
+            flag=arr["flag"],
+            flag_row=np.ascontiguousarray(self.flag_row[pos], bool),
+            freq=self.freq[chunk.chans],
+            nant=len(self.names),
+            names=self.names,
+            positions=self.positions,
+            time_bin=self.time_bin[pos] - chunk.t0,
+            keys=self.keys[chunk.t0 : chunk.t1],
+            angles=None,
+            settings=dict(self.settings),
+        )
+
+    def chunks(self, budget, *, per_channel, what):
+        """`rang.cal_chunks.plan` of this field, and the chunk loader."""
+        from . import cal_chunks
+
+        chunks, block = cal_chunks.plan(
+            self.time_bin, len(self.freq), 4, budget, per_channel=per_channel, what=what
+        )
+
+        def get(reader, chunk):
+            arr = cal_chunks.load(
+                reader, self.rows, chunk, self.cells, self._prep, block
+            )
+            return arr
+
+        return chunks, get
+
+    def _prep(self, pos, c):
+        arr = self.prepare(pos, c)
+        del arr["angles"]
+        return arr
 
 
 def _refant_index(names, refant):
@@ -378,7 +507,56 @@ def _refant_index(names, refant):
     ]
 
 
+def _chunked(ms, budget, *, per_channel, what, **load_options):
+    """`load`, or with `budget` (task W3b) the field's `_PolField` and its
+    chunks: `(Loaded, None)` when the field is one chunk, else
+    `(_PolField, (chunks, get))`."""
+    if budget is None:
+        return load(ms, **load_options), None
+    fld = _PolField(ms, **_load_defaults(load_options))
+    chunks, get = fld.chunks(budget, per_channel=per_channel, what=what)
+    if len(chunks) == 1:
+        return _load_whole(fld), None
+    return fld, (chunks, get)
+
+
+def _load_defaults(options):
+    out = {
+        "solint": "inf", "combine": "", "uvrange": "", "gaintable": (),
+        "interp": "linear", "parang": True, "frame": "casa", "data_column": "DATA",
+        "model_column": "MODEL_DATA", "model": None,
+        "weight_column": "WEIGHT_SPECTRUM", "scan": None, "receptor_angle": None,
+    }  # fmt: skip
+    out.update(options)
+    return out
+
+
+def _load_whole(fld):
+    pos = np.arange(len(fld.rows))
+    cols = cal_gain._ms_columns(fld.ms, fld.cells, fld.rows)
+    arr = fld.prepare(pos, cols)
+    c = dict(fld.meta)
+    c.update(cols)
+    return fld.loaded(arr, cols=c, angles=arr.pop("angles"))
+
+
+def _each_chunk(fld, chunks, get, row_w=None):
+    """`(chunk, Loaded of the chunk)` for every chunk, the rows' weight sums
+    stored into `row_w`."""
+    with core_ms.open_table(fld.ms) as reader:
+        for c in chunks:
+            arr = get(reader, c)
+            if row_w is not None:
+                row_w[c.pos] = arr["row_w"]
+            yield c, fld.chunk_loaded(c, arr)
+            del arr
+
+
 def _times(ld, ntime):
+    if ld.row_weights is not None:  # a chunked solve (task W3b)
+        return cal_gain.times_from_row_weights(
+            ld.cols["TIME"], ld.time_bin, ld.row_weights, ntime
+        )
     used = ld.flag | ld.flag_row[:, None, None]
     return cal_gain.solution_times(
         ld.cols["TIME"], ld.time_bin, ld.weights, used, ntime
@@ -483,10 +661,42 @@ def gpol(
     rows = np.flatnonzero(
         cal_gain._scan_keep(ms, solve_options.get("scan"), fields == field_id)
     )
-    if model is None:
+    if solve_options.get("budget") is not None:
+        # Task W3b: the model is read and rotated per chunk, by P's angle
+        # table over the field's rows (the angles `row_angles` gives).
+        given = model
+        table = None
+        if parang:
+            c = cal_gain._ms_columns(ms, ["TIME", "ANTENNA1", "ANTENNA2"], rows)
+            table = angle_table(
+                ms, c["TIME"], c["ANTENNA1"], c["ANTENNA2"], field_id, frame,
+                receptor_angle,
+            )  # fmt: skip
+
+        def model(pos):
+            from . import core_chunks
+
+            if given is None:
+                with core_ms.open_table(ms) as t:
+                    part = core_chunks.read_rows(t, model_column, rows[pos])
+            else:
+                part = cal_gain._model_rows(given, pos, len(rows))
+            part = np.asarray(part, np.complex64)
+            if table is not None:
+                part = rotate(
+                    part, *table_angles(table, c["TIME"][pos], c["ANTENNA1"][pos],
+                                        c["ANTENNA2"][pos])
+                )  # fmt: skip
+            return part
+
+        parang_done = True
+    else:
+        parang_done = False
+    if not parang_done and model is None:
         model = cal_gain._ms_columns(ms, [model_column], rows)[model_column]
-    model = np.asarray(model, np.complex64)
-    if parang:
+    if not parang_done:
+        model = np.asarray(model, np.complex64)
+    if parang and not parang_done:
         c = cal_gain._ms_columns(ms, ["TIME", "ANTENNA1", "ANTENNA2"], rows)
         model = rotate(
             model,
@@ -600,6 +810,7 @@ def kcross(
     combine="",
     refant=None,
     estimator="casa",
+    budget=None,
     **load_options,
 ):
     """CARACal's KCROSS: `gaincal(gaintype='KCROSS', parang=True)`. Returns
@@ -611,11 +822,26 @@ def kcross(
     `kcross_refine`."""
     if estimator not in KCROSS_ESTIMATORS:
         raise ValueError(f"estimator must be one of {KCROSS_ESTIMATORS}")
-    ld = load(
-        ms, field_id=field_id, solved="Kcross", solint=solint, combine=combine,
+    ld, parts = _chunked(
+        ms, budget, per_channel=False, what=f"KCROSS field {field_id}",
+        field_id=field_id, solved="Kcross", solint=solint, combine=combine,
         **load_options,
     )  # fmt: skip
-    sol = kcross_solve(ld)
+    if parts is None:
+        sol = kcross_solve(ld)
+    else:  # task W3b: one delay per interval, chunks of whole intervals
+        fld, (chunks, get) = ld, parts
+        row_w = np.zeros(len(fld.rows))
+        got = [kcross_solve(c_ld) for _, c_ld in _each_chunk(fld, chunks, get, row_w)]
+        sol = KcrossSolution(
+            delay_ns=np.concatenate([s.delay_ns for s in got]),
+            ok=np.concatenate([s.ok for s in got]),
+            err_ns=np.concatenate([s.err_ns for s in got]),
+            spectrum=np.concatenate([s.spectrum for s in got]),
+            settings=dict(fld.settings),
+        )
+        del got
+        ld = fld.loaded({"row_w": row_w})
     if estimator == "refined":
         sol.settings["fft_delay_ns"] = sol.delay_ns.tolist()
         sol.delay_ns = np.array(
@@ -683,17 +909,39 @@ def xf_solve(ld):
     )
 
 
-def xf(ms, *, field_id, solint="inf", combine="scan", **load_options):
+def _place(out, chunk, values):
+    """Put a chunk's `(interval, chan, ...)` values into the whole array."""
+    out[chunk.t0 : chunk.t1, chunk.chans] = values
+
+
+def xf(ms, *, field_id, solint="inf", combine="scan", budget=None, **load_options):
     """CARACal's Xf: `polcal(poltype='Xf')` (`parang=True` always). CASA
     ignores the refant for X (`XJones::setSolve`). Returns
     `(CalTable, XfSolution, Loaded)`; the table is CASA's `Xf Jones`
     (`CPARAM (nchan, 1)`, the array value on every antenna,
-    `ANTENNA2 = -1`)."""
-    ld = load(
-        ms, field_id=field_id, solved="Xf", solint=solint, combine=combine,
+    `ANTENNA2 = -1`). `budget` (task W3b): chunks of whole intervals or of
+    channels of one interval (Xf is per interval and channel)."""
+    ld, parts = _chunked(
+        ms, budget, per_channel=True, what=f"Xf field {field_id}",
+        field_id=field_id, solved="Xf", solint=solint, combine=combine,
         **load_options,
     )  # fmt: skip
-    sol = xf_solve(ld)
+    if parts is None:
+        sol = xf_solve(ld)
+    else:
+        fld, (chunks, get) = ld, parts
+        shape = (len(fld.keys), len(fld.freq))
+        x = np.empty(shape, np.complex128)
+        ok = np.empty(shape, bool)
+        err = np.empty(shape)
+        row_w = np.zeros(len(fld.rows))
+        for c, c_ld in _each_chunk(fld, chunks, get, row_w):
+            s = xf_solve(c_ld)
+            _place(x, c, s.x)
+            _place(ok, c, s.ok)
+            _place(err, c, s.err)
+        sol = XfSolution(x=x, ok=ok, err=err, settings=dict(fld.settings))
+        ld = fld.loaded({"row_w": row_w})
     if not sol.ok.any():
         raise RuntimeError(f"Xf wrote no solutions for field {field_id}")
     ntime, nant = len(ld.keys), ld.nant
@@ -751,20 +999,34 @@ def unpolarised_gauge(model, flag, tol=1e-6):
     return degenerate, complex(r0)
 
 
-def df_solve(ld, refant=0, minsnr=3.0, minblperant=4):
+def df_solve(ld, refant=0, minsnr=3.0, minblperant=4, gauge=None):
     """The Df solve on loaded arrays (`leakage.rs`), then CASA's
-    subtractive reference and `minsnr` (SNR = 1/err)."""
-    ntime = len(ld.keys)
-    nrow, nchan = ld.data.shape[:2]
-    nant = ld.nant
+    subtractive reference and `minsnr` (SNR = 1/err). `gauge` (task W3b):
+    `unpolarised_gauge`'s result over the whole field, when `ld` is a
+    chunk of it."""
     refants = _refant_index(ld.names, refant)
     order = _flex_order(refants, ld.positions)
-    degenerate, rho = unpolarised_gauge(ld.model, ld.flag | ld.flag_row[:, None, None])
+    if gauge is None:
+        gauge = unpolarised_gauge(ld.model, ld.flag | ld.flag_row[:, None, None])
+    degenerate, rho = gauge
+    _check_gauge(degenerate, rho)
+    raw = _df_kernel(ld, order, minblperant, degenerate)
+    return _df_finish(raw, ld.settings, refants, order, degenerate, minsnr, minblperant)
+
+
+def _check_gauge(degenerate, rho):
     if degenerate and abs(rho - 1) > 1e-6:
         raise ValueError(
             f"Df: the model's M_YY / M_XX is the constant {rho}, so the leakages "
             "are not determined; a polarised calibrator needs parallactic coverage"
         )
+
+
+def _df_kernel(ld, order, minblperant, degenerate):
+    """The Df kernel on loaded arrays: per (interval, channel) arrays."""
+    ntime = len(ld.keys)
+    nrow, nchan = ld.data.shape[:2]
+    nant = ld.nant
     n = ntime * nchan
     d = np.zeros(4 * n * nant)
     fl = np.zeros(2 * n * nant, np.uint8)
@@ -792,14 +1054,24 @@ def df_solve(ld, refant=0, minsnr=3.0, minblperant=4):
         npar,
         gauge,
     )
-    d = d.view(np.complex128).reshape(ntime, nchan, nant, 2)
-    flags = fl.reshape(ntime, nchan, nant, 2).astype(bool)
-    vr = vr.reshape(ntime, nchan, nant, 2)
-    vi = vi.reshape(ntime, nchan, nant, 2)
-    chi2 = chi2.reshape(ntime, nchan)
-    neq = neq.reshape(ntime, nchan)
-    npar = npar.reshape(ntime, nchan)
-    gauge = gauge.reshape(ntime, nchan)
+    return {
+        "d": d.view(np.complex128).reshape(ntime, nchan, nant, 2),
+        "flags": fl.reshape(ntime, nchan, nant, 2).astype(bool),
+        "vr": vr.reshape(ntime, nchan, nant, 2),
+        "vi": vi.reshape(ntime, nchan, nant, 2),
+        "chi2": chi2.reshape(ntime, nchan),
+        "neq": neq.reshape(ntime, nchan),
+        "npar": npar.reshape(ntime, nchan),
+        "gauge": gauge.reshape(ntime, nchan),
+    }
+
+
+def _df_finish(raw, settings, refants, order, degenerate, minsnr, minblperant):
+    """CASA's subtractive reference, errors, SNR and `minsnr` on the
+    kernel's arrays over every interval and channel."""
+    d, flags, vr, vi = raw["d"], raw["flags"], raw["vr"], raw["vi"]
+    chi2, neq, npar, gauge = raw["chi2"], raw["neq"], raw["npar"], raw["gauge"]
+    ntime, nchan = chi2.shape
     used = gauge.copy()
     if not degenerate:
         # CASA's case D: d_x,p -= d_x,r; d_y,p += conj(d_x,r), per channel, with
@@ -837,7 +1109,7 @@ def df_solve(ld, refant=0, minsnr=3.0, minblperant=4):
         refant_used=used,
         gauge_fixed=bool(degenerate),
         settings={
-            **ld.settings,
+            **settings,
             "refant": refants,
             "minsnr": float(minsnr),
             "minblperant": int(minblperant),
@@ -855,6 +1127,7 @@ def df(
     minsnr=3.0,
     minblperant=4,
     min_data_fraction=None,
+    budget=None,
     **load_options,
 ):
     """CARACal's Df: `polcal(poltype='Df')` on the (unpolarised) leakage
@@ -865,14 +1138,54 @@ def df(
     and interval whose unflagged cross-hand cells are below that fraction
     of the interval's cross-hand cells (rows not flagged as a whole). This
     is rang's rule: CASA has none (its flags in such channels come from its
-    iterative solver, research/c6w-polwire.md)."""
-    ld = load(
-        ms, field_id=field_id, solved="Df", solint=solint, combine=combine,
+    iterative solver, research/c6w-polwire.md). `budget` (task W3b): chunks
+    of whole intervals or of channels of one interval, the gauge test over
+    the whole field first (`rang.cal_chunks.gauge`)."""
+    ld, parts = _chunked(
+        ms, budget, per_channel=True, what=f"Df field {field_id}",
+        field_id=field_id, solved="Df", solint=solint, combine=combine,
         **load_options,
     )  # fmt: skip
-    sol = df_solve(ld, refant=refant, minsnr=minsnr, minblperant=minblperant)
+    if parts is None:
+        sol = df_solve(ld, refant=refant, minsnr=minsnr, minblperant=minblperant)
+        frac = data_fraction(ld) if min_data_fraction is not None else None
+    else:
+        from . import cal_chunks
+
+        fld, (chunks, get) = ld, parts
+        refants = _refant_index(fld.names, refant)
+        order = _flex_order(refants, fld.positions)
+
+        def cells():
+            for _, c_ld in _each_chunk(fld, chunks, get):
+                yield c_ld.model, c_ld.flag | c_ld.flag_row[:, None, None]
+
+        degenerate, rho = cal_chunks.gauge(cells)
+        _check_gauge(degenerate, rho)
+        ntime, nchan, nant = len(fld.keys), len(fld.freq), len(fld.names)
+        raw = {
+            "d": np.empty((ntime, nchan, nant, 2), np.complex128),
+            "flags": np.empty((ntime, nchan, nant, 2), bool),
+            "vr": np.empty((ntime, nchan, nant, 2)),
+            "vi": np.empty((ntime, nchan, nant, 2)),
+            "chi2": np.empty((ntime, nchan)),
+            "neq": np.empty((ntime, nchan)),
+            "npar": np.empty((ntime, nchan)),
+            "gauge": np.empty((ntime, nchan), np.int64),
+        }
+        frac = np.empty((ntime, nchan)) if min_data_fraction is not None else None
+        row_w = np.zeros(len(fld.rows))
+        for c, c_ld in _each_chunk(fld, chunks, get, row_w):
+            part = _df_kernel(c_ld, order, minblperant, degenerate)
+            for key, value in part.items():
+                _place(raw[key], c, value)
+            if frac is not None:
+                _place(frac, c, data_fraction(c_ld))
+        sol = _df_finish(
+            raw, fld.settings, refants, order, degenerate, minsnr, minblperant
+        )
+        ld = fld.loaded({"row_w": row_w})
     if min_data_fraction is not None:
-        frac = data_fraction(ld)
         low = frac < float(min_data_fraction)
         sol.flags = sol.flags | low[:, :, None, None]
         sol.settings["min_data_fraction"] = float(min_data_fraction)

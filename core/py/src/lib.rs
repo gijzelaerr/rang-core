@@ -2830,5 +2830,12 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cal_pol::cal_kcross_solve, m)?)?;
     m.add_function(wrap_pyfunction!(cal_pol::cal_xf_solve, m)?)?;
     m.add_function(wrap_pyfunction!(cal_pol::cal_df_solve, m)?)?;
+    // Task W3b: the stop-test counts of the chain kernels (research/w3b-chainchunks.md).
+    m.add_function(wrap_pyfunction!(cal_gain::cal_gain_trace, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_delay::cal_delay_trace, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        cal_delay_offset::cal_delay_offset_trace,
+        m
+    )?)?;
     Ok(())
 }

@@ -637,9 +637,36 @@ fn converged_fraction(converged: usize, flagged: usize, ngains: usize) -> f64 {
     }
 }
 
+/// The per-iteration record of a counted solve (task W3b,
+/// `research/w3b-chainchunks.md`): the converged and flagged gains summed
+/// over every interval for each iteration that every interval completed,
+/// and the iteration of the first solver error, if any.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Trace {
+    pub counts: Vec<(usize, usize)>,
+    pub error_iteration: Option<usize>,
+}
+
 /// Solve one diagonal term as QuartiCal 0.2.7 does (`diag_complex` or
 /// `phase`), with QuartiCal's referencing when `reference_antenna` is set.
 pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> {
+    solve_traced(problem, settings, None)
+}
+
+/// `solve`, also returning its `Trace`: the same loop with the counts that
+/// the global stop test sums recorded, for replaying the stop test over
+/// chunks of intervals (task W3b). Recording changes no arithmetic.
+pub fn solve_counted(problem: &Problem, settings: &Settings) -> (Result<Solution, Error>, Trace) {
+    let mut trace = Trace::default();
+    let result = solve_traced(problem, settings, Some(&mut trace));
+    (result, trace)
+}
+
+fn solve_traced(
+    problem: &Problem,
+    settings: &Settings,
+    mut trace: Option<&mut Trace>,
+) -> Result<Solution, Error> {
     check(problem, settings)?;
     let na = problem.nant;
     let ngains = problem.ntime_bins * problem.nfreq_bins * na;
@@ -685,6 +712,9 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
             let (c, x) = records
                 .iter()
                 .fold((0, 0), |(c, x), r| (c + r.counts[jj].0, x + r.counts[jj].1));
+            if let Some(t) = trace.as_deref_mut() {
+                t.counts.push((c, x));
+            }
             fraction = converged_fraction(c, x, ngains);
             if fraction >= settings.stop_fraction {
                 stop = Some(jj);
@@ -694,7 +724,10 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
         if let Some(jj) = stop {
             break (jj, fraction);
         }
-        if let Some((_, interval)) = first_error {
+        if let Some((k, interval)) = first_error {
+            if let Some(t) = trace.as_deref_mut() {
+                t.error_iteration = Some(k);
+            }
             let mut records = records;
             let (_, error) = records[interval].error.take().expect("recorded");
             return Err(error);
@@ -1021,6 +1054,33 @@ mod tests {
                     assert!(sol.gains[t * s.nant][h].im.abs() < 1e-12);
                 }
             }
+        }
+    }
+
+    #[test]
+    fn counted_solve_equals_solve() {
+        // Task W3b: recording the stop test's counts changes nothing, and the
+        // counts reproduce the stop.
+        let s = sim(6, 4, 8, 0.5, false);
+        for kind in [Kind::DiagComplex, Kind::Phase] {
+            let settings = Settings::new(kind);
+            let a = solve(&problem(&s), &settings).unwrap();
+            let (b, trace) = solve_counted(&problem(&s), &settings);
+            let b = b.unwrap();
+            assert_eq!(a.gains, b.gains);
+            assert_eq!(a.flags, b.flags);
+            assert_eq!(a.iterations, b.iterations);
+            assert_eq!(
+                a.converged_fraction.to_bits(),
+                b.converged_fraction.to_bits()
+            );
+            assert!(trace.counts.len() >= a.iterations);
+            assert_eq!(trace.error_iteration, None);
+            let p = problem(&s);
+            let ngains = p.ntime_bins * p.nfreq_bins * p.nant;
+            let (c, x) = trace.counts[a.iterations - 1];
+            let f = converged_fraction(c, x, ngains);
+            assert_eq!(f.to_bits(), a.converged_fraction.to_bits());
         }
     }
 

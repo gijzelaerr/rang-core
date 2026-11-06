@@ -52,6 +52,14 @@ def smodel_array(nrow, nchan, stokes=SMODEL_UNIT):
     return np.broadcast_to(corr, (int(nrow), int(nchan), 4)).copy()
 
 
+def smodel_view(nrow, nchan, stokes=SMODEL_UNIT):
+    """`smodel_array` as a read-only broadcast view, no copy (task W3b: a
+    chunked solve copies only its chunk's rows)."""
+    i, q, u, v = (float(s) for s in stokes)
+    corr = np.array([i + q, u + 1j * v, u - 1j * v, i - q], np.complex64)
+    return np.broadcast_to(corr, (int(nrow), int(nchan), 4))
+
+
 def append(base, *tables):
     """CASA's `append=True`: a copy of `base` with every row of `tables`
     after its own (the subtables and keywords of `base`)."""
@@ -378,7 +386,7 @@ def bootstrap(
             table, _, _ = cal_gain.gaincal(
                 ms,
                 field_id=int(f),
-                model=smodel_array(nrow, nchan, smodel),
+                model=smodel_view(nrow, nchan, smodel),
                 spw=w if nspw > 1 else None,
                 **gaincal_kwargs,
             )
@@ -424,5 +432,6 @@ __all__ = [
     "bootstrap",
     "fluxscale",
     "smodel_array",
+    "smodel_view",
     "summary",
 ]
