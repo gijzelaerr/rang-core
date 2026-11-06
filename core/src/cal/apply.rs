@@ -24,7 +24,9 @@
 //!   approximation (`XY -= d_x,p YY + conj(d_y,q) XX`,
 //!   `YX -= d_y,p XX + conj(d_x,q) YY`, parallel hands unchanged);
 //! - flags as `applymode='calflag'`: a diagonal term flags the correlations
-//!   of a flagged receptor and leaves them without its division. Df follows
+//!   of a flagged receptor; under that flag the bad receptor's element is 1
+//!   and the other side is still applied (`JonesDiag::setMatByOk`; task C4b,
+//!   `research/c4b-apply-ms.md`, found C4a skipped both sides). Df follows
 //!   CASA's `JonesGenLin` (`Jones.cc`, read after run -01 of
 //!   `research/c4a-apply.md` found the difference): XY is flagged when
 //!   `d_x,p` or `d_y,q` is bad or XX or YY is flagged, YX likewise with
@@ -37,6 +39,13 @@
 //!
 //! KCROSS, Xf and P have their place in the order and the interface but are
 //! refused with an error naming the C1 step that adds them.
+//!
+//! `apply_jones` (task C4b) applies a general 2x2 term on its own solution
+//! bins, as QuartiCal's `complex` gains are solved: per row a time bin, per
+//! channel a frequency bin, `G_p^-1 V G_q^-H` in float64, with CASA's
+//! general-Jones flag rule (`Jones::flagRight` then `flagLeft`: a bad gain of
+//! either antenna, or any flagged correlation of the cell, flags all four)
+//! and `Jones::setMatByOk` (a bad side is the identity).
 //!
 //! Every output cell depends only on its own inputs: the per-(term,
 //! antenna, time) tables are filled in parallel without reductions and rows
@@ -319,8 +328,12 @@ pub fn check(chunk: &Chunk, terms: &[Term]) -> Result<(), String> {
 }
 
 /// One antenna's solutions as float32 series `(slot, chan_sol, par, nf)`:
-/// complex parameters as amplitude and phase tracked along the slots
-/// (`caltable._track_phase`), float parameters as they are.
+/// complex parameters as amplitude and phase (`atan2`, not tracked), float
+/// parameters as they are. CASA tracks phases only over the rows it reads
+/// for one interpolation (`CTTimeInterp1::interpolate` reads the bracketing
+/// pair, or one row for `nearest` and exact times, through
+/// `fparamArray(rows)`), so tracking is done per pair in `interpolate_time`
+/// (task C4b, research/c4b-apply-ms.md; C4a tracked along the whole series).
 fn series(t: &Term, ant: usize) -> Vec<f32> {
     let (s0, s1) = (t.slot_start[ant], t.slot_start[ant + 1]);
     let per = t.nchan_sol * t.npar;
@@ -337,28 +350,29 @@ fn series(t: &Term, ant: usize) -> Vec<f32> {
             out[2 * (s * per + k) + 1] = im.atan2(re);
         }
     }
-    // `RIorAPArray::trackPhase` (`RIorAParray.cc`): float phases compared
-    // with the previous slot's plus or minus pi in double, each 2 pi step
-    // rounded back to float. `caltable._track_phase` rounds whole turns in
-    // float32, which can differ by an ulp (run -03 of research/c4a-apply.md).
+    out
+}
+
+/// `RIorAPArray::trackPhase` (`RIorAParray.cc`) of `cur` after `prev`:
+/// float phases compared with the previous one's plus or minus pi in
+/// double, each 2 pi step rounded back to float (run -03 of
+/// research/c4a-apply.md found `caltable._track_phase`'s float32 whole
+/// turns can differ by an ulp).
+fn track(prev: f32, cur: f32) -> f32 {
     use std::f64::consts::{PI, TAU};
-    for k in 0..per {
-        for s in 1..n {
-            let prev = f64::from(out[2 * ((s - 1) * per + k) + 1]);
-            let cur = &mut out[2 * (s * per + k) + 1];
-            if f64::from(*cur) > prev {
-                while f64::from(*cur) > prev + PI {
-                    *cur = (f64::from(*cur) - TAU) as f32;
-                }
-            }
-            if f64::from(*cur) < prev {
-                while f64::from(*cur) < prev - PI {
-                    *cur = (f64::from(*cur) + TAU) as f32;
-                }
-            }
+    let prev = f64::from(prev);
+    let mut cur = cur;
+    if f64::from(cur) > prev {
+        while f64::from(cur) > prev + PI {
+            cur = (f64::from(cur) - TAU) as f32;
         }
     }
-    out
+    if f64::from(cur) < prev {
+        while f64::from(cur) < prev - PI {
+            cur = (f64::from(cur) + TAU) as f32;
+        }
+    }
+    cur
 }
 
 /// `caltable._interpolate` at one time: the values `(chan_sol, par, nf)`
@@ -415,10 +429,19 @@ fn interpolate_time(
     let (x0, x1) = (rel(times[i]), rel(times[i + 1]));
     let dx = x - x0;
     let span = x1 - x0;
+    let complex = !t.kind.float_param();
+    // casacore 3.7.1 `Interpolate1D<Float, Array<Float>>` linear (read in
+    // `rang-casacore-cpp:3.7.1`, `Interpolate1D.tcc`):
+    // `y1 + ((x - x1) / (x2 - x1)) * (y2 - y1)` in float (task C4b; C4a used
+    // `caltable.py`'s `y0 + (x - x0) (y1 - y0) / (x1 - x0)`).
+    let frac = dx / span;
     for k in 0..per_v {
         let y0 = vals[i * per_v + k];
-        let y1 = vals[(i + 1) * per_v + k];
-        out[k] = y0 + dx * (y1 - y0) / span;
+        let mut y1 = vals[(i + 1) * per_v + k];
+        if complex && k % 2 == 1 {
+            y1 = track(y0, y1); // the phase of the pair, tracked
+        }
+        out[k] = y0 + frac * (y1 - y0);
     }
     for k in 0..per_f {
         oflag[k] = flags[i * per_f + k] != 0 || flags[(i + 1) * per_f + k] != 0;
@@ -760,11 +783,15 @@ fn run(
                         continue;
                     }
                     for (k, &(a, b)) in POLS.iter().enumerate() {
-                        // `JonesDiag::setMatByOk`: a bad receptor is 1.
-                        if gp.f[a] || gq.f[b] {
+                        // `JonesDiag::setMatByOk`: a bad receptor is 1 on its
+                        // own side only; the other side is still applied, as
+                        // CASA writes it (task C4b, research/c4b-apply-ms.md).
+                        if gp.f[a] && gq.f[b] {
                             continue;
                         }
-                        let g = gp.v[a].mul(gq.v[b].conj());
+                        let ga = if gp.f[a] { C::ONE } else { gp.v[a] };
+                        let gb = if gq.f[b] { C::ONE } else { gq.v[b] };
+                        let g = ga.mul(gb.conj());
                         v[k] = match direction {
                             Direction::Correct => v[k].div(g),
                             Direction::Corrupt => v[k].mul(g),
@@ -778,6 +805,159 @@ fn run(
                 }
             }
         });
+}
+
+/// A general 2x2 term on its own solution bins (task C4b): the gains of
+/// `rang.core.solve_complex`, `(time_bin, freq_bin, antenna, 2, 2)`.
+pub struct BinnedJones<'a> {
+    pub ntime_bins: usize,
+    pub nfreq_bins: usize,
+    /// Interleaved complex128 `(t, f, ant, 2, 2)`, row-major elements
+    /// `[[XX, XY], [YX, YY]]`.
+    pub gains: &'a [f64],
+    /// `(t, f, ant)`: nonzero where the gain is valid.
+    pub valid: &'a [u8],
+    /// The time bin of each row and the frequency bin of each channel.
+    pub time_bin: &'a [u32],
+    pub freq_bin: &'a [u32],
+}
+
+type M2 = [C; 4];
+
+/// The inverse of a 2x2 matrix, or None when it is singular or not finite.
+fn inverse(m: &M2) -> Option<M2> {
+    let det = m[0].mul(m[3]).sub(m[1].mul(m[2]));
+    if !(det.re.is_finite() && det.im.is_finite()) || (det.re == 0.0 && det.im == 0.0) {
+        return None;
+    }
+    let one = C::ONE;
+    let r = one.div(det);
+    let neg = |c: C| C::new(-c.re, -c.im);
+    Some([m[3].mul(r), neg(m[1]).mul(r), neg(m[2]).mul(r), m[0].mul(r)])
+}
+
+fn mat_mul(a: &M2, b: &M2) -> M2 {
+    [
+        a[0].mul(b[0]).add(a[1].mul(b[2])),
+        a[0].mul(b[1]).add(a[1].mul(b[3])),
+        a[2].mul(b[0]).add(a[3].mul(b[2])),
+        a[2].mul(b[1]).add(a[3].mul(b[3])),
+    ]
+}
+
+fn adjoint(a: &M2) -> M2 {
+    [a[0].conj(), a[2].conj(), a[1].conj(), a[3].conj()]
+}
+
+/// Correct (`V <- G_p^-1 V G_q^-H`) or corrupt (`V <- G_p V G_q^H`)
+/// `chunk` by one binned general term into `out_data` and `out_flags`
+/// (input flags OR the term's). A gain that is invalid, singular or not
+/// finite is bad: its side is the identity and the cell is flagged. CASA's
+/// `Jones::flagRight` then `flagLeft` flag a correlation when any
+/// correlation of the cell is flagged or either side is bad, so a cell is
+/// flagged in all four or none. `chunk.time` and `chunk.freq` are not used.
+pub fn apply_jones(
+    chunk: &Chunk,
+    term: &BinnedJones,
+    direction: Direction,
+    threads: usize,
+    out_data: &mut [f32],
+    out_flags: &mut [u8],
+) -> Result<(), String> {
+    let (nrow, nchan, nant) = (chunk.nrow, chunk.nchan, chunk.nant);
+    let cells = nrow * nchan;
+    if chunk.data.len() != 8 * cells || chunk.flags.len() != 4 * cells {
+        return err("data must be (row, chan, 4) complex64 and flags (row, chan, 4)");
+    }
+    if chunk.antenna1.len() != nrow || chunk.antenna2.len() != nrow {
+        return err("antenna1 and antenna2 must have one value per row");
+    }
+    if term.time_bin.len() != nrow || term.freq_bin.len() != nchan {
+        return err("time_bin must have one value per row and freq_bin one per channel");
+    }
+    let nsol = term.ntime_bins * term.nfreq_bins * nant;
+    if term.gains.len() != 8 * nsol || term.valid.len() != nsol {
+        return err(
+            "gains must be (time_bin, freq_bin, antenna, 2, 2) and valid (time_bin, freq_bin, antenna)",
+        );
+    }
+    if out_data.len() != chunk.data.len() || out_flags.len() != chunk.flags.len() {
+        return err("outputs must have the shapes of data and flags");
+    }
+    if chunk
+        .antenna1
+        .iter()
+        .chain(chunk.antenna2)
+        .any(|&a| a as usize >= nant)
+    {
+        return err("an antenna index is not below nant");
+    }
+    if term.time_bin.iter().any(|&t| t as usize >= term.ntime_bins)
+        || term.freq_bin.iter().any(|&f| f as usize >= term.nfreq_bins)
+    {
+        return err("a time or frequency bin is out of range");
+    }
+    // Per solution: the matrix applied on each side (inverse or gain) or
+    // None when bad.
+    let mats: Vec<Option<M2>> = (0..nsol)
+        .into_par_iter()
+        .map(|s| {
+            if term.valid[s] == 0 {
+                return None;
+            }
+            let g = &term.gains[8 * s..8 * s + 8];
+            let m: M2 = std::array::from_fn(|k| C::new(g[2 * k], g[2 * k + 1]));
+            let inv = inverse(&m)?;
+            Some(match direction {
+                Direction::Correct => inv,
+                Direction::Corrupt => m,
+            })
+        })
+        .collect();
+    let body = |out_data: &mut [f32], out_flags: &mut [u8]| {
+        out_data
+            .par_chunks_mut(8 * nchan.max(1))
+            .zip(out_flags.par_chunks_mut(4 * nchan.max(1)))
+            .enumerate()
+            .for_each(|(r, (od, of))| {
+                let tb = term.time_bin[r] as usize;
+                for c in 0..nchan {
+                    let cell = r * nchan + c;
+                    let base = (tb * term.nfreq_bins + term.freq_bin[c] as usize) * nant;
+                    let mp = mats[base + chunk.antenna1[r] as usize];
+                    let mq = mats[base + chunk.antenna2[r] as usize];
+                    let mut v: M2 = std::array::from_fn(|k| {
+                        C::new(
+                            f64::from(chunk.data[8 * cell + 2 * k]),
+                            f64::from(chunk.data[8 * cell + 2 * k + 1]),
+                        )
+                    });
+                    let any = (0..4).any(|k| chunk.flags[4 * cell + k] != 0);
+                    let flag = any || mp.is_none() || mq.is_none();
+                    if let Some(p) = mp {
+                        v = mat_mul(&p, &v);
+                    }
+                    if let Some(q) = mq {
+                        v = mat_mul(&v, &adjoint(&q));
+                    }
+                    for k in 0..4 {
+                        od[8 * c + 2 * k] = v[k].re as f32;
+                        od[8 * c + 2 * k + 1] = v[k].im as f32;
+                        of[4 * c + k] = u8::from(flag);
+                    }
+                }
+            });
+    };
+    if threads == 0 {
+        body(out_data, out_flags);
+        return Ok(());
+    }
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .build()
+        .map_err(|e| e.to_string())?;
+    pool.install(|| body(out_data, out_flags));
+    Ok(())
 }
 
 #[cfg(test)]
@@ -1082,6 +1262,202 @@ mod tests {
             let e = apply(&v.chunk(), &terms, Direction::Correct, 0, &mut od, &mut of).unwrap_err();
             assert!(e.contains(step), "{e}");
         }
+    }
+
+    #[test]
+    fn one_sided_diagonal_flag_applies_the_other_side() {
+        // `JonesDiag::setMatByOk` (task C4b): g_0's X receptor bad, so XX
+        // and XY are flagged and divided by conj(g_1) only.
+        let freq = [1.4e9];
+        let data = [2.0f32, 1.0, 0.5, 0.5, 0.25, -0.5, 3.0, 0.0];
+        let flags = [0u8; 4];
+        let chunk = Chunk {
+            nrow: 1,
+            nchan: 1,
+            nant: 2,
+            data: &data,
+            flags: &flags,
+            time: &[10.0],
+            antenna1: &[0],
+            antenna2: &[1],
+            freq: &freq,
+        };
+        let params = [2.0f32, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0];
+        let tflags = [1u8, 0, 0, 0];
+        let term = Term {
+            kind: Kind::G,
+            time_interp: Interp::Linear,
+            freq_interp: Interp::Linear,
+            slot_start: &[0, 1, 2],
+            slot_time: &[10.0, 10.0],
+            nchan_sol: 1,
+            npar: 2,
+            params: &params,
+            flags: &tflags,
+            sol_freq: &freq,
+            k_ref_freq: freq[0],
+        };
+        for dir in [Direction::Correct, Direction::Corrupt] {
+            let mut od = [0f32; 8];
+            let mut of = [0u8; 4];
+            let terms = [Term { ..term }];
+            apply(&chunk, &terms, dir, 0, &mut od, &mut of).unwrap();
+            let g0 = [C::ONE, C::new(0.0, 1.0)];
+            let g1 = [C::new(1.0, 0.0), C::new(1.0, 1.0)];
+            for (k, (a, b)) in [(0, 0), (0, 1), (1, 0), (1, 1)].into_iter().enumerate() {
+                let v = C::new(f64::from(data[2 * k]), f64::from(data[2 * k + 1]));
+                let g = g0[a].mul(g1[b].conj());
+                let want = if dir == Direction::Correct {
+                    v.div(g)
+                } else {
+                    v.mul(g)
+                };
+                assert!((f64::from(od[2 * k]) - want.re).abs() < 1e-6);
+                assert!((f64::from(od[2 * k + 1]) - want.im).abs() < 1e-6);
+            }
+            assert_eq!(of, [1, 1, 0, 0]);
+        }
+    }
+
+    fn jones_case(rng: &mut Rng, nt: usize, nf: usize) -> (Vec<f64>, Vec<u8>, Vec<u32>, Vec<u32>) {
+        let nsol = nt * nf * NANT;
+        let mut gains = Vec::with_capacity(8 * nsol);
+        for _ in 0..nsol {
+            for k in 0..4 {
+                let diag = k == 0 || k == 3;
+                gains.push(if diag {
+                    1.0 + 0.3 * rng.next()
+                } else {
+                    0.1 * rng.next()
+                });
+                gains.push(0.3 * rng.next());
+            }
+        }
+        let valid = (0..nsol).map(|_| u8::from(rng.next() > -0.8)).collect();
+        let ntime = NTIME * NANT * (NANT - 1) / 2;
+        let tb = (0..ntime).map(|r| ((r / 15) * nt / NTIME) as u32).collect();
+        let fb = (0..NCHAN).map(|c| (c * nf / NCHAN) as u32).collect();
+        (gains, valid, tb, fb)
+    }
+
+    #[test]
+    fn jones_round_trip_threads_and_flags() {
+        let mut rng = Rng(20261109);
+        let v = vis(&mut rng);
+        let (gains, valid, tb, fb) = jones_case(&mut rng, 5, 4);
+        let term = BinnedJones {
+            ntime_bins: 5,
+            nfreq_bins: 4,
+            gains: &gains,
+            valid: &valid,
+            time_bin: &tb,
+            freq_bin: &fb,
+        };
+        let run = |dir, threads, chunk: &Chunk| {
+            let mut od = vec![0f32; chunk.data.len()];
+            let mut of = vec![0u8; chunk.flags.len()];
+            apply_jones(chunk, &term, dir, threads, &mut od, &mut of).unwrap();
+            (od, of)
+        };
+        let (c1, f1) = run(Direction::Correct, 1, &v.chunk());
+        for threads in [2, 4, 16] {
+            let (c, f) = run(Direction::Correct, threads, &v.chunk());
+            assert_eq!(c, c1);
+            assert_eq!(f, f1);
+        }
+        // Flags: all four or none per cell, and the input flags kept.
+        for (cell, f) in f1.chunks(4).enumerate() {
+            assert!(f.iter().all(|&x| x == f[0]));
+            assert!(v.flags[4 * cell..4 * cell + 4].iter().all(|&x| x <= f[0]));
+        }
+        // Round trip on the cells whose gains are both valid.
+        let corrupt = Vis {
+            data: c1.clone(),
+            flags: v.flags.clone(),
+            time: v.time.clone(),
+            a1: v.a1.clone(),
+            a2: v.a2.clone(),
+            freq: v.freq.clone(),
+        };
+        let (back, fb2) = run(Direction::Corrupt, 0, &corrupt.chunk());
+        assert_eq!(fb2, f1);
+        let mut compared = 0;
+        for r in 0..v.time.len() {
+            for (c, &f) in fb.iter().enumerate() {
+                let base = (tb[r] as usize * 4 + f as usize) * NANT;
+                if valid[base + v.a1[r] as usize] == 0 || valid[base + v.a2[r] as usize] == 0 {
+                    continue;
+                }
+                let cell = r * NCHAN + c;
+                let scale = (0..8)
+                    .map(|k| v.data[8 * cell + k].abs())
+                    .fold(0f32, f32::max);
+                for k in 0..8 {
+                    let d = (back[8 * cell + k] - v.data[8 * cell + k]).abs();
+                    assert!(d <= 1e-5 * scale.max(1.0), "{d}");
+                }
+                compared += 1;
+            }
+        }
+        assert!(compared > 1000);
+    }
+
+    #[test]
+    fn jones_by_hand() {
+        let data = [1.0f32, 0.0, 0.2, 0.1, 0.3, -0.1, 2.0, 0.0];
+        let chunk = Chunk {
+            nrow: 1,
+            nchan: 1,
+            nant: 2,
+            data: &data,
+            flags: &[0, 0, 0, 0],
+            time: &[0.0],
+            antenna1: &[0],
+            antenna2: &[1],
+            freq: &[1e9],
+        };
+        // G_0 = [[2, 0.5], [0, 1]], G_1 = [[1, 0], [1i, 1]].
+        let gains = [
+            2.0, 0.0, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0,
+        ];
+        let term = BinnedJones {
+            ntime_bins: 1,
+            nfreq_bins: 1,
+            gains: &gains,
+            valid: &[1, 1],
+            time_bin: &[0],
+            freq_bin: &[0],
+        };
+        let mut od = [0f32; 8];
+        let mut of = [0u8; 4];
+        apply_jones(&chunk, &term, Direction::Correct, 0, &mut od, &mut of).unwrap();
+        let g0: M2 = [C::new(2.0, 0.0), C::new(0.5, 0.0), C::new(0.0, 0.0), C::ONE];
+        let g1: M2 = [C::ONE, C::new(0.0, 0.0), C::new(0.0, 1.0), C::ONE];
+        let v: M2 =
+            std::array::from_fn(|k| C::new(f64::from(data[2 * k]), f64::from(data[2 * k + 1])));
+        let want = mat_mul(
+            &mat_mul(&inverse(&g0).unwrap(), &v),
+            &adjoint(&inverse(&g1).unwrap()),
+        );
+        // G_p (G_p^-1 V G_q^-H) G_q^H = V checks the inverse itself.
+        let again = mat_mul(&mat_mul(&g0, &want), &adjoint(&g1));
+        for k in 0..4 {
+            assert!((f64::from(od[2 * k]) - want[k].re).abs() < 1e-6);
+            assert!((f64::from(od[2 * k + 1]) - want[k].im).abs() < 1e-6);
+            assert!((again[k].re - v[k].re).abs() < 1e-12 && (again[k].im - v[k].im).abs() < 1e-12);
+        }
+        assert_eq!(of, [0; 4]);
+        // A bad side is the identity and flags all four.
+        let term = BinnedJones {
+            valid: &[1, 0],
+            ..term
+        };
+        apply_jones(&chunk, &term, Direction::Correct, 0, &mut od, &mut of).unwrap();
+        let want = mat_mul(&inverse(&g0).unwrap(), &v);
+        for k in 0..4 {
+            assert!((f64::from(od[2 * k]) - want[k].re).abs() < 1e-6);
+        }
+        assert_eq!(of, [1; 4]);
     }
 
     #[test]

@@ -23,10 +23,13 @@ failed, was killed, or is forced) first gets the flags back from the version
 its last attempt saved, so its input is the same each time.
 
 What runs: `flag` (the Tricolour port, per field, data description and scan,
-as Tricolour groups rows), `calibrate` (the `complex` term,
-`core.solve_complex`, one solve per field and scan, written as a QuartiCal
-gain store) and `image` (`gemclean` on a data column). `apply` and `selfcal`
-are refused by `core_config.refusals` (C4, C5 and G6).
+as Tricolour groups rows), `calibrate` (calibrator models into MODEL_DATA
+through `rang.calmodels` when `model.source` is setjy, manual or lsm; then
+the `complex` term, `core.solve_complex`, one solve per field and scan,
+written as a QuartiCal gain store), `apply` (the complex terms on their own
+solution bins, `rang.applycal.apply_complex`, into CORRECTED_DATA with FLAG
+OR'd; task W2b, research/c4b-apply-ms.md) and `image` (`gemclean` on a data
+column). `selfcal` is refused by `core_config.refusals` (C5 and G6).
 """
 
 import datetime as _dt
@@ -195,11 +198,31 @@ def preflight(config, info, stages):
                 )
     if "image" in stages:
         lists.append(("image.fields", config["image"]["fields"]))
+    if "apply" in stages:
+        for i, target in enumerate(config["apply"]["targets"]):
+            lists.append((f"apply.targets[{i}].field", target["field"]))
     for where, tokens in lists:
         try:
             resolve_fields(tokens, config, info, where)
         except Refused as exc:
             problems.append(str(exc))
+    if "apply" in stages and not problems:
+        solved = complex_fields(config, info)
+        for i, target in enumerate(config["apply"]["targets"]):
+            fields = resolve_fields(
+                target["field"], config, info, f"apply.targets[{i}].field"
+            )
+            for name in target["tables"]:
+                if name not in solved:
+                    continue
+                other = [info["fields"][f] for f in fields if f not in solved[name]]
+                if other:
+                    problems.append(
+                        f"apply.targets[{i}]: the complex term {name!r} is not solved "
+                        f"on {other}; applying it to another field (transfer by "
+                        "interpolation) is not implemented: CASA G tables do that "
+                        "(task C2a)"
+                    )
     if "calibrate" in stages:
         model = config["calibrate"]["model"]
         if model["source"] == "column" and model["column"] not in info["columns"]:
@@ -209,6 +232,24 @@ def preflight(config, info, stages):
             )
     if problems:
         raise Refused("\n".join(problems))
+
+
+def complex_fields(config, info):
+    """{term name: FIELD ids it is solved on} for the complex terms."""
+    out = {}
+    for section in core_config.CALIBRATE_SECTIONS:
+        block = config["calibrate"][section]
+        for term in block["terms"]:
+            if term["type"] == "complex":
+                out[term["name"]] = set(
+                    resolve_fields(
+                        term["field"] or block["field"],
+                        config,
+                        info,
+                        f"calibrate.{section}",
+                    )
+                )
+    return out
 
 
 def _read_columns(ms, names, nrows, chunk_rows=None):
@@ -346,6 +387,31 @@ def restore_before(ms, entry):
         core_writeback.restore_flags(ms, prior)
         return prior
     return None
+
+
+@contextmanager
+def writeback_session(run, ms, stage, cell, chunk_rows=None):
+    """A `WriteBack` session for a writing stage: `rang_original` saved if
+    absent, then `rang_<stage>_<time>` saved by the session before its first
+    write and recorded in the stage's state entry (as `write_flags`)."""
+    journal = core_writeback.read_journal(ms)
+    if journal and journal.get("state") in ("open", "failed"):
+        raise Refused(f"{ms}: an unfinished write-back must be restored first")
+    rows = chunk_rows or core_writeback.chunk_rows_for(cell)
+    saved = core_writeback.backup_flags(
+        ms, ORIGINAL, comment="rang: flags before the first write", chunk_rows=rows
+    )
+    version = _version_name(ms, stage)
+    run.state["stages"][stage]["flag_version"] = version
+    run.save()
+    with core_writeback.WriteBack(
+        ms,
+        flag_backup=version,
+        stage=stage,
+        comment=f"rang: flags before {stage}",
+        chunk_rows=rows,
+    ) as w:
+        yield w, {"flag_version": version, "rang_original_saved_now": saved}
 
 
 def write_flags(run, ms, stage, flag, chunk_rows=None):
@@ -534,13 +600,60 @@ def calibration_columns(info, config):
     model = config["calibrate"]["model"]
     if model["source"] == "column":
         names.append(model["column"])
+    elif model["source"] in core_config.MODEL_SOURCES:
+        names.append("MODEL_DATA")
     return names
+
+
+def model_spec(model, config_path):
+    """The `rang.calmodels` spec of `calibrate.model` (setjy, manual, lsm)."""
+    from . import calmodels
+
+    if model["source"] == "setjy":
+        return calmodels.Standard(standard=model["standard"] or "Stevens-Reynolds 2016")
+    if model["source"] == "manual":
+        return calmodels.Manual(
+            model["flux_jy"][0], float(model["reffreq_hz"]), tuple(model["spix"] or ())
+        )
+    return calmodels.SkyModel(str(_resolve_path(model["lsm"], config_path)))
+
+
+def write_models(ctx):
+    """MODEL_DATA of the primary section's fields from `calibrate.model`
+    (C3a's `calmodels.set_model`, one session and flag backup). Returns the
+    receipts, or None for unity and column models."""
+    from . import calmodels
+
+    config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
+    model = config["calibrate"]["model"]
+    if model["source"] not in core_config.MODEL_SOURCES:
+        return None
+    block = config["calibrate"]["primary"]
+    fields = set()
+    for term in block["terms"]:
+        fields.update(
+            resolve_fields(
+                term["field"] or block["field"], config, info, "calibrate.primary"
+            )
+        )
+    spec = model_spec(model, ctx["config_path"])
+    with writeback_session(
+        run, ms, "calibrate", info["cell"], config["data"]["chunk_rows"]
+    ) as (w, written):
+        receipt = calmodels.set_model(
+            ms, sorted(fields), spec, session=w, chunk_rows=config["data"]["chunk_rows"]
+        )
+    return {"spec": repr(spec), "fields": sorted(fields), "receipt": receipt, **written}
 
 
 def stage_calibrate(ctx):
     config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
     cal = config["calibrate"]
     out_dir = run.stage_dir("calibrate", fresh=True)
+    models = write_models(ctx)
+    source, model_column = cal["model"]["source"], cal["model"]["column"]
+    if models is not None:
+        source, model_column = "column", "MODEL_DATA"
     columns = _read_columns(ms, calibration_columns(info, config), info["nrows"])
     tables = []
     for section in core_config.CALIBRATE_SECTIONS:
@@ -560,8 +673,8 @@ def stage_calibrate(ctx):
                     info,
                     term,
                     config["data"]["weights"],
-                    cal["model"]["source"],
-                    cal["model"]["column"],
+                    source,
+                    model_column,
                 )
                 valid = (solution.flags == 0) & np.isfinite(solution.gains).all(
                     axis=(-1, -2)
@@ -616,9 +729,82 @@ def stage_calibrate(ctx):
     summary = {
         "weights": config["data"]["weights"],
         "model": cal["model"]["source"],
+        "models_written": models,
         "tables": tables,
     }
+    if models is not None:
+        summary["flag_version"] = models["flag_version"]
     _write_json(out_dir / "summary.json", summary)
+    return summary
+
+
+def apply_targets(config, info, solved):
+    """[(field ids, [table names])]: `apply.targets`, or every complex term
+    applied to the fields it is solved on."""
+    targets = config["apply"]["targets"]
+    if targets:
+        return [
+            (
+                resolve_fields(t["field"], config, info, f"apply.targets[{i}].field"),
+                list(t["tables"]),
+            )
+            for i, t in enumerate(targets)
+        ]
+    return [(sorted(fields), [name]) for name, fields in solved.items()]
+
+
+def stage_apply(ctx):
+    """The complex terms of this run's calibrate stage applied on their own
+    solution bins (task W2b, research/c4b-apply-ms.md), into `apply.column`
+    with FLAG OR'd, in one write-back session."""
+    from . import applycal
+
+    config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
+    cfg = config["apply"]
+    cal = run.state["stages"].get("calibrate", {})
+    summary_path = run.path / "calibrate" / "summary.json"
+    if cal.get("status") != "done" or not summary_path.is_file():
+        raise StageFailed("apply needs the tables of a finished calibrate stage")
+    made = {
+        t["name"]: t
+        for t in json.loads(summary_path.read_text(encoding="utf-8"))["tables"]
+    }
+    solved = complex_fields(config, info)
+    targets = apply_targets(config, info, solved)
+    for fields, names in targets:
+        for name in names:
+            if name not in made:
+                raise StageFailed(f"apply: calibrate wrote no table {name!r}")
+    restored = restore_before(ms, ctx["entry"])
+    applied = []
+    with writeback_session(
+        run, ms, "apply", info["cell"], config["data"]["chunk_rows"]
+    ) as (w, written):
+        for fields, names in targets:
+            for k, name in enumerate(names):
+                table = made[name]
+                result = applycal.apply_complex(
+                    ms,
+                    table["store"],
+                    name,
+                    (table["solint"], table["freqint"]),
+                    fields=fields,
+                    column=cfg["column"],
+                    session=w,
+                    chunk_rows=config["data"]["chunk_rows"],
+                    input_column="DATA" if k == 0 else cfg["column"],
+                )
+                applied.append(result)
+    summary = {
+        "column": cfg["column"],
+        "applymode": cfg["applymode"],
+        "calwt": cfg["calwt"],
+        "calwt_note": "a complex (general Jones) term does not scale weights, as CASA",
+        "restored_before": restored,
+        "applied": applied,
+        **written,
+    }
+    _write_json(run.stage_dir("apply", fresh=True) / "summary.json", summary)
     return summary
 
 
@@ -682,7 +868,7 @@ def stage_image(ctx):
     if column == "auto":
         applied = run.state["stages"].get("apply", {}).get("status") == "done"
         column = "CORRECTED_DATA" if applied else "DATA"
-    if column not in info["columns"]:
+    if column not in core_writeback.layout(ms)["columns"]:  # apply may add it
         raise StageFailed(f"image.column: {ms} has no {column}")
     out_dir = run.stage_dir("image", fresh=True)
     images = []
@@ -737,7 +923,7 @@ def _refused_stage(task):
 STAGE_FUNCTIONS = {
     "flag": stage_flag,
     "calibrate": stage_calibrate,
-    "apply": _refused_stage("C4"),
+    "apply": stage_apply,
     "image": stage_image,
     "selfcal": _refused_stage("C5a"),
 }

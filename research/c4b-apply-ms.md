@@ -9,8 +9,8 @@ from main `66c2967`. The kernel underneath is C4a's `rang.cal_apply`
 ([w2-commands.md](w2-commands.md)); the models are C3a's `rang.calmodels`
 ([c3a-models.md](c3a-models.md)).
 
-**Status: proposed. Sections 1 to 4 are the design and the criteria, written
-and committed before the first comparison.** No novelty is claimed: this
+**Status: implemented; frozen run -02 failed (section 5); post-hoc fixes (6); held-out run -04 pending (7).** Sections 1 to 4 are the design and the criteria, written
+and committed before the first comparison. No novelty is claimed: this
 reproduces CASA `applycal`.
 
 ## 0. What was read before this protocol
@@ -234,3 +234,92 @@ shows the kernel does what the note says, not that it matches another package.
   against this protocol).
 - Wall times of rang's `applycal` and of `applycal` in the container (shared
   host; not timing measurements).
+
+## 5. Run -02, the frozen verdict: FAIL
+
+`python examples/check_apply_ms.py /mnt/d/rang/outputs/c4b-20261106-02`. **The code was not
+committed when -02 and -03 ran** (as in C4a); at -02 it was the kernel with the one-sided flag
+fix and `apply_jones`, and `rang.applycal` as first written. Image `rang-o-casa:6.7.6.14`
+(`sha256:24822b40…`), seed 20261109; 289 s wall (CASA: prepare 6.3 s, 10 `applycal` 26.4 s,
+export 59.2 s), heavy lock held. Archive `c4b-20261106-02/c4b.json` and `export/`.
+
+| Case | Cells | Max eps of cell | Max relative | Failing | FLAG | FLAG_ROW | Weights |
+| --- | ---: | ---: | ---: | ---: | --- | --- | --- |
+| s-chain | 1,572,864 | 4.41 | 1.6e-4 | 0 | exact | equal | unchanged (pass) |
+| s-G-flags | 1,572,864 | 5.03 | 6.2e-7 | 0 | exact | equal | unchanged (pass) |
+| s-G-calwt | 1,572,864 | 5.03 | 6.2e-7 | 0 | exact | equal | **WEIGHT fail** (9.5e-3); WEIGHT_SPECTRUM 4.5e-7 |
+| s-BT-calwt | 1,572,864 | 3.51 | 4.5e-7 | 0 | exact | equal | **WEIGHT fail** (9.5e-3); WEIGHT_SPECTRUM 3.3e-7 |
+| s-K-calwt | 1,572,864 | 2.91 | 3.5e-7 | 0 | exact | equal | not written by either (pass) |
+| s-Gnearest-mix | 1,572,864 | 3.17 | 2.7e-5 | 0 | exact | equal | **WEIGHT fail** (9.5e-3); WEIGHT_SPECTRUM 3.3e-7 |
+| **a-pooled** | 1,720,320 | **11.89** | 1.5e-6 | **33** | exact | equal | unchanged (pass) |
+| a-named | 1,720,320 | 8.24 | 1.0e-6 | 0 | exact | equal | unchanged (pass) |
+| **a-nearest** | 3,194,880 | **12.66** | 1.5e-6 | **53** | exact | equal | unchanged (pass) |
+| a-chain-calwt | 2,334,720 | 10.54 | 1.3e-6 | 0 | exact | equal | WEIGHT and WEIGHT_SPECTRUM 8.1e-7 (pass) |
+
+Every case: rows not selected bit-identical to CASA's (A cases), SIGMA and SIGMA_SPECTRUM
+bit-identical to CASA's, every other column bit-identical to the input, the flag version equal
+to the input flags. Chunking (50 and 1000 rows) and a second run gave the same bytes. Cells under
+a solution flag pass class C on every case (largest 5.17 eps, a-chain-calwt), so the one-sided
+substitution is CASA's. **CASA left FLAG_ROW as it was in every case**, including the 5 % of rows
+set before the run and rows whose every cell became flagged; rang does the same.
+
+The verdict is **fail**, on three counts, as measured:
+
+1. **WEIGHT on the slice** (2048 channels, SIGMA_SPECTRUM varying per channel): rang took the
+   upper middle channel value (index n/2) as the median; CASA's WEIGHT is off from that by up to
+   9.5e-3 relative on every value. On A, WEIGHT passes because its spectrum weights are constant
+   over channels (no SIGMA_SPECTRUM), so any median rule gives the same value.
+2. **Class C on a-pooled and a-nearest**: 33 and 53 cells, at most 12.7 eps (1.5e-6 relative),
+   all unflagged; synthetic G with phases uniform on the circle between slots.
+3. **The field maps could not be told apart on SIM-TARGET**: CASA's `''` output equals its
+   `nearest` output bit for bit there (rang's differ at the ulp level), because the target's
+   times are bracketed by SIM-GCAL slots in both maps. The case design, not the code, failed
+   this criterion; the named map differs from both.
+
+The weights reset is measured, as the protocol meant to: CASA wrote `1/SIGMA_SPECTRUM^2` (S) and
+`1/SIGMA^2` repeated over channels (A) times the scales, WEIGHT_SPECTRUM within 4.5e-7 of rang's
+and bit-identical on 40 to 65 % of values; K with `calwt=True` wrote no weights.
+
+## 6. Post hoc after -02 (fitted to the data that found the problems)
+
+- **The median** (`posthoc-median.json` in `-02`): CASA's WEIGHT equals the **lower** middle value
+  (index (n − 1) // 2 of the sorted channel values) on every value of the three slice cases
+  (exact fraction 1.0); the upper one misses by 9.5e-3, their mean by 4.7e-3, NumPy's median of
+  unflagged channels by 0.17. `rang.applycal` now takes the lower middle.
+- **Phase tracking.** `CTTimeInterp1::interpolate` reads only the two bracketing rows (or one row
+  for `nearest` and exact times) through `fparamArray(rows)`, so `RIorAPArray::trackPhase` runs
+  over those rows only; C4a's kernel tracked along an antenna's whole series. CASA's `''` and
+  `nearest` being equal while rang's differed (`posthoc-pooled.json`) fits this: with pairwise
+  tracking a slot's phase does not depend on which other slots are in the series. The kernel
+  now tracks per pair (`apply.rs`, `track`). On C4a's exports this lowered h-G-many-linear from
+  9.77 to 7.04 eps and h-G-many-nearest from 8.51 to 4.41 (`c4b-20261106-01-dev`).
+- **Post hoc run -03** (same cases and seed, code with both changes): every slice case passes
+  (WEIGHT within 3.4e-7, 53 to 67 % bit-identical), a-pooled 5.10 eps (0 failing); a-nearest
+  still 53 cells at 12.66 eps, all on one row (baseline 8-10 of J1939-6342 in the last scan,
+  YY, `posthoc_nearest.py`), interpolated between slots 11,000 s apart. The distinctness check
+  fails again for the reason in 5.3.
+- **The linear formula.** casacore 3.7.1's `Interpolate1D<Float, Array<Float>>` (read in
+  `rang-casacore-cpp:3.7.1`, `Interpolate1D.tcc`) computes `y1 + ((x − x1)/(x2 − x1))(y2 − y1)`;
+  the kernel had `caltable.py`'s `y0 + (x − x0)(y1 − y0)/(x1 − x0)`. Ported after -03.
+  Re-evaluated without a new CASA run (`examples/recheck_apply_ms.py`, the five cases whose
+  input is an unedited copy; `-03/recheck-casacore-linear.json`): s-chain 4.41, s-G-flags 3.41,
+  a-pooled 5.10, a-named 6.17, **a-nearest 9.21 eps**, all pass with flags exact. On C4a's
+  exports, every cell (flagged ones included; `c4b-20261106-01-dev/recheck-casacore-linear.json`)
+  passes class C on every case but three: h-B-gaps-linear and h-B-gaps-freqnearest (33.1 and
+  32.3 eps, C4a's residual of section 7 there, unchanged) and h-Df-2slot-linear (3 cells under
+  input flags at 14.0 eps, 5.9e-5 relative; unflagged cells pass at 6.7). Elsewhere the largest
+  fell from 9.77 (C4a's head kernel) to 5.05 eps; h-G-many-linear 9.77 → 4.98, synth-G
+  5.30 → 2.68.
+
+These fits are not the verdict; section 7 holds out a new run.
+
+## 7. Held-out confirmation (frozen before run -04)
+
+`python examples/check_apply_ms.py <run> --heldout --seed 20261110` on the code committed with
+this section: the ten cases of 3.1 with new synthetic values (seed 20261110 for the tables and
+for the weight and FLAG_ROW edits), and one change of design for the field maps: in the
+held-out set the two-field G also has J1939-6342 slots at the middle of every SIM-TARGET scan,
+so on SIM-TARGET the pooled map brackets with J1939-6342 slots and the nearest map with
+SIM-GCAL slots. Pass: criteria 1 to 10 of section 3 on every case, unchanged, and the three
+field-map cases pairwise different on SIM-TARGET in CASA's output. **The -04 result is the
+verdict reported for C4b.** CASA's tables and E4's are the same as in -02.

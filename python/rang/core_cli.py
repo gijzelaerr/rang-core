@@ -999,7 +999,7 @@ RESEARCH_TOP_LEVEL = {
 USER_COMMANDS = {
     "flag": "CONFIG MS: flag with the Tricolour port, writing FLAG",
     "calibrate": "CONFIG MS: solve the calibration terms, writing tables",
-    "apply": "CONFIG MS: apply the solutions (not yet: task C4)",
+    "apply": "CONFIG MS: apply the complex solutions, writing CORRECTED_DATA",
     "image": "CONFIG MS: image with gemclean",
     "selfcal": "CONFIG MS: self-calibrate (not yet: tasks C5, G6)",
     "run": "CONFIG MS: the stages of run.stages in order, resuming",

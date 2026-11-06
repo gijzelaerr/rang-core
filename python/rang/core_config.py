@@ -43,6 +43,7 @@ TASKS = {
     "C6a": "the parallactic angle and the feed angle",
     "C6b": "Gpol, KCROSS and Xf",
     "C6c": "the Df leakage term",
+    "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
     "G3": "channels out, joined channels, spectral fits and channel averaging",
     "G4": "masks, tapers and an imaging uv range",
     "G5": "multiscale CLEAN",
@@ -196,7 +197,8 @@ SCHEMA = {
                 "unity",
                 "choice",
                 "unity: a 1 Jy point at the phase centre; column: an existing column; "
-                "setjy, manual, lsm: C3a",
+                "setjy, manual, lsm: written to MODEL_DATA on the primary fields "
+                "(rang.calmodels), then solved against",
                 ("unity", "column", "setjy", "manual", "lsm"),
             ),
             "column": _k("MODEL_DATA", "column", "the model column for source: column"),
@@ -250,9 +252,19 @@ SCHEMA = {
         "applymode": _k(
             "calflag", "choice", "as CASA applycal", ("calflag", "calflagstrict")
         ),
-        "calwt": _k(False, "bool", "scale the weights by the gains"),
+        "calwt": _k(
+            False,
+            "bool",
+            "scale the weights by the gains (CASA: G, T and B only; no effect on "
+            "complex)",
+        ),
         "parang": _k(False, "bool", "apply the parallactic angle"),
-        "targets": _k([], "targets", "what is applied to which fields"),
+        "targets": _k(
+            [],
+            "targets",
+            "what is applied to which fields (empty: every complex term to the "
+            "fields it was solved on)",
+        ),
     },
     "image": {
         "imager": _k("gemclean", "choice", "the imager", ("gemclean",)),
@@ -736,8 +748,7 @@ def refusals(config, stages):
     if "calibrate" in stages:
         cal = config["calibrate"]
         model = cal["model"]
-        if model["source"] in ("setjy", "manual", "lsm"):
-            no("calibrate.model.source", "C3a", f"model source {model['source']}")
+        _model_refusals(model, cal, no, out)
         any_term = False
         for section in CALIBRATE_SECTIONS:
             block = cal[section]
@@ -756,9 +767,33 @@ def refusals(config, stages):
         if not any_term:
             out.append(Refusal("calibrate", "", "no term to solve"))
     if "apply" in stages:
-        no("apply", "C4", "the apply stage (C4a's kernel is not merged; C4b writes)")
         if config["apply"]["parang"]:
             no("apply.parang", "C6a", "the parallactic angle")
+        types = {
+            term["name"]: term["type"]
+            for section in CALIBRATE_SECTIONS
+            for term in config["calibrate"][section]["terms"]
+        }
+        for i, target in enumerate(config["apply"]["targets"]):
+            where = f"apply.targets[{i}]"
+            for j, name in enumerate(target["tables"] or []):
+                kind = types.get(name)
+                if kind is None:
+                    continue  # a schema error, reported by resolve
+                if kind != "complex":
+                    no(
+                        f"{where}.tables[{j}]",
+                        TERM_TASKS[kind],
+                        f"applying term {kind}",
+                    )
+                    continue
+                if j < len(target["interp"]) and target["interp"][j]:
+                    no(
+                        f"{where}.interp[{j}]",
+                        "C2a",
+                        "interp on a complex table (it applies on its own solution "
+                        "bins; transfer by interpolation is C2a's G tables)",
+                    )
     if "image" in stages:
         img = config["image"]
         if config["data"]["weights"] == "uniform":
@@ -794,6 +829,42 @@ def refusals(config, stages):
             task = TERM_TASKS.get(term["type"], "C5a")
             no(f"selfcal.terms[{i}]", task, f"term {term['type']}")
     return out
+
+
+MODEL_SOURCES = ("setjy", "manual", "lsm")  # written by rang.calmodels (C3a)
+
+
+def _model_refusals(model, cal, no, out):
+    """What calibrate cannot do yet with `calibrate.model` (task W2b): a
+    polarised manual model (C7a) and a written model on the fields of the
+    secondary or polcal terms (their models come from fluxscale, C2d)."""
+    source = model["source"]
+    if source not in MODEL_SOURCES:
+        return
+    if source == "manual":
+        flux = model["flux_jy"]
+        if not flux:
+            out.append(Refusal("calibrate.model.flux_jy", "", "required for manual"))
+        elif any(float(v) != 0 for v in flux[1:]):
+            no("calibrate.model.flux_jy", "C7a", "a polarised manual model (Q, U, V)")
+        if model["reffreq_hz"] is None:
+            out.append(Refusal("calibrate.model.reffreq_hz", "", "required for manual"))
+        for key in ("polindex", "polangle", "rotmeas"):
+            value = model[key]
+            if value is not None and any(
+                float(v) != 0 for v in (value if isinstance(value, list) else [value])
+            ):
+                no(f"calibrate.model.{key}", "C7a", f"{key} (a polarised model)")
+    if source == "lsm" and model["lsm"] is None:
+        out.append(Refusal("calibrate.model.lsm", "", "required for lsm"))
+    for section in ("secondary", "polcal"):
+        if cal[section]["terms"]:
+            no(
+                f"calibrate.{section}",
+                "C2d",
+                f"model source {source} on the {section} fields (written on the "
+                "primary fields only; secondary models come from fluxscale)",
+            )
 
 
 def _term_refusals(where, term, cal, no):

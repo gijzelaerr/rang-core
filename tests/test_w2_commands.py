@@ -62,6 +62,8 @@ def make_ms(path, ncorr=4):
     with core_ms_write.open_table(ms / "FIELD", readonly=False) as t:
         t.addrows(2)
         t.putcol("NAME", ["CAL", "TGT"])
+        # Phase centres (calmodels and gainfield nearest read them).
+        t.putcol("PHASE_DIR", np.array([[[0.0, -1.0]], [[0.1, -1.0]]]))
     integration = np.arange(NROW) // 6
     with core_ms_write.open_table(ms, readonly=False) as t:
         t.putcol("FIELD_ID", (integration >= 20).astype(np.int32))
@@ -230,7 +232,6 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
         "C2b",
         "C2c",
         "C2d",
-        "C3a",
         "C4",
         "C5a",
         "G3",
@@ -242,7 +243,6 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
         "C2b",
         "C2c",
         "C2d",
-        "C3a",
         "C4",
         "C6a",
         "C6b",
@@ -448,18 +448,180 @@ def test_a_killed_flag_write_resumes_from_its_backup(tmp_path):
     assert np.array_equal(original, flagversions.load(reference, "rang_original")[0])
 
 
-def test_apply_and_selfcal_are_refused_naming_their_tasks(tmp_path, capsys):
+def test_selfcal_and_unsolved_apply_targets_are_refused(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
-    for command, task in (("apply", "C4"), ("selfcal", "C5a")):
-        with pytest.raises(SystemExit) as exc:
-            cli(command, config, ms)
-        assert exc.value.code == 2
-        assert f"task {task}" in capsys.readouterr().err
+    with pytest.raises(SystemExit) as exc:
+        cli("selfcal", config, ms)
+    assert exc.value.code == 2
+    assert "task C5a" in capsys.readouterr().err
+    # W2b: a complex term applies only to the fields it is solved on.
+    transfer = write_config(
+        tmp_path,
+        "apply: {targets: [{field: [TGT], tables: [complex]}]}\n",
+        name="transfer.yaml",
+    )
+    with pytest.raises(SystemExit) as exc:
+        cli("apply", transfer, ms)
+    assert exc.value.code == 2
+    assert "task C2a" in capsys.readouterr().err
     assert not flagversions.versions(ms)
     with pytest.raises(SystemExit) as exc:
-        cli("run", write_config(tmp_path, "run: {stages: [flag, apply]}\n"), ms)
+        cli("run", write_config(tmp_path, "run: {stages: [flag, selfcal]}\n"), ms)
     assert exc.value.code == 2 and not flagversions.versions(ms)
+    # apply before calibrate fails (exit 1) before writing anything.
+    with pytest.raises(SystemExit) as exc:
+        cli("apply", config, ms)
+    assert exc.value.code == 1 and not flagversions.versions(ms)
+
+
+def reference_apply(data, flag, a1, a2, gains, valid, tb, fb):
+    """float64 NumPy reference of the complex apply (research/c4b-apply-ms.md
+    3.3): inverses by np.linalg.inv, a bad side the identity, and a cell
+    flagged in all four correlations by any input flag or a bad side."""
+    out = np.empty(data.shape, np.complex64)
+    out_flag = np.empty(data.shape, bool)
+    for r in range(data.shape[0]):
+        for c in range(data.shape[1]):
+            sides = []
+            for a in (a1[r], a2[r]):
+                g = gains[tb[r], fb[c], a]
+                ok = bool(valid[tb[r], fb[c], a]) and abs(np.linalg.det(g)) > 0
+                sides.append((np.linalg.inv(g) if ok else np.eye(2), ok))
+            (ip, okp), (iq, okq) = sides
+            v = data[r, c].astype(np.complex128).reshape(2, 2)
+            out[r, c] = (ip @ v @ iq.conj().T).reshape(4)
+            out_flag[r, c] = flag[r, c].any() or not (okp and okq)
+    return out, out_flag
+
+
+def test_apply_writes_the_complex_term_on_its_own_bins(tmp_path):
+    from rang import cal_apply
+
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path, "run: {stages: [flag, calibrate, apply]}\n")
+    before = {n: column(ms, n) for n in ("DATA", "FIELD_ID", "TIME")}
+    cli("flag", config, ms)
+    flag_in = column(ms, "FLAG")
+    state = cli("run", config, ms)
+    assert state["stages"]["apply"]["status"] == "done"
+    run = ms.with_name("x.ms.rang-run")
+    part = quartical_store.read(run / "calibrate" / "complex.qc")["complex"][0]
+    gains = part.gains_2x2()[:, :, :, 0]
+    valid = part["gain_flags"][:, :, :, 0] == 0
+    cd, flag = column(ms, "CORRECTED_DATA"), column(ms, "FLAG")
+    a1, a2 = column(ms, "ANTENNA1"), column(ms, "ANTENNA2")
+    cal = np.flatnonzero(before["FIELD_ID"] == 0)
+    cal = cal[np.argsort(before["TIME"][cal], kind="stable")]
+    tb, fb, _, _ = pipe.solution_grid(
+        before["TIME"][cal], NCHAN, np.arange(NCHAN, dtype=float), 4, 8
+    )
+    want, want_flag = reference_apply(
+        before["DATA"][cal], flag_in[cal], a1[cal], a2[cal], gains, valid, tb, fb
+    )
+    assert cal_apply.class_c(cd[cal], want, np.ones(want.shape, bool))["pass"]
+    assert np.array_equal(flag[cal], want_flag)
+    tgt = before["FIELD_ID"] == 1
+    assert cd[tgt].tobytes() == before["DATA"][tgt].tobytes()
+    assert np.array_equal(flag[tgt], flag_in[tgt])
+    names = [n for n, _ in flagversions.versions(ms)]
+    assert names[0] == "rang_original"
+    assert any(n.startswith("rang_apply_") for n in names)
+    # Applying again gives the same bytes (from DATA, flags OR'd).
+    cli("apply", config, ms, "--force")
+    assert column(ms, "CORRECTED_DATA").tobytes() == cd.tobytes()
+    assert np.array_equal(column(ms, "FLAG"), flag)
+
+
+@POSIX
+def test_image_auto_reads_corrected_data_after_apply(tmp_path):
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(
+        tmp_path,
+        "run: {stages: [flag, calibrate, apply, image]}\n",
+        gemclean=fake_gemclean(tmp_path),
+    )
+    cli("run", config, ms)
+    run = ms.with_name("x.ms.rang-run")
+    argv = json.loads((run / "image" / "summary.json").read_text(encoding="utf-8"))
+    argv = argv["images"][0]["argv"]
+    assert argv[argv.index("-data-column") + 1] == "CORRECTED_DATA"
+
+
+def test_calibrate_writes_a_manual_model_and_solves_against_it(tmp_path):
+    from rang import calmodels
+
+    ms = make_ms(tmp_path / "x.ms")
+    direct = make_ms(tmp_path / "direct.ms")
+    config = write_config(tmp_path, name="model.yaml")
+    text = config.read_text(encoding="utf-8").replace(
+        "calibrate:\n",
+        "calibrate:\n  model: {source: manual, flux_jy: [2.5, 0, 0, 0], "
+        "reffreq_hz: 1.4e9, spix: [-0.7]}\n",
+    )
+    config.write_text(text, encoding="utf-8")
+    state = cli("calibrate", config, ms)
+    entry = state["stages"]["calibrate"]
+    assert entry["status"] == "done"
+    assert entry["flag_version"].startswith("rang_calibrate_")
+    calmodels.set_model(direct, [0], calmodels.Manual(2.5, 1.4e9, (-0.7,)))
+    model = column(ms, "MODEL_DATA")
+    assert model.tobytes() == column(direct, "MODEL_DATA").tobytes()
+    assert np.any(model[column(ms, "FIELD_ID") == 0] != 1)
+    run = ms.with_name("x.ms.rang-run")
+    part = quartical_store.read(run / "calibrate" / "complex.qc")["complex"][0]
+    names = ("DATA", "FLAG", "FLAG_ROW", "ANTENNA1", "ANTENNA2", "TIME", "FIELD_ID")
+    c = {n: column(ms, n) for n in (*names, "WEIGHT")}
+    rows = np.flatnonzero(c["FIELD_ID"] == 0)
+    rows = rows[np.argsort(c["TIME"][rows], kind="stable")]
+    _, inverse = np.unique(c["TIME"][rows], return_inverse=True)
+    solution = core.solve_complex(
+        c["DATA"][rows],
+        np.repeat(c["WEIGHT"][rows][:, None, :], NCHAN, axis=1),
+        c["FLAG"][rows],
+        c["FLAG_ROW"][rows],
+        c["ANTENNA1"][rows],
+        c["ANTENNA2"][rows],
+        (inverse // 4).astype(np.uint32),
+        (np.arange(NCHAN) // 8).astype(np.uint32),
+        ntime_bins=5,
+        nfreq_bins=2,
+        nant=NANT,
+        model=model[rows],
+    )
+    stored = part["gains"].reshape(solution.gains.shape)
+    assert stored.tobytes() == solution.gains.tobytes()
+
+
+def test_model_and_apply_refusals_name_their_tasks():
+    def tasks(raw, stages):
+        config, errors = core_config.resolve({"version": 1, **raw})
+        assert errors == [], errors
+        return {(r.path, r.task) for r in core_config.refusals(config, stages)}
+
+    model = {
+        "source": "manual",
+        "flux_jy": [1, 0.1, 0, 0],
+        "reffreq_hz": 1e9,
+        "rotmeas": 3.0,
+    }
+    assert tasks({"calibrate": {"model": model}}, ["calibrate"]) == {
+        ("calibrate.model.flux_jy", "C7a"),
+        ("calibrate.model.rotmeas", "C7a"),
+    }
+    secondary = {
+        "calibrate": {
+            "model": {"source": "setjy"},
+            "secondary": {"terms": [{"type": "complex", "name": "c2"}]},
+        }
+    }
+    assert ("calibrate.secondary", "C2d") in tasks(secondary, ["calibrate"])
+    target = {"field": ["fcal"], "tables": ["complex"], "interp": ["linear"]}
+    assert tasks({"apply": {"targets": [target]}}, ["apply"]) == {
+        ("apply.targets[0].interp[0]", "C2a")
+    }
+    lsm = {"calibrate": {"model": {"source": "lsm"}}}
+    assert ("calibrate.model.lsm", "") in tasks(lsm, ["calibrate"])
 
 
 def test_unsupported_data_is_refused_naming_w4(tmp_path):

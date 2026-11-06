@@ -8,8 +8,10 @@ YAML configuration (schema `rang-config`, version 1; every key and default
 is listed under `config` below) drives every stage. The commands validate
 the whole configuration first and refuse what is not implemented yet,
 naming the task that adds it. Today `flag` runs the Tricolour port and
-writes FLAG, `calibrate` solves the `complex` term and writes a QuartiCal
-gain store, `image` runs `gemclean`, and `apply` and `selfcal` are refused.
+writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
+MODEL_DATA, solves the `complex` term and writes a QuartiCal gain store,
+`apply` applies that term on its own solution bins to CORRECTED_DATA, and
+`image` runs `gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
@@ -45,7 +47,7 @@ usage: rang-core [--receipt PATH | --no-receipt] [--no-pin-threads] COMMAND ...
 commands for a Measurement Set (each takes a config.yaml and an MS):
   flag            CONFIG MS: flag with the Tricolour port, writing FLAG
   calibrate       CONFIG MS: solve the calibration terms, writing tables
-  apply           CONFIG MS: apply the solutions (not yet: task C4)
+  apply           CONFIG MS: apply the complex solutions, writing CORRECTED_DATA
   image           CONFIG MS: image with gemclean
   selfcal         CONFIG MS: self-calibrate (not yet: tasks C5, G6)
   run             CONFIG MS: the stages of run.stages in order, resuming
@@ -108,9 +110,9 @@ options:
 $ rang-core apply -h
 usage: rang-core apply [-h] [--run-dir RUN_DIR] [--force] config ms
 
-apply the solutions (not yet: task C4). Validates the configuration for every
-stage first; a finished stage is skipped unless forced, a failed one runs
-again.
+apply the complex solutions, writing CORRECTED_DATA. Validates the
+configuration for every stage first; a finished stage is skipped unless
+forced, a failed one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -227,7 +229,7 @@ flag:
   write: replace  # replace: FLAG becomes the strategy's flags, as Tricolour writes them; or: OR with the flags already there
 calibrate:
   model:
-    source: unity  # unity: a 1 Jy point at the phase centre; column: an existing column; setjy, manual, lsm: C3a
+    source: unity  # unity: a 1 Jy point at the phase centre; column: an existing column; setjy, manual, lsm: written to MODEL_DATA on the primary fields (rang.calmodels), then solved against
     column: MODEL_DATA  # the model column for source: column
     standard: null  # setjy flux standard, such as Stevens-Reynolds 2016
     flux_jy: null  # manual: Stokes I, Q, U, V in Jy at reffreq_hz
@@ -256,9 +258,9 @@ calibrate:
 apply:
   column: CORRECTED_DATA  # the column written
   applymode: calflag  # as CASA applycal
-  calwt: false  # scale the weights by the gains
+  calwt: false  # scale the weights by the gains (CASA: G, T and B only; no effect on complex)
   parang: false  # apply the parallactic angle
-  targets: []  # what is applied to which fields
+  targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
 image:
   imager: gemclean  # the imager
   gemclean: auto  # the gemclean binary; auto: gemclean on PATH, then core/target/{release,gemclean}/gemclean of the checkout
