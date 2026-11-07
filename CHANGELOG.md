@@ -40,6 +40,22 @@ the release notes are the section of this file for that version.
   JAX tested), and `rang.f2flag_sim`, simulated MeerKAT L-band scans on LUNO's window with RFI of known
   mask from `rang.simtruth` (F2's seeds registered in `simtruth.SEEDS`). Not wired into `rang-core
   flag`; weights are run outputs, not shipped.
+- New: `gemclean` writes the model column after imaging, as WSClean 3.7 does (`-update-model-required`,
+  the default; `-no-update-model-required` leaves the MS unwritten), and has WSClean's `-predict` mode
+  and `-model-column` (`research/g6-predict.md`). The model images (`<name>-model.fits` or
+  `<name>-000k-model.fits`, gemclean's or WSClean's) are predicted with the gridder at the MS's own
+  channels into every selected row (field, data description 0, cross-correlations; flags play no part):
+  XX = YY = I, XY = YX = 0. An added column is TiledShapeStMan and starts at zero, as WSClean's does.
+  `rang-core image` with `image.write_model: true` writes MODEL_DATA through W1's write-back with the
+  same predictor (`rang.core_model`, `rang._core.gemclean_predict`), and always runs gemclean with
+  `-no-update-model-required`. The scripts in `examples/` that image shared data now pass
+  `-no-update-model-required`.
+- New: `gemclean -scans <list>` and `-unit-weights` (rang's own options). gemclean now falls back to WEIGHT
+  as WSClean does: WEIGHT_SPECTRUM is read only when row 0 holds a cell of the data's shape
+  (`research/w6-imaging-inputs.md`). `rang-core image` passes `data.scans` and `data.weights: uniform`
+  to these options. It no longer refuses either of them, nor a declared WEIGHT_SPECTRUM with unwritten
+  cells, and it writes nothing into the MS for uniform weights. An imaged field with no rows in
+  `data.scans` is refused.
 
 - New: the Stimela2 recipe `recipes/rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply`
   and `image` in order on one configuration and MS, with the cabs `rang-flag`, `rang-calibrate`,

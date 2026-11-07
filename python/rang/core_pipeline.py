@@ -73,6 +73,7 @@ from . import (
     core_chunks,
     core_config,
     core_flag,
+    core_model,
     core_ms,
     core_writeback,
 )
@@ -301,17 +302,13 @@ def check_data(config, info, stages):
             f"{ms} has no WEIGHT_SPECTRUM or WEIGHT (data.weights: as_is reads them); "
             "set data.weights: uniform to solve with unit weights",
         )
-    if not weights:
+    # gemclean reads WEIGHT where row 0 of WEIGHT_SPECTRUM holds no cell, as
+    # WSClean does, and no weights with data.weights: uniform (task W6).
+    if not weights and config["data"]["weights"] == "as_is":
         no(
             ("image",),
-            f"{ms} has no WEIGHT_SPECTRUM or WEIGHT, and gemclean reads them",
-        )
-    elif "WEIGHT_SPECTRUM" in columns and not info["weight_spectrum"]:
-        no(
-            ("image",),
-            f"{ms} declares WEIGHT_SPECTRUM but row 0 has no cells of {info['cell']} "
-            "written; gemclean would read the column anyway (it tests only that row 0 "
-            "can be read). Write it, or remove the column so WEIGHT is used",
+            f"{ms} has no WEIGHT_SPECTRUM or WEIGHT (data.weights: as_is reads them); "
+            "set data.weights: uniform to image with unit weights",
         )
     if len(info["ddids"]) == 1 and info["ddid"] != 0:
         no(
@@ -319,26 +316,6 @@ def check_data(config, info, stages):
             f"every row is on DATA_DESC_ID {info['ddid']}; gemclean images data "
             "description 0 only",
         )
-    scans = config["data"]["scans"]
-    if scans and "image" in stages:
-        try:
-            ids = resolve_fields(config["image"]["fields"], config, info, "image")
-        except Refused:  # reported by preflight
-            ids = []
-        rows = info["rows"]
-        for f in ids:
-            mine = rows["FIELD_ID"] == f
-            left = sorted(
-                set(np.unique(rows["SCAN_NUMBER"][mine]).tolist()) - set(scans)
-            )
-            if left:
-                no(
-                    ("image",),
-                    f"data.scans {scans} leaves out scans {left} of field "
-                    f"{info['fields'][f]!r}, but gemclean has no scan selection and "
-                    "would image them too; leave data.scans out for image, or split "
-                    "the scans out first",
-                )
     return out
 
 
@@ -415,6 +392,14 @@ def _selection_problems(config, info, lists):
                     "field id (one image per field)"
                 )
         ids = resolve_fields(tokens, config, info, where)
+        if stage == "image" and scans:
+            # One image per field: each needs cross-correlation rows in the scans.
+            for f in ids:
+                if not count_rows(info, [f], scans, cross=True):
+                    problems.append(
+                        f"{where}, data.scans: no rows of field {info['fields'][f]!r} "
+                        f"in scans {scans} (the MS has scans {info['scans']})"
+                    )
         if stage in ("flag", "calibrate") and ids and scans:
             cross = stage == "calibrate"
             if not count_rows(info, ids, scans, cross=cross):
@@ -1880,7 +1865,7 @@ def _safe(name):
     return "".join(c if c.isalnum() or c in "-_." else "_" for c in name)
 
 
-def gemclean_arguments(img, column, field_id, prefix, ms):
+def gemclean_arguments(img, column, field_id, prefix, ms, scans=(), unit_weights=False):
     args = ["-name", str(prefix), "-size", *[str(v) for v in img["size"]]]
     args += ["-scale", img["scale"], "-weight", img["weight"]]
     if img["weight"] == "briggs":
@@ -1906,8 +1891,46 @@ def gemclean_arguments(img, column, field_id, prefix, ms):
     if img["fit_spectral_pol"] is not None:
         args += ["-fit-spectral-pol", str(img["fit_spectral_pol"])]
     args += ["-data-column", column, "-field", str(field_id)]
+    # data.scans and data.weights: uniform (task W6, research/w6-imaging-inputs.md).
+    if scans:
+        args += ["-scans", ",".join(str(int(s)) for s in scans)]
+    if unit_weights:
+        args.append("-unit-weights")
+    # gemclean never writes the MS itself here: MODEL_DATA, when asked for,
+    # goes through WriteBack after it (task G6, research/g6-predict.md).
+    args.append("-no-update-model-required")
     args += list(img["extra_args"])
     return [*args, str(ms)]
+
+
+def _extra_flag(extra, flag, count=0):
+    """The values of `flag` in gemclean's extra arguments (the last use),
+    True for a flag without values, or None."""
+    found = None
+    for i, a in enumerate(extra):
+        if a == flag:
+            found = True if count == 0 else tuple(extra[i + 1 : i + 1 + count])
+    return found
+
+
+def write_model(img, ms, field_id, prefix, scans=()):
+    """MODEL_DATA from the model images gemclean wrote for `field_id`
+    (task G6): the binary's predictor, written through WriteBack."""
+    extra = [str(a) for a in img["extra_args"]]
+    rng = _extra_flag(extra, "-channel-range", 2)
+    return core_model.write_model_data(
+        ms,
+        prefix,
+        field_id,
+        channels_out=img["channels_out"],
+        channel_range=None if rng is None else (int(rng[0]), int(rng[1])),
+        average_channels=img["average_channels"],
+        epsilon=float(img["wgridder_accuracy"]),
+        wgridding=_extra_flag(extra, "-no-wgridding") is None,
+        single=_extra_flag(extra, "-single") is not None,
+        scans=list(scans) or None,
+        stage="image",
+    )
 
 
 def stage_image(ctx):
@@ -1927,7 +1950,12 @@ def stage_image(ctx):
         field_dir = out_dir / _safe(name)
         field_dir.mkdir()
         prefix = field_dir / img["name"]
-        argv = [str(binary), *gemclean_arguments(img, column, field, prefix, ms)]
+        scans = config["data"]["scans"] or ()
+        unit = config["data"]["weights"] == "uniform"
+        argv = [
+            str(binary),
+            *gemclean_arguments(img, column, field, prefix, ms, scans, unit),
+        ]
         log = field_dir / "gemclean.log"
         started = time.perf_counter()
         with log.open("w", encoding="utf-8", newline="\n") as fh:
@@ -1944,6 +1972,11 @@ def stage_image(ctx):
                 f"{log}: " + " | ".join(tail)
             )
         files = sorted(p for p in field_dir.iterdir() if p.is_file() and p != log)
+        model = None
+        if img["write_model"]:
+            started = time.perf_counter()
+            model = write_model(img, ms, field, prefix, scans)
+            model["wall_seconds"] = time.perf_counter() - started
         images.append(
             {
                 "field_id": field,
@@ -1951,6 +1984,7 @@ def stage_image(ctx):
                 "argv": argv,
                 "wall_seconds": seconds,
                 "files": {p.name: _sha256_file(p) for p in files},
+                "model": model,
             }
         )
     summary = {

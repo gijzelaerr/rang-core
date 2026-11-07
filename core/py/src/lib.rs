@@ -59,6 +59,7 @@ mod cal_pol;
 mod clean;
 mod cnnflag;
 mod flag_extend;
+mod gemclean_predict;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
@@ -2843,5 +2844,9 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(flag_extend::flag_extend, m)?)?;
     // Task F2: the learned flagger's inference (research/f2-flagger.md).
     m.add_function(wrap_pyfunction!(cnnflag::cnnflag_logits, m)?)?;
+    // Task G6: gemclean's model prediction (research/g6-predict.md).
+    m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_block_rows, m)?)?;
+    m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_channel_map, m)?)?;
+    m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_predict, m)?)?;
     Ok(())
 }
