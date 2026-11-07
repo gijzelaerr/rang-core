@@ -186,6 +186,81 @@ pub fn cal_gain_solve(
     Ok((solution.iterations, solution.converged_fraction))
 }
 
+/// Write a counted solve's `Trace` into `counts` (uint64 pairs) and return
+/// (iterations recorded, the error's iteration and message or None); a
+/// shape or settings error before the loop raises ValueError (task W3b).
+pub(crate) fn write_trace(
+    result: Result<(), diag::Error>,
+    trace: &diag::Trace,
+    counts: &mut [u64],
+) -> PyResult<(usize, Option<(usize, String)>)> {
+    if trace.counts.len() * 2 > counts.len() {
+        return Err(PyValueError::new_err("counts too short"));
+    }
+    for (i, &(c, x)) in trace.counts.iter().enumerate() {
+        counts[2 * i] = c as u64;
+        counts[2 * i + 1] = x as u64;
+    }
+    match (result, trace.error_iteration) {
+        (Ok(()), _) => Ok((trace.counts.len(), None)),
+        (Err(e), Some(k)) => Ok((trace.counts.len(), Some((k, format!("{e}"))))),
+        (Err(e), None) => Err(PyValueError::new_err(format!("{e}"))),
+    }
+}
+
+/// The counts of `cal_gain_solve`'s global stop test (task W3b,
+/// `research/w3b-chainchunks.md`): arguments as `cal_gain_solve` without
+/// the outputs; writes per iteration the converged and flagged gains summed
+/// over every interval into `counts` (uint64, `2 * max(max_iterations,
+/// 1)`). Returns (iterations recorded, the iteration and message of a
+/// solver error or None); nothing else is written.
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+pub fn cal_gain_trace(
+    py: Python<'_>,
+    nrow: usize,
+    nchan: usize,
+    ntime: usize,
+    nfreq: usize,
+    nant: usize,
+    data: Ro<'_, f32>,
+    weights: Ro<'_, f32>,
+    model: Ro<'_, f32>,
+    flag: Ro<'_, u8>,
+    flag_row: Ro<'_, u8>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    time_bin: Ro<'_, u32>,
+    freq_bin: Ro<'_, u32>,
+    kind: u32,
+    max_iterations: usize,
+    stop_criterion: f64,
+    stop_fraction: f64,
+    refant: i64,
+    mut counts: Rw<'_, u64>,
+) -> PyResult<(usize, Option<(usize, String)>)> {
+    let a = arrays(
+        nrow, nchan, &data, &weights, &model, &flag, &flag_row, &antenna1, &antenna2, &time_bin,
+        &freq_bin,
+    )?;
+    let counts = exact_mut(&mut counts, "counts", 2 * max_iterations.max(1))?;
+    let kind = match kind {
+        0 => Kind::DiagComplex,
+        1 => Kind::Phase,
+        _ => return Err(PyValueError::new_err("kind must be 0 (ap) or 1 (p)")),
+    };
+    let settings = Settings {
+        kind,
+        max_iterations,
+        stop_criterion,
+        stop_fraction,
+        reference_antenna: usize::try_from(refant).ok(),
+    };
+    let p = problem(&a, nrow, nchan, ntime, nfreq, nant);
+    let (result, trace) = detach(py, || diag::solve_counted(&p, &settings));
+    write_trace(result.map(|_| ()), &trace, counts)
+}
+
 /// CASA's `minblperant` test per (time bin, frequency bin, antenna): writes
 /// `ok` (uint8, `ntime * nfreq * nant`).
 #[pyfunction]

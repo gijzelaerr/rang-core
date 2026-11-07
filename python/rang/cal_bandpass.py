@@ -107,6 +107,11 @@ def solve(
         positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
     )  # fmt: skip
+    return _finish(sol, fillgaps, casa_rules)
+
+
+def _finish(sol, fillgaps, casa_rules):
+    """B from the per-channel `GainSolution`: complex64 gains, `fillgaps`."""
     gains = sol.gains.astype(np.complex64)
     flags = sol.flags.copy()
     if casa_rules and fillgaps > 0:
@@ -151,6 +156,7 @@ def bandpass(
     stop_criterion=1e-7,
     stop_fraction=0.99,
     scan=None,
+    budget=None,
 ):
     """`bandpass(bandtype='B')` on one field of a single-window MS: returns
     `(CalTable, BandpassSolution, info)`. Defaults are CASA 6.7.6.14's
@@ -160,7 +166,8 @@ def bandpass(
     `model_column`. Weights: `1/SIGMA^2` when tables are pre-applied (as
     `rang.cal_gain.gaincal`), `weight_column` otherwise. Raises when no
     solution is written. `weight_column=None` and `scan` as
-    `rang.cal_gain.gaincal` (task C2e)."""
+    `rang.cal_gain.gaincal` (task C2e), and `budget` (task W3b): chunks of
+    whole intervals, or of channels of one interval."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -182,45 +189,29 @@ def bandpass(
     rows = np.flatnonzero(cal_gain._scan_keep(ms, scan, fields == field_id))
     if not len(rows):
         raise ValueError(f"no rows of field {field_id}")
-    cols = ["TIME", "SCAN_NUMBER", "FIELD_ID", "ANTENNA1", "ANTENNA2", "UVW", "FLAG",
-            "FLAG_ROW", data_column, *cal_gain._weight_columns(weight_column)]  # fmt: skip
-    if model is None:
-        cols.append(model_column)
     sigma_column = "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in colnames else "SIGMA"
-    if gaintable:
-        cols.append(sigma_column)
-    c = cal_gain._ms_columns(ms, cols, rows)
-    data = c[data_column]
-    mdl = c[model_column] if model is None else np.asarray(model)
-    flag = np.asarray(c["FLAG"], bool)
-    flag_row = np.asarray(c["FLAG_ROW"], bool) | ~cal_gain.uvrange_keep(
-        c["UVW"], uvrange
-    )
     tables = [
         t if isinstance(t, caltable.CalTable) else caltable.read(t) for t in gaintable
     ]
-    if tables:
-        data, mdl, flag = cal_gain._pre_apply(
-            data, mdl, flag, c["TIME"], c["ANTENNA1"], c["ANTENNA2"], freq, tables,
-            interp, nant, field_id, solved="B",
-        )  # fmt: skip
+    fld = cal_gain._Field(
+        ms, rows, data_column=data_column, model=model, model_column=model_column,
+        weight_column=weight_column, sigma_column=sigma_column, tables=tables,
+        interp=interp, nant=nant, field_id=field_id, solved="B", freq=freq,
+        uvrange=uvrange,
+    )  # fmt: skip
+    m = fld.meta
     tb, keys = cal_gain.solint_bins(
-        c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine
+        m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine
     )
-    weights = cal_gain._weights(c, weight_column, data.shape)
-    if tables:
-        sigma = np.asarray(c[sigma_column], np.float64)
-        if sigma.ndim == 2:
-            sigma = np.broadcast_to(sigma[:, None, :], weights.shape)
-        with np.errstate(divide="ignore"):
-            weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
-    sol = solve(
-        data, mdl, weights, flag, flag_row, c["ANTENNA1"], c["ANTENNA2"], tb,
-        nant=nant, refant=refants, refantmode=refantmode, minsnr=minsnr,
-        minblperant=minblperant, fillgaps=fillgaps, positions=positions,
-        casa_rules=casa_rules, max_iterations=max_iterations,
+    gsol, row_w = cal_gain._solve_gain_field(
+        fld, tb, nchan=len(freq), per_channel=True, budget=budget,
+        what=f"bandpass field {field_id}", nant=nant, calmode="ap", refant=refants,
+        refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
+        positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
     )  # fmt: skip
+    sol = _finish(gsol, fillgaps, casa_rules)
+    del gsol
     sol.settings.update(
         {"weights": sigma_column if tables else weight_column, "uvrange": uvrange,
          "solint": solint, "combine": combine}
@@ -229,11 +220,8 @@ def bandpass(
         raise RuntimeError(
             f"bandpass wrote no solutions for field {field_id} (every solution flagged)"
         )
-    used_flags = (
-        flag | flag_row[:, None, None] | (c["ANTENNA1"] == c["ANTENNA2"])[:, None, None]
-    )
-    times, span = cal_gain.solution_times(c["TIME"], tb, weights, used_flags, len(keys))
-    scans = np.array([c["SCAN_NUMBER"][tb == t].min() for t in range(len(keys))])
+    times, span = fld.solution_times(tb, row_w, len(keys))
+    scans = fld.scans(tb, len(keys))
     table = to_caltable(sol, times, span, scans, field_id=field_id, ms=ms)
     info = {"rows": len(rows), "intervals": keys, "time_bin": tb, "frequency": freq}
     return table, sol, info

@@ -1676,6 +1676,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C6w `check_c6w.py run` -01: CASA prepare, 18 calls, export; `rang-core calibrate`, `apply`; reference | poldx noisy | 357 s total; CASA container 51.0 s (tasks 0.2-4.3 s); calibrate 56.3 s; apply 62.0 s (`chunk_rows` 700, on /mnt/d); reference 34.7 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w `check_c6w.py run` -02 (held out) | polholdout noisy | 858 s total including about 10 min lock wait; CASA container 45.9 s; calibrate 42.7 s; apply 58.3 s; reference 33.1 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w gate 3 (`validate` on e2a, e2b) | configurations | under 1 s | – | – |
+| 2026-11-06 | W3b `uv venv` + `uv pip install -e` (all extras, ruff 0.17.3, maturin) + `maturin develop` | worktree | not timed (background) | – | public PyPI |
+| 2026-11-06 | W3b oracle extension, `maturin build --release` of main ba65792 | detached checkout | 1 min 41 s (cargo) | – | heavy lock |
+| 2026-11-06 | W3b `cargo test` counted-kernel tests + `maturin develop` | worktree | about 2 min (cargo 1 min 49 s) | – | heavy lock |
+| 2026-11-06 | W3b library dev check (`w3b_dev.py`): K, G, B, Gpol, KCROSS, Xf, Df one call / chunked / 7-row cap | poldx prepared, read only | B 2.0 / 5.5 / 378 s; Xf 2.3 / 5.4 / 279 s; Df 2.2 / 11.5 / 782 s; others under 6 s | – | 7-row cap: one channel per chunk, the field re-read per chunk |
+| 2026-11-06 | W3b check-all, implementation commit 295e65c | worktree | 16 min 34 s | 1.78 GiB | FAIL only on the research-index test; pytest 1027 passed, 68 skipped |
+| 2026-11-06 | W3b `angles_memory.py` (P angles, ba65792 against angle tables) | poldx (12,480 rows); A1 full (2,842,560 rows), read only | poldx 3.7 / 1.2 s (first run, cold caches); A1 full 67.3 / 66.7 s | tracemalloc peak 1.16 MB / 0.55 MB; 255 MB / 3.8 MB | heavy lock for A1 full |
 | 2026-11-06 | G3 `cargo build --profile gemclean --bin gemclean`, 3 builds (dev, main `0cb508b`, freeze) | core crate | 2 min 36 s-2 min 54 s (44 min with the lock wait once) | – | heavy lock |
 | 2026-11-06 | G3 `examples/g3_spectral_simulate.py`, 4 skies | 907,200 rows × 16 channels | 35-40 s | 0.46 GB | heavy lock; written to `/mnt/d` |
 | 2026-11-06 | G3 GeMClean, 4 skies × C0-C4 | 2048², 16 channels | C0 53-59 s, C1/C2 1 min 24 s-1 min 45 s, C3 59-63 s, C4 46-49 s | 2.9 / 7.0 / 7.0 / 4.0 / 3.3-3.6 GB | busy host; see [g3-spectral.md](g3-spectral.md) |
@@ -1707,3 +1713,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-07 | F2 Stage 5 real: LUNO 1934−638 (with 12 injection cases), 1830−211, ESO137 | LUNO, ESO137 | 26 min 8 s | 12.4 GB | heavy lock |
 | 2026-11-07 | F2 cost: C1 at 4 and 1 threads (T and F-SIM, 3 repeats each) on LUNO 1934−638 and ESO137; C2 in two processes | LUNO 1934−638, ESO137 | 14 min 40 s | 7.55 GB | heavy lock; T 37.4 s (4 threads), 126.9 s (1); F-SIM 8.37 s, 25.6 s |
 | 2026-11-07 | F2 `tools/check-all.sh`, two runs | worktree | 11 min 53 s; 7 min 40 s | – | heavy lock; first run: 3 failures (an unregistered RANG_ variable, a text write without newline), fixed; second: only `test_every_note_is_in_the_research_index` |
+| 2026-11-06 | W3b probe -02: `tools/oracles/w3b/run.sh` W at 4.327 GiB, calibrate (K, G, B) | W copy | 55:24 | 1.66 GiB | heavy lock ([w3b-chainchunks.md](w3b-chainchunks.md) 5.1) |
+| 2026-11-07 | W3b run -04 O calibrate / apply U / D / T / M | slice copies | 14 / 20 / 119 / 25 s; 12 / 19 / 22 / 19 s | 0.21 / 0.20 / 0.15 / 0.19 GiB (calibrate) | – |
+| 2026-11-07 | W3b run -04 C calibrate / apply U / D / T / M | A1 small copies | 57 / 56 s / 16:16 / 48 s; 41 / 41 s / 6:36 / 30 s | at most 0.15 GiB | T: one channel per B chunk, 7-row flushes |
+| 2026-11-07 | W3b run -04 P calibrate / apply U / D / T / M | poldx copies | D 0:50 / 1:00; T 28:42 / 9:34; M about 1 min each | 0.31 / 0.54 GiB at most | T: B, Xf, Df 256 channel chunks |
+| 2026-11-07 | W3b run -04 W calibrate D / M; refusal R | W copies | 31:32 / 51:44; R 1.8 s | 3.35 / 1.66 GiB | heavy lock; about 2 h waiting for the lock before the first arm |
+| 2026-11-07 | W3b run -05 held-out H, four arms | polholdout copies | 45 min in all; T 28:18 / 9:50 | 0.31 / 0.54 GiB at most | no lock (light arms) |
+| 2026-11-07 | W3b oracle extension of main 0f5ef06 | detached checkout | about 2 min | – | heavy lock |
+| 2026-11-07 | W3b check-all, merge with 0f5ef06 | worktree | 11:52 | 1.78 GiB | FAIL only on the research-index test; 1040 passed, 68 skipped |
+| 2026-11-07 | W3b merge check -06, case E (poldx, refant auto, extendflags) U / D / T | poldx copies | calibrate 1:08 / 0:56 / 31:42; apply 1:03 / 0:58 / 10:41 | 0.31 / 0.32 / 0.25 GiB; apply 0.54 / 0.54 / 0.16 GiB | no lock; U main 0f5ef06 |

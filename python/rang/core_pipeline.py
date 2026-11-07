@@ -578,37 +578,84 @@ def memory_problems(config, info, stages):
     return out
 
 
-def chain_memory_problems(config, info, plan):
-    """[message] for each K, G, B, F or A term (task C2e), or Gpol, KCROSS,
-    Xf or Df term (task C6w), whose data does not fit
-    `data.memory_limit_gb`: these terms read every row of a field (A: of
-    all its fields) at once, unchunked (W3 merge, research/w3-chunking.md
-    5.3; chunking them is task W3b)."""
+# The chain terms solved per interval and channel (task W3b): their smallest
+# chunk is one channel of one interval.
+PER_CHANNEL_TERMS = ("B", "Xf", "Df")
+
+
+def chain_chunk_plans(config, info, plan):
+    """[(where, term, field, chunks or MemoryLimitError)] for every K, G,
+    B, F, Gpol, KCROSS, Xf and Df solve (one per field) of the chain (task
+    W3b, research/w3b-chainchunks.md): the chunks `rang.cal_chunks.plan`
+    gives that solve under `plan` (a `core_chunks.Budget`), as the library
+    computes them."""
+    from . import cal_chunks, cal_gain
+
     out, rows = [], info["rows"]
-    cells = int(np.prod(info["cell"]))
-    limit = plan.limit_bytes
+    chain = plan.chain()
     for section in core_config.CALIBRATE_SECTIONS:
         block = config["calibrate"][section]
         for i, term in enumerate(block["terms"]):
-            if term["type"] not in core_config.CHAIN_TERMS:
+            if term["type"] not in core_config.CHAIN_TERMS or term["type"] == "A":
                 continue
             fields = resolve_fields(
                 term["field"] or block["field"], config, info, f"calibrate.{section}"
             )
-            units = [fields] if term["type"] == "A" else [[f] for f in fields]
-            for unit in units:
-                n = len(_selected_rows(rows, unit, config["data"]["scans"]))
-                need = plan.fixed_bytes + core_chunks.CELL_BYTES["chain"] * n * cells
-                if need > limit:
-                    names = [info["fields"][f] for f in unit]
+            where = f"calibrate.{section}.terms[{i}] ({term['name']}, {term['type']})"
+            for f in fields:
+                idx = _selected_rows(rows, [f], config["data"]["scans"])
+                if not len(idx):
+                    continue
+                tb, _ = cal_gain.solint_bins(
+                    rows["TIME"][idx], rows["SCAN_NUMBER"][idx], rows["FIELD_ID"][idx],
+                    term["solint"] or "inf", term["combine"] or "",
+                )  # fmt: skip
+                try:
+                    chunks, _ = cal_chunks.plan(
+                        tb, info["cell"][0], info["cell"][1], chain,
+                        per_channel=term["type"] in PER_CHANNEL_TERMS,
+                        what=f"field {info['fields'][f]!r}",
+                    )  # fmt: skip
+                except core_chunks.MemoryLimitError as exc:
+                    chunks = exc
+                out.append((where, term, f, chunks))
+    return out
+
+
+def chain_memory_problems(config, info, plan):
+    """[message] for each chain term (tasks C2e, C6w) whose smallest unit
+    does not fit `data.memory_limit_gb` (task W3b): one solution interval
+    of a field with all its channels (K, G, F, Gpol, KCROSS), one channel
+    of one interval and one whole row (B, Xf, Df), or one baseline of an A
+    step's flag group on its time grid. Everything else runs in chunks."""
+    out = []
+    try:
+        plan.chain()
+    except core_chunks.MemoryLimitError as exc:
+        return [f"calibrate: {exc}"]
+    for where, _, _, chunks in chain_chunk_plans(config, info, plan):
+        if isinstance(chunks, core_chunks.MemoryLimitError):
+            out.append(f"{where}: {chunks}")
+    rows = info["rows"]
+    max_rows = plan.rows("flag", capped=False)
+    for section in core_config.CALIBRATE_SECTIONS:
+        block = config["calibrate"][section]
+        for i, term in enumerate(block["terms"]):
+            if term["type"] != "A":
+                continue
+            fields = resolve_fields(
+                term["field"] or block["field"], config, info, f"calibrate.{section}"
+            )
+            selected = _selected_rows(rows, fields, config["data"]["scans"])
+            for (field, _, scan), idx in _groups(rows, selected).items():
+                ntime = len(np.unique(rows["TIME"][idx]))
+                if ntime > max_rows:
                     out.append(
-                        f"calibrate.{section}.terms[{i}] ({term['name']}, "
-                        f"{term['type']}): fields {names} hold {n} rows read at once "
-                        f"and need about {need / core_chunks.GIB:.2f} GiB, above "
-                        f"data.memory_limit_gb {plan.limit_gb:g}; chunking of the K, "
-                        "G, B, A, F and polarisation terms is not yet implemented "
-                        "(task W3b, research/w3-chunking.md 5.3): raise the limit or "
-                        "select fewer scans with data.scans"
+                        f"calibrate.{section}.terms[{i}] ({term['name']}, A): field "
+                        f"{info['fields'][field]!r} scan {scan} has {ntime} times, and "
+                        "one baseline of it needs "
+                        f"{plan.need_gb('flag', ntime * np.prod(info['cell'])):.2f} GiB; "
+                        "raise data.memory_limit_gb"
                     )
     return out
 
@@ -1510,6 +1557,7 @@ def stage_calibrate_chain(ctx):
         masks = []
     scans = config["data"]["scans"] or None
     version = stage_version(ctx, "calibrate")
+    plan = core_chunks.budget(config, info)
     result = cal_chain.run(
         ms,
         terms,
@@ -1518,9 +1566,10 @@ def stage_calibrate_chain(ctx):
         weight_column=chain_weight_column(config, info),
         scan=scans,
         masks=masks,
-        chunk_rows=core_chunks.budget(config, info).rows("apply"),
+        chunk_rows=plan.rows("apply"),
         flag_backup=version,
         stage="calibrate",
+        budget=plan,  # task W3b: chunks of whole solution intervals
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):
@@ -1549,6 +1598,18 @@ def stage_calibrate_chain(ctx):
         "steps": steps,
         "flag_version": version,
         "k_offsets": cal_chain.K_ALONE.split(":")[1].strip(),
+        "chunking": {
+            **plan.describe(),
+            "solves": [
+                {
+                    "term": term["name"],
+                    "field": info["fields"][f],
+                    "chunks": len(chunks),
+                    "channel_chunks": sum(not c.whole for c in chunks),
+                }
+                for _, term, f, chunks in chain_chunk_plans(config, info, plan)
+            ],
+        },
     }
     if refant_auto is not None:
         summary["refant_auto"] = refant_auto

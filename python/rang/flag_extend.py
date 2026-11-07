@@ -128,7 +128,8 @@ def extend_ms(
     when given, `scans`, of `ms`; FLAG written through
     `core_writeback.WriteBack` (`flag_backup` saved before the first write).
     Whole CASA chunks are read and extended together, up to `batch_rows`
-    rows a batch (a larger chunk is one batch). Returns a summary."""
+    rows a batch (a larger chunk in blocks of whole baselines, task W3b).
+    Returns a summary."""
     ms = Path(ms)
     s = dict(CARACAL, **(settings or {}))
     with core_writeback.WriteBack(
@@ -153,13 +154,8 @@ def extend_ms(
         counts = {r: 0 for r in RULES}
         before = after = 0
         digest = hashlib.sha256()
-        lo = 0
-        while lo < nchunk:
-            hi, total = lo, 0
-            while hi < nchunk and (hi == lo or total + sizes[hi] <= limit):
-                total += sizes[hi]
-                hi += 1
-            mine = rows[(chunk[rows] >= lo) & (chunk[rows] < hi)]
+        for mine in _batches(rows, chunk, meta["ANTENNA1"], meta["ANTENNA2"],
+                             sizes, limit):  # fmt: skip
             flag = _read_rows(w, "FLAG", mine, spans)
             before += int(flag.sum())
             got = extend_flags(flag, meta["ANTENNA1"][mine], meta["ANTENNA2"][mine],
@@ -168,7 +164,6 @@ def extend_ms(
                 counts[r] += got[r]
             after += int(flag.sum())
             _write_rows(w, mine, flag, spans)
-            lo = hi
         cells = len(rows) * int(np.prod(w.cell))
         for s0, n in spans:
             pick = rows[(rows >= s0) & (rows < s0 + n)]
@@ -190,6 +185,34 @@ def extend_ms(
         "added": counts,
         "flag_sha256": digest.hexdigest(),
     }
+
+
+def _batches(rows, chunk, a1, a2, sizes, limit):
+    """The MS rows (sorted) of each batch: consecutive whole CASA chunks up
+    to `limit` rows; a chunk larger than `limit` is split into blocks of
+    whole baselines (task W3b, research/w3b-chainchunks.md). The kernel
+    extends every (chunk, ANTENNA1, ANTENNA2) cube on its own, so the flags
+    do not depend on the batches."""
+    from . import core_chunks
+
+    nchunk = len(sizes)
+    lo = 0
+    while lo < nchunk:
+        if sizes[lo] > limit:
+            mine = rows[chunk[rows] == lo]
+            key = a1[mine].astype(np.int64) * (1 << 32) + a2[mine].astype(np.int64)
+            ubl, inverse = np.unique(key, return_inverse=True)
+            inverse = inverse.reshape(-1)
+            for block in core_chunks.baseline_blocks(inverse, len(ubl), limit):
+                yield mine[np.isin(inverse, block)]
+            lo += 1
+            continue
+        hi, total = lo, 0
+        while hi < nchunk and (hi == lo or total + sizes[hi] <= limit):
+            total += sizes[hi]
+            hi += 1
+        yield rows[(chunk[rows] >= lo) & (chunk[rows] < hi)]
+        lo = hi
 
 
 def _read_rows(w, name, rows, spans):
