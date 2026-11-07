@@ -1683,3 +1683,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | G3 CASA 6.7.6 `mstransform` chanbin 2 | D1 | 126 s | 0.33 GB | `rang-o-casa:6.7.6.14` |
 | 2026-11-06 | G3 GeMClean identity set (7 skies × 2 forms + pilot-256) | binary `f153db8d` | as G2's | 1.9-12.0 GB | all byte-identical |
 | 2026-11-06 | G3 `tools/check-all.sh` | worktree | about 28 min | – | FAIL only on the research-index test (new note) |
+| 2026-11-06 | G6 gemclean `-predict` (case A) | A1 small MS, 6,720 rows × 64 ch, 512² | 5.2 s | – | release build; busy host |
+| 2026-11-07 | G6 gemclean `-predict`, S1-S3, H1, H2 | 1,814,400 rows × 8 ch, 2048² | 42-51 s | 2.20-2.21 GB | one block; busy host |
+| 2026-11-07 | G6 WSClean 3.7 `-predict`, S1-S3, H1, H2 | same | 1 min 23 s-2 min 4 s | 0.74 GB | in container |
+| 2026-11-07 | G6 gemclean `-predict`, 8 output channels (D1, H1s) | 907,200 rows × 16 ch | 24-29 s | 1.47 GB | |
+| 2026-11-07 | G6 gemclean clean + MODEL_DATA, pilot at 512 channels | 823,500 rows × 512 ch, 4096² | 6 min 14 s (model write 99.8 s, 4 blocks) | 19.74 GB | binary `b9a7dd9d`; no swap |
+| 2026-11-07 | G6 WSClean 3.7 `-predict`, pilot at 512 channels | same | 7 min 56 s | 4.81 GB | in container |
+| 2026-11-06 | G6 `rang-core image` with `write_model` (case A) | A1 small MS | 14.3 s (model 12.8 s) | – | through WriteBack |
+| 2026-11-07 | W6 gemclean runs on A1's small MS (512², 300 components) | 12,480 rows × 64 ch | a few s each | – | nice, 4 threads |
+| 2026-11-07 | W6 identity set (7 skies × 2 forms + pilot-256) | binary `5fb69682` | as G2's | 1.94-12.24 GB | all 15 byte-identical; busy host |
+| 2026-11-06/07 | G6/W6 `tools/check-all.sh` | worktree | 12-13 min (3 runs) | – | FAIL only on the research-index test |
