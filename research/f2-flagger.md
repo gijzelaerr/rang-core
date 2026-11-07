@@ -373,7 +373,9 @@ Calls of F-SIM against T:
 - **Q3 caveat.** Every arm except T runs inside the shared wrapper, whose whole-band static mask removes
   A1's persistent GPS bands; T's own first `uvcontsub_flagger` step drops those flags
   (`or_original_from_cycle: 1`; the YAML: "flags are discarded at this point"), keeping only the
-  `0~550 m` mask. So on calibrators N's Q3 is below T's partly because the wrapper drops channels T keeps.
+  `0~550 m` mask. Checked post hoc on f2sim-v scan 2 (`f2-20261107-09-stagecheck`): on the 963 of 2,048
+  channels the whole-band mask covers, T's flagged fraction is 1.000 after step 01, 0.055 after step 03,
+  0.474 after the `0~550 m` mask and 0.575 at the end. So on calibrators N's Q3 is below T's partly because the wrapper drops channels T keeps.
   Q3 compares solves on different channel sets; this was not foreseen in the protocol.
 
 ### Stage 5: real data (`f2-20261107-04-stage5-real`)
@@ -415,18 +417,20 @@ writing nothing; `-04` reran it with that fix and the post hoc stratum below.
 ### Stage 5: cost (`f2-20261107-05-cost`) and P
 
 Same rows in memory to flags in memory; the network arm is the shared wrapper (`flag_rows`) plus the Rust
-kernel at the picked τ. Three repeats, alternating, median; heavy lock held. The recorded 1-min load
-includes the measured process (about 4 at 4 threads, 1 at 1 thread); the other jobs on the host were idle
-or single-core.
+kernel at the picked τ. Three repeats, alternating, median; heavy lock held. **As frozen, every LUNO
+number is provisional** (1-min load above 2 in all 4-thread repeats and in the first 1-thread repeat);
+only ESO137 at 1 thread is clean. Post hoc reading: the recorded load includes the measured process
+(about 4 at 4 threads, 1 at 1 thread), and the other jobs were idle or single-core.
 
 | Set | Cells | Threads | T | F-SIM | C1 | Load |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| LUNO 1934−638 (calibrator) | 85.6 M | 4 | 37.4 s | 8.37 s | **0.224** | 2.4-3.8 |
-| LUNO 1934−638 | 85.6 M | 1 | 126.9 s | 25.6 s | **0.201** | 1.0-1.25 (first repeat 3.2) |
+| LUNO 1934−638 (calibrator) | 85.6 M | 4 | 37.4 s | 8.37 s | **0.224** (provisional) | 2.4-3.8 |
+| LUNO 1934−638 | 85.6 M | 1 | 126.9 s | 25.6 s | **0.201** (provisional) | 1.0-1.25 (first repeat 3.2) |
 | ESO137 window (target, reported) | 24.8 M | 4 | 11.24 s | 2.96 s | 0.263 | 3.3-3.6 |
 | ESO137 window | 24.8 M | 1 | 38.8 s | 8.91 s | 0.230 | 1.0-1.05 |
 
-- **C1 beats (≤ 0.5) at 4 and 1 threads in both classes.** U on the same array, Stage 3: 0.24.
+- **C1 beats (≤ 0.5) at 4 and 1 threads in both classes** (LUNO values provisional by load). U on the
+  same array, Stage 3: 0.24 (provisional).
 - C2: peak RSS 7.55 GB for both arms (T 7,551,512 kB, F-SIM 7,552,636 kB), ratio 1.000: the decode sets
   the peak, and neither flag step exceeds it. Matches.
 - P: T1 network 3 kinds (wrapper's `accumulation_mode`, `uvrange`; the weights file) against 21 for both
@@ -442,7 +446,7 @@ or single-core.
 | Meets Q | no as frozen (Q3 undecidable); yes post hoc | no: Q1 −0.103, Q3 2.14 × T |
 | Generalisation | fails: drifting 0.74 against 0.98; t2 Q1 0.092 above validation; LUNO injections 0.43 against 0.99 | fails with Q |
 | Agreement bar (real data) | fails: 1934−638 all cells, 1830−211 both strata | reported only |
-| C1, C2 | beats (0.224, 0.201); matches (1.00) | beats (0.263, 0.230), reported |
+| C1, C2 | beats (0.224, 0.201; provisional, load > 2); matches (1.00) | beats (0.263, 0.230), reported |
 | P | fails (17 against 21; generalisation fails) | fails |
 | G5, G6 | G6 passes | both pass as frozen |
 | **Outcome** | **F** | **F** |
@@ -451,8 +455,8 @@ or single-core.
 
 What the record supports, for Landman, numbers only:
 
-- The kernel is fast: C1 0.20-0.22 on LUNO 1934−638 (25.6 s against 126.9 s at 1 thread). Speed is not
-  the obstacle.
+- The kernel is fast: C1 0.20-0.22 on LUNO 1934−638 (25.6 s against 126.9 s at 1 thread, 8.4 s against
+  37.4 s at 4; provisional, load > 2), 0.23 on ESO137 at 1 thread (clean). Speed is not the obstacle.
 - On F-SIM calibrators, with τ chosen on validation, F-SIM matches T's recall at `A ≥ 10` (0.909 against
   0.880) with 4 % of T's false flags (0.012 against 0.318) and 0.10 × T's gain-product error. T's false
   flags on F-SIM are 32 % of clean cells, so the comparison mainly rewards not over-flagging.
@@ -485,19 +489,22 @@ What the record supports, for Landman, numbers only:
 2. **The shared wrapper.** CARACal's first pass discards its whole-band static mask at its first
    `uvcontsub_flagger` step; the frozen wrapper keeps it. A follow-up should copy T's net static-mask
    behaviour.
-3. **What to tell Landman.** Proposed, in his terms: "a 2,785-weight network flags at a fifth of the
-   Rust Tricolour port's wall, matches its recall on simulated calibrator RFI with a twentieth of its false
-   flags, but misses scan-long RFI and over-flags on real LUNO data; targets are not comparable. Not
-   shipped."
+3. **What to tell Landman.** Proposed: "a 2,785-weight network flags in 0.20-0.22 of the Rust
+   Tricolour port's wall on LUNO 1934−638 (provisional timings); on simulated calibrator RFI it matches
+   the port's recall at ≥ 10 σ (0.909 against 0.880) with false flags 0.012 against 0.318; it misses
+   scan-long RFI (LUNO injections 0.43 against 0.99) and adds 2-20 × the port's flags on real LUNO
+   data; targets are not comparable. Not shipped."
 
 ## 11. For the coordinator
 
 - **Commits (branch `fp-f2-flagger`):** `7bc3522` protocol; `8484b17` Amendments 1-3; `0a4509f`
-  Amendment 3's picks; the final commit with code, results and this section.
+  Amendment 3's picks; `cb11cdf` code, results and this section; a docs-only follow-up.
 - **Run outputs (ignored), `/mnt/d/rang/outputs/`:** `f2-20261106-01-sim-v` (12 GB), `-02-sim-train`
   (36 GB), `-03-stage2-val`, `-04-sim-test` (48 GB), `-05-stage3-U`, `-06-train-smoke`,
   `-07-train-calibrator`, `-08-train-target` (weights), `f2-20261107-01-stage5-quality` (stopped launch;
-  picks), `-02-amend3`, `-03-stage5`, `-04-stage5-real`, `-05-cost`; each with `.code/`, `.log`, `.time`.
+  picks), `-02-amend3`, `-03-stage5`, `-04-stage5-real`, `-05-cost`, `-06-checkall`, `-07-checkall2`,
+  `-09-stagecheck`; each with `.code/` (the run's sources; in `.code/scripts/` the driver scripts and
+  helpers, `f2-picktau.py` among them), `.log`, `.time`.
   The F-SIM observations (96 GB) can be deleted once the result is accepted; the generator
   rebuilds them from the seeds.
 - **Archive:** [results/f2-flagger.json](results/f2-flagger.json).
@@ -505,7 +512,7 @@ What the record supports, for Landman, numbers only:
   calibrators and targets; [f2-flagger.md](f2-flagger.md)): a 2,785-weight per-baseline network
   (`rang.f2flag`, Rust inference `rang_core::cnnflag`, JAX training on CPU) trained on simulated MeerKAT
   L-band RFI with known masks (`rang.f2flag_sim`). Against the Rust Tricolour port: C1 0.22 at 4 threads
-  and 0.20 at 1 thread on LUNO 1934−638 (37.4 s and 126.9 s for T). Simulated calibrators, threshold
+  and 0.20 at 1 thread on LUNO 1934−638 (37.4 s and 126.9 s for T; provisional, load above 2). Simulated calibrators, threshold
   chosen on validation (Amendment 3): recall at ≥ 10 σ 0.909 against 0.880, false flags 0.012 against
   0.318, gain-product error 0.10 × T (undecidable as frozen). It fails generalisation: the held-out
   drifting carrier (0.74 against 0.98), LUNO injections (0.43 against 0.99; scan-long narrowband,
@@ -516,8 +523,8 @@ What the record supports, for Landman, numbers only:
   clause with: "a flagger trained on gain TV (F1, NO-GO) and a supervised fast flagger (F2, outcome F:
   fast, but does not generalise to real data)".
 - **`research/README.md`, new line beside F1:** "- [F2, a fast supervised flagger](f2-flagger.md):
-  protocol and result; five times faster than the Tricolour port, matches it on simulated calibrators,
-  fails on held-out morphologies and real LUNO data: outcome F."
+  protocol and result; 4.5-5 times faster than the Tricolour port (provisional timings), matches it on
+  simulated calibrators, fails on held-out morphologies and real LUNO data: outcome F."
 - **`research/finish-plan.md`, section 6, Landman:** "F2 ran 2026-11-06/07 (`f2-flagger.md`): outcome
   F in both classes; not a second flagger for `rang-core flag`."
 - **`research/tool-timings.md`:** rows added in this branch.
