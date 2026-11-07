@@ -68,6 +68,7 @@ import numpy as np
 
 from . import (
     cal_chain,
+    cal_refant,
     core,
     core_chunks,
     core_config,
@@ -484,6 +485,8 @@ def preflight(config, info, stages):
             )
         if not problems:
             problems += _polcal_problems(config, info)
+        if not problems and uses_chain(config):
+            problems += cal_refant.problems(config, info["ms"])  # task E0
     if not problems:
         problems += memory_problems(config, info, stages)
     if problems:
@@ -1477,6 +1480,13 @@ def polcal_terms(config, info, types, primary_model):
             spec["estimator"] = term["estimator"] or "casa"
         out.append(spec)
         types[name] = kind
+    if block["extendflags"]:
+        # Task E0: CARACal's flagdata mode=extend before the polcal solves, on
+        # pol_calib (the Gpol, KCROSS, Xf fields), then leakage_calib (Df's).
+        pol = [f for s in out if s["type"] != "Df" for f in s["fields"]]
+        leak = [f for s in out if s["type"] == "Df" for f in s["fields"]]
+        fields = list(dict.fromkeys(pol + [f for f in leak if f not in pol]))
+        out.insert(0, {"type": "extend", "name": "extendflags", "fields": fields})
     return out
 
 
@@ -1485,6 +1495,8 @@ def stage_calibrate_chain(ctx):
     MODEL_DATA on the primary fields, then `rang.cal_chain.run`, every write
     through the attempt's flag version."""
     config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
+    # Task E0: refant auto becomes CARACal's names before anything is written.
+    config, refant_auto = cal_refant.resolve_config(config, ms)
     cal = config["calibrate"]
     terms = chain_terms(config, info, ctx["config_path"])
     restored = restore_before(ms, ctx["entry"])
@@ -1538,6 +1550,8 @@ def stage_calibrate_chain(ctx):
         "flag_version": version,
         "k_offsets": cal_chain.K_ALONE.split(":")[1].strip(),
     }
+    if refant_auto is not None:
+        summary["refant_auto"] = refant_auto
     if cal["polcal"]["terms"]:
         summary["polcal"] = {
             "frame": cal["polcal"]["frame"],

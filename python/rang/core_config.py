@@ -229,6 +229,16 @@ SCHEMA = {
         "refantmode": _k(
             "flex", "choice", "flex or strict, as CASA", ("flex", "strict")
         ),
+        "refant_maxdist": _k(
+            1000.0,
+            "float",
+            "refant auto: metres from the array centre at most (CARACal's maxdist)",
+        ),
+        "refant_minbase": _k(
+            150.0,
+            "float",
+            "refant auto: metres to every other antenna at least (CARACal's minbase)",
+        ),
         "uvrange": _k(
             "", "str", "baselines used by G, B, F and polcal solves, such as >150"
         ),
@@ -277,7 +287,10 @@ SCHEMA = {
                 "FEED's",
             ),
             "extendflags": _k(
-                False, "bool", "flagdata mode=extend on xcal and fcal first"
+                False,
+                "bool",
+                "CASA flagdata mode=extend with CARACal's settings on the Gpol, "
+                "KCROSS and Xf fields, then the Df fields, before the polcal solves",
             ),
         },
     },
@@ -833,14 +846,19 @@ def refusals(config, stages):
         any_term = False
         for section in CALIBRATE_SECTIONS:
             block = cal[section]
-            if section == "polcal" and block["extendflags"]:
+            if (
+                section == "polcal"
+                and block["extendflags"]
+                and not any(
+                    t["type"] in ("Gpol", "KCROSS", "Xf") for t in block["terms"]
+                )
+            ):
                 out.append(
                     Refusal(
                         "calibrate.polcal.extendflags",
                         "",
-                        "CASA's flagdata mode=extend (CARACal's growtime and growfreq "
-                        "80) is not ported and no task owns it (an owner decision, "
-                        "research/c6w-polwire.md); set false",
+                        "CARACal extends flags only on a polarisation calibrator: "
+                        "add a Gpol, KCROSS or Xf term, or set false",
                     )
                 )
             for i, term in enumerate(block["terms"]):
@@ -1147,12 +1165,15 @@ def _chain_refusals(config, out):
                     f"{where}.refant",
                     "required for K, G, B, F, Gpol and Df (calibrate.refant)",
                 )
-            elif refant is not None and any(str(r).lower() == "auto" for r in refant):
+            elif (
+                refant is not None
+                and len(refant) > 1
+                and any(str(r).lower() == "auto" for r in refant)
+            ):
                 bad(
                     f"{where}.refant",
-                    "refant auto (CARACal's manage_antennas rule) is not ported; "
-                    "give antenna names or ids (an owner decision, "
-                    "research/c2e-calibrate.md)",
+                    "auto (CARACal's choice, research/e0-refant-extend.md) stands "
+                    "alone, not in a list of antennas",
                 )
             if _is_int(term["solint"]):
                 bad(

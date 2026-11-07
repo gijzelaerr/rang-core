@@ -239,24 +239,9 @@ def test_e2_calibrate_is_no_longer_refused_for_c2_tasks():
     raw = core_config.load(DATA / "e2a.yaml")
     core_config.validate(raw, ["calibrate"])  # no error, no refusal
     raw = core_config.load(DATA / "e2b.yaml")
-    with pytest.raises(core_config.ConfigError) as exc:
-        core_config.validate(raw, ["calibrate"])
-    # Since task C6w (research/c6w-polwire.md) nothing is refused for a task:
-    # refant auto (research/c2e-calibrate.md, section 9) and extendflags
-    # (research/c6w-polwire.md) have no owner task yet.
-    assert exc.value.refusals == []
-    assert [p for p, _ in exc.value.errors] == [
-        "calibrate.primary.terms[0].refant",
-        "calibrate.primary.terms[1].refant",
-        "calibrate.primary.terms[2].refant",
-        "calibrate.secondary.terms[0].refant",
-        "calibrate.secondary.terms[2].refant",
-        "calibrate.polcal.terms[0].refant",
-        "calibrate.polcal.terms[1].refant",
-        "calibrate.polcal.terms[2].refant",
-        "calibrate.polcal.terms[3].refant",
-        "calibrate.polcal.extendflags",
-    ]
+    # Since task E0 (research/e0-refant-extend.md) refant auto and
+    # extendflags run too: E2-B's flag, calibrate and apply validate.
+    core_config.validate(raw, ["flag", "calibrate", "apply"])
 
 
 def test_chain_errors_are_explained():

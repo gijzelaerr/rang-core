@@ -39,6 +39,7 @@ pub mod ffi_ms;
 pub mod ffi_ms_write;
 pub mod ffi_weights;
 pub mod ffi_wgridder;
+pub mod flag_extend;
 pub mod fluxstd;
 pub mod fused;
 pub mod gemclean;

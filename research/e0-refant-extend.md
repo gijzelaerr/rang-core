@@ -4,7 +4,10 @@ Task E0 of [finish-plan.md](finish-plan.md) (row E0; section 7 items 15 and 19).
 configuration errors that stop E2-B's calibrate stage: `refant: auto` ([c2e-calibrate.md](c2e-calibrate.md)
 section 9 item 1) and `calibrate.polcal.extendflags` ([c6w-polwire.md](c6w-polwire.md) section 7 item 4).
 Branch `fp-e0-refant`, from main `ba65792`.
-**Status: protocol (sections 0 to 7), frozen before the first comparison. Nothing measured yet.**
+**Status: implemented and measured (sections 8 to 10). Gate 3 met. Gate 1 met on every case where CARACal's function
+runs, and on the slice only with a post-hoc reference (CARACal's msutils crashes there). Gate 2: FLAG bit-identical to
+CASA on every case; its rule-coverage condition was met only by a post-hoc case.** The protocol (sections 0 to 7) was
+committed (`abc4855`) before the first comparison; this status line is the only edit above section 8.
 
 ## 0. What was read before this protocol
 
@@ -209,3 +212,154 @@ CASA steps and check-all under `flock ~/.rang-heavy.lock`. Scripts: `examples/ch
    calibrate stage finished before E0 is rerun with `--force` once (as W3's decision 3).
 5. **The observatory table.** rang carries casacore-data 20250826's observatory positions; CARACal's container uses
    whatever measures data its image has. Provisional: the frozen table.
+
+## 8. Results (measured 2026-11-06)
+
+### 8.1 Reference antenna (gate 1)
+
+| Case | Run | CARACal's `get_refant` | Antenna part (post hoc, 9.1) | rang | Agree |
+| --- | --- | --- | --- | --- | --- |
+| R1 slice | -01, -02 | **fails**: msutils raises `IndexError` in `source_flags_field` | `""` | refuses (no antenna qualifies) | frozen: **no**; post hoc: yes |
+| R2 A1 small | -02 | `m008,m024,m032` | `m008,m024,m032` | `m008,m024,m032` | yes |
+| R3 A1 full (held out) | -04 | `m022,m023,m024` | same | `m022,m023,m024` | yes |
+| R4 names reversed, `m020` fully flagged (held out) | -04 | `m020,m028,m036` | same | `m020,m028,m036` | yes |
+| R5 unknown telescope (held out) | -04 | `m008,m024,m032`, with msutils' "first id antenna" fallback | same | same, centre antenna 0 | yes |
+
+R1: the slice's FIELD table has three rows but only field 1 has data; msutils 1.2.0's `save_statistics` computes field
+statistics first and indexes one result per FIELD row, so it raises before the antenna part, and CARACal's crosscal
+worker would stop there. The frozen oracle therefore gives no answer on R1. R4 shows the name rule: `m020` has every
+cell flagged and is still CARACal's first choice; a fewest-flags rule would have given `m028,m036,m052`. R5's fallback
+centre (antenna 0, `m000`, 33 m from the true centre) happens to give the same names. Every other run's msutils log has
+no fallback warning. Oracle environment (`~/Build/tmp/20261106-e0-msutils/freeze.txt`): Python 3.11.17, msutils 1.2.0,
+numpy 1.26.4, python-casacore 3.8.1, dask 2024.7.1 (dask-ms 0.2.21 needs a dask before 2024.8), dask-ms 0.2.21,
+bokeh 3.9.2, casacore-data 20250826 from the O-CASA image.
+
+### 8.2 Flag extension (gate 2)
+
+FLAG after rang's extension equals FLAG after CASA 6.7.6.14's `flagdata` with CARACal's settings, bit for bit, on
+every row of every case; FLAG_ROW is equal and unchanged; rows outside the selection are untouched on both sides;
+DATA, WEIGHT, SIGMA, TIME, SCAN_NUMBER, ANTENNA1 and ANTENNA2 are equal.
+
+| Case | Run | Selected cells | Added by CASA | Unflagged after | Cells differing | rang's rules that fired |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| X1 slice | -03 | 1,572,864 | 0.92 % | 29.0 % | 0 | neartime, nearfreq, growaround, growtime |
+| X2 A1 small | -03 | 860,160 | 9.53 % | 78.8 % | 0 | neartime, nearfreq, growaround |
+| X3 holdout128, scans 8, 14, 22, 23 (held out) | -06 | 1,105,920 | 8.01 % | 80.0 % | 0 | neartime, nearfreq, growaround |
+| X4 constructed stress (held out) | -06 | 2,334,208 | 10.2 % | 77.6 % | 0 | neartime, nearfreq, growaround |
+
+rang's chunk counts follow section 1.3: 4 on X1 (32 integrations of 7.9966 s: 8, 8, 8, 8), 6 on X2 (one per scan of the
+two fields), and 18 on X4, where SIM-TARGET's 7 and SIM-GCAL's 10 scans give 17 and scan 6's integration at
+t0 + 59.995 s opens an 18th, while scan 4's at t0 + 59.985 s stays in its chunk and the renumbered scan 99 does not
+split one (`combinescans`); CASA's FLAG agrees on all of it. X4 has 12,478 rows (two removed from baseline m000-m004).
+
+### 8.3 E2-B validates (gate 3)
+
+Run `-10-gate3`: `rang-core config check --stage flag --stage calibrate --stage apply tests/data/w2/e2b.yaml` prints
+"valid for flag, calibrate, apply" and exits 0. `--all` still lists nine refusals, all for other tasks: W4 (uniform
+imaging weights), G3 (`channels_out`, `join_channels`), G9 (`pol: IQUV`, `join_polarizations`), and C5a and G6 for
+self-calibration, which E2-B does not run.
+
+### 8.4 The command (also checked, not gated)
+
+Run -11 (-09 stopped in the checker's own table hashing, on an unwritten WEIGHT column of a calibration table):
+`rang-core calibrate` on A1 small prepared as X2, with K, G, B, F and the four polcal terms, three ways: (a) `refant:
+auto`, `extendflags: true`; (b) `refant: [m008, m024, m032]`, `extendflags: true`; (c) `refant: auto`, `extendflags:
+false`. All three finish. (a) records `refant_auto` m008, m024, m032 and runs the steps K, G, B, F, extend, Gpol,
+KCROSS, Xf, Df; every table cell and FLAG of (a) equal (b)'s; (c) differs in FLAG. The extension in (a) runs on fields
+1 then 0, 3,360 rows in 6 chunks, and adds 82,000 cells. With no A step, nothing else in (a) writes FLAG, so its final
+FLAG can be set beside CASA's on X2's identical input: the SHA-256 of the whole column is equal (`6b62bc76...`), so the
+command's FLAG equals CASA's bit for bit (checked after the run, read-only).
+
+## 9. What changed after a result (post hoc)
+
+1. **The refant oracle on R1** (after run -01). CARACal's own function fails on the slice (8.1). The oracle now also
+   runs `get_refant`'s own lines after the cab (`_get_core_antennas`, the tuple sort, `_prioritised_antennas`) on
+   msutils' antenna part alone (`flag_stats.antenna_flags_field`, which `save_statistics` calls third), written and
+   read through JSON as the cab's file is. Nothing in rang changed. Every case reports both answers; they agree
+   wherever `get_refant` runs (R2 to R5). Checked on the reserve R6 (run -08).
+2. **Building X4** (after run -05). python-casacore cannot remove rows from A1's storage managers, so `casa_side.py
+   edit` deep-copies the other rows into a new table instead. Only the case's construction changed; -06 ran X3 and X4
+   afresh.
+3. **X6, for the rules X1 to X4 never fire** (after run -06): A1 small, prepared with the RFI mask in XX only, plus an
+   85 % band burst in XX at 3C286-SIM's second integration of scan 2, extended on 3C286-SIM and J1939-6342 (run -07).
+   FLAG equals CASA's bit for bit (860,160 cells, 0 differ; CASA adds 26.1 %, 70.3 % stay unflagged), and rang's
+   counts show `growfreq` (2,796 cells) and `extendpols` (191,796) firing, with neartime, nearfreq and growaround.
+   Across X1 to X6 every rule has fired on a case equal to CASA.
+4. **The reserve R6** (run -08, after change 1): A1 small with names rotated by five and TELESCOPE_NAME `meerkat`:
+   CARACal `m028,m044,m052`, the antenna part the same, rang the same (the lower-case name finds casacore's MeerKAT).
+
+## 10. Verdict against the frozen gates
+
+1. **Gate 1, not met as frozen; met with the post-hoc reference.** R2 and the held-out R3, R4, R5 equal CARACal's own
+   `get_refant`. On R1 CARACal's function raises inside msutils 1.2.0 and gives no answer to compare; with `get_refant`'s
+   own lines run on msutils' antenna part (change 1), it chooses nothing and rang refuses, as frozen for that case. The
+   reserve R6 also agrees.
+2. **Gate 2: equality and non-saturation met; the rule-coverage condition not met as frozen.** FLAG equals CASA's bit
+   for bit on X1, X2 and the held-out X3 and X4 (0 cells of 5.9 M differ), FLAG_ROW and the other columns too; X2, X3
+   and X4 are non-saturated. `growfreq` and `extendpols` did not fire on those four, so as frozen the gate is a protocol
+   failure on coverage; the post-hoc X6, a new case on unchanged code (not a retest after a fix), fires both and is
+   equal too, so coverage stays not met as frozen. The reserve X5 was not needed (no change was made
+   to rang's extension) and was not run.
+3. **Gate 3 met.** E2-B validates for flag, calibrate and apply.
+
+No novelty claim: both are ports for parity with CARACal.
+
+## 11. What was not checked
+
+- CARACal itself end to end: the reference runs `get_refant` with a stub Stimela recipe, not inside a CARACal
+  pipeline; the cab's real container image (Stimela's `msutils` base, unpinned) was not pulled. msutils 1.2.0 is
+  inferred from the release history.
+- The oracle's python-casacore is 3.8.1 from PyPI, not the cab's; its measures data are the O-CASA image's.
+- CASA's `flagdata` source was read from a January 2023 mirror; the oracle is 6.7.6.14. They agree on every case run.
+- Autocorrelations and several data descriptions, observations or arrays in one extension (none of the cases has
+  them); `ntime` other than 60 s; `extendflags` with `data.scans` through the command (X3 checks the library's scan
+  selection against CASA's `scan=`).
+- Flag extension on real E2-B data (the LUNO fetch awaits the owner).
+- Throughput (no timing claim): rang's extension took 0.9-12 s per case on the host.
+
+## 12. Files, runs, provenance
+
+- Code: `python/rang/cal_refant.py`, `python/rang/flag_extend.py`, `python/rang/data/casacore_observatories.json`
+  (from `tools/oracles/e0/observatories.py`), `core/src/flag_extend.rs`, `core/py/src/flag_extend.rs`; small edits in
+  `core_config.py` (two keys, the two refusals replaced), `core_pipeline.py` (preflight, the resolution, the extend
+  spec in `polcal_terms`), `cal_chain.py` (one `elif`); `tests/test_e0_refant_extend.py`; three tests updated.
+- Oracles: `examples/check_e0.py`, `tools/oracles/e0/{caracal_refant.py,casa_side.py,msutils-venv.sh}`.
+- Sources read (ignored): `outputs/c1-sources-20261105/caracal-8f7bb363/` (plus `obsconf_worker.py`,
+  `worker_administrator.py`, `config_parser.py` fetched at 8f7bb363), `msutils/msutils-1.2.0.tar.gz`,
+  `casa6-mirror/` (the flagging and msvis files above, `list.txt`), `casacore-3.7.1/`.
+- Runs, each with `.code/`, `.log` and `.time` beside it, under `/mnt/d/rang/outputs/`: `e0-20261106-01` (R1 R2,
+  CARACal fails on R1), `-02` (R1 R2, post-hoc reference), `-03` (X1 X2), `-04` (R3 R4 R5), `-05` (X3 X4, stopped
+  building X4), `-06` (X3 X4), `-07` (X6), `-08` (R6), `-09` (command, checker failed), `-10-gate3`, `-11` (command).
+- The oracle venv `~/Build/tmp/20261106-e0-msutils` (262 MB) is removed at hand-back; `msutils-venv.sh` rebuilds it.
+- Code after the runs (diffed against run -11's `.code/`): in `python/rang` only `core_pipeline.preflight` changed,
+  so the `refant: auto` check runs only when calibrate uses the K, G, B, A, F chain (a complex-only configuration
+  ignores refant, as before E0); nothing of what the runs measured changed. `examples/check_e0.py` (the WEIGHT
+  guard after -09, lint) and `tools/oracles/e0/caracal_refant.py` (formatting, a lint comment) changed afterwards.
+- Test seeds 20261191-20261193 (`tests/test_e0_refant_extend.py`) appear nowhere else in the repository.
+
+## For the coordinator
+
+Proposed STATE log paragraph: "E0, 2026-11-07 (implemented; measured; gate 3 met, gates 1 and 2 met after labelled
+post-hoc additions; [e0-refant-extend.md](e0-refant-extend.md)): `rang-core calibrate` runs `refant: auto` and
+`extendflags`, so E2-B's flag, calibrate and apply validate. `auto` is CARACal's `get_refant`: the first three
+antennas **by name** within 1 km of the array centre with no antenna closer than 150 m; CARACal's code sorts by name,
+not by flags as its comment and C2e said. It equals CARACal's own function on A1 small, A1 full and two constructed
+held-out sets (one with the first choice fully flagged), and on the slice CARACal's msutils 1.2.0 crashes on a FIELD
+row without data, where its antenna part chooses nothing and rang refuses. `extendflags` is CASA's
+`flagdata(mode='extend')` with CARACal's settings (Rust kernel), run before the polcal solves as CARACal does (not
+after): FLAG equals CASA 6.7.6.14 bit for bit on five cases, held-out and stress cases included (60 s chunk edges,
+scans merged in a chunk, missing rows, scan selection), and through `rang-core calibrate` on one; the four frozen
+cases never fired growfreq or extendpols, which only the post-hoc fifth case does (rule coverage not met as frozen).
+On the slice CARACal's own function crashes, so gate 1 is met there only with a post-hoc reference of its antenna
+lines (the brief's 'faithful reference run' wording would accept it; the frozen protocol named `get_refant`). No
+novelty claim."
+
+Proposed finish-plan item (section 7): E0's five decisions, section 7 of the note (port the code, not the comment;
+stop when nothing qualifies; both steps within `data.scans`; the calibrate hash changes once; the frozen observatory
+table). Also for E2/E3: CARACal's own `refant: auto` crashes on an MS with a FIELD row without data (msutils 1.2.0).
+
+
+Non-saturation holds on X2, X3 and X4 (X1 adds 0.92 %, under the 1 % bar). **The rule-coverage condition is not met as
+frozen:** `growfreq` and `extendpols` never fire on X1 to X4, because A1's RFI mask flags all four correlations alike
+and no 60 s chunk of a baseline has an 80 % flagged integration; `growtime` fires only on X1. X6 (post hoc, 9.3) adds
+a case that fires them. X4 ran in -06 after the construction was changed (9.2); run -05 stopped while building X4.

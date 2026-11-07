@@ -9,6 +9,17 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `refant: auto` and `calibrate.polcal.extendflags: true` run in `rang-core calibrate`
+  (`research/e0-refant-extend.md`). `auto` is CARACal's `get_refant` (`rang.cal_refant`): the
+  first three antennas **by name** within `calibrate.refant_maxdist` (1000 m) of the array centre
+  whose every baseline is at least `calibrate.refant_minbase` (150 m); flags play no part, as in
+  CARACal's code (its comment says fewest flags). It is chosen once before anything is written, and
+  the stage stops when no antenna qualifies. `extendflags` is CASA's `flagdata(mode='extend')`
+  with CARACal's settings (`ntime='60s'`, `combinescans`, `growtime` and `growfreq` 80,
+  `growaround`, `flagneartime`, `flagnearfreq`, `extendpols`; `rang.flag_extend`, Rust kernel
+  `core/src/flag_extend.rs`), run before the polcal solves on the Gpol, KCROSS and Xf fields and then
+  the Df fields, within `data.scans`. The two new keys change the calibrate stage hash, so a
+  calibrate stage finished earlier reruns once with `--force`.
 - New: the Stimela2 recipe `recipes/rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply`
   and `image` in order on one configuration and MS, with the cabs `rang-flag`, `rang-calibrate`,
   `rang-apply` and `rang-image` in `recipes/rang-cabs.yaml`; each cab runs the console script
