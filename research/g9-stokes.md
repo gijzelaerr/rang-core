@@ -225,7 +225,13 @@ tested first on held-out H1p.
 
 ## 4. Freeze (recorded before the held-out sky is drawn)
 
-To be recorded: the freeze commit, the `gemclean` binary's sha256 and H1p's seeds.
+Frozen 2026-11-07 at commit `cc070a2` of `fp-g9-stokes` (full hash in
+`/mnt/d/rang/outputs/g9-bin/gemclean-freeze.provenance`); `gemclean` built from it clean (profile
+`gemclean`, rustc 1.93) has sha256
+`ee207980f017d73e142a01faf75970905796b1a78426bf2dfdccfd3822e7ad7c`. H1p's seeds are the first 8
+and next 8 hex digits of `sha256("<full commit> <binary sha256> H1p")`, drawn by
+[held.sh](results/g9-stokes-scripts/held.sh) after this record is committed; they are written to
+`/mnt/d/rang/outputs/g9-20261107-03/freeze.txt` and copied below with the results.
 
 ## 5. Development results (measured; D1 and P1, binary `dev1`)
 
