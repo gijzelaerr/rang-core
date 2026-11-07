@@ -1703,3 +1703,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | E0 msutils oracle venv (`msutils-venv.sh`, uv) | PyPI | about 1 min a build, four builds (dask pin found by trial) | – | dask 2024.7.1 with dask-ms 0.2.21 |
 | 2026-11-07 | E0 check-all run 1 | worktree | 682.84 s inside the heavy lock (about 2.5 h lock wait) | 1.84 GiB | Rust clippy and fmt failed on flag_extend.rs (fixed); pytest 1021 passed, 68 skipped, only `test_every_note_is_in_the_research_index` fails |
 | 2026-11-07 | E0 check-all run 2 | worktree | 517.31 s inside the heavy lock | 1.81 GiB | only `test_every_note_is_in_the_research_index` fails; pytest 1021 passed, 68 skipped |
+| 2026-11-06 | W3b probe -02: `tools/oracles/w3b/run.sh` W at 4.327 GiB, calibrate (K, G, B) | W copy | 55:24 | 1.66 GiB | heavy lock ([w3b-chainchunks.md](w3b-chainchunks.md) 5.1) |
+| 2026-11-07 | W3b run -04 O calibrate / apply U / D / T / M | slice copies | 14 / 20 / 119 / 25 s; 12 / 19 / 22 / 19 s | 0.21 / 0.20 / 0.15 / 0.19 GiB (calibrate) | – |
+| 2026-11-07 | W3b run -04 C calibrate / apply U / D / T / M | A1 small copies | 57 / 56 s / 16:16 / 48 s; 41 / 41 s / 6:36 / 30 s | at most 0.15 GiB | T: one channel per B chunk, 7-row flushes |
+| 2026-11-07 | W3b run -04 P calibrate / apply U / D / T / M | poldx copies | D 0:50 / 1:00; T 28:42 / 9:34; M about 1 min each | 0.31 / 0.54 GiB at most | T: B, Xf, Df 256 channel chunks |
+| 2026-11-07 | W3b run -04 W calibrate D / M; refusal R | W copies | 31:32 / 51:44; R 1.8 s | 3.35 / 1.66 GiB | heavy lock; about 2 h waiting for the lock before the first arm |
+| 2026-11-07 | W3b run -05 held-out H, four arms | polholdout copies | 45 min in all; T 28:18 / 9:50 | 0.31 / 0.54 GiB at most | no lock (light arms) |
+| 2026-11-07 | W3b oracle extension of main 0f5ef06 | detached checkout | about 2 min | – | heavy lock |
+| 2026-11-07 | W3b check-all, merge with 0f5ef06 | worktree | 11:52 | 1.78 GiB | FAIL only on the research-index test; 1040 passed, 68 skipped |

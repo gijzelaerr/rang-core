@@ -7,7 +7,15 @@ complex solve, `apply` and the models run within `data.memory_limit_gb`. C2e's c
 (`chain_memory_problems`). This task chunks them and replaces the refusal with chunked execution. Branch
 `fp-w3b-chainchunks` from main `ba65792`. Interface and resource work: no novelty is claimed.
 
-**Status: proposed (protocol).** Sections 0 to 4 are written before any comparison.
+**Status: implemented and measured; every frozen criterion passes** (code `295e65c`, harness `1715dea`; frozen run
+`/mnt/d/rang/outputs/w3b-20261106-04`, held-out `-05`; archive [results/w3b-chainchunks.json](results/w3b-chainchunks.json)).
+Sections 0 to 4 were committed (`db0d98b`) before any comparison; amendments 1 and 2 (in `295e65c`) were made
+during implementation and before any comparison. On O-CASA's slice, A1 small and poldx, and on the held-out
+polholdout, every table, MS column, flag version and summary of the chunked arms (default limit, 7-row chunks, a
+low limit) is bit-identical to main `ba65792` unchunked; on the whole-array set a K, G, B chain peaks at 3.35 GiB
+under 8 GiB and 1.66 GiB under 4.33 GiB, the two byte-identical, and an interval above the limit is refused before
+anything is written. Merged with main `0f5ef06` (E0) afterwards, with a reduced check (section 5.5). No speed
+claim (shared host).
 
 ## 0. What the code does at `ba65792`
 
@@ -283,6 +291,31 @@ apply 9 min 50 s; the others 0.8-1.3 min per stage; 45 min in all.
 
 **Every frozen criterion (1 to 6) passes.**
 
+### 5.5 Merge with main `0f5ef06` (E0, G3)
+
+The frozen results of 5.3 and 5.4 stand; this records the merge and its reduced check (the coordinator asked
+for the merge before hand-back).
+
+**Resolution.** E0's hooks merged without conflict in `core_pipeline` (`refant: auto` resolved at the start of
+`stage_calibrate_chain`, its preflight check, the extend step in `polcal_terms`) and `cal_chain` (the `extend`
+branch of `run`); text conflicts in CHANGELOG, tool timings and `core/py/src/lib.rs` (both registration blocks
+kept). **The extend step** (`flag_extend.extend_ms`) already batched whole 60 s CASA chunks up to the apply row
+chunk of the budget (`cal_chain` passes it) and held only FLAG, but one chunk larger than the batch was read
+whole (on the whole-array set a 60 s chunk is about 264 M cells). Each (chunk, ANTENNA1, ANTENNA2) cube is
+extended on its own by the kernel, so such a chunk is now split into blocks of whole baselines
+(`flag_extend._batches`, `core_chunks.baseline_blocks`): exact, so no refusal is needed (the smallest block is one
+baseline of one 60 s chunk). New unit test: blocks of 5 rows give the flags and summary of whole chunks.
+
+**Check, run -06** (`/mnt/d/rang/outputs/w3b-20261107-06-merge`), case E: poldx (as P) with `refant: auto` and
+`calibrate.polcal.extendflags: true`; U is main `0f5ef06` unchunked (a detached checkout with its own extension,
+`~/Worktrees/rang/w3b-oracle-0f5ef06`), D and T (7 rows: the extend step in blocks of baselines) the merged
+branch. Both resolve the refants to m008, m024, m032; the extend step flags 6 chunks, 286,048 to 423,312 cells.
+Result: **D and T bit-identical to U** (every table file, every column and flag version after calibrate and apply,
+summaries; verdict `run-06/verdict.json`, in the archive as `merge_check`). Peaks 0.31-0.32 GiB calibrate (T
+0.25), 0.54 GiB apply (T 0.16); E-T calibrate 31 min 42 s, apply 10 min 41 s.
+
+check-all on the merge: fails only `test_every_note_is_in_the_research_index` (1040 passed, 68 skipped).
+
 ## 6. Limits and what was not checked
 
 - As section 4: no whole-array MS of hours, no apply, A, F or polarisation term on W, no Windows or macOS, no
@@ -332,7 +365,7 @@ apply 9 min 50 s; the others 0.8-1.3 min per stage; 45 min in all.
   `tests/test_w3_chunking.py` (the chain-refusal test now tests the new rule). **Merged with main `0f5ef06`**
   (E0, G3; section 5.5).
 - **On disk:** `/mnt/d/rang/outputs/w3b-20261106-02-probe` (9 MB), `-04` (30 MB) and `-05` (5 MB) with `.code`
-  snapshots and logs, `-01-angles` (angle measurements and the library-check log); the MS copies were removed after
-  the verdicts. `~/Worktrees/rang/w3b-oracle-ba65792` and `w3b-oracle-0f5ef06` are detached oracle checkouts
-  with their own extensions: remove with `git -C ~/Github/rang worktree remove --force <path>` once this is merged.
-  W3's `w3.ms` (8.0 GB) is unchanged.
+  snapshots and logs, `/mnt/d/rang/outputs/w3b-20261107-06-merge`, `-01-angles` (angle measurements and the
+  library-check log), check-all logs; the MS copies were removed after the verdicts. The oracle checkouts
+  (`~/Worktrees/rang/w3b-oracle-ba65792`, `w3b-oracle-0f5ef06`) were removed at hand-back; rebuild them with
+  `git worktree add --detach` and `maturin build` to rerun U. W3's `w3.ms` (8.0 GB) is unchanged.

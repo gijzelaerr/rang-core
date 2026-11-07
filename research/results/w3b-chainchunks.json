@@ -328,6 +328,62 @@
  "runs": {
   "frozen": "/mnt/d/rang/outputs/w3b-20261106-04",
   "held_out": "/mnt/d/rang/outputs/w3b-20261106-05",
-  "probe": "/mnt/d/rang/outputs/w3b-20261106-02-probe"
+  "probe": "/mnt/d/rang/outputs/w3b-20261106-02-probe",
+  "merge_check": "/mnt/d/rang/outputs/w3b-20261107-06-merge"
+ },
+ "merge_check": {
+  "E": {
+   "reference": "U",
+   "checks": {
+    "D vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "T vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    }
+   },
+   "memory": {
+    "U": {
+     "limit_gb": 28.0,
+     "peak_gb": {
+      "calibrate": 0.3123741149902344,
+      "apply": 0.5387191772460938
+     },
+     "within": true
+    },
+    "D": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.3149681091308594,
+      "apply": 0.5410118103027344
+     },
+     "within": true
+    },
+    "T": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.2514533996582031,
+      "apply": 0.16109085083007812
+     },
+     "within": true
+    }
+   }
+  }
  }
 }
