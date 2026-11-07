@@ -287,7 +287,9 @@ this run), arms U, D, T, M (M 0.710 GiB), same code as -04, started after W's D 
 Verdict `run-05/verdict.json` (in the archive as `held_out`): D, T and M against U **pass**: every table file
 byte-identical, every column and flag version equal after calibrate and after apply, summaries equal. Peaks:
 calibrate 0.31 / 0.30 / 0.25 / 0.21 GiB, apply 0.54 / 0.54 / 0.16 / 0.24 GiB. Walls: H-T calibrate 28 min 18 s,
-apply 9 min 50 s; the others 0.8-1.3 min per stage; 45 min in all.
+apply 9 min 50 s; the others 0.8-1.3 min per stage; 45 min in all. Command:
+`for arm in U D T M; do W3B_ORACLE=~/Worktrees/rang/w3b-oracle-ba65792 bash tools/oracles/w3b/run.sh RUN H $arm;
+done; .venv/bin/python tools/oracles/w3b/compare.py verdict RUN RUN/verdict.json` (RUN the directory above).
 
 **Every frozen criterion (1 to 6) passes.**
 
@@ -312,7 +314,9 @@ baseline of one 60 s chunk). New unit test: blocks of 5 rows give the flags and 
 branch. Both resolve the refants to m008, m024, m032; the extend step flags 6 chunks, 286,048 to 423,312 cells.
 Result: **D and T bit-identical to U** (every table file, every column and flag version after calibrate and apply,
 summaries; verdict `run-06/verdict.json`, in the archive as `merge_check`). Peaks 0.31-0.32 GiB calibrate (T
-0.25), 0.54 GiB apply (T 0.16); E-T calibrate 31 min 42 s, apply 10 min 41 s.
+0.25), 0.54 GiB apply (T 0.16); E-T calibrate 31 min 42 s, apply 10 min 41 s. Command: `for arm in U D T; do
+W3B_ORACLE=~/Worktrees/rang/w3b-oracle-0f5ef06 bash tools/oracles/w3b/run.sh RUN E $arm; done`, then
+`compare.py verdict` as in 5.4, at the merge commit's working tree (`.code` snapshot).
 
 check-all on the merge: fails only `test_every_note_is_in_the_research_index` (1040 passed, 68 skipped).
 
@@ -343,8 +347,11 @@ check-all on the merge: fails only `test_every_note_is_in_the_research_index` (1
   prefer them private. Provisional: public, as `core.solve_complex(trace=...)` is.
 - **The A step's summary** gains a `chunking` record when it runs under a budget (`rang-core calibrate` always),
   and its `flag_sha256` is now taken from FLAG re-read after the write (the same bytes). Provisional.
-- **The heavy lock** was taken per arm for W only; O, C and P arms (under 0.6 GiB) ran without it after the first
-  arm waited about two hours behind other tasks (no timing is claimed).
+- **The heavy lock (a deviation from the working rules, reported):** after the first arm of -04 waited about two
+  hours behind other tasks, only the W arms, the probe and the extension builds took `~/.rang-heavy.lock`. The
+  O, C and P arms of -04, all arms of the held-out -05 and of the merge check -06 (each with a T arm of 40-45
+  min, under 0.6 GiB) ran without it, and both check-alls took only check-all's own lock
+  (`tools/check-all.sh`), not the heavy lock. No timing is claimed, so no result depends on it.
 
 ## For the coordinator
 
@@ -367,5 +374,5 @@ check-all on the merge: fails only `test_every_note_is_in_the_research_index` (1
 - **On disk:** `/mnt/d/rang/outputs/w3b-20261106-02-probe` (9 MB), `-04` (30 MB) and `-05` (5 MB) with `.code`
   snapshots and logs, `/mnt/d/rang/outputs/w3b-20261107-06-merge`, `-01-angles` (angle measurements and the
   library-check log), check-all logs; the MS copies were removed after the verdicts. The oracle checkouts
-  (`~/Worktrees/rang/w3b-oracle-ba65792`, `w3b-oracle-0f5ef06`) were removed at hand-back; rebuild them with
+  (`~/Worktrees/rang/w3b-oracle-ba65792`, `w3b-oracle-0f5ef06`) were removed at hand-back (their builds deleted first, `git worktree remove` without force); rebuild them with
   `git worktree add --detach` and `maturin build` to rerun U. W3's `w3.ms` (8.0 GB) is unchanged.

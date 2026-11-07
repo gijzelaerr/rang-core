@@ -21,7 +21,8 @@ the release notes are the section of this file for that version.
   that does not fit, naming the GiB. The library functions take a `budget` (default: one chunk, as
   before). P's angles come from a table per unique time and antenna (`rang.cal_pol.angle_table`,
   `table_angles`), so `applycal(parang=True)` and the polarisation solves hold no per-row angle array.
-  New module `rang.cal_chunks`.
+  New module `rang.cal_chunks`. The `extendflags` step (`rang.flag_extend.extend_ms`) splits a 60 s chunk
+  larger than its batch into blocks of whole baselines, with the same flags.
 - New: `refant: auto` and `calibrate.polcal.extendflags: true` run in `rang-core calibrate`
   (`research/e0-refant-extend.md`). `auto` is CARACal's `get_refant` (`rang.cal_refant`): the
   first three antennas **by name** within `calibrate.refant_maxdist` (1000 m) of the array centre

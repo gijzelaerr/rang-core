@@ -1711,3 +1711,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-07 | W3b run -05 held-out H, four arms | polholdout copies | 45 min in all; T 28:18 / 9:50 | 0.31 / 0.54 GiB at most | no lock (light arms) |
 | 2026-11-07 | W3b oracle extension of main 0f5ef06 | detached checkout | about 2 min | – | heavy lock |
 | 2026-11-07 | W3b check-all, merge with 0f5ef06 | worktree | 11:52 | 1.78 GiB | FAIL only on the research-index test; 1040 passed, 68 skipped |
+| 2026-11-07 | W3b merge check -06, case E (poldx, refant auto, extendflags) U / D / T | poldx copies | calibrate 1:08 / 0:56 / 31:42; apply 1:03 / 0:58 / 10:41 | 0.31 / 0.32 / 0.25 GiB; apply 0.54 / 0.54 / 0.16 GiB | no lock; U main 0f5ef06 |
