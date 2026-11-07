@@ -6,7 +6,13 @@ imaging, as WSClean does unless it is run with `-no-update-model-required`, and 
 W1's `WriteBack` ([w1-writeback.md](w1-writeback.md)), for self-calibration (C5). Branch `fp-g6-predict`
 from main `d97b3f5`.
 
-Status: **protocol frozen (this commit), nothing compared yet.**
+Status, 2026-11-07: **implemented and measured; every criterion met on every case run.** The protocol
+was committed (`4398adc`) before the first comparison, and the freeze (`1f4aa76`, binary `b9a7dd9d`) was
+recorded before any held-out case ran. gemclean `-predict` agrees with WSClean 3.7 `-predict` of the same
+model images to a relative L2 of 0.7-4.2e-7 (bound 1e-5). Both agree with the exact Fourier sum to
+2-4e-7. They change the same rows and channels, with XX = YY and zero cross hands. The after-clean column
+equals gemclean's own `-predict` bit for bit, and the images are unchanged. `rang-core image` writes the
+binary's bits through WriteBack. No novelty claim. Results in section 6; open owner decisions in section 5.
 
 ## 1. What WSClean 3.7 does
 
@@ -139,3 +145,110 @@ heavy lock with `gemclean-dev1`; they stay development runs.
    and keeps the rest.
 3. **No reset.** An existing model column with an undefined row 0 or another shape is refused, where
    WSClean resets it to zero.
+4. **`image.write_model` stays false by default** in `rang-core` (W2's key, unchanged default), so a
+   plain `rang-core image` still leaves the MS unwritten. Setting it to true matches WSClean. Self-cal
+   (C5) sets it. Open: whether the default should follow WSClean.
+5. **A column name other than MODEL_DATA.** WriteBack copies DATA's column keywords (`UNIT`) onto it.
+   The binary does not, so the two paths differ in that one keyword. They are equal for MODEL_DATA.
+
+## 6. Results (measured)
+
+Runs: development `/mnt/d/rang/outputs/g6-20261106-01-dev` (binary `gemclean-dev1`, release profile, the
+freeze's source but for one line of `read_model` before a clippy fix that changes no value). Held out:
+`/mnt/d/rang/outputs/g6-20261106-02-held` (the frozen binary `b9a7dd9d`, scripts as frozen in its
+`tools/g6`). Pre-freeze WSClean probe: `/mnt/d/rang/outputs/g6-20261106-00-probe`. Each run directory has
+`.code/` (commit, diff, binary hash), per-case `*-compare.json` (python-casacore), `*-dft.json`,
+`*-rang-hash.json`, `*-summary.json`, GNU `time -v` files, logs and `*-load.txt`. The MS copies were
+deleted after scoring.
+
+**Harness fix (labelled; no criterion changed).** WSClean `-predict` with `-channels-out` writes
+temporary files beside the model images (`g-model-0000-tmp.fits`). The stored G3 model directories are
+mounted read-only, so WSClean failed on D1's first attempt. `case_predict.sh` now copies the model images
+into the run directory, and both imagers read the copies. D1 and every later case ran after this fix. The
+held-out copy of the scripts got the same three lines before any held-out case reached WSClean. A second
+harness slip, D1r's model directory named as the case's own, was rerun from scratch.
+
+| Case | Model | Rows (selected = gemclean = WSClean) | rel L2 vs WSClean | max \|Δ\| / max \|V_W\| | Exact sky, G / W | Read-back, others unchanged | gemclean peak GB |
+| --- | --- | ---: | ---: | ---: | --- | --- | ---: |
+| A (dev) | WSClean, 512² | 6,720 of 12,480 | 3.5e-7 | 4.9e-7 | 2.7e-7 / 2.6e-7 | yes, yes | – |
+| S1 (dev) | gemclean `c34` | 1,814,400 | 3.9e-7 | 5.0e-7 | 3.2e-7 / 2.1e-7 | yes, yes | 2.20 |
+| S1w (dev) | WSClean `nominres` | 1,814,400 | 3.9e-7 | 4.9e-7 | yes (≤ 1e-5) | yes, yes | 2.20 |
+| D1 (dev) | 8 channels | 907,200 | 6.9e-8 | 1.6e-7 | – | yes, yes | 1.47 |
+| D1r (dev) | `-channel-range 2 14 -channels-out 3` | 907,200; 12 of 16 channels in both | 7.0e-8 | 1.7e-7 | – | yes, yes | 1.34 |
+| S1c (dev) | after a clean | 1,814,400 | 3.9e-7 | 5.0e-7 | – | yes, yes | 2.99 |
+| D1c (dev) | after a joined clean, 8 channels | 907,200 | 6.9e-8 | 1.6e-7 | – | yes, yes | 7.03 |
+| S2 (held) | gemclean `c34` | 1,814,400 | 3.9e-7 | 6.0e-7 | yes | yes, yes | 2.20 |
+| S3 (held) | gemclean `c34` | 1,814,400 | 3.8e-7 | 7.1e-7 | yes | yes, yes | 2.20 |
+| H1 (held) | gemclean `c34` | 1,814,400 | 4.2e-7 | 6.8e-7 | yes | yes, yes | 2.21 |
+| H2 (held) | gemclean `c34` | 1,814,400 | 4.1e-7 | 6.6e-7 | yes | yes, yes | 2.21 |
+| H1s (held) | 8 channels (G3 `freeze/H1s-C1`) | 907,200 | 1.4e-7 | 3.5e-7 | – | yes, yes | 1.47 |
+| P (held) | the pilot at 512 channels, after a clean | 823,500 | 2.5e-7 | 6.8e-7 | – | yes, yes | **19.74** |
+
+Bounds: rel L2 ≤ 1e-5, max ≤ 1e-4, exact sky ≤ 1e-5. "Yes" in the exact-sky column means both imagers are
+within the bound (values in each `*-dft.json`); the sign convention of `predict_components` matched
+WSClean's without conjugation on every case.
+
+- **Criterion 1 (rows and cells): met on every case.** gemclean changed exactly the rows WSClean changed,
+  and the same channels (D1r: the 12 channels of the range, the other 4 left at 0 by both). On A the
+  other fields' rows kept the 7 + 7j sentinel, and the flagged rows, flagged channels and FLAG_ROW rows
+  were predicted. XX = YY bit for bit and XY = YX = 0 in every changed row.
+- **Criterion 2 (parity): met on every case**, at 1-4e-7, near float32 rounding of the stored values.
+- **Criterion 3 (exact sky): met on A, S1, S1w and the held-out S2, S3, H1, H2.** S1w reads WSClean's own
+  four-axis FITS, so the header, orientation and pixel centre are read as WSClean writes them.
+- **Criterion 4 (after a clean): met.** On S1c (1 model image) and D1c (8 model images, joined, spectral
+  fit) the after-clean column is bit-identical to gemclean `-predict` of the FITS the clean wrote. All
+  FITS files are byte-identical to the stored runs: S1c's 5 to G2 `c34` `s1-def`, D1c's 45 (8 channels and
+  MFS, 5 kinds) to G3 `dev1/D1-C1`. On the pilot (P, held out) the 5 FITS files are byte-identical to G2's `c34` `p512-def`, and the model column (4 blocks of 262,144 rows, 512 channels) is within criterion 2 of WSClean's `-predict` of the same images.
+- **Criterion 5 (the two paths): met on A.** `rang-core image` with `write_model: true` and the binary
+  with rang-core's own argv wrote MODEL_DATA with equal SHA-256. Their FITS were also identical
+  (`a2/`).
+- **Criterion 6 (read-back): met.** python-casacore 3.8.1 and rang's reader give the same SHA-256 of
+  gemclean's column on every case. The column is TiledShapeStMan `TiledModel`, complex, shape
+  `[ncorr, nchan]`, fixed (option 4), with DATA's comment (`data` on S1 and D1). Its tile is
+  `[4, nchan, rows]`, about 1 MiB. Every column gemclean did not write has its earlier SHA-256.
+- **Criterion 7 (memory): met.** The pilot's after-clean run peaked at 19.74 × 10⁹ bytes RSS (GNU `time -v`; `-memory-report` showed no swap at any phase). The peak is in the major cycles, as in G2. The model write held at most 8.44 GB of heap, after the clean's buffers were freed. WSClean's `-predict` of the same images peaked at 4.81 GB.**
+
+Reported, not gated: gemclean's after-clean column against WSClean's after-clean column was not run
+(WSClean did not clean S1 here). The probe showed on A that WSClean's after-clean column is its
+`-predict` of its own model image, bit for bit. So the gap between the two after-clean columns is the
+gap between the two imagers' model images, already reported by G1 to G3. Wall times are in the `time`
+files and [tool-timings.md](tool-timings.md); the host was shared and no timing claim is made.
+
+## 7. What was not checked
+
+- Autocorrelation rows. They are excluded by the code, as in WSClean (`MSSelection`), but no case had any.
+- Several data descriptions, fields other than the one imaged in a multi-field MS beyond case A, and
+  circular feeds (RR, LL; the code path exists).
+- `-single`, `-no-wgridding` and `-average-channels` with the model write (the code maps averaged
+  channels back to the MS's channels; no oracle exists for averaging).
+- Writing into an existing column that a shorter or variable-shape layout holds (refused by design);
+  WSClean's reset of such a column is not copied.
+- An interrupted binary write. The binary flushes per chunk but keeps no journal, unlike `WriteBack`.
+- Shifted model images (refused) and model images of another size than `-size` (refused when `-size` is
+  given; taken from the header otherwise).
+
+## For the coordinator
+
+- **research/README.md**, index line:
+  `- [G6, MODEL_DATA and a predict mode](g6-predict.md): gemclean writes MODEL_DATA after imaging and has WSClean's -predict; equal to WSClean 3.7's -predict to 1-4e-7 on S1-S3, H1, H2, joined channels and the pilot; rang-core image.write_model writes it through WriteBack.`
+- **research/STATE.md**, log, newest first:
+  `G6, 2026-11-07 (implemented and measured; [g6-predict.md](g6-predict.md)). gemclean writes the model column after imaging, as WSClean does (-update-model-required by default, -no-update-model-required, -model-column), and has -predict. One Rust predictor (gemclean::predict) serves the binary and rang-core image (image.write_model: true, through W1's WriteBack). Under a rule written first, with held-out cases after a freeze: rows, channels and cells as WSClean 3.7 writes them (selected field, cross-correlations, flags ignored, XX = YY = I); relative L2 against WSClean's -predict of the same images 0.7-4.2e-7, both within 4e-7 of the exact Fourier sum; the after-clean column equals gemclean's own -predict bit for bit, with images byte-identical to G2's and G3's runs; python-casacore reads it bit for bit. Pilot at 512 channels: after-clean column within 2.5e-7 of WSClean's -predict, images byte-identical to G2's, 19.74 GB peak RSS (24 GB budget). No novelty claim.`
+- **research/finish-plan.md**, row G6: `**Done 2026-11-07** ([g6-predict.md](g6-predict.md)).` C5 can use
+  `image.write_model: true` or `rang.core_model.write_model_data`.
+- **How `rang-core image` exposes it (proposed and implemented):** `image.write_model: true` (W2's key)
+  writes MODEL_DATA for each imaged field after gemclean, through WriteBack, honouring `data.scans` (W6).
+  gemclean always runs with `-no-update-model-required` under rang-core. A separate `rang-core predict`
+  command is not added; C5 calls `rang.core_model.write_model_data` between its rounds.
+- **Merge points** with parallel branches:
+  - `core_pipeline.py`: `gemclean_arguments`, `write_model` and `_extra_flag` (new), and `stage_image`
+    (the model write, and the `scans` and `unit` arguments added by W6).
+  - `core_config.py`: the `write_model` refusal is removed, along with the selfcal "G6" refusal and the
+    TASKS entry. E0 edits this file.
+  - `core/py/src/lib.rs`: a mod line and three registrations at the end of the module init.
+  - `docs/cli.md`: regenerated (selfcal help, write_model text).
+- **Scripts changed to pass `-no-update-model-required`:** `examples/gemclean_bench_gemclean.sh`,
+  `gemclean_compare.py`, `stale_floor_runs.py`, `gram_solver_jobs.sh` and `gridder_gram_jobs.sh`. The
+  archived scripts under `research/results/` are unchanged; rerunning them with a G6 binary writes into
+  their MSs.
+- **Owner decisions:** section 5 (default on in the binary; zero initialisation; no reset;
+  `write_model` default false in rang-core; the keyword difference).
