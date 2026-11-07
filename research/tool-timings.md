@@ -1683,3 +1683,17 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | G3 CASA 6.7.6 `mstransform` chanbin 2 | D1 | 126 s | 0.33 GB | `rang-o-casa:6.7.6.14` |
 | 2026-11-06 | G3 GeMClean identity set (7 skies × 2 forms + pilot-256) | binary `f153db8d` | as G2's | 1.9-12.0 GB | all byte-identical |
 | 2026-11-06 | G3 `tools/check-all.sh` | worktree | about 28 min | – | FAIL only on the research-index test (new note) |
+| 2026-11-06 | E0 `check_e0.py refant` -01 (CARACal `get_refant` via msutils 1.2.0, rang `cal_refant`) | slice, A1 small | 2.3 s (inside the heavy lock; about 8 min lock wait) | 117 MB | failed: msutils raises on the slice's FIELD row without data |
+| 2026-11-06 | E0 `check_e0.py refant` -02 (post-hoc antenna-part reference added) | slice, A1 small | 8.1 s | 129 MB | – |
+| 2026-11-06 | E0 `check_e0.py extend` -03 (CASA 6.7.6.14 `flagdata` extend, rang `flag_extend`) | X1 slice, X2 A1 small | 63.8 s; rang's extension 0.9 s and 12.1 s | 148 MB | FLAG bit-identical |
+| 2026-11-06 | E0 `check_e0.py refant` -04 (held out) | A1 full (msutils reads all FLAG), two A1 small copies | 248.9 s | 2.0 GB | – |
+| 2026-11-06 | E0 `check_e0.py extend` -05 | X3, X4 | 44.9 s | 240 MB | failed building X4 (rows cannot be removed from A1's storage managers) |
+| 2026-11-06 | E0 `check_e0.py extend` -06 (held out) | X3 holdout128, X4 stress | 103.4 s; rang's extension 9.8 s and 9.6 s | 240 MB | FLAG bit-identical |
+| 2026-11-06 | E0 `check_e0.py extend` -07 (post hoc X6) | A1 small, XX-only mask and burst | 36.8 s | 143 MB | waited about 70 min for the heavy lock |
+| 2026-11-07 | E0 `check_e0.py refant` -08 (reserve R6) | A1 small copy | 6.0 s | 124 MB | waited about 100 min for the heavy lock |
+| 2026-11-07 | E0 `check_e0.py command` -09 | A1 small, three `rang-core calibrate` runs | 49.8 s | 202 MB | failed in the checker's table hashing |
+| 2026-11-07 | E0 `check_e0.py command` -11 | A1 small, three `rang-core calibrate` runs | 145.4 s; calibrate 45-47 s each | 203 MB | – |
+| 2026-11-07 | E0 gate 3, `rang-core config check` | e2b.yaml | 0.23 s | – | – |
+| 2026-11-06 | E0 msutils oracle venv (`msutils-venv.sh`, uv) | PyPI | about 1 min a build, four builds (dask pin found by trial) | – | dask 2024.7.1 with dask-ms 0.2.21 |
+| 2026-11-07 | E0 check-all run 1 | worktree | 682.84 s inside the heavy lock (about 2.5 h lock wait) | 1.84 GiB | Rust clippy and fmt failed on flag_extend.rs (fixed); pytest 1021 passed, 68 skipped, only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-07 | E0 check-all run 2 | worktree | 517.31 s inside the heavy lock | 1.81 GiB | only `test_every_note_is_in_the_research_index` fails; pytest 1021 passed, 68 skipped |
