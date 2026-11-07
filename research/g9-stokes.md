@@ -38,9 +38,13 @@ WSClean v3.7 with radler, aocommon and schaapcommon at the tag (`4f395b28abb5`, 
   gridding weight is its own visibility weight times that imaging weight.
 - **Header weights and MFS weights.** `WSCIMGWG` of a dirty image is its own entry's weight sum; of
   the PSF the first polarisation's. The per-channel `OutputChannelInfo::weight` is overwritten by
-  every entry imaged in the channel (`main/wsclean.cpp:417`), so model, residual and restored
-  images, and every MFS image of every polarisation (`math/imageoperations.cpp`, `MakeMFSImage`), use
-  the **last** polarisation's channel weights. radler's channel weights for joined channels are the
+  every entry imaged in the channel (`main/wsclean.cpp:417`), and model, residual and restored
+  images are written at the end of their deconvolution group: with joined polarisations they carry
+  the **last** polarisation's channel weight, otherwise their own. Every MFS image of every
+  polarisation (`math/imageoperations.cpp`, `MakeMFSImage`), made after all groups, uses the last
+  polarisation's channel weights. (The rule for unjoined polarisations was found on P1's Q1, Q4 and
+  Q5 in development, run -02, confirmed on the probe's files and fixed before the freeze; the
+  development binary had used the last polarisation's weight for them.) radler's channel weights for joined channels are the
   `image_weight` of each channel's first entry in the deconvolution group.
 - **Joined polarisations.** `main/commandline.cpp:1595`: `-join-polarizations` links every imaged
   polarisation. WSClean's help says peaks are found "in the sum of squares of the polarizations".
@@ -194,6 +198,85 @@ polarisation must have `d_rms ≤ max(1.5 X_rms, X_rms + 0.1)` and `d_max ≤ ma
 24 × 10⁹ bytes (G2's budget). No tuning, no timing claims.
 
 **Held out.** B, C, D, E and F on H1p after the freeze, reported apart.
+
+### Post-hoc amendments (2026-11-07, after the development runs on D1 and P1, before H1p is drawn)
+
+Labelled post hoc; both the frozen and the amended verdicts are reported, and the amended ones are
+tested first on held-out H1p.
+
+- **C′.** The frozen C compares each imager's own restored image, and GeMClean's fitted restoring
+  beam is narrower than WSClean's on every sky (about 10.7″ against 14.3″ on D1 and P1, the same gap
+  on main's Stokes I path; not a G9 change). Where polarised sources fill the inner field a narrower
+  beam lowers the restored rms by itself, so the rms and `max |R_p|` clauses can pass for the wrong
+  reason. C′: the same clauses on both models restored with WSClean's beam of the file, each
+  imager's own residual added (criterion E's images).
+- **D′.** The frozen D fails for **both** imagers on P1, with the same components failing in each
+  (Q1: I 5 of 33, linear 5 of 21; Q2: I 5 of 34, linear 4 of 21; Q6: linear 33 of 70): the
+  estimator's truth (the plain mean over channels) is not the imagers' effective frequency
+  weighting, and in Q6 the joined linear sum of WSClean 3.7 does not clean components whose
+  `Q + U` cancels (section 5). D′ is a parity test: a component also passes for GeMClean when its
+  error is at most WSClean's plus 0.005; at least 90 % pass and GeMClean's failures are at most
+  WSClean's plus one, as in D; the two median clauses become **paired**: the median over components
+  of GeMClean's error minus WSClean's at most 0.005, and (linear) of its |Δχ| minus WSClean's at
+  most 0.5°. (A first form of D′ kept D's unpaired medians; on P1-Q1 linear it failed by 0.0006,
+  because the median element of GeMClean's 21 errors is one component, 18, at 0.0288 against
+  WSClean's 0.0232, while the paired median is 0.0000. The paired form was adopted after seeing
+  that, also before H1p.) D′ cannot see a bias both imagers share.
+
+## 4. Freeze (recorded before the held-out sky is drawn)
+
+To be recorded: the freeze commit, the `gemclean` binary's sha256 and H1p's seeds.
+
+## 5. Development results (measured; D1 and P1, binary `dev1`)
+
+Binary `dev1` (the protocol commit `ae25a7b`, sha256 `26cb23d0…1ea0ef`); outputs
+`/mnt/d/rang/outputs/g9-20261107-02` (`runs/g`, `runs/w`, `runs.tsv`, `score-D1.*`, `score-P1.*`),
+P1 simulated there (`data/P1.ms`, 0.8 GB). Runs 2026-11-07 on a shared host, each under the heavy
+lock. Scorer [score.py](results/g9-stokes-scripts/score.py).
+
+**B (dirty images and PSFs).** Every file WSClean wrote exists under GeMClean's name. Largest
+|ΔDirty| or |ΔPSF|: 3.7e-7 of the first polarisation's peak and 6.5e-7 of the file's own (bound 1e-5),
+float32 rounding as in G3; `CRVAL3`, `CDELT3` equal, `CRVAL4` equal everywhere. `WSCIMGWG` within
+3.5e-9 on D1 (Q0-Q2) and on P1's joined runs (Q2, Q3, Q6). **Not met with `dev1` on P1-Q1, Q4,
+Q5**: the model, residual and restored images of unjoined polarisations carried the last
+polarisation's weight (21 % off for Stokes I against U on P1's varied weights; dirty images and
+PSFs were right). A development finding, fixed before the freeze (section 1); H1p tests it.
+
+**C (leakage, unpolarised sources).** Met on every run, frozen and C′. D1 Q1 (not joined): no Q, U
+or V component in either imager, restored values identical to 1e-12. D1 Q2 (joined, components at
+the I peaks): median |R_p|/I GeMClean / WSClean Q 1.12e-4 / 1.03e-4, U 2.07e-4 / 1.64e-4, V
+2.03e-4 / 2.26e-4 (bound WSClean + 1e-4); Σ|F_p| 0.86 / 0.79 mJy (Q), 0.98 / 0.94 (U), 1.16 / 1.15
+(V); rms equal within 1 %. P1 Q1-Q3 on its 9 unpolarised sources: met (C′ restored rms equal to
+3e-6 relative).
+
+**D (polarised truth).** As frozen, **not met by either imager** on P1 Q1, Q2 and Q6 (met on Q3):
+
+| run | I failed G / W | linear failed G / W | V failed G / W | median error G / W (linear) | paired median ΔI, Δlin, ΔV | D′ |
+| --- | --- | --- | --- | --- | --- | --- |
+| Q1 | 5 / 5 of 33 | 5 / 5 of 21 | 0 / 0 of 4 | 0.0288 / 0.0232 | 1e-4, 4e-6, 8e-5 | met |
+| Q2 | 5 / 5 of 34 | 4 / 4 of 21 | 0 / 0 of 4 | 0.0230 / 0.0227 | 9e-5, 1e-4, 1.1e-3 | met |
+| Q3 (8 channels) | 0 / 0 of 243 | 0 / 0 of 130 | 0 / 0 of 8 | 0.0092 / 0.0092 | −3e-5, −5e-5, −1e-4 | met |
+| Q6 (QU, 4 channels) | – | 33 / 33 of 70 | – | 0.0364 / 0.0363 | –, −8e-5, – | met |
+
+The same components fail in both imagers, with errors within 0.01 of each other. One channel (Q1,
+Q2): the truth is the plain mean over 16 channels, the images weight channels by their imaging
+weights, and α ranges over [−1.2, 0.3] and RM up to 20 rad/m². Q6: **WSClean 3.7's linear joining
+does not clean components whose Q and U cancel** ([q6_cancel.py](results/g9-stokes-scripts/q6_cancel.py)):
+the 33 failing (component, channel) pairs have a median `|Q_T + U_T| / 2P_T` of 0.12 against 0.54
+for the 37 passing, errors up to 0.67, and their polarised flux left in the residual (residual peak
+up to 0.66 P_T in both imagers). GeMClean, matching WSClean's loop, shares this.
+
+**E (cleaned images against WSClean, relative to Q0).** Met on every run. Bounds `d_rms` 0.137 (D1),
+0.128 (P1); `d_max` 231 µJy (D1), 246 µJy (P1). D1: Q1 I 0.037 / 131 µJy (Q0's own values; Q, U, V
+0), Q2 I 0.040 / 136, Q, U, V 0.023 / 6-9 µJy. P1: Q1 I 0.028 / 146, Q, U 0.009 / 12-15, V 0.001 / 3;
+Q2 I 0.029 / 94, Q, U 0.018 / 27-36, V 0.014 / 10; Q3 (MFS) I 0.047 / 70, Q, U 0.013-0.014 /
+14-19, V 0.012 / 7; Q6 (MFS) Q 0.049 / 152, U 0.036 / 94.
+
+**F (memory, peak RSS GB, GeMClean / WSClean).** Q0 2.94 / 0.77, Q1 5.06-5.69 / 0.73, Q2 5.83-6.14 /
+0.73, Q3 18.35 / 1.44, Q4 3.65 / 0.61, Q5 8.08 / 0.50, Q6 7.52 / 0.57: all under 24 GB. Q3 is E2-B's
+shape (IQUV × 8 joined channels at 2048²); its 32 entries share 16 beams (I with Q, U with V on
+P1's weights). Reading: gemclean reads the MS once per polarisation (about 160 s of a Q1 run's
+180 s on `/mnt/d`); not tuned.
 
 **Not scored.** WSClean's `-no-fast-subminor` and `-squared-channel-joining`; XY/YX; circular feeds;
 `-link-polarizations`; timing.

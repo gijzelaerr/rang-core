@@ -2144,9 +2144,9 @@ fn run_polarizations(
         }
     };
     // Header counters: dirty images their own entry's, the PSF the first
-    // polarisation's, model, residual and restored image the last
-    // polarisation's (WSClean's per-channel `OutputChannelInfo` holds the
-    // last entry imaged in the channel).
+    // polarisation's, model, residual and restored image those of the last
+    // entry imaged in the channel by the end of its deconvolution group
+    // (WSClean's per-channel `OutputChannelInfo` holds it).
     let counters = |e: usize, components: usize, majors: usize| -> Vec<Card> {
         let (count, total, vsum, _) = meta[e];
         vec![
@@ -2209,7 +2209,10 @@ fn run_polarizations(
                 &header(e, pol),
                 &[],
             )?;
-            let mut late = header(last, pol);
+            // WSClean writes these at the end of the deconvolution group: with
+            // joined polarisations after the last entry of the channel is
+            // imaged, otherwise after the entry itself.
+            let mut late = header(if args.join_pols { last } else { e }, pol);
             // The iteration counters are the entry's own.
             late.retain(|(key, _, _)| key != "WSCNITER" && key != "WSCMAJOR");
             late.extend([

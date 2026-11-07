@@ -91,6 +91,9 @@ def crit_b(g, w):
         b, hb = img(f)
         row = {"file": f.name}
         for key, tol in (("WSCIMGWG", 1e-6), ("CRVAL3", 1e-9), ("CDELT3", 1e-9)):
+            if key not in hb:  # WSClean writes no WSCIMGWG in a cleaned MFS image
+                row[f"{key}_absent_in_wsclean"] = True
+                continue
             rel = abs(float(ha[key]) - float(hb[key])) / abs(float(hb[key]))
             row[f"{key}_rel"] = rel
             ok &= rel <= tol
@@ -118,7 +121,21 @@ def crit_b(g, w):
 # -- C ----------------------------------------------------------------------------------
 
 
-def crit_c(g, w, cat, sigma_i):
+def common_beam_image(run, w, p, part):
+    """`run`'s model restored with WSClean's beam of the file plus its own residual (C')."""
+    model, _ = run.get("model", p, part)
+    res, _ = run.get("residual", p, part)
+    _, wh = w.get("residual", p, part)
+    scale = abs(float(wh["CDELT2"]))
+    kern = gaussian_kernel(
+        model.shape[0], float(wh["BMAJ"]), float(wh["BMIN"]), float(wh["BPA"]), scale
+    )
+    return restore(model, kern) + res
+
+
+def crit_c(g, w, cat, sigma_i, common=False):
+    """C as frozen (each imager's own restored image), or C' (post hoc, before the
+    held-out sky): both models restored with WSClean's beam, each own residual added."""
     part = "MFS" if g.n > 1 else ""
     size = cat["image"]["size"]
     srcs = []
@@ -132,7 +149,10 @@ def crit_c(g, w, cat, sigma_i):
     for p in [q for q in ("Q", "U", "V") if q in g.pols]:
         r = {}
         for run in (g, w):
-            image, _ = run.get("image", p, part)
+            if common:
+                image = common_beam_image(run, w, p, part)
+            else:
+                image, _ = run.get("image", p, part)
             model, _ = run.get("model", p, part)
             rv = np.array([image[nearest(c)] for c, _ in srcs])
             fv = np.array([model[aperture(c, size)].sum() for c, _ in srcs])
@@ -144,7 +164,10 @@ def crit_c(g, w, cat, sigma_i):
                 "sum_abs_model": float(np.abs(fv).sum()),
                 "rms": float(np.sqrt(np.mean(inner(image) ** 2))),
             }
-        sigma_p = mad_sigma(inner(w.get("image", p, part)[0]))
+        wimage = (
+            common_beam_image(w, w, p, part) if common else w.get("image", p, part)[0]
+        )
+        sigma_p = mad_sigma(inner(wimage))
         gp, wp = r["g"], r["w"]
         r["sigma"] = sigma_p
         r["pass"] = bool(
@@ -217,7 +240,7 @@ def crit_d(g, w, cat):
                 recs["V"].append(
                     {"src": i, "ch": k, "snr": snr, "err": e, "tol": 0.03 + 3 / snr}
                 )
-    out, ok = {}, True
+    out, ok, ok_h = {}, True, True
     for kind, rs in recs.items():
         if not rs:
             continue
@@ -244,10 +267,34 @@ def crit_d(g, w, cat):
             good &= gv["median_dchi_deg"] <= wv["median_dchi_deg"] + 0.5
         v["pass"] = bool(good)
         v["wsclean_meets_90"] = bool(wv["fraction"] >= 0.9)
+        # D' (post hoc, research/g9-stokes.md section 3, amended before the
+        # held-out sky): a component also passes for GeMClean when its error
+        # is at most WSClean's plus 0.005 (the estimator's own bias is shared).
+        failed_h = sum(
+            1
+            for r in rs
+            if r["err"]["g"] > r["tol"] and r["err"]["g"] > r["err"]["w"] + 0.005
+        )
+        frac_h = 1 - failed_h / len(rs)
+        # Paired: the median over components of GeMClean's error minus WSClean's.
+        paired = float(np.median([r["err"]["g"] - r["err"]["w"] for r in rs]))
+        good_h = frac_h >= 0.9 and failed_h <= wv["failed"] + 1 and paired <= 0.005
+        v["posthoc"] = {
+            "failed": failed_h,
+            "fraction": frac_h,
+            "paired_median_err_diff": paired,
+        }
+        if kind == "lin":
+            paired_chi = float(np.median([r["dchi"]["g"] - r["dchi"]["w"] for r in rs]))
+            v["posthoc"]["paired_median_dchi_diff_deg"] = paired_chi
+            good_h &= paired_chi <= 0.5
+        v["posthoc"]["pass"] = bool(good_h)
         ok &= good
+        ok_h &= good_h
         out[kind] = v
         out[kind + "_records"] = rs
     out["pass"] = bool(ok)
+    out["pass_posthoc"] = bool(ok_h)
     return out
 
 
@@ -304,6 +351,7 @@ def main():
         if g.cleaned and cfg != "Q0":
             if cfg in ("Q1", "Q2", "Q3"):
                 r["C"] = crit_c(g, w, cat, sigma_i)
+                r["C_posthoc"] = crit_c(g, w, cat, sigma_i, common=True)
             if (
                 cfg in ("Q1", "Q2", "Q3", "Q6")
                 and "stokes_per_channel" in cat["components"][0]
@@ -328,20 +376,26 @@ def main():
             f"{cfg}:",
             f"B {'pass' if r['B']['pass'] else 'FAIL'} {r['B']['worst']} missing {len(r['B']['missing'])}",
         ]
-        for k in ("C", "D", "E"):
+        for k in ("C", "C_posthoc", "D", "E"):
             if k in r:
                 line.append(f"{k} {'pass' if r[k]['pass'] else 'FAIL'}")
+        if "D" in r:
+            line.append(f"D_posthoc {'pass' if r['D']['pass_posthoc'] else 'FAIL'}")
         line.append(f"F {r['F']}")
         print(" | ".join(str(x) for x in line))
         if "D" in r:
             for kind in ("I", "lin", "V"):
                 if kind in r["D"]:
                     v = r["D"][kind]
-                    print(f"   D {kind}: G {v['g']}  W {v['w']}")
-        if "C" in r:
+                    print(
+                        f"   D {kind}: G {v['g']}  W {v['w']}  posthoc {v['posthoc']}"
+                    )
+        for ck in ("C", "C_posthoc"):
+            if ck not in r:
+                continue
             for p in ("Q", "U", "V"):
-                if p in r["C"]:
-                    print(f"   C {p}: {r['C'][p]}")
+                if p in r[ck]:
+                    print(f"   {ck} {p}: {r[ck][p]}")
         if "E" in r:
             print(
                 "   E "
