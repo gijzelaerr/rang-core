@@ -37,6 +37,9 @@ SOURCES = {
     "P": Path("/mnt/d/rang/outputs/c6w-20261106-01/prepared.ms"),
     "W": Path("/mnt/d/rang/outputs/w3/data/w3.ms"),
     "H": Path("/mnt/d/rang/outputs/c6w-20261106-02/prepared.ms"),
+    # The merge check with main 0f5ef06 (section 5.5): poldx with E0's refant
+    # auto and extendflags.
+    "E": Path("/mnt/d/rang/outputs/c6w-20261106-01/prepared.ms"),
 }
 TINY = 7
 
@@ -162,6 +165,13 @@ def _text(case, data_lines, ksolint="int"):
                      "strategy": STRATEGY}  # fmt: skip
     if case in ("P", "H"):
         return POL % {"data": block}
+    if case == "E":
+        text = POL % {"data": block}
+        text = text.replace("  refant: m000\n", "  refant: auto\n")
+        return text.replace(
+            "    feed_angle_rotation: -90.0\n",
+            "    feed_angle_rotation: -90.0\n    extendflags: true\n",
+        )
     if case == "W":
         return WHOLE % {"data": block, "strategy": STRATEGY, "ksolint": ksolint}
     raise SystemExit(f"unknown case {case}")
@@ -235,7 +245,7 @@ def config(case, arm, ms, out):
 def verdict(run, out):
     """W3's verdict (`tools/oracles/w3/compare.py`) over the W3b cases: every
     arm against U, or against D where there is no U (W)."""
-    w3.CASES = {c: {} for c in ("O", "C", "P", "W", "H")}
+    w3.CASES = {c: {} for c in ("O", "C", "P", "W", "H", "E")}
     return w3.verdict(run, out)
 
 

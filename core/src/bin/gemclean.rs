@@ -18,10 +18,12 @@
 use rang_core::clean_certified::{Complex, Measurement, misfit_floor};
 use rang_core::gemclean::fits::{self, Card, Value, card};
 use rang_core::gemclean::input::{self, Selection};
+use rang_core::gemclean::joined::run_joined;
 use rang_core::gemclean::json::{arr, num, obj, opt, text};
 use rang_core::gemclean::kernels::{self, Level};
 use rang_core::gemclean::measure::GridMeasurement;
 use rang_core::gemclean::memory::{self, bytes_of};
+use rang_core::gemclean::spectral::{self, PolynomialFit};
 use rang_core::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
 use rang_core::gemclean::{self, Beam, CycleStop, Settings};
 use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
@@ -89,7 +91,21 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -eager-tiles              rescan every tile a patch touches (same picks, for comparison)
   -no-restore               do not write the restored image
   -memory-report            print the heap held per phase and the main buffers' sizes
-                            (always in -report.json)";
+                            (always in -report.json)
+
+Channels (research/g3-spectral.md; WSClean's options):
+  -channels-out <n>         image n output channels, <name>-0000-<kind>.fits and the
+                            weighted MFS images <name>-MFS-<kind>.fits (default 1)
+  -join-channels            deconvolve the output channels together: peaks on the
+                            weighted sum, a component in every channel
+  -fit-spectral-pol <n>     fit an n-term polynomial in nu/nu_ref - 1 to every
+                            component's channel values (needs -join-channels)
+  -channel-range <s> <e>    image the channels s to e - 1 (ascending frequency)
+  -average-channels <n>     average n adjacent channels before imaging (rang's own:
+                            Stokes I weighted means, the weights summed)
+  -mf-weighting             one weight grid for all output channels (the default
+                            with -join-channels)
+  -no-mf-weighting          weights per output channel (the default without it)";
 
 struct Args {
     ms: PathBuf,
@@ -130,6 +146,12 @@ struct Args {
     beam_band: bool,
     lazy_bounds: bool,
     memory_report: bool,
+    channels_out: usize,
+    join_channels: bool,
+    fit_spectral_pol: Option<usize>,
+    channel_range: Option<(usize, usize)>,
+    average_channels: usize,
+    mf_weighting: Option<bool>,
 }
 
 /// An angle with WSClean's units, in radians (plain numbers are degrees).
@@ -204,6 +226,12 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         beam_band: false,
         lazy_bounds: true,
         memory_report: false,
+        channels_out: 1,
+        join_channels: false,
+        fit_spectral_pol: None,
+        channel_range: None,
+        average_channels: 1,
+        mf_weighting: None,
     };
     let mut i = 0;
     let mut positional = Vec::new();
@@ -312,6 +340,29 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-no-plan-reuse" => a.plan_reuse = false,
             "-beam-no-w" => a.beam_no_w = true,
             "-beam-band" => a.beam_band = true,
+            "-channels-out" => a.channels_out = number(flag, value(&mut i)?)?,
+            "-join-channels" => a.join_channels = true,
+            "-fit-spectral-pol" => a.fit_spectral_pol = Some(number(flag, value(&mut i)?)?),
+            "-channel-range" => {
+                let start: usize = number(flag, value(&mut i)?)?;
+                let end: usize = number(flag, value(&mut i)?)?;
+                a.channel_range = Some((start, end));
+            }
+            "-average-channels" => a.average_channels = number(flag, value(&mut i)?)?,
+            "-mf-weighting" => a.mf_weighting = Some(true),
+            "-no-mf-weighting" => a.mf_weighting = Some(false),
+            "-fit-spectral-log-pol" => {
+                return Err("-fit-spectral-log-pol is not implemented (WSClean's non-linear                     power-law fitter is not ported; research/g3-spectral.md): use -fit-spectral-pol"
+                    .into());
+            }
+            "-deconvolution-channels"
+            | "-squared-channel-joining"
+            | "-channel-division-frequencies"
+            | "-divide-channels-by-gaps" => {
+                return Err(format!(
+                    "{flag} is not implemented (research/g3-spectral.md, owner decision 4)"
+                ));
+            }
             s if s.starts_with('-') && s.len() > 1 => {
                 return Err(format!("unknown option {s}\n\n{USAGE}"));
             }
@@ -350,6 +401,30 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     }
     if a.scale.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) {
         return Err("-scale must be positive".into());
+    }
+    if a.channels_out == 0 || a.average_channels == 0 {
+        return Err("-channels-out and -average-channels must be at least 1".into());
+    }
+    if let Some(terms) = a.fit_spectral_pol {
+        if terms == 0 {
+            return Err("-fit-spectral-pol needs at least one term".into());
+        }
+        if !a.join_channels || a.channels_out < 2 {
+            return Err(
+                "-fit-spectral-pol needs -join-channels and -channels-out of 2 or more".into(),
+            );
+        }
+    }
+    if a.channels_out > 1
+        && (matches!(a.cycle_stop, CycleStop::Certified { .. })
+            || a.gram_operator.is_some()
+            || a.floor_iterations > 0
+            || a.audit)
+    {
+        return Err(
+            "-channels-out takes neither -stop-rule certified, -gram-operator,              -floor-iterations nor -audit (research/g3-spectral.md)"
+                .into(),
+        );
     }
     Ok(a)
 }
@@ -638,7 +713,24 @@ fn run() -> Result<(), String> {
         field: args.field,
         ..Selection::default()
     };
-    let data = input::read_ms(&args.ms, &selection)?;
+    let mut data = input::read_ms(&args.ms, &selection)?;
+    // Channel selection and averaging come before the weights, as WSClean's
+    // -channel-range does; without them the data are as read.
+    let spectral = args.channel_range.is_some() || args.average_channels > 1;
+    let mut widths = Vec::new();
+    if spectral || args.channels_out > 1 {
+        widths = input::channel_widths(&args.ms, &selection)?;
+        if widths.len() != data.freq.len() {
+            return Err("CHAN_WIDTH and CHAN_FREQ differ in length".into());
+        }
+    }
+    if spectral {
+        (data, widths) = select_and_average(data, widths, &args)?;
+    }
+    if args.channels_out > 1 {
+        let t_read = t.elapsed().as_secs_f64();
+        return run_channels(&args, &raw, data, &widths, &column, wall, t_read);
+    }
     let t_read = t.elapsed().as_secs_f64();
     memory::mark("read");
     memory::note("read: Stokes I visibilities", bytes_of(&data.vis));
@@ -944,6 +1036,618 @@ fn run() -> Result<(), String> {
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
         ("memory", memory_json),
+    ]);
+    std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
+    println!("wall {:.2} s", wall.elapsed().as_secs_f64());
+    Ok(())
+}
+
+/// `-channel-range` (on the channels in ascending frequency), then
+/// `-average-channels`; `widths` follow (summed when averaged).
+fn select_and_average(
+    data: input::StokesI,
+    widths: Vec<f64>,
+    args: &Args,
+) -> Result<(input::StokesI, Vec<f64>), String> {
+    let keep = spectral::channel_groups(&data.freq, args.channel_range, 1)?.remove(0);
+    let widths: Vec<f64> = keep.iter().map(|&k| widths[k]).collect();
+    let data = spectral::select_channels(data, &keep);
+    let a = args.average_channels;
+    let widths = widths.chunks(a).map(|c| c.iter().sum()).collect();
+    Ok((spectral::average_channels(data, a), widths))
+}
+
+/// One output channel: its data, weights and header counters.
+struct ChannelData {
+    /// Input channels (indices into the read channels, ascending frequency).
+    channels: Vec<usize>,
+    freq: Vec<f64>,
+    low: f64,
+    high: f64,
+    uvw: Vec<f64>,
+    vis: Vec<Complex<f32>>,
+    wgt: Vec<f64>,
+    rows: usize,
+    /// `WSCNVIS`, `WSCIMGWG`, `WSCVWSUM`.
+    count: u64,
+    total: f64,
+    visibility_weight_sum: f64,
+}
+
+impl ChannelData {
+    fn central(&self) -> f64 {
+        0.5 * (self.low + self.high)
+    }
+}
+
+/// Split `data` into the output channels, with MF weights (one weight grid
+/// for all) or weights per output channel, and keep in each the rows with
+/// weight there.
+fn split_channels(
+    data: input::StokesI,
+    widths: &[f64],
+    args: &Args,
+    mf: bool,
+) -> Result<Vec<ChannelData>, String> {
+    let groups = spectral::channel_groups(&data.freq, None, args.channels_out)?;
+    let nchan = data.freq.len();
+    let rows = data.rows();
+    let full = if mf {
+        Some(input::gridding_weights(
+            &data,
+            args.weight,
+            args.size,
+            args.scale,
+        )?)
+    } else {
+        None
+    };
+    let mut out = Vec::with_capacity(groups.len());
+    for (k, group) in groups.into_iter().enumerate() {
+        let freq: Vec<f64> = group.iter().map(|&c| data.freq[c]).collect();
+        let low = group
+            .iter()
+            .map(|&c| data.freq[c] - 0.5 * widths[c])
+            .fold(f64::INFINITY, f64::min);
+        let high = group
+            .iter()
+            .map(|&c| data.freq[c] + 0.5 * widths[c])
+            .fold(f64::NEG_INFINITY, f64::max);
+        let m = group.len();
+        let mut vis = Vec::with_capacity(rows * m);
+        let mut weight = Vec::with_capacity(rows * m);
+        for row in 0..rows {
+            for &c in &group {
+                vis.push(data.vis[row * nchan + c]);
+                weight.push(data.weight[row * nchan + c]);
+            }
+        }
+        let mut wgt = match &full {
+            Some(w) => {
+                let mut g = Vec::with_capacity(rows * m);
+                for row in 0..rows {
+                    for &c in &group {
+                        g.push(w.weights[row * nchan + c]);
+                    }
+                }
+                g
+            }
+            None => {
+                let sub = input::StokesI {
+                    uvw: data.uvw.clone(),
+                    freq: freq.clone(),
+                    vis: Vec::new(),
+                    weight: weight.clone(),
+                    flag_row: data.flag_row.clone(),
+                    phase_dir: data.phase_dir,
+                    rows_total: data.rows_total,
+                    correlations: data.correlations.clone(),
+                    weight_spectrum: data.weight_spectrum,
+                };
+                input::gridding_weights(&sub, args.weight, args.size, args.scale)?.weights
+            }
+        };
+        // WSClean's counters over this channel's visibilities (flagged rows
+        // carry zero gridding weight).
+        let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);
+        for (g, w) in wgt.iter().zip(&weight) {
+            if *g != 0.0 {
+                count += 1;
+                total += g;
+                vsum += f64::from(*w);
+            }
+        }
+        if total <= 0.0 {
+            return Err(format!("output channel {k} has no weighted visibilities"));
+        }
+        drop(weight);
+        let mut uvw = data.uvw.clone();
+        let mut kept_rows = 0;
+        for row in 0..rows {
+            let (a, b) = (row * m, (row + 1) * m);
+            if wgt[a..b].iter().any(|&x| x != 0.0) {
+                if kept_rows != row {
+                    uvw.copy_within(3 * row..3 * row + 3, 3 * kept_rows);
+                    vis.copy_within(a..b, kept_rows * m);
+                    wgt.copy_within(a..b, kept_rows * m);
+                }
+                kept_rows += 1;
+            }
+        }
+        uvw.truncate(3 * kept_rows);
+        vis.truncate(kept_rows * m);
+        wgt.truncate(kept_rows * m);
+        uvw.shrink_to_fit();
+        vis.shrink_to_fit();
+        wgt.shrink_to_fit();
+        out.push(ChannelData {
+            channels: group,
+            freq,
+            low,
+            high,
+            uvw,
+            vis,
+            wgt,
+            rows: kept_rows,
+            count,
+            total,
+            visibility_weight_sum: vsum,
+        });
+    }
+    Ok(out)
+}
+
+/// The deconvolved output channels.
+struct ChannelImages {
+    psf: Vec<Vec<f64>>,
+    restoring: Vec<gemclean::RestoringBeam>,
+    beam_peak: Vec<f64>,
+    beam_f: Vec<f64>,
+    dirty: Vec<Vec<f64>>,
+    model: Vec<Vec<f64>>,
+    residual: Vec<Vec<f64>>,
+    /// The joined run (integrated), or one run per channel.
+    joined: Option<gemclean::Outcome>,
+    separate: Vec<gemclean::Outcome>,
+    reference_frequency: Option<f64>,
+    t_psf: f64,
+}
+
+fn deconvolve_channels<T: Real + Send + Sync>(
+    args: &Args,
+    chans: Vec<ChannelData>,
+    weights: &[f64],
+    central: &[f64],
+    opts: Options,
+) -> Result<ChannelImages, String> {
+    let n = args.size;
+    let t = Instant::now();
+    let mut measurements: Vec<GridMeasurement<T>> = Vec::with_capacity(chans.len());
+    let mut beams = Vec::with_capacity(chans.len());
+    let mut restoring = Vec::with_capacity(chans.len());
+    let mut psfs = Vec::with_capacity(chans.len());
+    for c in chans {
+        let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
+            c.uvw,
+            c.freq,
+            c.vis,
+            c.wgt,
+            n,
+            args.scale,
+            args.epsilon,
+            opts,
+        )?;
+        let psf2n = m.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?;
+        let m = if args.plan_reuse {
+            m.prepare()?
+        } else {
+            m.without_plan_reuse()
+        }
+        .releasing_grids();
+        let columns = if args.beam_band {
+            m.band_columns(2 * n)
+        } else {
+            n + 1
+        };
+        beams.push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
+        restoring.push(gemclean::fit_restoring_beam(n, &psf2n));
+        let mut psf = vec![0.0; n * n];
+        for i in 0..n {
+            for j in 0..n {
+                psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
+            }
+        }
+        psfs.push(psf);
+        measurements.push(m);
+        memory::mark(&format!("channel {}: psf and beam", measurements.len() - 1));
+    }
+    let t_psf = t.elapsed().as_secs_f64();
+    let settings = Settings {
+        gain: args.gain,
+        cycle_stop: args.cycle_stop,
+        major_fraction: args.mgain_misfit,
+        threshold: args.threshold,
+        auto_threshold: args.auto_threshold,
+        max_components: args.niter,
+        max_major: args.nmiter,
+        theta: args.theta,
+        drift: args.drift,
+        tau_min: args.tau_min,
+        resync_every: args.resync_every,
+        audit: args.audit,
+        level: args.simd.map(|l| l.min(kernels::level())),
+        tile: args.tile,
+        lazy_bounds: args.lazy_bounds,
+    };
+    let beam_peak = beams.iter().map(|b| b.peak).collect();
+    let beam_f = beams.iter().map(|b| b.f).collect();
+    if args.join_channels {
+        let pairs: Vec<(&GridMeasurement<T>, &Beam)> = measurements.iter().zip(&beams).collect();
+        let fit = args
+            .fit_spectral_pol
+            .map(|terms| PolynomialFit::new(terms, central.to_vec(), weights.to_vec()));
+        let j = run_joined(&pairs, weights, fit.as_ref(), &settings)?;
+        memory::mark("clean: end");
+        Ok(ChannelImages {
+            psf: psfs,
+            restoring,
+            beam_peak,
+            beam_f,
+            dirty: j.dirty,
+            model: j.model,
+            residual: j.residual,
+            joined: Some(j.integrated),
+            separate: Vec::new(),
+            reference_frequency: fit.map(|f| f.reference),
+            t_psf,
+        })
+    } else {
+        let mut separate = Vec::with_capacity(measurements.len());
+        for (m, b) in measurements.iter().zip(&beams) {
+            separate.push(gemclean::run(m, b, &settings, None)?);
+            memory::mark(&format!("channel {}: clean", separate.len() - 1));
+        }
+        Ok(ChannelImages {
+            psf: psfs,
+            restoring,
+            beam_peak,
+            beam_f,
+            dirty: separate.iter().map(|o| o.dirty.clone()).collect(),
+            model: separate.iter().map(|o| o.model.clone()).collect(),
+            residual: separate.iter().map(|o| o.residual.clone()).collect(),
+            joined: None,
+            separate,
+            reference_frequency: None,
+            t_psf,
+        })
+    }
+}
+
+/// The weighted mean of `images` with `weights` (WSClean's `MakeMFSImage`).
+fn weighted_mean(images: &[Vec<f64>], weights: &[f64]) -> Vec<f64> {
+    let sum: f64 = weights.iter().sum();
+    let mut out = vec![0.0; images[0].len()];
+    for (img, &w) in images.iter().zip(weights) {
+        for (o, v) in out.iter_mut().zip(img) {
+            *o += v * w;
+        }
+    }
+    for o in &mut out {
+        *o /= sum;
+    }
+    out
+}
+
+/// An `n × n` PSF placed at the centre of a zero `2n × 2n` grid, for the
+/// restoring-beam fit (whose main lobe lies well inside the crop).
+fn embed_double(n: usize, psf: &[f64]) -> Vec<f64> {
+    let mut out = vec![0.0; 4 * n * n];
+    for i in 0..n {
+        for j in 0..n {
+            out[(i + n / 2) * 2 * n + j + n / 2] = psf[i * n + j];
+        }
+    }
+    out
+}
+
+fn beam_cards(r: &gemclean::RestoringBeam, scale_deg: f64) -> Vec<Card> {
+    vec![
+        card(
+            "BMAJ",
+            Value::Float(r.major * scale_deg),
+            "fitted restoring beam (deg)",
+        ),
+        card("BMIN", Value::Float(r.minor * scale_deg), ""),
+        card("BPA", Value::Float(r.pa.to_degrees()), ""),
+    ]
+}
+
+#[allow(clippy::too_many_arguments)]
+fn write_set(
+    prefix: &str,
+    n: usize,
+    bitpix: i32,
+    base: &[Card],
+    images: [&[f64]; 4],
+    restoring: &gemclean::RestoringBeam,
+    restore: bool,
+) -> Result<(), String> {
+    let path = |kind: &str| PathBuf::from(format!("{prefix}-{kind}.fits"));
+    let [dirty, psf, model, residual] = images;
+    write_image(&path("dirty"), n, dirty, bitpix, base, &[])?;
+    write_image(&path("psf"), n, psf, bitpix, base, &[])?;
+    let mut model_cards: Vec<Card> = base
+        .iter()
+        .filter(|(k, _, _)| k != "BUNIT")
+        .cloned()
+        .collect();
+    model_cards.push(card("BUNIT", Value::Str("JY/PIXEL".into()), ""));
+    write_image(&path("model"), n, model, bitpix, &model_cards, &[])?;
+    write_image(&path("residual"), n, residual, bitpix, base, &[])?;
+    if restore {
+        let image = gemclean::restore(n, model, residual, restoring);
+        write_image(&path("image"), n, &image, bitpix, base, &[])?;
+    }
+    Ok(())
+}
+
+/// An output channel's input channels, band edges, `WSCNVIS`, `WSCIMGWG`,
+/// `WSCVWSUM` and rows gridded.
+type ChannelMeta = (Vec<usize>, f64, f64, u64, f64, f64, usize);
+
+/// More than one output channel: split, deconvolve (joined or one by one),
+/// write each channel and the MFS images, as WSClean names them.
+fn run_channels(
+    args: &Args,
+    raw: &[String],
+    data: input::StokesI,
+    widths: &[f64],
+    column: &str,
+    wall: Instant,
+    t_read: f64,
+) -> Result<(), String> {
+    let n = args.size;
+    let mf = args.mf_weighting.unwrap_or(args.join_channels);
+    let phase_dir = data.phase_dir;
+    let rows_read = data.rows();
+    let nchan_read = data.freq.len();
+    memory::mark("read");
+    let t = Instant::now();
+    let chans = split_channels(data, widths, args, mf)?;
+    let t_weights = t.elapsed().as_secs_f64();
+    memory::mark("weights");
+    let weights: Vec<f64> = chans.iter().map(|c| c.total).collect();
+    let central: Vec<f64> = chans.iter().map(ChannelData::central).collect();
+    let meta: Vec<ChannelMeta> = chans
+        .iter()
+        .map(|c| {
+            (
+                c.channels.clone(),
+                c.low,
+                c.high,
+                c.count,
+                c.total,
+                c.visibility_weight_sum,
+                c.rows,
+            )
+        })
+        .collect();
+    println!(
+        "{}: {} rows ({column}, field {}), {} channels into {} output channels, {} weighting{}, {:.2} s read, {:.2} s weights",
+        args.ms.display(),
+        rows_read,
+        args.field,
+        nchan_read,
+        chans.len(),
+        if mf { "MF" } else { "per-channel" },
+        if args.join_channels { ", joined" } else { "" },
+        t_read,
+        t_weights
+    );
+    let opts = Options {
+        flip_v: true,
+        flip_w: true,
+        do_wgridding: args.wgridding,
+        ..Options::default()
+    };
+    let out = if args.single {
+        deconvolve_channels::<f32>(args, chans, &weights, &central, opts)?
+    } else {
+        deconvolve_channels::<f64>(args, chans, &weights, &central, opts)?
+    };
+    let scale_deg = args.scale.to_degrees();
+    let prefix = &args.name;
+    let t = Instant::now();
+    let components: Vec<usize> = match &out.joined {
+        Some(j) => vec![j.steps.len(); meta.len()],
+        None => out.separate.iter().map(|o| o.steps.len()).collect(),
+    };
+    let majors: Vec<usize> = match &out.joined {
+        Some(j) => vec![j.cycles.len(); meta.len()],
+        None => out.separate.iter().map(|o| o.cycles.len()).collect(),
+    };
+    for (k, (_, low, high, count, total, vsum, _)) in meta.iter().enumerate() {
+        let mut base = fits::wcs_cards_band(phase_dir.0, phase_dir.1, n, args.scale, *low, *high);
+        base.extend(beam_cards(&out.restoring[k], scale_deg));
+        base.extend([
+            card(
+                "WSCNVIS",
+                Value::Float(*count as f64),
+                "visibilities with nonzero weight",
+            ),
+            card(
+                "WSCIMGWG",
+                Value::Float(*total),
+                "sum of the gridding weights",
+            ),
+            card("WSCVWSUM", Value::Float(*vsum), ""),
+            card("WSCNITER", Value::Float(components[k] as f64), "components"),
+            card("WSCMAJOR", Value::Float(majors[k] as f64), "major cycles"),
+            card("ORIGIN", Value::Str("gemclean (rang-core)".into()), ""),
+        ]);
+        write_set(
+            &format!("{prefix}-{k:04}"),
+            n,
+            args.bitpix,
+            &base,
+            [&out.dirty[k], &out.psf[k], &out.model[k], &out.residual[k]],
+            &out.restoring[k],
+            args.restore,
+        )?;
+    }
+    // MFS: weighted means; the restoring beam fitted on the MFS PSF.
+    let psf_mfs = weighted_mean(&out.psf, &weights);
+    let restoring_mfs = gemclean::fit_restoring_beam(n, &embed_double(n, &psf_mfs));
+    let low = meta.iter().map(|m| m.1).fold(f64::INFINITY, f64::min);
+    let high = meta.iter().map(|m| m.2).fold(f64::NEG_INFINITY, f64::max);
+    let mut base = fits::wcs_cards_band(phase_dir.0, phase_dir.1, n, args.scale, low, high);
+    base.extend(beam_cards(&restoring_mfs, scale_deg));
+    base.extend([
+        card(
+            "WSCNVIS",
+            Value::Float(meta.iter().map(|m| m.3).sum::<u64>() as f64),
+            "visibilities with nonzero weight",
+        ),
+        card(
+            "WSCIMGWG",
+            Value::Float(weights.iter().sum()),
+            "sum of the gridding weights",
+        ),
+        card("WSCVWSUM", Value::Float(meta.iter().map(|m| m.5).sum()), ""),
+        card(
+            "WSCNITER",
+            Value::Float(components.iter().sum::<usize>() as f64),
+            "components",
+        ),
+        card(
+            "WSCMAJOR",
+            Value::Float(majors.iter().copied().max().unwrap_or(0) as f64),
+            "major cycles",
+        ),
+        card("ORIGIN", Value::Str("gemclean (rang-core)".into()), ""),
+    ]);
+    let dirty_mfs = weighted_mean(&out.dirty, &weights);
+    let model_mfs = weighted_mean(&out.model, &weights);
+    let residual_mfs = weighted_mean(&out.residual, &weights);
+    write_set(
+        &format!("{prefix}-MFS"),
+        n,
+        args.bitpix,
+        &base,
+        [&dirty_mfs, &psf_mfs, &model_mfs, &residual_mfs],
+        &restoring_mfs,
+        args.restore,
+    )?;
+    let t_write = t.elapsed().as_secs_f64();
+    memory::mark("write");
+    let beam_json = |r: &gemclean::RestoringBeam| {
+        obj(&[
+            ("bmaj_deg", num(r.major * scale_deg)),
+            ("bmin_deg", num(r.minor * scale_deg)),
+            ("bpa_deg", num(r.pa.to_degrees())),
+            ("main_lobe_pixels", r.pixels.to_string()),
+        ])
+    };
+    let channels_json: Vec<String> = meta
+        .iter()
+        .enumerate()
+        .map(|(k, (input, low, high, count, total, _, rows))| {
+            obj(&[
+                ("index", k.to_string()),
+                (
+                    "input_channels",
+                    arr(&input.iter().map(|c| c.to_string()).collect::<Vec<_>>()),
+                ),
+                ("band_low_hz", num(*low)),
+                ("band_high_hz", num(*high)),
+                ("central_hz", num(central[k])),
+                ("weight_sum", num(*total)),
+                ("visibilities_weighted", count.to_string()),
+                ("rows_gridded", rows.to_string()),
+                ("beam_peak", num(out.beam_peak[k])),
+                ("f_outside_patch", num(out.beam_f[k])),
+                ("restoring_beam", beam_json(&out.restoring[k])),
+                (
+                    "run",
+                    out.separate
+                        .get(k)
+                        .map_or("null".into(), |o| o.to_json(None)),
+                ),
+            ])
+        })
+        .collect();
+    if let Some(j) = &out.joined {
+        println!(
+            "joined: {} components, {} major cycles, {} resyncs, stop {:?}; Q/Q0 {:.4e}",
+            j.steps.len(),
+            j.cycles.len(),
+            j.resyncs.total(),
+            j.stop,
+            j.q_final / j.q0
+        );
+    } else {
+        for (k, o) in out.separate.iter().enumerate() {
+            println!(
+                "channel {k}: {} components, {} major cycles, stop {:?}; Q/Q0 {:.4e}",
+                o.steps.len(),
+                o.cycles.len(),
+                o.stop,
+                o.q_final / o.q0
+            );
+        }
+    }
+    let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
+    let report = obj(&[
+        ("tool", text("gemclean")),
+        ("version", text(env!("CARGO_PKG_VERSION"))),
+        ("argv", arr(&argv)),
+        ("ms", text(&args.ms.display().to_string())),
+        ("data_column", text(column)),
+        ("field", args.field.to_string()),
+        ("channels_read", nchan_read.to_string()),
+        ("channels_out", meta.len().to_string()),
+        ("join_channels", args.join_channels.to_string()),
+        ("mf_weighting", mf.to_string()),
+        (
+            "fit_spectral_pol",
+            args.fit_spectral_pol
+                .map_or("null".into(), |t| t.to_string()),
+        ),
+        ("reference_frequency_hz", opt(out.reference_frequency)),
+        ("average_channels", args.average_channels.to_string()),
+        (
+            "channel_range",
+            args.channel_range
+                .map_or("null".into(), |(a, b)| arr(&[a.to_string(), b.to_string()])),
+        ),
+        ("size", n.to_string()),
+        ("scale_arcsec", num(args.scale.to_degrees() * 3600.0)),
+        ("gridder_single", args.single.to_string()),
+        ("wgridder_accuracy", num(args.epsilon)),
+        ("phase_dir_rad", arr(&[num(phase_dir.0), num(phase_dir.1)])),
+        ("channels", arr(&channels_json)),
+        ("mfs_restoring_beam", beam_json(&restoring_mfs)),
+        (
+            "run",
+            out.joined
+                .as_ref()
+                .map_or("null".into(), |j| j.to_json(None)),
+        ),
+        (
+            "seconds",
+            obj(&[
+                ("read", num(t_read)),
+                ("weights", num(t_weights)),
+                ("psf_and_beams", num(out.t_psf)),
+                ("write", num(t_write)),
+                ("wall", num(wall.elapsed().as_secs_f64())),
+            ]),
+        ),
+        ("threads", rayon::current_num_threads().to_string()),
+        (
+            "peak_memory_bytes",
+            gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
+        ),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());

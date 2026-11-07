@@ -338,6 +338,25 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
     Ok(out)
 }
 
+/// `CHAN_WIDTH` of the spectral window of `sel`'s data description, in the
+/// order of `CHAN_FREQ` (WSClean's channel widths, for the band edges of an
+/// output channel).
+pub fn channel_widths(path: &Path, sel: &Selection) -> Result<Vec<f64>, String> {
+    let spw = match Table::open(path.join("DATA_DESCRIPTION")) {
+        Ok(dd) if dd.nrows > sel.data_desc as u64 => ints(
+            &read(&dd, "SPECTRAL_WINDOW_ID", sel.data_desc as u64, 1)?,
+            "SPECTRAL_WINDOW_ID",
+        )?[0],
+        _ => sel.data_desc,
+    };
+    let spw_table = Table::open(path.join("SPECTRAL_WINDOW")).map_err(|e| e.to_string())?;
+    let width = doubles(
+        &read(&spw_table, "CHAN_WIDTH", spw as u64, 1)?,
+        "CHAN_WIDTH",
+    )?;
+    Ok(width.iter().map(|w| w.abs()).collect())
+}
+
 /// Gridding weights and WSClean's header counters.
 #[derive(Clone, Debug)]
 pub struct GriddingWeights {

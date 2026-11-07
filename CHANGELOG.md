@@ -22,6 +22,17 @@ the release notes are the section of this file for that version.
   before). P's angles come from a table per unique time and antenna (`rang.cal_pol.angle_table`,
   `table_angles`), so `applycal(parang=True)` and the polarisation solves hold no per-row angle array.
   New module `rang.cal_chunks`.
+- New: `refant: auto` and `calibrate.polcal.extendflags: true` run in `rang-core calibrate`
+  (`research/e0-refant-extend.md`). `auto` is CARACal's `get_refant` (`rang.cal_refant`): the
+  first three antennas **by name** within `calibrate.refant_maxdist` (1000 m) of the array centre
+  whose every baseline is at least `calibrate.refant_minbase` (150 m); flags play no part, as in
+  CARACal's code (its comment says fewest flags). It is chosen once before anything is written, and
+  the stage stops when no antenna qualifies. `extendflags` is CASA's `flagdata(mode='extend')`
+  with CARACal's settings (`ntime='60s'`, `combinescans`, `growtime` and `growfreq` 80,
+  `growaround`, `flagneartime`, `flagnearfreq`, `extendpols`; `rang.flag_extend`, Rust kernel
+  `core/src/flag_extend.rs`), run before the polcal solves on the Gpol, KCROSS and Xf fields and then
+  the Df fields, within `data.scans`. The two new keys change the calibrate stage hash, so a
+  calibrate stage finished earlier reruns once with `--force`.
 - New: the Stimela2 recipe `recipes/rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply`
   and `image` in order on one configuration and MS, with the cabs `rang-flag`, `rang-calibrate`,
   `rang-apply` and `rang-image` in `recipes/rang-cabs.yaml`; each cab runs the console script
@@ -123,6 +134,16 @@ the release notes are the section of this file for that version.
 - Changed: `examples/a1_simtruth.py generate` takes `--seeds` and `--gcal-flux`, `--gcal-spix`,
   `--gcal-reffreq` (the default versions are unchanged).
 
+- New: `gemclean -channels-out N`, `-join-channels`, `-fit-spectral-pol N`, `-channel-range S E`,
+  `-mf-weighting`/`-no-mf-weighting` and rang's own `-average-channels N`, as WSClean 3.7 has
+  them: output channels grouped as WSClean groups them, MF weighting by default with joined
+  channels, a joined minor loop that picks on the weighted sum of the channel residuals and puts a
+  component in every channel (GeMClean's exact value per channel, then WSClean's ordinary polynomial
+  fit in `nu/nu_ref - 1`), and per-channel `<name>-0000-<kind>.fits` and weighted
+  `<name>-MFS-<kind>.fits` images. `-fit-spectral-log-pol`, `-deconvolution-channels` and squared
+  joining are refused. One output channel is byte-identical to before. `rang-core image` passes
+  `channels_out`, `join_channels`, `fit_spectral_pol` and `average_channels` to gemclean instead
+  of refusing them (`research/g3-spectral.md`).
 - New: `rang.applycal.applycal(ms, gaintable, interp, gainfield, calwt, field)`, CASA's
   `applycal` on a Measurement Set: row chunks through `rang.core_writeback` (a flag version first),
   the Rust kernel per field and data description, CORRECTED_DATA (added as `clearcal` does when

@@ -251,6 +251,8 @@ calibrate:
     lsm: null  # a Tigger .lsm sky model, such as pks1934-638.lsm
   refant: null  # reference antenna: a name, an id, a list or auto
   refantmode: flex  # flex or strict, as CASA
+  refant_maxdist: 1000.0  # refant auto: metres from the array centre at most (CARACal's maxdist)
+  refant_minbase: 150.0  # refant auto: metres to every other antenna at least (CARACal's minbase)
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150
   minsnr: null  # solutions below this SNR are flagged (CASA: 3)
   minblperant: null  # baselines per antenna needed (CASA: 4)
@@ -269,7 +271,7 @@ calibrate:
       column: MODEL_DATA  # the model column for column
     frame: casa  # the parallactic-angle frame (rang.cal_pol; C6's provisional owner decision 1): casa, CASA's parang=True; rang, geodetic and ICRS north
     feed_angle_rotation: null  # degrees: the RECEPTOR_ANGLE of both receptors of every antenna used for P, in memory (CARACal writes it into FEED; MeerKAT: -90); null: FEED's
-    extendflags: false  # flagdata mode=extend on xcal and fcal first
+    extendflags: false  # CASA flagdata mode=extend with CARACal's settings on the Gpol, KCROSS and Xf fields, then the Df fields, before the polcal solves
 apply:
   column: CORRECTED_DATA  # the column written
   applymode: calflag  # as CASA applycal
@@ -297,8 +299,8 @@ image:
   extra_args: []  # more gemclean options, passed as given
   channels_out: 1  # output channels
   join_channels: false  # join the output channels
-  fit_spectral_pol: null  # terms of the spectral fit
-  average_channels: 1  # channels averaged before imaging
+  fit_spectral_pol: null  # terms of the polynomial fit across joined channels
+  average_channels: 1  # adjacent channels averaged before imaging (rang's own)
   auto_mask: null  # automatic mask at this many sigma
   fits_mask: null  # a FITS mask
   taper_gaussian: null  # a Gaussian taper, such as 10asec

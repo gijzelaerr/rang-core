@@ -48,6 +48,9 @@ pub struct GridMeasurement<T: Real> {
     /// Form residuals in the gridder's sorted values ([`Prepared::residual`]),
     /// with no visibility-sized buffer: set where that gives the same bits.
     sorted_residual: bool,
+    /// Free the gridder's work grids after every residual
+    /// ([`GridMeasurement::releasing_grids`]).
+    release_grids: bool,
 }
 
 impl<T: Real + Send + Sync> GridMeasurement<T> {
@@ -207,7 +210,17 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
             pending: true,
             buffer: Mutex::new(Vec::new()),
             sorted_residual: false,
+            release_grids: false,
         })
+    }
+
+    /// Free the gridder's work grids after every residual, so that several
+    /// measurements used in turn (one per output channel) hold one set of
+    /// grids at a time instead of one each. The grids are zero between passes
+    /// and the next pass allocates zeroed ones, so the values do not change.
+    pub fn releasing_grids(mut self) -> Self {
+        self.release_grids = true;
+        self
     }
 
     /// Plan every gridder call afresh (for comparison; the images agree to
@@ -338,6 +351,26 @@ impl<T: Real + Send + Sync> Measurement for GridMeasurement<T> {
     }
 
     fn residual(&self, model: &[f64]) -> Result<(Vec<f64>, f64), String> {
+        let out = self.residual_kept(model);
+        if self.release_grids
+            && let Some(p) = &self.prepared
+        {
+            p.release_grids();
+        }
+        out
+    }
+
+    fn gram_apply(&self, x: &[f64]) -> Result<Vec<f64>, String> {
+        let mut guard = self.buffer.lock().expect("no panic while predicting");
+        guard.resize(self.wgt.len(), Complex::new(T::of(0.0), T::of(0.0)));
+        self.predict_into(x, guard.as_mut_slice())?;
+        self.image(guard.as_slice())
+    }
+}
+
+impl<T: Real + Send + Sync> GridMeasurement<T> {
+    /// [`Measurement::residual`] with the work grids kept.
+    fn residual_kept(&self, model: &[f64]) -> Result<(Vec<f64>, f64), String> {
         self.ready()?;
         if let (Some(p), true) = (&self.prepared, self.sorted_residual) {
             let m: Option<Vec<T>> = model
@@ -390,13 +423,6 @@ impl<T: Real + Send + Sync> Measurement for GridMeasurement<T> {
         let image = self.image(e)?;
         crate::gemclean::memory::mark("residual: grid");
         Ok((image, 0.5 * q))
-    }
-
-    fn gram_apply(&self, x: &[f64]) -> Result<Vec<f64>, String> {
-        let mut guard = self.buffer.lock().expect("no panic while predicting");
-        guard.resize(self.wgt.len(), Complex::new(T::of(0.0), T::of(0.0)));
-        self.predict_into(x, guard.as_mut_slice())?;
-        self.image(guard.as_slice())
     }
 }
 

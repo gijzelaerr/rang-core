@@ -315,4 +315,24 @@ apply 9 min 50 s; the others 0.8-1.3 min per stage; 45 min in all.
 
 ## For the coordinator
 
-FOR_COORDINATOR_PLACEHOLDER
+- **research/README.md**, after the W3 line (this also makes `test_every_note_is_in_the_research_index` pass):
+  `- [W3b, chunking the chain terms](w3b-chainchunks.md): K, G, B, A, F and the polarisation terms run within data.memory_limit_gb in chunks of whole solution intervals (B, Xf, Df also in channels), bit-identical to the unchunked commands on O-CASA's slice, A1 small, poldx and held-out polholdout; the G, B and K stop test replayed from counted kernels; P's angles from per-time tables.`
+- **research/STATE.md**, log, newest first:
+  `W3b, 2026-11-07 (implemented and measured; [w3b-chainchunks.md](w3b-chainchunks.md)). rang-core calibrate runs C2e's K, G, B, A, F and C6w's Gpol, KCROSS, Xf, Df within data.memory_limit_gb: each solve reads its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval, pre-applied on whole rows), the stop test of the G/B and K kernels replayed over the chunks from new counted kernels (observers; no arithmetic changed), Df's gauge test found exactly over the chunks, the A step flagging in blocks of baselines, E0's extend step in blocks of baselines of a 60 s chunk. preflight now refuses only one solution interval (B, Xf, Df: one channel of one) that does not fit. Every frozen criterion passes: D, T and M bit-identical to main ba65792 unchunked on O-CASA's slice (KGBAKGB), A1 small (C2e chain) and poldx (polcal) and on the held-out polholdout (tables, every column, flag versions, summaries); on the whole-array set (K, G, B) calibrate peaks at 3.35 GiB under 8 GiB and 1.66 GiB under 4.33 GiB, the two byte-identical, and K solint inf (18.4 GiB) is refused before anything is written. P's angle arrays are gone: applycal's angle step on A1 full went from 255 MB to 3.8 MB. No novelty claim, no speed claim.`
+  In "Current status", add W3b to the Done list.
+- **research/finish-plan.md**, row W3b: `**Done 2026-11-07** ([w3b-chainchunks.md](w3b-chainchunks.md)): bit-identical chunked and unchunked on the slice, A1, poldx, held-out polholdout; whole-array K, G, B at 3.35 / 1.66 GiB.` before the task text. Section 7: add W3b's decisions (section 7 here).
+- **Shared files changed:** Rust `core/src/cal/diag.rs`, `delay.rs`, `delay_offset.rs` (a `Trace` and `solve_counted`;
+  `solve` unchanged in arithmetic), `core/py/src/cal_gain.rs`, `cal_delay.rs`, `cal_delay_offset.rs` (`*_trace`),
+  `core/py/src/lib.rs` (registration lines at the end); Python `cal_gain` (`solve` split into `_kernel` and
+  `_finish`, `_Field`, `row_weights`, `times_from_row_weights`), `cal_delay`, `cal_bandpass`, `cal_pol`
+  (`angle_table`, `table_angles`, `_PolField`, `df_solve` split), `cal_fluxscale` (`smodel_view`), `cal_chain`
+  (`budget`, `flag_corrected(max_rows=)`), `applycal` (`_field_angles` returns tables), `core_chunks`
+  (`ChainBudget`, `CHAIN_ROW_BYTES`), `core_pipeline` (`chain_chunk_plans`, new `chain_memory_problems`, the
+  calibrate summary's `chunking`), `flag_extend` (`_batches`, after the merge); new `rang.cal_chunks`;
+  `tests/test_w3_chunking.py` (the chain-refusal test now tests the new rule). **Merged with main `0f5ef06`**
+  (E0, G3; section 5.5).
+- **On disk:** `/mnt/d/rang/outputs/w3b-20261106-02-probe` (9 MB), `-04` (30 MB) and `-05` (5 MB) with `.code`
+  snapshots and logs, `-01-angles` (angle measurements and the library-check log); the MS copies were removed after
+  the verdicts. `~/Worktrees/rang/w3b-oracle-ba65792` and `w3b-oracle-0f5ef06` are detached oracle checkouts
+  with their own extensions: remove with `git -C ~/Github/rang worktree remove --force <path>` once this is merged.
+  W3's `w3.ms` (8.0 GB) is unchanged.

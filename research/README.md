@@ -26,8 +26,10 @@ Each entry is one report and its verdict, newest first within a section.
 - [C3a, calibrator models](c3a-models.md): `setjy`-equivalent point, manual and `.lsm` models into MODEL_DATA; 0 ulps against `setjy`, bit-identical to Crystalball.
 - [C6, the polarisation terms](c6-polterms.md): Gpol, KCROSS, Xf, Df and the parallactic angle against CASA and a truth with a leaking reference antenna (`poldx`, held-out `polholdout`).
 - [C6w and C7b, polarisation in the commands](c6w-polwire.md): Gpol, KCROSS, Xf, Df and P in `rang-core calibrate` and `apply`, bit-identical to `rang.cal_pol`, and the applied calibration against the truth and CASA's chain on `poldx` and held-out `polholdout`.
+- [E0, refant auto and extendflags](e0-refant-extend.md): CARACal's `get_refant` (by name, as its code sorts) and CASA's `flagdata(mode='extend')` in `rang-core calibrate`, against CARACal's own function and CASA bit for bit; E2-B's flag, calibrate and apply validate.
 - [C7a, polarised calibrator models](c7a-polmodels.md): `setjy` manual's I, Q, U, V, `polindex`, `polangle` and `rotmeas`, and CARACal's 3C286 and 3C138, measured against CASA `setjy` (0 ulps on the tabular path, 2 ulps on the one-term `spix` path) and against published polarisation fractions and angles.
 - [G2, GeMClean's memory](g2-memory.md): peak memory cut by four byte-identical changes; the pilot fits 24 GB at 512 channels (19.7 GB default, 15.7 GB coarse), still 2.0-3.6x WSClean's peak.
+- [G3, output channels and spectral fit](g3-spectral.md): GeMClean's `-channels-out`, `-join-channels` and `-fit-spectral-pol` against WSClean 3.7 on simulated spectral skies; the held-out MFS bound failed on one sky.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 

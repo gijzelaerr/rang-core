@@ -57,6 +57,7 @@ mod cal_fluxscale;
 mod cal_gain;
 mod cal_pol;
 mod clean;
+mod flag_extend;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
@@ -2837,5 +2838,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
         cal_delay_offset::cal_delay_offset_trace,
         m
     )?)?;
+    // Task E0: CASA's flagdata mode=extend (research/e0-refant-extend.md).
+    m.add_function(wrap_pyfunction!(flag_extend::flag_extend, m)?)?;
     Ok(())
 }

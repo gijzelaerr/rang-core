@@ -93,11 +93,11 @@ def test_what_cal_pol_cannot_run_is_an_error_without_a_task():
     got = _problems(raw)
     assert ("calibrate.primary.terms[2].type", "") in got
     assert ("calibrate.polcal.terms[4].type", "") in got
-    # Polarisation tables need apply.parang; extendflags has no owner.
+    # Polarisation tables need apply.parang; extendflags runs since task E0.
     got = _problems(_config(**{"apply.parang": False}))
     assert ("apply.targets[0].tables", "") in got
     got = _problems(_config(**{"calibrate.polcal.extendflags": True}))
-    assert ("calibrate.polcal.extendflags", "") in got
+    assert ("calibrate.polcal.extendflags", "") not in got
     got = _problems(_config(**{"calibrate.polcal.model.name": "3C999"}))
     assert ("calibrate.polcal.model.name", "") in got
 

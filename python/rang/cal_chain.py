@@ -459,7 +459,8 @@ def run(
     `refant`, Xf `minsnr` and `minblperant`) and `parang`, `frame`,
     `receptor_angle` and optionally `model_column` (overrides
     `model_column`); KCROSS `estimator`; Df `clip` (an amplitude, or None)
-    and `min_data_fraction`. `weight_column` (None for unit weights) and `scan`
+    and `min_data_fraction`. An `extend` term (task E0, `rang.flag_extend`)
+    has `fields` and optionally `settings`. `weight_column` (None for unit weights) and `scan`
     reach every solve and A step. Every MS write goes through
     `core_writeback.WriteBack` with `flag_backup` (saved once, before the
     first write). `budget` (task W3b, research/w3b-chainchunks.md): a
@@ -558,6 +559,21 @@ def run(
             )
             if k_alone(kinds):
                 step["warning"] = K_ALONE
+            steps.append(step)
+            continue
+        elif kind == "extend":
+            # Task E0: CARACal's flagdata mode=extend (rang.flag_extend).
+            from . import flag_extend
+
+            step["extended"] = flag_extend.extend_ms(
+                ms,
+                term["fields"],
+                scans=common.get("scan"),
+                settings=term.get("settings"),
+                chunk_rows=chunk_rows,
+                flag_backup=flag_backup,
+                stage=stage,
+            )
             steps.append(step)
             continue
         elif kind in POLARISATION:

@@ -41,7 +41,6 @@ TASKS = {
     "C5a": "phase and amplitude self-calibration (Sp, Sa)",
     "C5b": "delay self-calibration (Sd, CARACal's Fslope)",
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
-    "G3": "channels out, joined channels, spectral fits and channel averaging",
     "G4": "masks, tapers and an imaging uv range",
     "G5": "multiscale CLEAN",
     "G6": "MODEL_DATA from the imager",
@@ -229,6 +228,16 @@ SCHEMA = {
         "refantmode": _k(
             "flex", "choice", "flex or strict, as CASA", ("flex", "strict")
         ),
+        "refant_maxdist": _k(
+            1000.0,
+            "float",
+            "refant auto: metres from the array centre at most (CARACal's maxdist)",
+        ),
+        "refant_minbase": _k(
+            150.0,
+            "float",
+            "refant auto: metres to every other antenna at least (CARACal's minbase)",
+        ),
         "uvrange": _k(
             "", "str", "baselines used by G, B, F and polcal solves, such as >150"
         ),
@@ -277,7 +286,10 @@ SCHEMA = {
                 "FEED's",
             ),
             "extendflags": _k(
-                False, "bool", "flagdata mode=extend on xcal and fcal first"
+                False,
+                "bool",
+                "CASA flagdata mode=extend with CARACal's settings on the Gpol, "
+                "KCROSS and Xf fields, then the Df fields, before the polcal solves",
             ),
         },
     },
@@ -346,8 +358,12 @@ SCHEMA = {
         "extra_args": _k([], "strs", "more gemclean options, passed as given"),
         "channels_out": _k(1, "int", "output channels"),
         "join_channels": _k(False, "bool", "join the output channels"),
-        "fit_spectral_pol": _k(None, "int?", "terms of the spectral fit"),
-        "average_channels": _k(1, "int", "channels averaged before imaging"),
+        "fit_spectral_pol": _k(
+            None, "int?", "terms of the polynomial fit across joined channels"
+        ),
+        "average_channels": _k(
+            1, "int", "adjacent channels averaged before imaging (rang's own)"
+        ),
         "auto_mask": _k(None, "float?", "automatic mask at this many sigma"),
         "fits_mask": _k(None, "path?", "a FITS mask"),
         "taper_gaussian": _k(None, "str?", "a Gaussian taper, such as 10asec"),
@@ -833,14 +849,19 @@ def refusals(config, stages):
         any_term = False
         for section in CALIBRATE_SECTIONS:
             block = cal[section]
-            if section == "polcal" and block["extendflags"]:
+            if (
+                section == "polcal"
+                and block["extendflags"]
+                and not any(
+                    t["type"] in ("Gpol", "KCROSS", "Xf") for t in block["terms"]
+                )
+            ):
                 out.append(
                     Refusal(
                         "calibrate.polcal.extendflags",
                         "",
-                        "CASA's flagdata mode=extend (CARACal's growtime and growfreq "
-                        "80) is not ported and no task owns it (an owner decision, "
-                        "research/c6w-polwire.md); set false",
+                        "CARACal extends flags only on a polarisation calibrator: "
+                        "add a Gpol, KCROSS or Xf term, or set false",
                     )
                 )
             for i, term in enumerate(block["terms"]):
@@ -940,11 +961,22 @@ def refusals(config, stages):
                 "uniform weights for imaging: gemclean reads the MS weights, so "
                 "WEIGHT_SPECTRUM = 1 would have to be written into the MS",
             )
+        for key in ("channels_out", "average_channels"):
+            if img[key] < 1:
+                out.append(Refusal(f"image.{key}", "", "must be at least 1"))
+        if img["fit_spectral_pol"] is not None and (
+            img["fit_spectral_pol"] < 1
+            or not img["join_channels"]
+            or img["channels_out"] < 2
+        ):
+            out.append(
+                Refusal(
+                    "image.fit_spectral_pol",
+                    "",
+                    "needs at least one term, join_channels and channels_out of 2 or more",
+                )
+            )
         for key, default, task in (
-            ("channels_out", 1, "G3"),
-            ("join_channels", False, "G3"),
-            ("fit_spectral_pol", None, "G3"),
-            ("average_channels", 1, "G3"),
             ("auto_mask", None, "G4"),
             ("fits_mask", None, "G4"),
             ("taper_gaussian", None, "G4"),
@@ -1147,12 +1179,15 @@ def _chain_refusals(config, out):
                     f"{where}.refant",
                     "required for K, G, B, F, Gpol and Df (calibrate.refant)",
                 )
-            elif refant is not None and any(str(r).lower() == "auto" for r in refant):
+            elif (
+                refant is not None
+                and len(refant) > 1
+                and any(str(r).lower() == "auto" for r in refant)
+            ):
                 bad(
                     f"{where}.refant",
-                    "refant auto (CARACal's manage_antennas rule) is not ported; "
-                    "give antenna names or ids (an owner decision, "
-                    "research/c2e-calibrate.md)",
+                    "auto (CARACal's choice, research/e0-refant-extend.md) stands "
+                    "alone, not in a list of antennas",
                 )
             if _is_int(term["solint"]):
                 bad(

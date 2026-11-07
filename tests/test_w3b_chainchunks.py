@@ -335,3 +335,21 @@ def test_preflight_refuses_only_what_cannot_be_split(tmp_path):
         "calibrate.secondary.terms[0] (F, F)",
     ]
     assert all("GiB" in p and "solution interval" in p for p in problems)
+
+
+def test_extend_in_baseline_blocks_equals_whole_chunks(tmp_path):
+    """E0's flag extension (`rang.flag_extend.extend_ms`): a 60 s chunk larger
+    than the batch is extended in blocks of whole baselines, with the flags
+    and counts of whole chunks (each (chunk, baseline) cube is its own)."""
+    from rang import flag_extend
+    from test_w2_commands import w1
+
+    out = {}
+    for name, batch in (("whole", None), ("blocks", 5)):
+        ms = w1.make_ms(tmp_path / name / "x.ms", 6 * 30, 8, nant=4, seed=20261192)
+        result = flag_extend.extend_ms(ms, [0], batch_rows=batch, chunk_rows=50)
+        with core_ms.open_table(ms) as t:
+            out[name] = (result, t.getcol("FLAG"))
+    assert out["whole"][0] == out["blocks"][0]
+    assert np.array_equal(out["whole"][1], out["blocks"][1])
+    assert out["whole"][0]["flagged_after"] > out["whole"][0]["flagged_before"]
