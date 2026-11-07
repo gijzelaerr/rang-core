@@ -1,7 +1,9 @@
 # F2: a fast supervised RFI flagger for MeerKAT L-band (protocol)
 
 Task F2, branch `fp-f2-flagger` from main `ba65792`. Protocol frozen 2026-11-06 before any simulation,
-training or comparison. **Status at freeze: proposed; nothing implemented, run or trained.** Results go
+training or comparison. **Status now (2026-11-07): implemented and measured; outcome F for calibrators and targets; nothing
+proposed for `rang-core flag`** ([decision](#decision-frozen-rule-section-6)). **Status at freeze:
+proposed; nothing implemented, run or trained.** Results go
 under "Measured result"; nothing above it changes except by dated, labelled amendment.
 
 **Amendment 1, 2026-11-06, after f2sim-v and the training observations were built, before the test
@@ -284,6 +286,10 @@ Amendment 1, unread until Stage 5). 6.0-6.5 min and 4.3 GB peak RSS per observat
 |V| ≤ 15 Jy (float32 rounding). The shared wrapper flags 47 % of cells (static masks; the `0~550 m`
 static mask on short baselines).
 
+The test build's log and `.code/` record Amendment 1's three sha256 values. After Stage 5,
+`f2flag_sim.py` changed for the portability test only (`Scan.open` renamed `Scan.from_dir`, an explicit
+newline in `meta.json`'s write); the generated data do not depend on either.
+
 ### Stage 2: comparators on validation (f2sim-v, `-03`)
 
 | Arm | Cal Q1 | Cal Q2 | Cal Q3 | Tgt Q1 | Tgt Q2 | Tgt Q3 |
@@ -310,3 +316,208 @@ static mask on short baselines).
 Parity, U weights, f2sim-v: |Δlogit| p99.9 4.8e-7 (cal) and 3.8e-7 (tgt), max 1.6e-6, flag disagreement
 8.7e-8 (3 of 34.4 M cells): pass. C1(U) on LUNO 1934−638 whole array, 4 threads, 3 repeats: 10.6 s
 against T 44.1 s, **0.24** (1-min load 9.4-11.2, so provisional): stop rule (0.75) not triggered.
+
+### Stage 4: training (`-07` calibrators, `-08` targets)
+
+JAX 0.12.0.1 on CPU, 4 NumPy feature workers, under the heavy lock. 4,000 steps per run, 12-18 min per
+run; preparation (shared wrapper, R and T labels of the 9 or 6 training scans and f2sim-v) 5.4 and
+7.0 min. Peak RSS 9.5 GB (calibrators). Validation loss, F-SIM seeds 1, 2, 3: calibrators 0.082, 0.098,
+0.060; targets 0.0182, 0.0183, 0.0136. Median seed 1 in both classes: weights sha256 `b3a1568a3c86…`
+(calibrators) and `162c62337325…` (targets), 2,785 float32 each. Parity with the trained weights at the
+picked τ (`-03`): p99.9 7.6e-6 and 4.8e-6, max 2.3e-5 and 1.3e-5, flag disagreement 0 and 2.9e-8:
+pass.
+
+At τ = 0 every trained arm failed Q1 on validation (Amendment 3); the thresholds of Amendment 3 apply
+below.
+
+### Stage 5: F-SIM test (`f2-20261107-03-stage5`)
+
+Q1 / Q2 / Q3, pooled over f2sim-t1 and -t2 (`test-<class>.json`); validation in brackets.
+
+| Arm | Calibrators | Targets |
+| --- | --- | --- |
+| T | 0.880 / 0.318 / 0.0299 (0.829 / 0.320 / 0.0308) | 0.987 / 0.138 / 0.0388 (0.990 / 0.140 / 0.0420) |
+| T-mild | 0.868 / 0.171 / 0.0318 | – |
+| N | 0 / 0 / 0.0093 | 0 / 0 / 0.193 |
+| Z | 0.417 / 0.0064 / 0.0104 | 0.117 / 0 / 0.117 |
+| R (targets: true sky) | 0.131 / 0 / 0.0077 | 0.585 / 0 / 0.0704 |
+| O | 1 / 0 / 0.0028 | 1 / 0 / 0.0047 |
+| **F-SIM** (τ −3, −6) | **0.909 / 0.0122 / 0.0030** (0.844 / 0.0133 / 0.0041) | **0.884 / 0.0374 / 0.0831** (0.914 / 0.0355 / 0.0118) |
+| F-RES (τ −6, −6) | 0.123 / 0.0015 / 0.0086 | 0.828 / 0.0264 / 0.0714 |
+| F-IMI (τ 0, −0.5) | 0.571 / 0.181 / 0.0653 | 0.778 / 0.155 / 0.141 |
+| U | 0.216 / 0.279 / 0.0131 | 0.306 / 0.348 / 0.205 |
+
+Calls of F-SIM against T:
+
+| | Calibrators | Targets |
+| --- | --- | --- |
+| Q1 | matches (+0.029) | **worse** (−0.103) |
+| Q2 | beats (0.012 against 0.318) | beats (0.037 against 0.138) |
+| Q3 | undecidable as frozen (N 0.31 × T); post hoc (Amendment 2) beats, 0.10 × T | **worse**, 2.14 × T (t2: 2.89 ×) |
+| Meets Q | no as frozen; yes post hoc | no |
+| Generalisation: per observation within 0.05 / 0.01 of validation | Q1 t1 0.833, t2 0.936 against 0.844: **fails** on t2 (better by 0.092); Q2 passes | Q1 0.947, 0.835 against 0.914: passes; Q2 passes |
+| Generalisation: held-out drifting carrier, Q1 | **worse**: 0.74 against T 0.98 | worse: 0.89 against 0.98 |
+| G5, unmodelled 20 σ line | – | passes as frozen: flags 99.6 % of line cells, T 97.7 % (both remove the line) |
+| G6, gain step | passes: 0.056 near the step against background 0.025 | passes: 0.068 against 0.050 |
+
+- Recall by morphology at `A ≥ 10`, calibrators, F-SIM against T: intermittent 1.00 / 0.94, burst
+  0.80 / 0.77, carrier 0.91 / 0.91, antenna-local 0.92 / 0.99, single-baseline 0.71 / 1.00, drifting
+  0.74 / 0.98. Targets: intermittent 0.74 / 0.98, carrier 0.74 / 0.99, comb 1.00 / 0.99,
+  single-baseline 1.00 / 1.00, drifting 0.89 / 0.98.
+- On F-SIM, T leaves 32 % (calibrators) and 14 % (targets) of clean cells flagged, so Q2 hardly binds and
+  Q1 decides. At matched calibrator Q1, F-SIM's false-flag fraction is 0.012 against T's 0.318.
+- F-RES and F-IMI are worse than F-SIM on Q1 in both classes: labels from R (a residual threshold at 10)
+  are too sparse, and labels from T carry T's 32 % false flags (F-IMI at τ = 0 flags 18 % of clean cells
+  and is worse than T on Q3 by 2.2 ×). Neither replaces truth labels here.
+- Z and R are far below T on Q1 in both classes.
+- **Q3 caveat.** Every arm except T runs inside the shared wrapper, whose whole-band static mask removes
+  A1's persistent GPS bands; T's own first `uvcontsub_flagger` step drops those flags
+  (`or_original_from_cycle: 1`; the YAML: "flags are discarded at this point"), keeping only the
+  `0~550 m` mask. So on calibrators N's Q3 is below T's partly because the wrapper drops channels T keeps.
+  Q3 compares solves on different channel sets; this was not foreseen in the protocol.
+
+### Stage 5: real data (`f2-20261107-04-stage5-real`)
+
+The first real-data launch (inside `-03`) stopped on a missing `data` key in the injection state after
+writing nothing; `-04` reran it with that fix and the post hoc stratum below.
+
+**Agreement, LUNO calibrators.** Added cells (eligible cells newly flagged), Jaccard with T.
+
+| Set, arm | added | J all (frozen) | J far (frozen) | J on wrapper-unflagged cells, all / far (post hoc) |
+| --- | ---: | ---: | ---: | --- |
+| 1934−638, T | 762,924 | – | – | – |
+| 1934−638, T-mild | 372,404 | 0.230 | 0.013 | 0.185 / 0.012 |
+| 1934−638, F-SIM | 7,196,379 | **0.070** | 0.0043 | 0.010 / 0.0013 |
+| 1934−638, Z | 6,682,012 | 0.074 | 0.0045 | 0.002 / 0 |
+| 1934−638, F-IMI | 11,066,905 | 0.060 | 0.0056 | 0.034 / 0.008 |
+| 1934−638, U | 16,268,105 | 0.036 | 0.0026 | 0.008 / 0.002 |
+| 1830−211, T | 226,016 | – | – | – |
+| 1830−211, T-mild | 53,034 | 0.146 | 0.092 | 0.056 / 0.093 |
+| 1830−211, F-SIM | 5,380,641 | **0.033** | **0.0029** | 0.012 / 0.0005 |
+
+- Bar J(F-SIM, T) ≥ J(T-mild, T) − 0.05: 1934−638 fails on all cells (0.070 against 0.180), passes on
+  the far stratum (0.004 against −0.037; far stratum 22 % of eligible cells); 1830−211 fails on both
+  (0.033 against 0.096; 0.003 against 0.042). **Agreement bar: fails.**
+- Most of every wrapper arm's additions are the whole-band static mask (6.7 M cells on 1934−638), which
+  T drops (Stage 5 caveat above). On the cells the wrapper leaves unflagged F-SIM still adds 2.1 × T's
+  cells on 1934−638 (516,827 against 248,696) and 20 × on 1830−211 (1,163,264 against 58,920; 9.2 % of
+  those cells), with J ≤ 0.012.
+- **LUNO 1934−638 with injections** (12 cases, 10 σ_b, 1.95 M scored injected cells): recall T 0.992,
+  F-SIM **0.431**, F-IMI 0.536, U 0.290, Z 0.034, F-RES 0.014. By morphology, F-SIM against T:
+  time-burst 0.998-0.999 against 1.000, narrowband 0.10 and 0.21 against 1.00, antenna-local 0.03 against
+  0.96-1.00, single-baseline 0 against 1.0. (Seed 20 of three morphologies lies under the shared
+  wrapper: no scored cells.) The missed morphologies are on for the whole scan, which planes 1-4 remove
+  and plane 5 does not restore at this strength. **Generalisation clause 3: fails.**
+- **ESO137 target (exploratory; 512 channels at 989.7-1096.6 MHz, outside the training window; 29.6 %
+  input flags):** T adds 2,576,606, F-SIM 2,723,462, J 0.121 (far 0.100), U 0.128 (far 0.109): F-SIM
+  agrees with T no better than random weights.
+
+### Stage 5: cost (`f2-20261107-05-cost`) and P
+
+Same rows in memory to flags in memory; the network arm is the shared wrapper (`flag_rows`) plus the Rust
+kernel at the picked τ. Three repeats, alternating, median; heavy lock held. The recorded 1-min load
+includes the measured process (about 4 at 4 threads, 1 at 1 thread); the other jobs on the host were idle
+or single-core.
+
+| Set | Cells | Threads | T | F-SIM | C1 | Load |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| LUNO 1934−638 (calibrator) | 85.6 M | 4 | 37.4 s | 8.37 s | **0.224** | 2.4-3.8 |
+| LUNO 1934−638 | 85.6 M | 1 | 126.9 s | 25.6 s | **0.201** | 1.0-1.25 (first repeat 3.2) |
+| ESO137 window (target, reported) | 24.8 M | 4 | 11.24 s | 2.96 s | 0.263 | 3.3-3.6 |
+| ESO137 window | 24.8 M | 1 | 38.8 s | 8.91 s | 0.230 | 1.0-1.05 |
+
+- **C1 beats (≤ 0.5) at 4 and 1 threads in both classes.** U on the same array, Stage 3: 0.24.
+- C2: peak RSS 7.55 GB for both arms (T 7,551,512 kB, F-SIM 7,552,636 kB), ratio 1.000: the decode sets
+  the peak, and neither flag step exceeds it. Matches.
+- P: T1 network 3 kinds (wrapper's `accumulation_mode`, `uvrange`; the weights file) against 21 for both
+  first-pass strategies. Generalisation fails, so P compares T1 + T2 + T3: 3 + 9 (the eight retraining
+  settings of `-03/params.json` plus τ) + 5 = 17 against 21. **P fails.**
+
+### Decision (frozen rule, section 6)
+
+| | Calibrators | Targets |
+| --- | --- | --- |
+| Stop-Z / Stop-R | no | no |
+| G (Z meets Q) | no: Z Q1 0.417 | no: 0.117 |
+| Meets Q | no as frozen (Q3 undecidable); yes post hoc | no: Q1 −0.103, Q3 2.14 × T |
+| Generalisation | fails: drifting 0.74 against 0.98; t2 Q1 0.092 above validation; LUNO injections 0.43 against 0.99 | fails with Q |
+| Agreement bar (real data) | fails: 1934−638 all cells, 1830−211 both strata | reported only |
+| C1, C2 | beats (0.224, 0.201); matches (1.00) | beats (0.263, 0.230), reported |
+| P | fails (17 against 21; generalisation fails) | fails |
+| G5, G6 | G6 passes | both pass as frozen |
+| **Outcome** | **F** | **F** |
+
+**No flagger meets the bar. Nothing is proposed for `rang-core flag`.**
+
+What the record supports, for Landman, numbers only:
+
+- The kernel is fast: C1 0.20-0.22 on LUNO 1934−638 (25.6 s against 126.9 s at 1 thread). Speed is not
+  the obstacle.
+- On F-SIM calibrators, with τ chosen on validation, F-SIM matches T's recall at `A ≥ 10` (0.909 against
+  0.880) with 4 % of T's false flags (0.012 against 0.318) and 0.10 × T's gain-product error. T's false
+  flags on F-SIM are 32 % of clean cells, so the comparison mainly rewards not over-flagging.
+- It does not generalise to what it has not seen: the held-out drifting carrier, a different realisation
+  (t2), and, decisively, real LUNO data: RFI on for a whole scan (narrowband, antenna-local,
+  single-baseline injections) is missed (0-0.21), and on 1830−211 it flags 9.2 % of cells T leaves.
+- Targets: not comparable. Recall 0.884 against 0.987 at the grid floor τ = −6, Q3 2.1 × T.
+- Truth labels beat T's labels (F-IMI) and residual labels (F-RES) as training data in both classes.
+- Post hoc reading (not a test): two design choices limit it. (1) The F-SIM RFI mix is thin in the
+  morphologies that fail (scan-long carriers on one antenna or baseline at moderate strength; bursts:
+  3 per observation). (2) Planes 1-4 remove the per-channel time median, so scan-long RFI is visible only
+  through plane 5 (one profile per baseline at a 33-channel scale). A network that sees raw amplitudes
+  across baselines, or a training set built from real flagged data (L3), would test this; neither is
+  this protocol.
+
+### Not checked
+
+- AOFlagger (A, C3): not run; no claim against it.
+- Real unprocessed data (L3): none available.
+- G5 on calibrators; F-RES and F-IMI on ESO137 and in the guards.
+- Training cost on the GPU (CPU only).
+- Whether T's 32 % false-flag rate on F-SIM is a property of the simulation or of the strategy (also
+  seen as 63 % on A1 in C2e); not traced.
+
+## 10. Owner decisions
+
+1. **Whether F2 continues.** As frozen it ends at F in both classes. A follow-up would need a new
+   protocol: a training set closer to real RFI (real flagged data, L3, or LUNO-derived labels, which
+   raises F1's licence question 4), inputs that keep scan-long RFI, and an AOFlagger comparison (C3).
+2. **The shared wrapper.** CARACal's first pass discards its whole-band static mask at its first
+   `uvcontsub_flagger` step; the frozen wrapper keeps it. A follow-up should copy T's net static-mask
+   behaviour.
+3. **What to tell Landman.** Proposed, in his terms: "a 2,785-weight network flags at a fifth of the
+   Rust Tricolour port's wall, matches its recall on simulated calibrator RFI with a twentieth of its false
+   flags, but misses scan-long RFI and over-flags on real LUNO data; targets are not comparable. Not
+   shipped."
+
+## 11. For the coordinator
+
+- **Commits (branch `fp-f2-flagger`):** `7bc3522` protocol; `8484b17` Amendments 1-3; `0a4509f`
+  Amendment 3's picks; the final commit with code, results and this section.
+- **Run outputs (ignored), `/mnt/d/rang/outputs/`:** `f2-20261106-01-sim-v` (12 GB), `-02-sim-train`
+  (36 GB), `-03-stage2-val`, `-04-sim-test` (48 GB), `-05-stage3-U`, `-06-train-smoke`,
+  `-07-train-calibrator`, `-08-train-target` (weights), `f2-20261107-01-stage5-quality` (stopped launch;
+  picks), `-02-amend3`, `-03-stage5`, `-04-stage5-real`, `-05-cost`; each with `.code/`, `.log`, `.time`.
+  The F-SIM observations (96 GB) can be deleted once the result is accepted; the generator
+  rebuilds them from the seeds.
+- **Archive:** [results/f2-flagger.json](results/f2-flagger.json).
+- **`research/STATE.md`, new log paragraph:** "F2, 2026-11-07 (implemented; measured; outcome F for
+  calibrators and targets; [f2-flagger.md](f2-flagger.md)): a 2,785-weight per-baseline network
+  (`rang.f2flag`, Rust inference `rang_core::cnnflag`, JAX training on CPU) trained on simulated MeerKAT
+  L-band RFI with known masks (`rang.f2flag_sim`). Against the Rust Tricolour port: C1 0.22 at 4 threads
+  and 0.20 at 1 thread on LUNO 1934−638 (37.4 s and 126.9 s for T). Simulated calibrators, threshold
+  chosen on validation (Amendment 3): recall at ≥ 10 σ 0.909 against 0.880, false flags 0.012 against
+  0.318, gain-product error 0.10 × T (undecidable as frozen). It fails generalisation: the held-out
+  drifting carrier (0.74 against 0.98), LUNO injections (0.43 against 0.99; scan-long narrowband,
+  antenna-local and single-baseline RFI missed) and agreement with T on LUNO; targets miss recall
+  (0.884 against 0.987) and Q3 (2.1 × T). Labels from T or from a residual threshold train worse. Z and
+  R do not match T. Nothing proposed for `rang-core flag`. No novelty claim."
+- **`research/STATE.md`, current status:** replace the "Stopped before training" bullet's flagger
+  clause with: "a flagger trained on gain TV (F1, NO-GO) and a supervised fast flagger (F2, outcome F:
+  fast, but does not generalise to real data)".
+- **`research/README.md`, new line beside F1:** "- [F2, a fast supervised flagger](f2-flagger.md):
+  protocol and result; five times faster than the Tricolour port, matches it on simulated calibrators,
+  fails on held-out morphologies and real LUNO data: outcome F."
+- **`research/finish-plan.md`, section 6, Landman:** "F2 ran 2026-11-06/07 (`f2-flagger.md`): outcome
+  F in both classes; not a second flagger for `rang-core flag`."
+- **`research/tool-timings.md`:** rows added in this branch.

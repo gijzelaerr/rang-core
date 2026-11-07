@@ -28,6 +28,7 @@ pub mod clean;
 pub mod clean_certified;
 pub mod clean_major;
 pub mod closure;
+pub mod cnnflag;
 pub mod correct;
 pub mod ffi;
 pub mod ffi_closure;

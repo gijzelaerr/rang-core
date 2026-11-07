@@ -1676,3 +1676,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C6w `check_c6w.py run` -01: CASA prepare, 18 calls, export; `rang-core calibrate`, `apply`; reference | poldx noisy | 357 s total; CASA container 51.0 s (tasks 0.2-4.3 s); calibrate 56.3 s; apply 62.0 s (`chunk_rows` 700, on /mnt/d); reference 34.7 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w `check_c6w.py run` -02 (held out) | polholdout noisy | 858 s total including about 10 min lock wait; CASA container 45.9 s; calibrate 42.7 s; apply 58.3 s; reference 33.1 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w gate 3 (`validate` on e2a, e2b) | configurations | under 1 s | – | – |
+| 2026-11-06 | F2 `f2_simulate.py`, one F-SIM observation (5 scans, 32 antennas, 2,048 channels) | f2sim-v | 6 min 24 s | 4.3 GB | 2 threads; 18 min 9 s for three, 26 min 24 s for four (test and variants) |
+| 2026-11-06 | F2 Stage 2 `f2_measure.py`, T, T-mild, N, Z, R, O with Q3 solves, both classes | f2sim-v | 9 min 26 s | 9.3 GB | heavy lock |
+| 2026-11-06 | F2 Stage 3: parity and C1 of U (3 repeats of T and U) | f2sim-v; LUNO 1934−638 | 5 min 59 s | 10.5 GB | heavy lock, load 9-11 |
+| 2026-11-06 | F2 `f2_train.py`, calibrators: 5 runs × 4,000 steps, JAX CPU, 4 feature workers | F-SIM train | 1 h 9 min | 9.5 GB | 12-14 min per run after 5.4 min preparation |
+| 2026-11-07 | F2 `f2_train.py`, targets, the same | F-SIM train | 1 h 36 min | 9.9 GB | 17-18 min per run after 7.0 min preparation |
+| 2026-11-07 | F2 Amendment 3: target validation and threshold curves | f2sim-v | 8 min 45 s | 9.4 GB | heavy lock |
+| 2026-11-07 | F2 Stage 5 sim: parity, validation, two test observations, guards, both classes | f2sim-v, -t1, -t2, variants | 41 min 9 s | 10.4 GB | heavy lock; ended on a bug at the real-data step |
+| 2026-11-07 | F2 Stage 5 real: LUNO 1934−638 (with 12 injection cases), 1830−211, ESO137 | LUNO, ESO137 | 26 min 8 s | 12.4 GB | heavy lock |
+| 2026-11-07 | F2 cost: C1 at 4 and 1 threads (T and F-SIM, 3 repeats each) on LUNO 1934−638 and ESO137; C2 in two processes | LUNO 1934−638, ESO137 | 14 min 40 s | 7.55 GB | heavy lock; T 37.4 s (4 threads), 126.9 s (1); F-SIM 8.37 s, 25.6 s |
+| 2026-11-07 | F2 `tools/check-all.sh`, two runs | worktree | 11 min 53 s; 7 min 40 s | – | heavy lock; first run: 3 failures (an unregistered RANG_ variable, a text write without newline), fixed; second: only `test_every_note_is_in_the_research_index` |

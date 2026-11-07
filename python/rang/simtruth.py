@@ -120,6 +120,26 @@ SEEDS = {
     # Task W3 (research/w3-chunking.md): 64 antennas at 4096 channels. Its
     # seeds equal holdout256's (both chosen the same day); the designs differ.
     "w3": {"jones": 20261136, "sky": 20261137, "rfi": 20261138, "noise": 20261139},
+    # Task F2 (research/f2-flagger.md): F-SIM's six observations, built by
+    # rang.f2flag_sim, not designs of this module; `rfi_extra` seeds F2's
+    # added RFI morphologies.
+    **{
+        name: {
+            "jones": s0,
+            "sky": s0 + 1,
+            "rfi": s0 + 2,
+            "noise": s0 + 3,
+            "rfi_extra": s0 + 4,
+        }
+        for name, s0 in (
+            ("f2sim-1", 20262101),
+            ("f2sim-2", 20262111),
+            ("f2sim-3", 20262121),
+            ("f2sim-v", 20262131),
+            ("f2sim-t1", 20262141),
+            ("f2sim-t2", 20262151),
+        )
+    },
 }
 
 # Task C6: the versions whose parallactic angle is CASA's frame and whose
