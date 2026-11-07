@@ -1,7 +1,7 @@
 # Rang: GeMClean in Stokes I, Q, U, V and joined polarisations (task G9)
 
-Status, 2026-11-07: **implemented and measured; two held-out criteria not met as frozen, on one
-run.** GeMClean has WSClean's `-pol` (I, Q, U, V, XX, YY) and `-join-polarizations`, with
+Status, 2026-11-07: **implemented and measured; frozen C, D and E not met on held-out data**
+(D by both imagers on H1p Q1 and Q2; C and E on H1p-Q2; the post-hoc C′ and D′ pass). GeMClean has WSClean's `-pol` (I, Q, U, V, XX, YY) and `-join-polarizations`, with
 `-channels-out` and `-join-channels`, and `rang-core image` passes them (E2-B's image section
 validates). Under a rule committed before any comparison (`ae25a7b`), with post-hoc amendments
 labelled and committed before the held-out sky (`cc070a2`): single-polarisation I byte-identical
@@ -345,7 +345,7 @@ to main's C0. Peak RSS equal within 1 MB (2.88, 2.10, 6.86, 3.95, 3.20 GB).
 
 | gate (task) | criterion | result |
 | --- | --- | --- |
-| Each Stokes image, dirty and cleaned, agrees with WSClean within frozen tolerances | B (dirty, PSF, headers) | met on D1, P1 (after the pre-freeze header fix) and held-out H1p |
+| Each Stokes image, dirty and cleaned, agrees with WSClean within frozen tolerances | B (dirty, PSF, headers) | met on D1 and P1's joined runs; P1 Q1, Q4, Q5 failed `WSCIMGWG` with `dev1`; after the pre-freeze fix met on every held-out H1p run (confirmed on H1p only; P1 was not rerun) |
 | | E (cleaned) | met on D1 and P1; **not met on held-out H1p-Q2** (U `d_max` 224 against 203 µJy, a shared under-cleaned RM source); met on H1p Q1, Q3 |
 | No I-to-QUV leakage beyond WSClean's | C as frozen | met on D1 (the unpolarised sky) and P1; **not met on H1p-Q2** (U median, restoring-beam effect) |
 | | C′ (post hoc, common beam) | met on every run, H1p included |
@@ -392,7 +392,8 @@ to main's C0. Peak RSS equal within 1 MB (2.88, 2.10, 6.86, 3.95, 3.20 GB).
 
 - `research/README.md` index line: `[g9-stokes.md](g9-stokes.md) — G9: GeMClean -pol and
   -join-polarizations against WSClean 3.7 on simulated polarised skies; WSClean 3.7 joins
-  polarisations on a linear sum; held-out E and C failed on one run as frozen.`
+  polarisations on a linear sum; as frozen, held-out D failed for both imagers and C and E on one
+  run; the post-hoc C′ and D′ pass.`
 - `research/STATE.md` log paragraph: "G9, Stokes I, Q, U, V and joined polarisations, 2026-11-07
   (implemented; measured; [g9-stokes.md](g9-stokes.md)). `gemclean -pol` (I, Q, U, V, XX, YY,
   parsed as WSClean parses it) and `-join-polarizations`, with `-channels-out` / `-join-channels`;

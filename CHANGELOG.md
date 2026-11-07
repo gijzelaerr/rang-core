@@ -15,7 +15,9 @@ the release notes are the section of this file for that version.
   formed Stokes parameter); WSClean's file names (`<name>[-0000]-<pol>-<kind>.fits`, one PSF per
   channel from the first polarisation), `CRVAL4`, imaging-weight sources and header weights; joined
   polarisations pick peaks on the normalised linear sum, as WSClean 3.7's default loop does (its
-  help text says the sum of squares; recorded in the note); both work with `-channels-out` and
+  help text says the sum of squares; recorded in the note), so with QU joined, components whose
+  Q and U cancel are not cleaned, in GeMClean as in WSClean 3.7 (IQUV joining, as E2-B's, is far
+  less exposed); both work with `-channels-out` and
   `-join-channels`. XY, YX, circular correlations and `-link-polarizations` are refused.
   `rang-core image` passes `image.pol` and `image.join_polarizations` (only when not the defaults),
   so E2-B's image section is no longer refused. Single-polarisation I imaging is unchanged.
