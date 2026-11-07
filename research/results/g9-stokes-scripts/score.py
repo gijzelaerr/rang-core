@@ -5,6 +5,7 @@ the truth from CATALOGUE (G3's D1.json: Stokes I only; g9_stokes_simulate.py: I,
 channel). Configurations that were not run are skipped. Writes OUT/score-<sky>.json.
 """
 
+import importlib.util
 import json
 import math
 import re
@@ -14,8 +15,18 @@ from pathlib import Path
 import numpy as np
 from astropy.io import fits
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "g3-spectral-scripts"))
-from score import gaussian_kernel, inner, mad_sigma, restore  # noqa: E402  (G3's helpers)
+# G3's helpers, loaded by path under another name (both files are score.py).
+_spec = importlib.util.spec_from_file_location(
+    "g3_score", Path(__file__).resolve().parents[1] / "g3-spectral-scripts" / "score.py"
+)
+_g3 = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_g3)
+gaussian_kernel, inner, mad_sigma, restore = (
+    _g3.gaussian_kernel,
+    _g3.inner,
+    _g3.mad_sigma,
+    _g3.restore,
+)
 
 R_POINT = 6.0
 CFG = {  # pols, output channels, cleaned

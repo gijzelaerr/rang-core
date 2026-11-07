@@ -1,7 +1,18 @@
 # Rang: GeMClean in Stokes I, Q, U, V and joined polarisations (task G9)
 
-Status, 2026-11-07: **implemented; protocol frozen (this section 3), no gated comparison run yet.**
-The results sections are added as the runs finish.
+Status, 2026-11-07: **implemented and measured; two held-out criteria not met as frozen, on one
+run.** GeMClean has WSClean's `-pol` (I, Q, U, V, XX, YY) and `-join-polarizations`, with
+`-channels-out` and `-join-channels`, and `rang-core image` passes them (E2-B's image section
+validates). Under a rule committed before any comparison (`ae25a7b`), with post-hoc amendments
+labelled and committed before the held-out sky (`cc070a2`): single-polarisation I byte-identical
+to main (A); dirty images and PSFs within 4e-7 of WSClean, header weights within 1e-9 (B, after a
+pre-freeze fix); cleaned images within the single-polarisation gap except held-out H1p-Q2, U's
+largest difference 224 against 203 µJy at a source both imagers under-clean (E); no leakage beyond
+WSClean's, except the frozen form on H1p-Q2 through the restoring-beam width (C; the common-beam C′
+passes); truth recovery equal to WSClean's component by component, while the frozen absolute form
+fails for both imagers off the 8-channel runs (D, D′). **WSClean 3.7 joins polarisations on a
+linear sum, not the sum of squares its help describes**; GeMClean copies the binary. E2-B's shape
+peaks at 18.4 GB. No novelty claim; no default changed.
 
 Goal (finish plan, G9): GeMClean images in Stokes I, Q, U and V and joined polarisations as WSClean 3.7
 does: `-pol` (`I`, `IQUV`, `QU`, `xx,yy`, ...) as far as WSClean's semantics go for linear feeds,
@@ -199,6 +210,9 @@ polarisation must have `d_rms ≤ max(1.5 X_rms, X_rms + 0.1)` and `d_max ≤ ma
 
 **Held out.** B, C, D, E and F on H1p after the freeze, reported apart.
 
+**Not scored.** WSClean's `-no-fast-subminor` and `-squared-channel-joining`; XY/YX; circular feeds;
+`-link-polarizations`; timing.
+
 ### Post-hoc amendments (2026-11-07, after the development runs on D1 and P1, before H1p is drawn)
 
 Labelled post hoc; both the frozen and the amended verdicts are reported, and the amended ones are
@@ -235,7 +249,7 @@ and next 8 hex digits of `sha256("<full commit> <binary sha256> H1p")`, drawn by
 
 ## 5. Development results (measured; D1 and P1, binary `dev1`)
 
-Binary `dev1` (the protocol commit `ae25a7b`, sha256 `26cb23d0…1ea0ef`); outputs
+Binary `dev1` (the protocol commit `ae25a7b`, sha256 `26cb23d0…289acd`); outputs
 `/mnt/d/rang/outputs/g9-20261107-02` (`runs/g`, `runs/w`, `runs.tsv`, `score-D1.*`, `score-P1.*`),
 P1 simulated there (`data/P1.ms`, 0.8 GB). Runs 2026-11-07 on a shared host, each under the heavy
 lock. Scorer [score.py](results/g9-stokes-scripts/score.py).
@@ -284,5 +298,131 @@ shape (IQUV × 8 joined channels at 2048²); its 32 entries share 16 beams (I wi
 P1's weights). Reading: gemclean reads the MS once per polarisation (about 160 s of a Q1 run's
 180 s on `/mnt/d`); not tuned.
 
-**Not scored.** WSClean's `-no-fast-subminor` and `-squared-channel-joining`; XY/YX; circular feeds;
-`-link-polarizations`; timing.
+## 6. Held-out results (measured; H1p, the frozen binary)
+
+H1p drawn after the freeze record (`ca1fcbd`): sky seed `0x210f9de0`, noise seed `0xb0eaa431`
+(`/mnt/d/rang/outputs/g9-20261107-03/freeze.txt`; not in `rang.simtruth.SEEDS`), dec −45, 36
+points, 9 of them unpolarised. Binary `ee207980…` for every GeMClean run; outputs
+`/mnt/d/rang/outputs/g9-20261107-03` (`runs/g`, `runs/w`, `runs.tsv`, `score-H1p.*`). Run once,
+unchanged code.
+
+| criterion | Q0 | Q1 | Q2 | Q3 (8 ch, E2-B's shape) | Q4 (xx,yy) | Q5 (4 ch, dirty) |
+| --- | --- | --- | --- | --- | --- | --- |
+| B | met | met | met | met | met | met |
+| C as frozen / C′ | – | met / met | **not met** / met | met / met | – | – |
+| D as frozen / D′ | – | **not met** / met | **not met** / met | met / met | – | – |
+| E | – | met | **not met** (U `d_max`) | met | – | – |
+| F (GB, G / W) | 2.95 / 0.77 | 5.71 / 0.73 | 6.14 / 0.74 | 18.42 / 1.45 | 3.65 / 0.61 | 8.08 / 0.51 |
+
+- **B.** Largest |ΔDirty|, |ΔPSF| 3.1e-7 of the first polarisation's peak, 4.2e-7 of the file's own;
+  `WSCIMGWG` within 2.1e-10 on every file, the unjoined runs (Q1, Q4, Q5) included: the header
+  fix made before the freeze holds on held-out data.
+- **C.** Frozen C fails on Q2 for U only: median |R_U|/I 5.99e-4 against WSClean's 4.82e-4 (bound
+  +1e-4), on GeMClean's own (narrower-beam) restored image. With one beam (C′) the same quantity is
+  4.76e-4 against 4.82e-4 and every clause is met, on every run.
+- **D.** As frozen, both imagers fail the same components on Q1 (I 6 / 6 of 25, linear 7 / 7 of 15)
+  and Q2 (I 7 / 7 of 25, linear 7 / 7 of 16); Q3 meets D (I 198, linear 112, V 9 scored, none
+  failed in either). D′ is met everywhere: paired median error differences 1e-6 to 4e-3, paired
+  Δχ differences under 0.005°.
+- **E.** Bounds `d_rms` 0.125, `d_max` 203 µJy (Q0: 0.025, 103 µJy). Q1: I 0.025 / 103 µJy, Q, U
+  0.009-0.014 / 16-35, V 0.001 / 1. Q3 (MFS): I 0.069 / 108, Q, U 0.016-0.018 / 21-27, V 0.012 / 8.
+  **Q2 fails as frozen on U's largest difference, 224 µJy against 203** (rms passes: 0.045). It sits
+  11.5 pixels from a 0.49 Jy source with p = 0.22 and RM −12.9 rad/m², whose U varies across the
+  band; one output channel cannot model that, and **both** imagers leave about 1 mJy of residual U
+  there (peak |residual| in the aperture 1.05 mJy GeMClean, 0.99 mJy WSClean; model U flux 15.5 and
+  17.9 mJy). Q2's I and Q differences sit at the same pixel (140 and 77 µJy). No fix was made.
+- **F.** All under 24 GB; Q3 18.4 GB.
+
+### 6a. Criterion A: single polarisation I byte-identical (met)
+
+Main `0f5ef06` built here (sha256 `e0b2887f…1ea0ef`) and the frozen binary on D1 at G3's settings
+([identity.sh](results/g9-stokes-scripts/identity.sh), `/mnt/d/rang/outputs/g9-20261107-04`,
+SHA-256 lists kept, FITS deleted): C0, C0 with `-single -wgridder-accuracy 1e-4`, C1, C3 and C4,
+**all 100 FITS files identical** (5, 5, 45, 25, 20), and C0 with `-pol I` given explicitly identical
+to main's C0. Peak RSS equal within 1 MB (2.88, 2.10, 6.86, 3.95, 3.20 GB).
+
+## 7. Gate summary
+
+| gate (task) | criterion | result |
+| --- | --- | --- |
+| Each Stokes image, dirty and cleaned, agrees with WSClean within frozen tolerances | B (dirty, PSF, headers) | met on D1, P1 (after the pre-freeze header fix) and held-out H1p |
+| | E (cleaned) | met on D1 and P1; **not met on held-out H1p-Q2** (U `d_max` 224 against 203 µJy, a shared under-cleaned RM source); met on H1p Q1, Q3 |
+| No I-to-QUV leakage beyond WSClean's | C as frozen | met on D1 (the unpolarised sky) and P1; **not met on H1p-Q2** (U median, restoring-beam effect) |
+| | C′ (post hoc, common beam) | met on every run, H1p included |
+| Polarised point sources recover the truth's Q, U, V as well as WSClean | D as frozen | **not met by either imager** on one-channel runs and on QU joining; met on Q3 on P1 and H1p |
+| | D′ (post hoc, parity) | met on every run, H1p included |
+| Single-polarisation I runs byte-identical to main | A | **met**: 100 files of five configurations on D1, and `-pol I` |
+| A held-out sky frozen before it runs | H1p | done |
+
+## 8. Owner decisions (none were put to the owner; provisional)
+
+1. **Joined polarisations follow WSClean 3.7's binary, not its help text.** The default loop picks
+   peaks on the normalised linear sum `f Σ_p r_p`; the help says the sum of squares. GeMClean
+   copies the binary (the oracle). Consequence, measured: with QU joined (P1-Q6) components whose
+   Q and U cancel are not cleaned, by either imager (section 5). E2-B joins IQUV, where I dominates
+   the sum, so it is far less exposed; QU-only joining is. Open: offer the squared rule as a
+   GeMClean option (WSClean has it only through `-no-fast-subminor`, after its first pick), or
+   report it upstream.
+2. XY and YX (complex images), circular correlations and `-link-polarizations` are refused, naming
+   this note (provisional; MeerKAT is linear and E2-B needs neither).
+3. A beam is shared between polarisations of a channel only where rows and gridding weights are
+   bit-identical; WSClean deconvolves every polarisation with the first one's PSF. GeMClean's exact
+   values need each measurement's own PSF; the written PSF and restoring beam are the first
+   polarisation's, as WSClean's (provisional).
+4. Header weights copy WSClean's run-order artefacts (section 1), including MFS images of every
+   polarisation weighted by the last polarisation's channel weights (provisional, for parity).
+5. The post-hoc C′ and D′ (section 3) stand beside the frozen C and D; the owner may prefer either.
+6. GeMClean's fitted restoring beam is narrower than WSClean's on every sky (about 10.7″ against
+   14.3″ here, the same on main's I path): not a G9 change, but it affects every restored image;
+   for G7/G8.
+
+## 9. What was not checked
+
+- Real data: the C6w-calibrated `poldx` target (CORRECTED_DATA under calwt weights) was not imaged;
+  E2-B itself was not run (its configuration validates).
+- `-no-fast-subminor`, `-squared-channel-joining`, `-link-polarizations`, `-fit-spectral-pol` with
+  joined polarisations (the code path exists; P1/H1p ran no fit), `-mf-weighting` on unjoined
+  channels with several polarisations, `-single` with several polarisations, `-average-channels`
+  and `-channel-range` with several polarisations.
+- Circular feeds, XY/YX (refused).
+- Timing (shared host). Reading the MS once per polarisation costs about 160 s of an IQUV run on
+  `/mnt/d` (section 5); not tuned.
+
+## 10. For the coordinator
+
+- `research/README.md` index line: `[g9-stokes.md](g9-stokes.md) — G9: GeMClean -pol and
+  -join-polarizations against WSClean 3.7 on simulated polarised skies; WSClean 3.7 joins
+  polarisations on a linear sum; held-out E and C failed on one run as frozen.`
+- `research/STATE.md` log paragraph: "G9, Stokes I, Q, U, V and joined polarisations, 2026-11-07
+  (implemented; measured; [g9-stokes.md](g9-stokes.md)). `gemclean -pol` (I, Q, U, V, XX, YY,
+  parsed as WSClean parses it) and `-join-polarizations`, with `-channels-out` / `-join-channels`;
+  Stokes parameters formed as WSClean's `ExtractData`/`ExtractWeights`; WSClean's names, `CRVAL4`,
+  imaging-weight sources and header weights (read in its source and probed). WSClean 3.7's default
+  loop joins polarisations on the normalised **linear** sum (its help says squares); GeMClean
+  copies the binary, so QU-only joining leaves components whose Q and U cancel uncleaned in both.
+  `rang-core image` passes `image.pol` and `image.join_polarizations`; E2-B's image section
+  validates. Under a rule written first: dirty images and PSFs within 4e-7 of WSClean on D1, P1 and
+  held-out H1p, header weights within 1e-9 (after a pre-freeze fix for unjoined polarisations);
+  cleaned images within the single-polarisation gap except held-out H1p-Q2 (U, 224 against 203 µJy,
+  at a source both imagers under-clean); no leakage beyond WSClean's on the unpolarised sky (the
+  frozen form fails once on H1p through the restoring-beam width, the common-beam form passes);
+  truth recovery equal to WSClean's component by component (the frozen absolute form fails for
+  both imagers off the 8-channel runs). E2-B's shape (IQUV × 8 joined channels at 2048²) peaks at
+  18.4 GB (WSClean 1.4 GB). No novelty claim."
+- `research/finish-plan.md`: G9 done with the failures recorded; unblocks G7 and E2-B's image stage.
+- **Merge with W6/G6 (`fp-g6-predict`).** Expected textual conflicts, all additive:
+  `input::Selection` (W6 adds `scans`, `unit_weights`; G9 adds `polarization`; keep all three and
+  all three defaults); `read_ms` (W6 replaces the row closure by `row_mask` and changes the
+  `weight_spectrum` test and the weight source; G9 changes only the correlation indices and the
+  cell call: keep both); `bin/gemclean.rs` `Args`, `parse_args` and `run()`'s `Selection` literal
+  (W6's `-scans`/`-unit-weights`, G6's `-predict`/MODEL_DATA, G9's `-pol`). After the merge:
+  `run_polarizations` builds its per-polarisation `Selection` from `selection.clone()`, so scans
+  and unit weights reach every polarisation; G6's model writing does not run in
+  `run_polarizations` and should be refused with several polarisations (or written per
+  polarisation) until a task owns it; `core_config.py`'s refusal list and
+  `test_the_acceptance_configurations_parse_and_wait_for_their_tasks` (G9 removed here, W4/W6
+  there): E2-B's set becomes empty or W6's remainder. Rerun criterion A after the merge.
+- Follow-up (not in G9): read the MS once for all polarisations.
+- Branch `fp-g9-stokes`; outputs `/mnt/d/rang/outputs/g9-20261107-0{1,2,3,4}` with `.code`
+  snapshots (P1.ms and H1p.ms, about 0.8 GB each; run FITS deletable after
+  review: about 21 GB with the two simulated MS), binaries in `/mnt/d/rang/outputs/g9-bin`.

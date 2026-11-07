@@ -1697,3 +1697,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | E0 msutils oracle venv (`msutils-venv.sh`, uv) | PyPI | about 1 min a build, four builds (dask pin found by trial) | – | dask 2024.7.1 with dask-ms 0.2.21 |
 | 2026-11-07 | E0 check-all run 1 | worktree | 682.84 s inside the heavy lock (about 2.5 h lock wait) | 1.84 GiB | Rust clippy and fmt failed on flag_extend.rs (fixed); pytest 1021 passed, 68 skipped, only `test_every_note_is_in_the_research_index` fails |
 | 2026-11-07 | E0 check-all run 2 | worktree | 517.31 s inside the heavy lock | 1.81 GiB | only `test_every_note_is_in_the_research_index` fails; pytest 1021 passed, 68 skipped |
+| 2026-11-07 | G9 WSClean 3.7 probe (`probe.sh`, ten small runs) | probe MS, 16 dishes, 4 channels, 512² | under 1 min each | – | oracle semantics only (research/g9-stokes.md) |
+| 2026-11-07 | G9 `g9_stokes_simulate.py` P1 | 64 dishes, 2 h at 16 s, 16 channels, four Stokes | 67.8 s | 0.54 GB | per-channel, per-Stokes core predict |
+| 2026-11-07 | G9 check-all run 1 | worktree | 19:49 with lock wait | 1.96 GB | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-07 | G9 check-all run 2 | worktree | 34:47 with lock wait | 1.84 GB | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-07 | G9 development runs, GeMClean `dev1` and WSClean 3.7 (D1, P1; `runs.tsv` in g9-20261107-02) | 2048², 16 channels | GeMClean 0:50-7:44, WSClean 1:00-21:23 per run | GeMClean up to 18.35 GB (Q3), WSClean up to 1.44 GB | shared host, no timing claim; GeMClean reads the MS once per polarisation (about 160 s of an IQUV run on /mnt/d) |
+| 2026-11-07 | G9 held-out runs, GeMClean frozen and WSClean 3.7 (H1p; runs.tsv in g9-20261107-03) | 2048², 16 channels | GeMClean 0:54-7:28, WSClean 0:57-21:08 per run; simulation 69.8 s | GeMClean up to 18.42 GB (Q3), WSClean up to 1.45 GB | shared host, no timing claim |
+| 2026-11-07 | G9 criterion A identity (main 0f5ef06 and frozen gemclean, D1, 11 runs) | 2048², 16 channels | about 1-2 min each | 2.10-6.86 GB | all FITS identical |
