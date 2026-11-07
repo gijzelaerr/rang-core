@@ -141,7 +141,7 @@ The largest risks are outside that count:
 
 ## 6. Waiting, and off the finish line
 
-- **Landman.** The owner pinged him on 2026-11-05. Nothing starts on the flagger until he replies. The non-TV arms (Z, R, F-RES) would need
+- **Landman.** He replied on 2026-11-06 (supervised fast network fine; weights per observatory and band; separate calibrator and target strategies). F2 ran 2026-11-06/07 ([f2-flagger.md](f2-flagger.md)): outcome F in both classes; not a second flagger for `rang-core flag`. Continuing needs a new protocol (owner decision). Earlier: nothing started on the flagger until he replied. The non-TV arms (Z, R, F-RES) would need
   a new frozen protocol. If one succeeds, it joins through `rang-core flag` as a second flagger; it is not a condition of v0.2.0.
 - **Upstream replies, Tricolour 0.5.0 and QuartiCal 0.2.8** (RV2, RV3) continue as they arrive. A new upstream release may move an oracle.
 - **The paper and the WSClean report** remain owner decisions ([clean-overview.md](clean-overview.md)).

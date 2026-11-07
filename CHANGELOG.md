@@ -20,6 +20,13 @@ the release notes are the section of this file for that version.
   `core/src/flag_extend.rs`), run before the polcal solves on the Gpol, KCROSS and Xf fields and then
   the Df fields, within `data.scans`. The two new keys change the calibrate stage hash, so a
   calibrate stage finished earlier reruns once with `--force`.
+- New (research, task F2, `research/f2-flagger.md`): `rang.f2flag`, a 2,785-weight per-baseline
+  convolutional RFI flagger (features and network in NumPy/JAX, training in JAX on CPU), its Rust
+  inference kernel `rang_core::cnnflag` (`rang._core.cnnflag_logits`, rows in, logits out, parity with
+  JAX tested), and `rang.f2flag_sim`, simulated MeerKAT L-band scans on LUNO's window with RFI of known
+  mask from `rang.simtruth` (F2's seeds registered in `simtruth.SEEDS`). Not wired into `rang-core
+  flag`; weights are run outputs, not shipped.
+
 - New: the Stimela2 recipe `recipes/rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply`
   and `image` in order on one configuration and MS, with the cabs `rang-flag`, `rang-calibrate`,
   `rang-apply` and `rang-image` in `recipes/rang-cabs.yaml`; each cab runs the console script

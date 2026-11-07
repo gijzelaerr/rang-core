@@ -57,6 +57,7 @@ mod cal_fluxscale;
 mod cal_gain;
 mod cal_pol;
 mod clean;
+mod cnnflag;
 mod flag_extend;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
@@ -2833,5 +2834,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cal_pol::cal_df_solve, m)?)?;
     // Task E0: CASA's flagdata mode=extend (research/e0-refant-extend.md).
     m.add_function(wrap_pyfunction!(flag_extend::flag_extend, m)?)?;
+    // Task F2: the learned flagger's inference (research/f2-flagger.md).
+    m.add_function(wrap_pyfunction!(cnnflag::cnnflag_logits, m)?)?;
     Ok(())
 }
