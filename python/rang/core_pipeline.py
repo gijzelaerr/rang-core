@@ -288,6 +288,16 @@ def check_data(config, info, stages):
             "correlations (XX, XY, YX, YY), including the diagonal K, G and B "
             "terms",
         )
+        try:
+            pols = core_config.parse_pol(config["image"]["pol"])
+        except ValueError:
+            pols = []
+        if {"U", "V"} & set(pols):
+            no(
+                ("image",),
+                f"correlations {names}: image.pol {config['image']['pol']!r} needs "
+                "XY and YX for Stokes U and V (task G9)",
+            )
     elif corr != LINEAR:
         no(
             ALL_STAGES,
@@ -1844,6 +1854,11 @@ def gemclean_arguments(img, column, field_id, prefix, ms):
         args.append("-join-channels")
     if img["fit_spectral_pol"] is not None:
         args += ["-fit-spectral-pol", str(img["fit_spectral_pol"])]
+    # Task G9: only when not the default, so earlier argv stay as they were.
+    if img["pol"] != "I":
+        args += ["-pol", img["pol"]]
+    if img["join_polarizations"]:
+        args.append("-join-polarizations")
     args += ["-data-column", column, "-field", str(field_id)]
     args += list(img["extra_args"])
     return [*args, str(ms)]

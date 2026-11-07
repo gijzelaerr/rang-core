@@ -55,6 +55,7 @@ pub mod memory;
 pub mod sim;
 pub mod spectral;
 pub mod stale_bound;
+pub mod stokes;
 
 use crate::clean::{CleanStep, argmax_abs};
 use crate::clean_certified::Measurement;

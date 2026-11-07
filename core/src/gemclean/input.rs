@@ -18,6 +18,7 @@
 //! (WSClean divides in `long double`; a rare last-bit difference can move a
 //! sample by one weight cell).
 
+use super::stokes::{self, Pol};
 use crate::ms::{ColumnData, DataType, Table};
 use crate::weights::{WeightClass, WeightSettings, imaging_weights, padded_size};
 use rayon::prelude::*;
@@ -34,6 +35,9 @@ pub struct Selection {
     pub data_desc: i32,
     /// Rows read per chunk.
     pub chunk_rows: u64,
+    /// The polarisation formed from the correlations (task G9; Stokes I by
+    /// default, the rule above).
+    pub polarization: Pol,
 }
 
 impl Default for Selection {
@@ -43,6 +47,7 @@ impl Default for Selection {
             field: 0,
             data_desc: 0,
             chunk_rows: 20_000,
+            polarization: Pol::I,
         }
     }
 }
@@ -227,7 +232,14 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
     if dir.len() < 2 {
         return err("PHASE_DIR has fewer than two values");
     }
-    let (a, b) = parallel_hands(&correlations)?;
+    let pol = sel.polarization;
+    let (a, b, direct) = match pol {
+        Pol::I => {
+            let (a, b) = parallel_hands(&correlations)?;
+            (a, b, false)
+        }
+        p => stokes::correlation_indices(p, &correlations)?,
+    };
     let nchan = freq.len();
     let ncorr = correlations.len();
     let weight_spectrum = main.column("WEIGHT_SPECTRUM").is_ok()
@@ -321,13 +333,16 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
                 .for_each(|((vis, wgt), &i)| {
                     for ch in 0..nchan {
                         let cell = i * cells + ch * ncorr;
-                        let (v, w) = stokes_cell(
+                        let (d, w, f) = (
                             &data[2 * cell..2 * (cell + ncorr)],
                             &weights[cell..cell + ncorr],
                             &flag[cell..cell + ncorr],
-                            a,
-                            b,
                         );
+                        let (v, w) = if pol == Pol::I {
+                            stokes_cell(d, w, f, a, b)
+                        } else {
+                            stokes::cell(pol, d, w, f, a, b, direct)
+                        };
                         vis[ch] = Complex::new(v.0, v.1);
                         wgt[ch] = w;
                     }
