@@ -1688,5 +1688,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-07 | E0 `check_e0.py command` -11 | A1 small, three `rang-core calibrate` runs | 145.4 s; calibrate 45-47 s each | 203 MB | – |
 | 2026-11-07 | E0 gate 3, `rang-core config check` | e2b.yaml | 0.23 s | – | – |
 | 2026-11-06 | E0 msutils oracle venv (`msutils-venv.sh`, uv) | PyPI | about 1 min a build, four builds (dask pin found by trial) | – | dask 2024.7.1 with dask-ms 0.2.21 |
-| 2026-11-07 | E0 check-all run 1 | worktree | 682.84 s inside the heavy lock (about 2.5 h lock wait) | 1900616 KB | Rust clippy and fmt failed on flag_extend.rs (fixed); pytest 1021 passed, 68 skipped, only `test_every_note_is_in_the_research_index` fails |
-| 2026-11-07 | E0 check-all run 2 | worktree | 517.31 s inside the heavy lock | – | only `test_every_note_is_in_the_research_index` fails; pytest 1021 passed, 68 skipped |
+| 2026-11-07 | E0 check-all run 1 | worktree | 682.84 s inside the heavy lock (about 2.5 h lock wait) | 1.84 GiB | Rust clippy and fmt failed on flag_extend.rs (fixed); pytest 1021 passed, 68 skipped, only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-07 | E0 check-all run 2 | worktree | 517.31 s inside the heavy lock | 1.81 GiB | only `test_every_note_is_in_the_research_index` fails; pytest 1021 passed, 68 skipped |
