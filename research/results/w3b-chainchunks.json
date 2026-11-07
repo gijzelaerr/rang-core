@@ -1,0 +1,333 @@
+{
+ "cases": {
+  "O": {
+   "reference": "U",
+   "checks": {
+    "D vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "T vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "M vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    }
+   },
+   "memory": {
+    "U": {
+     "limit_gb": 28.0,
+     "peak_gb": {
+      "calibrate": 0.21401596069335938,
+      "apply": 0.13109970092773438
+     },
+     "within": true
+    },
+    "D": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.19546890258789062,
+      "apply": 0.1300201416015625
+     },
+     "within": true
+    },
+    "T": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.15384674072265625,
+      "apply": 0.052486419677734375
+     },
+     "within": true
+    },
+    "M": {
+     "limit_gb": 0.801,
+     "peak_gb": {
+      "calibrate": 0.187774658203125,
+      "apply": 0.1304168701171875
+     },
+     "within": true
+    }
+   }
+  },
+  "C": {
+   "reference": "U",
+   "checks": {
+    "D vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "T vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "M vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    }
+   },
+   "memory": {
+    "U": {
+     "limit_gb": 28.0,
+     "peak_gb": {
+      "calibrate": 0.138763427734375,
+      "apply": 0.14339065551757812
+     },
+     "within": true
+    },
+    "D": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.13956832885742188,
+      "apply": 0.14220046997070312
+     },
+     "within": true
+    },
+    "T": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.058361053466796875,
+      "apply": 0.049755096435546875
+     },
+     "within": true
+    },
+    "M": {
+     "limit_gb": 0.648,
+     "peak_gb": {
+      "calibrate": 0.075164794921875,
+      "apply": 0.06770706176757812
+     },
+     "within": true
+    }
+   }
+  },
+  "P": {
+   "reference": "U",
+   "checks": {
+    "D vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "T vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "M vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    }
+   },
+   "memory": {
+    "U": {
+     "limit_gb": 28.0,
+     "peak_gb": {
+      "calibrate": 0.3067131042480469,
+      "apply": 0.5409202575683594
+     },
+     "within": true
+    },
+    "D": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.2995643615722656,
+      "apply": 0.5379753112792969
+     },
+     "within": true
+    },
+    "T": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.2504920959472656,
+      "apply": 0.16111373901367188
+     },
+     "within": true
+    },
+    "M": {
+     "limit_gb": 0.71,
+     "peak_gb": {
+      "calibrate": 0.21358489990234375,
+      "apply": 0.238983154296875
+     },
+     "within": true
+    }
+   }
+  },
+  "W": {
+   "reference": "D",
+   "checks": {
+    "M vs D": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true
+     }
+    }
+   },
+   "memory": {
+    "D": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 3.3485107421875
+     },
+     "within": true
+    },
+    "M": {
+     "limit_gb": 4.327,
+     "peak_gb": {
+      "calibrate": 1.6578445434570312
+     },
+     "within": true
+    }
+   }
+  }
+ },
+ "held_out": {
+  "H": {
+   "reference": "U",
+   "checks": {
+    "D vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "T vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    },
+    "M vs U": {
+     "calibrate: columns differing": [],
+     "calibrate: flag versions equal": true,
+     "apply: columns differing": [],
+     "apply: flag versions equal": true,
+     "gain store files equal": true,
+     "summaries equal": {
+      "calibrate": true,
+      "apply": true
+     }
+    }
+   },
+   "memory": {
+    "U": {
+     "limit_gb": 28.0,
+     "peak_gb": {
+      "calibrate": 0.30799102783203125,
+      "apply": 0.5402870178222656
+     },
+     "within": true
+    },
+    "D": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.2957000732421875,
+      "apply": 0.5398445129394531
+     },
+     "within": true
+    },
+    "T": {
+     "limit_gb": 8.0,
+     "peak_gb": {
+      "calibrate": 0.2501411437988281,
+      "apply": 0.16054534912109375
+     },
+     "within": true
+    },
+    "M": {
+     "limit_gb": 0.71,
+     "peak_gb": {
+      "calibrate": 0.21342849731445312,
+      "apply": 0.238433837890625
+     },
+     "within": true
+    }
+   }
+  }
+ },
+ "refusal": {
+  "exit": "2",
+  "message": "rang-core calibrate: refused\ncalibrate.primary.terms[0] (K, K): field 'J1939-6342': one solution interval holds 198180864 visibility cells of 24192 rows and needs 18.353 GiB, above data.memory_limit_gb 8; raise the limit, or use a shorter solint (a solution interval is solved whole)",
+  "columns_unchanged": true
+ },
+ "runs": {
+  "frozen": "/mnt/d/rang/outputs/w3b-20261106-04",
+  "held_out": "/mnt/d/rang/outputs/w3b-20261106-05",
+  "probe": "/mnt/d/rang/outputs/w3b-20261106-02-probe"
+ }
+}

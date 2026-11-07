@@ -232,9 +232,87 @@ The per-row arrays (two float64 per MS row, plus FIELD_ID, TIME and the antennas
 held is a table per field of unique times x antennas (8 bytes each) and the chunk being read, both inside the
 budget (row metadata and chunk). `cal_pol.load` and `gpol` use the same tables for their field.
 
-The library check on poldx (read only, `tools/oracles/w3b/library_check.py`, log `library-dev-check-poldx.log` in the same directory) found K, G (ap, p), B, Gpol,
-KCROSS, Xf and Df chunked (a small budget, and a 7-row cap) equal to one call, table cell for table cell.
+The library check on poldx (read only, `tools/oracles/w3b/library_check.py`, log
+`library-dev-check-poldx.log` in the same directory) found K, G (ap, p), B, Gpol, KCROSS, Xf and Df chunked (a
+small budget, and a 7-row cap) equal to one call, table cell for table cell.
+
+### 5.3 Frozen run -04
+
+`W3B_ORACLE=~/Worktrees/rang/w3b-oracle-ba65792 bash tools/oracles/w3b/all.sh
+/mnt/d/rang/outputs/w3b-20261106-04`, at `b07bf24` (code `295e65c` plus note and harness lint). The U arm ran main
+`ba65792`'s Python with an extension built from that checkout. After the first arm (O-U) the run was restarted
+at `1715dea`, a harness-only change (`all.sh` keeps finished arms and runs the O, C and P arms without the heavy
+lock, which other tasks held for hours); no comparison had been made, and `run.sh`, `compare.py` and the code are
+unchanged (recorded in `w3b-20261106-04.code/head.txt`). A run started as -03 was stopped before its first arm
+and removed. Verdict `run-04/verdict.json`, archive [results/w3b-chainchunks.json](results/w3b-chainchunks.json).
+
+| # | Criterion | Measured | Verdict |
+| --- | --- | --- | --- |
+| 1 | Identity on O, C, P: D, T, M against U | every calibrate run-directory file (K, G, B, F, `F.append`, Gsec, Gpol, Kcross, Xf, Df tables) byte-identical; every MS column equal after calibrate and after apply; flag versions equal; calibrate and apply summaries equal (cleaned) | **pass** (12 of 12 comparisons) |
+| 2 | Memory on W | calibrate peak 3.35 GiB at the 8 GiB default (D), 1.66 GiB at 4.327 GiB (M) | **pass** |
+| 3 | W consistency, M against D | tables byte-identical, columns, flag versions and summaries equal | **pass** |
+| 4 | Refusal on W (K `solint: inf`, 8 GiB) | exit 2: "one solution interval holds 198180864 visibility cells of 24192 rows and needs 18.353 GiB, above data.memory_limit_gb 8"; every column hash unchanged, no flag version, no run directory | **pass** |
+| 6 | Unit tests | `tests/test_w3b_chainchunks.py` (17) and the changed W3 test pass in check-all | **pass** |
+
+Chunks (from each summary's `chunking.solves`; one chunk everywhere at D except W):
+
+- O: T: B0 and B1 28 channel chunks, K1 and G1 32 (one integration each); M: B0, B1 2 channel chunks; K0 and G0
+  are one interval and one chunk in every arm, as section 2 said.
+- C: T: B 64 channel chunks, Gsec and F 10; M: B 2, Gsec and F 4 (K and G: one scan, one chunk). The A steps under
+  T flagged in blocks of single baselines.
+- P: T: K, G 2; B, Xf, Df 256 channel chunks (Df's gauge test streamed); F 10; Gpol, KCROSS 4; M: B, Df 4, Xf 5,
+  F, Gpol, KCROSS 4, K, G 2.
+- W: D: K and G 6 chunks (two dumps), B 10 channel chunks; M: K and G 12, B 20. Both stop where the probe stopped
+  (K 21, G 16, B 14 iterations), so the replay reproduced early stops on whole-array data, identically at two
+  chunkings.
+
+Peaks (GiB, `/usr/bin/time -v`), reported: O calibrate U / D / T / M 0.21 / 0.20 / 0.15 / 0.19; C 0.14 / 0.14 /
+0.06 / 0.08; P 0.31 / 0.30 / 0.25 / 0.21, apply 0.54 / 0.54 / 0.16 / 0.24. On the small sets M's limit (0.65-0.80
+GiB) is below what a Python process with the reader needs at all; the arm forces chunks, it does not test memory
+(W does). Walls: W calibrate D 31 min 32 s, M 51 min 44 s; P-T calibrate 28 min 42 s, C-T 16 min 16 s (one
+channel per chunk re-reads the field; 7-row WriteBack flushes); every other arm under 1.1 min per stage.
+
+### 5.4 Held-out run -05 (criterion 5)
+
+`/mnt/d/rang/outputs/w3b-20261106-05`, case H (C6w's prepared `polholdout`, frozen in section 2, untouched before
+this run), arms U, D, T, M (M 0.710 GiB), same code as -04, started after W's D and M arms had finished.
+Verdict `run-05/verdict.json` (in the archive as `held_out`): D, T and M against U **pass**: every table file
+byte-identical, every column and flag version equal after calibrate and after apply, summaries equal. Peaks:
+calibrate 0.31 / 0.30 / 0.25 / 0.21 GiB, apply 0.54 / 0.54 / 0.16 / 0.24 GiB. Walls: H-T calibrate 28 min 18 s,
+apply 9 min 50 s; the others 0.8-1.3 min per stage; 45 min in all.
+
+**Every frozen criterion (1 to 6) passes.**
+
+## 6. Limits and what was not checked
+
+- As section 4: no whole-array MS of hours, no apply, A, F or polarisation term on W, no Windows or macOS, no
+  speed.
+- One solution interval with all its channels is the smallest chunk of K, G, F, Gpol and KCROSS (one channel of
+  one interval for B, Xf, Df). K or G with `solint: inf` on a whole-array scan (198 M cells) needs about 18 GiB
+  and is refused below that; splitting an interval over channels would change the solvers.
+- A chunk in channels re-reads the whole interval's rows for every chunk and both passes (Df: four passes, the
+  gauge test first), because the pre-apply runs on whole rows and the reader has no channel-sliced read. On W
+  calibrate at 4.3 GiB took 55 min against W3's complex solve's 22 min at 2 GiB (shared host, not a timing
+  measurement); arm T on poldx takes most of its time in B, Xf and Df at one channel per chunk.
+- The counted kernels record counts up to a solver error, so a chunked solve fails exactly where the one-call
+  solve fails (unit-tested on a synthetic replay; no solver error occurred in a run).
+- `CELL_BYTES["chain"]` was fitted on W only (section 5.1); its margin is about two there.
+- E0 (branch `fp-e0-refant`) adds `refant: auto` and `extendflags` with hooks in `core_pipeline` and
+  `cal_chain`; the merge is expected to be small (`stage_calibrate_chain`'s call of `cal_chain.run` gains
+  `budget=`; `cal_chain.run` gains a `budget` keyword).
+
+## 7. Owner decisions
+
+- **Blocks are not capped by `data.chunk_rows`** (amendment 1): `chunk_rows` caps solve chunks only; a read block
+  of whole rows for a channel chunk is bounded by the memory. Provisional.
+- **The counted kernels** (`diag::solve_counted`, `delay::solve_counted`, `delay_offset::solve_counted` and their
+  `rang._core.*_trace` entry points) are new public Rust and extension functions that only observe; owner may
+  prefer them private. Provisional: public, as `core.solve_complex(trace=...)` is.
+- **The A step's summary** gains a `chunking` record when it runs under a budget (`rang-core calibrate` always),
+  and its `flag_sha256` is now taken from FLAG re-read after the write (the same bytes). Provisional.
+- **The heavy lock** was taken per arm for W only; O, C and P arms (under 0.6 GiB) ran without it after the first
+  arm waited about two hours behind other tasks (no timing is claimed).
 
 ## For the coordinator
 
-(written at the end)
+FOR_COORDINATOR_PLACEHOLDER
