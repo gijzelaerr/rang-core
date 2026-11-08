@@ -304,7 +304,12 @@ image:
   fits_mask: null  # a FITS mask
   taper_gaussian: null  # a Gaussian taper, such as 10asec
   uvrange: ""  # baselines imaged
-  multiscale: false  # multiscale CLEAN
+  multiscale: false  # multiscale CLEAN (WSClean's -multiscale)
+  multiscale_scales: null  # scales in pixels (null: WSClean's automatic scales)
+  multiscale_max_scales: null  # at most this many automatic scales (null: all that fit)
+  multiscale_scale_bias: null  # bias towards larger scales, lower is stronger (null: 0.6)
+  multiscale_shape: tapered-quadratic  # the scale shape
+  multiscale_gain: null  # a sub-minor loop takes its peak down by this (null: 0.2)
   pol: I  # polarisations, such as I or IQUV
   join_polarizations: false  # join the polarisations
   write_model: false  # predict the model images into MODEL_DATA after imaging, as WSClean does (through write-back; task G6)

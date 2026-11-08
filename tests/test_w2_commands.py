@@ -735,6 +735,52 @@ def test_cli_imports_no_numpy_for_the_new_commands():
     assert out.stdout.strip() == "ok"
 
 
+def test_the_multiscale_image_options_reach_gemclean():
+    """G5 (research/g5-multiscale.md): multiscale and its options are passed to
+    gemclean; an option without multiscale is a configuration error."""
+    image = {
+        "size": [64, 64],
+        "scale": "2asec",
+        "multiscale": True,
+        "multiscale_scales": [0, 5, 12.5],
+        "multiscale_max_scales": 3,
+        "multiscale_scale_bias": 0.7,
+        "multiscale_shape": "gaussian",
+        "multiscale_gain": 0.1,
+    }
+    config, errors = core_config.resolve({"version": 1, "image": image})
+    assert errors == []
+    assert [
+        r for r in core_config.refusals(config, ["image"]) if r.path.startswith("image")
+    ] == []
+    args = pipe.gemclean_arguments(config["image"], "DATA", 0, "out/img", "x.ms")
+    pairs = list(itertools.pairwise(args))
+    assert "-multiscale" in args
+    assert ("-multiscale-scales", "0.0,5.0,12.5") in pairs
+    assert ("-multiscale-max-scales", "3") in pairs
+    assert ("-multiscale-scale-bias", "0.7") in pairs
+    assert ("-multiscale-shape", "gaussian") in pairs
+    assert ("-multiscale-gain", "0.1") in pairs
+    assert args[-1] == "x.ms"
+    plain, _ = core_config.resolve(
+        {"version": 1, "image": {"size": [64, 64], "scale": "2asec"}}
+    )
+    flags = pipe.gemclean_arguments(plain["image"], "DATA", 0, "out/img", "x.ms")
+    assert not [f for f in flags if f.startswith("-multiscale")]
+    alone, _ = core_config.resolve(
+        {"version": 1, "image": {**image, "multiscale": False}}
+    )
+    refused = {r.path for r in core_config.refusals(alone, ["image"])}
+    assert {
+        "image.multiscale_scales",
+        "image.multiscale_max_scales",
+        "image.multiscale_scale_bias",
+        "image.multiscale_shape",
+        "image.multiscale_gain",
+    } <= refused
+    assert "G5" not in core_config.TASKS
+
+
 def test_the_spectral_image_options_reach_gemclean():
     """G3 (research/g3-spectral.md): channels out, joined channels, the
     polynomial fit and channel averaging are passed to gemclean; a fit
