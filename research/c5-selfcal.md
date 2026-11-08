@@ -3,8 +3,26 @@
 Task C5 of [finish-plan.md](finish-plan.md), on branch `fp-c5-selfcal` from
 main `3defaae`, 2026-11-08.
 
-**Status: protocol frozen (sections 1 to 5), nothing compared yet.** This
-section is rewritten when results exist; the protocol below is not.
+**Status: implemented and measured.** The protocol (sections 1 to 5) was
+committed (`637f168`) before any comparison and is unchanged; results and
+post-hoc changes are in sections 6 to 8.
+
+- **Met:** G2 (every round agrees with QuartiCal to 1e-15 relative,
+  delays to 5e-8 ns, development and held out), G4 (intervals and apply),
+  G5 (E2-A), T1 (the solve is at the Cramér-Rao bound on a perfect model,
+  held out too), and T0 after one labelled post-hoc change (Sd starts at zero
+  delay).
+- **Not met as frozen: T2, the full loop against truth, on development and
+  held-out cases alike** (so G1 partly and G3 partly). Medians are near
+  the limits (1.9° phase, 1.0-1.5 % amplitude, 0.006-0.007 ns delay after
+  round 2), but the p95s are 10-14° and 0.07-0.08 ns, against 1.5° and
+  0.03 ns. The errors sit on the outer antennas. Section 7 shows they come
+  from the CLEAN model: imaged from corrupted data without a mask, the model
+  absorbs the gain errors on long baselines. The imager alone reproduces the
+  true sky to 0.1-3 % on the same baselines, and the solve alone is at the
+  noise floor. It is not the solver, not the apply, and not pixel size.
+- No novelty claim: this is a port of CARACal's loop with QuartiCal's
+  kernels.
 
 ## 1. What CARACal does, and what rang-core does
 
@@ -244,3 +262,181 @@ G2, G3 and G4 apply to them as to the development cases.
 3. Development cases: G1, G2, G4; then the held-out cases, once.
 4. Anything changed after a result is labelled post hoc and rerun on the
    held-out cases.
+
+## 6. Results
+
+Run directory `/mnt/d/rang/outputs/c5-20261108-02` (`.code/` holds the
+code and diffs of each step; `/mnt/d/rang/outputs/c5-20261108-01` was the
+execution probe, compared with nothing). Commands are in
+`examples/check_c5.py`'s docstring; each writes `<step>.json` there.
+
+### 6.1 T0, noiseless twins, perfect model
+
+| Run | Sa products, max rel | Sp phase, max | Sd delays, max | Sd products, max | Apply, median / max | Verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| frozen (`t0-frozen-fft-estimate.json`) | 1.3e-7 | 1.3e-7 rad | **1.6 ns median, 30 ns max** | 2.0 | Sd fails | **Sd fails** |
+| post hoc, Sd from zero delay (`t0.json`) | 1.3e-7 | 1.3e-7 rad | 7.2e-8 ns | 2.6e-7 | 2.2e-8 / 2.1e-7 (Sa), 4.9e-8 / 3.1e-7 (Sd) | pass |
+
+The frozen Sd solve used the K term's FFT initial estimate, which on this
+structured sky model picks the wrong peak on 59 % of antenna intervals
+(a per-bin rerun gave the same, so it is the estimator and not a coupling
+of bins). CubiCal's `f-slope` and QuartiCal's `delay_and_offset` (its
+default) start from zero delay, so the post-hoc change takes their start.
+Two intermediate reruns (`t0-posthoc1-*.json`, `t0-posthoc2-*.json`)
+reused twins whose FLAG the frozen run's apply had written into, so they
+are discarded; the final row is on regenerated twins.
+
+### 6.2 T1, noisy, perfect model (Sa, solint 8)
+
+| Case | products | r median (Rayleigh 1.18) | r p95 (2.45) | s per product | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| c5pa | 13,888 | 1.178 | 2.425 | 5.2e-4 (0.029°) | pass |
+| c5pa-held | 13,888 | 1.178 | 2.461 | 4.8e-4 | pass |
+
+The solve reaches the Cramér-Rao bound of the noise.
+
+### 6.3 T2, the loop (gauge-free products against truth)
+
+Medians / p95 of `|Δ arg P|`, `||P|/|P_true| − 1|` (the uncorrected
+amplitude error's median in brackets) and `|Δ(τ_p − τ_q)|`:
+
+| Case, round | Phase (°) | Amplitude | Delay (ns) | Frozen gate |
+| --- | --- | --- | --- | --- |
+| c5pa r1 Sp | 2.46 / 16.6 | (0.052) | – | fail (1.0 / 3.0) |
+| c5pa r2 Sa | 1.88 / 13.6 | 0.0105 / 0.040 | – | fail; amplitude ratio 0.20 pass |
+| c5pa-held r1 Sp | 2.26 / 14.9 | (0.061) | – | fail |
+| c5pa-held r2 Sa | 1.88 / 12.9 | 0.0145 / 0.028 | – | fail (amplitude p95 passes, median not); ratio 0.24 pass |
+| c5delay r1 Sd | 2.19 / 16.9 | – | 0.020 / 0.131 | fail |
+| c5delay r2 Sd | 1.55 / 13.1 | – | 0.0061 / 0.079 | fail (delay median passes) |
+| c5delay-held r1 Sd | 1.95 / 15.7 | – | 0.018 / 0.130 | fail |
+| c5delay-held r2 Sd | 1.05 / 9.96 | – | 0.0074 / 0.070 | fail (delay median passes) |
+| c5pa L-solint r1 Sp (4, freqint 16) | 2.49 / 16.8 | – | – | reported |
+| c5pa L-solint r2 Sa (64s) | 1.93 / 14.4 | 0.011 / 0.041 | – | reported |
+
+Round 2 is better than round 1 everywhere, and Sa removes 76-80 % of the
+amplitude error. Per antenna (c5pa round 2) the median phase error is
+0.1-1.7° on 21 of the 32 antennas and 3-14° on antennas 22-31.
+
+### 6.4 G2, QuartiCal 0.2.7 on the same MODEL_DATA
+
+Every N-integration round of every loop, development and held out
+(`qc-*.json`): rang's re-solve on the oracle's copy equals the stage's
+stored gains bit for bit; products differ from QuartiCal's by at most
+1.0e-15 relative for Sp and Sa and 1.6e-7 for Sd (round 2), delays by at
+most 4.9e-8 ns; QuartiCal's gain times equal rang's per chunk. L-solint's
+round 2 (64s, CASA's bins) has no QuartiCal form and was not compared.
+QuartiCal took 28-71 s per solve (single-threaded, Numba start-up
+included).
+
+### 6.5 G4, intervals and apply
+
+Every round of every loop: the bins per scan (2 for solint 8, 4 for 4,
+2 for 64s on these 16-integration scans), `gain_time`, the 4 frequency bins
+of freqint 16 and `gain_freq` equal the frozen rule; the final output column
+equals `S_p^-1 V S_q^-H` recomputed in NumPy within 2.2e-8 median and 6.0e-8
+max relative over 14.2 M cells, and FLAG is exactly as the solutions imply
+(no solution was flagged or clipped in any loop). Unit tests cover `int`,
+`inf`, N, seconds, freqint, chunking (bit-identical) and the gain clip
+(`tests/test_c5_selfcal.py`).
+
+### 6.6 G5, E2-A
+
+`core_config.refusals(e2a, ["selfcal"])` is `[image.auto_mask (G4)]`: the
+selfcal part validates; its imaging waits for G4's masks, as `image` does.
+Its terms `{Sp, solint: 120}`, `{Sa, solint: 120}` are 120 integrations,
+CARACal's `gsols_timeslots: [120]`.
+
+## 7. Why T2 fails: the model, not the solve (post-hoc diagnostics)
+
+Each item was run after the frozen results, on development data only, and
+is labelled post hoc; none changes the shipped settings.
+
+- **The solve and apply are right.** T1 is at the noise bound and G2 equals
+  QuartiCal to rounding, on the same MODEL_DATA.
+- **The loop's model is wrong on long baselines.** In `pa-c5pa` after round
+  2, MODEL_DATA against `MODEL_TRUE` (rms `|ΔM|` / rms `|M|`, XX) grows with
+  baseline: 5.7 % below 500 m, 4.5 % at 0.5-1 km, 9.7 % at 1-2 km, 16 % at
+  2-4 km, 22 % at 4-6 km and 28 % beyond 6 km. Antennas 22-31 have the most
+  long baselines, which is where the solutions go wrong.
+- **The imager alone is not the cause.** gemclean with the same arguments
+  on `MODEL_TRUE` itself (noiseless, uncorrupted; `diag-imager/`) predicts
+  the sky to 1.2, 0.2, 0.1, 0.1, 0.7 and 3.4 % in the same bins.
+- **Pixel size is not the cause.** 1asec pixels on a 4096 image
+  (`loop-pa-fine-c5pa.json`) give the same errors (round 2: 1.89° / 13.7°).
+- **More rounds and a shallower CLEAN help a little.** Four rounds (Sp, Sp,
+  Sa, Sa; `loop-pa4-c5pa.json`): phase p95 16.6, 13.7, 12.3, 11.7°;
+  amplitude median 0.8 % after round 4. `auto_threshold: 10`
+  (`loop-pashallow-c5pa.json`): round 2 at 1.87° / 12.8°, amplitude
+  0.78 % / 3.3 %.
+
+So a model CLEANed deeply, without a mask, from data with ±30° phase and
+±10 % amplitude errors, absorbs part of those errors on the long baselines,
+and later rounds converge slowly towards the truth from there. This is the
+known failure that CARACal's per-round clean masks and cut-offs
+(`cleanmask_thr: [10, 6]`, `clean_cutoff`) guard against. Masks are task G4,
+and per-round image settings are not in the schema (section 1). The frozen
+limits were set for a model good to about 1 % on every baseline, which this
+loop does not give. **The gate stays failed and is not reworded.**
+
+## 8. Gates against the frozen protocol
+
+| Gate | Result |
+| --- | --- |
+| G1 T0 | **met after a post-hoc change** (Sd from zero delay; the frozen FFT start failed) |
+| G1 T1 | met, development and held out |
+| G1 T2 | **not met**, development and held out (section 6.3) |
+| G2 QuartiCal class B | met, every compared round, development and held out (max 1.6e-7) |
+| G3 Fslope recovers delays | T0 met (post hoc); T2 **not met** (delay medians pass, p95 0.07-0.13 ns against 0.03-0.06) |
+| G4 intervals honoured | met |
+| G5 E2-A validates for selfcal | met |
+| G6 held out | run once with the frozen settings: same verdicts as development |
+
+Code changes after a frozen result: only Sd's zero start (`rang.cal_selfcal`,
+`initial_estimate=False`, as QuartiCal's default and CubiCal), applied
+before the held-out runs; a quartical-store attribute renamed
+(`rang_selfcal_type`, a check-all registry finding, no effect on results).
+
+## 9. Owner decisions (open)
+
+1. **The T2 failure.** Accept the loop as a working port with the stated
+   model-absorption limit, with E1/E2 judging on real images; or require
+   masks (G4) and per-round image settings (CARACal's `cleanmask_thr`,
+   `clean_cutoff`, `img_*` lists) in selfcal before C5 is called done.
+   Proposed: the first now, and a C5b task after G4 for per-round masks, with
+   T2 re-run on the held-out cases.
+2. **Sd's start.** Zero delay (provisional, as CubiCal and QuartiCal's
+   default) instead of the owner's K estimator (FFT, then Gauss-Newton; C1
+   decision 3 is about K, not Sd). The FFT start failed on a sky model.
+3. **Sd's per-channel flags.** QuartiCal's `finalize_gain_flags` (a gain
+   whose update trend rises) flags channels; on clean data it flagged none,
+   on a twin whose FLAG the frozen run had partly written it flagged 17 % of
+   the channel gains (54 % of antenna intervals had one). Kept as
+   QuartiCal's (provisional).
+4. **Flags accumulate over rounds** (each round ORs its invalid-solution
+   flags; provisional). A diagonal term's invalid antenna flags all four
+   correlations (`apply_jones`'s general-Jones rule), not CASA's
+   per-receptor rule.
+5. **No CASA table** for selfcal solutions, only QuartiCal stores
+   (C1 proposed `G Jones`, and `K` + `G` for Sd).
+6. `complex` selfcal terms and `refant: auto` in selfcal are refused.
+
+## 10. Not checked
+
+- CubiCal itself (no image); `f-slope` taken as `delay_and_offset`.
+- Real data: E2-A's selfcal was validated, not run (it waits for G4).
+- Several fields in `image.fields`, `data.scans` with selfcal, the
+  `CORRECTED_1GC` copy after a real apply (unit-tested only),
+  `minuvw_m > 0`, `data.weights: uniform`, `channels_out > 1` models.
+- Chunking within a memory limit on the loop (bit-identity is unit-tested
+  on a small MS only).
+- Timing claims: none.
+
+## For the coordinator
+
+Proposed `research/README.md` row:
+
+> C5, 2026-11-08 (implemented and measured; [c5-selfcal.md](c5-selfcal.md)). `rang-core selfcal` runs CARACal's rounds (image, MODEL_DATA, one Sp, Sa or Sd term per round, apply, final image) through `rang.cal_selfcal`. Each round's solve equals QuartiCal 0.2.7's on the same MODEL_DATA to 1e-15 (delays 5e-8 ns), is at the noise bound on a perfect model, and honours its intervals; E2-A's selfcal part validates. Against simulated truth the full loop fails its frozen limits on development and held-out cases (p95 10-17° on the outer antennas), because the unmasked CLEAN model absorbs gain errors on long baselines; masks (G4) and per-round image settings are the proposed follow-up. Sd starts at zero delay (post hoc). No novelty claim.
+
+Proposed finish-plan C5 row: "Partly done 2026-11-08 ([c5-selfcal.md](c5-selfcal.md)): Sp, Sa, Sd in `rang-core selfcal`; QuartiCal, intervals, E2-A met; truth recovery in the full loop not met (model absorption without masks); C5b after G4: per-round masks and image settings, T2 re-run on c5pa-held and c5delay-held."
+
+STATE.md: C5 as above; seeds 20261301-04, 11-14, 21-24, 31-34 registered in `rang.simtruth.SEEDS`.

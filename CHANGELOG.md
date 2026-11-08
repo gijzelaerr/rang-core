@@ -9,6 +9,20 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `rang-core selfcal` (and `run` with `selfcal` in its stages) runs CARACal's self-calibration
+  rounds (`research/c5-selfcal.md`): `selfcal.rounds` rounds of a gemclean image (the input column
+  first, the output column after), its model images predicted into `selfcal.model_column`
+  (`rang.core_model.write_model_data`), one term solved on `selfcal.input_column` against it and
+  applied into `selfcal.output_column`, then a final image. One term per round, the last repeating
+  (CARACal's `gain_matrix_type`): `Sp` (phase, QuartiCal `phase`), `Sa` (amplitude and phase,
+  `diag_complex`) and `Sd` (CARACal's `Fslope`, QuartiCal `delay_and_offset`, started at zero
+  delay); default phase then amplitude. An integer `solint` is N integrations from each scan start
+  (CARACal's timeslots), `Ns` CASA's seconds bins; `freqint` N channels for Sp and Sa. Solves are
+  chunked within `data.memory_limit_gb`; `selfcal.gain_clip` flags solutions, `selfcal.minuvw_m`
+  drops short baselines, new key `selfcal.refant`. `CORRECTED_1GC` is copied from `apply.column`
+  after this run's apply. Solutions go to a QuartiCal gain store per round. New module
+  `rang.cal_selfcal`; `rang.cal_gain`'s chunked solve takes channel chunks. `complex`
+  self-calibration terms and `refant: auto` in selfcal are refused.
 - New: `rang-core calibrate` runs the K, G, B, A and F terms and the polarisation terms Gpol,
   KCROSS, Xf and Df within `data.memory_limit_gb` (`research/w3b-chainchunks.md`): each solve reads
   its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval),
