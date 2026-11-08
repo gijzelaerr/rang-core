@@ -13,14 +13,17 @@ post-hoc changes are in sections 6 to 8.
   held out too), and T0 after one labelled post-hoc change (Sd starts at zero
   delay).
 - **Not met as frozen: T2, the full loop against truth, on development and
-  held-out cases alike** (so G1 partly and G3 partly). Medians are near
-  the limits (1.9° phase, 1.0-1.5 % amplitude, 0.006-0.007 ns delay after
-  round 2), but the p95s are 10-14° and 0.07-0.08 ns, against 1.5° and
-  0.03 ns. The errors sit on the outer antennas. Section 7 shows they come
-  from the CLEAN model: imaged from corrupted data without a mask, the model
-  absorbs the gain errors on long baselines. The imager alone reproduces the
-  true sky to 0.1-3 % on the same baselines, and the solve alone is at the
-  noise floor. It is not the solver, not the apply, and not pixel size.
+  held-out cases alike** (so G1 partly and G3 partly). Phase misses by 2 to
+  4 times in the median (round 1 2.0-2.5° against 1.0°, round 2 1.05-1.9°
+  against 0.5°) and by about 10 times in the p95 (10-17° against 1.5-3°);
+  the round-2 amplitude median is at or just above its 1 % limit
+  (1.05-1.45 %); only the delay medians pass (0.006-0.007 ns against
+  0.01), their p95s do not (0.07-0.08 ns against 0.03). The errors sit on
+  the outer antennas. Section 7 shows, post hoc, that they come from the
+  CLEAN model: imaged from gain-corrupted data without a mask, it absorbs
+  the gain errors on long baselines. A model imaged with the same settings
+  from the same noisy data corrected by the true gains gives 0.03° / 0.08°
+  and 0.09 % / 0.29 % (median / p95), inside every limit.
 - No novelty claim: this is a port of CARACal's loop with QuartiCal's
   kernels.
 
@@ -280,8 +283,12 @@ execution probe, compared with nothing). Commands are in
 The frozen Sd solve used the K term's FFT initial estimate, which on this
 structured sky model picks the wrong peak on 59 % of antenna intervals
 (a per-bin rerun gave the same, so it is the estimator and not a coupling
-of bins). CubiCal's `f-slope` and QuartiCal's `delay_and_offset` (its
-default) start from zero delay, so the post-hoc change takes their start.
+of bins; `.code/c5_dbg3.py`). QuartiCal 0.2.7's `initial_estimate`
+defaults to false (`config/gain_schema.yaml`, line 100), so its
+`delay_and_offset` starts from zero delay, and the post-hoc change takes
+that start; G2's agreement to 1e-16 with no estimate on either side
+supports it. That CubiCal's `f-slope` also starts from zero is assumed, not
+read (section 10).
 Two intermediate reruns (`t0-posthoc1-*.json`, `t0-posthoc2-*.json`)
 reused twins whose FLAG the frozen run's apply had written into, so they
 are discarded; the final row is on regenerated twins.
@@ -355,14 +362,23 @@ is labelled post hoc; none changes the shipped settings.
   QuartiCal to rounding, on the same MODEL_DATA.
 - **The loop's model is wrong on long baselines.** In `pa-c5pa` after round
   2, MODEL_DATA against `MODEL_TRUE` (rms `|ΔM|` / rms `|M|`, XX) grows with
-  baseline: 5.7 % below 500 m, 4.5 % at 0.5-1 km, 9.7 % at 1-2 km, 16 % at
+  baseline (`.code/c5_diag2.py`): 5.7 % below 500 m, 4.5 % at 0.5-1 km, 9.7 % at 1-2 km, 16 % at
   2-4 km, 22 % at 4-6 km and 28 % beyond 6 km. Antennas 22-31 have the most
   long baselines, which is where the solutions go wrong.
 - **The imager alone is not the cause.** gemclean with the same arguments
-  on `MODEL_TRUE` itself (noiseless, uncorrupted; `diag-imager/`) predicts
+  on `MODEL_TRUE` itself (noiseless, uncorrupted; `diag-imager/`,
+  `.code/c5_diag3.py`) predicts
   the sky to 1.2, 0.2, 0.1, 0.1, 0.7 and 3.4 % in the same bins.
 - **Pixel size is not the cause.** 1asec pixels on a 4096 image
   (`loop-pa-fine-c5pa.json`) give the same errors (round 2: 1.89° / 13.7°).
+- **A model from uncorrupted data fixes it.** The same noisy DATA
+  corrected by the true gains, imaged with the frozen arguments and
+  predicted (`diag-imager/truecorr*`, `.code/c5_diag4.py`, `c5_diag5.py`),
+  then Sa solved on the corrupted DATA against that model: phase 0.028° /
+  0.082°, amplitude 0.089 % / 0.29 % (median / p95;
+  `diag-truecorr-model.json`). Thermal noise and an unmasked 3σ CLEAN on
+  this sky are therefore not the limit; the corruption in the imaged data
+  is.
 - **More rounds and a shallower CLEAN help a little.** Four rounds (Sp, Sp,
   Sa, Sa; `loop-pa4-c5pa.json`): phase p95 16.6, 13.7, 12.3, 11.7°;
   amplitude median 0.8 % after round 4. `auto_threshold: 10`
@@ -404,8 +420,8 @@ before the held-out runs; a quartical-store attribute renamed
    `clean_cutoff`, `img_*` lists) in selfcal before C5 is called done.
    Proposed: the first now, and a C5b task after G4 for per-round masks, with
    T2 re-run on the held-out cases.
-2. **Sd's start.** Zero delay (provisional, as CubiCal and QuartiCal's
-   default) instead of the owner's K estimator (FFT, then Gauss-Newton; C1
+2. **Sd's start.** Zero delay (provisional, as QuartiCal's default;
+   CubiCal assumed) instead of the owner's K estimator (FFT, then Gauss-Newton; C1
    decision 3 is about K, not Sd). The FFT start failed on a sky model.
 3. **Sd's per-channel flags.** QuartiCal's `finalize_gain_flags` (a gain
    whose update trend rises) flags channels; on clean data it flagged none,
@@ -422,7 +438,8 @@ before the held-out runs; a quartical-store attribute renamed
 
 ## 10. Not checked
 
-- CubiCal itself (no image); `f-slope` taken as `delay_and_offset`.
+- CubiCal itself (no image); `f-slope` taken as `delay_and_offset`, and
+  its zero start assumed.
 - Real data: E2-A's selfcal was validated, not run (it waits for G4).
 - Several fields in `image.fields`, `data.scans` with selfcal, the
   `CORRECTED_1GC` copy after a real apply (unit-tested only),
