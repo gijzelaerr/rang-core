@@ -43,10 +43,6 @@ TASKS = {
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
     "G4": "masks, tapers and an imaging uv range",
     "G5": "multiscale CLEAN",
-    "G6": "MODEL_DATA from the imager",
-    "W4": "uniform imaging weights: WEIGHT_SPECTRUM = 1 written into the MS, or a "
-    "gemclean option that ignores the MS weights (an owner decision, "
-    "research/w4-unsupported.md)",
 }
 
 TERM_TYPES = (
@@ -370,7 +366,12 @@ SCHEMA = {
         "multiscale": _k(False, "bool", "multiscale CLEAN"),
         "pol": _k("I", "str", "polarisations, such as I or IQUV"),
         "join_polarizations": _k(False, "bool", "join the polarisations"),
-        "write_model": _k(False, "bool", "predict the model into MODEL_DATA"),
+        "write_model": _k(
+            False,
+            "bool",
+            "predict the model images into MODEL_DATA after imaging, as WSClean does "
+            "(through write-back; task G6)",
+        ),
     },
     "selfcal": {
         "rounds": _k(2, "int", "calibration rounds (CARACal's cal_niter)"),
@@ -992,13 +993,6 @@ def refusals(config, stages):
                     )
     if "image" in stages:
         img = config["image"]
-        if config["data"]["weights"] == "uniform":
-            no(
-                "data.weights",
-                "W4",
-                "uniform weights for imaging: gemclean reads the MS weights, so "
-                "WEIGHT_SPECTRUM = 1 would have to be written into the MS",
-            )
         for key in ("channels_out", "average_channels"):
             if img[key] < 1:
                 out.append(Refusal(f"image.{key}", "", "must be at least 1"))
@@ -1020,7 +1014,6 @@ def refusals(config, stages):
             ("taper_gaussian", None, "G4"),
             ("uvrange", "", "G4"),
             ("multiscale", False, "G5"),
-            ("write_model", False, "G6"),
         ):
             if img[key] != default:
                 no(f"image.{key}", task, f"{key}: {img[key]!r}")
@@ -1029,6 +1022,16 @@ def refusals(config, stages):
         except ValueError as e:
             out.append(Refusal("image.pol", "", str(e)))
         else:
+            if img["write_model"] and pols != ["I"]:
+                out.append(
+                    Refusal(
+                        "image.write_model",
+                        "",
+                        "MODEL_DATA is written for Stokes I only; a model of "
+                        f"pol: {img['pol']!r} is a follow-up of research/g9-stokes.md, "
+                        "not implemented",
+                    )
+                )
             if img["join_polarizations"] and len(pols) < 2:
                 out.append(
                     Refusal(
@@ -1041,8 +1044,11 @@ def refusals(config, stages):
             if img[key] is None:
                 out.append(Refusal(f"image.{key}", "", "required"))
     if "selfcal" in stages:
-        no("selfcal", "C5a", "self-calibration (it also needs G6's MODEL_DATA)")
-        no("selfcal", "G6", "MODEL_DATA written by the imager")
+        no(
+            "selfcal",
+            "C5a",
+            "self-calibration (MODEL_DATA from the imager: image.write_model)",
+        )
         for i, term in enumerate(config["selfcal"]["terms"]):
             task = TERM_TASKS.get(term["type"], "C5a")
             no(f"selfcal.terms[{i}]", task, f"term {term['type']}")

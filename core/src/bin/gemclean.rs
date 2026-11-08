@@ -23,6 +23,7 @@ use rang_core::gemclean::json::{arr, num, obj, opt, text};
 use rang_core::gemclean::kernels::{self, Level};
 use rang_core::gemclean::measure::GridMeasurement;
 use rang_core::gemclean::memory::{self, bytes_of};
+use rang_core::gemclean::predict;
 use rang_core::gemclean::spectral::{self, PolynomialFit};
 use rang_core::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
 use rang_core::gemclean::stokes::{self, Pol};
@@ -72,6 +73,10 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -resync-every <k>         resync after k components (default 2000)
   -data-column <name>       default CORRECTED_DATA if present, else DATA
   -field <id>               field id (default 0)
+  -scans <list>             only the rows of these scans, comma-separated (rang's own;
+                            also the rows the model column gets; research/w6-imaging-inputs.md)
+  -unit-weights             every correlation weighs 1 in place of WEIGHT_SPECTRUM or WEIGHT,
+                            flags still applied (rang's own; not -weight uniform)
   -j <threads>              worker threads (default: all cores)
   -wgridder-accuracy <eps>  gridder accuracy (default 1e-6, double precision)
   -no-wgridding             disable the w-term
@@ -93,6 +98,14 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -no-restore               do not write the restored image
   -memory-report            print the heap held per phase and the main buffers' sizes
                             (always in -report.json)
+
+Model column (research/g6-predict.md; WSClean's options):
+  -update-model-required    after imaging, predict the model images just written into the
+                            model column of the selected rows (the default)
+  -no-update-model-required do not write the Measurement Set
+  -predict                  no imaging: predict the existing <name>-model.fits (with
+                            -channels-out n, <name>-0000-model.fits ...) into the model column
+  -model-column <name>      the column written (default MODEL_DATA; added if missing)
 
 Channels (research/g3-spectral.md; WSClean's options):
   -channels-out <n>         image n output channels, <name>-0000-<kind>.fits and the
@@ -162,6 +175,11 @@ struct Args {
     mf_weighting: Option<bool>,
     pols: Vec<Pol>,
     join_pols: bool,
+    predict: bool,
+    update_model: bool,
+    model_column: String,
+    scans: Vec<i32>,
+    unit_weights: bool,
 }
 
 /// An angle with WSClean's units, in radians (plain numbers are degrees).
@@ -244,6 +262,11 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         mf_weighting: None,
         pols: vec![Pol::I],
         join_pols: false,
+        predict: false,
+        update_model: true,
+        model_column: "MODEL_DATA".into(),
+        scans: Vec::new(),
+        unit_weights: false,
     };
     let mut i = 0;
     let mut positional = Vec::new();
@@ -370,6 +393,21 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                     "-link-polarizations is not implemented (research/g9-stokes.md)".into(),
                 );
             }
+            "-scans" => {
+                let v = value(&mut i)?;
+                a.scans = v
+                    .split(',')
+                    .map(|x| number::<i32>(flag, x.trim().to_string()))
+                    .collect::<Result<_, _>>()?;
+                if a.scans.is_empty() {
+                    return Err("-scans needs at least one scan number".into());
+                }
+            }
+            "-unit-weights" => a.unit_weights = true,
+            "-predict" => a.predict = true,
+            "-update-model-required" => a.update_model = true,
+            "-no-update-model-required" => a.update_model = false,
+            "-model-column" => a.model_column = value(&mut i)?,
             "-fit-spectral-log-pol" => {
                 return Err("-fit-spectral-log-pol is not implemented (WSClean's non-linear                     power-law fitter is not ported; research/g3-spectral.md): use -fit-spectral-pol"
                     .into());
@@ -415,10 +453,14 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         [ms] => a.ms = PathBuf::from(ms),
         _ => return Err(format!("exactly one Measurement Set is needed\n\n{USAGE}")),
     }
-    if a.size < 2 || !a.size.is_multiple_of(2) {
+    // -predict takes the size and scale from the model images (and checks
+    // them against -size and -scale when given).
+    if !(a.predict && a.size == 0) && (a.size < 2 || !a.size.is_multiple_of(2)) {
         return Err("-size must be an even number of pixels".into());
     }
-    if a.scale.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) {
+    if !(a.predict && a.scale == 0.0)
+        && a.scale.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater)
+    {
         return Err("-scale must be positive".into());
     }
     if a.channels_out == 0 || a.average_channels == 0 {
@@ -442,6 +484,14 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     {
         return Err(
             "-channels-out takes neither -stop-rule certified, -gram-operator,              -floor-iterations nor -audit (research/g3-spectral.md)"
+                .into(),
+        );
+    }
+    if a.pols != [Pol::I] && (a.predict || a.update_model) {
+        return Err(
+            "MODEL_DATA (-predict, and the model update after imaging) is written for Stokes I \
+             only; a model of other polarisations is a follow-up of research/g9-stokes.md, not \
+             implemented: add -no-update-model-required"
                 .into(),
         );
     }
@@ -734,6 +784,9 @@ fn run() -> Result<(), String> {
             .build_global()
             .map_err(|e| e.to_string())?;
     }
+    if args.predict {
+        return predict_only(&args, &raw, wall);
+    }
     let n = args.size;
     let column = match &args.data_column {
         Some(c) => c.clone(),
@@ -751,6 +804,8 @@ fn run() -> Result<(), String> {
         data_column: column.clone(),
         field: args.field,
         polarization: args.pols[0],
+        scans: args.scans.clone(),
+        unit_weights: args.unit_weights,
         ..Selection::default()
     };
     if args.pols.len() > 1 {
@@ -948,6 +1003,10 @@ fn run() -> Result<(), String> {
     let t_restore = t_restore.elapsed().as_secs_f64();
     let t_write = t.elapsed().as_secs_f64() - t_restore;
     memory::mark("write");
+    let model_json = update_model(&args)?;
+    if args.update_model {
+        memory::mark("model");
+    }
     let phases = memory::phases();
     let buffers = memory::buffers();
     let gb = |b: usize| b as f64 / 1e9;
@@ -1017,6 +1076,15 @@ fn run() -> Result<(), String> {
         ("data_column", text(&column)),
         ("field", args.field.to_string()),
         (
+            "scans",
+            if args.scans.is_empty() {
+                "null".into()
+            } else {
+                arr(&args.scans.iter().map(|x| x.to_string()).collect::<Vec<_>>())
+            },
+        ),
+        ("unit_weights", args.unit_weights.to_string()),
+        (
             "rows_total",
             data_rows_total(&args.ms).map_or("null".into(), |r| r.to_string()),
         ),
@@ -1061,6 +1129,7 @@ fn run() -> Result<(), String> {
             ]),
         ),
         ("floor", floor_json),
+        ("model_update", model_json),
         ("run", outcome.to_json(q_floor)),
         (
             "seconds",
@@ -1648,6 +1717,7 @@ fn run_channels(
             );
         }
     }
+    let model_json = update_model(args)?;
     let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
     let report = obj(&[
         ("tool", text("gemclean")),
@@ -1655,7 +1725,17 @@ fn run_channels(
         ("argv", arr(&argv)),
         ("ms", text(&args.ms.display().to_string())),
         ("data_column", text(column)),
+        ("model_update", model_json),
         ("field", args.field.to_string()),
+        (
+            "scans",
+            if args.scans.is_empty() {
+                "null".into()
+            } else {
+                arr(&args.scans.iter().map(|x| x.to_string()).collect::<Vec<_>>())
+            },
+        ),
+        ("unit_weights", args.unit_weights.to_string()),
         ("channels_read", nchan_read.to_string()),
         ("channels_out", meta.len().to_string()),
         ("join_channels", args.join_channels.to_string()),
@@ -2408,6 +2488,114 @@ fn run_polarizations(
         out.runs_json.len(),
         wall.elapsed().as_secs_f64()
     );
+    Ok(())
+}
+
+/// Predict `-name`'s model images into the model column (research/g6-predict.md).
+fn write_model(args: &Args) -> Result<(predict::Written, f64), String> {
+    let t = Instant::now();
+    let sel = Selection {
+        field: args.field,
+        scans: args.scans.clone(),
+        ..Selection::default()
+    };
+    let band = input::band(&args.ms, &sel)?;
+    let pred = predict::Predictor::from_files(
+        &args.name,
+        &band.freq,
+        args.channels_out,
+        args.channel_range,
+        args.average_channels,
+        args.epsilon,
+        args.wgridding,
+        args.single,
+    )?;
+    let m = &pred.models[0];
+    if args.size != 0 && m.n != args.size {
+        return Err(format!(
+            "{}: {} pixels, but -size {}",
+            m.path.display(),
+            m.n,
+            args.size
+        ));
+    }
+    if args.scale > 0.0 && (m.scale - args.scale).abs() > 1e-9 * args.scale {
+        return Err(format!(
+            "{}: pixels of {:.6} asec, but -scale {:.6} asec",
+            m.path.display(),
+            m.scale.to_degrees() * 3600.0,
+            args.scale.to_degrees() * 3600.0
+        ));
+    }
+    let w = predict::write_model_column(&args.ms, &sel, &args.model_column, &pred)?;
+    let seconds = t.elapsed().as_secs_f64();
+    println!(
+        "{}: {} of {} rows predicted into {} ({}{} channels from {} model image(s), {} blocks, {:.2} s)",
+        args.ms.display(),
+        w.rows_selected,
+        w.rows_total,
+        w.column,
+        if w.added { "column added; " } else { "" },
+        w.channels_predicted,
+        pred.models.len(),
+        w.blocks,
+        seconds
+    );
+    Ok((w, seconds))
+}
+
+fn written_json(w: &predict::Written, seconds: f64) -> String {
+    obj(&[
+        ("column", text(&w.column)),
+        ("added", w.added.to_string()),
+        ("rows_selected", w.rows_selected.to_string()),
+        ("rows_total", w.rows_total.to_string()),
+        ("channels_predicted", w.channels_predicted.to_string()),
+        ("blocks", w.blocks.to_string()),
+        ("seconds", num(seconds)),
+    ])
+}
+
+/// After imaging: the model column, unless -no-update-model-required.
+fn update_model(args: &Args) -> Result<String, String> {
+    if !args.update_model {
+        return Ok("null".into());
+    }
+    let (w, seconds) = write_model(args)?;
+    Ok(written_json(&w, seconds))
+}
+
+/// `-predict`: the model column from existing model images, no imaging.
+fn predict_only(args: &Args, raw: &[String], wall: Instant) -> Result<(), String> {
+    let (w, seconds) = write_model(args)?;
+    let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
+    let report = obj(&[
+        ("tool", text("gemclean")),
+        ("version", text(env!("CARGO_PKG_VERSION"))),
+        ("argv", arr(&argv)),
+        ("ms", text(&args.ms.display().to_string())),
+        ("field", args.field.to_string()),
+        (
+            "scans",
+            if args.scans.is_empty() {
+                "null".into()
+            } else {
+                arr(&args.scans.iter().map(|x| x.to_string()).collect::<Vec<_>>())
+            },
+        ),
+        ("unit_weights", args.unit_weights.to_string()),
+        ("predict", written_json(&w, seconds)),
+        ("wgridder_accuracy", num(args.epsilon)),
+        ("gridder_single", args.single.to_string()),
+        ("threads", rayon::current_num_threads().to_string()),
+        (
+            "peak_memory_bytes",
+            gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
+        ),
+    ]);
+    std::fs::write(format!("{}-predict-report.json", args.name), report + "\n")
+        .map_err(|e| e.to_string())?;
+    println!("wall {:.2} s", wall.elapsed().as_secs_f64());
     Ok(())
 }
 

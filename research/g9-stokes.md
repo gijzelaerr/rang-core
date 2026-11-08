@@ -411,7 +411,8 @@ to main's C0. Peak RSS equal within 1 MB (2.88, 2.10, 6.86, 3.95, 3.20 GB).
   both imagers off the 8-channel runs). E2-B's shape (IQUV × 8 joined channels at 2048²) peaks at
   18.4 GB (WSClean 1.4 GB). No novelty claim."
 - `research/finish-plan.md`: G9 done with the failures recorded; unblocks G7 and E2-B's image stage.
-- **Merge with W6/G6 (`fp-g6-predict`).** Expected textual conflicts, all additive:
+- **Merge with W6/G6 (`fp-g6-predict`)**, done on this branch on 2026-11-08 (section 11).
+  The conflicts were, as expected, all additive:
   `input::Selection` (W6 adds `scans`, `unit_weights`; G9 adds `polarization`; keep all three and
   all three defaults); `read_ms` (W6 replaces the row closure by `row_mask` and changes the
   `weight_spectrum` test and the weight source; G9 changes only the correlation indices and the
@@ -427,3 +428,36 @@ to main's C0. Peak RSS equal within 1 MB (2.88, 2.10, 6.86, 3.95, 3.20 GB).
 - Branch `fp-g9-stokes`; outputs `/mnt/d/rang/outputs/g9-20261107-0{1,2,3,4}` with `.code`
   snapshots (P1.ms and H1p.ms, about 0.8 GB each; run FITS deletable after
   review: about 21 GB with the two simulated MS), binaries in `/mnt/d/rang/outputs/g9-bin`.
+
+## 11. Merge of main `3defaae` (G6 and W6), 2026-11-08 (measured)
+
+Main `3defaae` (G6: MODEL_DATA after imaging and `-predict`; W6: `-scans`, `-unit-weights`,
+WSClean's WEIGHT fallback) merged into `fp-g9-stokes`. Conflicts resolved additively:
+`input::Selection` and its default keep `polarization`, `scans` and `unit_weights`; `read_ms` keeps
+W6's `row_mask`, weight source and fallback and G9's correlation indices and cell; `bin/gemclean.rs`
+keeps both sets of `Args`, flags and the `Selection` literal, and G9's `run_polarizations` and G6's
+`write_model` / `predict_only` (interleaved by git around their shared report lines) whole, one
+after the other; CHANGELOG and tool-timings keep both sides. Semantic edits:
+
+- G6's model writing is refused for polarisations other than Stokes I: gemclean refuses `-predict`
+  and the model update after imaging (on by default, as WSClean's) unless
+  `-no-update-model-required` when `-pol` is not `I`, and `rang-core` refuses `image.write_model`
+  with `image.pol` other than `I` (path `image.write_model`, no task: a follow-up of this note).
+  `rang-core image` already passes `-no-update-model-required`, so E2-B's image stage runs.
+- E2-B's expected refusal set (`test_the_acceptance_configurations_parse_and_wait_for_their_tasks`)
+  is now empty: W6 removed W4, G9 removed G9.
+- `run_polarizations` builds each polarisation's `Selection` from the merged one, so `-scans` and
+  `-unit-weights` reach every polarisation.
+
+Checks ([merge_check.sh](results/g9-stokes-scripts/merge_check.sh), outputs
+`/mnt/d/rang/outputs/g9-20261108-05`), every build and run under the heavy lock:
+
+- **Criterion A against main `3defaae`** (gemclean built from it, sha256 `cebcf148…a728873d`;
+  merged binary `6935a229…44eaa58e`), both with `-no-update-model-required` so that G3's D1.ms is
+  not written: D1 C0, C0 `-single`, C1, C3, C4, **all 100 FITS files identical**, and `-pol I`
+  identical to main's C0.
+- **Smoke tests against the frozen binary's held-out output** (H1p, `-no-update-model-required`):
+  Q2 (IQUV joined) 17 of 17 FITS files identical to the frozen H1p-Q2; Q1 with `-scans 1` (H1p's
+  one scan) 17 of 17 identical to the frozen H1p-Q1. `-pol IQUV` without
+  `-no-update-model-required` is refused (exit 2) before the MS is read.
+- check-all: only `test_every_note_is_in_the_research_index` fails (1049 passed, 68 skipped).

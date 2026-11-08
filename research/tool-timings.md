@@ -1676,6 +1676,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | C6w `check_c6w.py run` -01: CASA prepare, 18 calls, export; `rang-core calibrate`, `apply`; reference | poldx noisy | 357 s total; CASA container 51.0 s (tasks 0.2-4.3 s); calibrate 56.3 s; apply 62.0 s (`chunk_rows` 700, on /mnt/d); reference 34.7 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w `check_c6w.py run` -02 (held out) | polholdout noisy | 858 s total including about 10 min lock wait; CASA container 45.9 s; calibrate 42.7 s; apply 58.3 s; reference 33.1 s | – | heavy lock; all gates met |
 | 2026-11-06 | C6w gate 3 (`validate` on e2a, e2b) | configurations | under 1 s | – | – |
+| 2026-11-06 | W3b `uv venv` + `uv pip install -e` (all extras, ruff 0.17.3, maturin) + `maturin develop` | worktree | not timed (background) | – | public PyPI |
+| 2026-11-06 | W3b oracle extension, `maturin build --release` of main ba65792 | detached checkout | 1 min 41 s (cargo) | – | heavy lock |
+| 2026-11-06 | W3b `cargo test` counted-kernel tests + `maturin develop` | worktree | about 2 min (cargo 1 min 49 s) | – | heavy lock |
+| 2026-11-06 | W3b library dev check (`w3b_dev.py`): K, G, B, Gpol, KCROSS, Xf, Df one call / chunked / 7-row cap | poldx prepared, read only | B 2.0 / 5.5 / 378 s; Xf 2.3 / 5.4 / 279 s; Df 2.2 / 11.5 / 782 s; others under 6 s | – | 7-row cap: one channel per chunk, the field re-read per chunk |
+| 2026-11-06 | W3b check-all, implementation commit 295e65c | worktree | 16 min 34 s | 1.78 GiB | FAIL only on the research-index test; pytest 1027 passed, 68 skipped |
+| 2026-11-06 | W3b `angles_memory.py` (P angles, ba65792 against angle tables) | poldx (12,480 rows); A1 full (2,842,560 rows), read only | poldx 3.7 / 1.2 s (first run, cold caches); A1 full 67.3 / 66.7 s | tracemalloc peak 1.16 MB / 0.55 MB; 255 MB / 3.8 MB | heavy lock for A1 full |
 | 2026-11-06 | G3 `cargo build --profile gemclean --bin gemclean`, 3 builds (dev, main `0cb508b`, freeze) | core crate | 2 min 36 s-2 min 54 s (44 min with the lock wait once) | – | heavy lock |
 | 2026-11-06 | G3 `examples/g3_spectral_simulate.py`, 4 skies | 907,200 rows × 16 channels | 35-40 s | 0.46 GB | heavy lock; written to `/mnt/d` |
 | 2026-11-06 | G3 GeMClean, 4 skies × C0-C4 | 2048², 16 channels | C0 53-59 s, C1/C2 1 min 24 s-1 min 45 s, C3 59-63 s, C4 46-49 s | 2.9 / 7.0 / 7.0 / 4.0 / 3.3-3.6 GB | busy host; see [g3-spectral.md](g3-spectral.md) |
@@ -1704,3 +1710,34 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-07 | G9 development runs, GeMClean `dev1` and WSClean 3.7 (D1, P1; `runs.tsv` in g9-20261107-02) | 2048², 16 channels | GeMClean 0:50-7:44, WSClean 1:00-21:23 per run | GeMClean up to 18.35 GB (Q3), WSClean up to 1.44 GB | shared host, no timing claim; GeMClean reads the MS once per polarisation (about 160 s of an IQUV run on /mnt/d) |
 | 2026-11-07 | G9 held-out runs, GeMClean frozen and WSClean 3.7 (H1p; runs.tsv in g9-20261107-03) | 2048², 16 channels | GeMClean 0:54-7:28, WSClean 0:57-21:08 per run; simulation 69.8 s | GeMClean up to 18.42 GB (Q3), WSClean up to 1.45 GB | shared host, no timing claim |
 | 2026-11-07 | G9 criterion A identity (main 0f5ef06 and frozen gemclean, D1, 11 runs) | 2048², 16 channels | about 1-2 min each | 2.10-6.86 GB | all FITS identical |
+| 2026-11-06 | F2 `f2_simulate.py`, one F-SIM observation (5 scans, 32 antennas, 2,048 channels) | f2sim-v | 6 min 24 s | 4.3 GB | 2 threads; 18 min 9 s for three, 26 min 24 s for four (test and variants) |
+| 2026-11-06 | F2 Stage 2 `f2_measure.py`, T, T-mild, N, Z, R, O with Q3 solves, both classes | f2sim-v | 9 min 26 s | 9.3 GB | heavy lock |
+| 2026-11-06 | F2 Stage 3: parity and C1 of U (3 repeats of T and U) | f2sim-v; LUNO 1934−638 | 5 min 59 s | 10.5 GB | heavy lock, load 9-11 |
+| 2026-11-06 | F2 `f2_train.py`, calibrators: 5 runs × 4,000 steps, JAX CPU, 4 feature workers | F-SIM train | 1 h 9 min | 9.5 GB | 12-14 min per run after 5.4 min preparation |
+| 2026-11-07 | F2 `f2_train.py`, targets, the same | F-SIM train | 1 h 36 min | 9.9 GB | 17-18 min per run after 7.0 min preparation |
+| 2026-11-07 | F2 Amendment 3: target validation and threshold curves | f2sim-v | 8 min 45 s | 9.4 GB | heavy lock |
+| 2026-11-07 | F2 Stage 5 sim: parity, validation, two test observations, guards, both classes | f2sim-v, -t1, -t2, variants | 41 min 9 s | 10.4 GB | heavy lock; ended on a bug at the real-data step |
+| 2026-11-07 | F2 Stage 5 real: LUNO 1934−638 (with 12 injection cases), 1830−211, ESO137 | LUNO, ESO137 | 26 min 8 s | 12.4 GB | heavy lock |
+| 2026-11-07 | F2 cost: C1 at 4 and 1 threads (T and F-SIM, 3 repeats each) on LUNO 1934−638 and ESO137; C2 in two processes | LUNO 1934−638, ESO137 | 14 min 40 s | 7.55 GB | heavy lock; T 37.4 s (4 threads), 126.9 s (1); F-SIM 8.37 s, 25.6 s |
+| 2026-11-07 | F2 `tools/check-all.sh`, two runs | worktree | 11 min 53 s; 7 min 40 s | – | heavy lock; first run: 3 failures (an unregistered RANG_ variable, a text write without newline), fixed; second: only `test_every_note_is_in_the_research_index` |
+| 2026-11-06 | W3b probe -02: `tools/oracles/w3b/run.sh` W at 4.327 GiB, calibrate (K, G, B) | W copy | 55:24 | 1.66 GiB | heavy lock ([w3b-chainchunks.md](w3b-chainchunks.md) 5.1) |
+| 2026-11-07 | W3b run -04 O calibrate / apply U / D / T / M | slice copies | 14 / 20 / 119 / 25 s; 12 / 19 / 22 / 19 s | 0.21 / 0.20 / 0.15 / 0.19 GiB (calibrate) | – |
+| 2026-11-07 | W3b run -04 C calibrate / apply U / D / T / M | A1 small copies | 57 / 56 s / 16:16 / 48 s; 41 / 41 s / 6:36 / 30 s | at most 0.15 GiB | T: one channel per B chunk, 7-row flushes |
+| 2026-11-07 | W3b run -04 P calibrate / apply U / D / T / M | poldx copies | D 0:50 / 1:00; T 28:42 / 9:34; M about 1 min each | 0.31 / 0.54 GiB at most | T: B, Xf, Df 256 channel chunks |
+| 2026-11-07 | W3b run -04 W calibrate D / M; refusal R | W copies | 31:32 / 51:44; R 1.8 s | 3.35 / 1.66 GiB | heavy lock; about 2 h waiting for the lock before the first arm |
+| 2026-11-07 | W3b run -05 held-out H, four arms | polholdout copies | 45 min in all; T 28:18 / 9:50 | 0.31 / 0.54 GiB at most | no lock (light arms) |
+| 2026-11-07 | W3b oracle extension of main 0f5ef06 | detached checkout | about 2 min | – | heavy lock |
+| 2026-11-07 | W3b check-all, merge with 0f5ef06 | worktree | 11:52 | 1.78 GiB | FAIL only on the research-index test; 1040 passed, 68 skipped |
+| 2026-11-07 | W3b merge check -06, case E (poldx, refant auto, extendflags) U / D / T | poldx copies | calibrate 1:08 / 0:56 / 31:42; apply 1:03 / 0:58 / 10:41 | 0.31 / 0.32 / 0.25 GiB; apply 0.54 / 0.54 / 0.16 GiB | no lock; U main 0f5ef06 |
+| 2026-11-06 | G6 gemclean `-predict` (case A) | A1 small MS, 6,720 rows × 64 ch, 512² | 5.2 s | – | release build; busy host |
+| 2026-11-07 | G6 gemclean `-predict`, S1-S3, H1, H2 | 1,814,400 rows × 8 ch, 2048² | 42-51 s | 2.20-2.21 GB | one block; busy host |
+| 2026-11-07 | G6 WSClean 3.7 `-predict`, S1-S3, H1, H2 | same | 1 min 23 s-2 min 4 s | 0.74 GB | in container |
+| 2026-11-07 | G6 gemclean `-predict`, 8 output channels (D1, H1s) | 907,200 rows × 16 ch | 24-29 s | 1.47 GB | |
+| 2026-11-07 | G6 gemclean clean + MODEL_DATA, pilot at 512 channels | 823,500 rows × 512 ch, 4096² | 6 min 14 s (model write 99.8 s, 4 blocks) | 19.74 GB | binary `b9a7dd9d`; no swap |
+| 2026-11-07 | G6 WSClean 3.7 `-predict`, pilot at 512 channels | same | 7 min 56 s | 4.81 GB | in container |
+| 2026-11-06 | G6 `rang-core image` with `write_model` (case A) | A1 small MS | 14.3 s (model 12.8 s) | – | through WriteBack |
+| 2026-11-07 | W6 gemclean runs on A1's small MS (512², 300 components) | 12,480 rows × 64 ch | a few s each | – | nice, 4 threads |
+| 2026-11-07 | W6 identity set (7 skies × 2 forms + pilot-256) | binary `5fb69682` | as G2's | 1.94-12.24 GB | all 15 byte-identical; busy host |
+| 2026-11-06/07 | G6/W6 `tools/check-all.sh` | worktree | 12-13 min (3 runs) | – | FAIL only on the research-index test |
+| 2026-11-08 | G9 merge of main 3defaae: check-all | worktree | 12:36 with lock wait | 1.83 GB | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-08 | G9 merge check (main 3defaae build, merged build, criterion A, two smoke runs) | D1, H1p | builds about 2.5 min each; runs as before | 2.10-6.86 GB | heavy lock for every build and run; all identical |

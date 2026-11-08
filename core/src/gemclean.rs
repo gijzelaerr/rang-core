@@ -52,6 +52,7 @@ pub mod joined;
 pub mod kernels;
 pub mod measure;
 pub mod memory;
+pub mod predict;
 pub mod sim;
 pub mod spectral;
 pub mod stale_bound;

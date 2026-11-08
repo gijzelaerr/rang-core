@@ -232,16 +232,14 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
     assert _tasks(DATA / "e2a.yaml") == {
         "C5a",
         "G4",
-        "G6",
-        "W4",  # data.weights: uniform for imaging (research/w4-unsupported.md)
     }
     # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run,
     # and since task E0 (research/e0-refant-extend.md) refant auto and
-    # extendflags; since task G9 (research/g9-stokes.md) IQUV with joined
-    # polarisations; what is left is W4's uniform weights.
-    assert _tasks(DATA / "e2b.yaml") == {
-        "W4",
-    }
+    # extendflags; since task W6 (research/w6-imaging-inputs.md) data.scans and
+    # data.weights: uniform reach gemclean (-scans, -unit-weights), and since
+    # task G9 (research/g9-stokes.md) IQUV with joined polarisations: nothing
+    # is left.
+    assert _tasks(DATA / "e2b.yaml") == set()
 
 
 def test_the_complex_term_refuses_what_its_kernel_cannot_take():
@@ -765,6 +763,11 @@ def test_the_spectral_image_options_reach_gemclean():
     )
     flags = pipe.gemclean_arguments(plain["image"], "DATA", 0, "out/img", "x.ms")
     assert not {"-channels-out", "-join-channels", "-fit-spectral-pol"} & set(flags)
+    assert "-no-update-model-required" in flags  # G6: written through WriteBack
+    assert not {"-scans", "-unit-weights"} & set(flags)
+    w6 = pipe.gemclean_arguments(plain["image"], "DATA", 0, "o", "x.ms", [4, 6], True)
+    assert ("-scans", "4,6") in list(itertools.pairwise(w6))
+    assert "-unit-weights" in w6 and w6[-1] == "x.ms"
     assert "-average-channels" not in flags
     for change in (
         {"join_channels": False},
@@ -809,6 +812,7 @@ def test_the_polarisation_options_reach_gemclean():
         ({"pol": "I"}, "image.join_polarizations"),
         ({"pol": "XY,YX"}, "image.pol"),
         ({"pol": "RR,LL"}, "image.pol"),
+        ({"write_model": True}, "image.write_model"),  # Stokes I only (G6)
     ):
         config, errors = core_config.resolve(
             {"version": 1, "image": {**image, **change}}

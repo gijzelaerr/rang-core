@@ -6,6 +6,10 @@ set -uo pipefail
 O=$1; M=$2; G=$3
 ms=/mnt/d/rang/outputs/20261106-g3-spectral/data/D1.ms
 BASE=(-size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 -nmiter 1000 -data-column DATA -field 0 -j 16)
+# IDEXTRA: options both binaries take, such as -no-update-model-required since G6 (main 3defaae
+# writes MODEL_DATA after imaging by default; D1.ms is G3's, read in place, never written).
+# shellcheck disable=SC2206
+BASE+=(${IDEXTRA:-})
 declare -A CFGS=(
   [C0]="-abs-threshold 0.00015"
   [C0s]="-abs-threshold 0.00015 -single -wgridder-accuracy 1e-4"

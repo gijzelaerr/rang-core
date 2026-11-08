@@ -21,6 +21,20 @@ the release notes are the section of this file for that version.
   `-join-channels`. XY, YX, circular correlations and `-link-polarizations` are refused.
   `rang-core image` passes `image.pol` and `image.join_polarizations` (only when not the defaults),
   so E2-B's image section is no longer refused. Single-polarisation I imaging is unchanged.
+- New: `rang-core calibrate` runs the K, G, B, A and F terms and the polarisation terms Gpol,
+  KCROSS, Xf and Df within `data.memory_limit_gb` (`research/w3b-chainchunks.md`): each solve reads
+  its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval),
+  pre-applied on whole rows, with the result of the one-call solve bit for bit. The stop test of the
+  G, B and K kernels is replayed over the chunks from new counted kernels (`rang._core.cal_gain_trace`,
+  `cal_delay_trace`, `cal_delay_offset_trace`; Rust `diag::solve_counted`, `delay::solve_counted`,
+  `delay_offset::solve_counted`), Df's gauge test is found exactly over the chunks, and the A step's
+  Tricolour pass flags in blocks of baselines on each group's time grid. `preflight` no longer refuses
+  these terms above the limit; it refuses only a solution interval (B, Xf, Df: one channel of one)
+  that does not fit, naming the GiB. The library functions take a `budget` (default: one chunk, as
+  before). P's angles come from a table per unique time and antenna (`rang.cal_pol.angle_table`,
+  `table_angles`), so `applycal(parang=True)` and the polarisation solves hold no per-row angle array.
+  New module `rang.cal_chunks`. The `extendflags` step (`rang.flag_extend.extend_ms`) splits a 60 s chunk
+  larger than its batch into blocks of whole baselines, with the same flags.
 - New: `refant: auto` and `calibrate.polcal.extendflags: true` run in `rang-core calibrate`
   (`research/e0-refant-extend.md`). `auto` is CARACal's `get_refant` (`rang.cal_refant`): the
   first three antennas **by name** within `calibrate.refant_maxdist` (1000 m) of the array centre
@@ -32,6 +46,29 @@ the release notes are the section of this file for that version.
   `core/src/flag_extend.rs`), run before the polcal solves on the Gpol, KCROSS and Xf fields and then
   the Df fields, within `data.scans`. The two new keys change the calibrate stage hash, so a
   calibrate stage finished earlier reruns once with `--force`.
+- New (research, task F2, `research/f2-flagger.md`): `rang.f2flag`, a 2,785-weight per-baseline
+  convolutional RFI flagger (features and network in NumPy/JAX, training in JAX on CPU), its Rust
+  inference kernel `rang_core::cnnflag` (`rang._core.cnnflag_logits`, rows in, logits out, parity with
+  JAX tested), and `rang.f2flag_sim`, simulated MeerKAT L-band scans on LUNO's window with RFI of known
+  mask from `rang.simtruth` (F2's seeds registered in `simtruth.SEEDS`). Not wired into `rang-core
+  flag`; weights are run outputs, not shipped.
+- New: `gemclean` writes the model column after imaging, as WSClean 3.7 does (`-update-model-required`,
+  the default; `-no-update-model-required` leaves the MS unwritten), and has WSClean's `-predict` mode
+  and `-model-column` (`research/g6-predict.md`). The model images (`<name>-model.fits` or
+  `<name>-000k-model.fits`, gemclean's or WSClean's) are predicted with the gridder at the MS's own
+  channels into every selected row (field, data description 0, cross-correlations; flags play no part):
+  XX = YY = I, XY = YX = 0. An added column is TiledShapeStMan and starts at zero, as WSClean's does.
+  `rang-core image` with `image.write_model: true` writes MODEL_DATA through W1's write-back with the
+  same predictor (`rang.core_model`, `rang._core.gemclean_predict`), and always runs gemclean with
+  `-no-update-model-required`. The scripts in `examples/` that image shared data now pass
+  `-no-update-model-required`.
+- New: `gemclean -scans <list>` and `-unit-weights` (rang's own options). gemclean now falls back to WEIGHT
+  as WSClean does: WEIGHT_SPECTRUM is read only when row 0 holds a cell of the data's shape
+  (`research/w6-imaging-inputs.md`). `rang-core image` passes `data.scans` and `data.weights: uniform`
+  to these options. It no longer refuses either of them, nor a declared WEIGHT_SPECTRUM with unwritten
+  cells, and it writes nothing into the MS for uniform weights. An imaged field with no rows in
+  `data.scans` is refused.
+
 - New: the Stimela2 recipe `recipes/rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply`
   and `image` in order on one configuration and MS, with the cabs `rang-flag`, `rang-calibrate`,
   `rang-apply` and `rang-image` in `recipes/rang-cabs.yaml`; each cab runs the console script

@@ -42,11 +42,15 @@ CELL_BYTES = {
     "apply": 64,
     "model": 64,
     "rows": 24,
-    # The K, G, B, A and F terms (task C2e) read a whole field at once, with
-    # copies for pre-applied tables: an estimate, not fitted (research/
-    # w3-chunking.md 5.3); used only to refuse what cannot fit.
+    # The K, G, B, F and polarisation solves (tasks C2e, C6w; chunked by task
+    # W3b, research/w3b-chainchunks.md): the cell columns read, their
+    # pre-applied copies, the weights and the kernel's sorted copies.
     "chain": 96,
 }
+# Bytes held per row of a chain solve's field for the whole solve (task W3b):
+# the row metadata, the interval index, the uvrange flag and the row's weight
+# sum for the solution times.
+CHAIN_ROW_BYTES = 128
 
 
 class MemoryLimitError(ValueError):
@@ -115,6 +119,13 @@ class Budget:
         """GiB a chunk of `cells` cells needs in `stage`, the process included."""
         return _gib(self.fixed_bytes + CELL_BYTES[stage] * int(cells))
 
+    def chain(self):
+        """The `ChainBudget` of the K, G, B, F and polarisation solves (task
+        W3b)."""
+        return ChainBudget(
+            self.chunk_bytes, self.fixed_bytes, self.limit_gb, self.chunk_rows
+        )
+
     def describe(self):
         out = {
             "memory_limit_gb": self.limit_gb,
@@ -127,6 +138,44 @@ class Budget:
         except MemoryLimitError as exc:
             out["error"] = str(exc)
         return out
+
+
+@dataclass(frozen=True)
+class ChainBudget:
+    """Chunk sizes of a K, G, B, F or polarisation solve on one field (task
+    W3b, research/w3b-chainchunks.md): `chunk_bytes` for chunk arrays (of
+    `Budget`), less `CHAIN_ROW_BYTES` per row of the field."""
+
+    chunk_bytes: int
+    fixed_bytes: int = 0
+    limit_gb: float | None = None
+    chunk_rows: int | None = None
+
+    def plan(self, nrows, nchan, ncorr, per_channel):
+        """`(max_cells, hard_cells, block_rows)` of a solve on `nrows` rows:
+        the cells a chunk may hold (under `chunk_rows` too), the memory's
+        own limit on them, and the rows of all channels a read block may
+        hold. Per-channel terms (B, Xf, Df) give half to a chunk and half to
+        a block of whole rows. A block is a read buffer, not a chunk:
+        `chunk_rows` does not cap it (W3 read a frequency chunk's rows
+        whole). `hard_cells` is negative when the rows alone do not fit."""
+        left = self.chunk_bytes - CHAIN_ROW_BYTES * int(nrows)
+        hard = left // CELL_BYTES["chain"]
+        if per_channel:
+            hard //= 2
+        row = int(nchan) * int(ncorr)
+        block = hard // row
+        cells = hard
+        if self.chunk_rows:
+            cells = min(cells, int(self.chunk_rows) * row)
+        return int(cells), int(hard), int(block)
+
+    def need_gb(self, nrows, cells, per_channel):
+        """GiB a solve on `nrows` rows needs for a chunk of `cells` cells
+        (and, per channel, a block of one whole row), the process
+        included."""
+        cell = CELL_BYTES["chain"] * int(cells) * (2 if per_channel else 1)
+        return _gib(self.fixed_bytes + CHAIN_ROW_BYTES * int(nrows) + cell)
 
 
 def budget(config, info):
@@ -330,8 +379,10 @@ def replay_stop(totals, ngains, stop_fraction):
 
 __all__ = [
     "CELL_BYTES",
+    "CHAIN_ROW_BYTES",
     "DEFAULT_LIMIT_GB",
     "Budget",
+    "ChainBudget",
     "MemoryLimitError",
     "SolveChunk",
     "baseline_blocks",
