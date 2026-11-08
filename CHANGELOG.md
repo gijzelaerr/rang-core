@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `gemclean -multiscale` (`research/g5-multiscale.md`): WSClean 3.7's multiscale CLEAN,
+  radler's algorithm with its sub-minor loop (`rang_core::gemclean::multiscale`), with
+  `-multiscale-scales`, `-multiscale-max-scales`, `-multiscale-scale-bias`, `-multiscale-shape`
+  (tapered quadratic or Gaussian) and `-multiscale-gain`; scales from WSClean's theoretic beam;
+  the residual made exact for the image-domain beam after every sub-minor loop. Works with one
+  output channel, joined channels (with `-fit-spectral-pol`) and unjoined ones, and with
+  `-auto-threshold`. `rang-core image` passes `multiscale` and the new keys `multiscale_scales`,
+  `multiscale_max_scales`, `multiscale_scale_bias`, `multiscale_shape` and `multiscale_gain`.
+  Without `-multiscale` the images are byte-identical to before.
 - New: `rang-core calibrate` runs the K, G, B, A and F terms and the polarisation terms Gpol,
   KCROSS, Xf and Df within `data.memory_limit_gb` (`research/w3b-chainchunks.md`): each solve reads
   its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval),

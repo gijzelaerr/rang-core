@@ -1,7 +1,14 @@
 # Rang: multiscale CLEAN in GeMClean (task G5)
 
-Status, 2026-11-07: **implemented; protocol written and committed before any comparison; nothing
-measured yet.**
+Status, 2026-11-08: **implemented and measured; every frozen gate met, on the held-out sky too.**
+Under the rule below (committed before any comparison, `17781e2`): without `-multiscale` all 17
+identity runs byte-identical to the references (A); scales, theoretic beam, bias, PSF peaks and
+gains equal to WSClean's log on every run (B), after three changes made post hoc on the first S2
+comparison (section 4); extended flux within 0.4 % of the truth and of WSClean on S2, H4 and held-out
+M1 (C); the ESO 137-006 pilot's masked model flux within 0.12 % (whole mask) and 0.36 % (the radio
+galaxy) of WSClean's (D); joined channels with the spectral fit pass G3's Gaussian criterion (E).
+Major cycles equal WSClean's on six of seven gated runs (M1: 5 against 6). GeMClean holds 2-3 ×
+WSClean's peak memory. No novelty claim; no default changed.
 
 Goal (finish plan, G5; owner decision 2, "in"): GeMClean gains WSClean 3.7's `-multiscale`, with
 its scale selection, `-multiscale-scales`, `-multiscale-max-scales`, `-multiscale-scale-bias`,
@@ -239,10 +246,161 @@ Frozen 2026-11-08 at commit `135f9e16e3c6b0714f9a66b4fdb80fefa45987b6` of `fp-g5
 development binary `gemclean-dev3`, so the dev3 runs are runs of the frozen binary. M1's seeds
 follow from these two by the rule in section 3.
 
-## 5. Results
+## 5. Changes after the first comparison (post hoc, labelled)
 
-Not yet complete.
+All three were made after GeMClean's first S2 run (`dev1`, binary `200466e3…`) had been compared
+with WSClean's, before the freeze and before M1 was drawn; M1 tests the result.
+
+1. **The PSF peak per scale** is the circular sum radler's `Transform` gives at the centre
+   (`circular_peak`), not the linear convolution. At the centre no shape wraps, so this alone
+   changed nothing measurable.
+2. **The shapes in radler's `f32` arithmetic** (`shape_function`): the scale passed as `float`,
+   every step and the in-order sum in `float`, as `multiscale_transforms.h`. With an `f64` kernel
+   the PSF peak and gain of the 922-pixel scale on S2 missed WSClean's by 2.8e-4, and on S2g those
+   of the 230-922-pixel scales by 2-5e-4, against criterion B's 1e-4: radler's `f32` sum of up to
+   850,000 kernel values is that far off. Departure 3 now excludes the kernels.
+3. **A cycle whose level is the threshold ends the run** (radler's `isFinalThreshold`), replacing
+   the last sentence of departure 4. On S2 the exact check had added 17 major cycles of 11-1,235
+   components each just above the 0.1 mJy threshold (23 against WSClean's 6); now 6.
+
+**Scorer correction** (before any held-out score): criterion B first read WSClean's first
+`Theoretic beam` line, which with several output channels is the lowest channel's; radler uses the
+smallest (`minTheoreticalBeamSize`), and the scorer now does (D2j: 4.88″, GeMClean's too).
+
+## 6. Results (measured)
+
+Binary `2eb814f3…` (the freeze, byte-identical to `dev3`) for every result below; WSClean 3.7
+`rang-wsclean-native:3.7`. Runs 2026-11-08 on a shared host, each under the heavy lock. Outputs:
+`D:\rang\outputs\g5-20261107-01` (development: `runs/dev3`, `runs/wsclean`, `runs.tsv`,
+`runs/dev3/score-<run>.json`, binaries in `bin/`), `-02` (identity), `-03` (M1: `data/m1.ms`,
+`m1.json`, runs and score). Scripts: [g5-multiscale-scripts](results/g5-multiscale-scripts/)
+(`score.py`, `table.py`, `cfg.sh`, `run_g.sh`, `run_w.sh`, `batch.sh`, `id_run.sh`, `identity.py`).
+
+### A. Without `-multiscale`, byte-identical to main (pass)
+
+Main `b504ff9` built here (sha256 `c97a6171…`) gives G2's `c34` S1 files and all 45 files of G3's
+D1-C1, so those are the references. The frozen binary (built after merging main `3defaae`, G6/W6)
+gives every FITS file of all 17 runs with the reference's SHA-256: S1-S3 and H1-H4 in both forms,
+the pilot at 256 channels, D1-C1 (45 files) and D1-C3 (25 files). Peak RSS as G2's (S1 2.92 GB, H3
+5.31 GB, pilot-256 11.96 GB).
+
+### B. Scale selection against WSClean's log (pass on all seven)
+
+| run | theoretic beam G / W | scales | worst PSF-peak / gain relative difference |
+| --- | --- | --- | --- |
+| S2, S2g, H4 | 5.4005″ / 5.4″ | 0, 14, 29, 58, 115, 230, 461, 922 | below 1e-4 |
+| H4l | 5.4005″ / 5.4″ | 0, 5, 15, 45, 135 (given) | below 1e-4 |
+| D2j | 4.8807″ / 4.88″ (smallest of 8) | 0, 13, 26, 52, 104, 208, 416, 833 | below 1e-4 |
+| P | 7.3267″ / 7.33″ | 0, 10, 20, 39, 78, 156, 313, 625, 1250 | below 1e-4 |
+| M1 | 5.4005″ / 5.4″ | as S2 | below 1e-4 |
+
+The bias factors equal WSClean's printed values (1, 1.7, 2.8, 4.6, 7.7, 12.9, 21.4, 35.7).
+
+### C. Extended flux on the simulated skies (pass on S2, S2g, H4, H4l and held-out M1)
+
+Model flux in each group's aperture against the truth `T` (relative error G / W), and the residual
+rms inside it (µJy, G / W):
+
+| run | group (Gaussians, T) | G | W | ε | residual rms |
+| --- | --- | ---: | ---: | ---: | --- |
+| S2 | 1, 2.000 Jy (40″) | +0.01 % | −0.00 % | 0.9 mJy | 56.8 / 55.2 |
+| S2g | same, Gaussian shape | +0.05 % | +0.05 % | 0.9 mJy | 43.2 / 43.9 |
+| H4 | 4, 2.781 Jy | −0.28 % | −0.36 % | 4.4 mJy | 29.7 / 29.8 |
+| H4 | 1, 0.117 Jy (28″) | +0.01 % | +0.03 % | 0.6 mJy | 48.4 / 48.1 |
+| H4 | 1, 0.294 Jy (154″) | +0.20 % | −1.08 % | 3.4 mJy | 26.9 / 27.0 |
+| H4 | 25 (the tail), 3.237 Jy | +0.08 % | +0.11 % | 2.7 mJy | 39.0 / 38.9 |
+| H4l | the same four groups | −0.63, −0.66, −3.65, +0.18 % | −0.65, −0.69, −3.84, +0.15 % | | on a par |
+| **M1** (held out) | 28, 5.394 Jy | +0.28 % | +0.01 % | 5.1 mJy | 31.4 / 31.0 |
+| **M1** | 1, 0.298 Jy | +0.02 % | +0.11 % | 1.0 mJy | 40.1 / 40.8 |
+| **M1** | 1, 0.666 Jy | +0.23 % | +0.41 % | 2.0 mJy | 31.2 / 31.1 |
+| **M1** | 1, 0.257 Jy | +0.42 % | +0.34 % | 0.9 mJy | 43.4 / 44.1 |
+
+On H4l (scales 0, 5, 15, 45, 135) the 154″ Gaussian loses 3.7 % in both imagers: 135 pixels is
+too small a largest scale for it; C1's WSClean-relative clause and C2 pass. Points (C4), median
+|F/S − 1| G / W: S2 0.39 / 0.37 %, S2g 0.37 / 0.36 %, H4 0.23 / 0.24 %, H4l 0.27 / 0.27 %,
+M1 0.42 / 0.46 %. M1's seeds: sky `3560519379`, noise `3155112534` (no collision).
+
+### D. The real field, ESO 137-006 pilot set A (pass)
+
+| region | pixels | G model flux | W model flux | difference | bound | residual rms G / W |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| M (source mask) | 130,180 | 97.781 Jy | 97.902 Jy | −0.12 % | 2 % + 0.14 Jy | 1.124 / 1.124 mJy |
+| R (within 10′) | 59,631 | 85.684 Jy | 85.995 Jy | −0.36 % | 2 % + 0.10 Jy | 1.383 / 1.389 mJy |
+
+Off the mask: model flux −4.85 Jy (G) and −5.82 Jy (W), |model| 135.3 and 175.3 Jy; residual σ
+0.426 and 0.417 mJy. Total model flux 92.93 and 92.08 Jy, against 83.7-83.8 Jy for both Högbom
+imagers in `gemclean-heldout.md` (multiscale puts about 9 Jy more into the model, most of it on
+the 39-78-pixel scales). Four major cycles each; 59,596 components (G) against 65,419 (W).
+
+### E. Joined channels, D2j (pass)
+
+All five Gaussians pass G3's criterion outright: |ΔS/S| 0.01-0.92 % (W 0.09-1.00 %), |Δα|
+0.007-0.025 (W 0.008-0.025). C1-C3 on the MFS models pass for all five (within 1.2 % of the
+truth). Five major cycles each.
+
+### F. Reported
+
+| run | majors G / W | components G / W | sub-minor loops | peak RSS G / W GB | wall G / W |
+| --- | --- | --- | ---: | --- | --- |
+| S2 | 6 / 6 | 86,742 / 86,618 | 302 | 4.73 / 2.33 | 3:00 / 2:25 |
+| S2g | 6 / 6 | 86,529 / 86,413 | 251 | 4.77 / 2.36 | 2:51 / 2:20 |
+| H4 | 5 / 5 | 21,160 / 21,318 | 251 | 4.81 / 2.13 | 3:12 / 2:24 |
+| H4l | 5 / 5 | 23,090 / 23,276 | 192 | 4.05 / 2.07 | 2:50 / 2:01 |
+| D2j | 5 / 5 | 8,881 / 8,610 | 172 | 10.13 / 3.76 | 4:27 / 9:30 |
+| P | 4 / 4 | 59,596 / 65,419 | 170 | 15.17 / 5.11 | 9:13 / 13:49 |
+| M1 | 5 / 6 | 26,875 / 27,146 | 247 | 4.81 / 2.21 | 2:57 / 2:44 |
+
+False flux (model flux outside every aperture), G / W: S2 −87.9 / −84.9 mJy (|·| 363.5 / 364.6;
+the points' sidelobe bowls, as in Högbom), H4 −0.6 / +9.1 mJy (19.7 / 31.6), H4l −2.7 / −1.2,
+M1 +3.2 / +6.2 mJy (37.8 / 58.2). Wall times are from a shared host; no timing claim.
+
+Reported only (GeMClean's options): without `-mgain`, the measured rule takes S2 to the threshold
+in 3 major cycles (72,603 components, Q/Q0 2.139e-3, against 2.128e-3 at `-mgain 0.8`) and H4 in 3
+(21,248). `-auto-threshold 3` on S2 (S2a; WSClean's RMS estimate differs from GeMClean's MAD, so not
+a matched pair): C passes, 6 / 6 cycles. Four unjoined channels on D2 (D2u, `-channels-out 4`):
+5 cycles per channel in both; GeMClean's lowest channel has 14,788 components against WSClean's
+4,468 (the others 8,179, 5,101, 4,849 against 4,571, 4,779, 4,850); not scored (the scorer reads
+single images).
+
+## 7. What was not checked
+
+- Q against the truth through the exact gridder.
+- The pilot at 512 channels, joined channels on the pilot, and multiscale with `-single`,
+  `-beam-band` or `-no-plan-reuse`. The caches' bit-neutrality is by construction (rebuilt items
+  have the same bits), not tested by a run that rebuilds; on the 2048² runs everything fits.
+- Why GeMClean takes three times WSClean's components in D2u's lowest channel.
+- Timing: the host was shared; walls are in `runs.tsv`.
+
+## 8. Owner decisions (provisional; the owner asked for none to be put to him)
+
+1. Without `-mgain`, `-multiscale` uses GeMClean's measured rule on the biased peak (3 cycles on
+   S2 and H4); every gated comparison used `-mgain 0.8`.
+2. A `-multiscale-*` option without `-multiscale` is refused (WSClean ignores it).
+3. Linear shape convolutions and the exact residual after each sub-minor loop (departures 1-2);
+   `-multiscale-convolution-padding` and `-no-multiscale-fast-subminor` refused.
+4. Two caches of 2 × 10⁹ bytes for the shapes' convolvers and the twice-convolved PSFs.
+5. radler's `isFinalThreshold` ends the run (change 3), as WSClean.
 
 ## For the coordinator
 
-To be written with the results.
+- `research/README.md` index line: `[g5-multiscale.md](g5-multiscale.md) — G5: GeMClean -multiscale
+  (radler's algorithm and sub-minor loop) against WSClean 3.7 on S2, H4, joined D2, the ESO 137
+  pilot and held-out M1; every gate met.`
+- `research/STATE.md` log paragraph: "G5, multiscale CLEAN in GeMClean, 2026-11-08 (implemented;
+  measured; [g5-multiscale.md](g5-multiscale.md)). `gemclean -multiscale` with WSClean 3.7's
+  `-multiscale-scales`, `-max-scales`, `-scale-bias`, `-shape` and `-gain`: radler's scale
+  selection from the theoretic beam, f32 shapes, bias, sub-minor loop, countdown and scale
+  activation, with GeMClean's exact residual after each sub-minor loop; single, joined (with the
+  spectral fit) and unjoined channels; `rang-core image` passes `multiscale` and five
+  `multiscale_*` keys. Under a rule written first: without `-multiscale` all 17 identity runs
+  byte-identical; scales, beam, bias, PSF peaks and gains equal to WSClean's log; extended flux
+  within 0.4 % of truth and WSClean on S2, H4 and held-out M1; the ESO 137 pilot's masked model flux
+  within 0.12-0.36 % of WSClean's; joined Gaussians' flux and spectral index within G3's bounds.
+  Major cycles equal WSClean's on 6 of 7 runs. Three changes post hoc after the first S2
+  comparison (f32 shapes, circular PSF peak, radler's final-threshold stop). Memory 2-3 × WSClean.
+  No novelty claim."
+- `research/finish-plan.md`: G5 done; for G7, multiscale memory (pilot-256 15.2 GB at 4096²) and
+  the default hand-back without `-mgain` (owner decision 1).
+- Branch `fp-g5-multiscale` (main `3defaae` merged in); outputs `D:\rang\outputs\g5-20261107-01`
+  (dev, binaries), `-02` (identity hashes; FITS deleted after hashing), `-03` (M1 MS about 1 GB and
+  its runs). G9 will need a small merge in `core/src/bin/gemclean.rs` and `gemclean.rs`.
