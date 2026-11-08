@@ -73,6 +73,7 @@ from . import (
     core_chunks,
     core_config,
     core_flag,
+    core_model,
     core_ms,
     core_writeback,
 )
@@ -301,17 +302,13 @@ def check_data(config, info, stages):
             f"{ms} has no WEIGHT_SPECTRUM or WEIGHT (data.weights: as_is reads them); "
             "set data.weights: uniform to solve with unit weights",
         )
-    if not weights:
+    # gemclean reads WEIGHT where row 0 of WEIGHT_SPECTRUM holds no cell, as
+    # WSClean does, and no weights with data.weights: uniform (task W6).
+    if not weights and config["data"]["weights"] == "as_is":
         no(
             ("image",),
-            f"{ms} has no WEIGHT_SPECTRUM or WEIGHT, and gemclean reads them",
-        )
-    elif "WEIGHT_SPECTRUM" in columns and not info["weight_spectrum"]:
-        no(
-            ("image",),
-            f"{ms} declares WEIGHT_SPECTRUM but row 0 has no cells of {info['cell']} "
-            "written; gemclean would read the column anyway (it tests only that row 0 "
-            "can be read). Write it, or remove the column so WEIGHT is used",
+            f"{ms} has no WEIGHT_SPECTRUM or WEIGHT (data.weights: as_is reads them); "
+            "set data.weights: uniform to image with unit weights",
         )
     if len(info["ddids"]) == 1 and info["ddid"] != 0:
         no(
@@ -319,26 +316,6 @@ def check_data(config, info, stages):
             f"every row is on DATA_DESC_ID {info['ddid']}; gemclean images data "
             "description 0 only",
         )
-    scans = config["data"]["scans"]
-    if scans and "image" in stages:
-        try:
-            ids = resolve_fields(config["image"]["fields"], config, info, "image")
-        except Refused:  # reported by preflight
-            ids = []
-        rows = info["rows"]
-        for f in ids:
-            mine = rows["FIELD_ID"] == f
-            left = sorted(
-                set(np.unique(rows["SCAN_NUMBER"][mine]).tolist()) - set(scans)
-            )
-            if left:
-                no(
-                    ("image",),
-                    f"data.scans {scans} leaves out scans {left} of field "
-                    f"{info['fields'][f]!r}, but gemclean has no scan selection and "
-                    "would image them too; leave data.scans out for image, or split "
-                    "the scans out first",
-                )
     return out
 
 
@@ -415,6 +392,14 @@ def _selection_problems(config, info, lists):
                     "field id (one image per field)"
                 )
         ids = resolve_fields(tokens, config, info, where)
+        if stage == "image" and scans:
+            # One image per field: each needs cross-correlation rows in the scans.
+            for f in ids:
+                if not count_rows(info, [f], scans, cross=True):
+                    problems.append(
+                        f"{where}, data.scans: no rows of field {info['fields'][f]!r} "
+                        f"in scans {scans} (the MS has scans {info['scans']})"
+                    )
         if stage in ("flag", "calibrate") and ids and scans:
             cross = stage == "calibrate"
             if not count_rows(info, ids, scans, cross=cross):
@@ -578,37 +563,84 @@ def memory_problems(config, info, stages):
     return out
 
 
-def chain_memory_problems(config, info, plan):
-    """[message] for each K, G, B, F or A term (task C2e), or Gpol, KCROSS,
-    Xf or Df term (task C6w), whose data does not fit
-    `data.memory_limit_gb`: these terms read every row of a field (A: of
-    all its fields) at once, unchunked (W3 merge, research/w3-chunking.md
-    5.3; chunking them is task W3b)."""
+# The chain terms solved per interval and channel (task W3b): their smallest
+# chunk is one channel of one interval.
+PER_CHANNEL_TERMS = ("B", "Xf", "Df")
+
+
+def chain_chunk_plans(config, info, plan):
+    """[(where, term, field, chunks or MemoryLimitError)] for every K, G,
+    B, F, Gpol, KCROSS, Xf and Df solve (one per field) of the chain (task
+    W3b, research/w3b-chainchunks.md): the chunks `rang.cal_chunks.plan`
+    gives that solve under `plan` (a `core_chunks.Budget`), as the library
+    computes them."""
+    from . import cal_chunks, cal_gain
+
     out, rows = [], info["rows"]
-    cells = int(np.prod(info["cell"]))
-    limit = plan.limit_bytes
+    chain = plan.chain()
     for section in core_config.CALIBRATE_SECTIONS:
         block = config["calibrate"][section]
         for i, term in enumerate(block["terms"]):
-            if term["type"] not in core_config.CHAIN_TERMS:
+            if term["type"] not in core_config.CHAIN_TERMS or term["type"] == "A":
                 continue
             fields = resolve_fields(
                 term["field"] or block["field"], config, info, f"calibrate.{section}"
             )
-            units = [fields] if term["type"] == "A" else [[f] for f in fields]
-            for unit in units:
-                n = len(_selected_rows(rows, unit, config["data"]["scans"]))
-                need = plan.fixed_bytes + core_chunks.CELL_BYTES["chain"] * n * cells
-                if need > limit:
-                    names = [info["fields"][f] for f in unit]
+            where = f"calibrate.{section}.terms[{i}] ({term['name']}, {term['type']})"
+            for f in fields:
+                idx = _selected_rows(rows, [f], config["data"]["scans"])
+                if not len(idx):
+                    continue
+                tb, _ = cal_gain.solint_bins(
+                    rows["TIME"][idx], rows["SCAN_NUMBER"][idx], rows["FIELD_ID"][idx],
+                    term["solint"] or "inf", term["combine"] or "",
+                )  # fmt: skip
+                try:
+                    chunks, _ = cal_chunks.plan(
+                        tb, info["cell"][0], info["cell"][1], chain,
+                        per_channel=term["type"] in PER_CHANNEL_TERMS,
+                        what=f"field {info['fields'][f]!r}",
+                    )  # fmt: skip
+                except core_chunks.MemoryLimitError as exc:
+                    chunks = exc
+                out.append((where, term, f, chunks))
+    return out
+
+
+def chain_memory_problems(config, info, plan):
+    """[message] for each chain term (tasks C2e, C6w) whose smallest unit
+    does not fit `data.memory_limit_gb` (task W3b): one solution interval
+    of a field with all its channels (K, G, F, Gpol, KCROSS), one channel
+    of one interval and one whole row (B, Xf, Df), or one baseline of an A
+    step's flag group on its time grid. Everything else runs in chunks."""
+    out = []
+    try:
+        plan.chain()
+    except core_chunks.MemoryLimitError as exc:
+        return [f"calibrate: {exc}"]
+    for where, _, _, chunks in chain_chunk_plans(config, info, plan):
+        if isinstance(chunks, core_chunks.MemoryLimitError):
+            out.append(f"{where}: {chunks}")
+    rows = info["rows"]
+    max_rows = plan.rows("flag", capped=False)
+    for section in core_config.CALIBRATE_SECTIONS:
+        block = config["calibrate"][section]
+        for i, term in enumerate(block["terms"]):
+            if term["type"] != "A":
+                continue
+            fields = resolve_fields(
+                term["field"] or block["field"], config, info, f"calibrate.{section}"
+            )
+            selected = _selected_rows(rows, fields, config["data"]["scans"])
+            for (field, _, scan), idx in _groups(rows, selected).items():
+                ntime = len(np.unique(rows["TIME"][idx]))
+                if ntime > max_rows:
                     out.append(
-                        f"calibrate.{section}.terms[{i}] ({term['name']}, "
-                        f"{term['type']}): fields {names} hold {n} rows read at once "
-                        f"and need about {need / core_chunks.GIB:.2f} GiB, above "
-                        f"data.memory_limit_gb {plan.limit_gb:g}; chunking of the K, "
-                        "G, B, A, F and polarisation terms is not yet implemented "
-                        "(task W3b, research/w3-chunking.md 5.3): raise the limit or "
-                        "select fewer scans with data.scans"
+                        f"calibrate.{section}.terms[{i}] ({term['name']}, A): field "
+                        f"{info['fields'][field]!r} scan {scan} has {ntime} times, and "
+                        "one baseline of it needs "
+                        f"{plan.need_gb('flag', ntime * np.prod(info['cell'])):.2f} GiB; "
+                        "raise data.memory_limit_gb"
                     )
     return out
 
@@ -1510,6 +1542,7 @@ def stage_calibrate_chain(ctx):
         masks = []
     scans = config["data"]["scans"] or None
     version = stage_version(ctx, "calibrate")
+    plan = core_chunks.budget(config, info)
     result = cal_chain.run(
         ms,
         terms,
@@ -1518,9 +1551,10 @@ def stage_calibrate_chain(ctx):
         weight_column=chain_weight_column(config, info),
         scan=scans,
         masks=masks,
-        chunk_rows=core_chunks.budget(config, info).rows("apply"),
+        chunk_rows=plan.rows("apply"),
         flag_backup=version,
         stage="calibrate",
+        budget=plan,  # task W3b: chunks of whole solution intervals
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):
@@ -1549,6 +1583,18 @@ def stage_calibrate_chain(ctx):
         "steps": steps,
         "flag_version": version,
         "k_offsets": cal_chain.K_ALONE.split(":")[1].strip(),
+        "chunking": {
+            **plan.describe(),
+            "solves": [
+                {
+                    "term": term["name"],
+                    "field": info["fields"][f],
+                    "chunks": len(chunks),
+                    "channel_chunks": sum(not c.whole for c in chunks),
+                }
+                for _, term, f, chunks in chain_chunk_plans(config, info, plan)
+            ],
+        },
     }
     if refant_auto is not None:
         summary["refant_auto"] = refant_auto
@@ -1819,7 +1865,7 @@ def _safe(name):
     return "".join(c if c.isalnum() or c in "-_." else "_" for c in name)
 
 
-def gemclean_arguments(img, column, field_id, prefix, ms):
+def gemclean_arguments(img, column, field_id, prefix, ms, scans=(), unit_weights=False):
     args = ["-name", str(prefix), "-size", *[str(v) for v in img["size"]]]
     args += ["-scale", img["scale"], "-weight", img["weight"]]
     if img["weight"] == "briggs":
@@ -1845,8 +1891,46 @@ def gemclean_arguments(img, column, field_id, prefix, ms):
     if img["fit_spectral_pol"] is not None:
         args += ["-fit-spectral-pol", str(img["fit_spectral_pol"])]
     args += ["-data-column", column, "-field", str(field_id)]
+    # data.scans and data.weights: uniform (task W6, research/w6-imaging-inputs.md).
+    if scans:
+        args += ["-scans", ",".join(str(int(s)) for s in scans)]
+    if unit_weights:
+        args.append("-unit-weights")
+    # gemclean never writes the MS itself here: MODEL_DATA, when asked for,
+    # goes through WriteBack after it (task G6, research/g6-predict.md).
+    args.append("-no-update-model-required")
     args += list(img["extra_args"])
     return [*args, str(ms)]
+
+
+def _extra_flag(extra, flag, count=0):
+    """The values of `flag` in gemclean's extra arguments (the last use),
+    True for a flag without values, or None."""
+    found = None
+    for i, a in enumerate(extra):
+        if a == flag:
+            found = True if count == 0 else tuple(extra[i + 1 : i + 1 + count])
+    return found
+
+
+def write_model(img, ms, field_id, prefix, scans=()):
+    """MODEL_DATA from the model images gemclean wrote for `field_id`
+    (task G6): the binary's predictor, written through WriteBack."""
+    extra = [str(a) for a in img["extra_args"]]
+    rng = _extra_flag(extra, "-channel-range", 2)
+    return core_model.write_model_data(
+        ms,
+        prefix,
+        field_id,
+        channels_out=img["channels_out"],
+        channel_range=None if rng is None else (int(rng[0]), int(rng[1])),
+        average_channels=img["average_channels"],
+        epsilon=float(img["wgridder_accuracy"]),
+        wgridding=_extra_flag(extra, "-no-wgridding") is None,
+        single=_extra_flag(extra, "-single") is not None,
+        scans=list(scans) or None,
+        stage="image",
+    )
 
 
 def stage_image(ctx):
@@ -1866,7 +1950,12 @@ def stage_image(ctx):
         field_dir = out_dir / _safe(name)
         field_dir.mkdir()
         prefix = field_dir / img["name"]
-        argv = [str(binary), *gemclean_arguments(img, column, field, prefix, ms)]
+        scans = config["data"]["scans"] or ()
+        unit = config["data"]["weights"] == "uniform"
+        argv = [
+            str(binary),
+            *gemclean_arguments(img, column, field, prefix, ms, scans, unit),
+        ]
         log = field_dir / "gemclean.log"
         started = time.perf_counter()
         with log.open("w", encoding="utf-8", newline="\n") as fh:
@@ -1883,6 +1972,11 @@ def stage_image(ctx):
                 f"{log}: " + " | ".join(tail)
             )
         files = sorted(p for p in field_dir.iterdir() if p.is_file() and p != log)
+        model = None
+        if img["write_model"]:
+            started = time.perf_counter()
+            model = write_model(img, ms, field, prefix, scans)
+            model["wall_seconds"] = time.perf_counter() - started
         images.append(
             {
                 "field_id": field,
@@ -1890,6 +1984,7 @@ def stage_image(ctx):
                 "argv": argv,
                 "wall_seconds": seconds,
                 "files": {p.name: _sha256_file(p) for p in files},
+                "model": model,
             }
         )
     summary = {

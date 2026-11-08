@@ -36,6 +36,7 @@ def run_once(variant, spec, sky):
             "-e",
             EVENTS,
             variant["binary"],
+            "-no-update-model-required",
             "-name",
             str(prefix),
             *spec["base"],

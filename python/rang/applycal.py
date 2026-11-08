@@ -254,29 +254,31 @@ def _weight_scale(kind, table, interp, spw, table_field, chunk, freqs, nant):
 
 
 def _field_angles(w, chunk_rows, fields, frame, receptor_angle):
-    """P's angles `(a_p, a_q)` for every MS row of `fields` (0 elsewhere),
-    each field's from `rang.cal_pol.row_angles` over all of its rows."""
+    """P's angle table (`rang.cal_pol.angle_table`) of each of `fields`, over
+    all of its rows: the field's unique times and antennas are collected
+    chunk by chunk, so no per-row array of the MS is held (task W3b,
+    research/w3b-chainchunks.md); the angles equal `row_angles`'."""
     from . import cal_pol
 
-    spans = list(w.chunks(chunk_rows))
-    names = ("FIELD_ID", "TIME", "ANTENNA1", "ANTENNA2")
-    meta = {k: np.concatenate([w.read(k, s, n) for s, n in spans]) for k in names}
-    ap = np.zeros(len(meta["TIME"]))
-    aq = np.zeros(len(meta["TIME"]))
-    for f in fields:
-        rows = np.flatnonzero(meta["FIELD_ID"] == f)
-        if not len(rows):
+    times = {int(f): [] for f in fields}
+    used = {int(f): [] for f in fields}
+    for s, n in w.chunks(chunk_rows):
+        fid = w.read("FIELD_ID", s, n)
+        if not np.isin(fid, list(times)).any():
             continue
-        ap[rows], aq[rows] = cal_pol.row_angles(
-            w.ms,
-            meta["TIME"][rows],
-            meta["ANTENNA1"][rows],
-            meta["ANTENNA2"][rows],
-            f,
-            frame,
-            receptor_angle,
+        t, a1, a2 = (w.read(k, s, n) for k in ("TIME", "ANTENNA1", "ANTENNA2"))
+        for f, seen in times.items():
+            sel = fid == f
+            if sel.any():
+                seen[:] = [np.unique(np.concatenate([*seen, t[sel]]))]
+                used[f] = [np.unique(np.concatenate([*used[f], a1[sel], a2[sel]]))]
+    return {
+        f: cal_pol.angle_table_at(
+            w.ms, times[f][0], used[f][0].astype(np.int64), f, frame, receptor_angle
         )
-    return ap, aq
+        for f in times
+        if times[f]
+    }
 
 
 def _load(t):
@@ -378,9 +380,7 @@ def applycal(
         added = w.ensure_column(column, init="data")
         summary["column_added"] = bool(added)
         if parang:
-            angle_p, angle_q = _field_angles(
-                w, chunk_rows, fields, frame, receptor_angle
-            )
+            angle_tables = _field_angles(w, chunk_rows, fields, frame, receptor_angle)
             summary["frame"] = frame
             if receptor_angle is not None:
                 summary["receptor_angle"] = float(receptor_angle)
@@ -457,9 +457,13 @@ def applycal(
                 if parang:
                     from . import cal_pol
 
-                    got = cal_pol.rotate(
-                        got, angle_p[start + idx], angle_q[start + idx], inverse=True
+                    angles = cal_pol.table_angles(
+                        angle_tables[int(fid)],
+                        group["TIME"],
+                        group["ANTENNA1"],
+                        group["ANTENNA2"],
                     )
+                    got = cal_pol.rotate(got, *angles, inverse=True)
                 out[idx] = got
                 new_flag[idx] = gflag
                 if write_weights:

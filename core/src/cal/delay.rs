@@ -53,7 +53,7 @@
 //! (the converged fraction over all per-channel gains) sums integer counts
 //! serially, so the result does not depend on the thread count.
 
-use crate::cal::diag::Error;
+use crate::cal::diag::{Error, Trace};
 use crate::fused::Model;
 use crate::jones::{self, C64, Jones};
 use crate::solve::Problem;
@@ -670,6 +670,27 @@ impl Interval {
 /// estimate when `estimate_antenna` is set and its referencing when
 /// `reference_antenna` is set. `freq` holds the channel frequencies (Hz).
 pub fn solve(problem: &Problem, freq: &[f64], settings: &Settings) -> Result<Solution, Error> {
+    solve_traced(problem, freq, settings, None)
+}
+
+/// `solve`, also returning the counts its global stop test sums per
+/// iteration (`diag::Trace`, task W3b); recording changes no arithmetic.
+pub fn solve_counted(
+    problem: &Problem,
+    freq: &[f64],
+    settings: &Settings,
+) -> (Result<Solution, Error>, Trace) {
+    let mut trace = Trace::default();
+    let result = solve_traced(problem, freq, settings, Some(&mut trace));
+    (result, trace)
+}
+
+fn solve_traced(
+    problem: &Problem,
+    freq: &[f64],
+    settings: &Settings,
+    mut trace: Option<&mut Trace>,
+) -> Result<Solution, Error> {
     check(problem, freq, settings)?;
     let na = problem.nant;
     let nchan = problem.nchan;
@@ -728,11 +749,23 @@ pub fn solve(problem: &Problem, freq: &[f64], settings: &Settings) -> Result<Sol
     let mut done = 0;
     let mut fraction = 0.;
     for loop_idx in 0..iterations {
-        let counts: Vec<(usize, usize)> = ivs
+        let counts: Vec<(usize, usize)> = match ivs
             .par_iter_mut()
             .map(|iv| iv.iterate(problem, &coeff, &local, loop_idx, stop2))
-            .collect::<Result<_, _>>()?;
+            .collect::<Result<_, _>>()
+        {
+            Ok(counts) => counts,
+            Err(error) => {
+                if let Some(t) = trace.as_deref_mut() {
+                    t.error_iteration = Some(loop_idx);
+                }
+                return Err(error);
+            }
+        };
         let (c, x) = counts.iter().fold((0, 0), |(c, x), r| (c + r.0, x + r.1));
+        if let Some(t) = trace.as_deref_mut() {
+            t.counts.push((c, x));
+        }
         let solvable = ngains - x;
         fraction = if solvable > 0 {
             c as f64 / solvable as f64
@@ -1024,6 +1057,22 @@ mod tests {
             }
         }
         worst
+    }
+
+    #[test]
+    fn counted_solve_equals_solve() {
+        // Task W3b: recording the stop test's counts changes nothing.
+        let s = sim(6, 4, 16, 0.5, 5e-9);
+        let settings = Settings::new();
+        let a = solve(&problem(&s), &s.freq, &settings).unwrap();
+        let (b, trace) = solve_counted(&problem(&s), &s.freq, &settings);
+        let b = b.unwrap();
+        assert_eq!(a.delays, b.delays);
+        assert_eq!(a.flags, b.flags);
+        assert_eq!(a.gains, b.gains);
+        assert_eq!(a.iterations, b.iterations);
+        assert_eq!(trace.counts.len(), a.iterations);
+        assert_eq!(trace.error_iteration, None);
     }
 
     #[test]

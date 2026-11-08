@@ -93,6 +93,7 @@ def solve(
     stop_fraction=0.99,
     kind="delay_and_offset",
     offset_start=True,
+    trace=False,
 ):
     """Solve one delay term on arrays (rows, chans, 4 correlations).
 
@@ -105,7 +106,9 @@ def solve(
     phase of the FFT peak derotated by the estimated delay, not at 0
     (QuartiCal's start, which on large antenna phases can walk to the delay
     response's first sidelobe, 1.43 / bandwidth away); `False` is
-    QuartiCal's estimator exactly. Autocorrelations are not used."""
+    QuartiCal's estimator exactly. Autocorrelations are not used. `trace`
+    (task W3b, `rang.cal_chunks.replayed`): return only `(counts, error,
+    ngains)` of the counted kernel."""
     if kind not in KINDS:
         raise ValueError(f"kind must be one of {KINDS}")
     refants = [int(r) for r in np.atleast_1d(refant)]
@@ -155,6 +158,13 @@ def solve(
         tb.astype(np.uint32), fb, freq, int(max_iterations), float(stop_criterion),
         float(stop_fraction), -1 if casa_rules else r0, r0 if initial_estimate else -1,
     )  # fmt: skip
+    if trace:  # task W3b: the counts of the stop test only
+        counts = np.zeros(2 * max(int(max_iterations), 1), np.uint64)
+        if kind == "delay":
+            n, error = ext.cal_delay_trace(*common, counts)
+        else:
+            n, error = ext.cal_delay_offset_trace(*common, bool(offset_start), counts)
+        return counts[: 2 * n].reshape(-1, 2), error, ngain
     if kind == "delay":
         iterations, fraction = ext.cal_delay_solve(
             *common, delays, pflags, err, gflags, gains
@@ -242,6 +252,7 @@ def gaincal(
     kind="delay_and_offset",
     offset_start=True,
     scan=None,
+    budget=None,
 ):
     """`gaincal(gaintype='K')` on one field of a single-window MS: returns
     `(CalTable, DelaySolution, info)`; `kind` and `offset_start` as `solve`, recorded in
@@ -253,7 +264,8 @@ def gaincal(
     for the field's rows instead of `model_column`. With tables to
     pre-apply the solve uses SIGMA weights (as `rang.cal_gain.gaincal`),
     otherwise `weight_column`. Raises when no solution is written.
-    `weight_column=None` and `scan` as `rang.cal_gain.gaincal` (task C2e)."""
+    `weight_column=None` and `scan` as `rang.cal_gain.gaincal` (task C2e),
+    and `budget` (task W3b): chunks of whole intervals, the same result."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -274,41 +286,23 @@ def gaincal(
     rows = np.flatnonzero(cal_gain._scan_keep(ms, scan, fields == field_id))
     if not len(rows):
         raise ValueError(f"no rows of field {field_id}")
-    cols = ["TIME", "SCAN_NUMBER", "FIELD_ID", "ANTENNA1", "ANTENNA2", "UVW", "FLAG",
-            "FLAG_ROW", data_column, *cal_gain._weight_columns(weight_column)]  # fmt: skip
-    if model is None:
-        cols.append(model_column)
     sigma_column = "SIGMA_SPECTRUM" if "SIGMA_SPECTRUM" in colnames else "SIGMA"
-    if gaintable:
-        cols.append(sigma_column)
-    c = cal_gain._ms_columns(ms, cols, rows)
-    data = c[data_column]
-    mdl = c[model_column] if model is None else np.asarray(model)
-    flag = np.asarray(c["FLAG"], bool)
-    flag_row = np.asarray(c["FLAG_ROW"], bool) | ~cal_gain.uvrange_keep(
-        c["UVW"], uvrange
-    )
     tables = [
         t if isinstance(t, caltable.CalTable) else caltable.read(t) for t in gaintable
     ]
-    if tables:
-        data, mdl, flag = cal_gain._pre_apply(
-            data, mdl, flag, c["TIME"], c["ANTENNA1"], c["ANTENNA2"], freq, tables,
-            interp, nant, field_id, solved="K",
-        )  # fmt: skip
+    fld = cal_gain._Field(
+        ms, rows, data_column=data_column, model=model, model_column=model_column,
+        weight_column=weight_column, sigma_column=sigma_column, tables=tables,
+        interp=interp, nant=nant, field_id=field_id, solved="K", freq=freq,
+        uvrange=uvrange,
+    )  # fmt: skip
+    m = fld.meta
     tb, keys = cal_gain.solint_bins(
-        c["TIME"], c["SCAN_NUMBER"], c["FIELD_ID"], solint, combine
+        m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine
     )
-    weights = cal_gain._weights(c, weight_column, data.shape)
-    if tables:
-        sigma = np.asarray(c[sigma_column], np.float64)
-        if sigma.ndim == 2:
-            sigma = np.broadcast_to(sigma[:, None, :], weights.shape)
-        with np.errstate(divide="ignore"):
-            weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
-    sol = solve(
-        data, mdl, weights, flag, flag_row, c["ANTENNA1"], c["ANTENNA2"], tb,
-        nant=nant, chan_freq=freq, refant=refants, casa_rules=casa_rules,
+    sol, row_w = _solve_field(
+        fld, tb, budget=budget, what=f"gaincal K field {field_id}", nant=nant,
+        chan_freq=freq, refant=refants, casa_rules=casa_rules,
         initial_estimate=initial_estimate, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction, kind=kind,
         offset_start=offset_start,
@@ -326,14 +320,61 @@ def gaincal(
         raise RuntimeError(
             f"gaincal K wrote no solutions for field {field_id} (every delay flagged)"
         )
-    used_flags = (
-        flag | flag_row[:, None, None] | (c["ANTENNA1"] == c["ANTENNA2"])[:, None, None]
-    )
-    times, _ = cal_gain.solution_times(c["TIME"], tb, weights, used_flags, len(keys))
-    scans = np.array([c["SCAN_NUMBER"][tb == t].min() for t in range(len(keys))])
+    times, _ = fld.solution_times(tb, row_w, len(keys))
+    scans = fld.scans(tb, len(keys))
     table = to_caltable(sol, times, scans, field_id=field_id, ms=ms)
     info = {"rows": len(rows), "intervals": keys, "time_bin": tb, "frequency": freq}
     return table, sol, info
+
+
+_PER_INTERVAL = ("delays", "flags", "err", "kernel_flags", "gain_flags", "gains", "offsets",
+                 "refant_used")  # fmt: skip
+
+
+def _solve_field(fld, tb, *, budget, what, **opts):
+    """`solve` on the rows of `fld` (`rang.cal_gain._Field`) in chunks of
+    whole intervals under `budget` (task W3b; None: one call), the stop test
+    replayed (`rang.cal_chunks.replayed`); K's referencing is per interval,
+    so every chunk is a whole `solve`. Returns `(DelaySolution, row
+    weights)`."""
+    from . import cal_chunks
+
+    nchan = len(opts["chan_freq"])
+    chunks, block = cal_chunks.plan(tb, nchan, 4, budget, per_channel=False, what=what)
+    row_w = np.zeros(len(tb))
+    m = fld.meta
+    with core_ms.open_table(fld.ms) as reader:
+
+        def run(chunk, max_iterations, stop_fraction, trace):
+            arr = cal_chunks.load(
+                reader, fld.rows, chunk, fld.cells, fld.prepare, block
+            )
+            pos = chunk.pos
+            if not trace:
+                row_w[pos] = arr.pop("row_w")
+            kw = dict(opts, max_iterations=max_iterations, stop_fraction=stop_fraction)
+            return solve(
+                arr["data"], arr["model"], arr["weights"], arr["flag"],
+                fld.flag_row[pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos],
+                tb[pos] - chunk.t0, trace=trace, **kw,
+            )  # fmt: skip
+
+        results, replay = cal_chunks.replayed(
+            chunks,
+            run,
+            max_iterations=opts["max_iterations"],
+            stop_fraction=opts["stop_fraction"],
+        )
+    sol = results[0]
+    if replay is not None:
+        for key in _PER_INTERVAL:
+            parts = [getattr(r, key) for r in results]
+            if parts[0] is not None:
+                setattr(sol, key, np.concatenate(parts, axis=0))
+        sol.iterations, sol.converged_fraction = replay
+        sol.settings["max_iterations"] = int(opts["max_iterations"])
+        sol.settings["stop_fraction"] = float(opts["stop_fraction"])
+    return sol, row_w
 
 
 def to_caltable(sol, times, scans, *, field_id, ms, spw=0):

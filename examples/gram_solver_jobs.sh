@@ -166,7 +166,7 @@ gemclean_base() {
             core/target/release/gemclean -name "$run/$name" -size 2048 2048 \
             -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 \
             -nmiter 1000 -abs-threshold 100e-6 -data-column DATA -field 0 -j 8 \
-            "$data/$d.ms" > "$run/$name.log" 2>&1
+            -no-update-model-required "$data/$d.ms" > "$run/$name.log" 2>&1
     done
 }
 
