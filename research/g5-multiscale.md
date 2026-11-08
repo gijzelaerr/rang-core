@@ -230,9 +230,18 @@ apply to M1 exactly as above.
 Q against the truth through the exact gridder; timing; `-multiscale-convolution-padding` and
 `-no-multiscale-fast-subminor` (refused); `-auto-mask` (G4); joined polarisations (G9).
 
-## 4. Results
+## 4. Freeze (recorded before the held-out sky was drawn)
 
-Not yet measured.
+Frozen 2026-11-08 at commit `135f9e16e3c6b0714f9a66b4fdb80fefa45987b6` of `fp-g5-multiscale`
+(main `3defaae` merged in, `277f888`); `gemclean` built from it (profile `gemclean`, rustc
+1.93.1, `x86-64-v3`) has sha256
+`2eb814f3e716d5846ebef29fe0822ae20b0ca4ba085788e8d9f60f2e228a34bf`, byte-identical to the
+development binary `gemclean-dev3`, so the dev3 runs are runs of the frozen binary. M1's seeds
+follow from these two by the rule in section 3.
+
+## 5. Results
+
+Not yet complete.
 
 ## For the coordinator
 
