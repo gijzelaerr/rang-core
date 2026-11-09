@@ -1772,3 +1772,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-09 | G4 gate A identity set, main-native and G4 binaries (18 runs each) | S1-S3, H1-H4, pilot p256, D1 | 13-62 s per simulated run, p256 96-175 s | – | 150 files identical |
 | 2026-11-09 | G4 held-out H simulation (`gemclean_bench_simulate.py --sky M1`) | 1,814,400 rows x 8 ch | 18 s (830 s with lock wait) | – | native writer |
 | 2026-11-09 | G4 native `python -m rang.check` run 5 (final, heavy_lock) | worktree fp-g4-masks | 12 min 29 s | – | only the research-index test fails; gain-hash gate PASS |
+| 2026-11-09 | C5b `cargo +1.93 build --profile gemclean --bin gemclean` (native Windows, heavy_lock) | eaf40b7 Rust tree | 3 min 55 s | – | gemclean.exe 0ce4aec0 |
+| 2026-11-09 | C5b `examples/c5_selfcal_sim.py`, one case (native Windows) | 55,552 rows × 64 ch, 32 antennas | 5.0-7.0 s | – | six cases |
+| 2026-11-09 | C5b `rang-core selfcal`, arm u (C5's images: Högbom, 3σ, niter 1e5), 2 rounds + final image (native Windows) | the same | 54-63 s per job (MS copy, stage under heavy_lock, scoring) | – | 8 runs; C5 on WSL took 161-265 s per stage |
+| 2026-11-09 | C5b `rang-core selfcal`, arm m (multiscale, auto-mask 10σ/6σ, cut-off 0.5σ, mgain 0.9) | the same | 3 min 19 s - 4 min 42 s per job | – | 8 runs; probe stage 219 s, its images 38 s, about 85 s, about 81 s |
+| 2026-11-09 | C5b `rang-core selfcal`, arm mh (Högbom, the same masks) | the same | 29-32 s per job | – | 2 runs |
+| 2026-11-09 | C5b `rang-core selfcal`, arm mo (post hoc, oracle FITS mask) and `c5b_oracle_mask.py` | the same | oracle image 8.7 s; job 4 min 20 s (c5pa, final image hit niter 1e6), 7 min 32 s (c5delay) | – | 2 runs |
+| 2026-11-09 | C5b native `python -m rang.check` run 1 (heavy_lock) | worktree fp-c5b-masks | 21 min 7 s (lock wait behind the probe included) | – | only the research-index test fails; gain-hash gate PASS |
+| 2026-11-09 | C5b native `python -m rang.check` run 2 (final, heavy_lock) | worktree fp-c5b-masks | 12 min 44 s | – | only the research-index test fails; gain-hash gate PASS |

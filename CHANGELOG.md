@@ -16,7 +16,9 @@ the release notes are the section of this file for that version.
   `-auto-threshold`, `-auto-mask` and `-fits-mask`. Empty by default (images as before); `sofia`,
   `breizorro` and local-rms masks are refused. The selfcal summary records each image's
   components, major cycles and stop reason. The new keys change the selfcal stage hash once
-  (`--force`).
+  (`--force`). Measured on C5's truths: CARACal's masks do not meet C5's T2 gate (held-out cases
+  included) and do not lift C5's model-absorption limit; archive
+  `research/results/c5b-selfcal-masks.json`.
 - Research: E1, the whole chain on A1's simulated truth (`research/e1-chain.md`): `rang-core run`
   (flag, CARACal's full-Stokes calibrate, apply, selfcal, image) on A1 full's first 32 integrations
   per scan exits 0; no E1 gate of A0 is met as frozen and no rang bug was located (the K failures are
