@@ -9,6 +9,14 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: per-image clean masks and cut-offs in `rang-core selfcal` (`research/c5b-selfcal-masks.md`),
+  CARACal's `clean_cutoff`, `cleanmask_method` and `cleanmask_thr` as `selfcal.clean_cutoff`,
+  `selfcal.cleanmask_method` (`wsclean`, `none` or a FITS mask path) and `selfcal.cleanmask_thr`:
+  lists over images 1 to `rounds + 1`, the last entry repeating, passed to gemclean as
+  `-auto-threshold`, `-auto-mask` and `-fits-mask`. Empty by default (images as before); `sofia`,
+  `breizorro` and local-rms masks are refused. The selfcal summary records each image's
+  components, major cycles and stop reason. The new keys change the selfcal stage hash once
+  (`--force`).
 - Research: E1, the whole chain on A1's simulated truth (`research/e1-chain.md`): `rang-core run`
   (flag, CARACal's full-Stokes calibrate, apply, selfcal, image) on A1 full's first 32 integrations
   per scan exits 0; no E1 gate of A0 is met as frozen and no rang bug was located (the K failures are

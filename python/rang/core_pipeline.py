@@ -59,6 +59,7 @@ import datetime as _dt
 import hashlib
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -2137,11 +2138,32 @@ def selfcal_round_term(config, k):
     return terms[min(k, len(terms)) - 1]
 
 
-def _selfcal_image(ctx, binary, column, field, where):
-    """One gemclean image of `field` from `column` in directory `where`
-    (task C5): `(prefix, record)`."""
+_GEMCLEAN_STOP = re.compile(
+    r"(\d+) components, (\d+) major cycles,(?: \d+ resyncs,)? stop (\w+)"
+)
+
+
+def gemclean_stop(log):
+    """The components, major cycles and stop reason of gemclean's last
+    summary line in `log` (task C5b; reported, not acted on), or None."""
+    found = None
+    for line in Path(log).read_text(encoding="utf-8", errors="replace").splitlines():
+        m = _GEMCLEAN_STOP.search(line)
+        if m:
+            found = {
+                "components": int(m.group(1)),
+                "major_cycles": int(m.group(2)),
+                "stop": m.group(3),
+            }
+    return found
+
+
+def _selfcal_image(ctx, binary, column, field, where, k):
+    """Image `k` (1-based; rounds + 1 is the final image) of `field` from
+    `column` in directory `where` (task C5), with that image's settings
+    (`core_config.selfcal_image_settings`, task C5b): `(prefix, record)`."""
     config, ms = ctx["config"], ctx["ms"]
-    img = config["image"]
+    img = core_config.selfcal_image_settings(config, k, ctx["info"]["fields"][field])
     scans = config["data"]["scans"] or ()
     unit = config["data"]["weights"] == "uniform"
     where.mkdir()
@@ -2158,8 +2180,13 @@ def _selfcal_image(ctx, binary, column, field, where):
         raise StageFailed(f"selfcal: field {name}: {exc}") from exc
     files = sorted(p for p in where.iterdir() if p.is_file() and p != log)
     return prefix, {
+        "image": k,
         "column": column,
         "argv": argv,
+        "auto_threshold": img["auto_threshold"],
+        "auto_mask": img["auto_mask"],
+        "fits_mask": img["fits_mask"],
+        "clean": gemclean_stop(log),
         "wall_seconds": seconds,
         "files": {p.name: _sha256_file(p) for p in files},
     }
@@ -2230,7 +2257,7 @@ def stage_selfcal(ctx):
         for k in range(1, sc["rounds"] + 1):
             where = field_dir / f"round-{k}"
             column = sc["input_column"] if k == 1 else sc["output_column"]
-            prefix, imaged = _selfcal_image(ctx, binary, column, field, where)
+            prefix, imaged = _selfcal_image(ctx, binary, column, field, where, k)
             model = _selfcal_model(ctx, field, prefix, plan.rows("model"))
             term = selfcal_round_term(config, k)
             started = time.perf_counter()
@@ -2273,7 +2300,12 @@ def stage_selfcal(ctx):
                 }
             )
         _, final = _selfcal_image(
-            ctx, binary, sc["output_column"], field, field_dir / "final"
+            ctx,
+            binary,
+            sc["output_column"],
+            field,
+            field_dir / "final",
+            sc["rounds"] + 1,
         )
         fields.append(
             {"field_id": field, "field": name, "rounds": rounds, "final_image": final}
