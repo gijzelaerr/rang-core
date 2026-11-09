@@ -1878,7 +1878,7 @@ pub struct RestoringBeam {
     /// Position angle of the major axis, radians from +Y (north) towards −X
     /// (east, as `CDELT1 < 0`), in `(−π/2, π/2]`.
     pub pa: f64,
-    /// Main-lobe pixels used in the fit.
+    /// PSF pixels in the fit (WSClean's quadrant of its box).
     pub pixels: usize,
 }
 
@@ -1935,58 +1935,140 @@ impl RestoringBeam {
     }
 }
 
-/// Fit an elliptical Gaussian to the PSF main lobe: linear least squares of
-/// `−ln(b/b(0))` on the pixels connected to the centre with `b ≥ b(0)/2`.
-/// `psf2n` is the `2n × 2n` PSF in gridder layout, centred on `(n, n)`. A
-/// main lobe of fewer than six pixels gives a circular one-pixel beam.
-pub fn fit_restoring_beam(n: usize, psf2n: &[f64]) -> RestoringBeam {
-    let m = 2 * n;
-    let centre = n * m + n;
-    let peak = psf2n[centre];
-    let mut seen = vec![false; m * m];
-    let mut queue = vec![centre];
-    seen[centre] = true;
-    let mut normal = [[0.0; 3]; 3];
-    let mut rhs = [0.0; 3];
-    let mut count = 0;
-    while let Some(p) = queue.pop() {
-        let (r, c) = (p / m, p % m);
-        let v = psf2n[p] / peak;
-        let x = r as f64 - n as f64;
-        let y = c as f64 - n as f64;
-        let row = [x * x, x * y, y * y];
-        for i in 0..3 {
-            for j in 0..3 {
-                normal[i][j] += row[i] * row[j];
+/// WSClean 3.7's fitting box, in theoretic beams (`beamFittingBoxSize`).
+const BEAM_FITTING_BOX: f64 = 10.0;
+
+/// The beam estimate WSClean starts its PSF fit from, in pixels
+/// (`WSClean::processFullPSF`, `DetermineBeamSize`): the theoretic beam
+/// (radians, `None` without visibilities), at least one pixel, raised to the
+/// Gaussian taper (`gaussianTaperBeamSize`, radians, 0 for none) if wider.
+pub fn beam_fit_estimate(theoretic: Option<f64>, pixel: f64, taper: f64) -> f64 {
+    let b = theoretic.unwrap_or(0.0).max(pixel);
+    let b = if taper != 0.0 && taper > b { taper } else { b };
+    b * 2.0 / (pixel + pixel)
+}
+
+/// Fit the restoring beam as WSClean 3.7 does (`math/imageoperations.cpp`
+/// `FitBeamSize`; schaapcommon `Fit2DGaussianCentred` with WSClean's defaults:
+/// elliptical, negatives included, a box of `10 × estimate` pixels made even,
+/// regrown to `10 × major` up to five times while `0.8 × 10 × major` does not
+/// fit in it, the whole image when the box would not be smaller). Least
+/// squares of a unit-peak Gaussian centred on the PSF peak against the PSF in
+/// linear space. As in WSClean's binary, only the box pixels with `X ≥ 0` and
+/// `Y ≥ 0` from the centre enter: schaapcommon computes `xi − x_mid` with an
+/// unsigned `xi`, so every negative offset wraps to about 1.8e19, where the
+/// model is zero and the residual a constant (research/g7-defaults.md,
+/// section 2). `psf2n` is the `2n × 2n` PSF in gridder layout centred on
+/// `(n, n)`; `estimate` from [`beam_fit_estimate`]. A failed fit gives the
+/// circular estimate.
+pub fn fit_restoring_beam(n: usize, psf2n: &[f64], estimate: f64) -> RestoringBeam {
+    let even = |v: f64| {
+        let s = (BEAM_FITTING_BOX.ceil() as usize).max(v.ceil() as usize);
+        s + s % 2
+    };
+    let mut estimate = estimate;
+    let mut preferred = even(estimate * BEAM_FITTING_BOX);
+    let mut fit = None;
+    if preferred < n {
+        for _ in 0..5 {
+            let side = preferred.min(n);
+            let f = fit_quadrant(n, psf2n, side / 2, estimate);
+            let major = f.map_or(f64::NAN, |f| f.major);
+            fit = f;
+            let large_enough = major * BEAM_FITTING_BOX * 0.8 < side as f64 || side >= n;
+            if large_enough || !major.is_finite() {
+                break;
             }
-            rhs[i] += row[i] * (-v.ln());
+            preferred = even(major * BEAM_FITTING_BOX);
+            estimate = estimate.max(major);
         }
-        count += 1;
-        for (dr, dc) in [(-1isize, 0isize), (1, 0), (0, -1), (0, 1)] {
-            let (rr, cc) = (r as isize + dr, c as isize + dc);
-            if rr < 0 || cc < 0 || rr >= m as isize || cc >= m as isize {
+    } else {
+        fit = fit_quadrant(n, psf2n, n / 2, estimate);
+    }
+    fit.unwrap_or_else(|| RestoringBeam::circular(estimate))
+}
+
+/// One centred fit (schaapcommon `SingleFit2DGaussianCentred`) on the
+/// pixels `0 ≤ X, Y < half` from the PSF peak: WSClean's parameters
+/// `(σx, σy, β)` of `exp(−X²/2σx² + βXY/σxσy − Y²/2σy²)` from
+/// `σ = estimate / (2 √(2 ln 2))`, `β = 0`, by Levenberg-Marquardt to
+/// convergence (the minimum GSL's `lmsder` reaches).
+fn fit_quadrant(n: usize, psf2n: &[f64], half: usize, estimate: f64) -> Option<RestoringBeam> {
+    let m = 2 * n;
+    let peak = psf2n[n * m + n];
+    let mut px = Vec::with_capacity(half * half);
+    for x in 0..half {
+        for y in 0..half {
+            px.push((x as f64, y as f64, psf2n[(n + x) * m + n + y] / peak));
+        }
+    }
+    let cost_jac = |p: &[f64; 3], jac: bool| {
+        let (sx, sy, b) = (p[0], p[1], p[2]);
+        let mut cost = 0.0;
+        let mut jtj = [0.0; 9];
+        let mut jtr = [0.0; 3];
+        for &(x, y, v) in &px {
+            let g =
+                (-x * x / (2.0 * sx * sx) + b * x * y / (sx * sy) - y * y / (2.0 * sy * sy)).exp();
+            let r = g - v;
+            cost += r * r;
+            if jac {
+                let d = [
+                    (x * x / (sx * sx * sx) - b * x * y / (sx * sx * sy)) * g,
+                    (y * y / (sy * sy * sy) - b * x * y / (sx * sy * sy)) * g,
+                    x * y / (sx * sy) * g,
+                ];
+                for i in 0..3 {
+                    jtr[i] += d[i] * r;
+                    for j in 0..3 {
+                        jtj[3 * i + j] += d[i] * d[j];
+                    }
+                }
+            }
+        }
+        (cost, jtj, jtr)
+    };
+    let valid = |p: &[f64; 3]| {
+        p[0] > 0.0 && p[1] > 0.0 && p[2].abs() < 1.0 && p.iter().all(|v| v.is_finite())
+    };
+    let s0 = estimate / (2.0 * (2.0 * std::f64::consts::LN_2).sqrt());
+    let mut p = [s0, s0, 0.0];
+    let (mut cost, mut jtj, mut jtr) = cost_jac(&p, true);
+    let mut lambda = 1e-3 * (0..3).map(|i| jtj[4 * i]).fold(0.0, f64::max);
+    for _ in 0..1000 {
+        let mut a = jtj;
+        for i in 0..3 {
+            a[4 * i] += lambda * jtj[4 * i].max(1e-300);
+        }
+        let rhs = [-jtr[0], -jtr[1], -jtr[2]];
+        let step = crate::clean::solve_dense(&a, &rhs)?;
+        let trial = [p[0] + step[0], p[1] + step[1], p[2] + step[2]];
+        let small = (0..3).all(|i| step[i].abs() <= 1e-13 * (p[i].abs() + 1e-13));
+        if valid(&trial) {
+            let (c, _, _) = cost_jac(&trial, false);
+            if c <= cost {
+                p = trial;
+                (cost, jtj, jtr) = cost_jac(&p, true);
+                lambda = (lambda / 3.0).max(1e-300);
+                if small {
+                    break;
+                }
                 continue;
             }
-            let q = rr as usize * m + cc as usize;
-            if !seen[q] && psf2n[q] >= 0.5 * peak {
-                seen[q] = true;
-                queue.push(q);
-            }
         }
-    }
-    let flat: Vec<f64> = normal.iter().flatten().copied().collect();
-    match (count >= 6)
-        .then(|| crate::clean::solve_dense(&flat, &rhs))
-        .flatten()
-    {
-        Some(s) if s[0] > 0.0 && s[2] > 0.0 && 4.0 * s[0] * s[2] > s[1] * s[1] => {
-            RestoringBeam::from_quadratic(s[0], s[1], s[2], count)
+        if small || lambda > 1e300 {
+            break;
         }
-        _ => RestoringBeam {
-            pixels: count,
-            ..RestoringBeam::circular(1.0)
-        },
+        lambda *= 4.0;
     }
+    let (sx, sy, b) = (p[0], p[1], p[2]);
+    let fit = RestoringBeam::from_quadratic(
+        1.0 / (2.0 * sx * sx),
+        -b / (sx * sy),
+        1.0 / (2.0 * sy * sy),
+        px.len(),
+    );
+    (valid(&p) && fit.major.is_finite() && fit.minor.is_finite()).then_some(fit)
 }
 
 /// The restored image `residual + model ⊛ G` with the Gaussian at unit peak.
@@ -2768,8 +2850,8 @@ mod tests {
     fn gaussian_fit_recovers_a_rotated_beam() {
         let n = 40;
         let truth = RestoringBeam::from_quadratic(0.05, 0.03, 0.012, 0);
-        let psf = truth.kernel_double(n);
-        let fit = fit_restoring_beam(n, &psf);
+        let mut psf = truth.kernel_double(n);
+        let fit = fit_restoring_beam(n, &psf, truth.minor);
         assert!((fit.a - truth.a).abs() < 1e-10);
         assert!((fit.b - truth.b).abs() < 1e-10);
         assert!((fit.c - truth.c).abs() < 1e-10);
@@ -2787,6 +2869,32 @@ mod tests {
             "{}",
             ne.pa
         );
+        // As WSClean's binary, only X ≥ 0 and Y ≥ 0 from the peak enter the fit.
+        for r in 0..2 * n {
+            for c in 0..2 * n {
+                if r < n || c < n {
+                    psf[r * 2 * n + c] *= 0.5;
+                }
+            }
+        }
+        let same = fit_restoring_beam(n, &psf, truth.minor);
+        assert!((same.a - fit.a).abs() < 1e-12 && (same.b - fit.b).abs() < 1e-12);
+        // A small estimate: the box (10 estimates, even) is regrown to 10
+        // fitted majors and the beam still comes out.
+        let n2 = 256;
+        let wide = RestoringBeam::from_quadratic(0.02, -0.01, 0.006, 0);
+        let fit2 = fit_restoring_beam(n2, &wide.kernel_double(n2), 1.0);
+        assert!(
+            (fit2.major / wide.major - 1.0).abs() < 1e-9,
+            "{} {}",
+            fit2.major,
+            wide.major
+        );
+        assert!((fit2.minor / wide.minor - 1.0).abs() < 1e-9);
+        assert!((fit2.pa - wide.pa).abs() < 1e-9);
+        assert_eq!(beam_fit_estimate(None, 2.0, 0.0), 1.0);
+        assert_eq!(beam_fit_estimate(Some(5.0), 2.0, 0.0), 2.5);
+        assert_eq!(beam_fit_estimate(Some(5.0), 2.0, 8.0), 4.0);
         // Restoring a point gives the flux at its pixel.
         let mut model = vec![0.0; n * n];
         model[7 * n + 30] = 2.5;
