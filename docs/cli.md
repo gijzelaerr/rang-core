@@ -15,7 +15,8 @@ steps flagging the corrected calibrators ({gh}`research/c2e-calibrate.md`),
 then the polcal section's Gpol, KCROSS, Xf and Df
 ({gh}`research/c6w-polwire.md`), `apply` applies those solutions to
 CORRECTED_DATA, with the parallactic angle when `apply.parang` is set, and `image` runs
-`gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
+`gemclean`; `selfcal` runs CARACal's self-calibration rounds (image, model
+into MODEL_DATA, an Sp, Sa or Sd solve, apply; {gh}`research/c5-selfcal.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
@@ -58,7 +59,7 @@ commands for a Measurement Set (each takes a config.yaml and an MS):
   calibrate       CONFIG MS: solve the calibration terms, writing tables
   apply           CONFIG MS: apply the complex solutions, writing CORRECTED_DATA
   image           CONFIG MS: image with gemclean
-  selfcal         CONFIG MS: self-calibrate (not yet: task C5)
+  selfcal         CONFIG MS: self-calibrate in rounds (image, model, solve, apply)
   run             CONFIG MS: the stages of run.stages in order, resuming
 
 other commands:
@@ -160,8 +161,9 @@ options:
 $ rang-core selfcal -h
 usage: rang-core selfcal [-h] [--run-dir RUN_DIR] [--force] config ms
 
-self-calibrate (not yet: task C5). Validates the configuration for every stage
-first; a finished stage is skipped unless forced, a failed one runs again.
+self-calibrate in rounds (image, model, solve, apply). Validates the
+configuration for every stage first; a finished stage is skipped unless
+forced, a failed one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -314,13 +316,14 @@ image:
   join_polarizations: false  # join the polarisations
   write_model: false  # predict the model images into MODEL_DATA after imaging, as WSClean does (through write-back; task G6)
 selfcal:
-  rounds: 2  # calibration rounds (CARACal's cal_niter)
-  terms: [{type: Sp}, {type: Sa}]  # phase then amplitude (owner decision 1 of C1); Sd is CARACal's Fslope
-  input_column: CORRECTED_1GC  # the 1GC-corrected data solved
-  model_column: MODEL_DATA  # the model solved against
+  rounds: 2  # calibration rounds (CARACal's cal_niter): each images, predicts the model, solves and applies; a final image follows
+  terms: [{type: Sp}, {type: Sa}]  # one term per round, the last repeating (CARACal's gain_matrix_type): phase then amplitude (owner decision 1 of C1); Sd is CARACal's Fslope
+  input_column: CORRECTED_1GC  # the 1GC-corrected data solved; CORRECTED_1GC is copied from apply.column after this run's apply
+  model_column: MODEL_DATA  # the model of each round's image, solved against
   output_column: CORRECTED_DATA  # the column written
-  gain_clip: [0.5, 2.0]  # gain amplitudes kept
-  minuvw_m: 0.0  # baselines shorter than this are not used
+  refant: null  # reference antenna (null: calibrate.refant, or 0 when that is unset)
+  gain_clip: [0.5, 2.0]  # gain amplitudes kept, [low, high] (CARACal's cal_gain_cliplow and cliphigh); [] for none
+  minuvw_m: 0.0  # baselines shorter than this (metres) are not solved
 run:
   stages: ["flag", "calibrate", "image"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
 # A calibration term (calibrate.*.terms, selfcal.terms):
@@ -352,7 +355,7 @@ run:
 #   stop_criterion: 1.0e-07  # complex, Sp, Sa: convergence criterion
 #   stop_fraction: 0.99  # complex, Sp, Sa: fraction converged to stop
 # Term types: complex, K, G, B, A, F, Gpol, KCROSS, Xf, Df, Sd, Sp, Sa.
-# Implemented: complex, K, G, B, A, F (C2e), Gpol, KCROSS, Xf, Df (C6w). Not yet: Sd (C5b), Sp (C5a), Sa (C5a).
+# Implemented: complex, K, G, B, A, F (C2e), Gpol, KCROSS, Xf, Df (C6w); in selfcal, Sd, Sp, Sa (C5).
 ```
 
 ## `research`

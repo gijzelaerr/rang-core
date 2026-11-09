@@ -17,7 +17,9 @@ B, A and F terms in C1's order through `rang.cal_chain.run`, and apply
 applies their CASA tables through `rang.applycal`. Since task C6w
 (research/c6w-polwire.md) the polcal section's Gpol, KCROSS, Xf and Df
 (CARACal's strategy 1, `rang.cal_pol`) run there too, and apply corrects
-by the parallactic angle (`apply.parang`).
+by the parallactic angle (`apply.parang`). Since task C5
+(research/c5-selfcal.md) selfcal runs CARACal's rounds with the Sp, Sa and
+Sd terms (`rang.cal_selfcal`), one term per round.
 
 Refusals are computed only for the stages that will run, so a configuration
 of the whole C1 chain parses today and states what is missing.
@@ -38,8 +40,6 @@ ROLES = ("fcal", "bpcal", "gcal", "xcal", "target")
 # The finish-plan task that adds each not-yet-implemented feature
 # (research/finish-plan.md; C1's steps in research/c1-calibration-chain.md, 6).
 TASKS = {
-    "C5a": "phase and amplitude self-calibration (Sp, Sa)",
-    "C5b": "delay self-calibration (Sd, CARACal's Fslope)",
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
     "G4": "masks, tapers and an imaging uv range",
     "G9": "Stokes Q, U and V and joined polarisations",
@@ -66,12 +66,12 @@ CASA_TERMS = ("K", "G", "B", "A", "F")
 # through `rang.cal_chain.run`; CARACal's strategy 1).
 POL_TERMS = ("Gpol", "KCROSS", "Xf", "Df")
 CHAIN_TERMS = CASA_TERMS + POL_TERMS
-TERM_TASKS = {
-    "Sd": "C5b",
-    "Sp": "C5a",
-    "Sa": "C5a",
-}
+# Term types the schema expresses and a later task adds (none since C5).
+TERM_TASKS = {}
+# Self-calibration terms (task C5, `rang.cal_selfcal`): CARACal's
+# GainDiagPhase (Sp), GainDiag (Sa) and Fslope (Sd); complex is refused.
 SELFCAL_TYPES = ("Sd", "Sp", "Sa", "complex")
+SELFCAL_RUN = ("Sd", "Sp", "Sa")
 CALIBRATE_SECTIONS = ("primary", "secondary", "polcal")
 
 
@@ -392,17 +392,42 @@ SCHEMA = {
         ),
     },
     "selfcal": {
-        "rounds": _k(2, "int", "calibration rounds (CARACal's cal_niter)"),
+        "rounds": _k(
+            2,
+            "int",
+            "calibration rounds (CARACal's cal_niter): each images, predicts the "
+            "model, solves and applies; a final image follows",
+        ),
         "terms": _k(
             [{"type": "Sp"}, {"type": "Sa"}],
             "terms",
+            "one term per round, the last repeating (CARACal's gain_matrix_type): "
             "phase then amplitude (owner decision 1 of C1); Sd is CARACal's Fslope",
         ),
-        "input_column": _k("CORRECTED_1GC", "column", "the 1GC-corrected data solved"),
-        "model_column": _k("MODEL_DATA", "column", "the model solved against"),
+        "input_column": _k(
+            "CORRECTED_1GC",
+            "column",
+            "the 1GC-corrected data solved; CORRECTED_1GC is copied from "
+            "apply.column after this run's apply",
+        ),
+        "model_column": _k(
+            "MODEL_DATA", "column", "the model of each round's image, solved against"
+        ),
         "output_column": _k("CORRECTED_DATA", "column", "the column written"),
-        "gain_clip": _k([0.5, 2.0], "floats", "gain amplitudes kept"),
-        "minuvw_m": _k(0.0, "float", "baselines shorter than this are not used"),
+        "refant": _k(
+            None,
+            "refant",
+            "reference antenna (null: calibrate.refant, or 0 when that is unset)",
+        ),
+        "gain_clip": _k(
+            [0.5, 2.0],
+            "floats",
+            "gain amplitudes kept, [low, high] (CARACal's cal_gain_cliplow and "
+            "cliphigh); [] for none",
+        ),
+        "minuvw_m": _k(
+            0.0, "float", "baselines shorter than this (metres) are not solved"
+        ),
     },
     "run": {
         "stages": _k(
@@ -784,6 +809,52 @@ def _targets(path, value, errors):
     return out
 
 
+def _selfcal_errors(sc):
+    """Schema errors of the selfcal section (task C5)."""
+    errors = []
+    terms = sc["terms"]
+    for i, term in enumerate(terms):
+        if term["type"] not in SELFCAL_TYPES:
+            errors.append(
+                (f"selfcal.terms[{i}].type", f"must be one of {list(SELFCAL_TYPES)}")
+            )
+        freqint = term.get("freqint", "inf")
+        if isinstance(freqint, str) and freqint not in ("inf", "int"):
+            errors.append(
+                (f"selfcal.terms[{i}].freqint", "inf, int or N channels, not seconds")
+            )
+    if _is_int(sc["rounds"]):
+        if sc["rounds"] < 1:
+            errors.append(("selfcal.rounds", "must be at least 1"))
+        elif len(terms) > sc["rounds"]:
+            errors.append(
+                (
+                    "selfcal.terms",
+                    (
+                        f"{len(terms)} terms for {sc['rounds']} rounds: one term per "
+                        "round, the last repeating"
+                    ),
+                )
+            )
+    if not terms:
+        errors.append(("selfcal.terms", "needs at least one term"))
+    columns = [sc["input_column"], sc["model_column"], sc["output_column"]]
+    if len(set(columns)) != 3:
+        errors.append(
+            ("selfcal", "input_column, model_column and output_column must differ")
+        )
+    if sc["output_column"] == "DATA":
+        errors.append(("selfcal.output_column", "DATA is never written"))
+    clip = sc["gain_clip"]
+    if (
+        isinstance(clip, list)
+        and clip
+        and (len(clip) != 2 or not 0 <= clip[0] < clip[1])
+    ):
+        errors.append(("selfcal.gain_clip", "[low, high] with 0 <= low < high, or []"))
+    return errors
+
+
 def resolve(raw):
     """(config with every default filled in, [schema errors])."""
     errors = []
@@ -806,11 +877,7 @@ def resolve(raw):
                     (f"{where}.name", f"{term['name']!r} is also {names[term['name']]}")
                 )
             names[term["name"]] = where
-    for i, term in enumerate(config["selfcal"]["terms"]):
-        if term["type"] not in SELFCAL_TYPES:
-            errors.append(
-                (f"selfcal.terms[{i}].type", f"must be one of {list(SELFCAL_TYPES)}")
-            )
+    errors += _selfcal_errors(config["selfcal"])
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
             for j, name in enumerate(term.get("preapply", [])):
@@ -970,7 +1037,7 @@ def refusals(config, stages):
                             "solution bins; use a G term to interpolate",
                         )
                     )
-    if "image" in stages:
+    if "image" in stages or "selfcal" in stages:  # selfcal images too (C5)
         img = config["image"]
         for key in ("channels_out", "average_channels"):
             if img[key] < 1:
@@ -1015,14 +1082,27 @@ def refusals(config, stages):
             if img[key] is None:
                 out.append(Refusal(f"image.{key}", "", "required"))
     if "selfcal" in stages:
-        no(
-            "selfcal",
-            "C5a",
-            "self-calibration (MODEL_DATA from the imager: image.write_model)",
-        )
-        for i, term in enumerate(config["selfcal"]["terms"]):
-            task = TERM_TASKS.get(term["type"], "C5a")
-            no(f"selfcal.terms[{i}]", task, f"term {term['type']}")
+        sc = config["selfcal"]
+        for i, term in enumerate(sc["terms"]):
+            if term["type"] not in SELFCAL_RUN:
+                out.append(
+                    Refusal(
+                        f"selfcal.terms[{i}].type",
+                        "",
+                        "complex (2x2) self-calibration is not implemented; use Sa "
+                        "(CARACal's GainDiag) or Sp, Sd",
+                    )
+                )
+        refant = sc["refant"] or config["calibrate"]["refant"]
+        if refant and "auto" in refant:
+            out.append(
+                Refusal(
+                    "selfcal.refant",
+                    "",
+                    "auto is resolved by calibrate only; give selfcal.refant an "
+                    "antenna name or id",
+                )
+            )
     return out
 
 
@@ -1382,9 +1462,9 @@ def defaults_yaml():
         + ", ".join(CASA_TERMS)
         + " (C2e), "
         + ", ".join(POL_TERMS)
-        + " (C6w). Not yet: "
-        + ", ".join(f"{t} ({TERM_TASKS[t]})" for t in TERM_TYPES if t in TERM_TASKS)
-        + "."
+        + " (C6w); in selfcal, "
+        + ", ".join(SELFCAL_RUN)
+        + " (C5)."
     )
     return "\n".join(lines) + "\n"
 

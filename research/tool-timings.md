@@ -1740,3 +1740,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-08 | G5 `gemclean_bench_simulate.py --sky M1` | 1,814,400 rows × 8 ch | 65 s | 0.42 GB | heavy lock |
 | 2026-11-08 | G5 identity set (15 runs + D1-C1, D1-C3), frozen binary | as G2 and G3 | as G2's | 1.91-11.96 GB | all 17 byte-identical |
 | 2026-11-08 | G5 `tools/check-all.sh` | worktree | 12 min 14 s | 1.85 GB | FAIL only on the research-index test |
+| 2026-11-08 | C5 `examples/c5_selfcal_sim.py`, one case | 55,552 rows × 64 ch, 32 antennas | 8-15 s | – | target only, MODEL_TRUE included |
+| 2026-11-08 | C5 `rang-core selfcal`, 2 rounds + final image (2048², 2asec) | the same | 4 min 24 s - 18 min 22 s (stage 161-265 s; the rest waiting for the heavy lock) | 2.25 GB | gemclean 15-21 s per image; solve 3.1-3.7 s; round-1 apply 41 s (adds CORRECTED_DATA), later 2.6 s; on /mnt/d |
+| 2026-11-08 | C5 library Sa / Sp / Sd solves, `check_c5.py t0` | two noiseless twins | 24-163 s for all three (twin generation included) | 0.79 GB | |
+| 2026-11-08 | C5 QuartiCal 0.2.7 `goquartical`, phase / diag_complex / delay_and_offset | 55,552 rows × 64 ch | 28-71 s per solve; 57-106 s per container (2 solves) | – | single-threaded, Numba JIT included |
+| 2026-11-08 | C5 `tools/check-all.sh` (2 runs) | worktree | 17 min 7 s, 9 min 18 s (lock waits included) | 1.85 GB | run 1: research-index test and a receipts-registry finding (fixed); run 2: research-index test only |

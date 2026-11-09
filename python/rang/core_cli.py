@@ -1001,7 +1001,7 @@ USER_COMMANDS = {
     "calibrate": "CONFIG MS: solve the calibration terms, writing tables",
     "apply": "CONFIG MS: apply the complex solutions, writing CORRECTED_DATA",
     "image": "CONFIG MS: image with gemclean",
-    "selfcal": "CONFIG MS: self-calibrate (not yet: task C5)",
+    "selfcal": "CONFIG MS: self-calibrate in rounds (image, model, solve, apply)",
     "run": "CONFIG MS: the stages of run.stages in order, resuming",
 }
 # Other top-level commands.

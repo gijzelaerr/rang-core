@@ -120,6 +120,18 @@ SEEDS = {
     # Task W3 (research/w3-chunking.md): 64 antennas at 4096 channels. Its
     # seeds equal holdout256's (both chosen the same day); the designs differ.
     "w3": {"jones": 20261136, "sky": 20261137, "rfi": 20261138, "noise": 20261139},
+    # Task C5 (research/c5-selfcal.md): the self-calibration truths, built by
+    # examples/c5_selfcal_sim.py (target only, 32 antennas, 64 channels), not
+    # designs of this module; the held-out two were frozen before they ran.
+    **{
+        name: {"jones": s0, "sky": s0 + 1, "rfi": s0 + 2, "noise": s0 + 3}
+        for name, s0 in (
+            ("c5pa", 20261301),
+            ("c5delay", 20261311),
+            ("c5pa-held", 20261321),
+            ("c5delay-held", 20261331),
+        )
+    },
     # Task F2 (research/f2-flagger.md): F-SIM's six observations, built by
     # rang.f2flag_sim, not designs of this module; `rfi_extra` seeds F2's
     # added RFI morphologies.

@@ -228,11 +228,9 @@ def _tasks(path, stages=None):
 
 
 def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
-    # Since task C2e (research/c2e-calibrate.md) K, G, B, A and F run.
-    assert _tasks(DATA / "e2a.yaml") == {
-        "C5a",
-        "G4",
-    }
+    # Since task C2e (research/c2e-calibrate.md) K, G, B, A and F run, and
+    # since task C5 (research/c5-selfcal.md) the selfcal rounds.
+    assert _tasks(DATA / "e2a.yaml") == {"G4"}
     # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run,
     # and since task E0 (research/e0-refant-extend.md) refant auto and
     # extendflags; what is left is imaging.
@@ -445,10 +443,12 @@ def test_a_killed_flag_write_resumes_from_its_backup(tmp_path):
 def test_selfcal_and_unsolved_apply_targets_are_refused(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
+    # Task C5: selfcal runs, and needs its input column (exit 1, no write).
     with pytest.raises(SystemExit) as exc:
         cli("selfcal", config, ms)
-    assert exc.value.code == 2
-    assert "task C5a" in capsys.readouterr().err
+    assert exc.value.code == 1
+    assert "has no CORRECTED_1GC" in capsys.readouterr().err
+    assert not flagversions.versions(ms)
     # W2b: a complex term applies only to the fields it is solved on.
     transfer = write_config(
         tmp_path,
@@ -460,8 +460,9 @@ def test_selfcal_and_unsolved_apply_targets_are_refused(tmp_path, capsys):
     assert exc.value.code == 2
     assert "solve G and F terms" in capsys.readouterr().err
     assert not flagversions.versions(ms)
+    refused = "run: {stages: [flag, selfcal]}\nselfcal: {terms: [{type: complex}]}\n"
     with pytest.raises(SystemExit) as exc:
-        cli("run", write_config(tmp_path, "run: {stages: [flag, selfcal]}\n"), ms)
+        cli("run", write_config(tmp_path, refused), ms)
     assert exc.value.code == 2 and not flagversions.versions(ms)
     # apply before calibrate fails (exit 1) before writing anything.
     with pytest.raises(SystemExit) as exc:
@@ -717,7 +718,8 @@ def test_config_check_and_defaults(tmp_path, capsys):
     with pytest.raises(SystemExit):
         cli("config", "check", DATA / "e2a.yaml")
     err = capsys.readouterr().err
-    assert "task C5a" in err and "task C2" not in err  # K, G, B, A run (C2e)
+    assert "task G4" in err and "task C2" not in err  # K, G, B, A run (C2e)
+    assert "task C5" not in err  # selfcal runs (C5)
     cli("config", "defaults")
     assert capsys.readouterr().out == core_config.defaults_yaml()
 

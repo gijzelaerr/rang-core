@@ -32,8 +32,10 @@ the A steps writing CORRECTED_DATA and FLAG of the calibrators; task C2e,
 research/c2e-calibrate.md), `apply` (the complex terms on their own
 solution bins, `rang.applycal.apply_complex`, or the CASA tables through
 `rang.applycal.applycal`, into CORRECTED_DATA with FLAG OR'd; tasks W2b and
-C2e) and `image` (`gemclean` on a data column). `selfcal` is refused by
-`core_config.refusals` (C5 and G6).
+C2e), `image` (`gemclean` on a data column) and `selfcal` (task C5,
+research/c5-selfcal.md: CARACal's rounds of image, model into MODEL_DATA,
+solve and apply, one Sp, Sa or Sd term per round through
+`rang.cal_selfcal`, then a final image).
 
 Data a stage cannot run on (task W4, research/w4-unsupported.md) is refused
 by `check_data` and `preflight` before anything is written, every problem at
@@ -284,7 +286,7 @@ def check_data(config, info, stages):
         )
     elif corr == (9, 12):
         no(
-            ("calibrate", "apply"),
+            ("calibrate", "apply", "selfcal"),
             f"correlations {names}: the solves and the apply kernel take four "
             "correlations (XX, XY, YX, YY), including the diagonal K, G and B "
             "terms",
@@ -306,13 +308,13 @@ def check_data(config, info, stages):
     # WSClean does, and no weights with data.weights: uniform (task W6).
     if not weights and config["data"]["weights"] == "as_is":
         no(
-            ("image",),
+            ("image", "selfcal"),
             f"{ms} has no WEIGHT_SPECTRUM or WEIGHT (data.weights: as_is reads them); "
             "set data.weights: uniform to image with unit weights",
         )
     if len(info["ddids"]) == 1 and info["ddid"] != 0:
         no(
-            ("image",),
+            ("image", "selfcal"),
             f"every row is on DATA_DESC_ID {info['ddid']}; gemclean images data "
             "description 0 only",
         )
@@ -429,7 +431,7 @@ def preflight(config, info, stages):
                         "calibrate",
                     )
                 )
-    if "image" in stages:
+    if "image" in stages or "selfcal" in stages:  # selfcal images (task C5)
         lists.append(("image.fields", config["image"]["fields"], "image"))
     if "apply" in stages:
         for i, target in enumerate(config["apply"]["targets"]):
@@ -514,7 +516,12 @@ def memory_problems(config, info, stages):
     except core_chunks.MemoryLimitError as exc:
         return [f"{', '.join(stages)}: {exc}"]
     out = []
-    checks = {"flag": "flag", "apply": "apply", "calibrate": "model"}
+    checks = {
+        "flag": "flag",
+        "apply": "apply",
+        "calibrate": "model",
+        "selfcal": "apply",
+    }
     for stage, kind in checks.items():
         if stage in stages:
             try:
@@ -2011,6 +2018,247 @@ def stage_image(ctx):
     return summary
 
 
+def selfcal_refant(config, info):
+    """The reference antenna of selfcal (task C5): `selfcal.refant`, else
+    `calibrate.refant`, else 0, as an antenna index."""
+    refant = config["selfcal"]["refant"] or config["calibrate"]["refant"] or [0]
+    first = refant[0]
+    if isinstance(first, str):
+        if first not in info["antennas"]:
+            raise StageFailed(f"selfcal.refant: no antenna named {first!r}")
+        return info["antennas"].index(first)
+    if not 0 <= int(first) < len(info["antennas"]):
+        raise StageFailed(f"selfcal.refant: no antenna {first}")
+    return int(first)
+
+
+def _selfcal_input(ctx):
+    """What makes `selfcal.input_column` hold the 1GC-corrected data (task
+    C5), decided before anything is written: after this run's apply
+    (finished since the last copy, or never copied) `apply.column` is to be
+    copied into it; otherwise an existing column is used as it is (raises
+    when there is none). Returns `(copy, record)`."""
+    config, ms, run = ctx["config"], ctx["ms"], ctx["run"]
+    source = config["apply"]["column"]
+    target = config["selfcal"]["input_column"]
+    columns = core_writeback.layout(ms)["columns"]
+    apply_entry = run.state["stages"].get("apply", {})
+    marker = run.path / "selfcal-input.json"
+    copied = None
+    if marker.is_file():
+        copied = json.loads(marker.read_text(encoding="utf-8"))
+    stamp = apply_entry.get("finished")
+    fresh = apply_entry.get("status") == "done" and (
+        target not in columns
+        or copied is None
+        or copied.get("apply_finished") != stamp
+        or copied.get("column") != target
+    )
+    if fresh and source != target:
+        if source not in columns:
+            raise StageFailed(f"selfcal: {ms} has no {source} to copy into {target}")
+        return True, {"column": target, "copied_from": source, "apply_finished": stamp}
+    if target not in columns:
+        raise StageFailed(
+            f"selfcal.input_column: {ms} has no {target}; run apply in this run "
+            f"directory (it is copied from {source}) or name an existing column"
+        )
+    return False, {"column": target, "previous_copy": copied}
+
+
+def _copy_column(w, source, target):
+    """`target` := `source` in every row, in chunks (task C5)."""
+
+    def init(start, n):
+        return np.asarray(w.read(source, start, n), np.complex64)
+
+    if not w.ensure_column(target, init=init):
+        for start, n in w.chunks():
+            w.write(target, start, init(start, n))
+
+
+def run_gemclean(binary, argv, log):
+    """Run gemclean with `argv` (its first element the binary), its output
+    in `log`; returns the wall time. Raises StageFailed on failure."""
+    started = time.perf_counter()
+    with log.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(" ".join(argv) + "\n")
+        fh.flush()
+        done = subprocess.run(argv, stdout=fh, stderr=subprocess.STDOUT, check=False)
+    if done.returncode:
+        tail = log.read_text(encoding="utf-8", errors="replace").splitlines()[-5:]
+        raise StageFailed(
+            f"gemclean exited {done.returncode}; {log}: " + " | ".join(tail)
+        )
+    return time.perf_counter() - started
+
+
+def selfcal_round_term(config, k):
+    """The term of round `k` (1-based): `selfcal.terms[k - 1]`, the last
+    repeating (CARACal's `gain_matrix_type[num - 1 if len >= num else -1]`)."""
+    terms = config["selfcal"]["terms"]
+    return terms[min(k, len(terms)) - 1]
+
+
+def _selfcal_image(ctx, binary, column, field, where):
+    """One gemclean image of `field` from `column` in directory `where`
+    (task C5): `(prefix, record)`."""
+    config, ms = ctx["config"], ctx["ms"]
+    img = config["image"]
+    scans = config["data"]["scans"] or ()
+    unit = config["data"]["weights"] == "uniform"
+    where.mkdir()
+    prefix = where / img["name"]
+    argv = [
+        str(binary),
+        *gemclean_arguments(img, column, field, prefix, ms, scans, unit),
+    ]
+    log = where / "gemclean.log"
+    try:
+        seconds = run_gemclean(binary, argv, log)
+    except StageFailed as exc:
+        name = ctx["info"]["fields"][field]
+        raise StageFailed(f"selfcal: field {name}: {exc}") from exc
+    files = sorted(p for p in where.iterdir() if p.is_file() and p != log)
+    return prefix, {
+        "column": column,
+        "argv": argv,
+        "wall_seconds": seconds,
+        "files": {p.name: _sha256_file(p) for p in files},
+    }
+
+
+def _selfcal_model(ctx, field, prefix, chunk_rows):
+    """`selfcal.model_column` from the model images at `prefix` (task C5),
+    with the predictor settings `write_model` takes from the image section."""
+    config = ctx["config"]
+    img = config["image"]
+    extra = [str(a) for a in img["extra_args"]]
+    rng = _extra_flag(extra, "-channel-range", 2)
+    started = time.perf_counter()
+    model = core_model.write_model_data(
+        ctx["ms"],
+        prefix,
+        field,
+        column=config["selfcal"]["model_column"],
+        channels_out=img["channels_out"],
+        channel_range=None if rng is None else (int(rng[0]), int(rng[1])),
+        average_channels=img["average_channels"],
+        epsilon=float(img["wgridder_accuracy"]),
+        wgridding=_extra_flag(extra, "-no-wgridding") is None,
+        single=_extra_flag(extra, "-single") is not None,
+        scans=list(config["data"]["scans"]) or None,
+        stage="selfcal",
+        chunk_rows=chunk_rows,
+    )
+    model["wall_seconds"] = time.perf_counter() - started
+    return model
+
+
+def stage_selfcal(ctx):
+    """CARACal's self-calibration rounds (task C5, research/c5-selfcal.md)
+    on every field of `image.fields`: round k images (the input column in
+    round 1, the output column after), predicts the model images into
+    `selfcal.model_column` (`core_model.write_model_data`), solves round
+    k's term on the input column against it (`rang.cal_selfcal.solve`,
+    chunked within `data.memory_limit_gb`) and writes the output column
+    from the input column corrected by it; a final image of the output
+    column follows. Solutions are written as QuartiCal gain stores."""
+    from . import cal_selfcal
+
+    config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
+    sc, img = config["selfcal"], config["image"]
+    binary = find_gemclean(img["gemclean"])
+    refant = selfcal_refant(config, info)
+    scans = config["data"]["scans"] or ()
+    weights = weight_column(info, config["data"]["weights"])
+    plan = core_chunks.budget(config, info)
+    copy, source = _selfcal_input(ctx)
+    restored = restore_before(ms, ctx["entry"])
+    out_dir = run.stage_dir("selfcal", fresh=True)
+    written = {}
+    if copy:
+        with writeback_session(ctx, "selfcal") as (w, written):
+            _copy_column(w, source["copied_from"], source["column"])
+        _write_json(run.path / "selfcal-input.json", source)
+    source["copied_now"] = copy
+    fields = []
+    for field in resolve_fields(img["fields"], config, info, "image.fields"):
+        name = info["fields"][field]
+        rows = _selected_rows(info["rows"], [field], scans)
+        field_dir = out_dir / _safe(name)
+        field_dir.mkdir()
+        rounds = []
+
+        for k in range(1, sc["rounds"] + 1):
+            where = field_dir / f"round-{k}"
+            column = sc["input_column"] if k == 1 else sc["output_column"]
+            prefix, imaged = _selfcal_image(ctx, binary, column, field, where)
+            model = _selfcal_model(ctx, field, prefix, plan.rows("model"))
+            term = selfcal_round_term(config, k)
+            started = time.perf_counter()
+            sol = cal_selfcal.solve(
+                ms,
+                term,
+                rows=rows,
+                field_id=field,
+                input_column=sc["input_column"],
+                model_column=sc["model_column"],
+                weight_column=weights,
+                refant=refant,
+                minuvw_m=sc["minuvw_m"],
+                gain_clip=sc["gain_clip"],
+                budget=plan.chain(),
+            )
+            solved = sol.summary()
+            solved["wall_seconds"] = time.perf_counter() - started
+            store = where / "gains.qc"
+            cal_selfcal.to_store(sol, store, info["antennas"], field_name=name)
+            started = time.perf_counter()
+            with writeback_session(ctx, "selfcal") as (w, written):
+                applied = cal_selfcal.apply(
+                    w,
+                    sol,
+                    input_column=sc["input_column"],
+                    output_column=sc["output_column"],
+                    chunk_rows=plan.rows("apply"),
+                )
+            applied["wall_seconds"] = time.perf_counter() - started
+            rounds.append(
+                {
+                    "round": k,
+                    "image": imaged,
+                    "model": model,
+                    "term": dict(term),
+                    "solve": solved,
+                    "store": str(store),
+                    "apply": applied,
+                }
+            )
+        _, final = _selfcal_image(
+            ctx, binary, sc["output_column"], field, field_dir / "final"
+        )
+        fields.append(
+            {"field_id": field, "field": name, "rounds": rounds, "final_image": final}
+        )
+    summary = {
+        "gemclean": str(binary),
+        "gemclean_sha256": _sha256_file(binary),
+        "chunking": plan.describe(),
+        "rounds": sc["rounds"],
+        "refant": refant,
+        "input": source,
+        "input_column": sc["input_column"],
+        "model_column": sc["model_column"],
+        "output_column": sc["output_column"],
+        "restored_before": restored,
+        "fields": fields,
+        **written,
+    }
+    _write_json(out_dir / "summary.json", summary)
+    return summary
+
+
 def _refused_stage(task):
     def stage(ctx):  # validation refuses these first; this is a second guard
         raise Refused(f"this stage is not implemented yet (task {task})")
@@ -2023,7 +2271,7 @@ STAGE_FUNCTIONS = {
     "calibrate": stage_calibrate,
     "apply": stage_apply,
     "image": stage_image,
-    "selfcal": _refused_stage("C5a"),
+    "selfcal": stage_selfcal,
 }
 WRITES_FLAGS = frozenset({"flag", "calibrate", "apply", "selfcal"})
 
