@@ -60,15 +60,21 @@ def crit_s(gdir, wdir):
             ok &= row["images_ok"]
         if kind == "dirty":
             row["wscnvis_g"], row["wscnvis_w"] = int(hg["WSCNVIS"]), int(hw["WSCNVIS"])
-            for key in ("WSCIMGWG", "WSCVWSUM"):
-                row[key.lower() + "_rel"] = abs(float(hg[key]) / float(hw[key]) - 1)
+            # Scorer fix after the first T run (research/g4-masks.md, section 6): WSClean 3.7
+            # with the wgridder writes WSCNVIS = WSCVWSUM = 0, so those two are not evaluable;
+            # they are reported (None) and S rests on WSCIMGWG and the images.
+            row["wscimgwg_rel"] = abs(float(hg["WSCIMGWG"]) / float(hw["WSCIMGWG"]) - 1)
+            vw = float(hw["WSCVWSUM"])
+            row["wscvwsum_rel"] = abs(float(hg["WSCVWSUM"]) / vw - 1) if vw else None
             row["headers_ok"] = (
-                row["wscnvis_g"] == row["wscnvis_w"]
+                (row["wscnvis_w"] == 0 or row["wscnvis_g"] == row["wscnvis_w"])
                 and row["wscimgwg_rel"] <= 1e-6
-                and row["wscvwsum_rel"] <= 1e-6
+                and (row["wscvwsum_rel"] is None or row["wscvwsum_rel"] <= 1e-6)
             )
             ok &= row["headers_ok"]
-        if kind == "image":
+        # Scorer fix (section 6): with -niter 0 WSClean fits no beam (BMAJ = BMIN = 0), so the
+        # restoring beam is compared on the cleaned runs only.
+        if kind == "image" and float(hw["BMAJ"]) > 0:
             for key in ("BMAJ", "BMIN"):
                 row[key.lower() + "_rel"] = abs(float(hg[key]) / float(hw[key]) - 1)
             row["beam_ok"] = row["bmaj_rel"] <= 1e-3 and row["bmin_rel"] <= 1e-3
@@ -266,6 +272,57 @@ def crit_x(gdir, wdir):
     return out
 
 
+FIT = re.compile(r"theoretical=([0-9.]+)(''|'|deg|mas)")
+
+
+def crit_b_prime(gdir, wdir):
+    """B′ (post hoc, section 6): the theoretic beam against the `theoretical=` value of
+    WSClean's beam-fit line (after the taper replaced it; the `Theoretic beam =` line comes
+    first); scale, bias and PSF peak against the first `- Scale` block, the gain against the
+    last block (GeMClean reports its phase-2 gain, doubled, as radler does there)."""
+    rep = json.loads((gdir / "g-report.json").read_text())
+    ms = rep["multiscale"]
+    ms = ms[0] if isinstance(ms, list) else ms
+    log = (wdir / "log.txt").read_text(encoding="utf-8", errors="replace")
+    unit = {"''": 1 / 3600, "'": 1 / 60, "deg": 1.0, "mas": 1 / 3.6e6}
+    m = min(FIT.finditer(log), key=lambda x: float(x.group(1)) * unit[x.group(2)])
+    w_beam = float(m.group(1)) * unit[m.group(2)]
+    digits = len(m.group(1).split(".")[1]) if "." in m.group(1) else 0
+    half = 0.5 * 10.0**-digits * unit[m.group(2)]
+    g_beam = math.degrees(ms["theoretic_beam_rad"])
+    ok = abs(g_beam - w_beam) <= half * 1.0000001
+    lines = [tuple(float(v) for v in t) for t in g5.SCALE.findall(log)]
+    n = len(ms["scales"])
+    first, last = lines[:n], lines[-n:]
+    rows = []
+    for s, a, b in zip(ms["scales"], first, last, strict=False):
+        row = {
+            "scale_g": s["scale_pixels"],
+            "scale_w": a[0],
+            "bias_g": s["bias_factor"],
+            "bias_w": a[1],
+            "psf_peak_g": s["psf_peak"],
+            "psf_peak_w": a[2],
+            "gain_g": s["gain"],
+            "gain_w_last": b[3],
+        }
+        row["ok"] = (
+            round(s["scale_pixels"]) == round(a[0])
+            and round(s["bias_factor"] * 10) / 10 == a[1]
+            and abs(s["psf_peak"] / a[2] - 1) <= 1e-4
+            and abs(s["gain"] / b[3] - 1) <= 1e-4
+        )
+        ok &= row["ok"]
+        rows.append(row)
+    ok &= len(lines) >= 2 * n
+    return {
+        "pass": bool(ok),
+        "beam_deg_g": g_beam,
+        "beam_deg_w": w_beam,
+        "rows": rows,
+    }
+
+
 def main():
     tag, run = sys.argv[1:3]
     truth = json.loads(Path(sys.argv[3]).read_text()) if len(sys.argv) > 3 else None
@@ -279,8 +336,10 @@ def main():
         res["X"] = crit_x(gdir, wdir)
     if run in ("A3", "H"):
         res["B"] = g5.crit_b(gdir, wdir)
+    if run in ("A2", "A3", "P", "H"):
+        res["B'"] = crit_b_prime(gdir, wdir)
     (O / "runs" / tag / f"score-{run}.json").write_text(json.dumps(res, indent=1))
-    for k in ("S", "B", "M", "X"):
+    for k in ("S", "B", "B'", "M", "X"):
         if k in res:
             print(f"{run} {k}: {'pass' if res[k]['pass'] else 'FAIL'}")
 

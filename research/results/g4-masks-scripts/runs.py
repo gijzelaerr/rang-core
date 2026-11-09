@@ -95,6 +95,11 @@ def run_args(run):
             s2,
             SIM + THR + DIRTY + ["-taper-edge", "2000", "-taper-edge-tukey", "1000"],
         ),
+        # T6' (post hoc, section 6): an edge that reaches the data (T6's 2000 does not).
+        "T6p": (
+            s2,
+            SIM + THR + DIRTY + ["-taper-edge", "35000", "-taper-edge-tukey", "5000"],
+        ),
         "F1": (s2, SIM + THR + ["-fits-mask", mask("s2-truth.fits")]),
         "F2": (s2, SIM + THR + ["-fits-mask", mask("s2-truth.fits"), "-multiscale"]),
         "A1": (s2, SIM + AUTO),

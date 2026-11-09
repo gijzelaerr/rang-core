@@ -230,7 +230,20 @@ main only (section 5), before any G4 binary existed.
 
 ## 4. Freeze record
 
-(Filled in before H is simulated: the code commit, the binary's sha256, the seeds.)
+Written 2026-11-09 after the development runs (section 6), before H was simulated. No code changed
+after the protocol commit, so the freeze is the protocol commit itself.
+
+- Code: `b13f7d357def1a64acdd5339ff6a78d560231c7a` (fp-g4-masks).
+- Binary: `D:\rang\outputs\g4-bin\gemclean-g4.exe`, profile `gemclean`, rustc 1.93, native Windows,
+  sha256 `f45a92ddfcd66ac3d6cda1ad1ee8fafe006992a6a8ecdf92f5ef0181269e8ae9` (provenance file
+  beside it; the one "dirty" file at build time was `research/tool-timings.md`, line endings only).
+- Seeds (`seeds.py b13f7d3… f45a92dd…`, digest `ba01b2ca…`, no collision): sky **3120673482**,
+  noise **1953963431**. They follow from the two values above; computed when the freeze was
+  decided, a few minutes before this record was written, and not used before it was committed.
+- Post-hoc additions fixed here, before H: criterion B′ and T6′ (section 6), and the scorer fixes
+  of section 6. H is scored on the frozen criteria and on B′.
+- Erratum to section 3: S2 has **nine** points below 30 mJy (10.3, 10.9, 12.3, 14.0, 24.7, 25.4,
+  26.9, 27.1, 28.3 mJy), not ten.
 
 ## 5. Measured: main on Windows against the Linux references
 
@@ -238,8 +251,8 @@ Main `0d6230d`, built natively (`gemclean-main.exe`, `D:\rang\outputs\g4-bin`), 
 form) and D1-C1 (`D:\rang\outputs\g4-20261109-02\identity\main`): every FITS file differs from the
 G2/G3 hashes made on Linux, the dirty image included. The difference is therefore upstream of CLEAN,
 in the weights or the gridder; the likely cause is the C runtime's transcendental functions (UCRT on
-Windows against glibc: `exp`, `sin`, `cos`, `sqrt` of the gridding kernel and the phase terms are not
-correctly rounded in either and differ in the last bit). Not investigated further here (an owner
+Windows against glibc: `exp`, `sin`, `cos` of the gridding kernel and the phase terms are not
+correctly rounded in either and can differ in the last bit). Not investigated further here (an owner
 item: whether the Linux hashes stay the reference). An earlier, halted attempt queued WSClean's T
 batch behind the lock; it never started (`g4-20261109-01/w_batch-T.log`), so no comparison output
 existed before this protocol was committed.
