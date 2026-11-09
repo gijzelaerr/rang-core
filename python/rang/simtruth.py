@@ -130,6 +130,10 @@ SEEDS = {
             ("c5delay", 20261311),
             ("c5pa-held", 20261321),
             ("c5delay-held", 20261331),
+            # Task C5b (research/c5b-selfcal-masks.md): its own held-out pair,
+            # frozen in that note before they ran.
+            ("c5pa-held2", 20261501),
+            ("c5delay-held2", 20261511),
         )
     },
     # Task F2 (research/f2-flagger.md): F-SIM's six observations, built by

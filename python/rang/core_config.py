@@ -450,6 +450,28 @@ SCHEMA = {
         "minuvw_m": _k(
             0.0, "float", "baselines shorter than this (metres) are not solved"
         ),
+        # Task C5b (research/c5b-selfcal-masks.md): CARACal's per-image lists,
+        # indexed by image (1 to rounds + 1, the final image last), the last
+        # entry repeating; empty lists leave the image section as it is.
+        "clean_cutoff": _k(
+            [],
+            "floats",
+            "per image, the auto_threshold (sigma) of image 1, 2, ..., the final "
+            "image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold",
+        ),
+        "cleanmask_method": _k(
+            [],
+            "strs",
+            "per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), "
+            "none, or a FITS mask path ({field} is the field name); the last "
+            "repeating (CARACal's cleanmask_method); []: image's mask settings",
+        ),
+        "cleanmask_thr": _k(
+            [],
+            "floats",
+            "per image, the automatic mask's sigma where cleanmask_method is wsclean, "
+            "the last repeating (CARACal's cleanmask_thr)",
+        ),
     },
     "run": {
         "stages": _k(
@@ -874,7 +896,84 @@ def _selfcal_errors(sc):
         and (len(clip) != 2 or not 0 <= clip[0] < clip[1])
     ):
         errors.append(("selfcal.gain_clip", "[low, high] with 0 <= low < high, or []"))
+    # Task C5b: the per-image lists (rounds + 1 images).
+    for key in ("clean_cutoff", "cleanmask_method", "cleanmask_thr"):
+        values = sc[key]
+        if (
+            isinstance(values, list)
+            and _is_int(sc["rounds"])
+            and len(values) > sc["rounds"] + 1
+        ):
+            errors.append(
+                (
+                    f"selfcal.{key}",
+                    (
+                        f"{len(values)} entries for {sc['rounds'] + 1} images "
+                        "(rounds + 1, the final image last); the last entry repeats"
+                    ),
+                )
+            )
+    for i, method in enumerate(sc["cleanmask_method"] or []):
+        if (
+            isinstance(method, str)
+            and method not in CLEANMASK_METHODS
+            and not method.lower().endswith((".fits", ".fit", ".fts"))
+        ):
+            errors.append(
+                (
+                    f"selfcal.cleanmask_method[{i}]",
+                    (
+                        f"one of {list(CLEANMASK_METHODS)} or a FITS mask path "
+                        f"(.fits), not {method!r}"
+                    ),
+                )
+            )
+    for key in ("clean_cutoff", "cleanmask_thr"):
+        for i, v in enumerate(sc[key] or []):
+            if _is_num(v) and v < 0:
+                errors.append((f"selfcal.{key}[{i}]", "must not be negative"))
     return errors
+
+
+# CARACal's cleanmask_method values (workers/selfcal_worker.py, `image`); a
+# FITS path stands for its mask-prefix form. sofia and breizorro are refused.
+CLEANMASK_METHODS = ("wsclean", "none", "sofia", "breizorro")
+
+
+def selfcal_image_index(values, k):
+    """The entry of a per-image list for image `k` (1-based; the final image
+    is rounds + 1), the last repeating, as CARACal's
+    `values[num - 1 if len(values) >= num else -1]`; None for an empty list."""
+    if not values:
+        return None
+    return values[k - 1 if len(values) >= k else -1]
+
+
+def selfcal_image_settings(config, k, field=None):
+    """The image section that selfcal's image `k` uses (task C5b): the image
+    section with `auto_threshold` from `selfcal.clean_cutoff` and the mask
+    (`auto_mask`, `abs_auto_mask`, `fits_mask`) from `selfcal.cleanmask_method`
+    and `cleanmask_thr` when those lists are set. `field` (a name) fills
+    `{field}` in a FITS mask path. Empty lists return the image section
+    unchanged (C5's images)."""
+    sc = config["selfcal"]
+    img = dict(config["image"])
+    cutoff = selfcal_image_index(sc["clean_cutoff"], k)
+    if cutoff is not None:
+        img["auto_threshold"] = float(cutoff)
+    method = selfcal_image_index(sc["cleanmask_method"], k)
+    if method is not None:
+        img["abs_auto_mask"] = None
+        img["auto_mask"] = None
+        img["fits_mask"] = None
+        if method == "wsclean":
+            thr = selfcal_image_index(sc["cleanmask_thr"], k)
+            img["auto_mask"] = None if thr is None else float(thr)
+        elif method not in CLEANMASK_METHODS:
+            img["fits_mask"] = (
+                method if field is None else method.replace("{field}", field)
+            )
+    return img
 
 
 def resolve(raw):
@@ -1245,6 +1344,7 @@ def refusals(config, stages):
                         "(CARACal's GainDiag) or Sp, Sd",
                     )
                 )
+        out += _selfcal_image_refusals(config)
         refant = sc["refant"] or config["calibrate"]["refant"]
         if refant and "auto" in refant:
             out.append(
@@ -1255,6 +1355,82 @@ def refusals(config, stages):
                     "antenna name or id",
                 )
             )
+    return out
+
+
+def _selfcal_image_refusals(config):
+    """What selfcal's per-image lists cannot do (task C5b): each image's
+    merged settings (`selfcal_image_settings`) meet the image section's mask
+    rules (G4); sofia and breizorro masks are not ported. Nothing is checked
+    when the lists are empty, so C5's configurations refuse as before."""
+    sc = config["selfcal"]
+    out = []
+    if not (sc["clean_cutoff"] or sc["cleanmask_method"] or sc["cleanmask_thr"]):
+        return out
+    if not _is_int(sc["rounds"]) or sc["rounds"] < 1:
+        return out
+    for i, method in enumerate(sc["cleanmask_method"]):
+        if method in ("sofia", "breizorro"):
+            out.append(
+                Refusal(
+                    f"selfcal.cleanmask_method[{i}]",
+                    "",
+                    f"{method} masks are not ported (CARACal runs {method} on the "
+                    "previous image); use wsclean, none or a FITS mask",
+                )
+            )
+    if sc["cleanmask_thr"] and "wsclean" not in sc["cleanmask_method"]:
+        out.append(
+            Refusal(
+                "selfcal.cleanmask_thr",
+                "",
+                "read only where cleanmask_method is wsclean",
+            )
+        )
+    seen = set()
+    for k in range(1, sc["rounds"] + 2):
+        img = selfcal_image_settings(config, k)
+        what = "the final image" if k == sc["rounds"] + 1 else f"image {k}"
+        method = selfcal_image_index(sc["cleanmask_method"], k)
+        problems = []
+        if method == "wsclean" and img["auto_mask"] is None:
+            problems.append(
+                (
+                    "selfcal.cleanmask_thr",
+                    "cleanmask_method wsclean needs cleanmask_thr",
+                )
+            )
+        masked = img["auto_mask"] is not None or img["abs_auto_mask"] is not None
+        if masked and img["mgain"] is None:
+            problems.append(
+                (
+                    "selfcal.cleanmask_method",
+                    (
+                        "the automatic mask needs image.mgain (radler's mask stages "
+                        "are defined on WSClean's -mgain)"
+                    ),
+                )
+            )
+        if (
+            img["auto_mask"] is not None
+            and img["auto_threshold"] is not None
+            and img["auto_threshold"] >= img["auto_mask"]
+        ):
+            problems.append(
+                (
+                    "selfcal.clean_cutoff",
+                    (
+                        f"clean_cutoff {img['auto_threshold']:g} must be below the "
+                        f"mask's {img['auto_mask']:g} sigma (WSClean refuses the reverse)"
+                    ),
+                )
+            )
+        if img["auto_mask_nmiter"] is not None and not masked:
+            problems.append(("image.auto_mask_nmiter", "needs an automatic mask"))
+        for path, why in problems:
+            if (path, why) not in seen:  # one refusal per problem, first image named
+                seen.add((path, why))
+                out.append(Refusal(path, "", f"{what}: {why}"))
     return out
 
 

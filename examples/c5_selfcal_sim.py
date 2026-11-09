@@ -4,7 +4,8 @@ section 3).
 Usage (WSL host, worktree venv):
     python examples/c5_selfcal_sim.py CASE OUTDIR [--noiseless]
 
-CASE is `c5pa`, `c5delay`, `c5pa-held` or `c5delay-held`. Writes
+CASE is `c5pa`, `c5delay`, `c5pa-held` or `c5delay-held` (C5), or
+`c5pa-held2` or `c5delay-held2` (C5b's held-out pair). Writes
 OUTDIR/<case>[-twin].ms through rang's table writer: the seven target scans
 of A1's schedule (16 integrations each) on 32 antennas and 64 channels,
 DATA = S_p M S_q^H + noise, as if 1GC were perfect, M the target's Stokes I
@@ -30,10 +31,17 @@ import a1_simtruth as a1
 from rang import core_ms_write as tables
 from rang import simtruth as st
 
-# Seeds in rang.simtruth.SEEDS (task C5's four cases).
+# Seeds in rang.simtruth.SEEDS (task C5's four cases, C5b's two).
 CASES = {
     name: name.split("-")[0].removeprefix("c5")
-    for name in ("c5pa", "c5delay", "c5pa-held", "c5delay-held")
+    for name in (
+        "c5pa",
+        "c5delay",
+        "c5pa-held",
+        "c5delay-held",
+        "c5pa-held2",  # task C5b
+        "c5delay-held2",
+    )
 }
 ANTENNAS = list(range(0, 64, 2))
 NCHAN = 64
