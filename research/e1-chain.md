@@ -6,11 +6,15 @@ for the Tricolour 0.2.1 oracle.
 
 **Status: implemented and measured; no gate of A0's E1 table is met as
 frozen.** The protocol (sections 1 to 6) was committed (`2c506eb`) before the
-first scored run and is unchanged; results are in sections 7 to 9. No rang
-bug was located: every failure traced so far is shared with CASA's own
-estimator, is a property of CARACal's method on this truth, or has no
-established cause (each named in section 8). Nothing was fixed, so nothing
-reran. No novelty claim and no timing claim.
+first scored run and is unchanged; results are in sections 7 to 9. Of the
+failures (section 8):
+- **shared with CASA, shown:** the five antennas lost to K's refant rule and the m034 delay;
+- **known limit:** self-calibration (C5's model absorption);
+- **rang only, cause not established:** K misses CASA's K at p95 (0.07 ns against 0.03) on m32 and never converges;
+- **cause not established:** the rest, two of them noise-free (the cross-hand phase, the target composite's ramp).
+
+No bug was located with truth, so nothing was fixed and E1 did not rerun. No
+novelty claim and no timing claim.
 
 ## 1. What was read before this protocol
 
@@ -352,7 +356,7 @@ START and END lines.
 | `-03/control` | `CORRECTED_TRUTH` and its image | exit 0. Write 110.8 s, image 133.8 s |
 | `-04-tricolour` | Tricolour 0.2.1 on a fresh copy of m32 (WSL, `rang-tricolour:0.2.1-e1`) | exit 0, 20 min 25 s of flagging |
 | `-05-twin` | calibrate and apply on the small twin | exit 0 (3.1 s, 1.6 s) |
-| `-06-diag`, `-07-casak` | post-hoc diagnostics, and CASA 6.7.6.14 `gaincal` K | section 8 |
+| `-06-diag`, `-07-casak`, `-09-casak-twin` | post-hoc diagnostics, and CASA 6.7.6.14 `gaincal` K on m32 and the twin | section 8 |
 
 **The m32 check (section 5, item 2) failed as frozen.** m32's DATA is not
 bit-identical to A1 full's:
@@ -454,7 +458,15 @@ Written after the results; nothing in section 4 changed. The scripts are in
    - K reports a converged fraction of 0 in both intervals (50 iterations).
    - m034's Y delay on the first scan is 6.26 ns, against the truth's 7.91 ns
      (7.88 ns on the second scan). **CASA's K gives 6.22 ns there.**
-   - Rang's K against CASA's: median 0.005 ns, maximum 0.16–0.21 ns.
+   - Rang's K against CASA's (probe `e1_kcompare.py`, added after the first
+     write-up): median 0.005 ns, **p95 0.068–0.071 ns, so K misses C1's class B
+     (p95 ≤ 0.03 ns) against CASA on m32**; 13 and 14 antenna-hands exceed
+     0.03 ns per scan. On the noise-free small twin, rang's and CASA's K agree
+     (median 0.0023 ns, p95 0.010 ns), both 0.056–0.058 ns from the truth (the
+     split), and rang's two scans are identical. So the m32 miss appears only
+     with noise and flags, together with the non-convergence: **rang only,
+     cause not established**. C2c's held-out CASA cases with nothing
+     pre-applied passed (p95 ≤ 0.013 ns), on smaller data.
    - The 0.03–0.1 ns offsets between K and the truth are the same in both
      scans: the K–B split.
    - Interpolated to the target, the bad delay decorrelates F's `inf` solve and
@@ -476,8 +488,14 @@ Written after the results; nothing in section 4 changed. The scripts are in
      hands hold 1–3 % leakage. The polarised part rotates with parallactic
      angle; the leakage does not.
    - C6w showed rang's polcal chain equal to CASA's (χ within 0.003°) on
-     `poldx` and `polholdout`. No CASA chain ran on m32 or on this twin, so
-     **parity is not shown here**.
+     `poldx` and `polholdout`, where the per-scan KCROSS also spread by 0.11 ns
+     (3.13–3.24 ns) in both rang and CASA, which supports a method limit. No
+     CASA chain ran on m32 or on this twin, so **parity is not shown here**.
+   - Df (probe `e1_diag6.py`): moving the truth's leakage into the chain's
+     cross-hand gauge (d_x → e d_x, d_y → conj(e) d_y, e the chain/truth
+     cross-hand phasor) lowers the twin's Df error from median 1.4e-3 (max 4.4e-3)
+     to 5.5e-4 (max 1.7e-3). Part of Df's error is this gauge; the rest is not
+     explained.
    - The +0.3 % U leakage on 1GC and the polarisation misses follow from this
      phase error.
 5. **Self-calibration makes Q worse.**
@@ -505,13 +523,16 @@ Written after the results; nothing in section 4 changed. The scripts are in
    - a window effect that only the whole-array data triggers.
 9. **The twin's target composite** misses 1e-5 on three of the seven target
    scans only (1.7e-5 to 1.2e-4). The error is in amplitude and flat in channel;
-   the other four scans sit at 8e-6. Cause not established: F on each
-   gain-calibrator scan, or its interpolation in time.
+   the other four scans sit at 8e-6. Not K: on the twin rang's two K solutions
+   are identical. Cause not established: F on each gain-calibrator scan, or its
+   interpolation in time.
 
-**Bug or limit (A0 6.5).** No rang bug was located with truth:
-- items 1 and 2 are CASA's own behaviour on the same data;
-- item 5 is C5's known limit;
-- items 3, 4, 7, 8 and 9 have no established cause.
+**Bug or limit (A0 6.5).** No bug was located with truth, which is not the
+same as none existing:
+- shared with CASA, shown: item 1 and m034's delay in item 2;
+- known limit: item 5;
+- rang only, cause not established: K's class-B miss against CASA on m32 (item 2);
+- cause not established: items 3, 4, 7, 8 and 9 (4 and 9 noise-free).
 
 Nothing was fixed, so E1 did not rerun.
 
@@ -571,7 +592,7 @@ Each run held `tools/heavy_lock.py`; lock waits are excluded unless stated.
   - this file;
   - `results/e1-chain-scripts/`: `e1_config.yaml`, `e1_job.ps1`, `e1_run.py`,
     `e1_score.py`, `e1_tricolour.sh`, `e1_tricolour.Dockerfile`,
-    `e1_casa_k.py`, `e1_flagdiff.py`, `e1_diag*.py`, `e1_verify_posthoc.py`;
+    `e1_casa_k.py`, `e1_kcompare.py`, `e1_flagdiff.py`, `e1_diag*.py`, `e1_verify_posthoc.py`;
   - `results/e1-chain.json`.
 - `D:\rang\outputs\e1-20261109-*`, about 83 GB:
 
@@ -604,19 +625,23 @@ Each run held `tools/heavy_lock.py`; lock waits are excluded unless stated.
 > - Polarisation: misses of 1.9–4.1° in χ and up to 0.7 points in p; leakage
 >   0.5–1.1 % against a 0.1 % gate. On the control the estimators pass.
 > - Selfcal: fails, as expected (C5's model absorption; C5b).
-> - No rang bug located. Before a rerun the owner decides refant, `niter` and a
->   CASA-chain arm.
+> - No bug located with truth. Shared with CASA (shown): the K flags and the
+>   m034 delay. Known limit: selfcal. Rang only, cause not established: K misses
+>   CASA's K at p95 (0.07 ns) on m32, but agrees on the twin. Cause not
+>   established: the rest, two noise-free (cross-hand phase, a 1.2e-4 composite ramp).
+> - Before a rerun the owner decides refant, `niter` and a CASA-chain arm.
 
 **`research/README.md` index line:**
 
 > New, 2026-11-09: E1, [the whole chain on simulated truth](e1-chain.md): no
-> gate met as frozen; the causes found are shared with CASA, or not
-> established.
+> gate met as frozen; some causes shared with CASA, one rang-only K miss, the
+> rest not established.
 
 **`research/finish-plan.md`:**
-- E1 row: "Run 2026-11-09 ([e1-chain.md](e1-chain.md)): no gate met as frozen,
-  no bug located; owner decisions in its section 9 before a rerun (after C5b
-  and G4)".
+- E1 row: "Run 2026-11-09 ([e1-chain.md](e1-chain.md)): no gate met as frozen;
+  shared with CASA (K flags, one delay), known limit (selfcal), rang-only K
+  class-B miss on m32, the rest not established; owner decisions in its
+  section 9 before a rerun (after C5b and G4)".
 - Section 7: add the decisions of section 9.
 
 **`research/tool-timings.md`:** the rows of section 11, added on this branch.
