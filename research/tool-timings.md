@@ -1759,3 +1759,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-09 | Native Windows `python -m rang.check` on main 91392bd (mirror, CRLF checkout, no test extras) | – | 17 min 51 s | – | FAIL: 30 tests (CRLF, missing extras, POSIX-only test stand-ins), gain-hash archive absent |
 | 2026-11-09 | Native Windows `python -m rang.check`, worktree native-check (2 runs, heavy_lock) | – | 19 min 33 s cold, 11 min 28 s warm | – | run 1: a1_simtruth fork; run 2: PASS, 1015 passed, gain-hash gate PASS |
 | 2026-11-09 | G4 native Windows `python -m rang.check` (runs 1-4, heavy_lock) | worktree fp-g4-masks | run 4: 11 min 55 s | – | run 1: 2 clippy lints, stale docs/cli.md; runs 2, 3 killed (halt, session restart); run 4: only the research-index test fails |
+| 2026-11-09 | G4 `cargo +1.93 build --profile gemclean` (native Windows, heavy_lock) | b13f7d3 | 3 min 49 s compile (16 min with lock wait) | – | gemclean-g4.exe f45a92dd |
+| 2026-11-09 | G4 WSClean 3.7 (WSL docker, `-j 16`), T0-T6, T6′, F1, F2, A1-A4, P, H | S2, H4, D2, pilot cal2 (256 ch), H | 37-47 s per `-niter 0` run; F/A 140-266 s; P 1704 s; H 308 s (lock waits included in some) | – | `/usr/bin/time` files beside each run |
+| 2026-11-09 | G4 GeMClean (native Windows, `-j 16`), same runs | same | `-niter 0` 8-12 s; F2 78 s, A1 272 s, A2-A4 34-114 s, P 1430 s (job wall incl. lock waits elsewhere) | – | no GNU time on Windows |
+| 2026-11-09 | G4 gate A identity set, main-native and G4 binaries (18 runs each) | S1-S3, H1-H4, pilot p256, D1 | 13-62 s per simulated run, p256 96-175 s | – | 150 files identical |
+| 2026-11-09 | G4 held-out H simulation (`gemclean_bench_simulate.py --sky M1`) | 1,814,400 rows x 8 ch | 18 s (830 s with lock wait) | – | native writer |
+| 2026-11-09 | G4 native `python -m rang.check` run 5 (final, heavy_lock) | worktree fp-g4-masks | 12 min 29 s | – | only the research-index test fails; gain-hash gate PASS |

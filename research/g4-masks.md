@@ -1,7 +1,7 @@
 # Rang: masks, tapers and uv range in GeMClean (task G4)
 
-Status, 2026-11-09: **implemented; protocol frozen (section 3) before the first comparison; not yet
-measured.**
+Status, 2026-11-09: **implemented and measured** (protocol frozen before the first comparison;
+verdicts in section 9).
 
 Goal (finish plan, G4; depends on G3): GeMClean gains WSClean 3.7's `-fits-mask`, `-auto-mask`
 (with `-abs-auto-mask`, `-auto-mask-nmiter` and the default `dual` major-iteration mode),
@@ -257,6 +257,179 @@ item: whether the Linux hashes stay the reference). An earlier, halted attempt q
 batch behind the lock; it never started (`g4-20261109-01/w_batch-T.log`), so no comparison output
 existed before this protocol was committed.
 
+## 6. Measured: development runs (T, F, A, P)
+
+Binary `gemclean-g4.exe` (b13f7d3, section 4) against WSClean 3.7. Runs in
+`D:\rang\outputs\g4-20261109-01\runs\{g4,wsclean}\<run>`, scores in `runs\g4\score-<run>.json`
+(`score.py`, `table.py`), job logs `*_job-*.log` there. "Max flux diff" is over apertures with
+`|F_W| > 10 ε`; "σ max diff" over the major iterations up to WSClean's finishing one.
+
+| run | dirty/PSF max diff | WSCIMGWG rel | BMAJ G/W − 1 | M2 fail | M3 fail | max flux diff | finishing G/W | majors G/W | σ max diff | verdicts |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | --- |
+| T0 | 2.5e-07 | 2e-09 | – | – | – | – | – | – | – | S pass |
+| T1 | 3.6e-07 | 7e-11 | – | – | – | – | – | – | – | S pass |
+| T2 | 9.3e-08 | 2e-09 | – | – | – | – | – | – | – | S pass |
+| T3 | 7.8e-08 | 3e-09 | – | – | – | – | – | – | – | S pass |
+| T4 | 9.2e-08 | 2e-09 | – | – | – | – | – | – | – | S pass |
+| T5 | 8.1e-08 | 4e-10 | – | – | – | – | – | – | – | S pass |
+| T6 | 2.5e-07 | 2e-09 | – | – | – | – | – | – | – | S pass (vacuous) |
+| F1 | 3.1e-07 | 2e-09 | −0.280 | 0/48 | 0/48 | 0.001 | – | – | – | S FAIL (beam) M pass |
+| F2 | 3.1e-07 | 2e-09 | −0.280 | 0/48 | 0/48 | 0.002 | – | – | – | S FAIL (beam) M pass |
+| A1 | 3.1e-07 | 2e-09 | −0.280 | 0/51 | 0/51 | 0.006 | 6/8 | 8/10 | 0.178 | S FAIL (beam) M pass X FAIL |
+| A2 | 1.7e-07 | 2e-09 | −0.268 | 0/25 | 2/25 | 0.017 | 5/5 | 6/6 | 0.098 | S FAIL (beam) B′ pass M FAIL X FAIL |
+| A3 | 3.3e-07 | 3e-11 | −0.253 | 0/25 | 0/25 | 0.003 | 5/5 | 6/7 | 0.047 | S FAIL (beam) B FAIL B′ pass M pass X FAIL |
+| A4 | 1.8e-07 | 4e-09 | −0.311 | 0/19 | 0/19 | 0.001 | 6/6 | 7/8 | 0.023 | S FAIL (beam, MFS NVIS) M pass X FAIL |
+| P | 5.0e-08 | 1e-12 | −0.087 | 0/2 | 0/2 | 0.002 | 4/4 | 6/6 | 0.006 | S FAIL (beam) B′ pass M pass X pass |
+
+**Selection (S).** The tapers, uv cuts and `|uvw|` row cuts agree: dirty images and PSFs within
+3.6e-7 of the peak (bound 1e-5) and `WSCIMGWG` within 4e-9 (bound 1e-6), on every run and on every
+channel and MFS file. Every frozen S failure is the restoring beam or a header convention, both on
+main before G4:
+
+- GeMClean's fitted restoring beam is narrower than WSClean's on every cleaned run (F1: 10.0″ × 8.0″
+  against 13.9″ × 8.3″), G9's finding 6, unchanged by G4 (no beam code in the diff). Against the
+  untapered pair (A2, H4's sky, `BMAJ` off by 26.8 %) the tapered A3 is off by 25.3 %: the taper
+  does not add to the disagreement.
+- A4's MFS dirty image: WSClean's `WSCNVIS` (3628800) is one channel's count and its `WSCVWSUM` a
+  quarter of GeMClean's total; the per-channel files agree. A main convention (G3 gated only
+  `WSCIMGWG`), not a G4 change.
+- **Scorer fixes after the first T run** (no gate's meaning changed): at `-niter 0` WSClean writes
+  `WSCNVIS = WSCVWSUM = 0` and fits no beam (`BMAJ = 0`), so those checks count only on the cleaned
+  runs, which write them. The row and uv cuts of T2-T4 are therefore tested through `WSCIMGWG` and
+  the images.
+- T6 (`-taper-edge 2000`) is vacuous: the edge cuts cells beyond 66.8 kλ, the longest baseline is
+  38.2 kλ, and T6 equals T0. **T6′ (post hoc):** `-taper-edge 35000 -taper-edge-tukey 5000`
+  (section 6.1).
+
+**Masks (M).** FITS mask: no GeMClean pick outside the mask (F1, F2), no model pixel of either
+imager outside it in F1, and the nine masked-out points keep their residual (9/9 within 3σ of
+WSClean's). Automatic mask: no pick outside the mask in any phase-2 or continued minor loop
+(`g-mask.json` `outside_picks`; A1: 1080 masked picks). Fluxes within 1.7 % in every aperture (bound
+2 % + √2 ε). A2 fails M3 on two 6-pixel point apertures (residual rms 83 and 71 µJy against
+WSClean's 42 and 46 µJy; bounds 63 and 69 µJy). Multiscale models are nonzero on every pixel in both
+imagers (kernel tails), so the support counts of F2 and the multiscale A runs carry no information.
+
+**Switch-over (X).** σ of major iteration 1 agrees in every run to the printed digits. The phase
+structure is radler's: in WSClean's log a continued minor loop inside the mask follows every
+phase-1 iteration, and the gain doubles only after `Auto-masking threshold reached`; GeMClean's
+`g-mask.json` shows the same. The finishing iteration agrees on A2, A3, A4 and P; major cycles are
+within one on all but A1. σ of later iterations drifts by 0.6-18 % because the component sequences
+differ after the first picks (as in G5), so the frozen 1 % bound fails on every simulated run. A1
+(Högbom) finishes at 6 against 8: GeMClean's own Högbom loop (lazy exact corrections, by design,
+section 2) cleans deeper per major cycle, so its σ falls faster from iteration 4 on (−1.5 %, −7 %,
+−16 %) and its first minor loop reaches 6σ two iterations earlier. This is not a phase-machine
+difference and was not changed. H is multiscale and does not exercise the Högbom automatic mask.
+
+**Scales (B).** As frozen, B fails: WSClean prints `Theoretic beam = 5.4''` before the taper
+replaces it, while its beam-fit line says `theoretical=8''` and its scales follow 8″ (21, 43, 85,
+171, 341, 683 px), as GeMClean's do. GeMClean reports each scale's phase-2 gain, which radler
+doubles after the switch (WSClean's last `- Scale` block shows 0.2 for scale 0, the first 0.1).
+**B′ (post hoc):** the theoretic beam against the fit line's `theoretical=` value, scales, bias
+factors and PSF peaks against the first block, gains against the last: pass on A2, A3 and P.
+
+### 6.1 T6′ (post hoc)
+
+`-taper-edge 35000 -taper-edge-tukey 5000` on S2 at `-niter 0`. The taper reaches the data:
+WSClean's dirty image moves by 5.2e-3 of the peak from T0, and `WSCIMGWG` goes from 2.6592e9 to
+2.6501e9. GeMClean against WSClean: dirty image within 2.5e-7 of the peak, `WSCIMGWG` within 2e-9.
+S pass.
+
+### 6.2 Gate A (byte identity, native against native)
+
+main-native's `s1-def` run twice gives identical files (5/5), so A is determined. The full set
+(S1-S3, H1-H4 and the pilot at 256 channels, each in the default and coarse forms, plus D1-C1 and
+D1-C3): **18 runs, 150 FITS files, every one with main-native's SHA-256. A met.** Hashes are in
+`D:\rang\outputs\g4-20261109-02\identity\{main,main-rep,g4dev,g4}\img`, logs in `id_job-*.log`.
+
+## 7. Native Windows
+
+The first G task done natively. The heavy lock is shared with E1 (one job at a time across
+Windows and WSL; most of this task's wall time was lock waits). A session restart killed check run
+3, and a WSL job launched without a wait never started, so every long job now writes START, RUN rc
+and END lines (`job.ps1`, `g_job.ps1`, `id_job.ps1`, `w_job.sh`, `wait_end.ps1`). `Set-Content`
+writes CRLF into tracked files. No GNU time, so no peak memory. WSClean runs in WSL docker reading
+`/mnt/d`.
+
+## 8. Measured: held-out sky H
+
+Simulated after the freeze record (section 4) was committed (8a64030): M1, sky seed 3120673482,
+noise seed 1953963431, `D:\rang\outputs\g4-20261109-03\data\h.ms` (14,515,200 visibilities, DFT
+check 3.2e-14). Options as frozen: multiscale, `-auto-mask 6 -auto-threshold 1 -taper-gaussian
+8asec -minuv-l 300 -maxuvw-m 6000`. Runs and scores are in `g4-20261109-03\runs`.
+
+| criterion | result | verdict |
+| --- | --- | --- |
+| S selection | dirty 3.1e-7, PSF 1.0e-7 of the peak; `WSCIMGWG` 1.9e-10; `WSCNVIS` 14,311,578 in both (the `-maxuvw-m` cut); `WSCVWSUM` 4e-16 | met |
+| S beam | `BMAJ` −26.4 %, `BMIN` −18.1 % (G9's finding 6, as on every run) | FAIL |
+| B (frozen) | WSClean prints `Theoretic beam = 6.95''` before the taper replaces it; GeMClean 8.00″ | FAIL |
+| B′ (post hoc) | 8″ against the fit line's `theoretical=8''`; scales, bias factors, PSF peaks and phase-2 gains agree | met |
+| M1 | no pick outside the automatic mask | met |
+| M2 | 27/27 apertures; largest flux difference 0.9 % | met |
+| M3 | 25/27; two point apertures at 53 and 59 µJy against WSClean's 33 and 38 µJy (bounds 50 and 56 µJy) | FAIL |
+| X1 | finishing iteration 5 in both | met |
+| X2 | σ equal in iterations 1, 2 and 5; 6.1 % and 1.3 % off in iterations 3 and 4 | FAIL |
+| X3 | 7 major cycles in both | met |
+
+## 9. Verdicts against the frozen gates
+
+| gate | development (T, F, A, P) | held-out H |
+| --- | --- | --- |
+| A byte identity without the new options | met: 18 runs, 150 files | – |
+| S selection (weights, cuts, tapers, images, headers) | met on every run except A4's MFS `WSCNVIS` / `WSCVWSUM` (main's convention) | met |
+| S restoring beam within 1e-3 | not met on any cleaned run (main's beam fit, G9 finding 6) | not met |
+| B (B′ post hoc) | B not met (the protocol named the wrong log line); B′ met on A2, A3 and P | B not met; B′ met |
+| M1 confinement | met everywhere | met |
+| M2 flux | met everywhere | met |
+| M3 residual | not met on A2 (2/25 apertures); met elsewhere, F1's masked-out points 9/9 | not met (2/27) |
+| X1 finishing iteration | met on A2-A4 and P; not met on A1 (Högbom, 6 against 8) | met |
+| X2 σ within 1 % | not met on A1-A4; met on P | not met |
+| X3 major cycles within one | met except on A1 (8 against 10) | met |
+
+Summary: the selection options (tapers, uv and `|uvw|` cuts) reproduce WSClean 3.7 to within 3.6e-7
+of the peak on every run, the held-out one included, and leave the output unchanged when they are
+not used (A). The FITS and automatic masks confine every pick and follow radler's phase machine.
+They finish on the same major iteration on every multiscale run and match fluxes within 1.7 %. Four
+frozen gates fail:
+
+- the restoring beam (main's beam fit);
+- the 1 % bound on σ per iteration: the component sequences diverge after iteration 2, as in G5,
+  so the bound was set too tight;
+- the residual rms in two point apertures per H4-type sky;
+- the Högbom automatic mask on S2, which finishes two iterations early.
+
+No novelty claim.
+
+## 10. Not checked
+
+The imaging-weight column; masks with several planes or polarisations (refused); `-local-rms`;
+`-abs-auto-mask` against WSClean (unit-tested only); `-auto-mask-nmiter` other than 2; the Högbom
+automatic mask on a held-out sky; peak memory (no GNU time on Windows); a Linux reproduction of
+these runs (section 5). Wall times were on a shared host and dominated by lock waits, so they
+support no timing claim.
+
 ## For the coordinator
 
-(Filled in at hand-back.)
+Proposed STATE line: "G4 (masks, tapers, uv range in GeMClean): implemented and measured against
+WSClean 3.7 (`research/g4-masks.md`). The selection options agree to 3.6e-7 of the peak, and
+without them the output is byte-identical to main on 150 files. Masks confine every pick and finish
+on WSClean's major iteration on multiscale runs. Frozen gates not met: the restoring beam (main's),
+σ per iteration within 1 %, residual rms in two point apertures, and the Högbom automatic mask
+finishing early. Branch fp-g4-masks."
+
+Proposed README index row: `g4-masks.md`: GeMClean `-fits-mask`, `-auto-mask`, tapers and uv range
+against WSClean 3.7 (G4).
+
+Owner decisions:
+
+1. Whether the Linux G2/G3 identity hashes stay the reference now that native Windows builds of
+   main differ in every file (section 5), or native-against-native becomes the rule.
+2. The restoring-beam fit (G9 finding 6) fails every S beam check. Assign it to G7/G8 or to a task
+   of its own.
+3. Whether to relax X2 (σ per iteration within 1 %) for later tasks: the sequences diverge after
+   iteration 2 on every simulated sky, as G5 found for fluxes.
+4. A1: the Högbom automatic mask finishes two major iterations earlier than radler on S2, a
+   consequence of GeMClean's own Högbom loop. Decide whether that is acceptable for C5b, which uses
+   multiscale, or needs a follow-up.
+5. The MFS `WSCNVIS` / `WSCVWSUM` convention: WSClean writes one channel's values, GeMClean the
+   total.
+6. Heavy-lock contention with E1: most of G4's wall time was lock waits.
