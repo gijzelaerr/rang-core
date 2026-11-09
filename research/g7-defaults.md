@@ -176,3 +176,23 @@ Outputs `D:\rang\outputs\g7-20261109-01` (`bin/`, `runs/<arm>-j<j>-r<rep>/`, `lo
 probes, and `.code/` with a snapshot of the scripts. Scripts in
 [`results/g7-defaults-scripts/`](results/g7-defaults-scripts/). Status:
 `C:\Users\gijsm\Github\rang\outputs\status\fp-g7.md`.
+
+## 8. Freeze record (2026-11-10, before any held-out beam comparison)
+
+- **Development diagnostic, after the protocol (post hoc to section 2's description):** the
+  estimator as described in section 2, solved to its minimum with scipy, does not give WSClean's
+  beam on S1 (13.58″ × 9.47″ against 13.88″ × 8.34″) and its cost is lower than that of WSClean's
+  beam, so WSClean does not minimise that objective. Reading `FittingCentered` again: `xi` and
+  `yi` are `size_t`, `x_mid` and `y_mid` `int`, so `xi − x_mid` is unsigned and every negative
+  offset becomes about 1.8e19 pixels; the model is 0 there and the residual a constant. Only the
+  quadrant `x ≥ 0, y ≥ 0` of the box shapes the fit. (Its analytic Jacobian also has the sign of
+  the β terms in `dsx`, `dsy` wrong; GSL's step acceptance makes that harmless here.) The
+  quadrant fit in numpy (`beam_diag.py`, scratch variant) gives WSClean's header beam on both
+  development cases: S1 13.8785″ × 8.3446″, PA −29.806° (WSClean 150.194°, the same axis), the
+  pilot-512 16.8602″ × 9.6205″, PA 128.639° (WSClean's log 16.86″ × 9.62″, 128.64°), on GeMClean's
+  PSF there (G2 `c34r`).
+- **Frozen fix:** `fit_restoring_beam` ports the binary's behaviour, the quadrant included
+  (commit `c7ca268`, binary `gemclean-beam-c7ca268.exe`, sha256 `309b9cd7…2ca4ba`). On S1 its
+  header beam is within 3e-7 of WSClean's. No change follows the held-out cases; if one fails, it is
+  reported as failed.
+- The held-out cases of section 2 are unchanged.
