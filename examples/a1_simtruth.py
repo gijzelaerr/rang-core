@@ -73,6 +73,11 @@ def size(version):
     }
 
 
+def _init_worker(state):
+    """Spawned workers (Windows has no fork) receive the shared state here."""
+    _STATE.update(state)
+
+
 def _chunk(job):
     """Worker: DATA, UVW and RFI masks of a run of integrations."""
     s = _STATE
@@ -408,9 +413,15 @@ def generate(args):
     masks_any, masks_5s = [], []
     seconds.update(predict=0.0, compute=0.0, write=0.0)
     t_loop = time.perf_counter()
-    ctx = mp.get_context("fork")
+    if "fork" in mp.get_all_start_methods():
+        ctx, init = mp.get_context("fork"), {}
+    else:
+        ctx, init = (
+            mp.get_context("spawn"),
+            {"initializer": _init_worker, "initargs": (dict(_STATE),)},
+        )
     r0 = 0
-    with ctx.Pool(args.workers) as pool:
+    with ctx.Pool(args.workers, **init) as pool:
         for job, res in zip(jobs, pool.imap(_chunk, jobs), strict=True):
             n = len(job) * nbl
             seconds["predict"] += res["predict_s"]

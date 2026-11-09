@@ -1756,3 +1756,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-08 | C5 `tools/check-all.sh` (2 runs) | worktree | 17 min 7 s, 9 min 18 s (lock waits included) | 1.85 GB | run 1: research-index test and a receipts-registry finding (fixed); run 2: research-index test only |
 | 2026-11-09 | G9 merge of main a2450aa: check-all | worktree | see g9-20261109-checkall-4.time | – | only `test_every_note_is_in_the_research_index` fails |
 | 2026-11-09 | G9 merge check 2 (main a2450aa build, merged build, criterion A, one smoke run) | D1, H1p | builds about 2.5 min each; runs as before | 2.11-6.86 GB | heavy lock; all identical |
+| 2026-11-09 | Native Windows `python -m rang.check` on main 91392bd (mirror, CRLF checkout, no test extras) | – | 17 min 51 s | – | FAIL: 30 tests (CRLF, missing extras, POSIX-only test stand-ins), gain-hash archive absent |
+| 2026-11-09 | Native Windows `python -m rang.check`, worktree native-check (2 runs, heavy_lock) | – | 19 min 33 s cold, 11 min 28 s warm | – | run 1: a1_simtruth fork; run 2: PASS, 1015 passed, gain-hash gate PASS |

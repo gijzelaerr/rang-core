@@ -1868,7 +1868,13 @@ def find_gemclean(setting):
     root = core.checkout_root()
     if root is not None:
         for profile in ("release", "gemclean"):
-            path = root / "core" / "target" / profile / "gemclean"
+            path = (
+                root
+                / "core"
+                / "target"
+                / profile
+                / ("gemclean.exe" if os.name == "nt" else "gemclean")
+            )
             if path.is_file():
                 return path
     raise StageFailed(

@@ -54,6 +54,19 @@ and tests Linux x86_64 and aarch64, macOS arm64 and x86_64, and Windows x86_64
 frozen modules that need `st_blocks` or a POSIX container path, symlinks without
 Developer Mode, the simulation's Linux-archived bytes and absent archives. The frozen
 campaigns' fresh-namespace and disk-budget guards still rely on POSIX semantics.
+
+Development and the full check run natively on Windows (2026-11-09, main
+`91392bd`). Clone after `.gitattributes` existed, or with `core.autocrlf false`:
+a checkout older than it keeps CRLF files and fails the verbatim-copy tests. Install the
+test extras (`astropy`, `h5py`, `matplotlib`, `jax`, `scipy`, `katbeam`, `eidos`) or
+their tests fail on import. The gain-hash gate reads the archive from
+`RANG_ARCHIVE_OUTPUTS` (on the development host the WSL checkout's
+`\\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs`). On a host shared by
+Windows and WSL, take the heavy-job lock with
+`python tools/heavy_lock.py run -- <command>` from either side; `flock` inside
+WSL is invisible to Windows processes.
+Linux-only oracles (CASA, WSClean, QuartiCal, CARACal, Tricolour,
+python-casacore) stay in WSL.
 For campaign work on Windows, use a WSL2 Linux checkout on
 the Linux filesystem (not `/mnt/c`), with Docker inside WSL only to re-run the
 frozen campaigns in `history/` (`history/README.md`). Use Rust 1.93, which

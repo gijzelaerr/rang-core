@@ -9,6 +9,11 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Fixed: `image.gemclean: auto` finds `core/target/<profile>/gemclean.exe` on Windows. The test
+  stand-in for gemclean is a Python script (a `.cmd` wrapper on Windows), and the selfcal refusal
+  test no longer needs a built binary. `examples/a1_simtruth.py` uses spawned workers where fork is
+  missing (Windows); fork elsewhere, unchanged. New `tools/heavy_lock.py`, one heavy job at a time across
+  Windows and WSL; CONTRIBUTING describes native Windows development.
 - New: `gemclean -pol` and `-join-polarizations` (`research/g9-stokes.md`): Stokes I, Q, U, V and
   XX, YY in any combination, parsed as WSClean 3.7 parses `-pol` (`IQUV`, `iquv`, `xx,yy`), formed
   from linear-feed correlations with WSClean's arithmetic and weights (`min(4 w_a, 4 w_b)` for a

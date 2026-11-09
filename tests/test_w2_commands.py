@@ -106,14 +106,24 @@ def column(ms, name):
 
 def fake_gemclean(tmp_path):
     """A stand-in that writes the files gemclean names after `-name`."""
-    path = tmp_path / "fake-gemclean"
-    path.write_text(
-        "#!/bin/sh\n"
-        'while [ $# -gt 0 ]; do [ "$1" = -name ] && name=$2; shift; done\n'
-        'echo fake > "$name-image.fits"\n',
+    script = tmp_path / "fake-gemclean.py"
+    script.write_text(
+        "import sys\n"
+        "a = sys.argv[1:]\n"
+        "name = a[a.index('-name') + 1]\n"
+        "open(name + '-image.fits', 'w').write('fake\\n')\n",
         encoding="utf-8",
     )
-    path.chmod(0o755)
+    # A .cmd wrapper on Windows, which cannot run a #! script.
+    if os.name == "nt":
+        path = tmp_path / "fake-gemclean.cmd"
+        path.write_text(f'@"{sys.executable}" "{script}" %*\r\n', encoding="utf-8")
+    else:
+        path = tmp_path / "fake-gemclean"
+        path.write_text(
+            f'#!/bin/sh\nexec "{sys.executable}" "{script}" "$@"\n', encoding="utf-8"
+        )
+        path.chmod(0o755)
     return path
 
 
@@ -441,7 +451,7 @@ def test_a_killed_flag_write_resumes_from_its_backup(tmp_path):
 
 def test_selfcal_and_unsolved_apply_targets_are_refused(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
-    config = write_config(tmp_path)
+    config = write_config(tmp_path, gemclean=fake_gemclean(tmp_path))
     # Task C5: selfcal runs, and needs its input column (exit 1, no write).
     with pytest.raises(SystemExit) as exc:
         cli("selfcal", config, ms)
