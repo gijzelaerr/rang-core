@@ -56,7 +56,9 @@ IMAGE_M = (
 MASKS = (
     "  cleanmask_method: [wsclean]\n  cleanmask_thr: [10, 6]\n  clean_cutoff: [0.5]\n"
 )
-ARMS = ("u", "m", "mh")
+# Post hoc (section 5 of the note): mo, the m images inside an oracle mask
+# made from MODEL_TRUE (examples/c5b_oracle_mask.py), development only.
+ARMS = ("u", "m", "mh", "mo")
 GATED_ARM = "m"
 HELD_OUT = ("c5pa-held2", "c5delay-held2", "c5pa-held", "c5delay-held")
 BASELINE_BINS_M = (0, 500, 1000, 2000, 4000, 6000, 1e9)
@@ -74,10 +76,14 @@ def sha256(path):
     return h.hexdigest()
 
 
-def config_text(arm, loop):
+def config_text(arm, loop, run=None, case=None):
     gem = GEMCLEAN.as_posix()
     if arm == "u":
         image, masks = IMAGE_U % gem, ""
+    elif arm == "mo":
+        mask = (Path(run) / "oracle" / case / "oracle-mask.fits").as_posix()
+        image = IMAGE_M % ("true", gem)
+        masks = f"  cleanmask_method: ['{mask}']\n  clean_cutoff: [0.5]\n"
     else:
         image, masks = IMAGE_M % ("true" if arm == "m" else "false", gem), MASKS
     return (
@@ -118,7 +124,7 @@ def loop(run, case, arm, loop_name):
             if src.exists():
                 shutil.copy(src, ms.with_suffix(suffix))
         config = d / "config.yaml"
-        config.write_text(config_text(arm, loop_name), encoding="utf-8")
+        config.write_text(config_text(arm, loop_name, run, case), encoding="utf-8")
         argv = [*LOCK, str(RANG_CORE), "selfcal", str(config), str(ms),
                 "--run-dir", str(run_dir)]  # fmt: skip
         started = time.perf_counter()
