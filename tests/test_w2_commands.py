@@ -233,12 +233,11 @@ def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
     assert _tasks(DATA / "e2a.yaml") == {"G4"}
     # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run,
     # and since task E0 (research/e0-refant-extend.md) refant auto and
-    # extendflags; what is left is imaging.
-    # Since task W6 (research/w6-imaging-inputs.md) data.scans and
-    # data.weights: uniform reach gemclean (-scans, -unit-weights).
-    assert _tasks(DATA / "e2b.yaml") == {
-        "G9",
-    }
+    # extendflags; since task W6 (research/w6-imaging-inputs.md) data.scans and
+    # data.weights: uniform reach gemclean (-scans, -unit-weights), and since
+    # task G9 (research/g9-stokes.md) IQUV with joined polarisations: nothing
+    # is left.
+    assert _tasks(DATA / "e2b.yaml") == set()
 
 
 def test_the_complex_term_refuses_what_its_kernel_cannot_take():
@@ -833,3 +832,54 @@ def test_the_spectral_image_options_reach_gemclean():
             core_config.validate(
                 {"version": 1, "image": {**image, **change}}, ["image"]
             )
+
+
+def test_the_polarisation_options_reach_gemclean():
+    """G9 (research/g9-stokes.md): image.pol and image.join_polarizations
+    are passed to gemclean, only when not the defaults; E2-B's image
+    section validates; a join of one polarisation, XY and circular
+    correlations are refused."""
+    image = {
+        "size": [64, 64],
+        "scale": "2asec",
+        "pol": "IQUV",
+        "join_polarizations": True,
+    }
+    config, errors = core_config.resolve({"version": 1, "image": image})
+    assert errors == []
+    assert core_config.refusals(config, ["image"]) == []
+    args = pipe.gemclean_arguments(config["image"], "DATA", 0, "out/img", "x.ms")
+    assert ("-pol", "IQUV") in list(itertools.pairwise(args))
+    assert "-join-polarizations" in args
+    plain, _ = core_config.resolve(
+        {"version": 1, "image": {"size": [64, 64], "scale": "2asec"}}
+    )
+    flags = pipe.gemclean_arguments(plain["image"], "DATA", 0, "out/img", "x.ms")
+    assert "-pol" not in flags and "-join-polarizations" not in flags
+    for change, path in (
+        ({"pol": "I"}, "image.join_polarizations"),
+        ({"pol": "XY,YX"}, "image.pol"),
+        ({"pol": "RR,LL"}, "image.pol"),
+        ({"write_model": True}, "image.write_model"),  # Stokes I only (G6)
+        ({"multiscale": True}, "image.multiscale"),  # one polarisation (G5)
+    ):
+        config, errors = core_config.resolve(
+            {"version": 1, "image": {**image, **change}}
+        )
+        assert errors == []
+        assert path in {r.path for r in core_config.refusals(config, ["image"])}
+    assert core_config.parse_pol("xx,yy") == ["XX", "YY"]
+    assert core_config.parse_pol("VUQI") == ["I", "Q", "U", "V"]
+    config, errors = core_config.resolve(
+        {"version": 1, "image": {**image, "join_polarizations": False}}
+    )
+    assert errors == []
+    assert "image.pol" in {r.path for r in core_config.refusals(config, ["selfcal"])}
+    raw = core_config.load(DATA / "e2b.yaml")
+    config, errors = core_config.resolve(raw)
+    assert errors == []
+    assert not [
+        r
+        for r in core_config.refusals(config, ["image"])
+        if r.path.startswith("image.") and r.path != "image.fields"
+    ]

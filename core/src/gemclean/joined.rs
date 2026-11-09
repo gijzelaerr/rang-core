@@ -125,16 +125,43 @@ pub fn run_joined<M: Measurement>(
     fit: Option<&PolynomialFit>,
     settings: &Settings,
 ) -> Result<Joined, String> {
+    run_joined_pols(channels, 1, weights, 1.0, fit, settings)
+}
+
+/// [`run_joined`] over output channels and polarisations together
+/// (`-join-polarizations`, task G9, `research/g9-stokes.md`): `entries` are
+/// channel-major, `npol` polarisations per channel, `weights` one per channel.
+/// As radler's `GetLinearIntegrated` with linked polarisations (the peak
+/// finding of WSClean 3.7's default sub-minor loop), the integrated residual
+/// is `norm Σ_k a_k Σ_p r_kp` with `a_k` the channel weights over their sum and
+/// `norm` the polarisation normalisation ([`super::stokes::normalisation`]);
+/// each entry's component is the gain times its own exact value over its
+/// beam's peak, the fit is applied per polarisation over the channels, and
+/// each entry subtracts its own beam. With one polarisation and `norm = 1`
+/// this is [`run_joined`]'s arithmetic, operation for operation.
+pub fn run_joined_pols<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+) -> Result<Joined, String> {
+    let channels = entries;
+    if npol == 0 || entries.len() != weights.len() * npol {
+        return Err("one weight per channel and npol entries per channel are needed".into());
+    }
     let start = Instant::now();
     let s = settings;
     let kc = channels.len();
-    if kc == 0 || weights.len() != kc {
+    let nch = weights.len();
+    if kc == 0 {
         return Err("one weight per channel is needed".into());
     }
     if weights.iter().any(|&w| !(w > 0.0 && w.is_finite())) {
         return Err("every joined channel needs a positive weight".into());
     }
-    if fit.is_some_and(|f| f.frequencies.len() != kc) {
+    if fit.is_some_and(|f| f.frequencies.len() != nch) {
         return Err("the fit needs one frequency per channel".into());
     }
     let n = channels[0].0.side();
@@ -148,7 +175,14 @@ pub fn run_joined<M: Measurement>(
         return Err("joined channels do not take the certified rule or -audit".into());
     }
     let wsum: f64 = weights.iter().sum();
-    let a: Vec<f64> = weights.iter().map(|w| w / wsum).collect();
+    // One coefficient per entry: the channel's share times the polarisation
+    // normalisation (exactly the share when npol = 1 and norm = 1).
+    let a: Vec<f64> = (0..kc)
+        .map(|e| {
+            let share = weights[e / npol] / wsum;
+            if norm == 1.0 { share } else { share * norm }
+        })
+        .collect();
     let level = s.level.unwrap_or_else(kernels::level);
     let mut st = State {
         beams: channels.iter().map(|c| c.1).collect(),
@@ -283,7 +317,17 @@ pub fn run_joined<M: Measurement>(
                 values[k] = s.gain * exact[k] / channels[k].1.peak;
             }
             if let Some(f) = fit {
-                f.fit_and_evaluate(&mut values);
+                if npol == 1 {
+                    f.fit_and_evaluate(&mut values);
+                } else {
+                    for p in 0..npol {
+                        let mut one: Vec<f64> = (0..nch).map(|k| values[k * npol + p]).collect();
+                        f.fit_and_evaluate(&mut one);
+                        for (k, v) in one.into_iter().enumerate() {
+                            values[k * npol + p] = v;
+                        }
+                    }
+                }
             }
             for k in 0..kc {
                 let (beam, c) = (channels[k].1, values[k]);
@@ -477,6 +521,60 @@ mod tests {
         }
         assert_eq!(single.cycles.len(), joined.integrated.cycles.len());
         assert_eq!(single.stop, joined.integrated.stop);
+    }
+
+    /// Two polarisations of one channel joined (task G9): every
+    /// polarisation's model recovers its own sky, a negative Q included,
+    /// from components at the shared picks.
+    #[test]
+    fn two_polarisations_joined_recover_each_sky() {
+        let n = 32;
+        let (p1, p2) = (10 * n + 12, 21 * n + 20);
+        let i = measurement(11, 1.2e9, n, &[(p1, 1.0), (p2, 0.4)]);
+        let q = measurement(11, 1.2e9, n, &[(p1, -0.3), (p2, 0.2)]);
+        let b = Beam::from_double(n, &i.psf_image(2 * n).unwrap(), 8).unwrap();
+        let s = Settings {
+            max_components: 2000,
+            ..settings()
+        };
+        let j = run_joined_pols(&[(&i, &b), (&q, &b)], 2, &[1.0], 1.0, None, &s).unwrap();
+        assert_eq!(j.integrated.stop, StopReason::Threshold);
+        let flux = |m: &[f64], p: usize| {
+            let (x, y) = ((p % n) as isize, (p / n) as isize);
+            let mut sum = 0.0;
+            for dy in -2..=2 {
+                for dx in -2..=2 {
+                    sum += m[((y + dy) as usize) * n + (x + dx) as usize];
+                }
+            }
+            sum
+        };
+        for (m, want) in [(&j.model[0], [1.0, 0.4]), (&j.model[1], [-0.3, 0.2])] {
+            assert!(
+                (flux(m, p1) - want[0]).abs() < 0.02,
+                "{} {}",
+                flux(m, p1),
+                want[0]
+            );
+            assert!(
+                (flux(m, p2) - want[1]).abs() < 0.02,
+                "{} {}",
+                flux(m, p2),
+                want[1]
+            );
+        }
+        // Every Q component sits on a pick shared with I.
+        assert!(
+            j.model[0]
+                .iter()
+                .zip(&j.model[1])
+                .all(|(a, b)| *b == 0.0 || *a != 0.0)
+        );
+        // One polarisation through run_joined_pols is run_joined.
+        let one = run_joined_pols(&[(&i, &b)], 1, &[2.5], 1.0, None, &settings()).unwrap();
+        let plain = run_joined(&[(&i, &b)], &[2.5], None, &settings()).unwrap();
+        assert_eq!(one.model, plain.model);
+        assert_eq!(one.residual, plain.residual);
     }
 
     /// Two channels of one sky with a spectral slope: the joined run finds

@@ -9,6 +9,18 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `gemclean -pol` and `-join-polarizations` (`research/g9-stokes.md`): Stokes I, Q, U, V and
+  XX, YY in any combination, parsed as WSClean 3.7 parses `-pol` (`IQUV`, `iquv`, `xx,yy`), formed
+  from linear-feed correlations with WSClean's arithmetic and weights (`min(4 w_a, 4 w_b)` for a
+  formed Stokes parameter); WSClean's file names (`<name>[-0000]-<pol>-<kind>.fits`, one PSF per
+  channel from the first polarisation), `CRVAL4`, imaging-weight sources and header weights; joined
+  polarisations pick peaks on the normalised linear sum, as WSClean 3.7's default loop does (its
+  help text says the sum of squares; recorded in the note), so with QU joined, components whose
+  Q and U cancel are not cleaned, in GeMClean as in WSClean 3.7 (IQUV joining, as E2-B's, is far
+  less exposed); both work with `-channels-out` and
+  `-join-channels`. XY, YX, circular correlations and `-link-polarizations` are refused.
+  `rang-core image` passes `image.pol` and `image.join_polarizations` (only when not the defaults),
+  so E2-B's image section is no longer refused. Single-polarisation I imaging is unchanged.
 - New: `gemclean -multiscale` (`research/g5-multiscale.md`): WSClean 3.7's multiscale CLEAN,
   radler's algorithm with its sub-minor loop (`rang_core::gemclean::multiscale`), with
   `-multiscale-scales`, `-multiscale-max-scales`, `-multiscale-scale-bias`, `-multiscale-shape`

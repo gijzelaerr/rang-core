@@ -42,7 +42,6 @@ ROLES = ("fcal", "bpcal", "gcal", "xcal", "target")
 TASKS = {
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
     "G4": "masks, tapers and an imaging uv range",
-    "G9": "Stokes Q, U and V and joined polarisations",
 }
 
 TERM_TYPES = (
@@ -900,6 +899,45 @@ def resolve(raw):
 # -- what is not implemented yet --------------------------------------------------
 
 
+def parse_pol(text):
+    """WSClean's `-pol` list as gemclean takes it (task G9,
+    research/g9-stokes.md): I, Q, U, V, XX and YY in any case, with `,`, ` `
+    or `/` between them, as a sorted list; XY, YX and circular correlations
+    are refused."""
+    order = ["I", "Q", "U", "V", "XX", "YY"]
+    out, i, s = set(), 0, str(text).upper()
+    while i < len(s):
+        c = s[i]
+        if c in ", /":
+            if (i > 0 and s[i - 1] in ", /") or i == len(s) - 1:
+                raise ValueError(f"pol {text!r}: parse error near separator")
+            i += 1
+            continue
+        if c in "IQUV":
+            out.add(c)
+            i += 1
+        elif c in "XYRL" and i + 1 < len(s) and s[i + 1] in "XYRL":
+            pair = s[i : i + 2]
+            if pair in ("XX", "YY"):
+                out.add(pair)
+            elif pair in ("XY", "YX"):
+                raise ValueError(
+                    f"pol {text!r}: XY and YX (complex images) are not implemented"
+                )
+            elif set(pair) <= set("RL"):
+                raise ValueError(
+                    f"pol {text!r}: circular correlations are not implemented"
+                )
+            else:
+                raise ValueError(f"pol {text!r}: parse error near {pair!r}")
+            i += 2
+        else:
+            raise ValueError(f"pol {text!r}: unexpected symbol {c!r}")
+    if not out:
+        raise ValueError("pol needs at least one polarisation")
+    return [p for p in order if p in out]
+
+
 def refusals(config, stages):
     """[Refusal] for every value the given stages cannot run yet."""
     out = []
@@ -1059,12 +1097,41 @@ def refusals(config, stages):
             ("fits_mask", None, "G4"),
             ("taper_gaussian", None, "G4"),
             ("uvrange", "", "G4"),
-            ("join_polarizations", False, "G9"),
         ):
             if img[key] != default:
                 no(f"image.{key}", task, f"{key}: {img[key]!r}")
-        if img["pol"] != "I":
-            no("image.pol", "G9", f"pol: {img['pol']!r}")
+        try:
+            pols = parse_pol(img["pol"])
+        except ValueError as e:
+            out.append(Refusal("image.pol", "", str(e)))
+        else:
+            if img["write_model"] and pols != ["I"]:
+                out.append(
+                    Refusal(
+                        "image.write_model",
+                        "",
+                        "MODEL_DATA is written for Stokes I only; a model of "
+                        f"pol: {img['pol']!r} is a follow-up of research/g9-stokes.md, "
+                        "not implemented",
+                    )
+                )
+            if img["multiscale"] and len(pols) > 1:
+                out.append(
+                    Refusal(
+                        "image.multiscale",
+                        "",
+                        "multiscale with several polarisations is a follow-up of "
+                        "research/g9-stokes.md, not implemented",
+                    )
+                )
+            if img["join_polarizations"] and len(pols) < 2:
+                out.append(
+                    Refusal(
+                        "image.join_polarizations",
+                        "",
+                        "needs two or more polarisations in image.pol",
+                    )
+                )
         if not img["multiscale"]:
             for key in (
                 "multiscale_scales",
@@ -1083,6 +1150,16 @@ def refusals(config, stages):
                 out.append(Refusal(f"image.{key}", "", "required"))
     if "selfcal" in stages:
         sc = config["selfcal"]
+        if config["image"]["pol"] != "I":
+            out.append(
+                Refusal(
+                    "image.pol",
+                    "",
+                    "self-calibration predicts a Stokes I model; selfcal with "
+                    f"pol: {config['image']['pol']!r} is a follow-up of "
+                    "research/g9-stokes.md, not implemented",
+                )
+            )
         for i, term in enumerate(sc["terms"]):
             if term["type"] not in SELFCAL_RUN:
                 out.append(

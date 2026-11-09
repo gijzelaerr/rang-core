@@ -35,6 +35,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [G3, output channels and spectral fit](g3-spectral.md): GeMClean's `-channels-out`, `-join-channels` and `-fit-spectral-pol` against WSClean 3.7 on simulated spectral skies; the held-out MFS bound failed on one sky.
 - [G5, multiscale CLEAN](g5-multiscale.md): GeMClean `-multiscale` (radler's algorithm and sub-minor loop) against WSClean 3.7 on S2, H4, joined D2, the ESO 137-006 pilot and held-out M1; every gate met.
 - [G6, MODEL_DATA and a predict mode](g6-predict.md): gemclean writes MODEL_DATA after imaging and has WSClean's -predict; equal to WSClean 3.7's -predict to 1-4e-7 on S1-S3, H1, H2, joined channels and the pilot; rang-core image.write_model writes it through WriteBack.
+- [G9, Stokes imaging](g9-stokes.md): GeMClean `-pol` and `-join-polarizations` against WSClean 3.7 on simulated polarised skies; WSClean 3.7 joins polarisations on a linear sum, not the squared sum its help states; held-out C, D and E not met as frozen, post-hoc C′ and D′ pass.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 

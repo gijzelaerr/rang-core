@@ -1703,6 +1703,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06 | E0 msutils oracle venv (`msutils-venv.sh`, uv) | PyPI | about 1 min a build, four builds (dask pin found by trial) | – | dask 2024.7.1 with dask-ms 0.2.21 |
 | 2026-11-07 | E0 check-all run 1 | worktree | 682.84 s inside the heavy lock (about 2.5 h lock wait) | 1.84 GiB | Rust clippy and fmt failed on flag_extend.rs (fixed); pytest 1021 passed, 68 skipped, only `test_every_note_is_in_the_research_index` fails |
 | 2026-11-07 | E0 check-all run 2 | worktree | 517.31 s inside the heavy lock | 1.81 GiB | only `test_every_note_is_in_the_research_index` fails; pytest 1021 passed, 68 skipped |
+| 2026-11-07 | G9 WSClean 3.7 probe (`probe.sh`, ten small runs) | probe MS, 16 dishes, 4 channels, 512² | under 1 min each | – | oracle semantics only (research/g9-stokes.md) |
+| 2026-11-07 | G9 `g9_stokes_simulate.py` P1 | 64 dishes, 2 h at 16 s, 16 channels, four Stokes | 67.8 s | 0.54 GB | per-channel, per-Stokes core predict |
+| 2026-11-07 | G9 check-all run 1 | worktree | 19:49 with lock wait | 1.96 GB | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-07 | G9 check-all run 2 | worktree | 34:47 with lock wait | 1.84 GB | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-07 | G9 development runs, GeMClean `dev1` and WSClean 3.7 (D1, P1; `runs.tsv` in g9-20261107-02) | 2048², 16 channels | GeMClean 0:50-7:44, WSClean 1:00-21:23 per run | GeMClean up to 18.35 GB (Q3), WSClean up to 1.44 GB | shared host, no timing claim; GeMClean reads the MS once per polarisation (about 160 s of an IQUV run on /mnt/d) |
+| 2026-11-07 | G9 held-out runs, GeMClean frozen and WSClean 3.7 (H1p; runs.tsv in g9-20261107-03) | 2048², 16 channels | GeMClean 0:54-7:28, WSClean 0:57-21:08 per run; simulation 69.8 s | GeMClean up to 18.42 GB (Q3), WSClean up to 1.45 GB | shared host, no timing claim |
+| 2026-11-07 | G9 criterion A identity (main 0f5ef06 and frozen gemclean, D1, 11 runs) | 2048², 16 channels | about 1-2 min each | 2.10-6.86 GB | all FITS identical |
 | 2026-11-06 | F2 `f2_simulate.py`, one F-SIM observation (5 scans, 32 antennas, 2,048 channels) | f2sim-v | 6 min 24 s | 4.3 GB | 2 threads; 18 min 9 s for three, 26 min 24 s for four (test and variants) |
 | 2026-11-06 | F2 Stage 2 `f2_measure.py`, T, T-mild, N, Z, R, O with Q3 solves, both classes | f2sim-v | 9 min 26 s | 9.3 GB | heavy lock |
 | 2026-11-06 | F2 Stage 3: parity and C1 of U (3 repeats of T and U) | f2sim-v; LUNO 1934−638 | 5 min 59 s | 10.5 GB | heavy lock, load 9-11 |
@@ -1732,6 +1739,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-07 | W6 gemclean runs on A1's small MS (512², 300 components) | 12,480 rows × 64 ch | a few s each | – | nice, 4 threads |
 | 2026-11-07 | W6 identity set (7 skies × 2 forms + pilot-256) | binary `5fb69682` | as G2's | 1.94-12.24 GB | all 15 byte-identical; busy host |
 | 2026-11-06/07 | G6/W6 `tools/check-all.sh` | worktree | 12-13 min (3 runs) | – | FAIL only on the research-index test |
+| 2026-11-08 | G9 merge of main 3defaae: check-all | worktree | 12:36 with lock wait | 1.83 GB | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-08 | G9 merge check (main 3defaae build, merged build, criterion A, two smoke runs) | D1, H1p | builds about 2.5 min each; runs as before | 2.10-6.86 GB | heavy lock for every build and run; all identical |
 | 2026-11-07/08 | G5 `cargo build --profile gemclean --bin gemclean`, 5 builds (dev1-3, freeze, main `b504ff9`) | core crate | 2 min 18 s-3 min 35 s (6 min with the lock wait) | – | dev1 and its clippy without the lock, the rest under it |
 | 2026-11-08 | G5 GeMClean `-multiscale -mgain 0.8`, S2, S2g, H4, H4l, M1 | 2048², 8 channels | 2 min 50 s-3 min 12 s | 4.05-4.81 GB | busy host; [g5-multiscale.md](g5-multiscale.md) |
 | 2026-11-07/08 | G5 WSClean 3.7 `-multiscale -mgain 0.8`, same five | same | 2 min 01 s-2 min 44 s | 2.07-2.36 GB | in container |
@@ -1745,3 +1754,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-08 | C5 library Sa / Sp / Sd solves, `check_c5.py t0` | two noiseless twins | 24-163 s for all three (twin generation included) | 0.79 GB | |
 | 2026-11-08 | C5 QuartiCal 0.2.7 `goquartical`, phase / diag_complex / delay_and_offset | 55,552 rows × 64 ch | 28-71 s per solve; 57-106 s per container (2 solves) | – | single-threaded, Numba JIT included |
 | 2026-11-08 | C5 `tools/check-all.sh` (2 runs) | worktree | 17 min 7 s, 9 min 18 s (lock waits included) | 1.85 GB | run 1: research-index test and a receipts-registry finding (fixed); run 2: research-index test only |
+| 2026-11-09 | G9 merge of main a2450aa: check-all | worktree | see g9-20261109-checkall-4.time | – | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-09 | G9 merge check 2 (main a2450aa build, merged build, criterion A, one smoke run) | D1, H1p | builds about 2.5 min each; runs as before | 2.11-6.86 GB | heavy lock; all identical |

@@ -18,7 +18,7 @@
 use rang_core::clean_certified::{Complex, Measurement, misfit_floor};
 use rang_core::gemclean::fits::{self, Card, Value, card};
 use rang_core::gemclean::input::{self, Selection};
-use rang_core::gemclean::joined::run_joined;
+use rang_core::gemclean::joined::{run_joined, run_joined_pols};
 use rang_core::gemclean::json::{arr, num, obj, opt, text};
 use rang_core::gemclean::kernels::{self, Level};
 use rang_core::gemclean::measure::GridMeasurement;
@@ -27,6 +27,7 @@ use rang_core::gemclean::multiscale::{self, MultiscaleSettings};
 use rang_core::gemclean::predict;
 use rang_core::gemclean::spectral::{self, PolynomialFit};
 use rang_core::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
+use rang_core::gemclean::stokes::{self, Pol};
 use rang_core::gemclean::{self, Beam, CycleStop, Settings};
 use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
 use rang_core::weights::WeightClass;
@@ -121,6 +122,13 @@ Channels (research/g3-spectral.md; WSClean's options):
                             with -join-channels)
   -no-mf-weighting          weights per output channel (the default without it)
 
+Polarisations (research/g9-stokes.md; WSClean's options, linear feeds):
+  -pol <list>               I, Q, U, V, XX, YY in any combination (default I), as WSClean
+                            parses it (iquv, xx,yy); several write <name>[-0000]-<pol>-<kind>.fits
+                            and one <name>[-0000]-psf.fits from the first polarisation
+  -join-polarizations       deconvolve the polarisations together: peaks on their
+                            normalised sum (WSClean 3.7's default loop), a component in each
+
 Multiscale (research/g5-multiscale.md; WSClean's options and defaults):
   -multiscale               clean on several scales (radler's multiscale algorithm with
                             its sub-minor loop); takes -mgain, the measured rule or
@@ -177,6 +185,8 @@ struct Args {
     channel_range: Option<(usize, usize)>,
     average_channels: usize,
     mf_weighting: Option<bool>,
+    pols: Vec<Pol>,
+    join_pols: bool,
     predict: bool,
     update_model: bool,
     model_column: String,
@@ -263,6 +273,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         channel_range: None,
         average_channels: 1,
         mf_weighting: None,
+        pols: vec![Pol::I],
+        join_pols: false,
         predict: false,
         update_model: true,
         model_column: "MODEL_DATA".into(),
@@ -390,6 +402,13 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-average-channels" => a.average_channels = number(flag, value(&mut i)?)?,
             "-mf-weighting" => a.mf_weighting = Some(true),
             "-no-mf-weighting" => a.mf_weighting = Some(false),
+            "-pol" => a.pols = stokes::parse_list(&value(&mut i)?)?,
+            "-join-polarizations" => a.join_pols = true,
+            "-link-polarizations" => {
+                return Err(
+                    "-link-polarizations is not implemented (research/g9-stokes.md)".into(),
+                );
+            }
             "-scans" => {
                 let v = value(&mut i)?;
                 a.scans = v
@@ -516,6 +535,41 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     {
         return Err(
             "-channels-out takes neither -stop-rule certified, -gram-operator,              -floor-iterations nor -audit (research/g3-spectral.md)"
+                .into(),
+        );
+    }
+    if a.pols != [Pol::I] && (a.predict || a.update_model) {
+        return Err(
+            "MODEL_DATA (-predict, and the model update after imaging) is written for Stokes I \
+             only; a model of other polarisations is a follow-up of research/g9-stokes.md, not \
+             implemented: add -no-update-model-required"
+                .into(),
+        );
+    }
+    if a.join_pols && a.pols.len() < 2 {
+        return Err(
+            "Joined/linked polarization deconvolution requested, but only one polarization is \
+             being imaged. Specify multiple polarizations, or do not request to join the \
+             polarizations."
+                .into(),
+        );
+    }
+    if a.pols.len() > 1
+        && (matches!(a.cycle_stop, CycleStop::Certified { .. })
+            || a.gram_operator.is_some()
+            || a.floor_iterations > 0
+            || a.audit)
+    {
+        return Err(
+            "several polarisations take neither -stop-rule certified, -gram-operator, \
+             -floor-iterations nor -audit (research/g9-stokes.md)"
+                .into(),
+        );
+    }
+    if ms_on && a.pols.len() > 1 {
+        return Err(
+            "-multiscale with several polarisations is not implemented (a follow-up of \
+             research/g9-stokes.md, section 12); image one polarisation at a time"
                 .into(),
         );
     }
@@ -881,10 +935,14 @@ fn run() -> Result<(), String> {
     let selection = Selection {
         data_column: column.clone(),
         field: args.field,
+        polarization: args.pols[0],
         scans: args.scans.clone(),
         unit_weights: args.unit_weights,
         ..Selection::default()
     };
+    if args.pols.len() > 1 {
+        return run_polarizations(&args, &raw, &selection, &column, wall);
+    }
     let mut data = input::read_ms(&args.ms, &selection)?;
     // Channel selection and averaging come before the weights, as WSClean's
     // -channel-range does; without them the data are as read.
@@ -1009,6 +1067,9 @@ fn run() -> Result<(), String> {
 
     let t = Instant::now();
     let mut base = fits::wcs_cards(phase_dir.0, phase_dir.1, n, args.scale, &freq);
+    if args.pols[0] != Pol::I {
+        stokes::set_stokes_card(&mut base, args.pols[0]);
+    }
     base.extend([
         card(
             "BMAJ",
@@ -1742,6 +1803,9 @@ fn run_channels(
     };
     for (k, (_, low, high, count, total, vsum, _)) in meta.iter().enumerate() {
         let mut base = fits::wcs_cards_band(phase_dir.0, phase_dir.1, n, args.scale, *low, *high);
+        if args.pols[0] != Pol::I {
+            stokes::set_stokes_card(&mut base, args.pols[0]);
+        }
         base.extend(beam_cards(&out.restoring[k], scale_deg));
         base.extend([
             card(
@@ -1775,6 +1839,9 @@ fn run_channels(
     let low = meta.iter().map(|m| m.1).fold(f64::INFINITY, f64::min);
     let high = meta.iter().map(|m| m.2).fold(f64::NEG_INFINITY, f64::max);
     let mut base = fits::wcs_cards_band(phase_dir.0, phase_dir.1, n, args.scale, low, high);
+    if args.pols[0] != Pol::I {
+        stokes::set_stokes_card(&mut base, args.pols[0]);
+    }
     base.extend(beam_cards(&restoring_mfs, scale_deg));
     base.extend([
         card(
@@ -1940,6 +2007,711 @@ fn run_channels(
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Several polarisations (task G9, research/g9-stokes.md).
+
+/// One imaged output channel and polarisation: its rows with weight, the
+/// gridding weights and WSClean's counters.
+struct PolEntry {
+    uvw: Vec<f64>,
+    vis: Vec<Complex<f32>>,
+    wgt: Vec<f64>,
+    rows: usize,
+    /// `WSCNVIS`, `WSCIMGWG`, `WSCVWSUM`.
+    count: u64,
+    total: f64,
+    visibility_weight_sum: f64,
+}
+
+/// The weight sources and channel group (MF: usize::MAX) of an imaging-weight grid.
+type WeightKey = (Vec<usize>, usize);
+
+/// The images of a polarisation run, per entry (channel-major).
+struct PolImages {
+    psf: Vec<Vec<f64>>,
+    restoring: Vec<gemclean::RestoringBeam>,
+    /// Per entry: the index of its beam, and whether it is the first
+    /// polarisation's of its channel.
+    shared_beam: Vec<bool>,
+    dirty: Vec<Vec<f64>>,
+    model: Vec<Vec<f64>>,
+    residual: Vec<Vec<f64>>,
+    /// Components and major cycles per entry.
+    components: Vec<usize>,
+    majors: Vec<usize>,
+    runs_json: Vec<String>,
+    reference_frequency: Option<f64>,
+    t_psf: f64,
+}
+
+fn clean_settings(args: &Args) -> Settings {
+    Settings {
+        gain: args.gain,
+        cycle_stop: args.cycle_stop,
+        major_fraction: args.mgain_misfit,
+        threshold: args.threshold,
+        auto_threshold: args.auto_threshold,
+        max_components: args.niter,
+        max_major: args.nmiter,
+        theta: args.theta,
+        drift: args.drift,
+        tau_min: args.tau_min,
+        resync_every: args.resync_every,
+        audit: args.audit,
+        level: args.simd.map(|l| l.min(kernels::level())),
+        tile: args.tile,
+        lazy_bounds: args.lazy_bounds,
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn deconvolve_pols<T: Real + Send + Sync>(
+    args: &Args,
+    entries: Vec<PolEntry>,
+    freqs: &[Vec<f64>],
+    central: &[f64],
+    opts: Options,
+) -> Result<PolImages, String> {
+    let n = args.size;
+    let npol = args.pols.len();
+    let kout = freqs.len();
+    let t = Instant::now();
+    let totals: Vec<f64> = entries.iter().map(|e| e.total).collect();
+    let mut measurements: Vec<GridMeasurement<T>> = Vec::with_capacity(entries.len());
+    let mut beams: Vec<Beam> = Vec::new();
+    let mut beam_of = Vec::with_capacity(entries.len());
+    let mut shared_beam = Vec::with_capacity(entries.len());
+    let mut restoring = Vec::with_capacity(kout);
+    let mut psfs = Vec::with_capacity(kout);
+    // The rows and gridding weights of the channel's earlier polarisations,
+    // with their beams.
+    let mut earlier: Vec<(Vec<f64>, Vec<f64>, usize)> = Vec::new();
+    for (e, c) in entries.into_iter().enumerate() {
+        let (k, p) = (e / npol, e % npol);
+        if p == 0 {
+            earlier.clear();
+        }
+        // A beam is shared with an earlier polarisation's only where the
+        // gridding weights and rows are the same, bit for bit: GeMClean's
+        // exact values need each measurement's own PSF.
+        let same = earlier
+            .iter()
+            .find(|(u, w, _)| *u == c.uvw && *w == c.wgt)
+            .map(|x| x.2);
+        if npol > 1 && same.is_none() && p + 1 < npol {
+            earlier.push((c.uvw.clone(), c.wgt.clone(), beams.len()));
+        }
+        let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
+            c.uvw,
+            freqs[k].clone(),
+            c.vis,
+            c.wgt,
+            n,
+            args.scale,
+            args.epsilon,
+            opts,
+        )?;
+        let psf2n = if p == 0 || same.is_none() {
+            Some(m.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?)
+        } else {
+            None
+        };
+        let m = if args.plan_reuse {
+            m.prepare()?
+        } else {
+            m.without_plan_reuse()
+        }
+        .releasing_grids();
+        match psf2n {
+            Some(psf2n) => {
+                let columns = if args.beam_band {
+                    m.band_columns(2 * n)
+                } else {
+                    n + 1
+                };
+                beams.push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
+                if p == 0 {
+                    restoring.push(gemclean::fit_restoring_beam(n, &psf2n));
+                    let mut psf = vec![0.0; n * n];
+                    for i in 0..n {
+                        for j in 0..n {
+                            psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
+                        }
+                    }
+                    psfs.push(psf);
+                }
+                beam_of.push(beams.len() - 1);
+                shared_beam.push(p == 0);
+            }
+            None => {
+                beam_of.push(same.unwrap_or(beam_of[e - p]));
+                shared_beam.push(same == Some(beam_of[e - p]));
+            }
+        }
+        measurements.push(m);
+        memory::mark(&format!("entry {e}: psf and beam"));
+    }
+    drop(earlier);
+    let t_psf = t.elapsed().as_secs_f64();
+    let settings = clean_settings(args);
+    let pair = |e: usize| (&measurements[e], &beams[beam_of[e]]);
+    let ne = measurements.len();
+    let mut dirty = vec![Vec::new(); ne];
+    let mut model = vec![Vec::new(); ne];
+    let mut residual = vec![Vec::new(); ne];
+    let mut components = vec![0; ne];
+    let mut majors = vec![0; ne];
+    let mut runs_json = Vec::new();
+    let mut reference_frequency = None;
+    let joined_channels = args.join_channels && kout > 1;
+    // Groups of entries deconvolved together, with their channel weights
+    // (radler's `image_weight` of each channel's first entry in the group).
+    let mut groups: Vec<(Vec<usize>, usize)> = Vec::new(); // (entries, npol in group)
+    if args.join_pols {
+        if joined_channels || kout == 1 {
+            groups.push(((0..ne).collect(), npol));
+        } else {
+            for k in 0..kout {
+                groups.push(((k * npol..(k + 1) * npol).collect(), npol));
+            }
+        }
+    } else {
+        for p in 0..npol {
+            if joined_channels {
+                groups.push(((0..kout).map(|k| k * npol + p).collect(), 1));
+            } else {
+                for k in 0..kout {
+                    groups.push((vec![k * npol + p], 1));
+                }
+            }
+        }
+    }
+    for (members, gpol) in groups {
+        if members.len() == 1 {
+            let e = members[0];
+            let (m, b) = pair(e);
+            let o = gemclean::run(m, b, &settings, None)?;
+            components[e] = o.steps.len();
+            majors[e] = o.cycles.len();
+            runs_json.push(o.to_json(None));
+            dirty[e] = o.dirty;
+            model[e] = o.model;
+            residual[e] = o.residual;
+        } else {
+            let pairs: Vec<(&GridMeasurement<T>, &Beam)> =
+                members.iter().map(|&e| pair(e)).collect();
+            let nch = members.len() / gpol;
+            let w: Vec<f64> = (0..nch).map(|k| totals[members[k * gpol]]).collect();
+            let cen: Vec<f64> = (0..nch)
+                .map(|k| central[members[k * gpol] / npol])
+                .collect();
+            let fit = args
+                .fit_spectral_pol
+                .filter(|_| nch > 1)
+                .map(|terms| PolynomialFit::new(terms, cen, w.clone()));
+            let norm = if gpol > 1 {
+                stokes::normalisation(&args.pols)
+            } else {
+                1.0
+            };
+            let j = run_joined_pols(&pairs, gpol, &w, norm, fit.as_ref(), &settings)?;
+            if let Some(f) = &fit {
+                reference_frequency = Some(f.reference);
+            }
+            runs_json.push(j.integrated.to_json(None));
+            for ((e, d), (m, r)) in members
+                .iter()
+                .zip(j.dirty)
+                .zip(j.model.into_iter().zip(j.residual))
+            {
+                components[*e] = j.integrated.steps.len();
+                majors[*e] = j.integrated.cycles.len();
+                dirty[*e] = d;
+                model[*e] = m;
+                residual[*e] = r;
+            }
+        }
+        memory::mark(&format!("group of {}: clean", runs_json.len()));
+    }
+    Ok(PolImages {
+        psf: psfs,
+        restoring,
+        shared_beam,
+        dirty,
+        model,
+        residual,
+        components,
+        majors,
+        runs_json,
+        reference_frequency,
+        t_psf,
+    })
+}
+
+/// Several polarisations: read each, weight them as WSClean's cache does
+/// ([`stokes::weight_sources`]), deconvolve (joined or not, with or without
+/// joined channels) and write WSClean's file names and header counters.
+fn run_polarizations(
+    args: &Args,
+    raw: &[String],
+    selection: &Selection,
+    column: &str,
+    wall: Instant,
+) -> Result<(), String> {
+    let n = args.size;
+    let npol = args.pols.len();
+    let t = Instant::now();
+    let spectral_sel = args.channel_range.is_some() || args.average_channels > 1;
+    let mut data = Vec::with_capacity(npol);
+    let mut widths = Vec::new();
+    for &p in &args.pols {
+        let sel = Selection {
+            polarization: p,
+            ..selection.clone()
+        };
+        let mut d = input::read_ms(&args.ms, &sel)?;
+        let mut w = input::channel_widths(&args.ms, &sel)?;
+        if w.len() != d.freq.len() {
+            return Err("CHAN_WIDTH and CHAN_FREQ differ in length".into());
+        }
+        if spectral_sel {
+            (d, w) = select_and_average(d, w, args)?;
+        }
+        widths = w;
+        data.push(d);
+    }
+    let t_read = t.elapsed().as_secs_f64();
+    memory::mark("read");
+    let t = Instant::now();
+    let nchan = data[0].freq.len();
+    let rows = data[0].rows();
+    let phase_dir = data[0].phase_dir;
+    let groups: Vec<Vec<usize>> = if args.channels_out > 1 {
+        spectral::channel_groups(&data[0].freq, None, args.channels_out)?
+    } else {
+        vec![(0..nchan).collect()]
+    };
+    let kout = groups.len();
+    let mf = args.mf_weighting.unwrap_or(args.join_channels);
+    let all: Vec<usize> = (0..nchan).collect();
+    // Imaging weights per (source set, channel group), computed once each.
+    let mut cache: Vec<(WeightKey, Vec<f32>)> = Vec::new();
+    let mut entries = Vec::with_capacity(kout * npol);
+    let mut freqs = Vec::with_capacity(kout);
+    let mut bands = Vec::with_capacity(kout);
+    for (k, group) in groups.iter().enumerate() {
+        let freq: Vec<f64> = group.iter().map(|&c| data[0].freq[c]).collect();
+        let low = group
+            .iter()
+            .map(|&c| data[0].freq[c] - 0.5 * widths[c])
+            .fold(f64::INFINITY, f64::min);
+        let high = group
+            .iter()
+            .map(|&c| data[0].freq[c] + 0.5 * widths[c])
+            .fold(f64::NEG_INFINITY, f64::max);
+        let m = group.len();
+        for p in 0..npol {
+            let sources = stokes::weight_sources(
+                npol,
+                p,
+                mf,
+                args.join_pols,
+                args.join_channels,
+                args.channels_out,
+            );
+            // MF: one grid of all channels, sliced; else the group's own.
+            let key = (sources.clone(), if mf { usize::MAX } else { k });
+            if !cache.iter().any(|(c, _)| *c == key) {
+                let src: Vec<&input::StokesI> = sources.iter().map(|&s| &data[s]).collect();
+                let chans = if mf { &all } else { group };
+                let w = stokes::imaging_weights(&src, chans, args.weight, n, args.scale)?;
+                cache.push((key.clone(), w));
+            }
+            let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
+            let d = &data[p];
+            let (mut vis, mut wgt) = (Vec::with_capacity(rows * m), Vec::with_capacity(rows * m));
+            let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);
+            for row in 0..rows {
+                for (j, &c) in group.iter().enumerate() {
+                    vis.push(d.vis[row * nchan + c]);
+                    let im = if mf {
+                        imaging[row * nchan + c]
+                    } else {
+                        imaging[row * m + j]
+                    };
+                    let w = d.weight[row * nchan + c];
+                    let g = if d.flag_row[row] {
+                        0.0
+                    } else {
+                        f64::from(w) * f64::from(im)
+                    };
+                    if g != 0.0 {
+                        count += 1;
+                        total += g;
+                        vsum += f64::from(w);
+                    }
+                    wgt.push(g);
+                }
+            }
+            if total <= 0.0 {
+                return Err(format!(
+                    "output channel {k}, polarisation {}: no weighted visibilities",
+                    args.pols[p]
+                ));
+            }
+            let mut uvw = d.uvw.clone();
+            let mut kept = 0;
+            for row in 0..rows {
+                let (a, b) = (row * m, (row + 1) * m);
+                if wgt[a..b].iter().any(|&x| x != 0.0) {
+                    if kept != row {
+                        uvw.copy_within(3 * row..3 * row + 3, 3 * kept);
+                        vis.copy_within(a..b, kept * m);
+                        wgt.copy_within(a..b, kept * m);
+                    }
+                    kept += 1;
+                }
+            }
+            uvw.truncate(3 * kept);
+            vis.truncate(kept * m);
+            wgt.truncate(kept * m);
+            uvw.shrink_to_fit();
+            vis.shrink_to_fit();
+            wgt.shrink_to_fit();
+            entries.push(PolEntry {
+                uvw,
+                vis,
+                wgt,
+                rows: kept,
+                count,
+                total,
+                visibility_weight_sum: vsum,
+            });
+        }
+        freqs.push(freq);
+        bands.push((low, high));
+    }
+    drop(cache);
+    let freq_all = data[0].freq.clone();
+    drop(data);
+    let t_weights = t.elapsed().as_secs_f64();
+    memory::mark("weights");
+    let meta: Vec<(u64, f64, f64, usize)> = entries
+        .iter()
+        .map(|e| (e.count, e.total, e.visibility_weight_sum, e.rows))
+        .collect();
+    let central: Vec<f64> = bands.iter().map(|(l, h)| 0.5 * (l + h)).collect();
+    println!(
+        "{}: {} rows ({column}, field {}), {} channels into {} output channels, polarisations {}{}, {} weighting{}, {:.2} s read, {:.2} s weights",
+        args.ms.display(),
+        rows,
+        args.field,
+        nchan,
+        kout,
+        args.pols
+            .iter()
+            .map(|p| p.name())
+            .collect::<Vec<_>>()
+            .join(","),
+        if args.join_pols { " joined" } else { "" },
+        if mf { "MF" } else { "per-channel" },
+        if args.join_channels {
+            ", channels joined"
+        } else {
+            ""
+        },
+        t_read,
+        t_weights
+    );
+    let opts = Options {
+        flip_v: true,
+        flip_w: true,
+        do_wgridding: args.wgridding,
+        ..Options::default()
+    };
+    let out = if args.single {
+        deconvolve_pols::<f32>(args, entries, &freqs, &central, opts)?
+    } else {
+        deconvolve_pols::<f64>(args, entries, &freqs, &central, opts)?
+    };
+    let t = Instant::now();
+    let scale_deg = args.scale.to_degrees();
+    let prefix = &args.name;
+    let chan = |k: usize| {
+        if kout > 1 {
+            format!("-{k:04}")
+        } else {
+            String::new()
+        }
+    };
+    // Header counters: dirty images their own entry's, the PSF the first
+    // polarisation's, model, residual and restored image those of the last
+    // entry imaged in the channel by the end of its deconvolution group
+    // (WSClean's per-channel `OutputChannelInfo` holds it).
+    let counters = |e: usize, components: usize, majors: usize| -> Vec<Card> {
+        let (count, total, vsum, _) = meta[e];
+        vec![
+            card(
+                "WSCNVIS",
+                Value::Float(count as f64),
+                "visibilities with nonzero weight",
+            ),
+            card(
+                "WSCIMGWG",
+                Value::Float(total),
+                "sum of the gridding weights",
+            ),
+            card("WSCVWSUM", Value::Float(vsum), ""),
+            card("WSCNITER", Value::Float(components as f64), "components"),
+            card("WSCMAJOR", Value::Float(majors as f64), "major cycles"),
+            card("ORIGIN", Value::Str("gemclean (rang-core)".into()), ""),
+        ]
+    };
+    let jy_pixel = |cards: &[Card]| -> Vec<Card> {
+        let mut c: Vec<Card> = cards
+            .iter()
+            .filter(|(k, _, _)| k != "BUNIT")
+            .cloned()
+            .collect();
+        c.push(card("BUNIT", Value::Str("JY/PIXEL".into()), ""));
+        c
+    };
+    for (k, band) in bands.iter().enumerate() {
+        let wcs = if kout > 1 {
+            fits::wcs_cards_band(phase_dir.0, phase_dir.1, n, args.scale, band.0, band.1)
+        } else {
+            fits::wcs_cards(phase_dir.0, phase_dir.1, n, args.scale, &freq_all)
+        };
+        let header = |e: usize, pol: Pol| {
+            let mut b = wcs.clone();
+            stokes::set_stokes_card(&mut b, pol);
+            b.extend(beam_cards(&out.restoring[k], scale_deg));
+            b.extend(counters(e, out.components[e], out.majors[e]));
+            b
+        };
+        let first = k * npol;
+        let last = first + npol - 1;
+        write_image(
+            &PathBuf::from(format!("{prefix}{}-psf.fits", chan(k))),
+            n,
+            &out.psf[k],
+            args.bitpix,
+            &header(first, args.pols[0]),
+            &[],
+        )?;
+        for (p, &pol) in args.pols.iter().enumerate() {
+            let e = first + p;
+            let path = |kind: &str| PathBuf::from(format!("{prefix}{}-{pol}-{kind}.fits", chan(k)));
+            write_image(
+                &path("dirty"),
+                n,
+                &out.dirty[e],
+                args.bitpix,
+                &header(e, pol),
+                &[],
+            )?;
+            // WSClean writes these at the end of the deconvolution group: with
+            // joined polarisations after the last entry of the channel is
+            // imaged, otherwise after the entry itself.
+            let mut late = header(if args.join_pols { last } else { e }, pol);
+            // The iteration counters are the entry's own.
+            late.retain(|(key, _, _)| key != "WSCNITER" && key != "WSCMAJOR");
+            late.extend([
+                card(
+                    "WSCNITER",
+                    Value::Float(out.components[e] as f64),
+                    "components",
+                ),
+                card(
+                    "WSCMAJOR",
+                    Value::Float(out.majors[e] as f64),
+                    "major cycles",
+                ),
+            ]);
+            write_image(
+                &path("model"),
+                n,
+                &out.model[e],
+                args.bitpix,
+                &jy_pixel(&late),
+                &[],
+            )?;
+            write_image(
+                &path("residual"),
+                n,
+                &out.residual[e],
+                args.bitpix,
+                &late,
+                &[],
+            )?;
+            if args.restore {
+                let image =
+                    gemclean::restore(n, &out.model[e], &out.residual[e], &out.restoring[k]);
+                write_image(&path("image"), n, &image, args.bitpix, &late, &[])?;
+            }
+        }
+    }
+    let mut restoring_mfs = None;
+    if kout > 1 {
+        // MFS: every polarisation's means use the channel weights WSClean's
+        // per-channel info holds at the end, the last polarisation's.
+        let wl: Vec<f64> = (0..kout).map(|k| meta[k * npol + npol - 1].1).collect();
+        let psf_mfs = weighted_mean(&out.psf, &wl);
+        let r_mfs = gemclean::fit_restoring_beam(n, &embed_double(n, &psf_mfs));
+        let low = bands.iter().map(|b| b.0).fold(f64::INFINITY, f64::min);
+        let high = bands.iter().map(|b| b.1).fold(f64::NEG_INFINITY, f64::max);
+        let lasts: Vec<usize> = (0..kout).map(|k| k * npol + npol - 1).collect();
+        let header = |pol: Pol, components: usize, majors: usize| {
+            let mut b = fits::wcs_cards_band(phase_dir.0, phase_dir.1, n, args.scale, low, high);
+            stokes::set_stokes_card(&mut b, pol);
+            b.extend(beam_cards(&r_mfs, scale_deg));
+            b.extend([
+                card(
+                    "WSCNVIS",
+                    Value::Float(lasts.iter().map(|&e| meta[e].0).sum::<u64>() as f64),
+                    "visibilities with nonzero weight",
+                ),
+                card(
+                    "WSCIMGWG",
+                    Value::Float(wl.iter().sum()),
+                    "sum of the gridding weights",
+                ),
+                card(
+                    "WSCVWSUM",
+                    Value::Float(lasts.iter().map(|&e| meta[e].2).sum()),
+                    "",
+                ),
+                card("WSCNITER", Value::Float(components as f64), "components"),
+                card("WSCMAJOR", Value::Float(majors as f64), "major cycles"),
+                card("ORIGIN", Value::Str("gemclean (rang-core)".into()), ""),
+            ]);
+            b
+        };
+        write_image(
+            &PathBuf::from(format!("{prefix}-MFS-psf.fits")),
+            n,
+            &psf_mfs,
+            args.bitpix,
+            &header(args.pols[0], 0, 0),
+            &[],
+        )?;
+        for (p, &pol) in args.pols.iter().enumerate() {
+            let pick = |v: &[Vec<f64>]| -> Vec<Vec<f64>> {
+                (0..kout).map(|k| v[k * npol + p].clone()).collect()
+            };
+            let comps: usize = (0..kout).map(|k| out.components[k * npol + p]).sum();
+            let majors = (0..kout)
+                .map(|k| out.majors[k * npol + p])
+                .max()
+                .unwrap_or(0);
+            let h = header(pol, comps, majors);
+            let path = |kind: &str| PathBuf::from(format!("{prefix}-MFS-{pol}-{kind}.fits"));
+            let dirty = weighted_mean(&pick(&out.dirty), &wl);
+            write_image(&path("dirty"), n, &dirty, args.bitpix, &h, &[])?;
+            let model = weighted_mean(&pick(&out.model), &wl);
+            let residual = weighted_mean(&pick(&out.residual), &wl);
+            write_image(&path("model"), n, &model, args.bitpix, &jy_pixel(&h), &[])?;
+            write_image(&path("residual"), n, &residual, args.bitpix, &h, &[])?;
+            if args.restore {
+                let image = gemclean::restore(n, &model, &residual, &r_mfs);
+                write_image(&path("image"), n, &image, args.bitpix, &h, &[])?;
+            }
+        }
+        restoring_mfs = Some(r_mfs);
+    }
+    let t_write = t.elapsed().as_secs_f64();
+    memory::mark("write");
+    let beam_json = |r: &gemclean::RestoringBeam| {
+        obj(&[
+            ("bmaj_deg", num(r.major * scale_deg)),
+            ("bmin_deg", num(r.minor * scale_deg)),
+            ("bpa_deg", num(r.pa.to_degrees())),
+            ("main_lobe_pixels", r.pixels.to_string()),
+        ])
+    };
+    let entries_json: Vec<String> = meta
+        .iter()
+        .enumerate()
+        .map(|(e, (count, total, _, rows))| {
+            obj(&[
+                ("channel", (e / npol).to_string()),
+                ("polarization", text(args.pols[e % npol].name())),
+                ("weight_sum", num(*total)),
+                ("visibilities_weighted", count.to_string()),
+                ("rows_gridded", rows.to_string()),
+                ("beam_of_first_polarization", out.shared_beam[e].to_string()),
+                ("components", out.components[e].to_string()),
+                ("major_cycles", out.majors[e].to_string()),
+            ])
+        })
+        .collect();
+    let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
+    let report = obj(&[
+        ("tool", text("gemclean")),
+        ("version", text(env!("CARGO_PKG_VERSION"))),
+        ("argv", arr(&argv)),
+        ("ms", text(&args.ms.display().to_string())),
+        ("data_column", text(column)),
+        ("field", args.field.to_string()),
+        (
+            "polarizations",
+            arr(&args.pols.iter().map(|p| text(p.name())).collect::<Vec<_>>()),
+        ),
+        ("join_polarizations", args.join_pols.to_string()),
+        (
+            "polarization_normalisation",
+            num(stokes::normalisation(&args.pols)),
+        ),
+        ("channels_read", nchan.to_string()),
+        ("channels_out", kout.to_string()),
+        ("join_channels", args.join_channels.to_string()),
+        ("mf_weighting", mf.to_string()),
+        (
+            "fit_spectral_pol",
+            args.fit_spectral_pol
+                .map_or("null".into(), |t| t.to_string()),
+        ),
+        ("reference_frequency_hz", opt(out.reference_frequency)),
+        ("size", n.to_string()),
+        ("scale_arcsec", num(args.scale.to_degrees() * 3600.0)),
+        ("gridder_single", args.single.to_string()),
+        ("wgridder_accuracy", num(args.epsilon)),
+        ("phase_dir_rad", arr(&[num(phase_dir.0), num(phase_dir.1)])),
+        ("entries", arr(&entries_json)),
+        (
+            "restoring_beams",
+            arr(&out.restoring.iter().map(beam_json).collect::<Vec<_>>()),
+        ),
+        (
+            "mfs_restoring_beam",
+            restoring_mfs.as_ref().map_or("null".into(), beam_json),
+        ),
+        ("runs", arr(&out.runs_json)),
+        (
+            "seconds",
+            obj(&[
+                ("read", num(t_read)),
+                ("weights", num(t_weights)),
+                ("psf_and_beams", num(out.t_psf)),
+                ("write", num(t_write)),
+                ("wall", num(wall.elapsed().as_secs_f64())),
+            ]),
+        ),
+        ("threads", rayon::current_num_threads().to_string()),
+        (
+            "peak_memory_bytes",
+            gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
+        ),
+    ]);
+    std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
+    println!(
+        "{} groups deconvolved; wall {:.2} s",
+        out.runs_json.len(),
+        wall.elapsed().as_secs_f64()
+    );
     Ok(())
 }
 
