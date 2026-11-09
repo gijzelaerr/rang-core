@@ -151,7 +151,18 @@ only (native builds differ from Linux ones in every file, G4 section 5).
 
 ## 4. Freeze record
 
-(written after development, before the held-out cases run)
+Written 2026-11-09 after the development runs (section 5), before any
+held-out MS of this task was generated or run.
+
+- Protocol and code: `b8ad597`. Commit `7c165af` adds only the post-hoc
+  oracle-mask diagnostic (`examples/c5b_oracle_mask.py`, arm `mo` in
+  `examples/check_c5b.py`); no setting of arms `u` or `m` changed.
+- gemclean: `core/target/gemclean/gemclean.exe` built from `eaf40b7`'s Rust
+  tree (unchanged on this branch), profile `gemclean`, rustc 1.93, sha256
+  `0ce4aec02c5801834caeca357f7ce6e59af14c13cdbd3090c28244ecf2288e47`.
+- **No post-hoc variant goes to the held-out cases**: neither `mh` nor `mo`
+  met T2 on development, and `mo` (an oracle mask) was no better than `m`.
+  The held-out cases run once with `u` and the frozen `m`.
 
 ## For the coordinator
 
