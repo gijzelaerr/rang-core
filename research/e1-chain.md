@@ -4,9 +4,13 @@ Task E1 of [finish-plan.md](finish-plan.md), on branch `fp-e1-chain` from main
 `0d6230d`, 2026-11-09. Native Windows (`.venv` with uv, Python 3.14); WSL only
 for the Tricolour 0.2.1 oracle.
 
-**Status: protocol frozen (sections 1 to 6), committed before the first scored
-run.** Results go below in later commits; this text changes only through a
-dated, labelled amendment.
+**Status: implemented and measured; no gate of A0's E1 table is met as
+frozen.** The protocol (sections 1 to 6) was committed (`2c506eb`) before the
+first scored run and is unchanged; results are in sections 7 to 9. No rang
+bug was located: every failure traced so far is shared with CASA's own
+estimator, is a property of CARACal's method on this truth, or has no
+established cause (each named in section 8). Nothing was fixed, so nothing
+reran. No novelty claim and no timing claim.
 
 ## 1. What was read before this protocol
 
@@ -323,5 +327,296 @@ section 4 changes after a result; added analyses are labelled post hoc.
 
 | Item | State |
 | --- | --- |
-| Configuration, gates, scorer, control | proposed, frozen here |
-| Runs | not run |
+| Configuration, gates, scorer, control | proposed and frozen (`2c506eb`), then implemented |
+| The chain on m32, the control, Tricolour, the twin tier | **measured** (section 7) |
+| Causes of the failures | post hoc (section 8), labelled; some measured, some not established |
+
+## 7. Results (measured 2026-11-09)
+
+Archive: [results/e1-chain.json](results/e1-chain.json) holds:
+- the scored run's `result.json` and the twin's;
+- the control record and the m32 checks;
+- every post-hoc diagnostic.
+
+Runs are under `D:\rang\outputs\e1-20261109-NN`. Each has a `.code/` snapshot
+(commit `2c506eb` plus the working-tree diff of the scripts) and a log with
+START and END lines.
+
+### 7.1 Execution
+
+| Run | What | Result |
+| --- | --- | --- |
+| `-01-dry` | the configuration on A1 small (unscored) | exit 0. The control column, its image and the scorer also ran on it; the scorer's output was not read |
+| `-02-data` | m32, written by `a1_simtruth.py`: 558 integrations, 1,124,928 rows, 14.2 GB | exit 0. RFI on 8.16 % of cells (`any`), 3.65 % above 5σ |
+| `-03` | **the scored chain**: `rang-core run` on a copy of m32 | exit 0. Flag 109.7 s, calibrate 723.0 s, apply 98.6 s, selfcal 764.1 s |
+| `-03/control` | `CORRECTED_TRUTH` and its image | exit 0. Write 110.8 s, image 133.8 s |
+| `-04-tricolour` | Tricolour 0.2.1 on a fresh copy of m32 (WSL, `rang-tricolour:0.2.1-e1`) | exit 0, 20 min 25 s of flagging |
+| `-05-twin` | calibrate and apply on the small twin | exit 0 (3.1 s, 1.6 s) |
+| `-06-diag`, `-07-casak` | post-hoc diagnostics, and CASA 6.7.6.14 `gaincal` K | section 8 |
+
+**The m32 check (section 5, item 2) failed as frozen.** m32's DATA is not
+bit-identical to A1 full's:
+- On the three integrations checked, 4, 6 and 5 of 2,064,384 elements differ.
+- Each differs by at most 1 float32 ulp of its real or imaginary part:
+  2.4e-7 absolute, 6e-8 relative (post-hoc script `e1_verify_posthoc.py`).
+- A1 full was written on Linux and m32 on native Windows. A1 section 4 already
+  says that bit-identical regeneration across hosts is not claimed (libm).
+- Scoring uses A1 full's `truth.npz`. A 1-ulp difference is 1e-6 of σ and
+  changes no gate.
+
+**Every self-calibration image stopped on `niter`.**
+- Rounds 1 and 2 and the final image each stopped at 100,000 components after
+  4 major cycles (`stop Components`; Q/Q0 0.095, 0.130 and 0.075). None reached
+  the 3σ threshold.
+- The control image did reach it: 83,646 components, 7 cycles, `stop
+  Threshold`.
+- So the chain's models and its final image are incomplete CLEANs.
+  `niter: 100000` is the schema default, frozen in 3.1.
+
+### 7.2 Against the frozen gates
+
+| Gate (A0 6.3) | Measured | Verdict |
+| --- | --- | --- |
+| **Each term, class T, noisy (m32)**: median(\|e\|/s) ≤ 3 | K 5,160. Target 1GC composite 33.2 (median \|e\| 4.2e-3, s 1.2e-4). Cross-hand phase `arg(Kc Xf)` 195 (median 0.017 rad, p95 0.29 rad). KCROSS 14,628 (+0.11, +0.12, +0.11 and −0.017 ns against τ_c' = 2.943 ns). Xf 1,788 (median 0.155 rad). Df 18.9 (median 1.3e-3) | **not met** |
+| **Each term, class T, noise-free (small twin)** | K max 0.089 ns (gate 1e-4). Target composite median 1.6e-6, p95 1.7e-5, max 1.2e-4 (gate 1e-5). Cross-hand phase max 0.25 rad (gate 1e-5). Df max 4.4e-3 (gate 1e-5) | **not met** |
+| K, KCROSS and Xf "as the split" | the condition (target composite and combined phase both pass) does not hold | recorded as failures, not as the split |
+| **Flags: recall** of `above_5sigma` | 0.8858 (Tricolour: 0.8858) | **not met** (≥ 0.90) |
+| **Flags: false positives equal Tricolour's** | 71,465,778 against 71,465,544 (+234). 530 cells (2,120 elements) of 288 M differ: 362 flagged by rang only, 168 by Tricolour only. Agreement 1 − 1.8e-6 | **not met**: the counts differ, and the differing cells are not at chunk edges (27 baselines, every time of their scans, 414 of them in scan 1, 42 channels) |
+| **Image, Stokes I** (35 sources ≥ 50σ) | chain: median ratio 1.0233, robust scatter 1.44 %, largest offset 0.046 beam | **not met**, and **scorer not validated**: the control gives 1.0296 and 1.42 % |
+| Image, labelled secondary reading (chain / control, 4.3) | median 0.9929, scatter 0.80 % | – |
+| **Residual**: off-source rms ≤ 1.1 × the control's | 64.3 μJy against 20.3 μJy: 3.16 × | **not met** |
+| **Polarisation** (gated: components 0, 17, 30 and 40, polarised SNR ≥ 50 on the control) | Final column: component 0 Δχ +4.1°; 17 Δχ −1.87°; 30 Δp +0.58 points; 40 Δp +0.69 points and Δχ −2.3°. 1GC column, beside it: 0 passes (Δp −0.10 points, Δχ +0.19°); Δp −0.31 (17), −0.48 (30), −1.6 (40) points | **not met** |
+| **Leakage** ≤ 0.1 % of I | SIM-GCAL: median 0.54 %, p95 2.6 %. The 11 unpolarised target points: 0.47–1.1 % on the final column (mostly Q, −0.4 to −1.1 %); 0.05–0.74 % on 1GC (mostly U, about +0.3 %) | **not met** |
+| **Self-calibration**, class T | median \|e\|/s 32.6 for round 1 (Sp), 45.7 for round 2 (Sa) | **not met**, as 4.6 expected |
+| Self-calibration against C5's T2 limits (reported) | Round 1 phase: median 0.76°, p95 3.15° (limits 1.0° and 3.0°). Round 2 phase: 0.61° and 2.32° (0.5° and 1.5°). Round 2 amplitude: 0.97 % and 2.93 % (1 % and 3 %), where S itself is 0.74 % | round 1's p95 and round 2's phase miss; round 2's amplitude error is larger than S |
+
+**The scorers on the control (4.3–4.5).** On the control column every
+polarisation and leakage measure passes:
+- the four gated components: Δp ≤ 0.03 points, |Δχ| ≤ 0.25°, polarised SNR
+  83–407;
+- the 11 points: leakage ≤ 0.04 %.
+
+So the visibility-domain estimators are validated, and the polarisation and
+leakage failures come from the calibration. The image scorer is not validated:
+the control gives 1.0296.
+
+**Reported, not gated:**
+- 3C286-SIM: p 0.0952 (truth 0.095); |χ − 33°| median 2.49°, p95 7.3°. This χ
+  is circular, since Xf is solved on this source.
+- J1939-6342: QUV/I median 1.8 %.
+- `fluxscale` gives SIM-GCAL 4.289 Jy (truth 4.213 Jy at 1,284 MHz); on the
+  twin, 4.292 Jy.
+- The calibrators' own composites, which carry the interpolation drift of 4.1
+  (median relative error):
+
+| Field | m32 | Twin |
+| --- | ---: | ---: |
+| J1939-6342 | 3.1e-3 | 9.9e-5 |
+| SIM-GCAL | 1.3e-2 | 2.0e-3 |
+| 3C286-SIM | 1.7e-3 | 1.5e-3 |
+
+**Flagged fractions** (C2e decision 3), as a share of cells. Injected RFI
+(`any`) covers about 8 % of every field.
+
+| Field | After the flag stage | After calibrate (A step, extendflags) | Final |
+| --- | ---: | ---: | ---: |
+| J1939-6342 | 33.7 % | 37.9 % | 44.6 % |
+| 3C286-SIM | 34.2 % | 38.4 % | 45.5 % |
+| SIM-GCAL | 32.9 % | 59.4 % (Asec takes it from 41.1 % to 59.4 %) | 59.4 % |
+| SIM-TARGET | 26.8 % | 26.8 % | 36.3 % (apply's `calflag`, and selfcal) |
+
+- `extendflags` added 16.0 M cells on 3C286-SIM and J1939-6342: `growtime`
+  26,684, `growfreq` 3.0 M, `nearfreq` 12.9 M, `neartime` 0.28 M, `growaround`
+  0.66 M.
+- The flag stage flags 3.4 to 4.2 times the injected RFI. Tricolour does the
+  same, so this is the strategy itself: its static masks, and its mask on
+  baselines of 0–550 m.
+
+## 8. Where the failures come from (post hoc, labelled)
+
+Written after the results; nothing in section 4 changed. The scripts are in
+`results/e1-chain-scripts/` (`e1_diag*.py`, `e1_casa_k.py`,
+`e1_flagdiff.py`).
+
+1. **Five antennas lose all calibration through the reference-antenna rule.**
+   - K, G, Gsec, F and Gpol flag m007, m010, m017, m023 and m041 on one or both
+     flux-calibrator scans.
+   - The cause: the flag stage removed every cell of their baselines to m000 in
+     those scans. m000 has 96 and 160 fully flagged rows in the two scans.
+     CASA's KJones rule flags an antenna that has no cell on its baseline to the
+     refant.
+   - **CASA 6.7.6.14's `gaincal` K, on the same flags, flags the same antennas
+     in both scans** (`-07-casak`).
+   - Not a rang bug. It follows from deviation 3.2 item 1 (refant m000 instead
+     of CARACal's `auto`, which picks the antenna with fewest flags) and from
+     the strategy's short-baseline mask.
+2. **K never converges, and one delay is wrong in CASA too.**
+   - K reports a converged fraction of 0 in both intervals (50 iterations).
+   - m034's Y delay on the first scan is 6.26 ns, against the truth's 7.91 ns
+     (7.88 ns on the second scan). **CASA's K gives 6.22 ns there.**
+   - Rang's K against CASA's: median 0.005 ns, maximum 0.16–0.21 ns.
+   - The 0.03–0.1 ns offsets between K and the truth are the same in both
+     scans: the K–B split.
+   - Interpolated to the target, the bad delay decorrelates F's `inf` solve and
+     puts m034's Y-hand target composite off by a factor 3.6 in amplitude.
+3. **Per-antenna amplitude errors of 0.27 % (median) in the target
+   composite**, constant in time and channel.
+   - Hypothesis, written before its probe: F is solved against CARACal's flat
+     1 Jy model on a source with α −0.6, and each antenna's flagged channels
+     give it its own effective frequency. C2d section 8 measured this mechanism
+     at 0.5 % across antennas.
+   - Probe `diag3`: correlation 0.30–0.37 with the prediction, and the
+     predicted spread is too large.
+   - Partly supported, not established.
+4. **Cross-hand phase.**
+   - Noise-free, the per-scan KCROSS values spread over 0.10 ns (0.017 to
+     0.121 ns above τ_c'). With Xf combined over scans, the combined phase is
+     then off by up to 0.25 rad at the band edges.
+   - Possible cause: strategy 1 solves KCROSS and Xf before Df, while the cross
+     hands hold 1–3 % leakage. The polarised part rotates with parallactic
+     angle; the leakage does not.
+   - C6w showed rang's polcal chain equal to CASA's (χ within 0.003°) on
+     `poldx` and `polholdout`. No CASA chain ran on m32 or on this twin, so
+     **parity is not shown here**.
+   - The +0.3 % U leakage on 1GC and the polarisation misses follow from this
+     phase error.
+5. **Self-calibration makes Q worse.**
+   - On the final column, Q/I on unpolarised points is −0.4 to −1.1 %; on 1GC
+     it is near 0.
+   - Sa solves each hand against a Stokes I model, so it moves the XX/YY ratio.
+     With incomplete models (7.1) and no mask, this is C5's model absorption.
+   - Its round-2 amplitude error (0.97 %) is larger than the residual S it
+     should remove (0.74 %).
+   - A known limit. The follow-ups are C5b (masks and per-round settings, after
+     G4) and self-calibration with polarisation (G9's follow-up).
+6. **The residual is 3.2 times the control's.** The chain's final CLEAN stopped
+   on `niter` (7.1), and its gains carry items 1–5. These runs cannot separate
+   the two.
+7. **The image scorer.** On the control, the fits sit at 1.03 in the channel
+   images and at 0.95–0.99 in the MFS image (probe `diag4`). So the frozen
+   truth convention, the plain mean of S over each output channel's input
+   channels, does not match GeMClean's channel-image flux scale. Not traced.
+8. **Flags against Tricolour: 530 cells differ** (1.8e-6 of the cells), none at
+   chunk edges. On A1 small the same strategy gives 0 of 3,194,880 elements
+   different (`-01-dry`). Cause not established. Two candidates, neither tested:
+   - floating-point differences near a threshold between the native Windows
+     build and Tricolour's Numba (main built on Windows is already known not to
+     reproduce Linux bytes);
+   - a window effect that only the whole-array data triggers.
+9. **The twin's target composite** misses 1e-5 on three of the seven target
+   scans only (1.7e-5 to 1.2e-4). The error is in amplitude and flat in channel;
+   the other four scans sit at 8e-6. Cause not established: F on each
+   gain-calibrator scan, or its interpolation in time.
+
+**Bug or limit (A0 6.5).** No rang bug was located with truth:
+- items 1 and 2 are CASA's own behaviour on the same data;
+- item 5 is C5's known limit;
+- items 3, 4, 7, 8 and 9 have no established cause.
+
+Nothing was fixed, so E1 did not rerun.
+
+## 9. Owner decisions (open)
+
+1. **The reference antenna for E1.**
+   - m000 separates implementation from strategy 1's leakage gauge (A1 2.5).
+     On this data it loses five antennas to CASA's K rule (section 8, item 1).
+   - `auto` keeps those antennas but brings back the gauge error.
+   - Either choice changes E1's numbers.
+2. **`image.niter`.** The default of 100,000 is too small for the
+   self-calibration images here. Raise the default, or set it per
+   configuration. A rerun of E1 with a larger value is a new, labelled run.
+3. **Whether E1 continues as frozen or becomes a diagnostic task.**
+   - The frozen gates mix two things. One is implementation: rang against CASA
+     and Tricolour. The other is the limits of CARACal's method on this truth:
+     the flat secondary model, KCROSS per scan before Df, and Stokes I
+     self-calibration.
+   - Proposed: add a CASA-chain arm on m32 and the twin (the sequence of C6w's
+     `check_c6w.py`). Each failure then splits into "CASA too" and "rang only".
+     Rerun E1 after C5b and G4.
+4. **The image scorer's convention** (section 8, item 7) must be fixed before
+   any rerun, and validated on the control first, as 4.3 requires.
+5. **The 530 flag cells that differ from Tricolour** (section 8, item 8). Next
+   step: probe one differing baseline's windows, natively and in a Linux build.
+
+## 10. Not checked
+
+- A CASA or QuartiCal chain on m32 or the twin. Only CASA's first K ran.
+- The full A1 MS: m32 holds only its first 32 integrations per scan.
+- An IQUV image (deviation 3.2 item 4). Polarisation was measured in the
+  visibility domain.
+- The `casa` parallactic frame (deviation 3.2 item 2).
+- Timing. No timing claim is made: the runs shared the host with task G4 under
+  the lock.
+- Whether a larger `niter`, a mask or `refant: auto` would change the verdicts.
+
+## 11. Timings
+
+Each run held `tools/heavy_lock.py`; lock waits are excluded unless stated.
+
+| Run | Wall |
+| --- | ---: |
+| generate m32 (6 spawned workers) | 104.5 s |
+| `rang-core run` on m32: flag, calibrate, apply, selfcal | 109.7 s, 723.0 s, 98.6 s, 764.1 s |
+| control: write `CORRECTED_TRUTH`, then image | 110.8 s, 133.8 s |
+| Tricolour 0.2.1 on m32 (WSL docker) | 20 min 25 s |
+| Tricolour 0.2.1 on A1 small | about 5 min (from taking the lock to END) |
+| CASA `gaincal` K on m32's flux calibrator | 46 s, container included |
+| scorer, target pass (polarisation and the selfcal Fisher sums) | 40 min 14 s from START, lock waits included (at most 36 min of work) |
+| twin: calibrate, apply | 3.1 s, 1.6 s |
+| dry run on A1 small | about 6 min (selfcal 345 s) |
+
+## 12. Files, and what is left on disk
+
+- Note, scripts and archive:
+  - this file;
+  - `results/e1-chain-scripts/`: `e1_config.yaml`, `e1_job.ps1`, `e1_run.py`,
+    `e1_score.py`, `e1_tricolour.sh`, `e1_tricolour.Dockerfile`,
+    `e1_casa_k.py`, `e1_flagdiff.py`, `e1_diag*.py`, `e1_verify_posthoc.py`;
+  - `results/e1-chain.json`.
+- `D:\rang\outputs\e1-20261109-*`, about 83 GB:
+
+  | Directory | Contents | Size |
+  | --- | --- | ---: |
+  | `-02-data` | m32 | 14 GB |
+  | `-03` | the scored copy, with its added columns | 52 GB |
+  | `-04-tricolour` | Tricolour's copy | 14 GB |
+  | `-01-dry` | the dry run | 3 GB |
+  | the others | | small |
+
+- The WSL image `rang-tricolour:0.2.1-e1`.
+
+## For the coordinator
+
+**`research/STATE.md`, new top entry:**
+
+> E1, 2026-11-09 (implemented, measured; [e1-chain.md](e1-chain.md)). The whole
+> chain through `rang-core run` (flag, CARACal's full-Stokes calibrate, apply,
+> selfcal Sp then Sa, image), on A1 full's first 32 integrations per scan (64
+> antennas, 256 channels). It exits 0; **no E1 gate is met as frozen**.
+> - Flags: recall 0.886, the same as Tricolour's. 530 of 288 M cells differ
+>   from Tricolour 0.2.1.
+> - Terms: every class-T measure fails, noisy and noise-free. CASA's own K flags
+>   the same five antennas (no baseline left to refant m000 after flagging) and
+>   makes the same 1.65 ns delay error.
+> - Image: the flux scorer is not validated (control 1.03); chain against
+>   control 0.993, scatter 0.8 %. Residual 3.2 × the true-gain control's. Every
+>   selfcal CLEAN stopped at `niter` 100,000.
+> - Polarisation: misses of 1.9–4.1° in χ and up to 0.7 points in p; leakage
+>   0.5–1.1 % against a 0.1 % gate. On the control the estimators pass.
+> - Selfcal: fails, as expected (C5's model absorption; C5b).
+> - No rang bug located. Before a rerun the owner decides refant, `niter` and a
+>   CASA-chain arm.
+
+**`research/README.md` index line:**
+
+> New, 2026-11-09: E1, [the whole chain on simulated truth](e1-chain.md): no
+> gate met as frozen; the causes found are shared with CASA, or not
+> established.
+
+**`research/finish-plan.md`:**
+- E1 row: "Run 2026-11-09 ([e1-chain.md](e1-chain.md)): no gate met as frozen,
+  no bug located; owner decisions in its section 9 before a rerun (after C5b
+  and G4)".
+- Section 7: add the decisions of section 9.
+
+**`research/tool-timings.md`:** the rows of section 11, added on this branch.

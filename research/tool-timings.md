@@ -1758,3 +1758,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-09 | G9 merge check 2 (main a2450aa build, merged build, criterion A, one smoke run) | D1, H1p | builds about 2.5 min each; runs as before | 2.11-6.86 GB | heavy lock; all identical |
 | 2026-11-09 | Native Windows `python -m rang.check` on main 91392bd (mirror, CRLF checkout, no test extras) | – | 17 min 51 s | – | FAIL: 30 tests (CRLF, missing extras, POSIX-only test stand-ins), gain-hash archive absent |
 | 2026-11-09 | Native Windows `python -m rang.check`, worktree native-check (2 runs, heavy_lock) | – | 19 min 33 s cold, 11 min 28 s warm | – | run 1: a1_simtruth fork; run 2: PASS, 1015 passed, gain-hash gate PASS |
+| 2026-11-09 | E1 `a1_simtruth.py generate full --max-per-scan 32` (6 spawned workers, native Windows) | m32, 1,124,928 rows × 256 ch | 104.5 s | – | heavy lock |
+| 2026-11-09 | E1 `rang-core run` flag, calibrate, apply, selfcal (native Windows) | m32 | 109.7 s, 723.0 s, 98.6 s, 764.1 s | – | heavy lock, host shared with G4 between jobs; every selfcal CLEAN stopped at niter 100,000 |
+| 2026-11-09 | E1 control: `CORRECTED_TRUTH` write, gemclean image | m32 target, 451,584 rows | 110.8 s, 133.8 s | – | |
+| 2026-11-09 | Tricolour 0.2.1 (`rang-tricolour:0.2.1-e1`, WSL docker), first-pass calibrator strategy | m32, 14 GB | 20 min 25 s | – | rang's flag stage on the same data: 109.7 s (not a timing claim) |
+| 2026-11-09 | Tricolour 0.2.1, same | A1 small | about 5 min | – | mostly Numba compilation |
+| 2026-11-09 | CASA 6.7.6.14 `gaincal` K (rang-o-casa) | m32 flux calibrator | 46 s | – | with the container |
+| 2026-11-09 | E1 scorer, target pass (DFT of 55 components, three columns) | m32 target | at most 40 min 14 s | – | lock waits included |
