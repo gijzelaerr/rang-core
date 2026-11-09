@@ -18,9 +18,10 @@
 use rang_core::clean_certified::{Complex, Measurement, misfit_floor};
 use rang_core::gemclean::fits::{self, Card, Value, card};
 use rang_core::gemclean::input::{self, Selection};
-use rang_core::gemclean::joined::{run_joined, run_joined_pols};
+use rang_core::gemclean::joined::{run_joined, run_joined_masked, run_joined_pols};
 use rang_core::gemclean::json::{arr, num, obj, opt, text};
 use rang_core::gemclean::kernels::{self, Level};
+use rang_core::gemclean::mask::{self, AutoMask, Masking};
 use rang_core::gemclean::measure::GridMeasurement;
 use rang_core::gemclean::memory::{self, bytes_of};
 use rang_core::gemclean::multiscale::{self, MultiscaleSettings};
@@ -30,7 +31,7 @@ use rang_core::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
 use rang_core::gemclean::stokes::{self, Pol};
 use rang_core::gemclean::{self, Beam, CycleStop, Settings};
 use rang_core::gridder_gram::{GramMeasurement, GramOperator, WExpansion};
-use rang_core::weights::WeightClass;
+use rang_core::weights::{UvTapers, WeightClass};
 use rang_core::wgridder::{Options, Real};
 
 #[cfg(all(target_os = "linux", target_pointer_width = "64"))]
@@ -138,7 +139,23 @@ Multiscale (research/g5-multiscale.md; WSClean's options and defaults):
   -multiscale-max-scales <n> at most n automatic scales (default 0: all that fit)
   -multiscale-scale-bias <b> bias towards larger scales, lower is stronger (default 0.6)
   -multiscale-shape <shape> tapered-quadratic (default) or gaussian
-  -multiscale-gain <g>      a sub-minor loop takes its scale's peak down by g (default 0.2)";
+  -multiscale-gain <g>      a sub-minor loop takes its scale's peak down by g (default 0.2)
+
+Selection and masks (research/g4-masks.md; WSClean's options):
+  -taper-gaussian <angle>   Gaussian taper of the weights, beam size (plain number: asec)
+  -taper-tukey <lambda>     Tukey transition below -maxuv-l
+  -taper-inner-tukey <l>    Tukey transition above -minuv-l
+  -taper-edge <lambda>      zero the weights within lambda of the uv grid's edge
+  -taper-edge-tukey <l>     Tukey transition inside the edge
+  -minuv-l / -maxuv-l <l>   uv distance range in wavelengths (on the weight grid's cells)
+  -minuvw-m / -maxuvw-m <m> baseline |uvw| range in metres (rows)
+  -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
+  -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
+                            on inside the mask of what was found, to the final threshold;
+                            takes -mgain or -minor-to-threshold
+  -abs-auto-mask <Jy>       the same with an absolute mask threshold
+  -auto-mask-nmiter <n>     major cycles after the mask is made (default 2)
+  -major-iteration-mode dual  radler's default (the only mode implemented)";
 
 struct Args {
     ms: PathBuf,
@@ -193,6 +210,23 @@ struct Args {
     scans: Vec<i32>,
     unit_weights: bool,
     multiscale: Option<MultiscaleSettings>,
+    /// Task G4: tapers and uv cuts of the weights, the |uvw| row range,
+    /// the masks (the FITS file is read in `run`).
+    tapers: UvTapers,
+    min_uvw_m: f64,
+    max_uvw_m: f64,
+    fits_mask: Option<PathBuf>,
+    auto_mask: Option<AutoMask>,
+    masking: Masking,
+}
+
+/// An angle with WSClean's units, in radians, a plain number in arcseconds
+/// (`Angle::Parse(..., kArcseconds)`, as `-taper-gaussian` reads it).
+fn parse_angle_asec(s: &str) -> Result<f64, String> {
+    match s.trim().parse::<f64>() {
+        Ok(v) => Ok((v / 3600.0).to_radians()),
+        Err(_) => parse_angle(s),
+    }
 }
 
 /// An angle with WSClean's units, in radians (plain numbers are degrees).
@@ -281,7 +315,14 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         scans: Vec::new(),
         unit_weights: false,
         multiscale: None,
+        tapers: UvTapers::default(),
+        min_uvw_m: 0.0,
+        max_uvw_m: 0.0,
+        fits_mask: None,
+        auto_mask: None,
+        masking: Masking::default(),
     };
+    let (mut am_sigma, mut am_abs, mut am_nmiter) = (None::<f64>, None::<f64>, 2usize);
     let mut ms = MultiscaleSettings::default();
     let (mut ms_on, mut ms_option) = (false, None::<&str>);
     let mut i = 0;
@@ -298,6 +339,16 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     };
     fn number<T: std::str::FromStr>(flag: &str, s: String) -> Result<T, String> {
         s.parse().map_err(|_| format!("{flag}: cannot read {s:?}"))
+    }
+    // WSClean's `ParseDouble(..., 0.0, ...)`: finite and not below zero.
+    fn non_negative(flag: &str, s: String) -> Result<f64, String> {
+        let v: f64 = number(flag, s)?;
+        if !v.is_finite() || v < 0.0 {
+            return Err(format!(
+                "Parameter value for {flag} was {v} but is not allowed to be smaller than 0"
+            ));
+        }
+        Ok(v)
     }
     while i < raw.len() {
         let flag = raw[i].as_str();
@@ -427,6 +478,41 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-fit-spectral-log-pol" => {
                 return Err("-fit-spectral-log-pol is not implemented (WSClean's non-linear                     power-law fitter is not ported; research/g3-spectral.md): use -fit-spectral-pol"
                     .into());
+            }
+            "-taper-gaussian" => a.tapers.gaussian_beam = parse_angle_asec(&value(&mut i)?)?,
+            "-taper-tukey" => a.tapers.tukey = non_negative(flag, value(&mut i)?)?,
+            "-taper-inner-tukey" => a.tapers.inner_tukey = non_negative(flag, value(&mut i)?)?,
+            "-taper-edge" => a.tapers.edge = non_negative(flag, value(&mut i)?)?,
+            "-taper-edge-tukey" => a.tapers.edge_tukey = non_negative(flag, value(&mut i)?)?,
+            "-minuv-l" => a.tapers.min_uv_l = non_negative(flag, value(&mut i)?)?,
+            "-maxuv-l" => a.tapers.max_uv_l = non_negative(flag, value(&mut i)?)?,
+            "-minuvw-m" => a.min_uvw_m = non_negative(flag, value(&mut i)?)?,
+            "-maxuvw-m" => a.max_uvw_m = non_negative(flag, value(&mut i)?)?,
+            "-fits-mask" => a.fits_mask = Some(PathBuf::from(value(&mut i)?)),
+            "-auto-mask" => am_sigma = Some(non_negative(flag, value(&mut i)?)?),
+            "-abs-auto-mask" => am_abs = Some(non_negative(flag, value(&mut i)?)?),
+            "-auto-mask-nmiter" => am_nmiter = number(flag, value(&mut i)?)?,
+            "-major-iteration-mode" => {
+                let v = value(&mut i)?;
+                if v != "dual" {
+                    return Err(format!(
+                        "-major-iteration-mode {v} is not implemented: only radler's default, \
+                         dual (research/g4-masks.md)"
+                    ));
+                }
+            }
+            "-local-rms"
+            | "-local-rms-strength"
+            | "-local-rms-window"
+            | "-local-rms-image"
+            | "-local-rms-method"
+            | "-casa-mask"
+            | "-horizon-mask"
+            | "-clean-border" => {
+                return Err(format!(
+                    "{flag} is not implemented (research/g4-masks.md; CARACal's selfcal leaves \
+                     -local-rms off by default)"
+                ));
             }
             "-multiscale" => ms_on = true,
             "-multiscale-scales" => {
@@ -573,6 +659,32 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 .into(),
         );
     }
+    if am_sigma.is_some() || am_abs.is_some() {
+        if a.auto_threshold.zip(am_sigma).is_some_and(|(t, m)| t >= m) {
+            return Err("The auto-masking threshold was smaller or equal to the \
+                 auto-threshold. This does not make sense. Did you accidentally reverse \
+                 the auto-mask and auto-threshold values?"
+                .into());
+        }
+        gemclean::auto_mask_mgain(a.cycle_stop)?;
+        a.auto_mask = Some(AutoMask {
+            sigma: am_sigma,
+            absolute: am_abs,
+            nmiter: am_nmiter,
+        });
+    }
+    if (a.auto_mask.is_some() || a.fits_mask.is_some())
+        && (a.pols.len() > 1
+            || a.gram_operator.is_some()
+            || a.audit
+            || matches!(a.cycle_stop, CycleStop::Certified { .. }))
+    {
+        return Err(
+            "-fits-mask and -auto-mask take one polarisation and neither -gram-operator, -audit \
+             nor -stop-rule certified (research/g4-masks.md)"
+                .into(),
+        );
+    }
     if let Some(flag) = ms_option.filter(|_| !ms_on) {
         return Err(format!("{flag} needs -multiscale"));
     }
@@ -690,7 +802,8 @@ fn deconvolve<T: Real + Send + Sync>(
     let theoretic = args
         .multiscale
         .as_ref()
-        .and_then(|_| multiscale::theoretic_beam(&uvw, freq, &wgt, n, args.scale));
+        .and_then(|_| multiscale::theoretic_beam(&uvw, freq, &wgt, n, args.scale))
+        .map(|b| b.max(args.tapers.gaussian_beam));
     // The plan of the image grid is made after the 2n PSF, which does not use it.
     let measurement: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
         uvw,
@@ -815,16 +928,19 @@ fn deconvolve<T: Real + Send + Sync>(
     }
     let psf2n_bytes = bytes_of(&psf2n);
     drop(psf2n);
+    let masking = args.masking.is_active().then_some(&args.masking);
     if let Some(ms) = &args.multiscale {
-        let out = multiscale::run_multiscale(
+        let out = multiscale::run_multiscale_masked(
             &[(&measurement, &beam, &psf[..])],
             &[1.0],
             None,
             &settings,
             ms,
             theoretic.map_or(0.0, |b| b / args.scale),
+            masking,
         )?;
         print_multiscale(&out, theoretic);
+        report_masking(args, &[out.joined.auto.as_ref()], &[&out.joined.integrated])?;
         memory::mark("clean: end");
         memory::note("psf 2n image (freed before the run)", psf2n_bytes);
         memory::note("psf n x n crop", bytes_of(&psf));
@@ -844,6 +960,18 @@ fn deconvolve<T: Real + Send + Sync>(
         });
     }
     let outcome = match gram_operator {
+        None if masking.is_some() => {
+            let (o, auto) = gemclean::run_masked(
+                &measurement,
+                &beam,
+                &settings,
+                q_floor,
+                stop_bound.as_ref(),
+                masking,
+            )?;
+            report_masking(args, &[auto.as_ref()], &[&o])?;
+            o
+        }
         None => {
             gemclean::run_with_bound(&measurement, &beam, &settings, q_floor, stop_bound.as_ref())?
         }
@@ -893,6 +1021,73 @@ fn deconvolve<T: Real + Send + Sync>(
     })
 }
 
+/// The masks of a run (task G4): one log line per auto-masked major cycle
+/// and `<name>-mask.json` (nothing without a mask).
+fn report_masking(
+    args: &Args,
+    autos: &[Option<&mask::AutoState>],
+    outcomes: &[&gemclean::Outcome],
+) -> Result<(), String> {
+    if !args.masking.is_active() {
+        return Ok(());
+    }
+    // Picks outside the FITS mask (meaningful without the automatic mask,
+    // whose phase 2 the FITS mask does not bind in multiscale).
+    let fits_outside = args.masking.fits.as_ref().map(|m| {
+        outcomes
+            .iter()
+            .flat_map(|o| o.steps.iter())
+            .filter(|s| !m[s.pixel])
+            .count()
+    });
+    let pixels = args
+        .masking
+        .fits
+        .as_ref()
+        .map(|m| m.iter().filter(|&&v| v).count());
+    if let Some(p) = pixels {
+        println!("fits mask: {p} pixels");
+    }
+    let mut runs = Vec::new();
+    for a in autos.iter().flatten() {
+        for c in &a.cycles {
+            println!(
+                "auto-mask: major iteration {}, sigma {:.6e} Jy, threshold {:.6e} Jy{}{}",
+                c.index,
+                c.sigma,
+                c.threshold,
+                if c.phase2 { ", in the mask" } else { "" },
+                match c.continued {
+                    Some(k) => format!(
+                        "; continued in the mask at gain {:.4}, threshold {:.6e} Jy",
+                        k.gain, k.threshold
+                    ),
+                    None => String::new(),
+                }
+            );
+        }
+        if let Some(i) = a.finishing {
+            println!("auto-mask: threshold reached in major iteration {i}");
+        }
+        runs.push(a.to_json());
+    }
+    let json = obj(&[
+        ("fits_mask_pixels", opt(pixels.map(|p| p as f64))),
+        ("fits_outside_picks", opt(fits_outside.map(|p| p as f64))),
+        (
+            "picks",
+            outcomes
+                .iter()
+                .map(|o| o.steps.len())
+                .sum::<usize>()
+                .to_string(),
+        ),
+        ("auto", arr(&runs)),
+    ]);
+    let path = format!("{}-mask.json", args.name);
+    std::fs::write(&path, json + "\n").map_err(|e| format!("{path}: {e}"))
+}
+
 /// WSClean's theoretic beam and the multiscale summary.
 fn print_multiscale(out: &multiscale::Multiscale, theoretic: Option<f64>) {
     println!(
@@ -909,7 +1104,11 @@ fn print_multiscale(out: &multiscale::Multiscale, theoretic: Option<f64>) {
 fn run() -> Result<(), String> {
     let wall = Instant::now();
     let raw: Vec<String> = std::env::args().skip(1).collect();
-    let args = parse_args(&raw)?;
+    let mut args = parse_args(&raw)?;
+    if let Some(p) = &args.fits_mask {
+        args.masking.fits = Some(mask::read_fits_mask(p, args.size)?);
+    }
+    args.masking.auto = args.auto_mask;
     if let Some(t) = args.threads {
         rayon::ThreadPoolBuilder::new()
             .num_threads(t)
@@ -938,6 +1137,8 @@ fn run() -> Result<(), String> {
         polarization: args.pols[0],
         scans: args.scans.clone(),
         unit_weights: args.unit_weights,
+        min_uvw_m: args.min_uvw_m,
+        max_uvw_m: args.max_uvw_m,
         ..Selection::default()
     };
     if args.pols.len() > 1 {
@@ -970,7 +1171,8 @@ fn run() -> Result<(), String> {
         bytes_of(&data.uvw) + bytes_of(&data.flag_row),
     );
     let t = Instant::now();
-    let mut weights = input::gridding_weights(&data, args.weight, n, args.scale)?;
+    let mut weights =
+        input::gridding_weights_tapered(&data, args.weight, n, args.scale, &args.tapers)?;
     let t_weights = t.elapsed().as_secs_f64();
     memory::mark("weights");
     memory::note("weights: gridding weights", bytes_of(&weights.weights));
@@ -1345,11 +1547,12 @@ fn split_channels(
     let nchan = data.freq.len();
     let rows = data.rows();
     let full = if mf {
-        Some(input::gridding_weights(
+        Some(input::gridding_weights_tapered(
             &data,
             args.weight,
             args.size,
             args.scale,
+            &args.tapers,
         )?)
     } else {
         None
@@ -1396,7 +1599,14 @@ fn split_channels(
                     correlations: data.correlations.clone(),
                     weight_spectrum: data.weight_spectrum,
                 };
-                input::gridding_weights(&sub, args.weight, args.size, args.scale)?.weights
+                input::gridding_weights_tapered(
+                    &sub,
+                    args.weight,
+                    args.size,
+                    args.scale,
+                    &args.tapers,
+                )?
+                .weights
             }
         };
         // WSClean's counters over this channel's visibilities (flagged rows
@@ -1486,6 +1696,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         chans
             .iter()
             .filter_map(|c| multiscale::theoretic_beam(&c.uvw, &c.freq, &c.wgt, n, args.scale))
+            .map(|b| b.max(args.tapers.gaussian_beam))
             .reduce(f64::min)
     });
     for c in chans {
@@ -1543,6 +1754,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
     };
     let beam_peak = beams.iter().map(|b| b.peak).collect();
     let beam_f = beams.iter().map(|b| b.f).collect();
+    let masking = args.masking.is_active().then_some(&args.masking);
     if let Some(ms) = &args.multiscale {
         let beam_pixels = theoretic.map_or(0.0, |b| b / args.scale);
         let fit = args
@@ -1557,23 +1769,25 @@ fn deconvolve_channels<T: Real + Send + Sync>(
                 .zip(&psfs)
                 .map(|((m, b), p)| (m, b, &p[..]))
                 .collect();
-            runs.push(multiscale::run_multiscale(
+            runs.push(multiscale::run_multiscale_masked(
                 &triples,
                 weights,
                 fit.as_ref(),
                 &settings,
                 ms,
                 beam_pixels,
+                masking,
             )?);
         } else {
             for ((m, b), p) in measurements.iter().zip(&beams).zip(&psfs) {
-                runs.push(multiscale::run_multiscale(
+                runs.push(multiscale::run_multiscale_masked(
                     &[(m, b, &p[..])],
                     &[1.0],
                     None,
                     &settings,
                     ms,
                     beam_pixels,
+                    masking,
                 )?);
                 memory::mark(&format!("channel {}: clean", runs.len() - 1));
             }
@@ -1582,6 +1796,17 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         for r in &runs {
             print_multiscale(r, theoretic);
         }
+        report_masking(
+            args,
+            &runs
+                .iter()
+                .map(|r| r.joined.auto.as_ref())
+                .collect::<Vec<_>>(),
+            &runs
+                .iter()
+                .map(|r| &r.joined.integrated)
+                .collect::<Vec<_>>(),
+        )?;
         let json = arr(&runs
             .iter()
             .map(|r| r.to_json(ms, theoretic))
@@ -1619,7 +1844,12 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         let fit = args
             .fit_spectral_pol
             .map(|terms| PolynomialFit::new(terms, central.to_vec(), weights.to_vec()));
-        let j = run_joined(&pairs, weights, fit.as_ref(), &settings)?;
+        let j = if masking.is_some() {
+            run_joined_masked(&pairs, 1, weights, 1.0, fit.as_ref(), &settings, masking)?
+        } else {
+            run_joined(&pairs, weights, fit.as_ref(), &settings)?
+        };
+        report_masking(args, &[j.auto.as_ref()], &[&j.integrated])?;
         memory::mark("clean: end");
         Ok(ChannelImages {
             psf: psfs,
@@ -1637,10 +1867,22 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         })
     } else {
         let mut separate = Vec::with_capacity(measurements.len());
+        let mut autos = Vec::new();
         for (m, b) in measurements.iter().zip(&beams) {
-            separate.push(gemclean::run(m, b, &settings, None)?);
+            if masking.is_some() {
+                let (o, auto) = gemclean::run_masked(m, b, &settings, None, None, masking)?;
+                separate.push(o);
+                autos.push(auto);
+            } else {
+                separate.push(gemclean::run(m, b, &settings, None)?);
+            }
             memory::mark(&format!("channel {}: clean", separate.len() - 1));
         }
+        report_masking(
+            args,
+            &autos.iter().map(|a| a.as_ref()).collect::<Vec<_>>(),
+            &separate.iter().collect::<Vec<_>>(),
+        )?;
         Ok(ChannelImages {
             psf: psfs,
             restoring,
@@ -2327,7 +2569,8 @@ fn run_polarizations(
             if !cache.iter().any(|(c, _)| *c == key) {
                 let src: Vec<&input::StokesI> = sources.iter().map(|&s| &data[s]).collect();
                 let chans = if mf { &all } else { group };
-                let w = stokes::imaging_weights(&src, chans, args.weight, n, args.scale)?;
+                let w =
+                    stokes::imaging_weights(&src, chans, args.weight, n, args.scale, &args.tapers)?;
                 cache.push((key.clone(), w));
             }
             let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
@@ -2721,6 +2964,8 @@ fn write_model(args: &Args) -> Result<(predict::Written, f64), String> {
     let sel = Selection {
         field: args.field,
         scans: args.scans.clone(),
+        min_uvw_m: args.min_uvw_m,
+        max_uvw_m: args.max_uvw_m,
         ..Selection::default()
     };
     let band = input::band(&args.ms, &sel)?;

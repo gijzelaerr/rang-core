@@ -240,7 +240,9 @@ def _tasks(path, stages=None):
 def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
     # Since task C2e (research/c2e-calibrate.md) K, G, B, A and F run, and
     # since task C5 (research/c5-selfcal.md) the selfcal rounds.
-    assert _tasks(DATA / "e2a.yaml") == {"G4"}
+    # Since task G4 (research/g4-masks.md) the automatic mask runs; E2-A's
+    # needs an mgain, a configuration refusal (no task left).
+    assert _tasks(DATA / "e2a.yaml") == set()
     # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run,
     # and since task E0 (research/e0-refant-extend.md) refant auto and
     # extendflags; since task W6 (research/w6-imaging-inputs.md) data.scans and
@@ -727,7 +729,8 @@ def test_config_check_and_defaults(tmp_path, capsys):
     with pytest.raises(SystemExit):
         cli("config", "check", DATA / "e2a.yaml")
     err = capsys.readouterr().err
-    assert "task G4" in err and "task C2" not in err  # K, G, B, A run (C2e)
+    assert "image.auto_mask" in err and "task C2" not in err  # K, G, B, A run (C2e)
+    assert "task G4" not in err  # masks run (G4)
     assert "task C5" not in err  # selfcal runs (C5)
     cli("config", "defaults")
     assert capsys.readouterr().out == core_config.defaults_yaml()
@@ -790,6 +793,71 @@ def test_the_multiscale_image_options_reach_gemclean():
         "image.multiscale_gain",
     } <= refused
     assert "G5" not in core_config.TASKS
+
+
+def test_the_mask_taper_and_uv_options_reach_gemclean():
+    """G4 (research/g4-masks.md): masks, tapers and uv limits are passed to
+    gemclean only when set; the automatic mask needs mgain and an
+    auto_threshold below it."""
+    image = {
+        "size": [64, 64],
+        "scale": "2asec",
+        "mgain": 0.8,
+        "auto_threshold": 1.0,
+        "auto_mask": 6.0,
+        "abs_auto_mask": 0.001,
+        "auto_mask_nmiter": 3,
+        "fits_mask": "mask.fits",
+        "taper_gaussian": "10asec",
+        "taper_tukey": 5000.0,
+        "taper_inner_tukey": 200.0,
+        "minuv_l": 300.0,
+        "maxuv_l": 20000.0,
+        "minuvw_m": 150.0,
+        "maxuvw_m": 5000.0,
+    }
+    config, errors = core_config.resolve({"version": 1, "image": image})
+    assert errors == []
+    assert [
+        r for r in core_config.refusals(config, ["image"]) if r.path.startswith("image")
+    ] == []
+    args = pipe.gemclean_arguments(config["image"], "DATA", 0, "out/img", "x.ms")
+    pairs = list(itertools.pairwise(args))
+    for flag, value in (
+        ("-auto-mask", "6.0"),
+        ("-abs-auto-mask", "0.001"),
+        ("-auto-mask-nmiter", "3"),
+        ("-fits-mask", "mask.fits"),
+        ("-taper-gaussian", "10asec"),
+        ("-taper-tukey", "5000.0"),
+        ("-taper-inner-tukey", "200.0"),
+        ("-minuv-l", "300.0"),
+        ("-maxuv-l", "20000.0"),
+        ("-minuvw-m", "150.0"),
+        ("-maxuvw-m", "5000.0"),
+    ):
+        assert (flag, value) in pairs
+    plain, _ = core_config.resolve(
+        {"version": 1, "image": {"size": [64, 64], "scale": "2asec"}}
+    )
+    flags = pipe.gemclean_arguments(plain["image"], "DATA", 0, "out/img", "x.ms")
+    assert not [f for f in flags if "mask" in f or "taper" in f or "uv" in f]
+    bad, _ = core_config.resolve(
+        {
+            "version": 1,
+            "image": {
+                "size": [64, 64],
+                "scale": "2asec",
+                "auto_mask": 3.0,
+                "auto_threshold": 3.0,
+                "uvrange": ">150",
+                "pol": "IQUV",
+            },
+        }
+    )
+    refused = {r.path for r in core_config.refusals(bad, ["image"])}
+    assert {"image.auto_mask", "image.auto_threshold", "image.uvrange"} <= refused
+    assert "G4" not in core_config.TASKS
 
 
 def test_the_spectral_image_options_reach_gemclean():

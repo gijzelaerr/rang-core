@@ -1758,3 +1758,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-09 | G9 merge check 2 (main a2450aa build, merged build, criterion A, one smoke run) | D1, H1p | builds about 2.5 min each; runs as before | 2.11-6.86 GB | heavy lock; all identical |
 | 2026-11-09 | Native Windows `python -m rang.check` on main 91392bd (mirror, CRLF checkout, no test extras) | – | 17 min 51 s | – | FAIL: 30 tests (CRLF, missing extras, POSIX-only test stand-ins), gain-hash archive absent |
 | 2026-11-09 | Native Windows `python -m rang.check`, worktree native-check (2 runs, heavy_lock) | – | 19 min 33 s cold, 11 min 28 s warm | – | run 1: a1_simtruth fork; run 2: PASS, 1015 passed, gain-hash gate PASS |
+| 2026-11-09 | G4 native Windows `python -m rang.check` (runs 1-4, heavy_lock) | worktree fp-g4-masks | run 4: 11 min 55 s | – | run 1: 2 clippy lints, stale docs/cli.md; runs 2, 3 killed (halt, session restart); run 4: only the research-index test fails |

@@ -41,7 +41,6 @@ ROLES = ("fcal", "bpcal", "gcal", "xcal", "target")
 # (research/finish-plan.md; C1's steps in research/c1-calibration-chain.md, 6).
 TASKS = {
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
-    "G4": "masks, tapers and an imaging uv range",
 }
 
 TERM_TYPES = (
@@ -358,10 +357,34 @@ SCHEMA = {
         "average_channels": _k(
             1, "int", "adjacent channels averaged before imaging (rang's own)"
         ),
-        "auto_mask": _k(None, "float?", "automatic mask at this many sigma"),
-        "fits_mask": _k(None, "path?", "a FITS mask"),
-        "taper_gaussian": _k(None, "str?", "a Gaussian taper, such as 10asec"),
-        "uvrange": _k("", "str", "baselines imaged"),
+        "auto_mask": _k(
+            None,
+            "float?",
+            "radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)",
+        ),
+        "abs_auto_mask": _k(
+            None, "float?", "the automatic mask at this many Jy (-abs-auto-mask)"
+        ),
+        "auto_mask_nmiter": _k(
+            None, "int?", "major cycles after the mask is made (null: WSClean's 2)"
+        ),
+        "fits_mask": _k(None, "path?", "a FITS mask of the image's size, one plane"),
+        "taper_gaussian": _k(
+            None, "str?", "a Gaussian taper, such as 10asec (a plain number is asec)"
+        ),
+        "taper_tukey": _k(
+            None, "float?", "Tukey transition below maxuv_l, wavelengths"
+        ),
+        "taper_inner_tukey": _k(
+            None, "float?", "Tukey transition above minuv_l, wavelengths"
+        ),
+        "minuv_l": _k(None, "float?", "shortest uv distance imaged, wavelengths"),
+        "maxuv_l": _k(None, "float?", "longest uv distance imaged, wavelengths"),
+        "minuvw_m": _k(None, "float?", "shortest baseline |uvw| imaged, metres"),
+        "maxuvw_m": _k(None, "float?", "longest baseline |uvw| imaged, metres"),
+        "uvrange": _k(
+            "", "str", "not read: use minuv_l, maxuv_l, minuvw_m and maxuvw_m"
+        ),
         "multiscale": _k(False, "bool", "multiscale CLEAN (WSClean's -multiscale)"),
         "multiscale_scales": _k(
             None, "floats?", "scales in pixels (null: WSClean's automatic scales)"
@@ -1092,14 +1115,66 @@ def refusals(config, stages):
                     "needs at least one term, join_channels and channels_out of 2 or more",
                 )
             )
-        for key, default, task in (
-            ("auto_mask", None, "G4"),
-            ("fits_mask", None, "G4"),
-            ("taper_gaussian", None, "G4"),
-            ("uvrange", "", "G4"),
+        # Task G4 (research/g4-masks.md).
+        if img["uvrange"] != "":
+            out.append(
+                Refusal(
+                    "image.uvrange",
+                    "",
+                    "a CASA-style range is not read for imaging: use minuv_l, maxuv_l "
+                    "(wavelengths), minuvw_m and maxuvw_m (metres)",
+                )
+            )
+        masked = img["auto_mask"] is not None or img["abs_auto_mask"] is not None
+        if masked and img["mgain"] is None:
+            out.append(
+                Refusal(
+                    "image.auto_mask",
+                    "",
+                    "the automatic mask needs mgain (radler's mask stages are defined on "
+                    "WSClean's -mgain; gemclean's measured rule has no counterpart)",
+                )
+            )
+        if (
+            img["auto_mask"] is not None
+            and img["auto_threshold"] is not None
+            and img["auto_threshold"] >= img["auto_mask"]
         ):
-            if img[key] != default:
-                no(f"image.{key}", task, f"{key}: {img[key]!r}")
+            out.append(
+                Refusal(
+                    "image.auto_threshold",
+                    "",
+                    "must be below auto_mask (WSClean refuses the reverse)",
+                )
+            )
+        for key in (
+            "auto_mask",
+            "abs_auto_mask",
+            "taper_tukey",
+            "taper_inner_tukey",
+            "minuv_l",
+            "maxuv_l",
+            "minuvw_m",
+            "maxuvw_m",
+        ):
+            if img[key] is not None and img[key] < 0:
+                out.append(Refusal(f"image.{key}", "", "must not be negative"))
+        if img["auto_mask_nmiter"] is not None and not masked:
+            out.append(Refusal("image.auto_mask_nmiter", "", "needs auto_mask"))
+        try:
+            npol = len(parse_pol(img["pol"]))
+        except ValueError:
+            npol = 1
+        if (masked or img["fits_mask"] is not None) and npol > 1:
+            out.append(
+                Refusal(
+                    "image.fits_mask"
+                    if img["fits_mask"] is not None
+                    else "image.auto_mask",
+                    "",
+                    "masks take one polarisation (research/g4-masks.md)",
+                )
+            )
         try:
             pols = parse_pol(img["pol"])
         except ValueError as e:

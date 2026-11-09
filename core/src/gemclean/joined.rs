@@ -40,6 +40,8 @@ pub struct Joined {
     pub model: Vec<Vec<f64>>,
     pub residual: Vec<Vec<f64>>,
     pub q_final: Vec<f64>,
+    /// The automatic mask's record (task G4).
+    pub auto: Option<super::mask::AutoState>,
 }
 
 /// `Σ a_k x_k` per pixel, in channel order.
@@ -147,6 +149,22 @@ pub fn run_joined_pols<M: Measurement>(
     fit: Option<&PolynomialFit>,
     settings: &Settings,
 ) -> Result<Joined, String> {
+    run_joined_masked(entries, npol, weights, norm, fit, settings, None)
+}
+
+/// [`run_joined_pols`] with clean masks (task G4, `research/g4-masks.md`),
+/// as [`super::run_masked`]: the masks act on the integrated residual, and
+/// radler's Högbom mask is the union of the entries' nonzero model pixels.
+pub fn run_joined_masked<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    masking: Option<&super::mask::Masking>,
+) -> Result<Joined, String> {
+    use super::mask;
     let channels = entries;
     if npol == 0 || entries.len() != weights.len() * npol {
         return Err("one weight per channel and npol entries per channel are needed".into());
@@ -216,10 +234,47 @@ pub fn run_joined_pols<M: Measurement>(
     let mut work_all = Work::default();
     let mut values = vec![0.0; kc];
     let mut exact = vec![0.0; kc];
+    let fits_mask = masking.and_then(|m| m.fits.clone());
+    let mut auto = match masking.and_then(|m| m.auto) {
+        Some(am) => Some(mask::AutoState::new(
+            am,
+            s.auto_threshold,
+            s.threshold,
+            super::auto_mask_mgain(s.cycle_stop)?,
+        )),
+        None => None,
+    };
+    let mut auto_pixels: Option<Vec<bool>> = None;
+    let mut another_prev = true;
     let stop = loop {
-        let threshold = effective_threshold(&residual_int, s);
-        let (_, peak) = argmax_abs(&residual_int);
-        if peak.abs() < threshold {
+        let index = cycles.len() + 1;
+        let mut gain = s.gain;
+        let (mut threshold, stage_mask) = match auto.as_mut() {
+            None => (effective_threshold(&residual_int, s), fits_mask.clone()),
+            Some(am) => {
+                if !another_prev {
+                    break StopReason::Threshold;
+                }
+                let c = am.begin(index, &residual_int);
+                if c.gain_doubled {
+                    gain = (2.0 * s.gain).min(1.0);
+                }
+                if c.use_auto {
+                    if auto_pixels.is_none() {
+                        let refs: Vec<&[f64]> = models.iter().map(|m| m.as_slice()).collect();
+                        auto_pixels = Some(mask::from_models(&refs));
+                    }
+                    (c.threshold, auto_pixels.clone())
+                } else {
+                    (c.threshold, fits_mask.clone())
+                }
+            }
+        };
+        let peak = match &stage_mask {
+            None => argmax_abs(&residual_int).1,
+            Some(m) => mask::masked_peak(&residual_int, Some(m)).map_or(0.0, |p| p.1),
+        };
+        if auto.is_none() && peak.abs() < threshold {
             break StopReason::Threshold;
         }
         if steps.len() >= s.max_components {
@@ -231,6 +286,9 @@ pub fn run_joined_pols<M: Measurement>(
         let mut ct = Timings::default();
         let models_major = models.clone();
         let mut work = Working::new(residual_int.clone(), n, level, s.tile, s.lazy_bounds);
+        if stage_mask.is_some() {
+            work.set_mask(stage_mask.as_deref());
+        }
         let mut maps = residuals.clone();
         let mut since: Vec<Since> = (0..kc).map(|_| Since::default()).collect();
         let mut predicted = 0.0;
@@ -238,9 +296,13 @@ pub fn run_joined_pols<M: Measurement>(
         let mut tau_min = f64::INFINITY;
         let mut abs_flux = 0.0_f64;
         let goal = fraction * q.max(0.0);
-        let first_peak = peak.abs();
+        let mut first_peak = peak.abs();
         let stale_used = stale_per_flux;
-        let taken_before = steps.len();
+        let mut taken_before = steps.len();
+        let cycle_taken = taken_before;
+        let mut stop_rule = s.cycle_stop;
+        let mut stage = 0;
+        let mut last_r: f64;
         let minor_start = Instant::now();
         macro_rules! resync {
             () => {{
@@ -256,105 +318,150 @@ pub fn run_joined_pols<M: Measurement>(
                 ct.resync += tr.elapsed().as_secs_f64();
             }};
         }
-        let minor_stop = loop {
-            let (p, rt) = work.argmax();
-            let tc = Instant::now();
-            let mut r = 0.0;
-            for k in 0..kc {
-                let (beam, sk) = (channels[k].1, &since[k]);
-                let corr = if sk.keys.is_empty() || beam.f == 0.0 {
-                    0.0
-                } else {
-                    correction_terms += sk.keys.len() as u64;
-                    kernels::gather_sum(level, &beam.exterior, beam.base(p), &sk.keys, &sk.flux)
-                };
-                exact[k] = maps[k][p] - corr;
-                r += a[k] * exact[k];
-            }
-            ct.correction += tc.elapsed().as_secs_f64();
-            let pending = since[0].steps;
-            if r.abs() < threshold || r == 0.0 {
-                if pending == 0 {
+        let minor_stop = 'stages: loop {
+            let stage_stop = loop {
+                let (p, rt) = work.argmax();
+                if p == usize::MAX {
+                    last_r = 0.0;
                     break MinorStop::Threshold;
                 }
-                resync!();
-                resyncs.threshold += 1;
-                continue;
-            }
-            let mut e = 0.0;
-            for k in 0..kc {
-                let beam = channels[k].1;
-                e += a[k] * (beam.f * beam.peak * since[k].abs_sum);
-            }
-            let tau = r.abs() / (rt.abs() + e);
-            if tau < s.tau_min {
-                resync!();
-                resyncs.tau += 1;
-                continue;
-            }
-            if steps.len() >= s.max_components {
-                break MinorStop::Budget;
-            }
-            if steps.len() > taken_before {
-                let stop_here = match s.cycle_stop {
-                    CycleStop::PeakFraction(g) => r.abs() < (1.0 - g) * first_peak,
-                    CycleStop::MeasuredStale { rho, g, floor } => {
-                        if cycles.is_empty() {
-                            r.abs() < (1.0 - g) * first_peak
-                        } else {
-                            r.abs() <= (rho * stale_used * abs_flux).max(floor * first_peak)
+                let tc = Instant::now();
+                let mut r = 0.0;
+                for k in 0..kc {
+                    let (beam, sk) = (channels[k].1, &since[k]);
+                    let corr = if sk.keys.is_empty() || beam.f == 0.0 {
+                        0.0
+                    } else {
+                        correction_terms += sk.keys.len() as u64;
+                        kernels::gather_sum(level, &beam.exterior, beam.base(p), &sk.keys, &sk.flux)
+                    };
+                    exact[k] = maps[k][p] - corr;
+                    r += a[k] * exact[k];
+                }
+                ct.correction += tc.elapsed().as_secs_f64();
+                last_r = r;
+                let pending = since[0].steps;
+                if r.abs() < threshold || r == 0.0 {
+                    if pending == 0 {
+                        break MinorStop::Threshold;
+                    }
+                    resync!();
+                    resyncs.threshold += 1;
+                    continue;
+                }
+                let mut e = 0.0;
+                for k in 0..kc {
+                    let beam = channels[k].1;
+                    e += a[k] * (beam.f * beam.peak * since[k].abs_sum);
+                }
+                let tau = r.abs() / (rt.abs() + e);
+                if tau < s.tau_min {
+                    resync!();
+                    resyncs.tau += 1;
+                    continue;
+                }
+                if steps.len() >= s.max_components {
+                    break MinorStop::Budget;
+                }
+                if steps.len() > taken_before {
+                    let stop_here = match stop_rule {
+                        CycleStop::PeakFraction(g) => r.abs() < (1.0 - g) * first_peak,
+                        CycleStop::MeasuredStale { rho, g, floor } => {
+                            if cycles.is_empty() {
+                                r.abs() < (1.0 - g) * first_peak
+                            } else {
+                                r.abs() <= (rho * stale_used * abs_flux).max(floor * first_peak)
+                            }
+                        }
+                        CycleStop::Certified { .. }
+                        | CycleStop::MisfitFraction
+                        | CycleStop::Threshold => false,
+                    };
+                    if stop_here {
+                        break MinorStop::PeakRule;
+                    }
+                }
+                for k in 0..kc {
+                    values[k] = gain * exact[k] / channels[k].1.peak;
+                }
+                if let Some(f) = fit {
+                    if npol == 1 {
+                        f.fit_and_evaluate(&mut values);
+                    } else {
+                        for p in 0..npol {
+                            let mut one: Vec<f64> =
+                                (0..nch).map(|k| values[k * npol + p]).collect();
+                            f.fit_and_evaluate(&mut one);
+                            for (k, v) in one.into_iter().enumerate() {
+                                values[k * npol + p] = v;
+                            }
                         }
                     }
-                    CycleStop::Certified { .. }
-                    | CycleStop::MisfitFraction
-                    | CycleStop::Threshold => false,
+                }
+                for k in 0..kc {
+                    let (beam, c) = (channels[k].1, values[k]);
+                    abs_flux += a[k] * c.abs();
+                    models[k][p] += c;
+                    // The misfit change of the step, −c r + c² b(0)/2, in general form:
+                    // after a fit c is no longer γ r / b(0).
+                    predicted -= a[k] * (c * exact[k] - 0.5 * c * c * beam.peak);
+                    subtract_patch(level, &mut maps[k], n, beam, p, c);
+                    work.subtract_patch(beam, p, a[k] * c);
+                    since[k].add(p, beam.key(p), c);
+                }
+                steps.push(CleanStep { pixel: p, peak: r });
+                if let Some(am) = auto.as_mut() {
+                    am.record_pick(work.mask.as_deref(), p);
+                }
+                taus.push(tau);
+                tau_min = tau_min.min(tau);
+                if s.cycle_stop == CycleStop::MisfitFraction && goal > 0.0 && -predicted >= goal {
+                    break MinorStop::MajorFraction;
+                }
+                let drifted = (r - rt).abs() > s.drift * rt.abs();
+                if drifted || since[0].steps >= s.resync_every {
+                    resync!();
+                    if drifted {
+                        resyncs.drift += 1;
+                    } else {
+                        resyncs.every += 1;
+                    }
+                }
+            };
+            // The automatic mask (task G4), as in `run_masked`.
+            if let Some(am) = auto.as_mut().filter(|_| stage == 0) {
+                stage = 1;
+                let did_work = steps.len() > taken_before;
+                let end = mask::StageEnd {
+                    another: stage_stop == MinorStop::PeakRule && did_work,
+                    start_peak: first_peak,
+                    end_peak: last_r.abs(),
                 };
-                if stop_here {
-                    break MinorStop::PeakRule;
-                }
-            }
-            for k in 0..kc {
-                values[k] = s.gain * exact[k] / channels[k].1.peak;
-            }
-            if let Some(f) = fit {
-                if npol == 1 {
-                    f.fit_and_evaluate(&mut values);
-                } else {
-                    for p in 0..npol {
-                        let mut one: Vec<f64> = (0..nch).map(|k| values[k * npol + p]).collect();
-                        f.fit_and_evaluate(&mut one);
-                        for (k, v) in one.into_iter().enumerate() {
-                            values[k * npol + p] = v;
-                        }
+                let (another, cont) = am.end_stage(
+                    index,
+                    end,
+                    index < s.max_major,
+                    steps.len() < s.max_components,
+                );
+                another_prev = another;
+                if let Some(k) = cont {
+                    if since[0].steps > 0 {
+                        resync!();
                     }
+                    if auto_pixels.is_none() {
+                        let refs: Vec<&[f64]> = models.iter().map(|m| m.as_slice()).collect();
+                        auto_pixels = Some(mask::from_models(&refs));
+                    }
+                    work.set_mask(auto_pixels.as_deref());
+                    let (p, rt) = work.argmax();
+                    first_peak = if p == usize::MAX { 0.0 } else { rt.abs() };
+                    threshold = k.threshold;
+                    stop_rule = CycleStop::PeakFraction(k.gain);
+                    taken_before = steps.len();
+                    continue 'stages;
                 }
             }
-            for k in 0..kc {
-                let (beam, c) = (channels[k].1, values[k]);
-                abs_flux += a[k] * c.abs();
-                models[k][p] += c;
-                // The misfit change of the step, −c r + c² b(0)/2, in general form:
-                // after a fit c is no longer γ r / b(0).
-                predicted -= a[k] * (c * exact[k] - 0.5 * c * c * beam.peak);
-                subtract_patch(level, &mut maps[k], n, beam, p, c);
-                work.subtract_patch(beam, p, a[k] * c);
-                since[k].add(p, beam.key(p), c);
-            }
-            steps.push(CleanStep { pixel: p, peak: r });
-            taus.push(tau);
-            tau_min = tau_min.min(tau);
-            if s.cycle_stop == CycleStop::MisfitFraction && goal > 0.0 && -predicted >= goal {
-                break MinorStop::MajorFraction;
-            }
-            let drifted = (r - rt).abs() > s.drift * rt.abs();
-            if drifted || since[0].steps >= s.resync_every {
-                resync!();
-                if drifted {
-                    resyncs.drift += 1;
-                } else {
-                    resyncs.every += 1;
-                }
-            }
+            break stage_stop;
         };
         if since[0].steps > 0 {
             resync!();
@@ -384,7 +491,7 @@ pub fn run_joined_pols<M: Measurement>(
         let gap = dq_exact - predicted;
         cycles.push(Cycle {
             index: cycles.len(),
-            components: steps.len() - taken_before,
+            components: steps.len() - cycle_taken,
             resyncs,
             stop: minor_stop,
             peak_start: peak.abs(),
@@ -451,6 +558,7 @@ pub fn run_joined_pols<M: Measurement>(
         model: models,
         residual: residuals,
         q_final: qs,
+        auto,
     })
 }
 

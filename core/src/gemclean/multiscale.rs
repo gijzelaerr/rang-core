@@ -410,6 +410,25 @@ fn peak(x: &[f64], n: usize, border: usize) -> Option<(f64, usize)> {
     (p != usize::MAX).then(|| (x[p], p))
 }
 
+/// [`peak`] inside `mask` (radler's `FindWithMask`); `None` when the mask
+/// has no pixel inside the border.
+fn peak_masked(x: &[f64], n: usize, border: usize, mask: &[bool]) -> Option<(f64, usize)> {
+    if 2 * border >= n {
+        return None;
+    }
+    let (lo, hi) = (border, n - border);
+    let mut best = (-1.0_f64, usize::MAX);
+    for row in lo..hi {
+        for col in lo..hi {
+            let p = row * n + col;
+            if mask[p] && x[p].abs() > best.0 {
+                best = (x[p].abs(), p);
+            }
+        }
+    }
+    (best.1 != usize::MAX).then(|| (x[best.1], best.1))
+}
+
 /// `Σ_d k(d) psf(c − d)` at the centre `c = (n/2, n/2)`, the PSF periodic on
 /// the `n × n` image (radler's circular convolution, at one pixel).
 fn circular_peak(psf: &[f64], n: usize, kernel: &[f64], side: usize) -> f64 {
@@ -451,6 +470,13 @@ struct Run<'a> {
     convolvers: Cache<Convolver>,
     twice: Cache<Vec<Vec<f64>>>,
     convolutions: u64,
+    /// The FITS mask (task G4); ignored while the scale masks are used.
+    clean: Option<Vec<bool>>,
+    /// radler's per-scale automatic masks: the component centres cleaned at
+    /// each scale while tracking (empty without `-auto-mask`).
+    masks: Vec<Vec<bool>>,
+    track: bool,
+    use_masks: bool,
 }
 
 impl Run<'_> {
@@ -472,6 +498,16 @@ impl Run<'_> {
             .apply(x))
     }
 
+    /// The mask scale `s` may clean in (task G4): its own automatic mask when
+    /// those are used, else the FITS mask, else none.
+    fn mask_of(&self, s: usize) -> Option<&[bool]> {
+        if self.use_masks {
+            Some(&self.masks[s])
+        } else {
+            self.clean.as_deref()
+        }
+    }
+
     /// `FindActiveScaleConvolvedMaxima` on the integrated working map.
     fn find_maxima(&mut self, integrated: &[f64]) -> Result<(), String> {
         let n = self.n;
@@ -481,7 +517,11 @@ impl Run<'_> {
             }
             let border = (self.scales[s].scale * 0.5).ceil() as usize;
             let conv = self.convolve(s, integrated)?;
-            let (value, pixel) = peak(&conv, n, border).unwrap_or((0.0, 0));
+            let found = match self.mask_of(s) {
+                None => peak(&conv, n, border),
+                Some(m) => peak_masked(&conv, n, border, m),
+            };
+            let (value, pixel) = found.unwrap_or((0.0, 0));
             self.scales[s].value = value;
             self.scales[s].pixel = pixel;
         }
@@ -568,6 +608,22 @@ pub fn run_multiscale<M: Measurement>(
     ms: &MultiscaleSettings,
     beam_pixels: f64,
 ) -> Result<Multiscale, String> {
+    run_multiscale_masked(channels, weights, fit, settings, ms, beam_pixels, None)
+}
+
+/// [`run_multiscale`] with clean masks (task G4, `research/g4-masks.md`):
+/// the FITS mask confines the scale peaks and the sub-minor loops' pixels;
+/// the automatic mask follows radler's stages with one mask per scale.
+pub fn run_multiscale_masked<M: Measurement>(
+    channels: &[(&M, &Beam, &[f64])],
+    weights: &[f64],
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    ms: &MultiscaleSettings,
+    beam_pixels: f64,
+    masking: Option<&super::mask::Masking>,
+) -> Result<Multiscale, String> {
+    use super::mask;
     let start = Instant::now();
     let s = settings;
     let kc = channels.len();
@@ -667,7 +723,28 @@ pub fn run_multiscale<M: Measurement>(
         convolvers: Cache::new(count, CACHE_BYTES / convolver_bytes),
         twice: Cache::new(count, CACHE_BYTES / twice_bytes),
         convolutions: 0,
+        clean: masking.and_then(|m| m.fits.clone()),
+        masks: Vec::new(),
+        track: false,
+        use_masks: false,
     };
+    let mut auto = match masking.and_then(|m| m.auto) {
+        Some(am) => Some(mask::AutoState::new(
+            am,
+            s.auto_threshold,
+            s.threshold,
+            super::auto_mask_mgain(s.cycle_stop)?,
+        )),
+        None => None,
+    };
+    let auto_mgain = match auto.as_ref() {
+        Some(am) => am.mgain,
+        None => 0.0,
+    };
+    if auto.is_some() {
+        run.masks = vec![vec![false; n * n]; count];
+    }
+    let mut another_prev = true;
     for i in 0..count {
         // radler's `Transform` is circular on the n × n PSF: the shape summed
         // with the PSF wrapped around its edges, at the centre. Post hoc
@@ -711,7 +788,27 @@ pub fn run_multiscale<M: Measurement>(
     let mut conv_buf = vec![0.0; n * n];
     let mut values_ch = vec![0.0; kc];
     let stop = loop {
-        let threshold = effective_threshold(&residual_int, s);
+        let index = cycles.len() + 1;
+        let mut gain = s.gain;
+        let mut threshold = match auto.as_mut() {
+            None => effective_threshold(&residual_int, s),
+            Some(am) => {
+                if !another_prev {
+                    break StopReason::Threshold;
+                }
+                let c = am.begin(index, &residual_int);
+                if c.gain_doubled {
+                    gain = (2.0 * s.gain).min(1.0);
+                }
+                // Phase 1 tracks the scale masks, phase 2 cleans inside them.
+                run.use_masks = c.use_auto;
+                run.track = !c.use_auto;
+                for sc in &mut run.scales {
+                    sc.gain = gain / sc.psf_peak;
+                }
+                c.threshold
+            }
+        };
         for sc in &mut run.scales {
             sc.active = true;
         }
@@ -720,8 +817,8 @@ pub fn run_multiscale<M: Measurement>(
             end = MultiscaleEnd::Stalled;
             break StopReason::Threshold;
         };
-        let first_peak = (run.scales[sel].value * run.scales[sel].bias).abs();
-        if first_peak < threshold || first_peak == 0.0 {
+        let mut first_peak = (run.scales[sel].value * run.scales[sel].bias).abs();
+        if auto.is_none() && (first_peak < threshold || first_peak == 0.0) {
             break StopReason::Threshold;
         }
         if steps.len() >= s.max_components {
@@ -738,8 +835,9 @@ pub fn run_multiscale<M: Measurement>(
         let stale_used = stale_per_flux;
         let mut abs_flux = 0.0_f64;
         let first_cycle = cycles.is_empty();
-        let cycle_level = |abs_flux: f64| -> f64 {
-            match s.cycle_stop {
+        let mut stop_rule = s.cycle_stop;
+        let cycle_level = |abs_flux: f64, first_peak: f64, rule: CycleStop| -> f64 {
+            match rule {
                 CycleStop::PeakFraction(g) => (1.0 - g) * first_peak,
                 CycleStop::MeasuredStale { rho, g, floor } => {
                     if first_cycle {
@@ -755,165 +853,218 @@ pub fn run_multiscale<M: Measurement>(
         // from the start, the run ends with this cycle (post hoc, research/
         // g5-multiscale.md: on S2 the exact checks after it added 17 cycles of
         // a few components each just above the threshold).
-        let is_final = s.cycle_stop != CycleStop::Threshold && threshold > cycle_level(0.0);
+        let is_final = s.cycle_stop != CycleStop::Threshold
+            && threshold > cycle_level(0.0, first_peak, stop_rule);
         let mut countdown = 8usize.max(run.scales.len() * 3 / 2);
         let mut diverging = false;
         let mut minor_stop = MinorStop::PeakRule;
         let minor_start = Instant::now();
-        loop {
-            let level_now = cycle_level(abs_flux).max(threshold);
-            let sc_peak = (run.scales[sel].value * run.scales[sel].bias).abs();
-            if steps.len() >= s.max_components {
-                minor_stop = MinorStop::Budget;
-                break;
-            }
-            let below = sc_peak <= level_now;
-            if below || countdown == 0 || diverging {
-                minor_stop = if below && level_now <= threshold {
-                    MinorStop::Threshold
-                } else {
-                    MinorStop::PeakRule
-                };
-                break;
-            }
-            // The convolved channel residuals at this scale, and its twice-
-            // convolved PSFs.
-            let mut conv: Vec<Vec<f64>> = Vec::with_capacity(kc);
-            for map in &maps {
-                conv.push(run.convolve(sel, map)?);
-            }
-            let bias = run.scales[sel].bias;
-            let gain_s = run.scales[sel].gain;
-            let sub_gain_level = sc_peak * (1.0 - ms.sub_minor_gain);
-            let mut first_sub = sub_gain_level;
-            if level_now > first_sub {
-                first_sub = level_now;
-                countdown -= 1;
-            }
-            let thr = first_sub / bias;
-            let border = (run.scales[sel].scale * 0.5).ceil() as usize;
-            // The selected pixels (`findPeakPositions`).
-            let lo = border;
-            let hi = n.saturating_sub(border).max(lo);
-            let mut positions: Vec<usize> = Vec::new();
-            for row in lo..hi {
-                for col in lo..hi {
-                    let p = row * n + col;
-                    let mut v = 0.0;
-                    for k in 0..kc {
-                        v += a[k] * conv[k][p];
+        let mut stage = 0;
+        'stages: loop {
+            loop {
+                let level_now = cycle_level(abs_flux, first_peak, stop_rule).max(threshold);
+                let sc_peak = (run.scales[sel].value * run.scales[sel].bias).abs();
+                if steps.len() >= s.max_components {
+                    minor_stop = MinorStop::Budget;
+                    break;
+                }
+                let below = sc_peak <= level_now;
+                if below || countdown == 0 || diverging {
+                    minor_stop = if below && level_now <= threshold {
+                        MinorStop::Threshold
+                    } else {
+                        MinorStop::PeakRule
+                    };
+                    break;
+                }
+                // The convolved channel residuals at this scale, and its twice-
+                // convolved PSFs.
+                let mut conv: Vec<Vec<f64>> = Vec::with_capacity(kc);
+                for map in &maps {
+                    conv.push(run.convolve(sel, map)?);
+                }
+                let bias = run.scales[sel].bias;
+                let gain_s = run.scales[sel].gain;
+                let sub_gain_level = sc_peak * (1.0 - ms.sub_minor_gain);
+                let mut first_sub = sub_gain_level;
+                if level_now > first_sub {
+                    first_sub = level_now;
+                    countdown -= 1;
+                }
+                let thr = first_sub / bias;
+                let border = (run.scales[sel].scale * 0.5).ceil() as usize;
+                // The selected pixels (`findPeakPositions`).
+                let lo = border;
+                let hi = n.saturating_sub(border).max(lo);
+                let mut positions: Vec<usize> = Vec::new();
+                for row in lo..hi {
+                    for col in lo..hi {
+                        let p = row * n + col;
+                        let mut v = 0.0;
+                        for k in 0..kc {
+                            v += a[k] * conv[k][p];
+                        }
+                        if v.abs() >= thr && run.mask_of(sel).is_none_or(|m| m[p]) {
+                            positions.push(p);
+                        }
                     }
-                    if v.abs() >= thr {
-                        positions.push(p);
-                    }
                 }
-            }
-            if positions.is_empty() {
-                end = MultiscaleEnd::Stalled;
-                minor_stop = MinorStop::PeakRule;
-                break;
-            }
-            sub_minor_loops += 1;
-            let np = positions.len();
-            let mut vals: Vec<Vec<f64>> = (0..kc)
-                .map(|k| positions.iter().map(|&p| conv[k][p]).collect())
-                .collect();
-            drop(conv);
-            let mut sub_model: Vec<Vec<f64>> = vec![vec![0.0; np]; kc];
-            let mut scratch = vec![0.0; np];
-            let (mut mc, mut maxv) = sub_max(&vals, &a, &mut scratch);
-            let start_value = maxv.abs();
-            let twice = run.take_twice(sel)?;
-            let half = (n / 2) as isize;
-            let pos_xy: Vec<(isize, isize)> = positions
-                .iter()
-                .map(|&p| ((p % n) as isize, (p / n) as isize))
-                .collect();
-            while maxv.abs() > thr && steps.len() < s.max_components && !diverging {
-                for k in 0..kc {
-                    values_ch[k] = vals[k][mc] * gain_s;
-                }
-                if let Some(f) = fit {
-                    f.fit_and_evaluate(&mut values_ch);
-                }
-                let (mx, my) = pos_xy[mc];
-                for k in 0..kc {
-                    let c = values_ch[k];
-                    sub_model[k][mc] += c;
-                    abs_flux += a[k] * c.abs();
-                    let t = &twice[k];
-                    let v = &mut vals[k];
-                    v.par_iter_mut()
-                        .zip(pos_xy.par_iter())
-                        .for_each(|(val, &(x, y))| {
-                            let (px, py) = (x - mx + half, y - my + half);
-                            if px >= 0 && px < n as isize && py >= 0 && py < n as isize {
-                                *val -= t[py as usize * n + px as usize] * c;
-                            }
-                        });
-                }
-                let mut integrated = 0.0;
-                for k in 0..kc {
-                    integrated += a[k] * values_ch[k];
-                }
-                run.scales[sel].flux += integrated;
-                run.scales[sel].components += 1;
-                steps.push(CleanStep {
-                    pixel: positions[mc],
-                    peak: maxv,
-                });
-                (mc, maxv) = sub_max(&vals, &a, &mut scratch);
-                if ms.divergence_limit != 0.0 {
-                    diverging = maxv.abs() > start_value * ms.divergence_limit;
-                }
-            }
-            run.put_twice(sel, twice);
-            if ms.divergence_limit != 0.0 && maxv.abs() > first_peak * ms.divergence_limit {
-                diverging = true;
-            }
-            if diverging {
-                end = MultiscaleEnd::Diverged;
-            }
-            // The components, convolved with the shape, join the model; the
-            // working maps are made exact for each channel's beam.
-            let tr = Instant::now();
-            for k in 0..kc {
-                conv_buf.fill(0.0);
-                for (i, &p) in positions.iter().enumerate() {
-                    conv_buf[p] = sub_model[k][i];
-                }
-                let delta = run.convolve(sel, &conv_buf)?;
-                models[k]
-                    .par_iter_mut()
-                    .zip(delta.par_iter())
-                    .for_each(|(m, d)| *m += d);
-                let diff: Vec<f64> = models[k]
-                    .par_iter()
-                    .zip(models_major[k].par_iter())
-                    .map(|(m, b)| m - b)
-                    .collect();
-                let bd = run.beams[k].convolve(&diff);
-                run.convolutions += 1;
-                maps[k]
-                    .par_iter_mut()
-                    .zip(residuals[k].par_iter())
-                    .zip(bd.par_iter())
-                    .for_each(|((w, r), b)| *w = r - b);
-            }
-            work_int = integrate(&maps, &a);
-            ct.resync += tr.elapsed().as_secs_f64();
-            run.activate(sel, s.gain);
-            run.find_maxima(&work_int)?;
-            match run.select() {
-                Some(next) => sel = next,
-                None => {
+                if positions.is_empty() {
                     end = MultiscaleEnd::Stalled;
+                    minor_stop = MinorStop::PeakRule;
+                    break;
+                }
+                sub_minor_loops += 1;
+                let np = positions.len();
+                let mut vals: Vec<Vec<f64>> = (0..kc)
+                    .map(|k| positions.iter().map(|&p| conv[k][p]).collect())
+                    .collect();
+                drop(conv);
+                let mut sub_model: Vec<Vec<f64>> = vec![vec![0.0; np]; kc];
+                let mut scratch = vec![0.0; np];
+                let (mut mc, mut maxv) = sub_max(&vals, &a, &mut scratch);
+                let start_value = maxv.abs();
+                let twice = run.take_twice(sel)?;
+                let half = (n / 2) as isize;
+                let pos_xy: Vec<(isize, isize)> = positions
+                    .iter()
+                    .map(|&p| ((p % n) as isize, (p / n) as isize))
+                    .collect();
+                while maxv.abs() > thr && steps.len() < s.max_components && !diverging {
+                    for k in 0..kc {
+                        values_ch[k] = vals[k][mc] * gain_s;
+                    }
+                    if let Some(f) = fit {
+                        f.fit_and_evaluate(&mut values_ch);
+                    }
+                    let (mx, my) = pos_xy[mc];
+                    for k in 0..kc {
+                        let c = values_ch[k];
+                        sub_model[k][mc] += c;
+                        abs_flux += a[k] * c.abs();
+                        let t = &twice[k];
+                        let v = &mut vals[k];
+                        v.par_iter_mut()
+                            .zip(pos_xy.par_iter())
+                            .for_each(|(val, &(x, y))| {
+                                let (px, py) = (x - mx + half, y - my + half);
+                                if px >= 0 && px < n as isize && py >= 0 && py < n as isize {
+                                    *val -= t[py as usize * n + px as usize] * c;
+                                }
+                            });
+                    }
+                    let mut integrated = 0.0;
+                    for k in 0..kc {
+                        integrated += a[k] * values_ch[k];
+                    }
+                    run.scales[sel].flux += integrated;
+                    run.scales[sel].components += 1;
+                    steps.push(CleanStep {
+                        pixel: positions[mc],
+                        peak: maxv,
+                    });
+                    if let Some(am) = auto.as_mut() {
+                        am.record_pick(run.mask_of(sel), positions[mc]);
+                    }
+                    (mc, maxv) = sub_max(&vals, &a, &mut scratch);
+                    if ms.divergence_limit != 0.0 {
+                        diverging = maxv.abs() > start_value * ms.divergence_limit;
+                    }
+                }
+                run.put_twice(sel, twice);
+                if run.track {
+                    for (i, &p) in positions.iter().enumerate() {
+                        if sub_model.iter().any(|m| m[i] != 0.0) {
+                            run.masks[sel][p] = true;
+                        }
+                    }
+                }
+                if ms.divergence_limit != 0.0 && maxv.abs() > first_peak * ms.divergence_limit {
+                    diverging = true;
+                }
+                if diverging {
+                    end = MultiscaleEnd::Diverged;
+                }
+                // The components, convolved with the shape, join the model; the
+                // working maps are made exact for each channel's beam.
+                let tr = Instant::now();
+                for k in 0..kc {
+                    conv_buf.fill(0.0);
+                    for (i, &p) in positions.iter().enumerate() {
+                        conv_buf[p] = sub_model[k][i];
+                    }
+                    let delta = run.convolve(sel, &conv_buf)?;
+                    models[k]
+                        .par_iter_mut()
+                        .zip(delta.par_iter())
+                        .for_each(|(m, d)| *m += d);
+                    let diff: Vec<f64> = models[k]
+                        .par_iter()
+                        .zip(models_major[k].par_iter())
+                        .map(|(m, b)| m - b)
+                        .collect();
+                    let bd = run.beams[k].convolve(&diff);
+                    run.convolutions += 1;
+                    maps[k]
+                        .par_iter_mut()
+                        .zip(residuals[k].par_iter())
+                        .zip(bd.par_iter())
+                        .for_each(|((w, r), b)| *w = r - b);
+                }
+                work_int = integrate(&maps, &a);
+                ct.resync += tr.elapsed().as_secs_f64();
+                run.activate(sel, gain);
+                run.find_maxima(&work_int)?;
+                match run.select() {
+                    Some(next) => sel = next,
+                    None => {
+                        end = MultiscaleEnd::Stalled;
+                        break;
+                    }
+                }
+                if diverging {
                     break;
                 }
             }
-            if diverging {
-                break;
+            // The automatic mask (task G4): radler's decision after the first
+            // minor loop and the continued one, inside the scale masks.
+            if let Some(am) = auto.as_mut().filter(|_| stage == 0) {
+                stage = 1;
+                let radler_final = threshold > (1.0 - auto_mgain) * first_peak;
+                let end_peak = (run.scales[sel].value * run.scales[sel].bias).abs();
+                let stage_end = mask::StageEnd {
+                    another: !radler_final
+                        && !diverging
+                        && end != MultiscaleEnd::Stalled
+                        && steps.len() < s.max_components,
+                    start_peak: first_peak,
+                    end_peak,
+                };
+                let (another, cont) = am.end_stage(
+                    index,
+                    stage_end,
+                    index < s.max_major,
+                    steps.len() < s.max_components,
+                );
+                another_prev = another;
+                if let Some(k) = cont {
+                    run.use_masks = true;
+                    run.track = false;
+                    for sc in &mut run.scales {
+                        sc.active = true;
+                    }
+                    run.find_maxima(&work_int)?;
+                    if let Some(next) = run.select() {
+                        sel = next;
+                        first_peak = (run.scales[sel].value * run.scales[sel].bias).abs();
+                        threshold = k.threshold;
+                        stop_rule = CycleStop::PeakFraction(k.gain);
+                        countdown = 8usize.max(run.scales.len() * 3 / 2);
+                        continue 'stages;
+                    }
+                }
             }
+            break;
         }
         ct.minor = minor_start.elapsed().as_secs_f64() - ct.resync;
         memory::mark(&format!("cycle {}: minor", cycles.len() + 1));
@@ -978,6 +1129,12 @@ pub fn run_multiscale<M: Measurement>(
         residuals = next;
         residual_int = next_int;
         q = q_next;
+        if auto.is_some() {
+            if end == MultiscaleEnd::Diverged {
+                break StopReason::Threshold;
+            }
+            continue;
+        }
         if components == 0 {
             end = MultiscaleEnd::Stalled;
             break StopReason::Threshold;
@@ -1031,6 +1188,7 @@ pub fn run_multiscale<M: Measurement>(
             model: models,
             residual: residuals,
             q_final: qs,
+            auto,
         },
         beam_pixels: beam,
         scales,
@@ -1286,5 +1444,111 @@ mod tests {
         // The image-domain prediction of the first cycle is close to exact.
         let c = &out.joined.integrated.cycles[0];
         assert!(c.gap_relative.abs() < 1e-3, "{}", c.gap_relative);
+    }
+
+    /// Two points and a box mask around one (task G4): Högbom and multiscale
+    /// put every component inside the box, and the point outside stays in
+    /// the residual.
+    #[test]
+    fn a_fits_mask_confines_the_components() {
+        use crate::gemclean::mask::Masking;
+        let n = 64;
+        let mut sky = vec![0.0; n * n];
+        sky[20 * n + 40] = 1.0;
+        sky[44 * n + 18] = 0.6;
+        let m = measurement(n, &sky);
+        let psf2n = m.psf_image(2 * n).unwrap();
+        let beam = Beam::from_double(n, &psf2n, 16).unwrap();
+        let mut psf = vec![0.0; n * n];
+        for i in 0..n {
+            for j in 0..n {
+                psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
+            }
+        }
+        // An asymmetric box around the first point only.
+        let mut fits = vec![false; n * n];
+        for y in 16..27 {
+            for x in 35..43 {
+                fits[y * n + x] = true;
+            }
+        }
+        let masking = Masking {
+            fits: Some(fits.clone()),
+            auto: None,
+        };
+        let settings = Settings {
+            threshold: 1e-3,
+            max_components: 5_000,
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            ..Settings::default()
+        };
+        let (h, _) =
+            crate::gemclean::run_masked(&m, &beam, &settings, None, None, Some(&masking)).unwrap();
+        assert!(!h.steps.is_empty());
+        assert!(h.steps.iter().all(|st| fits[st.pixel]));
+        let flux: f64 = h.model.iter().sum();
+        assert!((flux - 1.0).abs() < 0.2, "{flux}");
+        assert!(h.residual[44 * n + 18].abs() > 0.4);
+        let ms = MultiscaleSettings {
+            scales: vec![0.0, 4.0],
+            ..MultiscaleSettings::default()
+        };
+        let out = run_multiscale_masked(
+            &[(&m, &beam, &psf[..])],
+            &[1.0],
+            None,
+            &settings,
+            &ms,
+            1.0,
+            Some(&masking),
+        )
+        .unwrap();
+        let steps = &out.joined.integrated.steps;
+        assert!(!steps.is_empty() && steps.iter().all(|st| fits[st.pixel]));
+        assert!(out.joined.residual[0][44 * n + 18].abs() > 0.4);
+    }
+
+    /// The automatic mask: phase 1 cleans to the mask threshold, the switch
+    /// is recorded, phase 2 cleans deeper inside the mask only.
+    #[test]
+    fn the_auto_mask_switches_and_stays_inside() {
+        use crate::gemclean::mask::{AutoMask, Masking};
+        let n = 64;
+        let mut sky = vec![0.0; n * n];
+        sky[20 * n + 40] = 1.0;
+        sky[44 * n + 18] = 0.05;
+        let m = measurement(n, &sky);
+        let psf2n = m.psf_image(2 * n).unwrap();
+        let beam = Beam::from_double(n, &psf2n, 16).unwrap();
+        let masking = Masking {
+            fits: None,
+            auto: Some(AutoMask {
+                sigma: None,
+                absolute: Some(0.1),
+                nmiter: 2,
+            }),
+        };
+        let settings = Settings {
+            threshold: 1e-3,
+            max_components: 5_000,
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            ..Settings::default()
+        };
+        let (h, auto) =
+            crate::gemclean::run_masked(&m, &beam, &settings, None, None, Some(&masking)).unwrap();
+        let auto = auto.unwrap();
+        let fin = auto.finishing.expect("the mask threshold is reached");
+        // The 0.05 Jy point is below the mask threshold: never cleaned.
+        let far = h
+            .steps
+            .iter()
+            .filter(|st| {
+                let (x, y) = (st.pixel % n, st.pixel / n);
+                (x as isize - 18).abs() < 4 && (y as isize - 44).abs() < 4
+            })
+            .count();
+        assert_eq!(far, 0);
+        assert!(h.cycles.len() <= fin + 2);
+        assert!((h.model.iter().sum::<f64>() - 1.0).abs() < 0.01);
     }
 }
