@@ -1,0 +1,85 @@
+# E1 of research/a0-acceptance.md (6.3): the whole chain on A1's simulated
+# truth (research/e1-chain.md, section 3). CARACal's full-Stokes chain as E2-B
+# (meerkat-fullStokes-continuum-defaults.yml: KGB, GAF, polcal strategy 1),
+# with C6w's B (combine scan, fillgaps 70), applied to the target, then
+# self-calibration (C1 owner decision 1: phase, then amplitude) and the final
+# image. Deviations from E2-B, fixed before any run (e1-chain.md 3.2):
+# refant m000 (not auto), polcal.frame rang (the truth's frame), the target
+# apply, selfcal and image sections, no image auto_mask (refused until G4).
+schema: rang-config
+version: 1
+fields:
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  gcal: [SIM-GCAL]
+  xcal: [3C286-SIM]
+  target: [SIM-TARGET]
+data:
+  weights: uniform
+flag:
+  strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
+calibrate:
+  model: {source: setjy, standard: Stevens-Reynolds 2016}
+  refant: m000
+  uvrange: ">150"
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, combine: scan, fillgaps: 70,
+         preapply: [K, G], interp: [linear, linear]}
+  secondary:
+    field: [gcal]
+    terms:
+      - {type: G, name: Gsec, solint: inf, calmode: ap, preapply: [K, B],
+         interp: [linear, linear]}
+      - {type: A, name: Asec}
+      - {type: F, name: F, solint: inf, calmode: ap, smodel: [1, 0, 0, 0],
+         preapply: [K, B], interp: [linear, linear]}
+  polcal:
+    field: [xcal]
+    model: {source: nrao, name: 3C286}
+    frame: rang
+    feed_angle_rotation: -90
+    extendflags: true
+    terms:
+      - {type: Gpol, name: Gpol, solint: 60s, calmode: p, parang: true,
+         preapply: [K, G, B], interp: [linear, linear, linear]}
+      - {type: KCROSS, name: Kcross, solint: inf, parang: true,
+         preapply: [K, G, B, Gpol], interp: [linear, linear, linear, linear]}
+      - {type: Xf, name: Xf, solint: inf, combine: scan, parang: true,
+         preapply: [K, G, B, Gpol, Kcross], interp: [linear, linear, linear, linear, nearest]}
+      - {type: Df, name: Df, field: [fcal], solint: inf, combine: scan, parang: true,
+         clip: [-0.6, 0.6], preapply: [K, G, B, Kcross, Xf],
+         interp: [linear, linear, linear, nearest, nearest]}
+apply:
+  calwt: false
+  parang: true
+  targets:
+    - field: [xcal]
+      tables: [K, G, B, Gpol, Kcross, Xf, Df]
+      interp: [linear, linear, linear, linear, nearest, nearest, nearest]
+    - field: [fcal]
+      tables: [K, G, B, Kcross, Xf, Df]
+      interp: [linear, linear, linear, nearest, nearest, nearest]
+    - field: [gcal, target]
+      tables: [K, F, B, Kcross, Xf, Df]
+      gainfield: [J1939-6342, nearest, J1939-6342, "", "", ""]
+      interp: [linear, linear, linear, nearest, nearest, nearest]
+image:
+  fields: [target]
+  size: [2048, 2048]
+  scale: 2asec
+  weight: briggs
+  robust: 0.0
+  channels_out: 8
+  join_channels: true
+  fit_spectral_pol: 2
+  auto_threshold: 3.0
+selfcal:
+  rounds: 2
+  terms: [{type: Sp, solint: 8}, {type: Sa, solint: 8}]
+  refant: m000
+run:
+  stages: [flag, calibrate, apply, selfcal]
