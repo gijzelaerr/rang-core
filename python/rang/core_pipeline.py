@@ -1890,6 +1890,20 @@ def gemclean_arguments(img, column, field_id, prefix, ms, scans=(), unit_weights
         args.append("-join-channels")
     if img["fit_spectral_pol"] is not None:
         args += ["-fit-spectral-pol", str(img["fit_spectral_pol"])]
+    if img["multiscale"]:
+        args.append("-multiscale")
+        if img["multiscale_scales"] is not None:
+            scales = ",".join(repr(float(v)) for v in img["multiscale_scales"])
+            args += ["-multiscale-scales", scales]
+        for key, flag in (
+            ("multiscale_max_scales", "-multiscale-max-scales"),
+            ("multiscale_scale_bias", "-multiscale-scale-bias"),
+            ("multiscale_gain", "-multiscale-gain"),
+        ):
+            if img[key] is not None:
+                args += [flag, str(img[key])]
+        if img["multiscale_shape"] != "tapered-quadratic":
+            args += ["-multiscale-shape", img["multiscale_shape"]]
     args += ["-data-column", column, "-field", str(field_id)]
     # data.scans and data.weights: uniform (task W6, research/w6-imaging-inputs.md).
     if scans:

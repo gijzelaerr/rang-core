@@ -32,6 +32,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [C7a, polarised calibrator models](c7a-polmodels.md): `setjy` manual's I, Q, U, V, `polindex`, `polangle` and `rotmeas`, and CARACal's 3C286 and 3C138, measured against CASA `setjy` (0 ulps on the tabular path, 2 ulps on the one-term `spix` path) and against published polarisation fractions and angles.
 - [G2, GeMClean's memory](g2-memory.md): peak memory cut by four byte-identical changes; the pilot fits 24 GB at 512 channels (19.7 GB default, 15.7 GB coarse), still 2.0-3.6x WSClean's peak.
 - [G3, output channels and spectral fit](g3-spectral.md): GeMClean's `-channels-out`, `-join-channels` and `-fit-spectral-pol` against WSClean 3.7 on simulated spectral skies; the held-out MFS bound failed on one sky.
+- [G5, multiscale CLEAN](g5-multiscale.md): GeMClean `-multiscale` (radler's algorithm and sub-minor loop) against WSClean 3.7 on S2, H4, joined D2, the ESO 137-006 pilot and held-out M1; every gate met.
 - [G6, MODEL_DATA and a predict mode](g6-predict.md): gemclean writes MODEL_DATA after imaging and has WSClean's -predict; equal to WSClean 3.7's -predict to 1-4e-7 on S1-S3, H1, H2, joined channels and the pilot; rang-core image.write_model writes it through WriteBack.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.

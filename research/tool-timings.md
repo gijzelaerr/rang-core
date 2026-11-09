@@ -1732,3 +1732,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-07 | W6 gemclean runs on A1's small MS (512², 300 components) | 12,480 rows × 64 ch | a few s each | – | nice, 4 threads |
 | 2026-11-07 | W6 identity set (7 skies × 2 forms + pilot-256) | binary `5fb69682` | as G2's | 1.94-12.24 GB | all 15 byte-identical; busy host |
 | 2026-11-06/07 | G6/W6 `tools/check-all.sh` | worktree | 12-13 min (3 runs) | – | FAIL only on the research-index test |
+| 2026-11-07/08 | G5 `cargo build --profile gemclean --bin gemclean`, 5 builds (dev1-3, freeze, main `b504ff9`) | core crate | 2 min 18 s-3 min 35 s (6 min with the lock wait) | – | dev1 and its clippy without the lock, the rest under it |
+| 2026-11-08 | G5 GeMClean `-multiscale -mgain 0.8`, S2, S2g, H4, H4l, M1 | 2048², 8 channels | 2 min 50 s-3 min 12 s | 4.05-4.81 GB | busy host; [g5-multiscale.md](g5-multiscale.md) |
+| 2026-11-07/08 | G5 WSClean 3.7 `-multiscale -mgain 0.8`, same five | same | 2 min 01 s-2 min 44 s | 2.07-2.36 GB | in container |
+| 2026-11-08 | G5 GeMClean / WSClean, D2j (8 joined channels, fit) | 2048², 16 channels | 4 min 27 s / 9 min 30 s | 10.13 / 3.76 GB | |
+| 2026-11-08 | G5 GeMClean / WSClean, the ESO 137 pilot set A (256 channels) | 4096² × 3″ | 9 min 13 s / 13 min 49 s | 15.17 / 5.11 GB | |
+| 2026-11-08 | G5 `gemclean_bench_simulate.py --sky M1` | 1,814,400 rows × 8 ch | 65 s | 0.42 GB | heavy lock |
+| 2026-11-08 | G5 identity set (15 runs + D1-C1, D1-C3), frozen binary | as G2 and G3 | as G2's | 1.91-11.96 GB | all 17 byte-identical |
+| 2026-11-08 | G5 `tools/check-all.sh` | worktree | 12 min 14 s | 1.85 GB | FAIL only on the research-index test |

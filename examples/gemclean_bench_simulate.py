@@ -28,6 +28,11 @@ constants were fixed, with their own sky and noise seeds:
         20 - 200 arcsec and 0.1 - 2 Jy, and a curved tail of 25 overlapping
         Gaussians of FWHM 30 - 60 arcsec holding 3 Jy
 
+Held-out sky for research/g5-multiscale.md, its seeds given on the command
+line (--sky-seed, --noise-seed) as drawn after the multiscale build was frozen:
+
+    M1  H4's recipe at dec -60
+
 Positions are drawn as pixel offsets (x, y) of WSClean's FITS grid (centre
 pixel N/2, 0-based; x grows to the west) and turned into direction cosines
 l = -(x - N/2) * scale, m = (y - N/2) * scale (SIN projection: the WSClean
@@ -73,7 +78,7 @@ SKY_SEEDS = {
 }
 NOISE_SEED = 20261104
 NOISE_SEEDS = {"H1": 20261211, "H2": 20261212, "H3": 20261213, "H4": 20261214}
-DEC_BY_SKY = {"H1": -75.0, "H2": 10.0, "H4": -45.0}
+DEC_BY_SKY = {"H1": -75.0, "H2": 10.0, "H4": -45.0, "M1": -60.0}
 
 
 def _sha(path):
@@ -128,11 +133,11 @@ def track(xyz, hours, dt, dec_deg=DEC_DEG):
     return times, ra, dec, np.stack([u, v, w], axis=-1), lon
 
 
-def sky(name, size, scale_arcsec, min_sep):
+def sky(name, size, scale_arcsec, min_sep, seed=None):
     """Component list: dicts with x, y (FITS pixels), l, m, flux, kind, fwhm."""
     if name == "none":
         return []
-    rng = np.random.default_rng(SKY_SEEDS[name])
+    rng = np.random.default_rng(SKY_SEEDS[name] if seed is None else seed)
     half = size / 3.0  # inner two-thirds: |offset| < size/3 pixels
     centre = size // 2
 
@@ -154,7 +159,7 @@ def sky(name, size, scale_arcsec, min_sep):
         pos, flux = draw(300, 2e-4, 0.2, 0.0)
     elif name == "H3":
         pos, flux = draw(120, 0.005, 1.0, min_sep)
-    elif name == "H4":
+    elif name in ("H4", "M1"):
         pos, flux = draw(30, 0.005, 0.3, min_sep)
     else:
         pos, flux = draw(500, 1e-4, 0.1, 0.0)
@@ -184,7 +189,7 @@ def sky(name, size, scale_arcsec, min_sep):
                 "nearest_point_px": float(math.sqrt(d2[k])),
             }
         )
-    if name == "H4":
+    if name in ("H4", "M1"):
         margin = half - 220.0 / scale_arcsec
         for _ in range(6):
             x, y = rng.uniform(-margin, margin, 2)
@@ -405,7 +410,7 @@ def main(argv=None):
     p.add_argument("ms")
     p.add_argument(
         "--sky",
-        choices=["S1", "S2", "S3", "H1", "H2", "H3", "H4", "none"],
+        choices=["S1", "S2", "S3", "H1", "H2", "H3", "H4", "M1", "none"],
         required=True,
     )
     p.add_argument("--nant", type=int, default=64)
@@ -422,7 +427,11 @@ def main(argv=None):
     p.add_argument("--catalogue")
     p.add_argument("--noise-out", help="write the Stokes I noise (row, chan) c64")
     p.add_argument("--sky-override", help="JSON list of components (tests)")
+    p.add_argument("--sky-seed", type=int, help="the sky seed (M1 needs it)")
+    p.add_argument("--noise-seed", type=int, help="the noise seed (M1 needs it)")
     args = p.parse_args(argv)
+    if args.sky == "M1" and (args.sky_seed is None or args.noise_seed is None):
+        p.error("M1 needs --sky-seed and --noise-seed")
 
     t_start = time.perf_counter()
     xyz, diameter, names = antennas(args.nant)
@@ -444,7 +453,7 @@ def main(argv=None):
             c["x"], c["y"] = args.size // 2 + c["dx"], args.size // 2 + c["dy"]
             c["l"], c["m"] = -c["dx"] * scale, c["dy"] * scale
     else:
-        comps = sky(args.sky, args.size, args.scale, args.min_sep)
+        comps = sky(args.sky, args.size, args.scale, args.min_sep, args.sky_seed)
     for c in comps:
         c["ra_rad"], c["dec_rad"] = radec(c["l"], c["m"], ra, dec)
     arrays = component_arrays(comps)
@@ -472,7 +481,10 @@ def main(argv=None):
     t.close()
     fill_subtables(out, names, xyz, diameter, freq, ra, dec, times, args.dt)
     t = tables.table(str(out), readonly=False)
-    rng = np.random.default_rng(NOISE_SEEDS.get(args.sky, NOISE_SEED))
+    noise_seed = NOISE_SEEDS.get(args.sky, NOISE_SEED)
+    if args.noise_seed is not None:
+        noise_seed = args.noise_seed
+    rng = np.random.default_rng(noise_seed)
     noise_file = open(args.noise_out, "wb") if args.noise_out else None  # noqa: SIM115
     seconds = {"predict": 0.0, "noise": 0.0, "write": 0.0}
     w_corr = np.float32(1.0 / sigma_c**2)
@@ -532,8 +544,8 @@ def main(argv=None):
     meta = {
         "ms": str(out.resolve()),
         "sky": args.sky,
-        "sky_seed": SKY_SEEDS.get(args.sky),
-        "noise_seed": NOISE_SEED,
+        "sky_seed": SKY_SEEDS.get(args.sky) if args.sky_seed is None else args.sky_seed,
+        "noise_seed": NOISE_SEED if args.noise_seed is None else args.noise_seed,
         "chunk_times": args.chunk_times,
         "nant": nant,
         "ntime": ntime,

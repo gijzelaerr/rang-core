@@ -42,7 +42,6 @@ TASKS = {
     "C5b": "delay self-calibration (Sd, CARACal's Fslope)",
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
     "G4": "masks, tapers and an imaging uv range",
-    "G5": "multiscale CLEAN",
     "G9": "Stokes Q, U and V and joined polarisations",
 }
 
@@ -364,7 +363,25 @@ SCHEMA = {
         "fits_mask": _k(None, "path?", "a FITS mask"),
         "taper_gaussian": _k(None, "str?", "a Gaussian taper, such as 10asec"),
         "uvrange": _k("", "str", "baselines imaged"),
-        "multiscale": _k(False, "bool", "multiscale CLEAN"),
+        "multiscale": _k(False, "bool", "multiscale CLEAN (WSClean's -multiscale)"),
+        "multiscale_scales": _k(
+            None, "floats?", "scales in pixels (null: WSClean's automatic scales)"
+        ),
+        "multiscale_max_scales": _k(
+            None, "int?", "at most this many automatic scales (null: all that fit)"
+        ),
+        "multiscale_scale_bias": _k(
+            None, "float?", "bias towards larger scales, lower is stronger (null: 0.6)"
+        ),
+        "multiscale_shape": _k(
+            "tapered-quadratic",
+            "choice",
+            "the scale shape",
+            ("tapered-quadratic", "gaussian"),
+        ),
+        "multiscale_gain": _k(
+            None, "float?", "a sub-minor loop takes its peak down by this (null: 0.2)"
+        ),
         "pol": _k("I", "str", "polarisations, such as I or IQUV"),
         "join_polarizations": _k(False, "bool", "join the polarisations"),
         "write_model": _k(
@@ -975,13 +992,25 @@ def refusals(config, stages):
             ("fits_mask", None, "G4"),
             ("taper_gaussian", None, "G4"),
             ("uvrange", "", "G4"),
-            ("multiscale", False, "G5"),
             ("join_polarizations", False, "G9"),
         ):
             if img[key] != default:
                 no(f"image.{key}", task, f"{key}: {img[key]!r}")
         if img["pol"] != "I":
             no("image.pol", "G9", f"pol: {img['pol']!r}")
+        if not img["multiscale"]:
+            for key in (
+                "multiscale_scales",
+                "multiscale_max_scales",
+                "multiscale_scale_bias",
+                "multiscale_gain",
+            ):
+                if img[key] is not None:
+                    out.append(Refusal(f"image.{key}", "", "needs multiscale: true"))
+            if img["multiscale_shape"] != "tapered-quadratic":
+                out.append(
+                    Refusal("image.multiscale_shape", "", "needs multiscale: true")
+                )
         for key in ("size", "scale"):
             if img[key] is None:
                 out.append(Refusal(f"image.{key}", "", "required"))
