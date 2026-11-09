@@ -228,11 +228,9 @@ def _tasks(path, stages=None):
 
 
 def test_the_acceptance_configurations_parse_and_wait_for_their_tasks():
-    # Since task C2e (research/c2e-calibrate.md) K, G, B, A and F run.
-    assert _tasks(DATA / "e2a.yaml") == {
-        "C5a",
-        "G4",
-    }
+    # Since task C2e (research/c2e-calibrate.md) K, G, B, A and F run, and
+    # since task C5 (research/c5-selfcal.md) the selfcal rounds.
+    assert _tasks(DATA / "e2a.yaml") == {"G4"}
     # Since task C6w (research/c6w-polwire.md) Gpol, KCROSS, Xf, Df and P run,
     # and since task E0 (research/e0-refant-extend.md) refant auto and
     # extendflags; since task W6 (research/w6-imaging-inputs.md) data.scans and
@@ -444,10 +442,12 @@ def test_a_killed_flag_write_resumes_from_its_backup(tmp_path):
 def test_selfcal_and_unsolved_apply_targets_are_refused(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
+    # Task C5: selfcal runs, and needs its input column (exit 1, no write).
     with pytest.raises(SystemExit) as exc:
         cli("selfcal", config, ms)
-    assert exc.value.code == 2
-    assert "task C5a" in capsys.readouterr().err
+    assert exc.value.code == 1
+    assert "has no CORRECTED_1GC" in capsys.readouterr().err
+    assert not flagversions.versions(ms)
     # W2b: a complex term applies only to the fields it is solved on.
     transfer = write_config(
         tmp_path,
@@ -459,8 +459,9 @@ def test_selfcal_and_unsolved_apply_targets_are_refused(tmp_path, capsys):
     assert exc.value.code == 2
     assert "solve G and F terms" in capsys.readouterr().err
     assert not flagversions.versions(ms)
+    refused = "run: {stages: [flag, selfcal]}\nselfcal: {terms: [{type: complex}]}\n"
     with pytest.raises(SystemExit) as exc:
-        cli("run", write_config(tmp_path, "run: {stages: [flag, selfcal]}\n"), ms)
+        cli("run", write_config(tmp_path, refused), ms)
     assert exc.value.code == 2 and not flagversions.versions(ms)
     # apply before calibrate fails (exit 1) before writing anything.
     with pytest.raises(SystemExit) as exc:
@@ -716,7 +717,8 @@ def test_config_check_and_defaults(tmp_path, capsys):
     with pytest.raises(SystemExit):
         cli("config", "check", DATA / "e2a.yaml")
     err = capsys.readouterr().err
-    assert "task C5a" in err and "task C2" not in err  # K, G, B, A run (C2e)
+    assert "task G4" in err and "task C2" not in err  # K, G, B, A run (C2e)
+    assert "task C5" not in err  # selfcal runs (C5)
     cli("config", "defaults")
     assert capsys.readouterr().out == core_config.defaults_yaml()
 
@@ -732,6 +734,52 @@ def test_cli_imports_no_numpy_for_the_new_commands():
         [sys.executable, "-c", probe], capture_output=True, text=True, check=True
     )
     assert out.stdout.strip() == "ok"
+
+
+def test_the_multiscale_image_options_reach_gemclean():
+    """G5 (research/g5-multiscale.md): multiscale and its options are passed to
+    gemclean; an option without multiscale is a configuration error."""
+    image = {
+        "size": [64, 64],
+        "scale": "2asec",
+        "multiscale": True,
+        "multiscale_scales": [0, 5, 12.5],
+        "multiscale_max_scales": 3,
+        "multiscale_scale_bias": 0.7,
+        "multiscale_shape": "gaussian",
+        "multiscale_gain": 0.1,
+    }
+    config, errors = core_config.resolve({"version": 1, "image": image})
+    assert errors == []
+    assert [
+        r for r in core_config.refusals(config, ["image"]) if r.path.startswith("image")
+    ] == []
+    args = pipe.gemclean_arguments(config["image"], "DATA", 0, "out/img", "x.ms")
+    pairs = list(itertools.pairwise(args))
+    assert "-multiscale" in args
+    assert ("-multiscale-scales", "0.0,5.0,12.5") in pairs
+    assert ("-multiscale-max-scales", "3") in pairs
+    assert ("-multiscale-scale-bias", "0.7") in pairs
+    assert ("-multiscale-shape", "gaussian") in pairs
+    assert ("-multiscale-gain", "0.1") in pairs
+    assert args[-1] == "x.ms"
+    plain, _ = core_config.resolve(
+        {"version": 1, "image": {"size": [64, 64], "scale": "2asec"}}
+    )
+    flags = pipe.gemclean_arguments(plain["image"], "DATA", 0, "out/img", "x.ms")
+    assert not [f for f in flags if f.startswith("-multiscale")]
+    alone, _ = core_config.resolve(
+        {"version": 1, "image": {**image, "multiscale": False}}
+    )
+    refused = {r.path for r in core_config.refusals(alone, ["image"])}
+    assert {
+        "image.multiscale_scales",
+        "image.multiscale_max_scales",
+        "image.multiscale_scale_bias",
+        "image.multiscale_shape",
+        "image.multiscale_gain",
+    } <= refused
+    assert "G5" not in core_config.TASKS
 
 
 def test_the_spectral_image_options_reach_gemclean():
@@ -813,6 +861,7 @@ def test_the_polarisation_options_reach_gemclean():
         ({"pol": "XY,YX"}, "image.pol"),
         ({"pol": "RR,LL"}, "image.pol"),
         ({"write_model": True}, "image.write_model"),  # Stokes I only (G6)
+        ({"multiscale": True}, "image.multiscale"),  # one polarisation (G5)
     ):
         config, errors = core_config.resolve(
             {"version": 1, "image": {**image, **change}}
@@ -821,6 +870,11 @@ def test_the_polarisation_options_reach_gemclean():
         assert path in {r.path for r in core_config.refusals(config, ["image"])}
     assert core_config.parse_pol("xx,yy") == ["XX", "YY"]
     assert core_config.parse_pol("VUQI") == ["I", "Q", "U", "V"]
+    config, errors = core_config.resolve(
+        {"version": 1, "image": {**image, "join_polarizations": False}}
+    )
+    assert errors == []
+    assert "image.pol" in {r.path for r in core_config.refusals(config, ["selfcal"])}
     raw = core_config.load(DATA / "e2b.yaml")
     config, errors = core_config.resolve(raw)
     assert errors == []

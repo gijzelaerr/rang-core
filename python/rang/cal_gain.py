@@ -645,16 +645,26 @@ class _Field:
         )
 
 
-def _solve_gain_field(fld, tb, *, nchan, per_channel, budget, what, **opts):
+def _solve_gain_field(
+    fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, **opts
+):
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
     the stop test replayed (`rang.cal_chunks.replayed`). `per_channel`: one
-    frequency bin per channel (B). Returns `(GainSolution, row weights)`."""
+    frequency bin per channel (B); otherwise `freq_bin` per channel (task
+    C5: channel chunks of a self-calibration term, each chunk of the solve
+    holding every channel) or one bin. Returns `(GainSolution, row
+    weights)`."""
+    import dataclasses
+
     from . import cal_chunks
 
     nant = opts["nant"]
     refants = _check(opts["calmode"], opts["refantmode"], opts["refant"], nant)
-    freq_bin = np.arange(nchan) if per_channel else None
+    if per_channel:
+        freq_bin = np.arange(nchan)
+    elif freq_bin is not None:
+        freq_bin = np.asarray(freq_bin, np.int64)
     chunks, block = cal_chunks.plan(
         tb, nchan, 4, budget, per_channel=per_channel, what=what
     )
@@ -690,7 +700,12 @@ def _solve_gain_field(fld, tb, *, nchan, per_channel, budget, what, **opts):
         raw = results[0]
     else:
         ntime = int(np.max(tb)) + 1
-        raw = _assemble(list(zip(chunks, results)), ntime, nchan if per_channel else 1)
+        nfreq = nchan if per_channel else 1
+        parts = list(zip(chunks, results))
+        if not per_channel and freq_bin is not None:
+            nfreq = int(freq_bin.max()) + 1
+            parts = [(dataclasses.replace(c, f0=0, f1=nfreq), d) for c, d in parts]
+        raw = _assemble(parts, ntime, nfreq)
         raw["iterations"], raw["fraction"] = replay
     sol = _finish(
         raw, nant=nant, calmode=opts["calmode"], refants=refants,

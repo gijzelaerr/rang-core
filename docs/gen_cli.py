@@ -34,7 +34,8 @@ steps flagging the corrected calibrators ({gh}`research/c2e-calibrate.md`),
 then the polcal section's Gpol, KCROSS, Xf and Df
 ({gh}`research/c6w-polwire.md`), `apply` applies those solutions to
 CORRECTED_DATA, with the parallactic angle when `apply.parang` is set, and `image` runs
-`gemclean`; `selfcal` is refused ({gh}`research/c4b-apply-ms.md`).
+`gemclean`; `selfcal` runs CARACal's self-calibration rounds (image, model
+into MODEL_DATA, an Sp, Sa or Sd solve, apply; {gh}`research/c5-selfcal.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version

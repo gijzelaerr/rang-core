@@ -21,6 +21,29 @@ the release notes are the section of this file for that version.
   `-join-channels`. XY, YX, circular correlations and `-link-polarizations` are refused.
   `rang-core image` passes `image.pol` and `image.join_polarizations` (only when not the defaults),
   so E2-B's image section is no longer refused. Single-polarisation I imaging is unchanged.
+- New: `gemclean -multiscale` (`research/g5-multiscale.md`): WSClean 3.7's multiscale CLEAN,
+  radler's algorithm with its sub-minor loop (`rang_core::gemclean::multiscale`), with
+  `-multiscale-scales`, `-multiscale-max-scales`, `-multiscale-scale-bias`, `-multiscale-shape`
+  (tapered quadratic or Gaussian) and `-multiscale-gain`; scales from WSClean's theoretic beam;
+  the residual made exact for the image-domain beam after every sub-minor loop. Works with one
+  output channel, joined channels (with `-fit-spectral-pol`) and unjoined ones, and with
+  `-auto-threshold`. `rang-core image` passes `multiscale` and the new keys `multiscale_scales`,
+  `multiscale_max_scales`, `multiscale_scale_bias`, `multiscale_shape` and `multiscale_gain`.
+  Without `-multiscale` the images are byte-identical to before.
+- New: `rang-core selfcal` (and `run` with `selfcal` in its stages) runs CARACal's self-calibration
+  rounds (`research/c5-selfcal.md`): `selfcal.rounds` rounds of a gemclean image (the input column
+  first, the output column after), its model images predicted into `selfcal.model_column`
+  (`rang.core_model.write_model_data`), one term solved on `selfcal.input_column` against it and
+  applied into `selfcal.output_column`, then a final image. One term per round, the last repeating
+  (CARACal's `gain_matrix_type`): `Sp` (phase, QuartiCal `phase`), `Sa` (amplitude and phase,
+  `diag_complex`) and `Sd` (CARACal's `Fslope`, QuartiCal `delay_and_offset`, started at zero
+  delay); default phase then amplitude. An integer `solint` is N integrations from each scan start
+  (CARACal's timeslots), `Ns` CASA's seconds bins; `freqint` N channels for Sp and Sa. Solves are
+  chunked within `data.memory_limit_gb`; `selfcal.gain_clip` flags solutions, `selfcal.minuvw_m`
+  drops short baselines, new key `selfcal.refant`. `CORRECTED_1GC` is copied from `apply.column`
+  after this run's apply. Solutions go to a QuartiCal gain store per round. New module
+  `rang.cal_selfcal`; `rang.cal_gain`'s chunked solve takes channel chunks. `complex`
+  self-calibration terms and `refant: auto` in selfcal are refused.
 - New: `rang-core calibrate` runs the K, G, B, A and F terms and the polarisation terms Gpol,
   KCROSS, Xf and Df within `data.memory_limit_gb` (`research/w3b-chainchunks.md`): each solve reads
   its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval),

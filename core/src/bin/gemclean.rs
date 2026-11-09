@@ -23,6 +23,7 @@ use rang_core::gemclean::json::{arr, num, obj, opt, text};
 use rang_core::gemclean::kernels::{self, Level};
 use rang_core::gemclean::measure::GridMeasurement;
 use rang_core::gemclean::memory::{self, bytes_of};
+use rang_core::gemclean::multiscale::{self, MultiscaleSettings};
 use rang_core::gemclean::predict;
 use rang_core::gemclean::spectral::{self, PolynomialFit};
 use rang_core::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
@@ -126,7 +127,18 @@ Polarisations (research/g9-stokes.md; WSClean's options, linear feeds):
                             parses it (iquv, xx,yy); several write <name>[-0000]-<pol>-<kind>.fits
                             and one <name>[-0000]-psf.fits from the first polarisation
   -join-polarizations       deconvolve the polarisations together: peaks on their
-                            normalised sum (WSClean 3.7's default loop), a component in each";
+                            normalised sum (WSClean 3.7's default loop), a component in each
+
+Multiscale (research/g5-multiscale.md; WSClean's options and defaults):
+  -multiscale               clean on several scales (radler's multiscale algorithm with
+                            its sub-minor loop); takes -mgain, the measured rule or
+                            -minor-to-threshold
+  -multiscale-scales <list> scales in pixels, comma-separated (default: 0, then 4, 8, 16, ...
+                            times the theoretic beam, below half the image)
+  -multiscale-max-scales <n> at most n automatic scales (default 0: all that fit)
+  -multiscale-scale-bias <b> bias towards larger scales, lower is stronger (default 0.6)
+  -multiscale-shape <shape> tapered-quadratic (default) or gaussian
+  -multiscale-gain <g>      a sub-minor loop takes its scale's peak down by g (default 0.2)";
 
 struct Args {
     ms: PathBuf,
@@ -180,6 +192,7 @@ struct Args {
     model_column: String,
     scans: Vec<i32>,
     unit_weights: bool,
+    multiscale: Option<MultiscaleSettings>,
 }
 
 /// An angle with WSClean's units, in radians (plain numbers are degrees).
@@ -267,7 +280,10 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         model_column: "MODEL_DATA".into(),
         scans: Vec::new(),
         unit_weights: false,
+        multiscale: None,
     };
+    let mut ms = MultiscaleSettings::default();
+    let (mut ms_on, mut ms_option) = (false, None::<&str>);
     let mut i = 0;
     let mut positional = Vec::new();
     let (mut mgain_given, mut misfit_given, mut to_threshold) = (false, false, false);
@@ -412,6 +428,41 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 return Err("-fit-spectral-log-pol is not implemented (WSClean's non-linear                     power-law fitter is not ported; research/g3-spectral.md): use -fit-spectral-pol"
                     .into());
             }
+            "-multiscale" => ms_on = true,
+            "-multiscale-scales" => {
+                let v = value(&mut i)?;
+                ms.scales = v
+                    .split(',')
+                    .map(|s| number(flag, s.trim().to_string()))
+                    .collect::<Result<Vec<f64>, String>>()?;
+                ms_option = Some(flag);
+            }
+            "-multiscale-max-scales" => {
+                ms.max_scales = number(flag, value(&mut i)?)?;
+                ms_option = Some(flag);
+            }
+            "-multiscale-scale-bias" => {
+                ms.scale_bias = number(flag, value(&mut i)?)?;
+                ms_option = Some(flag);
+            }
+            "-multiscale-gain" => {
+                ms.sub_minor_gain = number(flag, value(&mut i)?)?;
+                ms_option = Some(flag);
+            }
+            "-multiscale-shape" => {
+                ms.shape = match value(&mut i)?.as_str() {
+                    "tapered-quadratic" => multiscale::Shape::TaperedQuadratic,
+                    "gaussian" => multiscale::Shape::Gaussian,
+                    other => return Err(format!("-multiscale-shape: unknown shape {other}")),
+                };
+                ms_option = Some(flag);
+            }
+            "-multiscale-convolution-padding" | "-no-multiscale-fast-subminor" => {
+                return Err(format!(
+                    "{flag} is not implemented: gemclean's shape convolutions are linear and \
+                     its multiscale loop is the sub-minor one (research/g5-multiscale.md)"
+                ));
+            }
             "-deconvolution-channels"
             | "-squared-channel-joining"
             | "-channel-division-frequencies"
@@ -515,6 +566,38 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 .into(),
         );
     }
+    if ms_on && a.pols.len() > 1 {
+        return Err(
+            "-multiscale with several polarisations is not implemented (a follow-up of \
+             research/g9-stokes.md, section 12); image one polarisation at a time"
+                .into(),
+        );
+    }
+    if let Some(flag) = ms_option.filter(|_| !ms_on) {
+        return Err(format!("{flag} needs -multiscale"));
+    }
+    if ms_on {
+        if matches!(
+            a.cycle_stop,
+            CycleStop::Certified { .. } | CycleStop::MisfitFraction
+        ) || a.gram_operator.is_some()
+            || a.floor_iterations > 0
+            || a.audit
+        {
+            return Err(
+                "-multiscale takes neither -stop-rule certified, -mgain-misfit, -gram-operator, \
+                 -floor-iterations nor -audit (research/g5-multiscale.md)"
+                    .into(),
+            );
+        }
+        let valid = ms.sub_minor_gain > 0.0 && ms.sub_minor_gain <= 1.0 && ms.scale_bias > 0.0;
+        if !valid {
+            return Err(
+                "-multiscale-gain must be in (0, 1] and -multiscale-scale-bias positive".into(),
+            );
+        }
+        a.multiscale = Some(ms);
+    }
     Ok(a)
 }
 
@@ -542,6 +625,8 @@ struct Cleaned {
     q_floor: Option<f64>,
     t_psf: f64,
     t_beam: f64,
+    /// The multiscale part of the report (`-multiscale` only).
+    multiscale: Option<String>,
 }
 
 /// The gridder-precision-dependent part of the run.
@@ -601,6 +686,11 @@ fn deconvolve<T: Real + Send + Sync>(
         return Err("-stop-rule certified needs the default beam and gridder".into());
     }
     let keep = certified.then(|| (uvw.clone(), wgt.clone()));
+    // WSClean's theoretic beam sets the multiscale scales.
+    let theoretic = args
+        .multiscale
+        .as_ref()
+        .and_then(|_| multiscale::theoretic_beam(&uvw, freq, &wgt, n, args.scale));
     // The plan of the image grid is made after the 2n PSF, which does not use it.
     let measurement: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
         uvw,
@@ -725,6 +815,34 @@ fn deconvolve<T: Real + Send + Sync>(
     }
     let psf2n_bytes = bytes_of(&psf2n);
     drop(psf2n);
+    if let Some(ms) = &args.multiscale {
+        let out = multiscale::run_multiscale(
+            &[(&measurement, &beam, &psf[..])],
+            &[1.0],
+            None,
+            &settings,
+            ms,
+            theoretic.map_or(0.0, |b| b / args.scale),
+        )?;
+        print_multiscale(&out, theoretic);
+        memory::mark("clean: end");
+        memory::note("psf 2n image (freed before the run)", psf2n_bytes);
+        memory::note("psf n x n crop", bytes_of(&psf));
+        for (label, bytes) in measurement.memory().into_iter().chain(beam.memory()) {
+            memory::note(label, bytes);
+        }
+        return Ok(Cleaned {
+            psf,
+            beam,
+            restoring,
+            multiscale: Some(out.to_json(ms, theoretic)),
+            outcome: out.joined.integrated,
+            floor_json,
+            q_floor,
+            t_psf,
+            t_beam,
+        });
+    }
     let outcome = match gram_operator {
         None => {
             gemclean::run_with_bound(&measurement, &beam, &settings, q_floor, stop_bound.as_ref())?
@@ -771,7 +889,21 @@ fn deconvolve<T: Real + Send + Sync>(
         q_floor,
         t_psf,
         t_beam,
+        multiscale: None,
     })
+}
+
+/// WSClean's theoretic beam and the multiscale summary.
+fn print_multiscale(out: &multiscale::Multiscale, theoretic: Option<f64>) {
+    println!(
+        "multiscale: theoretic beam {:.4}\" ({:.4} pixels), {} scales, {} sub-minor loops, end {:?}",
+        theoretic.map_or(f64::NAN, |b| b.to_degrees() * 3600.0),
+        out.beam_pixels,
+        out.scales.len(),
+        out.sub_minor_loops,
+        out.end
+    );
+    out.print_scales();
 }
 
 fn run() -> Result<(), String> {
@@ -914,6 +1046,7 @@ fn run() -> Result<(), String> {
         q_floor,
         t_psf,
         t_beam,
+        multiscale: multiscale_json,
     } = cleaned;
     let scale_deg = args.scale.to_degrees();
     let tq = outcome.tau_quantiles();
@@ -1130,6 +1263,10 @@ fn run() -> Result<(), String> {
         ),
         ("floor", floor_json),
         ("model_update", model_json),
+        (
+            "multiscale",
+            multiscale_json.unwrap_or_else(|| "null".into()),
+        ),
         ("run", outcome.to_json(q_floor)),
         (
             "seconds",
@@ -1326,6 +1463,8 @@ struct ChannelImages {
     separate: Vec<gemclean::Outcome>,
     reference_frequency: Option<f64>,
     t_psf: f64,
+    /// The multiscale part of the report (`-multiscale` only).
+    multiscale: Option<String>,
 }
 
 fn deconvolve_channels<T: Real + Send + Sync>(
@@ -1341,6 +1480,14 @@ fn deconvolve_channels<T: Real + Send + Sync>(
     let mut beams = Vec::with_capacity(chans.len());
     let mut restoring = Vec::with_capacity(chans.len());
     let mut psfs = Vec::with_capacity(chans.len());
+    // WSClean's multiscale scales use the smallest theoretic beam of the
+    // output channels (`minTheoreticalBeamSize`).
+    let theoretic = args.multiscale.as_ref().and_then(|_| {
+        chans
+            .iter()
+            .filter_map(|c| multiscale::theoretic_beam(&c.uvw, &c.freq, &c.wgt, n, args.scale))
+            .reduce(f64::min)
+    });
     for c in chans {
         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
             c.uvw,
@@ -1396,6 +1543,77 @@ fn deconvolve_channels<T: Real + Send + Sync>(
     };
     let beam_peak = beams.iter().map(|b| b.peak).collect();
     let beam_f = beams.iter().map(|b| b.f).collect();
+    if let Some(ms) = &args.multiscale {
+        let beam_pixels = theoretic.map_or(0.0, |b| b / args.scale);
+        let fit = args
+            .fit_spectral_pol
+            .filter(|_| args.join_channels)
+            .map(|terms| PolynomialFit::new(terms, central.to_vec(), weights.to_vec()));
+        let mut runs = Vec::new();
+        if args.join_channels {
+            let triples: Vec<(&GridMeasurement<T>, &Beam, &[f64])> = measurements
+                .iter()
+                .zip(&beams)
+                .zip(&psfs)
+                .map(|((m, b), p)| (m, b, &p[..]))
+                .collect();
+            runs.push(multiscale::run_multiscale(
+                &triples,
+                weights,
+                fit.as_ref(),
+                &settings,
+                ms,
+                beam_pixels,
+            )?);
+        } else {
+            for ((m, b), p) in measurements.iter().zip(&beams).zip(&psfs) {
+                runs.push(multiscale::run_multiscale(
+                    &[(m, b, &p[..])],
+                    &[1.0],
+                    None,
+                    &settings,
+                    ms,
+                    beam_pixels,
+                )?);
+                memory::mark(&format!("channel {}: clean", runs.len() - 1));
+            }
+        }
+        memory::mark("clean: end");
+        for r in &runs {
+            print_multiscale(r, theoretic);
+        }
+        let json = arr(&runs
+            .iter()
+            .map(|r| r.to_json(ms, theoretic))
+            .collect::<Vec<_>>());
+        let (mut dirty, mut model, mut residual) = (Vec::new(), Vec::new(), Vec::new());
+        let (mut joined, mut separate) = (None, Vec::new());
+        for r in runs {
+            let j = r.joined;
+            dirty.extend(j.dirty);
+            model.extend(j.model);
+            residual.extend(j.residual);
+            if args.join_channels {
+                joined = Some(j.integrated);
+            } else {
+                separate.push(j.integrated);
+            }
+        }
+        return Ok(ChannelImages {
+            psf: psfs,
+            restoring,
+            beam_peak,
+            beam_f,
+            dirty,
+            model,
+            residual,
+            joined,
+            separate,
+            reference_frequency: fit.map(|f| f.reference),
+            t_psf,
+            multiscale: Some(json),
+        });
+    }
     if args.join_channels {
         let pairs: Vec<(&GridMeasurement<T>, &Beam)> = measurements.iter().zip(&beams).collect();
         let fit = args
@@ -1415,6 +1633,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
             separate: Vec::new(),
             reference_frequency: fit.map(|f| f.reference),
             t_psf,
+            multiscale: None,
         })
     } else {
         let mut separate = Vec::with_capacity(measurements.len());
@@ -1434,6 +1653,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
             separate,
             reference_frequency: None,
             t_psf,
+            multiscale: None,
         })
     }
 }
@@ -1758,6 +1978,10 @@ fn run_channels(
         ("wgridder_accuracy", num(args.epsilon)),
         ("phase_dir_rad", arr(&[num(phase_dir.0), num(phase_dir.1)])),
         ("channels", arr(&channels_json)),
+        (
+            "multiscale",
+            out.multiscale.clone().unwrap_or_else(|| "null".into()),
+        ),
         ("mfs_restoring_beam", beam_json(&restoring_mfs)),
         (
             "run",
@@ -2688,5 +2912,45 @@ mod tests {
             .map(String::from)
             .collect();
         assert!(parse_args(&bad).is_err());
+    }
+
+    #[test]
+    fn multiscale_flags() {
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        assert!(
+            parse("-size 64 64 -scale 2asec x.ms")
+                .unwrap()
+                .multiscale
+                .is_none()
+        );
+        let a = parse("-size 64 64 -scale 2asec -multiscale x.ms").unwrap();
+        assert_eq!(a.multiscale, Some(MultiscaleSettings::default()));
+        let a = parse(
+            "-size 64 64 -scale 2asec -multiscale -multiscale-scales 0,5,12.5 \
+             -multiscale-scale-bias 0.7 -multiscale-shape gaussian -multiscale-gain 0.1 \
+             -multiscale-max-scales 3 -mgain 0.8 x.ms",
+        )
+        .unwrap();
+        let ms = a.multiscale.unwrap();
+        assert_eq!(ms.scales, vec![0.0, 5.0, 12.5]);
+        assert_eq!(ms.scale_bias, 0.7);
+        assert_eq!(ms.shape, multiscale::Shape::Gaussian);
+        assert_eq!(ms.sub_minor_gain, 0.1);
+        assert_eq!(ms.max_scales, 3);
+        assert_eq!(a.cycle_stop, CycleStop::PeakFraction(0.8));
+        for line in [
+            "-size 64 64 -scale 2asec -multiscale-scales 0,5 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-shape disc x.ms",
+            "-size 64 64 -scale 2asec -multiscale -no-multiscale-fast-subminor x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-convolution-padding 1.2 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -stop-rule certified x.ms",
+            "-size 64 64 -scale 2asec -multiscale -mgain-misfit 0.5 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-gain 0 x.ms",
+        ] {
+            assert!(parse(line).is_err(), "{line}");
+        }
     }
 }

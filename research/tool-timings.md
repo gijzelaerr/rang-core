@@ -1741,3 +1741,18 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-06/07 | G6/W6 `tools/check-all.sh` | worktree | 12-13 min (3 runs) | – | FAIL only on the research-index test |
 | 2026-11-08 | G9 merge of main 3defaae: check-all | worktree | 12:36 with lock wait | 1.83 GB | only `test_every_note_is_in_the_research_index` fails |
 | 2026-11-08 | G9 merge check (main 3defaae build, merged build, criterion A, two smoke runs) | D1, H1p | builds about 2.5 min each; runs as before | 2.10-6.86 GB | heavy lock for every build and run; all identical |
+| 2026-11-07/08 | G5 `cargo build --profile gemclean --bin gemclean`, 5 builds (dev1-3, freeze, main `b504ff9`) | core crate | 2 min 18 s-3 min 35 s (6 min with the lock wait) | – | dev1 and its clippy without the lock, the rest under it |
+| 2026-11-08 | G5 GeMClean `-multiscale -mgain 0.8`, S2, S2g, H4, H4l, M1 | 2048², 8 channels | 2 min 50 s-3 min 12 s | 4.05-4.81 GB | busy host; [g5-multiscale.md](g5-multiscale.md) |
+| 2026-11-07/08 | G5 WSClean 3.7 `-multiscale -mgain 0.8`, same five | same | 2 min 01 s-2 min 44 s | 2.07-2.36 GB | in container |
+| 2026-11-08 | G5 GeMClean / WSClean, D2j (8 joined channels, fit) | 2048², 16 channels | 4 min 27 s / 9 min 30 s | 10.13 / 3.76 GB | |
+| 2026-11-08 | G5 GeMClean / WSClean, the ESO 137 pilot set A (256 channels) | 4096² × 3″ | 9 min 13 s / 13 min 49 s | 15.17 / 5.11 GB | |
+| 2026-11-08 | G5 `gemclean_bench_simulate.py --sky M1` | 1,814,400 rows × 8 ch | 65 s | 0.42 GB | heavy lock |
+| 2026-11-08 | G5 identity set (15 runs + D1-C1, D1-C3), frozen binary | as G2 and G3 | as G2's | 1.91-11.96 GB | all 17 byte-identical |
+| 2026-11-08 | G5 `tools/check-all.sh` | worktree | 12 min 14 s | 1.85 GB | FAIL only on the research-index test |
+| 2026-11-08 | C5 `examples/c5_selfcal_sim.py`, one case | 55,552 rows × 64 ch, 32 antennas | 8-15 s | – | target only, MODEL_TRUE included |
+| 2026-11-08 | C5 `rang-core selfcal`, 2 rounds + final image (2048², 2asec) | the same | 4 min 24 s - 18 min 22 s (stage 161-265 s; the rest waiting for the heavy lock) | 2.25 GB | gemclean 15-21 s per image; solve 3.1-3.7 s; round-1 apply 41 s (adds CORRECTED_DATA), later 2.6 s; on /mnt/d |
+| 2026-11-08 | C5 library Sa / Sp / Sd solves, `check_c5.py t0` | two noiseless twins | 24-163 s for all three (twin generation included) | 0.79 GB | |
+| 2026-11-08 | C5 QuartiCal 0.2.7 `goquartical`, phase / diag_complex / delay_and_offset | 55,552 rows × 64 ch | 28-71 s per solve; 57-106 s per container (2 solves) | – | single-threaded, Numba JIT included |
+| 2026-11-08 | C5 `tools/check-all.sh` (2 runs) | worktree | 17 min 7 s, 9 min 18 s (lock waits included) | 1.85 GB | run 1: research-index test and a receipts-registry finding (fixed); run 2: research-index test only |
+| 2026-11-09 | G9 merge of main a2450aa: check-all | worktree | see g9-20261109-checkall-4.time | – | only `test_every_note_is_in_the_research_index` fails |
+| 2026-11-09 | G9 merge check 2 (main a2450aa build, merged build, criterion A, one smoke run) | D1, H1p | builds about 2.5 min each; runs as before | 2.11-6.86 GB | heavy lock; all identical |
