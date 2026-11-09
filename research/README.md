@@ -36,6 +36,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [G5, multiscale CLEAN](g5-multiscale.md): GeMClean `-multiscale` (radler's algorithm and sub-minor loop) against WSClean 3.7 on S2, H4, joined D2, the ESO 137-006 pilot and held-out M1; every gate met.
 - [G6, MODEL_DATA and a predict mode](g6-predict.md): gemclean writes MODEL_DATA after imaging and has WSClean's -predict; equal to WSClean 3.7's -predict to 1-4e-7 on S1-S3, H1, H2, joined channels and the pilot; rang-core image.write_model writes it through WriteBack.
 - [G9, Stokes imaging](g9-stokes.md): GeMClean `-pol` and `-join-polarizations` against WSClean 3.7 on simulated polarised skies; WSClean 3.7 joins polarisations on a linear sum, not the squared sum its help states; held-out C, D and E not met as frozen, post-hoc C′ and D′ pass.
+- [G4, masks, tapers and uv range](g4-masks.md): GeMClean `-fits-mask`, `-auto-mask`, tapers and uv range against WSClean 3.7; selection within 3.6e-7 of the peak, masks confine every pick; restoring beam, sigma per iteration and two point apertures not met as frozen.
 - [E1, the whole chain on simulated truth](e1-chain.md): `rang-core run` on A1's m32 truth exits 0; no gate met as frozen; some causes shared with CASA (K flags, one delay), one rang-only K miss, the rest not established.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.

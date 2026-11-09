@@ -1918,6 +1918,22 @@ def gemclean_arguments(img, column, field_id, prefix, ms, scans=(), unit_weights
         args += ["-pol", img["pol"]]
     if img["join_polarizations"]:
         args.append("-join-polarizations")
+    # Task G4 (research/g4-masks.md): only when set, so earlier argv stay as they were.
+    for key, flag in (
+        ("taper_gaussian", "-taper-gaussian"),
+        ("taper_tukey", "-taper-tukey"),
+        ("taper_inner_tukey", "-taper-inner-tukey"),
+        ("minuv_l", "-minuv-l"),
+        ("maxuv_l", "-maxuv-l"),
+        ("minuvw_m", "-minuvw-m"),
+        ("maxuvw_m", "-maxuvw-m"),
+        ("fits_mask", "-fits-mask"),
+        ("auto_mask", "-auto-mask"),
+        ("abs_auto_mask", "-abs-auto-mask"),
+        ("auto_mask_nmiter", "-auto-mask-nmiter"),
+    ):
+        if img.get(key) is not None:
+            args += [flag, str(img[key])]
     if img["multiscale"]:
         args.append("-multiscale")
         if img["multiscale_scales"] is not None:

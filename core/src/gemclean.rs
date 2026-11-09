@@ -50,6 +50,7 @@ pub mod host;
 pub mod input;
 pub mod joined;
 pub mod kernels;
+pub mod mask;
 pub mod measure;
 pub mod memory;
 pub mod multiscale;
@@ -716,6 +717,9 @@ struct Working {
     lazy: bool,
     level: Level,
     work: Work,
+    /// The clean mask (task G4): the argmax only sees these pixels; a tile
+    /// without any holds the bound 0 and the pixel `usize::MAX`.
+    mask: Option<Vec<bool>>,
 }
 
 /// Deterministic work counts of a run (they do not depend on the host).
@@ -755,9 +759,40 @@ impl Working {
             lazy,
             level,
             work: Work::default(),
+            mask: None,
         };
         w.refresh_all();
         w
+    }
+
+    /// Restrict the argmax to `mask` (`None`: every pixel) and rescan.
+    fn set_mask(&mut self, mask: Option<&[bool]>) {
+        self.mask = mask.map(|m| m.to_vec());
+        self.refresh_all();
+    }
+
+    /// `tile_best` inside the mask.
+    fn tile_best_masked(
+        r: &[f64],
+        n: usize,
+        tile: usize,
+        tiles: usize,
+        t: usize,
+        mask: &[bool],
+    ) -> (f64, usize) {
+        let (ty, tx) = (t / tiles, t % tiles);
+        let (y0, y1) = (ty * tile, ((ty + 1) * tile).min(n));
+        let (x0, x1) = (tx * tile, ((tx + 1) * tile).min(n));
+        let (mut best, mut pixel) = (0.0, usize::MAX);
+        for y in y0..y1 {
+            for k in y * n + x0..y * n + x1 {
+                if mask[k] && (pixel == usize::MAX || r[k].abs() > best) {
+                    best = r[k].abs();
+                    pixel = k;
+                }
+            }
+        }
+        (best, pixel)
     }
 
     fn tile_best(
@@ -788,20 +823,26 @@ impl Working {
 
     fn refresh_all(&mut self) {
         let (r, n, tile, tiles, level) = (&self.r, self.n, self.tile, self.tiles, self.level);
+        let mask = self.mask.as_deref();
         self.upper
             .par_iter_mut()
             .zip(self.pixel.par_iter_mut())
             .enumerate()
             .for_each(|(t, (u, p))| {
-                (*u, *p) = Self::tile_best(r, n, tile, tiles, t, level);
+                (*u, *p) = match mask {
+                    None => Self::tile_best(r, n, tile, tiles, t, level),
+                    Some(m) => Self::tile_best_masked(r, n, tile, tiles, t, m),
+                };
             });
         self.stale.fill(false);
         self.work.full_scans += 1;
     }
 
     fn rescan(&mut self, t: usize) {
-        (self.upper[t], self.pixel[t]) =
-            Self::tile_best(&self.r, self.n, self.tile, self.tiles, t, self.level);
+        (self.upper[t], self.pixel[t]) = match self.mask.as_deref() {
+            None => Self::tile_best(&self.r, self.n, self.tile, self.tiles, t, self.level),
+            Some(m) => Self::tile_best_masked(&self.r, self.n, self.tile, self.tiles, t, m),
+        };
         self.stale[t] = false;
         self.work.tile_rescans += 1;
         self.work.pixels_rescanned += (self.tile * self.tile) as u64;
@@ -826,6 +867,8 @@ impl Working {
             }
             match stale {
                 Some(t) => self.rescan(t),
+                // An empty mask: no pixel, value zero.
+                None if first == usize::MAX => return (first, 0.0),
                 None => return (first, self.r[first]),
             }
         }
@@ -1391,6 +1434,35 @@ pub fn run_with_bound<M: Measurement>(
     q_floor: Option<f64>,
     bound: Option<&stale_bound::StopBound>,
 ) -> Result<Outcome, String> {
+    run_masked(measurement, beam, settings, q_floor, bound, None).map(|r| r.0)
+}
+
+/// The `-mgain` of a cycle rule under the automatic mask (task G4): `-mgain`
+/// itself, or 1 for `-minor-to-threshold`; other rules are refused.
+pub fn auto_mask_mgain(rule: CycleStop) -> Result<f64, String> {
+    match rule {
+        CycleStop::PeakFraction(g) => Ok(g),
+        CycleStop::Threshold => Ok(1.0),
+        _ => Err(
+            "-auto-mask and -abs-auto-mask take -mgain or -minor-to-threshold: radler's \
+             mask stages are defined on the peak fraction (research/g4-masks.md)"
+                .into(),
+        ),
+    }
+}
+
+/// [`run_with_bound`] with clean masks (task G4, `research/g4-masks.md`):
+/// the FITS mask confines every pick and the threshold checks; the automatic
+/// mask follows radler's stages ([`mask::AutoState`]), whose record is
+/// returned beside the outcome.
+pub fn run_masked<M: Measurement>(
+    measurement: &M,
+    beam: &Beam,
+    settings: &Settings,
+    q_floor: Option<f64>,
+    bound: Option<&stale_bound::StopBound>,
+    masking: Option<&mask::Masking>,
+) -> Result<(Outcome, Option<mask::AutoState>), String> {
     let start = Instant::now();
     let s = settings;
     let n = measurement.side();
@@ -1421,11 +1493,48 @@ pub fn run_with_bound<M: Measurement>(
     let mut work_all = Work::default();
     let mut resync_buffers = [Vec::new(), Vec::new()];
     let mut audit_max: Option<f64> = s.audit.then_some(0.0);
-    let decrease = s.gain * (2.0 - s.gain) / 2.0;
+    let fits_mask = masking.and_then(|m| m.fits.clone());
+    let mut auto = match masking.and_then(|m| m.auto) {
+        Some(a) => Some(mask::AutoState::new(
+            a,
+            s.auto_threshold,
+            s.threshold,
+            auto_mask_mgain(s.cycle_stop)?,
+        )),
+        None => None,
+    };
+    // radler's Högbom mask: the model's nonzero pixels when first used.
+    let mut auto_pixels: Option<Vec<bool>> = None;
+    let mut another_prev = true;
     let stop = loop {
-        let threshold = effective_threshold(&residual, s);
-        let (_, peak) = argmax_abs(&residual);
-        if peak.abs() < threshold {
+        let index = cycles.len() + 1;
+        let mut gain = s.gain;
+        let (mut threshold, stage_mask) = match auto.as_mut() {
+            None => (effective_threshold(&residual, s), fits_mask.clone()),
+            Some(a) => {
+                if !another_prev {
+                    break StopReason::Threshold;
+                }
+                let c = a.begin(index, &residual);
+                if c.gain_doubled {
+                    gain = (2.0 * s.gain).min(1.0);
+                }
+                if c.use_auto {
+                    if auto_pixels.is_none() {
+                        auto_pixels = Some(mask::from_models(&[&model]));
+                    }
+                    (c.threshold, auto_pixels.clone())
+                } else {
+                    (c.threshold, fits_mask.clone())
+                }
+            }
+        };
+        let decrease = gain * (2.0 - gain) / 2.0;
+        let peak = match &stage_mask {
+            None => argmax_abs(&residual).1,
+            Some(m) => mask::masked_peak(&residual, Some(m)).map_or(0.0, |p| p.1),
+        };
+        if auto.is_none() && peak.abs() < threshold {
             break StopReason::Threshold;
         }
         if steps.len() >= s.max_components {
@@ -1437,6 +1546,9 @@ pub fn run_with_bound<M: Measurement>(
         let mut ct = Timings::default();
         let model_major = model.clone();
         let mut work = Working::new(residual.clone(), n, level, s.tile, s.lazy_bounds);
+        if stage_mask.is_some() {
+            work.set_mask(stage_mask.as_deref());
+        }
         let mut since = Since::default();
         let mut delta: HashMap<usize, f64> = HashMap::new();
         let mut predicted = 0.0;
@@ -1444,137 +1556,196 @@ pub fn run_with_bound<M: Measurement>(
         let mut tau_min = f64::INFINITY;
         let mut abs_flux = 0.0_f64;
         let goal = fraction * (q - q_floor.unwrap_or(0.0)).max(0.0);
-        let first_peak = peak.abs();
+        let mut first_peak = peak.abs();
         let stale_used = stale_per_flux;
-        let taken_before = steps.len();
+        let mut taken_before = steps.len();
+        let cycle_taken = taken_before;
+        let mut stop_rule = s.cycle_stop;
+        let mut stage = 0;
+        let mut last_r: f64;
         // The bound's map as of the last resync, and the steps it holds.
         let mut bound_map: Vec<f64> = Vec::new();
         let mut bound_steps = 0_usize;
         let minor_start = Instant::now();
-        let minor_stop = loop {
-            let (p, rt) = work.argmax();
-            let tc = Instant::now();
-            // A patch covering every offset leaves no exterior to correct.
-            let corr = if since.keys.is_empty() || beam.f == 0.0 {
-                0.0
-            } else {
-                correction_terms += since.keys.len() as u64;
-                kernels::gather_sum(
-                    level,
-                    &beam.exterior,
-                    beam.base(p),
-                    &since.keys,
-                    &since.flux,
-                )
-            };
-            ct.correction += tc.elapsed().as_secs_f64();
-            let r = rt - corr;
-            if let Some(worst) = audit_max.as_mut() {
-                let (px, py) = ((p % n) as isize, (p / n) as isize);
-                let mut brute = residual[p];
-                for (&j, &c) in &delta {
-                    let (jx, jy) = ((j % n) as isize, (j / n) as isize);
-                    brute -= c * beam.at(px - jx, py - jy);
-                }
-                *worst = worst.max((r - brute).abs());
-            }
-            if r.abs() < threshold || r == 0.0 {
-                if since.steps == 0 {
+        let minor_stop = 'stages: loop {
+            let stage_stop = loop {
+                let (p, rt) = work.argmax();
+                if p == usize::MAX {
+                    // An empty mask: nothing to clean.
+                    last_r = 0.0;
                     break MinorStop::Threshold;
                 }
-                let tr = Instant::now();
-                resync(
-                    &mut work,
-                    &mut since,
-                    beam,
-                    &model,
-                    &model_major,
-                    &residual,
-                    &mut resync_buffers,
-                );
-                ct.resync += tr.elapsed().as_secs_f64();
-                resyncs.threshold += 1;
-                continue;
-            }
-            let e = beam.f * beam.peak * since.abs_sum;
-            let tau = r.abs() / (rt.abs() + e);
-            if tau < s.tau_min {
-                let tr = Instant::now();
-                resync(
-                    &mut work,
-                    &mut since,
-                    beam,
-                    &model,
-                    &model_major,
-                    &residual,
-                    &mut resync_buffers,
-                );
-                ct.resync += tr.elapsed().as_secs_f64();
-                resyncs.tau += 1;
-                continue;
-            }
-            if steps.len() >= s.max_components {
-                break MinorStop::Budget;
-            }
-            // The ℓ∞ rules read the exact value, and take a cycle's first step.
-            if steps.len() > taken_before {
-                let stop_here = match s.cycle_stop {
-                    CycleStop::PeakFraction(g) => r.abs() < (1.0 - g) * first_peak,
-                    CycleStop::MeasuredStale { rho, g, floor } => {
-                        if cycles.is_empty() {
-                            r.abs() < (1.0 - g) * first_peak
-                        } else {
-                            r.abs() <= (rho * stale_used * abs_flux).max(floor * first_peak)
-                        }
-                    }
-                    CycleStop::Certified { kappa } => {
-                        let b = bound.expect("checked on entry");
-                        if since.steps == 0 && bound_steps != steps.len() - taken_before {
-                            bound_map = b.map_of(&model, &model_major);
-                            bound_steps = steps.len() - taken_before;
-                        }
-                        kappa * r.abs() <= b.at_pick(level, beam, p, &bound_map, &since)
-                    }
-                    CycleStop::MisfitFraction | CycleStop::Threshold => false,
-                };
-                if stop_here {
-                    break MinorStop::PeakRule;
-                }
-            }
-            let c = s.gain * r / beam.peak;
-            abs_flux += c.abs();
-            model[p] += c;
-            predicted -= decrease * r * r / beam.peak;
-            work.subtract_patch(beam, p, c);
-            since.add(p, beam.key(p), c);
-            if s.audit {
-                *delta.entry(p).or_insert(0.0) += c;
-            }
-            steps.push(CleanStep { pixel: p, peak: r });
-            taus.push(tau);
-            tau_min = tau_min.min(tau);
-            if s.cycle_stop == CycleStop::MisfitFraction && goal > 0.0 && -predicted >= goal {
-                break MinorStop::MajorFraction;
-            }
-            let drifted = (r - rt).abs() > s.drift * rt.abs();
-            if drifted || since.steps >= s.resync_every {
-                let tr = Instant::now();
-                resync(
-                    &mut work,
-                    &mut since,
-                    beam,
-                    &model,
-                    &model_major,
-                    &residual,
-                    &mut resync_buffers,
-                );
-                ct.resync += tr.elapsed().as_secs_f64();
-                if drifted {
-                    resyncs.drift += 1;
+                let tc = Instant::now();
+                // A patch covering every offset leaves no exterior to correct.
+                let corr = if since.keys.is_empty() || beam.f == 0.0 {
+                    0.0
                 } else {
-                    resyncs.every += 1;
+                    correction_terms += since.keys.len() as u64;
+                    kernels::gather_sum(
+                        level,
+                        &beam.exterior,
+                        beam.base(p),
+                        &since.keys,
+                        &since.flux,
+                    )
+                };
+                ct.correction += tc.elapsed().as_secs_f64();
+                let r = rt - corr;
+                last_r = r;
+                if let Some(worst) = audit_max.as_mut() {
+                    let (px, py) = ((p % n) as isize, (p / n) as isize);
+                    let mut brute = residual[p];
+                    for (&j, &c) in &delta {
+                        let (jx, jy) = ((j % n) as isize, (j / n) as isize);
+                        brute -= c * beam.at(px - jx, py - jy);
+                    }
+                    *worst = worst.max((r - brute).abs());
+                }
+                if r.abs() < threshold || r == 0.0 {
+                    if since.steps == 0 {
+                        break MinorStop::Threshold;
+                    }
+                    let tr = Instant::now();
+                    resync(
+                        &mut work,
+                        &mut since,
+                        beam,
+                        &model,
+                        &model_major,
+                        &residual,
+                        &mut resync_buffers,
+                    );
+                    ct.resync += tr.elapsed().as_secs_f64();
+                    resyncs.threshold += 1;
+                    continue;
+                }
+                let e = beam.f * beam.peak * since.abs_sum;
+                let tau = r.abs() / (rt.abs() + e);
+                if tau < s.tau_min {
+                    let tr = Instant::now();
+                    resync(
+                        &mut work,
+                        &mut since,
+                        beam,
+                        &model,
+                        &model_major,
+                        &residual,
+                        &mut resync_buffers,
+                    );
+                    ct.resync += tr.elapsed().as_secs_f64();
+                    resyncs.tau += 1;
+                    continue;
+                }
+                if steps.len() >= s.max_components {
+                    break MinorStop::Budget;
+                }
+                // The ℓ∞ rules read the exact value, and take a cycle's first step.
+                if steps.len() > taken_before {
+                    let stop_here = match stop_rule {
+                        CycleStop::PeakFraction(g) => r.abs() < (1.0 - g) * first_peak,
+                        CycleStop::MeasuredStale { rho, g, floor } => {
+                            if cycles.is_empty() {
+                                r.abs() < (1.0 - g) * first_peak
+                            } else {
+                                r.abs() <= (rho * stale_used * abs_flux).max(floor * first_peak)
+                            }
+                        }
+                        CycleStop::Certified { kappa } => {
+                            let b = bound.expect("checked on entry");
+                            if since.steps == 0 && bound_steps != steps.len() - taken_before {
+                                bound_map = b.map_of(&model, &model_major);
+                                bound_steps = steps.len() - taken_before;
+                            }
+                            kappa * r.abs() <= b.at_pick(level, beam, p, &bound_map, &since)
+                        }
+                        CycleStop::MisfitFraction | CycleStop::Threshold => false,
+                    };
+                    if stop_here {
+                        break MinorStop::PeakRule;
+                    }
+                }
+                let c = gain * r / beam.peak;
+                abs_flux += c.abs();
+                model[p] += c;
+                predicted -= decrease * r * r / beam.peak;
+                work.subtract_patch(beam, p, c);
+                since.add(p, beam.key(p), c);
+                if s.audit {
+                    *delta.entry(p).or_insert(0.0) += c;
+                }
+                steps.push(CleanStep { pixel: p, peak: r });
+                if let Some(a) = auto.as_mut() {
+                    a.record_pick(work.mask.as_deref(), p);
+                }
+                taus.push(tau);
+                tau_min = tau_min.min(tau);
+                if s.cycle_stop == CycleStop::MisfitFraction && goal > 0.0 && -predicted >= goal {
+                    break MinorStop::MajorFraction;
+                }
+                let drifted = (r - rt).abs() > s.drift * rt.abs();
+                if drifted || since.steps >= s.resync_every {
+                    let tr = Instant::now();
+                    resync(
+                        &mut work,
+                        &mut since,
+                        beam,
+                        &model,
+                        &model_major,
+                        &residual,
+                        &mut resync_buffers,
+                    );
+                    ct.resync += tr.elapsed().as_secs_f64();
+                    if drifted {
+                        resyncs.drift += 1;
+                    } else {
+                        resyncs.every += 1;
+                    }
+                }
+            };
+            // The automatic mask (task G4): radler's decision after the first
+            // minor loop, and the continued, masked one of the `dual` mode.
+            if let Some(a) = auto.as_mut().filter(|_| stage == 0) {
+                stage = 1;
+                let did_work = steps.len() > taken_before;
+                let end = mask::StageEnd {
+                    another: stage_stop == MinorStop::PeakRule && did_work,
+                    start_peak: first_peak,
+                    end_peak: last_r.abs(),
+                };
+                let (another, cont) = a.end_stage(
+                    index,
+                    end,
+                    index < s.max_major,
+                    steps.len() < s.max_components,
+                );
+                another_prev = another;
+                if let Some(k) = cont {
+                    if since.steps > 0 {
+                        let tr = Instant::now();
+                        resync(
+                            &mut work,
+                            &mut since,
+                            beam,
+                            &model,
+                            &model_major,
+                            &residual,
+                            &mut resync_buffers,
+                        );
+                        ct.resync += tr.elapsed().as_secs_f64();
+                    }
+                    if auto_pixels.is_none() {
+                        auto_pixels = Some(mask::from_models(&[&model]));
+                    }
+                    work.set_mask(auto_pixels.as_deref());
+                    let (p, rt) = work.argmax();
+                    first_peak = if p == usize::MAX { 0.0 } else { rt.abs() };
+                    threshold = k.threshold;
+                    stop_rule = CycleStop::PeakFraction(k.gain);
+                    taken_before = steps.len();
+                    continue 'stages;
                 }
             }
+            break stage_stop;
         };
         // The prediction at the end of the cycle, exact for the image-domain
         // beam, to measure what the major cycle corrects.
@@ -1623,7 +1794,7 @@ pub fn run_with_bound<M: Measurement>(
         let gap = dq_exact - predicted;
         cycles.push(Cycle {
             index: cycles.len(),
-            components: steps.len() - taken_before,
+            components: steps.len() - cycle_taken,
             resyncs,
             stop: minor_stop,
             peak_start: peak.abs(),
@@ -1668,7 +1839,7 @@ pub fn run_with_bound<M: Measurement>(
         q = q_next;
     };
     timings.total = start.elapsed().as_secs_f64();
-    Ok(Outcome {
+    let outcome = Outcome {
         dirty,
         model,
         residual,
@@ -1686,7 +1857,8 @@ pub fn run_with_bound<M: Measurement>(
         work: work_all,
         audit_max_error: audit_max,
         level,
-    })
+    };
+    Ok((outcome, auto))
 }
 
 // ---------------------------------------------------------------------------

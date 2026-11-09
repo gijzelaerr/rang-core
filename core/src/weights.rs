@@ -296,6 +296,142 @@ impl WeightGrid {
     }
 }
 
+/// WSClean 3.7's weight tapers and uv-range cuts (task G4,
+/// `research/g4-masks.md`): `-taper-gaussian` (the beam size in radians),
+/// `-minuv-l`, `-maxuv-l`, `-taper-tukey`, `-taper-inner-tukey`,
+/// `-taper-edge` and `-taper-edge-tukey` (wavelengths). Zero is off. They
+/// act on the cells of the weight grid, evaluated at each cell's lower
+/// corner (`xyToUV`), not on the visibilities.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct UvTapers {
+    pub gaussian_beam: f64,
+    pub min_uv_l: f64,
+    pub max_uv_l: f64,
+    pub tukey: f64,
+    pub inner_tukey: f64,
+    pub edge: f64,
+    pub edge_tukey: f64,
+}
+
+impl UvTapers {
+    /// Whether any taper or cut is set.
+    pub fn any(&self) -> bool {
+        *self != UvTapers::default()
+    }
+}
+
+/// `tukeyFrom0ToN`: 0 at `x = 0`, 1 at `x = n`.
+fn tukey_0_to_n(x: f64, n: f64) -> f64 {
+    0.5 * (1.0 + ((std::f64::consts::PI / n) * (x - n)).cos())
+}
+
+impl WeightGrid {
+    /// `xyToUV` on the half plane (`y ≥ 0`).
+    fn xy_to_uv(&self, x: i64, y: i64) -> (f64, f64) {
+        let u = (x - (self.width / 2) as i64) as f64 / (self.width as f64 * self.scale_x);
+        let v = y as f64 / (self.height as f64 * self.scale_y);
+        (u, v)
+    }
+
+    /// Multiply every cell by `f(u, v, value)`.
+    fn map_cells(&mut self, f: impl Fn(f64, f64, f64) -> f64) {
+        let w = self.width;
+        for y in 0..self.height / 2 {
+            for x in 0..w {
+                let (u, v) = self.xy_to_uv(x as i64, y as i64);
+                let k = y * w + x;
+                self.grid[k] = f(u, v, self.grid[k]);
+            }
+        }
+    }
+
+    /// `initializeWeightTapers` after the rank filter: the Gaussian taper,
+    /// then the inner Tukey taper or the minimum uv distance, then the outer
+    /// Tukey taper or the maximum, then the edge Tukey taper or the edge.
+    pub fn apply_tapers(&mut self, t: &UvTapers) {
+        if t.gaussian_beam != 0.0 {
+            // `SetGaussianTaper`: the half-power width times the long double
+            // `2 sqrt(2 ln 2)` (x87, 64-bit mantissa; its f64 part and rest),
+            // the product rounded to double.
+            let half_power_uv = 1.0 / (t.gaussian_beam * 2.0 * std::f64::consts::PI);
+            const SIGMA_HI: f64 = 2.3548200450309493;
+            const SIGMA_LO: f64 = 5.5077470362263625e-17;
+            let p = half_power_uv * SIGMA_HI;
+            let e = half_power_uv.mul_add(SIGMA_HI, -p) + half_power_uv * SIGMA_LO;
+            let m = p + e;
+            let m = m * (-2.0 * m);
+            self.map_cells(|u, v, val| {
+                if val != 0.0 {
+                    val * ((u * u + v * v) / m).exp()
+                } else {
+                    val
+                }
+            });
+        }
+        if t.inner_tukey != 0.0 {
+            let (min, n) = (t.min_uv_l, t.inner_tukey);
+            let (min_sq, total_sq) = (min * min, (min + n) * (min + n));
+            self.map_cells(|u, v, val| {
+                let d = u * u + v * v;
+                if d < min_sq {
+                    0.0
+                } else if d < total_sq {
+                    val * tukey_0_to_n(d.sqrt() - min, n)
+                } else {
+                    val
+                }
+            });
+        } else if t.min_uv_l != 0.0 {
+            let min_sq = t.min_uv_l * t.min_uv_l;
+            self.map_cells(|u, v, val| if u * u + v * v < min_sq { 0.0 } else { val });
+        }
+        if t.tukey != 0.0 {
+            let (max, n) = (t.max_uv_l, t.tukey);
+            let (max_sq, trans_sq) = (max * max, (max - n) * (max - n));
+            self.map_cells(|u, v, val| {
+                let d = u * u + v * v;
+                if d > max_sq {
+                    0.0
+                } else if d > trans_sq {
+                    val * tukey_0_to_n(max - d.sqrt(), n)
+                } else {
+                    val
+                }
+            });
+        } else if t.max_uv_l != 0.0 {
+            let max_sq = t.max_uv_l * t.max_uv_l;
+            self.map_cells(|u, v, val| if u * u + v * v > max_sq { 0.0 } else { val });
+        }
+        if t.edge_tukey != 0.0 || t.edge != 0.0 {
+            let (max_u, max_v) = self.xy_to_uv(self.width as i64, (self.height / 2) as i64);
+            let (edge, n) = (t.edge, t.edge_tukey);
+            if n != 0.0 {
+                let total = n + edge;
+                self.map_cells(|u, v, val| {
+                    let (ud, vd) = (max_u - u.abs(), max_v - v.abs());
+                    if ud < edge || vd < edge {
+                        0.0
+                    } else if ud < total || vd < total {
+                        let ru = (ud - edge).min(n);
+                        let rv = (vd - edge).min(n);
+                        val * (tukey_0_to_n(ru, n) * tukey_0_to_n(rv, n))
+                    } else {
+                        val
+                    }
+                });
+            } else {
+                self.map_cells(|u, v, val| {
+                    if max_u - u.abs() < edge || max_v - v.abs() < edge {
+                        0.0
+                    } else {
+                        val
+                    }
+                });
+            }
+        }
+    }
+}
+
 /// Settings of one WSClean weighting pass.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct WeightSettings {
@@ -321,6 +457,26 @@ pub fn imaging_weights(
     weights: &[f32],
     selected: &[bool],
 ) -> Result<(Vec<f32>, WeightGrid), &'static str> {
+    imaging_weights_tapered(
+        settings,
+        &UvTapers::default(),
+        uvw,
+        wavelength,
+        weights,
+        selected,
+    )
+}
+
+/// [`imaging_weights`] with WSClean's tapers and uv-range cuts applied to
+/// the finished (and rank-filtered) grid, as `initializeWeightTapers` does.
+pub fn imaging_weights_tapered(
+    settings: &WeightSettings,
+    tapers: &UvTapers,
+    uvw: &[f64],
+    wavelength: &[f64],
+    weights: &[f32],
+    selected: &[bool],
+) -> Result<(Vec<f32>, WeightGrid), &'static str> {
     let mut grid = WeightGrid::new(
         settings.class,
         settings.width,
@@ -334,6 +490,7 @@ pub fn imaging_weights(
     if settings.rank_filter_level >= 1.0 {
         grid.rank_filter(settings.rank_filter_level, settings.rank_filter_size);
     }
+    grid.apply_tapers(tapers);
     let mut out = vec![0.0f32; weights.len()];
     grid.lookup_rows(uvw, wavelength, selected, &mut out)?;
     Ok((out, grid))
@@ -539,5 +696,57 @@ mod tests {
         assert!(out[0] > 0.0 && out[1] > 0.0);
         assert_eq!(&out[2..], &[0.0, 0.0]);
         assert_eq!(grid.cells().iter().filter(|&&c| c != 0.0).count(), 2);
+    }
+
+    /// Task G4: the uv cuts zero cells by their lower corner, the Gaussian
+    /// taper is `exp(-(u² + v²) / (2 (h · 2 sqrt(2 ln 2))²))` with `h` the
+    /// half-power uv width, and no taper leaves the grid as it was.
+    #[test]
+    fn tapers_act_on_the_cells() {
+        let mut grid = WeightGrid::new(WeightClass::Natural, 64, 64, SCALE, SCALE, 1.0).unwrap();
+        // One sample per cell along v = 0 (u > 0) and along u = 0.
+        let du = 1.0 / (64.0 * SCALE);
+        for k in 1..30 {
+            grid.grid_sample((k as f64 + 0.5) * du, 0.0, 1.0);
+            grid.grid_sample(0.0, (k as f64 + 0.5) * du, 1.0);
+        }
+        grid.finish().unwrap();
+        let before = grid.cells().to_vec();
+        grid.apply_tapers(&UvTapers::default());
+        assert_eq!(grid.cells(), &before[..]);
+        let cut = UvTapers {
+            min_uv_l: 4.5 * du,
+            max_uv_l: 20.5 * du,
+            ..UvTapers::default()
+        };
+        let mut g = grid.clone();
+        g.apply_tapers(&cut);
+        // Cell k on the u axis has its corner at u = k du.
+        let cell = |g: &WeightGrid, k: usize| g.cells()[32 + k];
+        assert_eq!(cell(&g, 4), 0.0);
+        assert_eq!(cell(&g, 5), 1.0);
+        assert_eq!(cell(&g, 20), 1.0);
+        assert_eq!(cell(&g, 21), 0.0);
+        let beam = 30.0 * SCALE;
+        let mut g = grid.clone();
+        g.apply_tapers(&UvTapers {
+            gaussian_beam: beam,
+            ..UvTapers::default()
+        });
+        let h = 1.0 / (beam * 2.0 * std::f64::consts::PI) * 2.0 * (2.0 * 2f64.ln()).sqrt();
+        for k in [1usize, 7, 15] {
+            let u = k as f64 * du;
+            let want = (-(u * u) / (2.0 * h * h)).exp();
+            assert!((cell(&g, k) - want).abs() < 1e-12 * want.max(1e-300));
+        }
+        let mut g = grid.clone();
+        g.apply_tapers(&UvTapers {
+            max_uv_l: 20.0 * du,
+            tukey: 10.0 * du,
+            ..UvTapers::default()
+        });
+        assert_eq!(cell(&g, 8), 1.0);
+        assert!((cell(&g, 15) - 0.5).abs() < 1e-12);
+        assert_eq!(cell(&g, 21), 0.0);
     }
 }

@@ -14,6 +14,17 @@ the release notes are the section of this file for that version.
   per scan exits 0; no E1 gate of A0 is met as frozen and no rang bug was located (the K failures are
   CASA's own on the same flags). Scripts in `research/results/e1-chain-scripts/`, archive
   `research/results/e1-chain.json`. No package code changed.
+- New: GeMClean masks, tapers and uv limits (`research/g4-masks.md`), WSClean 3.7's options:
+  `-fits-mask` (one plane, the image's size); radler's automatic mask `-auto-mask`,
+  `-abs-auto-mask`, `-auto-mask-nmiter` in the default `dual` mode (Högbom, joined channels and
+  multiscale with its per-scale masks; needs `-mgain` or `-minor-to-threshold`);
+  `-taper-gaussian` (arcseconds by default), `-taper-tukey`, `-taper-inner-tukey`, `-taper-edge`,
+  `-taper-edge-tukey`, `-minuv-l` and `-maxuv-l` on the weight grid's cells, and `-minuvw-m`,
+  `-maxuvw-m` on rows. `rang-core image` passes `auto_mask`, `abs_auto_mask`,
+  `auto_mask_nmiter`, `fits_mask`, `taper_gaussian`, `taper_tukey`, `taper_inner_tukey`,
+  `minuv_l`, `maxuv_l`, `minuvw_m`, `maxuvw_m`; `image.uvrange` stays refused (use those keys),
+  and `auto_mask` without `mgain` is a configuration refusal. `-local-rms`, `-casa-mask`,
+  `-horizon-mask` and `-clean-border` are refused.
 - Fixed: `image.gemclean: auto` finds `core/target/<profile>/gemclean.exe` on Windows. The test
   stand-in for gemclean is a Python script (a `.cmd` wrapper on Windows), and the selfcal refusal
   test no longer needs a built binary. `examples/a1_simtruth.py` uses spawned workers where fork is

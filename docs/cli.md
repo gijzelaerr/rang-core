@@ -302,10 +302,18 @@ image:
   join_channels: false  # join the output channels
   fit_spectral_pol: null  # terms of the polynomial fit across joined channels
   average_channels: 1  # adjacent channels averaged before imaging (rang's own)
-  auto_mask: null  # automatic mask at this many sigma
-  fits_mask: null  # a FITS mask
-  taper_gaussian: null  # a Gaussian taper, such as 10asec
-  uvrange: ""  # baselines imaged
+  auto_mask: null  # radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)
+  abs_auto_mask: null  # the automatic mask at this many Jy (-abs-auto-mask)
+  auto_mask_nmiter: null  # major cycles after the mask is made (null: WSClean's 2)
+  fits_mask: null  # a FITS mask of the image's size, one plane
+  taper_gaussian: null  # a Gaussian taper, such as 10asec (a plain number is asec)
+  taper_tukey: null  # Tukey transition below maxuv_l, wavelengths
+  taper_inner_tukey: null  # Tukey transition above minuv_l, wavelengths
+  minuv_l: null  # shortest uv distance imaged, wavelengths
+  maxuv_l: null  # longest uv distance imaged, wavelengths
+  minuvw_m: null  # shortest baseline |uvw| imaged, metres
+  maxuvw_m: null  # longest baseline |uvw| imaged, metres
+  uvrange: ""  # not read: use minuv_l, maxuv_l, minuvw_m and maxuvw_m
   multiscale: false  # multiscale CLEAN (WSClean's -multiscale)
   multiscale_scales: null  # scales in pixels (null: WSClean's automatic scales)
   multiscale_max_scales: null  # at most this many automatic scales (null: all that fit)

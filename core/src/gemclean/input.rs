@@ -20,7 +20,7 @@
 
 use super::stokes::{self, Pol};
 use crate::ms::{ColumnData, DataType, Table};
-use crate::weights::{WeightClass, WeightSettings, imaging_weights, padded_size};
+use crate::weights::{UvTapers, WeightClass, WeightSettings, imaging_weights_tapered, padded_size};
 use rayon::prelude::*;
 use rustfft::num_complex::Complex;
 use std::path::Path;
@@ -43,6 +43,11 @@ pub struct Selection {
     /// Every correlation weighs 1, in place of WEIGHT_SPECTRUM or WEIGHT;
     /// flags still apply (task W6, `data.weights: uniform`).
     pub unit_weights: bool,
+    /// WSClean's `-minuvw-m` and `-maxuvw-m`: only rows whose `|uvw|`
+    /// (three-dimensional, metres) is at least the first and at most the
+    /// second; zero is off (task G4, `MSSelection::IsSelected`).
+    pub min_uvw_m: f64,
+    pub max_uvw_m: f64,
 }
 
 impl Default for Selection {
@@ -55,6 +60,8 @@ impl Default for Selection {
             polarization: Pol::I,
             scans: Vec::new(),
             unit_weights: false,
+            min_uvw_m: 0.0,
+            max_uvw_m: 0.0,
         }
     }
 }
@@ -206,8 +213,9 @@ fn stokes_cell(d: &[f32], w: &[f32], f: &[u8], a: usize, b: usize) -> ((f32, f32
 
 /// Which of the rows `start..start + count` of `main` the selection takes:
 /// the field and data description, cross-correlations only (WSClean's
-/// `MSSelection::IsSelected` without its interval and uv limits), and the
-/// scans of `sel.scans` when given (rang's own, task W6).
+/// `MSSelection::IsSelected` without its interval), the `|uvw|` limits
+/// when given (task G4), and the scans of `sel.scans` when given (rang's
+/// own, task W6).
 pub fn row_mask(
     main: &Table,
     sel: &Selection,
@@ -223,12 +231,24 @@ pub fn row_mask(
     } else {
         ints(&read(main, "SCAN_NUMBER", start, count)?, "SCAN_NUMBER")?
     };
+    let cut = sel.min_uvw_m != 0.0 || sel.max_uvw_m != 0.0;
+    let uvw = if cut {
+        doubles(&read(main, "UVW", start, count)?, "UVW")?
+    } else {
+        Vec::new()
+    };
     Ok((0..count as usize)
         .map(|i| {
             field[i] == sel.field
                 && ant1[i] != ant2[i]
                 && ddid[i] == sel.data_desc
                 && (sel.scans.is_empty() || sel.scans.contains(&scan[i]))
+                && (!cut || {
+                    let (u, v, w) = (uvw[3 * i], uvw[3 * i + 1], uvw[3 * i + 2]);
+                    let d = (u * u + v * v + w * w).sqrt();
+                    (sel.min_uvw_m == 0.0 || d >= sel.min_uvw_m)
+                        && (sel.max_uvw_m == 0.0 || d <= sel.max_uvw_m)
+                })
         })
         .collect())
 }
@@ -499,6 +519,17 @@ pub fn gridding_weights(
     size: usize,
     scale: f64,
 ) -> Result<GriddingWeights, String> {
+    gridding_weights_tapered(data, class, size, scale, &UvTapers::default())
+}
+
+/// [`gridding_weights`] with WSClean's tapers and uv-range cuts (task G4).
+pub fn gridding_weights_tapered(
+    data: &StokesI,
+    class: WeightClass,
+    size: usize,
+    scale: f64,
+    tapers: &UvTapers,
+) -> Result<GriddingWeights, String> {
     let padded = padded_size(size, 1.2);
     let settings = WeightSettings {
         class,
@@ -512,8 +543,15 @@ pub fn gridding_weights(
     };
     let wavelength: Vec<f64> = data.freq.iter().map(|f| SPEED_OF_LIGHT / f).collect();
     let selected = vec![true; data.rows()];
-    let (imaging, _) = imaging_weights(&settings, &data.uvw, &wavelength, &data.weight, &selected)
-        .map_err(|e| e.to_string())?;
+    let (imaging, _) = imaging_weights_tapered(
+        &settings,
+        tapers,
+        &data.uvw,
+        &wavelength,
+        &data.weight,
+        &selected,
+    )
+    .map_err(|e| e.to_string())?;
     let nchan = data.freq.len();
     let mut weights = vec![0.0; imaging.len()];
     let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);

@@ -306,7 +306,7 @@ pub fn weight_sources(
 /// WSClean weight grid built from the visibility weights of every data set in
 /// `sources` over the channels `chans`, with the settings of
 /// [`super::input::gridding_weights`] (padding 1.2, rank filter 3 over 16
-/// cells). The sources share their rows and uvw (one MS, other
+/// cells), then `tapers` (task G4). The sources share their rows and uvw (one MS, other
 /// polarisations); with one source and every channel this is the imaging
 /// weight `gridding_weights` multiplies by.
 pub fn imaging_weights(
@@ -315,6 +315,7 @@ pub fn imaging_weights(
     class: crate::weights::WeightClass,
     size: usize,
     scale: f64,
+    tapers: &crate::weights::UvTapers,
 ) -> Result<Vec<f32>, String> {
     use crate::weights::{WeightGrid, WeightSettings, padded_size};
     let first = sources.first().ok_or("no weight source")?;
@@ -367,6 +368,7 @@ pub fn imaging_weights(
     if s.rank_filter_level >= 1.0 {
         grid.rank_filter(s.rank_filter_level, s.rank_filter_size);
     }
+    grid.apply_tapers(tapers);
     let mut out = vec![0.0f32; rows * chans.len()];
     grid.lookup_rows(&first.uvw, &wavelength, &selected, &mut out)
         .map_err(|e| e.to_string())?;
