@@ -45,6 +45,7 @@
 //! centre; the per-step certificate is not a statement about the
 //! visibility-space misfit, whose departure the major cycle measures.
 
+pub mod cli;
 pub mod fits;
 pub mod host;
 pub mod input;

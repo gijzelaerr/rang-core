@@ -281,7 +281,7 @@ apply:
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
 image:
   imager: gemclean  # the imager
-  gemclean: auto  # the gemclean binary; auto: gemclean on PATH, then core/target/{release,gemclean}/gemclean of the checkout
+  gemclean: auto  # the gemclean to run; auto: the installed extension's (python -m rang.gemclean), else the path of a gemclean binary
   fields: ["target"]  # one image per field
   column: auto  # auto: CORRECTED_DATA once this run's apply has finished, else DATA
   name: image  # the file prefix in <run>/image/<field>/
