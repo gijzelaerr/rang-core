@@ -340,3 +340,49 @@ Validation loss, seeds 1, 2, 3: 0.00400, 0.00531, 0.00385; **the weights file is
 (`-15-train-target/seed-1/weights.npz`, sha256 `6d44b33f14e27d08846b60c17f7c813b3183323c196b8ebb7a17779027f433a4`). **τ = −4.0** (`-19-tau-target`; the grid floor
 binds: every τ on the grid adds fewer cells than T): pooled validation recall 0.990, N3 adds 181,503
 cells on ESO137 chunk 10's uninjected DATA against T's 2,414,858. Frozen before the held-out chunks.
+
+### Stage 5: calibrators, held-out (`-20-heldout-cal-*`), read once
+
+Real: LUNO MAIN_1 (1934−638, 34.2 M eligible cells) and MAIN_2 (1830−211, 16.9 M); N3 at τ = −2.5.
+
+| Arm | R1 pooled | narrowband | time-burst | antenna-local | single-baseline | H1 drifting | H2 cluster | added / T, MAIN_1, MAIN_2 | J with T, MAIN_1, MAIN_2 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| T | 0.966 | 1.000 | 1.000 | 0.907 | 1.000 | 1.000 | 1.000 | 1, 1 (762,924; 226,016 cells) | – |
+| A | 0.808 | 0.893 | 1.000 | 0.566 | 0.996 | 0.999 | 0.822 | 7.6, 11.8 | 0.035, 0.031 |
+| **N3** | **0.640** | 0.998 | 1.000 | **0.024** | 0.999 | 0.968 | 0.997 | **0.97, 0.73** | **0.137, 0.185** |
+| F2 | 0.544 | 0.447 | 0.999 | 0.213 | 0.583 | 0.828 | 0.223 | 9.4, 23.8 | 0.070, 0.033 |
+| Z2 | 0.232 | 0.321 | 0.408 | 0.0005 | 0.363 | 0.152 | 0.008 | 0.0007, 0.003 | 0.0007, 0.002 |
+| U3 | 0.430 | 0.401 | 0.425 | 0.458 | 0.462 | 0.370 | 0.427 | 23.7, 20.7 | 0.019, 0.012 |
+
+H2 seed 31 on MAIN_1 has no eligible cells (the cluster's short baselines fall under the `0~550` static
+mask); H2 counts are small (240-581 cells per case).
+
+Simulation, f3sim-t calibrator scans (Q1 at A ≥ 10 / Q2 / Q1 at A ≥ 3): T 0.895 / 0.325 / 0.815;
+A 0.993 / 0.013 / 0.962; **N3 0.982 / 0.0016 / 0.949**; F2 0.991 / 0.337 / 0.928 (F2's wrapper keeps the
+whole-band mask, which counts against its Q2 here); Z2 0.488 / 0.00002; U3 0.417 / 0.419. By
+morphology N3 against T: persistent 0.976 / 0.874, intermittent 1.000 / 0.992, burst 1.000 / 0.866,
+carrier 1.000 / 0.964, antenna-local 1.000 / 1.000, single-baseline 1.000 / 1.000. **S3 is
+undecidable**: f3sim-t's drifting carriers all fell in its target scans (0 drifting cells in the
+calibrator scans); H1 on real data (R2) is the drifting test for calibrators.
+
+| Gate | Bar | N3 | Call |
+| --- | --- | --- | --- |
+| R1 | ≥ T − 0.05 = 0.916 | 0.640 | **fails** |
+| R1m | each ≥ T − 0.10 | antenna-local 0.024 against 0.907 | **fails** |
+| R2 | each ≥ T − 0.05 | H1 0.968 (bar 0.950), H2 0.997 (0.950) | passes |
+| R3 | ≤ 1.5 | 0.97, 0.73 | passes |
+| R4 | ≥ J(A, T) − 0.05 | 0.137, 0.185 against −0.015, −0.019 | passes |
+| S1 | ≥ T − 0.05 | 0.982 against 0.895 | passes |
+| S2 | ≤ T + 0.01 | 0.0016 against 0.325 | passes |
+| S3 | ≥ T − 0.05 | no drifting cells | undecidable |
+
+**Calibrator outcome: F** (R1 and R1m fail), whatever the cost.
+
+Post hoc reading (`posthoc-injection-widths.json` in the MAIN_1 run, not a test): F1's antenna-local
+injection is 178-322 channels wide, on every time of the scan, on the 52 baselines of one antenna.
+N3's channel-local plane subtracts a 33-channel running median and its time-local plane the
+per-channel time median, so a band that wide and that long is invisible to both, and to the antenna
+medians built from them; the training mix had antenna-local events of 1-8 channels only. The
+narrowband (11 channels, every baseline) and single-baseline (8 channels) cases that F2 missed are now
+found (0.998 and 0.999 against F2's 0.447 and 0.583), and N3 adds 0.73-0.97 × T's flags where F2 added
+9-24 ×.
