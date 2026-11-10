@@ -333,3 +333,10 @@ training at once; host-side batching is the bound). Validation loss, seeds 1, 2,
 `2cdeee1795995b9d2f8c7c1d6deff6ec354c4a305712766afaccfb3091e2e91e`, 3,433 float32).
 **τ = −2.5** (`-19-tau-cal`): pooled validation recall of positive cells 0.942, N3 adds 172,877 cells
 on MAIN_7's uninjected DATA against T's 209,120. Frozen here, before any held-out set is read.
+
+### Stage 4: training and τ (targets, post hoc arm of Amendment 1)
+
+Validation loss, seeds 1, 2, 3: 0.00400, 0.00531, 0.00385; **the weights file is seed 1**
+(`-15-train-target/seed-1/weights.npz`, sha256 `6d44b33f14e27d08846b60c17f7c813b3183323c196b8ebb7a17779027f433a4`). **τ = −4.0** (`-19-tau-target`; the grid floor
+binds: every τ on the grid adds fewer cells than T): pooled validation recall 0.990, N3 adds 181,503
+cells on ESO137 chunk 10's uninjected DATA against T's 2,414,858. Frozen before the held-out chunks.
