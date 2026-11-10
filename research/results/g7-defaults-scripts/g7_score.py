@@ -24,10 +24,32 @@ from rang.core_imaging import read_fits
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "examples"))
-import gemclean_bench_compare as gbc  # noqa: E402
+import gemclean_bench_compare as gbc
 
 MS = "D:/rang/outputs/20261103-gemclean-heldout/real/cal.ms"
 SIZE, SCALE, EPS, BLOCK = 4096, 3.0, 1e-7, 60_000
+
+
+def four(t, s, k):
+    """DATA, WEIGHT_SPECTRUM and FLAG of rows s..s+k as four correlations: the pilot holds XX and
+    YY only (CORR_TYPE 9, 12); XY and YX are zero, flagged and of zero weight, which Stokes I does
+    not read (the block check against GeMClean's dirty image tests this)."""
+    d, w, f = (
+        t.getcol("DATA", s, k),
+        t.getcol("WEIGHT_SPECTRUM", s, k),
+        t.getcol("FLAG", s, k),
+    )
+    if d.shape[-1] == 4:
+        return d, w, f
+    shape = d.shape[:-1] + (4,)
+    d4, w4, f4 = (
+        np.zeros(shape, np.complex64),
+        np.zeros(shape, np.float32),
+        np.ones(shape, bool),
+    )
+    for src, dst in ((0, 0), (1, 3)):
+        d4[..., dst], w4[..., dst], f4[..., dst] = d[..., src], w[..., src], f[..., src]
+    return d4, w4, f4
 
 
 def inner(a):
@@ -59,9 +81,7 @@ def main():
         weight = np.empty((nrow, nchan), np.float32)
         for s in range(0, nrow, BLOCK):
             k = min(BLOCK, nrow - s)
-            v, w = core_weights.stokes_i(
-                t.getcol("DATA", s, k), t.getcol("WEIGHT_SPECTRUM", s, k), t.getcol("FLAG", s, k)
-            )
+            v, w = core_weights.stokes_i(*four(t, s, k))
             vis[s : s + k], weight[s : s + k] = v, w
     t_read = time.perf_counter() - t0
     gw, padded, sums = gbc.weights(uvw, freq, weight, rows, SIZE, SCALE)
@@ -87,11 +107,20 @@ def main():
         k = min(BLOCK, nrow - s)
         u, w = uvw[s : s + k], gw[s : s + k] / total
         v = vis[s : s + k].astype(np.complex128)
+        mask = (w > 0).astype(np.uint8)
         for i, m in enumerate(jobs):
-            e = v if m is None else v - core_wgridder.dirty2vis(uvw=u, freq=freq, dirty=m, wgt=w, **kw)
+            # dirty2vis multiplies by `wgt` (ducc), so the active cells go in as a mask only.
+            e = (
+                v
+                if m is None
+                else v
+                - core_wgridder.dirty2vis(uvw=u, freq=freq, dirty=m, mask=mask, **kw)
+            )
             e = np.where(w > 0, e, 0)
             q[i] += 0.5 * float(np.sum(w * np.abs(e) ** 2))
-            img[i] += core_wgridder.vis2dirty(uvw=u, freq=freq, vis=e, wgt=w, npix_x=SIZE, npix_y=SIZE, **kw)
+            img[i] += core_wgridder.vis2dirty(
+                uvw=u, freq=freq, vis=e, wgt=w, npix_x=SIZE, npix_y=SIZE, **kw
+            )
         print(f"rows {s + k}/{nrow} {time.perf_counter() - t0:.0f}s", flush=True)
     res = {
         "ms": MS,

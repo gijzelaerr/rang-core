@@ -19,7 +19,9 @@ def main():
     out, *cases = sys.argv[1:]
     rows = {}
     ok_all = True
-    print("| case | GeMClean BMAJ × BMIN, PA | WSClean | BMAJ G/W − 1 | BMIN G/W − 1 | ΔPA (deg) | B |")
+    print(
+        "| case | GeMClean BMAJ × BMIN, PA | WSClean | BMAJ G/W − 1 | BMIN G/W − 1 | ΔPA (deg) | B |"
+    )
     print("| --- | --- | --- | ---: | ---: | ---: | --- |")
     for c in cases:
         name, pair = c.split("=", 1)

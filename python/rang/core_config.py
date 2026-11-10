@@ -347,7 +347,11 @@ SCHEMA = {
         "threads": _k(
             None, "int?", "worker threads (null: gemclean's default, all cores)"
         ),
-        "wgridder_accuracy": _k(1e-6, "float", "gridder accuracy"),
+        "wgridder_accuracy": _k(
+            1e-4,
+            "float",
+            "gridder accuracy (single precision at 1e-5 or coarser; task G7)",
+        ),
         "extra_args": _k([], "strs", "more gemclean options, passed as given"),
         "channels_out": _k(1, "int", "output channels"),
         "join_channels": _k(False, "bool", "join the output channels"),

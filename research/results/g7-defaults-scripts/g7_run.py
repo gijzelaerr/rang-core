@@ -25,7 +25,9 @@ from pathlib import Path
 
 OUT = Path(os.environ.get("G7_OUT", "D:/rang/outputs/g7-20261109-01"))
 BIN = os.environ.get("G7_BIN", str(OUT / "bin" / "gemclean-g7.exe"))
-LBIN = os.environ.get("G7_LBIN", "/home/gijsm/Build/tmp/20261109-g7-target/gemclean/gemclean")
+LBIN = os.environ.get(
+    "G7_LBIN", "/home/gijsm/Build/tmp/20261109-g7-target/gemclean/gemclean"
+)
 WSCTMP = "/home/gijsm/Build/tmp/20261109-g7-wsctmp"
 MS_DIR = "D:/rang/outputs/20261103-gemclean-heldout/real"
 MS_NAME = "cal.ms"
@@ -77,7 +79,7 @@ def now():
 def probe():
     out = ["== Windows " + now()]
     try:
-        r = subprocess.run(
+        r = subprocess.run(  # noqa: PLW1510
             ["powershell", "-NoProfile", "-Command", PROBE_PS],
             capture_output=True, text=True, timeout=60,
         )  # fmt: skip
@@ -86,14 +88,21 @@ def probe():
         out.append(f"(not available: {e})")
     out.append("== WSL")
     try:
-        r = subprocess.run(["wsl", "-e", "bash", "-c", PROBE_WSL], capture_output=True, text=True, timeout=60)
+        r = subprocess.run(  # noqa: PLW1510
+            ["wsl", "-e", "bash", "-c", PROBE_WSL],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
         out += [ln for ln in r.stdout.splitlines() if ln.strip()]
     except Exception as e:  # noqa: BLE001
         out.append(f"(not available: {e})")
     busy = [
         ln
         for ln in out
-        if not ln.startswith("==") and not ln.startswith("LOADAVG") and not any(k in ln.lower() for k in IGNORE)
+        if not ln.startswith("==")
+        and not ln.startswith("LOADAVG")
+        and not any(k in ln.lower() for k in IGNORE)
     ]
     return out, busy
 
@@ -145,7 +154,9 @@ def time_v(path):
         if k in keys:
             if keys[k] == "wall_s":
                 parts = [float(p) for p in v.split(":")]
-                got["wall_s"] = sum(p * 60 ** (len(parts) - 1 - i) for i, p in enumerate(parts))
+                got["wall_s"] = sum(
+                    p * 60 ** (len(parts) - 1 - i) for i, p in enumerate(parts)
+                )
             elif keys[k] == "max_rss_bytes":
                 got["max_rss_bytes"] = int(v) * 1024
             else:
@@ -186,8 +197,22 @@ def one(arm, j, rep):
         flags = GEM.get(arm) if arm != "GX" else os.environ["G7_GX"].split()
         if arm == "GP":
             env["RANG_WGRIDDER_PLANE_GROUP"] = "1"
-        cmd = [BIN, "-name", str(d / "g"), *COMMON, "-j", str(j), *flags, "-no-update-model-required", f"{MS_DIR}/{MS_NAME}"]
-        (d / "cmd.txt").write_text(" ".join(cmd) + ("\nRANG_WGRIDDER_PLANE_GROUP=1" if arm == "GP" else "") + "\n")
+        cmd = [
+            BIN,
+            "-name",
+            str(d / "g"),
+            *COMMON,
+            "-j",
+            str(j),
+            *flags,
+            "-no-update-model-required",
+            f"{MS_DIR}/{MS_NAME}",
+        ]
+        (d / "cmd.txt").write_text(
+            " ".join(cmd)
+            + ("\nRANG_WGRIDDER_PLANE_GROUP=1" if arm == "GP" else "")
+            + "\n"
+        )
         t = time.perf_counter()
         with open(d / "log.txt", "w") as log:
             p = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, env=env)
@@ -196,7 +221,11 @@ def one(arm, j, rep):
             stats = win_stats(int(p._handle))
         stats["wall_s"] = wall
     elif arm in ("WN", "WM"):
-        acc = ["-no-min-grid-resolution", "-wgridder-accuracy", "1e-6"] if arm == "WN" else []
+        acc = (
+            ["-no-min-grid-resolution", "-wgridder-accuracy", "1e-6"]
+            if arm == "WN"
+            else []
+        )
         par = ["-parallel-reordering", "1"] if j == 1 else []
         dw = wsl_path(d)
         inner = [
@@ -208,23 +237,45 @@ def one(arm, j, rep):
             "-temp-dir", "/run/tmp", *COMMON, "-mgain", "0.8", "-j", str(j), *par,
             "-name", "/run/w", f"/data/{MS_NAME}",
         ]  # fmt: skip
-        script = f"mkdir -p {WSCTMP} && rm -rf {WSCTMP}/* && " + " ".join(inner) + f"; rc=$?; rm -rf {WSCTMP}/*; exit $rc"
+        script = (
+            f"mkdir -p {WSCTMP} && rm -rf {WSCTMP}/* && "
+            + " ".join(inner)
+            + f"; rc=$?; rm -rf {WSCTMP}/*; exit $rc"
+        )
         (d / "cmd.txt").write_text(script + "\n")
         t = time.perf_counter()
         with open(d / "log.txt", "w") as log:
-            rc = subprocess.call(["wsl", "-e", "bash", "-c", script], stdout=log, stderr=subprocess.STDOUT)
+            rc = subprocess.call(
+                ["wsl", "-e", "bash", "-c", script],
+                stdout=log,
+                stderr=subprocess.STDOUT,
+            )
         outer = time.perf_counter() - t
         stats = time_v(d / "time.txt") if (d / "time.txt").exists() else {}
         stats["outer_wall_s"] = outer
     elif arm == "LX":
         flags = os.environ.get("G7_LX", "").split()
         dw = wsl_path(d)
-        args = [LBIN, "-name", f"{dw}/g", *COMMON, "-j", str(j), *flags, "-no-update-model-required", f"{wsl_path(MS_DIR)}/{MS_NAME}"]
+        args = [
+            LBIN,
+            "-name",
+            f"{dw}/g",
+            *COMMON,
+            "-j",
+            str(j),
+            *flags,
+            "-no-update-model-required",
+            f"{wsl_path(MS_DIR)}/{MS_NAME}",
+        ]
         script = f"/usr/bin/time -v -o {dw}/time.txt " + " ".join(args)
         (d / "cmd.txt").write_text(script + "\n")
         t = time.perf_counter()
         with open(d / "log.txt", "w") as log:
-            rc = subprocess.call(["wsl", "-e", "bash", "-c", script], stdout=log, stderr=subprocess.STDOUT)
+            rc = subprocess.call(
+                ["wsl", "-e", "bash", "-c", script],
+                stdout=log,
+                stderr=subprocess.STDOUT,
+            )
         outer = time.perf_counter() - t
         stats = time_v(d / "time.txt") if (d / "time.txt").exists() else {}
         stats["outer_wall_s"] = outer
@@ -242,19 +293,25 @@ def one(arm, j, rep):
     }  # fmt: skip
     (d / "timing.json").write_text(json.dumps(rec, indent=1) + "\n")
     with open(OUT / "runs.tsv", "a") as f:
-        f.write(f"{name}\t{rc}\t{int(spoiled)}\t{stats.get('wall_s', float('nan')):.1f}\t{now()}\n")
+        f.write(
+            f"{name}\t{rc}\t{int(spoiled)}\t{stats.get('wall_s', float('nan')):.1f}\t{now()}\n"
+        )
     # FITS kept for repeat 1 only (scoring); later repeats keep their hashes.
     if rep > 1:
         for f in d.glob("*.fits"):
             f.unlink()
-    print(f"{name} rc={rc} wall={stats.get('wall_s', float('nan')):.1f}s spoiled={spoiled}")
+    print(
+        f"{name} rc={rc} wall={stats.get('wall_s', float('nan')):.1f}s spoiled={spoiled}"
+    )
     return rc
 
 
 def status(line):
     try:
         old = STATUS.read_text(encoding="utf-8").splitlines() if STATUS.exists() else []
-        head = [ln for ln in old if not ln.startswith("- ")][:2] or ["# fp-g7 G7 defaults"]
+        head = [ln for ln in old if not ln.startswith("- ")][:2] or [
+            "# fp-g7 G7 defaults"
+        ]
         items = [ln for ln in old if ln.startswith("- ")]
         items = (items + [f"- {now()} {line}"])[-12:]
         STATUS.write_text("\n".join(head + items) + "\n", encoding="utf-8")
@@ -272,7 +329,20 @@ def plan(name):
         if (OUT / "runs" / run / "timing.json").exists():
             continue
         t = time.time()
-        rc = subprocess.call([PY, str(W / "tools" / "heavy_lock.py"), "run", "--", PY, __file__, "one", arm, str(j), str(rep)])
+        rc = subprocess.call(
+            [
+                PY,
+                str(W / "tools" / "heavy_lock.py"),
+                "run",
+                "--",
+                PY,
+                __file__,
+                "one",
+                arm,
+                str(j),
+                str(rep),
+            ]
+        )
         with open(log, "a") as f:
             f.write(f"RUN {run} rc={rc} wall={time.time() - t:.0f}s {now()}\n")
         status(f"plan {name} RUN {run} rc={rc} wall={time.time() - t:.0f}s")

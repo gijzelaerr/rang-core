@@ -80,9 +80,12 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -unit-weights             every correlation weighs 1 in place of WEIGHT_SPECTRUM or WEIGHT,
                             flags still applied (rang's own; not -weight uniform)
   -j <threads>              worker threads (default: all cores)
-  -wgridder-accuracy <eps>  gridder accuracy (default 1e-6, double precision)
+  -wgridder-accuracy <eps>  gridder accuracy (default 1e-4; research/g7-defaults.md)
   -no-wgridding             disable the w-term
-  -single                   grid in single precision (default double)
+  -single                   grid in single precision (the default when the accuracy is 1e-5 or
+                            coarser, so 1e-4 by default; research/g7-defaults.md)
+  -double                   grid in double precision (the default for an accuracy finer than
+                            1e-5; -wgridder-accuracy 1e-6 alone gives the form before G7)
   -gram-operator S,THETA    major cycles without visibilities: the w-node Toeplitz
                             operator of research/gridder-theory.md, S stencil nodes
                             at phase step THETA; prototype, off by default; the final
@@ -258,6 +261,9 @@ fn parse_angle(s: &str) -> Result<f64, String> {
 }
 
 fn parse_args(raw: &[String]) -> Result<Args, String> {
+    // -single or -double; otherwise single precision for an accuracy of 1e-5
+    // or coarser (task G7, research/g7-defaults.md).
+    let mut precision: Option<bool> = None;
     let mut a = Args {
         ms: PathBuf::new(),
         name: "gemclean".into(),
@@ -286,7 +292,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         data_column: None,
         field: 0,
         threads: None,
-        epsilon: 1e-6,
+        epsilon: 1e-4,
         wgridding: true,
         floor_iterations: 0,
         audit: false,
@@ -432,7 +438,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-memory-report" => a.memory_report = true,
             "-tile" => a.tile = number(flag, value(&mut i)?)?,
             "-eager-tiles" => a.lazy_bounds = false,
-            "-single" => a.single = true,
+            "-single" => precision = Some(true),
+            "-double" => precision = Some(false),
             "-gram-operator" => {
                 let v = value(&mut i)?;
                 let (s, t) = v.split_once(',').ok_or("-gram-operator takes S,THETA")?;
@@ -710,6 +717,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         }
         a.multiscale = Some(ms);
     }
+    a.single = precision.unwrap_or(a.epsilon >= 1e-5);
     Ok(a)
 }
 
@@ -3197,6 +3205,23 @@ mod tests {
             .map(String::from)
             .collect();
         assert!(parse_args(&bad).is_err());
+    }
+
+    #[test]
+    fn gridder_precision_defaults() {
+        // Task G7 (research/g7-defaults.md): 1e-4 in single precision by default;
+        // a finer accuracy alone gives double; -single and -double win.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw).unwrap()
+        };
+        let a = parse("-size 64 64 -scale 2asec x.ms");
+        assert!(a.single && a.epsilon == 1e-4);
+        let a = parse("-size 64 64 -scale 2asec -wgridder-accuracy 1e-6 x.ms");
+        assert!(!a.single && a.epsilon == 1e-6);
+        assert!(!parse("-size 64 64 -scale 2asec -double x.ms").single);
+        assert!(parse("-size 64 64 -scale 2asec -wgridder-accuracy 1e-6 -single x.ms").single);
+        assert!(!parse("-size 64 64 -scale 2asec -single -double x.ms").single);
     }
 
     #[test]

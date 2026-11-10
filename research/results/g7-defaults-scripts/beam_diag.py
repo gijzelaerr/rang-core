@@ -17,7 +17,9 @@ S2B = 2.0 * math.sqrt(2.0 * math.log(2.0))
 
 def fwhm(sx, sy, beta):
     f = 1.0 - beta * beta
-    cov = np.array([[sx * sx / f, beta * sx * sy / f], [beta * sx * sy / f, sy * sy / f]])
+    cov = np.array(
+        [[sx * sx / f, beta * sx * sy / f], [beta * sx * sy / f, sy * sy / f]]
+    )
     e, v = np.linalg.eigh(cov)
     major, minor = math.sqrt(abs(e[1])) * S2B, math.sqrt(abs(e[0])) * S2B
     vec = v[:, 1]
@@ -34,7 +36,12 @@ def single(img, est):
 
     def res(p):
         sx, sy, b = p
-        return (np.exp(-x * x / (2 * sx * sx) + b * x * y / (sx * sy) - y * y / (2 * sy * sy)) - d).ravel()
+        return (
+            np.exp(
+                -x * x / (2 * sx * sx) + b * x * y / (sx * sy) - y * y / (2 * sy * sy)
+            )
+            - d
+        ).ravel()
 
     p0 = [est / (sf * S2B), est / (sf * S2B), 0.0]
     r = least_squares(res, p0, method="lm", xtol=1e-12, ftol=1e-12)
@@ -71,9 +78,13 @@ def main():
     scale = abs(h["CDELT1"]) * 3600.0
     img = img / img[img.shape[0] // 2, img.shape[1] // 2]
     major, minor, pa = fit(img, max(a.estimate_asec, scale) / scale)
-    print(f"fit: {major * scale:.4f} x {minor * scale:.4f} asec, PA {math.degrees(pa):.3f} deg")
+    print(
+        f"fit: {major * scale:.4f} x {minor * scale:.4f} asec, PA {math.degrees(pa):.3f} deg"
+    )
     if "BMAJ" in h:
-        print(f"header: {h['BMAJ'] * 3600:.4f} x {h['BMIN'] * 3600:.4f} asec, PA {h['BPA']:.3f} deg")
+        print(
+            f"header: {h['BMAJ'] * 3600:.4f} x {h['BMIN'] * 3600:.4f} asec, PA {h['BPA']:.3f} deg"
+        )
 
 
 if __name__ == "__main__":
