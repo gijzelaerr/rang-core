@@ -1,0 +1,575 @@
+{
+ "runs": {
+  "D1-C1-def": {
+   "files": 45,
+   "rerun_identical": true,
+   "changed": [
+    "D1-C1-def-0000-dirty.fits",
+    "D1-C1-def-0000-image.fits",
+    "D1-C1-def-0000-model.fits",
+    "D1-C1-def-0000-psf.fits",
+    "D1-C1-def-0000-residual.fits",
+    "D1-C1-def-0001-dirty.fits",
+    "D1-C1-def-0001-image.fits",
+    "D1-C1-def-0001-model.fits",
+    "D1-C1-def-0001-psf.fits",
+    "D1-C1-def-0001-residual.fits",
+    "D1-C1-def-0002-dirty.fits",
+    "D1-C1-def-0002-image.fits",
+    "D1-C1-def-0002-model.fits",
+    "D1-C1-def-0002-psf.fits",
+    "D1-C1-def-0002-residual.fits",
+    "D1-C1-def-0003-dirty.fits",
+    "D1-C1-def-0003-image.fits",
+    "D1-C1-def-0003-model.fits",
+    "D1-C1-def-0003-psf.fits",
+    "D1-C1-def-0003-residual.fits",
+    "D1-C1-def-0004-dirty.fits",
+    "D1-C1-def-0004-image.fits",
+    "D1-C1-def-0004-model.fits",
+    "D1-C1-def-0004-psf.fits",
+    "D1-C1-def-0004-residual.fits",
+    "D1-C1-def-0005-dirty.fits",
+    "D1-C1-def-0005-image.fits",
+    "D1-C1-def-0005-model.fits",
+    "D1-C1-def-0005-psf.fits",
+    "D1-C1-def-0005-residual.fits",
+    "D1-C1-def-0006-dirty.fits",
+    "D1-C1-def-0006-image.fits",
+    "D1-C1-def-0006-model.fits",
+    "D1-C1-def-0006-psf.fits",
+    "D1-C1-def-0006-residual.fits",
+    "D1-C1-def-0007-dirty.fits",
+    "D1-C1-def-0007-image.fits",
+    "D1-C1-def-0007-model.fits",
+    "D1-C1-def-0007-psf.fits",
+    "D1-C1-def-0007-residual.fits",
+    "D1-C1-def-MFS-dirty.fits",
+    "D1-C1-def-MFS-image.fits",
+    "D1-C1-def-MFS-model.fits",
+    "D1-C1-def-MFS-psf.fits",
+    "D1-C1-def-MFS-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "D1-C1-def-0000-image.fits": [
+     4.8683074630439334e-08,
+     [
+      16.297944032524693,
+      10.308873115416903,
+      -28.1596864830668
+     ]
+    ],
+    "D1-C1-def-0001-image.fits": [
+     5.0149025271106466e-08,
+     [
+      15.642073632431055,
+      9.708780807667761,
+      -28.66966964290862
+     ]
+    ],
+    "D1-C1-def-0002-image.fits": [
+     4.2660752639696594e-08,
+     [
+      15.058859760619612,
+      9.206652303325962,
+      -29.10536451734329
+     ]
+    ],
+    "D1-C1-def-0003-image.fits": [
+     5.0907361881522024e-08,
+     [
+      14.644547523843015,
+      8.83520399565608,
+      -29.37491800359862
+     ]
+    ],
+    "D1-C1-def-0004-image.fits": [
+     4.628266405509755e-08,
+     [
+      14.259598335434228,
+      8.56588698363694,
+      -29.81341560393407
+     ]
+    ],
+    "D1-C1-def-0005-image.fits": [
+     4.95076756705739e-08,
+     [
+      13.871118466375808,
+      8.336917677514043,
+      -29.84632478033579
+     ]
+    ],
+    "D1-C1-def-0006-image.fits": [
+     5.307729296331007e-08,
+     [
+      13.539987787959026,
+      8.160927983633531,
+      -30.06918451753538
+     ]
+    ],
+    "D1-C1-def-0007-image.fits": [
+     5.6929803781030004e-08,
+     [
+      13.175170256307686,
+      7.984636490878059,
+      -30.31231695125759
+     ]
+    ],
+    "D1-C1-def-MFS-image.fits": [
+     6.617157475861218e-08,
+     [
+      14.469395913626006,
+      9.01011613979711,
+      -29.05006440287253
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "D1-C3-def": {
+   "files": 25,
+   "rerun_identical": true,
+   "changed": [
+    "D1-C3-def-0000-dirty.fits",
+    "D1-C3-def-0000-image.fits",
+    "D1-C3-def-0000-model.fits",
+    "D1-C3-def-0000-psf.fits",
+    "D1-C3-def-0000-residual.fits",
+    "D1-C3-def-0001-dirty.fits",
+    "D1-C3-def-0001-image.fits",
+    "D1-C3-def-0001-model.fits",
+    "D1-C3-def-0001-psf.fits",
+    "D1-C3-def-0001-residual.fits",
+    "D1-C3-def-0002-dirty.fits",
+    "D1-C3-def-0002-image.fits",
+    "D1-C3-def-0002-model.fits",
+    "D1-C3-def-0002-psf.fits",
+    "D1-C3-def-0002-residual.fits",
+    "D1-C3-def-0003-dirty.fits",
+    "D1-C3-def-0003-image.fits",
+    "D1-C3-def-0003-model.fits",
+    "D1-C3-def-0003-psf.fits",
+    "D1-C3-def-0003-residual.fits",
+    "D1-C3-def-MFS-dirty.fits",
+    "D1-C3-def-MFS-image.fits",
+    "D1-C3-def-MFS-model.fits",
+    "D1-C3-def-MFS-psf.fits",
+    "D1-C3-def-MFS-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "D1-C3-def-0000-image.fits": [
+     4.7867434634121634e-08,
+     [
+      19.3417969038285,
+      11.70375086979359,
+      -29.54846074222339
+     ]
+    ],
+    "D1-C3-def-0001-image.fits": [
+     4.927407253865922e-08,
+     [
+      16.48870770583693,
+      9.843160231290534,
+      -29.56970613730568
+     ]
+    ],
+    "D1-C3-def-0002-image.fits": [
+     6.22859363653729e-08,
+     [
+      14.329006545580429,
+      8.489632782563463,
+      -29.88235348045763
+     ]
+    ],
+    "D1-C3-def-0003-image.fits": [
+     5.947084460376737e-08,
+     [
+      12.738824054087663,
+      7.498752280275899,
+      -30.01940447190602
+     ]
+    ],
+    "D1-C3-def-MFS-image.fits": [
+     6.181773552777226e-08,
+     [
+      15.603904023645665,
+      9.544710022461944,
+      -29.23348680202947
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h1-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h1-coarse-dirty.fits",
+    "h1-coarse-image.fits",
+    "h1-coarse-model.fits",
+    "h1-coarse-psf.fits",
+    "h1-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h1-coarse-image.fits": [
+     5.4498753978941045e-08,
+     [
+      17.640936734769863,
+      8.618679775829555,
+      -16.92634648274102
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h1-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h1-def-dirty.fits",
+    "h1-def-image.fits",
+    "h1-def-model.fits",
+    "h1-def-psf.fits",
+    "h1-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h1-def-image.fits": [
+     4.988875960659055e-08,
+     [
+      17.640928003389785,
+      8.618675227172751,
+      -16.92634121643339
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h2-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h2-coarse-dirty.fits",
+    "h2-coarse-image.fits",
+    "h2-coarse-model.fits",
+    "h2-coarse-psf.fits",
+    "h2-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h2-coarse-image.fits": [
+     6.883436790567326e-08,
+     [
+      17.52905978901939,
+      9.089978856423668,
+      -19.46301402343766
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h2-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h2-def-dirty.fits",
+    "h2-def-image.fits",
+    "h2-def-model.fits",
+    "h2-def-psf.fits",
+    "h2-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h2-def-image.fits": [
+     6.709418010422817e-08,
+     [
+      17.529038444326392,
+      9.089970488037007,
+      -19.46303744637188
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h3-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h3-coarse-dirty.fits",
+    "h3-coarse-image.fits",
+    "h3-coarse-model.fits",
+    "h3-coarse-psf.fits",
+    "h3-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h3-coarse-image.fits": [
+     5.3156442473848645e-08,
+     [
+      14.332258907996993,
+      8.497454765389705,
+      -29.73575813923581
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h3-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h3-def-dirty.fits",
+    "h3-def-image.fits",
+    "h3-def-model.fits",
+    "h3-def-psf.fits",
+    "h3-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h3-def-image.fits": [
+     5.639893766580172e-08,
+     [
+      14.332253657083577,
+      8.49745616542561,
+      -29.73576150151636
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h4-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h4-coarse-dirty.fits",
+    "h4-coarse-image.fits",
+    "h4-coarse-model.fits",
+    "h4-coarse-psf.fits",
+    "h4-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h4-coarse-image.fits": [
+     4.524102388692685e-08,
+     [
+      14.046004205315448,
+      8.304529534063771,
+      -27.83403074839641
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "h4-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "h4-def-dirty.fits",
+    "h4-def-image.fits",
+    "h4-def-model.fits",
+    "h4-def-psf.fits",
+    "h4-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "h4-def-image.fits": [
+     5.3796443234871086e-08,
+     [
+      14.046009070507326,
+      8.304529488659393,
+      -27.83403780263583
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "p256-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "p256-coarse-dirty.fits",
+    "p256-coarse-image.fits",
+    "p256-coarse-model.fits",
+    "p256-coarse-psf.fits",
+    "p256-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "p256-coarse-image.fits": [
+     4.8782240107410405e-08,
+     [
+      16.86089504551454,
+      9.621055317447457,
+      -51.36213345189082
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "p256-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "p256-def-dirty.fits",
+    "p256-def-image.fits",
+    "p256-def-model.fits",
+    "p256-def-psf.fits",
+    "p256-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "p256-def-image.fits": [
+     4.940519139091584e-08,
+     [
+      16.86089738108336,
+      9.62105826720308,
+      -51.36213183867294
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "s1-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "s1-coarse-dirty.fits",
+    "s1-coarse-image.fits",
+    "s1-coarse-model.fits",
+    "s1-coarse-psf.fits",
+    "s1-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "s1-coarse-image.fits": [
+     4.768009257894688e-08,
+     [
+      13.878476365337265,
+      8.344649808771193,
+      -29.80586127426544
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "s1-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "s1-def-dirty.fits",
+    "s1-def-image.fits",
+    "s1-def-model.fits",
+    "s1-def-psf.fits",
+    "s1-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "s1-def-image.fits": [
+     4.085618403999646e-08,
+     [
+      13.878462730280239,
+      8.344619903977593,
+      -29.80579695505597
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "s2-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "s2-coarse-dirty.fits",
+    "s2-coarse-image.fits",
+    "s2-coarse-model.fits",
+    "s2-coarse-psf.fits",
+    "s2-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "s2-coarse-image.fits": [
+     5.2538520017465526e-08,
+     [
+      13.878476365337265,
+      8.344649808771193,
+      -29.80586127426544
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "s2-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "s2-def-dirty.fits",
+    "s2-def-image.fits",
+    "s2-def-model.fits",
+    "s2-def-psf.fits",
+    "s2-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "s2-def-image.fits": [
+     5.5390590487732666e-08,
+     [
+      13.878462730280239,
+      8.344619903977593,
+      -29.80579695505597
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "s3-coarse": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "s3-coarse-dirty.fits",
+    "s3-coarse-image.fits",
+    "s3-coarse-model.fits",
+    "s3-coarse-psf.fits",
+    "s3-coarse-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "s3-coarse-image.fits": [
+     6.100418155642683e-08,
+     [
+      13.878476365337265,
+      8.344649808771193,
+      -29.80586127426544
+     ]
+    ]
+   },
+   "pass": true
+  },
+  "s3-def": {
+   "files": 5,
+   "rerun_identical": true,
+   "changed": [
+    "s3-def-dirty.fits",
+    "s3-def-image.fits",
+    "s3-def-model.fits",
+    "s3-def-psf.fits",
+    "s3-def-residual.fits"
+   ],
+   "non_image_data_or_header_changed": [],
+   "restore_check": {
+    "s3-def-image.fits": [
+     5.980531874534668e-08,
+     [
+      13.878462730280239,
+      8.344619903977593,
+      -29.80579695505597
+     ]
+    ]
+   },
+   "pass": true
+  }
+ },
+ "all_pass": true
+}

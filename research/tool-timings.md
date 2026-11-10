@@ -1780,3 +1780,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-09 | C5b `rang-core selfcal`, arm mo (post hoc, oracle FITS mask) and `c5b_oracle_mask.py` | the same | oracle image 8.7 s; job 4 min 20 s (c5pa, final image hit niter 1e6), 7 min 32 s (c5delay) | – | 2 runs |
 | 2026-11-09 | C5b native `python -m rang.check` run 1 (heavy_lock) | worktree fp-c5b-masks | 21 min 7 s (lock wait behind the probe included) | – | only the research-index test fails; gain-hash gate PASS |
 | 2026-11-09 | C5b native `python -m rang.check` run 2 (final, heavy_lock) | worktree fp-c5b-masks | 12 min 44 s | – | only the research-index test fails; gain-hash gate PASS |
+| 2026-11-10 | G7 native gemclean `c7ca268`, pilot-512 4096², GD (f64, 1e-6) | `cal.ms`, 512 ch, 303 M visibilities | -j16 197.0 s (3 runs, 191-201); -j1 1026 s (2) | 19.73 GB (working set) | idle host, heavy lock; research/g7-defaults.md |
+| 2026-11-10 | G7 native gemclean, GC (`-single -wgridder-accuracy 1e-4`) | the same | -j16 132.4 s (3); -j1 752 s (2) | 15.62 GB | adopted as the default |
+| 2026-11-10 | G7 native gemclean, GB / GT / GP (`-beam-band` / `-tau-min 0.2` / plane group 1) | the same | -j16 191.7 / 185.3 / 211.3 s (3 each); -j1 1016 / 990 / 1181 s | 19.58 / 19.73 / 18.90 GB | not adopted |
+| 2026-11-10 | G7 WSClean 3.7 native build, `nominres` / `minres` | the same, `/mnt/d` through 9p, temp on the WSL disk | -j16 306.0 / 201.8 s (3 each); -j1 1159 / 575 s | 8.35 / 7.77 GB | Docker in WSL |
+| 2026-11-10 | G7 gemclean WSL build `c7ca268`, coarse | the same, `/mnt/d` | -j16 193.9 s (3); -j1 714 s | 15.65 GB | read 78-80 s through 9p (11-12 s native) |
+| 2026-11-10 | G7 identity sets (18 runs each: reference `5b0ffbe` twice, beam fix once) | S1-S3, H1-H4, pilot-256, D1 | about 9-10 min per set | – | native, -j16 |
+| 2026-11-10 | G7 `g7_score.py`, exact scoring of 7 models | pilot-512 | 12.6 min | – | f64, ε 1e-7, 60,000-row blocks |
