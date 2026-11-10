@@ -182,10 +182,11 @@ def test_sdist_excludes_the_research_tree():
         "notebooks",
         "docs",
         "formal",
-        "data",
         ".cargo",
     ):
         assert f'{{ path = "{tree}/**/*", format = "sdist" }}' in maturin, tree
+    # gemclean's simulator includes data/meerkat.itrf.txt at compile time (G8).
+    assert '{ path = "data/**/*", format = "sdist" }' not in maturin
 
 
 def _job(workflow, name):

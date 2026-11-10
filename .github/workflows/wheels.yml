@@ -119,6 +119,15 @@ jobs:
           command: sdist
           maturin-version: ${{ env.MATURIN_VERSION }}
           args: --out dist
+      # The sdist must build a working extension on its own (G8 found it did not).
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - name: build and import a wheel from the sdist
+        run: |
+          python -m venv /tmp/sd
+          /tmp/sd/bin/pip install -q dist/*.tar.gz
+          cd /tmp && /tmp/sd/bin/python -c "import rang._core" && /tmp/sd/bin/gemclean --version
       - uses: actions/upload-artifact@v7
         with:
           name: sdist

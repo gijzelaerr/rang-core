@@ -90,11 +90,12 @@ module-name = "rang._core"
 # without this list cargo's file list puts the whole tree in the sdist.
 # .cargo/config.toml (x86-64-v3 for local builds) stays out: an sdist build
 # targets the builder's baseline CPU.
+# data/ stays in (11 kB): gemclean's simulator includes data/meerkat.itrf.txt
+# at compile time, so an sdist without it does not build (found by G8).
 exclude = [
     { path = ".cargo/**/*", format = "sdist" },
     { path = ".github/**/*", format = "sdist" },
     { path = "core/examples/**/*", format = "sdist" },
-    { path = "data/**/*", format = "sdist" },
     { path = "docs/**/*", format = "sdist" },
     { path = "examples/**/*", format = "sdist" },
     { path = "formal/**/*", format = "sdist" },
