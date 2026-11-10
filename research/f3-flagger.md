@@ -9,6 +9,31 @@ Landman's wishes (2026-11-06) are the goal: one weights file per observatory and
 separate models for calibrators and targets, faster than the Rust Tricolour port with fewer tunable
 parameters, **comparable** flag quality. Better calibration or imaging is not a goal and is not claimed.
 
+**Amendment 1, 2026-11-10, after the target label audit fired and before any calibrator audit,
+training or held-out read; post hoc for targets.**
+
+- *What was seen (targets, frozen labels, `f3-20261110-08-shards-target`).* Consensus positives are
+  0.4-1.0 % of eligible cells (the 10 % stop does not fire), but their median max(u) is 1.5-2.2 in all
+  24 training and 2 validation realisations, against the bar of 3 (negatives 0.87-0.96). **The frozen
+  stop fires: targets stop at the label audit** (section 8, Stage 3). That is the frozen target
+  outcome.
+- *Diagnosis (`f3-20261110-12-audit-diag`, uninjected ESO137 chunks 2 and 4, 256 baselines each).*
+  Of the consensus cells 26 % and 18 % have max(u) ≥ 3; of the weak ones 45 % and 31 % lie within
+  3 cells of a strong one (T's `time_extend`/`freq_extend`, AOFlagger's dilation); the rest are
+  isolated, spread over the band, densest at 990-1030 MHz. So the weak cells are partly flag
+  extension, partly faint RFI that T and A find by summing over windows. Neither cause is clean.
+- *The change, both classes.* A consensus cell (T and A both flag, uninjected) is positive only if its
+  max(u^t, u^f) on the uninjected DATA is ≥ 3; weak consensus cells are ignored, not positive or
+  negative. Injection and F-SIM labels are unchanged. Native positives then depend on the network's
+  own input planes: N3 can only learn native RFI that u already shows, and R3/R4 measure what this
+  costs against T. The audit's u bar is replaced by: stop if strong consensus exceeds 10 % of eligible
+  cells.
+- *Status.* Pre-result for calibrators (no calibrator audit had been printed; the queued calibrator
+  shard job was stopped before it ran). Post hoc for targets: the amended target run is reported
+  beside the frozen stop and cannot turn it into S.
+- *Also recorded.* On targets R4 cannot fail (J(A, T) is about 0.03, so the bar is below 0) and R3 has
+  no lower bound, so no frozen gate tests under-flagging of native target RFI.
+
 ## 1. What F2 got wrong, and what changes
 
 | F2 failure | Cause (F2 section 9, post hoc) | F3 change |
