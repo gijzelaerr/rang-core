@@ -324,3 +324,12 @@ calibrators `-13`. T and A on the uninjected training scans, added cells (eligib
 - On LUNO AOFlagger's generic strategy adds 12-17 % of eligible cells, T about 1.3 %; on ESO137 T adds
   14-17 %, A about 1.6 %. The two flaggers disagree by an order of magnitude in opposite directions on
   the two data sets, so consensus labels are a small intersection.
+
+### Stage 4: training and τ (calibrators)
+
+GPU (RTX 4070 Ti, WSL, JAX 0.12.0.1 CUDA), 30,000 steps per seed, 21-29 min per seed (two classes
+training at once; host-side batching is the bound). Validation loss, seeds 1, 2, 3: 0.0253, 0.0457,
+0.0287; **the weights file is seed 3** (`-17-train-calibrator/seed-3/weights.npz`, sha256
+`2cdeee1795995b9d2f8c7c1d6deff6ec354c4a305712766afaccfb3091e2e91e`, 3,433 float32).
+**τ = −2.5** (`-19-tau-cal`): pooled validation recall of positive cells 0.942, N3 adds 172,877 cells
+on MAIN_7's uninjected DATA against T's 209,120. Frozen here, before any held-out set is read.
