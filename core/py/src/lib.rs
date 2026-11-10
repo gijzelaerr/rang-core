@@ -51,6 +51,14 @@ use rang_core::ms_write::TableWriter;
 use rang_core::sim;
 use std::ffi::c_void;
 
+// GeMClean's allocator in the extension too, as in the binary (task G8,
+// research/g8-wheel.md): huge pages for allocations from 4 MiB and the memory
+// counters of -memory-report; it serves every allocation of the extension.
+#[cfg(all(target_os = "linux", target_pointer_width = "64"))]
+#[global_allocator]
+static ALLOCATOR: rang_core::gemclean::host::HugePageAlloc =
+    rang_core::gemclean::host::HugePageAlloc;
+
 mod cal_delay;
 mod cal_delay_offset;
 mod cal_fluxscale;
@@ -59,6 +67,7 @@ mod cal_pol;
 mod clean;
 mod cnnflag;
 mod flag_extend;
+mod gemclean_cli;
 mod gemclean_predict;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
@@ -2848,5 +2857,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_block_rows, m)?)?;
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_channel_map, m)?)?;
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_predict, m)?)?;
+    // Task G8: gemclean's command line for the console script (research/g8-wheel.md).
+    m.add_function(wrap_pyfunction!(gemclean_cli::gemclean_main, m)?)?;
     Ok(())
 }

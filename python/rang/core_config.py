@@ -315,8 +315,8 @@ SCHEMA = {
         "gemclean": _k(
             "auto",
             "str",
-            "the gemclean binary; auto: gemclean on PATH, then core/target/"
-            "{release,gemclean}/gemclean of the checkout",
+            "the gemclean to run; auto: the installed extension's "
+            "(python -m rang.gemclean), else the path of a gemclean binary",
         ),
         "fields": _k(["target"], "fields", "one image per field"),
         "column": _k(

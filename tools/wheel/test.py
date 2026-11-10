@@ -30,9 +30,15 @@ logs in OUT_DIR (which must not exist), wall times in OUT_DIR/timings.tsv:
            and of the flux-standard kernel (`rang.fluxstd.core_log10_poly`,
            within 1e-13 of the Python evaluator); both built a standalone
            library with cargo before task W4-3 (research/w4-3-kernels.md)
+  gemclean the wheel holds no gemclean executable (only rang/gemclean.py and
+           the extension; the installer writes the console script), and
+           the venv's console script `gemclean -version` exits 0 with
+           `gemclean <version>` in the same environment (task G8,
+           research/g8-wheel.md)
   pytest   tests/test_core_backends.py tests/test_pointing_sim.py tests/test_p7_architecture.py
            tests/test_p12_rename.py tests/test_t1_casacure_oracle.py
-           tests/test_w4_3_kernels.py
+           tests/test_w4_3_kernels.py tests/test_g8_gemclean.py (gemclean's
+           exit codes, a small imaging run, -j, Ctrl-C)
            from the source tree against the installed wheel through
            tools/wheel/pytest_wheel.py, the same environment: the extension
            against the archive of the retired ctypes oracle, the pointing
@@ -56,13 +62,14 @@ import shutil
 import subprocess
 import sys
 import time
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 TESTS = (
     "tests/test_core_backends.py tests/test_pointing_sim.py tests/test_p7_architecture.py"
     " tests/test_p12_rename.py tests/test_t1_casacure_oracle.py"
-    " tests/test_w4_3_kernels.py"
+    " tests/test_w4_3_kernels.py tests/test_g8_gemclean.py"
 )
 # The kernels step: the closure and flux-standard kernels from the wheel.
 KERNELS_CODE = """
@@ -102,6 +109,25 @@ def venv_python(venv):
     if os.name == "nt":
         return venv / "Scripts" / "python.exe"
     return venv / "bin" / "python"
+
+
+def venv_gemclean(venv):
+    if os.name == "nt":
+        return venv / "Scripts" / "gemclean.exe"
+    return venv / "bin" / "gemclean"
+
+
+def gemclean_entries(wheel):
+    """Entries of the wheel that are a gemclean file other than the module
+    rang/gemclean.py, and every script the wheel carries (task G8): both
+    must be empty, the console script being the installer's."""
+    names = zipfile.ZipFile(wheel).namelist()
+    return [
+        n
+        for n in names
+        if ("gemclean" in n.lower() and n != "rang/gemclean.py")
+        or ".data/scripts/" in n
+    ]
 
 
 def without_cargo(environ):
@@ -234,6 +260,21 @@ def main():
     )
     run("smoke", [python, "-I", ROOT / "tools" / "wheel" / "smoke.py"], clean)
     run("kernels", [python, "-I", "-c", KERNELS_CODE], clean)
+    extra = gemclean_entries(wheel)
+
+    def gemclean_version(text):
+        if extra:
+            return f"the wheel carries {extra}"
+        if not re.fullmatch(r"gemclean \S+\n?", text):
+            return f"unexpected -version output {text!r}"
+        return None
+
+    run(
+        "gemclean",
+        [venv_gemclean(venv), "-version"],
+        clean,
+        check_output=gemclean_version,
+    )
 
     def skips(text):
         bad = [

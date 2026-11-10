@@ -63,6 +63,7 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
@@ -1853,36 +1854,36 @@ def stage_apply(ctx):
     return summary
 
 
+class Gemclean:
+    """The gemclean to run: `argv` (the command before gemclean's options),
+    `path` (the file whose sha256 the receipt records) and `label`."""
+
+    def __init__(self, argv, path, label):
+        self.argv, self.path, self.label = list(argv), Path(path), label
+
+    def __str__(self):
+        return self.label
+
+
 def find_gemclean(setting):
-    """The gemclean binary: the configured path, else `gemclean` on PATH,
-    else the checkout's core/target/{release,gemclean}/gemclean."""
+    """The gemclean to run (task G8, research/g8-wheel.md): `auto` is the
+    extension's entry, `python -m rang.gemclean` of this interpreter, run as
+    a subprocess and recorded by the sha256 of `rang._core`; any other value
+    is the path of a gemclean binary (a source build). There is no search of
+    PATH or of the checkout's core/target: a stale binary found silently
+    would break the provenance."""
     if setting != "auto":
         path = Path(setting).expanduser()
         if not path.is_file():
-            raise StageFailed(
-                f"image.gemclean: {path} not found (gemclean joins the wheel in task G8)"
-            )
-        return path
-    found = shutil.which("gemclean")
-    if found:
-        return Path(found)
-    root = core.checkout_root()
-    if root is not None:
-        for profile in ("release", "gemclean"):
-            path = (
-                root
-                / "core"
-                / "target"
-                / profile
-                / ("gemclean.exe" if os.name == "nt" else "gemclean")
-            )
-            if path.is_file():
-                return path
-    raise StageFailed(
-        "image: no gemclean binary found (PATH, core/target/release, core/target/gemclean); "
-        "build it with cargo build --release --manifest-path core/Cargo.toml or set "
-        "image.gemclean (it joins the wheel in task G8)"
-    )
+            raise StageFailed(f"image.gemclean: {path} not found")
+        return Gemclean([str(path)], path, str(path))
+    if not hasattr(core.extension(), "gemclean_main"):
+        raise StageFailed(
+            f"image: the extension {core.library_path()} has no gemclean (built before "
+            "task G8); rebuild it, or set image.gemclean to a gemclean binary"
+        )
+    argv = [sys.executable, "-m", "rang.gemclean"]
+    return Gemclean(argv, core.library_path(), " ".join(argv))
 
 
 def _safe(name):
@@ -2025,7 +2026,7 @@ def stage_image(ctx):
         scans = config["data"]["scans"] or ()
         unit = config["data"]["weights"] == "uniform"
         argv = [
-            str(binary),
+            *binary.argv,
             *gemclean_arguments(img, column, field, prefix, ms, scans, unit),
         ]
         log = field_dir / "gemclean.log"
@@ -2061,7 +2062,7 @@ def stage_image(ctx):
         )
     summary = {
         "gemclean": str(binary),
-        "gemclean_sha256": _sha256_file(binary),
+        "gemclean_sha256": _sha256_file(binary.path),
         "column": column,
         "images": images,
     }
@@ -2182,7 +2183,7 @@ def _selfcal_image(ctx, binary, column, field, where, k):
     where.mkdir()
     prefix = where / img["name"]
     argv = [
-        str(binary),
+        *binary.argv,
         *gemclean_arguments(img, column, field, prefix, ms, scans, unit),
     ]
     log = where / "gemclean.log"
@@ -2325,7 +2326,7 @@ def stage_selfcal(ctx):
         )
     summary = {
         "gemclean": str(binary),
-        "gemclean_sha256": _sha256_file(binary),
+        "gemclean_sha256": _sha256_file(binary.path),
         "chunking": plan.describe(),
         "rounds": sc["rounds"],
         "refant": refant,

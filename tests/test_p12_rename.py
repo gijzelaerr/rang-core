@@ -25,7 +25,11 @@ def test_distribution_is_rang_core():
     scripts = {
         e.name: e.value for e in dist.entry_points if e.group == "console_scripts"
     }
-    assert scripts == {"rang-core": "rang.core_cli:main"}
+    # gemclean joined the wheel as a console script in task G8 (research/g8-wheel.md).
+    assert scripts == {
+        "rang-core": "rang.core_cli:main",
+        "gemclean": "rang.gemclean:main",
+    }
 
 
 def test_isolated_interpreter_finds_no_rangtoy():

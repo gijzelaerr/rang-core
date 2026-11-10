@@ -9,6 +9,18 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `gemclean` is in the wheel (task G8, `research/g8-wheel.md`): the console script `gemclean`
+  (and `python -m rang.gemclean`) runs GeMClean's command line inside the extension
+  (`rang._core.gemclean_main`); no second binary ships. The command line moved from
+  `core/src/bin/gemclean.rs` into `rang_core::gemclean::cli`, which the source build's binary now
+  wraps; files, output and exit codes are the binary's (0, 2 on an error, 101 on a panic), and
+  Ctrl-C ends the run at once. New `-version` (also `--version`). On 64-bit Linux the extension
+  uses gemclean's huge-page allocator, so `-memory-report` works from the wheel.
+- Changed: `rang-core`'s `image.gemclean: auto` runs the installed extension's gemclean
+  (`python -m rang.gemclean` of the running interpreter) and records the sha256 of `rang._core`;
+  the search of PATH and of the checkout's `core/target` is gone. A source build is used only when
+  `image.gemclean` names it.
+
 - Changed: `gemclean` grids at `-wgridder-accuracy 1e-4` in single precision by default (task G7,
   `research/g7-defaults.md`): on the 512-channel ESO 137 pilot 33 % less wall at `-j 16`, 27 % at
   `-j 1` and 4.1 GB less memory, within the class B bounds written first. Single precision is the
