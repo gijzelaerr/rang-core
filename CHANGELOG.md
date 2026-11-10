@@ -9,6 +9,20 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed: `gemclean` grids at `-wgridder-accuracy 1e-4` in single precision by default (task G7,
+  `research/g7-defaults.md`): on the 512-channel ESO 137 pilot 33 % less wall at `-j 16`, 27 % at
+  `-j 1` and 4.1 GB less memory, within the class B bounds written first. Single precision is the
+  default for an accuracy of 1e-5 or coarser; the new `-double` forces double precision, and
+  `-wgridder-accuracy 1e-6` alone gives the earlier form. `rang-core`'s `image.wgridder_accuracy`
+  defaults to 1e-4, the model column follows gemclean's precision, and the image and selfcal stage
+  hashes change once (`--force`).
+- Fixed: `gemclean`'s restoring beam is fitted as WSClean 3.7's binary fits it (a unit-peak Gaussian
+  in linear space over a box of 10 theoretic beams, regrown up to five times, on the box's quadrant
+  that schaapcommon's unsigned offsets leave in; the start is the theoretic beam, raised to the
+  Gaussian taper). BMAJ and BMIN agree with WSClean's to 4.3e-7 on 19 cases; before, BMAJ was 9-30 %
+  narrower. Every restored image and every FITS header's `BMAJ`, `BMIN`, `BPA` change; dirty, PSF,
+  model and residual data do not. The report's `main_lobe_pixels` is now `fit_pixels`.
+
 - New: per-image clean masks and cut-offs in `rang-core selfcal` (`research/c5b-selfcal-masks.md`),
   CARACal's `clean_cutoff`, `cleanmask_method` and `cleanmask_thr` as `selfcal.clean_cutoff`,
   `selfcal.cleanmask_method` (`wsclean`, `none` or a FITS mask path) and `selfcal.cleanmask_thr`:

@@ -1972,6 +1972,19 @@ def _extra_flag(extra, flag, count=0):
     return found
 
 
+def _gridder_single(img, extra):
+    """gemclean's gridder precision (task G7, research/g7-defaults.md): the
+    last of -single and -double in the extra arguments, else single for an
+    accuracy of 1e-5 or coarser."""
+    last = None
+    for a in extra:
+        if a in ("-single", "-double"):
+            last = a
+    if last is not None:
+        return last == "-single"
+    return float(img["wgridder_accuracy"]) >= 1e-5
+
+
 def write_model(img, ms, field_id, prefix, scans=()):
     """MODEL_DATA from the model images gemclean wrote for `field_id`
     (task G6): the binary's predictor, written through WriteBack."""
@@ -1986,7 +1999,7 @@ def write_model(img, ms, field_id, prefix, scans=()):
         average_channels=img["average_channels"],
         epsilon=float(img["wgridder_accuracy"]),
         wgridding=_extra_flag(extra, "-no-wgridding") is None,
-        single=_extra_flag(extra, "-single") is not None,
+        single=_gridder_single(img, extra),
         scans=list(scans) or None,
         stage="image",
     )
@@ -2210,7 +2223,7 @@ def _selfcal_model(ctx, field, prefix, chunk_rows):
         average_channels=img["average_channels"],
         epsilon=float(img["wgridder_accuracy"]),
         wgridding=_extra_flag(extra, "-no-wgridding") is None,
-        single=_extra_flag(extra, "-single") is not None,
+        single=_gridder_single(img, extra),
         scans=list(config["data"]["scans"]) or None,
         stage="selfcal",
         chunk_rows=chunk_rows,

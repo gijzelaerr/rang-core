@@ -38,6 +38,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [G9, Stokes imaging](g9-stokes.md): GeMClean `-pol` and `-join-polarizations` against WSClean 3.7 on simulated polarised skies; WSClean 3.7 joins polarisations on a linear sum, not the squared sum its help states; held-out C, D and E not met as frozen, post-hoc C′ and D′ pass.
 - [G4, masks, tapers and uv range](g4-masks.md): GeMClean `-fits-mask`, `-auto-mask`, tapers and uv range against WSClean 3.7; selection within 3.6e-7 of the peak, masks confine every pick; restoring beam, sigma per iteration and two point apertures not met as frozen.
 - [C5b, per-round selfcal masks](c5b-selfcal-masks.md): CARACal's `clean_cutoff`, `cleanmask_method` and `cleanmask_thr` in `rang-core selfcal`; C5's T2 not met on held-out cases (phase p95 9-17° against 1.5-3°); masks, an oracle mask included, do not remove C5's model absorption.
+- [G7, GeMClean's defaults](g7-defaults.md): on the 512-channel pilot coarse gridding is adopted (-33 % wall at -j16, -27 % at -j1, -4.1 GB); the restoring beam fitted as WSClean 3.7's binary fits it (BMAJ was 9-30 % narrower).
 - [E1, the whole chain on simulated truth](e1-chain.md): `rang-core run` on A1's m32 truth exits 0; no gate met as frozen; some causes shared with CASA (K flags, one delay), one rang-only K miss, the rest not established.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.

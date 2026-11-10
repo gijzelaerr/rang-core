@@ -1,0 +1,329 @@
+{
+ "cases": {
+  "S1": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/s1-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261102-gemclean/bench/wsclean/s1-abs-nominres-fast-j16-image.fits",
+   "gemclean_beam_asec_deg": [
+    13.878462730280239,
+    8.344619903977593,
+    -29.80579695505597
+   ],
+   "wsclean_beam_asec_deg": [
+    13.878466699189644,
+    8.344622157515929,
+    150.194195184855
+   ],
+   "bmaj_rel": -2.8597607293345817e-07,
+   "bmin_rel": -2.7005876279684315e-07,
+   "bpa_deg": 7.86008902764479e-06,
+   "pass": true
+  },
+  "S2": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/s2-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261102-gemclean/bench/wsclean/s2-abs-nominres-fast-j16-image.fits",
+   "gemclean_beam_asec_deg": [
+    13.878462730280239,
+    8.344619903977593,
+    -29.80579695505597
+   ],
+   "wsclean_beam_asec_deg": [
+    13.878466699189644,
+    8.344622157515929,
+    150.194195184855
+   ],
+   "bmaj_rel": -2.8597607293345817e-07,
+   "bmin_rel": -2.7005876279684315e-07,
+   "bpa_deg": 7.86008902764479e-06,
+   "pass": true
+  },
+  "S3": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/s3-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261102-gemclean/bench/wsclean/s3-abs-nominres-fast-j16-image.fits",
+   "gemclean_beam_asec_deg": [
+    13.878462730280239,
+    8.344619903977593,
+    -29.80579695505597
+   ],
+   "wsclean_beam_asec_deg": [
+    13.878466699189644,
+    8.344622157515929,
+    150.194195184855
+   ],
+   "bmaj_rel": -2.8597607293345817e-07,
+   "bmin_rel": -2.7005876279684315e-07,
+   "bpa_deg": 7.86008902764479e-06,
+   "pass": true
+  },
+  "H1": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/h1-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261103-gemclean-heldout/sim/wsclean/h1-abs-nominres-fast-j16-image.fits",
+   "gemclean_beam_asec_deg": [
+    17.640928003389785,
+    8.618675227172751,
+    -16.92634121643339
+   ],
+   "wsclean_beam_asec_deg": [
+    17.640927388844965,
+    8.618675055373224,
+    163.073651175921
+   ],
+   "bmaj_rel": 3.483631028089462e-08,
+   "bmin_rel": 1.993340359440765e-08,
+   "bpa_deg": 7.607645613916247e-06,
+   "pass": true
+  },
+  "H2": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/h2-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261103-gemclean-heldout/sim/wsclean/h2-abs-nominres-fast-j16-image.fits",
+   "gemclean_beam_asec_deg": [
+    17.529038444326392,
+    9.089970488037007,
+    -19.46303744637188
+   ],
+   "wsclean_beam_asec_deg": [
+    17.529041568903445,
+    9.089970471380951,
+    160.536957713559
+   ],
+   "bmaj_rel": -1.7825144860150743e-07,
+   "bmin_rel": 1.8323553785393187e-09,
+   "bpa_deg": 4.840069124156798e-06,
+   "pass": true
+  },
+  "H3": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/h3-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261103-gemclean-heldout/sim/wsclean/h3-abs-nominres-fast-j16-image.fits",
+   "gemclean_beam_asec_deg": [
+    14.332253657083577,
+    8.49745616542561,
+    -29.73576150151636
+   ],
+   "wsclean_beam_asec_deg": [
+    14.332257241323191,
+    8.497455986278153,
+    150.264238011168
+   ],
+   "bmaj_rel": -2.5008200410514547e-07,
+   "bmin_rel": 2.108248131627022e-08,
+   "bpa_deg": 4.873156456142169e-07,
+   "pass": true
+  },
+  "H4": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/h4-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261103-gemclean-heldout/sim/wsclean/h4-abs-nominres-fast-j16-image.fits",
+   "gemclean_beam_asec_deg": [
+    14.046009070507326,
+    8.304529488659393,
+    -27.83403780263583
+   ],
+   "wsclean_beam_asec_deg": [
+    14.046010258912776,
+    8.304528833611489,
+    152.165958298077
+   ],
+   "bmaj_rel": -8.460804379328835e-08,
+   "bmin_rel": 7.887839470477331e-08,
+   "bpa_deg": 3.899287179365274e-06,
+   "pass": true
+  },
+  "pilot-256": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/p256-def-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g2-memory/runs/wsclean/img/p256-nominres-image.fits",
+   "gemclean_beam_asec_deg": [
+    16.86089738108336,
+    9.62105826720308,
+    -51.36213183867294
+   ],
+   "wsclean_beam_asec_deg": [
+    16.860896372928494,
+    9.621058535352432,
+    128.637868421705
+   ],
+   "bmaj_rel": 5.979248318688235e-08,
+   "bmin_rel": -2.787108621671308e-08,
+   "bpa_deg": -2.6037793077193783e-07,
+   "pass": true
+  },
+  "A3": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/beam/A3/g-image.fits",
+   "wsclean": "D:/rang/outputs/g4-20261109-01/runs/wsclean/A3/w-image.fits",
+   "gemclean_beam_asec_deg": [
+    21.238996659727995,
+    15.795858223448342,
+    -23.19116096426989
+   ],
+   "wsclean_beam_asec_deg": [
+    21.238999023763693,
+    15.79585906775466,
+    156.808837516472
+   ],
+   "bmaj_rel": -1.1130636123901638e-07,
+   "bmin_rel": -5.345111753207732e-08,
+   "bpa_deg": 1.519258091775555e-06,
+   "pass": true
+  },
+  "D1-C1-0000": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0000-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0000-image.fits",
+   "gemclean_beam_asec_deg": [
+    16.297944032524693,
+    10.308873115416903,
+    -28.1596864830668
+   ],
+   "wsclean_beam_asec_deg": [
+    16.297943530343147,
+    10.308874297054933,
+    151.840317093693
+   ],
+   "bmaj_rel": 3.08125711612206e-08,
+   "bmin_rel": -1.1462338134204941e-07,
+   "bpa_deg": -3.576759780798966e-06,
+   "pass": true
+  },
+  "D1-C1-0001": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0001-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0001-image.fits",
+   "gemclean_beam_asec_deg": [
+    15.642073632431055,
+    9.708780807667761,
+    -28.66966964290862
+   ],
+   "wsclean_beam_asec_deg": [
+    15.642075778888211,
+    9.70878270575045,
+    151.330323014308
+   ],
+   "bmaj_rel": -1.372232935059614e-07,
+   "bmin_rel": -1.9550161389769727e-07,
+   "bpa_deg": 7.342783391095509e-06,
+   "pass": true
+  },
+  "D1-C1-0002": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0002-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0002-image.fits",
+   "gemclean_beam_asec_deg": [
+    15.058859760619612,
+    9.206652303325962,
+    -29.10536451734329
+   ],
+   "wsclean_beam_asec_deg": [
+    15.058862471779955,
+    9.206653128624827,
+    150.894631233115
+   ],
+   "bmaj_rel": -1.800375259985998e-07,
+   "bmin_rel": -8.964157272028928e-08,
+   "bpa_deg": 4.249541689205216e-06,
+   "pass": true
+  },
+  "D1-C1-0003": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0003-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0003-image.fits",
+   "gemclean_beam_asec_deg": [
+    14.644547523843015,
+    8.83520399565608,
+    -29.37491800359862
+   ],
+   "wsclean_beam_asec_deg": [
+    14.644549471061843,
+    8.835205242797317,
+    150.625076525782
+   ],
+   "bmaj_rel": -1.3296543077689904e-07,
+   "bmin_rel": -1.411558874231389e-07,
+   "bpa_deg": 5.470619385050668e-06,
+   "pass": true
+  },
+  "D1-C1-0004": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0004-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0004-image.fits",
+   "gemclean_beam_asec_deg": [
+    14.259598335434228,
+    8.56588698363694,
+    -29.81341560393407
+   ],
+   "wsclean_beam_asec_deg": [
+    14.25960098311727,
+    8.565887594956536,
+    150.186580357351
+   ],
+   "bmaj_rel": -1.8567721804529924e-07,
+   "bmin_rel": -7.136675439500806e-08,
+   "bpa_deg": 4.038714934040399e-06,
+   "pass": true
+  },
+  "D1-C1-0005": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0005-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0005-image.fits",
+   "gemclean_beam_asec_deg": [
+    13.871118466375808,
+    8.336917677514043,
+    -29.84632478033579
+   ],
+   "wsclean_beam_asec_deg": [
+    13.87112185218132,
+    8.336918480924917,
+    150.153669071418
+   ],
+   "bmaj_rel": -2.440902435729697e-07,
+   "bmin_rel": -9.636784570332679e-08,
+   "bpa_deg": 6.148246200154972e-06,
+   "pass": true
+  },
+  "D1-C1-0006": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0006-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0006-image.fits",
+   "gemclean_beam_asec_deg": [
+    13.539987787959026,
+    8.160927983633531,
+    -30.06918451753538
+   ],
+   "wsclean_beam_asec_deg": [
+    13.539991495220569,
+    8.160931443227184,
+    149.930804707145
+   ],
+   "bmaj_rel": -2.738008767488864e-07,
+   "bmin_rel": -4.239214208556774e-07,
+   "bpa_deg": 1.0775319623235191e-05,
+   "pass": true
+  },
+  "D1-C1-0007": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-0007-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-0007-image.fits",
+   "gemclean_beam_asec_deg": [
+    13.175170256307686,
+    7.984636490878059,
+    -30.31231695125759
+   ],
+   "wsclean_beam_asec_deg": [
+    13.175175693178044,
+    7.984639954828332,
+    149.687674552344
+   ],
+   "bmaj_rel": -4.126601789167239e-07,
+   "bmin_rel": -4.338267339809576e-07,
+   "bpa_deg": 8.496398407942252e-06,
+   "pass": true
+  },
+  "D1-C1-MFS": {
+   "gemclean": "D:/rang/outputs/g7-20261109-01/identity/beam/img/D1-C1-def-MFS-image.fits",
+   "wsclean": "D:/rang/outputs/20261106-g3-spectral/runs/wsclean/D1-C1/w-MFS-image.fits",
+   "gemclean_beam_asec_deg": [
+    14.469395913626006,
+    9.01011613979711,
+    -29.05006440287253
+   ],
+   "wsclean_beam_asec_deg": [
+    14.469398881693415,
+    9.010117289396952,
+    150.949928943763
+   ],
+   "bmaj_rel": -2.0512720910748072e-07,
+   "bmin_rel": -1.2758988632288748e-07,
+   "bpa_deg": 6.653364465591949e-06,
+   "pass": true
+  }
+ },
+ "all_pass": true
+}

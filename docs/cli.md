@@ -296,7 +296,7 @@ image:
   mgain: null  # major-cycle gain (null: gemclean's measured rule)
   nmiter: null  # maximum major cycles (null: gemclean's 20)
   threads: null  # worker threads (null: gemclean's default, all cores)
-  wgridder_accuracy: 1.0e-06  # gridder accuracy
+  wgridder_accuracy: 0.0001  # gridder accuracy (single precision at 1e-5 or coarser; task G7)
   extra_args: []  # more gemclean options, passed as given
   channels_out: 1  # output channels
   join_channels: false  # join the output channels

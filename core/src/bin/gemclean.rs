@@ -80,9 +80,12 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -unit-weights             every correlation weighs 1 in place of WEIGHT_SPECTRUM or WEIGHT,
                             flags still applied (rang's own; not -weight uniform)
   -j <threads>              worker threads (default: all cores)
-  -wgridder-accuracy <eps>  gridder accuracy (default 1e-6, double precision)
+  -wgridder-accuracy <eps>  gridder accuracy (default 1e-4; research/g7-defaults.md)
   -no-wgridding             disable the w-term
-  -single                   grid in single precision (default double)
+  -single                   grid in single precision (the default when the accuracy is 1e-5 or
+                            coarser, so 1e-4 by default; research/g7-defaults.md)
+  -double                   grid in double precision (the default for an accuracy finer than
+                            1e-5; -wgridder-accuracy 1e-6 alone gives the form before G7)
   -gram-operator S,THETA    major cycles without visibilities: the w-node Toeplitz
                             operator of research/gridder-theory.md, S stencil nodes
                             at phase step THETA; prototype, off by default; the final
@@ -258,6 +261,9 @@ fn parse_angle(s: &str) -> Result<f64, String> {
 }
 
 fn parse_args(raw: &[String]) -> Result<Args, String> {
+    // -single or -double; otherwise single precision for an accuracy of 1e-5
+    // or coarser (task G7, research/g7-defaults.md).
+    let mut precision: Option<bool> = None;
     let mut a = Args {
         ms: PathBuf::new(),
         name: "gemclean".into(),
@@ -286,7 +292,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         data_column: None,
         field: 0,
         threads: None,
-        epsilon: 1e-6,
+        epsilon: 1e-4,
         wgridding: true,
         floor_iterations: 0,
         audit: false,
@@ -432,7 +438,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-memory-report" => a.memory_report = true,
             "-tile" => a.tile = number(flag, value(&mut i)?)?,
             "-eager-tiles" => a.lazy_bounds = false,
-            "-single" => a.single = true,
+            "-single" => precision = Some(true),
+            "-double" => precision = Some(false),
             "-gram-operator" => {
                 let v = value(&mut i)?;
                 let (s, t) = v.split_once(',').ok_or("-gram-operator takes S,THETA")?;
@@ -710,6 +717,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         }
         a.multiscale = Some(ms);
     }
+    a.single = precision.unwrap_or(a.epsilon >= 1e-5);
     Ok(a)
 }
 
@@ -798,11 +806,15 @@ fn deconvolve<T: Real + Send + Sync>(
         return Err("-stop-rule certified needs the default beam and gridder".into());
     }
     let keep = certified.then(|| (uvw.clone(), wgt.clone()));
-    // WSClean's theoretic beam sets the multiscale scales.
+    // WSClean's theoretic beam: the start of the restoring-beam fit, and the
+    // multiscale scales.
+    let theoretic_raw = multiscale::theoretic_beam(&uvw, freq, &wgt, n, args.scale);
+    let fit_estimate =
+        gemclean::beam_fit_estimate(theoretic_raw, args.scale, args.tapers.gaussian_beam);
     let theoretic = args
         .multiscale
         .as_ref()
-        .and_then(|_| multiscale::theoretic_beam(&uvw, freq, &wgt, n, args.scale))
+        .and(theoretic_raw)
         .map(|b| b.max(args.tapers.gaussian_beam));
     // The plan of the image grid is made after the 2n PSF, which does not use it.
     let measurement: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
@@ -838,11 +850,11 @@ fn deconvolve<T: Real + Send + Sync>(
     };
     let beam = Beam::from_double_band(n, &psf2n, args.patch, columns)?;
     let t_beam = t.elapsed().as_secs_f64();
-    let restoring = gemclean::fit_restoring_beam(n, &psf2n);
+    let restoring = gemclean::fit_restoring_beam(n, &psf2n, fit_estimate);
     memory::mark("beam");
     let scale_deg = args.scale.to_degrees();
     println!(
-        "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; {} of {} spectrum columns, {:.2e} left out; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} main-lobe pixels); PSF {:.2} s, FFT {:.2} s",
+        "beam: peak {:.12}, patch ±{}, f {:.4e} outside the patch; {} of {} spectrum columns, {:.2e} left out; restoring beam {:.3}\" × {:.3}\" PA {:.2}° ({} pixels fitted); PSF {:.2} s, FFT {:.2} s",
         beam.peak,
         beam.patch,
         beam.f,
@@ -1460,7 +1472,7 @@ fn run() -> Result<(), String> {
                 ("bmaj_deg", num(restoring.major * scale_deg)),
                 ("bmin_deg", num(restoring.minor * scale_deg)),
                 ("bpa_deg", num(restoring.pa.to_degrees())),
-                ("main_lobe_pixels", restoring.pixels.to_string()),
+                ("fit_pixels", restoring.pixels.to_string()),
             ]),
         ),
         ("floor", floor_json),
@@ -1663,6 +1675,9 @@ fn split_channels(
 struct ChannelImages {
     psf: Vec<Vec<f64>>,
     restoring: Vec<gemclean::RestoringBeam>,
+    /// The start of each channel's restoring-beam fit, pixels (WSClean's MFS
+    /// fit starts from the smallest).
+    fit_estimates: Vec<f64>,
     beam_peak: Vec<f64>,
     beam_f: Vec<f64>,
     dirty: Vec<Vec<f64>>,
@@ -1690,16 +1705,24 @@ fn deconvolve_channels<T: Real + Send + Sync>(
     let mut beams = Vec::with_capacity(chans.len());
     let mut restoring = Vec::with_capacity(chans.len());
     let mut psfs = Vec::with_capacity(chans.len());
-    // WSClean's multiscale scales use the smallest theoretic beam of the
-    // output channels (`minTheoreticalBeamSize`).
+    // WSClean's theoretic beam per channel: the start of its restoring-beam
+    // fit; the multiscale scales use the smallest (`minTheoreticalBeamSize`).
+    let theoretic_raw: Vec<Option<f64>> = chans
+        .iter()
+        .map(|c| multiscale::theoretic_beam(&c.uvw, &c.freq, &c.wgt, n, args.scale))
+        .collect();
+    let fit_estimates: Vec<f64> = theoretic_raw
+        .iter()
+        .map(|&b| gemclean::beam_fit_estimate(b, args.scale, args.tapers.gaussian_beam))
+        .collect();
     let theoretic = args.multiscale.as_ref().and_then(|_| {
-        chans
+        theoretic_raw
             .iter()
-            .filter_map(|c| multiscale::theoretic_beam(&c.uvw, &c.freq, &c.wgt, n, args.scale))
+            .flatten()
             .map(|b| b.max(args.tapers.gaussian_beam))
             .reduce(f64::min)
     });
-    for c in chans {
+    for (k, c) in chans.into_iter().enumerate() {
         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
             c.uvw,
             c.freq,
@@ -1723,7 +1746,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
             n + 1
         };
         beams.push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
-        restoring.push(gemclean::fit_restoring_beam(n, &psf2n));
+        restoring.push(gemclean::fit_restoring_beam(n, &psf2n, fit_estimates[k]));
         let mut psf = vec![0.0; n * n];
         for i in 0..n {
             for j in 0..n {
@@ -1827,6 +1850,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         return Ok(ChannelImages {
             psf: psfs,
             restoring,
+            fit_estimates,
             beam_peak,
             beam_f,
             dirty,
@@ -1854,6 +1878,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         Ok(ChannelImages {
             psf: psfs,
             restoring,
+            fit_estimates,
             beam_peak,
             beam_f,
             dirty: j.dirty,
@@ -1886,6 +1911,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         Ok(ChannelImages {
             psf: psfs,
             restoring,
+            fit_estimates,
             beam_peak,
             beam_f,
             dirty: separate.iter().map(|o| o.dirty.clone()).collect(),
@@ -2077,7 +2103,12 @@ fn run_channels(
     }
     // MFS: weighted means; the restoring beam fitted on the MFS PSF.
     let psf_mfs = weighted_mean(&out.psf, &weights);
-    let restoring_mfs = gemclean::fit_restoring_beam(n, &embed_double(n, &psf_mfs));
+    let mfs_estimate = out
+        .fit_estimates
+        .iter()
+        .copied()
+        .fold(f64::INFINITY, f64::min);
+    let restoring_mfs = gemclean::fit_restoring_beam(n, &embed_double(n, &psf_mfs), mfs_estimate);
     let low = meta.iter().map(|m| m.1).fold(f64::INFINITY, f64::min);
     let high = meta.iter().map(|m| m.2).fold(f64::NEG_INFINITY, f64::max);
     let mut base = fits::wcs_cards_band(phase_dir.0, phase_dir.1, n, args.scale, low, high);
@@ -2128,7 +2159,7 @@ fn run_channels(
             ("bmaj_deg", num(r.major * scale_deg)),
             ("bmin_deg", num(r.minor * scale_deg)),
             ("bpa_deg", num(r.pa.to_degrees())),
-            ("main_lobe_pixels", r.pixels.to_string()),
+            ("fit_pixels", r.pixels.to_string()),
         ])
     };
     let channels_json: Vec<String> = meta
@@ -2275,6 +2306,8 @@ type WeightKey = (Vec<usize>, usize);
 struct PolImages {
     psf: Vec<Vec<f64>>,
     restoring: Vec<gemclean::RestoringBeam>,
+    /// The start of each channel's restoring-beam fit, pixels.
+    fit_estimates: Vec<f64>,
     /// Per entry: the index of its beam, and whether it is the first
     /// polarisation's of its channel.
     shared_beam: Vec<bool>,
@@ -2327,6 +2360,7 @@ fn deconvolve_pols<T: Real + Send + Sync>(
     let mut beam_of = Vec::with_capacity(entries.len());
     let mut shared_beam = Vec::with_capacity(entries.len());
     let mut restoring = Vec::with_capacity(kout);
+    let mut fit_estimates = Vec::with_capacity(kout);
     let mut psfs = Vec::with_capacity(kout);
     // The rows and gridding weights of the channel's earlier polarisations,
     // with their beams.
@@ -2345,6 +2379,14 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             .map(|x| x.2);
         if npol > 1 && same.is_none() && p + 1 < npol {
             earlier.push((c.uvw.clone(), c.wgt.clone(), beams.len()));
+        }
+        if p == 0 {
+            let b = multiscale::theoretic_beam(&c.uvw, &freqs[k], &c.wgt, n, args.scale);
+            fit_estimates.push(gemclean::beam_fit_estimate(
+                b,
+                args.scale,
+                args.tapers.gaussian_beam,
+            ));
         }
         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
             c.uvw,
@@ -2376,7 +2418,7 @@ fn deconvolve_pols<T: Real + Send + Sync>(
                 };
                 beams.push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
                 if p == 0 {
-                    restoring.push(gemclean::fit_restoring_beam(n, &psf2n));
+                    restoring.push(gemclean::fit_restoring_beam(n, &psf2n, fit_estimates[k]));
                     let mut psf = vec![0.0; n * n];
                     for i in 0..n {
                         for j in 0..n {
@@ -2481,6 +2523,7 @@ fn deconvolve_pols<T: Real + Send + Sync>(
     Ok(PolImages {
         psf: psfs,
         restoring,
+        fit_estimates,
         shared_beam,
         dirty,
         model,
@@ -2803,7 +2846,12 @@ fn run_polarizations(
         // per-channel info holds at the end, the last polarisation's.
         let wl: Vec<f64> = (0..kout).map(|k| meta[k * npol + npol - 1].1).collect();
         let psf_mfs = weighted_mean(&out.psf, &wl);
-        let r_mfs = gemclean::fit_restoring_beam(n, &embed_double(n, &psf_mfs));
+        let mfs_estimate = out
+            .fit_estimates
+            .iter()
+            .copied()
+            .fold(f64::INFINITY, f64::min);
+        let r_mfs = gemclean::fit_restoring_beam(n, &embed_double(n, &psf_mfs), mfs_estimate);
         let low = bands.iter().map(|b| b.0).fold(f64::INFINITY, f64::min);
         let high = bands.iter().map(|b| b.1).fold(f64::NEG_INFINITY, f64::max);
         let lasts: Vec<usize> = (0..kout).map(|k| k * npol + npol - 1).collect();
@@ -2872,7 +2920,7 @@ fn run_polarizations(
             ("bmaj_deg", num(r.major * scale_deg)),
             ("bmin_deg", num(r.minor * scale_deg)),
             ("bpa_deg", num(r.pa.to_degrees())),
-            ("main_lobe_pixels", r.pixels.to_string()),
+            ("fit_pixels", r.pixels.to_string()),
         ])
     };
     let entries_json: Vec<String> = meta
@@ -3157,6 +3205,23 @@ mod tests {
             .map(String::from)
             .collect();
         assert!(parse_args(&bad).is_err());
+    }
+
+    #[test]
+    fn gridder_precision_defaults() {
+        // Task G7 (research/g7-defaults.md): 1e-4 in single precision by default;
+        // a finer accuracy alone gives double; -single and -double win.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw).unwrap()
+        };
+        let a = parse("-size 64 64 -scale 2asec x.ms");
+        assert!(a.single && a.epsilon == 1e-4);
+        let a = parse("-size 64 64 -scale 2asec -wgridder-accuracy 1e-6 x.ms");
+        assert!(!a.single && a.epsilon == 1e-6);
+        assert!(!parse("-size 64 64 -scale 2asec -double x.ms").single);
+        assert!(parse("-size 64 64 -scale 2asec -wgridder-accuracy 1e-6 -single x.ms").single);
+        assert!(!parse("-size 64 64 -scale 2asec -single -double x.ms").single);
     }
 
     #[test]

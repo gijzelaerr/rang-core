@@ -2226,7 +2226,9 @@ pub const PLANE_GROUP: usize = 4;
 static DEFAULT_PLANE_GROUP: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(1);
 
 /// Sets the plane group this process uses when `RANG_WGRIDDER_PLANE_GROUP` is
-/// unset. Results do not depend on it, only memory and speed.
+/// unset. Meant to change only memory and speed, but measured not bit-neutral
+/// in the `gemclean` binary (research/g2-memory.md: group 1 on the 512-channel
+/// pilot and group 2 on H3 change the residual's bits; research/g7-defaults.md).
 pub fn set_default_plane_group(group: usize) {
     DEFAULT_PLANE_GROUP.store(group, std::sync::atomic::Ordering::Relaxed);
 }
@@ -2235,8 +2237,10 @@ pub fn set_default_plane_group(group: usize) {
 const PLANE_GROUP_BYTES: usize = 1 << 31;
 
 /// Planes taken together (the u and v taps evaluated once per visibility for
-/// the group, and the visibility's planes in order, so the results do not
-/// depend on the size of the group): `RANG_WGRIDDER_PLANE_GROUP` if set, else
+/// the group, and the visibility's planes in order; meant to leave the results
+/// independent of the size of the group, as the test below checks on a small
+/// case, but not so in every layout: research/g2-memory.md, research/g7-defaults.md):
+/// `RANG_WGRIDDER_PLANE_GROUP` if set, else
 /// the process default within [`PLANE_GROUP_BYTES`], and at least one.
 fn plane_group<T>(setup: &Setup, nout: usize) -> usize {
     if !setup.do_wgridding {
@@ -4551,7 +4555,7 @@ mod tests {
     }
 
     /// A plane group for the test below; other tests may run under it, as their
-    /// results do not depend on it.
+    /// results do not depend on it on these small cases.
     pub(super) static FORCED_GROUP: std::sync::atomic::AtomicUsize =
         std::sync::atomic::AtomicUsize::new(0);
 
