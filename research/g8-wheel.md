@@ -1,6 +1,16 @@
 # Rang: GeMClean in the wheel (task G8)
 
-Status, 2026-11-10: **protocol** (written and committed before the first comparison).
+Status, 2026-11-10: **implemented and measured; the five-platform CI gate waits for the push.**
+`gemclean` ships in the wheel as a console script over `rang._core.gemclean_main`; no second
+binary. Identity: the wheel's FITS files are byte-identical to the fat-LTO source build's on
+every case (A0 and A1 natively: S1 at the defaults and at 1e-6, D1-C1, the pilot-512; A2 in
+Linux: S1, D1-C1). Speed on the wheel, pilot-512, idle host: 140.0 s against 137.7 s at `-j 16`
+(+0.5 %, paired median) and 798 s against 788 s at `-j 1` (+1.4 %, two pairs: +5.3 %, −2.6 %);
+in Linux (WSL, the MS through 9p) 196.6 s against 189.9 s at `-j 16` (+3.3 %) and 730 s against
+729 s at `-j 1`. Fat LTO for the wheel is not adopted (section 5's rule: 0.6 % slower at
+`-j 16`, 0.2 % faster at `-j 1`). Ctrl-C ends the console script at once, as the binary. The
+name check finds no clash. The protocol (sections 1-8) was committed before the first
+comparison (`a17e7fc`).
 
 Finish plan row G8: "In the wheel: extension binding and a `gemclean` console script, not a second
 binary | oracle: source build | gate: `pip install` runs it on all five platforms; FITS identical
@@ -158,3 +168,209 @@ recommendation in this note; the owner decides.
 Outputs `D:\rang\outputs\g8-20261110-01` (`bin/`, `wheels/`, `venvs/`, `identity/`, `runs/`,
 `load/`, `runs.tsv`, `.code/`). Scripts in [`results/g8-wheel-scripts/`](results/g8-wheel-scripts/).
 Status: `C:\Users\gijsm\Github\rang\outputs\status\fp-g8.md`.
+
+## 9. Implementation (`ed836ec`)
+
+- `core/src/gemclean/cli.rs`: the binary's code moved by
+  [`move_cli.py`](results/g8-wheel-scripts/move_cli.py) (paths `rang_core::` → `crate::`,
+  `run(raw)`, `-version`, the pool fallback, `pub fn main(&[String]) -> i32`); the binary is 20
+  lines. `core/py/src/gemclean_cli.rs`: `gemclean_main` (GIL released, `catch_unwind` → 101,
+  stdout and stderr flushed). `core/py/src/lib.rs`: the Linux `HugePageAlloc` global allocator and
+  the registration.
+- `python/rang/gemclean.py` (`main`, SIGINT and SIGBREAK to `SIG_DFL`), `[project.scripts]
+  gemclean`; `rang.core_pipeline.find_gemclean` returns a `Gemclean` (argv, hashed path, label);
+  the `image.gemclean` text and `docs/cli.md` updated; `tests/test_p12_rename.py` lists the new
+  script.
+- Tests: `tests/test_g8_gemclean.py` (in the wheel subset: exit codes and streams, `-version`, a
+  128×128 run on a core-written MS with the dirty peak 1 Jy at the centre, `-j 1` and `-j 3` FITS
+  equal with `threads` reported, two runs in one process with `-j 1` then `-j 3`, Ctrl-C through
+  the script and through `-m`, rang-core's `auto`, no gemclean executable in the package);
+  `tests/test_g8_identity.py` (checkout only: the script against `core/target/release/gemclean`,
+  FITS bytes, stdout with times masked, stderr, `-version`, usage and error exit codes). All pass
+  natively (7 + 1 tests).
+- `tools/wheel/test.py`: step `gemclean` (no gemclean entry in the wheel but `rang/gemclean.py`,
+  no `.data/scripts/`; the venv's console script `gemclean -version`); `tests/test_g8_gemclean.py`
+  in the pytest subset. `.github/workflows/wheels.yml`: comments only, since its test job runs
+  `tools/wheel/test.py`.
+
+## 10. Measured: identity (gates A0-A2)
+
+All `-j 16`, files hashed then deleted; archive [`g8-wheel.json`](results/g8-wheel.json).
+
+| gate | pair | case | files | result |
+| --- | --- | --- | ---: | --- |
+| A0 | SB0 (`38cc96d`) against SB (`ed836ec`) | S1, defaults | 5 | **identical** |
+| A1 | WH against SB | S1, defaults | 5 | **identical** |
+| A1 | WH against SB | S1, `-wgridder-accuracy 1e-6` (f64) | 5 | **identical** |
+| A1 | WH against SB | D1-C1 (8 channels, joined, 4-term fit) | 45 | **identical** |
+| A1 | WH against SB | pilot-512, every timed run (5 each) | 5 | **identical** (one hash set) |
+| A2 | WHL against SBL | S1, defaults | 5 | **identical** |
+| A2 | WHL against SBL | D1-C1 | 45 | **identical** |
+| reported | WV3, WF against SB | S1; pilot-512 (4 runs each) | 5 | identical |
+
+As section 2 expected: neither thin LTO nor the `x86-64` baseline changes a bit.
+
+## 11. Measured: timings on the pilot-512 (native Windows)
+
+Runs 2026-11-10 07:23-09:54 ([`g8_run.py`](results/g8-wheel-scripts/g8_run.py), plans `j16`,
+`j1`), each under the heavy lock. The session was restarted at 08:16 during `WH-j1-r1`; that run
+was deleted unfinished and rerun at 08:31; the finished `SB-j1-r1` (08:15) was kept, as the plan
+resumes on `timing.json`. **One run spoiled:** `WV3-j1-r1`, with another user's `llama-server` at
+109 % of a core for the whole 10-min wait (not mine, not stopped); reported and marked. CPU and
+peak working set over the Job Object (three processes for a console-script run: the trampoline,
+the venv launcher, Python).
+
+| arm | `-j` | runs | wall, s, median (range) | CPU/wall | peak GB |
+| --- | ---: | ---: | --- | ---: | ---: |
+| SB (fat LTO, v3) | 16 | 3 | 137.7 (137.7-139.3) | 10.9 | 15.64 |
+| WH (the CI wheel) | 16 | 3 | 140.0 (137.7-140.4) | 11.1 | 15.67 |
+| WV3 (wheel, v3) | 16 | 3 | 137.7 (136.2-138.2) | 11.0 | 15.65 |
+| WF (wheel, fat LTO) | 16 | 3 | 141.3 (140.8-141.4) | 11.1 | 15.65 |
+| SB | 1 | 2 | 787.8 (783.5-792.1) | 1.00 | 15.20 |
+| WH | 1 | 2 | 798.3 (771.9-824.8) | 1.00 | 15.21 |
+| WV3 | 1 | 1 (spoiled) | 764.2 | 0.99 | 15.21 |
+| WF | 1 | 1 | 796.6 | 0.99 | 15.21 |
+
+Every arm: 5 major cycles, 58,369 components, Q/Q0 2.6497e-2; PSF 147-152 s at `-j 1`.
+
+Ratios of wall (section 4: paired by repeat; one-repeat cells against the other arm's median):
+
+| ratio | `-j 16` (pairs) | `-j 1` (pairs) |
+| --- | --- | --- |
+| WH / SB | **1.005** (1.005, 1.020, 1.000) | **1.014** (1.053, 0.974) |
+| WV3 / WH | 0.985 (0.983, 0.985, 0.989) | 0.957 (spoiled run) |
+| WF / WH | 1.006 (1.005, 1.006, 1.027) | 0.998 |
+| WF / SB | 1.026 | 1.011 |
+
+WH's two `-j 1` repeats differ by 6.6 % (SB's by 1.1 %; G7 saw up to 7.7 % on this host), so
+the `-j 1` figures resolve no difference below about 5 %. G7's coarse arm GC: 132.4 s and
+751.9 s (binary `c7ca268`, 00:42-05:32 today); the 4-5 % between those and SB here was not
+traced (the move is excluded: A0's files are identical, and SB0 was not timed).
+
+**Start-up** (10 runs of `-version`): SB 4.4 ms, the console script 144 ms (trampoline, Python,
+`import rang._core`), 0.1 % of a `-j 16` pilot run.
+
+**Build walls** (local, inside the lock): SB0 239 s, SB 172 s, WH 176 s, WV3 190 s, WF 176 s;
+Linux SBL 109 s, WHL 111 s (the wheel step of `tools/wheel/build.sh`). Fat LTO cost no build time.
+
+## 12. Measured: Linux (WSL 2, the MS on `/mnt/d` through 9p)
+
+Runs 2026-11-10 10:03-10:53 (plans `lx16`, `lx1`), GNU `time -v`; no run spoiled. SBL is the
+`gemclean` profile built in WSL, WHL the manylinux_2_28 wheel from `tools/wheel/build.sh` (the
+pinned container), run as `bin/gemclean` of a fresh uv venv. Both read the MS through 9p (read
+77 s, as G7's LX).
+
+| arm | `-j` | runs | wall, s, median (range) | CPU/wall | max RSS GB | phases (rep. 1), s |
+| --- | ---: | ---: | --- | ---: | ---: | --- |
+| SBL | 16 | 3 | 189.9 (188.0-190.9) | 7.9 | 15.69 | read 77.1, PSF 23.9, major 49.0 |
+| WHL | 16 | 3 | 196.6 (196.2-197.2) | 7.9 | 15.68 | read 77.2, PSF 26.2, major 51.2 |
+| SBL | 1 | 1 | 729.0 | 0.92 | 15.22 | PSF 139.7, major 365.8 |
+| WHL | 1 | 1 | 730.4 | 0.92 | 15.24 | PSF 145.4, major 356.7 |
+
+WHL / SBL: **1.033** at `-j 16` (pairs 1.046, 1.033, 1.033), **1.002** at `-j 1` (one pair). The
+3 % at `-j 16` sits in the PSF and major-cycle phases (gridding and FFT), not in the read; at
+`-j 1` the PSF is 4 % slower and the major cycles 2.5 % faster. The Linux wheel's memory counters
+work (`memory` in `-report.json`, heap within 1 kB of the binary's), so the allocator is in. Which
+of LTO or the baseline CPU gives the 3 % was not measured on Linux (no WV3/WF arms there; post hoc,
+not run).
+
+## 13. Decisions under section 5
+
+- **Fat LTO for the wheel (WF): not adopted.** Saving against WH: −0.6 % at `-j 16` (slower) and
+  +0.2 % at `-j 1`; the rule needed 3 % at both. Build time was not the obstacle (176 s both).
+- **CPU baseline (WV3):** 1.5 % faster than WH at `-j 16`, 4.3 % at `-j 1` on one spoiled run.
+  The run-time-dispatched kernels already carry the hot loops; the rest is within the `-j 1`
+  noise. Owner decision 2.
+- **Speed gate: met** (measured on the wheel). The wheel is 0.5 % (`-j 16`) and 1.4 % (`-j 1`,
+  noisy) slower than the fat-LTO profile: G7's and the speed run's figures hold for the wheel
+  within those margins.
+
+## 14. Ctrl-C, exit codes, streams, threads
+
+- **A real Ctrl-C** ([`ctrlc_check.py`](results/g8-wheel-scripts/ctrlc_check.py): a new console,
+  `GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0)` 0.5 s after the first line of output, `-j 2`, 1024²
+  on the test MS): the source binary, the console script `gemclean.exe` and `python -m
+  rang.gemclean` all end with `0xC000013A` (`STATUS_CONTROL_C_EXIT`, the binary's) within 6-10 ms.
+  Control: `gemclean_main` called without the SIGINT reset ends only when the run does, 76.7 s
+  later. CTRL_BREAK (Windows) and SIGINT (POSIX) are in `tests/test_g8_gemclean.py`: both entries
+  end with the binary's status within 10 s.
+- **Exit codes and streams:** 0; 2 with `gemclean: …` on stderr and nothing on stdout (no MS, an
+  unknown option, a missing MS); usage on stderr for `-h`; byte-equal to the binary's
+  (`test_g8_identity.py`). Panic → 101 is implemented (`catch_unwind`) but not triggered (no input
+  makes gemclean panic).
+- **Threads:** CPU/wall 0.99-1.00 on every `-j 1` pilot run through the script; `threads` in the
+  report equals `-j`, also for a second run in one process (the pool fallback).
+
+## 15. Owner decisions
+
+1. **The name (owner decision 4).** Checked 2026-11-10: no `gemclean`, `gem-clean` or
+   `gemclean-cli` on PyPI, crates.io, RubyGems, npm, conda-forge or Homebrew (404 each; the same
+   queries give 200 for numpy, serde, rails, wget); no Debian source package; on GitHub four
+   unrelated repositories (three image-watermark removers called GemClean or gemclean, one
+   empty); a web search finds no imaging software of that name. RubyGems' own command is `gem
+   cleanup`. Recommendation: keep `gemclean`.
+2. **CPU baseline:** ship `x86-64` wheels (now; 1.5 % behind `x86-64-v3` at `-j 16`), ship v3
+   (refuses CPUs without AVX2/FMA), or add run-time dispatch to the remaining kernels.
+   Provisional: keep `x86-64`.
+3. **`image.gemclean: auto` no longer searches PATH or `core/target`** (provenance); a source
+   build must be named. Provisional.
+4. **The extension's allocator on Linux** is gemclean's huge-page allocator for every allocation of
+   the extension, as in the binary. Provisional; six lines of `core/py/src/lib.rs` to revert.
+5. **The sdist does not build** (found here, already so on main): the sdist-build step of
+   `tools/wheel/build.sh` fails at `include_str!("../../../data/meerkat.itrf.txt")` in
+   `core/src/gemclean/sim.rs`, since `data/**` is left out of the sdist. CI builds the sdist but
+   never builds from it, so `pip install` from the sdist fails. Follow-up: put that file in the
+   sdist or under `core/`. Not fixed here.
+
+## 16. What was not checked
+
+- macOS and Linux aarch64 only through CI (I cannot push); Windows and Linux x86_64 locally.
+- A panic in gemclean; the 101 path is read in code only.
+- `-j 1` differences below about 5 % (two repeats, 6.6 % spread).
+
+## 17. CI: which job proves which platform
+
+After the push, `.github/workflows/wheels.yml` runs `wheel <platform>` (build) and `test
+<platform> py3.10` and `py3.14` (a fresh venv, cargo off PATH, step `gemclean`, pytest with
+`tests/test_g8_gemclean.py`). A platform's gate is met when both of its test jobs pass:
+
+| platform | jobs |
+| --- | --- |
+| linux-x86_64 | `test linux-x86_64 py3.10`, `test linux-x86_64 py3.14` |
+| linux-aarch64 | `test linux-aarch64 py3.10`, `test linux-aarch64 py3.14` (native arm runner) |
+| macos-arm64 | `test macos-arm64 py3.10`, `test macos-arm64 py3.14` |
+| macos-x86_64 | `test macos-x86_64 py3.10`, `test macos-x86_64 py3.14` |
+| windows-x86_64 | `test windows-x86_64 py3.10`, `test windows-x86_64 py3.14` (PYTHONUTF8=0) |
+
+Locally, the same `tools/wheel/test.py`: Windows (WH, Python 3.14) PASS (46 passed, 16 skipped for the absent fixture, allowed without `--fixture-cache`); Linux (WHL,
+Python 3.14) PASS (51 passed, 11 skipped, the same reason).
+
+## 18. On disk
+
+Kept: `D:\rang\outputs\g8-20261110-01` (0.37 GB: `bin/` with SB0, SB, SBL and the source
+tar, `wheels/` with WH, WV3, WF, WHL and provenance, `venvs/` with the three Windows wheel venvs,
+`identity/` and `runs/` with hashes, logs, reports and timings (FITS deleted), `startup/`,
+`ctrlc/` with the test MS, `wheeltest-*`, `.code/`). Removed: the WSL build and venv directories
+`~/Build/tmp/20261110-g8-{src,target,whl,venv-whl,wheeltest}`, the Windows target dirs.
+
+## For the coordinator
+
+- Push the branch; read the ten `test <platform> py…` jobs of `wheels.yml` (section 17) and
+  record the five-platform gate.
+- `research/README.md` index line: `[g8-wheel.md](g8-wheel.md) — G8: gemclean in the wheel as a
+  console script over the extension; FITS byte-identical to the fat-LTO source build (S1, D1-C1,
+  pilot-512; Windows and Linux); the wheel 0.5 % slower at -j16, 1.4 % at -j1; fat LTO not adopted.`
+- `research/STATE.md`: "G8, GeMClean in the wheel, 2026-11-10 (measured;
+  [g8-wheel.md](g8-wheel.md)). `pip install rang-core` gives `gemclean`, a console script over
+  `rang._core.gemclean_main`; the command line lives in `rang_core::gemclean::cli` and the source
+  binary wraps it. FITS byte-identical to the fat-LTO `gemclean` profile on S1 (defaults and
+  1e-6), D1-C1 and the pilot-512 natively, and on S1 and D1-C1 in Linux. Pilot-512, idle host:
+  the CI wheel 140.0 s against 137.7 s at -j16, 798 s against 788 s at -j1 (noisy); Linux (WSL, 9p) 196.6 s against 189.9 s at -j16 (+3.3 %), 730 s against 729 s at -j1; fat
+  LTO for the wheel not adopted; x86-64-v3 wheels 1.5 % faster at -j16 (owner). Ctrl-C ends the
+  script at once (0xC000013A, as the binary). `image.gemclean: auto` runs the extension. The sdist
+  does not build (data/meerkat.itrf.txt left out; already so on main). Five-platform CI gate:
+  read after the push."
+- `research/finish-plan.md`: G8 done but for the CI read; owner decision 4 answered with a
+  recommendation (keep the name, section 15 item 1); new open items: the CPU baseline and the
+  sdist build (section 15 items 2 and 5).
+- Branch `fp-g8-wheel`; outputs `D:\rang\outputs\g8-20261110-01`.

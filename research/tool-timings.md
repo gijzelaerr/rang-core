@@ -1788,3 +1788,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | G7 identity sets (18 runs each: reference `5b0ffbe` twice, beam fix once) | S1-S3, H1-H4, pilot-256, D1 | about 9-10 min per set | – | native, -j16 |
 | 2026-11-10 | G7 `g7_score.py`, exact scoring of 7 models | pilot-512 | 12.6 min | – | f64, ε 1e-7, 60,000-row blocks |
 | 2026-11-10 | G7 native `python -m rang.check` (heavy_lock) | worktree fp-g7-defaults | 19 min 20 s | – | only the research-index test fails |
+| 2026-11-10 | G8 gemclean source build `ed836ec`, `gemclean` profile (fat LTO, v3), coarse defaults | pilot-512, native | -j16 137.7 s (3); -j1 788 s (2) | 15.64 GB | Job Object accounting; build 172 s |
+| 2026-11-10 | G8 gemclean CI wheel (thin LTO, x86-64), console script | pilot-512, native | -j16 140.0 s (3); -j1 798 s (2, 772-825) | 15.67 GB | FITS identical to the source build; build 176 s |
+| 2026-11-10 | G8 wheel x86-64-v3 / wheel fat LTO (diagnostic, candidate) | pilot-512, native | -j16 137.7 / 141.3 s (3 each); -j1 764 (spoiled) / 797 s | 15.65 GB | builds 190 / 176 s |
+| 2026-11-10 | G8 gemclean WSL build / manylinux wheel | pilot-512, `/mnt/d` through 9p | -j16 189.9 / 196.6 s (3 each); -j1 729 / 730 s | 15.69 / 15.68 GB | builds 109 / 111 s; read 77 s both |
+| 2026-11-10 | G8 `gemclean -version`, source binary / console script | – | 4.4 ms / 144 ms (10 each) | – | native |
+| 2026-11-10 | G8 `tools/wheel/test.py`, CI wheel, Python 3.14, Windows / Linux | – | 15 s pytest each | – | PASS both (fixture skips) |
+| 2026-11-10 | G8 native `python -m rang.check` (heavy_lock), twice | worktree fp-g8-wheel | 19 min 43 s; 13 min 18 s | – | only the research-index test fails (the first run also `test_p12_rename`, fixed before the code commit) |
