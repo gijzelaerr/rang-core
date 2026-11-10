@@ -1787,3 +1787,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | G7 gemclean WSL build `c7ca268`, coarse | the same, `/mnt/d` | -j16 193.9 s (3); -j1 714 s | 15.65 GB | read 78-80 s through 9p (11-12 s native) |
 | 2026-11-10 | G7 identity sets (18 runs each: reference `5b0ffbe` twice, beam fix once) | S1-S3, H1-H4, pilot-256, D1 | about 9-10 min per set | – | native, -j16 |
 | 2026-11-10 | G7 `g7_score.py`, exact scoring of 7 models | pilot-512 | 12.6 min | – | f64, ε 1e-7, 60,000-row blocks |
+| 2026-11-10 | G7 native `python -m rang.check` (heavy_lock) | worktree fp-g7-defaults | 19 min 20 s | – | only the research-index test fails |
