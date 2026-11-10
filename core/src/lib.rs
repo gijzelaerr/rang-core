@@ -30,6 +30,7 @@ pub mod clean_major;
 pub mod closure;
 pub mod cnnflag;
 pub mod correct;
+pub mod f3flag;
 pub mod ffi;
 pub mod ffi_closure;
 pub mod ffi_correct;

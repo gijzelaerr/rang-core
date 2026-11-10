@@ -9,6 +9,13 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Research (task F3, `research/f3-flagger.md`): a second learned RFI flagger, not wired into
+  `rang-core flag`. New `rang.f3flag` (wrapper W3, features reference, injections, labels, measures),
+  `rang.f3net` (the JAX network for training), the Rust kernel `rang_core::f3flag` with
+  `rang._core.f3flag_features` and `f3flag_logits`, the AOFlagger driver
+  `tools/oracles/aoflagger/f3_aoflag.py` and `examples/f3_*.py`. `rang.f2flag_sim` gains the
+  held-out observation `f3sim-t` (seeds registered in `rang.simtruth.SEEDS`).
+
 - New: `gemclean` is in the wheel (task G8, `research/g8-wheel.md`): the console script `gemclean`
   (and `python -m rang.gemclean`) runs GeMClean's command line inside the extension
   (`rang._core.gemclean_main`); no second binary ships. The command line moved from

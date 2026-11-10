@@ -66,6 +66,7 @@ mod cal_gain;
 mod cal_pol;
 mod clean;
 mod cnnflag;
+mod f3flag;
 mod flag_extend;
 mod gemclean_cli;
 mod gemclean_predict;
@@ -2859,5 +2860,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_predict, m)?)?;
     // Task G8: gemclean's command line for the console script (research/g8-wheel.md).
     m.add_function(wrap_pyfunction!(gemclean_cli::gemclean_main, m)?)?;
+    // Task F3: the second learned flagger (research/f3-flagger.md).
+    m.add_function(wrap_pyfunction!(f3flag::f3flag_features, m)?)?;
+    m.add_function(wrap_pyfunction!(f3flag::f3flag_logits, m)?)?;
     Ok(())
 }

@@ -270,4 +270,57 @@ one track; simulated RFI is not shown to be realistic. Nothing about other bands
 
 ## Measured result
 
-Not yet run.
+Runs under `D:\rang\outputs\f3-20261110-NN-*` (each with `.code/`, `.log`, `.time`). Native Windows unless
+stated; AOFlagger and training in WSL.
+
+### Deviations (recorded when they happened)
+
+1. **LUNO MAIN_3 (scan 4) has FLAG_ROW set on every row** (17,556 of 17,556): no data. It is dropped;
+   calibrator real training is MAIN_4, MAIN_5, MAIN_6 (found when its shards failed to build, before
+   any calibrator label or audit was read).
+2. **Ollama holds about 10 GB of the GPU**: training runs with `XLA_PYTHON_CLIENT_PREALLOCATE=false`;
+   the first target launch was stopped before step 1 and restarted.
+3. The first check-all (`-07`) failed on `ruff format` (one file), the F2 seed-uniqueness test (it
+   did not know `f3sim-t`) and two missing `encoding=` arguments; fixed, rerun as `-16`.
+
+### Stages 1-2
+
+- Fetch (`-01`): 210 objects, 4,562,862,850 bytes (HEAD total under the 5 GB bar), 52.4 min; receipt
+  with sha256. Held-out LUNO MAIN_1 and MAIN_2 copied from the WSL archive into `-02-inputs` (4.2 GB).
+- f3sim-t (`-03`): 5 scans, 5.1 min, built unread (truth 5.0-5.3 % of cells per scan).
+- **W3 subset check (`-09`): passes** on LUNO MAIN_7, ESO137 chunk 10 and one f2sim-v scan per class
+  (0 cells flagged by W3 and not by T). W3 / T flag 46 % / 47 % (MAIN_7), 28 % / 37 % (ESO137), 21 % /
+  55 % (f2sim-v calibrator), 21 % / 31 % (target).
+- **Stop-Z2 not triggered** (`-05`, `-10`). Validation, F2's R1 injections seeds 41-43:
+
+  | | T R1 | Z2 R1 | Z2 added / T | T Q1 / Q2 (f2sim-v) | Z2 Q1 / Q2 |
+  | --- | ---: | ---: | ---: | --- | --- |
+  | Calibrators (MAIN_7) | 0.920 | 0.239 | 0.002 | 0.797 / 0.316 | 0.625 / 0.00003 |
+  | Targets (ESO137 chunk 10) | 0.850 | 0.287 | 0.0001 | 0.985 / 0.111 | 0.570 / 0 |
+
+  Z2's bar of 10 sits above the 10 σ_b injections' residual (about 10 minus the background), so it
+  misses most of them; antenna-local 0.0003 in both classes.
+- **Parity (`-06`), U3 weights: passes.** Features Rust against NumPy max |Δ| 6.0e-8 (ESO137 chunk
+  10, 18.0 M cells; f2sim-v calibrator scan, 25.6 M cells); logits p99.9 8.9e-7 and 1.2e-6, max 2.0e-6
+  and 3.8e-6, flag disagreement 2.2e-7 and 2.0e-7.
+- **C1(U3) on LUNO MAIN_1, 4 threads (`-06-stage2-c1u3`): 0.375** (N3 17.5 s, T 46.5 s; two of the
+  three T repeats provisional: other processes 1.5-2.2 CPUs). Stop rule (0.75) not triggered.
+
+### Stage 3: labels and audit
+
+Targets, frozen labels (`-08`): the audit stop fired (Amendment 1). Amended shards: targets `-14`,
+calibrators `-13`. T and A on the uninjected training scans, added cells (eligible cells newly flagged):
+
+| Scan | Eligible | T added | A added | Strong consensus (Amendment 1) / all consensus, % of eligible | T / A recall of realisation 0's injections |
+| --- | ---: | ---: | ---: | --- | --- |
+| LUNO MAIN_4 | 16.7 M | 237,400 | 2,788,349 | 0.16-0.21 / 0.40-0.55 | 0.975 / 0.993 |
+| LUNO MAIN_5 | 18.6 M | 212,218 | 2,946,122 | 0.14-0.18 / 0.38-0.49 | 0.995 / 0.993 |
+| LUNO MAIN_6 | 16.9 M | 201,943 | 2,545,951 | 0.13-0.27 / 0.34-0.67 | 0.900 / 0.926 |
+| LUNO MAIN_7 (validation) | 16.9 M | 209,120 | 2,744,976 | 0.19-0.20 / 0.48-0.49 | 0.873 / 0.951 |
+| ESO137 chunks 2, 4, 6, 8 | 17.7-18.0 M | 2.41-3.03 M | 0.27-0.29 M | see Amendment 1 / 0.4-1.0 | 0.63-1.00 / 0.99-1.00 |
+
+- Amended audit passes in both classes (strong consensus far below 10 %; median max(u) of the kept
+  consensus positives 3.9-4.3 by construction).
+- On LUNO AOFlagger's generic strategy adds 12-17 % of eligible cells, T about 1.3 %; on ESO137 T adds
+  14-17 %, A about 1.6 %. The two flaggers disagree by an order of magnitude in opposite directions on
+  the two data sets, so consensus labels are a small intersection.
