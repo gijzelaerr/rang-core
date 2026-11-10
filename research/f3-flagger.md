@@ -386,3 +386,30 @@ medians built from them; the training mix had antenna-local events of 1-8 channe
 narrowband (11 channels, every baseline) and single-baseline (8 channels) cases that F2 missed are now
 found (0.998 and 0.999 against F2's 0.447 and 0.583), and N3 adds 0.73-0.97 × T's flags where F2 added
 9-24 ×.
+
+### Stage 5: targets, held-out (`-21-heldout-target-*`), post hoc arm (Amendment 1)
+
+Real: ESO137 MAIN_0 chunks 0, 14, 16 (pooled); N3 at τ = −4.0.
+
+| Arm | R1 pooled | narrowband | time-burst | antenna-local | single-baseline | H1 | H2 | added / T, chunks 0, 14, 16 | J with T |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| T | 0.855 | 0.986 | 0.875 | 0.700 | 1.000 | 0.884 | 0.984 | 1 (2.58 M cells on chunk 0) | – |
+| A | 0.705 | 1.000 | 1.000 | 0.108 | 1.000 | 1.000 | 0.973 | 0.13, 0.11, 0.20 | 0.033, 0.021, 0.041 |
+| **N3** | **0.724** | 1.000 | 1.000 | **0.166** | 1.000 | 1.000 | 0.991 | **0.08, 0.04, 0.13** | 0.037, 0.029, 0.048 |
+| F2 | 0.755 | 0.918 | 0.916 | 0.427 | 0.998 | 0.784 | 0.645 | 1.06, 1.25, 1.31 | 0.121, 0.088, 0.088 |
+
+Simulation, f3sim-t target scans (Q1 / Q2): T 0.981 / 0.119; A 0.993 / 0.138; **N3 0.895 / 0.0013**
+(persistent RFI 0.856 against T's 0.999); F2 0.967 / 0.358; drifting N3 1.000, T 0.938, F2 0.326.
+
+| Gate | N3 | Call |
+| --- | --- | --- |
+| R1 | 0.724 against bar 0.805 | **fails** |
+| R1m | antenna-local 0.166 against 0.600 | **fails** |
+| R2 | H1 1.000, H2 0.991 | passes |
+| R3 | 0.04-0.13 | passes (no lower bound: N3 adds 4-13 % of T's flags) |
+| R4 | 0.029-0.048 against bars below 0 | passes trivially |
+| S1 | 0.895 against bar 0.931 | **fails** |
+| S2 | 0.0013 against 0.129 | passes |
+| S3 | 1.000 against 0.888 | passes |
+
+**Target outcome: stopped at the label audit as frozen; the post hoc amended arm is F** (R1, R1m, S1).
