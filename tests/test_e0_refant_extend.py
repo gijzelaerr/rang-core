@@ -201,6 +201,62 @@ def test_refant_auto_picks_by_name_not_by_flags(tmp_path):
         cal_refant.caracal_refant(ms, minbase=2000.0)
 
 
+@needs_writer
+def test_e2_defaults_and_selfcal_auto(tmp_path):
+    """Task E2 (finish-plan item 27): an unset calibrate.refant means auto
+    (antenna 0 when no antenna qualifies), image.niter defaults to 1,000,000,
+    and selfcal resolves auto to the first antenna of CARACal's choice, which
+    reads only ANTENNA and OBSERVATION."""
+    from rang import core_pipeline
+
+    defaults, errors = core_config.resolve({"version": 1})
+    assert errors == []
+    assert defaults["calibrate"]["refant"] is None
+    assert defaults["image"]["niter"] == 1_000_000
+    ms = w1.make_ms(tmp_path / "s.ms", 30, 4, nant=6, seed=20261193)
+    east = np.array([1.0, 0.0, 0.0])
+    pos = _centre() + np.array([0.0, 400.0, 30.0, 800.0, 1600.0, 600.0])[:, None] * east
+    names = ["m005", "m004", "m003", "m002", "m001", "m000"]
+    with core_ms_write.open_table(ms / "ANTENNA", readonly=False) as t:
+        t.addrows(6)
+        t.putcol("POSITION", pos)
+        t.putcol("NAME", names)
+    with core_ms_write.open_table(ms / "OBSERVATION", readonly=False) as t:
+        if t.nrows() == 0:
+            t.addrows(1)
+        t.putcol("TELESCOPE_NAME", ["MeerKAT"])
+    info = {"ms": ms, "antennas": names}
+    assert core_pipeline.selfcal_refant(defaults, info) == names.index("m000")
+    explicit = core_config.resolve({"version": 1})[0]
+    explicit["selfcal"]["refant"] = ["m003"]
+    assert core_pipeline.selfcal_refant(explicit, info) == 2
+    auto = core_config.resolve({"version": 1})[0]
+    auto["calibrate"]["refant"] = ["auto"]
+    assert core_pipeline.selfcal_refant(auto, info) == names.index("m000")
+    narrow = core_config.resolve({"version": 1})[0]
+    narrow["calibrate"]["refant_minbase"] = 2000.0
+    # Unset: no antenna qualifies, so antenna 0 (CASA's first antenna).
+    assert core_pipeline.selfcal_refant(narrow, info) == 0
+    names_k, record = cal_refant.default_choice(narrow, ms)
+    assert names_k == [0] and record["fallback"] == "antenna 0"
+    assert cal_refant.default_choice(defaults, ms)[0] == ["m000", "m002", "m004"]
+    # Explicit auto with no antenna qualifying stops, as E0 decided.
+    narrow["calibrate"]["refant"] = ["auto"]
+    with pytest.raises(core_pipeline.StageFailed, match="selfcal.refant"):
+        core_pipeline.selfcal_refant(narrow, info)
+    # The calibrate chain: an unset refant becomes the choice on every term
+    # that needs one, and stays unset on KCROSS and Xf.
+    raw = {"version": 1, "calibrate": {"primary": {"field": [0], "terms": [
+        {"type": "K", "name": "K", "solint": "inf"}]}, "polcal": {"field": [0],
+        "terms": [{"type": "KCROSS", "name": "Kc", "solint": "inf"}]}}}  # fmt: skip
+    cfg, errors = core_config.resolve(raw)
+    assert errors == []
+    out, record = cal_refant.resolve_config(cfg, ms)
+    assert out["calibrate"]["primary"]["terms"][0]["refant"] == ["m000", "m002", "m004"]
+    assert out["calibrate"]["polcal"]["terms"][0]["refant"] is None
+    assert record["default"] is True
+
+
 def test_observatory_lookup_ignores_case():
     table = cal_refant.observatories()
     assert "MEERKAT" in table and table["MEERKAT"]["refer"] == "WGS84"

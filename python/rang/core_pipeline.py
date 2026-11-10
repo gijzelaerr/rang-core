@@ -2072,8 +2072,22 @@ def stage_image(ctx):
 
 def selfcal_refant(config, info):
     """The reference antenna of selfcal (task C5): `selfcal.refant`, else
-    `calibrate.refant`, else 0, as an antenna index."""
-    refant = config["selfcal"]["refant"] or config["calibrate"]["refant"] or [0]
+    `calibrate.refant`, else what an unset calibrate.refant means
+    (`cal_refant.default_choice`), as an antenna index. `auto` is the first
+    antenna of CARACal's choice (`cal_refant.caracal_refant`, which reads
+    only the ANTENNA and OBSERVATION tables), so it is calibrate's first."""
+    refant = config["selfcal"]["refant"] or config["calibrate"]["refant"]
+    if refant is None:  # calibrate.refant unset: auto, else antenna 0 (task E2)
+        refant = cal_refant.default_choice(config, info["ms"])[0][:1]
+    if cal_refant.is_auto(refant):
+        cal = config["calibrate"]
+        try:
+            choice = cal_refant.caracal_refant(
+                info["ms"], cal["refant_maxdist"], cal["refant_minbase"]
+            )
+        except ValueError as exc:
+            raise StageFailed(f"selfcal.refant: {exc}") from exc
+        refant = [choice.names[0]]
     first = refant[0]
     if isinstance(first, str):
         if first not in info["antennas"]:

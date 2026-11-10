@@ -216,7 +216,10 @@ SCHEMA = {
             ),
         },
         "refant": _k(
-            None, "refant", "reference antenna: a name, an id, a list or auto"
+            None,
+            "refant",
+            "reference antenna: a name, an id, a list or auto (CARACal's choice); "
+            "null: auto, or antenna 0 when no antenna qualifies (task E2)",
         ),
         "refantmode": _k(
             "flex", "choice", "flex or strict, as CASA", ("flex", "strict")
@@ -334,7 +337,7 @@ SCHEMA = {
             ("natural", "uniform", "briggs"),
         ),
         "robust": _k(0.0, "float", "Briggs robustness"),
-        "niter": _k(100000, "int", "maximum number of components"),
+        "niter": _k(1000000, "int", "maximum number of components"),
         "auto_threshold": _k(
             3.0, "float?", "stop at this many robust sigma of the residual"
         ),
@@ -443,7 +446,8 @@ SCHEMA = {
         "refant": _k(
             None,
             "refant",
-            "reference antenna (null: calibrate.refant, or 0 when that is unset)",
+            "reference antenna (null: calibrate.refant); auto: the first of "
+            "CARACal's choice",
         ),
         "gain_clip": _k(
             [0.5, 2.0],
@@ -1349,16 +1353,6 @@ def refusals(config, stages):
                     )
                 )
         out += _selfcal_image_refusals(config)
-        refant = sc["refant"] or config["calibrate"]["refant"]
-        if refant and "auto" in refant:
-            out.append(
-                Refusal(
-                    "selfcal.refant",
-                    "",
-                    "auto is resolved by calibrate only; give selfcal.refant an "
-                    "antenna name or id",
-                )
-            )
     return out
 
 
@@ -1611,12 +1605,7 @@ def _chain_refusals(config, out):
                 continue
             solved_here = True
             refant = term["refant"] if term["refant"] is not None else cal["refant"]
-            if refant is None and kind not in ("KCROSS", "Xf"):
-                bad(
-                    f"{where}.refant",
-                    "required for K, G, B, F, Gpol and Df (calibrate.refant)",
-                )
-            elif (
+            if (
                 refant is not None
                 and len(refant) > 1
                 and any(str(r).lower() == "auto" for r in refant)
