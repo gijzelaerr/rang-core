@@ -1,0 +1,15 @@
+{
+ "exit": 0,
+ "wall_s": 1807.170406899997,
+ "receipts": [
+  "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms.rang-run\\receipts\\run-20261110T233550Z.rang-receipt.json"
+ ],
+ "timings": [
+  {
+   "stage": "run",
+   "wall_seconds": 1757.4315805000078,
+   "cpu_seconds": 2177.734375,
+   "peak_rss_mb": 2869.09765625
+  }
+ ]
+}

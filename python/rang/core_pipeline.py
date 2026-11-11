@@ -592,11 +592,14 @@ def chain_chunk_plans(config, info, plan):
     B, F, Gpol, KCROSS, Xf and Df solve (one per field) of the chain (task
     W3b, research/w3b-chainchunks.md): the chunks `rang.cal_chunks.plan`
     gives that solve under `plan` (a `core_chunks.Budget`), as the library
-    computes them."""
+    computes them. With `calibrate.average_time` (task E2) the chunks are
+    of the rows averaged in time within each interval
+    (`rang.cal_chunks.Average`)."""
     from . import cal_chunks, cal_gain
 
     out, rows = [], info["rows"]
     chain = plan.chain()
+    average = bool(config["calibrate"].get("average_time"))
     for section in core_config.CALIBRATE_SECTIONS:
         block = config["calibrate"][section]
         for i, term in enumerate(block["terms"]):
@@ -614,11 +617,18 @@ def chain_chunk_plans(config, info, plan):
                     rows["TIME"][idx], rows["SCAN_NUMBER"][idx], rows["FIELD_ID"][idx],
                     term["solint"] or "inf", term["combine"] or "",
                 )  # fmt: skip
+                avg = None
+                if average:
+                    avg = cal_chunks.Average(
+                        tb, rows["ANTENNA1"][idx], rows["ANTENNA2"][idx],
+                        np.zeros(len(idx), bool),
+                    )  # fmt: skip
+                    tb = avg.time_bin
                 try:
                     chunks, _ = cal_chunks.plan(
                         tb, info["cell"][0], info["cell"][1], chain,
                         per_channel=term["type"] in PER_CHANNEL_TERMS,
-                        what=f"field {info['fields'][f]!r}",
+                        what=f"field {info['fields'][f]!r}", average=avg,
                     )  # fmt: skip
                 except core_chunks.MemoryLimitError as exc:
                     chunks = exc
@@ -1574,6 +1584,7 @@ def stage_calibrate_chain(ctx):
         flag_backup=version,
         stage="calibrate",
         budget=plan,  # task W3b: chunks of whole solution intervals
+        average_time=bool(cal.get("average_time")),  # task E2
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):
@@ -2301,6 +2312,7 @@ def stage_selfcal(ctx):
                 minuvw_m=sc["minuvw_m"],
                 gain_clip=sc["gain_clip"],
                 budget=plan.chain(),
+                **({"average_time": True} if sc["average_time"] else {}),
             )
             solved = sol.summary()
             solved["wall_seconds"] = time.perf_counter() - started

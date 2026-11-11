@@ -41,6 +41,8 @@ Each entry is one report and its verdict, newest first within a section.
 - [G7, GeMClean's defaults](g7-defaults.md): on the 512-channel pilot coarse gridding is adopted (-33 % wall at -j16, -27 % at -j1, -4.1 GB); the restoring beam fitted as WSClean 3.7's binary fits it (BMAJ was 9-30 % narrower).
 - [G8, GeMClean in the wheel](g8-wheel.md): `gemclean` as a console script over the extension; FITS byte-identical to the fat-LTO source build (S1, D1-C1, pilot-512; Windows and Linux); the wheel 0.5 % slower at -j16, 1.4 % at -j1; fat LTO not adopted.
 - [E1, the whole chain on simulated truth](e1-chain.md): `rang-core run` on A1's m32 truth exits 0; no gate met as frozen; some causes shared with CASA (K flags, one delay), one rang-only K miss, the rest not established.
+- [E2, the whole chain on the acceptance data](e2-acceptance.md): fetches done (248 GB); item 27 (refant auto, scorer, the 530 flag cells); E1b against E1's gates (image met once the scorer is validated, the rest as E1); E2's protocol and results.
+- [E2 helper, time pre-averaging](e2-average-time.md): `calibrate.average_time` and `selfcal.average_time` (CASA's estimator, off by default) so CARACal's solints fit 8 GiB at 4,096 channels; on A1 equal to off at float32; on LUNO class B met except Gpol (0.25° against 0.1°, partly CASA's frequency pre-averaging of G solves).
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 

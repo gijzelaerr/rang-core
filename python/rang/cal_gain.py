@@ -639,6 +639,16 @@ class _Field:
     def solution_times(self, time_bin, row_w, ntime):
         return times_from_row_weights(self.meta["TIME"], time_bin, row_w, ntime)
 
+    def averaged(self, time_bin):
+        """The field's rows averaged within the intervals `time_bin` (task
+        E2, `rang.cal_chunks.Average`)."""
+        from . import cal_chunks
+
+        m = self.meta
+        return cal_chunks.Average(
+            time_bin, m["ANTENNA1"], m["ANTENNA2"], self.flag_row | self.auto
+        )
+
     def scans(self, time_bin, ntime):
         return np.array(
             [self.meta["SCAN_NUMBER"][time_bin == t].min() for t in range(ntime)]
@@ -646,14 +656,17 @@ class _Field:
 
 
 def _solve_gain_field(
-    fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, **opts
-):
+    fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, average=False,
+    **opts,
+):  # fmt: skip
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
     the stop test replayed (`rang.cal_chunks.replayed`). `per_channel`: one
     frequency bin per channel (B); otherwise `freq_bin` per channel (task
     C5: channel chunks of a self-calibration term, each chunk of the solve
-    holding every channel) or one bin. Returns `(GainSolution, row
+    holding every channel) or one bin. `average` (task E2,
+    `calibrate.average_time`): solve on the rows averaged in time within
+    each interval (`rang.cal_chunks.Average`). Returns `(GainSolution, row
     weights)`."""
     import dataclasses
 
@@ -665,25 +678,47 @@ def _solve_gain_field(
         freq_bin = np.arange(nchan)
     elif freq_bin is not None:
         freq_bin = np.asarray(freq_bin, np.int64)
-    chunks, block = cal_chunks.plan(
-        tb, nchan, 4, budget, per_channel=per_channel, what=what
-    )
-    row_w = np.zeros(len(tb))
     m = fld.meta
+    avg = None
+    if average:
+        avg = fld.averaged(tb)
+        chunks, block = cal_chunks.plan(
+            avg.time_bin, nchan, 4, budget, per_channel=per_channel, what=what,
+            average=avg,
+        )  # fmt: skip
+        flag_row, ant1, ant2, bins = (
+            avg.flag_row,
+            avg.antenna1,
+            avg.antenna2,
+            avg.time_bin,
+        )
+    else:
+        chunks, block = cal_chunks.plan(
+            tb, nchan, 4, budget, per_channel=per_channel, what=what
+        )
+        flag_row, ant1, ant2, bins = fld.flag_row, m["ANTENNA1"], m["ANTENNA2"], tb
+    row_w = np.zeros(len(tb))
     with core_ms.open_table(fld.ms) as reader:
 
         def run(chunk, max_iterations, stop_fraction, trace):
-            arr = cal_chunks.load(
-                reader, fld.rows, chunk, fld.cells, fld.prepare, block
-            )
             pos = chunk.pos
-            if not trace:
-                row_w[pos] = arr.pop("row_w")
+            if avg is None:
+                arr = cal_chunks.load(
+                    reader, fld.rows, chunk, fld.cells, fld.prepare, block
+                )
+                if not trace:
+                    row_w[pos] = arr.pop("row_w")
+            else:
+                arr = cal_chunks.load_averaged(
+                    reader, fld.rows, chunk, fld.cells, fld.prepare, block, avg
+                )
+                if not trace:
+                    row_w[arr["src"]] = arr["row_w"]
             fb = None if freq_bin is None else freq_bin[chunk.chans] - chunk.f0
             return _kernel(
                 arr["data"], arr["model"], arr["weights"], arr["flag"],
-                fld.flag_row[pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos],
-                tb[pos] - chunk.t0, nant=nant, freq_bin=fb, calmode=opts["calmode"],
+                flag_row[pos], ant1[pos], ant2[pos],
+                bins[pos] - chunk.t0, nant=nant, freq_bin=fb, calmode=opts["calmode"],
                 refants=refants, minblperant=opts["minblperant"],
                 casa_rules=opts["casa_rules"], max_iterations=max_iterations,
                 stop_criterion=opts["stop_criterion"], stop_fraction=stop_fraction,
@@ -742,6 +777,7 @@ def gaincal(
     spw=None,
     scan=None,
     budget=None,
+    average_time=False,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -761,7 +797,10 @@ def gaincal(
     SCAN_NUMBERs, CASA's `scan`) restricts the rows. Task W3b: `budget` (a
     `core_chunks.ChainBudget`) reads and solves the field in chunks of whole
     solution intervals within it, with the same result; `model` may also be
-    a callable of the field-row positions."""
+    a callable of the field-row positions. Task E2: `average_time` solves
+    on the data and model averaged in time within each solution interval
+    (CASA's pre-averaging, `rang.cal_chunks.load_averaged`), after the
+    pre-apply; the solution times are those of the unaveraged rows."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -813,6 +852,7 @@ def gaincal(
         refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
         positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+        **({"average": True} if average_time else {}),
     )  # fmt: skip
     if sol.flags.all():
         raise RuntimeError(
