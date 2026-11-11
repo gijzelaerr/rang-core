@@ -6,8 +6,8 @@ wheels". Started early, 2026-11-11, before E2 has results. The E2 numbers
 are placeholders (section 4). Branch `claude/focused-snyder-580a11` from main
 `3eab67c`.
 
-**Status:** implemented. Measured on one Windows x86_64 host. The CI job is
-measured on the five wheels once its run is read (section 5). This is
+**Status:** implemented and measured: locally on Windows x86_64, and in CI
+on all five wheels (section 5). Every check passed. This is
 documentation and a regression check. It makes no scientific claim and no
 novelty claim.
 
@@ -120,11 +120,33 @@ the machine, the flagged fraction against CARACal's, the tables against
 CASA's and CARACal's, and image rms, dynamic range and fluxes against
 CARACal and WSClean. Nothing there is filled in yet.
 
-## 5. CI runs
+## 5. CI runs (branch `claude/focused-snyder-580a11`, commit `5417157`)
 
-To be filled in from the branch's `workflow_dispatch` run of `wheels.yml`
-(the workflow does not run on branch pushes) and the `docs` run of the
-branch push.
+`wheels.yml` does not run on branch pushes, so it was dispatched with
+`gh workflow run wheels.yml --ref claude/focused-snyder-580a11`: run
+[43017536385](https://github.com/gijzelaerr/rang-core/actions/runs/43017536385).
+Every job passed: the 5 wheels, the sdist, the 10 `test` cells and the 5
+`e2e` cells. `release` and `publish` were skipped. The push's `docs` run
+[43017518270](https://github.com/gijzelaerr/rang-core/actions/runs/43017518270)
+also passed. It executed notebook 00 in 16.7 s, the CLI page check passed,
+and `sphinx-build -W` passed.
+
+`e2e` cells, from their `e2e.json` artifacts. 36 checks each, all passed,
+and `rang` was imported from the installed wheel in every cell:
+
+| Platform | Job wall | generate | `run` | flagged | peak (Jy/beam) | residual rms (mJy) | beam (″) | MODEL_DATA max (Jy) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| linux-x86_64 | 40 s | 3.8 s | 8.3 s | 0.3638 | 0.4957 | 0.705 | 29.00 × 4.97 | 1.629 |
+| linux-aarch64 | 33 s | 3.0 s | 10.2 s | 0.3638 | 0.4957 | 0.705 | 29.00 × 4.97 | 1.629 |
+| macos-arm64 | 49 s | 4.8 s | 16.4 s | 0.3638 | 0.4957 | 0.705 | 29.00 × 4.97 | 1.629 |
+| macos-x86_64 | 128 s | 13.6 s | 54.6 s | 0.3638 | 0.4957 | 0.705 | 29.00 × 4.97 | 1.630 |
+| windows-x86_64 | 51 s | 4.6 s | 11.0 s | 0.3638 | 0.4957 | 0.705 | 29.00 × 4.97 | 1.630 |
+
+The numbers agree across platforms to the digits shown. Only the
+MODEL_DATA maximum differs, in its fourth digit. Each cell finishes within
+the 5-minute aim, the slowest being macos-x86_64 at 128 s. The bounds of
+section 3 are much wider than the spread seen, so they could be tightened
+later.
 
 ## 6. Found on the way
 
