@@ -42,8 +42,9 @@ they replay frozen campaigns and are not recipes for your own MS.
 writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
 outside a source checkout; a Measurement Set it modified is recorded by a
-hash of its file sizes and mtimes, and the stage summary hashes what was
-written), unless `--no-receipt` is given: a research
+hash of its file sizes and mtimes; the stage summaries hash the flags, gain
+solutions and images written, and name the tables and settings behind a
+written column), unless `--no-receipt` is given: a research
 stage beside its output as `<output>.<verb>.rang-receipt.json`, a command
 on a Measurement Set in `<run>/receipts/`. The OpenBLAS, OpenMP, MKL and
 XLA thread pools are capped at one thread where their variables are unset,

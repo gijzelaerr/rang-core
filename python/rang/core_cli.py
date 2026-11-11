@@ -79,7 +79,8 @@ RECEIPT_SCHEMA = "rang.receipt"
 # Version 5 (owner decision E5-20, research/e5-prereview.md): an input the
 # command modified (the MS) is listed as an output by its `listing_sha256`
 # (sizes and mtimes), not a `tree_sha256` that re-read tens of GB after every
-# command; what was written is identified by the stage summaries' hashes.
+# command; the stage summaries hash the flags, gains and images written and
+# name the tables and settings behind a written column.
 RECEIPT_VERSION = 5
 ARCHIVE_SCHEMA = "rang.archive"
 ARCHIVE_VERSION = 1
@@ -690,7 +691,8 @@ class Receipt:
     (recorded by `listing_sha256`, cheap for large trees); one that exists
     only afterwards is an output (content hashes); an input that changed is
     also listed as an output with `modified`, by its listing hash again
-    (owner decision E5-20): the stage summaries hash what was written.
+    (owner decision E5-20); the stage summaries hash the flags, gains and
+    images written.
     """
 
     def __init__(self, command, stage, verb, paths, pinned):

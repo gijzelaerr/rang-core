@@ -1,6 +1,8 @@
 # E5 pre-review: the v0.2.0 release review, started early
 
-Status, 2026-11-11: **review done on current main; 11 findings fixed in 12 commits on branch `e5-prereview`; the rest proposed or for the owner.**
+Status, 2026-11-11: **review done on current main; 11 findings fixed in 12 commits on branch `e5-prereview` (merged); the owner's
+answers (E5-11, E5-20, E5-28, E5-33) and three proposed fixes (E5-34, E5-37, E5-38) done on branch `e5-decisions` (section 4.1); 18 fixed
+in all.**
 Finish-plan task E5 ([finish-plan.md](finish-plan.md) section 3, E) reviews the release as [w4-review.md](w4-review.md) did for 0.1.0.
 It was started before E2, E3 and E4 finished, so that findings can be fixed while E2 runs. It is not the final E5: that one reruns on the
 release candidate, after E2, E3 and E4, and needs no release-blocking finding left.
@@ -9,8 +11,8 @@ Base: local `main` at `3eab67c`, which is ahead of `origin/main` (`c2fe7cc`) by 
 CI (wheels run 43004680641 at `c2fe7cc`) is green on all five wheels, the sdist and ten test cells.
 
 **Counts:** 52 findings, numbered once (E5-01 to E5-52).
-- **Release-blocking:** 12. Fixed here: 5, E5-02 in part (gemclean's `-model-column DATA` open). Open: 7 (E4: 3; editorial after E2/E3: 2; owner: 1; proposed: 1).
-- **Should-fix:** 26. Fixed here: 6. Open: 20, of which 4 need the owner.
+- **Release-blocking:** 12. Fixed: 6 (5 on `e5-prereview`, E5-11 on `e5-decisions`), E5-02 in part (gemclean's `-model-column DATA` open). Open: 6 (E4: 3; editorial after E2/E3: 2; proposed: 1, E5-12).
+- **Should-fix:** 26. Fixed: 12 (6 on `e5-prereview`, 6 on `e5-decisions`). Open: 14, of which 1 is the owner's (E5-36, GitHub settings).
 - **Later:** 14 groups.
 
 One rule for the classes. **Release-blocking:** a user following the docs gets a wrong result or loses data, the release states something false, or it is legally wrong.
@@ -215,7 +217,10 @@ A built sdist (`maturin sdist`, Windows) holds `.gitattributes`, CHANGELOG, `CIT
 `THIRD-PARTY-NOTICES.txt`, `pyproject.toml`, `core/`, `src/`, `python/`, `tests/`, `tools/wheel/` and `data/` with `README.md` and
 `meerkat.itrf.txt` only; no wheel was built from it here. Checks: targeted pytest with `PYTHONPATH` set to the worktree's `python/` (`test_d1_docs` runs the CLI in a subprocess, which otherwise
 imports the main checkout's package): `test_core_cli`, `test_w2_commands`, `test_d1_docs`, `test_w4_unsupported`, `test_w4_5_release`,
-`test_e5_prereview`, `test_e5_decisions`, `test_w4_1_receipts`, `test_w1_writeback`: 119 passed, 12 skipped; `docs/gen_cli.py --check`,
+`test_e5_prereview`, `test_e5_decisions`, `test_w4_1_receipts`, `test_w1_writeback`, `test_c2e_calibrate`, `test_c4b_applycal`,
+`test_c5_selfcal`, `test_c5b_selfcal_masks`, `test_c6w_polwire`, `test_e0_refant_extend`, `test_g6_model`, `test_p12_rename`,
+`test_w3_chunking`, `test_w3b_chainchunks`, `test_w5_recipes`: 207 passed, 14 skipped (the POSIX-only ones). `run.stages` is in no
+stage hash (`STAGE_SECTIONS`), so E5-28 changes no stage hash, and every E2 configuration names its stages; `docs/gen_cli.py --check`,
 ruff check and format, `git diff --check`.
 Not run: `tools/check-all.sh` (the coordinator runs it at merge) and the POSIX-only tests.
 

@@ -11,8 +11,9 @@ the release notes are the section of this file for that version.
 
 - Changed (owner decisions on the E5 pre-review, `research/e5-prereview.md` section 3): receipts are
   `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file
-  sizes and mtimes), not a full content hash, and the stage summaries' hashes identify what was written
-  (E5-20). The default `run.stages` is the whole chain, flag, calibrate, apply, image, selfcal (was flag,
+  sizes and mtimes), not a full content hash; the stage summaries hash the flags, gain solutions and images
+  written and name the tables and settings behind a written column (E5-20). This holds for every directory
+  a command modified, not only the MS. The default `run.stages` is the whole chain, flag, calibrate, apply, image, selfcal (was flag,
   calibrate, image, which imaged uncalibrated DATA) (E5-28). The simms antenna tables `data/*.itrf.txt` are
   recorded in `docs/licence.md` as facts, not code; the sdist carries only `meerkat.itrf.txt`, which GeMClean
   compiles in (E5-11). `docs/licence.md` lists codex-africanus and katdal's test helpers (BSD-3), and as

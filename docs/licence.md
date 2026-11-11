@@ -30,7 +30,7 @@ code copied (owner decision E5-33, 2026-11-11,
 | --- | --- |
 | CARACal 8f7bb363 `manage_antennas.get_refant` (`refant: auto`, `python/rang/cal_refant.py`) | CARACal, GPL-2.0 (its `pyproject.toml` does not say whether only or or-later); follow-up: ask the CARACal authors to confirm GPL-2.0-or-later |
 | msutils 1.2.0 `flag_stats.save_statistics` and `wgs84_to_ecef`, as `get_refant` uses them (`python/rang/cal_refant.py`) | msutils; licence not checked (its repository reports none) |
-| CASA `flagdata(mode='extend')` (`FlagAgentExtension`, `core/src/flag_extend.rs`), fluxscale and applycal semantics | CASA; matched against its behaviour and documentation |
+| CASA `flagdata(mode='extend')` (`FlagAgentExtension`, `core/src/flag_extend.rs`), fluxscale and applycal semantics | CASA; the extension follows `FlagAgentExtension::computeAntennaPairFlags` in CASA's flagging source operation by operation, fluxscale and applycal follow CASA's documented behaviour; CASA's licence not checked |
 | casacore 3.8.1 AipsIO and table formats (`core/src/aipsio.rs`, the table writer) | casacore, LGPL-2.1-or-later; the formats were read in its sources, nothing is copied |
 
 The observatory positions in `python/rang/data/casacore_observatories.json`
