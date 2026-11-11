@@ -71,8 +71,15 @@ is what `tools/check-all.sh` runs) is the same check on any platform; on
 Windows run `.venv\Scripts\python -m rang.check`.
 
 The steps `core-clippy-gpu` and `core-test-gpu` build the core's `gpu`
-feature (wgpu): about 6 minutes cold, a few seconds warm. Leave them
-out with `rang-core check --skip core-clippy-gpu,core-test-gpu`.
+feature (wgpu) in their own `core/target/feature-gpu`: about 6 minutes cold, a few
+seconds warm. Leave them out with `rang-core check --skip core-clippy-gpu,core-test-gpu`.
+The check runs the cheap steps (fmt, ruff, `git diff --check`) first; `--fail-fast`
+stops at the first failure. pytest runs on 8 processes when pytest-xdist (the
+`test` extra) is installed, and `ext-build` skips `maturin develop` when its
+inputs and the installed extension are those of its last successful run
+(`--rebuild` forces it). In a venv without `rang-core` installed yet, run
+`.venv/bin/python tools/check.py` (Windows: `.venv\Scripts\python tools\check.py`)
+instead of a separate `maturin develop` first (research/check-speed.md).
 `bash tools/check-all.sh` runs all of the above with Rust 1.93 and reports
 PASS or FAIL per step. Optional packaging check: `bash tools/wheel/build.sh
 outputs/wheel-<date>-NN` builds the manylinux wheel in docker and

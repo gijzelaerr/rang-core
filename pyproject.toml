@@ -43,7 +43,7 @@ Changelog = "https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.8"]
-test = ["pytest>=8"]
+test = ["pytest>=8", "pytest-xdist>=3.6"]
 pointing = ["jax>=0.4.30", "scipy>=1.12"]
 beam = ["katbeam==0.1", "eidos==1.1.2"]
 # No `flagging` extra since W4-5 (research/w4-5-release.md): it pinned the
