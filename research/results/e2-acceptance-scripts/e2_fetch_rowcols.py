@@ -11,7 +11,12 @@ import e2_fetch as f
 store, group, out = sys.argv[1], sys.argv[2], Path(sys.argv[3])
 keys, _ = f.listing(f"{store}/MAIN/{group}/")
 cubes = f.CUBES | f.SKIP
-want = [(k, s) for k, s in keys if not k.endswith("/") and k[len(f"{store}/MAIN/{group}/"):].split("/")[0] not in cubes]
+want = [
+    (k, s)
+    for k, s in keys
+    if not k.endswith("/")
+    and k[len(f"{store}/MAIN/{group}/") :].split("/")[0] not in cubes
+]
 man = {}
 for k, s in want:
     b = f.Getter().get(k)

@@ -91,6 +91,29 @@ def prepare(run, src, variant, twin=False):
     print(dst)
 
 
+def control(run, version):
+    """E1's control, run with G8's gemclean: since G8 `find_gemclean('auto')`
+    returns the command `python -m rang.gemclean`, which E1's script passes as
+    one token (`str(binary)`); here that token is expanded to the command's
+    argv. Nothing else of E1's control changes. A partial control directory
+    from a failed attempt is removed first."""
+    out = Path(run) / "control"
+    if out.exists():
+        shutil.rmtree(out)
+    real = e1_run.core_pipeline.run_gemclean
+
+    def run_gemclean(binary, argv, log):
+        if argv and argv[0] == str(binary) and hasattr(binary, "argv"):
+            argv = [*binary.argv, *argv[1:]]
+        return real(binary, argv, log)
+
+    e1_run.core_pipeline.run_gemclean = run_gemclean
+    try:
+        e1_run.control(run, version)
+    finally:
+        e1_run.core_pipeline.run_gemclean = real
+
+
 def main(argv=None):
     p = argparse.ArgumentParser()
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -106,7 +129,7 @@ def main(argv=None):
     if a.cmd == "prepare":
         prepare(a.run, a.src, a.variant, a.twin)
     else:
-        e1_run.control(a.run, a.version)
+        control(a.run, a.version)
 
 
 if __name__ == "__main__":

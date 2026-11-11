@@ -5,9 +5,9 @@ main `8d3becd`, 2026-11-10. Native Windows (`.venv` with uv, Python 3.14);
 WSL only for the Linux oracles (CASA 6.7.6.14, Tricolour 0.2.1, WSClean 3.7,
 QuartiCal 0.2.7).
 
-**Status: part 1 (finish-plan item 27 and the E1b protocol) written; nothing
-of E1b has run. Part 2 (E2's protocol) is not written; no E2 visibility has
-been read.**
+**Status (2026-11-11, halted): part 1 (item 27, the E1b protocol) committed;
+E1b's chains ran, its m32 controls and scores did not yet (section 4). E2's
+protocol is a draft, not frozen; no E2 visibility has been decoded.**
 
 Owner answers that bind this task (finish-plan section 7): item 6 (split legs,
 E2-N open, fetches approved), item 27 (E1's decisions, all done before the
@@ -27,8 +27,8 @@ gains. The fetcher writes bytes; it decodes nothing.
 | Leg | What | Objects, bytes | Start, end, rc |
 | --- | --- | ---: | --- |
 | b | LUNO `LBAND_LUNO_CALIBRATORS.zarr` MAIN_16-19 (scans 17-20) | 3,734, 36,273,927,018 | 2026-11-10 17:45:18 to 18:41:12, rc 0 (3,354 s, 10.8 MB/s) |
-| a | ESO137 `ms1_primary.zarr` MAIN_4, MAIN_5 (scans 9, 11), `ms1_target.zarr` MAIN_4 (scan 10) | 7,777, 180,018,619,332 | first attempt 18:41 to 19:31, rc 1 (an S3 folder placeholder key `ESO137/ms1_target.zarr/` could not be a file; the fetcher now skips keys that end in `/`); resumed after leg d |
-| d | LUNO MAIN_0, MAIN_1 (development scans 1, 2) | see section 10 | after leg a's failure |
+| a | ESO137 `ms1_primary.zarr` MAIN_4, MAIN_5 (scans 9, 11), `ms1_target.zarr` MAIN_4 (scan 10) | 7,777, 180,018,619,332 | first attempt 18:41 to 19:31, rc 1 (an S3 folder placeholder key `ESO137/ms1_target.zarr/` could not be a file; the fetcher now skips keys that end in `/`); resumed after leg d; done 2026-11-11 01:35:12, rc 0 |
+| d | LUNO MAIN_0, MAIN_1 (development scans 1, 2) | 3,422, 31,513,806,315 | 2026-11-10 21:22:22 to 22:06:27, rc 0 |
 
 **Why leg d (not in the approved list, recorded as the brief requires).**
 E2-B's frozen rows "3C 286 transfer" and "1934−638 leakage" (A0 6.3) apply the
@@ -223,6 +223,52 @@ accepts it); the flag gates stay as E1's (2.5).
 **Rules:** nothing in this section changes after a result; added analyses
 are labelled post hoc. A bug located with truth is fixed with a test and the
 arm reruns under a new number.
+
+## 4. State at the halt (2026-11-11 10:30, owner asked to halt and restart)
+
+Nothing of mine is running; queued runs (waiting on the heavy lock) were
+stopped before they started. A host restart at 03:23 had killed the earlier
+runs.
+
+**Done and on disk:**
+- Fetches complete: `D:\rang\data\e2-b` (36.3 GB, rc 0), `e2-d` (31.5 GB,
+  rc 0), `e2-a` (180.0 GB, rc 0 at 01:35); manifests with SHA-256 per object.
+  Target row columns also in `D:\rang\data\e2-a-rowcols` (16.5 MB).
+- Metadata-only preflight MSs `D:\rang\outputs\e2-20261110-10-preflight\e2{a,b}-meta.ms`
+  (no cube read); finding in the draft protocol 5.1: the chains are refused at
+  8 GiB without time pre-averaging.
+- E1b chains ran, rc 0: `D:\rang\outputs\e2-20261110-04-e1b-auto` (30 min) and
+  `-05-e1b-m000` (31 min); twins `-06`, `-07` ran and are scored
+  (`result-e1b-twin.json`). The m32 controls failed (rc 1) at gemclean:
+  E1's `e1_run.control` passes G8's `python -m rang.gemclean` command as one
+  token. Fixed in `e1b_run.py control` (expands it; nothing else changes),
+  **not yet run**. No E1b m32 score exists yet.
+- `calibrate.average_time` (and, added 2026-11-11, `selfcal.average_time`)
+  implemented in worktree `C:\Users\gijsm\Worktrees\rang\fp-e2-averaging`
+  (branch `fp-e2-averaging`, **uncommitted**: check-all not yet run on it);
+  14 tests in `tests/test_e2_average_time.py` pass; note
+  `research/e2-average-time.md` there (4.1 A1 done; 4.2 LUNO pending).
+  LUNO validation run `D:\rang\outputs\e2-20261110-11-avg`: build, readable
+  and rang steps done (`luno-*.done`); the CASA step was killed twice (WSL
+  restart 03:05, host restart 03:23).
+- E2 configurations `results/e2-acceptance-scripts/e2a.yaml`, `e2b.yaml`
+  (draft; still to gain `average_time: true`), converter `e2_convert.py`
+  (tested bit-exact on the pilot subset), timer `e2_timed.py`, and the draft
+  protocol `results/e2-acceptance-scripts/e2_protocol_draft.md` (**not
+  frozen**). No E2 cube has been decoded.
+
+**Next, in order (resume commands, Git Bash):**
+1. E1b controls and scores: `sh research/results/e2-acceptance-scripts/e1b_rest.sh`
+   from this worktree (logs `D:\rang\outputs\e2-20261110-0{4,5}-*\e1b.log`).
+2. LUNO validation, CASA step then score, from `fp-e2-averaging`:
+   `bash research/results/e2-average-time/e2avg_luno_all.sh 'D:\rang\outputs\e2-20261110-11-avg'`
+   (skips steps with a `.done` file).
+3. check-all in `fp-e2-averaging` (PowerShell, `RANG_ARCHIVE_OUTPUTS` set,
+   heavy lock), commit there, merge `fp-e2-averaging` into `fp-e2-acceptance`.
+4. E1b results against E1's frozen gates; commit.
+5. Finalise the E2 protocol from the draft (set `average_time`, copy A0's
+   gates verbatim as appendix A), commit; build the wheel, convert and verify
+   the MSs, run E2-B then E2-A under `e2_timed.py`, then the oracle arms.
 
 ## For the coordinator
 
