@@ -413,6 +413,27 @@ def test_a_rerun_saves_the_flags_its_restore_replaces(tmp_path):
     assert np.array_equal(flagversions.load(ms, saved)[0], by_hand)
 
 
+def test_a_missing_recorded_flag_version_is_warned_about(tmp_path, capsys):
+    """E5-42 (WB-12): when the version the last attempt recorded is gone (the
+    MS copied without its .flagversions), the rerun says so and records it."""
+    import shutil
+
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path)
+    cli("--no-receipt", "flag", config, ms)
+    shutil.rmtree(flagversions.root(ms))
+    capsys.readouterr()
+    cli("--no-receipt", "flag", config, ms, "--force")
+    err = capsys.readouterr().err
+    state = json.loads(
+        (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
+    )
+    entry = state["stages"]["flag"]
+    assert entry["status"] == "done"
+    assert entry["restore_missing"].startswith("rang_flag_")
+    assert f"warning: flag version {entry['restore_missing']}" in err
+
+
 def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
     """E5: after `--force flag` with a changed strategy, the stale apply stage
     must not restore the flags saved before its earlier attempt (the old flag

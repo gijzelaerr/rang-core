@@ -261,7 +261,10 @@ image of the unit model against the PSF, ≤ 1e-3.
 - **One untested window.** A kill between the rename of `flags.<name>` and
   its line in `FLAG_VERSION_LIST` leaves a complete version that is not
   listed. FLAG is untouched at that point. A rerun's `save` then refuses
-  with "remove it first", so this needs a hand step.
+  with "remove it first", so this needs a hand step. Since E5-42
+  (2026-11-11, post hoc, `research/e5-prereview.md`) `save` lists such a
+  version when it holds exactly the flags being saved and refuses only
+  otherwise (`test_a_version_renamed_but_not_listed_is_listed_on_the_next_save`).
 - **Whole rows only.** Writes cover whole rows. A channel-selected
   `applycal` (C4b) reads the row, changes it and writes it back.
 - **Old flags.** `flagversions.save` and `load` keep their signatures. A

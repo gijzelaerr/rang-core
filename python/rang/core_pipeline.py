@@ -2522,6 +2522,16 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             }
             if entry.get("flag_version"):
                 attempt["flag_version"] = entry["flag_version"]
+                if not flagversions.exists(ms, entry["flag_version"]):
+                    # E5-42 (WB-12): the rerun cannot start from the flags of
+                    # the last attempt; say so instead of skipping silently.
+                    attempt["restore_missing"] = entry["flag_version"]
+                    log(
+                        f"rang-core: {stage}: warning: flag version "
+                        f"{entry['flag_version']} recorded by the last attempt is "
+                        f"not in {flagversions.root(ms)}; the rerun starts from the "
+                        "flags the MS has now"
+                    )
             state["stages"][stage] = attempt
             run.save()
             log(f"rang-core: {stage}: running" + (f" (was {status})" if status else ""))

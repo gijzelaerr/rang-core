@@ -91,6 +91,23 @@ def test_existing_columns_are_kept_and_backup_not_retaken(ms):
         assert np.all(t.getcol("CORRECTED_DATA", 0, 10) == 3 + 1j)
 
 
+def test_a_version_renamed_but_not_listed_is_listed_on_the_next_save(ms):
+    """E5-42 (WB-10): a kill between the rename of `flags.<name>` and its list
+    line leaves a complete, unlisted version. The next save of the same flags
+    lists it; a save of other flags is still refused."""
+    path = flagversions.save(ms, "v1", comment="first")
+    listing = flagversions.root(ms) / flagversions.LIST
+    listing.write_text("", encoding="utf-8")  # as if killed before the line
+    assert not flagversions.exists(ms, "v1")
+    assert flagversions.save(ms, "v1", comment="first") == path
+    assert flagversions.versions(ms) == [("v1", "first")]
+    listing.write_text("", encoding="utf-8")
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        t.putcol("FLAG", ~t.getcol("FLAG", 0, 1), 0)
+    with pytest.raises(ValueError, match="remove it first"):
+        flagversions.save(ms, "v1")
+
+
 def test_failed_session_refuses_until_restored(ms):
     f0 = w1.sha(ms, "FLAG")
     with pytest.raises(RuntimeError, match="boom"), wb.WriteBack(ms) as w:
