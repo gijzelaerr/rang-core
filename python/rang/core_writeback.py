@@ -68,6 +68,10 @@ DEFAULT_INIT = {
     "SIGMA_SPECTRUM": "sigma",
 }
 FLAG_COLUMNS = ("FLAG", "FLAG_ROW")
+# Chunks of FLAG written by any WriteBack in this process (E5): the pipeline
+# compares it before and after a stage to learn whether the stage changed
+# the flags that later stages start from.
+_flag_puts = 0
 TILE_BYTES = 1 << 20
 CHUNK_BYTES = 64 << 20
 
@@ -373,8 +377,11 @@ class WriteBack:
 
     # -- writes ----------------------------------------------------------------
     def _put(self, name, start, values):
+        global _flag_puts
         n = values.shape[0]
         self.table.putcol(name, values, int(start))
+        if name == "FLAG":
+            _flag_puts += 1
         if self._on_chunk is not None:
             self._on_chunk("written", name, int(start), n)
         self.table.flush()
@@ -554,6 +561,11 @@ def backup_flags(ms, name=DEFAULT_BACKUP, comment="", chunk_rows=None):
     rows = chunk_rows or chunk_rows_for(layout(ms)["cell"])
     flagversions.save(ms, name, comment, chunk_rows=rows)
     return True
+
+
+def flag_writes():
+    """How many chunks of FLAG this process has written through WriteBack."""
+    return _flag_puts
 
 
 def restore_flags(ms, name=DEFAULT_BACKUP, chunk_rows=None):

@@ -2471,6 +2471,7 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 "run": run,
                 "entry": attempt,
             }
+            flag_writes = core_writeback.flag_writes()
             try:
                 summary = STAGE_FUNCTIONS[stage](ctx)
             except Exception as exc:
@@ -2490,15 +2491,20 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 seconds=time.perf_counter() - started,
                 summary=_brief(summary),
             )
+            # The flags later stages start from changed when this stage put
+            # earlier flags back or wrote FLAG (E5, research/e5-prereview.md).
+            flags_changed = bool(summary.get("restored_before")) or (
+                core_writeback.flag_writes() != flag_writes
+            )
             later = core_config.STAGES[core_config.STAGES.index(stage) + 1 :]
             for other in later:
                 later_entry = state["stages"].get(other)
                 if not later_entry:
                     continue
-                # Its input changed: a rerun must start from the flags this
-                # stage left, not restore those saved before its last attempt
-                # (E5, research/e5-prereview.md).
-                later_entry.pop("flag_version", None)
+                # A rerun must then start from the flags this stage left, not
+                # restore those saved before its own last attempt.
+                if flags_changed:
+                    later_entry.pop("flag_version", None)
                 if later_entry.get("status") == "done":
                     later_entry["status"] = "stale"
                     later_entry["stale_since"] = f"{stage} {attempt['finished']}"

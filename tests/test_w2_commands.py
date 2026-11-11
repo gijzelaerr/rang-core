@@ -414,6 +414,31 @@ def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
     )
 
 
+def test_a_stage_that_wrote_no_flags_leaves_the_later_restore_in_place(tmp_path):
+    """E5: a forced complex calibrate writes no FLAG, so the stale apply
+    still restores the flags saved before its own earlier attempt, and
+    flags it added (here set by hand in its place) do not survive."""
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(
+        tmp_path, "run: {stages: [flag, calibrate, apply]}\n", name="a.yaml"
+    )
+    cli("--no-receipt", "run", config, ms)
+    first = column(ms, "FLAG")
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        flag = t.getcol("FLAG")
+        # What an earlier apply might have added, on target rows that
+        # calibrate does not read.
+        flag[200:230] = True
+        t.putcol("FLAG", flag)
+    assert not np.array_equal(column(ms, "FLAG"), first)
+    cli("--no-receipt", "run", config, ms, "--force", "calibrate")
+    state = ms.with_name("x.ms.rang-run") / "state.json"
+    stages = json.loads(state.read_text(encoding="utf-8"))["stages"]
+    assert stages["apply"]["summary"]["restored_before"]
+    # The same configuration again: the same flags as the first run.
+    assert np.array_equal(column(ms, "FLAG"), first)
+
+
 @POSIX
 def test_run_resumes_at_the_failed_stage(tmp_path):
     ms = make_ms(tmp_path / "x.ms")
