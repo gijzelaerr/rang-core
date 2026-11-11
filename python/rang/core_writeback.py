@@ -13,7 +13,9 @@ The interface C4b (CORRECTED_DATA, FLAG, WEIGHT), G6 (MODEL_DATA) and W2
             flag = w.read("FLAG", start, n) | new_flags(start, n)
             w.write_flags(start, flag)
 
-`WriteBack` holds the core writer's lock on the MS for the whole session.
+`WriteBack` holds the core writer's lock on the MS for the whole session
+on Linux only; on Windows and macOS nothing stops a second writer (E5),
+and `rang-core` refuses only a second command on the same run directory.
 Before its first write it saves the MS's FLAG and FLAG_ROW as a CASA flag
 version (`<ms>.flagversions/flags.<flag_backup>`, default `rang_original`)
 unless that version already exists, and it keeps a journal
