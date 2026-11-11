@@ -204,6 +204,17 @@ def test_sdist_excludes_the_research_tree():
     # gemclean's simulator includes data/meerkat.itrf.txt at compile time (G8).
     assert '{ path = "data/**/*", format = "sdist" }' not in maturin
     assert '{ path = "data/meerkat.itrf.txt", format = "sdist" }' not in maturin
+    # E5-37: checkout tools stay out; tools/wheel/ is what tests the wheel.
+    for tool in (
+        ".claude/**/*",
+        "tools/a1_casa.sh",
+        "tools/a1_checks.sh",
+        "tools/e2e/**/*",
+        "tools/gain_hash_gate.py",
+        "tools/heavy_lock.py",
+    ):
+        assert f'{{ path = "{tool}", format = "sdist" }}' in maturin, tool
+    assert '{ path = "tools/wheel/**/*", format = "sdist" }' not in maturin
     # Owner decision E5-11: the three tables only core/examples/ reads stay out.
     for name in ("kat7", "vla-c", "wsrt"):
         assert f'{{ path = "data/{name}.itrf.txt", format = "sdist" }}' in maturin

@@ -85,7 +85,9 @@ module-name = "rang._core"
 # The sdist holds what builds the wheel and what tests the installed wheel
 # (research/w4-5-release.md): the three crates, python/, tests/ (the wheel
 # subset of tools/wheel/pytest_wheel.py runs from it; the full suite reads
-# research/ and needs a checkout), tools/wheel/, README, CHANGELOG and LICENSE.
+# research/ and needs a checkout), tools/wheel/, data/ (below), README,
+# CHANGELOG, CITATION.cff, LICENSE and THIRD-PARTY-NOTICES.txt; every other
+# file under tools/ is a checkout tool and stays out (E5-37).
 # The root crate rang-sim is a path dependency at the repository root, so
 # without this list cargo's file list puts the whole tree in the sdist.
 # .cargo/config.toml (x86-64-v3 for local builds) stays out: an sdist build
@@ -99,6 +101,7 @@ exclude = [
     { path = "data/vla-c.itrf.txt", format = "sdist" },
     { path = "data/wsrt.itrf.txt", format = "sdist" },
     { path = ".cargo/**/*", format = "sdist" },
+    { path = ".claude/**/*", format = "sdist" },
     { path = ".github/**/*", format = "sdist" },
     { path = "core/examples/**/*", format = "sdist" },
     { path = "docs/**/*", format = "sdist" },
@@ -109,8 +112,13 @@ exclude = [
     { path = "outputs/**/*", format = "sdist" },
     { path = "recipes/**/*", format = "sdist" },
     { path = "research/**/*", format = "sdist" },
+    { path = "tools/a1_casa.sh", format = "sdist" },
+    { path = "tools/a1_checks.sh", format = "sdist" },
     { path = "tools/check-all.sh", format = "sdist" },
     { path = "tools/core-j-suite.sh", format = "sdist" },
+    { path = "tools/e2e/**/*", format = "sdist" },
+    { path = "tools/gain_hash_gate.py", format = "sdist" },
+    { path = "tools/heavy_lock.py", format = "sdist" },
     { path = "tools/formats-oracle/**/*", format = "sdist" },
     { path = "tools/ms-reader/**/*", format = "sdist" },
     { path = "tools/oracles/**/*", format = "sdist" },

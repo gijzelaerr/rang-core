@@ -19,7 +19,8 @@ the release notes are the section of this file for that version.
   behaviour reimplemented with no code copied CARACal's `get_refant`, msutils, CASA's flag extension,
   fluxscale and applycal semantics and casacore's table formats, plus casacore-data's observatory
   positions (E5-33). `rang/data/README.md` records the source and SHA256 of `casacore_observatories.json`
-  (E5-34).
+  (E5-34). The sdist leaves out `.claude/` and the checkout tools under `tools/` other than `tools/wheel/`,
+  and CONTRIBUTING lists what it carries (E5-37).
 
 - New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
   Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration

@@ -127,8 +127,10 @@ full local checks, commit and push to `main`, then tag:
 refuses a tag that differs from the version (in both the release and the
 publish job, before any upload), takes the release notes from the
 changelog section, and publishes to PyPI by trusted publishing. The sdist
-carries only the crates, `python/`, `tests/` and `tools/wheel/`
-(`[tool.maturin] exclude` in `pyproject.toml`).
+carries only the crates, `data/README.md` and `data/meerkat.itrf.txt`,
+`python/`, `tests/`, `tools/wheel/`, README, CHANGELOG, `CITATION.cff`,
+LICENSE and `THIRD-PARTY-NOTICES.txt` (`[tool.maturin] exclude` in
+`pyproject.toml`).
 
 ## Scientific reporting
 
