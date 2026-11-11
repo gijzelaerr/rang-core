@@ -248,7 +248,7 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
     # The comparator's own receipt carries no CLI additions.
     assert "comparator" not in json.loads(out.read_text())
     receipt = json.loads((tmp_path / "compare.compare.rang-receipt.json").read_text())
-    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 4
+    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 5
     assert (receipt["stage"], receipt["verb"], receipt["exit"]) == (
         "trend",
         "compare",

@@ -39,9 +39,12 @@ the linked reports say which. The research recipes `recipes/core-*.yaml`
 they replay frozen campaigns and are not recipes for your own MS.
 
 `rang-core check` runs the full local checks on any platform. Every call
-writes a receipt (schema `rang.receipt` version 4: the command, its inputs,
+writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
-outside a source checkout), unless `--no-receipt` is given: a research
+outside a source checkout; a Measurement Set it modified is recorded by a
+hash of its file sizes and mtimes; the stage summaries hash the flags, gain
+solutions and images written, and name the tables and settings behind a
+written column), unless `--no-receipt` is given: a research
 stage beside its output as `<output>.<verb>.rang-receipt.json`, a command
 on a Measurement Set in `<run>/receipts/`. The OpenBLAS, OpenMP, MKL and
 XLA thread pools are capped at one thread where their variables are unset,
@@ -343,7 +346,7 @@ selfcal:
   cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path ({field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
 run:
-  stages: ["flag", "calibrate", "image"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
+  stages: ["flag", "calibrate", "apply", "image", "selfcal"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
 # A calibration term (calibrate.*.terms, selfcal.terms):
 #   type: null  # the term
 #   name: null  # the table name (default: the type)

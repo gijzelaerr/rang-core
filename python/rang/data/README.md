@@ -11,3 +11,16 @@ the mask is row 0 of `mask` and the channel centre frequencies in Hz are row 1
 of `chans`, as `tricolour/mask.py` reads them. `TRICOLOUR-LICENSE` is the
 licence file distributed with that wheel (BSD-3-Clause); see
 `research/core-d-tricolour.md` section 1 for the licence decision.
+
+# Observatory positions from casacore-data
+
+`casacore_observatories.json` (SHA256
+`975fac968a24199cbb32b4324590e278ff7c8ecfde3ea1a56be58a336437e450`) holds the
+57 observatory positions of casacore-data 20250826-160001-5 as
+`me.observatory()` returns them in the O-CASA image `rang-o-casa:6.7.6.14`
+(name, reference frame and the three measure values with their units); its
+`source` key records the same. `rang.cal_refant` takes the array centre
+from it for `refant: auto` (`research/e0-refant-extend.md`). The entries are
+positions of observatories, facts rather than code, recorded with their
+source as the antenna tables in the repository's `data/` are (owner decision
+E5-11); casacore-data's own licence was not checked.
