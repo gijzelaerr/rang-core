@@ -203,6 +203,25 @@ def test_sdist_excludes_the_research_tree():
         assert f'{{ path = "{tree}/**/*", format = "sdist" }}' in maturin, tree
     # gemclean's simulator includes data/meerkat.itrf.txt at compile time (G8).
     assert '{ path = "data/**/*", format = "sdist" }' not in maturin
+    assert '{ path = "data/meerkat.itrf.txt", format = "sdist" }' not in maturin
+    # Owner decision E5-11: the three tables only core/examples/ reads stay out.
+    for name in ("kat7", "vla-c", "wsrt"):
+        assert f'{{ path = "data/{name}.itrf.txt", format = "sdist" }}' in maturin
+
+
+def test_the_antenna_tables_are_recorded_as_facts():
+    """Owner decision E5-11: the simms coordinates are facts, not code."""
+    licence = _text("docs/licence.md")
+    assert "Facts, not code" in licence and "owner decision E5-11" in licence
+    assert "| MeerKAT ITRF positions from simms | GPL-2.0" not in licence
+    meerkat = ROOT / "data" / "meerkat.itrf.txt"
+    if meerkat.exists():  # every row is a position record, nothing else
+        rows = [
+            r.split()
+            for r in meerkat.read_text(encoding="utf-8").splitlines()
+            if r.strip() and not r.lstrip().startswith("#")
+        ]
+        assert rows and all(len(r) == 6 for r in rows)
 
 
 def _job(workflow, name):

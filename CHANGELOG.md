@@ -13,7 +13,9 @@ the release notes are the section of this file for that version.
   `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file
   sizes and mtimes), not a full content hash, and the stage summaries' hashes identify what was written
   (E5-20). The default `run.stages` is the whole chain, flag, calibrate, apply, image, selfcal (was flag,
-  calibrate, image, which imaged uncalibrated DATA) (E5-28).
+  calibrate, image, which imaged uncalibrated DATA) (E5-28). The simms antenna tables `data/*.itrf.txt` are
+  recorded in `docs/licence.md` as facts, not code; the sdist carries only `meerkat.itrf.txt`, which GeMClean
+  compiles in (E5-11).
 
 - New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
   Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration

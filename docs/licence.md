@@ -16,9 +16,19 @@ ported, and ported code keeps its upstream copyright notices.
 | WSClean 3.6 weights and w-stacking gridder | GPL-3.0 ({gh}`research/core-c-gridder.md`) |
 | ducc0 0.42.0 wgridder | GPL-2.0-or-later ({gh}`research/df1-wgridder.md`) |
 | SARAO/SKA pointing-offset fit (ska-sdp-wflow-pointing-offset) | BSD-3-Clause ({gh}`research/b1-beam-pointing.md`) |
-| MeerKAT ITRF positions from simms | GPL-2.0 ({gh}`data/README.md`) |
+| MeerKAT ITRF positions from simms | Facts, not code: see below ({gh}`data/README.md`) |
 
 Crystalball is GPL-2.0-only and is not ported.
+
+The antenna coordinate tables in `data/*.itrf.txt` are copied from simms
+(GPL-2.0-only). They hold measured antenna positions (ITRF X, Y, Z, dish
+diameter, name, mount) and no code; positions of physical antennas are facts,
+which copyright does not cover, so they carry no simms licence obligation and
+ship under rang-core's GPL-3.0-or-later with their source recorded in
+{gh}`data/README.md`. Only `meerkat.itrf.txt` ships in the sdist, because
+GeMClean's simulator compiles it in; the VLA, WSRT and KAT-7 tables feed the
+research examples only and stay in the repository (owner decision E5-11,
+2026-11-11, {gh}`research/e5-prereview.md`).
 
 ## Data
 

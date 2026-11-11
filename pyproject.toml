@@ -91,8 +91,13 @@ module-name = "rang._core"
 # .cargo/config.toml (x86-64-v3 for local builds) stays out: an sdist build
 # targets the builder's baseline CPU.
 # data/ stays in (11 kB): gemclean's simulator includes data/meerkat.itrf.txt
-# at compile time, so an sdist without it does not build (found by G8).
+# at compile time, so an sdist without it does not build (found by G8). The
+# VLA, WSRT and KAT-7 tables only feed core/examples/, which stays out (owner
+# decision E5-11, research/e5-prereview.md).
 exclude = [
+    { path = "data/kat7.itrf.txt", format = "sdist" },
+    { path = "data/vla-c.itrf.txt", format = "sdist" },
+    { path = "data/wsrt.itrf.txt", format = "sdist" },
     { path = ".cargo/**/*", format = "sdist" },
     { path = ".github/**/*", format = "sdist" },
     { path = "core/examples/**/*", format = "sdist" },
