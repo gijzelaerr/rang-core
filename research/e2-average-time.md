@@ -104,6 +104,8 @@ Code: the worktree diff on `f11fdd1` (`.code/worktree.diff` in the run directory
 development dry runs used an extension copied from `fp-e2-acceptance` (built from the same Rust, which this
 branch does not change); the LUNO run and check-all used this worktree's own `maturin develop --release`.
 
+Compact results (every JSON named below): [results/e2-average-time/archive/](results/e2-average-time/archive/).
+
 ### 4.1 A1 small, key on against off (`a1.json`)
 
 C2e's I-a1 chain, calibrate only, both exit 0 (3.7 / 3.3 s). Flags identical in every table and composite.
