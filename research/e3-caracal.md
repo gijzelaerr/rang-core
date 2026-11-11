@@ -235,15 +235,19 @@ the joint scorer if under 50 MB each (otherwise their path and sha256 under
 | Item | State |
 | --- | --- |
 | Protocol, configs | **frozen** (this commit) |
-| CARACal install, image pulls | not done (install of the clone awaits the owner's approval) |
-| Smoke, E3-B, E3-A passes | not run |
+| CARACal install, image pulls | done 2026-11-11 (10.1) |
+| Smoke and dev test (development data) | run, rc 0 (10.3, 10.6) |
+| E3-B correctness | try 1 stopped by E3's own memory cap; rerun after E2-A (10.5) |
+| E3-B timed, E3-A | not run (after E2-A, per the coordinator) |
 
 ## For the coordinator
 
 - CARACal at the pinned commit is v1.2.2 on Stimela 1.8.3 (classic, Docker),
   not Stimela 2.1.4; its CASA is 5.8.0 and WSClean 3.6. Reported, not swapped.
-- Installing CARACal from the local clone (PyPI has only 1.2.1) was refused
-  by the session's permission classifier; it needs the owner's explicit yes.
+- Installing from the local clone (PyPI has only 1.2.1) was approved by the
+  owner and is done.
+- 3C 286 χ on the dev test is about 88°, not 33° (10.6). Settle this before
+  E3-B's χ is scored.
 - E3-A needs about 540 GB on D: (210 GB input MS + 330 GB splits); D: had
   680 GB free on 2026-11-11, so E3-A and an E2-A arm cannot run at the same
   time.
@@ -328,3 +332,41 @@ E3 does too. rang reads the same FIELD rows.
   (53 GB, CARACal's split). Kept: try 1's `output\` and logs (62 MB).
 - Coordinator's option (a): the E3-B correctness rerun and the timed pass run
   after E2-A finishes, each from a rebuilt `e2b.ms`, deleted afterwards.
+
+### 10.6 Dev test of the measure tools (development data; not an E3 result)
+
+Asked by the coordinator: test the measure code and the WSClean leakage recipe
+on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
+
+- MS: LUNO dev scans 1 (J1331+3030) and 2 (J1939-6342), 5,000 rows per group,
+  through E2's converter: build 957 s and verify 1,147 s wall on the shared
+  host, mostly queued behind other jobs; 163,840,000 cells per cube, 0 differ.
+- CARACal (`smoke.yml`, shared pass, 8 CPUs and 30 GB per container): rc 0,
+  635 s (obsconf 7, transform 30, prep 12, flag 62, crosscal 217, polcal 305 s).
+  Container peak 3.6 GB, run folder peak 5.0 GB, input MS unchanged.
+  `devtest/cost.json`.
+- Measures (shared, 8 slots, 16 GB): 11 min 49 s wall, of which WSClean IQUV
+  imaging took 11 min 35 s. The visibility measures took about 15 s.
+  `devtest/vis.json`, `devtest/leak.json`.
+- Values, which only show that the tools run (4,776 cross rows per scan, 1-41 %
+  of cells unflagged per bin):
+  - J1939-6342: I/SR2016 0.92, 0.88, 0.83 in the 1.0, 1.3 and 1.4 GHz bins;
+    p ≈ 0.001.
+  - Image leakage: peak |Q|, |U|, |V| over peak I (14.6 Jy) are 1.4e-3,
+    1.4e-3 and 1.3e-4.
+  - J1331+3030: p 0.082-0.097, but χ is +84° to +88° (−88° at 1.0 GHz),
+    not 3C 286's 33°.
+- **Open before scoring (χ):** a 55° offset, or a frame or sign convention
+  difference, cannot be told apart on this set. Possible causes: a polcal
+  solved on one 4,776-row scan; the `feed_angle_rotation` and RECEPTOR_ANGLE
+  handling; the measure's U sign against E2's `_stokes4`. Both arms are scored
+  by the same rule (section 6), but E3-B's χ check needs this settled first. On
+  E2-B's scan 17, compare CARACal's χ with rang's by the same code. If CARACal
+  alone is off by a constant, report it as CARACal's result, not E3's fault.
+- **Tool fix found here (no protocol change):** the bin edges stopped at
+  1.6 GHz. They now add a 50 MHz bin from 1.6 to 1.65 GHz, matching section 5's
+  "1.0-1.65 GHz". The rerun gives 7 bins per scan.
+- WSClean writes `leak-MFS-{I,Q,U,V}-image.fits` with `-join-channels`, as
+  `e3_leak_measure.py` expects.
+- Deleted 20:10: the dev `smoke.ms` (1.9 GB) and the run's `msdir` and `leak/`
+  (7 GB). Kept: logs and `output\` (0.25 GB). E3 on D: is now about 0.6 GB.

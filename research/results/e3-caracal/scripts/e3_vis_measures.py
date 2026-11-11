@@ -26,7 +26,8 @@ spec = importlib.util.spec_from_file_location("fluxstd", ROOT / "python" / "rang
 fluxstd = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fluxstd)
 
-EDGES = np.arange(1.0e9, 1.65e9 + 1, 1.0e8)
+# 100 MHz bins 1.0-1.6 GHz and the 50 MHz bin 1.6-1.65 GHz (section 5: "1.0-1.65 GHz")
+EDGES = np.append(np.arange(1.0e9, 1.6e9 + 1, 1.0e8), 1.65e9)
 CHUNK = 2000
 
 

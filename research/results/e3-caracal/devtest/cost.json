@@ -1,0 +1,402 @@
+{
+ "run": "/mnt/d/rang/outputs/e3-20261111-smoke-dev",
+ "start": "2026-11-11T19:14:38+02:00",
+ "end": "2026-11-11T19:25:13+02:00",
+ "rc": "rc=0",
+ "wall_s": 635.0,
+ "raw_ms": "raw unchanged",
+ "lock_status_start": "exclusive: free\nshared: 10/16 slots, 36/48 GB\n  2 slots 6 GB pid 30900: C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe research/results/v5-obit-scripts/v5_run.py convert P\n  8 slots 30 GB pid 125697: bash /mnt/c/Users/gijsm/Worktrees/rang/e3-caracal/research/results/e3-caracal/scripts/e3_pass.sh smoke dev /mnt/c/Users/gijsm/Worktrees/rang\nqueue 1: 01794417188496370400-windows-35252 (8 slots)\nqueue 2: 01794417207482560600-windows-9104 (2 slots)\nqueue 3: 01794417276241074700-windows-39932 (8 slots)",
+ "driver_max_rss_gb": 0.126756,
+ "workers": [
+  {
+   "worker": "getdata",
+   "s": 0.0
+  },
+  {
+   "worker": "obsconf",
+   "s": 7.0
+  },
+  {
+   "worker": "transform",
+   "s": 30.0
+  },
+  {
+   "worker": "prep",
+   "s": 12.0
+  },
+  {
+   "worker": "flag",
+   "s": 62.0
+  },
+  {
+   "worker": "crosscal",
+   "s": 217.0
+  },
+  {
+   "worker": "polcal",
+   "s": 305.0
+  }
+ ],
+ "containers": [
+  {
+   "name": "listobs_ms0-13149899116145617944172806482296",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.2,
+   "memory_peak_gb": 0.119226368
+  },
+  {
+   "name": "summary_json_ms0-13149899116075217944172806588006",
+   "image": "quay.io/stimela/msutils:1.4.6",
+   "exit": "0",
+   "s": 1.0,
+   "memory_peak_gb": 0.03299328
+  },
+  {
+   "name": "elevation_plots_ms0-13149899117240017944172806685243",
+   "image": "quay.io/stimela/owlcat:1.6.6",
+   "exit": "0",
+   "s": 1.2,
+   "memory_peak_gb": 0.108998656
+  },
+  {
+   "name": "split_field_ms0_0-1314989911590881794417287059691",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 22.9,
+   "memory_peak_gb": 0.589213696
+  },
+  {
+   "name": "save_caracal_legacy_ms0-13149899071716817944172870681288",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 2.9,
+   "memory_peak_gb": 0.343363584
+  },
+  {
+   "name": "listobs_ms0_0-13149899222795217944172870754566",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 2.6,
+   "memory_peak_gb": 0.118431744
+  },
+  {
+   "name": "summary_json_ms0_0-1314989922303201794417287086748",
+   "image": "quay.io/stimela/msutils:1.4.6",
+   "exit": "0",
+   "s": 0.7,
+   "memory_peak_gb": 0.033488896
+  },
+  {
+   "name": "restore_flags_prep_ms0-13149899071716817944173181511045",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.1,
+   "memory_peak_gb": 0.335982592
+  },
+  {
+   "name": "init_ws_ms0-13149899072452817944173181589093",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 8.1,
+   "memory_peak_gb": 0.223789056
+  },
+  {
+   "name": "save_smoke_flag_before_ms0-13149899071716817944173299504805",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.0,
+   "memory_peak_gb": 0.403349504
+  },
+  {
+   "name": "flag_autocorr_ms0-13149899082724817944173299582562",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.6,
+   "memory_peak_gb": 0.213512192
+  },
+  {
+   "name": "flag_shadow_ms0-1314989908272481794417329966441",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.3,
+   "memory_peak_gb": 0.218279936
+  },
+  {
+   "name": "flag_rfi_ms0-13149899082724817944173299740987",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 44.3,
+   "memory_peak_gb": 1.030815744
+  },
+  {
+   "name": "flag_summary_ms0-13149899082238417944173299822834",
+   "image": "quay.io/stimela/msutils:1.6.9",
+   "exit": "0",
+   "s": 2.5,
+   "memory_peak_gb": 0.238829568
+  },
+  {
+   "name": "save_smoke_flag_after_ms0-1314989907171681794417388035058",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.0,
+   "memory_peak_gb": 0.402890752
+  },
+  {
+   "name": "save_smoke_crosscal_before_ms0-13149899071716817944173912794209",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 2.9,
+   "memory_peak_gb": 0.40265728
+  },
+  {
+   "name": "set_model_cal_0-13149899090699217944173912917473",
+   "image": "quay.io/stimela/meqtrees:1.7.2",
+   "exit": "0",
+   "s": 33.3,
+   "memory_peak_gb": 3.558797312
+  },
+  {
+   "name": "antenna_flag_summary-13149898962833617944173912994256",
+   "image": "quay.io/stimela/msutils:1.6.9",
+   "exit": "0",
+   "s": 2.3,
+   "memory_peak_gb": 0.238596096
+  },
+  {
+   "name": "delay_cal_1kgb_0_0_primary-13149899089681617944174306531484",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 15.6,
+   "memory_peak_gb": 3.461173248
+  },
+  {
+   "name": "plotgains_K_0_1-13149899090360017944174306634316",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 10.4,
+   "memory_peak_gb": 0.484261888
+  },
+  {
+   "name": "antenna_flag_summary-13149898962833617944174306750448",
+   "image": "quay.io/stimela/msutils:1.6.9",
+   "exit": "0",
+   "s": 2.5,
+   "memory_peak_gb": 0.2254848
+  },
+  {
+   "name": "gain_cal_1kgb_0_0_primary-13149899089681617944174600046697",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 11.1,
+   "memory_peak_gb": 1.487859712
+  },
+  {
+   "name": "plotgains_G_0_1-13149899090360017944174600140638",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 17.1,
+   "memory_peak_gb": 0.322138112
+  },
+  {
+   "name": "antenna_flag_summary-13149898962833617944174600257702",
+   "image": "quay.io/stimela/msutils:1.6.9",
+   "exit": "0",
+   "s": 2.3,
+   "memory_peak_gb": 0.239628288
+  },
+  {
+   "name": "bp_cal_1kgb_0_0_primary-1314989908970081794417491437579",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 34.5,
+   "memory_peak_gb": 2.457792512
+  },
+  {
+   "name": "plotgains_B_0_1-13149899090360017944174914472885",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 42.2,
+   "memory_peak_gb": 0.749719552
+  },
+  {
+   "name": "apply_gains_bpcal_1kgb_0-13149899090148817944174914587967",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 20.9,
+   "memory_peak_gb": 0.721616896
+  },
+  {
+   "name": "apply_gains_xcal_1kgb_0-13149899090148817944174914687505",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 12.2,
+   "memory_peak_gb": 0.718905344
+  },
+  {
+   "name": "save_smoke_crosscal_after_ms0-13149899071716817944174914808846",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 2.9,
+   "memory_peak_gb": 0.403017728
+  },
+  {
+   "name": "summary_1kgb_0-13149899090737617944174914904697",
+   "image": "quay.io/stimela/msutils:1.6.9",
+   "exit": "0",
+   "s": 2.6,
+   "memory_peak_gb": 0.241385472
+  },
+  {
+   "name": "antenna_flag_summary-131498989628336179441760852062",
+   "image": "quay.io/stimela/msutils:1.6.9",
+   "exit": "0",
+   "s": 2.6,
+   "memory_peak_gb": 0.227258368
+  },
+  {
+   "name": "set_receptor_angle-13149898974404817944176114317544",
+   "image": "quay.io/stimela/meqtrees:1.2.4",
+   "exit": "0",
+   "s": 0.5,
+   "memory_peak_gb": 0.0
+  },
+  {
+   "name": "save_smoke_polcal_before_ms0-13149899071716817944176122672741",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.0,
+   "memory_peak_gb": 0.402714624
+  },
+  {
+   "name": "extend_flags_polcal-13149898974084817944176122763312",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 6.7,
+   "memory_peak_gb": 0.372649984
+  },
+  {
+   "name": "extend_flags_polcal-13149898974084817944176122848964",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 6.7,
+   "memory_peak_gb": 0.372473856
+  },
+  {
+   "name": "set_model_0-13149898973969617944176122950788",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 8.7,
+   "memory_peak_gb": 1.168707584
+  },
+  {
+   "name": "gain_xcal-13149898974020817944176123045847",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 13.4,
+   "memory_peak_gb": 1.55500544
+  },
+  {
+   "name": "crosshand_delay-13149898974020817944176123156536",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 16.1,
+   "memory_peak_gb": 2.515636224
+  },
+  {
+   "name": "crosshand_phase_freq-13149898974040017944176123258495",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 16.6,
+   "memory_peak_gb": 2.522451968
+  },
+  {
+   "name": "flag_phase-13149898974084817944176123371575",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 2.6,
+   "memory_peak_gb": 0.11927552
+  },
+  {
+   "name": "leakage_freq-13149898974040017944176123486252",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 33.4,
+   "memory_peak_gb": 2.513547264
+  },
+  {
+   "name": "plotgains_Df_0_smoke_smoke_1pcal_Df-1314989897457761794417612361876",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 42.5,
+   "memory_peak_gb": 0.781320192
+  },
+  {
+   "name": "flag_leakage-13149898974084817944177649776049",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 2.5,
+   "memory_peak_gb": 0.118693888
+  },
+  {
+   "name": "plotgains_G_0_smoke_smoke_1pcal_Gpol1-13149898974577617944177677951648",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 15.7,
+   "memory_peak_gb": 0.139005952
+  },
+  {
+   "name": "plotgains_KCROSS_0_smoke_smoke_1pcal_Kcrs-13149898974577617944177678064823",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 8.8,
+   "memory_peak_gb": 0.139669504
+  },
+  {
+   "name": "plotgains_Xf_0_smoke_smoke_1pcal_Xf-13149898974577617944177678175192",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 23.2,
+   "memory_peak_gb": 0.469516288
+  },
+  {
+   "name": "plotgains_Df_0_smoke_smoke_1pcal_Df-13149898974577617944177678283596",
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "exit": "0",
+   "s": 42.4,
+   "memory_peak_gb": 0.749359104
+  },
+  {
+   "name": "apply_caltables_gcal-13149898974180817944177678499992",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 15.6,
+   "memory_peak_gb": 0.774012928
+  },
+  {
+   "name": "apply_caltables_bpcal-1314989897418081794417767869386",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 15.5,
+   "memory_peak_gb": 0.774520832
+  },
+  {
+   "name": "apply_caltables_xcal-1314989897418081794417767889093",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 18.8,
+   "memory_peak_gb": 0.780234752
+  },
+  {
+   "name": "summary_1pcal_0-13149898974084817944177678988588",
+   "image": "quay.io/stimela/casa:1.7.1",
+   "exit": "0",
+   "s": 3.1,
+   "memory_peak_gb": 0.205365248
+  }
+ ],
+ "container_peak_gb": 3.558797312,
+ "containers_not_limited_before_start": 51,
+ "peak_disk_gb": 5.039520154
+}
