@@ -860,7 +860,9 @@ def test_a_second_command_on_a_locked_run_directory_is_refused(tmp_path):
 def test_research_stages_moved(capsys):
     with pytest.raises(SystemExit) as exc:
         core_cli.main(["flags", "-h"])
-    assert "rang-core research flags -h" in str(exc.value)
+    # E5-40: exit 2, the hint on stderr.
+    assert exc.value.code == 2
+    assert "rang-core research flags -h" in capsys.readouterr().err
     core_cli.main(["research", "-h"])
     assert "stages and verbs" in capsys.readouterr().out
 
