@@ -368,7 +368,14 @@ holders first; the frozen stops are checked between steps and written to
 | c1u4 | `-05-c1u4` (`f4_cost.py time --n4 U4`, LUNO MAIN_1, `RAYON_NUM_THREADS=4`, idle host) | C1(U4) > 0.45 |
 | shards | `-06-shards-cal`, `-07-shards-target` (`f4_shards.py`, validation then train, `--flags-from` F3's caches; T and A computed for MAIN_1, MAIN_2 and ESO137 0, 14, 16) | label audit |
 
-The held-out fetch (`-01-fetch`, `f4_fetch.py`) ran first, network only, nothing decoded.
+The held-out fetch (`-01-fetch`, `f4_fetch.py`) ran first, network only, nothing decoded: 126
+objects, 4,542,359,207 bytes (all three groups, under the 8 GB bar), 27.6 min, receipt with sha256.
+
+**Queued 2026-11-11 15:51 (host clock)** as a detached process (`outputs/f4-chain.sh`, ignored): the
+extension build under the heavy lock, then `tests/test_f4_flag.py`, `test_f3_flag.py`, `test_f2_sim.py`,
+then `examples/f4_queue.py`; progress in `D:ang\outputs4-20261111-00-build\chain.log`. Three
+tests of `test_f4_flag.py` (Rust against NumPy, logits against JAX, the antenna-local band) need the
+rebuilt extension and had not run at the code commit; the chain stops before Stage 1 if they fail.
 
 **Stage 4, training (WSL, GPU; after the audit, by hand):**
 
