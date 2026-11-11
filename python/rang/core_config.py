@@ -392,7 +392,9 @@ SCHEMA = {
         "minuvw_m": _k(None, "float?", "shortest baseline |uvw| imaged, metres"),
         "maxuvw_m": _k(None, "float?", "longest baseline |uvw| imaged, metres"),
         "uvrange": _k(
-            "", "str", "not read: use minuv_l, maxuv_l, minuvw_m and maxuvw_m"
+            "",
+            "str",
+            "refused when set: use minuv_l, maxuv_l, minuvw_m and maxuvw_m",
         ),
         "multiscale": _k(False, "bool", "multiscale CLEAN (WSClean's -multiscale)"),
         "multiscale_scales": _k(

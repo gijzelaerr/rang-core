@@ -329,7 +329,7 @@ image:
   maxuv_l: null  # longest uv distance imaged, wavelengths
   minuvw_m: null  # shortest baseline |uvw| imaged, metres
   maxuvw_m: null  # longest baseline |uvw| imaged, metres
-  uvrange: ""  # not read: use minuv_l, maxuv_l, minuvw_m and maxuvw_m
+  uvrange: ""  # refused when set: use minuv_l, maxuv_l, minuvw_m and maxuvw_m
   multiscale: false  # multiscale CLEAN (WSClean's -multiscale)
   multiscale_scales: null  # scales in pixels (null: WSClean's automatic scales)
   multiscale_max_scales: null  # at most this many automatic scales (null: all that fit)
