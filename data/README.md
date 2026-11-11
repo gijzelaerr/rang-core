@@ -31,7 +31,13 @@ verbatim from the simms repository (radio-astro/simms, GPL-2.0),
 X, Y, Z in metres, dish diameter, name, mount. A 2018 mailing-list note calls
 these positions out of date, and they are not checked against a MeerKAT
 observation's ANTENNA table. They give a realistic uv coverage and PSF for
-algorithm studies, not survey-grade geometry.
+algorithm studies, not survey-grade geometry. Notebook I3
+(`notebooks/intro/i3-meerkat-array.ipynb`, 2026-11-11) compares m000-m003 with
+the ANTENNA table of the public SKA fixture (1672727931, scan 9): every
+antenna is offset by 35.27-35.29 m, and the positions relative to m000 agree
+within 4 cm, so baselines are unaffected. A byte copy ships as package data,
+`python/rang/data/meerkat.itrf.txt` (task V3b), so the A1 simulation runs
+from a wheel; GeMClean's simulator compiles in this one.
 
 ## VLA (C configuration), WSRT and KAT-7 ITRF positions
 
