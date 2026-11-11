@@ -33,6 +33,8 @@ _spec.loader.exec_module(w3b)
 w3 = w3b.w3
 
 DATA = Path(r"D:\rang\outputs")
+# The main checkout's copy, as the working rules ask.
+HEAVY_LOCK = Path.home() / "Github" / "rang" / "tools" / "heavy_lock.py"
 w3b.STRATEGY = (
     DATA / "sliced-read-data" / "mk_rfi_flagging_calibrator_fields_firstpass.yaml"
 )
@@ -88,7 +90,7 @@ def stage(name, config, ms, run_dir, timing):
 
 def arm(run, case, arm, base=None):
     run = Path(run).resolve()
-    name = f"{case}-B{arm}" if base else f"{case}-{arm}"
+    name = f"{case}-B{arm}" if base and arm != "U" else f"{case}-{arm}"
     d = run / name
     if d.exists():
         raise SystemExit(f"{d} exists; choose a fresh run")
@@ -98,6 +100,14 @@ def arm(run, case, arm, base=None):
     if base:
         env["PYTHONPATH"] = str(Path(base) / "python")
     py = sys.executable
+    # The heavy lock's state as the arm starts (section 4).
+    lock = subprocess.run(
+        [py, str(HEAVY_LOCK), "status"], capture_output=True, text=True, check=False
+    )
+    (d / "logs" / "lock-status.txt").write_text(
+        time.strftime("%Y-%m-%dT%H:%M:%S%z\n") + lock.stdout + lock.stderr,
+        encoding="utf-8",
+    )
     probe = subprocess.run(
         [py, "-c", "import rang, rang._core; print(rang.__file__, rang._core.__file__)"],
         env=env, capture_output=True, text=True, check=True,
