@@ -390,3 +390,14 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
   off, so `ncpu` has no effect. The timed pass's split stays the reported
   source as frozen, and any difference between the two is reported as a
   repeatability figure.
+
+### 10.8 WSL restart (2026-11-11 ~20:47) and resume
+
+- The e2b.ms rebuild finished before the restart (BUILD rc 0: 1,058 s wall,
+  188 s converting, the rest queued). The verify and the correctness rerun
+  died with WSL. The coordinator reported the restart at 00:44 on 2026-11-12.
+- Resumed with `scripts/e3_b_resume.sh`. It verifies the surviving 51 GB
+  `e2b.ms` again with E2's converter (blob e33bbe4b, unchanged at `b2d80dc`;
+  heavy_lock 2 slots, 8 GB). If no cell differs, the correctness pass runs
+  shared on it (8 slots, 30 GB). Log:
+  `D:\rang\outputs\e3-20261112-b-correct2.log`.
