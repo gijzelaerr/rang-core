@@ -1,0 +1,192 @@
+{
+ "caracal_commit": "8f7bb363876f5f0daecbf2167c36bb597c7e5160",
+ "caracal_describe": "1.2.1rc1-294-g8f7bb363",
+ "python": "Python 3.12.15",
+ "stimela_wheel_sha256": "fb69412388c4ec197ff4ba43c684e919c69c5bd95117da5eddbf577136b3287f",
+ "docker": "28.3.3",
+ "pip_freeze": [
+  "astropy==7.2.3",
+  "astropy-iers-data==0.2026.11.9.0.35.9",
+  "astroquery==0.4.11",
+  "attrs==26.1.0",
+  "beautifulsoup4==4.15.0",
+  "bleach==6.4.0",
+  "caracal @ file:///home/gijsm/Github/caracal",
+  "certifi==2026.10.23",
+  "cffi==2.1.1",
+  "charset-normalizer==3.5.2",
+  "contourpy==1.4.0",
+  "cryptography==50.0.2",
+  "cycler==0.12.1",
+  "defusedxml==0.7.1",
+  "docopt==0.6.2",
+  "fastjsonschema==2.22.3",
+  "fonttools==4.68.0",
+  "html5lib==1.1",
+  "idna==3.20",
+  "jaraco-classes==3.4.0",
+  "jaraco-context==6.1.2",
+  "jaraco-functools==4.6.0",
+  "jeepney==0.9.0",
+  "jinja2==3.1.6",
+  "jsonschema==4.26.0",
+  "jsonschema-specifications==2025.9.1",
+  "jupyter-client==8.10.0",
+  "jupyter-core==5.9.1",
+  "jupyterlab-pygments==0.3.0",
+  "keyring==25.7.0",
+  "kiwisolver==1.5.1",
+  "markdown-it-py==4.3.0",
+  "markupsafe==3.0.4",
+  "matplotlib==3.11.2",
+  "mdurl==0.1.2",
+  "mistune==3.4.0",
+  "more-itertools==11.2.1",
+  "nbclient==0.11.0",
+  "nbconvert==7.17.2",
+  "nbformat==5.11.1",
+  "numpy==2.5.4",
+  "packaging==26.3",
+  "pandocfilters==1.5.1",
+  "pillow==13.0.0",
+  "platformdirs==4.14.5",
+  "progressbar2==4.7.0",
+  "psutil==5.9.8",
+  "pycparser==3.12",
+  "pyerfa==2.0.1.5",
+  "pygments==2.21.0",
+  "pykwalify==1.8.0",
+  "pyparsing==3.3.3",
+  "python-casacore==3.8.1",
+  "python-dateutil==4.0.0",
+  "python-utils==4.2.0",
+  "pyvo==1.10.0",
+  "pyyaml==6.0.3",
+  "pyzmq==27.3.0",
+  "radiopadre-client==1.2.4",
+  "referencing==0.37.0",
+  "regions==0.13",
+  "requests==2.34.2",
+  "rich==15.0.0",
+  "rpds-py==2026.9.1",
+  "ruamel-yaml==0.19.1",
+  "ruamel-yaml-string==0.1.1",
+  "scipy==1.18.1",
+  "secretstorage==3.5.0",
+  "six==1.17.0",
+  "soupsieve==4.1",
+  "stimela==1.8.3",
+  "tinycss2==1.5.1",
+  "tornado==6.6.1",
+  "traitlets==5.16.1",
+  "typing-extensions==4.16.0",
+  "tzdata==2026.6",
+  "urllib3==2.8.0",
+  "webencodings==0.6.1"
+ ],
+ "images": [
+  {
+   "image": "quay.io/stimela/wsclean:1.8.0",
+   "digest": "sha256:1a344a78c1f47b1020d421be58b77ba121140c2cb80b89b23396e6a95470f065",
+   "id": "864a73c9b2c2",
+   "size": "2.57GB"
+  },
+  {
+   "image": "quay.io/stimela/cubical:1.7.8-dev",
+   "digest": "sha256:973578c6693739a3b10aebf29eac69f1baaca81ea33acea0f9ecb697e221a90f",
+   "id": "5311291b9528",
+   "size": "6.28GB"
+  },
+  {
+   "image": "quay.io/stimela/aimfast:1.7.5",
+   "digest": "sha256:6fc2e616aac8dc55bd80580f5005df36bc1a9eb331a5ca6355e648756ea39642",
+   "id": "2ab15fd14edb",
+   "size": "2.64GB"
+  },
+  {
+   "image": "quay.io/stimela/breizorro:1.7.4",
+   "digest": "sha256:5c5d0b52eb7a584cf951bf39014c3b6c7f7550797bb359390f42a6be5f705e4c",
+   "id": "b265da04bd1f",
+   "size": "2.06GB"
+  },
+  {
+   "image": "quay.io/stimela/meqtrees:1.7.2",
+   "digest": "sha256:a116d8c134b56ee73e637a113475c879ff12bd5c838a9514942767d1b68cbe1b",
+   "id": "c338fd0b2eeb",
+   "size": "4.12GB"
+  },
+  {
+   "image": "quay.io/stimela/casa:1.7.1",
+   "digest": "sha256:3aa1425ad0eea9d7d20ae3d3eab4d4303a587f74f0a0e22a98be3c32660a746c",
+   "id": "b9dd1b668aad",
+   "size": "3.28GB"
+  },
+  {
+   "image": "quay.io/stimela/msutils:1.6.9",
+   "digest": "sha256:25946f2c338ac782ab6dd545d2174821db12c02d550e7f6fdfd4af34bc1f8e4b",
+   "id": "b57c7a49cf46",
+   "size": "1.41GB"
+  },
+  {
+   "image": "quay.io/stimela/pybdsf:1.6.9",
+   "digest": "sha256:1268accfe56623de7aa4c1e77e1ba7b51c485f39d178c818a7861faf465055ab",
+   "id": "11ff10a038bf",
+   "size": "1.18GB"
+  },
+  {
+   "image": "quay.io/stimela/ragavi:1.7.3",
+   "digest": "sha256:1b56abb8fa3955228b480b923d6e48d4e03d119d8ead47e07c57a95d22f5ccb9",
+   "id": "4a077bafae7c",
+   "size": "1.66GB"
+  },
+  {
+   "image": "quay.io/stimela/owlcat:1.6.6",
+   "digest": "sha256:0f824c7dc4e7540d5ae0324b74b921a1403a6afafb982dad2e964dd041b318ac",
+   "id": "1028d34254d3",
+   "size": "1.45GB"
+  },
+  {
+   "image": "quay.io/stimela/codex-africanus:1.6.7",
+   "digest": "sha256:0bdf2833f1dcdac42debb265f48b26a92c2d8f350b1257e97259da31ade77452",
+   "id": "9dbb814641e7",
+   "size": "1.35GB"
+  },
+  {
+   "image": "quay.io/stimela/rfimasker:1.7.0",
+   "digest": "sha256:39206e122457ca987348eee1c6f2d5e9a5ce8b7db9cc11328aaeb0c08cee89ec",
+   "id": "5a9216e30350",
+   "size": "1.25GB"
+  },
+  {
+   "image": "quay.io/stimela/msutils:1.4.6",
+   "digest": "sha256:25440a59c33ffff5cd72b6c4acd2215e75b54cb42bc27b15e7c829eb1730b24d",
+   "id": "aa54dcd48c52",
+   "size": "1.31GB"
+  },
+  {
+   "image": "quay.io/stimela/owlcat:1.2.5-1",
+   "digest": "sha256:943b51f3b06da126e4da4f777c39a6f1b542a4d49dafaafac2f64af40bfde07b",
+   "id": "f1c356db1070",
+   "size": "1.21GB"
+  },
+  {
+   "image": "quay.io/stimela/meqtrees:1.2.4",
+   "digest": "sha256:52ca3e011cc14fa6bd31ac9e59bcdbfe5eb775d61ffb2ba358eb5d1132fa3aa0",
+   "id": "a3f7347dcb29",
+   "size": "1.09GB"
+  },
+  {
+   "image": "quay.io/stimela/aoflagger:1.2.0",
+   "digest": "sha256:7c31639007a367bf8c7070327b702b2516bb50f8b3964c91d8248873216fd85f",
+   "id": "37e8a7f5ce3e",
+   "size": "754MB"
+  },
+  {
+   "image": "quay.io/stimela/tigger:1.2.0",
+   "digest": "sha256:7df6be776378de456b688a72c86cb036769fe46b3bc95f0a4ef2c1b01677a4f0",
+   "id": "c6b77c4e077b",
+   "size": "1.08GB"
+  }
+ ],
+ "pulled": "2026-11-11T16:47:20+02:00 to 17:19:00+02:00"
+}

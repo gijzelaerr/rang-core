@@ -66,6 +66,9 @@ def e3b(ncpu):
              "obsconf:\n  xcal:\n    - 'J1331+3030'\n"
              "  fcal: ['J1939-6342']\n  bpcal: ['J1939-6342']\n  gcal: ['J1833-2103']\n",
              "dev2 roles")  # refant unset: schema default 'auto' (dev 7)
+    # dev 3a, used: the smoke pass stopped in obsconf (no TARGET-intent field)
+    t = edit(t, "  gcal: ['J1833-2103']\n", "  gcal: ['J1833-2103']\n  target: ['J1833-2103']\n",
+             "dev3a target")
     t = edit(t, "inspect:\n  enable: true\n", "inspect:\n  enable: false\n", "dev4 inspect")
     t = edit(t, "inspect__polcal: \n  enable: true\n", "inspect__polcal: \n  enable: false\n",
              "dev4 inspect__polcal")

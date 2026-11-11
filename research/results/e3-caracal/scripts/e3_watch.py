@@ -62,6 +62,14 @@ def main():
             act, cid = ev.get("Action") or ev.get("status"), ev.get("id")
             name = ev.get("Actor", {}).get("Attributes", {}).get("name")
             image = ev.get("Actor", {}).get("Attributes", {}).get("image")
+            # Only CARACal's cabs: other sessions share this Docker daemon, and
+            # their containers must be neither limited nor counted (the smoke
+            # pass limited five short rang-obit containers before this filter).
+            if not (image or "").startswith("quay.io/stimela/"):
+                if stop.exists():
+                    proc.terminate()
+                    return
+                continue
             if act == "create":
                 upd = None
                 if a.limit_cpus or a.limit_mem:

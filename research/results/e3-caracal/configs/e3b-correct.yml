@@ -17,6 +17,7 @@ obsconf:
   fcal: ['J1939-6342']
   bpcal: ['J1939-6342']
   gcal: ['J1833-2103']
+  target: ['J1833-2103']
 
 transform:
   enable: true

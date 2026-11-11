@@ -247,3 +247,47 @@ the joint scorer if under 50 MB each (otherwise their path and sha256 under
 - E3-A needs about 540 GB on D: (210 GB input MS + 330 GB splits); D: had
   680 GB free on 2026-11-11, so E3-A and an E2-A arm cannot run at the same
   time.
+
+## 10. Runs (measured)
+
+### 10.1 Install and images (2026-11-11)
+
+- Owner approved the uv install of the clone (chat, 2026-11-11). Venv
+  `~/Github/caracal/.venv`, Python 3.12.15; `stimela 1.8.3`, `python-casacore
+  3.8.1`, `numpy 2.5.4`, `astropy 7.2.3`; full freeze and the 17 image digests
+  in `results/e3-caracal/versions.json` (Docker 28.3.3).
+- 17 cab images pulled from quay.io, 16:47 to 17:19 (32 min), 34 GB in the WSL
+  disk image; no failure.
+
+### 10.2 MSs
+
+| MS | Rows | Build | Verify | Size |
+| --- | ---: | --- | --- | ---: |
+| `e3-20261111-smoke-input\smoke.ms` (dev scans 1, 2; 20,000 rows each) | 40,000 | rc 0 | 655,360,000 cells per cube, 0 differ | – |
+| `e3-20261111-input\e2b.ms` | 272,916 | rc 0, 359 s (convert 208 s) | 4,471,455,744 cells per cube, 0 differ, row columns 0 differ | 51 GB |
+
+FIELD positions (all MSs, as the stores hold them): J1939-6342 at RA
+294.854375°, Dec −63.712111° (−63°42′43.6″), about 2″ from CARACal's
+catalogue entry (19h39m25.0s −63°42′46″). CARACal's `prep` logs "coordinates
+… offset" and recommends `fixcalcoords`; the shipped configs leave it off, so
+E3 does too. rang reads the same FIELD rows.
+
+### 10.3 Smoke pass (development data; not an E3 result)
+
+- **Try 1** (`e3-20261111-smoke-smoke-try1`): stopped in `obsconf` after 14 s:
+  "Can't find an appropriate FIELD for obsinfo: target: all" (no TARGET-intent
+  field). This is the case fallback **3a** froze; 3a is now **used** in E3-B
+  (`target: ['J1833-2103']`, every target stage disabled), and the smoke
+  config sets `target: ['J1939-6342']`.
+- **Try 2** (`e3-20261111-smoke-smoke`): rc 0, 1,337 s on the shared host
+  (8 slots, containers capped at 8 CPUs, 24 GB): getdata 0, obsconf 10,
+  transform 103, prep 28, flag 153, crosscal 435, polcal 606 s. 58 containers,
+  all exit 0; container peak 10.2 GB; driver RSS 0.13 GB; peak run folder
+  19.4 GB; input MS unchanged. Tables K0, G0, B0 (primary), Kcrs, Xf, Df,
+  Gpol1. `results/e3-caracal/smoke/cost.json`.
+- **Watcher fault found and fixed:** the first watcher acted on every
+  container of the shared Docker daemon. It capped five short `rang-obit`
+  containers of another session at 8 CPUs and 24 GB, and three of its 58
+  starts are counted as "not limited". All of them exited 0. The watcher now
+  handles only `quay.io/stimela/` images. Smoke numbers are unaffected:
+  `e3_cost.py` counts only Stimela containers.
