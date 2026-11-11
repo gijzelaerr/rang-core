@@ -805,7 +805,10 @@ def _version_name(ms, stage):
 def restore_before(ms, entry):
     """Give the MS back the flags saved before this stage's last attempt
     (when it saved any), so a rerun starts from the same input. Returns the
-    version restored, or None."""
+    version restored, or None. The flags it replaces are saved first as
+    `rang_rerun_<UTC time>` (recorded in the entry as `saved_before_restore`),
+    so flags set outside rang since the last attempt are never lost (E5,
+    research/e5-prereview.md)."""
     journal = core_writeback.read_journal(ms)
     prior = entry.get("flag_version")
     unfinished = journal and journal.get("state") in ("open", "failed")
@@ -817,6 +820,11 @@ def restore_before(ms, entry):
             f"{journal.get('flag_backup')!r}) first"
         )
     if prior and flagversions.exists(ms, prior):
+        saved = _version_name(ms, "rerun")
+        core_writeback.backup_flags(
+            ms, saved, comment=f"rang: flags replaced by restoring {prior}"
+        )
+        entry["saved_before_restore"] = saved
         core_writeback.restore_flags(ms, prior)
         return prior
     return None

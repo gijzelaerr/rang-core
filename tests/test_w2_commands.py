@@ -377,7 +377,9 @@ def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path, c
     cli("flag", config, ms, "--force")
     # The forced rerun starts from the flags saved before the first run.
     assert np.array_equal(column(ms, "FLAG"), first)
-    assert len(flagversions.versions(ms)) == 3
+    # rang_original, the two attempts' versions and (E5) the flags the
+    # restore replaced.
+    assert len(flagversions.versions(ms)) == 4
     state = json.loads(
         (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
     )
@@ -385,6 +387,26 @@ def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path, c
         "rang_flag_"
     )
     assert state["stages"]["calibrate"]["status"] == "stale"
+
+
+def test_a_rerun_saves_the_flags_its_restore_replaces(tmp_path):
+    """E5 (WB-06): flags set outside rang after a stage ran survive its
+    forced rerun as a flag version, rang_rerun_<time>."""
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path)
+    cli("--no-receipt", "flag", config, ms)
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        flag = t.getcol("FLAG")
+        flag[100:140] = True  # flagged by hand, say with CASA flagdata
+        t.putcol("FLAG", flag)
+    by_hand = column(ms, "FLAG")
+    cli("--no-receipt", "flag", config, ms, "--force")
+    state = json.loads(
+        (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
+    )
+    saved = state["stages"]["flag"]["saved_before_restore"]
+    assert saved.startswith("rang_rerun_")
+    assert np.array_equal(flagversions.load(ms, saved)[0], by_hand)
 
 
 def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
