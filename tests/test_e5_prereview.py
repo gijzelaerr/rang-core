@@ -149,3 +149,30 @@ def test_selfcal_refuses_to_copy_apply_output_into_data(tmp_path):
         ctx = {"config": config, "ms": ms, "run": run}
         with pytest.raises(pipe.StageFailed, match="DATA is never written"):
             pipe._selfcal_input(ctx)
+
+
+def test_the_missing_model_column_refusal_names_the_imager_option(tmp_path):
+    """CLI-07: the refusal said MODEL_DATA from the imager was a future
+    task; `image.write_model: true` writes it."""
+    from rang import core_ms_write
+    from rang import core_pipeline as pipe
+
+    if not core_ms_write.has_creator():
+        pytest.skip("extension built without the table writer")
+    spec = importlib.util.spec_from_file_location(
+        "w1_writeback", ROOT / "examples/w1_writeback.py"
+    )
+    w1 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(w1)
+    ms = w1.make_ms(tmp_path / "x.ms", 12, 4)
+    raw = {**copy.deepcopy(BASE), "calibrate": {"model": {"source": "column"}}}
+    config, errors = cc.resolve(raw)
+    assert errors == []
+    info = pipe.inspect_ms(ms)
+    assert "MODEL_DATA" not in info["columns"]
+    with pytest.raises(pipe.Refused) as refused:
+        pipe.preflight(config, info, ["calibrate"])
+    lines = [
+        x for x in str(refused.value).splitlines() if "calibrate.model.column" in x
+    ]
+    assert lines and "image.write_model: true" in lines[0]

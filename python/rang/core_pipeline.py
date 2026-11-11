@@ -479,8 +479,8 @@ def preflight(config, info, stages):
         if model["source"] == "column" and model["column"] not in info["columns"]:
             problems.append(
                 f"calibrate.model.column: {info['ms']} has no {model['column']} "
-                "(write a calibrator model with model.source setjy, manual or lsm; "
-                "MODEL_DATA from the imager is task G6)"
+                "(write a calibrator model with model.source setjy, manual or lsm, "
+                "or MODEL_DATA from an image with image.write_model: true)"
             )
         if not problems:
             problems += _polcal_problems(config, info)
