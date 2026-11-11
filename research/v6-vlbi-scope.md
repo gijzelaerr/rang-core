@@ -29,7 +29,7 @@ not built (section 6).
 | rang-core part | Where | Use in VLBI | Gap |
 | --- | --- | --- | --- |
 | Measurement equation, 2×2 Jones apply and corrupt | C1, C4a, `core/src/cal/apply.rs` | the same RIME; a fringe-fit table is a phase, delay and rate per station | a rate term (phase linear in time) in apply and in CASA's table layout (`FringeJones`) |
-| K: FFT initial estimate, reference baselines | C2b, `core/src/cal/delay.rs` (8× padding, CASA's peak rules read in `KJones.cc`) | stage 1 of fringe fitting, along frequency | the time axis (rate) makes it a 2-D FFT; multiband across spectral windows |
+| K: FFT initial estimate, reference baselines | C2b, `core/src/cal/delay.rs` (QuartiCal's estimate: padding to `ceil(2^15 / nchan) * nchan`, no peak interpolation; CASA's `KJones` 8× padding and parabolic peak were read in C2b, not copied) | stage 1 of fringe fitting, along frequency | the time axis (rate) makes it a 2-D FFT; multiband across spectral windows |
 | Delay with free phase, Gauss-Newton | C2c, `core/src/cal/delay_offset.rs` | stage 2 (global least squares) with rate added | weights by SNR, all baselines, not reference baselines only |
 | G, B, Df and polarisation terms | C2a, C2c, C6 | bandpass and gain after fringe fitting, as in EVN practice; MeerKAT's linear feeds (section 5) | parallactic angle on alt-az stations with different mounts |
 | Flagging (Tricolour port, CASA flag versions) | core-d, E0, DF-IO | RFI flagging; the UVFLG files EVN pipelines ship | a UVFLG reader (CASA users convert with `flag.py`) |
@@ -57,13 +57,13 @@ not built (section 6).
 | Tool | What | Language, status (checked here?) | Role for ra-ng |
 | --- | --- | --- | --- |
 | CASA `fringefit` | Schwab-Cotton two-stage fringe fit; multiband; dispersive delay; developed by JIVE with NRAO support | C++/Python; in casatasks 6.7 (docs checked); rang pins 6.7.6.14 | **primary oracle** for piece 1; algorithm details (FFT padding, SNR formula) are not in the docs: read `FringeJones.cc` before freezing |
-| AIPS FRING | the reference fringe fitter | Fortran; NRAO still recommends AIPS for most VLBA work (checked); in 2018 FRING was 2-4× faster than CASA single-core (checked) | second oracle and the speed bar; not installed on the host |
-| rPICARD | CASA-based pipeline (Janssen et al. 2019): FITS-IDI or MS in; EVN, VLBA, GMVA, EHT calibrated | Python on CASA; current version **not checked** (no 2024-2026 release found) | the EHT and GMVA recipe to copy later, as CARACal is for MeerKAT |
+| AIPS FRING | the reference fringe fitter | Fortran; NRAO still recommends AIPS for most VLBA work (checked); FRING 2-4× faster than CASA's C++ `fringefit` (2018 proceedings); CASA not matching AIPS in single-core time (2022 paper) | second oracle and the speed bar; not installed on the host |
+| rPICARD | CASA-based pipeline (Janssen et al. 2019): FITS-IDI or MS in; EVN, VLBA, GMVA, EHT calibrated | Python on CASA; Bitbucket, versions as git tags, a Docker image `casavlbi:latest`, manual dated 2021-01-26; the current version **not found** | the EHT and GMVA recipe to copy later, as CARACal is for MeerKAT |
 | EHT-HOPS | the EHT's other pipeline (fourfit); the 2018 M87 release has both HOPS and rPICARD products (checked) | C | a second view on EHT data only |
-| Obit | Cotton's package; MeerKAT imaging (MFImage) is V5's oracle | C/Python; VLBI tasks **not checked** | V5 installs it; whether its VLBI side is usable is open |
-| DIFMAP | hybrid mapping: CLEAN plus self-calibration on sparse uv | C; status **not checked** | the classical sparse-uv imaging baseline |
-| eht-imaging (ehtim) | RML imaging on visibilities, closure phases and log closure amplitudes (Chael et al. 2018), simulation of synthetic data; JOSS paper 2024 (cited, not read) | Python | **oracle for closure imaging** and for synthetic EHT data |
-| SMILI | sparse modelling (ℓ1, TV, TSV) for VLBI; v0.2.0 on Zenodo; nothing newer found | Python/Fortran; activity after 2019 **not checked** | second RML oracle |
+| Obit | Cotton's package; MeerKAT imaging (MFImage) is V5's oracle; NRAO's VLBA pipeline runs inside Obit (continuum only) | C/Python, git (github.com/bill-cotton/Obit); its fringe-fitting task **not checked** | V5 installs it; a possible third fringe-fitting reference |
+| DIFMAP | hybrid mapping: CLEAN plus self-calibration on sparse uv (Shepherd 1997) | C; a 2.5 series exists; NRAO's VLBA page says development is frozen, support limited to installation | the classical sparse-uv imaging baseline |
+| eht-imaging (ehtim) | RML imaging on visibilities, closure phases and log closure amplitudes (Chael et al. 2018), simulation of synthetic data; JOSS paper 2024 (cited, not read) | Python; latest GitHub release v1.3.2 (16 June, year not shown on the page); licence not checked | **oracle for closure imaging** and for synthetic EHT data |
+| SMILI | sparse modelling (ℓ1, TV, TSV) for VLBI; v0.2.0 on Zenodo | Python/Fortran, GPLv3 (README); GitHub branch v0.2, no releases; recent activity **not established** | second RML oracle |
 | Comrade.jl | Bayesian, differentiable VLBI modelling; Enzyme autodiff; used for M87* 2017-2021 variability (2025) and 3C 279 (2026); VLBISkyRegularizers.jl adds RML (JuliaCon 2025) | Julia | the Bayesian reference; JAX-like route already exists, in Julia |
 | DoG-HiT, kine | wavelet imaging (Müller & Lobanov 2022); kine is unsupervised-ML imaging, "in prep." in the 2026 3C 279 paper | Python | no oracle use until published |
 | Deep learning on closure invariants | arXiv:2411.12233 (2024) | Python | a reading item, not an oracle |
@@ -75,7 +75,8 @@ not built (section 6).
 | Data | What | Size | Access | Use |
 | --- | --- | --- | --- | --- |
 | EVN N14C3 | network monitoring, 2014-10-22, 5 GHz (4934.7-5046.2 MHz), 8 spw × 32 ch × 500 kHz, RR and LL used; EF as refant; 1848+283 and J1640+3946 calibrators, 3C345 and J1849+3024 targets; up to 13 stations named (the tutorial's count is inconsistent: 12 in `listobs`) | `n14c3_1_1.IDI1` and `.IDI2`, reported as 1.9 and 0.9 GB (secondary source; sizes **not checked**) | public, EVN archive, with ANTAB and UVFLG; the CASA tutorial gives the `fringefit` calls (single-band on 1848+283, 13:53:20-13:54:20, `solint='inf'`, `minsnr=50`; multiband on two fields, `solint='60s'`, `combine='spw'`, `minsnr=30`) | **piece 1, real-data arm** |
-| EVN RSM07 | 3 h continuum with phase referencing, the 2025 JIVE school data | not checked | public, archive | held-out set for piece 1 |
+| EVN N23C2 | the ERIS 2024 continuum tutorial set; its `fringefit` example uses refant EF | tarball about 320 MB | no credentials (Dropbox and FTP, ERIS 2024 page) | **held-out set for piece 1** |
+| EVN RSM07 | 3 h continuum with phase referencing, the 2025 JIVE school data | not checked | the tutorial gives access credentials; public status not checked | not used |
 | EVN with MeerKAT, J0123+3044 | first regular EVN run with MeerKAT (announced 2025-06-08): 12 h, MeerKAT for 4 h; centimetre wavelengths; the run's own setup was not found (SARAO's interim VLBI mode in October 2024 was L band, 2 × 32 MHz, one boresight beam) | not found | project code, date and public status **not found**; EVN's proprietary period is 12 months from distribution (6 for ToO, none for short observations since 2020-12-01), so it may be public by now | the MeerKAT-specific arm; owner decision 4 |
 | EHT 2017 M87* and Sgr A* | calibrated UVFITS (2019, 2022); polarimetric sets (CyVerse dates April 2026 are metadata refreshes of 2017 data) | per set, not checked | public, CyVerse | closure imaging, later |
 | EHT 2018 M87* | 3 days, 4 bands, HOPS and rPICARD, 10 s, 32 IFs averaged, Stokes I in RR and LL; DOI 10.25739/epm5-r371; PDDL | `EHTC_M872018_uvfits.tgz`, size not checked | public | closure imaging, later |
@@ -119,13 +120,13 @@ C2b read `KJones.cc`. Inspect frinZ.
 1. *T (simulated truth):* rang's writer in N14C3's layout (its station
    positions, 8 × 32 × 500 kHz, its scan list), a point source, per-station
    delays uniform in ±200 ns, rates in ±20 ps/s, phases uniform, seeds
-   recorded; noise-free twins and three SNR levels (5, 20, 100 per baseline per
+   recorded; noise-free twins and four SNR levels (5, 7, 20, 100 per baseline per
    interval). Rate means a phase linear in time, which A1's generator does not
    yet make.
 2. *C (CASA on real data):* N14C3 imported by CASA 6.7.6.14, ANTAB and UVFLG
    applied as in the tutorial, the tutorial's two `fringefit` calls, then the
    same with `globalsolve=False`.
-3. *H (held out):* RSM07, opened only after T and C pass.
+3. *H (held out):* N23C2, opened only after T and C pass.
 
 **Tolerances (proposed; gauge-free, as C2b learned).** Delays and rates are
 compared as station differences or centred on the station mean, never as raw
@@ -137,7 +138,7 @@ T = 60 s: 3.3 ps/s).
 | Arm | Quantity | Proposed bound |
 | --- | --- | --- |
 | T, twins | delay, rate, phase | ≤ 1e-6 of the cell; phase ≤ 1e-4 rad |
-| T, noisy | z = error / formal error, gauge-free | median \|z\| in [0.55, 0.80] and std(z) in [0.8, 1.25] per SNR level; detections: every station at SNR ≥ 7, false detections on a noise-only twin within the rate `minsnr` implies (to be derived from the SNR formula) |
+| T, noisy | z = error / formal error, gauge-free | median \|z\| in [0.55, 0.80] and std(z) in [0.8, 1.25] per SNR level ≥ 7; detections: every station at the SNR 7 level, false detections on a noise-only twin within the rate `minsnr` implies (to be derived from the SNR formula) |
 | C, against `fringefit` | delay, rate | median ≤ 0.01 cell, p95 ≤ 0.05 cell |
 | C | phase | median ≤ 0.5°, p95 ≤ 2° |
 | C | which solutions pass `minsnr` | identical, except where CASA's SNR is within 2 % of `minsnr` |
@@ -151,7 +152,7 @@ generator 5 s per set; [tool-timings.md](tool-timings.md)). Piece 1 is larger:
 a 2-D FFT, a global solve, multiband and a new table type. Proposed: four to
 six agent sessions (protocol and `FringeJones.cc` reading 1; simulator 1;
 kernel and table 1-2; runs and write-up 1-2); about 1,500 lines of Rust and
-Python; heavy-lock time under an hour; download about 2.8 GB plus RSM07, kept
+Python; heavy-lock time under an hour; download about 2.8 GB (N14C3) plus 0.3 GB (N23C2), kept
 in `D:\rang\vlbi`, never in the repository.
 
 ## 8. Owner decisions (at most five)
@@ -177,7 +178,10 @@ in `D:\rang\vlbi`, never in the repository.
 - Janssen et al. 2019, rPICARD, A&A, arXiv:1902.01749.
 - CASA `fringefit` documentation, casadocs v6.7.0.
 - JIVE CASA tutorial with N14C3 (jive.eu/~small/FringeFitting, now 404) and the DARA CASA 6 version (jb.man.ac.uk/DARA/unit4); `jive-vlbi/casa-vlbi` (casavlbitools).
-- EVN archive (archive.jive.nl, N14C3_141022); EVN data access policy (evlbi.org).
+- EVN archive (archive.jive.nl, N14C3_141022); EVN data access policy (evlbi.org); ERIS 2024 tutorial page (evlbi.org/eris2024, N23C2).
+- evlbi.org 2023 report on MeerKAT's VLBI mode and the MeerKAT-EVN fringe plot (H/V-to-R/L caption): known from a search summary only, not opened.
+- EHT data policy (raw data to the ALMA archive a year after validation): arXiv:2410.02986, from a search summary.
+- NRAO VLBA pages: CASA VLBA calibration (AIPS recommended), VLBA pipeline manual (Obit), Difmap (development frozen); Obit page (cv.nrao.edu/~bcotton/Obit.html); rPICARD README and manual (ftp.science.ru.nl); GitHub: achael/eht-imaging releases, astrosmili/smili.
 - JIVE press release 2025-06-08 and Chalmers news 2025-06-13 (MeerKAT in the EVN, J0123+3044).
 - M. Gouws (SARAO), Developing a VLBI observation mode for MeerKAT, IVTW 2024-10-21 (Haystack).
 - EHT data on CyVerse: 2017 M87* and Sgr A*, polarised sets, 2018 M87* (DOI 10.25739/epm5-r371).
