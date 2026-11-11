@@ -343,12 +343,13 @@ def test_the_stage_runs_rounds_and_writes_corrected_data(tmp_path, capsys):
     assert summary["refant"] == 1
     out, model = columns(ms, "CORRECTED_DATA", "MODEL_DATA")
     assert np.max(np.abs(out[..., (0, 3)] - model[..., (0, 3)])) < 1e-4
-    assert np.allclose(model[..., 0], FLUX, atol=1e-5)
+    # G7: MODEL_DATA is predicted at wgridder accuracy 1e-4 (relative), WSClean's default.
+    assert np.allclose(model[..., 0], FLUX, atol=2e-4 * FLUX)
     store = field["rounds"][1]["store"]
     gains, *_ = cal_selfcal.read_store(store, "Sa")
     p, _ = products(gains)
     pt, _ = products(g[:, :1])
-    assert np.max(np.abs(p - pt) / np.abs(pt)) < 1e-5
+    assert np.max(np.abs(p - pt) / np.abs(pt)) < 1e-4  # G7: model at 1e-4
     # A flag version before the stage's first write; DATA untouched.
     assert any(v[0].startswith("rang_selfcal_") for v in flagversions.versions(ms))
     first = out.copy()

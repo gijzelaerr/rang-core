@@ -468,7 +468,10 @@ def test_a_stage_that_wrote_no_flags_leaves_the_later_restore_in_place(tmp_path)
 @POSIX
 def test_run_resumes_at_the_failed_stage(tmp_path):
     ms = make_ms(tmp_path / "x.ms")
-    bad = write_config(tmp_path, name="bad.yaml", gemclean=tmp_path / "missing")
+    # The three stages this test was written for (the default is the whole
+    # chain since E5-28).
+    stages = "run: {stages: [flag, calibrate, image]}\n"
+    bad = write_config(tmp_path, stages, name="bad.yaml", gemclean=tmp_path / "missing")
     with pytest.raises(SystemExit) as exc:
         cli("run", bad, ms)
     assert exc.value.code == 1
@@ -477,7 +480,9 @@ def test_run_resumes_at_the_failed_stage(tmp_path):
     status = {s: e["status"] for s, e in state["stages"].items()}
     assert status == {"flag": "done", "calibrate": "done", "image": "failed"}
     flags, versions = column(ms, "FLAG"), flagversions.versions(ms)
-    good = write_config(tmp_path, name="good.yaml", gemclean=fake_gemclean(tmp_path))
+    good = write_config(
+        tmp_path, stages, name="good.yaml", gemclean=fake_gemclean(tmp_path)
+    )
     state = cli("run", good, ms)
     assert {s: e["status"] for s, e in state["stages"].items()} == {
         "flag": "done",
