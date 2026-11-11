@@ -1,7 +1,9 @@
 # F3: a fast supervised RFI flagger for MeerKAT L-band, second protocol
 
 Task F3, branch `fp-f3-flagger` from main `8d3becd`. Follows [F2](f2-flagger.md) (outcome F in both
-classes) at the owner's request of 2026-11-10 (F2 owner decision 1: continue, new protocol). **Status at
+classes) at the owner's request of 2026-11-10 (F2 owner decision 1: continue, new protocol). **Status now
+(2026-11-11): implemented and measured; calibrators outcome F, targets stopped at the label audit;
+nothing proposed for `rang-core flag`** ([decision](#decision-frozen-rule-section-7)). **Status at
 freeze: proposed; nothing implemented, fetched, run or trained.** Results go under "Measured result";
 nothing above it changes except by dated, labelled amendment.
 
@@ -276,8 +278,9 @@ stated; AOFlagger and training in WSL.
 ### Deviations (recorded when they happened)
 
 1. **LUNO MAIN_3 (scan 4) has FLAG_ROW set on every row** (17,556 of 17,556): no data. It is dropped;
-   calibrator real training is MAIN_4, MAIN_5, MAIN_6 (found when its shards failed to build, before
-   any calibrator label or audit was read).
+   calibrator real training is MAIN_4, MAIN_5, MAIN_6. Found when its shards failed to build (MAIN_7's
+   amended validation audit had already printed in that run); the drop is forced by the data, not
+   chosen.
 2. **Ollama holds about 10 GB of the GPU**: training runs with `XLA_PYTHON_CLIENT_PREALLOCATE=false`;
    the first target launch was stopped before step 1 and restarted.
 3. The first check-all (`-07`) failed on `ruff format` (one file), the F2 seed-uniqueness test (it
@@ -321,8 +324,8 @@ calibrators `-13`. T and A on the uninjected training scans, added cells (eligib
 
 - Amended audit passes in both classes (strong consensus far below 10 %; median max(u) of the kept
   consensus positives 3.9-4.3 by construction).
-- On LUNO AOFlagger's generic strategy adds 12-17 % of eligible cells, T about 1.3 %; on ESO137 T adds
-  14-17 %, A about 1.6 %. The two flaggers disagree by an order of magnitude in opposite directions on
+- On LUNO AOFlagger's generic strategy adds 15.1-17.0 % of eligible cells, T about 1.3 %; on ESO137 T adds
+  13.4-17.1 %, A about 1.6 %. The two flaggers disagree by an order of magnitude in opposite directions on
   the two data sets, so consensus labels are a small intersection.
 
 ### Stage 4: training and τ (calibrators)
@@ -333,6 +336,9 @@ training at once; host-side batching is the bound). Validation loss, seeds 1, 2,
 `2cdeee1795995b9d2f8c7c1d6deff6ec354c4a305712766afaccfb3091e2e91e`, 3,433 float32).
 **τ = −2.5** (`-19-tau-cal`): pooled validation recall of positive cells 0.942, N3 adds 172,877 cells
 on MAIN_7's uninjected DATA against T's 209,120. Frozen here, before any held-out set is read.
+Parity with these weights (`-19-parity-cal`, f2sim-v calibrator scan): logits p99.9 1.1e-5, max 2.7e-5, flag
+disagreement 0 at τ = 0 (not measured at −2.5; with max |Δ| 2.7e-5 it is bounded by the cells within
+2.7e-5 of the threshold): passes.
 
 ### Stage 4: training and τ (targets, post hoc arm of Amendment 1)
 
@@ -354,7 +360,7 @@ Real: LUNO MAIN_1 (1934−638, 34.2 M eligible cells) and MAIN_2 (1830−211, 16
 | Z2 | 0.232 | 0.321 | 0.408 | 0.0005 | 0.363 | 0.152 | 0.008 | 0.0007, 0.003 | 0.0007, 0.002 |
 | U3 | 0.430 | 0.401 | 0.425 | 0.458 | 0.462 | 0.370 | 0.427 | 23.7, 20.7 | 0.019, 0.012 |
 
-H2 seed 31 on MAIN_1 has no eligible cells (the cluster's short baselines fall under the `0~550` static
+H2 seed 31 on MAIN_1 has no eligible cells (likely, not checked: the cluster's short baselines fall under the `0~550` static
 mask); H2 counts are small (240-581 cells per case).
 
 Simulation, f3sim-t calibrator scans (Q1 at A ≥ 10 / Q2 / Q1 at A ≥ 3): T 0.895 / 0.325 / 0.815;
@@ -413,3 +419,119 @@ Simulation, f3sim-t target scans (Q1 / Q2): T 0.981 / 0.119; A 0.993 / 0.138; **
 | S3 | 1.000 against 0.888 | passes |
 
 **Target outcome: stopped at the label audit as frozen; the post hoc amended arm is F** (R1, R1m, S1).
+
+### Stage 5: cost (`-22-cost-*`) and P
+
+Same rows in memory to flags in memory, native Windows, heavy lock held, three repeats alternating,
+median. Idle rule (other processes ≤ 1 logical CPU): 4 of the 24 repeats were provisional (other load
+1.4-2.3 CPUs). One of them is a median: T at 4 threads on ESO137 (15.22 s, 2.26 other CPUs), so that
+C1 is **provisional**; the other three C1 values are from clean medians.
+
+| Set | Threads | T | N3 (W3 + kernel) | C1 |
+| --- | ---: | ---: | ---: | ---: |
+| LUNO MAIN_1 (calibrator, 85.6 M cells) | 4 | 48.1 s | 16.5 s | **0.343** |
+| LUNO MAIN_1 | 1 | 130.4 s | 44.7 s | **0.343** |
+| ESO137 chunk 0 (target, 24.8 M cells) | 4 | 15.2 s | 5.29 s | **0.348** (provisional) |
+| ESO137 chunk 0 | 1 | 40.0 s | 14.1 s | **0.353** |
+
+- C1 beats (≤ 0.5) at both thread counts in both classes. F2's kernel was 0.20-0.22 (provisional); N3's
+  15 input planes and the per-antenna medians cost more.
+- C2: peak working set 5.519 GB (T) and 5.518 GB (N3) on MAIN_1, 1.626 GB for both on ESO137: ratio
+  1.00, matches (the decode sets the peak in both arms).
+- A (not gated): 68 s single-threaded in the container on MAIN_1, 18-19 s on an ESO137 chunk, plus
+  Docker and I/O.
+- P (`-18-params`): T1 for N3 is 4 kinds (W3's `accumulation_mode` and `uvrange`, the weights file,
+  τ) against 21 for each first-pass YAML: under half, and no retraining between sets. **P holds** as
+  frozen; T2 lists 12 retraining settings and T3 5 architecture settings.
+
+### Decision (frozen rule, section 7)
+
+| | Calibrators | Targets |
+| --- | --- | --- |
+| Stop-Z2 | no | no |
+| Label audit | passes as amended (pre-result) | **fires as frozen: stop** |
+| R1 / R1m | **fail**: 0.640 against 0.966; antenna-local 0.024 against 0.907 | post hoc arm: fail (0.724 against 0.855; 0.166 against 0.700) |
+| R2 | passes (H1 0.968, H2 0.997) | post hoc: passes |
+| R3 / R4 | pass (0.73-0.97 × T's flags; J 0.14-0.19 against A's 0.03) | post hoc: pass (0.04-0.13 × T's flags) |
+| S1 / S2 / S3 | pass / pass / undecidable | post hoc: S1 fails (0.895 against 0.981) |
+| C1 / C2 / P | 0.343 / 1.00 / holds | 0.348 (provisional) and 0.353 / 1.00 / holds |
+| **Outcome** | **F** | **stopped at the label audit** (post hoc arm F) |
+
+**Nothing is proposed for `rang-core flag`. No novelty claim.**
+
+Against F2, on the same LUNO injections (calibrators): narrowband 0.998 (F2 0.447), single-baseline
+0.999 (F2 0.583), drifting H1 0.968 (F2 0.828), added cells 0.73-0.97 × T (F2 9.4-23.8 ×); simulated
+recall at ≥ 10 σ 0.982 with false flags 0.0016 (T 0.895 / 0.325). Not fixed: wide-band (178-322
+channels) scan-long RFI on one antenna, 0.024 against T's 0.907 (A 0.566).
+
+### Not checked
+
+- Q3 (gain-product error), reported-only in this protocol, was not run.
+- Trained-weights parity for the target weights was not run (U3 parity on ESO137 passed).
+- No native (unprocessed) data; LUNO is CASA- and QuartiCal-processed; ESO137 is one target track.
+- S3 for calibrators (no drifting cells in f3sim-t's calibrator scans).
+- AOFlagger was not tuned: its shipped generic strategy adds 15.1-17.0 % of eligible LUNO cells (T 1.3 %)
+  and 1.6 % on ESO137 (T 13.4-17.1 %), so A is a weak second reference on both data sets.
+- R4 cannot fail on targets and R3 has no lower bound (Amendment 1).
+
+## Owner decisions
+
+1. **Whether the flagger work continues (F4).** The remaining calibrator failure is one morphology:
+   wide-band, scan-long, single-antenna RFI. A follow-up would need it in training (antenna-local bands
+   up to about 400 channels) and a plane that sees it, for example each antenna's amplitude spectrum
+   against the array median after a per-antenna bandpass fit, with a new held-out morphology. Targets
+   need a label scheme that passes its audit; expertly flagged data (issue #1) would replace the
+   consensus labels.
+2. **Licence (F1 item 4).** The calibrator weights are trained on LUNO (observer's permission for use,
+   SARAO acknowledgement) and stay research-only. Nothing is shipped, so the question stays open.
+3. **Disk.** F2's f2sim-t1/t2 (48 GB) and F3's shards (`-13`, `-14`, 14 GB) can be deleted once this
+   result is accepted; generator and seeds rebuild them. The frozen-label target shards of `-08` were
+   deleted (their audit and the T/A flag caches are kept).
+4. **What to tell Landman:** proposed text below; the coordinator posts it after the owner has seen it.
+
+## For the coordinator
+
+- **Commits (branch `fp-f3-flagger`):** `0873b40` protocol; `b141b76` Amendment 1; `6e940b9` code and
+  Stages 1-3; `1fd7253` calibrator weights and τ; `6e0a3e0` target weights and τ; `bdc6c5d`, `757badb`
+  held-out results; the last commit adds cost, decision, archive and this section.
+- **Run outputs (ignored), `D:\rang\outputs\f3-20261110-NN-*`:** `-01-fetch` (LUNO MAIN_3-7, 4.3 GB,
+  receipt), `-02-inputs` (held-out LUNO copies, 4.2 GB), `-03-sim-test` (f3sim-t, 12 GB), `-05` and
+  `-10` (Stop-Z2), `-06` (parity, C1(U3)), `-07` and `-16` (check-all), `-08` (frozen-label target audit
+  and T/A flag caches), `-09` (W3 subset), `-12` (audit diagnosis), `-13` (calibrator shards), `-14`
+  (amended target shards), `-15` and `-17` (training, weights), `-18` (P), `-19` (τ, parity), `-20` and
+  `-21` (held-out), `-22` (cost); each with `.code/`, `.log`, `.time`.
+- **Archive:** [results/f3-flagger.json](results/f3-flagger.json).
+- **`research/STATE.md`, new log paragraph:** "F3, 2026-11-10/11 (implemented; measured; calibrators
+  outcome F; targets stopped at the label audit; [f3-flagger.md](f3-flagger.md)): a 3,433-weight network
+  (`rang.f3flag`, Rust `rang_core::f3flag`, JAX training on the GPU in WSL) on noise-normalised time-
+  and channel-local residual planes and per-antenna medians, trained on LUNO 1830−211 scans with
+  injections and T-and-AOFlagger consensus labels plus F-SIM. Held-out LUNO 1934−638 and 1830−211:
+  F2's missed narrowband and single-baseline RFI now found (0.998, 0.999), 0.73-0.97 × T's flags, but
+  wide-band scan-long antenna-local RFI missed (0.024 against 0.907), so R1 fails (0.640 against
+  0.966). C1 0.343 at 1 and 4 threads (clean), C2 1.00. Targets: consensus labels on ESO137 failed the
+  frozen audit; an amended post hoc arm also fails. Nothing proposed for `rang-core flag`. No novelty
+  claim."
+- **`research/README.md`, new line beside F2:** "- [F3, a second fast supervised flagger](f3-flagger.md):
+  protocol and result; 0.34 of the Tricolour port's wall, finds F2's missed narrowband and
+  single-baseline RFI on held-out LUNO, misses wide-band scan-long antenna-local RFI: outcome F;
+  targets stopped at the label audit."
+- **`research/finish-plan.md`, section 6, Landman:** "F3 ran 2026-11-10/11 (`f3-flagger.md`): outcome F
+  for calibrators (one morphology missed), targets stopped at the label audit; a proposed message for
+  issue #1 is in the note."
+- **`research/tool-timings.md`:** rows added in this branch.
+- **Cleanup:** the WSL CUDA venv `~/Build/tmp/20261110-f3-jaxcuda` and its smoke directory were
+  removed; the uv cache refills itself.
+
+### Proposed message for Landman (not posted)
+
+> Second attempt (F3), MeerKAT L-band, one weights file per class, 3,433 weights, against the Rust
+> Tricolour port (T) running CARACal's first pass:
+>
+> - Speed: 0.34 of T's wall at 1 and 4 threads (LUNO 1934−638: 44.7 s against 130.4 s
+>   single-threaded), same peak memory, 4 tunable kinds against 21.
+> - Calibrators, held-out LUNO scans, 10σ injections: narrowband 0.998, time burst 1.000,
+>   single-baseline 0.999, drifting 0.97 (T 1.00); 0.7-1.0 × T's flags on clean data.
+> - Misses wide-band (180-320 channel) scan-long RFI on one antenna: 0.02 against T's 0.91. Not
+>   comparable yet; not shipped.
+> - Targets: T and AOFlagger consensus labels on ESO137 were too weak to train on. Expertly flagged
+>   data would fix that, if you have any.
