@@ -17,9 +17,10 @@ stale. The directory is bound to one MS and locked (fcntl on POSIX, msvcrt
 on Windows) while a command runs.
 
 Flag backups: before the first write ever made to the MS, its flags are
-saved as the CASA flag version `rang_original`; before each writing stage
-writes, its flags are saved again as `rang_<stage>_<UTC time>`
-(`core_writeback.WriteBack`). A stage that ran before and is run again (it
+saved as the CASA flag version `rang_original`; before each stage writes
+flags, they are saved again as `rang_<stage>_<UTC time>`
+(`core_writeback.WriteBack`). The MODEL_DATA writes of image and selfcal
+leave FLAG alone and save no version (E5-43, research/e5-prereview.md). A stage that ran before and is run again (it
 failed, was killed, or is forced) first gets the flags back from the version
 its last attempt saved, so its input is the same each time.
 

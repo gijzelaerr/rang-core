@@ -145,11 +145,15 @@ CHILD = textwrap.dedent(
     from rang import core_writeback as wb
     ms, when, count = sys.argv[1], sys.argv[2], int(sys.argv[3])
     seen = []
+    def kill():
+        if os.name == "nt":  # no SIGKILL: exit at once, no cleanup (E5-43)
+            os._exit(9)
+        os.kill(os.getpid(), signal.SIGKILL)
     def hook(event, column, start, n):
         if event == when and column in ("FLAG", "CORRECTED_DATA"):
             seen.append(start)
             if len(seen) == count:
-                os.kill(os.getpid(), signal.SIGKILL)
+                kill()
     with wb.WriteBack(ms, chunk_rows=32, on_chunk=hook) as w:
         w.ensure_column("MODEL_DATA")
         w.ensure_column("CORRECTED_DATA")
@@ -160,7 +164,6 @@ CHILD = textwrap.dedent(
 )
 
 
-@pytest.mark.skipif(os.name != "posix", reason="SIGKILL and the fcntl lock are POSIX")
 @pytest.mark.parametrize(
     "when,count",
     [("flushed", 6), ("written", 7), ("backup", 2), ("init", 3)],
@@ -178,7 +181,8 @@ def test_sigkill_leaves_original_flags_recoverable(tmp_path, when, count):
     p = subprocess.run(
         [sys.executable, str(child), str(ms), event, str(count)], check=False
     )
-    assert p.returncode == -9
+    # SIGKILL on POSIX; os._exit(9) on Windows, where the table lock is a no-op.
+    assert p.returncode == (9 if os.name == "nt" else -9)
     with core_ms.open_table(ms) as t:  # the MS still opens
         assert t.nrows == 150
         t.getcol("FLAG")
