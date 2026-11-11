@@ -650,7 +650,21 @@ def _number(v):
 
 
 def _check(path, key, value, errors):
-    """Check one value against its Key; returns the value to keep."""
+    """Check one value against its Key; returns the value to keep. A refused
+    value is replaced by the key's default, so the rest of the resolution
+    never meets it and the user gets the error report, not a traceback (E5,
+    research/e5-prereview.md)."""
+    n = len(errors)
+    kept = _check_value(path, key, value, errors)
+    if len(errors) == n:
+        return kept
+    default = copy.deepcopy(key.default)
+    if key.kind.rstrip("?") in ("terms", "targets"):
+        return _check_value(path, key, default, [])
+    return default
+
+
+def _check_value(path, key, value, errors):
     kind = key.kind
     optional = kind.endswith("?")
     base = kind.rstrip("?")
