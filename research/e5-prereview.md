@@ -9,7 +9,7 @@ Base: local `main` at `3eab67c`, which is ahead of `origin/main` (`c2fe7cc`) by 
 CI (wheels run 43004680641 at `c2fe7cc`) is green on all five wheels, the sdist and ten test cells.
 
 **Counts:** 52 findings, numbered once (E5-01 to E5-52).
-- **Release-blocking:** 12. Fixed here: 5. Open: 7 (E4: 3; editorial after E2/E3: 2; owner: 1; proposed: 1).
+- **Release-blocking:** 12. Fixed here: 5, E5-02 in part (gemclean's `-model-column DATA` open). Open: 7 (E4: 3; editorial after E2/E3: 2; owner: 1; proposed: 1).
 - **Should-fix:** 26. Fixed here: 6. Open: 20, of which 4 need the owner.
 - **Later:** 14 groups.
 
@@ -20,9 +20,11 @@ Pending work is not counted as a finding: the 0.1.0 version, the Alpha classifie
 ## 1. Method
 
 Four read-only review agents (CLI and configuration; write-back safety; packaging and licence; docs against code), each told to verify
-every claim by running it or quoting the code. Their notes are in the session notes folder (`e5-cli.md`, `e5-writeback.md`,
-`e5-packaging.md`, `e5-docs.md`, about 1,250 lines). Each release-blocking and should-fix item fixed here was reproduced first, and
-its test fails on main and passes on the branch.
+every claim by running it or quoting the code. Their notes, with evidence and file:line for every item including the later ones, are
+archived in [results/e5-prereview-notes/](results/e5-prereview-notes/) (`e5-cli.md`, `e5-writeback.md`, `e5-packaging.md`,
+`e5-docs.md`, about 1,290 lines; local paths replaced by `<scratch>`, `<worktree>` and `~`). Each item fixed here was reproduced first.
+Each fix's test fails without the fix and passes with it, except two: `bbb2a9d`'s test fails at `25e1809` (it guards against that
+commit's over-broad rule) and passes on main; `045f629`'s is a guard on files that agree on main.
 
 Two checks were run by hand:
 - **The installed wheel, outside any checkout.** CI's `rang_core-0.1.0-cp310-abi3-win_amd64.whl` (run 43004680641), installed in a fresh
@@ -145,11 +147,13 @@ the owner has not answered; **internal** means nothing a user sees.
 | 33 | CARACal strategy 1 and its refant leakage limit (X-Y drift 13-22° rms for refants other than m000 on A1); 530 flag cells against Tricolour; `average_time` off by default, differs from CubiCal's estimator | **state**. `average_time` is not on main yet (only on E2's branches) |
 
 New decisions from this review: E5-11 (simms licence), E5-20 (receipt hashing), E5-28 (default stages), E5-33 (CARACal and msutils
-classification), E5-36 (PyPI environment protection).
+classification), E5-36 (PyPI environment protection). Two rules chosen here, provisional and open to the owner: E5-03 saves the
+replaced flags on every rerun (one FLAG-size copy each, about 22 GB on E2-A's 180 GB MS) rather than comparing first; E5-02 keeps
+`selfcal.input_column: DATA` valid when nothing is copied into it.
 
 ## 4. Fixes on `e5-prereview`
 
-One commit per fix, each with a test that fails on `3eab67c` and passes here:
+One commit per fix, each with a test (section 1 says which fail on `3eab67c`):
 
 | Commit | ID | Test |
 | --- | --- | --- |
@@ -175,11 +179,16 @@ Files touched that E2's branches (`fp-e2-acceptance`, `fp-e2-averaging`) also ch
 and one line in `resolve`; E2's hunks are in `SCHEMA` and the refusals. Also `core_pipeline.py` in `RunDir`, `restore_before`,
 `_selfcal_input` and `execute`; E2's hunk is in `stage_image`. They do not overlap; a merge should be clean.
 
-**Checks run:** ruff check and format on every changed file. Targeted pytest on Windows (Python 3.14.10, the main checkout's
+**Checks run:** check-all's light steps (`ruff check` and `ruff format --check` on python, examples and tests with ruff 0.17.3,
+`git diff --check main..HEAD`) pass. The Windows kill-and-resume of section 1, rerun on the branch's code: FLAG and `rang_original`
+equal the reference, and the rerun added `rang_rerun_<UTC>`. Also every other light test file that imports a changed module
+(`test_calmodels`, `test_core_cli`, `test_d1_docs` including `test_cli_page_matches_help`, `test_g7_defaults`, `test_g8_gemclean`,
+`test_p12_rename`, `test_w3_chunking`, `test_w3b_chainchunks`, `test_w4_1_receipts`, `test_w5_recipes`): 105 passed, 1 skipped. Targeted pytest on Windows (Python 3.14.10, the main checkout's
 `_core.pyd`): `test_w2_commands`, `test_c5_selfcal`, `test_c5b_selfcal_masks`, `test_e0_refant_extend`, `test_c2e_calibrate`,
 `test_c6w_polwire`, `test_w1_writeback`, `test_c4b_applycal`, `test_w4_unsupported`, `test_g6_model`, `test_w4_5_release` and
 `test_e5_prereview`: 109 passed, 12 skipped (the POSIX-only ones) at `62d25c9`; then 41 passed, 3 skipped on the three files the last
-commit touched. **The full `tools/check-all.sh` was not run** (heavy lock busy); the coordinator runs it at merge.
+commit touched. **Not run:** the full `tools/check-all.sh` (heavy lock busy; the coordinator runs it at merge), and every POSIX-only
+test (the 12 skips, among them the suite's SIGKILL and resume tests): they need Linux or macOS.
 
 ## 5. Release checklist (not findings)
 
