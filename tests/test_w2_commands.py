@@ -713,6 +713,21 @@ def test_the_running_probe_never_signals_off_posix_or_itself(monkeypatch):
     assert pipe._alive({"host": "elsewhere", "pid": 1}) is False
 
 
+def test_a_second_command_on_a_locked_run_directory_is_refused(tmp_path):
+    """E5: the lock holds on every OS (Windows had none before), so a second
+    command cannot write the same MS while the first runs."""
+    ms = tmp_path / "x.ms"
+    second = pipe.RunDir(tmp_path / "run", ms)
+    with (
+        pipe.RunDir(tmp_path / "run", ms).locked(),
+        pytest.raises(pipe.Refused, match="in use by another rang-core command"),
+        second.locked(),
+    ):
+        pass
+    with pipe.RunDir(tmp_path / "run", ms).locked() as again:
+        assert again.state["stages"] == {}
+
+
 def test_research_stages_moved(capsys):
     with pytest.raises(SystemExit) as exc:
         core_cli.main(["flags", "-h"])

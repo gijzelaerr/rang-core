@@ -12,8 +12,8 @@ the flag version saved before it wrote, a summary and any error. `execute`
 skips a finished stage whose hash is unchanged, refuses one whose
 configuration changed unless it is forced, and runs a failed, interrupted or
 stale one again. A stage that finishes marks every later finished stage
-stale. The directory is bound to one MS and locked (fcntl, POSIX only) while
-a command runs.
+stale. The directory is bound to one MS and locked (fcntl on POSIX, msvcrt
+on Windows) while a command runs.
 
 Flag backups: before the first write ever made to the MS, its flags are
 saved as the CASA flag version `rang_original`; before each writing stage
@@ -709,6 +709,28 @@ def _selected_rows(columns, field_ids, scans):
 # -- the run directory -----------------------------------------------------------
 
 
+def _lock_file(handle):
+    """Take an exclusive, non-blocking lock on an open file and return the
+    function that releases it: fcntl on POSIX, msvcrt's lock on the first byte
+    on Windows, which had no lock before E5 (research/e5-prereview.md).
+    Raises OSError when another open handle holds the lock."""
+    try:
+        import fcntl
+    except ImportError:
+        import msvcrt
+
+        handle.seek(0)
+        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+
+        def unlock():
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+
+        return unlock
+    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    return lambda: fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 class RunDir:
     """The run directory of one MS: `state.json`, a lock, stage outputs."""
 
@@ -724,18 +746,16 @@ class RunDir:
         self.path.mkdir(parents=True, exist_ok=True)
         with open(self.path / "lock", "a+", encoding="utf-8", newline="\n") as handle:
             try:
-                import fcntl
-            except ImportError:  # Windows: no lock (research/w2-commands.md)
-                fcntl = None
-            if fcntl is not None:
-                try:
-                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-                except OSError as exc:
-                    raise Refused(
-                        f"{self.path} is in use by another rang-core command"
-                    ) from exc
-            self.state = self.load()
-            yield self
+                unlock = _lock_file(handle)
+            except OSError as exc:
+                raise Refused(
+                    f"{self.path} is in use by another rang-core command"
+                ) from exc
+            try:
+                self.state = self.load()
+                yield self
+            finally:
+                unlock()
 
     def load(self):
         if not self.state_path.is_file():
