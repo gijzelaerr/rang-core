@@ -13,7 +13,9 @@ The interface C4b (CORRECTED_DATA, FLAG, WEIGHT), G6 (MODEL_DATA) and W2
             flag = w.read("FLAG", start, n) | new_flags(start, n)
             w.write_flags(start, flag)
 
-`WriteBack` holds the core writer's lock on the MS for the whole session.
+`WriteBack` holds the core writer's lock on the MS for the whole session
+on Linux only; on Windows and macOS nothing stops a second writer (E5),
+and `rang-core` refuses only a second command on the same run directory.
 Before its first write it saves the MS's FLAG and FLAG_ROW as a CASA flag
 version (`<ms>.flagversions/flags.<flag_backup>`, default `rang_original`)
 unless that version already exists, and it keeps a journal
@@ -68,6 +70,10 @@ DEFAULT_INIT = {
     "SIGMA_SPECTRUM": "sigma",
 }
 FLAG_COLUMNS = ("FLAG", "FLAG_ROW")
+# Chunks of FLAG written by any WriteBack in this process (E5): the pipeline
+# compares it before and after a stage to learn whether the stage changed
+# the flags that later stages start from.
+_flag_puts = 0
 TILE_BYTES = 1 << 20
 CHUNK_BYTES = 64 << 20
 
@@ -373,8 +379,15 @@ class WriteBack:
 
     # -- writes ----------------------------------------------------------------
     def _put(self, name, start, values):
+        global _flag_puts
+        if name == "DATA":
+            # Only FLAG is backed up, so the observed visibilities are never
+            # written (E5, research/e5-prereview.md).
+            raise ValueError("DATA is never written")
         n = values.shape[0]
         self.table.putcol(name, values, int(start))
+        if name == "FLAG":
+            _flag_puts += 1
         if self._on_chunk is not None:
             self._on_chunk("written", name, int(start), n)
         self.table.flush()
@@ -554,6 +567,11 @@ def backup_flags(ms, name=DEFAULT_BACKUP, comment="", chunk_rows=None):
     rows = chunk_rows or chunk_rows_for(layout(ms)["cell"])
     flagversions.save(ms, name, comment, chunk_rows=rows)
     return True
+
+
+def flag_writes():
+    """How many chunks of FLAG this process has written through WriteBack."""
+    return _flag_puts
 
 
 def restore_flags(ms, name=DEFAULT_BACKUP, chunk_rows=None):

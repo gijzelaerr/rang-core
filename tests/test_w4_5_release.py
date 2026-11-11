@@ -58,7 +58,11 @@ def lock_versions(path):
 
 def test_versions_agree():
     version = pyproject_version()
-    assert re.fullmatch(r"\d+\.\d+\.\d+([ab]\d+|rc\d+)?", version)
+    # No alpha, beta or rc versions: the owner releases only finished
+    # versions (E5, research/e5-prereview.md).
+    assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+    cff = re.search(r"^version: (\S+)$", _text("CITATION.cff"), re.MULTILINE)
+    assert cff and cff.group(1) == version, "CITATION.cff"
     crates = {
         "Cargo.toml": "rang-sim",
         "core/Cargo.toml": "rang-core",
@@ -164,6 +168,18 @@ def test_pyproject_metadata():
         assert f'"{classifier}"' in project
     # A PEP 639 licence expression: a License classifier would be rejected.
     assert 'license = "GPL-3.0-or-later"' in project
+    # E5: the MIT and BSD notices of the translated code ship in every wheel.
+    assert 'license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]' in project
+    notices = _text("THIRD-PARTY-NOTICES.txt")
+    for path, holder in (
+        ("core/src/solve.rs", "Copyright (c) 2022 Jonathan Simon Kenyon"),
+        ("core/src/predict.rs", "Copyright (c) 2019, National Research Foundation"),
+        (
+            "core/src/sumthreshold.rs",
+            "Copyright (c) 2019, National Research Foundation",
+        ),
+    ):
+        assert holder in notices and path in notices, path
     assert "License ::" not in project
     urls = _section(_text("pyproject.toml"), "project.urls")
     for name in ("Documentation", "Repository", "Issues"):
@@ -187,6 +203,36 @@ def test_sdist_excludes_the_research_tree():
         assert f'{{ path = "{tree}/**/*", format = "sdist" }}' in maturin, tree
     # gemclean's simulator includes data/meerkat.itrf.txt at compile time (G8).
     assert '{ path = "data/**/*", format = "sdist" }' not in maturin
+    assert '{ path = "data/meerkat.itrf.txt", format = "sdist" }' not in maturin
+    # E5-37: checkout tools stay out; tools/wheel/ is what tests the wheel.
+    for tool in (
+        ".claude/**/*",
+        "tools/a1_casa.sh",
+        "tools/a1_checks.sh",
+        "tools/e2e/**/*",
+        "tools/gain_hash_gate.py",
+        "tools/heavy_lock.py",
+    ):
+        assert f'{{ path = "{tool}", format = "sdist" }}' in maturin, tool
+    assert '{ path = "tools/wheel/**/*", format = "sdist" }' not in maturin
+    # Owner decision E5-11: the three tables only core/examples/ reads stay out.
+    for name in ("kat7", "vla-c", "wsrt"):
+        assert f'{{ path = "data/{name}.itrf.txt", format = "sdist" }}' in maturin
+
+
+def test_the_antenna_tables_are_recorded_as_facts():
+    """Owner decision E5-11: the simms coordinates are facts, not code."""
+    licence = _text("docs/licence.md")
+    assert "Facts, not code" in licence and "owner decision E5-11" in licence
+    assert "| MeerKAT ITRF positions from simms | GPL-2.0" not in licence
+    meerkat = ROOT / "data" / "meerkat.itrf.txt"
+    if meerkat.exists():  # every row is a position record, nothing else
+        rows = [
+            r.split()
+            for r in meerkat.read_text(encoding="utf-8").splitlines()
+            if r.strip() and not r.lstrip().startswith("#")
+        ]
+        assert rows and all(len(r) == 6 for r in rows)
 
 
 def _job(workflow, name):
@@ -210,6 +256,9 @@ def test_release_jobs_check_the_tag():
     release = _job(workflow, "release")
     assert "pyproject.toml" in release
     assert release.index("CHANGELOG.md") < release.index("--notes-file")
+    # E5: PyPI only after the release job's checks and notes have passed.
+    needs = re.search(r"^    needs: \[(.*)\]$", _job(workflow, "publish"), re.MULTILINE)
+    assert "release" in [n.strip() for n in needs.group(1).split(",")]
 
 
 # The first major version of each action that runs on Node 24.
@@ -232,3 +281,39 @@ def test_actions_run_on_node24(workflow):
     assert uses
     for action, major in uses:
         assert int(major) >= NODE24[action], (action, major)
+
+
+def test_the_licence_table_lists_every_upstream():
+    """Owner decision E5-33: the ported, adapted and reimplemented upstreams
+    are all listed; CARACal and msutils as behaviour reimplemented."""
+    licence = _text("docs/licence.md")
+    for name in (
+        "codex-africanus",
+        "katdal",
+        "CARACal",
+        "msutils",
+        "CASA",
+        "casacore 3.8.1",
+        "casacore-data",
+    ):
+        assert name in licence, name
+    section = licence.split("Behaviour reimplemented", 1)[1]
+    rows = [r for r in section.splitlines() if r.startswith("| ")]
+    end = next(i for i, r in enumerate(rows) if r.startswith("| casacore 3.8.1"))
+    table = rows[: end + 1]
+    assert any(r.startswith("| CARACal") for r in table)
+    assert any(r.startswith("| msutils") for r in table)
+    assert any("confirm GPL-2.0-or-later" in r for r in table)
+
+
+def test_the_recipes_extra_resolves_on_every_declared_python():
+    """E5-38: stimela 2.1.4 requires Python < 3.14, a version the package
+    declares, so the extra carries a marker instead of failing to resolve."""
+    from packaging.requirements import Requirement
+
+    extras = _section(_text("pyproject.toml"), "project.optional-dependencies")
+    line = re.search(r"^recipes = \[(.*)\]$", extras, re.MULTILINE).group(1)
+    (stimela,) = [Requirement(s.strip().strip('"')) for s in line.split('",')]
+    assert stimela.name == "stimela" and str(stimela.specifier) == "==2.1.4"
+    assert stimela.marker.evaluate({"python_version": "3.13"})
+    assert not stimela.marker.evaluate({"python_version": "3.14"})

@@ -2,7 +2,43 @@
 
 Contributions should make a scientific claim easier to reproduce, test or
 reject. The full guide is {gh}`CONTRIBUTING.md`; the working conventions are
-in {gh}`AGENTS.md`.
+in {gh}`AGENTS.md`: Part 1 for everyone, Part 2 for the owner only.
+
+## Pull requests
+
+The owner commits to `main`; everyone else, people and their coding agents
+alike, contributes through pull requests.
+
+1. Open an issue or a draft pull request first for anything larger than a
+   fix, so the owner can say whether it fits {gh}`research/vision.md`.
+2. Branch from current `main` (or fork); one topic per pull request.
+3. A scientific or performance claim needs a proposal note in `research/`
+   (hypothesis, data, oracle, frozen tolerances, decision rule), committed
+   before the code that tests it, and the measurement with its seeds, run
+   paths and receipts. Nulls and failures are reported, not dropped.
+   {doc}`agents/propose-and-measure` is the procedure.
+4. Run the full local checks (below), under
+   `python tools/heavy_lock.py run -- ...` on a shared host, and paste the
+   summary into the pull request.
+5. CI runs the `tests` workflow on every pull request (ruff, cargo fmt, clippy,
+   cargo test, pytest on Linux and Windows) and the `docs` workflow (extension build,
+   notebooks on the fixture, the CLI page check, `sphinx-build -W`), and the
+   five-platform `wheels` workflow when `core/`, `src/`, `Cargo.*`, `.cargo/`,
+   `pyproject.toml` or `tools/wheel/` change (a subset of the tests, on the
+   built wheels). CI has no archives or oracles (CASA, QuartiCal, WSClean), so
+   their gates run only in step 4.
+6. Say what changed, what was measured and what was not checked. The owner
+   reviews and merges.
+
+An agent may do all of this for you; it commits under your name and address.
+{doc}`agents/index` are written for any agent (Claude, Codex or others);
+Claude Code also finds them as skills in `.claude/skills/`.
+
+```{toctree}
+:hidden:
+
+agents/index
+```
 
 ## Languages
 

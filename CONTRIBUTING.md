@@ -2,6 +2,45 @@
 
 Contributions should make a scientific claim easier to reproduce, test or reject. Use Rust for numerical kernels and Python for interfaces, experiments and analysis. The documentation is at <https://pythonic.nl/rang-core/>.
 
+## The pull-request route
+
+The owner commits to `main`; everyone else, people and their coding agents
+alike, contributes through pull requests. The working rules for both are in
+`AGENTS.md`, Part 1 (Part 2 is the owner's own and does not apply to you).
+
+1. **Open an issue or a draft pull request first** for anything larger than a
+   fix, so the owner can say whether it fits `research/vision.md`.
+2. **Branch** from current `main` (or fork). One topic per pull request.
+3. **For a scientific or performance claim, freeze a proposal note first:**
+   commit `research/<id>-<name>.md` with the hypothesis, data, oracle, frozen
+   tolerances and the decision rule before the code that tests it. The
+   measurement, its seeds, run paths and receipts go in the same note under
+   "Measured result"; nulls and failures are reported, not dropped. The
+   novelty rule (`AGENTS.md`, "Claims") decides what may be called a gain.
+   `docs/agents/propose-and-measure.md` is the procedure.
+4. **Run the full local checks** below (`python -m rang.check`), under
+   `python tools/heavy_lock.py run -- ...` on a shared host, and paste the
+   summary (`overall: PASS`, or the failing steps) into the pull request.
+5. **CI.** The `tests` workflow runs on every pull request: ruff, ruff format,
+   cargo fmt, clippy (warnings are errors), cargo test for the root crate and
+   `core/`, and pytest on Linux and Windows against the branch's extension.
+   The `docs` workflow also runs on every pull request: it builds the
+   extension, executes the notebooks on the public fixture, checks the CLI page
+   and builds the site with `sphinx-build -W`. The `wheels` workflow (five
+   platforms) runs when the pull request touches `core/`, `src/`, `Cargo.*`,
+   `.cargo/`, `pyproject.toml` or `tools/wheel/`, and tests each built wheel
+   with a subset of the Python tests. CI has no archives or oracles (CASA,
+   QuartiCal, WSClean), so their gates run only in step 4, which must be done
+   and reported.
+6. **Describe** what changed, what was measured and what was not checked.
+   The owner reviews and merges; defaults and scientific status change only on
+   the owner's decision.
+
+**Agents.** Any agent may do these steps for you; it commits under your name
+and address, not a bot identity. Point it at `AGENTS.md` and at the task
+procedures in `docs/agents/` (Claude Code also finds them as skills in
+`.claude/skills/`).
+
 ## Local checks
 
 Create the Python environment described in the README, then run all checks before committing. The optional tests use every extra below; with fewer, more of them skip:
@@ -88,8 +127,10 @@ full local checks, commit and push to `main`, then tag:
 refuses a tag that differs from the version (in both the release and the
 publish job, before any upload), takes the release notes from the
 changelog section, and publishes to PyPI by trusted publishing. The sdist
-carries only the crates, `python/`, `tests/` and `tools/wheel/`
-(`[tool.maturin] exclude` in `pyproject.toml`).
+carries only the crates, `data/README.md` and `data/meerkat.itrf.txt`,
+`python/`, `tests/`, `tools/wheel/`, README, CHANGELOG, `CITATION.cff`,
+LICENSE and `THIRD-PARTY-NOTICES.txt` (`[tool.maturin] exclude` in
+`pyproject.toml`).
 
 ## Scientific reporting
 

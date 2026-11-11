@@ -16,6 +16,52 @@ the release notes are the section of this file for that version.
   of rows, and the memory plan counts the averaged rows. E2's whole-scan solves on 4096-channel
   MeerKAT data (176 GiB per interval unaveraged) then fit `data.memory_limit_gb: 8`. Off, every
   solve and the stage hash are unchanged. Refused with a `complex` term.
+- New: `selfcal.average_time` (default false; task E2): Sp and Sa solve on data and model averaged
+  in time within each solution interval, as `calibrate.average_time` does, so CARACal's solint 120 fits
+  8 GiB at 4,096 channels (333 GiB per interval without). Not CubiCal's estimator, which solves every
+  sample (owner item 33(3)). Off, the stage hash is unchanged. Refused with Sd.
+
+- Changed (owner decisions on the E5 pre-review, `research/e5-prereview.md` section 3): receipts are
+  `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file
+  sizes and mtimes), not a full content hash; the stage summaries hash the flags, gain solutions and images
+  written and name the tables and settings behind a written column (E5-20). This holds for every directory
+  a command modified, not only the MS. The default `run.stages` is the whole chain, flag, calibrate, apply, image, selfcal (was flag,
+  calibrate, image, which imaged uncalibrated DATA) (E5-28). The simms antenna tables `data/*.itrf.txt` are
+  recorded in `docs/licence.md` as facts, not code; the sdist carries only `meerkat.itrf.txt`, which GeMClean
+  compiles in (E5-11). `docs/licence.md` lists codex-africanus and katdal's test helpers (BSD-3), and as
+  behaviour reimplemented with no code copied CARACal's `get_refant`, msutils, CASA's flag extension,
+  fluxscale and applycal semantics and casacore's table formats, plus casacore-data's observatory
+  positions (E5-33). `rang/data/README.md` records the source and SHA256 of `casacore_observatories.json`
+  (E5-34). The sdist leaves out `.claude/` and the checkout tools under `tools/` other than `tools/wheel/`,
+  and CONTRIBUTING lists what it carries (E5-37). The `recipes` extra installs stimela 2.1.4 on Python 3.13
+  and older only, so `pip install 'rang-core[recipes]'` resolves on 3.14 (E5-38).
+
+- New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
+  Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration
+  and strategy in `examples/ms-to-image/`; the wheels workflow's job `e2e` runs the same chain on all
+  five wheels (`tools/e2e/run.py`); `docs/cli.md` gains `gemclean -h`. `examples/a1_simtruth.py`
+  finds the checkout's antenna table when rang-core is installed from a wheel.
+
+- Fixed (E5 pre-review, `research/e5-prereview.md`): after `rang-core run ... --force flag`, a stale later stage
+  put back the flags saved before its earlier attempt (the old flag output); later stages now start from the
+  flags the rerun stage left, whenever that stage restored or wrote FLAG. Before a rerun restores a stage's
+  earlier flags, the flags it replaces are saved as the flag version `rang_rerun_<UTC time>`, so flags set
+  outside rang are never lost (one more version per rerun). DATA is never written: `apply.column: DATA` and
+  `selfcal.model_column: DATA` are configuration errors, selfcal refuses to copy apply's output into an
+  `input_column: DATA`, and `rang.core_writeback.WriteBack` refuses DATA. The run directory is locked on
+  Windows too, so a second `rang-core` command on the same MS is refused. Malformed configuration values give
+  the error report (exit 2), not a traceback. The changed-configuration refusal names `--force` forms both
+  commands accept. The wheels and sdist carry `THIRD-PARTY-NOTICES.txt` (QuartiCal's MIT, codex-africanus's
+  and Tricolour's BSD-3 notices). The release job publishes to PyPI only after its own checks pass. The MS
+  table lock holds on Linux only, as the docs now say.
+
+- Research (task F3, `research/f3-flagger.md`): a second learned RFI flagger, not wired into
+  `rang-core flag`. New `rang.f3flag` (wrapper W3, features reference, injections, labels, measures),
+  `rang.f3net` (the JAX network for training), the Rust kernel `rang_core::f3flag` with
+  `rang._core.f3flag_features` and `f3flag_logits`, the AOFlagger driver
+  `tools/oracles/aoflagger/f3_aoflag.py` and `examples/f3_*.py`. `rang.f2flag_sim` gains the
+  held-out observation `f3sim-t` (seeds registered in `rang.simtruth.SEEDS`).
+
 - New: `gemclean` is in the wheel (task G8, `research/g8-wheel.md`): the console script `gemclean`
   (and `python -m rang.gemclean`) runs GeMClean's command line inside the extension
   (`rang._core.gemclean_main`); no second binary ships. The command line moved from

@@ -300,9 +300,13 @@ def test_flag_writes_the_port_flags_with_backups_and_a_receipt(tmp_path):
     run = ms.with_name("x.ms.rang-run")
     receipts = sorted((run / "receipts").glob("flag-*.rang-receipt.json"))
     receipt = json.loads(receipts[0].read_text(encoding="utf-8"))
-    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 4
+    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 5
     assert receipt["command"][:2] == ["rang-core", "flag"] and receipt["exit"] == 0
-    assert any(o.get("modified") for o in receipt["outputs"])
+    # Owner decision E5-20: the modified MS by its listing hash only; the
+    # stage summary hashes the flags written.
+    (modified,) = [o for o in receipt["outputs"] if o.get("modified")]
+    assert modified["path"] == ms.as_posix() and "listing_sha256" in modified
+    assert "tree_sha256" not in modified
     summary = json.loads((run / "flag" / "summary.json").read_text(encoding="utf-8"))
     assert [g["field"] for g in summary["groups"]] == ["CAL", "TGT"]
     # A second flag is skipped: nothing written, no new version.
@@ -356,7 +360,7 @@ def test_calibrate_writes_the_core_solve_bit_for_bit(tmp_path):
     assert len(unique) == 20
 
 
-def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path):
+def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
     cli("flag", config, ms)
@@ -370,10 +374,16 @@ def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path):
     with pytest.raises(SystemExit) as exc:
         cli("flag", changed, ms)
     assert exc.value.code == 2
+    # E5: the hint names forms both commands accept.
+    hint = capsys.readouterr().err
+    assert "`rang-core flag ... --force`" in hint
+    assert "`rang-core run ... --force flag`" in hint
     cli("flag", config, ms, "--force")
     # The forced rerun starts from the flags saved before the first run.
     assert np.array_equal(column(ms, "FLAG"), first)
-    assert len(flagversions.versions(ms)) == 3
+    # rang_original, the two attempts' versions and (E5) the flags the
+    # restore replaced.
+    assert len(flagversions.versions(ms)) == 4
     state = json.loads(
         (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
     )
@@ -381,6 +391,78 @@ def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path):
         "rang_flag_"
     )
     assert state["stages"]["calibrate"]["status"] == "stale"
+
+
+def test_a_rerun_saves_the_flags_its_restore_replaces(tmp_path):
+    """E5 (WB-06): flags set outside rang after a stage ran survive its
+    forced rerun as a flag version, rang_rerun_<time>."""
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path)
+    cli("--no-receipt", "flag", config, ms)
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        flag = t.getcol("FLAG")
+        flag[100:140] = True  # flagged by hand, say with CASA flagdata
+        t.putcol("FLAG", flag)
+    by_hand = column(ms, "FLAG")
+    cli("--no-receipt", "flag", config, ms, "--force")
+    state = json.loads(
+        (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
+    )
+    saved = state["stages"]["flag"]["saved_before_restore"]
+    assert saved.startswith("rang_rerun_")
+    assert np.array_equal(flagversions.load(ms, saved)[0], by_hand)
+
+
+def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
+    """E5: after `--force flag` with a changed strategy, the stale apply stage
+    must not restore the flags saved before its earlier attempt (the old flag
+    output); FLAG equals a fresh run with the new configuration."""
+    rerun, fresh = make_ms(tmp_path / "one.ms"), make_ms(tmp_path / "two.ms")
+    a = write_config(
+        tmp_path, "run: {stages: [flag, calibrate, apply]}\n", name="a.yaml"
+    )
+    b = tmp_path / "b.yaml"
+    b.write_text(
+        a.read_text(encoding="utf-8").replace(
+            "flag: {strategy: strategy.yaml}",
+            "flag: {strategy: strategy.yaml, fields: [CAL]}",
+        ),
+        encoding="utf-8",
+    )
+    cli("--no-receipt", "run", a, rerun)
+    old = column(rerun, "FLAG")
+    cli("--no-receipt", "run", b, rerun, "--force", "flag")
+    cli("--no-receipt", "run", b, fresh)
+    assert not np.array_equal(column(fresh, "FLAG"), old)
+    assert np.array_equal(column(rerun, "FLAG"), column(fresh, "FLAG"))
+    assert np.array_equal(
+        column(rerun, "CORRECTED_DATA"), column(fresh, "CORRECTED_DATA"), equal_nan=True
+    )
+
+
+def test_a_stage_that_wrote_no_flags_leaves_the_later_restore_in_place(tmp_path):
+    """E5: a forced complex calibrate writes no FLAG, so the stale apply
+    still restores the flags saved before its own earlier attempt, and
+    flags it added (here set by hand in its place) do not survive."""
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(
+        tmp_path, "run: {stages: [flag, calibrate, apply]}\n", name="a.yaml"
+    )
+    cli("--no-receipt", "run", config, ms)
+    first = column(ms, "FLAG")
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        flag = t.getcol("FLAG")
+        # What an earlier apply might have added, on target rows that
+        # calibrate does not read.
+        flag[200:230] = True
+        t.putcol("FLAG", flag)
+    assert not np.array_equal(column(ms, "FLAG"), first)
+    cli("--no-receipt", "run", config, ms, "--force", "calibrate")
+    state = ms.with_name("x.ms.rang-run") / "state.json"
+    stages = json.loads(state.read_text(encoding="utf-8"))["stages"]
+    assert stages["apply"]["summary"]["restored_before"]
+    # The same configuration again: the same flags as the first run.
+    assert np.array_equal(column(ms, "FLAG"), first)
 
 
 @POSIX
@@ -713,6 +795,21 @@ def test_the_running_probe_never_signals_off_posix_or_itself(monkeypatch):
     assert pipe._alive({"host": "elsewhere", "pid": 1}) is False
 
 
+def test_a_second_command_on_a_locked_run_directory_is_refused(tmp_path):
+    """E5: the lock holds on every OS (Windows had none before), so a second
+    command cannot write the same MS while the first runs."""
+    ms = tmp_path / "x.ms"
+    second = pipe.RunDir(tmp_path / "run", ms)
+    with (
+        pipe.RunDir(tmp_path / "run", ms).locked(),
+        pytest.raises(pipe.Refused, match="in use by another rang-core command"),
+        second.locked(),
+    ):
+        pass
+    with pipe.RunDir(tmp_path / "run", ms).locked() as again:
+        assert again.state["stages"] == {}
+
+
 def test_research_stages_moved(capsys):
     with pytest.raises(SystemExit) as exc:
         core_cli.main(["flags", "-h"])
@@ -725,7 +822,8 @@ def test_config_check_and_defaults(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
     cli("config", "check", config, ms)
-    assert "valid for flag, calibrate, image" in capsys.readouterr().out
+    # Owner decision E5-28: the default run.stages is the whole chain.
+    assert "valid for flag, calibrate, apply, image, selfcal" in capsys.readouterr().out
     with pytest.raises(SystemExit):
         cli("config", "check", DATA / "e2a.yaml")
     err = capsys.readouterr().err

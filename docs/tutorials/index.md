@@ -1,13 +1,31 @@
 # Tutorials
 
-Five notebooks teach the chain on real MeerKAT L-band data, four stations at a
+## Start here: from a Measurement Set to an image
+
+{doc}`notebooks/00-ms-to-image` takes a MeerKAT Measurement Set to a
+calibrated, deconvolved image with `rang-core run config.yaml my.ms` and
+`gemclean` ({gh}`research/e4-tutorial.md`). It runs on A1 small, rang's
+simulated L-band observation (16 antennas, 64 channels, 41 MB, written from
+seeds in about 4 s; {gh}`research/a1-simtruth.md`), so every number is
+checked against the truth, and the whole notebook takes under a minute on a
+laptop. It explains each section of {gh}`examples/ms-to-image/config.yaml`.
+It shows each output: the flag versions and their restore, FLAG against the
+RFI mask, the CASA calibration tables, MODEL_DATA, CORRECTED_DATA, the FITS
+images, the receipt and resume. It also shows two refusals, circular feeds
+and an unimplemented setting. The CI job `e2e` of the wheels workflow runs
+the same configuration on all five wheels ({gh}`tools/e2e/run.py`). Its
+section on real data is a placeholder until task E2 has results.
+
+## The chain on real data, step by step
+
+Five notebooks look inside the chain on real MeerKAT L-band data, four stations at a
 time ({gh}`research/d2-notebook.md`). They run on the public SKA pointing
 fixture (`outer_scans.zip`, 45 MB), which `rang.notebook.data.download_fixture`
 downloads into a cache directory you choose and verifies against its pinned
 SHA256. Sections that need the four-station LUNO slice (about 755 MB by HTTP
 range fetch) are skipped when it is absent.
 
-The pages below are rendered from notebooks executed by the documentation
+The pages are rendered from notebooks executed by the documentation
 workflow on every push, on the fixture alone (`RANG_NOTEBOOK_LUNO=0`) and
 without CARACAL's strategy YAMLs, so the comparator sections use the teaching
 strategy. The replays they show are exploratory; the real results are read
@@ -75,6 +93,7 @@ kernel; on these pages they appear as static output.
 ```{toctree}
 :maxdepth: 1
 
+notebooks/00-ms-to-image
 notebooks/01-data-and-rank
 notebooks/02-flagging-step-by-step
 notebooks/03-gains-and-tv

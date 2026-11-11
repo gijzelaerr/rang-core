@@ -497,8 +497,10 @@ SCHEMA = {
         ),
     },
     "run": {
+        # Owner decision E5-28 (research/e5-prereview.md): the whole chain, so
+        # that `rang-core run` never images uncalibrated DATA by default.
         "stages": _k(
-            ["flag", "calibrate", "image"],
+            list(STAGES),
             "stages",
             "stages of rang-core run, executed in the order flag, calibrate, apply, "
             "image, selfcal",
@@ -669,7 +671,21 @@ def _number(v):
 
 
 def _check(path, key, value, errors):
-    """Check one value against its Key; returns the value to keep."""
+    """Check one value against its Key; returns the value to keep. A refused
+    value is replaced by the key's default, so the rest of the resolution
+    never meets it and the user gets the error report, not a traceback (E5,
+    research/e5-prereview.md)."""
+    n = len(errors)
+    kept = _check_value(path, key, value, errors)
+    if len(errors) == n:
+        return kept
+    default = copy.deepcopy(key.default)
+    if key.kind.rstrip("?") in ("terms", "targets"):
+        return _check_value(path, key, default, [])
+    return default
+
+
+def _check_value(path, key, value, errors):
     kind = key.kind
     optional = kind.endswith("?")
     base = kind.rstrip("?")
@@ -910,8 +926,10 @@ def _selfcal_errors(sc):
         errors.append(
             ("selfcal", "input_column, model_column and output_column must differ")
         )
-    if sc["output_column"] == "DATA":
-        errors.append(("selfcal.output_column", "DATA is never written"))
+    # input_column DATA is only read; the stage refuses to copy into it.
+    for key in ("model_column", "output_column"):
+        if sc[key] == "DATA":
+            errors.append((f"selfcal.{key}", "DATA is never written"))
     clip = sc["gain_clip"]
     if (
         isinstance(clip, list)
@@ -1022,6 +1040,8 @@ def resolve(raw):
                 )
             names[term["name"]] = where
     errors += _selfcal_errors(config["selfcal"])
+    if config["apply"]["column"] == "DATA":
+        errors.append(("apply.column", "DATA is never written"))
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
             for j, name in enumerate(term.get("preapply", [])):

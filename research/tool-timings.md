@@ -1795,3 +1795,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | G8 `gemclean -version`, source binary / console script | – | 4.4 ms / 144 ms (10 each) | – | native |
 | 2026-11-10 | G8 `tools/wheel/test.py`, CI wheel, Python 3.14, Windows / Linux | – | 15 s pytest each | – | PASS both (fixture skips) |
 | 2026-11-10 | G8 native `python -m rang.check` (heavy_lock), twice | worktree fp-g8-wheel | 19 min 43 s; 13 min 18 s | – | only the research-index test fails (the first run also `test_p12_rename`, fixed before the code commit) |
+| 2026-11-10 | F3 `f3_fetch.py`, LUNO MAIN_3-7 DATA and FLAG tiles 8-23 (anonymous HTTPS) | 210 objects, 4.56 GB | 52.4 min | – | about 1.45 MB/s; native |
+| 2026-11-10 | F3 `f2_simulate.py f3sim-t` (heavy_lock) | 32 antennas, 5 scans, 2048 channels | 5.1 min | – | native, default threads |
+| 2026-11-10 | F3 `rang._core.f3flag_features`, all baselines | ESO137 chunk 10 / f2sim-v scan, 18.0 / 25.6 M cells | 1.2 / 3.1 s | – | NumPy reference 26.8 / 39.9 s |
+| 2026-11-10 | F3 C1(U3): W3 + `f3flag_logits` against `flag_rows` (T) | LUNO MAIN_1, 4 threads, 3 repeats | 17.5 s against 46.5 s | – | two T repeats provisional (other load 1.5-2.2 CPUs) |
+| 2026-11-10 | F3 AOFlagger 3.5 `generic-default.lua`, Docker in WSL, one thread | ESO137 chunk (1,830 baselines × 27 × 512) / LUNO MAIN_1 (1,378 × 32 × 2048) | 19 s / 68 s in the container | – | plus about 1-3 s Docker and 9p I/O |
+| 2026-11-10 | F3 `f3_shards.py` (T, A, 6 realisations per real scan) | calibrator train role: 3 LUNO scans + 9 F-SIM scans | 10.8 min | – | heavy_lock; wall of the last invocation, lock wait included |
+| 2026-11-10 | F3 `f3_train.py`, JAX 0.12.0.1 CUDA, RTX 4070 Ti (WSL) | 30,000 steps, batch 32 × 256 channels | 21-48 min per seed | – | two classes at once; host batching bound; Ollama held 10 GB of the GPU |
+| 2026-11-10 | F3 `f3_tau.py` (validation realisations rebuilt) | calibrators / targets | 19.7 / 41.4 min | – | includes heavy_lock waits |
+| 2026-11-10 | F3 held-out `f3_eval.py real`, 7 arms, 19 cases | LUNO MAIN_1 / MAIN_2 | 47.2 / 31.0 min | – | A dominates (19 Docker runs) |
+| 2026-11-10 | F3 native `python -m rang.check` (heavy_lock), twice | worktree fp-f3-flagger | 82 min; 42 min (wall includes lock waits) | – | second: only the research-index test fails |
+| 2026-11-11 | E4 `rang-core run` on A1 small (flag, calibrate, apply, image; `examples/ms-to-image/config.yaml`), native Windows, 2 threads, no heavy lock (CPU-light) | 12,480 rows × 64 ch × 4 corr, 41 MB | 9.7-11.7 s (2.0, 1.7, 1.3-1.9, 3.5-3.8 s) | – | host shared with E2; `tools/e2e/run.py` 16.5 s with generation; notebook 00 under papermill 24.9-30.1 s; research/e4-tutorial.md |

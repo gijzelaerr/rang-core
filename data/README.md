@@ -61,3 +61,10 @@ particular observation's; KAT-7 was decommissioned in 2016. None of these
 was checked against an observation's ANTENNA table. Like the MeerKAT file,
 they are realistic layouts for algorithm studies and **not survey-grade
 geometry**.
+
+## Licence
+
+The ITRF tables hold antenna positions, which are facts and not covered by
+copyright; they are recorded with their simms source here and ship under
+rang-core's licence (owner decision E5-11, `docs/licence.md`). Only
+`meerkat.itrf.txt` is in the sdist.

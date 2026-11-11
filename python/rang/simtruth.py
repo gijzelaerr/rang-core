@@ -154,6 +154,8 @@ SEEDS = {
             ("f2sim-v", 20262131),
             ("f2sim-t1", 20262141),
             ("f2sim-t2", 20262151),
+            # Task F3 (research/f3-flagger.md): its held-out simulation test.
+            ("f3sim-t", 20263101),
         )
     },
 }
