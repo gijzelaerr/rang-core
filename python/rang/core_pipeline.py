@@ -2427,8 +2427,9 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             ):
                 conflicts.append(
                     f"{stage} finished with a different configuration "
-                    f"({STAGE_SECTIONS_TEXT[stage]}); pass --force {stage} to run it "
-                    "again"
+                    f"({STAGE_SECTIONS_TEXT[stage]}); run it again with "
+                    f"`rang-core {stage} ... --force` or `rang-core run ... "
+                    f"--force {stage}`"
                     + (
                         ", which first restores the flags saved before it"
                         if stage in WRITES_FLAGS

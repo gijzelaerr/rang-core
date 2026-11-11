@@ -356,7 +356,7 @@ def test_calibrate_writes_the_core_solve_bit_for_bit(tmp_path):
     assert len(unique) == 20
 
 
-def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path):
+def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
     cli("flag", config, ms)
@@ -370,6 +370,10 @@ def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path):
     with pytest.raises(SystemExit) as exc:
         cli("flag", changed, ms)
     assert exc.value.code == 2
+    # E5: the hint names forms both commands accept.
+    hint = capsys.readouterr().err
+    assert "`rang-core flag ... --force`" in hint
+    assert "`rang-core run ... --force flag`" in hint
     cli("flag", config, ms, "--force")
     # The forced rerun starts from the flags saved before the first run.
     assert np.array_equal(column(ms, "FLAG"), first)
