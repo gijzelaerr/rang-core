@@ -49,7 +49,9 @@ beam = ["katbeam==0.1", "eidos==1.1.2"]
 # No `flagging` extra since W4-5 (research/w4-5-release.md): it pinned the
 # frozen QuartiCal 0.2.7 / Stimela 2.1.4 / python-casacore 3.8.1 stack that
 # only history/ used; history/tools/flagging/requirements.lock keeps the pins.
-recipes = ["stimela==2.1.4"]
+# stimela 2.1.4 requires Python < 3.14; on 3.14 the extra installs nothing
+# rather than failing to resolve (E5-38).
+recipes = ["stimela==2.1.4; python_version < '3.14'"]
 imaging = ["astropy>=6"]
 # MeerKAT MVFv4 archives through katdal (research/mk1-katdal.md); python-lzf and
 # rdbtools are sdist-only (a C compiler is needed), cityhash has no cp314 wheel.

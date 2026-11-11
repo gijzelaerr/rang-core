@@ -304,3 +304,16 @@ def test_the_licence_table_lists_every_upstream():
     assert any(r.startswith("| CARACal") for r in table)
     assert any(r.startswith("| msutils") for r in table)
     assert any("confirm GPL-2.0-or-later" in r for r in table)
+
+
+def test_the_recipes_extra_resolves_on_every_declared_python():
+    """E5-38: stimela 2.1.4 requires Python < 3.14, a version the package
+    declares, so the extra carries a marker instead of failing to resolve."""
+    from packaging.requirements import Requirement
+
+    extras = _section(_text("pyproject.toml"), "project.optional-dependencies")
+    line = re.search(r"^recipes = \[(.*)\]$", extras, re.MULTILINE).group(1)
+    (stimela,) = [Requirement(s.strip().strip('"')) for s in line.split('",')]
+    assert stimela.name == "stimela" and str(stimela.specifier) == "==2.1.4"
+    assert stimela.marker.evaluate({"python_version": "3.13"})
+    assert not stimela.marker.evaluate({"python_version": "3.14"})

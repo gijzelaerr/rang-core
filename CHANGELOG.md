@@ -20,7 +20,8 @@ the release notes are the section of this file for that version.
   fluxscale and applycal semantics and casacore's table formats, plus casacore-data's observatory
   positions (E5-33). `rang/data/README.md` records the source and SHA256 of `casacore_observatories.json`
   (E5-34). The sdist leaves out `.claude/` and the checkout tools under `tools/` other than `tools/wheel/`,
-  and CONTRIBUTING lists what it carries (E5-37).
+  and CONTRIBUTING lists what it carries (E5-37). The `recipes` extra installs stimela 2.1.4 on Python 3.13
+  and older only, so `pip install 'rang-core[recipes]'` resolves on 3.14 (E5-38).
 
 - New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
   Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration
