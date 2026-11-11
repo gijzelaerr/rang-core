@@ -107,11 +107,12 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -------------------------------------------------------------------------------
-GPL-licensed sources, translated under GPL-3.0-or-later
+GPL-licensed sources, translated under GPL-3.0-or-later (as each source
+file's header names them; see also docs/licence.md)
 
-- WSClean 3.6 imaging weights and w-stacking gridder (André Offringa and
-  contributors, GPL-3.0): core/src/weights.rs, core/src/grid.rs.
+- WSClean 3.6 imaging weights (André Offringa and contributors,
+  GPL-3.0-or-later): core/src/weights.rs.
+- WSClean 3.6 w-stacking gridder (André Offringa and contributors, GPL-3.0):
+  core/src/grid.rs.
 - ducc0 0.42.0 wgridder (Martin Reinecke, Max-Planck-Society,
   GPL-2.0-or-later): core/src/wgridder.rs.
-- GeMClean (core/src/gemclean) follows WSClean 3.7 and the libraries it
-  builds on (GPL-3.0). docs/licence.md lists every upstream.
