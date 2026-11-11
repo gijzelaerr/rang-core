@@ -143,3 +143,26 @@ def test_a_missing_mask_is_refused_before_anything_runs(tmp_path, monkeypatch):
         "image.fits_mask",
         "selfcal.cleanmask_method[1]",
     ]
+
+
+# -- E5-42 (WB-12): a recorded flag version that is gone ------------------------
+
+
+def test_a_version_never_saved_is_not_reported_lost(tmp_path):
+    """The name is recorded before the version is saved: an attempt killed
+    during that save wrote no flags, so its rerun gets no warning."""
+    import json
+
+    from rang import core_pipeline, core_writeback
+    from rang.formats import flagversions
+
+    ms = tmp_path / "x.ms"
+    lost = core_pipeline._version_lost
+    assert lost(ms, "rang_flag_1", "failed")  # no .flagversions at all
+    flagversions.root(ms).mkdir()
+    assert not lost(ms, "rang_flag_1", "failed")  # killed during the backup
+    assert not lost(ms, "rang_flag_1", "running")
+    assert lost(ms, "rang_flag_1", "done")  # it finished, so it was saved
+    journal = core_writeback.journal_path(ms)
+    journal.write_text(json.dumps({"flag_backup": "rang_flag_1"}), encoding="utf-8")
+    assert lost(ms, "rang_flag_1", "failed")  # a session began after the save

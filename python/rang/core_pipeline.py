@@ -827,6 +827,21 @@ def _version_name(ms, stage):
     return name
 
 
+def _version_lost(ms, version, status):
+    """True when flag version `version`, recorded by a stage's last attempt,
+    was saved once and is gone now (E5-42, WB-12). The name is recorded
+    before the version is saved, so an attempt killed during that save left
+    no version and wrote no flags: not lost. It was saved when the attempt
+    finished, when a write-back session began with it (the journal, which
+    lives in `<ms>.flagversions`), or when that whole directory is gone."""
+    if flagversions.exists(ms, version):
+        return False
+    if status == "done" or not flagversions.root(ms).exists():
+        return True
+    journal = core_writeback.read_journal(ms)
+    return bool(journal) and journal.get("flag_backup") == version
+
+
 def restore_before(ms, entry):
     """Give the MS back the flags saved before this stage's last attempt
     (when it saved any), so a rerun starts from the same input. Returns the
@@ -2549,7 +2564,7 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             }
             if entry.get("flag_version"):
                 attempt["flag_version"] = entry["flag_version"]
-                if not flagversions.exists(ms, entry["flag_version"]):
+                if _version_lost(ms, entry["flag_version"], status):
                     # E5-42 (WB-12): the rerun cannot start from the flags of
                     # the last attempt; say so instead of skipping silently.
                     attempt["restore_missing"] = entry["flag_version"]
