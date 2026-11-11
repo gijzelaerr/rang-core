@@ -1,6 +1,6 @@
 # E5 pre-review: the v0.2.0 release review, started early
 
-Status, 2026-11-11: **review done on current main; 13 fixes committed on branch `e5-prereview`; the rest proposed or for the owner.**
+Status, 2026-11-11: **review done on current main; 11 findings fixed in 12 commits on branch `e5-prereview`; the rest proposed or for the owner.**
 Finish-plan task E5 ([finish-plan.md](finish-plan.md) section 3, E) reviews the release as [w4-review.md](w4-review.md) did for 0.1.0.
 It was started before E2, E3 and E4 finished, so that findings can be fixed while E2 runs. It is not the final E5: that one reruns on the
 release candidate, after E2, E3 and E4, and needs no release-blocking finding left.
