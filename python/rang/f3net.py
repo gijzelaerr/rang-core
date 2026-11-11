@@ -13,11 +13,12 @@ HIDDEN = 8
 DILATIONS = (1, 2, 4, 8, 16)
 
 
-def init_params(seed):
-    """He-normal weights, zero biases: [(W (3,3,cin,cout), b)] * 5, (head (8,1), (1,))."""
+def init_params(seed, nplanes=NPLANES):
+    """He-normal weights, zero biases: [(W (3,3,cin,cout), b)] * 5, (head (8,1), (1,)).
+    `nplanes` is 15 for F3 and 23 for F4 (research/f4-flagger.md)."""
     rng = np.random.default_rng(seed)
     params = []
-    cin = NPLANES
+    cin = nplanes
     for _ in DILATIONS:
         w = rng.normal(0, math.sqrt(2.0 / (9 * cin)), (3, 3, cin, HIDDEN))
         params.append((w.astype(np.float32), np.zeros(HIDDEN, np.float32)))
@@ -32,7 +33,7 @@ def count_weights(params):
 
 
 def forward(params, x):
-    """Logits (N, nt, nc) of inputs (N, nt, nc, 15)."""
+    """Logits (N, nt, nc) of inputs (N, nt, nc, nplanes)."""
     import jax
     import jax.numpy as jnp
 

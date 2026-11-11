@@ -3,7 +3,9 @@
 Runs with NumPy and JAX only (the CUDA venv in WSL); imports `rang/f3net.py`
 by path, not the rang package.
 
-Usage: python examples/f3_train.py SHARDS OUT_DIR --seed 1 [--steps 30000]
+Usage: python examples/f3_train.py SHARDS OUT_DIR --seed 1 [--steps 30000] [--nplanes 15]
+
+F4 (research/f4-flagger.md, section 5) uses the same script with --nplanes 23.
 
 SHARDS is the Stage 3 directory of one class (with train/ and validation/).
 Writes OUT_DIR/weights.npz, OUT_DIR/train.json (loss curve, validation loss,
@@ -71,6 +73,7 @@ def main():
     parser.add_argument("out", type=Path)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--steps", type=int, default=30000)
+    parser.add_argument("--nplanes", type=int, default=f3net.NPLANES)
     args = parser.parse_args()
     import jax
     import jax.numpy as jnp
@@ -81,7 +84,10 @@ def main():
     val = load(args.shards / "validation")
     t_load = time.perf_counter() - t0
     rng = np.random.default_rng(1000 + args.seed)
-    params = [(jnp.asarray(w), jnp.asarray(b)) for w, b in f3net.init_params(args.seed)]
+    params = [
+        (jnp.asarray(w), jnp.asarray(b))
+        for w, b in f3net.init_params(args.seed, args.nplanes)
+    ]
     m = jax.tree_util.tree_map(jnp.zeros_like, params)
     v = jax.tree_util.tree_map(jnp.zeros_like, params)
     step = f3net.adam_step(RATE)
@@ -113,6 +119,7 @@ def main():
         "width": WIDTH,
         "rate": RATE,
         "weights": f3net.count_weights(params),
+        "nplanes": args.nplanes,
         "validation_loss": vl,
         "curve": curve,
         "load_seconds": t_load,

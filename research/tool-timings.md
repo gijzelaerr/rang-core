@@ -1805,3 +1805,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | F3 `f3_tau.py` (validation realisations rebuilt) | calibrators / targets | 19.7 / 41.4 min | – | includes heavy_lock waits |
 | 2026-11-10 | F3 held-out `f3_eval.py real`, 7 arms, 19 cases | LUNO MAIN_1 / MAIN_2 | 47.2 / 31.0 min | – | A dominates (19 Docker runs) |
 | 2026-11-10 | F3 native `python -m rang.check` (heavy_lock), twice | worktree fp-f3-flagger | 82 min; 42 min (wall includes lock waits) | – | second: only the research-index test fails |
+| 2026-11-11 | F4 `make_injection` antenna-local widths (W3 + metadata, 6 seeds) | LUNO MAIN_4, MAIN_7; ESO137 2, 10 | 5.4-7.0 s per set | – | before the freeze; `RAYON_NUM_THREADS=2` |
+| 2026-11-11 | F4 `f4_fetch.py` (whole GETs, sha256 receipt) | LUNO MAIN_0, MAIN_12, MAIN_14 row chunk 0, tiles 8-23: 126 objects, 4.54 GB | 27.6 min | – | network bound, no lock |
+| 2026-11-11 | F4 `cargo test --release --lib f4flag` / `f3flag` | core crate | 0.10 / 0.16 s (tests) | – | build time not separated |
+| 2026-11-11 | F4 `maturin develop --release --offline` (heavy_lock) | worktree fp-f4-flagger | 23.7 min wall, almost all lock wait | – | first two attempts failed (relative exe path; `-m` built `rang_core_py`) |

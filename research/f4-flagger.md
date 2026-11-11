@@ -43,8 +43,8 @@ unchanged.
   N4 cannot see an emitter that is uncorrelated between antennas by construction; that is stated with
   every NA result.
 - *Cost.* NA's wall and N4+NA's C1 are reported, not gated.
-- *Status.* Proposed: NA is not implemented in this commit. Its implementation and δ must be done
-  before Stage 5 reads any held-out set; otherwise NA is reported as not run, not dropped.
+- *Status.* Proposed at this amendment's commit; implementation and δ must be done before Stage 5
+  reads any held-out set, otherwise NA is reported as not run, not dropped.
 
 ## 1. What F3 got wrong, and what changes
 
@@ -332,6 +332,22 @@ Runs under `D:\rang\outputs\f4-20261111-NN-*` (each with `.code/`, `.log`, `.tim
   calibrator-like scan: ZE ≥ 0.9 recall, Z2 ≤ 0.2, ZE false flags ≤ 1 %; T6/H3 seeded, widths, eligible
   cells; labels; guards).
 
+### Arm NA (Amendment 1), implemented after the amendment
+
+- `rang.f4flag.load_autos`, `na_statistics`, `na_antenna_hits`, `na_flags`, `auto_inject`;
+  `f4_eval.py na-delta` (δ on validation) and arms `NA`, `N4NA` in `f4_eval.py real` (`--na-delta`;
+  G2 and G3 written to the result). Test: synthetic autos (radiometer noise 1e-3, per-antenna
+  bandpasses within 0.2 %), a 100-channel scan-long +10 σ_auto band on one antenna: ≥ 0.9 found, other
+  antennas < 1 %, crosses of the other antennas < 2 %.
+- Validation diagnostic (no flags compared, no held-out read): `D` median / p90 / p99 0.015 / 0.038 /
+  0.102 on LUNO MAIN_7 (56 antennas), 0.028 / 0.071 / 0.121 on ESO137 chunk 10 (61); fraction of
+  (antenna, channel) above δ = 0.005 … 0.1: 0.75, 0.61, 0.35, 0.04, 0.01 (LUNO) and 0.83, 0.76, 0.61,
+  0.22, 0.03 (ESO137). Antenna bandpass mismatch alone exceeds the smaller δ, so the δ rule will pick
+  0.05 or 0.1, and NA then sees only scan-long bands that raise power by 5-10 %. G2's +10 σ_auto is
+  about +0.8 % of the auto power (σ_auto / A ≈ 1/√(Δν τ) = 7.7e-4 at 209 kHz and 8 s), so **G2 will
+  probably fail at the δ the rule picks** (NA-broken) unless the time-local part catches it; that
+  follows from the frozen design and is recorded here before anything is run.
+
 ### Staged runs
 
 Queued in order by `examples/f4_queue.py` (each step under `tools/heavy_lock.py`, E2 and other lock
@@ -347,6 +363,7 @@ holders first; the frozen stops are checked between steps and written to
 | --- | --- | --- |
 | sim | `-02-sim-test` (`f2_simulate.py RUN f4sim-t`) | |
 | stage1 | `-03-stage1-calibrator`, `-03-stage1-target` (`f4_eval.py stage1`, F3's T/A caches `-13`, `-08`) | Stop-E, Stop-Z4 per class |
+| nadelta | `-03-nadelta-calibrator`, `-03-nadelta-target` (`f4_eval.py na-delta`, Amendment 1's δ) | |
 | parity | `-04-parity-calibrator`, `-04-parity-target` (`f4_parity.py`, U4) | parity |
 | c1u4 | `-05-c1u4` (`f4_cost.py time --n4 U4`, LUNO MAIN_1, `RAYON_NUM_THREADS=4`, idle host) | C1(U4) > 0.45 |
 | shards | `-06-shards-cal`, `-07-shards-target` (`f4_shards.py`, validation then train, `--flags-from` F3's caches; T and A computed for MAIN_1, MAIN_2 and ESO137 0, 14, 16) | label audit |

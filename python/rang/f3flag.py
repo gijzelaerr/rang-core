@@ -145,6 +145,12 @@ def load_luno(group, weights=False):
     """One LUNO calibrator group, cross rows, channels 1024-3071, as a scan dict."""
     check_luno_group(group)
     roots = (FETCH, INPUTS) if LUNO_ROLE[group] != "test" else (INPUTS,)
+    return read_luno(group, roots, weights)
+
+
+def read_luno(group, roots, weights=False):
+    """`load_luno` without F3's guard: the caller checks `group` (F4 has its
+    own allowlist, `rang.f4flag`)."""
     g = f"MAIN/{group}"
     r = _first(roots, f"{g}/TIME/0")
     a1 = _zarr(r, f"{g}/ANTENNA1", "0").astype(np.int32)
@@ -179,6 +185,11 @@ def load_luno(group, weights=False):
 def load_eso(chunk):
     """ESO137 target MAIN_0, one row chunk, the four channel tiles on disk."""
     check_eso_chunk("MAIN_0", chunk)
+    return read_eso(chunk)
+
+
+def read_eso(chunk):
+    """`load_eso` without F3's guard (the caller checks `chunk`)."""
     g = "MAIN/MAIN_0"
     a1 = _zarr(ESO, f"{g}/ANTENNA1", f"{chunk}").astype(np.int32)
     a2 = _zarr(ESO, f"{g}/ANTENNA2", f"{chunk}").astype(np.int32)
@@ -502,7 +513,10 @@ def _baseline_length(scan):
 class Injector:
     """Adds events to a copy of DATA on eligible cells; tracks the cell
     strength A = max_c |inj_c| / sigma_b and each cell's morphology code
-    (1 + index in CODES)."""
+    (1 + index in `codes`)."""
+
+    codes = CODES
+    jitter = ("T3",)  # per-baseline amplitude x U(0.5, 1)
 
     def __init__(self, scan, eligible, sigma, rng, fixed=None):
         self.scan, self.eligible, self.sigma, self.rng = scan, eligible, sigma, rng
@@ -516,9 +530,10 @@ class Injector:
         self.nt, self.nc = self.ix["nt"], eligible.shape[1]
         self.events = []
 
-    def add(self, code, bsel, tsel, chans, decay=False):
+    def add(self, code, bsel, tsel, chans, decay=False, envelope=None):
         """bsel: baseline mask; tsel: (nt,) time mask with channel indices
-        `chans`, or an (nt, nc) cell mask."""
+        `chans`, or an (nt, nc) cell mask; `envelope` (nc,) an optional
+        per-channel amplitude factor (F4's T6)."""
         rng, ix = self.rng, self.ix
         rows = np.flatnonzero(bsel[ix["bl"]])
         if not len(rows):
@@ -547,7 +562,7 @@ class Injector:
             if decay and rng.random() < 0.5:
                 scale = math.exp(rng.uniform(math.log(100), math.log(5000)))
                 alpha = alpha * np.exp(-self.blen[b] / scale)
-            if code == "T3":
+            if code in self.jitter:
                 alpha = alpha * rng.uniform(0.5, 1.0, self.nbl)[b]
             phi0 = rng.uniform(-np.pi, np.pi, self.nbl)[b]
             nu = rng.uniform(-0.5, 0.5, self.nbl)[b] if rng.random() < 0.5 else 0.0
@@ -557,6 +572,8 @@ class Injector:
             else:
                 period = rng.uniform(4, 32)
                 mod = 0.75 + 0.25 * np.sin(2 * np.pi * t / period + rng.uniform(0, 6.3))
+        if envelope is not None:
+            alpha = alpha * envelope[c_]
         z = (alpha * mod * self.sigma[rows] * np.exp(1j * phase))[:, None] * w[None]
         self.data[rows, c_] += z.astype(np.complex64)
         a = (
@@ -565,7 +582,7 @@ class Injector:
         ).astype(np.float32)
         new = a > self.amp[rows, c_]
         self.amp[rows, c_] = np.maximum(self.amp[rows, c_], a)
-        self.morph[rows[new], c_[new]] = 1 + CODES.index(code)
+        self.morph[rows[new], c_[new]] = 1 + self.codes.index(code)
         self.events.append(
             {"code": code, "cells": len(rows), "alpha": float(np.median(alpha))}
         )

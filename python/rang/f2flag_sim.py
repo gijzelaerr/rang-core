@@ -48,6 +48,8 @@ OBSERVATIONS = {
     },
     # Task F3 (research/f3-flagger.md, section 4): its held-out simulation test.
     "f3sim-t": {"seed0": 20263101, "start": "2024-08-21T05:00:00", "odd": True},
+    # Task F4 (research/f4-flagger.md, section 4): its held-out simulation test.
+    "f4sim-t": {"seed0": 20264101, "start": "2024-08-22T05:00:00", "odd": True},
 }
 ROLE = {
     "f2sim-1": "train",
@@ -57,6 +59,7 @@ ROLE = {
     "f2sim-t1": "test",
     "f2sim-t2": "test",
     "f3sim-t": "test",
+    "f4sim-t": "test",
 }
 
 

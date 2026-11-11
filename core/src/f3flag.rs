@@ -23,16 +23,21 @@ pub const HIDDEN: usize = 8;
 /// Dilations of the five 3×3 layers.
 pub const DILATIONS: [usize; 5] = [1, 2, 4, 8, 16];
 const RUNMED_HALF: usize = 16;
-const MIN_PAIRS: usize = 16;
-const MIN_AGG: usize = 3;
+pub(crate) const MIN_PAIRS: usize = 16;
+pub(crate) const MIN_AGG: usize = 3;
 const MAD_SCALE: f64 = 1.4826;
 const BLOCK: usize = 256;
 
 /// Weights in `rang.f2flag.flat_weights` order: per layer W (ky, kx, cin,
 /// cout) row-major then b; the head W (8, 1) then b (1).
 pub fn weight_count() -> usize {
+    weight_count_for(INPUTS)
+}
+
+/// Weights of the stack with `inputs` input planes.
+pub fn weight_count_for(inputs: usize) -> usize {
     let mut n = 0;
-    let mut cin = INPUTS;
+    let mut cin = inputs;
     for _ in DILATIONS {
         n += 9 * cin * HIDDEN + HIDDEN;
         cin = HIDDEN;
@@ -56,7 +61,7 @@ pub struct Inputs<'a> {
     pub ant2: &'a [u32],
 }
 
-fn check(inp: &Inputs) -> i32 {
+pub(crate) fn check(inp: &Inputs) -> i32 {
     let nrow = inp.baseline.len();
     let nc = inp.nchan;
     if inp.time.len() != nrow
@@ -82,7 +87,7 @@ fn check(inp: &Inputs) -> i32 {
 
 /// Median of the finite values, NumPy's convention (mean of the two middle
 /// values for an even count); NaN if none. Reorders `v`.
-fn median(v: &mut Vec<f64>) -> f64 {
+pub(crate) fn median(v: &mut Vec<f64>) -> f64 {
     v.retain(|x| x.is_finite());
     let n = v.len();
     if n == 0 {
@@ -100,7 +105,7 @@ fn median(v: &mut Vec<f64>) -> f64 {
 }
 
 /// Rows of each baseline (counting sort).
-fn rows_by_baseline(inp: &Inputs) -> (Vec<usize>, Vec<usize>) {
+pub(crate) fn rows_by_baseline(inp: &Inputs) -> (Vec<usize>, Vec<usize>) {
     let mut start = vec![0usize; inp.nbl + 1];
     for &b in inp.baseline {
         start[b as usize + 1] += 1;
@@ -118,15 +123,18 @@ fn rows_by_baseline(inp: &Inputs) -> (Vec<usize>, Vec<usize>) {
 }
 
 /// One baseline's residual planes: `rt`, `rf` (cell, corr) f64 (NaN where
-/// undefined), the flag plane, and whether the baseline has a noise scale.
-struct Residuals {
-    rt: Vec<f64>,
-    rf: Vec<f64>,
-    flagged: Vec<bool>,
-    alive: bool,
+/// undefined), the flag plane, whether the baseline has a noise scale, and
+/// the time-median spectrum `p` (chan, corr) (NaN where undefined; used by
+/// `f4flag`).
+pub(crate) struct Residuals {
+    pub(crate) rt: Vec<f64>,
+    pub(crate) rf: Vec<f64>,
+    pub(crate) flagged: Vec<bool>,
+    pub(crate) alive: bool,
+    pub(crate) p: Vec<f64>,
 }
 
-fn residuals(inp: &Inputs, rows: &[usize]) -> Residuals {
+pub(crate) fn residuals(inp: &Inputs, rows: &[usize]) -> Residuals {
     let nt = inp.ntime;
     let nc = inp.nchan;
     let ncell = nt * nc;
@@ -182,12 +190,14 @@ fn residuals(inp: &Inputs, rows: &[usize]) -> Residuals {
     }
     let mut rt = vec![f64::NAN; ncell * 4];
     let mut rf = vec![f64::NAN; ncell * 4];
+    let mut pspec = vec![f64::NAN; nc * 4];
     if !alive {
         return Residuals {
             rt,
             rf,
             flagged,
             alive,
+            p: pspec,
         };
     }
     // a, then P (per channel), S (running median of P), g (per time).
@@ -208,6 +218,7 @@ fn residuals(inp: &Inputs, rows: &[usize]) -> Residuals {
             col.clear();
             col.extend((0..nt).map(|t| a[(t * nc + f) * 4 + c]));
             *pf = median(&mut col);
+            pspec[f * 4 + c] = *pf;
         }
         let mut s = vec![f64::NAN; nc];
         for (f, sf) in s.iter_mut().enumerate() {
@@ -239,10 +250,11 @@ fn residuals(inp: &Inputs, rows: &[usize]) -> Residuals {
         rf,
         flagged,
         alive,
+        p: pspec,
     }
 }
 
-fn max_finite(x: &[f64]) -> f64 {
+pub(crate) fn max_finite(x: &[f64]) -> f64 {
     let m = x
         .iter()
         .copied()
@@ -251,30 +263,38 @@ fn max_finite(x: &[f64]) -> f64 {
     if m.is_finite() { m } else { f64::NAN }
 }
 
+/// One baseline's u planes `[x][cell]` (x = 0 time, 1 channel), NaN where
+/// undefined.
+pub(crate) fn u_planes(res: &Residuals, ncell: usize) -> Vec<f32> {
+    let mut out = vec![f32::NAN; 2 * ncell];
+    if !res.alive {
+        return out;
+    }
+    for cell in 0..ncell {
+        if res.flagged[cell] {
+            continue;
+        }
+        out[cell] = max_finite(&res.rt[cell * 4..cell * 4 + 4]) as f32;
+        out[ncell + cell] = max_finite(&res.rf[cell * 4..cell * 4 + 4]) as f32;
+    }
+    out
+}
+
 /// Pass 1 and 2: per antenna and array medians of u^t and u^f; layout
 /// `[x][k][cell]` with k = nant for the array (x = 0 time, 1 channel).
 fn aggregates(inp: &Inputs, start: &[usize], order: &[usize]) -> Vec<f32> {
     let ncell = inp.ntime * inp.nchan;
-    let nbl = inp.nbl;
-    // u planes [b][x][cell], NaN where undefined.
-    let u: Vec<Vec<f32>> = (0..nbl)
+    let u: Vec<Vec<f32>> = (0..inp.nbl)
         .into_par_iter()
-        .map(|b| {
-            let res = residuals(inp, &order[start[b]..start[b + 1]]);
-            let mut out = vec![f32::NAN; 2 * ncell];
-            if !res.alive {
-                return out;
-            }
-            for cell in 0..ncell {
-                if res.flagged[cell] {
-                    continue;
-                }
-                out[cell] = max_finite(&res.rt[cell * 4..cell * 4 + 4]) as f32;
-                out[ncell + cell] = max_finite(&res.rf[cell * 4..cell * 4 + 4]) as f32;
-            }
-            out
-        })
+        .map(|b| u_planes(&residuals(inp, &order[start[b]..start[b + 1]]), ncell))
         .collect();
+    medians_of_u(inp, &u)
+}
+
+/// Pass 2: the antenna and array medians of the u planes of every baseline.
+pub(crate) fn medians_of_u(inp: &Inputs, u: &[Vec<f32>]) -> Vec<f32> {
+    let ncell = inp.ntime * inp.nchan;
+    let nbl = inp.nbl;
     let nant = inp.nant;
     // Baselines of each antenna.
     let mut of_ant: Vec<Vec<usize>> = vec![Vec::new(); nant];
@@ -325,12 +345,16 @@ fn aggregates(inp: &Inputs, start: &[usize], order: &[usize]) -> Vec<f32> {
     agg
 }
 
-fn ash(x: f64) -> f32 {
+pub(crate) fn ash(x: f64) -> f32 {
     if x.is_finite() { x.asinh() as f32 } else { 0.0 }
 }
 
-fn pair(a: f32, b: f32) -> (f64, f64) {
-    let (a, b) = (a as f64, b as f64);
+pub(crate) fn pair(a: f32, b: f32) -> (f64, f64) {
+    pair64(a as f64, b as f64)
+}
+
+/// Max and min of two values, the finite one twice if only one is finite.
+pub(crate) fn pair64(a: f64, b: f64) -> (f64, f64) {
     match (a.is_finite(), b.is_finite()) {
         (true, true) => (a.max(b), a.min(b)),
         (true, false) => (a, a),
@@ -340,7 +364,7 @@ fn pair(a: f32, b: f32) -> (f64, f64) {
 }
 
 /// One baseline's input planes, HWC `(t, f, INPUTS)`.
-fn planes(inp: &Inputs, b: usize, rows: &[usize], agg: &[f32]) -> Vec<f32> {
+pub(crate) fn planes(inp: &Inputs, b: usize, rows: &[usize], agg: &[f32]) -> Vec<f32> {
     let nt = inp.ntime;
     let nc = inp.nchan;
     let ncell = nt * nc;
@@ -421,7 +445,7 @@ pub fn logits(inp: &Inputs, weights: &[f32], out: &mut [f32]) -> i32 {
                 return Vec::new();
             }
             let h = planes(inp, b, rows, &agg);
-            network(inp, rows, h, weights)
+            network(inp, rows, h, weights, INPUTS)
         })
         .collect();
     for rows in results {
@@ -432,13 +456,19 @@ pub fn logits(inp: &Inputs, weights: &[f32], out: &mut [f32]) -> i32 {
     0
 }
 
-/// The network on one baseline's planes; the rows' logits.
-fn network(inp: &Inputs, rows: &[usize], mut h: Vec<f32>, w: &[f32]) -> Vec<(usize, Vec<f32>)> {
+/// The network on one baseline's planes (`inputs` per cell); the rows' logits.
+pub(crate) fn network(
+    inp: &Inputs,
+    rows: &[usize],
+    mut h: Vec<f32>,
+    w: &[f32],
+    inputs: usize,
+) -> Vec<(usize, Vec<f32>)> {
     let nt = inp.ntime;
     let nc = inp.nchan;
     let ncell = nt * nc;
     let mut at = 0;
-    let mut cin = INPUTS;
+    let mut cin = inputs;
     let mut next = vec![0f32; ncell * HIDDEN];
     for &d in DILATIONS.iter() {
         let wl = &w[at..at + 9 * cin * HIDDEN];
