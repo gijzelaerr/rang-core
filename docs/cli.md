@@ -345,7 +345,7 @@ selfcal:
   cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path ({field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
 run:
-  stages: ["flag", "calibrate", "image"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
+  stages: ["flag", "calibrate", "apply", "image", "selfcal"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
 # A calibration term (calibrate.*.terms, selfcal.terms):
 #   type: null  # the term
 #   name: null  # the table name (default: the type)

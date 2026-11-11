@@ -31,8 +31,9 @@ rang-core config defaults > config.yaml
 Edit only what is needed and leave the rest at the defaults:
 
 - `fields`: the field roles above.
-- `run.stages`: `["image"]` for calibrated data; the default
-  `["flag", "calibrate", "image"]` otherwise (`apply` and `selfcal` as needed).
+- `run.stages`: `["image"]` for calibrated data; otherwise the default, the
+  whole chain `["flag", "calibrate", "apply", "image", "selfcal"]` (drop
+  `selfcal` for a 1GC image).
 - `flag.strategy` (for `flag`): a Tricolour strategy YAML, such as CARACal's
   `mk_rfi_flagging_calibrator_fields_firstpass.yaml`, relative to `config.yaml`.
 - `image.size` and `image.scale` (required): for example `[4096, 4096]` and

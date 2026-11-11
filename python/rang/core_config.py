@@ -478,8 +478,10 @@ SCHEMA = {
         ),
     },
     "run": {
+        # Owner decision E5-28 (research/e5-prereview.md): the whole chain, so
+        # that `rang-core run` never images uncalibrated DATA by default.
         "stages": _k(
-            ["flag", "calibrate", "image"],
+            list(STAGES),
             "stages",
             "stages of rang-core run, executed in the order flag, calibrate, apply, "
             "image, selfcal",

@@ -822,7 +822,8 @@ def test_config_check_and_defaults(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
     cli("config", "check", config, ms)
-    assert "valid for flag, calibrate, image" in capsys.readouterr().out
+    # Owner decision E5-28: the default run.stages is the whole chain.
+    assert "valid for flag, calibrate, apply, image, selfcal" in capsys.readouterr().out
     with pytest.raises(SystemExit):
         cli("config", "check", DATA / "e2a.yaml")
     err = capsys.readouterr().err
