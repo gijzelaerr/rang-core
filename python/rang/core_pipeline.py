@@ -911,6 +911,50 @@ def _resolve_path(value, config_path):
     return path
 
 
+def _resolve_mask(value, config_path, log=None):
+    """A FITS mask path (`image.fits_mask`, a selfcal `cleanmask_method`)
+    relative to the configuration file, as `flag.strategy` and
+    `calibrate.model.lsm` (E5-41, research/e5-prereview.md). Before v0.2.0 it
+    was passed to gemclean as given, so relative to the working directory:
+    a mask found only there is still used, with a deprecation warning."""
+    path = _resolve_path(value, config_path)
+    old = Path(value).expanduser()
+    if not path.exists() and not old.is_absolute() and old.exists():
+        if log is not None:
+            log(
+                f"rang-core: deprecated: mask {value} was found relative to the "
+                f"working directory, not to {Path(config_path).name}; mask paths "
+                "are relative to the configuration file since v0.2.0"
+            )
+        return old.resolve()
+    return path
+
+
+def _with_mask(img, config_path, log=None):
+    """`img` with its `fits_mask` resolved (`_resolve_mask`)."""
+    if img.get("fits_mask") is None or config_path is None:
+        return img
+    return {**img, "fits_mask": str(_resolve_mask(img["fits_mask"], config_path, log))}
+
+
+def _missing_masks(config, config_path, stages):
+    """Masks a run of `stages` would pass to gemclean that exist neither
+    beside the configuration file nor in the working directory. Masks with
+    `{field}` are checked when their field's image starts."""
+    masks = []
+    if "image" in stages and config["image"]["fits_mask"] is not None:
+        masks.append(("image.fits_mask", config["image"]["fits_mask"]))
+    if "selfcal" in stages:
+        for i, method in enumerate(config["selfcal"]["cleanmask_method"] or []):
+            if method not in core_config.CLEANMASK_METHODS and "{field}" not in method:
+                masks.append((f"selfcal.cleanmask_method[{i}]", method))
+    return [
+        f"{key}: no file {_resolve_path(value, config_path)}"
+        for key, value in masks
+        if not _resolve_mask(value, config_path).exists()
+    ]
+
+
 def stage_flag(ctx):
     config, info, ms = ctx["config"], ctx["info"], ctx["ms"]
     cfg = config["flag"]
@@ -2037,7 +2081,7 @@ def write_model(img, ms, field_id, prefix, scans=()):
 
 def stage_image(ctx):
     config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
-    img = config["image"]
+    img = _with_mask(config["image"], ctx.get("config_path"), ctx.get("log"))
     binary = find_gemclean(img["gemclean"])
     column = img["column"]
     if column == "auto":
@@ -2213,6 +2257,7 @@ def _selfcal_image(ctx, binary, column, field, where, k):
     (`core_config.selfcal_image_settings`, task C5b): `(prefix, record)`."""
     config, ms = ctx["config"], ctx["ms"]
     img = core_config.selfcal_image_settings(config, k, ctx["info"]["fields"][field])
+    img = _with_mask(img, ctx.get("config_path"), ctx.get("log"))
     scans = config["data"]["scans"] or ()
     unit = config["data"]["weights"] == "uniform"
     where.mkdir()
@@ -2425,6 +2470,9 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
     force = set(core_config.STAGES if "all" in force else force)
     info = inspect_ms(ms)
     preflight(config, info, stages)
+    missing = _missing_masks(config, config_path, stages)
+    if missing:
+        raise Refused("; ".join(missing))
     run = RunDir(run_dir or default_run_dir(ms), ms)
     with run.locked():
         state = run.state
@@ -2485,6 +2533,7 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 "ms": ms,
                 "run": run,
                 "entry": attempt,
+                "log": log,
             }
             flag_writes = core_writeback.flag_writes()
             try:

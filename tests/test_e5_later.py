@@ -83,3 +83,63 @@ def test_unknown_term_key_lists_the_keys_of_its_type():
     (path, text) = errors[0]
     assert path == "calibrate.primary.terms[0].foo"
     assert text.startswith("unknown term key; a complex term takes type, name,")
+
+
+# -- E5-41: mask paths relative to the configuration file ------------------------
+
+
+def _mask_config(tmp_path, mask, cleanmask=()):
+    from rang import core_config
+
+    raw = {
+        "version": 1,
+        "image": {"fits_mask": mask},
+        "selfcal": {"cleanmask_method": list(cleanmask)},
+    }
+    config, errors = core_config.resolve(raw)
+    assert errors == []
+    return config
+
+
+def test_mask_paths_resolve_against_the_configuration_file(tmp_path, monkeypatch):
+    from rang import core_pipeline
+
+    conf_dir = tmp_path / "conf"
+    conf_dir.mkdir()
+    (conf_dir / "m.fits").write_bytes(b"")
+    monkeypatch.chdir(tmp_path)
+    img = core_pipeline._with_mask({"fits_mask": "m.fits"}, conf_dir / "c.yaml")
+    assert img["fits_mask"] == str(conf_dir.resolve() / "m.fits")
+    config = _mask_config(tmp_path, "m.fits", ["wsclean", "none", "m.fits"])
+    assert core_pipeline._missing_masks(config, conf_dir / "c.yaml", ["image"]) == []
+
+
+def test_a_mask_only_in_the_working_directory_is_used_with_a_warning(
+    tmp_path, monkeypatch
+):
+    from rang import core_pipeline
+
+    (tmp_path / "conf").mkdir()
+    (tmp_path / "m.fits").write_bytes(b"")
+    monkeypatch.chdir(tmp_path)
+    said = []
+    img = core_pipeline._with_mask(
+        {"fits_mask": "m.fits"}, tmp_path / "conf" / "c.yaml", said.append
+    )
+    assert img["fits_mask"] == str((tmp_path / "m.fits").resolve())
+    assert len(said) == 1 and "deprecated" in said[0]
+
+
+def test_a_missing_mask_is_refused_before_anything_runs(tmp_path, monkeypatch):
+    from rang import core_pipeline
+
+    monkeypatch.chdir(tmp_path)
+    config = _mask_config(
+        tmp_path, "nope.fits", ["wsclean", "gone.fits", "{field}.fits"]
+    )
+    stages = ["image", "selfcal"]
+    missing = core_pipeline._missing_masks(config, tmp_path / "c.yaml", stages)
+    assert [m.split(":")[0] for m in missing] == [
+        "image.fits_mask",
+        "selfcal.cleanmask_method[1]",
+    ]

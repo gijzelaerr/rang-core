@@ -373,7 +373,11 @@ SCHEMA = {
         "auto_mask_nmiter": _k(
             None, "int?", "major cycles after the mask is made (null: WSClean's 2)"
         ),
-        "fits_mask": _k(None, "path?", "a FITS mask of the image's size, one plane"),
+        "fits_mask": _k(
+            None,
+            "path?",
+            "a FITS mask of the image's size, one plane (relative to this file)",
+        ),
         "taper_gaussian": _k(
             None, "str?", "a Gaussian taper, such as 10asec (a plain number is asec)"
         ),
@@ -468,7 +472,8 @@ SCHEMA = {
             [],
             "strs",
             "per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), "
-            "none, or a FITS mask path ({field} is the field name); the last "
+            "none, or a FITS mask path (relative to this file; {field} is the "
+            "field name); the last "
             "repeating (CARACal's cleanmask_method); []: image's mask settings",
         ),
         "cleanmask_thr": _k(

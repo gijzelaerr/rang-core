@@ -319,7 +319,7 @@ image:
   auto_mask: null  # radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)
   abs_auto_mask: null  # the automatic mask at this many Jy (-abs-auto-mask)
   auto_mask_nmiter: null  # major cycles after the mask is made (null: WSClean's 2)
-  fits_mask: null  # a FITS mask of the image's size, one plane
+  fits_mask: null  # a FITS mask of the image's size, one plane (relative to this file)
   taper_gaussian: null  # a Gaussian taper, such as 10asec (a plain number is asec)
   taper_tukey: null  # Tukey transition below maxuv_l, wavelengths
   taper_inner_tukey: null  # Tukey transition above minuv_l, wavelengths
@@ -347,7 +347,7 @@ selfcal:
   gain_clip: [0.5, 2.0]  # gain amplitudes kept, [low, high] (CARACal's cal_gain_cliplow and cliphigh); [] for none
   minuvw_m: 0.0  # baselines shorter than this (metres) are not solved
   clean_cutoff: []  # per image, the auto_threshold (sigma) of image 1, 2, ..., the final image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold
-  cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path ({field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
+  cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path (relative to this file; {field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
 run:
   stages: ["flag", "calibrate", "apply", "image", "selfcal"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
