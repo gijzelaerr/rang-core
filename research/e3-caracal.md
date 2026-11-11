@@ -310,3 +310,21 @@ E3 does too. rang reads the same FIELD rows.
   (caltables, logs, cost inputs). The E3-B measures (section 5) need
   CARACal's CORRECTED_DATA, so they are computed from the timed pass's split,
   after the embargo lifts, before that split is deleted.
+
+### 10.5 E3-B correctness pass, try 1 (no figures: embargo)
+
+- `e3-20261111-b-correct-try1`: getdata, obsconf, transform, prep and flag
+  finished. **crosscal stopped** in `set_model_cal` (MeqTrees `turbo-sim`
+  writing the `pks1934-638.lsm` model to MODEL_DATA): the kernel OOM-killed
+  `meqserver` at **E3's own 24 GB container cap** (memcg OOM; the run's
+  `docker update` cap, not a host limit). The input MS was unchanged.
+- **Reading:** environmental, caused by E3's shared-pass cap (shipped CARACal
+  sets none). By section 7 one environmental repair is allowed.
+- **Repair, post hoc, 2026-11-11 18:50 (dated change to section 4):** the
+  correctness pass caps containers at **30 GB** (the WSL VM's whole RAM) and
+  takes `--slots 8 --mem 30`. CPUs stay capped at 8. The timed pass is
+  unchanged (no cap).
+- Deleted 18:50: `e3-20261111-input\e2b.ms` (51 GB) and try 1's `msdir`
+  (53 GB, CARACal's split). Kept: try 1's `output\` and logs (62 MB).
+- Coordinator's option (a): the E3-B correctness rerun and the timed pass run
+  after E2-A finishes, each from a rebuilt `e2b.ms`, deleted afterwards.

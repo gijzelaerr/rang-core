@@ -12,7 +12,7 @@ python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py status > lock-status-
 (cd "$RAW" && find . -maxdepth 3 -type f -printf '%P %s %T@\n' | sort) > raw-listing-before.txt
 nproc > host.txt; free -b >> host.txt; uptime >> host.txt
 LIM=""
-[ "$PASS" = correct ] || [ "$PASS" = smoke ] && LIM="--limit-cpus 8 --limit-mem 24g"
+[ "$PASS" = correct ] || [ "$PASS" = smoke ] && LIM="--limit-cpus 8 --limit-mem 30g"
 rm -f .watch-stop
 python3 "$HERE/e3_watch.py" watch.jsonl "$RUN" $LIM &
 WPID=$!
