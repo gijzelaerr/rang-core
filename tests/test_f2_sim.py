@@ -16,7 +16,7 @@ def test_window_is_lunos():
 def test_seeds_are_registered_and_unique():
     used = []
     for name, s in st.SEEDS.items():
-        if not name.startswith("f2sim"):
+        if not name.startswith(("f2sim", "f3sim")):
             used += [s[k] for k in ("jones", "sky", "rfi", "noise")]
     for name in fs.OBSERVATIONS:
         s = fs.seeds(name)

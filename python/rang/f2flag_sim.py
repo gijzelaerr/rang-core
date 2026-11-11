@@ -46,6 +46,8 @@ OBSERVATIONS = {
         "odd": True,
         "gcal_flux": 2.0,
     },
+    # Task F3 (research/f3-flagger.md, section 4): its held-out simulation test.
+    "f3sim-t": {"seed0": 20263101, "start": "2024-08-21T05:00:00", "odd": True},
 }
 ROLE = {
     "f2sim-1": "train",
@@ -54,6 +56,7 @@ ROLE = {
     "f2sim-v": "validation",
     "f2sim-t1": "test",
     "f2sim-t2": "test",
+    "f3sim-t": "test",
 }
 
 
