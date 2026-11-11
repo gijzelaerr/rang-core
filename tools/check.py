@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """`python -m rang.check` from a checkout whose venv has no `rang-core` yet.
 
     .venv/bin/python tools/check.py [rang.check arguments]

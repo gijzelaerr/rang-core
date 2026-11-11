@@ -139,8 +139,20 @@ def try_acquire(d: Path, command: list[str]) -> bool:
 
 
 def release(d: Path) -> None:
-    (d / "owner.json").unlink(missing_ok=True)
-    d.rmdir()
+    # On Windows a waiter reading owner.json holds it open for a moment, and
+    # unlink or rmdir then fails with WinError 32 (found by check-speed under
+    # load): retry for up to 10 s rather than leave the lock behind.
+    for attempt in range(200):
+        try:
+            (d / "owner.json").unlink(missing_ok=True)
+            d.rmdir()
+            return
+        except FileNotFoundError:
+            return
+        except PermissionError:
+            if attempt == 199:
+                raise
+            time.sleep(0.05)
 
 
 def stale(d: Path) -> bool:

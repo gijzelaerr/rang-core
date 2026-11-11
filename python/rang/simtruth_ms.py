@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Task A1: write the simulated truth as a Measurement Set (research/a1-simtruth.md).
 
 Usage, from any install of rang-core (`examples/a1_simtruth.py` is the same)::
