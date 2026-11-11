@@ -401,3 +401,29 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
   heavy_lock 2 slots, 8 GB). If no cell differs, the correctness pass runs
   shared on it (8 slots, 30 GB). Log:
   `D:\rang\outputs\e3-20261112-b-correct2.log`.
+
+### 10.9 E3-B correctness, tries 2 and 3: the same stop at the WSL VM's limit
+
+- The first (pre-restart) job's verify survived the WSL restart: it ran on the
+  Windows side in heavy_lock's queue. It finished at 00:51 (0 cells differ of
+  4,471,455,744 per cube; wall 14,593 s, almost all queueing). That job then
+  ran **try 2** (00:58-01:34). The resume job's verify (00:45-00:55, also 0
+  cells differ) queued **try 3** behind it, in the same run folder.
+- **Try 2, rc 1:** getdata, obsconf, transform, prep and flag finished (flag's
+  `flag_rfi` container peaked at 23.7 GB). crosscal stopped again in
+  `set_model_cal` (MeqTrees `turbo-sim`, `pks1934-638.lsm`, tile_size 128):
+  "meqserver appears to have died", after 202 s. The container's memory.peak
+  is 32,212,254,720 B, **exactly the 30 GiB cap**, and that cap is the WSL
+  VM's whole memory (30 GiB, 8 GiB swap; the host has 63 GB).
+- Try 3 was stopped by hand at 01:36 in `transform`: it would hit the same
+  limit. Its logs are kept in `output/logs-20261112-013440`.
+- **Reading:** the cause is unchanged, the WSL memory limit (section 7), and
+  its one repair (24 to 30 GB) is used up. The smoke and dev passes fit
+  because their scans have fewer timeslots than one 128-slot tile; scans 17
+  and 18 here have about 77 timeslots each.
+- **Not decided (to the coordinator):** (i) a larger WSL VM (`.wslconfig`,
+  a host change for every session, owner's call) and a rerun; or (ii)
+  section 7's route: record the stop as CARACal's result on this host and run
+  the remaining stages as "CARACal's sequence by hand", labelled.
+- On D: now: `e3-20261111-input\e2b.ms` 51 GB and the run's split, both kept
+  until the decision (within the 200 GB cap).
