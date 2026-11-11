@@ -1,0 +1,245 @@
+schema_version: 1.2.0
+
+general:
+  prefix: mypipelinerun
+
+getdata:
+  dataid: ['']
+  extension: ms
+
+obsconf:
+  refant: '0'
+
+transform:
+  enable: true
+  field: calibrators
+  label_out: cal
+  split_field:
+    enable: true
+    col: data
+
+prep:
+  enable: true
+  label_in: cal
+  field: calibrators
+  specweights:
+    enable: true
+    mode: uniform
+
+flag:
+  enable: true
+  field: calibrators
+  label_in: cal
+  flag_autocorr:
+    enable: true
+  flag_spw:
+    enable: true
+    chans: '*:856~880MHz , *:1658~1800MHz, *:1419.8~1421.3MHz'
+    ensure_valid: false
+  flag_antennas:
+    enable: false
+    antennas: '0'
+  flag_mask:
+    enable: true
+    mask: meerkat.rfimask.npy
+    uvrange: '0~1000'
+  flag_rfi:
+    enable: true
+    flagger: aoflagger
+    aoflagger:
+      strategy: firstpass_QUV.rfis
+
+crosscal:
+  enable: true
+  uvrange: '>150'
+  label_in: 'cal'
+  set_model:
+    enable: true
+    meerkat_skymodel: true
+  primary:
+    reuse_existing_gains: true
+    order: KGBAKGB
+    combine: ["", "", "", null, "","", scan]
+    solint: [inf, inf, inf, null, 60s, 60s, inf]
+    calmode: [a, ap, ap, null, a, ap, ap] 
+    b_fillgaps: 70
+    plotgains: true
+  secondary:
+    order: KGAKF
+    apply: B
+    combine: ["", "", null, "", ""] 
+    solint: [inf, inf, null, inf, inf]
+    calmode: [a, ap, null, a, ap] 
+    plotgains: true
+  apply_cal: 
+    applyto: 
+      - gcal
+      - bpcal
+
+inspect:
+  enable: true
+  label_in: 'cal'
+  label_plot: '1gc'
+  field: 'calibrators'
+  dirname: crosscal
+  real_imag: 
+    enable: true
+    avgtime: '60'
+  amp_phase: 
+    enable: true
+    avgtime: '60'
+  amp_uvwave: 
+    enable: true
+    avgtime: '60'
+  amp_ant: 
+    enable: true
+    avgtime: '60'
+  phase_uvwave: 
+    enable: true
+    avgtime: '60'
+  amp_scan: 
+    enable: true
+    avgtime: '60'
+  shadems:
+    enable: true
+    default_column: CORRECTED_DATA
+    plots:
+      # per-field plots
+      - desc: "plots by field"
+        field: "{all_fields}"
+        cnum: 100  # up 100 colours
+        iter_field: true
+        plots:
+          # phaseball plots
+          - dir: "phaseballs-{msbase}"
+            plots:
+              - "-x real -y imag -c CORR --corr IQUV --hline 0: --vline 0:"
+              - "-x real -y imag -c SCAN_NUMBER"
+              - "-x real -y imag -c ANTENNA1"
+          - dir: "phaseballs-bycorr-{msbase}"
+            iter_corr:
+            plots:
+              - "-x real -y imag -c SCAN_NUMBER"
+              - "-x real -y imag -c ANTENNA1"
+          # normalized phaseballs
+          - dir: "normballs-{msbase}"
+            col: "CORRECTED_DATA/MODEL_DATA"
+            corr: "XX,YY"
+            iter_corr:
+            plots:
+              - "-x real -y imag -c SCAN_NUMBER"
+              - "-x real -y imag -c ANTENNA1"
+          # block and triangle plots
+          - dir: "blockplots-{msbase}"
+            plots:
+              - "-x BASELINE_M -y FREQ -c amp"
+              - "-x ANTENNA1 -y ANTENNA2 -c SCAN_NUMBER --aaxis phase --ared std"
+              - "-x ANTENNA1 -y ANTENNA2 -c SCAN_NUMBER --aaxis amp --ared mean"
+          # amp/phase versus uv-distance, and uv-coverage coloured by amp/phase
+          - dir: "uvdist-{msbase}"
+            plots:
+              - "-x UV -y amp    -c SCAN_NUMBER"
+              - "-x UV -y amp    -c ANTENNA1"
+              - "-x UV -y phase  -c ANTENNA1 --corr XX,YY"
+              - "-x U  -y V      -c amp"
+              - "-x U  -y V      -c phase --cmin -5 --cmax 5"
+          # spectral plots
+          - dir: "spectra-{msbase}"
+            plots:
+              - "-x FREQ  -y amp  -c SCAN_NUMBER"
+              - "-x FREQ  -y amp  -c ANTENNA1"
+              - "-x FREQ  -y real -c CORR --corr IQUV --hline 0:"
+      # per-antenna plots
+      - iter_ant:
+        desc: "plots by antenna"
+        cmap: pride
+        corr: XX,YY
+        plots:
+          - '-x FREQ -y amp:I -c SCAN_NUMBER --cnum 100 --cmin 0 --cmax 30 --field {bpcal} --dir bpcal-iamp-byant-{msbase}'
+          - '-x FREQ -y SCAN_NUMBER -a amp --ared std --dir stdamp-byant-{msbase}'
+          - '-x FREQ -y SCAN_NUMBER -a phase --ared std --dir stdphase-byant-{msbase}'
+      # per-scan plots
+      - iter_scan:
+        desc: "plots by scan"
+        cmap: pride
+        ared: std
+        corr: XX,YY
+        plots:
+          - '-x ANTENNA1 -y ANTENNA2 -a amp --dir stdamp-byscan-{msbase}'
+          - '-x ANTENNA1 -y ANTENNA2 -a phase --dir stdphase-byscan-{msbase}'
+          - '-x BASELINE_M -y FREQ -a imag --amin 0 --amax 2 --dir stdimag-byscan-{msbase}'
+    ignore_errors: true
+
+transform__2:
+  enable: true
+  split_field:
+    enable: true
+    otfcal:
+      enable: true
+      label_cal: '1gc1'
+
+prep__2:
+  enable: true
+  label_in: corr
+  field: target
+  specweights:
+    enable: true
+    mode: uniform
+
+flag__2:
+  enable: true
+  field: target
+  label_in: corr
+  flag_spw:
+    enable: true
+  flag_rfi: 
+    enable: true
+    col: DATA
+    flagger: aoflagger
+    aoflagger:
+      strategy: firstpass_QUV.rfis
+
+mask:
+  enable: false
+  centre_coord:
+    - HH:MM:SS
+    - DD:MM:SS
+  label_in: corr
+
+selfcal:
+  enable: true
+  img_npix: 4096
+  img_cell: 1.3
+  cal_timeslots_chunk: 240
+  image:
+    enable: true
+  calibrate:
+    enable: true
+    gsols_timeslots: [120]
+
+ddcal:
+  enable: false
+  label_in: 'corr'
+  use_pb: true
+  calibrate_dd:
+    enable: True
+    de_sources_mode: manual
+  copy_data:
+    enable: true
+  image_wsclean:
+    enable: true
+  transfer_model_dd:
+    enable: true
+
+line:
+  enable: true
+  restfreq: '1.420405752GHz'
+  make_cube:
+    enable: true
+    npix: [1800]
+    cell: 2
+  mstransform:
+    enable: true
+    doppler:
+      enable: true
+      telescope: meerkat

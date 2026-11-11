@@ -1,0 +1,249 @@
+# E3: CARACal's shipped MeerKAT strategy on E2's data
+
+Task E3 of [finish-plan.md](finish-plan.md), CARACal side, on branch
+`e3-caracal` from main `bd15126`, 2026-11-11. Settings frozen in
+[a0-acceptance.md](a0-acceptance.md) sections 5, 6.3 (E3), 6.4 and 6.6;
+data layout from E2's draft protocol (branch `fp-e2-acceptance`,
+`research/results/e2-acceptance-scripts/e2_protocol_draft.md` 5.2). Rang's
+side is E2's run; the coordinator joins the two for E3's report.
+
+**Status: protocol frozen (this commit), before any E3 run, MS build or
+image pull.** Sections 1-8 are the protocol; results go in section 10 and
+later, and any change to 1-8 after this commit is dated and labelled post hoc.
+
+## 1. What runs (versions)
+
+| Item | Version | Source | Note |
+| --- | --- | --- | --- |
+| CARACal | `8f7bb363876f5f0daecbf2167c36bb597c7e5160` (2026-09-14, merge of #1703), `pyproject` version 1.2.2, `git describe` `1.2.1rc1-294-g8f7bb363`, untagged | clone `~/Github/caracal` in WSL | PyPI's newest is 1.2.1; A0 pins the commit, so it is installed from the clone |
+| Stimela | **1.8.3** (classic), wheel sha256 `fb694123…6b3287f` | public PyPI | CARACal requires `stimela>=1.8.1,<2`. A0 section 10 asked whether it runs under Stimela 2.1.4: it does not, Stimela 2 is a different program |
+| Python | 3.12 (uv's CPython 3.12.15), venv `~/Github/caracal/.venv` by uv | – | CARACal requires `<3.13`; the host's 3.14 is excluded |
+| Backend | Docker in WSL Ubuntu (`/var/lib/docker`, in the WSL disk image on C:) | – | `general.backend: docker` |
+| Cab images (Stimela 1.8.3 cargo, newest tag, pulled from quay.io) | CASA **5.8.0** (`stimela/casa:1.7.1`), CubiCal 1.6.3 (`stimela/cubical:1.7.8-dev`), WSClean **3.6** (`stimela/wsclean:1.8.0`), AOFlagger (`stimela/aoflagger:1.2.0`), msutils 1.2.0 (`stimela/msutils:1.6.9`, flagstats) and 1.0.1 (`:1.4.6`), MeqTrees/pycasacore (`stimela/meqtrees:1.2.4`), rfimasker (`stimela/rfimasker:1.7.0`) | quay.io | the full list is whatever the run pulls; every image's `RepoDigests` is recorded in `results/e3-caracal/versions.json` after the pull |
+
+Not like for like, reported: CARACal's CASA is 5.8.0, the oracle chain's is
+6.7.6.14; its WSClean is 3.6, the oracle's 3.7. A0 rule 8 ("a newer upstream
+release is reported beside, never substituted") is read as: CARACal runs
+with the images its own Stimela pins, unchanged; `general.cabs` is not used.
+
+## 2. Data
+
+- **The MSs are built by E2's converter**, `e2_convert.py` at
+  `fp-e2-acceptance` commit `14cc310` (the file is unchanged in that
+  worktree at the time of this note), run with that worktree's venv, with
+  the same groups and order as E2's draft 5.2:
+  - E3-B: LUNO MAIN_16-19 of `D:\rang\data\e2-b\LBAND_LUNO_CALIBRATORS.zarr`,
+    272,916 rows, 56 antennas, 4,096 channels, fields J1331+3030,
+    J1939-6342, J1833-2103 (scans 17-20);
+  - E3-A: ESO137 `ms1_primary` MAIN_4, `ms1_target` MAIN_4, `ms1_primary`
+    MAIN_5, 1,047,614 rows, 61 antennas, 4,096 channels, fields J1939-6342,
+    ESO137-001 (scans 9-11).
+- Output: `D:\rang\outputs\e3-20261111-input\e2b.ms` and `e2a.ms`. These are
+  E3's own copies; E2's inputs are only read by the converter.
+- `e2_convert.py verify` must report zero mismatching cells for every cube;
+  otherwise E3 stops for that leg and the coordinator is told.
+- The converted MS is CARACal's `rawdatadir` (read only; CARACal writes its
+  splits to `msdir`). It is never written: its listing (file names, sizes,
+  mtimes) is recorded after the build and compared after each pass. Both
+  passes of a leg read the same MS.
+- Metadata checked before this protocol (allowed by A0 section 4), from
+  E2's preflight MSs `e2{a,b}-meta.ms`: every FIELD row has data (E2-A fields
+  0, 1; E2-B 0, 1, 2), so E0's `refant: auto` crash (a FIELD row without data,
+  msutils 1.2.0) is not expected. FEED RECEPTOR_ANGLE is −90° (E2-A) and 0
+  (E2-B). CARACal's `set_receptor_angle` **sets** the angle to
+  `feed_angle_rotation` (`polcal_worker.py` line 1501-1504), on its split, so
+  −90° is never applied twice.
+
+**Firewall.** A0 holds E2's visibilities out for rang's E2 run. E3 decodes
+them before E2 does. Nothing from an E3 run (numbers, images, plots, logs)
+is passed to the E2 session or written where it reads before E2 freezes that
+leg's result; `outputs/status/e3-caracal.md` reports progress only. Branch
+`e3-caracal` is handed to the coordinator, not merged, until both E2 legs
+have frozen results.
+
+**Smoke test on development data first.** The toolchain is first run on
+`e3-20261111-smoke.ms`: LUNO development scans 1 (J1331+3030) and 2
+(J1939-6342) from `D:\rang\data\e2-d`, built by the same converter with
+`--rows 20000` per group (all channels), with the E3-B configuration and
+`gcal: [J1939-6342]` (there is no 1830−211 in scans 1-2). It finds
+Stimela, image and path faults on data that may be seen. Its numbers are not
+E3 results.
+
+## 3. Configuration (frozen)
+
+Generated by `results/e3-caracal/scripts/e3_make_configs.py` from the shipped
+samples copied in `results/e3-caracal/shipped/` (sha256
+`9283ad05…98965` `meerkat-defaults.yml`, `fbbce1c3…aee3276`
+`meerkat-fullStokes-continuum-defaults.yml`), by counted text edits. Output in
+`results/e3-caracal/configs/e3{a,b}-{correct,timed}.yml`.
+
+A0 6.4's deviations, as applied:
+
+| # | E3-A (`meerkat-defaults`) | E3-B (`fullStokes-continuum`) |
+| --- | --- | --- |
+| 1 | `getdata.dataid: ['e2a']`, `general` directories | `dataid: ['e2b']`, the same |
+| 2 | `target ESO137-001`, `gcal = bpcal = fcal = J1939-6342` | `fcal = bpcal = J1939-6342`, `gcal J1833-2103`, `xcal J1331+3030` |
+| 3 | – | `transform__2`, `prep__2`, `flag__2`, `selfcal`, `polimg` disabled |
+| 4 | `inspect` disabled | `inspect`, `inspect__polcal` disabled |
+| 5 | `transform__2.split_field.chan_avg: 8` (G2 kept 512 channels, A0 6.6.3) | – |
+| 6 | `selfcal.calibrate.shared_mem: 20Gb` (CubiCal) | – (selfcal off) |
+| 7 | `refant: '0'` (shipped) | `refant` unset = schema default `auto` (shipped) |
+
+E3's own, labelled (written before any run):
+
+- **8. `line.enable: false` in E3-A.** A0 6.4 says "`line` and `ddcal` are
+  off", but the shipped `meerkat-defaults.yml` has `line.enable: true`. A0's
+  frozen text wins; the shipped value is reported here. No arm makes a cube.
+- **9. `general`:** `backend: docker`, `rawdatadir` the converted MS's folder,
+  `msdir`, `input`, `output` relative to the pass's run folder.
+- **10. `selfcal.ncpu`:** 8 in the correctness pass, 0 (all 16) in the timed
+  pass; this is the only difference between the two configs.
+- **6, not applicable in part:** CARACal's `selfcal` schema has no WSClean
+  `absmem` key (only `polimg` has one), so WSClean's memory is not capped by
+  the config; the correctness pass caps it from outside (section 4).
+- **3a, fallback, only if needed:** if `obsconf` stops because E3-B has no
+  target field, `target: ['J1833-2103']` is set (every target stage stays
+  disabled, so nothing is processed as a target). Recorded if used.
+- **7, the refant fallback, made exact:** "fails" means the run stops with an
+  error in the refant choice or in a solve that names the refant. Then, as A0
+  says, the antenna CARACal's own `get_refant` would rank first (core within
+  `maxdist` 1000 m, baselines ≥ `minbase` 150 m, lowest flagged fraction in
+  CARACal's own `flagstats` JSON from that run) is set as `refant`, and the
+  pass restarts from scratch. Recorded as a deviation with the JSON.
+
+## 4. Passes and cost measurement
+
+Order: smoke, E3-B correctness, E3-B timed, E3-A correctness, E3-A timed.
+Each pass starts from an empty run folder
+`D:\rang\outputs\e3-20261111-<leg>-<pass>` (`msdir`, `output` inside) and the
+read-only converted MS.
+
+- **Correctness pass:** shared,
+  `C:\Users\gijsm\Github\rang\tools\heavy_lock.py run --slots 8 --mem 24 -- …`.
+  Stimela 1 starts each step's container with no CPU or memory limit, so a
+  watcher (`e3_watch.py`) applies `docker update --cpus 8 --memory 24g
+  --memory-swap 24g` to every container on its `create` event (Stimela
+  creates, then starts), and records any container it could not update before
+  start. `selfcal.ncpu: 8`.
+- **Timed pass:** exclusive (`heavy_lock.py run -- …`), `heavy_lock.py status`
+  recorded at start (no shared job may be listed), no container limits,
+  `selfcal.ncpu: 0` (16 threads). Runs only if the correctness pass finished;
+  if the correctness pass crashed, the crash is the leg's result, its wall time
+  to the crash is reported labelled "shared host", and no timed pass runs.
+- **Wall time:** end to end, `/usr/bin/time -v` around the `caracal` driver;
+  per worker from CARACal's log (worker start and end lines); per container from
+  `docker events` (`start` to `die`), logged by the watcher.
+- **Peak memory** (A0 rule 7 asks for the cgroup's `memory.peak` read inside
+  the container before exit). **Deviation:** Stimela 1 runs the cab's own
+  command, so nothing can be read inside. The watcher reads each live
+  container's `memory.peak` from its cgroup on the WSL host
+  (`/sys/fs/cgroup/**/docker-<id>.scope/memory.peak`) every second and keeps
+  the last value; the error is at most the growth in the last second before
+  exit. Leg peak = the maximum over containers (Stimela runs one step at a
+  time), beside the driver's own maximum RSS from `time -v`.
+- **Peak disk:** `du -sb` of the run folder every 60 s, maximum; the read-only
+  input MS is reported separately.
+
+**Confounds, stated beside every time:** CARACal runs in the WSL VM (16
+threads, **30 GB** RAM visible, of the host's 63 GB) on `/mnt/d` (drvfs over
+9P), rang runs natively on NTFS. To size the I/O part, one side measurement
+per leg, reported and never used to correct: the time to read the converted
+MS's `table.f*` DATA file once with `cat > /dev/null` from WSL `/mnt/d` and
+natively from Windows (cold cache not guaranteed; stated).
+
+**Resources:** E3-B needs about 54 GB (input) plus about 130 GB (CARACal's
+calibrator split with MODEL and CORRECTED). E3-A needs about 210 GB input
+plus about 330 GB (splits, A0 section 8). E3-B's run folders are deleted once
+archived, before E3-A. **E3-A starts (its MS build included) only when D: has
+at least 600 GB free and E2's session does not hold or plan an E2-A arm copy
+during the run** (asked through the shared notes folder, never assumed).
+Otherwise it waits, and the status file says so.
+
+## 5. Measures and how each is computed
+
+Single-arm numbers are computed here from CARACal's products; the joint
+numbers (anything that needs both arms: the common mask, the common restoring
+beam, source matching) are computed by E2's scorer, run by the coordinator on
+both arms' archived images, exactly as A0 rule 6 fixes it.
+
+**E3-A** (CARACal's final self-calibration image is its product; WSClean 3.6
+inside CARACal, its shipped imaging, A0 6.6.4):
+
+| Measure | How |
+| --- | --- |
+| Off-source rms | joint scorer; single-arm provisional: MAD × 1.4826 of the final MFS residual inside 0.7° radius, outside CARACal's own image above 5σ dilated by 2 beams |
+| Dynamic range | MFS image peak over that rms |
+| Compact-source fluxes | joint scorer (isolated sources ≥ 10σ, matched across arms), ratio rang/CARACal: median and robust scatter |
+| Spectral index | each arm from its own channel images (CARACal `img_nchans` 3, rang 8) for the matched sources ≥ 50σ: least-squares slope of log S against log ν; median Δα |
+| Calibrator flux | 1934−638 Stokes I per 100 MHz from CARACal's CORRECTED_DATA on its calibrator split, scans 9 and 11 (mean over unflagged cells of Re((XX+YY)/2), point source at the phase centre) against SR2016; CARACal solves on both scans, so this is its own-solve number, not E2-A's scan-9-to-11 transfer |
+
+**E3-B** (no target; CARACal makes no image of the calibrators):
+
+| Measure | How |
+| --- | --- |
+| 3C 286 p and χ | per 100 MHz bin, 1.0-1.65 GHz, bins with ≥ 10 % unflagged, from CARACal's CORRECTED_DATA of scan 17 in its calibrator split after polcal, by E2's visibility-domain rule (draft 5.5, "E2-B rows": mean over unflagged cells of the calibrated cross hands, derotated to the sky frame; if E2's frozen protocol words the rule differently, its frozen wording is used, on both arms). CARACal solves its polarisation on scan 17 itself, so this compares with rang's own-half parity numbers, not the transfer |
+| 1934−638 leakage | images of CARACal's CORRECTED_DATA on scan 18 by WSClean 3.7 (`rang-wsclean-native:3.7`) with E2-B's image settings (2,048 × 2″, robust 0, 8 joined channels, joined polarisations, A0's threshold rule), peak \|Q\|, \|U\|, \|V\| MFS over peak I. This imaging is not CARACal's and is outside its wall time |
+| 1830−211 | I, p, χ from CARACal's CORRECTED_DATA of scans 19-20 (visibility domain, as for 3C 286) |
+| Calibrator flux | 1934−638 Stokes I per 100 MHz, as in E3-A, scan 18 |
+
+Noise for any noise-relative measure comes from adjacent-channel differences
+of the data (A0 rule 4), never the weights. Wall time, memory and disk as in
+section 4.
+
+## 6. Comparison rules against rang's E2 outputs
+
+- Arms: rang's E2 run (its frozen configuration) and, from A0 6.6.2, rang's
+  second E3 arm with CARACal's lsm model through `predict_components`; both
+  against this CARACal run. The coordinator runs rang's E3 arms; this task
+  does not.
+- Words frozen in A0 6.3, applied by the coordinator, not here:
+  "comparable" when every quality measure is within 20 % of CARACal's and flux
+  within 2 %; "better" or "worse" outside that in the stated direction; speed
+  "comparable" within a factor of 1.5, at 16 threads on an idle host. No
+  reading is a novelty claim.
+- The direction of each quality measure: lower rms, higher dynamic range,
+  flux and α closer to the other arm are not "better" by themselves; flux is
+  read as a ratio within 2 %, p and χ against 3C 286's known values (A0 6.3)
+  and leakage lower is better.
+- A crash or a stage CARACal cannot run is reported as such, with the stage
+  and the error, and the measures it prevents are listed as "not measured",
+  never filled from another route without a label.
+
+## 7. When CARACal cannot run here
+
+- "Cannot run here" means: the install, the image pulls or a container start
+  fails for a reason of this host (Docker, paths, permissions, the WSL memory
+  limit). One environmental repair per cause is allowed and recorded.
+- A stop inside CARACal's own code or a cab's science step on these data is a
+  **result**: recorded with the log. The leg's remaining stages then run as
+  "CARACal's sequence by hand" (A0 6.4: the same CASA calls in `rang-o-casa`;
+  for selfcal WSClean plus QuartiCal `delay_and_offset` as the CubiCal
+  stand-in), labelled, and reported beside the crash, never in its place.
+
+## 8. Archive
+
+`research/results/e3-caracal/`: configs, `versions.json` (pip freeze of the
+venv, image digests), per-pass `cost.json` (wall, per worker, per container,
+peak memory, peak disk, lock status), CARACal's resolved config and log (gzip),
+CASA's caltables (small, tar.gz), the measures JSON, the images' MFS FITS for
+the joint scorer if under 50 MB each (otherwise their path and sha256 under
+`D:\rang\outputs`), and a timing row per pass in
+[tool-timings.md](tool-timings.md).
+
+## 9. Proposed, implemented, measured
+
+| Item | State |
+| --- | --- |
+| Protocol, configs | **frozen** (this commit) |
+| CARACal install, image pulls | not done (install of the clone awaits the owner's approval) |
+| Smoke, E3-B, E3-A passes | not run |
+
+## For the coordinator
+
+- CARACal at the pinned commit is v1.2.2 on Stimela 1.8.3 (classic, Docker),
+  not Stimela 2.1.4; its CASA is 5.8.0 and WSClean 3.6. Reported, not swapped.
+- Installing CARACal from the local clone (PyPI has only 1.2.1) was refused
+  by the session's permission classifier; it needs the owner's explicit yes.
+- E3-A needs about 540 GB on D: (210 GB input MS + 330 GB splits); D: had
+  680 GB free on 2026-11-11, so E3-A and an E2-A arm cannot run at the same
+  time.
