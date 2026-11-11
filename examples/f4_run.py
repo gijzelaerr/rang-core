@@ -14,6 +14,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(r"D:\rang\outputs")
+# The main checkout's lock queues first come, first served (main bd15126);
+# older copies in branches poll and can jump the queue.
+LOCK = Path("C:/Users/gijsm/Github/rang/tools/heavy_lock.py")
 STATUS = Path(r"C:\Users\gijsm\Github\rang\outputs\status\f4-flagger.md")
 
 
@@ -63,7 +66,7 @@ def main():
             shutil.copy2(p, code / p.parent.name / p.name)
     env = dict(os.environ, RUN_DIR=str(run))
     if "--lock" in opts:
-        cmd = [sys.executable, str(ROOT / "tools/heavy_lock.py"), "run", "--", *cmd]
+        cmd = [sys.executable, str(LOCK), "run", "--", *cmd]
     start = time.time()
     status(f"start {name}")
     with open(OUT / f"{name}.log", "ab") as log:

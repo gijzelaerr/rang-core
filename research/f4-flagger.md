@@ -378,7 +378,8 @@ Runs under `D:\rang\outputs\f4-20261111-NN-*` (each with `.code/`, `.log`, `.tim
 
 ### Staged runs
 
-Queued in order by `examples/f4_queue.py` (each step under `tools/heavy_lock.py`, E2 and other lock
+Queued in order by `examples/f4_queue.py` (each step under the main checkout's `tools/heavy_lock.py`,
+first come, first served since main `bd15126`; E2 and other lock
 holders first; the frozen stops are checked between steps and written to
 `D:\rang\outputs\f4-20261111-queue.json`):
 
@@ -412,7 +413,7 @@ wsl -d Ubuntu -- bash -lc 'uv venv ~/Build/tmp/20261111-f4-jaxcuda && uv pip ins
 ```
 
 ```bash
-wsl -d Ubuntu -- bash -lc 'cd /mnt/c/Users/gijsm/Worktrees/rang/fp-f4-flagger && for c in calibrator:06-shards-cal target:07-shards-target; do k=${c%%:*}; d=${c#*:}; for s in 1 2 3; do XLA_PYTHON_CLIENT_PREALLOCATE=false python3 tools/heavy_lock.py run -- ~/Build/tmp/20261111-f4-jaxcuda/bin/python examples/f3_train.py /mnt/d/rang/outputs/f4-20261111-$d/$k /mnt/d/rang/outputs/f4-20261111-08-train-$k/seed-$s --seed $s --nplanes 23; done; done'
+wsl -d Ubuntu -- bash -lc 'cd /mnt/c/Users/gijsm/Worktrees/rang/fp-f4-flagger && for c in calibrator:06-shards-cal target:07-shards-target; do k=${c%%:*}; d=${c#*:}; for s in 1 2 3; do XLA_PYTHON_CLIENT_PREALLOCATE=false python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py run -- ~/Build/tmp/20261111-f4-jaxcuda/bin/python examples/f3_train.py /mnt/d/rang/outputs/f4-20261111-$d/$k /mnt/d/rang/outputs/f4-20261111-08-train-$k/seed-$s --seed $s --nplanes 23; done; done'
 ```
 
 Then per class the median seed by validation loss, and τ (native):
