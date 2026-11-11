@@ -6,6 +6,7 @@ Each entry is one report and its verdict, newest first within a section.
 ## Start here
 
 - [vision.md](vision.md): ra-ng's direction (2026-11-11): beginners, astronomers and algorithm scientists working with agents; MeerKAT first, LOFAR in mind; pulsars and transients; GPU where it pays, cross-platform; contributions by pull request; research skills that propose and measure.
+- [Weekly digests](digests/2026-11-11.md) (V4, newest 2026-11-11; skill `.claude/skills/rang-digest`): new papers and releases per area, read-only, and ranked [proposal stubs](proposals/joint-selfcal-regularised.md), none approved.
 - [V6, VLBI scope](v6-vlbi-scope.md) (proposed, 2026-11-11): what carries over from rang-core and what is new; tools and public data (N14C3, EHT, the 2025 MeerKAT-EVN run); first piece proposed: fringe fitting against CASA `fringefit` on simulated truth and N14C3; five owner decisions.
 - [V7, LOFAR scope](v7-lofar-scope.md) (proposed, 2026-11-11): what carries over (MS, solvers, AOFlagger port, wgridder, H5parm) and what is new (station beams, TEC and Faraday rotation, DD calibration, demixing, Dysco, LOFAR 2.0); first piece proposed: the DI ionospheric solve against DP3 DDECal on simulated truth and Edler et al.'s public LOFAR 2.0 calibrator; five owner decisions with questions for ASTRON.
 - [STATE.md](STATE.md): the current status and the log of recent work; [STATE-history.md](STATE-history.md) holds the entries before 2026-10-29.
