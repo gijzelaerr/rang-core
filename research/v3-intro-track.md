@@ -276,8 +276,10 @@ notes. Committed without outputs (`tests/test_v3_intro.py`).
   `data/` stays because GeMClean's simulator compiles it in; a test keeps the
   two identical.
 - The A1 generator moved from `examples/a1_simtruth.py` into the package as
-  `rang.simtruth_ms` (`python -m rang.simtruth_ms generate small DIR`; git
-  history follows the rename). `examples/a1_simtruth.py` is a shim, so every
+  `rang.simtruth_ms` (`python -m rang.simtruth_ms generate small DIR`; its
+  history before V3b is that of `examples/a1_simtruth.py`, as git does not
+  record a rename when the old path stays). `examples/a1_simtruth.py` is a
+  shim, so every
   command, tool and note that names it still works. Checked: A1 small written
   by the moved module has DATA and `truth.npz` identical to the old script's
   (same seeds, compared array by array).
