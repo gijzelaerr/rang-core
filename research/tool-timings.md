@@ -1809,3 +1809,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-11 | F4 `f4_fetch.py` (whole GETs, sha256 receipt) | LUNO MAIN_0, MAIN_12, MAIN_14 row chunk 0, tiles 8-23: 126 objects, 4.54 GB | 27.6 min | – | network bound, no lock |
 | 2026-11-11 | F4 `cargo test --release --lib f4flag` / `f3flag` | core crate | 0.10 / 0.16 s (tests) | – | build time not separated |
 | 2026-11-11 | F4 `maturin develop --release --offline` (heavy_lock) | worktree fp-f4-flagger | 23.7 min wall, almost all lock wait | – | first two attempts failed (relative exe path; `-m` built `rang_core_py`) |
+| 2026-11-11 | F4 `maturin develop --release --offline` after Amendment 2 (heavy_lock `--slots 4 --mem 8`) | worktree fp-f4-flagger | 26.1 min wall incl. lock wait (16:29-16:55) | – | build itself not separated from queue wait |
+| 2026-11-12 | F4 `pytest tests/test_f4_flag.py tests/test_f3_flag.py tests/test_f2_sim.py` | rebuilt extension | 2.5 s (15 tests) | – | 11-11 run: 2.9 s, 1 failure (test bug, fixed efd6876) |
