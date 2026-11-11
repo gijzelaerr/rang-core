@@ -373,7 +373,7 @@ objects, 4,542,359,207 bytes (all three groups, under the 8 GB bar), 27.6 min, r
 
 **Queued 2026-11-11 15:51 (host clock)** as a detached process (`outputs/f4-chain.sh`, ignored): the
 extension build under the heavy lock, then `tests/test_f4_flag.py`, `test_f3_flag.py`, `test_f2_sim.py`,
-then `examples/f4_queue.py`; progress in `D:ang\outputs4-20261111-00-build\chain.log`. Three
+then `examples/f4_queue.py`; progress in `D:\rang\outputs\f4-20261111-00-build\chain.log`. Three
 tests of `test_f4_flag.py` (Rust against NumPy, logits against JAX, the antenna-local band) need the
 rebuilt extension and had not run at the code commit; the chain stops before Stage 1 if they fail.
 
