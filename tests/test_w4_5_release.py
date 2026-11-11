@@ -210,6 +210,9 @@ def test_release_jobs_check_the_tag():
     release = _job(workflow, "release")
     assert "pyproject.toml" in release
     assert release.index("CHANGELOG.md") < release.index("--notes-file")
+    # E5: PyPI only after the release job's checks and notes have passed.
+    needs = re.search(r"^    needs: \[(.*)\]$", _job(workflow, "publish"), re.MULTILINE)
+    assert "release" in [n.strip() for n in needs.group(1).split(",")]
 
 
 # The first major version of each action that runs on Node 24.

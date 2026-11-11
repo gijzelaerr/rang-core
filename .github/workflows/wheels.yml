@@ -282,9 +282,11 @@ jobs:
   # on pypi.org for the project rang-core (pyproject.toml [project] name):
   # owner gijzelaerr, repository rang-core, workflow wheels.yml, environment
   # pypi. A v* tag (the user tags, e.g. v0.1.0) publishes rang-core.
+  # After `release`, so a tag whose CHANGELOG section or versions fail
+  # never reaches PyPI, where an upload cannot be taken back (E5).
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [wheel, sdist, test]
+    needs: [wheel, sdist, test, release]
     runs-on: ubuntu-24.04
     environment:
       name: pypi
