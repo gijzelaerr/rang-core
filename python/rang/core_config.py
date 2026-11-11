@@ -616,10 +616,50 @@ def load(path):
     return loads(text, source=path)
 
 
+def _unique_key_loader(yaml):
+    """A SafeLoader that refuses a key repeated in one mapping: PyYAML keeps
+    the last silently, so a second `image:` block would drop the first (E5-40,
+    research/e5-prereview.md)."""
+
+    class Loader(yaml.SafeLoader):
+        pass
+
+    def mapping(loader, node, deep=False):
+        seen = {}
+        for key_node, _ in node.value:
+            if key_node.tag == "tag:yaml.org,2002:merge":
+                continue  # `<<: *anchor` keys may be overridden by design
+            key = loader.construct_object(key_node, deep=deep)
+            try:
+                hash(key)
+            except TypeError:
+                continue  # SafeLoader reports an unhashable key itself
+            if key in seen:
+                raise ConfigError(
+                    [
+                        (
+                            str(key),
+                            (
+                                f"repeated on line {key_node.start_mark.line + 1} "
+                                f"(first on line {seen[key] + 1}); YAML would keep "
+                                "only the last"
+                            ),
+                        )
+                    ]
+                )
+            seen[key] = key_node.start_mark.line
+        return yaml.SafeLoader.construct_mapping(loader, node, deep=deep)
+
+    Loader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, mapping)
+    return Loader
+
+
 def loads(text, source=None):
     yaml = _yaml()
     try:
-        raw = yaml.safe_load(text)
+        raw = yaml.load(text, Loader=_unique_key_loader(yaml))
+    except ConfigError as exc:
+        raise ConfigError(exc.errors, source=source) from None
     except yaml.YAMLError as exc:
         raise ConfigError([("", f"not valid YAML: {exc}")], source=source) from exc
     if raw is None:
@@ -830,7 +870,13 @@ def _terms(path, value, errors):
         term = {}
         for name in raw:
             if name not in TERM_KEYS:
-                errors.append((f"{where}.{name}", "unknown term key"))
+                errors.append(
+                    (
+                        f"{where}.{name}",
+                        f"unknown term key; a {kind} term takes "
+                        + ", ".join(sorted(allowed, key=list(TERM_KEYS).index)),
+                    )
+                )
             elif name not in allowed:
                 errors.append((f"{where}.{name}", f"not a key of a {kind} term"))
         for name in sorted(allowed, key=list(TERM_KEYS).index):
@@ -1535,9 +1581,16 @@ def _model_refusals(model, cal, no, out):
 
 
 COMPLEX_HAS_NO = (
-    "the complex term solves QuartiCal bins (solint inf, int or N integrations; "
-    "freqint) with no CASA rules; use K, G and B terms for {what}"
+    "the complex term solves on fixed bins of integrations and channels "
+    "(solint inf, int or N; freqint) without CASA's solve options, so it takes "
+    "no {what}; remove it or solve K, G and B terms"
 )
+
+
+def _as_yaml(value):
+    """`value` as YAML flow text for a message ([auto], not ['auto'])."""
+    text = _yaml().safe_dump(value, default_flow_style=True, width=1 << 16)
+    return text.strip().removesuffix("...").strip()
 
 
 def _term_refusals(where, term, cal, no):
@@ -1551,7 +1604,7 @@ def _term_refusals(where, term, cal, no):
     if isinstance(term["solint"], str) and term["solint"].endswith("s"):
         errors.append(("solint", f"solint {term['solint']} (CASA's seconds bins)"))
     if term["combine"]:
-        errors.append(("combine", f"combine {term['combine']!r}"))
+        errors.append(("combine", f"combine ({_as_yaml(term['combine'])})"))
     for name, default in (
         ("refant", None),
         ("uvrange", ""),
@@ -1560,7 +1613,9 @@ def _term_refusals(where, term, cal, no):
     ):
         value = term[name] if term[name] is not None else cal[name]
         if value != default and value is not None:
-            errors.append((name, f"{name} {value!r}"))
+            # Say where the value came from: the term or the calibrate section.
+            origin = name if term[name] is not None else f"calibrate.{name}"
+            errors.append((name, f"{name} ({origin}: {_as_yaml(value)})"))
     if term["refantmode"] is not None:
         errors.append(("refantmode", "refantmode"))
     if term["preapply"]:

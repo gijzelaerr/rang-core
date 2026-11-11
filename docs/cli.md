@@ -89,8 +89,8 @@ $ rang-core flag -h
 usage: rang-core flag [-h] [--run-dir RUN_DIR] [--force] config ms
 
 flag with the Tricolour port, writing FLAG. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -110,8 +110,8 @@ $ rang-core calibrate -h
 usage: rang-core calibrate [-h] [--run-dir RUN_DIR] [--force] config ms
 
 solve the calibration terms, writing tables. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -131,8 +131,9 @@ $ rang-core apply -h
 usage: rang-core apply [-h] [--run-dir RUN_DIR] [--force] config ms
 
 apply the complex solutions, writing CORRECTED_DATA. Validates the
-configuration for every stage first; a finished stage is skipped unless
-forced, a failed one runs again.
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -151,8 +152,9 @@ options:
 $ rang-core image -h
 usage: rang-core image [-h] [--run-dir RUN_DIR] [--force] config ms
 
-image with gemclean. Validates the configuration for every stage first; a
-finished stage is skipped unless forced, a failed one runs again.
+image with gemclean. Validates the configuration for the stages it runs first.
+A finished stage is skipped, or refused when its configuration changed, unless
+forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -172,8 +174,9 @@ $ rang-core selfcal -h
 usage: rang-core selfcal [-h] [--run-dir RUN_DIR] [--force] config ms
 
 self-calibrate in rounds (image, model, solve, apply). Validates the
-configuration for every stage first; a finished stage is skipped unless
-forced, a failed one runs again.
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -193,8 +196,8 @@ $ rang-core run -h
 usage: rang-core run [-h] [--run-dir RUN_DIR] [--force STAGE] config ms
 
 the stages of run.stages in order, resuming. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -204,7 +207,8 @@ options:
   -h, --help         show this help message and exit
   --run-dir RUN_DIR  the run directory with state.json (default: <ms>.rang-run
                      beside the MS)
-  --force STAGE      run a finished stage again (repeatable; all: every stage)
+  --force STAGE      run a finished stage of run.stages again (repeatable;
+                     all: every stage of run.stages)
 ```
 
 ## `config`
