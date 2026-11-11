@@ -168,6 +168,18 @@ def test_pyproject_metadata():
         assert f'"{classifier}"' in project
     # A PEP 639 licence expression: a License classifier would be rejected.
     assert 'license = "GPL-3.0-or-later"' in project
+    # E5: the MIT and BSD notices of the translated code ship in every wheel.
+    assert 'license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]' in project
+    notices = _text("THIRD-PARTY-NOTICES.txt")
+    for path, holder in (
+        ("core/src/solve.rs", "Copyright (c) 2022 Jonathan Simon Kenyon"),
+        ("core/src/predict.rs", "Copyright (c) 2019, National Research Foundation"),
+        (
+            "core/src/sumthreshold.rs",
+            "Copyright (c) 2019, National Research Foundation",
+        ),
+    ):
+        assert holder in notices and path in notices, path
     assert "License ::" not in project
     urls = _section(_text("pyproject.toml"), "project.urls")
     for name in ("Documentation", "Repository", "Issues"):

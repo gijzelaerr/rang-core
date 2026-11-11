@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "ra-ng's Rust core: MeerKAT flagging, calibration and imaging, driven from Python (import rang)"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]
 readme = "README.md"
 authors = [{name = "Gijs Molenaar"}]
 keywords = ["radio astronomy", "MeerKAT", "calibration", "flagging", "interferometry", "imaging", "measurement set"]
