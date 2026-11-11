@@ -425,5 +425,6 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
   a host change for every session, owner's call) and a rerun; or (ii)
   section 7's route: record the stop as CARACal's result on this host and run
   the remaining stages as "CARACal's sequence by hand", labelled.
-- On D: now: `e3-20261111-input\e2b.ms` 51 GB and the run's split, both kept
-  (within the 200 GB cap).
+- On D: now: `e3-20261111-input\e2b.ms` (51 GB, kept until the decision) and
+  try 3's partial split (3.8 GB; try 3's transform overwrote try 2's split),
+  within the 200 GB cap.
