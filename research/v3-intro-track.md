@@ -309,7 +309,10 @@ always and I6-I8 only with `RANG_NOTEBOOK_INTRO_SLOW=1`. The docs workflow
 gains a nightly schedule that sets it, saves the executed I6-I8 to the
 Actions cache and deploys; every other build restores them and renders them
 while their code cells equal the source's (`keep_executed`), else without
-outputs.
+outputs. Checked on the branch: docs run 43047655873 (push: I1-I5 and I9 in
+1.9-9.7 s each, I6-I8 not executed, Sphinx with `-W` passed) and run
+43048923411 (`workflow_dispatch`: all nine, I6 6.4 s, I7 28.3 s, I8 14.9 s,
+cache `intro-nightly-43048923411` saved), both green on ubuntu-24.04.
 
 **Departures from the outline.**
 
