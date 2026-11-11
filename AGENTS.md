@@ -30,15 +30,19 @@ instruction; contributors can skip it. Task procedures for agents are in
 
 - Contributors and their agents open a pull request against `main` from a
   branch or fork; `CONTRIBUTING.md` gives the route.
-- CI on a pull request is the `docs` workflow (extension build, notebooks on the
-  public fixture, the CLI page check, `sphinx-build -W`), plus `wheels` when the
-  pull request touches `core/`, `src/`, `Cargo.*`, `.cargo/`, `pyproject.toml`
-  or `tools/wheel/` (it tests the built wheels with a subset of the tests).
-  CI does not run the full test suite, so run the full local checks (`python -m rang.check`, after `maturin develop --release`) before
-  every commit and report the result in the pull request.
+- CI on a pull request: `tests` (ruff, ruff format, cargo fmt, clippy with
+  warnings as errors, cargo test for the root crate and `core/`, pytest on Linux
+  and Windows against the branch's extension), `docs` (notebooks on the public
+  fixture, the CLI page check, `sphinx-build -W`), and `wheels` when the pull
+  request touches `core/`, `src/`, `Cargo.*`, `.cargo/`, `pyproject.toml` or
+  `tools/wheel/`. CI has no archives or oracles (CASA, QuartiCal, WSClean), so
+  their gates still need the full local checks (`python -m rang.check`, after
+  `maturin develop --release`); report the result in the pull request.
 - Never force-push a shared branch; never rewrite `main`.
 - Commit under your own name and address. An agent commits as the person it
   works for, never under an agent or bot identity of its own.
+- AI attribution trailers (co-author lines, generated-by footers): the project
+  prefers commits without them; contributors decide for their own commits.
 
 ### Claims
 

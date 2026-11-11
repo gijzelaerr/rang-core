@@ -21,13 +21,17 @@ alike, contributes through pull requests. The working rules for both are in
 4. **Run the full local checks** below (`python -m rang.check`), under
    `python tools/heavy_lock.py run -- ...` on a shared host, and paste the
    summary (`overall: PASS`, or the failing steps) into the pull request.
-5. **CI.** The `docs` workflow runs on every pull request: it builds the
+5. **CI.** The `tests` workflow runs on every pull request: ruff, ruff format,
+   cargo fmt, clippy (warnings are errors), cargo test for the root crate and
+   `core/`, and pytest on Linux and Windows against the branch's extension.
+   The `docs` workflow also runs on every pull request: it builds the
    extension, executes the notebooks on the public fixture, checks the CLI page
    and builds the site with `sphinx-build -W`. The `wheels` workflow (five
    platforms) runs when the pull request touches `core/`, `src/`, `Cargo.*`,
    `.cargo/`, `pyproject.toml` or `tools/wheel/`, and tests each built wheel
-   with a subset of the Python tests. CI runs neither the full pytest suite nor
-   the Rust tests; step 4 is the test gate, so it must be done and reported.
+   with a subset of the Python tests. CI has no archives or oracles (CASA,
+   QuartiCal, WSClean), so their gates run only in step 4, which must be done
+   and reported.
 6. **Describe** what changed, what was measured and what was not checked.
    The owner reviews and merges; defaults and scientific status change only on
    the owner's decision.

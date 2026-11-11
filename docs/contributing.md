@@ -20,11 +20,13 @@ alike, contributes through pull requests.
 4. Run the full local checks (below), under
    `python tools/heavy_lock.py run -- ...` on a shared host, and paste the
    summary into the pull request.
-5. CI runs the `docs` workflow on every pull request (extension build,
+5. CI runs the `tests` workflow on every pull request (ruff, cargo fmt, clippy,
+   cargo test, pytest on Linux and Windows) and the `docs` workflow (extension build,
    notebooks on the fixture, the CLI page check, `sphinx-build -W`), and the
    five-platform `wheels` workflow when `core/`, `src/`, `Cargo.*`, `.cargo/`,
    `pyproject.toml` or `tools/wheel/` change (a subset of the tests, on the
-   built wheels). Neither runs the full test suite: step 4 is the test gate.
+   built wheels). CI has no archives or oracles (CASA, QuartiCal, WSClean), so
+   their gates run only in step 4.
 6. Say what changed, what was measured and what was not checked. The owner
    reviews and merges.
 

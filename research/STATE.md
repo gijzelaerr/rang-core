@@ -20,6 +20,8 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Merges and owner answers, 2026-11-11: V7 (LOFAR scope), V4 (first digest, the `rang-digest` skill), E4 (tutorial `notebooks/00-ms-to-image.ipynb`, CI job `e2e`), E5 pre-review (52 findings, 11 fixed), V2 (AGENTS.md split, PR route, `docs/agents/`, skills) merged. Owner on V2: the three new AGENTS.md rules stay; AI trailers are the contributor's choice (the project prefers none); a `tests` workflow now runs lint, clippy, cargo test and pytest (Linux, Windows) on every pull request. Owner: an autocorrelation arm joins F4.
+
 V6, 2026-11-11 (proposed; [v6-vlbi-scope.md](v6-vlbi-scope.md)): VLBI scoping note; first piece proposed is fringe fitting (phase, delay, rate) in Rust against CASA `fringefit` on simulated truth and the public EVN experiment N14C3; closure imaging waits on DF5's RML arm; five owner decisions. Releases (owner, finish-plan item 34): no pre-releases; next PyPI release is v0.2.0 at E6.
 
 Direction, 2026-11-11 (owner; [vision.md](vision.md)): the project is **ra-ng**, rang-core its first package; the home for agentic radio astronomy for beginners, astronomers and algorithm scientists; MeerKAT first, LOFAR in mind; time series means pulsars and transients; GPU where it pays, cross-platform; the owner commits to main, contributors open pull requests; research skills propose and measure, never merge on their own. v0.2.0 stays the next milestone; light tasks run alongside the heavy queue. AGENTS.md scope and the README tagline reworded. Added the same day: E2 resumed; weekly literature digest (V4); Obit as a second imaging oracle (V5); VLBI later, scoping note V6.
