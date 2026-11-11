@@ -25,6 +25,8 @@ Chunking changes no arithmetic: a chunked solve gives the solutions of the
 one-call solve bit for bit (research/w3b-chainchunks.md, section 3).
 """
 
+import hashlib
+import weakref
 from dataclasses import dataclass
 
 import numpy as np
@@ -98,28 +100,74 @@ def load(reader, rows, chunk, names, prepare, block_rows):
     """The prepared arrays of `chunk`: column `names` of MS rows
     `rows[chunk.pos]` read from `reader`, passed as `prepare(pos, columns)`,
     which returns a dict of `(row, chan, corr)` arrays and per-row arrays.
-    A chunk with some channels only is read and prepared in blocks of
-    `block_rows` whole rows, each cut to the chunk's channels."""
+
+    A chunk with some channels only reads only its channels of the columns
+    that have a channel axis (research/sliced-read.md) and is prepared on
+    them, `prepare(pos, columns, chans=chunk.chans)`, which pre-applies on
+    that window of the band (`rang.cal_apply.apply(channels=)`). Each row's
+    weight sum `row_w` is a sum over all channels after the pre-apply's
+    flags, so it comes from whole rows: read and prepared in blocks of
+    `block_rows` rows once per set of rows and reused by the other channel
+    chunks of the interval and by the second pass of a replay."""
     pos = chunk.pos
     if chunk.whole:
         cols = {n: core_chunks.read_rows(reader, n, rows[pos]) for n in names}
         return prepare(pos, cols)
+    cols = {
+        n: core_chunks.read_rows(
+            reader, n, rows[pos], chunk.chans if _has_channels(reader, n) else None
+        )
+        for n in names
+    }
+    got = prepare(pos, cols, chans=chunk.chans)
+    del cols
     out = {}
+    for key, value in got.items():
+        value = np.asarray(value)
+        out[key] = np.ascontiguousarray(value) if value.ndim >= 2 else value
+    del got
+    if "row_w" in out:
+        out["row_w"] = whole_row_weights(reader, rows, pos, names, prepare, block_rows)
+    return out
+
+
+# Per field (the owner of its `prepare`), the rows' weight sums of whole
+# rows by the set of rows they were taken over: 8 bytes a row.
+_ROW_WEIGHTS = weakref.WeakKeyDictionary()
+
+
+def whole_row_weights(reader, rows, pos, names, prepare, block_rows):
+    """`row_w` of field rows `pos` from whole rows (all channels), read and
+    prepared in blocks of `block_rows` rows as the one-call solve prepares
+    them; memoised per field and set of rows."""
+    owner = getattr(prepare, "__self__", prepare)
+    key = (len(pos), hashlib.sha256(np.ascontiguousarray(pos, np.int64)).hexdigest())
+    try:
+        memo = _ROW_WEIGHTS.setdefault(owner, {})
+    except TypeError:  # an owner without weak references: no memo
+        memo = {}
+    if key in memo:
+        return memo[key]
+    row_w = np.empty(len(pos))
     step = max(1, int(block_rows))
     for b in range(0, len(pos), step):
         part = pos[b : b + step]
         cols = {n: core_chunks.read_rows(reader, n, rows[part]) for n in names}
-        got = prepare(part, cols)
+        row_w[b : b + len(part)] = prepare(part, cols)["row_w"]
         del cols
-        for key, value in got.items():
-            value = np.asarray(value)
-            if value.ndim >= 2:
-                value = value[:, chunk.chans]
-            if key not in out:
-                out[key] = np.empty((len(pos), *value.shape[1:]), value.dtype)
-            out[key][b : b + len(part)] = value
-        del got
-    return out
+    memo[key] = row_w
+    return row_w
+
+
+def _has_channels(reader, name):
+    """True when column `name` has a channel axis (a cell of two axes or
+    more, `(row, chan, corr)` in NumPy): only those are read sliced."""
+    columns = getattr(reader, "columns", None)
+    if columns is not None and name in columns:
+        ndim = int(columns[name].get("ndim", -1))
+        if ndim > 0:
+            return ndim >= 2
+    return np.ndim(reader.getcol(name, 0, 1)) >= 3
 
 
 def replayed(chunks, run, *, max_iterations, stop_fraction):

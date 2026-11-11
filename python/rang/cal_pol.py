@@ -373,15 +373,18 @@ class _PolField:
             **({} if receptor_angle is None else {"receptor_angle": receptor_angle}),
         }
 
-    def prepare(self, pos, c):
-        """The arrays of field rows `pos` from their cell columns `c`."""
+    def prepare(self, pos, c, chans=None):
+        """The arrays of field rows `pos` from their cell columns `c`;
+        `chans` (a slice): the cell columns and the arrays hold only those
+        channels (research/sliced-read.md)."""
         m = self.meta
         data = np.asarray(c[self.data_column], np.complex64)
-        mdl = (
-            c[self.model_column]
-            if self.model is None
-            else cal_gain._model_rows(self.model, pos, len(self.rows))
-        )
+        if self.model is None:
+            mdl = c[self.model_column]
+        else:
+            mdl = cal_gain._model_rows(self.model, pos, len(self.rows))
+            if chans is not None:
+                mdl = np.asarray(mdl)[:, chans]
         mdl = np.asarray(mdl, np.complex64)
         if mdl.shape != data.shape:
             raise ValueError("model must be (row, chan, 4) for the field's rows")
@@ -405,6 +408,7 @@ class _PolField:
                 len(self.names),
                 self.field_id,
                 solved=self.solved,
+                channels=chans,
             )
             sigma = np.asarray(c[self.sigma_column], np.float64)
             if sigma.ndim == 2:
@@ -495,8 +499,8 @@ class _PolField:
 
         return chunks, get
 
-    def _prep(self, pos, c):
-        arr = self.prepare(pos, c)
+    def _prep(self, pos, c, chans=None):
+        arr = self.prepare(pos, c, chans=chans)
         del arr["angles"]
         return arr
 

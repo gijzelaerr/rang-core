@@ -5104,9 +5104,21 @@ impl TableWriter {
     /// Flush, then read rows of a column with the task E reader, without
     /// touching `table.lock` (which would drop this process's lock).
     pub fn read_column(&mut self, name: &str, start: u64, count: u64) -> Result<ColumnData> {
+        self.read_column_slice(name, start, count, None)
+    }
+
+    /// Flush, then read rows `start..start+count` (`count` 0: to the end)
+    /// with each cell cut to `slice` (`crate::ms::Table::read_column_slice`).
+    pub fn read_column_slice(
+        &mut self,
+        name: &str,
+        start: u64,
+        count: u64,
+        slice: Option<&[(i64, i64)]>,
+    ) -> Result<ColumnData> {
         self.flush()?;
         let direct = crate::ms::Table::open_with_rows(&self.dir, Some(self.nrows))
-            .and_then(|t| t.read_column(name, start, count));
+            .and_then(|t| t.read_column_slice(name, start, count, slice));
         match direct {
             Ok(d) => Ok(d),
             Err(e) => {
@@ -5120,7 +5132,55 @@ impl TableWriter {
                 };
                 let dtype = DataType::from_code(self.dat.columns[self.dat.column(name)?].dtype)?;
                 let cells = read_cells(&self.dir, name, start, count, Some(self.nrows))?;
-                pack_cells(dtype, count, cells).ok_or(e)
+                let packed = pack_cells(dtype, count, cells).ok_or(e)?;
+                match slice {
+                    Some(s) if packed.nrows > 0 => crate::ms::cut_cells(packed, s, name),
+                    _ => Ok(packed),
+                }
+            }
+        }
+    }
+
+    /// Flush, then read the rows `rows` (any order) with each cell cut to
+    /// `slice` (`crate::ms::Table::read_rows`), in the order of `rows`.
+    pub fn read_rows(
+        &mut self,
+        name: &str,
+        rows: &[u64],
+        slice: Option<&[(i64, i64)]>,
+    ) -> Result<ColumnData> {
+        self.flush()?;
+        let direct = crate::ms::Table::open_with_rows(&self.dir, Some(self.nrows))
+            .and_then(|t| t.read_rows(name, rows, slice));
+        match direct {
+            Ok(d) => Ok(d),
+            Err(e) => {
+                // As `read_column_slice`: each run of consecutive rows through
+                // the writer's own cell reads.
+                let mut out: Option<ColumnData> = None;
+                let mut at = 0;
+                while at < rows.len() {
+                    let mut n = 1;
+                    while at + n < rows.len() && rows[at + n] == rows[at] + n as u64 {
+                        n += 1;
+                    }
+                    let part = self
+                        .read_column_slice(name, rows[at], n as u64, slice)
+                        .map_err(|_| e.clone())?;
+                    match &mut out {
+                        None => out = Some(part),
+                        Some(o) => {
+                            if o.shape != part.shape {
+                                return Err(e);
+                            }
+                            o.nrows += part.nrows;
+                            o.bytes.extend_from_slice(&part.bytes);
+                            o.strings.extend(part.strings);
+                        }
+                    }
+                    at += n;
+                }
+                out.ok_or(e)
             }
         }
     }

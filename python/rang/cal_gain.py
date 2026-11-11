@@ -505,11 +505,13 @@ def _weights(c, weight_column, shape):
 
 
 def _pre_apply(
-    data, model, flag, time, a1, a2, freq, tables, interp, nant, field_id=0, solved="G"
-):
+    data, model, flag, time, a1, a2, freq, tables, interp, nant, field_id=0, solved="G",
+    channels=None,
+):  # fmt: skip
     """Pre-apply `tables` as CASA does for a solve of type `solved` (G, or K
     for `rang.cal_delay`): lower types correct the data, the others corrupt
-    the model."""
+    the model. `channels` (a slice of `freq`, the whole band): the arrays
+    hold only those channels (`rang.cal_apply.apply`)."""
     lower = [
         i
         for i, t in enumerate(tables)
@@ -529,6 +531,7 @@ def _pre_apply(
             interp=[interp[i] for i in lower],
             nant=nant,
             field_id=field_id,
+            channels=channels,
         )
         flag = flag | f
     if upper:
@@ -544,6 +547,7 @@ def _pre_apply(
             direction="corrupt",
             nant=nant,
             field_id=field_id,
+            channels=channels,
         )
         flag = flag | f
     return data, model, flag
@@ -603,22 +607,26 @@ class _Field:
         self.tables, self.interp, self.nant = tables, interp, nant
         self.field_id, self.solved, self.freq = field_id, solved, freq
 
-    def prepare(self, pos, c):
+    def prepare(self, pos, c, chans=None):
         """The arrays of field rows `pos` from their cell columns `c`, as
-        the one-call solve computes them."""
+        the one-call solve computes them. `chans` (a slice): the cell
+        columns hold only those channels, and so do the arrays
+        (research/sliced-read.md); `row_w` then covers those channels
+        only."""
         m = self.meta
         data = c[self.data_column]
-        mdl = (
-            c[self.model_column]
-            if self.model is None
-            else _model_rows(self.model, pos, len(self.rows))
-        )
+        if self.model is None:
+            mdl = c[self.model_column]
+        else:
+            mdl = _model_rows(self.model, pos, len(self.rows))
+            if chans is not None:
+                mdl = np.asarray(mdl)[:, chans]
         flag = np.asarray(c["FLAG"], bool)
         if self.tables:
             data, mdl, flag = _pre_apply(
                 data, mdl, flag, m["TIME"][pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos],
                 self.freq, self.tables, self.interp, self.nant, self.field_id,
-                solved=self.solved,
+                solved=self.solved, channels=chans,
             )  # fmt: skip
         weights = _weights(c, self.weight_column, data.shape)
         if self.tables:

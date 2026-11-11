@@ -184,8 +184,14 @@ pub struct Chunk<'a> {
     pub time: &'a [f64],
     pub antenna1: &'a [u32],
     pub antenna2: &'a [u32],
-    /// Data CHAN_FREQ (Hz).
+    /// The window's CHAN_FREQ (Hz), at least `first_chan + nchan` values:
+    /// the data hold its channels `first_chan..first_chan + nchan`. Each
+    /// term's table is resampled to the whole window, as for a chunk of every
+    /// channel, so a channel window is corrected exactly as the same channels
+    /// of the whole band (research/sliced-read.md).
     pub freq: &'a [f64],
+    /// The first channel of the window the data hold.
+    pub first_chan: usize,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -259,8 +265,12 @@ pub fn check(chunk: &Chunk, terms: &[Term]) -> Result<(), String> {
     {
         return err("time, antenna1 and antenna2 must have one value per row");
     }
-    if chunk.freq.len() != chunk.nchan {
-        return err("freq must have one value per channel");
+    if chunk
+        .first_chan
+        .checked_add(chunk.nchan)
+        .is_none_or(|end| end > chunk.freq.len())
+    {
+        return err("freq must have one value per channel of the window");
     }
     if chunk.freq.iter().any(|f| !f.is_finite()) || chunk.time.iter().any(|t| !t.is_finite()) {
         return err("freq and time must be finite");
@@ -699,6 +709,7 @@ fn run(
         order.reverse();
     }
     let fout_ghz: Vec<f64> = chunk.freq.iter().map(|f| f / 1e9).collect();
+    let (nband, first) = (chunk.freq.len(), chunk.first_chan);
     let tables: Vec<Vec<Rec>> = order
         .iter()
         .map(|&i| {
@@ -706,9 +717,9 @@ fn run(
             let fin_ghz: Vec<f64> = t.sol_freq.iter().map(|f| f / 1e9).collect();
             let k_ref_ghz = t.k_ref_freq / 1e9;
             let ser: Vec<Vec<f32>> = (0..nant).into_par_iter().map(|a| series(t, a)).collect();
-            let mut table = vec![Rec::default(); pairs.len() * nchan];
+            let mut table = vec![Rec::default(); pairs.len() * nband];
             table
-                .par_chunks_mut(nchan.max(1))
+                .par_chunks_mut(nband.max(1))
                 .zip(pairs.par_iter())
                 .for_each(|(out, &(a, at))| {
                     fill(t, a, &ser[a], at, &fin_ghz, &fout_ghz, k_ref_ghz, out)
@@ -737,8 +748,8 @@ fn run(
                 // Flags, in VisCal (correct) order for both directions, so
                 // that corrupt and correct flag the same cells.
                 let mut flag_term = |table: &[Rec], kind: Kind| {
-                    let gp = table[p1 * nchan + c];
-                    let gq = table[p2 * nchan + c];
+                    let gp = table[p1 * nband + first + c];
+                    let gq = table[p2 * nband + first + c];
                     if kind == Kind::Df {
                         // `JonesGenLin::flagRight` then `flagLeft`
                         // (`Jones.cc`): a cross hand is flagged by a bad
@@ -762,8 +773,8 @@ fn run(
                     }
                 }
                 for (table, &kind) in tables.iter().zip(&kinds) {
-                    let gp = table[p1 * nchan + c];
-                    let gq = table[p2 * nchan + c];
+                    let gp = table[p1 * nband + first + c];
+                    let gq = table[p2 * nband + first + c];
                     if kind == Kind::Df {
                         // `JonesGenLin::setMatByOk` after `invert`: when either
                         // leakage of an antenna is bad, both inverted elements
@@ -1086,6 +1097,7 @@ mod tests {
                 antenna1: &self.a1,
                 antenna2: &self.a2,
                 freq: &self.freq,
+                first_chan: 0,
             }
         }
     }
@@ -1220,6 +1232,7 @@ mod tests {
             antenna1: &[0],
             antenna2: &[1],
             freq: &freq,
+            first_chan: 0,
         };
         // g_0 = (2, 1j), g_1 = (1, 1 + 1j), one slot each.
         let params = [2.0f32, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0];
@@ -1396,6 +1409,7 @@ mod tests {
             antenna1: &[0],
             antenna2: &[1],
             freq: &freq,
+            first_chan: 0,
         };
         let params = [2.0f32, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0];
         let tflags = [1u8, 0, 0, 0];
@@ -1530,6 +1544,7 @@ mod tests {
             antenna1: &[0],
             antenna2: &[1],
             freq: &[1e9],
+            first_chan: 0,
         };
         // G_0 = [[2, 0.5], [0, 1]], G_1 = [[1, 0], [1i, 1]].
         let gains = [

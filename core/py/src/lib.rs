@@ -1777,38 +1777,67 @@ impl MsTable {
     /// Read `count` rows (0: to the end) of a column from `start`. Returns
     /// (bytes as a uint8 array, nrows, cell shape, dtype code, nstrings),
     /// with strings packed as the C ABI packs them: a little-endian u32
-    /// length before each string's UTF-8 bytes.
+    /// length before each string's UTF-8 bytes. `slice` (per cell axis in
+    /// casacore order: first pixel and length) cuts every cell; the tiled
+    /// managers then read only the tiles it intersects.
+    #[pyo3(signature = (name, start, count, slice=None))]
     fn read<'py>(
         &self,
         py: Python<'py>,
         name: &str,
         start: u64,
         count: u64,
+        slice: Option<Vec<(i64, i64)>>,
     ) -> PyResult<Column<'py>> {
         let table = &self.table;
-        let data = detach(py, || table.read_column(name, start, count))
-            .map_err(|e| PyOSError::new_err(e.0))?;
-        if data.shape.len() > 8 {
-            return Err(PyOSError::new_err("more than 8 cell axes"));
-        }
-        let dtype = data.dtype.unwrap_or(DataType::Str);
-        let nstrings = data.strings.len();
-        let mut bytes = data.bytes;
-        if dtype == DataType::Str {
-            bytes = Vec::with_capacity(data.strings.iter().map(|s| 4 + s.len()).sum());
-            for s in &data.strings {
-                bytes.extend((s.len() as u32).to_le_bytes());
-                bytes.extend_from_slice(s.as_bytes());
-            }
-        }
-        Ok((
-            bytes.into_pyarray(py),
-            data.nrows,
-            data.shape,
-            dtype.code(),
-            nstrings,
-        ))
+        let data = detach(py, || {
+            table.read_column_slice(name, start, count, slice.as_deref())
+        })
+        .map_err(|e| PyOSError::new_err(e.0))?;
+        pack_column(py, data)
     }
+
+    /// Read the rows `rows` (any order) of a column, each cell cut to
+    /// `slice` as `read`, packed as `read` packs them, in the order of
+    /// `rows`; the tiled managers read them through one tile cache.
+    #[pyo3(signature = (name, rows, slice=None))]
+    fn read_rows<'py>(
+        &self,
+        py: Python<'py>,
+        name: &str,
+        rows: PyReadonlyArray1<'_, u64>,
+        slice: Option<Vec<(i64, i64)>>,
+    ) -> PyResult<Column<'py>> {
+        let rows = rows.as_slice()?;
+        let table = &self.table;
+        let data = detach(py, || table.read_rows(name, rows, slice.as_deref()))
+            .map_err(|e| PyOSError::new_err(e.0))?;
+        pack_column(py, data)
+    }
+}
+
+/// A column read as `MsTable.read` returns it.
+fn pack_column(py: Python<'_>, data: rang_core::ms::ColumnData) -> PyResult<Column<'_>> {
+    if data.shape.len() > 8 {
+        return Err(PyOSError::new_err("more than 8 cell axes"));
+    }
+    let dtype = data.dtype.unwrap_or(DataType::Str);
+    let nstrings = data.strings.len();
+    let mut bytes = data.bytes;
+    if dtype == DataType::Str {
+        bytes = Vec::with_capacity(data.strings.iter().map(|s| 4 + s.len()).sum());
+        for s in &data.strings {
+            bytes.extend((s.len() as u32).to_le_bytes());
+            bytes.extend_from_slice(s.as_bytes());
+        }
+    }
+    Ok((
+        bytes.into_pyarray(py),
+        data.nrows,
+        data.shape,
+        dtype.code(),
+        nstrings,
+    ))
 }
 
 /// `serialise(parse(x)) == x` over a table and its subtables (the table
@@ -1913,37 +1942,39 @@ impl MsWriter {
     }
 
     /// Flush, then read `count` rows (0: to the end) from `start`, packed as
-    /// `MsTable.read` packs them; the table's lock is kept.
+    /// `MsTable.read` packs them (`slice` as there); the table's lock is kept.
+    #[pyo3(signature = (name, start, count, slice=None))]
     fn read<'py>(
         &mut self,
         py: Python<'py>,
         name: &str,
         start: u64,
         count: u64,
+        slice: Option<Vec<(i64, i64)>>,
     ) -> PyResult<Column<'py>> {
         let w = self.get()?;
-        let data = detach(py, || w.read_column(name, start, count))
+        let data = detach(py, || {
+            w.read_column_slice(name, start, count, slice.as_deref())
+        })
+        .map_err(|e| PyOSError::new_err(e.0))?;
+        pack_column(py, data)
+    }
+
+    /// Flush, then read the rows `rows` as `MsTable.read_rows`; the table's
+    /// lock is kept.
+    #[pyo3(signature = (name, rows, slice=None))]
+    fn read_rows<'py>(
+        &mut self,
+        py: Python<'py>,
+        name: &str,
+        rows: PyReadonlyArray1<'_, u64>,
+        slice: Option<Vec<(i64, i64)>>,
+    ) -> PyResult<Column<'py>> {
+        let rows = rows.as_slice()?;
+        let w = self.get()?;
+        let data = detach(py, || w.read_rows(name, rows, slice.as_deref()))
             .map_err(|e| PyOSError::new_err(e.0))?;
-        if data.shape.len() > 8 {
-            return Err(PyOSError::new_err("more than 8 cell axes"));
-        }
-        let dtype = data.dtype.unwrap_or(DataType::Str);
-        let nstrings = data.strings.len();
-        let mut bytes = data.bytes;
-        if dtype == DataType::Str {
-            bytes = Vec::with_capacity(data.strings.iter().map(|s| 4 + s.len()).sum());
-            for s in &data.strings {
-                bytes.extend((s.len() as u32).to_le_bytes());
-                bytes.extend_from_slice(s.as_bytes());
-            }
-        }
-        Ok((
-            bytes.into_pyarray(py),
-            data.nrows,
-            data.shape,
-            dtype.code(),
-            nstrings,
-        ))
+        pack_column(py, data)
     }
 
     /// Write one cell as `ArrayColumn::put` does (`putcell`): native bytes,
@@ -2405,7 +2436,7 @@ fn len1<T: Element>(a: &Ro<'_, T>) -> usize {
     data, flags, time, antenna1, antenna2, freq, nant,
     kind, time_interp, freq_interp, npar, k_ref_freq, slot_start, slot_offset, slot_time,
     param_offset, params, flag_offset, term_flags, freq_offset, sol_freq,
-    direction, threads, out_data, out_flags
+    direction, threads, out_data, out_flags, first_chan=0
 ))]
 #[allow(clippy::too_many_arguments)]
 fn cal_apply(
@@ -2435,6 +2466,7 @@ fn cal_apply(
     threads: usize,
     mut out_data: Rw<'_, Complex32>,
     mut out_flags: Rw<'_, u8>,
+    first_chan: usize,
 ) -> PyResult<()> {
     let shape = data.as_array().shape().to_vec();
     if shape.len() != 3 || shape[2] != 4 {
@@ -2443,6 +2475,13 @@ fn cal_apply(
         )));
     }
     let (nrow, nchan) = (shape[0], shape[1]);
+    let nband = len1(&freq);
+    if first_chan + nchan > nband {
+        return Err(PyValueError::new_err(format!(
+            "channels {first_chan}..{} exceed the {nband} frequencies",
+            first_chan + nchan
+        )));
+    }
     let nterm = len1(&kind);
     let chunk = rang_core::cal::ffi_apply::ApplyChunkC {
         nrow,
@@ -2453,7 +2492,9 @@ fn cal_apply(
         time: exact_input(&time, "time", &[nrow])?,
         antenna1: exact_input(&antenna1, "antenna1", &[nrow])?,
         antenna2: exact_input(&antenna2, "antenna2", &[nrow])?,
-        freq: exact_input(&freq, "freq", &[nchan])?,
+        freq: exact_input(&freq, "freq", &[nband])?,
+        nband,
+        first_chan,
     };
     let terms = rang_core::cal::ffi_apply::ApplyTermsC {
         nterm,
@@ -2603,6 +2644,7 @@ fn cal_apply_jones(
                         antenna1: view::<u32>(a1, nrow),
                         antenna2: view::<u32>(a2, nrow),
                         freq: &[],
+                        first_chan: 0,
                     },
                     BinnedJones {
                         ntime_bins: nt,
