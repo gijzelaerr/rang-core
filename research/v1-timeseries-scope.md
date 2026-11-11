@@ -35,7 +35,7 @@ any code exists. No novelty claim.
    - **Gate:** WSClean 3.7 `-interval`/`-intervals-out` snapshots, and the
      exact DFT of the same residual visibilities.
    - **Literature only:** TRON's published ω Cen eclipse light curve, the
-     science check. TRON's code was not found in public.
+     science check. No public TRON code was found.
    - **Second, not gating:** DStools (MIT, CASA-based); it has not been run
      here.
 5. **Cost, estimated, not measured:**
@@ -48,12 +48,13 @@ any code exists. No novelty claim.
 
 ## 1. Survey, 2024-2026 (brief)
 
-All papers were read through their arXiv abstract or HTML on 2026-11-11.
-Details marked *(abstract)* were not checked in the full text.
+Facts below come from web-search and page-fetch summaries of the arXiv abstracts
+(TRON also its HTML), 2026-11-11, not from a full reading. Details marked
+*(abstract)* rest on the abstract alone; check each before it is quoted in a protocol.
 
 | Work | What it does | Relevance |
 | --- | --- | --- |
-| TRON: Smirnov et al. 2025, MNRAS 538 L62, [arXiv:2501.09488](https://arxiv.org/abs/2501.09488) | Blind search of MeerKAT visibilities. Calibrated, self-calibrated, model-subtracted data; one undeconvolved snapshot per 8 s integration; peak finding at 7σ (6σ at the longest scales); smoothing from 15 to 960 s in ×2 steps; V, η, ξ_max. It detects eclipsing MSPs in ω Cen, Terzan 5 and 47 Tuc | The closest published analogue of P1. Its project IDs are public: SSV-20180615-FC-01, SSV-20181107-FC-02, SSV-20190605-FC-01. The data statement reads "publicly available via the SARAO archive". The code is not public (GitHub search, 2026-11-11) |
+| TRON: Smirnov et al. 2025, MNRAS 538 L62, [arXiv:2501.09488](https://arxiv.org/abs/2501.09488) | Blind search of MeerKAT visibilities. Calibrated, self-calibrated, model-subtracted data; one undeconvolved snapshot per 8 s integration; peak finding at 7σ (6σ at the longest scales); smoothing from 15 to 960 s in ×2 steps; V, η, ξ_max. It detects eclipsing MSPs in ω Cen, Terzan 5 and 47 Tuc | The closest published analogue of P1. Its project IDs are public: SSV-20180615-FC-01, SSV-20181107-FC-02, SSV-20190605-FC-01. The data statement reads "publicly available via the SARAO archive". No public code found (GitHub repository search, `total_count` 0 for two queries, 2026-11-11) |
 | PARROT: Smirnov et al. 2024, MNRAS 528 6517, [arXiv:2312.12165](https://arxiv.org/abs/2312.12165) | A scintillating pulsar, PSR J2009−2026 (P = 1.6 s, DM 21.2), found by dynamic imaging of MeerKAT L-band data taken on 2020-12-21 | Dynamic spectra made from imaging data. Its dump time and data statement were not found in the abstract |
 | Fijma et al. 2024, MNRAS 528 6985, [arXiv:2306.16383](https://arxiv.org/abs/2306.16383) | Commensal MeerKAT image-plane search at 8 s, 128 s and 1 h (NGC 5068). No transients; at 8 s, 6.7e-5 deg⁻² at 56.4 mJy *(abstract)* | Gives the measured 8 s snapshot sensitivity in practice, against about 0.08 mJy thermal (section 4) |
 | Chastain et al. 2025, ApJ 988 227, [arXiv:2412.02832](https://arxiv.org/abs/2412.02832) | Commensal MeerKAT L band in GRB and SN fields. 30 min and 8 s images, the band split in halves; one 8-16 s polarised event (likely a stellar flare) *(abstract)* | The GRB use of P1 |
@@ -71,7 +72,7 @@ and FRB packaging repositories as out of scope.
 | | P1 residual snapshot light curves (recommended) | Dynamic spectrum at one position (P2) | Beamformed: dedispersion, single pulse, folding |
 | --- | --- | --- | --- |
 | Science | LPTs (minutes), flares, eclipsing MSPs, GRB-field prompt searches; blind | Spectro-temporal structure of a known source (LPTs, scintillation, flares) | FRBs, pulsar discovery and timing (ms) |
-| Public MeerKAT data | yes: ESO137 anonymous; TRON's sets through a SARAO token | as P1 | **none found**. MeerTRAP and TRAPUM filterbanks are not public; MPTA DR1 and the TRAPUM LMC release are folded PSRFITS, not filterbanks |
+| Public MeerKAT data | yes: ESO137 anonymous; TRON's sets through a SARAO token | as P1 | **none found** in two searches (2026-11-11): no public MeerTRAP or TRAPUM filterbank release; MPTA DR1 and the TRAPUM LMC release are folded PSRFITS, not filterbanks |
 | Tight oracle | WSClean `-intervals-out`; exact DFT | DFT; DStools | PRESTO, Heimdall, TransientX, DSPSR |
 | rang-core reuse | high | high | none beyond the GPU plumbing |
 | New code | per-interval selection in the gridder path; forced photometry; peak search; variability metrics | phase rotation and baseline averaging (one pass) | readers (SIGPROC, PSRFITS), dedispersion (FDMT or tree), matched filter, folding |
@@ -112,25 +113,40 @@ snapshot noise, so FRB work needs the beamformed path.
   to fetch; it goes in `D:\rang` (memory: C: is nearly full).
 - **Noise.** The thermal noise of an 8 s snapshot is about 0.08 mJy. This is
   computed (SEFD 443 Jy, 500 MHz usable, 64 antennas, 2 polarisations), not
-  measured. Fijma et al.'s practical 8 s figure of 56.4 mJy shows that
-  sidelobes of the residual sky, not thermal noise, set the floor. The quality
-  of the deep model therefore sets the product's reach.
+  measured. Fijma et al. quote 56.4 mJy for their 8 s survey (from the abstract; what
+  it measures, threshold or rms, is not verified). Whatever the factor, the
+  expected floor is the residual sky's sidelobes and calibration errors, not
+  thermal noise, so the deep model sets the product's reach. The data weights
+  are not trusted for σ (A0 measured LUNO weights 10-60× off; ESO137's XY
+  weights are zero): σ_meas below is the measured off-source rms of each snapshot.
 - **Feasibility.** Every part is a known algorithm with an oracle. P1 is
   engineering, and its claim is parity with WSClean. A novelty claim would
   need a matched comparison with TRON or WSClean plus TraP at equal cost, for
   example deeper snapshot noise from better residuals; that is out of scope
   here.
+- **Held-out cost.** TRON's ω Cen set is 9.13 h on source. At ESO137's 147 GB
+  per hour (4096 channels) that is about 1.3 TB, plus its calibrator scans,
+  restaging from tape and a full raw calibration and deep model before any
+  residual exists. Proposed: fetch only the target hours that cover two
+  eclipses of the TRON MSP (the hours to be taken from TRON's light curve)
+  and the calibrator scans, channel-averaged to 512 at the archive's MS
+  export if it allows it. Unmeasured.
+- **Where ESO137's residuals come from.** rang's own chain on development
+  data only: K, G, B from ms1 primary scans 1 and 3 (MAIN_0, MAIN_1), applied
+  to target scan 2, a GeMClean deep model of scan 2, then DATA − MODEL. Not
+  the publisher's gains (`ms1_gains.qc`), which would make P1 depend on
+  another chain's solutions.
 
 ## 5. Tolerances to freeze before any build (proposed)
 
 | ID | Quantity | Reference | Proposed bound |
 | --- | --- | --- | --- |
 | T1 | Snapshot dirty image, per interval | WSClean 3.7 (`rang-wsclean-native:3.7`), same `-interval` or `-intervals-out`, natural weighting, `-gridder wgridder -wgridder-accuracy 1e-6 -no-min-grid-resolution`, `-pol I` | L∞ difference ≤ 1e-5 of the snapshot peak, on every interval (DF and G-task gridder parity is 1e-7-1e-6) |
-| T2 | Forced light curve at a position | exact DFT of the same residual visibilities, weights and flags | ≤ 1e-3 σ_snap per point, where σ_snap is that interval's thermal σ from the weights |
-| T3 | Injection recovery (A1-style simulation and ESO137 ms1 residuals) | injected point sources of known flux at 0.0°, 0.3° and 0.5°: square pulses of 8, 16 and 64 s and a 30 s pulse every 20 min; 5-50 σ_snap; apparent flux, no beam | flux bias \|mean\| ≤ 0.1 σ_snap; reduced χ² of the residual in [0.8, 1.2]; time stamps equal the MS TIME (centroid) of each interval exactly; every pulse ≥ 7σ recovered at its true interval |
-| T4 | False alarms | noise-only simulation with ESO137's u-v coverage and weights | candidates ≥ 7σ in all snapshots ≤ 2× the Gaussian expectation, with its counting error. On real residuals the rate is reported, not gated |
+| T2 | Forced light curve at a position | exact DFT of the same residual visibilities, weights and flags | ≤ 1e-3 σ_meas per point (σ_meas: the interval's measured off-source rms; on simulations σ_snap, the known injected noise) |
+| T3 | Injection recovery (A1-style simulation and ESO137 ms1 residuals) | injected point sources of known flux at 0.0°, 0.3° and 0.5°: square pulses of 8, 16 and 64 s and a 30 s pulse every 20 min; 5-50 σ; apparent flux, no beam | flux bias \|mean\| ≤ 0.1 σ (σ_snap on simulations, σ_meas on real residuals); reduced χ² of the residual in [0.8, 1.2] on simulations only (on real residuals reported, not gated, since σ_meas is itself estimated); time stamps equal the MS TIME (centroid) of each interval exactly; every pulse ≥ 7σ recovered at its true interval |
+| T4 | False alarms | noise-only simulation with ESO137's u-v coverage and weights | at 7σ the Gaussian expectation is about zero (about 1e6 independent beams per 4k² snapshot × 450 snapshots × 1.3e-12 ≈ 6e-4), so the gate is **no** candidate ≥ 7σ, plus a tail test at 5σ (expectation about 130, with the beam count measured from the PSF): the count within 3 Poisson σ of it. On real residuals both rates are reported, not gated |
 | T5 | GPU against CPU | the CPU path | ≤ 1e-6 relative L∞ on snapshots, f64 (X2 reached 6e-7) |
-| T6 | Cost | WSClean `-intervals-out` on the same hour at `-j 16` | wall time ≤ 1.5× and peak memory ≤ 1.5×, reported with the heavy lock held. Comparable cost, no novelty |
+| T6 | Cost | WSClean `-intervals-out` on the same hour at `-j 16` | wall time ≤ 1.5× and peak memory ≤ 1.5× for the snapshot stage, reported with the heavy lock held. Comparable cost, no novelty. Context: that stage is gridder-bound, where DF2 measured 1.06-1.07× ducc0's time and 1.01-1.07× its memory. GeMClean's deconvolution, used once for the deep model, is 1.4-3.1× faster than WSClean at `-j 16` but uses 3-5× its memory ([gemclean-speed.md](gemclean-speed.md)), so the deep model is outside the bound |
 | T7 | Science check, held-out (not a numeric gate) | TRON's ω Cen eclipse light curve | eclipses at TRON's phases. Named before the run; looked at once |
 
 The development and held-out split is to be named in the protocol before any
@@ -139,8 +155,12 @@ build:
 - **Development:** A1-style simulations, and ESO137 ms1 target scan 2
   (MAIN_0, already read as the GeMClean pilot).
 - **Held-out:** the TRON ω Cen observation (owner decision 2).
-- **Not usable:** ESO137 ms1 target scan 10 (MAIN_4, E2-A) and its reserve MAIN_5, which
-  [a0-acceptance.md](a0-acceptance.md) reserves.
+- **Not usable:** ESO137 ms1 target scan 10 (MAIN_4, E2-A) and its reserve
+  scan 12 (MAIN_5), held out by [a0-acceptance.md](a0-acceptance.md) section 4.
+- **Fallback held-out, if decision 2 is no:** ESO137 ms1 target scan 14,
+  one of A0's untouched scans (4, 6, 8, 14). A0 keeps those as a second
+  reserve for an imaging-only check, so using one needs the owner's word.
+  It has no known variable, so it tests T3 and T4 only, not T7.
 
 ## 6. LOFAR in mind
 
@@ -151,7 +171,8 @@ build:
   magnitude larger.
 - **Boundary:** keep P1 behind the MeerKAT boundary (vision.md section 2).
   Generalise it only when LOFAR data and a LOFAR oracle (the LoTSS snapshot
-  products, TraP) are in hand.
+  products, TraP) are in hand. The general LOFAR scope is
+  [v7-lofar-scope.md](v7-lofar-scope.md).
 - **Beamformed:** the LOFAR beamformed data in the LTA are the natural first
   public filterbank source if the beamformed path is opened; availability
   was not checked.
@@ -174,11 +195,13 @@ build:
    in hand.
 2. **SARAO archive access.** A SARAO account and token for
    SSV-20181107-FC-02 (TRON ω Cen) as the held-out set. Data from 2018 may
-   need restaging from tape, which can take weeks. Without it, the held-out
-   set is an ESO137 hour that A0 does not reserve, and there is no real
+   need restaging from tape, which can take weeks. The fetch is about 1.3 TB for all 9.13 h, so the
+   proposal is the eclipse hours only. Without it, the held-out set is ESO137
+   ms1 target scan 14, from A0's untouched reserve, and there is no real
    variable to check against.
 3. **Disk and download.** About 150 GB per 4096-channel target hour on
-   `D:\rang`. Alternatively, accept a 512-channel averaged copy (about 8×
+   `D:\rang`: one ESO137 hour for development, and about 0.3-1.3 TB for the
+   TRON hours. Alternatively, accept a 512-channel averaged copy (about 8×
    less) for development.
 4. **Oracles.** WSClean 3.7 snapshots plus the DFT as the gate (T1, T2), with
    DStools as a non-gating cross-check. Or require DStools (CASA) to run on
