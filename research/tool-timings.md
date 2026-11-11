@@ -1805,3 +1805,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | F3 `f3_tau.py` (validation realisations rebuilt) | calibrators / targets | 19.7 / 41.4 min | – | includes heavy_lock waits |
 | 2026-11-10 | F3 held-out `f3_eval.py real`, 7 arms, 19 cases | LUNO MAIN_1 / MAIN_2 | 47.2 / 31.0 min | – | A dominates (19 Docker runs) |
 | 2026-11-10 | F3 native `python -m rang.check` (heavy_lock), twice | worktree fp-f3-flagger | 82 min; 42 min (wall includes lock waits) | – | second: only the research-index test fails |
+| 2026-11-11 | E4 `rang-core run` on A1 small (flag, calibrate, apply, image; `examples/ms-to-image/config.yaml`), native Windows, 2 threads, no heavy lock (CPU-light) | 12,480 rows × 64 ch × 4 corr, 41 MB | 9.7-11.7 s (2.0, 1.7, 1.3-1.9, 3.5-3.8 s) | – | host shared with E2; `tools/e2e/run.py` 16.5 s with generation; notebook 00 under papermill 24.9-30.1 s; research/e4-tutorial.md |

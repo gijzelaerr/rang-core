@@ -1,0 +1,70 @@
+# The configuration of the MS-to-image tutorial (task E4,
+# research/e4-tutorial.md; notebooks/00-ms-to-image.ipynb) and of the
+# end-to-end CI job (tools/e2e/run.py): A1 small, rang's simulated MeerKAT
+# L-band observation (research/a1-simtruth.md). CARACal's continuum chain
+# in Stokes I: K, G, B on the flux calibrator, G and the flux scale F on the
+# gain calibrator, applied to the target, then one GeMClean image.
+# `rang-core config defaults` lists every key with its default.
+schema: rang-config
+version: 1
+
+# FIELD names (or ids) by role. bpcal defaults to the fcal fields.
+fields:
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  gcal: [SIM-GCAL]
+  target: [SIM-TARGET]
+
+# The Tricolour port on DATA, every field; the path is relative to this file.
+flag:
+  strategy: strategy.yaml
+
+calibrate:
+  # MODEL_DATA on the flux calibrator: PKS 1934-638 in CASA setjy's
+  # Stevens-Reynolds 2016 standard.
+  model: {source: setjy, standard: Stevens-Reynolds 2016}
+  refant: m000
+  uvrange: ">150"
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, combine: scan, fillgaps: 70,
+         preapply: [K, G], interp: [linear, linear]}
+  secondary:
+    field: [gcal]
+    terms:
+      - {type: G, name: Gsec, solint: inf, calmode: ap, preapply: [K, B],
+         interp: [linear, linear]}
+      # F: Gsec rescaled to the flux calibrator's scale (CASA fluxscale).
+      - {type: F, name: F, solint: inf, calmode: ap, smodel: [1, 0, 0, 0],
+         preapply: [K, B], interp: [linear, linear]}
+
+# CORRECTED_DATA: K, G, B on the flux calibrator; K and B from it and F from
+# the nearest gain calibrator on the gain calibrator and the target.
+apply:
+  calwt: false
+  targets:
+    - field: [fcal]
+      tables: [K, G, B]
+      interp: [linear, linear, linear]
+    - field: [gcal, target]
+      tables: [K, F, B]
+      gainfield: [J1939-6342, nearest, J1939-6342]
+      interp: [linear, linear, linear]
+
+# One multi-frequency Stokes I image of the target from CORRECTED_DATA.
+image:
+  fields: [target]
+  size: [1024, 1024]
+  scale: 3asec
+  weight: briggs
+  robust: 0.0
+  niter: 20000
+  auto_threshold: 3.0
+  threads: 2
+  write_model: true
+
+run:
+  stages: [flag, calibrate, apply, image]

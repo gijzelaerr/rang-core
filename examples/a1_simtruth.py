@@ -30,6 +30,11 @@ from rang import core_ms_write as tables
 from rang import simtruth as st
 
 ROOT = Path(__file__).resolve().parents[1]
+# rang.simtruth finds the antenna table beside a source checkout's package;
+# with rang-core installed from a wheel it is this checkout's (task E4).
+ITRF = ROOT / "data" / "meerkat.itrf.txt"
+if not st.ITRF.is_file() and ITRF.is_file():
+    st.ITRF = ITRF
 CHUNK_INTS = 4
 _STATE = {}
 
@@ -76,6 +81,8 @@ def size(version):
 def _init_worker(state):
     """Spawned workers (Windows has no fork) receive the shared state here."""
     _STATE.update(state)
+    if not st.ITRF.is_file() and ITRF.is_file():
+        st.ITRF = ITRF
 
 
 def _chunk(job):

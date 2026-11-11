@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
+  Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration
+  and strategy in `examples/ms-to-image/`; the wheels workflow's job `e2e` runs the same chain on all
+  five wheels (`tools/e2e/run.py`); `docs/cli.md` gains `gemclean -h`. `examples/a1_simtruth.py`
+  finds the checkout's antenna table when rang-core is installed from a wheel.
+
 - Research (task F3, `research/f3-flagger.md`): a second learned RFI flagger, not wired into
   `rang-core flag`. New `rang.f3flag` (wrapper W3, features reference, injections, labels, measures),
   `rang.f3net` (the JAX network for training), the Rust kernel `rang_core::f3flag` with

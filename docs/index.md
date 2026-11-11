@@ -36,16 +36,20 @@ What it is:
   wgridder, CASA's flux standards and a component predictor.
 - **GeMClean, a reference imager.** `gemclean` takes a Measurement Set to FITS with
   WSClean-style flags, using the exact image-domain value at each minor-cycle step
-  ({gh}`research/gemclean.md`). It is not in the wheels; build it with
-  `cargo build --manifest-path core/Cargo.toml --profile gemclean --bin gemclean`.
+  ({gh}`research/gemclean.md`). The wheel installs it as the command `gemclean`
+  ({gh}`research/g8-wheel.md`).
 - **A Python package and command line** ({doc}`cli`). `rang-core flag`, `calibrate`,
-  `image` and `run` take a `config.yaml` and your Measurement Set, write back into it
-  and resume where a run stopped; `rang-core research STAGE VERB` replays, compares
-  and archives each research chain. Every call writes a versioned receipt.
+  `apply`, `image`, `selfcal` and `run` take a `config.yaml` and your Measurement Set,
+  write back into it and resume where a run stopped; `rang-core research STAGE VERB`
+  replays, compares and archives each research chain. Every call writes a versioned
+  receipt.
 - **The tools' file formats**: CASA calibration tables, QuartiCal stores, sky
   models, H5parm, killMS solutions, CASA flag versions and MVFv4 archives.
 - **Oracles.** Each port is gated on reproducing the upstream tool's output.
-- **Tutorials and research.** Five tutorial and two science notebooks
+- **Start here:** {doc}`tutorials/notebooks/00-ms-to-image` takes a simulated
+  MeerKAT Measurement Set to a calibrated image with `rang-core run` and `gemclean`,
+  section by section, in under a minute.
+- **Tutorials and research.** Five more tutorial and two science notebooks
   ({doc}`tutorials/index`) on a public 45 MB MeerKAT fixture and the Rust pointing simulation;
   [the research story](research/index.md) keeps the negative results.
 
