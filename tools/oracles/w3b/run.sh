@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # W3b arms (research/w3b-chainchunks.md, sections 2 and 3).
 # Usage: bash tools/oracles/w3b/run.sh RUN CASE ARM
 #   CASE: O (O-CASA slice), C (A1 small, C2e chain), P (poldx), H (polholdout, held out),

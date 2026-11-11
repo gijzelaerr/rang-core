@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # W3 arms (research/w3-chunking.md, sections 2 and 3).
 # Usage: bash tools/oracles/w3/run.sh RUN CASE ARM
 #   CASE: S (A1 small), C (A1 small with C2e's chain), O (O-CASA slice), W (the whole-array set), L (A1 full, read only)

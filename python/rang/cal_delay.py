@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The delay term K in the Rust core, with its FFT initial estimate (the
 owner's estimator: FFT, then Gauss-Newton) and CASA's
 `gaincal(gaintype='K')` conventions (task C2b, research/c2b-delay.md; C1

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The configuration of `rang-core flag | calibrate | apply | image | selfcal |
 run` (task W2, research/w2-commands.md).
 

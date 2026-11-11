@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Matched structured-action search with actual frozen full-Jones TV objectives.
 
 Verbatim extract of the frozen `rangtoy.flagging_structured` (big plan task P11,

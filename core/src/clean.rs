@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Högbom CLEAN as greedy coordinate descent on the sampling-weighted
 //! least-squares misfit: the kernels behind `research/clean-theory.md`.
 //!

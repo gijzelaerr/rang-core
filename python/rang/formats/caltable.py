@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CASA calibration tables (DF-IO-CT; research/dfio-formats.md, F1).
 
 `read(path)` turns a CASA `NewCalTable` (G, B, K, T, Df Jones, CASA >= 3.4)

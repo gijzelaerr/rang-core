@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CARACal's cross-calibration chain in C1's order (research/c1-calibration-chain.md).
 
 `primary(ms, ...)` (task C2c, research/c2c-bandpass.md part 3; C1 section

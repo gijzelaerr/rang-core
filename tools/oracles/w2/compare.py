@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W2 comparisons (research/w2-commands.md, criteria 2 and 3).
 
     python compare.py flag PRISTINE_MS WORK_MS ORACLE.npz BEFORE.json AFTER.json

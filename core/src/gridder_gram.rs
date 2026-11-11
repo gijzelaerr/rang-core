@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The w-aware normal operator without visibilities: a sum of Toeplitz
 //! operators, one per w-node, each applied by FFTs on the `2n` grid.
 //!

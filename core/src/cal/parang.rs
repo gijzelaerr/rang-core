@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The parallactic-angle term P (task C6, `research/c6-polterms.md`; C1 term
 //! T6, `research/c1-calibration-chain.md` section 1.3).
 //!

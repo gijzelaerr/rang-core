@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The polarisation terms Gpol, KCROSS, Xf and Df with the parallactic angle
 P (task C6, research/c6-polterms.md; C1 terms T6 and T8 to T11,
 research/c1-calibration-chain.md).

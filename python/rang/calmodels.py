@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Calibrator models into MODEL_DATA, as CASA `setjy` writes them.
 
 Task C3a (research/c3a-models.md), step 1 of the calibration chain

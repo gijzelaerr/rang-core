@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! A sampled upper bound on the error of the phase-centre beam, for the
 //! certified minor-cycle stop rule (`research/stop-rule-theorem.md`).
 //!

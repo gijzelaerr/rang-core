@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Clean masks for gemclean (task G4, `research/g4-masks.md`): WSClean 3.7's
 //! `-fits-mask` and radler's automatic mask (`-auto-mask`, `-abs-auto-mask`,
 //! `-auto-mask-nmiter`, the default `dual` major-iteration mode).

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The F2 flagger's inference (task F2, `research/f2-flagger.md`, section 3):
 //! per baseline, the six input planes of one scan's (time, channel) plane and
 //! a five-layer dilated 3×3 convolutional network with a 1×1 head, in f32.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """A3 re-verification with a noisy background (post-hoc): spikes at 0.999 and
 1.001 of 6*sens on N(0, 0.01) noise, for the old and the fixed all-flagged mask."""
 import os

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Model visibilities from model images, and the model column of a
 //! Measurement Set (task G6, `research/g6-predict.md`).
 //!

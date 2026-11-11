@@ -113,6 +113,21 @@ matches the container kernel stage, so the Rust sources recorded in the result
 receipts remain unchanged: `cargo +1.93 ...` with the commands above. Newer
 Clippy releases add lints that would otherwise require kernel edits.
 
+## Licence headers
+
+Every tracked `.py`, `.rs`, `.sh` and `.cc` file under `python/rang`,
+`core/src`, `src` and `tools` starts with an SPDX line, after a shebang or
+encoding line if it has one:
+
+```python
+# SPDX-License-Identifier: GPL-3.0-or-later
+```
+
+(`//` for Rust and C++). A file ported from code under another licence names
+both, for example `GPL-3.0-or-later AND MIT`, and keeps the upstream notice
+in full (`docs/licence.md` lists the ported code). Longer copyright
+notices may follow the SPDX line. `tests/test_spdx_headers.py` checks it.
+
 ## Releasing
 
 The version is set once, in `pyproject.toml` `[project] version`; bump the

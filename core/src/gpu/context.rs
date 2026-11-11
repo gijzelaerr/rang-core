@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The process-wide wgpu adapter, device, queue and compiled pipelines,
 //! created on first use and reused (their cost is reported once, as the
 //! first-call cost).

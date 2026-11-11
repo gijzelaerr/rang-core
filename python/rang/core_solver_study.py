@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Task L5 solver study helpers (research/l5-solver-science.md).
 
 The core solver takes run-time options in the `RANG_SOLVE_OPTIONS` syntax and

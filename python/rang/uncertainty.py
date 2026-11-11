@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Local Gauss–Newton uncertainty; not a model-mismatch error estimate."""
 
 import numpy as np

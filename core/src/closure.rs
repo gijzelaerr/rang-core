@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Closure quantities as a gauge-free flagging statistic (big plan task C1,
 //! `research/c1-closure-arm.md`).
 //!

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! MultiFile tables (research/e5-table-writer-rest.md,
 //! research/e6-table-writer-final.md).
 //!

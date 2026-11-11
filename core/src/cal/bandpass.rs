@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The bandpass B's post-solve gap filling (task C2c,
 //! `research/c2c-bandpass.md` part 2): CASA's `fillgaps`
 //! (`BJones::fillChanGaps` and `BJones::fillChanGapArray`,

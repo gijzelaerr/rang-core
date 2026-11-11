@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # G6 predict parity (research/g6-predict.md, criteria 1, 2, 3, 6): the same model
 # images through gemclean -predict (MODEL_DATA) and WSClean -predict
 # (MODEL_WSCLEAN) into one fresh copy of the MS.

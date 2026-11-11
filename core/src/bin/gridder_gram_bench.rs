@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Measurements for the visibility-free normal operator
 //! (`research/gridder-theory.md`). One JSON object per line on stdout.
 //!

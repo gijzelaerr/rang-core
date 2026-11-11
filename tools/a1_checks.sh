@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Usage: bash tools/a1_checks.sh RUN_DIR VERSION   (research/a1-simtruth.md, section 5)
 # Runs checks 1 to 5 for one version (small or full): CASA listobs, the truth
 # tables, applycal with parang False and True, and the host comparisons.

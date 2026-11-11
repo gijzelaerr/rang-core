@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! A minimal FITS writer (and reader, for tests) for gemclean's images.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

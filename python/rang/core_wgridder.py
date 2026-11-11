@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Exact gridder and degridder of the Rang core (research/df1-wgridder.md,
 research/df2-wgridder-speed.md).
 

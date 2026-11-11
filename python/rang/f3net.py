@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """F3's network for training (research/f3-flagger.md, sections 3 and 5): JAX,
 float32, with no rang imports so that it runs in a NumPy-and-JAX-only
 environment (the CUDA training venv in WSL). Inference is Rust

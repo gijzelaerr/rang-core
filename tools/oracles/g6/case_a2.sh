@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # G6 criterion 5 (research/g6-predict.md): rang-core image with write_model
 # against the binary's after-clean column, case A without model columns.
 #   bash case_a2.sh OUTDIR GEMCLEAN

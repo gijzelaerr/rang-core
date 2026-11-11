@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Exact w-gridder and degridder, a port of ducc0's wgridder.
 //!
 //! A Rust translation of the algorithm of Arras, Reinecke, Westermann and

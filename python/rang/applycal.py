@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CASA `applycal` on a Measurement Set (task C4b, research/c4b-apply-ms.md;
 C1 step 7). For example::
 

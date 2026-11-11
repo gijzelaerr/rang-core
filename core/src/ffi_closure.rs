@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI for `closure` (big plan task C1, `research/c1-closure-arm.md`),
 //! loaded through ctypes by `python/rang/core_closure.py`. Same
 //! conventions as `ffi.rs`: borrowed buffers described by explicit lengths,

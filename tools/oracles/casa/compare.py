@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Host side of the O-CASA oracle: the seed-7 split and the comparisons to rang.
 
 Runs in the worktree venv (rang importable). Read-only use of

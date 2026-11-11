@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CASA flag versions (`<ms>.flagversions/`; research/dfio-formats.md, F6,
 and research/w1-writeback.md, W1).
 

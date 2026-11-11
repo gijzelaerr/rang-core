@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The full local checks, portable: `rang-core check` = `python -m rang.check`
 (task P9, research/p9-cli.md; design in research/x1-crossplatform.md).
 

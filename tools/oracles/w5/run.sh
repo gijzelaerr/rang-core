@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # W5: the chain recipe under Stimela (arm S) against the four rang-core
 # commands by hand (arm H), cases A and O (research/w5-stimela.md).
 # Usage: bash tools/oracles/w5/run.sh /mnt/d/rang/outputs/w5-20261106-NN
