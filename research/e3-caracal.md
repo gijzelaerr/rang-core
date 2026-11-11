@@ -428,3 +428,25 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
 - On D: now: `e3-20261111-input\e2b.ms` (51 GB, kept until the decision) and
   try 3's partial split (3.8 GB; try 3's transform overwrote try 2's split),
   within the 200 GB cap.
+
+### 10.10 Amendment, post hoc, 2026-11-12 ~02:00: MeqTrees tile size (deviation 11)
+
+- **Coordinator's decision:** no WSL resize (that is a host-wide setting, the
+  owner's call). Instead, use CARACal's own memory knob.
+- **Deviation 11 (E3-B only):** `crosscal.set_model.tile_size` and
+  `polcal.set_model_leakage.tile_size` go from the schema default of 128 to
+  32. If 32 still dies at the cap, try 16.
+  - What it is: a memory parameter of CARACal's shipped sequence. The schema
+    describes it as "Can be used to reduce memory footprint".
+  - When it was chosen: after the OOM of 10.9, so it is labelled post hoc. It
+    is not a change of method.
+  - Why polcal too: the dev test's log shows that both workers run MeqTrees
+    `turbo-sim` at `ms_sel.tile_size=128`.
+  - Where: `e3_make_configs.py` writes it with a third argument, `TILE`. The
+    E3-A configs are byte-identical with and without it.
+- **Fallback, if 16 dies at the cap too:** record the OOM as CARACal's result
+  on this host (30 GiB WSL VM, 63 GB host). The remaining stages then run as
+  "CARACal's sequence by hand", labelled (section 7).
+- Try 2's and try 3's run folder moves to `e3-20261111-b-correct-try2`.
+  Try 4 runs in a fresh `e3-20261111-b-correct` on the same verified
+  `e2b.ms`.

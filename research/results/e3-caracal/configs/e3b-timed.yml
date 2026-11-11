@@ -55,6 +55,7 @@ crosscal:
   set_model:
     enable: true
     meerkat_skymodel: true
+    tile_size: 32
   primary:
     reuse_existing_gains: false
     order: KGB
@@ -138,6 +139,8 @@ inspect:
 
 polcal:
   enable: true
+  set_model_leakage:
+    tile_size: 32
   label_in: cal
   label_cal: 1pcal
   otfcal:

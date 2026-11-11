@@ -2,7 +2,7 @@
 exact, counted text edits; each edit is one A0 6.4 deviation (or E3's own,
 labelled in research/e3-caracal.md section 3). Run from the repo root:
 
-    python research/results/e3-caracal/scripts/e3_make_configs.py PASS NCPU
+    python research/results/e3-caracal/scripts/e3_make_configs.py PASS NCPU [TILE]
 
 PASS is 'correct' or 'timed'; NCPU goes to selfcal.ncpu (8 or 0 = all 16).
 Writes research/results/e3-caracal/configs/e3{a,b}-PASS.yml.
@@ -72,13 +72,26 @@ def e3b(ncpu):
     t = edit(t, "inspect:\n  enable: true\n", "inspect:\n  enable: false\n", "dev4 inspect")
     t = edit(t, "inspect__polcal: \n  enable: true\n", "inspect__polcal: \n  enable: false\n",
              "dev4 inspect__polcal")
+    # dev 11, post hoc 2026-11-12 (note 10.10): MeqTrees tile size, a memory
+    # parameter of CARACal's shipped sequence, lowered after set_model_cal hit
+    # the WSL VM's 30 GiB at the shipped 128. Not a change of method.
+    if TILE:
+        sm = "  set_model:\n    enable: true\n    meerkat_skymodel: true\n"
+        t = edit(t, sm, sm + f"    tile_size: {TILE}\n", "dev11 crosscal tile")
+        pc = "polcal:\n  enable: true\n"
+        t = edit(t, pc, pc + f"  set_model_leakage:\n    tile_size: {TILE}\n", "dev11 polcal tile")
     for st in ("transform__2", "prep__2", "flag__2", "selfcal", "polimg"):
         t = edit(t, f"{st}:\n  enable: true\n", f"{st}:\n  enable: false\n", f"dev3 {st}")
     return t
 
 
+TILE = None
+
+
 def main():
+    global TILE
     pas, ncpu = sys.argv[1], int(sys.argv[2])
+    TILE = int(sys.argv[3]) if len(sys.argv) > 3 else None  # dev 11 (E3-B only)
     OUT.mkdir(exist_ok=True)
     for name, fn in (("e3a", e3a), ("e3b", e3b)):
         p = OUT / f"{name}-{pas}.yml"
