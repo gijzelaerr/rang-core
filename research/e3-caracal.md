@@ -370,3 +370,23 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
   `e3_leak_measure.py` expects.
 - Deleted 20:10: the dev `smoke.ms` (1.9 GB) and the run's `msdir` and `leak/`
   (7 GB). Kept: logs and `output\` (0.25 GB). E3 on D: is now about 0.6 GB.
+
+### 10.7 Embargo lifted; cap raised (coordinator, 2026-11-11 ~20:30)
+
+- E2's freeze commit `b2d80dc` is on `fp-e2-acceptance`, so E2-B numbers may
+  now be scored and recorded. They are still not sent to the E2 session; the
+  coordinator relays them for the comparison.
+- E2's frozen "E2-B rows" rule (`research/e2-acceptance.md` at `b2d80dc`) is
+  worded as E3 section 5 quotes it: p and χ per 100 MHz, 1.0-1.65 GHz,
+  ≥ 10 % unflagged, mean over unflagged cells of the calibrated cross hands in
+  the sky frame. 1934−638 leakage is the peak of the Q, U, V MFS images over
+  I. Its `_stokes4` and `χ = atan2(U, Q)/2` match `e3_vis_measures.py`.
+- The disk cap is raised to about 200 GB until E2-A's MS is built. The timed
+  E3-B pass still waits for E2's timed runs, since both need the host
+  exclusive (option (a) kept).
+- **Dated change, post hoc, 2026-11-11 20:35 (to 10.4's plan):** the section 5
+  measures are computed on the correctness pass's split as well. E3-B's
+  correctness and timed configs differ only in the run folder; `selfcal` is
+  off, so `ncpu` has no effect. The timed pass's split stays the reported
+  source as frozen, and any difference between the two is reported as a
+  repeatability figure.
