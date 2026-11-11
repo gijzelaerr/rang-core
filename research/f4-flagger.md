@@ -60,6 +60,9 @@ dragged negative and `e^par` is high on the antenna's baselines **outside** the 
   channels) and H3 (≤ 0.4 · nchan) are unchanged.
 - Section 3's reading "unbiased by a band that covers up to 75 % of the channels" is withdrawn: the
   spectral planes now hold for bands on fewer than half of the channels.
+- *Check (NumPy reference, same synthetic case, band 103 of 256 channels on antenna 9):* with the
+  median offset, cross-plane threshold 5 finds 1.00 of the injected cells and flags 0 % of the
+  antenna's other cells (q25: 33 %). The Rust tests after the rebuild run first in the chain.
 
 ## 1. What F3 got wrong, and what changes
 
