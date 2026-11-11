@@ -58,7 +58,11 @@ def lock_versions(path):
 
 def test_versions_agree():
     version = pyproject_version()
-    assert re.fullmatch(r"\d+\.\d+\.\d+([ab]\d+|rc\d+)?", version)
+    # No alpha, beta or rc versions: the owner releases only finished
+    # versions (E5, research/e5-prereview.md).
+    assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+    cff = re.search(r"^version: (\S+)$", _text("CITATION.cff"), re.MULTILINE)
+    assert cff and cff.group(1) == version, "CITATION.cff"
     crates = {
         "Cargo.toml": "rang-sim",
         "core/Cargo.toml": "rang-core",
