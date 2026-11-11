@@ -291,3 +291,22 @@ E3 does too. rang reads the same FIELD rows.
   starts are counted as "not limited". All of them exited 0. The watcher now
   handles only `quay.io/stimela/` images. Smoke numbers are unaffected:
   `e3_cost.py` counts only Stimela containers.
+
+### 10.4 Coordinator constraints (2026-11-11 ~18:15), recorded
+
+- **Embargo:** until E2's protocol freeze commit lands on `fp-e2-acceptance`,
+  no E2-B number is scored, summarised, committed or sent to any session.
+  CARACal may run and its raw outputs stay on D:. So this note holds no
+  E3-B figure (cost included) until the coordinator lifts the embargo.
+- **Disk:** E3's footprint on D: stays below about 50 GB until E2-A finishes
+  (E2-A needs about 700 GB free when its MS is built). No E2-A copy or run
+  before the coordinator says E2-A has finished.
+- **Deletions, done 18:15:** `e3-20261111-smoke-input\smoke.ms` (7.5 GB),
+  `e3-20261111-smoke-smoke\msdir` (19 GB), `-try1\msdir`; the smoke logs and
+  `output\` folders are kept (0.3 GB). Smoke numbers are in 10.3 and
+  `smoke/cost.json`.
+- **Planned on the E3-B correctness pass's end:** delete `e2b.ms` (51 GB) and
+  the pass's `msdir` (CARACal's calibrator split); keep its `output\`
+  (caltables, logs, cost inputs). The E3-B measures (section 5) need
+  CARACal's CORRECTED_DATA, so they are computed from the timed pass's split,
+  after the embargo lifts, before that split is deleted.
