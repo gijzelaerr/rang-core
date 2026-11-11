@@ -58,7 +58,11 @@ def lock_versions(path):
 
 def test_versions_agree():
     version = pyproject_version()
-    assert re.fullmatch(r"\d+\.\d+\.\d+([ab]\d+|rc\d+)?", version)
+    # No alpha, beta or rc versions: the owner releases only finished
+    # versions (E5, research/e5-prereview.md).
+    assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+    cff = re.search(r"^version: (\S+)$", _text("CITATION.cff"), re.MULTILINE)
+    assert cff and cff.group(1) == version, "CITATION.cff"
     crates = {
         "Cargo.toml": "rang-sim",
         "core/Cargo.toml": "rang-core",
@@ -164,6 +168,18 @@ def test_pyproject_metadata():
         assert f'"{classifier}"' in project
     # A PEP 639 licence expression: a License classifier would be rejected.
     assert 'license = "GPL-3.0-or-later"' in project
+    # E5: the MIT and BSD notices of the translated code ship in every wheel.
+    assert 'license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]' in project
+    notices = _text("THIRD-PARTY-NOTICES.txt")
+    for path, holder in (
+        ("core/src/solve.rs", "Copyright (c) 2022 Jonathan Simon Kenyon"),
+        ("core/src/predict.rs", "Copyright (c) 2019, National Research Foundation"),
+        (
+            "core/src/sumthreshold.rs",
+            "Copyright (c) 2019, National Research Foundation",
+        ),
+    ):
+        assert holder in notices and path in notices, path
     assert "License ::" not in project
     urls = _section(_text("pyproject.toml"), "project.urls")
     for name in ("Documentation", "Repository", "Issues"):
@@ -210,6 +226,9 @@ def test_release_jobs_check_the_tag():
     release = _job(workflow, "release")
     assert "pyproject.toml" in release
     assert release.index("CHANGELOG.md") < release.index("--notes-file")
+    # E5: PyPI only after the release job's checks and notes have passed.
+    needs = re.search(r"^    needs: \[(.*)\]$", _job(workflow, "publish"), re.MULTILINE)
+    assert "release" in [n.strip() for n in needs.group(1).split(",")]
 
 
 # The first major version of each action that runs on Node 24.

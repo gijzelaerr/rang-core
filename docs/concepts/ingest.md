@@ -11,7 +11,9 @@ the LUNO exports. The reader was gated on column-exact reads of both
 ({gh}`research/core-e-ms-reader.md`).
 
 `rang.core_ms_write` writes into existing tables (`putcol`, `putcell`,
-keywords, `addcols`) holding casacore's lock, and its files are
+keywords, `addcols`), holding casacore's lock on Linux only (on Windows
+and macOS nothing stops a second writer; `rang-core` refuses a second
+command on the same run directory), and its files are
 byte-identical to casacore 3.8.1's apart from uninitialised padding
 ({gh}`research/e3-table-writer.md`). Creating new tables still needs
 python-casacore.

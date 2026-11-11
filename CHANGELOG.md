@@ -15,6 +15,19 @@ the release notes are the section of this file for that version.
   five wheels (`tools/e2e/run.py`); `docs/cli.md` gains `gemclean -h`. `examples/a1_simtruth.py`
   finds the checkout's antenna table when rang-core is installed from a wheel.
 
+- Fixed (E5 pre-review, `research/e5-prereview.md`): after `rang-core run ... --force flag`, a stale later stage
+  put back the flags saved before its earlier attempt (the old flag output); later stages now start from the
+  flags the rerun stage left, whenever that stage restored or wrote FLAG. Before a rerun restores a stage's
+  earlier flags, the flags it replaces are saved as the flag version `rang_rerun_<UTC time>`, so flags set
+  outside rang are never lost (one more version per rerun). DATA is never written: `apply.column: DATA` and
+  `selfcal.model_column: DATA` are configuration errors, selfcal refuses to copy apply's output into an
+  `input_column: DATA`, and `rang.core_writeback.WriteBack` refuses DATA. The run directory is locked on
+  Windows too, so a second `rang-core` command on the same MS is refused. Malformed configuration values give
+  the error report (exit 2), not a traceback. The changed-configuration refusal names `--force` forms both
+  commands accept. The wheels and sdist carry `THIRD-PARTY-NOTICES.txt` (QuartiCal's MIT, codex-africanus's
+  and Tricolour's BSD-3 notices). The release job publishes to PyPI only after its own checks pass. The MS
+  table lock holds on Linux only, as the docs now say.
+
 - Research (task F3, `research/f3-flagger.md`): a second learned RFI flagger, not wired into
   `rang-core flag`. New `rang.f3flag` (wrapper W3, features reference, injections, labels, measures),
   `rang.f3net` (the JAX network for training), the Rust kernel `rang_core::f3flag` with

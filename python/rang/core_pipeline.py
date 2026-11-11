@@ -12,8 +12,8 @@ the flag version saved before it wrote, a summary and any error. `execute`
 skips a finished stage whose hash is unchanged, refuses one whose
 configuration changed unless it is forced, and runs a failed, interrupted or
 stale one again. A stage that finishes marks every later finished stage
-stale. The directory is bound to one MS and locked (fcntl, POSIX only) while
-a command runs.
+stale. The directory is bound to one MS and locked (fcntl on POSIX, msvcrt
+on Windows) while a command runs.
 
 Flag backups: before the first write ever made to the MS, its flags are
 saved as the CASA flag version `rang_original`; before each writing stage
@@ -479,8 +479,8 @@ def preflight(config, info, stages):
         if model["source"] == "column" and model["column"] not in info["columns"]:
             problems.append(
                 f"calibrate.model.column: {info['ms']} has no {model['column']} "
-                "(write a calibrator model with model.source setjy, manual or lsm; "
-                "MODEL_DATA from the imager is task G6)"
+                "(write a calibrator model with model.source setjy, manual or lsm, "
+                "or MODEL_DATA from an image with image.write_model: true)"
             )
         if not problems:
             problems += _polcal_problems(config, info)
@@ -709,6 +709,28 @@ def _selected_rows(columns, field_ids, scans):
 # -- the run directory -----------------------------------------------------------
 
 
+def _lock_file(handle):
+    """Take an exclusive, non-blocking lock on an open file and return the
+    function that releases it: fcntl on POSIX, msvcrt's lock on the first byte
+    on Windows, which had no lock before E5 (research/e5-prereview.md).
+    Raises OSError when another open handle holds the lock."""
+    try:
+        import fcntl
+    except ImportError:
+        import msvcrt
+
+        handle.seek(0)
+        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+
+        def unlock():
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+
+        return unlock
+    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    return lambda: fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 class RunDir:
     """The run directory of one MS: `state.json`, a lock, stage outputs."""
 
@@ -724,18 +746,16 @@ class RunDir:
         self.path.mkdir(parents=True, exist_ok=True)
         with open(self.path / "lock", "a+", encoding="utf-8", newline="\n") as handle:
             try:
-                import fcntl
-            except ImportError:  # Windows: no lock (research/w2-commands.md)
-                fcntl = None
-            if fcntl is not None:
-                try:
-                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-                except OSError as exc:
-                    raise Refused(
-                        f"{self.path} is in use by another rang-core command"
-                    ) from exc
-            self.state = self.load()
-            yield self
+                unlock = _lock_file(handle)
+            except OSError as exc:
+                raise Refused(
+                    f"{self.path} is in use by another rang-core command"
+                ) from exc
+            try:
+                self.state = self.load()
+                yield self
+            finally:
+                unlock()
 
     def load(self):
         if not self.state_path.is_file():
@@ -785,7 +805,10 @@ def _version_name(ms, stage):
 def restore_before(ms, entry):
     """Give the MS back the flags saved before this stage's last attempt
     (when it saved any), so a rerun starts from the same input. Returns the
-    version restored, or None."""
+    version restored, or None. The flags it replaces are saved first as
+    `rang_rerun_<UTC time>` (recorded in the entry as `saved_before_restore`),
+    so flags set outside rang since the last attempt are never lost (E5,
+    research/e5-prereview.md)."""
     journal = core_writeback.read_journal(ms)
     prior = entry.get("flag_version")
     unfinished = journal and journal.get("state") in ("open", "failed")
@@ -797,6 +820,11 @@ def restore_before(ms, entry):
             f"{journal.get('flag_backup')!r}) first"
         )
     if prior and flagversions.exists(ms, prior):
+        saved = _version_name(ms, "rerun")
+        core_writeback.backup_flags(
+            ms, saved, comment=f"rang: flags replaced by restoring {prior}"
+        )
+        entry["saved_before_restore"] = saved
         core_writeback.restore_flags(ms, prior)
         return prior
     return None
@@ -2107,6 +2135,12 @@ def _selfcal_input(ctx):
         or copied.get("column") != target
     )
     if fresh and source != target:
+        if target == "DATA":
+            raise StageFailed(
+                f"selfcal.input_column: DATA is never written, and this run's apply "
+                f"would copy {source} into it; name another column, such as "
+                "CORRECTED_1GC"
+            )
         if source not in columns:
             raise StageFailed(f"selfcal: {ms} has no {source} to copy into {target}")
         return True, {"column": target, "copied_from": source, "apply_finished": stamp}
@@ -2407,8 +2441,9 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             ):
                 conflicts.append(
                     f"{stage} finished with a different configuration "
-                    f"({STAGE_SECTIONS_TEXT[stage]}); pass --force {stage} to run it "
-                    "again"
+                    f"({STAGE_SECTIONS_TEXT[stage]}); run it again with "
+                    f"`rang-core {stage} ... --force` or `rang-core run ... "
+                    f"--force {stage}`"
                     + (
                         ", which first restores the flags saved before it"
                         if stage in WRITES_FLAGS
@@ -2450,6 +2485,7 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 "run": run,
                 "entry": attempt,
             }
+            flag_writes = core_writeback.flag_writes()
             try:
                 summary = STAGE_FUNCTIONS[stage](ctx)
             except Exception as exc:
@@ -2469,13 +2505,23 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 seconds=time.perf_counter() - started,
                 summary=_brief(summary),
             )
+            # The flags later stages start from changed when this stage put
+            # earlier flags back or wrote FLAG (E5, research/e5-prereview.md).
+            flags_changed = bool(summary.get("restored_before")) or (
+                core_writeback.flag_writes() != flag_writes
+            )
             later = core_config.STAGES[core_config.STAGES.index(stage) + 1 :]
             for other in later:
-                if state["stages"].get(other, {}).get("status") == "done":
-                    state["stages"][other]["status"] = "stale"
-                    state["stages"][other]["stale_since"] = (
-                        f"{stage} {attempt['finished']}"
-                    )
+                later_entry = state["stages"].get(other)
+                if not later_entry:
+                    continue
+                # A rerun must then start from the flags this stage left, not
+                # restore those saved before its own last attempt.
+                if flags_changed:
+                    later_entry.pop("flag_version", None)
+                if later_entry.get("status") == "done":
+                    later_entry["status"] = "stale"
+                    later_entry["stale_since"] = f"{stage} {attempt['finished']}"
             run.save()
             log(f"rang-core: {stage}: done in {attempt['seconds']:.1f} s")
         return state
