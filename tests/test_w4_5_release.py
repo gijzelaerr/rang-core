@@ -270,3 +270,26 @@ def test_actions_run_on_node24(workflow):
     assert uses
     for action, major in uses:
         assert int(major) >= NODE24[action], (action, major)
+
+
+def test_the_licence_table_lists_every_upstream():
+    """Owner decision E5-33: the ported, adapted and reimplemented upstreams
+    are all listed; CARACal and msutils as behaviour reimplemented."""
+    licence = _text("docs/licence.md")
+    for name in (
+        "codex-africanus",
+        "katdal",
+        "CARACal",
+        "msutils",
+        "CASA",
+        "casacore 3.8.1",
+        "casacore-data",
+    ):
+        assert name in licence, name
+    section = licence.split("Behaviour reimplemented", 1)[1]
+    rows = [r for r in section.splitlines() if r.startswith("| ")]
+    end = next(i for i, r in enumerate(rows) if r.startswith("| casacore 3.8.1"))
+    table = rows[: end + 1]
+    assert any(r.startswith("| CARACal") for r in table)
+    assert any(r.startswith("| msutils") for r in table)
+    assert any("confirm GPL-2.0-or-later" in r for r in table)

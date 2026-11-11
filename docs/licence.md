@@ -16,9 +16,26 @@ ported, and ported code keeps its upstream copyright notices.
 | WSClean 3.6 weights and w-stacking gridder | GPL-3.0 ({gh}`research/core-c-gridder.md`) |
 | ducc0 0.42.0 wgridder | GPL-2.0-or-later ({gh}`research/df1-wgridder.md`) |
 | SARAO/SKA pointing-offset fit (ska-sdp-wflow-pointing-offset) | BSD-3-Clause ({gh}`research/b1-beam-pointing.md`) |
+| codex-africanus 0.4.4 WSClean-format component predict (`core/src/predict.rs`) | BSD-3-Clause; the translated file keeps its notice, as does {gh}`THIRD-PARTY-NOTICES.txt` |
+| katdal 0.23 test helpers, adapted for the synthetic MVF writer (`python/rang/meerkat.py`) | BSD-3-Clause, National Research Foundation (SARAO) |
 | MeerKAT ITRF positions from simms | Facts, not code: see below ({gh}`data/README.md`) |
 
 Crystalball is GPL-2.0-only and is not ported.
+
+Behaviour reimplemented from upstream source and documentation, with no
+code copied (owner decision E5-33, 2026-11-11,
+{gh}`research/e5-prereview.md`):
+
+| Reimplemented | Upstream and its licence |
+| --- | --- |
+| CARACal 8f7bb363 `manage_antennas.get_refant` (`refant: auto`, `python/rang/cal_refant.py`) | CARACal, GPL-2.0 (its `pyproject.toml` does not say whether only or or-later); follow-up: ask the CARACal authors to confirm GPL-2.0-or-later |
+| msutils 1.2.0 `flag_stats.save_statistics` and `wgs84_to_ecef`, as `get_refant` uses them (`python/rang/cal_refant.py`) | msutils; licence not checked (its repository reports none) |
+| CASA `flagdata(mode='extend')` (`FlagAgentExtension`, `core/src/flag_extend.rs`), fluxscale and applycal semantics | CASA; matched against its behaviour and documentation |
+| casacore 3.8.1 AipsIO and table formats (`core/src/aipsio.rs`, the table writer) | casacore, LGPL-2.1-or-later; the formats were read in its sources, nothing is copied |
+
+The observatory positions in `python/rang/data/casacore_observatories.json`
+come from casacore-data 20250826 ({ghdir}`python/rang/data`); like the
+antenna tables below they are positions, not code.
 
 The antenna coordinate tables in `data/*.itrf.txt` are copied from simms
 (GPL-2.0-only). They hold measured antenna positions (ITRF X, Y, Z, dish

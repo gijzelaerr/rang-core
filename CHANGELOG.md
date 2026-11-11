@@ -15,7 +15,10 @@ the release notes are the section of this file for that version.
   (E5-20). The default `run.stages` is the whole chain, flag, calibrate, apply, image, selfcal (was flag,
   calibrate, image, which imaged uncalibrated DATA) (E5-28). The simms antenna tables `data/*.itrf.txt` are
   recorded in `docs/licence.md` as facts, not code; the sdist carries only `meerkat.itrf.txt`, which GeMClean
-  compiles in (E5-11).
+  compiles in (E5-11). `docs/licence.md` lists codex-africanus and katdal's test helpers (BSD-3), and as
+  behaviour reimplemented with no code copied CARACal's `get_refant`, msutils, CASA's flag extension,
+  fluxscale and applycal semantics and casacore's table formats, plus casacore-data's observatory
+  positions (E5-33).
 
 - New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
   Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration
