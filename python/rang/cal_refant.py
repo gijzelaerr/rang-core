@@ -166,8 +166,41 @@ def _refant_slots(config):
     return slots
 
 
+def _default_slots(config):
+    """(holder, key) of every refant left unset where the solve needs one: an
+    unset `calibrate.refant` is CARACal's auto with a fallback to antenna 0
+    (task E2, finish-plan item 27). KCROSS, Xf, A and complex terms take none."""
+    from .core_config import CALIBRATE_SECTIONS
+
+    cal = config["calibrate"]
+    if cal["refant"] is not None:
+        return []
+    out = []
+    for section in CALIBRATE_SECTIONS:
+        for term in cal[section]["terms"]:
+            if "refant" in term and term["refant"] is None and term["type"] in NEEDS:
+                out.append((term, "refant"))
+    return out
+
+
+NEEDS = ("K", "G", "B", "F", "Gpol", "Df")
+
+
 def uses_auto(config):
     return any(is_auto(holder.get(key)) for holder, key in _refant_slots(config))
+
+
+def default_choice(config, ms):
+    """The refant an unset `calibrate.refant` means on `ms`: (names, record).
+    CARACal's choice when an antenna qualifies, else antenna 0, as CASA takes
+    the first antenna when refant is empty."""
+    try:
+        choice = _choose(config, ms)
+    except ValueError as exc:
+        return [0], {"default": True, "fallback": "antenna 0", "reason": str(exc)}
+    record = choice.record()
+    record["default"] = True
+    return list(choice.names), record
 
 
 def _choose(config, ms):
@@ -193,16 +226,25 @@ def resolve_config(config, ms):
     itself, when no refant is auto). CARACal chooses at the start of its
     crosscal and polcal workers; the choice reads no flags, so both give
     these names."""
-    if not uses_auto(config):
-        return config, None
     import copy
 
-    choice = _choose(config, ms)
+    explicit, default = uses_auto(config), bool(_default_slots(config))
+    if not explicit and not default:
+        return config, None
     out = copy.deepcopy(config)
-    for holder, key in _refant_slots(out):
-        if is_auto(holder[key]):
-            holder[key] = list(choice.names)
-    return out, choice.record()
+    record = None
+    if explicit:
+        choice = _choose(config, ms)
+        for holder, key in _refant_slots(out):
+            if is_auto(holder[key]):
+                holder[key] = list(choice.names)
+        record = choice.record()
+    if default:
+        names, rec = default_choice(config, ms)
+        for holder, key in _default_slots(out):
+            holder[key] = list(names)
+        record = record or rec
+    return out, record
 
 
 __all__ = [
@@ -212,6 +254,7 @@ __all__ = [
     "NoReferenceAntenna",
     "array_centre",
     "caracal_refant",
+    "default_choice",
     "is_auto",
     "observatories",
     "problems",

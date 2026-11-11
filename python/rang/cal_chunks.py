@@ -20,10 +20,15 @@ chunks of whole solution intervals:
   the counts of the counted kernels (`cal_gain_trace`, `cal_delay_trace`,
   `cal_delay_offset_trace`);
 - `gauge(...)`: `rang.cal_pol.unpolarised_gauge` over chunks, its median
-  found exactly by histograms of the float32 values' order-preserving keys.
+  found exactly by histograms of the float32 values' order-preserving keys;
+- `Average`, `load_averaged(...)` (task E2, `calibrate.average_time`):
+  CASA's time pre-averaging within each solution interval, the source rows
+  streamed in blocks, prepared per row, then accumulated per (interval,
+  baseline, channel, correlation); the solve is on the averages.
 
 Chunking changes no arithmetic: a chunked solve gives the solutions of the
 one-call solve bit for bit (research/w3b-chainchunks.md, section 3).
+Averaging changes the estimator (CASA's); it is off unless asked for.
 """
 
 from dataclasses import dataclass
@@ -51,22 +56,37 @@ class Chunk:
     whole: bool  # all channels
 
 
-def plan(time_bin, nchan, ncorr, budget, *, per_channel, what="solve"):
+def plan(time_bin, nchan, ncorr, budget, *, per_channel, what="solve", average=None):
     """The chunks of a solve with interval index `time_bin` per field row,
     and the rows of all channels a block may hold. `budget` None: one
     chunk (the one-call solve). `per_channel`: one frequency bin per
-    channel (B, Xf, Df); otherwise one bin over all channels."""
+    channel (B, Xf, Df); otherwise one bin over all channels.
+
+    `average` (an `Average`, task E2, `calibrate.average_time`): the solve
+    is on the field's time-averaged rows and `time_bin` is
+    `average.time_bin` (one per averaged row). The memory goes half to a
+    chunk of averaged rows and half to a read block of whole source rows
+    (`AVERAGE_BLOCK_SHARE` of that half in rows, for the accumulation's
+    temporaries); the metadata of the source and the averaged rows is
+    held."""
     tb = np.asarray(time_bin, np.int64)
     n = len(tb)
     ntime = int(tb.max()) + 1 if n else 0
     nfreq = int(nchan) if per_channel else 1
     if budget is None:
-        return [Chunk(np.arange(n), 0, ntime, 0, nfreq, slice(0, nchan), True)], n
-    max_cells, hard, block = budget.plan(n, nchan, ncorr, per_channel)
+        block = n if average is None else average.nsource
+        return [Chunk(np.arange(n), 0, ntime, 0, nfreq, slice(0, nchan), True)], block
+    held = n if average is None else n + average.nsource
+    split = per_channel or average is not None
+    max_cells, hard, block = budget.plan(held, nchan, ncorr, split)
+    if average is not None:
+        block = int(block * AVERAGE_BLOCK_SHARE)
     rows_of = np.bincount(tb, minlength=ntime)
     unit = int(rows_of.max()) * (1 if per_channel else int(nchan)) * int(ncorr)
-    if hard < unit or (per_channel and block < 1):
-        need = budget.need_gb(n, max(unit, int(nchan) * int(ncorr)), per_channel)
+    if hard < unit or (split and block < 1):
+        row = int(nchan) * int(ncorr)
+        least = row if average is None else int(np.ceil(row / AVERAGE_BLOCK_SHARE))
+        need = budget.need_gb(held, max(unit, least), split)
         limit = (
             ""
             if budget.limit_gb is None
@@ -77,6 +97,8 @@ def plan(time_bin, nchan, ncorr, budget, *, per_channel, what="solve"):
             if per_channel
             else "one solution interval"
         )
+        if average is not None:
+            smallest += ", time-averaged,"
         raise core_chunks.MemoryLimitError(
             f"{what}: {smallest} holds {unit} visibility cells of {n} rows and needs "
             f"{need:.3f} GiB{limit}; raise the limit, or use a shorter solint "
@@ -121,6 +143,125 @@ def load(reader, rows, chunk, names, prepare, block_rows):
             out[key][b : b + len(part)] = value
         del got
     return out
+
+
+# -- time pre-averaging within solution intervals (task E2) ----------------------
+
+# The share of a read block's memory (in rows) left to the source rows when
+# they are averaged: the rest holds the accumulation's temporaries (the
+# masked weights and the weighted data and model in double precision).
+AVERAGE_BLOCK_SHARE = 0.5
+
+
+class Average:
+    """CASA's time pre-averaging within solution intervals (task E2,
+    `calibrate.average_time`): one averaged row per (interval, baseline)
+    of the field's cross-correlation rows, in the order of (interval,
+    ANTENNA1, ANTENNA2). `skip` marks the source rows that contribute
+    nothing (FLAG_ROW, outside `uvrange`, autocorrelations); an averaged
+    row whose source rows are all skipped is flagged as a row.
+
+    `inverse` is each source row's averaged row (-1 for autocorrelations),
+    `time_bin`, `antenna1`, `antenna2`, `flag_row` the averaged rows'."""
+
+    def __init__(self, time_bin, antenna1, antenna2, skip):
+        tb = np.asarray(time_bin, np.int64)
+        a1 = np.asarray(antenna1, np.int64)
+        a2 = np.asarray(antenna2, np.int64)
+        skip = np.asarray(skip, bool)
+        self.nsource = len(tb)
+        self.skip = skip
+        cross = a1 != a2
+        nant = int(max(a1.max(), a2.max())) + 1 if len(a1) else 1
+        key = (tb * nant + a1) * nant + a2
+        uniq, inv = np.unique(key[cross], return_inverse=True)
+        self.inverse = np.full(len(tb), -1, np.int64)
+        self.inverse[cross] = inv.ravel()
+        self.time_bin = uniq // (nant * nant)
+        self.antenna1 = (uniq // nant) % nant
+        self.antenna2 = uniq % nant
+        live = np.bincount(self.inverse[cross & ~skip], minlength=len(uniq))
+        self.flag_row = live == 0
+
+    def __len__(self):
+        return len(self.time_bin)
+
+    def sources(self, pos):
+        """The source rows (positions among the field's rows, ascending)
+        of averaged rows `pos`, and each one's index into `pos`."""
+        local = np.full(len(self) + 1, -1, np.int64)
+        local[np.asarray(pos, np.int64)] = np.arange(len(pos))
+        loc = local[self.inverse]  # -1 (the extra slot) for autocorrelations
+        src = np.flatnonzero(loc >= 0)
+        return src, loc[src]
+
+
+def load_averaged(reader, rows, chunk, names, prepare, block_rows, average):
+    """The time-averaged arrays of `chunk` (a chunk of `average`'s rows):
+    the source rows of its averaged rows are read in blocks of
+    `block_rows` whole rows, prepared by `prepare` (pre-applies and P, per
+    row), cut to the chunk's channels and accumulated per (averaged row,
+    channel, correlation): with `w` the weight of an unflagged cell of a
+    row not skipped, the data and model become `sum(w d) / sum(w)` and
+    `sum(w m) / sum(w)`, the weight `sum(w)`; a cell with `sum(w) = 0` (no
+    unflagged sample of positive weight) is flagged, with data and model 0.
+    Also returns `src` (the source positions read) and their `row_w`
+    (`prepare`'s per-row weight sums for the solution times)."""
+    src, loc = average.sources(chunk.pos)
+    nloc = len(chunk.pos)
+    chans = chunk.chans
+    sw = swd = swm = None
+    row_w = np.zeros(len(src))
+    step = max(1, int(block_rows))
+    for b in range(0, len(src), step):
+        part = src[b : b + step]
+        cols = {n: core_chunks.read_rows(reader, n, rows[part]) for n in names}
+        got = prepare(part, cols)
+        del cols
+        row_w[b : b + len(part)] = got.pop("row_w")
+        data = np.asarray(got["data"])[:, chans]
+        model = np.broadcast_to(np.asarray(got["model"]), np.shape(got["data"]))
+        model = model[:, chans]
+        weights = np.broadcast_to(np.asarray(got["weights"]), np.shape(got["data"]))
+        weights = weights[:, chans]
+        flag = np.asarray(got["flag"], bool)[:, chans]
+        del got
+        used = ~flag & ~average.skip[part][:, None, None]
+        del flag
+        w = np.where(used, weights.astype(np.float64), 0.0)
+        wd = w * np.where(used, data, 0).astype(np.complex128)
+        wm = w * np.where(used, model, 0).astype(np.complex128)
+        del used, data, model, weights
+        if sw is None:
+            shape = (nloc, *w.shape[1:])
+            sw = np.zeros(shape)
+            swd = np.zeros(shape, np.complex128)
+            swm = np.zeros(shape, np.complex128)
+        here = loc[b : b + len(part)]
+        order = np.argsort(here, kind="stable")
+        sorted_loc = here[order]
+        starts = np.flatnonzero(np.r_[True, sorted_loc[1:] != sorted_loc[:-1]])
+        targets = sorted_loc[starts]
+        sw[targets] += np.add.reduceat(w[order], starts, axis=0)
+        swd[targets] += np.add.reduceat(wd[order], starts, axis=0)
+        swm[targets] += np.add.reduceat(wm[order], starts, axis=0)
+        del w, wd, wm
+    if sw is None:  # no source rows: cannot happen for a planned chunk
+        raise ValueError("an averaged chunk without source rows")
+    good = sw > 0
+    with np.errstate(invalid="ignore", divide="ignore"):
+        data = np.where(good, swd / np.where(good, sw, 1.0), 0).astype(np.complex64)
+        del swd
+        model = np.where(good, swm / np.where(good, sw, 1.0), 0).astype(np.complex64)
+        del swm
+    return {
+        "data": data,
+        "model": model,
+        "weights": sw.astype(np.float32),
+        "flag": ~good,
+        "src": src,
+        "row_w": row_w,
+    }
 
 
 def replayed(chunks, run, *, max_iterations, stop_fraction):
@@ -252,4 +393,15 @@ def gauge(chunks, tol=1e-6):
     return degenerate, complex(r0)
 
 
-__all__ = ["STOP_OFF", "Chunk", "gauge", "load", "plan", "replayed", "trace_buffer"]
+__all__ = [
+    "AVERAGE_BLOCK_SHARE",
+    "STOP_OFF",
+    "Average",
+    "Chunk",
+    "gauge",
+    "load",
+    "load_averaged",
+    "plan",
+    "replayed",
+    "trace_buffer",
+]

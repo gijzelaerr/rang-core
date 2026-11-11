@@ -217,7 +217,10 @@ SCHEMA = {
             ),
         },
         "refant": _k(
-            None, "refant", "reference antenna: a name, an id, a list or auto"
+            None,
+            "refant",
+            "reference antenna: a name, an id, a list or auto (CARACal's choice); "
+            "null: auto, or antenna 0 when no antenna qualifies (task E2)",
         ),
         "refantmode": _k(
             "flex", "choice", "flex or strict, as CASA", ("flex", "strict")
@@ -237,6 +240,14 @@ SCHEMA = {
         ),
         "minsnr": _k(None, "float?", "solutions below this SNR are flagged (CASA: 3)"),
         "minblperant": _k(None, "int?", "baselines per antenna needed (CASA: 4)"),
+        "average_time": _k(
+            False,
+            "bool",
+            "K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged "
+            "in time within each solution interval (CASA's pre-averaging: weighted "
+            "means after the pre-applies and P, weight the sum, per baseline, "
+            "channel and correlation); false: every row solved (task E2)",
+        ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),
             "terms": _k([{"type": "complex"}], "terms", "terms solved in order"),
@@ -335,7 +346,7 @@ SCHEMA = {
             ("natural", "uniform", "briggs"),
         ),
         "robust": _k(0.0, "float", "Briggs robustness"),
-        "niter": _k(100000, "int", "maximum number of components"),
+        "niter": _k(1000000, "int", "maximum number of components"),
         "auto_threshold": _k(
             3.0, "float?", "stop at this many robust sigma of the residual"
         ),
@@ -450,7 +461,15 @@ SCHEMA = {
         "refant": _k(
             None,
             "refant",
-            "reference antenna (null: calibrate.refant, or 0 when that is unset)",
+            "reference antenna (null: calibrate.refant); auto: the first of "
+            "CARACal's choice",
+        ),
+        "average_time": _k(
+            False,
+            "bool",
+            "Sp and Sa solve on data and model averaged in time within each "
+            "solution interval (calibrate.average_time's estimator; CubiCal "
+            "solves every sample); false: every row solved (task E2)",
         ),
         "gain_clip": _k(
             [0.5, 2.0],
@@ -1422,17 +1441,16 @@ def refusals(config, stages):
                         "(CARACal's GainDiag) or Sp, Sd",
                     )
                 )
-        out += _selfcal_image_refusals(config)
-        refant = sc["refant"] or config["calibrate"]["refant"]
-        if refant and "auto" in refant:
+        if sc["average_time"] and any(t["type"] == "Sd" for t in sc["terms"]):
             out.append(
                 Refusal(
-                    "selfcal.refant",
+                    "selfcal.average_time",
                     "",
-                    "auto is resolved by calibrate only; give selfcal.refant an "
-                    "antenna name or id",
+                    "applies to Sp and Sa only; Sd (CARACal's Fslope) solves every "
+                    "sample: set false or use Sp and Sa",
                 )
             )
+        out += _selfcal_image_refusals(config)
     return out
 
 
@@ -1646,6 +1664,14 @@ def _chain_refusals(config, out):
     def bad(path, text):
         out.append(Refusal(path, "", text))
 
+    if cal.get("average_time") and any(
+        t["type"] == "complex" for s in CALIBRATE_SECTIONS for t in cal[s]["terms"]
+    ):
+        bad(
+            "calibrate.average_time",
+            "applies to the K, G, B, F, Gpol, KCROSS, Xf and Df solves only; "
+            "the complex solve has no time pre-averaging: set false",
+        )
     seen = {}  # name -> (section, type), in solve order
     kinds_used = set()
     primary_g = [t["name"] for t in cal["primary"]["terms"] if t["type"] == "G"]
@@ -1694,12 +1720,7 @@ def _chain_refusals(config, out):
                 continue
             solved_here = True
             refant = term["refant"] if term["refant"] is not None else cal["refant"]
-            if refant is None and kind not in ("KCROSS", "Xf"):
-                bad(
-                    f"{where}.refant",
-                    "required for K, G, B, F, Gpol and Df (calibrate.refant)",
-                )
-            elif (
+            if (
                 refant is not None
                 and len(refant) > 1
                 and any(str(r).lower() == "auto" for r in refant)
@@ -1811,14 +1832,28 @@ def validate_file(path, stages):
 RESOURCE_KEYS = {"data": ("memory_limit_gb", "chunk_rows")}
 
 
+# Keys left out of the stage hash at their default, so that adding them did
+# not change the hash of an existing configuration (task E2).
+HASH_DEFAULTS = {
+    "calibrate": {"average_time": False},
+    "selfcal": {"average_time": False},
+}
+
+
 def stage_hash(config, stage):
     """SHA-256 of the sections `stage` depends on (STAGE_SECTIONS), without
-    the RESOURCE_KEYS."""
+    the RESOURCE_KEYS, and without the HASH_DEFAULTS keys at their
+    default."""
     part = {}
     for name in STAGE_SECTIONS[stage]:
         section = config[name]
         if name in RESOURCE_KEYS:
             section = {k: v for k, v in section.items() if k not in RESOURCE_KEYS[name]}
+        if name in HASH_DEFAULTS:
+            omit = HASH_DEFAULTS[name]
+            section = {
+                k: v for k, v in section.items() if not (k in omit and v == omit[k])
+            }
         part[name] = section
     text = json.dumps(part, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()

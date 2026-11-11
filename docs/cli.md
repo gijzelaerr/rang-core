@@ -266,13 +266,14 @@ calibrate:
     polangle: null  # manual: polarisation angle, radians
     rotmeas: null  # manual: rotation measure, rad m^-2
     lsm: null  # a Tigger .lsm sky model, such as pks1934-638.lsm
-  refant: null  # reference antenna: a name, an id, a list or auto
+  refant: null  # reference antenna: a name, an id, a list or auto (CARACal's choice); null: auto, or antenna 0 when no antenna qualifies (task E2)
   refantmode: flex  # flex or strict, as CASA
   refant_maxdist: 1000.0  # refant auto: metres from the array centre at most (CARACal's maxdist)
   refant_minbase: 150.0  # refant auto: metres to every other antenna at least (CARACal's minbase)
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150
   minsnr: null  # solutions below this SNR are flagged (CASA: 3)
   minblperant: null  # baselines per antenna needed (CASA: 4)
+  average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation); false: every row solved (task E2)
   primary:
     field: ["fcal"]  # fields of the primary solves
     terms: [{type: complex}]  # terms solved in order
@@ -305,7 +306,7 @@ image:
   scale: null  # required: pixel size, such as 2asec
   weight: briggs  # natural, uniform or briggs
   robust: 0.0  # Briggs robustness
-  niter: 100000  # maximum number of components
+  niter: 1000000  # maximum number of components
   auto_threshold: 3.0  # stop at this many robust sigma of the residual
   threshold: null  # stop at this many Jy
   gain: null  # loop gain (null: gemclean's 0.1)
@@ -345,7 +346,8 @@ selfcal:
   input_column: CORRECTED_1GC  # the 1GC-corrected data solved; CORRECTED_1GC is copied from apply.column after this run's apply
   model_column: MODEL_DATA  # the model of each round's image, solved against
   output_column: CORRECTED_DATA  # the column written
-  refant: null  # reference antenna (null: calibrate.refant, or 0 when that is unset)
+  refant: null  # reference antenna (null: calibrate.refant); auto: the first of CARACal's choice
+  average_time: false  # Sp and Sa solve on data and model averaged in time within each solution interval (calibrate.average_time's estimator; CubiCal solves every sample); false: every row solved (task E2)
   gain_clip: [0.5, 2.0]  # gain amplitudes kept, [low, high] (CARACal's cal_gain_cliplow and cliphigh); [] for none
   minuvw_m: 0.0  # baselines shorter than this (metres) are not solved
   clean_cutoff: []  # per image, the auto_threshold (sigma) of image 1, 2, ..., the final image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold

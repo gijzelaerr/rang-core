@@ -276,7 +276,8 @@ def test_selfcal_configuration_errors_and_refusals():
     )
     assert errors == []
     refused = {r.path for r in core_config.refusals(config, ["selfcal"])}
-    assert refused == {"selfcal.terms[0].type", "selfcal.refant"}
+    # Since task E2, selfcal resolves auto itself (core_pipeline.selfcal_refant).
+    assert refused == {"selfcal.terms[0].type"}
     # E2-A's selfcal part validates; its automatic mask needs an mgain (G4).
     raw = core_config.load(ROOT / "tests/data/w2/e2a.yaml")
     config, errors = core_config.resolve(raw)

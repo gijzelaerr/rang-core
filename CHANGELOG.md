@@ -21,6 +21,18 @@ the release notes are the section of this file for that version.
   flags; a flag version the last attempt recorded but the MS no longer has is warned about
   (`restore_missing`) (E5-42). Every source file carries an SPDX `GPL-3.0-or-later` line (E5-45).
 
+- New: `calibrate.average_time` (default false; task E2, `research/e2-average-time.md`). With it on,
+  the K, G, B, F, Gpol, KCROSS, Xf and Df solves use CASA's estimator for long intervals: data and
+  model averaged in time within each solution interval (weighted means over unflagged cells after the
+  pre-applied tables and P, weight the sum, per baseline, channel and correlation), streamed in blocks
+  of rows, and the memory plan counts the averaged rows. E2's whole-scan solves on 4096-channel
+  MeerKAT data (176 GiB per interval unaveraged) then fit `data.memory_limit_gb: 8`. Off, every
+  solve and the stage hash are unchanged. Refused with a `complex` term.
+- New: `selfcal.average_time` (default false; task E2): Sp and Sa solve on data and model averaged
+  in time within each solution interval, as `calibrate.average_time` does, so CARACal's solint 120 fits
+  8 GiB at 4,096 channels (333 GiB per interval without). Not CubiCal's estimator, which solves every
+  sample (owner item 33(3)). Off, the stage hash is unchanged. Refused with Sd.
+
 - Changed (owner decisions on the E5 pre-review, `research/e5-prereview.md` section 3): receipts are
   `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file
   sizes and mtimes), not a full content hash; the stage summaries hash the flags, gain solutions and images
