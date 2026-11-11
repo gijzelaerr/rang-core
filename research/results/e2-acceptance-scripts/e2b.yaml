@@ -7,6 +7,9 @@
 # img_mgain) and no automatic mask: rang refuses a mask on joined IQUV images
 # (G4), so A0 rule 6's 5-sigma mask is a deviation here, the same in the oracle
 # arm; image.niter the new default 1e6. refant auto, as CARACal's shipped E3-B value.
+# Time pre-averaging (owner item 33(3); e2-acceptance.md 6.1): calibrate.average_time
+# on, CASA-style, because CARACal's solints need 145-176 GiB at 4,096 channels
+# without it.
 schema: rang-config
 version: 1
 fields:
@@ -23,6 +26,7 @@ calibrate:
   model: {source: setjy, standard: Stevens-Reynolds 2016}
   refant: auto
   uvrange: ">150"
+  average_time: true
   primary:
     field: [fcal]
     terms:

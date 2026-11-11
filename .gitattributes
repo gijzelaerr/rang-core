@@ -11,3 +11,5 @@
 # research/results/p11-extract/closure.py keeps its CRLF.
 research/results/** -text
 history/** -text
+# CARACal's strategy file, byte for byte (SHA-256 in research/e2-acceptance.md 6.3):
+research/results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml -whitespace

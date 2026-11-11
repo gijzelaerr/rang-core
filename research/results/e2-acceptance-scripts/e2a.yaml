@@ -7,6 +7,9 @@
 # img_mgain, which the mask needs); multiscale (gated, item 29); CARACal's
 # selfcal values for the C5b keys (item 29: cleanmask wsclean at 10 then 6
 # sigma, clean_cutoff 0.5); image.niter the new default 1e6.
+# Time pre-averaging (owner item 33(3); e2-acceptance.md 6.1): calibrate.average_time
+# and selfcal.average_time on, CASA-style, because CARACal's solints need
+# 145-333 GiB at 4,096 channels without it.
 schema: rang-config
 version: 1
 fields:
@@ -24,6 +27,7 @@ calibrate:
   model: {source: setjy, standard: Stevens-Reynolds 2016}
   refant: auto
   uvrange: ">150"
+  average_time: true
   primary:
     field: [fcal]
     # KGBAKGB, solints inf, inf, inf, -, 60s, 60s, inf; B combines scans.
@@ -62,6 +66,7 @@ image:
   multiscale: true
 selfcal:
   rounds: 2
+  average_time: true
   terms: [{type: Sp, solint: 120}, {type: Sa, solint: 120}]
   cleanmask_method: [wsclean]
   cleanmask_thr: [10, 6]

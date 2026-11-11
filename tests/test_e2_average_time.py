@@ -368,6 +368,8 @@ def test_e2_configurations_fit_8_gib_with_the_key(name, ms):
     if not path.exists():
         pytest.skip(f"{path} is not on this host")
     raw = core_config.load(SCRIPTS / f"{name}.yaml")
+    # The frozen E2 configurations carry the key; without it they are refused.
+    assert raw["calibrate"].pop("average_time") is True
     info = pipe.inspect_ms(path)
     config = core_config.validate(raw, ["calibrate"])
     assert config["data"]["memory_limit_gb"] in (None, 8, 8.0)

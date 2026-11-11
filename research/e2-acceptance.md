@@ -6,8 +6,9 @@ WSL only for the Linux oracles (CASA 6.7.6.14, Tricolour 0.2.1, WSClean 3.7,
 QuartiCal 0.2.7).
 
 **Status (2026-11-11): E1b measured (section 5: the image gate met, the rest
-as E1); `average_time` merged (validated on LUNO except Gpol). E2's protocol:
-the draft, being finalised; no E2 cube decoded by this task.**
+as E1); `average_time` merged (validated on LUNO except Gpol); E2's protocol
+frozen (section 6) before this task decoded any E2 cube. E2-B and E2-A: see
+the results section.**
 
 Owner answers that bind this task (finish-plan section 7): item 6 (split legs,
 E2-N open, fetches approved), item 27 (E1's decisions, all done before the
@@ -255,7 +256,8 @@ runs.
   (draft; still to gain `average_time: true`), converter `e2_convert.py`
   (tested bit-exact on the pilot subset), timer `e2_timed.py`, and the draft
   protocol `results/e2-acceptance-scripts/e2_protocol_draft.md` (**not
-  frozen**). No E2 cube has been decoded.
+  frozen** at the halt; superseded by section 6 and removed at the freeze
+  commit). No E2 cube has been decoded.
 
 **Next, in order (resume commands, Git Bash):**
 1. E1b controls and scores: `sh research/results/e2-acceptance-scripts/e1b_rest.sh`
@@ -323,6 +325,259 @@ composite (32.4 against 33.2). 3C286-SIM (reported): p 0.0952 both (truth
 truth every refant except m000 drifts 13-22° rms in X−Y (2.1), so with
 CARACal's strategy 1 the `auto` arm's leakage limit is the method's, in CASA
 too. A Df solve on the polarised calibrator is a post-release option.
+
+## 6. E2 protocol (FROZEN 2026-11-11, before E2's author decoded any E2 cube cell)
+
+Written after E1b's chain runs and before this task decoded any E2-A or E2-B
+cube cell; finalised after E1b's scores (section 5) and the LUNO validation of
+6.1, and committed before `e2_convert.py build` reads an E2 cube. Nothing in
+this section changes after a result; additions are dated amendments (6.7) or
+labelled post hoc. Everything read of the E2 groups by E2's author before
+this commit: the fetched bytes (not decoded), row columns, subtables and
+group attributes (A0 section 4 allows these), through the metadata-only
+preflight MSs of 6.1.
+
+**Held-out integrity, recorded.** E2-B cubes were decoded by the E3 session
+on 2026-11-11 before this freeze (its build log: build from 17:14, verify
+done 17:26; `D:\rang\outputs\e3-20261111-input\e2b.ms`, all of MAIN_16-19),
+and a CARACal or CASA correctness pass ran on it. Nothing of it was read by E2's author
+except the conversion metadata that identified the data (`e2b.ms.convert.json`:
+groups and row counts; `build.log`); no cube, table, image or score of `e3-*`
+was opened. The coordinator embargoed every E3 E2-B number
+until this commit. E2-A: the only conversion of `e2-a` on D: is this
+task's metadata-only preflight (every `*.convert.json` under `D:\rang\outputs`,
+searched at the freeze).
+
+### 6.1 What the metadata preflight found, and the fix (before the protocol)
+
+`e2_convert.py build --no-cubes` writes the row columns and subtables of the
+E2 groups with DATA, FLAG and WEIGHT_SPECTRUM left at zero and never read
+(`D:\rang\outputs\e2-20261110-10-preflight\e2a-meta.ms`, `e2b-meta.ms`).
+`rang-core config check` on them refused the CARACal chains at the default
+`data.memory_limit_gb: 8`: W3b solves one solution interval whole, and at
+4,096 channels K and G `inf` need 145-176 GiB, KCROSS `inf` 174 GiB, Gpol
+`60s` 19 GiB, Gsec and F 26 GiB, K1 and G1 `60s` 23 GiB (the host has 30 GB).
+`rang-core selfcal` has no preflight; its Sp and Sa at solint 120 on the
+E2-A target would need 333 GiB per interval at 4,096 channels and 42 GiB at
+512 ([e2-average-time.md](e2-average-time.md) 4.3). **As frozen in A0, both
+legs would have failed gate 1 with a refusal; that was found from metadata
+only, so the fix below is pre-registration, not post hoc.**
+
+The fix is CASA's own estimator ([e2-average-time.md](e2-average-time.md),
+branch `fp-e2-averaging`, merged here at `8e7acfc` (and origin/main at `eb16cd8`) before this protocol):
+`calibrate.average_time` and `selfcal.average_time` (default false; off is
+byte-identical to before, stage hashes unchanged): every K, G, B, F, Gpol,
+KCROSS, Xf, Df solve, and selfcal's Sp and Sa, on data and model averaged in
+time within each solution interval after the pre-applies and P. Its
+validation on development data (A1 small; LUNO scans 1 and 2 against CASA
+6.7.6.14 at class B) is in that note. Self-calibration with it is not
+CubiCal's estimator (which solves every sample); adopted by owner item 33(3)
+(finish-plan section 7), off by default, on in the E2 configurations.
+
+**The LUNO validation (e2-average-time.md 4.2), as frozen there:** class B met
+on K (median 0.0032 ns), KCROSS (0.00086 ns), Xf (0.064°), Df gauge-free
+(2.7e-5) and the fcal K G B composite (4.5e-5, p95 2.2e-3); **not met on Gpol**:
+phase median 0.250° against ≤ 0.1° (p95 2.03°), largest on the outer antennas
+(m049, m055-m059, m062, m063: 1.0-3.0°, 1.2-4.1 km from the centre), nearly
+constant in time and equal in both hands. Not the time averaging, the weights,
+the refant gauge or the model; partly CASA's frequency pre-averaging of G-type
+solves (emulated: median 0.108°, p95 0.94°); the rest not traced. The code is
+frozen as it stands (coordinator's decision, 2026-11-11, under owner item 33);
+**the expectation is recorded in 6.5.**
+
+### 6.2 The Measurement Sets (exact paths; built after this commit)
+
+| Leg | Built by | Groups, in time order | MS |
+| --- | --- | --- | --- |
+| E2-B | `e2_convert.py build` then `verify` | LUNO MAIN_16 (scan 17, J1331+3030), MAIN_17 (18, J1939-6342), MAIN_18, MAIN_19 (19, 20, J1833-2103) of `D:\rang\data\e2-b\LBAND_LUNO_CALIBRATORS.zarr`: 272,916 rows, 56 antennas, 4,096 channels | `D:\rang\data\e2-b\e2b.ms` |
+| E2-A | the same | ESO137 `ms1_primary.zarr` MAIN_4 (scan 9), `ms1_target.zarr` MAIN_4 (scan 10, ESO137-001), `ms1_primary.zarr` MAIN_5 (scan 11) under `D:\rang\data\e2-a\ESO137`: 1,047,614 rows, 61 antennas, 4,096 channels | `D:\rang\data\e2-a\e2a.ms` |
+
+- `verify` must report 0 differing cells and row-column values (it prints
+  counts only); otherwise the leg stops and the converter is fixed (not a
+  gate). Right after `verify`, the SHA-256 of FLAG and FLAG_ROW is recorded
+  (gate 2a's reference).
+- Conversion deviations, fixed now: FEED's single row is expanded to one per
+  antenna; POINTING, HISTORY, FLAG_CMD, SOURCE are not written; FIELD and
+  STATE are merged over the two ESO137 stores. RECEPTOR_ANGLE stays as
+  stored (LUNO 0, ESO137 −90°); E2-B's rang arm rotates it in memory
+  (`feed_angle_rotation: -90`), and every CASA or CARACal copy of `e2b.ms`
+  gets RECEPTOR_ANGLE −90° written, as CARACal's `set_receptor_angle` does.
+- Each leg's rang arm runs on this MS itself (gate 1: `rang-core run config.yaml
+  my.ms`). Oracle arms run afterwards on the same file after FLAG is restored
+  from `rang_original` and rang's added columns are dropped, or on a fresh
+  build from the zarr (A0 amendment 1 item 3: one copy at a time).
+- **Disk and order (fixed now; measured).** E1b's m32 MS after the whole
+  chain (`e2-20261110-05-e1b-m000\ms`) holds five complex columns of 8.6 GB
+  each (DATA, MODEL_DATA, CORRECTED_DATA, CORRECTED_1GC and the scorer's
+  CORRECTED_TRUTH), WEIGHT_SPECTRUM 4.3 GB, bit-packed FLAG 0.13 GB, flag
+  versions 0.83 GB and a run directory of 2.2 GB: 48 GB, or 39.4 GB without
+  CORRECTED_TRUTH, for 2.69e8 cells. E2-A has 4.29e9 cells (16.0 ×), so its
+  MS needs about **630 GB of columns plus 13 GB of flag versions**. Of that,
+  about 225 GB (DATA, WEIGHT_SPECTRUM, FLAG) is written by the build and
+  about 420 GB by the chain. E2-B (272,916 rows) needs about 58 GB at the
+  build and 135 GB after its chain.
+- **Order:** E2-B first (rang arm, then its oracle arms and the transfer and
+  leakage rows), its compact results archived and committed, then `e2b.ms`
+  deleted; then E2-A (rang arm, then its oracle arms). A leg's MS is deleted
+  only after its archive is committed; the zarr stores are kept.
+- **Start rule for E2-A's rang arm:** at least **470 GB free on D: after
+  `e2a.ms` is built and verified** (the chain's 420 GB plus 50 GB for images,
+  tables and logs). If it is short, the shortfall is reported to the
+  coordinator before the run, and the run waits. Space is freed from this
+  task's own outputs first (this note records each deletion), then, with the
+  owner's approval only, the F2/F3 simulation data.
+  E2-A never starts on a disk that cannot hold it, because a full disk mid-run
+  would be a gate 1 failure that costs the reserve.
+- **Deleted before this freeze** (results committed first): the LUNO
+  validation's CASA copy `e2-20261110-11-avg\casa\luno-dev.ms` (73 GB; its
+  tables kept; scores in `results/e2-average-time/archive/`). After the
+  config checks of 6.3 (`results/e2-acceptance/config-check-*.txt`), the
+  preflight MSs `e2-20261110-10-preflight\e2{a,b}-meta.ms` (245 GB of
+  zero-filled cubes; `e2_convert.py build --no-cubes` rebuilds them in
+  minutes).
+  After the E1b commit (`3320258`, results in `results/e2-acceptance/e1b/`),
+  E1b's m32 MSs `e2-20261110-04-e1b-auto\ms` and `-05-e1b-m000\ms` (51 GB
+  each; their run directories, controls and images kept). D: then had 1.1 TB
+  free.
+- **Development MS for E2-B's transfer and leakage rows:**
+  `D:\rang\outputs\e2-20261110-11-avg\luno\luno-dev.ms` (LUNO MAIN_0, MAIN_1 =
+  scans 1, 2; built and verified by the same converter, 0 cells differ). Its
+  rang tables are re-solved by the E2-B configuration (6.5), not taken from
+  the validation run.
+
+### 6.3 The configurations (frozen)
+
+[results/e2-acceptance-scripts/e2a.yaml](results/e2-acceptance-scripts/e2a.yaml)
+and [e2b.yaml](results/e2-acceptance-scripts/e2b.yaml), as committed with
+this section, with the strategy file
+[mk_rfi_flagging_calibrator_fields_firstpass.yaml](results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml)
+(CARACal `8f7bb363`, SHA-256 `ce9ac66a…1774`, as `results/caracal-strategies.json`
+and E1) beside them. Beyond their header comments:
+
+- `calibrate.average_time: true` in both, `selfcal.average_time: true` in
+  E2-A (6.1); `data.memory_limit_gb` the default 8.
+- A0 amendment 1 item 3, decided now on G2's measured number: GeMClean's
+  peak on the pilot at 512 channels is 19.72 GB, below 24 GB, so E2-A images
+  at 512 channels (`average_channels: 8`) and the scorer keeps the inner 0.7°.
+- refant: `auto` in both; on the preflight MSs it resolves to m022, m023, m024
+  on both legs (it reads ANTENNA and OBSERVATION only).
+- `rang-core config check CONFIG PREFLIGHT_MS` (merged code): e2a valid for
+  flag, calibrate, apply, image and selfcal; e2b for flag, calibrate, apply
+  and image, including the 8 GiB memory preflight
+  (`results/e2-acceptance/config-check-*.txt`). Selfcal has no preflight; its
+  plan at solint 120 with `average_time` is 4 chunks of one interval each
+  (e2-average-time.md 4.3).
+- E2-B images: no automatic mask (rang refuses one on joined IQUV images);
+  the oracle arm does the same.
+
+### 6.4 The run (gate 1) and its cost
+
+- **Wheel:** `maturin build --release` at this branch's head (the commit that
+  carries this section), installed with `uv pip install` into a fresh venv
+  `~/Build/tmp/20261111-e2-wheel` (Python 3.14, plus psutil for the timer);
+  its SHA-256 goes in the result. `rang-core run CONFIG MS` from that venv,
+  the strategy file beside the configuration.
+- **Timing method:** `e2_timed.py` around the one command: wall time end to
+  end, peak resident set summed over the process tree sampled every second,
+  host CPU load before and during; per stage the receipt's own times. Under
+  the main checkout's `tools/heavy_lock.py` **exclusive** (no other heavy job
+  on the host); the load at start is recorded. Peak disk: `du` of the MS and
+  its run directory after the run. Every other step (conversion, oracles,
+  scorers, builds) runs as a shared job of the lock, untimed except by its log.
+- **Development dry runs, before this freeze** (`e2_dryrun.py`, merged code
+  in the worktree venv, shared lock slots; `D:\rang\outputs\e2-20261111-12-dryrun`):
+  - `b`: e2b.yaml's shape on LUNO scans 1-2, 20,000 rows each, 4,096
+    channels. Exit 0; flag 59.7 s, calibrate 311.2 s (K, G, B, Gpol,
+    KCROSS, Xf, Df, `average_time`), apply 32.0 s, IQUV image 77.3 s.
+  - `a`: e2a.yaml's shape on A1 small. **First attempt: image exit 2**,
+    "the PSF convolved with scale 55.2 has no positive peak": GeMClean
+    refuses a multiscale scale whose PSF convolution has no positive peak,
+    and A1 small has 960 target rows and no short spacings. E2-A's geometry
+    (4,096², 3″, multiscale) on MeerKAT coverage is G5's run D on the ESO 137
+    pilot (passed), so the second attempt turned multiscale off on A1 small
+    only. Exit 0, every stage done: flag, calibrate with the A step (A0 on
+    K0, G0, B0) and both K G B passes, apply, image with the automatic mask,
+    and two selfcal rounds with `selfcal.average_time` (12.4 s). **Recorded
+    risk:** if E2-A's largest automatic scale has no positive PSF peak, gate
+    1 fails at the image stage; that is reported as frozen, not retuned.
+- **Wheel smoke, before E2-B:** `e2_dryrun.py b` from the wheel venv under
+  `e2_timed.py` on the development slice (LUNO scans 1-2, 20,000 rows each,
+  `D:\rang\outputs\e2-20261111-12-dryrun\b-src\luno-slice.ms`): exit 0 and every
+  stage in the receipt, or E2-B does not start.
+- One shot per leg (A0 rule 2). Order: E2-B, then E2-A (6.2's disk rule).
+
+### 6.5 Gates and how each is computed
+
+A0's gates are copied verbatim in appendix A,
+[results/e2-acceptance/appendix-a.md](results/e2-acceptance/appendix-a.md)
+(A0 at `a373a4c`: sections 5, 6.1 rows 1-3c, 6.2, 6.3's E2-A and E2-B, 6.5,
+6.6; byte-checked by `e2_appendix_a.py`). How each is computed here:
+
+| Gate | E2-B | E2-A |
+| --- | --- | --- |
+| 1 | exit 0, every stage of `run.stages` in the receipt, no hand step | the same |
+| 2a | FLAG and FLAG_ROW restored from `rang_original` equal the hashes of 6.2 | the same |
+| 2b | python-casacore (`rang-formats-oracle`) opens every table and column; CASA `listobs`, `flagmanager(mode='list')`, and `applycal` with rang's tables on a copy against rang's CORRECTED_DATA (class C); WSClean `-niter 0` on CORRECTED_DATA and MODEL_DATA; QuartiCal reads the MS through dask-ms | the same, on E2-A's tables |
+| 2c | astropy WCS parses every FITS rang wrote | the same |
+| 3a | Tricolour 0.2.1 (`rang-tricolour:0.2.1-e1`), the same strategy, `-fs polarisation`, `-dc DATA`, input flags as converted, on the restored MS; cells against rang's flag stage | the same, with rang's `flag.fields` (fcal and target) |
+| 3b | CASA 6.7.6.14 runs CARACal's full-Stokes sequence (as `e1b_casa.py`, with `average_time` not applicable: CASA pre-averages itself) on a copy with rang's FLAG after its calibrate stage, the same refant list and models; per term class B / the term limits on gauge-free composites (K, KCROSS, Xf, Df with the refant as in A0 rule 5) | CASA runs CARACal's KGB, KGB sequence on the primaries (no A step: it has no CASA counterpart) on a copy carrying rang's FLAG after calibrate (after A), same refant and model; **gated: K1, G1, B1 and their fcal composite** (the tables applied); K0, G0, B0 reported, since rang solved them before A |
+| 3c | WSClean 3.7 dirty and cleaned images of rang's CORRECTED_DATA with matched settings (2048 × 2″, robust 0, 8 joined channels, IQUV joined, no mask, 3σ); dirty L∞ / peak; cleaned through the scorer | WSClean of rang's CORRECTED_DATA at the image stage's settings (multiscale, auto-mask 5, threshold 3, 512 channels); dirty L∞; compact-source ratios through the scorer (inner 0.7°) |
+| E2-B rows | 3C 286 parity: p and χ per 100 MHz (1.0-1.65 GHz, ≥ 10 % unflagged) in the visibility domain (mean over unflagged cells of the calibrated cross hands after derotation to the sky frame) from rang's and CASA's calibrated scan 17. Transfer: the development half's tables, solved by the same configuration's calibrate on LUNO scans 1 and 2 (the development MS of 6.2: `e2b.yaml` with `data.scans: [1, 2]`, no `secondary` block and `run.stages: [flag, calibrate]`, so K, G, B on 1934−638 and KCROSS, Xf on 3C 286 and Df on 1934−638 of scans 1-2; CASA's development tables by the same calls on a copy carrying rang's flags after that calibrate) with Gpol (p, 60 s, parang) solved on scan 17, applied to scan 17 (rang library apply), p and χ at 1.3-1.5 GHz; both arms (CASA likewise). 1934−638 leakage: development Df applied to scan 18; peak of the Q, U, V MFS images over I. 1830−211: I, p, χ against CASA after the full chain | – |
+| E2-A rows | – | Flux scale: K, G, B solved on scan 9 only (same configuration, `data.scans: [9]` for calibrate), applied to scan 11, 1934−638's Stokes I per 100 MHz against SR2016. Target: ≥ 10σ isolated sources in rang's and the oracle's image-stage images (CASA-corrected data, WSClean): ratio, robust scatter; off-source rms and dynamic range. Self-calibration: off-source rms of selfcal's image 1 (from CORRECTED_1GC) and of its final image (after ≤ 1.02 × before); gains class B against QuartiCal 0.2.7 on the same MODEL_DATA and solint, unaveraged (stated) |
+
+Images go through E1b's scorer convention (2.3) where a truth is not
+available: compact sources are fitted with a Gaussian fixed to each image's
+PSF-fitted beam, matched between arms by position (within 0.5 beam).
+
+**Expected before the run (written now, from development data only).**
+- E2-B gate 3b **Gpol: expected not met** at class B, as on LUNO scans 1-2
+  (6.1: 0.250° against 0.1°, outer antennas). K, KCROSS, Xf, Df and the fcal
+  composite are expected met; Gsec, F and the 1830−211 row were not
+  validated on development data.
+- E2-B 3a: expected not exactly 0 differing cells (owner item 33(2): the
+  port's float64 DFT against Tricolour's complex64 pocketfft, about 2 ulp at a
+  threshold; E1 had 530 cells in 288 M). Read against the gate as frozen.
+- E2-A self-calibration: CubiCal's estimator differs from the averaged one
+  (item 33(3)); C5's model absorption (item 29) applies.
+
+**Scorers and oracle scripts.** Each one is committed, and run once on the
+development dry runs (6.4) or on LUNO scans 1-2, before it reads an E2
+result. A scorer bug found on E2 data is fixed with a test, and both
+readings are reported, labelled.
+
+**Anything not run is reported as "not checked", never as met.** Where an
+oracle cannot run on this host (memory, disk), the reason is recorded.
+
+### 6.6 Failure rules (A0 6.5, verbatim in appendix A)
+
+E2-A failure: recorded as frozen; after a fix, one rerun on the reserve
+(scans 12, 11, 13), which needs the owner-approved reserve fetch (164 GB):
+fetched only then, and the reason recorded. E2-B failure: recorded; a rerun
+after a fix is labelled "seen". Nothing here is retuned against E2 data and
+presented as a pass.
+
+### 6.7 Pre-registered extra arm and amendments
+
+- **E2-B amended (pre-registered now; coordinator's decision 2026-11-11 under
+  owner item 33).** CASA's frequency pre-averaging of G-type solves (G, Gpol,
+  Gsec, F) is implemented as a configuration key, off by default, on its own
+  branch, and validated on LUNO scans 1-2 against CASA (development data)
+  while E2-B and E2-A run. **Sealed until that amendment is committed:**
+  every E2-B gate 3b and 3c score and every E2-B row (3C 286, transfer,
+  1934−638 leakage, 1830−211), all of which depend on Gpol directly or
+  through KCROSS, Xf and the images. Readable before it: the exit code,
+  receipt and timing (gate 1), gate 2, and gate 3a (the flag stage precedes
+  every solve). The amendment names the key, its commit and its LUNO
+  validation. The arm runs whatever that validation shows (pre-registered),
+  and its LUNO numbers are reported beside. The arm
+  is then `e2b.yaml` plus that key. It runs on `e2b.ms` restored as in 6.2
+  (FLAG from `rang_original`, rang's columns dropped) before `e2b.ms` is
+  deleted if the key is ready by then; otherwise after E2-A is archived and
+  `e2a.ms` deleted, on a fresh build from the zarr (6.2's disk rule), with
+  the same gates and scorers. It is reported beside the frozen arm, and the
+  frozen arm stays the record. If the key is not ready, the amended arm is
+  "not run".
+- Amendments: (none yet).
 
 ## For the coordinator
 
