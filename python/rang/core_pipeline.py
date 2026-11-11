@@ -979,7 +979,7 @@ def _with_mask(img, config_path, log=None):
 def _missing_masks(config, config_path, stages):
     """Masks a run of `stages` would pass to gemclean that exist neither
     beside the configuration file nor in the working directory. Masks with
-    `{field}` are checked when their field's image starts."""
+    `{field}` are not checked here: a missing one fails in gemclean."""
     masks = []
     if "image" in stages and config["image"]["fits_mask"] is not None:
         masks.append(("image.fits_mask", config["image"]["fits_mask"]))

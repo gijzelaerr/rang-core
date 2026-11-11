@@ -23,6 +23,7 @@ def test_version_is_a_global_option_anywhere_among_them(capsys):
         (["--bogus"], "unknown option --bogus"),
         (["bogus"], "unknown command 'bogus'"),
         (["trend"], "research stage now"),
+        (["research", "bogus"], "unknown stage 'bogus'"),
     ],
 )
 def test_command_line_errors_exit_2_on_stderr(argv, text, capsys):

@@ -1398,6 +1398,9 @@ def _config_command(argv):
         if args.ms:
             info = core_pipeline.inspect_ms(args.ms)
             core_pipeline.preflight(config, info, stages)
+            missing = core_pipeline._missing_masks(config, args.config, stages)
+            if missing:
+                raise core_pipeline.Refused("; ".join(missing))
             for text in core_pipeline.scope_warnings(info):
                 print(f"rang-core config check: warning: {text}", file=sys.stderr)
     except (core_config.ConfigError, core_pipeline.Refused, OSError) as exc:
@@ -1469,7 +1472,10 @@ def _research(argv, options, pinned):
     argv = _legacy(argv)
     stage = argv[0]
     if stage not in STAGES:
-        raise SystemExit(f"rang-core: unknown stage {stage!r}\n\n{research_usage()}")
+        print(
+            f"rang-core: unknown stage {stage!r}\n\n{research_usage()}", file=sys.stderr
+        )
+        raise SystemExit(2)
     if len(argv) == 1 or argv[1] in ("-h", "--help"):
         print(stage_usage(stage))
         if len(argv) == 1:
