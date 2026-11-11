@@ -6,6 +6,7 @@ Each entry is one report and its verdict, newest first within a section.
 ## Start here
 
 - [vision.md](vision.md): ra-ng's direction (2026-11-11): beginners, astronomers and algorithm scientists working with agents; MeerKAT first, LOFAR in mind; pulsars and transients; GPU where it pays, cross-platform; contributions by pull request; research skills that propose and measure.
+- [V3, the introductory track](v3-intro-track.md): proposed outline of nine beginner notebooks (I1-I9: sky and emission to pulsars and transients), each with goals, data (fixture, locally generated A1 small and poldx), estimated runtime and rang functions; how they join E4's MS-to-image tutorial and notebooks 01-07 without repeating them; four owner decisions.
 - [STATE.md](STATE.md): the current status and the log of recent work; [STATE-history.md](STATE-history.md) holds the entries before 2026-10-29.
 - [big-plan.md](big-plan.md): the plan, the standing decisions and the user items.
 - [finish-plan.md](finish-plan.md): the plan to finish GeMClean and rang-core at v0.2.0, in full polarisation; confirmed 2026-11-05, in execution.
