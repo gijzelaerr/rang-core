@@ -383,6 +383,33 @@ def test_a_changed_configuration_is_refused_and_force_restores_first(tmp_path):
     assert state["stages"]["calibrate"]["status"] == "stale"
 
 
+def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
+    """E5: after `--force flag` with a changed strategy, the stale apply stage
+    must not restore the flags saved before its earlier attempt (the old flag
+    output); FLAG equals a fresh run with the new configuration."""
+    rerun, fresh = make_ms(tmp_path / "one.ms"), make_ms(tmp_path / "two.ms")
+    a = write_config(
+        tmp_path, "run: {stages: [flag, calibrate, apply]}\n", name="a.yaml"
+    )
+    b = tmp_path / "b.yaml"
+    b.write_text(
+        a.read_text(encoding="utf-8").replace(
+            "flag: {strategy: strategy.yaml}",
+            "flag: {strategy: strategy.yaml, fields: [CAL]}",
+        ),
+        encoding="utf-8",
+    )
+    cli("--no-receipt", "run", a, rerun)
+    old = column(rerun, "FLAG")
+    cli("--no-receipt", "run", b, rerun, "--force", "flag")
+    cli("--no-receipt", "run", b, fresh)
+    assert not np.array_equal(column(fresh, "FLAG"), old)
+    assert np.array_equal(column(rerun, "FLAG"), column(fresh, "FLAG"))
+    assert np.array_equal(
+        column(rerun, "CORRECTED_DATA"), column(fresh, "CORRECTED_DATA"), equal_nan=True
+    )
+
+
 @POSIX
 def test_run_resumes_at_the_failed_stage(tmp_path):
     ms = make_ms(tmp_path / "x.ms")

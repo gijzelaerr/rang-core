@@ -2491,11 +2491,16 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             )
             later = core_config.STAGES[core_config.STAGES.index(stage) + 1 :]
             for other in later:
-                if state["stages"].get(other, {}).get("status") == "done":
-                    state["stages"][other]["status"] = "stale"
-                    state["stages"][other]["stale_since"] = (
-                        f"{stage} {attempt['finished']}"
-                    )
+                later_entry = state["stages"].get(other)
+                if not later_entry:
+                    continue
+                # Its input changed: a rerun must start from the flags this
+                # stage left, not restore those saved before its last attempt
+                # (E5, research/e5-prereview.md).
+                later_entry.pop("flag_version", None)
+                if later_entry.get("status") == "done":
+                    later_entry["status"] = "stale"
+                    later_entry["stale_since"] = f"{stage} {attempt['finished']}"
             run.save()
             log(f"rang-core: {stage}: done in {attempt['seconds']:.1f} s")
         return state
