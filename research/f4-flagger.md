@@ -11,6 +11,41 @@ models for calibrators and targets, faster than the Rust Tricolour port with few
 **comparable** flag quality. Better calibration or imaging is not a goal and is not claimed. LUNO-derived
 weights may be shipped (owner, 2026-11-11, item 32; answers F1 item 4) if an outcome allows it.
 
+**Amendment 1, 2026-11-11, after the freeze (`89eb0b7`), before any Stage 1-5 run, training or
+held-out read: an antenna-domain arm NA.** Owner decision (relayed by the coordinator, 2026-11-11):
+"yes add it to F4": an autocorrelation arm, framed as an arm with its own pre-written gates against the
+cross-correlation-only arm and T, not a change to N4. Source: V. Ravi 2026, arXiv:2611.01308 (digest
+`research/digests/2026-11-11.md`, section 1). N4, its gates and its decision rule (sections 3-7) are
+unchanged.
+
+- *Data (checked 2026-11-11, row columns and channel tile 8 or 5 of non-held-out groups only).*
+  Autocorrelations are in the data: LUNO MAIN_4 and MAIN_7 560 of 15,960 rows (56 antennas × 10 dumps),
+  MAIN_1 1,792 of 50,000 (FLAG_ROW set on all of them); ESO137 chunks 2 and 10 1,647 and 1,586 of
+  50,000. Every auto cell has FLAG = 1 (processing's `flag_autos`), but DATA is real: |XX| median
+  318-411, |XY| 2.1-3.4. NA reads auto DATA and ignores the auto FLAG/FLAG_ROW. F-SIM has no autos.
+- *Arm NA (frozen).* Per antenna k and parallel hand c ∈ {XX, YY}, `A_kc(t, f) = Re V_kk,c`.
+  Scan-long part: `M_kc(f)` = median over t; `ρ_kc(f) = M_kc(f) / median_k M_kc(f)`, divided by its own
+  median over channels; `D_k(f) = max_c (ρ_kc(f) − q25_f ρ_kc)` (fractional excess power). Time-local
+  part: `T_k(t, f) = max_c (A_kc / M_kc − 1) / s_kc(f)`, `s_kc(f)` = 1.4826 × MAD over t of
+  `A_kc / M_kc`. NA flags every cross cell (t, f) of every baseline containing k where `D_k(f) > δ` or
+  `T_k(t, f) > 5`. δ from the grid 0.005, 0.01, 0.02, 0.05, 0.1, on the real validation scan only: the
+  smallest δ whose added cells on uninjected DATA are ≤ T's (else the largest δ, reported). Arms
+  reported: NA (W3 ∪ NA), **N4+NA** (N4 ∪ NA), N4.
+- *Gates of the arm (held-out real sets of section 4; they do not enter section 7).*
+  G1: N4+NA's R5 ≥ N4's R5 and N4+NA's added cells ≤ 1.5 × T's, per set.
+  G2 (sanity): NA's recall of an auto injection (one antenna, band as F1's on that set, scan-long,
+  `+10 · σ_auto` added to `A_kc`, `σ_auto` the radiometer noise from channel differences; seeds 19-21)
+  ≥ 0.9. G3: on strong native consensus cells (R5's) of baselines whose antennas NA flags anywhere in
+  the scan, N4+NA's recall − N4's ≥ 0.05.
+  Reading: **NA-useful** if G1, G2, G3 hold; **NA-neutral** if G1 and G2 hold and G3 fails;
+  **NA-harmful** if G1 fails; **NA-broken** if G2 fails. F1's R1 injections touch cross-correlations
+  only, so NA cannot see them; R1 for N4+NA is reported, and any gain there is not credited to NA.
+  N4 cannot see an emitter that is uncorrelated between antennas by construction; that is stated with
+  every NA result.
+- *Cost.* NA's wall and N4+NA's C1 are reported, not gated.
+- *Status.* Proposed: NA is not implemented in this commit. Its implementation and δ must be done
+  before Stage 5 reads any held-out set; otherwise NA is reported as not run, not dropped.
+
 ## 1. What F3 got wrong, and what changes
 
 | F3 failure | Cause | F4 change |
@@ -257,6 +292,85 @@ only with outcome S or S−.
 No better calibration or imaging. LUNO is processed (CASA flags, QuartiCal weights); ESO137 targets are
 one track; simulated RFI is not shown to be realistic. Nothing about other bands or telescopes.
 
+## Owner decisions
+
+- 2026-11-11 (finish plan, section 7 item 32), on F3's decisions: "1. sure. 2. ship them sure. 3. only
+  delete if we run out of data. 4. sure." F4 follows; LUNO-derived weights may ship; F2/F3 simulation
+  data stay unless D: runs low; F3's message is posted to issue #1.
+- 2026-11-11, relayed by the coordinator: "yes add it to F4": the antenna-domain (autocorrelation) arm,
+  Amendment 1.
+- Open: posting section 4's request for expertly flagged target data to Landman (issue #1).
+
 ## Measured result
 
-Nothing yet.
+Runs under `D:\rang\outputs\f4-20261111-NN-*` (each with `.code/`, `.log`, `.time`, written by
+`examples/f4_run.py`). Native Windows unless stated; AOFlagger and training in WSL.
+
+### Before the freeze (no held-out read)
+
+- F1's antenna-local band width per set (`make_injection` metadata, W3 eligibility, no DATA read by the
+  policy; seeds 19-21, 41-43): LUNO MAIN_7 201-320 channels, MAIN_4 200-320; ESO137 chunk 10 60-92,
+  chunk 2 61-92 (5-7 s per set).
+- ESO137 MAIN_0 row chunks (TIME only): 0-16 are 50,000 rows of 27-28 dumps, about 208 s apart; 17 has
+  950 rows of one dump (reserved).
+
+### Implementation (Stage 2 code, before any run)
+
+- Rust `core/src/f4flag.rs`: F3's residual pass once per baseline (it now also returns the time-median
+  spectrum `p`, F3's numerics unchanged), F3's antenna and array medians, then `B`, `e`, `E`, `X`
+  (rayon over channels, baselines and antennas), planes, and F3's network with 23 inputs
+  (`f3flag::network` and `weight_count_for` take the input count). Bindings `f4flag_features`,
+  `f4flag_logits`.
+- Python `rang.f4flag`: guards (held-out sets refused without `heldout=True`), loaders via F3's
+  `read_luno`/`read_eso`, the NumPy reference, `strength_rows` (s), Z4, ZE, N4, T6, H3, L-A1s, L-INJ,
+  R5's cells. F3's injector gained `codes`, `jitter` and an `envelope` argument (defaults keep F3's
+  draws); `rang.f3net.init_params` takes `nplanes`; `examples/f3_train.py` takes `--nplanes`.
+- Tests: `cargo test f4flag` (weight count 4,009; NumPy's percentile; a 30-of-64-channel scan-long band
+  on one antenna is high in the cross spectral plane and the antenna max, low in the antenna min and in
+  F3's `r^f`); `tests/test_f4_flag.py` (Rust against NumPy ≤ 1e-4 and F3's planes unchanged; logits
+  against JAX; F1's antenna-local injection widened to 60-140 of 256 channels at 10 σ on a 50-σ
+  calibrator-like scan: ZE ≥ 0.9 recall, Z2 ≤ 0.2, ZE false flags ≤ 1 %; T6/H3 seeded, widths, eligible
+  cells; labels; guards).
+
+### Staged runs
+
+Queued in order by `examples/f4_queue.py` (each step under `tools/heavy_lock.py`, E2 and other lock
+holders first; the frozen stops are checked between steps and written to
+`D:\rang\outputs\f4-20261111-queue.json`):
+
+```bash
+.venv/Scripts/python examples/f4_queue.py            # sim, stage1, parity, c1u4, shards
+.venv/Scripts/python examples/f4_queue.py --from c1u4 # resume at a step
+```
+
+| Step | Run | Stop |
+| --- | --- | --- |
+| sim | `-02-sim-test` (`f2_simulate.py RUN f4sim-t`) | |
+| stage1 | `-03-stage1-calibrator`, `-03-stage1-target` (`f4_eval.py stage1`, F3's T/A caches `-13`, `-08`) | Stop-E, Stop-Z4 per class |
+| parity | `-04-parity-calibrator`, `-04-parity-target` (`f4_parity.py`, U4) | parity |
+| c1u4 | `-05-c1u4` (`f4_cost.py time --n4 U4`, LUNO MAIN_1, `RAYON_NUM_THREADS=4`, idle host) | C1(U4) > 0.45 |
+| shards | `-06-shards-cal`, `-07-shards-target` (`f4_shards.py`, validation then train, `--flags-from` F3's caches; T and A computed for MAIN_1, MAIN_2 and ESO137 0, 14, 16) | label audit |
+
+The held-out fetch (`-01-fetch`, `f4_fetch.py`) ran first, network only, nothing decoded.
+
+**Stage 4, training (WSL, GPU; after the audit, by hand):**
+
+```bash
+wsl -d Ubuntu -- bash -lc 'uv venv ~/Build/tmp/20261111-f4-jaxcuda && uv pip install -p ~/Build/tmp/20261111-f4-jaxcuda "jax[cuda12]" numpy'
+```
+
+```bash
+wsl -d Ubuntu -- bash -lc 'cd /mnt/c/Users/gijsm/Worktrees/rang/fp-f4-flagger && for c in calibrator:06-shards-cal target:07-shards-target; do k=${c%%:*}; d=${c#*:}; for s in 1 2 3; do XLA_PYTHON_CLIENT_PREALLOCATE=false python3 tools/heavy_lock.py run -- ~/Build/tmp/20261111-f4-jaxcuda/bin/python examples/f3_train.py /mnt/d/rang/outputs/f4-20261111-$d/$k /mnt/d/rang/outputs/f4-20261111-08-train-$k/seed-$s --seed $s --nplanes 23; done; done'
+```
+
+Then per class the median seed by validation loss, and τ (native):
+
+```bash
+.venv/Scripts/python examples/f4_run.py f4-20261111-09-tau-calibrator --lock -- C:/Users/gijsm/Worktrees/rang/fp-f4-flagger/.venv/Scripts/python.exe examples/f4_tau.py RUN/tau.json --class calibrator --shards D:/rang/outputs/f4-20261111-06-shards-cal --n4 D:/rang/outputs/f4-20261111-08-train-calibrator/seed-K/weights.npz
+```
+
+**Stage 5 (held-out, once; `--heldout`):** per set `f4_eval.py real RUN/<set>.json --set luno:MAIN_0
+--heldout --n4 W.npz@TAU` (then `luno:MAIN_12`, `luno:MAIN_14`; targets `eso:11`, `eso:12`, `eso:13`);
+`f4_eval.py sim RUN/sim.json D:/rang/outputs/f4-20261111-02-sim-test/f4sim-t --class <class> --n4 …`;
+cost `f4_cost.py time` at `RAYON_NUM_THREADS` 4 and 1 on `luno:MAIN_1` and `eso:0`, and `f4_cost.py rss`
+per arm; all under `f4_run.py … --lock`.
