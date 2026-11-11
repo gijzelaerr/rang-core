@@ -9,6 +9,13 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: `calibrate.average_time` (default false; task E2, `research/e2-average-time.md`). With it on,
+  the K, G, B, F, Gpol, KCROSS, Xf and Df solves use CASA's estimator for long intervals: data and
+  model averaged in time within each solution interval (weighted means over unflagged cells after the
+  pre-applied tables and P, weight the sum, per baseline, channel and correlation), streamed in blocks
+  of rows, and the memory plan counts the averaged rows. E2's whole-scan solves on 4096-channel
+  MeerKAT data (176 GiB per interval unaveraged) then fit `data.memory_limit_gb: 8`. Off, every
+  solve and the stage hash are unchanged. Refused with a `complex` term.
 - New: `gemclean` is in the wheel (task G8, `research/g8-wheel.md`): the console script `gemclean`
   (and `python -m rang.gemclean`) runs GeMClean's command line inside the extension
   (`rang._core.gemclean_main`); no second binary ships. The command line moved from

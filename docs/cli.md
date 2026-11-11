@@ -257,6 +257,7 @@ calibrate:
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150
   minsnr: null  # solutions below this SNR are flagged (CASA: 3)
   minblperant: null  # baselines per antenna needed (CASA: 4)
+  average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation); false: every row solved (task E2)
   primary:
     field: ["fcal"]  # fields of the primary solves
     terms: [{type: complex}]  # terms solved in order
@@ -330,6 +331,7 @@ selfcal:
   model_column: MODEL_DATA  # the model of each round's image, solved against
   output_column: CORRECTED_DATA  # the column written
   refant: null  # reference antenna (null: calibrate.refant); auto: the first of CARACal's choice
+  average_time: false  # Sp and Sa solve on data and model averaged in time within each solution interval (calibrate.average_time's estimator; CubiCal solves every sample); false: every row solved (task E2)
   gain_clip: [0.5, 2.0]  # gain amplitudes kept, [low, high] (CARACal's cal_gain_cliplow and cliphigh); [] for none
   minuvw_m: 0.0  # baselines shorter than this (metres) are not solved
   clean_cutoff: []  # per image, the auto_threshold (sigma) of image 1, 2, ..., the final image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold
