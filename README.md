@@ -23,11 +23,11 @@
   SumThreshold strategies, WSClean's imaging weights and w-stacking gridder (CPU
   and GPU), ducc0's wgridder, CASA's flux standards and a component predictor.
 - **GeMClean, a reference imager.** `gemclean` takes a Measurement Set to FITS with
-  WSClean-style flags, using the exact image-domain value at each minor-cycle step. It is not in
-  the wheels: `cargo build --manifest-path core/Cargo.toml --profile gemclean --bin gemclean`.
+  WSClean-style flags, using the exact image-domain value at each minor-cycle step. The wheel
+  installs it as the command `gemclean`.
 - **A Python package and command line.** `import rang` reaches every kernel
-  through the extension `rang._core`, which releases the GIL. `rang-core research STAGE VERB`
-  replays, compares and archives each chain and writes a versioned receipt.
+  through the extension `rang._core`, which releases the GIL. `rang-core run config.yaml my.ms` takes your
+  MS to an image; `rang-core research STAGE VERB` replays each chain. Every call writes a receipt.
 - **The tools' file formats.** CASA calibration tables, QuartiCal stores, Tigger,
   WSClean and BBS sky models, H5parm, killMS solutions, CASA flag versions and
   MeerKAT MVFv4 archives (`rang-core formats check` and `convert`).
@@ -63,8 +63,10 @@ python3 -m venv .venv
 
 ## Quick start
 
-Load the public 45 MB MeerKAT fixture (four antennas on PKS 1934−638) and solve
-its full-Jones gains on the Rust core. With `pip install 'rang-core[notebook]'`:
+[The tutorial](https://pythonic.nl/rang-core/tutorials/notebooks/00-ms-to-image.html) takes a simulated MeerKAT MS
+to an image with `rang-core run config.yaml a1-small.ms` and `gemclean` in under a minute.
+Or load the public 45 MB MeerKAT fixture (four antennas on PKS 1934−638) and solve its
+full-Jones gains on the Rust core. With `pip install 'rang-core[notebook]'`:
 
 ```python
 from rang.notebook import data, gains
@@ -88,7 +90,7 @@ The command line (`rang-core -h`; `rang-core config defaults` lists every config
 
 | Command | What it does |
 | --- | --- |
-| `flag`, `calibrate`, `image`, `run` `config.yaml my.ms` | flag (Tricolour port), solve (`complex` only so far), image with `gemclean`, resume |
+| `flag`, `calibrate`, `apply`, `image`, `selfcal`, `run` `config.yaml my.ms` | flag (Tricolour port); solve CARACal's K, G, B, A, F and polarisation terms into CASA tables (or `complex` into a QuartiCal store); apply to CORRECTED_DATA; image with `gemclean`; self-calibrate; resume |
 | `research flags`, `gridder`, `wgridder`, `weights`, `imaging` | Tricolour's strategies, gridders, imaging weights, the imaging replay |
 | `research campaign`, `campaign-array`, `campaign-1830`, `campaign-fieldmodel` | the LUNO real-data campaigns |
 | `research injections`, `actions`, `prospective`, `signal`, `trend` | the flagging experiment's tracks |
@@ -97,7 +99,7 @@ The command line (`rang-core -h`; `rang-core config defaults` lists every config
 ## Documentation
 
 - [The site](https://pythonic.nl/rang-core/): installation, concepts, the command line and the research story.
-- [Tutorials and science notebooks](https://pythonic.nl/rang-core/tutorials/index.html): five tutorials (data and rank, flagging, gains and TV, imaging, the flagging experiment) and two research notebooks (the flagging verdict; beam and pointing), executed on the fixture.
+- [Tutorials and science notebooks](https://pythonic.nl/rang-core/tutorials/index.html): from a Measurement Set to an image with `rang-core run` (on simulated truth); five tutorials (data and rank, flagging, gains and TV, imaging, the flagging experiment) and two research notebooks (the flagging verdict; beam and pointing), executed on the fixture.
 - [API reference](https://pythonic.nl/rang-core/api/index.html), generated from the docstrings.
 
 ## Research results

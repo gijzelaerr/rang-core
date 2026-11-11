@@ -1,0 +1,27 @@
+# The flagging strategy of the MS-to-image tutorial (task E4,
+# research/e4-tutorial.md): Tricolour's task list, written for A1 small's 64
+# channels of 13.4 MHz. Not one of CARACal's files and not a recommendation
+# for real data: on A1 small the static mask finds the simulated RFI, and
+# SumThreshold alone finds 3-5 % of it.
+strategies:
+  - name: nan_dropouts_flag
+    task: flag_nans_zeros
+  # MeerKAT's static RFI mask (GSM, GNSS, satellites) on baselines up to 1 km,
+  # where those transmitters decorrelate least (CARACal's uvrange_static_mask
+  # step). The whole-baseline mask removes 56 % of A1 small.
+  - name: static_mask
+    task: apply_static_mask
+    kwargs:
+      accumulation_mode: "or"
+      uvrange: "0~1000"
+  - name: background_flags
+    task: sum_threshold
+    kwargs:
+      outlier_nsigma: 5
+      windows_time: [1, 2, 4, 8]
+      windows_freq: [1, 2, 4, 8]
+      freq_chunks: 1
+  - name: flag_autos
+    task: flag_autos
+  - name: combine_with_input_flags
+    task: combine_with_input_flags

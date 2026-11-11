@@ -163,7 +163,7 @@ def test_steering_panels_update_without_a_frontend(ds):
 
 def test_committed_notebooks_have_no_outputs():
     books = sorted((ROOT / "notebooks").glob("*.ipynb"))
-    assert len(books) == 5
+    assert len(books) == 6  # 00 (task E4) and 01-05
     for path in books:
         book = json.loads(path.read_text())
         for cell in book["cells"]:

@@ -12,7 +12,8 @@
 # and GeMClean from the wheel: no gemclean executable in it, the installed
 # console script's `gemclean -version`, and tests/test_g8_gemclean.py's exit
 # codes, small imaging run, -j and Ctrl-C, task G8, research/g8-wheel.md)
-# through tools/wheel/test.py; uploads
+# through tools/wheel/test.py; runs the MS-to-image tutorial's chain end to
+# end on every wheel (job e2e, task E4, research/e4-tutorial.md); uploads
 # everything as artifacts; on a v* tag that equals the pyproject.toml version
 # (checked in both jobs before any upload, task W4-5) attaches the files to a
 # GitHub release with the tag's CHANGELOG.md section as notes and publishes
@@ -28,6 +29,9 @@ on:
     paths:
       - ".github/workflows/wheels.yml"
       - "tools/wheel/**"
+      - "tools/e2e/**"
+      - "examples/ms-to-image/**"
+      - "examples/a1_simtruth.py"
       - "pyproject.toml"
       - "core/**"
       - "src/**"
@@ -203,6 +207,72 @@ jobs:
           path: |
             ${{ runner.temp }}/wheel-test/*.log
             ${{ runner.temp }}/wheel-test/timings.tsv
+          if-no-files-found: warn
+
+  # Task E4 (research/e4-tutorial.md): the MS-to-image tutorial's chain on
+  # every wheel, Python 3.14. tools/e2e/run.py writes A1 small from the
+  # checkout (examples/a1_simtruth.py, data/meerkat.itrf.txt), runs
+  # `rang-core config check` and `rang-core run` (flag, calibrate, apply,
+  # image) from the installed wheel with examples/ms-to-image/config.yaml,
+  # checks every output (flag versions, MODEL_DATA, CORRECTED_DATA, the CASA
+  # tables, the FITS images, the receipt) and the bounds in its BOUNDS, and
+  # that circular feeds are refused with exit 2 and the MS unchanged. About
+  # 20 s of work; cargo is not installed by this job.
+  e2e:
+    name: e2e ${{ matrix.platform }}
+    needs: wheel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-x86_64
+            runner: ubuntu-24.04
+          - platform: linux-aarch64
+            runner: ubuntu-24.04-arm
+          - platform: macos-arm64
+            runner: macos-15
+          - platform: macos-x86_64
+            runner: macos-15-intel
+          - platform: windows-x86_64
+            runner: windows-2022
+    env:
+      RAYON_NUM_THREADS: "2"
+    steps:
+      - if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        id: python
+        with:
+          python-version: "3.14"
+      - uses: actions/download-artifact@v8
+        with:
+          name: wheel-${{ matrix.platform }}
+          path: dist
+      - name: Install the wheel with its imaging extra
+        env:
+          PIP_INDEX_URL: https://pypi.org/simple
+        run: |
+          venv="$RUNNER_TEMP/e2e-venv"
+          "${{ steps.python.outputs.python-path }}" -m venv "$venv"
+          if [ -x "$venv/bin/python" ]; then py="$venv/bin/python"; else py="$venv/Scripts/python.exe"; fi
+          wheel=$(ls dist/*.whl)
+          "$py" -m pip install -q "$wheel[imaging]"
+          echo "E2E_PYTHON=$py" >> "$GITHUB_ENV"
+      - name: The tutorial's chain end to end
+        run: |
+          "$E2E_PYTHON" tools/e2e/run.py "$RUNNER_TEMP/e2e" --installed
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-${{ matrix.platform }}
+          path: |
+            ${{ runner.temp }}/e2e/*.json
+            ${{ runner.temp }}/e2e/*.log
+            ${{ runner.temp }}/e2e/a1-small.ms.rang-run/state.json
+            ${{ runner.temp }}/e2e/a1-small.ms.rang-run/receipts/*.json
           if-no-files-found: warn
 
   release:
