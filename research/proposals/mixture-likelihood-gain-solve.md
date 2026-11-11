@@ -35,8 +35,11 @@ because the test is cheap and the truth exists.
 - **Held out:** F2's held-out drifting carrier and F2/F3's LUNO 1934−638
   injections (real data, injected RFI with known masks); seeds registered
   before any run.
-- **Oracles:** QuartiCal 0.2.7 (rang's port equals it; `solver.robust` true and
-  false), Tricolour 0.2.1 through rang's port.
+- **Oracles:** QuartiCal 0.2.7 with `solver.robust` true and false; Tricolour
+  0.2.1 through rang's port. rang's solver has no robust reweighting
+  (`core/src/solve.rs`: "no robust reweighting, no MAD flags"), so arms R and
+  TR run upstream QuartiCal (Numba, in WSL), and rang's port equals QuartiCal
+  only with robust off.
 
 ## Arms
 
@@ -53,7 +56,9 @@ because the test is cheap and the truth exists.
 
 - **Success:** M or TM has a held-out gain-product error ≤ 0.90 × the best of
   T, R and TR (median over antennas and intervals), with p95 no worse, at a
-  solve time ≤ 1.5 × R's at -j1 and -j16.
+  solve time ≤ 1.5 × rang's own non-robust solve on the same data (both Rust,
+  -j1 and -j16, heavy lock). QuartiCal's robust solve time is reported, not
+  gated: comparing Rust with Numba would measure the language, not the method.
 - **Null:** within ±5 % of the best of T, R and TR. Recorded as "equivalent to
   existing reweighting".
 - **Signal check:** the calibrator flux after F bootstrap within C2d's class B

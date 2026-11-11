@@ -15,6 +15,12 @@ limit (0.03° / 0.08°). CARACal's masks
 ([c5b-selfcal-masks.md](../c5b-selfcal-masks.md)) and an oracle mask from the
 true sky do not fix it (phase p95 9.3-16.8°).
 
+**Timing (owner, 2026-11-10, finish-plan item 29):** C5's model-absorption
+limit is accepted for v0.2.0 and "rounds work after the release". This
+proposal is that post-release follow-up. C5b's own suggestion (more rounds,
+longer first intervals, a phase-only first round) is arm L+ below, the tuned
+state of the art the method must beat; it is not replaced.
+
 ## Hypothesis
 
 Solving gains and image as **one** objective, with a sparsity or positivity prior
@@ -45,7 +51,7 @@ fails, at comparable cost.
 | Arm | What | Role |
 | --- | --- | --- |
 | L | CARACal's loop, C5b's gated arm `m` (multiscale, CARACal masks) | state of the art as shipped |
-| L+ | the loop with the best settings found in an equal tuning budget (rounds, solint, masks, `niter`), chosen on development cases only | tuned state of the art; guards against a weak baseline |
+| L+ | the loop with the best settings found in an equal tuning budget: C5b decision 1's more rounds, longer first intervals and a phase-only first round, plus masks and `niter`; chosen on development cases only | tuned state of the art; guards against a weak baseline |
 | J | joint objective (method), hyperparameters chosen on development cases only, same budget as L+ | the method |
 | T | model from truly corrected data (C5 section 7) | upper bound, reported |
 
@@ -70,5 +76,5 @@ runs take minutes; tuning L+ is the largest cost.
 
 ## Owner decisions
 
-1. Approve, and say whether a JAX reference path is allowed here.
+1. Approve for after v0.2.0, and say whether a JAX reference path is allowed here.
 2. Whether L+'s tuning budget is "N runs" or "N hours".

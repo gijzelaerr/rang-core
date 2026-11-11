@@ -12,8 +12,9 @@ only**.
 ## Allowed paths
 
 Write only `research/digests/<YYYY-MM-DD>.md`, new files in
-`research/proposals/`, one line in `research/README.md` "Start here" if the
-digest list is not linked yet, and `outputs/status/rang-digest.md` (ignored,
+`research/proposals/`, the one "Weekly digests" line in `research/README.md`
+"Start here" (update its link and date to the new digest; never add a second
+line), and `outputs/status/rang-digest.md` (ignored,
 under 15 lines). Never edit code, tests, `AGENTS.md`, `STATE.md`, existing
 notes or an existing proposal file. Never overwrite a proposal slug that
 exists; pick a new slug and link the old one.
@@ -30,11 +31,17 @@ exists; pick a new slug and link the old one.
    `grep -rhoE "arXiv:[0-9]{4}\.[0-9]{4,5}|arxiv.org/abs/[0-9]{4}\.[0-9]{4,5}" research | grep -oE "[0-9]{4}\.[0-9]{4,5}" | sort -u`.
    Drop those IDs from the new results. A release is repeated only if its
    version is unchanged.
+   Both link forms matter: the 2026-11-11 digest missed two repeats by
+   checking only `arXiv:NNNN`.
 3. **Search papers (arXiv API).** `http://export.arxiv.org/api/query` with
-   `submittedDate:[<last digest date> TO <today>]`, `sortBy=submittedDate`,
-   `max_results` 60, a generic User-Agent, at least 3 s between requests. Per
-   area, keyword queries with `abs:` terms (avoid `au:` with a bare surname and
-   short acronyms such as AIRI or DP3, which match noise):
+   `search_query=(<query>) AND submittedDate:[YYYYMMDDHHMM TO YYYYMMDDHHMM]`
+   (from the last digest's date to tomorrow), `sortBy=submittedDate`,
+   `sortOrder=descending`, `max_results` 60, a generic User-Agent, at least
+   3 s between requests. Add `AND cat:astro-ph.IM` to every query unless the
+   area needs astro-ph.HE/GA (time domain, EHT), and then filter titles: bare
+   names and acronyms (QuartiCal OR DDECal, R2D2, AIRI, DP3, LINC, Presto,
+   Heimdall) otherwise pull in mathematics, robotics and databases. Avoid
+   `au:` with a bare surname. Per area, keyword queries with `abs:` terms:
    - RFI: `"radio frequency interference" AND (flagging OR detection)`;
      `RFI AND "deep learning"`; `RFI AND MeerKAT`; `AOFlagger OR Tricolour`.
    - Calibration: `"direction-dependent" AND calibration`; `calibration AND
@@ -56,6 +63,8 @@ exists; pick a new slug and link the old one.
      `VLBI AND calibration`.
    - Agents: `"large language model" AND cat:astro-ph.IM`; `agent AND LLM`;
      `"large language model" AND radio`.
+   - Proceedings: `co:ADASS`, `co:URSI`, `co:SPIE AND abs:radio` (the
+     comments field), filtered by title.
    Save raw results to the session scratchpad, not the repo.
 4. **Search software (release APIs).** GitHub `repos/<r>/releases`:
    ratt-ru/QuartiCal, ratt-ru/pfb-imaging, ratt-ru/tricolour, mreineck/ducc
@@ -66,9 +75,15 @@ exists; pick a new slug and link the old one.
    aroffringa/aoflagger; git.astron.nl RD/idg, RD/DP3, RD/EveryBeam,
    RD/rapthor, RD/LINC. Use web search only for news without an API (SKAO,
    SARAO) and say so.
-5. **Read.** Fetch each candidate's abstract or release notes. Nothing from
-   memory: every item must have been fetched in this run. Tag **[abs]**,
-   **[repo]** or **[page]**.
+5. **Read.** Fetch each candidate's **full** abstract (not a truncated
+   snippet) or release notes. Nothing from memory: every item must have been
+   fetched in this run, and every detail in its "what it does" line (code
+   base, telescope, real or simulated data) must be in what was fetched.
+   Tag **[abs]**, **[repo]** or **[page]**.
+   Before writing a proposal, grep `research/` for the method and tool
+   names: an existing note (for example DF5-O already froze pfb-imaging)
+   or an owner decision in `research/finish-plan.md` section 7 changes the
+   proposal.
 6. **Write the digest** `research/digests/<date>.md`: a "How this was made"
    section (window, queries, counts, tags, wall time by the host clock);
    then per area the 3-8 most relevant items: title, authors and year, link,
@@ -87,8 +102,15 @@ exists; pick a new slug and link the old one.
 8. **Verify.** Extract every arXiv ID from the new files and re-query with
    `id_list`; compare title and first author; fix or drop mismatches. Check
    every relative link resolves.
-9. **Checks.** `python -m pytest tests -k "index or readme or research"`
-   (at minimum `tests/test_w4_8_docs.py`) and `ruff check` pass.
+9. **Checks**, with the main checkout's venv
+   (`~/Github/rang/.venv/Scripts/python` on Windows):
+   `python -m pytest tests/test_w4_8_docs.py tests/test_w4_5_release.py`
+   must pass (the research index and its links). The broader
+   `python -m pytest tests -k "index or readme or research"` fails to
+   collect about 21 modules in a fresh worktree because `rang._core` is not
+   built there; that is not a digest failure, so say so in the hand-back.
+   `python -m ruff check python examples tests` (the project's paths; a bare
+   `ruff check .` reports hundreds of unrelated errors).
 10. **Commit** on the branch with the owner's identity
     (`gijsmolenaar@gmail.com`), message `digest <date>: ...`, **no
     co-author trailer or AI footer**. Do not push to main. Hand back in at most

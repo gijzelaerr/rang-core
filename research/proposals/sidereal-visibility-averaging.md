@@ -24,6 +24,11 @@ the cost case is MeerKAT-relevant; only the cost is claimed, never novelty.
   LST range, slightly different start LST (as real tracks), calibrated with
   the true gains so only averaging is tested.
 - **Oracle:** GeMClean and WSClean 3.7 imaging the four MSs jointly.
+- **Cost arms (the stronger baselines):** joint imaging with
+  baseline-dependent averaging (WSClean 3.7 `-baseline-averaging`, applied
+  per track), and per-track images stacked with inverse-variance weights
+  (common in multi-track surveys; deconvolution per track). SVA must beat
+  the cheapest of these at the quality bound, not only plain joint imaging.
 - **Real data:** only if the owner names a public multi-track MeerKAT field;
   none is in hand.
 
@@ -33,10 +38,11 @@ the cost case is MeerKAT-relevant; only the cost is claimed, never novelty.
   joint image's noise, point-source fluxes within 0.5 %, restoring beam within
   1 %, with time and bandwidth smearing at the field edge reported against
   the joint image.
-- **Cost:** imaging wall time and peak memory ≤ 0.4 × joint at N = 4 (-j16,
+- **Cost:** imaging wall time and peak memory ≤ 0.4 × joint and ≤ 0.7 × the
+  cheapest other cost arm that meets the same quality bound, at N = 4 (-j16,
   heavy lock), including the averaging step.
-- **Null:** quality met but cost > 0.6 × joint, or quality not met at the
-  outer field.
+- **Null:** quality met but no cost win over the best cost arm, or quality
+  not met at the outer field.
 
 ## Expected cost
 
