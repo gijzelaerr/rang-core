@@ -426,4 +426,4 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
   section 7's route: record the stop as CARACal's result on this host and run
   the remaining stages as "CARACal's sequence by hand", labelled.
 - On D: now: `e3-20261111-input\e2b.ms` 51 GB and the run's split, both kept
-  until the decision (within the 200 GB cap).
+  (within the 200 GB cap).
