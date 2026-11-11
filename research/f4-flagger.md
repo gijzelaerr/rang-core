@@ -348,6 +348,16 @@ Runs under `D:\rang\outputs\f4-20261111-NN-*` (each with `.code/`, `.log`, `.tim
   probably fail at the δ the rule picks** (NA-broken) unless the time-local part catches it; that
   follows from the frozen design and is recorded here before anything is run.
 
+- **Expectation, recorded before any NA run: NA is likely NA-broken (G2) and may be NA-harmful (G1)
+  as frozen.** At δ = 0.1 about 1 % of LUNO (antenna, channel) pairs are above δ; every baseline of
+  such an antenna is flagged, so of order 2 % of cross cells against T's 1.3 %. A label-free prototype
+  on the same validation autos (not adopted, `log ρ` minus a 3× clipped degree-5 polynomial per antenna
+  and hand, z in MAD units): clean (antenna, channel) pairs with z > 5 2.6 % (LUNO MAIN_7) and 0.1 %
+  (ESO137 chunk 10); a scan-long band on antenna 5 (300 or 80 channels) is found at z > 5 for 15 % of
+  its channels at +10 σ_auto and 96 % at +100 σ_auto on LUNO, 0 % at both on ESO137. A working
+  antenna-domain detector needs its own design on validation (an Amendment 2 before Stage 5, or a
+  separate task); the owner or coordinator decides. The frozen NA runs as written either way.
+
 ### Staged runs
 
 Queued in order by `examples/f4_queue.py` (each step under `tools/heavy_lock.py`, E2 and other lock
@@ -398,3 +408,24 @@ Then per class the median seed by validation loss, and τ (native):
 `f4_eval.py sim RUN/sim.json D:/rang/outputs/f4-20261111-02-sim-test/f4sim-t --class <class> --n4 …`;
 cost `f4_cost.py time` at `RAYON_NUM_THREADS` 4 and 1 on `luno:MAIN_1` and `eso:0`, and `f4_cost.py rss`
 per arm; all under `f4_run.py … --lock`.
+
+## For the coordinator
+
+- **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
+  code); `249c282` Amendment 1 (NA); `0f2954d` code; later commits notes, the test fix and Stage 1
+  reporting. Not pushed.
+- **Not run here:** the full check-all (left to the coordinator at merge); training, τ and Stage 5.
+  Three extension tests of `test_f4_flag.py` run first in the detached chain (they need the rebuilt
+  `rang._core`; the chain stops if they fail).
+- **Chain:** detached bash running `outputs/f4-chain.sh` (worktree, ignored); log
+  `D:\rang\outputs\f4-20261111-00-build\chain.log`; verdicts `D:\rang\outputs\f4-20261111-queue.json`.
+  It only waits on the heavy lock; it does not otherwise yield to E2.
+- **Run outputs (ignored):** `D:\rang\outputs\f4-20261111-NN-*`; `-01-fetch` 4.54 GB.
+- **`research/STATE.md`, new log paragraph (when results exist):** "F4, 2026-11-11 (protocol frozen;
+  code; Stages 1-3 queued; [f4-flagger.md](f4-flagger.md)): F3's network with eight scan-scale
+  spectral planes against the array (23 inputs, 4,009 weights) for wide-band scan-long antenna-local
+  RFI, T6 injections 9-400 channels, target labels from injections and simulation, new held-out sets
+  (LUNO MAIN_0, MAIN_12, MAIN_14; ESO137 11-13; f4sim-t), and an autocorrelation arm NA (Amendment 1)."
+- **`research/finish-plan.md`, section 6, Landman:** "F4 protocol frozen 2026-11-11 (`f4-flagger.md`);
+  the request for expertly flagged target data (section 4) awaits posting to issue #1."
+- **`research/tool-timings.md`:** rows added in this branch.

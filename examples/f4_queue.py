@@ -116,6 +116,8 @@ def main():
         r = json.loads((OUT / name / "c1u4.json").read_text(encoding="utf-8"))
         state["results"]["c1u4"] = {k: r[k] for k in ("c1", "all_clean")}
         save()
+        if not r["all_clean"]:
+            raise SystemExit("C1(U4) not clean (host busy): rerun with --from c1u4")
         if r["c1"] > 0.45:
             state["stopped"]["all"] = f"C1(U4) {r['c1']:.3f} > 0.45"
             save()

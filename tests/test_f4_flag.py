@@ -3,6 +3,8 @@ reference, the Rust logits against the JAX network, the spectral planes on
 a wide scan-long antenna-local injection, T6 and H3, the labels and the
 data guards, on small synthetic scans."""
 
+import warnings
+
 import numpy as np
 import pytest
 from rang import f3flag as f3
@@ -58,10 +60,14 @@ def test_features_match_numpy_reference_and_keep_f3s_planes():
     assert np.array_equal(r[..., :14], old[..., :14])
     assert np.array_equal(r[..., 22], old[..., 14])
     # The spectral planes are constant in time on unflagged cells.
-    spec = r[..., f4.SPEC0 : f4.SPEC0 + 8]
-    ok = r[..., 22] == 0
-    ref = spec.max(1, keepdims=True)
-    assert np.allclose(np.where(ok[..., None], spec, ref), ref)
+    spec = np.where(
+        (r[..., 22] == 0)[..., None], r[..., f4.SPEC0 : f4.SPEC0 + 8], np.nan
+    )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        lo, hi = np.nanmin(spec, 1), np.nanmax(spec, 1)
+    seen = np.isfinite(lo)
+    assert seen.any() and np.allclose(lo[seen], hi[seen])
 
 
 def test_logits_match_jax():

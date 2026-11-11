@@ -92,6 +92,25 @@ def recall(flags, rows, chans):
     return int(flags[rows, chans].sum())
 
 
+def spectral_fractions(scan, w3, block=128):
+    """Reported only: fraction of eligible cells with e^par, e^x >= 3 and >= 5
+    on uninjected DATA (how much of the spectral planes is bandpass)."""
+    ix = f3.index(scan)
+    nbl = len(ix["ubl"])
+    counts = {f"{fam}_ge{b}": 0 for fam in ("par", "cross") for b in (3, 5)}
+    n = 0
+    for s in range(0, nbl, block):
+        sel = np.arange(s, min(s + block, nbl))
+        x = f4.rust_features(scan, w3, sel)
+        ok = x[..., f4.NPLANES - 1] == 0
+        n += int(ok.sum())
+        for fam, k in (("par", f4.SPEC0), ("cross", f4.SPEC0 + 4)):
+            v = np.sinh(x[..., k])[ok]
+            for b in (3, 5):
+                counts[f"{fam}_ge{b}"] += int((v >= b).sum())
+    return {k: v / max(n, 1) for k, v in counts.items()}
+
+
 def stage1(args, out):
     klass = args.klass
     (spec,) = f4.real_sets(klass, "validation")
@@ -111,6 +130,7 @@ def stage1(args, out):
         "Z4": int((z4_clean & eligible).sum()),
     }
     res["added"] = added
+    res["spectral_clean"] = spectral_fractions(scan, w3)
     hits = {"ZE": [0, 0]}
     r1 = {"T": [0, 0], "Z4": [0, 0]}
     cases = []
