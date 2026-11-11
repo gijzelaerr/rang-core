@@ -434,6 +434,32 @@ def test_a_missing_recorded_flag_version_is_warned_about(tmp_path, capsys):
     assert f"warning: flag version {entry['restore_missing']}" in err
 
 
+def test_data_from_another_telescope_is_warned_about_not_refused(tmp_path, capsys):
+    """E5-39: rang is tested on MeerKAT only; another TELESCOPE_NAME runs with
+    a warning in the W4 style and is recorded in the state."""
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path)
+    assert pipe.inspect_ms(ms)["telescope"] == ""  # no OBSERVATION row: no warning
+    assert pipe.scope_warnings(pipe.inspect_ms(ms)) == []
+    with core_ms_write.open_table(ms / "OBSERVATION", readonly=False) as t:
+        t.addrows(1)
+        t.putcol("TELESCOPE_NAME", ["MeerKAT"])
+    assert pipe.inspect_ms(ms)["telescope"] == "MeerKAT"
+    assert pipe.scope_warnings(pipe.inspect_ms(ms)) == []
+    with core_ms_write.open_table(ms / "OBSERVATION", readonly=False) as t:
+        t.putcol("TELESCOPE_NAME", ["ASKAP"])
+    capsys.readouterr()
+    cli("--no-receipt", "flag", config, ms)
+    err = capsys.readouterr().err
+    assert "warning:" in err and "is from ASKAP, not MeerKAT" in err
+    assert "task W4" in err
+    state = json.loads(
+        (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
+    )
+    assert state["telescope"] == "ASKAP"
+    assert state["stages"]["flag"]["status"] == "done"
+
+
 def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
     """E5: after `--force flag` with a changed strategy, the stale apply stage
     must not restore the flags saved before its earlier attempt (the old flag

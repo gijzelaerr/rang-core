@@ -372,6 +372,21 @@ the case that now runs. Labelled post hoc; the -01 verdicts stand as measured.
    alternative is to solve with them, which QuartiCal's reading was not
    checked for.
 
+## 9. Later case (post hoc, E5-39, 2026-11-11)
+
+Added after the frozen run, not part of its protocol or its 28 cases
+(research/e5-prereview.md, E5-39). Checked on W2's synthetic MS only, not on A1.
+
+| ID | Case (edit of the copy) | flag | calibrate | apply | image |
+| --- | --- | --- | --- | --- | --- |
+| telescope-other | OBSERVATION row 0 TELESCOPE_NAME not MeerKAT (ASKAP in the test) | works, with a warning: "is from ASKAP, not MeerKAT", "task W4" | same | same | same |
+
+Not refused, so that LOFAR stays possible (`research/meerkat-scope.md`). The
+warning goes to the log of every pipeline command and to `rang-core config
+check MS`; `state.json` records `telescope`. An empty OBSERVATION table, or
+an empty name, gives no warning. Test:
+`tests/test_w2_commands.py::test_data_from_another_telescope_is_warned_about_not_refused`.
+
 ## For the coordinator
 
 All text proposed; do not apply until merged.

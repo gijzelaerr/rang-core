@@ -207,6 +207,11 @@ def inspect_ms(ms):
         antennas = [str(n) for n in an.getcol("NAME")]
     with core_ms.open_table(ms / "FIELD") as fd:
         names = [str(n) for n in fd.getcol("NAME")]
+    telescope = ""
+    if (ms / "OBSERVATION" / "table.dat").is_file():
+        with core_ms.open_table(ms / "OBSERVATION") as ob:
+            if ob.nrows and "TELESCOPE_NAME" in ob.colnames():
+                telescope = str(ob.getcol("TELESCOPE_NAME")[0]).strip()
     corr = tuple(int(c) for c in layout["corr_type"])
     auto = rows["ANTENNA1"] == rows["ANTENNA2"]
     return {
@@ -224,12 +229,30 @@ def inspect_ms(ms):
         "antenna_position": positions,
         "antennas": antennas,
         "fields": names,
+        "telescope": telescope,
         "field_ids_in_use": np.unique(rows["FIELD_ID"]).tolist(),
         "scans": np.unique(rows["SCAN_NUMBER"]).tolist(),
         "weight_spectrum": weight_spectrum,
         "autocorrelations": int(auto.sum()),
         "rows": rows,
     }
+
+
+def scope_warnings(info):
+    """[message] for data outside the tested scope that rang still runs on
+    (E5-39, research/e5-prereview.md): rang is tested on MeerKAT only
+    (research/meerkat-scope.md), and its defaults (Tricolour's static masks,
+    `feed_angle_rotation`, CARACal's refant rules) are MeerKAT's. Not refused,
+    so that other telescopes (LOFAR) can be tried."""
+    name = info.get("telescope", "")
+    if name and not name.upper().startswith("MEERKAT"):
+        text = (
+            f"{info['ms']} is from {name}, not MeerKAT: rang is tested on MeerKAT "
+            "only and its defaults (Tricolour's static masks, feed_angle_rotation, "
+            f"refant: auto) are MeerKAT's; check every stage's output {UNSUPPORTED}"
+        )
+        return [text]
+    return []
 
 
 def check_data(config, info, stages):
@@ -2478,6 +2501,9 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
     with run.locked():
         state = run.state
         state["config_path"] = str(Path(config_path).resolve())
+        state["telescope"] = info["telescope"]
+        for text in scope_warnings(info):
+            log(f"rang-core: warning: {text}")
         conflicts = []
         for stage in stages:  # before anything runs
             entry = state["stages"].get(stage, {})

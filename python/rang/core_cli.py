@@ -1398,6 +1398,8 @@ def _config_command(argv):
         if args.ms:
             info = core_pipeline.inspect_ms(args.ms)
             core_pipeline.preflight(config, info, stages)
+            for text in core_pipeline.scope_warnings(info):
+                print(f"rang-core config check: warning: {text}", file=sys.stderr)
     except (core_config.ConfigError, core_pipeline.Refused, OSError) as exc:
         print(f"rang-core config check: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
