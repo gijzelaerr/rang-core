@@ -1,4 +1,7 @@
-# Rang working conventions
+# ra-ng working conventions
+
+ra-ng is the project; `rang-core` is its first package. The project's
+direction, audiences and scope are in `research/vision.md`.
 
 ## Start here and leave a trail
 
@@ -10,9 +13,12 @@
   rejected/null outcomes and next steps in the repository as work proceeds.
   Distinguish proposed, implemented and measured work. Link compact result
   archives; raw observations and generated checkpoints belong in ignored outputs.
-- The user authorizes regular pushes of verified checkpoints to origin/main so
-  astronomers can follow progress. Run the full local checks before every commit;
-  push normally, never force-push. Keep scientific status and handoff links current.
+- The owner commits to main directly and authorizes regular pushes of verified
+  checkpoints to origin/main so astronomers can follow progress; agents working
+  in the owner's checkout on the owner's instruction do the same. Other
+  contributors and their agents open pull requests that pass CI. Run
+  the full local checks before every commit; push normally, never force-push.
+  Keep scientific status and handoff links current.
 
 ## Layout
 
@@ -27,9 +33,18 @@
 `notebooks/`, `examples/`, `recipes/`, `tests/`, `tools/` and `data/` hold what
 their names say. Raw data and run outputs go in ignored `outputs/`.
 
-## Research scope
+## Scope
 
-- Focus on MeerKAT. The scope is specified in `research/meerkat-scope.md`.
+- ra-ng aims to be the home for agentic radio astronomy: beginners learn from
+  notebooks and by asking questions, astronomers make science-grade images and
+  time series, algorithm scientists improve the code and contribute it back.
+- MeerKAT first (`research/meerkat-scope.md`); keep LOFAR in mind, with
+  telescope specifics behind the existing boundary, and do not generalise before
+  a second telescope's data and oracle exist.
+- Time series means pulsars and transients (FRBs, GRBs); new scope,
+  scoped in a note before anything is built.
+- Use GPU acceleration where it pays, but stay cross-platform: every GPU path has
+  a CPU path with the same result within a written tolerance.
 - Use simulations and comparisons to test research hypotheses; distinguish proposed methods, implemented methods and measured results.
 - Preserve reproducible experiment settings, seeds, data provenance and relevant negative results.
 - Inspect CARACAL's shipped MeerKAT strategies and flag-worker semantics when

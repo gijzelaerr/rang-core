@@ -9,7 +9,8 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** the [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C2a, C2b, C2c, C2d, C2e, C3a, C4a, C4b, C5, C6, C6w, C7a, C7b, E0, G1, G2, G3, G5, G6, G9, W1, W2, W2b, W3, W3b, W4, W5, W6. Waiting on the owner: A0's data fetches and native-data source.
+- **Running:** E2, resumed on the owner's word on 2026-11-11 after a halt (`outputs/status/fp-e2.md`); V1-V3 of [vision.md](vision.md). The [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C2a, C2b, C2c, C2d, C2e, C3a, C4a, C4b, C5, C6, C6w, C7a, C7b, E0, E1 (run, gates not met as frozen), G1, G2, G3, G4, G5, G6, G7, G8, G9, W1, W2, W2b, W3, W3b, W4, W5, W6. Fetches approved and done; native data (E2-N) open.
+- **Direction:** [vision.md](vision.md) (2026-11-11).
 - **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
@@ -18,6 +19,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+Direction, 2026-11-11 (owner; [vision.md](vision.md)): the project is **ra-ng**, rang-core its first package; the home for agentic radio astronomy for beginners, astronomers and algorithm scientists; MeerKAT first, LOFAR in mind; time series means pulsars and transients; GPU where it pays, cross-platform; the owner commits to main, contributors open pull requests; research skills propose and measure, never merge on their own. v0.2.0 stays the next milestone; light tasks run alongside the heavy queue. AGENTS.md scope and the README tagline reworded. Added the same day: E2 resumed; weekly literature digest (V4); Obit as a second imaging oracle (V5); VLBI later, scoping note V6.
 
 F3, 2026-11-10/11 (implemented; measured; calibrators outcome F; targets stopped at the label audit; [f3-flagger.md](f3-flagger.md)): a 3,433-weight network (`rang.f3flag`, Rust `rang_core::f3flag`, JAX training on the GPU in WSL) on noise-normalised time- and channel-local residual planes and per-antenna medians, trained on LUNO 1830−211 scans with injections and T-and-AOFlagger consensus labels plus F-SIM. Held-out LUNO 1934−638 and 1830−211: F2's missed narrowband and single-baseline RFI now found (0.998, 0.999), 0.73-0.97 × T's flags, but wide-band scan-long antenna-local RFI missed (0.024 against 0.907), so R1 fails (0.640 against 0.966). C1 0.343 at 1 and 4 threads (clean), C2 1.00; 4 tunable kinds against T's 21. Targets: consensus labels on ESO137 failed the frozen audit; an amended post hoc arm also fails (R1 0.724 against bar 0.805). Nothing proposed for `rang-core flag`. No novelty claim. Owner decisions in the note, section "For the coordinator".
 

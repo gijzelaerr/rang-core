@@ -1,6 +1,6 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gijzelaerr/rang-core/main/docs/logo/lockup-on-dark.svg"><img src="https://raw.githubusercontent.com/gijzelaerr/rang-core/main/docs/logo/lockup.svg" alt="rang-core" width="520"></picture></p>
 
-<p align="center"><b>MeerKAT calibration, flagging and imaging research on one Rust core, driven from Python.</b></p>
+<p align="center"><b>ra-ng aims to be the home for agentic radio astronomy, from first steps to science-grade images and time series. rang-core is its Rust core and Python command line, MeerKAT first.</b></p>
 
 <p align="center"><a href="https://github.com/gijzelaerr/rang-core/actions/workflows/wheels.yml"><img src="https://github.com/gijzelaerr/rang-core/actions/workflows/wheels.yml/badge.svg?branch=main" alt="wheels"></a> <a href="https://github.com/gijzelaerr/rang-core/actions/workflows/docs.yml"><img src="https://github.com/gijzelaerr/rang-core/actions/workflows/docs.yml/badge.svg?branch=main" alt="docs"></a></p>
 
