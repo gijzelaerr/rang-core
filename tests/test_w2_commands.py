@@ -300,9 +300,13 @@ def test_flag_writes_the_port_flags_with_backups_and_a_receipt(tmp_path):
     run = ms.with_name("x.ms.rang-run")
     receipts = sorted((run / "receipts").glob("flag-*.rang-receipt.json"))
     receipt = json.loads(receipts[0].read_text(encoding="utf-8"))
-    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 4
+    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 5
     assert receipt["command"][:2] == ["rang-core", "flag"] and receipt["exit"] == 0
-    assert any(o.get("modified") for o in receipt["outputs"])
+    # Owner decision E5-20: the modified MS by its listing hash only; the
+    # stage summary hashes the flags written.
+    (modified,) = [o for o in receipt["outputs"] if o.get("modified")]
+    assert modified["path"] == ms.as_posix() and "listing_sha256" in modified
+    assert "tree_sha256" not in modified
     summary = json.loads((run / "flag" / "summary.json").read_text(encoding="utf-8"))
     assert [g["field"] for g in summary["groups"]] == ["CAL", "TGT"]
     # A second flag is skipped: nothing written, no new version.
