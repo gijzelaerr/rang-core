@@ -832,7 +832,7 @@ options:
 ```text
 $ rang-core check -h
 usage: rang-core check [-h] [--rust | --python | --all] [--only ONLY]
-                       [--skip SKIP] [--json JSON]
+                       [--skip SKIP] [--json JSON] [--fail-fast] [--rebuild]
 
 The full local checks, portable: `rang-core check` = `python -m rang.check`
 
@@ -844,6 +844,9 @@ options:
   --only ONLY  comma-separated step names
   --skip SKIP  comma-separated step names
   --json JSON  write each step's status and wall time
+  --fail-fast  stop after the first failing step
+  --rebuild    run ext-build even when its inputs and the installed extension
+               are those of the last successful build
 ```
 
 ## `gemclean`

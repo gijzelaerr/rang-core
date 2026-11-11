@@ -4,8 +4,10 @@
     python -m rang.check [--rust | --python | --all] [--only STEP,...]
                             [--skip STEP,...] [--json PATH]
 
-The seventeen steps of `tools/check-all.sh` (which is now a thin wrapper
-of this module), in the same order and with the same output: a `## <step>`
+The steps of `tools/check-all.sh` (which is now a thin wrapper of this
+module), cheap ones first since task check-speed (research/check-speed.md:
+fmt, ruff and `git diff --check`, then the builds and tests, pytest and the
+gain-hash gate last), with the same output: a `## <step>`
 line before each step, the step's own output (for the Rust tests only the
 first `test result` line, and the whole log on failure; for pytest the
 last two lines), `FAILED: <command>` after a failing step, no stopping at
@@ -23,7 +25,18 @@ leaves them out.
 fmt; `--python` runs the extension build, ruff, ruff format, `git diff
 --check` and pytest; `--all` (the default) runs both, in the shell
 script's order. `--json PATH` writes each step's command, exit status and
-wall time.
+wall time. `--fail-fast` stops after the first failing step (by default
+every step runs).
+
+Two speed-ups keep the coverage (research/check-speed.md): pytest runs on
+PYTEST_WORKERS processes when pytest-xdist (the `test` extra) is
+installed, and `ext-build` does not rerun `maturin develop` when a stamp in
+the venv, written after its last successful run, records the same inputs
+(every tracked or untracked-unignored file of the crates, the lock files,
+`.cargo/` and the package metadata, the toolchain's `rustc -vV`, the
+argument list, the interpreter and the CARGO*, RUST*, PYO3_*, MATURIN*
+variables) and the same installed extension and `rang-core` metadata.
+`--rebuild` reruns it regardless.
 
 One check at a time on a shared host (research/p10-tests.md): the lock file
 `~/.rang-checkall-v2.lock` (`RANG_CHECKALL_LOCK` overrides) is taken with
@@ -49,6 +62,8 @@ from pathlib import Path
 
 TOOLCHAIN = "1.93"
 CARGO = ["cargo", f"+{TOOLCHAIN}"]
+GPU_TARGET = "feature-gpu"
+PYTEST_WORKERS = max(1, min(8, os.cpu_count() or 1))
 PYTEST_LABEL = "bash -c set -o pipefail; .venv/bin/python -m pytest -q 2>&1 | tail -2"
 
 
@@ -70,68 +85,22 @@ def steps(python=None):
         # A venv made by `uv venv` has no pip (research/x1-crossplatform.md).
         maturin.append("--uv")
     toolchain = {"RUSTUP_TOOLCHAIN": TOOLCHAIN}
+    # The gpu steps build in their own target directory: sharing core/target
+    # with the feature-less steps made every run rebuild the core's binaries
+    # and tests twice, about 590 s warm (research/check-speed.md).
+    gpu_target = {"CARGO_TARGET_DIR": str(Path("core") / "target" / GPU_TARGET)}
+    pytest = [py, "-m", "pytest", "-q"]
+    if importlib.util.find_spec("xdist") is not None:
+        # pytest-xdist (the `test` extra, research/check-speed.md): the same
+        # tests on PYTEST_WORKERS processes; without it the suite runs serially.
+        pytest += ["-n", str(PYTEST_WORKERS)]
+    # The cheap steps (fmt, ruff, `git diff --check`) run first, so a lint
+    # failure shows within seconds (and ends a `--fail-fast` run); pytest and
+    # the gate stay after the builds they need (core-build's gemclean binary,
+    # ext-build's extension; research/check-speed.md).
     return [
-        ("root-build", "rust", "plain", build, {}, " ".join(build)),
-        ("root-test", "rust", "rust_test", test, {}, "rust_test"),
-        (
-            "root-clippy",
-            "rust",
-            "plain",
-            [*clippy, "--", "-D", "warnings"],
-            {},
-            " ".join([*clippy, "--", "-D", "warnings"]),
-        ),
         ("root-fmt", "rust", "plain", fmt, {}, " ".join(fmt)),
-        ("core-build", "rust", "plain", [*build, *core], {}, " ".join([*build, *core])),
-        (
-            "core-test",
-            "rust",
-            "rust_test",
-            [*test, *core],
-            {},
-            "rust_test " + " ".join(core),
-        ),
-        (
-            "core-clippy",
-            "rust",
-            "plain",
-            [*clippy, *core, "--", "-D", "warnings"],
-            {},
-            " ".join([*clippy, *core, "--", "-D", "warnings"]),
-        ),
         ("core-fmt", "rust", "plain", [*fmt, *core], {}, " ".join([*fmt, *core])),
-        (
-            "core-clippy-gpu",
-            "rust",
-            "plain",
-            [*clippy, *core, *gpu, "--", "-D", "warnings"],
-            {},
-            " ".join([*clippy, *core, *gpu, "--", "-D", "warnings"]),
-        ),
-        (
-            "core-test-gpu",
-            "rust",
-            "rust_test",
-            [*test, *core, *gpu],
-            {},
-            "rust_test " + " ".join([*core, *gpu]),
-        ),
-        (
-            "ext-build",
-            "python",
-            "plain",
-            maturin,
-            toolchain,
-            f"env RUSTUP_TOOLCHAIN={TOOLCHAIN} .venv/bin/maturin develop --release --offline -q",
-        ),
-        (
-            "ext-clippy",
-            "rust",
-            "plain",
-            [*clippy, *ext, "--", "-D", "warnings"],
-            {},
-            " ".join([*clippy, *ext, "--", "-D", "warnings"]),
-        ),
         ("ext-fmt", "rust", "plain", [*fmt, *ext], {}, " ".join([*fmt, *ext])),
         (
             "ruff",
@@ -157,7 +126,66 @@ def steps(python=None):
             {},
             "git diff --check",
         ),
-        ("pytest", "python", "tail2", [py, "-m", "pytest", "-q"], {}, PYTEST_LABEL),
+        ("root-build", "rust", "plain", build, {}, " ".join(build)),
+        ("root-test", "rust", "rust_test", test, {}, "rust_test"),
+        (
+            "root-clippy",
+            "rust",
+            "plain",
+            [*clippy, "--", "-D", "warnings"],
+            {},
+            " ".join([*clippy, "--", "-D", "warnings"]),
+        ),
+        ("core-build", "rust", "plain", [*build, *core], {}, " ".join([*build, *core])),
+        (
+            "core-test",
+            "rust",
+            "rust_test",
+            [*test, *core],
+            {},
+            "rust_test " + " ".join(core),
+        ),
+        (
+            "core-clippy",
+            "rust",
+            "plain",
+            [*clippy, *core, "--", "-D", "warnings"],
+            {},
+            " ".join([*clippy, *core, "--", "-D", "warnings"]),
+        ),
+        (
+            "core-clippy-gpu",
+            "rust",
+            "plain",
+            [*clippy, *core, *gpu, "--", "-D", "warnings"],
+            gpu_target,
+            " ".join([*clippy, *core, *gpu, "--", "-D", "warnings"]),
+        ),
+        (
+            "core-test-gpu",
+            "rust",
+            "rust_test",
+            [*test, *core, *gpu],
+            gpu_target,
+            "rust_test " + " ".join([*core, *gpu]),
+        ),
+        (
+            "ext-build",
+            "python",
+            "plain",
+            maturin,
+            toolchain,
+            f"env RUSTUP_TOOLCHAIN={TOOLCHAIN} .venv/bin/maturin develop --release --offline -q",
+        ),
+        (
+            "ext-clippy",
+            "rust",
+            "plain",
+            [*clippy, *ext, "--", "-D", "warnings"],
+            {},
+            " ".join([*clippy, *ext, "--", "-D", "warnings"]),
+        ),
+        ("pytest", "python", "tail2", pytest, {}, PYTEST_LABEL),
         # Task C2a: the archived `complex` solves gate every C-stream merge
         # (research/c2a-gain.md; C1 section 4, rule 2).
         (
@@ -298,6 +326,190 @@ def set_aside_launchers(scripts=None):
     return moved
 
 
+# The inputs of `maturin develop` (research/check-speed.md): the three crates
+# (the core depends on the root crate rang-sim), the lock files, the cargo
+# configuration and the package metadata maturin writes into the install.
+EXT_INPUTS = (
+    "Cargo.toml",
+    "Cargo.lock",
+    "src",
+    "core",
+    ".cargo",
+    "pyproject.toml",
+    "rust-toolchain",
+    "rust-toolchain.toml",
+    "README.md",
+    "LICENSE",
+    "data",  # include_str! of data/meerkat.itrf.txt (core/src/gemclean/sim.rs)
+)
+EXT_ENV = re.compile(r"^(CARGO|RUST|PYO3_|MATURIN)")
+# cargo's dep-info of the extension: every file the compiler read.
+EXT_DEP_INFO = Path("core") / "py" / "target" / "release" / "rang_core_py.d"
+
+
+def ext_uncovered(root, dep_info=None):
+    """The checkout's files that cargo's dep-info lists for the extension but
+    EXT_INPUTS does not cover, as POSIX paths relative to `root`; None when
+    there is no dep-info. A nonempty answer means the stamp could miss a
+    change, so `write_ext_stamp` refuses to write one."""
+    root = Path(root).resolve()
+    try:
+        text = Path(dep_info or root / EXT_DEP_INFO).read_text(encoding="utf-8")
+    except OSError:
+        return None
+    found = set()
+    for line in text.splitlines():
+        if ": " not in line:
+            continue
+        for dep in re.split(r"(?<!\\) ", line.split(": ", 1)[1]):
+            dep = dep.replace("\\ ", " ").strip()
+            if not dep:
+                continue
+            try:
+                rel = Path(dep).resolve().relative_to(root).as_posix()
+            except ValueError:
+                continue  # the toolchain or the cargo registry
+            if rel.split("/")[0] in ("target",) or "/target/" in f"/{rel}":
+                continue  # build products (e.g. a build script's OUT_DIR)
+            if not any(rel == i or rel.startswith(f"{i}/") for i in EXT_INPUTS):
+                found.add(rel)
+    return sorted(found)
+
+
+def _sha256(path):
+    import hashlib
+
+    digest = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for block in iter(lambda: stream.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def ext_inputs(root, argv, env):
+    """A digest of everything `ext-build` reads, or None when it cannot be
+    taken (no git): tracked and untracked-unignored files under EXT_INPUTS
+    with their contents, the toolchain's `rustc -vV`, the argument list, the
+    interpreter and the build environment's CARGO*, RUST*, PYO3_*, MATURIN*
+    variables."""
+    import hashlib
+
+    root = Path(root)
+    try:
+        listed = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "-z",
+                "--cached",
+                "--others",
+                "--exclude-standard",
+                "--",
+                *EXT_INPUTS,
+            ],
+            cwd=root,
+            check=True,
+            capture_output=True,
+        ).stdout.decode("utf-8", errors="surrogateescape")
+        rustc = subprocess.run(
+            ["rustc", f"+{TOOLCHAIN}", "-vV"],
+            cwd=root,
+            env=env,
+            check=True,
+            capture_output=True,
+        ).stdout.decode()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    from importlib import metadata
+
+    try:
+        maturin = metadata.version("maturin")
+    except metadata.PackageNotFoundError:
+        maturin = None
+    digest = hashlib.sha256()
+    for name in sorted({n for n in listed.split("\0") if n}):
+        path = root / name
+        if path.is_file():  # a tracked file deleted in the tree is skipped
+            digest.update(f"{name}\0{_sha256(path)}\n".encode())
+    meta = {
+        "root": root.resolve().as_posix(),
+        "argv": list(argv),
+        "maturin": maturin,
+        "rustc": rustc,
+        "python": [sys.version, sys.prefix],
+        "env": {k: v for k, v in sorted(env.items()) if EXT_ENV.match(k)},
+    }
+    digest.update(json.dumps(meta, sort_keys=True).encode())
+    return digest.hexdigest()
+
+
+def ext_installed(root):
+    """A digest of the installed extension (`python/rang/_core*`) and the
+    `rang-core` distribution's metadata in this interpreter, or None when
+    either is missing."""
+    import hashlib
+    from importlib import metadata
+
+    built = sorted((Path(root) / "python" / "rang").glob("_core*"))
+    try:
+        dist = metadata.distribution("rang-core")
+    except metadata.PackageNotFoundError:
+        return None
+    if not built:
+        return None
+    digest = hashlib.sha256()
+    for path in built:
+        digest.update(f"{path.name}\0{_sha256(path)}\n".encode())
+    # importlib.metadata reads its own files as UTF-8 (not the host's code
+    # page), so the encoding lint of tests/test_w4_6_portability.py does not apply.
+    metadata_file = dist.read_text
+    for name in ("METADATA", "direct_url.json", "entry_points.txt", "RECORD"):
+        digest.update(f"{name}\0{metadata_file(name)}\n".encode())
+    return digest.hexdigest()
+
+
+def ext_stamp_path():
+    """The ext-build stamp of this interpreter's environment."""
+    return Path(sys.prefix) / "rang-check-ext-build.json"
+
+
+def ext_build_fresh(inputs, root, stamp=None):
+    """True when the stamp written after the last successful `ext-build`
+    records these inputs and the extension installed now."""
+    if inputs is None:
+        return False
+    try:
+        saved = json.loads(Path(stamp or ext_stamp_path()).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    return saved.get("inputs") == inputs and saved.get("installed") == ext_installed(
+        root
+    )
+
+
+def write_ext_stamp(inputs, root, stamp=None):
+    """Record a successful `ext-build`: its inputs (taken before the build)
+    and the extension it installed. No stamp (so the next run rebuilds) when
+    cargo's dep-info names a checkout file outside EXT_INPUTS, or is absent."""
+    installed = ext_installed(root)
+    path = Path(stamp or ext_stamp_path())
+    uncovered = ext_uncovered(root)
+    if uncovered:
+        print(
+            f"ext-build: no stamp written; inputs outside EXT_INPUTS: {uncovered}",
+            flush=True,
+        )
+    if inputs is None or installed is None or uncovered is None or uncovered:
+        with contextlib.suppress(OSError):
+            path.unlink()
+        return
+    path.write_text(
+        json.dumps({"inputs": inputs, "installed": installed}, indent=1) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
 def _parser():
     parser = argparse.ArgumentParser(
         prog="rang-core check", description=__doc__.splitlines()[0]
@@ -309,6 +521,15 @@ def _parser():
     parser.add_argument("--only", default="", help="comma-separated step names")
     parser.add_argument("--skip", default="", help="comma-separated step names")
     parser.add_argument("--json", help="write each step's status and wall time")
+    parser.add_argument(
+        "--fail-fast", action="store_true", help="stop after the first failing step"
+    )
+    parser.add_argument(
+        "--rebuild",
+        action="store_true",
+        help="run ext-build even when its inputs and the installed extension "
+        "are those of the last successful build",
+    )
     return parser
 
 
@@ -347,21 +568,43 @@ def main(argv=None, runner=run_step, root=None):
         env["RANG_CHECKALL_LOCKED"] = "1"
         for name, _, kind, command, extra, label in chosen:
             print(f"## {name}", flush=True)
-            if name == "ext-build" and runner is run_step:
-                set_aside_launchers()
             started = time.perf_counter()
-            status = runner(kind, command, root, {**env, **extra})
+            step_env = {**env, **extra}
+            cached = False
+            if name == "ext-build" and runner is run_step:
+                inputs = ext_inputs(root, command, step_env)
+                cached = not args.rebuild and ext_build_fresh(inputs, root)
+                if cached:
+                    print(
+                        "ext-build: inputs and installed extension unchanged "
+                        f"since the last build ({ext_stamp_path()}); not rebuilt",
+                        flush=True,
+                    )
+                    status = 0
+                else:
+                    set_aside_launchers()
+                    status = runner(kind, command, root, step_env)
+                    if status:
+                        with contextlib.suppress(OSError):
+                            ext_stamp_path().unlink()
+                    else:
+                        write_ext_stamp(inputs, root)
+            else:
+                status = runner(kind, command, root, step_env)
             records.append(
                 {
                     "step": name,
                     "argv": command,
                     "status": status,
                     "wall_seconds": time.perf_counter() - started,
+                    "cached": cached,
                 }
             )
             if status:
                 print(f"FAILED: {label}", flush=True)
                 fail = 1
+                if args.fail_fast:
+                    break
     print(f"## overall: {'FAIL' if fail else 'PASS'}", flush=True)
     if args.json:
         Path(args.json).write_text(
