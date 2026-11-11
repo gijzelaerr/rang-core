@@ -368,3 +368,47 @@ checks, not claims):
   01-03 in one `execute_notebooks.py` process on this Windows host while E2
   ran; alone it ran in 14 s. Not investigated; docs CI on Linux is the
   check.
+
+## 9. The interactive MeerKAT (2026-11-11)
+
+Status: **implemented; checked in a browser; no measurement claimed.** Asked
+for by the owner as part of the track: a three.js page that explains
+interferometry from voltages to an image.
+
+- **Where:** `docs/_extra/interferometer/index.html`, one self-contained page
+  copied to the site by `html_extra_path` and served at
+  <https://pythonic.nl/rang-core/interferometer/>; linked from
+  [docs/tutorials](../docs/tutorials/index.md) above the notebook table.
+  three.js r128 and its OrbitControls load from cdnjs and jsDelivr, the fonts
+  from Google Fonts; nothing else is fetched.
+- **Chapters:** one dish (λ/D), geometric delay of a chosen pair, the two
+  voltages, a lag correlator, the fringe and visibility of one baseline, the
+  uv plane of all pairs, Earth rotation, dirty image and PSF, Högbom CLEAN.
+  It covers I2, I3 and the first half of I7 in pictures and hands over to
+  them.
+- **What is computed, not drawn:** ENU positions from the 64 ITRF rows of
+  `python/rang/data/meerkat.itrf.txt` (copied into the page); source
+  direction, azimuth and elevation, (u, v, w) and the delay w/c from hour
+  angle, declination and latitude −30.713°; 1284 MHz; the uv sampling on a
+  256² grid of 3″ cells with a 15° elevation limit and 4-minute steps; PSF
+  and dirty image by FFT of the sampled Fourier transform of a made-up sky
+  (nearest-cell gridding, natural or uniform weights, no noise); Högbom
+  CLEAN with loop gain 0.2 to 2 % of the dirty peak or 5,000 iterations and
+  a circular Gaussian restoring beam from the PSF's half-maximum width; the
+  correlator on band-limited noise streams with a shared part delayed by
+  the geometric delay.
+- **Stylised, and said on the page:** the dish (offset Gregorian from the
+  published 13.5 m and 3.8 m, not a survey model), the wavefront spacing and
+  speed, the source strength and correlation width in the voltage chapters.
+  The sky is invented. Nothing in the page is checked against an oracle; it
+  is a teaching picture, and the notebooks hold the numbers.
+- **Checked (Chrome, Windows, 1280 × 800 and 375 × 812):** all nine chapters
+  without console errors; a dish click changes the pair; the longest pair
+  (7,698 m, M048-M060); defaults (64 dishes, 2 h, δ −40°, uniform) give
+  62,439 visibilities, 21.2 % of the Fourier cells, a 6.6″ beam, and CLEAN
+  ends at 3,184 iterations. Not checked: other browsers, a phone's GPU.
+- **Default track 2 h, not 8 h:** at 8 h with uniform weights the dirty image
+  was hard to tell from the sky, which left the CLEAN chapter nothing to
+  show.
+- **Open:** vendoring three.js instead of the CDNs; a link from I2, I3 and
+  I7 themselves; a share video is in ignored `outputs/interferometer-demo/`.

@@ -42,6 +42,7 @@ extensions = [
 exclude_patterns = [
     "_build",
     "_generated",
+    "_extra",
     "logo/README.md",
     "**.ipynb_checkpoints",
     "jupyter_execute",
@@ -74,6 +75,9 @@ html_theme = "furo"
 html_title = "rang-core"
 html_favicon = "logo/favicon.ico"
 html_static_path = ["logo/lockup.svg", "logo/lockup-on-dark.svg"]
+# Standalone pages copied to the site root as they are: the interactive MeerKAT
+# of the introductory track at interferometer/ (research/v3-intro-track.md, 9).
+html_extra_path = ["_extra"]
 html_theme_options = {
     "light_logo": "lockup.svg",
     "dark_logo": "lockup-on-dark.svg",

@@ -13,6 +13,19 @@ Data: the public fixture (I2, I3, I5) and A1, rang's simulated MeerKAT
 observation, written in the notebook from seeds by `python -m rang.simtruth_ms`
 (I4-I8); I1 and I9 need no data.
 
+Before the notebooks, or beside I2, I3 and I7:
+[MeerKAT, from voltages to an image](https://pythonic.nl/rang-core/interferometer/)
+is an interactive 3D model of the array in the browser. Nine chapters go from
+one dish's 1° beam through the geometric delay, the two receiver voltages, a
+live lag correlator, the fringe of one baseline, the 2016 baselines and Earth
+rotation to a dirty image and a Högbom CLEAN you can step. It uses the 64
+antenna positions of `python/rang/data/meerkat.itrf.txt` at 1284 MHz; the uv
+coverage, PSF and images are computed in the page (256² pixels of 3″) from a
+made-up sky, and the dish count, track length, declination and weighting
+change them together. The dish is drawn from MeerKAT's published dimensions
+and is not a survey model; the voltage chapters exaggerate the source
+strength and say so. Nothing to install.
+
 | Notebook | What you learn | Time |
 | --- | --- | --- |
 | {doc}`I1. The radio sky and its emission <notebooks/i1-radio-sky>` | jansky, synchrotron and thermal spectra, brightness temperature, flux standards, the radiometer equation | 5 s |

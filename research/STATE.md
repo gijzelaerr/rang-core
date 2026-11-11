@@ -20,6 +20,8 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Interactive MeerKAT, 2026-11-11 (implemented; [v3-intro-track.md](v3-intro-track.md) section 9): a three.js page of the introductory track, <https://pythonic.nl/rang-core/interferometer/>, nine chapters from voltages to a CLEANed image on the real 64 antenna positions; uv coverage, PSF, dirty image and Högbom CLEAN computed in the page from a made-up sky; a teaching picture, no oracle and no claim. Source `docs/_extra/interferometer/index.html`, linked from the tutorials page.
+
 Merges, 2026-11-11 evening: V1 (time-series scope: first product P1, light curves from 8 s residual snapshots, WSClean `-intervals-out` and exact DFT as oracles; beamformed work deferred), V3b (introductory notebooks I1-I9 in `notebooks/intro/`), check-speed (warm check-all 784 to 95 s, cold 1,209 to 1,165 s; pytest-xdist; gpu builds in their own target), E5 later items (7 fixed, SPDX headers); the `tests` workflow green on Linux and Windows; `heavy_lock.py` shares the host in slots (16 threads, 48 GB), exclusive only for timing. Open owner decisions: P1 and the SARAO token; a docs-only check tier; build caches on D:.
 
 Merges and owner answers, 2026-11-11: V7 (LOFAR scope), V4 (first digest, the `rang-digest` skill), E4 (tutorial `notebooks/00-ms-to-image.ipynb`, CI job `e2e`), E5 pre-review (52 findings, 11 fixed), V2 (AGENTS.md split, PR route, `docs/agents/`, skills) merged. Owner on V2: the three new AGENTS.md rules stay; AI trailers are the contributor's choice (the project prefers none); a `tests` workflow now runs lint, clippy, cargo test and pytest (Linux, Windows) on every pull request. Owner: an autocorrelation arm joins F4.
