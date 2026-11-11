@@ -11,16 +11,16 @@ they rely on an image.
 
 ## 1. Check the environment and the data
 
-- `rang-core -h` must run; `gemclean -h` too (it ships in the wheel since task
-  G8, `research/g8-wheel.md`; from a source checkout, `maturin develop
-  --release` provides it). Otherwise follow {doc}`../installation`.
+- `rang-core -h` must run; `gemclean -h` too. `gemclean` is a console script
+  of the package since task G8 (`research/g8-wheel.md`), which is not yet in a
+  release: the 0.1.0 wheel on PyPI lacks it, a source install (`maturin develop
+  --release`, {doc}`../installation`) has it.
 - Ask for the MS path, the field names of the calibrators and the target
   (`fcal`, `bpcal`, `gcal`, `xcal`, `target`), and whether the data are already
   calibrated (then image only).
 - The commands write into the MS in place. Before the first write the flags are
   saved as the CASA flag version `rang_original`, but visibility columns are
-  not: work on a copy unless the user says otherwise. Large data on a shared
-  host belongs where the host's rules say (the owner's: `D:\rang`).
+  not: work on a copy unless the user says otherwise.
 
 ## 2. Write the configuration
 
