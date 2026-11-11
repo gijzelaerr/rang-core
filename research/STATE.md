@@ -20,6 +20,8 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2 protocol frozen, 2026-11-11 (b2d80dc, merged to main before any E2 run; `research/e2-acceptance.md` section 6, appendix A): E1b scored against E1's frozen gates (image met with the validated scorer, the rest as E1); `calibrate.average_time` and `selfcal.average_time` (CASA's time pre-averaging, off by default) merged; the Gpol class B miss on LUNO recorded as expected (finish-plan item 36); E3's early decoding of E2-B recorded in the protocol. Next: E2-B (timed, exclusive), E2-A, the pre-registered frequency pre-averaging arm.
+
 Interactive MeerKAT, 2026-11-11 (implemented; [v3-intro-track.md](v3-intro-track.md) section 9): a three.js page of the introductory track, <https://pythonic.nl/rang-core/interferometer/>, nine chapters from voltages to a CLEANed image on the real 64 antenna positions; uv coverage, PSF, dirty image and Högbom CLEAN computed in the page from a made-up sky; a teaching picture, no oracle and no claim. Source `docs/_extra/interferometer/index.html`, linked from the tutorials page.
 
 Merges, 2026-11-11 evening: V1 (time-series scope: first product P1, light curves from 8 s residual snapshots, WSClean `-intervals-out` and exact DFT as oracles; beamformed work deferred), V3b (introductory notebooks I1-I9 in `notebooks/intro/`), check-speed (warm check-all 784 to 95 s, cold 1,209 to 1,165 s; pytest-xdist; gpu builds in their own target), E5 later items (7 fixed, SPDX headers); the `tests` workflow green on Linux and Windows; `heavy_lock.py` shares the host in slots (16 threads, 48 GB), exclusive only for timing. Open owner decisions: P1 and the SARAO token; a docs-only check tier; build caches on D:.
