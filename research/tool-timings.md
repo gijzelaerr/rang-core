@@ -1806,3 +1806,19 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | F3 held-out `f3_eval.py real`, 7 arms, 19 cases | LUNO MAIN_1 / MAIN_2 | 47.2 / 31.0 min | – | A dominates (19 Docker runs) |
 | 2026-11-10 | F3 native `python -m rang.check` (heavy_lock), twice | worktree fp-f3-flagger | 82 min; 42 min (wall includes lock waits) | – | second: only the research-index test fails |
 | 2026-11-11 | E4 `rang-core run` on A1 small (flag, calibrate, apply, image; `examples/ms-to-image/config.yaml`), native Windows, 2 threads, no heavy lock (CPU-light) | 12,480 rows × 64 ch × 4 corr, 41 MB | 9.7-11.7 s (2.0, 1.7, 1.3-1.9, 3.5-3.8 s) | – | host shared with E2; `tools/e2e/run.py` 16.5 s with generation; notebook 00 under papermill 24.9-30.1 s; research/e4-tutorial.md |
+| 2026-11-10 | E2 fetch leg b, `e2_fetch.py` (stdlib, whole S3 objects, SHA-256 each) | LUNO MAIN_16-19, 3,734 objects, 36.27 GB | 3,354 s | – | 10.8 MB/s; rc 0 |
+| 2026-11-10 | E2 fetch leg d, the same | LUNO MAIN_0-1, 3,422 objects, 31.51 GB | 2,645 s | – | 11.9 MB/s; rc 0 |
+| 2026-11-10/11 | E2 fetch leg a, the same | ESO137 ms1 MAIN_4-5 + target MAIN_4, 7,777 objects, 180.02 GB | first attempt 50 min rc 1 (an S3 folder key); resumed, done 01:35:12 | – | rc 0 |
+| 2026-11-10 | E1b chain `rang-core run`, twin `auto` (`-06`) | the small twin | 1,138 s | – | including heavy-lock wait from 23:10 (load 94 %); score 1 s |
+| 2026-11-10/11 | E1b chain `rang-core run`, m32 `auto` (`-04`) | m32 copy | 1,855 s | – | rc 0 |
+| 2026-11-11 | E1b chain `rang-core run`, m32 m000 (`-05`) | m32 copy | 1,848 s | – | rc 0 |
+| 2026-11-11 | E1b control (`e1b_run.py control`), first attempt, both m32 arms | – | 119 s each | – | rc 1: G8's gemclean command passed as one token; fixed |
+| 2026-11-11 | E1b control, m32 m000 (`-05`) | – | 202 s | – | rc 0 (the `-04` control: 12:29-13:16, mostly heavy-lock wait) |
+| 2026-11-11 | E1b score `e1b_score.py chain`, `-04` / `-05` | – | 899 s / 9,289 s | – | rc 0; both include heavy-lock waits (the `-05` score waited behind other sessions' check-alls) |
+| 2026-11-11 | E2-avg LUNO `e2_convert.py build` + `verify` | LUNO scans 1-2 (MAIN_0-1), 3.87e9 cells | 133 s + 130 s | – | 0 cells differ (2026-11-11 00:41) |
+| 2026-11-11 | E2-avg LUNO `rang-core run`, calibrate only, `average_time: true`, 8 GiB | luno-dev.ms, 56 antennas, 4,096 channels | 1,807 s (CPU 2,178 s) | 2.87 GB | K, G, B, Gpol, KCROSS, Xf, Df |
+| 2026-11-11 | E2-avg CASA 6.7.6.14, CARACal's 11 calls (`rang-o-casa`) | copy of luno-dev.ms | 2,357 s | – | third attempt; the first two (2,478 s, then from call 7) were killed by a WSL restart and a host restart |
+| 2026-11-11 | E2-avg score (`e2avg_luno.py score`) | rang and CASA tables | 220 s | – | Gpol not class B |
+| 2026-11-11 | E2-avg post hoc CASA `initweights(ones)` + Gpol | the CASA copy | 515 s | – | Gpol unchanged (1.4e-4° p95) |
+| 2026-11-11 | E2-avg post hoc `cal_pol.gpol` rerun, control / channel-averaged kernel | luno-dev.ms scan 1, 4 threads (shared slot) | 690 s / 509 s | – | control equals the frozen table to 1.5e-6° |
+| 2026-11-11 | E2-avg check-all (`maturin develop --release` + `python -m rang.check`, heavy-lock shared 8 slots), twice | worktree fp-e2-averaging | 1,384 s; 1,478 s (both including queue waits) | – | first FAIL only on the research index (the new note), second PASS: 1,049 passed, 70 skipped, gain hashes PASS |

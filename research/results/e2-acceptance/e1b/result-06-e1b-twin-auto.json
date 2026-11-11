@@ -1,0 +1,161 @@
+{
+ "mode": "twin",
+ "version": "small",
+ "ms": "D:\\rang\\outputs\\e2-20261110-06-e1b-twin-auto\\ms\\a1-small-twin.ms",
+ "scorer": "e1b_score",
+ "refant": [
+  "m008",
+  "m024",
+  "m032"
+ ],
+ "terms": {
+  "K": {
+   "per_solution": [
+    {
+     "scan": 1,
+     "hand": 0,
+     "abs_e_ns": {
+      "n": 16,
+      "median": 0.022312946617603302,
+      "p95": 0.06658976897597313,
+      "max": 0.08858192712068558
+     }
+    },
+    {
+     "scan": 1,
+     "hand": 1,
+     "abs_e_ns": {
+      "n": 16,
+      "median": 0.03413167502731085,
+      "p95": 0.06963250134140253,
+      "max": 0.08518895599991083
+     }
+    },
+    {
+     "scan": 23,
+     "hand": 0,
+     "abs_e_ns": {
+      "n": 16,
+      "median": 0.022312946617603302,
+      "p95": 0.06658976897597313,
+      "max": 0.08858192712068558
+     }
+    },
+    {
+     "scan": 23,
+     "hand": 1,
+     "abs_e_ns": {
+      "n": 16,
+      "median": 0.03413167502731085,
+      "p95": 0.06963250134140253,
+      "max": 0.08518895599991083
+     }
+    }
+   ],
+   "max_abs_e_ns": 0.08858192712068558,
+   "pass": false
+  },
+  "composite": {
+   "target_1gc": {
+    "abs_rel_error": {
+     "n": 860160,
+     "median": 1.0078463842176113e-06,
+     "p95": 1.5992077430183168e-05,
+     "max": 0.00012128755690415503
+    },
+    "pass": false
+   },
+   "J1939-6342": {
+    "abs_rel_error": {
+     "n": 184320,
+     "median": 9.930362931053041e-05,
+     "p95": 0.004845940416841292,
+     "max": 0.010614993713148812
+    },
+    "reported": true
+   },
+   "SIM-GCAL": {
+    "abs_rel_error": {
+     "n": 307200,
+     "median": 0.0019514953522005597,
+     "p95": 0.013596443364192202,
+     "max": 0.05666896916985109
+    },
+    "reported": true
+   },
+   "3C286-SIM": {
+    "abs_rel_error": {
+     "n": 245760,
+     "median": 0.001470139056242372,
+     "p95": 0.007272152117058481,
+     "max": 0.01795607031347254
+    },
+    "reported": true
+   }
+  },
+  "crosshand": {
+   "kcross_ns": [
+    0.02308952808380127,
+    -0.0066106319427490234,
+    0.0481257438659668,
+    -0.0414501428604126
+   ],
+   "kcross_truth_eff_ns": 0.6695561408996582,
+   "kcross_reference_hz": 1284000000.0,
+   "refant_gauge": {
+    "refant_list": [
+     "m008",
+     "m024",
+     "m032"
+    ],
+    "refant_per_channel_detected": true,
+    "refants_used": {
+     "m008": {
+      "channels": 64,
+      "g_xy_phase_mean_deg": -82.05299934218458,
+      "xcal_integrations": 16,
+      "spread_xcal_deg": {
+       "rms": 7.54660636311227,
+       "max_abs": 9.198886878907519
+      },
+      "spread_target_deg": {
+       "rms": 9.389965190650853,
+       "max_abs": 14.085127649146969
+      }
+     }
+    },
+    "kcross_refant": "m008"
+   },
+   "combined": {
+    "max_abs_rad": 0.2556978452385774,
+    "pass": false
+   },
+   "kcross": {
+    "max_abs_ns": 0.0481257438659668,
+    "reported": true
+   },
+   "xf": {
+    "max_abs_rad": 0.14597166913235154,
+    "reported": true
+   }
+  },
+  "Df": {
+   "max_abs": 0.007490693936762076,
+   "pass": false
+  },
+  "F": {
+   "fluxscale": {
+    "SIM-GCAL": {
+     "fitted_flux_err_jy": 0.0,
+     "fitted_flux_jy": 4.292123515110396,
+     "per_window_flux_jy": [
+      4.292123515110396
+     ],
+     "reference_frequency_hz": 1284000000.0,
+     "spectral_index": 0.0
+    }
+   },
+   "truth_gcal_jy_at_1284mhz": 4.213116356068646
+  }
+ }
+}

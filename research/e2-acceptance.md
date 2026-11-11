@@ -5,9 +5,9 @@ main `8d3becd`, 2026-11-10. Native Windows (`.venv` with uv, Python 3.14);
 WSL only for the Linux oracles (CASA 6.7.6.14, Tricolour 0.2.1, WSClean 3.7,
 QuartiCal 0.2.7).
 
-**Status (2026-11-11, halted): part 1 (item 27, the E1b protocol) committed;
-E1b's chains ran, its m32 controls and scores did not yet (section 4). E2's
-protocol is a draft, not frozen; no E2 visibility has been decoded.**
+**Status (2026-11-11): E1b measured (section 5: the image gate met, the rest
+as E1); `average_time` merged (validated on LUNO except Gpol). E2's protocol:
+the draft, being finalised; no E2 cube decoded by this task.**
 
 Owner answers that bind this task (finish-plan section 7): item 6 (split legs,
 E2-N open, fetches approved), item 27 (E1's decisions, all done before the
@@ -269,6 +269,60 @@ runs.
 5. Finalise the E2 protocol from the draft (set `average_time`, copy A0's
    gates verbatim as appendix A), commit; build the wheel, convert and verify
    the MSs, run E2-B then E2-A under `e2_timed.py`, then the oracle arms.
+
+## 5. E1b results (measured 2026-11-11, against E1's frozen gates)
+
+Runs `D:\rang\outputs\e2-20261110-04-e1b-auto`, `-05-e1b-m000` (chains of
+2026-11-10, rc 0; controls and scores 2026-11-11 by `e1b_rest.sh`, rc 0:
+`-04` control 12:29-13:16 including lock waits, score 13:16-13:31; `-05`
+control 13:31-13:34, score 13:34-16:09 including lock waits), twins `-06`,
+`-07`. Numbers: `result-e1b.json` / `result-e1b-twin.json` in each run;
+compact copy [results/e2-acceptance/e1b-gates.json](results/e2-acceptance/e1b-gates.json)
+(`e1b_table.py`); the full result files and configurations in
+[results/e2-acceptance/e1b/](results/e2-acceptance/e1b/). The flag stage's FLAG equals E1's (the same 530 cells
+against Tricolour), so Tricolour was not rerun. E1 column: e1-chain.md 7.2.
+CASA column: 2.4 (its matching refant arm). Each class T entry is
+median(|e| / s), gate ≤ 3.
+
+| Gate (E1 4) | E1 (m000) | E1b `auto` (m022, m023, m024) | E1b m000 | CASA arm | Verdict, both arms |
+| --- | ---: | ---: | ---: | ---: | --- |
+| K, class T (m32) | 5,160 | 5,680 | 5,160 | 5,860 / 6,040 | **not met**, CASA too |
+| Target 1GC composite (median \|e\|) | 33.2 (4.2e-3) | 35.7 (4.7e-3) | 32.4 (4.1e-3) | 55.5 / 46.0 | **not met**, CASA too |
+| Cross-hand `arg(Kc Xf)` | 195 | 760 | 150 | 820 / 75.6 | **not met**; `auto` CASA too; m000 about half rang only |
+| KCROSS | 14,628 | 17,146 | 11,158 | 1.7e4 / 1.1e4 | **not met**, CASA too |
+| Xf | 1,788 | 1,790 | 1,301 | 1,970 / 1,310 | **not met**, CASA too |
+| Df | 18.9 | 71.8 | 14.2 | 69.9 / 27.7 | **not met**, CASA too |
+| Twins, class T (1e-5) | composite max 1.2e-4 | composite median 1.0e-6, p95 1.6e-5, max 1.2e-4 | 1.6e-6, 1.7e-5, 1.2e-4 | CASA m000 the same | **not met**, CASA too |
+| Flags: recall ≥ 0.90 | 0.8858 | 0.8858 | 0.8858 | Tricolour 0.8858 | **not met** (the strategy) |
+| Flags: false positives = Tricolour's; 3a | +234, 530 cells | +234, 530 cells | +234, 530 cells | – | **not met** (owner item 33(2): accepted, documented) |
+| Image, Stokes I: \|median r − 1\| ≤ 0.01, scatter ≤ 0.01, offsets ≤ 0.1 beam (scorer 2.3, validated) | 1.0233, 1.44 % (scorer not validated) | 1.0020, 0.59 %, max 0.049 beam | 0.9942, 0.52 %, max 0.046 beam | – | **met**, both arms (frozen scorer: 1.0022, 0.52 %; 0.9942, 0.53 %) |
+| Residual ≤ 1.1 × control | 3.16 × | 2.40 × | 3.07 × | – | **not met** |
+| Polarisation (components 0, 17, 30, 40: \|Δp\| ≤ 0.2 points, \|Δχ\| ≤ 1°), final column | not met | Δp −0.31, −0.75, −0.58, +0.41 points; Δχ +4.67, +0.34, +2.41, +0.18° | Δp −0.15, +0.03, +0.53, +0.65; Δχ +4.08, −1.78, −0.30, −2.18° | m000 asecflags: Δp −0.12 to −1.55, Δχ −2.0 to +1.4° | **not met** |
+| Polarisation, 1GC column (reported) | Δp −0.10 to −1.62 | Δp −0.19, −0.74, −0.93, +0.17; Δχ −0.76, −0.23, +8.07, +1.21° | Δp −0.10, −0.31, −0.48, −1.62; Δχ +0.19, −1.68, +1.31, −0.73° | – | – |
+| Leakage ≤ 0.1 %: SIM-GCAL median; every target point | 0.54 %; 0.47-1.1 % | 1.07 % (p95 8.6 %); 0.25-1.27 % | 0.54 % (p95 2.6 %); 0.46-1.11 % | 2.0 % / 0.47 % | **not met**, CASA too |
+| Self-calibration, class T | 32.6, 45.7 | 30.3, 39.5 | 34.4, 45.4 | – (no CASA selfcal) | **not met**, as expected (item 29) |
+| Selfcal against C5's T2 (reported): r1 phase median, p95; r2 phase; r2 amplitude | 0.76°, 3.15°; 0.61°, 2.32°; 0.97 %, 2.93 % | 0.77°, 3.08°; 0.56°, 3.64°; 1.02 %, 9.07 % | 0.80°, 3.28°; 0.62°, 2.39°; 0.95 %, 2.87 % | – | r1 p95 and r2 phase miss in both arms; `auto` r2 amplitude p95 misses too |
+
+On the control column (`CORRECTED_TRUTH`) every polarisation and leakage
+measure passes in both arms (|Δp| ≤ 0.14 points, |Δχ| ≤ 0.25°, points ≤ 0.06 %),
+so the visibility-domain estimators stay validated.
+
+**Reading, against "Expected before the run" (section 3).** As expected: the
+`auto` arm's cross-hand (760 against m000's 150), Df (71.8 against 14.2) and
+SIM-GCAL leakage (1.07 % against 0.54 %) are worse through A1's refant X−Y
+drift (2.1), and CASA's `auto` arm is as bad (820, 69.9, 2.0 %);
+self-calibration fails class T in both arms; the flag gates are E1's. Not
+expected: the image gate is **met** in both arms once the scorer is validated
+(E1 had only the unvalidated reading); and the m000 arm's cross-hand error
+(150) is below E1's 195 (between them: `niter`, now 1e6, and the code of item 27,
+and the selfcal refant rule; not traced). m000 reproduces E1's K (5,160) and
+composite (32.4 against 33.2). 3C286-SIM (reported): p 0.0952 both (truth
+0.095); |χ − 33°| median 0.95° (`auto`), 2.49° (m000).
+
+**Owner item 33(1)**: polarisation is reported for both arms above; on A1's
+truth every refant except m000 drifts 13-22° rms in X−Y (2.1), so with
+CARACal's strategy 1 the `auto` arm's leakage limit is the method's, in CASA
+too. A Df solve on the polarised calibrator is a post-release option.
 
 ## For the coordinator
 
