@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CARACal's automatic reference antenna (`refant: auto`), task E0.
 
 research/e0-refant-extend.md section 1.1. CARACal 8f7bb363's

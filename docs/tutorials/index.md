@@ -78,7 +78,8 @@ The frozen rules they quote, as `rang.core_campaign` and
 To run them yourself:
 
 ```sh
-pip install -e '.[notebook,imaging]'   # from a checkout; rang-core[notebook,imaging] once released
+pip install -e '.[notebook,imaging]'   # from a checkout (the notebooks follow main)
+pip install 'rang-core[notebook,imaging]>=0.2.0'   # or from PyPI, once 0.2.0 is released
 pip install -e '.[pointing,beam]'      # notebook 7: JAX and katbeam
 export RANG_NOTEBOOK_CACHE=/path/of/your/choice   # default ~/.cache/rang-notebook
 jupyter lab notebooks/

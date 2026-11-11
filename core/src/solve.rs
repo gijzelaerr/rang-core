@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later AND MIT
 //! Full-Jones `complex` gain solver, ported from QuartiCal 0.2.7.
 //!
 //! Portions are a Rust translation of `quartical/gains/complex/kernel.py`,

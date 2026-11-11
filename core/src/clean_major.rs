@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Major and minor cycles of CLEAN as inexact Newton on the misfit: a driver
 //! whose visibility passes are scheduled by a provable rule, an exact
 //! FFT-batched subtraction on the double-size grid, and an optimisation phase

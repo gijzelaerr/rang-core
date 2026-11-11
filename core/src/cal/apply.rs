@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Apply (correct) and corrupt a chunk of visibilities by calibration terms
 //! (task C4a, `research/c4a-apply.md`; C1 step 2,
 //! `research/c1-calibration-chain.md` section 3.1).

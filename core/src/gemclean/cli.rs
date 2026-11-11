@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The command line of `gemclean`, a reference CLEAN imager for Measurement
 //! Sets with WSClean-like flags (`research/gemclean.md`). One code for both
 //! front ends (task G8, `research/g8-wheel.md`): the source build's binary

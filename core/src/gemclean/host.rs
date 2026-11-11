@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Wall time, process CPU time and whole-machine load of a timed interval,
 //! so a timing can be judged afterwards on a shared host.
 //!

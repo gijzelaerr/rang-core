@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Blosc-1 chunk decoding for zarr ingest (research/core-section6.md).
 //!
 //! Supports what the public MeerKAT zarr stores use: format version 2,

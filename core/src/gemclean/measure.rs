@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! A measurement with reusable buffers, optionally gridding in single
 //! precision, for gemclean's major cycles.
 //!

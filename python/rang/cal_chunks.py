@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Chunked reading and solving of the CASA-style terms (task W3b,
 research/w3b-chainchunks.md).
 

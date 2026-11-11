@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! W-stacking gridder, ported from WSClean 3.6-1.
 //!
 //! A Rust translation of the inversion path of `gridding/wstackinggridder.cpp`,

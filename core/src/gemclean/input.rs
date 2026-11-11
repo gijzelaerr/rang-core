@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Measurement Set input of gemclean: Stokes I visibilities, WSClean's
 //! imaging weights and the field and band metadata, through the core's own
 //! read-only reader ([`crate::ms`]).

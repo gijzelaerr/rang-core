@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The self-calibration terms Sp, Sa and Sd (task C5, research/c5-selfcal.md;
 C1's T12, research/c1-calibration-chain.md).
 

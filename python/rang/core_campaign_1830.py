@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The LUNO PKS 1830-211 campaign on the core (research/luno-1830-campaign.md).
 
 Task L2 of research/big-plan.md: the whole-array campaign of task L1

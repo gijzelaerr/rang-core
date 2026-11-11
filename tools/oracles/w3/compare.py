@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W3 comparisons (research/w3-chunking.md, section 3).
 
     python compare.py hashes MS OUT.json       # SHA-256 per column and flag version, casacure

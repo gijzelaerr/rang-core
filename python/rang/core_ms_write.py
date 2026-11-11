@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Writes casacore tables at the edge of the Rang core.
 
 research/e3-table-writer.md and research/e4-table-create.md.

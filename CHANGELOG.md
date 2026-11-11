@@ -9,6 +9,18 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (E5 pre-review "Later" findings, `research/e5-prereview.md` section 2.3): `image.fits_mask`
+  and a selfcal FITS `cleanmask_method` are read relative to the configuration file, as `flag.strategy`
+  and `calibrate.model.lsm`; **deprecated:** a mask found only relative to the working directory is still
+  used, with a warning, and a mask found in neither place is refused before anything runs (E5-41).
+  Repeated YAML keys are refused with their line numbers (PyYAML kept the last one). Unknown commands and
+  options exit 2 on stderr (was 1); `--version` works after other global options; `run --force STAGE` of a
+  stage outside `run.stages` is refused; the complex-term refusals and unknown term keys say what to change
+  (E5-40). Data whose OBSERVATION `TELESCOPE_NAME` is not MeerKAT run with a warning, and `state.json`
+  records `telescope` (E5-39). A flag version left unlisted by a kill is listed by the next save of the same
+  flags; a flag version the last attempt recorded but the MS no longer has is warned about
+  (`restore_missing`) (E5-42). Every source file carries an SPDX `GPL-3.0-or-later` line (E5-45).
+
 - Changed (owner decisions on the E5 pre-review, `research/e5-prereview.md` section 3): receipts are
   `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file
   sizes and mtimes), not a full content hash; the stage summaries hash the flags, gain solutions and images

@@ -39,7 +39,9 @@ into MODEL_DATA, an Sp, Sa or Sd solve, apply; {gh}`research/c5-selfcal.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
-`rang_original`, and before each stage writes as `rang_<stage>_<UTC time>`.
+`rang_original`, and before each stage writes flags as
+`rang_<stage>_<UTC time>` (the MODEL_DATA that image and selfcal write
+leaves FLAG alone and saves none).
 The Stimela2 recipe `recipes/rang-chain.yaml` runs `flag`, `calibrate`,
 `apply` and `image` in order, each as the command above
 (`stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms`; the cabs

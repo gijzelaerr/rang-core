@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Independent readers used as test oracles for the core's table I/O.
 
 Optional and never imported by the core: `rang.oracles.casacure` needs the

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Simulated truth for E1 and C2 to C7 (task A1, research/a1-simtruth.md).
 
 A MeerKAT L-band observation in full polarisation with known sky, Jones

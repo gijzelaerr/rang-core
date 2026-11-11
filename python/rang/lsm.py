@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Compatibility module: the Tigger ASCII reader moved to `rang.formats.sky`
 (research/dfio-formats.md). Everything `rang.lsm` exported is re-exported
 unchanged, private helpers included, so that L1-M's callers and archives

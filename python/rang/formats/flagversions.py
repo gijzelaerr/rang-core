@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CASA flag versions (`<ms>.flagversions/`; research/dfio-formats.md, F6,
 and research/w1-writeback.md, W1).
 
@@ -152,15 +153,21 @@ def save(
     top.mkdir(exist_ok=True)
     final = top / f"flags.{name}"
     partial = top / f"flags.{name}{PARTIAL}"
-    if final.exists():
-        raise ValueError(f"{final} exists but is not listed; remove it first")
-    shutil.rmtree(partial, ignore_errors=True)
 
     def source(start, n):
         if given:
             return flag[start : start + n], flag_row[start : start + n]
         with core_ms.open_table(ms) as t:
             return t.getcol("FLAG", start, n), t.getcol("FLAG_ROW", start, n)
+
+    if final.exists():
+        # A save killed between the rename and the list line (E5-42, WB-10):
+        # the version is complete; list it if it holds exactly these flags.
+        if partial.exists() or _differs(final, nrow, source, chunk_rows):
+            raise ValueError(f"{final} exists but is not listed; remove it first")
+        _list(top, name, comment)
+        return final
+    shutil.rmtree(partial, ignore_errors=True)
 
     t = _create(partial, name, nrow, nchan, ncorr)
     try:
@@ -179,27 +186,44 @@ def save(
     finally:
         t.close()
     # Read back and compare before the version counts as saved.
-    with core_ms.open_table(partial) as v:
+    differs = _differs(partial, nrow, source, chunk_rows)
+    if differs:
+        raise RuntimeError(f"flag version {name}: {differs}")
+    os.replace(partial, final)
+    _fsync_dir(top)
+    _list(top, name, comment)
+    return final
+
+
+def _differs(path, nrow, source, chunk_rows):
+    """Why the version table at `path` does not hold `source`'s rows, or ''."""
+    try:
+        v = core_ms.open_table(path)
+    except (OSError, ValueError, RuntimeError) as exc:  # not this version
+        return f"{path} cannot be read ({exc})"
+    with v:
         if v.nrows != nrow:
-            raise RuntimeError(f"flag version {name}: {v.nrows} rows, expected {nrow}")
+            return f"{v.nrows} rows, expected {nrow}"
         for start, n in spans(nrow, chunk_rows):
             f, r = source(start, n)
             if not (
                 np.array_equal(v.getcol("FLAG", start, n), f)
                 and np.array_equal(v.getcol("FLAG_ROW", start, n), r)
             ):
-                raise RuntimeError(
-                    f"flag version {name}: rows {start}-{start + n - 1} read back "
-                    "differently from what was written"
+                return (
+                    f"rows {start}-{start + n - 1} read back differently from what "
+                    "was written"
                 )
-    os.replace(partial, final)
-    _fsync_dir(top)
+    return ""
+
+
+def _list(top, name, comment):
+    """Append `name`'s line to the version list, durably."""
     with (top / LIST).open("a", encoding="utf-8", newline="\n") as fh:
         fh.write(f"{name} : {comment}\n")
         fh.flush()
         os.fsync(fh.fileno())
     _fsync_dir(top)
-    return final
 
 
 def load(ms, name, startrow=0, nrow=None):

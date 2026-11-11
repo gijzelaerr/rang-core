@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The gain term G: diagonal complex (`calmode='ap'`) and phase-only (`'p'`)
 solves in the Rust core, with CASA's intervals and rules (task C2a,
 research/c2a-gain.md; C1 step 3, research/c1-calibration-chain.md).

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Component DFT and smooth pointing inference; optional JAX reference path.
 
 Enable JAX 64-bit mode in the application before creating arrays. Importing

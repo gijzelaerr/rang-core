@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Usage: bash tools/wheel/build.sh OUT_DIR [x86_64|aarch64]
 #
 # Builds the distributable rang wheel (abi3-py310, manylinux_2_28) and the

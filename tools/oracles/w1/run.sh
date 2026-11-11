@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # W1 oracle run into a fresh directory (research/w1-writeback.md).
 # Usage: bash tools/oracles/w1/run.sh /mnt/d/rang/w1/w1-20261106-NN
 # Needs the worktree .venv and the images rang-o-casa:6.7.6.14,

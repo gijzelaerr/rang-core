@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Open images and cubes in CARTA from a notebook (research/nb-carta.md).
 
 Optional. CARTA (https://cartavis.org, GPL-3.0) shows large images and

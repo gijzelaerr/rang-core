@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """F3 arm A (research/f3-flagger.md, section 2): AOFlagger 3.5's shipped
 generic-default.lua per baseline on the four correlations (8 real images),
 with the input mask, inside rang-aflag-aoflagger:3.5.0.

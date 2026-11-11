@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! CASA's rules around a gain solve (task C2a, `research/c2a-gain.md`; C1
 //! step 3): `minblperant` before the solve, `minsnr` after it, and the
 //! reference antenna over the finished table. Written from CASA's rules as

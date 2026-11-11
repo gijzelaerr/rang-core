@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Pinned WSClean dirty-image evaluation of frozen MeerKAT gain controls.
 
 Verbatim extract of the frozen `rangtoy.flagging_imaging` (big plan task P11,

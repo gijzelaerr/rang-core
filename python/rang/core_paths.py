@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Read-only boundary validation before any copied prepared-MS flag writes.
 
 Verbatim extract of the frozen `rangtoy.flagging_prepared` (big plan task P11,

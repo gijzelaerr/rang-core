@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CARACal's crosscal sequence for one calibrator, issued by hand in CASA 6.7.6.
 
 Runs in the O-CASA image's CASA venv (/opt/casa/bin/python). The calls and

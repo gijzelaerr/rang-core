@@ -20,7 +20,9 @@ into MODEL_DATA, an Sp, Sa or Sd solve, apply; {gh}`research/c5-selfcal.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
-`rang_original`, and before each stage writes as `rang_<stage>_<UTC time>`.
+`rang_original`, and before each stage writes flags as
+`rang_<stage>_<UTC time>` (the MODEL_DATA that image and selfcal write
+leaves FLAG alone and saves none).
 The Stimela2 recipe `recipes/rang-chain.yaml` runs `flag`, `calibrate`,
 `apply` and `image` in order, each as the command above
 (`stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms`; the cabs
@@ -89,8 +91,8 @@ $ rang-core flag -h
 usage: rang-core flag [-h] [--run-dir RUN_DIR] [--force] config ms
 
 flag with the Tricolour port, writing FLAG. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -110,8 +112,8 @@ $ rang-core calibrate -h
 usage: rang-core calibrate [-h] [--run-dir RUN_DIR] [--force] config ms
 
 solve the calibration terms, writing tables. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -131,8 +133,9 @@ $ rang-core apply -h
 usage: rang-core apply [-h] [--run-dir RUN_DIR] [--force] config ms
 
 apply the complex solutions, writing CORRECTED_DATA. Validates the
-configuration for every stage first; a finished stage is skipped unless
-forced, a failed one runs again.
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -151,8 +154,9 @@ options:
 $ rang-core image -h
 usage: rang-core image [-h] [--run-dir RUN_DIR] [--force] config ms
 
-image with gemclean. Validates the configuration for every stage first; a
-finished stage is skipped unless forced, a failed one runs again.
+image with gemclean. Validates the configuration for the stages it runs first.
+A finished stage is skipped, or refused when its configuration changed, unless
+forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -172,8 +176,9 @@ $ rang-core selfcal -h
 usage: rang-core selfcal [-h] [--run-dir RUN_DIR] [--force] config ms
 
 self-calibrate in rounds (image, model, solve, apply). Validates the
-configuration for every stage first; a finished stage is skipped unless
-forced, a failed one runs again.
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -193,8 +198,8 @@ $ rang-core run -h
 usage: rang-core run [-h] [--run-dir RUN_DIR] [--force STAGE] config ms
 
 the stages of run.stages in order, resuming. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -204,7 +209,8 @@ options:
   -h, --help         show this help message and exit
   --run-dir RUN_DIR  the run directory with state.json (default: <ms>.rang-run
                      beside the MS)
-  --force STAGE      run a finished stage again (repeatable; all: every stage)
+  --force STAGE      run a finished stage of run.stages again (repeatable;
+                     all: every stage of run.stages)
 ```
 
 ## `config`
@@ -315,7 +321,7 @@ image:
   auto_mask: null  # radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)
   abs_auto_mask: null  # the automatic mask at this many Jy (-abs-auto-mask)
   auto_mask_nmiter: null  # major cycles after the mask is made (null: WSClean's 2)
-  fits_mask: null  # a FITS mask of the image's size, one plane
+  fits_mask: null  # a FITS mask of the image's size, one plane (relative to this file)
   taper_gaussian: null  # a Gaussian taper, such as 10asec (a plain number is asec)
   taper_tukey: null  # Tukey transition below maxuv_l, wavelengths
   taper_inner_tukey: null  # Tukey transition above minuv_l, wavelengths
@@ -323,7 +329,7 @@ image:
   maxuv_l: null  # longest uv distance imaged, wavelengths
   minuvw_m: null  # shortest baseline |uvw| imaged, metres
   maxuvw_m: null  # longest baseline |uvw| imaged, metres
-  uvrange: ""  # not read: use minuv_l, maxuv_l, minuvw_m and maxuvw_m
+  uvrange: ""  # refused when set: use minuv_l, maxuv_l, minuvw_m and maxuvw_m
   multiscale: false  # multiscale CLEAN (WSClean's -multiscale)
   multiscale_scales: null  # scales in pixels (null: WSClean's automatic scales)
   multiscale_max_scales: null  # at most this many automatic scales (null: all that fit)
@@ -343,7 +349,7 @@ selfcal:
   gain_clip: [0.5, 2.0]  # gain amplitudes kept, [low, high] (CARACal's cal_gain_cliplow and cliphigh); [] for none
   minuvw_m: 0.0  # baselines shorter than this (metres) are not solved
   clean_cutoff: []  # per image, the auto_threshold (sigma) of image 1, 2, ..., the final image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold
-  cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path ({field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
+  cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path (relative to this file; {field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
 run:
   stages: ["flag", "calibrate", "apply", "image", "selfcal"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal

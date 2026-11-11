@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The file formats of the tools the core replaces (research/dfio-formats.md).
 
 - `caltable`: CASA calibration tables (G, B, K, T, Df), read into

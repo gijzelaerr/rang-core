@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! AipsIO serialisation and casacore records for the table writer
 //! (research/e3-table-writer.md).
 //!

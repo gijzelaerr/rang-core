@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The w-stacking gridder on the GPU through `wgpu` (big-plan task X2,
 //! `research/x2-wgpu.md`), behind the cargo feature `gpu`.
 //!

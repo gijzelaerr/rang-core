@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The bandpass B: a diagonal complex gain per channel, with CASA's
 `bandpass(bandtype='B')` rules (task C2c, research/c2c-bandpass.md part 2;
 C1 step 5, research/c1-calibration-chain.md).

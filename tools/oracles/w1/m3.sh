@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # W1 M3 checks (research/w1-writeback.md, tolerances 3e and 7): an MS of
 # 8,192 rows x 1,024 channels x 4 correlations written by the core writer,
 # then the memory run and SIGKILL at 8 times spread over a FLAG write.

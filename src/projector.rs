@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Stable nuisance elimination for small calibration blocks.
 //!
 //! Column-pivoted Householder QR rotates the targets into nuisance-orthogonal

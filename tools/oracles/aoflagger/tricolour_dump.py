@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Tricolour 0.2.1 per-pass dump for A-FLAG (research/a-flag-aoflagger.md, 2.3).
 
 Usage (Tricolour 0.2.1 venv, RV1's `venv-tric021` resolution):

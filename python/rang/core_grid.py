@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W-stacking gridder of the Rang core (research/core-c-gridder.md).
 
 The Rust module ports WSClean 3.6-1's `WStackingGridder` inversion path. This

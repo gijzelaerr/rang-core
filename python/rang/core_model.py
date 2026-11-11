@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """MODEL_DATA from gemclean's model images through W1's write-back (task G6).
 
 `rang-core image` with `image.write_model: true` runs gemclean with

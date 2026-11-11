@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Sky-model formats (research/dfio-formats.md, F3; was `rang.lsm`).
 
 One `Source` list for every text format:
