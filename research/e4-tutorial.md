@@ -55,8 +55,9 @@ The notebook explains each configuration section and shows each output:
 - the receipt.
 
 It also shows two refusals with exit 2: circular feeds (`flag`, and the MS
-is unchanged) and `pol: IQUV` with `write_model` (`config check`). Every
-number in the notebook is printed by a cell, none is typed into the prose.
+is unchanged) and `pol: IQUV` with `write_model` (`config check`). The
+results are printed by cells. The prose quotes only A1's design values
+(sizes, σ, field layout) and the flagging numbers of section 3.
 
 ## 3. Measured (one local run; Windows x86_64, 2 threads, 2026-11-11)
 
@@ -79,15 +80,22 @@ deleted afterwards.
 | Residual rms | 0.70 mJy/beam: 18× the natural-weighting thermal estimate (0.039 mJy/beam). A1's S term (10.5° rms phase, 1.0 % amplitude on the target only) and Briggs 0 weighting both raise it; the two are not separated |
 | The same image from uncalibrated DATA | residual rms 1.82 mJy/beam; brightest point not recovered (0.002 Jy/beam) |
 
-**Flagging is not a result here.** With the static mask over every
-baseline, the strategy flags 61 % of A1 small (recall 0.987). On channels
-of 13.4 MHz the mask covers most of the band. CARACal's calibrator
-first-pass strategy flags 31 % (recall 0.758 / 0.959). Without the static
-mask, SumThreshold at 4.5-6σ recalls 1.6-5 % of the RFI, about its false-flag
-rate. The tutorial strategy applies the mask on baselines up to 1 km only,
-as CARACal's `uvrange_static_mask` step does. It was picked from seven
-variants on this one MS, so it is tuned to it. The tutorial and the strategy
-file both say so.
+**Flagging is not a result here.** Nine strategies and CARACal's were run
+on A1 small. The script is
+[results/e4-tutorial/flag_variants.py](results/e4-tutorial/flag_variants.py)
+and the numbers are in
+[flag_variants.json](results/e4-tutorial/flag_variants.json). The static
+mask on every baseline flags 57.8 % of the cells by itself (recall 0.985),
+and 61.3 % with SumThreshold added. On channels of 13.4 MHz the mask covers
+most of the band. CARACal's calibrator first pass flags 31.4 % (recall
+0.758 / 0.959). It applies the mask on every baseline, then again up to
+550 m. Without the mask, SumThreshold at 4.5-6σ recalls 1.4-5.5 % of the
+mask cells, about its false-flag rate of 1.2-3.4 %. At the tutorial's 5σ
+that is 3.3 %. A uvcontsub step before it flags 39.5 % with recall 0.44:
+no better than chance. The tutorial applies the mask on baselines up to
+1 km only, unlike CARACal's 550 m, and flags 36.4 %. It was chosen on this
+one MS, so it is tuned to it. The tutorial and the strategy file both say
+so.
 
 **CI bounds** (`tools/e2e/run.py` BOUNDS) were chosen after this one run.
 They are wide enough to allow for other platforms' arithmetic:
@@ -142,7 +150,10 @@ and `rang` was imported from the installed wheel in every cell:
 | macos-x86_64 | 128 s | 13.6 s | 54.6 s | 0.3638 | 0.4957 | 0.705 | 29.00 × 4.97 | 1.630 |
 | windows-x86_64 | 51 s | 4.6 s | 11.0 s | 0.3638 | 0.4957 | 0.705 | 29.00 × 4.97 | 1.630 |
 
-The numbers agree across platforms to the digits shown. Only the
+The numbers agree across platforms to the digits shown. The next commit changed only comments in
+`strategy.yaml`, the notebook's prose, a research script and this note.
+None of them changes what `e2e` runs, so this run stands for that commit
+too. Only the
 MODEL_DATA maximum differs, in its fourth digit. Each cell finishes within
 the 5-minute aim, the slowest being macos-x86_64 at 128 s. The bounds of
 section 3 are much wider than the spread seen, so they could be tightened
