@@ -140,8 +140,9 @@ def test_t6_and_h3_are_seeded_wide_and_on_eligible_cells():
     code = 1 + f4.CODES.index("T6")
     cells = inj.morph == code
     assert cells.any()
-    widths = cells.sum(1)[cells.any(1)]
-    assert widths.max() <= int(0.45 * 128)
+    # per event: overlapping T6 events on one baseline row add up per row
+    assert all(9 <= e["width"] <= int(0.45 * 128) for e in t6)
+    assert cells.sum(1).max() <= sum(e["width"] for e in t6)
     rng = np.random.default_rng(0)
     ws = [f4.t6_width(rng, 2048) for _ in range(2000)]
     assert min(ws) >= 9 and max(ws) <= 400 and np.median(ws) > 40

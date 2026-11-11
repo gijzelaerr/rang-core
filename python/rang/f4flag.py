@@ -332,6 +332,7 @@ class Injector(f3.Injector):
             tm = self._run(min(2, self.nt), self.nt)
         env = None if rng.random() < 0.5 else raised_cosine(self.nc, chans)
         self.add("T6", bsel, tm, chans, envelope=env)
+        self.events[-1]["width"] = w
 
     def training(self):
         super().training()
