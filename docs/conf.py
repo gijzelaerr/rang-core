@@ -106,8 +106,13 @@ def _copy_notebooks(app):
     """Render executed copies when docs/execute_notebooks.py made them,
     otherwise the committed notebooks (no outputs)."""
     TUTORIALS.mkdir(parents=True, exist_ok=True)
-    # The tutorials, then the science notebooks (D3), into one flat directory.
-    sources = [*NOTEBOOKS.glob("*.ipynb"), *NOTEBOOKS.glob("science/*.ipynb")]
+    # The tutorials, the science notebooks (D3) and the introductory track
+    # (V3b), into one flat directory.
+    sources = [
+        *NOTEBOOKS.glob("*.ipynb"),
+        *NOTEBOOKS.glob("science/*.ipynb"),
+        *NOTEBOOKS.glob("intro/*.ipynb"),
+    ]
     for source in sorted(sources, key=lambda path: path.name):
         target = TUTORIALS / source.name
         if not target.exists() or target.stat().st_mtime < source.stat().st_mtime:

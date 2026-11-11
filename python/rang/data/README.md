@@ -24,3 +24,15 @@ from it for `refant: auto` (`research/e0-refant-extend.md`). The entries are
 positions of observatories, facts rather than code, recorded with their
 source as the antenna tables in the repository's `data/` are (owner decision
 E5-11); casacore-data's own licence was not checked.
+
+# MeerKAT antenna positions
+
+`meerkat.itrf.txt` (SHA256
+`cbca5dbe41867fd29878302c3f79f2e8e90fa2278677a2bc7f72ce791fb9e638`) is a byte
+copy of the repository's `data/meerkat.itrf.txt`: the 64 MeerKAT ITRF
+positions from simms, with their provenance in `data/README.md`. Positions of
+antennas are facts, not code (owner decision E5-11, `docs/licence.md`). It is
+package data since task V3b (V3's owner decision 4,
+`research/v3-intro-track.md`), so `rang.simtruth` and the A1 generator
+`python -m rang.simtruth_ms` run from a wheel. GeMClean's simulator compiles
+in the copy under `data/`; `tests/test_v3_intro.py` keeps the two identical.

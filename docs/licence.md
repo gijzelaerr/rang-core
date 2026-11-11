@@ -45,7 +45,10 @@ ship under rang-core's GPL-3.0-or-later with their source recorded in
 {gh}`data/README.md`. Only `meerkat.itrf.txt` ships in the sdist, because
 GeMClean's simulator compiles it in; the VLA, WSRT and KAT-7 tables feed the
 research examples only and stay in the repository (owner decision E5-11,
-2026-11-11, {gh}`research/e5-prereview.md`).
+2026-11-11, {gh}`research/e5-prereview.md`). A byte copy of
+`meerkat.itrf.txt` is package data (`python/rang/data/`), so the A1
+simulation (`rang.simtruth`, `python -m rang.simtruth_ms`) runs from a wheel
+(V3's owner decision 4, {gh}`research/v3-intro-track.md`).
 
 ## Data
 

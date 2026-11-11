@@ -53,8 +53,11 @@ C = 299_792_458.0
 MJD_S = 86400.0
 DEG = math.pi / 180.0
 ARCSEC = DEG / 3600.0
-ROOT = Path(__file__).resolve().parents[2]
-ITRF = ROOT / "data" / "meerkat.itrf.txt"
+# The 64 MeerKAT ITRF positions, package data since V3b (owner decision 4 of
+# research/v3-intro-track.md; facts, not code: E5-11, docs/licence.md), so A1
+# generates from a wheel. A byte copy of data/meerkat.itrf.txt, which GeMClean's
+# simulator compiles in; tests/test_v3_intro.py keeps the two identical.
+ITRF = Path(__file__).resolve().parent / "data" / "meerkat.itrf.txt"
 RECEPTOR_ANGLE = -math.pi / 2
 SEFD_JY = 420.0
 CORR = ("XX", "XY", "YX", "YY")

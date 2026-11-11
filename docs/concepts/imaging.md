@@ -49,6 +49,16 @@ agree within 6.1e-7 of the peak and template fluxes within 1.4e-7
 
 ## Deconvolution
 
-rang has no production deconvolver. The CLEAN study
-({doc}`../research/index`) implements Högbom and Clark iterations in
-`core/src/clean.rs` to measure what can and cannot be proven about them.
+GeMClean is rang's deconvolver: `gemclean` takes a Measurement Set to FITS
+with WSClean-style options (Högbom minor cycles with the exact image-domain
+value at each step, major cycles in the visibilities, multiscale, automatic
+masks, Stokes IQUV), and `rang-core image` runs it from a configuration
+({gh}`research/gemclean.md`, {gh}`research/g8-wheel.md`). Each minor cycle
+ends by a measured stop rule with a floor, `-stale-floor 0.01` by default
+({gh}`research/stale-floor.md`). Against WSClean built for the same CPU it is
+faster on 16 threads, not always on one, at 3-5 times the memory
+({gh}`research/gemclean-speed.md`). The CLEAN study
+({doc}`../research/index`, {gh}`research/clean-theory.md`) implements Högbom
+and Clark iterations in `core/src/clean.rs` to measure what can and cannot
+be proven about them. Notebook I7 ({doc}`../tutorials/notebooks/i7-imaging-and-deconvolution`)
+runs Högbom's loop by hand and then GeMClean on A1 small.

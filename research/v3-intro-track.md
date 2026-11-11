@@ -1,9 +1,12 @@
 # V3: an introductory notebook track, outline
 
-Task V3 of [vision.md](vision.md), 2026-11-11. Status: **proposed; outline
-only.** No notebook in this track exists. The notebooks get written after E4
-([finish-plan.md](finish-plan.md)), which in turn waits on E2 (resumed on the
-owner's word on 2026-11-11).
+Task V3 of [vision.md](vision.md), 2026-11-11. Status: **implemented
+(task V3b, 2026-11-11); runtimes measured.** The nine notebooks are in
+`notebooks/intro/`, linked from [docs/tutorials](../docs/tutorials/index.md),
+and executed by the docs workflow (I6-I8 nightly). Sections 1-5 are the
+outline as written before the notebooks, with the estimates it made; section
+6 records the coordinator's answers and section 8 what was built, measured
+and left open. Where the outline and section 8 differ, section 8 holds.
 
 ## 1. What the track is, and what it is not
 
@@ -43,12 +46,12 @@ open: [core-k-luno-campaign.md](core-k-luno-campaign.md)), the B1-0 holography
 product (CC BY-NC 4.0), ESO137 (16.4 GB per primary scan). A notebook may offer
 one of them behind an opt-in switch, as notebooks 06 and 07 do.
 
-Two install facts that shape the track. `rang.simtruth` reads
-`data/meerkat.itrf.txt` from the repository root (it is not package data), so
-I3, I4 and every A1-based notebook need a checkout, not just `pip install
-rang-core`; the track's install line is the one in
-[docs/tutorials](../docs/tutorials/index.md). Shipping the ITRF table in
-`python/rang/data` would lift this (a proposed follow-up, not V3's to make).
+Two install facts that shaped the track (as outlined; both fixed by V3b,
+section 8). `rang.simtruth` read `data/meerkat.itrf.txt` from the repository
+root (it was not package data), so I3, I4 and every A1-based notebook needed
+a checkout, not just `pip install rang-core`; the track's install line is the
+one in [docs/tutorials](../docs/tutorials/index.md). Shipping the ITRF table
+in `python/rang/data` would lift this.
 
 ## 3. The notebooks
 
@@ -245,8 +248,118 @@ as `RANG_NOTEBOOK_SLOW` does for notebook 07.
 4. **ITRF table as package data** (section 2), so A1-based notebooks run from a
    pip install.
 
-## 7. Follow-ups found while outlining (not done here)
+Answered by the coordinator for V3b (2026-11-11): (1) yes, these names;
+(2) A1 small and poldx, generated in the notebook as E4's tutorial does, plus
+the public fixture; (3) I1-I5 and I9 on every push, I6-I8 nightly; (4) yes:
+the coordinates are facts (owner decision E5-11, `docs/licence.md`).
+
+## 7. Follow-ups found while outlining (V3b fixed the one listed)
 
 - [docs/concepts/imaging.md](../docs/concepts/imaging.md), section
-  "Deconvolution", still says rang has no production deconvolver; GeMClean
-  is now on `main`.
+  "Deconvolution", said rang has no production deconvolver; GeMClean is on
+  `main`. **Fixed in V3b**: the section now describes GeMClean and links I7.
+
+## 8. V3b: what was built and measured (2026-11-11)
+
+**Implemented.** `notebooks/intro/i1-radio-sky.ipynb` … `i9-time-domain.ipynb`,
+linked from [docs/tutorials](../docs/tutorials/index.md) and the docs index.
+Each starts with learning goals, computes every number it quotes (or reads
+it from a tracked archive: I5 reads
+`research/results/e4-tutorial/flag_variants.json`), and ends with exercises
+and "where next" links to the concepts pages, notebooks 00-07 and research
+notes. Committed without outputs (`tests/test_v3_intro.py`).
+
+**Package changes for owner decision 4.**
+
+- `python/rang/data/meerkat.itrf.txt`: a byte copy of `data/meerkat.itrf.txt`
+  (SHA-256 `cbca5dbe…9e638`); `rang.simtruth.ITRF` points to it. The copy under
+  `data/` stays because GeMClean's simulator compiles it in; a test keeps the
+  two identical.
+- The A1 generator moved from `examples/a1_simtruth.py` into the package as
+  `rang.simtruth_ms` (`python -m rang.simtruth_ms generate small DIR`; git
+  history follows the rename). `examples/a1_simtruth.py` is a shim, so every
+  command, tool and note that names it still works. Checked: A1 small written
+  by the moved module has DATA and `truth.npz` identical to the old script's
+  (same seeds, compared array by array).
+- Without the first change the second would not run from a wheel; without
+  the second the first would not help the notebooks.
+
+**Runtimes, measured** (2026-11-11, papermill through
+`docs/execute_notebooks.py`'s `execute`, native Windows, 2 threads, fixture
+cached, host shared with E2, no heavy lock: CPU-light). The outline's
+estimates are in section 3.
+
+| Notebook | Data | Measured | Outline's estimate |
+| --- | --- | ---: | ---: |
+| I1 radio sky | none | 5.0 s | under 10 s |
+| I2 visibilities | fixture | 4.3 s | 20-30 s |
+| I3 MeerKAT array | ITRF table, fixture (no A1 needed) | 12.3 s | 30-60 s |
+| I4 measurement equation | A1 small and its twin | 12.1 s | 30-60 s |
+| I5 RFI and flagging | fixture, A1 small and twin, E4's archive | 16.7 s | 1-2 min |
+| I6 calibration | A1 small | 15.6 s | 2-3 min |
+| I7 imaging and deconvolution | A1 small | 45.4 s | 1-2 min |
+| I8 polarisation | poldx (157,301,861 bytes, measured; the outline scaled about 170 MB) | 25.8 s | 2-4 min |
+| I9 time domain | NumPy filterbank, 41 MB in memory | 6.0 s | under 1 min |
+| total | | 143.2 s | under 15 min |
+
+**CI** (owner decision 3). `docs/execute_notebooks.py` runs I1-I5 and I9
+always and I6-I8 only with `RANG_NOTEBOOK_INTRO_SLOW=1`. The docs workflow
+gains a nightly schedule that sets it, saves the executed I6-I8 to the
+Actions cache and deploys; every other build restores them and renders them
+while their code cells equal the source's (`keep_executed`), else without
+outputs.
+
+**Departures from the outline.**
+
+- I3 needs no A1 file: uv tracks come from the ITRF table by the standard
+  hour-angle formula, the PSFs by a direct Fourier sum.
+- I5 scores two strategies live (E4's tutorial strategy, SumThreshold
+  alone) and shows E4's archived table; the live tutorial row reproduces the
+  archive (36.4 % flagged, recall 90.2 %, false flags 29.0 %). No new helper
+  was needed: the truth masks are `a1-small.rfi_mask.npz`.
+- I6 runs `rang-core flag`, `calibrate` and `apply` on E4's configuration;
+  `rang.cal_chain.run` and `rang.notebook.gains` are not used (notebook 03
+  covers the look inside).
+- I8 flags RFI with the truth mask (an oracle), as C6w did, so that it is
+  about polarisation; it calibrates with the default `frame: casa`.
+- I9 uses NumPy only, as planned; rang has no time-domain functions.
+
+**Measured along the way** (simulated or the public fixture; teaching
+checks, not claims):
+
+- The simms ITRF table and the fixture's ANTENNA table (m000-m003) differ by
+  a common 35.27-35.29 m; positions relative to m000 agree within 4 cm (I3).
+- The SEFD from the fixture's autocorrelations against cross-correlations
+  and the Reynolds model: 398-497 Jy per baseline and hand, median 438 Jy
+  (I2). A1 assumes 420 Jy.
+- I4: the true chain reproduces the twin's DATA to 1.3e-6 Jy (single
+  precision); DATA − twin outside the RFI mask has σ = 0.0287 Jy, the
+  design's value.
+- I6: |K − truth| median 61 ps, max 146 ps; `fluxscale` 4.295 Jy against the
+  band-averaged true 4.292 Jy; corrected SIM-GCAL within 0.996-1.009 of its
+  true spectrum.
+- I7: the brightest source (0.500 Jy) restores to 0.496 Jy/beam; CLEAN model
+  2.465 Jy of a true 2.837 Jy. Residual robust σ 0.698 mJy/beam with Briggs
+  0, 0.937 natural, 0.358 after correcting with the true Jones terms (S
+  included), against I1's thermal 31 µJy/beam (natural, no flags). The
+  residual is therefore not thermal, and calibration error (S included) accounts
+  for about half of it; the rest is not separated (follow-up below).
+- I8: 3C286-SIM after strategy 1: p median 0.0945 (truth 0.095), χ median
+  33.55° (33°), per-channel |Δχ| median 0.55°, 95th percentile 0.62°; the
+  IQUV image gives p 0.0944, χ 33.47°. KCROSS·Xf phase against the truth:
+  median −0.20°, median |.| 1.02°.
+
+**Open and follow-ups.**
+
+- I5-I7 read E4's configuration from `examples/ms-to-image/`, so they need
+  a checkout; I1-I4, I8 and I9 run from a pip install. Shipping E4's
+  configuration (or a `rang-core config example`) would close that.
+- I7's residual gap after truth correction (0.358 mJy/beam against 31 µJy
+  thermal) is not decomposed into unflagged RFI, weighting, flags and
+  deconvolution error; I7's exercise 5 starts on it.
+- `tools/e2e/run.py` could call `python -m rang.simtruth_ms` and drop its
+  checkout requirement for generation (it still needs `examples/ms-to-image`).
+- Notebook 04 stalled twice (kernel and client idle, minutes) when run after
+  01-03 in one `execute_notebooks.py` process on this Windows host while E2
+  ran; alone it ran in 14 s. Not investigated; docs CI on Linux is the
+  check.
