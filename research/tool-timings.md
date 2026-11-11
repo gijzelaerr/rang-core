@@ -1806,3 +1806,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | F3 held-out `f3_eval.py real`, 7 arms, 19 cases | LUNO MAIN_1 / MAIN_2 | 47.2 / 31.0 min | – | A dominates (19 Docker runs) |
 | 2026-11-10 | F3 native `python -m rang.check` (heavy_lock), twice | worktree fp-f3-flagger | 82 min; 42 min (wall includes lock waits) | – | second: only the research-index test fails |
 | 2026-11-11 | E4 `rang-core run` on A1 small (flag, calibrate, apply, image; `examples/ms-to-image/config.yaml`), native Windows, 2 threads, no heavy lock (CPU-light) | 12,480 rows × 64 ch × 4 corr, 41 MB | 9.7-11.7 s (2.0, 1.7, 1.3-1.9, 3.5-3.8 s) | – | host shared with E2; `tools/e2e/run.py` 16.5 s with generation; notebook 00 under papermill 24.9-30.1 s; research/e4-tutorial.md |
+| 2026-11-11 | docker pull, 17 CARACal cab images (quay.io/stimela) | 34 GB | 32 min | – | E3; no failure; research/e3-caracal.md 10.1 |
+| 2026-11-11 | CARACal 8f7bb363 / Stimela 1.8.3, smoke try 1 | LUNO dev scans 1-2, 40,000 rows | 14 s | – | stopped in obsconf (no TARGET field); fallback 3a; E3 10.3 |
+| 2026-11-11 | CARACal 8f7bb363 / Stimela 1.8.3, smoke try 2 (shared, 8 CPUs and 24 GB per container) | LUNO dev scans 1-2, 40,000 rows | 1,337 s | 10.2 GB (container) | crosscal 435 s, polcal 606 s; 58 containers; E3 10.3 |
+| 2026-11-11 | E2 converter `e2_convert.py` build + verify (heavy_lock 2 slots) | LUNO dev scans 1-2, 10,000 rows | 957 s + 1,147 s | – | walls include lock queueing behind other jobs; 0 cells differ; E3 10.6 |
+| 2026-11-11 | CARACal 8f7bb363 / Stimela 1.8.3, dev test (shared, 8 CPUs and 30 GB per container) | LUNO dev scans 1-2, 10,000 rows | 635 s | 3.6 GB (container) | crosscal 217 s, polcal 305 s; E3 10.6 |
+| 2026-11-11 | WSClean 3.7 IQUV, 2048², 8 channels joined, auto-mask (E3 leakage recipe) + E3 vis measures | dev test calibrator split, J1939-6342 | 695 s + about 15 s | 2.2 GB (measure driver) | E3 10.6 |
