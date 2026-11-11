@@ -1,9 +1,14 @@
 """E5 (research/e5-prereview.md): fixes found by the v0.2.0 pre-review."""
 
 import copy
+import importlib.util
+from pathlib import Path
 
+import numpy as np
 import pytest
 from rang import core_config as cc
+
+ROOT = Path(__file__).resolve().parents[1]
 
 VALUES = [None, True, 3, -1, 1.5, "x", "1e-3", [], [1], ["x"], [1.5, 2.5], {}, {"a": 1}]
 BASE = {
@@ -78,3 +83,69 @@ def test_malformed_values_give_the_error_report_not_a_traceback():
 def test_the_reported_forms_are_configuration_errors(text):
     _, errors = cc.resolve(cc.loads(text))
     assert errors
+
+
+@pytest.mark.parametrize(
+    "section, key",
+    [
+        ("apply", "column"),
+        ("selfcal", "model_column"),
+        ("selfcal", "output_column"),
+    ],
+)
+def test_no_configuration_writes_data(section, key):
+    """WB-01: only FLAG is backed up, so every column rang writes refuses
+    DATA. selfcal.input_column DATA is only read; the stage refuses to copy
+    apply's output into it."""
+    raw = copy.deepcopy(BASE)
+    raw[section] = {key: "DATA"}
+    _, errors = cc.resolve(raw)
+    assert (f"{section}.{key}", "DATA is never written") in errors
+
+
+def test_the_write_back_session_never_writes_data(tmp_path):
+    from rang import core_ms, core_ms_write, core_writeback
+
+    if not core_ms_write.has_creator():
+        pytest.skip("extension built without the table writer")
+    spec = importlib.util.spec_from_file_location(
+        "w1_writeback", ROOT / "examples/w1_writeback.py"
+    )
+    w1 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(w1)
+    ms = w1.make_ms(tmp_path / "x.ms", 12, 4)
+    with core_ms.open_table(ms) as t:
+        before = t.getcol("DATA")
+    with (
+        pytest.raises(ValueError, match="DATA is never written"),
+        core_writeback.WriteBack(ms, stage="test") as w,
+    ):
+        w.write("DATA", 0, np.zeros_like(before[:4]))
+    with core_ms.open_table(ms) as t:
+        assert np.array_equal(t.getcol("DATA"), before)
+
+
+def test_selfcal_refuses_to_copy_apply_output_into_data(tmp_path):
+    """WB-01: with this run's apply finished, selfcal would copy
+    apply.column into its input column; DATA there is refused."""
+    from rang import core_ms_write
+    from rang import core_pipeline as pipe
+
+    if not core_ms_write.has_creator():
+        pytest.skip("extension built without the table writer")
+    spec = importlib.util.spec_from_file_location(
+        "w1_writeback", ROOT / "examples/w1_writeback.py"
+    )
+    w1 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(w1)
+    ms = w1.make_ms(tmp_path / "x.ms", 12, 4)
+    config, errors = cc.resolve(
+        {**copy.deepcopy(BASE), "selfcal": {"input_column": "DATA"}}
+    )
+    assert errors == []
+    run = pipe.RunDir(tmp_path / "run", ms)
+    with run.locked():
+        run.state["stages"]["apply"] = {"status": "done", "finished": "t"}
+        ctx = {"config": config, "ms": ms, "run": run}
+        with pytest.raises(pipe.StageFailed, match="DATA is never written"):
+            pipe._selfcal_input(ctx)

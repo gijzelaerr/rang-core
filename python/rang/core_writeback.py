@@ -378,6 +378,10 @@ class WriteBack:
     # -- writes ----------------------------------------------------------------
     def _put(self, name, start, values):
         global _flag_puts
+        if name == "DATA":
+            # Only FLAG is backed up, so the observed visibilities are never
+            # written (E5, research/e5-prereview.md).
+            raise ValueError("DATA is never written")
         n = values.shape[0]
         self.table.putcol(name, values, int(start))
         if name == "FLAG":

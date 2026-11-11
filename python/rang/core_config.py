@@ -905,8 +905,10 @@ def _selfcal_errors(sc):
         errors.append(
             ("selfcal", "input_column, model_column and output_column must differ")
         )
-    if sc["output_column"] == "DATA":
-        errors.append(("selfcal.output_column", "DATA is never written"))
+    # input_column DATA is only read; the stage refuses to copy into it.
+    for key in ("model_column", "output_column"):
+        if sc[key] == "DATA":
+            errors.append((f"selfcal.{key}", "DATA is never written"))
     clip = sc["gain_clip"]
     if (
         isinstance(clip, list)
@@ -1017,6 +1019,8 @@ def resolve(raw):
                 )
             names[term["name"]] = where
     errors += _selfcal_errors(config["selfcal"])
+    if config["apply"]["column"] == "DATA":
+        errors.append(("apply.column", "DATA is never written"))
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
             for j, name in enumerate(term.get("preapply", [])):

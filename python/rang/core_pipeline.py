@@ -2127,6 +2127,12 @@ def _selfcal_input(ctx):
         or copied.get("column") != target
     )
     if fresh and source != target:
+        if target == "DATA":
+            raise StageFailed(
+                f"selfcal.input_column: DATA is never written, and this run's apply "
+                f"would copy {source} into it; name another column, such as "
+                "CORRECTED_1GC"
+            )
         if source not in columns:
             raise StageFailed(f"selfcal: {ms} has no {source} to copy into {target}")
         return True, {"column": target, "copied_from": source, "apply_finished": stamp}
