@@ -15,6 +15,15 @@ so older scripts that lock only that file still wait for it.
 
 A lock left by a dead process on the same system is removed automatically; one
 left by the other system is reported and waited on, never broken silently.
+
+Waiters queue first come, first served (added 2026-11-11, after a check-all
+waited three hours while later jobs won the 10 s polling race). Each waiter
+writes a ticket ``<time_ns>-<system>-<pid>.json`` in the sibling directory
+``heavy-queue`` and takes the lock only when its ticket is the oldest live one.
+A waiter refreshes its ticket's modification time at every poll; a ticket not
+refreshed for ``STALE_TICKET_S`` seconds (its waiter crashed or was killed) is
+skipped and removed. Waiters started by an older copy of this helper hold no
+ticket and can still take a free lock out of turn.
 """
 
 from __future__ import annotations
@@ -115,9 +124,50 @@ def stale(d: Path) -> bool:
     return owner["system"] == system() and not pid_alive(int(owner["pid"]))
 
 
+STALE_TICKET_S = 120.0
+
+
+def queue_dir(d: Path) -> Path:
+    return d.parent / (d.name + "-queue")
+
+
+def take_ticket(d: Path) -> Path:
+    q = queue_dir(d)
+    q.mkdir(parents=True, exist_ok=True)
+    t = q / f"{time.time_ns():020d}-{system()}-{os.getpid()}.json"
+    t.write_text(json.dumps({"pid": os.getpid(), "system": system()}), encoding="utf-8")
+    return t
+
+
+def first_live_ticket(d: Path, stale_s: float = STALE_TICKET_S) -> Path | None:
+    now = time.time()
+    for t in sorted(queue_dir(d).glob("*.json")):
+        try:
+            age = now - t.stat().st_mtime
+        except OSError:
+            continue
+        if age > stale_s:
+            t.unlink(missing_ok=True)
+            continue
+        return t
+    return None
+
+
 def acquire(d: Path, command: list[str], poll: float) -> None:
+    ticket = take_ticket(d)
+    try:
+        _acquire(d, command, poll, ticket)
+    finally:
+        ticket.unlink(missing_ok=True)
+
+
+def _acquire(d: Path, command: list[str], poll: float, ticket: Path) -> None:
     last = None
-    while not try_acquire(d, command):
+    while True:
+        os.utime(ticket)
+        head = first_live_ticket(d, max(STALE_TICKET_S, 3 * poll))
+        if (head is None or head == ticket) and try_acquire(d, command):
+            return
         if stale(d):
             print(f"heavy_lock: removing stale lock ({describe(read_owner(d))})", file=sys.stderr)
             try:
@@ -126,6 +176,8 @@ def acquire(d: Path, command: list[str], poll: float) -> None:
                 pass
             continue
         owner = describe(read_owner(d))
+        if head not in (None, ticket):
+            owner += f" (queue: behind {head.name})"
         if owner != last:
             print(f"heavy_lock: waiting for {owner}", file=sys.stderr, flush=True)
             last = owner
@@ -161,6 +213,10 @@ def main(argv: list[str] | None = None) -> int:
     d = lock_dir()
     if a.action == "status":
         print(describe(read_owner(d)) if d.exists() else "free")
+        q = queue_dir(d)
+        waiting = sorted(q.glob("*.json")) if q.exists() else []
+        for i, t in enumerate(waiting, 1):
+            print(f"queue {i}: {t.stem}")
         return 0
     if a.action == "break":
         if d.exists():
