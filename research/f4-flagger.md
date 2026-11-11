@@ -46,6 +46,21 @@ unchanged.
 - *Status.* Proposed at this amendment's commit; implementation and δ must be done before Stage 5
   reads any held-out set, otherwise NA is reported as not run, not dropped.
 
+**Amendment 2, 2026-11-11, before any Stage 1-5 run, training or held-out read; found by a unit
+test on synthetic data.** On a calibrator-like scan (50 σ source in the parallel hands) with F1's
+antenna-local injection, the parallel-hand deviation `w` inside the band is a **signed** shift (the
+phasor adds to or subtracts from the source amplitude), so the 25th-percentile offset of step 3 is
+dragged negative and `e^par` is high on the antenna's baselines **outside** the band too (ZE flagged
+33 % of the antenna's non-injected cells, 0 % elsewhere).
+
+- Step 3's offset `o_{b,c}` becomes the **median** over channels of the finite `w_{b,c}` (at least 16),
+  robust to a signed shift on fewer than half of the channels. Step 6's `X` keeps the 25th percentile.
+- T6's width cap becomes min(400, **0.45** · nchan) (was 0.6): 230 channels on ESO137, 400 on LUNO,
+  so trained bands stay under half of the channels. F1's antenna-local bands (16 % and 18 % of the
+  channels) and H3 (≤ 0.4 · nchan) are unchanged.
+- Section 3's reading "unbiased by a band that covers up to 75 % of the channels" is withdrawn: the
+  spectral planes now hold for bands on fewer than half of the channels.
+
 ## 1. What F3 got wrong, and what changes
 
 | F3 failure | Cause | F4 change |

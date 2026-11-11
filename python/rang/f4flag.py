@@ -185,7 +185,7 @@ def spectra_numpy(scan, flagged, data=None):
         n = np.isfinite(p).sum(0)
         big_b = np.where(n >= f3.MIN_AGG, f3._nanmedian(p, 0), np.nan)  # (nc, 4)
         w = p - big_b[None]
-        off = _percentile(w, 25, 1)  # (nbl, 4)
+        off = _percentile(w, 50, 1)  # (nbl, 4); Amendment 2: median
         dev = np.abs(w - off[:, None, :])
         e = np.stack([_nanmax(dev[..., list(fam)], -1) for fam in FAMILIES], 1)
         big_e = np.full((2, nant, nc), np.nan)
@@ -290,10 +290,11 @@ TRAIN_MORPHOLOGIES = f3.TRAIN_MORPHOLOGIES + ("T6",)
 HELD_OUT = f3.HELD_OUT + ("H3",)
 CODES = TRAIN_MORPHOLOGIES + HELD_OUT
 T6_MIN, T6_MAX = 9, 400
+T6_FRACTION = 0.45  # Amendment 2 (was 0.6)
 
 
 def t6_width(rng, nc):
-    hi = max(min(T6_MAX, int(0.6 * nc)), 1)
+    hi = max(min(T6_MAX, int(T6_FRACTION * nc)), 1)
     lo = min(T6_MIN, hi)
     w = round(math.exp(rng.uniform(math.log(lo), math.log(hi))))
     return min(max(w, lo), hi)

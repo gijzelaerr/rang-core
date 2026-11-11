@@ -141,11 +141,11 @@ def test_t6_and_h3_are_seeded_wide_and_on_eligible_cells():
     cells = inj.morph == code
     assert cells.any()
     widths = cells.sum(1)[cells.any(1)]
-    assert widths.max() <= int(0.6 * 128)
+    assert widths.max() <= int(0.45 * 128)
     rng = np.random.default_rng(0)
     ws = [f4.t6_width(rng, 2048) for _ in range(2000)]
     assert min(ws) >= 9 and max(ws) <= 400 and np.median(ws) > 40
-    assert max(f4.t6_width(rng, 512) for _ in range(500)) <= 307
+    assert max(f4.t6_width(rng, 512) for _ in range(500)) <= 230
     _, rows, chans = f4.r2_case(scan, ~w3, sigma, "H3", 31)
     assert len(rows) and not w3[rows, chans].any()
     ants = np.r_[scan["antenna1"][rows], scan["antenna2"][rows]]

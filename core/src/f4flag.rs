@@ -8,7 +8,7 @@
 //!
 //! The spectral planes compare each baseline's time-median spectrum `P` with
 //! the median over the other baselines `B`, per correlation family (parallel
-//! XX, YY; cross XY, YX): `e = max_c |P − B − q25_f(P − B)|`, its antenna
+//! XX, YY; cross XY, YX): `e = max_c |P − B − median_f(P − B)|`, its antenna
 //! medians and the array excess `B − q25_f(B)`. Antenna-local, scan-long RFI
 //! wider than F3's 33-channel running median shows across its whole band.
 //! The NumPy reference is `rang.f4flag.features_numpy`; parity is in
@@ -104,7 +104,9 @@ fn spectra(inp: &Inputs, p: &[Vec<f64>], alive: Vec<bool>) -> Spectra {
             for (c, o) in off.iter_mut().enumerate() {
                 buf.clear();
                 buf.extend((0..nc).map(|f| w[f * 4 + c]));
-                *o = quantile(&mut buf, 0.25, MIN_SPEC);
+                // Amendment 2: the channel median (a signed shift on the
+                // parallel hands drags a lower quantile).
+                *o = quantile(&mut buf, 0.5, MIN_SPEC);
             }
             let mut out = vec![f64::NAN; 2 * nc];
             for (phi, fam) in FAMILIES.iter().enumerate() {
