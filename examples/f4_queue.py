@@ -38,9 +38,25 @@ SHARDS = {
 STEPS = ("sim", "stage1", "nadelta", "parity", "c1u4", "shards")
 
 
-def run(name, cmd, env=None):
-    full = [PY, str(ROOT / "examples/f4_run.py"), name, "--lock", "--", *cmd]
-    rc = subprocess.call(full, cwd=ROOT, env=dict(os.environ, **(env or {})))
+# Shared heavy-lock slots (threads, GB) per step; only the cost timing is
+# exclusive. RAYON_NUM_THREADS matches the slots.
+SHARE = {
+    "sim": (4, 12),
+    "stage1": (4, 12),
+    "nadelta": (4, 8),
+    "parity": (4, 24),
+    "shards": (4, 16),
+}
+
+
+def run(name, cmd, env=None, share=None):
+    lock = ["--lock"]
+    env = dict(env or {})
+    if share:
+        lock += ["--slots", str(share[0]), "--mem", str(share[1])]
+        env.setdefault("RAYON_NUM_THREADS", str(share[0]))
+    full = [PY, str(ROOT / "examples/f4_run.py"), name, *lock, "--", *cmd]
+    rc = subprocess.call(full, cwd=ROOT, env=dict(os.environ, **env))
     if rc:
         raise SystemExit(f"{name}: rc {rc}")
 
@@ -68,7 +84,11 @@ def main():
         state.setdefault(k, {})
     classes = [c for c in classes if c not in state["stopped"]]
     if "sim" in steps:
-        run("f4-20261111-02-sim-test", [*ex("f2_simulate.py"), "RUN", "f4sim-t"])
+        run(
+            "f4-20261111-02-sim-test",
+            [*ex("f2_simulate.py"), "RUN", "f4sim-t"],
+            share=SHARE["sim"],
+        )
     if "stage1" in steps:
         for c in classes:
             name = f"f4-20261111-03-stage1-{c}"
@@ -76,6 +96,7 @@ def main():
                 name,
                 [*ex("f4_eval.py"), "stage1", "RUN/stage1.json", "--class", c]
                 + ["--flags-from", str(F3[c])],
+                share=SHARE["stage1"],
             )
             r = json.loads((OUT / name / "stage1.json").read_text(encoding="utf-8"))
             state["results"][f"stage1-{c}"] = {
@@ -91,7 +112,9 @@ def main():
         for c in ("calibrator", "target"):
             name = f"f4-20261111-03-nadelta-{c}"
             run(
-                name, [*ex("f4_eval.py"), "na-delta", "RUN/na-delta.json", "--class", c]
+                name,
+                [*ex("f4_eval.py"), "na-delta", "RUN/na-delta.json", "--class", c],
+                share=SHARE["nadelta"],
             )
             r = json.loads((OUT / name / "na-delta.json").read_text(encoding="utf-8"))
             state["results"][f"nadelta-{c}"] = r["delta"]
@@ -99,7 +122,11 @@ def main():
     if "parity" in steps:
         for c in ("calibrator", "target"):
             name = f"f4-20261111-04-parity-{c}"
-            run(name, [*ex("f4_parity.py"), "RUN/parity.json", "--set", VALIDATION[c]])
+            run(
+                name,
+                [*ex("f4_parity.py"), "RUN/parity.json", "--set", VALIDATION[c]],
+                share=SHARE["parity"],
+            )
             r = json.loads((OUT / name / "parity.json").read_text(encoding="utf-8"))
             state["results"][f"parity-{c}"] = r["pass"]
             save()
@@ -130,6 +157,7 @@ def main():
                     name,
                     [*ex("f4_shards.py"), "RUN", "--class", c, "--role", role]
                     + ["--flags-from", str(F3[c])],
+                    share=SHARE["shards"],
                 )
                 audit = OUT / name / c / role / "audit.json"
                 a = json.loads(audit.read_text(encoding="utf-8"))

@@ -379,7 +379,8 @@ Runs under `D:\rang\outputs\f4-20261111-NN-*` (each with `.code/`, `.log`, `.tim
 ### Staged runs
 
 Queued in order by `examples/f4_queue.py` (each step under the main checkout's `tools/heavy_lock.py`,
-first come, first served since main `bd15126`; E2 and other lock
+first come, first served since main `bd15126`; shared slots per step, `SHARE` in the script, and
+exclusive only for C1(U4) and Stage 5's cost timing; E2 and other lock
 holders first; the frozen stops are checked between steps and written to
 `D:\rang\outputs\f4-20261111-queue.json`):
 
@@ -413,7 +414,7 @@ wsl -d Ubuntu -- bash -lc 'uv venv ~/Build/tmp/20261111-f4-jaxcuda && uv pip ins
 ```
 
 ```bash
-wsl -d Ubuntu -- bash -lc 'cd /mnt/c/Users/gijsm/Worktrees/rang/fp-f4-flagger && for c in calibrator:06-shards-cal target:07-shards-target; do k=${c%%:*}; d=${c#*:}; for s in 1 2 3; do XLA_PYTHON_CLIENT_PREALLOCATE=false python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py run -- ~/Build/tmp/20261111-f4-jaxcuda/bin/python examples/f3_train.py /mnt/d/rang/outputs/f4-20261111-$d/$k /mnt/d/rang/outputs/f4-20261111-08-train-$k/seed-$s --seed $s --nplanes 23; done; done'
+wsl -d Ubuntu -- bash -lc 'cd /mnt/c/Users/gijsm/Worktrees/rang/fp-f4-flagger && for c in calibrator:06-shards-cal target:07-shards-target; do k=${c%%:*}; d=${c#*:}; for s in 1 2 3; do XLA_PYTHON_CLIENT_PREALLOCATE=false python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py run --slots 4 --mem 16 -- ~/Build/tmp/20261111-f4-jaxcuda/bin/python examples/f3_train.py /mnt/d/rang/outputs/f4-20261111-$d/$k /mnt/d/rang/outputs/f4-20261111-08-train-$k/seed-$s --seed $s --nplanes 23; done; done'
 ```
 
 Then per class the median seed by validation loss, and τ (native):
@@ -426,7 +427,8 @@ Then per class the median seed by validation loss, and τ (native):
 --heldout --n4 W.npz@TAU` (then `luno:MAIN_12`, `luno:MAIN_14`; targets `eso:11`, `eso:12`, `eso:13`);
 `f4_eval.py sim RUN/sim.json D:/rang/outputs/f4-20261111-02-sim-test/f4sim-t --class <class> --n4 …`;
 cost `f4_cost.py time` at `RAYON_NUM_THREADS` 4 and 1 on `luno:MAIN_1` and `eso:0`, and `f4_cost.py rss`
-per arm; all under `f4_run.py … --lock`.
+per arm; quality runs under `f4_run.py … --lock --slots 4 --mem 16`, the cost timing under
+`f4_run.py … --lock` (exclusive).
 
 ## For the coordinator
 

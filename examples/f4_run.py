@@ -1,7 +1,12 @@
-"""F3 run wrapper (scratch): D:\\rang\\outputs\\<name> with .code/, .log, .time.
+"""F4 run wrapper (research/f4-flagger.md): D:/rang/outputs/<name> with .code/,
+.log, .time.
 
-Usage: python f3-run.py NAME [--lock] -- COMMAND ...
-Sets RUN_DIR. Logs start, end, rc to the status file.
+Usage: python examples/f4_run.py NAME [--lock [--slots N --mem G]] -- COMMAND ...
+
+Sets RUN_DIR. With --lock the command runs under the main checkout's
+tools/heavy_lock.py: shared on N of 16 threads and G GB with --slots/--mem,
+exclusive without (cost timing only). Logs start, end and rc to
+outputs/status/f4-flagger.md of the main checkout.
 """
 
 import json
@@ -66,7 +71,11 @@ def main():
             shutil.copy2(p, code / p.parent.name / p.name)
     env = dict(os.environ, RUN_DIR=str(run))
     if "--lock" in opts:
-        cmd = [sys.executable, str(LOCK), "run", "--", *cmd]
+        share = []
+        for flag in ("--slots", "--mem"):
+            if flag in opts:
+                share += [flag, opts[opts.index(flag) + 1]]
+        cmd = [sys.executable, str(LOCK), "run", *share, "--", *cmd]
     start = time.time()
     status(f"start {name}")
     with open(OUT / f"{name}.log", "ab") as log:
