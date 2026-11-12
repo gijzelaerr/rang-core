@@ -116,3 +116,21 @@ file's header names them; see also docs/licence.md)
   core/src/grid.rs.
 - ducc0 0.42.0 wgridder (Martin Reinecke, Max-Planck-Society,
   GPL-2.0-or-later): core/src/wgridder.rs.
+
+Their upstream copyright notices, verbatim (also in each source file's header):
+
+WSClean 3.6. Its source files carry no notice of their own; from
+debian/copyright of wsclean 3.6-1:
+
+Copyright: 2008-2015 A. R. Offringa
+ 2009 ASTRON (Netherlands Institute for Radio Astronomy)
+ 2014-2016 Gijs Molenaar <gijs@pythonic.nl>
+
+ducc0 0.42.0, wgridder_impl.h:
+Copyright (C) 2019-2026 Max-Planck-Society
+Copyright (C) 2026 Albert M. W. Yau
+Authors: Martin Reinecke, Albert M. W. Yau
+
+ducc0 0.42.0, gridding_kernel.h and gridding_kernel.cc:
+Copyright (C) 2020-2026 Max-Planck-Society
+Author: Martin Reinecke

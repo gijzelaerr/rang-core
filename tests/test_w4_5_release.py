@@ -180,6 +180,15 @@ def test_pyproject_metadata():
         ),
     ):
         assert holder in notices and path in notices, path
+    # E5 final (E5-12): the GPL ports keep their upstream copyright lines,
+    # in the source header and in the notices the wheel carries.
+    for path, holder in (
+        ("core/src/grid.rs", "2008-2015 A. R. Offringa"),
+        ("core/src/weights.rs", "2008-2015 A. R. Offringa"),
+        ("core/src/wgridder.rs", "Copyright (C) 2019-2026 Max-Planck-Society"),
+        ("core/src/wgridder.rs", "Copyright (C) 2020-2026 Max-Planck-Society"),
+    ):
+        assert holder in notices and holder in _text(path), (path, holder)
     assert "License ::" not in project
     urls = _section(_text("pyproject.toml"), "project.urls")
     for name in ("Documentation", "Repository", "Issues"):

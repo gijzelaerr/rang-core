@@ -4,6 +4,13 @@
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
+//! Upstream copyright, verbatim from `debian/copyright` of wsclean 3.6-1
+//! (WSClean's source files carry no notice of their own):
+//! Copyright: 2008-2015 A. R. Offringa
+//!  2009 ASTRON (Netherlands Institute for Radio Astronomy)
+//!  2014-2016 Gijs Molenaar <gijs@pythonic.nl>
+//! License: GPL-3.0+
+//!
 //! A Rust translation of the weighting path of WSClean 3.6 (GPL-3.0-or-later,
 //! André Offringa and contributors): `structures/imageweights.{h,cpp}`
 //! (gridding, Briggs/uniform/natural finish, rank filter, lookup),
