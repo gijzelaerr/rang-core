@@ -101,6 +101,16 @@ python3 -m venv .venv   # or: uv venv -p 3.14 .venv
     -e '.[pointing,beam,test,imaging,notebook]' ruff maturin
 ```
 
+On Windows (PowerShell), the same with the venv's `Scripts` folder:
+
+```powershell
+git clone https://github.com/gijzelaerr/rang-core
+cd rang-core
+py -3.14 -m venv .venv   # or: uv venv -p 3.14 .venv
+.venv\Scripts\python -m pip install --index-url https://pypi.org/simple `
+    -e ".[pointing,beam,test,imaging,notebook]" ruff maturin
+```
+
 On x86_64, a build from a checkout targets x86-64-v3 (AVX2 and FMA;
 `.cargo/config.toml`), which is faster but crashes with an illegal
 instruction on older CPUs. Set `RUSTFLAGS="-C target-cpu=x86-64"`, as the
