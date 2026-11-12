@@ -5,8 +5,9 @@ Task V8 of [vision.md](vision.md) (section 8). Written 2026-11-12 on branch
 no E2 or E3 acceptance number is used here.
 
 **Status: proposed; nothing built or measured.** Every plan, tolerance and size
-below is a proposal. The inventory states what `main` has at `91da8c3`, each
-mark taken from the status line of the note cited. CARACal facts were read at
+below is a proposal. The inventory states what `main` has at `91da8c3`; each mark
+is read from the cited note's status line or summary, and a row whose note
+was not reread for this task says so. CARACal facts were read at
 master `8f7bb363` (2026-09-14) on 2026-11-12. Where a fact was not confirmed,
 the text says "not checked". The v0.2.0 critical path (E2 to E6) is not
 touched: every piece below starts after v0.2.0 unless the owner says otherwise
@@ -23,8 +24,9 @@ Grow `rang-core` task by task towards the CASA tasks that a MeerKAT continuum,
 polarisation and time-series user actually runs, in the order CARACal's shipped
 MeerKAT strategies call them, each port gated against CASA 6.7.6.14 run as an
 oracle binary and never against CASA's source. The calibration core already
-stands near CASA parity (C2a-C2e, C3a, C4, C6, C7, FS1/FS2), and imaging stands
-at WSClean parity (G-series, DF1-DF2), which is the MeerKAT state of the art. So
+stands near CASA parity (C2a-C2e, C3a, C4, C6, C7, FS1/FS2), and imaging is
+gated against WSClean (G-series, DF1-DF2), the MeerKAT state of the art, with
+some gates not met as frozen. So
 **the largest gap is flagging**: CARACal calls `flagdata` more than any other
 task (23 call sites in its workers), its crosscal `A` step and the full-Stokes
 calibrator flagger are `flagdata mode='tfcrop'`, and rang replaced tfcrop with
@@ -51,7 +53,7 @@ where CASA is not the reference), with any post-hoc change labelled in its note.
 | `importuvfits`, `exportuvfits` | nothing | – | – | missing (V6's FITS-IDI is the VLBI need) |
 | MVFv4 to arrays (katdal, not CASA) | the `[meerkat]` extra, MVFv4 loader into `(row, channel, corr)` arrays | [mk1-katdal.md](mk1-katdal.md): (a), (b), (d) exact on a synthetic archive; (c) not runnable | katdal's own writers | partial (no public MVFv4 archive) |
 | MS read (`ms`, `tb` tools) | Rust reader: Standard, Incremental, TiledShape, TiledColumn managers; zarr | [core-e-ms-reader.md](core-e-ms-reader.md), [sliced-read.md](sliced-read.md) | casacore | parity for those managers |
-| MS write, new columns, `FLAG` | Rust table writer, write-back with flag backup | [w1-writeback.md](w1-writeback.md), [e3-table-writer.md](e3-table-writer.md) to [e6-table-writer-final.md](e6-table-writer-final.md), [ms-lock-windows.md](ms-lock-windows.md) | casacore, CASA, WSClean read-back | parity |
+| MS write, new columns, `FLAG` | Rust table writer, write-back with flag backup | [w1-writeback.md](w1-writeback.md), [e3-table-writer.md](e3-table-writer.md) to [e6-table-writer-final.md](e6-table-writer-final.md) (E6: 20 of 21 cases byte-identical to casacore; criteria 1 and 3 fail as frozen on one case), [ms-lock-windows.md](ms-lock-windows.md) | casacore, CASA, WSClean read-back | parity on the cases used; E6's one case open |
 | calibration tables | read and write K, G, B, Df, T; bytes equal to CASA's except masked gaps | [dfio-formats.md](dfio-formats.md) (DF-IO) | CASA `applycal` bit-identical on rang's tables | parity |
 | `flagmanager` | `.flagversions` save and restore | [dfio-formats.md](dfio-formats.md) (restored by `flagmanager`), `python/rang/formats/flagversions.py` | CASA `flagmanager` | parity for save and restore; `list`, `delete`, `rename` not checked |
 | `concat`, `virtualconcat` | nothing | – | – | missing |
@@ -84,7 +86,7 @@ where CASA is not the reference), with any post-hoc change labelled in its note.
 | CASA | What rang has | Note, gate | Oracle | Mark |
 | --- | --- | --- | --- | --- |
 | `setjy` | PB2010, Baars, SR2016, `manual` ≤ 1.6e-14 relative, MODEL_DATA bit-identical in float32; PB2017 4 of 20 sources regular, 16 opt-in; `.lsm` through Crystalball | [fs1-flux-standards.md](fs1-flux-standards.md), [fs2-casarundata.md](fs2-casarundata.md), [c3a-models.md](c3a-models.md) (every frozen comparison passes) | CASA `setjy`, Crystalball | parity for MeerKAT's calibrators; PB2013, Scaife-Heald, solar-system and image models missing |
-| polarised models (`setjy` with `polindex`, `polangle`, `rotmeas`) | tabular 0 ulps, `spix` 2 ulps | [c7a-polmodels.md](c7a-polmodels.md) | CASA | parity |
+| polarised models (`setjy` with `polindex`, `polangle`, `rotmeas`) | tabular 0 ulps, `spix` 2 ulps; M7 and M8 fail G2 (2 ulps) after a post-hoc fix | [c7a-polmodels.md](c7a-polmodels.md) | CASA | parity on the tabular path; partial on `spix` |
 | `gaincal` G (`ap`, `p`, `a`) | class A against QuartiCal met; against CASA the slice met first time; A1 met after two post-hoc fixes, but solution `TIME` misses 0.01 s by up to 0.054 s on RFI-flagged scans, and `combine='scan'` differs by about 1 % | [c2a-gain.md](c2a-gain.md) | CASA `gaincal`, QuartiCal 0.2.7 | partial |
 | `gaincal` K | as `delay_and_offset`: C2b's fourteen CASA cases pass after three labelled post-hoc changes | [c2b-delay.md](c2b-delay.md), [c2c-bandpass.md](c2c-bandpass.md) | CASA, QuartiCal | parity, post hoc |
 | `gaincal` T, GSPLINE, `solmode` L1/R | nothing (T is read and applied, not solved) | [dfio-formats.md](dfio-formats.md) | – | missing |
@@ -114,7 +116,7 @@ where CASA is not the reference), with any post-hoc change labelled in its note.
 
 | CASA | What rang has | Note, gate | Oracle | Mark |
 | --- | --- | --- | --- | --- |
-| `tclean` (standard and w-projection gridders; Högbom, multiscale; MFS spectral fit; masks; Stokes IQUV; weighting; taper; uv range; model write-back) | GeMClean: exact wgridder, Briggs weighting, multiscale, joined channels with spectral fits, FITS and automatic masks, IQUV and joined polarisations, `MODEL_DATA`, the restoring beam as WSClean 3.7 fits it | [df1-wgridder.md](df1-wgridder.md), [df2-wgridder-speed.md](df2-wgridder-speed.md), G2-G9 ([g2-memory.md](g2-memory.md) to [g9-stokes.md](g9-stokes.md)): G3 one held-out MFS bound failed, G4 restoring beam and two mask items not met as frozen, G9 held-out C, D, E not met as frozen | **WSClean 3.7**, not `tclean` | partial: at WSClean parity, never compared with `tclean` |
+| `tclean` (standard and w-projection gridders; Högbom, multiscale; MFS spectral fit; masks; Stokes IQUV; weighting; taper; uv range; model write-back) | GeMClean: exact wgridder, Briggs weighting, multiscale, joined channels with spectral fits, FITS and automatic masks, IQUV and joined polarisations, `MODEL_DATA`, the restoring beam as WSClean 3.7 fits it | [df1-wgridder.md](df1-wgridder.md), [df2-wgridder-speed.md](df2-wgridder-speed.md), G2-G9 ([g2-memory.md](g2-memory.md) to [g9-stokes.md](g9-stokes.md)): G3 one held-out MFS bound failed, G4 restoring beam and two mask items not met as frozen, G9 held-out C, D, E not met as frozen | **WSClean 3.7**, not `tclean` | partial: gated against WSClean (some gates not met as frozen), never compared with `tclean` |
 | `tclean` `mtmfs`, `mosaic`, `awproject`, cubes in LSRK | nothing | [ecosystem-survey.md](ecosystem-survey.md) 3.2 | – | missing |
 | `widebandpbcor`, `impbcor` (primary beam) | research beam models only (katbeam, holography) | [katbeam-pointing.md](katbeam-pointing.md), [beam-model-selection.md](beam-model-selection.md) | – | missing as a task |
 | `imfit`, `immath`, `imsubimage`, `imregrid`, `imsmooth` | the restoring-beam fit only | [g7-defaults.md](g7-defaults.md) | WSClean | missing |
@@ -124,7 +126,7 @@ where CASA is not the reference), with any post-hoc change labelled in its note.
 
 | CASA tool | What rang has | Note | Mark |
 | --- | --- | --- | --- |
-| `measures` (`me`) | parallactic angle (astropy, geodetic) and CASA's frame as `calibrate.polcal.frame: casa`; observatory positions from casacore-data; no frame-conversion API, no UVW computation | `python/rang/measures.py`, [b1-2-identifiability.md](b1-2-identifiability.md), [c6-polterms.md](c6-polterms.md) | partial |
+| `measures` (`me`) | parallactic angle (astropy, geodetic) and CASA's frame as `calibrate.polcal.frame: casa`; observatory positions from casacore-data; UVW computed only for simulated MSs (A1); no frame-conversion API | `python/rang/measures.py`, [b1-2-identifiability.md](b1-2-identifiability.md), [c6-polterms.md](c6-polterms.md) | partial |
 | `imager` (`im`), `simulator` (`sm`) | `gemclean`; simulated truth MSs with seeds (MeerKAT layouts) | [a1-simtruth.md](a1-simtruth.md) | partial |
 | `calibrater` (`cb`) | the Python functions `rang.cal_*` and `rang-core calibrate` | [c2e-calibrate.md](c2e-calibrate.md) | partial (as 2.4) |
 | `table` (`tb`), `ms` | the Rust reader and writer; Python wrappers | as 2.1 | parity for MS and calibration tables |
@@ -148,14 +150,14 @@ workers its three shipped MeerKAT configurations enable
 
 | CASA task | Call sites (workers) | Enabled in the shipped MeerKAT configs |
 | --- | ---: | --- |
-| `flagdata` | 23 (flag 11, polcal 10, crosscal 1, polimg 1) | all three: `flag_autocorr`, `flag_spw` (frequency ranges), `flag_mask` with `uvrange`, `flag_shadow` (full Stokes); `flag_rfi` with `flagger: tfcrop` (full Stokes) or AOFlagger `firstpass_QUV.rfis` (the other two); crosscal `A` is `tfcrop` (in `KGBAKGB` of `meerkat-defaults.yml`); polcal `extendflags: true`, `tfcrop` and `clip` on the cross-hand tables |
+| `flagdata` | 23 (flag 11, polcal 10, crosscal 1, polimg 1) | all three: `flag_autocorr`; `flag_spw` (frequency ranges) and `flag_mask` with `uvrange` in the two non-polarisation configs; `flag_shadow` in full Stokes; `flag_rfi` with `flagger: tfcrop` (full Stokes) or AOFlagger `firstpass_QUV.rfis` (the other two); crosscal `A` is `tfcrop` (in `KGBAKGB` of `meerkat-defaults.yml`); polcal `extendflags: true`, `tfcrop` and `clip` on the cross-hand tables |
 | `gaincal` | 11 (polcal 8, crosscal 3) | all three |
 | `polcal` | 10 | full Stokes |
 | `applycal` | 7 | all three |
 | `mstransform` | 5 (transform 4, line 1) | all three: `split_field` of calibrators and of the target with `otfcal` (`docallib`), optional time and channel averaging |
 | `setjy` | 5 | all three (`meerkat_skymodel: true`) |
-| `listobs` | 3 | all three (`obsconf`) |
-| `fixvis` | 3 | not in the shipped configs (prep option) |
+| `listobs` | 3 | `obsconf` behind `obsinfo.listobs`; its default **not checked** |
+| `fixvis` | 3 | prep and transform options; whether a shipped config enables them **not checked** |
 | `importfits`, `exportfits`, `imregrid` | 4, 2, 2 | mask worker, disabled in all three |
 | `plotms` | 2 | `inspect` (most plots are shadeMS and ragavi) |
 | `clearcal`, `concat`, `bandpass`, `fluxscale`, `fringefit`, `polfromgain`, `clean` | 1 each | `bandpass`, `fluxscale` in all three; `clean` only in the line worker; `fringefit` as crosscal term `S` |
@@ -175,7 +177,7 @@ Order of the missing and partial pieces (MeerKAT first, LOFAR noted):
 2. **Deterministic `flagdata` modes and `summary`**: `manual` with CASA's
    selection syntax, autocorrelations, `shadow`, `quack`, `elevation`,
    `unflag`; every shipped config uses some of them.
-3. **`listobs`**: in every config, and the first thing a CASA user types.
+3. **`listobs`**: CARACal's `obsconf` worker calls it, and it is the first thing a CASA user types.
 4. **`split`/`mstransform` to a new MS**: field, scan and channel selection,
    time and channel averaging, `datacolumn`, with calibration on the fly.
    Needed at MeerKAT's 4096 and 32768 channels to cut volume. LOFAR:
@@ -224,9 +226,10 @@ or `gaincal` claims nothing. Therefore:
 - **Where rang must beat the state of the art to claim anything:** flagging
   quality at matched cost against AOFlagger and Tricolour (the null F1-F3
   record says this is hard), calibration quality against QuartiCal and CASA at
-  matched cost, imaging against WSClean (GeMClean is faster than the fastest
-  WSClean setting on the speed run's sets at `-j 16`, by 1.05-2.91 ×, but uses
-  2.0-3.6 × WSClean's memory on the pilot; no novelty claimed:
+  matched cost, imaging against WSClean (the fastest WSClean setting over GeMClean
+  on the speed run's skies: 1.05-2.91 at `-j 16`, 0.60-1.55 at `-j 1`, WSClean's
+  setting picked after the fact; GeMClean uses 2.0-3.6 × WSClean's memory on the
+  pilot; no novelty claimed:
   [gemclean-speed.md](gemclean-speed.md), [g2-memory.md](g2-memory.md)).
   Each goes through [propose-and-measure](../docs/agents/propose-and-measure.md).
 
@@ -246,14 +249,22 @@ or `gaincal` claims nothing. Therefore:
   [docs/licence.md](../docs/licence.md) says "CASA's licence not checked", and
   U5 row 25 found the wheel's licence metadata contradicts itself. So:
   - reimplement from behaviour (the oracle's outputs), CASA's documentation and
-    the papers, as FS1, C2a-C2d and C4 did;
+    the papers;
   - copying or translating CASA source needs the licence check E5-33 used for
     CARACal and msutils first: read the licence file at the pinned commit,
     decide "translated" or "reimplemented", and record it in
     `docs/licence.md`;
-  - that check is already owed: `core/src/flag_extend.rs` follows
-    `FlagAgentExtension::computeAntennaPairFlags` "operation by operation"
-    (`docs/licence.md` line 33). Decision 5.
+  - **that check is already owed, and not only for one file.** Earlier ports
+    read CASA's C++ source (C1 labels facts read in a 2023 casa6 mirror):
+    C2a (`SolvableVisCal.cc`, `SolveDataBuffer.cc`, `Calibrater.cc`), C2b
+    (`KJones.cc`), C2c (`StandardVisCal.cc`, `SolvableVisCal.cc`), C2d
+    (`Calibrater.cc`, `LSQFit.cc`), C4a and C4b (`VisCal.cc`, `Jones.cc`,
+    `CTPatchedInterp.cc`; C4b's held-out pass came after "three post-hoc
+    ports from CASA's and casacore's sources"), E0 (`FlagAgent*.cc`, the
+    source of `core/src/flag_extend.rs`, followed "operation by operation").
+    `docs/licence.md` line 33 says fluxscale and applycal follow CASA's
+    "documented behaviour", which C4b's own status contradicts (for the
+    coordinator; not edited here). Decision 5.
 - **Deliberate differences go in a docs page** (proposed
   `docs/casa-differences.md`, with the first piece). Entries known today:
   Tricolour in place of tfcrop in the A step (C1 O1, until piece 1 lands);
@@ -299,7 +310,7 @@ Mapping (to live in the migration doc; "proposed" rows do not exist yet):
 | `gaincal` G, K, KCROSS; `bandpass`; `fluxscale`; `polcal` Xf, Df | `calibrate.*.terms` with `type: G, K, B, F, Gpol, KCROSS, Xf, Df` | exists |
 | `applycal` | `rang-core apply` | exists |
 | `split`, `mstransform` | `rang-core split` | proposed (priority 4) |
-| `tclean` | `rang-core image` / `gemclean` (WSClean-style options) | exists (WSClean parity) |
+| `tclean` | `rang-core image` / `gemclean` (WSClean-style options) | exists (gated against WSClean) |
 | `ft` | `image.write_model`, `rang.core_model.write_model_data` | exists |
 | `exportfits` | not needed: FITS is written directly | exists |
 
@@ -320,6 +331,11 @@ probe MS, not CASA's source (section 5).
 
 ### Piece 1: `flagdata mode='tfcrop'`
 
+- **Depends on decision 5.** Every earlier CASA gate at cell-level
+  equality needed source reads (C2a-C2d, C4b, E0). Without reading CASA's
+  source, the bit-level gate below is a target, not a commitment: the fallback
+  gate is flag agreement ≥ 99.9 % per case with per-baseline flag fractions
+  within 1e-3, and the size grows by one session for behavioural probing.
 - **Hypothesis.** A Rust tfcrop gives CASA 6.7.6.14's flags on visibilities
   and on calibration tables (CARACal's settings: `timecutoff=4`,
   `freqcutoff=3`, `ntime='60s'`, `combinescans`, `usewindowstats='both'`,
@@ -393,9 +409,10 @@ probe MS, not CASA's source (section 5).
 4. **casadocs#205** (U5 row 23, filed 2026-11-12 on a CASA project): leave it
    open, or withdraw it under "no contributions to CASA".
 5. **Licence.** Commission the CASA licence check now (it is already owed for
-   `flag_extend.rs`), or only before the first port that would read CASA
-   source; and whether ports read CASA source at all, or only its behaviour
-   and documentation.
+   the C2a-C2d, C4 and E0 ports, which read CASA's C++ source, and for
+   `flag_extend.rs`), and correct `docs/licence.md` line 33 to match; and
+   whether new ports may read CASA source (piece 1's bit-level gate needs it)
+   or only its behaviour and documentation.
 6. **Shape.** `rang-core` grows (recommended), new packages only for heavy
    dependencies; and whether to build the CASA-keyword layer `rang.tasks`
    (section 6) or stage verbs only.
@@ -429,13 +446,17 @@ probe MS, not CASA's source (section 5).
 - STATE paragraph: "V8, 2026-11-12 (proposed; [v8-open-casa.md](v8-open-casa.md)):
   owner direction to build an open CASA replacement. Inventory of the CASA tasks
   MeerKAT users run against rang at 91da8c3: calibration near CASA parity,
-  imaging at WSClean parity, flagging the largest gap (CARACal's 23 `flagdata`
+  imaging gated against WSClean, flagging the largest gap (CARACal's 23 `flagdata`
   call sites; tfcrop replaced by Tricolour in C1 O1). First pieces proposed:
   `flagdata` tfcrop, the deterministic `flagdata` modes with `summary`,
   `listobs`, all ports, after v0.2.0. CASA stays an oracle binary; the two U5
   helpdesk tickets will not be sent. Seven owner decisions."
 - Plan line: "V8 done 2026-11-12 (`v8-open-casa.md`): scoping only; seven
   owner decisions."
-- Checks run: docs link check of the changed files; the full
+- `docs/licence.md` line 33 (fluxscale and applycal "documented behaviour")
+  disagrees with C2d and C4b, which read CASA source; decision 5.
+- Checks run: a relative-link check of the changed files;
+  `tests/test_d1_docs.py` and `tests/test_w4_8_docs.py` (12 passed, 4
+  skipped); the full
   `python -m rang.check` was not run (research and docs text only; the host is
   E2's).
