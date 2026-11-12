@@ -1343,7 +1343,7 @@ impl Tsm {
                 None => {
                     let region = match slice {
                         None => cell.iter().map(|&n| (0, n)).collect(),
-                        Some(s) => resolve_slice(s, cell, &desc.name)?,
+                        Some(s) => resolve_slice(s, cell)?,
                     };
                     lo = region.iter().map(|&(a, _)| a).collect();
                     data.shape = region.iter().map(|&(_, n)| n).collect();
@@ -1494,7 +1494,7 @@ impl Tsm {
 /// negative length runs to the end of the axis) checked against a cell of
 /// `shape`, with the lengths resolved. A slice of fewer axes than the cell
 /// cuts its last axes (NumPy's first cell axes) and keeps the others whole.
-fn resolve_slice(slice: &[(i64, i64)], shape: &[i64], name: &str) -> Result<Vec<(i64, i64)>> {
+fn resolve_slice(slice: &[(i64, i64)], shape: &[i64]) -> Result<Vec<(i64, i64)>> {
     if slice.len() > shape.len() || slice.is_empty() {
         return err(format!(
             "a slice of {} axes for cells of {} axes",
@@ -1520,8 +1520,8 @@ fn resolve_slice(slice: &[(i64, i64)], shape: &[i64], name: &str) -> Result<Vec<
 
 /// Cells read whole (`data`, `nrows` of `data.shape`) cut to `slice`: the
 /// cut of managers that read whole cells.
-pub(crate) fn cut_cells(data: ColumnData, slice: &[(i64, i64)], name: &str) -> Result<ColumnData> {
-    let slice = resolve_slice(slice, &data.shape, name)?;
+pub(crate) fn cut_cells(data: ColumnData, slice: &[(i64, i64)]) -> Result<ColumnData> {
+    let slice = resolve_slice(slice, &data.shape)?;
     let shape = data.shape.clone();
     let len: Vec<i64> = slice.iter().map(|&(_, n)| n).collect();
     let ndim = shape.len();
@@ -1893,7 +1893,7 @@ impl Table {
         let (slot, col) = self.binding[index];
         let manager = &self.managers[slot];
         let cut = |d: ColumnData| match slice {
-            Some(s) if d.nrows > 0 => cut_cells(d, s, &desc.name),
+            Some(s) if d.nrows > 0 => cut_cells(d, s),
             _ => Ok(d),
         };
         let mut data = match &manager.manager {
@@ -1906,7 +1906,7 @@ impl Table {
         if count == 0 {
             data.shape = match slice {
                 Some(s) if !desc.shape.is_empty() && s.len() <= desc.shape.len() => {
-                    resolve_slice(s, &desc.shape, &desc.name)?
+                    resolve_slice(s, &desc.shape)?
                         .iter()
                         .map(|&(_, n)| n)
                         .collect()

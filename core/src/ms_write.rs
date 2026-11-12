@@ -5134,7 +5134,7 @@ impl TableWriter {
                 let cells = read_cells(&self.dir, name, start, count, Some(self.nrows))?;
                 let packed = pack_cells(dtype, count, cells).ok_or(e)?;
                 match slice {
-                    Some(s) if packed.nrows > 0 => crate::ms::cut_cells(packed, s, name),
+                    Some(s) if packed.nrows > 0 => crate::ms::cut_cells(packed, s),
                     _ => Ok(packed),
                 }
             }
