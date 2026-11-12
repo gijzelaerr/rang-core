@@ -450,3 +450,10 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
 - Try 2's and try 3's run folder moves to `e3-20261111-b-correct-try2`.
   Try 4 runs in a fresh `e3-20261111-b-correct` on the same verified
   `e2b.ms`.
+- **Try 4 (tile 32), rc 1:** transform 616 s, prep 166 s, flag 909 s (the log
+  times it as 9 s; `flag_rfi`'s container peaked at 23.7 GB). Then
+  `set_model_cal` with `ms_sel.tile_size=32` stopped as before, "meqserver
+  appears to have died", after 246 s. memory.peak was 32,212,254,720 B, the
+  30 GiB cap again. Run 02:06-02:39; the input MS was unchanged. The folder
+  moves to `e3-20261111-b-correct-try4` and its split is deleted.
+- Try 5 uses tile 16 (configs regenerated; only `tile_size` changes).
