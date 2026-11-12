@@ -111,3 +111,11 @@ reports or patches go to NRAO. A reimplementation is still not novelty
 or cost is measured against the state of the art, which for MeerKAT imaging is
 WSClean, not CASA. The scope, priorities, first pieces and open decisions are in
 [v8-open-casa.md](v8-open-casa.md) (task V8). v0.2.0 stays the next milestone.
+
+Owner, 2026-11-12, on V8's seven decisions: "yes go with the recommendations"
+([v8-open-casa.md](v8-open-casa.md) section 8.1): `listobs` now (V8a), then
+after v0.2.0 `tfcrop` and the fixed-rule `flagdata` modes; Tricolour stays the
+default; casadocs#205 stays open; the CASA licence check runs now (E5b) and
+ports work from CASA's behaviour and documentation; `rang-core` grows with a
+`rang.tasks` layer in CASA's keyword names; spectral line and image tables out
+for now.

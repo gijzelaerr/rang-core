@@ -4,7 +4,8 @@ Task V8 of [vision.md](vision.md) (section 8). Written 2026-11-12 on branch
 `claude/v8-open-casa-a871c6` from `main` `91da8c3`, before E2 and E3 report:
 no E2 or E3 acceptance number is used here.
 
-**Status: proposed; nothing built or measured.** Every plan, tolerance and size
+**Status: proposed; nothing built or measured.** The owner answered the seven
+decisions on 2026-11-12 (section 8.1); piece 3 is task V8a. Every plan, tolerance and size
 below is a proposal. The inventory states what `main` has at `91da8c3`; each mark
 is read from the cited note's status line or summary, and a row whose note
 was not reread for this task says so. CARACal facts were read at
@@ -324,7 +325,9 @@ documents something that is not there.
 
 All three are ports with parity as the goal and claim no novelty. All run after
 v0.2.0 (E6) unless the owner moves piece 3 earlier: it reads only, adds one
-command and touches no code E2 or E3 uses (decision 1). Data stays on
+command and touches no code E2 or E3 uses (decision 1). The owner did
+(2026-11-12, section 8.1): piece 3 runs now as V8a, pieces 1 and 2 follow
+v0.2.0 in that order. Data stays on
 `D:\rang`; CASA runs in `rang-o-casa:6.7.6.14`. Before freezing, each reads
 CASA's documentation for its task (casadocs 6.7) and checks the behaviour on a
 probe MS, not CASA's source (section 5).
@@ -418,6 +421,29 @@ probe MS, not CASA's source (section 5).
    (section 6) or stage verbs only.
 7. **Scope edge.** Whether spectral line (`uvcontsub`, Doppler regrid, cubes)
    and CASA image tables are in scope at all, or left to CASA and other tools.
+
+### 8.1 Answers (owner, 2026-11-12)
+
+Owner, in chat on 2026-11-12, verbatim: "yes go with the recommendations". The
+coordinator's reading of that answer, decision by decision:
+
+1. **When.** All three pieces after v0.2.0, except piece 3 (`listobs`), which
+   is read-only and runs now, alongside E2-E6, as task V8a
+   ([v8a-listobs.md](v8a-listobs.md)).
+2. **Order.** Flagging first after v0.2.0: piece 1 (`tfcrop`), then piece 2
+   (the fixed-rule modes and `summary`).
+3. **tfcrop in the A step.** Tricolour stays the default flagger; `tfcrop`
+   becomes an option.
+4. **casadocs#205.** Stays open.
+5. **Licence.** E5b runs the CASA licence check now and fixes
+   `docs/licence.md`. Future ports work from CASA's behaviour and
+   documentation, with CASA's output as the oracle, and read CASA source only
+   where its licence allows. Piece 1 therefore starts from its fallback gate
+   unless the licence check allows the source read.
+6. **Shape.** `rang-core` grows, and a `rang.tasks` layer accepts CASA keyword
+   names; `rang.tasks.listobs` is its first function (V8a).
+7. **Scope edge.** Spectral line and CASA image tables are out for now, to be
+   revisited after the first three pieces.
 
 ## 9. Sources (read 2026-11-12)
 
