@@ -31,7 +31,7 @@ comments only.
 
 | Item | Evidence | Verified at | State |
 | --- | --- | --- | --- |
-| 1. One command: `pip install rang-core`, then `rang-core run config.yaml my.ms` flags, calibrates, applies, images and self-calibrates an unseen L-band MS in full polarisation | Default `run.stages` is the full chain since E5-28 (`b58c0d0`); five stages exist (flag, calibrate, apply, image, selfcal; the task brief's "six" counts none extra). E2-B and E2-A run from a wheel venv. **A bare `pip install rang-core` lacks astropy**, which the polarisation solves (`cal_pol`, `frame='casa'`) and the FITS output need: E2's wheel smoke 1 failed with `ModuleNotFoundError: astropy` ([e2-acceptance.md](e2-acceptance.md), amendment 2026-11-12) | `2899c23` | **Pending E2**; packaging gap F-01 (release-blocking) |
+| 1. One command: `pip install rang-core`, then `rang-core run config.yaml my.ms` flags, calibrates, applies, images and self-calibrates an unseen L-band MS in full polarisation | Default `run.stages` is the full chain since E5-28 (`b58c0d0`); five stages exist (flag, calibrate, apply, image, selfcal; the task brief's "six" counts none extra). E2-B and E2-A run from a wheel venv. **A bare `pip install rang-core` lacks astropy**, which every polarisation solve and `apply.parang` need (Stokes I runs bare, FITS included): E2's wheel smoke 1 failed with `ModuleNotFoundError: astropy` ([e2-acceptance.md](e2-acceptance.md), amendment 2026-11-12) | `2899c23` | **Pending E2**; packaging gap F-01 (release-blocking) |
 | 2. Written back: FLAG with a backup, CORRECTED_DATA, MODEL_DATA, calibration tables, FITS, receipt; CASA, WSClean, QuartiCal read them | W1, C4b, G6 read-back; the e2e job checks every output on five platforms (run 43193119397); E5-01 to E5-03 fixed in the pre-review | `9f5a0b7` (CI) | Met on simulated data; real data with E2. Open: E5-02's gemclean part (F-02) |
 | 3. Each stage against an oracle within a frozen tolerance | Tricolour (530 cells accepted, item 33), CASA and QuartiCal (C2a-C7, E0), WSClean (G3-G9); several gates "not met as frozen" are recorded in their notes and in [docs/limits.md](../docs/limits.md) | notes | **Pending E2** (A0's gates on E2-A, E2-B) |
 | 4. Against CARACal on the same data | E3 running; not read here (firewall) | — | **Pending E3** |
@@ -45,7 +45,7 @@ New IDs F-01 onwards for this pass; pre-review IDs (E5-nn) and agent B's (NEW-nn
 
 | ID | Finding | Where | State |
 | --- | --- | --- | --- |
-| F-01 | `pip install rang-core` (finish-line item 1, the README and the tutorial's "a plain `pip install rang-core` will do") does not run the full chain: astropy is only in the `imaging` extra, but `cal_pol` (Gpol, parallactic angle), `calmodels` (spix LSRK path), `simtruth`/`simtruth_ms` (the tutorial's MS) and every FITS writer import it | `pyproject.toml` `dependencies`; `python/rang/cal_pol.py:66-69` | See section 4 |
+| F-01 | `pip install rang-core` (finish-line item 1, the README, the tutorial's "a plain `pip install rang-core` will do") does not run in full polarisation: astropy is only in the `imaging` extra, and every polarisation solve (Gpol, KCROSS, Xf, Df) and `apply.parang` calls `cal_pol.parallactic_angle`, which imports it (`cal_pol.py:66-69`). From the bare wheel this raises `ModuleNotFoundError: No module named 'astropy'` (reproduced, section 4), after flag has written; E2's wheel smoke 1 failed the same way. Stokes I runs: the bare wheel ran the tutorial's flag, calibrate, apply, image chain to FITS (gemclean writes FITS in Rust). The A1 generator (`simtruth`) and the `calmodels` spix path need astropy too | `pyproject.toml` `dependencies` | Open: proposed fix, astropy in `dependencies` (section 5); not changed during the full check |
 | E5-02 | `gemclean -model-column DATA` overwrites DATA: `core/src/gemclean/cli.rs:485` takes it unchecked and gemclean writes the model column after imaging by default | Rust | Open, protected (rebuild); coordinator |
 | E5-09 | Known limits stated nowhere a user reads | docs | **Fixed in part** `25329b5`: [docs/limits.md](../docs/limits.md) from the owner decisions, linked from the README and the docs toctree; the E2/E3 results are its placeholder |
 | E5-10 | CHANGELOG Unreleased is the per-task log, with statements later entries undo (:289 "not chunked yet", :388 "until C7a", `core/target`, `extendflags`) | `CHANGELOG.md` | Open, editorial at E6. Three omissions added here (NEW-02, NEW-03, NEW-12) |
@@ -79,7 +79,26 @@ E5-34's casacore-data licence, both external.
 
 ## 4. Hands-on checks
 
-To be filled from the heavy-lock run (wheel build, installed-wheel checks).
+All under `tools/heavy_lock.py` in shared slots, on `D:\rang\scratch\e5b`, Python 3.14.10, uv venvs from public PyPI, no `PYTHONPATH`
+(`rang.__file__` is the venv's site-packages). Commit: the branch at `7a3080a` (code identical to `2899c23` apart from comments).
+
+- **Wheel build** (`maturin build --release`, local x86-64-v3 flags, so not the distributable baseline): 236 s;
+  `rang_core-0.1.0-cp310-abi3-win_amd64.whl`, 4.5 MB, 125 files. Package data: both static masks, `TRICOLOUR-LICENSE`,
+  `casacore_observatories.json`, `meerkat.itrf.txt`, `data/README.md`. `licenses/LICENSE` and `licenses/THIRD-PARTY-NOTICES.txt`
+  (with E5-12's lines), a CycloneDX SBOM. Console scripts `rang-core = rang.core_cli:main`, `gemclean = rang.gemclean:main`;
+  `rang-core --version` and `gemclean -version` print 0.1.0. `Requires-Dist`: numpy, pyyaml only (F-01).
+- **sdist** (`maturin sdist`): `.gitattributes`, CHANGELOG, `CITATION.cff`, `Cargo.*`, LICENSE, PKG-INFO, README,
+  `THIRD-PARTY-NOTICES.txt`, `pyproject.toml`, `core/`, `src/`, `python/rang`, `tests/`, `data/README.md`, `data/meerkat.itrf.txt`;
+  no `.cargo/`, as E5-37 intended.
+- **Tutorial chain from the installed wheel** (`tools/e2e/run.py --installed`, the `e2e` CI job): passed, 17 s (generate 5.8 s, run
+  7.3 s). Peak 0.4957 Jy of 0.500, flagged 0.364, residual 0.70 mJy, beam 29.0″ × 4.97″, circular feeds refused with exit 2 and the
+  MS unchanged; the same numbers as E4's CI runs.
+- **CLI page check** (`docs/gen_cli.py --check` with the installed wheel): exit 0.
+- **Tutorial notebook** (`notebooks/00-ms-to-image.ipynb`, nbconvert, installed wheel with `[imaging,notebook,plot]`): exit 0, 35 s.
+- **Bare wheel** (no extras: numpy, PyYAML, rang-core): `rang-core run` with the tutorial's configuration on an A1 small MS (written
+  with the full venv, since the generator needs astropy) exits 0; flag, calibrate, apply and image done, all five FITS files written.
+  `rang.cal_pol.parallactic_angle` raises `ModuleNotFoundError: astropy` (F-01).
+- **Malformed configurations:** agent B's 46-case sweep (`e5f-new-code.md`, item 7): clear exit-2 messages except NEW-05 to NEW-08.
 
 ## 5. For the coordinator
 
