@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Write the string-array fixture table and its python-casacore oracle.
 
 Run with a python that has python-casacore (in WSL on the owner's host):

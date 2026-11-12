@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Compare rang's table reader with python-casacore on the string columns of
 real Measurement Sets (research/feed-poltype-read.md).
 
@@ -11,6 +12,8 @@ main table and each subtable, as `getcell` returns it (None for an undefined
 cell), for at most `ROWS` rows per table. `check` reads the same cells with
 `rang.core_ms`, cell by cell and as whole columns where the shapes agree, and
 prints one line per table and a total; it exits 1 on any difference.
+IncrementalStMan string columns are outside the reader's scope: `check`
+only requires that it refuses them with its "is not supported" error.
 """
 
 import json
@@ -84,7 +87,7 @@ def check(path):
     from rang import core_ms
 
     result = json.loads(Path(path).read_text(encoding="utf-8"))
-    bad = total = 0
+    bad = total = refused = 0
     for entry in result["tables"]:
         where = windows_path(entry["ms"]) + (
             "/" + entry["table"] if entry["table"] else ""
@@ -94,6 +97,16 @@ def check(path):
         with core_ms.open_table(where) as t:
             for col, info in entry["columns"].items():
                 want = info["cells"]
+                if info["manager"] == "IncrementalStMan":
+                    # Out of the reader's scope: it must refuse, cleanly.
+                    try:
+                        t.getcol(col, 0, 1)
+                        notes.append(f"{col}: IncrementalStMan string read")
+                    except OSError as e:
+                        if "is not supported" not in str(e):
+                            notes.append(f"{col}: {e}")
+                        refused += sum(c is not None for c in want)
+                    continue
                 for row, cell in enumerate(want):
                     if cell is None:
                         try:
@@ -127,7 +140,11 @@ def check(path):
                     and len(shapes) == 1
                     and None not in shapes
                 ):
-                    whole = t.getcol(col)
+                    try:
+                        whole = t.getcol(col)
+                    except OSError as e:
+                        notes.append(f"{col}: whole-column read: {e}")
+                        continue
                     exp = [
                         np.asarray(c["values"], dtype=object)
                         .reshape(c["shape"])
@@ -145,7 +162,10 @@ def check(path):
         print(f"{'ok ' if not notes else 'BAD'} {cells_ok}/{cells_n} {where} {cols}")
         for n in notes[:5]:
             print("    ", n)
-    print(f"total {total} cells, {bad} problems, casacore {result['casacore']}")
+    print(
+        f"total {total} cells compared, {bad} problems, {refused} cells of "
+        f"IncrementalStMan string columns refused; casacore {result['casacore']}"
+    )
     return 1 if bad else 0
 
 
