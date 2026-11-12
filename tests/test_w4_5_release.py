@@ -190,6 +190,9 @@ def test_pyproject_metadata():
         ("core/src/weights.rs", "2008-2015 A. R. Offringa"),
         ("core/src/wgridder.rs", "Copyright (C) 2019-2026 Max-Planck-Society"),
         ("core/src/wgridder.rs", "Copyright (C) 2020-2026 Max-Planck-Society"),
+        ("core/src/wgridder.rs", "Ignace Bogaert"),
+        ("core/src/wgridder.rs", "Copyright (C) 2019 Peter Bell"),
+        ("core/src/weights.rs", "Copyright (C) 2024 ASTRON"),
     ):
         assert holder in notices and holder in _text(path), (path, holder)
     # E5 final F-01: the polarisation chain needs astropy in a bare install.

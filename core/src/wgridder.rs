@@ -18,8 +18,14 @@
 //! `wgridder_impl.h`: Copyright (C) 2019-2026 Max-Planck-Society,
 //! Copyright (C) 2026 Albert M. W. Yau; Authors: Martin Reinecke, Albert M. W. Yau.
 //! `gridding_kernel.{h,cc}`: Copyright (C) 2020-2026 Max-Planck-Society;
-//! Author: Martin Reinecke. Licence: GNU GPL version 2 or (at your option)
-//! any later version.
+//! Author: Martin Reinecke. `gl_integrator.h`: Copyright (C) 2019-2026
+//! Max-Planck-Society; `gl_integrator.cc`: Copyright (C) 2019-2026
+//! Max-Planck-Society, Ignace Bogaert; Author: Martin Reinecke. Licence of
+//! these: GNU GPL version 2 or (at your option) any later version.
+//! `fft.h` (`good_size_cmplx` only): Copyright (C) 2010-2026
+//! Max-Planck-Society, Copyright (C) 2019 Peter Bell; Authors: Martin
+//! Reinecke, Peter Bell; BSD-3-Clause OR GPL-2.0-or-later, used under the
+//! GPL.
 //!
 //! Conventions are rang's direct Fourier transform's: pixel `(i, j)` of an
 //! `nx * ny` image stored at `i * ny + j` lies at
