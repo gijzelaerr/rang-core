@@ -261,4 +261,108 @@ In the staged run the pixel-spectrum fit took 36 s.
 **Input bytes.** The staged pilot copy's sha256 changed during the run, at the same size, while
 the S1 copy did not change. The `D:` copies have not been opened by MFImage since staging began.
 
-Frozen at the commit that adds this section (hash in the commit that follows it).
+Frozen at commit `426c431` (protocol sections 1-6 and this record).
+
+## 9. After the freeze
+
+**Changes to how the timing runs are scheduled** (2026-11-12, at the coordinator's request, to
+keep the host busy and E2/E3 first):
+
+- *One hold per plan.* G-S1-j16-r1 and W-S1-j16-r1 ran with one exclusive ticket each. All later
+  timed runs run inside one exclusive hold per plan (`V5_PLAN_HELD=1`), and the lock status is
+  logged before each run in `plan-<name>.log`.
+- *Plans regrouped.* The S1 `-j1` runs moved from `s1` to `p1`, which waits for E2's and E3's
+  timed runs.
+- *s1 deferred (2026-11-12).* The queued `s1` hold was withdrawn on the coordinator's word: it
+  sat first in the lock queue behind a shared E2 job, blocking seven shared jobs. `s1`, `p16`
+  and `p1` all wait for the coordinator's go after E2's and E3's timed passes.
+
+Neither change touches the measures, the settings or the tolerances.
+
+**MFImage CLEAN crash, fixed (Obit bug).** The first timed CLEAN run, `O-S1-j16-r1` on
+`rang-obit:dc26694`, died with SIGSEGV (rc 139) after 14.8 s, right after "SkyModel with 30
+components". Under gdb (`debug-gdb/gdb-clean.txt`, the same `.inp`, ext4 staged) the same point
+aborts instead: `g_malloc0` is asked for 18446744071959779253 bytes from `ObitInfoListAlwaysPut
+("Stokes")` in `MFMakeResiduals`.
+
+The cause is in `src/ObitDConCleanVisMF.c`, lines 1088 and 1115:
+`dim[1] = dim[2] = dim[3] = dim[5];` reads past the end of `gint32 dim[MAXINFOELEMDIM]`
+(`MAXINFOELEMDIM` is 5, `ObitInfoElem.h:46`), so the element count is stack garbage. That
+code runs only when residuals are made, which is why the `Niter 0` runs never reached it.
+
+The fix is in [`build.sh`](../tools/oracles/obit/build.sh): the trailing dimensions are set to 1, as
+the array's initialiser `{4,1,1,1,1}` intends, with a count check before and after. The patched
+image is `rang-obit:dc26694-p1`: MFImage 11,917,144 bytes, 453 warnings. The crashed run is kept as
+`runs/O-S1-j16-r1-crash-dc26694`; the timed run is repeated on the patched image.
+
+Patch note for the Obit maintainers (W. D. Cotton), not posted. File `ObitSystem/Obit/src/ObitDConCleanVisMF.c`
+at commit `dc2669429fdb5bfde2910f7f55e46e55df3ee204`, function `MFMakeResiduals`, lines 1088
+and 1115, each `dim[0] = 4; dim[1] = dim[2] = dim[3] = dim[5];`, where `dim` is
+`gint32 dim[MAXINFOELEMDIM]` and `MAXINFOELEMDIM` is 5, so `dim[5]` is read past the end;
+patched to `dim[1] = dim[2] = dim[3] = dim[4] = 1;`. Issue text:
+
+> MFImage (dc26694) segfaults or aborts at the first residual of any CLEAN. In `MFMakeResiduals`,
+> `src/ObitDConCleanVisMF.c` lines 1088 and 1115, `dim[1] = dim[2] = dim[3] = dim[5]` reads past
+> `dim[MAXINFOELEMDIM]` (= 5); `g_malloc0` then gets a garbage size (gdb: 18446744071959779253
+> bytes) via `ObitInfoListAlwaysPut(..., "Stokes", ...)`. `dim[4]` (or 1) was presumably meant.
+> Ubuntu 24.04, GCC 13, -O3 -march=native.
+
+**Untimed S1 CLEAN, patched image** (`O-S1-j8-r1-clean`, 8 threads, shared slots; not a timing
+run): rc 0, 1,222 s wall, 8,173 s CPU, 1.13 GB RSS, 236,158 iterations. Against the frozen
+tolerances of section 6:
+
+| measure | MFImage | reference | tolerance | verdict |
+| --- | --- | --- | --- | --- |
+| flux against truth, \|S/S_true − 1\| | median 0.0001, largest 0.0002 | | ≤ 1 % | agrees |
+| flux, pair \|ΔS/S\| | median 0.0001, largest 0.0003 (both against WSClean and against GeMClean) | | median ≤ 1 %, largest ≤ 3 % | agrees |
+| α, pair \|Δα\| | against WSClean median 0.0029, largest 0.0071; against GeMClean 0.0030, 0.0077 | | median ≤ 0.03, largest ≤ 0.1 | agrees |
+| α against truth (0) | median \|α\| 0.0039, largest 0.0068; α plane largest 0.006 | | median ≤ 0.03 | agrees |
+| restoring beam | 14.28″ × 12.77″, −43.5° | WSClean 13.88″ × 8.35″, −29.8° (150.2°) | BMAJ, BMIN within 5 %, BPA within 5° | **does not agree**: BMAJ +2.9 %, BMIN +52.9 %, BPA 13.7° |
+| rms (MAD), MFS | 43.6 µJy | WSClean 24.9, GeMClean 24.8 µJy | ratio 0.9-1.1 | **does not agree**: ratio 1.75 (standard deviation 46.1 against 24.9 µJy) |
+
+GeMClean against WSClean on the same S1 runs (`-j 16`), the reference scale:
+
+| measure | result |
+| --- | --- |
+| \|ΔS/S\| | median 1.6e-5, largest 4.5e-5 |
+| \|Δα\| | median 0.0002, largest 0.0008 |
+| beam | 13.88″ × 8.35″ for both |
+| rms | 24.8 µJy and 24.9 µJy |
+
+**Beam and rms: settings checked against section 3** (2026-11-12, at the coordinator's request,
+after the result above). The two measured fails are kept as measured. Section 3 matches what
+was run (`Robust 0.5`, `WtBox 0`, `UVTaper 0`, `MFTaper −1`), and its "not identical: its grid
+follows the facet size" names the one known difference. Without `nuGrid`/`nvGrid`, Obit sizes
+its weighting grid from `nx`, the facet (`ObitUVWeight.c` 451-476). `MFImage.c` accepts both keys
+(line 1578), although the TDF does not list them.
+
+Untimed `Niter 0` S1 runs (8 threads, shared slots): `niter0beamdef` with the frozen settings,
+`niter0beam` with the weighting grid as large as the image, as WSClean's. MFImage's beam image
+(`saveBeam T`) was fitted with the PSFs of WSClean and GeMClean by one estimator,
+[`psf_halfpower.py`](results/v5-obit-scripts/psf_halfpower.py): a least-squares Gaussian with
+peak 1 over the connected pixels ≥ 35 % of the peak.
+
+| PSF | header (imager's own fit) | one estimator for all |
+| --- | --- | --- |
+| WSClean (`W-S1-j16-r1`) | 13.88″ × 8.34″, −29.8° | 10.18″ × 8.03″, −11.8° |
+| GeMClean (`G-S1-j16-r1`) | 13.88″ × 8.35″, −29.8° | 10.18″ × 8.03″, −11.8° |
+| MFImage, frozen weighting grid (facet) | 14.28″ × 12.77″, −43.5° | 10.85″ × 8.45″, −13.8° (+6.6 %, +5.2 %) |
+| MFImage, weighting grid = N (`nuGrid` 2048) | 13.75″ × 12.46″, −30.8° | 10.91″ × 8.49″, −13.9° (+7.2 %, +5.7 %) |
+
+The PSFs differ by 5-7 % and 2°. The weighting grid moves MFImage's PSF by under 1 %.
+
+The 53 % BMIN difference of the restoring beams comes from Obit's own beam fitter, which is fitted
+to a different part of the main lobe. The PSF is not the cause (established on S1). No deviation
+is made and `nuGrid` stays unset: the setting is as the protocol intended, and setting it would
+not change the PSF materially.
+
+The rms ratio of 1.75 is not a restoring-beam effect. The noise of a restored image is the
+residual's, and the expected Briggs 0.5 noise on S1 is 23.2 µJy
+([gemclean-benchmark.md](gemclean-benchmark.md)). Obit reports its weighting raising the natural
+noise (19.8 µJy) by 1.12, about 22 µJy. MFImage's final facet residuals peak at 0.69-1.17 mJy.
+WSClean's MFS residual peaks at 0.167 mJy, with a MAD of 24.7 µJy, against a threshold of 0.1 mJy.
+
+MFImage's CLEAN therefore stopped with residual flux left: 236,158 iterations of the 1,000,000
+allowed, and peaks 7-12 times the threshold. Its log (`prtLv 1`) does not say why. Not
+established: which stopping rule ended it. Candidates are `minPatch`, `maxPixel`, the major-cycle
+rule with `ccfLim 0.2`, and the TDF defaults of section 3 (`Reuse`, `noNeg`).

@@ -8,7 +8,7 @@
     v5_run.py probe                    print the load probe once
 
 Arms: G = GeMClean (native, $V5_GBIN), W = WSClean 3.7 (rang-wsclean-native:3.7),
-O = Obit MFImage (rang-obit:dc26694), both in Docker in WSL. DS: S1 or P (pilot-512).
+O = Obit MFImage (rang-obit:dc26694-p1, patched: research/v5-obit.md section 9), both in Docker in WSL. DS: S1 or P (pilot-512).
 TAG (optional) names a non-timed plumbing run (e.g. niter0) and changes only the name.
 Outputs under $V5_OUT (default D:/rang/outputs/v5-20261111-01): runs/<ARM>-<DS>-j<J>-r<REP>/.
 """
@@ -26,7 +26,7 @@ from g7_run import now, probe, sha, time_v, win_stats, wsl_path  # noqa: E402
 
 OUT = Path(os.environ.get("V5_OUT", "D:/rang/outputs/v5-20261111-01"))
 GBIN = os.environ.get("V5_GBIN", "D:/rang/outputs/g8-20261110-01/bin/gemclean-sb-ed836ec.exe")
-OBIT_IMG = os.environ.get("V5_OBIT_IMG", "rang-obit:dc26694")
+OBIT_IMG = os.environ.get("V5_OBIT_IMG", "rang-obit:dc26694-p1")
 WSC_IMG = "rang-wsclean-native:3.7"
 WSCTMP = "/home/gijsm/Build/tmp/20261111-v5-wsctmp"
 OBIT_STAGE = "/home/gijsm/Build/tmp/20261111-v5-obit"
@@ -146,6 +146,11 @@ def inp(ds, j, niter=1000000):
         ("nAIPS", "Int", [0]), ("AIPSuser", "Int", [100]),
     ]  # fmt: skip
     out = [f"# MFImage input, research/v5-obit.md, {ds} -j{j}"]
+    if os.environ.get("V5_OBIT_NUGRID"):  # weighting grid (ObitUVWeight.c:451-476), not in the TDF
+        ng = int(os.environ["V5_OBIT_NUGRID"]) if os.environ["V5_OBIT_NUGRID"] != "N" else d["size"]
+        keys += [("nuGrid", "Int", [ng]), ("nvGrid", "Int", [ng])]
+    if os.environ.get("V5_OBIT_SAVEBEAM"):  # diagnostics only: keep the beam images
+        keys += [("saveBeam", "Boo", ["T"])]
     mine = {k[0] for k in keys}
     keys = [k for k in tdf_defaults() if k[0] not in mine] + keys
     for name, typ, vals in keys:
@@ -288,10 +293,11 @@ def one(arm, ds, j, rep, tag=""):
 ORDER = ["G", "W", "O"]
 PLANS = {
     # section 5: S1 then the pilot; -j16 two repeats interleaved (reversed on repeat 2), then -j1 once.
-    "s1": [(a, "S1", 16, r) for r in (1, 2) for a in (ORDER if r == 1 else ORDER[::-1])]
-    + [(a, "S1", 1, 1) for a in ORDER],
+    # At the coordinator's request (2026-11-12) the -j1 runs of S1 moved from s1 to p1, so that
+    # the long single-thread runs wait for E2's and E3's timed runs.
+    "s1": [(a, "S1", 16, r) for r in (1, 2) for a in (ORDER if r == 1 else ORDER[::-1])],
     "p16": [(a, "P", 16, r) for r in (1, 2) for a in (ORDER if r == 1 else ORDER[::-1])],
-    "p1": [(a, "P", 1, 1) for a in ORDER],
+    "p1": [(a, "S1", 1, 1) for a in ORDER] + [(a, "P", 1, 1) for a in ORDER],
 }
 
 
@@ -324,8 +330,16 @@ def plan(name):
                 status(f"plan: {run} skipped under the contingency of section 5")
                 continue
         t = time.time()
-        rc = subprocess.call([PY, LOCK, "run", "--", PY, __file__,
-                              "one", arm, ds, str(j), str(rep)])  # fmt: skip
+        inner = [PY, __file__, "one", arm, ds, str(j), str(rep)]
+        if os.environ.get("V5_PLAN_HELD"):
+            # The whole plan runs inside one exclusive hold (heavy_lock.py run -- v5_run.py
+            # plan NAME): one ticket instead of one per run, so shared jobs drain once.
+            st = subprocess.run([PY, LOCK, "status"], capture_output=True, text=True).stdout
+            with open(log, "a") as f:
+                f.write(f"LOCK before {run} {now()}\n{st}")
+            rc = subprocess.call(inner)
+        else:
+            rc = subprocess.call([PY, LOCK, "run", "--", *inner])
         with open(log, "a") as f:
             f.write(f"RUN {run} rc={rc} wall={time.time() - t:.0f}s {now()}\n")
         status(f"plan {name} RUN {run} rc={rc} wall={time.time() - t:.0f}s")

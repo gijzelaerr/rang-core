@@ -24,6 +24,8 @@ NU0 = {"S1": 1.4e9, "P": 1.043e9}
 
 def beam_px(h):
     cell = abs(h["CDELT2"]) * 3600.0
+    if "BMAJ" not in h:  # Obit: its CLEAN beam in the AIPS cards (degrees)
+        return h["CLEANBMJ"] * 3600.0 / cell, h["CLEANBMN"] * 3600.0 / cell, h.get("CLEANBPA", 0.0)
     return h["BMAJ"] * 3600.0 / cell, h["BMIN"] * 3600.0 / cell, h.get("BPA", 0.0)
 
 
