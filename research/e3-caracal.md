@@ -472,3 +472,46 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
     `log-caracal.txt.gz`, `config.yml` and the two antenna flag summaries.
 - Tile 16 therefore stands as deviation 11's value for E3-B, the timed pass
   included.
+
+### 10.11 E3-B measures on the correctness pass (try 5) split
+
+From `e3b-correct/vis.json` and `leak.json`, computed on 2026-11-12 under
+heavy_lock (8 slots, 24 GB). The visibility measures took 4 min 32 s (2.3 GB
+RSS); the WSClean 3.7 IQUV leakage image of scan 18 took 1 h 36 min. By 10.7
+the timed pass's split is the reported source and these numbers are the
+repeatability reference, but a second CARACal run is not expected to differ.
+The bins at 1.2 GHz (and at 1.5 GHz for 1934−638) have less than 10 % of
+cells unflagged and are not scored.
+
+| Bin (GHz) | 3C 286 p | 3C 286 χ (°) | 1934−638 I/SR2016 | 1934−638 vis. leak | 1830−211 p, scan 19 / 20 | 1830−211 V/I, scan 19 / 20 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1.00-1.10 | 0.0872 | −0.4 | 0.925 | 5.6e-6 | 1.6e-4 / 3.1e-4 | 3.4e-4 / 3.8e-4 |
+| 1.10-1.20 | 0.0916 | −1.4 | 0.868 | 2.6e-5 | 2.2e-4 / 2.4e-4 | 3.6e-4 / 3.7e-4 |
+| 1.30-1.40 | 0.0966 | −2.9 | 0.891 | 1.1e-5 | 3.5e-4 / 3.8e-4 | 5.9e-4 / 5.9e-4 |
+| 1.40-1.50 | 0.0977 | −3.4 | 0.841 | 6.7e-6 | 4.1e-4 / 3.9e-4 | 7.6e-4 / 7.3e-4 |
+| 1.50-1.60 | 0.0981 | −3.7 | – (8 %) | – | 6.5e-4 / 7.0e-4 | 1.1e-3 / 1.1e-3 |
+| 1.60-1.65 | 0.0996 | −4.0 | 0.809 | 4.6e-6 | 3.0e-4 / 3.0e-4 | 1.1e-3 / 1.1e-3 |
+
+- **1934−638 image leakage** (scan 18; MFS peak over peak I = 14.75 Jy):
+  |Q| 3.1e-5, |U| 1.5e-5, |V| 6.4e-6. The image hashes are in
+  `e3b-correct/leak-mfs-sha256.txt`; the FITS files stay in
+  `D:\rang\outputs\e3-20261111-b-correct\leak`.
+- **1830−211**, scans 19-20: I is 12.2-13.3 Jy, rising with frequency. 1830−211
+  is CARACal's gain calibrator, and these are CARACal's fluxscaled values.
+- **3C 286 χ is −0.4° to −4.0°**, about 33-37° from the catalogue's 33°.
+  - p of 0.087-0.100 is as expected for 3C 286 at L band.
+  - The dev test's 88° (10.6) was a 4,776-row solve, so this run supersedes it.
+  - The estimator is E2's (`_stokes4`, χ = atan2(U, Q)/2), the code E1b used
+    to score rang (|χ − 33°| median 0.95°). That points at CARACal's
+    polarisation frame (its feed-angle and X-Y phase handling) rather than
+    at the measure. This is not proven.
+  - Reported as CARACal's result. The coordinator's joint comparison against
+    rang's scan-17 numbers decides the reading.
+- **1934−638 flux:** CARACal's I is 0.81-0.93 of SR2016, falling with
+  frequency (the same trend as the dev test's 0.83-0.92). CARACal sets the
+  model from its own `pks1934-638.lsm` (MeqTrees), not from SR2016; that
+  model's scale and spectrum are the first suspect. Not investigated further
+  here.
+- **Deleted 09:20:** the try 5 split `msdir` (118 GB plus 4.7 GB of flag
+  versions) and the non-MFS leakage products. Kept: `e2b.ms` (51 GB, for the
+  timed pass) and the run's `output\`, logs and MFS images (0.5 GB).

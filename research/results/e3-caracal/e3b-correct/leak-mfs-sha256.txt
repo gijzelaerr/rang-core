@@ -1,0 +1,8 @@
+2d1bd7dd979d6ed9490bbd163957997bdab6c78c197cf0759090d32d3a2bc892 *leak-MFS-I-image.fits
+aafe1cd935fe332e4ca98b6ab6163937658f9edddd5b6073bcd876df4476a9b8 *leak-MFS-Q-image.fits
+ed7620725f181274decebbe79a55dd0032e5f291afe841217119568f5efad458 *leak-MFS-U-image.fits
+21c6aba29e20c0b25a86991a20400ebf4b362c15187b920c77b2d4b102db315d *leak-MFS-V-image.fits
+fe9366c145cc742637f719354c3644eb1f4026d1bec5acac6f174185e31fcb52 *leak-MFS-I-residual.fits
+58e1dbd0993d1e9a6b9402b8012e17c65fab66eacd7bcbbf7d1d65f311c67d5b *leak-MFS-Q-residual.fits
+27025d34f115ec9f2719a97e94007aa7d7151dc6357695db180958ecdd564e42 *leak-MFS-U-residual.fits
+796f747809f86c7b91054d5403f88d0b8e333a85db0e02203a21df99aee2219c *leak-MFS-V-residual.fits
