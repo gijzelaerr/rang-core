@@ -259,7 +259,15 @@ FAIL, on one test. Every other gate passes: fmt, ruff, clippy, cargo tests,
   (`outputs/tv-caracal-wsl-20261029-01/original.ms`); without the fixture
   it skips.
 
-Log: `D:\rang\outputs\sliced-read-20261112-check4.log`. CHECK-HEAD
+Log: `D:\rang\outputs\sliced-read-20261112-check4.log`.
+
+Rerun on the final head `816e614`, after the second merge: the same result.
+- Overall FAIL, on that one test alone.
+- 1282 pytest tests passed; the gain-hash gate PASS.
+- 52 min, the lock wait included.
+
+Log: `D:\rang\outputs\sliced-read-20261112-check5.log`. Only notes were
+committed after it.
 
 ## 6. Limits and open points
 
