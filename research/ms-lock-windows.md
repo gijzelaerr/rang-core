@@ -84,5 +84,27 @@ Other platforms (macOS) keep the stub.
     Also, in Git Bash, `RANG_ARCHIVE_OUTPUTS` must be given as
     `//wsl.localhost/...`: a leading `\\` reached Python as one backslash,
     and the gain-hash gate then found no archive.
-- Not checked: Linux. CI runs the fixture-free tests there; the Linux module
-  changed only its return type and the `REASSERT` flag.
+- Linux: the Rust lock test passes in WSL Ubuntu (`cargo test --release
+  --lib ms_write::tests::the_lock` on this tree, target in
+  `~/Build/tmp`, removed after). The Python tests on Linux are left to CI;
+  the Linux module changed only its return type and the `REASSERT` flag.
+- Callers audited for a second writable open of one table in one process,
+  which Windows now refuses. None found:
+  - `core_writeback` holds one writer, and `formats/flagversions` reuses the
+    table passed in.
+  - `simtruth_ms` closes MAIN before opening the subtables.
+  - The 74 pytest skips are oracles, archives and extras; no writer test is
+    among them.
+
+## For the coordinator
+
+- Cause: there was no inter-process lock off Linux. It is fixed for
+  Windows; macOS still has none.
+- Behaviour change on Windows: a second writable open of a table in the
+  same process now fails with "locked" after `lock_attempts`. Linux allows
+  it.
+- Not interoperable with a WSL casacore's fcntl lock on the same files.
+- On main the fixture test still skips (no fixture in `outputs/`). The new
+  fixture-free tests cover the case on every platform.
+- In Git Bash, give `RANG_ARCHIVE_OUTPUTS` as
+  `//wsl.localhost/Ubuntu/...`.
