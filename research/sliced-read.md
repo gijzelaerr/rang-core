@@ -243,7 +243,8 @@ Main's averaged solves don't take the sliced path:
 `test_sliced_read.py` and `test_w3b_chainchunks.py` pass on the merged tree:
 153 passed, 2 skipped.
 
-Identity rerun on the merged head `e973303` (run -03, `D:angoutputssliced-read-20261112-03`, one shared hold): O and P, D, T and M against U on the same code, 6 of 6 bit-identical.
+Identity rerun on the merged head `e973303` (run -03, `D:
+angoutputssliced-read-20261112-03`, one shared hold): O and P, D, T and M against U on the same code, 6 of 6 bit-identical.
 
 Full local check (`python -m rang.check` after `maturin develop --release`,
 heavy lock shared, 8 slots) on `d0e29d1`, after the first merge: overall
