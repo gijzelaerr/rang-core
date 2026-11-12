@@ -31,7 +31,7 @@ comments only.
 
 | Item | Evidence | Verified at | State |
 | --- | --- | --- | --- |
-| 1. One command: `pip install rang-core`, then `rang-core run config.yaml my.ms` flags, calibrates, applies, images and self-calibrates an unseen L-band MS in full polarisation | Default `run.stages` is the full chain since E5-28 (`b58c0d0`); five stages exist (flag, calibrate, apply, image, selfcal; the task brief's "six" counts none extra). E2-B and E2-A run from a wheel venv. **A bare `pip install rang-core` lacks astropy**, which every polarisation solve and `apply.parang` need (Stokes I runs bare, FITS included): E2's wheel smoke 1 failed with `ModuleNotFoundError: astropy` ([e2-acceptance.md](e2-acceptance.md), amendment 2026-11-12) | `2899c23` | **Pending E2**; packaging gap F-01 (release-blocking) |
+| 1. One command: `pip install rang-core`, then `rang-core run config.yaml my.ms` flags, calibrates, applies, images and self-calibrates an unseen L-band MS in full polarisation | Default `run.stages` is the full chain since E5-28 (`b58c0d0`); five stages exist (flag, calibrate, apply, image, selfcal; the task brief's "six" counts none extra). E2-B and E2-A run from a wheel venv. **A bare `pip install rang-core` lacks astropy**, which every polarisation solve and `apply.parang` need (Stokes I runs bare, FITS included): E2's wheel smoke 1 failed with `ModuleNotFoundError: astropy` ([e2-acceptance.md](e2-acceptance.md), amendment 2026-11-12) | `2899c23` | **Pending E2**; F-01 fixed on this branch |
 | 2. Written back: FLAG with a backup, CORRECTED_DATA, MODEL_DATA, calibration tables, FITS, receipt; CASA, WSClean, QuartiCal read them | W1, C4b, G6 read-back; the e2e job checks every output on five platforms (run 43193119397); E5-01 to E5-03 fixed in the pre-review | `9f5a0b7` (CI) | Met on simulated data; real data with E2. Open: E5-02's gemclean part (F-02) |
 | 3. Each stage against an oracle within a frozen tolerance | Tricolour (530 cells accepted, item 33), CASA and QuartiCal (C2a-C7, E0), WSClean (G3-G9); several gates "not met as frozen" are recorded in their notes and in [docs/limits.md](../docs/limits.md) | notes | **Pending E2** (A0's gates on E2-A, E2-B) |
 | 4. Against CARACal on the same data | E3 running; not read here (firewall) | — | **Pending E3** |
@@ -45,7 +45,7 @@ New IDs F-01 onwards for this pass; pre-review IDs (E5-nn) and agent B's (NEW-nn
 
 | ID | Finding | Where | State |
 | --- | --- | --- | --- |
-| F-01 | `pip install rang-core` (finish-line item 1, the README, the tutorial's "a plain `pip install rang-core` will do") does not run in full polarisation: astropy is only in the `imaging` extra, and every polarisation solve (Gpol, KCROSS, Xf, Df) and `apply.parang` calls `cal_pol.parallactic_angle`, which imports it (`cal_pol.py:66-69`). From the bare wheel this raises `ModuleNotFoundError: No module named 'astropy'` (reproduced, section 4), after flag has written; E2's wheel smoke 1 failed the same way. Stokes I runs: the bare wheel ran the tutorial's flag, calibrate, apply, image chain to FITS (gemclean writes FITS in Rust). The A1 generator (`simtruth`) and the `calmodels` spix path need astropy too | `pyproject.toml` `dependencies` | Open: proposed fix, astropy in `dependencies` (section 5); not changed during the full check |
+| F-01 | `pip install rang-core` (finish-line item 1, the README, the tutorial's "a plain `pip install rang-core` will do") does not run in full polarisation: astropy is only in the `imaging` extra, and every polarisation solve (Gpol, KCROSS, Xf, Df) and `apply.parang` calls `cal_pol.parallactic_angle`, which imports it (`cal_pol.py:66-69`). From the bare wheel this raises `ModuleNotFoundError: No module named 'astropy'` (reproduced, section 4), after flag has written; E2's wheel smoke 1 failed the same way. Stokes I runs: the bare wheel ran the tutorial's flag, calibrate, apply, image chain to FITS (gemclean writes FITS in Rust). The A1 generator (`simtruth`) and the `calmodels` spix path need astropy too | `pyproject.toml` `dependencies` | **Fixed** `4cf782f`: astropy in `dependencies`; test. A decision for the coordinator (section 5) |
 | E5-02 | `gemclean -model-column DATA` overwrites DATA: `core/src/gemclean/cli.rs:485` takes it unchecked and gemclean writes the model column after imaging by default | Rust | Open, protected (rebuild); coordinator |
 | E5-09 | Known limits stated nowhere a user reads | docs | **Fixed in part** `25329b5`: [docs/limits.md](../docs/limits.md) from the owner decisions, linked from the README and the docs toctree; the E2/E3 results are its placeholder |
 | E5-10 | CHANGELOG Unreleased is the per-task log, with statements later entries undo (:289 "not chunked yet", :388 "until C7a", `core/target`, `extendflags`) | `CHANGELOG.md` | Open, editorial at E6. Three omissions added here (NEW-02, NEW-03, NEW-12) |
@@ -99,10 +99,66 @@ All under `tools/heavy_lock.py` in shared slots, on `D:\rang\scratch\e5b`, Pytho
   with the full venv, since the generator needs astropy) exits 0; flag, calibrate, apply and image done, all five FITS files written.
   `rang.cal_pol.parallactic_angle` raises `ModuleNotFoundError: astropy` (F-01).
 - **Malformed configurations:** agent B's 46-case sweep (`e5f-new-code.md`, item 7): clear exit-2 messages except NEW-05 to NEW-08.
+- **Docs site:** `sphinx-build -W --keep-going` of `docs/` (worktree venv, sphinx 9.2.0, notebooks not executed): no warning;
+  `limits.html` built.
+
+### 4.1 Full local check
+
+First run on `4cf782f` (`RANG_ARCHIVE_OUTPUTS=\\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs`, reachable, 828 entries;
+heavy lock shared, 8 slots, because pytest runs 8 workers): 1,125 s, overall FAIL on two tests of this branch's own making, README at
+161 lines and `e5-final.md` missing from the research index (fixed in `1a97c39`). Every other step passed: fmt, ruff, ruff format,
+`git diff --check`, root build, test (23) and clippy, core build, test (268) and clippy, GPU clippy and test (274), extension build and
+clippy, gain hashes; pytest 1,239 passed, 81 skipped. An earlier attempt was stopped before it ran: a heredoc had collapsed the UNC
+path's leading `\\`.
 
 ## 5. For the coordinator
 
-To be completed after section 4 and the full check.
+**Branch** `claude/e5-final-early-b94bc5`, cut from local main `2899c23`; not pushed, not merged. Commits, one per fix:
+`b6e8b52` SPDX, `81e4cf8` E5-12, `61c15a8` docs (E5-08, 17, 32, 35, F-04), `397ab0c` E5-29, `af5e038` NEW-04, NEW-13,
+`27a2e2c` F-03, `25329b5` limits page and CHANGELOG, `53ad094` DOC-17, `4cf782f` F-01, `1a97c39` index; the rest are this note.
+
+**E2 safety.** `git diff 2899c23 HEAD -- python/rang core src` touches `core_ms.py`, `ms.rs`, `ffi_ms.rs`, `grid.rs`,
+`weights.rs`, `wgridder.rs` in comment lines only, and `simtruth_ms.py` (A1's generator, not on E2's or E3's path). No configuration
+module changed, so no stage hash can change. F-01 changes the wheel's metadata, not E2's frozen wheel.
+
+**Merging.** `CHANGELOG.md` will conflict with any branch that adds to Unreleased (take both). `docs/cli.md` is generated: run
+`python docs/gen_cli.py` after merging anything that changes a help text or `config defaults`. `tests/test_spdx_headers.py` now has
+no `PENDING` files, so a merged branch that adds an unstamped source file fails it.
+
+**Decisions:**
+1. **F-01, astropy required** (`4cf782f`, coordinator or owner). The alternative is a clear refusal of polarisation terms
+   without astropy, plus "pip install 'rang-core[imaging]'" everywhere the docs say `pip install rang-core`. Requiring it adds three
+   wheels (astropy, pyerfa, astropy-iers-data) and keeps finish-line item 1's wording true. Drop the commit to choose the
+   alternative.
+2. **E5-36** (owner): the `pypi` environment still has no protection rule.
+3. **E5-12's WSClean lines** come from Debian's `debian/copyright` (WSClean's files carry none) and include the Debian packager's
+   line, the owner's own; kept verbatim.
+
+**Protected findings, for after E2** (each would change code E2 runs; evidence in the two notes):
+- **Release-blocking:** E5-02, `gemclean -model-column DATA` (`core/src/gemclean/cli.rs:485`): refuse DATA, rebuild.
+- **Should-fix, Rust:** E5-30, `gemclean -h` to stdout with exit 0, then update `docs/gen_cli.py`'s `_gemclean_help`, which
+  expects exit 2.
+- **Should-fix, refusal quality:** NEW-05 (strategy YAML in flow style or a misspelt task: bare `KeyError`, `core_flag.parse_strategy`
+  is a line parser; `config check` says valid), NEW-06 (missing strategy file, directory as strategy or mask pass `config check`),
+  NEW-07 (unknown `refant` name passes `config check CONFIG MS`, calibrate tracebacks), NEW-08 (non-UTF-8 config: traceback).
+- **Should-fix, stage hash** (each changes every stage hash once, so `--force`): E5-21 (referenced files by path only) and NEW-03's
+  second part (the selfcal stage hash does not cover `calibrate.refant`, which now sets selfcal's default refant).
+- **Should-fix, write-back and messages:** E5-19 (task IDs in refusals; receipt docstrings say version 3), E5-22, 23, 24, 26, 27,
+  WB-14.
+- **Notes:** NEW-09 (an empty strategy runs zero steps, exit 0), NEW-10 (`average_freq` with a `complex` term silently ignored, where
+  `average_time` is refused), NEW-11 (`reader_slice` past the end).
+
+**Environment.** At this review's start the main checkout's `python/rang/_core.pyd` was older than the sliced-read merge
+(`2899c23`), so every MS read from `~/Github/rang/.venv` raised `TypeError: MsTable.read() takes 3 positional arguments but 4 were
+given` (agent B, NEW-01). A `rang.check` was running in that venv later, which rebuilds it; check before using it. E2 runs from its own
+venvs.
+
+**CI.** No wheels run covers `2899c23` yet (the sliced-read merge is ahead of origin/main, and it changes `core/src/ms.rs`); the
+push will run it.
+
+**Full check:** section 4.1.
+
+**Not done here:** E3's results (firewall); the CHANGELOG rewrite (E5-10, at E6); E5-25, E5-31, E5-16's release-job test.
 
 ## 6. After E3
 

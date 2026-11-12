@@ -1839,3 +1839,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | the same, D arm (8 GiB), calibrate K, G, B | `w3.ms` (4096 ch) | 806.7 / 607.9 s | 3.21 GiB both | native Windows, exclusive |
 | 2026-11-12 | the same, M arm (4.33 GiB) | `w3.ms` | 1238.2 / 825.0 s | 1.64 GiB both | native Windows, exclusive |
 | 2026-11-12 | sliced-read native `python -m rang.check` (heavy lock shared, 8 slots), head 816e614 | worktree sliced-read | 52 min 13 s (lock wait included) | – | FAIL on test_the_lock_keeps_a_second_process_out alone (fails on bd15126 too); gain-hash gate PASS |
+| 2026-11-12 | E5 final: `maturin build --release` (wheel, local x86-64-v3 flags) + `maturin sdist` + two uv venvs from the wheel | worktree e5-final-early, `D:\rang\scratch\e5b` | 236 s build; 249 s to both installs | – | heavy lock shared, 4 slots; cold `target/` |
+| 2026-11-12 | E5 final: installed-wheel checks (`tools/e2e/run.py --installed`, `docs/gen_cli.py --check`, tutorial notebook by nbconvert) | `D:\rang\scratch\e5b` | e2e 17 s (generate 5.8, run 7.3); CLI page 8 s; notebook 35 s | – | heavy lock shared, 4 slots |
+| 2026-11-12 | E5 final: `sphinx-build -W` of `docs/` (notebooks not executed) | worktree e5-final-early | not timed (under 1 min) | – | heavy lock shared, 2 slots |
+| 2026-11-12 | E5 final: native `python -m rang.check` (`tools/check.py`, extension built by `ext-build`), head 4cf782f | worktree e5-final-early | 1,125 s (lock wait excluded) | – | heavy lock shared, 8 slots; FAIL on two docs tests of the branch, fixed in 1a97c39 |
