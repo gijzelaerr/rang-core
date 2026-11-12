@@ -993,7 +993,8 @@ Model column (research/g6-predict.md; WSClean's options):
   -no-update-model-required do not write the Measurement Set
   -predict                  no imaging: predict the existing <name>-model.fits (with
                             -channels-out n, <name>-0000-model.fits ...) into the model column
-  -model-column <name>      the column written (default MODEL_DATA; added if missing)
+  -model-column <name>      the column written (default MODEL_DATA; added if missing); never
+                            DATA, nor the column being imaged
 
 Channels (research/g3-spectral.md; WSClean's options):
   -channels-out <n>         image n output channels, <name>-0000-<kind>.fits and the

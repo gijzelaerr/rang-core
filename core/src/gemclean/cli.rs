@@ -111,7 +111,8 @@ Model column (research/g6-predict.md; WSClean's options):
   -no-update-model-required do not write the Measurement Set
   -predict                  no imaging: predict the existing <name>-model.fits (with
                             -channels-out n, <name>-0000-model.fits ...) into the model column
-  -model-column <name>      the column written (default MODEL_DATA; added if missing)
+  -model-column <name>      the column written (default MODEL_DATA; added if missing); never
+                            DATA, nor the column being imaged
 
 Channels (research/g3-spectral.md; WSClean's options):
   -channels-out <n>         image n output channels, <name>-0000-<kind>.fits and the
@@ -640,6 +641,11 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 .into(),
         );
     }
+    if a.predict || a.update_model {
+        if let Some(e) = model_column_error(&a.model_column, a.data_column.as_deref()) {
+            return Err(e);
+        }
+    }
     if a.join_pols && a.pols.len() < 2 {
         return Err(
             "Joined/linked polarization deconvolution requested, but only one polarization is \
@@ -1158,6 +1164,13 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
             }
         }
     };
+    // The input column may only now be known (CORRECTED_DATA when the MS has
+    // it): refuse before anything is read or written (E5-02).
+    if args.update_model {
+        if let Some(e) = model_column_error(&args.model_column, Some(&column)) {
+            return Err(e);
+        }
+    }
     let t = Instant::now();
     let selection = Selection {
         data_column: column.clone(),
@@ -3089,6 +3102,29 @@ fn written_json(w: &predict::Written, seconds: f64) -> String {
     ])
 }
 
+/// Why `-model-column` may not be written, if it may not (E5-02,
+/// research/e5-final.md): gemclean never writes DATA, the column the
+/// observation came in, and never writes the column it images, which the
+/// model would overwrite. `data` is the column being imaged, when known.
+fn model_column_error(model: &str, data: Option<&str>) -> Option<String> {
+    if model == "DATA" {
+        return Some(
+            "-model-column DATA: gemclean never writes the DATA column (the model column is \
+             written after imaging unless -no-update-model-required, and by -predict); name \
+             another column, such as MODEL_DATA"
+                .into(),
+        );
+    }
+    if data == Some(model) {
+        return Some(format!(
+            "-model-column {model} is the column being imaged (-data-column, or CORRECTED_DATA \
+             when the MS has it), so the model would overwrite it; name another column, such as \
+             MODEL_DATA, or add -no-update-model-required"
+        ));
+    }
+    None
+}
+
 /// After imaging: the model column, unless -no-update-model-required.
 fn update_model(args: &Args) -> Result<String, String> {
     if !args.update_model {
@@ -3229,6 +3265,37 @@ mod tests {
             .map(String::from)
             .collect();
         assert!(parse_args(&bad).is_err());
+    }
+
+    #[test]
+    fn the_model_column_is_never_data_nor_the_imaged_column() {
+        // E5-02 (research/e5-final.md): refused at parsing, naming the option.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        for line in [
+            "-size 64 64 -scale 2asec -model-column DATA x.ms",
+            "-size 64 64 -scale 2asec -predict -model-column DATA x.ms",
+            "-size 64 64 -scale 2asec -data-column CORRECTED_DATA -model-column CORRECTED_DATA x.ms",
+        ] {
+            let e = parse(line)
+                .err()
+                .unwrap_or_else(|| panic!("accepted: {line}"));
+            assert!(e.starts_with("-model-column "), "{line}: {e}");
+        }
+        for line in [
+            "-size 64 64 -scale 2asec x.ms",
+            "-size 64 64 -scale 2asec -model-column MODEL_2 x.ms",
+            "-size 64 64 -scale 2asec -data-column DATA -model-column MODEL_DATA x.ms",
+            // Nothing is written without the model update.
+            "-size 64 64 -scale 2asec -no-update-model-required -model-column DATA x.ms",
+        ] {
+            assert!(parse(line).is_ok(), "{line}");
+        }
+        // The column chosen at run time (CORRECTED_DATA when present).
+        assert!(model_column_error("CORRECTED_DATA", Some("CORRECTED_DATA")).is_some());
+        assert!(model_column_error("MODEL_DATA", Some("CORRECTED_DATA")).is_none());
     }
 
     #[test]
