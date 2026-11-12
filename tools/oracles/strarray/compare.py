@@ -159,7 +159,9 @@ def check(path):
             f"{c}{'[]' if i['array'] else ''}({i['manager']})"
             for c, i in entry["columns"].items()
         )
-        print(f"{'ok ' if not notes else 'BAD'} {cells_ok}/{cells_n} {where} {cols}")
+        print(
+            f"{'ok ' if not notes else 'BAD'} {cells_ok}/{cells_n} {where} {cols}".rstrip()
+        )
         for n in notes[:5]:
             print("    ", n)
     print(

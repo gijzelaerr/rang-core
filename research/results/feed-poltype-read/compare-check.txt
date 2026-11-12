@@ -1,170 +1,170 @@
-ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms 
+ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms
 ok  16/16 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/DATA_DESCRIPTION
 ok  4/4 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  6/6 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  162/162 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/POLARIZATION 
+ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/POLARIZATION
 ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 D:/rang/outputs/c7a-20261106-03/M1-casa.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms 
+ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms
 ok  16/16 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/DATA_DESCRIPTION
 ok  4/4 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  6/6 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/POLARIZATION 
+ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/POLARIZATION
 ok  0/0 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 D:/rang/outputs/c7a-20261106-03/M1-rang.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms 
+ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms
 ok  64/64 D:/rang/c3a/c3a-20261106-01/A-casa.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms/DATA_DESCRIPTION
 ok  16/16 D:/rang/c3a/c3a-20261106-01/A-casa.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  8/8 D:/rang/c3a/c3a-20261106-01/A-casa.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  504/504 D:/rang/c3a/c3a-20261106-01/A-casa.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/c3a/c3a-20261106-01/A-casa.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms/POLARIZATION 
+ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms/POLARIZATION
 ok  0/0 D:/rang/c3a/c3a-20261106-01/A-casa.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/c3a/c3a-20261106-01/A-casa.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  4/4 D:/rang/c3a/c3a-20261106-01/A-casa.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms 
+ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms
 ok  16/16 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/DATA_DESCRIPTION
 ok  4/4 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  6/6 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/POLARIZATION 
+ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/POLARIZATION
 ok  0/0 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 D:/rang/c3a/c3a-20261106-01/S-rang-sr.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms
 ok  16/16 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/DATA_DESCRIPTION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/DATA_DESCRIPTION
 ok  4/4 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  6/6 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/POLARIZATION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/POLARIZATION
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/luno-solve-20261029-02/work.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms
 ok  16/16 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/DATA_DESCRIPTION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/DATA_DESCRIPTION
 ok  4/4 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  2/2 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  126/126 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/POLARIZATION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/POLARIZATION
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  1/1 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/STATE OBS_MODE(StandardStMan)
 ok  2/2 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/SOURCE CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/b1-20261030-03-fixture/outer_scans/1672727931_sdp_l0_scan_1.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms
 ok  16/16 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/DATA_DESCRIPTION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/DATA_DESCRIPTION
 ok  4/4 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  6/6 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  438/438 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/POLARIZATION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/POLARIZATION
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/core.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms
 ok  16/16 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/DATA_DESCRIPTION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/DATA_DESCRIPTION
 ok  4/4 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  6/6 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  438/438 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/POLARIZATION 
+ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/POLARIZATION
 ok  0/0 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 //wsl.localhost/Ubuntu/home/gijsm/Github/rang/outputs/e4-20261030-01/apply/casa.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/data/e2-b/e2b.ms 
+ok  0/0 D:/rang/data/e2-b/e2b.ms
 ok  224/224 D:/rang/data/e2-b/e2b.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/data/e2-b/e2b.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/data/e2-b/e2b.ms/DATA_DESCRIPTION
 ok  56/56 D:/rang/data/e2-b/e2b.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/data/e2-b/e2b.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  6/6 D:/rang/data/e2-b/e2b.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 D:/rang/data/e2-b/e2b.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/data/e2-b/e2b.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/data/e2-b/e2b.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/data/e2-b/e2b.ms/POLARIZATION 
+ok  0/0 D:/rang/data/e2-b/e2b.ms/POLARIZATION
 ok  0/0 D:/rang/data/e2-b/e2b.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/data/e2-b/e2b.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 D:/rang/data/e2-b/e2b.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms 
+ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms
 ok  244/244 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/DATA_DESCRIPTION
 ok  61/61 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  2/2 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/POLARIZATION 
+ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/POLARIZATION
 ok  0/0 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 D:/rang/outputs/e2-20261110-09-convert-dev/pilot.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms 
+ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms
 ok  224/224 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/DATA_DESCRIPTION
 ok  56/56 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  4/4 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/POLARIZATION 
+ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/POLARIZATION
 ok  0/0 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 D:/rang/outputs/e2-20261110-11-avg/luno/luno-dev.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms 
+ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms
 ok  64/64 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/DATA_DESCRIPTION
 ok  16/16 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  8/8 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/POLARIZATION 
+ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/POLARIZATION
 ok  0/0 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  4/4 D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms/STATE OBS_MODE(StandardStMan)
-ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms 
+ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms
 ok  16/16 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/ANTENNA TYPE(StandardStMan),MOUNT(StandardStMan),NAME(StandardStMan),STATION(StandardStMan)
-ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/DATA_DESCRIPTION 
+ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/DATA_DESCRIPTION
 ok  4/4 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/FEED POLARIZATION_TYPE[](StandardStMan)
 ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/FLAG_CMD COMMAND(StandardStMan),REASON(StandardStMan),TYPE(StandardStMan)
 ok  8/8 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/FIELD CODE(StandardStMan),NAME(StandardStMan)
 ok  264/264 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/HISTORY APP_PARAMS[](StandardStMan),CLI_COMMAND[](StandardStMan),APPLICATION(StandardStMan),MESSAGE(StandardStMan),ORIGIN(StandardStMan),PRIORITY(StandardStMan)
 ok  6/6 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/OBSERVATION LOG[](StandardStMan),SCHEDULE[](StandardStMan),OBSERVER(StandardStMan),PROJECT(StandardStMan),SCHEDULE_TYPE(StandardStMan),TELESCOPE_NAME(StandardStMan)
 ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/POINTING NAME(IncrementalStMan)
-ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/POLARIZATION 
+ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/POLARIZATION
 ok  0/0 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/PROCESSOR TYPE(StandardStMan),SUB_TYPE(StandardStMan)
 ok  2/2 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/SPECTRAL_WINDOW FREQ_GROUP_NAME(StandardStMan),NAME(StandardStMan)
 ok  3/3 D:/rang/outputs/c2d-20261106-02/ms/slice2.ms/STATE OBS_MODE(StandardStMan)
