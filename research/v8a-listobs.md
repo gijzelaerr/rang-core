@@ -145,6 +145,37 @@ sessions, about 400 lines of Python. Stop: if the development gate is not met
 after the fixes the docs and probe allow, the note records the remaining
 differences and the gate as failed.
 
+## 7a. Amendment 1 (2026-11-12, after the probe, before any CASA output on the new case)
+
+Labelled as an amendment; the tolerances and decision rule of sections 4-5 are
+unchanged.
+
+- **Probe run** `outputs/v8a-listobs-20261112-00-probe` (WSL; image
+  `rang-o-casa:6.7.6.14`, 124 s, 332 MB peak): CASA listed `luno`, `a1` and
+  `eso137`, then stopped at the first fixture MS, because the fixture mount
+  pointed at a cache that holds scan 9 only. `listobs.sh` now mounts B1's
+  extraction of the same zip (`outputs/b1-20261030-03-fixture/outer_scans`,
+  all five MSs). The gate run is `outputs/v8a-listobs-20261112-01`.
+- **Conventions read off the probe** (no CASA source read): only fields with
+  rows in MAIN are listed (`nfields` counts them; LUNO has 3 FIELD rows and
+  `nfields = 1`); RA is returned in (−π, π]; the record carries
+  `timeref: "UTC"`; `BeginTime`/`EndTime` are min(TIME − INTERVAL/2) and
+  max(TIME + INTERVAL/2) in MJD days; a sub-entry's `IntegrationTime` is the
+  mean INTERVAL; the listfile's "Lat." column is the geocentric ITRF latitude,
+  not WGS84 (rang prints WGS84 and labels it); the Fields table has a SrcId
+  column only when SOURCE exists. rang was changed to match the first three
+  (development fixes, section 5); on `luno` and `a1` the comparison then
+  showed zero differences (80 and 438 values). `eso137` was not compared.
+- **New development case `edges`** (`tools/oracles/casa/listobs_edges.py`, written by
+  rang's table writer to `D:ang\scratch8a-20261112\edges.ms`): a field
+  change inside a scan, a state change inside a scan, a FIELD row without
+  data, and two spectral windows alternating in one scan. None of the earlier
+  MSs had any of these, so how CASA splits a scan into sub-entries was
+  untested. rang's rule as implemented before CASA's output on this MS was
+  seen: a new sub-entry wherever observation, array, scan, field or state
+  changes in time order, with the data descriptions inside a sub-entry
+  collected into `SpwIds`.
+
 ## 8. Measured result
 
 (Not yet run.)

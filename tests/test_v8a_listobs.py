@@ -64,7 +64,7 @@ def ms(tmp_path):
 
 def test_record_has_casa_keys_times_and_scans(ms):
     r = listobs.summary(ms)
-    assert r["numrecords"] == 60 and r["nfields"] == 2
+    assert r["numrecords"] == 60 and r["nfields"] == 2 and r["timeref"] == "UTC"
     # TIME = 5e9 + 8 k, INTERVAL 8: from 5e9 - 4 to 5e9 + 72 + 4 seconds.
     assert r["BeginTime"] == pytest.approx((5.0e9 - 4) / 86400, abs=1e-12)
     assert r["EndTime"] == pytest.approx((5.0e9 + 76) / 86400, abs=1e-12)
@@ -84,7 +84,8 @@ def test_record_has_casa_keys_times_and_scans(ms):
     assert [sub[k]["nRow"] for k in ("0", "1")] == [6, 12]
     f1 = r["field_1"]
     assert f1["name"] == "3C286" and f1["code"] == "T"
-    assert f1["direction"]["m0"]["value"] == pytest.approx(3.539258, abs=0)
+    # RA in (-pi, pi], as CASA returns it.
+    assert f1["direction"]["m0"]["value"] == pytest.approx(3.539258 - 2 * math.pi)
     assert f1["direction"]["refer"] == "J2000"
 
 
