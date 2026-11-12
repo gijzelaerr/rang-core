@@ -237,8 +237,9 @@ the joint scorer if under 50 MB each (otherwise their path and sha256 under
 | Protocol, configs | **frozen** (this commit) |
 | CARACal install, image pulls | done 2026-11-11 (10.1) |
 | Smoke and dev test (development data) | run, rc 0 (10.3, 10.6) |
-| E3-B correctness | try 1 stopped by E3's own memory cap; rerun after E2-A (10.5) |
-| E3-B timed, E3-A | not run (after E2-A, per the coordinator) |
+| E3-B correctness | tries 1-4 stopped by memory (10.5, 10.9, 10.10); try 5 with MeqTrees tile 16 (dev 11, post hoc) rc 0, measured (10.11) |
+| E3-B timed | not run (waits for E2's timed runs; host exclusive) |
+| E3-A | not run (after E2-A, per the coordinator) |
 
 ## For the coordinator
 
@@ -246,8 +247,14 @@ the joint scorer if under 50 MB each (otherwise their path and sha256 under
   not Stimela 2.1.4; its CASA is 5.8.0 and WSClean 3.6. Reported, not swapped.
 - Installing from the local clone (PyPI has only 1.2.1) was approved by the
   owner and is done.
-- 3C 286 χ on the dev test is about 88°, not 33° (10.6). Settle this before
-  E3-B's χ is scored.
+- E3-B correctness pass: rc 0 at MeqTrees tile 16 (deviation 11, post hoc,
+  set by the coordinator after the OOM at the 30 GiB WSL VM), 6,887 s shared.
+  - 3C 286: p 0.087-0.100, but χ −0.4° to −4.0°, not 33°.
+  - 1934−638: I/SR2016 0.81-0.93; image leakage ≤ 3.1e-5.
+  - Numbers in 10.11. The joint comparison with rang's scan-17 values is yours
+    to run; nothing was sent to E2.
+- E3-B's timed pass reuses the kept `e2b.ms` (51 GB) at tile 16. Its run
+  folder peaks at about 131 GB.
 - E3-A needs about 540 GB on D: (210 GB input MS + 330 GB splits); D: had
   680 GB free on 2026-11-11, so E3-A and an E2-A arm cannot run at the same
   time.
