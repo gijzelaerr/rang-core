@@ -88,6 +88,9 @@ def test_docs_version_agrees():
     assert "release = _version(" in _text("docs/conf.py")
     conf = runpy.run_path(str(ROOT / "docs" / "conf.py"))
     assert conf["release"] == conf["version"] == version
+    # E5-17: the install check's expected output names the current version.
+    install = _text("docs/installation.md")
+    assert re.findall(r"# rang-core (\S+)", install) == [version]
 
 
 def test_version_falls_back_to_pyproject(monkeypatch):

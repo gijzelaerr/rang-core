@@ -20,8 +20,8 @@
 
 - **A Rust core.** A Measurement Set reader and casacore table writer, zarr
   ingest with HTTP range fetch, QuartiCal's full-Jones solver, Tricolour's
-  SumThreshold strategies, WSClean's imaging weights and w-stacking gridder (CPU
-  and GPU), ducc0's wgridder, CASA's flux standards and a component predictor.
+  SumThreshold strategies, WSClean's imaging weights and w-stacking gridder (CPU,
+  and GPU in a source build), ducc0's wgridder, CASA's flux standards and a component predictor.
 - **GeMClean, a reference imager.** `gemclean` takes a Measurement Set to FITS with
   WSClean-style flags, using the exact image-domain value at each minor-cycle step. The wheel
   installs it as the command `gemclean`.
@@ -41,7 +41,7 @@ pip install rang-core
 ```
 
 One `abi3` wheel per platform serves CPython 3.10 and newer, needs no Rust compiler
-and carries every kernel: Linux x86_64 and aarch64 (glibc 2.28 or newer), macOS
+and carries every CPU kernel (the GPU paths need a source build with the core's `gpu` feature): Linux x86_64 and aarch64 (glibc 2.28 or newer), macOS
 arm64 and x86_64, Windows x86_64.
 
 | Extra | For |

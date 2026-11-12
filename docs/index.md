@@ -32,7 +32,8 @@ What it is:
 - **A Rust core**, reached through the compiled extension `rang._core`: a
   Measurement Set reader and casacore table writer, zarr ingest with HTTP range
   fetch, QuartiCal's full-Jones solver, Tricolour's SumThreshold strategies,
-  WSClean's imaging weights and w-stacking gridder (CPU and GPU), ducc0's
+  WSClean's imaging weights and w-stacking gridder (CPU, and
+  GPU in a source build), ducc0's
   wgridder, CASA's flux standards and a component predictor.
 - **GeMClean, a reference imager.** `gemclean` takes a Measurement Set to FITS with
   WSClean-style flags, using the exact image-domain value at each minor-cycle step

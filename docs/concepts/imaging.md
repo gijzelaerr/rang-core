@@ -30,9 +30,9 @@ field edge and is adjoint to 4e-13. The 19 % difference between the
 w-stacking image and a direct Fourier transform turned out to be aliasing of
 WSClean's Kaiser–Bessel kernel at padding 1.2, not a defect
 ({gh}`research/df1-wgridder.md`). After DF2a it runs at ducc0's speed on
-whole-array inputs ({gh}`research/df2-wgridder-speed.md`). It is not yet
-bound in the extension: on first use it builds a standalone library with
-`cargo` from a source checkout.
+whole-array inputs ({gh}`research/df2-wgridder-speed.md`). It is bound in the
+extension `rang._core` (`rang.core_wgridder`) like every other kernel, so it
+needs no Rust compiler.
 
 Both use the direct Fourier transform's sign and axis conventions documented
 in the module docstrings, and `fits_image`/`write_fits` give WSClean's FITS

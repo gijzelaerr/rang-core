@@ -2,8 +2,7 @@
 
 rang follows one chain from raw visibilities to a decision. Each stage is a
 Rust kernel behind a thin Python wrapper, in the extension `rang._core`
-except the exact wgridder ({doc}`../installation`), and
-each was validated against an archived run of the upstream tool it replaces
+({doc}`../installation`), and each was validated against an archived run of the upstream tool it replaces
 before it was used for anything else.
 
 | Stage | Wrapper | Ported from or checked against |

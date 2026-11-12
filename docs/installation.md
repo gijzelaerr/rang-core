@@ -101,6 +101,11 @@ python3 -m venv .venv   # or: uv venv -p 3.14 .venv
     -e '.[pointing,beam,test,imaging,notebook]' ruff maturin
 ```
 
+On x86_64, a build from a checkout targets x86-64-v3 (AVX2 and FMA;
+`.cargo/config.toml`), which is faster but crashes with an illegal
+instruction on older CPUs. Set `RUSTFLAGS="-C target-cpu=x86-64"`, as the
+wheels do, to build for any x86_64 CPU.
+
 After a Rust change, rebuild the extension with
 `.venv/bin/maturin develop --release`; Python never runs Cargo itself.
 `bash tools/wheel/build.sh outputs/wheel-<date>-NN` builds the manylinux
