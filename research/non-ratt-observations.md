@@ -1,7 +1,11 @@
 # Observations about non-RATT software
 
-Recorded 2026-10-30 (big plan task U1). By the user's decision, observations about software
-outside RATT (`ratt-ru`) are listed here and **not reported anywhere**; each entry says what a
+Recorded 2026-10-30 (big plan task U1). **Update 2026-11-12:** the owner approved reporting these too
+("Report the bugs errors and fixes where you can"). U5 ([u5-upstream.md](u5-upstream.md)) reproduced the
+backlog on the latest releases: what still reproduces was **filed on 2026-11-12** (22 issues; links in
+[upstream-issues/u5-manifest.md](upstream-issues/u5-manifest.md); the CASA helpdesk tickets and the Obit
+note are for the owner to send), and every skipped item has its reason in u5-upstream.md. The "not reported by decision" labels below are historical. Before that
+decision, observations about software outside RATT (`ratt-ru`) were listed here and **not reported anywhere**; each entry says what a
 report would contain if that decision changes. RATT items, filed or not, are in
 [upstream-issues/](upstream-issues/); the running log is [upstream-notes.md](upstream-notes.md).
 

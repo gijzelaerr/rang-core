@@ -1839,3 +1839,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | the same, D arm (8 GiB), calibrate K, G, B | `w3.ms` (4096 ch) | 806.7 / 607.9 s | 3.21 GiB both | native Windows, exclusive |
 | 2026-11-12 | the same, M arm (4.33 GiB) | `w3.ms` | 1238.2 / 825.0 s | 1.64 GiB both | native Windows, exclusive |
 | 2026-11-12 | sliced-read native `python -m rang.check` (heavy lock shared, 8 slots), head 816e614 | worktree sliced-read | 52 min 13 s (lock wait included) | – | FAIL on test_the_lock_keeps_a_second_process_out alone (fails on bd15126 too); gain-hash gate PASS |
+| 2026-11-12 | U5 dask ProgressBar repro (dt = 20) | 1 s task | 20.4 s | – | native Windows; `u5-upstream.md` |
+| 2026-11-12 | U5 casatools 6.7.6.14 venv + install, 2_34 / 2_28 wheels | public PyPI | 22.2 / 21.3 s | – | WSL |
+| 2026-11-12 | U5 `repro_casa.py` (simulated MS, all CASA probes) | self-built MS | 8.2 s, 8.3 s | 274 MB | WSL, two runs |
+| 2026-11-12 | U5 python-casacore 3.8.1 `MALLOC_PERTURB_` sets (fNi, MultiFile, MultiFile 4 KiB) | probes | 6.7, 4.3, 3.5 s | – | WSL |
+| 2026-11-12 | U5 WSClean 3.7 read-only MS runs | 64 MB MS, 5 arms | 12 s | – | Docker `rang-wsclean-native:3.7` |
