@@ -3,7 +3,8 @@
 # (coordinator's request 2026-11-12: a separate exclusive ticket per arm
 # drains the shared jobs before each one and leaves the host idle). Run it
 # under the lock once, exclusive:
-#   heavy_lock.py run -- bash tools/oracles/sliced/batch.sh RUN BASE
+#   heavy_lock.py run -- "C:/Program Files/Git/bin/bash.exe" tools/oracles/sliced/batch.sh RUN BASE
+# (Git Bash by its path: a bare `bash` from Python is WSL's bash.exe)
 # Each arm still records `heavy_lock.py status` at its start
 # (logs/lock-status.txt). Finished arms are skipped, so the order and the
 # arms are all.sh's.
