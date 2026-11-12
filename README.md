@@ -14,9 +14,7 @@
 > trained on gain TV stopped at its go/no-go test on one observation, before any
 > training. A deeper field model (an external catalogue) is the first condition
 > for reopening beam and pointing on real data. The reference imager GeMClean
-> beats WSClean's time on 16 threads, not always on one, at 2.0–2.4 times the
-> memory on the real pilot with its current defaults. What it does not do yet:
-> [known limits](https://pythonic.nl/rang-core/limits.html).
+> beats WSClean's time on 16 threads, not always on one, at 2.0–2.4 times the memory on the real pilot. [Known limits](https://pythonic.nl/rang-core/limits.html).
 
 ## What it is
 
