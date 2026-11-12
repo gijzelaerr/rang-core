@@ -504,6 +504,29 @@ and E1) beside them. Beyond their header comments:
   `e2_timed.py` on the development slice (LUNO scans 1-2, 20,000 rows each,
   `D:\rang\outputs\e2-20261111-12-dryrun\b-src\luno-slice.ms`): exit 0 and every
   stage in the receipt, or E2-B does not start.
+  - **Amendment 2026-11-12 (before any E2 run):** smoke 1 (wall 260.8 s,
+    `b-wheel.log`) exit 1. Flag done, calibrate failed at Gpol's parallactic
+    angle with `ModuleNotFoundError: astropy`. The wheel venv had only the
+    wheel's required dependencies; astropy is the `imaging` extra, which
+    rang's FITS output and `frame='casa'` need. Fix, environment only (same
+    wheel, SHA-256 2d222c60…ee2f): `uv pip install` of `rang-core[imaging]`
+    from that wheel with astropy 8.0.2, pyerfa 2.0.1.5 and astropy-iers-data
+    0.2026.11.9.0.35.9 pinned to the development venv's versions
+    (`freeze-2.txt`). Smoke 2 ran the same way and met the rule: exit 0;
+    flag, calibrate, apply and image done; wall 493.2 s, peak tree RSS
+    8.28 GB (`b-wheel2-timed.json`).
+    A scan of every third-party import in the installed `rang` tree (in
+    functions too) against the venv found nothing else missing on the E2
+    path (jax, scipy, h5py, katdal, matplotlib and pandas modules are
+    outside it). E2-A's path is wider than smoke b's (A step, Gsec, F,
+    automatic mask, selfcal), so `e2_dryrun.py a` also runs from the wheel
+    venv before E2-A, under the same rule. It ran on 2026-11-12 and met it:
+    exit 0; flag, calibrate, apply, image and selfcal done (multiscale off
+    on A1 small, as the development run); wall 20.4 s, peak 1.41 GB
+    (`a-wheel-timed.json`). The packaging gap (Gpol and FITS
+    output need an optional extra) is a finding for the coordinator. Gate
+    1's "no hand step" is read on the run itself; this environment fix
+    precedes it and is reported beside it.
 - One shot per leg (A0 rule 2). Order: E2-B, then E2-A (6.2's disk rule).
 
 ### 6.5 Gates and how each is computed
@@ -577,7 +600,8 @@ presented as a pass.
   the same gates and scorers. It is reported beside the frozen arm, and the
   frozen arm stays the record. If the key is not ready, the amended arm is
   "not run".
-- Amendments: (none yet).
+- Amendments: 2026-11-12, the wheel venv's `imaging` extra (6.4, wheel
+  smoke), before any E2 run.
 
 ## For the coordinator
 
