@@ -99,6 +99,15 @@ All under `tools/heavy_lock.py` in shared slots, on `D:\rang\scratch\e5b`, Pytho
 - **Bare wheel** (no extras: numpy, PyYAML, rang-core): `rang-core run` with the tutorial's configuration on an A1 small MS (written
   with the full venv, since the generator needs astropy) exits 0; flag, calibrate, apply and image done, all five FITS files written.
   `rang.cal_pol.parallactic_angle` raises `ModuleNotFoundError: astropy` (F-01).
+- **Wheel after F-01** (`0bb0109`, 232 s, `D:\rang\scratch\e5b\dist2`) in a bare venv (`venv-bare2`, `uv pip install` of the
+  wheel only, public PyPI): `Requires-Dist` numpy>=1.26, pyyaml>=6, astropy>=6; astropy 8.0.2 resolved;
+  `rang.cal_pol.parallactic_angle` runs (2.072 rad on a MeerKAT position). F-01 closed on Windows; only the CI cells show astropy
+  resolving on every platform and Python.
+- **Skip audit** (`pytest -rs -n 8`, worktree venv, `a6ed448`'s tree): 78 skips, every one an absent input or oracle run (ignored
+  `outputs/`, E2/E3/E4 run directories, archived fixtures, Docker), an optional dependency this venv lacks (`[meerkat]`,
+  python-casacore/casacure, pandas, nbconvert, ducc0, comrak), a platform (5 POSIX only, Windows symlinks, Linux-archived libm
+  digits, the Linux deploy job), the GPU feature not compiled, or `RANG_NOTEBOOK_CARTA` unset. None hides a test of this branch's
+  changes; the E5-02 and F-01 tests ran.
 - **Malformed configurations:** agent B's 46-case sweep (`e5f-new-code.md`, item 7): clear exit-2 messages except NEW-05 to NEW-08.
 - **Docs site:** `sphinx-build -W --keep-going` of `docs/` (worktree venv, sphinx 9.2.0, notebooks not executed): no warning;
   `limits.html` built.
@@ -112,6 +121,12 @@ heavy lock shared, 8 slots, because pytest runs 8 workers): 1,125 s, overall FAI
 clippy, gain hashes; pytest 1,239 passed, 81 skipped. An earlier attempt was stopped before it ran: a heredoc had collapsed the UNC
 path's leading `\\`.
 
+Final run on `a6ed448` (the same archive, reachable; heavy lock shared, 8 slots, 12 GB), after E5-02 and F-05: **overall PASS**,
+2,488 s (the host shared with queued work). fmt (root, core, extension), ruff, ruff format, `git diff --check`; root build, test
+(23 passed, 1 ignored) and clippy; core build, test (269) and clippy; GPU clippy and test (275); extension build and clippy; pytest
+1,245 passed, 78 skipped (section 4's skip audit); gain-hash gate PASS (5 hashes). The run before it, on `0bb0109`, failed only
+core clippy (`collapsible_if` on E5-02's two new `if` blocks), fixed in `a6ed448` with let-chains, no change of behaviour.
+
 ## 5. For the coordinator
 
 **Branch** `claude/e5-final-early-b94bc5`, cut from local main `2899c23`; not pushed, not merged. Commits, one per fix:
@@ -120,7 +135,10 @@ path's leading `\\`.
 
 **E2 safety.** `git diff 2899c23 HEAD -- python/rang core src` touches `core_ms.py`, `ms.rs`, `ffi_ms.rs`, `grid.rs`,
 `weights.rs`, `wgridder.rs` in comment lines only, and `simtruth_ms.py` (A1's generator, not on E2's or E3's path). No configuration
-module changed, so no stage hash can change. F-01 changes the wheel's metadata, not E2's frozen wheel.
+module changed, so no stage hash can change. F-01 changes the wheel's metadata, not E2's frozen wheel. Since then, on the coordinator's word
+(E2 and E3 run from frozen wheel venvs): E5-02 changes `core/src/gemclean/cli.rs` (a refusal before imaging; nothing else in
+gemclean's path) and F-05 adds comment lines under the SPDX line of `core/src/cal/*.rs`, `flag_extend.rs`, `rang.cal_*`,
+`rang.applycal` and `rang.formats.caltable`; still no configuration module, so no stage hash.
 
 **Merging.** `CHANGELOG.md` will conflict with any branch that adds to Unreleased (take both). `docs/cli.md` is generated: run
 `python docs/gen_cli.py` after merging anything that changes a help text or `config defaults`. `tests/test_spdx_headers.py` now has
@@ -136,7 +154,7 @@ no `PENDING` files, so a merged branch that adds an unstamped source file fails 
    line, the owner's own; kept verbatim.
 
 **Protected findings, for after E2** (each would change code E2 runs; evidence in the two notes):
-- **Release-blocking:** E5-02, `gemclean -model-column DATA` (`core/src/gemclean/cli.rs:485`): refuse DATA, rebuild.
+- E5-02 is no longer here: fixed on the branch (`86edab1`) on the coordinator's instruction.
 - **Should-fix, Rust:** E5-30, `gemclean -h` to stdout with exit 0, then update `docs/gen_cli.py`'s `_gemclean_help`, which
   expects exit 2.
 - **Should-fix, refusal quality:** NEW-05 (strategy YAML in flow style or a misspelt task: bare `KeyError`, `core_flag.parse_strategy`
