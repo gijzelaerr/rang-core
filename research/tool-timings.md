@@ -1832,9 +1832,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-11 | E2 dry run b, `rang-core run` e2b shape (flag, calibrate, apply, image IQUV) | the slice above | 480 s of stages (59.7, 311.2, 32.0, 77.3 s) | – | exit 0; shared lock, 6 slots |
 | 2026-11-11 | E2 dry run a, `rang-core run` e2a shape on A1 small | A1 small | first attempt image exit 2 (multiscale: no positive PSF peak at scale 55.2); second (multiscale off) 18.6 s of stages, selfcal 12.4 s | – | exit 0 on the second; shared lock, 4 slots |
 | 2026-11-11 | E2 merged-tree check-all (`maturin develop --release` + `python -m rang.check`), three times | worktree fp-e2-acceptance after merging fp-e2-averaging and origin/main | 1,984 s; 2,058 s; 1,867 s (with queue waits) | – | FAIL (git diff --check on e2b.yaml CRLF; the preflight test's expectation), FAIL (ruff format of the test), PASS: 1,076 passed, 70 skipped |
-| 2026-11-12 | sliced-read `rang-core calibrate`, T arm (`chunk_rows: 7`), before `bd15126` / after `sliced-read` | A1 small (64 ch) | 59.5 / 55.2 s; apply 34.3 / 36.0 s | 0.06 GB both | native Windows, heavy lock exclusive, 1 run each; research/sliced-read.md |
-| 2026-11-12 | the same, T arm | poldx (256 ch) | 147.5 / 68.1 s; apply 56.0 / 51.2 s | 0.24 GB both | native Windows, exclusive |
-| 2026-11-12 | the same, T arm | polholdout (256 ch) | 132.4 / 63.0 s; apply 51.8 / 51.4 s | 0.24 GB both | native Windows, exclusive |
-| 2026-11-12 | the same, D arm (one chunk) | poldx | 5.34 / 5.41 s; apply 4.00 / 4.11 s | 0.27 GB both | native Windows, exclusive |
-| 2026-11-12 | the same, D arm (8 GiB), calibrate K, G, B | `w3.ms` (4096 ch) | 806.7 / 607.9 s | 3.21 GB both | native Windows, exclusive |
-| 2026-11-12 | the same, M arm (4.33 GiB) | `w3.ms` | 1238.2 / 825.0 s | 1.64 GB both | native Windows, exclusive |
+| 2026-11-12 | sliced-read `rang-core calibrate`, T arm (`chunk_rows: 7`), before `bd15126` / after `sliced-read` | A1 small (64 ch) | 59.5 / 55.2 s; apply 34.3 / 36.0 s | 0.06 GiB both | native Windows, heavy lock exclusive, 1 run each; research/sliced-read.md |
+| 2026-11-12 | the same, T arm | poldx (256 ch) | 147.5 / 68.1 s; apply 56.0 / 51.2 s | 0.24 GiB both | native Windows, exclusive |
+| 2026-11-12 | the same, T arm | polholdout (256 ch) | 132.4 / 63.0 s; apply 51.8 / 51.4 s | 0.24 GiB both | native Windows, exclusive |
+| 2026-11-12 | the same, D arm (one chunk) | poldx | 5.34 / 5.41 s; apply 4.00 / 4.11 s | 0.27 GiB both | native Windows, exclusive |
+| 2026-11-12 | the same, D arm (8 GiB), calibrate K, G, B | `w3.ms` (4096 ch) | 806.7 / 607.9 s | 3.21 GiB both | native Windows, exclusive |
+| 2026-11-12 | the same, M arm (4.33 GiB) | `w3.ms` | 1238.2 / 825.0 s | 1.64 GiB both | native Windows, exclusive |

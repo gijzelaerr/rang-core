@@ -140,26 +140,40 @@ channel instead of 256.
 
 ### 5.2 Run -02 and a change of how the arms take the lock (2026-11-12)
 
-`D:\rang\outputs\sliced-read-20261111-02`, `tools/oracles/sliced/all.sh`.
-Run with every arm in its own heavy-lock ticket, as section 4 says. By
-2026-11-12 08:10 the shared arms O, C, P (U, D, T, M) and the timing arms
-C-BT, C-T, P-BT, P-T, P-BD, P-D, W-BD, W-D and W-BM had finished. On the
-coordinator's request, the remaining arms (W-M, the first verdict, H-U, H-D,
-H-M, H-BT, H-T, the last verdict) then ran back to back inside one exclusive
-hold (`heavy_lock.py run -- bash tools/oracles/sliced/batch.sh`), because
-each separate exclusive ticket drained the host's shared jobs first and left
-it at about 14 % CPU. The per-arm W-M ticket was cancelled before it started.
-Each arm still records `heavy_lock.py status` at its start
-(`logs/lock-status.txt`). Post hoc for H-U, H-D and H-M, which section 4 left
-shared: they now run exclusive, which changes none of their outputs; the
-timing protocol of the timed arms is unchanged.
+`D:\rang\outputs\sliced-read-20261111-02`, code `f003d1d` (branch) and
+`bd15126` (base); the SHAs are in `sliced-read-20261111-02.code/head.txt`.
+
+- **Per-arm tickets.** The run started with every arm in its own heavy-lock
+  ticket, as section 4 says. By 2026-11-12 08:10 these had finished:
+  - the shared arms O, C and P (U, D, T, M)
+  - the timing arms C-BT, C-T, P-BT, P-T, P-BD, P-D, W-BD, W-D and W-BM
+- **One exclusive hold.** On the coordinator's request, the remaining arms
+  then ran back to back inside one exclusive hold
+  (`heavy_lock.py run -- "C:/Program Files/Git/bin/bash.exe"
+  tools/oracles/sliced/batch.sh`): W-M, the first verdict, H-U, H-D, H-M,
+  H-BT, H-T and the last verdict. Each separate exclusive ticket had drained
+  the host's shared jobs first and left it at about 14 % CPU.
+  - The per-arm W-M ticket was cancelled before it started.
+  - Each arm still records `heavy_lock.py status` at its start
+    (`logs/lock-status.txt`).
+- **A failed first attempt.** The first attempt of the batch named a bare
+  `bash`. From Python this is WSL's `bash.exe`, so every arm failed to find
+  `run.py` under `/mnt/c` and exited at once, writing nothing. It was rerun
+  under Git Bash by its path, as recorded in `sliced-read-20261111-02.log`.
+- **Post hoc for H-U, H-D and H-M.** Section 4 left them shared; they ran
+  exclusive. This changes none of their outputs, and the timed arms'
+  protocol is unchanged.
 
 ### 5.3 Identity (criteria 1 to 3): pass, 19 of 19
 
-`verdict-1-2.json` (15 checks) and `verdict.json` (19), run -02. Bit-identical
-in every check: calibrate run-directory files, every MS column and flag
-version after calibrate and apply, summaries and exits.
+`verdict-1-2.json` (15 checks) and `verdict.json` (19), run -02, on the
+branch at `f003d1d`, before any merge of origin/main. Bit-identical in every
+check:
+- calibrate run-directory files
+- every MS column and flag version after calibrate and apply
+- summaries and exits
 
+The checks:
 - O, C, P, H: D, T and M on the branch against U (main, unchunked), 12 checks.
 - W: D against B-D, M against B-M, M against D, 3 checks.
 - Reported: the base's own C-BT, P-BD, P-BT and H-BT against U, 4 checks, all
@@ -180,12 +194,16 @@ with none skipped.
 
 ### 5.5 Timings and memory (section 4; criterion 5 passes)
 
-Native Windows on the shared host (16 threads, 63 GB). One run per arm, each
-with the heavy lock held exclusively. At every timed arm's start
-`logs/lock-status.txt` shows the arm's own process as the exclusive owner and
-0 of 16 shared slots in use. Wall time in seconds, peak working set in GB.
+Run -02, the same code as 5.3. Native Windows on the shared host (16 threads,
+63 GB):
+- One run per arm, each with the heavy lock held exclusively.
+- At every timed arm's start `logs/lock-status.txt` shows the arm's own
+  process (or the batch's) as the exclusive owner and 0 of 16 shared slots
+  in use.
+- Wall time is in seconds. Peak working set is in GiB (`rang.rusage`,
+  K32GetProcessMemoryInfo), against the GiB limits.
 
-| Arm | Stage | Before (`bd15126`) | After (branch) | Ratio | Peak before / after |
+| Arm | Stage | Before (`bd15126`) | After (branch) | Ratio | Peak GiB before / after |
 | --- | --- | ---: | ---: | ---: | --- |
 | C T (64 ch) | calibrate | 59.5 | 55.2 | 1.08x | 0.06 / 0.06 |
 | C T | apply | 34.3 | 36.0 | 0.95x | 0.05 / 0.05 |
@@ -200,19 +218,51 @@ with the heavy lock held exclusively. At every timed arm's start
 
 - Peak memory is unchanged in every arm. On W both peaks are within their
   limits (criterion 5).
-- The gain is in calibrate's channel chunks: B, Xf and Df with one or a few
-  channels per chunk.
-- P D and the apply stage do not take the changed path. P D is one chunk.
-  Apply's row blocks read whole channels in `cal_chain`. They move within the
-  host's run-to-run spread, about 10 %.
-- C has 64 channels, so less was re-prepared per chunk; its gain is the
-  smallest.
-- The C T apply figure (0.95x) is one run each, within the same spread.
+- The stages that do not take the changed path differ between their two
+  single runs by up to 9 % (0.95x to 1.09x). These are P D, which is one
+  chunk, and every apply stage, whose row blocks read whole channels in
+  `cal_chain`.
+  - That is the only spread measured; it is not a distribution.
+  - C T calibrate (1.08x, 64 channels) is inside it: no measurable change.
+- The measured gains are in calibrate with channel chunks of B, Xf and Df:
+  - 2.10x and 2.17x on the 256-channel sets
+  - 1.33x (D) and 1.50x (M) on the 4096-channel whole-array set
+
+### 5.6 After merging origin/main
+
+The branch merged origin/main twice: `045cd4c`, then `e973303`, which takes
+main's `calibrate.average_time` and `average_freq` (task E2). Both merges
+were clean except for appended rows in `tool-timings.md`, and neither changed
+the Rust after `d0e29d1`.
+
+Main's averaged solves don't take the sliced path:
+- `cal_chunks.load_averaged` still prepares whole rows, then cuts.
+- `average_freq` solves one frequency bin, so whole-channel chunks.
+
+`tests/test_e2_average_time.py`, `test_e2_average_freq.py`,
+`test_sliced_read.py` and `test_w3b_chainchunks.py` pass on the merged tree:
+153 passed, 2 skipped.
+
+Identity rerun on the merged head `e973303` (run -03, `D:angoutputssliced-read-20261112-03`, one shared hold): O and P, D, T and M against U on the same code, 6 of 6 bit-identical.
+
+Full local check (`python -m rang.check` after `maturin develop --release`,
+heavy lock shared, 8 slots) on `d0e29d1`, after the first merge: overall
+FAIL, on one test. Every other gate passes: fmt, ruff, clippy, cargo tests,
+1271 pytest tests and the gain-hash gate. The test is
+`tests/test_core_ms_write.py::test_the_lock_keeps_a_second_process_out`:
+- No "locked" OSError is raised.
+- It also fails on `bd15126` with the same venv and fixture: "1 failed",
+  reason not inspected there.
+- It runs only because this worktree holds its fixture MS
+  (`outputs/tv-caracal-wsl-20261029-01/original.ms`); without the fixture
+  it skips.
+
+Log: `D:\rang\outputs\sliced-read-20261112-check4.log`. CHECK-HEAD
 
 ## 6. Limits and open points
 
 - One run per arm, as frozen. The ratios are single measurements on a shared
-  host, held exclusively.
+  host held exclusively.
 - On these sets a sliced read saves no disk bytes, because every tile spans
   all channels (section 0).
   - A tile shape that splits channels (for example `[4, 64, n]`) would let a
@@ -220,18 +270,35 @@ with the heavy lock held exclusively. At every timed arm's start
     intersecting tiles.
   - Changing the tile shape that rang writes is not part of this change; it
     is a possible follow-up.
-- W's chunked calibrate is still 10 to 14 min native. What remains is the
-  reads, which decode every tile, and the replay passes. The prepare is no
-  longer the cost.
-- The apply stage still reads whole channels per row block. It was not
-  chunked by channel here, and it was not slow in these arms.
+- W's chunked calibrate is still 10 to 14 min native, and it was not
+  profiled. On poldx (5.1) the reads were the largest remaining share after
+  the change.
+- The apply stage and the time-averaged solves (`load_averaged`) still
+  prepare whole channels per row block. They were not changed here.
 
 **Status: measured.** Criteria 1 to 5 pass. The change is kept.
 
-Full local check (`python -m rang.check` after `maturin develop --release`,
-heavy lock shared, 8 slots), on `d0e29d1` after merging origin/main: all
-gates pass, including the gain-hash gate, except one test:
-`test_the_lock_keeps_a_second_process_out`. It fails the same way on
-`bd15126`. It runs here only because this worktree holds its fixture MS
-(`outputs/tv-caracal-wsl-20261029-01/original.ms`); without it the test
-skips. Log: `D:\rang\outputs\sliced-read-20261112-check4.log`.
+## 7. For the coordinator
+
+- **Branch:** `sliced-read`. Merges of origin/main: `045cd4c`, `e973303`.
+- **Interfaces:**
+  - The apply ABI `ApplyChunkC` gains `nband` and `first_chan`;
+    `cal_apply.apply(..., channels=)` and `rang._core.cal_apply(...,
+    first_chan=0)`.
+  - `MsTable.read`/`MsWriter.read` gain `slice=`; `MsTable.read_rows` and
+    `MsWriter.read_rows` are new.
+  - `getcol(..., chans=)` and `getcol_rows` are new in Python.
+- **E2's worktrees:** main's versions of `cal_chunks`, `cal_gain`, `cal_pol`
+  and `cal_delay` merged cleanly. E2's uncommitted edits in its worktrees may
+  still conflict.
+- **Check:** see 5.6. The lock test is a follow-up; it predates this change.
+- **Kept:**
+  - `D:\rang\outputs\sliced-read-20261111-01-profile`, `-02` (logs, hashes,
+    verdicts, 60 MB; the arms' MS copies removed) and `-03`
+  - `sliced-read-data` (37 MB: O's copy and the strategy)
+  - the check logs
+  - the worktree's ignored `outputs/`, holding copies of five WSL oracle
+    fixtures for the reader's oracle tests
+- **Removed:** the base worktree `sliced-read-base`.
+- **Follow-ups:** tile shapes that split channels (section 6); the Windows
+  lock test.
